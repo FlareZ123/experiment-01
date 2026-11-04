@@ -1,0 +1,586 @@
+{
+  "schema": "agent45-apex-intake-prospective-original-source-design-v1",
+  "registeredUtc": "2026-11-04T00:35:23.287456Z",
+  "source": "actual Python secrets.randbits(32), 20 independently drawn full-unsigned-32-bit seeds, no gameplay inspected",
+  "state": "SEED_REGISTERED_NO_NATIVE_RUN_POLICY_RELEASE_PENDING",
+  "evidencePriority": "falsify or support single pinned Apex Alchemy structural candidate relative to unchanged rank1 reference on 5 original hard clusters, not win-rate estimate",
+  "candidatePrintedSixties": [
+    {
+      "id": "apex-alchemy-v0",
+      "path": "results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json",
+      "gitBlob": "7b8b881acb3e48844f3f42a931cc31d54bf9cf14",
+      "authorCanonicalSha256": "21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769"
+    },
+    {
+      "id": "champion-rank1-reference",
+      "path": "results/aichi-2026/benchmark-shadow-rider.md",
+      "originalSourceRank": 1,
+      "originalPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090"
+    }
+  ],
+  "opponentPrintedSixties": [
+    {
+      "rank": 1,
+      "originalPlayer": "Yasunori Kato",
+      "printed60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090"
+    },
+    {
+      "rank": 2,
+      "originalPlayer": "Takahiro Ando",
+      "printed60Sha256": "dcf96da30eac32196432f547f667d1b807a3c325063b336dbda3eae4fae29c50"
+    },
+    {
+      "rank": 6,
+      "originalPlayer": "Kazuma Kashi",
+      "printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5"
+    },
+    {
+      "rank": 11,
+      "originalPlayer": "Wataru Yano",
+      "printed60Sha256": "d0d46361d79e93b4f4a2da061fed10b474cf5bc10909225983c81acb040d6258"
+    },
+    {
+      "rank": 26,
+      "originalPlayer": "Hibiki Yamada",
+      "printed60Sha256": "07da7009178b63868ef21047982955663ac855bfcd15006e30541d4f90e55e4c"
+    }
+  ],
+  "originalRosterPath": "results/aichi-2026/full-decklists.json",
+  "originalRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "currentDevelopmentRunner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "selectedCommonBilateralPolicy": "PENDING_NO_SELECTED_COMPETITIVE_POLICY",
+  "runtimePolicyMustBeFrozenBeforeDispatch": true,
+  "sourceRanks": [
+    1,
+    2,
+    6,
+    11,
+    26
+  ],
+  "physicalCandidateSeats": [
+    "A",
+    "B"
+  ],
+  "repeats": [
+    0,
+    1
+  ],
+  "numberOfSeedGroups": 20,
+  "numberOfProposedNativeAttempts": 40,
+  "actualNativeAttempts": 0,
+  "sourcePhysicalDealPairing": "UNVERIFIED_UNTIL_POST_STORE_SOURCE_DEAL_FINGERPRINT_AND_STARTER_SEAT_MATCH",
+  "scoreUse": "ZERO_QUALIFIED_GAMES",
+  "preregistrationDoesNotCertifyPaperEffectOrClock": true,
+  "preconditionsBeforeAnyNativeRun": [
+    "new pinned and actually selected single identical two-seat owner-only policy",
+    "real source and candidate frozen printed 60s loaded without unapproved card substitution",
+    "paper Trainer quota and available hand discard costs and prompt validators",
+    "retained full native source-zone and source-deal fingerprint for each candidate pairing",
+    "native versus paper Ability/attack/KO/Prize effect checks and a competent source reply",
+    "actual first-player/draw verification and clock audit separated from native game end"
+  ],
+  "registeredTrialGroups": [
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1102090722
+    },
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3294697210
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1140672102
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 311689966
+    },
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2568553075
+    },
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1901931187
+    },
+    {
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 2816146047
+    },
+    {
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2632339112
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 479378119
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 206868086
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3611122437
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1175892448
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1651058542
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3134778637
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 426977460
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3133577524
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3769190359
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3644264357
+    },
+    {
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1014983743
+    },
+    {
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1789562784
+    }
+  ],
+  "runMatrix": [
+    {
+      "id": "1:0:A:apex-alchemy-v0",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1102090722
+    },
+    {
+      "id": "1:0:A:champion-rank1-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1102090722
+    },
+    {
+      "id": "1:0:B:apex-alchemy-v0",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3294697210
+    },
+    {
+      "id": "1:0:B:champion-rank1-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3294697210
+    },
+    {
+      "id": "1:1:A:apex-alchemy-v0",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1140672102
+    },
+    {
+      "id": "1:1:A:champion-rank1-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1140672102
+    },
+    {
+      "id": "1:1:B:apex-alchemy-v0",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 311689966
+    },
+    {
+      "id": "1:1:B:champion-rank1-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 311689966
+    },
+    {
+      "id": "2:0:A:apex-alchemy-v0",
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 2568553075
+    },
+    {
+      "id": "2:0:A:champion-rank1-reference",
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 2568553075
+    },
+    {
+      "id": "2:0:B:apex-alchemy-v0",
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1901931187
+    },
+    {
+      "id": "2:0:B:champion-rank1-reference",
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1901931187
+    },
+    {
+      "id": "2:1:A:apex-alchemy-v0",
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 2816146047
+    },
+    {
+      "id": "2:1:A:champion-rank1-reference",
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 2816146047
+    },
+    {
+      "id": "2:1:B:apex-alchemy-v0",
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 2632339112
+    },
+    {
+      "id": "2:1:B:champion-rank1-reference",
+      "rank": 2,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 2632339112
+    },
+    {
+      "id": "6:0:A:apex-alchemy-v0",
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 479378119
+    },
+    {
+      "id": "6:0:A:champion-rank1-reference",
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 479378119
+    },
+    {
+      "id": "6:0:B:apex-alchemy-v0",
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 206868086
+    },
+    {
+      "id": "6:0:B:champion-rank1-reference",
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 206868086
+    },
+    {
+      "id": "6:1:A:apex-alchemy-v0",
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3611122437
+    },
+    {
+      "id": "6:1:A:champion-rank1-reference",
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3611122437
+    },
+    {
+      "id": "6:1:B:apex-alchemy-v0",
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1175892448
+    },
+    {
+      "id": "6:1:B:champion-rank1-reference",
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1175892448
+    },
+    {
+      "id": "11:0:A:apex-alchemy-v0",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1651058542
+    },
+    {
+      "id": "11:0:A:champion-rank1-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1651058542
+    },
+    {
+      "id": "11:0:B:apex-alchemy-v0",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3134778637
+    },
+    {
+      "id": "11:0:B:champion-rank1-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3134778637
+    },
+    {
+      "id": "11:1:A:apex-alchemy-v0",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 426977460
+    },
+    {
+      "id": "11:1:A:champion-rank1-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 426977460
+    },
+    {
+      "id": "11:1:B:apex-alchemy-v0",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3133577524
+    },
+    {
+      "id": "11:1:B:champion-rank1-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3133577524
+    },
+    {
+      "id": "26:0:A:apex-alchemy-v0",
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3769190359
+    },
+    {
+      "id": "26:0:A:champion-rank1-reference",
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3769190359
+    },
+    {
+      "id": "26:0:B:apex-alchemy-v0",
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 3644264357
+    },
+    {
+      "id": "26:0:B:champion-rank1-reference",
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 3644264357
+    },
+    {
+      "id": "26:1:A:apex-alchemy-v0",
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1014983743
+    },
+    {
+      "id": "26:1:A:champion-rank1-reference",
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "originalSourceSeat": 1,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1014983743
+    },
+    {
+      "id": "26:1:B:apex-alchemy-v0",
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "apex-alchemy-v0",
+      "seed": 1789562784
+    },
+    {
+      "id": "26:1:B:champion-rank1-reference",
+      "rank": 26,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "originalSourceSeat": 0,
+      "candidateId": "champion-rank1-reference",
+      "seed": 1789562784
+    }
+  ],
+  "endpoints": [
+    "same originally printed opponent and actual physical source deal to enable any paired causal comparison",
+    "genuine owned early Muk evolution and native active or bench board after Boost Shake",
+    "owner actor-visible physical search and payment and Supporter/Item limits",
+    "source opponent first consequential response including real Ability suppressions and meaningful counterplay",
+    "candidate's genuine next paid attack and native Prize settlement",
+    "all no-opportunities, abandoned lines, native errors and action caps retained"
+  ],
+  "comparisonDiscipline": "Do not re-roll seeds to get favorable first player or equal source deals. Track all 40 attempts. Identical PRNG seed does not imply matching source deal across different candidate decks; only classify an actually matching physical source deal and starter as a matched pair. Report unmatched separately without censoring.",
+  "limitations": [
+    "Seed frame is registered but run is intentionally deferred pending selected common playable bilateral policy; there is no current compiled native result.",
+    "No preselected winner or expected win-rate; 40 proposed arms are a small technical falsification panel, not a statistical field estimate.",
+    "Original source rank23/25/28 still unavailable; only five exact originals in this limited selected panel.",
+    "Official Aichi paper clock 25 min, native opponent competence, all card interactions remain unqualified.",
+    "No trial's actual starter seat can be fixed by source registration. Both observed start orders may not be realized.",
+    "The selected count of five source hard clusters gives no unbiased full-field estimate."
+  ],
+  "competitivelyQualifiedGames": 0,
+  "target995PercentProven": false
+}
