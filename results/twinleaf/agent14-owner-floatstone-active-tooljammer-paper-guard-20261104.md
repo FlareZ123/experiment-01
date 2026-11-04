@@ -19,7 +19,20 @@ This correction does not inspect hidden decks, opposing hand, Prize identities, 
 - Updated source: `simulation/twinleaf/agent1-owner-float-stone-mobility.cjs`; first change commit [30400e25](https://github.com/FlareZ123/experiment-01/commit/30400e25ac461a6cc16cba669dc3b1d8e91dbf37).
 - Pure regression: `tests/agent1-owner-float-stone-mobility.test.cjs`; [43c501db](https://github.com/FlareZ123/experiment-01/commit/43c501dbbad6c2726227562599cdb03f503c72c3).
 - Existing **manually dispatched** four-minute workflow `.github/workflows/agent14-source-mobility-census.yml` now runs this policy's regression beside Agent6's existing Skyliner/Tool-Jammer suite; [796042d0](https://github.com/FlareZ123/experiment-01/commit/796042d0c7fa92885f8ee321c33d87d517fafaf2).
-- Manual workflow dispatch [41879002047](https://github.com/FlareZ123/experiment-01/actions/runs/41879002047), submitted against HEAD `796042d0`. **Status at report composition: queued; independent compiled CI PASS is not yet claimed.**
+- Manual workflow dispatch [41879002047](https://github.com/FlareZ123/experiment-01/actions/runs/41879002047), submitted against HEAD `796042d0`. **Completed successfully, 4 November 2026 at 17:45 UTC, against pre-v3 commit 796042d0.** This success covers the earlier Tool Jammer v2 and other included regression suites; it cannot certify the subsequent public-cost v3 tests.
+
+
+## Additional public retreat-cost correction (same owner helper, 4 November)
+
+A second issue emerged while reviewing Rulebook **D-11, D-12, D-13**: printed zero Retreat Cost is not sufficient by itself when an applicable publicly visible effect adds a retreat requirement. This matters even though the main 29-list original field does not include the three extra cards tested below. The owner-specific pure selector now treats these precise printed sources as positive modifiers:
+
+- **Galar Mine RCL**: the Stadium increases both Active Pokémon's Retreat Costs by two Colorless.
+- **Spidops ex SVI, Trap Territory**: the opponent's Active has an additional Colorless Retreat Cost while this Ability is effective.
+- **Ariados TWM, Big Net**: the opponent's Active Evolution Pokémon has an additional Colorless Retreat Cost while this Ability is effective.
+
+The added `knownRetreatIncrease(view,catalog)` predicate reads the public Stadium, opposing face-up Pokémon printing/Abilities, and the current owner's printed Stage. If any known modifier applies, printed zero no longer certifies a natural free retreat. The selector offers a held Float Stone where otherwise permissible and accepts an already-attached unsuppressed Float Stone, whose explicit *no Retreat Cost* wording prevails under Rulebook D-13. Where opposing Ability lock might disable these modifiers, the conservative predicate may decline an actually payable natural retreat. This is a deliberately bounded negative gate and **not** a general effective-Retreat-Cost solver.
+
+[Source revision ab814024](https://github.com/FlareZ123/experiment-01/commit/ab8140241361611c3d2f13b39f7ee6d50eefe869) and [new pure tests 340c650b](https://github.com/FlareZ123/experiment-01/commit/340c650b4fca569b6d837c8a01adedd6c8ab2a70), with an isolated stage-enum fixture correction [3ffc950f](https://github.com/FlareZ123/experiment-01/commit/3ffc950f1e423cc4261d5d08117df99f2cdcf088). Existing manual workflow was re-dispatched after these commits, with results to be recorded separately.
 
 ## Integration boundaries
 
