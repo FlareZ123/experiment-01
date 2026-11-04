@@ -35,6 +35,17 @@ An independently frozen [16-attempt real Store probe](../../tests/agent4-owner-b
 
 A separately labelled **prospective 32-seed extension**, `20261134` through `20261165`, was committed after observing this red eight-seed result and queued independently. Those later seeds cannot retroactively make the first preregistration green. The value of the first run is the direct same-Store positive physical `min=0` receipt for one seat, together with transparent lack of coverage in the other.
 
+## Deterministic native setup replay: exact first-cohort prediction, held-out extension queued
+
+The [pinned headless RNG and exact setup-reducer reconstruction](../../simulation/evaluation/agent4-bonus-bench-native-seed-replay.cjs), with [four frozen tests](../../tests/agent4-bonus-bench-native-seed-replay.test.cjs), independently reproduces the **binary `min=0` occurrence sequence on all 16 first-cohort actual original Store runs**:
+
+- Source seat 0, seeds `20261126` through `20261133`: `1,0,1,0,1,0,1,0`.
+- Source seat 1, same seeds: `0,0,0,0,0,0,0,0`.
+
+The pure model consumes the pinned xorshift32 first-coin sample, two genuine Fisher-Yates 60-index shuffles, both-invalid simultaneous mulligans, one-player repeat mulligans, exactly-one eligible Basic starting Active selection, six physical Prizes, and the chosen maximal optional compensation draw. Basic source-index masks come from [Agent32's printed-card subtype verifier](../../simulation/evaluation/agent32-adp-field-mulligan-offers.cjs). The result matches the red 16-run original Store log **16/16 exact per-seed binary outcomes**, strengthening the causal account of the asymmetric eight-seed sample. This is a retrospective exact replay, not an independently randomized empirical confidence statement.
+
+Before execution of the separately queued 32-seed-per-seat extension, we froze the pure-replay predictions as **12 / 32** additional `min=0` prompts on rank6 source seat 0 and **16 / 32** on source seat 1. The prospective comparison may falsify this reproduction and must retain all negative cases. The deterministic replay necessarily has access to the source physical card ordering *after gameplay* for research validation; none of these hidden indices are exposed to the owner policy. The 32-bit seeded shuffle is not claimed to provide independent paper marginals.
+
 ## Source-derived reoffer nuance and exact independent-paper lower bound
 
 The pinned `allowExtraBenchPlacement` helper searches **all eligible Basics still in the owner's current hand** after an optional bonus draw. This includes valid additional Basics deliberately kept in hand by the earlier one-Basic initial setup choice. It does **not** restrict the next prompt to cards first obtained in the bonus draw. That is compatible with the manual's permission to add Bench Basics until the game begins, and is strategically relevant: even when bonus draws find no new Basic, a player with an initially retained second Basic can receive the optional `min=0` choice.
