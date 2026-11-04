@@ -9,6 +9,7 @@ const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 // Process-private key: v8 policy A/B must run in one Node process to compare.
 // A public, unkeyed hash of a seven-card hand is brute-force recoverable.
 const processSecret=randomBytes(32);
+const processSessionId=randomBytes(16).toString('hex');
 const privateFingerprint=bytes=>createHmac('sha256',processSecret)
   .update(bytes).digest('hex');
 
@@ -25,7 +26,8 @@ const privateFingerprint=bytes=>createHmac('sha256',processSecret)
  *
  * @template T
  * @param {()=>T} run Synchronous pinned native Store experiment.
- * @param {{engine?:(s:string)=>object,maxEvents?:number}} [deps]
+ * @param {{engine?:(s:string)=>object,maxEvents?:number,
+ *   headless?:object,expectedTrialIds?:string[]}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withSetupPrechoicePrivateFingerprint(run,deps={}){
@@ -45,6 +47,27 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
   assert.equal(priorBot.configurable,true);
   assert.equal(priorStore.configurable,true);
   const maxEvents=deps.maxEvents??40;
+  const exactTrialIds=deps.expectedTrialIds??null;
+  const idSet=exactTrialIds?new Set(exactTrialIds):null;
+  assert.ok(idSet===null||(idSet.size===exactTrialIds.length&&
+    exactTrialIds.every(id=>typeof id==='string'&&id.length>0)));
+  const headless=idSet?(deps.headless??require('./headless.cjs')):null;
+  const priorRun=headless?Object.getOwnPropertyDescriptor(headless,'runMatch'):null;
+  if(headless)assert.equal(typeof priorRun?.value,'function');
+  let activeTrialId=null;
+  let activeNativeRun=false;
+  const labelPrefix='agent41-bilateral-v2-common-policy-development-';
+  function observeHeadlessMatch(options,...args){
+    assert.equal(activeNativeRun,false,'Nested Store invocation lacks unique trial');
+    assert.ok(options&&typeof options.label==='string');
+    assert.ok(options.label.startsWith(labelPrefix));
+    const id=options.label.slice(labelPrefix.length);
+    assert.ok(idSet.has(id),'Native Store label is not a registered trial');
+    activeTrialId=id;
+    activeNativeRun=true;
+    try{return priorRun.value.apply(this,[options,...args]);}
+    finally{activeNativeRun=false;activeTrialId=null;}
+  }
   assert.ok(Number.isSafeInteger(maxEvents)&&maxEvents>=16);
   const stores=new WeakMap();
   let lastRealStore=null;
@@ -56,6 +79,8 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     duplicateOwnerPromptsOmitted:0,
     events:[],
     eventLimit:maxEvents,
+    privateFingerprintSessionId:processSessionId,
+    registeredNativeTrialLabelWitnessSelected:idSet!==null,
     hiddenCardNamesOrOrderPublished:false,
     fingerprintScheme:'HMAC-SHA256; secret unique to process, never serialized',
     comparableOnlyInsideOneNodeProcess:true,
@@ -74,7 +99,8 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
   };
   function dispatch(action,...args){
     if(action instanceof AddPlayerAction&&!stores.has(this)){
-      const info={ordinal:++storeCount,seenSeats:new Set()};
+      const info={ordinal:++storeCount,seenSeats:new Set(),
+        trialId:activeTrialId};
       stores.set(this,info);
       audit.exactNativeStoreRootsRecorded=storeCount;
     }
@@ -108,6 +134,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
           audit.firstOwnerSetupInputsObserved++;
           if(audit.events.length<maxEvents)audit.events.push({
             nativeStoreOrdinal:info.ordinal,
+            registeredNativeTrialId:info.trialId,
             physicalOwnerSeat:ownerSeat,
             firstBeforeAnyOwnerSetupChoice:true,
             ownerHandCount:hand.length,
@@ -122,6 +149,9 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     }
     return priorBot.value.call(this,state);
   }
+  if(headless)Object.defineProperty(headless,'runMatch',{
+    ...priorRun,value:observeHeadlessMatch
+  });
   Object.defineProperty(Store.prototype,'dispatch',{
     ...priorStore,value:dispatch
   });
@@ -139,6 +169,10 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
       };
     throw error;
   }finally{
+    if(headless){
+      assert.strictEqual(headless.runMatch,observeHeadlessMatch);
+      Object.defineProperty(headless,'runMatch',priorRun);
+    }
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
     Object.defineProperty(SimpleTacticsAi.prototype,
       'decodeNextAction',priorBot);
