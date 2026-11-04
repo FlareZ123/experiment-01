@@ -94,7 +94,7 @@ function auditReadOnlyReplay(executed,prereg){
       field,observed[field]===base[field]
     ]));
     const rawOwnerAuditPresent=ownerAudit!==null;
-    const observerReadOnly=ownerAudit?.readOnly??null;
+    const observerReadOnly=ownerAudit?.summary?.readOnly??null;
     return {
       id:base.id,rank:Number(base.id.split(':')[0]),
       baselineExactChecks:checks,
@@ -148,6 +148,9 @@ function auditReadOnlyReplay(executed,prereg){
     actualRunnerSourceIndependent:manifest.actualRunnerConfirmedOption===true,
     actualObservedOwnerTrainerFlag:rawRows.every(row=>
       row.actorOnlyDecisionCoverage?.ownerGenericTrainerFrontierOptIn===true),
+    actualObservedOwnerTrainerFlagOnUnabortedRows:rawRows.every(row=>
+      row.status==='engine-error'|| 
+      row.actorOnlyDecisionCoverage?.ownerGenericTrainerFrontierOptIn===true),
     actualObservedPowerWindowFlag:rawDevelopment?.nativePressureWindowsOptIn??null,
     rows,
     gates:{
@@ -156,6 +159,12 @@ function auditReadOnlyReplay(executed,prereg){
         row.allBaselineNativeFieldsEqual),
       observedOwnerTrainerCensusAllEight:rows.every(row=>
         row.ownerTrainerFrontier.observed===true),
+      observedOwnerTrainerCensusOnUnabortedRows:rows.every(row=>
+        row.nativeDisposition==='engine-error'||
+        row.ownerTrainerFrontier.observed===true),
+      independentAbortObserverEvidenceUnavailable:rows.some(row=>
+        row.nativeDisposition==='engine-error'&&
+        row.ownerTrainerFrontier.observed!==true),
       anyOriginalSourcePaperLegalTrainerCertified:false,
       passiveLockTacticalPressureCertified:false,
       ownerPolicyNoninterferenceCertified:false,
