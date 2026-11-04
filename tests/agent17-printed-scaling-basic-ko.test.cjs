@@ -10,7 +10,7 @@ const catalog = {
   basicEnergyTypes: {Psychic:5,Darkness:7}
 };
 const GEIST = {name:'Max Geist',damage:10,cost:[10,10,10],gxAttack:false,
-  text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'};
+  text:'This attack does 30 more damage for each [P] Energy attached to all of your Pokémon.'};
 const first = {kind:'attack',attackName:'Max Geist'};
 
 function state() {
@@ -34,6 +34,8 @@ test('printed Max Geist scaling is recognized, unrelated attack text fails close
   assert.equal(printedAllPokemonEnergyScaling({...GEIST,
     text:'Do 30 damage for each Psychic Energy in the discard pile.'}),null);
   assert.equal(printedAllPokemonEnergyScaling({...GEIST,damage:'10+'}),null);
+  assert.equal(printedAllPokemonEnergyScaling({...GEIST,
+    text:'This attack does 30 more damage for each [P] Energy attached to all of your Pokémon. Then discard a card.'}),null);
 });
 
 test('source rank1 100-to-130 printed threshold selects a Bench attachment',() => {
@@ -102,7 +104,9 @@ test('exact original rank1 and card printing support the constructed damage',() 
   const max=printed.attacks.find(attack=>attack.name==='Max Geist');
   assert.deepEqual(max.cost,['Colorless','Colorless','Colorless']);
   assert.equal(max.damage,'10+');
-  assert.equal(max.text,GEIST.text);
+  assert.equal(max.text,'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.');
+  assert.deepEqual(printedAllPokemonEnergyScaling({...GEIST,text:max.text}),{
+    energyType:'Psychic',damagePerUnit:30,baseDamage:10});
 });
 
 
