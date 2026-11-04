@@ -1,6 +1,15 @@
 name: Agent14 floatstone mobility response validation
 on:
   workflow_dispatch:
+    inputs:
+      experiment:
+        description: "Select the preserved rank11 replay or isolated new generic staged test"
+        type: choice
+        required: true
+        default: rank11-replay
+        options:
+          - rank11-replay
+          - generic-funded-floatstone
 permissions:
   contents: read
 jobs:
@@ -10,9 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate registration
+        if: inputs.experiment == 'rank11-replay'
         run: node -e "require('./simulation/evaluation/agent14-native-floatstone-reply-falsification.cjs').preflight()"
       - name: Regression
+        if: inputs.experiment == 'rank11-replay'
         run: node --test tests/agent14-native-floatstone-reply-falsification.test.cjs
+      - name: Pure generic owner-policy regression
+        if: inputs.experiment == 'generic-funded-floatstone'
+        run: node --test tests/agent14-generic-funded-floatstone-frontier.test.cjs
       - name: Pinned submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
@@ -27,8 +41,12 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute paired native falsification
+        if: inputs.experiment == 'rank11-replay'
         run: node simulation/evaluation/agent14-native-floatstone-reply-falsification.cjs
-      - if: always()
+      - name: Real two-seat multi-family generic funded mobility
+        if: inputs.experiment == 'generic-funded-floatstone'
+        run: node --test tests/agent14-generic-funded-floatstone-frontier.native.test.cjs
+      - if: always() && inputs.experiment == 'rank11-replay'
         uses: actions/upload-artifact@v4
         with:
           name: agent14-rank11-native-catcher-floatstone-two
