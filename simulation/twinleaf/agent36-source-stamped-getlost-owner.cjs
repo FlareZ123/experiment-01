@@ -20,6 +20,9 @@ const OUTPUT=path.resolve(__dirname,
  */
 function withSourceStampedGetLostOwner(run,deps={}){
   assert.equal(typeof run,'function');
+  // Optional source-independent bilateral release: each registered match has
+  // its own root Store. Default one-Store behavior remains unchanged.
+  const followSequentialNativeStores=deps.followSequentialNativeStores===true;
   const engine=deps.engine??(p=>require(path.join(OUTPUT,p)));
   const {Girafarig}=engine(
     'sets/08-sun-and-moon/set-lost-thunder/girafarig');
@@ -40,7 +43,9 @@ function withSourceStampedGetLostOwner(run,deps={}){
   assert.equal(typeof dispatchDesc?.value,'function');
   const sourceTags=new WeakMap(),selected=new WeakMap();
   let liveStore=null;
+  const registeredStores=new WeakSet();
   const audit={version:VERSION,sourceReducerInvocations:0,
+    followSequentialNativeStores,registeredNativeStores:0,
     printedSourcePromptMarks:0,reducedInsufficientDiscardPrompts:0,
     emptyOpponentDiscardPrompts:0,actualOwnerSelections:0,
     acceptedStoreActions:0,postDispatchPublicDiscardDepletions:0,
@@ -114,7 +119,14 @@ function withSourceStampedGetLostOwner(run,deps={}){
   }
 
   function dispatch(action,...args){
-    if(action instanceof AddPlayerAction&&!liveStore)liveStore=this;
+    if(action instanceof AddPlayerAction&&
+       (!liveStore||followSequentialNativeStores)){
+      if(followSequentialNativeStores&&!registeredStores.has(this)){
+        registeredStores.add(this);
+        audit.registeredNativeStores++;
+      }
+      liveStore=this;
+    }
     const witness=selected.get(action);
     if(!witness||this!==liveStore)
       return dispatchDesc.value.apply(this,[action,...args]);
