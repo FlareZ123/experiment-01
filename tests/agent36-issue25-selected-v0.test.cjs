@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {VERSION,SELECTED_OUTER_TO_INNER,runSelectedIssue25V0}=
+const {VERSION,SELECTED_OUTER_TO_INNER,reconcileRegisteredAttempts,runSelectedIssue25V0}=
   require('../simulation/evaluation/agent36-issue25-selected-v0.cjs');
 
 test('actual selected profile enforces exactly one ordered closure and fixed 48-root options',()=>{
@@ -56,4 +56,27 @@ test('fail-closed wrapper error cannot be counted as a native return or a win',(
   assert.equal(out.diagnostic.fallbackCalls,1);
   assert.equal(out.manifest.releaseQualified,false);
   assert.equal(out.diagnostic.competitiveGamesQualified,0);
+});
+
+test('Critic registered attempt identity gate detects count-equal swapped and duplicated rows',()=>{
+  const expected=['r6:ref','r6:newmoon','r11:ref','r11:newmoon'];
+  const matched=reconcileRegisteredAttempts(expected,[...expected].reverse());
+  assert.equal(matched.exactUniqueMatch,true);
+  assert.equal(matched.missing.length,0);
+  const swapped=reconcileRegisteredAttempts(expected,[
+    'r6:ref','r6:newmoon','r11:ref','different'
+  ]);
+  assert.equal(swapped.expectedCount,swapped.returnedCount);
+  assert.equal(swapped.exactUniqueMatch,false);
+  assert.deepEqual(swapped.missing,['r11:newmoon']);
+  assert.deepEqual(swapped.unexpected,['different']);
+  const duplicate=reconcileRegisteredAttempts(expected,[
+    'r6:ref','r6:newmoon','r11:ref','r11:ref'
+  ]);
+  assert.equal(duplicate.exactUniqueMatch,false);
+  assert.deepEqual(duplicate.duplicateReturned,['r11:ref']);
+  assert.deepEqual(duplicate.missing,['r11:newmoon']);
+  const missing=reconcileRegisteredAttempts(expected,expected.slice(0,2));
+  assert.equal(missing.exactUniqueMatch,false);
+  assert.equal(missing.returnedCount,2);
 });
