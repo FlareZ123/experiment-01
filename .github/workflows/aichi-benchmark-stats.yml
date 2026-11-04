@@ -115,6 +115,11 @@ on:
           - '2'
           - '3'
         default: none
+      agent16_issue25_vip_native:
+        description: 'One frozen 8-arm original rank6/11 v6 replay with one owner-safe first-turn VIP after Pass, retrospective only'
+        required: false
+        type: boolean
+        default: false
       agent16_rank16_natural_source:
         description: 'Eight prospective exact rank16 source physical deals, both unchanged candidate 60s, owner first-turn lock-fork observation only'
         required: false
@@ -1040,3 +1045,36 @@ jobs:
           path: agent4-owner-paper-native-parity.json
           retention-days: 30
           if-no-files-found: warn
+
+  agent16-issue25-v10-vip-native:
+    if: ${{ inputs.agent16_issue25_vip_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore exact pinned native Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Compile printed card actions and native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Verify nonchanging eight-arm registration and VIP layer assertions
+        run: node --test tests/agent16-issue25-owner-vip-mirrored-v10.test.cjs tests/agent1-issue25-mirrored-r6-r11-v6.test.cjs
+      - name: Execute paired original 8-arm VIP owner-root intervention on the real Store
+        env:
+          AGENT16_ISSUE25_VIP_RECEIPT: agent16-issue25-v10-vip-native.json
+        run: node --test tests/agent16-issue25-owner-vip-mirrored-v10.native.test.cjs
+      - name: Preserve every native original arm and all nonterminal/error outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent16-issue25-v10-vip-8originals
+          path: agent16-issue25-v10-vip-native.json
+          if-no-files-found: warn
+          retention-days: 30
