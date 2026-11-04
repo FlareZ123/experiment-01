@@ -72,7 +72,9 @@ function runFirstOwnerDecoderPanel(deps={}) {
         };
         const withWait=()=>{
           if(deps.ownerPhaseWait!==true)return withShowCards();
-          const installed=ownerWait(withShowCards);
+          const installed=ownerWait(withShowCards,{
+            allowVisualAttackWait:deps.ownerAttackVisualWait===true
+          });
           ownerWaitAudit=installed.audit;
           return installed.result;
         };
@@ -118,6 +120,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerPhaseWaitEnabled:deps.ownerPhaseWait===true,
       ownerNonvisualWaitsHandled:ownerWaitAudit?.nativePendingWaitHandled??null,
       ownerNonvisualWaitBySeat:ownerWaitAudit?.bySeat??null,
+      ownerAttackVisualWaits:ownerWaitAudit?.visualAttackWaitHandled??null,
       ownerWaitDecisions:ownerWaitAudit?.records??[],
       ownerShowCardsAckEnabled:deps.ownerShowCardsAck===true,
       ownerShowCardsAcknowledged:ownerShowCardsAudit?.showCardsAcknowledged??null,
@@ -167,6 +170,7 @@ if(require.main===module)
     ownerSetupConfirm:process.argv.includes('--owner-setup-confirm'),
     ownerSetupBasics:process.argv.includes('--owner-setup-basics'),
     ownerPhaseWait:process.argv.includes('--owner-phase-wait'),
+    ownerAttackVisualWait:process.argv.includes('--owner-attack-visual-wait'),
     ownerShowCardsAck:process.argv.includes('--owner-showcards-ack')
   }),null,2)+'\n');
 
