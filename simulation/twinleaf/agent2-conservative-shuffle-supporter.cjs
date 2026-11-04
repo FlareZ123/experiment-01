@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent2-actor-only-conservative-shuffle-supporter-v2-unknown-opponent-return';
+const VERSION='agent2-actor-only-conservative-shuffle-supporter-v3-partial-opponent-draw';
 const FAMILY=Object.freeze([
   {prefix:"Lillie's Determination ",kind:'lillie',
     maxOwnHand:3,minDrawAdvantage:3},
@@ -82,14 +82,17 @@ function enumerateConservativeShuffleSupporterOffers(view){
       if(!counts||counts.ownDraw===null||counts.ownDraw<=0||
           counts.ownDraw>ownDeckAfterReturn)
         continue;
-      if(family.kind!=='lillie'&&
-        (counts.opponentDraw>opponentDeckAfterReturn||
-         opponent.prizeCount<=0))continue;
+      if(family.kind!=='lillie'&&opponent.prizeCount<=0)continue;
       if(family.kind==='iono'&&counts.ownDraw<4)continue;
-      // Marnie and Iono can increase the opponent's hand. Penalize that
-      // public opportunity; do not reward purely speculative disruption.
-      const opponentGain=family.kind==='lillie'?0:
-        Math.max(0,counts.opponentDraw-opponent.handCount);
+      // Printed opponent draw is a request, not an eligibility minimum:
+      // when fewer cards are available, that player draws what remains.
+      // An opponent with no deck and no hand may draw zero. Hand protection
+      // can reduce actual returned cards, so this upper bound is deliberately
+      // conservative without consulting hidden card identities.
+      const opponentMaxActualDraw=family.kind==='lillie'?0:
+        Math.min(counts.opponentDraw,opponentDeckAfterReturn);
+      const opponentGain=Math.max(0,
+        opponentMaxActualDraw-opponent.handCount);
       const ownGain=counts.ownDraw-hand.length;
       const score=ownGain-opponentGain;
       if(score<family.minDrawAdvantage)continue;
