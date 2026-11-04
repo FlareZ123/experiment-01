@@ -30,35 +30,43 @@ function runFirstOwnerDecoderPanel(deps={}) {
     require('./agent41-bilateral-v2-development.cjs').runDevelopment;
   const guard=deps.quarantine??withNativeRawStateFallbackQuarantine;
   const {profile,trials,codeProvenance}=preflight(deps.pinNative!==false);
-  const control=trials.filter(t=>t.candidateId==='champion-reference');
-  const selected=['A','B'].map(slot=>
-    control.find(t=>t.candidateSlot===slot));
-  assert.ok(selected.every(Boolean),'Original source seats A and B required');
-  assert.notEqual(selected[0].seed,selected[1].seed,
+  const grouped=['A','B'].map(slot=>trials.filter(t=>
+    t.candidateSlot===slot && t.repeat===0));
+  assert.ok(grouped.every(g=>g.length===2 &&
+    g.some(t=>t.candidateId==='champion-reference') &&
+    g.some(t=>t.candidateId==='new-moon-lockbreaker-v1')),
+    'Both source seats need original registered candidate pairs');
+  assert.notEqual(grouped[0][0].seed,grouped[1][0].seed,
     'This panel requires two distinct historical registered seeds');
 
-  const attempts=selected.map(trial=>{
+  const attempts=grouped.map(pair=>{
     let audit=null;
     let status='NO_RAW_DECODER_CALL_OBSERVED_UNQUALIFIED';
     let returnedRows=0;
+    let errorName=null,errorMessage=null;
     try {
       const wrapped=guard(()=>runner({
         ...profile.selectedPolicyOptions,
-        registeredTrials:[trial],registeredFrameName:VERSION,
+        registeredTrials:pair,registeredFrameName:VERSION,
         allowAdditionalOriginalSourceRanks:
           profile.allowAdditionalOriginalSourceRanks
       }),{maxRecords:4});
       audit=wrapped.audit;
       returnedRows=wrapped.result?.rows?.length??0;
-      assert.equal(wrapped.result?.attempted,1);
-      assert.equal(returnedRows,1);
+      assert.equal(wrapped.result?.attempted,2);
+      assert.equal(returnedRows,2);
     }catch(error) {
       audit=error?.nativeRawStateFallbackQuarantine??null;
       status=error?.code===CODE?
         CODE:'OTHER_NATIVE_OR_PREFLIGHT_ERROR';
+      errorName=error?.name??null;
+      errorMessage=typeof error?.message==='string'?
+        error.message.slice(0,240):null;
     }
     return {
-      trialId:trial.id,sourceSeat:trial.candidateSlot==='A'?1:0,
+      registeredTrialIds:pair.map(t=>t.id),
+      sourceSeat:pair[0].candidateSlot==='A'?1:0,
+      errorName,errorMessage,
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
@@ -86,6 +94,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     vendorPinnedRevision:profile.pinnedVendorRevision,
     codeProvenance:codeProvenance??null,
     originalRegisteredPhysicalSeats:[1,0],
+    originalRegisteredCandidateArms:4,
     attempts,
     gameWinRateVerified:false,
     competitivelyQualifiedGames:0,
