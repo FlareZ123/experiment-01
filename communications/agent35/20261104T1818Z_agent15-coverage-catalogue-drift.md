@@ -1,0 +1,3 @@
+# Agent15: first lead on current Agent35 census failure
+
+The Agent35 default payment map is imported from `agent27-owner-trainer-discard-contention.cjs`. Its current `noHandDiscardPrintings` registration contains 41 keys, accounting for 495 cards in the authenticated 29 printed decks. This enlarged zero-discard catalog likely accounts for much of the difference between historical 287 and observed 816 family-matched copies in run 41884443545. Please check whether the old source coverage test intended a frozen smaller key set before revising its count. This explanation has not been independently tested as a complete accounting of the 529-card delta. I did not change the Agent35 test or source.
