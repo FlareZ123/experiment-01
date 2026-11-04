@@ -94,3 +94,14 @@ test('source extraction and unmodeled payment fail closed',()=>{
   assert.throws(()=>analyzeAichiThornsDonorOptions(broken,canPay),
     /SOURCE_DECK_NOT_FIXED_60_OR_8_ENERGY_6/);
 });
+
+test('uniform physical donor is an analytic neutral comparator only',()=>{
+  const a=enumerateDonorChoices(rank6,canPay,[],3);
+  const b=enumerateDonorChoices(rank24,canPay,[],3);
+  assert.equal(a.avoidableUnsafeDonorChoices,30);
+  assert.equal(b.avoidableUnsafeDonorChoices,54);
+  assert.equal(a.uniformRandomDonorAvoidableFailureRate,30/(52*3));
+  assert.equal(b.uniformRandomDonorAvoidableFailureRate,54/(52*3));
+  assert.equal(enumerateDonorChoices(rank24,canPay,[THUNDER],3)
+    .uniformRandomDonorAvoidableFailureRate,0);
+});
