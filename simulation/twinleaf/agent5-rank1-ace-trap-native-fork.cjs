@@ -78,7 +78,7 @@ function withRank1AceTrapFork(execute,mode,deps={}){
     return {
       candidatePrizes:cand.prizeCount,sourcePrizes:source.prizeCount,
       candidateBench:cand.bench.filter(Boolean).length,
-      sourceBench:cand.bench.filter(Boolean).length,
+      sourceBench:source.bench.filter(Boolean).length,
       sourceActive:source.active?.printing??null,
       sourceBench3:source.bench[3]?.printing??null,
       sourceBench3Tools:source.bench[3]?.tools??[],
@@ -117,7 +117,7 @@ function withRank1AceTrapFork(execute,mode,deps={}){
       throw new Error('Expected source Bench3 VMAX target absent at '+stage);
     }
     const candidate=[one];
-    assert.equal(prompt.validate(candidate),true,
+    assert.equal(prompt.validate(candidate,state),true,
       'Printed target was not accepted by native prompt');
     const action=new ResolvePromptAction(prompt.id,candidate);
     proposals.set(action,{kind:stage===1?'tool-target':'catcher-target',
