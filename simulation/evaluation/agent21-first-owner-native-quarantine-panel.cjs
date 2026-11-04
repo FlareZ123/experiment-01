@@ -13,7 +13,7 @@ const VERSION='agent21-first-native-owner-decoder-quarantine-panel-v1';
 /**
  * Examine the earliest inherited raw-State decoder delegation under an
  * original rank-5 source on each real physical seat. This is a deliberately
- * fail-closed two-trial *historical* diagnostic, not a selected policy release.
+ * fail-closed four-arm *historical* diagnostic, not a selected policy release.
  *
  * The exact original registered source 60, profile and vendor pins remain
  * fixed. Both trials have different registered physical deals, so the panel
@@ -22,6 +22,7 @@ const VERSION='agent21-first-native-owner-decoder-quarantine-panel-v1';
  *
  * @param {{preflight?:Function,runner?:Function,quarantine?:Function,
  *   ownerSetup?:Function,ownerSetupConfirm?:boolean,
+ *   ownerStarting?:Function,ownerSetupBasics?:boolean,
  *   pinNative?:boolean}} [deps] Controlled pure-test seams.
  * @returns {object} Bounded non-secret first-blocker evidence.
  */
@@ -32,6 +33,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
   const guard=deps.quarantine??withNativeRawStateFallbackQuarantine;
   const ownerSetup=deps.ownerSetup??require('../twinleaf/agent21-owner-setup-go-first-confirm.cjs')
     .withOwnerSetupGoFirstConfirm;
+  const ownerStarting=deps.ownerStarting??require('../twinleaf/agent21-owner-setup-starting-basics.cjs')
+    .withOwnerSetupStartingBasics;
   const {profile,trials,codeProvenance}=preflight(deps.pinNative!==false);
   const grouped=['A','B'].map(slot=>trials.filter(t=>
     t.candidateSlot===slot && t.repeat===0));
@@ -47,6 +50,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     let status='NO_RAW_DECODER_CALL_OBSERVED_UNQUALIFIED';
     let returnedRows=0;
     let errorName=null,errorMessage=null,ownerSetupAudit=null;
+    let ownerStartingAudit=null;
     try {
       const execute=()=>runner({
         ...profile.selectedPolicyOptions,
@@ -55,8 +59,14 @@ function runFirstOwnerDecoderPanel(deps={}) {
           profile.allowAdditionalOriginalSourceRanks
       });
       const wrapped=guard(()=>{
-        if(deps.ownerSetupConfirm!==true)return execute();
-        const installed=ownerSetup(execute);
+        const withBasics=()=>{
+          if(deps.ownerSetupBasics!==true)return execute();
+          const installed=ownerStarting(execute);
+          ownerStartingAudit=installed.audit;
+          return installed.result;
+        };
+        if(deps.ownerSetupConfirm!==true)return withBasics();
+        const installed=ownerSetup(withBasics);
         ownerSetupAudit=installed.audit;
         return installed.result;
       },{maxRecords:4});
@@ -67,6 +77,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     }catch(error) {
       audit=error?.nativeRawStateFallbackQuarantine??null;
       ownerSetupAudit=error?.agent21OwnerGoFirstAudit??ownerSetupAudit;
+      ownerStartingAudit=error?.agent21OwnerStartingAudit??ownerStartingAudit;
       status=error?.code===CODE?
         CODE:'OTHER_NATIVE_OR_PREFLIGHT_ERROR';
       errorName=error?.name??null;
@@ -81,6 +92,10 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerGoFirstHandled:ownerSetupAudit?.ownerGoFirstHandled??null,
       ownerGoFirstBySeat:ownerSetupAudit?.ownerGoFirstBySeat??null,
       ownerSetupDecisions:ownerSetupAudit?.records??[],
+      ownerStartingBasicsEnabled:deps.ownerSetupBasics===true,
+      ownerStartingBasicSelections:ownerStartingAudit?.setupBasicSelections??null,
+      ownerStartingBySeat:ownerStartingAudit?.bySeat??null,
+      ownerStartingDecisions:ownerStartingAudit?.records??[],
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
@@ -100,6 +115,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     schema:VERSION,
     actualSelectedCommonPolicyRelease:false,
     exactOwnerSetupConfirmEnabled:deps.ownerSetupConfirm===true,
+    exactOwnerStartingBasicsEnabled:deps.ownerSetupBasics===true,
     sourceRank:5,
     independentProspective:false,
     priorRegisteredProfileBlob:
@@ -119,7 +135,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
 
 if(require.main===module)
   process.stdout.write(JSON.stringify(runFirstOwnerDecoderPanel({
-    ownerSetupConfirm:process.argv.includes('--owner-setup-confirm')
+    ownerSetupConfirm:process.argv.includes('--owner-setup-confirm'),
+    ownerSetupBasics:process.argv.includes('--owner-setup-basics')
   }),null,2)+'\n');
 
 module.exports={VERSION,runFirstOwnerDecoderPanel};
