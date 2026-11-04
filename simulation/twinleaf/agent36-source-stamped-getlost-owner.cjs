@@ -49,6 +49,8 @@ function withSourceStampedGetLostOwner(run,deps={}){
     printedSourcePromptMarks:0,reducedInsufficientDiscardPrompts:0,
     emptyOpponentDiscardPrompts:0,actualOwnerSelections:0,
     acceptedStoreActions:0,postDispatchPublicDiscardDepletions:0,
+    postDispatchExactLostZoneTransfers:0,
+    postDispatchLostZoneTransferUnverified:0,
     rejectedByOriginalDecoder:0,publicChoiceBaseline:'first-two',
     inspectedConcealedCardIdentity:false,
     paperRulesWholePolicyCertified:false,competitiveGamesQualified:0,
@@ -133,18 +135,39 @@ function withSourceStampedGetLostOwner(run,deps={}){
     const other=this.state.players.find(p=>p.id!==witness.actorId);
     assert.ok(other&&witness.prompt.cards===other.discard);
     const before=other.discard.cards.length;
+    const lostZoneBefore=Array.isArray(other.lostzone?.cards)?
+      other.lostzone.cards.length:null;
     const available=witness.chosen.every(c=>other.discard.cards.includes(c));
+    const absentFromLostZoneBefore=lostZoneBefore!==null&&
+      witness.chosen.every(c=>!other.lostzone.cards.includes(c));
     const result=dispatchDesc.value.apply(this,[action,...args]);
     audit.acceptedStoreActions++;
     const count=witness.chosen.length;
-    if(count>0&&available&&other.discard.cards.length===before-count&&
-       witness.chosen.every(c=>!other.discard.cards.includes(c)))
+    const discardDepletionConfirmed=count>0&&available&&
+      other.discard.cards.length===before-count&&
+      witness.chosen.every(c=>!other.discard.cards.includes(c));
+    if(discardDepletionConfirmed)
       audit.postDispatchPublicDiscardDepletions++;
+    // The original card's Get Lost text specifically requires the selected
+    // opponent discard cards to enter the opponent's public Lost Zone.
+    // Discard depletion alone can also result from incorrect destinations.
+    const exactLostZoneTransferConfirmed=discardDepletionConfirmed&&
+      absentFromLostZoneBefore&&
+      other.lostzone.cards.length===lostZoneBefore+count&&
+      witness.chosen.every(c=>other.lostzone.cards.includes(c));
+    if(exactLostZoneTransferConfirmed)
+      audit.postDispatchExactLostZoneTransfers++;
+    else if(count>0)
+      audit.postDispatchLostZoneTransferUnverified++;
     if(audit.selectedEvents.length<16)
       audit.selectedEvents.push({ownerActorId:witness.actorId,
         offered:witness.proof.offered,count,
         selectedPublicIndices:Array.from({length:count},(_,i)=>i),
         discardBefore:before,discardAfter:other.discard.cards.length,
+        lostZoneBefore,
+        lostZoneAfter:Array.isArray(other.lostzone?.cards)?
+          other.lostzone.cards.length:null,
+        discardDepletionConfirmed,exactLostZoneTransferConfirmed,
         nativeStoreDispatchAccepted:true,concealedIdentityReads:false});
     return result;
   }
