@@ -133,3 +133,6 @@ test('counterfactual hard boundary rejects silent changes to other cards',()=>{
   assert.throws(()=>exactOpening(10,{totalDonors:10,energyCount:8,basicCount:14}),
     assert.AssertionError);
 });
+
+// Same donor-cost research line; shares the existing opening-audit CI gate.
+require('./agent25-owner-quickball-hns-cost.test.cjs');
