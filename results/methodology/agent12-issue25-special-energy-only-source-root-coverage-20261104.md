@@ -18,6 +18,25 @@ The repository's `results/aichi-2026/full-decklists.json` contains 29 authentica
 
 Thus **7/29 authenticated original 60s** contain **zero Basic Energy**. Nothing about the missing original ranks is inferred. Other authenticated originals with only one or two Basic Energy are ranks 2, 3, 9, 15, 26 and 31; Special Energy coverage matters well beyond the seven zero-Basic lists.
 
+## Exact rank6 opening Special Energy availability (mathematical, not a Store witness)
+
+Rank6 has exactly four Basic Iron Thorns ex and eight Special Energy among its registered 60. Under uniformly shuffled **seven-card starting hands**, conditional on a legally Basic-valid seven containing at least one Iron Thorns ex, inclusion–exclusion gives
+
+```text
+P(Basic in first 7) = 1 - C(56,7)/C(60,7)
+                   = 0.3994996257446656
+
+P(Special Energy in first 7 | Basic in first 7)
+ = [C(60,7) - C(56,7) - C(52,7) + C(48,7)]
+   / [C(60,7) - C(56,7)]
+ = 255799 / 419265
+ = 0.6101129357327705
+```
+
+If the player receives an ordinary first-turn draw after the six face-down Prizes have been assigned, before opponent effects and bonus mulligan compensation, the probability of a held Special Energy in the **first seven plus that draw** is exactly `330335 / 493801 = 0.6689638133580127` given a Basic-valid first seven. The additional draw's marginal conditional probability of being a Special Energy, given no Energy initially, follows the remaining-card fraction `8/53`; the Prize placement does not change that marginal under a fresh uniform shuffle. A seeded independent 200,000-shuffle Python check produced 79,689 valid openings, of which 48,569 had a Special Energy initially and 53,324 had one after the eighth draw, agreeing with these exact values within sampling variation.
+
+These are **paper setup probabilities only**. They do not establish native owner-hand observations in v6, an optimal Energy target, absence of opponent disruption, or actual Store acceptance. They explain why a bounded source-owner positive opportunity test is worth doing before expanding the simulated game horizon.
+
 ## Exact selected decision-path gap
 
 The source-independent joined Issue25 v6 uses `agent36-bilateral-two-seat-common-policy.cjs`, which installs exactly the same three `withBilateralCommonCandidatePolicy` resource wrappers on both physical seats: Field Blower autonomy, Forest Seal Stone recipient, and Star Alchemy search. None is the generic Special Energy attachment root.
