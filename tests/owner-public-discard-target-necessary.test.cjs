@@ -5,7 +5,7 @@ const test=require('node:test');
 const path=require('node:path');
 const {
   RULES,targetMatch,buildPublicPrintMetadata,
-  loadBundledPublicPrintMetadata,withSourcePromoAliases,
+  loadBundledPublicPrintMetadata,withSourcePromoAliases,withSourceDisplayAliases,
   publicDiscardTargetNecessary,
   augmentPaperNecessityWithDiscardTargets
 }=require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
@@ -238,4 +238,24 @@ test('real archived Super Rod discard becomes a known Basic Energy target',()=>{
   const seeker=check('VS Seeker PHF',discard,index);
   assert.equal(seeker.paperPlayable,false);
   assert.equal(seeker.blocker,'proven-no-public-discard-target');
+});
+
+
+test('exact original Team Flare Gear and Unit Energy source collector print labels',()=>{
+  const canonical=loadBundledPublicPrintMetadata(
+    path.join(__dirname,'../resources'));
+  const sourced=withSourceDisplayAliases(canonical);
+  for(const [alias,canonicalName] of [
+    ['Battle Compressor PHF','Battle Compressor Team Flare Gear PHF'],
+    ['Robo Substitute PHF','Robo Substitute Team Flare Gear PHF'],
+    ['Target Whistle PHF','Target Whistle Team Flare Gear PHF'],
+    ['Unit Energy LPM UPR','Unit Energy LightningPsychicMetal UPR']
+  ])assert.deepEqual(sourced.get(alias),canonical.get(canonicalName),alias);
+  assert.equal(targetMatch(sourced.get('Battle Compressor PHF'),'supporter'),false);
+  assert.equal(targetMatch(sourced.get('Robo Substitute PHF'),'supporter'),false);
+  assert.equal(targetMatch(sourced.get('Target Whistle PHF'),'supporter'),false);
+  assert.equal(targetMatch(sourced.get('Unit Energy LPM UPR'),
+    'special-energy'),true);
+  assert.equal(targetMatch(sourced.get('Unit Energy LPM UPR'),
+    'pokemon-or-basic-energy'),false);
 });
