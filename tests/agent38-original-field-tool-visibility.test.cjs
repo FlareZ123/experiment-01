@@ -97,7 +97,9 @@ test('bundled XY and SM promo recovery reports full-field Basic-stage coverage',
     JSON.stringify({resolved:out.resolvedOriginals,
       unresolved:out.unresolvedOriginals,remaining}));
   assert.equal(out.originalSources,29);
-  assert.equal(out.resolvedOriginals+out.unresolvedOriginals,29);
+  assert.equal(out.resolvedOriginals,29);
+  assert.equal(out.unresolvedOriginals,0);
+  assert.deepEqual(remaining,[]);
   assert.equal(out.rows.find(row=>row.rank===1).basicCount,14);
   assert.equal(out.rows.find(row=>row.rank===2).status,'resolved-corpus-basic-stage');
   assert.equal(out.rows.find(row=>row.rank===3).status,'resolved-corpus-basic-stage');
