@@ -101,11 +101,8 @@ test('crosswalk is deterministic under input row reordering',()=>{
   for(const deck of shuffled.decks) deck.cards.reverse();
   shuffled.decks.reverse();
   const a=auditMay2026SourcePrints(source);
-  const b=auditMay202SourcePrintsNotNeeded(shuffled);
+  const b=auditMay2026SourcePrints(shuffled);
   assert.equal(a.crosswalkSha256,b.crosswalkSha256);
   assert.equal(a.sourceCompositionSha256,b.sourceCompositionSha256);
 });
 
-function auditMay202SourcePrintsNotNeeded(value){
-  return auditMay2026SourcePrints(value);
-}
