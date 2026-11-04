@@ -100,6 +100,7 @@ function reconstruct(){
   const minimum=notReference.slice(0,17);
   const disagreements=[],disagreementMax=[],disagreementMin=[];
   let matchedNativeFirstShuffleIndicators=0;
+  let matchedNativeBonusIdentity=0;
   let sourceBonusMismatch=0,observedPhysicalSourceMismatch=0;
   for(const row of observations){
     const indices=firstCandidateIndices(row.seed,1-row.sourceSeat);
@@ -110,6 +111,13 @@ function reconstruct(){
     assert.equal(newMoonMulligan,row.moonShuffles>1,
       'Recorded New Moon native first Basic choice disagrees with replay');
     matchedNativeFirstShuffleIndicators+=2;
+    assert.equal(row.sourceRefBonus,
+      Math.max(row.referenceShuffles-row.sourceRefShuffles,0),
+      'Original champion native source compensation violates net mulligan count');
+    assert.equal(row.sourceMoonBonus,
+      Math.max(row.moonShuffles-row.sourceMoonShuffles,0),
+      'Original New Moon native source compensation violates net mulligan count');
+    matchedNativeBonusIdentity+=2;
     if(championMulligan!==newMoonMulligan)
       disagreements.push([row.rank,row.repeat,row.slot].join(':'));
     if(championMulligan!==noBasic(indices,maximum))
@@ -124,6 +132,7 @@ function reconstruct(){
     priorNativeArtifactId:13288243945,
     sourceRanks:[5,6],contexts:observations.length,
     reconstructedNativeFirstShuffleDecisions:matchedNativeFirstShuffleIndicators,
+    reconstructedNativeSourceBonusIdentities:matchedNativeBonusIdentity,
     fullFirstShuffleParityWithNativeCounters:true,
     observedChampionVsMoonFirstMulliganDisagreements:disagreements,
     observedFirstMulliganDisagreementCount:disagreements.length,
