@@ -112,3 +112,58 @@ test('unmarked same-shaped public prompt stays fail-closed',()=>{
   assert.equal(out.result,'rejected');
   assert.equal(out.audit.actualOwnerSelections,0);
 });
+
+test('sequential native Store scope makes original rank11 late Get Lost reachable',()=>{
+  const x=mock();
+  const out=withSourceStampedGetLostOwner(()=>{
+    for(let i=0;i<3;i++){
+      const actor={id:'owner'};
+      const n=i===2?0:3;
+      const enemy={id:'enemy',discard:{cards:Array.from(
+        {length:n},(_,j)=>({publicCard:i+':'+j}))}};
+      const state={turn:3,players:[actor,enemy],prompts:[]};
+      const store=new x.Store(state);
+      store.dispatch(new x.AddPlayerAction());
+      const source=new x.Girafarig();
+      source.reduceEffect(store,state,
+        new x.AttackEffect(actor,source.attacks[0]));
+      const action=new x.SimpleTacticsAi(actor.id).decodeNextAction(state);
+      assert.ok(action instanceof x.ResolvePromptAction);
+      assert.equal(action.result.length,Math.min(2,n));
+      store.dispatch(action);
+    }
+    return true;
+  },{engine:x.engine,followSequentialNativeStores:true});
+  assert.equal(out.result,true);
+  assert.equal(out.audit.followSequentialNativeStores,true);
+  assert.equal(out.audit.registeredNativeStores,3);
+  assert.equal(out.audit.printedSourcePromptMarks,3);
+  assert.equal(out.audit.emptyOpponentDiscardPrompts,1);
+  assert.equal(out.audit.actualOwnerSelections,3);
+  assert.equal(out.audit.acceptedStoreActions,3);
+  assert.equal(out.audit.postDispatchPublicDiscardDepletions,2);
+  assert.equal(out.audit.competitiveGamesQualified,0);
+});
+
+test('Get Lost one-Store v1 default remains unchanged for historical receipts',()=>{
+  const x=mock();
+  const out=withSourceStampedGetLostOwner(()=>{
+    for(let i=0;i<2;i++){
+      const actor={id:'owner'};
+      const enemy={id:'enemy',discard:{cards:[{},{}]}};
+      const state={turn:3,players:[actor,enemy],prompts:[]};
+      const store=new x.Store(state);
+      store.dispatch(new x.AddPlayerAction());
+      const source=new x.Girafarig();
+      source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+      const bot=new x.SimpleTacticsAi(actor.id);
+      if(i===0)store.dispatch(bot.decodeNextAction(state));
+      else assert.throws(()=>bot.decodeNextAction(state),
+        /outer quarantine blocked/);
+    }
+    return 'baseline';
+  },{engine:x.engine});
+  assert.equal(out.result,'baseline');
+  assert.equal(out.audit.followSequentialNativeStores,false);
+  assert.equal(out.audit.actualOwnerSelections,1);
+});
