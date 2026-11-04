@@ -119,6 +119,31 @@ function auditSourceDealPairing(attempts){
 }
 
 /**
+ * A returned row should retain both source and candidate physical seats.
+ * Abort metadata can corroborate a missing row seat, but cannot silently
+ * substitute for the row's actual source/candidate attribution.
+ * @param {object[]} attempts
+ * @returns {object}
+ */
+function auditPhysicalSeatAttribution(attempts){
+  const rows=attempts.map(row=>{
+    const source=row.originalSourceSeat??null;
+    const candidate=row.candidateSeat??null;
+    const abortSource=row.nativeAbortProvenance?.sourceSeat??null;
+    const valid=([0,1].includes(source)&&[0,1].includes(candidate)&&
+      source!==candidate);
+    const contradiction=abortSource!==null&&source!==null&&
+      abortSource!==source;
+    return {id:row.id,sourceSeat:source,candidateSeat:candidate,
+      abortSourceSeat:abortSource,
+      provenance:valid?'exact-row':abortSource!==null?
+        'abort-metadata-only':'absent',
+      verdict:contradiction?'FAIL':valid?'PASS':'UNRESOLVED'};
+  });
+  return {verdict:worstVerdict(rows.map(row=>row.verdict)),rows};
+}
+
+/**
  * Re-audit an actual selected-policy artifact as an independent consumer.
  * Native progress remains developmental even when custody tests pass.
  * @param {object} receipt
@@ -136,6 +161,7 @@ function auditIssue25Receipt(receipt){
   const rootLimit=manifest.nativeRootActionLimit;
   const ledgers=attempts.map(row=>auditRootLedger(row,rootLimit));
   const sourceDeals=auditSourceDealPairing(attempts);
+  const seatAttribution=auditPhysicalSeatAttribution(attempts);
   const rootCustody=worstVerdict(ledgers.map(l=>l.verdict));
   const declaredFullLedger=receipt.gate?.fullUntruncatedPublicRootLedger;
   const unsupportedFullLedgerClaim=declaredFullLedger==='PASS'&&
@@ -153,13 +179,13 @@ function auditIssue25Receipt(receipt){
     schema:VERSION,receiptSchema:receipt.schema,
     manifestVersion:manifest.version,
     identity:{...identity,rawRowIdentityMatches:rawIdentity},
-    sourceDeals,ledgers,rootCustody,contract,
+    sourceDeals,seatAttribution,ledgers,rootCustody,contract,
     declaredFullLedger:declaredFullLedger??null,
     declaredHashGate:declaredHashGate??null,
     acceptedRootCustodyFromAbortClaimsIsIndependentOfArchive:true,
     evidenceVerdict:worstVerdict([
       identity.verdict,rawIdentity?'PASS':'FAIL',
-      sourceDeals.verdict,rootCustody,contract
+      sourceDeals.verdict,seatAttribution.verdict,rootCustody,contract
     ]),
     competitiveGameQualification:'FAIL-development-only',
     competitiveGamesAdmitted:0
@@ -167,4 +193,5 @@ function auditIssue25Receipt(receipt){
 }
 
 module.exports={VERSION,worstVerdict,auditAttemptIdentity,
-  auditRootLedger,auditSourceDealPairing,auditIssue25Receipt};
+  auditRootLedger,auditSourceDealPairing,auditPhysicalSeatAttribution,
+  auditIssue25Receipt};
