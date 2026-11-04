@@ -35,7 +35,7 @@ function fixedCandidateFamilywiseThreshold(input){
   return {schema:VERSION,candidateCount,cellCount,
     alpha,target,perCell,totalPerCandidate,totalAcrossFamily,
     familywiseNullBound,lowerBoundForSelectedAllWin,
-    requirement:'All successes in every preregistered fixed candidate panel used for possible selection; if only selected candidate is tested after design freeze, K=1 applies to its independent confirmatory panel',
+    requirement:'Each candidate that may be selected for a success claim needs an independent preregistered all-win panel meeting alpha/K; other tested candidates need not all succeed. A separate held-out test after freezing one deck can use K=1',
     notCertifiedByCalculation:true,competitiveGamesQualified:0};
 }
 module.exports={VERSION,fixedCandidateFamilywiseThreshold};
