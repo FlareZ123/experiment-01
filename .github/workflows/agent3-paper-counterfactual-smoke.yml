@@ -3,6 +3,11 @@ name: Agent 3 paper counterfactual smoke
 on:
   workflow_dispatch:
     inputs:
+      issue25_readonly_owner_frontier_native:
+        description: 'Retrospective native eight-arm v6 A/A with existing read-only Trainer and passive Ability lock observers'
+        required: false
+        type: boolean
+        default: false
       issue25_bilateral_v3_bridge_native:
         description: 'Four original source native 48-root common resource plus v3 attack integration'
         required: false
@@ -39,7 +44,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native && !inputs.issue25_bilateral_v3_bridge_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native && !inputs.issue25_bilateral_v3_bridge_native && !inputs.issue25_readonly_owner_frontier_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -82,11 +87,12 @@ jobs:
             tests/agent3-original29-print-gap-census.test.cjs \
             tests/agent3-registered-attempt-reconciliation.test.cjs \
             tests/agent3-issue25-native-source-decision-census.test.cjs \
+            tests/agent3-issue25-v6-trainer-lock-readonly-v9.test.cjs \
             tests/agent3-gitlink-worktree-attestation.test.cjs \
             tests/agent3-native-root-disposition.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native || inputs.issue25_bilateral_v3_bridge_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native || inputs.issue25_bilateral_v3_bridge_native || inputs.issue25_readonly_owner_frontier_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -114,6 +120,23 @@ jobs:
       - name: Integrated v3 source owner and bilateral resource native experiment
         if: ${{ inputs.issue25_bilateral_v3_bridge_native }}
         run: node --test tests/agent3-issue25-bilateral-v3-bridge.native.test.cjs tests/agent3-three-attacks.native.test.cjs
+      - name: Verify read-only opportunity/passive lock v6 parity fixture
+        if: ${{ inputs.issue25_readonly_owner_frontier_native }}
+        run: node --test tests/agent3-issue25-v6-trainer-lock-readonly-v9.test.cjs
+      - name: Execute eight original frozen v6 Store arms with existing both-seat owner-opportunity and passive-lock observers
+        if: ${{ inputs.issue25_readonly_owner_frontier_native }}
+        env:
+          ISSUE25_AGENT3_V9_RECEIPT_DIR: artifacts/agent3-issue25-v9
+        run: node --test tests/agent3-issue25-v6-trainer-lock-readonly-v9.native.test.cjs
+      - name: Archive complete read-only eight-arm diagnostic with baseline custody and observer presence
+        if: ${{ always() && inputs.issue25_readonly_owner_frontier_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-issue25-v6-readonly-v9-${{ github.run_id }}
+          path: artifacts/agent3-issue25-v9/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Reproduce 48 precommitted new source setup A/B/A physical contexts
         if: ${{ inputs.source_marginal_setup_native }}
         run: |
