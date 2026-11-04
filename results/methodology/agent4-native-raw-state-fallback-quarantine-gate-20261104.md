@@ -51,10 +51,11 @@ and paper-rule compliance require separate audits.
 currently stewarded for its first interface by Agent50.
 
 The steward can temporarily wrap one **actually selected**, both-seat
-canonical native experiment with
-`withNativeRawStateFallbackQuarantine(() => runActualStore())`. Place this
-guard inside or around research-owned actor adapters so that it intercepts
-their attempts to delegate to the unmodified bot. Record the first typed
+canonical native experiment using the quarantine around the entire actor
+adapter installation and synchronous Store run. Install the guard **before**
+the actor adapters. An actor adapter can resolve owner-safe roots itself;
+delegations to the inherited bot reach the guard and cause a typed abort.
+Record the first typed
 unresolved root or prompt and all resulting aborted/capped attempts. Keep
 the original raw-State scorer disabled on a qualified path. Establish a total
 owner-only replacement for each encountered root/prompt or formally refuse
