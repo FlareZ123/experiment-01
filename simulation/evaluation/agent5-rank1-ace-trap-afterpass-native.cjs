@@ -63,7 +63,7 @@ function preflight(){
   }).trim();
   assert.equal(vendor,registration.engine_revision);
   return {registration,registrationGitBlob:gitBlobHash(payload),
-    trial,mode,previous,vendor};
+    trial,oldTrials:old.trials,mode,previous,vendor};
 }
 
 /** Stable unprivileged Store root identity, used within the same trial. */
@@ -103,11 +103,12 @@ function sourceTurn38(row){
 function run(){
   const inputs=preflight();
   const {registration,previous,mode,trial}=inputs;
+  const oldTrials=inputs.oldTrials;
   const common={...previous.selectedV3CommonPolicy,
     nativeRootActionLimit:registration.action_cap};
   const opts=effectiveOptions({
     commonPolicy:common,nativeActionCap:registration.action_cap,
-    registeredTrials:[trial]
+    registeredTrials:oldTrials
   },mode);
   const arms=[];
   for(const variant of registration.variants){
@@ -118,11 +119,15 @@ function run(){
       execution=withSameRuntime(()=>withRank1AceTrapFork(()=>
         runDevelopment(options),variant.id));
       const full=execution.result;
-      assert.equal(full.attempted,1);
-      assert.equal(full.rows.length,1);
-      assert.equal(full.rows[0].trial.id,trial.id);
+      assert.equal(full.attempted,2);
+      assert.equal(full.rows.length,2);
+      assert.deepEqual(full.rows.map(r=>r.trial.id),oldTrials.map(r=>r.id));
+      assert.equal(full.rows[1].trial.id,trial.id);
       arms.push({mode:variant.id,status:'executed',
-        audit:execution.audit,row:full.rows[0]});
+        audit:execution.audit,row:full.rows[1],
+        referenceControl:{id:full.rows[0].trial.id,
+          rootHash:full.rows[0].rootActionLedgerSha256,
+          status:full.rows[0].status}});
     }catch(error){
       arms.push({mode:variant.id,status:'runner-error',
         error:String(error?.stack??error),
