@@ -4,7 +4,7 @@
 
 ## Research question and falsifier
 
-Does the bilateral development reporter's historical `sourceFirstOwnHandSha256` identify the source player's **first live turn hand**? A new read-only native `PLAYER_TURN` prebot observer was used to test the claim against unchanged original rank-16 source-deal groups, and to distinguish a matching setup-prompt digest from a matching physical opening. The actual 16-attempt replay directly falsifies the original field interpretation.
+Does the bilateral development reporter's historical `sourceFirstOwnHandSha256` identify the source player's **first live turn hand**? A new read-only native `PLAYER_TURN` prebot observer was used to test the claim against unchanged original rank-16 source-deal groups, and to distinguish a matching setup-prompt digest from a matching physical opening. The actual 16-attempt replay directly falsifies the original field interpretation. Throughout this report, a 'source physical-position digest' means a hash over the simulator's ordered native `card.fullName` values in physical zones, and must **not** be read as authenticated May 2026 artwork/collector numbers.
 
 ## Immutable evidence
 
@@ -16,7 +16,7 @@ In the new run, all **16/16** historical `sourceFirstOwnHandSha256` values match
 
 ## Pairing results
 
-| Preregistered source group | Exact source initial physical positions | Legacy setup-hand SHA | Correct first-own-turn ordered SHA |
+| Preregistered source group | Exact source initial physical positions | Legacy setup-hand SHA | Correct first-own-turn ordered native `fullName` SHA |
 | --- | --- | --- | --- |
 | 16:0:A | Match | Match | Match |
 | **16:1:B** | **Mismatch** | **Match** | **Mismatch** |
@@ -44,7 +44,7 @@ The disputed `16:1:B` pair uses exactly the same registered source seed, with so
 
 Both arms attacked with **Acid Spray**, and neither played Boost Shake or used Budew Itchy Pollen on its first source turn. This is an actual selected-root observation. It does **not** establish that the alternative Tool+Boost Shake line was affordable, target-available, paper-legal, or strategically superior.
 
-**Separate multiset confirmation:** a second [successful full 16-attempt native replay 41760907739](https://github.com/FlareZ123/experiment-01/actions/runs/41760907739), artifact **13291160660**, source head `ca92495baf25ff56f02945662cbf604b53e998e3`, ZIP SHA-256 `92518e1be7ed6fd10cc9ecae6677739dd6a60b74cc41eabe06547b2e1d7d4998`, raw JSON SHA-256 `b26012b3a4fa01f1db3501757a1948ae3a96f8628f9c2e308dee75532aa1194d` and 15,413,219 JSON bytes, adds `sourceFirstOwnHandMultisetSha256`, which sorts full exact physical-printing names before hashing. **7/8 candidate source pairs have matching multisets; 16:1:B differs in its unordered multiset** (`dcd3288eb579...` vs `d7e3e78a8bdc...`). Thus the mismatch is not merely hand order. Both seven-card hands nonetheless have the same sixteen selected-card resource counts, demonstrating that a filtered named-resource histogram cannot certify an identical full hand. No individual concealed card identity needs to be made public to establish this distinction.
+**Separate multiset confirmation:** a second [successful full 16-attempt native replay 41760907739](https://github.com/FlareZ123/experiment-01/actions/runs/41760907739), artifact **13291160660**, source head `ca92495baf25ff56f02945662cbf604b53e998e3`, ZIP SHA-256 `92518e1be7ed6fd10cc9ecae6677739dd6a60b74cc41eabe06547b2e1d7d4998`, raw JSON SHA-256 `b26012b3a4fa01f1db3501757a1948ae3a96f8628f9c2e308dee75532aa1194d` and 15,413,219 JSON bytes, adds `sourceFirstOwnHandMultisetSha256`, which sorts the native `card.fullName` string for each card before hashing. A native `fullName` can omit collection numbers, so it is an order-invariant **name/set-multiset** rather than proof of an exact physical artwork variant. **7/8 candidate source pairs have matching native name/set multisets; 16:1:B differs in its unordered name/set multiset** (`dcd3288eb579...` vs `d7e3e78a8bdc...`). Thus the mismatch is not merely hand order. Both seven-card hands nonetheless have the same sixteen selected-card resource counts, demonstrating that a filtered named-resource histogram cannot certify an identical full hand. No individual concealed card identity needs to be made public to establish this distinction.
 
 ## Same-trial native noninterference check
 
