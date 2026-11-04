@@ -28,6 +28,9 @@ jobs:
       - name: Characterize Gate and Star Alchemy prompts and turn endings
         run: node --test tests/radiant-vstar-upstream-characterization.test.cjs
 
+      - name: Verify pinned native Radiant Climactic Gate zero-search and repaired shuffle in both seats
+        run: node --test tests/agent1-radiant-zero-gate-native.test.cjs tests/agent1-radiant-gate-lock-hook-order.native.test.cjs
+
       - name: Check opt-in Forest Seal Stone one-card search correction
         run: node --test tests/forest-seal-search-hook.test.cjs
 
