@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 
 const VERSION = 'agent31-shadow-rider-visible-pass-frontier-v1';
-const safeOpponentNames = new Set(['Mega Absol ex', 'Oranguru V']);
+const safeOpponentNames = new Set(['Mega Absol ex', 'Oranguru V', 'Latias ex']);
 const isPsychic = energy => /^Psychic Energy(?: |$)/.test(energy);
 
 /**
