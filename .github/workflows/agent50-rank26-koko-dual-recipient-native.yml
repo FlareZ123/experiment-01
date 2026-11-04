@@ -38,3 +38,7 @@ jobs:
         run: node --test tests/agent50-owner-starting-basic-choice.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
+      - name: Issue25 pure owner public prompt acknowledgements contract
+        run: node --test tests/agent50-owner-public-acknowledgements.test.cjs
+      - name: Issue25 native owner mulligan and wait prompt next fallback boundary
+        run: node --test tests/agent50-issue25-owner-public-ack-quarantine.native.test.cjs
