@@ -1,0 +1,36 @@
+name: Agent 2 original 29 first Tool collision exact census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent2-first-tool-pure-census
+  cancel-in-progress: false
+
+jobs:
+  pure-original-source-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact original printed-card and combinatorial regression
+        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs
+      - name: Preserve exact machine-readable 29-rank analysis and SHA-256
+        run: |
+          node simulation/evaluation/agent2-original29-fss-first-tool-collision.cjs > agent2-fss-collision.json
+          sha256sum agent2-fss-collision.json > agent2-fss-collision.json.sha256
+      - name: Upload pure-analysis receipt even if tests fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-original29-fss-first-tool-pure-census
+          path: |
+            agent2-fss-collision.json
+            agent2-fss-collision.json.sha256
+          if-no-files-found: warn
