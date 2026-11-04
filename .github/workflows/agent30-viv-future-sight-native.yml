@@ -29,3 +29,5 @@ jobs:
         run: node --test tests/agent30-duskull-viv-futuresight.native.test.cjs
       - name: Replay the original four Issue25 source/deals with exact printed Future Sight owner-stamped choice
         run: node --test tests/agent30-issue25-futuresight-48root-origin.native.test.cjs
+      - name: Attribute both remaining original ATTACK choice prompts to exact source printings without hidden reads
+        run: node --test tests/agent30-issue25-remaining-printed-prompt-origins.native.test.cjs
