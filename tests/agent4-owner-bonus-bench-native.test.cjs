@@ -66,7 +66,9 @@ function run(sourceSeat,seed){
   return guard(()=>withOwnerSetupConfirm(()=>withOwnerStartingPokemon(()=>
     withOwnerPublicAcknowledgements(()=>withCanonicalActorOnlyPolicy(()=>
       runMatch({deckA,deckB,seed,maxActions:128,
-        captureNativeAbortEvidence:true}))))));
+        captureNativeAbortEvidence:true,
+        captureInitialSourceDealFingerprintSeat:sourceSeat,
+        captureInitialFullPhysicalDeal:true}))))));
 }
 
 test('real pinned Store naturally exercises optional min0 Bench choices on both source seats',()=>{
@@ -75,8 +77,18 @@ test('real pinned Store naturally exercises optional min0 Bench choices on both 
     let result=null,error=null;
     try{result=run(sourceSeat,seed);}
     catch(e){error=e;}
-    if(error)assert.equal(error.code,CODE,
-      'Unexpected native engine error is not a permitted quarantine outcome');
+    if(error){
+      assert.equal(error.code,CODE,
+        'Unexpected native engine error is not a permitted quarantine outcome');
+      const receipt=error.nativeAbortEvidence;
+      assert.equal(receipt?.failureStage,'bot-decoder');
+      assert.equal(receipt?.sourceDealFingerprint?.seat,sourceSeat);
+      assert.match(receipt.sourceDealFingerprint.digestSha256,/^[a-f0-9]{64}$/);
+      assert.equal(receipt?.fullPhysicalDealFingerprint?.schema,
+        'initial-full-physical-deal-sha256-v1');
+      assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,
+        /^[a-f0-9]{64}$/);
+    }
     const audit=error?.ownerStartingPokemonAudit??
       findStartingAudit(result);
     assert.ok(audit,'Every original-Store attempt must retain the starting policy audit');
@@ -96,7 +108,11 @@ test('real pinned Store naturally exercises optional min0 Bench choices on both 
       acceptedInitial:audit.acceptedInitial,
       acceptedBonusDecline:audit.acceptedBonusDecline,
       zonePreservation:audit.bonusDeclinePhysicalZonesPreserved,
-      originalDecoderCalls:quarantine.rawStateFallbackCalls
+      originalDecoderCalls:quarantine.rawStateFallbackCalls,
+      sourceDealSha256:error?.nativeAbortEvidence?.
+        sourceDealFingerprint?.digestSha256??null,
+      fullPhysicalDealSha256:error?.nativeAbortEvidence?.
+        fullPhysicalDealFingerprint?.digestSha256??null
     };
     rows.push(row);
   }
