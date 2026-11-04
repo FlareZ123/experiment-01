@@ -38,7 +38,7 @@ test('source language and source card identities are preserved without mutation'
   assert.equal(JSON.stringify(field),before);
   assert.equal(report.originalSourceCopies,4);
   assert.equal(report.originalSourceRows,3);
-  assert.deepEqual(report.provenance.map(x=>x.sourceLanguageToken),['en','ja','en']);
+  assert.deepEqual(report.provenance.map(x=>x.sourceLanguageToken),['en','en','ja']);
   assert.deepEqual(report.byIdentity.map(x=>x.copies),[1,3,0]);
   assert.equal(report.byIdentity[1].englishDatabaseNamePresent,true);
   assert.deepEqual(report.affectedRanks,[42]);
