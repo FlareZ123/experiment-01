@@ -10,10 +10,10 @@ test('original 29 source Trainer inventory is conserved and cost coverage bounde
   assert.equal(a.originalSourceDecks,29);
   assert.deepEqual(a.missingOriginalRanks,[23,25,28]);
   assert.equal(a.totalTrainerCopies,1035);
-  assert.equal(a.coveredCopies,259);
+  assert.equal(a.coveredCopies,754);
   assert.deepEqual(a.modeTotals,{
     mandatoryDiscard:164,optionalEnhancedDiscard:20,
-    knownNoDiscard:75,unknownPayment:776
+    knownNoDiscard:570,unknownPayment:281
   });
   assert.equal(a.sourceRows.reduce((sum,x)=>sum+x.trainerCopies,0),1035);
   assert.equal(a.printingRows.reduce((sum,x)=>sum+x.copies,0),1035);
@@ -37,7 +37,7 @@ test('source printings remain distinct and exact-cost groups match roster',()=>{
     assert.equal(by.get(printing)?.copies,copies,printing);
     assert.equal(by.get(printing)?.mode,mode,printing);
   }
-  assert.equal(by.get('VS Seeker PHF')?.mode,'unknownPayment');
+  assert.equal(by.get('VS Seeker PHF')?.mode,'knownNoDiscard');
   assert.equal(a.sourceRows.filter(r=>
     r.mandatoryDiscard+r.optionalEnhancedDiscard+r.knownNoDiscard>0).length,29);
 });
