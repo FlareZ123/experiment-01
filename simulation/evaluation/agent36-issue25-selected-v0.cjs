@@ -7,6 +7,8 @@ const {createHash}=require('node:crypto');
 const {execFileSync}=require('node:child_process');
 const {developmentTrials,runDevelopment}=
   require('./agent41-bilateral-v2-development.cjs');
+const {reconcileRegisteredAttempts:reconcileRawRegisteredAttempts}=
+  require('./agent3-registered-attempt-reconciliation.cjs');
 const {withGoFirstChoice}=
   require('../twinleaf/agent6-go-first-choice.cjs');
 const {withOwnerStartingBasicChoice}=
@@ -33,6 +35,7 @@ const SELECTED_OUTER_TO_INNER=Object.freeze([
 ]);
 const CODE_PATHS=Object.freeze([
   'simulation/evaluation/agent36-issue25-selected-v0.cjs',
+  'simulation/evaluation/agent3-registered-attempt-reconciliation.cjs',
   'simulation/evaluation/agent41-bilateral-v2-development.cjs',
   'simulation/evaluation/agent41-bilateral-common-policy.cjs',
   'simulation/evaluation/agent7-canonical-actor-composition.cjs',
@@ -199,6 +202,8 @@ function runSelectedIssue25V0(injected={}){
   const quarantine=audit.nativeRawStateQuarantine;
   const registeredAttemptReconciliation=reconcileRegisteredAttempts(
     expected,statuses.map(row=>row.id));
+  const rawRowIdentityReconciliation=
+    reconcileRawRegisteredAttempts(expected,rows);
   const expectedTwinleaf=
     'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
   const observedTwinleaf=observedGitRevision('vendor/twinleaf');
@@ -250,8 +255,10 @@ function runSelectedIssue25V0(injected={}){
     schema:VERSION,registered:expected,
     attemptedRows:statuses,
     allRegisteredAttemptsReturned:
-      registeredAttemptReconciliation.exactUniqueMatch,
+      registeredAttemptReconciliation.exactUniqueMatch&&
+      rawRowIdentityReconciliation.exactlyReconciled,
     registeredAttemptReconciliation,
+    rawRowIdentityReconciliation,
     audit,
     rawDecoderExecuted:
       quarantine?.originalNativeDecoderExecuted??null,
