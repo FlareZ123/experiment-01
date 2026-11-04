@@ -7,7 +7,8 @@ const {openingBenchOccupancyTradeoff}=
   require('../simulation/evaluation/agent50-setup-bench-occupancy-tradeoff.cjs');
 const {
   VERSION,noTargetInBonus,sourceMulliganBenchTradeoff,
-  original29VsRank26OpeningTradeoff
+  original29VsRank26OpeningTradeoff,
+  authenticatedFieldMulliganBenchMatrix
 }=require('../simulation/evaluation/agent7-rank26-mulligan-bench-preservation.cjs');
 
 function permutations(a){
@@ -141,4 +142,45 @@ test('SFT target-free bonus always contains zero targets, and q=0 suppresses all
     if(n>0)
       assert.ok(Math.abs(noTargetInBonus(n,n,0.4)-0.6)<1e-12);
   }
+});
+
+test('SFT full 29 x 29 exact source-opening matrix is matched and preserves all original identities',()=>{
+  const matrix=authenticatedFieldMulliganBenchMatrix();
+  assert.equal(matrix.authenticatedSourcePairs,29*29);
+  assert.equal(matrix.knownOriginalCount,29);
+  assert.deepEqual(matrix.missingSourceRanks,[23,25,28]);
+  assert.equal(matrix.candidateSummaries.length,4);
+  assert.equal(matrix.qualifiedCompetitiveGames,0);
+  assert.equal(matrix.selectedPolicyChanged,false);
+  assert.ok(Math.abs(matrix.equalPairMeanAdditionalSolo-
+    0.11871120916178103)<1e-12);
+  const thorns=matrix.sourceSummaries.filter(x=>
+    [6,24,29].includes(x.rank));
+  assert.equal(thorns.length,3);
+  assert.ok(thorns.every(x=>x.sourceBasics===4&&
+    Math.abs(x.meanAdditionalLoneAgainstOriginal29-
+      0.10972698678293204)<1e-12));
+  const highBasic=matrix.sourceSummaries.filter(x=>
+    [18,19,30].includes(x.rank));
+  assert.ok(highBasic.every(x=>x.sourceBasics===16&&
+    Math.abs(x.meanAdditionalLoneAgainstOriginal29-
+      0.12029685676868136)<1e-12));
+  const adp=matrix.candidateSummaries.find(x=>
+    x.candidate.includes('ADP'));
+  assert.ok(adp);
+  assert.ok(Math.abs(adp.meanAdditionalLoneAcrossKnown29-
+    0.1453795084972487)<1e-12);
+  assert.ok(Math.abs(adp.againstRank6-
+    0.15326419528447033)<1e-12);
+  assert.ok(Math.abs(adp.againstRank26-
+    0.1448474990502866)<1e-12);
+  assert.equal(new Set(matrix.rows.map(x=>x.sourceOpponentRank)).size,29);
+  assert.equal(new Set(matrix.rows.map(x=>x.candidateRank)).size,29);
+  console.log('AGENT7_AUTHENTICATED_BILATERAL_OPENING_841',JSON.stringify({
+    pairs:matrix.authenticatedSourcePairs,
+    equalPairMeanAdditionalSolo:matrix.equalPairMeanAdditionalSolo,
+    lowBasicSource:thorns[0],
+    highBasicSource:highBasic[0],
+    structuralADP:adp
+  }));
 });
