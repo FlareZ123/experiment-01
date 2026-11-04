@@ -85,7 +85,7 @@ function audit(d,reg){
   assert.equal(publicAbort.actionOrdinal,54);
   assert.equal(publicAbort.preDispatchBoard[1].bench.length,5);
 
-  const cross=[];
+  const cross=[],terminal=[];
   const grouped={};
   for(const mode of Object.keys(modes)){
     const rows=modes[mode];
@@ -108,6 +108,16 @@ function audit(d,reg){
       }
       stats.acceptedTutorItems+=r.tutorAudit?.acceptedItems??0;
       stats.physicallyMovedTutorTargets+=r.tutorAudit?.physicalTargetsSettled??0;
+      for(const a of r.publicAttackTransitions??[]){
+        if(a.triggerPlayerSlot!==1-r.rank5Seat||!a.declarations?.some(x=>x.attackName==='Terminal Period'))continue;
+        const target=a.before[r.rank5Seat].active;
+        assert.equal(target?.damage,0);
+        if(a.settled){
+          assert.deepEqual(a.settled.after,a.before);
+          assert.deepEqual(a.settled.prizesRemaining,a.beforePrizesRemaining);
+        }
+        terminal.push({arm:r.id,settled:Boolean(a.settled)});
+      }
       const geneTurns=[];
       for(const a of r.publicAttackTransitions??[]){
         if(a.triggerPlayerSlot!==r.rank5Seat||
@@ -166,6 +176,8 @@ function audit(d,reg){
   assert.deepEqual([grouped.control.crossGenesectDonor,grouped['resource-tutor'].crossGenesectDonor],[10,11]);
   assert.deepEqual([grouped.control.crossPrizeGain,grouped['resource-tutor'].crossPrizeGain],[15,15]);
   assert.equal(cross.length,35);
+  assert.equal(terminal.length,66);
+  assert.equal(terminal.filter(a=>a.settled).length,64);
   assert.deepEqual(d.rows.filter(r=>r.nativeStatus==='native-terminal'&&
       r.nativeWinner===r.rank5Seat).map(r=>r.seed).sort(),[1511799401,1511799401,1511799401,1511799401]);
   return {schema:'agent11-fresh-mew-v3-exact-archive-audit-v1',
@@ -177,6 +189,7 @@ function audit(d,reg){
       mewDonorEnergyMix:2,noEligibleBenchDonor:12,
       noDonorSettledWithoutBoardChange:10,
       GenesectCopiedPrizeGainTotal:30},
+    sourceRank11TerminalPeriod:{declared:terminal.length,settled:64,zeroEffectSettle:64},
     distinctNativeRank5WinSeedValues:[1511799401],
     nativeFullBenchCallForFamilyAbort:{
       arm:failure.id,actionOrdinal:54,attackingPokemon:'Trubbish FST',
