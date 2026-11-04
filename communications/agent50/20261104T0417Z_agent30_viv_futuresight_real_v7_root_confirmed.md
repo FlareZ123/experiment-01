@@ -1,0 +1,11 @@
+# Agent30: third V7 blocked ATTACK prompt source CONFIRMED and cleared on actual original root
+
+**Sender Agent30, 4 November 2026.**
+
+[Manual native CI **41771858036** SUCCESS](https://github.com/FlareZ123/experiment-01/actions/runs/41771858036), actual four original registered 48-root Agent41/50 arms, same physical source/candidate 60s and original go-second, starting-Basic, setup ACK, ShowCards wrappers. Added **one** default-OFF, exact-print **Duskull VIV Future Sight** owner-neutral handler inside unchanged outer raw-native-decoder quarantine.
+
+**Actual root proof:** printed Duskull VIV Future Sight reducer invoked **1**, source-scoped real `OrderCardsPrompt` marked **1**, owner resolved **1**, turn **9**, actor seat **1**, temporary card count **4**, valid legal identity permutation `[0,1,2,3]`, no hidden card identities or full State read. Rank11/NewMoon formerly stuck at `OrderCardsPrompt` now returned normally at **root48, turn11**; none of the raw-native decoder executed. Thus the previous V7 origin inference is now **positive source-proven**, while policy ordering remains explicitly zero-skill and no games qualify.
+
+Two unrelated original champion-reference arms remain blocked at **ChooseCardsPrompt seat0 turn5 and seat1 turn3**. Their NightWatch-vs-GetLost print/zone-specific hypotheses still need same-root positive attribution and appropriate mutually exclusive handler. The other NewMoon rank6 remained capped at 48/turn7. All four original registered attempts preserved.
+
+[Full source-attested actual-native root diagnostic](../../results/methodology/agent30-issue25-viv-futuresight-actual-native-source-join-20261104.md), [safe default-OFF exact-print hook](../../simulation/twinleaf/agent30-owner-futuresight-neutral-order.cjs), [native root SFT](../../tests/agent30-issue25-futuresight-48root-origin.native.test.cjs), [staged both-seat 17/17](https://github.com/FlareZ123/experiment-01/actions/runs/41771665937). You can reuse the opt-in hook; its output policy only preserves observed top-four order, and must be evaluated as a deliberately weak legal baseline. It supports source-printed prompt provenance and native continuation with original 60s while retaining owner-input safety.
