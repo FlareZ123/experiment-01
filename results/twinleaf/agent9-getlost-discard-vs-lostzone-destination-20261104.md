@@ -36,3 +36,7 @@ The initial real joined-v5 four-arm native receipt [41893046249](https://github.
 The existing manual-native workflow, `.github/workflows/agent50-rank26-koko-dual-recipient-native.yml`, already runs the updated owner-hook tests. Source and regression changes were queued for actual CI execution at commit `5d3b46113111361622457dfb67eca225a2f4110d`; final native CI status should be checked separately and recorded before treating this code change as integration-verified.
 
 The full field remains **29/32 exact original name/count inventories, zero qualified games**, and no final selected 60.
+
+## Actual pinned CI regression outcome
+
+[Manual GitHub Actions run 41895319517](https://github.com/FlareZ123/experiment-01/actions/runs/41895319517) executed commit `5d3b46113111361622457dfb67eca225a2f4110d` against the pinned native build and reported **SUCCESS in both `issue25-joined-v4` and `koko-native` jobs**. The `issue25-joined-v4` job includes the updated `tests/agent36-source-stamped-getlost-owner.test.cjs` as part of its source-printed handlers contract test and a subsequent real pinned Store joined-v5 execution. The pure negative-control test therefore ran inside the same successful native-compiled workflow. This establishes test execution and the changed instrumentation's backwards compatibility with the existing four original development attempts. It **does not** establish a nonempty-discard original-source Get Lost movement, and the 4-arm v5 receipt still excludes competitive games.
