@@ -52,6 +52,36 @@ test('rank1 original SMP217 promo absence correctly blocks corpus-stage resoluti
   assert.equal(Object.hasOwn(row,'basicCount'),false);
 });
 
+test('opt-in externally verified SMP217 promo restores exact rank1 Basic count',()=>{
+  const result=originalFieldToolAnswerVisibility({
+    ...original,decks:original.decks.filter(deck=>deck.rank===1)
+  },undefined,{allowExternalPromoStageOverrides:true});
+  const row=result.rows[0];
+  assert.equal(row.status,'resolved-with-explicit-external-promo-stage');
+  assert.equal(row.basicCount,14);
+  assert.equal(row.directAnswerCount,1);
+  assert.ok(Math.abs(row.probabilitySeenInNine-0.1445028731)<1e-9);
+  assert.equal(row.externalStageOverridesUsed.length,1);
+  assert.equal(row.externalStageOverridesUsed[0].name,
+    'Trevenant & Dusknoir-GX');
+  assert.equal(row.externalStageOverridesUsed[0].stage,'Basic');
+  assert.equal(row.externalStageOverridesUsed[0].source,
+    'https://limitlesstcg.com/cards/en/SMP/217');
+});
+
+test('opt-in override is specific to exact promo printing identity',()=>{
+  const deck=JSON.parse(JSON.stringify(original.decks.find(x=>x.rank===1)));
+  deck.cards.find(c=>c.name==='Trevenant & Dusknoir-GX')
+    .printing.number='218';
+  const result=originalFieldToolAnswerVisibility({
+    ...original,decks:[deck]
+  },undefined,{allowExternalPromoStageOverrides:true});
+  assert.equal(result.resolvedOriginals,0);
+  assert.equal(result.rows[0].status,'unknown-pokemon-stage');
+  assert.equal(result.rows[0].unresolvedPrintedPokemon[0].printing.number,
+    '218');
+});
+
 test('unknown Pokémon printing remains fail-closed instead of being guessed',()=>{
   const deck=JSON.parse(JSON.stringify(original.decks.find(x=>x.rank===11)));
   const trubbish=deck.cards.find(x=>x.name==='Trubbish');
