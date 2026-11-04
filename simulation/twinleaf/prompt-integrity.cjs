@@ -307,4 +307,4 @@ function assertValidPromptAction(state, action, options={}) {
   }
 }
 
-module.exports = { assertValidPromptAction };
+module.exports = { assertValidPromptAction, isIndexPermutation };
