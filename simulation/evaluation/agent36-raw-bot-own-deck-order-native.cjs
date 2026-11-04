@@ -9,7 +9,7 @@ const {stagedPainfulSpoons}=
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} id @returns {any} */
 const native=id=>require(path.join(output,id));
-const VERSION='agent36-raw-simple-tactics-hidden-owner-deck-order-diagnostic-v1';
+const VERSION='agent36-raw-simple-tactics-hidden-owner-deck-order-diagnostic-v2-proposal-purity-contrast';
 
 /** @param {readonly string[]} cards @returns {string} */
 function multisetHash(cards){
@@ -24,8 +24,9 @@ function multisetHash(cards){
  * This is a staged 60-card owner configuration, not a historical deal.
  * @param {0|1} seat
  * @param {'evolution-top'|'energy-top'} top
+ * @param {{pureSupporterProposal?:boolean}} [options]
  */
-function probeOwnHiddenDeckOrder(seat,top){
+function probeOwnHiddenDeckOrder(seat,top,options={}){
   assert.ok(seat===0||seat===1);
   assert.ok(top==='evolution-top'||top==='energy-top');
   const f=stagedPainfulSpoons(seat);
@@ -82,9 +83,27 @@ function probeOwnHiddenDeckOrder(seat,top){
     arbiter:definitions.defaultArbiterOptions
   },null);
   const supporterBefore=f.source.supporterTurn;
-  const action=bot.decodeNextAction(f.state);
+  const {PlaySupporterTactic}=native('simple-bot/simple-tactics/play-supporter-tactic');
+  const proto=PlaySupporterTactic.prototype;
+  const original=Object.getOwnPropertyDescriptor(proto,'useTactic');
+  let action;
+  if(options.pureSupporterProposal){
+    function restoredSupporterTactic(state,player){
+      const prior=player.supporterTurn;
+      try { return original.value.call(this,state,player); }
+      finally {player.supporterTurn=prior;}
+    }
+    Object.defineProperty(proto,'useTactic',
+      {...original,value:restoredSupporterTactic});
+    try {action=bot.decodeNextAction(f.state);}
+    finally {
+      assert.strictEqual(proto.useTactic,restoredSupporterTactic);
+      Object.defineProperty(proto,'useTactic',original);
+    }
+  }else action=bot.decodeNextAction(f.state);
   return {
     version:VERSION,seat,top,ownerZoneCount,
+    pureSupporterProposal:options.pureSupporterProposal===true,
     observation,ownerDeckMultiset,ownerDeckTopSeven,
     nativeDefaultAction:action?.constructor?.name??null,
     nativeDefaultCard:action?.constructor?.name==='PlayCardAction'?
@@ -96,13 +115,15 @@ function probeOwnHiddenDeckOrder(seat,top){
   };
 }
 if(require.main===module){
-  for(const seat of [0,1]){
-    const high=probeOwnHiddenDeckOrder(seat,'evolution-top');
-    const low=probeOwnHiddenDeckOrder(seat,'energy-top');
+  for(const seat of [0,1])for(const pureSupporterProposal of [false,true]){
+    const high=probeOwnHiddenDeckOrder(seat,'evolution-top',
+      {pureSupporterProposal});
+    const low=probeOwnHiddenDeckOrder(seat,'energy-top',
+      {pureSupporterProposal});
     assert.deepEqual(high.observation,low.observation);
     assert.equal(high.ownerDeckMultiset,low.ownerDeckMultiset);
     console.log('AGENT36_HIDDEN_DECK_ORDER_NATIVE '+JSON.stringify({
-      seat,sameOwnerVisibleObservation:true,
+      seat,pureSupporterProposal,sameOwnerVisibleObservation:true,
       sameOwnerDeckPhysicalMultiset:true,
       highAction:high.nativeDefaultAction,
       highCard:high.nativeDefaultCard,
