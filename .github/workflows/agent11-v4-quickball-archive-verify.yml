@@ -31,3 +31,21 @@ jobs:
           path: enabled
       - name: Assert original bytes, 64 exact deals and failure-inclusive native counts
         run: node scripts/agent11-v4-quickball-exact-paired-archive-audit.cjs baseline/agent11-owner-tutor-native-v4.json enabled/agent11-owner-tutor-native-v4.json
+      - name: Download C11 full Bench guard baseline retrospective
+        uses: actions/download-artifact@v4
+        with:
+          name: agent11-owner-tutor-original5-vs11-native
+          repository: FlareZ123/experiment-01
+          run-id: 41903387542
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: guarded-baseline
+      - name: Download C11 full Bench guard enabled retrospective
+        uses: actions/download-artifact@v4
+        with:
+          name: agent11-owner-tutor-original5-vs11-native
+          repository: FlareZ123/experiment-01
+          run-id: 41903405698
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: guarded-enabled
+      - name: Assert 105 original unchanged traces and 23 exact native abort Pass replacements
+        run: node scripts/agent11-c11-fullbench-retro-archive-audit.cjs baseline/agent11-owner-tutor-native-v4.json enabled/agent11-owner-tutor-native-v4.json guarded-baseline/agent11-owner-tutor-native-v4.json guarded-enabled/agent11-owner-tutor-native-v4.json
