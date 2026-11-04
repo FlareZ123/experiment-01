@@ -5,9 +5,39 @@ const {publicSpecialAttackPayable}=
   require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage,MIN_PROJECTED_DAMAGE}=
   require('./agent6-actor-paid-retreat-frontier.cjs');
+const {printedAllPokemonEnergyScaling}=
+  require('./agent17-printed-scaling-basic-ko.cjs');
 
-const VERSION='agent14-generic-funded-floatstone-owner-v1';
+const VERSION='agent14-generic-funded-floatstone-owner-v2-all-own-basic-scaling';
 const TOOL='Float Stone BKT';
+
+/**
+ * Public *nominal* damage for fixed, Rondo, or safely recognized all-own-
+ * Basic-Energy additive attacks. Unknown attached Special Energy causes an
+ * explicit nonprojection. This cannot prove final Weakness/lock/KO outcomes.
+ *
+ * @param {object} view Detached public battlefield.
+ * @param {object} pokemon Public attacker.
+ * @param {object} attack Public printed attack.
+ * @param {object} catalog Public card printing and type metadata.
+ * @returns {number|null} Nominal printed attack damage if supported.
+ */
+function projectedFundedAttackDamage(view,pokemon,attack,catalog){
+  const scaling=printedAllPokemonEnergyScaling(attack);
+  if(!scaling)return projectedPrintedDamage(view,pokemon,attack);
+  if(!(catalog.basicEnergies instanceof Set))return null;
+  let count=0;
+  const board=[view.ownPublic?.active,...(view.ownPublic?.bench??[])];
+  for(const slot of board.filter(Boolean)){
+    if(!Array.isArray(slot.energies))return null;
+    for(const energy of slot.energies){
+      if(!catalog.basicEnergies.has(energy))return null;
+      if(energy.startsWith(scaling.energyType+' Energy '))count++;
+    }
+  }
+  const nominal=scaling.baseDamage+scaling.damagePerUnit*count;
+  return Number.isSafeInteger(nominal)?nominal:null;
+}
 
 /**
  * A typed, source-independent opportunity for a partially charged Active
@@ -46,7 +76,7 @@ function chooseGenericFundedFloatStone(view,catalog){
   // public printed projection does not know its damage multiplier.
   const canAttack=(active.attacks??[]).some(attack=>
     attack.gxAttack!==true&&
-    projectedPrintedDamage(view,active,attack)!==0&&
+    projectedFundedAttackDamage(view,active,attack,catalog)!==0&&
     publicSpecialAttackPayable(view,catalog,active,attack)&&
     restricted.cannotAttackNextTurn!==true&&
     restricted.blockedAttackNameNextTurn!==attack.name&&
@@ -69,7 +99,7 @@ function chooseGenericFundedFloatStone(view,catalog){
          x===catalog.specialConditions?.ASLEEP||
          x===catalog.specialConditions?.PARALYZED))continue;
     for(const attack of pokemon.attacks??[]){
-      const damage=projectedPrintedDamage(view,pokemon,attack);
+      const damage=projectedFundedAttackDamage(view,pokemon,attack,catalog);
       const rules=pokemon.publicRestrictions??{};
       if(attack.gxAttack===true||
          !Number.isSafeInteger(damage)||damage<MIN_PROJECTED_DAMAGE||
@@ -103,4 +133,5 @@ function chooseGenericFundedFloatStone(view,catalog){
     source:VERSION,paperQualified:false};
 }
 
-module.exports={VERSION,TOOL,chooseGenericFundedFloatStone};
+module.exports={VERSION,TOOL,projectedFundedAttackDamage,
+  chooseGenericFundedFloatStone};
