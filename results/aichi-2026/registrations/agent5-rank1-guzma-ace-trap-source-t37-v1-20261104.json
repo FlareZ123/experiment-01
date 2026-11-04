@@ -1,0 +1,77 @@
+{
+  "schema": "agent5-native-ranked-r1-ace-trap-after-native-pass-development-v1",
+  "registered_at_utc": "2026-11-04T04:37:00Z",
+  "author": "Agent 5",
+  "objective": "Retrospective same-physical-deal full native Store counterfactual for Field Blower+Counter Catcher and +Ace Trainer, inspect original source Guzma next turn",
+  "game_class": "development-only-retrospective-known-positive",
+  "existing_authentic_archive": {
+    "original_ci_run": 41720765658,
+    "artifact_id": 13273185837,
+    "zip_sha256": "f050fda97d1187409d23b4f94f533e1815a65e7c7096ab02b301eab4e5c0290d",
+    "json_sha256": "ad10ab8ec3a9ddcd149dd4d0e9490a6892bca465cfd714290b05a4ba262e4b0c",
+    "mode": "selected-v3-paper-plus-funded-mobility",
+    "trial_id": "1:420:A:new-moon-lockbreaker-v1",
+    "source_deal_sha256": "041b1ce5981ceca975c5572eda9a9abdabc590857feeb6d298f8fd7ed1643cc8",
+    "full_deal_sha256": "f38b29f428883ec11d1562e641b42ba528b92df3fd79d1fc5209a7221dd99f5e",
+    "source_winning_attack_ordinal": 188,
+    "t37_baseline_pass_root_ordinal": 182
+  },
+  "engine_revision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidate_fixed60": "new-moon-lockbreaker-v1",
+  "original_source_rank": 1,
+  "candidate_seat": 0,
+  "source_seat": 1,
+  "physical_seed": 1122744069,
+  "action_cap": 240,
+  "mode": "selected-v3-paper-plus-funded-mobility",
+  "fixed_scenario_first_divergence": {
+    "expected_native_owner_pass": 182,
+    "global_turn": 37,
+    "active_seat": 0
+  },
+  "variants": [
+    {
+      "id": "control-original",
+      "forced_afterpass": []
+    },
+    {
+      "id": "two-item-trap",
+      "forced_afterpass": [
+        "Field Blower GRI",
+        "Counter Catcher PAR"
+      ]
+    },
+    {
+      "id": "two-item-ace",
+      "forced_afterpass": [
+        "Field Blower GRI",
+        "Counter Catcher PAR",
+        "Ace Trainer AOR"
+      ]
+    },
+    {
+      "id": "control-repeat",
+      "forced_afterpass": []
+    }
+  ],
+  "declared_native_paper_certification_requirements": {
+    "single_historical_deal_only": true,
+    "preserve_original_sixties": true,
+    "ensure_before_root_182_identical_action_prefix": true,
+    "item_lock_open_at_candidate_choice": true,
+    "source_bench3_one_psychic_vmax_with_float_stone": true,
+    "first_item_tool_targets_that_vmax": true,
+    "counter_catcher_source_bench3_to_active": true,
+    "require_candidate_six_source_one_prize_before_both_conditional_cards": true,
+    "follow_ace_trainer_actual_hand_shuffle_and_draw_counts": true,
+    "source_reply_on_following_real_turn": true,
+    "source_guzma_opponent_hidden_hand_must_not_inform_candidate_policy": true,
+    "retain_all_censored_and_native_rejected_attempts": true
+  },
+  "declared_caveats": [
+    "Retrospective selected positive physical seed",
+    "Forced intervention only, no autonomous action ranking",
+    "Pinned Store may misimplement rules or mutate Supporter quota before selected action",
+    "No 99.5% or qualified-game inference"
+  ]
+}
