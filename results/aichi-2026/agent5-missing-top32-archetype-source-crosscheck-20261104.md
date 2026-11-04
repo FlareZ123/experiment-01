@@ -4,7 +4,7 @@
 
 ## Result
 
-The benchmark [29 published complete source name/count inventories](full-decklists.json) lack tournament ranks **23, 25 and 28**. Public [Limitless tournament Results](https://limitlesstcg.com/tournaments/566) independently fixes their **rank and displayed player name**; its [Regidrago detailed tournament history](https://limitlesstcg.com/decks/260/results) directly marks both rank 23 and rank 28 Regidrago; and [Limitless full Top32 archetype statistics](https://limitlesstcg.com/tournaments/566/statistics) allow an exhaustive count cross-check.
+The benchmark [29 published complete source name/count inventories](full-decklists.json) lack tournament ranks **23, 25 and 28**. Public [Limitless tournament Results](https://limitlesstcg.com/tournaments/566) independently fixes their **rank and displayed player name**; its [Regidrago detailed tournament history](https://limitlesstcg.com/decks/260/results) directly marks both rank 23 and rank 28 Regidrago; and [Limitless full Top32 archetype statistics](https://limitlesstcg.com/tournaments/566/statistics) allow an exhaustive count cross-check. **[Limitless Raichu Electrode Combo detailed results](https://limitlesstcg.com/decks/282/results)** also directly lists **Kazuki Kumegawa at 25th** in the same event. Thus all three rank assignments are individually source-marked, in addition to the arithmetic check.
 
 | Missing final rank | Player shown in Limitless Results | Archetype supported by public tournament source | Complete exact original 60 recovered? |
 | ---: | --- | --- | --- |
