@@ -61,6 +61,23 @@ function probe(seat, damage) {
       stage = 'donor';
       f.store.dispatch(new ResolvePromptAction(q.id, [regv]));
       steps.push({ stage, snapshot: snap() });
+      stage = 'KO prompts';
+      for (let n = 0; n < 12; n++) {
+        const p = f.state.prompts.find(x => x.result === undefined);
+        if (!p) break;
+        const owner = f.state.players.find(x => x.id === p.playerId);
+        assert.ok(owner);
+        let answer = null;
+        if (p.constructor.name === 'ChoosePrizePrompt')
+          answer = owner.prizes.filter(x => x.cards.length).slice(0, p.options.count);
+        else if (p.constructor.name === 'ChoosePokemonPrompt')
+          answer = [owner.bench.find(x => x.getPokemonCard())];
+        else assert.ok(['WaitPrompt','ShowCardsPrompt'].includes(p.constructor.name));
+        assert.equal(p.validate(answer, f.state), true);
+        f.store.dispatch(new ResolvePromptAction(p.id, answer));
+        steps.push({ stage, reply: p.constructor.name, snapshot: snap() });
+      }
+      assert.equal(f.state.prompts.some(p => p.result === undefined), false);
     } catch (e) { error = String(e?.stack ?? e); }
   });
   return { seat, damage, expectedPaper: damage >= 220 ? 'KO' : 'survives',
