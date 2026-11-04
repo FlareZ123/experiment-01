@@ -41,6 +41,7 @@ function withOwnerFirstPrizeReveal(run,deps={}) {
     version:VERSION,ownerPrizeChoiceSubmitted:0,bySeat:[0,0],
     nativePrizeValidationPassed:0,
     records:[],recordsOmitted:0,delegated:0,
+    delegatedPromptMetadata:[],delegatedPromptMetadataOmitted:0,
     readConcealedPrizeFaces:false,competingPrizeChoiceCompared:false,
     wholeOwnerPolicyCertified:false,qualifiedGames:0
   };
@@ -79,6 +80,23 @@ function withOwnerFirstPrizeReveal(run,deps={}) {
       }
     }
     audit.delegated++;
+    if(prompt&&audit.delegatedPromptMetadata.length<8){
+      const seat=state.players?.findIndex(p=>p?.id===actorId)??-1;
+      const ownZone=actor&&prompt.cards===actor.hand?'own-hand':
+        actor&&prompt.cards===actor.deck?'own-deck':
+        actor&&prompt.cards===actor.discard?'own-discard':'other-or-not-applicable';
+      const options=prompt.options;
+      audit.delegatedPromptMetadata.push({
+        seat,turn:state.turn,phase:state.phase,
+        promptKind:prompt.constructor?.name??null,
+        message:typeof prompt.message==='string'?prompt.message.slice(0,100):null,
+        playerType:prompt.playerType??null,
+        slotTypes:Array.isArray(prompt.slots)?prompt.slots.slice(0,8):null,
+        ownZone,allowCancel:options?.allowCancel??null,
+        min:options?.min??null,max:options?.max??null,
+        blockedCount:Array.isArray(options?.blocked)?options.blocked.length:null
+      });
+    }else if(prompt)audit.delegatedPromptMetadataOmitted++;
     return prev.value.call(this,state);
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{...prev,value:decide});
