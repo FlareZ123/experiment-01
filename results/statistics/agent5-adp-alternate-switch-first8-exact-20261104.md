@@ -40,6 +40,26 @@ The accepted seven-card physical-hand count is **232,063,840**. The exact denomi
 
 The selected categories are disjoint physical card groups. For an initial seven-card hand category count vector **h**, an observed turn draw from group **i** has multiplicity **C(n,h) × (n_i − h_i)**. Conditional on the named first-eight identities, each six-card Prize set among the remaining 52 is equiprobable by exchangeability; enumerate the exact prizes allocated to ADP, Guzma & Hala and Double Dragon Energy, with all other cards combined. The weighted denominator is equivalent to the original chronological procedure in which Prizes were placed *before* the first normal draw. No policy is given actual Prize identities or deck order.
 
+
+
+## Slot-sensitivity counterfactuals on the same access screen
+
+The same exact enumerator can expose the **opportunity cost of one unspecified non-Basic filler slot** without changing or claiming a newly admitted fixed 60. Change the category-count vector in its recorded order \`[ADP, other Basic, Switch, Tag Call, Quick Ball, Ultra Ball, Guzma & Hala, Double Dragon Energy, other]\`; each hypothetical addition is offset by decrementing \`other\`. These are *hypothetical mathematical vectors*, never silently substituted into the published v2.
+
+| Hypothetical exact 60-category change | Maximal named first-eight access | Difference versus unchanged v2 |
+| --- | ---: | ---: |
+| Unchanged published v2 | 37.981531% | baseline |
+| 2→3 ADP | **45.783445%** | **+7.801915 pp** |
+| 2→3 Switch | **41.840568%** | **+3.859038 pp** |
+| 3→4 Guzma & Hala | 39.453730% | +1.472200 pp |
+| 3→4 Quick Ball | 38.273130% | +0.291599 pp |
+| 2→3 ADP **and** 2→3 Switch, remove two others | 49.077640% | +11.096110 pp |
+| 2→4 ADP, remove two others | 51.782950% | +13.801420 pp |
+
+The one-slot mathematical gain from a third ADP is substantial on this **narrow access metric**. It is not evidence that adding the card is a strong deckbuilding decision. In particular, replacing either of v2's two Field Blower answers potentially reopens the actual Temple of Sinnoh / Garbotoxin counter cluster the v2 change was designed to address. Removing a discard outlet, Recovery card, Dragon payload or Energy can damage the later T2 chain. Both the conditional Basic-valid-hand denominator and access numerator change when adding an ADP. A real structural card swap must be evaluated under the same complete original-source policy and opponent continuation.
+
+These numbers give a clear prioritization hypothesis: test whether **an extra starting ADP** can yield enough reliable, paper-paid early attacks to compensate for a lost slot *after* a shared policy meets its legality and opponent-competence gates. Do not substitute this physical resource estimate for game wins.
+
 ## Verification
 
 - [New BigInt enumerator](../../simulation/evaluation/agent5-adp-switch-first8-exact.cjs): builds printed categories from the unchanged registered 60, refuses silent inventory changes, enumerates valid initial hands, first draw and physical Prize configurations. Its fixed60 baseline numerator and denominator exactly reproduce Agent1's independently derived result.
