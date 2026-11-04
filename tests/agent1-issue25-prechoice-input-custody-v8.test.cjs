@@ -28,6 +28,14 @@ function fixture(mode){
       ]
     },
     diagnostic:{
+      protectedOpeningAudit:mode==='protected'?{
+        stores:8,initialAccepted:16,bonusDeclines:4,
+        missingPhysicalPlacements:0,
+        events:[{kind:'initial-active-and-ordinary-bench',
+          preservedEntryPrintings:['SYNTHETIC-PRIVATE-HAND-SENTINEL']},
+          {kind:'initial-active-and-ordinary-bench',
+          preservedEntryPrintings:[]}]
+      }:null,
       registered:trials.map(x=>x.id),
       attemptedRows:trials.map(x=>({
         id:x.id,status:'synthetic-incomplete',
@@ -72,6 +80,10 @@ test('same exact registered native Store owner inputs still cannot certify treat
   assert.equal(compared.constraints.trialPairedInputMismatches,0);
   assert.equal(compared.constraints.matchedNativePreRunRequests,16);
   assert.equal(compared.constraints.nativeRegisteredRequestParityObserved,true);
+  assert.equal(compared.protectedOpeningObservations.actualNativeStores,8);
+  assert.equal(compared.protectedOpeningObservations.initialNativeAccepted,16);
+  assert.equal(compared.protectedOpeningObservations.initialEventsWithHeldTurnEntrySupport,1);
+  assert.equal(JSON.stringify(compared).includes('SYNTHETIC-PRIVATE-HAND-SENTINEL'),false);
   assert.equal(compared.constraints.sameRegisteredTrialIdentityAndDeckPrintings,true);
   assert.equal(compared.constraints.sameObservedPinnedEngine,true);
   assert.equal(compared.constraints.declaredSingleOpeningWrapperContrast,true);
