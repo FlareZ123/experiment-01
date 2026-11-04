@@ -145,6 +145,7 @@ function originalSourceNameSetAmbiguityCensus(field,sourceMetadata){
 function verifyRecoveryPrints(resourceRoot){
   const patterns={
     supporter:/Supporter card from your discard pile/,
+    pokemon:/Put a Pokémon from your discard pile into your hand[\s\S]*Shuffle 3 Pokémon from your discard pile into your deck/,
     'pokemon-hp-90':/90 HP or less/,
     'pokemon-or-basic-energy':/Pokémon (?:and|or) (?:a )?Basic Energy/,
     'special-energy':/Special Energy cards from your discard pile/
@@ -179,7 +180,7 @@ function run(repoRoot=path.resolve(__dirname,'..')){
   const jpRows=field.decks.flatMap(deck=>
     japaneseSources.JapaneseOnlyPromoReceipts(deck.cards).map(
       item=>({...item,rank:deck.rank})));
-  return {schema:'agent15-discard-public-target-source-census-v3-jp-format',
+  return {schema:'agent15-discard-public-target-source-census-v4-rescue-stretcher',
     source:field.source,
     incidence:sourceRecoveryCensus(field),
     metadata:metadataCollisionCensus(bundled),
