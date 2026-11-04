@@ -8,13 +8,18 @@ on:
         type: boolean
         required: false
         default: false
+      issue25_v8_only:
+        description: Run only registered native prechoice v8 witness
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -135,6 +140,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
+    if: ${{ inputs.issue25_v8_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -220,6 +226,7 @@ jobs:
           retention-days: 30
 
   issue25-v8-prechoice:
+    if: ${{ inputs.issue25_v8_only == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
