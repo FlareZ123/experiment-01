@@ -44,7 +44,7 @@ function auditSourceSkyField(archive){
           s.ownerStadiumPlayedTurn!==root.turn&&
           s.ownerStadiumPlayLocked===false&&!sameName;
         findings.push({
-          originalRank5PhysicalSeat:group.source5Seat,seed:group.seed,
+          originalRank5PhysicalSeat:group.primaryRankSeat,seed:group.seed,
           seat:root.seat,rootOrdinal:root.ordinal,turn:root.turn,
           handIndex:row.handIndex,
           nativeEnumerated:false,chosenAction:root.chosen?.action??null,
