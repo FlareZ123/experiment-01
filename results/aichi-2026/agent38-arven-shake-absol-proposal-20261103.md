@@ -122,6 +122,12 @@ The hybrid union numerator is **56,512,392,832,556,911** over the same total han
 
 An updated [seven-test one-draw suite](../../tests/agent38-arven-shake-one-draw.test.cjs) includes an **independent ordered physical toy census of both hybrid and narrow lines**, ensuring no duplicate union reward. All seven passed when original source/test files fetched from GitHub were executed in an isolated V8-compatible harness; a compiled Node/Twinleaf run is still absent. This refinement does not address the possible self-lock cost of Garbotoxin, actual first-turn selection, opposing Item lock or opponent counterplay.
 
+## Historical event ban-list name gate
+
+An exact non-mutating comparison of the frozen 27 printed rows against the repository's [Aichi event-era Japan Expanded restricted-identity snapshot](../legality/japan-expanded-aichi-2026.json), dated **10 May 2026**, finds **zero matches** across its 27 listed restricted identities. The snapshot contains 14 Trainer-name restrictions, 10 Pokémon Ability-specific restrictions, two attack-specific Pokémon restrictions and one Pokémon-name restriction. No candidate Pokémon matches the names targeted by the Ability/attack restrictions, so those narrower selectors cannot match. The challenger also respects the one-ACE-SPEC and four-copy-per-non-Basic-Energy-name limits.
+
+This is **a necessary historical banned-identity screening**, not a sufficient Japanese event legality or native engine support certificate. It does not resolve the unindexed source MEE15 physical Basic Darkness Energy within the supplied English corpus, newer format updates, or game-engine text correctness.
+
 ## Printed-card database coverage and MEE energy identity
 
 The [bundled corpus audit](../../scripts/agent38-candidate-printing-audit.cjs) separately verifies each of the proposed 27 printed rows against `resources/sets/en.json` and the corresponding `resources/cards/en/<set>.json` card identities, testing both the printed card name and printed category. **26 of 27 printed identities representing 52 of 60 physical cards are exact matches in the supplied English corpus.** The five critical Arven/Boost Shake/Float Stone/Trubbish/Garbodor identities resolve exactly, and the printed `expanded` legality field says `Legal` for them. The printed Secret Box entry is the only indexed ACE SPEC. A combined-name four-copy check passes for all non-Basic-Energy cards.
