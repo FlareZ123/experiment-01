@@ -2,12 +2,13 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent15-japanese-only-source-promo-public-identities-v1';
+const VERSION='agent15-japanese-only-source-promo-public-identities-v2';
 
 /*
  * Source-specific Japanese promo catalog, separately from bundled English
- * resources/cards/en/*.json. Printed source collector numbers and the exact
- * names are from original Aichi full-decklists.json. Source cards are not
+ * resources/cards/en/*.json. Manifest keys and names originate from Aichi
+ * full-decklists.json. Palace Book SMP NAN25 is an unnumbered physical promo
+ * with an ELECTRONIC collector key, per Agent42's Japanese publisher audit. Source cards are not
  * necessarily usable in international English-language paper Expanded.
  * Limitless's English effect summaries are unofficial translations.
  *
@@ -19,6 +20,10 @@ const SOURCE_JP_ONLY=Object.freeze([
   Object.freeze({
     printing:'Palace Book SMP',
     sourceSet:'SMP',sourceNumber:'NAN25',
+    physicalPrintedNumber:null,
+    sourceCatalogueKeyNotPhysicalNumber:true,
+    originalJapaneseOfficialCardUrl:
+      'https://www.pokemon-card.com/card-search/details.php/card/34382/regu/all',
     metadata:Object.freeze({
       supertype:'Trainer',subtypes:Object.freeze(['Item']),hp:null
     }),
@@ -27,11 +32,14 @@ const SOURCE_JP_ONLY=Object.freeze([
     expandedJapan:'listed-legal',
     expandedInternational:'listed-not-legal',
     officiallyEnglishReleased:false,
-    nativeImplemented:null
+    nativeEffectEvidence:'pinned-Store-staged-Palace-Book-native',
+    nativeEffectEvidencePath:'tests/palace_promos_store.test.cjs',
+    nativeFullGameQualified:false
   }),
   Object.freeze({
     printing:"Player's Ceremony SP",
     sourceSet:'SP',sourceNumber:'127',
+    physicalPrintedNumber:'127',sourceCatalogueKeyNotPhysicalNumber:false,
     metadata:Object.freeze({
       supertype:'Trainer',subtypes:Object.freeze(['Stadium']),hp:null
     }),
@@ -42,11 +50,14 @@ const SOURCE_JP_ONLY=Object.freeze([
     expandedJapan:'listed-legal',
     expandedInternational:'listed-not-legal',
     officiallyEnglishReleased:false,
-    nativeImplemented:null
+    nativeEffectEvidence:'research-owned-hook-pinned-Store-staged',
+    nativeEffectEvidencePath:'tests/agent49-native-players-ceremony-store.test.cjs',
+    nativeFullGameQualified:false
   }),
   Object.freeze({
     printing:'Palace Belt BWP',
     sourceSet:'BWP',sourceNumber:'153',
+    physicalPrintedNumber:'153',sourceCatalogueKeyNotPhysicalNumber:false,
     metadata:Object.freeze({
       supertype:'Trainer',subtypes:Object.freeze(['Tool']),hp:null
     }),
@@ -57,7 +68,9 @@ const SOURCE_JP_ONLY=Object.freeze([
     expandedJapan:'listed-legal',
     expandedInternational:'listed-not-legal',
     officiallyEnglishReleased:false,
-    nativeImplemented:null
+    nativeEffectEvidence:'pinned-Store-staged-Palace-Belt-native',
+    nativeEffectEvidencePath:'tests/palace_promos_store.test.cjs',
+    nativeFullGameQualified:false
   })
 ]);
 
@@ -101,13 +114,18 @@ function JapaneseOnlyPromoReceipts(fieldCards){
     assert.equal(card.category,'Trainer');
     assert.equal(card.printing.number,descriptor.sourceNumber);
     rows.push({
-      printing,sourceNumber:descriptor.sourceNumber,
+      printing,sourceCatalogueKey:descriptor.sourceNumber,
+      physicalPrintedNumber:descriptor.physicalPrintedNumber,
+      sourceCatalogueKeyNotPhysicalNumber:
+        descriptor.sourceCatalogueKeyNotPhysicalNumber,
       count:card.count,subtype:descriptor.metadata.subtypes[0],
       source:descriptor.source,
       jpExpanded:descriptor.expandedJapan,
       intlExpanded:descriptor.expandedInternational,
       englishEffectTranslationUnofficial:true,
-      nativeImplementationKnown:false
+      nativeStagedEffectEvidence:descriptor.nativeEffectEvidence,
+      nativeEffectEvidencePath:descriptor.nativeEffectEvidencePath,
+      nativeFullGameQualified:false
     });
   }
   return rows;
