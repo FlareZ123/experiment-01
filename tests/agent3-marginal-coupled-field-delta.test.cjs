@@ -120,3 +120,31 @@ test('statistical design assertions are explicit and never certify a match',()=>
   assert.throws(()=>analyse(cells,{targetDelta:NaN}),TypeError);
   assert.equal(analyse(cells).competitiveQualified,false);
 });
+
+test('pre-deal errors with null physical source metadata stay censored in denominator',()=>{
+  const cells=cohort(2,()=>({}));
+  cells[0][0].referenceStatus='CENSORED';
+  cells[0][0].referenceFingerprint=null;
+  cells[1][0].challengerStatus='CENSORED';
+  cells[1][0].referenceFingerprint=null;
+  cells[1][0].challengerFingerprint=null;
+  const r=analyse(cells);
+  assert.equal(r.registeredPairs,64);
+  assert.equal(r.censoredPairs,2);
+  assert.equal(r.unknownSourceOpenings,2);
+  assert.equal(r.differingSourceOpenings,62);
+  assert.equal(r.matchingSourceOpenings,0);
+  assert.equal(r.fullyObservedMismatches,62);
+  assert.equal(r.observedLower,62/64);
+  assert.equal(r.observedUpper,1);
+});
+
+test('only censored arms can omit a genuine physical source fingerprint',()=>{
+  const notCensored=cohort(2,()=>({}));
+  notCensored[0][0].challengerFingerprint=null;
+  assert.throws(()=>analyse(notCensored),TypeError);
+  const undefinedFp=cohort(2,()=>({}));
+  undefinedFp[0][0].challengerStatus='CENSORED';
+  delete undefinedFp[0][0].challengerFingerprint;
+  assert.throws(()=>analyse(undefinedFp),TypeError);
+});
