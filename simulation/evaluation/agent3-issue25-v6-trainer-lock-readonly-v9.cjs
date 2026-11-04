@@ -149,7 +149,7 @@ function auditReadOnlyReplay(executed,prereg){
     actualObservedOwnerTrainerFlag:rawRows.every(row=>
       row.actorOnlyDecisionCoverage?.ownerGenericTrainerFrontierOptIn===true),
     actualObservedOwnerTrainerFlagOnUnabortedRows:rawRows.every(row=>
-      row.status==='engine-error'|| 
+      statuses.get(row.trial?.id??row.id)?.status==='engine-error'||
       row.actorOnlyDecisionCoverage?.ownerGenericTrainerFrontierOptIn===true),
     actualObservedPowerWindowFlag:rawDevelopment?.nativePressureWindowsOptIn??null,
     rows,
