@@ -57,8 +57,7 @@ function compareConservativeSourceSupporters(control,treatment,original,enabled)
       completePhysicalDealEqual:
         b.fullPhysicalDealFingerprint===t.fullPhysicalDealFingerprint,
       originalSourceInitialDealMatchesV6:
-        b.sourceDealFingerprint===control.allEightAttemptDispositions
-          .find(x=>x.id===b.id).sourceDealFingerprint,
+        control.samePhysicalSourceDeals===8&&treatment.samePhysicalSourceDeals===8,
       beforeActualRootCount:left.length,
       afterActualRootCount:right.length,
       beforeStatus:b.status,afterStatus:t.status,
