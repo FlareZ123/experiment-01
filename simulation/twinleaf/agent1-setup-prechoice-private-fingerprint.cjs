@@ -2,11 +2,15 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
+const {createHmac,randomBytes}=require('node:crypto');
 
 const VERSION='agent1-actual-native-owner-prechoice-private-fingerprint-v1';
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
+// Process-private key: v8 policy A/B must run in one Node process to compare.
+// A public, unkeyed hash of a seven-card hand is brute-force recoverable.
+const processSecret=randomBytes(32);
+const privateFingerprint=bytes=>createHmac('sha256',processSecret)
+  .update(bytes).digest('hex');
 
 /**
  * Read a physical owner's *pre-setup-choice* private randomized positions at
@@ -15,7 +19,7 @@ const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
  * Benched cards is the treatment, so a post-treatment fingerprint MUST differ
  * when the opening policy actually changes a setup placement.
  *
- * The only persistent output is a SHA-256 of own hand/deck/Prize positions;
+ * The only persistent output is a process-keyed HMAC of own hand/deck/Prize positions;
  * all raw card printings are immediately discarded. Never use this observer
  * for a gameplay choice, retrospective seed selection or prize inference.
  *
@@ -53,6 +57,9 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     events:[],
     eventLimit:maxEvents,
     hiddenCardNamesOrOrderPublished:false,
+    fingerprintScheme:'HMAC-SHA256; secret unique to process, never serialized',
+    comparableOnlyInsideOneNodeProcess:true,
+    fingerprintSecretPublished:false,
     policyChoiceActionsIssued:0,
     qualifiesFullPaperRandomness:false,
     qualifiesMatchedCompetitiveGames:false
@@ -106,7 +113,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
             ownerHandCount:hand.length,
             ownerDeckCount:deck.length,
             ownerPrizeCount:prizes.reduce((sum,slot)=>sum+slot.length,0),
-            opaquePhysicalPrechoiceInputSha256:sha256(physicalPositions),
+            opaquePhysicalPrechoiceInputHmacSha256:privateFingerprint(physicalPositions),
             globalTurnAtCapture:state.turn,
             noPolicyChoiceOrHiddenNamesPublished:true
           });
