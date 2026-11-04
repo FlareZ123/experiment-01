@@ -22,6 +22,7 @@ const ATTACK_TRACE_REPLAY=process.env.AGENT11_TUTOR_ATTACK_TRACE_REPLAY==='true'
 const SYMMETRIC_KNOWN_DEAD=process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true';
 // Additional retrospective common actor policy: no source-seat-specific privileges.
 const SYMMETRIC_MEW_COMPETENCE=process.env.AGENT11_SYMMETRIC_MEW_COMPETENCE==='true';
+const C11_FULLBENCH_PASS=process.env.AGENT11_FULLBENCH_C11_PASS_DEV==='true';
 
 /**
  * Frozen two-seat, two-independent-seed physical-deal development A/B design.
@@ -65,7 +66,7 @@ function run(){
       captureNativeAbortEvidence:ATTACK_TRACE_REPLAY,
       label:'agent11-owner-tutor-'+arm.id
     };
-    let tutorAudit=null,actorAudit=null,game=null,error=null;
+    let tutorAudit=null,actorAudit=null,c11GuardAudit=null,game=null,error=null;
     try{
       const actorWork=()=>{
         if(arm.mode==='control')return runMatch(options);
@@ -80,8 +81,15 @@ function run(){
       }:{};
       const actorOptions=SYMMETRIC_MEW_COMPETENCE?
         {preferMewGenesectTechnoBlast:true}:{};
+      const guardedActorWork=()=>{
+        if(!C11_FULLBENCH_PASS)return actorWork();
+        const guarded=require('../twinleaf/agent11-fullbench-call-family-native-pass-guard.cjs')
+          .withFullBenchTrubbishPassGuard(actorWork);
+        c11GuardAudit=guarded.audit;
+        return guarded.result;
+      };
       const actual=withCanonicalActorOnlyPolicy(
-        actorWork,actorAdapters,actorOptions);
+        guardedActorWork,actorAdapters,actorOptions);
       game=actual.result;
       actorAudit={version:actual.audit.version,
         nativeDecisionCounts:actual.audit.nativeDecisionCounts};
@@ -119,6 +127,7 @@ function run(){
           row.playerSlot!==arm.rank5Seat)??null,
       }:{}),
       actorAudit,tutorAudit,
+      ...(C11_FULLBENCH_PASS?{c11GuardAudit}:{}),
       paperGameQualified:false
     });
   }
@@ -154,6 +163,10 @@ function run(){
         commonBothPhysicalSeats:true,
         retrospectiveIntervention:true
       },competitiveQualifiedGames:0}:{}),
+    ...(C11_FULLBENCH_PASS?{
+      experimentalC11FullBenchPassGuard:'retrospective-paper-no-search-equivalent-pass-v1',
+      competitiveQualifiedGames:0
+    }:{}),
     runGitSha:process.env.GITHUB_SHA??null,
     codeVersion:BRIDGE_VERSION,
     registrationSha256:sha256(registered),
