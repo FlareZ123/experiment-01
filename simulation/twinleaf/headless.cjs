@@ -944,6 +944,10 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    // Genuine first own live-turn hands, before either bot inspects or mutates state.
+    const firstLiveOwnerHandsObserver=request.captureFirstLiveOwnerHands===true?
+      require('./agent16-first-live-owner-hands.cjs')
+        .createFirstLiveOwnerHandsObserver({playerTurnPhase:GamePhase.PLAYER_TURN}):null;
     // Postdispatch-only, first-setup coin and GO_FIRST evidence. Never passed
     // into either actor's tactic or prompt-selection input.
     const setupCoinChoiceReceipt=request.captureSetupCoinChoiceReceipt===true?
@@ -1019,6 +1023,8 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      if(firstLiveOwnerHandsObserver)
+        firstLiveOwnerHandsObserver.observe(state,actions,pending);
       if (publicMulliganRevealObserver)
         publicMulliganRevealObserver.observe(state,pending);
       // Opt-in post-setup digest, captured before any first-turn bot decision.
@@ -1804,6 +1810,9 @@ function runMatch(request) {
       ...(horrorHouseRootTrace ? {horrorHouseRootTrace} : {}),
       abilityTrace,
       decisionTrace,
+      ...(firstLiveOwnerHandsObserver?{
+        firstLiveOwnerHands:firstLiveOwnerHandsObserver.result()
+      }:{}),
       rootActionLedger,
       ...(terminalAttackKoBeforeEndTurnHook ? {
         terminalAttackKoBeforeEndTurnAudit:terminalAttackKoBeforeEndTurnHook.evidence()
