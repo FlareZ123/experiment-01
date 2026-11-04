@@ -98,7 +98,7 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
     if(error)break;
   }
   return {
-    seat,selectedCount,useAbility:options.useAbility!==false,before,after:
+    seat,selectedCount,useAbility:options.useAbility!==false,before,after:{
       phase:state.phase,turn:state.turn,activePlayer:state.activePlayer},
     radiantBenched:actor.bench[0].getPokemonCard()===radiant,
     vmaxBenched:actor.bench.some(slot=>slot.getPokemonCard()===vmax),
