@@ -59,3 +59,5 @@ jobs:
         run: node --test tests/agent36-issue25-selected-v0.native.test.cjs
       - name: Issue25 opt-in source-independent both-seat resource policy pure contract
         run: node --test tests/agent36-bilateral-two-seat-common-policy.test.cjs
+      - name: Issue25 opt-in symmetric v1 actual source-independent pinned native four-arm gate
+        run: node --test tests/agent36-issue25-symmetric-v1.native.test.cjs
