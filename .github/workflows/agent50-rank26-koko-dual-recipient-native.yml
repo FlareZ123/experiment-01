@@ -1,13 +1,20 @@
 name: Agent50 rank26 original Koko dual-recipient staged native probe
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      issue25_only:
+        description: Run only the joined Issue25 native development job
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
+    if: ${{ inputs.issue25_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
