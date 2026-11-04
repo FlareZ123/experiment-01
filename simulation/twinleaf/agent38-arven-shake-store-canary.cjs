@@ -34,6 +34,7 @@ function probeArvenShake(candidateSeat){
   const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
   const {Format}=engine('game/store/card/card-types');
   const {GamePhase}=engine('game/store/state/state');
+  const {GameSettings}=engine('game/core/game-settings');
   const {PlayCardAction,PlayerType,SlotType}=
     engine('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -49,6 +50,9 @@ function probeArvenShake(candidateSeat){
   state.players=candidateSeat===0?[candidate,opponent]:[opponent,candidate];
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=2;state.activePlayer=candidateSeat;
+  const settings=new GameSettings();
+  state.gameSettings=settings;
+  state.rules=settings.rules;
   state.gameSettings.format=Format.EXPANDED;
   candidate.active.cards.push(card('Mega Absol ex MEG'));
   const trubbish=new PokemonCardList();
