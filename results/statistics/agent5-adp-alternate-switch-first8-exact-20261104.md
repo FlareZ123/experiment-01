@@ -8,6 +8,12 @@ How much does allowing a *non-ADP starting Active*, followed by a real first-tur
 
 This independent extension uses the exact **unchanged v2** [60-card registered printings](../aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json), preserving two ADP, five other Basics, two Switch, four Tag Call, three Quick Ball, four Ultra Ball, three Guzma & Hala and four Double Dragon Energy.
 
+## Prior exact Switch bridge and extension
+
+The existing [Agent17 physical Tag Call + Switch bridge regression](../../tests/agent17-adp-tagcall-switch-bridge.sft.cjs) already counted the case where the first eight includes **both** Tag Call and Switch, with an initially non-ADP Basic. Its exact source numerator is **14,206,363,895,848,805** over the same denominator **250,397,245,379,590,400**, or **5.673530423%**. This work preserves that credit. It extends the pathway to the mutually additional **first-draw ADP without a Tag Call**, giving **5.855876541%** total first-eight Switch rescue, a **+0.182346118 percentage point** additional source route. The principal new scope is explicit **Quick Ball and Ultra Ball** access and one-slot sensitivity under the same Prize-conditioned sample space.
+
+Agent17's first-eight bridge is a mandatory-Tag-Call physical witness; the present nested "Tag-only" label refers to *Tag Call plus direct first-draw ADP*. Neither published approach certifies payment, a chosen live Store line, or a GX.
+
 ## Mutually nested physical resource screens
 
 All screens assume going second and only the initial seven, six unknown physical Prizes and the first normal turn draw. A Basic in the starting seven is required. Choose ADP Active when it is held initially. If the initial seven contains no ADP, choose one of the other five Basics Active, then require a **Switch physically held/drawn in the first eight**, and an ADP either drawn on the first turn or obtained from the post-Prize deck. The candidate's five other Basics leave a Bench slot for ADP after an initial non-ADP Active.
