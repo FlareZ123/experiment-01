@@ -133,6 +133,15 @@ function summarizeArm(run,registration,armId){
         raw.initializationWindowAudit?.candidateTurn2
           ?.nativePowerChecks?.filter(x=>x.blocked===true)
           .map(x=>({printing:x.printing,powerName:x.powerName}))??null,
+      nativeSafeDecoderFrames:
+        raw.nativeAbortEvidence?.decoderFrameAttribution??null,
+      nativeAbortPrompt:raw.nativeAbortEvidence?.pendingPrompt??
+        receipt.abortPendingPrompt??null,
+      nativeAbortActionOrdinal:
+        raw.nativeAbortEvidence?.actionOrdinal??
+        receipt.abortActionOrdinal??null,
+      nativeAbortActorPhysicalSeat:
+        raw.nativeAbortEvidence?.actingSeat??null,
       nativeFailureStage:raw.nativeAbortEvidence?.failureStage??
         receipt.abortFailureStage??null,
       nativeErrorSanitized:typeof raw.error==='string'?
