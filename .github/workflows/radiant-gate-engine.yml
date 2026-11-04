@@ -31,6 +31,9 @@ jobs:
       - name: Verify pinned native Radiant Climactic Gate zero-search and repaired shuffle in both seats
         run: node --test tests/agent1-radiant-zero-gate-native.test.cjs tests/agent1-radiant-gate-lock-hook-order.native.test.cjs
 
+      - name: Verify native Jirachi and Mew selected-search reveals and scoped shuffles in both seats
+        run: node --test tests/agent8-selected-search-reveal-shuffle.native.test.cjs
+
       - name: Check opt-in Forest Seal Stone one-card search correction
         run: node --test tests/forest-seal-search-hook.test.cjs
 
