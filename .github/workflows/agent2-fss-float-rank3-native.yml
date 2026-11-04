@@ -1,4 +1,4 @@
-name: Agent 2 FSS first Tool native rank3 mobility counterfactual
+name: Agent 2 FSS first Tool native two-rank tactical Store counterfactual
 
 on:
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
       - name: Run every exact source-print and first-Tool pure invariant
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
-        run: node --test tests/agent2-fss-float-actual-store.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
+        run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
