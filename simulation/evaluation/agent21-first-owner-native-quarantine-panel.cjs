@@ -124,6 +124,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerNonvisualWaitBySeat:ownerWaitAudit?.bySeat??null,
       ownerAttackVisualWaits:ownerWaitAudit?.visualAttackWaitHandled??null,
       ownerWaitDecisions:ownerWaitAudit?.records??[],
+      ownerDelegatedWaitMetadata:ownerWaitAudit?.delegatedWaitMetadata??[],
+      ownerDelegatedWaitMetadataOmitted:ownerWaitAudit?.delegatedWaitMetadataOmitted??null,
       ownerShowCardsAckEnabled:deps.ownerShowCardsAck===true,
       ownerShowCardsAcknowledged:ownerShowCardsAudit?.showCardsAcknowledged??null,
       ownerShowCardsBySeat:ownerShowCardsAudit?.bySeat??null,
