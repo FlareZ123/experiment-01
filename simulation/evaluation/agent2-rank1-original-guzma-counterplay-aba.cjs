@@ -1,0 +1,261 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
+const path=require('node:path');
+const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
+const {originals}=require('./agent41-rank3-arbitration-original-store.cjs');
+const {withCanonicalActorOnlyPolicy}=
+  require('./agent7-canonical-actor-composition.cjs');
+const {withActorOnlyRootPolicy}=
+  require('../twinleaf/agent34-actor-only-root-policy.cjs');
+const {withNativePaperSupporterDiscipline}=
+  require('../twinleaf/agent41-paper-supporter-discipline.cjs');
+const {withSameTargetAttachEnergySelection}=
+  require('../twinleaf/same-target-attach-energy-hook.cjs');
+const {nativeSinglePokemonChoices}=
+  require('../twinleaf/agent8-actor-only-choose-pokemon.cjs');
+
+const VERSION='agent2-original-rank1-held-guzma-vs-bunnelby-aba-v1';
+const SEED=290134,SOURCE_SEAT=0,OPPONENT_SEAT=1,INTERVENTION_TURN=3;
+const ORIGINAL_FULL_DEAL=
+  'e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
+const ORIGINAL_SOURCE_DEAL=
+  'ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
+const native=p=>require(path.resolve(__dirname,
+  '../../vendor/twinleaf/ptcg-server/output',p));
+const hash=value=>createHash('sha256')
+  .update(JSON.stringify(value)).digest('hex');
+
+/**
+ * One no-hidden-info, actual print Guzma owner action and two native prompts.
+ * The owner has the literal BUS Guzma in hand on its Turn3 in the registered
+ * original 60 physical game, with Bunnelby Active and a Benched Snorlax.
+ * The opposing target and own switched Pokémon must be present in the
+ * native pending prompt and accepted by native validation.
+ *
+ * This variant tests one credible tactical counterline only, not an
+ * optimized symmetric opponent strategy. Other actions remain canonical.
+ *
+ * @template T
+ * @param {()=>T} execute Original native matchup, unchanged actual cards.
+ * @returns {{result:T,audit:object}}
+ */
+function withRank1HeldGuzmaCounterplay(execute){
+  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const original=SimpleTacticsAi.prototype.decodeNextAction;
+  const audit={
+    feature:VERSION,registeredOwnerTurn:INTERVENTION_TURN,
+    changedGuzmaOwnerRoots:0,
+    nativeOpponentSnorlaxGustPromptChoices:0,
+    nativeSelfShadowRiderSwitchPromptChoices:0,
+    proposedGuzmaOwnHandCount:0,
+    originalOwnerPromptValidation:true,
+    ownerOnly:true,
+    completelyQualifiedGames:0,
+    receipts:[]
+  };
+  let selectedTurn=null;
+  const decoder=function ownerGuzmaAndTruePrompt(state,...args){
+    const owner=state.players[OPPONENT_SEAT];
+    const pending=state.prompts.find(p=>p.result===undefined);
+    if(selectedTurn===INTERVENTION_TURN && state.turn===INTERVENTION_TURN &&
+       pending?.constructor.name==='ChoosePokemonPrompt' &&
+       pending.playerId===owner.id){
+      const choices=nativeSinglePokemonChoices(state,pending);
+      const opponent=choices.filter(c=>c.seat===SOURCE_SEAT &&
+        c.zone==='bench');
+      const self=choices.filter(c=>c.seat===OPPONENT_SEAT&&
+        c.zone==='bench');
+      const target=opponent.length>0 && self.length===0?
+        opponent.find(c=>c.physical.getPokemonCard()?.fullName==='Snorlax PGO'):
+        self.length>0&&opponent.length===0?
+          self.find(c=>c.physical.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE'):
+          null;
+      if(target){
+        assert.equal(pending.validate([target.physical],state),true);
+        const side=target.seat===SOURCE_SEAT?'opponent':'self';
+        if(side==='opponent')
+          audit.nativeOpponentSnorlaxGustPromptChoices++;
+        else audit.nativeSelfShadowRiderSwitchPromptChoices++;
+        audit.receipts.push({
+          globalTurn:state.turn,promptId:pending.id,
+          selectedSide:side,printedPokemon:target.physical.getPokemonCard().fullName,
+          legalChoiceCount:choices.length,
+          selectedBenchIndex:target.index
+        });
+        return new ResolvePromptAction(pending.id,[target.physical]);
+      }
+    }
+    if(!pending&&selectedTurn===null&&state.turn===INTERVENTION_TURN &&
+       state.activePlayer===OPPONENT_SEAT &&
+       state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName==='Bunnelby PRC'){
+      const hand=owner.hand.cards;
+      const index=hand.findIndex(c=>c.fullName==='Guzma BUS');
+      const theirSnorlax=state.players[SOURCE_SEAT].bench.some(slot=>
+        slot.getPokemonCard()?.fullName==='Snorlax PGO');
+      const ownV=owner.bench.some(slot=>
+        slot.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE');
+      if(index>=0 && theirSnorlax && ownV &&
+         owner.supporterTurn!==state.turn &&
+         !owner.cannotPlaySupporterCards){
+        audit.changedGuzmaOwnerRoots++;
+        audit.proposedGuzmaOwnHandCount=hand.length;
+        selectedTurn=INTERVENTION_TURN;
+        audit.receipts.push({
+          globalTurn:state.turn,ownerHandIndex:index,
+          playedPrinting:hand[index].fullName,
+          beforeOwnActive:owner.active.getPokemonCard()?.fullName,
+          beforeOpponentActive:state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName
+        });
+        return new PlayCardAction(owner.id,index,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+        });
+      }
+    }
+    return original.call(this,state,...args);
+  };
+  SimpleTacticsAi.prototype.decodeNextAction=decoder;
+  try{
+    return {result:execute(),audit};
+  }finally{
+    assert.equal(SimpleTacticsAi.prototype.decodeNextAction,decoder);
+    SimpleTacticsAi.prototype.decodeNextAction=original;
+  }
+}
+
+/**
+ * Every arm shares the identical original 60s, physical initial deal, and
+ * selected canonical root and printed-prompt rules.
+ * @param {'control'|'guzma'|'control-repeat'} arm
+ * @param {{source:string[],candidate:string[]}} cards
+ * @returns {object}
+ */
+function runArm(arm,cards){
+  const request={
+    deckA:cards.source,deckB:cards.candidate,seed:SEED,
+    maxActions:520,label:'agent2-native-original-rank1-held-guzma-'+arm,
+    strictPromptValidation:true,mandatoryOptionFallback:true,
+    enforceSelectOptionLegality:true,
+    enforceVisiblePlayLockBothSeats:true,
+    captureInitialFullPhysicalDeal:true,
+    captureInitialSourceDealFingerprintSeat:SOURCE_SEAT,
+    captureDecisionTrace:true,
+    capturePublicAttackTransitions:true,
+    captureNativeAbortEvidence:true,
+    captureFinalPublicBoard:true
+  };
+  try{
+    let tacticalAudit=null;
+    const execute=()=>{
+      const unchanged=()=>withSameTargetAttachEnergySelection(
+        ()=>runMatch(request)).result;
+      if(arm!=='guzma')return unchanged();
+      const treated=withRank1HeldGuzmaCounterplay(unchanged);
+      tacticalAudit=treated.audit;
+      return treated.result;
+    };
+    const guarded=withNativePaperSupporterDiscipline(()=>
+      withCanonicalActorOnlyPolicy(execute,{
+        root:work=>withActorOnlyRootPolicy(work,{
+          publicContextSpecialEnergy:true,specialEnergyRoot:true
+        })
+      },{ownerSingleSearch:true,genericFallbackAttribution:true}));
+    const game=guarded.result.result;
+    const sourceAttacks=game.attackDeclarationTrace.filter(
+      d=>d.playerSlot===SOURCE_SEAT);
+    const opponentAttacks=game.attackDeclarationTrace.filter(
+      d=>d.playerSlot===OPPONENT_SEAT);
+    const actualGuzmaRoots=game.rootActionLedger.filter(x=>
+      x.playerSlot===OPPONENT_SEAT&&
+      x.action==='PlayCardAction'&&x.card==='Guzma');
+    return {
+      arm,status:game.finished?'native-terminal':'native-cap',
+      fullDeal:game.initialFullPhysicalDealFingerprint?.digestSha256??null,
+      sourceDeal:game.initialSourceDealFingerprint?.digestSha256??null,
+      winner:game.winner,turns:game.turns,actions:game.actions,
+      rootLedgerSha256:hash(game.rootActionLedger),
+      originalRank1ActualGuzmaRoots:actualGuzmaRoots.length,
+      originalRank1ActualGuzmaRootActions:actualGuzmaRoots,
+      rank3ActualBurrowCount:sourceAttacks.filter(x=>
+        x.attackName==='Burrow').length,
+      rank1FilchCount:opponentAttacks.filter(x=>
+        x.attackName==='Filch').length,
+      rank1OtherAttacks:opponentAttacks.filter(x=>
+        x.attackName!=='Filch').map(x=>x.attackName),
+      registeredRootTurn3ActualSourceActions:game.rootActionLedger.filter(x=>
+        x.turnBefore===3),
+      actualFinalPublicBoard:game.finalPublicBoard??null,
+      terminalTransition:game.terminalTransition??null,
+      tacticalAudit,competitivelyQualified:false
+    };
+  }catch(error){
+    return {arm,status:'native-error',
+      error:String(error?.stack??error).slice(0,3600),
+      competitivelyQualified:false};
+  }
+}
+
+/** @returns {object} Frozen owner-visible original Guzma counterplay A/B/A. */
+function run(){
+  initializeCards();
+  const cards=originals();
+  const old=new Map([
+    ['AGENT8_ACTOR_QUICK_BALL_DEV',process.env.AGENT8_ACTOR_QUICK_BALL_DEV],
+    ['AGENT41_OWNER_TERMINAL_ARBITRATION_DEV',
+      process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV]
+  ]);
+  try{
+    process.env.AGENT8_ACTOR_QUICK_BALL_DEV='false';
+    process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV='false';
+    const registered=['control','guzma','control-repeat'];
+    const arms=registered.map(arm=>runArm(arm,cards));
+    const [a,b,again]=arms;
+    const valid=arms.every(x=>x.status!=='native-error'&&
+      x.fullDeal===ORIGINAL_FULL_DEAL&&
+      x.sourceDeal===ORIGINAL_SOURCE_DEAL);
+    const repeated=valid&&a.status===again.status&&
+      a.winner===again.winner&&a.actions===again.actions&&
+      a.rootLedgerSha256===again.rootLedgerSha256;
+    return {
+      schema:VERSION,sourceRank:3,opponentRank:1,seed:SEED,
+      sourceSeat:SOURCE_SEAT,opponentSeat:OPPONENT_SEAT,
+      nativePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+      originalSourceConvertedSha256:hash(cards.source),
+      originalOpponentConvertedSha256:hash(cards.candidate),
+      registeredArms:registered,
+      controls:{
+        exactOriginalPhysicalOpeningAllArms:valid,
+        repeatedControlExactRootLedger:repeated,
+        actualOriginalGuzmaNativeRoot:b.originalRank1ActualGuzmaRoots>0,
+        nativeBothGuzmaPromptChoices:
+          b.tacticalAudit?.nativeOpponentSnorlaxGustPromptChoices>0&&
+          b.tacticalAudit?.nativeSelfShadowRiderSwitchPromptChoices>0,
+        competitiveQualifiedGames:0
+      },
+      arms,
+      interpretationLimits:
+        'Single historical original deal with one owner-legal held Guzma response and real opponent and own switch prompts. This does not optimize rank1, certify every paper mechanic, or estimate field win rate.'
+    };
+  }finally{
+    for(const [key,value] of old){
+      if(value===undefined)delete process.env[key];
+      else process.env[key]=value;
+    }
+  }
+}
+if(require.main===module){
+  const evidence=run();
+  process.stdout.write(JSON.stringify(evidence,null,2)+'\n');
+  if(evidence.arms.some(x=>x.status==='native-error')||
+    !evidence.controls.exactOriginalPhysicalOpeningAllArms||
+    !evidence.controls.repeatedControlExactRootLedger||
+    !evidence.controls.actualOriginalGuzmaNativeRoot||
+    !evidence.controls.nativeBothGuzmaPromptChoices)
+    process.exitCode=1;
+}
+module.exports={VERSION,run,withRank1HeldGuzmaCounterplay};
