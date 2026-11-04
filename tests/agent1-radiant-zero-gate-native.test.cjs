@@ -55,7 +55,30 @@ test('real positive one-VMAX choice behaves as original native, both seats',()=>
   }
 });
 
-test('native decline of Climactic Gate remains out of repair scope',()=>{
+test('actual native refusal of optional Ability remains unchanged in both seats',()=>{
+  for(const seat of [0,1]){
+    const raw=probe(seat,0,{useAbility:false});
+    const fixed=probe(seat,0,{repaired:true,useAbility:false});
+    console.log('AGENT1_GATE_DECLINE_NATIVE '+JSON.stringify({seat,raw,fixed}));
+    for(const row of [raw,fixed]){
+      assert.equal(row.after.turn,4);
+      assert.equal(row.after.activePlayer,seat);
+      assert.equal(row.radiantBenched,true);
+      assert.equal(row.vmaxBenched,false);
+      assert.equal(row.vmaxInDeck,true);
+      assert.deepEqual(row.pendingPrompts,[]);
+      assert.equal(row.events.length,1);
+      assert.equal(row.events[0].prompt,'ConfirmPrompt');
+      assert.equal(row.events[0].validated,true);
+      assert.equal(row.events[0].error,null);
+    }
+    assert.equal(fixed.hookAudit.declinedUses,1);
+    assert.equal(fixed.hookAudit.zeroSelections,0);
+    assert.equal(fixed.hookAudit.repairedTurnEnds,0);
+  }
+});
+
+test('untriggered hook scope restores native prototypes without changes',()=>{
   const {withRadiantZeroGateHook}=require('../simulation/twinleaf/agent1-radiant-zero-gate-hook.cjs');
   // The exact native positive and empty paths above already restore both
   // prototypes. A fake no-op scope proves the wrapper itself is reversible.
