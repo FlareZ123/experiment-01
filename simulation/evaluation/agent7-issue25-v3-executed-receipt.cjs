@@ -73,8 +73,11 @@ function buildReceipt(executed){
   }
   const rows=diagnostic.attemptedRows.map(status=>
     executionRow(status,rawById.get(status.id)??null));
-  const reconciled=diagnostic.registeredAttemptReconciliation
-    ?.exactUniqueMatch===true&&
+  const rawJoinExact=rawIdentityConflicts.length===0&&
+    rawRows.length===rows.length&&
+    rows.every(row=>row.actualRawTrialId===row.id);
+  const reconciled=rawJoinExact&&
+    diagnostic.registeredAttemptReconciliation?.exactUniqueMatch===true&&
     diagnostic.rawRowIdentityReconciliation?.exactlyReconciled===true;
   const observedGit=manifest.runtimeGitAttestationStatus==='VERIFIED';
   const attemptIds=rows.map(row=>row.id);
@@ -102,6 +105,7 @@ function buildReceipt(executed){
       exactIdReconciliation:diagnostic.registeredAttemptReconciliation??null,
       rawRowReconciliation:diagnostic.rawRowIdentityReconciliation??null,
       receiptRawJoinIdentityConflicts:rawIdentityConflicts,
+      receiptRawJoinExact:rawJoinExact,
       registeredAttemptsReturned:diagnostic.allRegisteredAttemptsReturned===true
     },
     attempts:rows,
