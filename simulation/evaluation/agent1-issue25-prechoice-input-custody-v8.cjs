@@ -126,40 +126,66 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
   assert.equal(baseline.manifest.prechoiceMode,'baseline');
   assert.equal(protectedRun.manifest.prechoiceMode,'protected');
   const ids=baseline.diagnostic.registered;
+  assert.ok(Array.isArray(ids));
   assert.equal(ids.length,8);
   assert.deepEqual(protectedRun.diagnostic.registered,ids);
-  const observed=(execution)=>{
+
+  /**
+   * Private randomized input is observed at Store time, but this observer
+   * currently has only a Store creation ordinal. No authentic trial ID is
+   * attached to that Store. An index-based pairing is diagnostic only.
+   * @param {object} execution
+   */
+  const observed=execution=>{
     const witness=execution.diagnostic.actualNativePrechoicePhysicalInputs;
     assert.ok(witness,'No actual source-owner setup input provenance');
+    assert.ok(Array.isArray(witness.events));
     const map=new Map();
-    for(const row of witness.events){
-      const key=row.nativeStoreOrdinal+':'+row.physicalOwnerSeat;
+    for(const event of witness.events){
+      const key=event.nativeStoreOrdinal+':'+event.physicalOwnerSeat;
       assert.ok(!map.has(key),'duplicate physical owner prechoice input');
-      assert.ok(row.physicalOwnerSeat===0||row.physicalOwnerSeat===1);
-      assert.ok(Number.isSafeInteger(row.nativeStoreOrdinal)&&
-        row.nativeStoreOrdinal>=1&&row.nativeStoreOrdinal<=8);
-      assert.match(row.opaquePhysicalPrechoiceInputSha256,/^[0-9a-f]{64}$/);
-      map.set(key,row);
+      assert.ok(event.physicalOwnerSeat===0||event.physicalOwnerSeat===1);
+      assert.ok(Number.isSafeInteger(event.nativeStoreOrdinal)&&
+        event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=8);
+      assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
+      map.set(key,event);
     }
     return {witness,map};
   };
   const a=observed(baseline),b=observed(protectedRun);
+  const hex=value=>typeof value==='string'&&/^[0-9a-f]{64}$/.test(value);
+  const physicalSeat=trial=>trial.candidateSlot==='A'?1:0;
+  const inputTrialIds=new Set(ids);
+  const rawById=execution=>{
+    const records=execution.rawDevelopment?.rows;
+    if(!Array.isArray(records))return {records:new Map(),complete:false};
+    const map=new Map(),duplicates=new Set();
+    for(const row of records){
+      const id=row?.trial?.id??null;
+      if(!inputTrialIds.has(id))continue;
+      if(map.has(id))duplicates.add(id);
+      map.set(id,row);
+    }
+    return {
+      records:map,
+      complete:map.size===8&&duplicates.size===0&&records.length===8
+    };
+  };
+  const ar=rawById(baseline),br=rawById(protectedRun);
   const rows=ids.map((id,index)=>{
-    const seats=[0,1].map(seat=>{
+    const ownerSeats=[0,1].map(seat=>{
       const key=(index+1)+':'+seat;
       const first=a.map.get(key),second=b.map.get(key);
       return {
         physicalOwnerSeat:seat,
         baselineCaptured:first!==undefined,
         protectedCaptured:second!==undefined,
-        beforeChoicePhysicalInputMatched:
+        // This is only ordinal-index parity. The observer does not yet know
+        // the executing trial ID or a native Store's authenticated trial join.
+        indexPairedPrechoiceInputEqual:
           first&&second?
-          first.opaquePhysicalPrechoiceInputSha256===
-          second.opaquePhysicalPrechoiceInputSha256:null,
-        baselineOpaquePrechoiceSha256:
-          first?.opaquePhysicalPrechoiceInputSha256??null,
-        protectedOpaquePrechoiceSha256:
-          second?.opaquePhysicalPrechoiceInputSha256??null,
+          first.opaquePhysicalPrechoiceInputHmacSha256===
+          second.opaquePhysicalPrechoiceInputHmacSha256:null,
         samePhysicalHandCounts:
           first&&second?first.ownerHandCount===second.ownerHandCount:null,
         samePhysicalDeckCounts:
@@ -170,28 +196,77 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     const rawB=protectedRun.diagnostic.attemptedRows[index];
     assert.equal(rawA?.id,id);
     assert.equal(rawB?.id,id);
+    const recordA=ar.records.get(id);
+    const recordB=br.records.get(id);
+    const trialA=recordA?.trial,trialB=recordB?.trial;
+    const trialIdentityMatched=!!trialA&&!!trialB&&
+      trialA.id===id&&trialB.id===id&&
+      trialA.rank===trialB.rank&&
+      trialA.repeat===trialB.repeat&&
+      trialA.seed===trialB.seed&&
+      trialA.candidateSlot===trialB.candidateSlot&&
+      trialA.candidateId===trialB.candidateId;
+    const deckPrintingIdentitiesMatched=!!recordA&&!!recordB&&
+      hex(recordA.sourceDeckFingerprint)&&
+      hex(recordB.sourceDeckFingerprint)&&
+      hex(recordA.candidateDeckFingerprint)&&
+      hex(recordB.candidateDeckFingerprint)&&
+      recordA.sourceDeckFingerprint===recordB.sourceDeckFingerprint&&
+      recordA.candidateDeckFingerprint===recordB.candidateDeckFingerprint;
+    const sourceSeat=physicalSeat(trialA??{candidateSlot:'Z'});
+    const seatAndStarterMatched=trialIdentityMatched&&
+      recordA.sourceSeat===sourceSeat&&recordB.sourceSeat===sourceSeat&&
+      recordA.candidateSeat===1-sourceSeat&&
+      recordB.candidateSeat===1-sourceSeat&&
+      (recordA.actualStarterSeat===0||recordA.actualStarterSeat===1)&&
+      recordA.actualStarterSeat===recordB.actualStarterSeat;
     return {
       id,sourceRank:Number(id.split(':')[0]),
       baselineStatus:rawA.status,protectedStatus:rawB.status,
       baselineRootCount:rawA.nativeRootActionCount,
       protectedRootCount:rawB.nativeRootActionCount,
+      registeredTrialIdentityMatched:trialIdentityMatched,
+      originalAndContenderPrintingDigestsMatched:deckPrintingIdentitiesMatched,
+      physicalSeatsAndFirstPlayerMatched:seatAndStarterMatched,
       postTreatmentSourcePhysicalDigestEqual:
         rawA.sourceDealFingerprint&&rawB.sourceDealFingerprint?
           rawA.sourceDealFingerprint===rawB.sourceDealFingerprint:null,
-      ownerSeats:seats
+      ownerSeats
     };
   });
   const seats=rows.flatMap(row=>row.ownerSeats);
   const allBeforeTreatmentInputsObserved=seats.length===16&&
+    a.witness.events.length===16&&b.witness.events.length===16&&
+    a.witness.exactNativeStoreRootsRecorded===8&&
+    b.witness.exactNativeStoreRootsRecorded===8&&
     seats.every(s=>s.baselineCaptured&&s.protectedCaptured);
   const beforeTreatmentMatches=seats.filter(s=>
-    s.beforeChoicePhysicalInputMatched===true).length;
+    s.indexPairedPrechoiceInputEqual===true).length;
   const beforeTreatmentMismatches=seats.filter(s=>
-    s.beforeChoicePhysicalInputMatched===false).length;
+    s.indexPairedPrechoiceInputEqual===false).length;
   const postTreatmentSourceDigestMismatches=rows.filter(row=>
     row.postTreatmentSourcePhysicalDigestEqual===false).length;
+  const registeredTrialsAndPrintingsMatched=ar.complete&&br.complete&&
+    rows.every(row=>row.registeredTrialIdentityMatched&&
+      row.originalAndContenderPrintingDigestsMatched&&
+      row.physicalSeatsAndFirstPlayerMatched);
+  const matchingEnginePin=!!baseline.manifest.observedTwinleafGitCommit&&
+    baseline.manifest.observedTwinleafGitCommit===
+      protectedRun.manifest.observedTwinleafGitCommit&&
+    baseline.manifest.runtimeGitAttestationStatus==='VERIFIED'&&
+    protectedRun.manifest.runtimeGitAttestationStatus==='VERIFIED';
+  const controlStack=entry=>entry.manifest.selectedOuterToInner?.map(x=>
+    x==='agent50OwnerProtectedMultiBasicStore'?
+      'agent50AllEligibleInitialBasics':x);
+  const declaredWrapperContrastOnly=JSON.stringify(controlStack(baseline))===
+    JSON.stringify(controlStack(protectedRun))&&
+    baseline.manifest.selectedOuterToInner?.includes(
+      'agent50AllEligibleInitialBasics')&&
+    protectedRun.manifest.selectedOuterToInner?.includes(
+      'agent50OwnerProtectedMultiBasicStore');
+
   return {
-    schema:VERSION+'-paired-observations-v1',
+    schema:VERSION+'-paired-observations-v2',
     admission:'RETROSPECTIVE-DEVELOPMENT-ONLY',
     sameEightPreregisteredIDs:ids,
     baselineRevision:baseline.manifest.observedRepositoryGitCommit??null,
@@ -201,16 +276,28 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       protectedStores:b.witness.exactNativeStoreRootsRecorded,
       baselineOwnerInputs:a.witness.firstOwnerSetupInputsObserved,
       protectedOwnerInputs:b.witness.firstOwnerSetupInputsObserved,
-      hiddenCardNamesPublished:false
+      hiddenCardNamesPublished:false,
+      privateFingerprintScheme:'process-keyed HMAC-SHA256',
+      fingerprintKeyPublished:false,
+      nativeStoreToTrialIdentityJoin:'UNRESOLVED-ordinal-only'
     },
     pairedRows:rows,
     constraints:{
       allBeforeTreatmentInputsObserved,
-      beforeTreatmentMatches,
-      beforeTreatmentMismatches,
+      ordinalIndexedInputMatches:beforeTreatmentMatches,
+      ordinalIndexedInputMismatches:beforeTreatmentMismatches,
       postTreatmentSourceDigestMismatches,
-      canAttributePostTreatmentDifferenceToOpeningSelection:
-        allBeforeTreatmentInputsObserved&&beforeTreatmentMismatches===0,
+      sameRegisteredTrialIdentityAndDeckPrintings:
+        registeredTrialsAndPrintingsMatched,
+      sameObservedPinnedEngine:matchingEnginePin,
+      declaredSingleOpeningWrapperContrast:declaredWrapperContrastOnly,
+      // Even perfect same-index HMAC equality does not prove native Store
+      // ordinal -> trial ID joins or exclude unobserved actor toggles, RNG
+      // deviations, and other changes to execution provenance.
+      nativeStoreTrialLinkVerified:false,
+      actualNonTreatmentExecutingClosureVerified:false,
+      prechoiceInputParityObserved:'UNRESOLVED-ordinal-trial-join',
+      canAttributePostTreatmentDifferenceToOpeningSelection:'UNRESOLVED',
       noFullGameWinRateInferred:true,
       all32OpponentsAdmitted:false,
       allPaperRulesCertified:false,
