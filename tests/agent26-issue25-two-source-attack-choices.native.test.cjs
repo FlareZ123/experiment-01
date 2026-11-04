@@ -16,6 +16,8 @@ const {withOwnerFutureSightNeutralOrder}=
   require('../simulation/twinleaf/agent30-owner-futuresight-neutral-order.cjs');
 const {withOwnerOriginBoundAttackChoices}=
   require('../simulation/twinleaf/agent26-origin-bound-attack-choices.cjs');
+const {installGirafarigGetLostPaperHook}=
+  require('../simulation/twinleaf/agent29-girafarig-getlost-paper-hook.cjs');
 const {CODE,withNativeRawStateFallbackQuarantine:quarantine}=
   require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 
@@ -28,7 +30,9 @@ const {CODE,withNativeRawStateFallbackQuarantine:quarantine}=
 test('Issue25 exact-source Night Watch and Get Lost owner choices reach native Store',()=>{
   assert.equal(developmentTrials().length,4);
   let developed=null,choices=null,ordering=null,guard=null,blocked=null;
+  let restoreGetLost=null;
   try{
+    restoreGetLost=installGirafarigGetLostPaperHook();
     const out=quarantine(()=>withGoFirstChoice([false,false],()=>
       withOwnerStartingBasicChoice(()=>withOwnerPublicAcknowledgements(()=>
         withOwnerMandatoryShowCards(()=>{
@@ -49,6 +53,8 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
     blocked=error;
     guard=error.nativeRawStateFallbackQuarantine??null;
     choices=error.agent26OriginBoundAttackChoices??choices;
+  }finally{
+    restoreGetLost?.();
   }
   const rows=developed?.rows??[];
   console.log('AGENT26_ISSUE25_EXACT_PRINT_CHOICES',JSON.stringify({
