@@ -9,7 +9,7 @@ const ENV='AGENT9_BATTLE_VIP_AFTER_PASS_DEV';
 
 /** @param {object} row */
 function nativeVipOutcome(row){
-  const audit=row.actorOnlyDecisionCoverage?.ownerVipAfterPass??null;
+  const audit=row.actorOnlyDecisionCoverage?.detailedComponentAudits?.ownerVipAfterPass??null;
   return {
     id:row.trial?.id??row.id??null,
     policyRecorded:audit!==null,
