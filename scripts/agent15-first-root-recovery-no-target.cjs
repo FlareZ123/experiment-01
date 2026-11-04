@@ -31,7 +31,6 @@ function recoveryHeldAfterOneDraw(x){
   const denominator=valid*next;
   const favorable=denominator-noRecoveryWeight;
   assert.ok(favorable>=0n&&favorable<=denominator);
-  const rawEight=BigInt(h+1);
   const unconditionalDenominator=combinations(n,h+1);
   const unconditionalFavorable=unconditionalDenominator-
     combinations(n-r,h+1);
@@ -72,8 +71,9 @@ function sourceBasicCopyCensus(deck,metadata){
       continue;
     }
     const statuses=new Set(variants.map(v=>
-      v.supertype==='Pokémon'&&v.subtypes?.includes('Basic')));
-    if(statuses.size!==1){
+      v.supertype==='Pokémon'&&Array.isArray(v.subtypes)&&
+        v.subtypes.length>0?v.subtypes.includes('Basic'):null));
+    if(statuses.size!==1||statuses.has(null)){
       unresolved.push({printing,number:card.printing.number,
         count:card.count,reason:'same-name-set-basic-stage-ambiguous'});
       continue;
