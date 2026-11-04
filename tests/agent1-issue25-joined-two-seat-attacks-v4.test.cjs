@@ -94,6 +94,8 @@ test('run-private seed is generated once, committed, and passed only to printed 
     },
     nightWatchLayer: (child, options) => {
       assert.equal(options.committedSeed, seed);
+      assert.equal(options.followSequentialNativeStores, true);
+      assert.equal(options.perNativeStoreEntropy, true);
       trace.push('nightwatch:enter');
       const result = child();
       trace.push('nightwatch:leave');
