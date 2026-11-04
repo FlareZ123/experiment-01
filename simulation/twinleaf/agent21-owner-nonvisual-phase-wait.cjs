@@ -18,7 +18,7 @@ const VERSION='agent21-owner-only-nonvisual-phase-wait-v1';
  * @template T
  * @param {()=>T} run Synchronous native task.
  * @param {{SimpleTacticsAi?:Function,actions?:object,GamePhase?:object,
- *   maxRecords?:number}} [deps]
+ *   allowVisualAttackWait?:boolean,maxRecords?:number}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerNonvisualPhaseWait(run,deps={}) {
@@ -37,8 +37,10 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
   assert.equal(previous.configurable,true);
   const audit={
     version:VERSION,
-    onlyNonvisualUnmessagedTransitions:true,
+    onlyNonvisualUnmessagedTransitions:deps.allowVisualAttackWait!==true,
+    visualAttackWaitOptIn:deps.allowVisualAttackWait===true,
     nativePendingWaitHandled:0,
+    visualAttackWaitHandled:0,
     bySeat:[0,0],records:[],recordsOmitted:0,
     otherDelegated:0,
     explicitOfficialClockCertified:false,
@@ -49,17 +51,24 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
     const actorId=this?.client?.id;
     const prompt=state?.prompts?.find(p=>
       p?.playerId===actorId&&p?.result===undefined);
-    if((state?.phase===GamePhase.DRAW||
+    const nonvisual=(state?.phase===GamePhase.DRAW||
       state?.phase===GamePhase.BETWEEN_TURNS)&&
       prompt?.constructor?.name==='WaitPrompt'&&
-      prompt.showVisual===false&&prompt.message===undefined) {
+      prompt.showVisual===false&&prompt.message===undefined;
+    const exactVisualAttack=deps.allowVisualAttackWait===true&&
+      state?.phase===GamePhase.ATTACK&&
+      prompt?.constructor?.name==='WaitPrompt'&&
+      prompt.showVisual===true&&prompt.message==='Attack animation';
+    if(nonvisual||exactVisualAttack) {
       const seat=state.players?.findIndex(p=>p?.id===actorId)??-1;
       assert.ok(seat===0||seat===1,'Wait owner must have a physical seat');
       audit.nativePendingWaitHandled++;
+      if(exactVisualAttack)audit.visualAttackWaitHandled++;
       audit.bySeat[seat]++;
       const receipt={seat,turn:state.turn,phase:state.phase,
-        promptKind:'WaitPrompt',nonvisual:true,
-        messageAbsent:true,answer:null};
+        promptKind:'WaitPrompt',nonvisual:Boolean(nonvisual),
+        messageAbsent:prompt.message===undefined,
+        exactVisualAttackAnimation:Boolean(exactVisualAttack),answer:null};
       if(audit.records.length<maxRecords)audit.records.push(receipt);
       else audit.recordsOmitted++;
       return new ResolvePromptAction(prompt.id,null);
