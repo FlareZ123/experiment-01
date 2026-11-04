@@ -24,6 +24,10 @@ Those four native rank-5 wins were **the same fresh seed value, 1511799401**, ob
 
 Native tutor mode selected and Store-accepted **26 resource Items**, with **52 native physical cards moved** to owners. It yielded no additional rank-5 native winners; one prior control rank-11 terminal became a cap (seed `1236471893`, rank5Seat0) and one control cap became a native error (seed `1591350664`, rank5Seat0). Counts or Store acceptance alone do not establish tactical benefit, paper-valid payment, causal field advantage, or stronger opponent policy.
 
+### Why action caps cannot be treated as close games
+
+Among the **50 capped arms**, **41** still had a full **6–6 Prize board** at the cap. **48 of 50** had not taken any rank-5 Prizes, and **43 of 50** had not taken any rank-11 Prizes. In **17 capped arms**, neither player declared even one attack. Control and tutor each had 25 capped arms; 20 and 21 of those, respectively, remained 6–6. These are direct archived native observations, without independent timing or opponent competence. Treating action-cap games as draws, close contests or evidence of deck survivability would be unsound.
+
 **Exact initial-deal pairing:** 31 of 32 control/tutor pairs have identical full physical fingerprint and actual first-turn evidence in their *primary* rows. The one native-error row retains a separately stamped true Store abort `fullPhysicalDealFingerprint.digestSha256` `df220377c86f502172417f908b91a7e1f6c59963980121a88ea77c10234b9ec1`, identical to its control row, and an identical first-turn slot 0. Thus **32/32 full original physical pairings are demonstrably equal** after transparent reconstruction from the separate native abort, while the one primary receipt remains missing. Do not silently rewrite the archived primary row.
 
 ## Mew attack payoff census, with copied-effect accounting
