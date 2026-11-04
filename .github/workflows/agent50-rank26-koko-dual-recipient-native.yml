@@ -48,3 +48,7 @@ jobs:
         run: node --test tests/agent50-issue25-owner-showcards-quarantine.native.test.cjs
       - name: Issue25 frozen owner-only policy 48-action native horizon
         run: node --test tests/agent50-issue25-owner-48root-quarantine.native.test.cjs
+      - name: Issue25 pure public attack prompt envelope no-hidden-read contract
+        run: node --test tests/agent50-first-blocked-prompt-envelope.test.cjs
+      - name: Issue25 native 48-root first attack prompt envelope and root mix
+        run: node --test tests/agent50-issue25-attack-prompt-envelope.native.test.cjs
