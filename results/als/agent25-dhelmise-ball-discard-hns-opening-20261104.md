@@ -39,10 +39,24 @@ The exact denominator is `C(60,7)*53*C(52,6)=416717869162795200` labeled card-lo
 
 **Interpretation:** The old ordinary attack opening estimate was conservative even under its already restrictive eight-card exposure. A single Compressor becomes relevant when a held discard-cost Ball pays for one of the donors. The approximately two-percentage-point increment is evidence that discardability and connector interaction matter to the analytic opportunity calculation; it is not a general deck optimization result. The actual strategic price of sacrificing a held donor and consuming Ball access must be weighed against what that Ball might search for.
 
+## Supporter contention: same physical hand, disabled Arven route
+
+A first-eight card location may contain Arven, but playing Arven is not always permitted or strategically acceptable. To isolate that contention, version 2 of the same exact enumerator also holds all four Arven cards **in the same 60** while forbidding their contribution to Blender access. A directly held Blender or any held Compressor/Ball outlet still counts. This is a *conditional availability counterfactual*, not the incidence of an actual Supporter lock, and it does not model first-player turn rules.
+
+| Same fixed v2 60, first-eight resource event | 8 eligible donors | 6 eligible donors under partial lock |
+| --- | ---: | ---: |
+| Previous deck-only route, **Arven unavailable** | **5.010691557%** | **4.618247873%** |
+| Expanded discard-cost Ball route, **Arven unavailable** | **7.862292895%** | **7.002940128%** |
+| Ball-assisted improvement, Arven unavailable | **+2.851601337 pp** | **+2.384692255 pp** |
+| Expanded Ball route, Arven **available** | **16.081210532%** | **14.865647349%** |
+| Extra physical availability from Arven route | **+8.218917638 pp** | **+7.862707220 pp** |
+
+The no-Arven numerator is exactly **32,763,579,418,029,936** unrestricted and **29,182,502,882,114,016** with six eligible donors, over the same denominator **416,717,869,162,795,200**. The difference between the scenario rows is a precisely defined physical-resource dependency on an Arven search, **not** a measured causal impact of playing a Supporter or a lower bound on real attack probability. In particular, an opening first-eight hand containing Arven does not automatically convert into a legal attack when Arven's turn restriction, opponent lock, Supporter contention, Bench/Active constraints, discard costs, or search payoffs conflict.
+
 ## Verification and limitations
 
-- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [four Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The exact program reproduces both historical narrower probabilities before adding Ball routes.
-- Independent Python integer-combination implementation computed **16.081210532%** and **14.865647349%** for the expanded event, including explicit Prizes; separately, two independent 250,000-trial physical shuffles gave approximate event rates **16.2596%** and **14.9144%**, consistent with normal Monte Carlo sampling variation. Those samples are checks on card-location math, not observed game events.
+- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [six Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The exact program reproduces both historical narrower probabilities before adding Ball routes.
+- Independent Python integer-combination implementation computed **16.081210532%** and **14.865647349%** for the expanded event, including explicit Prizes; separately, separate 250,000-trial physical-shuffle checks gave approximate event rates **16.2596%** and **14.9144%**, consistent with normal Monte Carlo sampling variation. Those samples are checks on card-location math, not observed game events.
 - Neither test resolves whether the owner should consume a given Ball, whether the search target exists or is desirable, whether an Item/Supporter lock is already active, or whether the opponent can stop the setup. It omits all later draws, board decisions, opponent activity and elapsed tournament time. The paper legality of an actual sequence and native effect settlement remain separate gates.
 - The 99.5% full-field goal remains unverified: **29/32** source 60-card name/count inventories authenticated, missing original ranks **23, 25 and 28**, **zero competitively qualified games** and no selected best fixed 60.
 
