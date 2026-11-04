@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {choose} = require('./agent25-dhelmise-t1-physical-opportunity.cjs');
 
-const VERSION = 'agent25-dhelmise-ball-discard-opening-v1';
+const VERSION = 'agent25-dhelmise-ball-discard-opening-v2';
 
 /**
  * Exact first-seven, one ordinary draw, six Prizes card-location census for
@@ -25,10 +25,12 @@ const VERSION = 'agent25-dhelmise-ball-discard-opening-v1';
  * resource screen, assuming other Trainer requirements can be satisfied.
  *
  * @param {6|8} eligibleDonors
+ * @param {{allowArven?:boolean}} [options]
  * @returns {object}
  */
-function exactOpening(eligibleDonors) {
+function exactOpening(eligibleDonors, {allowArven=true}={}) {
   assert.ok(eligibleDonors === 6 || eligibleDonors === 8);
+  assert.equal(typeof allowArven,'boolean');
   const counts = [4, eligibleDonors, 10, 4, 1, 4, 7, 30-eligibleDonors];
   assert.equal(counts.reduce((a,b)=>a+b,0),60);
   const total = choose(60,7)*53n*choose(52,6);
@@ -62,7 +64,7 @@ function exactOpening(eligibleDonors) {
             const inHand=held[1];
             const balls=held[6],compressors=held[5];
             const blenderAvailable=held[4]>0||
-              (held[3]>0&&remaining[4]>prizedBlender);
+              (allowArven&&held[3]>0&&remaining[4]>prizedBlender);
             const oldEvent=inDeck>=4&&
               (blenderAvailable||compressors>=2);
             const deckCapacity=Math.min(inDeck,
@@ -88,7 +90,7 @@ function exactOpening(eligibleDonors) {
   const basicValid=1-Number(choose(46,7))/Number(choose(60,7));
   const probability=x=>Number(x)/Number(total);
   return {
-    version:VERSION,eligibleDonors,counts,initialStates,
+    version:VERSION,eligibleDonors,allowArven,counts,initialStates,
     denominator:total.toString(),
     strictWorlds:strict.toString(),expandedWorlds:expanded.toString(),
     additionallyReachableWorlds:(expanded-strict).toString(),
@@ -106,7 +108,9 @@ function exactOpening(eligibleDonors) {
 
 function study(){
   return {version:VERSION,unrestricted:exactOpening(8),
-    partialLock:exactOpening(6)};
+    partialLock:exactOpening(6),
+    unrestrictedNoArven:exactOpening(8,{allowArven:false}),
+    partialLockNoArven:exactOpening(6,{allowArven:false})};
 }
 
 module.exports={VERSION,exactOpening,study};
