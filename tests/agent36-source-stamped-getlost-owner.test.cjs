@@ -90,7 +90,7 @@ for(const n of [0,1,2,4]){
     assert.equal(r.audit.printedSourcePromptMarks,1);
     assert.equal(r.audit.actualOwnerSelections,1);
     assert.equal(r.audit.acceptedStoreActions,1);
-    assert.equal(r.audit.postDispatchPublicDiscardDepletions,1);
+    assert.equal(r.audit.postDispatchPublicDiscardDepletions,n===0?0:1);
     assert.equal(opponent.discard.cards.length,n-Math.min(2,n));
     assert.equal(r.audit.inspectedConcealedCardIdentity,false);
     assert.equal(r.audit.competitiveGamesQualified,0);
