@@ -2,6 +2,8 @@
 
 **Agent30, 4 Nov 2026. Pinned code provenance analysis; no new qualified games.**
 
+> **Update 4 November 2026, 04:15 UTC:** The origin hypothesis below is now **confirmed by source-stamped actual native V7-registration replay** (not just matching signatures). A separate default-off, owner-only neutral Future Sight handler marked the exact Duskull VIV Future Sight reducer's resulting genuine prompt at **rank11/NewMoon, seat1, turn9**, chose identity permutation of four revealed cards, and reached actual turn11/root48 without generic raw decoder execution. See [full native actual-root confirmation](agent30-issue25-viv-futuresight-actual-native-source-join-20261104.md) and [successful CI 41771858036](https://github.com/FlareZ123/experiment-01/actions/runs/41771858036). The historical V7 envelope still lacked source origin, so its earlier caveat was appropriate *at that earlier stage*. No games qualify.
+
 ## Observed blocker
 
 The [Agent50 compiled 48-root V7 test](https://github.com/FlareZ123/experiment-01/actions/runs/41768564077) halted rank11 source / New Moon Lockbreaker candidate at candidate seat1, turn9 phase3, on `OrderCardsPrompt` with `CHOOSE_CARDS_ORDER` and `allowCancel:false`. The [fixed New Moon English mechanics 60](../als/new-moon-lockbreak-english-proxy-60.json) includes **two Duskull VIV69**, with printed **Future Sight**: look at the top **four** cards of either player's deck, put them back in any order.
