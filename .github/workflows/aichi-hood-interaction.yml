@@ -151,6 +151,8 @@ jobs:
         run: node --test tests/agent1-megaton-store-dispatch.pinned.test.cjs
       - name: Verify Megaton denial of Regidrago Double Dragon attack funding
         run: node --test tests/agent1-megaton-regidrago-energy-denial.native.test.cjs
+      - name: Verify complete Megaton targets while Garbotoxin lock resumes mid-effect
+        run: node --test tests/agent1-megaton-lock-midresolution.native.test.cjs
       - name: Test protected Underworld Door attachment and draw
         run: node simulation/twinleaf/underworld-door-action.cjs
       - name: Test Canceling Cologne restores Climactic Gate prompt
