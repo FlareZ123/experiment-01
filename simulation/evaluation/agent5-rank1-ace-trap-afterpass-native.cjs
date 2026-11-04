@@ -148,6 +148,7 @@ function run(){
     matchesHistoricalFull:
       a.row?.fullPhysicalDealFingerprint===seals.full_deal_sha256,
     nativeStatus:a.row?.status??null,
+    nativeError:a.row?.error??null,
     nativeFinished:a.row?.finished??null,
     nativeWinner:a.row?.winner??null,
     finalPrizes:a.row?.finalPrizes??null,
@@ -180,9 +181,9 @@ function run(){
       targetedPromptAccepted:a.audit?.targetedPromptAccepted??null,
       stage:a.audit?.stageAfterRun??null
     })),
-    statuses:deal.map(({mode,nativeStatus,nativeFinished,
+    statuses:deal.map(({mode,nativeStatus,nativeError,nativeFinished,
       nativeWinner,finalPrizes,firstDifference,sourceTurn38})=>({
-      mode,nativeStatus,nativeFinished,nativeWinner,finalPrizes,
+      mode,nativeStatus,nativeError,nativeFinished,nativeWinner,finalPrizes,
       firstDifference,sourceTurn38
     })),
     competitivelyQualifiedGames:0,
