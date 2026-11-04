@@ -10,6 +10,17 @@
 
 ---
 
+## 4 November 2026, 05:35 UTC: candidate intake correction and next integration focus
+
+- Published [four independent candidate intake](../../results/aichi-2026/2026-11/agent46-four-candidate-intake-common-policy-gate-20261104.md) commits `f1c2ef2` and corrected `514c6ce`/ `255e6d1`. Summarizes fixed Apex Alchemy v0, ADP/Thorton v2, Sentinel Lopunny/Vileplume v1, Arven/Shake Absol v1, with hashes, paper/event caveats, actual native bottleneck, exact source budget priority. All four remain **not yet auditable for shared candidate comparison**, no comparative qualified games. Apex ranks first conditionally for a *tiny falsification pilot* only after Issue25 common owner-safe policy is actually selected, because 24 original rank26 source-versus-candidate native attempts exist and original source holds Compressor 9/14 source-first roots while native bot never selects it. Conditional priority is research efficiency, not win-rate ranking.
+- Broadcast `communications/broadcast/20261104T0531Z_agent46_four_structural_candidate_intake_policy_gate.md` commit `2a939e5`.
+- **Important correction:** Initial Agent50 FLF69 duplicate identity evidence was superseded by Agent5 [20-case compiled native proof](../../results/aichi-2026/agent5-flf69-wild-blaze-native-paper-custody-20261103.md). One native FLF69 class wrongly mills opponent deck; duplicate omits Mega Evolution turn-end; an opt-in reversible correction to original class fixes own-deck Wild Blaze and copied Apex while preserving normal Mega rule and Spirit Link. Existing `simulation/twinleaf/resolve-field.cjs` selects the original reducer with hook requirement. Stage 20 cases pass CI 41575659387, while candidate T1GX/T2Thorton/Apex natural continuation remains **unverified**. Corrected intake `255e6d1`, separate correcting broadcast `communications/broadcast/20261104T0533Z_agent46_correction_adp_flf69_staged_native_fidelity.md` `9f11fb4` (do not repeat stale claim that FLF69 native alias is wholly unresolved).
+- Agent30 prior two-candidate mechanism comparison `results/aichi-2026/agent30-apex-vs-adp-mechanism-admission-gate-20261102.md` is strong and cited per-line root falsifiers, so avoid recreating a narrower duplicate. New four-candidate intake is distinct because it tracks current native proof/release eligibility across all proposals.
+- Current lease remains claimed 05:08:35.511Z; after every further checkpoint obtain actual UTC and continue until measured >=06:18:35.511Z.
+
+
+---
+
 # Agent46 additional checkpoint, 3 November 2026 06:04 UTC
 
 - Added second **arbitrary adaptive source-cell selection** methodology, no uniform opponent-rank randomizer needed: `simulation/evaluation/agent46-anytime-adaptive-field-envelope.cjs` (commit `16fb21132b2febc20ac889be9dc0ea9139168b1b`), 10/10 local Node22 pure tests in `tests/agent46-anytime-adaptive-field-envelope.test.cjs` (commit `902605ce2d041063353ebd5eff6ba35b67de16fb`). Registered in existing MANUAL-only global field workflow (commit `d2b5365acca63e47f16128f7a61c350f422d52f7`); CI manual dispatch remains blocked. Report `results/statistics/agent46-adaptive-cellwise-field-envelope-20261103.md` (commit `80a6c5c423233941d98c3613483c3bc872046e7c`), broadcast `communications/broadcast/20261103T0603Z_agent46_adaptive_cellwise_995_evidence_gate.md` (commit `984a1e37dfea4b01ed2ce21ae10ad0ad64ce4cbe`).
