@@ -741,11 +741,17 @@ function executeDevelopment(trial,candidates,{
   const sourceFirst=game.firstTurnSlot===sourceSeat;
   assert.equal(game.firstLiveOwnerHands?.schema,'first-live-owner-hand-prebot-v1');
   const firstLiveOwnerHand=game.firstLiveOwnerHands.bySeat[sourceSeat];
+  const candidateFirstLiveOwnerHand=game.firstLiveOwnerHands.bySeat[candidateSeat];
   if(firstLiveOwnerHand){
     assert.equal(firstLiveOwnerHand.seat,sourceSeat);
     assert.equal(firstLiveOwnerHand.turn,sourceFirst?1:2);
   }
+  if(candidateFirstLiveOwnerHand){
+    assert.equal(candidateFirstLiveOwnerHand.seat,candidateSeat);
+    assert.equal(candidateFirstLiveOwnerHand.turn,sourceFirst?2:1);
+  }
   const ownerFirst=firstLiveOwnerHand?.ownHandPrintings??null;
+  const candidateOwnerFirst=candidateFirstLiveOwnerHand?.ownHandPrintings??null;
   const packet=game.publicAttackTransitions||[];
   const acceptedAttackEvents=packet.filter(row=>
     row.declarations?.length && row.settled?.after);
@@ -934,6 +940,13 @@ function executeDevelopment(trial,candidates,{
     // distinct card printings and duplicate counts in the physical multiset.
     sourceFirstOwnHandMultisetSha256:ownerFirst?
       sha256(ownerFirst.slice().sort()):null,
+    candidateFirstOwnHandSha256:candidateOwnerFirst?
+      sha256(candidateOwnerFirst):null,
+    candidateFirstOwnHandMultisetSha256:candidateOwnerFirst?
+      sha256(candidateOwnerFirst.slice().sort()):null,
+    candidateFirstOwnHandFirstActionOrdinal:
+      candidateFirstLiveOwnerHand?.actionOrdinal??null,
+    candidateFirstOwnHandProtocol:game.firstLiveOwnerHands.schema,
     sourceFirstOwnHandProtocol:game.firstLiveOwnerHands.schema,
     sourceFirstOwnHandFirstActionOrdinal:firstLiveOwnerHand?.actionOrdinal??null,
     sourceLegacyFirstObservedHandSha256:legacyFirstSourceHand?
