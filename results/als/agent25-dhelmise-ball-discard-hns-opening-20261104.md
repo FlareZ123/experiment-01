@@ -39,6 +39,31 @@ The exact denominator is `C(60,7)*53*C(52,6)=416717869162795200` labeled card-lo
 
 **Interpretation:** The old ordinary attack opening estimate was conservative even under its already restrictive eight-card exposure. A single Compressor becomes relevant when a held discard-cost Ball pays for one of the donors. The approximately two-percentage-point increment is evidence that discardability and connector interaction matter to the analytic opportunity calculation; it is not a general deck optimization result. The actual strategic price of sacrificing a held donor and consuming Ball access must be weighed against what that Ball might search for.
 
+## A separately counted, directly verified one-Compressor route
+
+The broader capacity event includes multiple ways to combine Items, and an original field named `newCompressorBallWorlds` was *not* a strict count of hands with exactly one Compressor. Version 4 now isolates the specific physical pattern reproduced in [both-seat actual Store payment tests](agent25-dhelmise-paid-ball-compressor-native-witness-20261104.md), without confounding other possible routes:
+
+```text
+Dhelmise in initial seven
++ >=1 Psychic-providing Energy within first eight
++ exactly one Battle Compressor within first eight
++ >=3 currently eligible HNS donors remaining in deck after all six Prizes
++ >=1 eligible HNS donor in those eight cards
++ >=1 of seven discard-cost Ball cards within those eight
+```
+
+The Ball is paid with one donor from hand, and the one Compressor moves three more from deck, matching the physically staged example. This direct-event count **does not depend on Arven**, which it does not need. Another accessible Blender may also coexist in the same physical world; the direct-event statistic measures a route's availability, regardless of whether another route is better.
+
+| Exactly one held Compressor + a payable Ball donor + three eligible deck donors | Original 8 eligible HNS donors | 6 eligible donors |
+| --- | ---: | ---: |
+| Direct-route resource worlds | **12,792,980,157,323,520** | **10,085,291,430,170,880** |
+| Probability among all original unconditioned first-seven / one draw / six-Prize worlds | **3.069937985%** | **2.420172538%** |
+| Portion specifically absent from the old strict Blender/two-BC screen | **2.146332893 percentage points** | **1.789886310 percentage points** |
+
+The direct-route numerator is divided by the same exact denominator `416717869162795200`. The strict novelty portion excludes worlds satisfying the historical old event even when the one-Compressor-plus-Ball route would still be possible. When Arven is entirely unavailable, the direct-route probability remains identical, while its novelty relative to the weaker no-Arven historical screen changes to **2.844523199%** (8 donors) and **2.265887110%** (6 donors). This explains why the broader newly reachable-card event cannot be attributed entirely to one precise route.
+
+This direct route is an **opening-resource subset with a real native staged paper-cost witness**, not a measured rate of live turn-one attacks. In particular, the hand may be worth using for Basic search rather than paying a valuable donor; the opponent may lock Items; and the model allows the player to choose which initial Basic Pokémon to put Active.
+
 ## Supporter contention: same physical hand, disabled Arven route
 
 A first-eight card location may contain Arven, but playing Arven is not always permitted or strategically acceptable. To isolate that contention, version 2 of the same exact enumerator also holds all four Arven cards **in the same 60** while forbidding their contribution to Blender access. A directly held Blender or any held Compressor/Ball outlet still counts. This is a *conditional availability counterfactual*, not the incidence of an actual Supporter lock, and it does not model first-player turn rules.
@@ -79,7 +104,7 @@ This is a useful warning against reading the two-Energy-for-two-Shuppet *first-e
 
 ## Verification and limitations
 
-- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [ten Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The tests also verify the unchanged [complete printed 60](agent25-dhelmise-mixed-lock-answers-v2.json) against the model's named card groups and 14 Basic Pokémon. The exact program reproduces both historical narrower probabilities before adding Ball routes.
+- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [twelve exact Node regression tests plus four owner-only chooser tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The tests also verify the unchanged [complete printed 60](agent25-dhelmise-mixed-lock-answers-v2.json) against the model's named card groups and 14 Basic Pokémon. The exact program reproduces both historical narrower probabilities before adding Ball routes.
 - Independent Python integer-combination implementation computed **16.081210532%** and **14.865647349%** for the expanded event, including explicit Prizes; separately, separate 250,000-trial physical-shuffle checks gave approximate event rates **16.2596%** and **14.9144%**, consistent with normal Monte Carlo sampling variation. Those samples are checks on card-location math, not observed game events.
 - Neither test resolves whether the owner should consume a given Ball, whether the search target exists or is desirable, whether an Item/Supporter lock is already active, or whether the opponent can stop the setup. It omits all later draws, board decisions, opponent activity and elapsed tournament time. The paper legality of an actual sequence and native effect settlement remain separate gates.
 - The 99.5% full-field goal remains unverified: **29/32** source 60-card name/count inventories authenticated, missing original ranks **23, 25 and 28**, **zero competitively qualified games** and no selected best fixed 60.
