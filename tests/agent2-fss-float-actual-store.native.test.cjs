@@ -165,8 +165,8 @@ for(const seat of [0,1]){
  * payment. The three Capture Energy RCL copies are exactly the three in
  * that registered original sixty: two on Snorlax, one on Bunnelby.
  * A baseline FSS-first HOLD strands the funded Burrow attacker behind a
- * retreat-4 Snorlax. The alternative Float Stone reduces its printed
- * retreat by two, permitting an exact paid retreat and one real Burrow.
+ * retreat-4 Snorlax. The alternative Float Stone removes the printed Retreat Cost,
+ * conserving both active Capture Energy cards and enabling one real Burrow.
  * This is a constructed same-physical-state paper opportunity witness,
  * not a randomized game, opponent-policy verdict or win estimate.
  *
@@ -241,13 +241,13 @@ for(const seat of [0,1]){
     assert.equal(trial.owner.active.tools[0],trial.heldFloat);
     const reducedCost=new CheckRetreatCostEffect(trial.owner);
     trial.store.reduceEffect(trial.state,reducedCost);
-    assert.equal(reducedCost.cost.length,2);
+    assert.equal(reducedCost.cost.length,0);
     trial.store.dispatch(new RetreatAction(trial.owner.id,0));
     assert.equal(trial.owner.active.getPokemonCard(),trial.benched);
     assert.equal(trial.owner.active.energies.cards.length,1);
-    assert.equal(trial.owner.bench[0].energies.cards.length,0);
+    assert.equal(trial.owner.bench[0].energies.cards.length,2);
     assert.equal(trial.owner.discard.cards.filter(
-      c=>c.fullName==='Capture Energy RCL').length,2);
+      c=>c.fullName==='Capture Energy RCL').length,0);
 
     const deckBefore=trial.foe.deck.cards.length;
     trial.store.dispatch(new AttackAction(trial.owner.id,'Burrow'));
@@ -269,8 +269,9 @@ for(const seat of [0,1]){
       baselineAction:'FSS-first-HOLD',baselineFreeRetreat:false,
       baselineActiveRetreatUnits:4,baselineAttachedRetreatEnergy:2,
       proposedAction:'attach-second-held-Float',
-      actualStoreFloatAccepted:true,actualPaidRetreatAccepted:true,
-      discardedCaptureEnergy:2,settledAttack:'Burrow',
+      actualStoreFloatAccepted:true,actualFreeRetreatAccepted:true,
+      discardedCaptureEnergy:0,retainedCaptureEnergyOnSnorlax:2,
+      settledAttack:'Burrow',
       actualOpponentDeckCardsDiscarded:deckBefore-trial.foe.deck.cards.length,
       acknowledgements:acknowledged,qualifyingGames:0,
       resultKind:'constructed-native-tactical-counterfactual'
