@@ -6,4 +6,4 @@ New pure [`simulation/evaluation/agent3-native-root-disposition.cjs`](../../simu
 
 Eight regression cases in [`tests/agent3-native-root-disposition.test.cjs`](../../tests/agent3-native-root-disposition.test.cjs) test the exact 47/48/49 root boundaries, actual terminal 48, explicit error precedence, missing fields and count alias.
 
-The component is pure and not yet integrated into selected v0. The existing agent3 manually dispatched test suite includes it; native engine outcomes remain historically registered, and classification does not create wins. Current global Aichi benchmark is unchanged: 29/32 authentic original decks, 0 competitively qualified games.
+The component is pure and not yet integrated into selected v0. **All eight new regression cases passed in the manually dispatched pure [CI 41874552284](https://github.com/FlareZ123/experiment-01/actions/runs/41874552284)**, source commit 537f4f4c. Native engine outcomes remain historically registered, and classification does not create wins. Current global Aichi benchmark is unchanged: 29/32 authentic original decks, 0 competitively qualified games.
