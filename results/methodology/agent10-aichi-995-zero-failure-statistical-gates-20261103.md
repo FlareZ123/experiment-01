@@ -71,3 +71,22 @@ For the four historical comparison decks, **896/896 valid completed wins** in th
 An alternative **cleaner design** uses development data to select one fixed 60 first and tests it just once on a genuinely untouched confirmatory panel, in which case **K=1** and 640 all-win balanced games suffice for the same statistical claim. If new decks, parameters or owner decision policies are introduced after seeing confirmatory results, the original K and bound do not automatically cover the adaptation; use fresh held-out independent confirmation or an explicitly valid sequential multiple-testing method. Prior simulation results are not retroactively competitive evidence.
 
 [Reproducible finite-K CommonJS calculator](../../simulation/evaluation/agent10-fixed-candidate-familywise-zero-loss.cjs) and [seven pure regression tests](../../tests/agent10-fixed-candidate-familywise-zero-loss.test.cjs) pin the figures. The calculations are hypothetical confidence thresholds only: there are still **0 competitively qualified games**, just **29 authenticated original opponent 60s**, and no demonstrated 99.5% deck.
+
+## 4 November further addendum: a conservative heterogeneous field certificate that tolerates one loss
+
+A confirmatory balanced panel could contain one actual loss and still certify a mean win probability above 99.5% if considerably more independent **fully qualified** games are collected. This calculation uses Hoeffding's 1956 Poisson-binomial comparison as restated in [Tang and Tang, *Statistical Science* 38(1), 2023, Theorem 2.1](https://www.columbia.edu/~wt2319/PB.pdf#page=2). If L is the sum of N independent heterogeneous Bernoulli **loss** indicators, with average loss probability r, that theorem gives P(L <= 1) <= P(Bin(N,r) <= 1), provided 1 <= N*r - 1. Under the null equal-field mean win probability <= 0.995, r >= 0.005, so this sufficient domain condition holds for N >= 400.
+
+For a balanced 64-cell opponent-by-seat design with m independent games in every cell and N=64m, the observed event of **at most one loss** has null probability bounded above by
+
+`0.995^N + N * 0.005 * 0.995^(N-1)`.
+
+The inequality holds **despite distinct source/seat win probabilities**. It requires fixed independent draws per cell and a preselected candidate/policy. The binomial comparison should not be used outside its stated lower-tail domain; for N=2 with one loss probability zero and the other one, observing at most one loss has probability 1, exceeding the corresponding Bin(2,0.5) probability 0.75.
+
+| Candidate selection scope | Minimum full games per source-by-seat cell | Total qualified games for a candidate with at most one actual loss | Conservative worst-null upper bound |
+| --- | ---: | ---: | ---: |
+| One 60 frozen before confirmation | 15 | 960 | 0.047357402679 |
+| Select among four prospectively frozen 60s using the same panels | 20 | 1,280 | 0.048609196624 after Bonferroni factor 4 |
+
+At 14 per cell (896 games), the one-loss null probability is 0.061665376996, insufficient for a 5% one-sided test. At K=4 and 19 per cell (1,216 games) the family-wise upper bound is 0.064095795441, also insufficient. The one-loss certificate is a **sufficient rejection threshold**, neither a simulated win-rate estimate nor a general guarantee after untracked adaptive deck optimization. If a candidate is chosen on independent development data and the selected 60 is frozen before its fresh holdout panel, use K=1. All actually incomplete native attempts and invalid/paper-unqualified outcomes remain unresolved and cannot be silently scored as qualified wins.
+
+The [independent CJS calculator](../../simulation/evaluation/agent10-heterogeneous-balanced-one-loss-cert.cjs) and [six adversarial numeric tests](../../tests/agent10-heterogeneous-balanced-one-loss-cert.test.cjs) verify the thresholds, including a small-sample counterexample outside the theorem condition. This adds **zero** actual competitive games: the complete original 32 field and owner-safe paper game engine remain unavailable.
