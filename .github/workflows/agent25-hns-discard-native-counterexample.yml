@@ -29,6 +29,20 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
+        run: node simulation/twinleaf/agent25-ball-compressor-staged-native.cjs > agent25-ball-compressor-staged-native.json
+      - name: Report every new staged owner-payment arm, including failures
+        if: always()
+        run: |
+          node -e "const fs=require('node:fs');const p='agent25-ball-compressor-staged-native.json';if(!fs.existsSync(p)){console.log('STAGED_BALL_NATIVE_NO_OUTPUT');process.exitCode=1}else{const r=JSON.parse(fs.readFileSync(p));console.log(JSON.stringify({version:r.version,pin:r.nativePin,passed:r.allPassed,arms:r.arms.map(a=>({seat:a.seat,payment:a.paymentName,status:a.status,damage:a.actualDamage,error:a.error??null,traceLength:a.trace.length}))},null,2))}"
+      - name: Archive all four staged native Ball plus Compressor arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-ball-compressor-staged-native
+          path: agent25-ball-compressor-staged-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Observe native PokéStop on clean and intentionally rejected-action source boards
         run: node simulation/twinleaf/agent25-vileplume-pokestop-native-stadium.cjs > agent25-vileplume-pokestop-native-stadium.json
       - name: Print all staged clean and rejected-action control outcomes
