@@ -13,12 +13,6 @@ const ROOT = path.resolve(__dirname, '../..');
  * references; see the companion results/statistics report for provenance.
  * Key uses the original Aichi roster's set code and unprefixed printed number.
  */
-const VERIFIED_PRINTED_NAME_ALIASES = Object.freeze({
-  // Two typographic diamond glyphs for the identical Lost Thunder 154
-  // Prism Star printing, verified by exact printed set and number.
-  'LOT:154': {source: 'Ditto ♢', index: 'Ditto ◇'}
-});
-
 const VERIFIED_BASIC_PROMO_EXCEPTIONS = Object.freeze({
   'SMP:217': 'Trevenant & Dusknoir-GX',
   'XYP:67': 'Jirachi',
@@ -66,9 +60,11 @@ function createBasicClassifier(root = ROOT) {
       ? cardsForSet(setId).find(c => String(c.number) === String(printing.number))
       : null;
     if (record) {
-      assert.ok(record.name === expectedName ||
-        (VERIFIED_PRINTED_NAME_ALIASES[key]?.source === expectedName &&
-          VERIFIED_PRINTED_NAME_ALIASES[key].index === record.name),
+      const exactPrismStarGlyphVariant =
+        record.subtypes.includes('Prism Star') &&
+        expectedName.endsWith(' ♢') &&
+        record.name === expectedName.slice(0, -1) + '◇';
+      assert.ok(record.name === expectedName || exactPrismStarGlyphVariant,
         'Source printed name mismatch: ' + key + ' (' +
           expectedName + ' vs ' + record.name + ')');
       assert.equal(record.supertype, 'Pokémon');
@@ -237,7 +233,6 @@ function fieldMeanBonusExposure(candidateBasics, originals) {
 }
 
 module.exports = {
-  VERIFIED_PRINTED_NAME_ALIASES,
   VERIFIED_BASIC_PROMO_EXCEPTIONS,
   createBasicClassifier,
   countStartingBasics,
