@@ -40,6 +40,8 @@ For four immutable developmental challengers, using the Basic-card inventory rec
 | Sentinel Lopunny/Vileplume v1 | 14 | 60.58237% | 0.89611 |
 | Arven–Boost Shake Absol v1 | 12 | 52.88913% | 0.72977 |
 
+**Validation:** the existing manually dispatched [global field gate CI run 41769123262](https://github.com/FlareZ123/experiment-01/actions/runs/41769123262) completed **SUCCESS** at 03:46:57 UTC on test-fix head `a7b65c7f6bf7f84b3c329124d57157f49910c86d`, including the new three-part exact opening-cardinality SFT and all preexisting gate checks. The previous [run 41768928911](https://github.com/FlareZ123/experiment-01/actions/runs/41768928911) failed only because an all-Basic synthetic-deck test asserted that zero-mass impossible hand rows should be absent. Filtering rows with zero valid physical hands corrected the **test expectation** without modifying the mathematical model. Both the source-29 real-stage count and its mean passed in that red run and in the final green run.
+
 ## Release implication
 
 The initial one-card-vs-greedy disagreement affects **a majority** of Basic-valid original source openings. A single selected bilateral policy must pin the choice cardinality, Active/Bench order, min1 initial versus min0 bonus-Bench prompt, wrapper precedence and actual post-Store board for both seats. The same physical seven and Prize six should be preserved for a registered same-deal A/B witness. Both start configurations can be valid under the attached Advanced Player's Rulebook's optional Bench rule; whether another Bench Pokémon helps or hinders must be determined by later opponent actions, payment and game-state value.
