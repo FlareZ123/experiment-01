@@ -49,3 +49,31 @@ test('source-stamped original PLS payment is native-vetoed for 0/1 and physicall
     }
   }
 });
+
+test('pinned original PLS Dowsing correctly settles with a Prism Star cost sent to Lost Zone, both seats', () => {
+  for (const seat of [0, 1]) {
+    const {result, audit} = withDowsingMachinePaperPaymentGuard(
+      () => probeDowsingPayment(seat, 2, {prismStarCost:true}));
+    assert.equal(result.prismStarCost, true);
+    assert.equal(result.nativePaymentPromptSourceCard, PRINTING);
+    assert.equal(result.nativeRecoveredTarget, true);
+    assert.deepEqual(result.paymentDiscarded, [true, false]);
+    assert.deepEqual(result.paymentLostZone, [false, true]);
+    assert.deepEqual(result.paymentHeld, [false, false]);
+    assert.equal(audit.acceptedPayments, 1);
+    assert.equal(audit.settledPhysicalPayments, 1);
+    assert.equal(audit.unsettledPhysicalPayments, 0);
+    assert.deepEqual(
+      audit.sourceStampedPayments[0].paymentCustody.map(x =>
+        [x.expectedDestination, x.actualDestination, x.paidCorrectly]),
+      [['discard','discard',true],['lostzone','lostzone',true]]);
+    console.log('AGENT36_DOWSING_PRISM_NATIVE '+JSON.stringify({
+      seat, sourcePrinting:PRINTING,
+      recoveredTarget:result.nativeRecoveredTarget,
+      paymentDiscarded:result.paymentDiscarded,
+      paymentLostZone:result.paymentLostZone,
+      paperSettled:audit.settledPhysicalPayments,
+      competitivelyQualified:false
+    }));
+  }
+});
