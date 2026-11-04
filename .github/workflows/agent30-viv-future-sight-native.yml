@@ -1,0 +1,29 @@
+name: Agent30 printed Future Sight effect owner-knowledge and Store ordering
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  future-sight-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check out existing pinned Twinleaf dependency
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Assert research-pinned engine revision
+        run: node -e "const a=require('node:assert/strict');const c=require('node:child_process');a.equal(c.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile unchanged native game Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify actual Future Sight both-seat, both-target, top-four physical ordering
+        run: node --test tests/agent30-duskull-viv-futuresight.native.test.cjs
