@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent2-actor-only-conservative-shuffle-supporter-v1';
+const VERSION='agent2-actor-only-conservative-shuffle-supporter-v2-unknown-opponent-return';
 const FAMILY=Object.freeze([
   {prefix:"Lillie's Determination ",kind:'lillie',
     maxOwnHand:3,minDrawAdvantage:3},
@@ -19,16 +19,19 @@ const FAMILY=Object.freeze([
  *
  * @param {object} view Frozen owner-only actorObservation.
  * @param {string} kind Supported printed Supporter effect family.
- * @returns {{ownDraw:number,opponentDraw:number}|null}
+ * @returns {{ownDraw:number|null,opponentDraw:number|null,conditionalDrawTriggered?:null,unresolvedReason?:string}|null}
  */
 function printedShuffleDrawCounts(view,kind){
   const own=view.ownPublic,opponent=view.opponentPublic;
   if(kind==='lillie')return {
     ownDraw:own.prizeCount===6?8:6,opponentDraw:0};
-  // These two Supporters put both players' remaining hands on the bottom.
-  // The played Supporter is no longer in its owner's hand. Their printed
-  // draw clause is conditional on at least one card actually being moved.
-  const anyCardMoved=view.ownHand.length>1||opponent.handCount>0;
+  // The played Supporter has left the owner's hand. Opponent public hand
+  // count alone cannot prove movement because Dew Guard may protect it.
+  const ownerMoved=view.ownHand.length>1;
+  if(!ownerMoved&&opponent.handCount>0)return {
+    ownDraw:null,opponentDraw:null,conditionalDrawTriggered:null,
+    unresolvedReason:'opponent-hand-movement-not-certified'};
+  const anyCardMoved=ownerMoved;
   if(kind==='marnie')return anyCardMoved?
     {ownDraw:5,opponentDraw:4}:{ownDraw:0,opponentDraw:0};
   if(kind==='iono')return anyCardMoved?
@@ -75,7 +78,8 @@ function enumerateConservativeShuffleSupporterOffers(view){
       if(!printing.startsWith(family.prefix))continue;
       if(hand.length>family.maxOwnHand)continue;
       const counts=printedShuffleDrawCounts(view,family.kind);
-      if(!counts||counts.ownDraw<=0||counts.ownDraw>ownDeckAfterReturn)
+      if(!counts||counts.ownDraw===null||counts.ownDraw<=0||
+          counts.ownDraw>ownDeckAfterReturn)
         continue;
       if(family.kind!=='lillie'&&
         (counts.opponentDraw>opponentDeckAfterReturn||
