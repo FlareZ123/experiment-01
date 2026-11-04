@@ -122,6 +122,50 @@ for(const actorSeat of [0,1]){
   }
 }
 
+
+const {withOwnerFutureSightNeutralOrder}=
+  require('../simulation/twinleaf/agent30-owner-futuresight-neutral-order.cjs');
+
+for(const actorSeat of [0,1]){
+  for(const selectedDeck of [0,1]){
+    test('opt-in exact source-marked owner-only neutral ordering seat '+
+      actorSeat+' target '+selectedDeck,()=>{
+      const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+      const {Duskull}=load(
+        'sets/09-sword-and-shield/set-vivid-voltage/duskull');
+      const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
+      const originalSource=Duskull.prototype.reduceEffect;
+      const {ResolvePromptAction}=load(
+        'game/store/actions/resolve-prompt-action');
+      const trial=withOwnerFutureSightNeutralOrder(()=>{
+        const f=fixture(actorSeat,6);
+        const first=f.state.prompts.find(p=>p.result===undefined);
+        f.store.dispatch(new ResolvePromptAction(first.id,selectedDeck));
+        const order=f.state.prompts.find(p=>p.result===undefined);
+        const ai=Object.create(SimpleTacticsAi.prototype);
+        ai.client={id:f.owner.id};
+        const action=ai.decodeNextAction(f.state);
+        assert.ok(action instanceof ResolvePromptAction);
+        assert.equal(action.id,order.id);
+        assert.deepEqual(action.result,[0,1,2,3]);
+        f.store.dispatch(action);
+        assert.deepEqual(f.players.map(p=>p.deck.cards),
+          f.originalDecks,'Neutral ordering preserves actual physical decks');
+        return {actorSeat,selectedDeck};
+      });
+      assert.deepEqual(trial.result,{actorSeat,selectedDeck});
+      assert.equal(trial.audit.printedReducerInvocations,1);
+      assert.equal(trial.audit.markedOrderPrompts,1);
+      assert.equal(trial.audit.ownerPromptSelections,1);
+      assert.equal(trial.audit.cardIdentitiesInspected,false);
+      assert.equal(trial.audit.ownerVisibleFullStateInspected,false);
+      assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,
+        originalDecode);
+      assert.strictEqual(Duskull.prototype.reduceEffect,originalSource);
+    });
+  }
+}
+
 test('Future Sight printed owner reveal scope is only selected four-card pool',()=>{
   const f=fixture(0,6);
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
