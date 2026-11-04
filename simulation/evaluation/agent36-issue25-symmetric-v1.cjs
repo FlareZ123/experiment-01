@@ -25,7 +25,8 @@ function runSymmetricIssue25V1(deps={}){
   const run=deps.runner??runDevelopment;
   assert.equal(typeof run,'function');
   const result=runSelectedIssue25V0({
-    runner:options=>run({...options,sourceIndependentCommonPolicy:true})
+    runner:options=>run({...options,sourceIndependentCommonPolicy:true}),
+    layers:deps.layers
   });
   const indicated=result.rawDevelopment?.sourceIndependentCommonPolicyOptIn;
   const manifest={
