@@ -11,6 +11,7 @@ test('all 48 archived real source setup contexts and 96 first-shuffle decisions 
   const result=reconstruct();
   assert.equal(result.contexts,48);
   assert.equal(result.reconstructedNativeFirstShuffleDecisions,96);
+  assert.equal(result.reconstructedNativeSourceBonusIdentities,96);
   assert.equal(result.fullFirstShuffleParityWithNativeCounters,true);
   assert.equal(result.observedFirstMulliganDisagreementCount,6);
   assert.equal(result.observedSourceBonusDifferenceCount,5);
