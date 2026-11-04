@@ -1,0 +1,33 @@
+# Original Aichi source Trainer owner-hand payment audit: 754 of 1,035 copies
+
+**Agent 27, 4 November 2026. Pure English card-text cost audit, native-independent. No competitive games.**
+
+## Decision-relevant result
+
+Among all exact registered original Trainer copies in the 29 authenticated Aichi 60s (immutable `results/aichi-2026/full-decklists.json`), the **hand-card discard-payment catalog** has expanded from **12 source name/set groups / 259 physical Trainer copies** to **53 groups / 754 physical Trainer copies**, using 41 additional high-incidence original source print groups with zero **additional hand-card discards required merely to play the card**. This is a classification of **one specific cost dimension**, and zero discard cannot establish target, timing, item/tool/supporter/stadium quota, opponent lock, ability-availability, exact effect resolution, strategic preference, native support or tournament performance.
+
+| Source catalog category | Original Trainer copies | Meaning |
+| --- | ---: | --- |
+| Known mandatory hand-discard payment | **164** | A bounded number of other physical hand cards must be discarded |
+| Optional enhanced hand-discard payment | **20** | `Guzma & Hala`, `Bellelba & Brycen-Man`, `Cynthia & Caitlin`, optional modes are distinct |
+| Verified zero additional hand-discard payment | **570** | Card has no extra hand-card discard payment just for playing it; it can consume other strategic resources |
+| Unclassified by this **fixed-cardinality** catalog | **281** | Includes whole-hand transformations, other effects, unbundled Japanese promo identities and remaining print families; **no assumption of zero cost** |
+| **Total** | **1,035** | All 29 original 60s, exactly conserved |
+
+The 41 added groups account for **495 physical source copies** and include, among others, `VS Seeker PHF` (59), `Guzma BUS` (48), `Hisuian Heavy Ball ASR` (25), `Float Stone BKT` (24), `Muscle Band XY` (23), `Sky Field ROS` (17), `Rescue Carrier EVS` (17), `Rescue Stretcher GRI` (15), `Raihan EVS` (14), `Tag Call CEC` (14), `Forest Seal Stone SIT` (13), `Dark Patch ASR` (13), `Field Blower GRI` (11), `Lusamine CIN` (11), `Escape Rope BST` (11), `Super Rod PAL` (11), `Enhanced Hammer TWM` (10), `Counter Catcher PAR` (10), `Megaton Blower SSP` (10), and `Crispin SCR` (10). The other source groups and exact zero quantities are exhaustively frozen in the executable catalog and original roster; no inferred deck additions were made.
+
+**Important exclusions:** `Professor Sycamore`, `Professor's Research`, `Carmine`, `Roxie`, `N`, `Marnie`, `Iono`, and `Lillie's Determination` have whole-hand discard, shuffle, bottom-of-deck or conditional other-card effects. The independent [Agent49 bulk-hand transition certificate](../../simulation/twinleaf/agent49-owner-bulk-hand-transitions.cjs) already observes those separately. We did **not** pretend that mechanically playing those has no hand consequences just because there is no additional one/two/three-card discard payment. Cards like `Boost Shake`, `Camping Gear`, and `Steven's Resolve` may immediately end the user's turn; their zero hand-discard classification does not certify tempo cost. `VS Seeker` requires a real Supporter in the discard pile; `Raihan` requires a qualifying previous Knock Out; `Counter Catcher` has an opposing Prize condition. None of those actual target/timing predicates is discharged by this audit.
+
+## Verification and repeatable code
+
+- [Physical hand-card cost registry](../../simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs): 41 new source group records, source set/code distinguished. Existing `Quick Ball FST`, `Ultra Ball MEG`, `Mysterious Treasure FLI`, `Secret Box TWM`, the three optional Supporters and historic source cards remain structurally unchanged.
+- [Exact named-print source-card text audit](../../scripts/agent27-source-trainer-cardtext-cost-audit.cjs): examines all bundled English variants of every registered name/set; refuses to silently downgrade unfamiliar discard-from-hand language to zero. Correctly distinguishes English `from your discard pile into your hand` retrieval language from `discard ... from your hand` costs. The negative test still rejects an unfamiliar full-hand discard. All 53 source catalog names and their inspected English set copies are checked against the original manifest.
+- [Source-census regression](../../tests/agent27-original-field-trainer-payment-coverage.test.cjs), [source-card-text regression](../../tests/agent27-source-trainer-cardtext-cost-audit.test.cjs), and [native-owner diagnostic read-only regressions](../../tests/agent27-owner-trainer-payment-observer.test.cjs) all run within the existing manually dispatched card audit.
+- [Manual GitHub Actions run 41773392984](https://github.com/FlareZ123/experiment-01/actions/runs/41773392984), at repo main in the 4 November 04:27 UTC window, independently reports the combined **"Verify exact owner-hand Trainer discard contention without native games"** step **passed** after the earlier false-positive and stale negative fixture were corrected. The whole workflow was **not green** due to the separate Agent17 original Basic-conditioned first-turn holdings step failing. Do not promote this to a whole-engine or full card-audit pass.
+- The [exact source printing reconciliation](agent27-original-trainer-print-identity-reconciliation-20261104.md) still finds **1,021/1,035** English bundle identity matches and 14 original Japanese-only source Trainer promo copies absent from that English corpus. The cost frontier is intentionally a different, narrower metric (754 vs 1,021).
+
+## Remaining decision blocker
+
+A live planner must observe the physical owner hand and protected resources (DCI), actual available targets, quotas, hand redraws, Native Store legal prompts, locks, and opponent reply. `COST_BY_PRINT` provides only source-printed **hand-discard requirement**, with an explicit `cannotCertifyPaperAction` and `cannotCertifyGamePerformance` on its read-only output. Broadening that observation without verifying card-specific target and choosing actions under credible opponent defense could actually make a bad bot *appear* stronger by rewarding more nominally affordable zero-cost cards. The next shared symmetric selected policy should use these audited zero-discard candidates as *feasibility* evidence and compare them against their actual alternatives.
+
+No full original source deck or fixed proposed candidate has been changed. Remaining missing originals ranks 23/25/28, zero competitively qualified Aichi games, no selected final deck, and no demonstrated 99.5% win rate.
