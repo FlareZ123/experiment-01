@@ -88,3 +88,17 @@ test('unknown Pokémon printing remains fail-closed instead of being guessed',()
   assert.equal(result.rows[0].unresolvedPrintedPokemon[0].lookupState,
     'set-absent-from-bundled-corpus');
 });
+
+test('bundled XY and SM promo recovery reports full-field Basic-stage coverage',()=>{
+  const out=originalFieldToolAnswerVisibility(original);
+  const remaining=out.rows.filter(row=>row.status==='unknown-pokemon-stage')
+    .map(row=>({rank:row.rank,unresolved:row.unresolvedPrintedPokemon}));
+  console.log('AGENT3_ALL29_ORIGINAL_STAGE_COVERAGE',
+    JSON.stringify({resolved:out.resolvedOriginals,
+      unresolved:out.unresolvedOriginals,remaining}));
+  assert.equal(out.originalSources,29);
+  assert.equal(out.resolvedOriginals+out.unresolvedOriginals,29);
+  assert.equal(out.rows.find(row=>row.rank===1).basicCount,14);
+  assert.equal(out.rows.find(row=>row.rank===2).status,'resolved-corpus-basic-stage');
+  assert.equal(out.rows.find(row=>row.rank===3).status,'resolved-corpus-basic-stage');
+});
