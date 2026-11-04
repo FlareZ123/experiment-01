@@ -16,6 +16,8 @@ test('Issue25 v1 selected four original arms, same source-independent two-seat h
   assert.equal(diagnostic.allRegisteredAttemptsReturned,true);
   assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
   assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
+  assert.ok(manifest.observedLoadedResearchModuleDigest.moduleCount>=10);
+  assert.match(manifest.observedLoadedResearchModuleDigest.sha256,/^[a-f0-9]{64}$/);
   assert.equal(manifest.observedTwinleafGitCommit,
     manifest.expectedPinnedTwinleafGitlink);
   assert.equal(manifest.fullDecisionPolicySymmetryCertified,false);
