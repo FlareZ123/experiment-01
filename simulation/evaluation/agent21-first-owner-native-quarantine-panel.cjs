@@ -21,6 +21,7 @@ const VERSION='agent21-first-native-owner-decoder-quarantine-panel-v1';
  * entire selected bilateral runner, before its actor components.
  *
  * @param {{preflight?:Function,runner?:Function,quarantine?:Function,
+ *   ownerSetup?:Function,ownerSetupConfirm?:boolean,
  *   pinNative?:boolean}} [deps] Controlled pure-test seams.
  * @returns {object} Bounded non-secret first-blocker evidence.
  */
@@ -29,6 +30,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
   const runner=deps.runner??
     require('./agent41-bilateral-v2-development.cjs').runDevelopment;
   const guard=deps.quarantine??withNativeRawStateFallbackQuarantine;
+  const ownerSetup=deps.ownerSetup??require('../twinleaf/agent21-owner-setup-go-first-confirm.cjs')
+    .withOwnerSetupGoFirstConfirm;
   const {profile,trials,codeProvenance}=preflight(deps.pinNative!==false);
   const grouped=['A','B'].map(slot=>trials.filter(t=>
     t.candidateSlot===slot && t.repeat===0));
@@ -43,20 +46,27 @@ function runFirstOwnerDecoderPanel(deps={}) {
     let audit=null;
     let status='NO_RAW_DECODER_CALL_OBSERVED_UNQUALIFIED';
     let returnedRows=0;
-    let errorName=null,errorMessage=null;
+    let errorName=null,errorMessage=null,ownerSetupAudit=null;
     try {
-      const wrapped=guard(()=>runner({
+      const execute=()=>runner({
         ...profile.selectedPolicyOptions,
         registeredTrials:pair,registeredFrameName:VERSION,
         allowAdditionalOriginalSourceRanks:
           profile.allowAdditionalOriginalSourceRanks
-      }),{maxRecords:4});
+      });
+      const wrapped=guard(()=>{
+        if(deps.ownerSetupConfirm!==true)return execute();
+        const installed=ownerSetup(execute);
+        ownerSetupAudit=installed.audit;
+        return installed.result;
+      },{maxRecords:4});
       audit=wrapped.audit;
       returnedRows=wrapped.result?.rows?.length??0;
       assert.equal(wrapped.result?.attempted,2);
       assert.equal(returnedRows,2);
     }catch(error) {
       audit=error?.nativeRawStateFallbackQuarantine??null;
+      ownerSetupAudit=error?.agent21OwnerGoFirstAudit??ownerSetupAudit;
       status=error?.code===CODE?
         CODE:'OTHER_NATIVE_OR_PREFLIGHT_ERROR';
       errorName=error?.name??null;
@@ -67,6 +77,10 @@ function runFirstOwnerDecoderPanel(deps={}) {
       registeredTrialIds:pair.map(t=>t.id),
       sourceSeat:pair[0].candidateSlot==='A'?1:0,
       errorName,errorMessage,
+      ownerSetupConfirmEnabled:deps.ownerSetupConfirm===true,
+      ownerGoFirstHandled:ownerSetupAudit?.ownerGoFirstHandled??null,
+      ownerGoFirstBySeat:ownerSetupAudit?.ownerGoFirstBySeat??null,
+      ownerSetupDecisions:ownerSetupAudit?.records??[],
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
@@ -85,6 +99,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
   return {
     schema:VERSION,
     actualSelectedCommonPolicyRelease:false,
+    exactOwnerSetupConfirmEnabled:deps.ownerSetupConfirm===true,
     sourceRank:5,
     independentProspective:false,
     priorRegisteredProfileBlob:
