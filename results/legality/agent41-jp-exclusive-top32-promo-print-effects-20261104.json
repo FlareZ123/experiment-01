@@ -10,7 +10,7 @@
   "verifiedOfficialCardIdentityCount": 3,
   "unresolvedLocalCorpusPrintingCount": 3,
   "totalOriginalPhysicalCopies": 14,
-  "proofScope": "Official Japanese name and card effect validated; no local English printing, native game effect, or blanket paper legality certificate",
+  "proofScope": "Official Japanese printing and effect independently reconfirmed against existing Agent15/20/33/42/49 research; three native staged test pathways exist. No complete original-game or policy qualification.",
   "entries": [
     {
       "sourceName": "Palace Belt",
@@ -41,7 +41,15 @@
       ],
       "originalCopies": 3,
       "localExactEnglishPrintingAvailable": false,
-      "paperNote": "Original BW-era text also bears a historical Goods footer, but modern printed card category is Pokemon Tool, not an Item"
+      "paperNote": "Original BW-era text also bears a historical Goods footer, but modern printed card category is Pokemon Tool, not an Item",
+      "existingNativeResearchEvidence": {
+        "implementationKind": "pinned-Twinleaf-native-card",
+        "enginePrinting": "Palace Belt BWP",
+        "stagedPaperEvidencePaths": [
+          "tests/palace_promos_store.test.cjs"
+        ],
+        "ownerNativeHookRequired": false
+      }
     },
     {
       "sourceName": "Palace Book",
@@ -76,7 +84,16 @@
       ],
       "originalCopies": 6,
       "localExactEnglishPrintingAvailable": false,
-      "paperNote": "NAN25 is a third-party card-index ID, not a numeric collector number displayed in the official card header"
+      "paperNote": "NAN25 is a third-party card-index ID, not a numeric collector number displayed in the official card header",
+      "existingNativeResearchEvidence": {
+        "implementationKind": "pinned-Twinleaf-native-card",
+        "enginePrinting": "Palace Book SMP",
+        "stagedPaperEvidencePaths": [
+          "tests/palace_promos_store.test.cjs",
+          "tests/agent20-palace-book-turnend-native.test.cjs"
+        ],
+        "ownerNativeHookRequired": false
+      }
     },
     {
       "sourceName": "Player's Ceremony",
@@ -115,7 +132,19 @@
       ],
       "originalCopies": 5,
       "localExactEnglishPrintingAvailable": false,
-      "paperNote": "Effect can be activated by either player while Stadium remains in play; using it ends the acting player's turn"
+      "paperNote": "Effect can be activated by either player while Stadium remains in play; using it ends the acting player's turn",
+      "existingNativeResearchEvidence": {
+        "implementationKind": "research-owned-Twinleaf-optional-hook",
+        "enginePrinting": "Player's Ceremony SP 127",
+        "stagedPaperEvidencePaths": [
+          "tests/palace_promos_store.test.cjs",
+          "tests/agent33-players-ceremony-full-action-pinned.test.cjs",
+          "tests/agent49-native-players-ceremony-store.test.cjs"
+        ],
+        "ownerNativeHookRequired": true,
+        "hookPath": "simulation/twinleaf/card-patches.cjs",
+        "resolverPath": "simulation/twinleaf/resolve-field.cjs"
+      }
     }
   ],
   "gate": {
@@ -123,6 +152,10 @@
     "originalNameCountInventoryPreviouslyAuthenticated": true,
     "localExactPrintingResolved": false,
     "simulatorPaperCorrectnessVerified": false,
-    "competitiveGamesQualified": 0
+    "competitiveGamesQualified": 0,
+    "priorResearchMetadataRegistry": "simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs",
+    "priorNativeStagedEffectsPresent": true,
+    "sourceWholeGameEffectsCertified": false,
+    "priorPaperEffectEvidenceTest": "tests/palace_promos_store.test.cjs"
   }
 }
