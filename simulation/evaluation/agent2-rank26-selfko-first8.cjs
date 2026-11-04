@@ -74,5 +74,50 @@ function analyze(){
   });
 }
 
-module.exports={SOURCE,choose,countRequiredInSeven,analyze};
+/**
+ * A wider sufficient direct route: source must open with any one of its six
+ * other Basics (excluding Unown and Exeggcute) as an available Active, and
+ * see all six combination categories among its seven initial and first draw.
+ *
+ * One required starter in a uniform eight-card seen subset appears in the
+ * opening seven with probability 7/8; two starters guarantee it. All sums
+ * are exact BigInt integers, including the eighth-position weighting.
+ * @returns {object}
+ */
+function analyzeAlternativeBasicStarter(){
+  const starterCount=SOURCE.sourceBasicCount-
+    SOURCE.required.unown-SOURCE.required.exeggcute;
+  const required=Object.values(SOURCE.required);
+  const counts=[starterCount,...required];
+  const otherCount=SOURCE.deckSize-counts.reduce((a,b)=>a+b,0);
+  const oneEach=counts.reduce((p,n)=>p*BigInt(n),1n);
+  const oneStarterNeutral=oneEach*BigInt(otherCount);
+  const oneStarterDoubled=required.reduce((acc,n)=>
+    acc+choose(n,2)*(oneEach/BigInt(n)),0n);
+  const twoStarters=choose(starterCount,2)*
+    required.reduce((p,n)=>p*BigInt(n),1n);
+  const numerator=7n*(oneStarterNeutral+oneStarterDoubled)+
+    8n*twoStarters;
+  const denominator=8n*choose(SOURCE.deckSize,8);
+  const probability=Number(numerator)/Number(denominator);
+  const basicValid=Number(choose(60,7)-choose(48,7))/
+    Number(choose(60,7));
+  return Object.freeze({
+    version:'agent2-rank26-alternative-basic-starter-first-eight-v1',
+    starterGroupCopies:starterCount,neutralCopies:otherCount,
+    allSevenCategoryEightSubsets:
+      (oneStarterNeutral+oneStarterDoubled+twoStarters).toString(),
+    weightedSuccessfulEightSubsets:(Number(numerator)/8).toString(),
+    exactNumerator:numerator.toString(),
+    exactDenominator:denominator.toString(),
+    unconditionalProbability:probability,
+    conditionalBasicValidProbability:probability/basicValid,
+    noSearchOrBonusDraws:true,
+    opponentBoardConditionNotModeled:true,
+    competitiveGamesQualified:0
+  });
+}
+
+module.exports={SOURCE,choose,countRequiredInSeven,analyze,
+  analyzeAlternativeBasicStarter};
 if(require.main===module)console.log(JSON.stringify(analyze(),null,2));
