@@ -122,7 +122,7 @@ function buildReceipt(execution, options={}) {
  */
 function writeReceipt(execution, directory, options={}) {
   const prefix=options.prefix??'issue25-joined-v4';
-  assert.ok(['issue25-joined-v4','issue25-joined-v5'].includes(prefix));
+  assert.ok(['issue25-joined-v4','issue25-joined-v5','issue25-mirrored-v6'].includes(prefix));
   const content = JSON.stringify(buildReceipt(execution, options), null, 2) + '\n';
   const bytes = Buffer.from(content);
   assert.ok(bytes.length <= 8*1024*1024, 'Native archive exceeded 8 MiB');
