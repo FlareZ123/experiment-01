@@ -99,14 +99,16 @@ function compareConservativeSourceSupporters(control,treatment,original,enabled)
  * Prize, promotion and public-zone custody layers stay unchanged.
  */
 function runConservativeSourceSupporterV16(){
-  let rawA=null,rawB=null;
+  let rawA=null,rawB=null,observedControlFlag=null,observedTreatmentFlag=null;
   const baseline=runIssue25PrizeCustodyV14({runner:()=>{
     const x=runMirroredIssue25V6();
+    observedControlFlag=x.rawDevelopment?.bilateralConservativeShuffleRootOptIn??null;
     rawA=x.rawDevelopment.rows;return x;
   }});
   const treated=runIssue25PrizeCustodyV14({runner:()=>{
     const x=runMirroredIssue25V6({runner:opts=>
       runDevelopment({...opts,bilateralConservativeShuffleRoot:true})});
+    observedTreatmentFlag=x.rawDevelopment?.bilateralConservativeShuffleRootOptIn??null;
     rawB=x.rawDevelopment.rows;return x;
   }});
   return {
@@ -115,6 +117,9 @@ function runConservativeSourceSupporterV16(){
     originalOwnerPrizeAndPromotionV14Run:41932203013,
     nativeOriginalTwinleafGitPin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     exactBothSeatPolicyOption:'bilateralConservativeShuffleRoot',
+    actualNativeRunnerReportedControlFlag:observedControlFlag,
+    actualNativeRunnerReportedTreatmentFlag:observedTreatmentFlag,
+    treatmentOptionReachedNativeRunner:observedControlFlag===false&&observedTreatmentFlag===true,
     originalNativeSourceIndependentPolicyPreserved:true,
     sourceOwnerPrizeAndBenchPromotionPreserved:true,
     candidateSelectionNeutralToOriginalRank:true,
