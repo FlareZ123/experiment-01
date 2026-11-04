@@ -37,6 +37,9 @@ jobs:
       - name: Passively audit exact rank3 vs rank1 original sixty source roots, both seats
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-census.cjs | tee agent2-rank3-original-natural-fss-census.json
+      - name: Prospective disjoint original rank3 full-60 source exposure, 32 seeds-seats
+        shell: bash
+        run: node simulation/evaluation/agent2-rank3-original-fss-float-fresh.cjs | tee agent2-rank3-original-fresh-32.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,5 +48,6 @@ jobs:
           path: |
             agent2-fss-native-rank3-stdout.txt
             agent2-rank3-original-natural-fss-census.json
+            agent2-rank3-original-fresh-32.json
           if-no-files-found: warn
           retention-days: 14
