@@ -35,6 +35,8 @@ function fixture({seats=[0,1],starts=[null],rounds=2}={}){
           engineRevision:ENGINE,
           referenceSourceFingerprint:H('reference-source:'+key),
           challengerSourceFingerprint:H('challenger-source:'+key),
+          referenceCandidateSeat:candidateSeat,
+          challengerCandidateSeat:candidateSeat,
           referenceFirstTurnSeat:firstTurnSeat===null?0:firstTurnSeat,
           challengerFirstTurnSeat:firstTurnSeat===null?1:firstTurnSeat,
           referenceStatus:'QUALIFIED_NONWIN',
@@ -71,6 +73,7 @@ test('64-cell two-seat complete original field preserves every registered mismat
   assert.equal(got.observedUpper,1);
   assert.equal(got.seatCoverage,'BOTH_PHYSICAL_SEATS');
   assert.equal(got.startControl,'NATURAL_FIRST_TURN');
+  assert.equal(got.actualFirstTurnMismatchedPairs,128);
   assert.equal(got.competitiveQualified,false);
   assert.match(got.designSha256,/^[0-9a-f]{64}$/);
 });
@@ -137,6 +140,13 @@ test('same seed block replay, duplicate pair and invalid fingerprints are reject
   assert.throws(()=>attestedMarginalFieldDelta(pair),TypeError);
   const hidden=fixture();hidden.cells[1].samples[0].referenceSourceFingerprint='';
   assert.throws(()=>attestedMarginalFieldDelta(hidden),TypeError);
+});
+
+test('both contenders must occupy the registered actual physical seat',()=>{
+  const reference=fixture();reference.cells[2].samples[0].referenceCandidateSeat=1;
+  assert.throws(()=>attestedMarginalFieldDelta(reference),TypeError);
+  const challenger=fixture();challenger.cells[0].samples[0].challengerCandidateSeat=1;
+  assert.throws(()=>attestedMarginalFieldDelta(challenger),TypeError);
 });
 
 test('registered censoring remains in the denominator and blocks overconfidence',()=>{
