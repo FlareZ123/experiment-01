@@ -68,6 +68,17 @@ test('multiple printings of one card name count toward four-copy cap',()=>{
   assert.equal(out.noMoreThanFourFromNamesAndCategory,false);
 });
 
+test('both Basic Energy naming conventions preserve unlimited copy exception',()=>{
+  const alternate=JSON.parse(JSON.stringify(challenger));
+  alternate.cards.find(x=>x.category==='Energy').name='Basic Darkness Energy';
+  const report=auditPrintedSixty(alternate);
+  assert.equal(report.quantities,60);
+  assert.equal(report.noMoreThanFourFromNamesAndCategory,true);
+  // Source MEE15 is absent from bundled source even under the normalized
+  // Basic prefix; this does not convert it into a different printed set.
+  assert.equal(report.unmatchedCopies,8);
+});
+
 test('impossible 59-card or zero-copy manifest fails closed',()=>{
   const malformed=JSON.parse(JSON.stringify(challenger));
   malformed.cards[0].count--;
