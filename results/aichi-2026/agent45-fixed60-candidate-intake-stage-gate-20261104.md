@@ -17,6 +17,10 @@ Independently retrieved the four new **actual GitHub JSON manifests** and recomp
 
 Git blobs and author-listed SHA-256 hashes are distinct identity schemes. Do not interchange them or reinterpret the PSV SHA as a JSON SHA. Each list is a research proposal rather than an original Top-32 source. Physical category counts and reported identities must remain fixed when testing.
 
+## Independent English release chronology spot check
+
+The specific native gap for Sentinel's `PFL83` Buneary should **not** be mischaracterized as an automatic after-event release problem. Official Pokémon pages date the English [Phantasmal Flames set to **14 November 2025**](https://www.pokemon.com/uk/pokemon-news/pokemon-tcg-mega-evolution-phantasmal-flames-product-showcase), before the **10 May 2026** Aichi event. The official Pokémon product timeline also dates [Ascended Heroes to **30 January 2026** and Perfect Order to **27 March 2026**](https://press.pokemon.com/en/Search/Results?SearchText=pokemon+tcg). The disputed PFL Buneary therefore presents a **pinned native mapping/fidelity problem** on the evidence currently collected. A prior English expansion date is insufficient to certify a Japanese-event physical printing or its errata; that independent gate stays unresolved.
+
 ## Four candidate stage-gate verdicts
 
 ### 1. Apex Alchemy v0: developmentally eligible for a *small falsification comparison*, pending native interaction fidelity
