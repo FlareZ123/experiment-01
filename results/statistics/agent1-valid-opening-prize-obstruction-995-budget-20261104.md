@@ -30,6 +30,8 @@ For **either of two distinct non-Basic singletons** Prized, use inclusion-exclus
 
 ## Audited frozen sixty-card inputs and exact obstruction budgets
 
+The **existing manually dispatched pure archive workflow** completed [SUCCESS, run 41777334618](https://github.com/FlareZ123/experiment-01/actions/runs/41777334618), at Git head `7f918d97cf4bbff33f9ed405211c1ec750ce4778`. It included the new candidate-manifest regression alongside the immutable historical archive digest checks. This was a Node test run only; it did not compile Twinleaf or execute a new game.
+
 The tested [calculator](../../simulation/evaluation/agent1-prize-failure-budget.cjs) is pure CommonJS and its [regression file](../../tests/agent1-prize-failure-budget.test.cjs) reads the four unchanged machine manifests, asserts their 60-card totals and named target counts, and checks the exact numbers below. Basic counts were independently read from each candidate's printed Stage roster and must be rechecked if any card is changed.
 
 | Unchanged candidate and initial obstruction | Eligible Basics B | Probability of obstruction among valid opening hands | Minimum wins within obstructed cohort needed to allow a 99.5% total |
