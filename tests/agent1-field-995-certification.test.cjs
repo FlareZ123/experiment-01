@@ -63,8 +63,8 @@ test('29/32 original opponents are never sufficient for full-field scope',()=>{
 });
 
 test('reject invalid probability and zero-opponent panel definitions',()=>{
-  assert.throws(()=>minZeroLossGames(1,0.05),/assert/i);
-  assert.throws(()=>minZeroLossGames(.995,0),/assert/i);
-  assert.throws(()=>balancedAllWinPanel(0,2,10),/assert/i);
-  assert.throws(()=>simultaneousPerCellAllWinPanel(0),/assert/i);
+  assert.throws(()=>minZeroLossGames(1,0.05), {name:'AssertionError'});
+  assert.throws(()=>minZeroLossGames(.995,0), {name:'AssertionError'});
+  assert.throws(()=>balancedAllWinPanel(0,2,10), {name:'AssertionError'});
+  assert.throws(()=>simultaneousPerCellAllWinPanel(0), {name:'AssertionError'});
 });
