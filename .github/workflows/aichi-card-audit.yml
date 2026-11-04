@@ -176,7 +176,7 @@ jobs:
       - name: Independently verify 29-rank historical-art crosswalk and source identity
         if: ${{ always() && !cancelled() }}
         run: |
-          node --test tests/agent17-may2026-future-energy-print-audit.test.cjs tests/agent22-aichi-source-print-crosswalk.test.cjs tests/agent22-source-provenance-receipt.test.cjs
+          node --test tests/agent17-may2026-future-energy-print-audit.test.cjs tests/agent22-aichi-source-print-crosswalk.test.cjs tests/agent22-source-provenance-receipt.test.cjs tests/agent22-bilateral-source-art-sidecar.test.cjs
           node -e "const a=require('./simulation/evaluation/agent22-aichi-source-print-crosswalk.cjs');const x=a.auditMay2026SourcePrints(a.loadPinnedSource());console.log('SOURCE_PRINT_CROSSWALK',JSON.stringify({version:x.schema,sourceBlob:x.sourceGitBlobSha,crosswalkSha256:x.crosswalkSha256,affectedRows:x.affectedRows,affectedCopies:x.affectedCopies,affectedRankCount:x.affectedRankCount,historicalPrintMatch:x.historicalPrintMatch,engineProxyMapStatus:x.engineProxyMapStatus}))"
       - name: Preserve verified audit
         if: inputs.commit_results
