@@ -251,14 +251,27 @@ for(const seat of [0,1]){
 
     const deckBefore=trial.foe.deck.cards.length;
     trial.store.dispatch(new AttackAction(trial.owner.id,'Burrow'));
+    // Native Bunnelby PRC implements Ancient Trait Omega Barrage as an
+    // optional second attack. The first Burrow's deck movement precedes its
+    // ConfirmPrompt. Decline only that documented optional second attack.
+    // This avoids an invented owner choice and preserves a one-Burrow receipt.
+    assert.equal(trial.foe.deck.cards.length,deckBefore-1);
     const acknowledged=[];
     for(let j=0;j<8;j++){
       const prompt=trial.state.prompts.find(p=>p.result===undefined);
       if(!prompt)break;
-      assert.equal(prompt.constructor.name,'WaitPrompt',
-        'Unresolved nontrivial Burrow prompt requires a separate owner policy');
-      acknowledged.push(prompt.constructor.name);
-      trial.store.dispatch(new ResolvePromptAction(prompt.id,null));
+      const kind=prompt.constructor.name;
+      assert.ok(kind==='WaitPrompt'||kind==='ConfirmPrompt',
+        'Unexpected nontrivial Burrow/Omega Barrage prompt '+kind);
+      if(kind==='ConfirmPrompt'){
+        const {GameMessage}=native('game/game-message');
+        assert.equal(prompt.playerId,trial.owner.id);
+        assert.equal(prompt.message,GameMessage.WANT_TO_USE_ABILITY,
+          'Only the printed optional Omega Barrage second attack is declined');
+      }
+      acknowledged.push(kind);
+      trial.store.dispatch(new ResolvePromptAction(prompt.id,
+        kind==='ConfirmPrompt'?false:null));
     }
     assert.equal(trial.store.hasPrompts(),false);
     assert.equal(trial.foe.deck.cards.length,deckBefore-1);
