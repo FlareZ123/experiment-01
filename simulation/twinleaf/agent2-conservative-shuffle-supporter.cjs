@@ -25,6 +25,7 @@ function printedShuffleDrawCounts(view,kind){
   const own=view.ownPublic,opponent=view.opponentPublic;
   if(kind==='lillie')return {
     ownDraw:own.prizeCount===6?8:6,opponentDraw:0};
+  if(kind!=='marnie'&&kind!=='iono')return null;
   // The played Supporter has left the owner's hand. Opponent public hand
   // count alone cannot prove movement because Dew Guard may protect it.
   const ownerMoved=view.ownHand.length>1;
