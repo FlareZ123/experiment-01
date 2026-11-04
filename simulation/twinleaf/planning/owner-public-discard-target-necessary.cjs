@@ -13,7 +13,11 @@ const RULES=Object.freeze({
   'Rescue Carrier EVS':Object.freeze({sourceId:'swsh7-154',target:'pokemon-hp-90',maxTargets:2}),
   'Super Rod PAL':Object.freeze({sourceId:'sv2-188',target:'pokemon-or-basic-energy',maxTargets:3}),
   'Night Stretcher ASC':Object.freeze({sourceId:'me2pt5-196',target:'pokemon-or-basic-energy',maxTargets:1}),
-  'Special Charge STS':Object.freeze({sourceId:'xy11-105',target:'special-energy',maxTargets:2})
+  'Special Charge STS':Object.freeze({sourceId:'xy11-105',target:'special-energy',maxTargets:2}),
+  // Both Rescue Stretcher modes need a discarded Pokémon; a single target
+  // defeats only this negative proof, not all mode/payment prerequisites.
+  'Rescue Stretcher GRI':Object.freeze({sourceId:'sm2-130',target:'pokemon',maxTargets:3,
+    modes:Object.freeze(['one-pokemon-to-hand','three-pokemon-to-deck'])})
 });
 
 /**
@@ -38,6 +42,7 @@ function targetMatch(card,target){
   const energy=card.supertype==='Energy';
   const basicEnergy=energy&&card.subtypes.includes('Basic');
   if(target==='supporter')return trainer&&card.subtypes.includes('Supporter');
+  if(target==='pokemon')return pokemon;
   if(target==='pokemon-or-basic-energy')return pokemon||basicEnergy;
   if(target==='special-energy')return energy&&card.subtypes.includes('Special');
   if(target==='pokemon-hp-90'){
