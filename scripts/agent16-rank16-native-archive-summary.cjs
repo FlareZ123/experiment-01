@@ -21,6 +21,8 @@ function summarizeArchive(result){
     otherAttack:0,passWithoutAttack:0,unknown:0};
   let sourceFirst=0,sourceSecond=0,sourceFingerprintPaired=0;
   let liveFirstHandRows=0,liveHandPairsMatching=0;
+  let liveHandMultisetRows=0,liveHandMultisetPairsMatching=0;
+  const liveHandMultisetPairsMismatched=[],liveHandMultisetPairsUnavailable=[];
   const liveHandPairsMismatched=[],liveHandPairsUnavailable=[];
   const pairs=new Map(),rows=[];
   for(const r of result.allNativeDevelopmentRows){
@@ -53,6 +55,8 @@ function summarizeArchive(result){
       firstLiveHandProtocol:r.sourceFirstOwnHandProtocol??null,
       firstLiveHandSha256:r.sourceFirstOwnHandProtocol===
         'first-live-owner-hand-prebot-v1'?r.sourceFirstOwnHandSha256:null,
+      firstLiveHandMultisetSha256:r.sourceFirstOwnHandProtocol===
+        'first-live-owner-hand-prebot-v1'?r.sourceFirstOwnHandMultisetSha256??null:null,
       firstLiveHandActionOrdinal:r.sourceFirstOwnHandFirstActionOrdinal??null,
       legacyFirstObservedHandSha256:r.sourceLegacyFirstObservedHandSha256??null,
       legacyFirstObservedTurn:r.sourceLegacyFirstObservedHandTurn??null,
@@ -89,6 +93,13 @@ function summarizeArchive(result){
       if(hands[0]===hands[1])liveHandPairsMatching++;
       else liveHandPairsMismatched.push(key);
     }else liveHandPairsUnavailable.push(key);
+    const multisets=group.map(row=>row.sourceFirstOwnHandProtocol===
+      'first-live-owner-hand-prebot-v1'?row.sourceFirstOwnHandMultisetSha256:null);
+    liveHandMultisetRows+=multisets.filter(x=>typeof x==='string').length;
+    if(multisets.every(x=>typeof x==='string')){
+      if(multisets[0]===multisets[1])liveHandMultisetPairsMatching++;
+      else liveHandMultisetPairsMismatched.push(key);
+    }else liveHandMultisetPairsUnavailable.push(key);
   }
   return {
     version:'agent16-original-rank16-native-archive-honesty-summary-v1',
@@ -102,6 +113,10 @@ function summarizeArchive(result){
     liveFirstHandPairsMatching:liveHandPairsMatching,
     liveFirstHandPairsMismatched:liveHandPairsMismatched,
     liveFirstHandPairsUnavailable:liveHandPairsUnavailable,
+    liveHandMultisetShaAvailableRows:liveHandMultisetRows,
+    liveHandMultisetPairsMatching,
+    liveHandMultisetPairsMismatched,
+    liveHandMultisetPairsUnavailable,
     rootChoice,rows,
     qualifiedGames:0,
     caveat:'Distinct candidate decks can change source deals under the same seed. A matching first-live-hand SHA does not certify a matching deck or Prize layout. A held Shake and a passive first-turn action do not establish paper-legal or strategically superior lock play. Earlier archives lack prebot hand evidence. No paper clock was validated.'
