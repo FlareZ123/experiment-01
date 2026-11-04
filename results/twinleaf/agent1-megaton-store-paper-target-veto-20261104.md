@@ -34,6 +34,16 @@ The exact baseline run, compiled with pinned vendor, is [manual GitHub Actions *
 
 The two-seat native regression is wired into existing manual `.github/workflows/aichi-hood-interaction.yml`; no new workflow and no per-commit trigger. The second manually dispatched run for the new guard's negative and positive controls is [**41766553426**](https://github.com/FlareZ123/experiment-01/actions/runs/41766553426), head `a4ebea6c4fc003a2ef46b4587aa5a3b253eb14ab`, **SUCCESS**. Its compiled genuine Store log shows both seats reject no-target Megaton before dispatch with `PAPER_MEGATON_NO_EFFECT_TARGET`, preserving the Item in hand and leaving discard, board and prompts unchanged. Both seats also accepted a target-bearing Megaton under the guard plus effect hook and actually discarded both opposing Tools, attached Special Energy, Stadium and the Item. All added native test cases passed; raw vendor remains deficient.
 
+## Confirmed temporal lock consequence: real second Item action
+
+A third manually dispatched [**CI 41767235473**](https://github.com/FlareZ123/experiment-01/actions/runs/41767235473) at pinned head `ee9dd766e4ee61ee0cbdc87ed88f60f08b54c9d1` returned **SUCCESS**, including newly added genuine-Store, both-seat `AGENT1_MEGATON_GARBOTOXIN_LOCK` traces. On a separate *staged* board, the acting player has Benched `Vileplume AOR` Item lock; the opposing Bench has `Garbodor BKP` with an attached `Float Stone BKT` suppressing Vileplume's Ability. The actor physically holds `Megaton Blower SSP` followed by `Switch SVI`. All calls use actual pinned `Store.dispatch(PlayCardAction)`; no manual changes to `GamePhase` after the first action and no simulated turn-win claims.
+
+- **Unpatched vendor, either seat:** Megaton Store accepts and discards the Item, Float Stone stays attached to opposing Garbodor, and the immediate second `Switch` Item is accepted, creating a real `ChoosePokemonPrompt`. Switch leaves the hand.
+- **Existing Tool-removal hook plus new no-effect guard, either seat:** Megaton Store accepts and discards the Item and physically discards Float Stone to the opponent's discard; `Vileplume AOR`'s Item lock immediately becomes active. A second `Switch` in the **same turn** returns `CANNOT_PLAY_THIS_CARD`, stays in hand and creates no prompt.
+- The root no-effect guard inspected the positive Megaton on both seats and rejected **zero** actions, demonstrating it does not prevent this target-bearing response.
+
+This exposes a second-order, causal *option-set difference*: vendor Megaton's missed Tool removal changes the legality of an independent subsequent Item. It demonstrates material tactical distortion **without** claiming that the initially chosen Megaton or either possible Switch was optimal. The observed direction is board-dependent; removing the Tool from Garbodor may restore a lock that restricts the acting player itself. This native fixture provides no natural original rank6/13/20 response frequency and still does not qualify games.
+
 ## Practical consequences and limits
 
 - Do not treat unpatched native opponent refusal to remove Garbotoxin-enabling Tools as evidence that `Megaton Blower` is ineffective against such locks. In the 29 authenticated originals, ten copies would otherwise lose that potential removal in the pinned implementation.
