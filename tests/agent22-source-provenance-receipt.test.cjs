@@ -80,8 +80,14 @@ test('unresolved deck remains nonqualified and other-rank substitutions do not c
   assert.equal(got.engine_proxy_map.entries[0].observedNativeId,null);
   assert.equal(got.engine_proxy_map.entries[0].nativeResolutionStatus,'not-resolved');
   assert.equal(got.engine_proxy_map.nativeDeckStatus,'unresolved-printings');
-  assert.equal(sameTranscribedRow(got.engine_proxy_map.entries[0],
-    observedAlias),false);
+  assert.equal(sameTranscribedRow({
+    name:energyRow.name,count:energyRow.count,
+    transcribedPrinting:energyRow.printing
+  },observedAlias),true);
+  assert.equal(sameTranscribedRow({
+    name:energyRow.name,count:energyRow.count,
+    transcribedPrinting:energyRow.printing
+  },{...observedAlias,sourceName:'Darkness Energy'}),false);
 });
 
 test('bad physical digest and duplicate native aliases fail closed',()=>{
