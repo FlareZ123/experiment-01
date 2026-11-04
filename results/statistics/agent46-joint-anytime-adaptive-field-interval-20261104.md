@@ -39,7 +39,7 @@ For C=32, candidate ordinal 1, joint alpha=0.05, the per-direction-per-cell e-va
 
 The single-rank five-loss example follows the tight field-wide loss budget: an equal-weight 32-rank win probability of 0.995 permits at most **0.16 total expected nonwin probability summed over the 32 ranks**. A genuinely demonstrated rank-specific nonwin probability greater than 0.16 is enough to falsify that target even when assuming perfect wins elsewhere. Five observations are a mathematical illustration under strong assumptions, **not five actual Aichi games**.
 
-The Node 22 test of the uploaded test logic passed 10/10 locally using a source-compatible reconstruction of the already published base validator and e-process, with the 64,000-synthetic-game check taking about 0.3 seconds. This is a **local mathematical regression**; it does not establish a remote native-engine CI pass or validate a played match.
+The Node 22 test passed **10/10** locally using the published base e-process and a source-compatible reconstruction of the base validator. The existing manually dispatched field workflow independently passed the committed test as its named step in [GitHub Actions 41778887424](https://github.com/FlareZ123/experiment-01/actions/runs/41778887424), with job conclusion **success** on commit `19c47e310678aa6db9369940dbe0e9c378d063cc` (4 November 2026, 05:22 UTC). This verifies a pure statistical regression within the repository, not a native-engine integration or a played match.
 
 ## Operational qualification veto
 
