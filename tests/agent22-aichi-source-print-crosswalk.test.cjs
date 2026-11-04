@@ -106,3 +106,16 @@ test('crosswalk is deterministic under input row reordering',()=>{
   assert.equal(a.sourceCompositionSha256,b.sourceCompositionSha256);
 });
 
+
+test('committed crosswalk is exactly the independent source-derived 35-row map',()=>{
+  const stored=require('../results/aichi-2026/original-source-art-crosswalk-v1.json');
+  const expected=auditMay2026SourcePrints(source);
+  assert.equal(stored.sourceGitBlobSha,expected.sourceGitBlobSha);
+  assert.equal(stored.schema,expected.schema);
+  assert.equal(stored.affectedRows,expected.affectedRows);
+  assert.equal(stored.affectedCopies,expected.affectedCopies);
+  assert.deepEqual(stored.affectedRanks,expected.affectedRanks);
+  assert.deepEqual(stored.entries,expected.entries);
+  assert.equal(stored.historicalPrintMatch,'incomplete');
+  assert.equal(stored.engineProxyMapStatus,'proposed-not-runtime-verified');
+});
