@@ -14,6 +14,11 @@ test('Issue25 v1 selected four original arms, same source-independent two-seat h
   assert.equal(diagnostic.registered.length,4);
   assert.equal(diagnostic.attemptedRows.length,4);
   assert.equal(diagnostic.allRegisteredAttemptsReturned,true);
+  assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
+  assert.equal(manifest.observedTwinleafGitCommit,
+    manifest.expectedPinnedTwinleafGitlink);
+  assert.equal(manifest.fullDecisionPolicySymmetryCertified,false);
   assert.equal(diagnostic.rawDecoderExecuted,false);
   assert.equal(manifest.releaseQualified,false);
   assert.equal(diagnostic.competitiveGamesQualified,0);
