@@ -1,0 +1,49 @@
+name: Agent5 archived rank1 native policy with additive Ace fork
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  historical-rank1-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: eae9b16539c888a2e8230be7c7118544be5e3d32
+          submodules: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 069467afc7eb92da9e6ac6037a7bf4134459814b
+          path: overlay-agent5
+          submodules: false
+      - name: Copy additive experiment modules onto exact historical source
+        run: |
+          cp overlay-agent5/simulation/twinleaf/agent5-rank1-ace-trap-native-fork.cjs simulation/twinleaf/
+          cp overlay-agent5/simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs simulation/evaluation/
+          cp overlay-agent5/tests/agent5-rank1-ace-trap-archive-join.test.cjs tests/
+          cp overlay-agent5/results/aichi-2026/registrations/agent5-rank1-guzma-ace-trap-source-t37-v1-20261104.json results/aichi-2026/registrations/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run pure tests
+        run: node --test tests/agent5-rank1-ace-trap-archive-join.test.cjs
+      - name: Clone pinned original native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Original policy preregistration and engine validation
+        run: node simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs --preflight
+      - name: Execute two-item and two-item-plus-Ace counterfactuals on exact archival policy
+        run: node simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs
+      - name: Preserve full native experiment outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-rank1-historical-native-ace-trap
+          path: agent5-rank1-twoitem-ace-trap-native-fourarms.json
+          if-no-files-found: warn
+          retention-days: 30
