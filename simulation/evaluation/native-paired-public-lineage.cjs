@@ -147,5 +147,57 @@ function compareNativeOpportunity(control, treatment, anchorRoot) {
   };
 }
 
+
+/**
+ * Independent public-state card-name conservation check for an attack's
+ * Active-to-own-Bench Energy donation. An equal named multiset is weaker
+ * than a native physical card-identity receipt; neither alone proves paper
+ * legality or the opponent's strategic response.
+ * @param {object} row
+ * @param {number} attackRoot
+ * @param {string} donorName
+ * @param {number} targetBenchIndex
+ * @returns {object}
+ */
+function inspectPublicEnergyDonation(row, attackRoot, donorName, targetBenchIndex) {
+  const attack = settledAttack(row, attackRoot);
+  const seat = row?.sourceSeat;
+  const before = attack?.publicBoardBefore?.[seat];
+  const after = attack?.publicBoardAfter?.[seat];
+  if (!before || !after || !Number.isInteger(targetBenchIndex) ||
+      targetBenchIndex < 0 || !before.bench?.[targetBenchIndex] ||
+      !after.bench?.[targetBenchIndex] || typeof donorName !== 'string')
+    throw new Error('DONATION_PUBLIC_STATE_UNAVAILABLE');
+  const beforeActive = before.active?.energyCards;
+  const afterActive = after.active?.energyCards;
+  const beforeTarget = before.bench[targetBenchIndex]?.energyCards;
+  const afterTarget = after.bench[targetBenchIndex]?.energyCards;
+  if (![beforeActive, afterActive, beforeTarget, afterTarget]
+    .every(Array.isArray)) throw new Error('DONATION_ENERGY_ZONES_UNAVAILABLE');
+  const oneRemoved = beforeActive.slice();
+  const index = oneRemoved.indexOf(donorName);
+  if (index >= 0) oneRemoved.splice(index, 1);
+  const oneAdded = [...beforeTarget, donorName];
+  const same = (a,b) => stable([...a].sort()) === stable([...b].sort());
+  const otherBenchesIntact = before.bench.length === after.bench.length &&
+    before.bench.every((member,i) =>
+      i === targetBenchIndex ||
+      (member.name === after.bench[i]?.name &&
+        Array.isArray(member.energyCards) &&
+        Array.isArray(after.bench[i].energyCards) &&
+        same(member.energyCards, after.bench[i].energyCards)));
+  return {
+    donorName,targetBenchIndex,
+    matchedPublicActiveToBenchTransfer:index >= 0 &&
+      before.active?.name === after.active?.name &&
+      before.bench[targetBenchIndex]?.name ===
+        after.bench[targetBenchIndex]?.name &&
+      same(oneRemoved, afterActive) &&
+      same(oneAdded, afterTarget) && otherBenchesIntact,
+    paperLegalityIndependentlyVerified:false,
+    physicalCardInstanceIdentityVerified:false
+  };
+}
+
 module.exports = {settledAttack, nextSourceTurnAction,
-  immediateFollowThrough, compareNativeOpportunity};
+  immediateFollowThrough, compareNativeOpportunity, inspectPublicEnergyDonation};
