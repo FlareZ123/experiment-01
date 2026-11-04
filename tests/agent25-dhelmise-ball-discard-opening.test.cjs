@@ -2,6 +2,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
 const {exactOpening,study} = require('../scripts/agent25-dhelmise-ball-discard-opening.cjs');
 
 test('fixed v2 unrestricted: exact historical strict kernel is preserved',()=>{
@@ -59,4 +61,38 @@ test('committed Supporter prevents Arven tutor route but retains immutable 60',(
 
 test('Supporter availability flag validates type',()=>{
   assert.throws(()=>exactOpening(8,{allowArven:1}),assert.AssertionError);
+});
+
+test('exact printed fixed 60 manifest remains the subject of both calculations',()=>{
+  const manifest=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../results/als/agent25-dhelmise-mixed-lock-answers-v2.json'),'utf8'));
+  const rows=manifest.cards;
+  assert.ok(Array.isArray(rows));
+  assert.equal(rows.reduce((n,row)=>n+row.count,0),60);
+  assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
+  const counts=new Map(rows.map(row=>[row.id,row.count]));
+  const required={
+    'me5-39':4,'me5-34':4,'me5-33':2,'me5-6':2,
+    'me3-88':4,'sve-5':6,'sv1-166':4,'sv8-164':1,
+    'xy4-92':4,'sm6-113':4,'swsh1-179':3
+  };
+  for(const [id,n] of Object.entries(required))
+    assert.equal(counts.get(id),n,`Unexpected printed count for ${id}`);
+  const groups=[
+    4,8,10,4,1,4,7
+  ];
+  assert.equal(60-groups.reduce((a,b)=>a+b,0),22);
+  const basicIds=['me5-39','me5-33','sv9-56','xy7-30',
+    'sv6pt5-38','sv4pt5-37'];
+  assert.equal(basicIds.reduce((n,id)=>n+(counts.get(id)??0),0),14);
+  for(const e of [8,6]){
+    const model=exactOpening(e);
+    assert.equal(model.counts[0],counts.get('me5-39'));
+    assert.equal(model.counts[2],counts.get('me3-88')+counts.get('sve-5'));
+    assert.equal(model.counts[3],counts.get('sv1-166'));
+    assert.equal(model.counts[4],counts.get('sv8-164'));
+    assert.equal(model.counts[5],counts.get('xy4-92'));
+    assert.equal(model.counts[6],
+      counts.get('sm6-113')+counts.get('swsh1-179'));
+  }
 });
