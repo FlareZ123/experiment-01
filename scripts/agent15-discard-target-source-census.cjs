@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {RULES,loadBundledPublicPrintMetadata,withSourcePromoAliases}=require(
+const {RULES,loadBundledPublicPrintMetadata,withSourceDisplayAliases}=require(
   '../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
 /** Source-locked static incidence, not actual hand or native root eligibility. */
@@ -117,7 +117,7 @@ function run(repoRoot=path.resolve(__dirname,'..')){
   const bundled=loadBundledPublicPrintMetadata(resourceRoot);
   const externallyEnriched=
     require('../simulation/twinleaf/planning/owner-external-mee-basic-energy-metadata.cjs')
-      .withVerifiedMEEBasicEnergyPrintings(withSourcePromoAliases(bundled));
+      .withVerifiedMEEBasicEnergyPrintings(withSourceDisplayAliases(bundled));
   return {schema:'agent15-discard-public-target-source-census-v2-field-metadata',
     source:field.source,
     incidence:sourceRecoveryCensus(field),
