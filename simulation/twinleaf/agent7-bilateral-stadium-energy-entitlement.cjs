@@ -25,7 +25,10 @@ const VERSION='agent7-bilateral-public-stadium-attack-entitlement-v1';
  */
 function publicActiveAttackEntitlements(active,perspective,oldName,nextName,refs){
   if(!active?.printed||!Array.isArray(active.printed.types)||
-     !Array.isArray(active.energies)||!Array.isArray(active.attacks)){
+     !Number.isSafeInteger(active.printed.stage)||
+     !Array.isArray(active.energies)||!Array.isArray(active.attacks)||
+     !Number.isSafeInteger(perspective.ownPublic?.prizeCount)||
+     !Number.isSafeInteger(perspective.opponentPublic?.prizeCount)){
     return {status:'opponent-active-printing-unknown',
       activePokemon:active?.printing??null,
       attackDeltas:[],newlyPayable:[],newlyUnpayable:[],
