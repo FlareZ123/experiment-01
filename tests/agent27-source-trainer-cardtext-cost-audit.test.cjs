@@ -53,3 +53,6 @@ test('optional additional hand discard modes require exact source language',()=>
     'When you play this card, you may discard 3 other cards from your hand. You must discard another card from your hand.'
   ]),/Ambiguous/);
 });
+
+// Include the strict source-identity regression in the existing paper card audit.
+require('./agent27-original-trainer-print-identity-audit.test.cjs');
