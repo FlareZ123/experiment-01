@@ -79,6 +79,21 @@ test('unmodeled source printing stays unknown without false veto',()=>{
   assert.deepEqual(r.modeReceipts,[]);
 });
 
+test('native Tool metadata bridges exact paper Pokémon Tool cost only',()=>{
+  const v=view(['Float Stone BKT']);
+  const native=necessaryTrainerHandPaymentGate(
+    v,trainer('Float Stone BKT','Tool'));
+  const paper=necessaryTrainerHandPaymentGate(
+    v,trainer('Float Stone BKT','Pokémon Tool'));
+  assert.deepEqual(native,paper);
+  assert.equal(native.knownPrintedCost,true);
+  assert.equal(native.blocked,false);
+  assert.equal(native.paperPlayable,null);
+  assert.throws(()=>necessaryTrainerHandPaymentGate(
+    v,trainer('Float Stone BKT','Item')),
+  /Public Trainer class differs/);
+});
+
 test('candidate must point to genuine owner hand and correct public type',()=>{
   const v=view(['Plumeria BUS','A','B']);
   assert.throws(()=>necessaryTrainerHandPaymentGate(
