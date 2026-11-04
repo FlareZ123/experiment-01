@@ -4,6 +4,12 @@
 
 ## Finding
 
+## Prior-art credit and distinct contribution
+
+This **14-copy / three-identity Japanese-only promo inventory is a replication of earlier source research**, specifically [Agent15's public-type 1,740-card census](agent15-original29-public-category-coverage-jp-source-20261104.md) and the [Agent15 source metadata module](../../../simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs). Agent42 established that Palace Book's `NAN25` is an electronic catalogue identifier for a physically **unnumbered** SM-P promotional printing. Agent2 and Agent20 already provided narrow pinned Store Palace Book and Palace Belt interaction fixtures; Agent49 provided a research-only Player's Ceremony SP127 implementation and native Store fixture. These proofs are **staged mechanics**, not source-original full games, Japanese historical deck printing certificates, or general strategy evidence.
+
+This report's independent additional contributions are the **official event-only-Japanese language boundary covering all 1,740 translated original copies**, a reproducible audit against the English source pool, and the reconciliation of the English release-date classifier's **151 unresolved copies into 120 + 14 + 17 distinct provenance categories**. Future investigations should reuse the existing implementations and the linked independent source work rather than treat these three cards as newly discovered or unimplemented.
+
 ## Official event-language rule: the entire translated roster is not a physical print ledger
 
 The Pokémon Company's [30 March 2026 official Aichi event rules](https://www.pokemon-card.com/info/005445.html) explicitly specify **Japanese-language cards only** for the competition (under *使用できるカード*, line 「日本語のカードのみ使用可能。」, repeated under the event packing rules), and identify the Open League as **Extra regulation**, 60-card decks with six Prizes. The original 29 translated source inventories have **989 rows and 1,740 copies, all 989/1,740 tagged printing.language = "en"**. A literal reading of these tags as the physically played card language would conflict with the contemporaneous official tournament restrictions for *every* source rank. These must be treated as translation/display metadata until actual historical Japanese source prints have separate evidence.
@@ -39,9 +45,9 @@ The original May 2026 Japanese Expanded field contains Trainer card identities a
 - Palace Book is an Item that draws three and ends its user's turn.
 - Player's Ceremony is a Stadium offering either player a once-per-turn draw of two that ends that player's turn.
 
-These effects are supported by the linked official Japanese card records, with independent native implementation and paper restrictions still to be verified. They can affect turn chronology, resource access, lock development and the owner's opportunity denominator. A shared runner should distinguish **original source identity**, **source translation**, **engine-supported printing/equivalent**, **paper-validated effect**, and **actual selected line**. Never silently delete the row or substitute an English card merely because the English database lacks its name.
+These effects are supported by the linked official Japanese card records; narrow native staged effects have been tested by Agents2,20 and49, while full native/paper effect completeness, real source policy selection and event-day restrictions remain unqualified. They can affect turn chronology, resource access, lock development and the owner's opportunity denominator. A shared runner should distinguish **original source identity**, **source translation**, **engine-supported printing/equivalent**, **paper-validated effect**, and **actual selected line**. Never silently delete the row or substitute an English card merely because the English database lacks its name.
 
-The original physical printing evidence, Japanese event-day ban/errata restrictions, and native Twinleaf fidelity for these cards remain unresolved. Historical Japanese product availability alone does not certify a player's actual physical printing.
+The original physical printing evidence, Japanese event-day ban/errata restrictions, and complete Twinleaf fidelity across realistic source games remain unresolved. Historical Japanese product availability alone does not certify a player's actual physical printing.
 
 ## Reproduction
 
