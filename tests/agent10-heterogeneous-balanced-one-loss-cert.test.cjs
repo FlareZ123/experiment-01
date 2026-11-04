@@ -33,9 +33,11 @@ test('one percent familywise alpha requires 21 per cell for one candidate',()=>{
 test('known false small-sample shortcut is rejected by theorem precondition',()=>{
   assert.throws(()=>atMostOneLossUpperTail(2,0.5),
     /One-loss heterogeneous comparison/);
-  // With two independent failures having probabilities 0 and 1:
-  // P(L <= 1)=1, versus Bin(2,.5) lower tail .75.
-  assert.equal(1,1);
+  // Two independent failures with probabilities 0 and 1 have P(L<=1)=1,
+  // larger than the homogeneous Bin(2,.5) lower tail .75.
+  const heterogeneous=1;
+  const homogeneous=0.5**2+2*0.5*0.5;
+  assert.ok(heterogeneous>homogeneous);
 });
 test('strict invalid domains do not produce a certificate',()=>{
   for(const input of [
