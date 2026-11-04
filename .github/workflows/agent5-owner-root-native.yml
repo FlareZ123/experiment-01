@@ -138,6 +138,7 @@ on:
           - '5_11'
           - '6_9'
           - '5_11_recovery'
+          - '6_9_recovery'
 permissions:
   contents: read
 
@@ -229,7 +230,7 @@ jobs:
         env:
           AGENT5_TRAINER_CENSUS_RANK_PAIR: ${{ inputs.generic_trainer_rank_pair }}
           AGENT7_STADIUM_PUBLIC_SNAPSHOT: ${{ inputs.agent7_stadium_public_snapshot }}
-          AGENT15_RECOVERY_NATIVE_OBSERVE: ${{ inputs.generic_trainer_rank_pair == '5_11_recovery' }}
+          AGENT15_RECOVERY_NATIVE_OBSERVE: ${{ endsWith(inputs.generic_trainer_rank_pair, '_recovery') }}
         run: node simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.generic_trainer_frontier }}
