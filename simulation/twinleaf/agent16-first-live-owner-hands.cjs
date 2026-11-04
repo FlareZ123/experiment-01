@@ -1,9 +1,17 @@
 'use strict';
 
 const {decisionHandEvidence}=require('./decision-hand-evidence.cjs');
+/**
+ * Capture both physical owner hands at the initial live turn, before bot choice.
+ * This postgame-only observer never supplies either player's hidden cards
+ * to their opponent or to a decision policy.
+ * @param {{playerTurnPhase:unknown}} options Actual pinned GamePhase value.
+ * @returns {{observe:function,result:function}} Read-only observation methods.
+ */
 function createFirstLiveOwnerHandsObserver({playerTurnPhase}){
   const first=[null,null];
   return {
+    /** @param {object} state @param {number} actionOrdinal @param {object|null} pendingPrompt */
     observe(state,actionOrdinal,pendingPrompt){
       if(pendingPrompt||state.phase!==playerTurnPhase||(state.turn!==1&&state.turn!==2))return;
       const seat=state.activePlayer;
