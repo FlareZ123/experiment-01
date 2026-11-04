@@ -80,6 +80,12 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
   assert.ok(kinds.includes('get-lost'),'expected printed Get Lost');
   assert.ok(choices.selected.every(e=>e.privateCardIdentitiesExposed===false));
   assert.ok(choices.printedSourceInvocations.length>=2);
+  assert.ok(choices.resolvedFollowups.some(e=>
+    e.kind==='night-watch-reveal'));
+  assert.ok(choices.resolvedFollowups.some(e=>
+    e.kind==='night-watch-shuffle'));
+  assert.ok(choices.resolvedFollowups.every(e=>
+    e.hiddenCardIdentitiesInspected===false));
   assert.ok(ordering?.ownerPromptSelections>=1);
   if(guard.rawStateFallbackCalls>0)
     assert.equal(blocked?.code,CODE);
