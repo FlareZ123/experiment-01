@@ -116,3 +116,21 @@ The selected v6 canonical owner-root path cannot choose a normal hand Special En
 
 
 **Untested rank5 extension:** The same zero-attached-Energy invariant applies to the original **rank5 Mew/Genesect** source inventory when it is hypothetically driven by this identical default-off actor root. Its four Energy cards are exclusively Double Colorless, and its Pokémon/Trainer effects contain no first Energy attachment that bypasses the normal hand-attachment action. Mew V's Energy Mix attack would attach Energy from the deck **only after paying its own one-Psychic attack cost**; with no attached Energy it cannot initiate the chain. Genesect V's Fusion Strike System, Dedenne-GX's Dedechange, and Crobat V's Dark Asset draw cards; Special Charge returns Special Energy to the deck. Mew VMAX's Cross Fusion Strike needs two Colorless, so it cannot attack with an empty Energy board. This is **static extrapolation** from a source list to the v6 policy, because the frozen native v6/v11 eight-arm panel sampled original ranks6 and11 only. Do not count it as a rank5 native game result. It makes **four of the seven original zero-Basic Energy decks (ranks 5, 6, 24, 29)** independently attack-inert under the unchanged v6 policy in the absence of external Energy transfers. The remaining three zero-Basic original lists require separate analysis because other effects or control objectives can alter the reasoning.
+
+
+### Rank5 Mew/Genesect: exact attack-energy bottleneck (static original-list extension)
+
+A direct audit of the six distinct original rank5 Pokémon's printed attacks in the attached original English card snapshot verifies that **every one has positive Energy cost**. The rank5 original 60 has **four Double Colorless Energy (SUM 136) and no other Energy**. The complete raw printed-attack cost inventory is:
+
+| Original source Pokémon | Printed attacks (cost) |
+| --- | --- |
+| Mew V FST 113 | Energy Mix (P), Psychic Leap (P+C) |
+| Mew VMAX FST 114 | Cross Fusion Strike (C+C), Max Miracle (P+P) |
+| Genesect V FST 185 | Techno Blast (M+M+C) |
+| Dedenne-GX UNB 57 | Static Shock (L+C), Tingly Return-GX (L+C) |
+| Crobat V DAA 104 | Venomous Fang (D+C) |
+| Lillie's Clefairy ex JTG 56 | Full Moon Rondo (P+C) |
+
+Here P/M/L/C denote Psychic/Metal/Lightning/Colorless requirements. **Absent an opponent-given or cost-modifying effect, the only printed attack payable by this registered source Energy inventory is Mew VMAX's Cross Fusion Strike (two Colorless), using at least one attached Double Colorless.** Cross Fusion Strike can then copy an eligible Benched Fusion Strike Pokémon's attacks without paying that copied attack's printed cost. The original rank5 roster has a Wally Evolution option, four Mew V, three Mew VMAX and four Genesect V, so this is a meaningful source-specific attack route to test. Its exact availability also depends on Mew VMAX evolving, Active placement, a legal Benched donor, other Trainer timing and any opponent restrictions.
+
+The first requirement remains attachment of a physical DCE to Mew VMAX (or one of its prior stages). As established above, the default-off shared v6 actor root can propose **no** Special Energy hand attachment. No printed rank5 Pokémon Ability/Trainer in the fixed source 60 offers a zero-Energy initial acceleration that would independently break this invariant. Thus the static *no paid source attacks* claim for rank5 can be checked against exhaustive original Pokémon attack text, rather than merely inferring it from the word “Special.” **This is source-text/static policy evidence, not a native rank5 v6 trial**, and other public modifiers could change the payable menu.
