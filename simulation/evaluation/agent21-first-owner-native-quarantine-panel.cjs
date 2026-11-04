@@ -118,6 +118,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
 }
 
 if(require.main===module)
-  process.stdout.write(JSON.stringify(runFirstOwnerDecoderPanel(),null,2)+'\n');
+  process.stdout.write(JSON.stringify(runFirstOwnerDecoderPanel({
+    ownerSetupConfirm:process.argv.includes('--owner-setup-confirm')
+  }),null,2)+'\n');
 
 module.exports={VERSION,runFirstOwnerDecoderPanel};
