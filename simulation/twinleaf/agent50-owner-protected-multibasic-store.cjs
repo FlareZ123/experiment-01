@@ -97,6 +97,7 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
     else audit.bonusDeclines++;
     if(audit.events.length<64)
       audit.events.push({
+        nativeStoreOrdinal:audit.stores,
         seat,kind:initial?'initial-active-and-ordinary-bench':
           'optional-bench-decline',
         candidateOwnedHand:cardList.map(c=>c.fullName),
