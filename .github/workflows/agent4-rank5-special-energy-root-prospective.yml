@@ -1,6 +1,12 @@
 name: Agent4 rank5 original Mew ALS special-energy root prospective
 on:
   workflow_dispatch:
+    inputs:
+      quarantine_smoke_only:
+        description: Run bounded original rank5 both-seat owner fallback native smoke only
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -24,10 +30,14 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Quarantine inherited bot decoder in pinned original rank5 both seats
+        if: ${{ inputs.quarantine_smoke_only }}
+        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs
       - name: Registered two-seat full original source rank5 8-attempt ALS comparison
+        if: ${{ !inputs.quarantine_smoke_only }}
         run: node simulation/evaluation/agent4-rank5-special-energy-root-prospective.cjs > agent4-rank5-special-energy-root-prospective.json
       - name: Retain every original Store attempt and fingerprint
-        if: always()
+        if: ${{ always() && !inputs.quarantine_smoke_only }}
         uses: actions/upload-artifact@v4
         with:
           name: agent4-rank5-special-energy-paired-eight-native
