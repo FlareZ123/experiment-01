@@ -45,6 +45,12 @@ An attack-count metric erroneously equates all 35 declarations. In the ten settl
 
 In the rank-5 source winner seed, repeated copied Genesect Techno Blast attacks that had an eligible donor were separated by at least four global turn indices (14 within-arm repeat intervals in the whole cohort), consistent with the printed Techno Blast next-own-turn inability to attack. That observation does not certify all native copy-effect semantics, but it avoids a false claim that repeated attack declarations on consecutive source turns are necessarily legal.
 
+## Source-rank-11 printed Terminal Period was a complete tactical no-op in every settled use
+
+The genuine original rank-11 source declared **66** `Mega Absol ex` `Terminal Period` attacks across the paired 64 arms. **64** fully settled; **two** remained unresolved by an action cap. The original printed attack only Knocks Out an opponent's Active Pokémon if **exactly six damage counters (60 damage)** are on that target. In **all 66** pre-attack owner-visible snapshots, the defending Active had **zero** damage counters, so Terminal Period's printed win condition was absent. The 64 settled transitions changed **no public board elements or Prize cards**. This is stronger evidence than merely observing no Prize gain.
+
+Some of these declarations were made when the owner's stronger `Claw of Darkness` was not fully funded, so this does not by itself prove a dominant playable alternative on the same turn. It does demonstrate a significant native opponent-policy deficit that can leave the original source repeatedly attacking with guaranteed zero tactical payoff. The source rank 5's four native wins therefore lack convincing opposition-pressure certification.
+
 ## Naturally occurring Twinleaf paper-fidelity failure
 
 The sole error arm was `seed1591350664-rank5seat0-resource-tutor`. Pinned Twinleaf threw **`NO_BENCH_SLOTS_AVAILABLE`** during a source-rank-11 Active `Trubbish FST` `Call for Family` `AttackAction` at root ordinal **54**, global turn 10, acting physical seat 1. Its independently preserved pre-dispatch public snapshot shows **five occupied Bench positions** and an Active Trubbish with one Darkness Energy. The original Trubbish FST 168 card text instructs a Basic Pokémon deck search onto the Bench.
