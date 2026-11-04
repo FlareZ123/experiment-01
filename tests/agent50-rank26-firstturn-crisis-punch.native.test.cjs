@@ -145,8 +145,45 @@ for(const seat of [0,1]){
       evidence:'staged physical firstturn native original card interactions; no competitive games'
     };
     console.log('AGENT50_MELOETTA_TOOL_NATIVE',JSON.stringify(out));
-    assert.ok(x.opponent.active.damage>=210 ||
-      x.opponent.active.getPokemonCard()===undefined,
-      'original first-turn Crisis Punch should damage 210-HP unlocked lone Active');
+    const nativeState=x.store.state;
+    const nativeSource=nativeState.players[seat];
+    const nativeOpponent=nativeState.players[1-seat];
+    const opponentActive=nativeOpponent.active.getPokemonCard();
+    const remainingBench=nativeOpponent.bench
+      .map((slot,index)=>({index,pokemon:slot.getPokemonCard()?.fullName??null,
+        cards:slot.cards.map(card=>card.fullName)}))
+      .filter(slot=>slot.pokemon!==null);
+    const terminal={seat,
+      storeStateReferenceMatches:nativeState===x.state,
+      sourceReferenceMatches:nativeSource===x.source,
+      opponentReferenceMatches:nativeOpponent===x.opponent,
+      phase:nativeState.phase,
+      expectedFinishedPhase:GamePhase.FINISHED,
+      winner:nativeState.winner,
+      sourcePrizeLeft:nativeSource.getPrizeLeft(),
+      opponentPrizeLeft:nativeOpponent.getPrizeLeft(),
+      opponentActive:opponentActive?.fullName??null,
+      opponentActiveCardNames:nativeOpponent.active.cards.map(card=>card.fullName),
+      opponentBench:remainingBench,
+      opponentDiscard:nativeOpponent.discard.cards.map(card=>card.fullName),
+      pending:nativeState.prompts.filter(prompt=>prompt.result===undefined)
+        .map(prompt=>prompt.constructor.name)};
+    console.log('AGENT50_CRISIS_TERMINAL_STRICT_V2',JSON.stringify(terminal));
+    assert.equal(nativeSource.getPrizeLeft(),4,
+      'one 2-Prize opposing V must settle into two source Prizes');
+    assert.equal(nativeOpponent.getPrizeLeft(),1,
+      'staged opponent Prize count must remain one');
+    assert.equal(opponentActive,undefined,
+      'KO must remove defending Pokemon from the native Active Spot');
+    assert.deepEqual(remainingBench,[],
+      'solo opposing Active means no remaining opposing Bench Pokemon');
+    assert.ok(nativeOpponent.discard.cards.includes(x.defending),
+      'defending Pokemon must physically enter opponent discard');
+    assert.equal(nativeState.phase,GamePhase.FINISHED,
+      'native State must end after the sole opposing Pokemon is KO');
+    assert.equal(nativeState.winner,seat,
+      'native winner must be the source actor on either physical seat');
+    assert.deepEqual(terminal.pending,[],
+      'no unresolved native prompt may be counted as a settled terminal');
   });
 }
