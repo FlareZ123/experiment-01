@@ -21,6 +21,7 @@ function validFixture(){
     id,actualRawTrialId:id,status:'returned-unqualified',
     sourceDealFingerprint:i<2?'source6':'source11',
     actualStarterSeat:i<2?0:1,
+    originalSourceSeat:i<2?1:0,candidateSeat:i<2?0:1,
     nativeRootActionCount:1,
     publicRootActionCount:1,
     publicRootActions:structuredClone(actions),
@@ -162,4 +163,25 @@ test('empty evidence cannot pass by vacuous truth',()=>{
   assert.equal(r.identity.verdict,'FAIL');
   assert.equal(r.sourceDeals.verdict,'UNRESOLVED');
   assert.equal(r.evidenceVerdict,'FAIL');
+});
+
+test('native abort metadata alone does not certify missing physical source and candidate seats',()=>{
+  const f=validFixture();
+  f.attempts[2].status='engine-error';
+  f.attempts[2].originalSourceSeat=null;
+  f.attempts[2].candidateSeat=null;
+  f.attempts[2].nativeAbortProvenance={sourceSeat:0};
+  const a=auditIssue25Receipt(f);
+  assert.equal(a.rootCustody,'PASS');
+  assert.equal(a.seatAttribution.verdict,'UNRESOLVED');
+  assert.equal(a.seatAttribution.rows[2].provenance,'abort-metadata-only');
+  assert.equal(a.evidenceVerdict,'UNRESOLVED');
+});
+
+test('contradictory abort source seat fails even if explicit row seats exist',()=>{
+  const f=validFixture();
+  f.attempts[2].nativeAbortProvenance={sourceSeat:1};
+  const a=auditIssue25Receipt(f);
+  assert.equal(a.seatAttribution.verdict,'FAIL');
+  assert.equal(a.evidenceVerdict,'FAIL');
 });
