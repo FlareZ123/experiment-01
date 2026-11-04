@@ -39,10 +39,6 @@ function fixture(actorSeat,cardsInDeck){
       prize.cards.push(card('Psychic Energy SVE'));
       player.prizes.push(prize);
     }
-    for(let k=0;k<5;k++){
-      const slot=new CardList();
-      player.bench.push(slot);
-    }
     const names=['Psychic Energy SVE','Darkness Energy MEE',
       'Dratini OBF','Duskull VIV','Psychic Energy SVE',
       'Darkness Energy MEE'];
