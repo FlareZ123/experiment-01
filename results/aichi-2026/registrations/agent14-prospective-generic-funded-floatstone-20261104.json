@@ -1,0 +1,99 @@
+{
+  "schema": "agent14-prospective-bilateral-generic-funded-floatstone-v1",
+  "registeredAtUtc": "2026-11-04T18:08:43Z",
+  "seedSource": "Python secrets.randbits(32), 6 independent original source-rank and physical-seat draws made before native execution",
+  "objective": "Find first genuine native owner-root selection of a source-independent funded-Bench Float Stone rescue, with original-source physical deals fixed across baseline and treatment",
+  "seedGroups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "seed": 2293076157
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "seed": 3898340314
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 1248997998
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 3394349691
+    },
+    {
+      "rank": 30,
+      "candidateSlot": "A",
+      "seed": 3136753360
+    },
+    {
+      "rank": 30,
+      "candidateSlot": "B",
+      "seed": 1133555033
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trialIds": [
+    "1:0:A:champion-reference",
+    "1:0:A:new-moon-lockbreaker-v1",
+    "1:0:B:champion-reference",
+    "1:0:B:new-moon-lockbreaker-v1",
+    "11:0:A:champion-reference",
+    "11:0:A:new-moon-lockbreaker-v1",
+    "11:0:B:champion-reference",
+    "11:0:B:new-moon-lockbreaker-v1",
+    "30:0:A:champion-reference",
+    "30:0:A:new-moon-lockbreaker-v1",
+    "30:0:B:champion-reference",
+    "30:0:B:new-moon-lockbreaker-v1"
+  ],
+  "originalSourceRankToName": {
+    "1": "Shadow Rider Calyrex VMAX",
+    "11": "Mega Absol ex Garbodor",
+    "30": "Lillie's Clefairy ex"
+  },
+  "originalSourceCards": "results/aichi-2026/full-decklists.json (29 verified authentic original 60-card names/counts, three source ranks still missing)",
+  "researchBaseline": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json policyOptions plus symmetric source-agnostic ordinary evolution, VIP, Mega funding, flexible paid Retreat, underworld source Ability",
+  "controlDelta": {
+    "actorGenericFundedFloatStoneRoot": false
+  },
+  "treatmentDelta": {
+    "actorGenericFundedFloatStoneRoot": true
+  },
+  "flagsFrozenBothArms": {
+    "actorNaturalEvolutionRoot": true,
+    "actorVipBeforeAttack": true,
+    "actorVipMegaAbsolTarget": true,
+    "bilateralKnownDeadAttackRoot": true,
+    "actorRank9MegaAbsolFundingRoot": true,
+    "actorFlexiblePaidRetreatRoot": true,
+    "actorUnderworldDoorRoot": true,
+    "actorUnderworldDoorPromptOwner": true
+  },
+  "actorOnlyCompositionBothSeats": true,
+  "candidateSixtiesUnchanged": true,
+  "originalSourceSixtiesUnchanged": true,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "trialsPerArm": 12,
+  "arms": 2,
+  "expectedNativeAttempts": 24,
+  "predeclaredEndpoints": [
+    "All 12 original-source and candidate full physical opening fingerprints match between A/B",
+    "All returned and aborted trial IDs retained with exact source and candidate physical seats",
+    "First actual native policy root difference and paper-guarded action",
+    "Hand Float Stone attachment and owner Tool custody, native retreat acceptance, retained Energy and actual attack damage",
+    "Full root count, turn, native caps, engine errors and winner without competitive qualification",
+    "Owner/opponent actual next action after any adopted generic mobility line",
+    "Number of selected generic funded Float Stone attach/retreat actions per seat"
+  ],
+  "researchCodeHashPolicy": "Capture exact research HEAD and pinned Twinleaf git revision in CI, do not silently compare incompatible code",
+  "noCompetitiveQualification": true,
+  "competitiveQualifiedGames": 0,
+  "caveats": "New seeds are independent from earlier experiments, but both-seat agent policy remains developmental; original source inventory art printings use gameplay-equivalent proxies where noted. Synthetic full 32 field not represented, paper match time omitted, bots weak, and a 12-pair sample cannot certify 99.5."
+}
