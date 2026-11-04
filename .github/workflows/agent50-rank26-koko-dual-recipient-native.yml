@@ -8,13 +8,18 @@ on:
         type: boolean
         required: false
         default: false
+      agent20_only:
+        description: Run only the Agent20 Issue25 inner Prize prompt native diagnostic
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.agent20_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -135,6 +140,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
+    if: ${{ inputs.agent20_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -216,5 +222,39 @@ jobs:
         with:
           name: issue25-mirrored-opening-contrast-${{ github.run_id }}
           path: artifacts/issue25-mirrored-opening-contrast/
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent20-prize-v12:
+    if: ${{ inputs.agent20_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout the original pinned Twinleaf native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install the pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile the pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check Agent20 reversible owner Prize boundary
+        run: node --test tests/agent20-issue25-inner-prize-recovery-v12.test.cjs
+      - name: Run same-physical original rank6/rank11 eight-arm native Prize callback probe
+        env:
+          AGENT20_ISSUE25_PRIZE_DIR: artifacts/agent20-inner-prize-v12
+        run: node --test tests/agent20-issue25-inner-prize-recovery-v12.native.test.cjs
+      - name: Preserve all eight native outcomes, aborts, hook audits and SHA256
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-inner-prize-v12-${{ github.run_id }}
+          path: artifacts/agent20-inner-prize-v12/
           if-no-files-found: warn
           retention-days: 30
