@@ -61,10 +61,9 @@ function withPrechoiceWitnessAndPrintedAttacks(next,deps={}){
 }
 
 /**
- * Replay the original same eight rank×seat/contender60/seed registration
- * twice. The only gameplay difference is the separately registered protected
- * setup policy; this witness captures each player's randomized physical input
- * before the setup action that might change post-treatment zones.
+ * Replay the original eight rank-seat/contender60/seed registration twice.
+ * The expected intervention is an opening chooser. The actual executing
+ * non-treatment policy closure remains independently unverified.
  *
  * @param {'baseline'|'protected'} mode
  * @param {{runner?:Function,layers?:object,
@@ -120,9 +119,8 @@ function runPrechoiceCustodyV8(mode,deps={}){
 }
 
 /**
- * Treat each Store ordinal as a preregistered trial ID and each physical
- * owner seat as an independent before-treatment observation. Equal source
- * seeds and different post-treatment boards alone do not decide parity.
+ * Join each genuine native Store to an authenticated registered run label
+ * and its owner-seat prechoice input. Store ordinals do not determine trials.
  *
  * @param {object} baseline First actual native v8 baseline execution
  * @param {object} protectedRun Actual native v8 protected execution
@@ -136,9 +134,7 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
   assert.deepEqual(protectedRun.diagnostic.registered,ids);
 
   /**
-   * Private randomized input is observed at Store time, but this observer
-   * currently has only a Store creation ordinal. No authentic trial ID is
-   * attached to that Store. An index-based pairing is diagnostic only.
+   * Observe a genuine native Store with its registered runMatch trial label.
    * @param {object} execution
    */
   const observed=execution=>{
