@@ -38,35 +38,27 @@ test('original rank11 source resolves exactly eleven starting Basics',()=>{
   assert.equal(row.probabilitySeenInNine,0);
 });
 
-test('rank1 original SMP217 promo absence correctly blocks corpus-stage resolution',()=>{
+test('rank1 original SMP217 resolves via exact bundled smp-SM217 card',()=>{
   const result=originalFieldToolAnswerVisibility({
     ...original,decks:original.decks.filter(deck=>deck.rank===1)
   });
   const row=result.rows[0];
-  assert.equal(row.status,'unknown-pokemon-stage');
+  assert.equal(row.status,'resolved-corpus-basic-stage');
   assert.equal(row.directAnswerCount,1);
-  assert.ok(row.unresolvedPrintedPokemon.some(entry=>
-    entry.name==='Trevenant & Dusknoir-GX'&&entry.printing.set==='SMP'&&
-    String(entry.printing.number)==='217'&&
-    entry.lookupState==='set-absent-from-bundled-corpus'));
-  assert.equal(Object.hasOwn(row,'basicCount'),false);
+  assert.equal(row.basicCount,14);
+  assert.ok(Math.abs(row.probabilitySeenInNine-0.1445028731)<1e-9);
+  assert.equal(row.externalStageOverridesUsed.length,0);
 });
 
-test('opt-in externally verified SMP217 promo restores exact rank1 Basic count',()=>{
+test('external opt-in is not used when an exact local promo card exists',()=>{
   const result=originalFieldToolAnswerVisibility({
     ...original,decks:original.decks.filter(deck=>deck.rank===1)
   },undefined,{allowExternalPromoStageOverrides:true});
   const row=result.rows[0];
-  assert.equal(row.status,'resolved-with-explicit-external-promo-stage');
+  assert.equal(row.status,'resolved-corpus-basic-stage');
   assert.equal(row.basicCount,14);
   assert.equal(row.directAnswerCount,1);
-  assert.ok(Math.abs(row.probabilitySeenInNine-0.1445028731)<1e-9);
-  assert.equal(row.externalStageOverridesUsed.length,1);
-  assert.equal(row.externalStageOverridesUsed[0].name,
-    'Trevenant & Dusknoir-GX');
-  assert.equal(row.externalStageOverridesUsed[0].stage,'Basic');
-  assert.equal(row.externalStageOverridesUsed[0].source,
-    'https://limitlesstcg.com/cards/en/SMP/217');
+  assert.equal(row.externalStageOverridesUsed.length,0);
 });
 
 test('opt-in override is specific to exact promo printing identity',()=>{
