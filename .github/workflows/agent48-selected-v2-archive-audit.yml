@@ -2,6 +2,12 @@ name: Agent48 read-only archived selected joint v2 source parity
 
 on:
   workflow_dispatch:
+    inputs:
+      agent22_pinned_source_art:
+        type: boolean
+        required: false
+        default: false
+        description: "Reaudit 52 frozen bilateral source deals with pinned original-art resolver"
 
 permissions:
   contents: read
@@ -31,3 +37,47 @@ jobs:
           path: native-archive
       - name: Inspect only digest and native starter parity from raw historical rows
         run: node scripts/agent48-inspect-selected-v2-archive.cjs native-archive/agent23-frozen-symmetric-joint-v2-52-native/agent23-selected-joint-v2-native-52arm.json
+
+  original-art-pinned-native:
+    if: ${{ inputs.agent22_pinned_source_art }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native card-manager and resolver
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Validate sidecar and source chronology under pure negative controls
+        run: |
+          node --test tests/agent17-may2026-future-energy-print-audit.test.cjs tests/agent22-aichi-source-print-crosswalk.test.cjs tests/agent22-source-provenance-receipt.test.cjs tests/agent22-bilateral-source-art-sidecar.test.cjs
+      - name: Download exact immutable 52-arm selected-v2 archive
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '13206810193'
+          run-id: '41581727876'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          path: native-archive
+      - name: Audit actual 52 source-deal witnesses against pinned source and native mappings without new games
+        run: node simulation/evaluation/agent22-selected-v2-archive-art-reanalysis.cjs native-archive/agent23-frozen-symmetric-joint-v2-52-native/agent23-selected-joint-v2-native-52arm.json
+      - name: Archive 52 original source provenance receipts as an independent read-only artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-selected-v2-frozen-source-art-provenance
+          path: agent22-archived-selected-v2-original-provenance.json
+          if-no-files-found: warn
+          retention-days: 30
