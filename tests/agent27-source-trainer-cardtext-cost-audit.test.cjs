@@ -8,9 +8,9 @@ const {
 test('actual bundled source exact prints have the advertised discard costs',()=>{
   const a=auditBundledSourceCardText();
   assert.equal(a.originalDecks,29);
-  assert.equal(a.verifiedExactSourcePrintings,8);
-  assert.equal(a.verifiedOriginalTrainerCopies,231);
-  assert.equal(a.originalUnverifiedTrainerCopies,804);
+  assert.equal(a.verifiedExactSourcePrintings,12);
+  assert.equal(a.verifiedOriginalTrainerCopies,259);
+  assert.equal(a.originalUnverifiedTrainerCopies,776);
   assert.equal(a.sourceCardTextVerified,true);
   assert.ok(a.records.every(r=>r.printedVariants.length>=1&&
     r.printedVariants.every(v=>v.discardModes.join(',')===
@@ -19,6 +19,15 @@ test('actual bundled source exact prints have the advertised discard costs',()=>
   assert.deepEqual(map.get('Guzma & Hala CEC').ruleModes,[0,2]);
   assert.deepEqual(map.get('Secret Box TWM').ruleModes,[3]);
   assert.deepEqual(map.get('Mysterious Treasure FLI').ruleModes,[1]);
+  for(const [printing,copies,modes] of [
+    ['Plumeria BUS',20,[2]],
+    ['Bellelba & Brycen-Man CEC',3,[0,3]],
+    ['Cynthia & Caitlin CEC',4,[0,1]],
+    ['Dowsing Machine PLS',1,[2]]
+  ]){
+    assert.equal(map.get(printing)?.copies,copies,printing);
+    assert.deepEqual(map.get(printing)?.ruleModes,modes,printing);
+  }
 });
 
 test('unknown hand discard wording cannot silently downgrade to zero cost',()=>{
@@ -28,4 +37,19 @@ test('unknown hand discard wording cannot silently downgrade to zero cost',()=>{
     'You may discard 2 other cards from your hand.',
     'You must discard another card from your hand.']),/Ambiguous/);
   assert.deepEqual(printedHandDiscardModes(['Search your deck.']),[0]);
+});
+
+test('optional additional hand discard modes require exact source language',()=>{
+  assert.deepEqual(printedHandDiscardModes([
+    'When you play this card, you may discard 3 other cards from your hand. If you do, each player discards Benched Pokémon.'
+  ]),[0,3]);
+  assert.deepEqual(printedHandDiscardModes([
+    'When you play this card, you may discard another card from your hand. If you do, draw 3 cards.'
+  ]),[0,1]);
+  assert.deepEqual(printedHandDiscardModes([
+    'Discard 2 cards from your hand. (If you cannot, you cannot play this card.)'
+  ]),[2]);
+  assert.throws(()=>printedHandDiscardModes([
+    'When you play this card, you may discard 3 other cards from your hand. You must discard another card from your hand.'
+  ]),/Ambiguous/);
 });
