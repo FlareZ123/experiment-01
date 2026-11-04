@@ -65,10 +65,11 @@ function withNativePrizeZoneCustody(execute,deps={}){
     if(pending&&owner&&before){
       audit.selectedOwnerPrizePromptCount++;
       audit.acceptedPrizePromptActions++;
+      const afterOwner=this.state?.players?.find(p=>p.id===pending.playerId);
       const after={
-        hand:owner.hand?.cards?.length??null,
-        prizes:owner.prizes?.reduce((sum,p)=>sum+(p.cards?.length??0),0)??null,
-        occupied:owner.prizes?.filter(p=>(p.cards?.length??0)>0).length??null
+        hand:afterOwner?.hand?.cards?.length??null,
+        prizes:afterOwner?.prizes?.reduce((sum,p)=>sum+(p.cards?.length??0),0)??null,
+        occupied:afterOwner?.prizes?.filter(p=>(p.cards?.length??0)>0).length??null
       };
       const transferred=Number.isSafeInteger(before.prizes)&&
         Number.isSafeInteger(after.prizes)&&
