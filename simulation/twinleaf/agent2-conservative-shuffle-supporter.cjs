@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent2-actor-only-conservative-shuffle-supporter-v3-partial-opponent-draw';
+const VERSION='agent2-actor-only-conservative-shuffle-supporter-v4-partial-both-draws';
 const FAMILY=Object.freeze([
   {prefix:"Lillie's Determination ",kind:'lillie',
     maxOwnHand:3,minDrawAdvantage:3},
@@ -79,11 +79,13 @@ function enumerateConservativeShuffleSupporterOffers(view){
       if(!printing.startsWith(family.prefix))continue;
       if(hand.length>family.maxOwnHand)continue;
       const counts=printedShuffleDrawCounts(view,family.kind);
-      if(!counts||counts.ownDraw===null||counts.ownDraw<=0||
-          counts.ownDraw>ownDeckAfterReturn)
-        continue;
+      if(!counts||counts.ownDraw===null||counts.ownDraw<=0)continue;
+      // A requested draw larger than the owner's available deck resolves
+      // using the cards that exist; the printed request is not a payment.
+      const ownMaxActualDraw=Math.min(counts.ownDraw,ownDeckAfterReturn);
+      if(ownMaxActualDraw===0)continue;
       if(family.kind!=='lillie'&&opponent.prizeCount<=0)continue;
-      if(family.kind==='iono'&&counts.ownDraw<4)continue;
+      if(family.kind==='iono'&&ownMaxActualDraw<4)continue;
       // Printed opponent draw is a request, not an eligibility minimum:
       // when fewer cards are available, that player draws what remains.
       // An opponent with no deck and no hand may draw zero. Hand protection
@@ -93,13 +95,17 @@ function enumerateConservativeShuffleSupporterOffers(view){
         Math.min(counts.opponentDraw,opponentDeckAfterReturn);
       const opponentGain=Math.max(0,
         opponentMaxActualDraw-opponent.handCount);
-      const ownGain=counts.ownDraw-hand.length;
+      const ownGain=ownMaxActualDraw-hand.length;
       const score=ownGain-opponentGain;
       if(score<family.minDrawAdvantage)continue;
       candidates.push({
         kind:'play-shuffle-supporter',handIndex,printing,
         family:family.kind,drawEstimate:{
           ownDraw:counts.ownDraw,opponentDraw:counts.opponentDraw,
+          ...(ownMaxActualDraw<counts.ownDraw?
+            {ownDrawCapacityBound:ownMaxActualDraw}:{}),
+          ...(opponentMaxActualDraw<counts.opponentDraw?
+            {opponentDrawCapacityBound:opponentMaxActualDraw}:{}),
           ownHandBefore:hand.length,opponentHandBefore:opponent.handCount
         },score
       });
