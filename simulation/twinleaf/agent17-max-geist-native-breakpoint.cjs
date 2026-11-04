@@ -59,6 +59,17 @@ function runMaxGeistNativeBreakpoint(beforeAttackAttachment) {
     return energy;
   });
   const held=card('Psychic Energy MEE');
+  // The source 60 specifies MEE 013 (art variation); pinned Twinleaf has
+  // MEE 005 for the same unrestricted Basic Psychic Energy effect.
+  const manifest=require('../../results/aichi-2026/full-decklists.json');
+  const rank1=manifest.decks.find(deck=>deck.rank===1);
+  const sourceBasic=rank1.cards.find(row=>
+    row.name==='Psychic Energy'&&row.printing.set==='MEE');
+  assert.equal(sourceBasic.count,11);
+  assert.equal(sourceBasic.printing.number,'13');
+  assert.equal(held.set,'MEE');
+  assert.equal(held.setNumber,'5');
+  assert.equal(held.name,'Psychic Energy');
   held.id=17008;
   a.hand.cards.push(held);
 
@@ -138,6 +149,9 @@ function runMaxGeistNativeBreakpoint(beforeAttackAttachment) {
 
   return {
     beforeAttackAttachment,pinnedTwinleaf:PINNED,
+    energyPrintProxy:{originalSet:'MEE',originalNumber:'13',
+      pinnedSet:held.set,pinnedNumber:held.setNumber,
+      ordinaryBasicPsychicEquivalent:true,exactPrintingPreserved:false},
     firstRoot:first.kind,firstPrinting:first.printing??null,
     nativeAttachmentAccepted:beforeAttackAttachment,
     psychicCardsOnAttackBoard:attached.length+Number(beforeAttackAttachment),
