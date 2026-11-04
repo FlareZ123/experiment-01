@@ -54,6 +54,19 @@ The mean treats each of the 29 **authenticated historical opponents** as one equ
 - Pinned vendor setup reducer verified independently in GitHub at `twinleafgg/twinleafgg@a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; source-only confirmation of the `max=6`, first-is-Active semantics. Twinleaf is not treated as definitive paper legality.
 - Compiled CI gate is registered in the **existing manual** workflow `.github/workflows/agent50-rank26-koko-dual-recipient-native.yml`; dispatch [run 41878325484](https://github.com/FlareZ123/experiment-01/actions/runs/41878325484). Check the actual conclusion; dispatch alone is not proof of success.
 
+## Four separate fixed structural candidates
+
+The identical printed-card predicate and exact valid-seven denominator also apply to four publicly registered, fixed structural candidate 60s. For this extension the Agent5 list uses canonical indexed `card.id` for every Pokémon/Trainer/Energy, checked against the supplied printed corpus; the other three use their printed-set or indexed identity. These are proposed candidates currently **unadmitted** by Issue #25 and are not the historical four-comparison shortlist.
+
+| Structural candidate | Basic copies `B` | Trigger copies `S` | Consumed, valid seven | Avoidable, valid seven |
+| --- | ---: | ---: | ---: | ---: |
+| Apex Alchemy v0 | 12 | 1 (Tapu Lele-GX) | 14.4146529539% | **10.4887471104%** |
+| ADP–Thorton–Regidrago v2 | 7 | 2 (Tapu Lele-GX, Crobat V) | 36.8574574134% | **15.8353778857%** |
+| Sentinel Lopunny Vileplume v1 | 14 | 0 | 0% | 0% |
+| Arven–Boost Shake Absol v1 | 12 | 2 (Tapu Lele-GX, Crobat V) | 27.3634745863% | **18.9638620840%** |
+
+This extension reinforces that the opening decision can bias proposed candidate play as well as original opposition; the four rows are distinct fixed 60s and are not combined into a 29-opponent win-rate calculation. Reproduce with [candidate printed-ID/trigger resolver](../../simulation/evaluation/agent50-structural-candidate-opening-exposure.cjs) and [independent two-part candidate regression](../../tests/agent50-structural-candidate-opening-exposure.test.cjs).
+
 ## Implication and follow-through
 
 The **selected** Issue #25 v3 setup may spend hand-held Tapu Lele-GX, Crobat V, Dedenne-GX or similar in the pre-turn setup, preventing their printed entry Abilities later. This materially affects policy expressiveness and can bias source-versus-candidate comparison: any policy claiming competent original opponents must account for the owner-visible option to retain those cards for a turn. Agent 4's single-Basic/optional-Bench-decline strategy and Agent 5's ADP counterexample show competing options, but this report makes **no unilateral change to the running frozen v3 selected policy**. An integration steward should preregister one explicit comparison under matched **physical** opening hands, owner-only observations, real Store settlements and paired original-source outcomes before changing the shared policy.
