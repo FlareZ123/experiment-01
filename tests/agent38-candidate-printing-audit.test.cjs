@@ -87,3 +87,22 @@ test('impossible 59-card or zero-copy manifest fails closed',()=>{
   malformed.cards[0].count=0;
   assert.throws(()=>auditPrintedSixty(malformed));
 });
+
+test('unindexed SMP promo uses only exact existing bundled card identity',()=>{
+  const rank1=originals.decks.find(deck=>deck.rank===1);
+  const report=auditPrintedSixty(rank1);
+  const promo=report.rows.find(row=>row.name==='Trevenant & Dusknoir-GX');
+  assert.equal(promo.state,'exact-bundled-printing');
+  assert.equal(promo.matchedIds.length,1);
+  assert.equal(promo.matchedIds[0].id,'smp-SM217');
+  assert.ok(promo.matchedIds[0].subtypes.includes('Basic'));
+  assert.equal(promo.matchedIds[0].printedExpandedFlag,'Legal');
+
+  const fake=JSON.parse(JSON.stringify(rank1));
+  fake.cards.find(row=>row.name==='Trevenant & Dusknoir-GX')
+    .printing.number='218';
+  const rejected=auditPrintedSixty(fake).rows
+    .find(row=>row.name==='Trevenant & Dusknoir-GX');
+  assert.equal(rejected.state,'printing-not-matched-in-existing-set-corpus');
+  assert.equal(rejected.matchedIds.length,0);
+});
