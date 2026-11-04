@@ -1,0 +1,68 @@
+{
+  "schema": "agent3-issue25-generic-native-trainer-v10-aba-retro-registration-v1",
+  "registeredAtUtc": "2026-11-04T20:14:12Z",
+  "registrationType": "RETROSPECTIVE_DEV_FIXED_EIGHT_V6_A_B_A",
+  "originalTrialRegistration": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "preservedEightBaselinePhysicalAndPublicRootHashes": "results/aichi-2026/registrations/agent3-issue25-v6-readonly-opportunity-pressure-retro-20261104.json",
+  "priorCompiledReadOnlyAAProof": {
+    "run": 41902973898,
+    "archiveArtifact": 13358498048,
+    "zipSHA256": "da0862806c18b95cf6b3214241007aa7da91fb359f376a6716a39c1abb252911",
+    "nativeJsonSHA256": "1d5d72a792fab32208c1a488c1277f9c22699b2ee5b7636e076fe8f9e6fcf9ec"
+  },
+  "trialIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "originalRanks": [
+    6,
+    11
+  ],
+  "experimentalArms": [
+    {
+      "id": "control",
+      "nativeOwnerTrainerFallback": false
+    },
+    {
+      "id": "native-trainer-fallback",
+      "nativeOwnerTrainerFallback": true
+    },
+    {
+      "id": "control-repeat",
+      "nativeOwnerTrainerFallback": false
+    }
+  ],
+  "allArmOptions": {
+    "ownerGenericTrainerFrontier": true,
+    "nativePressureWindows": true,
+    "sourceIndependentCommonPolicy": true,
+    "nativeRootActionLimit": 48
+  },
+  "frozenRankOriginalPrintedSixties": true,
+  "frozenCandidateOriginalPrintedSixties": true,
+  "intervention": "Enable only nativeOwnerTrainerFallback:true for every owner physical seat after unsupported actor-only Pass. No other change to candidate/source deck, physical seeds, resource/attack actor policy or observer flags.",
+  "fieldInterpretation": "Retrospective source-policy mechanism, not independent win samples; currently delegated native bot may inspect unqualified information and may select paper-invalid plays",
+  "preregisteredOutcomeChecks": [
+    "8 raw native rows per arm, all status categories and errors preserved",
+    "8 within-arm original IDs each and preserved registered seed/deck/seat",
+    "source and full physical deal equality within the control/treatment/control-repeat trio",
+    "control and control-repeat entire Store public root and disposition equivalence",
+    "8 original control native physical deal and Store roots reproduce v6 registered SHA",
+    "source/candidate actual accepted non-Pass/Trainer/Attack roots tracked by each physical owner",
+    "native fallback proposed and accepted/rejected roots, actual first post-fork owner and opponent actions",
+    "rank6 passive native Power query observations distinct from active Trainer choice",
+    "no native terminal admitted to competitive qualified sample"
+  ],
+  "expectedGames": 24,
+  "sourceOriginalFull32Qualified": false,
+  "paperClockQualified": false,
+  "completeDecisionInformationSetSafetyQualified": false,
+  "competitivelyQualifiedGames": 0,
+  "releaseQualified": false
+}
