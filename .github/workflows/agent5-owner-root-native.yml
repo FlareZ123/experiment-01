@@ -276,6 +276,9 @@ jobs:
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' }}
           AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
+      - name: Assert frozen v3 Mew donor payoff and natural full-Bench abort from actual Store
+        if: ${{ inputs.generic_owner_tutor_selected && inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' }}
+        run: node --test tests/agent11-fresh-mew-v3-archive-audit.test.cjs
       - name: Audit public Terminal Period targets on two original source deals
         if: ${{ inputs.generic_owner_tutor_selected }}
         run: node simulation/twinleaf/agent10-rank11-terminalperiod-public-native.cjs
