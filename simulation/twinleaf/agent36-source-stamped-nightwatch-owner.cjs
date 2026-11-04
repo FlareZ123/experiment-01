@@ -27,6 +27,13 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   const seed=deps.committedSeed??crypto.randomBytes(32).toString('hex');
   assert.equal(typeof seed,'string');
   assert.ok(seed.length>0);
+  // Optional original four-arm integration: preserve legacy one-Store behavior
+  // unless the registered selected profile explicitly opts into successive
+  // real Store roots and distinct per-Store HMAC subkeys.
+  const followSequentialNativeStores=deps.followSequentialNativeStores===true;
+  const perNativeStoreEntropy=deps.perNativeStoreEntropy===true;
+  assert.ok(!perNativeStoreEntropy||followSequentialNativeStores,
+    'Per-native-Store entropy requires tracking successive Store roots');
   const engine=deps.engine??(file=>require(path.join(OUTPUT,file)));
   const {TrevenantDusknoirGX}=engine(
     'sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx');
@@ -47,8 +54,11 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   assert.equal(typeof dispatchDescriptor?.value,'function');
   const sourced=new WeakMap(),selected=new WeakMap();
   const followupShowCards=new WeakMap(),ownedShowCardAck=new WeakMap();
-  let liveStore=null;
+  let liveStore=null,storeOrdinal=0;
+  const storeSecrets=new WeakMap();
   const audit={version:VERSION,preGameCommittedSeed:seed,
+    followSequentialNativeStores,perNativeStoreEntropy,
+    registeredNativeStoreCount:0,perStoreSeedCommitments:[],
     sourceReducerInvocations:0,sourcePromptMarks:0,
     realStoreSelectedActions:0,acceptedDispatches:0,
     verifiedPhysicalHandDeckMovements:0,notYetVerifiedMovements:0,
@@ -113,18 +123,41 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     const nonce=JSON.stringify([
       state.turn,String(actorId),String(prompt.id)
     ]);
-    const indices=sampleUniformPositions(n,count,seed,nonce);
+    const nativeStoreEntry=followSequentialNativeStores?
+      storeSecrets.get(liveStore):null;
+    const nativeSeed=perNativeStoreEntropy?nativeStoreEntry?.key:seed;
+    assert.equal(typeof nativeSeed,'string',
+      'Source-stamped Night Watch must use a registered native Store seed');
+    const indices=sampleUniformPositions(n,count,nativeSeed,nonce);
     const physicalReferences=indices.map(i=>prompt.cards.cards[i]);
     assert.equal(prompt.validate(physicalReferences),true);
     const action=new ResolvePromptAction(prompt.id,physicalReferences);
     selected.set(action,{actorId,prompt,indices,physicalReferences,
-      turn:state.turn,ownerSeat:state.players.indexOf(actor)});
+      turn:state.turn,ownerSeat:state.players.indexOf(actor),
+      nativeStoreOrdinal:nativeStoreEntry?.ordinal??null});
     audit.realStoreSelectedActions++;
     return action;
   }
 
   function dispatch(action,...args){
-    if(action instanceof AddPlayerAction&&!liveStore)liveStore=this;
+    if(action instanceof AddPlayerAction&&
+       (!liveStore||followSequentialNativeStores)){
+      if(followSequentialNativeStores&&!storeSecrets.has(this)){
+        const ordinal=++storeOrdinal;
+        const key=perNativeStoreEntropy?crypto.createHmac('sha256',seed)
+          .update('issue25-nightwatch-native-store-v1|'+ordinal)
+          .digest('hex'):seed;
+        storeSecrets.set(this,{ordinal,key});
+        audit.registeredNativeStoreCount++;
+        if(perNativeStoreEntropy){
+          audit.perStoreSeedCommitments.push({
+            ordinal,sha256:crypto.createHash('sha256')
+              .update(key).digest('hex')
+          });
+        }
+      }
+      liveStore=this;
+    }
     const chosen=selected.get(action);
     const ack=ownedShowCardAck.get(action);
     if(ack&&this===liveStore){
@@ -157,6 +190,7 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     }
     const receipt={
       ownerSeat:chosen.ownerSeat,turn:chosen.turn,
+      nativeStoreOrdinal:chosen.nativeStoreOrdinal,
       selectedPhysicalPositions:[...chosen.indices],
       opponentHandCountBefore:beforeHand,
       opponentDeckCountBefore:beforeDeck,
