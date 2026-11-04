@@ -65,8 +65,19 @@ function sample(f){
   const action=new PlayCardAction(f.actor.id,0,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   });
-  f.store.dispatch(action);
+  const nativeReturn=f.store.dispatch(action);
   const after=StateUtils.getStadiumCard(f.store.state);
+  console.log('AGENT37_STADIUM_DEBUG',JSON.stringify({
+    originalSeat:f.state.activePlayer,phase:f.store.state.phase,
+    turn:f.store.state.turn,actorHand:f.actor.hand.cards.map(c=>c.fullName),
+    actorStadium:f.actor.stadium.cards.map(c=>c.fullName),
+    opponentStadium:f.opponent.stadium.cards.map(c=>c.fullName),
+    actorDiscard:f.actor.discard.cards.map(c=>c.fullName),
+    opponentDiscard:f.opponent.discard.cards.map(c=>c.fullName),
+    after:after?.fullName??null,
+    nativeReturnPhase:nativeReturn?.phase??null,
+    promptTypes:f.store.state.prompts.map(p=>p.constructor.name)
+  }));
   assert.equal(after?.fullName,NEW);
   assert.equal(f.actor.hand.cards.some(c=>c.fullName===NEW),false);
   return {before,acceptedReplacement:true,newStadium:after.fullName,
