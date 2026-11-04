@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      second_terminal:
+        description: 'Inspect independent historical second native rank3 source win with full original 60'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -46,32 +51,36 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run every exact source-print and first-Tool pure invariant
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs tests/agent2-bunnelby-deckout-float-frontier.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
         shell: bash
         run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs tests/agent2-tool-score-card-identity-blind.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
       - name: Passively audit exact rank3 vs rank1 original sixty source roots, both seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-census.cjs | tee agent2-rank3-original-natural-fss-census.json
       - name: Prospective disjoint original rank3 full-60 source exposure, 32 seeds-seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-fresh.cjs | tee agent2-rank3-original-fresh-32.json
       - name: Trace one frozen native original-source Burrow continuation
-        if: ${{ inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-natural-burrow-settlement.cjs | tee agent2-rank3-natural-burrow-settlement.json
       - name: Match original source Omega second Burrow A B A under same deal
-        if: ${{ inputs.omega_aba && !inputs.burrow_only && !inputs.anti_filch_aba }}
+        if: ${{ inputs.omega_aba && !inputs.burrow_only && !inputs.anti_filch_aba && !inputs.second_terminal }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-omega-burrow-aba.cjs | tee agent2-rank3-original-omega-aba.json
       - name: Stress test original rank1 conservative Filch refusal A B A
-        if: ${{ inputs.anti_filch_aba && !inputs.burrow_only && !inputs.omega_aba }}
+        if: ${{ inputs.anti_filch_aba && !inputs.burrow_only && !inputs.omega_aba && !inputs.second_terminal }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-anti-filch-aba.cjs | tee agent2-rank3-original-anti-filch-aba.json
+      - name: Inspect second independent native original rank3 source winning mechanism
+        if: ${{ inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        shell: bash
+        run: node simulation/evaluation/agent2-rank3-second-native-terminal-source-trace.cjs | tee agent2-rank3-second-source-native-terminal.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,5 +93,6 @@ jobs:
             agent2-rank3-natural-burrow-settlement.json
             agent2-rank3-original-omega-aba.json
             agent2-rank3-original-anti-filch-aba.json
+            agent2-rank3-second-source-native-terminal.json
           if-no-files-found: warn
           retention-days: 14
