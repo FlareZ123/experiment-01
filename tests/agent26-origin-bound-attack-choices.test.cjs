@@ -10,8 +10,10 @@ class ChooseCardsPrompt{
     this.message=17;this.filter={};
     this.options={min:2,max:2,isSecret:secret,allowCancel};
   }
-  validate(cs){return cs.length===2&&
-    cs.every(x=>this.cards.cards.includes(x))&&new Set(cs).size===2;}
+  validate(cs){return cs.length>=this.options.min&&
+    cs.length<=this.options.max&&
+    cs.every(x=>this.cards.cards.includes(x))&&
+    new Set(cs).size===cs.length;}
 }
 class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
 class SimpleTacticsAi{decodeNextAction(){throw Error('unsafe underlying fallback');}}
@@ -26,9 +28,14 @@ class TrevenantDusknoirGX{
 class Girafarig{
   constructor(){this.fullName='Girafarig LOT';this.attacks=[{}];}
   reduceEffect(store,state,effect){
-    store.prompt(state,new ChooseCardsPrompt(effect.player,
-      state.players.find(x=>x.id!==effect.player.id).discard,
-      {secret:false,allowCancel:true}),()=>{});
+    const discard=state.players.find(x=>x.id!==effect.player.id).discard;
+    const count=Math.min(2,discard.cards.length);
+    const corrected=count<2;
+    const prompt=new ChooseCardsPrompt(effect.player,discard,
+      {secret:false,allowCancel:!corrected});
+    prompt.options.min=count;
+    prompt.options.max=count;
+    store.prompt(state,prompt,()=>{});
   }
 }
 const modules={
@@ -77,6 +84,21 @@ test('two actual public discard references are legal from both seats',()=>{
     assert.equal(a.result.result[0].n,'publicA');
     assert.equal(a.result.result[1].n,'publicB');
   }
+});
+test('paper-corrected Get Lost with an empty opponent discard resolves zero cards',()=>{
+  const source=new Girafarig();
+  const actor={id:100},other={id:101,hand:{cards:[]},discard:{cards:[]}};
+  const state={turn:3,players:[actor,other],prompts:[]};
+  const ai=Object.create(SimpleTacticsAi.prototype);
+  ai.client={id:actor.id};
+  const out=withOwnerOriginBoundAttackChoices(()=>{
+    source.reduceEffect({prompt(s,p){s.prompts.push(p);}},state,
+      new AttackEffect(actor,source.attacks[0]));
+    return ai.decodeNextAction(state);
+  },{committedSeed:'zero-card-case',engine:p=>modules[p]});
+  assert.deepEqual(out.result.result,[]);
+  assert.equal(out.audit.selected[0].kind,'get-lost');
+  assert.equal(out.audit.selected[0].count,0);
 });
 test('only exact printed attack and prompt shape bypass fail-closed decoder',()=>{
   const actor={id:100},other={
