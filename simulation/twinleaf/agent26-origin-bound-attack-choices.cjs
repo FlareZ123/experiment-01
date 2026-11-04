@@ -72,7 +72,7 @@ function withOwnerOriginBoundAttackChoices(run,options){
     nativeZoneEvents:[],
     nativeZoneAuditFeedsPolicy:false,
     sourceQualifiedCompetitiveGames:0};
-  const nativeRootStates=trackNative?new WeakSet():null;
+  const nativeRootStores=trackNative?new WeakSet():null;
 
   const wrappers=definitions.map((definition,i)=>{
     const original=previous[i].value;
@@ -218,10 +218,10 @@ function withOwnerOriginBoundAttackChoices(run,options){
     const stateBefore=this.state;
     if(action instanceof AddPlayerAction&&
        stateBefore.players?.length===0){
-      nativeRootStates.add(stateBefore);
+      nativeRootStores.add(this);
       audit.nativeRootStoreCount++;
     }
-    const real=nativeRootStates.has(stateBefore);
+    const real=nativeRootStores.has(this);
     const prompt=real&&action instanceof ResolvePromptAction?
       stateBefore.prompts.find(p=>p.id===action.id&&
         p.result===undefined):null;
