@@ -19,7 +19,7 @@ Result must be UNKNOWN/FAIL when any of these observations is unavailable. The d
 
 [`simulation/evaluation/agent3-gitlink-worktree-attestation.cjs`](../../simulation/evaluation/agent3-gitlink-worktree-attestation.cjs) exports `attestVendorWorktree(observations)`; it accepts only observations supplied by a caller and returns explicit failure reason codes, committed gitlink, and fail-closed status. The accompanying [`tests/agent3-gitlink-worktree-attestation.test.cjs`](../../tests/agent3-gitlink-worktree-attestation.test.cjs) covers clean success, modified tracked vendor source, mismatched vendor HEAD, mismatched parent gitlink, a plain file masquerading as submodule, unknown inputs, invalid expected pin, and missing input.
 
-The pure suite is registered in manual-only Agent3 counterfactual smoke CI. **At initial registration, the actual native runner has not installed this collector and no native checkout is attested by this helper.** CI result must be appended only after a successful executed job.
+The pure suite is registered in manual-only Agent3 counterfactual smoke CI. **The pure gate completed successfully on the existing manually dispatched Agent3 CI [41873835528](https://github.com/FlareZ123/experiment-01/actions/runs/41873835528), source commit 1a8a443d2.** All eight adversarial pure regressions are in this green smoke suite. The actual native runner has not installed this collector, so no native checkout is attested by the new helper yet.
 
 ## Qualification implication
 
