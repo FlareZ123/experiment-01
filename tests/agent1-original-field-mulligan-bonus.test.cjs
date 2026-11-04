@@ -6,7 +6,7 @@ const {
   firstSevenMulliganProbability,
   mulliganBonusExposure,
   loadRegisteredStartingBasicCounts,
-  fieldMeanBonusExposure
+  fieldMeanBonusExposure,exactBonusMultiplicity
 } = require('../simulation/evaluation/agent1-original-field-mulligan-bonus.cjs');
 
 const RANKS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
@@ -116,4 +116,36 @@ test('none of the missing original 23,25,28 is backfilled with inferred Basics',
   const r=loadRegisteredStartingBasicCounts();
   assert.deepEqual(r.missingRanks,[23,25,28]);
   assert.ok(r.originals.every(row=>!r.missingRanks.includes(row.rank)));
+});
+
+test('public bonus-card multiplicity has exact zero-inflated geometric masses',()=>{
+  const x=exactBonusMultiplicity(7,14,6);
+  near(x.neitherOffered,0.5479105743716427);
+  near(x.opponentOffered[0].probability,0.2186823154235923);
+  near(x.opponentOffered[1].probability,0.08728058430678565);
+  near(x.opponentOffered[2].probability,0.034835466151791394);
+  near(x.candidateOffered[0].probability,0.07593529955874011);
+  near(x.candidateOffered[1].probability,0.010523924868010405);
+  near(x.totalProbability,1);
+  assert.ok(x.opponentOfferTail>0);
+});
+
+test('bonus multiplicity sums recover the original at-least-one probability',()=>{
+  for(const a of [4,7,12,14,16]) {
+    for(const b of [4,7,12,14,16]) {
+      const dist=exactBonusMultiplicity(a,b,9);
+      const existing=mulliganBonusExposure(a,b);
+      const opp=dist.opponentOffered.reduce((s,x)=>s+x.probability,0)+
+        dist.opponentOfferTail;
+      const candidate=dist.candidateOffered.reduce((s,x)=>s+x.probability,0)+
+        dist.candidateOfferTail;
+      near(opp,existing.candidateOffersOpponent.atLeastOne);
+      near(candidate,existing.opponentOffersCandidate.atLeastOne);
+      near(dist.neitherOffered,existing.bothValidAfterJointAttempts);
+      near(dist.totalProbability,1);
+      const reflected=exactBonusMultiplicity(b,a,9);
+      near(reflected.candidateOffered[0].probability,
+        dist.opponentOffered[0].probability);
+    }
+  }
 });
