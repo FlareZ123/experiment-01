@@ -2,6 +2,11 @@ name: Agent25 pinned Dhelmise discard Ability lock counterexample
 
 on:
   workflow_dispatch:
+    inputs:
+      agent25_ball_compressor_staged:
+        description: 'Opt into four staged native Ball-plus-Compressor donor-payment arms'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,13 +35,14 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
+        if: inputs.agent25_ball_compressor_staged
         run: node simulation/twinleaf/agent25-ball-compressor-staged-native.cjs > agent25-ball-compressor-staged-native.json
       - name: Report every new staged owner-payment arm, including failures
-        if: always()
+        if: always() && inputs.agent25_ball_compressor_staged
         run: |
           node -e "const fs=require('node:fs');const p='agent25-ball-compressor-staged-native.json';if(!fs.existsSync(p)){console.log('STAGED_BALL_NATIVE_NO_OUTPUT');process.exitCode=1}else{const r=JSON.parse(fs.readFileSync(p));console.log(JSON.stringify({version:r.version,pin:r.nativePin,passed:r.allPassed,arms:r.arms.map(a=>({seat:a.seat,payment:a.paymentName,status:a.status,damage:a.actualDamage,error:a.error??null,traceLength:a.trace.length}))},null,2))}"
       - name: Archive all four staged native Ball plus Compressor arms
-        if: always()
+        if: always() && inputs.agent25_ball_compressor_staged
         uses: actions/upload-artifact@v4
         with:
           name: agent25-ball-compressor-staged-native
