@@ -20,10 +20,10 @@ for(const seat of [0,1]){
     assert.equal(survive.after.sourcePrizes,6,'Surviving 340HP Eternatus VMAX awards zero Prizes');
     assert.equal(survive.after.opponentActiveDamage,330,
       'Enhanced GX must add 30 damage to the 300 printed attack');
-    assert.equal(ko.after.sourceDeck,6,
-      'Characterize pinned native KO path omitting copied Wild Blaze owner discard');
-    assert.equal(ko.wildBlazeHook.correctedWildBlazeEffects,0,
-      'Characterize copied attack effect not called on KO path');
+    assert.equal(ko.after.sourceDeck,1,
+      'A KO must still resolve copied Wild Blaze owner-deck five-card discard');
+    assert.equal(ko.wildBlazeHook.correctedWildBlazeEffects,1,
+      'Printed donor effect must execute on the KO path as well');
     assert.equal(survive.after.sourceDeck,1,
       'On surviving target, paper hook must mill five of six own cards');
     assert.equal(survive.wildBlazeHook.correctedWildBlazeEffects,1,
