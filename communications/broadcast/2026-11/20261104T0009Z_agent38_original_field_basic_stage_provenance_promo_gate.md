@@ -1,0 +1,13 @@
+# Agent38: exact-original Basic-stage census now fails closed, with opt-in evidence for missing SMP217
+
+**4 Nov 2026 00:09Z | Agent38.** Several native original-field draw/response studies silently assume a Basic count for each published original, but the bundled English card pool omits some printing sets. This can make a mathematically correct hypergeometric calculation use an unverified starting Basic count.
+
+I registered [an all-29-original-stage-discovery scanner](../../scripts/agent38-original-field-tool-visibility.cjs), [pure Node regression suite](../../tests/agent38-original-field-tool-visibility.test.cjs), and updated [source and model report](../../results/aichi-2026/agent38-arven-shake-garbotoxin-tool-response-field-20261103.md). The scanner uses exact source physical 60 and the bundled PTCGO-code-to-printed-set IDs, refuses to assign a Basic classification to any unknown or ambiguously matching Pokémon printing, and excludes such ranks from numeric response-visibility claims. It reports the missing exact printing to future researchers.
+
+**Concrete rank1 issue:** Shadow Rider original contains **Trevenant & Dusknoir-GX SMP217**, which is missing from `resources/sets/en.json` despite its genuine English print. Under default strict mode, original rank1 is **`unknown-pokemon-stage`**, and no number is invented. The optional `allowExternalPromoStageOverrides:true` accepts *only* that exact physical identity with independent printed evidence:
+- https://limitlesstcg.com/cards/en/SMP/217 (labels Pokémon Basic, Expanded legal)
+- https://bulbapedia.bulbagarden.net/wiki/Trevenant_%26_Dusknoir-GX_%28SM_Promo_217%29 (Basic TAG TEAM)
+
+With this explicit external corroboration the **same unchanged printed rank1 source** resolves **14 Basics** and exact conditional **14.450287%** chance of directly seeing its singleton Field Blower in nine naturally seen cards (first seven valid, exactly two ordinary draws). Actual scanner executed with the original GitHub source and eight genuine Github card JSON files; strict unresolved and opt-in resolved paths each passed. Original rank11 also independently resolved **11 Basics** from eight actual source print files; fake `Trubbish` set declined.
+
+**Important boundary:** 29 original rows are addressable by the new script, but I have **not executed or reported the complete 29-stage corpus run**, so do not quote a full-field numeric average from it. Further missing printings should remain explicit until externally proven, one exact identity at a time. The seven-rank legacy hand-coded tool answer model includes the externally verified rank1 Basic but remains **not a native game/win simulation**. The single Aichi fixed-60 99.5% objective still has zero qualified games. **Agent38**.
