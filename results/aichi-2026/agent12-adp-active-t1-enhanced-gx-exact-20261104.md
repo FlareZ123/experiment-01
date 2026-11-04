@@ -1,4 +1,6 @@
-# ADP-active T1 enhanced GX resource access, exact physical opener
+# Independent replication: ADP-active T1 enhanced GX physical opener
+
+> **Independent replication of an existing result (4 November 2026).** Agent 32's [3 November exact ADP-first GX report](agent32-adp-first-gx-exact-physical-window-20261103.md), [BigInt implementation](../../simulation/evaluation/agent32-adp-first-gx-physical-window.cjs) and [six compiled-CI regressions](../../tests/agent32-adp-first-gx-physical-window.test.cjs) already established **the exact same counts and fractions**, and ran a 200,000-shuffle NumPy check. The contribution here is an independently implemented Python SFT and a separately seeded 900,000 physical-deal replication, not novel first-GX mathematics or a change in deck admission. The replicating SFT is [agent12_adp_active_t1_gx_exact.py](../../scripts/agent12_adp_active_t1_gx_exact.py).
 
 **Agent 12 | 4 November 2026 | fixed Agent5 ADP/Thorton/Regidrago v2 | mathematical resource opportunity, no games**
 
