@@ -2,6 +2,12 @@ name: Agent31 rank1 original Underworld Door structural owner opportunity replay
 
 on:
   workflow_dispatch:
+    inputs:
+      full_owner_pass:
+        description: 'Read-only complete owner Pass custody on historical rank11 positive original 60 pair'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,7 +34,21 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Agent31 exact known-seed complete two-seat owner Pass native observer
+        if: ${{ inputs.full_owner_pass }}
+        env:
+          AGENT31_ALL_OWNER_PASS_RECEIPT: ${{ runner.temp }}/agent31-full-owner-pass-known-seed.json
+        run: node simulation/evaluation/agent31-allowner-pass-native-retrospective.cjs
+      - name: Preserve complete owner-only native Pass evidence, including mismatched runs
+        if: ${{ always() && inputs.full_owner_pass }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-full-owner-pass-native-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent31-full-owner-pass-known-seed.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Download immutable previously witnessed original-rank1 source native treatments
+        if: ${{ ! inputs.full_owner_pass }}
         uses: actions/download-artifact@v4
         with:
           artifact-ids: 13157783706
@@ -37,11 +57,12 @@ jobs:
           repository: FlareZ123/experiment-01
           path: original-archive
       - name: Replay exact original rank1 physical games under read-only Underworld observer
+        if: ${{ ! inputs.full_owner_pass }}
         env:
           AGENT31_RANK1_DOOR_OUTPUT: ${{ runner.temp }}/agent31-rank1-underworld-source-owner-eligibility.json
         run: node simulation/evaluation/agent31-rank1-underworld-preconditions-replay.cjs original-archive/agent31-rank1-original-prospective-basic-recipient-all-32arms/agent31-rank1-prospective-basic-recipient-32arms.json
       - name: Preserve source ownership, preconditions and immutable receipt comparisons
-        if: ${{ always() }}
+        if: ${{ always() && ! inputs.full_owner_pass }}
         uses: actions/upload-artifact@v4
         with:
           name: agent31-rank1-underworld-native-owner-opportunity-audit
