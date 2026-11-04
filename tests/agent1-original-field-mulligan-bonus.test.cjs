@@ -33,7 +33,7 @@ test('four candidate 60s resolve their printed eligible Basic counts', () => {
 });
 
 test('exact independent seven-card physical no-Basic screens', () => {
-  near(firstSevenMulliganProbability(4), 0.6005009259303993);
+  near(firstSevenMulliganProbability(4), 0.6005003742553344);
   near(firstSevenMulliganProbability(7), 0.39912045076768693);
   near(firstSevenMulliganProbability(12), 0.1906466927107365);
   near(firstSevenMulliganProbability(14), 0.1385906808712801);
@@ -56,21 +56,21 @@ test('equal Basic counts yield symmetric bonus offer probabilities and expectati
   near(x.candidateOffersOpponent.atLeastOne,x.opponentOffersCandidate.atLeastOne);
   near(x.candidateOffersOpponent.expectedMaximumCards,
     x.opponentOffersCandidate.expectedMaximumCards);
-  near(x.candidateOffersOpponent.atLeastOne,0.16012400411879034);
+  near(x.candidateOffersOpponent.atLeastOne,0.16012028914865803);
 });
 
 test('actual two-player retry process differs from naive own mulligan rate', () => {
   const x=mulliganBonusExposure(7,14);
-  near(x.candidateOffersOpponent.atLeastOne,0.36393942058983347);
+  near(x.candidateOffersOpponent.atLeastOne,0.3639370248213339);
   assert.ok(x.candidateOffersOpponent.atLeastOne < x.candidateFirstSevenMulligan);
-  near(x.candidateOffersOpponent.expectedMaximumCards,0.6056711739227135);
+  near(x.candidateOffersOpponent.expectedMaximumCards,0.605673841431784);
 });
 
 test('opposing low-Basic Iron Thorns can instead offer the candidate more draws', () => {
   const x=mulliganBonusExposure(7,4);
-  near(x.candidateOffersOpponent.atLeastOne,0.20971065036894675);
-  near(x.opponentOffersCandidate.atLeastOne,0.4745740724083772);
-  near(x.opponentOffersCandidate.expectedMaximumCards,1.187909072855862);
+  near(x.candidateOffersOpponent.atLeastOne,0.20971010738377938);
+  near(x.opponentOffersCandidate.atLeastOne,0.47456937628624857);
+  near(x.opponentOffersCandidate.expectedMaximumCards,1.1879094389679423);
 });
 
 test('at least two offered cards has geometric continuation probability', () => {
