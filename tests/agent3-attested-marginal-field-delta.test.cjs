@@ -146,7 +146,7 @@ test('registered censoring remains in the denominator and blocks overconfidence'
   const got=attestedMarginalFieldDelta(data);
   assert.equal(got.registeredPairs,128);
   assert.equal(got.censoredPairs,2);
-  assert.equal(got.observedLower,1-1/128);
+  assert.equal(got.observedLower,1-2/128);
   assert.equal(got.observedUpper,1);
   assert.equal(got.competitiveQualified,false);
 });
