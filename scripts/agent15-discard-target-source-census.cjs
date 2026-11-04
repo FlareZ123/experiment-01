@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {RULES,loadBundledPublicPrintMetadata}=require(
+const {RULES,loadBundledPublicPrintMetadata,withSourcePromoAliases}=require(
   '../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
 /** Source-locked static incidence, not actual hand or native root eligibility. */
@@ -50,6 +50,43 @@ function metadataCollisionCensus(index){
     metadataPoolNotPreFilteredForPaperExpanded:true};
 }
 
+
+/**
+ * Coverage of source-name + set-code classifications only. A matching key
+ * is not an exact collector-number printing certificate or a legality proof.
+ * @param {object} field Authenticated original source.
+ * @param {Map<string,object>} metadata Bundled+aliased+separate source index.
+ */
+function publicSourceNameSetCoverage(field,metadata){
+  assert.ok(Array.isArray(field?.decks)&&metadata instanceof Map);
+  const missing=new Map();
+  let represented=0,unrepresented=0;
+  for(const deck of field.decks){
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
+    for(const card of deck.cards){
+      const printing=card.name+' '+card.printing.set;
+      if(metadata.has(printing)){
+        represented+=card.count;
+        continue;
+      }
+      unrepresented+=card.count;
+      const prior=missing.get(printing)??{
+        printing,copies:0,category:card.category,ranks:[]};
+      prior.copies+=card.count;
+      prior.ranks.push(deck.rank);
+      missing.set(printing,prior);
+    }
+  }
+  return {
+    registeredOriginalSourceCardCopies:represented+unrepresented,
+    nameSetRepresentedCopies:represented,
+    nameSetUnrepresentedCopies:unrepresented,
+    missingKeys:[...missing.values()].sort((a,b)=>b.copies-a.copies),
+    exactCollectorNumberCertified:false,
+    sourceLegalityCertified:false
+  };
+}
+
 /** Verify each exact source ID and effect phrase against resources/cards/en. */
 function verifyRecoveryPrints(resourceRoot){
   const patterns={
@@ -77,13 +114,20 @@ function run(repoRoot=path.resolve(__dirname,'..')){
   const resourceRoot=path.join(repoRoot,'resources');
   const field=JSON.parse(fs.readFileSync(path.join(repoRoot,
     'results','aichi-2026','full-decklists.json'),'utf8'));
-  return {schema:'agent15-discard-public-target-source-census-v1',
+  const bundled=loadBundledPublicPrintMetadata(resourceRoot);
+  const externallyEnriched=
+    require('../simulation/twinleaf/planning/owner-external-mee-basic-energy-metadata.cjs')
+      .withVerifiedMEEBasicEnergyPrintings(withSourcePromoAliases(bundled));
+  return {schema:'agent15-discard-public-target-source-census-v2-field-metadata',
     source:field.source,
     incidence:sourceRecoveryCensus(field),
-    metadata:metadataCollisionCensus(
-      loadBundledPublicPrintMetadata(resourceRoot)),
+    metadata:metadataCollisionCensus(bundled),
+    enrichedPublicMetadataSourceCoverage:
+      publicSourceNameSetCoverage(field,externallyEnriched),
+    supplementalMEEExternalProvenance:true,
     sourceRuleReceipts:verifyRecoveryPrints(resourceRoot),
     selectedFixed60:null,qualifiedGames:0,winRate99point5Verified:false};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={sourceRecoveryCensus,metadataCollisionCensus,verifyRecoveryPrints,run};
+module.exports={sourceRecoveryCensus,metadataCollisionCensus,
+  publicSourceNameSetCoverage,verifyRecoveryPrints,run};
