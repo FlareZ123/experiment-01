@@ -31,7 +31,8 @@ const {Format}=engine('game/store/card/card-types');
 const {AttachToolTactic}=
   engine('simple-bot/simple-tactics/attach-tool-tactic');
 const {RetreatAction,AttackAction}=engine('game/store/actions/game-actions');
-const {PlayCardAction}=engine('game/store/actions/play-card-action');
+const {PlayCardAction,PlayerType,SlotType}=
+  engine('game/store/actions/play-card-action');
 const {CheckRetreatCostEffect}=engine('game/store/effects/check-effects');
 const {ResolvePromptAction}=
   engine('game/store/actions/resolve-prompt-action');
@@ -191,5 +192,49 @@ for(const seat of [0,1]){
     assert.equal(composed.handIndex,1);
     const defaultOff=chooseActorRootIntent(view,catalog,{});
     assert.notEqual(defaultOff?.kind,'attach-emergency-floatstone');
+  });
+
+  test('Agent14 two consecutive owner-root intents dispatch real Float, retreat and paid attack seat '+seat,()=>{
+    const fixture=constructedRank11(seat);
+    const catalog=publicCatalog();
+    const from=actorObservation(fixture.state,seat);
+    const first=chooseActorRootIntent(from,catalog,
+      {genericFundedFloatStoneRoot:true});
+    assert.equal(first?.kind,'attach-emergency-floatstone');
+    assert.equal(first.handIndex,1);
+    assert.equal(first.benchIndex,0);
+    const latentEnergy=fixture.owner.active.energies.cards[0];
+    fixture.store.dispatch(new PlayCardAction(fixture.owner.id,
+      first.handIndex,{player:PlayerType.BOTTOM_PLAYER,
+        slot:SlotType.ACTIVE,index:0}));
+    assert.equal(fixture.owner.active.tools[0],fixture.float);
+    const second=chooseActorRootIntent(actorObservation(fixture.state,seat),
+      catalog,{genericFundedFloatStoneRoot:true});
+    assert.equal(second?.kind,'retreat-emergency-floatstone');
+    assert.equal(second.benchIndex,0);
+    fixture.store.dispatch(new RetreatAction(fixture.owner.id,second.benchIndex));
+    assert.equal(fixture.owner.active.getPokemonCard(),fixture.benchedAttacker);
+    assert.equal(fixture.owner.bench[0].energies.cards[0],latentEnergy);
+    const before=fixture.foe.active.damage;
+    fixture.store.dispatch(new AttackAction(fixture.owner.id,
+      second.targetAttackName));
+    for(let j=0;j<6;j++){
+      const pending=fixture.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      fixture.store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(fixture.store.hasPrompts(),false);
+    const dealt=fixture.foe.active.damage-before;
+    assert.equal(dealt,200);
+    console.log('AGENT2_AGENT14_FUNDED_FLOAT_SEQUENCE',JSON.stringify({
+      rank:11,seat,ownerHand:from.ownHand,
+      first:{kind:first.kind,handIndex:first.handIndex},
+      second:{kind:second.kind,benchIndex:second.benchIndex,
+        targetAttackName:second.targetAttackName},
+      actualStoreFloatAccepted:true,actualRetreatAccepted:true,
+      actualPaidAttackDamage:dealt,source:GENERIC_VERSION,
+      completeGameQualified:false
+    }));
   });
 }
