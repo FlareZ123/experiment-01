@@ -104,3 +104,46 @@ test('opponent opaque/private annotations cannot change owner-public decision',(
   assert.deepEqual(chooseBunnelbyImminentDeckoutFloat(a,catalog),
     chooseBunnelbyImminentDeckoutFloat(b,catalog));
 });
+
+test('free Skyliner from own Bench makes further Float attachment redundant',()=>{
+  const v=root();
+  v.ownPublic.active.printed.stage=7;
+  v.ownPublic.bench.push({
+    printing:'Latias ex SSP',abilities:['Skyliner'],tools:[]
+  });
+  assert.equal(chooseBunnelbyImminentDeckoutFloat(v,catalog),null);
+  const a=root();
+  a.ownPublic.active.printing='Latias ex SSP';
+  a.ownPublic.active.printed.stage=7;
+  a.ownPublic.active.abilities=['Skyliner'];
+  assert.equal(chooseBunnelbyImminentDeckoutFloat(a,catalog),null);
+});
+test('public ability suppression permits Float to restore Bunnelby mobility',()=>{
+  const v=root();
+  v.ownPublic.active.printed.stage=7;
+  v.ownPublic.bench.push({
+    printing:'Latias ex SSP',abilities:['Skyliner'],tools:[]
+  });
+  v.opponentPublic.active={
+    printing:'Iron Thorns ex TWM',abilities:['Initialization'],tools:[]
+  };
+  assert.equal(chooseBunnelbyImminentDeckoutFloat(v,catalog)?.kind,
+    'attach-emergency-floatstone');
+  const z=root();
+  z.ownPublic.active.printed.stage=7;
+  z.ownPublic.bench.push({
+    printing:'Latias ex SSP',abilities:['Skyliner'],tools:[]
+  });
+  z.ownPublic.stadium=['Silent Lab PRC'];
+  assert.equal(chooseBunnelbyImminentDeckoutFloat(z,catalog)?.kind,
+    'attach-emergency-floatstone');
+});
+test('Skyliner only covers Basic Active: Evolution Active still proposes Float',()=>{
+  const v=root();
+  v.ownPublic.active.printed.stage=8;
+  v.ownPublic.bench.push({
+    printing:'Latias ex SSP',abilities:['Skyliner'],tools:[]
+  });
+  assert.equal(chooseBunnelbyImminentDeckoutFloat(v,catalog)?.kind,
+    'attach-emergency-floatstone');
+});
