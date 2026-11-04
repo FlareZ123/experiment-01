@@ -21,6 +21,7 @@ function fixture(seat,originalOwner){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
+  const {CardList}=native('game/store/state/card-list');
   const {GamePhase}=native('game/store/state/state');
   const {Format}=native('game/store/card/card-types');
   const store=new Store({onStateChange(){}});
@@ -46,6 +47,17 @@ function fixture(seat,originalOwner){
   actor.hand.cards.push(card(NEW));
   (originalOwner==='actor'?actor:opponent).stadium.cards.push(card(OLD));
   actor.stadiumPlayedTurn=4;
+  // A staged zero-Prize state triggers native Sudden Death and clears zones.
+  // Supply authentic six nonempty Prize slots and decks for both players.
+  for(const player of state.players){
+    for(let i=0;i<6;i++){
+      const prize=new CardList();
+      prize.cards.push(card('Dratini OBF'));
+      player.prizes.push(prize);
+    }
+    for(let i=0;i<8;i++)
+      player.deck.cards.push(card('Psychic Energy SVE'));
+  }
   return {store,state,actor,opponent};
 }
 
