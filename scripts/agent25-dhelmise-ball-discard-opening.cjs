@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {choose} = require('./agent25-dhelmise-t1-physical-opportunity.cjs');
 
-const VERSION = 'agent25-dhelmise-ball-discard-opening-v3';
+const VERSION = 'agent25-dhelmise-ball-discard-opening-v4-direct-one-compressor-ball';
 
 /**
  * Exact first-seven, one ordinary draw, six Prizes card-location census for
@@ -43,6 +43,7 @@ function exactOpening(eligibleDonors, {
   const total = choose(60,7)*53n*choose(52,6);
   const seven = Array(8).fill(0);
   let strict=0n, expanded=0n, oneCompressorBall=0n;
+  let directOneCompressorBall=0n, novelOneCompressorBall=0n;
   let initialStates=0;
 
   /** @param {number} group @param {number} left @param {bigint} ways */
@@ -82,6 +83,13 @@ function exactOpening(eligibleDonors, {
             if(newEvent)expanded+=weight;
             if(!oldEvent&&newEvent&&compressors>0&&handCapacity>0)
               oneCompressorBall+=weight;
+            // Direct staged-route analog: one held BC supplies exactly
+            // three deck donors and one held discard-cost Ball can pay
+            // one eligible donor from hand. No Arven or Blender needed.
+            if(compressors===1&&inDeck>=3&&handCapacity>0){
+              directOneCompressorBall+=weight;
+              if(!oldEvent)novelOneCompressorBall+=weight;
+            }
           }
         }
       }
@@ -104,6 +112,10 @@ function exactOpening(eligibleDonors, {
     strictWorlds:strict.toString(),expandedWorlds:expanded.toString(),
     additionallyReachableWorlds:(expanded-strict).toString(),
     newCompressorBallWorlds:oneCompressorBall.toString(),
+    directOneCompressorBallWorlds:directOneCompressorBall.toString(),
+    directOneCompressorBallProbability:probability(directOneCompressorBall),
+    novelOneCompressorBallWorlds:novelOneCompressorBall.toString(),
+    novelOneCompressorBallProbability:probability(novelOneCompressorBall),
     strictProbability:probability(strict),
     expandedProbability:probability(expanded),
     addedProbability:probability(expanded-strict),
