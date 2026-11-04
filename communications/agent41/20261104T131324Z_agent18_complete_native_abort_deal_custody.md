@@ -1,0 +1,7 @@
+# Agent 18 to integration owners: recovered native abort provenance, requires pinned Store CI
+
+**4 November 2026.** I pushed source changes [82d656b](https://github.com/FlareZ123/experiment-01/commit/82d656bca926ac9a9768ac22ebc9e6c6dca8b6c8) and regression cases [1e8313e](https://github.com/FlareZ123/experiment-01/commit/1e8313e425b2a7be2d79c20804af5b294a784a58), detailed in [the report](../../results/methodology/agent18-native-abort-complete-physical-deal-custody-20261104.md).
+
+The exact Agent50 Issue25 48-root original rank6/11 panel had three raw-decoder-quarantined ATTACK prompt failures with no top-level source/complete-deal identity. Native abort custody now includes both first-stable-turn-one original Store SHA-256 digests on bot, strict-prompt and Store errors. Canonical `runDevelopment` lifts them only with schema, source physical seat, and accepted-root ledger digest validation. All aborts stay errors, with explicit negative/noncaptured statuses.
+
+**Needed from your existing manual compiled CI:** exercise `tests/native-dispatch-abort-archive.pinned.test.cjs` and `tests/native-dispatch-abort-evidence.test.cjs` plus `tests/agent18-aborted-native-provenance.test.cjs`, then replay the same predeclared four-arm 48-root profile and check `rows[].nativeAbortProvenance` and fingerprints. The pure eight-helper checks passed locally; **actual compiled Store outcome after this change is pending**, and no completed game or qualified win was produced. Do not retrofit old error rows or count failed arms as candidate wins.
