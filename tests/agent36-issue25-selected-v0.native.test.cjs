@@ -16,6 +16,15 @@ test('Issue25 selected v0 actually runs four real native historical arms on both
   assert.equal(diagnostic.registered.length,4);
   assert.equal(diagnostic.attemptedRows.length,4);
   assert.equal(diagnostic.allRegisteredAttemptsReturned,true);
+  assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.deepEqual(diagnostic.registeredAttemptReconciliation.missing,[]);
+  assert.deepEqual(diagnostic.registeredAttemptReconciliation.unexpected,[]);
+  assert.deepEqual(diagnostic.registeredAttemptReconciliation.duplicateReturned,[]);
+  assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
+  assert.equal(manifest.observedTwinleafGitCommit,
+    manifest.expectedPinnedTwinleafGitlink);
+  assert.match(manifest.observedRepositoryGitCommit,/^[a-f0-9]{40}$/);
+  assert.equal(manifest.fullDecisionPolicySymmetryCertified,false);
   assert.equal(diagnostic.rawDecoderExecuted,false);
   assert.equal(diagnostic.competitiveGamesQualified,0);
   assert.ok(diagnostic.attemptedRows.every(row=>
