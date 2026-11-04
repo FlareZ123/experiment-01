@@ -1,0 +1,26 @@
+{
+  "schema": "agent1-issue25-preregistered-policy-opening-contrast-v7",
+  "committedAtUtc": "2026-11-04T19:09:40Z",
+  "comparativeTrialManifest": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "comparison": "Same eight preregistered rank×seat and integer seed streams; fixed original source decks and both candidate 60s unchanged.",
+  "baselinePolicy": "agent1-issue25-mirrored-r6-r11-v6, all eligible starting Basic Pokémon placed in original hand order",
+  "challengerPolicy": "same three source-stamped attacks and symmetric resource policy, replacing only opening setup hook with agent50-owner-protected-multibasic-store",
+  "structuralHypothesis": "Protect known printed hand-to-Bench-in-turn Ability Basics from setup consumption while still benching ordinary eligible Basics. Native prompt validates all chosen cards.",
+  "measures": [
+    "physical prompts accepted by Store",
+    "opening retained entry-support cards",
+    "later in-turn opportunity for held support",
+    "root-turn and attack prompt errors",
+    "all eight raw native statuses and source-deal fingerprint matching"
+  ],
+  "controls": [
+    "source rank×physical seat paired within rank",
+    "same source-side integer seed and candidate ID per arm",
+    "no 99.5 percent or competitive win rate inference",
+    "fresh hidden Night Watch event entropy makes later full-game trajectories nondeterministically distinct",
+    "all source/candidate 60-card lists unchanged"
+  ],
+  "resultSelection": "No observed v6 result may change this v7 policy, registration or the eight row IDs.",
+  "releaseQualified": false,
+  "competitiveGamesQualified": 0
+}
