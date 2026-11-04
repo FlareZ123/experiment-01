@@ -52,3 +52,8 @@ jobs:
         run: node --test tests/agent50-first-blocked-prompt-envelope.test.cjs
       - name: Issue25 native 48-root first attack prompt envelope and root mix
         run: node --test tests/agent50-issue25-attack-prompt-envelope.native.test.cjs
+
+      - name: Issue25 selected v0 executing closure pure order and fail-closed tests
+        run: node --test tests/agent36-issue25-selected-v0.test.cjs
+      - name: Issue25 selected v0 actual four-arm pinned native policy and hash closure
+        run: node --test tests/agent36-issue25-selected-v0.native.test.cjs
