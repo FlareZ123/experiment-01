@@ -118,3 +118,25 @@ test('visual wait is opt-in only with strict phase wait, and passes narrow optio
   assert.ok(result.attempts.every(a=>a.ownerAttackVisualWaits===1));
   assert.equal(result.competitivelyQualifiedGames,0);
 });
+
+test('owner Prize-taking baseline is explicitly opt-in and preserves zero qualification',()=>{
+  let calls=0;
+  const result=runFirstOwnerDecoderPanel({
+    preflight,pinNative:false,ownerPrizeChoice:true,
+    ownerPrize:run=>{
+      calls++;
+      return {result:run(),audit:{ownerPrizeChoiceSubmitted:2,
+        bySeat:[1,1],records:[]}};
+    },
+    runner:options=>({attempted:2,
+      rows:options.registeredTrials.map(trial=>({trial}))}),
+    quarantine:run=>({result:run(),audit:{
+      rawStateFallbackCalls:0,originalNativeDecoderExecuted:false,
+      records:[],recordsOmitted:0
+    }})
+  });
+  assert.equal(calls,2);
+  assert.equal(result.exactOwnerPrizeChoiceEnabled,true);
+  assert.ok(result.attempts.every(a=>a.ownerPrizeChoices===2));
+  assert.equal(result.competitivelyQualifiedGames,0);
+});
