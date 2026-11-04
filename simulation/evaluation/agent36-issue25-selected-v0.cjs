@@ -81,6 +81,27 @@ function observedGitRevision(relativePath){
  * @param {string[]} expected
  * @param {(string|null)[]} actual
  */
+/**
+ * A compact SHA-256 receipt of every research-owned module actually loaded
+ * through Node's module cache. This complements direct printed-deck hashes
+ * and the observed vendor gitlink; it does not claim all hooks executed.
+ * @returns {{moduleCount:number,sha256:string,scope:string}}
+ */
+function observedLoadedResearchModuleDigest(){
+  const prefix=path.join(ROOT,'simulation')+path.sep;
+  const modules=Object.keys(require.cache??{}).filter(file=>
+    file.startsWith(prefix)&&/\.(?:cjs|js)$/.test(file)).sort();
+  const hash=createHash('sha256');
+  for(const file of modules){
+    hash.update(path.relative(ROOT,file).split(path.sep).join('/'));
+    hash.update('\0');
+    hash.update(fs.readFileSync(file));
+    hash.update('\0');
+  }
+  return {moduleCount:modules.length,sha256:hash.digest('hex'),
+    scope:'actually-loaded-research-module-source-files'};
+}
+
 function reconcileRegisteredAttempts(expected,actual){
   assert.ok(Array.isArray(expected)&&Array.isArray(actual));
   const expectedSet=new Set(expected),actualSet=new Set(actual);
@@ -211,6 +232,7 @@ function runSelectedIssue25V0(injected={}){
     ciRepositoryRevision:envGitSha,
     runtimeGitAttestationStatus,
     runtimeInputHashScope:'direct-selected-modules-and-deck-inputs',
+    observedLoadedResearchModuleDigest:observedLoadedResearchModuleDigest(),
     resolvedSourceAndPolicyHashes:CODE_PATHS.map(hashRegisteredFile),
     knownStructuralVetoes:{
       sourceRankSpecificNativeScripts:true,
@@ -245,4 +267,4 @@ function runSelectedIssue25V0(injected={}){
 }
 module.exports={VERSION,SELECTED_OUTER_TO_INNER,CODE_PATHS,
   hashRegisteredFile,observedGitRevision,reconcileRegisteredAttempts,
-  runSelectedIssue25V0};
+  observedLoadedResearchModuleDigest,runSelectedIssue25V0};
