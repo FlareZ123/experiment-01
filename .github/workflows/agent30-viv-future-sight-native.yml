@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify source-scoped opaque choices and fail-closed both-seat ownership
+        run: node --test tests/agent26-origin-bound-attack-choices.test.cjs
       - name: Check out existing pinned Twinleaf dependency
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Assert research-pinned engine revision
@@ -31,3 +33,5 @@ jobs:
         run: node --test tests/agent30-issue25-futuresight-48root-origin.native.test.cjs
       - name: Attribute both remaining original ATTACK choice prompts to exact source printings without hidden reads
         run: node --test tests/agent30-issue25-remaining-printed-prompt-origins.native.test.cjs
+      - name: Run original four-arm Night Watch and Get Lost source-bound selection canary
+        run: node --test tests/agent26-issue25-two-source-attack-choices.native.test.cjs
