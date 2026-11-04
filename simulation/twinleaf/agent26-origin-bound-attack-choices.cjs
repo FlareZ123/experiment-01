@@ -4,8 +4,9 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {sampleUniformPositions}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
+const {isIndexPermutation}=require('./prompt-integrity.cjs');
 
-const VERSION='agent26-origin-bound-attack-choices-v4';
+const VERSION='agent26-origin-bound-attack-choices-v5';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -155,7 +156,7 @@ function withOwnerOriginBoundAttackChoices(run,options){
         const nonce=JSON.stringify(['printed-night-watch-shuffle',
           follow.sourceTurn,state.turn,String(actorId),String(prompt.id)]);
         result=sampleUniformPositions(n,n,options.committedSeed,nonce);
-        assert.equal(prompt.validate(result,state),true,
+        assert.equal(isIndexPermutation(result,n),true,
           'Night Watch source-printed opponent shuffle rejected');
       }else return oldAi.value.call(this,state);
       audit.resolvedFollowups.push({kind:follow.kind,actorSeat:seat,
@@ -250,7 +251,9 @@ function withOwnerOriginBoundAttackChoices(run,options){
         before={kind:follow.kind,turn:stateBefore.turn,
           ownerDeck:owner.deck,oldReferences:owner.deck.cards.slice(),
           proposal:Array.isArray(action.result)?action.result.slice():null,
-          nativePromptValidated:prompt.validate(action.result,stateBefore)};
+          nativePromptValidated:prompt.validate(action.result,stateBefore),
+          numericPermutationValidated:isIndexPermutation(action.result,
+            owner.deck.cards.length)};
       }
     }
     const result=oldDispatch.value.call(this,action,...args);
@@ -282,10 +285,11 @@ function withOwnerOriginBoundAttackChoices(run,options){
       }else if(before.kind==='night-watch-shuffle'){
         const deck=before.ownerDeck.cards,order=before.proposal;
         entry={...entry,nativePromptValidated:before.nativePromptValidated,
+          numericPermutationValidated:before.numericPermutationValidated,
           permutationLength:order?.length??null,
           deckCountBefore:before.oldReferences.length,
           deckCountAfter:deck.length,
-          permutationAppliedExactly:before.nativePromptValidated&&
+          permutationAppliedExactly:before.numericPermutationValidated&&
             deck.length===before.oldReferences.length&&
             order.every((j,i)=>deck[i]===before.oldReferences[j])};
       }
