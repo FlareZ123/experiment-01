@@ -90,21 +90,21 @@ function publicSourceNameSetCoverage(field,metadata){
 
 /**
  * Determine how many original Aichi name+set copies encounter ambiguous
- * public English metadata. This is source identity evidence, not a claim
+ * public source-aligned English plus separately identified MEE metadata. This is source identity evidence, not a claim
  * that a real native card is ambiguous once its collector key is retained.
- * The passed metadata map is the unmodified English convenience pool.
+ * The passed metadata retains every original English variant and verified display alias.
  *
  * @param {object} field 29 original source printed 60s.
- * @param {Map<string,{variants:object[]}>} rawEnglish Public name+set data.
+ * @param {Map<string,{variants:object[]}>} sourceMetadata Public name+set data.
  */
-function originalSourceNameSetAmbiguityCensus(field,rawEnglish){
-  assert.ok(Array.isArray(field?.decks)&&rawEnglish instanceof Map);
+function originalSourceNameSetAmbiguityCensus(field,sourceMetadata){
+  assert.ok(Array.isArray(field?.decks)&&sourceMetadata instanceof Map);
   const byPrinting=new Map();
   for(const deck of field.decks){
     assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
     for(const card of deck.cards){
       const printing=card.name+' '+card.printing.set;
-      const variants=rawEnglish.get(printing)?.variants??[];
+      const variants=sourceMetadata.get(printing)?.variants??[];
       if(variants.length<2)continue;
       const entry=byPrinting.get(printing)??{
         printing,sourceCopies:0,ranks:[],
@@ -184,7 +184,7 @@ function run(repoRoot=path.resolve(__dirname,'..')){
     incidence:sourceRecoveryCensus(field),
     metadata:metadataCollisionCensus(bundled),
     originalSourceNameSetAmbiguities:
-      originalSourceNameSetAmbiguityCensus(field,bundled),
+      originalSourceNameSetAmbiguityCensus(field,externallyEnriched),
     enrichedPublicMetadataSourceCoverage:
       publicSourceNameSetCoverage(field,externallyEnriched),
     japaneseOnlyPromoPublicMetadataCoverage:
