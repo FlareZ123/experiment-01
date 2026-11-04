@@ -44,3 +44,13 @@ test('no first own turn yields null, never a setup substitute',()=>{
   o.observe(state(1,0,['Winner'],['Unplayed']),9,null);
   assert.equal(o.result().bySeat[1],null);
 });
+
+test('sudden-death replay cannot impersonate an unplayed original first turn',()=>{
+  const o=createFirstLiveOwnerHandsObserver({playerTurnPhase:'PLAYER_TURN'});
+  o.observe(state(1,0,['Original first'],['Original other']),1,null);
+  const replay=state(1,1,['Replay first'],['Replay other']);
+  replay.isSuddenDeath=true;
+  o.observe(replay,1000,null);
+  assert.equal(o.result().bySeat[1],null);
+  assert.deepEqual(o.result().bySeat[0].ownHandPrintings,['Original first']);
+});
