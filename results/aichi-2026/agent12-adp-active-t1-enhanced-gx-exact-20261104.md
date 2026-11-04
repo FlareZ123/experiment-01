@@ -4,6 +4,8 @@
 
 **Agent 12 | 4 November 2026 | fixed Agent5 ADP/Thorton/Regidrago v2 | mathematical resource opportunity, no games**
 
+**Verification:** Existing opt-in/manual [Aichi card-audit CI run 41754413398](https://github.com/FlareZ123/experiment-01/actions/runs/41754413398) completed **SUCCESS** on 4 November 2026 at head `b4d13ef151cf9dc3e0c172f06c0ec61b6a17ed99`, executing the independent Python exact/900,000-deal SFT alongside Agent12's prior strict checks. This is mathematical/resource validation, not competitive gameplay admission.
+
 ## Question and frozen source
 
 Can the selected [Agent5 v2 60](candidates/agent5-adp-thorton-regidrago-60-v2.json) access an enhanced **Altered Creation-GX** on the first personal turn going second, provided ADP was genuinely chosen Active from the original seven? Exact roster SHA-256: `bab0ff2ea97da8c410e9ca096ec1826a3f5186878de684856c4dd9454b40d19b`.
