@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {createHash}=require('node:crypto');
+const fs=require('node:fs');
+const path=require('node:path');
 const {runBilateralPublicEnergyIssue25V13}=
   require('../simulation/evaluation/agent12-issue25-bilateral-public-energy-v13.cjs');
 const {saveResult}=
@@ -76,7 +78,10 @@ test('v13 owner-public Special Energy both-seat native source canary against eig
     rows:receipt
   };
   const filename=process.env.AGENT12_ISSUE25_V13_RECEIPT;
-  if(filename)saveResult(filename,data);
+  if(filename){
+    fs.mkdirSync(path.dirname(filename),{recursive:true});
+    saveResult(filename,data);
+  }
   console.log('AGENT12_ISSUE25_V13',JSON.stringify({
     trials:receipt.length,physicalMatches:data.fullPhysicalDealMatches,
     publicSpecialProfiles:data.v13NativeBothSeatProfileRows,
