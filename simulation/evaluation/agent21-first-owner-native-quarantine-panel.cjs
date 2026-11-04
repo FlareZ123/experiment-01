@@ -85,7 +85,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
         const withWait=()=>{
           if(deps.ownerPhaseWait!==true)return withShowCards();
           const installed=ownerWait(withShowCards,{
-            allowVisualAttackWait:deps.ownerAttackVisualWait===true
+            allowVisualAttackWait:deps.ownerAttackVisualWait===true,
+            allowDeckShuffleWait:deps.ownerDeckShuffleWait===true
           });
           ownerWaitAudit=installed.audit;
           return installed.result;
@@ -134,6 +135,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerNonvisualWaitsHandled:ownerWaitAudit?.nativePendingWaitHandled??null,
       ownerNonvisualWaitBySeat:ownerWaitAudit?.bySeat??null,
       ownerAttackVisualWaits:ownerWaitAudit?.visualAttackWaitHandled??null,
+      ownerDeckShuffleWaits:ownerWaitAudit?.deckShuffleWaitHandled??null,
       ownerWaitDecisions:ownerWaitAudit?.records??[],
       ownerDelegatedWaitMetadata:ownerWaitAudit?.delegatedWaitMetadata??[],
       ownerDelegatedWaitMetadataOmitted:ownerWaitAudit?.delegatedWaitMetadataOmitted??null,
@@ -167,6 +169,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     exactOwnerStartingBasicsEnabled:deps.ownerSetupBasics===true,
     exactOwnerPhaseWaitEnabled:deps.ownerPhaseWait===true,
     exactOwnerAttackVisualWaitEnabled:deps.ownerAttackVisualWait===true,
+    exactOwnerDeckShuffleWaitEnabled:deps.ownerDeckShuffleWait===true,
     exactOwnerShowCardsAckEnabled:deps.ownerShowCardsAck===true,
     exactOwnerPrizeChoiceEnabled:deps.ownerPrizeChoice===true,
     sourceRank:5,
@@ -192,6 +195,7 @@ if(require.main===module)
     ownerSetupBasics:process.argv.includes('--owner-setup-basics'),
     ownerPhaseWait:process.argv.includes('--owner-phase-wait'),
     ownerAttackVisualWait:process.argv.includes('--owner-attack-visual-wait'),
+    ownerDeckShuffleWait:process.argv.includes('--owner-deck-shuffle-wait'),
     ownerShowCardsAck:process.argv.includes('--owner-showcards-ack'),
     ownerPrizeChoice:process.argv.includes('--owner-prize-choice')
   }),null,2)+'\n');
