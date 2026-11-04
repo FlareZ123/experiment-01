@@ -4,6 +4,12 @@
 
 ## Finding
 
+## Official event-language rule: the entire translated roster is not a physical print ledger
+
+The Pokémon Company's [30 March 2026 official Aichi event rules](https://www.pokemon-card.com/info/005445.html) explicitly specify **Japanese-language cards only** for the competition (under *使用できるカード*, line 「日本語のカードのみ使用可能。」, repeated under the event packing rules), and identify the Open League as **Extra regulation**, 60-card decks with six Prizes. The original 29 translated source inventories have **989 rows and 1,740 copies, all 989/1,740 tagged printing.language = "en"**. A literal reading of these tags as the physically played card language would conflict with the contemporaneous official tournament restrictions for *every* source rank. These must be treated as translation/display metadata until actual historical Japanese source prints have separate evidence.
+
+The finding is roster-wide and distinct from the post-event Basic Energy artwork issue. It does **not** challenge the 29 independently authenticated name/count 60s and does **not** imply the real players used forbidden English cards. It is a factual representation defect when a simulator labels the English card identifier or the transcribed source SHA as the original exact physical tournament printing. Japanese printed identities, contemporary errata, and legal card replacement must be separately validated.
+
 The frozen [29-original-list source roster](../full-decklists.json) has **nine printing rows totaling 14 card copies** representing **three Japanese-only promo identities** across source ranks **3, 6, 7, 24 and 29**. All nine source rows have their printing language annotated as "en", despite the three identities having no internationally released English-language counterpart. That field is source display/translation metadata rather than evidence of actual tournament card language.
 
 | Source ID | Name | Source ranks (copies) | Rows / copies | Verified Japanese printing |
