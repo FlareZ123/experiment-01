@@ -160,7 +160,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify Agent31 archived bilateral Float Stone chain and visible Pass opportunity contracts
-        run: node --test tests/agent31-paired-bilateral-tool-chain-audit.test.cjs tests/agent31-shadow-rider-visible-pass-frontier.test.cjs
+        run: node --test tests/agent31-paired-bilateral-tool-chain-audit.test.cjs tests/agent31-shadow-rider-visible-pass-frontier.test.cjs tests/agent31-bilateral-all-owner-pass-evidence.test.cjs
       - name: Regress Agent17 printed scaling KO owner-only selection (synthetic, no native games)
         run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
       - name: Verify rank17 owner-public Electrode opportunity and no-action-change observer
