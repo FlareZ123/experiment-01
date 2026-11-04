@@ -9,6 +9,8 @@ test('Issue25 v2 source-stamped genuine Future Sight owner-native action frontie
   console.log('AGENT36_ISSUE25_SOURCE_STAMPED_FUTURESIGHT_V2',
     JSON.stringify({manifest,diagnostic}));
   assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.equal(diagnostic.rawRowIdentityReconciliation.exactlyReconciled,true);
+  assert.deepEqual(diagnostic.rawRowIdentityReconciliation.conflictingRowIdentifiers,[]);
   assert.equal(diagnostic.attemptedRows.length,4);
   assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
   assert.equal(manifest.observedTwinleafGitCommit,
