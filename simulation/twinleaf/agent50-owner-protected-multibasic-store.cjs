@@ -141,7 +141,7 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
         for(const card of owner.hand.cards)
           if(card===prior.ownerHandBefore[kept])kept++;
         assert.equal(kept,prior.ownerHandBefore.length,
-          'Optional decline must not consume an existing owner's hand card');
+          "Optional decline must not consume an existing owner hand card");
         assert.deepEqual(owner.active.cards,prior.activeBefore);
         assert.deepEqual(owner.bench.map(slot=>slot.cards),
           prior.benchBefore);
