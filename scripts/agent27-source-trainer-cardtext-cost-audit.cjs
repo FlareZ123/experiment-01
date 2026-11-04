@@ -6,9 +6,11 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {COST_BY_PRINT}=
   require('../simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs');
+const {resolveTrainerPrint}=
+  require('./agent27-original-trainer-print-identity-audit.cjs');
 
 const ROOT=path.resolve(__dirname,'..');
-const VERSION='agent27-source-trainer-cardtext-cost-audit-v2-expanded-nohand';
+const VERSION='agent27-source-trainer-cardtext-cost-audit-v3-numbered-identities';
 
 /**
  * Verify actual bundled printed card rules for each cost-covered printing
@@ -55,6 +57,8 @@ function auditBundledSourceCardText(root=ROOT){
   assert.equal(manifest.published_deck_count,29);
   const sets=JSON.parse(fs.readFileSync(path.join(root,
     'resources/sets/en.json'),'utf8'));
+  // Exact source collector number is preserved. Name/set-only matching can
+  // falsely join an alternate physical printing or an untranslated promo.
   const deckPrintings=new Map();
   for(const deck of manifest.decks){
     assert.equal(deck.cards.reduce((x,c)=>x+c.count,0),60);
@@ -62,45 +66,70 @@ function auditBundledSourceCardText(root=ROOT){
       if(card.category!=='Trainer')continue;
       const printing=card.name+' '+card.printing.set;
       if(!COST_BY_PRINT.has(printing))continue;
-      deckPrintings.set(printing,(deckPrintings.get(printing)??0)+card.count);
+      const prior=deckPrintings.get(printing);
+      const sourceNumber=String(card.printing.number);
+      assert.ok(!prior||prior.sourceNumber===sourceNumber,
+        'Multiple physical source numbers for same cost printing: '+printing);
+      deckPrintings.set(printing,{
+        copies:(prior?.copies??0)+card.count,
+        sourceNumber
+      });
     }
   }
+  // Single bundled English card pool, with the separate strict identity audit
+  // controlling known Team Flare, Prism and official-numbered promo bridges.
+  const cardsBySet=new Map();
+  for(const set of sets){
+    const file=path.join(root,'resources/cards/en/'+set.id+'.json');
+    if(fs.existsSync(file))
+      cardsBySet.set(set.id,JSON.parse(fs.readFileSync(file,'utf8')));
+  }
   const records=[];
-  for(const [printing,copies] of [...deckPrintings].sort()){
+  for(const [printing,entry] of [...deckPrintings].sort()){
     const spec=COST_BY_PRINT.get(printing);
     const code=printing.slice(printing.lastIndexOf(' ')+1);
     const name=printing.slice(0,printing.lastIndexOf(' '));
-    const matchingSets=sets.filter(s=>s.ptcgoCode===code);
-    assert.ok(matchingSets.length>=1,'Missing source set: '+code);
-    let printVariants=[];
-    for(const set of matchingSets){
-      const file=path.join(root,'resources/cards/en/'+set.id+'.json');
-      const cards=JSON.parse(fs.readFileSync(file,'utf8'));
-      for(const card of cards){
-        if(card.name!==name)continue;
-        assert.ok(card.supertype==='Trainer');
-        const textModes=printedHandDiscardModes(card.rules);
-        const catalogModes=spec.options.map(x=>x.discards).sort((a,b)=>a-b);
-        assert.deepEqual(textModes,catalogModes,
-          'Bundled card print cost conflicts with catalog for '+printing+
-          ' physical '+card.id);
-        printVariants.push({id:card.id,number:card.number,
-          discardModes:textModes});
+    const identity=resolveTrainerPrint({
+      category:'Trainer',name,printing:{
+        set:code,number:entry.sourceNumber
       }
-    }
+    },sets,cardsBySet);
+    assert.equal(identity.status,'BUNDLED_PRINT_IDENTIFIED',
+      'No uniquely identified physical source printing for '+printing);
+    const physical=identity.bundledPrint;
+    const variants=cardsBySet.get(physical.setId).filter(card=>
+      card.supertype==='Trainer'&&card.name===physical.name);
+    assert.ok(variants.some(card=>card.id===physical.id),
+      'Exact source collector not among verified card variants: '+printing);
+    const catalogModes=spec.options.map(x=>x.discards).sort((a,b)=>a-b);
+    const printVariants=variants.map(card=>{
+      const textModes=printedHandDiscardModes(card.rules);
+      assert.deepEqual(textModes,catalogModes,
+        'Bundled card print cost conflicts with catalog for '+printing+
+        ' physical '+card.id);
+      return {id:card.id,number:card.number,discardModes:textModes};
+    });
     assert.ok(printVariants.length>0,'No physical printing for '+printing);
-    records.push({printing,copies,ruleModes:spec.options.map(x=>x.discards),
+    records.push({
+      printing,copies:entry.copies,
+      sourceNumber:entry.sourceNumber,
+      verifiedExactEnglishId:physical.id,
+      sourceAliasReasons:identity.aliasReasons,
+      ruleModes:spec.options.map(x=>x.discards),
       printedVariants:printVariants,
-      verifiedAllVariants:true});
+      verifiedAllVariants:true,
+      historicalPhysicalPrintingAuthenticated:false,
+      paperTargetsAndNativePaymentUnverified:true
+    });
   }
   const coveredCopies=records.reduce((s,r)=>s+r.copies,0);
-  assert.equal(coveredCopies,754);
+  assert.equal(coveredCopies,809);
   return {version:VERSION,sourceManifestSha256:
     crypto.createHash('sha256').update(manifestBytes).digest('hex'),
     originalDecks:manifest.decks.length,
     verifiedExactSourcePrintings:records.length,
     verifiedOriginalTrainerCopies:coveredCopies,
-    originalUnverifiedTrainerCopies:281,
+    originalUnverifiedTrainerCopies:226,
     sourceCardTextVerified:true,
     paperTargetsAndNativePaymentUnverified:true,
     qualifiedCompetitiveGames:0,records};
