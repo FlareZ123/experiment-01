@@ -177,6 +177,10 @@ test('Lillie full six-card draw counts another card shuffled to deck',()=>{
   });
   assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,1);
   v.ownPublic.deckCount=4;
+  assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,1);
+  assert.equal(enumerateConservativeShuffleSupporterOffers(v)[0]
+    .drawEstimate.ownDrawCapacityBound,5);
+  v.ownPublic.deckCount=3;
   assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,0);
 });
 
@@ -227,4 +231,42 @@ test('partial opponent draws preserve paper-legal Marnie and Iono opportunities'
   hidden.opponentPrivate={hand:['concealed-protected-Pokémon']};
   assert.deepEqual(enumerateConservativeShuffleSupporterOffers(hidden),
     enumerateConservativeShuffleSupporterOffers(oneReturned));
+});
+
+test('partial owner draws use available deck while keeping printed requests',()=>{
+  // Lillie alone cannot shuffle back a card after leaving the owner's hand.
+  // Her request for eight still resolves with four actually available cards.
+  const solo=view(["Lillie's Determination M1L"],{
+    ownPublic:{active:{},deckCount:4,prizeCount:6,
+      resolvingSupporter:[],publicTurnRestrictions:{}}
+  });
+  const before=JSON.stringify(solo);
+  const partial=chooseConservativeShuffleSupporter(solo);
+  assert.equal(partial.family,'lillie');
+  assert.equal(partial.drawEstimate.ownDraw,8);
+  assert.equal(partial.drawEstimate.ownDrawCapacityBound,4);
+  assert.equal(partial.score,3);
+  assert.equal(JSON.stringify(solo),before);
+
+  const iono=view(['Iono PAL','Ultra Ball SVI'],{
+    ownPublic:{active:{},deckCount:4,prizeCount:6,
+      resolvingSupporter:[],publicTurnRestrictions:{}},
+    opponentPublic:{handCount:0,deckCount:0,prizeCount:3}
+  });
+  const ionoAction=chooseConservativeShuffleSupporter(iono);
+  assert.equal(ionoAction.family,'iono');
+  assert.equal(ionoAction.drawEstimate.ownDraw,6);
+  assert.equal(ionoAction.drawEstimate.ownDrawCapacityBound,5);
+  assert.equal(ionoAction.drawEstimate.opponentDraw,3);
+  assert.equal(ionoAction.drawEstimate.opponentDrawCapacityBound,0);
+  assert.equal(ionoAction.score,3);
+
+  // When the partial draw cannot meet the unchanged minimum net benefit,
+  // retain the existing conservative no-offer outcome.
+  const poor=view(['Marnie SSH','Ultra Ball SVI'],{
+    ownPublic:{active:{},deckCount:3,prizeCount:6,
+      resolvingSupporter:[],publicTurnRestrictions:{}},
+    opponentPublic:{handCount:0,deckCount:0,prizeCount:6}
+  });
+  assert.equal(chooseConservativeShuffleSupporter(poor),null);
 });
