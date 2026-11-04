@@ -3,6 +3,11 @@ name: Agent 3 paper counterfactual smoke
 on:
   workflow_dispatch:
     inputs:
+      issue25_native_trainer_fallback_aba_v10:
+        description: 'Eight frozen Aichi original Store openings, control/native fallback/control, 24 developmental arms'
+        required: false
+        type: boolean
+        default: false
       issue25_readonly_owner_frontier_native:
         description: 'Retrospective native eight-arm v6 A/A with existing read-only Trainer and passive Ability lock observers'
         required: false
@@ -44,7 +49,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native && !inputs.issue25_bilateral_v3_bridge_native && !inputs.issue25_readonly_owner_frontier_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native && !inputs.issue25_bilateral_v3_bridge_native && !inputs.issue25_readonly_owner_frontier_native && !inputs.issue25_native_trainer_fallback_aba_v10 }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -88,11 +93,12 @@ jobs:
             tests/agent3-registered-attempt-reconciliation.test.cjs \
             tests/agent3-issue25-native-source-decision-census.test.cjs \
             tests/agent3-issue25-v6-trainer-lock-readonly-v9.test.cjs \
+            tests/agent3-issue25-native-trainer-aba-v10.test.cjs \
             tests/agent3-gitlink-worktree-attestation.test.cjs \
             tests/agent3-native-root-disposition.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native || inputs.issue25_bilateral_v3_bridge_native || inputs.issue25_readonly_owner_frontier_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native || inputs.issue25_bilateral_v3_bridge_native || inputs.issue25_readonly_owner_frontier_native || inputs.issue25_native_trainer_fallback_aba_v10 }}
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -134,6 +140,23 @@ jobs:
         with:
           name: agent3-issue25-v6-readonly-v9-${{ github.run_id }}
           path: artifacts/agent3-issue25-v9/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Preflight source-policy A/B/A exact registered eight game identities and pure adversarial gates
+        if: ${{ inputs.issue25_native_trainer_fallback_aba_v10 }}
+        run: node --test tests/agent3-issue25-native-trainer-aba-v10.test.cjs
+      - name: Execute selected v6 source policy control versus generic native Trainer fallback versus control
+        if: ${{ inputs.issue25_native_trainer_fallback_aba_v10 }}
+        env:
+          ISSUE25_AGENT3_V10_RECEIPT_DIR: artifacts/agent3-issue25-native-trainer-aba-v10
+        run: node --test tests/agent3-issue25-native-trainer-aba-v10.native.test.cjs
+      - name: Archive all 24 native statuses, exact physical and Store root receipts, failures and source trainer forks
+        if: ${{ always() && inputs.issue25_native_trainer_fallback_aba_v10 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-issue25-native-trainer-aba-v10-${{ github.run_id }}
+          path: artifacts/agent3-issue25-native-trainer-aba-v10/
           if-no-files-found: warn
           retention-days: 14
 
