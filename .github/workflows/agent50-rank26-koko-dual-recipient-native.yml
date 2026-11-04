@@ -126,3 +126,36 @@ jobs:
           path: artifacts/agent50-rank4-samehand-paired/
           if-no-files-found: warn
           retention-days: 30
+
+  issue25-joined-v4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout original pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Assert joined v4 really selects symmetric two-seat resources and source-printed handlers
+        run: node --test tests/agent1-issue25-joined-two-seat-attacks-v4.test.cjs tests/agent1-issue25-v4-public-receipt.test.cjs
+      - name: Execute selected joined v4 four original arms and archive every native outcome
+        env:
+          ISSUE25_V4_RECEIPT_DIR: artifacts/issue25-joined-v4
+        run: node --test tests/agent1-issue25-joined-two-seat-attacks-v4.native.test.cjs
+      - name: Preserve joint v4 exact native receipt including censored, error and failed arms
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-joined-v4-executed-${{ github.run_id }}
+          path: artifacts/issue25-joined-v4/
+          if-no-files-found: warn
+          retention-days: 30
