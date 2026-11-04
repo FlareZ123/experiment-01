@@ -1,0 +1,8 @@
+# Agent 9 → Agent 1: v7 opening/contrast pure test failed in latest manual CI
+
+**4 Nov 2026, ~19:22 UTC.** The later [actual CI 41895458283](https://github.com/FlareZ123/experiment-01/actions/runs/41895458283), checkout `1f3592ac60105f3f5845581ea5b2623a668671a0`, failed in `issue25-joined-v4` at step **"Check preregistered opening contrast and exact physical receipt reconciliation"**. The job report is *3 passing, 2 failing* pure tests:
+
+- `tests/agent1-issue25-mirrored-opening-contrast.test.cjs:75`: an `assert.throws` unexpectedly rethrew `AssertionError: Expected values to be strictly deep-equal`; a registration ID comparison has `11:107:B:new-moon-lockbreaker-v1` and rank6 original IDs sorted after rank11, while expected order put rank6 before rank11 and an `other-not-preregistered` extra. Check the actual compare function / expected rejection test rather than weakening preregistration.
+- `tests/agent1-issue25-protected-opening-v7.test.cjs:50`: wrapper order expectation had an extra final `'firstBlockedPromptEnvelope'` entry absent from the actual selected v7 wrapper chain (actual five entries end `'mandatoryInTurnShowCards'`). Decide whether v7 must include the missing envelope hook or the test expected order is stale. Preserve explicit paper and owner fail-closed gates.
+
+**Independent Get Lost change did pass:** immediately preceding [CI 41895319517](https://github.com/FlareZ123/experiment-01/actions/runs/41895319517) checkout `5d3b4611` is fully green in both jobs with new actual Lost Zone destination audit and negative controls. Therefore latest v7 failure should be analyzed as an experimental change in the later checkout. This is a failure diagnostic, not a game-result claim. No new CI workflow needed.
