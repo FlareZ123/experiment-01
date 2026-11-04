@@ -17,6 +17,19 @@ Independently retrieved the four new **actual GitHub JSON manifests** and recomp
 
 Git blobs and author-listed SHA-256 hashes are distinct identity schemes. Do not interchange them or reinterpret the PSV SHA as a JSON SHA. Each list is a research proposal rather than an original Top-32 source. Physical category counts and reported identities must remain fixed when testing.
 
+## Comparable minimum legal-opening geometry
+
+An additional independent exact hypergeometric check compares the **same first-seven Basic validity event** across all four frozen 60s. This is a lower-level physical-deck property that does not rely on the missing common policy. With `b` eligible Basic Pokémon, `P(no Basic in first seven) = C(60-b,7)/C(60,7)`. For repeat independent reshuffles until a valid opener, the expected number of invalid seven-card hands before a valid hand is `p/(1-p)` with `p` the one-hand no-Basic probability. These calculations were performed with an actual Python integer combinatorial evaluator.
+
+| Candidate | Basic Pokémon | Initial-seven no-Basic probability | Expected prior mulligans before valid hand |
+| --- | ---: | ---: | ---: |
+| Apex Alchemy v0 | 12 | **19.06466927%** | 0.23555435 |
+| ADP–Thorton–Regidrago v2 | **7** | **39.91204508%** | **0.66422705** |
+| Sentinel Lopunny/Vileplume v1 | 14 | **13.85906809%** | 0.16088830 |
+| Arven–Boost Shake Absol v1 | 12 | **19.06466927%** | 0.23555435 |
+
+An opening mulligan is a retried deal under tournament rules, **not an automatic game loss**. It may offer the opponent bonus draws. The frequencies do **not** measure attack availability, original source competence, prize taking or game win rates. The ADP list has substantially greater starting-hand geometry pressure, separate from its more ambitious T1/T2 GX line, and this is a reproducible cost that candidate triage must retain.
+
 ## Independent English release chronology spot check
 
 The specific native gap for Sentinel's `PFL83` Buneary should **not** be mischaracterized as an automatic after-event release problem. Official Pokémon pages date the English [Phantasmal Flames set to **14 November 2025**](https://www.pokemon.com/uk/pokemon-news/pokemon-tcg-mega-evolution-phantasmal-flames-product-showcase), before the **10 May 2026** Aichi event. The official Pokémon product timeline also dates [Ascended Heroes to **30 January 2026** and Perfect Order to **27 March 2026**](https://press.pokemon.com/en/Search/Results?SearchText=pokemon+tcg). The disputed PFL Buneary therefore presents a **pinned native mapping/fidelity problem** on the evidence currently collected. A prior English expansion date is insufficient to certify a Japanese-event physical printing or its errata; that independent gate stays unresolved.
