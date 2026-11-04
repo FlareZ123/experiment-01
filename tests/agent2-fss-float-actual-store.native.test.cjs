@@ -158,3 +158,122 @@ for(const seat of [0,1]){
     assert.equal(s.owner.hand.cards[0].fullName,'Forest Seal Stone SIT');
   });
 }
+
+
+/**
+ * Rank-3 original-printing continuation with actual colored/colorless
+ * payment. The three Capture Energy RCL copies are exactly the three in
+ * that registered original sixty: two on Snorlax, one on Bunnelby.
+ * A baseline FSS-first HOLD strands the funded Burrow attacker behind a
+ * retreat-4 Snorlax. The alternative Float Stone reduces its printed
+ * retreat by two, permitting an exact paid retreat and one real Burrow.
+ * This is a constructed same-physical-state paper opportunity witness,
+ * not a randomized game, opponent-policy verdict or win estimate.
+ *
+ * @param {0|1} seat Physical owner seat.
+ */
+function stageFundedRank3Bunnelby(seat){
+  const s=stage(seat);
+  const manager=initializeCards();
+  let id=29030000+seat*1000;
+  /** @param {string} printing */
+  const card=printing=>{
+    const c=manager.getCardByName(printing);
+    assert.ok(c,'Missing registered rank3 printing '+printing);
+    c.id=id++;
+    return c;
+  };
+  const bunnelby=card('Bunnelby PRC');
+  s.owner.bench[0].cards.splice(0);
+  s.owner.bench[0].cards.push(bunnelby);
+  s.benched=bunnelby;
+  const attach=(slot,count)=>{
+    for(let k=0;k<count;k++){
+      const energy=card('Capture Energy RCL');
+      slot.cards.push(energy);
+      slot.energies.cards.push(energy);
+    }
+  };
+  attach(s.owner.active,2);
+  attach(s.owner.bench[0],1);
+  const physical={
+    originalSourceRank:3,
+    seat,
+    active:s.owner.active.getPokemonCard().fullName,
+    activeEnergy:s.owner.active.energies.cards.map(c=>c.fullName),
+    bench:s.owner.bench[0].getPokemonCard().fullName,
+    benchEnergy:s.owner.bench[0].energies.cards.map(c=>c.fullName),
+    hand:s.owner.hand.cards.map(c=>c.fullName),
+    opposingActive:s.foe.active.getPokemonCard().fullName,
+    opposingDeck:s.foe.deck.cards.map(c=>c.fullName)
+  };
+  s.fullPhysicalFingerprint=createHash('sha256')
+    .update(JSON.stringify(physical)).digest('hex');
+  return s;
+}
+const {AttackAction}=native('game/store/actions/game-actions');
+const {ResolvePromptAction}=
+  native('game/store/actions/resolve-prompt-action');
+
+for(const seat of [0,1]){
+  test('rank3 funded Bunnelby genuinely mills only after FSS-first Float recovery seat '+seat,()=>{
+    const control=stageFundedRank3Bunnelby(seat);
+    const initialCost=new CheckRetreatCostEffect(control.owner);
+    control.store.reduceEffect(control.state,initialCost);
+    assert.equal(initialCost.cost.length,4);
+    assert.equal(control.owner.active.energies.cards.length,2);
+    assert.equal(control.owner.bench[0].energies.cards.length,1);
+    const untouched=chooseBaseline(control);
+    assert.equal(untouched.result,undefined);
+    assert.equal(untouched.audit.events[0].reason,'no-free-v-recipient');
+    assert.equal(control.owner.active.getPokemonCard().fullName,'Snorlax PGO');
+    assert.equal(control.foe.deck.cards.length,10);
+
+    const trial=stageFundedRank3Bunnelby(seat);
+    assert.equal(trial.fullPhysicalFingerprint,control.fullPhysicalFingerprint);
+    const treated=chooseSelected(trial);
+    const action=treated.result.result;
+    assert.ok(action instanceof PlayCardAction);
+    assert.equal(action.handIndex,1);
+    trial.store.dispatch(action);
+    assert.equal(trial.owner.hand.cards.length,1);
+    assert.equal(trial.owner.hand.cards[0],trial.heldStone);
+    assert.equal(trial.owner.active.tools[0],trial.heldFloat);
+    const reducedCost=new CheckRetreatCostEffect(trial.owner);
+    trial.store.reduceEffect(trial.state,reducedCost);
+    assert.equal(reducedCost.cost.length,2);
+    trial.store.dispatch(new RetreatAction(trial.owner.id,0));
+    assert.equal(trial.owner.active.getPokemonCard(),trial.benched);
+    assert.equal(trial.owner.active.energies.cards.length,1);
+    assert.equal(trial.owner.bench[0].energies.cards.length,0);
+    assert.equal(trial.owner.discard.cards.filter(
+      c=>c.fullName==='Capture Energy RCL').length,2);
+
+    const deckBefore=trial.foe.deck.cards.length;
+    trial.store.dispatch(new AttackAction(trial.owner.id,'Burrow'));
+    const acknowledged=[];
+    for(let j=0;j<8;j++){
+      const prompt=trial.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      assert.equal(prompt.constructor.name,'WaitPrompt',
+        'Unresolved nontrivial Burrow prompt requires a separate owner policy');
+      acknowledged.push(prompt.constructor.name);
+      trial.store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+    assert.equal(trial.store.hasPrompts(),false);
+    assert.equal(trial.foe.deck.cards.length,deckBefore-1);
+    console.log('AGENT2_RANK3_NECESSARY_FLOAT_BURROW',JSON.stringify({
+      rank:3,seat,fullPhysicalFingerprint:trial.fullPhysicalFingerprint,
+      sourcePrinting:['Snorlax PGO','Bunnelby PRC',
+        'Capture Energy RCL','Float Stone BKT','Forest Seal Stone SIT'],
+      baselineAction:'FSS-first-HOLD',baselineFreeRetreat:false,
+      baselineActiveRetreatUnits:4,baselineAttachedRetreatEnergy:2,
+      proposedAction:'attach-second-held-Float',
+      actualStoreFloatAccepted:true,actualPaidRetreatAccepted:true,
+      discardedCaptureEnergy:2,settledAttack:'Burrow',
+      actualOpponentDeckCardsDiscarded:deckBefore-trial.foe.deck.cards.length,
+      acknowledgements:acknowledged,qualifyingGames:0,
+      resultKind:'constructed-native-tactical-counterfactual'
+    }));
+  });
+}
