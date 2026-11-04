@@ -6,7 +6,7 @@ const {sampleUniformPositions}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 const {isIndexPermutation}=require('./prompt-integrity.cjs');
 
-const VERSION='agent26-origin-bound-attack-choices-v5';
+const VERSION='agent26-origin-bound-attack-choices-v6';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -275,7 +275,13 @@ function withOwnerOriginBoundAttackChoices(run,options){
             from.cards.includes(ref)).length,
           chosenNowInTarget:refs.filter(ref=>
             to.cards.includes(ref)).length,
-          physicalTransferConfirmed:before.chosenAllInSource&&
+          // A zero-card printed operation is a valid unchanged-zone no-op.
+          // It must never masquerade as evidence of physical transfer.
+          zeroCardNoopConfirmed:refs.length===0&&
+            from.cards.length===before.sourceCount&&
+            to.cards.length===before.targetCount,
+          physicalTransferConfirmed:refs.length>0&&
+            before.chosenAllInSource&&
             before.chosenInitiallyInTarget===0&&
             from.cards.length===before.sourceCount-refs.length&&
             to.cards.length===before.targetCount+refs.length&&
