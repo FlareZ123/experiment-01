@@ -29,20 +29,20 @@ test('Lillie print at six prizes provides highest own-only draw',()=>{
 });
 test('conservative Marnie and Iono are ranked by owner-public opponent gain',()=>{
   const marnie=chooseConservativeShuffleSupporter(
-    view(['Marnie SSH'],{
+    view(['Marnie SSH','Ultra Ball SVI'],{
       opponentPublic:{handCount:7,deckCount:30,prizeCount:3}
     }));
   assert.equal(marnie.family,'marnie');
-  assert.equal(marnie.score,4);
+  assert.equal(marnie.score,3);
   const iono=chooseConservativeShuffleSupporter(
-    view(['Iono PAL'],{
+    view(['Iono PAL','Ultra Ball SVI'],{
       ownPublic:{active:{},deckCount:30,prizeCount:5,
         resolvingSupporter:[],publicTurnRestrictions:{}},
       opponentPublic:{handCount:6,deckCount:30,prizeCount:2}
     }));
   assert.equal(iono.family,'iono');
   assert.equal(iono.drawEstimate.opponentDraw,2);
-  assert.equal(iono.score,4);
+  assert.equal(iono.score,3);
 });
 test('paper first-turn, quota, lock, hand size, draw advantage and DCI limits',()=>{
   assert.equal(chooseConservativeShuffleSupporter(view(['Marnie SSH'],{
@@ -87,7 +87,7 @@ test('explicit owner-only offers include competing eligible Supporters',()=>{
 });
 
 test('all offers obey owner Supporter quota and low-hand threshold',()=>{
-  const v=view(['Iono PAL']);
+  const v=view(['Iono PAL','Ultra Ball SVI']);
   assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,1);
   v.ownTurnResources.supporterPlayedTurn=1;
   assert.deepEqual(enumerateConservativeShuffleSupporterOffers(v),[]);
@@ -118,12 +118,26 @@ test('Marnie and Iono draw condition fails if neither remaining hand has a card'
   assert.equal(chooseConservativeShuffleSupporter(empty),null);
 });
 
-test('an opponent card or another owner hand card activates printed conditional draw',()=>{
+test('remaining owner hand card, rather than opponent count, proves printed draw',()=>{
   const oppHasCard=view(['Iono PAL'],{
     opponentPublic:{handCount:1,deckCount:30,prizeCount:2}
   });
-  assert.deepEqual(printedShuffleDrawCounts(oppHasCard,'iono'),
-    {ownDraw:6,opponentDraw:2});
+  const unknown={ownDraw:null,opponentDraw:null,
+    conditionalDrawTriggered:null,
+    unresolvedReason:'opponent-hand-movement-not-certified'};
+  assert.deepEqual(printedShuffleDrawCounts(oppHasCard,'iono'),unknown);
+  assert.deepEqual(printedShuffleDrawCounts(oppHasCard,'marnie'),unknown);
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(oppHasCard),[]);
+  const marnieOnly=view(['Marnie SSH'],{
+    opponentPublic:{handCount:6,deckCount:30,prizeCount:6}
+  });
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(marnieOnly),[]);
+  const protectedVariant=structuredClone(oppHasCard);
+  protectedVariant.opponentPrivate={hand:['Milotic protection']};
+  assert.deepEqual(printedShuffleDrawCounts(protectedVariant,'iono'),unknown);
+  const unprotectedVariant=structuredClone(oppHasCard);
+  unprotectedVariant.opponentPrivate={hand:['no known protection']};
+  assert.deepEqual(printedShuffleDrawCounts(unprotectedVariant,'iono'),unknown);
   const ownerHasExtra=view(['Iono PAL','Ultra Ball SVI'],{
     opponentPublic:{handCount:0,deckCount:30,prizeCount:2}
   });
@@ -162,7 +176,7 @@ test('Lillie full six-card draw counts another card shuffled to deck',()=>{
 });
 
 test('Marnie opponent draw capacity includes cards put on bottom',()=>{
-  const v=view(['Marnie SSH'],{
+  const v=view(['Marnie SSH','Ultra Ball SVI'],{
     opponentPublic:{handCount:4,deckCount:0,prizeCount:4}
   });
   const offers=enumerateConservativeShuffleSupporterOffers(v);
