@@ -64,7 +64,7 @@ function withNativeOwnerTrainerFrontier(work,deps){
   const recoveryPrints=recoveryHelper?
     require('./planning/owner-external-mee-basic-energy-metadata.cjs')
       .withVerifiedMEEBasicEnergyPrintings(
-        recoveryHelper.withSourcePromoAliases(
+        recoveryHelper.withSourceDisplayAliases(
           recoveryHelper.loadBundledPublicPrintMetadata(
             require('node:path').resolve(__dirname,'../../resources')))):null;
   let live=null,matched=0,exceptions=0,truncated=0;
