@@ -1,6 +1,13 @@
 name: Japanese Expanded historical legality checks
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'simulation/twinleaf/agent9-jp-expanded-structure.cjs'
+      - 'scripts/agent9-jp-expanded-source-audit.cjs'
+      - 'tests/agent9-jp-expanded-structure.test.cjs'
+      - '.github/workflows/aichi-jp-legality.yml'
   workflow_dispatch:
 
 permissions:
