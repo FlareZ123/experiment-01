@@ -61,11 +61,13 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
     return {name,count,category,printing,
       state:'printing-not-matched-in-existing-set-corpus',matchedIds:[]};
   });
-  const basicEnergyNames=new Set([
-    'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
-    'Psychic Energy','Fighting Energy','Darkness Energy','Metal Energy',
-    'Fairy Energy'
-  ]);
+  const basicEnergyTypes=[
+    'Grass','Fire','Water','Lightning','Psychic','Fighting',
+    'Darkness','Metal','Fairy'
+  ];
+  const basicEnergyNames=new Set(basicEnergyTypes.flatMap(type=>[
+    type+' Energy','Basic '+type+' Energy'
+  ]));
   const byName=new Map();
   for(const card of manifest.cards){
     if(card.category==='Energy'&&basicEnergyNames.has(card.name))continue;
