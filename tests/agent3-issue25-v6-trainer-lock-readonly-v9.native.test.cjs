@@ -18,6 +18,8 @@ test('same eight v6 original native deals with untouched policy and two existing
       result.gates.completeOriginalNativeParity,
     observedOwnerTrainerCensusAllEight:
       result.gates.observedOwnerTrainerCensusAllEight,
+    observedOwnerTrainerCensusOnUnabortedRows:
+      result.gates.observedOwnerTrainerCensusOnUnabortedRows,
     observedOwnerTrainerFlag:result.actualObservedOwnerTrainerFlag,
     observedPassiveWindowFlag:result.actualObservedPowerWindowFlag,
     nativeRows:result.rows.map(row=>({
@@ -42,6 +44,8 @@ test('same eight v6 original native deals with untouched policy and two existing
   assert.equal(result.actualRunnerSourceIndependent,true);
   assert.equal(result.gates.completeOriginalNativeParity,true,
     'Read-only observer changed physical deal, native roots or disposition');
-  assert.equal(result.gates.observedOwnerTrainerCensusAllEight,true,
-    'A genuine owner-root Trainer observer was missing');
+  assert.equal(result.gates.observedOwnerTrainerCensusOnUnabortedRows,true,
+    'A genuine owner-root Trainer observer was missing on a returned arm');
+  assert.equal(result.gates.observedOwnerTrainerCensusAllEight,false,
+    'The frozen engine-error arm cannot be credited with a complete observer');
 });
