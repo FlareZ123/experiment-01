@@ -191,6 +191,7 @@ jobs:
           node --test tests/agent10-issue25-receipt-independent-audit.test.cjs
           node --test tests/agent10-issue25-native-horizon-boundary.test.cjs
           node --test tests/agent10-fixed-candidate-familywise-zero-loss.test.cjs
+          node --test tests/agent10-heterogeneous-balanced-one-loss-cert.test.cjs
       - name: Verify Agent5 exact original ADP alternate Switch and opening Basic-priority resource frontiers
         run: node --test tests/agent5-adp-switch-first8-exact.test.cjs tests/agent5-adp-setup-active-priority.test.cjs tests/agent5-adp-lele-setup-collision.test.cjs
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
