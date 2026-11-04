@@ -34,7 +34,8 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
     // the exact ID, name and supertype checks below remain mandatory.
     const indexed=sets.filter(s=>s.ptcgoCode===printing.set);
     const promoPrefixes={SMP:{id:'smp',promoPrefix:'SM'},
-      XYP:{id:'xyp',promoPrefix:'XY'}};
+      XYP:{id:'xyp',promoPrefix:'XY'},
+      BWP:{id:'bwp',promoPrefix:'BW'}};
     const promoPrefix=promoPrefixes[printing.set];
     const promo=promoPrefix && /^\d+$/.test(String(printing.number)) ?
       [promoPrefix]:[];
@@ -53,15 +54,27 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
       const id=set.id+'-'+(set.promoPrefix||'')+
         String(printing.number);
       for(const card of cards){
-        // The published source uses the white diamond suit glyph (♢)
-        // for Prism Star, while the bundled card name uses white diamond
-        // (◇). Accept that one glyph-only printing label variation only
-        // when the resolved exact-ID card explicitly has Prism Star subtype.
-        const verifiedPrismLabel=category==='Pokémon' &&
-          name.endsWith(' ♢')&&
-          card.name===name.slice(0,-1)+'◇' &&
+        // Exact printed-card IDs can have local names with house-style
+        // suffixes. Allow only observed, subtype-verified display variants,
+        // preserving card ID, supertype and source set/number requirements.
+        const verifiedPrismLabel=
+          name.endsWith(' ♢')&&card.name===name.slice(0,-1)+'◇'&&
           card.subtypes?.includes('Prism Star');
-        if(card.id===id&&(card.name===name||verifiedPrismLabel)&&
+        const teamFlareCardIds={
+          'Battle Compressor':'xy4-92',
+          'Robo Substitute':'xy4-102',
+          'Target Whistle':'xy4-106'
+        };
+        const verifiedTeamFlareLabel=category==='Trainer' &&
+          card.id===teamFlareCardIds[name] &&
+          card.name===name+' Team Flare Gear' &&
+          card.subtypes?.includes('Item');
+        const verifiedUnitEnergyAbbreviation=category==='Energy' &&
+          name==='Unit Energy LPM'&&card.id==='sm5-138' &&
+          card.name==='Unit Energy LightningPsychicMetal' &&
+          card.subtypes?.includes('Special');
+        if(card.id===id&&(card.name===name||verifiedPrismLabel||
+             verifiedTeamFlareLabel||verifiedUnitEnergyAbbreviation)&&
             ((category==='Pokémon'&&card.supertype==='Pokémon')||
               (category==='Trainer'&&card.supertype==='Trainer')||
               (category==='Energy'&&card.supertype==='Energy'))){
