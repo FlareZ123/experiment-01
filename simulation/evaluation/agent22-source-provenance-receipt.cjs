@@ -68,8 +68,8 @@ function sourceProvenanceReceipt(
       observedNativeId:observed?.resolvedId??null,
       observedResolverReason:observed?.reason??null,
       nativeResolutionStatus:!aliasesAvailable?'not-assessed':
-        observed?'native-alias-observed':
-          nativePlan.status==='ready'?'native-exact-or-unexplained':'not-resolved',
+        nativePlan.status!=='ready'?'not-resolved':
+          observed?'native-alias-observed':'native-exact-or-unexplained',
       actualNativePrinting:'unverified',
       paperSemanticEquivalence:'unverified'
     };
@@ -77,7 +77,7 @@ function sourceProvenanceReceipt(
   // All dated-art rows should have a corresponding explicit substitution if
   // the actual resolver claims this full 60 is ready. A native ID that silently
   // omits source printing cannot be certified as an exact-source mapping.
-  const datedRowsAccountedFor=!nativePlan||nativePlan.status!=='ready'||
+  const datedRowsAccountedFor=Boolean(nativePlan?.status==='ready') &&
     mappings.every(x=>x.nativeResolutionStatus==='native-alias-observed');
   const physical=physicalDealPair===null?'not-compared':(()=>{
     assert.equal(typeof physicalDealPair.matched,'boolean');
@@ -95,7 +95,8 @@ function sourceProvenanceReceipt(
     postEventArtCopies:scoped.reduce((n,x)=>n+x.count,0),
     engine_proxy_map:{
       status:!nativePlan?'not-assessed':
-        datedRowsAccountedFor?'resolver-receipts-present':'missing-art-receipts',
+        nativePlan.status!=='ready'?'native-deck-unresolved':
+          datedRowsAccountedFor?'resolver-receipts-present':'missing-art-receipts',
       planEngineRevision:plan?.engineRevision??null,
       nativeDeckStatus:nativePlan?.status??null,
       nativeSubstitutionCount:aliases.length,
