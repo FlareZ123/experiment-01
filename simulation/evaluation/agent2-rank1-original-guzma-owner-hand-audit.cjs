@@ -77,7 +77,7 @@ function withOriginalRank1GuzmaWindowObservation(execute){
           proposedAction:action?.constructor.name??null,
           proposedCard:action?.constructor.name==='PlayCardAction'?
             ownHand[action.handIndex]??null:null,
-          paperGuzmaOpportunity:direct>0&&
+          paperGuzmaOpportunity:state.turn>1&&direct>0&&
             sourceBench.length>0&&ownerBench.length>0&&
             player.supporterTurn!==state.turn&&
             !player.cannotPlaySupporterCards});
@@ -157,6 +157,8 @@ function run(){
         x.directGuzmaCopiesInOwnHand>0).length,
       observedPossiblePaperGuzmaWindows:decisions.filter(x=>
         x.paperGuzmaOpportunity).length,
+      distinctSupportedGuzmaTurns:[...new Set(decisions.filter(x=>
+        x.paperGuzmaOpportunity).map(x=>x.globalTurn))],
       opponentActualSourceTurnActions:game.rootActionLedger.filter(x=>
         x.playerSlot===OPPONENT_SEAT&&
         ['PlayCardAction','AttackAction','RetreatAction','PassTurnAction']
