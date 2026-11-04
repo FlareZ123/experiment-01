@@ -186,3 +186,47 @@ test('32 rounds of synthetically favorable outcomes can pass the pure math gate'
   assert.equal(got.competitiveQualified,false);
   assert.equal(got.lowerFieldDelta>0,true);
 });
+
+test('predeal censored source arm retains registered pair without invented metadata',()=>{
+  const data=fixture();
+  const missing=data.cells[0].samples[0];
+  missing.referenceStatus='CENSORED';
+  missing.referenceSourceFingerprint=null;
+  missing.referenceFirstTurnSeat=null;
+  const got=attestedMarginalFieldDelta(data);
+  assert.equal(got.registeredPairs,128);
+  assert.equal(got.censoredPairs,1);
+  assert.equal(got.unknownSourceOpenings,1);
+  assert.equal(got.differingSourceOpenings,127);
+  assert.equal(got.actualFirstTurnUnknownPairs,1);
+  assert.equal(got.actualFirstTurnMismatchedPairs,127);
+  assert.equal(got.observedLower,127/128);
+  assert.equal(got.observedUpper,1);
+  assert.equal(got.competitiveQualified,false);
+});
+
+test('predeal censored arm can miss observed first turn under balanced design',()=>{
+  const data=fixture({starts:[0,1]});
+  const missing=data.cells[0].samples[0];
+  missing.challengerStatus='CENSORED';
+  missing.challengerSourceFingerprint=null;
+  missing.challengerFirstTurnSeat=null;
+  const got=attestedMarginalFieldDelta(data);
+  assert.equal(got.startControl,'BALANCED_FIRST_TURN');
+  assert.equal(got.actualFirstTurnUnknownPairs,1);
+  assert.equal(got.unknownSourceOpenings,1);
+  assert.equal(got.registeredPairs,256);
+});
+
+test('qualified outcomes cannot evade observed source or first turn evidence',()=>{
+  const ref=fixture();
+  ref.cells[0].samples[0].referenceSourceFingerprint=null;
+  assert.throws(()=>attestedMarginalFieldDelta(ref),TypeError);
+  const starter=fixture();
+  starter.cells[0].samples[0].referenceFirstTurnSeat=null;
+  assert.throws(()=>attestedMarginalFieldDelta(starter),TypeError);
+  const undefinedSource=fixture();
+  undefinedSource.cells[0].samples[0].referenceStatus='CENSORED';
+  delete undefinedSource.cells[0].samples[0].referenceSourceFingerprint;
+  assert.throws(()=>attestedMarginalFieldDelta(undefinedSource),TypeError);
+});
