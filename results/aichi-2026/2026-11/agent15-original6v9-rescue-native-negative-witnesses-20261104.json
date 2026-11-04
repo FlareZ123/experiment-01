@@ -1,0 +1,151 @@
+{
+  "schema": "agent15-original6v9-rescue-native-negative-witnesses-v1",
+  "date": "2026-11-04",
+  "reproducibility": {
+    "workflow_run_id": 41885760729,
+    "workflow_url": "https://github.com/FlareZ123/experiment-01/actions/runs/41885760729",
+    "workflow_head": "217b0baa39c9b90b55f6cb9f7f5c49422268a055",
+    "artifact_id": 13350578924,
+    "artifact_name": "agent5-generic-trainer-frontier-original5-vs11",
+    "archive_member": "agent5-generic-owner-trainer-frontier-original-6-v-9.json",
+    "zip_sha256": "941bae2ee81bd4a644d2ec688594dbe0623178e4052db924f4b1330309698e48",
+    "raw_json_sha256": "fbe093d2a6921f48bd46cdd4801aeb31637148de51d65b771a0ae5caecc57748",
+    "engine": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "bounded": true,
+    "noPolicyChange": true,
+    "fullGameOutcomeQualified": false
+  },
+  "source": {
+    "sourceManifest": "results/aichi-2026/full-decklists.json",
+    "originalRanks": [
+      6,
+      9
+    ],
+    "originalSourcedExact60BothSeats": true,
+    "seedBase": 20261114,
+    "firstSeed": 3858002039,
+    "secondSeed": 1192664073
+  },
+  "firstRootAudit": {
+    "physicalDealArms": 2,
+    "controlObservedReplayEqualInBothArms": true,
+    "nativeRootDecisions": 65,
+    "selectedNativeStoreAccepted": 65,
+    "rootsTruncated": 0,
+    "gameOutcomesCensoredByActionCap": 2,
+    "registeredRecoveryHeldRootCopyObservations": 94,
+    "rescueStretcherHeldRootCopyObservations": 24,
+    "rescueStretcherTargetStatus": {
+      "provenIneligible": 6,
+      "targetIdentityUnresolved": 2,
+      "targetExistsOtherConditionsUnknown": 16
+    },
+    "rescueStretcherNativeOfferedWithProvenNoPokemonTarget": 6,
+    "rescueStretcherChosenActionsAtThoseRoots": 0,
+    "uniqueCompetitiveGames": 0,
+    "statisticalIndependenceOfRoots": false
+  },
+  "witnesses": [
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 5,
+      "globalTurn": 2,
+      "handIndex": 4,
+      "publicDiscard": [
+        "Guzma BUS"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "PlayCardAction"
+    },
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 6,
+      "globalTurn": 2,
+      "handIndex": 3,
+      "publicDiscard": [
+        "VS Seeker PHF"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "PassTurnAction"
+    },
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 9,
+      "globalTurn": 4,
+      "handIndex": 3,
+      "publicDiscard": [
+        "VS Seeker PHF",
+        "Darkness Energy MEE"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "PlayCardAction"
+    },
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 10,
+      "globalTurn": 4,
+      "handIndex": 2,
+      "publicDiscard": [
+        "VS Seeker PHF",
+        "Darkness Energy MEE"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "AttackAction"
+    },
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 12,
+      "globalTurn": 6,
+      "handIndex": 2,
+      "publicDiscard": [
+        "VS Seeker PHF",
+        "Darkness Energy MEE"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "PlayCardAction"
+    },
+    {
+      "slot": "B",
+      "seed": 1192664073,
+      "seat": 0,
+      "sourceDeckRank": 9,
+      "rootOrdinal": 13,
+      "globalTurn": 6,
+      "handIndex": 2,
+      "publicDiscard": [
+        "VS Seeker PHF",
+        "Darkness Energy MEE"
+      ],
+      "nativeOffered": true,
+      "necessaryPaperEligibility": false,
+      "selectedAction": "UseStadiumAction"
+    }
+  ],
+  "limitations": [
+    "Repeated owner roots are correlated and can show the same held Item across turns.",
+    "The native enumerator's offers are not paper-legal moves.",
+    "The read-only screen never executed the proposed Rescue Stretcher.",
+    "No game completed within the 90-action cap; no win rate or policy payoff inferred.",
+    "Unknown public print identity is preserved as UNKNOWN rather than incorrectly vetoed."
+  ]
+}
