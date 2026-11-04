@@ -12,6 +12,8 @@ test('selected v3 genuine source-stamped opaque Night Watch and Future Sight Sto
   assert.equal(manifest.observedTwinleafGitCommit,
     manifest.expectedPinnedTwinleafGitlink);
   assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.equal(diagnostic.rawRowIdentityReconciliation.exactlyReconciled,true);
+  assert.deepEqual(diagnostic.rawRowIdentityReconciliation.conflictingRowIdentifiers,[]);
   assert.equal(diagnostic.attemptedRows.length,4);
   assert.equal(diagnostic.rawDecoderExecuted,false);
   assert.ok(diagnostic.sourceStampedNightWatch?.sourcePromptMarks>=1);
