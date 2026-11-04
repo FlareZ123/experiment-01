@@ -99,6 +99,23 @@ The first attempt **could not protect Crobat V** because an Active Basic was man
 
 The archived native receipt explicitly records `physicalDealFingerprint=null`, so no same-deal game-level A/B parity is yet attested. All experiments retain `competitiveQualifiedGames=0`.
 
+## Confirmed preregistered 32-deal rank 4 source-positive native Store result
+
+The subsequent [registered original rank 4 natural-32 plan](../methodology/registrations/agent50-owner-entry-priority-original4-natural32-20261104.md) was executed without adaptive seed selection. The frozen combinations were each source physical seat 0 and 1 crossed with sixteen predetermined seeds `20261120`–`20261135`, against the canonical unchanged rank 1 comparison 60, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+**[Manual CI 41882814279](https://github.com/FlareZ123/experiment-01/actions/runs/41882814279) fully passed**. The independent native job test `tests/agent50-owner-entry-priority-original4-natural32.native.test.cjs` reported **32 attempts, zero invalid Store setup attempts and 11 source-owner positive cases**, including **six** with source seat 0 and **five** with source seat 1. Source-positive means the authenticated rank 4 player had at least one eligible ordinary Basic and at least one eligible printed hand-to-Bench Ability Basic; the own-printed-Ability priority selected the ordinary Basic and the Store accepted its physical placement as Active. This gives a real native setup **positive witness** for preserving support entries while every source hand and seed was preregistered. The unselected native decoder was quarantined at its next unresolved public prompt.
+
+Frozen positive seed identifiers (source seat/seed) were:
+
+- Source seat 0: `20261122`, `20261123`, `20261124`, `20261127`, `20261131`, `20261134`.
+- Source seat 1: `20261125`, `20261128`, `20261129`, `20261132`, `20261133`.
+
+All 32 attempts have separate **locked atomic JSON + SHA-256 sidecars**, archived as [GitHub artifact 13350811292](https://github.com/FlareZ123/experiment-01/actions/runs/41882814279/artifacts/13350811292). The observed source-positive frequency **11/32 = 34.375%** is a description of these fixed sampled deals only. The theoretical exact rank 4 avoidable rate was **36.4514206082%** conditional on a valid source hand; their numerical proximity is a consistency check, not an unbiased or independent validation of a general population parameter. Identical deterministic seeds across physical seats may correlate setup hands.
+
+The **same CI job** also passed the full exact original-29 / candidate-four initial-Bench occupancy regression; exact mean rates are in the preceding section.
+
+**Important boundary:** Store-accepted pre-turn retention remains strictly weaker than proof of a later legal in-turn Ability activation, paper-payment correctness, strong original opponent responses, or full completed matches. A positive setup opening could have other tactical costs, especially lower initial Bench population. This is still **zero competitively qualified games and zero win-rate evidence**. Future same-physical-deal greedy-vs-protected policy comparison must explicitly evaluate the later effects and counterplay.
+
 ## Implication and follow-through
 
 The **selected** Issue #25 v3 setup may spend hand-held Tapu Lele-GX, Crobat V, Dedenne-GX or similar in the pre-turn setup, preventing their printed entry Abilities later. This materially affects policy expressiveness and can bias source-versus-candidate comparison: any policy claiming competent original opponents must account for the owner-visible option to retain those cards for a turn. Agent 4's single-Basic/optional-Bench-decline strategy and Agent 5's ADP counterexample show competing options, but this report makes **no unilateral change to the running frozen v3 selected policy**. An integration steward should preregister one explicit comparison under matched **physical** opening hands, owner-only observations, real Store settlements and paired original-source outcomes before changing the shared policy.
