@@ -44,7 +44,8 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
             });
             ordering=future.audit;
             return future.result;
-          },{committedSeed:'agent26-origin-bound-v1-20261104-frozen'});
+          },{committedSeed:'agent26-origin-bound-v1-20261104-frozen',
+            captureNativeZoneAudit:true});
           choices=attacks.audit;
           return attacks.result;
         }).result).result).result).result,{maxRecords:16});
@@ -86,6 +87,19 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
   assert.ok(kinds.includes('get-lost'),'expected printed Get Lost');
   assert.ok(choices.selected.every(e=>e.privateCardIdentitiesExposed===false));
   assert.ok(choices.printedSourceInvocations.length>=2);
+  assert.equal(choices.nativeZoneAuditEnabled,true);
+  assert.ok(choices.nativeRootStoreCount>=4);
+  assert.ok(choices.nativeZoneEvents.some(e=>
+    e.kind==='night-watch'&&e.physicalTransferConfirmed===true));
+  assert.ok(choices.nativeZoneEvents.some(e=>
+    e.kind==='get-lost'&&e.selectedCount===0&&
+    e.physicalTransferConfirmed===true));
+  assert.ok(choices.nativeZoneEvents.some(e=>
+    e.kind==='night-watch-shuffle'&&e.permutationAppliedExactly===true));
+  assert.ok(choices.nativeZoneEvents.every(e=>
+    e.acceptedByActualStore===true&&
+    e.sourceCardIdentityExposed===false));
+
   assert.ok(choices.resolvedFollowups.some(e=>
     e.kind==='night-watch-reveal'));
   const rank6=rows.find(r=>r.trial?.id==='6:0:A:champion-reference');
