@@ -20,6 +20,9 @@ test('selected v3 genuine source-stamped opaque Night Watch and Future Sight Sto
   assert.ok(diagnostic.sourceStampedNightWatch?.realStoreSelectedActions>=1);
   assert.ok(diagnostic.sourceStampedNightWatch?.acceptedDispatches>=1);
   assert.ok(diagnostic.sourceStampedNightWatch?.verifiedPhysicalHandDeckMovements>=1);
+  assert.ok(diagnostic.sourceStampedNightWatch?.markedSourceFollowupShowCards>=1);
+  assert.ok(diagnostic.sourceStampedNightWatch?.ownerSourceShowCardsActions>=1);
+  assert.ok(diagnostic.sourceStampedNightWatch?.nativeAcceptedSourceShowCardsAcks>=1);
   assert.equal(diagnostic.sourceStampedNightWatch?.policyCardIdentityReads,0);
   assert.ok(diagnostic.sourceStampedFutureSight?.ownerPromptSelections>=1);
   assert.equal(diagnostic.printedAttackOrigins?.decisionActionsIssuedByObserver,0);
