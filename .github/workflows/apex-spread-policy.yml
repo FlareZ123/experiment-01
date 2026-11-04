@@ -32,3 +32,16 @@ jobs:
         run: node --test tests/apex-spread-damage-resolver.test.cjs
       - name: Verify genuine Store own-versus-opponent Stadium replacement enumeration
         run: node --test tests/agent37-own-stadium-enumerator.native.test.cjs
+      - name: Reobserve exact archived original rank5 Sky Field missing offers with owner Stadium context
+        env:
+          AGENT7_STADIUM_PUBLIC_SNAPSHOT: 'true'
+        run: |
+          node simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
+          node scripts/agent37-source5-skyfield-stadium-audit.cjs agent5-generic-owner-trainer-frontier-original-5-v-11.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent37-original-source5-stadium-owner-context
+          path: agent5-generic-owner-trainer-frontier-original-5-v-11.json
+          retention-days: 30
+          if-no-files-found: warn
