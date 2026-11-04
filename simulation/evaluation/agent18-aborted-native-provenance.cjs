@@ -31,6 +31,12 @@ function extractNativeAbortProvenance(trial, receipt) {
     full == null ? 'NOT_CAPTURED' :
     full.schema !== FULL_DEAL_SCHEMA ||
       !SHA256.test(full.digestSha256) ? 'INVALID_FULL_DEAL' : 'VERIFIED';
+  const turnOrder=validReceipt?receipt.initialTurnOrderEvidence:null;
+  const firstTurnStatus=!validReceipt?'NO_VERIFIED_RECEIPT':
+    turnOrder===null||turnOrder===undefined?'NOT_CAPTURED':
+    turnOrder.verifiedByDrawLog===true &&
+      (turnOrder.firstTurnSlot===0||turnOrder.firstTurnSlot===1)?
+      'VERIFIED':'UNVERIFIED';
   const ledger = validReceipt ? receipt.rootActionLedger : null;
   const ledgerStatus = !validReceipt ? 'NO_VERIFIED_RECEIPT' :
     ledger == null ? 'NOT_CAPTURED' :
@@ -45,6 +51,9 @@ function extractNativeAbortProvenance(trial, receipt) {
       source.digestSha256 : null,
     fullPhysicalDealFingerprint: fullStatus === 'VERIFIED' ?
       full.digestSha256 : null,
+    actualStarterSeat:firstTurnStatus==='VERIFIED'?
+      turnOrder.firstTurnSlot:null,
+    verifiedFirstTurn:firstTurnStatus==='VERIFIED',
     nativeRootActionCount: ledgerStatus === 'VERIFIED' ?
       receipt.rootActionCount : null,
     nativeAbortProvenance: {
@@ -53,6 +62,7 @@ function extractNativeAbortProvenance(trial, receipt) {
       sourceDealStatus: sourceStatus,
       fullPhysicalDealStatus: fullStatus,
       acceptedRootLedgerStatus: ledgerStatus,
+      firstTurnStatus,
       aborted: true,
       paperLegalGameCertified: false,
       competitiveGameQualified: false

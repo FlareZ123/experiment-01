@@ -1121,6 +1121,8 @@ function runMatch(request) {
                     .update(String(error.message??error)).digest('hex'),
                   sourceDeal:sourceDealObserver?.result()??null,
                   fullDeal:fullDealObserver?.result()??null,
+                  initialTurnOrder:summarizeTurnOrder(
+                    actualFirstTurn,store.state.logs),
                   rootActionLedger,
                   preDispatchPublic:publicSnapshot(state),
                   preDispatchBoard:publicBoardSnapshot(state)
@@ -1220,6 +1222,8 @@ function runMatch(request) {
                     .update(String(error.message??error)).digest('hex'),
                   sourceDeal:sourceDealObserver?.result()??null,
                   fullDeal:fullDealObserver?.result()??null,
+                  initialTurnOrder:summarizeTurnOrder(
+                    actualFirstTurn,store.state.logs),
                   rootActionLedger,
                   preDispatchPublic:publicSnapshot(state),
                   preDispatchBoard:publicBoardSnapshot(state)
@@ -1471,6 +1475,8 @@ function runMatch(request) {
                 errorMessage:error.message,
                 sourceDeal:sourceDealObserver?.result()??null,
                   fullDeal:fullDealObserver?.result()??null,
+                  initialTurnOrder:summarizeTurnOrder(
+                    actualFirstTurn,store.state.logs),
                 rootActionLedger,
                 preDispatchPublic:publicBeforeDispatch,
                 preDispatchBoard:preDispatchAbortBoard

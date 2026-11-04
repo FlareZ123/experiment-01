@@ -25,6 +25,9 @@ function detached(value) {
  *   pendingPrompt?:string|null, redactedMessageDigest?:string|null,
  *   sourceDeal?:{seat:number,digestSha256:string}|null,
  *   fullDeal?:{schema:string,digestSha256:string}|null,
+ *   initialTurnOrder?:{firstTurnSlot:0|1|null,firstTurnPlayerId:number|null,
+ *     firstTurnPlayerName:string|null,firstDrawLogName:string|null,
+ *     verifiedByDrawLog:boolean}|null,
  *   rootActionLedger?:object[]|null, preDispatchPublic:object,
  *   preDispatchBoard:object[]|null}} evidence
  * @returns {object} Serialized, owner-information-safe abort evidence.
@@ -54,6 +57,20 @@ function nativeDispatchAbortEvidence(evidence) {
     assert.equal(fullDeal.schema,'initial-full-physical-deal-sha256-v1');
     assert.match(fullDeal.digestSha256,/^[0-9a-f]{64}$/);
   }
+  const turnOrder=evidence.initialTurnOrder??null;
+  if(turnOrder){
+    assert.equal(typeof turnOrder.verifiedByDrawLog,'boolean');
+    assert.ok(turnOrder.firstTurnSlot===null||
+      turnOrder.firstTurnSlot===0||turnOrder.firstTurnSlot===1);
+    if(turnOrder.verifiedByDrawLog){
+      assert.ok(turnOrder.firstTurnSlot===0||turnOrder.firstTurnSlot===1);
+      assert.ok(Number.isSafeInteger(turnOrder.firstTurnPlayerId));
+      assert.equal(typeof turnOrder.firstTurnPlayerName,'string');
+      assert.ok(turnOrder.firstTurnPlayerName.length>0);
+      assert.equal(turnOrder.firstDrawLogName,turnOrder.firstTurnPlayerName,
+        'Native first-turn draw evidence disagrees with observed first player');
+    }
+  }
   const roots = evidence.rootActionLedger == null ? null :
     detached(evidence.rootActionLedger);
   assert.ok(roots === null || Array.isArray(roots));
@@ -80,6 +97,10 @@ function nativeDispatchAbortEvidence(evidence) {
     ...(fullDeal ? {fullPhysicalDealFingerprint:{
       schema:fullDeal.schema,digestSha256:fullDeal.digestSha256
     }} : {}),
+    initialTurnOrderEvidence:turnOrder?{
+      firstTurnSlot:turnOrder.firstTurnSlot,
+      verifiedByDrawLog:turnOrder.verifiedByDrawLog
+    }:null,
     rootActionCount: roots?.length ?? null,
     rootActionLedgerSha256: roots ? createHash('sha256')
       .update(JSON.stringify(roots)).digest('hex') : null,
