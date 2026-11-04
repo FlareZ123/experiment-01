@@ -20,8 +20,8 @@ test('rank1 Shadow Rider exact source Basic opening coverage',()=>{
   assert.equal(r1.mainCount,3);
   assert.equal(r1.triggerCopies,3);
   close(r1.pMulligan,0.1385906808712801);
-  close(r1.pTwoOrMoreBasicsGivenValid,0.60582);
-  close(r1.extraBasicsUnusedGivenValid,0.89612);
+  close(r1.pTwoOrMoreBasicsGivenValid,0.6058236652488573);
+  close(r1.extraBasicsUnusedGivenValid,0.8961175565007619);
   close(r1.pMainSelectedFirstEligible,3/14);
   close(r1.pMainPresentGivenValid,0.36617850114);
   close(r1.pTriggerAndOtherBasicGivenValid,0.2688607002);
@@ -33,8 +33,8 @@ test('rank5 Mew Genesect exact source Basic opening coverage',()=>{
   assert.equal(r5.mainCount,4);
   assert.equal(r5.triggerCopies,2);
   close(r5.pMulligan,0.2224211414958592);
-  close(r5.pTwoOrMoreBasicsGivenValid,0.48778);
-  close(r5.extraBasicsUnusedGivenValid,0.65042);
+  close(r5.pTwoOrMoreBasicsGivenValid,0.48778311490570747);
+  close(r5.extraBasicsUnusedGivenValid,0.6504221009842429);
   close(r5.pMainSelectedFirstEligible,4/11);
   close(r5.pMainPresentGivenValid,0.5137737753);
   close(r5.pTriggerAndOtherBasicGivenValid,0.18533846718);
