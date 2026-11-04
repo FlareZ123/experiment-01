@@ -73,6 +73,9 @@ test('repeated owner Pass opportunities count within one physical trial',()=>{
  const result=auditPairedPasses({rows:[{id:row.trial.id}],base:control,rescue:treatment});
  assert.equal(result.matchedRegisteredTrials,1);
  assert.equal(result.base.visibleFundedVmaxPasses,2);
+ assert.equal(result.base.candidatePassRoots,2);
+ assert.equal(result.base.unobservedCandidatePassRoots,0);
+ assert.deepEqual(result.base.byOriginalRank['11'],{candidatePassRoots:2,capturedPasses:2,visiblePasses:2});
  assert.equal(result.base.distinctTrialsWithVisibleOpportunity,1);
  assert.equal(result.rescue.visibleFundedVmaxPasses,0);
 });
@@ -83,4 +86,11 @@ test('paired unequal physical deals and duplicated IDs are rejected',()=>{
    base:{rows:[row]},rescue:{rows:[different]}}),/mismatch/);
  assert.throws(()=>auditPairedPasses({rows:[{id:row.trial.id},{id:row.trial.id}],
    base:{rows:[row,row]},rescue:{rows:[row,row]}}),/ids.has/);
+});
+
+test('duplicate candidate Pass sidecars cannot inflate sampled coverage',()=>{
+ const {pass,row}=fixture();
+ row.candidateRepliesAfterSourceAttacks.push({candidateReplyTurnFinalPass:pass});
+ const archive={rows:[{id:row.trial.id}],base:{rows:[row]},rescue:{rows:[row]}};
+ assert.throws(()=>auditPairedPasses(archive),/Duplicate Pass capture/);
 });
