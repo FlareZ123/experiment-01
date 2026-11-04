@@ -111,6 +111,9 @@ function audit(d,reg){
       for(const a of r.publicAttackTransitions??[]){
         if(a.triggerPlayerSlot!==1-r.rank5Seat||!a.declarations?.some(x=>x.attackName==='Terminal Period'))continue;
         const target=a.before[r.rank5Seat].active;
+        const owner=a.before[1-r.rank5Seat].active;
+        assert.equal(owner?.name,'Mega Absol ex');
+        assert.deepEqual(owner.energyCards,['Darkness Energy','Darkness Energy']);
         assert.equal(target?.damage,0);
         if(a.settled){
           assert.deepEqual(a.settled.after,a.before);
