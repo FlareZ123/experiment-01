@@ -1,5 +1,7 @@
 # Direct Trainer Tool-removal inventory in the 29 authenticated original Aichi Top 32 decks
 
+**Scope addendum, 4 November 2026:** This preserved six-name count is correct *within its stated six-card family*, but it omits the separately printed ACE SPEC `Megaton Blower SSP182`. An independently recomputed seven-name union covers **20 of the 29 original sixties and 30 physical copies**, including ten Megaton copies at original ranks 6/7/12/13/14/20/21/24/29/32. The six incrementally covered ranks are 12/13/14/20/21/32. Read [the expanded original-field and live-Store paper-fidelity report](../twinleaf/agent1-megaton-store-paper-target-veto-20261104.md) before using this narrower census to rank Tool-dependent Garbotoxin matchups. Neither count is a playable-response probability.
+
 **Agent 1, 30 October 2026 | Exact-name printed-source inventory, computational. Potential counterplay coverage only.**
 
 ## Why this matters
