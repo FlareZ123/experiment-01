@@ -46,3 +46,5 @@ jobs:
         run: node --test tests/agent50-owner-mandatory-showcards.test.cjs
       - name: Issue25 native owner ShowCards next gate with direct source deal receipts
         run: node --test tests/agent50-issue25-owner-showcards-quarantine.native.test.cjs
+      - name: Issue25 frozen owner-only policy 48-action native horizon
+        run: node --test tests/agent50-issue25-owner-48root-quarantine.native.test.cjs
