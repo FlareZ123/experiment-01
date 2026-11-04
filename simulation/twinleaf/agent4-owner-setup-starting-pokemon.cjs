@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent4-owner-setup-starting-pokemon-v1-single-basic';
+const VERSION='agent4-owner-setup-starting-pokemon-v2-single-basic-bonus-decline';
 const PHASE_SETUP=1;
 const MESSAGE='CHOOSE_STARTING_POKEMONS';
 
@@ -30,6 +30,28 @@ function chooseOwnerStartingPokemon(input){
 }
 
 /**
+ * The pinned setup reducer reuses CHOOSE_STARTING_POKEMONS with min=0 after
+ * mulligan-compensation draws, where every selected card would go to Bench.
+ * Zero is a legal optional Bench placement. Retain all new Basics in hand
+ * under this deliberately conservative, deterministic baseline.
+ *
+ * @param {{actor:object,prompt:{kind:string,message:string,min:number}}} input
+ * @returns {{kind:string,handIndices:[]}}
+ */
+function chooseOwnerBonusBench(input){
+  assert.equal(input.actor.decisionKind,'owner-prompt');
+  assert.equal(input.actor.phase,PHASE_SETUP);
+  assert.equal(input.actor.globalTurn,0);
+  assert.equal(input.prompt.kind,'ChooseCardsPrompt');
+  assert.equal(input.prompt.message,MESSAGE);
+  assert.equal(input.prompt.min,0);
+  return Object.freeze({
+    kind:'owner-bonus-bench-decline',
+    handIndices:Object.freeze([])
+  });
+}
+
+/**
  * Reversible same-Store opening Pokemon prompt adapter. The decision function
  * receives detached own-hand printings and indices that the native validator
  * accepts. It receives no opponent hand/deck/Prizes and no native Card objects.
@@ -42,7 +64,7 @@ function chooseOwnerStartingPokemon(input){
  * @template T
  * @param {()=>T} run Synchronous pinned Store game.
  * @param {{SimpleTacticsAi?:Function,Store?:Function,ResolvePromptAction?:Function,
- *   observe?:Function,choose?:Function,validate?:Function}} [deps]
+ *   observe?:Function,choose?:Function,chooseBonus?:Function,validate?:Function}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerStartingPokemon(run,deps={}){
@@ -57,6 +79,7 @@ function withOwnerStartingPokemon(run,deps={}){
       .ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseOwnerStartingPokemon;
+  const chooseBonus=deps.chooseBonus??chooseOwnerBonusBench;
   const validate=deps.validate??assertValidPromptAction;
   const oldBot=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
   const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
@@ -67,8 +90,11 @@ function withOwnerStartingPokemon(run,deps={}){
   const audit={
     version:VERSION,stores:0,
     selected:0,accepted:0,rejected:0,
+    selectedInitial:0,selectedBonusDecline:0,
+    acceptedInitial:0,acceptedBonusDecline:0,
     physicallyPlacedActiveConfirmed:0,
     physicallyPlacedActiveMissing:0,
+    bonusDeclinePhysicalZonesPreserved:0,
     bySeat:{0:0,1:0},
     events:[],nativeScoringUsed:false,
     competitivePaperGamesQualified:0
@@ -76,50 +102,72 @@ function withOwnerStartingPokemon(run,deps={}){
   function decode(state){
     if(state!==live?.state)return oldBot.value.call(this,state);
     const prompt=state.prompts?.find(p=>p.result===undefined)??null;
+    const owner=state.players.find(p=>p.id===this.client?.id);
     if(state.phase!==PHASE_SETUP||state.turn!==0||
         prompt?.constructor?.name!=='ChooseCardsPrompt'||
         prompt.message!==MESSAGE||
-        prompt.playerId!==this.client?.id||
-        prompt.cards!==state.players.find(p=>p.id===this.client.id)?.hand||
-        prompt.options?.min!==1||prompt.options.max<1||
-        prompt.options.allowCancel!==false){
+        !owner||prompt.playerId!==owner.id||
+        prompt.cards!==owner.hand||
+        prompt.options?.allowCancel!==false){
       return oldBot.value.call(this,state);
     }
-    const seat=state.players.findIndex(p=>p.id===this.client.id);
+    const initial=prompt.options.min===1&&
+      Number.isSafeInteger(prompt.options.max)&&prompt.options.max>=1;
+    const bonus=prompt.options.min===0&&
+      Number.isSafeInteger(prompt.options.max)&&prompt.options.max>=0&&
+      owner.active.cards.length>0;
+    if(!initial&&!bonus)return oldBot.value.call(this,state);
+    const seat=state.players.indexOf(owner);
     assert.ok(seat===0||seat===1);
     const actor=observe(state,seat);
     assert.equal(actor.decisionKind,'owner-prompt');
-    assert.deepEqual(actor.ownHand,state.players[seat].hand.cards.map(
-      card=>card.fullName));
-    const cards=prompt.cards.cards;
-    const blocked=new Set(prompt.options.blocked);
+    assert.deepEqual(actor.ownHand,owner.hand.cards.map(card=>card.fullName));
+    const cards=owner.hand.cards;
+    const blocked=new Set(prompt.options.blocked??[]);
     const eligible=[];
-    for(let index=0;index<cards.length;index++){
-      if(blocked.has(index))continue;
-      if(prompt.validate([cards[index]],state)!==true)continue;
-      eligible.push(Object.freeze({index,printing:actor.ownHand[index]}));
+    if(initial){
+      for(let index=0;index<cards.length;index++){
+        if(blocked.has(index))continue;
+        if(prompt.validate([cards[index]],state)!==true)continue;
+        eligible.push(Object.freeze({index,printing:actor.ownHand[index]}));
+      }
     }
     const input=Object.freeze({actor,prompt:Object.freeze({
       kind:'ChooseCardsPrompt',message:prompt.message,
-      eligible:Object.freeze(eligible)
+      min:prompt.options.min,eligible:Object.freeze(eligible)
     })});
-    const choice=choose(input);
-    assert.equal(choice.kind,'owner-opening-single-basic');
+    const choice=initial?choose(input):chooseBonus(input);
+    assert.equal(choice.kind,initial?
+      'owner-opening-single-basic':'owner-bonus-bench-decline');
     assert.ok(Array.isArray(choice.handIndices)&&
-      choice.handIndices.length===1);
-    const chosen=choice.handIndices[0];
-    assert.ok(eligible.some(o=>o.index===chosen));
-    const physical=cards[chosen];
-    const action=new ResolvePromptAction(prompt.id,[physical]);
+      choice.handIndices.length===(initial?1:0));
+    const chosen=initial?choice.handIndices[0]:null;
+    if(initial)assert.ok(eligible.some(o=>o.index===chosen));
+    const physical=initial?cards[chosen]:null;
+    const action=new ResolvePromptAction(prompt.id,
+      initial?[physical]:[]);
     validate(state,action);
-    selected.set(action,{seat,physical,printing:actor.ownHand[chosen]});
+    selected.set(action,{
+      seat,initial,physical,
+      beforeHand:bonus?[...owner.hand.cards]:null,
+      beforeActive:bonus?[...owner.active.cards]:null,
+      beforeBench:bonus?owner.bench.map(slot=>[...slot.cards]):null
+    });
     audit.selected++;
+    if(initial)audit.selectedInitial++;
+    else audit.selectedBonusDecline++;
     audit.bySeat[seat]++;
     if(audit.events.length<16)audit.events.push({
-      seat,turn:state.turn,chosenOwnerHandIndex:chosen,
-      printing:actor.ownHand[chosen],eligibleCount:eligible.length
+      seat,turn:state.turn,
+      decision:initial?'initial-active':'bonus-bench-decline',
+      chosenOwnerHandIndex:chosen,
+      printing:initial?actor.ownHand[chosen]:null,
+      eligibleCount:initial?eligible.length:null
     });
     return action;
+  }
+  function sameCards(a,b){
+    return a.length===b.length&&a.every((card,i)=>card===b[i]);
   }
   function dispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==live){
@@ -131,9 +179,24 @@ function withOwnerStartingPokemon(run,deps={}){
     try{
       const result=oldDispatch.value.apply(this,[action,...args]);
       audit.accepted++;
-      const same=this.state.players[saved.seat].active.cards.includes(saved.physical);
-      if(same)audit.physicallyPlacedActiveConfirmed++;
-      else audit.physicallyPlacedActiveMissing++;
+      const owner=this.state.players[saved.seat];
+      if(saved.initial){
+        audit.acceptedInitial++;
+        if(owner.active.cards.includes(saved.physical))
+          audit.physicallyPlacedActiveConfirmed++;
+        else audit.physicallyPlacedActiveMissing++;
+      }else{
+        audit.acceptedBonusDecline++;
+        assert.ok(sameCards(owner.hand.cards,saved.beforeHand),
+          'Bonus Bench decline unexpectedly changed own hand');
+        assert.ok(sameCards(owner.active.cards,saved.beforeActive),
+          'Bonus Bench decline unexpectedly changed Active');
+        assert.equal(owner.bench.length,saved.beforeBench.length);
+        for(let i=0;i<owner.bench.length;i++)
+          assert.ok(sameCards(owner.bench[i].cards,saved.beforeBench[i]),
+            'Bonus Bench decline unexpectedly changed Bench');
+        audit.bonusDeclinePhysicalZonesPreserved++;
+      }
       return result;
     }catch(error){
       audit.rejected++;
@@ -162,4 +225,4 @@ function withOwnerStartingPokemon(run,deps={}){
 }
 
 module.exports={VERSION,MESSAGE,PHASE_SETUP,chooseOwnerStartingPokemon,
-  withOwnerStartingPokemon};
+  chooseOwnerBonusBench,withOwnerStartingPokemon};
