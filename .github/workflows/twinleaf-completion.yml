@@ -26,6 +26,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Validate both-seat PLS Dowsing paper payment and Prism Star replacement
+        run: node --test tests/agent36-dowsing-payment-guard.test.cjs tests/agent36-dowsing-payment-guard.native.test.cjs
       - name: Check pinned Girafarig Get Lost paper choices in real Store
         run: node --test tests/agent29-girafarig-getlost-paper-hook.native.test.cjs
       - name: Probe one complete game with a firm 1200-action limit
