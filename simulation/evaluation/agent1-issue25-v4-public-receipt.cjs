@@ -79,6 +79,7 @@ function buildReceipt(execution, options={}) {
       exactJoinedByTrialId: exactJoin
     },
     attempts,
+    observedSelectedOpening: diagnostic.protectedOpeningAudit ?? null,
     observedSelectedAttackLayers: {
       futureSight: diagnostic.sourceStampedFutureSight ?? null,
       nightWatch: diagnostic.sourceStampedNightWatch ?? null,
