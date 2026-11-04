@@ -125,7 +125,7 @@ function withSourceStampedGetLostOwner(run,deps={}){
     const result=dispatchDesc.value.apply(this,[action,...args]);
     audit.acceptedStoreActions++;
     const count=witness.chosen.length;
-    if(available&&other.discard.cards.length===before-count&&
+    if(count>0&&available&&other.discard.cards.length===before-count&&
        witness.chosen.every(c=>!other.discard.cards.includes(c)))
       audit.postDispatchPublicDiscardDepletions++;
     if(audit.selectedEvents.length<16)
