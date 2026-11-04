@@ -116,6 +116,25 @@ The **same CI job** also passed the full exact original-29 / candidate-four init
 
 **Important boundary:** Store-accepted pre-turn retention remains strictly weaker than proof of a later legal in-turn Ability activation, paper-payment correctness, strong original opponent responses, or full completed matches. A positive setup opening could have other tactical costs, especially lower initial Bench population. This is still **zero competitively qualified games and zero win-rate evidence**. Future same-physical-deal greedy-vs-protected policy comparison must explicitly evaluate the later effects and counterplay.
 
+## Matched genuine Store policy contrast: all 32 original rank 4 opening hands
+
+A **second prerecorded within-cohort** comparison has now resolved the causal setup movement question directly. Using [registration](../methodology/registrations/agent50-rank4-same-hand-greedy-vs-priority32-20261104.md), the actual selected all-Basics initial chooser and the opt-in one-Active entry-protection chooser each played the original rank 4 source 60 against the same rank 1 source 60 under **both physical seats × seeds `20261120`–`20261135`**, giving **32 matched pairs / 64 actual native Store setups**.
+
+The new read-only [native source-owner Store observer](../../simulation/twinleaf/agent50-owner-opening-store-receipt.cjs) captured the ordered full owner-hand printings *before* each genuine setup prompt response and tracked the actual native Store-accepted Active/Bench placement and retained owner-hand cards *immediately afterward*. All **32 pairs** matched the **exact same ordered source owner-hand printing sequence** across the two variants, with no failed native Store placement receipts and no original raw-State bot decoder execution. This is stronger evidence for same-opening action differences than comparing approximate independent seven-card distributions, although it does **not** attest identical full hidden decks/Prize orders across arms.
+
+**[CI 41884288485](https://github.com/FlareZ123/experiment-01/actions/runs/41884288485) concluded success. [Per-pair atomic JSON and SHA-256 receipts: artifact 13349769348](https://github.com/FlareZ123/experiment-01/actions/runs/41884288485/artifacts/13349769348).** The complete frozen pair set contained **11 positive source hands**, and in **all 11 matched pairs** the actual greedy setup consumed at least one in-turn Bench-entry Ability Basic into Active or Bench, while the native-protected setup selected an ordinary Basic and **retained all originally eligible entry support cards in the source owner's physical hand**. No opposite-hand/hidden deck information entered either owner's opening choice.
+
+Two representative physical movement contrasts (exact native printed names):
+
+| Source seat / seed | Actual selected greedy setup placements | Actual protected setup placement | Retained support cards under protected setup |
+| --- | --- | --- | --- |
+| Seat 0 / `20261122` | Tapu Lele-GX GRI Active; Gengar & Mimikyu-GX TEU Benched | Gengar & Mimikyu-GX TEU Active | Tapu Lele-GX GRI |
+| Seat 1 / `20261125` | Squawkabilly ex PAL Active; Eldegoss V RCL, Ditto Prism Star LOT and Dedenne GX UNB Benched | Squawkabilly ex PAL Active | Eldegoss V RCL and Dedenne GX UNB |
+
+The matched success validates **pre-turn native Store placement and retention**, and the initial hand order matching prevents a misleading claim based merely on two unrelated starting hands. It does not show that held cards were played during a later turn, that their optional Abilities successfully resolved, or that one policy won more games. The complete original opponent response policy and paper-correct attack/payment and terminal gates are still unqualified. The protected **single-Active** variant deliberately begins with zero Benched Pokémon, even in hands where the selected greedy strategy placed ordinary Pokémon; the cost in early knockout vulnerability must be tested alongside the retained entry option.
+
+The **11/32** positive source-hand count comes from the *same registered cohort* as the earlier natural original rank4 trial, rather than constituting 11 fresh independent replications. **Competitively qualified games: 0.**
+
 ## Implication and follow-through
 
 The **selected** Issue #25 v3 setup may spend hand-held Tapu Lele-GX, Crobat V, Dedenne-GX or similar in the pre-turn setup, preventing their printed entry Abilities later. This materially affects policy expressiveness and can bias source-versus-candidate comparison: any policy claiming competent original opponents must account for the owner-visible option to retain those cards for a turn. Agent 4's single-Basic/optional-Bench-decline strategy and Agent 5's ADP counterexample show competing options, but this report makes **no unilateral change to the running frozen v3 selected policy**. An integration steward should preregister one explicit comparison under matched **physical** opening hands, owner-only observations, real Store settlements and paired original-source outcomes before changing the shared policy.
