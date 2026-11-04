@@ -1,0 +1,40 @@
+{
+  "version": "agent25-natural-full60-hns-ball-payment-owner-v1-precommit",
+  "date": "2026-11-04",
+  "experiment": "Owner-visible hand discard decision on genuine Quick Ball prompt in natural complete 60 source games",
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "fixedSourceRegistration": "results/als/registrations/agent25-dhelmise-v2-native-three-lock-smoke-20261101.json",
+  "priorControlCIRun": 41764206685,
+  "priorControlArtifact": 13291474602,
+  "sourceRanks": [
+    6,
+    10,
+    11
+  ],
+  "candidateSeatIndices": [
+    0,
+    1
+  ],
+  "seedsByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "maximumRootActions": 120,
+  "candidateDeckUnchanged": true,
+  "originalSourceDecksUnchanged": true,
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baseCandidateOwnerCompressorPolicy": true,
+  "treatment": "Same owner Compressor policy plus strictly owner-visible Quick Ball CHOOSE_CARD_TO_DISCARD donor preference, only if the SimpleTacticsAi independently chose to play Quick Ball while holding Battle Compressor and Dhelmise, and when a printed HNS donor is physically offered",
+  "doesNotForceQuickBallPlay": true,
+  "paperGuard": "existing reversible HNS count hook and registered source action/payment/physical-zone guards unchanged",
+  "scope": "All six actual original-source seeded games, including no Quick Ball prompts, action caps, native exceptions and zero-selection cases",
+  "outcomes": "selective root action and physically accepted cost; record all native attempt statuses",
+  "caveats": [
+    "Prior controls were run at the earlier repo SHA; native decks and seeds same but source physical deals may mismatch under policy differences",
+    "Paper-perfect native and opponent decision competence not established",
+    "Natural terminal is not a competitive game win",
+    "Opponent hidden hand/deck/Prizes not consulted by proposed chooser"
+  ],
+  "qualifiedGames": 0
+}
