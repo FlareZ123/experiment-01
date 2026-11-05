@@ -1,0 +1,16 @@
+{
+  "schema": "agent4-aftersetup-96root-original-volt-abort-readout-v1",
+  "registeredAtUTC": "2026-11-05T21:00:00Z",
+  "researchClass": "retrospective-readout-only-not-new-wins",
+  "sourceRun": 42107564422,
+  "sourceExperiment": "results/aichi-2026/registrations/agent4-mail-postsetup-original-eight-96root-extension-v3-20261105.json",
+  "registeredTrial": "6:100:A:new-moon-lockbreaker-v1",
+  "pairedChampionTrial": "6:100:A:champion-reference",
+  "knownNativeEvent": "source rank6 Iron Thorns Volt Cyclone turn17 accepted public root88, then native error; paper payoff and reply unverified",
+  "exactPolicyAndPrintedSixtiesUnchanged": true,
+  "exactOriginalEightSeededNativeRequests": 32,
+  "expectedAfterSetupPolicyPhysicalRngProtocol": "per-seat-policy-and-physical-shuffle-after-setup-prng-v1",
+  "output": "native 96root replay + post-game redacted abort stage and prompt class, source public face-up Active Energy/board, accepted action tail, candidate first subsequent root",
+  "prohibited": "no hidden deck/hand/Prize disclosure to bot, no post-hoc selection of new seed, no deletion of failures, no paper-win assertion",
+  "zeroQualifiedGames": true
+}
