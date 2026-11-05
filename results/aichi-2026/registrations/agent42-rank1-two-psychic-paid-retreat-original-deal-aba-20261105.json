@@ -1,0 +1,60 @@
+{
+  "schema": "agent42-original-rank1-native-t34-two-psychic-paid-retreat-a-b-a-v1",
+  "registrationTimestampUtc": "2026-11-05T04:23:37.499Z",
+  "researchClass": "posthoc-previously-observed-source-receipt, retrospective same-physical-deal mechanism fork",
+  "experimentalGoal": "Assess physical two-basic-Psychic owner-paid Retreat instead of selected Float Stone at the exact rank1 source turn34, preserving the full originally accepted 60s and actual candidate reply.",
+  "historicalSourceWitness": {
+    "seed": 884910343,
+    "originalSourceRank": 1,
+    "originalTrialId": "1:432:A:new-moon-lockbreaker-v1",
+    "candidateSlot": "A",
+    "sourceSeat": 1,
+    "candidateSeat": 0,
+    "ownerTurn": 34,
+    "originalSelectedToolRootOrdinal": 163,
+    "originalSelectedRetreatRootOrdinal": 164,
+    "originalSelectedMaxGeistRootOrdinal": 168,
+    "originalWinClaim": "none; native developmental outcome only"
+  },
+  "frozenInput": {
+    "registrationPath": "results/aichi-2026/registrations/agent42-selected-v3-rank1-independent-heldout-20261103.json",
+    "registrationGitBlob": "7bdaa9c551ae1ce5d4bb818e71c21c8675a355f8",
+    "selectedV3ManifestPath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
+    "selectedV3ManifestGitBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
+    "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "policyModeId": "selected-v3-paper-plus-funded-mobility"
+  },
+  "actionCap": 240,
+  "modes": [
+    {
+      "id": "original-selected-v3-control-a",
+      "actorTwoUnitPaidRetreatRoot": false
+    },
+    {
+      "id": "native-two-basic-psychic-paid-retreat-at-owner-turn34",
+      "actorTwoUnitPaidRetreatRoot": true,
+      "actorTwoUnitPaidRetreatTargetTurn": 34
+    },
+    {
+      "id": "original-selected-v3-control-b",
+      "actorTwoUnitPaidRetreatRoot": false
+    }
+  ],
+  "expectedNativeAttempts": 3,
+  "sourceAndCandidateOriginalPrintingsUnchanged": true,
+  "ownerOnlyPolicyInBothSeats": true,
+  "sourceOwnerPaymentHookReadonly": true,
+  "comparison": "A/B/A identical source and complete physical starting deals, same initial chosen source roots until first experimental divergence, exact source paid Physical Energy cards, settled attacks and immediate candidate continuation; reject paper-win claims.",
+  "validityGuards": [
+    "actual native Store paid two distinct physical Basic Psychic Energies",
+    "original source Active VMAX with two attached Psychic and second funded VMAX on Bench",
+    "exact original opponent 60 with real candidate actions",
+    "no simulator win-rate claim or timing qualification",
+    "never read opponent hidden cards for decision",
+    "retain all roots, caps and engine errors",
+    "paper owner opportunity constraints and exact opponent next-turn root",
+    "no changes to upstream Twinleaf code"
+  ],
+  "competitiveQualifiedGames": 0,
+  "fieldWinRate": null
+}
