@@ -225,83 +225,33 @@ function withSourceLetterOwnerSearch(next,deps){
  */
 function runAtInnermostNativeStore(dependencies){
   const {registration}=dependencies;
-  const originalPrize=require('../twinleaf/agent21-owner-first-prize-reveal.cjs')
-    .withOwnerFirstPrizeReveal;
-  const steward=require(
-    './agent36-issue25-steward-innermost-prize-v5.cjs');
   const agent35=require('./agent35-rank11-source-letter-pass37-fork.cjs');
   const gameAudits=[];
-  function prizeWithOwnerEnergySearch(next){
-    return originalPrize(()=>{
-      const selected=withSourceLetterOwnerSearch(next,{
-        ...dependencies,innermostGame:true,
-        onAudit:audit=>gameAudits.push({...audit})
-      });
-      return selected.result;
+  function sourceHook(next,context){
+    assert.equal(context.registration.selectedOriginalId,
+      registration.selectedOriginalId);
+    return withSourceLetterOwnerSearch(next,{
+      ...dependencies,innermostGame:true,
+      onAudit:audit=>gameAudits.push({...audit})
     });
   }
-  const innerLayer=next=>steward.withStewardInnermostOwnerPrompts(
-    next,{prize:prizeWithOwnerEnergySearch});
-  const originalFork=agent35.withLetterFork;
-  function auditedFork(next,options){
-    const observed=originalFork(next,options);
-    const rows=observed.result?.rawDevelopment?.rows??[];
-    const selected=rows.find(row=>
-      (row.trial?.id??row.id)===registration.selectedOriginalId);
-    const diagnostic={
-      version:VERSION,
-      sourceId:registration.selectedOriginalId,
-      rows:rows.length,
-      selectedFound:!!selected,
-      sourceDealFingerprint:selected?.sourceDealFingerprint??null,
-      fullPhysicalDealFingerprint:
-        selected?.fullPhysicalDealFingerprint??null,
-      originalSourceTrialStatus:selected?.status??null,
-      originalSourceAcceptedRoots:
-        selected?.rootActionLedger?.length??null,
-      inGameAuditCount:gameAudits.length,
-      sourceItemDispatches:gameAudits.reduce((n,x)=>
-        n+x.printedLetterNativeDispatches,0),
-      sourcePromptResponses:gameAudits.reduce((n,x)=>
-        n+x.proposedOwnerSearchAnswers,0),
-      sourcePromptSettlements:gameAudits.reduce((n,x)=>
-        n+x.nativeResolvedAnswers,0)
-    };
-    process.stdout.write('AGENT3_INNER_PREFLIGHT '+
-      JSON.stringify(diagnostic)+'\n');
-    return observed;
+  function matchedSourceFork(next,options){
+    return agent35.withLetterFork(next,{
+      ...options,withOwnerSearchHook:sourceHook
+    });
   }
-  const result=agent35.run({
-    withLetterFork:auditedFork,
-    runner:()=>steward.runStewardInnermostPrizeV5({innerLayer})
-  });
-  assert.equal(gameAudits.length,8,'All eight actual source games audited');
-  const fields=[
-    'activeRegisteredMatches','realTargetStores',
-    'printedLetterNativeDispatches','matchedLiveOwnerSearchPrompts',
-    'proposedOwnerSearchAnswers','nativeResolvedAnswers',
-    'nativeRejectedAnswers','exactOriginalEnergyObjectsToOwnerHand',
-    'ownerSearchAnswersUnsettled','noPromptAfterLetter',
-    'nonMatchingPromptShapes','targetDecoderVisits',
-    'authenticatedLiveStateDecoderVisits',
-    'matchedOwnerPromptDecoderVisits','failedNativePromptValidation'
-  ];
+  // Agent35's frozen source label invokes this exact seam once, after its
+  // source-only Pass override and all selected v5 policy layers. The baseline
+  // selected v5 runner and other seven games are completely unchanged.
+  const result=agent35.run({withLetterFork:matchedSourceFork});
+  assert.equal(gameAudits.length,1,
+    'Exactly the frozen rank11 source game may receive this late hook');
   const audit={
-    schema:VERSION,sourceId:registration.selectedOriginalId,
-    innermostGameWrapperInstalled:gameAudits.length,
-    originalSourceOnlyItemFork:true,opponentHiddenZoneInspected:false,
-    zeroQualifiedGames:true,postAnswerPendingMessages:[],
-    searchPromptShape:null
+    ...gameAudits[0],sourceHookScope:'one-original-source-id-only',
+    innermostGameWrapperInstalled:1
   };
-  for(const field of fields){
-    audit[field]=gameAudits.reduce((n,row)=>n+(row[field]??0),0);
-  }
-  for(const game of gameAudits){
-    audit.postAnswerPendingMessages.push(...game.postAnswerPendingMessages);
-    if(game.searchPromptShape)audit.searchPromptShape=game.searchPromptShape;
-  }
   assert.equal(audit.printedLetterNativeDispatches,1,
-    'Only the frozen source Item intervention may trigger the selection');
+    'Source hook must observe the single native Professor Letter Item');
   return {result,audit,gameAudits};
 }
 
