@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent8-owner-wondertag-confirm-search-v2-selector';
+const VERSION = 'agent8-owner-wondertag-confirm-search-v3-settlement-custody';
 
 /**
  * Affirm a genuinely offered Wonder Tag search and choose one qualifying
@@ -49,7 +49,8 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
   const submitted = new WeakMap();
   const audit = {version:VERSION,confirmOffers:0,searchOffers:0,
     confirmed:0,selectedSupporters:0,emptySearches:0,
-    nativeAccepted:0,nativeRejected:0,
+    nativeAccepted:0,nativeRejected:0,nativeUnsettled:0,
+    nativeCustodyFailures:0,settledSupporterTransfers:0,
     bySeat:{0:0,1:0},unrelatedDelegated:0,
     customSelectorInstalled:deps.selectSupporterIndex!==undefined,
     readsUnrevealedDeckBeforeSearch:false,
@@ -127,21 +128,36 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     const action=new ResolvePromptAction(prompt.id,answer);
     validate(state,action);
     submitted.set(action,{seat,kind:isConfirm?'confirm':'search',
-      count:isSearch?answer.length:0});
+      count:isSearch?answer.length:0,prompt,answer,actor,
+      chosenCard:isSearch&&answer.length>0?answer[0]:null});
     return action;
   }
   function dispatch(action,...args){
     const row=submitted.get(action);
     if(!row)return originalDispatch.value.apply(this,[action,...args]);
-    try{
-      const result=originalDispatch.value.apply(this,[action,...args]);
-      audit.nativeAccepted++;
-      audit.bySeat[row.seat]++;
-      if(row.kind==='confirm')audit.confirmed++;
-      else if(row.count===0)audit.emptySearches++;
-      else audit.selectedSupporters++;
-      return result;
-    }catch(error){audit.nativeRejected++;throw error;}
+    let result;
+    try{result=originalDispatch.value.apply(this,[action,...args]);}
+    catch(error){audit.nativeRejected++;throw error;}
+    if(row.prompt.result!==row.answer){
+      audit.nativeUnsettled++;
+      throw new Error('Wonder Tag native Store returned without resolving the prompt');
+    }
+    if(row.chosenCard){
+      const hand=Array.isArray(row.actor.hand)?row.actor.hand:
+        row.actor.hand.cards;
+      if(!hand.includes(row.chosenCard)||
+         row.actor.deck.cards.includes(row.chosenCard)){
+        audit.nativeCustodyFailures++;
+        throw new Error('Wonder Tag Store did not transfer the exact chosen Supporter');
+      }
+      audit.settledSupporterTransfers++;
+    }
+    audit.nativeAccepted++;
+    audit.bySeat[row.seat]++;
+    if(row.kind==='confirm')audit.confirmed++;
+    else if(row.count===0)audit.emptySearches++;
+    else audit.selectedSupporters++;
+    return result;
   }
   Object.defineProperty(TapuLeleGX.prototype,'reduceEffect',
     {...originalLele,value:reduceEffect});
