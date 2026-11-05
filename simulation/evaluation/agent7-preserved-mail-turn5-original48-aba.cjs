@@ -22,7 +22,10 @@ function runPreservedMailTurn5Aba(deps={}){
     process.env.AGENT7_PLUMERIA_PRESERVE_MAIL_DEV='true';
     process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV='true';
     return execute({runner:options=>development({
-      ...options,actorPlumeriaAfterPass:true,actorOwnerMailAfterPass:mail
+      ...options,actorPlumeriaAfterPass:true,actorOwnerMailAfterPass:mail,
+      actorOwnerMailAfterPassScope:mail?{
+        trialId:TARGET,globalTurn:5
+      }:null
     })});
   };
   let runs;
