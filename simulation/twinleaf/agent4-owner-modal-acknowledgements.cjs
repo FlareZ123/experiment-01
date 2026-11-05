@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const VERSION='agent4-owner-modal-acknowledgements-v1';
+const VERSION='agent4-owner-modal-acknowledgements-v2-native-settlement';
 /**
  * Default native in-game modal choice computed from the answering owner's
  * detached observation. ShowCards is acknowledgement; Confirm declines the
@@ -63,7 +63,7 @@ function withOwnerModalAcknowledgements(run,deps={}){
     assert.equal(choice.answer,kind==='ShowCardsPrompt');
     const action=new ResolvePromptAction(p.id,choice.answer);
     validate(state,action);
-    selected.set(action,{seat,id:p.id,answer:choice.answer});
+    selected.set(action,{seat,id:p.id,answer:choice.answer,prompt:p});
     audit.selected++;
     audit.bySeat[seat]++;
     audit.byKind[kind]++;
@@ -77,14 +77,21 @@ function withOwnerModalAcknowledgements(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction')live=this;
     const row=this===live?selected.get(action):null;
     if(!row)return store.value.apply(this,[action,...args]);
-    try{
-      const result=store.value.apply(this,[action,...args]);
-      audit.accepted++;
-      const after=this.state.prompts?.find(p=>p.id===row.id);
-      if(!after||after.result===row.answer)audit.settled++;
-      else audit.unsettled++;
-      return result;
-    }catch(error){audit.rejected++;throw error;}
+    const genuinelyPending=row.prompt.result===undefined&&
+      this.state.prompts?.includes(row.prompt)===true;
+    let result;
+    try{result=store.value.apply(this,[action,...args]);}
+    catch(error){audit.rejected++;throw error;}
+    // The pinned Store may return unchanged without throwing if promptItems
+    // lacks this ID. Verify the exact pending native prompt was resolved,
+    // including when the engine removes it from the public prompt list.
+    if(!genuinelyPending||row.prompt.result!==row.answer){
+      audit.unsettled++;
+      throw new Error('Owner modal Store returned without resolving its prompt');
+    }
+    audit.accepted++;
+    audit.settled++;
+    return result;
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{...bot,value:decode});
   Object.defineProperty(Store.prototype,'dispatch',{...store,value:dispatch});
