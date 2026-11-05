@@ -86,6 +86,15 @@ function run(){
         ownGuzma,oppGuzma,sourceAudit,rank1Audit,
         burrows:a.filter(x=>x.playerSlot===0&&x.attackName==='Burrow').length,
         opponentAttacks:a.filter(x=>x.playerSlot===1).map(x=>x.attackName),
+        rank1PublicPassResponses:(game.decisionTrace??[])
+          .filter(x=>x.playerSlot===1&&x.turnBefore>=17&&
+            x.action==='PassTurnAction')
+          .map(x=>({globalTurn:x.turnBefore,
+            ownActive:x.publicBoardBeforePass?.[1]?.active??null,
+            ownBench:x.publicBoardBeforePass?.[1]?.bench??[],
+            sourceActive:x.publicBoardBeforePass?.[0]?.active??null,
+            decksAfter:x.decksAfter,
+            prizesAfter:x.prizesAfter})),
         sourceActions:roots.filter(x=>x.playerSlot===0&&
           ['PlayCardAction','AttackAction','RetreatAction','PassTurnAction'].includes(x.action)),
         terminal:game.terminalTransition??null},
