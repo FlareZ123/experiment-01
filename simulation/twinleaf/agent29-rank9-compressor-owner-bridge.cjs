@@ -47,9 +47,10 @@ function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12}={}){
  *
  * @param {object} prompt Actual native owner ChooseCardsPrompt.
  * @param {object} owner Actual prompted owner, whose deck is exposed by prompt.
- * @returns {object[]} Native physical Energy card references.
+ * @param {{globalTurn?:number}} [options] For dead first-turn-only fallback priority.
+ * @returns {object[]} Native physical card references, at least one if deck nonempty.
  */
-function chooseRank9CompressorDiscard(prompt,owner){
+function chooseRank9CompressorDiscard(prompt,owner,{globalTurn=1}={}){
   assert.strictEqual(prompt.cards,owner.deck);
   const already=owner.discard.cards.filter(c=>sourceEnergy(c.fullName)).length;
   const wanted=Math.min(3,Math.max(0,3-already));
@@ -58,7 +59,15 @@ function chooseRank9CompressorDiscard(prompt,owner){
   const cards=owner.deck.cards.filter(c=>sourceEnergy(c.fullName));
   cards.sort((a,b)=>priority.findIndex(x=>a.fullName.startsWith(x))-
     priority.findIndex(x=>b.fullName.startsWith(x)));
-  return cards.slice(0,wanted);
+  const selected=cards.slice(0,wanted);
+  if(selected.length)return selected;
+  // Native min=0 is not the paper-valid positive Item search/payment gate.
+  // A consumed Item with no Energy left must still discard one physical card.
+  // On later turns a dead Battle VIP Pass is the first fallback, where present.
+  const spare=globalTurn>1?
+    owner.deck.cards.find(c=>c.fullName==='Battle VIP Pass FST'):null;
+  const fallback=spare??owner.deck.cards[0];
+  return fallback?[fallback]:[];
 }
 
 /**
@@ -111,6 +120,7 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     ownerDeckPromptDecisions:0,
     nativeSettledDeckToDiscard:0,nativeSettledShuffles:0,
     actualOwnerSelectedEnergyCount:0,
+    nonEnergyEmergencySelections:0,
     sourceOnly:true,competitivelyQualifiedGames:0,
     events:[]};
 
@@ -124,12 +134,16 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const source=state.players[sourceSeat];
     const waiting=state.prompts?.find(p=>p.result===undefined);
     const inflight=pendingByOwner.get(source.id);
-    if(inflight&&!inflight.ownerPromptUsed&&waiting&&
+    if(inflight&&!inflight.event.ownerPromptUsed&&waiting&&
       waiting.playerId===source.id&&
       waiting.constructor.name==='ChooseCardsPrompt'&&
       waiting.cards===source.deck&&
-      waiting.message==='CHOOSE_CARD_TO_DISCARD'){
-      const chosen=chooseRank9CompressorDiscard(waiting,source);
+      waiting.message==='CHOOSE_CARD_TO_DISCARD'&&
+      waiting.sourceCard===inflight.sourceCard){
+      const chosen=chooseRank9CompressorDiscard(waiting,source,
+        {globalTurn:state.turn});
+      assert.ok(chosen.length>=1&&chosen.length<=3,
+        'Paper Battle Compressor requires positive selected cards');
       assert.equal(waiting.validate(chosen,state),true);
       const action=new ResolvePromptAction(waiting.id,chosen);
       promptByAction.set(action,{inflight,chosen,
@@ -175,14 +189,15 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const event={sourceSeat,turn:state.turn,printing:ITEM,
       nativeAccepted:null,physicalEnergyMoved:0,ownerPromptUsed:false,
       shufflePromptResolved:false};
-    proposalByAction.set(action,event);
+    proposalByAction.set(action,{event,sourceCard:physical});
     audit.proposedCompressor++;audit.events.push(event);
     return action;
   }
   function dispatched(action,...args){
     if(action?.constructor?.name==='AddPlayerAction')
       liveStore=this;
-    const event=this===liveStore?proposalByAction.get(action):null;
+    const proposal=this===liveStore?proposalByAction.get(action):null;
+    const event=proposal?.event??null;
     const promptEvent=this===liveStore?promptByAction.get(action):null;
     const state=this.state;
     const source=state.players?.[sourceSeat];
@@ -190,7 +205,9 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const shufflePrompt=inflight&&action?.constructor?.name===
       'ResolvePromptAction'?state.prompts?.find(p=>
         p.id===action.id&&p.result===undefined&&
-        p.playerId===source.id&&p.constructor?.name==='ShuffleDeckPrompt'):
+        p.playerId===source.id&&
+        p.constructor?.name==='ShuffleDeckPrompt'&&
+        p.sourceCard===inflight.sourceCard):
       null;
     try{
       const result=originalDispatch.value.call(this,action,...args);
@@ -198,19 +215,22 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
         event.nativeAccepted=true;
         audit.nativeAcceptedCompressor++;
         const owner=state.players[sourceSeat];
-        pendingByOwner.set(owner.id,event);
+        pendingByOwner.set(owner.id,{event,sourceCard:proposal.sourceCard});
       }
       if(promptEvent){
         const owner=state.players[sourceSeat];
         const moved=promptEvent.chosen.filter(c=>
           owner.discard.cards.includes(c)&&!owner.deck.cards.includes(c));
-        promptEvent.inflight.ownerPromptUsed=true;
-        promptEvent.inflight.physicalEnergyMoved=moved.length;
-        audit.actualOwnerSelectedEnergyCount+=promptEvent.chosen.length;
+        promptEvent.inflight.event.ownerPromptUsed=true;
+        promptEvent.inflight.event.physicalEnergyMoved=moved.length;
+        audit.actualOwnerSelectedEnergyCount+=promptEvent.chosen.filter(
+          c=>sourceEnergy(c.fullName)).length;
+        audit.nonEnergyEmergencySelections+=promptEvent.chosen.filter(
+          c=>!sourceEnergy(c.fullName)).length;
         audit.nativeSettledDeckToDiscard+=moved.length;
       }
       if(shufflePrompt){
-        inflight.shufflePromptResolved=true;
+        inflight.event.shufflePromptResolved=true;
         audit.nativeSettledShuffles++;
         pendingByOwner.delete(source.id);
       }
