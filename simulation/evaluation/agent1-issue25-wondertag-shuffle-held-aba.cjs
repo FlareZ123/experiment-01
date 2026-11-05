@@ -106,12 +106,17 @@ function runShuffleHeldWonderTagAba(){
     const start=row.firstPublicRootDifference.zeroBasedRootIndex;
     assert.ok(Number.isSafeInteger(start)&&start>=0);
     const from=Math.max(0,start-2);
+    const turn=attempt.publicRootActions[start].turnBefore;
+    const sameTurnPublicRootsBeforeSearch=attempt.publicRootActions
+      .slice(0,start).filter(action=>action.turnBefore===turn)
+      .map(publicAcceptedRoot);
     const publicRoots=attempt.publicRootActions.slice(from,start+21)
       .map(publicAcceptedRoot);
     return {
       id:row.id,sourceRank:row.sourceRank,
       firstDifferentZeroBasedRootIndex:start,
       firstIncludedZeroBasedRootIndex:from,
+      precedingSameTurnPublicRoots:sameTurnPublicRootsBeforeSearch,
       upTo21PostDifferenceAcceptedPublicRoots:publicRoots,
       positiveRootActionsComplete:true,
       nativePromptResultPrivacyPreserved:true,
