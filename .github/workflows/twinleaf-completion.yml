@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent36_selected_v4:
+        description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
+        required: false
+        type: boolean
+        default: false
       include_agent4_capture_retrospective_96:
         description: 'Retrospective original rank6/rank11 same-deal Capture prompt followthrough with 96 actual native roots, separate from frozen 48 cap'
         required: false
@@ -94,6 +99,9 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        run: node --test tests/agent36-issue25-steward-selected-v4.test.cjs tests/agent36-issue25-steward-selected-v4.native.test.cjs
       - name: Verify real original rank5 setup Confirm settlements on both seats
         run: node --test tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs
       - name: Validate original rank4 protected entry multi-Basic physical setup on both seats
