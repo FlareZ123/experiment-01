@@ -60,6 +60,7 @@ function countStrictMailRoute(counts, handSize = 7, prizeSize = 6) {
   let direct = 0n;
   let broader = 0n;
   let extraScaled = 0n;
+  let broaderExtraScaled = 0n;
   for (const hand7 of allocations(counts, handSize)) {
     if (hand7[0] === 0) continue;
     const handWays = hand7.reduce((v, n, j) => v * choose(counts[j], n), 1n);
@@ -76,22 +77,32 @@ function countStrictMailRoute(counts, handSize = 7, prizeSize = 6) {
         const ways = pairWays * BigInt(postPrizes[drawn]);
         const hasConnector = hand8[1] > 0 ||
           (hand8[2] > 0 && deck[1] > 0);
-        if ((hand8[3] > 0 || (hasConnector && deck[3] > 0)) &&
-            (hand8[4] > 0 || (hasConnector && deck[4] > 0)))
-          broader += ways;
-        if (deck[3] === 0 || deck[4] === 0) continue;
-        if (hasConnector) {
-          direct += ways;
-          continue;
-        }
+        const broadReady =
+          (hand8[3] > 0 || (hasConnector && deck[3] > 0)) &&
+          (hand8[4] > 0 || (hasConnector && deck[4] > 0));
+        if (broadReady) broader += ways;
         const mailHeld = hand8[5];
-        if (mailHeld === 0 || deck[1] === 0) continue;
-        const eligible = deck[1] + deck[2];
-        const miss = choose(remainingDeck - eligible, sampleSize);
-        const successes = sampleComb ** BigInt(mailHeld) -
-          miss ** BigInt(mailHeld);
-        extraScaled += ways * successes *
-          sampleComb ** BigInt(counts[5] - mailHeld);
+        const bothDeckHeld = deck[3] > 0 && deck[4] > 0;
+        if (bothDeckHeld && hasConnector) direct += ways;
+        if (mailHeld === 0) continue;
+        const raised = sampleComb ** BigInt(counts[5] - mailHeld);
+        if (bothDeckHeld && !hasConnector && deck[1] > 0) {
+          const strictEligible = deck[1] + deck[2];
+          const misses = choose(remainingDeck - strictEligible, sampleSize);
+          extraScaled += ways * (sampleComb ** BigInt(mailHeld) -
+            misses ** BigInt(mailHeld)) * raised;
+        }
+        // Broader source route accepts a G&H/Tag connector or, when DCE is
+        // held, the still-missing Thunder Mountain directly from Mail.
+        // Mutually exclusive with an already reachable baseline.
+        if (broadReady || hand8[3] + deck[3] === 0 ||
+            hand8[4] + deck[4] === 0) continue;
+        const broadEligible = (deck[1] > 0 ? deck[1] + deck[2] : 0) +
+          (hand8[4] > 0 && hand8[3] === 0 ? deck[3] : 0);
+        if (broadEligible === 0) continue;
+        const missBroad = choose(remainingDeck - broadEligible, sampleSize);
+        broaderExtraScaled += ways * (sampleComb ** BigInt(mailHeld) -
+          missBroad ** BigInt(mailHeld)) * raised;
       }
     }
   }
@@ -102,6 +113,7 @@ function countStrictMailRoute(counts, handSize = 7, prizeSize = 6) {
     broader,
     denominator,
     extraScaled,
+    broaderExtraScaled,
     favorableScaled,
     scaledDenominator,
     directProbability: Number(direct) / Number(denominator),
@@ -109,7 +121,10 @@ function countStrictMailRoute(counts, handSize = 7, prizeSize = 6) {
     mailIncrementProbability: Number(extraScaled) / Number(scaledDenominator),
     totalProbability: Number(favorableScaled) / Number(scaledDenominator),
     broaderWithMailProbability:
-      Number(broader * scale + extraScaled) / Number(scaledDenominator)
+      Number(broader * scale + extraScaled) / Number(scaledDenominator),
+    completeBroaderWithMailProbability:
+      Number(broader * scale + broaderExtraScaled) /
+      Number(scaledDenominator)
   };
 }
 
