@@ -7,7 +7,7 @@ const {chooseLetterDarkness,withOwnerLetterSearch}=
 
 const types={
   SuperType:{ENERGY:7},EnergyType:{BASIC:2},
-  CardType:{DARKNESS:9},
+  CardType:{DARK:9},
   GameMessage:{CHOOSE_CARD_TO_HAND:41}
 };
 const darkness=id=>({fullName:'Basic Darkness Energy MEE',
