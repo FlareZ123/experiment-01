@@ -13,13 +13,18 @@ on:
         type: boolean
         required: false
         default: false
+      issue25_v11_only:
+        description: Run Agent3 frozen four-campaign native root replay
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -140,7 +145,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -226,7 +231,7 @@ jobs:
           retention-days: 30
 
   issue25-v8-prechoice:
-    if: ${{ inputs.issue25_v8_only == true }}
+    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -256,5 +261,39 @@ jobs:
         with:
           name: issue25-v8-prechoice-${{ github.run_id }}
           path: artifacts/issue25-v8-prechoice/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-v11-four-campaign-control:
+    if: ${{ inputs.issue25_v11_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned native simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check Agent3 frozen four-campaign pure invariants
+        run: node --test tests/agent3-issue25-v8-four-campaign-root-replay.test.cjs
+      - name: Execute frozen real Store baseline baseline protected baseline trial groups
+        env:
+          ISSUE25_AGENT3_CONTROL_RECEIPT_DIR: artifacts/issue25-v11-control-replay
+        run: node --test tests/agent3-issue25-v8-four-campaign-root-replay.native.test.cjs
+      - name: Archive all four native campaign receipts including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v11-four-campaign-${{ github.run_id }}
+          path: artifacts/issue25-v11-control-replay/
           if-no-files-found: warn
           retention-days: 30
