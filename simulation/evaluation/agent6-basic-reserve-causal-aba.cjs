@@ -68,7 +68,8 @@ function run(){
           seed,rank3Seat,id:[seed,rank3Seat,spec.name].join(':'),
           mode:spec.pivot?'reserve-paid-pivot':'control',
           energyRecipient:true,reserveRecipient:spec.reserve,
-          captureTargets:true,captureAttackTrace:true
+          captureTargets:true,captureAttackTrace:true,
+          captureOwnerSupporterOpportunity:true
         },cards));
         const [a,b,c,d]=arms;
         const sameStart=arms.every(x=>
@@ -93,6 +94,21 @@ function run(){
           firstReserveDifference:firstBasicDifference(a,b),
           firstPaidDifference:firstBasicDifference(a,c),
           nativePaidPhysicalRetreats:physicalRetreats(c),
+          ownerSourceSupporterPasses:arms.map(arm=>{
+            const obs=arm.ownerSupporterOpportunityAudit??{};
+            const sourcePasses=(obs.passes??[]).filter(row=>
+              row.ownerSeat===rank3Seat&&row.turn>=1);
+            return {
+              armId:arm.id,acceptedSourcePassesObserved:sourcePasses.length,
+              sourcePassesWithHeldSupporters:sourcePasses.filter(row=>
+                row.heldCount>0).length,
+              sourcePassesWithNativeNullTrue:sourcePasses.filter(row=>
+                row.nativeNullTrueCount>0).length,
+              firstSourcePasses:sourcePasses.slice(0,8),
+              firstPostShadowMistTurn21Pass:sourcePasses.find(row=>
+                row.turn===21)??null
+            };
+          }),
           nativeResults:arms.map(x=>({
             id:x.id,status:x.status,winner:x.winner,
             rootCount:x.rootCount,rank1Attacks:x.rank1AttackCount,
@@ -200,6 +216,7 @@ if(require.main===module){
           firstReserveDifference:g.firstReserveDifference,
           firstPaidDifference:g.firstPaidDifference,
           nativePaidPhysicalRetreats:g.nativePaidPhysicalRetreats,
+          ownerSourceSupporterPasses:g.ownerSourceSupporterPasses,
           nativeResults:g.nativeResults
         })),
         competitivelyQualifiedGames:0
