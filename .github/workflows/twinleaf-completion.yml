@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent7_shadowmist_original48_plumeria_AB:
+        description: 'Original eight exact-deal 48-root owner Plumeria after-Pass counterfactual; genuine prompts, developmental only'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -165,6 +170,9 @@ jobs:
       - name: Retrospective original eight-arm pure Pass versus native Hammer after-Pass A/B
         if: ${{ inputs.include_agent7_shadowmist_original48_hammer_AB }}
         run: node --test tests/agent7-shadowmist-original48-hammer-aba.test.cjs tests/agent7-shadowmist-original48-hammer-aba.native.test.cjs
+      - name: Retrospective original eight-arm source owner Plumeria after-Pass A/B
+        if: ${{ inputs.include_agent7_shadowmist_original48_plumeria_AB }}
+        run: node --test tests/agent7-shadowmist-original48-plumeria-aba.test.cjs tests/agent7-shadowmist-original48-plumeria-aba.native.test.cjs
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
