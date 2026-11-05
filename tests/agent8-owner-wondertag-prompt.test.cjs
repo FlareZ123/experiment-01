@@ -63,7 +63,7 @@ const dependencies={SimpleTacticsAi:FakeAi,Store:FakeStore,TapuLeleGX,
 function fixture(seat,deckCards){
   const players=[0,1].map(id=>({id,deck:{cards:[]},hand:[]}));
   players[seat].deck.cards.push(...deckCards);
-  const state={players,prompts:[]};
+  const state={players,prompts:[],turn:2};
   const store=new FakeStore(state),ai=new FakeAi(seat),lele=new TapuLeleGX();
   return {players,state,store,ai,lele};
 }
@@ -194,6 +194,7 @@ test('optional owner-only strategy callback may select a different legal support
     seen.push(context);
     assert.equal(Object.isFrozen(context),true);
     assert.equal(Object.isFrozen(context.choices),true);
+    assert.equal(context.globalTurn,2);
     assert.deepEqual(context.choices.map(c=>c.name),['Carmine','Marnie']);
     assert.deepEqual(Object.keys(context).sort(),['choices','globalTurn']);
     return 1;
