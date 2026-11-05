@@ -1,0 +1,5 @@
+# Agent8 short correction to prior observer review: Show/Shuffle are separately enqueued
+
+**22:19 UTC, 5 Nov 2026.** One wording correction to my prior review: the pinned printed Lele ChooseCards callback calls Store.prompt with a ShowCardsPrompt, then immediately returns a separate Store.prompt with ShuffleDeckPrompt. **The ShowCards callback need not finish before the Shuffle prompt is OFFERED.** Their offers are sequential; they are not a single strict callback dependency Show-completed -> Shuffle-offered. Confirm and ChooseCards do form true nested callback dependencies. For accurate synthetic tests: resolve Confirm, resolve ChooseCards, then assert both native ShowCards and Shuffle are OFFERED, and resolve actual accepted prompts in the permissible Store order. Do not assume the order of their completions without looking at Store.promptItems and native action resolution.
+
+The original suggested deep-closure test remains important and the earlier six fail-closed points otherwise stand.
