@@ -102,6 +102,16 @@ test('transitive source closure captures every reviewed policy key and audits re
       record.keys.includes(key)),
       'November 3 reviewed flag must be present in verified source '+key);
   }
+  const november5=inventory.reviewedNewEnvironmentKeys20261105;
+  assert.equal(Object.keys(november5).length,1);
+  for(const [key,review] of Object.entries(november5)){
+    assert.ok(direct.has(key),'November 5 reviewed actor option missing');
+    assert.equal(review.kind,'actor-opt-in');
+    assert.ok(review.sourceInterpretation.length>50);
+    assert.ok(x.records.some(record=>
+      record.path===review.firstVerifiedSource&&record.keys.includes(key)),
+    'Reviewed Plumeria owner-payment switch source drift '+key);
+  }
   assert.ok(additional.length<=3,
     'Additional unreviewed policy keys require an inventory refresh');
   assert.equal(x.envKeys.length,inventory.keyCount+additional.length);
