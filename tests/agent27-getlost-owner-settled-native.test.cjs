@@ -54,6 +54,7 @@ function fixture(seat,offered){
   assert.ok(source&&otherBasic);
   owner.deck.moveCardTo(source,owner.active);
   other.deck.moveCardTo(otherBasic,other.active);
+  for(const p of state.players)for(let j=0;j<6;j++)p.deck.moveTo(p.prizes[j],1);
   const selected=other.deck.cards.slice(0,offered);
   other.deck.moveCardsTo(selected,other.discard);
   assert.equal(other.discard.cards.length,offered);
