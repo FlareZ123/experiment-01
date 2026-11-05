@@ -1,0 +1,145 @@
+{
+  "schema": "agent11-original-thorns-newmoon-joint-physical-mc-v1",
+  "createdUtc": "2026-11-05",
+  "evidenceType": "offline-physical-60-deck-Monte-Carlo-development-only",
+  "sourceCpp": "scripts/agent11-joint-mulligan-physical-mc.cpp",
+  "exactModel": "scripts/agent11-newmoon-thorns-joint-mulligan-screen.cjs",
+  "originalOpponentSource": "results/aichi-2026/full-decklists.json",
+  "candidateManifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "sourceCandidateFirst": false,
+  "candidateFirst": true,
+  "sameFixedCandidateSixty": true,
+  "sameOriginalPrintedSourceSixtyByRank": true,
+  "simulatedSetup": {
+    "initialHand": 7,
+    "prizes": 6,
+    "bonusAccepted": "all",
+    "firstOrdinaryDraw": true,
+    "bothInvalidRestart": true,
+    "sourceSecond": true,
+    "originalSourceDeckFullyShuffled": true,
+    "publicNativeActions": false
+  },
+  "sourceAccessSubset": "Thunder Mountain+DCE via held resources, G&H, Tag Call or held Trainers Mail top-four",
+  "candidateExposureSubset": "One low-HP Basic in valid first seven, no other Basic or direct rescuers through bonus+first draw, and no both Compressor and Rescue Carrier",
+  "rng": "std::mt19937_64",
+  "compiler": "g++ (Debian 14.2.0) 14.2.0",
+  "compilerFlags": "-std=c++17 -O3 -Wall -Wextra -pedantic",
+  "perRankSeeds": [
+    {
+      "rank": 6,
+      "dce": 1,
+      "mail": 3,
+      "seed": "177142170570765",
+      "trials": 20000000,
+      "jointCount": 5442,
+      "notes": "First complete 20m run; preliminary overlapping first-2.5m diagnostic excluded from pool"
+    },
+    {
+      "rank": 6,
+      "dce": 1,
+      "mail": 3,
+      "seed": "9038904819",
+      "trials": 20000000,
+      "jointCount": 5413
+    },
+    {
+      "rank": 24,
+      "dce": 3,
+      "mail": 4,
+      "seed": "177142170570765",
+      "trials": 20000000,
+      "jointCount": 6810,
+      "notes": "Individual 95% interval misses exact rate; retained in aggregate"
+    },
+    {
+      "rank": 24,
+      "dce": 3,
+      "mail": 4,
+      "seed": "6719349128451",
+      "trials": 20000000,
+      "jointCount": 6585
+    },
+    {
+      "rank": 29,
+      "dce": 1,
+      "mail": 2,
+      "seed": "177142170570765",
+      "trials": 20000000,
+      "jointCount": 5373
+    },
+    {
+      "rank": 29,
+      "dce": 1,
+      "mail": 2,
+      "seed": "81766323901",
+      "trials": 20000000,
+      "jointCount": 5439,
+      "notes": "Individual 95% interval misses exact rate; retained in aggregate"
+    },
+    {
+      "rank": 29,
+      "dce": 1,
+      "mail": 2,
+      "seed": "118600991322",
+      "trials": 20000000,
+      "jointCount": 5421
+    },
+    {
+      "rank": 29,
+      "dce": 1,
+      "mail": 2,
+      "seed": "630578224299",
+      "trials": 60000000,
+      "jointCount": 15667
+    }
+  ],
+  "overlappingPilotExcluded": {
+    "rank": 6,
+    "seed": "177142170570765",
+    "trials": 2500000,
+    "jointCount": 693,
+    "reason": "exact prefix of rank6 first full 20000000 stream, not statistically independent"
+  },
+  "pools": [
+    {
+      "rank": 6,
+      "trials": 40000000,
+      "jointCount": 10855,
+      "observedFraction": 0.000271375,
+      "exactFraction": 0.0002744560217018243,
+      "wilson95Fraction": [
+        0.0002663183741237519,
+        0.00027652761021375316
+      ]
+    },
+    {
+      "rank": 24,
+      "trials": 40000000,
+      "jointCount": 13395,
+      "observedFraction": 0.000334875,
+      "exactFraction": 0.0003295422556391752,
+      "wilson95Fraction": [
+        0.0003292527353715186,
+        0.0003405932367693557
+      ]
+    },
+    {
+      "rank": 29,
+      "trials": 120000000,
+      "jointCount": 31900,
+      "observedFraction": 0.0002658333333333333,
+      "exactFraction": 0.0002630427777400414,
+      "wilson95Fraction": [
+        0.0002629325018362583,
+        0.0002687661599664264
+      ]
+    }
+  ],
+  "stats": "95% Wilson score intervals; each per-rank aggregate includes every full diagnostic seed, including individually outlying runs; distinct PRNG seed streams pooled within rank",
+  "totalFullTrials": 200000000,
+  "totalFullJointCount": 56150,
+  "gameWinRateClaims": 0,
+  "competitiveQualifiedGames": 0,
+  "caveat": "Exact and simulated numbers are probabilities of an offline setup-only conjunction. No native card play, payment, attack, opponent behavior, clock or full field win rate."
+}
