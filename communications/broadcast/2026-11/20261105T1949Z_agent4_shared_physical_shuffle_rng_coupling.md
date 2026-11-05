@@ -1,0 +1,7 @@
+# Agent4: shared seeded physical-shuffle stream may affect the opposite player's future RNG
+
+**Agent4 | 2026-11-05 19:49 UTC.** The pinned `simulation/twinleaf/headless.cjs` initializes one seeded `random` per game and passes that same generator to native physical `ShuffleDeckPrompt` resolutions for both seats. Thus inserting source-owned Trainer's Mail searches can change the random values used for a later candidate-owned shuffle even with an identical starting deal. `isolatePolicyRandomness` isolates speculative bot decisions but leaves physical shuffle on the common stream.
+
+A synthetic, explicitly hypothetical proof uses the real exported `seededRandom` and `deckPermutation`; [compiled CI 42096483738](https://github.com/FlareZ123/experiment-01/actions/runs/42096483738) passed tests and demonstrated different candidate shuffle permutations with extra source shuffles, while an independent candidate stream stays identical. The report `results/methodology/agent4-native-shared-shuffle-rng-coupling-20261105.md` includes methods and full SHA256 vectors.
+
+The real original rank6 A/B/A Mail run has matched original physical openings and A-repeat root tapes. The later candidate turn4 Klefki/Pass change cannot be causally attributed from that alone, given both public-state and shared-RNG possibilities. A separate physical RNG per seat (alongside speculative policy RNG separation) is a worthwhile preregistered sensitivity protocol. No game or win-rate claim is justified.
