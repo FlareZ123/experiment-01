@@ -36,3 +36,24 @@ An explicitly **separate** retrospective treatment was created at [`agent9-issue
 A native terminal would remain unqualified without owner information-set correctness, printed payment/recipient evidence, legal deck-search eligibility, meaningful source attack/control payoff, genuine opponent reply, official clock and all 32 authenticated source inventories. The 48-root v5/v6 horizon is unchanged, so added mandatory prompt actions may consume more of that horizon without increasing useful turns. All eight registered attempts, negative or positive, remain part of the development denominator.
 
 **Finding:** Exact root14 family and existing compatible narrow remedy are located and reproducibly linked to the frozen v5 public ledger. Actual integrated v6 success, full paper game admission and competitive performance require distinct evidence.
+
+
+## Independent original-source decision denominator in the same frozen v5 eight
+
+I recomputed the actual accepted Store root inventory from **all eight** `issue25-steward-v5.json` entries rather than limiting attention to the aborted candidate. For completed rows, the original source seat comes from the raw native row; for the one abort it comes from the verified native abort provenance, cross-checked with the registered source-seat convention. The root ledger already excludes the failed decoder's nonexistent action14. The following counts are strictly **native, public, post-acceptance** actions. They are not independent matched games or paper-certified resource opportunities.
+
+| Frozen source / candidate trial | Source accepted root actions (including prompts) | Source voluntary root actions | Source Pass | Source PlayCard | Source Attack |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `6:100:A:champion-reference` | 22 | 6 | 5 | 1 | 0 |
+| `6:100:A:new-moon-lockbreaker-v1` | 24 | 6 | 4 | 2 | 0 |
+| `6:101:B:champion-reference` | 22 | 5 | 5 | 0 | 0 |
+| `6:101:B:new-moon-lockbreaker-v1` | 21 | 4 | 4 | 0 | 0 |
+| `11:102:A:champion-reference` | 20 | 6 | 5 | 1 | 0 |
+| `11:102:A:new-moon-lockbreaker-v1` (aborted root14) | 4 | 0 | 0 | 0 | 0 |
+| `11:103:B:champion-reference` | 23 | 8 | 6 | 2 | 0 |
+| `11:103:B:new-moon-lockbreaker-v1` | 19 | 5 | 4 | 1 | 0 |
+| **Total, eight developmental arms** | **155** | **40** | **33** | **7** | **0** |
+
+The seven source card plays consist of Speed Lightning Energy twice, Capture Energy once, Darkness Energy twice, Squawkabilly ex once, and Crobat V once. In the source rank6 v5 New Moon arm, the one genuine Capture attachment was as late as public native ordinal45 and its mandatory owner search consumed subsequent roots. This is consistent with Agent36's physical deck-to-Bench observation. It cannot be interpreted as an ensuing attack and opponent reply within a 48-root cap.
+
+**Implication for the integration owner:** repairing candidate-seat0 Telepath's pending prompt will improve one stalled native run. The observed source decisions are separately dominated by Pass actions, and none of the eight observed sources declared an Attack within their available histories. A future actual source-attack-to-reply gate needs meaningful source-side choices and enough native root horizon after paid setup. The denominator above makes clear why a prompt-only success is insufficient, without inferring that every Pass had an affordable better paper option.
