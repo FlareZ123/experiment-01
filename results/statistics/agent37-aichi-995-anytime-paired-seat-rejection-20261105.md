@@ -86,7 +86,28 @@ All pairing, source-seat and QUALIFIED strings remain **self-asserted data**. Th
 
 ## Practical experiment interface
 
-Each input element declares a unique pair ID, unchanged candidate fingerprint, original rank, a prospectively committed paired-design label and two distinct game records with exact source-seat labels 0/1, unique IDs, outcome win/loss/tie and declared QUALIFIED status. The module accepts the two games in either order and emits the first all-rank threshold crossing only after its pair is completed.
+Under v3, each input block declares a unique pair ID, immutable candidate fingerprint, exact original rank, paired-design label, **precommitted independent fair orientation** label and actual coin result 0 or 1. The two games must contain exactly one source seat0 and one source seat1, plus exactly one actual candidate-first and one actual candidate-second, with their mapping consistent with the coin. Each game has a unique ID, outcome win/loss/tie and externally audited QUALIFIED status. The module accepts the two games in either order and emits the first all-rank threshold crossing only after its pair is completed. For clarity, this is a **synthetic input example only**, never a certified Aichi result:
+
+```json
+[
+  {
+    "pairId": "SYNTHETIC-RANK6-PAIR1",
+    "candidateId": "SYNTHETIC-FROZEN-SIXTY-FINGERPRINT",
+    "originalRank": 6,
+    "pairingDesign": "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
+    "orientationAssignment": "INDEPENDENT_FAIR_COIN_PER_COMPLETE_PAIR",
+    "orientationCoin": 0,
+    "games": [
+      {"id":"SYNTHETIC-1A","sourceSeat":0,
+       "candidateActualStart":"first","qualification":"QUALIFIED","outcome":"loss"},
+      {"id":"SYNTHETIC-1B","sourceSeat":1,
+       "candidateActualStart":"second","qualification":"QUALIFIED","outcome":"win"}
+    ]
+  }
+]
+```
+
+The fields label a purported experiment and cannot prove an independent random coin, real Pokémon first-turn choice, complete paper payment or competitive policy. Even a correctly shaped block is unacceptable until its physical starts, independent conditional game distributions, original and candidate hashes, paper game results and intended field weighting have been externally established.
 
 For a real campaign, preregister the exact seat-pair inclusion, all physical starts and non-starts, source and contender printing hashes, frozen two-player policies, independent source ownership and paper-payment proof, engine and adapter revision, opponent decision competence, clock, and terminal adjudication. Any aborted game means the block is incomplete for this pure analyzer; preserve that failed attempt and its reason in the overarching campaign ledger, never silently replace it. Cross-contender seeded games are not one fixed-deck paired study.
 
