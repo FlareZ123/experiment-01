@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_compressor_anyturn:
+        description: 'Run separately labeled v2 owner-only late-turn Compressor A/B real Store comparison'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -47,6 +52,19 @@ jobs:
         with:
           name: agent29-rank9-real-owner-compressor-retrospective
           path: agent29-rank9-compressor-retro.json
+      - name: Any-turn v2 original rank9 owner Compressor source comparison
+        if: ${{ inputs.rank9_source_compressor_anyturn }}
+        env:
+          AGENT29_RANK9_COMPR_ANYTURN_V2: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-compressor-anyturn-v2.json
+      - name: Preserve all v2 registered attempts, including aborts
+        if: ${{ always() && inputs.rank9_source_compressor_anyturn }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-compressor-anyturn-v2
+          path: agent29-rank9-compressor-anyturn-v2.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
         if: ${{ inputs.generic_trainer_parity }}
         run: node simulation/twinleaf/agent29-bilateral-trainer-frontier-parity-native.cjs
