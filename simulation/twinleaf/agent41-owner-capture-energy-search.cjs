@@ -92,7 +92,7 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     const actual=this===live;
     const before=this.state;
     const seat=actual&&type==='PlayCardAction'?
-      before.players.findIndex(p=>p.id===action.clientId):-1;
+      before.players.findIndex(p=>p.id===action.id):-1;
     const owner=seat>=0?before.players[seat]:null;
     const energy=owner?.hand?.cards?.[action.handIndex];
     const track=actual && type==='PlayCardAction' &&
