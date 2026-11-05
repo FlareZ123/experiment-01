@@ -251,6 +251,13 @@ jobs:
         if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_recipient_pass_stage && !inputs.agent6_reserve_causal }}
         shell: bash
         run: node simulation/evaluation/agent6-original-recipient-paid-reserve-native.cjs > agent6-original-recipient-paid-reserve-native.json
+      - name: Validate owner-only Basic reserve and native fee no-op controls
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_reserve_causal && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit }}
+        run: node --test tests/agent6-paid-reserve-causal-policy.test.cjs
+      - name: Execute registered 32 original source Basic reserve A B C A-prime cohort
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_reserve_causal && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit }}
+        shell: bash
+        run: node simulation/evaluation/agent6-basic-reserve-causal-aba.cjs > agent6-basic-reserve-causal-aba.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
