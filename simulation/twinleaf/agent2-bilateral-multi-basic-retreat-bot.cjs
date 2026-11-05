@@ -65,7 +65,8 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
   function ownerDecoder(state,...args){
     const original=old.value.call(this,state,...args);
     if(original?.constructor?.name!=='PassTurnAction'||
-       !Number.isSafeInteger(state?.turn)||state.turn<=1||
+       !Number.isSafeInteger(state?.turn)||
+       (state.turn<=1&&deps.observeFirstTurnPassOnly!==true)||
        (state.activePlayer!==0&&state.activePlayer!==1)||
        state.prompts?.some(p=>p.result===undefined))
       return original;
@@ -73,7 +74,9 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
     audit.originalPassesBySeat[seat]++;
     const view=observe(state,seat);
     const intent=choose(view,catalog);
-    if(!intent)return original;
+    // Diagnostics may observe the first-turn terminal Pass, but no policy
+    // may replace it. This option is disabled in all treatment games.
+    if(state.turn<=1||!intent)return original;
     assert.equal(intent.kind,'paid-retreat');
     assert.ok(Number.isSafeInteger(intent.benchIndex)&&
       intent.benchIndex>=0&&intent.benchIndex<5);
