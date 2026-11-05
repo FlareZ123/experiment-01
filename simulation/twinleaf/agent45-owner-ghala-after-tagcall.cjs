@@ -199,8 +199,6 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
       new Set((state.prompts??[]).map(p=>p.id)):null;
     const beforeTagHandCount=isTag?
       owner.hand.cards.filter(c=>c.fullName===HALA).length:0;
-    const beforeResolutionHand=token?
-      ownerById(token.id)?.hand.cards.length:0;
     let result;
     try{
       result=beforeStore.value.call(this,action,...rest);
@@ -248,13 +246,12 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
       }
     }
     if(ghRoot){
-      audit.nativeGHSupporterRootsAccepted++;
-      const current=ownerById(ghRoot.id);
       const newPrompt=(this.state.prompts??[]).find(p=>
         p.playerId===ghRoot.id&&p.result===undefined&&
         p.constructor?.name==='SelectOptionPrompt');
       const currentToken=byOwner.get(ghRoot.id);
       if(currentToken&&newPrompt){
+        audit.nativeGHSupporterRootsAccepted++;
         currentToken.stage='mode';
         currentToken.modePromptId=newPrompt.id;
       }else if(currentToken){
