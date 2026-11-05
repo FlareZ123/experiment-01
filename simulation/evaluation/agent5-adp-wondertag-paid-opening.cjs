@@ -34,7 +34,7 @@ function findPaidLine(initial,seen,available,profile,allowWonderTag){
     ...(allowWonderTag&&available.gh&&available.lele&&seen[C.quick]>0?
       ['leleQuick']:[]),
     ...(allowWonderTag&&available.gh&&available.lele&&seen[C.ultra]>0?
-      ['leleUltra']:[]
+      ['leleUltra']:[])
   ]:[]);
   const size=seen.reduce((a,b)=>a+b,0);
   const highDci=seen[C.dragon]+
