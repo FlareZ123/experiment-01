@@ -29,7 +29,9 @@ function run(seat,withAbilityLock){
     c.id=nextId++;
     return c;
   };
-  const budew=card('Budew PRE');
+  const budew=card('Budew ASC');
+  assert.equal(budew.set,'ASC');
+  assert.equal(String(budew.setNumber),'16');
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
   x.owner.active.cards.push(budew);
