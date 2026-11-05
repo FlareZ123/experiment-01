@@ -58,6 +58,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent20_tool_counterfactual:
+        description: 'Exact-state original-v5 source owner Tool attachments and real opponent reply, development only'
+        required: false
+        type: boolean
+        default: false
       include_agent20_source_pass_opportunity:
         description: 'Original v5 eight-arm same-deal owner-visible source Pass and negative paper-prerequisite audit'
         required: false
@@ -186,6 +191,19 @@ jobs:
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
+      - name: Native original v5 source Pass to owned Tool physical counterfactual
+        if: ${{ inputs.include_agent20_tool_counterfactual }}
+        env:
+          AGENT20_TOOL_TREATMENT_DIR: issue25-agent20-tool-treatment
+        run: node --test tests/agent20-issue25-v5-source-tool-counterfactual.test.cjs tests/agent20-issue25-v5-source-tool-counterfactual.native.test.cjs
+      - name: Archive native original v5 Tool action/receipt and first opposing root
+        if: ${{ always() && inputs.include_agent20_tool_counterfactual }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-issue25-original-v5-source-tool-counterfactual
+          path: issue25-agent20-tool-treatment/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Replay original v5 source Pass anchors with owner-only paper prerequisite audit
         if: ${{ inputs.include_agent20_source_pass_opportunity }}
         env:
