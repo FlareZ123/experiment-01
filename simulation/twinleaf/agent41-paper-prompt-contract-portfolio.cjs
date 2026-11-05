@@ -457,10 +457,15 @@ function withPaperPromptContractPortfolio(run,deps={}){
       sourcePrinting='Iron Thorns ex TWM';
       contract='printed-volt-cyclone-energy-transfer';
       const result=verdictVoltCyclone(this.state,prompt,action.result,types);
-      nativePreflightRejected=result.reason==='native-additional-contract-rejected';
+      // Independent printed geometry and native engine preflight are
+      // distinct: native can veto a paper-valid proposed transfer.
+      nativePreflightRejected=result.valid &&
+        typeof prompt.validate==='function' &&
+        prompt.validate(action.result,this.state)===false;
       status=nativePreflightRejected?'PAPER_PROMPT_UNVERIFIED':
         result.valid?'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
-      reason=result.reason;
+      reason=nativePreflightRejected?
+        'native-additional-contract-rejected':result.reason;
     }else if(camping.applicable){
       sourcePrinting='Camping Gear BST';
       contract='mandatory-one-own-deck-card';
