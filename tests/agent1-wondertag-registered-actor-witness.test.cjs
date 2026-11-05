@@ -31,9 +31,12 @@ function fixture(){
 
 test('registered native trial and physical actor seat are captured with no hidden Supporter identities',()=>{
   const x=fixture();
-  const result=x.witness.run(()=>
-    x.headless.runMatch({label:PREFIX+'11:103:B:champion-reference',
-      actorId:401}));
+  const result=x.witness.run(()=>{
+    assert.equal(x.witness.currentTrialId(),null);
+    return x.headless.runMatch({label:PREFIX+'11:103:B:champion-reference',
+      actorId:401});
+  });
+  assert.equal(x.witness.currentTrialId(),null);
   assert.equal(result,0);
   assert.equal(x.witness.audit.version,VERSION);
   assert.equal(x.witness.audit.observedSearchDecisionCount,1);
