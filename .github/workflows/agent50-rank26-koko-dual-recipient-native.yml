@@ -23,13 +23,18 @@ on:
         type: boolean
         required: false
         default: false
+      issue25_resource_only:
+        description: Only run registered two-seat source Energy and evolution gate
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_resource_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -150,7 +155,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_resource_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -334,5 +339,41 @@ jobs:
         with:
           name: issue25-v12-public-first-difference-${{ github.run_id }}
           path: artifacts/issue25-v12-public-delta/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-source-resource-gate:
+    if: ${{ inputs.issue25_resource_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pin previously registered source and code before native tests
+        run: |
+          node --check simulation/evaluation/agent4-issue25-symmetric-owner-resources-v1.cjs
+          node --test tests/agent4-issue25-symmetric-owner-resources-v1.test.cjs
+      - name: Checkout unchanged pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Store dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Verify unmodified pinned native Store revision
+        run: node -e "const a=require('node:assert/strict'),c=require('node:child_process');a.equal(c.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - name: Compile native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute exactly sixteen original-rank6/rank11 physical-seat control and symmetric resource attempts
+        run: node simulation/evaluation/agent4-issue25-symmetric-owner-resources-v1.cjs
+      - name: Preserve every genuine Store game, error, cap and physical deal receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-agent4-symmetric-owner-resources-${{ github.run_id }}
+          path: artifacts/agent4-issue25-symmetric-resources-v1.json
           if-no-files-found: warn
           retention-days: 30
