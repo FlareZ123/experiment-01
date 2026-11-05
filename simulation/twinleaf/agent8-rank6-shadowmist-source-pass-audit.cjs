@@ -61,10 +61,26 @@ function withRank6OwnerShadowMistPassAudit(execute,deps={}){
          card.energyType===types.EnergyType.SPECIAL).length;
        const stadium=hand.filter(card=>
          card.trainerType===types.TrainerType.STADIUM).length;
+       const items=hand.filter(card=>
+         card.trainerType===types.TrainerType.ITEM).length;
+       const supporters=hand.filter(card=>
+         card.trainerType===types.TrainerType.SUPPORTER).length;
+       const tools=hand.filter(card=>
+         card.trainerType===types.TrainerType.TOOL).length;
+       const basicEnergy=hand.filter(card=>
+         card.energyType===types.EnergyType.BASIC).length;
        audit.sourcePasses.push({
          turn:state.turn,sourceSeat:1,actualOwnerIdMatches:true,
          handSize:hand.length,specialEnergyInSourceHand:special,
+         basicEnergyInSourceHand:basicEnergy,
          stadiumsInSourceHand:stadium,
+         itemsInSourceHand:items,supportersInSourceHand:supporters,
+         toolsInSourceHand:tools,
+         supporterUsedThisTurn:src.supporterTurn===state.turn,
+         energyManualAttachmentUsedThisTurn:src.energyPlayedTurn===state.turn,
+         itemHandPlayLocked:src.cannotPlayItemCards===true,
+         supporterHandPlayLocked:src.cannotPlaySupporterCards===true,
+         toolHandPlayLocked:src.cannotPlayToolCards===true,
          specialEnergyHandPlayLocked:
            src.cannotPlaySpecialEnergyCards===true,
          stadiumHandPlayLocked:src.cannotPlayStadiumCards===true,
