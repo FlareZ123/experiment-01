@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   native-same-baseline-sham:
-    if: \${{ inputs.shuffle_only_aba != true }}
+    if: ${{ inputs.shuffle_only_aba != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
