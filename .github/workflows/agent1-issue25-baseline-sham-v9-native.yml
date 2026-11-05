@@ -1,0 +1,39 @@
+name: Agent1 issue25 baseline sham A-A native replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-same-baseline-sham:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Two exact registered same-opening baseline campaigns
+        env:
+          ISSUE25_SHAM_RECEIPT_DIR: artifacts/agent1-issue25-sham-v9
+        run: node --test tests/agent1-issue25-baseline-sham-v9.native.test.cjs
+      - name: Archive sanitized A-A outcome diagnostic
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-issue25-sham-v9-${{ github.run_id }}
+          path: artifacts/agent1-issue25-sham-v9/
+          if-no-files-found: warn
+          retention-days: 30
