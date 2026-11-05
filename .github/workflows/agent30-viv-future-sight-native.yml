@@ -27,6 +27,8 @@ jobs:
       - name: Compile unchanged native game Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Prove real Ranger support and subsequent Item native response under Budew
+        run: node --test tests/agent30-ranger-budew-item-native.test.cjs
       - name: Verify actual Future Sight both-seat, both-target, top-four physical ordering
         run: node --test tests/agent30-duskull-viv-futuresight.native.test.cjs
       - name: Replay the original four Issue25 source/deals with exact printed Future Sight owner-stamped choice
