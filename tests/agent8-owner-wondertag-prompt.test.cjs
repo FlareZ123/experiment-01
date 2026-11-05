@@ -119,3 +119,38 @@ test('unrelated ConfirmPrompt delegates and never accesses hidden deck',()=>{
   assert.equal(audit.unrelatedDelegated,1);
   assert.equal(audit.confirmed,0);
 });
+
+
+test('affirmative Wonder Tag decision is independent of both hidden decks',()=>{
+  const supporterA=supporter('Guzma & Hala');
+  const worlds=[];
+  for(const secret of [0,1]){
+    const f=fixture(0,[supporterA,{fullName:'Basic Grass Energy',superType:3}]);
+    f.players[1].deck.cards=[{privateName:secret?'Dragon':'Psychic'},
+      {privateName:secret?'Darkness':'Water'}];
+    const {result,audit}=withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(f.store,f.state,
+        new PlayPokemonEffect(f.players[0],f.lele));
+      const confirm=f.ai.decodeNextAction(f.state);
+      assert.equal(confirm.result,true);
+      f.store.dispatch(confirm);
+      const search=f.ai.decodeNextAction(f.state);
+      assert.deepEqual(search.result,[supporterA]);
+      f.store.dispatch(search);
+      return {confirm:confirm.result,chosen:search.result.map(c=>c.fullName)};
+    },dependencies);
+    worlds.push({result,audit:{confirmed:audit.confirmed,
+      selectedSupporters:audit.selectedSupporters,bySeat:audit.bySeat}});
+  }
+  assert.deepEqual(worlds[0],worlds[1]);
+});
+test('exceptions restore all patched prototypes',()=>{
+  const previous=[FakeAi.prototype.decodeNextAction,
+    FakeStore.prototype.dispatch,TapuLeleGX.prototype.reduceEffect];
+  assert.throws(()=>withOwnerWonderTagPrompts(()=>{
+    throw new Error('controlled aborted native match');
+  },dependencies),/controlled aborted native match/);
+  assert.strictEqual(FakeAi.prototype.decodeNextAction,previous[0]);
+  assert.strictEqual(FakeStore.prototype.dispatch,previous[1]);
+  assert.strictEqual(TapuLeleGX.prototype.reduceEffect,previous[2]);
+});
