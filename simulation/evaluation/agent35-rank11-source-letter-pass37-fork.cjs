@@ -135,9 +135,23 @@ function run(deps={}){
     (row.trial?.id??row.id)===reg.selectedOriginalId);
   assert.equal(selected.length,1);
   const trial=selected[0];
-  assert.equal(trial.sourceDealFingerprint,reg.originalSourceDealSha256);
+  const custodyGateEvidence={
+    trialStatus:trial.status??null,
+    trialErrorClass:trial.error?.name??null,
+    nativeAcceptedRoots:trial.rootActionLedger?.length??
+      trial.nativeAbortEvidence?.rootActionLedger?.length??null,
+    nativeAbortStage:trial.nativeAbortEvidence?.failureStage??null,
+    nativePendingPrompt:trial.nativeAbortEvidence?.pendingPrompt??null,
+    sourceFingerprintPresent:trial.sourceDealFingerprint!==null&&
+      trial.sourceDealFingerprint!==undefined,
+    wholeDealFingerprintPresent:trial.fullPhysicalDealFingerprint!==null&&
+      trial.fullPhysicalDealFingerprint!==undefined
+  };
+  assert.equal(trial.sourceDealFingerprint,reg.originalSourceDealSha256,
+    'Frozen source physical custody gate: '+JSON.stringify(custodyGateEvidence));
   assert.equal(trial.fullPhysicalDealFingerprint,
-    reg.originalWholePhysicalDealSha256);
+    reg.originalWholePhysicalDealSha256,
+    'Frozen whole physical custody gate: '+JSON.stringify(custodyGateEvidence));
   const roots=trial.rootActionLedger??
     trial.nativeAbortEvidence?.rootActionLedger;
   assert.ok(Array.isArray(roots),'Missing native accepted source action tape');
