@@ -65,6 +65,26 @@ function firstOnlySetups(opening){
 }
 
 /**
+ * Source-specific isolation of a generic protected in-turn Bench trigger:
+ * choose earliest non-Lele Basic Active, prebench only non-Lele Basics, retain
+ * singleton Lele to play during the turn. Crobat V is in the other-Basic
+ * category and is intentionally not protected in this limited experiment.
+ * @param {number[]} opening
+ */
+function protectedLeleSetups(opening){
+  const n=opening[C.adp]+opening[C.basic];
+  if(n===0){
+    return opening[C.lele]?[{active:'lele',bench:0,placed:1,
+      adpPlaced:0,lelePlaced:1,adpOnBench:false,weight:SCALE}]:[];
+  }
+  if(420%n!==0)throw new Error('Unrepresentable non-Lele order');
+  return ['adp','basic'].filter(type=>opening[C[type]]>0).map(type=>({
+    active:type,bench:n-1,placed:n,adpPlaced:opening[C.adp],
+    lelePlaced:0,adpOnBench:type==='basic'&&opening[C.adp]>0,
+    weight:SCALE*BigInt(opening[C[type]])/BigInt(n)}));
+}
+
+/**
  * Resolve a single payable source route with actual setup card custody,
  * remaining free Bench slots, and one turn-time Wonder Tag trigger.
  * @param {number[]} opening
@@ -137,7 +157,8 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
     throw new Error('Invalid physical setup sizes');
   const numerators=Object.fromEntries(PROFILES.map(p=>[p,{
     deliberateWith:0n,deliberateWithout:0n,greedyWith:0n,greedyWithout:0n,
-    firstOnlyWith:0n,firstOnlyWithout:0n}]));
+    firstOnlyWith:0n,firstOnlyWithout:0n,
+    protectedLeleWith:0n,protectedLeleWithout:0n}]));
   const opening=Array(13).fill(0);
   let handsVisited=0,sequenceVisits=0;
   function evaluate(handWeight){
@@ -146,6 +167,7 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
     handsVisited++;
     const greedy=greedySetups(opening);
     const firstOnly=firstOnlySetups(opening);
+    const protectLele=protectedLeleSetups(opening);
     sequenceVisits+=greedy.length;
     const afterHand=counts.map((v,i)=>v-opening[i]);
     for(let draw=0;draw<13;draw++){
@@ -190,6 +212,12 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
             if(payableUnderSetup(opening,seen,avail,profile,false,setup))
               z.firstOnlyWithout+=ways*setup.weight;
           }
+          for(const setup of protectLele){
+            if(payableUnderSetup(opening,seen,avail,profile,true,setup))
+              z.protectedLeleWith+=ways*setup.weight;
+            if(payableUnderSetup(opening,seen,avail,profile,false,setup))
+              z.protectedLeleWithout+=ways*setup.weight;
+          }
         }
       }
     }
@@ -209,7 +237,7 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
   return {denominatorScaled,numerators,handsVisited,sequenceVisits};
 }
 module.exports={SCALE,greedySetups,deliberateSetup,firstOnlySetups,
-  payableUnderSetup,comparePaidSetupPolicies};
+  protectedLeleSetups,payableUnderSetup,comparePaidSetupPolicies};
 if(require.main===module){
   const out=comparePaidSetupPolicies();
   console.log(JSON.stringify({denominatorScaled:String(out.denominatorScaled),
