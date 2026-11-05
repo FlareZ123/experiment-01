@@ -209,3 +209,32 @@ for (const seat of [0, 1]) {
     assert.strictEqual(SilentPokemonStore.prototype.dispatch, originalDispatch);
   });
 }
+
+for (const seat of [0, 1]) {
+  test('stale same-ID replacement prompt never certifies old Pokémon selection (seat ' + seat + ')', () => {
+    const id=seat+1;
+    const state={phase:2,turn:8,
+      players:[player(1,'A'),player(2,'B')],
+      prompts:[new ChoosePokemonPrompt(id,{id:93})]};
+    const result=withActorOnlyChoosePokemon(() => {
+      const store=new Store(state);
+      store.dispatch(new AddPlayerAction());
+      const action=new SimpleTacticsAi(id).decodeNextAction(state);
+      const originalPrompt=state.prompts[0];
+      state.prompts=[new ChoosePokemonPrompt(id,{id:93})];
+      assert.notStrictEqual(state.prompts[0],originalPrompt);
+      assert.throws(() => store.dispatch(action),
+        /returned without resolving the prompt/);
+      assert.equal(originalPrompt.result,undefined);
+      assert.ok(state.prompts[0].result!==undefined);
+    
+    },{
+      Store,SimpleTacticsAi,ResolvePromptAction,observe,
+      validate:(s,a)=>assert.ok(s.prompts[0].validate(a.result))
+    });
+    // The Store would resolve the new, unrelated same-ID prompt, leaving
+    // the originally offered prompt abandoned. This must be rejected.
+    assert.equal(result.audit.accepted,0);
+    assert.equal(result.audit.postconditionsMissing,1);
+  });
+}
