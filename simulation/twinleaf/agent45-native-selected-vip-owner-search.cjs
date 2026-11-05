@@ -115,7 +115,7 @@ function withNativeSelectedVipOwnerSearch(next,deps={}){
         nativeOwnerDeckPromptCreated:Boolean(created)});
     }
     if(proposed){
-      const settled=originalPrompt!==null&&
+      const settled=!!originalPrompt&&
         action.result!==undefined&&originalPrompt.result===action.result;
       if(!settled){
         audit.unsettledNativeReturns++;
