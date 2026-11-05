@@ -1276,6 +1276,12 @@ function runDevelopment({
     'Plumeria after-Pass requires canonical actor composition');
   assert.ok(!actorOwnerMailAfterPass||actorOnlyComposition,
     'Owner Mail after-Pass requires canonical actor composition');
+  assert.ok(actorOwnerMailAfterPassScope===null||
+    (actorOwnerMailAfterPass&&
+      typeof actorOwnerMailAfterPassScope.trialId==='string'&&
+      Number.isSafeInteger(actorOwnerMailAfterPassScope.globalTurn)&&
+      actorOwnerMailAfterPassScope.globalTurn>0),
+    'Mail root scope requires registered trial and positive global turn');
   assert.ok(!bilateralSpecialEnergyRoot||actorOnlyComposition,
     'Both-seat Special Energy root requires canonical actor composition');
   assert.ok(!bilateralEnergyContest||bilateralSpecialEnergyRoot,
