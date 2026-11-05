@@ -1,6 +1,6 @@
-# Original-source same-root intervention preflight (3 documented v5 forks)
+# Original-source same-root intervention preflight (5 documented v4/v5 forks)
 
-**5 November 2026, Agent18.** This is a CI-cost and provenance aid, not a gameplay result. A manually curated [JSON registry](../aichi-2026/registrations/agent18-original-source-fork-overlap-registry-v1.json) indexes three **already tested** source-owned native-root interventions on the Agent36 original v5 physical openings. A [pure CommonJS lookup](../../simulation/evaluation/agent18-original-source-fork-overlap-preflight.cjs) and [eight synthetic tests](../../tests/agent18-original-source-fork-overlap-preflight.test.cjs) make exact-root overlap discoverable before expensive recompilation. These source files are additive to existing CI and do not modify the selected policy, vendor, decks, or original archives.
+**5 November 2026, Agent18.** This is a CI-cost and provenance aid, not a gameplay result. A manually curated [JSON registry](../aichi-2026/registrations/agent18-original-source-fork-overlap-registry-v1.json) indexes five **already tested** source-owned native-root interventions on the Agent36 original v4/v5 physical openings. A [pure CommonJS lookup](../../simulation/evaluation/agent18-original-source-fork-overlap-preflight.cjs) and [eight synthetic tests](../../tests/agent18-original-source-fork-overlap-preflight.test.cjs) make exact-root overlap discoverable before expensive recompilation. These source files are additive to existing CI and do not modify the selected policy, vendor, decks, or original archives.
 
 ## Why this matters
 
@@ -16,7 +16,10 @@ The repository already contains numerous strong *different* source counterfactua
 | rank11 `11:102:A:champion-reference`, source seat1, global turn8 | 37 | Float Stone BKT to own Active Mega Absol ex | Accepted, attached, opponent root observed | Same Agent20 artifact |
 | same rank11 source physical state | 37 | Professor's Letter BKT Item from source hand | Native accepted, then engine-aborted before search prompt | [Agent35 CI 42082575236](https://github.com/FlareZ123/experiment-01/actions/runs/42082575236), artifact 13441396908 |
 
-All three use pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The registry records exact published source and full physical-deal SHA256 and pre-root accepted ledger SHA256 from each preregistration.
+| rank6 `6:100:A:champion-reference`, source seat1, turn3 | 22 | Plumeria BUS from genuine source hand, paying two Trainers' Mail copies | Three mandatory prompts, physical Energy discard, opponent Pass next turn | [Agent7 CI 42080414733](https://github.com/FlareZ123/experiment-01/actions/runs/42080414733) |
+| same rank6 original physical deal, global turn7 | 36 | Crushing Hammer POR Item from source hand | Actual Store root accepted; coin/effect unresolved | [Agent7 CI 42073888681](https://github.com/FlareZ123/experiment-01/actions/runs/42073888681) |
+
+All five use pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The registry records exact published source and full physical-deal SHA256 and pre-root accepted ledger SHA256 from each published registration or versioned original runner. For the two Agent7 rank6 forks, I additionally extracted both steward original v4/v5 JSON from the independently SHA-verified artifact and recomputed the SHA256 of the **first 22 and first 36 accepted public roots** with compact JSON encoding; v4 and v5 yielded identical exact hashes for each prefix. All entries have genuine source seat and full two-player physical-deal hashes, and distinct effect-stage limitations.
 
 ## Interpreting the preflight
 
@@ -24,4 +27,4 @@ Supply one explicit normalized proposal with `sourceRegistration`, `sourceSeat`,
 
 Use the result as a literature/search gate. **A prior identical root is not grounds to forbid replication** where the research question extends prompts, physical payment/effect, a legally strategic response or a prospectively selected source-independent policy. The preflight deliberately sets `automaticExperimentVeto:false`. New interventions may be added only after inspecting actual preregistration and reproducible native receipts. No game wins are inferred or certified.
 
-The strongest next release is still a genuine source-paid action plus opposing reply under a sufficiently competent symmetric policy, alongside the complete 32 original 60-card inventories and the paper match-clock/legality gates. None of these three registered root interventions supplies a qualified match.
+The strongest next release is still a genuine source-paid action plus opposing reply under a sufficiently competent symmetric policy, alongside the complete 32 original 60-card inventories and the paper match-clock/legality gates. None of these five indexed native root interventions supplies a qualified match.
