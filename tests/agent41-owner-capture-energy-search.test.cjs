@@ -187,3 +187,16 @@ test('native prompt count contract mismatch delegates without mutation',()=>{
   assert.equal(result.audit.matchedOwnerDeckPrompts,1);
   assert.equal(result.audit.ownerSearchProposals,0);
 });
+
+test('owner-deck physical order does not change chosen Basic printing',()=>{
+  const a={fullName:'Zekrom BLW',stage:Stage.BASIC};
+  const b={fullName:'Abra MEG',stage:Stage.BASIC};
+  const ownerOne=owner(101,[{fullName:CAPTURE}],[a,b]);
+  const ownerTwo=owner(101,[{fullName:CAPTURE}],[b,a]);
+  const selectedOne=captureChoice(new ChooseCardsPrompt(42,ownerOne),
+    ownerOne,Stage,{}).cards[0].fullName;
+  const selectedTwo=captureChoice(new ChooseCardsPrompt(43,ownerTwo),
+    ownerTwo,Stage,{}).cards[0].fullName;
+  assert.equal(selectedOne,'Abra MEG');
+  assert.equal(selectedOne,selectedTwo);
+});

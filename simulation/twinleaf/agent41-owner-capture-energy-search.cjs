@@ -28,7 +28,10 @@ function captureChoice(prompt,owner,Stage,state){
      prompt.options.min!==0)return null;
   const free=owner.bench.some(slot=>slot.cards.length===0);
   if(free){
-    for(const card of owner.deck.cards){
+    // The deck's physical iteration order is irrelevant after a search.
+    const canonical=[...owner.deck.cards].sort((a,b)=>
+      a.fullName<b.fullName?-1:a.fullName>b.fullName?1:0);
+    for(const card of canonical){
       if(card.stage===Stage.BASIC &&
          prompt.validate([card],state)===true)
         return {kind:'bench-basic',cards:[card]};
