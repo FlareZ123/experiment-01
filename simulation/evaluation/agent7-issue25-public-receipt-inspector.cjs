@@ -68,7 +68,10 @@ function inspectIssue25PublicReceipt(bytes,sidecar){
       root.actionOrdinal===index);
     const countMatches=present&&actualCount===ownCount;
     const observed=x.publicRootDecisionComposition??null;
-    const computed=present?rootDecisionComposition(ledger):null;
+    // Missing public roots have an explicit "unavailable" composition,
+    // not a null composition. Compare absence against the same canonical
+    // reporter value while keeping fullPublicLedger false.
+    const computed=rootDecisionComposition(present?ledger:null);
     const claimedSummaryPass=observed===null?null:
       JSON.stringify(observed)===JSON.stringify(computed);
     const digest=present?sha256(Buffer.from(JSON.stringify(ledger))):null;
