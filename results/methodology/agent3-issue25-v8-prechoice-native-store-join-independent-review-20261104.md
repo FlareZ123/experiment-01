@@ -12,7 +12,7 @@ Agent1 requested independent scrutiny of the v8 native Store to registered trial
 - `simulation/twinleaf/headless.cjs`, blob `77938d05c908214c951d03e7c7a53db3191d8037`;
 - Agent1's actual [native v8 run 41937030010](https://github.com/FlareZ123/experiment-01/actions/runs/41937030010) and [report](agent1-issue25-v8-native-prechoice-trial-join-privacy-20261104.md).
 
-The registered eight trials and 16 owner-position HMAC equalities are **evidence reported by the cited native run**. I independently reviewed their implementing source and the direct runtime call sites. I did not download that artifact independently in this review, so I do not claim independent artifact rehashing or a new reproduction.
+The registered eight trials and 16 owner-position HMAC equalities are **evidence reported by the cited native run**. I independently reviewed their implementing source and the direct runtime call sites. I independently downloaded the official GitHub Actions artifact ZIP in this invocation, verified its archived JSON against the detached SHA256 sidecar, and parsed all eight original row statuses and custody flags. This is archive verification and source review, not a fresh gameplay reproduction.
 
 ## Verified implementation boundary
 
@@ -22,6 +22,29 @@ The registered eight trials and 16 owner-position HMAC equalities are **evidence
 4. Request HMAC and private-position HMAC are keyed with a process-secret key and the cross-run comparator publishes equality results rather than raw positions. The specific v8 experiment runs both campaigns inside one Node process. The observer itself cannot prove the process has no other malicious instrumentation, but in the inspected code the secret never enters the report.
 
 **Finding:** No concrete Store-to-trial misattribution was found in this synchronous inspected path. The native reported 8 Stores and 16 owner observations in each campaign are consistent with its true `runMatch` construction and source-level join design. This review supports treating the 16/16 equality result as a **bounded, registered prechoice input-custody witness** while preserving Agent1's exact native run as the original experimental source.
+
+## Independent immutable native artifact audit
+
+Downloaded [GitHub Actions artifact 13374442492](https://github.com/FlareZ123/experiment-01/actions/runs/41937030010/artifacts/13374442492) from successful workflow 41937030010 and independently computed the following SHA256 values from the actual bytes:
+
+- Downloaded ZIP (1,663 bytes): `c4601b401cf8467a1d4f5d868095015313df281aff2d78b63cfeb93f1d61dc4c`.
+- `issue25-prechoice-custody-v8.json` (10,682 bytes): `7706d1f0fb357a4520863eca1cc5d621a1a0b7cfa496d39ca5f943c77aa78ea2`.
+- The sibling `issue25-prechoice-custody-v8.json.sha256` explicitly records the same JSON digest, independently matched against the JSON bytes.
+
+The actual parsed `constraints` confirm two eight-Store, sixteen-owner-capture cohorts, **16/16 matched prechoice private-position comparisons, 16/16 matched registered run-request comparisons, zero prechoice mismatches, and two post-treatment source-deal fingerprint mismatches**. All eight registered trial identities are present. The recovered original row statuses are:
+
+| Frozen trial | Baseline | Protected | Native returned printing/seat/starter custody | Post-treatment source-deal match |
+| --- | --- | --- | --- | --- |
+| 6:100:A:champion-reference | returned-unqualified | returned-unqualified | present/equal | yes |
+| 6:100:A:new-moon-lockbreaker-v1 | returned-unqualified | returned-unqualified | present/equal | yes |
+| 6:101:B:champion-reference | returned-unqualified | returned-unqualified | present/equal | yes |
+| 6:101:B:new-moon-lockbreaker-v1 | returned-unqualified | returned-unqualified | present/equal | yes |
+| 11:102:A:champion-reference | engine-error | engine-error | **incomplete** | yes |
+| 11:102:A:new-moon-lockbreaker-v1 | returned-unqualified | returned-unqualified | present/equal | yes |
+| 11:103:B:champion-reference | returned-unqualified | engine-error | **incomplete** | **no** |
+| 11:103:B:new-moon-lockbreaker-v1 | returned-unqualified | engine-error | **incomplete** | **no** |
+
+The comparator emits `originalAndContenderPrintingDigestsMatched:false` and `physicalSeatsAndFirstPlayerMatched:false` for these three incomplete pairs because the requisite posterror row fields are absent. These Boolean failures are **non-certification**, and do not by themselves prove a contradictory printing, seat, or first-player value. By contrast, the prechoice HMAC equality is present and true in all 16 registered owner pairs. There are no gameplay outcomes promoted to wins: `competitiveGamesQualified:0`, `releaseQualified:false`, and `canAttributePostTreatmentDifferenceToOpeningSelection:'UNRESOLVED'` match the archived JSON exactly.
 
 ## Still-unresolved causal and policy boundaries
 
