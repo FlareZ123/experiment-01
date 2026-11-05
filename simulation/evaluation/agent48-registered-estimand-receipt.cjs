@@ -21,6 +21,8 @@ const seat = value => value === 0 || value === 1 ? value : null;
  * @param {object[]} nativeRows Actual returned rows, including errors and caps.
  * @param {object[]} [comparisonPlans] Predeclared {id,leftId,rightId,purpose}.
  *   purpose: 'same-60-policy-ab' or 'different-60-fixed-opening'.
+ *   Same-60 policy A/B must declare its policy onset as after first-stable
+ *   turn-one root with external evidence SHA, or as setup-intervening.
  * @returns {object} A read-only, competitively unqualified receipt.
  */
 function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = []) {
@@ -76,9 +78,20 @@ function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = [])
     const sameCandidate = left.candidateId === right.candidateId;
     const eligibleType = pair.purpose === 'same-60-policy-ab' ?
       sameCandidate : !sameCandidate;
+    const samePolicyComparison = pair.purpose === 'same-60-policy-ab';
+    const policyOnsetProof = digest(pair.policyOnsetProofSha256);
+    const setupAffectsTreatment = samePolicyComparison &&
+      pair.policyFirstInfluences === 'during-setup-or-earlier';
+    const postSetupOnsetDeclared = samePolicyComparison &&
+      pair.policyFirstInfluences === 'after-first-stable-root' &&
+      policyOnsetProof !== null;
     let parity = 'UNKNOWN';
     if (!eligiblePlan || !eligibleType) {
       parity = 'INELIGIBLE_PLAN';
+    } else if (setupAffectsTreatment) {
+      parity = 'POSTTREATMENT_OPENING_NOT_ELIGIBLE';
+    } else if (samePolicyComparison && !postSetupOnsetDeclared) {
+      parity = 'UNKNOWN_POLICY_ONSET';
     } else if (a && b) {
       const leftSource = digest(a.sourceDealFingerprint);
       const rightSource = digest(b.sourceDealFingerprint);
@@ -121,6 +134,9 @@ function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = [])
     }
     return {id: pair.id, purpose: pair.purpose, leftId: pair.leftId,
       rightId: pair.rightId, parity,
+      policyFirstInfluences:pair.policyFirstInfluences??null,
+      policyOnsetProofSha256:policyOnsetProof,
+      policyOnsetEvidenceExternallyVerified:false,
       onlyConditionalFixedOpeningDiagnostic:
         pair.purpose === 'different-60-fixed-opening',
       competitiveInferenceQualified: false};
