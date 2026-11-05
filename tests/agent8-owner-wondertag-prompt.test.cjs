@@ -272,3 +272,56 @@ test('generic modal installed after specific Wonder Tag shadows true search',()=
   assert.equal(selected.audit.confirmOffers,1);
   assert.equal(selected.audit.confirmed,0);
 });
+
+
+class SilentPromptStore extends FakeStore{
+  dispatch(){return this.state;}
+}
+test('silent native prompt no-op fails closed before being counted accepted',()=>{
+  const f=fixture(0,[supporter('Carmine')]);
+  const silent=new SilentPromptStore(f.state);
+  let thrown;
+  try{
+    withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(silent,f.state,
+        new PlayPokemonEffect(f.players[0],f.lele));
+      silent.dispatch(f.ai.decodeNextAction(f.state));
+    },{...dependencies,Store:SilentPromptStore});
+  }catch(error){thrown=error;}
+  assert.match(thrown?.message??'',/without resolving the prompt/);
+  assert.equal(thrown.agent8WonderTagAudit.nativeUnsettled,1);
+  assert.equal(thrown.agent8WonderTagAudit.nativeAccepted,0);
+  assert.equal(f.state.prompts[0].result,undefined);
+  assert.equal(f.players[0].hand.length,0);
+});
+class MissingTransferStore extends FakeStore{
+  dispatch(action){
+    if(action?.id===2){
+      const p=this.state.prompts.find(p=>p.id===2&&p.result===undefined);
+      assert.ok(p);
+      assert.ok(p.validate(action.result));
+      p.result=action.result;
+      return this.state;
+    }
+    return super.dispatch(action);
+  }
+}
+test('settled search without physical Supporter movement fails closed',()=>{
+  const f=fixture(1,[supporter('Marnie')]);
+  const bad=new MissingTransferStore(f.state);
+  let thrown;
+  try{
+    withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(bad,f.state,
+        new PlayPokemonEffect(f.players[1],f.lele));
+      bad.dispatch(f.ai.decodeNextAction(f.state));
+      bad.dispatch(f.ai.decodeNextAction(f.state));
+    },{...dependencies,Store:MissingTransferStore});
+  }catch(error){thrown=error;}
+  assert.match(thrown?.message??'',/did not transfer the exact chosen Supporter/);
+  assert.equal(thrown.agent8WonderTagAudit.nativeCustodyFailures,1);
+  assert.equal(thrown.agent8WonderTagAudit.nativeAccepted,1);
+  assert.equal(thrown.agent8WonderTagAudit.selectedSupporters,0);
+  assert.equal(f.players[1].hand.length,0);
+  assert.equal(f.players[1].deck.cards.length,1);
+});
