@@ -5,7 +5,7 @@ const original=require('../results/aichi-2026/full-decklists.json')
   .decks.find(x=>x.rank===11);
 const fst=require('../resources/cards/en/swsh8.json');
 const asr=require('../resources/cards/en/swsh10.json');
-const {ROOT,VERSION,certify}=require(
+const {ROOT,VERSION,allInPrizes,certify}=require(
   '../simulation/evaluation/agent15-rank11-quickball-source-pass11.cjs');
 
 test('SFT source rank11 original-60, exact printed Quick Ball and Dark Patch',()=>{
@@ -27,6 +27,15 @@ test('SFT authenticated source owner hand and Basic/Prize conservation',()=>{
   assert.equal(v.guaranteedBasicPokemonInDeckGivenCompletePrefix,2);
   assert.equal(v.spareBenchSlots,3);
   assert.equal(v.handDiscardPayment,'Dark Patch ASR');
+  assert.equal(v.k0UnseenPoolOfDeckAndPrizes,52);
+  assert.ok(Math.abs(v.k0ProbabilitySecondMegaAbsolAvailable-
+    0.9886877828054299)<1e-12);
+  assert.ok(Math.abs(v.k0ProbabilityTrubbishAvailable-
+    0.9886877828054299)<1e-12);
+  assert.ok(Math.abs(v.k0ProbabilityMegaOrTrubbishAvailable-
+    0.9999445932219041)<1e-12);
+  assert.ok(Math.abs(v.k0ProbabilityMegaAndTrubbishBothAvailable-
+    0.9774309723889556)<1e-12);
 });
 
 test('SFT no previous source discard action and unusable held Dark Patch',()=>{
@@ -49,6 +58,17 @@ test('SFT printing and complete 60 are mandatory',()=>{
   assert.throws(()=>certify({...original,rank:6},fst,asr));
   assert.throws(()=>certify(original,fst.filter(x=>x.id!=='swsh8-237'),asr));
   assert.throws(()=>certify(original,fst,asr.filter(x=>x.id!=='swsh10-139')));
+});
+
+test('SFT hypergeometric Prize-group absence at K0',()=>{
+  assert.equal(allInPrizes(52,6,7),0);
+  assert.equal(allInPrizes(52,6,0),1);
+  assert.equal(allInPrizes(52,6,1),6/52);
+  assert.ok(Math.abs(allInPrizes(52,6,2)-15/1326)<1e-12);
+  assert.ok(Math.abs(allInPrizes(52,6,4)-
+    5.5406778095853724e-05)<1e-12);
+  assert.throws(()=>allInPrizes(52,53,2));
+  assert.throws(()=>allInPrizes(52,6,-1));
 });
 
 test('SFT native execution remains unobserved and no wins admitted',()=>{
