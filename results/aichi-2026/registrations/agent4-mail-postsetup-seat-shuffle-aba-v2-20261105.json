@@ -1,0 +1,51 @@
+{
+  "schema": "agent4-mail-postsetup-seat-shuffle-original-eight-ABA-v2-preregistered",
+  "registeredAtUTC": "2026-11-05T20:42:00Z",
+  "priorExperiment": "results/aichi-2026/registrations/agent4-bilateral-mail-seat-shuffle-aba-v1-20261105.json",
+  "priorNativeRun": 42104839436,
+  "scope": "Registered correction after completed full-lifecycle per-seat shuffle A/B/A changed original source opening opportunities and incorrectly expected policy RNG off",
+  "status": "PREREGISTERED_UNEXECUTED",
+  "sourceRanks": [
+    6,
+    11
+  ],
+  "candidateFixedSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalRegisteredEightIDs": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "comparison": [
+    "Legacy original eight selected-v5, no physical shuffle isolation (reference physical-start only)",
+    "A selected-v5 with original shared turn-zero setup shuffles, after-setup per-seat physical shuffles",
+    "B same after-setup shuffles + source-independent both-seat held Trainers' Mail after baseline Pass with owner top-four prompt",
+    "A exact repeat of selected-v5 under after-setup per-seat physical shuffles"
+  ],
+  "explicitPatch": "headless.runMatch is invoked with isolatePhysicalShuffleRandomnessAfterSetup:true in A/B/A; preserve legacy shared source for state.turn===0 only. Every after-setup native ShuffleDeckPrompt uses a per-seat deterministic source once globalTurn>=1. No changes to all other game, coin, bot policy, deck or source settings.",
+  "policyRandomKnownBaseline": "Existing selected v5 freezes isolatePolicyRandomness:true; preserve and check it. Expected returned protocol is per-seat-policy-and-physical-shuffle-after-setup-prng-v1.",
+  "nonintervention": "Original legacy selected-v5 run does not receive the new RNG option and must preserve historical native request semantics",
+  "comparisonsToPreserve": [
+    "exact source and full physical initial-deal SHA equal to legacy v5 for all 8 IDs",
+    "same original source and full initial deal across A/B/A for all 8 IDs",
+    "all 24 A/B/A native requests exactly select the after-setup option",
+    "all returned after-setup native outputs attest the correct combined RNG protocol",
+    "8/8 repeated A-control public native root tapes byte identical",
+    "all engine aborts/caps preserved; no post-hoc exclusions",
+    "rank6 6:100:A source Pass14 held Mail two copies and Native owner search root payoff denominator",
+    "candidate New Moon turn4 Klefki vs Pass after source Mail under shared vs seat-independent postsetup physical shuffles",
+    "actual source attack, KO/control, candidate reply, root and last turn coverage"
+  ],
+  "experimentalLimitations": "Changing own-seat post-setup shuffle order and sequential shared coin stream can alter live public trajectories, including earlier legal choices. Same complete initial physical deal does not ensure equivalent later state. Equal root caps do not equal equal game-turn horizons.",
+  "qualification": "Development only. No competitively qualified paper games and no fixed 60 ranked.",
+  "actionLimit": 48,
+  "sourceCode": "simulation/evaluation/agent4-mail-postsetup-seat-shuffle-aba-v2.cjs"
+}
