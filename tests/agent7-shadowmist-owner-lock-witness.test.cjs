@@ -16,7 +16,8 @@ const player=(id,hand,options={})=>({
 });
 const source=()=>player(102,[
   'Speed Lightning Energy RCL','Spiky Energy JTG',
-  'Thunder Mountain Prism Star LOT','Crushing Hammer POR','Guzma BUS'
+  'Thunder Mountain Prism Star LOT','Crushing Hammer POR','Guzma BUS',
+  'Plumeria BUS','Team Flare Grunt XY'
 ],{
   cannotPlaySpecialEnergyCards:true,cannotPlayStadiumCards:true,
   energyPlayedTurn:1
@@ -26,7 +27,10 @@ test('actual owner card categories and player-level lock flags are redacted',()=
   const p=ownerSnapshot(source(),3,1);
   assert.equal(p.knownRank6SpecialEnergyHeld,2);
   assert.equal(p.knownRank6StadiumHeld,1);
-  assert.equal(p.knownRank6TrainerResponsesHeld,2);
+  assert.equal(p.knownRank6TrainerResponsesHeld,4);
+  assert.equal(p.knownRank6PlumeriaHeld,1);
+  assert.equal(p.knownRank6GuzmaHeld,1);
+  assert.equal(p.knownRank6TeamFlareGruntHeld,1);
   assert.equal(p.knownRank6CrushingHammerHeld,1);
   assert.equal(p.nativeCrushingHammerPreliminaryCanPlay,null);
   assert.equal(p.nativeSpecialEnergyPlayLocked,true);
@@ -68,6 +72,9 @@ test('genuine Store Pass observer preserves native dispatch and restores prototy
   assert.equal(payload.audit.games[0].passes[0].turn,3);
   assert.equal(payload.audit.games[0].passes[0].nativeSpecialEnergyPlayLocked,true);
   assert.equal(payload.audit.games[0].passes[0].nativeCrushingHammerPreliminaryCanPlay,true);
+  assert.equal(payload.audit.games[0].passes[0].nativePlumeriaPreliminaryCanPlay,true);
+  assert.equal(payload.audit.games[0].passes[0].nativeGuzmaPreliminaryCanPlay,true);
+  assert.equal(payload.audit.games[0].passes[0].nativeTeamFlareGruntPreliminaryCanPlay,true);
   assert.equal(payload.audit.games[0].passes[0].opponentPublicEnergyCardCount,1);
 });
 
