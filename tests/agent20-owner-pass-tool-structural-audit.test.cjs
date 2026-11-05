@@ -73,6 +73,8 @@ test('eight original attempts preserve zero-pass abort and repeated identical To
   assert.equal(report.originalAttemptCount,8);
   assert.equal(report.originalSourcePassSnapshots,4);
   assert.equal(report.sourcePassSnapshotsWithHeldToolAndFreeRecipient,3);
+  assert.equal(report.toolJammerStructuralOwnerPassRoots,2);
+  assert.equal(report.toolJammerRootsWithCurrentOpponentActiveToolTarget,0);
   assert.equal(report.uniqueAttemptIdsWithToolOpportunity,2);
   assert.deepEqual(report.repeatedToolPrintings,[
     {printing:'Float Stone BKT',rootSightings:1},
@@ -102,4 +104,17 @@ test('mismatched native parity or source denominator rejects fabricated observat
   assert.throws(()=>censusOriginalSourcePassTools({
     ...archive,attempts:[...eight.slice(0,7),eight[0]]
   },tools));
+});
+
+
+test('Tool Jammer effect-target count reads only opposing public Active Tool',()=>{
+  const noTarget=pass(17,['Tool Jammer BST']);
+  assert.deepEqual(classifyOwnerPassTool(noTarget,0,tools)
+    .opponentActiveTools,[]);
+  const yesTarget=structuredClone(noTarget);
+  yesTarget.publicBoardBeforePass[1].active.toolCards=['Float Stone BKT'];
+  const result=classifyOwnerPassTool(yesTarget,0,tools);
+  assert.equal(result.structuralToolOpportunity,true);
+  assert.deepEqual(result.opponentActiveTools,['Float Stone BKT']);
+  assert.equal(result.printedEligibility,'unverified');
 });
