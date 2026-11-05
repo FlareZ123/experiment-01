@@ -61,6 +61,7 @@ function probe(family,toolOwnerSeat,mode){
   if(branch==='attacking-band'){
     attacker=toolOwner;defender=other;
   }
+  state.activePlayer=state.players.indexOf(attacker);
   // Full physical active + one nonempty Bench to make Handheld Fan's
   // optional target selection meaningful if the printed lock is absent.
   const targetBench=new PokemonCardList();
