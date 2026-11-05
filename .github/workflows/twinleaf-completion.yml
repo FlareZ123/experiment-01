@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent45_native_vip_v6:
+        description: 'Retrospective v5 versus original-eight native-selected VIP owner search: physical 48-root developmental diagnostic'
+        required: false
+        type: boolean
+        default: false
       include_agent8_telepath_v5:
         description: 'Retrospective original-eight v5 plus owner Telepathic Psychic Bench search, developmental only'
         required: false
@@ -152,11 +157,24 @@ jobs:
         env:
           ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
         run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Retrospective Agent45 native-selected VIP prompt after genuine Item root, identical v5 initial source deals
+        if: ${{ inputs.include_agent45_native_vip_v6 }}
+        env:
+          ISSUE25_AGENT45_NATIVE_VIP_V6_DIR: issue25-agent45-native-vip-v6
+        run: node --test tests/agent45-native-selected-vip-owner-search.test.cjs tests/agent45-issue25-native-vip-v6.test.cjs tests/agent45-issue25-native-vip-v6.native.test.cjs
       - name: Compare registered v5 versus Telepath owner-deck v6 on the original native eight
         if: ${{ inputs.include_agent9_telepath_v6 }}
         env:
           AGENT9_TELEPATH_V6_DIR: agent9-telepath-v6
         run: node --test tests/agent9-issue25-telepath-v6.native.test.cjs
+      - name: Archive all original eight native-selected VIP v5-v6 results, including errors and censored arms
+        if: ${{ always() && inputs.include_agent45_native_vip_v6 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent45-issue25-native-selected-vip-v6
+          path: issue25-agent45-native-vip-v6/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Archive source-preserving Telepath v5-v6 retrospective native ledgers
         if: ${{ always() && inputs.include_agent9_telepath_v6 }}
         uses: actions/upload-artifact@v4
