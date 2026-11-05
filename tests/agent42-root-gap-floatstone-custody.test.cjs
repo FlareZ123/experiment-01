@@ -29,14 +29,15 @@ function fixture() {
     ],
     nativeAcceptedTargetSidecar:{events:[
       {rootActionOrdinal:10,playerSlot:1,action:'PlayCardAction',
-       storeAccepted:true,declared:{ownerHandPrinting:'Float Stone BKT'},
+       storeAccepted:true,declared:{ownerHandPrinting:'Float Stone BKT',
+         target:{slot:1,index:0}},
        publicBoardChanges:[{seat:1,position:'active',
          before:{pokemon:active.pokemon,energies:active.energies,tools:[]},
          after:active}]},
       {rootActionOrdinal:11,playerSlot:1,action:'RetreatAction',
-       storeAccepted:true,publicBoardChanges:[
+       storeAccepted:true,declared:{benchIndex:2},publicBoardChanges:[
          {seat:1,position:'active',before:active,after:promoted},
-         {seat:1,position:'bench',before:promoted,after:active}
+         {seat:1,position:'bench',index:2,before:promoted,after:active}
        ]}
     ]},
     sourceAttackSettlement:{attacks:[
@@ -103,6 +104,16 @@ test('unpaid or unrecorded Retreat cannot become a paid chain', () => {
   const r=fixture();r.nativeAcceptedTargetSidecar.events[1].storeAccepted=false;
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
 });
+test('declared Tool Active target must match real source physical seat', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events[0].declared.target.slot=0;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('Retreat Bench target index must match accepted public board swap', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events[1].declared.benchIndex=4;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
 test('unsettled attack and clock reset must not qualify', () => {
   const r=fixture();r.sourceAttackSettlement.attacks[0].settledPromptChain=false;
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
@@ -138,6 +149,7 @@ test('symmetry: physical source in seat zero preserves settlement and reply', ()
   for(const root of r.rootActionLedger)root.playerSlot=1-root.playerSlot;
   for(const event of r.nativeAcceptedTargetSidecar.events){
     event.playerSlot=0;
+    if(event.declared.target)event.declared.target.slot=0;
     for(const change of event.publicBoardChanges)change.seat=0;
   }
   const packet=r.sourceAttackSettlement.attacks[0];
