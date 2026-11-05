@@ -59,6 +59,7 @@ test('identical numeric shuffle correction, genuine Wonder Tag yes vs no, 24 reg
         original:row.wonderTagDeclineControl?.status??null,
         ownerWonderTagYes:row.wonderTagYesAndSearch?.status??null,
         firstDifference:row.firstPublicRootDifference})),
+    nativeOwnerPublicContinuations:report.nativeOwnerPublicContinuations,
     nativeStatusRows:report.rows.map(row=>({
       id:row.id,
       A:row.wonderTagDeclineControl?.status??null,
