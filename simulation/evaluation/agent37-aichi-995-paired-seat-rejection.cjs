@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 
-const VERSION = "agent37-aichi-995-paired-seat-eprocess-v1";
+const VERSION = "agent37-aichi-995-paired-seat-and-actual-start-eprocess-v2";
 const FIELD_RANKS = 32;
 const FIELD_TARGET = 0.995;
 const REQUIRED_RANK_WIN_RATE = 1 - FIELD_RANKS * (1 - FIELD_TARGET);
@@ -13,8 +13,8 @@ const BETS = Object.freeze([0.5, 1, 2, 3]);
 
 /**
  * Fixed convex mixture of linear paired-seat e-processes. Under the per-rank
- * 84% equal-seat null, the expected number of nonwins in a complete two-seat
- * block is <= 0.32. Thus E[1 + b*(L-0.32) | prior completed blocks] <= 1.
+ * 84% equal-actual-start null, nonwins in a complete two-start
+ * block have expectation <= 0.32. Thus E[1 + b*(L-0.32) | prior completed blocks] <= 1.
  * For each precommitted b in BETS, the factor is nonnegative for L=0,1,2.
  * Neither independent seat assignment nor within-block independence is used.
  *
@@ -28,14 +28,14 @@ function mixtureLogEvidence(logComponentWealth) {
 }
 
 /**
- * Analyze only complete, prospectively designed two-seat blocks for one
+ * Analyze only complete, prospectively designed two-start blocks for one
  * frozen candidate. A tie is a nonwin. Input qualification labels and pairing
  * assertions MUST be independently audited; this pure module cannot prove
  * legitimate paper games, opponent competence, random deals or a match clock.
  *
  * @param {Array<{pairId:string,candidateId:string,originalRank:number,
- * pairingDesign:"TWO_SOURCE_SEATS_PRECOMMITTED",games:Array<{
- * id:string,sourceSeat:0|1,qualification:"QUALIFIED",
+ * pairingDesign:"SOURCE_SEAT_AND_ACTUAL_START_BALANCED",games:Array<{
+ * id:string,sourceSeat:0|1,candidateActualStart:"first"|"second",\n * qualification:"QUALIFIED",
  * outcome:"win"|"loss"|"tie"}>}>} blocks
  * @param {string} fixedCandidateId Exact frozen deck identity.
  * @returns {object} Conditional, falsification-only evidence report.
@@ -59,11 +59,11 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       "Different candidate 60s require separate validation");
     assert.ok(Number.isSafeInteger(block.originalRank) &&
       block.originalRank >= 1 && block.originalRank <= FIELD_RANKS);
-    assert.equal(block.pairingDesign, "TWO_SOURCE_SEATS_PRECOMMITTED",
-      "Paired-seat evidence requires prospectively complete pairs");
+    assert.equal(block.pairingDesign, "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
+      "Actual-start-balanced evidence requires prospectively complete pairs");
     assert.ok(Array.isArray(block.games) && block.games.length === 2,
       "A block must contain exactly two qualified games");
-    const seats = new Set();
+    const seats = new Set();\n    const actualStarts = new Set();
     let lossCount = 0;
     for (const game of block.games) {
       assert.ok(game && typeof game === "object");
@@ -72,7 +72,7 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       gameIds.add(game.id);
       assert.ok(game.sourceSeat === 0 || game.sourceSeat === 1);
       assert.ok(!seats.has(game.sourceSeat), "Duplicate seat within pair");
-      seats.add(game.sourceSeat);
+      seats.add(game.sourceSeat);\n      assert.ok(game.candidateActualStart === "first" ||\n        game.candidateActualStart === "second",\n        "Game needs verified actual first/second turn, not a physical seat proxy");\n      assert.ok(!actualStarts.has(game.candidateActualStart),\n        "Two physical seats with the same actual start are not a balanced pair");\n      actualStarts.add(game.candidateActualStart);
       assert.equal(game.qualification, "QUALIFIED",
         "Censored or engine-only games are not qualified");
       assert.ok(["win", "loss", "tie"].includes(game.outcome));
@@ -120,12 +120,12 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
     firstCrossing,
     rejectionFlag: firstCrossing !== null,
     paperQualificationVerifiedExternally: false,
-    pretreatmentPairingVerifiedExternally: false,
+    pretreatmentPairingVerifiedExternally: false,\n    actualFirstTurnVerifiedExternally: false,
     fixedCandidateAndPoliciesVerifiedExternally: false,
     interpretation: firstCrossing ?
       "CONDITIONAL-EARLY-REJECTION; audit each game and pair independently" :
       "NO-EARLY-REJECTION; no positive win-rate certification",
-    caveat: "Self-asserted QUALIFIED and paired-design labels provide no independent proof; each seat must have its intended fresh-deal marginal and unchanged frozen policies. Complete the second game regardless of first-game outcome."
+    caveat: "Self-asserted QUALIFIED, actual-start and paired-design labels provide no independent proof. A physical source seat does not establish actual first turn. Require one genuinely qualified candidate-first and candidate-second game in every completed pair, fresh conditional deals, and unchanged frozen policies; never omit the second game after the first result."
   };
 }
 
