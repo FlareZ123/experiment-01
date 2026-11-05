@@ -124,7 +124,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent18_root17_tooljammer }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
