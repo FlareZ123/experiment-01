@@ -82,7 +82,7 @@ test('common unified Store boundary vetoes 80 before mutation, then accepts 70 a
   assert.deepEqual(out.result,{nativeAccepted:true});
   assert.equal(f.store.mutations,1);
   assert.equal(out.audit.schema,VERSION);
-  assert.match(VERSION,/v8-roxie-paper-payment/);
+  assert.match(VERSION,/^agent41-unified-paper-prompt-contract-portfolio-v\\d+/);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_INVALID,1);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_VERIFIED,0,
