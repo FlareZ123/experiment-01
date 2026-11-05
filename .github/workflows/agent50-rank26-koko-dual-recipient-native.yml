@@ -185,6 +185,8 @@ jobs:
         run: npm run compile
       - name: Independent historical four-arm receipt custody and adversarial rank/candidate SFT
         run: node --test tests/agent7-issue25-public-receipt-inspector.test.cjs
+      - name: Fixed-60 all-rank necessary win floor and anytime early-rejection SFT
+        run: node --test tests/agent7-aichi-995-early-rejection.test.cjs
       - name: Verify source-printed Get Lost real Store exact Lost Zone destinations across public counts and seats
         run: node --test tests/agent9-source-stamped-getlost-exact-destination.native.test.cjs
       - name: Assert joined v4 really selects symmetric two-seat resources and source-printed handlers
