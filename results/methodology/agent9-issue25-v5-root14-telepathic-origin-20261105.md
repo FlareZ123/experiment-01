@@ -57,3 +57,23 @@ I recomputed the actual accepted Store root inventory from **all eight** `issue2
 The seven source card plays consist of Speed Lightning Energy twice, Capture Energy once, Darkness Energy twice, Squawkabilly ex once, and Crobat V once. In the source rank6 v5 New Moon arm, the one genuine Capture attachment was as late as public native ordinal45 and its mandatory owner search consumed subsequent roots. This is consistent with Agent36's physical deck-to-Bench observation. It cannot be interpreted as an ensuing attack and opponent reply within a 48-root cap.
 
 **Implication for the integration owner:** repairing candidate-seat0 Telepath's pending prompt will improve one stalled native run. The observed source decisions are separately dominated by Pass actions, and none of the eight observed sources declared an Attack within their available histories. A future actual source-attack-to-reply gate needs meaningful source-side choices and enough native root horizon after paid setup. The denominator above makes clear why a prompt-only success is insufficient, without inferring that every Pass had an affordable better paper option.
+
+
+## Previously archived original v6 versus selected v5: all-eight identical physical openings
+
+I separately downloaded the older [original mirrored v6 native archive (run41894027367, artifact13353289881)](https://github.com/FlareZ123/experiment-01/actions/runs/41894027367/artifacts/13353289881), independently verifying full ZIP SHA256 `7f8f8ab3f95f6cc7eb17ec12d5d37ff666924216a007b934ccaf662b4e905178` and its `issue25-mirrored-v6.json` (**145,149 bytes**, SHA256 `7ce7d32391074d9802a92c56056641b89b71ac16cd1e52f38f0fb2d0933b7f59`). Comparing against the independently verified selected-v5 archived eight rows yields **8/8 identical source and full two-player initial physical fingerprint digests within each exact registered ID**. This establishes a stronger common physical-start basis than matching seeds alone.
+
+I compared each accepted root's public ordinal, turn, actor seat, action class, pending prompt, printed card and attack. This is an action-level cross-version comparison. Both code and several policy options changed, so the observed divergence cannot be causally assigned to a single adapter without another controlled treatment.
+
+| Exact original ID group | First public accepted root difference | Earlier v6 | Later selected v5 |
+| --- | --- | --- | --- |
+| rank6 seed100 A / champion-reference | root13, source seat1 turn1 | Source Pass | Source **Speed Lightning Energy** |
+| rank6 seed100 A / new-moon-lockbreaker-v1 | root13, source seat1 turn1 | Source Pass | Source **Speed Lightning Energy** |
+| rank6 seed101 B / both contenders | **None within 48 accepted roots** | Identical observed accepted root sequence | Identical observed accepted root sequence |
+| rank11 seed102 A / champion-reference | **No accepted action mismatch in shared first 25 roots** | Native error root25 | Progressed to original 48-root cap |
+| rank11 seed102 A / new-moon-lockbreaker-v1 | root13, candidate seat0 turn1 | Candidate Pass | Candidate **Telepathic Psychic Energy**, then abort at prompt14 |
+| rank11 seed103 B / both contenders | **None within 48 accepted roots** | Identical observed accepted root sequence | Identical observed accepted root sequence |
+
+The earlier v6 had **4** source non-Pass/non-prompt actions (all rank11) and zero source Attack actions, independently reported by Agent3. The selected-v5 archive has **7** source non-Pass/non-prompt actions (three rank6 Energy plays and four rank11 plays), with zero source Attack actions. The rank11 New Moon candidate prompt regression and rank11 champion prompt rescue happen in *opposite* arms of the same original source seed102 pair. Aggregate error count therefore hides an important transfer of the liveness bottleneck.
+
+**Decision consequence:** the selected policy has demonstrated additional authentic source root activity on otherwise identical physical starts, although most original source turns still Pass and no source attack/payoff or fully paid opponent reply is observed. It is useful to isolate the root13 candidate Telepath continuation without discarding that source-side Energy progress. These retrospective starts remain development-only; the comparison does not produce a valid causal estimate of competitive deck strength.
