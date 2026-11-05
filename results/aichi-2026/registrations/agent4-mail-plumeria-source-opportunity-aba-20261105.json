@@ -1,0 +1,37 @@
+{
+  "schema": "agent4-original-rank6-mail-then-plumeria-deck-resource-ABA-v1",
+  "timestamp": "2026-11-05T19:51:00Z",
+  "source": "original rank6 source Iron Thorns exact original physical deal, rank11 retained original eight as negative controls",
+  "hypothesis": "Early spend of both original Mail on source turn1 may alter subsequent native Plumeria-after-Pass payment or candidate turn4 Shadow Mist; compare after selected v5 native Plumeria policy is enabled symmetrically.",
+  "protocol": "A: selected-v5 + actorPlumeriaAfterPass both seats. B: A + actor-only two-seat Mail Pass root + owner top4 native prompt. A repeated. Same eight original seeds, sixties, printed source decks and 48 native root action cap.",
+  "registeredSourceIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "primaryGates": [
+    "Exact A/B/A initial physical deal",
+    "Exact A repeat root tape",
+    "Store-native owner Mail transfer",
+    "Source native Plumeria Card root on original first Shadow Mist response turn3",
+    "Store-native 3 Plumeria prompts and owner discard payment",
+    "Next candidate T4 voluntary action and Energy availability",
+    "No extra source private/opponent hidden reads"
+  ],
+  "randomnessProtocol": "historical native shared physical RNG, with known coupling hazard; infer no directional performance from later action alone",
+  "qualification": {
+    "fullPaperGames": 0,
+    "originalFieldExactLists": 29,
+    "missingRanks": [
+      23,
+      25,
+      28
+    ],
+    "winRateDemonstrated": false
+  }
+}
