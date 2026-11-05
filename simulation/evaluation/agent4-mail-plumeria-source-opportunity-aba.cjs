@@ -11,7 +11,9 @@ const reg=require('../../results/aichi-2026/registrations/agent4-mail-plumeria-s
 const VERSION='agent4-original-mail-plumeria-afterpass-native-ABA-v1';
 function countActions(roots,seat,action,card){return roots.filter(x=>x.seat===seat&&x.action===action&&(!card||x.card===card)).length;}
 function run(deps={}){
- const wrapped=deps.runner??(()=>runStewardInnermostPrizeV5({runner:options=>runDevelopment({...options,actorPlumeriaAfterPass:true})}));
+ const baselineRunner=deps.runner??(()=>runStewardInnermostPrizeV5({runner:options=>runDevelopment({...options,actorPlumeriaAfterPass:true})}));
+ const rawAudits=[];
+ const wrapped=()=>{const result=baselineRunner();rawAudits.push(result.rawDevelopment?.rows?.map(r=>({id:r.trial?.id??r.id,physicalOwnerPlumeria:r.actorOnlyDecisionCoverage?.ownerPlumeriaAfterPassAudit??null}))??[]);return result;};
  const sample=(deps.mailABA??runMailABA)({runner:wrapped});
  assert.equal(sample.originalEight,8);
  const rank6=sample.panel.filter(x=>x.id.startsWith('6:100:A:'));
@@ -43,6 +45,7 @@ function run(deps={}){
   originalTrialCount:sample.originalEight,
   rank6OriginalMatchedArms:rows,
   fullNativeMailAudit:sample.bilateralMailAudit,
+  actualPerTrialPlumeriaNativeAuditABA:rawAudits.map((rows,i)=>({phase:['A-original','B-mail','A-repeated'][i],originalRank6:rows.filter(x=>x.id?.startsWith('6:100:A:')).map(x=>({id:x.id,actualStoreAccepted:x.physicalOwnerPlumeria?.acceptedPlumeria??null,physicalOpponentEnergyDiscards:x.physicalOwnerPlumeria?.settledEnergyDiscards??null,realPhysicalOwnerPayments:x.physicalOwnerPlumeria?.physicallyAcceptedOwnerPayments??[],bySeat:x.physicalOwnerPlumeria?.bySeat??null}))})),
   allArmNativeStatus:sample.panel.map(x=>({id:x.id,control:x.originalDisposition,treatment:x.treatmentDisposition,repeat:x.repeatedDisposition})),
   paperQualifiedGameCount:0,winRate:null};
 }
