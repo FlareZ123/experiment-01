@@ -226,3 +226,17 @@ test('register genuine contender and original-source searches separately',()=>{
   assert.equal(w.settledRoleCensus.contenderSearches,1);
   assert.equal(w.settledRoleCensus.contenderSupporterTransfers,1);
 });
+
+test('fail closed when native accepted counts or seat receipts contradict registered decisions',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  const e=b.diagnostic.audit.firstBlockedPromptEnvelope;
+  e.sourceIndependentOwnerWonderTag.nativeAccepted=3;
+  let w=compareProtectedWonderTagV10(a,b).registeredWonderTagActorWitness;
+  assert.equal(w.nativeSettlementOfEveryChoiceAttested,false);
+  assert.equal(w.settledRoleCensus,null);
+  e.sourceIndependentOwnerWonderTag.nativeAccepted=4;
+  e.sourceIndependentOwnerWonderTag.bySeat={0:2,1:2};
+  w=compareProtectedWonderTagV10(a,b).registeredWonderTagActorWitness;
+  assert.equal(w.nativeSettlementOfEveryChoiceAttested,false);
+  assert.equal(w.settledRoleCensus,null);
+});
