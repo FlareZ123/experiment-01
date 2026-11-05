@@ -34,10 +34,12 @@ function withPublicSupporterRevealWitness(run,deps={}){
   assert.equal(typeof previous?.value,'function');
   assert.equal(previous.configurable,true);
   const selectedByStore=new WeakMap();
+  const revealedByStore=new WeakMap();
   const audit={version:VERSION,eligibleAcceptedSourceSearches:0,
     matchedNativeAcceptedPublicSupporterReveals:0,
     unmatchedAcceptedPublicSupporterReveals:0,
-    publicReveals:[],readsOpponentHiddenDeck:false,
+    publicReveals:[],sourceOwnerPassAfterPublicReveal:[],
+    readsOpponentHiddenDeck:false,
     emitsSelectedPrintingBeforeOpponentNativeReveal:false,
     wholePolicyInformationSafe:false,
     competitivelyQualifiedGames:0};
@@ -54,7 +56,43 @@ function withPublicSupporterRevealWitness(run,deps={}){
         player.deck===prompt.cards);
     const isReveal=prompt instanceof ShowCardsPrompt;
     const answer=isSearch?action.result:null;
+    const revealed=revealedByStore.get(this);
+    const activeSeat=before?.activePlayer;
+    const activeOwner=activeSeat===0||activeSeat===1?
+      before.players[activeSeat]:null;
+    const passingPubliclyRevealedSource=action?.constructor?.name===
+      'PassTurnAction'&&revealed&&activeOwner&&
+      activeOwner.id===revealed.ownerId&&before.turn===revealed.turn;
+    let passWitness=null;
+    if(passingPubliclyRevealedSource){
+      let nullTargetCanPlay='not-available';
+      if(typeof revealed.card.canPlay==='function'){
+        try{
+          const answer=revealed.card.canPlay(null,before,activeOwner);
+          nullTargetCanPlay=answer===true?'true':
+            answer===false?'false':'nonboolean';
+        }catch(error){nullTargetCanPlay='threw';}
+      }
+      passWitness={
+        sourceOwnerSeat:activeSeat,turn:before.turn,
+        revealedSupporterPrinting:revealed.card.fullName,
+        samePhysicalSelectedSupporterStillHeld:
+          activeOwner.hand.cards.includes(revealed.card),
+        nativeSupporterTurnQuotaBeforePass:activeOwner.supporterTurn??null,
+        nativeSupporterPlayLockBeforePass:
+          activeOwner.cannotPlaySupporterCards===true,
+        nativeNullTargetCanPlay,
+        nullTargetCanPlayDoesNotCertifyTargetLegality:true,
+        publishedOnlyAfterOpponentAcceptedReveal:true,
+        actualNativePassAccepted:false
+      };
+    }
     const result=previous.value.apply(this,[action,...args]);
+    if(passWitness){
+      passWitness.actualNativePassAccepted=true;
+      audit.sourceOwnerPassAfterPublicReveal.push(passWitness);
+      revealedByStore.delete(this);
+    }
     // For these native prompt types, the Store must actually accept the
     // selected action before any audit field changes.
     if(!prompt||prompt.result!==action.result)return result;
@@ -84,6 +122,10 @@ function withPublicSupporterRevealWitness(run,deps={}){
           selectedSearchPromptId:selected.sourcePromptId,
           revealPromptId:prompt.id,
           nativeOpponentAcknowledged:true
+        });
+        revealedByStore.set(this,{
+          card:selected.card,ownerId:selected.ownerId,
+          turn:selected.selectionTurn
         });
         selectedByStore.delete(this);
       }else if(prompt.cards.some(card=>
