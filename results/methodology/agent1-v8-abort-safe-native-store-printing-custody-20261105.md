@@ -46,3 +46,19 @@ The earlier identical-policy A/A controls separately showed eight out of eight m
 **Next decision-changing work:** connect this accurate native prechoice/source identity evidence to an independently paper-checked full turn with a source-owned attack or consequential lock effect and meaningful opponent reply in the selected bilateral policy. Continue retaining all registered errors and caps.
 
 **Reproduction entry:** existing manually dispatched `.github/workflows/agent50-rank26-koko-dual-recipient-native.yml`, input `issue25_v8_only: true`. No new workflow or vendor changes.
+
+## Source-versus-contender board provenance, second compiled verification
+
+A second independently dispatched, compiled [native CI 42077106821](https://github.com/FlareZ123/experiment-01/actions/runs/42077106821) **SUCCESS** reused the same frozen eight IDs, both original source seats and two opening policies, and added a public-board role projection keyed by each registered `candidateSlot`. The role projection uses only already-collected real native **before-first-action** public Pokémon-board HMAC equality and occupied Bench counts, with no owner card names or digests in the report.
+
+| Actual before-turn-action A/B public setup board comparison | Differing board HMACs | Differing Bench occupancy |
+| --- | ---: | ---: |
+| Original Aichi source owner (all eight trials) | **2** | **2** |
+| Experimental contender owner (all eight trials) | **0** | **0** |
+| Combined both real physical owner seats | **2 / 16** | **2 / 16** |
+
+This is a direct result for the original opponent source setup: the protected-opening variant changed two original-source Active/Bench board configurations despite identical physical prechoice owner inputs. **The two mismatched public boards came exclusively from the original Aichi source owner in these registered trials**, and no contender public Pokémon board changed. This observation is narrower than an assertion that a particular printed card effect or retained Supporter was correctly executed.
+
+The pure regression suite passed **19/19**, including the reversed candidate seat-B mapping; the new native eight-arm test passed **1/1**. Full sanitized [artifact 13439940672](https://github.com/FlareZ123/experiment-01/actions/runs/42077106821/artifacts/13439940672) contains a 22,688-byte JSON receipt with logged JSON SHA-256 `d47194b05f9f1e201b96942e4f0f7f5b497470b4a6613b39fb9d1640920dfcf2`. It still reports **5/8 complete returned rows, 0 raw printing contradictions, true Store-based registered identity, 0 qualified competitive games**, and leaves `actualNonTreatmentExecutingClosureVerified=false` and causal treatment attribution `UNRESOLVED`.
+
+**Interpretation:** a source-owner setup sensitivity is genuine at the public first-turn board level under this paired developmental model. Whether that board difference leads to useful in-turn owner Ability activation, improved resource selection, legal attack, opponent reply, or better outcomes remains untested. The source-role finding must not be converted to a deck-matchup win rate or a universal opening recommendation.
