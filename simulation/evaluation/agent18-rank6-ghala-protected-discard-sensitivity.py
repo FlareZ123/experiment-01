@@ -66,7 +66,7 @@ def count_coarse_outcomes() -> tuple[dict, int, int]:
     K = FOUR_CARD_SETS
     grouped = {
         kind: defaultdict(int) for kind in
-        ("direct", "mail", "direct_with_bench", "mail_with_bench")
+        ("direct", "mail", "direct_with_bench", "mail_with_bench", "direct_dce_held", "mail_dce_held", "direct_dce_held_with_bench", "mail_dce_held_with_bench")
     }
     full = (c(60, 7) - c(56, 7)) * c(53, 6) * 47
     enumerated = 0
@@ -128,8 +128,12 @@ def count_coarse_outcomes() -> tuple[dict, int, int]:
                                         key = (other_in_hand, slack)
                                         term = weight * K**3
                                         grouped["direct"][key] += term
+                                        if D:
+                                            grouped["direct_dce_held"][key] += term
                                         if B >= 2:
                                             grouped["direct_with_bench"][key] += term
+                                            if D:
+                                                grouped["direct_dce_held_with_bench"][key] += term
                                         continue
                                     if H > 0 or gh_in_deck < 1 or Q < 1:
                                         continue
@@ -143,8 +147,12 @@ def count_coarse_outcomes() -> tuple[dict, int, int]:
                                         key = (other_in_hand, slack)
                                         term = weight * miss**(j-1) * hit * K**(3-j)
                                         grouped["mail"][key] += term
+                                        if D:
+                                            grouped["mail_dce_held"][key] += term
                                         if B >= 2:
                                             grouped["mail_with_bench"][key] += term
+                                            if D:
+                                                grouped["mail_dce_held_with_bench"][key] += term
     if enumerated != full:
         raise AssertionError("Incomplete legal Basic opening/Prize/draw partition")
     return grouped, full * K**3, nonzero_states
@@ -188,6 +196,25 @@ def exact_sweep() -> dict:
         with_bench = (
             numerators["direct_with_bench"] + numerators["mail_with_bench"]
         )
+
+        def unpaid_if_dce_held(group: str) -> Fraction:
+            return sum(
+                (Fraction(weight, denominator) *
+                 (1-payment_availability(protected, held, slack))
+                 for (held, slack), weight in grouped[group].items()),
+                Fraction(0)
+            )
+
+        # Original printed Guzma & Hala lets the owner search one Stadium
+        # without discarding; the optional two-card payment is only needed
+        # to ALSO obtain a Special Energy and Tool. If DCE was already held,
+        # its printed Stadium search alone completes the resource search.
+        unpaid_rescue = (unpaid_if_dce_held("direct_dce_held") +
+                         unpaid_if_dce_held("mail_dce_held"))
+        optional_total = total + unpaid_rescue
+        optional_bench = (with_bench +
+                          unpaid_if_dce_held("direct_dce_held_with_bench") +
+                          unpaid_if_dce_held("mail_dce_held_with_bench"))
         runs.append({
             "protectedOtherCards": protected,
             "direct": str(numerators["direct"]),
@@ -196,6 +223,10 @@ def exact_sweep() -> dict:
             "combinedPercent": round(100*float(total), 8),
             "combinedWithSecondBasic": str(with_bench),
             "combinedWithSecondBasicPercent": round(100*float(with_bench), 8),
+            "optionalGhPaymentAvoidedIfDceAlreadyHeld": str(unpaid_rescue),
+            "optionalGhPaymentCombined": str(optional_total),
+            "optionalGhPaymentCombinedPercent": round(100*float(optional_total), 8),
+            "optionalGhPaymentWithSecondBasic": str(optional_bench),
         })
     baseline = runs[0]
     assert baseline["direct"] == "148690835231/451798286940"
@@ -206,6 +237,12 @@ def exact_sweep() -> dict:
         "15533827047272343835079/41010331343049635767200"
     )
     assert runs[2]["protectedOtherCards"] == 19
+    assert runs[2]["optionalGhPaymentCombined"] == (
+        "392791589553272470125463/1070825318401851600588000"
+    )
+    assert runs[0]["optionalGhPaymentCombined"] == (
+        "162399288709960885796971/428744373131882555748000"
+    )
     return {
         "schema": SCHEMA,
         "sourceRank": 6,
