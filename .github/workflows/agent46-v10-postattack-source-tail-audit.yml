@@ -1,0 +1,31 @@
+name: Agent46 frozen rank6 v10 native postattack owner source-turn audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-v10-postattack-public-source-tail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout research-only audit code
+        uses: actions/checkout@v4
+      - name: Use node from frozen source archive auditor
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Check independent same-deal and next-owner-turn synthetic controls
+        run: node --test tests/agent46-v10-postattack-source-tail-audit.test.cjs
+      - name: Download already executed v10 eight-arm native Store archive
+        uses: actions/download-artifact@v4
+        with:
+          name: agent5-rank6-original-post-dce-thunder-volt-v10
+          run-id: '42106359764'
+          github-token: ${{ github.token }}
+          path: archived-rank6-v10
+      - name: Independently audit exact v10 same-start after-attack source turn
+        run: node simulation/evaluation/agent46-v10-postattack-source-tail-audit.cjs
