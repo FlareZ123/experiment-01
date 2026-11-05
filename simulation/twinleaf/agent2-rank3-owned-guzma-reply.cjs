@@ -54,7 +54,7 @@ function withRank3SourceGuzmaReply(work,deps={}){
        owner.bench.some(p=>p.getPokemonCard()?.fullName==='Bunnelby PRC'&&
          p.energies.cards.length>0)&&
        state.players[1].bench.some(p=>Boolean(p.getPokemonCard()))&&
-       owner.supporterTurn!==state.turn&&!owner.cannotPlaySupporterCards){
+       owner.supporterTurn===0&&!owner.cannotPlaySupporterCards){
       const i=owner.hand.cards.findIndex(c=>c.fullName==='Guzma BUS');
       if(i>=0){
         selected=true;
