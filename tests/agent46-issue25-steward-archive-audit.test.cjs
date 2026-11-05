@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {test} = require('node:test');
 const {createHash} = require('node:crypto');
-const {EXPECTED, inspect} =
+const {EXPECTED, inspect, compareStewardV4V5} =
   require('../simulation/evaluation/agent46-issue25-steward-archive-audit.cjs');
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -24,6 +24,9 @@ function fixture() {
     return {id, actualRawTrialId:id, originalSourceSeat:seat,
       publicRootActions:roots, publicRootActionsTruncated:false,
       publicRootActionCount:3, publicRootLedgerSha256Computed:digest,
+      sourceDealFingerprint:sha(Buffer.from('source '+id)),
+      fullPhysicalDealFingerprint:sha(Buffer.from('whole '+id)),
+      actualFirstPlayer:seat,
       publicRootLedgerSha256Reported:digest, status:'returned-unqualified'};
   });
   return {
@@ -126,4 +129,84 @@ test('missing engine digest remains an explicit uncertainty',()=>{
   assert.equal(a.integrity,'PASS-bounded-file-and-root-custody');
   assert.equal(a.engineDigestUnverified,1);
   assert.equal(a.warnings.length,1);
+});
+
+/** @param {object} f @param {'v4'|'v5'} v @returns {[Buffer,string]} */
+function archive(f,v){
+  const bytes=Buffer.from(JSON.stringify(f)+'\n');
+  return [bytes,sha(bytes)+'  issue25-steward-'+v+'.json\n'];
+}
+
+/** @returns {[object,object]} Synthetic same-start paired control and treatment. */
+function paired(){
+  const a=fixture();
+  const b=structuredClone(a);
+  b.actuallyExecutingManifest.policyEntryPoint=
+    'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs';
+  return [a,b];
+}
+
+/** @param {object} control @param {object} treatment @returns {object} */
+function compare(control,treatment){
+  const [a,b]=archive(control,'v4');
+  const [c,d]=archive(treatment,'v5');
+  return compareStewardV4V5(a,b,c,d);
+}
+
+test('same physical starts and accepted original roots satisfy bounded paired control',()=>{
+  const [a,b]=paired();
+  const result=compare(a,b);
+  assert.equal(result.status,'PASS-bounded-controlled-prefix');
+  assert.equal(result.matchedInitialSources,8);
+  assert.equal(result.matchedInitialWholeDeals,8);
+  assert.equal(result.exactRootPrefixes,8);
+  assert.equal(result.competitiveGamesQualified,0);
+});
+
+test('a rescued root-capped source arm extends rather than overwrites prefix',()=>{
+  const [a,b]=paired();
+  a.attempts[4].status='engine-error';
+  b.attempts[4].status='returned-unqualified';
+  const base=b.attempts[4].publicRootActions;
+  const extra={actionOrdinal:3,action:'ResolvePromptAction',
+    playerSlot:1,turnBefore:2};
+  b.attempts[4].publicRootActions=[...base,extra];
+  b.attempts[4].publicRootActionCount=4;
+  const digest=sha(Buffer.from(JSON.stringify(b.attempts[4].publicRootActions)));
+  b.attempts[4].publicRootLedgerSha256Computed=digest;
+  b.attempts[4].publicRootLedgerSha256Reported=digest;
+  const result=compare(a,b);
+  assert.equal(result.status,'PASS-bounded-controlled-prefix');
+  assert.equal(result.rescuedNativeErrors,1);
+});
+
+test('distinct actual source physical openings under same trial id fail pairing',()=>{
+  const [a,b]=paired();
+  b.attempts[0].sourceDealFingerprint=sha(Buffer.from('changed source'));
+  const result=compare(a,b);
+  assert.equal(result.status,'FAIL');
+  assert.equal(result.matchedInitialSources,7);
+  assert.ok(result.failures.some(x=>x.includes('source-initial-deal')));
+});
+
+test('changed accepted native root with refreshed checksums still fails prefix',()=>{
+  const [a,b]=paired();
+  b.attempts[0].publicRootActions[1].action='AttackAction';
+  const digest=sha(Buffer.from(JSON.stringify(b.attempts[0].publicRootActions)));
+  b.attempts[0].publicRootLedgerSha256Computed=digest;
+  b.attempts[0].publicRootLedgerSha256Reported=digest;
+  const result=compare(a,b);
+  assert.equal(result.status,'FAIL');
+  assert.equal(result.exactRootPrefixes,7);
+  assert.ok(result.failures.some(x=>x.includes('accepted-native-prefix-diverged')));
+});
+
+test('first player mismatch and new engine abort must fail paired custody',()=>{
+  const [a,b]=paired();
+  b.attempts[0].actualFirstPlayer=1-a.attempts[0].actualFirstPlayer;
+  b.attempts[1].status='engine-error';
+  const result=compare(a,b);
+  assert.equal(result.status,'FAIL');
+  assert.equal(result.newNativeErrors,1);
+  assert.ok(result.failures.some(x=>x.includes('starter-seat-mismatch')));
 });
