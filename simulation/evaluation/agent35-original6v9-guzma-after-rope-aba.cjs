@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const crypto=require('node:crypto');
 const path=require('node:path');
 const {runMatch,initializeCards}=require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
@@ -163,7 +164,23 @@ if(require.main===module){
   if(destination){
     const target=path.resolve(destination);
     fs.mkdirSync(path.dirname(target),{recursive:true});
-    fs.writeFileSync(target,JSON.stringify(result,null,2)+'\n');
+    const lockPath=target+'.lock';
+    const lockFd=fs.openSync(lockPath,'wx');
+    let temporary=null;
+    try{
+      temporary=target+'.'+process.pid+'.'+
+        crypto.randomBytes(6).toString('hex')+'.tmp';
+      fs.writeFileSync(temporary,JSON.stringify(result,null,2)+'\\n',{
+        flag:'wx'
+      });
+      fs.renameSync(temporary,target);
+      temporary=null;
+    }finally{
+      if(temporary!==null && fs.existsSync(temporary))
+        fs.unlinkSync(temporary);
+      fs.closeSync(lockFd);
+      fs.unlinkSync(lockPath);
+    }
   }
   process.stdout.write(JSON.stringify({
     schema:result.schema,attempted:result.attempted,
