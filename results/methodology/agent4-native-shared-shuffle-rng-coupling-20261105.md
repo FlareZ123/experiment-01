@@ -37,6 +37,12 @@ The paired rank6 Mail experiment [CI 42095285003](https://github.com/FlareZ123/e
 
 A fixed seed and matching full opening certify original **pretreatment physical equality**; they do not guarantee every future card draw or decision uses equivalent randomized events when the two treatment arms execute different numbers of shuffles.
 
+## Implemented optional research mitigation and regression
+
+The research-owned adapter now supports `isolatePhysicalShuffleRandomness: true` on `headless.runMatch` requests (commit `3bc583f1e7a0e2ace04f427277e8600f433f81ef`). This option routes genuine physical ShuffleDeckPrompt permutations through independent deterministic per-seat streams seeded from the registered match seed. An omitted or false flag **retains the historical shared random stream exactly**, including all originally frozen source/candidate runs. A separate `isolatePolicyRandomness` flag continues to govern speculative bot decisions and is not implicitly changed by the new option. The returned match manifest records whether the physical-shuffle isolation was enabled and the combined RNG protocol label.
+
+The pure `tests/agent4-independent-physical-shuffle-rng.test.cjs` validates fixed-seed reproducibility, legacy shared-stream cross-seat sensitivity, and the candidate permutation's independence from extra source-owned shuffles when the option is enabled. **[Native workflow CI 42097338870](https://github.com/FlareZ123/experiment-01/actions/runs/42097338870) passed all new tests**, plus the original-eight native Mail A/B/A with the new option omitted. Original eight physical starting deals and repeated control root tapes matched, and the four native owner Mail settlements remained intact. This establishes default-off regression and pure RNG properties. A native A/B comparison with the option actually enabled is a **new, separately preregisterable experiment**, and has not yet been completed.
+
 ## Mitigation
 
 For a stronger per-decision controlled comparison, construct separate deterministic, logged random streams for each player's physical deck shuffle and each player's speculative bot policy; optionally event-key coin outcomes where appropriate. Register the new RNG protocol for both A and B before executing the experiment, verify equal physical openings and A/A repeatability under that protocol, and report any difference separately from historical shared-stream trials. Do not change or reinterpret earlier original A/B/A results silently. Preserve full future game time and native Store audit.
