@@ -1136,6 +1136,7 @@ function runDevelopment({
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
+  actorTwoUnitPaidRetreatRoot=false,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
   actorUnderworldDoorPromptOwner=false,
@@ -1230,6 +1231,8 @@ function runDevelopment({
     'Active Psychic priority requires symmetric Underworld root');
   assert.ok(!actorFundedShadowRiderFloatStoneRoot||actorOnlyComposition,
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
+  assert.ok(!actorTwoUnitPaidRetreatRoot||actorOnlyComposition,
+    'Paid two-Colorless VMAX Retreat must be symmetric actor-only roots');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
@@ -1491,6 +1494,9 @@ function runDevelopment({
               }:{}),
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
+              }:{}),
+              ...(actorTwoUnitPaidRetreatRoot?{
+                twoUnitPaidRetreatRoot:true
               }:{}),
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
