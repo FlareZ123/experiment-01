@@ -2,12 +2,19 @@ name: Twinleaf bounded full-match probe
 
 on:
   workflow_dispatch:
+    inputs:
+      abort_provenance_only:
+        description: 'Verify Agent18 native abort physical-deal, seat, and root custody only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   bounded-match:
+    if: ${{ !inputs.abort_provenance_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -36,3 +43,30 @@ jobs:
         run: node simulation/twinleaf/completion-fixture.cjs
       - name: Probe real Aichi decks from both seats
         run: node simulation/twinleaf/aichi-fixture.cjs
+  abort-custody:
+    if: ${{ inputs.abort_provenance_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up pinned upstream Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install upstream server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned upstream Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify redacted abort provenance and physical fingerprint validators
+        run: node --test tests/agent18-aborted-native-provenance.test.cjs tests/native-dispatch-abort-evidence.test.cjs
+      - name: Reproduce three native failure stages with complete deal custody
+        run: node --test tests/native-dispatch-abort-archive.pinned.test.cjs
+      - name: Validate real Issue25 four-arm error-row source, full-deal and first-turn evidence
+        run: node --test tests/agent50-issue25-owner-48root-quarantine.native.test.cjs
