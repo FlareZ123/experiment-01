@@ -34,6 +34,9 @@ test('SFT conservative printed energy population cannot all fit six prizes',()=>
     0.40072398190045244)<1e-12);
   assert.ok(Math.abs(x.k0UnconditionalSpeedLightningHitProbability-
     0.2173755656108597)<1e-12);
+  assert.ok(Math.abs(x.k0DirectDrawBothDceAndThunderMountainProbability-
+    1/442)<1e-12);
+  assert.match(x.directDrawBothSingletOnly,/excludes any Item search/);
   assert.match(x.k0DistributionAssumption,/prize\/deck permutation/);
 });
 
