@@ -110,6 +110,19 @@ test('unsettled attack and clock reset must not qualify', () => {
   r.sourceAttackSettlement.attacks[0].settlementCrossesClockReset=true;
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
 });
+test('intervening public Active change invalidates presumed custody', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events.push({
+    rootActionOrdinal:12,playerSlot:1,action:'PlayCardAction',
+    storeAccepted:true,publicBoardChanges:[{
+      seat:1,position:'active',
+      before:{pokemon:'Shadow Rider Calyrex VMAX CRE',energies:[]},
+      after:{pokemon:'Shadow Rider Calyrex VMAX CRE',
+        energies:['Psychic Energy MEE']}
+    }]
+  });
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
 test('attack on a later turn cannot be attributed to current Tool/Retreat', () => {
   const r=fixture();r.rootActionLedger[4].turnBefore=36;
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
