@@ -116,3 +116,16 @@ jobs:
           path: agent18-v6-special-energy-aba.tap
           if-no-files-found: warn
           retention-days: 21
+      - name: Observe original-source native Special Energy targets and public board changes
+        if: ${{ inputs.include_v6_bilateral_special_energy_aba }}
+        run: |
+          set -o pipefail
+          node --test tests/agent18-issue25-v6-energy-target-custody.native.test.cjs | tee agent18-v6-special-energy-targets.tap
+      - name: Preserve source-owned physical Special Energy native targets including aborts
+        if: ${{ always() && inputs.include_v6_bilateral_special_energy_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-issue25-v6-special-energy-targets
+          path: agent18-v6-special-energy-targets.tap
+          if-no-files-found: warn
+          retention-days: 21
