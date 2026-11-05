@@ -88,3 +88,27 @@ test('compiled original-60 Tapu Lele Wonder Tag owner prompt policy selects a Su
     assert.equal(outer.audit.repairedShuffles,0);
   }
 });
+
+
+test('printed Wonder Tag prompt handler remains inert under opposing Iron Thorns active ability lock',()=>{
+  for(const seat of [0,1]){
+    const x=stage(seat,6);
+    const {result,audit}=withOwnerWonderTagPrompts(()=>{
+      x.store.dispatch(new x.PlayCardAction(x.owner.id,1,{
+        player:x.PlayerType.BOTTOM_PLAYER,slot:x.SlotType.BENCH,index:4
+      }));
+      assert.equal(x.owner.bench[4].getPokemonCard()?.fullName,
+        'Tapu Lele-GX GRI');
+      return {pending:x.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)};
+    });
+    console.log('AGENT8_WONDER_TAG_IRON_THORNS_LOCK',JSON.stringify({
+      seat,result,audit
+    }));
+    assert.deepEqual(result.pending,[]);
+    assert.equal(audit.confirmOffers,0);
+    assert.equal(audit.searchOffers,0);
+    assert.equal(audit.nativeAccepted,0);
+    assert.equal(audit.competitiveQualifiedGames,0);
+  }
+});
