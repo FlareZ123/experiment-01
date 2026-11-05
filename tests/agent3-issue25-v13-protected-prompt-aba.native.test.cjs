@@ -71,6 +71,7 @@ test('native protected A/B/A: owner modal decline and first occupied own KO Priz
     prechoiceMatches:panel.matchingNativeOwnerPrechoice,
     requestMatches:panel.matchingNativeRequests,
     sourceControlMatches:panel.equalControlPhysicalSourceDealRows,
+    allThreeSourceDealsMatched:panel.equalAllThreePhysicalSourceDealRows,
     actualAcceptedModal:
       panel.treatmentSelectedPromptAudit
         ?.ownerModalPromptBaseline?.accepted??null,
