@@ -126,6 +126,12 @@ function withOwnerVoltTransfer(next,deps={}){
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
     ...previous,value:ownerDecode});
   try{return {result:next(),audit};}
+  catch(error){
+    if(error&&typeof error==='object')
+      error.nativeOwnerVoltAttemptAudit={...audit,
+        publicOwnerSelectionReceipts:[...audit.publicOwnerSelectionReceipts]};
+    throw error;
+  }
   finally{
     assert.strictEqual(Ai.prototype.decodeNextAction,ownerDecode);
     Object.defineProperty(Ai.prototype,'decodeNextAction',previous);
