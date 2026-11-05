@@ -69,7 +69,8 @@ function runArm(trial,cards){
           const {withNativeOwnerPassFrontier}=require(
             '../twinleaf/agent17-native-owner-pass-frontier-witness.cjs');
           const observed=withNativeOwnerPassFrontier(oldPath,{
-            onlySeat:rank3Seat,onlyTurns:[59,61,63,65,67]
+            onlySeat:trial.captureOwnerPassSeat??rank3Seat,
+            onlyTurns:trial.captureOwnerPassTurns??[59,61,63,65,67]
           });
           ownerPassFrontierAudit=observed.audit;
           return observed.result;
