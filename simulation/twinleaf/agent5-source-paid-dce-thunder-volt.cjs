@@ -56,6 +56,7 @@ function withSourceAfterDceThunderVolt(execute,deps){
     acceptedThunderStadiumRoots:0,
     physicalThunderToStadiumSettlements:0,
     proposedVoltCycloneAttackRoots:0,
+    originalActorVoltCycloneAttackRoots:0,
     acceptedVoltCycloneAttackRoots:0,
     nativeVoltCycloneOwnerPrompts:0,
     submittedMandatoryEnergyMoves:0,
@@ -93,6 +94,9 @@ function withSourceAfterDceThunderVolt(execute,deps){
     const dceRoot=act(state)&&seat===0&&card?.fullName===DCE&&
       stage==='before-dce';
     const token=issued.get(action)??null;
+    const naturalVolt=kind==='AttackAction'&&isLive&&
+      act(state)&&action.clientId===owner.id&&
+      action.name===ATTACK&&stage==='stadium-active'&&!token;
     const priorPrompt=token?.kind==='energy-move'?
       state.prompts.find(p=>p.id===action.id&&p.result===undefined):null;
     let result;
@@ -136,14 +140,21 @@ function withSourceAfterDceThunderVolt(execute,deps){
         owner:publicAndOwnerSnapshot(source)
       });
     }
-    if(token?.kind==='attack'){
+    if(token?.kind==='attack'||naturalVolt){
       audit.acceptedVoltCycloneAttackRoots++;
+      if(naturalVolt)audit.originalActorVoltCycloneAttackRoots++;
       const prompt=after.prompts.find(p=>p.result===undefined&&
         p.playerId===source.id&&p.constructor?.name==='AttachEnergyPrompt');
       if(prompt)audit.nativeVoltCycloneOwnerPrompts++;
       stage=prompt?'attack-prompt':'attack-without-move-prompt';
       record('native-attack-return',after,{
         ownUnresolvedMovePrompt:Boolean(prompt),
+        promptMatchesOwnerActive:Boolean(prompt?.cardList===source.active),
+        promptOptions:prompt?{
+          min:prompt.options?.min,max:prompt.options?.max,
+          allowCancel:prompt.options?.allowCancel
+        }:null,
+        originalActorDeclaredAttack:naturalVolt,
         owner:publicAndOwnerSnapshot(source)
       });
     }
