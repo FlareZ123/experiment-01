@@ -42,6 +42,20 @@ Both cases have an actual **Store-accepted original-source physical transfer of 
 
 The modes differ in subsequent recorded copies and action histories for the two positive pairs. The final native winner in each matched pair happens to be the same, but **native winners are not paper-tournament winners**. Do not attribute the 30-versus-19 total copied attacks to an improvement or regression: it is a *post-treatment* total with feedback, differing game horizons, and decisions. The six untouched pairs provide negative controls for the conditional hook.
 
+## Source attack opportunity versus actual payoff (additional read-only audit)
+
+A separate join of **actual source-owned** `ChooseAttackPrompt` choices to their same-root `sourceAttackSettlement.attacks[]` and full public board-before/after snapshots found:
+
+| Printed borrowed attack | A: native choices / public board change / Prize change | B: native choices / public board change / Prize change |
+| --- | --- | --- |
+| Benched **Mew VMAX FST Cross Fusion Strike** | **16 / 0 / 0** | **5 / 0 / 0** |
+| Benched **Genesect V FST Techno Blast** | **5 / 5 / 3** | **5 / 5 / 3** |
+| Benched **Mew V FST Energy Mix** | **2 / 2 / 0** | **2 / 2 / 0** |
+
+Every one of the **21** selected `Cross Fusion Strike -> Benched Mew VMAX Cross Fusion Strike` native chains left all observed public Pokémon board state and Prizes unchanged and produced no further `ChooseAttackPrompt` in its same initiating attack root. That proves a **native zero-payoff action sequence**; it is **not** a ruling that repeated attack copying must fizzle in real paper play. A nested-copy paper adjudication remains open and should be checked independently against official rulings. Many source `Cross Fusion Strike` declarations therefore do not certify attack competence or pressure. The genuine `Techno Blast` board changes and `Energy Mix` deck-to-Bench physical transfers are stronger payoff evidence.
+
+In the selected positive **New Moon** A/B pair, the original Mew/Genesect source first played **Genesect V** and borrowed its **Techno Blast** on global turn **39** in A; with the printed Energy Mix shuffle settled, both first occurred on global turn **17** in B. The underlying native engine terminal was global turn **51** in A versus **29** in B, with the same native source-side winner but a different native Prize trajectory. This is a *paired deterministic native outcome*, plausibly mediated by the changed source deck order and later source decisions. It is no empirical tournament win-rate improvement and does not establish that the corrected source always accelerates.
+
 ## What this resolves and what it leaves open
 
 1. With the new protocol, an extra source-owned physical shuffle **cannot directly advance the opposite seat's physical-shuffle RNG stream**, unlike historical shared-stream tests. The new matched two-pair root witness establishes the missing required paper shuffle as the first observed root-action change; both pairs retain a genuine next-opponent attack.
