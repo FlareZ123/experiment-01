@@ -227,6 +227,13 @@ jobs:
         if: ${{ inputs.agent6_recipient_paid_aba && !inputs.agent6_recipient_pass_stage }}
         shell: bash
         run: node simulation/evaluation/agent6-recipient-plus-paid-retreat-aba.cjs > agent6-recipient-plus-paid-retreat-aba.json
+      - name: Check owner-only passive Pass-stage census purity
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage }}
+        run: node --test tests/agent6-recipient-paid-pass-cascade.test.cjs tests/agent2-bilateral-multi-basic-retreat-bot.test.cjs
+      - name: Replay identical policy recipient-enabled Pass-stage census
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage }}
+        shell: bash
+        run: node simulation/evaluation/agent6-recipient-paid-pass-cascade.cjs > agent6-recipient-paid-pass-cascade.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
