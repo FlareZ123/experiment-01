@@ -25,8 +25,8 @@ The with-Wonder-Tag absolute resource probabilities are **43.7471957604%**, **20
 
 ## Executable evidence
 
-- [Exact 13-category Wonder Tag expansion](../../simulation/evaluation/agent5-adp-wondertag-paid-opening.cjs), byte-identical local/GitHub blob SHA-1 **8043b4296e4f14c2b77c6e10d4362caf78736977**.
-- [Eight tests](../../tests/agent5-adp-wondertag-paid-opening.test.cjs), byte-identical blob SHA-1 **36cd77f06f6cc4b72bb59a0417d7f747961611b9**. Real local Node 22 **8/8 PASS** including: no-Lele baseline exact parity for all profiles; Lele held behind ADP; Lele forced Active veto; preserved Lele behind a different Basic; Quick Ball fetched Lele with deck/Prize guard; a single Quick Ball cannot tutor two independent Pokémon; independent labeled-card toy exhaustive enumeration with seven-hand analogue, Prizes and first draw.
+- [Exact 13-category Wonder Tag expansion](../../simulation/evaluation/agent5-adp-wondertag-paid-opening.cjs), byte-identical local/GitHub blob SHA-1 **529e2a10235589fe2225def88cbf99ac58ee7fd9**.
+- [Eight tests](../../tests/agent5-adp-wondertag-paid-opening.test.cjs), byte-identical blob SHA-1 **3ec758348a356786e415747795c2144e64d34e3d**. Real local Node 22 **8/8 PASS** including: no-Lele baseline exact parity for all profiles; Lele held behind ADP; Lele forced Active veto; preserved Lele behind a different Basic; Quick Ball fetched Lele with deck/Prize guard; a single Quick Ball cannot tutor two independent Pokémon; independent labeled-card toy exhaustive enumeration with seven-hand analogue, Prizes and first draw.
 - The full exact count runs locally in approximately 10 seconds after grouping prize assignments by the **16 possible relevant deck-availability masks**. The manually dispatched existing **aichi-benchmark-stats.yml** includes both Agent5 pure test files; **no post-change Actions success or native test is claimed**.
 
 ## Critical bounds
@@ -38,3 +38,26 @@ The model assumes an open Bench slot, no opponent Ability/Item lock, a retained 
 ## Integration question
 
 A two-seat owner policy should expose for each real held Lele: whether it is Active, prebenched, genuinely playable from hand on the current turn, whether Wonder Tag is currently enabled, which owner-visible physical discard targets can pay a G&H or Ball cost, and whether the actual Store settles the Supporter search and resulting payment. The correct route is matchup-dependent. This supports specific native regression cases, not a new one-off CI workflow or a fixed candidate promotion.
+
+
+## Follow-up: where the incremental Wonder Tag route originates
+
+A 5 November source extension partitions each **additional** qualifying first-eight physical state by the chosen Wonder Tag trigger. The buckets are mutually exclusive according to the deterministic tested route selector: **Lele already held in owner hand**, **Quick Ball → Lele**, and **Ultra Ball → Lele**. Within a game state multiple lines could be possible, so this is *selector-route attribution*, not an independent causal estimate of each card's marginal effect. The source adds an extraBy exact BigInt histogram to the previously tested model; none of the first-eight probability totals changed.
+
+| DCI sensitivity assumption | Held Lele route, percentage points | Quick Ball → Lele, pp | Ultra Ball → Lele, pp | Total extra, pp |
+|---|---:|---:|---:|---:|
+| Mechanically discard any nonessential card | **+1.412392** | **+2.467044** | **+1.886229** | **+5.765665** |
+| Six Dragon payloads only | **+0.192697** | **+0.057025** | **+0.003702** | **+0.253424** |
+| Dragons and Basic Energy | **+0.645491** | **+0.532527** | **+0.125083** | **+1.303100** |
+| Dragons, Energy and Battle Compressor | **+0.873320** | **+0.970885** | **+0.332636** | **+2.176841** |
+
+The exact route numerators (in the same 250397245379590400 weighted-state denominator) are:
+
+- Mechanical: 3536590342988192 held, 6177411469951558 Quick, 4723065130350314 Ultra.
+- Dragon-only: 482508131135856 held, 142787891332546 Quick, 9270805069900 Ultra.
+- Dragon+Energy: 1616290806528944 held, 1333433291052434 Quick, 313203525552060 Ultra.
+- Dragon+Energy+Compressor: 2186769357307712 held, 2431070066309608 Quick, 832910860708080 Ultra.
+
+The updated eight-test suite checks all **twelve exact route numerators**, their exact sum against the independently tested original increment for each discard assumption, and the labeled physical-card toy enumeration; local Node.js 22 **8/8 PASS**. GitHub blob hashes above were read back against tested local files. No remote compiled CI or native Store outcome is implied.
+
+**Practical interpretation:** Under mechanical payments, Quick/Ultra tutor routes explain about three-quarters of the *selector-assigned* Wonder Tag increment. Under the restrictive Dragon-only payment assumption, the held-Lele path explains most of the much smaller gain. Paid ball discards, the remaining hand's DCI, and preservation of a legitimate future Bench-play trigger therefore deserve joint testing in an owner-visible policy. This finding does not rank the actual candidate's strength.
