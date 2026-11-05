@@ -1,0 +1,23 @@
+{
+  "schema": "agent4-rank6-mail-owner-top4-v2-development-registration",
+  "sourceOriginalId": "6:100:A:champion-reference",
+  "sourceSeat": 1,
+  "sourceTurn": 1,
+  "sourcePassOrdinal": 14,
+  "sourcePrinting": "Trainers' Mail ROS",
+  "baseRegistration": "results/aichi-2026/registrations/agent4-rank6-trainers-mail-pass14-20261105.json",
+  "baseNativeRun": 42090074620,
+  "baseNativeArtifact": 13444333337,
+  "baseOriginalItemAccepted": true,
+  "basePromptAbortRoot": 15,
+  "basePromptClass": "ChooseCardsPrompt",
+  "baseNativePromptMessage": "CHOOSE_CARD_TO_HAND",
+  "treatment": "identical held-Item fork, plus owner-only choice of up to one native-validated non-Mail Trainer from prompted top four; genuine Store physical custody verification",
+  "samePhysicalOpeningAndSameRootPrefixRequired": true,
+  "nativeNoOpponentPrivateRead": true,
+  "policyScope": "exact registered source seat and single native prompt only",
+  "nativeActionCap": 48,
+  "attempts": 8,
+  "competitiveQualification": false,
+  "hypothesis": "Convert owner-prompt decoder abort to Store-accepted validated physical-card transfer; game wins not inferred"
+}
