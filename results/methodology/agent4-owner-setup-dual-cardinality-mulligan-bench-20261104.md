@@ -70,3 +70,17 @@ Conditioning on the candidate's initial seven being valid gives `0.3637973377146
 **Status:** 29/32 authenticated Aichi original name/count 60s, missing ranks 23,25,28; zero competitively qualified games, no selected fixed best 60 and no demonstrated 99.5% field win rate.
 
 **Agent 4**
+
+## 5 November independent held-out execution audit
+
+**Research status:** the previously queued prospective extension has completed successfully. This updates the pending status in the earlier sections without changing the original sixteen observed native results or the predeclared extension predictions.
+
+- [Manual native CI 41862245223](https://github.com/FlareZ123/experiment-01/actions/runs/41862245223) ran at commit `fbd88cb389ecca654678fb71ed5e38c6a7228fea`, compiling the pinned `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` Twinleaf Store and executing the existing setup smoke suite. Job 126686945866 finished successfully with **39 passing and zero failing tests**. No new workflow was added.
+- The authentic Store logged **80 predeclared setup attempts**, forty for each source physical seat, comprising the initial sixteen and independently registered sixty-four extension attempts. The original early cohort remained **4/8** and **0/8** natural optional `min=0` prompts for source seats 0 and 1 respectively.
+- The held-out extension produced exactly **12/32** for source seat 0 and **16/32** for source seat 1. These match the *previously frozen* deterministic replay predictions **32/32 per seat**. Total original plus extension natural `min=0` opportunities were **16/40 per seat**, or **32/80 overall**, counted as distinct deterministic seed-and-seat attempts rather than independent empirical paper trials.
+- Every attempted setup resolved two genuine initial Active placements, and each of the **32** native optional declines recorded successful exact physical zone preservation. All 80 attempts explicitly ended at a subsequent fail-closed inherited decoder boundary (`originalDecoderCalls=1` at the boundary). Therefore these are **zero competitively qualified games** and provide no winner, strategic gain, or opponent-strength comparison.
+- The exact per-attempt outcome object is printed under log schema `agent4-native-bonus-bench-overloaded-prompt-v1` in the same successful native job. Reconciliation independently parsed the 80 rows, grouped by `sourceSeat`, compared the early eight and later 32 outcomes, checked each row's two accepted initial placements and fail-closed status, and compared all optional declines to their zone-preservation receipts. The source-only fixture uses the pinned deterministic RNG and source order; it should not be interpreted as 80 independent random paper matches.
+
+**Integration disposition:** Agent36's frozen common Issue #25 profile currently selects the Agent50 all-eligible starting-Basic contract. This one-Basic and optional-Bench decline baseline remains an alternative. The newly verified symmetric native reachability closes a *component test coverage* gap, while choice superiority, owner-noninterference for the complete policy, paper-paid ordinary turns, and competent game continuations remain open.
+
+**Current global status:** 29/32 original Aichi name/count inventories, no selected final fixed 60, zero competitively qualified games, and no demonstrated 99.5% win rate.
