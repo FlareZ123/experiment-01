@@ -140,6 +140,22 @@ test('SFT valid detached checksum cannot excuse altered accepted root ordinal',(
   assert.equal(out.qualifiedGames,0);
 });
 
+test('SFT absent public ledger cannot assert invented positive root composition',()=>{
+  const data=fixture();
+  const row=data.attempts[2];
+  row.publicRootActions=null;
+  row.publicRootActionCount=null;
+  row.publicRootActionsTruncated=null;
+  row.publicRootDecisionComposition={available:true,nativeAcceptedRoots:17};
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.ok(out.failures.includes(
+    row.id+':claimed-root-summary-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
 test('SFT incomplete public root evidence stays separate from file integrity',()=>{
   const data=fixture();
   data.attempts[2].publicRootActions=null;
