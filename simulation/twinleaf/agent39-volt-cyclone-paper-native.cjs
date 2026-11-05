@@ -73,6 +73,12 @@ function verifySeat(seat){
       benchedEnergy:live.opponent.bench[0].energies.cards.length,
       unresolved:prompt.result===undefined
     };
+    // Genuine pinned Store must not turn a stale identity into a settled reply.
+    live.store.dispatch(new ResolvePromptAction(prompt.id+1000000,
+      [{card:live.energy,to:legitimateTo}]));
+    assert.equal(prompt.result,undefined);
+    assert.ok(live.opponent.active.energies.cards.includes(live.energy));
+    assert.ok(!live.opponent.bench[0].energies.cards.includes(live.energy));
     assert.throws(()=>live.store.dispatch(
       new ResolvePromptAction(prompt.id,[])),
     /PAPER_PROMPT_INVALID:Iron Thorns ex TWM:exactly-one-energy-required/);
@@ -92,10 +98,17 @@ function verifySeat(seat){
   assert.equal(observed.audit.sourceMarkedPromptCount,1);
   assert.equal(observed.audit.paperInvalidVetoed,1);
   assert.equal(observed.audit.paperVerifiedNativeAccepted,1);
+  assert.equal(observed.audit.liveNativeReturnedWithoutThrow,2);
+  assert.equal(observed.audit.liveNativeSilentNoop,1);
+  assert.equal(observed.audit.liveNativePromptSettled,1);
+  assert.equal(observed.audit.livePaperVerifiedPhysicalEffect,1);
+  assert.deepEqual(observed.audit.events.map(e=>e.nativeAccepted),
+    [false,false,true]);
   return {seat,sourcePrinting:'Iron Thorns ex TWM',
     unguardedNativeEmptyTransferAccepted:true,
     guardedInvalidRejectedBeforeMutation:true,
     guardedValidEnergyTransferred:true,
+    nativeStalePromptNoopDetected:true,
     eventCounts:{
       marked:observed.audit.sourceMarkedPromptCount,
       invalid:observed.audit.paperInvalidVetoed,
