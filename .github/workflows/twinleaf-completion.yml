@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent9_telepath_v6:
+        description: 'Compare frozen v5 versus exact Telepath owner-deck v6 treatment on the same original eight physical deals'
+        required: false
+        type: boolean
+        default: false
       include_agent4_capture_retrospective_96:
         description: 'Retrospective original rank6/rank11 same-deal Capture prompt followthrough with 96 actual native roots, separate from frozen 48 cap'
         required: false
@@ -114,6 +119,19 @@ jobs:
         env:
           ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
         run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Compare registered v5 versus Telepath owner-deck v6 on the original native eight
+        if: ${{ inputs.include_agent9_telepath_v6 }}
+        env:
+          AGENT9_TELEPATH_V6_DIR: agent9-telepath-v6
+        run: node --test tests/agent9-issue25-telepath-v6.native.test.cjs
+      - name: Archive source-preserving Telepath v5-v6 retrospective native ledgers
+        if: ${{ always() && inputs.include_agent9_telepath_v6 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-issue25-telepath-v5-v6-native
+          path: agent9-telepath-v6/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Archive both complete original eight-arm v4-v5 ledgers and SHA256 sidecars
         if: ${{ always() && inputs.include_agent36_prize_v5 }}
         uses: actions/upload-artifact@v4
