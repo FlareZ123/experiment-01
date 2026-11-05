@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {
-  choose, fraction, originalRank6Counts, originalRank6Counterwindow
+  choose, fraction, originalRank6Counts
 } = require('./agent40-rank6-speed-trigger-counterwindow.cjs');
 
 const LABELS = ['thorns', 'speed', 'dce', 'guzma', 'thunder', 'single', 'other'];
