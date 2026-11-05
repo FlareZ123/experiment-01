@@ -55,9 +55,14 @@ function rankLogEValue(wins, nonwins) {
  * At any stopping time, a rank e-value >= 32/0.05 provides a conservative
  * familywise-5% early rejection of the 99.5% field target, assuming the
  * fixed-deck conditional Bernoulli model and truthful input admission.
- * Other ranks may be scheduled adaptively. Censored trials never count.
+ * Other ranks may be scheduled adaptively. Each matchup must draw the actual
+ * physical source seat by an independent fair coin, so its per-game win
+ * probability is the equally weighted mean of both fixed seat outcomes.
+ * Deterministic alternating seats do not satisfy this per-game null.
+ * Censored trials never count.
  *
  * @param {Array<{id:string,candidateId:string,originalRank:number,
+ *   sourceSeat:0|1,seatAssignment:'INDEPENDENT_FAIR_COIN',
  *   outcome:'win'|'loss'|'tie',qualification:'QUALIFIED'}>} games
  * @param {string} fixedCandidateId Frozen 60-card identity/provenance key.
  * @returns {object} Conditional mathematical diagnostic, not a certification.
@@ -66,7 +71,9 @@ function assessEarlyFieldRejection(games, fixedCandidateId) {
   assert.ok(Array.isArray(games));
   assert.ok(typeof fixedCandidateId === 'string' && fixedCandidateId.length > 0);
   const seenIds = new Set();
-  const counts = Array.from({length: FIELD_RANKS}, () => ({wins: 0, nonwins: 0}));
+  const counts = Array.from({length: FIELD_RANKS}, () => ({
+    wins: 0, nonwins: 0, sourceSeatCounts: [0, 0]
+  }));
   let firstCrossing = null;
   const logThreshold = Math.log(E_THRESHOLD);
   for (const [index, game] of games.entries()) {
@@ -78,10 +85,15 @@ function assessEarlyFieldRejection(games, fixedCandidateId) {
       'A confidence sequence cannot mix different fixed decklists');
     assert.ok(Number.isSafeInteger(game.originalRank) &&
       game.originalRank >= 1 && game.originalRank <= FIELD_RANKS);
+    assert.ok(game.sourceSeat === 0 || game.sourceSeat === 1,
+      'Original source physical seat must be 0 or 1');
+    assert.equal(game.seatAssignment, 'INDEPENDENT_FAIR_COIN',
+      'Time-uniform test requires independent fair seat randomization');
     assert.equal(game.qualification, 'QUALIFIED',
       'Unverified, aborted, capped and engine-only trials cannot enter evidence');
     assert.ok(['win', 'loss', 'tie'].includes(game.outcome));
     const state = counts[game.originalRank - 1];
+    state.sourceSeatCounts[game.sourceSeat]++;
     if (game.outcome === 'win') state.wins++;
     else state.nonwins++;
     if (firstCrossing === null) {
@@ -90,6 +102,7 @@ function assessEarlyFieldRejection(games, fixedCandidateId) {
         ordinal: index + 1,
         matchId: game.id,
         originalRank: game.originalRank,
+        sourceSeat: game.sourceSeat,
         rankWins: state.wins,
         rankNonwins: state.nonwins,
         rankLogEValue: logE
@@ -115,10 +128,11 @@ function assessEarlyFieldRejection(games, fixedCandidateId) {
     rejectionFlag: firstCrossing !== null,
     ranks,
     qualificationVerifiedExternally: false,
+    fairPhysicalSeatRandomizationVerifiedExternally: false,
     interpretation: firstCrossing ?
       'CONDITIONAL-STATISTICAL-REJECTION; inputs require independent admission review' :
       'NO-EARLY-REJECTION; not evidence of the 99.5-percent win rate',
-    provenanceCaveat: 'Input QUALIFIED flags are claims, not independently validated by this analyzer; external physical-deal, paper-rule, policy, opponent, all-rank, and clock custody remains necessary.'
+    provenanceCaveat: 'Input QUALIFIED and independent fair-seat labels are claims, not independently validated by this analyzer; external seat randomization, physical-deal, paper-rule, policy, opponent, all-rank, and clock custody remains necessary.'
   };
 }
 
