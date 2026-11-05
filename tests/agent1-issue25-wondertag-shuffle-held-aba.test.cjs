@@ -32,16 +32,23 @@ test('owner baseline and numeric shim are invariant across Wonder Tag false/true
       sourceLayer:next=>{
         events.push('wondertag');
         return {result:next(),audit:{nativeOffers:2}};
+      },
+      publicRevealLayer:next=>{
+        events.push('public-reveal');
+        return {result:next(),audit:{nativePublicSupporterReveals:0}};
       }
     });
     assert.equal(observed.result,23);
     assert.deepEqual(events,yes?
-      ['owner-v14','numeric','wondertag','native']:
-      ['owner-v14','numeric','native']);
+      ['owner-v14','numeric','public-reveal','wondertag','native']:
+      ['owner-v14','numeric','public-reveal','native']);
     assert.equal(observed.audit.allArmsNumericShuffleValidationIdentical,true);
     assert.equal(observed.audit.wonderTagYesOnlyPolicyIntervention,yes);
     assert.deepEqual(observed.audit.sourceStampedWonderTagYes,
       yes?{nativeOffers:2}:null);
+    assert.equal(observed.audit.publicRevealWitnessIdenticalInAllArms,true);
+    assert.deepEqual(observed.audit.postAcceptedPublicSupporterRevealAudit,
+      {nativePublicSupporterReveals:0});
     assert.equal(observed.audit.competitiveGamesQualified,0);
   }
 });
