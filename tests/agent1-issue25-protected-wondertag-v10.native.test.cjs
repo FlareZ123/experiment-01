@@ -85,6 +85,14 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
   const n=r.actualNativeShuffleCompletionAudit;
   assert.ok(n.shufflePromptsOffered>=n.shuffleCallbacksCompleted);
   assert.ok(n.outstandingShuffleCallbacks>=0);
+  assert.ok(n.validShuffleCallbacksCompleted<=n.shuffleCallbacksCompleted);
+  assert.ok(n.invalidNativeShufflePermutations>=0);
+  if(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified){
+    assert.equal(n.validShuffleCallbacksCompleted,
+      r.actualOwnerWonderTagAudit.settledSupporterTransfers);
+    assert.equal(n.invalidNativeShufflePermutations,0);
+    assert.equal(n.exactNativeShuffleTrialAndActorJoin,true);
+  }
   assert.equal(typeof r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,'boolean');
   assert.equal(r.competitiveGamesQualified,0);
   assert.equal(r.winRateClaim,null);
