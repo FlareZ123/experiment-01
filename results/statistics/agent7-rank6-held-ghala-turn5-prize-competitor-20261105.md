@@ -29,6 +29,17 @@ The calculation is conditional on exactly those 12 observed cards being outside 
 
 Source-aware exact code: [`agent7-rank6-ghala-turn5-prize-envelope.cjs`](../../simulation/evaluation/agent7-rank6-ghala-turn5-prize-envelope.cjs). Reproducible pure test: [`agent7-rank6-ghala-turn5-prize-envelope.test.cjs`](../../tests/agent7-rank6-ghala-turn5-prize-envelope.test.cjs). Formula independently checked with Python `math.comb` and `Fraction`. Native Test: **none added or run** for this T5 G&H line.
 
+## Both alternative Plumeria payments can independently afford the two-card G&H cost
+
+The existing native same-deal physical comparison preserved **two Enhanced Hammers** after the originally chosen double-Mail payment, versus **one Enhanced Hammer and one Mail** after the alternative Hammer+Mail payment. Both owner turn-five states had the same other five card names, one of which was the held G&H. Once G&H leaves the hand to be played, the two-cost payment opportunities are:
+
+- Original payment: **Enhanced Hammer TWM + Enhanced Hammer TWM**.
+- Mail-preserving payment: **Enhanced Hammer TWM + Trainers' Mail ROS**.
+
+The original rank1 opponent printed 60 has **11 Basic Psychic Energy and zero Special Energy**; Enhanced Hammer therefore has no ordinary matchup-representable attached Special Energy target. Independent replay of the existing `agent45-owner-ghala-after-tagcall.cjs` **pure discard ranking algorithm** on the original rank6 printed 60 with the actual known remaining hand names selected the exact preceding pairs, each under its existing max-penalty-40 cutoff (Hammer=28, Mail=6). This validates a **per-arm local payment proposal** without asserting a live G&H PlayCardAction or prompt success. In particular, preserving Mail through the earlier Plumeria payment is **not needed to make G&H's optional two-card discard mechanically feasible** in this frozen position; the prior original payment arm already has two low-opportunity-cost Hammer copies.
+
+Reproducible pure analysis: `simulation/evaluation/agent7-rank6-t5-ghala-discard-competition.cjs` and `tests/agent7-rank6-t5-ghala-discard-competition.test.cjs`, verified against the live checked-in original roster via isolated JavaScript source execution. It leaves open whether a more sophisticated action policy values the Mail as a separate Item search. No actual G&H native turn-five root has been recorded.
+
 ## Research implication: connector domination and source Pass evidence
 
 The earlier retained-Mail calculation bounds the chance that the top four contain **some** eligible Trainer, which by itself does not produce an immediate attack. This exact owner hand already contains the main search Supporter needed for a potential attack. It would be methodologically weak to interpret an additional Mail play or fetched Trainer as a strategically improved source while ignoring the potentially dominating direct G&H use. The native next test should compare owner-held source G&H, observed Mail, and the original Pass using the same original-source turn-five physical opening, confirm exact payments and retrieved cards without reading unopened deck order as actor input, settle a real Volt Cyclone if afforded, and record the candidate reply.
