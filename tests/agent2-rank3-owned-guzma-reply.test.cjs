@@ -44,6 +44,7 @@ test('native root plus both owner-choice prompts select physical eligible Pokemo
   const state=makeState();
   const dialga=state.players[1].bench[0];
   const bunnelby=state.players[0].bench[0];
+  const original=SimpleTacticsAi.prototype.decodeNextAction;
   const res=withRank3SourceGuzmaReply(()=>{
     const root=SimpleTacticsAi.prototype.decodeNextAction(state);
     assert.ok(root instanceof PlayCardAction);
@@ -68,8 +69,7 @@ test('native root plus both owner-choice prompts select physical eligible Pokemo
   assert.equal(res.audit.opposingChoices,1);
   assert.equal(res.audit.ownChoices,1);
   assert.equal(res.audit.receipts.length,3);
-  assert.equal(SimpleTacticsAi.prototype.decodeNextAction,
-    SimpleTacticsAi.prototype.decodeNextAction);
+  assert.equal(SimpleTacticsAi.prototype.decodeNextAction,original);
 });
 
 test('source conditions block root without silently choosing',()=>{
