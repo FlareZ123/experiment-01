@@ -53,3 +53,25 @@ test('incomplete registration does not return an optimistic novel result',()=>{
   assert.ok(x.missing.includes('fullPhysicalDealSha256'));
   assert.equal(x.competitivelyQualifiedGames,0);
 });
+test('known physical Tool stage4 is reusable for a stage3 attachment question',()=>{
+  const proposal={...root,desiredNativeEvidenceLevel:3};
+  const x=check(proposal,registry);
+  assert.equal(x.alreadyDemonstratedRequestedNativeStage,true);
+  assert.equal(x.automaticExperimentVeto,false);
+});
+test('same native root can still pursue higher paper-game evidence',()=>{
+  const x=check({...root,desiredNativeEvidenceLevel:5},registry);
+  assert.equal(x.status,'EXACT_PRIOR_ROOT_ACTION');
+  assert.equal(x.alreadyDemonstratedRequestedNativeStage,false);
+  assert.equal(x.competitivelyQualifiedGames,0);
+});
+test('prior root acceptance only does not establish native prompt completion',()=>{
+  const letter=registry.entries.find(x=>x.key.includes('professorsletter'));
+  const x=check({...letter,desiredNativeEvidenceLevel:2},registry);
+  assert.equal(x.status,'EXACT_PRIOR_ROOT_ACTION');
+  assert.equal(x.alreadyDemonstratedRequestedNativeStage,false);
+});
+test('invalid evidence target is an explicit incomplete preflight',()=>{
+  const x=check({...root,desiredNativeEvidenceLevel:6},registry);
+  assert.equal(x.status,'INVALID_EVIDENCE_GOAL');
+});
