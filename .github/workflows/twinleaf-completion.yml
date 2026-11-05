@@ -78,6 +78,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent35_v5_owner_pass_replay:
+        description: 'Frozen eight-arm source-owner Pass physical hand and board observation, no deck wins'
+        required: false
+        type: boolean
+        default: false
       include_agent42_rank1_paid_retreat_aba:
         description: 'Retrospective original rank1 exact-deal two-Psychic paid Retreat A/B/A, 0 qualified games'
         required: false
@@ -89,7 +94,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -366,3 +371,38 @@ jobs:
           path: agent18-v6-special-energy-targets.tap
           if-no-files-found: warn
           retention-days: 21
+  original-v5-owner-pass-observation:
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Check out repository and pinned Twinleaf
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up Node 22 with upstream npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify original-v5 root integrity and synthetic owner-custody controls
+        run: node --test tests/agent35-issue25-v5-pass-integrity.test.cjs tests/agent35-v5-owner-pass-observation-replay.test.cjs tests/agent31-bilateral-all-owner-pass-evidence.test.cjs
+      - name: Replay entire original eight native v5 with owner-only post-choice Pass audit
+        env:
+          AGENT35_V5_OWNER_PASS_REPLAY_OUTPUT: agent35-v5-original-owner-pass.json
+        run: node simulation/evaluation/agent35-v5-owner-pass-observation-replay.cjs
+      - name: Preserve full original-source Pass observations and any partial result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-v5-original-owner-pass-native
+          path: agent35-v5-original-owner-pass.json
+          retention-days: 14
+          if-no-files-found: warn
