@@ -61,6 +61,32 @@ function summarizeSham(a,b){
     return {id,seat,physicalInputEqual,requestEqual,
       physicalSixtyCorrect,firstPlayerEqual};
   }));
+  const firstTurnBoards=execution=>{
+    const records=execution.diagnostic.actualNativePrechoicePhysicalInputs
+      .firstTurnBoardEvents??[];
+    const map=new Map();
+    for(const event of records){
+      assert.ok(expectedIds.includes(event.registeredNativeTrialId));
+      assert.ok(!map.has(event.registeredNativeTrialId));
+      assert.equal(event.beforeFirstNativeTurnAction,true);
+      assert.equal(event.boards.length,2);
+      map.set(event.registeredNativeTrialId,event);
+    }
+    return map;
+  };
+  const boardsA=firstTurnBoards(a),boardsB=firstTurnBoards(b);
+  const boardPairs=expectedIds.flatMap(id=>[0,1].map(seat=>{
+    const before=boardsA.get(id)?.boards[seat];
+    const after=boardsB.get(id)?.boards[seat];
+    return {
+      id,seat,
+      bothCaptured:!!before&&!!after,
+      samePublicBoard:before&&after?
+        before.publicBoardHmacSha256===after.publicBoardHmacSha256:null,
+      sameBenchCount:before&&after?
+        before.benchOccupied===after.benchOccupied:null
+    };
+  }));
   const pairs=expectedIds.map((id,index)=>{
     const first=a.diagnostic.attemptedRows[index];
     const second=b.diagnostic.attemptedRows[index];
@@ -93,6 +119,12 @@ function summarizeSham(a,b){
       events.filter(event=>event.physicalSixtyCorrect).length,
     sameNativeFirstPlayer:
       events.filter(event=>event.firstPlayerEqual).length,
+    firstTurnPublicBoardOwnerPairsCaptured:
+      boardPairs.filter(pair=>pair.bothCaptured).length,
+    firstTurnPublicPokemonBoardsMatched:
+      boardPairs.filter(pair=>pair.samePublicBoard===true).length,
+    firstTurnPublicBenchCountsMatched:
+      boardPairs.filter(pair=>pair.sameBenchCount===true).length,
     samePostChoiceSourceDigests:
       pairs.filter(pair=>pair.samePostChoiceSourceDigest===true).length,
     changedPostChoiceSourceDigests:
@@ -150,6 +182,9 @@ for(const mode of ['baseline','protected']){
     assert.equal(summary.preRunRequestPairsMatched,16);
     assert.equal(summary.bothActualPhysicalSixtiesCorrect,16);
     assert.equal(summary.sameNativeFirstPlayer,16);
+    assert.equal(summary.firstTurnPublicBoardOwnerPairsCaptured,16);
+    assert.equal(summary.firstTurnPublicPokemonBoardsMatched,16);
+    assert.equal(summary.firstTurnPublicBenchCountsMatched,16);
     assert.equal(summary.competitiveGamesQualified,0);
   });
 }
