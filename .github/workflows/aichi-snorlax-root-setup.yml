@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      source_rank5_prospective_rng_pair:
+        description: 'Execute 32 registered fresh-seed original rank5 native Energy Mix A/B attempts'
+        required: false
+        type: boolean
+        default: false
       source_rank5_isolated_rng_pair:
         description: 'Run separate retrospective rank5 16-arm per-seat physical RNG sensitivity A/B'
         required: false
@@ -74,6 +79,13 @@ jobs:
           node --check simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs
           node simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs --inspect-only
           node simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs > agent19-rank5-independent-seat-rng-summary.json
+      - name: Run registered rank5 fresh-seed independent seat RNG study
+        if: ${{ inputs.source_rank5_prospective_rng_pair }}
+        run: |
+          node --test tests/agent19-independent-seat-rng.test.cjs
+          node --check simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs --inspect-only
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs > agent19-rank5-independent-seat-rng-prospective-summary.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
       - name: Record native single-attachment attack and sole-Pokemon board
@@ -98,4 +110,6 @@ jobs:
             agent19-rank5-energy-mix-shuffle-source-paired-native.json
             agent19-rank5-independent-seat-rng-summary.json
             agent19-rank5-independent-seat-rng-paired-native.json
+            agent19-rank5-independent-seat-rng-prospective-summary.json
+            agent19-rank5-independent-seat-rng-prospective-paired-native.json
           if-no-files-found: warn
