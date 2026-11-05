@@ -74,7 +74,7 @@ function payableUnderSetup(opening,seen,avail,profile,allowWonderTag,setup){
     ...(avail.gh&&seen[C.tag]>0?['tag']:[]),
     ...(allowWonderTag&&avail.gh&&leleInHand>0?['leleHeld']:[]),
     ...(allowWonderTag&&avail.gh&&avail.lele&&seen[C.quick]>0?['leleQuick']:[]),
-    ...(allowWonderTag&&avail.gh&&avail.lele&&seen[C.ultra]>0?['leleUltra']:[]
+    ...(allowWonderTag&&avail.gh&&avail.lele&&seen[C.ultra]>0?['leleUltra']:[])
   ]:[]);
   const handNow=seen.reduce((a,b)=>a+b,0)-setup.placed;
   const hypotheticallySafe=seen[C.dragon]+
