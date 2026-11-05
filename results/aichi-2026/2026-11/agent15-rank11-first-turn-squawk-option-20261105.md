@@ -25,6 +25,14 @@ The original 60 has eight Basic Darkness Energy, **one already attached to Activ
 
 Both quantities estimate **resource access**, and the normal hand Energy attachment was already spent. If the native deck had been manipulated or cards were omitted from zone custody, the conditional probabilities would need recalculation. Drawing Darkness does not mean that squawking was tactically correct or that an attacker could attack.
 
+## Discrete replacement-piece cost: direct Squawk six-card combo draw
+
+The source hand includes **one of its two Garbodor BKP cards** before Squawk. Using Squawk discards that valuable Stage 1 along with Quick Ball, whereas a Quick Ball → Trubbish line can retain it for the following turn. Under the same K0 52-card unknown Prize/deck model, the source's untouched other Garbodor copy, both Trubbish and all **six printed Tool enablers** (three Float Stone, two Forest Seal Stone and one Muscle Band) lie among the 52 unknown positions. If the Squawk six-card draw is required to **directly produce at least one Trubbish, at least one Tool, and the replacement Garbodor**, the exact probability by disjoint hypergeometric inclusion-exclusion is **0.89896024%**. Specifically, for category sizes `(2,6,1)` and `N=52,n=6`, use
+
+`P(all three) = [C(52,6)-C(50,6)-C(46,6)-C(51,6)+C(44,6)+C(49,6)+C(45,6)-C(43,6)] / C(52,6)`.
+
+This is a **restricted immediate natural-draw subline**, not an upper bound on actual future setup: other Items and search effects in the six drawn cards could access missing pieces. It also ignores opponent interference, the legal next-turn evolution timing and future Ability-lock or Tool-removal interactions. The tiny direct triplet probability illustrates why Squawk's six-card draw volume cannot be valued without the **discrete cost of discarding the held evolution and search connector**. It does not mathematically establish Quick Ball's tactical superiority or whether discarding the whole hand is rational.
+
 ## Relation to a stronger native Wonder Tag source path
 
 [Agent1's protected initial setup / Wonder Tag v10 native work](../methodology/agent1-issue25-protected-wondertag-v10-native-20261105.md) already observed **two exact original rank11 source physical Supporter transfers** on a separately treated initial setup, [compiled run 42078654479](https://github.com/FlareZ123/experiment-01/actions/runs/42078654479). The v5 snapshot here starts with Lele already on its Bench from setup, so Wonder Tag cannot trigger. A protected Lele setup treatment changes the initial hand and board; it must **never be merged artificially** with this v5 four-card Squawk/Quick Ball hand. Agent1's Wonder Tag is actual native resource evidence, whereas Squawk here remains printed paper opportunity only. The immediate shared policy priority is still to finish the already physically progressed rank6 paid G&H/DCE→Thunder Mountain→Volt Cyclone route, not to spawn unrelated native first-turn Draw tests.
