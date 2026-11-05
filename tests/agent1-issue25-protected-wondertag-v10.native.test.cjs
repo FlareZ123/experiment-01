@@ -47,6 +47,7 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
     samePhysicalInventories:r.originalStorePrintingsMatchConfigured,
     policyStudyEligible:r.comparisonEligibleForPolicyStudy,
     ownerWonderTag:r.actualOwnerWonderTagAudit,
+    registeredOwnerSearches:r.registeredWonderTagActorWitness,
     zeroShuffle:r.actualZeroSearchShuffleAudit,
     attempts:r.rows.map(row=>({
       id:row.id,sourceSeat:row.sourceSeat,
@@ -67,6 +68,9 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
   assert.ok(r.actualOwnerWonderTagAudit);
   assert.equal(r.actualOwnerWonderTagAudit.nativeUnsettled,0);
   assert.equal(r.actualOwnerWonderTagAudit.nativeCustodyFailures,0);
+  assert.ok(r.registeredWonderTagActorWitness);
+  assert.equal(r.registeredWonderTagActorWitness.authenticatedTrialAndActorSeat,true);
+  assert.equal(r.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
   assert.equal(r.competitiveGamesQualified,0);
   assert.equal(r.winRateClaim,null);
 });
