@@ -13,7 +13,7 @@ const KNOWN_RANK6_STADIUMS=Object.freeze([
   "Player's Ceremony"
 ]);
 const RESPONSE_TRAINERS=Object.freeze([
-  'Crushing Hammer','Guzma','Plumeria',
+  'Crushing Hammer','Guzma','Plumeria','Team Flare Grunt',
   "Trainers' Mail",'Camping Gear'
 ]);
 
@@ -41,11 +41,17 @@ function ownerSnapshot(player,turn,seat,store=null,state=null){
   const publicOpposingEnergyCards=opposite?
     [opposite.active,...opposite.bench]
       .reduce((n,slot)=>n+(slot?.energies?.cards?.length??0),0):null;
+  const preliminaryCanPlay=name=>store&&state?
+    player.hand.cards.some(card=>
+      card.fullName.startsWith(name+' ') &&
+      card.canPlay(store,state,player)===true):null;
   const nativeCrushingHammerCanPlay=store&&state&&
     publicOpposingEnergyCards>0?
-    player.hand.cards.some(card=>
-      card.fullName.startsWith('Crushing Hammer ') &&
-      card.canPlay(store,state,player)===true):null;
+    preliminaryCanPlay('Crushing Hammer'):null;
+  const nativePlumeriaCanPlay=preliminaryCanPlay('Plumeria');
+  const nativeGuzmaCanPlay=preliminaryCanPlay('Guzma');
+  const nativeTeamFlareGruntCanPlay=
+    preliminaryCanPlay('Team Flare Grunt');
   return {
     turn,seat,handCount:hand.length,
     knownRank6SpecialEnergyHeld:Object.values(heldEnergy)
@@ -55,6 +61,13 @@ function ownerSnapshot(player,turn,seat,store=null,state=null){
     knownRank6TrainerResponsesHeld:Object.values(heldResponses)
       .reduce((a,b)=>a+b,0),
     knownRank6CrushingHammerHeld:heldResponses['Crushing Hammer'],
+    knownRank6PlumeriaHeld:heldResponses.Plumeria,
+    knownRank6GuzmaHeld:heldResponses.Guzma,
+    knownRank6TeamFlareGruntHeld:heldResponses['Team Flare Grunt'],
+    nativePlumeriaPreliminaryCanPlay:nativePlumeriaCanPlay,
+    nativeGuzmaPreliminaryCanPlay:nativeGuzmaCanPlay,
+    nativeTeamFlareGruntPreliminaryCanPlay:nativeTeamFlareGruntCanPlay,
+    nativeSupporterAlreadyUsed:player.supporterTurn>0,
     opponentPublicEnergyCardCount:publicOpposingEnergyCards,
     nativeCrushingHammerPreliminaryCanPlay:nativeCrushingHammerCanPlay,
     nativeSpecialEnergyPlayLocked:
