@@ -134,6 +134,13 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
   class ResolvePromptAction {
     constructor(id,cards){this.id=id;this.cards=cards;}
   }
+  class ChooseCardsPrompt {
+    constructor(deck){
+      this.id=55;this.playerId=101;this.message='CHOOSE_CARD_TO_DISCARD';
+      this.cards=deck;this.result=undefined;
+    }
+    validate(cards){return cards.length>0&&cards.length<=3;}
+  }
   class SimpleTacticsAi {
     constructor(){this.client={id:101};}
     decodeNextAction(state){
@@ -147,11 +154,7 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
       const state=this.state,owner=state.players[0];
       if(action instanceof PlayCardAction){
         owner.hand.cards.splice(action.handIndex,1);
-        state.prompts.push({
-          id:55,playerId:101,message:'CHOOSE_CARD_TO_DISCARD',
-          cards:owner.deck,result:undefined,
-          validate:(cards)=>cards.length>0&&cards.length<=3
-        });
+        state.prompts.push(new ChooseCardsPrompt(owner.deck));
       }
       if(action instanceof ResolvePromptAction){
         assert.equal(action.id,55);
