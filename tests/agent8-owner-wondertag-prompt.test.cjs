@@ -325,3 +325,34 @@ test('settled search without physical Supporter movement fails closed',()=>{
   assert.equal(f.players[1].hand.length,0);
   assert.equal(f.players[1].deck.cards.length,1);
 });
+
+
+class MissingFollowupStore extends FakeStore{
+  dispatch(action){
+    if(action?.id===1){
+      const p=this.state.prompts.find(p=>p.id===1&&p.result===undefined);
+      assert.ok(p);
+      assert.ok(p.validate(action.result));
+      p.result=action.result;
+      return this.state;
+    }
+    return super.dispatch(action);
+  }
+}
+test('settled Wonder Tag confirmation without native owner-deck search fails closed',()=>{
+  const f=fixture(0,[supporter('Guzma')]);
+  const bad=new MissingFollowupStore(f.state);
+  let thrown;
+  try{
+    withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(bad,f.state,
+        new PlayPokemonEffect(f.players[0],f.lele));
+      bad.dispatch(f.ai.decodeNextAction(f.state));
+    },{...dependencies,Store:MissingFollowupStore});
+  }catch(error){thrown=error;}
+  assert.match(thrown?.message??'',/without owner Supporter-search followup/);
+  assert.equal(thrown.agent8WonderTagAudit.nativeMissingSearchFollowup,1);
+  assert.equal(thrown.agent8WonderTagAudit.confirmed,0);
+  assert.equal(thrown.agent8WonderTagAudit.nativeAccepted,0);
+  assert.equal(f.state.prompts.length,1);
+});
