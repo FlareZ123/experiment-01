@@ -1,0 +1,63 @@
+{
+  "schema": "agent18-original-rank6-v9-source-dce-physical-recipient-readonly-v1",
+  "authored_utc": "2026-11-05T19:43:00Z",
+  "parent": "results/aichi-2026/registrations/agent45-issue25-ghala-relaxed-payment-v9-20261105.json",
+  "source": "GitHub Actions 42080317659 artifact 13440970417 relaxed/issue25-steward-v5.json SHA256 cc1d6d90df6fb4e12e30bd95e7e17c1cafddfd32709968fbbb2f8386bfd5d7aa",
+  "research_design": "Read-only native Store accepted-target observer, exact same frozen original v9 8x48-root trials; no policy, deck, seed, payoff, root horizon or native source-action changes.",
+  "reuse_manual_dispatch": "include_agent45_ghala_v9",
+  "native_root_cap": 48,
+  "tracked_targets": [
+    {
+      "id": "6:101:B:champion-reference",
+      "source_seat": 0,
+      "source_turn": 2,
+      "source_dce_root_ordinal": 29,
+      "source_deal_sha256": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "full_deal_sha256": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861"
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "source_seat": 0,
+      "source_turn": 2,
+      "source_dce_root_ordinal": 36,
+      "source_deal_sha256": "509bc6e44713a30eb38ddfd59efb20540f9f3a6cac37d9d9f4c19fe2adf0faee",
+      "full_deal_sha256": "86e4d2d417f403c864c0279bb6ed9955e7f133cc39f932cd7832d7dffc420c6c"
+    }
+  ],
+  "all_original_trial_ids": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "measurands": [
+    "whole-source-deal and full-opening SHA parity for registered targets",
+    "source-owned actual public accepted Double Colorless Energy action and native target dispatch exact root linkage",
+    "Store post-dispatch publicly visible active/bench Energy multiset delta and actual destination Pokemon printing",
+    "owner public Stadium after settled DCE, if observable in sidecar",
+    "source attack and next opposing owner-root after DCE within original cap, counted as zero when absent",
+    "all eight status and source-specific abort/censor records"
+  ],
+  "fail_closed_conditions": [
+    "native target sidecar missing",
+    "root linkage false",
+    "source DCE root absent or changed",
+    "deal or seat or turn diverged",
+    "no exactly one owner Pokemon with DCE multiset count +1",
+    "target geometry differs from physical Pokemon energy delta",
+    "post-dispatch Stadium unavailable or undocumented"
+  ],
+  "negative_claims": [
+    "cannot treat Store acceptance as complete paper legality",
+    "cannot infer exact G&H retrieved Stadium from public root label alone",
+    "cannot call physical DCE attachment a paid Volt Cyclone attack",
+    "cannot use read-only sidecar as proof of strategically optimal discards",
+    "cannot upgrade native capped trials into qualified games or a 99.5% win rate"
+  ],
+  "competitive_game_qualified": false,
+  "qualified_games": 0
+}
