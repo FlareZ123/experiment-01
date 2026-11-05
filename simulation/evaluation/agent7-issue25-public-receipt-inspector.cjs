@@ -7,6 +7,14 @@ const {rootDecisionComposition}=
 
 const VERSION='agent7-issue25-independent-public-receipt-inspector-v1';
 const sha256=buffer=>createHash('sha256').update(buffer).digest('hex');
+// The v3 receipt is a historical four-arm archive. A newly re-signed but
+// internally consistent alternative trial matrix is a different experiment.
+const EXPECTED_HISTORICAL_IDS=Object.freeze([
+  '6:0:A:champion-reference',
+  '6:0:A:new-moon-lockbreaker-v1',
+  '11:2:B:champion-reference',
+  '11:2:B:new-moon-lockbreaker-v1'
+]);
 
 /**
  * Inspect actual native public evidence without running a match or reading
@@ -46,6 +54,9 @@ function inspectIssue25PublicReceipt(bytes,sidecar){
     failures.push('registered-returned-trial-id-mismatch');
   if(registered.length!==4)
     failures.push('not-four-original-source-development-arms');
+  if(registered.length!==EXPECTED_HISTORICAL_IDS.length||
+     registered.some(id=>!EXPECTED_HISTORICAL_IDS.includes(id)))
+    failures.push('historical-four-arm-registration-mismatch');
   const roots=returned.map(x=>{
     const ledger=x.publicRootActions;
     const present=Array.isArray(ledger);
