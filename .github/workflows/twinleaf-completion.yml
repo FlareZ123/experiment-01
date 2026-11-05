@@ -68,6 +68,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent20_all33_pass_tools:
+        description: 'Read-only original v5 archive 33-source-Pass Tool structural census pure regression (no match win count)'
+        required: false
+        type: boolean
+        default: false
       include_agent20_tool_counterfactual:
         description: 'Exact-state original-v5 source owner Tool attachments and real opponent reply, development only'
         required: false
@@ -214,6 +219,9 @@ jobs:
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
+      - name: Validate Agent20 original 33-Pass Tool structural census with synthetic negative receipts
+        if: ${{ inputs.include_agent20_all33_pass_tools }}
+        run: node --test tests/agent20-owner-pass-tool-structural-audit.test.cjs
       - name: Native original v5 source Pass to owned Tool physical counterfactual
         if: ${{ inputs.include_agent20_tool_counterfactual }}
         env:
