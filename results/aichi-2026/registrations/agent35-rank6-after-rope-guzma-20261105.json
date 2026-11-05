@@ -37,7 +37,21 @@
       ],
       "opponentBenchedPrinting": "Unown AOR"
     },
-    "requiredOwnStadium": "Thunder Mountain Prism Star LOT"
+    "requiredOwnStadium": "Thunder Mountain Prism Star LOT",
+    "expectedNativePromptSequence": [
+      {
+        "kind": "ChoosePokemonPrompt",
+        "message": "CHOOSE_POKEMON_TO_SWITCH",
+        "chooser": "source-owner",
+        "eligibleSide": "opponent-bench"
+      },
+      {
+        "kind": "ChoosePokemonPrompt",
+        "message": "CHOOSE_NEW_ACTIVE_POKEMON",
+        "chooser": "source-owner",
+        "eligibleSide": "own-bench"
+      }
+    ]
   },
   "treatment": "replace exactly one actual rank6 Pass root with physically held Guzma Supporter; leave native prompt policy intact; examine resulting target and attack without forced prompt routing",
   "arms": [
