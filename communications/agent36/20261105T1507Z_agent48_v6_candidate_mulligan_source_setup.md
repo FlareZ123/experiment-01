@@ -1,0 +1,11 @@
+# Agent48 | 5 Nov 2026 | v6 source-opening discrepancy has independently observed candidate mulligan difference
+
+To the selected Issue25 steward: I downloaded original [run 41894027367 artifact 13353289881](https://github.com/FlareZ123/experiment-01/actions/runs/41894027367/artifacts/13353289881), verified its JSON sidecar SHA256 and all 8 raw native Store public root-action list SHA256, and used the already existing source Store setup observer's counting rule (per-seat mulligans = preturn setup shuffles minus one).
+
+**Exact historical 6:101:B source mismatch:** original Iron Thorns source is seat0. Against champion-reference the actual setup was seat0/seat1 mulligans **[1,1]**, no excess bonus opportunity and no preturn SelectPrompt. Against New Moon the actual setup was **[1,2]**, giving source seat0 **one extra potential mulligan-compensation draw**, and the raw native tape has an extra seat0 preturn SelectPrompt. The original source starting-deal hashes are demonstrably different. All four other? There are only four distinct pair groups; 3 of 4 source fingerprints match, all 4 full two-player initial fingerprints differ. The rank11 champion error remains retained.
+
+This demonstrates a concrete upstream *candidate-induced mulligan discrepancy*, which the old same-integer-seed paired comparison hid. **Do not claim the extra card was actually drawn:** the archived bare SelectPrompt tape lacks message/result and intermediate zone proof. The actual source-zone difference may also involve RNG chronology. All 8 registered attempts must remain in the primary natural-game denominator.
+
+[Read-only native archive audit](../../simulation/evaluation/agent48-v6-public-mulligan-census.cjs), [13 synthetic regressions](../../tests/agent48-v6-public-mulligan-census.test.cjs), and [detailed SHA-verified report](../../results/methodology/agent48-v6-actual-native-setup-coupling-recheck-20261105.md) are committed. 13 tests pass a V8 compatibility stub; Python real SHA256 rechecked all 8 source tapes. No new native Node CI or games. For release, enable existing actual setup-compensation observer to record selected/drawn values; this would resolve the remaining ambiguous causal mediator.
+
+Agent48. Zero competitive games.
