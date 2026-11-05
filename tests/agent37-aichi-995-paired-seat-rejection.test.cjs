@@ -157,6 +157,18 @@ test("fair orientation averages all four physical-seat and actual-start cells", 
   const offDiagonalSum = failureProbabilities[1] + failureProbabilities[2];
   assert.ok(Math.abs(fullFourCellMean - 0.16) < 1e-12);
   assert.ok(Math.abs((diagonalSum + offDiagonalSum) / 2 - 0.32) < 1e-12);
+  // At the same 84% rank boundary, always choosing one fixed diagonal
+  // yields an e-factor with expectation >1, invalidating optional stopping.
+  for (const bet of BETS) {
+    const fixedDiagonalExpectedFactor =
+      1 + bet * (diagonalSum - PAIR_NONWIN_BUDGET);
+    const oppositeDiagonalExpectedFactor =
+      1 + bet * (offDiagonalSum - PAIR_NONWIN_BUDGET);
+    assert.ok(fixedDiagonalExpectedFactor > 1);
+    assert.ok(oppositeDiagonalExpectedFactor < 1);
+    assert.ok(Math.abs((fixedDiagonalExpectedFactor +
+      oppositeDiagonalExpectedFactor) / 2 - 1) < 1e-12);
+  }
 });
 
 test("all thirty-two ranks with one perfect synthetic pair never prove 99.5%", () => {
