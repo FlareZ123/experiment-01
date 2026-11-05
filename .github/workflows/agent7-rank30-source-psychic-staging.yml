@@ -42,6 +42,9 @@ jobs:
       - name: Verify reversible Active Tool Jammer ToolEffect blocker
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-tool-jammer-tool-effect-guard.test.cjs
+      - name: Verify both-seat Store prototype Tool Jammer paper guard and restoration
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-bilateral-tool-jammer-paper-guard.test.cjs
       - name: Regress public Stealthy Hood versus opposing Active Initialization
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-skyliner-hood-vs-thorns-frontier.test.cjs
@@ -68,6 +71,17 @@ jobs:
       - name: Compile pinned Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify both-seat native Tool Jammer paper guard without upstream edits
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/twinleaf/agent6-bilateral-tool-jammer-native.cjs > agent6-bilateral-tool-jammer-native.json
+      - name: Archive all both-seat Tool Jammer staged attempts and errors
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-bilateral-tool-jammer-native
+          path: agent6-bilateral-tool-jammer-native.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Stage original owner Skyliner against public Ability suppressors in pinned Store
         if: inputs.agent6_rank30_rondo
         run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-skyliner-public-suppression-native.json
