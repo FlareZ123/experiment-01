@@ -117,3 +117,93 @@ Do not treat this as win-rate evidence. The next material counterfactual
 is a true owner-visible T3 source decision frontier, including both held
 Trainers' Mail opportunities and Plumeria payment alternatives, and a
 T4 candidate legal-attack/attachment assessment after the paid Energy removal.
+
+## Same-native-deal source T3 and candidate T4 owner frontiers (18:15 UTC)
+
+A further **reversible, read-only Store observer** captured authenticated
+actorObservation projections immediately before the source's actual
+Plumeria PlayCardAction and the candidate's first ensuing PassTurnAction.
+The snapshot is strictly the acting player's own hand, their public board,
+and the opponent's public board. It never reads an opponent's concealed
+card identities or feeds any observation into the bot's action selection.
+The original source/candidate native Stores were matched by the exact
+original trial order within the eight control and eight treatment arms.
+
+**Compiled independent reproduction:**
+[manual workflow 42081738072](https://github.com/FlareZ123/experiment-01/actions/runs/42081738072),
+abort-custody job 127436276323, the structured
+AGENT7_SHADOWMIST_PLUMERIA_ORIGINAL_AB native marker. The
+[owner frontier observer](../../../simulation/twinleaf/agent7-shadowmist-plumeria-turn-frontier.cjs)
+and [native test](../../../tests/agent7-shadowmist-original48-plumeria-aba.native.test.cjs)
+passed across **16 physical Stores**. The same-deal matching, paid
+Plumeria effect, original 48-root caps, and two unchanged errors persist.
+
+### Original rank6 source owner immediately before T3 Plumeria
+
+The original source seat1 had **nine** physical hand cards:
+
+- 1 Guzma & Hala CEC
+- **2 Trainers' Mail ROS**
+- 1 Captivating Poké Puff STS
+- 1 Plumeria BUS (the selected action)
+- **1 Enhanced Hammer TWM**
+- 1 Echoing Horn CRE
+- 1 Team Rocket's Handiwork FCO
+- 1 Sidney FST 241
+
+Its deck contained 43 cards. Its Active Iron Thorns ex had **one
+Speed Lightning Energy** and its Bench was empty. The opponent's Active
+Shadow Rider Calyrex V had **one attached Basic Psychic Energy**; all
+three opposing Benched Pokémon had no attached Energy. Native source
+restriction flags: **Item unlocked, Supporter unlocked, Stadium locked,
+Special Energy locked**. The source Supporter quota was still unused.
+
+This is a concrete strategic concern for the automated discard heuristic:
+the source selected **both Trainers' Mail** as the cost while preserving
+the singleton **Enhanced Hammer**. The printed Enhanced Hammer effect
+requires a target Special Energy. The observed opponent had only Basic
+Psychic attached. Further, the fixed champion-reference opponent's
+printed 60 contains **11 Basic Psychic Energy and zero Special Energy**
+([source reference](../benchmark-shadow-rider.md)).
+Thus the source's Enhanced Hammer has no ordinary target anywhere in that
+unchanged opponent's printed Energy inventory, whereas each Trainers'
+Mail can potentially find another Trainer in the next four cards.
+Replacing one Mail payment with Enhanced Hammer is an important
+**matchup-specific alternative** to test, not an established superior
+move. The actor has not tested that discard pair or the resulting next
+turns; unusual card-effect paths remain possible. The deterministic
+copy-retention heuristic preserved a weak-in-this-matchup singleton
+while expending two potential search connectors. This is an
+**AMR/DCI warning**, not an optimized replacement policy.
+
+### Candidate owner immediately before T4 Pass
+
+The candidate seat0 owned Shadow Rider Calyrex V in the Active Spot
+with **zero attached Energy** after Plumeria's effect.
+Its seven-card hand was:
+
+- 2 Mysterious Treasure FLI
+- 1 Raihan EVS
+- 1 Hisuian Heavy Ball ASR
+- 1 Forest Seal Stone SIT
+- 1 Quick Ball FST
+- 1 Shadow Rider Calyrex VMAX CRE
+
+The candidate had 42 deck cards, three occupied Bench positions,
+and an unused normal Energy attachment for global turn4
+(the recorded energyPlayedTurn was 2). No Basic Psychic Energy was
+in its hand. Its printed one-Psychic Shadow Mist was therefore
+**immediately unfunded**, and a direct Energy attachment from hand
+was unavailable at that decision point. This supplies a physical
+resource explanation for the observed candidate Pass after the
+source's paid Plumeria. An exhaustive paper-checked search for
+possible Item, Supporter, evolution, or Ability routes to an attack
+is still required before declaring that Pass unavoidable.
+
+**Next gate:** compare the source T3 paper-payable Mail play and
+different Plumeria discard pairs under the exact original source
+seat, same physical initial deal, unchanged printed sixties,
+and a genuine subsequent candidate decision. Retain the full
+censored/error denominator. Neither this witness nor any of its
+historical 48-root pairs constitutes a qualified game or win-rate
+observation.
