@@ -170,7 +170,7 @@ if(require.main===module){
     try{
       temporary=target+'.'+process.pid+'.'+
         crypto.randomBytes(6).toString('hex')+'.tmp';
-      fs.writeFileSync(temporary,JSON.stringify(result,null,2)+'\\n',{
+      fs.writeFileSync(temporary,JSON.stringify(result,null,2)+'\n',{
         flag:'wx'
       });
       fs.renameSync(temporary,target);
