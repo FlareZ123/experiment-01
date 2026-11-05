@@ -29,8 +29,9 @@ test('exact challenger and printed double-TM card inventory', () => {
     copies('Pidgeot ex', 'OBF', '164'),
     copies('Exeggcute', 'PLF', '4'),
     copies('Exeggcute', 'VIV', '4'),
-    copies('Exeggutor', 'PLF', '5')
-  ], [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2]);
+    copies('Exeggutor', 'PLF', '5'),
+    copies('Stealthy Hood', 'UNB', '186')
+  ], [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 3]);
 
   const printed = (file, id) => require(path.resolve(
     __dirname, '../resources/cards/en', file)).find(card => card.id === id);
@@ -40,6 +41,7 @@ test('exact challenger and printed double-TM card inventory', () => {
   const pidgeot = printed('sv3.json', 'sv3-164');
   const pidgeotto = printed('sm9.json', 'sm9-123');
   const vileplume = printed('xy7.json', 'xy7-3');
+  const hood = printed('sm10.json', 'sm10-186');
   assert.equal(bunnelby.ancientTrait.name, 'Ω Barrage');
   assert.match(bunnelby.ancientTrait.text, /attack twice/);
   assert.match(tm.attacks[0].text, /up to 2 of your Benched Pokémon/);
@@ -49,6 +51,7 @@ test('exact challenger and printed double-TM card inventory', () => {
   assert(pidgeot.rules.some(rule => /Pokémon ex rule/.test(rule)));
   assert.equal(pidgeotto.abilities[0].name, 'Air Mail');
   assert.equal(vileplume.abilities[0].name, 'Irritating Pollen');
+  assert.match(hood.rules.join(' '), /Prevent all effects of your opponent's Abilities/);
 });
 
 test('two complete Stage2 lines use both TM targets on each attack', () => {
