@@ -51,7 +51,7 @@ function fixture(mode){
         exactPhysicalSixtyPrintedCountMatches:16,
         events:trials.flatMap((trial,i)=>[0,1].map(seat=>({
           nativeStoreOrdinal:i+1,registeredNativeTrialId:trial.id,
-          physicalOwnerSeat:seat,
+          physicalOwnerSeat:seat,nativeFirstPlayerSeat:0,
           ownerHandCount:7,ownerDeckCount:47,ownerPrizeCount:6,
           physicalSixtyCardCount:60,
           exactPhysicalSixtyPrintedCountMatched:true,
@@ -85,6 +85,8 @@ test('same exact registered native Store owner inputs still cannot certify treat
   assert.equal(compared.constraints.matchedNativePreRunRequests,16);
   assert.equal(compared.constraints.allActualPrechoicePhysicalSixtyPrintingsMatchConfigured,true);
   assert.equal(compared.prechoiceInputObservers.actualOwnerPrintedSixtiesMatched,32);
+  assert.equal(compared.constraints.actualNativeInitialStartersMatched,8);
+  assert.equal(compared.constraints.allActualNativeInitialStartersMatch,true);
   assert.equal(compared.constraints.nativeRegisteredRequestParityObserved,true);
   assert.equal(compared.protectedOpeningObservations.actualNativeStores,8);
   assert.equal(compared.protectedOpeningObservations.initialNativeAccepted,16);
