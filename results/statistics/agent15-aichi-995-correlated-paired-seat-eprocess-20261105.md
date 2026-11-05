@@ -45,6 +45,21 @@ At every **complete-block stopping time**, Ville's inequality bounds the probabi
 
 This argument requires only the conditional expected **sum** of the two seat nonwins, rather than independent individual seat outcomes. A shared within-pair seed is allowed only if it still produces the correct per-seat marginal distribution and no selective exclusion or game-treatment bias. Identical seeds do not imply identical source physical deals across different 60-card opponents or candidate lists.
 
+## A prospective stopping budget for complete qualified pairs
+
+A deterministic calculation using the fixed mixture above produces the following **minimum cumulative nonwins** at each complete-pair count that would cross the same rank e-value threshold of 640. Every entry supposes genuine qualified games and valid fresh block sampling. Entries are test-design thresholds, rather than game observations.
+
+| Complete two-seat pairs | Games | Minimum cumulative candidate nonwins | Nonwin fraction at crossing |
+| ---: | ---: | ---: | ---: |
+| 4 | 8 | 8 | 100% |
+| 6 | 12 | 11 | 91.67% |
+| 8 | 16 | 13 | 81.25% |
+| 10 | 20 | 15 | 75.00% |
+| 16 | 32 | 20 | 62.50% |
+| 32 | 64 | 30 | 46.88% |
+
+No number of losses could cross the threshold by the end of the first three complete pairs under this specific mixture. This is an anytime test: the analyst examines each **complete** pair, so the earliest crossing may occur before the tabulated block count. Crossings reject compatibility with the extreme all-field 99.5% benchmark at a controlled error rate. Survival establishes no positive win-rate confidence bound. As of this report, **none** of these games or crossings exists in competitively qualified Aichi data.
+
 ## Synthetic, reproducible checks
 
 The pure CommonJS implementation [paired-seat analyzer](../../simulation/evaluation/agent15-aichi-995-paired-seat-rejection.cjs) uses log-sum-exp and strict input validation; its [seven-test file](../../tests/agent15-aichi-995-paired-seat-rejection.test.cjs) passed locally on Node **v22.16.0**.
