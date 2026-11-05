@@ -25,6 +25,21 @@ Original champion-reference branch: the candidate used Shadow Mist on its own tu
 
 The New Moon branch showed no source Plumeria root in either condition. Its candidate turn4 Klefki/Pass difference has no established causal attribution; extra source search shuffles consume global random values and source changes could affect later candidate hands. A different early action cannot establish net comparative gameplay strength.
 
+## Separate native root chronology verification
+
+A readout-only revision under the identical preregistered A/B/A re-ran successfully at [CI 42098430618](https://github.com/FlareZ123/experiment-01/actions/runs/42098430618), [artifact 13448173603](https://github.com/FlareZ123/experiment-01/actions/runs/42098430618/artifacts/13448173603). In champion-reference, both source turn3 branches had a full accepted three-prompt native Plumeria sequence before the source passed and candidate replied:
+
+| Physical source action | A control action ordinal | B after early Mail ordinal |
+| --- | --- | --- |
+| Plumeria accepted from owner's hand | 22 | 32 |
+| Native mandatory ChooseCardsPrompt (discard payment) | 23 | 33 |
+| Native ChoosePokemonPrompt (target) | 24 | 34 |
+| Native ChooseCardsPrompt (attached Energy) | 25 | 35 |
+| Next source Pass after prompt resolution | 26 | 36 |
+| Candidate voluntary turn4 Pass | 29 | 39 |
+
+All three distinct owner prompts were actually accepted through the native action ledger, so the combined policy progressed through the entire action sequence without a prompt decoder abort. This strengthens the earlier Store root evidence. The **physical owner-payment and opponent Energy-card transfer** still require a direct per-trial Store state transition audit, since accepted prompt actions alone are insufficient to certify custody.
+
 ## Qualified conclusion and limits
 
 **The same physical starting-deal rank6 reference opening proves that using both Mail on turn1 did not mechanically prevent the subsequent genuine native turn3 Plumeria card play.** The existing actor-only Plumeria fallback could still select a route. That does not establish that Plumeria's two-card mandatory discard was paid with the same card identities, that the same opposing Psychic Energy was physically removed under the combined policy, or that additional Mail improved win odds. Native turn4 Pass is a real public decision; a forced Pass is not established.
