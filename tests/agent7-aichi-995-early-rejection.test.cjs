@@ -8,8 +8,11 @@ const {
 } = require('../simulation/evaluation/agent7-aichi-995-early-rejection.cjs');
 
 const candidateId = 'synthetic-frozen-60-for-mathematics-only';
-const record = (id, originalRank, outcome) => ({
-  id, candidateId, originalRank, outcome, qualification: 'QUALIFIED'
+const record = (id, originalRank, outcome, sourceSeat = 0) => ({
+  id, candidateId, originalRank, outcome, sourceSeat,
+  // These SFT rows are synthetic; the analyzer cannot verify this label.
+  seatAssignment: 'INDEPENDENT_FAIR_COIN',
+  qualification: 'QUALIFIED'
 });
 
 test('SFT exact necessary per-rank target and rank familywise rejection threshold', () => {
@@ -68,6 +71,10 @@ test('SFT duplicate trial, unqualified engine root, deck swap and rank outside f
   assert.throws(() => assessEarlyFieldRejection([{...old, candidateId:'different-60'}], candidateId), /cannot mix/);
   assert.throws(() => assessEarlyFieldRejection([{...old, originalRank:33}], candidateId));
   assert.throws(() => assessEarlyFieldRejection([{...old, outcome:'censored'}], candidateId));
+  assert.throws(() => assessEarlyFieldRejection([{...old, sourceSeat:2}], candidateId), /source physical seat/);
+  assert.throws(() => assessEarlyFieldRejection([{
+    ...old, seatAssignment:'DETERMINISTIC_ALTERNATION'
+  }], candidateId), /independent fair seat/);
 });
 
 test('SFT log scale remains finite after many nonwins instead of overflowing evidence', () => {
