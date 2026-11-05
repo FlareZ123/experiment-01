@@ -18,6 +18,20 @@ The original [Aichi printed 60s](full-decklists.json) contain exactly four Iron 
 | **24** | 3 / 4 | 32.07036627% | **6.29984592 pp** | **38.37021219%** | 39.10785063% | **45.40769655%** |
 | **29** | 1 / 2 | 25.37731070% | **2.55667509 pp** | **27.93398579%** | 33.78150571% | **36.33818080%** |
 
+## Independent reproduction of the existing full all-held-Mail model
+
+A repository audit located prior Agent11 [all-held Trainers' Mail implementation](../../scripts/agent11-thorns-single-trainers-mail.cjs), which already accounts for Mail directly discovering **Thunder Mountain when DCE is held**, together with G&H and Tag Call, and also handles bonus-draw distributions. The narrow result above is a conservative subset of that earlier work. The new contribution here is an **independent physical-chronology reproduction**, checked against its exact rational numerator and denominator. It is not an independently newly discovered source-access effect.
+
+| Original source rank | Previously published full all-held-Mail access | Independently reproduced 7→6→1 full access | Added beyond conservative subset |
+|---|---:|---:|---:|
+| 6 | 38.81298815% | **38.81298815%** | 1.26152219 pp |
+| 24 | 46.60594998% | **46.60594998%** | 1.19825343 pp |
+| 29 | 37.19281709% | **37.19281709%** | 0.85463629 pp |
+
+The stronger full event includes held Mountain and/or DCE, Mail revealing a search connector, and Mail directly revealing a missing Thunder Mountain if DCE is already held. Each prospective Mail peek that finds no useful Trainer leaves the 46-card deck composition unchanged and is reshuffled. The new nested enumerator checks both exact numerator identities by integer cross-multiplication against `singleMailAccess(...).base` and `singleMailAccess(...).allHeldMailNumerator` for each original 60. It also independently exhausts a physical nine-card toy, testing all legal hands, Prizes, next draws and top-four Mail sample sequences. That check is an intentional **reproducibility witness**, avoiding another incompatible definition of first-turn access.
+
+The global result is still a bounded *resource-access* opportunity. The previous full model permits opponent mulligan compensation under separate assumptions, whereas the exact figures here fix zero compensation draws; no real opponent lock, attachment rejection, or game result has been incorporated.
+
 **Disjointness:** the new Mail-only successful event has *both* Mountain and DCE still in deck and **no held G&H or Tag-into-deck-G&H connector**. Consequently it does not overlap either direct event from the prior report and can be added to its strict or broader probability without double counting. The resulting figures are probabilities of the specifically named physical access opportunity under the stated restrictions. They are lower bounds on the broader opportunity when other legal routes are possible and neither lower bounds nor estimates for successfully attacking against arbitrary opponent boards.
 
 ## Exact method
@@ -47,7 +61,7 @@ The computation sums those conditional rational probabilities against every corr
 
 ## Validation and paper limitations
 
-- [Executable BigInt enumeration](../../scripts/agent11-thorns-mail-access.cjs), [exhaustive toy and source-fixture regression](../../tests/agent11-thorns-mail-access.test.cjs). In the independently enumerated nine-card toy, all valid physical openings, Prize identities, first-draw identities, and every ordered combination of repeated top-four Mail inspections are tested. **Local toy exhaustive test passed**; repository CI execution has not yet been observed.
+- [Executable BigInt enumeration](../../scripts/agent11-thorns-mail-access.cjs), [exhaustive toy and source-fixture regression](../../tests/agent11-thorns-mail-access.test.cjs). In the independently enumerated nine-card toy, all valid physical openings, Prize identities, first-draw identities, and every ordered combination of repeated top-four Mail inspections are tested. **Local toy exhaustive test passed** and the three exact old full-model rational totals were independently re-derived. The manually dispatched remote test is pending completion.
 - **Source text:** Trainers' Mail ROS 92 explicitly excludes another Trainers' Mail from selection and shuffles the unselected cards back; G&H CEC 193 can search a Stadium and, upon discarding two other hand cards, a Tool and Special Energy; Tag Call CEC 206 can select G&H as a TAG TEAM card. The [Advanced Player's Rulebook](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md) governs partial attacks/effect costs; attached files and [Limitless ROS 92](https://limitlesstcg.com/cards/ros/92) corroborate Mail text. The sample does not test actual native Item/prompt settlement.
 - The new Mail route **does not count a Mail revealing Mountain directly**, a Mail revealing other useful Trainers, Trainers' Mail newly accessed through a separate search, Trainers' Mail finding a connector when the resources are held/prized in other configurations, other draw/search Items, or turn-dependent board interactions.
 - Strategic discardability and AMR are not inferred from the physical availability of two discard cards. Opponent Trainer locks, actions taken before the first ordinary draw, mulligan compensation, contingent Stadium states, and official paper clock are outside the model.
