@@ -25,6 +25,9 @@ function fixture(){
       registration:{expectedIds:IDs,exactJoinedByTrialId:true},
       provenance:{observedTwinleafCommit:'a'.repeat(40),
         observedRepositoryCommit:'b'.repeat(40)},
+      actuallyExecutingManifest:{
+        nightWatchPrivateSeedCommitmentSha256:'c'.repeat(64)
+      },
       attempts:IDs.map((id,n)=>{
         const actions=[{action:'PassTurnAction',actionOrdinal:0,
           playerSlot:n%2,turnBefore:3,turnAfter:4}];
@@ -46,7 +49,9 @@ test('four campaign control and HMAC parity',()=>{
   assert.equal(panel.matchingOwnerPrechoiceComparisons,48);
   assert.equal(panel.matchingNativeRequestComparisons,48);
   assert.equal(panel.controlLedgerRowsEqual,8);
-  assert.equal(panel.controlReplayVerdict,'PASS-registered-A-A-A-control-replay');
+  assert.equal(panel.controlSourceDealDigestRowsEqual,8);
+  assert.equal(panel.sameNightWatchEntropyCommitment,true);
+  assert.equal(panel.controlReplayVerdict,'PASS-registered-bounded-A-A-A-control-replay');
   assert.equal(panel.rows[0].protectedVsOriginalRootDifference,true);
   assert.equal(panel.causalTreatmentAttribution,'UNRESOLVED');
   assert.equal(panel.nativePaperGamesQualified,0);
@@ -84,4 +89,23 @@ test('trial links survive Store ordinal reordering; missing attempts fail',()=>{
   assert.equal(compareFourCampaigns(data).controlLedgerRowsEqual,8);
   data[1].receipt.attempts.pop();
   assert.throws(()=>compareFourCampaigns(data));
+});
+
+test('shared prechoice and requests cannot hide independent Night Watch entropy',()=>{
+  const data=fixture();
+  data[3].receipt.actuallyExecutingManifest
+    .nightWatchPrivateSeedCommitmentSha256='d'.repeat(64);
+  const out=compareFourCampaigns(data);
+  assert.equal(out.sameNightWatchEntropyCommitment,false);
+  assert.equal(out.controlReplayVerdict,
+    'UNRESOLVED-input-or-epoch-mismatch');
+});
+
+test('silent source-deal movement in repeated baseline is a control failure',()=>{
+  const data=fixture();
+  data[1].receipt.attempts[4].sourceDealFingerprint=hash('different-source-deal');
+  const out=compareFourCampaigns(data);
+  assert.equal(out.controlLedgerRowsEqual,8);
+  assert.equal(out.controlSourceDealDigestRowsUnequalOrUnavailable,1);
+  assert.equal(out.controlReplayVerdict,'FAIL-repeated-control-divergence');
 });
