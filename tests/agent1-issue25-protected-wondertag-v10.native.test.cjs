@@ -49,6 +49,7 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
     ownerWonderTag:r.actualOwnerWonderTagAudit,
     registeredOwnerSearches:r.registeredWonderTagActorWitness,
     zeroShuffle:r.actualZeroSearchShuffleAudit,
+    nativeShuffle:r.actualNativeShuffleCompletionAudit,
     attempts:r.rows.map(row=>({
       id:row.id,sourceSeat:row.sourceSeat,
       before:row.baselineStatus,after:row.treatmentStatus,
