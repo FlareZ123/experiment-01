@@ -13,8 +13,16 @@ function findSourceForkOverlap(proposal,registry){
     return typeof value!=='string'||value.length===0;
   });
   if(missing.length)return {status:'INSUFFICIENT_CUSTODY',missing,matches:[],competitivelyQualifiedGames:0};
+  const desired=proposal.desiredNativeEvidenceLevel??null;
+  if(desired!==null&&(!Number.isSafeInteger(desired)||desired<1||desired>5))
+    return {status:'INVALID_EVIDENCE_GOAL',matches:[],competitivelyQualifiedGames:0};
   const roots=registry.entries.filter(r=>r.sourceRegistration===proposal.sourceRegistration&&r.sourceSeat===proposal.sourceSeat&&r.sourceTurn===proposal.sourceTurn&&r.sourcePassRootOrdinal===proposal.sourcePassRootOrdinal);
-  const matches=roots.map(r=>({key:r.key,overlap:r.fullPhysicalDealSha256!==proposal.fullPhysicalDealSha256||r.sourceDealSha256!==proposal.sourceDealSha256?'DIFFERENT_DEAL':r.enginePin!==proposal.enginePin?'DIFFERENT_ENGINE':r.preRootSha256!==proposal.preRootSha256?'DIFFERENT_PREFIX':r.actionKind===proposal.actionKind&&r.card===proposal.card&&r.recipient===proposal.recipient?'EXACT_PRIOR_ROOT_ACTION':'DIFFERENT_ACTION',nativeRun:r.nativeRun,reportPath:r.reportPath,observedStage:r.observedStage}));
-  return {status:matches.some(r=>r.overlap==='EXACT_PRIOR_ROOT_ACTION')?'EXACT_PRIOR_ROOT_ACTION':matches.length?'RELATED_ORIGINAL_ROOT':'NO_MATCH_IN_PARTIAL_REGISTRY',matches,registryIsComplete:false,automaticExperimentVeto:false,competitivelyQualifiedGames:0};
+  const matches=roots.map(r=>({key:r.key,overlap:r.fullPhysicalDealSha256!==proposal.fullPhysicalDealSha256||r.sourceDealSha256!==proposal.sourceDealSha256?'DIFFERENT_DEAL':r.enginePin!==proposal.enginePin?'DIFFERENT_ENGINE':r.preRootSha256!==proposal.preRootSha256?'DIFFERENT_PREFIX':r.actionKind===proposal.actionKind&&r.card===proposal.card&&r.recipient===proposal.recipient?'EXACT_PRIOR_ROOT_ACTION':'DIFFERENT_ACTION',nativeRun:r.nativeRun,reportPath:r.reportPath,observedStage:r.observedStage,observedLevel:r.nativeEvidenceLevel??null}));
+  return {status:matches.some(r=>r.overlap==='EXACT_PRIOR_ROOT_ACTION')?'EXACT_PRIOR_ROOT_ACTION':matches.length?'RELATED_ORIGINAL_ROOT':'NO_MATCH_IN_PARTIAL_REGISTRY',matches,registryIsComplete:false,automaticExperimentVeto:false,
+    desiredNativeEvidenceLevel:desired,
+    alreadyDemonstratedRequestedNativeStage:desired===null?null:
+      matches.some(m=>m.overlap==='EXACT_PRIOR_ROOT_ACTION'&&
+        Number.isSafeInteger(m.observedLevel)&&m.observedLevel>=desired),
+    competitivelyQualifiedGames:0};
 }
 module.exports={findSourceForkOverlap};
