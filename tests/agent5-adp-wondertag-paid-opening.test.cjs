@@ -17,6 +17,16 @@ test('disabling Lele exactly recovers independent previous twelve-class physical
   }
   assert.equal(String(o.numerators.mechanical.with-o.numerators.mechanical.without),
     '14437066943290064');
+  const routeExpected={mechanical:['3536590342988192','6177411469951558','4723065130350314'],
+    dragons:['482508131135856','142787891332546','9270805069900'],
+    dragonsEnergy:['1616290806528944','1333433291052434','313203525552060'],
+    dragonsEnergyCompressor:['2186769357307712','2431070066309608','832910860708080']};
+  for(const p of PROFILES){
+    const x=Object.values(o.extraBy[p]);
+    assert.deepEqual(x.map(v=>String(v)),routeExpected[p]);
+    assert.equal(x.reduce((a,b)=>a+b,0n),
+      o.numerators[p].with-o.numerators[p].without);
+  }
 });
 
 test('Lele held behind ADP can actually pay a two-card Guzma and Hala',()=>{
