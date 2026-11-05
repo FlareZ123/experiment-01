@@ -10,7 +10,7 @@ const originals=[
   TAG,'Thunder Mountain Prism Star LOT','Double Colorless Energy SUM',
   'Plumeria BUS','Guzma BUS'
 ];
-const roster=Array.from({length:60},(_,i)=>originals[i%originals.length]);
+const roster=[...originals,...Array.from({length:55},(_,i)=>'Filler '+i+' TEST')];
 
 test('default paid option is blocked by two protected owner cards',()=>{
   const hand=[card('Guzma BUS'),card('Plumeria BUS')];
