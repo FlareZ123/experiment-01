@@ -25,6 +25,12 @@ An independent direct V8 execution of the **exact fetched corrected source** wit
 
 The negative cases additionally verified that an unresolved-prompt error was thrown. These are **injected-Store unit tests**, with exact patched production source code executed in a V8 runtime. A fresh compiled pinned-Twinleaf CI run of the newly committed Node tests **has not yet been observed**; this is a remaining execution gate.
 
+## Additional same-ID stale-prompt exclusion
+
+A second exact-object identity hardening [commit `8314e45`](https://github.com/FlareZ123/experiment-01/commit/8314e45dff3f05c7b382f6b71a92035fb8104306) retains the original *native pending prompt object* solely in the private `WeakMap` that maps the selected action to its source; its public bounded audit record remains an opaque metadata-only object. Post-dispatch settlement is checked against that exact original physical prompt, rather than any newer prompt that happens to reuse the same numerical ID.
+
+[Regression commit `0b5aa3c`](https://github.com/FlareZ123/experiment-01/commit/0b5aa3c6d36296d0c3b2ad461a554a58996fb2e3) adds both-seat stale same-ID replacement prompts. In this adversarial case, a replacement prompt can be resolved while the original offered prompt remains unresolved. The corrected source must fail closed with zero `accepted`; the older ID-only check was insufficient to prove the physical origin. These new committed Node tests also await compiled CI verification.
+
 ## Research significance and limits
 
 The [previous v14 native report](agent3-v14-native-owner-pokemon-promotion-after-prize-aba-20261105.md) independently recorded one native `ChoosePokemonPrompt` intervention with `postconditionsConfirmed=1` alongside its `accepted=1`. The new fix addresses the broader aggregate accepted-counter interpretation. It does **not** prove that the historical v14 intervention was a silent no-op, invalidate its archived result retroactively, or improve its tactical first-eligible Pokémon decision policy. Exact prior archives should retain their v1 handler labels.
