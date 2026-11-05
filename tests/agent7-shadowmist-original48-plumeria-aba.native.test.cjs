@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const {VERSION,runOriginalShadowMistPlumeriaAB}=
   require('../simulation/evaluation/agent7-shadowmist-original48-plumeria-aba.cjs');
+const {withPlumeriaTurnFrontier}=
+  require('../simulation/twinleaf/agent7-shadowmist-plumeria-turn-frontier.cjs');
 
 test('actual original-source rank6 locked Pass is replaced by native Plumeria',()=>{
   // Actor-held printings only. Opt in to existing passive post-Store
@@ -14,12 +16,37 @@ test('actual original-source rank6 locked Pass is replaced by native Plumeria',(
   let r;
   try{
     process.env[flag]='true';
-    r=runOriginalShadowMistPlumeriaAB();
+    const observed=withPlumeriaTurnFrontier(()=>runOriginalShadowMistPlumeriaAB());
+    r=observed.result;
+    r.actorFrontierAudit=observed.audit;
   }finally{
     if(had)process.env[flag]=prior;
     else delete process.env[flag];
   }
   const row=r.target;
+  assert.equal(r.actorFrontierAudit.physicalStores,16,
+    'Control and treatment must each contain all eight native Stores');
+  const pairedIndex=r.paired.findIndex(x=>x.id===row.id);
+  assert.ok(pairedIndex>=0);
+  const treatmentStore=r.actorFrontierAudit.games[pairedIndex+8];
+  const sourceT3=treatmentStore.entries.find(e=>
+    e.action==='PlayCardAction'&&
+    e.ownerSnapshot.seat===1&&e.ownerSnapshot.turn===3);
+  const candidateT4=treatmentStore.entries.find(e=>
+    e.action==='PassTurnAction'&&
+    e.ownerSnapshot.seat===0&&e.ownerSnapshot.turn===4);
+  assert.ok(sourceT3,'Observed source Plumeria root needs pre-dispatch actor snapshot');
+  assert.ok(candidateT4,'Observed next candidate Pass needs own actor snapshot');
+  const sourceRoot=sourceT3.ownerSnapshot;
+  const candidateRoot=candidateT4.ownerSnapshot;
+  assert.ok(sourceRoot.ownHand.filter(card=>
+    card==="Trainers' Mail ROS").length>=2);
+  assert.equal(sourceRoot.restrictions.itemPlayLocked,false);
+  assert.equal(sourceRoot.restrictions.supporterPlayLocked,false);
+  assert.ok(sourceRoot.ownDeckCount>0);
+  assert.equal(candidateRoot.seat,0);
+  assert.equal(candidateRoot.turn,4);
+  assert.equal(r.actorFrontierAudit.actorPrivateHandNeverPassedToOpponent,true);
   console.log('AGENT7_SHADOWMIST_PLUMERIA_ORIGINAL_AB',JSON.stringify({
     version:VERSION,targetTrial:row.id,
     originalSourceSeat:row.originalSourceSeat,
@@ -27,6 +54,9 @@ test('actual original-source rank6 locked Pass is replaced by native Plumeria',(
     matchedPhysicalTrialCount:r.paired.length,
     firstDivergence:row.firstDivergence,
     physicalPlumeriaAudit:row.physicalPlumeriaAudit,
+    readOnlySourceT3PrePlumeria:sourceRoot,
+    readOnlyCandidateT4PrePass:candidateRoot,
+    readOnlyStoreCount:r.actorFrontierAudit.physicalStores,
     acceptedPlumeriaNativeRootSequence:
       row.treatmentAcceptedRootsFromFirstChange,
     firstSourceNonpromptAfterPlay:row.firstSourceNonpromptAfterChange,
