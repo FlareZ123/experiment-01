@@ -30,7 +30,8 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  *   actorChoosePokemon?:boolean,guzmaOwnerPromptContinuation?:boolean,
  *   ownerVipAfterPass?:boolean,ownerPlumeriaAfterPass?:boolean,
  *   ownerPlumeriaOpportunity?:boolean,
- *   ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
+ *   ownerDonorSetup?:{seat:0|1,setup?:object},
+ *   rank9CompressorMaxGlobalTurn?:number}} [options]
  * Default preserves v2.
  * @returns {{result:T,audit:object}}
  */
@@ -179,7 +180,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     assert.ok([0,1].includes(options.rank9CompressorOwnerSeat));
     const selected=require('../twinleaf/agent29-rank9-compressor-owner-bridge.cjs')
       .withRank9CompressorAfterPass(runWithHammer,
-        options.rank9CompressorOwnerSeat);
+        options.rank9CompressorOwnerSeat,
+        {maxGlobalTurn:options.rank9CompressorMaxGlobalTurn??12});
     ownerRank9CompressorAudit=selected.audit;
     return selected.result;
   };
