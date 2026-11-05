@@ -56,6 +56,16 @@ function runPreservedMailTurn5Aba(deps={}){
       assert.equal(row.actualStarterSeat,a.actualStarterSeat,id);
     }
     assert.deepEqual(projection(a),projection(c),id);
+    const preWindow=x=>ledger(x).filter(root=>
+      root.turnBefore===null||root.turnBefore===undefined||
+      root.turnBefore<5).map(root=>[
+        root.playerSlot,root.turnBefore,root.action,
+        root.card,root.attack,root.pendingPrompt
+      ]);
+    assert.deepEqual(preWindow(a),preWindow(b),
+      id+' treatment must preserve all pre-turn5 public actions');
+    if(id!==TARGET)assert.deepEqual(projection(a),projection(b),
+      id+' non-target trial must be entirely unaffected');
     const sourceSeat=b.sourceSeat??b.nativeAbortProvenance?.sourceSeat;
     const mail=b.ownerMailAfterPassAudit;
     const sourceMail=(mail?.selectedReceipts??[])
