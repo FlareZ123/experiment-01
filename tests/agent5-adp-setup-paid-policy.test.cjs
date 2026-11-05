@@ -1,11 +1,11 @@
 "use strict";
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {PROFILES}=require('./agent5-adp-paid-opening.cjs');
-const {C,COUNTS}=require('./agent5-adp-wondertag-paid-opening.cjs');
+const {PROFILES}=require('../simulation/evaluation/agent5-adp-paid-opening.cjs');
+const {C,COUNTS}=require('../simulation/evaluation/agent5-adp-wondertag-paid-opening.cjs');
 const {SCALE,greedySetups,deliberateSetup,firstOnlySetups,
   protectedLeleSetups,payableUnderSetup,
-  comparePaidSetupPolicies}=require('./agent5-adp-setup-paid-policy.cjs');
+  comparePaidSetupPolicies}=require('../simulation/evaluation/agent5-adp-setup-paid-policy.cjs');
 function vec(fields){const a=Array(13).fill(0);for(const [key,n] of Object.entries(fields))a[C[key]]=n;return a;}
 const avail=(fields)=>({adp:false,gh:false,dde:false,lele:false,...fields});
 
