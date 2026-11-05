@@ -103,6 +103,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent3_rank11_letter_owner_search:
+        description: 'Source-locked rank11 Letter37 native owner Energy search: exact physical-card settlement only, zero qualified games'
+        required: false
+        type: boolean
+        default: false
       include_agent35_v5_owner_pass_replay:
         description: 'Frozen eight-arm source-owner Pass physical hand and board observation, no deck wins'
         required: false
@@ -119,7 +124,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent3_rank11_letter_owner_search }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -442,7 +447,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 21
   original-v5-owner-pass-observation:
-    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork }}
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent3_rank11_letter_owner_search }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -494,3 +499,21 @@ jobs:
           path: agent35-rank11-letter-fork-native.json
           retention-days: 14
           if-no-files-found: warn
+      - name: Agent3 source-Letter native actor-only exact-card prompt contract
+        if: ${{ inputs.include_agent3_rank11_letter_owner_search }}
+        run: |
+          node --check simulation/evaluation/agent3-rank11-letter-owner-search-source-v1.cjs
+          node --test tests/agent3-rank11-letter-owner-search-source-v1.test.cjs
+      - name: Execute source-locked rank11 one-Letter native physical Energy search followthrough
+        if: ${{ inputs.include_agent3_rank11_letter_owner_search }}
+        env:
+          AGENT3_RANK11_LETTER_SEARCH_RECEIPT: agent3-rank11-letter-owner-search-native.json
+        run: node simulation/evaluation/agent3-rank11-letter-owner-search-source-v1.cjs
+      - name: Preserve exact genuine original-eight Letter search physical transfer and negative outcomes
+        if: ${{ always() && inputs.include_agent3_rank11_letter_owner_search }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-source-rank11-letter-search-native
+          path: agent3-rank11-letter-owner-search-native.json
+          if-no-files-found: warn
+          retention-days: 14
