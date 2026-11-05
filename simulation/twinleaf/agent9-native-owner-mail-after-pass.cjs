@@ -22,12 +22,15 @@ const VERSION='agent9-native-owner-mail-after-pass-v1';
  * @template T
  * @param {()=>T} execute Synchronous original Store headless run.
  * @param {[string[],string[]]} registeredSixties Exact source 60s per seat.
+ * @param {{allowRoot?:(view:object)=>boolean}} [options] Optional owner-visible comparison window.
  * @returns {{result:T,audit:object}}
  */
-function withOwnerMailAfterPass(execute,registeredSixties){
+function withOwnerMailAfterPass(execute,registeredSixties,options={}){
   assert.equal(typeof execute,'function');
   assert.ok(Array.isArray(registeredSixties)&&registeredSixties.length===2&&
     registeredSixties.every(row=>Array.isArray(row)&&row.length===60));
+  assert.ok(options.allowRoot===undefined||
+    typeof options.allowRoot==='function');
   const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const native=p=>require(path.join(base,p));
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
@@ -116,6 +119,7 @@ function withOwnerMailAfterPass(execute,registeredSixties){
     if(incumbent?.constructor?.name!=='PassTurnAction')return incumbent;
     audit.unsupportedPassRoots++;
     const view=actorObservation(state,seat);
+    if(options.allowRoot&&!options.allowRoot(view))return incumbent;
     const proposal=planOwnerMailAfterPass(view,catalog,
       registeredSixties[seat],{kind:'pass',
         reason:'no-supported-owner-visible-root'});
