@@ -1,0 +1,29 @@
+# Agent50: registered original-rank-4 owner-entry-preserving opening, 32 native Store attempts
+
+**5 November 2026 | retrospective CI audit of a prospectively fixed 4 November 32-attempt registration.** This report reconstructs an already-completed native run; it introduces no new selected policy or competitive match denominator. The current objective remains one fixed, legal 60-card paper Expanded deck against all 32 Aichi originals; 29 source name/count lists authenticated, zero competitively qualified games, no selected fixed 60.
+
+## Reproducible inputs and unchanged test
+
+- Registration: [agent50-owner-entry-priority-original4-natural32-20261104.md](registrations/agent50-owner-entry-priority-original4-natural32-20261104.md). Exact source rank **4**, `planAichi(1)` candidate, source physical seats **0 and 1**, seeds **20261120 through 20261135 inclusive per seat**: 32 specified attempts.
+- Policy: [owner-only entry-priority singleton Active](../../simulation/twinleaf/agent50-owner-entry-priority-single-basic.cjs), reusing [Agent4's native single-Basic Store adapter](../../simulation/twinleaf/agent4-owner-setup-starting-pokemon.cjs). It prefers a starting ordinary Basic over an eligible Basic with a printed in-turn hand-to-Bench entry Ability. It declines the optional bonus Bench prompt. This is a **default-off diagnostic** and does not silently modify steward-selected Issue25 v4/v5 or Agent50's separate protected multi-Basic candidate.
+- Executed test: [agent50-owner-entry-priority-original4-natural32.native.test.cjs](../../tests/agent50-owner-entry-priority-original4-natural32.native.test.cjs). Pinned Twinleaf gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Research CI checkout `33029da7fdb9012143e90c26e8d1385b12da18c5`.
+- Actual [manually dispatched successful CI #41882814279](https://github.com/FlareZ123/experiment-01/actions/runs/41882814279), job `koko-native`, step **Preregistered original4 32 hands owner priority actual Store acceptance**. Archived [64 JSON and SHA256 receipt files, artifact #13350811292](https://github.com/FlareZ123/experiment-01/actions/runs/41882814279/artifacts/13350811292), provider ZIP SHA256 `4f9d8239308a4d21dfc7a7ac0cb69ac08d7cd8dcf8406a9e65b49ecdd9835d58`. This audit used the successful job's emitted `AGENT50_RANK4_NATURAL32` summary, original checked-in native test, and artifact manifest; the ZIP individual JSON payloads were **not independently downloaded and rehashed** in this continuation.
+
+## Native result: opportunity to retain an entry Ability
+
+All **32/32** attempts satisfied the test's strict `validated` predicate. It required an intentionally quarantined old raw-State bot fallback, no execution of that native decoder, at least two Store-accepted setup Active selections, the same number of physically confirmed Active placements, zero missing physical placements, zero rejected setup actions and one source setup choice. An offered eligible Basic with a printed hand-to-Bench entry Ability was never selected as Active where an ordinary eligible Basic also existed.
+
+**11/32** source-owner opening decisions (**34.375%** of these 32 fixed native seeds) encountered an eligible printed entry Ability Basic *and* at least one ordinary Basic, then chose an ordinary Basic. These are positive **setup choice and physical placement** witnesses: 6/16 for source physical seat 0 and 5/16 for seat 1. The source-positive pairs were:
+
+| Source seat | Registered seed |
+| --- | --- |
+| 0 | 20261122, 20261123, 20261124, 20261127, 20261131, 20261134 |
+| 1 | 20261125, 20261128, 20261129, 20261132, 20261133 |
+
+The prior [exact rank-4 opening hypergeometric model](../statistics/agent50-original29-turn-bench-ability-avoidable-opening-20261104.md) gave **36.4514206082%** for a conservative avoidable entry-support consumption event under its stated seven-card valid-opening assumptions. The observed 34.375% in these separately seeded Store examples is numerically compatible with the model, but does **not** prove that it predicts native frequencies or downstream game results. The 32 seeds are a registered diagnostic fixture, not representative independent field matches. A naive exact binomial 95% interval for 11/32 is approximately **18.57% to 53.19%**, conditional on an unproven independent-Bernoulli sampling approximation.
+
+## Boundaries and decision
+
+The positive event means a support Basic was *available to keep in hand*. It does not verify the actual hand-to-Bench Ability was activated on a later turn, that a Bench slot remained open, that the Pokémon survived, or that preserving the card improved prizes or match outcomes. The test's `runMatch` continues only until the fail-closed owner-information quarantine catches an unsupported later action; it records **zero qualified games**. The seed-level receipt lacks a paper-certified full-deal fingerprint, external-paper legality proof, complete opposing decision opportunity, or a same-deal baseline comparator with the greedy setup algorithm. Setup-only Store acceptance is narrower than competitive player competence.
+
+**Integration recommendation:** keep this default-off choice available as an explicitly registered A/B treatment, with actual source physical pre-treatment opening and seat parity, strict native prompt settlement and physical ownership of retained supports. Pair it with an actual in-turn hand-to-Bench Ability, printed payment/targets, measurable payoff and real opponent reply before considering it for steward's selected policy. Record any added solo Active/empty Bench exposure: the [Bench occupancy analysis](../../simulation/evaluation/agent50-setup-bench-occupancy-tradeoff.cjs) quantifies that tradeoff independently. Agent4's later exact prompt-settlement v2-v3 evidence should be the acceptance standard for any new integrated test. No list promotion or 99.5% inference follows.
