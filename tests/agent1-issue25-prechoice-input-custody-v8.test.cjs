@@ -229,6 +229,10 @@ test('post-opening public boards can differ without changing genuine prechoice i
   assert.equal(result.firstTurnPublicBoardObservations.protectedNativeBoardsBeforeFirstAction,8);
   assert.equal(result.firstTurnPublicBoardObservations.changedPhysicalOwnerPokemonBoards,1);
   assert.equal(result.firstTurnPublicBoardObservations.changedPhysicalOwnerBenchCounts,1);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.contender.changedPokemonBoards,1);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.contender.changedBenchCounts,1);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.source.changedPokemonBoards,0);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.source.changedBenchCounts,0);
   assert.equal(JSON.stringify(result).includes('changed-actual-setup-board'),false);
   assert.equal(result.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
@@ -269,4 +273,30 @@ test('a partial returned digest contradiction vetoes otherwise matched Store cus
   assert.equal(compared.constraints.contradictoryReturnedPrintingDigestRows,1);
   assert.equal(compared.constraints.nativeStoreRegisteredPrintingParity,false);
   assert.equal(compared.pairedRows[3].contradictoryReturnedPrintingDigests,true);
+});
+
+test('public-role aggregation maps candidate seat B to native owner seat one',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  const ids=a.diagnostic.registered;
+  for(const run of [a,b]){
+    run.diagnostic.actualNativePrechoicePhysicalInputs.firstTurnBoardEvents=
+      ids.map((id,index)=>({
+        registeredNativeTrialId:id,nativeStoreOrdinal:index+1,
+        nativeFirstPlayerSeat:0,beforeFirstNativeTurnAction:true,
+        boards:[0,1].map(seat=>({
+          physicalOwnerSeat:seat,activePresent:true,benchOccupied:1,
+          publicBoardHmacSha256:digest('initial-'+id+'-'+seat)
+        }))
+      }));
+  }
+  const second=ids.findIndex(id=>id.split(':')[2]==='B');
+  assert.ok(second>=0);
+  b.diagnostic.actualNativePrechoicePhysicalInputs
+    .firstTurnBoardEvents[second].boards[1].publicBoardHmacSha256=
+    digest('candidate-seat-one-changed');
+  const result=comparePrechoiceCustodyV8(a,b);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.contender.changedPokemonBoards,1);
+  assert.equal(result.firstTurnPublicBoardObservations.byRole.source.changedPokemonBoards,0);
+  assert.equal(result.firstTurnPublicBoardObservations.changedPhysicalOwnerPokemonBoards,1);
+  assert.equal(result.constraints.competitiveGamesQualified,0);
 });
