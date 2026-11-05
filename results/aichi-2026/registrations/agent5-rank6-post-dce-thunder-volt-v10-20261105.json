@@ -1,0 +1,53 @@
+{
+  "schema": "agent5-v10-original-source-after-verified-paid-ghala-dce-thunder-volt",
+  "registeredAtUtc": "2026-11-05T19:47:00Z",
+  "purpose": "two original rank6 source physical deals, after genuine DCE Active attachment; replace first source Pass with own-held Thunder Mountain, and only if normal actor would Pass replace following source Pass with physical Volt Cyclone after accepted Stadium; answer genuine mandatory own-energy-to-own-Bench prompt via actual native Store",
+  "sourceRank": 6,
+  "originalSourceSeat": 0,
+  "actualGlobalTurn": 2,
+  "originalSourcePhysicalDeck": "authenticated rank6 original 60 unchanged",
+  "candidateDecks": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "allEightOriginalTrialsRetained": true,
+  "targetBranches": [
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceDceRootOrdinal": 29,
+      "followingSourcePassRootOrdinal": 30,
+      "fullInitialPhysicalSha256": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "sourceInitialPhysicalSha256": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "originalAllAcceptedRootTapeSha256": "509bccaedea3eae08e8b92e5f2303ced414007c54daccbe7c9657cb3f99cae85"
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "sourceDceRootOrdinal": 36,
+      "followingSourcePassRootOrdinal": 37,
+      "fullInitialPhysicalSha256": "86e4d2d417f403c864c0279bb6ed9955e7f133cc39f932cd7832d7dffc420c6c",
+      "sourceInitialPhysicalSha256": "509bc6e44713a30eb38ddfd59efb20540f9f3a6cac37d9d9f4c19fe2adf0faee",
+      "originalAllAcceptedRootTapeSha256": "0eb5df39afbc77de74e4d732cc29d38a91367e555ef222b3ac09ea828b428560"
+    }
+  ],
+  "pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baseline": "agent45 native paid G&H v9; 8 registered arms, 48 roots each; 7 capped, 1 error",
+  "sourceDecisionInputOnly": "actual owner hand, source Active/Bench, own Energy and Stadium, public opponent Stadium/locks; never Prize faces or unopened decks",
+  "oneProspectiveDecisionRule": "after exact real DCE-to-Active source root, play own held Thunder Mountain when baseline source would Pass; then declare printed Volt Cyclone only if a valid same-turn native Stadium and payable DCE have been established and original source still would Pass",
+  "promptPolicy": "only genuine unresolved owner AttachEnergyPrompt for printed Volt Cyclone; choose exactly one attached DCE physical card to one occupied own Bench; require native prompt validation and physical Store movement",
+  "negativeOutcomesToRetain": [
+    "source root not reached",
+    "missing printed held Thunder",
+    "Stadium native rejection",
+    "Stadium physical custody failure",
+    "attack not available or native rejected",
+    "native attack prompt unresolved or aborted",
+    "physical Energy move invalid",
+    "opponent reply absent",
+    "48-root censor",
+    "other native abort"
+  ],
+  "strategicDominance": false,
+  "sourceIndependentBothSeatRelease": false,
+  "competitiveGamesQualified": 0,
+  "fixedWinningDeckSelected": false
+}
