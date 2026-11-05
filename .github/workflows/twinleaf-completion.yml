@@ -83,6 +83,8 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify printed Night Watch selected v3 native prompt settlement
+        run: node --test tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs
       - name: Stage actual two-Basic-Energy VMAX retreat and native payment on both seats
         run: node --test tests/agent42-two-unit-paid-retreat-native.test.cjs
       - name: Retrospective original rank1 three-arm paid two-Psychic native fork
