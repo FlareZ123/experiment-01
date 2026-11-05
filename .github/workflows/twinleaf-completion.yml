@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent45_tagcall_v7:
+        description: 'Original eight exact-deal retrospective v5 versus actual owner Tag Call to Guzma and Hala, 48 roots, development only'
+        required: false
+        type: boolean
+        default: false
       include_agent45_native_vip_v6:
         description: 'Retrospective v5 versus original-eight native-selected VIP owner search: physical 48-root developmental diagnostic'
         required: false
@@ -173,6 +178,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
         run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Retrospective Agent45 Tag Call native Item and authentic Guzma Hala own-deck search, eight original 48-root deals
+        if: ${{ inputs.include_agent45_tagcall_v7 }}
+        env:
+          ISSUE25_AGENT45_TAGCALL_V7_DIR: issue25-agent45-tagcall-v7
+        run: node --test tests/agent45-issue25-owner-tagcall-v7.test.cjs tests/agent45-issue25-owner-tagcall-v7.native.test.cjs
       - name: Retrospective Agent45 native-selected VIP prompt after genuine Item root, identical v5 initial source deals
         if: ${{ inputs.include_agent45_native_vip_v6 }}
         env:
@@ -183,6 +193,14 @@ jobs:
         env:
           AGENT9_TELEPATH_V6_DIR: agent9-telepath-v6
         run: node --test tests/agent9-issue25-telepath-v6.native.test.cjs
+      - name: Archive exact original eight Tag Call v5-v7 native receipts and SHA256 sidecars
+        if: ${{ always() && inputs.include_agent45_tagcall_v7 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent45-issue25-owner-tagcall-v7
+          path: issue25-agent45-tagcall-v7/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Archive all original eight native-selected VIP v5-v6 results, including errors and censored arms
         if: ${{ always() && inputs.include_agent45_native_vip_v6 }}
         uses: actions/upload-artifact@v4
