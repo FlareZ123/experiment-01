@@ -6,7 +6,8 @@ const {
   chooseOwnedProtectedStartingBasics,isTurnEntrySupport
 }=require('./agent50-owner-preserve-turn-entry-setup.cjs');
 
-const VERSION='agent50-owner-protected-multibasic-native-store-v1';
+const VERSION='agent50-owner-protected-multibasic-native-store-v2-settlement';
+const SETTLEMENT_CODE='OWNER_PROTECTED_MULTIBASIC_UNSETTLED';
 
 /**
  * Source-independent pinned Store policy for setup only. Use the genuine
@@ -46,6 +47,8 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
   const audit={
     version:VERSION,stores:0,
     selected:0,accepted:0,rejected:0,
+    returnedWithoutThrow:0,settled:0,unsettled:0,
+    physicalVerificationFailed:0,
     initialSelections:0,bonusDeclines:0,
     initialAccepted:0,bonusAccepted:0,
     physicalActiveConfirmed:0,
@@ -86,7 +89,8 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
       !selected.includes(card)):[];
     const action=new ResolvePromptAction(prompt.id,selected);
     pending.set(action,{
-      seat,nativeStoreOrdinal:audit.stores,initial,selected,
+      seat,nativeStoreOrdinal:audit.stores,initial,
+      selected:[...selected],prompt,
       ownerHandBefore:cardList,
       activeBefore:[...owner.active.cards],
       benchBefore:owner.bench.map(slot=>[...slot.cards]),
@@ -117,45 +121,74 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
     }
     const prior=this===live?pending.get(action):null;
     if(!prior)return oldStore.value.apply(this,[action,...args]);
+    const wasPending=prior.prompt.result===undefined&&
+      this.state.prompts?.includes(prior.prompt)===true;
+    let result;
     try{
-      const result=oldStore.value.apply(this,[action,...args]);
-      const owner=this.state.players[prior.seat];
-      audit.accepted++;
+      result=oldStore.value.apply(this,[action,...args]);
+    }catch(error){
+      audit.rejected++;
+      throw error;
+    }
+    audit.returnedWithoutThrow++;
+    // Exact native prompt settlement is independent from unchanged min=0
+    // bonus Bench declination. Native Store can silently ignore stale IDs.
+    const answer=prior.prompt.result;
+    const settled=wasPending&&Array.isArray(answer)&&
+      answer.length===prior.selected.length&&
+      answer.every((card,i)=>card===prior.selected[i]);
+    if(!settled){
+      audit.unsettled++;
+      const error=new Error(
+        'Protected multi-Basic Store returned without resolving the offered prompt');
+      error.code=SETTLEMENT_CODE;
+      throw error;
+    }
+    audit.settled++;
+    const owner=this.state.players[prior.seat];
+    try{
       if(prior.initial){
-        audit.initialAccepted++;
         const active=owner.active.cards.includes(prior.selected[0]);
         const bench=prior.selected.slice(1).every(card=>
-          owner.bench.some(slot=>slot.cards.includes(card)));
+          owner.bench.filter(slot=>slot.cards.includes(card)).length===1);
+        const moved=prior.selected.every(card=>
+          !owner.hand.cards.includes(card));
+        const noOtherSlots=prior.selected.every((card,index)=>
+          index===0?
+            owner.bench.every(slot=>!slot.cards.includes(card)):
+            !owner.active.cards.includes(card));
         const retained=prior.retained.every(card=>
           owner.hand.cards.includes(card));
         if(active)audit.physicalActiveConfirmed++;
         if(bench)audit.physicalBenchConfirmed++;
         if(retained)audit.allEligibleProtectedSupportsRetained++;
-        if(!active||!bench||!retained)
+        if(!active||!bench||!retained||!moved||!noOtherSlots)
           audit.missingPhysicalPlacements++;
-        assert.ok(active&&bench&&retained,
-          'Actual native Store must preserve first Active, remaining Bench and held support cards');
+        assert.ok(active&&bench&&retained&&moved&&noOtherSlots,
+          'Native setup must transfer each selected original physical Basic to one correct slot and retain protected supports');
       }else{
-        audit.bonusAccepted++;
         // A newly drawn bonus card after resolving the prompt is allowed.
         let kept=0;
         for(const card of owner.hand.cards)
           if(card===prior.ownerHandBefore[kept])kept++;
         assert.equal(kept,prior.ownerHandBefore.length,
-          "Optional decline must not consume an existing owner hand card");
+          'Optional decline must not consume an existing owner hand card');
         assert.deepEqual(owner.active.cards,prior.activeBefore);
         assert.deepEqual(owner.bench.map(slot=>slot.cards),
           prior.benchBefore);
       }
-      const event=audit.events.find(e=>e.seat===prior.seat&&
-        e.nativeStoreOrdinal===prior.nativeStoreOrdinal&&
-        e.physicalPlacement==='not-yet-verified');
-      if(event)event.physicalPlacement='accepted-native-Store';
-      return result;
     }catch(error){
-      audit.rejected++;
+      audit.physicalVerificationFailed++;
       throw error;
     }
+    audit.accepted++;
+    if(prior.initial)audit.initialAccepted++;
+    else audit.bonusAccepted++;
+    const event=audit.events.find(e=>e.seat===prior.seat&&
+      e.nativeStoreOrdinal===prior.nativeStoreOrdinal&&
+      e.physicalPlacement==='not-yet-verified');
+    if(event)event.physicalPlacement='settled-and-native-zones-verified';
+    return result;
   }
 
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
@@ -181,4 +214,4 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
   }
 }
 
-module.exports={VERSION,withOwnerProtectedMultiBasicStore};
+module.exports={VERSION,SETTLEMENT_CODE,withOwnerProtectedMultiBasicStore};
