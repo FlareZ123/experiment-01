@@ -7,7 +7,7 @@ const {
 } = require('./agent10-995-balanced-pair-early-rejection.cjs');
 
 const VERSION = 'agent10-995-arbitrary-within-pair-dependence-anytime-v1';
-const MAX_NULL_EXPECTED_NONWINS_PER_PAIR = 2 * (1 - NECESSARY_RANK_WIN_RATE);
+const MAX_NULL_EXPECTED_NONWINS_PER_PAIR = 0.32;
 const BETS = Object.freeze([
   Object.freeze({eta: 0.25, weight: 0.1}),
   Object.freeze({eta: 0.75, weight: 0.2}),
