@@ -17,6 +17,9 @@ const ALTERNATIVES = Object.freeze([
 
 assert.ok(Math.abs((FIELD_RANKS - 1 + NECESSARY_RANK_WIN_RATE) /
   FIELD_RANKS - FIELD_TARGET) < 1e-12);
+assert.ok(Math.abs(ALTERNATIVES.reduce((sum, row) => sum + row.weight, 0) - 1) < 1e-12);
+assert.ok(ALTERNATIVES.every(row => row.winRate >= 0 &&
+  row.winRate < NECESSARY_RANK_WIN_RATE && row.weight > 0));
 
 /**
  * Exact likelihood-ratio-mixture log e-value for one original opponent rank.
