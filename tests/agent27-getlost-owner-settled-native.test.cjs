@@ -79,6 +79,16 @@ for(const seat of [0,1]){
         const expected=chosen.result.slice();
         f.store.dispatch(chosen);
         assert.equal(f.state.prompts[0].result,chosen.result);
+        console.log('AGENT27_GETLOST_STAGED_NATIVE',JSON.stringify({
+          seat,offered,selected:expected.map(c=>({id:c.id,name:c.fullName})),
+          actualDiscard:f.other.discard.cards.map(c=>c.id),
+          actualLostZone:f.other.lostzone.cards.map(c=>c.id),
+          otherIsCurrent:f.store.state.players[1-seat]===f.other,
+          storeStateIsOriginal:f.store.state===f.state,
+          allPlayers:f.store.state.players.map(p=>({
+            id:p.id,discard:p.discard.cards.length,lostzone:p.lostzone.cards.length
+          }))
+        }));
         assert.equal(f.other.discard.cards.length,offered-expected.length);
         for(const card of expected){
           assert.ok(f.other.lostzone.cards.includes(card));
