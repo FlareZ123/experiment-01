@@ -1,0 +1,45 @@
+{
+  "schema": "agent45-issue25-ghala-relaxed-payment-v9-original-eight",
+  "authored_utc": "2026-11-05T17:55:00Z",
+  "design": "Exploratory retrospective matched physical eight v8 control vs v9 with only G&H discard-capable ceiling relaxed to Infinity",
+  "fixedOriginalSourceRanks": [
+    6,
+    11
+  ],
+  "originalTrialRegistration": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "originalNativeRootCap": 48,
+  "frozenNamedCandidateSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "exactPhysicalDealAndSeatParityRequired": true,
+  "treatment": "If a genuine physically fetched Guzma & Hala is native playable on turn2, prefer native paid mode whenever two real distinct other owner-hand cards can be chosen. Select lowest-cost heuristic pair without the conservative 40-point cutoff, verify native physical discard/Lost Zone payment and real native owner-deck category search.",
+  "measurands": [
+    "identical original full/source native initial deals",
+    "actual accepted Tag Call roots",
+    "actual paid-mode G&H roots",
+    "native selected two physical hand cards",
+    "physical discard/Lost Zone transfer per selected card",
+    "Stadium/Tool/Special Energy retrieved physically from prompted owner deck",
+    "printed cost names after public discard",
+    "source attack settlement and opponent reply",
+    "all errors/censor dispositions"
+  ],
+  "predeclaredUnacceptableClaims": [
+    "two-card payment legal means beneficial strategy",
+    "relaxed DCI choice is optimal",
+    "action-capped games qualify as competitive",
+    "same seed guarantees same source deal across different contender 60s",
+    "99.5 percent field win rate"
+  ],
+  "expectedFailures": [
+    "owner hand has fewer than two other cards",
+    "native action rejected",
+    "native prompt changes or malformed",
+    "unavailable desired category cards in owner deck",
+    "valued cards discarded without strategic payoff",
+    "48-root cap/engine abort unchanged"
+  ],
+  "releaseQualified": false,
+  "competitiveGamesQualified": 0
+}
