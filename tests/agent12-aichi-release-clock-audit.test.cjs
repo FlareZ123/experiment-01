@@ -14,8 +14,13 @@ test('all admitted 29 original source sixties scanned: five CRI aliases over thr
   assert.equal(result.allDecksHaveSixty,true);
   assert.equal(result.futureEnglishRows,3);
   assert.equal(result.futureEnglishCopies,5);
+  assert.equal(result.futureEnergyArtRows,35);
+  assert.equal(result.futureEnergyArtCopies,120);
+  assert.equal(result.japanesePromoRows,4);
+  assert.equal(result.japanesePromoCopies,5);
   assert.equal(result.uncertainRegionalRows,0);
-  assert.deepEqual(result.rows.map(row=>({
+  assert.deepEqual(result.rows.filter(row=>
+    row.kind==='future-english-set').map(row=>({
     rank:row.rank,card:row.card,count:row.count,
     print:row.englishPrinting,englishRelease:row.englishRelease,
     earlierJapanese:row.earlierJapaneseEquivalent
@@ -78,4 +83,31 @@ test('conflicting source abbreviation release clocks fail loudly',()=>{
     {id:'a',ptcgoCode:'DUPE',releaseDate:'2026/03/13'},
     {id:'b',ptcgoCode:'DUPE',releaseDate:'2026/05/22'}
   ]),/conflicting release dates/);
+});
+
+
+test('MEE card-art variants use their own dated edition, not parent set release',()=>{
+  const original={decks:[{rank:1,player:'Fixture',cards:[
+    {count:30,name:'Psychic Energy',printing:{set:'MEE',number:'5'}},
+    {count:30,name:'Psychic Energy',printing:{set:'MEE',number:'13'}}
+  ]}]};
+  const got=auditEnglishSetClock(original,[]);
+  assert.equal(got.futureEnergyArtRows,1);
+  assert.equal(got.futureEnergyArtCopies,30);
+  assert.equal(got.futureEnglishCopies,0);
+  assert.equal(got.rows[0].englishRelease,'2026/09/16');
+});
+
+test('known Japanese promo reference remains independently dated from English sets',()=>{
+  const original={decks:[{rank:1,player:'Fixture',cards:[
+    {count:60,name:"Player's Ceremony",printing:{set:'SP',number:'127'}}
+  ]}]};
+  const got=auditEnglishSetClock(original,[]);
+  assert.equal(got.japanesePromoRows,1);
+  assert.equal(got.japanesePromoCopies,60);
+  assert.equal(got.futureEnglishRows,0);
+  assert.throws(()=>auditEnglishSetClock({decks:[{rank:1,player:'X',
+    cards:[{count:60,name:'Unknown Promo',
+      printing:{set:'SP',number:'128'}}]}]},[]),
+  /Unresolved Japanese/);
 });
