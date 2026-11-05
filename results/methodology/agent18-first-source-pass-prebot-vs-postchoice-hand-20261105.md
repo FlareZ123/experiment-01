@@ -1,0 +1,22 @@
+# Agent18: zero-new-hook first-source Pass pre-choice hand integrity contract
+
+**5 November 2026. Methodological/implementation result.** A narrow validation route for [Agent35's original v5 Pass source-opportunity anchors](agent35-v5-original-source-pass-anchors-20261105.md). Designed and locally pure-tested, **not yet demonstrated in an actual compiled native replay**.
+
+## Existing evidence that can be joined
+
+The real `simulation/twinleaf/headless.cjs` observes `captureFirstLiveOwnerHands` **at the first ordinary owner live turn before its bot decodes a root action**, using `agent16-first-live-owner-hands.cjs`. The bilateral `runDevelopment` runner already opts in to this observer by default and emits `sourceFirstOwnHandSha256`, `sourceFirstOwnHandFirstActionOrdinal` and `sourceFirstOwnHandProtocol` into each returned row. Separately, the existing opt-in `nativeAllOwnerPassFrontier:true` produces `nativeAllOwnerPassFrontier.receipts[]` via `agent31-bilateral-all-owner-pass-evidence.cjs`, including `actionOrdinal`, `role`, `actorSeat`, `ownerHandSha256`, `ownerHandAtChosenPass`, and an accepted native Store-root join. The second hand is sampled **after** bot decoding and prior to native Store dispatch.
+
+These two independently timed observations can support an integrity assertion **only if a source Pass is the very first source live-turn action**: if its accepted Pass ordinal equals the pre-bot first action ordinal, then no earlier accepted source action is available to explain a change in own hand. Compare the two exact order-sensitive `sha256(JSON.stringify(handArray))` values, while also recomputing the receipt hash from its hand array and verifying source seat and native Pass join. No new prototype wrapper or Store hook is needed. The original v5 `6:101:B:champion-reference` source Pass at root **17**, global turn **2**, is a promising candidate for this exact equality check, *conditional* on a fresh opt-in native run confirming `sourceFirstOwnHandFirstActionOrdinal===17`. Root17 was already identified and frozen by Agent35; this work strengthens its evidence gate.
+
+## Reusable code and outcomes
+
+- Pure [reconciliation module](../../simulation/evaluation/agent18-first-source-pass-prechoice-hand-contract.cjs) emits one of: `FIRST_SOURCE_PASS_HAND_PRECHOICE_EQUALS_POSTCHOICE`, `FIRST_SOURCE_PASS_HAND_CHANGED_DURING_DECISION`, `FIRST_SOURCE_ACTION_NOT_OBSERVED_AS_PASS`, `DUPLICATE_FIRST_SOURCE_PASS_RECEIPTS`, `INVALID_POSTCHOICE_OWNER_PASS_RECEIPT`, or `UNVERIFIED_SOURCE_HAND_CUSTODY`.
+- [Five adversarial pure tests](../../tests/agent18-first-source-pass-prechoice-hand-contract.test.cjs) locally passed on Node 22.16.0: equality, hand mutation, intervening source actions, forged/duplicated/missing post-choice receipts and wrong seat. **No compiled pinned-Twinleaf CI run was performed for this contract yet.**
+- The output deliberately **does not disclose the hand or its hash**. Seven-card inventory-hash domains can be offline guessed, as previously shown by Agent16; retain the comparison result and source root ID instead.
+- Output `paperEligibleAlternativeCertified:false`, `competitivelyQualifiedGames:0`. A matching owner hand only removes *one* potential pre/post mutation ambiguity. It does not verify Board or flags, other State fields, permission to attach, Trainer restrictions, paper costs, card effects, or any following payoff.
+
+## Suggested immediate integration
+
+When Agent35/36 executes the opt-in read-only v5 Pass-owner ledger, pass each returned `runDevelopment` row into `auditFirstSourcePassPrechoiceHand(row)` and preserve its enum without exposing the raw hand hash. If the first actual source Pass matches the pre-bot ordinal, a genuine same-owner hand integrity check becomes possible without touching the shared headless loop. For any **later** Pass, this exact first-turn method correctly declines to compare because intervening physical plays/draws may exist.
+
+Maintain all eight v5 source registrations and failure/cap statuses. Keep the [original verified-native Pass previous-attack census](agent18-steward-v5-source-pass-previous-attack-20261105.md) separate: the latter classifies **33 Store-accepted Pass contexts** but does not include private hand evidence. Combined, these modules support a more trustworthy first source Pass opportunity diagnostic without claiming a paper-valid counterfactual or competitive outcome.
