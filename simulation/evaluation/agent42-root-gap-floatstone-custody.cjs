@@ -37,9 +37,14 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
         toolReceipt.declared.target?.slot !== sourceSeat ||
         toolReceipt.declared.target?.index !== 0) continue;
     const toolActive = boardChange(toolReceipt, 'active');
+    // A paper Tool cannot replace an occupied Tool slot. In addition,
+    // the attachment itself cannot mutate Pokémon, Energy, or damage.
     if (toolActive?.after?.pokemon !== 'Shadow Rider Calyrex VMAX CRE' ||
-        toolActive.before?.tools?.includes('Float Stone BKT') ||
-        !toolActive.after?.tools?.includes('Float Stone BKT')) continue;
+        !Array.isArray(toolActive.before?.tools) ||
+        toolActive.before.tools.length !== 0 ||
+        !isDeepStrictEqual(toolActive.after?.tools, ['Float Stone BKT'])) continue;
+    if (!isDeepStrictEqual({...toolActive.before, tools:[]},
+                           {...toolActive.after, tools:[]})) continue;
 
     for (const retreat of roots) {
       if (retreat.actionOrdinal <= tool.actionOrdinal ||
@@ -75,6 +80,26 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
           !Number.isSafeInteger(settled.prizesAfter?.[sourceSeat]) ||
           settled.prizesBefore[sourceSeat] < settled.prizesAfter[sourceSeat])
         continue;
+      // The legal owner turn cannot contain a foreign nonprompt action or
+      // jump across turns. Opponent-side prompt resolutions are permitted.
+      const interveningRoots = roots.filter(root =>
+        root.actionOrdinal > tool.actionOrdinal &&
+        root.actionOrdinal < attack.actionOrdinal);
+      if (interveningRoots.some(root =>
+        root.turnBefore !== tool.turnBefore ||
+        (root.playerSlot !== sourceSeat &&
+         root.action !== 'ResolvePromptAction'))) continue;
+      // An intermediate Active mutation can break physical custody even if
+      // a later event returns to a byte-identical board snapshot.
+      const changedActiveBeforeRetreat = events.some(event =>
+        event.storeAccepted === true &&
+        event.rootActionOrdinal > tool.actionOrdinal &&
+        event.rootActionOrdinal < retreat.actionOrdinal &&
+        event.publicBoardChanges?.some(change =>
+          change.seat === sourceSeat && change.position === 'active' &&
+          !isDeepStrictEqual(change.before, change.after)
+        )
+      );
       // Fail closed if another accepted action changed the source Active
       // between Retreat and attack. Intervening Bench Abilities remain valid.
       const changedActive = events.some(event =>
@@ -86,16 +111,26 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
           !isDeepStrictEqual(change.before, change.after)
         )
       );
-      if (changedActive) continue;
+      if (changedActive || changedActiveBeforeRetreat) continue;
+      const completion = roots.find(root =>
+        root.actionOrdinal === settled.completionRootOrdinal);
+      if (!Number.isSafeInteger(completion?.turnBefore) ||
+          completion.turnBefore < tool.turnBefore ||
+          completion.turnBefore > tool.turnBefore + 1) continue;
       const attacker = settled.publicBoardBefore?.[sourceSeat]?.active;
       if (attacker?.name !== 'Shadow Rider Calyrex VMAX' ||
           (attacker.energyCards?.length ?? 0) < 3) continue;
 
-      const opponentFirstNonPrompt = roots.find(root =>
+      // A later opponent action is not evidence of immediate continuation
+      // if the source has already taken a subsequent substantive turn.
+      const firstNextDecision = roots.find(root =>
         root.actionOrdinal > settled.completionRootOrdinal &&
-        root.playerSlot === 1 - sourceSeat &&
         root.action !== 'ResolvePromptAction'
-      ) ?? null;
+      );
+      const opponentFirstNonPrompt =
+        firstNextDecision?.playerSlot === 1 - sourceSeat &&
+        firstNextDecision.turnBefore === tool.turnBefore + 1 ?
+          firstNextDecision : null;
       lines.push({
         sourceSeat,
         toolOrdinal: tool.actionOrdinal,
