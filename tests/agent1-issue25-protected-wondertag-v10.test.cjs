@@ -330,3 +330,14 @@ test('native shuffled-card callback proof does not imply whole paper game qualif
   assert.equal(r.originalSourceAttackAndOpponentReplyCertified,false);
   assert.equal(r.competitiveGamesQualified,0);
 });
+
+test('native shuffle from the wrong trial cannot substitute for same-seat Wonder Tag search',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  const audit=b.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  audit.completedTrialSeats[1].id=ids[6];
+  const report=compareProtectedWonderTagV10(a,b);
+  assert.equal(report.actualNativeShuffleCompletionAudit.exactNativeShuffleTrialAndActorJoin,false);
+  assert.equal(report.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
+  assert.equal(report.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+});
