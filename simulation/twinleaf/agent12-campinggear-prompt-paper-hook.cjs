@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent12-paper-camping-gear-choose-one-v1';
+const VERSION='agent12-paper-camping-gear-choose-one-v2-independent-physical-member';
 const PRINTING='Camping Gear BST';
 
 /**
@@ -27,12 +27,14 @@ function campingGearPaperVerdict(state,action){
   const cards=action.result;
   const one=Array.isArray(cards)&&cards.length===1;
   const ownDeck=prompt.cards===prompt.player?.deck;
+  const physicalCardInDeck=one&&Array.isArray(prompt.player?.deck?.cards)&&
+    prompt.player.deck.cards.includes(cards[0]);
   const nativeValid=typeof prompt.validate==='function'&&
     prompt.validate(cards)===true;
   return {applicable:true,printing:PRINTING,
     cardCount:Array.isArray(cards)?cards.length:null,
-    ownDeck,one,nativeValid,
-    paperValid:one&&ownDeck&&nativeValid};
+    ownDeck,one,physicalCardInDeck,nativeValid,
+    paperValid:one&&ownDeck&&physicalCardInDeck};
 }
 
 /**
@@ -62,7 +64,7 @@ function withPaperCampingGearPromptGuard(run,deps={}){
     if(!verdict.paperValid){
       audit.paperInvalidVetoed++;
       throw new Error('PAPER_PROMPT_INVALID: '+PRINTING+
-        ' requires exactly one native-valid card from its own deck');
+        ' requires exactly one original physical card from its own deck');
     }
     try{
       const value=before.value.apply(this,[action,...args]);
