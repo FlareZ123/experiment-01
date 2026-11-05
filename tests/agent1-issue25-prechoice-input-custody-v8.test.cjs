@@ -47,10 +47,14 @@ function fixture(mode){
         firstOwnerSetupInputsObserved:16,
         registeredNativeTrialLabelWitnessSelected:true,
         privateFingerprintSessionId:'same-private-module-session',
+        exactPhysicalSixtyPrintedCountComparisons:16,
+        exactPhysicalSixtyPrintedCountMatches:16,
         events:trials.flatMap((trial,i)=>[0,1].map(seat=>({
           nativeStoreOrdinal:i+1,registeredNativeTrialId:trial.id,
           physicalOwnerSeat:seat,
           ownerHandCount:7,ownerDeckCount:47,ownerPrizeCount:6,
+          physicalSixtyCardCount:60,
+          exactPhysicalSixtyPrintedCountMatched:true,
           opaquePhysicalPrechoiceInputHmacSha256:
             digest('synthetic-opaque-physical-'+trial.id+'-'+seat),
           opaquePreRunRequestHmacSha256:
@@ -79,6 +83,8 @@ test('same exact registered native Store owner inputs still cannot certify treat
   assert.equal(compared.constraints.trialPairedInputMatches,16);
   assert.equal(compared.constraints.trialPairedInputMismatches,0);
   assert.equal(compared.constraints.matchedNativePreRunRequests,16);
+  assert.equal(compared.constraints.allActualPrechoicePhysicalSixtyPrintingsMatchConfigured,true);
+  assert.equal(compared.prechoiceInputObservers.actualOwnerPrintedSixtiesMatched,32);
   assert.equal(compared.constraints.nativeRegisteredRequestParityObserved,true);
   assert.equal(compared.protectedOpeningObservations.actualNativeStores,8);
   assert.equal(compared.protectedOpeningObservations.initialNativeAccepted,16);
@@ -171,5 +177,19 @@ test('same registered private hand with changed native 60/seed/flags request fai
   assert.equal(comparison.constraints.matchedNativePreRunRequests,15);
   assert.equal(comparison.constraints.nativeRegisteredRequestParityObserved,false);
   assert.equal(comparison.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
+    'UNRESOLVED');
+});
+
+test('different actual physical sixty is excluded even with identical registered run requests',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[2]
+    .exactPhysicalSixtyPrintedCountMatched=false;
+  b.diagnostic.actualNativePrechoicePhysicalInputs
+    .exactPhysicalSixtyPrintedCountMatches=15;
+  const c=comparePrechoiceCustodyV8(a,b);
+  assert.equal(c.constraints.matchedNativePreRunRequests,16);
+  assert.equal(c.constraints.allActualPrechoicePhysicalSixtyPrintingsMatchConfigured,false);
+  assert.equal(c.prechoiceInputObservers.actualOwnerPrintedSixtiesMatched,31);
+  assert.equal(c.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
 });
