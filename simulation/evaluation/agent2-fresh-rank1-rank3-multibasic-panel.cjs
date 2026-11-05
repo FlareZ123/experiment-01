@@ -36,6 +36,7 @@ function runArm(trial,cards){
   const deckB=rank3Seat===0?cards.candidate:cards.source;
   let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
   let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
+  let ownerPassFrontierAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -55,12 +56,22 @@ function runArm(trial,cards){
           captureFinalPublicBoard:true
         })).result;
         const originalNative=()=>{
-          if(trial.reserveRecipient!==true)return directNative();
-          const {withPaidReserveRecipient}=require(
-            '../twinleaf/agent6-paid-reserve-recipient-hook.cjs');
-          const selected=withPaidReserveRecipient(directNative);
-          reserveRecipientAudit=selected.audit;
-          return selected.result;
+          const oldPath=()=>{
+            if(trial.reserveRecipient!==true)return directNative();
+            const {withPaidReserveRecipient}=require(
+              '../twinleaf/agent6-paid-reserve-recipient-hook.cjs');
+            const selected=withPaidReserveRecipient(directNative);
+            reserveRecipientAudit=selected.audit;
+            return selected.result;
+          };
+          if(trial.captureOwnerPassSnapshots!==true)return oldPath();
+          const {withNativeOwnerPassFrontier}=require(
+            '../twinleaf/agent17-native-owner-pass-frontier-witness.cjs');
+          const observed=withNativeOwnerPassFrontier(oldPath,{
+            onlySeat:rank3Seat,onlyTurns:[59,61,63,65,67]
+          });
+          ownerPassFrontierAudit=observed.audit;
+          return observed.result;
         };
         const native=()=>{
           const original=()=>{
@@ -165,6 +176,7 @@ function runArm(trial,cards){
       ...(trial.retreatPassStageCensus===true?{
         retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
+      ...(trial.captureOwnerPassSnapshots===true?{ownerPassFrontierAudit}:{}),
       competitiveGameQualified:false
     };
   }catch(error){
@@ -185,6 +197,9 @@ function runArm(trial,cards){
       ...(trial.captureTargets===true?{
         nativeAcceptedTargetSidecar:targetAudit??
           acceptedTargetAbortEvidence(error)}:{}),
+      ...(trial.captureOwnerPassSnapshots===true?{
+        ownerPassFrontierAudit:ownerPassFrontierAudit??
+          error?.ownerPassFrontierEvidence??null}:{}),
       competitiveGameQualified:false};
   }
 }
