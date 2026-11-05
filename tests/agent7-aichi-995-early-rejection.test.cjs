@@ -75,3 +75,26 @@ test('SFT log scale remains finite after many nonwins instead of overflowing evi
   assert.ok(Number.isFinite(logE));
   assert.ok(logE > Math.log(E_THRESHOLD));
 });
+
+test('SFT exact 10-game null-boundary sequential crossing probability respects familywise allocation', () => {
+  const horizon = 10;
+  const boundaryWinRate = NECESSARY_RANK_WIN_RATE;
+  let falseRejectionProbability = 0;
+  for (let mask = 0; mask < (1 << horizon); mask++) {
+    let wins = 0;
+    let nonwins = 0;
+    let crossed = false;
+    for (let index = 0; index < horizon; index++) {
+      if ((mask & (1 << index)) !== 0) wins++;
+      else nonwins++;
+      if (rankLogEValue(wins, nonwins) >= Math.log(E_THRESHOLD))
+        crossed = true;
+    }
+    if (crossed) {
+      falseRejectionProbability +=
+        boundaryWinRate ** wins * (1 - boundaryWinRate) ** nonwins;
+    }
+  }
+  assert.ok(Math.abs(falseRejectionProbability - 0.000745824896155648) < 1e-12);
+  assert.ok(falseRejectionProbability <= 0.05 / FIELD_RANKS);
+});
