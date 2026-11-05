@@ -41,7 +41,7 @@ function findPaidLine(initial,seen,deckAvailability,profile){
   const ghRoutes=ddeHeld?['none']:
     (deckAvailability.dde?[
       ...(seen[C.gh]>0?['held']:[]),
-      ...(deckAvailability.gh&&seen[C.tag]>0?['tag':[])
+      ...(deckAvailability.gh&&seen[C.tag]>0?['tag']:[])
     ]:[]);
   const size=seen.reduce((a,b)=>a+b,0);
   const highDci=seen[C.dragon]+
