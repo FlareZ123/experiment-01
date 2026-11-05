@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent8_trainer_v6:
+        description: 'Compare v5 versus common native Trainer fallback on the exact original eight 48-root deals; developmental only'
+        required: false
+        type: boolean
+        default: false
       include_agent45_ghala_v9:
         description: 'Original eight same physical deal relaxed G&H two-card native payment feasibility stress'
         required: false
@@ -271,6 +276,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
         run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Agent8 v6 original-eight common native Trainer fallback same-deal A/B
+        if: ${{ inputs.include_agent8_trainer_v6 }}
+        env:
+          AGENT8_ISSUE25_TRAINER_V6_DIR: issue25-agent8-trainer-v6
+        run: node --test tests/agent8-issue25-trainer-v6-development.test.cjs tests/agent8-issue25-trainer-v6-development.native.test.cjs
       - name: Retrospective Agent45 actual paid G&H two-other-card owner native feasibility versus conservative baseline
         if: ${{ inputs.include_agent45_ghala_v9 }}
         env:
@@ -339,6 +349,14 @@ jobs:
         with:
           name: agent9-issue25-telepath-v5-v6-native
           path: agent9-telepath-v6/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Archive v5-v6 original-eight Trainer fallback outcomes and physical-deal digests
+        if: ${{ always() && inputs.include_agent8_trainer_v6 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-issue25-trainer-v5-v6-same-eight-native
+          path: issue25-agent8-trainer-v6/
           retention-days: 21
           if-no-files-found: warn
       - name: Archive both complete original eight-arm v4-v5 ledgers and SHA256 sidecars
