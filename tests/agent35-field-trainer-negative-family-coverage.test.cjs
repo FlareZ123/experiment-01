@@ -67,22 +67,77 @@ test('prevent duplicate ranks, non-60 lists and incorrect source printing langua
   assert.throws(()=>surveyFieldTrainerGates(source,gates),/en/);
 });
 
-test('pinned 29 authenticated original source lists have exactly reproducible gate denominators',()=>{
+test('pinned 29 original sources preserve historical core and explain catalog growth',()=>{
+  const {COST_BY_PRINT} =
+    require('../simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs');
+  const {FIRST_OWNER_TURN_ONLY} =
+    require('../simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs');
+  const {PRINT_RULES} =
+    require('../simulation/evaluation/agent30-public-prize-trainer-necessary.cjs');
+  const {REMOVAL_PRINTINGS} =
+    require('../simulation/twinleaf/agent6-public-removal-target-certificate.cjs');
   const full=JSON.parse(fs.readFileSync(path.join(__dirname,
     '../results/aichi-2026/full-decklists.json'),'utf8'));
-  const x=surveyFieldTrainerGates(full);
-  assert.equal(x.authenticatedSourceSixties,29);
-  assert.deepEqual(x.missingOriginalRanks,[23,25,28]);
-  assert.equal(x.sourceTrainerCopies,1035);
-  assert.equal(x.sourceDistinctNameSetPrintings,125);
-  assert.equal(x.copiesWithAnyExactNegativeFamily,287);
-  assert.equal(x.copiesWithoutTheseFourFamilies,748);
-  assert.equal(x.distinctPrintingsWithAnyExactNegativeFamily,18);
-  assert.equal(x.knownPaymentModeCopies,259);
-  assert.equal(x.positiveDiscardOptionCopies,184);
-  assert.equal(x.printedTurnWindowCopies,43);
-  assert.equal(x.publicPrizePrerequisiteCopies,15);
-  assert.equal(x.publicRemovalTargetCopies,12);
-  assert.equal(x.largestUnmatchedSourcePrintings[0].printing,'VS Seeker PHF');
-  assert.equal(x.largestUnmatchedSourcePrintings[0].physicalCopies,59);
+
+  // Earlier 287-copy expected coverage used the original explicit payment
+  // registrations. Keep that historical census independently testable when
+  // the shared payment catalog grows with source-confirmed zero-discard cards.
+  const originalPayment=new Map([...COST_BY_PRINT].filter(([,spec])=>
+    spec.options.every(option=>
+      option.mode!=='no-owner-hand-discard-payment')));
+  const historical=surveyFieldTrainerGates(full,{
+    payment:originalPayment,temporal:FIRST_OWNER_TURN_ONLY,
+    prize:PRINT_RULES,removal:REMOVAL_PRINTINGS
+  });
+  assert.equal(historical.authenticatedSourceSixties,29);
+  assert.equal(historical.sourceTrainerCopies,1035);
+  assert.equal(historical.sourceDistinctNameSetPrintings,125);
+  assert.equal(historical.copiesWithAnyExactNegativeFamily,287);
+  assert.equal(historical.copiesWithoutTheseFourFamilies,748);
+  assert.equal(historical.distinctPrintingsWithAnyExactNegativeFamily,18);
+  assert.equal(historical.knownPaymentModeCopies,259);
+  assert.equal(historical.positiveDiscardOptionCopies,184);
+  assert.equal(historical.largestUnmatchedSourcePrintings[0].printing,
+    'VS Seeker PHF');
+  assert.equal(historical.largestUnmatchedSourcePrintings[0].physicalCopies,59);
+
+  // The expanded exact-print catalog has 48 extra zero-owner-hand-discard
+  // registrations. Their 550 physical source copies include 21 already
+  // covered by another negative family, so net union coverage grows by 529.
+  const addedPayment=[...COST_BY_PRINT].filter(([key])=>
+    !originalPayment.has(key));
+  assert.equal(addedPayment.length,48);
+  assert.ok(addedPayment.every(([,spec])=>
+    spec.options.length>0 &&
+    spec.options.every(option=>option.discards===0 &&
+      option.mode==='no-owner-hand-discard-payment')));
+  const addedKeys=new Set(addedPayment.map(([key])=>key));
+  const addedSourceCopies=full.decks.reduce((n,deck)=>
+    n+deck.cards.reduce((m,card)=>
+      m+(card.category==='Trainer' &&
+        addedKeys.has(card.name+' '+card.printing.set)?card.count:0),0),0);
+  assert.equal(addedSourceCopies,550);
+
+  const current=surveyFieldTrainerGates(full);
+  assert.equal(current.authenticatedSourceSixties,29);
+  assert.deepEqual(current.missingOriginalRanks,[23,25,28]);
+  assert.equal(current.sourceTrainerCopies,1035);
+  assert.equal(current.sourceDistinctNameSetPrintings,125);
+  assert.equal(current.copiesWithAnyExactNegativeFamily,816);
+  assert.equal(current.copiesWithoutTheseFourFamilies,219);
+  assert.equal(current.distinctPrintingsWithAnyExactNegativeFamily,64);
+  assert.equal(current.knownPaymentModeCopies,809);
+  assert.equal(current.positiveDiscardOptionCopies,184);
+  assert.equal(current.unavoidableHandDiscardCopies,164);
+  assert.equal(current.printedTurnWindowCopies,43);
+  assert.equal(current.publicPrizePrerequisiteCopies,15);
+  assert.equal(current.publicRemovalTargetCopies,12);
+  assert.equal(current.largestUnmatchedSourcePrintings[0].printing,
+    "Lillie's Determination MEG");
+  assert.equal(current.largestUnmatchedSourcePrintings[0].physicalCopies,19);
+  assert.equal(current.copiesWithAnyExactNegativeFamily-
+    historical.copiesWithAnyExactNegativeFamily,529);
+  assert.equal(addedSourceCopies-
+    (current.copiesWithAnyExactNegativeFamily-
+      historical.copiesWithAnyExactNegativeFamily),21);
 });
