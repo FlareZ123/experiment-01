@@ -1,0 +1,37 @@
+{
+  "schema": "agent4-original-rank6-trainers-mail-pass14-same-deal-v1",
+  "experimentClass": "retrospective-developmental-specific-root-no-game-qualification",
+  "selectedOriginalId": "6:100:A:champion-reference",
+  "originalSourceSeat": 1,
+  "candidateSeat": 0,
+  "sourceTurn": 1,
+  "sourcePassRootOrdinal": 14,
+  "sourceCardToPlay": "Trainers' Mail ROS",
+  "sourceCardId": "xy6-92",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourceDealSha256": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+  "originalWholePhysicalDealSha256": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+  "originalAcceptedRootLedgerSha256": "cfc02da6c7f557bc0c5d96772f1e27821eb714500683042ff8be1d3a5f562bde",
+  "beforePassRootPrefixLedgerSha256": "f8b2b534e43d4569ef0ad45bbc567e91d3a42a6bcedd7bb97217676ca7c25669",
+  "sourceOwnedHandAtPassSha256": "9b63794ff78d742410d9c081ef3022c05e0055afd29f8cbc3228d9a62943450c",
+  "originalSourceHeldCopiesAtPass": 2,
+  "originalFirstPlayerSeat": 1,
+  "originalRegisteredNativeRootCap": 48,
+  "preregisteredNativeAttempts": 8,
+  "archiveInput": {
+    "v5NativeRun": 42059191496,
+    "v5NativeArtifact": 13432225055,
+    "v5ArchiveSha256": "22eacafb175bcc1ee365eeea3189c703c256f5555a8118dd68c988edda44cc17",
+    "ownerPassNativeRun": 42079458048,
+    "ownerPassArtifact": 13440370610,
+    "ownerPassSha256": "23631b6c2cb8c5a38957167579b1fdcbb6035543ced1665d0e8373ef56bfe73f"
+  },
+  "controlPolicy": "unchanged selected Issue25 v5, 48 native root cap",
+  "treatment": "one owner-held Trainers' Mail replaces original source Pass14, all other decisions unchanged",
+  "provenanceClassification": "retrospective preobserved exact opening; never an independent competitive sample",
+  "safetyStatus": {
+    "fullPaperGameQualified": false,
+    "competitiveGamesQualified": 0,
+    "winRateDemonstrated": false
+  }
+}
