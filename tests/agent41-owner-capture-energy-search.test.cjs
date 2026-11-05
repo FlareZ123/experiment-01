@@ -28,7 +28,7 @@ class PlayCardAction{
   }
 }
 class ResolvePromptAction{
-  constructor(id,cards){this.id=id;this.cards=cards;}
+  constructor(id,cards){this.id=id;this.result=cards;this.cards=cards;}
 }
 class Bot{
   constructor(id){this.client={id};}
@@ -199,4 +199,78 @@ test('owner-deck physical order does not change chosen Basic printing',()=>{
     ownerTwo,Stage,{}).cards[0].fullName;
   assert.equal(selectedOne,'Abra MEG');
   assert.equal(selectedOne,selectedTwo);
+});
+
+/** Simulates pinned Store's nonthrowing no-op prompt reducer. */
+class SilentPromptStore extends Store{
+  dispatch(action){
+    if(action instanceof ResolvePromptAction)return this.state;
+    return super.dispatch(action);
+  }
+}
+
+/** Simulates prompt resolution without the Basic's printed movement. */
+class ResultOnlyStore extends Store{
+  dispatch(action){
+    if(action instanceof ResolvePromptAction){
+      const prompt=this.state.prompts.find(p=>p.id===action.id);
+      prompt.result=action.result;
+      return this.state;
+    }
+    return super.dispatch(action);
+  }
+}
+
+test('silent native prompt no-op cannot count as accepted on either seat',()=>{
+  for(const seat of [0,1]){
+    const ps=[owner(101),owner(202)];
+    const store=new SilentPromptStore(ps);
+    assert.throws(()=>withOwnerCaptureEnergySearch(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(new PlayCardAction(ps[seat].id,0));
+      const chosen=new Bot(ps[seat].id).decodeNextAction(store.state);
+      assert.ok(chosen instanceof ResolvePromptAction);
+      store.dispatch(chosen);
+    },{...dependencies,Store:SilentPromptStore}),error=>{
+      assert.match(error.message,/without settling the pending prompt/);
+      const audit=error.ownerCaptureSearchAudit;
+      assert.equal(audit.ownerSearchReturnsWithoutThrow,1);
+      assert.equal(audit.unsettledOwnerSearches,1);
+      assert.equal(audit.acceptedOwnerSearches,0);
+      assert.equal(audit.sourceBasicPhysicallyBenched,0);
+      assert.equal(audit.emptySearchesAccepted,0);
+      return true;
+    });
+  }
+});
+
+test('a stale missing native prompt cannot be certified by a silent Store',()=>{
+  const ps=[owner(101),owner(202)];
+  const store=new SilentPromptStore(ps);
+  assert.throws(()=>withOwnerCaptureEnergySearch(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    const chosen=new Bot(101).decodeNextAction(store.state);
+    store.state.prompts.length=0;
+    store.dispatch(chosen);
+  },{...dependencies,Store:SilentPromptStore}),error=>{
+    assert.equal(error.ownerCaptureSearchAudit.unsettledOwnerSearches,1);
+    assert.equal(error.ownerCaptureSearchAudit.acceptedOwnerSearches,0);
+    return true;
+  });
+});
+
+test('a resolved prompt without a deck-to-Bench transition is unverified',()=>{
+  const ps=[owner(101),owner(202)];
+  const store=new ResultOnlyStore(ps);
+  const outcome=withOwnerCaptureEnergySearch(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    store.dispatch(new Bot(101).decodeNextAction(store.state));
+  },{...dependencies,Store:ResultOnlyStore});
+  assert.equal(outcome.audit.acceptedOwnerSearches,1);
+  assert.equal(outcome.audit.sourceBasicPhysicallyBenched,0);
+  assert.equal(outcome.audit.records[0].nativePromptSettled,true);
+  assert.equal(outcome.audit.records[0].physicalDeckToBenchVerified,false);
+  assert.equal(outcome.audit.records[0].paperEffectVerified,false);
 });
