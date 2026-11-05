@@ -128,8 +128,8 @@ function compareFourCampaigns(campaigns){
         e.opaquePreRunRequestHmacSha256===
         four[0].opaquePreRunRequestHmacSha256);
       for(let i=1;i<four.length;i++){
-        if(four[i].nativeFirstPlayerSeat===four[0].nativeFirstPlayerSeat)
-          {}else unequalStarters++;
+        if(four[i].nativeFirstPlayerSeat!==four[0].nativeFirstPlayerSeat)
+          unequalStarters++;
         if(four[i].opaquePhysicalPrechoiceInputHmacSha256===
             four[0].opaquePhysicalPrechoiceInputHmacSha256)
           equalPrivateInputs++;else unequalPrivateInputs++;
