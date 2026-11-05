@@ -615,6 +615,26 @@ jobs:
             agent4-bilateral-mail-original-eight-aba-native.json.sha256
           if-no-files-found: warn
           retention-days: 14
+      - name: Verify registered per-seat physical-shuffle isolation and nested native hook restoration
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/evaluation/agent4-bilateral-mail-seat-shuffle-aba-v1.cjs
+          node --test tests/agent4-bilateral-mail-seat-shuffle-aba.test.cjs
+      - name: Run native original eight A/B/A with both seats using independent physical-shuffle streams
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_SEAT_SHUFFLE_MAIL_ABA_OUTPUT: agent4-mail-seat-shuffle-aba-native.json
+        run: node simulation/evaluation/agent4-bilateral-mail-seat-shuffle-aba-v1.cjs
+      - name: Preserve per-seat physical-shuffle original eight native A/B/A
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-bilateral-mail-per-seat-physical-shuffle-aba-native
+          path: |
+            agent4-mail-seat-shuffle-aba-native.json
+            agent4-mail-seat-shuffle-aba-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Compare original rank6 Mail spend against source paid Plumeria in same-deal native A/B/A
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
         env:
