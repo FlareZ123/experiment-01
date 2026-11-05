@@ -41,6 +41,12 @@ The baseline **and** protected profiles each recorded 16/16 equal paired origina
 
 Together, these matched A/A controls show that neither observed policy exhibited post-choice source-deal nondeterminism on the frozen eight-seed panel. They narrow the causal question for the two A/B mismatches without establishing complete executing-wrapper closure or any attack/Prize/game success.
 
+## Additional native first-turn public-board A/A replication
+
+A subsequent [isolated native CI 41942356499](https://github.com/FlareZ123/experiment-01/actions/runs/41942356499) retested both A/A profiles with the actual first-turn, before-first-eligible-dispatch public Pokémon board observer. [Archived two-receipt artifact 13376164127](https://github.com/FlareZ123/experiment-01/actions/runs/41942356499/artifacts/13376164127). In both baseline and protected repeated trials, **16/16 physical owner public Active/Bench board HMACs matched, and 16/16 occupied Bench counts matched**. Both repeated configurations retained 8/8 identical post-choice source digests, trial statuses and root-action counts.
+
+This strengthens the native control for the separate v8 A/B observation of exactly two changed owner public boards and two occupied-Bench counts. The comparison remains confined to the eight registered trials with native developmental actions and no qualified game results. A/A repeatability does not independently certify the A/B pair's complete executing actor-stack closure or causal improvement.
+
 ## Interpretation and constraints
 
 For these *specific eight registered native source/opponent/seat/seed arms*, the repeated baseline stack produced no post-choice source-deal drift, and the visible statuses and root-action counts reproduced exactly. This rules out observed A/A nondeterminism in the measured quantities on these eight seeds. It increases confidence that the two changed post-choice physical source digests in the separate baseline-versus-protected v8 pair are genuinely related to that declared different execution configuration. The A/A check by itself cannot prove that the *only* actual code difference was the intended opening chooser, or that those differences increased win probability. Full executing non-treatment closure is still `UNRESOLVED`.
