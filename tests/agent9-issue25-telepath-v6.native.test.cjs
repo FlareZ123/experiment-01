@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const path = require('node:path');
 const {runStewardInnermostPrizeV5} =
   require('../simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs');
 const {runTelepathV6} =
@@ -67,12 +68,12 @@ test('exact original eight v5/v6 Telepath comparison preserves initial physical 
   }));
   const archiveDir = process.env.AGENT9_TELEPATH_V6_DIR;
   const archives = archiveDir ? {
-    control: writeReceipt(control, archiveDir, {
-      prefix: 'agent9-issue25-telepath-control-v5',
+    control: writeReceipt(control, path.join(archiveDir, 'control'), {
+      prefix: 'issue25-steward-v5',
       policyEntryPoint: control.manifest.policyEntryPoint
     }),
-    treatment: writeReceipt(treatment, archiveDir, {
-      prefix: 'agent9-issue25-telepath-treatment-v6',
+    treatment: writeReceipt(treatment, path.join(archiveDir, 'treatment'), {
+      prefix: 'issue25-steward-v5',
       policyEntryPoint: treatment.manifest.policyEntryPoint
     })
   } : null;
