@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {PROFILES}=require('./agent5-adp-paid-opening.cjs');
 const {C,COUNTS}=require('./agent5-adp-wondertag-paid-opening.cjs');
-const {SCALE,greedySetups,deliberateSetup,firstOnlySetups,payableUnderSetup,
+const {SCALE,greedySetups,deliberateSetup,firstOnlySetups,
+  protectedLeleSetups,payableUnderSetup,
   comparePaidSetupPolicies}=require('./agent5-adp-setup-paid-policy.cjs');
 function vec(fields){const a=Array(13).fill(0);for(const [key,n] of Object.entries(fields))a[C[key]]=n;return a;}
 const avail=(fields)=>({adp:false,gh:false,dde:false,lele:false,...fields});
@@ -12,6 +13,9 @@ test('all repeated-Basic shuffles are equal weight and conserve physical mass',(
   const hand=vec({adp:2,basic:4,lele:1});
   const setups=greedySetups(hand);
   const firstOnly=firstOnlySetups(hand);
+  const protectedLele=protectedLeleSetups(hand);
+  assert.equal(protectedLele.reduce((a,b)=>a+b.weight,0n),SCALE);
+  assert.ok(protectedLele.every(z=>z.lelePlaced===0));
   assert.equal(firstOnly.reduce((a,b)=>a+b.weight,0n),SCALE);
   assert.deepEqual(firstOnly.map(z=>[z.active,z.weight]),
     [['adp',120n],['basic',240n],['lele',60n]]);
@@ -75,7 +79,11 @@ test('four DCI profiles recover earlier deliberate physical numerators exactly',
     assert.ok(z.greedyWithout<z.deliberateWithout);
     assert.ok(z.greedyWith>=z.greedyWithout);
     assert.ok(z.firstOnlyWith>=z.firstOnlyWithout);
+    assert.ok(z.protectedLeleWith>=z.protectedLeleWithout);
+    assert.ok(z.protectedLeleWith>=z.greedyWith);
   }
+  assert.equal(String(out.numerators.mechanical.protectedLeleWith),'40628501009276471620');
+  assert.equal(String(out.numerators.mechanical.protectedLeleWithout),'35539113055786599420');
   assert.equal(String(out.numerators.mechanical.firstOnlyWith),'39313422229699798428');
   assert.equal(String(out.numerators.mechanical.firstOnlyWithout),'34664720186892451740');
   assert.equal(String(out.numerators.mechanical.greedyWith),'38545739191004798620');
@@ -103,7 +111,8 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
   const exact=comparePaidSetupPolicies(toy,{handSize:4,prizeCount:2});
   const brute=Object.fromEntries(PROFILES.map(p=>[p,{deliberateWith:0n,
     deliberateWithout:0n,greedyWith:0n,greedyWithout:0n,
-    firstOnlyWith:0n,firstOnlyWithout:0n}]));
+    firstOnlyWith:0n,firstOnlyWithout:0n,
+    protectedLeleWith:0n,protectedLeleWithout:0n}]));
   let total=0n;
   for(const handIds of combinations(all,4)){
     const hand=Array(13).fill(0);
@@ -124,6 +133,15 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
       const firstOnly={active:greedy.active,bench:0,placed:1,
         adpPlaced:Number(greedy.active==='adp'),
         lelePlaced:Number(greedy.active==='lele'),adpOnBench:false};
+      const plain=basicsInOrder.filter(x=>x!==C.lele);
+      const protectedActive=plain.length?plain[0]:C.lele;
+      const protectedBench=plain.slice(1,6);
+      const protectedLele={active:protectedActive===C.adp?'adp':
+        protectedActive===C.basic?'basic':'lele',
+        bench:protectedBench.length,placed:plain.length||1,
+        adpPlaced:plain.filter(x=>x===C.adp).length,
+        lelePlaced:plain.length?0:1,
+        adpOnBench:protectedBench.includes(C.adp)};
       for(const prize of combinations(rest,2)){
         const nonPrize=rest.filter(i=>!prize.includes(i));
         for(const draw of nonPrize){
@@ -136,7 +154,9 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
             for(const entry of [['deliberateWith',priority,true],
               ['deliberateWithout',priority,false],['greedyWith',greedy,true],
               ['greedyWithout',greedy,false],['firstOnlyWith',firstOnly,true],
-              ['firstOnlyWithout',firstOnly,false]]){
+              ['firstOnlyWithout',firstOnly,false],
+              ['protectedLeleWith',protectedLele,true],
+              ['protectedLeleWithout',protectedLele,false]]){
               if(payableUnderSetup(hand,seen,present,p,entry[2],entry[1]))
                 brute[p][entry[0]]++;
             }
