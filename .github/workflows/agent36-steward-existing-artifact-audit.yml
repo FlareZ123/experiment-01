@@ -1,0 +1,47 @@
+name: Agent36 audit historical selected v4 and v5 native archives
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  historical-archive-custody:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout research audit code only
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Node for the pure independent auditor
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download immutable selected v4 original eight-arm receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-steward-selected-v4-native
+          run-id: '42057548673'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v4
+
+      - name: Download immutable v5 original eight-arm treatment receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-steward-innermost-prize-v5-native
+          run-id: '42059191496'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v5
+
+      - name: Pure adversarial archival audit regression
+        run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
+
+      - name: Consume historical bytes and print full original source census
+        run: node simulation/evaluation/agent36-run-real-steward-archive-audit.cjs
