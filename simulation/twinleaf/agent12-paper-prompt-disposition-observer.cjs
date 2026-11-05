@@ -5,7 +5,7 @@ const path=require('node:path');
 const {campingGearPaperVerdict}=
   require('./agent12-campinggear-prompt-paper-hook.cjs');
 
-const VERSION='agent12-paper-prompt-disposition-observer-v2-native-settlement';
+const VERSION='agent12-paper-prompt-disposition-observer-v2a-defined-native-settlement';
 
 /**
  * Report strictly covered printed paper contracts separately from native
@@ -91,7 +91,8 @@ function withPaperPromptDispositionObserver(run,options={}){
       const result=original.value.apply(this,[action,...args]);
       receipt.nativeReturnedNoThrow=true;
       audit.nativeReturnedNoThrow++;
-      if(pending&&Object.is(pending.result,action.result)){
+      if(pending&&pending.result!==undefined&&
+         Object.is(pending.result,action.result)){
         receipt.nativeSettlement='PROMPT_RESULT_SETTLED';
         receipt.nativeAccepted=true;
         audit.nativeAccepted++;
