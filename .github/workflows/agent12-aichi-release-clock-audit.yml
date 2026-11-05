@@ -1,0 +1,21 @@
+name: Aichi original source printing release-clock audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-source-printing-chronology:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Unit and original field provenance regression
+        run: node --test tests/agent12-aichi-release-clock-audit.test.cjs
+      - name: Print complete source chronology verdict
+        run: node scripts/agent12-aichi-release-clock-audit.cjs
