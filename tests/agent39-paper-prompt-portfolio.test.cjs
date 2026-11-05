@@ -48,7 +48,7 @@ class Store{
 function fixture(ownerIndex=0){
   const energy={superType:types.SuperType.ENERGY};
   const owner={id:ownerIndex+10,active:{cards:[{name:'Iron Thorns ex'},energy],energies:{cards:[energy]}},
-    bench:[{cards:[{name:'benched'}],energies:{cards:[]}},{cards:[],energies:{cards:[]}}]};
+    bench:[{cards:[{name:'benched'}],energies:{cards:[]},getPokemonCard(){return this.cards.find(c=>c.name==='benched');}},{cards:[],energies:{cards:[]},getPokemonCard(){return this.cards.find(c=>c.name==='benched');}}]};
   const other={id:ownerIndex+20,active:{cards:[{name:'opponent'}]},bench:[]};
   return {state:{players:ownerIndex===0?[owner,other]:[other,owner],
     prompts:[],turn:5},owner,energy};
@@ -61,6 +61,12 @@ test('card-stack-only Energy without attached subzone is not paper payable',()=>
   const proof=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
   assert.deepEqual(proof,{valid:false,
     reason:'energy-not-attached-in-active-energy-zone'});
+});
+test('Energy-only Bench card stack is not a Benched Pokémon target',()=>{
+  const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
+  f.owner.bench[0].cards=[{superType:types.SuperType.ENERGY}];
+  const proof=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
+  assert.deepEqual(proof,{valid:false,reason:'recipient-not-occupied-own-bench'});
 });
 test('exact one attached Energy and occupied own Bench',()=>{
   const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
