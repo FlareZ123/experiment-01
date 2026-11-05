@@ -1,6 +1,6 @@
 # Agent 8 | 5 November 2026 | owner-bound Wonder Tag prompt baseline for Issue #25
 
-**Status:** new research-owned hook and five pure two-seat mock regressions pass locally; compiled pinned-Twinleaf native fixture is committed but **not yet executed in GitHub Actions**. No release certification, no natural-game estimate and **zero qualified competitive games**.
+**Status:** new research-owned hook and seven pure two-seat mock regressions pass locally; compiled pinned-Twinleaf native fixture is committed but **not yet executed in GitHub Actions**. No release certification, no natural-game estimate and **zero qualified competitive games**.
 
 ## Motivating native failure
 
@@ -16,9 +16,21 @@ The first valid Supporter rule is a minimal source-independent liveness baseline
 
 ## Regressions and proposed native gate
 
-- [Five pure tests](../../tests/agent8-owner-wondertag-prompt.test.cjs) passed with local Node on 5 November, testing both seats, Supporter-present/absent search, unrelated Confirm delegation and prototype restoration. These use a deliberately faithful mock of the relevant native callback path, **not compiled Twinleaf**.
+- [Seven pure tests](../../tests/agent8-owner-wondertag-prompt.test.cjs) passed with local Node on 5 November, testing both seats, Supporter-present/absent search, unrelated Confirm delegation, opponent-hidden-zone noninterference and prototype restoration after an exception. These use a deliberately faithful mock of the relevant native callback path, **not compiled Twinleaf**.
 - [New compiled native test](../../tests/agent8-owner-wondertag-prompt.native.test.cjs) is committed to exercise authentic rank-1/rank-10 printed original 60s staged with Lele in hand in each physical seat, genuine PlayCardAction, the actual pinned SimpleTacticsAi decoder seam, real prompt actions, Store accepted transitions and Supporter custody. Its ShowCards acknowledgment and shuffle choices are deliberately supplied by the fixture, so it **does not prove a fully autonomous whole-game policy**.
 - The existing manually dispatched [radiant-gate-engine workflow](../../.github/workflows/radiant-gate-engine.yml) now includes the two new tests. No workflow triggered on commits was introduced. **The native outcome remains UNVERIFIED until that workflow actually runs against the new source revision.** Do not treat the test file or CI configuration as a passing native fixture.
+
+## Exact original-rank-11 opener exposure, a decision opportunity only
+
+The authenticated original rank-11 Absol/Garbodor name/count 60 contains **eleven Basic Pokémon**: one Tapu Lele-GX, one Crobat V (a second on-play Bench trigger), nine other Basics, plus two Stage-1 Garbodor. Its eight Supporters are three Carmine, three Marnie and two Guzma. This is a frozen source-inventory count, not a print-art authentication or observed game frequency.
+
+Under an independent uniformly random initial seven, conditional on at least one legal Basic (exact denominator `C(60,7)-C(49,7)=300,306,336`):
+
+- The probability of **Lele plus at least one nontrigger Basic** in the opening seven is exactly `29,166,774 / 300,306,336 = 9.7123405%`. Such hands permit the *choice* of preserving Lele through setup while putting a different, nontrigger Basic Active.
+- The stricter event of **Lele plus at least two nontrigger Basics**, permitting a nontrigger Active and a nontrigger starting Bench backup, has `10,097,934 / 300,306,336 = 3.3625444%`.
+- Lele as the **sole Basic** in the seven has `13,983,816 / 300,306,336 = 4.6565171%`. In that event, preserving Lele is impossible under normal basic setup rules, illustrating the denominator distinction.
+
+The first event has numerator `C(59,6)-C(50,6)`. For all full 7-hand/6-Prize physical deals satisfying the first event, exhaustive multivariate counting of the eight Supporters gives only `72,941,400 / 669,595,630,769,520 = 0.00001089335%` probability that **none** of those Supporters remains in the 47-card deck. This is mathematical availability, not a forecast of actual ability use: the chosen setup, active locks, Bench geometry, turn state, reward quality, owner strategy and possible other Supporter access are all excluded. It is also source-11-specific, not a claim about the missing three Top-32 decks. This refines the broader previously published rank-11 **18.5338% both-trigger-card opening opportunity**, which counts Crobat-only as well as Lele openings.
 
 ## Integration and falsification criteria
 
