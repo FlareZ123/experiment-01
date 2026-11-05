@@ -37,6 +37,9 @@ jobs:
       - name: Verify original Aichi rank1 Lele Wonder Tag zero-search shuffle in both physical seats
         run: node --test tests/agent8-wonder-tag-zero-shuffle.native.test.cjs
 
+      - name: Verify owner-local Wonder Tag confirmation and Supporter search in both physical seats
+        run: node --test tests/agent8-owner-wondertag-prompt.test.cjs tests/agent8-owner-wondertag-prompt.native.test.cjs
+
       - name: Check opt-in Forest Seal Stone one-card search correction
         run: node --test tests/forest-seal-search-hook.test.cjs
 
