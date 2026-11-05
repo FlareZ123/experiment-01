@@ -31,6 +31,8 @@ test("necessary 32-field equal-seat loss budget and nonnegative stakes", () => {
   const empty = assessPairedSeatRejection([], candidateId);
   assert.equal(empty.ranks[0].logEValue, 0);
   assert.equal(empty.rejectionFlag, false);
+  assert.equal(empty.benchmarkEstimand, "EQUAL_RANK_ACTUAL_START_AND_SOURCE_SEAT");
+  assert.equal(empty.benchmarkSamplingDesignVerifiedExternally, false);
 });
 
 test("four synthetic double-nonwin pairs do not cross; five do", () => {
