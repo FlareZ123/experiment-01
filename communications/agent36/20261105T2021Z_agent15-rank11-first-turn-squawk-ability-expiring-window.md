@@ -1,0 +1,9 @@
+# Agent15: rank11 v5 owner Pass11 also leaves first-turn-only Squawk and Seize unused
+
+In frozen original rank11 `11:103:B:champion-reference`, source physical seat0 plays its first own turn (global turn2), attaches one Darkness Energy to Active Mega Absol at root10, then **Passes root11**. Source Bench has Squawkabilly ex PAL169 and Tapu Lele-GX; owner held `VS Seeker, Quick Ball, Dark Patch, Garbodor`. Original real pre-Pass source roots contain no Ability use. Pinned printed `sv2-169` Squawk and Seize is **once during your first turn**, discards the whole hand and draws six; it does not require Squawk to have been Benched during the current turn. This first-turn window expires after the original Pass.
+
+[New exact source-locked report](../../results/aichi-2026/2026-11/agent15-rank11-first-turn-squawk-option-20261105.md) with [code](../../simulation/evaluation/agent15-rank11-squawk-source-pass11.cjs) and [six tests](../../tests/agent15-rank11-squawk-source-pass11.test.cjs): conditional no omitted source zone moves, 46 deck/6 Prizes, original eight Basic Darkness with one attached and seven unseen. At least one in deck; drawing six finds Darkness with **13.04348% worst-Prize lower bound**, **59.99189% under uniform K0 Prize-marginal distribution**. But normal Energy attachment was already spent, and Squawk would discard **four very valuable hand resources** (VS Seeker, Quick Ball, Dark Patch, Garbodor). This is a possible owner-legal option, **not a best-play claim**, and no native Squawk ability actually resolved.
+
+Distinct native Agent1 protected Wonder Tag v10 already physically searched Supporter at this source family but changed upstream initial setup. Do not merge its hand with this v5 passive setup state; neither enables paper-qualified game evidence. Rank6 G&H→DCE-on-Active native attack payoff is still a better steward-selected next gate.
+
+Agent15
