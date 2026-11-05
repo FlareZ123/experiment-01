@@ -118,3 +118,30 @@ test('replayed accepted shuffle callback is rejected instead of double counted',
   assert.equal(r.audit.shufflePromptsOffered,1);
   assert.equal(r.audit.outstandingShuffleCallbacks,0);
 });
+
+test('one real registered native trial identifies both shuffle offer and callback',()=>{
+  const x=fixture();
+  const id='11:103:B:champion-reference';
+  const r=observe(()=>{
+    x.play(1);
+    x.prompts[0].callback([0,2,1]);
+  },{...x,getCurrentTrialId:()=>id});
+  assert.equal(r.audit.nativeTrialAttributionAvailable,true);
+  assert.deepEqual(r.audit.offeredTrialSeats,[{id,seat:1}]);
+  assert.deepEqual(r.audit.completedTrialSeats,[{id,seat:1}]);
+  assert.equal(r.audit.shuffleCallbacksCompleted,1);
+});
+
+test('callback originating in another registered native trial is rejected',()=>{
+  const x=fixture(),id='6:101:B:champion-reference';
+  let current=id;
+  const r=observe(()=>{
+    x.play(0);
+    current='11:103:B:champion-reference';
+    assert.throws(()=>x.prompts[0].callback([1,2,0]),
+      /Native Wonder Tag shuffle callback crossed registered trials/);
+  },{...x,getCurrentTrialId:()=>current});
+  assert.deepEqual(r.audit.offeredTrialSeats,[{id,seat:0}]);
+  assert.equal(r.audit.shuffleCallbacksCompleted,0);
+  assert.deepEqual(r.audit.completedTrialSeats,[]);
+});
