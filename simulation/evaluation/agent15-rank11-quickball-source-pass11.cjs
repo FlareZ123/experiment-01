@@ -89,6 +89,18 @@ function certify(source,fst,asr){
   assert.equal(secondMega,2);
   assert.equal(trubbish,2);
   const unseen=deck+6;
+  const toolNames=new Set(['Float Stone','Forest Seal Stone','Muscle Band']);
+  const printedTools=source.cards.filter(c=>toolNames.has(c.name))
+    .reduce((n,c)=>n+c.count,0);
+  assert.equal(printedTools,6);
+  // After choosing one Trubbish from 46 cards, the shuffled deck has 45.
+  // Conditioning on >=1 Trubbish in deck slightly changes the expected
+  // number of Tools left there relative to unconditional Prize averaging.
+  const trubbishAvailable=1-allInPrizes(unseen,6,trubbish);
+  const toolAndTrubbishAvailable=(unseen-6)/unseen-
+    allInPrizes(unseen,6,trubbish)*(unseen-6)/(unseen-trubbish);
+  const nextDrawToolGivenTrubbish=printedTools*
+    toolAndTrubbishAvailable/trubbishAvailable/(deck-1);
   const eitherTargetNotPrized=1-allInPrizes(unseen,6,
     secondMega+trubbish);
   const bothTargetsNotFullyPrized=1-
@@ -110,6 +122,11 @@ function certify(source,fst,asr){
       1-allInPrizes(unseen,6,trubbish),
     k0ProbabilityMegaOrTrubbishAvailable:eitherTargetNotPrized,
     k0ProbabilityMegaAndTrubbishBothAvailable:bothTargetsNotFullyPrized,
+    printedGarbotoxinToolEnablers:printedTools,
+    nextOwnerNaturalDrawToolChanceAfterSearchForTrubbish:
+      nextDrawToolGivenTrubbish,
+    unconditionalTrubbishSearchAndNextNaturalToolDraw:
+      trubbishAvailable*nextDrawToolGivenTrubbish,
     k0DistributionAssumption:
       'Uninspected random 6 Prize slots among 52 unseen original owner cards, conditioned on exact own hand and board',
     spareBenchSlots:3,handDiscardPayment:'Dark Patch ASR',
