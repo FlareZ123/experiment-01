@@ -5,7 +5,8 @@
   "notes": [
     "An EXACT_ROOT_ACTION overlap means an earlier typed native root accepted/attempted under the same historical prefix and physical deal; it is not an automatic veto for further prompt/payoff/response validation.",
     "Same original source turn with a different card or recipient is a separate strategic alternative.",
-    "Only source-owned Store actions with published registration and CI provenance are admitted; incomplete claims do not qualify as wins."
+    "Only source-owned Store actions with published registration and CI provenance are admitted; incomplete claims do not qualify as wins.",
+    "The two Agent7 rank6 source-root prefixes were independently recalculated from historical archived v4 and v5 public root ledgers and are byte-identical."
   ],
   "entries": [
     {
@@ -67,7 +68,47 @@
       "registrationPath": "results/aichi-2026/registrations/agent35-rank11-letter-source-pass37-fork-20261105.json",
       "reportPath": "results/methodology/agent35-rank11-letter-native-fork-20261105.md",
       "competitiveGamesQualified": 0
+    },
+    {
+      "key": "agent7-20261105-r6-plumeria22",
+      "sourceRegistration": "6:100:A:champion-reference",
+      "sourceSeat": 1,
+      "sourceTurn": 3,
+      "sourcePassRootOrdinal": 22,
+      "preRootSha256": "16aeba90661498f8daaeff0e95a8199f222b44aa97c2503edbac2a697402c039",
+      "fullPhysicalDealSha256": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+      "sourceDealSha256": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "actionKind": "PlayCardAction",
+      "card": "Plumeria BUS",
+      "recipient": "supporter-from-source-hand",
+      "observedStage": "NATIVE_STORE_ACCEPTED_TWO_TRAINERS_MAIL_PAID_OPPONENT_ENERGY_DISCARDED_NEXT_ROOT_PASS_UNQUALIFIED",
+      "nativeRun": 42080414733,
+      "artifactId": null,
+      "registrationPath": "simulation/evaluation/agent7-shadowmist-original48-plumeria-aba.cjs",
+      "reportPath": "results/aichi-2026/2026-11/agent7-shadowmist-plumeria-first-reply-counterfactual-20261105.md",
+      "competitivelyQualifiedGames": 0
+    },
+    {
+      "key": "agent7-20261105-r6-hammer36",
+      "sourceRegistration": "6:100:A:champion-reference",
+      "sourceSeat": 1,
+      "sourceTurn": 7,
+      "sourcePassRootOrdinal": 36,
+      "preRootSha256": "a5c6c8f2183c0635ab3f8e5d7dc61806759222ea4120aaac7a946b3d3e4119a0",
+      "fullPhysicalDealSha256": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+      "sourceDealSha256": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "actionKind": "PlayCardAction",
+      "card": "Crushing Hammer POR",
+      "recipient": "item-from-source-hand",
+      "observedStage": "NATIVE_STORE_ROOT_ACCEPTED_CONTINUATION_COIN_RESULT_UNCERTIFIED_48_ROOT_CAP",
+      "nativeRun": 42073888681,
+      "artifactId": null,
+      "registrationPath": "simulation/evaluation/agent7-shadowmist-original48-hammer-aba.cjs",
+      "reportPath": "results/aichi-2026/2026-11/agent7-shadowmist-original48-hammer-counterfactual-20261105.md",
+      "competitivelyQualifiedGames": 0
     }
   ],
-  "coverageStatement": "Curated first three published exact-prefix forks only; Agent7 Plumeria/Hammer and many other forks need independent prefix and payment matching before insertion."
+  "coverageStatement": "Five previously documented original-source v4/v5 same-prefix interventions, covering three distinct source Pass roots; does not index all historical or prospective experiments. v4/v5 pre-root SHA parity on the rank6 roots was independently recomputed from archival native JSON by Agent18."
 }
