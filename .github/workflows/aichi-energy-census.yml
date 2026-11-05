@@ -148,3 +148,17 @@ jobs:
           path: agent49-rank11-first-letter-pass11-native.json
           retention-days: 21
           if-no-files-found: warn
+      - name: Verify first-turn source Letter live owner-deck typed search gates
+        run: node --test tests/agent49-rank11-first-letter-owner-search-native.test.cjs tests/agent35-owner-letter-search.test.cjs
+      - name: Execute first-turn source Letter with post-native owner prompt resolution
+        env:
+          AGENT49_EARLY_LETTER_TYPED_RECEIPT: agent49-rank11-first-letter-owner-search-native.json
+        run: node simulation/evaluation/agent49-rank11-first-letter-owner-search-native.cjs
+      - name: Preserve actual source prompt acceptance, settlement, and all failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-rank11-first-letter-owner-search
+          path: agent49-rank11-first-letter-owner-search-native.json
+          retention-days: 21
+          if-no-files-found: warn
