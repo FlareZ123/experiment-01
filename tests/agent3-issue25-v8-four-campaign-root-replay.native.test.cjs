@@ -43,8 +43,20 @@ function archive(panel,directory){
 }
 
 test('native preregistered A/A/B/A eight original rank6/11 arms and public root custody',()=>{
+  const registrationPath=path.join(ROOT,
+    'results/aichi-2026/registrations/agent3-issue25-v8-four-campaign-root-replay-v11-20261105.json');
+  const frozenBytes=fs.readFileSync(registrationPath);
+  const registered=JSON.parse(frozenBytes.toString('utf8'));
   const panel=runFourNativeCampaigns();
+  assert.equal(registered.schema,
+    'agent3-issue25-v8-preregistered-single-process-aa-b-a-root-replay-v1');
+  assert.deepEqual(registered.trialIds,panel.registeredTrials);
+  assert.deepEqual(registered.campaigns.map(c=>({
+    label:c.label,mode:c.mode
+  })),panel.design);
+  assert.equal(registered.expectedNativeAttempts,panel.totalNativeRegisteredAttempts);
   panel.execution={
+    frozenFourCampaignRegistrationSha256:sha(frozenBytes),
     designVersion:VERSION,
     githubRunId:process.env.GITHUB_RUN_ID??null,
     githubCommit:process.env.GITHUB_SHA??null,
@@ -61,6 +73,8 @@ test('native preregistered A/A/B/A eight original rank6/11 arms and public root 
     nativePinEqual:panel.sameObservedVendorPin,
     researchPinEqual:panel.sameObservedResearchPin,
     privateInputHmacSession:panel.samePrivateHmacSession,
+    sameNightWatchSeedCommitment:panel.sameNightWatchEntropyCommitment,
+    repeatedBaselinePhysicalSourceDealMatches:panel.controlSourceDealDigestRowsEqual,
     matchedInputs:panel.matchingOwnerPrechoiceComparisons,
     matchedRequests:panel.matchingNativeRequestComparisons,
     differentInputs:panel.mismatchingOwnerPrechoiceComparisons,
@@ -83,7 +97,7 @@ test('native preregistered A/A/B/A eight original rank6/11 arms and public root 
   assert.equal(panel.nativePaperGamesQualified,0);
   assert.equal(panel.causalTreatmentAttribution,'UNRESOLVED');
   assert.ok([
-    'PASS-registered-A-A-A-control-replay',
+    'PASS-registered-bounded-A-A-A-control-replay',
     'FAIL-repeated-control-divergence',
     'UNRESOLVED-input-or-epoch-mismatch',
     'UNRESOLVED-missing-public-root-ledger'
