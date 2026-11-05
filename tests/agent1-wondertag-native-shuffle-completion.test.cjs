@@ -24,8 +24,8 @@ function fixture(){
   const original=FakeLele.prototype.reduceEffect;
   const applied=[];
   const players=[
-    {id:10,deck:{applyOrder:order=>applied.push([0,order])}},
-    {id:20,deck:{applyOrder:order=>applied.push([1,order])}}
+    {id:10,deck:{cards:[0,1,2],applyOrder:order=>applied.push([0,order])}},
+    {id:20,deck:{cards:[0,1,2],applyOrder:order=>applied.push([1,order])}}
   ];
   const state={players},prompts=[];
   const store={prompt(_state,prompt,callback){
@@ -48,8 +48,8 @@ test('actual printed native callback records only its own resolved shuffle',()=>
     x.play(1);
     assert.equal(x.prompts.length,1);
     assert.equal(x.applied.length,0);
-    x.prompts[0].callback([3,1,2]);
-    assert.deepEqual(x.applied,[[1,[3,1,2]]]);
+    x.prompts[0].callback([2,0,1]);
+    assert.deepEqual(x.applied,[[1,[2,0,1]]]);
     return 'native-result';
   },x);
   assert.equal(r.result,'native-result');
@@ -57,6 +57,8 @@ test('actual printed native callback records only its own resolved shuffle',()=>
   assert.equal(r.audit.printedEntrances,1);
   assert.equal(r.audit.shufflePromptsOffered,1);
   assert.equal(r.audit.shuffleCallbacksCompleted,1);
+  assert.equal(r.audit.validShuffleCallbacksCompleted,1);
+  assert.equal(r.audit.invalidNativeShufflePermutations,0);
   assert.equal(r.audit.outstandingShuffleCallbacks,0);
   assert.deepEqual(r.audit.bySeat,{0:0,1:1});
   assert.equal(r.audit.readsHiddenDeck,false);
@@ -110,7 +112,7 @@ test('replayed accepted shuffle callback is rejected instead of double counted',
   const x=fixture();
   const r=observe(()=>{
     x.play(0);
-    x.prompts[0].callback([3,2,1]);
+    x.prompts[0].callback([2,1,0]);
     assert.throws(()=>x.prompts[0].callback([3,2,1]),
       /Native Wonder Tag shuffle callback replayed/);
   },x);
@@ -144,4 +146,16 @@ test('callback originating in another registered native trial is rejected',()=>{
   assert.deepEqual(r.audit.offeredTrialSeats,[{id,seat:0}]);
   assert.equal(r.audit.shuffleCallbacksCompleted,0);
   assert.deepEqual(r.audit.completedTrialSeats,[]);
+});
+
+test('invalid shuffle permutation is reported even if native callback completes',()=>{
+  const x=fixture();
+  const r=observe(()=>{
+    x.play(0);
+    x.prompts[0].callback([0,0,2]);
+  },x);
+  assert.equal(r.audit.shuffleCallbacksCompleted,1);
+  assert.equal(r.audit.validShuffleCallbacksCompleted,0);
+  assert.equal(r.audit.invalidNativeShufflePermutations,1);
+  assert.equal(r.audit.outstandingShuffleCallbacks,0);
 });
