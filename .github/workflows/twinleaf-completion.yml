@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent8_telepath_v5:
+        description: 'Retrospective original-eight v5 plus owner Telepathic Psychic Bench search, developmental only'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -109,6 +114,21 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify owner Telepathic Psychic Bench search, physical settlement and v5 nesting pure controls
+        run: node --test tests/agent8-owner-telepathic-bench-search.test.cjs tests/agent8-owner-telepathic-bench-search.native.test.cjs tests/agent8-issue25-v5-telepath-development.test.cjs
+      - name: Retrospectively compare the same eight v5 arms with actual owner Telepathic search
+        if: ${{ inputs.include_agent8_telepath_v5 }}
+        env:
+          ISSUE25_AGENT8_TELEPATH_DIR: issue25-agent8-telepath
+        run: node --test tests/agent8-issue25-v5-telepath-development.native.test.cjs
+      - name: Preserve original v5 and Telepath treatment ledgers with atomic digests
+        if: ${{ always() && inputs.include_agent8_telepath_v5 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-issue25-telepath-v5-same-eight-native
+          path: issue25-agent8-telepath/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
