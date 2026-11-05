@@ -35,10 +35,10 @@ function withBilateralOwnerMail(next,deps){
     nativeStoreResolvedBySeat:[0,0],
     physicalTrainerToHandBySeat:[0,0],
     physicalOtherTopCardsToDeckBySeat:[0,0],
-    originalSourceOtherRootsPreserved:true,
+    otherActionsDelegateToExistingPolicy:true,
     rejectedPromptActions:0,unsettledPromptActions:0,
     noPromptAfterMailBySeat:[0,0],
-    revealedTrainers:[],actualNativeRootCalls:0,
+    revealedTrainers:[],nativeDecoderInvocations:0,
     opponentPrivateZonesRead:false,qualifiedGames:0};
 
   function observedMatch(request){
@@ -63,7 +63,7 @@ function withBilateralOwnerMail(next,deps){
   }
 
   function observedDecode(state,...args){
-    audit.actualNativeRootCalls++;
+    audit.nativeDecoderInvocations++;
     const seat=state?.activePlayer;
     const owner=state?.players?.[seat];
     const prompt=state?.prompts?.find(p=>p.result===undefined);
