@@ -43,9 +43,9 @@ function originalPublicAbortReadout(row){
   const afterAttack=volt.length?accepted.filter(root=>
     root.ordinal>volt[volt.length-1].ordinal):[];
   const nextCandidateRoot=volt.length?
-    afterAttack.find(root=>root.seat===0&&
+    (afterAttack.find(root=>root.seat===0&&
       ['AttackAction','PlayCardAction','PassTurnAction','UseAbilityAction',
-        'RetreatAction'].includes(root.action)):null;
+        'RetreatAction'].includes(root.action))??null):null;
   const stage=evidence?.failureStage??null;
   const diagnostics={
     failureStage:stage,
