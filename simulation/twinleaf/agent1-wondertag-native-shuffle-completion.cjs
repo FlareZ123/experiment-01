@@ -53,7 +53,10 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
           if(prompt instanceof ShuffleDeckPrompt&&prompt.playerId===owner.id){
             assert.equal(typeof callback,'function');
             audit.shufflePromptsOffered++;
+            let resolved=false;
             return target.prompt(nextState,prompt,(...args)=>{
+              assert.equal(resolved,false,'Native Wonder Tag shuffle callback replayed');
+              resolved=true;
               let result;
               try{result=callback(...args);}
               catch(e){audit.shuffleCallbacksFailed++;throw e;}
