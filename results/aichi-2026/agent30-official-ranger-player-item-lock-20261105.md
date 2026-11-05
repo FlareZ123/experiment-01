@@ -25,6 +25,10 @@ The four historical fixed-60 comparisons include **one Ranger STS104 each** in [
 
 The independent new [two-seat staged native action test](../../tests/agent30-ranger-budew-item-native.test.cjs) is registered in an existing **manually dispatched** native fidelity workflow. It checks actual attacker Itchy Pollen, defender failed Item, genuine played Ranger, and the subsequent real Item search with a continuing Vileplume negative control. The test is currently **unverified until CI reports a result**; no value here is a measured win.
 
+### Important original-field lock composition
+
+Exact source-name/set/number census shows **original ranks 2 and 15** each contain **Vileplume AOR3** alongside **Budew ASC16**. Rank 2 additionally contains **Stoutland BCR122**. Thus **12 of the 14** Budew rosters lack this *specific* Vileplume AOR inclusion, while **2 have a potential continuing Item-lock fallback** that Ranger cannot clear. This is a source inventory distinction; AOR must actually evolve and remain Ability-active to deny Items, and Stoutland must occupy Active to deny Supporters. No simultaneous-lock board, game frequency, or Ranger escape probability follows from deck contents alone. Original Budew+Ranger overlap occurs only at **ranks 18 and 32**.
+
 ### Early candidate access bound already established elsewhere
 
 The prior [exact joint-access report](ranger-stone-joint-access.md) found **30.26936%** for Hood Shield v1 and **30.31531%** for Temple v1 of having a *direct Ranger or a conditional Wonder Tag / Forest Seal Stone route* after the accepted seven-card hand and two ordinary draws. This is a restricted opportunity model; actual use requires the Tool/VSTAR and Bench resources, enabled Abilities, and the unused Supporter quota. The native regression in this report tests a **physically held Ranger**, so it does not yet attest those search sequences or opponent-optimal timing. Do not convert the 30% resource statistic into a lock-escape success rate or a matchup win probability.
