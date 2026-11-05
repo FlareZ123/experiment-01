@@ -148,6 +148,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
         event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=8);
       assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
       assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
+      assert.equal(typeof event.exactPhysicalSixtyPrintedCountMatched,'boolean');
+      assert.ok(Number.isSafeInteger(event.physicalSixtyCardCount));
       const id=event.registeredNativeTrialId;
       if(typeof id!=='string'||!ids.includes(id)){
         unknown.push({ordinal:event.nativeStoreOrdinal,seat:event.physicalOwnerSeat});
@@ -206,6 +208,12 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
           first&&second?
           first.opaquePreRunRequestHmacSha256===
           second.opaquePreRunRequestHmacSha256:null,
+        baselineActualSixtyMatchedConfigured:
+          first?.exactPhysicalSixtyPrintedCountMatched??null,
+        protectedActualSixtyMatchedConfigured:
+          second?.exactPhysicalSixtyPrintedCountMatched??null,
+        baselinePhysicalSixtyCardCount:first?.physicalSixtyCardCount??null,
+        protectedPhysicalSixtyCardCount:second?.physicalSixtyCardCount??null,
         samePhysicalHandCounts:
           first&&second?first.ownerHandCount===second.ownerHandCount:null,
         samePhysicalDeckCounts:
@@ -266,6 +274,15 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     s.trialPairedPrechoiceInputEqual===false).length;
   const matchingNativeRequests=seats.filter(s=>
     s.identicalNativePreRunRequest===true).length;
+  const physicalSixtyPrintingsMatched=seats.reduce((sum,seat)=>sum+
+    Number(seat.baselineActualSixtyMatchedConfigured===true)+
+    Number(seat.protectedActualSixtyMatchedConfigured===true),0);
+  const allPhysicalSixtyPrintingsMatched=allBeforeTreatmentInputsObserved&&
+    physicalSixtyPrintingsMatched===32&&
+    a.witness.exactPhysicalSixtyPrintedCountComparisons===16&&
+    b.witness.exactPhysicalSixtyPrintedCountComparisons===16&&
+    a.witness.exactPhysicalSixtyPrintedCountMatches===16&&
+    b.witness.exactPhysicalSixtyPrintedCountMatches===16;
   const nativeStoreTrialLinkVerified=a.exactTrialStoreJoin&&b.exactTrialStoreJoin&&
     allBeforeTreatmentInputsObserved;
   const prechoiceInputParityObserved=nativeStoreTrialLinkVerified&&
@@ -311,7 +328,9 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
         'VERIFIED-runMatch-label-to-AddPlayerAction-to-owner-prompt':
         'UNRESOLVED',
       samePrivateHashSession,
-      privateFingerprintSessionIdPublished:false
+      privateFingerprintSessionIdPublished:false,
+      actualOwnerPrintedSixtiesObserved:32,
+      actualOwnerPrintedSixtiesMatched:physicalSixtyPrintingsMatched
     },
     pairedRows:rows,
     protectedOpeningObservations:(()=>{
@@ -335,6 +354,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       trialPairedInputMatches:beforeTreatmentMatches,
       trialPairedInputMismatches:beforeTreatmentMismatches,
       matchedNativePreRunRequests:matchingNativeRequests,
+      allActualPrechoicePhysicalSixtyPrintingsMatchConfigured:
+        allPhysicalSixtyPrintingsMatched,
       nativeRegisteredRequestParityObserved,
       postTreatmentSourceDigestMismatches,
       sameRegisteredTrialIdentityAndDeckPrintings:
