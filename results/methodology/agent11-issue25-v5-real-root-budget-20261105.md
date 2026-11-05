@@ -41,6 +41,12 @@ The actual rank6 **seed100 A** source occupied seat1 and **started first** in bo
 
 The actual rank6 **seed101 B** source occupied seat0 and **went second** in both separate contender physical games. It chose **four/five Pass roots and no Play or Attack** by the native root48 cap. Whether that exact physical source hand had a paid G&H, Tag Call or Trainers' Mail line is **not observable in this public ledger**. Source fingerprints differ across contender candidates in this seed pair because the natural opponent mulligan setups differ, so a mirrored seed is not a matched physical source hand.
 
+## Archived comparator-parity boundary and independent execution
+
+Across the four same-registered-seed candidate comparisons, **three source-only physical-start fingerprints match** and **one differs**. The mismatch is rank6 seed101 B: the Champion-reference and New Moon contenders produce different actual original-source deals, despite sharing a seed and source printing inventory. All four whole-two-player physical fingerprints differ because candidate decks are different. The v4→v5 identical-contender policy comparison remains a separate 8/8 matched *initial-deal* A/B. Neither the across-candidate seed alone nor a matched-source A/B should be silently substituted for an unbiased different-deck field comparison.
+
+The [fresh manual GitHub Actions run 42077326630](https://github.com/FlareZ123/experiment-01/actions/runs/42077326630) successfully downloaded the immutable original **v5 artifact 13432225055** and executed the fail-closed exact source-ledger audit directly under Node 22. The native JSON hash, 8/8 full public ledger digests and every frozen total all passed. This independent execution verifies **151 postsetup WaitPrompt roots**, 34 distinct source decision turns, 33 source Passes, seven source Plays and zero source Attacks. It does not turn any censored outcome into a completed game.
+
 ## What the root budget means for the next release gate
 
 The 48-native-root horizon is strongly affected by setup and per-turn housekeeping, including repeated native WaitPrompt resolution. An apparent 48-action sample is effectively only about **13–17 non-prompt decisions** per capped match in this panel. This helps explain limited *measured reach* but does not explain away **33 source Passes with zero source Attack**. More roots alone cannot certify source decision quality. A longer or turn-based horizon would require a new prospectively registered budget and retention of every error and censored case.
