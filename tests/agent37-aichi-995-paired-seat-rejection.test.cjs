@@ -13,7 +13,8 @@ const makePair = (id, rank, outcomes = ["win", "win"]) => ({
   pairId: id, candidateId, originalRank: rank,
   pairingDesign: "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
   games: outcomes.map((outcome, sourceSeat) => ({
-    id: id + ":source-seat-" + sourceSeat, sourceSeat,\n    candidateActualStart: sourceSeat === 0 ? "first" : "second",
+    id: id + ":source-seat-" + sourceSeat, sourceSeat,
+    candidateActualStart: sourceSeat === 0 ? "first" : "second",
     qualification: "QUALIFIED", outcome
   }))
 });
