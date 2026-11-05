@@ -199,6 +199,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseGenericFundedFloatStone(view,catalog);
     if(mobility)return mobility;
   }
+  // Default-off owner-visible paid alternative to consuming Float Stone.
+  // Keep this before funded Tool selection so both routes can be evaluated
+  // at exactly the same public root, without importing any hidden zones.
+  if(options.twoUnitPaidRetreatRoot===true){
+    const paid=require('./agent42-public-two-unit-paid-retreat-proposal.cjs')
+      .proposeTwoUnitPaidRetreat(view,catalog);
+    if(paid)return {...paid,kind:'paid-retreat',
+      source:'agent42-owner-two-unit-paid-retreat-v1'};
+  }
   if(options.fundedVmaxFloatStoneRoot===true){
     const mobility=require('./agent31-shadow-rider-funded-bench-floatstone.cjs')
       .chooseFundedShadowRiderFloatStone(view,catalog);
