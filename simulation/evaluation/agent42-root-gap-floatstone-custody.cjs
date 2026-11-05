@@ -68,7 +68,13 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
         packet.settledPromptChain === true &&
         packet.settlementCrossesClockReset === false
       );
-      if (!settled) continue;
+      if (!settled ||
+          !Number.isSafeInteger(settled.completionRootOrdinal) ||
+          settled.completionRootOrdinal < attack.actionOrdinal ||
+          !Number.isSafeInteger(settled.prizesBefore?.[sourceSeat]) ||
+          !Number.isSafeInteger(settled.prizesAfter?.[sourceSeat]) ||
+          settled.prizesBefore[sourceSeat] < settled.prizesAfter[sourceSeat])
+        continue;
       // Fail closed if another accepted action changed the source Active
       // between Retreat and attack. Intervening Bench Abilities remain valid.
       const changedActive = events.some(event =>
