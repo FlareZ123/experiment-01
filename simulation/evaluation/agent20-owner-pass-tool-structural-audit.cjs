@@ -38,7 +38,11 @@ function classifyOwnerPassTool(sourcePass,seat,toolNames){
   assert.ok(Array.isArray(sourcePass.publicBoardBeforePass)&&
     sourcePass.publicBoardBeforePass.length===2);
   const own=sourcePass.publicBoardBeforePass[seat];
+  const opponent=sourcePass.publicBoardBeforePass[1-seat];
   assert.ok(own&&typeof own==='object');
+  assert.ok(opponent&&typeof opponent==='object');
+  const opponentActiveTools=opponent.active?.toolCards??[];
+  assert.ok(Array.isArray(opponentActiveTools));
   const eligibleNames=[...toolNames].sort((a,b)=>b.length-a.length);
   const heldTools=sourcePass.ownerHandAtPass.flatMap(printing=>{
     const name=eligibleNames.find(n=>printing.startsWith(n+' '));
@@ -61,6 +65,7 @@ function classifyOwnerPassTool(sourcePass,seat,toolNames){
     ownerSeat:seat,
     physicallyHeldNamedToolCopies:heldTools.length,
     heldTools,
+    opponentActiveTools:[...opponentActiveTools],
     freeOwnRecipients:freeRecipients,
     structuralToolOpportunity:heldTools.length>0&&freeRecipients.length>0,
     nativePlayAccepted:'unproven-at-this-root',
@@ -106,6 +111,7 @@ function censusOriginalSourcePassTools(archived,toolNames){
         ordinal:p.nativePassOrdinal,
         globalTurn:p.globalTurn,
         heldTools:p.heldTools,
+        opposingActiveTools:p.opponentActiveTools,
         freeOwnRecipients:p.freeOwnRecipients,
         preChoiceInformationNoninterferenceCertified:
           p.preChoiceInformationNoninterferenceCertified
@@ -124,6 +130,10 @@ function censusOriginalSourcePassTools(archived,toolNames){
       }
     }
   }
+  const jammerRoots=attempts.flatMap(a=>a.eligible).filter(root=>
+    root.heldTools.some(tool=>tool.cardName==='Tool Jammer'));
+  const jammerRootsWithLiveOpposingActiveTools=jammerRoots.filter(root=>
+    root.opposingActiveTools.length>0);
   const observations=sum('observedOriginalSourcePasses');
   const opportunities=sum('structurallyEligiblePasses');
   return {
@@ -131,6 +141,9 @@ function censusOriginalSourcePassTools(archived,toolNames){
     originalAttemptCount:attempts.length,
     originalSourcePassSnapshots:observations,
     sourcePassSnapshotsWithHeldToolAndFreeRecipient:opportunities,
+    toolJammerStructuralOwnerPassRoots:jammerRoots.length,
+    toolJammerRootsWithCurrentOpponentActiveToolTarget:
+      jammerRootsWithLiveOpposingActiveTools.length,
     uniqueAttemptIdsWithToolOpportunity:attempts.filter(a=>
       a.structurallyEligiblePasses>0).length,
     repeatedToolPrintings:[...frequencies].map(([printing,rootSightings])=>({
