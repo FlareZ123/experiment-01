@@ -70,7 +70,9 @@ function fixture(label){
           version:'native-shuffle',printedEntrances:2,
           shufflePromptsOffered:2,shuffleCallbacksCompleted:2,
           shuffleCallbacksFailed:0,outstandingShuffleCallbacks:0,
-          bySeat:{0:2,1:0}
+          bySeat:{0:2,1:0},nativeTrialAttributionAvailable:true,
+          offeredTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}],
+          completedTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}]
         },
         registeredWonderTagActorWitness:{
           version:'witness-v1',observedSearchDecisionCount:2,
@@ -103,6 +105,7 @@ test('owner Wonder Tag and printed attack wrapper preserve execution result, ful
       witnessFactory:()=>({
         run:work=>work(),
         selectSupporterIndex:()=>0,
+        currentTrialId:()=>null,
         audit:{version:'fixture',observedSearchDecisionCount:0,decisions:[]}
       })
     });
@@ -233,6 +236,9 @@ test('register genuine contender and original-source searches separately',()=>{
   const evidence=b.diagnostic.audit.firstBlockedPromptEnvelope;
   evidence.registeredWonderTagActorWitness.decisions[1].actorSeat=1;
   evidence.sourceIndependentOwnerWonderTag.bySeat={0:2,1:2};
+  evidence.ownerWonderTagNativeShuffleCompletion.bySeat={0:1,1:1};
+  evidence.ownerWonderTagNativeShuffleCompletion.offeredTrialSeats[1].seat=1;
+  evidence.ownerWonderTagNativeShuffleCompletion.completedTrialSeats[1].seat=1;
   const w=compareProtectedWonderTagV10(a,b).registeredWonderTagActorWitness;
   assert.equal(w.nativeSettlementOfEveryChoiceAttested,true);
   assert.equal(w.settledRoleCensus.originalSourceSearches,1);
