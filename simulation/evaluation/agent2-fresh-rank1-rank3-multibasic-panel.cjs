@@ -35,11 +35,12 @@ function runArm(trial,cards){
   const deckA=rank3Seat===0?cards.source:cards.candidate;
   const deckB=rank3Seat===0?cards.candidate:cards.source;
   let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
+  let reserveRecipientAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(()=>{
-        const originalNative=()=>withSameTargetAttachEnergySelection(()=>runMatch({
+        const directNative=()=>withSameTargetAttachEnergySelection(()=>runMatch({
           deckA,deckB,seed:trial.seed,maxActions:520,
           label:'agent2-fresh-multibasic-'+trial.id,
           strictPromptValidation:true,
@@ -53,6 +54,14 @@ function runArm(trial,cards){
           captureNativeAbortEvidence:true,
           captureFinalPublicBoard:true
         })).result;
+        const originalNative=()=>{
+          if(trial.reserveRecipient!==true)return directNative();
+          const {withPaidReserveRecipient}=require(
+            '../twinleaf/agent6-paid-reserve-recipient-hook.cjs');
+          const selected=withPaidReserveRecipient(directNative);
+          reserveRecipientAudit=selected.audit;
+          return selected.result;
+        };
         const native=()=>{
           const original=()=>{
             if(trial.captureTargets!==true)return originalNative();
@@ -67,6 +76,13 @@ function runArm(trial,cards){
           attachmentReserveAudit=reserved.audit;
           return reserved.result;
         };
+        if(trial.mode==='reserve-paid-pivot'){
+          const {withThreeBasicPaidPivot}=require(
+            '../twinleaf/agent6-three-basic-paid-pivot-bot.cjs');
+          const added=withThreeBasicPaidPivot(native);
+          genericAudit=added.audit;
+          return added.result;
+        }
         if(trial.mode==='bilateral-skyliner-free-retreat'){
           const {withBilateralSkylinerFreeRetreat}=
             require('../twinleaf/agent2-bilateral-skyliner-free-retreat-bot.cjs');
@@ -127,6 +143,7 @@ function runArm(trial,cards){
       nativeTerminal:terminal,
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
+      ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
       ...(trial.basicRetreatReserveAudit===true?{
         attachmentReserveAudit}:{}),
       ...(trial.retreatPassStageCensus===true?{
@@ -139,6 +156,7 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
       ...(trial.basicRetreatReserveAudit===true?{
         attachmentReserveAudit}:{}),
       ...(trial.retreatPassStageCensus===true?{
