@@ -203,7 +203,7 @@ function chooseActorRootIntent(view,catalog,options={}){
   // Keep this before funded Tool selection so both routes can be evaluated
   // at exactly the same public root, without importing any hidden zones.
   if(options.twoUnitPaidRetreatRoot===true&&
-     (options.twoUnitPaidRetreatTargetTurn===null||
+     ((options.twoUnitPaidRetreatTargetTurn??null)===null||
       options.twoUnitPaidRetreatTargetTurn===view.globalTurn)){
     const paid=require('./agent42-public-two-unit-paid-retreat-proposal.cjs')
       .proposeTwoUnitPaidRetreat(view,catalog);
