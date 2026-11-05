@@ -43,6 +43,7 @@ test('valid original Camping Gear independently paper verified',()=>{
   const row=classifyPendingPaperPrompt(state,new ResolvePromptAction([a]));
   assert.equal(row.status,'PROMPT_PAPER_VERIFIED');
   assert.equal(row.nativeValidateVerdict,true);
+  assert.equal(row.independentPaperPhysicalDeckMembership,true);
   assert.equal(row.submittedCount,1);
 });
 
@@ -176,4 +177,15 @@ test('prompt removed without a settled result remains unverified',()=>{
   assert.equal(observed.audit.nativeReturnOnlyNoOp,0);
   assert.equal(observed.audit.firstByStatus.PROMPT_PAPER_VERIFIED.nativeSettlement,
     'PROMPT_SETTLEMENT_UNVERIFIED');
+});
+
+test('generic paper status remains invalid when native count-only validator accepts foreign card',()=>{
+  const prompt=new ChooseCardsPrompt([a,b]);
+  prompt.validate=selected=>Array.isArray(selected)&&selected.length===1;
+  const foreign={name:'FOREIGN'};
+  const row=classifyPendingPaperPrompt({prompts:[prompt]},
+    new ResolvePromptAction([foreign]));
+  assert.equal(row.nativeValidateVerdict,true);
+  assert.equal(row.independentPaperPhysicalDeckMembership,false);
+  assert.equal(row.status,'PROMPT_PAPER_INVALID');
 });
