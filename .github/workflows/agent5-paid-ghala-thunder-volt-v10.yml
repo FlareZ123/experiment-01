@@ -1,0 +1,45 @@
+name: Agent5 original rank6 post-DCE Thunder Mountain Volt source native
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank6-thunder-volt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout pinned research repo
+        uses: actions/checkout@v4
+      - name: Initialize only pinned Twinleaf upstream
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Verify paper source-only Thunder and Volt physical prompt decision hooks
+        run: |
+          node --check simulation/twinleaf/agent5-source-paid-dce-thunder-volt.cjs
+          node --check simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
+          node --test tests/agent5-source-paid-dce-thunder-volt.test.cjs
+      - name: Execute exact original eight matched native source branches once
+        env:
+          AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
+        run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
+      - name: Preserve full original and alternate root tapes and physical outcome receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-rank6-original-post-dce-thunder-volt-v10
+          path: agent5-rank6-thunder-volt-v10/
+          if-no-files-found: warn
+          retention-days: 14
