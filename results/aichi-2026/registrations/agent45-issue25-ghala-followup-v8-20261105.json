@@ -1,0 +1,43 @@
+{
+  "schema": "agent45-issue25-ghala-followup-v8-retrospective-20261105",
+  "authored_utc": "2026-11-05T17:42:00Z",
+  "category": "retrospective-development-not-competitive",
+  "frozen_trials": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "baseline_policy": "agent45-issue25-owner-tagcall-v7-retrospective-eight",
+  "single_treatment": "When a genuine native accepted Tag Call search physically gains Guzma & Hala, attempt owner-first-turn Supporter continuation under normal turn limits, two-card payment with own hand and genuine own-deck selection with native prompt validation",
+  "source_independent_seats": [
+    0,
+    1
+  ],
+  "preserved_native_root_cap": 48,
+  "preserved_exact_registered_arms": 8,
+  "require_measured": {
+    "naturalTagCallRoot": true,
+    "nativeSourceGuzmaHalaRoot": true,
+    "ownerHandSupported": true,
+    "nativeModePrompt": true,
+    "nativePhysicalTwoOtherCardPayment": true,
+    "deckSearchAfterAuthenticatedPrompt": true,
+    "nativePhysicalDeckToHandRetrieval": true,
+    "fullEightInitialSourceAndFullDealParity": true,
+    "allEightErrorsAndCensoring": true
+  },
+  "admissibility_notes": [
+    "Discards are heuristic and must not be described as a proof of optimality or DCI",
+    "No owner-hidden deck inspection before actual search prompt",
+    "No opponent hidden hand or Prize face inspection",
+    "No competitive game inference without source attack and opponent reply",
+    "Native prompt choices and physical card custody must be separately checked"
+  ],
+  "error_or_negative_outcomes": [
+    "No playable after-TagCall G&H opportunity",
+    "Native rejected source Supporter root",
+    "Unpayable two-card discard",
+    "No eligible native search targets",
+    "No source attack or meaningful payoff within cap",
+    "Engine aborted prompt",
+    "48 root cap"
+  ],
+  "releaseQualified": false,
+  "competitiveGamesQualified": 0
+}
