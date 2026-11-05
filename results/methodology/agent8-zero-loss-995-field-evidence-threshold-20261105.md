@@ -49,3 +49,5 @@ The independent code [`agent8-zero-loss-field-certification.cjs`](../../simulati
 - The calculation says only **what an all-win streak would signify under its assumptions**. It predicts neither attainable results nor the economic feasibility of 608 versus 41,280 genuine full games.
 
 **Current project verdict:** zero competitively qualified games; 29/32 original complete rosters; no selected best fixed 60. 99.5% remains an unachieved objective.
+
+**22:20 UTC verification addendum:** The exact committed mathematical CJS source and five exact committed regression-test source bytes were fetched back from GitHub, evaluated in a restricted V8 harness with synchronous Node-style test/assert stubs, and **5/5 assertions passed**. This tests the committed source's algorithm and regressions against the real values; it is not Node's native test runner and not a CI or game-engine execution.
