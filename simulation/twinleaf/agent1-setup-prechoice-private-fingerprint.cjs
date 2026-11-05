@@ -146,6 +146,8 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
           audit.duplicateOwnerPromptsOmitted++;
         }else{
           info.seenSeats.add(ownerSeat);
+          assert.ok(state.activePlayer===0||state.activePlayer===1,
+            'Native setup must assign a first player before the opening Basic choice');
           const hand=names(owner.hand);
           const deck=names(owner.deck);
           const prizes=owner.prizes.map(slot=>names(slot));
@@ -170,6 +172,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
             registeredNativeTrialId:info.trialId,
             opaquePreRunRequestHmacSha256:info.preRunRequestHmac,
             physicalOwnerSeat:ownerSeat,
+            nativeFirstPlayerSeat:state.activePlayer,
             firstBeforeAnyOwnerSetupChoice:true,
             ownerHandCount:hand.length,
             ownerDeckCount:deck.length,
