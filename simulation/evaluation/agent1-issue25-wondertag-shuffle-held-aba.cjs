@@ -16,6 +16,8 @@ const {withOwnerWonderTagPrompts}=
   require('../twinleaf/agent8-owner-wondertag-prompt.cjs');
 const {withNumericShuffleValidator}=
   require('../twinleaf/agent22-numeric-shuffle-validation-hook.cjs');
+const {withPublicSupporterRevealWitness}=
+  require('../twinleaf/agent1-native-public-supporter-reveal-witness.cjs');
 
 const VERSION='agent1-issue25-wondertag-shuffle-held-fixed-three-arm-aba-v1';
 
@@ -29,7 +31,8 @@ const VERSION='agent1-issue25-wondertag-shuffle-held-fixed-three-arm-aba-v1';
  * @template T
  * @param {()=>T} next
  * @param {{wonderTagYes:boolean,joinedAttackLayer:Function,
- *  numericLayer?:Function,ownerLayer?:Function,sourceLayer?:Function}} opts
+ *  numericLayer?:Function,ownerLayer?:Function,sourceLayer?:Function,
+ *  publicRevealLayer?:Function}} opts
  * @returns {{result:T,audit:object}}
  */
 function withShuffleHeldWonderTag(next,opts){
@@ -39,18 +42,25 @@ function withShuffleHeldWonderTag(next,opts){
   const numeric=opts.numericLayer??withNumericShuffleValidator;
   const baseline=opts.ownerLayer??withOwnerPokemonOverModalPrize;
   const wonder=opts.sourceLayer??withOwnerWonderTagPrompts;
-  for(const layer of [numeric,baseline,wonder])
+  const publicReveal=opts.publicRevealLayer??withPublicSupporterRevealWitness;
+  for(const layer of [numeric,baseline,wonder,publicReveal])
     assert.equal(typeof layer,'function');
-  let wonderAudit=null;
+  let wonderAudit=null,publicRevealAudit=null;
   const selected=baseline(()=>numeric(()=>{
-    if(!opts.wonderTagYes)return next();
-    const result=wonder(next);
-    wonderAudit=result.audit;
-    return result.result;
+    const witnessed=publicReveal(()=>{
+      if(!opts.wonderTagYes)return next();
+      const result=wonder(next);
+      wonderAudit=result.audit;
+      return result.result;
+    });
+    publicRevealAudit=witnessed.audit;
+    return witnessed.result;
   }),{joinedAttackLayer:opts.joinedAttackLayer});
   return {result:selected.result,audit:{
     ...selected.audit,
     sourceStampedWonderTagYes:wonderAudit,
+    postAcceptedPublicSupporterRevealAudit:publicRevealAudit,
+    publicRevealWitnessIdenticalInAllArms:true,
     numericNativeShuffleValidationHookSelected:true,
     allArmsNumericShuffleValidationIdentical:true,
     wonderTagYesOnlyPolicyIntervention:opts.wonderTagYes,
@@ -98,6 +108,8 @@ function runShuffleHeldWonderTagAba(){
     require('./agent3-issue25-v12-public-first-difference.cjs');
   const positiveById=new Map(campaigns[1].receipt.attempts.map(attempt=>
     [attempt.id,attempt]));
+  const publicSupporterRevealByArm=campaigns.map(campaign=>
+    campaign.selectedPromptAudit?.postAcceptedPublicSupporterRevealAudit??null);
   const nativeOwnerPublicContinuations=compared.rows.filter(row=>
     row.firstPublicRootDifference!==null).map(row=>{
     const attempt=positiveById.get(row.id);
@@ -131,6 +143,7 @@ function runShuffleHeldWonderTagAba(){
     rows,
     allThreeArmsUseSameNumericValidator:true,
     nativeOwnerPublicContinuations,
+    postAcceptedPublicSupporterRevealByArm:publicSupporterRevealByArm,
     v15JointTreatmentConfoundRemoved:true,
     experimentalOnly:true,
     certifiedPaperGames:0,
