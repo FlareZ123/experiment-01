@@ -93,6 +93,8 @@ jobs:
           name: agent42-rank1-two-psychic-original-aba
           path: agent42-rank1-two-psychic-paid-retreat-original-aba-native.json
           retention-days: 7
+      - name: Check owner-only Capture Energy search prompt negative controls
+        run: node --test tests/agent41-owner-capture-energy-search.test.cjs
       - name: Verify redacted abort provenance and physical fingerprint validators
         run: node --test tests/agent18-aborted-native-provenance.test.cjs tests/native-dispatch-abort-evidence.test.cjs tests/agent18-issue25-source-root-custody.test.cjs tests/agent18-source-energy-physical-custody.test.cjs
       - name: Reproduce three native failure stages with complete deal custody
@@ -140,6 +142,19 @@ jobs:
         run: |
           set -o pipefail
           node --test tests/agent18-issue25-v6-energy-target-custody.native.test.cjs | tee agent18-v6-special-energy-targets.tap
+      - name: Compare bounded v6 Capture Energy owner search continuation with source-owned Store evidence
+        if: ${{ inputs.include_v6_bilateral_special_energy_aba }}
+        run: |
+          set -o pipefail
+          node --test tests/agent41-issue25-capture-owner.native.test.cjs | tee agent41-v6-capture-owner-native.tap
+      - name: Preserve native Capture Energy source prompt continuation including failures
+        if: ${{ always() && inputs.include_v6_bilateral_special_energy_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-issue25-v6-capture-owner-native
+          path: agent41-v6-capture-owner-native.tap
+          if-no-files-found: warn
+          retention-days: 21
       - name: Preserve source-owned physical Special Energy native targets including aborts
         if: ${{ always() && inputs.include_v6_bilateral_special_energy_aba }}
         uses: actions/upload-artifact@v4
