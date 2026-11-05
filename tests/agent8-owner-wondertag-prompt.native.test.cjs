@@ -118,3 +118,60 @@ test('printed Wonder Tag prompt handler remains inert under opposing Iron Thorns
     assert.equal(audit.competitiveQualifiedGames,0);
   }
 });
+
+
+test('native original-60 zero-choice owner Wonder Tag composes with mandatory shuffle repair in both seats',()=>{
+  for(const seat of [0,1]){
+    const outer=withNumericShuffleValidator(()=>
+      withWonderTagZeroShuffleHook(()=>
+        withOwnerWonderTagPrompts(()=>{
+          const x=stage(seat);
+          const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+          const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+          const ai=Object.create(SimpleTacticsAi.prototype);
+          ai.client={id:x.owner.id};
+          const initialDeck=[...x.owner.deck.cards];
+          const initialHand=x.owner.hand.cards.length;
+          x.store.dispatch(new x.PlayCardAction(x.owner.id,1,{
+            player:x.PlayerType.BOTTOM_PLAYER,slot:x.SlotType.BENCH,index:4
+          }));
+          const observed=[];
+          for(let i=0;i<16;i++){
+            const p=x.state.prompts.find(p=>p.result===undefined);
+            if(!p)break;
+            const kind=p.constructor.name;
+            let action;
+            if(kind==='ConfirmPrompt'||kind==='ChooseCardsPrompt'){
+              assert.equal(p.playerId,x.owner.id);
+              action=ai.decodeNextAction(x.state);
+              assert.ok(action instanceof ResolvePromptAction);
+            }else if(kind==='ShuffleDeckPrompt'){
+              assert.equal(p.playerId,x.owner.id);
+              const n=x.owner.deck.cards.length;
+              action=new ResolvePromptAction(p.id,
+                Array.from({length:n},(_,j)=>n-1-j));
+            }else throw Error('Zero-choice Wonder Tag emitted unexpected '+kind);
+            assert.equal(p.validate(action.result,x.state),true);
+            observed.push(kind);
+            x.store.dispatch(action);
+          }
+          assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
+          assert.deepEqual(observed,[
+            'ConfirmPrompt','ChooseCardsPrompt','ShuffleDeckPrompt']);
+          assert.equal(x.owner.hand.cards.length,initialHand-1);
+          assert.equal(x.owner.deck.cards.length,initialDeck.length);
+          assert.ok(initialDeck.some((card,j)=>x.owner.deck.cards[j]!==card),
+            'mandatory shuffle must produce actual nonidentity deck order');
+          return {seat,events:observed,qualifiedCompetitiveGames:0};
+        },{selectSupporterIndex:()=>-1})));
+    console.log('AGENT8_WONDER_TAG_ZERO_NATIVE_COMPOSITION',JSON.stringify({
+      seat,policy:outer.result.audit,shuffle:outer.audit
+    }));
+    assert.equal(outer.result.audit.confirmed,1);
+    assert.equal(outer.result.audit.emptySearches,1);
+    assert.equal(outer.result.audit.selectedSupporters,0);
+    assert.equal(outer.result.audit.nativeAccepted,2);
+    assert.equal(outer.audit.zeroSelections,1);
+    assert.equal(outer.audit.repairedShuffles,1);
+  }
+});
