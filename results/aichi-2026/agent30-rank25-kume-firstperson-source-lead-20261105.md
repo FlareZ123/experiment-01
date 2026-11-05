@@ -1,0 +1,24 @@
+# Rank-25 original Aichi opponent: first-person tactical account, but still no authenticated 60
+
+**Agent 30 | 5 November 2026 | NEW primary player-line evidence and provenance lead; strict incomplete-source status**
+
+## Cross-source rank/identity triangulation
+
+The [Limitless Aichi 2026 full decklist event](https://www.limitlesstcg.com/tournaments/566/decklists) identifies **rank 25 Kazuki Kumegawa** as a **Raichu Electrode Combo** player, but has no original full 60 for this rank. A separate [Japanese event roundup](https://pokekameshi.com/cl2026aichidec-extra/2/) describes **top-32 player “kume”** using **Alolan Raichu one-shot** (アロライワンショット / エレキレイン). A [first-person article published by kume on 14 May 2026](https://note.com/kume_pokeca/n/n6cfd126f5774) states that they qualified to the final bracket from **25th Swiss position** with this deck and lost in the first bracket round to **Mega Absol/Garbodor**. Same archetype and the conspicuous 25th qualifier rank strongly suggest an identity/placement correspondence. **The Japanese alias “kume” has not been independently tied to the legal name Kazuki Kumegawa**, and published Swiss-seed number is not automatically final overall placement; treat this correspondence as **strong source-discovery lead, not authenticated original-player identity**.
+
+The article's detailed 60-card construction section appears after a **paid section boundary**. Its publicly available portion has no complete card counts, no importable 60 and no deck code. The Japanese roundup also lacks a deck code for this particular player despite listing codes for some other top-32 players. **Rank 25 remains absent from the authenticated 60-card roster. Do not substitute another Alolan Raichu list or infer the private roster.**
+
+## New explicit opponent-policy evidence, with careful causal scope
+
+The first-person account gives a highly relevant opponent strategic posture. The author chose Alolan Raichu one-shot intending to pressure Regidrago and describes Regidrago turn-one ability lock and turn-one Budew Item restriction as central threats. In the publicly readable countermeasure inventory, **Pokémon Ranger** is explicitly identified as a possible Itchy Pollen answer, alongside drawing through the deck without Items and another alternative response. The same report identifies early Klefki or Garbodor as opposing ability-suppression options and discusses suppressing Latias ex / Tapu Lele-GX. These are **historical firsthand strategic observations and candidate countermeasure options**. They do **not** show which options the actual rank-25 60 contained, which line was selected in any specific game, or a measured matchup win rate.
+
+The author separately reports eight Swiss outcomes: Regidrago wins in rounds 1, 2, 7, Regidrago loss in round 4, wins versus Lightning Toolbox, Roaring Moon and ADP Dragonite, then final first-bracket loss to Mega Absol/Garbodor. This is author-reported event chronology, **not** a controlled series or simulation. The exact published outcome sequence is useful as opponent-model context for eventual real-play decisions, never as a source-specific decklist.
+
+### Consequences for the fixed-single-60 objective
+
+1. Resolve the alias/name link using independent original result/profile or source registration **before** claiming the article belongs to rank25 Kazuki Kumegawa.
+2. Seek a player-authorized or already-public complete 60 with all individual card counts; any later modified deck is unsuitable unless explicitly distinguished from event registration.
+3. Prioritize an opponent policy capable of sequencing its **Ranger Item-lock escape**, **Klefki first-turn ability suppression**, **Latias ex mobility denial**, and **fast Alolan Raichu one-shot** options when actually supported by its future authenticated printed list. No source-specific actual option may be installed solely from this article's design discussion.
+4. Do not change the frozen 29/32 source admission counts or claim any new win. This report is a **provenance lead and first-person metagame strategy account**, not a missing original 60 recovery.
+
+**Existing preserved roster:** [full-decklists.json](full-decklists.json), original rank25 still missing; other missing original ranks23 and28 unchanged. 
