@@ -41,6 +41,8 @@ test('source-first copy weights and distinct source name+set keys',()=>{
   assert.equal(x.sourceTrainerCopies,9);
   assert.equal(x.sourceDistinctNameSetPrintings,6);
   assert.equal(x.copiesWithAnyExactNegativeFamily,6);
+  assert.equal(x.copiesWithPotentialRestrictionFamily,6);
+  assert.equal(x.copiesWithOnlyZeroDiscardPaymentAnnotation,0);
   assert.equal(x.copiesWithoutTheseFourFamilies,3);
   assert.equal(x.knownPaymentModeCopies,3);
   assert.equal(x.positiveDiscardOptionCopies,3);
@@ -53,6 +55,22 @@ test('source-first copy weights and distinct source name+set keys',()=>{
   assert.equal(x.perDeck[0].copiesWithoutTheseFourFamilies,3);
   assert.equal(x.largestUnmatchedSourcePrintings[0].printing,'VS Seeker PHF');
   assert.equal(x.negativeOnly,true);
+});
+
+test('zero-discard coverage annotations do not count as conditional restrictions',()=>{
+  const catalog=new Map(gates.payment);
+  catalog.set('VS Seeker PHF',
+    {options:[{mode:'no-owner-hand-discard-payment',discards:0}]});
+  const out=surveyFieldTrainerGates(fixture(),{
+    ...gates,payment:catalog
+  });
+  assert.equal(out.sourceTrainerCopies,9);
+  assert.equal(out.copiesWithAnyExactNegativeFamily,9);
+  assert.equal(out.copiesWithPotentialRestrictionFamily,6);
+  assert.equal(out.copiesWithOnlyZeroDiscardPaymentAnnotation,3);
+  assert.equal(out.copiesWithoutTheseFourFamilies,0);
+  assert.equal(out.perDeck[0].copiesWithOnlyZeroDiscardPaymentAnnotation,3);
+  assert.equal(out.perDeck[1].copiesWithPotentialRestrictionFamily,4);
 });
 
 test('prevent duplicate ranks, non-60 lists and incorrect source printing language',()=>{
@@ -93,6 +111,8 @@ test('pinned 29 original sources preserve historical core and explain catalog gr
   assert.equal(historical.sourceTrainerCopies,1035);
   assert.equal(historical.sourceDistinctNameSetPrintings,125);
   assert.equal(historical.copiesWithAnyExactNegativeFamily,287);
+  assert.equal(historical.copiesWithPotentialRestrictionFamily,254);
+  assert.equal(historical.copiesWithOnlyZeroDiscardPaymentAnnotation,33);
   assert.equal(historical.copiesWithoutTheseFourFamilies,748);
   assert.equal(historical.distinctPrintingsWithAnyExactNegativeFamily,18);
   assert.equal(historical.knownPaymentModeCopies,259);
@@ -124,6 +144,8 @@ test('pinned 29 original sources preserve historical core and explain catalog gr
   assert.equal(current.sourceTrainerCopies,1035);
   assert.equal(current.sourceDistinctNameSetPrintings,125);
   assert.equal(current.copiesWithAnyExactNegativeFamily,816);
+  assert.equal(current.copiesWithPotentialRestrictionFamily,254);
+  assert.equal(current.copiesWithOnlyZeroDiscardPaymentAnnotation,562);
   assert.equal(current.copiesWithoutTheseFourFamilies,219);
   assert.equal(current.distinctPrintingsWithAnyExactNegativeFamily,64);
   assert.equal(current.knownPaymentModeCopies,809);
