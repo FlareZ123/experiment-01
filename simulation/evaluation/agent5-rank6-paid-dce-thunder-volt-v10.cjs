@@ -7,7 +7,7 @@ const {createHash}=require('node:crypto');
 const headless=require('../twinleaf/headless.cjs');
 const {runAgent45GuzmaHalaRelaxedV9}=
   require('./agent45-issue25-ghala-relaxed-v9.cjs');
-const {buildReceipt,writeReceipt}=
+const {buildReceipt}=
   require('./agent1-issue25-v4-public-receipt.cjs');
 const {withSourceAfterDceThunderVolt,VERSION:HOOK_VERSION}=
   require('../twinleaf/agent5-source-paid-dce-thunder-volt.cjs');
@@ -167,8 +167,6 @@ if(require.main===module){
   const treatmentReceipt=result.archives.treatment;
   const summary={...result,archives:undefined};
   writeLocked(path.join(folder,'agent5-v10-summary.json'),summary);
-  writeReceipt({manifest:{policyEntryPoint:result.originalPolicy},
-    diagnostic:{},rawDevelopment:null},path.join(folder,'unused'));
   // Preserve already-built complete native receipt objects, not a second
   // execution. This avoids inadvertently changing physical game state.
   writeLocked(path.join(folder,'control-complete.json'),originalReceipt);
