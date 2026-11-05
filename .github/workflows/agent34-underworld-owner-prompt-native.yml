@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent17_rank1_postdenial_owner_passes:
+        description: Fifteen source rank1 post-Team-Flare owner-only native Pass snapshots in frozen game
+        type: boolean
+        default: false
       agent17_skyliner_teamflare_targeted:
         description: Retrospective original rank3 turn59 genuine Store Team Flare Grunt A/B/A, no competitive result
         type: boolean
@@ -128,6 +132,17 @@ jobs:
         with:
           name: agent17-skyliner-rank3-teamflare-A-B-A-native
           path: agent17-skyliner-teamflare-targeted-aba.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Replay exact settled source Team Flare branch and audit rank1 owner post-denial Pass funding
+        if: ${{ inputs.agent17_rank1_postdenial_owner_passes }}
+        run: node simulation/evaluation/agent17-teamflare-rank1-postdenial-pass-owner.cjs > agent17-rank1-postdenial-owner-passes-native.json
+      - name: Archive native rank1 owner-only hand/funding recovery evidence
+        if: ${{ always() && inputs.agent17_rank1_postdenial_owner_passes }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-rank1-post-Team-Flare-own-passes
+          path: agent17-rank1-postdenial-owner-passes-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate historical natural original rank1 selected-v3 transport registration
