@@ -98,3 +98,32 @@ test('terminal frontier never violates two attacks or two targets per attack', (
     assert(state.stages.reduce((sum, stage) => sum + stage, 0) <= 4);
   }
 });
+
+
+test('unmodified rank6 Volt Cyclone can KO exposed TM targets with a two-Prize Pidgeot ex liability', () => {
+  const printed = (file, id) => require(path.resolve(
+    __dirname, '../resources/cards/en', file)).find(card => card.id === id);
+  const thorns = printed('sv6.json', 'sv6-77');
+  const attack = thorns.attacks.find(row => row.name === 'Volt Cyclone');
+  assert.equal(attack.damage, '140');
+  const targets = [
+    printed('sv3.json', 'sv3-164'),
+    printed('xy7.json', 'xy7-3'),
+    printed('bw9.json', 'bw9-5'),
+    printed('sm9.json', 'sm9-123')
+  ];
+  const results = targets.map(target => {
+    const weakness = target.weaknesses?.find(row => row.type === thorns.types[0]);
+    const multiplier = weakness ? Number(weakness.value.replace('×', '')) : 1;
+    const damage = Number(attack.damage) * multiplier;
+    const prizes = target.subtypes.includes('ex') ? 2 : 1;
+    return { name: target.name, hp: Number(target.hp), damage, prizes };
+  });
+  assert.deepEqual(results, [
+    { name: 'Pidgeot ex', hp: 280, damage: 280, prizes: 2 },
+    { name: 'Vileplume', hp: 130, damage: 140, prizes: 1 },
+    { name: 'Exeggutor', hp: 100, damage: 140, prizes: 1 },
+    { name: 'Pidgeotto', hp: 60, damage: 280, prizes: 1 }
+  ]);
+  assert(results.every(result => result.damage >= result.hp));
+});
