@@ -35,7 +35,7 @@ function runArm(trial,cards){
   const deckA=rank3Seat===0?cards.source:cards.candidate;
   const deckB=rank3Seat===0?cards.candidate:cards.source;
   let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
-  let reserveRecipientAudit=null;
+  let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -69,12 +69,22 @@ function runArm(trial,cards){
             targetAudit=observed.audit;
             return observed.result;
           };
-          if(trial.basicRetreatReserveAudit!==true)return original();
-          const {withAcceptedBasicRetreatReserveWitness}=require(
-            '../twinleaf/agent6-accepted-basic-retreat-reserve-observer.cjs');
-          const reserved=withAcceptedBasicRetreatReserveWitness(original);
-          attachmentReserveAudit=reserved.audit;
-          return reserved.result;
+          const originalReserve=()=>{
+            if(trial.basicRetreatReserveAudit!==true)return original();
+            const {withAcceptedBasicRetreatReserveWitness}=require(
+              '../twinleaf/agent6-accepted-basic-retreat-reserve-observer.cjs');
+            const reserved=withAcceptedBasicRetreatReserveWitness(original);
+            attachmentReserveAudit=reserved.audit;
+            return reserved.result;
+          };
+          if(trial.captureOwnerSupporterOpportunity!==true)
+            return originalReserve();
+          const {withNativeOwnerSupporterOpportunity}=require(
+            '../twinleaf/agent2-native-owner-supporter-opportunity.cjs');
+          const observedSupporters=
+            withNativeOwnerSupporterOpportunity(originalReserve);
+          ownerSupporterOpportunityAudit=observedSupporters.audit;
+          return observedSupporters.result;
         };
         if(trial.mode==='reserve-paid-pivot'){
           const {withThreeBasicPaidPivot}=require(
@@ -145,6 +155,8 @@ function runArm(trial,cards){
         nativeAttackDeclarationTrace:game.attackDeclarationTrace??[],
         nativePublicAttackTransitions:game.publicAttackTransitions??[]
       }:{}),
+      ...(trial.captureOwnerSupporterOpportunity===true?{
+        ownerSupporterOpportunityAudit}:{}),
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
       ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
@@ -160,6 +172,8 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.captureOwnerSupporterOpportunity===true?{
+        ownerSupporterOpportunityAudit}:{}),
       ...(trial.captureAttackTrace===true?{
         nativeAttackDeclarationTrace:null,nativePublicAttackTransitions:null
       }:{}),
