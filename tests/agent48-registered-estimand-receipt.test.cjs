@@ -134,3 +134,49 @@ test('invalid comparison registrations do not create silently omitted pairs', ()
     compare('a', 'control', 'treatment')
   ]), /Duplicate comparison ID/);
 });
+
+test('identically wrong physical source seat never qualifies as matched', () => {
+  const p = [plan('control'), plan('treatment')];
+  const out = registeredEstimandReceipt(p, [
+    native(p[0], {sourceSeat: 0}),
+    native(p[1], {sourceSeat: 0})
+  ], [compare('ab', 'control', 'treatment')]);
+  assert.equal(out.secondaryControlledPairPretreatmentParity[0].parity,
+    'MISMATCHED');
+});
+
+test('changed complete physical deal vetoes despite equal original source subset', () => {
+  const p = [plan('control'), plan('treatment')];
+  const out = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1], {fullPhysicalDealFingerprint: C})
+  ], [compare('ab', 'control', 'treatment')]);
+  assert.equal(out.secondaryControlledPairPretreatmentParity[0].parity,
+    'MISMATCHED');
+});
+
+test('verified first-player discrepancy vetoes a controlled pair', () => {
+  const p = [plan('control'), plan('treatment')];
+  const out = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1], {actualStarterSeat: 0})
+  ], [compare('ab', 'control', 'treatment')]);
+  assert.equal(out.secondaryControlledPairPretreatmentParity[0].parity,
+    'MISMATCHED');
+});
+
+test('different seed or candidate slot is never a controlled same-opening comparison', () => {
+  const p = [plan('control'), plan('treatment', 'champion', {seed: 202})];
+  const out = registeredEstimandReceipt(p, [native(p[0]), native(p[1])],
+    [compare('ab', 'control', 'treatment')]);
+  assert.equal(out.secondaryControlledPairPretreatmentParity[0].parity,
+    'INELIGIBLE_PLAN');
+});
+
+test('registered missing attempt produces unknown controlled parity while preserving both attempts', () => {
+  const p = [plan('control'), plan('treatment')];
+  const out = registeredEstimandReceipt(p, [native(p[0])],
+    [compare('ab', 'control', 'treatment')]);
+  assert.equal(out.secondaryControlledPairPretreatmentParity[0].parity,
+    'UNKNOWN');
+  assert.equal(out.primaryNaturalGamePopulationRetained.registeredAttempts,2);
+  assert.equal(out.primaryNaturalGamePopulationRetained.missingNativeRows,1);
+});
