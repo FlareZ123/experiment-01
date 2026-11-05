@@ -8,7 +8,11 @@ const {auditDateConsensus}=
 const {auditPromoChronology}=
   require('./agent22-aichi-promo-chronology.cjs');
 
-const VERSION='agent22-aichi-original-1740-temporal-provenance-ledger-v1';
+const VERSION='agent22-aichi-original-1740-temporal-provenance-ledger-v2-semantic-guards';
+const BASIC_ENERGY_NAMES=Object.freeze([
+  'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
+  'Psychic Energy','Fighting Energy','Darkness Energy','Metal Energy'
+]);
 
 /** @param {number} rank @param {{name:string,count:number,printing:{set:string,number:string}}} card */
 function physicalDisplayRowKey(rank,card){
@@ -42,6 +46,10 @@ function auditTemporalProvenance(
   const cri=new Map(criCrosswalk.sourceRows.map(entry=>[
     [entry.rank,entry.name,entry.count,...entry.englishPrinting.split(' ')]
       .join('|'),entry]));
+  assert.equal(mee.size,meeCrosswalk.entries.length,
+    'Duplicate MEE crosswalk rows conceal source identity');
+  assert.equal(cri.size,criCrosswalk.sourceRows.length,
+    'Duplicate Japanese counterpart rows conceal source identity');
   const englishCodes=new Map();
   for(const set of sets){
     if(!set.ptcgoCode||!set.releaseDate)continue;
@@ -72,7 +80,10 @@ function auditTemporalProvenance(
       } else if(oneDate && oneDate>promoManifest.eventDate) {
         const counterpart=cri.get(key);
         if(counterpart?.japaneseOriginalPreEvent===true &&
-          counterpart.englishDisplayPostEvent===true) {
+          counterpart.englishDisplayPostEvent===true &&
+          /^M4 \\d{3}\\/\\d{3}$/.test(counterpart.japaneseOriginal) &&
+          counterpart.japaneseOfficialCardSource?.startsWith(
+            'https://www.pokemon-card.com/card-search/details.php/')) {
           categories.englishDisplayPostEventJapaneseEarlier+=card.count;
           seenCri.add(key);
         } else {
@@ -85,8 +96,12 @@ function auditTemporalProvenance(
         const oldNumber=Number(previous?.preEventRepresentative?.number);
         const newNumber=Number(card.printing.number);
         if(previous && previous.historicalPhysicalPrinting==='unknown' &&
+          previous.category==='Energy' && card.category==='Energy' &&
+          previous.transcribedPrintingEventStatus==='post-event-art-annotation' &&
           previous.preEventRepresentative?.set==='MEE' &&
           Number.isInteger(oldNumber)&&oldNumber>=1&&oldNumber<=8 &&
+          card.name===BASIC_ENERGY_NAMES[oldNumber-1] &&
+          previous.name===BASIC_ENERGY_NAMES[oldNumber-1] &&
           newNumber===oldNumber+8) {
           categories.postEventMEEArtworkWithEarlierBasicEnergyDesign+=card.count;
           seenMee.add(key);
