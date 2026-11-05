@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent9_palace_book_audit:
+        description: Exact original rank6 champion turn4 held Palace Book native A/B/A
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -43,16 +48,27 @@ jobs:
           node --check simulation/twinleaf/agent9-v10-dce-baton-observer.cjs
           node --check simulation/evaluation/agent9-v10-owner-baton-native.cjs
           node --test tests/agent9-v10-dce-baton-observer.test.cjs
+      - name: Verify Agent9 physical source Palace Book alternative tests
+        if: ${{ inputs.agent9_palace_book_audit }}
+        run: |
+          node --check simulation/twinleaf/agent9-rank6-turn4-palace-book-hook.cjs
+          node --check simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
+          node --test tests/agent9-rank6-turn4-palace-book.test.cjs
       - name: Execute exact original eight matched native source branches once
-        if: ${{ !inputs.agent9_baton_audit }}
+        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
       - name: Execute exact original v10 with additional passive owner DCE baton readout
-        if: ${{ inputs.agent9_baton_audit }}
+        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit }}
         env:
           AGENT9_BATON_DIR: agent9-v10-baton-native
         run: node simulation/evaluation/agent9-v10-owner-baton-native.cjs
+      - name: Execute genuine original rank6 source held Palace Book v10 A/B/A
+        if: ${{ inputs.agent9_palace_book_audit }}
+        env:
+          AGENT9_PALACE_BOOK_DIR: agent9-rank6-palace-book-native
+        run: node simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
       - name: Preserve full original and alternate root tapes and physical outcome receipts
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,5 +83,13 @@ jobs:
         with:
           name: agent9-original-rank6-dce-baton-owner-passive
           path: agent9-v10-baton-native/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve original source Palace Book A/B/A physical receipts
+        if: always() && inputs.agent9_palace_book_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-rank6-original-palace-book-aba-native
+          path: agent9-rank6-palace-book-native/
           if-no-files-found: warn
           retention-days: 14
