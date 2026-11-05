@@ -134,7 +134,12 @@
         "action": "PlayCardAction",
         "storeAccepted": true,
         "declared": {
-          "ownerHandPrinting": "Float Stone BKT"
+          "ownerHandPrinting": "Float Stone BKT",
+          "target": {
+            "player": 2,
+            "slot": 1,
+            "index": 0
+          }
         },
         "publicBoardChanges": [
           {
@@ -168,7 +173,8 @@
         "action": "RetreatAction",
         "storeAccepted": true,
         "declared": {
-          "ownerHandPrinting": null
+          "ownerHandPrinting": null,
+          "benchIndex": 2
         },
         "publicBoardChanges": [
           {
