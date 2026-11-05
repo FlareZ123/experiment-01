@@ -56,7 +56,7 @@ function fixture(label){
           confirmed:2,selectedSupporters:2,emptySearches:0,
           nativeAccepted:4,nativeRejected:0,nativeUnsettled:0,
           nativeCustodyFailures:0,settledSupporterTransfers:2,
-          nativeMissingSearchFollowup:0,bySeat:{0:2,1:2}
+          nativeMissingSearchFollowup:0,bySeat:{0:4,1:0}
         },
         ownerWonderTagMandatoryZeroShuffle:{
           version:'v1',printedEntrances:2,
