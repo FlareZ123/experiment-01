@@ -72,7 +72,68 @@ Native Store and bot policy do not yet meet whole-paper game or
 25-minute match-clock qualification. There are no demonstrated
 qualified games, fixed winner or 99.5% results.
 
-**Registered outcome: pending.** This document is the pre-result
-methodology. Add the immutable compiled CI and actual complete receipt
-once run 42053006250 settles. Never count an action cap or decoder
-failure as a competitive game.
+## Executed native outcome, 5 November 2026
+
+**Manual CI 42053006250: SUCCESS**, feature head
+93886994a505512b2dd0298b5364ce7da1f835d6. The existing workflow
+ran the v14 reversible-option tests, the pre-existing Agent41 coheld
+Basic/Special decision controls, and the eight original-source native
+trials against pinned Twinleaf
+a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Full raw evidence:
+[Actions artifact 13426744066](https://github.com/FlareZ123/experiment-01/actions/runs/42053006250/artifacts/13426744066),
+archive SHA-256
+ce67352981b51cad42fd7dc411bf352560123c6ab5efb9b6aa7a4c4b205141e3.
+Historical v13 comparison:
+[Actions artifact 13374065731](https://github.com/FlareZ123/experiment-01/actions/runs/41934656653/artifacts/13374065731),
+archive SHA-256
+277b350a0b4c9b800bc0f8a8276a95f34b348b63372e1416270d46c327e937f3.
+
+An independent second extraction compared both machine-readable ZIP
+receipts by their exact eight registered trial IDs. All **8/8 source
+initial-deal fingerprints and 8/8 complete initial physical-deal
+fingerprints** matched the archived v13 baseline. All **8/8 native
+Store root-ledger SHA-256 digests** matched v13 byte for byte. The v14
+run likewise matched all eight frozen original-v6 source and full-deal
+fingerprints. The root policy's public Special + flexible contest
+selection was visible in five returned native root audits; the other
+three attempts aborted before returning that audit. Do not interpret
+missing audit as an observed disabled policy.
+
+| Original rank / seed / physical candidate | Actual source seat | Root count | Status in both v13 and v14 | Source Energy roots v13/v14 | Source attack roots v13/v14 | Root-ledger equality |
+| --- | ---: | ---: | --- | ---: | ---: | --- |
+| 6 / 100 / champion-reference | 1 | 48 | Capped | 1 / 1 | 0 / 0 | Exact |
+| 6 / 100 / new-moon-lockbreaker-v1 | 1 | 46 | Native error | 2 / 2 | 0 / 0 | Exact |
+| 6 / 101 / champion-reference | 0 | 48 | Capped | 0 / 0 | 0 / 0 | Exact |
+| 6 / 101 / new-moon-lockbreaker-v1 | 0 | 48 | Capped | 0 / 0 | 0 / 0 | Exact |
+| 11 / 102 / champion-reference | 1 | 25 | Native error | 0 / 0 | 0 / 0 | Exact |
+| 11 / 102 / new-moon-lockbreaker-v1 | 1 | 14 | Native error | 0 / 0 | 0 / 0 | Exact |
+| 11 / 103 / champion-reference | 0 | 48 | Capped | 1 / 1 | 0 / 0 | Exact |
+| 11 / 103 / new-moon-lockbreaker-v1 | 0 | 48 | Capped | 1 / 1 | 0 / 0 | Exact |
+
+Aggregate: **five** original-source Energy roots, **zero** original-source
+Attack roots, **three** errors, **five** censored 48-root nonterminal
+attempts, **zero** uncapped native terminals and **zero** qualified
+competitive games, unchanged from v13. The selected owner-visible
+Special-over-Basic arbitration produced *no native-action change* on
+these eight physical source deals. This is evidence of no realized
+effect in this deliberately small panel, rather than evidence that the
+arbitration is always unnecessary. It provides no proof of true
+Special-vs-Basic coheld opportunities in this sample; the selector may
+never have seen its specific conjunction of conditions.
+
+### Consequence for the shared fixed-60 program
+
+Do not promote v14 above v13 based on a pure synthetic Regidrago example.
+The native comparator has no first divergent root and therefore cannot
+support an immediate attack, Prize or opposing-reply benefit. Reallocate
+shared integration effort to broadly usable owner Trainer/resource
+sequences, source-side attack and meaningful opponent continuation,
+especially the genuinely pending Capture Energy deck search from v13.
+Agent41 has separately obtained a settled Capture Energy Basic Bench
+transition under a different policy and deserves integration review.
+Retain these v14 receipts as negative implementation evidence, not a
+candidate ranking, and preserve all historical v13 artifacts.
+
+All 29 original source opponent compositions remain unqualified, the
+three missing original ranks are unchanged, and 99.5% is entirely
+undemonstrated.
