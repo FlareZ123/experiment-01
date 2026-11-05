@@ -38,6 +38,23 @@ The original rank-6 opponent has four **Iron Thorns ex TWM77** with **Initializa
 
 This produces a **matchup-conditioned hypothesis**, rather than a generic deck recommendation: when Pidgeot ex is unprotected under active Iron Thorns, allocating the second TM target to **Exeggutor and non-Rule-Box Pidgeotto**, or a **second Exeggutor**, may have more immediate utility than forcing Pidgeot ex. A usable Hood can reverse that comparison. Pidgeotto's Air Mail must still be available on a later valid decision window, and no native result yet compares the candidate policies. The option to invest in two Stage2 attackers can become attractive in other opposing fields where Quick Search is live.
 
+## Opponent's direct Knock Out and Prize choice under the same target fork
+
+The original rank-6 Iron Thorns ex TWM77's printed **Volt Cyclone** is a 140-damage Lightning attack. Against the candidate's listed unmodified Stage targets, the supplied printed card pool and standard Weakness/Prize rules imply:
+
+| Candidate target exposed as Active by source Gust | Printed HP | Unmodified Volt Cyclone after Weakness | Knocked Out? | Opponent's normal Prize gain |
+| --- | ---: | ---: | --- | ---: |
+| Pidgeot ex OBF164 | 280 | **280** (Lightning ×2) | Yes | **2** |
+| Vileplume AOR3 | 130 | 140 | Yes | 1 |
+| Exeggutor PLF5 | 100 | 140 | Yes | 1 |
+| Pidgeotto TEU123 | 60 | **280** (Lightning ×2) | Yes | 1 |
+
+This is **card-text conditional arithmetic**, assuming the Iron Thorns attack is fully paid, the target has been gusted into Active, no damage prevention/alteration or other relevant effects, and the attacker can finish the attack. It is not a claim of a natural KO or game win. The existing [rank6 source-conserved paid Volt Cyclone native fixture](agent40-rank6-turn3-powered-guzma-counterwindow-20261102.md) directly proved the Exeggutor case with 1 Prize, while the **Pidgeot ex Lightning Weakness KO and two-Prize outcome** are new arithmetic checks, not a separately replayed native scenario.
+
+Therefore, the Pidgeot ex route has an additional **two-Prize vulnerability** to a fully paid rank-6 source attack, even when Stealthy Hood preserves Quick Search before that attack. The non-Rule-Box Stage1 Pidgeotto route gives up Pidgeot's powerful general search effect while presenting only one Prize if KO'd. All compared targets can be OHKO'd in the specified unmodified state; the differential matters to Prize tradeoff and resource coverage, and cannot establish which entire fixed deck wins more often.
+
+Pinned Twinleaf source also explicitly anticipates the Hood exception: \`ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex.ts\` calls \`CAN_APPLY_LOCK_TO_TARGET\` via \`HANDLE_ABILITY_LOCK\`; \`ptcg-server/src/sets/08-sun-and-moon/set-unbroken-bonds/stealthy-hood.ts\` calls \`PREVENT_EFFECTS_OF_OPPONENTS_ABILITIES\` when Tool effects are not blocked. This is read-only inspected source at pinned revision \`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05\`; native confirmation would still be necessary before crediting an automated player with the protective action.
+
 ## Reproducible independent checks
 
 Research code: [two-attack TM target scheduler](../../simulation/evaluation/agent40-tm-evolution-target-frontier.cjs), with [source-and-printing locked regressions](../../tests/agent40-tm-evolution-target-frontier.test.cjs). The solver enumerates subsets of at most two distinct Bench targets at each of two attack steps, increments each selected Pokémon's Stage by exactly one, and deduplicates terminal stage vectors while retaining a witness schedule.
