@@ -84,8 +84,8 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     return originalLele.value.call(this,proxy,state,effect);
   }
   function decodeNextAction(state) {
-    const prompt=state?.prompts?.find(p=>p.result===undefined);
     const ownerId=this.client?.id;
+    const prompt=state?.prompts?.find(p=>p.playerId===ownerId&&p.result===undefined);
     if(!prompt||prompt.playerId!==ownerId){
       audit.unrelatedDelegated++;
       return originalBot.value.call(this,state);
