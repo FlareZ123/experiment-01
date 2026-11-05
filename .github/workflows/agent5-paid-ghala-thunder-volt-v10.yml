@@ -2,6 +2,12 @@ name: Agent5 original rank6 post-DCE Thunder Mountain Volt source native
 
 on:
   workflow_dispatch:
+    inputs:
+      agent9_baton_audit:
+        description: Passive owner-only Guzma/DCE baton feasibility readout, same frozen original v10
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -31,15 +37,35 @@ jobs:
           node --check simulation/twinleaf/agent5-source-paid-dce-thunder-volt.cjs
           node --check simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
           node --test tests/agent5-source-paid-dce-thunder-volt.test.cjs
+      - name: Verify Agent9 passive physical owner observation tests
+        if: ${{ inputs.agent9_baton_audit }}
+        run: |
+          node --check simulation/twinleaf/agent9-v10-dce-baton-observer.cjs
+          node --check simulation/evaluation/agent9-v10-owner-baton-native.cjs
+          node --test tests/agent9-v10-dce-baton-observer.test.cjs
       - name: Execute exact original eight matched native source branches once
+        if: ${{ !inputs.agent9_baton_audit }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
+      - name: Execute exact original v10 with additional passive owner DCE baton readout
+        if: ${{ inputs.agent9_baton_audit }}
+        env:
+          AGENT9_BATON_DIR: agent9-v10-baton-native
+        run: node simulation/evaluation/agent9-v10-owner-baton-native.cjs
       - name: Preserve full original and alternate root tapes and physical outcome receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent5-rank6-original-post-dce-thunder-volt-v10
           path: agent5-rank6-thunder-volt-v10/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Preserve passive owner turn4 and turn6 native opportunity receipts
+        if: always() && inputs.agent9_baton_audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-original-rank6-dce-baton-owner-passive
+          path: agent9-v10-baton-native/
           if-no-files-found: warn
           retention-days: 14
