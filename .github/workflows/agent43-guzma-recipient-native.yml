@@ -30,6 +30,8 @@ jobs:
       - name: Compile exact pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Independently exercise pinned Night Watch two-seat random-selection fidelity
+        run: node --test tests/agent43-nightwatch-randomness-native.test.cjs
       - name: Regress default-off forced-target Guzma owner-root and hidden-information boundary
         run: node --test tests/agent31-forced-guzma-ko-frontier.test.cjs
       - name: Test final-Prize multi-Bench Guzma owner-visible choices
