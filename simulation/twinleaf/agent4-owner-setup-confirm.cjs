@@ -5,7 +5,8 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent4-owner-setup-confirm-v1-decline-only';
+const VERSION='agent4-owner-setup-confirm-v2-native-settlement';
+const SETTLEMENT_CODE='OWNER_SETUP_CONFIRM_UNSETTLED';
 const SETUP_PHASE=1;
 
 /**
@@ -60,7 +61,8 @@ function withOwnerSetupConfirm(run,deps={}){
   assert.equal(typeof oldDispatch?.value,'function');
   const audit={
     version:VERSION,actualStores:0,
-    selected:0,accepted:0,rejected:0,bySeat:{0:0,1:0},
+    selected:0,accepted:0,rejected:0,settled:0,unsettled:0,
+    returnedWithoutThrow:0,bySeat:{0:0,1:0},
     ownerVisiblePromptMessageCodes:[],
     declinedSetupConfirmOnly:true,nativeRawStateScoringUsed:false,
     competitivePaperGamesQualified:0
@@ -85,7 +87,7 @@ function withOwnerSetupConfirm(run,deps={}){
     assert.equal(choice.answer,false);
     const action=new ResolvePromptAction(pending.id,choice.answer);
     validate(state,action);
-    ownedActions.set(action,{seat});
+    ownedActions.set(action,{seat,prompt:pending,answer:choice.answer});
     audit.selected++;
     audit.bySeat[seat]++;
     if(audit.ownerVisiblePromptMessageCodes.length<16)
@@ -101,14 +103,28 @@ function withOwnerSetupConfirm(run,deps={}){
     }
     const selected=this===liveStore?ownedActions.get(action):null;
     if(!selected)return oldDispatch.value.apply(this,[action,...args]);
+    const stillPending=selected.prompt.result===undefined&&
+      this.state.prompts?.includes(selected.prompt)===true;
+    let result;
     try{
-      const result=oldDispatch.value.apply(this,[action,...args]);
-      audit.accepted++;
-      return result;
+      result=oldDispatch.value.apply(this,[action,...args]);
     }catch(error){
       audit.rejected++;
       throw error;
     }
+    audit.returnedWithoutThrow++;
+    // A missing or stale prompt can be silently ignored by the native Store.
+    // Check the exact prompt object, even if the reducer removes it afterward.
+    if(!stillPending||selected.prompt.result!==selected.answer){
+      audit.unsettled++;
+      const error=new Error(
+        'Owner setup Confirm Store returned without resolving its prompt');
+      error.code=SETTLEMENT_CODE;
+      throw error;
+    }
+    audit.settled++;
+    audit.accepted++;
+    return result;
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
     ...oldDecode,value:decode
@@ -133,5 +149,5 @@ function withOwnerSetupConfirm(run,deps={}){
   }
 }
 
-module.exports={VERSION,SETUP_PHASE,chooseOwnerSetupConfirm,
+module.exports={VERSION,SETUP_PHASE,SETTLEMENT_CODE,chooseOwnerSetupConfirm,
   withOwnerSetupConfirm};
