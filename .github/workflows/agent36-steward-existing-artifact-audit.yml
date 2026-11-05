@@ -40,8 +40,20 @@ jobs:
           github-token: ${{ github.token }}
           path: archives/v5
 
+      - name: Download immutable postgame v10 original-source control and treatment
+        uses: actions/download-artifact@v4
+        with:
+          name: agent5-rank6-original-post-dce-thunder-volt-v10
+          run-id: '42106359764'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v10
+
       - name: Pure adversarial archival audit regression
         run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
 
       - name: Consume historical bytes and print full original source census
         run: node simulation/evaluation/agent36-run-real-steward-archive-audit.cjs
+
+      - name: Audit same-epoch source next-turn response from original v10 receipt
+        run: node simulation/evaluation/agent36-v10-existing-archive-source-return.cjs
