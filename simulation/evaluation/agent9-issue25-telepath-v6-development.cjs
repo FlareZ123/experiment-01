@@ -11,7 +11,8 @@ const VERSION = 'agent9-issue25-telepath-v6-same-eight-development';
 const HASH_PATHS = Object.freeze([
   'simulation/evaluation/agent9-issue25-telepath-v6-development.cjs',
   'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
-  'tests/agent9-issue25-telepath-v6.native.test.cjs'
+  'tests/agent9-issue25-telepath-v6.native.test.cjs',
+  'tests/agent9-telepath-owner-choice.test.cjs'
 ]);
 
 /**
