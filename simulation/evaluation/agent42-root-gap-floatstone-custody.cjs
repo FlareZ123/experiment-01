@@ -33,7 +33,9 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
     if (tool.playerSlot !== sourceSeat ||
         tool.action !== 'PlayCardAction' || tool.card !== 'Float Stone') continue;
     const toolReceipt = receipt(tool, 'PlayCardAction');
-    if (toolReceipt?.declared?.ownerHandPrinting !== 'Float Stone BKT') continue;
+    if (toolReceipt?.declared?.ownerHandPrinting !== 'Float Stone BKT' ||
+        toolReceipt.declared.target?.slot !== sourceSeat ||
+        toolReceipt.declared.target?.index !== 0) continue;
     const toolActive = boardChange(toolReceipt, 'active');
     if (toolActive?.after?.pokemon !== 'Shadow Rider Calyrex VMAX CRE' ||
         toolActive.before?.tools?.includes('Float Stone BKT') ||
@@ -47,7 +49,8 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
       const retreatReceipt = receipt(retreat, 'RetreatAction');
       const oldActive = boardChange(retreatReceipt, 'active');
       const movedToBench = boardChange(retreatReceipt, 'bench');
-      if (!isDeepStrictEqual(oldActive?.before, toolActive.after) ||
+      if (retreatReceipt?.declared?.benchIndex !== movedToBench?.index ||
+          !isDeepStrictEqual(oldActive?.before, toolActive.after) ||
           !isDeepStrictEqual(movedToBench?.after, oldActive?.before) ||
           !isDeepStrictEqual(oldActive?.after, movedToBench?.before) ||
           oldActive?.after?.pokemon !== 'Shadow Rider Calyrex VMAX CRE' ||
