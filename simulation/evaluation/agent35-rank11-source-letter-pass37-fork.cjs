@@ -138,6 +138,10 @@ function run(deps={}){
   const custodyGateEvidence={
     trialStatus:trial.status??null,
     trialErrorClass:trial.error?.name??null,
+    archivedPublicError:typeof trial.error==='string'?
+      trial.error.slice(0,160):
+      (typeof trial.error?.message==='string'?
+        trial.error.message.slice(0,160):null),
     nativeAcceptedRoots:trial.rootActionLedger?.length??
       trial.nativeAbortEvidence?.rootActionLedger?.length??null,
     nativeAbortStage:trial.nativeAbortEvidence?.failureStage??null,
