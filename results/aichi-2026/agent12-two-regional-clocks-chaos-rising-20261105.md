@@ -130,6 +130,13 @@ three CRI rows/five copies, 35 MEE rows/120 copies and four Japanese
 S-P rows/five copies. Post-correction compiled Node execution remains
 unverified. These are provenance counts, never competitive win evidence.
 
+The two post-event reference groups have **23 distinct rank inventories**
+among the 29 admitted 60s: the later MEE art group appears in 22 ranks,
+the later CRI set group in three ranks, and ranks **16 and 26** belong
+to both groups. The six lists with no flagged later print assignment
+are ranks **4, 6, 7, 17, 24 and 29**. This is a screen of normalized
+collector print IDs; it is **not a legal/illegal deck count**.
+
 The audit makes no claim that all 125 later-identified physical
 printings existed on May 10 or that any player's private registered
 artwork is known. Name/rule identity and Japanese print availability
