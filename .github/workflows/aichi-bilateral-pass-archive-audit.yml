@@ -16,6 +16,7 @@ on:
           - charged-promotion-pair
           - floatstone-pair
           - volt-donor-debt
+          - steward-v4v5
         default: bilateral-pass
 
 permissions:
@@ -90,3 +91,18 @@ jobs:
         run: |
           node --test tests/aichi-bilateral-pass-evidence-summary.test.cjs
           node scripts/aichi-bilateral-pass-evidence-summary.cjs agent41-bilateral-v2-development.json
+      - name: Validate independent steward v4/v5 receipt audit invariants
+        if: ${{ inputs.audit_type == 'steward-v4v5' }}
+        run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
+      - name: Download frozen native steward v4/v5 source archives without recompiling
+        if: ${{ inputs.audit_type == 'steward-v4v5' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-steward-innermost-prize-v5-native
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: archived-steward
+      - name: Independently audit selected steward v4/v5 original eight root custody
+        if: ${{ inputs.audit_type == 'steward-v4v5' }}
+        run: |
+          node -e "const fs=require('node:fs');const a=require('./simulation/evaluation/agent46-issue25-steward-archive-audit.cjs');for(const v of ['v4','v5']){const prefix='archived-steward/issue25-steward-'+v;const r=a.inspect(fs.readFileSync(prefix+'.json'),fs.readFileSync(prefix+'.sha256','utf8'),v);console.log('AGENT46_SELECTED_ARCHIVE_AUDIT',JSON.stringify(r));if(r.integrity!=='PASS-bounded-file-and-root-custody')process.exitCode=1;}"
