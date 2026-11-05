@@ -1,0 +1,47 @@
+{
+  "schema": "agent4-bilateral-trainers-mail-original-eight-aba-v1",
+  "researchClass": "prospective-developmental-both-seat-owner-only-policy-not-competitively-qualified",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "selectedPolicy": "agent36-steward-original-eight-v5-innermost-prize",
+  "originalNativeRootCap": 48,
+  "seededOriginalTrialIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "registeredArms": [
+    "A-original-selected-v5",
+    "B-common-both-seats-Mail-when-native-policy-passes-plus-owner-prompt",
+    "A-repeat-original-selected-v5"
+  ],
+  "treatment": "On either physical seat only when canonical root would Pass and actor owner holds Trainers' Mail ROS, no Item lock, owner deck nonempty, native canPlay true: propose real PlayCardAction. Resolve native ChooseCardsPrompt from real Mail with one native-validated eligible non-Mail Trainer from owner's temporary top four, or zero if validator permits. Observe exact physical transfer. Never access opposing hand, deck or Prize identities.",
+  "primaryValidationGates": [
+    "A/A repeat root ledger exact parity",
+    "A/B/A complete original physical opening parity all eight",
+    "real Store accepts eligible Mail actions",
+    "native ChooseCardsPrompt resolves",
+    "actual selected physical Trainer enters owner hand and other 3 return deck",
+    "future unrelated native actions unchanged unless directly affected",
+    "all failed and capped arms preserved"
+  ],
+  "preexistingVerification": {
+    "rank6FirstSourceMailPass14OriginalStoreRun": 42090074620,
+    "rank6FirstSourceMailPromptContinuationRun": 42092331772
+  },
+  "benchmarkStatus": {
+    "published29Of32": true,
+    "missingRanks": [
+      23,
+      25,
+      28
+    ],
+    "competitiveGamesQualified": 0,
+    "percentWinRateProven": false
+  },
+  "evaluationLimits": "A/B/A over eight original registered developmental arms and 48 native roots only; no complete paper opponent-field claim"
+}
