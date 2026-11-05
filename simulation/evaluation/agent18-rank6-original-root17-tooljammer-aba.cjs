@@ -55,6 +55,7 @@ function withOriginalSourceToolFork(next,deps) {
   assert.equal(typeof next,'function');
   const {headless,SimpleTacticsAi,PlayCardAction,PlayerType,SlotType,
     registration}=deps;
+  const observe=deps.observe??actorObservation;
   const oldRunMatch=headless.runMatch;
   assert.equal(typeof oldRunMatch,'function');
   const audit={schema:VERSION,selectedOriginalId:registration.selectedOriginalId,
@@ -78,7 +79,7 @@ function withOriginalSourceToolFork(next,deps) {
         state?.turn===registration.sourceTurn&&
         source?.id===this.client?.id&&
         !pending&&audit.rootSubstitutions===0;
-      const before=exact?actorObservation(state,registration.sourceSeat):null;
+      const before=exact?observe(state,registration.sourceSeat):null;
       const baseline=prior.value.call(this,state,...args);
       if(!before||baseline?.constructor?.name!=='PassTurnAction')
         return baseline;
