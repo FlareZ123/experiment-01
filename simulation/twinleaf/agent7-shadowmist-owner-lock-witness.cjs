@@ -32,11 +32,20 @@ function countKnown(cards,names){
  * @param {0|1} seat Physical current actor.
  * @returns {object}
  */
-function ownerSnapshot(player,turn,seat){
+function ownerSnapshot(player,turn,seat,store=null,state=null){
   const hand=player.hand.cards.map(card=>card.fullName);
   const heldEnergy=countKnown(hand,KNOWN_RANK6_SPECIAL_ENERGIES);
   const heldStadium=countKnown(hand,KNOWN_RANK6_STADIUMS);
   const heldResponses=countKnown(hand,RESPONSE_TRAINERS);
+  const opposite=state?.players?.[1-seat];
+  const publicOpposingEnergyCards=opposite?
+    [opposite.active,...opposite.bench]
+      .reduce((n,slot)=>n+(slot?.energies?.cards?.length??0),0):null;
+  const nativeCrushingHammerCanPlay=store&&state&&
+    publicOpposingEnergyCards>0?
+    player.hand.cards.some(card=>
+      card.fullName.startsWith('Crushing Hammer ') &&
+      card.canPlay(store,state,player)===true):null;
   return {
     turn,seat,handCount:hand.length,
     knownRank6SpecialEnergyHeld:Object.values(heldEnergy)
@@ -46,6 +55,8 @@ function ownerSnapshot(player,turn,seat){
     knownRank6TrainerResponsesHeld:Object.values(heldResponses)
       .reduce((a,b)=>a+b,0),
     knownRank6CrushingHammerHeld:heldResponses['Crushing Hammer'],
+    opponentPublicEnergyCardCount:publicOpposingEnergyCards,
+    nativeCrushingHammerPreliminaryCanPlay:nativeCrushingHammerCanPlay,
     nativeSpecialEnergyPlayLocked:
       player.cannotPlaySpecialEnergyCards===true,
     nativeStadiumPlayLocked:player.cannotPlayStadiumCards===true,
@@ -89,7 +100,7 @@ function withShadowMistOwnerPassWitness(play,deps={}){
       state.phase===GamePhase.PLAYER_TURN &&
       owner?.id!==undefined &&
       !(state.prompts??[]).some(prompt=>prompt.result===undefined);
-    const before=capture?ownerSnapshot(owner,state.turn,seat):null;
+    const before=capture?ownerSnapshot(owner,state.turn,seat,this,state):null;
     const result=original.value.call(this,action,...rest);
     if(action?.constructor?.name==='AddPlayerAction' &&
        this.state.players?.length===1 &&
