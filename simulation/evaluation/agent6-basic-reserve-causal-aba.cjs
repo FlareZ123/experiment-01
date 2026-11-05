@@ -68,7 +68,7 @@ function run(){
           seed,rank3Seat,id:[seed,rank3Seat,spec.name].join(':'),
           mode:spec.pivot?'reserve-paid-pivot':'control',
           energyRecipient:true,reserveRecipient:spec.reserve,
-          captureTargets:true
+          captureTargets:true,captureAttackTrace:true
         },cards));
         const [a,b,c,d]=arms;
         const sameStart=arms.every(x=>
@@ -131,6 +131,48 @@ function run(){
     nativeChangedWinnersReservePaid:groups.filter(g=>
       g.rawArms[0].winner!==g.rawArms[2].winner).length
   };
+  const paidFollowthrough=groups.filter(g=>
+    g.nativePaidPhysicalRetreats.length>0).map(g=>{
+    const control=g.rawArms[0],treatment=g.rawArms[2];
+    const nativeRetreat=g.nativePaidPhysicalRetreats[0];
+    const firstRoot=nativeRetreat.authenticatedRootActionOrdinal;
+    const owner=nativeRetreat.ownerSeat;
+    const ownerAfter=(treatment.rootActionLedger??[]).filter(x=>
+      x.playerSlot===owner&&x.actionOrdinal>firstRoot);
+    const sourceAfter=(treatment.rootActionLedger??[]).filter(x=>
+      x.playerSlot!==owner&&x.turnBefore>nativeRetreat.turn);
+    const declaration=(treatment.nativeAttackDeclarationTrace??[])
+      .filter(x=>x.playerSlot===owner);
+    const transitions=(treatment.nativePublicAttackTransitions??[])
+      .filter(x=>x.triggerPlayerSlot===owner);
+    const originalDeclaration=(control.nativeAttackDeclarationTrace??[])
+      .filter(x=>x.playerSlot===owner);
+    return {
+      seed:g.seed,rank3Seat:g.rank3Seat,retreat:nativeRetreat,
+      sameTurnOwnerAttackRoots:ownerAfter.filter(x=>
+        x.action==='AttackAction'&&
+        x.turnBefore===nativeRetreat.turn).slice(0,5),
+      firstOwnerAttackRoots:ownerAfter.filter(x=>
+        x.action==='AttackAction').slice(0,10),
+      firstOpponentReplyRoots:sourceAfter.slice(0,12),
+      ownerAttackDeclarationCount:declaration.length,
+      firstNativeOwnerAttackDeclarations:declaration.slice(0,10),
+      nativeOwnerAttackTransitionCount:transitions.length,
+      firstNativeOwnerPublicAttackTransitions:transitions.slice(0,10),
+      controlOwnerAttackDeclarationCount:originalDeclaration.length,
+      ownerAttackRootTotal:ownerAfter.filter(x=>
+        x.action==='AttackAction').length,
+      originalEndReason:control.endReason,
+      treatmentEndReason:treatment.endReason,
+      originalActions:control.actions,
+      treatmentActions:treatment.actions,
+      originalGlobalTurns:control.globalTurns,
+      treatmentGlobalTurns:treatment.globalTurns,
+      originalFinalPublicBoard:control.finalPublicBoard,
+      treatmentFinalPublicBoard:treatment.finalPublicBoard,
+      paperFullLegalityCertified:false
+    };
+  });
   return {
     schema:VERSION,pinnedTwinleaf:PIN,
     originalSource60Sha256:SOURCE,reference60Sha256:REFERENCE,
@@ -138,7 +180,7 @@ function run(){
     actualNativeArms:arms.length,expectedNativeArms:32,
     allPhysicalStartsPaired:groups.every(g=>g.sameStart),
     allRepeatedControlsExact:groups.every(g=>g.exactControl),
-    totals,groups,competitivelyQualifiedGames:0,
+    totals,paidFollowthrough,groups,competitivelyQualifiedGames:0,
     limitations:'Small retrospective 2-original-rank native games; no full-paper 25-minute adjudication, qualified games, or 99.5% claim.'
   };
 }
@@ -151,6 +193,7 @@ if(require.main===module){
         allPhysicalStartsPaired:x.allPhysicalStartsPaired,
         allRepeatedControlsExact:x.allRepeatedControlsExact,
         totals:x.totals,
+        paidFollowthrough:x.paidFollowthrough,
         groups:x.groups.map(g=>({
           seed:g.seed,rank3Seat:g.rank3Seat,
           sameStart:g.sameStart,exactControl:g.exactControl,
