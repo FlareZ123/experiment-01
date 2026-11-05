@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 
-const VERSION = "agent37-aichi-995-paired-seat-and-actual-start-eprocess-v2";
+const VERSION = "agent37-aichi-995-fair-orientation-pair-eprocess-v3";
 const FIELD_RANKS = 32;
 const FIELD_TARGET = 0.995;
 const REQUIRED_RANK_WIN_RATE = 1 - FIELD_RANKS * (1 - FIELD_TARGET);
@@ -16,7 +16,9 @@ const BETS = Object.freeze([0.5, 1, 2, 3]);
  * 84% equal-actual-start null, nonwins in a complete two-start
  * block have expectation <= 0.32. Thus E[1 + b*(L-0.32) | prior completed blocks] <= 1.
  * For each precommitted b in BETS, the factor is nonnegative for L=0,1,2.
- * Neither independent seat assignment nor within-block independence is used.
+ * Dependence within a pair is unrestricted. Fair random orientation of the
+ * physical-seat/actual-start assignment is mandatory unless physical-seat
+ * outcome-invariance has been independently proven by another design.
  *
  * @param {number[]} logComponentWealth Log evidence for fixed bets.
  * @returns {number} Natural log of the equal-weight e-process mixture.
@@ -34,7 +36,9 @@ function mixtureLogEvidence(logComponentWealth) {
  * legitimate paper games, opponent competence, random deals or a match clock.
  *
  * @param {Array<{pairId:string,candidateId:string,originalRank:number,
- * pairingDesign:"SOURCE_SEAT_AND_ACTUAL_START_BALANCED",games:Array<{
+ * pairingDesign:"SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
+ * orientationAssignment:"INDEPENDENT_FAIR_COIN_PER_COMPLETE_PAIR",
+ * orientationCoin:0|1,games:Array<{
  * id:string,sourceSeat:0|1,candidateActualStart:"first"|"second",
  * qualification:"QUALIFIED",
  * outcome:"win"|"loss"|"tie"}>}>} blocks
@@ -62,6 +66,11 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       block.originalRank >= 1 && block.originalRank <= FIELD_RANKS);
     assert.equal(block.pairingDesign, "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
       "Actual-start-balanced evidence requires prospectively complete pairs");
+    assert.equal(block.orientationAssignment,
+      "INDEPENDENT_FAIR_COIN_PER_COMPLETE_PAIR",
+      "Each independent pair requires fair orientation randomization");
+    assert.ok(block.orientationCoin === 0 || block.orientationCoin === 1,
+      "Pair orientation must be a recorded fair coin result");
     assert.ok(Array.isArray(block.games) && block.games.length === 2,
       "A block must contain exactly two qualified games");
     const seats = new Set();
@@ -86,6 +95,10 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       assert.ok(["win", "loss", "tie"].includes(game.outcome));
       if (game.outcome !== "win") lossCount++;
     }
+    const seatZero = block.games.find(game => game.sourceSeat === 0);
+    assert.equal(seatZero.candidateActualStart,
+      block.orientationCoin === 0 ? "first" : "second",
+      "Pair orientation coin does not match its recorded actual starts");
     const state = ranks[block.originalRank - 1];
     state.completedPairs++;
     state.nonwins += lossCount;
@@ -130,11 +143,12 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
     paperQualificationVerifiedExternally: false,
     pretreatmentPairingVerifiedExternally: false,
     actualFirstTurnVerifiedExternally: false,
+    independentFairPairOrientationVerifiedExternally: false,
     fixedCandidateAndPoliciesVerifiedExternally: false,
     interpretation: firstCrossing ?
       "CONDITIONAL-EARLY-REJECTION; audit each game and pair independently" :
       "NO-EARLY-REJECTION; no positive win-rate certification",
-    caveat: "Self-asserted QUALIFIED, actual-start and paired-design labels provide no independent proof. A physical source seat does not establish actual first turn. Require one genuinely qualified candidate-first and candidate-second game in every completed pair, fresh conditional deals, and unchanged frozen policies; never omit the second game after the first result."
+    caveat: "Self-asserted QUALIFIED, actual-start and orientation labels provide no independent proof. Require genuine independent fair orientation coins per pair, one source seat 0/1 and actual candidate first/second in every completed pair, verified conditional deal distributions, unchanged frozen policies, and completion of the second game independent of the first result."
   };
 }
 
