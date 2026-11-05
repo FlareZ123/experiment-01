@@ -43,13 +43,9 @@ function withRegisteredSourceToolCounterfactual(next,deps={}){
   const Store=deps.Store??require(
     path.join(output,'game/store/store')).Store;
   const types=deps.types??(()=>{
-    const cardTypes=require(path.join(output,'game/store/card/card-types'));
-    return {
-      PlayCardAction:require(path.join(output,
-        'game/store/actions/play-card-action')).PlayCardAction,
-      PlayerType:cardTypes.PlayerType,
-      SlotType:cardTypes.SlotType
-    };
+    const {PlayCardAction,PlayerType,SlotType}=require(path.join(
+      output,'game/store/actions/play-card-action'));
+    return {PlayCardAction,PlayerType,SlotType};
   })();
   const tools=deps.catalog??(()=>{
     const cardTypes=require(path.join(output,'game/store/card/card-types'));
