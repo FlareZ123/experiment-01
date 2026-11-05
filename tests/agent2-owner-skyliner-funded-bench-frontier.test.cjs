@@ -76,3 +76,26 @@ test('no same-turn turn1 pivot and only Basic active qualifies',()=>{
   assert.equal(choose(a,catalog),null);
   assert.equal(choose(b,catalog),null);
 });
+
+test('opponent Active Snorlax PGO Block prohibits Skyliner Retreat despite zero cost',()=>{
+  const v=view(),unchanged=structuredClone(view());
+  v.opponentPublic.active={printing:'Snorlax PGO',abilities:['Block'],
+    abilityDetails:[{name:'Block',
+      text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}]};
+  const before=structuredClone(v);
+  assert.equal(choose(v,catalog),null);
+  assert.deepEqual(v,before);
+  assert.ok(choose(unchanged,catalog));
+});
+test('other public active opponent retreat-lock text conservatively vetoes',()=>{
+  const v=view();
+  v.opponentPublic.active={
+    printing:'Omastar MEW',abilities:['Primordial Tentacles'],
+    abilityDetails:[{name:'Primordial Tentacles',
+      text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}]
+  };
+  assert.equal(choose(v,catalog),null);
+  delete v.opponentPublic.active.abilityDetails;
+  assert.ok(choose(v,catalog),
+    'Only grounded printed active lock text is a general veto');
+});
