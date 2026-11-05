@@ -131,6 +131,12 @@ if(require.main===module){
       phase:x.phase,status:x.nativeStatus,
       attempted:x.actualOwnerPhysicalPromptSelections?.
         ownerPromptChoices??0,
+      nativeDecodeCalls:x.actualOwnerPhysicalPromptSelections?.
+        allNativeDecoderInvocations??0,
+      ownVoltPromptHits:x.actualOwnerPhysicalPromptSelections?.
+        ownVoltAttachPromptDecoderHits??0,
+      promptShapes:x.actualOwnerPhysicalPromptSelections?.
+        ownVoltPromptShapeDiagnostics??[],
       paperVerifiedPhysicalMoves:x.nativePrintedEffectVerifier?.
         livePaperVerifiedPhysicalEffect??0,
       paperInvalid:x.nativePrintedEffectVerifier?.
