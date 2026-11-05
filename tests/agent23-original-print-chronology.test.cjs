@@ -60,3 +60,14 @@ test('set-code collisions are unresolved rather than arbitrarily dated',()=>{
   assert.ok(result.unresolvedEnglishCodes.some(x=>x.code==='CRI'&&
     x.reason==='set-code-maps-to-multiple-sets'));
 });
+
+
+test('set ID fallback must not claim a specific promo printing existed at set launch',()=>{
+  const promos=[...sets,{id:'smp',ptcgoCode:'PR-SM',
+    releaseDate:'2017/02/03',name:'SM Black Star Promos'}];
+  const result=auditEnglishDisplayDates({decks:[
+    deck(7,'Palace Book',3,'SMP')]},promos);
+  assert.equal(result.datedEnglishCopies,0);
+  assert.ok(result.unresolvedEnglishCodes.some(x=>
+    x.code==='SMP'&&x.copies===3));
+});
