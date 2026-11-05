@@ -59,6 +59,14 @@ test('SFT full 60 and exact printed CEC189 are required, fail closed',()=>{
   assert.throws(()=>certify(shortened,printed));
   assert.throws(()=>certify({...source,rank:11},printed));
   assert.throws(()=>certify(source,printed.filter(x=>x.id!=='sm12-189')));
+  const noDce=structuredClone(source);
+  noDce.cards.find(c=>c.name==='Double Colorless Energy').count=0;
+  noDce.cards.find(c=>c.name==='Speed Lightning Energy').count=5;
+  assert.throws(()=>certify(noDce,printed));
+  const noThunder=structuredClone(source);
+  noThunder.cards.find(c=>c.name==='Thunder Mountain ♢').count=0;
+  noThunder.cards.find(c=>c.name==="Trainers' Mail").count=4;
+  assert.throws(()=>certify(noThunder,printed));
 });
 
 test('SFT no replacement across a nonexistent Energy pool',()=>{
