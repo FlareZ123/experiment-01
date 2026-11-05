@@ -197,6 +197,10 @@ jobs:
         if: ${{ inputs.fresh_bench_any_attack && !inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-fresh-one-basic-attachment-opportunity.cjs > agent2-fresh-one-basic-attachment-opportunity.json
+      - name: Audit original owner native effective retreat costs under Skyliner at genuine Pass roots
+        if: ${{ inputs.fresh_bench_any_attack && !inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
+        shell: bash
+        run: node simulation/evaluation/agent2-original-recipient-skyliner-effective-retreat.cjs > agent2-original-recipient-skyliner-effective-retreat.json
       - name: Verify native both-seat Basic Energy recipient A B A pure preflight
         if: ${{ inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
         run: node --test tests/agent6-rank1-rank3-energy-recipient-aba.test.cjs tests/agent44-actor-energy-recipient.test.cjs
@@ -235,6 +239,7 @@ jobs:
             agent2-fresh-multibasic-pass-cascade.json
             agent2-fresh-bench-any-attack-readiness.json
             agent2-fresh-one-basic-attachment-opportunity.json
+            agent2-original-recipient-skyliner-effective-retreat.json
             agent6-rank1-rank3-energy-recipient-aba.json
             agent6-recipient-plus-paid-retreat-aba.json
           if-no-files-found: warn
