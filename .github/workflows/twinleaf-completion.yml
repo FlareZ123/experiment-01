@@ -134,6 +134,9 @@ jobs:
         env:
           ISSUE25_STEWARD_V4_DIR: issue25-steward-v4
         run: node --test tests/agent36-issue25-steward-selected-v4.test.cjs tests/agent36-issue25-steward-selected-v4.native.test.cjs
+      - name: Validate Telepath authentic owner-deck search invariants
+        if: ${{ inputs.include_agent9_telepath_v6 }}
+        run: node --test tests/agent9-telepath-owner-choice.test.cjs
       - name: Run retrospective Agent36 owner Prize and promotion same-deal v4 versus v5
         if: ${{ inputs.include_agent36_prize_v5 }}
         env:
