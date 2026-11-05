@@ -67,7 +67,7 @@ function fixture(seat,deckCards){
   const store=new FakeStore(state),ai=new FakeAi(seat),lele=new TapuLeleGX();
   return {players,state,store,ai,lele};
 }
-function supporter(name){return {fullName:name,superType:1,trainerType:2};}
+function supporter(name){return {name,fullName:name,superType:1,trainerType:2};}
 for(const seat of [0,1]){
   test('seat '+seat+' confirms genuine Wonder Tag and chooses own Supporter',()=>{
     const other={fullName:'Basic Grass Energy',superType:3};
@@ -175,4 +175,44 @@ test('owner-confirm resolution bypasses an unrelated earlier opponent prompt',()
     assert.equal(opponentPrompt.result,undefined);
   },dependencies);
   assert.equal(audit.nativeAccepted,2);
+});
+
+
+test('optional owner-only strategy callback may select a different legal supporter',()=>{
+  const first=supporter('Carmine'),second=supporter('Marnie');
+  const f=fixture(1,[first,second]);
+  const seen=[];
+  const {audit}=withOwnerWonderTagPrompts(()=>{
+    f.lele.reduceEffect(f.store,f.state,
+      new PlayPokemonEffect(f.players[1],f.lele));
+    f.store.dispatch(f.ai.decodeNextAction(f.state));
+    const action=f.ai.decodeNextAction(f.state);
+    assert.deepEqual(action.result,[second]);
+    f.store.dispatch(action);
+    assert.deepEqual(f.players[1].hand,[second]);
+  },{...dependencies,selectSupporterIndex:context=>{
+    seen.push(context);
+    assert.equal(Object.isFrozen(context),true);
+    assert.equal(Object.isFrozen(context.choices),true);
+    assert.deepEqual(context.choices.map(c=>c.name),['Carmine','Marnie']);
+    assert.deepEqual(Object.keys(context).sort(),['choices','globalTurn']);
+    return 1;
+  }});
+  assert.equal(seen.length,1);
+  assert.equal(audit.customSelectorInstalled,true);
+  assert.equal(audit.selectedSupporters,1);
+});
+test('unoffered custom Supporter index fails closed before Store mutation',()=>{
+  const f=fixture(0,[supporter('Carmine')]);
+  const original=FakeAi.prototype.decodeNextAction;
+  assert.throws(()=>withOwnerWonderTagPrompts(()=>{
+    f.lele.reduceEffect(f.store,f.state,
+      new PlayPokemonEffect(f.players[0],f.lele));
+    f.store.dispatch(f.ai.decodeNextAction(f.state));
+    f.ai.decodeNextAction(f.state);
+  },{...dependencies,selectSupporterIndex:()=>2}),
+  /unoffered index/);
+  assert.equal(FakeAi.prototype.decodeNextAction,original);
+  assert.equal(f.players[0].hand.length,0);
+  assert.equal(f.players[0].deck.cards.length,1);
 });
