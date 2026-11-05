@@ -21,7 +21,7 @@ test('owner-only observer selects actual registered source Pass and restores nat
   const originalDecode=FakeAi.prototype.decodeNextAction;
   const caught=[];
   const headless={runMatch(request){
-    const sourceSeat=request.label.startsWith('6:')?0:1;
+    const sourceSeat=request.label.endsWith('6:source')?0:1;
     const state={
       turn:sourceSeat===0?2:8,activePlayer:sourceSeat,
       players:[{id:100},{id:101}],prompts:[],
