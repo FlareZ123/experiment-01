@@ -275,5 +275,6 @@ jobs:
             agent6-rank1-rank3-energy-recipient-aba.json
             agent6-recipient-plus-paid-retreat-aba.json
             agent6-recipient-paid-pass-cascade.json
+            agent6-original-recipient-paid-reserve-native.json
           if-no-files-found: warn
           retention-days: 14
