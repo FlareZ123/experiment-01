@@ -279,6 +279,20 @@ jobs:
         env:
           ISSUE25_V8_RECEIPT_DIR: artifacts/issue25-v8-prechoice
         run: node --test tests/agent1-issue25-prechoice-input-custody-v8.native.test.cjs
+      - name: Pure protected same-opening Wonder Tag provenance and wrapper regression
+        run: node --test tests/agent1-issue25-protected-wondertag-v10.test.cjs
+      - name: Retrospective exact original eight protected opening plus owner printed Wonder Tag A/B
+        env:
+          ISSUE25_V10_RECEIPT_DIR: artifacts/issue25-v10-protected-wondertag
+        run: node --test tests/agent1-issue25-protected-wondertag-v10.native.test.cjs
+      - name: Archive all Wonder Tag A/B including errors and root caps
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v10-protected-wondertag-${{ github.run_id }}
+          path: artifacts/issue25-v10-protected-wondertag/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Archive all observed trial-linked and unlinked evidence status
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
