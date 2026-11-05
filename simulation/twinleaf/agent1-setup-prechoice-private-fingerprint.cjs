@@ -101,6 +101,8 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     preRunRequestScope:'HMAC of own public runMatch request, including registered seed, deck A/B native printings and all JSON-serializable research options',
     exactPhysicalSixtyPrintedCountComparisons:0,
     exactPhysicalSixtyPrintedCountMatches:0,
+    firstTurnBoardObservations:0,
+    firstTurnBoardEvents:[],
     hiddenCardNamesOrOrderPublished:false,
     fingerprintScheme:'HMAC-SHA256; secret unique to process, never serialized',
     comparableOnlyInsideOneNodeProcess:true,
@@ -126,6 +128,35 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
       audit.exactNativeStoreRootsRecorded=storeCount;
     }
     if(action instanceof AddPlayerAction)lastRealStore=this;
+    const info=stores.get(this);
+    const state=this.state;
+    if(info&&!info.firstTurnObserved&&
+      state?.phase===GamePhase.PLAYER_TURN&&state.turn===1&&
+      Array.isArray(state.players)&&state.players.length===2&&
+      !state.prompts?.some(prompt=>prompt.result===undefined)){
+      const boards=state.players.map((player,seat)=>{
+        const active=player.active.getPokemonCard();
+        const benched=player.bench.map(slot=>slot.getPokemonCard());
+        const publicCards=[active?.fullName??null,
+          ...benched.map(card=>card?.fullName??null)];
+        return {
+          physicalOwnerSeat:seat,
+          activePresent:active!==undefined&&active!==null,
+          benchOccupied:benched.filter(Boolean).length,
+          publicBoardHmacSha256:privateFingerprint(
+            JSON.stringify(publicCards))
+        };
+      });
+      info.firstTurnObserved=true;
+      audit.firstTurnBoardObservations++;
+      audit.firstTurnBoardEvents.push({
+        registeredNativeTrialId:info.trialId,
+        nativeFirstPlayerSeat:state.activePlayer,
+        nativeStoreOrdinal:info.ordinal,
+        beforeFirstNativeTurnAction:true,
+        boards
+      });
+    }
     return priorStore.value.apply(this,[action,...args]);
   }
   function decode(state){
