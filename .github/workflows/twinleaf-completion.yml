@@ -103,6 +103,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent4_rank6_mail_prompt_v2:
+        description: 'Original rank6 same Mail Store fork plus exact owner-only native top-four prompt receipt'
+        required: false
+        type: boolean
+        default: false
       include_agent4_rank6_mail_fork:
         description: 'Retrospective original rank6 first-owner-turn Pass14 to held Trainers Mail native one-Item fork'
         required: false
@@ -129,7 +134,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent3_rank11_letter_owner_search }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent3_rank11_letter_owner_search && !inputs.include_agent4_rank6_mail_prompt_v2 && !inputs.include_agent4_rank6_mail_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -452,7 +457,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 21
   original-v5-owner-pass-observation:
-    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent3_rank11_letter_owner_search || inputs.include_agent4_rank6_mail_fork }}
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent3_rank11_letter_owner_search || inputs.include_agent4_rank6_mail_fork || inputs.include_agent4_rank6_mail_prompt_v2 }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -538,3 +543,24 @@ jobs:
           path: agent4-rank6-mail-fork-native.json
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify native-owned top-four Mail selection and reversible Store hooks
+        if: ${{ inputs.include_agent4_rank6_mail_prompt_v2 }}
+        run: |
+          node --check simulation/twinleaf/agent4-mail-owner-prompt-native.cjs
+          node --check simulation/evaluation/agent4-rank6-mail-owner-prompt-v2.cjs
+          node --test tests/agent4-rank6-mail-owner-prompt-v2.test.cjs
+      - name: Replay original source rank6 Mail with native owner-prompt and physical transfer
+        if: ${{ inputs.include_agent4_rank6_mail_prompt_v2 }}
+        env:
+          AGENT4_RANK6_MAIL_PROMPT_V2_OUTPUT: agent4-rank6-mail-prompt-v2-native.json
+        run: node simulation/evaluation/agent4-rank6-mail-owner-prompt-v2.cjs
+      - name: Preserve original owner Mail prompt cards and all native negative outcomes
+        if: ${{ always() && inputs.include_agent4_rank6_mail_prompt_v2 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-mail-owner-top4-v2-native
+          path: |
+            agent4-rank6-mail-prompt-v2-native.json
+            agent4-rank6-mail-prompt-v2-native.json.sha256
+          if-no-files-found: warn
+          retention-days: 14
