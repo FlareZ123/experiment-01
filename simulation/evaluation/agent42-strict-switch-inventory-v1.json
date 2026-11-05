@@ -28,7 +28,7 @@
       "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 127,
+  "keyCount": 128,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
@@ -145,6 +145,7 @@
     "AGENT7_OWNER_GENERIC_TRAINER_FRONTIER_DEV",
     "AGENT7_OWNER_SUPPORTER_AUDIT_DEV",
     "AGENT7_PASS_ATTACK_PROBE_TURN",
+    "AGENT7_PLUMERIA_PRESERVE_MAIL_DEV",
     "AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV",
     "AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV",
     "AGENT7_RONDO_PSYCHIC_BENCH_DEV",
@@ -292,6 +293,13 @@
       "kind": "actor-opt-in",
       "firstVerifiedSource": "simulation/twinleaf/agent13-actor-only-choose-attack.cjs",
       "sourceInterpretation": "literal true enables opt-in public-context flat copied-attack decision mode in owner attack-choice adapter; does not certify damage or payoff"
+    }
+  },
+  "reviewedNewEnvironmentKeys20261105": {
+    "AGENT7_PLUMERIA_PRESERVE_MAIL_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent4-plumeria-after-pass.cjs",
+      "sourceInterpretation": "Default-off explicit true selects an alternate exact two-card owner-hand payment only inside an authentic, already chosen Plumeria mandatory discard prompt; keeps one Trainers' Mail when opposing public board has no visible Special Energy and an eligible Enhanced Hammer is physically held. Native prompt validator still decides legality; not a strategy or paper-game certification."
     }
   }
 }
