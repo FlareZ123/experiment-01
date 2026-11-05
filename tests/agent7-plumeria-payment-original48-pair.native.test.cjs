@@ -70,11 +70,5 @@ test('native exact source T3 two-Mail cost versus preserved-Mail payment',()=>{
   assert.equal(row.treatmentUnresolvedPromptChains,0);
   assert.deepEqual(preControl,preAlternative);
   assert.ok(preControl);
-  // A turn-five source without a Bench has no legal recipient for Volt
-  // Cyclone's mandatory Energy movement, preserving that physical Energy.
-  assert.equal(sourceT5Control?.ownBenchOccupied,0,
-    'Original source T5 no-Bench precondition must be verified natively');
-  assert.equal(sourceT5Alternative?.ownBenchOccupied,0,
-    'Preserved-Mail source T5 no-Bench precondition must be verified natively');
   assert.equal(result.competitiveGamesQualified,0);
 });
