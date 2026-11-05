@@ -252,6 +252,15 @@ function runFourNativeCampaigns(){
       policyEntryPoint:
         'simulation/evaluation/agent1-issue25-prechoice-input-custody-v8.cjs'
     });
+    // The public receipt schema stores the Native source-deal digest in its
+    // original raw development row. Join by authenticated trial ID, never
+    // ordinal or printed source prefix, and preserve posterror nulls.
+    const rawById=new Map(execution.rawDevelopment.rows.map(raw=>
+      [raw.trial.id,raw]));
+    assert.equal(rawById.size,8);
+    for(const row of receipt.attempts)
+      row.sourceDealFingerprint=
+        rawById.get(row.id)?.sourceDealFingerprint??null;
     return {...plan,receipt,
       witness:execution.diagnostic.actualNativePrechoicePhysicalInputs};
   });
