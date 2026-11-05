@@ -71,10 +71,31 @@ function ownerInputsById(witness,ids){
   assert.equal(witness?.firstOwnerSetupInputsObserved,16);
   assert.equal(witness?.exactPhysicalSixtyPrintedCountMatches,16);
   assert.equal(witness?.registeredNativeTrialLabelWitnessSelected,true);
-  const expected=new Set(ids),byKey=new Map();
+  const expected=new Set(ids),byKey=new Map(),storeOrdinalByTrial=new Map();
+  const trialByOrdinal=new Map();
   for(const event of witness.events){
     assert.ok(expected.has(event.registeredNativeTrialId));
     assert.ok(event.physicalOwnerSeat===0||event.physicalOwnerSeat===1);
+    assert.ok(Number.isSafeInteger(event.nativeStoreOrdinal)&&
+      event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=ids.length);
+    assert.ok(event.nativeFirstPlayerSeat===0||event.nativeFirstPlayerSeat===1);
+    assert.equal(event.noPolicyChoiceOrHiddenNamesPublished,true);
+    assert.ok(event.ownerHandCount>=0&&event.ownerDeckCount>=0&&
+      event.ownerPrizeCount>=0&&
+      event.ownerHandCount+event.ownerDeckCount+
+        event.ownerPrizeCount===60);
+    const priorOrdinal=storeOrdinalByTrial.get(event.registeredNativeTrialId);
+    if(priorOrdinal!==undefined)
+      assert.equal(event.nativeStoreOrdinal,priorOrdinal,
+        'Both owners of a registered native trial must share one Store');
+    else storeOrdinalByTrial.set(event.registeredNativeTrialId,
+      event.nativeStoreOrdinal);
+    const priorTrial=trialByOrdinal.get(event.nativeStoreOrdinal);
+    if(priorTrial!==undefined)
+      assert.equal(event.registeredNativeTrialId,priorTrial,
+        'One native Store must have one registered trial ID');
+    else trialByOrdinal.set(event.nativeStoreOrdinal,
+      event.registeredNativeTrialId);
     assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
     assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
     assert.equal(event.firstBeforeAnyOwnerSetupChoice,true);
@@ -86,6 +107,17 @@ function ownerInputsById(witness,ids){
     byKey.set(key,event);
   }
   assert.equal(byKey.size,16);
+  assert.equal(storeOrdinalByTrial.size,ids.length);
+  assert.equal(trialByOrdinal.size,ids.length);
+  for(const id of ids){
+    const left=byKey.get(id+':0'),right=byKey.get(id+':1');
+    assert.ok(left&&right);
+    assert.equal(left.nativeFirstPlayerSeat,right.nativeFirstPlayerSeat,
+      'Both owners of a registered native trial must agree on the first player');
+    assert.equal(left.opaquePreRunRequestHmacSha256,
+      right.opaquePreRunRequestHmacSha256,
+      'Both owners must witness one genuine registered native request');
+  }
   return byKey;
 }
 
@@ -106,8 +138,9 @@ function compareProtectedWonderTagV10(baseline,treatment){
   assert.equal(new Set(ids).size,8);
   const left=baseline.diagnostic.actualNativePrechoicePhysicalInputs;
   const right=treatment.diagnostic.actualNativePrechoicePhysicalInputs;
-  const pairableSession=left.privateFingerprintSessionId===
-    right.privateFingerprintSessionId;
+  const pairableSession=typeof left.privateFingerprintSessionId==='string'&&
+    left.privateFingerprintSessionId.length>0&&
+    left.privateFingerprintSessionId===right.privateFingerprintSessionId;
   const a=ownerInputsById(left,ids),b=ownerInputsById(right,ids);
   const attempts=execution=>{
     const raw=execution.diagnostic.attemptedRows;
