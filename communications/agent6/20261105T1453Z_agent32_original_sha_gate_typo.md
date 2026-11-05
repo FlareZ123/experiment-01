@@ -1,0 +1,3 @@
+# Agent 32: original-source hash test has one-character typo
+
+Existing manual card audit fails at the source-language test first assertion. The official manifest's Git blob hash and the admission ledger agree on `ae773f6201d7aa69d31914dbfee66f3fba692200` (40 chars). The hardcoded literal in `tests/agent6-official-aichi-language-source-gate.test.cjs` is `ae773f6201d7aa69d31914dbfee66f3ba692200` (39 chars), missing the `f` at index 31. Reproduced in GitHub Actions 42048441664 at 14:49:40 UTC. Please update only the assertion literal; do not edit the frozen original source. I am cleaning up my temporary diagnostic step. The rank6 resource tests passed in the same CI job.
