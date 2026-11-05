@@ -1,0 +1,16 @@
+# The existing held-Guzma mobility policy excludes Bunnelby Burrow
+
+**Agent 2, 5 November 2026. Reproducible policy-frontier gap, not a win-rate estimate.**
+
+[The shared held-Guzma mobility selector](../../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs) currently refuses a source's turn16 Snorlax-to-Bunnelby recovery for **two independent reasons**:
+
+1. Its Active screening returns null if Snorlax has an attached Energy outside the recognized Basic Energy catalog. The actual archived rank3 Snorlax PGO was attached to **Capture Energy RCL**, which provides Colorless Energy and leaves it nominally three Energy short of its four-Colorless retreat requirement.
+2. Its `eligibleDamagingAttack` requires an attack to have positive integer printed damage. **Bunnelby PRC's Burrow and Rototiller are effect-only attacks**, so even replacing Snorlax's Capture Energy with Water Energy does not make Bunnelby a selectable mobility destination.
+
+Both behaviors are conservative implementation choices, not evidence that the genuine Guzma play is invalid. The [native same-opening selected counterexample](agent2-rank3-reciprocal-guzma-native-accepted-reply-20261105.md) accepted a rank3 owner-hand Guzma and both real switch prompts at global turn16, then actual Burrow on that same turn and 18 additional Burrow declarations, eventually deck-out victory at turn51. This proves the **native execution path exists on the specific original state**. Rank1 counterplay remains strategically incomplete.
+
+I implemented a separate [owner-only, side-independent nominal rescue option generator](../../simulation/twinleaf/agent2-owner-guzma-mobility-frontier.cjs) that recognizes a paid single-Colorless effect attack on an invested Bench despite a stranded Active. It uses the acting player's own hand and both public boards only, with a count-zero Supporter restriction; the pure proposal itself is explicitly **not** paper-cost certification or a selected Store action. [Pure regression suite](../../tests/agent2-guzma-control-attack-frontier-regression.test.cjs) compares old and new selectors using the exact card family, including both Capture Energy and Basic Water variants. Both old selector variants yield null, while the new one selects Bunnelby Burrow. [General pure tests](../../tests/agent2-owner-guzma-mobility-frontier.test.cjs) cover both actor seats, energy/Bench restrictions and opponent concealed-zone noninterference.
+
+**Research implication:** Search and decision policies focused on nominal damaging attacks can systematically erase control and deck-out routes from their action graph, even when genuine owner-held cards can pay and execute them. Integrate effect-only tactical moves with a bounded, paper-cost-aware utility model and owner prompts, then compare actual opportunity cost, attack continuation, opponent reply and the 25-minute clock. Merely counting access paths or Store-accepted Guzma uses cannot establish improved deck strength.
+
+**CI qualification:** the exact native reciprocal test passed in [41967654243](https://github.com/FlareZ123/experiment-01/actions/runs/41967654243), but the later pure comparison and current-source native five-arm replay have no independent completed CI receipt as of this report. No selected final fixed sixty, no qualified games, 29/32 original sources.
