@@ -59,7 +59,8 @@ function publicAttempt(row){
     row.rootActionLedger:(row.nativeAbortEvidence?.rootActionLedger??[]);
   return {
     id:row.trial?.id??null,
-    sourceSeat:row.sourceSeat??row.nativeAbortProvenance?.sourceSeat??null,
+    sourceSeat:row.sourceSeat??row.nativeAbortProvenance?.sourceSeat??
+      row.nativeAbortEvidence?.sourceDealFingerprint?.seat??null,
     candidateSeat:row.candidateSeat??null,
     status:row.status??(row.finished?'native-terminal-unqualified':
       'returned-unqualified'),
@@ -71,6 +72,8 @@ function publicAttempt(row){
     finished:row.finished??null,
     sourceAttackDeclarations:row.sourceAttackSettlement?.attacks?.length??null,
     nativeAbortPrompt:row.nativeAbortEvidence?.pendingPrompt??null,
+    nativeAbortStage:row.nativeAbortEvidence?.failureStage??null,
+    nativeAbortOrdinal:row.nativeAbortEvidence?.actionOrdinal??null,
     roots:roots.map(root=>({
       ordinal:root.actionOrdinal,turn:root.turnBefore,
       seat:root.playerSlot,action:root.action,
@@ -111,7 +114,11 @@ function runCaptureRetrospective96(){
       controlRootCount:(old.rootActionLedger??old.nativeAbortEvidence?.rootActionLedger??[]).length,
       treatmentRootCount:(row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[]).length,
       sourceAttackDeclarations:
-        row.sourceAttackSettlement?.attacks?.length??null
+        row.sourceAttackSettlement?.attacks?.length??null,
+      controlAbortStage:old.nativeAbortEvidence?.failureStage??null,
+      treatmentAbortStage:row.nativeAbortEvidence?.failureStage??null,
+      controlAbortOrdinal:old.nativeAbortEvidence?.actionOrdinal??null,
+      treatmentAbortOrdinal:row.nativeAbortEvidence?.actionOrdinal??null
     };
   });
   const matchingDeals=pairing.every(row=>
