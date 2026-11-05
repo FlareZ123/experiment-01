@@ -76,7 +76,8 @@ test('source conditions block root without silently choosing',()=>{
   for(const modify of [
     s=>{s.activePlayer=1;},
     s=>{s.turn=15;},
-    s=>{s.players[0].supporterTurn=16;},
+    s=>{s.players[0].supporterTurn=1;},
+    s=>{s.players[0].supporterTurn=2;},
     s=>{s.players[0].cannotPlaySupporterCards=true;},
     s=>{s.players[0].hand.cards=[];},
     s=>{s.players[0].bench[0].energies.cards=[];},
