@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      issue25_v14_only:
+        description: Run Agent3 owner ChoosePokemon after modal and Prize A/B/A
+        type: boolean
+        required: false
+        default: false
       issue25_resource_only:
         description: Only run registered two-seat source Energy and evolution gate
         type: boolean
@@ -39,7 +44,7 @@ permissions:
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_resource_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -160,7 +165,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_resource_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -246,7 +251,7 @@ jobs:
           retention-days: 30
 
   issue25-v8-prechoice:
-    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true }}
+    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -414,5 +419,39 @@ jobs:
         with:
           name: issue25-v13-protected-modal-prize-${{ github.run_id }}
           path: artifacts/issue25-v13-owner-modal-prize/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-v14-owner-pokemon-aba:
+    if: ${{ inputs.issue25_v14_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install native pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure owner Pokemon source custody and A/B/A gates
+        run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.test.cjs
+      - name: Genuine native ChoosePokemon prompt owner intervention A/B/A
+        env:
+          AGENT3_V14_OUTPUT_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.native.test.cjs
+      - name: Archive all owner Pokemon public outcomes including error and cap
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v14-owner-pokemon-${{ github.run_id }}
+          path: artifacts/issue25-v14-owner-pokemon/
           if-no-files-found: warn
           retention-days: 30
