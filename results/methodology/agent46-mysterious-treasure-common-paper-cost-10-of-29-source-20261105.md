@@ -32,3 +32,18 @@ An additional [read-only genuine native physical Item zone observer](../../simul
 The source mandatory payment can now be independently screened in a shared policy-level paper contract and has passed genuine staged native tests. The observed anomaly in printed Item cleanup is potentially broader engine fidelity work, but until the physical zone observer settles it, **do not claim the complete Item effect is paper-valid**.
 
 No implication for deck strength or full original-source matches is established: still **29/32** authenticated opposing 60s (ranks23/25/28 missing), **zero competitively qualified games**, **no fixed best 60**, and no 99.5% win-rate evidence. The tactical research priority remains a playable, same-deal opponent/source attack/control payoff with meaningful return and full continuation, especially after original Iron Thorns first-turn DCE-to-Bench migration.
+
+## Subsequent genuine physical-zone observation (21:38 UTC)
+
+The no-policy-modification, two-seat [native zone observer](../../simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs) **passed** in [GitHub Actions 42114145538](https://github.com/FlareZ123/experiment-01/actions/runs/42114145538) after actual pinned compilation and all paper tests. It tracked the *same actual physical Item object* through three native accepted actions for each source seat:
+
+| Genuine Store event, both seats | Original Item in hand? | In temporary Supporter/Trainer play zone? | In discard? | Unresolved native prompts |
+|---|---|---|---|---|
+| Before source FLI `PlayCardAction` | yes | no | no | 0 |
+| After accepted source Item root | no | **yes** | no | 1 |
+| After accepted mandatory payment `ResolvePromptAction` | no | **yes** | no | 1 |
+| After accepted owner-deck selection `ResolvePromptAction` | no | **yes** | no | **2** |
+
+The zone sequence is **identical in both physical source seats**. The native paid Energy is physically in the discard pile and the searched Regidrago V is in owner hand, but the sampled effect has **two outstanding prompts** and a still-temporary played Item. The previous `itemDiscarded=false` was therefore observed **before complete prompt closure** and must not be described as a proven persistent Item cleanup bug. The pinned engine's delayed `waitPrompt` cleanup is a plausible explanation; whether the Item reaches its proper discard pile after resolving *all remaining prompts* remains untested.
+
+A second observer run with only additional **read-only pending prompt class metadata** is queued separately; it should identify what prevents cleanup, without deciding or resolving prompts for the player. All full-game, owner competence and paper-payment completeness gates remain unchanged.
