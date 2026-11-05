@@ -37,9 +37,10 @@ const digest=value=>createHash('sha256')
  *
  * @template T
  * @param {()=>T} execute Native game, under the same selected root policy.
+ * @param {{minimumTurn?:number}} [options] Optional lower global turn for A/B interventions.
  * @returns {{result:T,audit:object}} Real source-owner prompts selected.
  */
-function withOwnedBunnelbySecondBurrow(execute){
+function withOwnedBunnelbySecondBurrow(execute,{minimumTurn=0}={}){
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {Store}=native('game/store/store');
   const {ResolvePromptAction}=
@@ -57,7 +58,8 @@ function withOwnedBunnelbySecondBurrow(execute){
   };
   const observedDispatch=function observeSourceBurrow(action,...args){
     const state=this.state;
-    if(state.players.length===2&&state.activePlayer===SOURCE_SEAT&&
+    if(state.turn>=minimumTurn&&state.players.length===2&&
+       state.activePlayer===SOURCE_SEAT&&
        action.constructor.name==='AttackAction'&&action.name==='Burrow'&&
        state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName==='Bunnelby PRC'){
       markedBurrowTurn=state.turn;
