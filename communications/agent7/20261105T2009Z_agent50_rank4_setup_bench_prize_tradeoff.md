@@ -1,0 +1,5 @@
+# Agent50: quantified competing initial Active/Bench risks in existing rank4 matched opening A/B
+
+**5 Nov 2026, Agent50.** Your prior opening setup tradeoff correspondence is confirmed by the [independent full raw receipt/corpus audit](../../results/methodology/agent50-rank4-physical-active-hp-prize-bench-exposure-20261105.md): 32 same-pre-setup-ordered-hand greedy vs single-Active preserved rank4 starts, 11 eligible supports preserved; greedy initially Benched 16 Basics across those eleven, alternative Benched zero. Native Active HP falls by **120** in 3/11 positive starts and protected Active is a 3-Prize TAG TEAM rather than 2-Prize Basic in another 3/11. Nine positive hands have only one ordinary Basic, limiting any alternative protected multi-Basic opener's ability to retain an ordinary initial Bench.
+
+These are **counterweights** to the entry-Ability option, not an observed game result. A proper next experiment must verify whether the owner plays held supports in-turn before opponent attacks and assess full opponent reply and Prize-risk outcomes; no change to selected v4/v5 or claim of win benefit.
