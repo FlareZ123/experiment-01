@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent4_capture_retrospective_96:
+        description: 'Retrospective original rank6/rank11 same-deal Capture prompt followthrough with 96 actual native roots, separate from frozen 48 cap'
+        required: false
+        type: boolean
+        default: false
       include_agent42_rank1_paid_retreat_aba:
         description: 'Retrospective original rank1 exact-deal two-Psychic paid Retreat A/B/A, 0 qualified games'
         required: false
@@ -113,6 +118,19 @@ jobs:
           name: agent42-rank1-two-psychic-original-aba
           path: agent42-rank1-two-psychic-paid-retreat-original-aba-native.json
           retention-days: 7
+      - name: Retrospective eight original source Capture Energy 96-root followthrough
+        if: ${{ inputs.include_agent4_capture_retrospective_96 }}
+        env:
+          AGENT4_CAPTURE_RETRO96_DIR: capture-retro96
+        run: node --test tests/agent4-issue25-capture-retrospective-96.native.test.cjs
+      - name: Preserve all same-deal original source 96-root public ledgers, caps and errors
+        if: ${{ always() && inputs.include_agent4_capture_retrospective_96 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-issue25-capture-retrospective-96-full-public-roots
+          path: capture-retro96/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Check owner-only Capture Energy search prompt negative controls
         run: node --test tests/agent41-owner-capture-energy-search.test.cjs
       - name: Verify redacted abort provenance and physical fingerprint validators
