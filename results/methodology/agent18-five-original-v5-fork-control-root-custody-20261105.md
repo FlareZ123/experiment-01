@@ -18,7 +18,7 @@ Input index: [five known prior native forks](../aichi-2026/registrations/agent18
 | Agent7 paid Plumeria | `6:100:A:champion-reference`, seat1, turn3 | 22 | **Verified** |
 | Agent7 Crushing Hammer | `6:100:A:champion-reference`, seat1, turn7 | 36 | **Verified** |
 
-Four actual original trial/registration labels are **not** involved; the five entries occupy **three distinct original source Pass positions**, because rank11's two different interventions share a physical root and Agent7's two roots occur on successive turns within the same original rank6 trial. The five root entries are deliberately *not independent games*, and no combined successful-match denominator can be derived.
+The five entries represent **four distinct original source Pass positions across three original trials**. Rank11's two different interventions share one physical root37, while Agent7's two interventions examine root22 and root36 of the same rank6 original trial. The five entries are deliberately *not independent games*, and no combined successful-match denominator can be derived.
 
 The audit requires: exactly one original archived row with the declared ID; `publicRootActionsTruncated===false`; reported action count equals actual array length; the independently recalculated `sha256(JSON.stringify(publicRootActions))` equals **both** source archive digest fields; explicit original archive digest-consistency flag; matching original source seat, exact source-deal and full two-player deal fingerprints; the indexed source original action is truly a physical `PassTurnAction` by that owner at that same global turn; and the independent hash of all accepted roots before that original Pass equals the indexed frozen pre-root prefix SHA.
 
