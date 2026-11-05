@@ -69,7 +69,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Audit paper Tool payment, physical custody and next-turn opponent reply
-        run: node --test tests/agent42-root-gap-floatstone-custody.test.cjs tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs
+        run: node --test tests/agent42-root-gap-floatstone-custody.test.cjs tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs tests/agent42-two-psychic-retreat-physical-custody.test.cjs
       - name: Install upstream server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
