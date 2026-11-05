@@ -162,3 +162,17 @@ jobs:
           path: agent49-rank11-first-letter-owner-search-native.json
           retention-days: 21
           if-no-files-found: warn
+      - name: Regress first-turn source attack original native root action custody
+        run: node --test tests/agent49-rank11-first-letter-attack-root-observer.test.cjs
+      - name: Observe exact accepted source attack after source-owned Letter search
+        env:
+          AGENT49_FIRST_FAMILY_ATTACK_AUDIT: agent49-rank11-first-letter-attack-root-native.json
+        run: node simulation/evaluation/agent49-rank11-first-letter-attack-root-observer.cjs
+      - name: Save original physical source turn attack root and pending prompt stages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-rank11-first-letter-attack-roots
+          path: agent49-rank11-first-letter-attack-root-native.json
+          retention-days: 21
+          if-no-files-found: warn
