@@ -17,9 +17,10 @@ const native=file=>require(path.join(output,file));
  * effect fixture. It is never a naturally dealt 60-card game or win sample.
  * @param {0|1} actorSeat
  * @param {number} available
+ * @param {boolean} [includePrizes]
  * @returns {object}
  */
-function stageNativeSource(actorSeat,available){
+function stageNativeSource(actorSeat,available,includePrizes=true){
   const manager=initializeCards();
   const physical=name=>{
     const card=manager.getCardByName(name);
@@ -53,7 +54,7 @@ function stageNativeSource(actorSeat,available){
   // including Lost Zone, back into the deck. Represent the six Prize cards
   // actually required in a normal Expanded match before testing Get Lost.
   const {CardList}=native('game/store/state/card-list');
-  for(const player of [actor,opponent]){
+  if(includePrizes)for(const player of [actor,opponent]){
     for(let i=0;i<6;i++){
       const slot=new CardList();
       slot.cards.push(physical('Psychic Energy SVE'));
@@ -156,3 +157,38 @@ for(const actorSeat of [0,1]){
     });
   }
 }
+
+test('invalid zero-Prize control triggers sudden death and relocates prior Lost Zone cards to deck',()=>{
+  const observed=withSourceStampedGetLostOwner(()=>{
+    const f=stageNativeSource(0,1,false);
+    assert.equal(f.actor.getPrizeLeft(),0);
+    assert.equal(f.opponent.getPrizeLeft(),0);
+    const {AttackEffect}=native('game/store/effects/game-effects');
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    f.store.reduceEffect(f.state,new AttackEffect(
+      f.actor,f.opponent,f.girafarig.attacks[0]));
+    const bot=Object.create(SimpleTacticsAi.prototype);
+    bot.client={id:f.actor.id};
+    const action=bot.decodeNextAction(f.state);
+    assert.ok(action instanceof ResolvePromptAction);
+    f.store.dispatch(action);
+    // The paper-game-ineligible zero-Prize fixture triggers the native
+    // tie / sudden-death reset AFTER resolving the selected card's effect.
+    // Sudden death gathers every zone (including Lost Zone) into the deck.
+    assert.equal(f.opponent.lostzone.cards.length,0);
+    assert.ok(f.opponent.deck.cards.includes(f.selected[0]));
+    assert.equal(f.opponent.discard.cards.length,0);
+    assert.equal(f.opponent.active.cards.length,0);
+    console.log('AGENT1_GETLOST_EMPTY_PRIZES_NEGATIVE_CONTROL',
+      JSON.stringify({prizes:0,opponentDeckAfter:f.opponent.deck.cards.length,
+        opponentLostZoneAfter:f.opponent.lostzone.cards.length,
+        stillInOpponentDeck:f.opponent.deck.cards.includes(f.selected[0]),
+        inference:'paper-invalid zero-Prize reset; never a Get Lost destination test'}));
+    return true;
+  },{followSequentialNativeStores:true});
+  assert.equal(observed.result,true);
+  assert.equal(observed.audit.postDispatchLostZoneTransferUnverified,1);
+  assert.equal(observed.audit.competitiveGamesQualified,0);
+});
