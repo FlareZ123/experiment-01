@@ -45,7 +45,7 @@ Source data:
 - Pinned native engine **`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`**. Original row ends at the root48 cap.
 - Agent35 independently already proved **turn8 Pass37** paper-payable Letter targets and native Store-accepted item root, [Actions 42082575236](https://github.com/FlareZ123/experiment-01/actions/runs/42082575236). Its fork **aborted immediately after accepting the Item**, before the owner deck search prompt, physical Energy transfer or opponent reply. This is a material engineering blocker for our proposed earlier line as well.
 
-For local replay the exact two original JSON members were unpacked from their artifacts; the pure proof returned `guaranteedOriginalBasicInDeck:2`, `guaranteedBasicDarknessEnergyInDeck:2`, `availableBenchSpaces:3` using Node 22.16.0. **This is only a necessary printed-card/zone argument**. It does not establish complete paper effects, an actual chosen move, prompt settlement, full game legality, a native turn2 attack, beneficial tactical preference, or a qualified match.
+For local replay the exact two original JSON members were unpacked from their artifacts. An independently assembled equivalent pure checker on Node 22.16.0 returned **two guaranteed Basic Pokémon, two guaranteed Darkness Energy and three open Bench spaces**. The separately committed repo script has not been executed in compiled-native CI. **This is only a necessary printed-card/zone argument**. It does not establish complete paper effects, an actual chosen move, prompt settlement, full game legality, a native turn2 attack, beneficial tactical preference, or a qualified match.
 
 ## Next experiment most capable of changing a real game
 
