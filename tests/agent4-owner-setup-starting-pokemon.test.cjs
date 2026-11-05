@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseOwnerStartingPokemon,chooseOwnerBonusBench,
+const {SETTLEMENT_CODE,chooseOwnerStartingPokemon,chooseOwnerBonusBench,
   withOwnerStartingPokemon:starting}=
   require('../simulation/twinleaf/agent4-owner-setup-starting-pokemon.cjs');
 const {CODE,withNativeRawStateFallbackQuarantine:quarantine}=
@@ -219,5 +219,96 @@ test('bonus Bench decline tolerates a genuine start-of-turn card draw',()=>{
     assert.equal(owner.hand.cards.at(-1).fullName,'first-turn topdeck');
   }finally{
     Object.defineProperty(Store.prototype,'dispatch',old);
+  }
+});
+
+class ControlledStartingStore extends Store{
+  constructor(state,mode){super(state);this.mode=mode;}
+  dispatch(action){
+    if(!(action instanceof ResolvePromptAction))
+      return super.dispatch(action);
+    const prompt=this.state.prompts.find(p=>p.id===action.id);
+    if(this.mode==='no-op')return this.state;
+    if(this.mode==='remove-unresolved'){
+      this.state.prompts=[];
+      return this.state;
+    }
+    if(this.mode==='result-only'){
+      prompt.result=action.result;
+      return this.state;
+    }
+    if(this.mode==='resolve-remove'){
+      const result=super.dispatch(action);
+      this.state.prompts=[];
+      return result;
+    }
+    throw new Error('Unknown controlled Store mode');
+  }
+}
+
+test('both-seat initial and bonus prompts reject nonthrowing native silent no-ops',()=>{
+  for(const seat of [0,1])for(const min of [0,1]){
+    for(const mode of ['no-op','remove-unresolved','stale-before-dispatch']){
+      const game=fixture(seat,[1],'CHOOSE_STARTING_POKEMONS',min);
+      const store=new ControlledStartingStore(game.store.state,
+        mode==='stale-before-dispatch'?'no-op':mode);
+      assert.throws(()=>starting(()=>{
+        store.dispatch(new AddPlayerAction());
+        const action=game.bot.decodeNextAction(store.state);
+        if(mode==='stale-before-dispatch')store.state.prompts=[];
+        store.dispatch(action);
+      },{...deps,Store:ControlledStartingStore}),error=>{
+        assert.equal(error.code,SETTLEMENT_CODE);
+        const row=error.ownerStartingPokemonAudit;
+        assert.equal(row.selected,1);
+        assert.equal(row.accepted,0);
+        assert.equal(row.settled,0);
+        assert.equal(row.unsettled,1);
+        assert.equal(row.returnedWithoutThrow,1);
+        assert.equal(row.rejected,0);
+        return true;
+      });
+      assert.equal(game.bot.nativeReads,0);
+    }
+  }
+});
+
+test('both-seat setup prompts settle after native removal and verify zones',()=>{
+  for(const seat of [0,1])for(const min of [0,1]){
+    const game=fixture(seat,[1],'CHOOSE_STARTING_POKEMONS',min);
+    const store=new ControlledStartingStore(game.store.state,'resolve-remove');
+    const r=starting(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(game.bot.decodeNextAction(store.state));
+    },{...deps,Store:ControlledStartingStore});
+    assert.equal(r.audit.selected,1);
+    assert.equal(r.audit.accepted,1);
+    assert.equal(r.audit.settled,1);
+    assert.equal(r.audit.unsettled,0);
+    assert.equal(r.audit.returnedWithoutThrow,1);
+    assert.equal(r.audit.physicalVerificationFailed,0);
+    assert.equal(r.audit.acceptedInitial,min===1?1:0);
+    assert.equal(r.audit.acceptedBonusDecline,min===0?1:0);
+    assert.deepEqual(store.state.prompts,[]);
+  }
+});
+
+test('both-seat resolved initial prompt without physical Active is not accepted',()=>{
+  for(const seat of [0,1]){
+    const game=fixture(seat,[1]);
+    const store=new ControlledStartingStore(game.store.state,'result-only');
+    assert.throws(()=>starting(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(game.bot.decodeNextAction(store.state));
+    },{...deps,Store:ControlledStartingStore}),error=>{
+      assert.equal(error.name,'AssertionError');
+      const row=error.ownerStartingPokemonAudit;
+      assert.equal(row.settled,1);
+      assert.equal(row.unsettled,0);
+      assert.equal(row.accepted,0);
+      assert.equal(row.physicalVerificationFailed,1);
+      assert.equal(row.physicallyPlacedActiveMissing,1);
+      return true;
+    });
   }
 });
