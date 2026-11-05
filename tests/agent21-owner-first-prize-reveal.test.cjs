@@ -42,9 +42,10 @@ function slots(){
   });
 }
 function fixture(actorId,opts={}) {
-  const players=[{id:11,prizes:slots()},{id:22,prizes:slots()}];
+  const players=[{id:11,prizes:slots(),hand:{cards:[]}},
+    {id:22,prizes:slots(),hand:{cards:[]}}];
   const owner=players.find(p=>p.id===actorId);
-  const prompt=new ChoosePrizePrompt(owner,opts);
+  const prompt=new ChoosePrizePrompt(owner,{destination:owner.hand,...opts});
   return {state:{phase:3,turn:6,players,prompts:[prompt]},
     owner,prompt};
 }
@@ -67,7 +68,8 @@ test('genuinely forbidden/foreign Prize prompts remain quarantined',()=>{
   const bot=new Bot(11);
   for(const opts of [
     {blocked:[0]},{useOpponentPrizes:true},{allowCancel:true},
-    {count:0},{count:7}
+    {count:0},{count:7},{destination:undefined},
+    {destination:null},{destination:{cards:[]}}
   ]){
     const x=fixture(11,opts);
     assert.throws(()=>withNativeRawStateFallbackQuarantine(
@@ -102,3 +104,24 @@ test('after physically valid Prize proposal, next root still fails closed',()=>{
   });
   assert.strictEqual(Bot.prototype.decodeNextAction,original);
 });
+
+for(const [actorId,seat] of [[11,0],[22,1]]) {
+  test('non-KO same-message Prize reveal, swap or Burst-GX cannot borrow KO fallback seat '+seat,()=>{
+    const bot=new Bot(actorId);
+    const x=fixture(actorId,{destination:undefined});
+    const p=x.prompt;
+    assert.equal(p.message,'CHOOSE_PRIZE_CARD');
+    assert.equal(p.options.count,1);
+    assert.equal(p.options.allowCancel,false);
+    assert.equal(p.options.useOpponentPrizes,false);
+    assert.deepEqual(p.options.blocked,[]);
+    assert.throws(()=>withNativeRawStateFallbackQuarantine(
+      ()=>withOwnerFirstPrizeReveal(()=>bot.decodeNextAction(x.state),deps),
+      {SimpleTacticsAi:Bot}),{code:CODE});
+    const ko=fixture(actorId);
+    const good=withOwnerFirstPrizeReveal(
+      ()=>bot.decodeNextAction(ko.state),deps);
+    assert.equal(good.result.id,31);
+    assert.equal(good.audit.bySeat[seat],1);
+  });
+}
