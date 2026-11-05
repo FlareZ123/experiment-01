@@ -1,0 +1,290 @@
+{
+  "schema": "agent42-rootgap-native-evidence-projection-v1",
+  "rawArtifact": {
+    "runId": 41721961645,
+    "runAttempt": 2,
+    "artifactId": 13382192381,
+    "zipSha256": "4d5a2c0a90d743e43718620d10372e71d9aca92ab2e7480946dccd82c5643fe2",
+    "rawSha256": "49bfff9519e3200f0a9045b5da6aeb5b29bba434ecf52e79818788db5263e1bb"
+  },
+  "trial": {
+    "id": "1:432:A:new-moon-lockbreaker-v1",
+    "seed": 884910343,
+    "sourceSeat": 1
+  },
+  "sourceDealFingerprint": "d01cc8df7c45e58555fbd461302eda34262a5137085ca34b6c9353482339ab5c",
+  "fullPhysicalDealFingerprint": "3f9fdc797ebba2872d6f661d5830f729219cb7f13b136d0abf0f18d22da60eae",
+  "matchedControlRootSha256": "d3716c4bc11f892a2b998b575193f7f7d41c55819db546e3aad7c2d85fa2db24",
+  "selectedRootSha256": "e75bbc1ff372d513bd38dc1173a5495a3cc0cddd5d3ef0e97764aa5f25ddc68a",
+  "baselineRoot163": {
+    "actionOrdinal": 163,
+    "turnBefore": 34,
+    "playerSlot": 1,
+    "action": "UseAbilityAction",
+    "ability": "Underworld Door"
+  },
+  "baselinePass166": {
+    "actionOrdinal": 166,
+    "turnBefore": 34,
+    "playerSlot": 1,
+    "action": "PassTurnAction"
+  },
+  "rootActionLedger": [
+    {
+      "actionOrdinal": 163,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "PlayCardAction",
+      "card": "Float Stone",
+      "pendingPrompt": null
+    },
+    {
+      "actionOrdinal": 164,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "RetreatAction",
+      "pendingPrompt": null
+    },
+    {
+      "actionOrdinal": 165,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "UseAbilityAction",
+      "pendingPrompt": null
+    },
+    {
+      "actionOrdinal": 166,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "WaitPrompt"
+    },
+    {
+      "actionOrdinal": 167,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "AttachEnergyPrompt"
+    },
+    {
+      "actionOrdinal": 168,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "AttackAction",
+      "attack": "Max Geist",
+      "pendingPrompt": null
+    },
+    {
+      "actionOrdinal": 169,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "WaitPrompt"
+    },
+    {
+      "actionOrdinal": 170,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "ChoosePrizePrompt"
+    },
+    {
+      "actionOrdinal": 171,
+      "turnBefore": 34,
+      "playerSlot": 0,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "ChoosePokemonPrompt"
+    },
+    {
+      "actionOrdinal": 172,
+      "turnBefore": 34,
+      "playerSlot": 1,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "WaitPrompt"
+    },
+    {
+      "actionOrdinal": 173,
+      "turnBefore": 35,
+      "playerSlot": 0,
+      "action": "ResolvePromptAction",
+      "pendingPrompt": "WaitPrompt"
+    },
+    {
+      "actionOrdinal": 174,
+      "turnBefore": 35,
+      "playerSlot": 0,
+      "action": "PlayCardAction",
+      "card": "Unown",
+      "pendingPrompt": null
+    },
+    {
+      "actionOrdinal": 175,
+      "turnBefore": 35,
+      "playerSlot": 0,
+      "action": "AttackAction",
+      "attack": "Joust",
+      "pendingPrompt": null
+    }
+  ],
+  "nativeAcceptedTargetSidecar": {
+    "events": [
+      {
+        "rootActionOrdinal": 163,
+        "playerSlot": 1,
+        "action": "PlayCardAction",
+        "storeAccepted": true,
+        "declared": {
+          "ownerHandPrinting": "Float Stone BKT"
+        },
+        "publicBoardChanges": [
+          {
+            "seat": 1,
+            "position": "active",
+            "index": 0,
+            "before": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": []
+            },
+            "after": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": [
+                "Float Stone BKT"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "rootActionOrdinal": 164,
+        "playerSlot": 1,
+        "action": "RetreatAction",
+        "storeAccepted": true,
+        "declared": {
+          "ownerHandPrinting": null
+        },
+        "publicBoardChanges": [
+          {
+            "seat": 1,
+            "position": "active",
+            "index": 0,
+            "before": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": [
+                "Float Stone BKT"
+              ]
+            },
+            "after": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": []
+            }
+          },
+          {
+            "seat": 1,
+            "position": "bench",
+            "index": 2,
+            "before": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": []
+            },
+            "after": {
+              "pokemon": "Shadow Rider Calyrex VMAX CRE",
+              "energies": [
+                "Psychic Energy MEE",
+                "Psychic Energy MEE"
+              ],
+              "tools": [
+                "Float Stone BKT"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "sourceAttackSettlement": {
+    "attacks": [
+      {
+        "actionOrdinal": 168,
+        "attackName": "Max Geist",
+        "settledPromptChain": true,
+        "settlementCrossesClockReset": false,
+        "completionRootOrdinal": 173,
+        "prizesBefore": [
+          6,
+          6
+        ],
+        "prizesAfter": [
+          6,
+          5
+        ],
+        "publicBoardBefore": [
+          {},
+          {
+            "active": {
+              "name": "Shadow Rider Calyrex VMAX",
+              "energyCards": [
+                "Psychic Energy",
+                "Psychic Energy",
+                "Psychic Energy"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "sameBenchIndexTypedDoorPrompts": [
+    {
+      "promptId": 107,
+      "seat": 1,
+      "turn": 34,
+      "energyPrinting": "Psychic Energy MEE",
+      "benchIndex": 2,
+      "accepted": true
+    },
+    {
+      "promptId": 109,
+      "seat": 1,
+      "turn": 34,
+      "energyPrinting": "Psychic Energy MEE",
+      "benchIndex": 2,
+      "accepted": true
+    }
+  ],
+  "opponentJoustSettlement": {
+    "actionOrdinal": 175,
+    "settledPromptChain": true,
+    "prizesBefore": [
+      6,
+      5
+    ],
+    "prizesAfter": [
+      6,
+      5
+    ],
+    "sourceActiveDamageBefore": 0,
+    "sourceActiveDamageAfter": 10
+  }
+}
