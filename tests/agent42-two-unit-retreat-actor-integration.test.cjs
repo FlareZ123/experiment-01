@@ -80,9 +80,20 @@ test('genuine native-neutral canonical root maps opt-in payment to RetreatAction
     constructor(){this.client={id:101};}
     decodeNextAction(){throw Error('Must not fall back to hidden bot');}
   }
+  // Native-root dispatch auditing calls publicPlayer for each seat.
+  // Synthetic players need the native-visible zone shape even though this
+  // test exercises only action mapping, not physical Retreat settlement.
+  const zone=()=>({cards:[]});
+  const slot=()=>({cards:[],energies:zone(),tools:[],
+    getPokemonCard:()=>undefined});
+  const player=id=>({
+    id,active:slot(),bench:[slot()],
+    stadium:zone(),discard:zone(),lostzone:zone(),supporter:zone(),
+    hand:zone(),deck:zone(),prizes:[]
+  });
   class Store{
     constructor(){this.state={turn:34,activePlayer:0,phase:2,
-      players:[{id:101},{id:202}],prompts:[]};}
+      players:[player(101),player(202)],prompts:[]};}
     dispatch(){return 'native-accepted';}
   }
   const beforeBot=SimpleTacticsAi.prototype.decodeNextAction;
