@@ -93,6 +93,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent35_rank11_letter_fork:
+        description: 'Single original rank11 source Pass37 real Professor Letter native Store fork, developmental only'
+        required: false
+        type: boolean
+        default: false
       include_agent35_v5_owner_pass_replay:
         description: 'Frozen eight-arm source-owner Pass physical hand and board observation, no deck wins'
         required: false
@@ -109,7 +114,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -426,7 +431,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 21
   original-v5-owner-pass-observation:
-    if: ${{ inputs.include_agent35_v5_owner_pass_replay }}
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -447,16 +452,34 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify original-v5 root integrity and synthetic owner-custody controls
+        if: ${{ inputs.include_agent35_v5_owner_pass_replay }}
         run: node --test tests/agent35-issue25-v5-pass-integrity.test.cjs tests/agent35-v5-owner-pass-observation-replay.test.cjs tests/agent31-bilateral-all-owner-pass-evidence.test.cjs
       - name: Replay entire original eight native v5 with owner-only post-choice Pass audit
+        if: ${{ inputs.include_agent35_v5_owner_pass_replay }}
         env:
           AGENT35_V5_OWNER_PASS_REPLAY_OUTPUT: agent35-v5-original-owner-pass.json
         run: node simulation/evaluation/agent35-v5-owner-pass-observation-replay.cjs
       - name: Preserve full original-source Pass observations and any partial result
-        if: ${{ always() }}
+        if: ${{ always() && inputs.include_agent35_v5_owner_pass_replay }}
         uses: actions/upload-artifact@v4
         with:
           name: agent35-v5-original-owner-pass-native
           path: agent35-v5-original-owner-pass.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Verify selected rank11 source Professor Letter physical fork contract
+        if: ${{ inputs.include_agent35_rank11_letter_fork }}
+        run: node --test tests/agent35-rank11-source-letter-pass37-fork.test.cjs
+      - name: Replay exact eight original source deals with one rank11 owner-held Letter Item
+        if: ${{ inputs.include_agent35_rank11_letter_fork }}
+        env:
+          AGENT35_RANK11_LETTER_FORK_OUTPUT: agent35-rank11-letter-fork-native.json
+        run: node simulation/evaluation/agent35-rank11-source-letter-pass37-fork.cjs
+      - name: Preserve original source Letter chosen-root and all negative native outcomes
+        if: ${{ always() && inputs.include_agent35_rank11_letter_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-rank11-source-professor-letter-fork
+          path: agent35-rank11-letter-fork-native.json
           retention-days: 14
           if-no-files-found: warn
