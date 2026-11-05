@@ -55,13 +55,14 @@ function discardPenalty(card,knownOwnerList,turn){
  * @param {object[]} cards Prompt's genuine physical owner hand cards.
  * @param {string[]} knownOwnerList Owner's printed 60.
  * @param {number} globalTurn Native turn.
+ * @param {number} [maxPenalty=40] Cost cutoff; Infinity is feasibility only.
  * @returns {object[]}
  */
-function selectTwoDiscardables(cards,knownOwnerList,globalTurn){
+function selectTwoDiscardables(cards,knownOwnerList,globalTurn,maxPenalty=40){
   return cards
     .map((card,i)=>({card,i,score:discardPenalty(card,knownOwnerList,
       globalTurn)}))
-    .filter(x=>x.score<=40)
+    .filter(x=>x.score<=maxPenalty)
     .sort((a,b)=>a.score-b.score||a.i-b.i)
     .slice(0,2)
     .map(x=>x.card);
@@ -132,6 +133,8 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
   const play=deps.playActions??native('game/store/actions/play-card-action');
   const Resolve=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
+  const maxPenalty=deps.maxDiscardPenalty??40;
+  assert.ok(typeof maxPenalty==='number'&&!Number.isNaN(maxPenalty)&&maxPenalty>=0);
   const beforeBot=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
   const beforeStore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof beforeBot?.value,'function');
@@ -152,6 +155,8 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
     ownerDeckSearchAccepted:0,
     physicalRetrievedCards:0,
     sourceIndependentBothSeats:true,
+    developmentalDiscardCostCeiling:Number.isFinite(maxPenalty)?
+      maxPenalty:'unbounded-feasibility-only',
     rejectedNativeProposals:0,
     nativeSourceActionErrors:[],
     boundedEvents:[],paperPlayableLineProven:false,
@@ -173,7 +178,8 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
       token.payment.proven=true;
       audit.physicalTwoCardPayments++;
       log({kind:'two-card-physical-payment',seat:token.seat,
-        globalTurn:token.turn});
+        globalTurn:token.turn,
+        publiclySettledDiscardPrintings:cards.map(c=>c.fullName)});
     }
   }
 
@@ -329,7 +335,7 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
     if(token.stage==='mode'&&ownPrompt?.id===token.modePromptId&&
        ownPrompt.constructor?.name==='SelectOptionPrompt'){
       const eligible=selectTwoDiscardables(owner.hand.cards,
-        registered[seat],state.turn);
+        registered[seat],state.turn,maxPenalty);
       const usePaid=eligible.length===2&&
         ownPrompt.validate(1,state);
       const mode=usePaid?1:0;
@@ -341,7 +347,7 @@ function withNativeHalaAfterActualTagCall(registered,execute,deps={}){
        ownPrompt.message==='CHOOSE_CARD_TO_DISCARD'&&
        ownPrompt.cards===owner.hand){
       const chosen=selectTwoDiscardables(ownPrompt.cards.cards,
-        registered[seat],state.turn);
+        registered[seat],state.turn,maxPenalty);
       assert.equal(chosen.length,2,
         'G&H paid mode was selected without two preserved owner discardables');
       assert.ok(ownPrompt.validate(chosen,state));
