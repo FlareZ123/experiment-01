@@ -160,7 +160,7 @@ test('genuine held TagCall to G&H to native paid three-category search, both phy
     assert.equal(observed.audit.modeChoiceAccepted.paid,1);
     assert.equal(observed.audit.physicalTwoCardPayments,1);
     assert.equal(observed.audit.physicalRetrievedCards,3);
-    assert.deepEqual(observed.result.hand,[THUNDER,DCE,FAN,'Other Item TEST']);
+    assert.deepEqual(observed.result.hand,['Other Item TEST',THUNDER,DCE,FAN]);
     assert.ok(observed.result.discard.includes(HALA));
     assert.strictEqual(Ai.prototype.decodeNextAction,botBefore);
     assert.strictEqual(Store.prototype.dispatch,storeBefore);
