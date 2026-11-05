@@ -194,10 +194,8 @@ if(require.main===module){
     path.basename(output)+'\n');
   process.stdout.write('AGENT4_POSTSETUP_MAIL_ABA '+JSON.stringify({
     gates:value.gates,
-    afterSetupPolicy:v=>undefined,
     nativeRequestProtocol:value.afterSetupNativeRequestAudit
       .actualNativeRequests.map(x=>[x.id,x.phase,x.nativeStatus,x.observedProtocol]),
-    originalSourceHeldMail:v=>undefined,
     ownerMailCounts:value.mailAba.bilateralMailAudit.actualMailItemRootsBySeat,
     ownerMailSettlements:value.mailAba.bilateralMailAudit.nativeStoreResolvedBySeat,
     rank6:value.rank6PublicContinuations,
