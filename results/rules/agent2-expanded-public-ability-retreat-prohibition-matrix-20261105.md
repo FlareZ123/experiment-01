@@ -31,6 +31,10 @@ The current minimal correction, `opponentActiveBlocksRetreat(view)`, rejects opp
 
 Current validation: native [CI42125962073](https://github.com/FlareZ123/experiment-01/actions/runs/42125962073) shows both old 8-group historical control and new 8-group fresh original seed-seat A/B/A cohorts complete without illegal typed actions; the original winning positive seed remains unchanged; all 8 fresh treatment root ledgers exactly equal baseline and no new legal opportunity appeared. This validates the observed Snorlax source failure, not every possible Expanded board.
 
+## Switching is a separate paper-legal escape channel
+
+In the *same original rank1* 60, the deck inventory includes **one Guzma BUS115** and **one Float Stone BKT137**. Snorlax Block prohibits voluntary `RetreatAction` regardless of whether Latias ex Skyliner or Float Stone makes the numerical retreat fee zero. The supplied Advanced Player's Rulebook section C-03 distinguishes switching by card effect from retreating and expressly allows a Switch effect even while the Active Pokémon cannot retreat. A Guzma effect may therefore move the stranded Active in a state with eligible opposing Bench and own Bench, subject to Guzma's exact card text, Supporter-per-turn contention, availability in hand/access and other relevant restrictions. **This option was not proven held, selected or native-Store executed in the failed seed.** A stronger policy must evaluate switching, gusting and Supporter contention as separate choices, instead of treating an impossible zero-cost retreat as the only mobility route.
+
 ## Release recommendation
 
 Expose **known retreat restriction** separately from **computed Energy cost** in a general owner-visible mobility planner and retain a native Store acceptance check. Use source-visible face-up information and a reviewed rule abstraction for conditional lock presence; avoid treating public card-name adjacency alone as proof that an Ability is currently active. A policy that rejects every apparent lock may miss legitimate Stealthy Hood or Ability-suppression counter-lines; a policy that trusts fee-only will attempt illegal actions in commonplace Block states.
