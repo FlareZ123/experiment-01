@@ -129,6 +129,8 @@ function withOwnerFirstTurnDedechange(run,config){
       [...actor.hand.cards]:null;
     const discardBefore=saved.kind==='confirm'?
       [...actor.discard.cards]:null;
+    const lostBefore=saved.kind==='confirm'?
+      [...actor.lostzone.cards]:null;
     const deckCountBefore=saved.kind==='confirm'?
       actor.deck.cards.length:null;
     let result;
@@ -173,8 +175,12 @@ function withOwnerFirstTurnDedechange(run,config){
       !after.hand.cards.includes(card));
     const handSurvivors=handBefore.filter(card=>
       after.hand.cards.includes(card));
+    const sentToLostZone=handBefore.filter(card=>
+      after.lostzone.cards.includes(card)&&
+      !after.hand.cards.includes(card));
     const drawn=deckCountBefore-after.deck.cards.length;
     const discardGain=after.discard.cards.length-discardBefore.length;
+    const lostZoneGain=after.lostzone.cards.length-lostBefore.length;
     const event={seat:saved.seat,turn:saved.turn,
       card:saved.card.fullName,
       confirmPromptNativeResult:saved.prompt.result,
@@ -183,12 +189,16 @@ function withOwnerFirstTurnDedechange(run,config){
       ownerHandBefore:handBefore.map(c=>c.fullName),
       ownerHandAfter:after.hand.cards.map(c=>c.fullName),
       ownDiscardedOriginalHand:discarded.map(c=>c.fullName),
+      ownOriginalHandSentToLostZone:sentToLostZone.map(c=>c.fullName),
       ownHandCardsPersisted:handSurvivors.map(c=>c.fullName),
       handBeforeCount:handBefore.length,
       handAfterCount:after.hand.cards.length,
       discardBeforeCount:discardBefore.length,
       discardAfterCount:after.discard.cards.length,
       ownDiscardGain:discardGain,
+      lostZoneBeforeCount:lostBefore.length,
+      lostZoneAfterCount:after.lostzone.cards.length,
+      ownLostZoneGain:lostZoneGain,
       deckBeforeCount:deckCountBefore,
       deckAfterCount:after.deck.cards.length,
       ownerDeckCardsDrawn:drawn,
@@ -198,8 +208,9 @@ function withOwnerFirstTurnDedechange(run,config){
     audit.abilityEvents.push(event);
     const physicalSettled=samePending&&stillBenched&&
       handSurvivors.length===0&&
-      discarded.length===handBefore.length&&
-      discardGain===handBefore.length&&
+      discarded.length+sentToLostZone.length===handBefore.length&&
+      discardGain===discarded.length&&
+      lostZoneGain===sentToLostZone.length&&
       drawn>=0&&drawn<=6&&
       after.hand.cards.length===drawn;
     if(samePending)audit.confirmedDedechange++;
