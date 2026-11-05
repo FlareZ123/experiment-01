@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4a-attached-energy-settlement';
+const VERSION='agent39-paper-prompt-portfolio-v4b-bench-pokemon-settlement';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -41,7 +41,8 @@ function verdictVoltCyclone(state,prompt,result,types){
      to.slot!==SlotType.BENCH||!Number.isSafeInteger(to.index)||
      to.index<0||to.index>=owner.bench.length||
      !Array.isArray(owner.bench[to.index]?.cards)||
-     owner.bench[to.index].cards.length===0)
+     typeof owner.bench[to.index].getPokemonCard!=='function'||
+     !owner.bench[to.index].getPokemonCard())
     return {valid:false,reason:'recipient-not-occupied-own-bench'};
   // Native validator disagreement is separate from independent printed geometry.
   return {valid:true,reason:'printed-one-active-energy-to-own-bench'};
