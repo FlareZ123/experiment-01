@@ -73,12 +73,14 @@ function run(){
     attempts.push({mode:spec.mode,seat,packet,error});
   }
   const failures=attempts.filter(row=>row.error!==null);
+  const familyAudit=require('./agent6-tool-jammer-fan-muscle-native.cjs').run();
+  for(const issue of familyAudit.failures)failures.push(issue);
   return {
     version:'agent6-bilateral-native-tool-jammer-20261105-v1',
     wrapperVersion:VERSION,enginePin:PIN,
-    stagedNativeCases:attempts.length,
+    stagedNativeCases:attempts.length+familyAudit.stagedNativeCases,
     failures,failedChecks:failures.length,
-    attempts,competitiveQualifiedGames:0,
+    attempts,toolFamilyAudit:familyAudit,competitiveQualifiedGames:0,
     nativeDevelopmentOnly:true
   };
 }
