@@ -80,7 +80,7 @@ function audit(control,treatment){
       assert.equal(row.publicRootLedgerSha256Computed,
         sha(Buffer.from(JSON.stringify(tape))),
         current.id+': '+label+' computed ledger mismatch');
-      if(row.publicRootLedgerSha256Reported!==null)
+      if(row.publicRootLedgerSha256Reported!=null)
         assert.equal(row.publicRootLedgerSha256Reported,
           row.publicRootLedgerSha256Computed,
           current.id+': '+label+' reported ledger mismatch');
