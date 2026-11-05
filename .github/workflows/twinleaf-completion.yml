@@ -509,6 +509,27 @@ jobs:
           path: agent35-rank11-letter-fork-native.json
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify rank11 late-match owner-deck Letter prompt v3 typed controls
+        if: ${{ inputs.include_agent35_rank11_letter_fork }}
+        run: |
+          node --check simulation/twinleaf/agent35-letter-owner-match-late-hook.cjs
+          node --check simulation/evaluation/agent35-rank11-letter-owner-late-v3.cjs
+          node --test tests/agent35-owner-letter-search.test.cjs
+      - name: Native same-source rank11 Letter search after canonical late match v3
+        if: ${{ inputs.include_agent35_rank11_letter_fork }}
+        env:
+          AGENT35_LETTER_MATCH_LATE_V3_OUTPUT: agent35-original-letter-late-v3-native.json
+        run: node simulation/evaluation/agent35-rank11-letter-owner-late-v3.cjs
+      - name: Preserve rank11 late owner-deck Letter physical Store outcome
+        if: ${{ always() && inputs.include_agent35_rank11_letter_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-rank11-original-letter-late-v3
+          path: |
+            agent35-original-letter-late-v3-native.json
+            agent35-original-letter-late-v3-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Agent3 source-Letter native actor-only exact-card prompt contract
         if: ${{ inputs.include_agent3_rank11_letter_owner_search }}
         run: |
