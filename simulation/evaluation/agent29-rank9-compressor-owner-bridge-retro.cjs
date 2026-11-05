@@ -41,8 +41,17 @@ function run({anyTurn=false}={}){
     process.env[k]=v;
   }
   try{
-    const control=runDevelopment(options(false,{anyTurn}));
-    const treatment=runDevelopment(options(true,{anyTurn}));
+    // The pinned native ShuffleDeckPrompt uses lexicographic sort().
+    // In the separately labeled v2 cohort apply the existing research-owned
+    // numeric-permutation validator symmetrically to BOTH policy arms.
+    // Historical v1 remains bit-for-bit unsupplemented by this adapter.
+    const runArm=enabled=>anyTurn?
+      require('../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
+        .withNumericShufflePromptValidation(()=>
+          runDevelopment(options(enabled,{anyTurn}))):
+      {result:runDevelopment(options(enabled,{anyTurn})),audit:null};
+    const left=runArm(false),right=runArm(true);
+    const control=left.result,treatment=right.result;
     assert.equal(control.attempted,4);
     assert.equal(treatment.attempted,4);
     const pairs=control.rows.map((a,i)=>{
@@ -61,6 +70,8 @@ function run({anyTurn=false}={}){
         rootAudit:audit,sourceCompressorRootAccepted:
           audit?.nativeAcceptedCompressor??null,
         sourceEnergyMoved: audit?.nativeSettledDeckToDiscard??null,
+        sourceShufflesSettled:audit?.nativeSettledShuffles??null,
+        nonEnergyEmergencySelections:audit?.nonEnergyEmergencySelections??null,
         baselineWin:a.winner??null,treatmentWin:b.winner??null,
         baselineStatus:a.status??null,treatmentStatus:b.status??null};
     });
@@ -68,6 +79,12 @@ function run({anyTurn=false}={}){
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
     return {version:anyTurn?LATE_VERSION:VERSION,source,
       anyTurn,enginePin:profile.pinnedVendorRevision,
+      numericShufflePaperAdapter:anyTurn?{
+        version:'agent33-native-shuffle-numeric-validation-hook-v1',
+        control:left.audit,treatment:right.audit,
+        bothArmsCorrected:true,
+        historicalV1NotComparableWithoutQualification:true
+      }:null,
       researchHead:process.env.GITHUB_SHA??null,
       matchedPhysicalGroups:4,actualAttempts:8,
       allAudited,allDealsMatch,
@@ -75,6 +92,8 @@ function run({anyTurn=false}={}){
         (n,x)=>n+(x.sourceCompressorRootAccepted??0),0),
       totalSourcePhysicalEnergyMoved:pairs.reduce(
         (n,x)=>n+(x.sourceEnergyMoved??0),0),
+      totalSourceShuffleSettlements:pairs.reduce(
+        (n,x)=>n+(x.sourceShufflesSettled??0),0),
       pairs,control,treatment,competitiveQualifiedGames:0,
       studyType:'historically reused original source seeds; development only'};
   }finally{
@@ -101,6 +120,8 @@ if(require.main===module){
       nativeRejected:p.rootAudit?.nativeRejectedCompressor??null,
       prompts:p.rootAudit?.ownerDeckPromptDecisions??null,
       energyMoved:p.rootAudit?.nativeSettledDeckToDiscard??null,
+      shufflesSettled:p.rootAudit?.nativeSettledShuffles??null,
+      nonEnergyFallback:p.rootAudit?.nonEnergyEmergencySelections??null,
       example:p.rootAudit?.events?.[0]??null})))+'\\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_COMPRESSOR '+
     JSON.stringify({matched:data.allDealsMatch,audited:data.allAudited,
