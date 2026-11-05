@@ -55,6 +55,10 @@ The pure CommonJS implementation [paired-seat analyzer](../../simulation/evaluat
 - A contrasting seat-skewed boundary `q_0=0.32, q_1=0` yields `P(L=1)=0.32, P(L=0)=0.68`, and every component's expected factor is at most 1. Testing the same data with an individual-game fair-seat e-process would be invalid.
 - Twenty thousand synthetic all-loss blocks produce finite log e-values without overflow.
 
+## Seeded physical-shuffle coupling in treatment comparisons
+
+[Agent4's compiled physical RNG study](../methodology/agent4-native-shared-shuffle-rng-coupling-20261105.md) shows pinned headless shares one seeded physical-shuffle stream across the two players. An added source search can shift later candidate shuffle randomness despite the same initial physical two-player deal. This alone does **not** refute the paired e-process when each complete fresh block has the correct target-game conditional mean and no selective censoring. It **does** undermine exact-seed treatment/control causal claims attributing divergent later draws only to a changed source action. Paired interventions should separately preregister per-player random streams or document later physical RNG perturbations; identical initial fingerprints cannot certify identical future randomness.
+
 ## Scope, failures, and usage
 
 This is a **falsification-only** mathematical tool. A crossing suggests a specific frozen 60 cannot meet the 99.5% all-32 objective. Surviving the test is no evidence of strong play and cannot validate a candidate. The module **cannot certify** actual owner-visible paper play, opponent competence, true original 60, entry into correct physical seat, real match clocks, draw/tie scoring, deliberate deck/seed selection, random-start distributions, correct conditional sampling, policy immutability, or genuine complete pair qualification.
