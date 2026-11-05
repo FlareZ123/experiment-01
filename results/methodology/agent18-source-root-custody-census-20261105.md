@@ -22,3 +22,23 @@ The six pure adversarial tests [`tests/agent18-issue25-source-root-custody.test.
 - The printed Aichi field remains 29/32 complete original name/count 60s (ranks23/25/28 absent), and no single fixed deck has been selected or shown anywhere near the 99.5% objective.
 
 This diagnostic is designed for independent reuse on preserved native failure-inclusive `runDevelopment` rows without inspecting concealed hands or altering bot decisions. It does not alter the frozen v6/v11 registrations or their selected policies.
+
+
+## Compiled pinned-native result: PASS 31/31, registered 4/4
+
+The new native [CI 41960342396](https://github.com/FlareZ123/experiment-01/actions/runs/41960342396) on exact head `8bbf072f207eaec36764a715b513d9167ace30fe` compiled pinned Twinleaf, passed **27/27 pure cases**, **3/3 native failure stages**, and **1/1 four-attempt actual Issue25 owner-root regression**. The [downloadable complete TAP evidence](https://github.com/FlareZ123/experiment-01/actions/runs/41960342396/artifacts/13385107560) is named `agent18-issue25-native-source-roots` (artifact ZIP SHA256 `0c34d7bd651b5a0776d46dc89d75bf529d05600d974e4d60962893e64b28de62`). All 4/4 registered attempts had verified native physical source-seat and accepted-root SHA custody. No failed arm was dropped.
+
+| Registered original source | Disposition | Source accepted / total Store roots | Source prompt / PlayCard / Attack / Pass | Owner selected nonprompt nonpass roots |
+| --- | --- | --- | --- | --- |
+| 6:0:A, champion reference | engine error, 37 accepted roots | 20 / 37 | 15 / 3 / **1** / 1 | 4 |
+| 6:0:A, New Moon | nonterminal 48-root cap | 24 / 48 | 18 / 3 / **1** / 2 | 4 |
+| 11:2:B, champion reference | engine error, 17 accepted roots | 8 / 17 | 6 / 1 / **0** / 1 | 1 |
+| 11:2:B, New Moon | engine error, 42 accepted roots | 18 / 42 | 13 / 1 / **0** / 4 | 1 |
+
+In both rank6 arms, all four non-Pass source primary roots occurred on **global turn 2**, with exactly the publicly accepted sequence `Guzma & Hala` → `Thunder Mountain Prism Star` → `Double Colorless Energy` → `Volt Cyclone`. They occurred at ordinals **15,22,23,24** versus champion reference and **21,28,29,30** versus New Moon. The original source occupied physical seat 1 and actually started second, so global turn 2 was the source's first turn. The printed attack's full damage, payment, movement, Prize consequence, and independent opposing reply are **not certified** by this accepted-root-only panel.
+
+In both rank11 arms, the *only* selected source root apart from protocol prompts and Pass was a `Darkness Energy` `PlayCardAction` on global turn 2, ordinal **11** versus champion reference and **17** versus New Moon. No source `AttackAction` appears among the accepted roots in these historical windows. This is a **bounded observation**: it does not prove no attack was affordable, that passing was suboptimal, or that the later aborted turn would have lacked a legitimate source attack.
+
+**Do not confuse these four historical development arms with Agent1's later symmetrical v6 eight-arm policy.** The present fixture invokes `runDevelopment({actorOnlyComposition:true,nativeRootActionLimit:48})`, which retains the historical policy's additional source-script behavior. Independent Agent1/Agent3 reports for the truly source-independent v6 profile found zero selected original-source stamped ATTACK roots in its distinct fresh 48-root windows. No cross-run causal policy effect can be inferred without the same physical opening and receipt-parity controls. Existing Agent20/29/41 rank6 experiments also independently demonstrated longer source attack-to-Prize chains on different native starts; this new four-arm contribution is **failure-inclusive custody** of historical selected source-side action roots.
+
+All current results remain developmental, paper/competitively unqualified, and do not establish that the chosen common policy can play the entire opponent field.
