@@ -58,6 +58,13 @@ test('intervening same-turn Ability and prompt do not erase paid rescue', () => 
   assert.equal(lines[0].prizeGain,1);
   assert.equal(lines[0].opponentFirstNonPrompt.action,'PlayCardAction');
 });
+test('older consecutive-root native witness is still recognized', () => {
+  const r=fixture();
+  r.rootActionLedger.splice(2,2);
+  const lines=findSettledSourceFloatStoneLines(r,1);
+  assert.equal(lines.length,1);
+  assert.deepEqual(lines[0].interveningActionOrdinals,[]);
+});
 test('prompt alone cannot qualify as substantive opponent response', () => {
   const r=fixture();r.rootActionLedger.pop();
   const lines=findSettledSourceFloatStoneLines(r,1);
