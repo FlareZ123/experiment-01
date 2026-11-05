@@ -93,6 +93,10 @@ test('same exact registered native Store owner inputs still cannot certify treat
   assert.equal(compared.protectedOpeningObservations.initialEventsWithHeldTurnEntrySupport,1);
   assert.equal(JSON.stringify(compared).includes('SYNTHETIC-PRIVATE-HAND-SENTINEL'),false);
   assert.equal(compared.constraints.sameRegisteredTrialIdentityAndDeckPrintings,true);
+  assert.equal(compared.constraints.nativeStoreRegisteredPrintingParity,true);
+  assert.equal(compared.constraints.completeReturnedPrintingDigestRows,8);
+  assert.equal(compared.constraints.contradictoryReturnedPrintingDigestRows,0);
+  assert.equal(compared.constraints.contradictoryReturnedSeatOrStarterRows,0);
   assert.equal(compared.constraints.sameObservedPinnedEngine,true);
   assert.equal(compared.constraints.declaredSingleOpeningWrapperContrast,true);
   assert.equal(compared.constraints.nativeStoreTrialLinkVerified,true);
@@ -117,6 +121,8 @@ test('same registered prechoice inputs do not rescue wrong trial seed or printin
   assert.equal(comparison.constraints.sameRegisteredTrialIdentityAndDeckPrintings,false);
   assert.equal(comparison.pairedRows[0].registeredTrialIdentityMatched,false);
   assert.equal(comparison.pairedRows[1].originalAndContenderPrintingDigestsMatched,false);
+  assert.equal(comparison.constraints.nativeStoreRegisteredPrintingParity,false);
+  assert.equal(comparison.constraints.contradictoryReturnedPrintingDigestRows,1);
   assert.equal(comparison.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
 });
@@ -127,6 +133,8 @@ test('same opaque trial pairing with different executing source/candidate seats 
   const comparison=comparePrechoiceCustodyV8(a,b);
   assert.equal(comparison.pairedRows[2].physicalSeatsAndFirstPlayerMatched,false);
   assert.equal(comparison.constraints.sameRegisteredTrialIdentityAndDeckPrintings,false);
+  assert.equal(comparison.constraints.nativeStoreRegisteredPrintingParity,false);
+  assert.equal(comparison.constraints.contradictoryReturnedSeatOrStarterRows,1);
 });
 
 test('missing Store owner capture and duplicated owner capture fail closed',()=>{
@@ -191,6 +199,7 @@ test('different actual physical sixty is excluded even with identical registered
   const c=comparePrechoiceCustodyV8(a,b);
   assert.equal(c.constraints.matchedNativePreRunRequests,16);
   assert.equal(c.constraints.allActualPrechoicePhysicalSixtyPrintingsMatchConfigured,false);
+  assert.equal(c.constraints.nativeStoreRegisteredPrintingParity,false);
   assert.equal(c.prechoiceInputObservers.actualOwnerPrintedSixtiesMatched,31);
   assert.equal(c.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
@@ -223,4 +232,41 @@ test('post-opening public boards can differ without changing genuine prechoice i
   assert.equal(JSON.stringify(result).includes('changed-actual-setup-board'),false);
   assert.equal(result.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
+});
+
+test('native Store registration survives an engine abort without inventing returned raw printings',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  // An error still returns an identified trial, but the per-game summary
+  // lacks deck SHA/physical seat fields. The genuine prompt observer survives.
+  const index=4;
+  for(const run of [a,b]){
+    const row=run.rawDevelopment.rows[index];
+    delete row.sourceDeckFingerprint;
+    delete row.candidateDeckFingerprint;
+    delete row.sourceSeat;
+    delete row.candidateSeat;
+    delete row.actualStarterSeat;
+    run.diagnostic.attemptedRows[index].status='engine-error';
+  }
+  const compared=comparePrechoiceCustodyV8(a,b);
+  assert.equal(compared.constraints.sameRegisteredTrialIdentityAndDeckPrintings,false);
+  assert.equal(compared.constraints.completeReturnedPrintingDigestRows,7);
+  assert.equal(compared.constraints.nativeStoreRegisteredPrintingParity,true);
+  assert.equal(compared.constraints.allActualPrechoicePhysicalSixtyPrintingsMatchConfigured,true);
+  assert.equal(compared.pairedRows[index].returnedPrintingDigestsComplete,false);
+  assert.equal(compared.pairedRows[index].nativeStoreRegisteredPrintingParity,true);
+  assert.equal(compared.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
+    'UNRESOLVED');
+  assert.equal(compared.constraints.competitiveGamesQualified,0);
+});
+
+test('a partial returned digest contradiction vetoes otherwise matched Store custody',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  delete b.rawDevelopment.rows[3].candidateDeckFingerprint;
+  b.rawDevelopment.rows[3].sourceDeckFingerprint=digest('wrong-native-source');
+  const compared=comparePrechoiceCustodyV8(a,b);
+  assert.equal(compared.constraints.completeReturnedPrintingDigestRows,7);
+  assert.equal(compared.constraints.contradictoryReturnedPrintingDigestRows,1);
+  assert.equal(compared.constraints.nativeStoreRegisteredPrintingParity,false);
+  assert.equal(compared.pairedRows[3].contradictoryReturnedPrintingDigests,true);
 });
