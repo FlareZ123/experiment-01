@@ -5,6 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
 const VERSION='agent29-rank9-owner-compressor-after-pass-v1';
+const LATE_VERSION='agent29-rank9-owner-compressor-after-pass-anyturn-v2';
 const ITEM='Battle Compressor PHF';
 const ENERGY_PREFIXES=['Prism Energy ','Darkness Energy ','Telepath [P] Energy ',
   'Telepathic Psychic Energy '];
@@ -22,12 +23,13 @@ const sourceVoltorb=slot=>slot?.name==='Voltorb'||
  * public board/discard are consulted. Own deck contents remain concealed.
  *
  * @param {object} view Detached actorObservation, not live native State.
+ * @param {{maxGlobalTurn?:number}} [options] Defaults to the historical v1 cutoff.
  * @returns {{handIndex:number,printing:string,reason:string}|null}
  */
-function chooseRank9CompressorAfterPass(view){
+function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12}={}){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,resources=view.ownTurnResources;
-  if(view.globalTurn>12||resources.itemPlayLocked||
+  if(view.globalTurn>maxGlobalTurn||resources.itemPlayLocked||
     own.deckCount<3||view.opponentPublic.prizeCount<=2)return null;
   const index=view.ownHand.indexOf(ITEM);
   if(index<0)return null;
@@ -68,12 +70,16 @@ function chooseRank9CompressorDiscard(prompt,owner){
  * @template T
  * @param {()=>T} run
  * @param {0|1} sourceSeat
- * @param {object} [deps] Test-only injectable native classes and observation.
+ * @param {object} [deps] Test-only injectable native classes, observation,
+ *   or maxGlobalTurn (12 for historical v1, Infinity for v2 late probe).
  * @returns {{result:T,audit:object}}
  */
 function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   assert.equal(typeof run,'function');
   assert.ok(sourceSeat===0||sourceSeat===1);
+  const maxGlobalTurn=deps.maxGlobalTurn??12;
+  assert.ok(maxGlobalTurn===Infinity||
+    (Number.isSafeInteger(maxGlobalTurn)&&maxGlobalTurn>=12));
   const compiled=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const native=name=>require(path.join(compiled,name));
   const SimpleTacticsAi=deps.SimpleTacticsAi??
@@ -95,7 +101,8 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   const pendingByOwner=new Map();
   const proposalByAction=new WeakMap();
   const promptByAction=new WeakMap();
-  const audit={version:VERSION,sourceSeat,
+  const audit={version:maxGlobalTurn===12?VERSION:LATE_VERSION,sourceSeat,
+    maxGlobalTurn:maxGlobalTurn===Infinity?'unbounded':maxGlobalTurn,
     actualPasses:0,heldItemPasses:0,
     beforeTurnLimitOtherwiseEligible:0,heldLatePasses:0,
     observedHeldPasses:[],
@@ -153,7 +160,7 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
       if(audit.observedHeldPasses.length<30)
         audit.observedHeldPasses.push(picture);
     }
-    const choice=chooseRank9CompressorAfterPass(view);
+    const choice=chooseRank9CompressorAfterPass(view,{maxGlobalTurn});
     if(!choice)return previous;
     audit.eligiblePasses++;
     const physical=source.hand.cards[choice.handIndex];
@@ -211,5 +218,5 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   }
 }
 
-module.exports={VERSION,sourceEnergy,chooseRank9CompressorAfterPass,
+module.exports={VERSION,LATE_VERSION,sourceEnergy,chooseRank9CompressorAfterPass,
   chooseRank9CompressorDiscard,withRank9CompressorAfterPass};
