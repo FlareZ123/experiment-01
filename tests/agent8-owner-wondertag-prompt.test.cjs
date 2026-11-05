@@ -217,3 +217,58 @@ test('unoffered custom Supporter index fails closed before Store mutation',()=>{
   assert.equal(f.players[0].hand.length,0);
   assert.equal(f.players[0].deck.cards.length,1);
 });
+
+
+/** Simulate the existing generic owner-modal policy that declines Confirm. */
+function withGenericModalDecline(run){
+  const original=Object.getOwnPropertyDescriptor(FakeAi.prototype,
+    'decodeNextAction');
+  function genericModal(state){
+    const prompt=state.prompts.find(p=>p.playerId===this.client.id&&
+      p.result===undefined);
+    if(prompt instanceof ConfirmPrompt&&
+       prompt.message===GameMessage.WANT_TO_USE_ABILITY){
+      return new ResolvePromptAction(prompt.id,false);
+    }
+    return original.value.call(this,state);
+  }
+  Object.defineProperty(FakeAi.prototype,'decodeNextAction',{
+    ...original,value:genericModal
+  });
+  try{return run();}
+  finally{
+    assert.strictEqual(FakeAi.prototype.decodeNextAction,genericModal);
+    Object.defineProperty(FakeAi.prototype,'decodeNextAction',original);
+  }
+}
+test('specific Wonder Tag installed after generic modal overrides false with true',()=>{
+  const f=fixture(0,[supporter('Carmine')]);
+  const original=FakeAi.prototype.decodeNextAction;
+  const selected=withGenericModalDecline(()=>
+    withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(f.store,f.state,
+        new PlayPokemonEffect(f.players[0],f.lele));
+      const first=f.ai.decodeNextAction(f.state);
+      assert.equal(first.result,true);
+      f.store.dispatch(first);
+      f.store.dispatch(f.ai.decodeNextAction(f.state));
+      assert.equal(f.players[0].hand.length,1);
+    },dependencies));
+  assert.equal(selected.audit.confirmed,1);
+  assert.equal(selected.audit.selectedSupporters,1);
+  assert.strictEqual(FakeAi.prototype.decodeNextAction,original);
+});
+test('generic modal installed after specific Wonder Tag shadows true search',()=>{
+  const f=fixture(1,[supporter('Marnie')]);
+  const selected=withOwnerWonderTagPrompts(()=>withGenericModalDecline(()=>{
+    f.lele.reduceEffect(f.store,f.state,
+      new PlayPokemonEffect(f.players[1],f.lele));
+    const first=f.ai.decodeNextAction(f.state);
+    assert.equal(first.result,false);
+    f.store.dispatch(first);
+    assert.equal(f.state.prompts.length,1);
+    assert.equal(f.players[1].hand.length,0);
+  }),dependencies);
+  assert.equal(selected.audit.confirmOffers,1);
+  assert.equal(selected.audit.confirmed,0);
+});
