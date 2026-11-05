@@ -108,7 +108,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify source-invariant shim and Wonder Tag policy selection
-        run: node --test tests/agent1-issue25-wondertag-shuffle-held-aba.test.cjs
+        run: node --test tests/agent1-issue25-wondertag-shuffle-held-aba.test.cjs tests/agent1-native-public-supporter-reveal-witness.test.cjs
       - name: Execute actual Store 24-attempt source-ranked A/B/A
         env:
           AGENT1_WONDERTAG_HELD_DIR: artifacts/agent1-issue25-wondertag-held-aba
