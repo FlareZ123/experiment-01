@@ -58,6 +58,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent20_source_pass_opportunity:
+        description: 'Original v5 eight-arm same-deal owner-visible source Pass and negative paper-prerequisite audit'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -181,6 +186,19 @@ jobs:
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
+      - name: Replay original v5 source Pass anchors with owner-only paper prerequisite audit
+        if: ${{ inputs.include_agent20_source_pass_opportunity }}
+        env:
+          AGENT20_SOURCE_PASS_DIR: issue25-agent20-source-pass
+        run: node --test tests/agent20-issue25-v5-source-pass-opportunity.test.cjs tests/agent20-issue25-v5-source-pass-opportunity.native.test.cjs
+      - name: Archive all eight native outcomes and two exact owner Pass snapshots
+        if: ${{ always() && inputs.include_agent20_source_pass_opportunity }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-issue25-original-v5-source-pass-opportunity
+          path: issue25-agent20-source-pass/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Run retrospective Agent36 owner Prize and promotion same-deal v4 versus v5
         if: ${{ inputs.include_agent36_prize_v5 }}
         env:
