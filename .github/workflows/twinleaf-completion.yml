@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent7_shadowmist_owner_pass:
+        description: 'Independently observe genuine source owner-hand lock flags at preaccepted Pass roots, preserving original v4 48-root native receipts'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -139,6 +144,9 @@ jobs:
           path: issue25-agent8-telepath/
           retention-days: 21
           if-no-files-found: warn
+      - name: Independently audit genuine source-owner Shadow Mist locked Pass decisions
+        if: ${{ inputs.include_agent7_shadowmist_owner_pass }}
+        run: node --test tests/agent7-shadowmist-owner-lock-witness.test.cjs tests/agent7-shadowmist-owner-lock-witness.native.test.cjs
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
