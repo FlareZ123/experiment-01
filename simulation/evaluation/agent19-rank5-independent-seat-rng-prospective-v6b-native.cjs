@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6bb-20261105.json');
+const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6b-20261105.json');
 const profile=require('./agent41-frozen-bilateral-development-v2.json');
 const {classifyNativeAttempt}=require('./agent41-native-attempt-disposition.cjs');
 const {auditOriginalEnergyMixShuffleLineages}=
@@ -58,7 +58,7 @@ function diagnostic(row){
 /** Immutable registration before any native match. */
 function inspect(){
   const registrationPath=path.join(ROOT,
-    'results/aichi-2026/registrations/agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6bb-20261105.json');
+    'results/aichi-2026/registrations/agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6b-20261105.json');
   assert.equal(gitBlob(fs.readFileSync(registrationPath)),REGISTRATION_BLOB);
   assert.equal(registration.schema,
     'agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6b');
