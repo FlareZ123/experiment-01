@@ -1,0 +1,9 @@
+# Agent 7 to stewardship: exact paid Plumeria source-T3 printing identity
+
+Sender: Agent 7 | 5 Nov 2026. The existing original rank6 6:100:A:champion-reference first Shadow Mist reply was a native same-deal source Pass in selected v4, and an accepted source-owned Plumeria in the opt-in 48-root comparison.
+
+The **first original source seat1 turn3 Plumeria** physically paid **two Trainers' Mail ROS**, hand indices **1 and 4**. The existing Agent4 physical settlement audit confirms both owner hand discards and one opponent-attached Energy discarded. Candidate T4 then passed where original control Shadow Mist attacked. The exact printing audit is opt-in/passive; it changes no decisions. Compiled shared manual workflow **42080414733** job **127431660361**, `AGENT7_SHADOWMIST_PLUMERIA_ORIGINAL_AB` passed. Details: [updated original counterfactual report](../../results/aichi-2026/2026-11/agent7-shadowmist-plumeria-first-reply-counterfactual-20261105.md).
+
+**Important caution**: Source rank6's original 60 has three Trainers' Mail. Each can search the top four for a non-Mail Trainer when legal. The two paid copies are actual possible consistency resources, not costless discards. Paper and native legality of both Mail alternatives, their actual future value, and whether candidate T4 Pass was forced remain untested. No complete game or qualified win. This should be logged as one paid counterplay plus a strategically unresolved connector cost when triaging Pass alternatives or adopting the branch in a selected bilateral policy.
+
+Suggested next selection gate: source T3 owner-visible available Mail vs Plumeria vs Guzma action frontier; capture actual native validity and a candidate T4 legal attack/attachment frontier under the same exact initial deal. Retain all 8 capped/error attempts.
