@@ -68,7 +68,7 @@ function withBilateralSkylinerFreeRetreat(execute,deps={}){
     const effect=new CheckRetreatCostEffect(state.players[seat]);
     checker.reduceEffect(state,effect);
     assert.equal(JSON.stringify(observe(state,seat)),before,
-      'Native Cost Effect changed the actor's source observation');
+      'Native Cost Effect changed the source owner observation');
     const row={
       actorSeat:seat,globalTurn:state.turn,
       active:view.ownPublic.active?.printing??null,
