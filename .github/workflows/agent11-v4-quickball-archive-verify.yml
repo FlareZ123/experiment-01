@@ -70,6 +70,8 @@ jobs:
         run: node --test tests/agent11-thorns-mail-access.test.cjs
       - name: Independently reproduce full simultaneous-mulligan conditional probabilities
         run: node --test tests/agent11-newmoon-thorns-joint-mulligan-screen.test.cjs
+      - name: Verify player-selectable all-or-none mulligan bonus sensitivity
+        run: node --test tests/agent11-joint-mulligan-bonus-policy-sensitivity.test.cjs
       - name: Compile independent physical Monte Carlo and exercise both-source setup
         run: |
           g++ -std=c++17 -O3 -Wall -Wextra -pedantic scripts/agent11-joint-mulligan-physical-mc.cpp -o agent11-joint-physical-mc
