@@ -16,7 +16,7 @@ const fixture=(actorSeat=0)=>({
   ownPublic:{
     active:pokemon('Snorlax PGO',4,['Capture Energy RCL'],[
       {name:'Collapse',cost:[9,9,9,9]}]),
-    bench:[null,pokemon('Bunnelby PRC',2,['Capture Energy RCL'],[
+    bench:[null,pokemon('Bunnelby PRC',2,['Water Energy'],[
       {name:'Burrow',cost:[9]},{name:'Rototiller',cost:[9]}])],
     publicTurnRestrictions:{attackLockTurnsRemaining:0}
   },
