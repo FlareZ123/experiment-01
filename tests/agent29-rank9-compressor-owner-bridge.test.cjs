@@ -148,7 +148,7 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     constructor(){this.client={id:101};}
     decodeNextAction(state){
       if(state.prompts[0] instanceof ShuffleDeckPrompt)
-        return new ResolvePromptAction(56,[0,1]);
+        return new ResolvePromptAction(56,[0]);
       if(state.prompts.length)throw Error('stock bot cannot decode search');
       return new PassTurnAction();
     }
@@ -172,7 +172,7 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
           state.prompts.length=0;
           state.prompts.push(new ShuffleDeckPrompt());
         }else if(action.id===56){
-          assert.deepEqual(action.cards,[0,1]);
+          assert.deepEqual(action.cards,[0]);
           state.prompts.length=0;
         }else throw Error('unexpected prompt');
       }
