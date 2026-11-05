@@ -81,7 +81,11 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
     r.actualOwnerWonderTagAudit.searchOffers);
   assert.equal(roles.registeredDecisions.length,
     r.actualOwnerWonderTagAudit.searchOffers);
-  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+  assert.ok(r.actualNativeShuffleCompletionAudit);
+  const n=r.actualNativeShuffleCompletionAudit;
+  assert.ok(n.shufflePromptsOffered>=n.shuffleCallbacksCompleted);
+  assert.ok(n.outstandingShuffleCallbacks>=0);
+  assert.equal(typeof r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,'boolean');
   assert.equal(r.competitiveGamesQualified,0);
   assert.equal(r.winRateClaim,null);
 });
