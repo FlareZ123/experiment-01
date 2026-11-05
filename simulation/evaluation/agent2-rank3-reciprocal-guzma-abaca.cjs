@@ -14,7 +14,11 @@ const SOURCE='ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
 function run(){
   initializeCards();
   const cards=originals();
+  const prior=process.env.AGENT2_INCLUDE_VMAX_ABCA;
+  process.env.AGENT2_INCLUDE_VMAX_ABCA='true';
   const controls=base.run();
+  if(prior===undefined)delete process.env.AGENT2_INCLUDE_VMAX_ABCA;
+  else process.env.AGENT2_INCLUDE_VMAX_ABCA=prior;
   const old=new Map([
     ['AGENT8_ACTOR_QUICK_BALL_DEV',process.env.AGENT8_ACTOR_QUICK_BALL_DEV],
     ['AGENT41_OWNER_TERMINAL_ARBITRATION_DEV',process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV]
