@@ -28,6 +28,8 @@ test('exact historical source Pass native Tool pay/attachment/opponent continuat
     sourceParity:result.exactPreInterventionPhysicalStartsAndPrefix,
     nativeToolsPhysicallySettled:result.attachedToolsWithNativePayment,
     opponentDecisions:result.opposingRootObserved,
+    attackResponseCounts:result.firstOpposingAttackObserved,
+    sourceAttackPayoffCounts:result.originalSourceAttackObserved,
     attempts:result.nativeStatuses,
     sourceCases:result.cases.map(x=>({
       id:x.id,ownerPass:x.printedOwnerPassObserved,
@@ -39,6 +41,9 @@ test('exact historical source Pass native Tool pay/attachment/opponent continuat
       physicallyAttached:x.physicalToolAttached,
       handCopyConsumed:x.handCopyConsumed,
       opponentRoot:x.firstActualOpponentRoot,
+      opposingAttack:x.firstOpposingAttack,
+      originalSourceAttack:x.firstSourceAttack,
+      sourceRootAfterOpposingAttack:x.nextSourceRootAfterOpposingAttack,
       error:x.nativeToolError
     })),
     qualifiedGames:result.competitiveGamesQualified
