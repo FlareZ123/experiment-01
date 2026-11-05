@@ -145,7 +145,7 @@ test('late registered match owner hook outranks inherited generic decoder and re
   const result=withLetterFork(()=>
     headless.runMatch({label:'test-'+reg.selectedOriginalId}),{
     headless,SimpleTacticsAi,PlayCardAction,registration:reg,
-    observe:()=>view,
+    observe:()=>({...view,ownHand:[reg.sourceCardToPlay]}),
     withOwnerSearchHook:(next,{registration:target})=>{
       assert.equal(target.selectedOriginalId,reg.selectedOriginalId);
       hooks++;
