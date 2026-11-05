@@ -65,10 +65,10 @@ function withSourceLetterOwnerSearch(next,deps){
   const priorRunMatch=headless.runMatch;
   const observe=deps.observe??actorObservation;
   const proposals=new WeakMap();
-  let target=false,liveStore=null,awaiting=null;
+  let target=deps.innermostGame===true,liveStore=null,awaiting=null;
   const audit={
     schema:VERSION,sourceId:registration.selectedOriginalId,
-    activeRegisteredMatches:0,realTargetStores:0,
+    activeRegisteredMatches:target?1:0,realTargetStores:0,
     printedLetterNativeDispatches:0,matchedLiveOwnerSearchPrompts:0,
     proposedOwnerSearchAnswers:0,nativeResolvedAnswers:0,
     nativeRejectedAnswers:0,exactOriginalEnergyObjectsToOwnerHand:0,
@@ -197,7 +197,7 @@ function withSourceLetterOwnerSearch(next,deps){
     return returned;
   }
 
-  headless.runMatch=observedRunMatch;
+  if(!deps.innermostGame)headless.runMatch=observedRunMatch;
   Object.defineProperty(ai,'decodeNextAction',{
     ...priorAi,value:observedDecode});
   Object.defineProperty(store,'dispatch',{
@@ -205,12 +205,74 @@ function withSourceLetterOwnerSearch(next,deps){
   try{
     return {result:next(),audit};
   }finally{
+    if(typeof deps.onAudit==='function')deps.onAudit(audit);
     assert.strictEqual(ai.decodeNextAction,observedDecode);
     assert.strictEqual(store.dispatch,observedDispatch);
     Object.defineProperty(store,'dispatch',priorStore);
     Object.defineProperty(ai,'decodeNextAction',priorAi);
-    headless.runMatch=priorRunMatch;
+    if(!deps.innermostGame)headless.runMatch=priorRunMatch;
   }
+}
+
+/**
+ * Preserve Agent35's one-card original-source fork and Agent36's actual
+ * selected v5 policy while installing the Energy selection inside the last
+ * real game wrapper, after the canonical bot overrides are in place.
+ * Capture the per-game audit even when the pinned engine aborts.
+ *
+ * @param {object} dependencies Pinned native classes and frozen registration.
+ * @returns {{result:object,audit:object}} Failure-inclusive original-eight panel.
+ */
+function runAtInnermostNativeStore(dependencies){
+  const {registration}=dependencies;
+  const originalPrize=require('../twinleaf/agent21-owner-first-prize-reveal.cjs')
+    .withOwnerFirstPrizeReveal;
+  const steward=require(
+    './agent36-issue25-steward-innermost-prize-v5.cjs');
+  const agent35=require('./agent35-rank11-source-letter-pass37-fork.cjs');
+  const gameAudits=[];
+  function prizeWithOwnerEnergySearch(next){
+    return originalPrize(()=>{
+      const selected=withSourceLetterOwnerSearch(next,{
+        ...dependencies,innermostGame:true,
+        onAudit:audit=>gameAudits.push({...audit})
+      });
+      return selected.result;
+    });
+  }
+  const innerLayer=next=>steward.withStewardInnermostOwnerPrompts(
+    next,{prize:prizeWithOwnerEnergySearch});
+  const result=agent35.run({
+    runner:()=>steward.runStewardInnermostPrizeV5({innerLayer})
+  });
+  assert.equal(gameAudits.length,8,'All eight actual source games audited');
+  const fields=[
+    'activeRegisteredMatches','realTargetStores',
+    'printedLetterNativeDispatches','matchedLiveOwnerSearchPrompts',
+    'proposedOwnerSearchAnswers','nativeResolvedAnswers',
+    'nativeRejectedAnswers','exactOriginalEnergyObjectsToOwnerHand',
+    'ownerSearchAnswersUnsettled','noPromptAfterLetter',
+    'nonMatchingPromptShapes','targetDecoderVisits',
+    'authenticatedLiveStateDecoderVisits',
+    'matchedOwnerPromptDecoderVisits','failedNativePromptValidation'
+  ];
+  const audit={
+    schema:VERSION,sourceId:registration.selectedOriginalId,
+    innermostGameWrapperInstalled:gameAudits.length,
+    originalSourceOnlyItemFork:true,opponentHiddenZoneInspected:false,
+    zeroQualifiedGames:true,postAnswerPendingMessages:[],
+    searchPromptShape:null
+  };
+  for(const field of fields){
+    audit[field]=gameAudits.reduce((n,row)=>n+(row[field]??0),0);
+  }
+  for(const game of gameAudits){
+    audit.postAnswerPendingMessages.push(...game.postAnswerPendingMessages);
+    if(game.searchPromptShape)audit.searchPromptShape=game.searchPromptShape;
+  }
+  assert.equal(audit.printedLetterNativeDispatches,1,
+    'Only the frozen source Item intervention may trigger the selection');
+  return {result,audit,gameAudits};
 }
 
 /**
@@ -229,10 +291,14 @@ function run(deps={}){
   const ResolvePromptAction=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const types=deps.types??native('game/store/card/card-types');
-  const observed=(deps.wrap??withSourceLetterOwnerSearch)(
-    ()=> (deps.letterRunner??
-      require('./agent35-rank11-source-letter-pass37-fork.cjs').run)(),
-    {headless,Store,SimpleTacticsAi,ResolvePromptAction,
+  const observed=deps.wrap||deps.letterRunner?
+    (deps.wrap??withSourceLetterOwnerSearch)(
+      ()=> (deps.letterRunner??
+        require('./agent35-rank11-source-letter-pass37-fork.cjs').run)(),
+      {headless,Store,SimpleTacticsAi,ResolvePromptAction,
+        types,registration}):
+    runAtInnermostNativeStore({
+      headless,Store,SimpleTacticsAi,ResolvePromptAction,
       types,registration});
   const result=observed.result,audit=observed.audit;
   assert.equal(result.registrationId,registration.selectedOriginalId);
@@ -316,4 +382,4 @@ if(require.main===module){
 }
 
 module.exports={VERSION,ENERGY,chooseTwoDarknessFromOwnerPrompt,
-  withSourceLetterOwnerSearch,run,write};
+  withSourceLetterOwnerSearch,runAtInnermostNativeStore,run,write};
