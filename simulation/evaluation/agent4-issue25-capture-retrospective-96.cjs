@@ -108,8 +108,8 @@ function runCaptureRetrospective96(){
         row.fullPhysicalDealFingerprint,
       controlStatus:old.status??'returned',
       treatmentStatus:row.status??'returned',
-      controlRootCount:old.rootActionLedger?.length??null,
-      treatmentRootCount:row.rootActionLedger?.length??null,
+      controlRootCount:(old.rootActionLedger??old.nativeAbortEvidence?.rootActionLedger??[]).length,
+      treatmentRootCount:(row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[]).length,
       sourceAttackDeclarations:
         row.sourceAttackSettlement?.attacks?.length??null
     };
@@ -136,8 +136,8 @@ function runCaptureRetrospective96(){
     captureAudit:capture,
     control: a.map(publicAttempt),
     treatment:b.map(publicAttempt),
-    controlPublicRootLedgerHash:sha256(a.map(row=>row.rootActionLedger??[])),
-    treatmentPublicRootLedgerHash:sha256(b.map(row=>row.rootActionLedger??[])),
+    controlPublicRootLedgerHash:sha256(a.map(row=>row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[])),
+    treatmentPublicRootLedgerHash:sha256(b.map(row=>row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[])),
     reportedSelectedManifestRootLimit:control.manifest.nativeRootActionLimit,
     manifestCorrection:'The historical v6 manifest retains its 48-root label; actual runner override for this distinctly named retrospective execution is 96.',
     engineRevision:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
