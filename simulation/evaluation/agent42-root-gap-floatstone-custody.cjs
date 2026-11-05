@@ -66,6 +66,18 @@ function findSettledSourceFloatStoneLines(row, sourceSeat) {
         packet.settlementCrossesClockReset === false
       );
       if (!settled) continue;
+      // Fail closed if another accepted action changed the source Active
+      // between Retreat and attack. Intervening Bench Abilities remain valid.
+      const changedActive = events.some(event =>
+        event.storeAccepted === true &&
+        event.rootActionOrdinal > retreat.actionOrdinal &&
+        event.rootActionOrdinal < attack.actionOrdinal &&
+        event.publicBoardChanges?.some(change =>
+          change.seat === sourceSeat && change.position === 'active' &&
+          !isDeepStrictEqual(change.before, change.after)
+        )
+      );
+      if (changedActive) continue;
       const attacker = settled.publicBoardBefore?.[sourceSeat]?.active;
       if (attacker?.name !== 'Shadow Rider Calyrex VMAX' ||
           (attacker.energyCards?.length ?? 0) < 3) continue;
