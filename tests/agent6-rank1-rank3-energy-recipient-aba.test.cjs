@@ -11,7 +11,7 @@ function event({seat=0,position='bench',after=true,kind='play-card'}={}){
   return {
     storeAccepted:true,action:'PlayCardAction',visibility:'public-after-dispatch',
     playerSlot:seat,turnBefore:3,rootActionOrdinal:18,
-    declared:{kind,ownerHandPrinting:'Psychic Energy MEE',
+    declared:{kind,status:'captured',ownerHandPrinting:'Psychic Energy MEE',
       target:{player:0,slot:position==='bench'?2:1,index:0}},
     publicBoardChanges:[{
       seat,position,index:0,
