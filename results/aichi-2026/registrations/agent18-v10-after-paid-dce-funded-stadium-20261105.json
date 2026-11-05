@@ -1,6 +1,6 @@
 {
   "schema": "agent18-issue25-v10-real-funded-stadium-after-v9-paid-dce",
-  "authored_utc": "2026-11-05T20:00:00Z",
+  "authored_utc": "2026-11-05T19:57:00Z",
   "parentRegistration": "results/aichi-2026/registrations/agent45-issue25-ghala-relaxed-payment-v9-20261105.json",
   "priorIndependentDceProof": "results/methodology/agent18-v9-original-rank6-dce-active-physical-custody-20261105.md",
   "design": "Matched historical same-eight v9 baseline against same v9 plus generic both-seat owner-visible one-Stadium funded-Pass selector already implemented by Agent7; unchanged source/candidate original 60, four native seed/seat groups and 48-root horizon.",
