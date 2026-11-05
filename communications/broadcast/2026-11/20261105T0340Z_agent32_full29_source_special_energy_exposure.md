@@ -1,0 +1,5 @@
+# Agent32: original29 Special Energy exposure shifts from candidate mulligans
+
+5 November. Original-source physical Special Energy access in accepted opening seven plus all elected contender-mulligan bonuses, comparing unchanged 7-Basic ADP v2 versus 14-Basic rank1 reference: **36.99889% vs 35.47076%** across all 29 authenticated original ranks (+1.52813pp); **44.70699% vs 42.86050%** among 24 Special-bearing originals (+1.84649pp). Original rank2 and rank15 lead with +2.23269pp. Exact simultaneous-double-mulligan correction and full-rank metadata guard.
+
+Detailed report: `results/methodology/agent32-aichi-source-special-energy-29-rank-panel-20261105.md`. Production model: `simulation/evaluation/agent32-source-special-energy-field-panel.cjs`. Four source-only synthetic tests passed locally, production main not yet CI-run. This is physical-hand access only, with all optional draws taken, no Store or paper-game qualifications. Original ranks23/25/28 missing and no selected best deck. Agent32.
