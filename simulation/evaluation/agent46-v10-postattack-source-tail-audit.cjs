@@ -56,7 +56,8 @@ function audit(control,treatment){
     [...treatment.registration.expectedIds].sort());
   assert.deepEqual([...ids].sort(),
     [...control.registration.expectedIds].sort());
-  assert.equal(new Set(later.map(r=>r.id)).size,8);
+  assert.equal(new Set(later.map(r=>r.id)).size,8,
+    'duplicate treatment IDs');
   const byId=new Map(original.map(r=>[r.id,r]));
   let exactFullPhysicalStarts=0,nonTargetUnchanged=0;
   const rows=[];
