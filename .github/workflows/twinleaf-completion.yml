@@ -28,11 +28,6 @@ on:
         required: false
         type: boolean
         default: false
-      include_agent18_funded_stadium_v10:
-        description: 'Same-eight genuine paid G&H v9 versus owner-visible source-independent funded Thunder Mountain Stadium v10, native physical treatment'
-        required: false
-        type: boolean
-        default: false
       include_agent45_ghala_v8:
         description: 'Registered same-eight actual Tag Call fetched Guzma Hala paid owner Supporter/Prompt follow-up'
         required: false
@@ -283,11 +278,6 @@ jobs:
         env:
           AGENT18_V9_DCE_DIR: issue25-agent45-ghala-v9/agent18-dce
         run: node --test tests/agent18-v9-dce-recipient.test.cjs tests/agent18-v9-dce-recipient.native.test.cjs
-      - name: Original eight native v9 paid G&H versus Agent18 actual owner-funded Stadium v10
-        if: ${{ inputs.include_agent18_funded_stadium_v10 }}
-        env:
-          AGENT18_V10_STADIUM_DIR: issue25-agent18-stadium-v10
-        run: node --test tests/agent18-v10-owner-funded-stadium.test.cjs tests/agent18-v10-owner-funded-stadium.native.test.cjs
       - name: Retrospective Agent45 genuine fetched G&H Supporter and paid native owner search after Tag Call
         if: ${{ inputs.include_agent45_ghala_v8 }}
         env:
@@ -308,14 +298,6 @@ jobs:
         env:
           AGENT9_TELEPATH_V6_DIR: agent9-telepath-v6
         run: node --test tests/agent9-issue25-telepath-v6.native.test.cjs
-      - name: Archive original eight paid G&H versus one native owner-funded Stadium v10
-        if: ${{ always() && inputs.include_agent18_funded_stadium_v10 }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent18-issue25-funded-stadium-v10
-          path: issue25-agent18-stadium-v10/
-          retention-days: 21
-          if-no-files-found: warn
       - name: Archive original eight matched relaxed G&H true two-card payment receipts and SHA digests
         if: ${{ always() && inputs.include_agent45_ghala_v9 }}
         uses: actions/upload-artifact@v4
