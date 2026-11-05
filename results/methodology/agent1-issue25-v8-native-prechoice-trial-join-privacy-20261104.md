@@ -42,6 +42,14 @@ The pinned upstream `setupGame` sequence determines `state.activePlayer` from `W
 
 A same-policy, same-registered-input baseline replay was separately designed as an A/A negative control to probe execution determinism. Its results must be evaluated independently; this report makes no claims about a run that has not yet completed.
 
+## 5 November native before-first-turn public board observation
+
+The same real Store observer now captures the public Active/Bench Pokémon board just before the first native turn-action dispatch. Each actual registered native Store is bound to the trial ID; it records the number of occupied Bench spaces and a process-keyed HMAC of the Active/Bench printed Pokémon identities for both physical player seats. It does not emit actual board names or digest values. These records are generated after setup and therefore represent **treatment outcomes**, never physical inputs suitable for conditioning/matching candidate decks.
+
+The [isolated native CI 41941719822](https://github.com/FlareZ123/experiment-01/actions/runs/41941719822), [archived artifact 13377106064](https://github.com/FlareZ123/experiment-01/actions/runs/41941719822/artifacts/13377106064), verified **8 genuine before-first-action board snapshots under baseline and 8 under protected**, across the same registered eight trial IDs. Exactly **two physical player boards had different public Active/Bench HMACs**, and in those **two physical player seats the number of Benched Pokémon also differed**. Separately the comparison still measured two post-choice source physical-deal digests that differed. The public counts alone do not establish whether the two sets of differences refer to exactly the same source arms; the detailed archived per-ID bool rows provide the proper join for a future audit.
+
+Both native policies independently reproduced all 8/8 post-choice source digests, statuses and root-action counts in their respective same-policy A/A negative controls [CI 41941467568](https://github.com/FlareZ123/experiment-01/actions/runs/41941467568). This strengthens evidence that the A/B setup difference is observable and reproducible in this small frozen test panel. The explicit veto on full executing non-treatment policy closure is unchanged; no evidence demonstrates an improved attack, Prize sequence, legal game outcome or match win.
+
 ## Scope and interpretation
 
 A matched physical prechoice digest establishes that the particular registered native owner saw the same prior randomized physical state at the observation boundary in the two campaigns. Trial labels are observed at `runMatch` entry and propagated to that Store. This is stronger than pairing by seed, rank and Store ordinal.
