@@ -127,11 +127,11 @@ jobs:
         run: node simulation/evaluation/agent2-rank3-reciprocal-guzma-abaca.cjs | tee agent2-rank3-reciprocal-guzma-abaca.json
       - name: Check preregistered paid-retreat custody and silent-no-op controls
         if: ${{ inputs.dialga_paid_retreat }}
-        run: node --test tests/agent2-rank1-dialga-paid-retreat.test.cjs
-      - name: Run registered source exact paid Dialga retreat A B A
+        run: node --test tests/agent2-rank1-dialga-paid-retreat.test.cjs tests/agent2-rank1-dialga-owner-decoder-retreat-v2.test.cjs
+      - name: Run registered owner-selected typed paid Dialga retreat A B A v2
         if: ${{ inputs.dialga_paid_retreat }}
         shell: bash
-        run: node simulation/evaluation/agent2-rank1-dialga-paid-retreat-aba.cjs | tee agent2-rank1-dialga-paid-retreat-aba.json
+        run: node simulation/evaluation/agent2-rank1-dialga-owner-decoder-retreat-aba-v2.cjs | tee agent2-rank1-dialga-owner-decoder-retreat-aba-v2.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -150,5 +150,6 @@ jobs:
             agent2-rank1-original-guzma-vmax-abca.json
             agent2-rank3-reciprocal-guzma-abaca.json
             agent2-rank1-dialga-paid-retreat-aba.json
+            agent2-rank1-dialga-owner-decoder-retreat-aba-v2.json
           if-no-files-found: warn
           retention-days: 14
