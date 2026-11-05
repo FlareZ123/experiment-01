@@ -116,12 +116,37 @@ function independentRoxiePaymentNegative(prompt,answer,eligible){
   return null;
 }
 
+/**
+ * Printed Mysterious Treasure FLI mandatory one-card payment.
+ * Its actual native Store-generated Trainer prompt has an authenticated
+ * sourceCard stamp, even though the card's constructor omits this attribute.
+ * The later own-deck Psychic/Dragon search is a separate optional prompt.
+ *
+ * @param {object} prompt Genuine source-stamped owner hand payment prompt.
+ * @param {unknown} answer Proposed physical owner-hand payment.
+ * @param {object} owner Source owner in the real native Store.
+ * @returns {string|null} Proven paper-invalid payment or uncovered positive.
+ */
+function independentMysteriousTreasurePaymentNegative(prompt,answer,owner){
+  if(!Array.isArray(answer)||answer.length!==1)
+    return 'MYSTERIOUS_TREASURE_PAYMENT_REQUIRES_EXACTLY_ONE';
+  const selected=answer[0];
+  if(!Array.isArray(prompt?.cards?.cards)||
+     !Array.isArray(owner?.hand?.cards)||
+     !prompt.cards.cards.includes(selected)||
+     !owner.hand.cards.includes(selected))
+    return 'MYSTERIOUS_TREASURE_NOT_IN_PHYSICAL_OWNER_HAND';
+  if(selected===prompt.sourceCard)
+    return 'MYSTERIOUS_TREASURE_ITEM_CANNOT_PAY_ITS_OWN_COST';
+  return null;
+}
+
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v13-quick-ball-print-cost';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v14-treasure-one-discard';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -328,6 +353,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
        'Ultra Ball MEG source-stamped exactly-two physical discard and insufficient-root exclusions',
       'Secret Box TWM source-stamped exactly-three other physical discard and insufficient-root exclusions',
       'Quick Ball FST/SSH source-stamped mandatory one OTHER owner-hand discard; optional Basic search is not cost',
+      'Mysterious Treasure FLI native-stamped one OTHER owner-hand discard; later Psychic/Dragon search is not cost',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
@@ -343,6 +369,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     inspectedSecretBoxPaymentPrompts:0,
     inspectedQuickBallPlayCardRoots:0,vetoedQuickBallInsufficientRoots:0,
     inspectedQuickBallPaymentPrompts:0,
+    inspectedTreasurePlayCardRoots:0,vetoedTreasureInsufficientRoots:0,
+    inspectedTreasurePaymentPrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -421,6 +449,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
         if(!owner.hand.cards.some(card=>card!==played)){
           audit.vetoedQuickBallInsufficientRoots++;
           throw new Error('PAPER_ROOT_INVALID:QUICK_BALL_ONE_OTHER_CARD_REQUIRED');
+        }
+      }
+      if(played?.fullName==='Mysterious Treasure FLI'){
+        audit.inspectedTreasurePlayCardRoots++;
+        if(!owner.hand.cards.some(card=>card!==played)){
+          audit.vetoedTreasureInsufficientRoots++;
+          throw new Error('PAPER_ROOT_INVALID:MYSTERIOUS_TREASURE_REQUIRES_ANOTHER_CARD');
         }
       }
       if(played?.fullName==='Roxie CEC'){
@@ -516,6 +551,17 @@ function withPaperPromptContractPortfolio(run,deps={}){
       contract='printed-quick-ball-exactly-one-other-owner-hand-discard-negative';
       const owner=this.state.players?.find(p=>p.id===prompt.playerId);
       const rejected=quickBallPaymentNegative(prompt,action.result,owner);
+      if(rejected)status='PAPER_PROMPT_INVALID';
+      reason=rejected??'only-negative-predicates-audited';
+    }else if(family==='ChooseCardsPrompt'&&
+              prompt?.sourceCard?.fullName==='Mysterious Treasure FLI'&&
+              prompt.message==='CHOOSE_CARD_TO_DISCARD'){
+      audit.inspectedTreasurePaymentPrompts++;
+      sourcePrinting='Mysterious Treasure FLI';
+      contract='printed-mysterious-treasure-exact-one-other-owner-hand-card';
+      const owner=this.state.players?.find(p=>p.id===prompt.playerId);
+      const rejected=independentMysteriousTreasurePaymentNegative(
+        prompt,action.result,owner);
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
@@ -650,5 +696,6 @@ function withPaperPromptContractPortfolio(run,deps={}){
 module.exports={VERSION,independentCampingGearContract,
   independentPutDamageNegative,independentPainfulSpoonsNegative,
   independentRoxiePaymentNegative,independentUltraBallPaymentNegative,
+  independentMysteriousTreasurePaymentNegative,
   physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
