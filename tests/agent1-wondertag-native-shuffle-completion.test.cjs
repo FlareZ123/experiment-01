@@ -37,6 +37,8 @@ function fixture(){
       new FakePlayPokemonEffect(player,lele));
   }
   return {FakeLele,FakePlayPokemonEffect,FakeShuffleDeckPrompt,
+    TapuLeleGX:FakeLele,PlayPokemonEffect:FakePlayPokemonEffect,
+    ShuffleDeckPrompt:FakeShuffleDeckPrompt,
     original,prompts,applied,players,state,store,play};
 }
 
