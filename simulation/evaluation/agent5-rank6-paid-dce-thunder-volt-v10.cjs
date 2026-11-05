@@ -182,5 +182,38 @@ if(require.main===module){
       (x.nativeSourceOwnerLineAudit?.nativeSettledMandatoryEnergyMoves??0),0),
     qualifiedCompetitiveGames:0
   })+'\n');
+  // Postgame-only reporting, built from native accepted public Store roots.
+  // Emit every registered arm, including errors and capped negatives. This
+  // instrument cannot enter an acting player's information set or policy.
+  process.stdout.write(JSON.stringify({
+    schema:VERSION+'-public-opponent-response-audit-v1',
+    source:'actualSourceAttackSettlement and accepted public root actions',
+    arms:result.rows.map(row=>({
+      id:row.id,sourceSeat:row.sourceSeat,
+      disposition:row.treatmentDisposition,
+      originalDisposition:row.originalDisposition,
+      sameDeal:row.sameOriginalAndCandidateFullPhysicalDeal,
+      sourceAttackCount:row.treatmentSourceAttackCount,
+      mandatoryDceMoved:row.nativeSourceOwnerLineAudit?.
+        nativeSettledMandatoryEnergyMoves??0,
+      hookOpponentResponseFlag:row.nativeSourceOwnerLineAudit?.
+        opponentResponseObserved??false,
+      postgameSourceAttacks:(row.actualSourceAttackSettlement?.attacks??[])
+        .map(a=>({
+          ordinal:a.actionOrdinal,globalTurn:a.turnBefore,
+          name:a.attackName,settled:a.settledPromptChain,
+          completionOrdinal:a.completionRootOrdinal,
+          physicalPrizesBefore:a.prizesBefore,
+          physicalPrizesAfter:a.prizesAfter,
+          nextOpponentSameEpochProven:a.nextSourceSameEpochProven,
+          nextOpponentRoot:a.nextSourceRoot,
+          boardBefore:a.publicBoardBefore,
+          boardAfter:a.publicBoardAfter
+        })),
+      observedOriginalNextRoots:row.originalAfterDceRoots,
+      observedTreatmentNextRoots:row.counterfactualAfterDceRoots
+    })),
+    qualifiedCompetitiveGames:0
+  })+'\n');
 }
 module.exports={VERSION,IDS,run,writeLocked};
