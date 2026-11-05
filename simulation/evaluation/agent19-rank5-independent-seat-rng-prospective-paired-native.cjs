@@ -98,11 +98,15 @@ function inspect(){
       x.printing.set===set&&String(x.printing.number)===number);
     assert.equal(value?.count,count);
   }
-  assert.deepEqual(registration.registeredTrials.map(x=>x.id),
-    ['5:0:A:champion-reference','5:0:A:new-moon-lockbreaker-v1',
-     '5:0:B:champion-reference','5:0:B:new-moon-lockbreaker-v1',
-     '5:1:A:champion-reference','5:1:A:new-moon-lockbreaker-v1',
-     '5:1:B:champion-reference','5:1:B:new-moon-lockbreaker-v1']);
+  assert.equal(registration.prospectiveSeedSelection,true);
+  assert.equal(registration.previousPolicyInformedByEarlierResults,true);
+  const expectedIds=registration.randomGroups.flatMap(group=>
+    registration.candidateIds.map(candidateId=>
+      [group.rank,group.repeat,group.candidateSlot,candidateId].join(':')));
+  assert.deepEqual(registration.registeredTrials.map(x=>x.id),expectedIds);
+  assert.equal(new Set(expectedIds).size,16);
+  assert.deepEqual([...new Set(registration.randomGroups.map(x=>x.repeat))],
+    [0,1,2,3]);
   for(const row of registration.registeredTrials){
     assert.ok(Number.isSafeInteger(row.seed)&&row.seed>=0&&row.seed<=0xffffffff);
     assert.equal(row.rank,5);
@@ -237,13 +241,14 @@ function run(){
     competitivelyQualifiedGames:0,
     anyWinRateClaim:false,
     retrospectivePolicySelection:true,
-    historicalOutcomeSeedSelection:true,
+    historicalOutcomeSeedSelection:false,
+    prospectiveSeedSelection:true,
     preregisteredBeforeCurrentReplayNativeOutcomes:true};
   const result={schema:VERSION,registration,preflight,
     policyOptions:options,
     summary,matched,
     rawModes:modes,pinnedVendor:registration.pinnedTwinleaf,
-    caveat:'Retrospective selected seeds with new independent physical/policy seat RNG; not an independent field sample. Global coin RNG, paper legality, opponent competence and Aichi clock remain unqualified. Preserve every abort/cap.'};
+    caveat:'New physical seeds preregistered before this native replay, but policy was informed by historical games. Global coin RNG, paper legality, opponent competence and Aichi clock remain unqualified. Preserve every abort/cap.'};
   saveEvidence(result);
   assert.equal(summary.observedNativeAttempts,32);
   process.stdout.write(JSON.stringify({summary,matched,
