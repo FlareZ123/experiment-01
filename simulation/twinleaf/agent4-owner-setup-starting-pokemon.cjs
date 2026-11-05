@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent4-owner-setup-starting-pokemon-v3-native-settlement';
+const VERSION='agent4-owner-setup-starting-pokemon-v4-snapshotted-custody';
 const SETTLEMENT_CODE='OWNER_SETUP_STARTING_UNSETTLED';
 const PHASE_SETUP=1;
 const MESSAGE='CHOOSE_STARTING_POKEMONS';
@@ -152,7 +152,7 @@ function withOwnerStartingPokemon(run,deps={}){
     const action=new ResolvePromptAction(prompt.id,answer);
     validate(state,action);
     selected.set(action,{
-      seat,initial,physical,prompt,answer,
+      seat,initial,physical,prompt,answer:[...answer],
       beforeHand:bonus?[...owner.hand.cards]:null,
       beforeActive:bonus?[...owner.active.cards]:null,
       beforeBench:bonus?owner.bench.map(slot=>[...slot.cards]):null
@@ -207,11 +207,17 @@ function withOwnerStartingPokemon(run,deps={}){
     const owner=this.state.players[saved.seat];
     try{
       if(saved.initial){
-        if(owner.active.cards.includes(saved.physical))
+        const active=owner.active.cards.includes(saved.physical);
+        const movedOutOfHand=!owner.hand.cards.includes(saved.physical);
+        const uniqueActive=owner.active.cards.filter(card=>
+          card===saved.physical).length===1;
+        const noBenchDuplicate=owner.bench?.every(slot=>
+          !slot.cards.includes(saved.physical))??true;
+        if(active&&movedOutOfHand&&uniqueActive&&noBenchDuplicate)
           audit.physicallyPlacedActiveConfirmed++;
         else{
           audit.physicallyPlacedActiveMissing++;
-          assert.fail('Native setup omitted selected physical Active Pokémon');
+          assert.fail('Native setup must transfer original physical Basic into one Active zone');
         }
       }else{
         // The last setup prompt may immediately begin the first turn and
