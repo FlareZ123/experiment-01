@@ -205,6 +205,19 @@ function decodeWithPolicyRandom(bot, state, randomSource) {
  * @param {number} seed
  * @returns {[() => number, () => number]}
  */
+/**
+ * Independent deterministic physical deck-shuffle streams by player seat.
+ * Opt-in only: original archived native games remain on legacy common RNG.
+ * @param {number} seed Unsigned 32-bit original game seed.
+ * @returns {[()=>number,()=>number]} Seat-ordered independent sources.
+ */
+function physicalShuffleRandomStreams(seed) {
+  return [
+    seededRandom((seed ^ 0x3c6ef372) >>> 0),
+    seededRandom((seed ^ 0xa54ff53a) >>> 0)
+  ];
+}
+
 function policyRandomStreams(seed) {
   return [
     seededRandom((seed ^ 0x6a09e667) >>> 0),
@@ -229,6 +242,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [doubleDragonArchiveV3] Restore the source-locked historical DDE v3 tactic ONLY for archival replay.
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
+ * @property {boolean} [isolatePhysicalShuffleRandomness] Use independent per-seat physical shuffle RNG streams, preserving legacy behavior when omitted.
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
@@ -451,6 +465,9 @@ function runMatch(request) {
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
     policyRandomStreams(request.seed) : null;
+  const physicalShuffleRandomBySeat =
+    request.isolatePhysicalShuffleRandomness === true ?
+      physicalShuffleRandomStreams(request.seed) : null;
   const originalRandom = Math.random;
   Math.random = random;
   let restoreBotHooks;
@@ -1075,7 +1092,11 @@ function runMatch(request) {
         const ownerId = pending.getPerspectivePlayerId();
         const owner = state.players.find(player => player.id === ownerId);
         if (!owner) throw new Error('Shuffle has no deck owner.');
-        action = new ResolvePromptAction(pending.id, deckPermutation(owner.deck.cards.length, random));
+        const ownerSeat = state.players.indexOf(owner);
+        const shuffleRandom = physicalShuffleRandomBySeat ?
+          physicalShuffleRandomBySeat[ownerSeat] : random;
+        action = new ResolvePromptAction(pending.id,
+          deckPermutation(owner.deck.cards.length, shuffleRandom));
       } else if (pending instanceof CoinFlipPrompt) {
         action = new ResolvePromptAction(pending.id, random() < 0.5);
       } else if (pending) {
@@ -2082,8 +2103,14 @@ function runMatch(request) {
       stevenPaperMinimumAudit: restoreStevenPaperMinimumHook ?
         {...restoreStevenPaperMinimumHook.audit} : null,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
-      randomnessProtocol: request.isolatePolicyRandomness === true ?
-        'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
+      physicalShuffleRandomIsolation:
+        request.isolatePhysicalShuffleRandomness === true,
+      randomnessProtocol: request.isolatePhysicalShuffleRandomness === true ?
+        (request.isolatePolicyRandomness === true ?
+          'per-seat-policy-and-physical-shuffle-prng-v1' :
+          'per-seat-physical-shuffle-only-prng-v1') :
+        (request.isolatePolicyRandomness === true ?
+          'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng'),
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
@@ -2130,4 +2157,5 @@ function upstreamSmokeDeck() {
 }
 
 module.exports = { runMatch, initializeCards, seededRandom, deckPermutation,
-  upstreamSmokeDeck, installFairBotHooks, decodeWithPolicyRandom, policyRandomStreams };
+  upstreamSmokeDeck, installFairBotHooks, decodeWithPolicyRandom,
+  policyRandomStreams, physicalShuffleRandomStreams };
