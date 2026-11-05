@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 const {
-  withRegisteredSourceToolCounterfactual
+  withRegisteredSourceToolCounterfactual,joinRegisteredToolCounterfactual,REGISTRATION
 }=require('../simulation/evaluation/agent20-issue25-v5-source-tool-counterfactual.cjs');
 
 const hash=value=>createHash('sha256').update(JSON.stringify(value))
@@ -108,4 +108,60 @@ test('any source-owner state drift fails closed and preserves original Pass',()=
   assert.deepEqual(store.state.players[0].hand.cards,
     [{fullName:'Tool Jammer BST'}]);
   assert.deepEqual(store.state.players[0].active.tools,[]);
+});
+
+
+test('post-treatment attack scanner distinguishes opponent attack from initial energy and source reply',()=>{
+  const rows=REGISTRATION.targets.map(t=>{
+    const rootActionLedger=Array.from({length:t.passRootOrdinal},(_,i)=>({
+      actionOrdinal:i,action:'ResolvePromptAction',
+      playerSlot:t.sourceSeat,turnBefore:t.globalTurn
+    }));
+    rootActionLedger.push({
+      actionOrdinal:t.passRootOrdinal,
+      action:'PlayCardAction',card:t.toolPrinting.split(' ').slice(0,-1).join(' '),
+      playerSlot:t.sourceSeat,turnBefore:t.globalTurn
+    });
+    rootActionLedger.push({
+      actionOrdinal:t.passRootOrdinal+1,
+      action:'PlayCardAction',card:'Psychic Energy',
+      playerSlot:t.candidateSeat,turnBefore:t.globalTurn+1
+    });
+    rootActionLedger.push({
+      actionOrdinal:t.passRootOrdinal+2,
+      action:'AttackAction',attack:'Eon Blade',
+      playerSlot:t.candidateSeat,turnBefore:t.globalTurn+1
+    });
+    rootActionLedger.push({
+      actionOrdinal:t.passRootOrdinal+3,
+      action:'PassTurnAction',
+      playerSlot:t.sourceSeat,turnBefore:t.globalTurn+2
+    });
+    return {id:t.id,sourceDealFingerprint:t.expectedSourcePhysicalDealSha256,
+      fullPhysicalDealFingerprint:t.expectedFullPhysicalDealSha256,
+      rootActionLedger};
+  });
+  const intervention={attempts:REGISTRATION.targets.map(t=>({
+    id:t.id,registeredOwnerViewMatched:true,
+    originalRootWasPass:true,nativeToolActionAccepted:true,
+    physicalToolAttached:true,handCopyConsumed:true,
+    ownerActiveToolsBefore:[],ownerActiveToolsAfter:[t.toolPrinting],
+    ownerHandBefore:[t.toolPrinting],ownerHandAfter:[]
+  }))};
+  const extra=Array.from({length:6},(_,i)=>({
+    id:'extra-'+i,rootActionLedger:[]
+  }));
+  const report=joinRegisteredToolCounterfactual(
+    {rawDevelopment:{rows:[...rows,...extra]}},intervention);
+  assert.deepEqual(report.firstOpposingAttackObserved.map(x=>x.chosenAttack),
+    ['Eon Blade','Eon Blade']);
+  assert.deepEqual(report.originalSourceAttackObserved.map(x=>x.observed),
+    [false,false]);
+  assert.ok(report.cases.every(x=>
+    x.firstOpposingAttack?.action==='AttackAction'&&
+    x.firstActualOpponentRoot?.action==='PlayCardAction'&&
+    x.nextSourceRootAfterOpposingAttack?.action==='PassTurnAction'));
+  assert.equal(report.exactPreInterventionPhysicalStartsAndPrefix,false,
+    'Synthetic prefixes cannot masquerade as the real original source');
+  assert.equal(report.competitiveGamesQualified,0);
 });
