@@ -47,3 +47,22 @@ The test requests the actual Store `PlayCardAction` for the fourth Psychic, vali
 ### Source identity audit (4 November 2026)
 
 Direct inspection of the pinned upstream `set-mega-evolution-energy/basic-energies.ts` verifies **Psychic Energy MEE 005** (`setNumber: '5'`) is the only MEE Psychic card registered in that set's `index.ts`; the archived source 60's MEE 013 is a different published art variant of the same Basic Energy. The native witness now asserts both identifiers and exports `energyPrintProxy.exactPrintingPreserved:false` for machine-readable reproducibility. This correction matters for any claim of **exact 60-printing reproduction**, even though the game mechanics for the Basic Energy are identical. The separate pure integration test now uses the pinned enum **CardType.COLORLESS=9** and `[9,9,9]` cost, correcting its earlier incorrect synthetic value of 10. No compiled native run or game result was added by this source audit.
+
+
+## Compiled pinned native result, 5 November 2026
+
+**This section supersedes all earlier statements that the constructed native fixture remains unexecuted.** Agent17 dispatched the existing manual-only [rank1 native owner-prompt workflow](https://github.com/FlareZ123/experiment-01/actions/workflows/agent34-underworld-owner-prompt-native.yml) with \`agent17_max_geist_native=true\`. [Run 42130706095](https://github.com/FlareZ123/experiment-01/actions/runs/42130706095) **completed successfully**, checkout head \`78f1dfb8a6534d49efae0f8eab548a14b03968cd\`, pinned Twinleaf \`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05\`. The archived [actual two-arm Store JSON (artifact 13462608825)](https://github.com/FlareZ123/experiment-01/actions/runs/42130706095/artifacts/13462608825) was downloaded and inspected independently after CI.
+
+| Genuine constructed Store event | Control (three Psychic) | Opt-in fourth Psychic |
+| --- | --- | --- |
+| Actor's first printed action | Max Geist attack | Physical \`PlayCardAction\` Psychic Energy MEE005 to Active |
+| Native Energy attachment | No new card | Store accepted, moved held Basic to Active, used turn Energy quota |
+| Actual printed attack \`Max Geist\` | Store accepted | Store accepted |
+| Native Regidrago V SIT135 Knock Out | No | **Yes** |
+| Physically collected Prizes | **0** | **2** |
+| Native post-attack prompts | 3 WaitPrompt | WaitPrompt, ChoosePrizePrompt, ChoosePokemonPrompt, 2 WaitPrompt |
+| Actual successor | Regidrago V SIT active with 190 damage | Opponent promoted reserve Regidrago V SIT |
+
+The fixture intentionally starts with VMAX already evolved and three attached Psychic Energy, an opponent Regidrago V with 90 damage, six staged Prizes and a minimal deck. It uses gameplay-equivalent **MEE005** Basic Psychic instead of historical source print **MEE013**, explicitly flags \`exactPrintingPreserved:false\`. The physical two-Prize difference is a *conditional one-turn native counterfactual* and does not certify natural setup, timing legality of staging, adversarial opponent decisions, a 25-minute competitive game or improved field win rate.
+
+**Qualification remains unchanged:** zero competitively qualified games; no selected fixed 60; 29 of 32 original deck inventories authenticated; 99.5% unproven. Any eventual policy integration should compare this ordinary Basic attachment with Underworld Door's Energy-plus-draw opportunity and preserve printed damage modifier/lock/target checks.
