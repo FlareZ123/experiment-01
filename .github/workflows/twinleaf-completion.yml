@@ -85,6 +85,8 @@ jobs:
         run: npm run compile
       - name: Verify printed Night Watch selected v3 native prompt settlement
         run: node --test tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs
+      - name: Verify staged nonempty source Get Lost physical Lost Zone custody on both seats
+        run: node --test tests/agent27-getlost-owner-settled-native.test.cjs
       - name: Verify joined three-attack source-independent native Get Lost closure
         run: node --test tests/agent1-issue25-joined-three-attacks-v5.native.test.cjs
       - name: Stage actual two-Basic-Energy VMAX retreat and native payment on both seats
