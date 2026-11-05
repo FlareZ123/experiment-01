@@ -106,6 +106,15 @@ function runOriginalShadowMistHammerAB(runner=()=>runStewardSelectedIssue25V4())
       nativeAcceptedMandatoryPrompts:plumeria.acceptedPrompts,
       sourceOwnerPaymentsPhysicallyAccepted:
         plumeria.physicallyAcceptedOwnerPayments?.length??null,
+      ownerPaymentPrintingReceipts:
+        process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV==='true'?
+          (plumeria.physicallyAcceptedOwnerPayments??[]).map(receipt=>({
+            seat:receipt.seat,turn:receipt.turn,
+            payment:receipt.payment.map(card=>({
+              handIndex:card.handIndex,printing:card.printing
+            })),
+            acceptedByOriginalStore:receipt.acceptedByOriginalStore
+          })):undefined,
       settledOpponentEnergyDiscards:plumeria.settledEnergyDiscards,
       unresolvedPromptChains:plumeria.unresolvedChains,
       abandonedPromptChains:plumeria.abandonedChains,
