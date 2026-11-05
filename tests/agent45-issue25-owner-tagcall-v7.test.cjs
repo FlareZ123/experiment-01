@@ -103,7 +103,7 @@ test('malformed deck or missing source sixty rejected before policy invocation',
         tagCalled=true;
         return {result:null,audit:{}};
       }
-    }),/AssertionError/);
+    }),{name:'AssertionError'});
   assert.equal(tagCalled,false);
   assert.strictEqual(headless.runMatch,prior);
 });
