@@ -191,3 +191,70 @@ test('symmetry: physical source in seat zero preserves settlement and reply', ()
 test('source player seat must be explicit', () => {
   assert.throws(()=>findSettledSourceFloatStoneLines(fixture(),null),TypeError);
 });
+
+test('paper Tool payment requires an empty pre-attachment Tool slot', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events[0].publicBoardChanges[0]
+    .before.tools=['Air Balloon BLK'];
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('Store-accepted double Tool attachment is not paper-valid', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events[0].publicBoardChanges[0]
+    .after.tools.push('Air Balloon BLK');
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('Tool attachment must preserve non-Tool board state', () => {
+  const r=fixture();
+  r.nativeAcceptedTargetSidecar.events[0].publicBoardChanges[0]
+    .before.energies.pop();
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('intervening foreign nonprompt root invalidates owner-turn custody', () => {
+  const r=fixture();
+  r.rootActionLedger[2].playerSlot=0;
+  r.rootActionLedger[2].action='PlayCardAction';
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('intervening Ability cannot belong to a later turn', () => {
+  const r=fixture();
+  r.rootActionLedger[2].turnBefore=35;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('Tool-to-Retreat Active mutation is rejected despite matched endpoints', () => {
+  const r=fixture();
+  r.rootActionLedger[0].actionOrdinal=9;
+  r.nativeAcceptedTargetSidecar.events[0].rootActionOrdinal=9;
+  r.rootActionLedger.splice(1,0,{actionOrdinal:10,playerSlot:1,
+    turnBefore:34,action:'UseAbilityAction'});
+  r.nativeAcceptedTargetSidecar.events.push({
+    rootActionOrdinal:10,playerSlot:1,action:'UseAbilityAction',
+    storeAccepted:true,publicBoardChanges:[{seat:1,position:'active',
+      before:{pokemon:'Shadow Rider Calyrex VMAX CRE',energies:[],tools:[]},
+      after:{pokemon:'Shadow Rider Calyrex VMAX CRE',
+        energies:['Psychic Energy MEE'],tools:[]}
+    }]
+  });
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('completion root must exist in the recorded ledger', () => {
+  const r=fixture();
+  r.sourceAttackSettlement.attacks[0].completionRootOrdinal=19;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('later-turn opposing activity is not an immediate opponent reply', () => {
+  const r=fixture();
+  r.rootActionLedger.at(-1).turnBefore=39;
+  const lines=findSettledSourceFloatStoneLines(r,1);
+  assert.equal(lines.length,1);
+  assert.equal(lines[0].opponentFirstNonPrompt,null);
+});
+test('earlier source decision prevents misattributed opposing continuation', () => {
+  const r=fixture();
+  r.rootActionLedger.at(-1).playerSlot=1;
+  r.rootActionLedger.push({actionOrdinal:17,playerSlot:0,turnBefore:36,
+    action:'PlayCardAction',card:'Unown'});
+  const lines=findSettledSourceFloatStoneLines(r,1);
+  assert.equal(lines.length,1);
+  assert.equal(lines[0].opponentFirstNonPrompt,null);
+});
