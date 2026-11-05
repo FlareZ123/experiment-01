@@ -25,7 +25,7 @@ function chooseLetterDarkness(prompt,owner,types){
   const basics=owner.deck.cards.filter(card=>
     card.superType===types.SuperType.ENERGY &&
     card.energyType===types.EnergyType.BASIC &&
-    card.provides?.includes(types.CardType.DARKNESS));
+    card.provides?.includes(types.CardType.DARK));
   if(basics.length<2)return null;
   // Both cards have identical printed Energy function; using physical deck
   // order only after the permitted search does not influence future draws.
