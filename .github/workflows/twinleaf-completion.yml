@@ -101,7 +101,17 @@ jobs:
         run: npm run compile
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          ISSUE25_STEWARD_V4_DIR: issue25-steward-v4
         run: node --test tests/agent36-issue25-steward-selected-v4.test.cjs tests/agent36-issue25-steward-selected-v4.native.test.cjs
+      - name: Archive original eight-arm steward v4 receipt and SHA256
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-steward-selected-v4-native
+          path: issue25-steward-v4/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Verify real original rank5 setup Confirm settlements on both seats
         run: node --test tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs
       - name: Validate original rank4 protected entry multi-Basic physical setup on both seats
