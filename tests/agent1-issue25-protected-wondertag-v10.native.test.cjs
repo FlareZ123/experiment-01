@@ -71,6 +71,16 @@ test('native eight original-source same-protected-opening Wonder Tag source and 
   assert.ok(r.registeredWonderTagActorWitness);
   assert.equal(r.registeredWonderTagActorWitness.authenticatedTrialAndActorSeat,true);
   assert.equal(r.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
+  const roles=r.registeredWonderTagActorWitness.settledRoleCensus;
+  assert.ok(roles,'Native selected Supporter settlement requires registered source/contender join');
+  assert.equal(roles.originalSourceSupporterTransfers+
+    roles.contenderSupporterTransfers,
+    r.actualOwnerWonderTagAudit.settledSupporterTransfers);
+  assert.equal(roles.originalSourceSearches+roles.contenderSearches,
+    r.actualOwnerWonderTagAudit.searchOffers);
+  assert.equal(roles.registeredDecisions.length,
+    r.actualOwnerWonderTagAudit.searchOffers);
+  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
   assert.equal(r.competitiveGamesQualified,0);
   assert.equal(r.winRateClaim,null);
 });
