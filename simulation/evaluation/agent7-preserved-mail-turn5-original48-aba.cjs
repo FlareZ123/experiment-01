@@ -85,6 +85,12 @@ function runPreservedMailTurn5Aba(deps={}){
       }));
     assert.deepEqual(beforeFive(a),beforeFive(b),
       id+' original Plumeria payment changed before Mail treatment');
+    if(id===TARGET){
+      const paid=beforeFive(a).find(p=>
+        p.seat===1&&p.turn===3&&p.accepted===true);
+      assert.deepEqual(paid?.payment,
+        ['Enhanced Hammer TWM',"Trainers' Mail ROS"]);
+    }
     return {
       id,sourceSeat,starter:a.actualStarterSeat,
       sourceDeal:a.sourceDealFingerprint,
