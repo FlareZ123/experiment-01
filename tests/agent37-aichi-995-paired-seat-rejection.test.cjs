@@ -11,9 +11,9 @@ const {
 const candidateId = "synthetic-fixed-60-only";
 const makePair = (id, rank, outcomes = ["win", "win"]) => ({
   pairId: id, candidateId, originalRank: rank,
-  pairingDesign: "TWO_SOURCE_SEATS_PRECOMMITTED",
+  pairingDesign: "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
   games: outcomes.map((outcome, sourceSeat) => ({
-    id: id + ":source-seat-" + sourceSeat, sourceSeat,
+    id: id + ":source-seat-" + sourceSeat, sourceSeat,\n    candidateActualStart: sourceSeat === 0 ? "first" : "second",
     qualification: "QUALIFIED", outcome
   }))
 });
@@ -104,6 +104,23 @@ test("duplicate, partial, one-seat, changed-deck, unqualified, bad outcomes fail
   assert.throws(() => assessPairedSeatRejection([{...pair, games:[pair.games[0], {...pair.games[1], outcome:"capped"}]}], candidateId));
   assert.throws(() => assessPairedSeatRejection([{...pair, games:[pair.games[0], {...pair.games[1], id:pair.games[0].id}]}], candidateId), /Duplicate game/);
   assert.throws(() => assessPairedSeatRejection([{...pair, originalRank:33}], candidateId));
+});
+
+test("mirrored physical seats alone cannot replace balanced actual first-turn status", () => {
+  const a = makePair("same-actual-start", 6);
+  a.games[1].candidateActualStart = "first";
+  assert.throws(() => assessPairedSeatRejection([a], candidateId),
+    /same actual start/);
+  const b = makePair("unknown-actual-start", 6);
+  delete b.games[1].candidateActualStart;
+  assert.throws(() => assessPairedSeatRejection([b], candidateId),
+    /verified actual first\/second turn/);
+  const c = makePair("seats-swapped-actual-balanced", 6);
+  c.games[0].candidateActualStart = "second";
+  c.games[1].candidateActualStart = "first";
+  const report = assessPairedSeatRejection([c], candidateId);
+  assert.equal(report.observedCompletePairClaims, 1);
+  assert.equal(report.actualFirstTurnVerifiedExternally, false);
 });
 
 test("all thirty-two ranks with one perfect synthetic pair never prove 99.5%", () => {
