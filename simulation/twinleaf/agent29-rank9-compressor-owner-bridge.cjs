@@ -115,12 +115,12 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     events:[]};
 
   function selected(state){
-    const previous=originalDecode.value.call(this,state);
     const actorSeat=state.players?.findIndex(p=>p.id===this.client?.id);
     if(this.client?.id===undefined||actorSeat!==sourceSeat||
       state!==liveStore?.state||
       state.phase!==GamePhase.PLAYER_TURN||
-      state.activePlayer!==sourceSeat)return previous;
+      state.activePlayer!==sourceSeat)
+      return originalDecode.value.call(this,state);
     const source=state.players[sourceSeat];
     const waiting=state.prompts?.find(p=>p.result===undefined);
     const inflight=pendingByOwner.get(source.id);
@@ -136,6 +136,9 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
       audit.ownerDeckPromptDecisions++;
       return action;
     }
+    // Resolve our verified own-deck search before invoking the inner decoder:
+    // the stock decoder can abort on a prompt that this hook owns.
+    const previous=originalDecode.value.call(this,state);
     if(previous?.constructor?.name!=='PassTurnAction'||waiting)return previous;
     audit.actualPasses++;
     const view=observation(state,sourceSeat);
