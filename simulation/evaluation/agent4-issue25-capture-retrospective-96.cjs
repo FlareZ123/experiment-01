@@ -13,7 +13,7 @@ const {withThreePrintedOwnerAttackFrontiers}=
 const {withOwnerCaptureEnergySearch}=
   require('../twinleaf/agent41-owner-capture-energy-search.cjs');
 
-const VERSION='agent4-issue25-capture-retrospective-96root-v1';
+const VERSION='agent4-issue25-capture-retrospective-96root-v2-abort-ledger';
 const ROOT_LIMIT=96;
 const sha256=value=>createHash('sha256').update(JSON.stringify(value))
   .digest('hex');
@@ -56,7 +56,7 @@ function withCaptureContinuation(next){
  */
 function publicAttempt(row){
   const roots=Array.isArray(row.rootActionLedger)?
-    row.rootActionLedger:[];
+    row.rootActionLedger:(row.nativeAbortEvidence?.rootActionLedger??[]);
   return {
     id:row.trial?.id??null,
     sourceSeat:row.sourceSeat??row.nativeAbortProvenance?.sourceSeat??null,
