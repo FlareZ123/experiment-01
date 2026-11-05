@@ -1,0 +1,121 @@
+{
+  "schema": "agent22-original-aichi-promo-date-upper-bound-v1",
+  "eventDate": "2026-05-10",
+  "sourceArchive": "results/aichi-2026/full-decklists.json",
+  "previousEnglishSetAudit": "results/methodology/agent23-aichi-english-CRI-postevent-japanese-M4-crosswalk-20261105.md",
+  "scope": "Eight uniquely identified promotional card display entries whose release-date metadata was unresolved. By-month-end bounds reflect dated distribution records, not precise first sale dates or verification of players' historical physical copies.",
+  "sourceRows": 22,
+  "sourceCopies": 31,
+  "entries": [
+    {
+      "sourceSet": "BWP",
+      "sourceNumber": "50",
+      "name": "Tropical Beach",
+      "copies": 4,
+      "languageFamily": "English BW Black Star Promo",
+      "availableBy": "2012-08-31",
+      "basis": "World Championships 2012 distribution in August 2012",
+      "sources": [
+        "https://www.pokebeach.com/2012/08/worlds-2012-swag-tropical-beach-promo",
+        "https://bulbapedia.bulbagarden.net/wiki/Tropical_Beach"
+      ]
+    },
+    {
+      "sourceSet": "BWP",
+      "sourceNumber": "153",
+      "name": "Palace Belt",
+      "copies": 3,
+      "languageFamily": "Japanese BW-P Promo",
+      "availableBy": "2012-06-30",
+      "basis": "Battle Carnival 2012 Spring distribution (May-June 2012)",
+      "sources": [
+        "https://www.pokemon-card.com/card-search/details.php/card/28213",
+        "https://bulbapedia.bulbagarden.net/wiki/Palace_Belt_(BW-P_Promo_153)"
+      ]
+    },
+    {
+      "sourceSet": "SMP",
+      "sourceNumber": "217",
+      "name": "Trevenant & Dusknoir-GX",
+      "copies": 1,
+      "languageFamily": "English SM Black Star Promo",
+      "availableBy": "2019-10-31",
+      "basis": "Pale Moon-GX Box released October 25, 2019; Japanese Tag All Stars existed earlier",
+      "sources": [
+        "https://bulbapedia.bulbagarden.net/wiki/Trevenant_%26_Dusknoir-GX_(SM_Promo_217)",
+        "https://limitlesstcg.com/cards/en/SMP/217"
+      ]
+    },
+    {
+      "sourceSet": "SMP",
+      "sourceNumber": "NAN25",
+      "name": "Palace Book",
+      "copies": 6,
+      "languageFamily": "Japanese unnumbered SM-P Promo; archive number NAN25 is a catalog alias",
+      "availableBy": "2017-11-30",
+      "basis": "Palace Battle winner promotion throughout November 2017; same card design as XY-P 2014",
+      "sources": [
+        "https://www.pokemon-card.com/card-search/details.php/card/34382/regu/all",
+        "https://bulbapedia.bulbagarden.net/wiki/Palace_Book_(SM-P_Promo)",
+        "https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en"
+      ]
+    },
+    {
+      "sourceSet": "SP",
+      "sourceNumber": "127",
+      "name": "Player's Ceremony",
+      "copies": 5,
+      "languageFamily": "Japanese S-P Promo",
+      "availableBy": "2020-09-30",
+      "basis": "2019-2020 Championship Point award distributed around September 2020",
+      "sources": [
+        "https://www.pokemon-card.com/card-search/details.php/card/38633/regu/XY",
+        "https://pokeboon.com/127sp-playersceremony-promo/"
+      ]
+    },
+    {
+      "sourceSet": "XYP",
+      "sourceNumber": "49",
+      "name": "Regirock",
+      "copies": 3,
+      "languageFamily": "English XY Black Star Promo",
+      "availableBy": "2015-05-31",
+      "basis": "Roaring Skies blisters available May 2015",
+      "sources": [
+        "https://www.pokebeach.com/2015/05/xy-regirock-pangoro-heliolisk-meowstic-promos",
+        "https://bulbapedia.bulbagarden.net/wiki/Regirock_(XY_Promo_49)"
+      ]
+    },
+    {
+      "sourceSet": "XYP",
+      "sourceNumber": "67",
+      "name": "Jirachi",
+      "copies": 1,
+      "languageFamily": "English XY Black Star Promo",
+      "availableBy": "2015-11-30",
+      "basis": "BREAKthrough single-pack blister promotion in 2015; matching Japanese design already distributed May-July 2015",
+      "sources": [
+        "https://bulbapedia.bulbagarden.net/wiki/Jirachi_(XY_Promo_67)",
+        "https://tcgpromos.com/sets/xyp"
+      ]
+    },
+    {
+      "sourceSet": "XYP",
+      "sourceNumber": "177",
+      "name": "Karen",
+      "copies": 8,
+      "languageFamily": "English XY Black Star Promo",
+      "availableBy": "2016-09-30",
+      "basis": "English Battle Arena Decks distributed September 21, 2016; Japanese Karen Night Battle promotion August-September 2016",
+      "sources": [
+        "https://bulbapedia.bulbagarden.net/wiki/Karen_(XY_Promo_177a)",
+        "https://tcgpromos.com/sets/xyp"
+      ]
+    }
+  ],
+  "originalDecksUnchanged": true,
+  "cardDesignPreEventKnown": true,
+  "exactPlayerPhysicalPrintingCertified": false,
+  "paperExpandedLegalityCertified": false,
+  "competitiveGamesQualified": 0
+}
