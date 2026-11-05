@@ -5,7 +5,7 @@ const path=require('node:path');
 const {campingGearPaperVerdict}=
   require('./agent12-campinggear-prompt-paper-hook.cjs');
 
-const VERSION='agent12-paper-prompt-disposition-observer-v1';
+const VERSION='agent12-paper-prompt-disposition-observer-v2-native-settlement';
 
 /**
  * Report strictly covered printed paper contracts separately from native
@@ -61,7 +61,9 @@ function withPaperPromptDispositionObserver(run,options={}){
   const maxExamples=options.exampleLimit??12;
   assert.ok(Number.isInteger(maxExamples)&&maxExamples>=0&&maxExamples<=100);
   const audit={version:VERSION,coverage:'Camping Gear BST only',
-    resolvedPromptAttempts:0,nativeAccepted:0,nativeRejected:0,
+    resolvedPromptAttempts:0,nativeAccepted:0,nativeSettled:0,
+    nativeReturnedNoThrow:0,nativeReturnOnlyNoOp:0,
+    nativeSettlementUnverified:0,nativeRejected:0,
     statusCounts:{PROMPT_PAPER_VERIFIED:0,PROMPT_PAPER_INVALID:0,
       PROMPT_PAPER_UNVERIFIED:0},
     firstByStatus:{},examples:[],examplesTruncated:false,
@@ -72,15 +74,37 @@ function withPaperPromptDispositionObserver(run,options={}){
     const index=audit.resolvedPromptAttempts++;
     audit.statusCounts[classification.status]++;
     const receipt={ordinal:index,actorTurn:this.state.turn??null,
-      ...classification,nativeAccepted:null};
+      ...classification,nativeAccepted:null,nativeSettlement:null,
+      nativeReturnedNoThrow:false,physicalEffectVerified:false};
     if(!audit.firstByStatus[classification.status])
       audit.firstByStatus[classification.status]=receipt;
     if(audit.examples.length<maxExamples)audit.examples.push(receipt);
     else audit.examplesTruncated=true;
+    // A nonthrowing Store return can be a silent no-op for stale prompt IDs.
+    // Capture the actual live object before dispatch, then check its result.
+    // Matching a result proves only native prompt settlement, never card
+    // custody, printed effect completion, or a competitive paper-valid action.
+    const pending=this.state.prompts?.find(p=>
+      p.id===action.id&&p.result===undefined);
     try{
       const result=original.value.apply(this,[action,...args]);
-      receipt.nativeAccepted=true;
-      audit.nativeAccepted++;
+      receipt.nativeReturnedNoThrow=true;
+      audit.nativeReturnedNoThrow++;
+      if(pending&&Object.is(pending.result,action.result)){
+        receipt.nativeSettlement='PROMPT_RESULT_SETTLED';
+        receipt.nativeAccepted=true;
+        audit.nativeAccepted++;
+        audit.nativeSettled++;
+      }else if(pending&&pending.result===undefined&&
+               this.state.prompts?.includes(pending)){
+        receipt.nativeSettlement='NATIVE_RETURN_ONLY_NO_OP';
+        receipt.nativeAccepted=false;
+        audit.nativeReturnOnlyNoOp++;
+      }else{
+        receipt.nativeSettlement='PROMPT_SETTLEMENT_UNVERIFIED';
+        receipt.nativeAccepted=false;
+        audit.nativeSettlementUnverified++;
+      }
       return result;
     }catch(error){
       receipt.nativeAccepted=false;
