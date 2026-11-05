@@ -39,12 +39,18 @@ on:
         required: false
         default: false
 
+      rank4_dedechange_only:
+        description: Run only four original rank4 source first-turn entry Ability probes
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -164,8 +170,40 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  original4-firstturn-dedechange:
+    if: ${{ inputs.rank4_dedechange_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout existing pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute four original rank4 same-hand entry-support first-turn native probes
+        env:
+          AGENT50_RANK4_DEDECHANGE_OUTPUT: artifacts/agent50-rank4-firstturn-dedechange-v1
+        run: node --test tests/agent50-rank4-first-turn-dedechange.native.test.cjs
+      - name: Preserve all four source original attempts including failures and no-Ability
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-original4-firstturn-dedechange-${{ github.run_id }}
+          path: artifacts/agent50-rank4-firstturn-dedechange-v1/
+          if-no-files-found: warn
+          retention-days: 30
+
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
