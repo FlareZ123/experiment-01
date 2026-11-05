@@ -208,6 +208,15 @@ if(require.main===module){
     sameTurnEnergyPlays:result.sameTurnRealOwnerDarknessEnergyPlayRoots.length,
     acceptedRoots:result.originalSourceAcceptedRoots,
     disposition:result.originalSourceRowDisposition,
+    // Agent3: postmortem only. Raw receipt already stores these fields.
+    // Report bounded error strings without card-zone objects.
+    errorSummary:typeof result.originalSourceArchivedNativeError==='string'
+      ?result.originalSourceArchivedNativeError.slice(0,360):
+      result.originalSourceArchivedNativeError?.message?.slice(0,360)??null,
+    causeFirstLine:typeof result.originalSourceNativeStoreCauseStack==='string'
+      ?result.originalSourceNativeStoreCauseStack.split('\\n')[0].slice(0,360):null,
+    causeType:typeof result.originalSourceNativeStoreCauseStack,
+    abortKeys:Object.keys(result.originalSourceNativeAbortProvenance??{}).sort(),
     qualifiedGames:0
   })+'\n');
 }
