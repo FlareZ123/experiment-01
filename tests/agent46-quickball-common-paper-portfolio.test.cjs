@@ -93,7 +93,8 @@ test('actual Quick Ball payment prompt rejects zero and physically foreign choic
     }
     return true;
   });
-  assert.equal(out.audit.inspectedQuickBallPaymentPrompts,2);
+  assert.equal(out.audit.inspectedQuickBallPaymentPrompts,1,
+    'Foreign choices are rejected by the earlier generic physical-source guard');
   assert.equal(out.audit.vetoedBeforeDispatch,2);
   assert.equal(out.audit.nativeAccepted,0);
 });
