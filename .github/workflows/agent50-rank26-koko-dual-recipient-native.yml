@@ -444,7 +444,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Owner prompt settlement and silent no-op regressions on both seats
-        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent3-issue25-owner-prompt-settlement-composition.test.cjs tests/agent21-owner-first-prize-reveal.test.cjs tests/agent3-owner-ko-prize-settlement-evidence.test.cjs
+        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent3-issue25-owner-prompt-settlement-composition.test.cjs tests/agent21-owner-first-prize-reveal.test.cjs tests/agent3-owner-ko-prize-settlement-evidence.test.cjs tests/agent3-prize-shuffle-ignored-return-hook.test.cjs
       - name: Pure owner Pokemon source custody and A/B/A gates
         run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.test.cjs
       - name: Genuine native ChoosePokemon prompt owner intervention A/B/A
