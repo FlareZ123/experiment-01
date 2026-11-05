@@ -190,7 +190,7 @@ jobs:
         if: ${{ inputs.include_agent45_tagcall_v7 }}
         env:
           ISSUE25_AGENT45_TAGCALL_V7_DIR: issue25-agent45-tagcall-v7
-        run: node --test tests/agent45-issue25-owner-tagcall-v7.test.cjs tests/agent45-issue25-owner-tagcall-v7.native.test.cjs
+        run: node --test tests/agent45-issue25-owner-tagcall-v7.test.cjs tests/agent45-owner-tagcall-public-difference.test.cjs tests/agent45-issue25-owner-tagcall-v7.native.test.cjs
       - name: Retrospective Agent45 native-selected VIP prompt after genuine Item root, identical v5 initial source deals
         if: ${{ inputs.include_agent45_native_vip_v6 }}
         env:
