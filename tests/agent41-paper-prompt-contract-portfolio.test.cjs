@@ -445,8 +445,8 @@ for(const seat of [0,1]){
     assert.equal(audit.nativeAccepted,0);
     assert.equal(audit.stores[0].acceptedPromptReplies,0);
     assert.equal(audit.byTrial['6:0:A:champion-reference'].nativeAccepted,0);
-    assert.equal(audit.events[0].nativeSilentNoop,true);
-    assert.equal(audit.events[0].physicalEffectVerified,false);
+    assert.equal(audit.examples[0].nativeSilentNoop,true);
+    assert.equal(audit.examples[0].physicalEffectVerified,false);
     assert.equal(prompt.result,undefined);
     assert.strictEqual(SilentPromptStore.prototype.dispatch,initial);
   });
@@ -463,7 +463,7 @@ test('undefined submitted answer cannot make unresolved prompt appear settled',(
   assert.equal(audit.nativePromptSettled,0);
   assert.equal(audit.nativeSilentNoop,1);
   assert.equal(audit.nativeAccepted,0);
-  assert.equal(audit.events[0].status,'PAPER_PROMPT_UNVERIFIED');
+  assert.equal(audit.examples[0].status,'PAPER_PROMPT_UNVERIFIED');
 });
 
 test('stale source prompt ID is no-throw but cannot count native acceptance',()=>{
@@ -477,5 +477,5 @@ test('stale source prompt ID is no-throw but cannot count native acceptance',()=
   assert.equal(audit.nativeSilentNoop,0);
   assert.equal(audit.nativeSettlementUnverified,1);
   assert.equal(audit.nativeAccepted,0);
-  assert.equal(audit.events[0].nativeSettlementUnverified,true);
+  assert.equal(audit.examples[0].nativeSettlementUnverified,true);
 });
