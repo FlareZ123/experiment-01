@@ -31,7 +31,7 @@ The test joins by **registered trial ID and physical owner seat**, never by Stor
 | Same native root-action count | **8 / 8** | Includes censored/returned-unqualified games |
 | Qualified competitive games | **0** | No paper-valid win-rate inference |
 
-Six? Actually the eight statuses were: seven `returned-unqualified`, one `engine-error` (rank 11, trial `11:102:A:champion-reference`). Error and unqualified statuses are deliberately retained; they are not categorized as wins, draws, legal games, or opponent failures.
+The eight statuses were: seven `returned-unqualified`, one `engine-error` (rank 11, trial `11:102:A:champion-reference`). Error and unqualified statuses are deliberately retained; they are not categorized as wins, draws, legal games, or opponent failures.
 
 ## Interpretation and constraints
 
