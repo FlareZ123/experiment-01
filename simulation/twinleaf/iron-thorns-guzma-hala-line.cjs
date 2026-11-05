@@ -89,11 +89,20 @@ function runLine() {
   }
   assert.equal(Boolean(pending()),false);
   assert.equal(f.b.active.damage,140);
+  // Paper rules II-A and C-10: when no Benched Pokémon exists, the
+  // instruction to move Energy has no legal recipient and is ignored.
+  // Volt Cyclone's attack damage still resolves, retaining the physical
+  // Energy for a possible subsequent attack.
+  assert.ok(f.a.active.energies.cards.includes(dce),
+    'No Bench Volt Cyclone must retain its exact physical DCE');
   return {source:'Aichi rank6, conditional unprized DCE',
     sourceSupporter:'Guzma & Hala CEC',
     discarded:[guzma.name,beach.name],searched:[dce.name,wondrous.name],
     activeStadium:thunder.name,damage:f.b.active.damage,
-    noBenchedPokemon:true,followups,animation,
+    noBenchedPokemon:true,
+    exactDceRetainedAfterNoBenchVoltCyclone:
+      f.a.active.energies.cards.includes(dce),
+    followups,animation,
     caveat:'Injected source-representable hand and unprized DCE; no bot policy or actual seed replay'};
 }
 if(require.main===module) console.log(JSON.stringify(runLine(),null,2));
