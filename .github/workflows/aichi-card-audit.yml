@@ -134,9 +134,10 @@ jobs:
       - name: Verify rank6 source Thunder-DCE first-turn physical resource screen
         if: ${{ always() && !cancelled() }}
         run: |
-          node --test tests/agent32-rank6-thunder-dce-resource-gate.test.cjs
+          node --test tests/agent32-rank6-thunder-dce-resource-gate.test.cjs tests/agent32-rank6-path-partition.test.cjs
           node -e "const x=require('./simulation/evaluation/agent32-rank6-thunder-dce-resource-gate.cjs').main(); console.log(JSON.stringify({rank:x.sourceRank,seven:x.vsSeven.routeProbabilityLower,fourteen:x.vsFourteen.routeProbabilityLower,tail:x.vsSeven.unknownTail}));"
           python simulation/evaluation/agent32-rank6-thunder-dce-physical-check.py
+          node -e "const x=require('./simulation/evaluation/agent32-rank6-thunder-dce-route-partition.cjs').main(); console.log(JSON.stringify({rank:6,vsSeven:x.vsSeven.partitions,vsFourteen:x.vsFourteen.partitions}));"
       - name: Verify original-29 printed Basic subtypes and simultaneous mulligan offer arithmetic
         if: ${{ always() && !cancelled() }}
         run: |
