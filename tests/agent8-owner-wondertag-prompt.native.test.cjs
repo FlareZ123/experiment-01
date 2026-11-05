@@ -41,6 +41,11 @@ function nativeProbe(seat){
             action=ai.decodeNextAction(x.state);
             assert.ok(action instanceof ResolvePromptAction);
           }else if(kind==='ShowCardsPrompt'){
+            assert.equal(p.playerId,x.opponent.id,
+              'Wonder Tag must reveal the selected Supporter to the opponent');
+            assert.equal(p.cards.length,1);
+            assert.ok(originalSupporters.includes(p.cards[0]),
+              'Opponent revelation must be the original physical Supporter');
             action=new ResolvePromptAction(p.id,true);
           }else if(kind==='ShuffleDeckPrompt'){
             const n=x.owner.deck.cards.length;
@@ -75,6 +80,7 @@ test('compiled original-60 Tapu Lele Wonder Tag owner prompt policy selects a Su
     }));
     assert.deepEqual(data.events.map(e=>e.kind),[
       'ConfirmPrompt','ChooseCardsPrompt','ShowCardsPrompt','ShuffleDeckPrompt']);
+    assert.deepEqual(data.events.map(e=>e.owner),[true,true,false,true]);
     assert.equal(data.acquired,1);
     assert.equal(data.turn,2);
     assert.equal(data.competitiveQualifiedGames,0);
