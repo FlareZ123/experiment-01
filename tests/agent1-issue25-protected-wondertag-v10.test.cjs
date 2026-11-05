@@ -253,3 +253,40 @@ test('missing source-local Wonder Tag shuffle custody vetoes settled role census
   assert.equal(w.nativeSettlementOfEveryChoiceAttested,false);
   assert.equal(w.settledRoleCensus,null);
 });
+
+test('identical HMAC records cannot pass with missing private session identity',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  delete a.diagnostic.actualNativePrechoicePhysicalInputs.privateFingerprintSessionId;
+  delete b.diagnostic.actualNativePrechoicePhysicalInputs.privateFingerprintSessionId;
+  const r=compareProtectedWonderTagV10(a,b);
+  assert.equal(r.comparisonEligibleForPolicyStudy,false);
+  assert.equal(r.samePrivateHmacSession,false);
+});
+
+test('one registered trial cannot merge two distinct physical native Store instances',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[1].nativeStoreOrdinal=8;
+  assert.throws(()=>compareProtectedWonderTagV10(a,b),
+    /Both owners of a registered native trial must share one Store/);
+});
+
+test('one physical Store cannot be attributed to different trials',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[2].nativeStoreOrdinal=1;
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[3].nativeStoreOrdinal=1;
+  assert.throws(()=>compareProtectedWonderTagV10(a,b),
+    /One native Store must have one registered trial ID/);
+});
+
+test('both owner views must agree on actual first player and one registered request',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[1].nativeFirstPlayerSeat=1;
+  assert.throws(()=>compareProtectedWonderTagV10(a,b),
+    /Both owners of a registered native trial must agree on the first player/);
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[1].nativeFirstPlayerSeat=0;
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[1]
+    .opaquePreRunRequestHmacSha256=createHash('sha256')
+      .update('misregistered-request').digest('hex');
+  assert.throws(()=>compareProtectedWonderTagV10(a,b),
+    /Both owners must witness one genuine registered native request/);
+});
