@@ -141,6 +141,10 @@ function runArm(trial,cards){
       rank1PassCount:rank1Roots.filter(x=>x.action==='PassTurnAction').length,
       rank3PassCount:rank3Roots.filter(x=>x.action==='PassTurnAction').length,
       nativeTerminal:terminal,
+      ...(trial.captureAttackTrace===true?{
+        nativeAttackDeclarationTrace:game.attackDeclarationTrace??[],
+        nativePublicAttackTransitions:game.publicAttackTransitions??[]
+      }:{}),
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
       ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
@@ -156,6 +160,9 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.captureAttackTrace===true?{
+        nativeAttackDeclarationTrace:null,nativePublicAttackTransitions:null
+      }:{}),
       ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
       ...(trial.basicRetreatReserveAudit===true?{
         attachmentReserveAudit}:{}),
