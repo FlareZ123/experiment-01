@@ -54,6 +54,10 @@ test('existing v6 eight contexts with explicitly retrospective 96-root Capture f
   assert.equal(r.pairing.length,8);
   assert.ok(r.matchingFullInitialDealAndOriginalSourceDeal);
   assert.equal(r.captureAudit?.acceptedOwnerSearches>=1,true);
+  assert.ok(source.roots.length>0,
+    'An aborted original source trial must retain accepted native public roots');
+  assert.ok(captureIndex>=0,
+    'Retrospective source abort evidence must preserve the accepted Capture Energy root');
   assert.equal(r.competitiveGamesQualified,0);
   assert.equal(r.winRateClaim,null);
 });
