@@ -55,7 +55,7 @@ test('exactly both physical seats are symmetrically intercepted and prototype re
   assert.equal(both.audit.blockedExamples.length,2);
   assert.equal(both.audit.competitivelyQualifiedGames,0);
   assert.equal(both.audit.selectedInSharedBenchmark,false);
-  assert.equal(VERSION,'agent6-bilateral-active-tool-jammer-paper-guard-v1');
+  assert.equal(VERSION,'agent6-bilateral-active-tool-jammer-paper-guard-v2-physical-owner');
   assert.equal(PIN.length,40);
   assert.deepEqual(Object.getOwnPropertyDescriptor(Store.prototype,
     'reduceEffect'),prior);
@@ -106,6 +106,27 @@ test('nested native ToolEffect inquiry about the opposing Jammer does not recurs
   }});
   assert.equal(receipt.result,1);
   assert.equal(receipt.audit.blockedQueries,1);
+});
+
+test('defending Active Handheld Fan is blocked even when ToolEffect player is attacker',()=>{
+  const x=fixture(0),fan={fullName:'Handheld Fan TWM'};
+  // Pinned HandyFan.reduceEffect constructs ToolEffect(effect.player,this).
+  // For AfterDamageEffect, effect.player is the ATTACKER, not the
+  // defending Tool owner, so physical attachment decides suppression.
+  x.owner.active.tools=[fan];
+  const prior=Object.getOwnPropertyDescriptor(Store.prototype,'reduceEffect');
+  const receipt=run(()=>{
+    assert.throws(()=>x.store.reduceEffect(x.state,
+      new ToolEffect(x.opponent,fan)),/PAPER_ACTIVE_TOOL_JAMMER_BLOCK/);
+    return 'defending-fan-stopped';
+  });
+  assert.equal(receipt.result,'defending-fan-stopped');
+  assert.equal(receipt.audit.blockedByOwnerSeat['0'],1);
+  assert.equal(receipt.audit.blockedForeignEffectPlayerQueries,1);
+  assert.equal(receipt.audit.blockedExamples[0].ownerSeat,0);
+  assert.equal(receipt.audit.blockedExamples[0].effectPlayerSeat,1);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(Store.prototype,
+    'reduceEffect'),prior);
 });
 
 test('hidden opponent hand, deck and Prizes are not consulted',()=>{
