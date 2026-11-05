@@ -154,3 +154,25 @@ test('exceptions restore all patched prototypes',()=>{
   assert.strictEqual(FakeStore.prototype.dispatch,previous[1]);
   assert.strictEqual(TapuLeleGX.prototype.reduceEffect,previous[2]);
 });
+
+
+test('owner-confirm resolution bypasses an unrelated earlier opponent prompt',()=>{
+  const f=fixture(0,[supporter('Carmine')]);
+  const opponentPrompt=new ConfirmPrompt(1,GameMessage.WANT_TO_USE_ABILITY);
+  opponentPrompt.id=99;
+  f.state.prompts.push(opponentPrompt);
+  const {audit}=withOwnerWonderTagPrompts(()=>{
+    f.lele.reduceEffect(f.store,f.state,
+      new PlayPokemonEffect(f.players[0],f.lele));
+    const ownerAction=f.ai.decodeNextAction(f.state);
+    assert.equal(ownerAction.id,1);
+    assert.equal(ownerAction.result,true);
+    f.store.dispatch(ownerAction);
+    const searchAction=f.ai.decodeNextAction(f.state);
+    assert.equal(searchAction.id,2);
+    assert.deepEqual(searchAction.result.map(c=>c.fullName),['Carmine']);
+    f.store.dispatch(searchAction);
+    assert.equal(opponentPrompt.result,undefined);
+  },dependencies);
+  assert.equal(audit.nativeAccepted,2);
+});
