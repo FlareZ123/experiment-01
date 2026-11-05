@@ -43,8 +43,12 @@ test('pinned native intrinsic Pokemon score ignores two attached special Energie
   assert.equal(prepared.energies.cards.length,2);
   assert.equal(empty.energies.cards.length,0);
   const stateScore=new StateScore({scores:defaultStateScores});
-  assert.equal(stateScore.getPokemonScore(prepared),
-    stateScore.getPokemonScore(empty));
+  const fundedScore=stateScore.getPokemonScore(prepared);
+  const emptyScore=stateScore.getPokemonScore(empty);
+  // Pinned default: 230 HP*0.3 + 140 attack*0.4 +
+  // 1 printed Ability*1 - 4 printed retreat symbols*5 = 106.
+  assert.equal(fundedScore,106);
+  assert.equal(fundedScore,emptyScore);
 });
 
 test('default pinned ChoosePokemon prompt picks earlier identical Bench slot',()=>{
