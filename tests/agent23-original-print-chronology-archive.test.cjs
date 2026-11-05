@@ -52,3 +52,22 @@ test('historical English chronology refuses to classify promo and Energy set ide
   assert.equal(audit.unresolvedEnglishCodeCopies,
     audit.unresolvedEnglishCodes.reduce((n,x)=>n+x.copies,0));
 });
+
+
+test('English original-card text equivalents retain exact M4 counterpart identity',()=>{
+  const cards=require('../resources/cards/en/me4.json');
+  const trubbish=cards.find(x=>x.id==='me4-56');
+  const red=cards.find(x=>x.id==='me4-82');
+  assert.ok(trubbish&&red);
+  assert.equal(trubbish.name,'Trubbish');
+  assert.equal(trubbish.hp,'70');
+  assert.deepEqual(trubbish.types,['Darkness']);
+  assert.equal(trubbish.attacks[0].name,'Acid Spray');
+  assert.deepEqual(trubbish.attacks[0].cost,['Darkness']);
+  assert.equal(trubbish.attacks[0].damage,'10');
+  assert.match(trubbish.attacks[0].text,/discard an Energy/);
+  assert.equal(red.name,'Special Red Card');
+  assert.ok(red.subtypes.includes('Item'));
+  assert.match(red.rules.join(' '),/3 or fewer Prize cards remaining/);
+  assert.match(red.rules.join(' '),/draw 3 cards/);
+});
