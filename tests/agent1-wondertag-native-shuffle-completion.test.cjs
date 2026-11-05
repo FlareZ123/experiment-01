@@ -105,3 +105,16 @@ test('native run failure restores the exact original class hook',()=>{
     /native abort/);
   assert.strictEqual(x.FakeLele.prototype.reduceEffect,x.original);
 });
+
+test('replayed accepted shuffle callback is rejected instead of double counted',()=>{
+  const x=fixture();
+  const r=observe(()=>{
+    x.play(0);
+    x.prompts[0].callback([3,2,1]);
+    assert.throws(()=>x.prompts[0].callback([3,2,1]),
+      /Native Wonder Tag shuffle callback replayed/);
+  },x);
+  assert.equal(r.audit.shuffleCallbacksCompleted,1);
+  assert.equal(r.audit.shufflePromptsOffered,1);
+  assert.equal(r.audit.outstandingShuffleCallbacks,0);
+});
