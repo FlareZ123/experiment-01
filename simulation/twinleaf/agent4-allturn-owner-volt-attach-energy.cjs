@@ -98,6 +98,9 @@ function withOwnerVoltTransfer(next,deps={}){
   assert.equal(previous.configurable,true);
   const audit={
     version:VERSION,ownerPromptChoices:0,
+    allNativeDecoderInvocations:0,
+    ownVoltAttachPromptDecoderHits:0,
+    ownVoltPromptShapeDiagnostics:[],
     attemptedNativeOwnerReplyCount:0,
     sourceOwnerPhysicalSeatCounts:[0,0],
     publicOwnerSelectionReceipts:[],
@@ -105,6 +108,33 @@ function withOwnerVoltTransfer(next,deps={}){
     wholePolicyPaperLegalCertified:false,competitiveGamesQualified:0
   };
   function ownerDecode(state){
+    audit.allNativeDecoderInvocations++;
+    const active=state?.players?.find(p=>p.id===this.client?.id);
+    const pending=state?.prompts?.find(p=>p.result===undefined);
+    if(pending?.constructor?.name==='AttachEnergyPrompt' &&
+       active&&pending.playerId===active.id){
+      audit.ownVoltAttachPromptDecoderHits++;
+      if(audit.ownVoltPromptShapeDiagnostics.length<6)
+        audit.ownVoltPromptShapeDiagnostics.push({
+          turn:state.turn,
+          seat:state.players.indexOf(active),
+          activeName:active.active?.getPokemonCard?.()?.name??null,
+          activeFullName:active.active?.getPokemonCard?.()?.fullName??null,
+          ownerCardListIsActive:pending.cardList===active.active,
+          min:pending.min??null,max:pending.max??null,
+          allowCancel:pending.allowCancel??null,
+          promptPlayerTypeMatches:
+            pending.playerType===enums.PlayerType.BOTTOM_PLAYER,
+          promptBenchesIncluded:Array.isArray(pending.slots)&&
+            pending.slots.includes(enums.SlotType.BENCH),
+          ownOccupiedBenchCount:active.bench?.filter(x=>
+            !!x.getPokemonCard?.()).length??0,
+          ownActiveAttachedEnergyNames:
+            active.active?.energies?.cards?.map(x=>x.name)??[],
+          nativePromptCardPoolNames:
+            pending.cardList?.cards?.map(x=>x.name)??[]
+        });
+    }
     const intent=chooseOwnVoltTransfer(state,this.client?.id,enums);
     if(intent===null)return previous.value.call(this,state);
     audit.ownerPromptChoices++;
