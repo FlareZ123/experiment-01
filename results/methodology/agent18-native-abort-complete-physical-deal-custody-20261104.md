@@ -51,3 +51,15 @@ Each aborted arm's `nativeAbortProvenance` reports `VERIFIED` for the source dea
 **Remaining direct-row limitation:** all three `engine-error` rows still expose top-level `sourceSeat:null` and `candidateSeat:null`, even while validated nested `nativeAbortProvenance.sourceSeat` identifies the source seat, and the source-deal receipt matches the registered orientation. The previously missing top-level source/full-deal digests and starting-seat evidence **are repaired and compiled-verified**. A separate attempt to add fail-closed top-level seat fields was blocked by repository write safety controls, so no source code seat change is claimed. Consumers must distinguish these direct nulls from verified nested provenance. The native failures remain failures, the one 48-root result remains censored, and all four are **0 competitively qualified games**.
 
 The whole-policy owner-information, paper-payment, source payoff, meaningful opponent reply, full 32-original field, and official match-clock gates remain open. The CI positive is limited to error-custody fidelity.
+
+
+### Exact full-physical-deal fingerprint ledger from compiled run
+
+The native four-arm receipt additionally printed these `initial-full-physical-deal-sha256-v1` digests, one per registered arm, in registration order:
+
+1. `6:0:A:champion-reference`: `d185579d23f5678f3c7e7bd703878dd25a18717e1b5c66b9197927f69431078e`.
+2. `6:0:A:new-moon-lockbreaker-v1`: `0f0d8f7e4f24222481e26890a2a534109846bd0903cdf8b449c03d1cdb24b847`.
+3. `11:2:B:champion-reference`: `5305f9ec73dfa86f0928fce32a7d73629ff37437b126cb7b9a568abd821bc6f6`.
+4. `11:2:B:new-moon-lockbreaker-v1`: `a283e4d52a534f405c6ab05303024d1631005bcd45b23b99fffc85158c91c74f`.
+
+These are opaque postgame physical-deal identity checks, not a publicly enumerated list of hidden physical card identities. Archive visibility and independent qualification must be assessed separately from the verifier's successful comparison of its own native receipt.
