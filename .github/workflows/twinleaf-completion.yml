@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent36_prize_v5:
+        description: 'Retrospective frozen original eight-arm v4/v5 same-deal innermost owner Prize and Pokémon comparison'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -104,6 +109,19 @@ jobs:
         env:
           ISSUE25_STEWARD_V4_DIR: issue25-steward-v4
         run: node --test tests/agent36-issue25-steward-selected-v4.test.cjs tests/agent36-issue25-steward-selected-v4.native.test.cjs
+      - name: Run retrospective Agent36 owner Prize and promotion same-deal v4 versus v5
+        if: ${{ inputs.include_agent36_prize_v5 }}
+        env:
+          ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
+        run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Archive both complete original eight-arm v4-v5 ledgers and SHA256 sidecars
+        if: ${{ always() && inputs.include_agent36_prize_v5 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-steward-innermost-prize-v5-native
+          path: issue25-steward-v5/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Archive original eight-arm steward v4 receipt and SHA256
         if: ${{ always() && inputs.include_agent36_selected_v4 }}
         uses: actions/upload-artifact@v4
