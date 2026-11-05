@@ -172,32 +172,32 @@ function withRank1HeldGuzmaCounterplay(execute,{evolveVmax=false}={}){
         });
       }
     }
-    const owner=state.players[SOURCE_SEAT];
+    const sourceOwner=state.players[SOURCE_SEAT];
     const nativeProposal=original.call(this,state,...args);
     if(selectedTurn!==null && !pending &&
        state.activePlayer===SOURCE_SEAT &&
        nativeProposal?.constructor.name==='PassTurnAction' &&
-       owner.active.getPokemonCard()?.name==='Snorlax' &&
-       owner.bench.some(slot=>slot.getPokemonCard()?.name==='Bunnelby')){
-      const ownerHand=owner.hand.cards.map(c=>c.fullName);
+       sourceOwner.active.getPokemonCard()?.name==='Snorlax' &&
+       sourceOwner.bench.some(slot=>slot.getPokemonCard()?.name==='Bunnelby')){
+      const ownerHand=sourceOwner.hand.cards.map(c=>c.fullName);
       const recoverable=ownerHand.filter(c=>
         /^(Float Stone|Guzma|Scoop Up Cyclone|Escape Rope|Switch|VS Seeker) /.test(c));
       audit.rank3NativeOwnerRescuePassEvidence.push({
         globalTurn:state.turn,
         nativeChosen:'PassTurnAction',
-        ownerActive:owner.active.getPokemonCard()?.fullName??null,
-        ownerActiveEnergy:owner.active.energies.cards.map(c=>c.fullName),
-        ownerActiveTool:owner.active.tools.cards.map(c=>c.fullName),
-        benchFundedBunnelby:owner.bench.some(slot=>
+        ownerActive:sourceOwner.active.getPokemonCard()?.fullName??null,
+        ownerActiveEnergy:sourceOwner.active.energies.cards.map(c=>c.fullName),
+        ownerActiveTool:sourceOwner.active.cards.filter(c=>c.fullName?.includes('Float Stone')).map(c=>c.fullName),
+        benchFundedBunnelby:sourceOwner.bench.some(slot=>
           slot.getPokemonCard()?.fullName==='Bunnelby PRC'&&
           slot.energies.cards.length>0),
         ownerHandCount:ownerHand.length,
         ownerHandRescueCandidates:recoverable,
-        ownerSupporterTurn:owner.supporterTurn,
-        ownerCannotPlaySupporterCards:owner.cannotPlaySupporterCards,
-        ownerCannotPlayItemCards:owner.cannotPlayItemCards,
+        ownerSupporterTurn:sourceOwner.supporterTurn,
+        ownerCannotPlaySupporterCards:sourceOwner.cannotPlaySupporterCards,
+        ownerCannotPlayItemCards:sourceOwner.cannotPlayItemCards,
         rank1HasBenchedPokemon:state.players[OPPONENT_SEAT].bench.some(
-          slot=>slot.getPokemonCard()!==undefined)
+          slot=>Boolean(slot.getPokemonCard()))
       });
     }
     return nativeProposal;
