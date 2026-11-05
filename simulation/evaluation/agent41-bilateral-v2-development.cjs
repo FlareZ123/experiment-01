@@ -1146,7 +1146,7 @@ function runDevelopment({
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
-  actorPlumeriaAfterPass=false,
+  actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
@@ -1273,6 +1273,8 @@ function runDevelopment({
     'Nominal opponent gust requires the original Guzma native prompt bridge');
   assert.ok(!actorPlumeriaAfterPass||actorOnlyComposition,
     'Plumeria after-Pass requires canonical actor composition');
+  assert.ok(!actorOwnerMailAfterPass||actorOnlyComposition,
+    'Owner Mail after-Pass requires canonical actor composition');
   assert.ok(!bilateralSpecialEnergyRoot||actorOnlyComposition,
     'Both-seat Special Energy root requires canonical actor composition');
   assert.ok(!bilateralEnergyContest||bilateralSpecialEnergyRoot,
@@ -1566,7 +1568,19 @@ function runDevelopment({
                 .chooseChargedOwnPromotion
             })
         }:{};
-        const observed=withCanonicalActorOnlyPolicy(execute,
+        // Opt-in developmental owner-only Mail continuation. The original
+        // printed sixties and source physical deal remain unchanged. Native
+        // card and genuine top-four prompts determine actual settlement.
+        let ownerMailAudit=null;
+        const withOptionalOwnerMail=()=>{
+          if(!actorOwnerMailAfterPass)return execute();
+          const wrapped=require('../twinleaf/agent9-native-owner-mail-after-pass.cjs')
+            .withOwnerMailAfterPass(execute,
+              registeredNativeSeatDecks(trial,prepared));
+          ownerMailAudit=wrapped.audit;
+          return wrapped.result;
+        };
+        const observed=withCanonicalActorOnlyPolicy(withOptionalOwnerMail,
           {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
@@ -1605,6 +1619,9 @@ function runDevelopment({
                   {maxGlobalTurn:Number.POSITIVE_INFINITY}}
             }:{})});
         rows.push({...observed.result,
+          ...(actorOwnerMailAfterPass?{
+            ownerMailAfterPassAudit:ownerMailAudit
+          }:{}),
           ...(bilateralSpecialEnergyRoot?{
             bilateralSpecialEnergyProfile:{...energyProfile,
               immediateAttackContest:bilateralEnergyContest}
