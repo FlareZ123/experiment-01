@@ -1,7 +1,7 @@
 "use strict";
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {C,COUNTS,PROFILES,findPaidLine,countPaidOpenings}=require('./agent5-adp-paid-opening.cjs');
+const {C,COUNTS,PROFILES,findPaidLine,countPaidOpenings}=require('../simulation/evaluation/agent5-adp-paid-opening.cjs');
 function vector(entries){const a=Array(12).fill(0);for(const [key,count] of Object.entries(entries))a[C[key]]=count;return a;}
 function availability(fields){return {adp:false,gh:false,dde:false,...fields};}
 
