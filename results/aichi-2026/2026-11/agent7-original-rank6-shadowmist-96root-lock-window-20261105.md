@@ -31,7 +31,11 @@ The 96-root public ledger records source-seat1 **Speed Lightning Energy** placem
 
 The original rank-6 source has **ten post-Shadow-Mist consecutive turns with Pass as its only voluntary nonprompt action**, from turns 3 through 21. Across all 96 accepted root actions, there are **68 prompt resolutions**, including **53 Wait prompts**, 11 source Passes (including the pre-Shadow-Mist turn 1), ten candidate Shadow Mist attacks, and seven card plays total. The source has exactly **one** public `PlayCardAction` (the opening Speed Lightning), **zero** `AttackAction`, and **zero** subsequent card plays through its turn 21. The last state remains capped, `finished:false`, with no native winner. The 48-root archive contains the first five Shadow Mist declarations and the first four source responses, with the fifth attack at its final accepted root.
 
-## A stronger source-inventory resource-denial implication
+## Source-inventory resource-denial implication (already established by prior agents)
+
+The all-Special source-energy observation was previously reported in [Agent6's Shadow Mist exposure report](../agent6-shadow-mist-special-energy-exposure.md), [Agent17's exact opening-exposure calculations](../../statistics/agent17-special-only-opening-exposure-20261029.md), and [Agent12's Issue25 Energy-policy coverage report](../../methodology/agent12-issue25-special-energy-only-source-root-coverage-20261104.md). The novel evidence here is the independently verified ten-turn native continuation and exact original v4 prefix.
+
+
 
 The authenticated [original ranked deck manifest](../../full-decklists.json) identifies the rank-6 Kazuma Kashi 60 as **4 Iron Thorns ex, 48 Trainers and 8 Energy**. **Every one of those eight Energy cards is Special:** 4 Speed Lightning Energy RCL 173, 2 Capture Energy RCL 171, 1 Spiky Energy JTG 159 and 1 Double Colorless Energy SUM 136. There are **zero Basic Energy** and **zero Pokémon with an alternative printed attack**. The source also has **four Stadiums**: Tropical Beach, Player's Ceremony, Thunder Mountain Prism Star and Wondrous Labyrinth Prism Star; all are blocked if played from hand under Shadow Mist's opponent-turn restriction. These are immutable deck-composition counts, not known in-hand copies at a particular turn.
 
