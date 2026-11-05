@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const VERSION='agent36-source-stamped-native-getlost-owner-v1';
+const VERSION='agent36-source-stamped-native-getlost-owner-v2-settlement';
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 
@@ -48,7 +48,9 @@ function withSourceStampedGetLostOwner(run,deps={}){
     followSequentialNativeStores,registeredNativeStores:0,
     printedSourcePromptMarks:0,reducedInsufficientDiscardPrompts:0,
     emptyOpponentDiscardPrompts:0,actualOwnerSelections:0,
-    acceptedStoreActions:0,postDispatchPublicDiscardDepletions:0,
+    acceptedStoreActions:0,verifiedNativePromptSettlements:0,
+    nativeUnsettledSourcePrompts:0,
+    postDispatchPublicDiscardDepletions:0,
     postDispatchExactLostZoneTransfers:0,
     postDispatchLostZoneTransferUnverified:0,
     rejectedByOriginalDecoder:0,publicChoiceBaseline:'first-two',
@@ -132,6 +134,9 @@ function withSourceStampedGetLostOwner(run,deps={}){
     const witness=selected.get(action);
     if(!witness||this!==liveStore)
       return dispatchDesc.value.apply(this,[action,...args]);
+    assert.ok(this.state.prompts.includes(witness.prompt)&&
+      witness.prompt.id===action.id&&witness.prompt.result===undefined,
+      'Get Lost source prompt must still be pending');
     const other=this.state.players.find(p=>p.id!==witness.actorId);
     assert.ok(other&&witness.prompt.cards===other.discard);
     const before=other.discard.cards.length;
@@ -141,6 +146,11 @@ function withSourceStampedGetLostOwner(run,deps={}){
     const absentFromLostZoneBefore=lostZoneBefore!==null&&
       witness.chosen.every(c=>!other.lostzone.cards.includes(c));
     const result=dispatchDesc.value.apply(this,[action,...args]);
+    if(witness.prompt.result!==action.result){
+      audit.nativeUnsettledSourcePrompts++;
+      throw new Error('Get Lost Store returned without resolving source prompt');
+    }
+    audit.verifiedNativePromptSettlements++;
     audit.acceptedStoreActions++;
     const count=witness.chosen.length;
     const discardDepletionConfirmed=count>0&&available&&
@@ -179,7 +189,11 @@ function withSourceStampedGetLostOwner(run,deps={}){
   Object.defineProperty(Store.prototype,'dispatch',
     {...dispatchDesc,value:dispatch});
   try{return {result:run(),audit};}
-  finally{
+  catch(error){
+    if(error&&typeof error==='object')
+      error.agent36GetLostAudit={...audit,aborted:true};
+    throw error;
+  }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',dispatchDesc);
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
