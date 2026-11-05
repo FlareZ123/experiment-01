@@ -138,3 +138,49 @@ for(const seat of [0,1]){
     assert.equal(audit.records.length,0);
   });
 }
+
+test('observer does not change deterministic native Prize disposition',()=>{
+  for(const seat of [0,1])for(const mode of ['hand','lost-zone','no-transfer']){
+    const control=fixture(seat,mode);
+    control.store.dispatch(new AddPlayerAction());
+    control.store.dispatch(control.action);
+    const observed=fixture(seat,mode);
+    const withAudit=watch(()=>{
+      observed.store.dispatch(new AddPlayerAction());
+      observed.store.dispatch(observed.action);
+    },deps);
+    const publicState=f=>({
+      selectedResolved:f.prompt.result===f.action.result,
+      handCards:f.owner.hand.cards.length,
+      lostZoneCards:f.owner.lostzone.cards.length,
+      prizeCards:f.owner.prizes.reduce((a,p)=>a+p.cards.length,0)
+    });
+    assert.deepEqual(publicState(observed),publicState(control));
+    assert.equal(withAudit.audit.nativeResolved,1);
+    assert.equal(withAudit.audit.competitivelyQualifiedGames,0);
+  }
+});
+
+class RejectPrizeStore extends Store {
+  dispatch(action){
+    if(action instanceof ResolvePromptAction)
+      throw new Error('native rejected Prize answer');
+    return super.dispatch(action);
+  }
+}
+test('native throwing Prize dispatch is separately rejected and restored',()=>{
+  const f=fixture(1,'hand');
+  const rejectedStore=new RejectPrizeStore(f.store.state,'hand');
+  const previous=RejectPrizeStore.prototype.dispatch;
+  assert.throws(()=>watch(()=>{
+    rejectedStore.dispatch(new AddPlayerAction());
+    rejectedStore.dispatch(f.action);
+  },{...deps,Store:RejectPrizeStore}),error=>{
+    assert.match(error.message,/native rejected Prize answer/);
+    assert.equal(error.agent3KoPrizeSettlementAudit.nativeRejected,1);
+    assert.equal(error.agent3KoPrizeSettlementAudit.nativeResolved,0);
+    assert.equal(error.agent3KoPrizeSettlementAudit.nativeUnresolved,0);
+    return true;
+  });
+  assert.strictEqual(RejectPrizeStore.prototype.dispatch,previous);
+});
