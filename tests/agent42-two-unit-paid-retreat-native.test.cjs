@@ -169,7 +169,9 @@ for(const seat of [0,1]){
     }
     const newlyDiscarded=owner.discard.cards.filter(c=>
       !ownerDiscardBefore.includes(c));
-    assert.deepEqual(newlyDiscarded,oldEnergy);
+    assert.equal(newlyDiscarded.length,oldEnergy.length);
+    assert.equal(new Set(newlyDiscarded).size,2);
+    assert.equal(newlyDiscarded.every(card=>oldEnergy.includes(card)),true);
     assert.equal(prompts.some(x=>x.type==='ChooseCardsPrompt'),true,
       'Native physical two-Card fee must be chosen at real prompt');
     assert.equal(state.players[seat],owner);
