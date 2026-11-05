@@ -655,6 +655,26 @@ jobs:
             agent4-mail-postsetup-seat-shuffle-aba-native.json.sha256
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify original eight 96root prospective cap and source attack response classifier
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/evaluation/agent4-mail-postsetup-96root-opportunity-v3.cjs
+          node --test tests/agent4-mail-postsetup-96root-opportunity-v3.test.cjs
+      - name: Replay full original eight source and candidate 96root aftersetup Mail A/B/A
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_POSTSETUP_96ROOT_OUTPUT: agent4-mail-postsetup-96root-native.json
+        run: node simulation/evaluation/agent4-mail-postsetup-96root-opportunity-v3.cjs
+      - name: Archive original eight 96root source attack and candidate reply native receipts
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-eight-postsetup-96root-source-payoff
+          path: |
+            agent4-mail-postsetup-96root-native.json
+            agent4-mail-postsetup-96root-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Compare original rank6 Mail spend against source paid Plumeria in same-deal native A/B/A
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
         env:
