@@ -1,8 +1,8 @@
 "use strict";
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {PROFILES}=require('./agent5-adp-paid-opening.cjs');
-const {C,COUNTS,findPaidLine,countWonderTagBridge}=require('./agent5-adp-wondertag-paid-opening.cjs');
+const {PROFILES}=require('../simulation/evaluation/agent5-adp-paid-opening.cjs');
+const {C,COUNTS,findPaidLine,countWonderTagBridge}=require('../simulation/evaluation/agent5-adp-wondertag-paid-opening.cjs');
 function vec(x){const a=Array(13).fill(0);for(const [k,n] of Object.entries(x))a[C[k]]=n;return a;}
 const avail=(x)=>({adp:false,gh:false,dde:false,lele:false,...x});
 
