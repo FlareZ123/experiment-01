@@ -8,6 +8,8 @@ const {runMirroredIssue25V6}=
   require('../simulation/evaluation/agent1-issue25-mirrored-r6-r11-v6.cjs');
 const {summarizeSourcePanel}=
   require('../simulation/evaluation/agent18-issue25-source-root-custody.cjs');
+const {classifySourceEnergyAttachment}=
+  require('../simulation/evaluation/agent18-source-energy-physical-custody.cjs');
 
 const ENERGY=['Speed Lightning Energy RCL','Capture Energy RCL',
   'Double Colorless Energy SUM','Spiky Energy JTG'];
@@ -72,6 +74,9 @@ test('original source Special Energy native target/board custody under shared ei
       nativeTargetEventsTotal:sidecar?.observedTargetActions??null,
       sourceSpecialEnergyAcceptedTargets:
         events.map(e=>sourceEnergyTarget(e,sourceSeat)),
+      sourcePhysicalAttachments:events.map(e=>
+        classifySourceEnergyAttachment(
+          e,sourceSeat,sidecar?.rootOrdinalLinked===true)),
       originalSourceAttackCount:native.observedSourceAttacks??null,
       paperPhysicalAttachmentCertified:false,
       competitiveGamesQualified:0
@@ -89,6 +94,20 @@ test('original source Special Energy native target/board custody under shared ei
   };
   console.log('AGENT18_V6_NATIVE_SPECIAL_ENERGY_TARGETS',
     JSON.stringify(result));
+  const all=entries.flatMap(e=>e.sourcePhysicalAttachments);
+  const linked=all.filter(r=>
+    r.status==='NATIVE_SOURCE_ENERGY_ROOT_AND_BOARD_LINKED');
+  const unlinked=all.filter(r=>
+    r.status==='NATIVE_SOURCE_ENERGY_BOARD_SETTLED_ROOT_UNLINKED');
+  assert.ok(linked.some(r=>r.physicalEnergyCard==='Speed Lightning Energy RCL'&&
+    r.destination.pokemon==='Iron Thorns ex TWM'&&
+    r.destination.position==='active'&&r.acceptedRootOrdinal===13),
+    'Original rank6 first-turn root13 must physically attach Speed to Active');
+  assert.ok(unlinked.some(r=>r.physicalEnergyCard==='Capture Energy RCL'&&
+    r.destination.pokemon==='Iron Thorns ex TWM'&&
+    r.destination.position==='active'),
+    'Aborted original must retain Store-accepted Capture attachment without inventing root linkage');
+  assert.equal(all.filter(r=>r.nativePhysicalAttachmentVerified).length,3);
   assert.equal(rows.length,8);
   assert.equal(source.observedAttempts,8);
   assert.equal(new Set(entries.map(e=>e.id)).size,8);
