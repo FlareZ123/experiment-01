@@ -288,5 +288,6 @@ jobs:
             agent6-recipient-plus-paid-retreat-aba.json
             agent6-recipient-paid-pass-cascade.json
             agent6-original-recipient-paid-reserve-native.json
+            agent6-basic-reserve-causal-aba.json
           if-no-files-found: warn
           retention-days: 14
