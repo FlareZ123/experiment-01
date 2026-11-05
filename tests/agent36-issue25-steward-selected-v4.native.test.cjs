@@ -4,15 +4,21 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {runStewardSelectedIssue25V4}=
   require('../simulation/evaluation/agent36-issue25-steward-selected-v4.cjs');
+const {writeReceipt}=require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
 
 test('selected Issue25 v4 executes every original rank6/11 seat with native Store',()=>{
   const selected=runStewardSelectedIssue25V4();
+  const archiveDir=process.env.ISSUE25_STEWARD_V4_DIR;
+  const archive=archiveDir?writeReceipt(selected,archiveDir,{
+    prefix:'issue25-steward-v4',policyEntryPoint:selected.manifest.policyEntryPoint
+  }):null;
   const rows=selected.diagnostic.selectedNativeAttempts;
   const registered=selected.diagnostic.registered;
   const receipt={
     schema:'agent36-issue25-steward-v4-native-development-receipt',
     selectedPolicyEntryPoint:selected.manifest.policyEntryPoint,
     selectedPolicyVersion:selected.manifest.version,
+    completeRawNativeReceipt:archive,
     sourceIndependentCommonPolicy:
       selected.manifest.actualCommonRunnerOptIn,
     selectedBilateralSpecialEnergy:
