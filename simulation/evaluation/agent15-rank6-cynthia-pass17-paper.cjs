@@ -99,6 +99,14 @@ function certify(sourceDeck, cardText) {
     .reduce((sum,c)=>sum+c.count,0);
   assert.equal(energyCount,8);
   assert.equal(basics,4);
+  const dce=sourceDeck.cards.find(c=>c.name==='Double Colorless Energy' &&
+    c.printing.set==='SUM');
+  const thunder=sourceDeck.cards.find(c=>c.name==='Thunder Mountain ♢' &&
+    c.printing.set==='LOT');
+  assert.equal(dce?.count,1);
+  assert.equal(thunder?.count,1);
+  assert.ok(!SOURCE_ROOT.sourceHand.some(c=>
+    /Double Colorless Energy|Thunder Mountain/.test(c)));
   assert.ok(sourceDeck.cards.filter(c=>c.category==='Pokémon')
     .every(c=>c.name==='Iron Thorns ex'));
   assert.equal(SOURCE_ROOT.sourceBoard.active,'Iron Thorns ex');
