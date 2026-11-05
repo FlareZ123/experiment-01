@@ -45,11 +45,20 @@ function run({anyTurn=false}={}){
     // In the separately labeled v2 cohort apply the existing research-owned
     // numeric-permutation validator symmetrically to BOTH policy arms.
     // Historical v1 remains bit-for-bit unsupplemented by this adapter.
-    const runArm=enabled=>anyTurn?
-      require('../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
-        .withNumericShufflePromptValidation(()=>
-          runDevelopment(options(enabled,{anyTurn}))):
-      {result:runDevelopment(options(enabled,{anyTurn})),audit:null};
+    const runArm=enabled=>{
+      if(!anyTurn)return {result:runDevelopment(options(enabled,{anyTurn})),
+        audit:null};
+      // Apply the existing paper min1 correction to BOTH native seats and
+      // BOTH comparison arms; its native min0 prompt is paper-inconsistent.
+      const restorePositiveItem=require(
+        '../twinleaf/battle-compressor-minimum-hook.cjs')
+        .installBattleCompressorMinimumHook();
+      try{
+        return require('../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
+          .withNumericShufflePromptValidation(()=>
+            runDevelopment(options(enabled,{anyTurn})));
+      }finally{restorePositiveItem();}
+    };
     const left=runArm(false),right=runArm(true);
     const control=left.result,treatment=right.result;
     assert.equal(control.attempted,4);
@@ -83,6 +92,12 @@ function run({anyTurn=false}={}){
         version:'agent33-native-shuffle-numeric-validation-hook-v1',
         control:left.audit,treatment:right.audit,
         bothArmsCorrected:true,
+        historicalV1NotComparableWithoutQualification:true
+      }:null,
+      battleCompressorPaperMinimumAdapter:anyTurn?{
+        version:'battle-compressor-minimum-hook-v1',
+        forcedNativeMinimum:1,forcedNativeMaximum:3,
+        appliedToBothSeatsAndBothArms:true,
         historicalV1NotComparableWithoutQualification:true
       }:null,
       researchHead:process.env.GITHUB_SHA??null,
