@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent8-owner-wondertag-confirm-search-v3-settlement-custody';
+const VERSION = 'agent8-owner-wondertag-confirm-search-v4-followup-certified';
 
 /**
  * Affirm a genuinely offered Wonder Tag search and choose one qualifying
@@ -51,6 +51,7 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     confirmed:0,selectedSupporters:0,emptySearches:0,
     nativeAccepted:0,nativeRejected:0,nativeUnsettled:0,
     nativeCustodyFailures:0,settledSupporterTransfers:0,
+    nativeMissingSearchFollowup:0,
     bySeat:{0:0,1:0},unrelatedDelegated:0,
     customSelectorInstalled:deps.selectSupporterIndex!==undefined,
     readsUnrevealedDeckBeforeSearch:false,
@@ -141,6 +142,12 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     if(row.prompt.result!==row.answer){
       audit.nativeUnsettled++;
       throw new Error('Wonder Tag native Store returned without resolving the prompt');
+    }
+    if(row.kind==='confirm'&&
+       !this.state.prompts.some(p=>searches.has(p)&&
+         p.playerId===row.actor.id&&p.result===undefined)){
+      audit.nativeMissingSearchFollowup++;
+      throw new Error('Wonder Tag confirmation settled without owner Supporter-search followup');
     }
     if(row.chosenCard){
       const hand=Array.isArray(row.actor.hand)?row.actor.hand:
