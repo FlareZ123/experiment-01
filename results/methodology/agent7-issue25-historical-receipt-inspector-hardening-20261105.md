@@ -28,6 +28,20 @@ This pure inspector SFT was attached to the **existing, manually dispatched** `i
 
 No retrospective upgrade of the historical v3 artifact is claimed. A detached SHA256 verifies bytes only relative to its companion sidecar, not provenance against an adversary who can replace both. The exact four-ID gate verifies declared cohort identity, not the underlying physical decks or all owner decisions.
 
+## Additional cross-layer consistency checks and a third compiled CI
+
+A further static review of the historical native reporter `simulation/evaluation/agent7-issue25-v3-executed-receipt.cjs` found that the independent reader did not independently reconcile three reporter fields available in an otherwise complete, untruncated public ledger:
+
+- `nativeRootActionCount` versus the count of actual publicly captured accepted root actions;
+- the reporter's `publicRootLedgerSha256Computed` versus the independent digest of the actual captured public action bytes;
+- `actualRawTrialId` versus the supposedly returned registered original trial ID.
+
+These are distinct from the native-reported SHA already checked and provide cheap independently verifiable defense against accidental mixed or misjoined archives. The amended reader now exposes `nativeAcceptedRootCountMatches`, `archivedComputedSha256Matches` and `rawTrialIdentityMatches` separately and flags each contradiction as `FAIL-custody` without upgrading an unavailable ledger into fabricated evidence. Source [10039e05](https://github.com/FlareZ123/experiment-01/commit/10039e05b0faecb0645cd134b8e9db45a297b807), three adversarial re-signed archive regressions [4d18a321](https://github.com/FlareZ123/experiment-01/commit/4d18a32106dc8068837160a3dee9bc3e04545bfb).
+
+A **third actual compiled native CI** [42048764244](https://github.com/FlareZ123/experiment-01/actions/runs/42048764244) confirms the expanded `Independent historical four-arm receipt custody and adversarial rank/candidate SFT` **step succeeded**. The entire joined native workflow again failed at the independent v6-versus-v7 post-setup physical-position equality test. This is a true, archived negative outcome of that separate test; it does not compromise the pure historical receipt inspector.
+
+**Subsequent measurement clarification:** the v6/v7 comparator's so-called initial-deal fingerprints are measured **after the experimental Basic setup choice** and therefore may legitimately differ when the opening treatment withholds Tapu Lele-GX from a source's Bench. See [independent evidence](agent7-postsetup-fingerprint-not-prepolicy-deal-invariant-20261105.md) and the pre-existing Agent1 genuine-prechoice HMAC v8 observer. These two fingerprint mismatches do not by themselves prove unequal pre-treatment shuffles or same-deal causality. Maintain the causal `UNRESOLVED` verdict and respect the prechoice v8 admission gate.
+
 ## Research consequence
 
 The narrow historical v3 public receipt now fails closed for accidental/rehashed rank or candidate substitution, distinguishes missing native evidence from falsified evidence, and has an actual green dedicated pure test step. **Competitive admission remains unchanged:** 29/32 original name/count inventories authenticated (ranks 23,25,28 missing); zero competitively qualified games; no selected final 60, verified 99.5% field win rate, certified 25-minute event clock, or complete paper-valid two-seat player.
