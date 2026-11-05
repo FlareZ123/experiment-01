@@ -34,7 +34,7 @@ function runArm(trial,cards){
   const rank3Seat=trial.rank3Seat;
   const deckA=rank3Seat===0?cards.source:cards.candidate;
   const deckB=rank3Seat===0?cards.candidate:cards.source;
-  let genericAudit=null,targetAudit=null;
+  let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -54,10 +54,18 @@ function runArm(trial,cards){
           captureFinalPublicBoard:true
         })).result;
         const native=()=>{
-          if(trial.captureTargets!==true)return originalNative();
-          const observed=withAcceptedTargetWitness(originalNative);
-          targetAudit=observed.audit;
-          return observed.result;
+          const original=()=>{
+            if(trial.captureTargets!==true)return originalNative();
+            const observed=withAcceptedTargetWitness(originalNative);
+            targetAudit=observed.audit;
+            return observed.result;
+          };
+          if(trial.basicRetreatReserveAudit!==true)return original();
+          const {withAcceptedBasicRetreatReserveWitness}=require(
+            '../twinleaf/agent6-accepted-basic-retreat-reserve-observer.cjs');
+          const reserved=withAcceptedBasicRetreatReserveWitness(original);
+          attachmentReserveAudit=reserved.audit;
+          return reserved.result;
         };
         if(trial.mode==='bilateral-skyliner-free-retreat'){
           const {withBilateralSkylinerFreeRetreat}=
@@ -119,6 +127,8 @@ function runArm(trial,cards){
       nativeTerminal:terminal,
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
+      ...(trial.basicRetreatReserveAudit===true?{
+        attachmentReserveAudit}:{}),
       ...(trial.retreatPassStageCensus===true?{
         retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
@@ -129,6 +139,8 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.basicRetreatReserveAudit===true?{
+        attachmentReserveAudit}:{}),
       ...(trial.retreatPassStageCensus===true?{
         retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{
