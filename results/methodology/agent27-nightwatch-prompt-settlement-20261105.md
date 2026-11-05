@@ -14,6 +14,6 @@ The existing `tests/agent36-source-stamped-nightwatch-owner.test.cjs` includes p
 
 [Manual CI 42035623329](https://github.com/FlareZ123/experiment-01/actions/runs/42035623329) succeeded including the first four new silent-dispatch tests. It ran before the stale tests and positive native step were added.
 
-[Manual CI 42036047726](https://github.com/FlareZ123/experiment-01/actions/runs/42036047726) includes all six negative tests and the already established genuine selected-v3 Night Watch/Future Sight native positive test in the existing manual `twinleaf-completion.yml`; this run was in progress when this report was first written.
+[Manual CI 42036047726](https://github.com/FlareZ123/experiment-01/actions/runs/42036047726), exact head `e3e9d1b13300e205e5a90028cd5d4a6db9db5840`, completed **SUCCESS**. Both the six-negative-test suite (including stale source ID cases) and the genuine selected-v3 Night Watch/Future Sight pinned native positive test completed successfully. The entire existing `abort-custody` job also succeeded, without creating an additional workflow definition. These are component and historical developmental regression passes, not competitively qualified native games.
 
 This remains a component-level paper-evidence gate. It does not make the full policy competitively qualified, select a deck, or establish any matchup win rate. Issue #25 remains FAIL/UNRESOLVED.
