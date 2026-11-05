@@ -11,6 +11,7 @@ const native=name=>require(path.join(compiled,name));
 const MODES=['none','pinned-uncorrected','legacy-hook',
   'paper-corrected','legacy-plus-paper-corrected'];
 const FAMILIES=['Handheld Fan TWM','Muscle Band XY'];
+const FAN_BENCH_LAYOUTS=['defender-only','attacker-only','both','neither'];
 
 /**
  * Drive actual pinned Store.reduceEffect for two original-field Tool
@@ -22,10 +23,12 @@ const FAMILIES=['Handheld Fan TWM','Muscle Band XY'];
  * @param {string} family Tool fullName
  * @param {0|1} toolOwnerSeat Actual physical Active Tool owner seat
  * @param {string} mode Stage variant
+ * @param {{benchLayout?:string}} [options] Staged Bench positions
  * @returns {object} Exact reducer outcome and source contract witness
  */
-function probe(family,toolOwnerSeat,mode){
+function probe(family,toolOwnerSeat,mode,{benchLayout='defender-only'}={}){
   assert.ok(FAMILIES.includes(family)&&MODES.includes(mode));
+  assert.ok(FAN_BENCH_LAYOUTS.includes(benchLayout));
   assert.ok([0,1].includes(toolOwnerSeat));
   const manager=initializeCards();
   let id=1;
@@ -64,11 +67,17 @@ function probe(family,toolOwnerSeat,mode){
     attacker=toolOwner;defender=other;
   }
   state.activePlayer=state.players.indexOf(attacker);
-  // Full physical active + one nonempty Bench to make Handheld Fan's
-  // optional target selection meaningful if the printed lock is absent.
-  const targetBench=new PokemonCardList();
-  targetBench.cards.push(card('Pidgey MEW'));
-  defender.bench.push(targetBench);
+  // Independently vary both sides' Bench counts. Printed Handheld Fan
+  // targets the attacker's Bench, while the pinned reducer currently tests
+  // the defender's Bench before presenting its target prompt.
+  const addBench=player=>{
+    const slot=new PokemonCardList();
+    slot.cards.push(card('Pidgey MEW'));
+    player.bench.push(slot);
+  };
+  if(branch==='attacking-band'||
+     benchLayout==='defender-only'||benchLayout==='both')addBench(defender);
+  if(benchLayout==='attacker-only'||benchLayout==='both')addBench(attacker);
   attacker.active.energies.cards.push(card('Psychic Energy MEE'));
   const basic=attacker.active.getPokemonCard();
   assert.ok(basic.attacks.length>0);
@@ -95,9 +104,11 @@ function probe(family,toolOwnerSeat,mode){
   const received=observed.result;
   const nativeLegacyBlocks=legacy&&branch==='attacking-band';
   const blocked=paper||nativeLegacyBlocks;
+  const hasDefenderBench=defender.bench.length>0;
+  const hasAttackerBench=attacker.bench.length>0;
   const expected=branch==='attacking-band'?
     {damage:blocked?20:40,prompts:0}:
-    {damage:20,prompts:blocked?0:1};
+    {damage:20,prompts:!blocked&&hasDefenderBench?1:0};
   assert.equal(effect.damage,expected.damage);
   assert.equal(received.length,expected.prompts);
   if(branch==='defending-fan'&&received.length)
@@ -108,8 +119,12 @@ function probe(family,toolOwnerSeat,mode){
       branch==='defending-fan'?1:0);
     assert.equal(observed.audit.blockedByOwnerSeat[String(1-toolOwnerSeat)],0);
   }
-  return {family,branch,toolOwnerSeat,mode,actualDamage:effect.damage,
-    nativeNewPromptTypes:received,
+  return {family,branch,toolOwnerSeat,mode,benchLayout,
+    attackerBenchCount:attacker.bench.length,
+    defenderBenchCount:defender.bench.length,
+    nativePromptMatchesPrintedBenchEligibility:branch==='attacking-band'||
+      blocked||(hasAttackerBench===hasDefenderBench),
+    actualDamage:effect.damage,nativeNewPromptTypes:received,
     paperGuardAudit:observed.audit,
     noFullNativeAttackSettlement:true,competitiveQualified:false};
 }
@@ -124,6 +139,13 @@ function run(){
       catch(e){error=String(e?.stack??e);}
       attempts.push({family,toolOwnerSeat:seat,mode,receipt,error});
     }
+  for(const seat of [0,1])for(const benchLayout of FAN_BENCH_LAYOUTS){
+    let receipt=null,error=null;
+    try{receipt=probe('Handheld Fan TWM',seat,'none',{benchLayout});}
+    catch(e){error=String(e?.stack??e);}
+    attempts.push({family:'Handheld Fan TWM',toolOwnerSeat:seat,
+      mode:'none-geometry',benchLayout,receipt,error});
+  }
   const failures=attempts.filter(x=>x.error);
   return {version:'agent6-fan-muscle-native-paper-guard-v1',paperHook:VERSION,
     pinnedTwinleaf:PIN,stagedNativeCases:attempts.length,
