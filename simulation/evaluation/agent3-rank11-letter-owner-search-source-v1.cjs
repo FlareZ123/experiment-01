@@ -177,8 +177,7 @@ function withSourceLetterOwnerSearch(next,deps){
     }
     if(proposal){
       const after=this.state.players[registration.originalSourceSeat];
-      const settled=this.state.prompts?.some(p=>
-        p.id===proposal.promptId&&p.result===action.result);
+      const settled=proposal.pendingPrompt.result===action.result;
       const physical=proposal.physicalCards.every(card=>
         before.ownerDeckCards.includes(card)&&
         !before.ownerHandCards.includes(card)&&
