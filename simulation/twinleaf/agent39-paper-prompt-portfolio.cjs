@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4-physical-settlement';
+const VERSION='agent39-paper-prompt-portfolio-v4a-attached-energy-settlement';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -32,6 +32,11 @@ function verdictVoltCyclone(state,prompt,result,types){
   if(!card||card.superType!==SuperType.ENERGY||
      !owner.active.cards.includes(card))
     return {valid:false,reason:'energy-not-attached-to-attacker'};
+  // Card-stack membership alone does not prove an Energy is attached:
+  // pinned native CardList separately tracks its attached Energy sub-list.
+  if(Array.isArray(owner.active.energies?.cards)&&
+     !owner.active.energies.cards.includes(card))
+    return {valid:false,reason:'energy-not-attached-in-active-energy-zone'};
   if(!to||to.player!==PlayerType.BOTTOM_PLAYER||
      to.slot!==SlotType.BENCH||!Number.isSafeInteger(to.index)||
      to.index<0||to.index>=owner.bench.length||
