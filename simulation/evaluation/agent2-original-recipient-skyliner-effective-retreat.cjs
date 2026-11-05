@@ -123,7 +123,10 @@ function run(){
     return {version:'agent2-skyliner-original-eight-native-v1',
       pinnedTwinleaf:PIN,allEightReproduced:rows.length===8&&
         rows.every(r=>r.status==='exact-reference-reproduced'),
-      originalPasses:all.length,dialgaPasses:d.length,
+      originalPasses:all.length,
+      nonOpeningPasses:all.filter(x=>x.turn>1).length,
+      openingPasses:all.filter(x=>x.turn<=1).length,
+      dialgaPasses:d.length,
       dialgaSkyliner:d.filter(x=>x.ownSkyliner.length>0).length,
       dialgaSkylinerFree:d.filter(x=>
         x.ownSkyliner.length>0&&x.effectiveRetreat.length===0).length,
@@ -137,6 +140,6 @@ function run(){
 }
 if(require.main===module){
   const x=run();process.stdout.write(JSON.stringify(x)+'\n');
-  if(!x.allEightReproduced||x.originalPasses!==358)process.exitCode=1;
+  if(!x.allEightReproduced||x.originalPasses!==366)process.exitCode=1;
 }
 module.exports={FROZEN,checkCostAtPass,run};
