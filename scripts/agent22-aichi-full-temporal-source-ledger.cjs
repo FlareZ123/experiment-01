@@ -8,7 +8,11 @@ const {auditDateConsensus}=
 const {auditPromoChronology}=
   require('./agent22-aichi-promo-chronology.cjs');
 
-const VERSION='agent22-aichi-original-1740-temporal-provenance-ledger-v2-semantic-guards';
+const VERSION='agent22-aichi-original-1740-temporal-provenance-ledger-v3-counterpart-identity';
+const JAPANESE_M4_ORIGINAL=Object.freeze({
+  'Special Red Card':Object.freeze({printing:'M4 072/083',card:50156}),
+  Trubbish:Object.freeze({printing:'M4 054/083',card:50138})
+});
 const BASIC_ENERGY_NAMES=Object.freeze([
   'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
   'Psychic Energy','Fighting Energy','Darkness Energy','Metal Energy'
@@ -81,9 +85,11 @@ function auditTemporalProvenance(
         const counterpart=cri.get(key);
         if(counterpart?.japaneseOriginalPreEvent===true &&
           counterpart.englishDisplayPostEvent===true &&
-          /^M4 \d{3}\/\d{3}$/.test(counterpart.japaneseOriginal) &&
+          counterpart.japaneseOriginal===
+            JAPANESE_M4_ORIGINAL[card.name]?.printing &&
           counterpart.japaneseOfficialCardSource?.startsWith(
-            'https://www.pokemon-card.com/card-search/details.php/')) {
+            'https://www.pokemon-card.com/card-search/details.php/card/'+
+            JAPANESE_M4_ORIGINAL[card.name]?.card)) {
           categories.englishDisplayPostEventJapaneseEarlier+=card.count;
           seenCri.add(key);
         } else {
