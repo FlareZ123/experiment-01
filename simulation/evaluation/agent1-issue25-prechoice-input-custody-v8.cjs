@@ -150,6 +150,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
       assert.equal(typeof event.exactPhysicalSixtyPrintedCountMatched,'boolean');
       assert.ok(Number.isSafeInteger(event.physicalSixtyCardCount));
+      assert.ok(event.nativeFirstPlayerSeat===0||
+        event.nativeFirstPlayerSeat===1);
       const id=event.registeredNativeTrialId;
       if(typeof id!=='string'||!ids.includes(id)){
         unknown.push({ordinal:event.nativeStoreOrdinal,seat:event.physicalOwnerSeat});
@@ -220,6 +222,15 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
           first&&second?first.ownerDeckCount===second.ownerDeckCount:null
       };
     });
+    const firstAtBaseline=a.map.get(id+':0')?.nativeFirstPlayerSeat;
+    const otherAtBaseline=a.map.get(id+':1')?.nativeFirstPlayerSeat;
+    const firstAtProtected=b.map.get(id+':0')?.nativeFirstPlayerSeat;
+    const otherAtProtected=b.map.get(id+':1')?.nativeFirstPlayerSeat;
+    const actualNativeInitialStarterVerified=
+      (firstAtBaseline===0||firstAtBaseline===1)&&
+      firstAtBaseline===otherAtBaseline&&
+      firstAtBaseline===firstAtProtected&&
+      firstAtProtected===otherAtProtected;
     const rawA=baseline.diagnostic.attemptedRows[index];
     const rawB=protectedRun.diagnostic.attemptedRows[index];
     assert.equal(rawA?.id,id);
@@ -256,6 +267,9 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       registeredTrialIdentityMatched:trialIdentityMatched,
       originalAndContenderPrintingDigestsMatched:deckPrintingIdentitiesMatched,
       physicalSeatsAndFirstPlayerMatched:seatAndStarterMatched,
+      nativeFirstPlayerSeatBeforeSetup:actualNativeInitialStarterVerified?
+        firstAtBaseline:null,
+      actualNativeInitialStarterVerified,
       postTreatmentSourcePhysicalDigestEqual:
         rawA.sourceDealFingerprint&&rawB.sourceDealFingerprint?
           rawA.sourceDealFingerprint===rawB.sourceDealFingerprint:null,
@@ -289,6 +303,9 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     samePrivateHashSession?(beforeTreatmentMismatches===0):'UNRESOLVED';
   const nativeRegisteredRequestParityObserved=nativeStoreTrialLinkVerified&&
     samePrivateHashSession?(matchingNativeRequests===16):'UNRESOLVED';
+  const actualInitialStarterMatches=rows.filter(row=>
+    row.actualNativeInitialStarterVerified).length;
+  const allActualInitialStartersMatch=actualInitialStarterMatches===8;
   const postTreatmentSourceDigestMismatches=rows.filter(row=>
     row.postTreatmentSourcePhysicalDigestEqual===false).length;
   const registeredTrialsAndPrintingsMatched=ar.complete&&br.complete&&
@@ -356,6 +373,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       matchedNativePreRunRequests:matchingNativeRequests,
       allActualPrechoicePhysicalSixtyPrintingsMatchConfigured:
         allPhysicalSixtyPrintingsMatched,
+      actualNativeInitialStartersMatched:actualInitialStarterMatches,
+      allActualNativeInitialStartersMatch:allActualInitialStartersMatch,
       nativeRegisteredRequestParityObserved,
       postTreatmentSourceDigestMismatches,
       sameRegisteredTrialIdentityAndDeckPrintings:
