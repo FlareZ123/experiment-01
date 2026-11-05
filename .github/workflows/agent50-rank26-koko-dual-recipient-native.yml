@@ -18,13 +18,18 @@ on:
         type: boolean
         required: false
         default: false
+      issue25_v12_only:
+        description: Run Agent3 post-Store public divergence follow-up
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -145,7 +150,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -231,7 +236,7 @@ jobs:
           retention-days: 30
 
   issue25-v8-prechoice:
-    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true }}
+    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -295,5 +300,39 @@ jobs:
         with:
           name: issue25-v11-four-campaign-${{ github.run_id }}
           path: artifacts/issue25-v11-control-replay/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-v12-public-first-difference:
+    if: ${{ inputs.issue25_v12_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned native simulator for v12
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine for v12
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine for v12
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure public-root and native abort privacy regression
+        run: node --test tests/agent3-issue25-v12-public-first-difference.test.cjs
+      - name: Genuine native first public-card divergence retrospective follow-up
+        env:
+          AGENT3_ISSUE25_V12_RECEIPT_DIR: artifacts/issue25-v12-public-delta
+        run: node --test tests/agent3-issue25-v12-public-first-difference.native.test.cjs
+      - name: Preserve v12 public divergence and failure-inclusive receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v12-public-first-difference-${{ github.run_id }}
+          path: artifacts/issue25-v12-public-delta/
           if-no-files-found: warn
           retention-days: 30
