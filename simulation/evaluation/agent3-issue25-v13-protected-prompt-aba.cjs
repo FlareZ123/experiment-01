@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {randomBytes}=require('node:crypto');
+const {randomBytes,createHash}=require('node:crypto');
 const {
   PLANS:ORIGINAL_PLANS
 }=require('./agent3-issue25-v8-four-campaign-root-replay.cjs');
@@ -10,6 +10,10 @@ const {
 }=require('./agent3-issue25-v12-public-first-difference.cjs');
 
 const VERSION='agent3-issue25-v13-protected-modal-prize-aba-native-v1';
+const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const hex32=value=>typeof value==='string'&&/^[0-9a-f]{32}$/.test(value);
+const hex64=value=>typeof value==='string'&&/^[0-9a-f]{64}$/.test(value);
+const hex40=value=>typeof value==='string'&&/^[0-9a-f]{40}$/.test(value);
 const PLANS=Object.freeze([
   {label:'protected-control-initial',mode:'protected',promptBaseline:false},
   {label:'protected-owner-modal-prize',mode:'protected',promptBaseline:true},
@@ -83,17 +87,33 @@ function comparePromptBaselineAba(campaigns){
     assert.equal(witness.exactNativeStoreRootsRecorded,8);
     assert.equal(witness.firstOwnerSetupInputsObserved,16);
     assert.equal(witness.exactPhysicalSixtyPrintedCountMatches,16);
-    const owners=new Map();
+    assert.ok(hex32(witness.privateFingerprintSessionId));
+    assert.ok(Array.isArray(witness.events)&&witness.events.length===16);
+    const owners=new Map(),ordinals=new Map();
     for(const e of witness.events){
       const key=e.registeredNativeTrialId+':'+e.physicalOwnerSeat;
       assert.ok(ids.includes(e.registeredNativeTrialId));
       assert.ok(e.physicalOwnerSeat===0||e.physicalOwnerSeat===1);
       assert.equal(e.firstBeforeAnyOwnerSetupChoice,true);
+      assert.equal(e.noPolicyChoiceOrHiddenNamesPublished,true);
+      assert.equal(e.globalTurnAtCapture,0);
+      assert.equal(e.physicalSixtyCardCount,60);
       assert.equal(e.exactPhysicalSixtyPrintedCountMatched,true);
+      assert.ok(e.nativeFirstPlayerSeat===0||e.nativeFirstPlayerSeat===1);
+      assert.ok(hex64(e.opaquePhysicalPrechoiceInputHmacSha256));
+      assert.ok(hex64(e.opaquePreRunRequestHmacSha256));
+      assert.ok(Number.isSafeInteger(e.nativeStoreOrdinal)&&
+        e.nativeStoreOrdinal>=1&&e.nativeStoreOrdinal<=8);
       assert.ok(!owners.has(key));
       owners.set(key,e);
+      const previous=ordinals.get(e.registeredNativeTrialId);
+      if(previous===undefined)
+        ordinals.set(e.registeredNativeTrialId,e.nativeStoreOrdinal);
+      else assert.equal(previous,e.nativeStoreOrdinal);
     }
     assert.equal(owners.size,16);
+    assert.equal(ordinals.size,8);
+    assert.equal(new Set(ordinals.values()).size,8);
     const attempts=new Map();
     for(const row of receipt.attempts){
       assert.ok(ids.includes(row.id));
@@ -129,7 +149,8 @@ function comparePromptBaselineAba(campaigns){
     b.witness.privateFingerprintSessionId&&
     a.witness.privateFingerprintSessionId===
     a2.witness.privateFingerprintSessionId;
-  const sourceEpochEqual=a.vendor&&a.research&&a.entropy&&
+  const sourceEpochEqual=hex40(a.vendor)&&hex40(a.research)&&
+    hex64(a.entropy)&&
     [b,a2].every(c=>c.vendor===a.vendor&&c.research===a.research&&
       c.entropy===a.entropy);
   const rows=[];
@@ -142,12 +163,14 @@ function comparePromptBaselineAba(campaigns){
       Array.isArray(row.publicRootActions)&&
       row.publicRootActionsTruncated===false&&
       row.publicRootActionCount===row.publicRootActions.length&&
+      hex64(row.publicRootLedgerSha256Computed)&&
+      row.publicRootLedgerSha256Computed===sha(row.publicRootActions)&&
       row.publicRootLedgerDigestConsistent!==false;
     const allComplete=[first,middle,last].every(complete);
     const sameControls=allComplete&&first.status===last.status&&
       first.publicRootLedgerSha256Computed===
         last.publicRootLedgerSha256Computed;
-    const sameSource=first.sourceDealFingerprint!==null&&
+    const sameSource=hex64(first.sourceDealFingerprint)&&
       first.sourceDealFingerprint===last.sourceDealFingerprint;
     if(sameControls)sameControlLedger++;
     if(sameSource)sameControlDeal++;
