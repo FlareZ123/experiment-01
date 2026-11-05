@@ -78,6 +78,13 @@ function runPreservedMailTurn5Aba(deps={}){
         x.action!=='ResolvePromptAction')??null;
     const plumeria=x=>x.actorOnlyDecisionCoverage?.
       detailedComponentAudits?.ownerPlumeriaAfterPass??null;
+    const beforeFive=x=>(plumeria(x)?.physicallyAcceptedOwnerPayments??[])
+      .filter(p=>p.turn<5).map(p=>({
+        seat:p.seat,turn:p.turn,accepted:p.acceptedByOriginalStore,
+        payment:p.payment.map(card=>card.printing).sort()
+      }));
+    assert.deepEqual(beforeFive(a),beforeFive(b),
+      id+' original Plumeria payment changed before Mail treatment');
     return {
       id,sourceSeat,starter:a.actualStarterSeat,
       sourceDeal:a.sourceDealFingerprint,
