@@ -8,6 +8,8 @@ const {runTelepathV6} =
   require('../simulation/evaluation/agent9-issue25-telepath-v6-development.cjs');
 const {writeReceipt} =
   require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
+const {classifySourceEnergyAttachment} =
+  require('../simulation/evaluation/agent18-source-energy-physical-custody.cjs');
 
 const TARGET = '11:102:A:new-moon-lockbreaker-v1';
 
@@ -45,6 +47,16 @@ test('exact original eight v5/v6 Telepath comparison preserves initial physical 
   );
   const rootActions = attempt?.rootActionLedger ??
     attempt?.nativeAbortEvidence?.rootActionLedger ?? [];
+  const targetSidecar = attempt?.status === 'engine-error' ?
+    attempt.nativeAcceptedTargetSidecarAbort :
+    attempt?.nativeAcceptedTargetSidecar;
+  const targetPhysicalAttachments = (targetSidecar?.events ?? [])
+    .filter(event => event.playerSlot === 0 &&
+      event.action === 'PlayCardAction' &&
+      event.declared?.ownerHandPrinting === 'Telepath [P] Energy M3')
+    .map(event => classifySourceEnergyAttachment(
+      event, 0, targetSidecar?.rootOrdinalLinked === true
+    ));
   const publicLastRoots = rootActions.slice(-12).map(row => ({
     actionOrdinal: row.actionOrdinal ?? null,
     turn: row.turnBefore ?? null,
@@ -80,6 +92,7 @@ test('exact original eight v5/v6 Telepath comparison preserves initial physical 
       x.entirePhysicalDealMatched),
     pairs,
     telepathOwnerAudit: telemetry,
+    targetPhysicalAttachments,
     targetPublicLastRoots: publicLastRoots,
     archives,
     releaseStatus: 'FAIL-native-development-only',
@@ -102,6 +115,11 @@ test('exact original eight v5/v6 Telepath comparison preserves initial physical 
     'owner-deck physical Telepath search must settle');
   assert.equal(telemetry.custodyFailures, 0);
   assert.equal(telemetry.shuffleMissing, 0);
+  assert.ok(targetPhysicalAttachments.some(row =>
+    row.nativePhysicalAttachmentVerified === true &&
+    row.acceptedRootOrdinal === 13 &&
+    row.physicalEnergyCard === 'Telepath [P] Energy M3'),
+  'accepted root13 requires independent physical native target custody');
   const targetPair = pairs.find(row => row.id === TARGET);
   assert.equal(targetPair.controlStatus, 'engine-error');
   assert.ok(targetPair.treatmentRoots > 14,
