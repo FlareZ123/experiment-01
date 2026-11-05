@@ -171,6 +171,11 @@ test('registered headless trial label is carried into genuine Store setup and re
   assert.equal(headless.runMatch,original);
   assert.equal(output.audit.registeredNativeTrialLabelWitnessSelected,true);
   assert.equal(output.audit.firstOwnerSetupInputsObserved,2);
+  assert.equal(output.audit.exactPhysicalSixtyPrintedCountComparisons,2);
+  assert.equal(output.audit.exactPhysicalSixtyPrintedCountMatches,0);
+  assert.ok(output.audit.events.every(e=>
+    e.physicalSixtyCardCount===60&&
+    e.exactPhysicalSixtyPrintedCountMatched===false));
   assert.deepEqual(output.audit.events.map(e=>e.registeredNativeTrialId),
     [registered,registered]);
   assert.equal(output.audit.privateFingerprintSessionId.length,32);
