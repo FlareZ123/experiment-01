@@ -391,6 +391,8 @@ jobs:
         run: node --test tests/agent40-jet-tm-physical-witness.test.cjs
       - name: Exact rank2 and rank15 Bunnelby direct opening access combinatorics
         run: node --test tests/agent40-bunnelby-direct-opening-count.test.cjs
+      - name: Validate exact original rank6 Speed Lightning draw-two counterwindow
+        run: node --test tests/agent40-rank6-speed-trigger-counterwindow.test.cjs
       - name: Owner-visible Vileplume BUS paid Grass to Active-position lock from original source
         run: node --test tests/agent40-public-bus-position-frontier.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
