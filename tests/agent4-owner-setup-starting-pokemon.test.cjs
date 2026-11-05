@@ -237,6 +237,19 @@ class ControlledStartingStore extends Store{
       prompt.result=action.result;
       return this.state;
     }
+    if(this.mode==='mutate-answer'){
+      const owner=this.state.players.find(p=>p.id===prompt.playerId);
+      if(action.result.length)action.result.length=0;
+      else action.result.push(owner.hand.cards[0]);
+      prompt.result=action.result;
+      return this.state;
+    }
+    if(this.mode==='duplicate-active'){
+      const owner=this.state.players.find(p=>p.id===prompt.playerId);
+      prompt.result=action.result;
+      owner.active.cards=[action.result[0]];
+      return this.state;
+    }
     if(this.mode==='resolve-remove'){
       const result=super.dispatch(action);
       this.state.prompts=[];
@@ -308,6 +321,44 @@ test('both-seat resolved initial prompt without physical Active is not accepted'
       assert.equal(row.accepted,0);
       assert.equal(row.physicalVerificationFailed,1);
       assert.equal(row.physicallyPlacedActiveMissing,1);
+      return true;
+    });
+  }
+});
+
+test('snapshotted initial and min0 bonus selections reject in-Store mutable answer aliasing',()=>{
+  for(const seat of [0,1])for(const min of [0,1]){
+    const game=fixture(seat,[1],'CHOOSE_STARTING_POKEMONS',min);
+    const store=new ControlledStartingStore(game.store.state,'mutate-answer');
+    assert.throws(()=>starting(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(game.bot.decodeNextAction(store.state));
+    },{...deps,Store:ControlledStartingStore}),error=>{
+      assert.equal(error.code,SETTLEMENT_CODE);
+      const a=error.ownerStartingPokemonAudit;
+      assert.equal(a.settled,0);
+      assert.equal(a.accepted,0);
+      assert.equal(a.unsettled,1);
+      assert.equal(a.physicalVerificationFailed,0);
+      return true;
+    });
+  }
+});
+
+test('both seats reject same physical Basic duplicated in hand and Active',()=>{
+  for(const seat of [0,1]){
+    const game=fixture(seat,[1]);
+    const store=new ControlledStartingStore(game.store.state,'duplicate-active');
+    assert.throws(()=>starting(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(game.bot.decodeNextAction(store.state));
+    },{...deps,Store:ControlledStartingStore}),error=>{
+      assert.equal(error.name,'AssertionError');
+      const a=error.ownerStartingPokemonAudit;
+      assert.equal(a.settled,1);
+      assert.equal(a.accepted,0);
+      assert.equal(a.physicalVerificationFailed,1);
+      assert.equal(a.physicallyPlacedActiveMissing,1);
       return true;
     });
   }
