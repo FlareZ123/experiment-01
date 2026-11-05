@@ -1,6 +1,8 @@
 # Missing Aichi 2026 Top 32 source decks: Japanese original-player research trail
 
-**Agent35 · 5 November 2026 · Public external research, no verified new 60**
+**Agent35 · 5 November 2026 · cross-check of prior repository research, no verified new 60**
+
+**Prior-art correction:** This investigation rediscovered sources already documented by [Agent36 on 2 November](agent36-2026-rank23-25-28-primary-source-leads-20261102.md), [Agent39 rank23 scout](rank23-source-scout.md) and many other researchers. The existence of a full **provisional** rank28 photo-derived sixty was documented by [Agent48 on 20 October](agent48-rank28-photo-60-provisional.md) and [Agent3's gallery study](agent3-rank28-original-gallery-source.md). This report adds **no new roster knowledge** and should not be treated as a separate independent corroboration of the alias. It is an updated route map to those existing sources.
 
 ## Scope and provenance
 
@@ -24,7 +26,7 @@ The results page numbers ranks 17–32 by pre-cut standing after first-round pla
 ## Rank28: source-player candidate "レプリカ" (Replica), strong positional crossmatch
 
 - [Pokekameshi May18 Top32 page2](https://pokekameshi.com/cl2026aichidec-extra/2/) embeds a May10 player's first-person account attributed to **@nnaacc5_uec / レプリカ**: `CL愛知エクストラ 予選28位トナメ1没でした！ レジドラゴ、今までありがとう` (“CL Aichi Expanded: 28th qualifying, eliminated in first playoff game, thanks Regidrago”).
-- This aligns with Limitless **rank28 Jo Kato, Regidrago** on event/date, exact standing and archetype. Nickname↔formal-name match is **high-confidence circumstantial** until independently confirmed, and full count/printing list is **still absent**. The visible quoted post contains no textual official deck code.
+- This aligns with Limitless **rank28 Jo Kato, Regidrago** on event/date, exact standing and archetype. Nickname↔formal-name match is **high-confidence circumstantial** until independently confirmed. Importantly, [Agent48 already transcribed an actual 60-card grid from a separate May 2026 post by this same handle](agent48-rank28-photo-60-provisional.md), which contains **20 Pokémon, 30 Trainers, 10 Energy** and one ACE SPEC. That provisional full 60 is available as [literal physical-cell counts](agent48-rank28-photo-provisional-cells.csv) and [mechanical ID map](agent48-rank28-photo-mechanical-print-map.json), but it remains **unverified as the officially registered Jo Kato list** (civil-name identity, precise printings). The quoted May10 result post itself contains no official deck code.
 - A 2025 photo/list of the same handle is for **2025** and must not be repurposed for Aichi **2026**. Search engines yield photos for unrelated 2026 Regidrago pilots; visual similarity cannot establish 60-card provenance.
 
 ## Rank23: still missing
@@ -35,6 +37,6 @@ The contemporaneous [Pokekameshi page2](https://pokekameshi.com/cl2026aichidec-e
 
 - The 29 known sixties cannot stand in for the full exact field. For a single fixed deck, unknown opposing exact paper choices can change crucial matchups, even within the same Regidrago or Electric Rain archetype.
 - The two independent alias/standing clues help **target primary list retrieval** (official deck registration, authenticated photograph with complete count, or original player-confirmed 60). They do **not** increase the 29/32 complete original-list count.
-- A public post saying “Top32” or presenting a photo of card piles must be compared against the specific placement, player and date before adoption. Preserve provenance separately from guessed expansions. A paywalled original deck-analysis article does not authorize inventing counts.
+- A public post saying “Top32” or presenting a photo of card piles must be compared against the specific placement, player and date before adoption. Preserve provenance separately from guessed expansions. A paywalled original deck-analysis article does not authorize inventing counts. The prior [rank28 gallery photo transcriptions](agent48-rank28-photo-60-provisional.md) are legitimate *provisional alternatives* for limited uncertainty-envelope experiments, with every such run explicitly excluded from exact-source field performance denominators.
 
-**Status:** 29/32 original sixties, same as before. Two strong nickname + placement crosswalks found; no new full 60 or qualified match result. The full-field 99.5% target remains untested.
+**Status:** 29/32 *authenticated officially registered* original sixties, same as before. Two strong nickname + placement crosswalks were already known; rank28 has a pre-existing **provisional photo-transcribed 60**, rank25's original list remains behind an unmet source boundary, and rank23 is still unresolved. **No new authenticated full 60 and no qualified match result.** The full-field 99.5% target remains untested.
