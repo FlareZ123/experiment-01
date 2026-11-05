@@ -29,6 +29,12 @@ test('SFT conservative printed energy population cannot all fit six prizes',()=>
   assert.equal(x.deckCardsByPublicConservationIfNoPriorCardZoneLoss,46);
   assert.ok(Math.abs(x.conditionalThreeCardEnergyHitLowerBound-
     0.12753623188405794)<1e-12);
+  assert.equal(x.k0UnknownDeckPlusPrizePool,52);
+  assert.ok(Math.abs(x.k0UnconditionalAnySpecialEnergyHitProbability-
+    0.40072398190045244)<1e-12);
+  assert.ok(Math.abs(x.k0UnconditionalSpeedLightningHitProbability-
+    0.2173755656108597)<1e-12);
+  assert.match(x.k0DistributionAssumption,/prize\/deck permutation/);
 });
 
 test('SFT official print has an independently payable discard-one-draw-three mode',()=>{
@@ -69,6 +75,8 @@ test('SFT expose source claim as conditional, never a native response or qualifi
     sourceRoot:result.sourceRoot,sourceTurn:result.sourceTurn,
     energyMinimum:result.guaranteedMinimumEnergyInDeckIfNoPriorCardZoneLoss,
     threeDrawHitLowerBound:result.conditionalThreeCardEnergyHitLowerBound,
+    k0UnconditionalAnyEnergy:result.k0UnconditionalAnySpecialEnergyHitProbability,
+    k0UnconditionalSpeedEnergy:result.k0UnconditionalSpeedLightningHitProbability,
     sourceHandSha256:result.sourceHandSha256,
     nativePromptResolved:false,qualifiedGames:0
   }));
