@@ -72,6 +72,16 @@ test('durable extracted real source receipt survives archive expiry', () => {
   assert.equal(lines[0].opponentFirstNonPrompt.actionOrdinal,174);
   assert.deepEqual(observed.sameBenchIndexTypedDoorPrompts.map(p=>p.benchIndex),[2,2]);
 });
+test('later native source Prize trajectory is stored without paper promotion', () => {
+  const observed=require('../results/aichi-2026/2026-11/agent42-rank1-rootgap-projected-native-fixture.json');
+  const settled=observed.sourceMaxGeistPrizeFollowthrough;
+  assert.deepEqual(settled.map(a=>a.actionOrdinal),[168,179,191,202]);
+  assert.equal(settled.reduce((sum,a)=>
+    sum+a.sourcePrizesBefore-a.sourcePrizesAfter,0),6);
+  assert.equal(observed.nativeTerminal.finished,true);
+  assert.equal(observed.nativeTerminal.winnerSeat,1);
+  assert.deepEqual(observed.nativeTerminal.finalPrizes,[6,0]);
+});
 test('durable genuine prior retrospective root172-174 still settles', () => {
   const observed=require('../results/aichi-2026/2026-11/agent42-rank1-retrospective-paid-chain-fixture.json');
   const lines=findSettledSourceFloatStoneLines(observed,observed.trial.sourceSeat);
