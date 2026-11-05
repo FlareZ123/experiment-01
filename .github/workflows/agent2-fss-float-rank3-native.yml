@@ -113,6 +113,9 @@ jobs:
         if: ${{ inputs.guzma_vmax_abca && !inputs.source_rescue_guzma && !inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
         shell: bash
         run: AGENT2_INCLUDE_VMAX_ABCA=true node simulation/evaluation/agent2-rank1-original-guzma-counterplay-aba.cjs | tee agent2-rank1-original-guzma-vmax-abca.json
+      - name: Verify rank3 owner-only Guzma pure state and prompt controls
+        if: ${{ inputs.guzma_vmax_abca && inputs.source_rescue_guzma }}
+        run: node --test tests/agent2-rank3-owned-guzma-reply.test.cjs
       - name: Test owner-only rank3 reciprocal held Guzma against rank1 VMAX
         if: ${{ inputs.guzma_vmax_abca && inputs.source_rescue_guzma && !inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
         shell: bash
