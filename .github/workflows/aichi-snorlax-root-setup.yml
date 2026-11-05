@@ -83,9 +83,9 @@ jobs:
         if: ${{ inputs.source_rank5_prospective_rng_pair }}
         run: |
           node --test tests/agent19-independent-seat-rng.test.cjs
-          node --check simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs
-          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs --inspect-only
-          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-paired-native.cjs > agent19-rank5-independent-seat-rng-prospective-summary.json
+          node --check simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-v6b-native.cjs
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-v6b-native.cjs --inspect-only
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-prospective-v6b-native.cjs > agent19-rank5-independent-seat-rng-prospective-v6b-summary.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
       - name: Record native single-attachment attack and sole-Pokemon board
@@ -112,4 +112,6 @@ jobs:
             agent19-rank5-independent-seat-rng-paired-native.json
             agent19-rank5-independent-seat-rng-prospective-summary.json
             agent19-rank5-independent-seat-rng-prospective-paired-native.json
+            agent19-rank5-independent-seat-rng-prospective-v6b-summary.json
+            agent19-rank5-independent-seat-rng-prospective-v6b-native.json
           if-no-files-found: warn
