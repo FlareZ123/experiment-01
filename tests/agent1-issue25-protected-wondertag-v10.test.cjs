@@ -2,6 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {
   withPrintedWonderTagAndAttacks,compareProtectedWonderTagV10,VERSION
 }=require('../simulation/evaluation/agent1-issue25-protected-wondertag-v10.cjs');
@@ -23,10 +24,12 @@ function fixture(label){
     registeredNativeTrialId:id,
     physicalOwnerSeat:seat,
     opaquePhysicalPrechoiceInputHmacSha256:
-      String(index)+'-'+seat+'-private',
+      createHash('sha256').update(String(index)+':'+seat+':input').digest('hex'),
     opaquePreRunRequestHmacSha256:
-      String(index)+'-'+seat+'-request',
+      createHash('sha256').update(String(index)+':'+seat+':request').digest('hex'),
     nativeFirstPlayerSeat:index%2,
+    firstBeforeAnyOwnerSetupChoice:true,globalTurnAtCapture:0,
+    physicalSixtyCardCount:60,
     exactPhysicalSixtyPrintedCountMatched:true
   })));
   return {
@@ -146,5 +149,26 @@ test('reject a missing source printed 60, changed engine or misregistered trial'
   const result=compareProtectedWonderTagV10(a,b);
   assert.equal(result.comparisonEligibleForPolicyStudy,false);
   b.diagnostic.registered=[...ids].reverse();
+  assert.throws(()=>compareProtectedWonderTagV10(a,b));
+});
+
+test('reject an extra duplicated original native attempt even if all eight IDs appear',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.attemptedRows[0]=b.diagnostic.attemptedRows[1];
+  assert.throws(()=>compareProtectedWonderTagV10(a,b),
+    /Duplicate registered native attempt/);
+});
+
+test('reject a native HMAC replaced by unproven bare text or an after-choice observer',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
+    .opaquePreRunRequestHmacSha256='hidden string';
+  assert.throws(()=>compareProtectedWonderTagV10(a,b));
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
+    .opaquePreRunRequestHmacSha256=
+      a.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
+        .opaquePreRunRequestHmacSha256;
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
+    .firstBeforeAnyOwnerSetupChoice=false;
   assert.throws(()=>compareProtectedWonderTagV10(a,b));
 });
