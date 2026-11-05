@@ -253,5 +253,57 @@ function runOriginalRoot17ToolAB(deps={}) {
     objective99point5Proven:false};
 }
 
+/**
+ * Publish one all-eight native result atomically under an exclusive writer
+ * lock. A missing or failed run never becomes a competitive denominator.
+ * @param {string} filename Root-relative native receipt output path.
+ * @param {object} result Complete result including caps and engine errors.
+ */
+function writeNativeReceipt(filename,result){
+  const fs=require('node:fs');
+  assert.equal(typeof filename,'string');
+  assert.equal(result?.schema,VERSION);
+  const parent=path.dirname(path.resolve(filename));
+  fs.mkdirSync(parent,{recursive:true});
+  const lock=path.resolve(filename)+'.lock';
+  const fd=fs.openSync(lock,'wx');
+  const tmp=path.resolve(filename)+'.'+process.pid+'.tmp';
+  const target=path.resolve(filename);
+  try{
+    fs.writeFileSync(tmp,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+    fs.renameSync(tmp,target);
+    const sidecar=target+'.sha256';
+    const tmpDigest=sidecar+'.'+process.pid+'.tmp';
+    try{
+      fs.writeFileSync(tmpDigest,createHash('sha256')
+        .update(require('node:fs').readFileSync(target)).digest('hex')+
+        '  '+path.basename(target)+'\n',{flag:'wx'});
+      fs.renameSync(tmpDigest,sidecar);
+    }finally{if(fs.existsSync(tmpDigest))fs.unlinkSync(tmpDigest);}
+  }finally{
+    if(fs.existsSync(tmp))fs.unlinkSync(tmp);
+    fs.closeSync(fd);fs.unlinkSync(lock);
+  }
+}
+
+if(require.main===module){
+  assert.ok(process.env.AGENT18_TOOLJAMMER_V5_OUTPUT,
+    'Set AGENT18_TOOLJAMMER_V5_OUTPUT');
+  const result=runOriginalRoot17ToolAB();
+  writeNativeReceipt(process.env.AGENT18_TOOLJAMMER_V5_OUTPUT,result);
+  process.stdout.write(JSON.stringify({
+    schema:VERSION,sourcePassPrebotHandStatus:
+      result.sourceFirstPassPrebotHandContract?.status,
+    selectedSourceToolAccepted:
+      result.selectedSourceNativeStoreToolPlayAccepted,
+    registeredArms:result.registeredSourceArms,
+    root:result.selectedOriginalSourceComparison?.firstChangedNativeRoot,
+    allDispositions:result.pairedDispositions.map(p=>({
+      id:p.id,control:p.controlDisposition,treatment:p.status})),
+    qualifiedGames:0
+  })+'\n');
+}
+
 module.exports={VERSION,DEFAULT_REG,selectSourceTool,
-  withOriginalSourceToolFork,acceptedRoots,runOriginalRoot17ToolAB};
+  withOriginalSourceToolFork,acceptedRoots,runOriginalRoot17ToolAB,
+  writeNativeReceipt};
