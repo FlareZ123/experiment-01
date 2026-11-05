@@ -101,6 +101,35 @@ test('SFT re-signed duplicated IDs and unmatched source deal fail custody',()=>{
   assert.equal(out.qualifiedGames,0);
 });
 
+test('SFT re-signed different rank pair cannot impersonate the historical v3 four arms',()=>{
+  const data=fixture();
+  const replaceId=id=>id.replace('11:2:B:','12:2:B:');
+  data.registration.ids=data.registration.ids.map(replaceId);
+  for(const row of data.attempts)row.id=replaceId(row.id);
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.deepEqual(out.sourcePairedFingerprints.map(x=>x.paired),
+    [true,true]);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.ok(out.failures.includes('historical-four-arm-registration-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
+test('SFT re-signed candidate substitution fails historical four-arm pin',()=>{
+  const data=fixture();
+  const replaceId=id=>id.replace('champion-reference','unknown-third-candidate');
+  data.registration.ids=data.registration.ids.map(replaceId);
+  for(const row of data.attempts)row.id=replaceId(row.id);
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.equal(out.returnedCount,4);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.ok(out.failures.includes('historical-four-arm-registration-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
 test('SFT valid detached checksum cannot excuse altered accepted root ordinal',()=>{
   const data=fixture();
   data.attempts[0].publicRootActions[0].actionOrdinal=41;
