@@ -12,7 +12,21 @@ const MODES=[
     nativeEndOpponentTurn:true,expectedCost:2,expectedBlocks:1},
   {mode:'path-float',expectedCost:0,expectedBlocks:0},
   {mode:'path-float-bench-jammer',expectedCost:0,expectedBlocks:0},
-  {mode:'thorns-float-jammer-jamming',expectedCost:2,expectedBlocks:0}
+  {mode:'thorns-float-jammer-jamming',expectedCost:2,expectedBlocks:0},
+  {mode:'path-airballoon',expectedCost:0,expectedBlocks:0},
+  {mode:'path-airballoon-jammer',expectedCost:2,expectedBlocks:1},
+  {mode:'thorns-airballoon',expectedCost:0,expectedBlocks:0},
+  {mode:'thorns-airballoon-jammer',expectedCost:2,expectedBlocks:1},
+  {mode:'path-airballoon-bench-jammer',expectedCost:0,expectedBlocks:0},
+  {mode:'path-furybelt',expectedCost:2,expectedBlocks:0},
+  {mode:'path-furybelt-jammer',expectedCost:2,expectedBlocks:1},
+  {mode:'thorns-furybelt',expectedCost:2,expectedBlocks:0},
+  {mode:'thorns-furybelt-jammer',expectedCost:2,expectedBlocks:1},
+  {mode:'path-furybelt-bench-jammer',expectedCost:2,expectedBlocks:0},
+  {mode:'thorns-stealthyhood',expectedCost:0,expectedBlocks:0},
+  {mode:'thorns-stealthyhood-jammer',expectedCost:2,expectedBlocks:1},
+  {mode:'thorns-stealthyhood-jammer-jamming',
+    expectedCost:2,expectedBlocks:0}
 ];
 
 /**
