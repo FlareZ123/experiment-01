@@ -242,7 +242,37 @@ function runAtInnermostNativeStore(dependencies){
   }
   const innerLayer=next=>steward.withStewardInnermostOwnerPrompts(
     next,{prize:prizeWithOwnerEnergySearch});
+  const originalFork=agent35.withLetterFork;
+  function auditedFork(next,options){
+    const observed=originalFork(next,options);
+    const rows=observed.result?.rawDevelopment?.rows??[];
+    const selected=rows.find(row=>
+      (row.trial?.id??row.id)===registration.selectedOriginalId);
+    const diagnostic={
+      version:VERSION,
+      sourceId:registration.selectedOriginalId,
+      rows:rows.length,
+      selectedFound:!!selected,
+      sourceDealFingerprint:selected?.sourceDealFingerprint??null,
+      fullPhysicalDealFingerprint:
+        selected?.fullPhysicalDealFingerprint??null,
+      originalSourceTrialStatus:selected?.status??null,
+      originalSourceAcceptedRoots:
+        selected?.rootActionLedger?.length??null,
+      inGameAuditCount:gameAudits.length,
+      sourceItemDispatches:gameAudits.reduce((n,x)=>
+        n+x.printedLetterNativeDispatches,0),
+      sourcePromptResponses:gameAudits.reduce((n,x)=>
+        n+x.proposedOwnerSearchAnswers,0),
+      sourcePromptSettlements:gameAudits.reduce((n,x)=>
+        n+x.nativeResolvedAnswers,0)
+    };
+    process.stdout.write('AGENT3_INNER_PREFLIGHT '+
+      JSON.stringify(diagnostic)+'\n');
+    return observed;
+  }
   const result=agent35.run({
+    withLetterFork:auditedFork,
     runner:()=>steward.runStewardInnermostPrizeV5({innerLayer})
   });
   assert.equal(gameAudits.length,8,'All eight actual source games audited');
