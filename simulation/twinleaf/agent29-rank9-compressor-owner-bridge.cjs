@@ -109,7 +109,7 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     eligiblePasses:0,proposedCompressor:0,
     nativeAcceptedCompressor:0,nativeRejectedCompressor:0,
     ownerDeckPromptDecisions:0,
-    nativeSettledDeckToDiscard:0,
+    nativeSettledDeckToDiscard:0,nativeSettledShuffles:0,
     actualOwnerSelectedEnergyCount:0,
     sourceOnly:true,competitivelyQualifiedGames:0,
     events:[]};
@@ -124,7 +124,8 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const source=state.players[sourceSeat];
     const waiting=state.prompts?.find(p=>p.result===undefined);
     const inflight=pendingByOwner.get(source.id);
-    if(inflight&&waiting&&waiting.playerId===source.id&&
+    if(inflight&&!inflight.ownerPromptUsed&&waiting&&
+      waiting.playerId===source.id&&
       waiting.constructor.name==='ChooseCardsPrompt'&&
       waiting.cards===source.deck&&
       waiting.message==='CHOOSE_CARD_TO_DISCARD'){
@@ -172,7 +173,8 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const action=new PlayCardAction(source.id,choice.handIndex,
       {player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
     const event={sourceSeat,turn:state.turn,printing:ITEM,
-      nativeAccepted:null,physicalEnergyMoved:0,ownerPromptUsed:false};
+      nativeAccepted:null,physicalEnergyMoved:0,ownerPromptUsed:false,
+      shufflePromptResolved:false};
     proposalByAction.set(action,event);
     audit.proposedCompressor++;audit.events.push(event);
     return action;
@@ -183,6 +185,13 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     const event=this===liveStore?proposalByAction.get(action):null;
     const promptEvent=this===liveStore?promptByAction.get(action):null;
     const state=this.state;
+    const source=state.players?.[sourceSeat];
+    const inflight=source?pendingByOwner.get(source.id):null;
+    const shufflePrompt=inflight&&action?.constructor?.name===
+      'ResolvePromptAction'?state.prompts?.find(p=>
+        p.id===action.id&&p.result===undefined&&
+        p.playerId===source.id&&p.constructor?.name==='ShuffleDeckPrompt'):
+      null;
     try{
       const result=originalDispatch.value.call(this,action,...args);
       if(event){
@@ -199,7 +208,11 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
         promptEvent.inflight.physicalEnergyMoved=moved.length;
         audit.actualOwnerSelectedEnergyCount+=promptEvent.chosen.length;
         audit.nativeSettledDeckToDiscard+=moved.length;
-        pendingByOwner.delete(owner.id);
+      }
+      if(shufflePrompt){
+        inflight.shufflePromptResolved=true;
+        audit.nativeSettledShuffles++;
+        pendingByOwner.delete(source.id);
       }
       return result;
     }catch(error){
