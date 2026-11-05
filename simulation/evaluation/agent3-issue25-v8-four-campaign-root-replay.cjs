@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {createHash}=require('node:crypto');
+const {createHash,randomBytes}=require('node:crypto');
 
 const VERSION='agent3-issue25-v8-registered-four-campaign-root-replay-v1';
 const PLANS=Object.freeze([
@@ -88,7 +88,9 @@ function compareFourCampaigns(campaigns){
     return {
       ...campaign,owner,attempts,
       vendorPin:receipt.provenance?.observedTwinleafCommit??null,
-      researchPin:receipt.provenance?.observedRepositoryCommit??null
+      researchPin:receipt.provenance?.observedRepositoryCommit??null,
+      nightWatchEntropyCommitment:
+        receipt.actuallyExecutingManifest?.nightWatchPrivateSeedCommitmentSha256??null
     };
   });
   const sessions=prepared.map(c=>c.witness.privateFingerprintSessionId);
@@ -97,10 +99,15 @@ function compareFourCampaigns(campaigns){
     prepared.every(c=>c.vendorPin===prepared[0].vendorPin);
   const sameObservedResearchPin=prepared[0].researchPin!==null&&
     prepared.every(c=>c.researchPin===prepared[0].researchPin);
+  const sameNightWatchEntropyCommitment=
+    prepared[0].nightWatchEntropyCommitment!==null&&
+    prepared.every(c=>c.nightWatchEntropyCommitment===
+      prepared[0].nightWatchEntropyCommitment);
   const triplets=[],rows=[];
   let equalPrivateInputs=0,equalRequests=0,unequalPrivateInputs=0,
     unequalRequests=0,missingPublicControlRootRows=0,
-    equalControlLedgers=0,unequalControlLedgers=0;
+    equalControlLedgers=0,unequalControlLedgers=0,
+    equalControlSourceDigests=0,unequalControlSourceDigests=0;
   for(const id of expected){
     const pairs=[0,1].map(seat=>{
       const key=id+':'+seat;
@@ -135,6 +142,8 @@ function compareFourCampaigns(campaigns){
     const sameControlsSourcePhysical=controls.every(c=>
       c.sourceDealFingerprint!==null&&
       c.sourceDealFingerprint===a.sourceDealFingerprint);
+    if(sameControlsSourcePhysical)equalControlSourceDigests++;
+    else unequalControlSourceDigests++;
     const changedProtected= a.rootsComplete&&b.rootsComplete&&
       (a.status!==b.status||a.sha256!==b.sha256);
     const changedAt=()=>{
@@ -173,11 +182,13 @@ function compareFourCampaigns(campaigns){
   }
   const allInputsEqual=samePrivateSession&&
     unequalPrivateInputs===0&&unequalRequests===0&&
-    sameObservedVendorPin&&sameObservedResearchPin;
+    sameObservedVendorPin&&sameObservedResearchPin&&
+    sameNightWatchEntropyCommitment;
   const controlVerdict=!allInputsEqual?'UNRESOLVED-input-or-epoch-mismatch':
     missingPublicControlRootRows?'UNRESOLVED-missing-public-root-ledger':
-    unequalControlLedgers?'FAIL-repeated-control-divergence':
-    'PASS-registered-A-A-A-control-replay';
+    unequalControlLedgers||unequalControlSourceDigests?
+      'FAIL-repeated-control-divergence':
+    'PASS-registered-bounded-A-A-A-control-replay';
   return {
     schema:VERSION,
     design:PLANS,
@@ -186,6 +197,7 @@ function compareFourCampaigns(campaigns){
     eachCampaignTrialCount:8,
     samePrivateHmacSession:samePrivateSession,
     sameObservedVendorPin,sameObservedResearchPin,
+    sameNightWatchEntropyCommitment,
     ownerPairwiseComparisons:48,
     matchingOwnerPrechoiceComparisons:equalPrivateInputs,
     mismatchingOwnerPrechoiceComparisons:unequalPrivateInputs,
@@ -194,6 +206,8 @@ function compareFourCampaigns(campaigns){
     controlLedgerRowsEqual:equalControlLedgers,
     controlLedgerRowsUnequal:unequalControlLedgers,
     controlLedgerRowsIncomplete:missingPublicControlRootRows,
+    controlSourceDealDigestRowsEqual:equalControlSourceDigests,
+    controlSourceDealDigestRowsUnequalOrUnavailable:unequalControlSourceDigests,
     controlReplayVerdict:controlVerdict,
     causalNonTreatmentClosureCertified:false,
     causalTreatmentAttribution:'UNRESOLVED',
@@ -214,8 +228,26 @@ function runFourNativeCampaigns(){
     require('./agent1-issue25-prechoice-input-custody-v8.cjs');
   const {buildReceipt}=
     require('./agent1-issue25-v4-public-receipt.cjs');
+  const {withThreePrintedOwnerAttackFrontiers}=
+    require('./agent1-issue25-joined-three-attacks-v5.cjs');
+  const {withJoinedOwnerAttackFrontier}=
+    require('./agent1-issue25-joined-two-seat-attacks-v4.cjs');
+  // One genuinely fresh OS-entropy source, created BEFORE the first Store.
+  // Common random numbers eliminate the known independent Night Watch
+  // campaign-seed confounder while preserving its per-native-Store HMAC
+  // subkeys. The raw seed never enters the actor or published receipt.
+  const sharedNightWatchSeed=randomBytes(32);
+  const joinedAttackLayer=work=>withJoinedOwnerAttackFrontier(work,{
+    randomBytes:n=>{
+      assert.equal(n,32);
+      return Buffer.from(sharedNightWatchSeed);
+    }
+  });
+  const attackLayer=work=>withThreePrintedOwnerAttackFrontiers(work,{
+    joinedAttackLayer
+  });
   const campaigns=PLANS.map(plan=>{
-    const execution=runPrechoiceCustodyV8(plan.mode);
+    const execution=runPrechoiceCustodyV8(plan.mode,{attackLayer});
     const receipt=buildReceipt(execution,{
       policyEntryPoint:
         'simulation/evaluation/agent1-issue25-prechoice-input-custody-v8.cjs'
