@@ -240,3 +240,12 @@ test('fail closed when native accepted counts or seat receipts contradict regist
   assert.equal(w.nativeSettlementOfEveryChoiceAttested,false);
   assert.equal(w.settledRoleCensus,null);
 });
+
+test('missing source-local Wonder Tag shuffle custody vetoes settled role census',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagMandatoryZeroShuffle.interceptedSupporterSearches=1;
+  const w=compareProtectedWonderTagV10(a,b).registeredWonderTagActorWitness;
+  assert.equal(w.nativeSettlementOfEveryChoiceAttested,false);
+  assert.equal(w.settledRoleCensus,null);
+});
