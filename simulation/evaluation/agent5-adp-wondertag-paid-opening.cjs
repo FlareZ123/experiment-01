@@ -78,6 +78,7 @@ function countWonderTagBridge(counts=COUNTS,options={}){
      !Number.isSafeInteger(prizeCount)||prizeCount<0||n<handSize+prizeCount+1)
     throw new Error('Invalid hand/prize parameters');
   const numerators=Object.fromEntries(PROFILES.map(p=>[p,{without:0n,with:0n}]));
+  const extraBy=Object.fromEntries(PROFILES.map(p=>[p,{leleHeld:0n,leleQuick:0n,leleUltra:0n}]));
   const hand=Array(13).fill(0);
   let handsVisited=0;
   const postDraw=n-handSize-1;
@@ -112,10 +113,15 @@ function countWonderTagBridge(counts=COUNTS,options={}){
         const available={adp:Boolean(mask&1),gh:Boolean(mask&2),
           dde:Boolean(mask&4),lele:Boolean(mask&8)};
         for(const p of PROFILES){
-          if(findPaidLine(hand,seen,available,p,false))
-            numerators[p].without+=ways;
-          if(findPaidLine(hand,seen,available,p,true))
-            numerators[p].with+=ways;
+          const noLele=findPaidLine(hand,seen,available,p,false);
+          const withLele=findPaidLine(hand,seen,available,p,true);
+          if(noLele)numerators[p].without+=ways;
+          if(withLele)numerators[p].with+=ways;
+          if(withLele&&!noLele){
+            if(!(withLele.ghVia in extraBy[p]))
+              throw new Error('Unexpected enabling route');
+            extraBy[p][withLele.ghVia]+=ways;
+          }
         }
       }
     }
@@ -131,7 +137,7 @@ function countWonderTagBridge(counts=COUNTS,options={}){
   const valid=choose(n,handSize)-
     choose(n-counts[C.adp]-counts[C.basic]-counts[C.lele],handSize);
   return {denominator:valid*BigInt(n-handSize)*choose(n-handSize-1,prizeCount),
-    numerators,handsVisited};
+    numerators,extraBy,handsVisited};
 }
 module.exports={C,COUNTS,findPaidLine,countWonderTagBridge};
 if(require.main===module){
@@ -141,5 +147,7 @@ if(require.main===module){
       .map(([p,z])=>[p,{without:100*Number(z.without)/Number(o.denominator),
         with:100*Number(z.with)/Number(o.denominator),
         increment:100*Number(z.with-z.without)/Number(o.denominator),
-        extraCount:String(z.with-z.without)}]))},null,2));
+        extraCount:String(z.with-z.without),
+        extraBy:Object.fromEntries(Object.entries(o.extraBy[p]).map(
+          ([type,count])=>[type,String(count)]))}]))},null,2));
 }
