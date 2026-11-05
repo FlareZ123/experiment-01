@@ -125,7 +125,7 @@ function auditV5RootBudget(bytes){
   assert.equal(sum('ownerDecisionRoots'),106);
   assert.equal(sum('initialSetupRoots'),74);
   assert.equal(sum('waitPromptRoots'),151);
-  assert.equal(sum('observedSourceTurnCount'),33);
+  assert.equal(sum('observedSourceTurnCount'),34);
   assert.equal(sum('sourcePass'),33);
   assert.equal(sum('sourcePlay'),7);
   assert.equal(sum('sourceAttack'),0);
