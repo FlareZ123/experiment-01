@@ -96,6 +96,7 @@ function runStewardSelectedIssue25V4(deps={}){
       true;
   const energyModes=rows.map(row=>
     row.bilateralSpecialEnergyProfile?.mode??null);
+  const energyNativeWitnessRows=energyModes.filter(mode=>mode==='both').length;
   const manifest={
     ...selected.manifest,
     version:VERSION,
@@ -133,7 +134,9 @@ function runStewardSelectedIssue25V4(deps={}){
       promptAudit?.sourceIndependentCaptureEnergySearch??null,
     actualPromptFrontierObserved:promptAudit!==null,
     actualBilateralEnergyOptIn:
-      selected.rawDevelopment?.bilateralSpecialEnergyRootOptIn??null,
+      energyNativeWitnessRows>0?true:null,
+    actualBilateralEnergyNativeWitnessRows:energyNativeWitnessRows,
+    bilateralEnergyModeUnverifiedRows:rows.length-energyNativeWitnessRows,
     actualNativeTargetWitnessOptIn:
       selected.rawDevelopment?.nativeAcceptedTargetsOptIn??null,
     developmentalQualificationVerdict:
