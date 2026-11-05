@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent48-registered-estimand-receipt-v1';
+const VERSION = 'agent48-registered-estimand-receipt-v2-setup-treatment-boundary';
 const SHA256 = /^[0-9a-f]{64}$/;
 
 /** @param {unknown} value @returns {string|null} */
