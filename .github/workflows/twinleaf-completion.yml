@@ -76,7 +76,7 @@ jobs:
       - name: Verify independent Camping Gear paper choice and generic silent native prompt settlement
         run: node --test tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs tests/agent41-paper-prompt-contract-portfolio.test.cjs tests/agent39-paper-prompt-portfolio.test.cjs
       - name: Reject silent no-op and disappearing setup Confirm prompts on both seats
-        run: node --test tests/agent4-owner-setup-confirm.test.cjs
+        run: node --test tests/agent4-owner-setup-confirm.test.cjs tests/agent4-owner-setup-starting-pokemon.test.cjs
       - name: Reject native silent-no-op Night Watch and Get Lost source prompts on both seats
         run: node --test tests/agent36-source-stamped-nightwatch-owner.test.cjs tests/agent36-source-stamped-getlost-owner.test.cjs
       - name: Audit paper Tool payment, physical custody and next-turn opponent reply
@@ -88,7 +88,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify real original rank5 setup Confirm settlements on both seats
-        run: node --test tests/agent4-owner-setup-confirm-native.test.cjs
+        run: node --test tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs
       - name: Verify original Volt Cyclone paper prompt physical settlement and stale native no-op
         run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
       - name: Verify printed Night Watch selected v3 native prompt settlement
