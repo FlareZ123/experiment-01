@@ -33,6 +33,32 @@ test('retrospective owner Prize/Promotion v5 versus frozen v4 native same-deal e
       sourceAttackSettlementCount:row.sourceAttackCount
     };
   });
+  // Only original accepted public native roots and redacted failure metadata.
+  // Do not reveal an owner's hand, deck search choices, or pending hidden cards.
+  const failingId='11:102:A:new-moon-lockbreaker-v1';
+  const failing=treatment.rawDevelopment?.rows?.find(row=>
+    (row.trial?.id??row.id)===failingId);
+  const publicRoots=failing?.rootActionLedger??
+    failing?.nativeAbortEvidence?.rootActionLedger??[];
+  const root14PublicWitness={
+    id:failingId,status:failing?.status??null,
+    verifiedRootLedgerStatus:
+      failing?.nativeAbortProvenance?.acceptedRootLedgerStatus??null,
+    pendingPrompt:failing?.nativeAbortEvidence?.pendingPrompt??null,
+    decoderFailureStage:
+      failing?.nativeAbortEvidence?.failureStage??null,
+    publicLastRoots:publicRoots.slice(-10).map(row=>({
+      ordinal:row.actionOrdinal??null,
+      turn:row.turnBefore??null,
+      seat:row.playerSlot??null,
+      action:row.action??null,
+      card:row.card??null,
+      attack:row.attack??null,
+      pendingPrompt:row.pendingPrompt??null
+    })),
+    ownerPromptPrintingOriginCertified:false,
+    competitiveGameQualified:false
+  };
   const archiveDir=process.env.ISSUE25_STEWARD_V5_DIR;
   const artifacts=archiveDir?{
     control:writeReceipt(control,archiveDir,{
@@ -66,6 +92,7 @@ test('retrospective owner Prize/Promotion v5 versus frozen v4 native same-deal e
     ownerNativePromptAudit:treatment.diagnostic.innerNativeOwnerPromptAudit,
     captureAudit:treatment.diagnostic.sourceIndependentCaptureEnergySearch,
     pairs,
+    root14PublicWitness,
     completeRawNativeArchives:artifacts,
     competitiveGamesQualified:0,
     releaseStatus:'FAIL-retrospective-native-source-policy-only'
