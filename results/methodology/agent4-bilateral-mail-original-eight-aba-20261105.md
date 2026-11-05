@@ -49,6 +49,19 @@ The four actual chosen Trainers were **Sidney FST 241**, **Guzma BUS**, **Sidney
 
 The same two rank6 games changed at their first-owner-turn root14. Baseline control root tapes for the other six were reproduced exactly in treatment B, including the unrelated rank11 native error. That unchanged failure remains an explicit denominator and is not repaired or filtered away. Original opening fingerprints, baseline/treatment provenance and SHA256 action digests are preserved per arm in the artifact.
 
+## Public action-tape follow-up, separate revision
+
+A follow-up **readout-only** modification archived bounded, public native action roots for the two changed arms, with the same preregistered action treatment. The [repeated compiled A/B/A run 42095285003](https://github.com/FlareZ123/experiment-01/actions/runs/42095285003), [artifact 13446238055](https://github.com/FlareZ123/experiment-01/actions/runs/42095285003/artifacts/13446238055), inner JSON SHA256 **1c911d8241d010149403aa6de634202b8d16e560fc90c9df17af6eedf739ccaf**, reproduced the physical deals, the deterministic repeated controls, four accepted Mail roots, four settled owner prompts and physical Trainer transfers. The raw action chronology contains only public root attributes: ordinal, turn, physical seat, action name, publicly played card or attack.
+
+| Original rank6 fixed candidate | A last observed game turn at 48 roots | B last observed game turn at 48 roots | Post-treatment source root decisions |
+| --- | --- | --- | --- |
+| Champion-reference | Turn 10 | **Turn 7** | Source played both Mail turn1, then still Passed on turns1,3,5,7 |
+| New Moon Lockbreaker v1 | Turn 9 | **Turn 7** | Source played both Mail turn1, then still Passed on turns1,3,5 |
+
+In the champion-reference candidate, the baseline and treatment had the same candidate **Shadow Mist attacks on turns 2, 4 and 6**. The baseline reached further Shadow Mist attacks on turns 8 and 10; B hit the root cap before those game turns. In the New Moon candidate, both arms played **Fog Crystal** and **Duskull** on turn2; the baseline additionally played **Klefki** on turn4, while the treatment's corresponding turn4 action was a Pass. The reason for that later candidate difference is unresolved and must not be inferred from the source Mail root alone.
+
+The **48-root action cap is a moving game-time horizon**. Each extra Mail produced additional native prompt and shuffle actions, so B consumed the same fixed action budget while completing fewer game turns. Equal counts of 48 roots across controls and treatments say nothing about equal in-game progression or efficacy. No source attack, source Plumeria payment or source other-control payoff was observed in these particular rank6 public root tapes. A competing registered rank6 Plumeria fork showed that the two original physical Mail were used as payment for discarding an opponent's Psychic Energy in a different intervention. Spending them early on searches may therefore compete with a later Plumeria payment. This opportunity-cost issue remains untested directly here.
+
 ## Interpretation and limitations
 
 This establishes a **reproducible native opponent-policy blind spot**: under the original selected common policy, rank6 source players declined genuine owner-held, native-payable Trainer search progress. A minimal owner-visible, physical-card and real-Store treatment changes the actual game trajectory and settles the search, without relying on private opponent information.
