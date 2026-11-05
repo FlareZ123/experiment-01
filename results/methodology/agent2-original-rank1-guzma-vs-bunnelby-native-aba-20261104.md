@@ -51,3 +51,22 @@ This is a **major genuine discrete tactical opportunity** in an exact original t
 The treatment is **one outcome-selected historical physical source deal** with policy A/B/A and does not add three independent competition games. It does not establish higher rank1 paper win probability, universal Guzma superiority, or that rank1 wins the actual 25-minute match. The held-Guzma owner root and both switch prompts make this an effective regression fixture for [Issue #25's](https://github.com/FlareZ123/experiment-01/issues/25) symmetric owner-information-safe opponent policy and tactical continuation gate.
 
 **Overall field goal remains unachieved:** 29/32 original inventories, ranks23/25/28 missing, zero competitive-paper-qualified games, no selected fixed 60, and no demonstrated 99.5% win rate.
+
+## Additional read-only natural reply chronology (same underlying A/B/A)
+
+The original exact same-deal A/B/A script was rerun **without any action change**, adding only a `rootActionLedger` and public `decisionTrace` report of all rank3 owner `PassTurnAction` moments after the original Guzma. [Successful native run **41937842941**](https://github.com/FlareZ123/experiment-01/actions/runs/41937842941), [raw JSON artifact **13373839014**](https://github.com/FlareZ123/experiment-01/actions/runs/41937842941/artifacts/13373839014), ZIP SHA-256 `31c31051f1933dbc2737c469f0a310b69ba69352d175763646702f0856f9b6f0`, uncompressed JSON SHA-256 `45edb5106cb4068e8eae5cb0fbf89f0f5dd93688dfc3c730b2dce9cb5771196a` (217,106 bytes). All previous hard A/B/A controls still passed; native turns, actions, winner, Prize counts and both native Guzma prompts remained identical to the archived first SUCCESS run.
+
+Across source owner's 43 global-turn opportunities, the native rank3 owner recorded:
+
+| Actual source player behavior after first Burrow | Count and chronological positions |
+| --- | --- |
+| Burrow `AttackAction` | Once, global turn2 **before** the Guzma |
+| `PassTurnAction` with **Snorlax Active** | **17**, global turns4–36 |
+| `PassTurnAction` with **Rotom V Active** | **19**, global turns38–74 |
+| `PassTurnAction` with **Regirock Active** | **6**, global turns76–86 |
+| Normal voluntary `RetreatAction` | **0** |
+| Source `PlayCardAction` | **7**, cards Water Energy (turn2), Capture Energy (turn4), Rotom V (turn8), Girafarig (turn26), Regirock (turn48), Mimikyu (turn60), Snorlax (turn76) |
+
+The actual, public **Bunnelby PRC remained on the source's Bench with Water Energy attached on all 42 Pass snapshots**. It had the printed one-Colorless cost of Burrow available but was no longer Active. No source owner retreat was recorded. Snorlax PGO had one attached Capture Energy and no Tool at its early global-turn4–36 Pass snapshots. The other source Active spots Rotom V and Regirock were likewise recorded as distinct actual subsequent board states rather than an enduring Snorlax lock. The native rank1 opponent's Shadow Rider V continued attacking with Shadow Mist; as source Pokémon were Knocked Out, the rank3 source promoted other Benched Pokémon, never its still-funded Bunnelby.
+
+The treatment's **62 additional global turns** are therefore supported by authentic full-turn owner decisions, including **42 repeated source Passes** and switching Actives from Knock Outs. This makes opponent skill and the source player's own recovery competence an even stronger admission blocker. The recorded public pass snapshots do **not** reveal whether the source held Float Stone, Guzma or Scoop Up Cyclone; an independent owner-hand observation is necessary before labeling the source's refusal to return to Bunnelby as an actual missed playable escape.
