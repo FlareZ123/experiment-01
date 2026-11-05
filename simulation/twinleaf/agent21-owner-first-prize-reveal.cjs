@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent21-owner-first-nonempty-ko-prizes-v1';
+const VERSION='agent21-owner-first-nonempty-ko-prizes-v2-hand-destination';
 
 /**
  * Deterministic baseline for an acting owner's *ordinary KO Prize-taking*
@@ -53,7 +53,12 @@ function withOwnerFirstPrizeReveal(run,deps={}) {
     const options=prompt?.options;
     if(actor&&prompt?.constructor?.name==='ChoosePrizePrompt'&&
       prompt.message===GameMessage.CHOOSE_PRIZE_CARD&&
-      options?.allowCancel===false&&options.useOpponentPrizes===false&&
+      // Pinned KO checkState sets destination to the taker's real hand.
+      // Other card effects share this message but may swap, reveal or
+      // discard Prizes. Do not silently treat those as ordinary KO Prizes.
+      Array.isArray(actor.hand?.cards)&&
+      options?.destination===actor.hand&&
+      options.allowCancel===false&&options.useOpponentPrizes===false&&
       Array.isArray(options.blocked)&&options.blocked.length===0&&
       typeof prompt.getPerspectivePlayerId==='function'&&
       prompt.getPerspectivePlayerId()===actorId&&
