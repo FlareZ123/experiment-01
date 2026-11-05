@@ -70,3 +70,32 @@ test('rejects changed source full deal while restoring environment',()=>{
     /Expected values to be strictly equal/);
   for(const [name,value] of before)assert.equal(process.env[name],value);
 });
+
+test('rejects treatment actions before the chosen turn-five source window',()=>{
+  const deps=mockExecutor();
+  let attempts=0;
+  const execute=({runner})=>{
+    const result=deps.execute({runner});
+    if(++attempts===2)
+      result.rawDevelopment.rows[0].rootActionLedger[0].action='PlayCardAction';
+    return result;
+  };
+  assert.throws(()=>runPreservedMailTurn5Aba({...deps,execute}),
+    /treatment must preserve all pre-turn5 public actions/);
+});
+
+test('rejects a changed turn-three physical Plumeria payment',()=>{
+  const deps=mockExecutor();
+  let attempts=0;
+  const execute=({runner})=>{
+    const result=deps.execute({runner});
+    if(++attempts===2)
+      result.rawDevelopment.rows[0].actorOnlyDecisionCoverage
+        .detailedComponentAudits.ownerPlumeriaAfterPass
+        .physicallyAcceptedOwnerPayments[0].payment[0].printing=
+        'Team Flare Grunt XY';
+    return result;
+  };
+  assert.throws(()=>runPreservedMailTurn5Aba({...deps,execute}),
+    /original Plumeria payment changed before Mail treatment/);
+});
