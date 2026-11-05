@@ -54,6 +54,7 @@ test('identical numeric shuffle correction, genuine Wonder Tag yes vs no, 24 reg
     tripleSourcePhysicalDealSame:report.equalAllThreePhysicalSourceDealRows,
     baselineReplayVerdict:report.baselineReplayVerdict,
     actualNativeWonderTagAudit:report.nativeWonderTagSourceAudit,
+    publicSupporterRevealByArm:report.postAcceptedPublicSupporterRevealByArm,
     changedRows:report.rows.filter(row=>row.firstPublicRootDifference!==null)
       .map(row=>({id:row.id,
         original:row.wonderTagDeclineControl?.status??null,
@@ -78,6 +79,8 @@ test('identical numeric shuffle correction, genuine Wonder Tag yes vs no, 24 reg
   assert.equal(report.baselineReplayVerdict,
     'PASS-bounded-protected-opening-A-A-control');
   assert.equal(report.allThreeArmsUseSameNumericValidator,true);
+  assert.equal(report.postAcceptedPublicSupporterRevealByArm.length,3);
+  assert.ok(report.postAcceptedPublicSupporterRevealByArm.every(Boolean));
   assert.equal(report.certifiedPaperGames,0);
   assert.equal(report.establishedFieldWinRate,null);
 });
