@@ -86,7 +86,10 @@ function runStewardSelectedIssue25V4(deps={}){
       row.nativeAbortProvenance?.candidateSeat??null,
     sourcePhysicalDealFingerprint:row.sourceDealFingerprint??null,
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
-    rootCount:row.rootActionLedger?.length??null,
+    rootCount:row.rootActionLedger?.length??row.nativeRootActionCount??
+      row.rootActionCount??null,
+    abortRootLedgerStatus:
+      row.nativeAbortProvenance?.acceptedRootLedgerStatus??null,
     sourceAttackCount:row.sourceAttackSettlement?.attacks?.length??null
   }));
   const registrationExact=
