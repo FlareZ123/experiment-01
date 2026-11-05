@@ -15,6 +15,19 @@
 
 In rank6 seat0's **same** first source turn as the first row, held Cynthia & Caitlin could discard Tool Jammer to draw three. [Agent15's independent paper certificate](../aichi-2026/2026-11/agent15-source6-turn2-cynthia-paper-opportunity-20261105.md) computes any Special Energy draw likelihood of 40.0724%, and a much narrower *direct draw of both attack-enabling singletons* (DCE and Thunder Mountain) of **1/442 ≈0.22624%** at K0. Agent18's Tag Call → G&H complete printed search-target event has **77.0985%** K0 availability. These are **different access events**, with different two-card payment costs, different tactical responses, and one mutually exclusive Supporter use that turn. The natural payoff evidence makes the already physically progressed Tag Call treatment the more actionable next canary. Neither probability estimates winning.
 
+## Exhaustive Prize-collapse attribution for the rank6 first-turn attack line
+
+The same 52-card K0 unknown Prize/deck pool contains **one DCE, one Thunder Mountain ◇, and two Guzma & Hala**. The Tag Call → G&H → Stadium + Energy line cannot access all three required categories unless both singleton cards are unprized and at least one G&H is in deck. The mutually exclusive failure partition from exact six-Prize combinatorics is:
+
+| Disjoint first-turn resource failure | Exact probability | Percentage |
+| --- | ---: | ---: |
+| DCE itself in Prizes | `3/26` | **11.53846%** |
+| DCE live, Thunder Mountain in Prizes | `23/221` | **10.40724%** |
+| Both singleton cards live, both G&H copies in Prizes | `207/21658` | **0.95577%** |
+| **All three access channels available** | `8349/10829` | **77.09853%** |
+
+These four cases exhaust the modeled opening hidden-zone distribution. They do not include the need to pay two acceptable discards, native prompt validation, actual Stadium play, legal attack declaration, opponent board defenses or eventual game outcome. The decomposition reveals that the two **singleton resources** dominate the failure exposure. Improving only the Tag Call-to-G&H connector cannot remove their Prize risk. An optimizer comparing new candidate decks or modeling this particular original opponent should preserve this discrete, combinatorial bottleneck rather than treating search connectivity as automatic first-turn attack success.
+
 ## Priority for the next steward-selected release
 
 1. **Finish the proven paid DCE root before opening additional unrelated canaries:** authentic G&H retrieved Stadium name, live owner Stadium quota, genuine Thunder Mountain physical placement, full Volt Cyclone resolution and meaningful response. Agent18's archived v9 native root data has two exact candidate variants at source-seat0, with 8/8 unchanged root and initial-deal digests; it is the shortest observed route to a first-turn original-source attack. The existing post-choice original owner Pass observer can in principle expose real owner hand at immediate Pass30/37 without adding another policy mutation, but the owner must not gain hidden search information before the native search.
