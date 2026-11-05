@@ -90,7 +90,12 @@ function fixture(includeThunder=true){
         return this.state;
       }
       if(action instanceof PassTurnAction){
-        this.state.turn=3;this.state.activePlayer=1;return this.state;
+        if(action.clientId===owner.id){
+          this.state.turn=3;this.state.activePlayer=1;
+        }else if(action.clientId===opponent.id){
+          this.state.turn=4;this.state.activePlayer=0;
+        }else throw Error('PASS_OWNER_MISMATCH');
+        return this.state;
       }
       throw Error('UNKNOWN_ACTION');
     }
@@ -137,13 +142,48 @@ test('real owner mocked dispatch replaces two genuine Pass decisions and resolve
   assert.equal(result.audit.acceptedVoltCycloneAttackRoots,1);
   assert.equal(result.audit.nativeVoltCycloneOwnerPrompts,1);
   assert.equal(result.audit.nativeSettledMandatoryEnergyMoves,1);
-  assert.equal(result.audit.opponentResponseObserved,true);
+  // The owner completing the mandatory DCE move has not been answered.
+  assert.equal(result.audit.opponentResponseObserved,false);
+  assert.equal(result.audit.opponentResponseAction,null);
   assert.deepEqual(f.owner.active.energies.cards,[]);
   assert.deepEqual(f.owner.bench[0].energies.cards,[f.energy]);
   assert.deepEqual(f.owner.stadium.cards,[f.stadium]);
   assert.equal(f.opponent.active.damage,140);
   assert.strictEqual(f.Store.prototype.dispatch,priorStore);
   assert.strictEqual(f.SimpleTacticsAi.prototype.decodeNextAction,priorAi);
+});
+
+
+test('genuine subsequent opponent voluntary Store Pass establishes response',()=>{
+  const f=fixture();
+  const store=new f.Store(),sourceAi=new f.SimpleTacticsAi(f.owner.id);
+  const opponentAi=new f.SimpleTacticsAi(f.opponent.id);
+  const result=withSourceAfterDceThunderVolt(()=>{
+    store.dispatch(new f.AddPlayerAction());
+    store.dispatch(new f.PlayCardAction(f.owner.id,0,{
+      player:2,slot:1,index:0}));
+    store.dispatch(sourceAi.decodeNextAction(f.state));
+    store.dispatch(sourceAi.decodeNextAction(f.state));
+    store.dispatch(sourceAi.decodeNextAction(f.state));
+    assert.equal(f.state.activePlayer,1);
+    assert.equal(f.state.turn,3);
+    const opponentReply=opponentAi.decodeNextAction(f.state);
+    assert.equal(opponentReply.constructor.name,'PassTurnAction');
+    store.dispatch(opponentReply);
+    return f.state.turn;
+  },{trialId:'6:101:B:champion-reference-actual-opponent-reply',
+    Store:f.Store,SimpleTacticsAi:f.SimpleTacticsAi,
+    PlayCardAction:f.PlayCardAction,AttackAction:f.AttackAction,
+    ResolvePromptAction:f.ResolvePromptAction,
+    PlayerType:{ANY:0,BOTTOM_PLAYER:2},
+    SlotType:{BOARD:0,ACTIVE:1,BENCH:2}});
+  assert.equal(result.result,4);
+  assert.equal(result.audit.nativeSettledMandatoryEnergyMoves,1);
+  assert.equal(result.audit.opponentResponseObserved,true);
+  assert.equal(result.audit.opponentResponseAction.kind,'PassTurnAction');
+  assert.equal(result.audit.opponentResponseAction.sourceTurnBefore,3);
+  assert.equal(result.audit.opponentResponseAction.sourceTurnAfter,4);
+  assert.deepEqual(f.owner.bench[0].energies.cards,[f.energy]);
 });
 
 test('no held Thunder Mountain means original Pass decision remains',()=>{
