@@ -226,6 +226,26 @@ function policyRandomStreams(seed) {
 }
 
 /**
+ * Choose the native physical deck-shuffle random source without consuming it.
+ * In after-setup mode, the original common stream handles all turn-0 setup
+ * shuffles, preserving original physical openings. Once the first player's
+ * turn has begun, each seat's own stream handles its deck searches.
+ * Coin flips retain their separate historical shared-stream behavior.
+ *
+ * @param {()=>number} shared
+ * @param {[()=>number,()=>number]|null} seatStreams
+ * @param {0|1} ownerSeat
+ * @param {number} globalTurn
+ * @param {boolean} afterSetup
+ * @returns {()=>number}
+ */
+function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
+  afterSetup=false) {
+  if(!seatStreams || (afterSetup && globalTurn===0))return shared;
+  return seatStreams[ownerSeat];
+}
+
+/**
  * @typedef {object} MatchRequest
  * @property {string[]} deckA Fully resolved Twinleaf fullName strings, exactly 60.
  * @property {string[]} deckB Fully resolved Twinleaf fullName strings, exactly 60.
@@ -243,6 +263,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [templeUnlockRecovery] Opt-in attack-unlocking Marshadow response to Temple.
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [isolatePhysicalShuffleRandomness] Use independent per-seat physical shuffle RNG streams, preserving legacy behavior when omitted.
+ * @property {boolean} [isolatePhysicalShuffleRandomnessAfterSetup] Keep historical shared RNG during turn-0 setup shuffles, then use independent per-seat physical deck shuffle streams from turn 1 onward; mutually exclusive with isolatePhysicalShuffleRandomness.
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
@@ -348,6 +369,9 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if(request.isolatePhysicalShuffleRandomness===true &&
+      request.isolatePhysicalShuffleRandomnessAfterSetup===true)
+    throw new Error('Full and after-setup physical RNG isolation are mutually exclusive');
   if(request.captureNativePolicyActionJoin===true&&
       request.captureDecisionTrace!==true)
     throw new Error('Native policy/Store ordinal join needs full root ledger');
@@ -465,8 +489,11 @@ function runMatch(request) {
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
     policyRandomStreams(request.seed) : null;
+  const isolateShuffleAfterSetup=
+    request.isolatePhysicalShuffleRandomnessAfterSetup===true;
   const physicalShuffleRandomBySeat =
-    request.isolatePhysicalShuffleRandomness === true ?
+    (request.isolatePhysicalShuffleRandomness===true ||
+      isolateShuffleAfterSetup) ?
       physicalShuffleRandomStreams(request.seed) : null;
   const originalRandom = Math.random;
   Math.random = random;
@@ -1093,8 +1120,9 @@ function runMatch(request) {
         const owner = state.players.find(player => player.id === ownerId);
         if (!owner) throw new Error('Shuffle has no deck owner.');
         const ownerSeat = state.players.indexOf(owner);
-        const shuffleRandom = physicalShuffleRandomBySeat ?
-          physicalShuffleRandomBySeat[ownerSeat] : random;
+        const shuffleRandom = choosePhysicalShuffleRandom(
+          random,physicalShuffleRandomBySeat,ownerSeat,state.turn,
+          isolateShuffleAfterSetup);
         action = new ResolvePromptAction(pending.id,
           deckPermutation(owner.deck.cards.length, shuffleRandom));
       } else if (pending instanceof CoinFlipPrompt) {
@@ -2105,7 +2133,12 @@ function runMatch(request) {
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       physicalShuffleRandomIsolation:
         request.isolatePhysicalShuffleRandomness === true,
-      randomnessProtocol: request.isolatePhysicalShuffleRandomness === true ?
+      physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
+      randomnessProtocol: isolateShuffleAfterSetup ?
+        (request.isolatePolicyRandomness === true ?
+          'per-seat-policy-and-physical-shuffle-after-setup-prng-v1' :
+          'per-seat-physical-shuffle-after-setup-prng-v1') :
+        request.isolatePhysicalShuffleRandomness === true ?
         (request.isolatePolicyRandomness === true ?
           'per-seat-policy-and-physical-shuffle-prng-v1' :
           'per-seat-physical-shuffle-only-prng-v1') :
@@ -2158,4 +2191,5 @@ function upstreamSmokeDeck() {
 
 module.exports = { runMatch, initializeCards, seededRandom, deckPermutation,
   upstreamSmokeDeck, installFairBotHooks, decodeWithPolicyRandom,
-  policyRandomStreams, physicalShuffleRandomStreams };
+  policyRandomStreams, physicalShuffleRandomStreams,
+  choosePhysicalShuffleRandom };
