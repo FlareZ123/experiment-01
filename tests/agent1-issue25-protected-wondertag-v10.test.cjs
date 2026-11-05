@@ -69,6 +69,7 @@ function fixture(label){
         ownerWonderTagNativeShuffleCompletion:{
           version:'native-shuffle',printedEntrances:2,
           shufflePromptsOffered:2,shuffleCallbacksCompleted:2,
+          validShuffleCallbacksCompleted:2,invalidNativeShufflePermutations:0,
           shuffleCallbacksFailed:0,outstandingShuffleCallbacks:0,
           bySeat:{0:2,1:0},nativeTrialAttributionAvailable:true,
           offeredTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}],
@@ -340,4 +341,15 @@ test('native shuffle from the wrong trial cannot substitute for same-seat Wonder
   assert.equal(report.actualNativeShuffleCompletionAudit.exactNativeShuffleTrialAndActorJoin,false);
   assert.equal(report.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
   assert.equal(report.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+});
+
+test('native physically invalid shuffle order vetoes full printed shuffle completion',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  const sh=b.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  sh.invalidNativeShufflePermutations=1;
+  sh.validShuffleCallbacksCompleted=1;
+  const r=compareProtectedWonderTagV10(a,b);
+  assert.equal(r.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
+  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
 });
