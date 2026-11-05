@@ -1,0 +1,199 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
+const {runPrechoiceCustodyV8}=
+  require('./agent1-issue25-prechoice-input-custody-v8.cjs');
+const {withThreePrintedOwnerAttackFrontiers}=
+  require('./agent1-issue25-joined-three-attacks-v5.cjs');
+const {withOwnerWonderTagPrompts}=
+  require('../twinleaf/agent8-owner-wondertag-prompt.cjs');
+const {withWonderTagZeroShuffleHook}=
+  require('../twinleaf/agent8-wonder-tag-zero-shuffle-hook.cjs');
+const {hashRegisteredFile}=
+  require('./agent36-issue25-selected-v0.cjs');
+
+const VERSION='agent1-issue25-protected-wondertag-v10-same-opening-retro';
+const EXTRA_HASH_PATHS=Object.freeze([
+  'simulation/evaluation/agent1-issue25-protected-wondertag-v10.cjs',
+  'simulation/twinleaf/agent8-owner-wondertag-prompt.cjs',
+  'simulation/twinleaf/agent8-wonder-tag-zero-shuffle-hook.cjs',
+  'tests/agent1-issue25-protected-wondertag-v10.test.cjs',
+  'tests/agent1-issue25-protected-wondertag-v10.native.test.cjs'
+]);
+
+/**
+ * Source-independent opt-in original printed Lele Supporter search. Keep the
+ * same protected setup and original symmetric printed attack adapters. A
+ * separate source-only Rank11 script and generic raw bot are NOT added.
+ * @template T
+ * @param {()=>T} next Native batch with immutable eight original trial IDs.
+ * @param {{attack?:Function,wonder?:Function,shuffle?:Function}} [deps]
+ * @returns {{result:T,audit:object}}
+ */
+function withPrintedWonderTagAndAttacks(next,deps={}){
+  assert.equal(typeof next,'function');
+  const attack=deps.attack??withThreePrintedOwnerAttackFrontiers;
+  const wonder=deps.wonder??withOwnerWonderTagPrompts;
+  const shuffle=deps.shuffle??withWonderTagZeroShuffleHook;
+  for(const f of [attack,wonder,shuffle])assert.equal(typeof f,'function');
+  const outer=shuffle(()=>wonder(()=>attack(next)));
+  assert.ok(outer&&outer.result&&outer.result.result);
+  return {
+    result:outer.result.result.result,
+    audit:{
+      ...outer.result.result.audit,
+      sourceIndependentOwnerWonderTag:outer.result.audit,
+      ownerWonderTagMandatoryZeroShuffle:outer.audit,
+      originalPrintedAttacksRetained:true,
+      rankedStrengthCertified:false,
+      competitiveGamesQualified:0
+    }
+  };
+}
+
+/** @param {object} witness @param {string[]} ids @returns {Map<string,object>} */
+function ownerInputsById(witness,ids){
+  assert.equal(witness?.exactNativeStoreRootsRecorded,8);
+  assert.equal(witness?.firstOwnerSetupInputsObserved,16);
+  assert.equal(witness?.exactPhysicalSixtyPrintedCountMatches,16);
+  assert.equal(witness?.registeredNativeTrialLabelWitnessSelected,true);
+  const expected=new Set(ids),byKey=new Map();
+  for(const event of witness.events){
+    assert.ok(expected.has(event.registeredNativeTrialId));
+    assert.ok(event.physicalOwnerSeat===0||event.physicalOwnerSeat===1);
+    const key=event.registeredNativeTrialId+':'+event.physicalOwnerSeat;
+    assert.ok(!byKey.has(key),'Duplicate native owner setup input');
+    assert.equal(event.exactPhysicalSixtyPrintedCountMatched,true);
+    byKey.set(key,event);
+  }
+  assert.equal(byKey.size,16);
+  return byKey;
+}
+
+/**
+ * Bounded retrospective same-initial-policy A/B. Consume only authentic
+ * owner-private HMAC equality, public board equalities, statuses and counts.
+ * Neither an engine abort nor a cap is a game result.
+ * @param {object} baseline Actual protected opening, unchanged printed attacks.
+ * @param {object} treatment Exact same opening plus owner Wonder Tag+shuffle.
+ * @returns {object}
+ */
+function compareProtectedWonderTagV10(baseline,treatment){
+  assert.equal(baseline.manifest.prechoiceMode,'protected');
+  assert.equal(treatment.manifest.prechoiceMode,'protected');
+  const ids=baseline.diagnostic.registered;
+  assert.deepEqual(treatment.diagnostic.registered,ids);
+  assert.equal(ids.length,8);
+  assert.equal(new Set(ids).size,8);
+  const left=baseline.diagnostic.actualNativePrechoicePhysicalInputs;
+  const right=treatment.diagnostic.actualNativePrechoicePhysicalInputs;
+  const pairableSession=left.privateFingerprintSessionId===
+    right.privateFingerprintSessionId;
+  const a=ownerInputsById(left,ids),b=ownerInputsById(right,ids);
+  const rows=ids.map(id=>{
+    const candidateSeat=id.split(':')[2]==='A'?0:1;
+    const sourceSeat=1-candidateSeat;
+    const ownerPairs=[0,1].map(seat=>{
+      const l=a.get(id+':'+seat),r=b.get(id+':'+seat);
+      assert.ok(l&&r);
+      return {
+        seat,
+        samePrechoicePhysicalInput:pairableSession&&
+          l.opaquePhysicalPrechoiceInputHmacSha256===
+          r.opaquePhysicalPrechoiceInputHmacSha256,
+        sameRequest:l.opaquePreRunRequestHmacSha256===
+          r.opaquePreRunRequestHmacSha256,
+        sameNativeFirstPlayer:l.nativeFirstPlayerSeat===r.nativeFirstPlayerSeat
+      };
+    });
+    const first=baseline.diagnostic.attemptedRows.find(x=>x.id===id);
+    const second=treatment.diagnostic.attemptedRows.find(x=>x.id===id);
+    assert.ok(first&&second);
+    return {
+      id,sourceSeat,candidateSeat,ownerPairs,
+      baselineStatus:first.status,
+      treatmentStatus:second.status,
+      baselineRoots:first.nativeRootActionCount,
+      treatmentRoots:second.nativeRootActionCount,
+      sameStatus:first.status===second.status,
+      samePostSetupSourceDeal:typeof first.sourceDealFingerprint==='string'&&
+        typeof second.sourceDealFingerprint==='string'?
+        first.sourceDealFingerprint===second.sourceDealFingerprint:null
+    };
+  });
+  const ownerPairs=rows.flatMap(r=>r.ownerPairs);
+  const wonder=treatment.diagnostic.audit
+    ?.firstBlockedPromptEnvelope?.sourceIndependentOwnerWonderTag??null;
+  const shuffle=treatment.diagnostic.audit
+    ?.firstBlockedPromptEnvelope?.ownerWonderTagMandatoryZeroShuffle??null;
+  const allGenuineInitialInputsMatched=pairableSession&&
+    ownerPairs.every(row=>row.samePrechoicePhysicalInput&&
+      row.sameRequest&&row.sameNativeFirstPlayer);
+  const sameVendor=!!baseline.manifest.observedTwinleafGitCommit&&
+    baseline.manifest.observedTwinleafGitCommit===
+      treatment.manifest.observedTwinleafGitCommit;
+  const sameRepo=!!baseline.manifest.observedRepositoryGitCommit&&
+    baseline.manifest.observedRepositoryGitCommit===
+      treatment.manifest.observedRepositoryGitCommit;
+  return {
+    schema:VERSION,
+    sourceRegistration:'original-eight-rank6-rank11-v6-unchanged',
+    setupPolicyBothArms:'protected-turn-entry-preserving',
+    addedTreatment:'same-actor printed Wonder Tag affirmative search and zero-selection deck shuffle',
+    ids,rows,
+    observedOriginalActualNativePrechoiceOwnerRecords:ownerPairs.length,
+    matchingGenuineOwnerPrechoiceAndRequestPairs:
+      ownerPairs.filter(x=>x.samePrechoicePhysicalInput&&x.sameRequest&&
+        x.sameNativeFirstPlayer).length,
+    samePrivateHmacSession:pairableSession,
+    sameVendorPin:sameVendor,sameRepositoryPin:sameRepo,
+    originalStorePrintingsMatchConfigured:
+      left.exactPhysicalSixtyPrintedCountMatches===16&&
+      right.exactPhysicalSixtyPrintedCountMatches===16,
+    actualOwnerWonderTagAudit:wonder?{
+      version:wonder.version,confirmOffers:wonder.confirmOffers,
+      searchOffers:wonder.searchOffers,confirmed:wonder.confirmed,
+      selectedSupporters:wonder.selectedSupporters,
+      emptySearches:wonder.emptySearches,
+      nativeAccepted:wonder.nativeAccepted,
+      nativeRejected:wonder.nativeRejected,
+      nativeUnsettled:wonder.nativeUnsettled,
+      nativeCustodyFailures:wonder.nativeCustodyFailures,
+      settledSupporterTransfers:wonder.settledSupporterTransfers,
+      nativeMissingSearchFollowup:wonder.nativeMissingSearchFollowup,
+      bySeat:wonder.bySeat
+    }:null,
+    actualZeroSearchShuffleAudit:shuffle?{
+      version:shuffle.version,printedEntrances:shuffle.printedEntrances,
+      interceptedSupporterSearches:shuffle.interceptedSupporterSearches,
+      zeroSelections:shuffle.zeroSelections,
+      nonzeroNativeSelections:shuffle.nonzeroNativeSelections,
+      repairedShuffles:shuffle.repairedShuffles
+    }:null,
+    comparisonEligibleForPolicyStudy:allGenuineInitialInputsMatched&&
+      sameVendor&&sameRepo,
+    claimSingleExecutingChangeCertified:false,
+    originalSourceAttackAndOpponentReplyCertified:false,
+    paperGameQualified:0,competitiveGamesQualified:0,
+    fullFieldCoverage:false,winRateClaim:null,
+    selectedPolicyAndDataHashes:EXTRA_HASH_PATHS.map(hashRegisteredFile)
+  };
+}
+
+/**
+ * Run both exact frozen protected opening variants in one Node process.
+ * This reuses the eight historically inspected sources and is descriptive,
+ * not a prospective randomized comparison.
+ * @returns {object}
+ */
+function runProtectedWonderTagV10(){
+  const baseline=runPrechoiceCustodyV8('protected');
+  const treatment=runPrechoiceCustodyV8('protected',{
+    attackLayer:withPrintedWonderTagAndAttacks
+  });
+  return compareProtectedWonderTagV10(baseline,treatment);
+}
+
+module.exports={VERSION,EXTRA_HASH_PATHS,withPrintedWonderTagAndAttacks,
+  compareProtectedWonderTagV10,runProtectedWonderTagV10};
