@@ -78,7 +78,7 @@ test('three protected campaigns maintain native prechoice and repeat control par
   assert.equal(out.equalControlPhysicalSourceDealRows,8);
   assert.equal(out.rows[0].promptBaselineChangesDisposition,true);
   assert.equal(out.rows[0].firstPromptBaselinePublicRootDifference
-    .promptBaseline.publicPlayedCard,'Tapu Lele-GX');
+    .protected.publicPlayedCard,'Tapu Lele-GX');
   assert.equal(out.certifiedPaperGames,0);
   assert.equal(out.causalDeckStrengthEstablished,false);
   assert.equal(JSON.stringify(out).includes('secret'),false);
