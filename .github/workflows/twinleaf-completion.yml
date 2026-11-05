@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent8_shadowmist_source_lock:
+        description: 'Historical rank6 source-owner Shadow Mist lock flags before actual 96-root Passes, developmental only'
+        required: false
+        type: boolean
+        default: false
       include_agent36_selected_v4:
         description: 'Run steward-selected 48-root eight-arm bilateral Special Energy and Capture prompt developmental closure'
         required: false
@@ -116,6 +121,11 @@ jobs:
         run: npm run compile
       - name: Verify owner Telepathic Psychic Bench search, physical settlement and v5 nesting pure controls
         run: node --test tests/agent8-owner-telepathic-bench-search.test.cjs tests/agent8-owner-telepathic-bench-search.native.test.cjs tests/agent8-issue25-v5-telepath-development.test.cjs
+      - name: Verify source action census and all-Special Energy source matrix plus read-only lock audit pure controls
+        run: node --test tests/agent8-issue25-source-action-census.test.cjs tests/agent8-shadowmist-all-special-source-matrix.test.cjs tests/agent8-rank6-shadowmist-source-pass-audit.test.cjs
+      - name: Audit true native original rank6 Shadow Mist flags at 96-root owner Passes
+        if: ${{ inputs.include_agent8_shadowmist_source_lock }}
+        run: node --test tests/agent8-rank6-shadowmist-source-pass-audit.native.test.cjs
       - name: Retrospectively compare the same eight v5 arms with actual owner Telepathic search
         if: ${{ inputs.include_agent8_telepath_v5 }}
         env:
