@@ -110,7 +110,7 @@ test('malformed deck or missing source sixty rejected before policy invocation',
 
 test('frozen registered source scope retained, no competitive claim',()=>{
   assert.ok(VERSION.includes('v7'));
-  assert.equal(SOURCE_PATHS.length,6);
+  assert.equal(SOURCE_PATHS.length,8);
   assert.ok(SOURCE_PATHS.some(path=>
     path.endsWith('agent45-issue25-tagcall-v7-frozen-eight-20261105.json')));
 });
