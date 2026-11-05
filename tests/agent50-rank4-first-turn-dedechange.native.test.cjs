@@ -25,8 +25,10 @@ const {writeAtomicLocked}=
   require('../simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const selectV2=process.env.AGENT50_RANK4_DEDECHANGE_SELECT_V2==='true';
-const registration=selectV2?
+const rank6Lock=process.env.AGENT50_RANK4_DEDECHANGE_RANK6_LOCK==='true';
+const selectV2=rank6Lock||process.env.AGENT50_RANK4_DEDECHANGE_SELECT_V2==='true';
+const registration=rank6Lock?
+  'results/methodology/registrations/agent50-rank4-dedechange-versus-rank6-iron-thorns-v3-20261105.md':selectV2?
   'results/methodology/registrations/agent50-rank4-first-turn-dedechange-select-v2-20261105.md':
   'results/methodology/registrations/agent50-rank4-first-turn-dedechange-native-v1-20261105.md';
 const plan=planAichi(1,{
@@ -37,6 +39,9 @@ const plan=planAichi(1,{
 assert.equal(plan.engineRevision,PIN);
 const source=plan.opponents.find(x=>x.rank===4);
 assert.equal(source?.status,'ready');
+const rank6=plan.opponents.find(x=>x.rank===6);
+assert.equal(rank6?.status,'ready');
+const reference=rank6Lock?rank6.cards:plan.candidate.cards;
 const frozen=[
   {seat:0,seed:20261123},
   {seat:1,seed:20261125},
@@ -84,8 +89,8 @@ function attempt({seat,seed}){
               withOwnerEntryPriorityOpening(()=>
                 withOwnerOpeningStoreReceipt(()=>
                   withOwnerFirstTurnDedechange(()=>runMatch({
-                    deckA:seat===0?source.cards:plan.candidate.cards,
-                    deckB:seat===1?source.cards:plan.candidate.cards,
+                    deckA:seat===0?source.cards:reference,
+                    deckB:seat===1?source.cards:reference,
                     seed,maxActions:80,captureNativeAbortEvidence:true
                   }),{sourceSeat:seat}),{sourceSeat:seat})
                 )
@@ -101,13 +106,14 @@ function attempt({seat,seed}){
   const setup=thrown?.ownerOpeningStoreReceiptAudit??null;
   const hook=thrown?.agent50FirstTurnDedechangeAudit??null;
   return {
-    schema:VERSION,variant:selectV2?'native-select-v2':'entry-v1',
+    schema:VERSION,variant:rank6Lock?'rank6-thorns-lock-v3':selectV2?'native-select-v2':'entry-v1',
+    referenceRank:rank6Lock?6:1,
     registration,actorSelectIntents,
     sourceRank:4,seat,seed,pinnedEngine:PIN,
     source60Sha256:createHash('sha256')
       .update(JSON.stringify(source.cards)).digest('hex'),
     candidate60Sha256:createHash('sha256')
-      .update(JSON.stringify(plan.candidate.cards)).digest('hex'),
+      .update(JSON.stringify(reference)).digest('hex'),
     sourceCoinChoice:seat===0?[true,false]:[false,true],
     finishedWithoutError:returned,
     error:thrown?{
@@ -145,7 +151,7 @@ test('four frozen original rank4 owner Dedechange native in-turn attempts',()=>{
     return row;
   });
   const summary={
-    schema:VERSION,variant:selectV2?'native-select-v2':'entry-v1',
+    schema:VERSION,variant:rank6Lock?'rank6-thorns-lock-v3':selectV2?'native-select-v2':'entry-v1',
     registered:rows.length,actorSelectIntents:rows.map(x=>x.actorSelectIntents),
     sourceSetupPhysicallyVerified:rows.filter(r=>
       r.setupNativeStore?.length===1&&
