@@ -1,0 +1,57 @@
+{
+  "schema": "agent18-issue25-v10-real-funded-stadium-after-v9-paid-dce",
+  "authored_utc": "2026-11-05T20:00:00Z",
+  "parentRegistration": "results/aichi-2026/registrations/agent45-issue25-ghala-relaxed-payment-v9-20261105.json",
+  "priorIndependentDceProof": "results/methodology/agent18-v9-original-rank6-dce-active-physical-custody-20261105.md",
+  "design": "Matched historical same-eight v9 baseline against same v9 plus generic both-seat owner-visible one-Stadium funded-Pass selector already implemented by Agent7; unchanged source/candidate original 60, four native seed/seat groups and 48-root horizon.",
+  "experimentalStatus": "registered-before-native-treatment",
+  "nativeRootCap": 48,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedAttemptIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "anticipatedHighValuePreRoot": [
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceSeat": 0,
+      "turn": 2,
+      "dceRoot": 29,
+      "baselineNext": "PassTurnAction at root30"
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "sourceSeat": 0,
+      "turn": 2,
+      "dceRoot": 36,
+      "baselineNext": "PassTurnAction at root37"
+    }
+  ],
+  "intervention": "At genuine live owner root on either seat, only when original bot would Pass, one newly selected Stadium action may be offered by pre-existing actorObservation/Agent7 funded-stadium planner if owner's actual printed held Thunder Mountain Prism Star reduces a currently unpayable damaging Active attack cost to paper-modelled payable and public Stadium lock/quota permits. Native Store final action permission; original v9 G&H/tag/energy action roots unchanged up to any selected difference.",
+  "onlyNewPolicyComponent": "simulation/twinleaf/agent7-funded-stadium-selected-native.cjs",
+  "selectionScope": "source-independent both physical owners; no original rank or outcome-driven action selection, one bounded selected action per physical game",
+  "measurands": [
+    "all eight original source and full physical deal fingerprint matches",
+    "complete exact-prefix native public action parity to first actual selected Stadium root",
+    "owner-visible action candidate count including no qualifying held Stadium",
+    "real native Store accepted Stadium printing to public in-play Stadium zone",
+    "source DCE Active attachment persistence and native printed payment precondition at source Pass",
+    "source Volt Cyclone accepted Action root and post-attack physically required Energy transfer when available",
+    "opponent same-epoch root following actual source attack, not simply following source Pass",
+    "all capped/aborted/rejected cases, all eight in denominator"
+  ],
+  "stop_conditions": [
+    "owner held Thunder Mountain absent or Stadium Prized or unavailable: no Stadium action; report explicit no opportunity",
+    "native Store rejected or selected source not paper-payable: do not claim attack",
+    "native Volt Cyclone optional mandatory transfer invalid: do not qualify",
+    "native root cap or engine error: no win-rate inference"
+  ],
+  "evidenceBoundary": "Historical developmental fork, neither broad prospective sample nor complete matched game; a native Stadium play alone never proves payable Volt Cyclone, physical Energy transfer, or competitively reliable payoff",
+  "qualifiedCompetitiveGames": 0
+}
