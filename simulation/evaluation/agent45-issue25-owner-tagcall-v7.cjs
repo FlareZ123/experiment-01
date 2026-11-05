@@ -15,7 +15,9 @@ const SOURCE_PATHS=Object.freeze([
   'simulation/twinleaf/agent6-owner-tagcall-hala-native.cjs',
   'simulation/twinleaf/agent6-owner-tagcall-hala-offer.cjs',
   'tests/agent45-issue25-owner-tagcall-v7.test.cjs',
-  'tests/agent45-issue25-owner-tagcall-v7.native.test.cjs'
+  'tests/agent45-issue25-owner-tagcall-v7.native.test.cjs',
+  'simulation/evaluation/agent45-owner-tagcall-public-difference.cjs',
+  'tests/agent45-owner-tagcall-public-difference.test.cjs'
 ]);
 
 /**
