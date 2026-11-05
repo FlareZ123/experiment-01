@@ -6,7 +6,7 @@ const crypto=require('node:crypto');
 const {sampleUniformPositions,nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent36-source-stamped-native-nightwatch-owner-v1';
+const VERSION='agent36-source-stamped-native-nightwatch-owner-v2-settlement';
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 
@@ -61,6 +61,8 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     registeredNativeStoreCount:0,perStoreSeedCommitments:[],
     sourceReducerInvocations:0,sourcePromptMarks:0,
     realStoreSelectedActions:0,acceptedDispatches:0,
+    verifiedNativePromptSettlements:0,
+    nativeUnsettledSourceChoices:0,nativeUnsettledSourceShowCardsAcks:0,
     verifiedPhysicalHandDeckMovements:0,notYetVerifiedMovements:0,
     markedSourceFollowupShowCards:0,ownerSourceShowCardsActions:0,
     nativeAcceptedSourceShowCardsAcks:0,
@@ -161,14 +163,23 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     const chosen=selected.get(action);
     const ack=ownedShowCardAck.get(action);
     if(ack&&this===liveStore){
-      assert.ok(this.state.prompts.some(p=>p.id===action.id&&
-        followupShowCards.get(p)===ack));
+      const pending=this.state.prompts.find(p=>p.id===action.id&&
+        p.result===undefined&&followupShowCards.get(p)===ack);
+      assert.ok(pending,'Night Watch ShowCards acknowledgment must be pending');
       const result=dispatchDescriptor.value.apply(this,[action,...args]);
+      if(pending.result!==action.result){
+        audit.nativeUnsettledSourceShowCardsAcks++;
+        throw new Error('Night Watch ShowCards dispatch returned without resolving its prompt');
+      }
+      audit.verifiedNativePromptSettlements++;
       audit.nativeAcceptedSourceShowCardsAcks++;
       return result;
     }
     if(!chosen||this!==liveStore)
       return dispatchDescriptor.value.apply(this,[action,...args]);
+    assert.ok(this.state.prompts.includes(chosen.prompt)&&
+      chosen.prompt.id===action.id&&chosen.prompt.result===undefined,
+      'Night Watch selected source prompt must still be pending');
     const pendingBefore=new Set(this.state.prompts);
     const other=this.state.players.find(p=>p.id!==chosen.actorId);
     assert.ok(other&&chosen.prompt.cards===other.hand);
@@ -177,6 +188,11 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     const refs=chosen.physicalReferences;
     const allInHand=refs.every(card=>other.hand.cards.includes(card));
     const result=dispatchDescriptor.value.apply(this,[action,...args]);
+    if(chosen.prompt.result!==action.result){
+      audit.nativeUnsettledSourceChoices++;
+      throw new Error('Night Watch source dispatch returned without resolving its prompt');
+    }
+    audit.verifiedNativePromptSettlements++;
     audit.acceptedDispatches++;
     for(const prompt of this.state.prompts){
       if(!pendingBefore.has(prompt)&&
@@ -224,7 +240,11 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   Object.defineProperty(Store.prototype,'dispatch',{
     ...dispatchDescriptor,value:dispatch});
   try{return {result:run(),audit};}
-  finally{
+  catch(error){
+    if(error&&typeof error==='object')
+      error.agent36NightWatchAudit={...audit,aborted:true};
+    throw error;
+  }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',dispatchDescriptor);
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
