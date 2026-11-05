@@ -42,7 +42,7 @@ function setup(){
  const store=new Store(state);
  return {store,source};
 }
-const deps={Store,EnergyType:{SPECIAL:'SPECIAL'},TrainerType:{STADIUM:'STADIUM'}};
+const deps={Store,EnergyType:{BASIC:'BASIC',SPECIAL:'SPECIAL'},TrainerType:{ITEM:'ITEM',SUPPORTER:'SUPPORTER',STADIUM:'STADIUM',TOOL:'TOOL'}};
 test('actual source-owner shadow lock and spent hand categories recorded, no opponent hidden reads',()=>{
  const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
  const headless={runMatch:()=>{
@@ -66,6 +66,10 @@ test('actual source-owner shadow lock and spent hand categories recorded, no opp
  assert.equal(audit.shadowMistAttacks[0].specialEnergyLockedAfter,true);
  assert.equal(audit.sourcePasses[0].specialEnergyInSourceHand,1);
  assert.equal(audit.sourcePasses[0].stadiumsInSourceHand,1);
+ assert.equal(audit.sourcePasses[0].itemsInSourceHand,0);
+ assert.equal(audit.sourcePasses[0].supportersInSourceHand,0);
+ assert.equal(audit.sourcePasses[0].toolsInSourceHand,0);
+ assert.equal(audit.sourcePasses[0].basicEnergyInSourceHand,0);
  assert.equal(audit.sourcePasses[0].specialEnergyHandPlayLocked,true);
  assert.equal(audit.sourcePasses[0].sourceActiveAttachedEnergyCards,1);
  assert.equal(audit.readsOtherActorPrivate,false);
