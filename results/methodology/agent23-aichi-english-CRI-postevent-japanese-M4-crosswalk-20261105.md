@@ -43,3 +43,10 @@ This audit does not certify whole-deck legal status, any paper bans, every origi
 ## Next integration
 
 Future source admission should track English display-print chronology, original Japanese availability and exact card identity separately. Preserve the source 60 and exact Japanese card effects under a traceable crosswalk. Treat the five unmapped promo/Energy codes as unresolved until properly sourced, and do not infer legality from English release dates alone.
+
+
+## Follow-up source-integrity regression (same invocation)
+
+Added [actual-archive counterpart test](../../tests/agent23-original-print-chronology-archive.test.cjs) in addition to the six locally passing synthetic tests. It reads the complete live repository original-deck source, English release table, crosswalk manifest and English me4 card-text records, and checks their provenance consistency. GitHub connector directly re-read the original 29 authenticated lists and the crosswalk, verifying the same **three exact rank/name/count/print rows**. The locally available supplied me4 card data independently confirms the English Trubbish's **Darkness / 70 HP / Acid Spray 10** and the Special Red Card's Item under-3-Prize condition. The new archive test itself has **not yet been run in a repository CI job**; its presence is a reproducible future regression gate rather than evidence of a passed native experiment.
+
+A separate sixth local synthetic test ensures a promo set-ID fallback cannot misclassify the Palace Book SMP printing using the 2017 launch of the unrelated overall SM promo series. The **six original synthetic tests now pass locally, 6/6**.
