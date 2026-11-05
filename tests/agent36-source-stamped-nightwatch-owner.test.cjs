@@ -244,3 +244,74 @@ test('legacy v3 default leaves later distinct Store roots unhandled, isolated fr
   assert.equal(res.audit.realStoreSelectedActions,1);
   assert.ok(res.audit.delegatedDetachedStates>=1);
 });
+
+for(const seat of [0,1]){
+  test('seat '+seat+' rejects silent source prompt no-op without counting accepted dispatch',()=>{
+    const x=fakeEngine();
+    const underlying=x.Store.prototype.dispatch;
+    x.Store.prototype.dispatch=function(action,...args){
+      if(action instanceof x.ResolvePromptAction)return this.state;
+      return underlying.call(this,action,...args);
+    };
+    const actor={id:'actor',hand:{cards:[]},deck:{cards:[]}};
+    const opponent={id:'opponent',hand:{cards:[{},{},{}]},deck:{cards:[]}};
+    const players=seat===0?[actor,opponent]:[opponent,actor];
+    const state={players,turn:5,prompts:[]};
+    let caught;
+    try{
+      withSourceStampedNightWatchOwner(()=>{
+        const store=new x.Store(state);
+        store.dispatch(new x.AddPlayerAction());
+        const source=new x.TrevenantDusknoirGX();
+        source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+        store.dispatch(new x.SimpleTacticsAi(actor.id).decodeNextAction(state));
+      },{committedSeed:'silent-source-negative',engine:x.engine});
+    }catch(error){caught=error;}
+    finally{x.Store.prototype.dispatch=underlying;}
+    assert.match(caught?.message??'',/without resolving its prompt/);
+    assert.equal(caught.agent36NightWatchAudit.nativeUnsettledSourceChoices,1);
+    assert.equal(caught.agent36NightWatchAudit.acceptedDispatches,0);
+    assert.equal(caught.agent36NightWatchAudit.verifiedNativePromptSettlements,0);
+    assert.equal(caught.agent36NightWatchAudit.verifiedPhysicalHandDeckMovements,0);
+    assert.equal(opponent.hand.cards.length,3);
+    assert.equal(opponent.deck.cards.length,0);
+    assert.equal(state.prompts[0].result,undefined);
+  });
+
+  test('seat '+seat+' rejects silent ShowCards ack after genuine paid source prompt',()=>{
+    const x=fakeEngine();
+    const underlying=x.Store.prototype.dispatch;
+    x.Store.prototype.dispatch=function(action,...args){
+      if(action instanceof x.ResolvePromptAction&&action.result===true)
+        return this.state;
+      return underlying.call(this,action,...args);
+    };
+    const actor={id:'actor',hand:{cards:[]},deck:{cards:[]}};
+    const opponent={id:'opponent',hand:{cards:[{},{},{}]},deck:{cards:[]}};
+    const players=seat===0?[actor,opponent]:[opponent,actor];
+    const state={players,turn:5,prompts:[]};
+    let caught;
+    try{
+      withSourceStampedNightWatchOwner(()=>{
+        const store=new x.Store(state);
+        store.dispatch(new x.AddPlayerAction());
+        const source=new x.TrevenantDusknoirGX();
+        source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+        const bot=new x.SimpleTacticsAi(actor.id);
+        store.dispatch(bot.decodeNextAction(state));
+        store.dispatch(bot.decodeNextAction(state));
+      },{committedSeed:'silent-ack-negative',engine:x.engine});
+    }catch(error){caught=error;}
+    finally{x.Store.prototype.dispatch=underlying;}
+    assert.match(caught?.message??'',/ShowCards dispatch returned without resolving/);
+    assert.equal(caught.agent36NightWatchAudit.acceptedDispatches,1);
+    assert.equal(caught.agent36NightWatchAudit.verifiedPhysicalHandDeckMovements,1);
+    assert.equal(caught.agent36NightWatchAudit.nativeAcceptedSourceShowCardsAcks,0);
+    assert.equal(caught.agent36NightWatchAudit.nativeUnsettledSourceShowCardsAcks,1);
+    assert.equal(caught.agent36NightWatchAudit.verifiedNativePromptSettlements,1);
+    assert.equal(opponent.hand.cards.length,1);
+    assert.equal(opponent.deck.cards.length,2);
+    const ack=state.prompts.find(p=>p instanceof x.ShowCardsPrompt);
+    assert.equal(ack?.result,undefined);
+  });
+}
