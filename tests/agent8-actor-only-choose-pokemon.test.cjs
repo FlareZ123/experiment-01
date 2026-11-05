@@ -170,3 +170,42 @@ test('generic first-Pokemon prompt choice can violate a preceding public Guzma B
 
 // Cross-step owner-target tests extend the existing ChoosePokemon prompt gate.
 require('./agent43-guzma-prompt-continuation.test.cjs');
+
+class SilentPokemonStore extends Store {
+  dispatch(action) {
+    if (action instanceof ResolvePromptAction) return this.state;
+    return super.dispatch(action);
+  }
+}
+
+for (const seat of [0, 1]) {
+  test('silent Store prompt no-op is not a resolved native Pokémon choice (seat ' + seat + ')', () => {
+    const state = {
+      phase: 2, turn: 7,
+      players: [player(1, 'A'), player(2, 'B')],
+      prompts: [new ChoosePokemonPrompt(seat + 1)]
+    };
+    const originalBot = SimpleTacticsAi.prototype.decodeNextAction;
+    const originalDispatch = SilentPokemonStore.prototype.dispatch;
+    const returned = withActorOnlyChoosePokemon(() => {
+      const store = new SilentPokemonStore(state);
+      store.dispatch(new AddPlayerAction());
+      const action = new SimpleTacticsAi(seat + 1).decodeNextAction(state);
+      assert.ok(action instanceof ResolvePromptAction);
+      assert.throws(() => store.dispatch(action),
+        /returned without resolving the prompt/);
+      assert.equal(state.prompts[0].result, undefined);
+    }, {
+      Store: SilentPokemonStore, SimpleTacticsAi, ResolvePromptAction, observe,
+      validate: (s, a) => assert.ok(s.prompts[0].validate(a.result))
+    });
+    assert.equal(returned.audit.selected, 1);
+    assert.equal(returned.audit.accepted, 0);
+    assert.equal(returned.audit.postconditionsConfirmed, 0);
+    assert.equal(returned.audit.postconditionsMissing, 1);
+    assert.equal(returned.audit.rejected, 0);
+    assert.equal(returned.audit.bySeat[seat], 1);
+    assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction, originalBot);
+    assert.strictEqual(SilentPokemonStore.prototype.dispatch, originalDispatch);
+  });
+}
