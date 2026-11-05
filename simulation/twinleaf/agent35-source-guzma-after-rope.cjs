@@ -107,6 +107,8 @@ function withSourceGuzmaAfterRope(play,deps){
     const receipt=proposed.get(action);
     const tracked=live===this&&audit.selected>0;
     const before=tracked?publicBoth(this.state,third.ownerSeat):null;
+    const pending=tracked?
+      (this.state.prompts??[]).find(p=>p.result===undefined)??null:null;
     let output;
     try{output=originalStore.value.call(this,action,...args);}
     catch(err){
@@ -129,6 +131,10 @@ function withSourceGuzmaAfterRope(play,deps){
     if(tracked&&audit.settledActionTail.length<110)
       audit.settledActionTail.push({
         kind:action?.constructor?.name??null,
+        pendingPromptKind:pending?.constructor?.name??null,
+        pendingPromptMessage:pending?.message??null,
+        pendingPromptOwnerId:pending?.playerId??null,
+        pendingPromptEligibleSide:pending?.playerType??null,
         beforeTurn:before.turn,afterTurn:this.state.turn,
         publicAfter:publicBoth(this.state,third.ownerSeat)
       });
