@@ -87,3 +87,37 @@ test('source deck selector rejects an unrelated prompt and handles exhausted sou
   p.cards=owner.deck;
   assert.deepEqual(chooseRank9CompressorDiscard(p,owner),[]);
 });
+
+test('late v2 restores source Combo opportunity at formerly capped real-turn positions',()=>{
+  for(const turn of [13,16,18,20]){
+    const v=sample({globalTurn:turn});
+    assert.equal(chooseRank9CompressorAfterPass(v),null,
+      'historical default v1 cutoff remains unchanged');
+    assert.equal(
+      chooseRank9CompressorAfterPass(v,{maxGlobalTurn:Infinity})?.handIndex,
+      0,'v2 can consider the otherwise eligible owner Pass');
+  }
+});
+
+test('late v2 still respects paper-relevant owner-visible gates',()=>{
+  const variants=[
+    sample({globalTurn:20,ownTurnResources:{itemPlayLocked:true}}),
+    sample({globalTurn:20,own:{deckCount:2}}),
+    sample({globalTurn:20,opponentPublic:{prizeCount:2}}),
+    sample({globalTurn:20,ownHand:['Ultra Ball SVI']}),
+    sample({globalTurn:20,own:{active:{name:'Mega Absol ex'},
+      bench:[{name:'Dedenne-GX'},null,null,null,null]}}),
+    sample({globalTurn:20,own:{discard:[
+      'Prism Energy ASC','Darkness Energy SVE','Prism Energy ASC']}})
+  ];
+  for(const v of variants)
+    assert.equal(
+      chooseRank9CompressorAfterPass(v,{maxGlobalTurn:Infinity}),null);
+});
+
+test('finite-turn owner probe remains bounded without altering v1',()=>{
+  assert.ok(chooseRank9CompressorAfterPass(
+    sample({globalTurn:16}),{maxGlobalTurn:16}));
+  assert.equal(chooseRank9CompressorAfterPass(
+    sample({globalTurn:17}),{maxGlobalTurn:16}),null);
+});
