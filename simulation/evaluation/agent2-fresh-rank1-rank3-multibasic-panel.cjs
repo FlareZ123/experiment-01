@@ -13,6 +13,8 @@ const {withSameTargetAttachEnergySelection}=
   require('../twinleaf/same-target-attach-energy-hook.cjs');
 const {withBilateralMultiBasicPaidRetreat}=
   require('../twinleaf/agent2-bilateral-multi-basic-retreat-bot.cjs');
+const {withAcceptedTargetWitness,acceptedTargetAbortEvidence}=
+  require('../twinleaf/native-accepted-target-store-observer.cjs');
 
 const VERSION='agent2-four-fresh-seed-two-seat-bilateral-multi-basic-v1';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -32,11 +34,11 @@ function runArm(trial,cards){
   const rank3Seat=trial.rank3Seat;
   const deckA=rank3Seat===0?cards.source:cards.candidate;
   const deckB=rank3Seat===0?cards.candidate:cards.source;
-  let genericAudit=null;
+  let genericAudit=null,targetAudit=null;
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(()=>{
-        const native=()=>withSameTargetAttachEnergySelection(()=>runMatch({
+        const originalNative=()=>withSameTargetAttachEnergySelection(()=>runMatch({
           deckA,deckB,seed:trial.seed,maxActions:520,
           label:'agent2-fresh-multibasic-'+trial.id,
           strictPromptValidation:true,
@@ -50,12 +52,19 @@ function runArm(trial,cards){
           captureNativeAbortEvidence:true,
           captureFinalPublicBoard:true
         })).result;
+        const native=()=>{
+          if(trial.captureTargets!==true)return originalNative();
+          const observed=withAcceptedTargetWitness(originalNative);
+          targetAudit=observed.audit;
+          return observed.result;
+        };
         if(trial.mode!=='bilateral-multi-basic-retreat')return native();
         const added=withBilateralMultiBasicPaidRetreat(native);
         genericAudit=added.audit;
         return added.result;
       },{root:work=>withActorOnlyRootPolicy(work,{
-        publicContextSpecialEnergy:true,specialEnergyRoot:true
+        publicContextSpecialEnergy:true,specialEnergyRoot:true,
+        energyRecipientFrontier:trial.energyRecipient===true
       })},{ownerSingleSearch:true,genericFallbackAttribution:true})
     );
     const game=guarded.result.result;
@@ -88,6 +97,7 @@ function runArm(trial,cards){
       nativeTerminal:terminal,
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
+      ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
       competitiveGameQualified:false
     };
   }catch(error){
@@ -95,6 +105,9 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.captureTargets===true?{
+        nativeAcceptedTargetSidecar:targetAudit??
+          acceptedTargetAbortEvidence(error)}:{}),
       competitiveGameQualified:false};
   }
 }
