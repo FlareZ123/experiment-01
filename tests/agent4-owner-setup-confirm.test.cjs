@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseOwnerSetupConfirm,withOwnerSetupConfirm:setup}=
+const {SETTLEMENT_CODE,chooseOwnerSetupConfirm,withOwnerSetupConfirm:setup}=
   require('../simulation/twinleaf/agent4-owner-setup-confirm.cjs');
 const {CODE,withNativeRawStateFallbackQuarantine:quarantine}=
   require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
@@ -140,4 +140,72 @@ test('safe Confirm then next prompt delegates and preserves accepted history',()
     assert.equal(bot.nativeReads,0);
     return true;
   });
+});
+
+class ControlledConfirmStore extends Store{
+  constructor(state,mode){super(state);this.mode=mode;}
+  dispatch(action){
+    if(!(action instanceof ResolvePromptAction))
+      return super.dispatch(action);
+    const prompt=this.state.prompts.find(p=>p.id===action.id);
+    if(this.mode==='no-op')return this.state;
+    if(this.mode==='remove-unresolved'){
+      this.state.prompts=this.state.prompts.filter(p=>p!==prompt);
+      return this.state;
+    }
+    if(this.mode==='resolve-remove'){
+      assert.ok(prompt);
+      prompt.result=action.result;
+      this.state.prompts=this.state.prompts.filter(p=>p!==prompt);
+      return this.state;
+    }
+    throw new Error('Unexpected test mode');
+  }
+}
+
+test('both-seat setup Confirm rejects native silent no-ops and false removal',()=>{
+  for(const seat of [0,1]){
+    for(const mode of ['no-op','remove-unresolved','stale-before-dispatch']){
+      const game=fakeEngine(seat);
+      const store=new ControlledConfirmStore(game.store.state,
+        mode==='stale-before-dispatch'?'no-op':mode);
+      assert.throws(()=>setup(()=>{
+        store.dispatch(new AddPlayerAction());
+        const action=game.bot.decodeNextAction(store.state);
+        if(mode==='stale-before-dispatch')store.state.prompts=[];
+        store.dispatch(action);
+      },{...deps,Store:ControlledConfirmStore}),error=>{
+        assert.equal(error.code,SETTLEMENT_CODE);
+        assert.equal(error.ownerSetupConfirmAudit.selected,1);
+        assert.equal(error.ownerSetupConfirmAudit.accepted,0);
+        assert.equal(error.ownerSetupConfirmAudit.settled,0);
+        assert.equal(error.ownerSetupConfirmAudit.unsettled,1);
+        assert.equal(error.ownerSetupConfirmAudit.returnedWithoutThrow,1);
+        assert.equal(error.ownerSetupConfirmAudit.rejected,0);
+        return true;
+      });
+      assert.equal(game.bot.nativeReads,0);
+    }
+  }
+});
+
+test('both-seat setup Confirm accepts native resolution after prompt removal',()=>{
+  for(const seat of [0,1]){
+    const game=fakeEngine(seat);
+    const store=new ControlledConfirmStore(game.store.state,'resolve-remove');
+    const r=setup(()=>{
+      store.dispatch(new AddPlayerAction());
+      const action=game.bot.decodeNextAction(store.state);
+      store.dispatch(action);
+      return action.result;
+    },{...deps,Store:ControlledConfirmStore});
+    assert.equal(r.result,false);
+    assert.equal(r.audit.selected,1);
+    assert.equal(r.audit.accepted,1);
+    assert.equal(r.audit.settled,1);
+    assert.equal(r.audit.unsettled,0);
+    assert.equal(r.audit.returnedWithoutThrow,1);
+    assert.deepEqual(store.state.prompts,[]);
+    assert.equal(game.bot.nativeReads,0);
+  }
 });
