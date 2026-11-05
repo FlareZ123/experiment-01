@@ -5,7 +5,7 @@ const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 
-const VERSION = 'agent8-actor-only-choose-pokemon-v1';
+const VERSION = 'agent8-actor-only-choose-pokemon-v2-resolved-settlement';
 const ANY = 0, TOP = 1, BOTTOM = 2;
 const ACTIVE = 1, BENCH = 2;
 const FACE_UP_PHASES = new Set([2, 3, 4, 5, 6, 8]);
@@ -203,18 +203,23 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
     if (!choice) return originalDispatch.value.apply(this, [action, ...args]);
     const before = this.state.prompts?.find(p =>
       p.id === choice.promptId && p.result === undefined);
+    let result;
     try {
-      const result = originalDispatch.value.apply(this, [action, ...args]);
-      audit.accepted++;
-      const after = this.state.prompts?.find(p => p.id === choice.promptId);
-      if (before && (after === undefined || after.result !== undefined))
-        audit.postconditionsConfirmed++;
-      else audit.postconditionsMissing++;
-      return result;
+      result = originalDispatch.value.apply(this, [action, ...args]);
     } catch (error) {
       audit.rejected++;
       throw error;
     }
+    // Pinned Store.reducePrompt can silently return unchanged state for a
+    // missing prompt item. The original physical prompt's result must match
+    // the selected action; a nonthrowing dispatch alone proves nothing.
+    if (!before || before.result !== action.result) {
+      audit.postconditionsMissing++;
+      throw new Error('ChoosePokemon Store returned without resolving the prompt');
+    }
+    audit.accepted++;
+    audit.postconditionsConfirmed++;
+    return result;
   }
   Object.defineProperty(SimpleTacticsAi.prototype, 'decodeNextAction',
     {...original, value: decode});
