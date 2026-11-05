@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
+const {execFileSync} = require('node:child_process');
 const test = require('node:test');
 
 const {runOwnerPokemonAba} =
@@ -47,12 +48,24 @@ function saveReceipt(receipt,dir) {
 }
 
 test('registered v14 A/B/A under passive owner KO Prize physical custody observer',()=>{
+  const registrationBytes=fs.readFileSync(path.join(ROOT,
+    'results/aichi-2026/registrations/agent3-issue25-v8-four-campaign-root-replay-v11-20261105.json'));
+  const expectedRegistration=JSON.parse(registrationBytes.toString('utf8'));
+  const vendor=execFileSync('git',['rev-parse','HEAD'],{
+    cwd:path.join(ROOT,'vendor/twinleaf'),encoding:'utf8'
+  }).trim();
+  assert.equal(vendor,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   const observed = withOwnerKoPrizeSettlementEvidence(
     ()=>runOwnerPokemonAba());
   const {result:panel,audit} = observed;
   assert.equal(audit.version,VERSION);
-  assert.equal(panel.sourceTrialIds.length,8);
+  assert.deepEqual(panel.sourceTrialIds,expectedRegistration.trialIds);
   assert.equal(panel.totalRegisteredNativeAttempts,24);
+  assert.equal(panel.matchingNativeOwnerPrechoice,32);
+  assert.equal(panel.matchingNativeRequests,32);
+  assert.equal(panel.matchingNativeFirstPlayer,32);
+  assert.equal(panel.equalControlPublicRootAndStatusRows,8);
+  assert.equal(panel.equalAllThreePhysicalSourceDealRows,8);
   assert.equal(panel.baselineReplayVerdict,
     'PASS-bounded-protected-opening-A-A-control');
   assert.equal(panel.certifiedPaperGames,0);
@@ -83,7 +96,9 @@ test('registered v14 A/B/A under passive owner KO Prize physical custody observe
         'simulation/evaluation/agent3-issue25-v14-owner-pokemon-aba.cjs'))),
       revisedSelectorSourceSha256:sha256(fs.readFileSync(path.join(ROOT,
         'simulation/twinleaf/agent21-owner-first-prize-reveal.cjs'))),
-      pinnedVendorExpected:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
+      pinnedVendorExpected:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+      observedVendorCommit:vendor,
+      originalRegistrationSha256:sha256(registrationBytes)
     },
     registeredTrialIds:panel.sourceTrialIds,
     registeredNativeAttempts:panel.totalRegisteredNativeAttempts,
