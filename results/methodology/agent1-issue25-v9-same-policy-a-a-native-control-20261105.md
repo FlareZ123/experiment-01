@@ -33,6 +33,14 @@ The test joins by **registered trial ID and physical owner seat**, never by Stor
 
 The eight statuses were: seven `returned-unqualified`, one `engine-error` (rank 11, trial `11:102:A:champion-reference`). Error and unqualified statuses are deliberately retained; they are not categorized as wins, draws, legal games, or opponent failures.
 
+## Protected-policy A/A independent control
+
+The same native test now also replays the protected starting-Basic policy twice under the same eight frozen native trial/seed/seat conditions, using the identical underlying observation and comparison method. [Combined native CI run 41941467568](https://github.com/FlareZ123/experiment-01/actions/runs/41941467568) passed both the baseline A/A and the protected A/A subtests. [Two-receipt artifact 13375534543](https://github.com/FlareZ123/experiment-01/actions/runs/41941467568/artifacts/13375534543) contains the independently sanitized per-profile results.
+
+The baseline **and** protected profiles each recorded 16/16 equal paired original private prechoice inputs, 16/16 equal exact native pre-run requests, 16/16 equal actual configured physical sixties, 16/16 equal first-player seats, 8/8 identical post-choice source physical digests, 8/8 equal trial statuses and 8/8 equal native root-action counts. Changed after-choice source digests within either A/A pair were **zero**. The baseline raw receipt content SHA-256 in this run was `40d91306475e91a7a21cae9191830c772ec583cc968c902c264c87eb5239a056`; the protected A/A receipt was `0b3c2df1232713b3a030d9cdb8950db224200dfc9146a5379a0ae17a188b96af`.
+
+Together, these matched A/A controls show that neither observed policy exhibited post-choice source-deal nondeterminism on the frozen eight-seed panel. They narrow the causal question for the two A/B mismatches without establishing complete executing-wrapper closure or any attack/Prize/game success.
+
 ## Interpretation and constraints
 
 For these *specific eight registered native source/opponent/seat/seed arms*, the repeated baseline stack produced no post-choice source-deal drift, and the visible statuses and root-action counts reproduced exactly. This rules out observed A/A nondeterminism in the measured quantities on these eight seeds. It increases confidence that the two changed post-choice physical source digests in the separate baseline-versus-protected v8 pair are genuinely related to that declared different execution configuration. The A/A check by itself cannot prove that the *only* actual code difference was the intended opening chooser, or that those differences increased win probability. Full executing non-treatment closure is still `UNRESOLVED`.
