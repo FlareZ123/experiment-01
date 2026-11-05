@@ -36,6 +36,18 @@ After the accepted hand, exactly 53 cards remain in the draw deck, and six of th
 
 Thus on **19.411781176064324%** of legal-start deals, at least one of these two specific cards is Prized, before considering deck searches or available Prize recovery. Ignoring legal-opening conditioning would yield `(54*53)/(60*59) = 477/590 = 0.8084745762711865` for both outside prizes, an optimistic mismatch of about **0.25924 percentage points** for this particular four-Basic original list.
 
+## Direct Tag Call or Guzma & Hala access by the first normal draw
+
+The original source contains exactly **two Tag Call and two Guzma & Hala**, four search/Supporter endpoints. Let `B` denote an accepted seven with none of these four cards. Since the four endpoints and four Basic Iron Thorns are disjoint,
+
+`P(B|A)=[C(56,7)-C(52,7)]/[C(60,7)-C(56,7)] = 2453321/3857238 = 0.6360304964329399.`
+
+Conditional on B, the remaining 53-card deck holds all four endpoints. Six cards are Prized uniformly, then exactly one normal turn-start card is drawn going second, so its marginal probability of an endpoint is `4/53`. Therefore the exact probability an endpoint is **directly in the accepted seven or appears in that single normal draw**, ignoring any bonus cards received from the other player's mulligans and all search/draw effects, is
+
+`1 - P(B|A)*(49/53) = 12031555/29204802 = 0.41197180518464055.`
+
+This is a **direct pre-search possession rate** for Tag Call or Guzma & Hala in that narrow timing model. A hand containing the Supporter may still lack its required discardable cards, and the first-turn attack can be supplied through other lines. Trainer's Mail, Camping Gear, opponent mulligan bonus draws, Prize recovery, and further card access are excluded. Thus 41.20% must **not** be presented as the true probability of playing Guzma & Hala or of attacking on turn one.
+
 ## Strategic interpretation
 
 This 80.588% is a precisely scoped **unrecovered availability gate for the two-singleton DCE/Thunder Mountain first-turn ALS**, not a calculated T1 attack frequency and not an absolute bound against alternative attacks, other Energy/payment lines, or valid Prize recovery. Early-game line success can be lower because Tag Call/Guzma & Hala access, discard costs, Supporter contention, Stadium conflicts, Item lock, attached Energy, and Active Pokémon positioning must also cooperate. A Prize retrieval line may alter the consequences if the ACE-like singleton is Prized, but cannot be assumed without the actual playable cards and action sequencing.
