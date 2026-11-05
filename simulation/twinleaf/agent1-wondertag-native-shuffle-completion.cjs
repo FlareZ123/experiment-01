@@ -14,7 +14,8 @@ const VERSION='agent1-wondertag-native-shuffle-callback-witness-v1';
  * @template T
  * @param {()=>T} run Actual synchronous pinned native experiment.
  * @param {{TapuLeleGX?:Function,PlayPokemonEffect?:Function,
- *   ShuffleDeckPrompt?:Function}} [deps] Test-only class injection.
+ *   ShuffleDeckPrompt?:Function,getCurrentTrialId?:()=>string|null}}
+ *   [deps] Test-only class injection and read-only native trial identity.
  * @returns {{result:T,audit:object}}
  */
 function withWonderTagNativeShuffleCompletion(run,deps={}){
@@ -27,13 +28,17 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
     load('game/store/effects/play-card-effects').PlayPokemonEffect;
   const ShuffleDeckPrompt=deps.ShuffleDeckPrompt??
     load('game/store/prompts/shuffle-prompt').ShuffleDeckPrompt;
+  if(deps.getCurrentTrialId!==undefined)
+    assert.equal(typeof deps.getCurrentTrialId,'function');
   const previous=Object.getOwnPropertyDescriptor(TapuLeleGX.prototype,'reduceEffect');
   assert.equal(typeof previous?.value,'function');
   assert.equal(previous.configurable,true);
   const audit={
     version:VERSION,printedEntrances:0,shufflePromptsOffered:0,
     shuffleCallbacksCompleted:0,shuffleCallbacksFailed:0,
-    bySeat:{0:0,1:0},
+    bySeat:{0:0,1:0},nativeTrialAttributionAvailable:
+      typeof deps.getCurrentTrialId==='function',
+    offeredTrialSeats:[],completedTrialSeats:[],
     userInformationRead:'public shuffle prompt and player identity only',
     changesNativeActions:false,readsHiddenDeck:false,
     completePaperAbilityCertified:false,qualifiedGames:0
@@ -53,15 +58,22 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
           if(prompt instanceof ShuffleDeckPrompt&&prompt.playerId===owner.id){
             assert.equal(typeof callback,'function');
             audit.shufflePromptsOffered++;
+            const id=deps.getCurrentTrialId?.()??null;
+            assert.ok(id===null||(typeof id==='string'&&id.length>0));
+            audit.offeredTrialSeats.push({id,seat});
             let resolved=false;
             return target.prompt(nextState,prompt,(...args)=>{
               assert.equal(resolved,false,'Native Wonder Tag shuffle callback replayed');
+              if(deps.getCurrentTrialId)
+                assert.equal(deps.getCurrentTrialId(),id,
+                  'Native Wonder Tag shuffle callback crossed registered trials');
               resolved=true;
               let result;
               try{result=callback(...args);}
               catch(e){audit.shuffleCallbacksFailed++;throw e;}
               audit.shuffleCallbacksCompleted++;
               audit.bySeat[seat]++;
+              audit.completedTrialSeats.push({id,seat});
               return result;
             });
           }
