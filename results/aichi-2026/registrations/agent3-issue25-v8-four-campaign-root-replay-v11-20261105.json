@@ -1,0 +1,60 @@
+{
+  "schema": "agent3-issue25-v8-preregistered-single-process-aa-b-a-root-replay-v1",
+  "registeredAtUtc": "2026-11-05T00:11:00Z",
+  "author": "Agent3",
+  "priorNativeOutcomeReview": "results/methodology/agent3-issue25-v8-prechoice-native-store-join-independent-review-20261104.md",
+  "inheritedImmutableEightTrialSeedDeckSeatRegistration": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "originalSourceRanks": [
+    6,
+    11
+  ],
+  "trialIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "campaigns": [
+    {
+      "order": 0,
+      "label": "control-original",
+      "mode": "baseline"
+    },
+    {
+      "order": 1,
+      "label": "control-repeated",
+      "mode": "baseline"
+    },
+    {
+      "order": 2,
+      "label": "protected-opening",
+      "mode": "protected"
+    },
+    {
+      "order": 3,
+      "label": "control-final",
+      "mode": "baseline"
+    }
+  ],
+  "expectedNativeAttempts": 32,
+  "nativeRootsCapEach": 48,
+  "nativeModeSelectedEntry": "simulation/evaluation/agent1-issue25-prechoice-input-custody-v8.cjs",
+  "newAnalysisEntry": "simulation/evaluation/agent3-issue25-v8-four-campaign-root-replay.cjs",
+  "newNativeTest": "tests/agent3-issue25-v8-four-campaign-root-replay.native.test.cjs",
+  "primaryEndpoints": [
+    "same_process_registered_owner_prechoice_hmac_pairs",
+    "same_registered_native_request_hmac_pairs",
+    "three_baseline_control_complete_public_store_root_ledger_and_status_parity",
+    "protected_first_root_difference_and_censored_observation"
+  ],
+  "allErrorAndCapAttemptsIncluded": true,
+  "causalNonTreatmentClosureCertified": false,
+  "competitiveGamesQualified": 0,
+  "noOutcomeBasedFiltering": true,
+  "anticipatedInterpretation": "A/A/A controls replaying exactly under matching original inputs increases evidence for deterministic baseline. It cannot certify full non-treatment policy isolation. Divergent control root histories invalidate simple causal attribution to the protected opening.",
+  "sourceCodeAlreadyCommittedBeforeNativeRun": true
+}
