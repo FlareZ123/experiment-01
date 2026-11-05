@@ -12,6 +12,14 @@ Every individual opponent must therefore have win probability `p_i >= 0.84` unde
 
 For perspective, if all 29 currently authenticated original opponents were beaten with 100% true win probability but all three missing-original ranks were lost with certainty, the equally weighted field win rate would be 29/32 = **90.625%**. An achievement claim therefore cannot silently omit ranks 23,25,28. This is worst-case algebra, not a model of those three missing actual decks.
 
+## Mandatory two-seat randomization qualification
+
+**Validity restriction clarified after the initial synthetic CI:** If the target win rate averages games across both physical source seats, the per-rank average `p_i = (p_{i,0}+p_{i,1})/2` must be what the next rank-`i` game samples. That requires each game to assign the original source to seat 0 or 1 by a **fresh independent fair coin**, with the actual side, coin protocol, original game seed and clock admission externally audited. Under this design, conditional on choosing rank `i`, the next game has Bernoulli win probability `p_i`, and the rank e-process calculation below is valid.
+
+**A predetermined alternating seat sequence is insufficient for the current time-uniform per-game proof.** For a counterexample, suppose `p_{i,0}=0.68` and `p_{i,1}=1`, so the equally weighted rank rate is exactly `0.84` and the candidate *satisfies* the per-rank necessary condition. Four intentionally selected seat-0 games all fail with probability `0.32^4=0.01048576`, compared with `0.16^4=0.00065536` for four independently fair seats. Treating those four seat-0 games as an unbiased rank-wide sample would badly miscalibrate the claimed error budget.
+
+The CJS analyzer therefore explicitly **rejects an absent/wrong physical seat or a `seatAssignment` other than `INDEPENDENT_FAIR_COIN`**; it reports `fairPhysicalSeatRandomizationVerifiedExternally:false` because text labels are *not* evidence of an actual random fair-coin process. Actual seat assignment and all original dispositions must be independently validated. If a group wants deterministic seat balance, it needs a different inference model with pair-block or seat-stratified confidence and optional-stopping treatment.
+
 ## Anytime-valid rejection, instead of blindly running 608+ games
 
 A candidate can be rejected early if a single original opponent's true game-win probability is convincingly below 84%. This turns the demanding target into a practical **falsification workflow** once games are genuinely qualified. The archive currently has no such admitted games, so all examples here are synthetic.
@@ -22,7 +30,7 @@ For each fixed alternative `q < 0.84`, the positive likelihood ratio after `W` w
 
 `E_i(q;W,L) = (q/0.84)^W * ((1-q)/0.16)^L`.
 
-At `p_i=0.84`, the expected one-game likelihood-ratio multiplier is exactly 1. For any `p_i>0.84`, the expectation is smaller than 1 because `q/0.84 < (1-q)/0.16`. Thus this is a nonnegative supermartingale under `H0_i`, provided each next result is independent of previous random outcomes conditional on the selected rank, and every game uses the same frozen candidate and evaluation process.
+At `p_i=0.84`, the expected one-game likelihood-ratio multiplier is exactly 1. For any `p_i>0.84`, the expectation is smaller than 1 because `q/0.84 < (1-q)/0.16`. Thus this is a nonnegative supermartingale under `H0_i`, provided each next result samples a fresh independently fair physical source seat, is independent of previous random outcomes conditional on the selected rank, and uses the same frozen candidate and evaluation process.
 
 Rather than picking `q` after seeing outcomes, precommit the mixture:
 
@@ -39,7 +47,7 @@ This remains valid if experimenters schedule the next opponent rank adaptively f
 
 ## Deterministic synthetic check
 
-The checked-in pure CommonJS module `simulation/evaluation/agent7-aichi-995-early-rejection.cjs` implements the mixture using numerically stable log-sum-exp. It accepts only explicitly declared `QUALIFIED` input rows for one fixed `candidateId`, one unique game ID per row, and one original rank 1..32. It refuses censored/error/nonqualified rows, changed candidate IDs and duplicate game IDs. It still **cannot independently verify** that externally supplied `QUALIFIED` labels, independent game seeds, opponent competence, actual original 60s, physical card payments, and 25-minute adjudication are true. It returns `qualificationVerifiedExternally:false` and conditional-only verdicts.
+The checked-in pure CommonJS module `simulation/evaluation/agent7-aichi-995-early-rejection.cjs` implements the mixture using numerically stable log-sum-exp. It accepts only explicitly declared `QUALIFIED` and `INDEPENDENT_FAIR_COIN` input rows for one fixed `candidateId`, one unique game ID per row, a source physical seat 0/1, and one original rank 1..32. It refuses censored/error/nonqualified rows, changed candidate IDs and duplicate game IDs. It still **cannot independently verify** externally supplied `QUALIFIED` labels or independent fair-seat assignments, independent game seeds, opponent competence, actual original 60s, physical card payments, and 25-minute adjudication. It returns `qualificationVerifiedExternally:false` and conditional-only verdicts.
 
 Seven Node.js tests are checked in under `tests/agent7-aichi-995-early-rejection.test.cjs` and executed locally with Node v22.16.0, all passed. The purely synthetic one-rank results demonstrate:
 
@@ -66,6 +74,6 @@ The all-32 field optimization problem can cheaply **eliminate obviously noncompe
 
 Current observed qualified input to this module: **none**. Do not backfill any archive of engine-only, capped, source-stamped setup, or paid-attack diagnostic roots into the qualification numerator or denominator. The current field's exact original 60s still require three missing inventories. Once source and policy admission gates exist, the lead integrator can evaluate whether a prospectively frozen rejection procedure is helpful and maintain immutable per-game source/seat/admission provenance.
 
-All formulas assume an equally weighted **game-win** objective, Bernoulli scoring and genuine independently adjudicated games. Alternative tournament weighting, ties-as-half-wins, correlated repeated seeds or changing opponents, partial source coverage, and adaptive deck modification require a different model or stricter admissions.
+All formulas assume an equally weighted **game-win** objective, Bernoulli scoring and genuine independently adjudicated games. Alternative tournament weighting, ties-as-half-wins, correlated repeated seeds, nonrandom seat schedules or changing opponents, partial source coverage, and adaptive deck modification require a different model or stricter admissions.
 
 **Status: Mathematical tool and synthetic tests only; 0 competitively qualified games, no selected fixed 60, no verified 99.5%.**
