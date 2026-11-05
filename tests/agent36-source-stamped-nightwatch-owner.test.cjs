@@ -315,3 +315,30 @@ for(const seat of [0,1]){
     assert.equal(ack?.result,undefined);
   });
 }
+
+for(const seat of [0,1]){
+  test('seat '+seat+' rejects stale source action after its native prompt disappears',()=>{
+    const x=fakeEngine();
+    const actor={id:'actor',hand:{cards:[]},deck:{cards:[]}};
+    const opponent={id:'opponent',hand:{cards:[{},{},{}]},deck:{cards:[]}};
+    const players=seat===0?[actor,opponent]:[opponent,actor];
+    const state={players,turn:5,prompts:[]};
+    let caught;
+    try{
+      withSourceStampedNightWatchOwner(()=>{
+        const store=new x.Store(state);
+        store.dispatch(new x.AddPlayerAction());
+        const source=new x.TrevenantDusknoirGX();
+        source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+        const choice=new x.SimpleTacticsAi(actor.id).decodeNextAction(state);
+        state.prompts.splice(0,1);
+        store.dispatch(choice);
+      },{committedSeed:'stale-source-negative',engine:x.engine});
+    }catch(error){caught=error;}
+    assert.match(caught?.message??'',/source prompt must still be pending/);
+    assert.equal(caught.agent36NightWatchAudit.acceptedDispatches,0);
+    assert.equal(caught.agent36NightWatchAudit.verifiedNativePromptSettlements,0);
+    assert.equal(opponent.hand.cards.length,3);
+    assert.equal(opponent.deck.cards.length,0);
+  });
+}
