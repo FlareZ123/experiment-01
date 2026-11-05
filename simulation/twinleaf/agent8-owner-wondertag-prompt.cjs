@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent8-owner-wondertag-confirm-search-v1';
+const VERSION = 'agent8-owner-wondertag-confirm-search-v2-selector';
 
 /**
  * Affirm a genuinely offered Wonder Tag search and choose one qualifying
@@ -10,7 +10,7 @@ const VERSION = 'agent8-owner-wondertag-confirm-search-v1';
  * This is a liveness baseline, not a strategy ranking or a general bot.
  * @template T
  * @param {()=>T} run Synchronous native experiment.
- * @param {object} [deps] Injectable pinned classes for pure tests.
+ * @param {{selectSupporterIndex?:(context:{globalTurn:number,choices:ReadonlyArray<{name:string,fullName:string}>})=>number}} [deps] Optional owner-only index selector; -1 declines, default first eligible.
  * @returns {{result:T,audit:object}}
  */
 function withOwnerWonderTagPrompts(run, deps = {}) {
@@ -34,6 +34,9 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     load('game/store/card/card-types');
   const validate = deps.assertValidPromptAction ??
     require('./prompt-integrity.cjs').assertValidPromptAction;
+  const selectSupporterIndex=deps.selectSupporterIndex ??
+    (context=>context.choices.length>0?0:-1);
+  assert.equal(typeof selectSupporterIndex,'function');
   const originalLele = Object.getOwnPropertyDescriptor(TapuLeleGX.prototype,'reduceEffect');
   const originalBot = Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
   const originalDispatch = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
@@ -48,6 +51,7 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
     confirmed:0,selectedSupporters:0,emptySearches:0,
     nativeAccepted:0,nativeRejected:0,
     bySeat:{0:0,1:0},unrelatedDelegated:0,
+    customSelectorInstalled:deps.selectSupporterIndex!==undefined,
     readsUnrevealedDeckBeforeSearch:false,
     wholePolicyInformationSafe:false,competitiveQualifiedGames:0};
   function reduceEffect(store,state,effect) {
@@ -110,7 +114,15 @@ function withOwnerWonderTagPrompts(run, deps = {}) {
       const candidates=prompt.cards.cards.filter(card=>
         card.superType===SuperType.TRAINER&&
         card.trainerType===TrainerType.SUPPORTER);
-      answer=candidates.length>0?[candidates[0]]:[];
+      const choices=Object.freeze(candidates.map(card=>Object.freeze({
+        name:card.name,fullName:card.fullName
+      })));
+      const index=selectSupporterIndex(Object.freeze({
+        globalTurn:state.turn,choices
+      }));
+      assert.ok(Number.isInteger(index)&&index>=-1&&index<choices.length,
+        'Owner Wonder Tag Supporter selector returned an unoffered index');
+      answer=index<0?[]:[candidates[index]];
     }
     const action=new ResolvePromptAction(prompt.id,answer);
     validate(state,action);
