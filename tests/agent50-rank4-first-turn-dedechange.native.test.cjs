@@ -59,7 +59,7 @@ function attempt({seat,seed}){
               )
             )
         )
-      ),{maxRecords:8});
+      ,{maxRecords:8});
     returned=true;
   }catch(e){
     thrown=e;
