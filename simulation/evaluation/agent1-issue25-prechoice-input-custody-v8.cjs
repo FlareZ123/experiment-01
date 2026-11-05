@@ -252,6 +252,24 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       hex(recordB.candidateDeckFingerprint)&&
       recordA.sourceDeckFingerprint===recordB.sourceDeckFingerprint&&
       recordA.candidateDeckFingerprint===recordB.candidateDeckFingerprint;
+    // A native engine abort may omit returned-row printing fingerprints while
+    // retaining both authenticated sixty-card inventories in genuine Stores.
+    // A contradictory complete returned digest remains a hard veto.
+    const returnedPrintingDigestsComplete=!!recordA&&!!recordB&&
+      [recordA.sourceDeckFingerprint,recordB.sourceDeckFingerprint,
+        recordA.candidateDeckFingerprint,recordB.candidateDeckFingerprint]
+        .every(hex);
+    const contradictoryReturnedPrintingDigests=
+      returnedPrintingDigestsComplete&&!deckPrintingIdentitiesMatched;
+    const nativeStoreRegisteredPrintingParity=
+      trialIdentityMatched&&samePrivateHashSession&&
+      actualNativeInitialStarterVerified&&
+      !contradictoryReturnedPrintingDigests&&
+      ownerSeats.every(seat=>
+        seat.trialPairedPrechoiceInputEqual===true&&
+        seat.identicalNativePreRunRequest===true&&
+        seat.baselineActualSixtyMatchedConfigured===true&&
+        seat.protectedActualSixtyMatchedConfigured===true);
     const sourceSeat=physicalSeat(trialA??{candidateSlot:'Z'});
     const seatAndStarterMatched=trialIdentityMatched&&
       recordA.sourceSeat===sourceSeat&&recordB.sourceSeat===sourceSeat&&
@@ -266,6 +284,9 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       protectedRootCount:rawB.nativeRootActionCount,
       registeredTrialIdentityMatched:trialIdentityMatched,
       originalAndContenderPrintingDigestsMatched:deckPrintingIdentitiesMatched,
+      returnedPrintingDigestsComplete,
+      contradictoryReturnedPrintingDigests,
+      nativeStoreRegisteredPrintingParity,
       physicalSeatsAndFirstPlayerMatched:seatAndStarterMatched,
       nativeFirstPlayerSeatBeforeSetup:actualNativeInitialStarterVerified?
         firstAtBaseline:null,
@@ -354,6 +375,13 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     rows.every(row=>row.registeredTrialIdentityMatched&&
       row.originalAndContenderPrintingDigestsMatched&&
       row.physicalSeatsAndFirstPlayerMatched);
+  const nativeStoreRegisteredPrintingParity=ar.complete&&br.complete&&
+    nativeStoreTrialLinkVerified&&
+    rows.every(row=>row.nativeStoreRegisteredPrintingParity);
+  const completeReturnedPrintingDigestRows=rows.filter(row=>
+    row.returnedPrintingDigestsComplete).length;
+  const contradictoryReturnedPrintingDigestRows=rows.filter(row=>
+    row.contradictoryReturnedPrintingDigests).length;
   const matchingEnginePin=!!baseline.manifest.observedTwinleafGitCommit&&
     baseline.manifest.observedTwinleafGitCommit===
       protectedRun.manifest.observedTwinleafGitCommit&&
@@ -427,8 +455,13 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       allActualNativeInitialStartersMatch:allActualInitialStartersMatch,
       nativeRegisteredRequestParityObserved,
       postTreatmentSourceDigestMismatches,
+      // Raw game-row custody is weaker on aborts; never silently substitute
+      // Store prechoice observations for the separate returned-row criterion.
       sameRegisteredTrialIdentityAndDeckPrintings:
         registeredTrialsAndPrintingsMatched,
+      completeReturnedPrintingDigestRows,
+      contradictoryReturnedPrintingDigestRows,
+      nativeStoreRegisteredPrintingParity,
       sameObservedPinnedEngine:matchingEnginePin,
       declaredSingleOpeningWrapperContrast:declaredWrapperContrastOnly,
       // Exact before-treatment inputs still cannot exclude policy RNG
