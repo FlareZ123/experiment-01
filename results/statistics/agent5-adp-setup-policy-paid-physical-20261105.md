@@ -29,8 +29,8 @@ The modest difference between the historical Agent5 first-Basic gross **32.96164
 
 ## Source and adversarial verification
 
-- [Exact 13-category physical starting-order and setup-occupancy model](../../simulation/evaluation/agent5-adp-setup-paid-policy.cjs), tested byte-identical Git blob SHA-1 **147bb6c54cabe19c4420284409caf48755a0f44d**.
-- [Six regression tests](../../tests/agent5-adp-setup-paid-policy.test.cjs), tested byte-identical Git blob SHA-1 **5eed4cc2f27e2ddb7bb630914baa8102e43d5faf**. Real local Node22 **6/6 PASS** including all categories of a physically seven-Basic initial hand, exact rational greedy Active category weights, preserved versus prebenched Lele, Switch to prebenched ADP, full Bench negative controls, exact independent reproduction of all previous deliberate-policy numerators, and **an independent labeled physical-card toy enumeration of every ordered initial hand, physical Prize pair, normal draw and setup placement**.
+- [Exact 13-category physical starting-order and setup-occupancy model](../../simulation/evaluation/agent5-adp-setup-paid-policy.cjs), tested byte-identical Git blob SHA-1 **8764950249803e38878c7ff4e73f9b22e86a9e0f**.
+- [Six regression tests](../../tests/agent5-adp-setup-paid-policy.test.cjs), tested byte-identical Git blob SHA-1 **8abfb7c22afc1d03f588a004af8a60f97a685b15**. Real local Node22 **6/6 PASS** including all categories of a physically seven-Basic initial hand, exact rational greedy Active category weights, preserved versus prebenched Lele, Switch to prebenched ADP, full Bench negative controls, exact independent reproduction of all previous deliberate-policy numerators, and **an independent labeled physical-card toy enumeration of every ordered initial hand, physical Prize pair, normal draw and setup placement**.
 - Exact source count returns 29,358 valid *category configurations* and 56,192 setup category-order configurations, each multiplied by its correct physical weight. Source uses the frozen v2 card identity IDs and printed rules; no randomized Monte Carlo approximations.
 - Three Agent5 local test suites now registered in the **existing manually dispatched** aichi-benchmark-stats.yml; **no new workflow, remote CI success claim or native Twinleaf match**. Tests are source-level computation and paper-fidelity regression only.
 
@@ -57,3 +57,21 @@ For the **mechanical-payment model with legal Lele**, the total deliberate-to-gr
 As a strong independent cross-check, when Wonder Tag is disabled the first-eligible-Active/no-extra-Bench model returns exactly **32.96164378282613%** with unrestricted mechanical payments. This reproduces the already published Agent5 **32.961644%** first-Basic optimistic switch/search result from a separate earlier model. Prebenching then reduces the new mechanical/no-Lele screen to **32.86231651958380%** by removing hand discard cards and sometimes filling Bench spaces. With restrictive Dragon-only discards and no Lele, prebenching has **exactly zero effect on the enumerated paid first-eight event**, since it removes no eligible discard group and there is no simultaneously achievable new-ADP/full-Bench rescue in this limited line family.
 
 These are strictly within-source policy screens, do not imply a 6.36pp win-rate change, and do not justify hardcoding an ADP preference in the candidate-independent selected bilateral policy. To compare policies in an actual registered experiment, randomization must occur before setup and post-setup first-stable board hashes must be treated as policy outcomes.
+
+
+## Follow-up: isolate preserving the singleton Lele during setup
+
+The selected developmental Issue25 v4 stack was source-traced through the v6/v5/v4/v1 chain to Agent36's selected v0, whose actual owner-start chooser is **agent50AllEligibleInitialBasics**. It first chooses the first eligible hand-order Basic, then fills further setup slots with other Basic cards. The distinct protected turn-entry chooser in agent50-owner-preserve-turn-entry-setup.cjs remains a separate opt-in proposal. These source facts establish the relevance of testing pregame Lele placement; the registered v4 eight-arm candidates are *different 60s* from this v2 ADP source, so our percentages do not describe its actual rank6/11 trial outcomes.
+
+A fourth narrow source-only scenario now treats **Lele alone as protected**: choose the earliest *non-Lele* eligible Basic as Active if there is one, put the remaining non-Lele Basics on the Bench, and **keep Lele in hand** to trigger Wonder Tag during the turn. If Lele is the only opening Basic it must start Active, so its trigger cannot fire. This is **not** the full installed generic owner-protected adapter: the present 13-class source groups Crobat V with other Basic Pokémon and does not protect Crobat V's Dark Asset Ability. Other real native prompt and opponent-payoff constraints remain unmodeled.
+
+| DCI payment scenario, with available Wonder Tag | Selected-like greedy prebench all | Protect Lele only (partial proposal) | Increment |
+|---|---:|---:|---:|
+| Mechanically discard any nonessential card | **36.651988%** | **38.632424%** | **+1.980436 pp** |
+| Six Dragon payloads only | **17.290576%** | **17.940132%** | **+0.649557 pp** |
+| Dragons + basic Energy | **23.678226%** | **24.805796%** | **+1.127570 pp** |
+| Dragons + Energy + Compressor | **27.319041%** | **28.693821%** | **+1.374780 pp** |
+
+Exact 420-scaled weighted numerators for Lele-protected scenario: mechanical 40628501009276471620; Dragon-only 18867070734171825480; Energy 26087472843582570280; Compressor 30176385922559506560. All are divided by the same denominator **105166843059427968000**. An independent exhaustive labeled-card toy enumeration checks the physical hand order, actual Bench placements, Prize pair and first draw for this fourth policy, alongside the other three. **Six local Node22 tests PASS** after this extension, with exact source and test bytes verified against remote Git SHA-1.
+
+The source-only +1.98pp mechanical gain is an *opening opportunity*, no claim of actual native selected-v4 improvement or game win. More complete policy research must also protect in-turn Crobat V entries and investigate tactical consequences of leaving a small Bench, both sides' owner-information access, native prompt settlement, and post-setup treatment effects.
