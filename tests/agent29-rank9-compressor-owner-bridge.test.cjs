@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  sourceEnergy,chooseRank9CompressorAfterPass,chooseRank9CompressorDiscard
+  sourceEnergy,chooseRank9CompressorAfterPass,chooseRank9CompressorDiscard,
+  withRank9CompressorAfterPass
 }=require('../simulation/twinleaf/agent29-rank9-compressor-owner-bridge.cjs');
 
 /** @param {object} [changes] */
@@ -120,4 +121,82 @@ test('finite-turn owner probe remains bounded without altering v1',()=>{
     sample({globalTurn:16}),{maxGlobalTurn:16}));
   assert.equal(chooseRank9CompressorAfterPass(
     sample({globalTurn:17}),{maxGlobalTurn:16}),null);
+});
+
+test('owned Compressor search is decoded before stock prompt failure',()=>{
+  class AddPlayerAction {}
+  class PassTurnAction {}
+  class PlayCardAction {
+    constructor(playerId,handIndex,target){
+      this.playerId=playerId;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class ResolvePromptAction {
+    constructor(id,cards){this.id=id;this.cards=cards;}
+  }
+  class SimpleTacticsAi {
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      if(state.prompts.length)throw Error('stock bot cannot decode search');
+      return new PassTurnAction();
+    }
+  }
+  class Store {
+    constructor(state){this.state=state;}
+    dispatch(action){
+      const state=this.state,owner=state.players[0];
+      if(action instanceof PlayCardAction){
+        owner.hand.cards.splice(action.handIndex,1);
+        state.prompts.push({
+          id:55,playerId:101,message:'CHOOSE_CARD_TO_DISCARD',
+          cards:owner.deck,result:undefined,
+          validate:(cards)=>cards.length>0&&cards.length<=3
+        });
+      }
+      if(action instanceof ResolvePromptAction){
+        assert.equal(action.id,55);
+        for(const card of action.cards){
+          const index=owner.deck.cards.indexOf(card);
+          assert.notEqual(index,-1);
+          owner.deck.cards.splice(index,1);
+          owner.discard.cards.push(card);
+        }
+        state.prompts.length=0;
+      }
+      return true;
+    }
+  }
+  const owner={
+    id:101,
+    hand:{cards:[{fullName:'Battle Compressor PHF',canPlay:()=>true}]},
+    deck:{cards:[
+      {fullName:'Prism Energy ASC'},
+      {fullName:'Darkness Energy SVE'},
+      {fullName:'Rare Candy SVI'}]},
+    discard:{cards:[]}
+  };
+  const state={players:[owner,{id:202}],turn:16,
+    phase:'PLAYER_TURN',activePlayer:0,prompts:[]};
+  const store=new Store(state),bot=new SimpleTacticsAi();
+  const executed=withRank9CompressorAfterPass(()=>{
+    store.dispatch(new AddPlayerAction());
+    const item=bot.decodeNextAction(state);
+    assert.equal(item.constructor.name,'PlayCardAction');
+    store.dispatch(item);
+    const search=bot.decodeNextAction(state);
+    assert.equal(search.constructor.name,'ResolvePromptAction');
+    store.dispatch(search);
+    return true;
+  },0,{
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:'PLAYER_TURN'},
+    cardActions:{PlayCardAction,PlayerType:{ANY:0},SlotType:{BOARD:0}},
+    promptActions:{ResolvePromptAction},
+    actorObservation:()=>sample({globalTurn:16}),
+    maxGlobalTurn:Infinity
+  });
+  assert.equal(executed.result,true);
+  assert.equal(executed.audit.nativeAcceptedCompressor,1);
+  assert.equal(executed.audit.ownerDeckPromptDecisions,1);
+  assert.equal(executed.audit.nativeSettledDeckToDiscard,2);
+  assert.equal(owner.discard.cards.length,2);
 });
