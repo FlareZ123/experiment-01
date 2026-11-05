@@ -103,6 +103,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent18_root17_tooljammer:
+        description: 'Same original v5 eight physical deals, rank6 source Pass17 to own Active Tool Jammer, zero competitive claims'
+        required: false
+        type: boolean
+        default: false
       include_agent35_v5_owner_pass_replay:
         description: 'Frozen eight-arm source-owner Pass physical hand and board observation, no deck wins'
         required: false
@@ -442,7 +447,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 21
   original-v5-owner-pass-observation:
-    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork }}
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent18_root17_tooljammer }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -492,5 +497,23 @@ jobs:
         with:
           name: agent35-rank11-source-professor-letter-fork
           path: agent35-rank11-letter-fork-native.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Test owner-visible source Tool Jammer selection and first-source pre-bot hand parity contracts
+        if: ${{ inputs.include_agent18_root17_tooljammer }}
+        run: node --test tests/agent18-rank6-original-root17-tooljammer-aba.test.cjs tests/agent18-first-source-pass-prechoice-hand-contract.test.cjs tests/agent18-steward-source-pass-attack-context.test.cjs
+      - name: Run fixed-deal original v5 both-seat Tool Jammer Pass17 A/B
+        if: ${{ inputs.include_agent18_root17_tooljammer }}
+        env:
+          AGENT18_TOOLJAMMER_V5_OUTPUT: agent18-v5-rank6-tooljammer-root17-aba.json
+        run: node simulation/evaluation/agent18-rank6-original-root17-tooljammer-aba.cjs
+      - name: Preserve original v5 source Tool Jammer A/B native outcome and SHA sidecar
+        if: ${{ always() && inputs.include_agent18_root17_tooljammer }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-original-v5-rank6-tooljammer-root17
+          path: |
+            agent18-v5-rank6-tooljammer-root17-aba.json
+            agent18-v5-rank6-tooljammer-root17-aba.json.sha256
           retention-days: 14
           if-no-files-found: warn
