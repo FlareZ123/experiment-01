@@ -7,8 +7,10 @@ const {runStewardInnermostPrizeV5}=
   require('../simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs');
 const {runAgent45OwnerTagCallV7,VERSION}=
   require('../simulation/evaluation/agent45-issue25-owner-tagcall-v7.cjs');
-const {writeReceipt}=
+const {writeReceipt,buildReceipt}=
   require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
+const {compareTagCallPublicRoots}=
+  require('../simulation/evaluation/agent45-owner-tagcall-public-difference.cjs');
 
 function summarizeOwnerTagCall(entry){
   const audit=entry.ownerTagCallAudit;
@@ -80,6 +82,19 @@ test('same original eight paired v5 owner Tag Call treatment with all error/cap 
     sourceNativeAttackSettlements:pairs.reduce((n,row)=>
       n+(row.sourceAttackSettlementCount??0),0)
   };
+  const comparedNativePublicRoots=compareTagCallPublicRoots(
+    buildReceipt(control,{
+      policyEntryPoint:control.manifest.policyEntryPoint
+    }),
+    buildReceipt(treatment,{
+      policyEntryPoint:treatment.manifest.policyEntryPoint
+    }),
+    treatment.diagnostic.registered
+  );
+  const nativeSourceTagCallRoots=comparedNativePublicRoots.rows.reduce(
+    (total,row)=>total+row.treatmentSourceActions.tagCallPlayed,0);
+  const nativeSourceGuzmaHalaRoots=comparedNativePublicRoots.rows.reduce(
+    (total,row)=>total+row.treatmentSourceActions.guzmaHalaPlayed,0);
   const base=process.env.ISSUE25_AGENT45_TAGCALL_V7_DIR;
   const lockedArchives=base?{
     control:writeReceipt(control,path.join(base,'control'),{
@@ -101,6 +116,9 @@ test('same original eight paired v5 owner Tag Call treatment with all error/cap 
     actualAllEightEntireInitialDealsIdentical:pairs.every(row=>
       row.sameEntireInitialPhysicalDeal),
     actualNativeOwnerTagCallSummary:summary,
+    completePairedPublicActionDifference:comparedNativePublicRoots,
+    publicNativeSourceTagCallPlays:nativeSourceTagCallRoots,
+    publicNativeSourceGuzmaHalaSupporterPlays:nativeSourceGuzmaHalaRoots,
     individualBothSeatOwnerAudits:selected,
     pairedNativeRootOutcomes:pairs,
     lockedAllEightControlTreatmentArchives:lockedArchives,
@@ -119,6 +137,10 @@ test('same original eight paired v5 owner Tag Call treatment with all error/cap 
   assert.equal(report.actualAllEightInitialSourceDealsIdentical,true);
   assert.equal(report.actualAllEightEntireInitialDealsIdentical,true);
   assert.equal(actual.length,8);
+  assert.equal(comparedNativePublicRoots.rows.length,8);
+  assert.equal(nativeSourceTagCallRoots,
+    summary.actualNativeAcceptedItemRoots,
+    'Actual Store Tag Call receipt must agree with public root action ledger');
   assert.equal(treatment.diagnostic.nativeOwnerTagCallMatchCalls,8);
   assert.equal(treatment.diagnostic.completeRegisteredAttemptReconciliation,true);
   assert.equal(treatment.manifest.releaseQualified,false);
