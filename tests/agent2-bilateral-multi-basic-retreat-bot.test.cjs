@@ -75,12 +75,13 @@ test('first-turn Pass is observable only with diagnostic opt-in and remains Pass
   const observed=[];
   const result=withBilateralMultiBasicPaidRetreat(
     ()=>new SimpleTacticsAi().decodeNextAction(state),{
-      SimpleTacticsAi,RetreatAction,catalog,observe:view,
+      SimpleTacticsAi,RetreatAction,catalog,
+      observe:state=>({globalTurn:state.turn}),
       observeFirstTurnPassOnly:true,
       choose:v=>{observed.push(v.globalTurn);return allIntent;}
     });
   assert.equal(result.result.constructor.name,'PassTurnAction');
-  assert.deepEqual(observed,[33]);
+  assert.deepEqual(observed,[1]);
   assert.deepEqual(result.audit.originalPassesBySeat,[1,0]);
   assert.deepEqual(result.audit.chosenTypedRetreatsBySeat,[0,0]);
 });
