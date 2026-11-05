@@ -1137,6 +1137,7 @@ function runDevelopment({
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
+  actorTwoUnitPaidRetreatTargetTurn=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
   actorUnderworldDoorPromptOwner=false,
@@ -1233,6 +1234,11 @@ function runDevelopment({
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
   assert.ok(!actorTwoUnitPaidRetreatRoot||actorOnlyComposition,
     'Paid two-Colorless VMAX Retreat must be symmetric actor-only roots');
+  assert.ok(actorTwoUnitPaidRetreatTargetTurn===null||
+    (actorTwoUnitPaidRetreatRoot&&
+     Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurn)&&
+     actorTwoUnitPaidRetreatTargetTurn>1),
+    'Registered two-Card Retreat target turn must be an integer >1');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
@@ -1496,7 +1502,8 @@ function runDevelopment({
                 fundedVmaxFloatStoneRoot:true
               }:{}),
               ...(actorTwoUnitPaidRetreatRoot?{
-                twoUnitPaidRetreatRoot:true
+                twoUnitPaidRetreatRoot:true,
+                twoUnitPaidRetreatTargetTurn:actorTwoUnitPaidRetreatTargetTurn
               }:{}),
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
