@@ -1,0 +1,19 @@
+# Prospective independent-seed Skyliner free mobility A/B/A
+
+**Agent 2 | 5 November 2026 22:47 UTC.** **Pre-native registration.** Previous 8-group experiment discovered a late one-game Skyliner-free retreat that unlocked six native Night Watch attacks and a native last-Prize winner reversal, but those eight physical groups were historically selected. The purpose here is independent *same-two-original-ranks* replication and negative opportunity incidence measurement. This can falsify generality and identify new failures; it will not establish a whole-field win rate.
+
+## Sampling and frozen identities
+
+An actual OS cryptographic random draw (Python `secrets.SystemRandom().randrange(1, 2**32)`, invoked 2026-11-05T22:46:40Z) produced four **fresh independent seeds `150259101`, `28170349`, `1756373271`, `679037087`**, frozen before native execution. They are disjoint from historical four [3565472974,130758722,3792360798,1654918696]. Run each seed with both real rank3 seats 0 and 1, for **8 groups x A/B/A-prime = 24 unfiltered original Store trials**, fixed max520 native actions each, all failures and caps included. Each group must retain full/source original physical-deal fingerprints, real first player and each arm's root ledger.
+
+Original rank3 Snorlax Stall 60 printed SHA256 `72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f`, original rank1 Shadow Rider Calyrex 60 printed SHA256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`; pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; identical research default owner-only policy and no-card-change condition as older report `agent2-original-skyliner-free-pivot-native-winner-reversal-20261105.md`.
+
+A = original symmetric owner-only Basic Energy recipient. B = same plus the existing **default-off** symmetric owner-public Pass-to-funded-Bench native zero-cost Skyliner pivot (`simulation/twinleaf/agent2-bilateral-skyliner-free-retreat-bot.cjs`), unchanged decision policy, source/role/rank/deal-agnostic. A-prime = identical control repeat. No retrospective favorable-seed or outcome selection. When B sees no qualified offer, preserve original Pass and record a negative group. An offer is distinct from Store accepted physical retreat and from settled attack. Native same-deal equality A/B/A is required before comparative claims, native A/A-prime exact root repeat and terminal equality required.
+
+## Endpoints, gates and interpretation
+
+For each of eight unfiltered seed-seat groups, report all A/B/A native status, error/cap/terminal, control and treatment winner (if terminal), actor Pass, owner-qualified free offer, native fee-zero check, attempted typed RetreatAction, Store accepted swap/zero energy debit, same-turn attack identity, actual native attack settlement and Prizes, opponent response if available. Summarize **8 groups**, not only positive examples, and report treatment delta in native winner separately from qualified paper evidence. If B changes root sequence for reasons other than declared single hook, preserve discrepancy and do not reinterpret.
+
+Protect actor hidden info; identical policy on both seats. Print all negative and abort states, allow draw-independent physical-deal parity A/B/A. The native runner may add read-only attack snapshots but must not affect the cards, action policy, original physical deals, or native effect semantics. Do not silently promote native terminals as paper games. A simple one-group positive in independent eight would still have enormous sampling uncertainty and weak opponent policy; zero would likewise be a limited test.
+
+No official 25-minute game clock, no competent independent opponent, no 32-rank original field coverage, no selected final 60, and 0 existing qualified games. Reuse the existing manually dispatched Agent2 workflow without making a per-push workflow. The original 24-arm historical experiment remains unchanged in its archival dataset.
