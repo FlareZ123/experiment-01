@@ -42,6 +42,10 @@ jobs:
         run: node --test tests/agent46-quickball-common-paper-portfolio.test.cjs
       - name: Verify native original rank5 Quick Ball root, payment, optional search both seats
         run: node simulation/twinleaf/agent46-quickball-unified-native.cjs
+      - name: Regress pinned source-stamped Mysterious Treasure FLI mandatory other-card cost
+        run: node --test tests/agent46-mysterious-treasure-common-paper-portfolio.test.cjs
+      - name: Verify original two-seat native Mysterious Treasure physical discard and later owner search
+        run: node simulation/twinleaf/agent46-mysterious-treasure-unified-native.cjs
       - name: Verify native Froslass optional self-damage budget both seats
         run: node simulation/twinleaf/agent46-froslass-partial-budget-native.cjs
       - name: Check Electro Rain capped allocation pure regression
