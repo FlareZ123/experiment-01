@@ -152,4 +152,97 @@ function inspect(bytes, sidecar, version) {
   };
 }
 
-module.exports = {VERSION, EXPECTED, inspect};
+
+/**
+ * Compare two historical variants of the same immutable registered eight,
+ * independent of runner-produced matched-deal claims. Only physical pre-game
+ * deal equality and native *accepted-root* prefix equality are certified.
+ * Different contender 60s can legitimately yield distinct physical openings.
+ *
+ * @param {Buffer} v4Bytes
+ * @param {string} v4Sidecar
+ * @param {Buffer} v5Bytes
+ * @param {string} v5Sidecar
+ * @returns {object} Bounded, failure-inclusive controlled-pair audit.
+ */
+function compareStewardV4V5(v4Bytes, v4Sidecar, v5Bytes, v5Sidecar) {
+  const before = inspect(v4Bytes, v4Sidecar, 'v4');
+  const after = inspect(v5Bytes, v5Sidecar, 'v5');
+  const failures = [];
+  if (before.integrity !== 'PASS-bounded-file-and-root-custody')
+    failures.push('v4-independent-custody-not-passed');
+  if (after.integrity !== 'PASS-bounded-file-and-root-custody')
+    failures.push('v5-independent-custody-not-passed');
+  if (failures.length) return {
+    version: VERSION + '-controlled-pair-v1',
+    status: 'FAIL', failures, competitiveGamesQualified: 0
+  };
+  const original = JSON.parse(v4Bytes.toString('utf8'));
+  const treatment = JSON.parse(v5Bytes.toString('utf8'));
+  const byId = new Map(treatment.attempts.map(row => [row.id, row]));
+  let matchedInitialSources = 0;
+  let matchedInitialWholeDeals = 0;
+  let exactRootPrefixes = 0;
+  let rescuedNativeErrors = 0;
+  let newNativeErrors = 0;
+  const attempts = [];
+  for (const a of original.attempts) {
+    const b = byId.get(a.id);
+    assert.ok(b, 'Already verified eight original IDs must match');
+    const sourceMatched = typeof a.sourceDealFingerprint === 'string' &&
+      /^[0-9a-f]{64}$/.test(a.sourceDealFingerprint) &&
+      a.sourceDealFingerprint === b.sourceDealFingerprint;
+    const wholeMatched = typeof a.fullPhysicalDealFingerprint === 'string' &&
+      /^[0-9a-f]{64}$/.test(a.fullPhysicalDealFingerprint) &&
+      a.fullPhysicalDealFingerprint === b.fullPhysicalDealFingerprint;
+    if (sourceMatched) matchedInitialSources++;
+    else failures.push(a.id + ':source-initial-deal-mismatch-or-absent');
+    if (wholeMatched) matchedInitialWholeDeals++;
+    else failures.push(a.id + ':whole-initial-deal-mismatch-or-absent');
+    const firstPlayerMatch = a.actualFirstPlayer === null ||
+      b.actualFirstPlayer === null ||
+      a.actualFirstPlayer === b.actualFirstPlayer;
+    if (!firstPlayerMatch)
+      failures.push(a.id + ':actual-starter-seat-mismatch');
+    const prefixMatches = b.publicRootActions.length >=
+      a.publicRootActions.length &&
+      JSON.stringify(b.publicRootActions.slice(0, a.publicRootActions.length)) ===
+        JSON.stringify(a.publicRootActions);
+    if (prefixMatches) exactRootPrefixes++;
+    else failures.push(a.id + ':accepted-native-prefix-diverged');
+    const rescued = a.status === 'engine-error' &&
+      b.status !== 'engine-error';
+    const regressed = a.status !== 'engine-error' &&
+      b.status === 'engine-error';
+    if (rescued) rescuedNativeErrors++;
+    if (regressed) {
+      newNativeErrors++;
+      failures.push(a.id + ':new-native-error-under-v5');
+    }
+    attempts.push({
+      id: a.id, originalRoots: a.publicRootActions.length,
+      treatmentRoots: b.publicRootActions.length,
+      initialSourceDealMatched: sourceMatched,
+      initialWholeDealMatched: wholeMatched,
+      actualFirstPlayerConsistent: firstPlayerMatch,
+      originalAcceptedRootsPreserved: prefixMatches,
+      v4Status: a.status, v5Status: b.status,
+      rescuedNativeError: rescued
+    });
+  }
+  return {
+    version: VERSION + '-controlled-pair-v1',
+    status: failures.length ? 'FAIL' : 'PASS-bounded-controlled-prefix',
+    failures, originalArchiveSha256: before.digest,
+    treatmentArchiveSha256: after.digest,
+    registeredArms: attempts.length, matchedInitialSources,
+    matchedInitialWholeDeals, exactRootPrefixes,
+    rescuedNativeErrors, newNativeErrors, attempts,
+    naturalCrossContenderOpeningEquivalenceNotAsserted: true,
+    paperPaymentCertified: false, strategicBenefitCertified: false,
+    competitiveGamesQualified: 0,
+    interpretation: 'Only same-contender pre-game physical starts and actually accepted Store-prefix events are compared. Changed policy after an early abort creates additional censored observation, not an independently qualified game.'
+  };
+}
+
+module.exports = {VERSION, EXPECTED, inspect, compareStewardV4V5};
