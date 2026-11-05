@@ -220,9 +220,10 @@
     "physicalShuffle": "per-seat keyed xorshift32, separate both seats, enabled both A/B",
     "speculativePolicy": "per-seat independent policy stream, enabled both A/B",
     "coinFlips": "headless global RNG unchanged; event-key independence unproven",
-    "seedSelection": "reused historical positive four source seed groups, not independent field sampling",
-    "newComparedToHistoricalV4": "RNG protocol only; both A/B receive the same per-seat protocol",
+    "seedSelection": "Eight fresh independent 32-bit physical seed groups committed before executing any v6 native match; prior policy may have been informed by historical research.",
+    "newComparedToHistoricalV4": "Eight fresh preregistered 32-bit physical-seed groups, two candidate fixed 60s, and isolated per-seat physical-shuffle and policy streams identically across A/B.",
     "isolationScope": "source-owned physical shuffle cannot advance candidate-owned physical shuffle cursor, but turn outcome and match randomness can still diverge"
   },
-  "priorRetrospectiveRegistrationBlobSHA": "e8298afacfedbb7d6cf6490a826c06eeb1a0cf99"
+  "priorRetrospectiveRegistrationBlobSHA": "e8298afacfedbb7d6cf6490a826c06eeb1a0cf99",
+  "noProspectivePerformanceClaims": true
 }
