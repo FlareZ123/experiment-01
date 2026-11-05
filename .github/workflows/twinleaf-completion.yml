@@ -203,6 +203,9 @@ jobs:
       - name: Retrospective original eight-arm source owner Plumeria after-Pass A/B
         if: ${{ inputs.include_agent7_shadowmist_original48_plumeria_AB }}
         run: node --test tests/agent7-shadowmist-original48-plumeria-aba.test.cjs tests/agent7-shadowmist-original48-plumeria-aba.native.test.cjs
+      - name: Retrospective identical Plumeria source root with alternative fully paid owner-hand two-card costs
+        if: ${{ inputs.include_agent7_shadowmist_original48_plumeria_AB }}
+        run: node --test tests/agent7-plumeria-preserve-mail-payment.test.cjs tests/agent7-plumeria-payment-original48-pair.native.test.cjs
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
