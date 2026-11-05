@@ -230,3 +230,50 @@ for(const seat of [0,1])test('live Volt physical transfer positive receipts seat
   assert.equal(observed.audit.events[0].nativeAccepted,true);
   assert.equal(observed.audit.events[0].physicalEffectVerified,true);
 });
+
+/**
+ * Native Issue25 composes many reversible Store dispatch hooks. Check that
+ * nesting in either order retains exactly one physical settlement and
+ * restores the initial dispatch implementation after both wrappers exit.
+ */
+for(const seat of [0,1]){
+  for(const paperInner of [true,false]){
+    test('nested dispatch wrappers preserve Volt custody seat '+seat+
+      ' paperInner='+paperInner,()=>{
+      const f=fixture(seat),store=new Store(f.state),card=new IronThornsex();
+      const native=Store.prototype.dispatch;
+      let intercepted=0;
+      const outer=run=>{
+        const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+        function wrapped(action,...args){
+          if(action instanceof ResolvePromptAction)intercepted++;
+          return before.value.call(this,action,...args);
+        }
+        Object.defineProperty(Store.prototype,'dispatch',
+          {...before,value:wrapped});
+        try{return run();}
+        finally{
+          assert.strictEqual(Store.prototype.dispatch,wrapped);
+          Object.defineProperty(Store.prototype,'dispatch',before);
+        }
+      };
+      const paper=run=>withPaperPromptPortfolio(run,
+        {Store,IronThornsex,types,liveStore:store});
+      const run=()=>{
+        card.reduceEffect(store,f.state,
+          new AfterAttackEffect(f.owner,card.attacks[0]));
+        store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+        return 'native-done';
+      };
+      const output=paperInner?outer(()=>paper(run)):
+        paper(()=>outer(run));
+      const audit=paperInner?output.audit:output.audit;
+      assert.equal(output.result,'native-done');
+      assert.equal(audit.paperVerifiedNativeAccepted,1);
+      assert.equal(audit.livePaperVerifiedPhysicalEffect,1);
+      assert.equal(intercepted,1);
+      assert.equal(f.owner.bench[0].cards.includes(f.energy),true);
+      assert.strictEqual(Store.prototype.dispatch,native);
+    });
+  }
+}
