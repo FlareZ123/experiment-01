@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      source_rescue_guzma:
+        description: 'Use reciprocal owner-held rank3 Guzma diagnostic when guzma_vmax_abca is selected'
+        type: boolean
+        required: false
+        default: false
       guzma_vmax_abca:
         description: 'Run original rank1 held Guzma plus native VMAX evolution A B C A'
         type: boolean
@@ -105,9 +110,13 @@ jobs:
         shell: bash
         run: node simulation/evaluation/agent2-rank1-original-guzma-counterplay-aba.cjs | tee agent2-rank1-original-guzma-counterplay-aba.json
       - name: Test original held rank1 Guzma plus printed VMAX evolution against source
-        if: ${{ inputs.guzma_vmax_abca && !inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        if: ${{ inputs.guzma_vmax_abca && !inputs.source_rescue_guzma && !inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
         shell: bash
         run: AGENT2_INCLUDE_VMAX_ABCA=true node simulation/evaluation/agent2-rank1-original-guzma-counterplay-aba.cjs | tee agent2-rank1-original-guzma-vmax-abca.json
+      - name: Test owner-only rank3 reciprocal held Guzma against rank1 VMAX
+        if: ${{ inputs.guzma_vmax_abca && inputs.source_rescue_guzma && !inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        shell: bash
+        run: node simulation/evaluation/agent2-rank3-reciprocal-guzma-abaca.cjs | tee agent2-rank3-reciprocal-guzma-abaca.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -124,5 +133,6 @@ jobs:
             agent2-rank1-original-guzma-hand-windows.json
             agent2-rank1-original-guzma-counterplay-aba.json
             agent2-rank1-original-guzma-vmax-abca.json
+            agent2-rank3-reciprocal-guzma-abaca.json
           if-no-files-found: warn
           retention-days: 14
