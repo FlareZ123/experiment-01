@@ -45,12 +45,18 @@ on:
         required: false
         default: false
 
+      rank4_dedechange_select_v2_only:
+        description: Run original rank4 Dedechange plus owner-safe SelectPrompt continuation
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -171,7 +177,7 @@ jobs:
           retention-days: 30
 
   original4-firstturn-dedechange:
-    if: ${{ inputs.rank4_dedechange_only == true }}
+    if: ${{ inputs.rank4_dedechange_only == true || inputs.rank4_dedechange_select_v2_only == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -191,19 +197,22 @@ jobs:
         run: npm run compile
       - name: Execute four original rank4 same-hand entry-support first-turn native probes
         env:
-          AGENT50_RANK4_DEDECHANGE_OUTPUT: artifacts/agent50-rank4-firstturn-dedechange-v1
+          AGENT50_RANK4_DEDECHANGE_OUTPUT: ${{ inputs.rank4_dedechange_select_v2_only == true && 'artifacts/agent50-rank4-firstturn-dedechange-select-v2' || 'artifacts/agent50-rank4-firstturn-dedechange-v1' }}
+          AGENT50_RANK4_DEDECHANGE_SELECT_V2: ${{ inputs.rank4_dedechange_select_v2_only == true && 'true' || 'false' }}
         run: node --test tests/agent50-rank4-first-turn-dedechange.native.test.cjs
       - name: Preserve all four source original attempts including failures and no-Ability
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent50-original4-firstturn-dedechange-${{ github.run_id }}
-          path: artifacts/agent50-rank4-firstturn-dedechange-v1/
+          name: agent50-original4-firstturn-dedechange-${{ inputs.rank4_dedechange_select_v2_only == true && 'select-v2' || 'v1' }}-${{ github.run_id }}
+          path: |
+            artifacts/agent50-rank4-firstturn-dedechange-v1/
+            artifacts/agent50-rank4-firstturn-dedechange-select-v2/
           if-no-files-found: warn
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
