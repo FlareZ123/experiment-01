@@ -16,7 +16,7 @@ const {withSameTargetAttachEnergySelection}=
 const {nativeSinglePokemonChoices}=
   require('../twinleaf/agent8-actor-only-choose-pokemon.cjs');
 
-const VERSION='agent2-original-rank1-held-guzma-vs-bunnelby-aba-v1';
+const VERSION='agent2-original-rank1-held-guzma-vs-bunnelby-aba-v2-optional-vmax';
 const SEED=290134,SOURCE_SEAT=0,OPPONENT_SEAT=1,INTERVENTION_TURN=3;
 const ORIGINAL_FULL_DEAL=
   'e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
@@ -41,7 +41,7 @@ const hash=value=>createHash('sha256')
  * @param {()=>T} execute Original native matchup, unchanged actual cards.
  * @returns {{result:T,audit:object}}
  */
-function withRank1HeldGuzmaCounterplay(execute){
+function withRank1HeldGuzmaCounterplay(execute,{evolveVmax=false}={}){
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
@@ -57,11 +57,15 @@ function withRank1HeldGuzmaCounterplay(execute){
     originalOwnerPromptValidation:true,
     rank1LiveOwnerVmaxHeldAfterGuzma:[],
     rank3NativeOwnerRescuePassEvidence:[],
+    enabledEvolutionTreatment:evolveVmax,
+    selectedNativeVmaxEvolutionRoot:0,
+    vmaxEvolutionReceipts:[],
     ownerOnly:true,
     completelyQualifiedGames:0,
     receipts:[]
   };
   let selectedTurn=null;
+  let selectedVmaxEvolutionTurn=null;
   const decoder=function ownerGuzmaAndTruePrompt(state,...args){
     const owner=state.players[OPPONENT_SEAT];
     const pending=state.prompts.find(p=>p.result===undefined);
@@ -84,6 +88,33 @@ function withRank1HeldGuzmaCounterplay(execute){
             state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName,
           ownerDeckCount:owner.deck.cards.length,
           ownerBenchCount:owner.bench.filter(x=>x.cards.length>0).length
+        });
+      }
+    }
+    // One preregistered 29th global turn actual own-hand evolution after
+    // the genuine turn3 Guzma. Always use the native evolution reducer.
+    if(evolveVmax && selectedTurn!==null &&
+       selectedVmaxEvolutionTurn===null &&
+       !pending&&state.turn===29&&state.activePlayer===OPPONENT_SEAT&&
+       owner.active.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE'&&
+       owner.active.pokemonPlayedTurn!==state.turn){
+      const index=owner.hand.cards.findIndex(c=>
+        c.fullName==='Shadow Rider Calyrex VMAX CRE');
+      if(index>=0){
+        selectedVmaxEvolutionTurn=state.turn;
+        audit.selectedNativeVmaxEvolutionRoot++;
+        audit.vmaxEvolutionReceipts.push({
+          globalTurn:state.turn,ownerHandIndex:index,
+          genuinePrinting:owner.hand.cards[index].fullName,
+          ownActiveBefore:owner.active.getPokemonCard().fullName,
+          attachedPsychicEnergyBefore:owner.active.energies.cards.filter(
+            c=>c.name==='Psychic Energy').length,
+          selectedNativeAction:'PlayCardAction',
+          selectedNativeTarget:'owner Active Spot'
+        });
+        return new PlayCardAction(owner.id,index,{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:SlotType.ACTIVE,index:0
         });
       }
     }
@@ -206,8 +237,10 @@ function runArm(arm,cards){
     const execute=()=>{
       const unchanged=()=>withSameTargetAttachEnergySelection(
         ()=>runMatch(request)).result;
-      if(arm!=='guzma')return unchanged();
-      const treated=withRank1HeldGuzmaCounterplay(unchanged);
+      if(arm!=='guzma'&&arm!=='guzma+vmax')return unchanged();
+      const treated=withRank1HeldGuzmaCounterplay(unchanged,{
+        evolveVmax:arm==='guzma+vmax'
+      });
       tacticalAudit=treated.audit;
       return treated.result;
     };
@@ -283,9 +316,13 @@ function run(){
   try{
     process.env.AGENT8_ACTOR_QUICK_BALL_DEV='false';
     process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV='false';
-    const registered=['control','guzma','control-repeat'];
+    const includeVmax=process.env.AGENT2_INCLUDE_VMAX_ABCA==='true';
+    const registered=includeVmax?
+      ['control','guzma','guzma+vmax','control-repeat']:
+      ['control','guzma','control-repeat'];
     const arms=registered.map(arm=>runArm(arm,cards));
-    const [a,b,again]=arms;
+    const a=arms[0],b=arms[1],again=arms[arms.length-1];
+    const withVmax=includeVmax?arms[2]:null;
     const valid=arms.every(x=>x.status!=='native-error'&&
       x.fullDeal===ORIGINAL_FULL_DEAL&&
       x.sourceDeal===ORIGINAL_SOURCE_DEAL);
@@ -306,6 +343,9 @@ function run(){
         nativeBothGuzmaPromptChoices:
           b.tacticalAudit?.nativeOpponentSnorlaxGustPromptChoices>0&&
           b.tacticalAudit?.nativeSelfShadowRiderSwitchPromptChoices>0,
+        optionalVmaxNativeEvolutionAccepted:includeVmax?
+          withVmax?.tacticalAudit?.selectedNativeVmaxEvolutionRoot>0:
+          null,
         competitiveQualifiedGames:0
       },
       arms,
@@ -326,7 +366,9 @@ if(require.main===module){
     !evidence.controls.exactOriginalPhysicalOpeningAllArms||
     !evidence.controls.repeatedControlExactRootLedger||
     !evidence.controls.actualOriginalGuzmaNativeRoot||
-    !evidence.controls.nativeBothGuzmaPromptChoices)
+    !evidence.controls.nativeBothGuzmaPromptChoices||
+    (process.env.AGENT2_INCLUDE_VMAX_ABCA==='true'&&
+      !evidence.controls.optionalVmaxNativeEvolutionAccepted))
     process.exitCode=1;
 }
 module.exports={VERSION,run,withRank1HeldGuzmaCounterplay};
