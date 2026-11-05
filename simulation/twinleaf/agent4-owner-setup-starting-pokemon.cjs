@@ -5,7 +5,8 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent4-owner-setup-starting-pokemon-v2-single-basic-bonus-decline';
+const VERSION='agent4-owner-setup-starting-pokemon-v3-native-settlement';
+const SETTLEMENT_CODE='OWNER_SETUP_STARTING_UNSETTLED';
 const PHASE_SETUP=1;
 const MESSAGE='CHOOSE_STARTING_POKEMONS';
 
@@ -90,6 +91,8 @@ function withOwnerStartingPokemon(run,deps={}){
   const audit={
     version:VERSION,stores:0,
     selected:0,accepted:0,rejected:0,
+    returnedWithoutThrow:0,settled:0,unsettled:0,
+    physicalVerificationFailed:0,
     selectedInitial:0,selectedBonusDecline:0,
     acceptedInitial:0,acceptedBonusDecline:0,
     physicallyPlacedActiveConfirmed:0,
@@ -145,11 +148,11 @@ function withOwnerStartingPokemon(run,deps={}){
     const chosen=initial?choice.handIndices[0]:null;
     if(initial)assert.ok(eligible.some(o=>o.index===chosen));
     const physical=initial?cards[chosen]:null;
-    const action=new ResolvePromptAction(prompt.id,
-      initial?[physical]:[]);
+    const answer=initial?[physical]:[];
+    const action=new ResolvePromptAction(prompt.id,answer);
     validate(state,action);
     selected.set(action,{
-      seat,initial,physical,
+      seat,initial,physical,prompt,answer,
       beforeHand:bonus?[...owner.hand.cards]:null,
       beforeActive:bonus?[...owner.active.cards]:null,
       beforeBench:bonus?owner.bench.map(slot=>[...slot.cards]):null
@@ -177,17 +180,40 @@ function withOwnerStartingPokemon(run,deps={}){
     }
     const saved=this===live?selected.get(action):null;
     if(!saved)return oldDispatch.value.apply(this,[action,...args]);
+    const genuinelyPending=saved.prompt.result===undefined&&
+      this.state.prompts?.includes(saved.prompt)===true;
+    let result;
     try{
-      const result=oldDispatch.value.apply(this,[action,...args]);
-      audit.accepted++;
-      const owner=this.state.players[saved.seat];
+      result=oldDispatch.value.apply(this,[action,...args]);
+    }catch(error){
+      audit.rejected++;
+      throw error;
+    }
+    audit.returnedWithoutThrow++;
+    // Native Store can silently return unchanged on a missing prompt, and
+    // a min=0 Bench decline intentionally changes no physical board slots.
+    // Require the exact originally offered prompt to resolve, including if
+    // the reducer removes the prompt object from the visible collection.
+    if(!genuinelyPending||
+        !Array.isArray(saved.prompt.result)||
+        !sameCards(saved.prompt.result,saved.answer)){
+      audit.unsettled++;
+      const error=new Error(
+        'Owner starting Pokémon Store returned without resolving its prompt');
+      error.code=SETTLEMENT_CODE;
+      throw error;
+    }
+    audit.settled++;
+    const owner=this.state.players[saved.seat];
+    try{
       if(saved.initial){
-        audit.acceptedInitial++;
         if(owner.active.cards.includes(saved.physical))
           audit.physicallyPlacedActiveConfirmed++;
-        else audit.physicallyPlacedActiveMissing++;
+        else{
+          audit.physicallyPlacedActiveMissing++;
+          assert.fail('Native setup omitted selected physical Active Pokémon');
+        }
       }else{
-        audit.acceptedBonusDecline++;
         // The last setup prompt may immediately begin the first turn and
         // legitimately append a drawn card. Every preexisting owner-hand
         // card must still be present in the same relative order.
@@ -204,11 +230,14 @@ function withOwnerStartingPokemon(run,deps={}){
             'Bonus Bench decline unexpectedly changed Bench');
         audit.bonusDeclinePhysicalZonesPreserved++;
       }
-      return result;
     }catch(error){
-      audit.rejected++;
+      audit.physicalVerificationFailed++;
       throw error;
     }
+    audit.accepted++;
+    if(saved.initial)audit.acceptedInitial++;
+    else audit.acceptedBonusDecline++;
+    return result;
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
     ...oldBot,value:decode
@@ -231,5 +260,5 @@ function withOwnerStartingPokemon(run,deps={}){
   }
 }
 
-module.exports={VERSION,MESSAGE,PHASE_SETUP,chooseOwnerStartingPokemon,
+module.exports={VERSION,MESSAGE,PHASE_SETUP,SETTLEMENT_CODE,chooseOwnerStartingPokemon,
   chooseOwnerBonusBench,withOwnerStartingPokemon};
