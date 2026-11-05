@@ -25,6 +25,7 @@ function bruteToy(counts){
   const peekSampleCount=choose(5,4);
   assert.equal(peekSampleCount,5n);
   let denominator=0n,strict=0n,broader=0n,extraScaled=0n;
+  let broaderExtraScaled=0n;
   for(const hand of selectPositions(positions,2)){
     if(!hand.some(j=>physical[j]===0))continue;
     const pool=positions.filter(j=>!hand.includes(j));
@@ -39,25 +40,32 @@ function bruteToy(counts){
           (held.includes(2)&&deck.includes(1));
         const strictResource=deck.includes(3)&&deck.includes(4);
         if(strictResource&&direct)strict++;
-        if((held.includes(3)||(direct&&deck.includes(3)))&&
-          (held.includes(4)||(direct&&deck.includes(4))))broader++;
-        if(!strictResource||direct||!deck.includes(1))continue;
+        const readyBroad=(held.includes(3)||(direct&&deck.includes(3)))&&
+          (held.includes(4)||(direct&&deck.includes(4)));
+        if(readyBroad)broader++;
         const mails=held.filter(c=>c===5).length;
         const peeks=selectPositions(deckIndices,4);
         assert.equal(peeks.length,5);
         for(let combination=0;combination<25;combination++){
-          let code=combination,found=false;
+          let code=combination,strictHit=false,broadHit=false;
+          const possibleBroad=(held.includes(3)||deck.includes(3))&&
+            (held.includes(4)||deck.includes(4));
           for(let i=0;i<mails;i++){
             const top4=peeks[code%5].map(j=>physical[j]);
             code=Math.floor(code/5);
-            if(top4.some(c=>c===1||c===2)){found=true;break;}
+            const connector=deck.includes(1)&&
+              top4.some(c=>c===1||c===2);
+            if(connector)strictHit=true;
+            if(connector || (held.includes(4)&&!held.includes(3)&&
+                top4.includes(3)))broadHit=true;
           }
-          if(found)extraScaled++;
+          if(strictResource&&!direct&&strictHit)extraScaled++;
+          if(!readyBroad&&possibleBroad&&broadHit)broaderExtraScaled++;
         }
       }
     }
   }
-  return {denominator,strict,broader,extraScaled};
+  return {denominator,strict,broader,extraScaled,broaderExtraScaled};
 }
 
 assert.equal(choose(60,7),386206920n);
@@ -69,8 +77,11 @@ assert.equal(exact.denominator,brute.denominator);
 assert.equal(exact.direct*scale,brute.strict*scale);
 assert.equal(exact.broader*scale,brute.broader*scale);
 assert.equal(exact.extraScaled,brute.extraScaled);
+assert.equal(exact.broaderExtraScaled,brute.broaderExtraScaled);
 assert.equal(exact.favorableScaled,brute.strict*scale+brute.extraScaled);
 
+const {singleMailAccess}=require(
+  '../scripts/agent11-thorns-single-trainers-mail.cjs');
 const field=JSON.parse(fs.readFileSync(path.resolve(__dirname,
   '../results/aichi-2026/full-decklists.json'),'utf8'));
 const expected=[
@@ -97,6 +108,14 @@ for(const [rank,dce,mail,direct,broad,increment,extended] of expected){
     'source rank '+rank+': '+actual+' vs '+expect);
   assert.ok(result.broaderWithMailProbability>
     result.broaderProbability);
+  const prior=singleMailAccess(dce,mail);
+  assert.equal(result.broader*prior.denominator,
+    prior.base*result.denominator);
+  assert.equal(
+    (result.broader*(result.scaledDenominator/result.denominator)+
+      result.broaderExtraScaled)*prior.allHeldMailDenominator,
+    prior.allHeldMailNumerator*result.scaledDenominator);
+  assert.ok(result.completeBroaderWithMailProbability>=extended);
 }
 
-console.log('Agent11 Trainers Mail: all physical-toy and 3 authenticated source profiles passed');
+console.log('Agent11 Trainers Mail: physical toy and exact prior independent all-held-Mail equality PASS');
