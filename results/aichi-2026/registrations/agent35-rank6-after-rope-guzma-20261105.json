@@ -1,0 +1,50 @@
+{
+  "schema": "agent35-original6v9-after-rope-source-guzma-retrospective-v1",
+  "registeredAtUtc": "2026-11-05T04:57:00Z",
+  "sourceRankPair": [
+    6,
+    9
+  ],
+  "originalSourceRegistration": "agent7-historic-original6v9-opponent-escape-rope-after-stadium-v1",
+  "seed": 3858002039,
+  "requiredInitialFullPhysicalDealSha256": "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e",
+  "selectedPrelude": {
+    "rank6Stadium": {
+      "seat": 0,
+      "turn": 10,
+      "from": "Wondrous Labyrinth Prism Star TEU",
+      "to": "Thunder Mountain Prism Star LOT"
+    },
+    "rank9Counter": {
+      "seat": 1,
+      "turn": 11,
+      "card": "Escape Rope BST"
+    }
+  },
+  "thirdRoot": {
+    "ownerSeat": 0,
+    "turn": 12,
+    "originalAction": "PassTurnAction",
+    "card": "Guzma BUS",
+    "requiresSupporterUnused": true,
+    "requiresOwnerBenchFundedThorns": true,
+    "requiresOpponentBenchedUnown": true,
+    "proposedTargets": {
+      "ownBenchedPrinting": "Iron Thorns ex TWM",
+      "requiredEnergyPrintings": [
+        "Capture Energy RCL",
+        "Speed Lightning Energy RCL"
+      ],
+      "opponentBenchedPrinting": "Unown AOR"
+    }
+  },
+  "treatment": "replace exactly one actual rank6 Pass root with physically held Guzma Supporter; leave native prompt policy intact; examine resulting target and attack without forced prompt routing",
+  "arms": [
+    "selected-stadium-rope-baseline",
+    "selected-stadium-rope-source-guzma",
+    "selected-stadium-rope-baseline-repeat"
+  ],
+  "maxActions": 90,
+  "competitiveQualifiedGames": 0,
+  "interpretation": "Retrospective previously identified single native physical deal, no fresh independent win-rate trial. Native Store and its default prompt policy may fail, select another target, or never attack; preserve all outcomes."
+}
