@@ -36,7 +36,7 @@ const PLANS=Object.freeze([
  * @template T
  * @param {()=>T} next
  * @param {{correctNumericShuffle:boolean,joinedAttackLayer:Function,
- *   numericLayer?:(fn:Function)=>T}} opts
+ *   numericLayer?:(fn:Function)=>T,v14Layer?:Function}} opts
  * @returns {{result:T,audit:object}}
  */
 function withShuffleOnlyOverV14(next,opts){
@@ -44,8 +44,10 @@ function withShuffleOnlyOverV14(next,opts){
   assert.equal(typeof opts?.joinedAttackLayer,'function');
   assert.equal(typeof opts.correctNumericShuffle,'boolean');
   const numeric=opts.numericLayer??withNumericShuffleValidator;
+  const ownerBase=opts.v14Layer??withOwnerPokemonOverModalPrize;
   assert.equal(typeof numeric,'function');
-  const result=withOwnerPokemonOverModalPrize(
+  assert.equal(typeof ownerBase,'function');
+  const result=ownerBase(
     opts.correctNumericShuffle?()=>numeric(next):next,{
       joinedAttackLayer:opts.joinedAttackLayer
     });
