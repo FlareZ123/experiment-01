@@ -25,7 +25,7 @@ test('SFT required discard-all real hand is not a free draw-six',()=>{
   assert.equal(x.originalHand.length,4);
   assert.deepEqual(x.handCardsStrategicallyProtected,
     ['VS Seeker PHF','Quick Ball FST','Dark Patch ASR','Garbodor BKP']);
-  assert.match(x.abilityPayment,/entire four-card hand/);
+  assert.match(x.abilityPayment,/Discard all four current owner hand cards/);
   assert.match(x.importantLimitation,/no better-play assertion/);
 });
 
