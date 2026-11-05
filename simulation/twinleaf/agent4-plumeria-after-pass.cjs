@@ -164,9 +164,17 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
   const adoptActorSelectedPlumeria=deps.adoptActorSelectedPlumeria===true;
   const largeHandOptIn=deps.largeHandOptIn===true||
     process.env.AGENT38_PLUMERIA_LARGE_HAND_DEV==='true';
-  const selectHand=deps.selectHand??((state,seat)=>
+  const originalSelectHand=(state,seat)=>
     selectPlumeriaHandDiscards(state,seat,{
-      allowLargeHand:largeHandOptIn,observe}));
+      allowLargeHand:largeHandOptIn,observe});
+  const preserveMailPaymentOptIn=
+    process.env.AGENT7_PLUMERIA_PRESERVE_MAIL_DEV==='true';
+  const selectHand=deps.selectHand??((state,seat)=>
+    preserveMailPaymentOptIn?
+      require('./agent7-plumeria-preserve-mail-payment.cjs')
+        .choosePreserveMailPhysicalPair(state,seat,
+          ()=>originalSelectHand(state,seat),observe):
+      originalSelectHand(state,seat));
   const selectTarget=deps.selectTarget??selectPlumeriaTarget;
   const selectEnergy=deps.selectEnergy??selectPlumeriaEnergy;
   const beforeDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
@@ -186,6 +194,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     genericPromptFallbacks:0,delegatedPromptDispatches:0,
     delegatedSettledEnergyDiscards:0,
     largeHandOptIn,largeHandNativeSelections:0,
+    preserveMailPaymentOptIn,
     adoptActorSelectedPlumeria,adoptedActorRootActions:0,
     bySeat:{0:{accepted:0,settled:0},1:{accepted:0,settled:0}},
     log:[],actorOnlyAddedActions:true,
