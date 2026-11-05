@@ -8,6 +8,10 @@ const {
   pairedRankLogEValue, assessBalancedPairRejection
 } = require('../simulation/evaluation/agent10-995-balanced-pair-early-rejection.cjs');
 
+// The existing manual statistics CI invokes this file directly. Include the
+// dependence-robust sibling regressions without adding another workflow.
+require('./agent10-995-dependence-robust-pair-rejection.test.cjs');
+
 const FIXED = 'one-frozen-60-and-policy';
 
 /**
