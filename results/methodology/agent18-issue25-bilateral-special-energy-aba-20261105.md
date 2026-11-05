@@ -28,3 +28,18 @@ Original eight rank6/rank11 source and contender arms are frozen in [Agent1's v6
 The first run did not print detailed new failure stages. A separate read-only diagnostic revision adds native abort failure stage, ordinal, phase, actual responding seat and prompt type to the A/B packet, without changing any source policy or starting deal. Those supplementary results must be independently confirmed before attributing why the new errors arose.
 
 These native outcomes cannot qualify as game wins. The eight original streams are retrospective, cover only ranks6/11, and expose many opponent-policy limitations. The research still lacks original complete 60s for ranks23/25/28, full paper correctness, competent opponent replies, official match-clock treatment, an endorsed single fixed 60, and any demonstrated 99.5% full-field success. **Competitive games qualified: 0.**
+
+
+## Exact first new native error boundaries, matched AB replay
+
+An additive **read-only** diagnostic test captured actual Store/native failure-stage metadata without logging private exception messages. [Compiled CI 41963001974](https://github.com/FlareZ123/experiment-01/actions/runs/41963001974), head `93bbddfaaa26440e8d3270ad1a5214b85f3c1903`, succeeded and preserved **all eight exact initial source and full-deal matched pairs**. It recorded:
+
+| Registered source / contender | Baseline first failure | Shared Special root first failure | Native actor of new prompt |
+| --- | --- | --- | --- |
+| rank6 source seatB / New Moon | none (cap48) | **bot-decoder** failure at accepted root ordinal 46, global turn9, phase2 `ChooseCardsPrompt` | **source seatB (1)** |
+| rank11 source seatB / champion | existing bot-decoder failure at root25, turn5, phase3 `ChoosePrizePrompt` | **identical** failure at root25, turn5, phase3 `ChoosePrizePrompt` | candidate seatA (0), unchanged |
+| rank11 source seatB / New Moon | none (cap48) | **bot-decoder** failure at root14, turn1, phase2 `ChooseCardsPrompt` | **candidate seatA (0)** |
+
+Both *new* failures are **unhandled native prompt decision boundaries**, with the potentially sensitive decoder exception message redacted. The first follows the rank6 original's accepted `Capture Energy` PlayCard root45 at turn9; a causal connection to Capture Energy's printed on-attachment search is plausible and warrants native card-specific prompt inspection, but **not yet independently verified**. The second is on the **candidate's** turn1 and actor seatA, demonstrating that applying the shared root symmetrically can alter the candidate action channel and halt before any meaningful rank11 original response. The existing rank11/champion error is unchanged. None of these three should be classified as a paper loss or evidence of a deck's relative match strength.
+
+The exact failure stage is `bot-decoder`, rather than a demonstrated `Store.dispatch` refusal for an illegal Energy target. The correct next gate is owner-information-safe handling of the actual selected `ChooseCardsPrompt` source effect, plus an independent accepted Store physical target/attachment sidecar. An additive native target-witness test has been committed at `tests/agent18-issue25-v6-energy-target-custody.native.test.cjs` and was dispatched as [CI run 41963741155](https://github.com/FlareZ123/experiment-01/actions/runs/41963741155), head `b5def082`; it does not change the two-seat decision policy. The target-sidecar result is still pending at this checkpoint.
