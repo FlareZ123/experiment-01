@@ -36,6 +36,7 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
   const audit={
     version:VERSION,printedEntrances:0,shufflePromptsOffered:0,
     shuffleCallbacksCompleted:0,shuffleCallbacksFailed:0,
+    validShuffleCallbacksCompleted:0,invalidNativeShufflePermutations:0,
     bySeat:{0:0,1:0},nativeTrialAttributionAvailable:
       typeof deps.getCurrentTrialId==='function',
     offeredTrialSeats:[],completedTrialSeats:[],
@@ -68,10 +69,17 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
                 assert.equal(deps.getCurrentTrialId(),id,
                   'Native Wonder Tag shuffle callback crossed registered trials');
               resolved=true;
+              const order=args[0];
+              const deckSize=owner.deck.cards.length;
+              const validOrder=Array.isArray(order)&&order.length===deckSize&&
+                order.every(n=>Number.isSafeInteger(n)&&n>=0&&n<deckSize)&&
+                new Set(order).size===deckSize;
+              if(!validOrder)audit.invalidNativeShufflePermutations++;
               let result;
               try{result=callback(...args);}
               catch(e){audit.shuffleCallbacksFailed++;throw e;}
               audit.shuffleCallbacksCompleted++;
+              if(validOrder)audit.validShuffleCallbacksCompleted++;
               audit.bySeat[seat]++;
               audit.completedTrialSeats.push({id,seat});
               return result;
