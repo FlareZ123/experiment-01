@@ -1,0 +1,121 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {withOwnerWonderTagPrompts}=require('../simulation/twinleaf/agent8-owner-wondertag-prompt.cjs');
+
+const GameMessage={WANT_TO_USE_ABILITY:'use ability',CHOOSE_CARD_TO_HAND:'choose supporter'};
+const types={SuperType:{TRAINER:1},TrainerType:{SUPPORTER:2}};
+class ConfirmPrompt{
+  constructor(playerId,message){this.playerId=playerId;this.message=message;this.id=1;}
+  validate(result){return typeof result==='boolean';}
+}
+class ChooseCardsPrompt{
+  constructor(owner){
+    this.playerId=owner.id;
+    this.message=GameMessage.CHOOSE_CARD_TO_HAND;
+    this.cards=owner.deck;
+    this.filter={superType:1,trainerType:2};
+    this.options={min:0,max:1,allowCancel:false};
+    this.id=2;
+  }
+  validate(result){return Array.isArray(result)&&result.length<=1&&
+    result.every(c=>this.cards.cards.includes(c)&&c.superType===1&&c.trainerType===2);}
+}
+class PlayPokemonEffect{
+  constructor(player,pokemonCard){this.player=player;this.pokemonCard=pokemonCard;}
+}
+class ResolvePromptAction{
+  constructor(id,result){this.id=id;this.result=result;}
+}
+class TapuLeleGX{
+  constructor(){this.fullName='Tapu Lele-GX GRI';}
+  reduceEffect(store,state,effect){
+    if(!(effect instanceof PlayPokemonEffect)||effect.pokemonCard!==this)return state;
+    const owner=effect.player;
+    return store.prompt(state,new ConfirmPrompt(owner.id,GameMessage.WANT_TO_USE_ABILITY),
+      yes=>yes?store.prompt(state,new ChooseCardsPrompt(owner),selected=>{
+        for(const c of selected)owner.deck.cards.splice(owner.deck.cards.indexOf(c),1);
+        owner.hand.push(...selected);
+      }):state);
+  }
+}
+class FakeStore{
+  constructor(state){this.state=state;}
+  prompt(state,p,callback){p.callback=callback;state.prompts.push(p);return state;}
+  dispatch(action){
+    const p=this.state.prompts.find(x=>x.id===action.id&&x.result===undefined);
+    if(!p||!p.validate(action.result))throw Error('invalid prompt');
+    p.result=action.result;p.callback(action.result);
+    return this.state;
+  }
+}
+class FakeAi{
+  constructor(id){this.client={id};}
+  decodeNextAction(){return {kind:'fallback'};}
+}
+const dependencies={SimpleTacticsAi:FakeAi,Store:FakeStore,TapuLeleGX,
+  PlayPokemonEffect,ConfirmPrompt,ChooseCardsPrompt,ResolvePromptAction,
+  GameMessage,types,assertValidPromptAction:(state,action)=>{
+    const p=state.prompts.find(p=>p.id===action.id&&p.result===undefined);
+    assert.ok(p&&p.validate(action.result));
+  }};
+/** @param {number} seat @param {object[]} deckCards */
+function fixture(seat,deckCards){
+  const players=[0,1].map(id=>({id,deck:{cards:[]},hand:[]}));
+  players[seat].deck.cards.push(...deckCards);
+  const state={players,prompts:[]};
+  const store=new FakeStore(state),ai=new FakeAi(seat),lele=new TapuLeleGX();
+  return {players,state,store,ai,lele};
+}
+function supporter(name){return {fullName:name,superType:1,trainerType:2};}
+for(const seat of [0,1]){
+  test('seat '+seat+' confirms genuine Wonder Tag and chooses own Supporter',()=>{
+    const other={fullName:'Basic Grass Energy',superType:3};
+    const wanted=supporter('Guzma & Hala');
+    const f=fixture(seat,[other,wanted]);
+    const originalBot=FakeAi.prototype.decodeNextAction;
+    const originalLele=TapuLeleGX.prototype.reduceEffect;
+    const {audit}=withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(f.store,f.state,
+        new PlayPokemonEffect(f.players[seat],f.lele));
+      const a=f.ai.decodeNextAction(f.state);
+      assert.ok(a instanceof ResolvePromptAction);
+      assert.equal(a.result,true);
+      f.store.dispatch(a);
+      const b=f.ai.decodeNextAction(f.state);
+      assert.ok(b instanceof ResolvePromptAction);
+      assert.deepEqual(b.result,[wanted]);
+      f.store.dispatch(b);
+      assert.deepEqual(f.players[seat].hand,[wanted]);
+      assert.equal(f.players[1-seat].deck.cards.length,0);
+    },dependencies);
+    assert.equal(audit.confirmed,1);
+    assert.equal(audit.selectedSupporters,1);
+    assert.equal(audit.nativeAccepted,2);
+    assert.equal(audit.bySeat[seat],2);
+    assert.equal(FakeAi.prototype.decodeNextAction,originalBot);
+    assert.equal(TapuLeleGX.prototype.reduceEffect,originalLele);
+  });
+  test('seat '+seat+' accepts empty legal Supporter search',()=>{
+    const f=fixture(seat,[{fullName:'Energy',superType:3}]);
+    const {audit}=withOwnerWonderTagPrompts(()=>{
+      f.lele.reduceEffect(f.store,f.state,
+        new PlayPokemonEffect(f.players[seat],f.lele));
+      f.store.dispatch(f.ai.decodeNextAction(f.state));
+      const b=f.ai.decodeNextAction(f.state);
+      assert.deepEqual(b.result,[]);
+      f.store.dispatch(b);
+    },dependencies);
+    assert.equal(audit.emptySearches,1);
+    assert.equal(audit.selectedSupporters,0);
+  });
+}
+test('unrelated ConfirmPrompt delegates and never accesses hidden deck',()=>{
+  const f=fixture(0,[supporter('Arven')]);
+  f.state.prompts.push(new ConfirmPrompt(0,GameMessage.WANT_TO_USE_ABILITY));
+  const {audit}=withOwnerWonderTagPrompts(()=>{
+    assert.deepEqual(f.ai.decodeNextAction(f.state),{kind:'fallback'});
+  },dependencies);
+  assert.equal(audit.unrelatedDelegated,1);
+  assert.equal(audit.confirmed,0);
+});
