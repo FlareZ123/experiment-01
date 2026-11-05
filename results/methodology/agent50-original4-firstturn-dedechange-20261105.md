@@ -20,6 +20,17 @@
 | 1 | 20261129 | **Yes**, physical owner card | **Yes**, true owner ConfirmPrompt | **6** | Owner next root fail-closed |
 | 1 | 20261132 | **No**, before owner's turn | No | 0 | Reference seat0 setup `SelectPrompt` fail-closed |
 
+**Independent source opening custody across CI generations:** Re-opened both independently rehashed ZIPs: the prior [32-pair actual native Store original-rank4 setup corpus](https://github.com/FlareZ123/experiment-01/actions/runs/41884288485/artifacts/13349769348) and this [four-arm corrected Dedechange native replay](https://github.com/FlareZ123/experiment-01/actions/runs/42103946407/artifacts/13451955197). All **4/4 ordered seven-card source pre-setup hands matched exactly across runs**, despite the later controlled coin choice. The four original owner-hand SHA256 fingerprints in original seat/seed order are:
+
+| Source seat / seed | Actual owner ordered pre-setup hand SHA256 |
+| --- | --- |
+| 0 / 20261123 | `194f0baf8d56af16de20b6a37a0ad4ae53c0f4ecb9422ebf1c27a424bde4758d` |
+| 1 / 20261125 | `82bef5025f3f8f20cf946db4d636a88d3973dfeb8c548e5802513ad2a8b1e103` |
+| 1 / 20261129 | `6bd75ab956ac5f4f7949f01879bfbf2a52c3b99ab15e61ac8e776da4af81425d` |
+| 1 / 20261132 | `44a0b1b598f583b97af5afd2a2b297c06e2019ae4e285c9b8f2d017eb56e3711` |
+
+This cross-run parity is a source-owner **pre-choice** shuffle-fidelity check only: the post-choice physical Bench and subsequent turn draws intentionally differ, and no control-game replay with alternative in-turn Supporter sequencing exists.
+
 **Three genuine native in-turn positive receipts.** Each confirms the physical printed Dedenne object moved from the original source hand to an empty source Bench slot, source owner `WANT_TO_USE_ABILITY` ConfirmPrompt settled **true**, zero preexisting source discard cards, original deck reduced **46→40**, and source hand refilled to **6 cards**. No old hand card survived in hand. The 6 new cards are the actual native deck draw, without deck-order access granted to the decision policy. All three then halt safely at the next unsupported *source* action in turn1 phase2. The fourth source-root opportunity was never reached because the reference owner had a different unsupported setup SelectPrompt; its absence is retained in the denominator, without inventing a Dede failure or payoff.
 
 **Critical Prism Star payment nuance:** In seed20261125, pre-Ability owner hand contained 6 cards besides the Benched Dedenne, including **Ditto Prism Star LOT**. Five went to owner discard and the Ditto Prism Star left hand through its own replacement rule, redirecting to the **Lost Zone**. The original overly strict settlement checker counted **2/3** complete physical discards because it incorrectly required every hand card to appear in discard. The normal Prism Star printed rule states that a Prism Star card that would enter discard instead enters Lost Zone. The earlier audit still explicitly certified the **third** original physical six-card draw and settled owner confirmation. The physical checker was corrected to record original-hand transit via `owner.lostzone.cards` and require source physical destination conservation across both zones. This is a **measurement correction only**, no change in played Dedenne or registered seeds.
