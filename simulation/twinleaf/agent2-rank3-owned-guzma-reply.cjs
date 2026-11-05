@@ -11,14 +11,15 @@ const native=p=>require(path.resolve(__dirname,
  * Reads source own hand, public boards and the owner's pending prompts.
  * @template T
  * @param {()=>T} work
+ * @param {object} [deps] Native dependency injection for pure regression tests.
  * @returns {{result:T,audit:object}}
  */
-function withRank3SourceGuzmaReply(work){
-  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+function withRank3SourceGuzmaReply(work,deps={}){
+  const {SimpleTacticsAi}=deps.ai??native('simple-bot/simple-tactics-ai');
   const {PlayCardAction,PlayerType,SlotType}=
-    native('game/store/actions/play-card-action');
+    deps.play??native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
-    native('game/store/actions/resolve-prompt-action');
+    deps.prompt??native('game/store/actions/resolve-prompt-action');
   const previous=SimpleTacticsAi.prototype.decodeNextAction;
   const audit={roots:0,opposingChoices:0,ownChoices:0,receipts:[]};
   let selected=false;
@@ -27,7 +28,7 @@ function withRank3SourceGuzmaReply(work){
     const pending=state.prompts.find(p=>p.result===undefined);
     if(selected&&state.turn===16&&pending?.constructor.name==='ChoosePokemonPrompt'&&
        pending.playerId===owner.id){
-      const eligible=nativeSinglePokemonChoices(state,pending);
+      const eligible=(deps.choices??nativeSinglePokemonChoices)(state,pending);
       const opp=eligible.filter(c=>c.seat===1&&c.zone==='bench');
       const own=eligible.filter(c=>c.seat===0&&c.zone==='bench');
       let chosen=null,side='';
