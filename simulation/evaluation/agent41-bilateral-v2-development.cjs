@@ -1580,10 +1580,18 @@ function runDevelopment({
         // card and genuine top-four prompts determine actual settlement.
         let ownerMailAudit=null;
         const withOptionalOwnerMail=()=>{
-          if(!actorOwnerMailAfterPass)return execute();
+          if(!actorOwnerMailAfterPass||
+              (actorOwnerMailAfterPassScope&&
+                trial.id!==actorOwnerMailAfterPassScope.trialId))
+            return execute();
+          const sourceSeat=1-(trial.candidateSlot==='A'?0:1);
+          const optionalScope=actorOwnerMailAfterPassScope?{
+            allowRoot:view=>view.actorSeat===sourceSeat&&
+              view.globalTurn===actorOwnerMailAfterPassScope.globalTurn
+          }:{};
           const wrapped=require('../twinleaf/agent9-native-owner-mail-after-pass.cjs')
             .withOwnerMailAfterPass(execute,
-              registeredNativeSeatDecks(trial,prepared));
+              registeredNativeSeatDecks(trial,prepared),optionalScope);
           ownerMailAudit=wrapped.audit;
           return wrapped.result;
         };
