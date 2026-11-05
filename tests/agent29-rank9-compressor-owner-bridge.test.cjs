@@ -135,14 +135,17 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     constructor(id,cards){this.id=id;this.cards=cards;}
   }
   class ChooseCardsPrompt {
-    constructor(deck){
+    constructor(deck,sourceCard){
       this.id=55;this.playerId=101;this.message='CHOOSE_CARD_TO_DISCARD';
-      this.cards=deck;this.result=undefined;
+      this.cards=deck;this.sourceCard=sourceCard;this.result=undefined;
     }
     validate(cards){return cards.length>0&&cards.length<=3;}
   }
   class ShuffleDeckPrompt {
-    constructor(){this.id=56;this.playerId=101;this.result=undefined;}
+    constructor(sourceCard){
+      this.id=56;this.playerId=101;this.sourceCard=sourceCard;
+      this.result=undefined;
+    }
   }
   class SimpleTacticsAi {
     constructor(){this.client={id:101};}
@@ -158,8 +161,9 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     dispatch(action){
       const state=this.state,owner=state.players[0];
       if(action instanceof PlayCardAction){
-        owner.hand.cards.splice(action.handIndex,1);
-        state.prompts.push(new ChooseCardsPrompt(owner.deck));
+        const played=owner.hand.cards.splice(action.handIndex,1)[0];
+        this.playedCompressor=played;
+        state.prompts.push(new ChooseCardsPrompt(owner.deck,played));
       }
       if(action instanceof ResolvePromptAction){
         if(action.id===55){
@@ -170,7 +174,7 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
             owner.discard.cards.push(card);
           }
           state.prompts.length=0;
-          state.prompts.push(new ShuffleDeckPrompt());
+          state.prompts.push(new ShuffleDeckPrompt(this.playedCompressor));
         }else if(action.id===56){
           assert.deepEqual(action.cards,[0]);
           state.prompts.length=0;
@@ -217,4 +221,29 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
   assert.equal(executed.audit.nativeSettledShuffles,1);
   assert.equal(executed.audit.events[0].shufflePromptResolved,true);
   assert.equal(owner.discard.cards.length,2);
+});
+
+test('when native allows zero, selector still pays printed Item minimum',()=>{
+  const deck=[
+    {fullName:'Mega Absol ex MEG'},
+    {fullName:'Battle VIP Pass FST'},
+    {fullName:'Guzma BUS'}
+  ];
+  const owner={deck:{cards:deck},discard:{cards:[]}};
+  const prompt={cards:owner.deck,options:{min:0,max:3}};
+  const selected=chooseRank9CompressorDiscard(
+    prompt,owner,{globalTurn:20});
+  assert.deepEqual(selected,[deck[1]],
+    'use source-dead first-turn-only card when available');
+  assert.equal(selected.length,1);
+  assert.deepEqual(chooseRank9CompressorDiscard(prompt,owner),[deck[0]],
+    'without late-turn dead-card premise choose a physical deck card');
+  assert.equal(deck.length,3);
+});
+
+test('owner deck selector retains positive count under deck Energy exhaustion',()=>{
+  const deck=[{fullName:'Trainers\' Mail ROS'}];
+  const owner={deck:{cards:deck},discard:{cards:[]}};
+  assert.deepEqual(chooseRank9CompressorDiscard({cards:owner.deck},owner,
+    {globalTurn:20}),[deck[0]]);
 });
