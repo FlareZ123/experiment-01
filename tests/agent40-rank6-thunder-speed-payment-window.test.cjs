@@ -106,6 +106,9 @@ test('toy brute physical-card permutations independently reproduce both path pro
   };
   assert.deepEqual(toy.speed, fraction(rows.speed.favorable, countValid(7)));
   assert.deepEqual(toy.noSpeed, fraction(rows.noSpeed.favorable, countValid(5)));
+  assert.deepEqual(toy.speed, { numerator: 11n, denominator: 120n });
+  assert.deepEqual(toy.noSpeed, { numerator: 3n, denominator: 160n });
+  assert.deepEqual(toy.union, { numerator: 53n, denominator: 480n });
 });
 
 test('no Thunder prevents DCE-only one-attachment route and extra-single branch', () => {
