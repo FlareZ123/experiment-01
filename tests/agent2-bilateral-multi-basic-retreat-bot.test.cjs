@@ -68,3 +68,19 @@ test('different concealed opponent hand does not affect selected action',()=>{
   assert.equal(a.clientId,b.clientId);
   assert.equal(a.benchIndex,b.benchIndex);
 });
+
+test('first-turn Pass is observable only with diagnostic opt-in and remains Pass',()=>{
+  const state={turn:1,activePlayer:0,players:[{id:'zero'},
+    {id:'one'}],prompts:[]};
+  const observed=[];
+  const result=withBilateralMultiBasicPaidRetreat(
+    ()=>new SimpleTacticsAi().decodeNextAction(state),{
+      SimpleTacticsAi,RetreatAction,catalog,observe:view,
+      observeFirstTurnPassOnly:true,
+      choose:v=>{observed.push(v.globalTurn);return allIntent;}
+    });
+  assert.equal(result.result.constructor.name,'PassTurnAction');
+  assert.deepEqual(observed,[33]);
+  assert.deepEqual(result.audit.originalPassesBySeat,[1,0]);
+  assert.deepEqual(result.audit.chosenTypedRetreatsBySeat,[0,0]);
+});
