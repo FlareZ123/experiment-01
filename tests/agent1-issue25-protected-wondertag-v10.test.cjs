@@ -66,6 +66,12 @@ function fixture(label){
           interceptedSupporterSearches:2,zeroSelections:0,
           nonzeroNativeSelections:2,repairedShuffles:0
         },
+        ownerWonderTagNativeShuffleCompletion:{
+          version:'native-shuffle',printedEntrances:2,
+          shufflePromptsOffered:2,shuffleCallbacksCompleted:2,
+          shuffleCallbacksFailed:0,outstandingShuffleCallbacks:0,
+          bySeat:{0:2,1:0}
+        },
         registeredWonderTagActorWitness:{
           version:'witness-v1',observedSearchDecisionCount:2,
           decisions:[
@@ -93,6 +99,7 @@ test('owner Wonder Tag and printed attack wrapper preserve execution result, ful
       attack:wrap('attack',{printedAttacks:3}),
       wonder:wrap('wonder',{confirmed:1}),
       shuffle:wrap('shuffle',{zeroSelections:0}),
+      nativeShuffle:wrap('native-shuffle',{shuffleCallbacksCompleted:1}),
       witnessFactory:()=>({
         run:work=>work(),
         selectSupporterIndex:()=>0,
@@ -100,13 +107,15 @@ test('owner Wonder Tag and printed attack wrapper preserve execution result, ful
       })
     });
   assert.deepEqual(sequence,[
-    'shuffle-start','wonder-start','attack-start','live-work',
-    'attack-end','wonder-end','shuffle-end'
+    'native-shuffle-start','shuffle-start','wonder-start',
+    'attack-start','live-work','attack-end','wonder-end',
+    'shuffle-end','native-shuffle-end'
   ]);
   assert.deepEqual(done.result,{trueResult:true});
   assert.equal(done.audit.printedAttacks,3);
   assert.equal(done.audit.sourceIndependentOwnerWonderTag.confirmed,1);
   assert.equal(done.audit.ownerWonderTagMandatoryZeroShuffle.zeroSelections,0);
+  assert.equal(done.audit.ownerWonderTagNativeShuffleCompletion.shuffleCallbacksCompleted,1);
   assert.equal(done.audit.competitiveGamesQualified,0);
 });
 
@@ -127,7 +136,7 @@ test('same exact 8 IDs and both owner prechoice physical 60 match without inferr
   assert.equal(report.registeredWonderTagActorWitness.settledRoleCensus.originalSourceSupporterTransfers,2);
   assert.equal(report.registeredWonderTagActorWitness.settledRoleCensus.contenderSearches,0);
   assert.equal(report.registeredWonderTagActorWitness.originalSourceEffectCertified,false);
-  assert.equal(report.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+  assert.equal(report.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,true);
   assert.equal(report.registeredWonderTagActorWitness.decisions[0].id,ids[6]);
   assert.equal(report.actualZeroSearchShuffleAudit.nonzeroNativeSelections,2);
   assert.equal(report.claimSingleExecutingChangeCertified,false);
@@ -289,4 +298,29 @@ test('both owner views must agree on actual first player and one registered requ
       .update('misregistered-request').digest('hex');
   assert.throws(()=>compareProtectedWonderTagV10(a,b),
     /Both owners must witness one genuine registered native request/);
+});
+
+test('native shuffled-card callback must actually settle before claiming printed search shuffle completion',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  const native=b.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  native.shuffleCallbacksCompleted=1;
+  native.outstandingShuffleCallbacks=1;
+  let r=compareProtectedWonderTagV10(a,b);
+  assert.equal(r.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
+  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+  native.shuffleCallbacksCompleted=2;
+  native.outstandingShuffleCallbacks=0;
+  native.bySeat={0:1,1:1};
+  r=compareProtectedWonderTagV10(a,b);
+  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+});
+
+test('native shuffled-card callback proof does not imply whole paper game qualification',()=>{
+  const r=compareProtectedWonderTagV10(fixture('control'),fixture('treatment'));
+  assert.equal(r.actualNativeShuffleCompletionAudit.shuffleCallbacksCompleted,2);
+  assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,true);
+  assert.equal(r.registeredWonderTagActorWitness.originalSourceEffectCertified,false);
+  assert.equal(r.originalSourceAttackAndOpponentReplyCertified,false);
+  assert.equal(r.competitiveGamesQualified,0);
 });
