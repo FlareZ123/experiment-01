@@ -31,6 +31,10 @@ Additional card-count crosscheck: 29 decks contain **238 Energy cards in total**
 
 **Decision relevance:** These three capabilities appear across broadly different original archetypes. A release that tests only a two-rank, simple-resource setup is not adequate evidence for all 32 opponents. The counts help prioritize *competent opponent-policy development*, while their combined overlap, exact play frequency, and incremental competitive strength remain unmeasured.
 
+## Actually executed source census
+
+The committed pure CJS implementation [`agent3-aichi-policy-capability-census.cjs`](../../simulation/evaluation/agent3-aichi-policy-capability-census.cjs) is source-independent and reads a passed, parsed original roster. On 5 November at 00:33:56 UTC, I actually evaluated that exact source blob `0d558849ea33588c8cb8451b76a8d50d320ee91f` directly in a JavaScript V8 isolate against actual original manifest blob `ae773f6201d7aa69d31914dbfee66f3fba692200`, obtaining all listed rank sets and exact totals above. This was a **real execution of the pure source census**, unlike the planned native replay; it did not need a simulator, Node, or mock card effects. An automated Node test-file write was blocked by platform safety checks, so no Node CI claim is made.
+
 ## Reproducibility and limitations
 
 A reader can recompute every count by iterating `decks[].cards` in the frozen source, summing per-deck `count` for category `Energy`, distinguishing basic Energy with the nine-type name match, testing whole-word `VMAX|VSTAR` on category `Pokémon`, and equality to `Guzma` on category `Trainer`. All 29 row totals were validated equal to 60 before aggregating. Report exact rank sets to expose any inadvertent alternative printing or duplicate rank. The missing three sources remain missing; all 32-field percentages are **known-source minima**, with no assumption about the missing three.
