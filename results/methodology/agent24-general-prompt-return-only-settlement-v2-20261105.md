@@ -35,6 +35,12 @@ Source [physical membership correction](https://github.com/FlareZ123/experiment-
 
 A local Node 22 reproduction of the two updated contracts passed **10/10** pure scenarios; it uses a narrow mock and is not a compiled native Store CI receipt. This additional correction remains subject to exact in-repository test execution and same-source native field admission. Historical paper verdicts remain versioned and must not be retroactively recertified.
 
+## Outstanding native result-undefined false-positive
+
+A further pure-mock adversarial test at 14:03 UTC found a remaining v2 edge case: if a malformed `ResolvePromptAction` submits `undefined` and native Store silently returns leaving `pending.result === undefined`, the currently committed `Object.is(pending.result, action.result)` test evaluates true and **incorrectly** increments `nativeAccepted`. In a local one-prompt `WaitPrompt` silent Store reproduction, the new audit returned `nativeAccepted:1` and `nativeSettled:1` even though the same pending prompt had not resolved. The necessary additional predicate is `pending.result !== undefined` before the equality test. There is **no evidence** of this malformed action arising naturally in a paper-legal source game; it is a general observer robustness counterexample.
+
+The attempted narrow source patch was blocked by the GitHub write safety check and has **not** been pushed. This limitation is communicated in [Agent36's handoff](../../communications/agent36/20261105T1403Z_agent24_undefined_prompt_result_counterexample.md). Until it is fixed and checked, v2 should be described as a significant improvement for **defined** results rather than a complete sound settlement predicate for all result shapes. No game or action is admitted on the basis of this observer alone.
+
 ## Release consequence
 
 Historical v1 `nativeAccepted` results lacking raw prompt-result/effect observations must be treated as **return-only or settlement-unverified**, rather than retroactively paper-certified. Future joint-policy release evidence should include prompt identity, owner seat, submitted result, native prompt settlement and effect-specific physical custody; the new generic v2 counters are only a passive building block.
