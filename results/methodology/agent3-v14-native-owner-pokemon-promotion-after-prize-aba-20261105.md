@@ -18,13 +18,13 @@ The independently negative-tested v13 A/B/A comparator was reused without rewrit
 
 With the v13 Modal + own Prize policy held constant, the sole differing original rank11 native context was:
 
-| Original original trial | A control: modal+Prize | B: same plus actor-only Pokémon choice | First newly accepted public action |
+| Original registered trial | A control: modal+Prize | B: same plus actor-only Pokémon choice | First newly accepted public action |
 | --- | --- | --- | --- |
 | `11:102:A:champion-reference` | `engine-error` at `bot-decoder ChoosePokemonPrompt` native ordinal **26** | **returned-unqualified**, no native decoder failure under the 48-root experimental limit | `ResolvePromptAction ChoosePokemonPrompt`, native ordinal **26**, **physical seat 1**, global turn **5** |
 
 The B policy's actual live Store offered **two** legally eligible Pokémon, and the existing `withActorOnlyChoosePokemon` owner-observation adapter selected **option index 0**, printing **`Mega Absol ex M1L`**. The prompt perspective was verified to equal the answering owner. Exactly **one** owner Pokémon choice was selected, **one accepted** by the native Store, and **one native postcondition verified**. The selection was made from the already visible Pokémon/board menu and native `validate`; the owner-only policy received no opponent concealed hand/deck/Prize faces.
 
-The v13 modal/Prize handlers continued to provide **7/7 accepted and settled** owner modal actions (2 optional Confirm false, 5 ShowCards true) and **1** accepted owner KO Prize selection. Six prior unaffected trials and two previously repaired Tapu Lele-GX trials had identical A and B public root histories and statuses. All **eight** B rows now return `returned-unqualified`; the one previously failing A row moved forward rather than silently disappearing.
+The v13 modal/Prize handlers continued to provide **7/7 accepted and settled** owner modal actions (2 optional Confirm false, 5 ShowCards true) and **1** accepted owner KO Prize selection. Five previously unaffected trials and two previously repaired Tapu Lele-GX trials had identical A and B public root histories and statuses. All **eight** B rows now return `returned-unqualified`; the one previously failing A row moved forward rather than silently disappearing.
 
 **Tactical uncertainty is material:** First offered `Mega Absol ex` may or may not be the strongest promotion with two legal options. Selection changes the subsequent attack and Prize trajectory. This experiment established only a legal executed native prompt response, and no test of a rational opponent strategy, alternative chosen target, paid effects, paper matchup, full-game clock or qualified win exists. Do not label this a game won.
 
