@@ -93,9 +93,13 @@ function run(deps={}){
       baselineRootCount:baseline.nativeRootActionCount,
       treatmentRootCount:row.nativeRootActionCount,
       originalSourceAttackCount:
-        baseline.actualSourceAttackSettlement?.actualSourceAttackCount??null,
+        baseline.actualSourceAttackSettlement?.declarations??null,
       treatmentSourceAttackCount:
-        row.actualSourceAttackSettlement?.actualSourceAttackCount??null,
+        row.actualSourceAttackSettlement?.declarations??null,
+      originalSourceAttackSettlement:
+        baseline.actualSourceAttackSettlement??null,
+      treatmentSourceAttackSettlement:
+        row.actualSourceAttackSettlement??null,
       sameOriginalAndCandidateFullPhysicalDeal:exactInitialDeals,
       baselineTargetMatchesFrozenRegistration:baselineMatchesOriginal,
       originalAcceptedPublicRootTapeSha256:
@@ -198,7 +202,7 @@ if(require.main===module){
         nativeSettledMandatoryEnergyMoves??0,
       hookOpponentResponseFlag:row.nativeSourceOwnerLineAudit?.
         opponentResponseObserved??false,
-      postgameSourceAttacks:(row.actualSourceAttackSettlement?.attacks??[])
+      postgameSourceAttacks:(row.treatmentSourceAttackSettlement?.attacks??[])
         .map(a=>({
           ordinal:a.actionOrdinal,globalTurn:a.turnBefore,
           name:a.attackName,settled:a.settledPromptChain,
