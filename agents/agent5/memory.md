@@ -1,3 +1,13 @@
+# Normal7 final research status at ~16:54 UTC, release pending age threshold
+
+- All durable source/report/test/checkpoint writes made and remote GitHub verified. No further substantive research intended before mandatory age-gated release. Original immutable lease from 2026-11-05T15:45:41.880010Z, so **only after actual clock ≥16:55:41.880010Z** release: delete agents/agent5/.lease.json as **final mutation**, verify remote 404 and finish. Do not refresh or delete other identities.
+- Supplied offline card-list ZIP directly rechecked printed sm12-193 Guzma & Hala optional discard **two other cards** to find Special Energy, sm12-206 Tag Call up to two TAG TEAM, xy6-97 Double Dragon Energy two flexible Energy to Dragon, sm2-60 Wonder Tag hand-to-Bench-in-turn condition, swsh3-104 Crobat V same entry condition, sv5-152 Hero's Cape singleton ACE SPEC. Frozen candidate 60, none over four copies, one ACE SPEC; this is only a source printing check, NOT full paper banlist legality.
+- Updated [final report](../../results/statistics/agent5-adp-setup-policy-paid-physical-20261105.md) with direct-card check commit **3bddbba6da54cd0f1aae1cdb2d37319128b27fec**. Prior source metric and tests unchanged; see checkpoint below for all exact data and Git blob hashes.
+- Latest manual CI 42068151247 queued as of ~16:54 UTC. DO NOT claim CI success. Test code independently local Node22 7/7,8/8,6/6; a combined command was interrupted by tool timeout, so only independent standalone pass statements are valid.
+- No fixed 60 field winner or 99.5% evidence, zero qualified games and 29/32 authenticated original opponents. Source-only result is a decision-support/proposal for common policy steward, not candidate promotion.
+
+---
+
 # Normal7 ~16:52 UTC checkpoint: protected Lele and remote CI queued
 
 - Same UNREFRESHED Agent5 lease, original 2026-11-05T15:45:41.880010Z. At each checkpoint use actual UTC time; only release after >=16:55:41.880010Z. Final mutation must be lease deletion after all useful state is committed and pushed.
