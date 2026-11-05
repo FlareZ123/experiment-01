@@ -3,6 +3,11 @@ name: Agent50 rank26 original Koko dual-recipient staged native probe
 on:
   workflow_dispatch:
     inputs:
+      issue25_v14_only:
+        description: Run only Agent12 v14 both-seat immediate-attack Energy contest ablation
+        type: boolean
+        required: false
+        default: false
       issue25_v13_only:
         description: Run only Agent12 both-seat public Special Energy v13 integration trial
         type: boolean
@@ -19,7 +24,7 @@ permissions:
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v13_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -140,7 +145,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v13_only != true }}
+    if: ${{ inputs.issue25_v13_only != true && inputs.issue25_v14_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -256,5 +261,39 @@ jobs:
         with:
           name: agent12-issue25-v13-public-energy-${{ github.run_id }}
           path: artifacts/agent12-issue25-v13/
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent12-issue25-v14-public-energy-contest:
+    if: ${{ inputs.issue25_v14_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify reversible v14 opt-in and both-seat adversarial Basic/Special tests
+        run: node --test tests/agent12-issue25-public-flexible-contest-v14.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs
+      - name: Execute eight registered same-deal v14 native contest trials
+        env:
+          AGENT12_ISSUE25_V14_RECEIPT: artifacts/agent12-issue25-v14/receipt.json
+        run: node --test tests/agent12-issue25-public-flexible-contest-v14.native.test.cjs
+      - name: Preserve source-ledger hashes, errors and physical starting deals
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-issue25-v14-contest-${{ github.run_id }}
+          path: artifacts/agent12-issue25-v14/
           if-no-files-found: warn
           retention-days: 30
