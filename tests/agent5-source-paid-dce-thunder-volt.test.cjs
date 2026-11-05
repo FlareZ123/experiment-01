@@ -187,3 +187,38 @@ test('native rejection propagates and both prototype hooks restore',()=>{
   assert.strictEqual(f.Store.prototype.dispatch,priorStore);
   assert.strictEqual(f.SimpleTacticsAi.prototype.decodeNextAction,priorAi);
 });
+
+test('existing source actor independently attacks after Stadium and owner prompt still moves DCE',()=>{
+  const f=fixture();
+  f.SimpleTacticsAi.prototype.decodeNextAction=function(){
+    return f.owner.stadium.cards.length?
+      new f.AttackAction(this.client.id,ATTACK):
+      new f.PassTurnAction(this.client.id);
+  };
+  const store=new f.Store(),ai=new f.SimpleTacticsAi(f.owner.id);
+  const x=withSourceAfterDceThunderVolt(()=>{
+    store.dispatch(new f.AddPlayerAction());
+    store.dispatch(new f.PlayCardAction(f.owner.id,0,{
+      player:2,slot:1,index:0}));
+    store.dispatch(ai.decodeNextAction(f.state));
+    const natural=ai.decodeNextAction(f.state);
+    assert.equal(natural.constructor.name,'AttackAction');
+    store.dispatch(natural);
+    const mandatory=ai.decodeNextAction(f.state);
+    assert.equal(mandatory.constructor.name,'ResolvePromptAction');
+    store.dispatch(mandatory);
+    return 29;
+  },{trialId:'6:101:B:new-moon-lockbreaker-v1',
+    Store:f.Store,SimpleTacticsAi:f.SimpleTacticsAi,
+    PlayCardAction:f.PlayCardAction,AttackAction:f.AttackAction,
+    ResolvePromptAction:f.ResolvePromptAction,
+    PlayerType:{ANY:0,BOTTOM_PLAYER:2},
+    SlotType:{BOARD:0,ACTIVE:1,BENCH:2}});
+  assert.equal(x.result,29);
+  assert.equal(x.audit.originalActorVoltCycloneAttackRoots,1);
+  assert.equal(x.audit.proposedVoltCycloneAttackRoots,0);
+  assert.equal(x.audit.acceptedVoltCycloneAttackRoots,1);
+  assert.equal(x.audit.nativeVoltCycloneOwnerPrompts,1);
+  assert.equal(x.audit.nativeSettledMandatoryEnergyMoves,1);
+  assert.deepEqual(f.owner.bench[0].energies.cards,[f.energy]);
+});
