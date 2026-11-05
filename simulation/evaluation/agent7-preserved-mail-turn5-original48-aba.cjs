@@ -55,17 +55,38 @@ function runPreservedMailTurn5Aba(deps={}){
     assert.deepEqual(projection(a),projection(c),id);
     const sourceSeat=b.sourceSeat??b.nativeAbortProvenance?.sourceSeat;
     const mail=b.ownerMailAfterPassAudit;
+    const sourceMail=(mail?.selectedReceipts??[])
+      .filter(x=>x.seat===sourceSeat);
+    const firstSourceMailTurn=sourceMail.find(
+      x=>x.nativeStore==='accepted')?.turn??null;
+    const sourceOpponentReply=firstSourceMailTurn===null?null:
+      ledger(b).find(x=>x.playerSlot===1-sourceSeat&&
+        x.turnBefore===firstSourceMailTurn+1&&
+        x.action!=='ResolvePromptAction')??null;
+    const plumeria=x=>x.actorOnlyDecisionCoverage?.
+      detailedComponentAudits?.ownerPlumeriaAfterPass??null;
     return {
       id,sourceSeat,starter:a.actualStarterSeat,
       sourceDeal:a.sourceDealFingerprint,
       fullDeal:a.fullPhysicalDealFingerprint,
       statuses:[a,b,c].map(x=>x.status??'unqualified'),
       roots:[a,b,c].map(x=>ledger(x).length),
+      plumeriaAccepted:[a,b,c].map(x=>plumeria(x)?.acceptedPlumeria??null),
+      plumeriaEnergyDiscardSettled:[a,b,c]
+        .map(x=>plumeria(x)?.settledEnergyDiscards??null),
+      plumeriaPayments:[a,b,c].map(x=>
+        (plumeria(x)?.physicallyAcceptedOwnerPayments??[]).map(r=>({
+          seat:r.seat,turn:r.turn,accepted:r.acceptedByOriginalStore,
+          payment:r.payment.map(card=>card.printing).sort()
+        }))),
       mailAccepted:mail?.mailStoreAccepted??null,
+      mailPromptsObserved:mail?.liveOwnerMailSearchPrompts??null,
       mailPromptsSettled:mail?.promptAccepted??null,
+      mailOwnerDirectHiddenDeckRead:mail?.
+        nativeSourceHiddenOrderReadByThisBridge??null,
+      firstSourceMailTurn,sourceOpponentReply,
       mailCardsToHand:mail?.chosenCardsSettledInHand??null,
-      sourceMailReceipts:(mail?.selectedReceipts??[])
-        .filter(x=>x.seat===sourceSeat).map(x=>({
+      sourceMailReceipts:sourceMail.map(x=>({
           turn:x.turn,nativeStore:x.nativeStore,
           prompt:x.mailPrompt,chosen:x.chosen??[]
         }))
