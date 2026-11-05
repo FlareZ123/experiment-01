@@ -23,6 +23,14 @@ function mockExecutor(){
       status:'action-limit',rootActionLedger:[{
         playerSlot:1,turnBefore:3,action:'PassTurnAction'
       }],
+      actorOnlyDecisionCoverage:{detailedComponentAudits:{
+        ownerPlumeriaAfterPass:{acceptedPlumeria:id===TARGET?1:0,
+          physicallyAcceptedOwnerPayments:id===TARGET?[{
+            seat:1,turn:3,acceptedByOriginalStore:true,
+            payment:[{printing:'Enhanced Hammer TWM'},
+              {printing:"Trainers' Mail ROS"}]
+          }]:[]}
+      }},
       ownerMailAfterPassAudit:mail&&id===TARGET?{
         mailStoreAccepted:1,promptAccepted:1,
         chosenCardsSettledInHand:1,
