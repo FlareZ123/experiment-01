@@ -190,6 +190,13 @@ jobs:
         if: ${{ inputs.fresh_bench_any_attack && !inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-fresh-bench-any-attack-readiness.cjs | tee agent2-fresh-bench-any-attack-readiness.json
+      - name: Verify one-Basic attack-shortfall, quota and owner-information purity
+        if: ${{ inputs.fresh_bench_any_attack && !inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
+        run: node --test tests/agent2-one-basic-attack-attachment-frontier.test.cjs
+      - name: Replay frozen eight original source Pass games for held-Basic attachment opportunities
+        if: ${{ inputs.fresh_bench_any_attack && !inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
+        shell: bash
+        run: node simulation/evaluation/agent2-fresh-one-basic-attachment-opportunity.cjs > agent2-fresh-one-basic-attachment-opportunity.json
       - name: Verify native both-seat Basic Energy recipient A B A pure preflight
         if: ${{ inputs.agent6_energy_recipient_aba && !inputs.agent6_recipient_paid_aba }}
         run: node --test tests/agent6-rank1-rank3-energy-recipient-aba.test.cjs tests/agent44-actor-energy-recipient.test.cjs
@@ -227,6 +234,7 @@ jobs:
             agent2-fresh-rank1-rank3-multibasic-panel.json
             agent2-fresh-multibasic-pass-cascade.json
             agent2-fresh-bench-any-attack-readiness.json
+            agent2-fresh-one-basic-attachment-opportunity.json
             agent6-rank1-rank3-energy-recipient-aba.json
             agent6-recipient-plus-paid-retreat-aba.json
           if-no-files-found: warn
