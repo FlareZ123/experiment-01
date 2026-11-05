@@ -40,8 +40,8 @@ test('toy brute physical-card permutations independently reproduce both path pro
   const types = ['T', 'T', 'T', 'S', 'D', 'G', 'M', 'E', 'O'];
   const limits = { opening: 3, first: 4, fast: 3, slow: 1 };
   const rows = {
-    speed: { favorable: 0n, valid: 0n },
-    noSpeed: { favorable: 0n, valid: 0n }
+    speed: { favorable: 0n },
+    noSpeed: { favorable: 0n }
   };
 
   /** @param {number[]} taken */
@@ -49,10 +49,8 @@ test('toy brute physical-card permutations independently reproduce both path pro
     if (taken.length === limits.first + limits.fast) {
       const seen = taken.map(i => types[i]);
       const early = seen.slice(0, limits.first);
-      const openingValid = seen.slice(0, limits.opening).includes('T');
       const ready = early.filter(x => x === 'T').length >= 2;
       const speed = early.includes('S');
-      if (speed && openingValid) rows.speed.valid += 1n;
       if (speed && ready && seen.includes('G') &&
           (seen.includes('D') || (seen.includes('M') &&
           seen.filter(x => x === 'S' || x === 'E').length >= 2))) {
@@ -71,8 +69,6 @@ test('toy brute physical-card permutations independently reproduce both path pro
     if (taken.length === limits.first + limits.slow) {
       const seen = taken.map(i => types[i]);
       const early = seen.slice(0, limits.first);
-      const openingValid = seen.slice(0, limits.opening).includes('T');
-      if (!early.includes('S') && openingValid) rows.noSpeed.valid += 1n;
       if (!early.includes('S') && early.filter(x => x === 'T').length >= 2 &&
           seen.includes('G') && seen.includes('D') && seen.includes('M')) {
         rows.noSpeed.favorable += 1n;
@@ -91,8 +87,6 @@ test('toy brute physical-card permutations independently reproduce both path pro
   );
   // Both branches are weighted against ALL Basic-valid openings, including
   // draws whose early Speed/no-Speed eligibility is false.
-  const validOpeningProbability = fraction(1n, 1n);
-  assert(validOpeningProbability);
   // Enumerating only branch-specific denominators needs normalizing by the
   // fraction of legal openings in that branch; count all valid permutations.
   const countValid = (n) => {
