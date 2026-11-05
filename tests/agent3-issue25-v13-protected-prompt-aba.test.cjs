@@ -28,8 +28,10 @@ function fixture(){
       privateFingerprintSessionId:'0'.repeat(32),
       events:IDS.flatMap((id,n)=>[0,1].map(seat=>({
         registeredNativeTrialId:id,physicalOwnerSeat:seat,
-        nativeFirstPlayerSeat:n%2,
+        nativeFirstPlayerSeat:n%2,nativeStoreOrdinal:n+1,
         firstBeforeAnyOwnerSetupChoice:true,
+        noPolicyChoiceOrHiddenNamesPublished:true,globalTurnAtCapture:0,
+        physicalSixtyCardCount:60,
         exactPhysicalSixtyPrintedCountMatched:true,
         opaquePhysicalPrechoiceInputHmacSha256:
           hash('actual-prechoice-'+id+'-'+seat),
@@ -132,4 +134,24 @@ test('prompt layer composes real source adapters, never copies generic State',()
   assert.equal(output.audit.ownerModalPromptBaseline.name,'modal');
   assert.equal(output.audit.ownerFirstOccupiedPrizeBaseline.name,'prize');
   assert.equal(output.audit.competitiveGamesQualified,0);
+});
+test('both absent source fingerprints or stale ledger hash fail closed',()=>{
+  const both=fixture();
+  both[0].receipt.attempts[4].sourceDealFingerprint=null;
+  both[2].receipt.attempts[4].sourceDealFingerprint=null;
+  assert.equal(comparePromptBaselineAba(both).baselineReplayVerdict,
+    'FAIL-control-replay-not-identical');
+  const stale=fixture();
+  stale[2].receipt.attempts[0].publicRootLedgerSha256Computed=
+    hash('forged');
+  assert.equal(comparePromptBaselineAba(stale).baselineReplayVerdict,
+    'FAIL-control-replay-not-identical');
+});
+test('undefined starter or fake physical sixty rejects native input custody',()=>{
+  const noSeat=fixture();
+  noSeat[1].witness.events[0].nativeFirstPlayerSeat=undefined;
+  assert.throws(()=>comparePromptBaselineAba(noSeat));
+  const badSixty=fixture();
+  badSixty[1].witness.events[7].physicalSixtyCardCount=59;
+  assert.throws(()=>comparePromptBaselineAba(badSixty));
 });
