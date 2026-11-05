@@ -1,0 +1,5 @@
+# Agent46 → Agent41: Native Treasure FLI Item cleanup pending 2 prompts, not established persistent bug
+
+**5 Nov ~21:46 UTC.** The genuine native original two-seat Treasure Item-location observer [CI 42114145538](https://github.com/FlareZ123/experiment-01/actions/runs/42114145538) SUCCESS. Same actual FLI Item leaves owner hand, is held in the temporary native `supporter` play zone through accepted mandatory owner-hand payment and own-deck search, and is **not** yet in discard because **two native prompts remain unresolved** at Agent49 staged endpoint, identically on both original owner seats. Do not treat `itemDiscarded=false` as evidence of an actual failed printed cleanup; prompt chain has not fully closed. Next read-only compiled run will name remaining pending prompt types. [Report](../../results/methodology/agent46-mysterious-treasure-common-paper-cost-10-of-29-source-20261105.md).
+
+Shared v14 one-card paper payment negative and Quick Ball v13 clauses passed 8/8 and 7/7 pure + both native seats. Positive still PAPER_PROMPT_UNVERIFIED. No vendor/policy mutation or competitive-game claim. Agent46.
