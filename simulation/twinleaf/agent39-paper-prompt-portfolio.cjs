@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v3-live-only-enforcement';
+const VERSION='agent39-paper-prompt-portfolio-v4-physical-settlement';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -85,6 +85,9 @@ function withPaperPromptPortfolio(run,deps={}){
     provenance:'all-Store dispatch attempts separated from genuine live Store',
     liveStoreObserved:liveStore!==null,allStoreDispatchAttempts:true,
     liveResolutionCount:0,livePaperVerifiedNativeAccepted:0,
+    liveNativeReturnedWithoutThrow:0,liveNativePromptSettled:0,
+    liveNativeSilentNoop:0,livePaperVerifiedPhysicalEffect:0,
+    livePaperVerifiedWithoutPhysicalEffect:0,
     livePaperInvalidVetoed:0,livePaperUnverified:0,
     liveNativeRejectedAfterPreflight:0,
     auxiliaryResolutionCount:0,unattributedResolutionCount:0,
@@ -123,52 +126,90 @@ function withPaperPromptPortfolio(run,deps={}){
     else if(storeScope==='auxiliary')audit.auxiliaryResolutionCount++;
     else audit.unattributedResolutionCount++;
     audit.resolutionCount++;
+
+    // Pin the exact unresolved prompt object before invoking native Store.
+    // Store.reducePrompt may silently return unchanged for stale/missing items.
+    const pending=this.state.prompts?.find(p=>p.id===action.id&&
+      p.result===undefined);
     if(storeScope!=='live'){
-      // Bot scoring may dispatch against a cloned Store. Never veto,
-      // independently certify, or source-stamp that speculative reply.
       const entry={storeOrdinal:ordinal,storeScope,
-        status:'AUXILIARY_NOT_SCREENED',nativeAccepted:false};
+        status:'AUXILIARY_NOT_SCREENED',nativeReturnedWithoutThrow:false,
+        nativePromptSettled:false,nativeAccepted:false};
       audit.events.push(entry);
       const output=d.value.call(this,action,...args);
-      entry.nativeAccepted=true;
+      entry.nativeReturnedWithoutThrow=true;
+      entry.nativePromptSettled=!!pending&&pending.result===action.result;
+      entry.nativeAccepted=entry.nativePromptSettled;
       return output;
     }
-    const prompt=this.state.prompts?.find(p=>p.id===action.id&&
-      p.result===undefined);
-    const marked=prompt&&attributed.has(prompt);
-    const paper=marked?verdictVoltCyclone(this.state,prompt,action.result,types):null;
+
+    const marked=!!pending&&attributed.has(pending);
+    const paper=marked?
+      verdictVoltCyclone(this.state,pending,action.result,types):null;
     const status=!marked?'PAPER_PROMPT_UNVERIFIED':paper.valid?
       'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
-    const entry={turn:this.state.turn??null,promptId:prompt?.id??null,
+    const entry={turn:this.state.turn??null,promptId:pending?.id??null,
       storeOrdinal:ordinal,storeScope,
       sourceSeat:this.state.players?.findIndex(p=>
-        p.id===prompt?.playerId)??-1,
-      family:prompt?.constructor?.name??null,
+        p.id===pending?.playerId)??-1,
+      family:pending?.constructor?.name??null,
       sourcePrinting:marked?PRINTING:null,status,
       count:Array.isArray(action.result)?action.result.length:null,
       reason:paper?.reason??'no-independent-printed-contract',
-      nativeAccepted:false};
+      nativeReturnedWithoutThrow:false,nativePromptSettled:false,
+      physicalEffectVerified:false,nativeAccepted:false};
     if(status==='PAPER_PROMPT_UNVERIFIED'){
       audit.paperUnverified++;
-      if(storeScope==='live')audit.livePaperUnverified++;
+      audit.livePaperUnverified++;
     }
     audit.events.push(entry);
     if(status==='PAPER_PROMPT_INVALID'){
       audit.paperInvalidVetoed++;
-      if(storeScope==='live')audit.livePaperInvalidVetoed++;
+      audit.livePaperInvalidVetoed++;
       throw new Error('PAPER_PROMPT_INVALID:'+PRINTING+':'+paper.reason);
     }
+
+    // The printed contract is the physical movement of this exact Energy.
+    // Capture original destination occupancy so a preexisting duplicate
+    // reference cannot masquerade as a successful transfer.
+    const owner=marked?this.state.players.find(p=>p.id===pending.playerId):null;
+    const movedCard=marked?action.result[0].card:null;
+    const target=marked?owner.bench[action.result[0].to.index]:null;
+    const targetPreviouslyHadCard=marked&&target.cards.includes(movedCard);
     try{
       const output=d.value.call(this,action,...args);
-      entry.nativeAccepted=true;
+      entry.nativeReturnedWithoutThrow=true;
+      audit.liveNativeReturnedWithoutThrow++;
+      entry.nativePromptSettled=!!pending&&pending.result===action.result;
+      if(entry.nativePromptSettled)audit.liveNativePromptSettled++;
+      else audit.liveNativeSilentNoop++;
+      entry.physicalEffectVerified=!!(marked&&entry.nativePromptSettled&&
+        !targetPreviouslyHadCard&&
+        !owner.active.cards.includes(movedCard)&&
+        target.cards.includes(movedCard)&&
+        (!Array.isArray(owner.active.energies?.cards)||
+          !owner.active.energies.cards.includes(movedCard))&&
+        (!Array.isArray(target.energies?.cards)||
+          target.energies.cards.includes(movedCard)));
+      entry.nativeAccepted=marked?
+        entry.nativePromptSettled&&entry.physicalEffectVerified:
+        entry.nativePromptSettled;
       if(status==='PAPER_PROMPT_VERIFIED'){
-        audit.paperVerifiedNativeAccepted++;
-        if(storeScope==='live')audit.livePaperVerifiedNativeAccepted++;
+        if(entry.physicalEffectVerified){
+          audit.paperVerifiedNativeAccepted++;
+          audit.livePaperVerifiedNativeAccepted++;
+          audit.livePaperVerifiedPhysicalEffect++;
+        }else{
+          audit.livePaperVerifiedWithoutPhysicalEffect++;
+          entry.status=entry.nativePromptSettled?
+            'PAPER_PROMPT_SETTLED_EFFECT_UNVERIFIED':
+            'PAPER_PROMPT_NATIVE_UNSETTLED';
+        }
       }
       return output;
     }catch(error){
       audit.nativeRejectedAfterPreflight++;
-      if(storeScope==='live')audit.liveNativeRejectedAfterPreflight++;
+      audit.liveNativeRejectedAfterPreflight++;
       throw error;
     }
   }
