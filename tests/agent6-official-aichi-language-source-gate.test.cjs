@@ -14,7 +14,7 @@ test('complete 29-original source admission SHA aligns with official only-Japane
   const originalSource=fs.readFileSync(path.resolve(__dirname,
     '../results/aichi-2026/full-decklists.json'));
   assert.equal(gitBlobSha1(originalSource),
-    'ae773f6201d7aa69d31914dbfee66f3ba692200');
+    'ae773f6201d7aa69d31914dbfee66f3fba692200');
   assert.notEqual(gitBlobSha1(Buffer.concat([originalSource,Buffer.from(' ')])),
     gitBlobSha1(originalSource));
   assert.equal(EVENT.date,'2026-05-10');
