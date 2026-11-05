@@ -141,9 +141,14 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     }
     validate(cards){return cards.length>0&&cards.length<=3;}
   }
+  class ShuffleDeckPrompt {
+    constructor(){this.id=56;this.playerId=101;this.result=undefined;}
+  }
   class SimpleTacticsAi {
     constructor(){this.client={id:101};}
     decodeNextAction(state){
+      if(state.prompts[0] instanceof ShuffleDeckPrompt)
+        return new ResolvePromptAction(56,[0,1]);
       if(state.prompts.length)throw Error('stock bot cannot decode search');
       return new PassTurnAction();
     }
@@ -157,14 +162,19 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
         state.prompts.push(new ChooseCardsPrompt(owner.deck));
       }
       if(action instanceof ResolvePromptAction){
-        assert.equal(action.id,55);
-        for(const card of action.cards){
-          const index=owner.deck.cards.indexOf(card);
-          assert.notEqual(index,-1);
-          owner.deck.cards.splice(index,1);
-          owner.discard.cards.push(card);
-        }
-        state.prompts.length=0;
+        if(action.id===55){
+          for(const card of action.cards){
+            const index=owner.deck.cards.indexOf(card);
+            assert.notEqual(index,-1);
+            owner.deck.cards.splice(index,1);
+            owner.discard.cards.push(card);
+          }
+          state.prompts.length=0;
+          state.prompts.push(new ShuffleDeckPrompt());
+        }else if(action.id===56){
+          assert.deepEqual(action.cards,[0,1]);
+          state.prompts.length=0;
+        }else throw Error('unexpected prompt');
       }
       return true;
     }
@@ -189,6 +199,9 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     const search=bot.decodeNextAction(state);
     assert.equal(search.constructor.name,'ResolvePromptAction');
     store.dispatch(search);
+    assert.equal(state.prompts[0].constructor.name,'ShuffleDeckPrompt');
+    const shuffle=bot.decodeNextAction(state);
+    store.dispatch(shuffle);
     return true;
   },0,{
     SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:'PLAYER_TURN'},
@@ -201,5 +214,7 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
   assert.equal(executed.audit.nativeAcceptedCompressor,1);
   assert.equal(executed.audit.ownerDeckPromptDecisions,1);
   assert.equal(executed.audit.nativeSettledDeckToDiscard,2);
+  assert.equal(executed.audit.nativeSettledShuffles,1);
+  assert.equal(executed.audit.events[0].shufflePromptResolved,true);
   assert.equal(owner.discard.cards.length,2);
 });
