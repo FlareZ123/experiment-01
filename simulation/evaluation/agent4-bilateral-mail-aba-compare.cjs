@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
-const VERSION='agent4-bilateral-mail-native-original-eight-ABA-v1';
+const VERSION='agent4-bilateral-mail-native-original-eight-ABA-v2-public-choice-tape';
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 /**
  * Failure-inclusive physical-deal and control-tape comparison for eight arms.
@@ -27,14 +27,29 @@ function compare(a,b,c,audit,reg){
     const different=x.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(y[i]));
     const divergence=different>=0?different:
       x.length===y.length?null:Math.min(x.length,y.length);
-    return {id,fullOpeningParity:
+    const sourceSeat=id.split(':')[2]==='A'?1:0;
+    const publicRoot=row=>({
+      ordinal:row.actionOrdinal??null,turn:row.turnBefore??null,
+      seat:row.playerSlot??null,action:row.action??null,
+      card:row.card??null,attack:row.attack??null,
+      pendingPrompt:row.pendingPrompt??null
+    });
+    const changeAudit=divergence===null?null:{
+      onlyPublicNativeActions:true,
+      treatedPublicRootTape:y.map(publicRoot),
+      baselinePublicRootTape:x.map(publicRoot),
+      treatedSourceRoots:y.filter(r=>r.playerSlot===sourceSeat)
+        .map(publicRoot),
+      treatedCandidateRoots:y.filter(r=>r.playerSlot===1-sourceSeat)
+        .map(publicRoot)
+    };
+    return {id,sourceSeat,changeAudit,fullOpeningParity:
         before.fullPhysicalDealFingerprint===treated.fullPhysicalDealFingerprint&&
         before.fullPhysicalDealFingerprint===after.fullPhysicalDealFingerprint,
       sourceOpeningParity:
         before.sourceDealFingerprint===treated.sourceDealFingerprint&&
         before.sourceDealFingerprint===after.sourceDealFingerprint,
       ARepeatRootTapeParity:sha(x)===sha(z),
-      sourceSeat:before.originalSourceSeat??null,
       originalRootSha256:sha(x),treatedRootSha256:sha(y),
       repeatedRootSha256:sha(z),
       firstTreatedRootDivergence:divergence,
