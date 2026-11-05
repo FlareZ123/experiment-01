@@ -635,6 +635,26 @@ jobs:
             agent4-mail-seat-shuffle-aba-native.json.sha256
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify legacy-identical setup shuffles and independent postsetup native source streams
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/evaluation/agent4-mail-postsetup-seat-shuffle-aba-v2.cjs
+          node --test tests/agent4-mail-postsetup-seat-shuffle-aba-v2.test.cjs
+      - name: Run legacy-opening-matched native after-setup physical shuffle A/B/A
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_POSTSETUP_MAIL_ABA_OUTPUT: agent4-mail-postsetup-seat-shuffle-aba-native.json
+        run: node simulation/evaluation/agent4-mail-postsetup-seat-shuffle-aba-v2.cjs
+      - name: Archive original eight legacy-versus-A-B-A after-setup shuffle native evidence
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-mail-postsetup-seat-shuffle-original-eight-aba-native
+          path: |
+            agent4-mail-postsetup-seat-shuffle-aba-native.json
+            agent4-mail-postsetup-seat-shuffle-aba-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Compare original rank6 Mail spend against source paid Plumeria in same-deal native A/B/A
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
         env:
