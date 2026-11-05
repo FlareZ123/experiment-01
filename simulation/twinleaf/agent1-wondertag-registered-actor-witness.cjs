@@ -94,7 +94,10 @@ function createWonderTagRegisteredActorWitness(deps={}){
         'decodeNextAction',priorDecode);
     }
   }
-  return {run,selectSupporterIndex,audit};
+  function currentTrialId(){
+    return live?activeTrialId:null;
+  }
+  return {run,selectSupporterIndex,currentTrialId,audit};
 }
 
 module.exports={VERSION,PREFIX,createWonderTagRegisteredActorWitness};
