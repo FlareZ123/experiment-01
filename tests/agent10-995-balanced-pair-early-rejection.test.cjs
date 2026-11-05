@@ -99,6 +99,20 @@ test('adaptive interleaving of completed rank blocks preserves rank counts', () 
   assert.equal(result.observedQualifiedGameClaims, 6);
 });
 
+test('an anytime rejection remains recorded after later wins reduce the current e-value', () => {
+  const losses = [
+    block(1, 1, ['loss', 'loss']),
+    block(1, 2, ['loss', 'loss'])
+  ];
+  const later = Array.from({length: 12}, (_, i) =>
+    block(1, i + 3, ['win', 'win']));
+  const result = assessBalancedPairRejection([...losses, ...later], FIXED);
+  assert.equal(result.firstCrossing.completedBlockOrdinal, 2);
+  assert.equal(result.firstCrossing.originalRank, 1);
+  assert.equal(result.rejectionFlag, true);
+  assert.ok(result.globalLogEValue < Math.log(GLOBAL_E_THRESHOLD));
+});
+
 test('zero blocks and all-win blocks give no positive strength certification', () => {
   const empty = assessBalancedPairRejection([], FIXED);
   assert.equal(empty.globalLogEValue, 0);
