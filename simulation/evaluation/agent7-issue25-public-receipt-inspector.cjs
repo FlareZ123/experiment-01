@@ -77,6 +77,15 @@ function inspectIssue25PublicReceipt(bytes,sidecar){
     const digest=present?sha256(Buffer.from(JSON.stringify(ledger))):null;
     const reported=x.publicRootLedgerSha256Reported??null;
     const digestPass=reported===null?null:reported===digest;
+    const selfReportedDigest=x.publicRootLedgerSha256Computed??null;
+    const selfDigestPass=selfReportedDigest===null?null:
+      present&&!x.publicRootActionsTruncated?
+        selfReportedDigest===digest:null;
+    const nativeCount=x.nativeRootActionCount??null;
+    const nativeCountPass=present&&!x.publicRootActionsTruncated&&
+      nativeCount!==null?nativeCount===ownCount:null;
+    const rawTrialId=x.actualRawTrialId??null;
+    const rawIdentityPass=rawTrialId===null?null:rawTrialId===x.id;
     const result={
       id:x.id,status:x.status,
       nativeRootActionCount:x.nativeRootActionCount??null,
@@ -86,6 +95,9 @@ function inspectIssue25PublicReceipt(bytes,sidecar){
       countMatches,summaryMatches:claimedSummaryPass,
       independentRootSha256:digest,
       reportedRootSha256Matches:digestPass,
+      archivedComputedSha256Matches:selfDigestPass,
+      nativeAcceptedRootCountMatches:nativeCountPass,
+      rawTrialIdentityMatches:rawIdentityPass,
       rootComposition:computed
     };
     if(present&&!indicesOk)
@@ -96,6 +108,12 @@ function inspectIssue25PublicReceipt(bytes,sidecar){
       failures.push(x.id+':claimed-root-summary-mismatch');
     if(digestPass===false)
       failures.push(x.id+':native-root-ledger-digest-mismatch');
+    if(selfDigestPass===false)
+      failures.push(x.id+':archived-root-ledger-digest-mismatch');
+    if(nativeCountPass===false)
+      failures.push(x.id+':native-accepted-root-count-mismatch');
+    if(rawIdentityPass===false)
+      failures.push(x.id+':raw-trial-id-mismatch');
     return result;
   });
   const sourceGroups={};
