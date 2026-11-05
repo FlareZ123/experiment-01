@@ -111,3 +111,18 @@ test('known Japanese promo reference remains independently dated from English se
       printing:{set:'SP',number:'128'}}]}]},[]),
   /Unresolved Japanese/);
 });
+
+
+test('printed PTCGO set code wins over colliding unrelated internal ID',()=>{
+  const sets=[
+    {id:'x',ptcgoCode:'REAL',name:'Old Real',
+      releaseDate:'2026/01/01'},
+    {id:'real',ptcgoCode:'ALT',name:'Future Alias',
+      releaseDate:'2026/10/01'}
+  ];
+  const original={decks:[{rank:1,player:'Fixture',cards:[
+    {count:60,name:'Example',printing:{set:'REAL',number:'1'}}
+  ]}]};
+  const got=auditEnglishSetClock(original,sets);
+  assert.equal(got.futureEnglishRows,0);
+});
