@@ -62,7 +62,18 @@ function withRank3SourceGuzmaReply(work,deps={}){
         audit.receipts.push({turn:16,ownerHandIndex:i,
           card:owner.hand.cards[i].fullName,
           ownerSupporterTurn:owner.supporterTurn,
-          ownerCannotPlaySupporterCards:owner.cannotPlaySupporterCards});
+          ownerCannotPlaySupporterCards:owner.cannotPlaySupporterCards,
+          ownerActiveEnergy:owner.active.energies.cards.map(c=>c.fullName),
+          ownerBench:owner.bench.filter(x=>x.getPokemonCard()).map(x=>({
+            card:x.getPokemonCard().fullName,
+            energy:x.energies.cards.map(c=>c.fullName)
+          })),
+          opponentPublicBench:state.players[1].bench
+            .filter(x=>x.getPokemonCard()).map(x=>({
+              card:x.getPokemonCard().fullName,
+              energy:x.energies.cards.map(c=>c.fullName),
+              retreatCost:x.getPokemonCard().retreat?.length??null
+            }))});
         return new PlayCardAction(owner.id,i,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0
         });
