@@ -1148,6 +1148,7 @@ function runDevelopment({
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
+  actorRank9CompressorAnyTurn=false,
   paperRank9ElectrodeGXCorrection=false,
   actorRank9MegaAbsolFundingRoot=false,
   actorActiveMegaClawPriorityRoot=false,
@@ -1250,6 +1251,8 @@ function runDevelopment({
   assert.ok(!actorRank9CompressorOwnerBridge||
     (actorOnlyComposition&&paperRank9ElectrodeGXCorrection),
     'Rank9 source Compressor bridge requires actor-only policy and paper-correct CES48');
+  assert.ok(!actorRank9CompressorAnyTurn||actorRank9CompressorOwnerBridge,
+    'Late source Compressor probe requires explicit original rank9 owner bridge');
   assert.ok(!actorRank9MegaAbsolFundingRoot||actorOnlyComposition,
     'Rank9 Mega Absol staging requires the common actor-only root');
   assert.ok(!actorRank9SpecialFundedGuzma||
@@ -1577,7 +1580,10 @@ function runDevelopment({
             guzmaNominalGust:actorGuzmaNominalGust,
             rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
             ...(actorRank9CompressorOwnerBridge?{
-              rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+              rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1),
+              ...(actorRank9CompressorAnyTurn?{
+                rank9CompressorMaxGlobalTurn:Infinity
+              }:{})
             }:{}),
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
