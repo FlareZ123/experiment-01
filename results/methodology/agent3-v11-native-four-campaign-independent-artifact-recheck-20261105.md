@@ -13,7 +13,7 @@
 
 Four campaigns: original baseline A, repeated baseline A, protected opening B, final baseline A. Eight preregistered real Store attempts per campaign (32 total).
 
-- **48/48** pairwise actual owner prechoice position HMAC comparisons match; **48/48** whole native request HMAC comparisons match; all 24 non-reference native starter-seat comparisons match.
+- **48/48** pairwise actual owner prechoice position HMAC comparisons match; **48/48** whole native request HMAC comparisons match; the 48 non-reference native starter-seat comparisons have zero mismatches.
 - The same process-private fingerprint session, observed research pin, engine pin and shared Night Watch private-seed commitment are attested by the reporter.
 - **8/8** trial IDs have equal complete public root ledgers, raw public ledger hashes, source physical-deal digests, and native disposition across all three A controls. This supports the bounded registered baseline replay claim; one ID has the *same native engine error in every cohort*.
 - Protected B has a different public root ledger and an additional native engine error for **2/8** IDs: `11:103:B:champion-reference` (first public difference at zero-based root index 10), and `11:103:B:new-moon-lockbreaker-v1` (root index 16). Both differences are on native global turn 2, player slot 0, and **both sides' public action class is PlayCardAction**.
