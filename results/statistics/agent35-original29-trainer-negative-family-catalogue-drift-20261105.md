@@ -25,6 +25,22 @@ The old test's expected 287 and 259 payment-mode copies were sound **for the sma
 
 The union coverage moves from **27.72947%** to **78.84058%** of the original 1,035 Trainer copies, solely as a measurement of exact catalog keys. The **219 unmatched copies (21.15942%) are not presumed illegal or unsupported by other independent policies.**
 
+### Distinguish restrictive rules from zero-cost annotations
+
+The broader 816-copy union is **not a plausible proxy for actual negative-play screens**. A separately validated partition now distinguishes:
+
+| Interpretation of the current four-family exact-print catalog | Copies |
+| --- | ---: |
+| Matching a family with *potential* state-dependent restriction: a positive (including optional) hand-discard payment, printed time window, public Prize prerequisite, or public removal-target requirement | **254** |
+| Matching *only* a cataloged zero-additional-hand-discard payment entry, with no other modeled restrictive family | **562** |
+| Not matching any of the four catalog families | **219** |
+| **Total physical original-field Trainer copies** | **1,035** |
+
+The old 287-copy union already included **33** zero-hand-discard-only annotations and the same **254** potentially restrictive copies. Thus the nominal **529-copy increase in rule coverage contributes zero newly modeled potentially restrictive original-field copies**; all 529 new union-only copies are zero-discard annotations. Some of these printings have powerful effects and substantial strategic restrictions outside the four classified families. "Potential restriction" means only a relevant rule was cataloged, with no claim that it is failed in a specific owner hand or game. Positive *optional* discard modes are included in the 254 even when a zero-discard alternative is available, so that metric is also not a proven ineligibility count.
+
+The additive original-source census now exposes `copiesWithPotentialRestrictionFamily` and `copiesWithOnlyZeroDiscardPaymentAnnotation` alongside the historical `copiesWithAnyExactNegativeFamily`. Each original 60 gets the same partition to prevent misleading aggregate improvements.
+
+
 ## Exact provenance and delta decomposition
 
 Input: `results/aichi-2026/full-decklists.json`, Git blob `ae773f6201d7aa69d31914dbfee66f3fba692200`. The 29 original roster inventories are held constant, including missing ranks 23, 25, 28. `scripts/agent35-field-trainer-negative-family-coverage.cjs` supplies the same four-family membership calculation for both conditions. The catalog is `simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs` blob `555b0d1df2dee73a7e610f52a817ccbb1520c587`.
@@ -37,8 +53,9 @@ The additional records are cost classifications only. They do not establish that
 
 ## Reproduction and acceptance
 
-- Test: `tests/agent35-field-trainer-negative-family-coverage.test.cjs`, corrected in commit `84feedfe8df89bb98df8ae33990d50f319d01dfa`. The test reconstructs the baseline from mode semantics, confirms the 48 additional zero-payment entries and their 550 original physical copies, independently checks historical and current source denominators, and enforces the 21-copy overlap identity. Source and map counts were independently checked against the exact original JSON and catalog registration text before updating the assertions.
-- Manual-only existing workflow: `aichi-card-audit.yml`, `agent35_trainer_gate_only=true`, `commit_results=false`, without native engine compilation. Dispatched on commit `84feedfe` at [run 41968107104](https://github.com/FlareZ123/experiment-01/actions/runs/41968107104). **Job queued at initial report authoring; its outcome must be verified separately.**
+- Code: `scripts/agent35-field-trainer-negative-family-coverage.cjs`, augmented in commit `48b1fc0978a1e608dc961719f908e3d7632733c4` with an additive 254/562/219 partition. No existing output columns were removed. The partition is checked per original deck and globally.
+- Tests: `tests/agent35-field-trainer-negative-family-coverage.test.cjs`, corrected in `84feedfe8df89bb98df8ae33990d50f319d01dfa` and extended in `973408b32ad2789cde0cacc4c99d79a0f966d858`. They reconstruct the old map, assert the 48 additional zero-payment keys and 550 original physical copies, prove the 21-copy overlap, check current 816 vs historical 287, and assert 254 potentially restrictive copies under both catalogs. Pure synthetic tests now distinguish a genuinely restrictive payment from a zero-payment-only annotation.
+- Existing manual workflow: `aichi-card-audit.yml` with `agent35_trainer_gate_only=true` and `commit_results=false`, without native compilation. The older queued run [41968107104](https://github.com/FlareZ123/experiment-01/actions/runs/41968107104) was cancelled without execution to avoid duplicate CI cost after the partition was added. The replacement [run 41968958097](https://github.com/FlareZ123/experiment-01/actions/runs/41968958097) was dispatched at the final test commit `973408b3` and was **queued at this report revision**. The executable CI verdict remains pending until observed.
 - No change to production policy, card rules, printed 60-card candidates, 29/32 source completeness or benchmark game certification. The program still has **zero competitively qualified games**, no selected best fixed 60 and no demonstrated 99.5% performance.
 
 ## Recommended consumer boundary
