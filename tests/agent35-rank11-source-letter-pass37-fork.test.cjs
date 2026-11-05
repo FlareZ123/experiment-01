@@ -43,6 +43,7 @@ function fixture(){
     action:'PlayCardAction',card:"Professor's Letter"};
   roots[38]={actionOrdinal:38,turnBefore:8,playerSlot:1,
     action:'ResolvePromptAction',pendingPrompt:'ChooseCardsPrompt'};
+  for(let ordinal=39;ordinal<48;ordinal++)roots[ordinal].turnBefore=9;
   const reg={...registration,beforePassRootPrefixLedgerSha256:SHA(orig)};
   const rows=Array.from({length:8},(_,i)=>({trial:{
     id:i===0?reg.selectedOriginalId:'fixture-'+i},
