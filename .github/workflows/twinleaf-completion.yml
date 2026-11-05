@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_mirrored_v6_source_funnel:
+        description: 'Additionally audit verified original-source owner roots on precommitted symmetric v6 eight arms'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -78,5 +83,18 @@ jobs:
         with:
           name: agent18-issue25-native-source-roots
           path: agent18-issue25-owner-roots-native.tap
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Audit same registered eight v6 arms under source-independent policy
+        if: ${{ inputs.include_mirrored_v6_source_funnel }}
+        run: |
+          set -o pipefail
+          node --test tests/agent18-issue25-mirrored-v6-source-roots.native.test.cjs | tee agent18-v6-source-roots-native.tap
+      - name: Preserve eight-arm independent source-actor audit including aborted arm
+        if: ${{ always() && inputs.include_mirrored_v6_source_funnel }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-issue25-v6-symmetric-source-roots
+          path: agent18-v6-source-roots-native.tap
           if-no-files-found: warn
           retention-days: 21
