@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {PROFILES}=require('./agent5-adp-paid-opening.cjs');
 const {C,COUNTS}=require('./agent5-adp-wondertag-paid-opening.cjs');
-const {SCALE,greedySetups,deliberateSetup,payableUnderSetup,
+const {SCALE,greedySetups,deliberateSetup,firstOnlySetups,payableUnderSetup,
   comparePaidSetupPolicies}=require('./agent5-adp-setup-paid-policy.cjs');
 function vec(fields){const a=Array(13).fill(0);for(const [key,n] of Object.entries(fields))a[C[key]]=n;return a;}
 const avail=(fields)=>({adp:false,gh:false,dde:false,lele:false,...fields});
@@ -11,6 +11,10 @@ const avail=(fields)=>({adp:false,gh:false,dde:false,lele:false,...fields});
 test('all repeated-Basic shuffles are equal weight and conserve physical mass',()=>{
   const hand=vec({adp:2,basic:4,lele:1});
   const setups=greedySetups(hand);
+  const firstOnly=firstOnlySetups(hand);
+  assert.equal(firstOnly.reduce((a,b)=>a+b.weight,0n),SCALE);
+  assert.deepEqual(firstOnly.map(z=>[z.active,z.weight]),
+    [['adp',120n],['basic',240n],['lele',60n]]);
   assert.equal(setups.length,105);
   assert.equal(setups.reduce((a,b)=>a+b.weight,0n),SCALE);
   assert.equal(setups.filter(s=>s.active==='adp').reduce((a,b)=>a+b.weight,0n),120n);
@@ -70,7 +74,10 @@ test('four DCI profiles recover earlier deliberate physical numerators exactly',
     assert.ok(z.greedyWith<z.deliberateWith);
     assert.ok(z.greedyWithout<z.deliberateWithout);
     assert.ok(z.greedyWith>=z.greedyWithout);
+    assert.ok(z.firstOnlyWith>=z.firstOnlyWithout);
   }
+  assert.equal(String(out.numerators.mechanical.firstOnlyWith),'39313422229699798428');
+  assert.equal(String(out.numerators.mechanical.firstOnlyWithout),'34664720186892451740');
   assert.equal(String(out.numerators.mechanical.greedyWith),'38545739191004798620');
   assert.equal(String(out.numerators.mechanical.greedyWithout),'34560260839843165140');
 });
@@ -95,7 +102,8 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
   const all=physical.map((_,i)=>i);
   const exact=comparePaidSetupPolicies(toy,{handSize:4,prizeCount:2});
   const brute=Object.fromEntries(PROFILES.map(p=>[p,{deliberateWith:0n,
-    deliberateWithout:0n,greedyWith:0n,greedyWithout:0n}]));
+    deliberateWithout:0n,greedyWith:0n,greedyWithout:0n,
+    firstOnlyWith:0n,firstOnlyWithout:0n}]));
   let total=0n;
   for(const handIds of combinations(all,4)){
     const hand=Array(13).fill(0);
@@ -113,6 +121,9 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
         placed:placed.length,adpPlaced:placed.filter(i=>i===C.adp).length,
         lelePlaced:placed.filter(i=>i===C.lele).length,
         adpOnBench:bench.includes(C.adp)};
+      const firstOnly={active:greedy.active,bench:0,placed:1,
+        adpPlaced:Number(greedy.active==='adp'),
+        lelePlaced:Number(greedy.active==='lele'),adpOnBench:false};
       for(const prize of combinations(rest,2)){
         const nonPrize=rest.filter(i=>!prize.includes(i));
         for(const draw of nonPrize){
@@ -124,7 +135,8 @@ test('greedy physical-Basic order and full-zone toy census match exact permutati
           for(const p of PROFILES){
             for(const entry of [['deliberateWith',priority,true],
               ['deliberateWithout',priority,false],['greedyWith',greedy,true],
-              ['greedyWithout',greedy,false]]){
+              ['greedyWithout',greedy,false],['firstOnlyWith',firstOnly,true],
+              ['firstOnlyWithout',firstOnly,false]]){
               if(payableUnderSetup(hand,seen,present,p,entry[2],entry[1]))
                 brute[p][entry[0]]++;
             }
