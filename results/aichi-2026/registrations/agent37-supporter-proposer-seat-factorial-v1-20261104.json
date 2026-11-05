@@ -1,0 +1,102 @@
+{
+  "schema": "agent37-original-supporter-proposal-seat-factorial-four-physical-deals-v1",
+  "registeredAtUtc": "2026-11-04T00:29:00.010Z",
+  "hypothesis": "Separating the effect of the native Supporter-proposal quota repair by physical seat identifies policy interaction and intervention spillover that a two-seat correction cannot attribute.",
+  "precursor": {
+    "owner": "Agent 20",
+    "codeBranch": "research/agent20-rank6-guzma-counterreply-20261103",
+    "nativeCI": 41736046880,
+    "artifact": 13278698258,
+    "rawJSONSha256": "d97821d33f060c660e130f023581c3dbcfc4e3779c3521d67a64c398717709ea",
+    "priorCombinedNativeResults": "38 genuine Store-accepted Supporter plays across 8 original source groups, zero native error, all 8 full physical groups and repeated controls match; 0 competitive games",
+    "independentPriorAudit": "Agent41 prior independent v1/v2 38 live / 38 simulator clone receipt check"
+  },
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "field": "exact source Aichi original rank 5, 6, 9, 11 sixties; missing opponent 23,25,28 excluded",
+  "source": true,
+  "groups": [
+    {
+      "id": "6v9-historic-rank6-seat1",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "primarySeat": 1,
+      "seed": 1192664073,
+      "openingSha256": "b9398dd0e9f4b93085cf1fb36595b17df72e602b3f8e69636c005b43929f2a9a",
+      "reason": "Agent41's observed rank9 original turn4 Horror House-GX lost in symmetric corrected policy"
+    },
+    {
+      "id": "6v9-fresh-rank6-seat0",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "primarySeat": 0,
+      "seed": 809028196,
+      "openingSha256": "067aee12d2b8f89920d08eb4c3dd3cc49d52a3ba4d31d9917c972604018ffeba",
+      "reason": "Prior two-seat treatment gained native Volt Cyclone attack; test which physical seat caused change"
+    },
+    {
+      "id": "5v11-historic-rank5-seat0",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "primarySeat": 0,
+      "seed": 912174767,
+      "openingSha256": "65c87abb4eb03985598acf3306a5169bb82a6b8a8fd021b630cb5c0f2318886a",
+      "reason": "Original rank5 loss in both control and both-seat treatment with different native attack counts"
+    },
+    {
+      "id": "5v11-historic-rank5-seat1",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "primarySeat": 1,
+      "seed": 1914651848,
+      "openingSha256": "3d8e3e1dec9027aec38ab2015b06bd4294fd9ed3c3c2dbf1dadec928433361d4",
+      "reason": "Original rank11 finished victory while symmetric corrected treatment became action-capped"
+    }
+  ],
+  "fixedArms": [
+    {
+      "id": "native-control",
+      "correctSeats": []
+    },
+    {
+      "id": "correct-seat0",
+      "correctSeats": [
+        0
+      ]
+    },
+    {
+      "id": "correct-seat1",
+      "correctSeats": [
+        1
+      ]
+    },
+    {
+      "id": "correct-both",
+      "correctSeats": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "native-control-repeat",
+      "correctSeats": []
+    }
+  ],
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "registeredOutputContract": {
+    "allFiveArmsSameDealForEachGroup": true,
+    "identicalRepeatedNativeControls": true,
+    "originalControlAndBothSeatCorrectionMatchPreviousAgent20SHA": true,
+    "separateActualStoreAcceptedSupportersFromSimulatorClones": true,
+    "confirmAtMostOneCorrectedSupporterPerSeatTurn": true,
+    "noNegativeCompetitiveInference": true,
+    "firstActualRootDifferencePerArm": true,
+    "settledAttacksAndPrizesByNativeActionCap": true,
+    "preserveUnknownAndErrors": true
+  },
+  "classification": "historical and preselected from Agent20, not new independent competitive games",
+  "competitiveQualifiedGames": 0
+}
