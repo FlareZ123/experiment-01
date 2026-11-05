@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent6-bilateral-active-tool-jammer-paper-guard-v1';
+const VERSION='agent6-bilateral-active-tool-jammer-paper-guard-v2-physical-owner';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 /**
@@ -12,6 +12,9 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  * IS_TOOL_BLOCKED already treats a thrown ToolEffect as "Tool blocked".
  * Reuse that native contract for an opponent's Active Tool Jammer, while
  * leaving Tool Jammer itself and Benched Tools to their native semantics.
+ * Ownership comes from the physically attached Tool: pinned Handheld Fan
+ * passes its ATTACKING player in ToolEffect even when the defending Active
+ * owns that Tool. Trusting effect.player would miss that paper suppression.
  *
  * This only corrects the ToolEffect query path, not Tools that bypass it.
  * It is unsuitable as a general paper-legality certificate.
@@ -41,16 +44,17 @@ function withBilateralActiveToolJammerPaperGuard(execute,deps={}){
     selectedInSharedBenchmark:false,
     inspectedToolEffectQueries:0,blockedQueries:0,
     blockedByOwnerSeat:{'0':0,'1':0},
+    blockedForeignEffectPlayerQueries:0,
     blockedExamples:[],examplesTruncated:false,
     competitivelyQualifiedGames:0
   };
   function patched(state,effect){
     if(effect?.constructor?.name==='ToolEffect'){
       audit.inspectedToolEffectQueries++;
-      const owner=effect.player;
       const players=state?.players;
-      if(Array.isArray(players)&&players.length===2&&
-         players.includes(owner)&&owner.active?.tools?.includes(effect.card)&&
+      const owner=Array.isArray(players)?players.find(player=>
+        player.active?.tools?.includes(effect.card)):null;
+      if(players?.length===2&&owner&&
          effect.card?.fullName!=='Tool Jammer BST'){
         const opponent=players.find(player=>player!==owner);
         const jammer=opponent?.active?.tools?.find(tool=>
@@ -59,9 +63,11 @@ function withBilateralActiveToolJammerPaperGuard(execute,deps={}){
           const seat=players.indexOf(owner);
           audit.blockedQueries++;
           audit.blockedByOwnerSeat[String(seat)]++;
+          if(effect.player!==owner)audit.blockedForeignEffectPlayerQueries++;
           if(audit.blockedExamples.length<limit){
             audit.blockedExamples.push({
               ownerSeat:seat,
+              effectPlayerSeat:players.indexOf(effect.player),
               ownerActive:owner.active.getPokemonCard()?.fullName??null,
               opponentActive:opponent.active.getPokemonCard()?.fullName??null,
               suppressedTool:effect.card.fullName,
