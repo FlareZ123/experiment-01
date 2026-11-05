@@ -8,14 +8,16 @@ const {withBilateralActiveToolJammerPaperGuard,VERSION,PIN}=
 
 const compiled=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(compiled,name));
-const MODES=['none','pinned-uncorrected','paper-corrected'];
+const MODES=['none','pinned-uncorrected','legacy-hook',
+  'paper-corrected','legacy-plus-paper-corrected'];
 const FAMILIES=['Handheld Fan TWM','Muscle Band XY'];
 
 /**
  * Drive actual pinned Store.reduceEffect for two original-field Tool
  * implementations. These staged effect calls are not complete attacks.
  * Handheld Fan deliberately has ToolEffect.player=attacking player even
- * though the Tool is physically attached to defending Active.
+ * though the Tool is physically attached to defending Active. The existing
+ * globally installed headless ToolJammer hook is a separate comparison arm.
  *
  * @param {string} family Tool fullName
  * @param {0|1} toolOwnerSeat Actual physical Active Tool owner seat
@@ -79,13 +81,23 @@ function probe(family,toolOwnerSeat,mode){
     return state.prompts.filter(p=>p.result===undefined)
       .slice(before).map(p=>p.constructor.name);
   };
-  const observed=mode==='paper-corrected'?
-    withBilateralActiveToolJammerPaperGuard(runEffect):
-    {result:runEffect(),audit:null};
+  const legacy=mode==='legacy-hook'||
+    mode==='legacy-plus-paper-corrected';
+  const paper=mode==='paper-corrected'||
+    mode==='legacy-plus-paper-corrected';
+  const restoreLegacy=legacy?
+    require('./tool-jammer-hook.cjs').installToolJammerHook():null;
+  let observed;
+  try{
+    observed=paper?withBilateralActiveToolJammerPaperGuard(runEffect):
+      {result:runEffect(),audit:null};
+  }finally{restoreLegacy?.();}
   const received=observed.result;
+  const nativeLegacyBlocks=legacy&&branch==='attacking-band';
+  const blocked=paper||nativeLegacyBlocks;
   const expected=branch==='attacking-band'?
-    {damage:mode==='paper-corrected'?20:40,prompts:0}:
-    {damage:20,prompts:mode==='paper-corrected'?0:1};
+    {damage:blocked?20:40,prompts:0}:
+    {damage:20,prompts:blocked?0:1};
   assert.equal(effect.damage,expected.damage);
   assert.equal(received.length,expected.prompts);
   if(branch==='defending-fan'&&received.length)
