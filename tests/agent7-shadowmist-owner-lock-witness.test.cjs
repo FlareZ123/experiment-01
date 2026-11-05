@@ -8,7 +8,8 @@ const {
 }=require('../simulation/twinleaf/agent7-shadowmist-owner-lock-witness.cjs');
 
 const player=(id,hand,options={})=>({
-  id,hand:{cards:hand.map(fullName=>({fullName}))},
+  id,hand:{cards:hand.map(fullName=>({fullName,canPlay:()=>true}))},
+  active:{energies:{cards:[]}},bench:[],
   cannotPlaySpecialEnergyCards:false,cannotPlayStadiumCards:false,
   cannotPlayItemCards:false,cannotPlaySupporterCards:false,
   energyPlayedTurn:-1,...options
@@ -27,6 +28,7 @@ test('actual owner card categories and player-level lock flags are redacted',()=
   assert.equal(p.knownRank6StadiumHeld,1);
   assert.equal(p.knownRank6TrainerResponsesHeld,2);
   assert.equal(p.knownRank6CrushingHammerHeld,1);
+  assert.equal(p.nativeCrushingHammerPreliminaryCanPlay,null);
   assert.equal(p.nativeSpecialEnergyPlayLocked,true);
   assert.equal(p.nativeStadiumPlayLocked,true);
   assert.equal(p.normalEnergyAttachmentUsed,false);
@@ -43,7 +45,8 @@ test('genuine Store Pass observer preserves native dispatch and restores prototy
       players:[],prompts:[]};}
     dispatch(action){
       if(action instanceof AddPlayerAction){
-        if(this.state.players.length===0)this.state.players=[player(101,[])];
+        if(this.state.players.length===0)this.state.players=[player(101,[],
+          {active:{energies:{cards:[{fullName:'Psychic Energy MEE'}]}}})];
         else this.state.players.push(source());
       }
       return action;
@@ -64,6 +67,8 @@ test('genuine Store Pass observer preserves native dispatch and restores prototy
   assert.equal(payload.audit.games[0].passes.length,1);
   assert.equal(payload.audit.games[0].passes[0].turn,3);
   assert.equal(payload.audit.games[0].passes[0].nativeSpecialEnergyPlayLocked,true);
+  assert.equal(payload.audit.games[0].passes[0].nativeCrushingHammerPreliminaryCanPlay,true);
+  assert.equal(payload.audit.games[0].passes[0].opponentPublicEnergyCardCount,1);
 });
 
 test('native observer always restores Store method after a thrown error',()=>{
