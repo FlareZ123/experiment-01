@@ -1,0 +1,34 @@
+# Original rank1 Skyliner free pivot: all six Night Watch damage and Prize settlements
+
+**Agent 2 | 5 November 2026 | selected-case retrospective native audit.** This study verifies the observed one-game winner reversal in the archived, prospectively fixed 24-attempt original A/B/A trial. The positive historical seed was known before this particular replay and must not be treated as an independent sampled game. [Primary eight-group A/B/A report](agent2-original-skyliner-free-pivot-native-winner-reversal-20261105.md) and [preregistered retrospective plan](agent2-skyliner-attack-trace-replay-plan-20261105.md).
+
+## Independent executed CI custody
+
+[GitHub Actions CI42123058344](https://github.com/FlareZ123/experiment-01/actions/runs/42123058344) **SUCCESS**, checkout `284ad0ce5049bd9854cd129ef4145a750bf313c8`, under existing manual-only `agent2-fss-float-rank3-native.yml`. Native artifact [13460098321](https://github.com/FlareZ123/experiment-01/actions/runs/42123058344/artifacts/13460098321) ZIP SHA256 `ee0ba15ea4144446d58659c0d9170255daa43d2076a763dca4b86c0649e9533a`, JSON `agent2-original-skyliner-free-retreat-aba.json` 1,452,581 bytes SHA256 `951b591deff8189f2821bea50fae4f083b18e7a903898cb72ebd0646b84fad4f`. Full raw archive is the source of truth.
+
+Existing original 24-arm A/B/A reran **24/24 native terminal**, zero errors/caps, **8/8** original physical+source-deal historical control and root matches, and eight A/A-prime exact repeat root ledgers. New read-only replay `selectedCaseAttackTrace` also ran exactly **3/3** A/B/A native terminals, with original full deal, original rank3 deal and frozen original root SHA validated in all three. The B winner was rank1 seat1; both controls retained rank3 seat0. New attack trace had six actual native declarations and six prompted settlement snapshots for B, zero for either control. The attack name is genuinely observed `Night Watch` in all six, not inferred from the tactical proposal.
+
+The engine pin remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; original rank3 60 hash `72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f`, original rank1 60 hash `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`. Exact replay source [runner](../../simulation/evaluation/agent2-skyliner-retrospective-attack-trace.cjs), appended to the old CLI without changing exported original `run()`, is separately marked retrospective.
+
+## Full real-Store paid attacks and consequence
+
+Active Trevenant & Dusknoir-GX SMP has three real Basic Psychic Energy throughout, matching its printed `Night Watch` cost of Psychic/Psychic/Psychic. Prior free native RetreatAction at original root218 physically moved it into Active, displaced Dialga-GX to Bench with both Psychic Energy, and consumed zero Energy from either Pokémon. Every attack `AttackAction` led to prompted native settlement. Settled public board snapshots and both Prize totals are recorded for all six. No attack Energy was consumed.
+
+| Attack ordinal / global turn | Rank3 Active before damage | Native settled consequence | Rank1 Prize cards left |
+| --- | --- | --- | --- |
+| 219 / 58 | Rotom V, 190 HP, 0 damage | Rotom V remains Active with 150 damage; rank3 no KO | 6 → 6 |
+| 230 / 60 | Rotom V, 190 HP, 150 damage | Rotom V knocked out; Articuno-GX promoted | 6 → 4 |
+| 244 / 62 | Articuno-GX, 170 HP, 0 damage | Articuno-GX remains Active with 150 damage; rank3 no KO | 4 → 4 |
+| 254 / 64 | Articuno-GX, 170 HP, 150 damage | Articuno-GX knocked out; Snorlax promoted | 4 → 2 |
+| 272 / 66 | Snorlax, 150 HP, 0 damage | Snorlax knocked out; Girafarig promoted | 2 → 1 |
+| 286 / 68 | Girafarig, 90 HP, 0 damage | Girafarig knocked out; rank1 takes final Prize, engine winner seat1 | 1 → 0 |
+
+HP and printed Weakness separately checked against provided card database: `swsh11-58` Rotom V 190 HP, Fighting Weakness; `sm7-31` Articuno-GX 170 HP, Metal Weakness; `pgo-55` Snorlax 150 HP, Fighting Weakness; `sm8-94` Girafarig 90 HP, Psychic Weakness. `smp-SM217` Trevenant & Dusknoir-GX 270 HP is Psychic with Night Watch base 150. On Girafarig, Psychic Weakness makes the printed attack's damage **300** (assuming no modifying or protection effects). All four KO thresholds are consistent with these printings and the native public board.
+
+The first two-prize KO is a Pokémon V, the second two-prize KO is a Pokémon-GX, then two single-prize KOs. The final native attack's prompt chain at ordinals287–290 transitions rank1 Prize count **1→0**, rank3 in-play Pokémon **5→4**, and engine winner **unset→seat1**. At the final engine snapshot rank3 Active is null after the KO and its Bench still contains Pokémon; the winner is unambiguously attributed by the native transition to taking all Prizes. Both A/A-prime controls finish in turn90 with rank3 winning because the rank1 player would draw from an empty deck.
+
+## Independent opponent continuation and limits
+
+In the B game, rank3's complete voluntary responses were **turn59 Water Energy and Pass, turn61 Girafarig and Pass, turn63 Pass, turn65 Pass, turn67 Mimikyu and Pass**. Thus **zero opposing attacks and zero retreats** occurred after the attack line began. This is a serious opponent competence limitation; no paper-payable optimal response or absence of counterplay has been established. The rank3 originally started this window with Rotom V Active and a Colorless-funded Bunnelby PRC Benched, but the actual native bot did not use it or other disruption to stop the five-turn prize race. The rank3 deck's Pokémon and Stadium inventory contains no evident Ability-locking Pokémon or Stadium that would suppress Latias ex's Skyliner at the turn58 starting board, and actual native free-cost/physical receipt confirms zero Energy debit. Broader Tool, lock, prompted discard, and turn-timing correctness remain independently unqualified.
+
+This is a narrow original rank1-versus-rank3 simulator causality proof. It supplies **zero competitively qualified games**, no official 25-minute match-clock outcome, no strong opponent-policy benchmark, no selected final 60 and no evidence for the 99.5% full-field goal. **Do not upgrade selected shared steward v4**, which never executed this custom default-off mobility hook, or extrapolate the one matched historical winner flip to the 32-original target. Recommended next gate is steward-selected symmetric-policy adoption and independent paper/legal action plus competent counterplay tests.
