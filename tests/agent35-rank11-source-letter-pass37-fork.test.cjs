@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {VERSION,selectLetter,run,write}=
+const {VERSION,selectLetter,withLetterFork,run,write}=
   require('../simulation/evaluation/agent35-rank11-source-letter-pass37-fork.cjs');
 const SHA=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const registration={
@@ -105,4 +105,71 @@ test('receipt writer uses exclusive lock and atomic rename',()=>{
     try{assert.throws(()=>write(file,r));}
     finally{fs.closeSync(fd);fs.unlinkSync(file+'.lock');}
   }finally{fs.rmSync(temp,{recursive:true,force:true});}
+});
+
+test('late registered match owner hook outranks inherited generic decoder and restores descriptors',()=>{
+  class PassTurnAction{}
+  class PlayCardAction{
+    constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}
+  }
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){return new PassTurnAction();}
+  }
+  const reg={...registration};
+  const sourceCard={fullName:reg.sourceCardToPlay};
+  const state={turn:8,activePlayer:1,
+    players:[{id:11,hand:{cards:[]}},{id:22,hand:{cards:[sourceCard]}}],
+    prompts:[]};
+  let actualRoots=0;
+  const headless={runMatch(){
+    const ai=new SimpleTacticsAi(22);
+    const root=ai.decodeNextAction(state);
+    assert.ok(root instanceof PlayCardAction,
+      'registered owner-root Item must bypass incumbent Pass');
+    assert.equal(root.id,22);
+    assert.equal(root.handIndex,0);
+    actualRoots++;
+    state.prompts=[{id:55,result:undefined}];
+    const next=ai.decodeNextAction(state);
+    assert.ok(next instanceof ResolvePromptAction,
+      'late nested owner handler must receive real pending prompt');
+    return 'native-match';
+  }};
+  const priorRunMatch=headless.runMatch;
+  const priorDecode=SimpleTacticsAi.prototype.decodeNextAction;
+  let hooks=0;
+  const result=withLetterFork(()=>
+    headless.runMatch({label:'test-'+reg.selectedOriginalId}),{
+    headless,SimpleTacticsAi,PlayCardAction,registration:reg,
+    observe:()=>view,
+    withOwnerSearchHook:(next,{registration:target})=>{
+      assert.equal(target.selectedOriginalId,reg.selectedOriginalId);
+      hooks++;
+      const descriptor=Object.getOwnPropertyDescriptor(
+        SimpleTacticsAi.prototype,'decodeNextAction');
+      function lateDecode(actual){
+        if(actual.prompts.length)
+          return new ResolvePromptAction(actual.prompts[0].id,[]);
+        return descriptor.value.call(this,actual);
+      }
+      Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
+        ...descriptor,value:lateDecode});
+      try{return {result:next(),audit:{nativeLetterOwnerSearchPrompts:1,
+        physicallySettledSearches:1}};}
+      finally{Object.defineProperty(SimpleTacticsAi.prototype,
+        'decodeNextAction',descriptor);}
+    }
+  });
+  assert.equal(result.result,'native-match');
+  assert.equal(result.audit.selectedCount,1);
+  assert.equal(result.audit.ownerSearchAudit.nativeLetterOwnerSearchPrompts,1);
+  assert.equal(result.audit.ownerSearchAudit.physicallySettledSearches,1);
+  assert.equal(hooks,1);
+  assert.equal(actualRoots,1);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,priorDecode);
+  assert.strictEqual(headless.runMatch,priorRunMatch);
 });
