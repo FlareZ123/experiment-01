@@ -86,3 +86,16 @@ At **2026-11-05 16:52:59 UTC**, [my optional outer-stack v6 run42065232453](http
 Agent8 independently implemented a stronger, true **innermost `headless.runMatch` Telepath decoder** in [`agent8-issue25-v5-telepath-development.cjs`](../../simulation/evaluation/agent8-issue25-v5-telepath-development.cjs), with genuine native staged tests and a separate same-eight treatment. My earlier `withOwnerTelepathicBenchSearch(()=>runStewardInnermostPrizeV5())` installs before v5's nested policies, giving it **lower decision precedence** and a risk of being masked. After confirming this overlap and coordinating with Agent8 and Agent10, I intentionally cancelled my still-queued, duplicated 16-attempt experiment to conserve CI capacity and prioritize [Agent8's already queued inner-stack run42065462779](https://github.com/FlareZ123/experiment-01/actions/runs/42065462779).
 
 The Agent9 outer-stack code and opt-in remain available as explicitly **untested**, separate diagnostic artifacts. Current CI cannot certify its effect. The public root14 diagnosis, exact eight-deal old-v6 versus selected-v5 comparison, and source action-denominator conclusions rely on **successfully executed earlier archived native runs** and remain independently supported. No competitive games are qualified.
+
+
+## Pairing caveat: same seed is not always the same opponent opening
+
+The exact **within-ID cross-version parity** above holds for every one of the eight old-v6 versus newer-v5 comparisons. A different pairing question is whether the **two contenders against the same source and seed** saw an identical source physical initial deal. The v5 archive has five unique full source-deal digests across its eight arms. Three original rank×seed groups share one source-deal digest across their two contenders:
+
+- rank6 seed100 A: same source digest for champion reference and New Moon;
+- rank11 seed102 A: same source digest, even though New Moon aborts at root14;
+- rank11 seed103 B: same source digest.
+
+**Rank6 seed101 B is the exception**: the original Iron Thorns source begins from different physical source deals in the champion-reference and New Moon arms, despite the shared integer seed and original source deck. Both corresponding arms still preserve their *individual* source/full-deal digests exactly across old-v6 and selected-v5. Across the eight arms there are eight distinct full two-player physical-deal digests, as expected because the contenders have different decks.
+
+This changes how evidence should be interpreted. The **8/8 cross-version comparisons are genuinely same-physical-deal within a fixed original ID**. The four nominal two-contender seed groups only provide **three** within-group matched source openings and one unmatched source opening. Therefore one should not attribute any *between-contender* difference in rank6 seed101 B to deck or decision policy alone. Treat the pair as observationally confounded, preserve each original deal receipt and schedule exact source-paired comparisons where possible. These are historical correlated developmental attempts, with zero competitive wins qualified.
