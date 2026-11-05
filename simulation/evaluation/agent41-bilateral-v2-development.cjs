@@ -1147,6 +1147,7 @@ function runDevelopment({
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
+  actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
