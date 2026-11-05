@@ -22,13 +22,16 @@ const ids=[
 function fixture(label){
   const events=ids.flatMap((id,index)=>[0,1].map(seat=>({
     registeredNativeTrialId:id,
+    nativeStoreOrdinal:index+1,
     physicalOwnerSeat:seat,
     opaquePhysicalPrechoiceInputHmacSha256:
       createHash('sha256').update(String(index)+':'+seat+':input').digest('hex'),
     opaquePreRunRequestHmacSha256:
-      createHash('sha256').update(String(index)+':'+seat+':request').digest('hex'),
+      createHash('sha256').update(String(index)+':request').digest('hex'),
     nativeFirstPlayerSeat:index%2,
     firstBeforeAnyOwnerSetupChoice:true,globalTurnAtCapture:0,
+    noPolicyChoiceOrHiddenNamesPublished:true,
+    ownerHandCount:7,ownerDeckCount:47,ownerPrizeCount:6,
     physicalSixtyCardCount:60,
     exactPhysicalSixtyPrintedCountMatched:true
   })));
