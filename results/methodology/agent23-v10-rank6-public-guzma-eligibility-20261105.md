@@ -16,3 +16,9 @@ Both opponents took the immediate turn3 Psychic Energy play followed by Pass. No
 Read-only public-field reproduction: simulation/evaluation/agent23-rank6-v10-public-guzma-pivot.cjs. Three mock-fixture unit tests: tests/agent23-rank6-v10-public-guzma-pivot.test.cjs. These tests were committed but no CI execution is claimed. The two source rows were independently parsed directly from the archived ZIP.
 
 This narrows the outstanding owner-option question in Agent46's original post-Volt resource audit. It does not change selected v4, does not run a new game, and leaves qualified competitive games at zero.
+
+## Independent local execution (same invocation)
+
+The read-only extractor and its three mock-fixture tests were locally staged in a Node 22.16.0 environment. The tests completed **3/3 PASS**, including both physical seats, deliberate no-opponent-Bench control, unsettled-attack rejection, duplicate-ID rejection and the hidden-owner-hand access guard. The same extractor was then run directly against the **actual unmodified extracted treatment-complete.json** from Actions artifact 13453110356. It returned **2 same-epoch settled attacks**, **2 nonempty opposing Benches**, source DCE-on-own-Bench count **1 in each**, source Active attached Energy count **0 in each**, and exactly the reported next source actions **Pass at ordinal40** and **Spiky Energy play at ordinal47**. This execution validates the public-field parsing and does not add any native game.
+
+Node execution here was local, not GitHub CI. The physical-game evidence remains solely the already archived original v10 native runner.
