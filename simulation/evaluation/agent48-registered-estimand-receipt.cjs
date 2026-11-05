@@ -93,13 +93,15 @@ function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = [])
       const starterB = b.verifiedFirstTurn === true ?
         seat(b.actualStarterSeat) : null;
       const sourceA = seat(a.sourceSeat), sourceB = seat(b.sourceSeat);
+      const expectedSourceSeat = left.candidateSlot === 'A' ? 1 : 0;
       const required = [leftSource,rightSource,leftFull,rightFull,
         leftPrint,rightPrint,leftRoster,rightRoster,
         starterA,starterB,sourceA,sourceB];
       if (required.every(v => v !== null)) {
         parity = leftSource === rightSource && leftFull === rightFull &&
           leftRoster === rightRoster && starterA === starterB &&
-          sourceA === sourceB &&
+          sourceA === expectedSourceSeat &&
+          sourceB === expectedSourceSeat &&
           (pair.purpose !== 'same-60-policy-ab' ||
             leftPrint === rightPrint) ?
           'MATCHED_REPORTED_INITIAL_STATE' : 'MISMATCHED';
@@ -109,6 +111,8 @@ function registeredEstimandReceipt(registered, nativeRows, comparisonPlans = [])
           (leftFull && rightFull && leftFull !== rightFull) ||
           (leftRoster && rightRoster && leftRoster !== rightRoster) ||
           (starterA !== null && starterB !== null && starterA !== starterB) ||
+          (sourceA !== null && sourceA !== expectedSourceSeat) ||
+          (sourceB !== null && sourceB !== expectedSourceSeat) ||
           (sourceA !== null && sourceB !== null && sourceA !== sourceB) ||
           (pair.purpose === 'same-60-policy-ab' && leftPrint &&
             rightPrint && leftPrint !== rightPrint);
