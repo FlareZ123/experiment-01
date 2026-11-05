@@ -83,7 +83,7 @@ function classifyOwnerPassTool(sourcePass,seat,toolNames){
  */
 function censusOriginalSourcePassTools(archived,toolNames){
   assert.equal(archived?.originalAttemptCount,8);
-  assert.equal(archived?.exactInitialFullDealAndRootTapeMatches,true);
+  assert.equal(archived?.exactInitialFullDealAndRootTapeMatches,8);
   assert.ok(Array.isArray(archived.attempts));
   assert.equal(archived.attempts.length,8);
   const seen=new Set(),attempts=[];
