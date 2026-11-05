@@ -13,6 +13,8 @@ const {withSameTargetAttachEnergySelection}=
   require('../twinleaf/same-target-attach-energy-hook.cjs');
 const {withBilateralMultiBasicPaidRetreat}=
   require('../twinleaf/agent2-bilateral-multi-basic-retreat-bot.cjs');
+const {withBilateralSkylinerFreeRetreat}=
+  require('../twinleaf/agent2-bilateral-skyliner-free-retreat-bot.cjs');
 const {withAcceptedTargetWitness,acceptedTargetAbortEvidence}=
   require('../twinleaf/native-accepted-target-store-observer.cjs');
 
@@ -58,6 +60,11 @@ function runArm(trial,cards){
           targetAudit=observed.audit;
           return observed.result;
         };
+        if(trial.mode==='bilateral-skyliner-free-retreat'){
+          const added=withBilateralSkylinerFreeRetreat(native);
+          genericAudit=added.audit;
+          return added.result;
+        }
         if(trial.mode!=='bilateral-multi-basic-retreat')return native();
         const added=withBilateralMultiBasicPaidRetreat(native);
         genericAudit=added.audit;
