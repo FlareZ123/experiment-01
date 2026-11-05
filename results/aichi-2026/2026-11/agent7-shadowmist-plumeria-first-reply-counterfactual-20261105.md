@@ -67,3 +67,53 @@ The original rank6 source's very first Shadow Mist response was a strategically 
 This also illustrates why theoretical lock success can be radically overstated when the *opponent's response policy* is too passive. The source paid two physical hand cards and consumed its sole Supporter turn; the identity and opportunity cost of those two discarded cards must be evaluated before asserting Plumeria was a superior move. An unbiased, paper-compatible adversarial opponent could choose Guzma, another Supporter, other Items, or deliberate conservation, and these remain counterfactuals.
 
 Next proof: record the **exact printings** of the two physically confirmed source payments and their discard-capability / future option costs; verify whether the candidate had another Basic Psychic Energy attachment or alternative attack legally available on its next turn. Compare a bounded paid-counterplay line and one subsequent paid opponent action at exact original source seat and first-player settings. Carry all caps/errors and original qualifying-denominator failures. **No 99.5% win rate or fixed-60 superiority is demonstrated.**
+
+## Subsequent exact printed-payment verification (18:05 UTC)
+
+The earlier section's unresolved *printing identity* has now been resolved by
+a separate read-only opt-in to the existing Agent4 native payment receipt.
+The experimental source player at **global turn 3, seat 1**, paid exactly:
+
+| Original physically paid card | Native hand index before payment |
+| --- | ---: |
+| **Trainers' Mail ROS** | **1** |
+| **Trainers' Mail ROS** | **4** |
+
+The independent native receipt marks both physical card selections
+`acceptedByOriginalStore:true`. The same matched target still records one
+settled opposing attached Energy discarded, the same first **22** root actions
+before the control/treatment divergence and a T4 opposing **Pass**. The
+opponent's Pass remains a **decision**, with no proof that it was legally forced.
+
+**Evidence:** [manual compiled workflow 42080414733](https://github.com/FlareZ123/experiment-01/actions/runs/42080414733),
+`abort-custody` job `127431660361`, `AGENT7_SHADOWMIST_PLUMERIA_ORIGINAL_AB`
+structured native test marker, test
+[`tests/agent7-shadowmist-original48-plumeria-aba.native.test.cjs`](../../../tests/agent7-shadowmist-original48-plumeria-aba.native.test.cjs).
+The original two-seat runner now conditionally copies the already existing
+`AGENT4_NATIVE_PAYMENT_RECEIPT_DEV` actor-owned receipt for inspection;
+the flag adds no gameplay choice or prompt handling. The native test verifies
+a single source seat-1 turn-3 receipt, exactly two **different physical hand
+indices**, exact nonempty printed names, accepted original Store dispatch,
+and zero unresolved native Plumeria prompt chains.
+
+**Opportunity cost is real and still unresolved.** The original rank-6 printed
+60 includes **three Trainers' Mail ROS**, and the card's printed effect looks
+at the top four cards of the deck and can take a Trainer other than Trainers'
+Mail. Paying two copies removes two potential Trainer-search Items from this
+hand. Shadow Mist's observed lock flags blocked Special Energy and Stadium
+plays, while allowing Items; hence the observed payment cannot be called
+free or obviously optimal. The test did not establish whether those two
+specific Mail copies were natively playable at T3, the contents of the
+next-four-card windows, the full alternative owner-hand discard menu,
+or whether some other discard pair had lower future opportunity cost.
+Native selection currently follows the deterministic
+[`chooseActorHandDiscard`](../../../simulation/twinleaf/agent47-actor-hand-discard.cjs)
+copy-retention heuristic; it is not a strategic DCI oracle.
+
+**The historical denominator has not changed:** eight paired original
+source trials in each condition, six 48-root caps and two engine errors,
+zero native terminals and zero competitively qualified games.
+Do not treat this as win-rate evidence. The next material counterfactual
+is a true owner-visible T3 source decision frontier, including both held
+Trainers' Mail opportunities and Plumeria payment alternatives, and a
+T4 candidate legal-attack/attachment assessment after the paid Energy removal.
