@@ -39,8 +39,8 @@ function bonusChoiceSensitivity(dce,mail,categories,sourceTail=10){
   const bothNone=fixed;
   assert.ok(candidateAllSourceNone<=bothAll);
   assert.ok(bothAll<=candidateNoneSourceAll);
-  assert.ok(candidateNoneSourceAll<=bothNone+
-    all.uncomputedJointUpperBound+1e-14);
+  assert.ok(candidateNoneSourceAll>=bothNone);
+  assert.ok(candidateAllSourceNone<=bothNone);
   return {
     schema:'agent11-joint-opponent-mulligan-bonus-choice-four-policy-v1',
     dce,mail,
