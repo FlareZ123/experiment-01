@@ -34,4 +34,16 @@ The [source-owned pure CJS sensitivity calculation](../../scripts/agent11-joint-
 
 These are **four fixed deterministic policies**, with no selection conditioned on hand quality, observed matchup actions, or information observed after drawing. They are useful sensitivity anchors and do not establish universal best/worst bounds over all possible state-dependent human policies.
 
-The [independent 200-million physical-deal validation](agent11-joint-mulligan-physical-mc-validation-20261105.md) verifies only the **both-take-all** column. Neither that Monte Carlo nor this analytic sensitivity samples a full Pokémon game or demonstrates the 99.5% Aichi field target. The selected developmental Issue25 v4/v5 policies remain unqualified.
+## Independent physical-deck check of all four decisions
+
+The [extended C++17 independent physical-deck simulator](../../scripts/agent11-joint-mulligan-physical-mc.cpp) now accepts optional final parameters `sourceTakeAll` and `candidateTakeAll`, each **1** or **0**. Both default to 1, leaving its earlier frozen 200-million all-all source seeds and outcomes reproducible. The 12 additional profile × policy cases were run with **5,000,000 independently shuffled complete 60-vs-60 setups each**; [all seeds, 12 counts and exact reference fractions](agent11-joint-bonus-choice-physical-mc-manifest-20261105.json) are preserved in a machine-readable receipt, including every result. **Total new physical deals: 60,000,000.** There are no native attacks or simulated outcomes.
+
+| Original source | Both take all: physical / exact | Candidate all, source none: physical / exact | Candidate none, source all: physical / exact | Both decline: physical / exact |
+|---|---:|---:|---:|---:|
+| Rank6 | 0.02754% / 0.02745% | 0.02756% / 0.02724% | 0.05070% / 0.05207% | 0.05178% / 0.05186% |
+| Rank24 | 0.03296% / 0.03295% | 0.03304% / 0.03270% | 0.06116% / 0.06252% | 0.06122% / 0.06227% |
+| Rank29 | 0.02640% / 0.02630% | 0.02630% / 0.02610% | 0.05076% / 0.04990% | 0.04906% / 0.04970% |
+
+Every one of these 12 experimental frequencies has a nominal two-sided **95% Wilson binomial interval containing its corresponding prior exact prediction**. Sampling variation is larger than the tiny source-only acceptance effect at five million per arm, so the experiment primarily supports the candidate-acceptance shift. The complete first 200-million all-all investigation retained two individual sample disagreements before aggregation; those outcomes remain disclosed in the [main reproducibility report](agent11-joint-mulligan-physical-mc-validation-20261105.md).
+
+The [original independent 200-million physical-deal validation](agent11-joint-mulligan-physical-mc-validation-20261105.md) verifies the **both-take-all** column at substantially larger sample sizes, independently of this additional all-or-none comparison. Neither that Monte Carlo nor this analytic sensitivity samples a full Pokémon game or demonstrates the 99.5% Aichi field target. The selected developmental Issue25 v4/v5 policies remain unqualified.
