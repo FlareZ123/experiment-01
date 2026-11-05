@@ -112,6 +112,11 @@ function certify(sourceDeck, cardText) {
     SOURCE_ROOT.sourceHand.length;
   const lowerEnergy=energyCount-prizeCount-handEnergy-
     SOURCE_ROOT.sourceBoard.attachedEnergy.length;
+  const unknownPool=remainingDeck+prizeCount;
+  const printedSpeed=sourceDeck.cards.filter(c=>
+    c.name==='Speed Lightning Energy')
+    .reduce((total,c)=>total+c.count,0);
+  assert.equal(printedSpeed,4);
   assert.equal(remainingDeck,46);
   assert.equal(lowerEnergy,2);
   return {
@@ -126,6 +131,13 @@ function certify(sourceDeck, cardText) {
     guaranteedMinimumEnergyInDeckIfNoPriorCardZoneLoss:lowerEnergy,
     conditionalThreeCardEnergyHitLowerBound:
       energyHitLowerBound(remainingDeck,lowerEnergy,3),
+    k0UnknownDeckPlusPrizePool:unknownPool,
+    k0UnconditionalAnySpecialEnergyHitProbability:
+      energyHitLowerBound(unknownPool,energyCount,3),
+    k0UnconditionalSpeedLightningHitProbability:
+      energyHitLowerBound(unknownPool,printedSpeed,3),
+    k0DistributionAssumption:
+      'Uniform uninspected prize/deck permutation conditional on the observed hand and in-play cards; no source search or selective sampling before this first owner turn',
     card:'Cynthia & Caitlin CEC 189',
     possibleAnotherCardToDiscard:'Tool Jammer BST',
     printedIndependentDiscardDraw3:true,
