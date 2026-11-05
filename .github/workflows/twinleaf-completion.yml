@@ -226,6 +226,9 @@ jobs:
       - name: Retrospective identical Plumeria source root with alternative fully paid owner-hand two-card costs
         if: ${{ inputs.include_agent7_shadowmist_original48_plumeria_AB }}
         run: node --test tests/agent7-plumeria-preserve-mail-payment.test.cjs tests/agent7-plumeria-payment-original48-pair.native.test.cjs
+      - name: Original eight native A/B/A preserved-Mail turn-five source opportunity
+        if: ${{ inputs.include_agent7_shadowmist_original48_plumeria_AB }}
+        run: node --test tests/agent7-preserved-mail-branch.test.cjs tests/agent7-preserved-mail-original48-aba.test.cjs tests/agent7-preserved-mail-original48-aba.native.test.cjs
       - name: Execute Agent36 steward-selected bilateral v4 and retain all eight native outcomes
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
