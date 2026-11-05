@@ -55,6 +55,7 @@ function withRank1HeldGuzmaCounterplay(execute){
     nativeSelfShadowRiderSwitchPromptChoices:0,
     proposedGuzmaOwnHandCount:0,
     originalOwnerPromptValidation:true,
+    rank1LiveOwnerVmaxHeldAfterGuzma:[],
     ownerOnly:true,
     completelyQualifiedGames:0,
     receipts:[]
@@ -63,6 +64,28 @@ function withRank1HeldGuzmaCounterplay(execute){
   const decoder=function ownerGuzmaAndTruePrompt(state,...args){
     const owner=state.players[OPPONENT_SEAT];
     const pending=state.prompts.find(p=>p.result===undefined);
+    if(selectedTurn!==null && state.turn>INTERVENTION_TURN &&
+       state.activePlayer===OPPONENT_SEAT && !pending &&
+       owner.active.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE'){
+      const held=owner.hand.cards.filter(c=>
+        c.name==='Shadow Rider Calyrex VMAX');
+      if(held.length>0 && !audit.rank1LiveOwnerVmaxHeldAfterGuzma.some(x=>
+        x.globalTurn===state.turn)){
+        audit.rank1LiveOwnerVmaxHeldAfterGuzma.push({
+          globalTurn:state.turn,
+          ownHandVmaxCopies:held.length,
+          ownedVmaxPrintings:held.map(c=>c.fullName),
+          printedActive:owner.active.getPokemonCard()?.fullName,
+          activePsychicEnergyCards:owner.active.energies.cards.filter(c=>
+            c.name==='Psychic Energy').length,
+          ownSupporterTurn:owner.supporterTurn,
+          opponentPublicActive:
+            state.players[SOURCE_SEAT].active.getPokemonCard()?.fullName,
+          ownerDeckCount:owner.deck.cards.length,
+          ownerBenchCount:owner.bench.filter(x=>x.cards.length>0).length
+        });
+      }
+    }
     if(selectedTurn===INTERVENTION_TURN && state.turn===INTERVENTION_TURN &&
        pending?.constructor.name==='ChoosePokemonPrompt' &&
        pending.playerId===owner.id){
