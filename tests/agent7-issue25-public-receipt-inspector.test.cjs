@@ -156,6 +156,45 @@ test('SFT absent public ledger cannot assert invented positive root composition'
   assert.equal(out.qualifiedGames,0);
 });
 
+test('SFT re-signed native accepted-root count contradicting complete public ledger fails custody',()=>{
+  const data=fixture();
+  const row=data.attempts[0];
+  row.nativeRootActionCount=99;
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.equal(out.actualReturnedRootSummary[0].nativeAcceptedRootCountMatches,false);
+  assert.ok(out.failures.includes(row.id+':native-accepted-root-count-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
+test('SFT re-signed archived digest inconsistent with the public action bytes fails custody',()=>{
+  const data=fixture();
+  const row=data.attempts[0];
+  row.publicRootLedgerSha256Computed='f'.repeat(64);
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.equal(out.actualReturnedRootSummary[0].archivedComputedSha256Matches,false);
+  assert.ok(out.failures.includes(row.id+':archived-root-ledger-digest-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
+test('SFT raw native trial identity differs from purported four-arm status row',()=>{
+  const data=fixture();
+  const row=data.attempts[1];
+  row.actualRawTrialId='unregistered-other-source';
+  const {bytes,sidecar}=seal(data);
+  const out=inspectIssue25PublicReceipt(bytes,sidecar);
+  assert.equal(out.checksumPass,true);
+  assert.equal(out.integrity,'FAIL-custody');
+  assert.equal(out.actualReturnedRootSummary[1].rawTrialIdentityMatches,false);
+  assert.ok(out.failures.includes(row.id+':raw-trial-id-mismatch'));
+  assert.equal(out.qualifiedGames,0);
+});
+
 test('SFT incomplete public root evidence stays separate from file integrity',()=>{
   const data=fixture();
   data.attempts[2].publicRootActions=null;
