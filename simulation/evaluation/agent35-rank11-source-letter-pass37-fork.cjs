@@ -163,6 +163,17 @@ function run(deps={}){
     originalSourceArchivedNativeError:trial.error??null,
     originalSourceNativeStoreCauseStack:trial.nativeStoreCauseStack??null,
     originalSourceNativeAbortProvenance:trial.nativeAbortProvenance??null,
+    // Redacted native decoder evidence preserves prompt type and safe frames.
+    // Never copy exception text or owner-deck identities into the receipt.
+    sourceDecoderFailure:trial.nativeAbortEvidence?{
+      failureStage:trial.nativeAbortEvidence.failureStage??null,
+      pendingPrompt:trial.nativeAbortEvidence.pendingPrompt??null,
+      actionOrdinal:trial.nativeAbortEvidence.actionOrdinal??null,
+      actingSeat:trial.nativeAbortEvidence.actingSeat??null,
+      redactedMessageDigest:trial.nativeAbortEvidence.redactedMessageDigest??null,
+      decoderFrameAttribution:
+        trial.nativeAbortEvidence.decoderFrameAttribution??null
+    }:null,
     originalSourceAcceptedRoots:roots.length,
     allNativeArmDispositions:rows.map(row=>({
       id:row.trial?.id??row.id,
