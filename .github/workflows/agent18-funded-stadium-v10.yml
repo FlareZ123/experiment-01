@@ -1,0 +1,40 @@
+name: Agent18 frozen G&H to funded Stadium v10
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-eight-stadium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - name: Check out research at exact workflow commit
+        uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf dependency
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up required upstream Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Execute genuine same-eight paid G&H Stadium physical treatment
+        env:
+          AGENT18_V10_STADIUM_DIR: issue25-agent18-stadium-v10
+        run: node --test tests/agent18-v10-owner-funded-stadium.test.cjs tests/agent18-v10-owner-funded-stadium.native.test.cjs
+      - name: Preserve full eight-arm native root tapes and receipt SHA256
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-issue25-funded-stadium-v10
+          path: issue25-agent18-stadium-v10/
+          retention-days: 21
+          if-no-files-found: warn
