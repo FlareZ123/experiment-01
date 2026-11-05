@@ -17,6 +17,26 @@ const ROOT=Object.freeze({
   priorOpponentNonPrompt:[{ordinal:7,action:'PassTurnAction'}]
 });
 /**
+ * Probability all physical copies of a named group occupy the unknown Prize
+ * slots, conditional on an otherwise uniform K0 deck/Prize permutation.
+ * @param {number} unseenCards Count of cards in deck plus uninspected Prizes.
+ * @param {number} prizeSlots Concealed Prize slots.
+ * @param {number} copies Number of copies of the group in the unseen pool.
+ * @returns {number} Exact finite-population conditional probability.
+ */
+function allInPrizes(unseenCards,prizeSlots,copies){
+  assert.ok(Number.isSafeInteger(unseenCards)&&unseenCards>0);
+  assert.ok(Number.isSafeInteger(prizeSlots)&&prizeSlots>=0&&
+    prizeSlots<=unseenCards);
+  assert.ok(Number.isSafeInteger(copies)&&copies>=0&&
+    copies<=unseenCards);
+  if(copies>prizeSlots)return 0;
+  let prob=1;
+  for(let i=0;i<copies;i++)prob*=(prizeSlots-i)/(unseenCards-i);
+  return prob;
+}
+
+/**
  * Conditional exact-print source-opportunity certificate. Native prompt
  * resolution and absence of hidden prohibitions require separate audit.
  * @param {object} source Frozen original rank11 60.
@@ -64,6 +84,17 @@ function certify(source,fst,asr){
   const deckBasics=basics-ROOT.boardPokemon.length-6;
   assert.equal(deck,46);
   assert.equal(deckBasics,2);
+  const secondMega=source.cards.find(c=>c.name==='Mega Absol ex').count-1;
+  const trubbish=source.cards.find(c=>c.name==='Trubbish').count;
+  assert.equal(secondMega,2);
+  assert.equal(trubbish,2);
+  const unseen=deck+6;
+  const eitherTargetNotPrized=1-allInPrizes(unseen,6,
+    secondMega+trubbish);
+  const bothTargetsNotFullyPrized=1-
+    allInPrizes(unseen,6,secondMega)-
+    allInPrizes(unseen,6,trubbish)+
+    allInPrizes(unseen,6,secondMega+trubbish);
   return {
     version:VERSION,sourceRegistration:ROOT.id,
     sourceSeat:0,sourceGlobalTurn:2,sourcePassOrdinal:11,
@@ -72,6 +103,15 @@ function certify(source,fst,asr){
     totalBasicPokemonInOriginal60:basics,
     guaranteedBasicPokemonInDeckGivenCompletePrefix:deckBasics,
     totalDeckCardsGivenCompletePrefix:deck,
+    k0UnseenPoolOfDeckAndPrizes:unseen,
+    k0ProbabilitySecondMegaAbsolAvailable:
+      1-allInPrizes(unseen,6,secondMega),
+    k0ProbabilityTrubbishAvailable:
+      1-allInPrizes(unseen,6,trubbish),
+    k0ProbabilityMegaOrTrubbishAvailable:eitherTargetNotPrized,
+    k0ProbabilityMegaAndTrubbishBothAvailable:bothTargetsNotFullyPrized,
+    k0DistributionAssumption:
+      'Uninspected random 6 Prize slots among 52 unseen original owner cards, conditioned on exact own hand and board',
     spareBenchSlots:3,handDiscardPayment:'Dark Patch ASR',
     darkPatchHasNoImmediateEnergyInDiscard:true,
     itemPlayObserved:false,searchPromptSettled:false,
@@ -79,4 +119,4 @@ function certify(source,fst,asr){
     limitations:'Conditional on complete unchanged native prefix with no source discard, Lost Zone or Item lock. Native Store payment, physical search, Bench placement and opponent response untested.'
   };
 }
-module.exports={VERSION,ROOT,certify};
+module.exports={VERSION,ROOT,allInPrizes,certify};
