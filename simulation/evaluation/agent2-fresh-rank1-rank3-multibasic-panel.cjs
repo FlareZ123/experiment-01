@@ -37,6 +37,7 @@ function runArm(trial,cards){
   let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
   let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
   let ownerPassFrontierAudit=null;
+  let targetedTeamFlareAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -88,14 +89,24 @@ function runArm(trial,cards){
             attachmentReserveAudit=reserved.audit;
             return reserved.result;
           };
-          if(trial.captureOwnerSupporterOpportunity!==true)
-            return originalReserve();
-          const {withNativeOwnerSupporterOpportunity}=require(
-            '../twinleaf/agent2-native-owner-supporter-opportunity.cjs');
-          const observedSupporters=
-            withNativeOwnerSupporterOpportunity(originalReserve);
-          ownerSupporterOpportunityAudit=observedSupporters.audit;
-          return observedSupporters.result;
+          const withSupporterAudit=()=>{
+            if(trial.captureOwnerSupporterOpportunity!==true)
+              return originalReserve();
+            const {withNativeOwnerSupporterOpportunity}=require(
+              '../twinleaf/agent2-native-owner-supporter-opportunity.cjs');
+            const observedSupporters=
+              withNativeOwnerSupporterOpportunity(originalReserve);
+            ownerSupporterOpportunityAudit=observedSupporters.audit;
+            return observedSupporters.result;
+          };
+          if(trial.targetedTeamFlareNative!==true)return withSupporterAudit();
+          const {withTargetedTeamFlareNative}=require(
+            '../twinleaf/agent17-targeted-owner-teamflare-native.cjs');
+          const targeted=withTargetedTeamFlareNative(withSupporterAudit,{
+            targetSeat:rank3Seat,targetTurn:59
+          });
+          targetedTeamFlareAudit=targeted.audit;
+          return targeted.result;
         };
         if(trial.mode==='reserve-paid-pivot'){
           const {withThreeBasicPaidPivot}=require(
@@ -177,6 +188,7 @@ function runArm(trial,cards){
         retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
       ...(trial.captureOwnerPassSnapshots===true?{ownerPassFrontierAudit}:{}),
+      ...(trial.targetedTeamFlareNative===true?{targetedTeamFlareAudit}:{}),
       competitiveGameQualified:false
     };
   }catch(error){
@@ -200,6 +212,9 @@ function runArm(trial,cards){
       ...(trial.captureOwnerPassSnapshots===true?{
         ownerPassFrontierAudit:ownerPassFrontierAudit??
           error?.ownerPassFrontierEvidence??null}:{}),
+      ...(trial.targetedTeamFlareNative===true?{
+        targetedTeamFlareAudit:targetedTeamFlareAudit??
+          error?.targetedTeamFlareEvidence??null}:{}),
       competitiveGameQualified:false};
   }
 }
