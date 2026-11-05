@@ -1,0 +1,234 @@
+{
+  "schema": "agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6b",
+  "registrationTimeUTC": "2026-11-05T20:47:53.715Z",
+  "purpose": "Prospectively drawn source seed groups; same original Aichi rank5 60, two frozen contender 60s, same per-seat physical and policy RNG in both target-guard-only versus printed Energy Mix shuffle arms. All 32 native outcomes retained. No game qualification claim.",
+  "originalSourceRank": 5,
+  "originalSourceArchetype": "Mew Genesect",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "frozenPolicyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "originalRunnerGitBlobSha": "099d425a50e95d66920db61dbbe60ddcd211f662",
+  "headlessGitBlobSha": "975c748c698dcd5d701062e53631266dc1768da3",
+  "rngWrapperGitBlobSha": "b336b7d79f40fec62713d46667318ac4e109cdbc",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policySourceCopyFlags": {
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true
+  },
+  "nativeRootActionLimit": 260,
+  "modeNames": [
+    "guarded-target-control",
+    "guarded-target-plus-paper-shuffle"
+  ],
+  "randomGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2456447549
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2565530594
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 493367647
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 106722283
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 543781248
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 149622196
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 1060462648
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 2751564659
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2456447549,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2456447549,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2565530594,
+      "candidateId": "champion-reference",
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2565530594,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 493367647,
+      "candidateId": "champion-reference",
+      "id": "5:1:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 493367647,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 106722283,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 106722283,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 543781248,
+      "candidateId": "champion-reference",
+      "id": "5:2:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 543781248,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:2:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 149622196,
+      "candidateId": "champion-reference",
+      "id": "5:2:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 149622196,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:2:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 1060462648,
+      "candidateId": "champion-reference",
+      "id": "5:3:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 1060462648,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:3:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 2751564659,
+      "candidateId": "champion-reference",
+      "id": "5:3:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 2751564659,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:3:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "expectedNativeAttempts": 32,
+  "expectedSourceDealPairGroups": 16,
+  "expectedSourceOriginalPrinted60": true,
+  "expectedCandidatePrinted60": true,
+  "preserveEveryAttempt": true,
+  "treatmentDefaultOffOutsideExperiment": true,
+  "newReplayNativeOutcomesUnobservedAtRegistration": true,
+  "prospectiveSeedSelection": true,
+  "previousPolicyInformedByEarlierResults": true,
+  "competitiveQualifiedGames": 0,
+  "seedSelection": "8 unique secrets.randbits(32) sampled 2026-11-05T20:40:29.393323+00:00 before executing prospective native matches; no conditional exclusion of samples; same seed across two candidate decks is not guaranteed same physical source deal",
+  "rngProtocol": {
+    "physicalShuffle": "per-seat keyed xorshift32, separate both seats, enabled both A/B",
+    "speculativePolicy": "per-seat independent policy stream, enabled both A/B",
+    "coinFlips": "headless global RNG unchanged; event-key independence unproven",
+    "seedSelection": "Eight fresh independent 32-bit physical seed groups committed before executing any v6 native match; prior policy may have been informed by historical research.",
+    "newComparedToHistoricalV4": "Eight fresh preregistered 32-bit physical-seed groups, two candidate fixed 60s, and isolated per-seat physical-shuffle and policy streams identically across A/B.",
+    "isolationScope": "source-owned physical shuffle cannot advance candidate-owned physical shuffle cursor, but turn outcome and match randomness can still diverge"
+  },
+  "priorRetrospectiveRegistrationBlobSHA": "e8298afacfedbb7d6cf6490a826c06eeb1a0cf99",
+  "noProspectivePerformanceClaims": true,
+  "premarkedProtocolRevision": "v6 preflight-only CI 42106137923 failed at headless hash comparison, before any of 32 native attempts; this v6b records the new shared runner Git blob without sampling or discarding any game",
+  "parentV6RegistrationGitBlobSha": "02e45118baf0e660bbd48e0d686df0a7aca00e71",
+  "parentFailedRunId": 42106137923,
+  "retainEveryOriginalRegisteredSeed": true,
+  "currentNativeResultsUnknownAtRegistration": true
+}
