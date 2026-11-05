@@ -31,6 +31,26 @@ Two exact anchor fractions:
 
 The calculation is monotonic: making more cards ineligible to discard cannot create a new paid G&H route. Yet the drop is strongly nonlinear. Protecting the 19 other singletons alone subtracts **1.578152 percentage points** from the permissive 37.877838% access rate, while protecting 40 of 47 reduces it to **13.180671%**. The resource count model still does not price opportunity costs among cards marked eligible. Real discardability depends on the opponent, Prize composition, the tactical plan and next turns.
 
+## Printed G&H optional-payment exception: strategically consequential
+
+The *actual* `Guzma & Hala CEC` text in the provided card pool, `cards/en/sm12.json` printing `sm12-193`, first searches for a Stadium **unconditionally**. Discarding two other cards is optional; paying them unlocks the Tool and Special Energy searches. When the exact singleton Double Colorless Energy was already in the eight opening-plus-draw cards, the owner may **skip discarding altogether** and fetch only Thunder Mountain as Stadium. This is a materially different legal mode of the same Supporter. In particular, the stricter all-paid model overconstrains source hands in which DCE is already held.
+
+The same exact opening/Prize/draw + Mail calculation adds the alternative free Stadium-only mode for hands with DCE already held. That alternative does not claim a better native policy, Stadium acceptance, or successful attack.
+
+| Protected other cards | Paid G&H model | Optional G&H Stadium-only mode allowed when DCE held | Added access |
+| ---: | ---: | ---: | ---: |
+| 0 | 37.877838% | **37.877882%** | +0.000044 percentage points |
+| **19** actual other singletons | 36.299686% | **36.681201%** | +0.381515 percentage points |
+| 30 | 28.447536% | **30.042009%** | +1.594473 percentage points |
+| 40 | 13.180671% | **16.541667%** | +3.360996 percentage points |
+| 47 | 2.484485% | **6.873626%** | +4.389141 percentage points |
+
+For 19 protected, the exact optional-mode total is `392791589553272470125463 / 1070825318401851600588000`. Under maximum residual protection, it is `36019238122028573159941 / 524020900494523123692000`. The recorded numbers are exact enumerations followed by decimal display rounding.
+
+Method: retain all direct/Mail histories with original DCE **already held** and without Prized Thunder Mountain. For these states alone, replace the requirement for two eligible discard cards with the printed Stadium-only option. All otherwise identical states still require the optional two-card payment when DCE is deck-resident and must be searched. The difference in access is exactly the probability of a DCE-held source line whose hand lacks enough unprotected discard targets. This exception is now included in the reusable sensitivity module and checked against a second full eight-category enumeration.
+
+**Interpretation:** multi-mode Supporters can create discrete access routes that become more important as other hand cards become strategically protected. The mathematical approach still omits direct already-held Thunder + DCE attacks without a G&H line, alternate acceleration, and the opponent's responses.
+
 ## Exact method and reproducibility
 
 Preserve each of the original seven categories and their true source counts, `[Basic4, G&H2, Tag2, Thunder1, DCE1, Mail3, other47]`. Exhaustively allocate seven initial cards, six Prize cards and the single subsequent draw by category and verify their exact integer multiplicities against the legal-Basic-opening denominator
