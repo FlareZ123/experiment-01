@@ -36,6 +36,11 @@ test('SFT authenticated source owner hand and Basic/Prize conservation',()=>{
     0.9999445932219041)<1e-12);
   assert.ok(Math.abs(v.k0ProbabilityMegaAndTrubbishBothAvailable-
     0.9774309723889556)<1e-12);
+  assert.equal(v.printedGarbotoxinToolEnablers,6);
+  assert.ok(Math.abs(v.nextOwnerNaturalDrawToolChanceAfterSearchForTrubbish-
+    56/475)<1e-12);
+  assert.ok(Math.abs(v.unconditionalTrubbishSearchAndNextNaturalToolDraw-
+    644/5525)<1e-12);
 });
 
 test('SFT no previous source discard action and unusable held Dark Patch',()=>{
