@@ -72,6 +72,32 @@ class Rank6ProtectedPaymentTest(unittest.TestCase):
         combined = [Fraction(row["combined"]) for row in seen]
         self.assertTrue(all(a > b for a, b in zip(combined, combined[1:])))
 
+    def test_optional_printed_gh_search_needs_no_discard_if_dce_already_held(self) -> None:
+        original = self.by_protected[0]
+        nineteen = self.by_protected[19]
+        forty_seven = self.by_protected[47]
+        self.assertEqual(
+            original["optionalGhPaymentCombined"],
+            "162399288709960885796971/428744373131882555748000"
+        )
+        self.assertEqual(
+            nineteen["optionalGhPaymentCombined"],
+            "392791589553272470125463/1070825318401851600588000"
+        )
+        self.assertEqual(
+            forty_seven["optionalGhPaymentCombined"],
+            "36019238122028573159941/524020900494523123692000"
+        )
+        for protected_row in self.by_protected.values():
+            self.assertGreaterEqual(
+                Fraction(protected_row["optionalGhPaymentCombined"]),
+                Fraction(protected_row["combined"])
+            )
+        self.assertGreater(
+            Fraction(nineteen["optionalGhPaymentCombined"]),
+            Fraction(nineteen["combined"])
+        )
+
     def test_hypergeometric_sanity_and_rejected_invalid_counts(self) -> None:
         gate = MODEL["payment_availability"]
         self.assertEqual(gate(19, 4, 4), 1)
