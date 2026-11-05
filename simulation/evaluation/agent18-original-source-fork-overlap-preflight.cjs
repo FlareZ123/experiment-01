@@ -3,7 +3,15 @@
 /** Compare original-source interventions against a curated evidence registry. */
 function findSourceForkOverlap(proposal,registry){
   const keys=['sourceRegistration','sourceSeat','sourceTurn','sourcePassRootOrdinal','preRootSha256','fullPhysicalDealSha256','sourceDealSha256','enginePin','actionKind','card','recipient'];
-  const missing=keys.filter(k=>proposal?.[k]===undefined||proposal[k]===null||proposal[k]==='');
+  const missing=keys.filter(k=>{
+    const value=proposal?.[k];
+    if(k==='sourceSeat')return value!==0&&value!==1;
+    if(k==='sourceTurn'||k==='sourcePassRootOrdinal')
+      return !Number.isSafeInteger(value)||value<(k==='sourceTurn'?1:0);
+    if(k.endsWith('Sha256')||k==='enginePin')
+      return typeof value!=='string'||!/^[0-9a-f]{64}$/.test(value);
+    return typeof value!=='string'||value.length===0;
+  });
   if(missing.length)return {status:'INSUFFICIENT_CUSTODY',missing,matches:[],competitivelyQualifiedGames:0};
   const roots=registry.entries.filter(r=>r.sourceRegistration===proposal.sourceRegistration&&r.sourceSeat===proposal.sourceSeat&&r.sourceTurn===proposal.sourceTurn&&r.sourcePassRootOrdinal===proposal.sourcePassRootOrdinal);
   const matches=roots.map(r=>({key:r.key,overlap:r.fullPhysicalDealSha256!==proposal.fullPhysicalDealSha256||r.sourceDealSha256!==proposal.sourceDealSha256?'DIFFERENT_DEAL':r.enginePin!==proposal.enginePin?'DIFFERENT_ENGINE':r.preRootSha256!==proposal.preRootSha256?'DIFFERENT_PREFIX':r.actionKind===proposal.actionKind&&r.card===proposal.card&&r.recipient===proposal.recipient?'EXACT_PRIOR_ROOT_ACTION':'DIFFERENT_ACTION',nativeRun:r.nativeRun,reportPath:r.reportPath,observedStage:r.observedStage}));
