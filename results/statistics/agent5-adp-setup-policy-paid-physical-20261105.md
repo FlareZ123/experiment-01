@@ -86,3 +86,17 @@ Because the same source engine also executes each setup policy with Wonder Tag *
 - Enabling legal Wonder Tag raises greedy to **36.651988469%** and Lele-protected to **38.632424277%**. The full increment of **1.980435808 pp** is therefore composed of the **0.930761243 pp baseline setup effect** and a **1.049674565 pp increase in the modeled ability-enabled increment** under this sequence of policy toggles.
 
 With the strict Dragon-only payment profile, the Wonder Tag-disabled baseline difference is **+0.504681657 pp**, versus **+0.649556596 pp** with Wonder Tag enabled. This is a conditional *factorial arithmetic decomposition*, not proof of direct cause in native games. It underscores why a protected-Ability opening policy can still change paid lines in matchups where the Ability itself is locked, through starting-Active selection and card custody; actual matchup effects need full opponent-specific validation.
+
+
+## Direct final source-text cross-check
+
+A final direct check of the provided offline card-list ZIP inspected the exact relevant printing IDs:
+
+- sm12-193 Guzma & Hala is TAG TEAM Supporter and allows discarding **two other cards** to retrieve a Special Energy and Tool in addition to the Stadium search.
+- sm12-206 Tag Call is an Item that retrieves **up to two TAG TEAM cards**, including ADP and Guzma & Hala together.
+- xy6-97 Double Dragon Energy provides **two Energy of every type** only while attached to a Dragon Pokémon, the relevant ADP attachment in this screen.
+- sm2-60 Tapu Lele-GX Wonder Tag explicitly requires playing Lele **from hand onto Bench during the turn**.
+- swsh3-104 Crobat V Dark Asset has a similarly worded hand-to-Bench trigger and should be protected by a fully generic printed-Ability preserving policy.
+- sv5-152 Hero's Cape is an ACE SPEC; the fixed candidate contains exactly one. The candidate has 60 total cards and no single printing above four copies. These checks alone do not certify the complete paper Expanded legality or absence of bans.
+
+The exact category counts, hand-to-Bench eligibility, and core payment assumptions therefore agree with the *supplied database text*; other card effects and the latest official banlist require independent checking before any final competitive-deck certification.
