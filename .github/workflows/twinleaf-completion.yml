@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_v6_bilateral_special_energy_aba:
+        description: 'Additionally compare same registered v6 eight arms with shared both-seat Special Energy attachments'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -96,5 +101,18 @@ jobs:
         with:
           name: agent18-issue25-v6-symmetric-source-roots
           path: agent18-v6-source-roots-native.tap
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Audit one bilateral Special Energy option against the unchanged registered v6
+        if: ${{ inputs.include_v6_bilateral_special_energy_aba }}
+        run: |
+          set -o pipefail
+          node --test tests/agent18-issue25-v6-bilateral-special-energy-aba.native.test.cjs | tee agent18-v6-special-energy-aba.tap
+      - name: Preserve paired v6 Special Energy native evidence including failed arms
+        if: ${{ always() && inputs.include_v6_bilateral_special_energy_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-issue25-v6-bilateral-special-energy-aba
+          path: agent18-v6-special-energy-aba.tap
           if-no-files-found: warn
           retention-days: 21
