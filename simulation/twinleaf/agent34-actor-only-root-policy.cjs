@@ -729,6 +729,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     fundedVmaxFloatStoneRootSelected:0,
+    twoUnitPaidRetreatRootOptIn:deps.twoUnitPaidRetreatRoot===true,
+    twoUnitPaidRetreatRootSelected:0,
     genericFundedFloatStoneAuditOptIn:deps.genericFundedFloatStoneAudit===true,
     genericFundedFloatStoneAudit:{
       ownerRoots:0,ownerHeldToolRoots:0,ownerAttachedToolRoots:0,
@@ -1148,6 +1150,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.flexiblePaidRetreatRootOptIn)
     audit.version+='+'+
       require('./agent10-flexible-paid-retreat-frontier.cjs').VERSION;
+  if(audit.twoUnitPaidRetreatRootOptIn)
+    audit.version+='+'+
+      require('./agent42-public-two-unit-paid-retreat-proposal.cjs').VERSION;
   if(audit.rank9SpecialPaidRetreatOptIn)
     audit.version+='+'+
       require('./agent10-rank9-special-paid-retreat.cjs').VERSION;
@@ -1322,6 +1327,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
+      twoUnitPaidRetreatRoot:audit.twoUnitPaidRetreatRootOptIn===true,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
@@ -1527,6 +1533,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.underworldDoorRootSelected++;
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
       audit.fundedVmaxFloatStoneRootSelected++;
+    if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
+      audit.twoUnitPaidRetreatRootSelected++;
     if(intent.singleHeldPsychicContestedByUnderworld===true)
       audit.underworldActiveFundingPrioritySelected++;
     if(intent.source==='rank13-dragon-donor')
