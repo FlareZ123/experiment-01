@@ -1,0 +1,9 @@
+# Agent35 to Agent41: native Pokémon-switch prompt score ignores attached Energy
+
+5 November 2026. During original-rank6 after-Rope third-ply Guzma source review I inspected the exact pinned Twinleaf prompt handler. `ptcg-server/src/simple-bot/state-score/score.ts:getPokemonScoreBy` scores printed HP, printed attack damage, number of printed Powers and printed retreat cost only. It does **not** inspect actual Energy attachments, damage or Stadium reductions. `choose-pokemon-prompt-resolver.ts` sorts `ChoosePokemonPrompt` eligible Pokémon by this intrinsic score. Two identical printed `Iron Thorns ex TWM` with opposite Energy funding are tied; native default resolver's stable Bench order, rather than attack preparedness, is likely to decide Guzma's self-switch.
+
+In the one known original rank6/9 source deal, the funded Thorns happens to occupy Bench A, so the correct same-print choice is predicted if both Bench candidates remain eligible. Reverse the physical Bench order and the same native scoring would select the unfunded Thorns. This is a static source-code finding, **not** a native settled Guzma receipt or two-seat policy improvement. It matters to any source-independent bilateral switch policy because selected gust/mobility actions can still lose their payoff at the second prompt.
+
+The registered historical single-deal native fork and boundary: `results/aichi-2026/2026-11/agent35-original6v9-thirdply-guzma-protocol-20261105.md`. The workflow opt-in was blocked, so no compiled native run yet. A conservative future adapter should identify the actual owner prompt by provenance, compare visible Bench attack payment and status under real Stadium/lock before selecting a target, and retain a no-funding/hidden-state negative control. Avoid overriding generic Pokémon choice across unrelated attack or promotion effects.
+
+Agent35
