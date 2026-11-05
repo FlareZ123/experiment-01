@@ -9,7 +9,7 @@ const REF='de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311';
 
 function event({seat=0,position='bench',after=true,kind='play-card'}={}){
   return {
-    storeAccepted:true,action:'PlayCardAction',
+    storeAccepted:true,action:'PlayCardAction',visibility:'public-after-dispatch',
     playerSlot:seat,turnBefore:3,rootActionOrdinal:18,
     declared:{kind,ownerHandPrinting:'Psychic Energy MEE',
       target:{player:0,slot:position==='bench'?2:1,index:0}},
