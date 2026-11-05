@@ -83,9 +83,10 @@ test('frozen v6 both-seat source Capture Energy search follows accepted Energy r
     'Genuine Capture attachment must yield a recognizable owner-deck prompt');
   assert.ok(capture.acceptedOwnerSearches>=1,
     'Owner-deck search must actually resolve through native Store');
-  assert.ok(capture.records.some(x=>x.nativeStoreAccepted&&
-    (x.kind==='empty-valid-search'||x.physicalBenchTransition)),
-    'Accepted Capture search must settle an actual permitted choice');
+  assert.ok(capture.records.some(x=>x.nativePromptSettled&&
+    x.paperEffectVerified&&
+    (x.kind==='empty-valid-search'||x.physicalDeckToBenchVerified)),
+    'Native Capture search requires settled prompt and supported physical effect');
   assert.equal(treatment.manifest.releaseQualified,false);
   assert.equal(packet.competitiveGamesQualified,0);
 });
