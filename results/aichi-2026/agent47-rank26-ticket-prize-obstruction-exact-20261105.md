@@ -51,3 +51,24 @@ The tempting alternative `1-C(54-12,7)/C(54,7)` for a valid opening conditional 
 All combinatorial values follow from exact integer binomial coefficients. The two-card conditional event may independently be checked by first choosing a valid seven free of T and D, then placing those two among the six Prizes of the remaining 53. The three-card calculation follows the same procedure; no simulator is necessary. The source's existing [prepared continuing pinned-Twinleaf five-self-KO and Crisis native proof](agent47-rank26-unownless-single-lightning-full-chain-native-20261103.md) confirms **conditional mechanical reachability** of the finisher after synthetic resource setup, while the [24-paired natural owner-source experiment](agent47-rank26-natural-owner-24-paired-source-20261103.md) recorded **zero** natural first-turn Crisis attacks or completed matches. Neither archive changes the exact setup obstruction event or upgrades it to a qualified win estimate.
 
 This structural veto should be used as an **adversarial Prize test case** when claims are made about rank26's immediate win against the four-Iron-Thorns opponents. A proposed engine/policy path that wins going first on E must show a concrete, printed, paper-valid way to obtain the trapped card or bypass its necessity; otherwise its assumptions are wrong. Do not extrapolate this bound to later-turn wins, other opponents, or the single best fixed 60 against the entire field. The repo's honest benchmark remains **29/32 authenticated original sixties, zero competitively qualified games, no chosen optimized fixed 60, and no evidenced 99.5% win rate**.
+
+## Stronger disjoint extension: both Basic Lightning cards trapped
+
+A further exact obstruction uses the *two original physical Basic Lightning Energy cards* `L1` and `L2`. If **Ticket and both Lightning Energy are Prized**, even an accessible Double Colorless Energy provides only two attack Energy units; Koko cannot find a Lightning in the source discard and the original 60 has no other Energy cards. This event also denies the named first-player turn-one Meloetta attack. It survives as an obstruction even when Cologne is accessible and suppresses Initialization. Thus the broader sufficient blocking event is:
+
+`F = {T Prized AND [C Prized OR D Prized OR (L1 and L2 both Prized)]}`.
+
+**F contains the original event E.** The original E bound above remains correct, but this F bound is strictly stronger and should be used for any first-turn-win ceiling. Let `p_k=C(60-k,6-k)/C(60,6)` be the unconditional chance that a specific set of `k` distinct physical non-Basic cards all appears in six Prizes. The pairwise overlap of `{T,L1,L2}` and `{T,C or D}` is `2p_4-p_5`. Hence:
+
+`P(F) = (2p_2-p_3) + p_3 - (2p_4-p_5) = 2p_2-2p_4+p_5 = 1.688872971%`.
+
+Conditioning on rank26's valid seven uses the general formula
+
+`q_k = [C(60-k,7)-C(60-k-12,7)] C(53-k,6-k) / {[C(60,7)-C(48,7)] C(53,6)}`
+
+for `k=2,3,4,5`. This treats every designated singleton or Lightning copy as non-Basic. With `q_2=0.860683385%`, `q_4=0.003172657%` and `q_5=0.000114183%`:
+
+**`P(F | valid source seven) = 2q_2-2q_4+q_5 = 2564127669643/149499993622980 = 1.715135638%`.**
+
+Therefore the stronger necessary upper bound for the original rank26 source, **going first against a live original Iron Thorns-only opponent**, is **98.284864362% first-turn wins** conditional on its Basic-valid opening seven. The extra Lightning event and intersection calculations are state-independent Prize facts; as before, this is no prediction of a natural first-turn win, future-game outcome, or tournament result. If an actual rank26 card provides a separate Energy-unit or turn-one attack-authorization route not considered in the original printed-source inventory, it would require revisiting the impossibility interpretation while preserving the card-location probabilities.
+
