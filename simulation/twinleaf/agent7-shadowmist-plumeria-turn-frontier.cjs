@@ -43,7 +43,8 @@ function compactRoot(view){
 
 /**
  * Reversible, strictly read-only native Store observation at source seat1
- * turn3 PlayCardAction and candidate seat0 turn4 PassTurnAction.
+ * turn3 PlayCardAction, candidate seat0 turn4 PassTurnAction, and source
+ * seat1 turn5 PassTurnAction.
  * A game gets an ordinal only after the original AddPlayerAction settles,
  * using the same native Store/player identity convention as the established
  * Agent7 original source-owner Pass observer.
@@ -71,7 +72,8 @@ function withPlumeriaTurnFrontier(execute,deps={}){
       state.players?.length===2&&
       !(state.prompts??[]).some(p=>p.result===undefined)&&
       ((seat===1&&state.turn===3&&kind==='PlayCardAction')||
-        (seat===0&&state.turn===4&&kind==='PassTurnAction'));
+        (seat===0&&state.turn===4&&kind==='PassTurnAction')||
+        (seat===1&&state.turn===5&&kind==='PassTurnAction'));
     if(relevant){
       const view=actorObservation(state,seat);
       game.entries.push({
