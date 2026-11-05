@@ -373,13 +373,30 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
           aBoard.publicBoardHmacSha256===bBoard.publicBoardHmacSha256:null
       };
     });
-    return {id,bothCaptured:!!first&&!!second,physicalSeats:individual};
+    const candidateSeat=id.split(':')[2]==='A'?0:1;
+    const sourceSeat=1-candidateSeat;
+    return {id,bothCaptured:!!first&&!!second,
+      sourceSeat,candidateSeat,physicalSeats:individual};
   });
   const publicBoardSeatPairs=firstTurnBoardRows.flatMap(row=>row.physicalSeats);
   const firstTurnBoardDifferences=publicBoardSeatPairs.filter(row=>
     row.samePublicPokemonBoard===false).length;
   const firstTurnBenchCountDifferences=publicBoardSeatPairs.filter(row=>
     row.sameBenchCount===false).length;
+  const byRole={
+    source:{
+      changedPokemonBoards:firstTurnBoardRows.filter(row=>
+        row.physicalSeats[row.sourceSeat].samePublicPokemonBoard===false).length,
+      changedBenchCounts:firstTurnBoardRows.filter(row=>
+        row.physicalSeats[row.sourceSeat].sameBenchCount===false).length
+    },
+    contender:{
+      changedPokemonBoards:firstTurnBoardRows.filter(row=>
+        row.physicalSeats[row.candidateSeat].samePublicPokemonBoard===false).length,
+      changedBenchCounts:firstTurnBoardRows.filter(row=>
+        row.physicalSeats[row.candidateSeat].sameBenchCount===false).length
+    }
+  };
   const actualInitialStarterMatches=rows.filter(row=>
     row.actualNativeInitialStarterVerified).length;
   const allActualInitialStartersMatch=actualInitialStarterMatches===8;
@@ -441,6 +458,7 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       protectedNativeBoardsBeforeFirstAction:beforeFirstB.size,
       changedPhysicalOwnerPokemonBoards:firstTurnBoardDifferences,
       changedPhysicalOwnerBenchCounts:firstTurnBenchCountDifferences,
+      byRole,
       rawBoardNamesOrFingerprintsPublished:false,
       trials:firstTurnBoardRows
     },
