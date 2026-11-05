@@ -160,6 +160,9 @@ function run(deps={}){
     sourceFollowthroughPrompts:promptRoots,
     sameTurnRealOwnerDarknessEnergyPlayRoots:sourceEnergyPlays,
     originalSourceRowDisposition:trial.status??null,
+    originalSourceArchivedNativeError:trial.error??null,
+    originalSourceNativeStoreCauseStack:trial.nativeStoreCauseStack??null,
+    originalSourceNativeAbortProvenance:trial.nativeAbortProvenance??null,
     originalSourceAcceptedRoots:roots.length,
     allNativeArmDispositions:rows.map(row=>({
       id:row.trial?.id??row.id,
