@@ -62,6 +62,15 @@ function fixture(label){
           version:'v1',printedEntrances:2,
           interceptedSupporterSearches:2,zeroSelections:0,
           nonzeroNativeSelections:2,repairedShuffles:0
+        },
+        registeredWonderTagActorWitness:{
+          version:'witness-v1',observedSearchDecisionCount:2,
+          decisions:[
+            {id:ids[6],actorSeat:0,globalTurn:2,answerCardinality:1,
+              ownerDeckPrintingsOmitted:true},
+            {id:ids[7],actorSeat:0,globalTurn:2,answerCardinality:1,
+              ownerDeckPrintingsOmitted:true}
+          ]
         }
       }:{}}
     }
@@ -80,7 +89,12 @@ test('owner Wonder Tag and printed attack wrapper preserve execution result, ful
     ()=>{sequence.push('live-work');return {trueResult:true};},{
       attack:wrap('attack',{printedAttacks:3}),
       wonder:wrap('wonder',{confirmed:1}),
-      shuffle:wrap('shuffle',{zeroSelections:0})
+      shuffle:wrap('shuffle',{zeroSelections:0}),
+      witnessFactory:()=>({
+        run:work=>work(),
+        selectSupporterIndex:()=>0,
+        audit:{version:'fixture',observedSearchDecisionCount:0,decisions:[]}
+      })
     });
   assert.deepEqual(sequence,[
     'shuffle-start','wonder-start','attack-start','live-work',
@@ -104,6 +118,9 @@ test('same exact 8 IDs and both owner prechoice physical 60 match without inferr
   assert.equal(report.sameRepositoryPin,true);
   assert.equal(report.comparisonEligibleForPolicyStudy,true);
   assert.equal(report.actualOwnerWonderTagAudit.settledSupporterTransfers,2);
+  assert.equal(report.registeredWonderTagActorWitness.authenticatedTrialAndActorSeat,true);
+  assert.equal(report.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
+  assert.equal(report.registeredWonderTagActorWitness.decisions[0].id,ids[6]);
   assert.equal(report.actualZeroSearchShuffleAudit.nonzeroNativeSelections,2);
   assert.equal(report.claimSingleExecutingChangeCertified,false);
   assert.equal(report.competitiveGamesQualified,0);
@@ -171,4 +188,24 @@ test('reject a native HMAC replaced by unproven bare text or an after-choice obs
   b.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
     .firstBeforeAnyOwnerSetupChoice=false;
   assert.throws(()=>compareProtectedWonderTagV10(a,b));
+});
+
+test('trial owner witness declines attribution on unregistered native search',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.audit.firstBlockedPromptEnvelope
+    .registeredWonderTagActorWitness.decisions[1].id='other-trial';
+  const report=compareProtectedWonderTagV10(a,b);
+  assert.equal(report.registeredWonderTagActorWitness
+    .authenticatedTrialAndActorSeat,false);
+  assert.equal(report.registeredWonderTagActorWitness
+    .nativeSettlementOfEveryChoiceAttested,false);
+});
+
+test('trial owner witness refuses native settlement assertion after missing physical transfer',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  b.diagnostic.audit.firstBlockedPromptEnvelope
+    .sourceIndependentOwnerWonderTag.nativeCustodyFailures=1;
+  const report=compareProtectedWonderTagV10(a,b);
+  assert.equal(report.registeredWonderTagActorWitness.authenticatedTrialAndActorSeat,true);
+  assert.equal(report.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,false);
 });
