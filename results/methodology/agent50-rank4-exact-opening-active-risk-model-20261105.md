@@ -23,6 +23,8 @@ Hence `Pr(positive | valid seven) = P/V = 0.3645142060823631`, the independently
 
 `q = [Σ_{t,r} C(6,t)C(7,r)C(47,7−t−r) × t/(t+r)] / P = 0.49188478459923624`.
 
+**Safe ordinary starting Bench subevent:** A *different* protected multi-Basic opener can preserve an ordinary initial Bench only if the positive opening contains at least two ordinary Basics (`r≥2`). The exact subcount under the same conservative six-Basic cap is `Σ_{t≥1,r≥2,t+r≤6} C(6,t)C(7,r)C(47,7−t−r) = 32313722`. This equals **9.9944883235% of valid sevens** or **27.4186524332% of positive hands**. The complementary **85539342 positive openings**, **72.5813475668% of positive hands**, have exactly one ordinary Basic; placing only ordinary Basics at setup leaves a *solo Active*, despite preserving the entry support option. The 32 native fixed-seed sample had two of eleven positives with ≥2 ordinary Basics, consistent with an observed but unrepresentative 18.18% subgroup rate. This is a physical setup frontier, not an observed first-turn KO event.
+
 Every entry-priority positive hand instead chooses an ordinary Active. Symmetry of equally randomized physical cards implies the expected HP and Prize liabilities within each group are the copy-weighted values:
 
 | Conditional physical Basic class | Mean Active HP | Mean Prize cards upon Active KO |
