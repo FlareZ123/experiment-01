@@ -19,6 +19,8 @@ function eligibleOwnerGuzma(view,registered){
      view.globalTurn!==registered.turn||
      !Array.isArray(view.ownHand)||
      !view.ownPublic?.active||
+     !Array.isArray(view.ownPublic.stadium)||
+     !view.ownPublic.stadium.includes(registered.requiredOwnStadium)||
      !Array.isArray(view.ownPublic.bench)||
      !Array.isArray(view.opponentPublic?.bench)||
      view.ownTurnResources?.supporterPlayedTurn!==0||
