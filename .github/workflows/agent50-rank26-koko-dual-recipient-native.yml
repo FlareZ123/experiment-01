@@ -449,6 +449,10 @@ jobs:
         env:
           AGENT3_V14_OUTPUT_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.native.test.cjs
+      - name: Additional source-registered KO Prize native physical settlement audit
+        env:
+          AGENT3_V16_PRIZE_RECEIPT_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v16-ko-prize-settlement-observer.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
