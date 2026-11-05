@@ -118,7 +118,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v11-secret-box-physical-payment';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v12-prompt-result-settlement';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -327,6 +327,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
+    nativeReturnedWithoutThrow:0,nativePromptSettled:0,
+    nativeSilentNoop:0,nativeSettlementUnverified:0,
     vetoedBeforeDispatch:0,nativePreflightVetoed:0,
     markedVoltCyclonePrompts:0,markedPainfulSpoonsPrompts:0,
     inspectedRoxiePaymentPrompts:0,
@@ -534,7 +536,9 @@ function withPaperPromptContractPortfolio(run,deps={}){
       contract,status,reason,submittedCount:Array.isArray(action.result)?
         action.result.length:null,nativeAccepted:false,
       vetoedBeforeDispatch:false,nativePreflightRejected,
-      choiceGeometry};
+      nativeReturnedWithoutThrow:false,nativePromptSettled:false,
+      nativeSilentNoop:false,nativeSettlementUnverified:false,
+      physicalEffectVerified:false,choiceGeometry};
     audit.resolvedNativeReplies++;
     store.attemptedPromptReplies++;
     if(trial){
@@ -566,10 +570,25 @@ function withPaperPromptContractPortfolio(run,deps={}){
     }
     try{
       const result=dispatchBefore.value.call(this,action,...args);
-      event.nativeAccepted=true;
-      store.acceptedPromptReplies++;
-      audit.nativeAccepted++;
-      if(trial)byTrial[trial].nativeAccepted++;
+      event.nativeReturnedWithoutThrow=true;
+      audit.nativeReturnedWithoutThrow++;
+      const resolved=prompt&&prompt.result!==undefined&&
+        Object.is(prompt.result,action.result);
+      event.nativePromptSettled=Boolean(resolved);
+      if(resolved){
+        event.nativeAccepted=true;
+        audit.nativePromptSettled++;
+        store.acceptedPromptReplies++;
+        audit.nativeAccepted++;
+        if(trial)byTrial[trial].nativeAccepted++;
+      }else if(prompt&&prompt.result===undefined&&
+               this.state.prompts?.includes(prompt)){
+        event.nativeSilentNoop=true;
+        audit.nativeSilentNoop++;
+      }else{
+        event.nativeSettlementUnverified=true;
+        audit.nativeSettlementUnverified++;
+      }
       return result;
     }catch(error){
       audit.nativeRejected++;
