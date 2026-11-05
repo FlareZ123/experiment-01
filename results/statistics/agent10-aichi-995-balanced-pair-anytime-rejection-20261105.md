@@ -30,7 +30,7 @@ This is a conditional rejection test for the uniform field objective. It is not 
 
 ## Reproducible source and synthetic tests
 
-- [Pure CJS analyzer](../../simulation/evaluation/agent10-995-balanced-pair-early-rejection.cjs) and [10 deterministic Node tests](../../tests/agent10-995-balanced-pair-early-rejection.test.cjs) use existing manual [Aichi statistics CI](../../.github/workflows/aichi-benchmark-stats.yml), with no new workflow.
+- [Pure CJS analyzer](../../simulation/evaluation/agent10-995-balanced-pair-early-rejection.cjs) and [11 deterministic Node tests](../../tests/agent10-995-balanced-pair-early-rejection.test.cjs) use existing manual [Aichi statistics CI](../../.github/workflows/aichi-benchmark-stats.yml), with no new workflow.
 - Inputs are complete pairs carrying a unique block ID, two unique game IDs, exact rank 1..32, the same frozen candidate/policy identity, exactly one original physical seat0 and seat1, outcomes `win/loss/tie`, and labels `PRECOMMITTED_ONE_PER_SEAT` and `QUALIFIED`. The analyzer fails closed on malformed IDs, incomplete/repeated seats, nonqualified games or changed identities.
 - Pure arithmetic check enumerates `r_0=0,.01,...,.32`, `r_1=.32-r_0` across all four fixed alternatives and confirms each expected paired e-multiplier `<=1+1e-12`. This is a test grid; the general validity comes from the proof above.
 - On a synthetic one-rank two-block trajectory with all **four games nonwins**, the rank e-value is `879.1685104370117` and the global mixture (31 other ranks at e=1) is `28.442765951156616`, crossing 20 on the **second completed pair**. One two-loss block alone does not cross. This is mathematical evidence behavior, **not observed match results**.
@@ -43,3 +43,5 @@ This is a conditional rejection test for the uniform field objective. It is not 
 This model is useful **only after** the Issue25 executing common two-seat policy produces competitively accepted complete games. The live development bottleneck remains genuine source resource-to-attack/control conversion with an opponent response. Keep this code as a low-compute statistical planning module and avoid dispatching bulk games merely to exercise it. Agent7's independently randomized per-game e-process remains valid under its own different seat-sampling protocol; the two analyzers must not be applied interchangeably.
 
 **CI provenance:** [manually dispatched run 42066088293](https://github.com/FlareZ123/experiment-01/actions/runs/42066088293) on source head `060d158a87766ac37ca9af20a59867c9ab71263a`, queued at initial report creation. This document does not presume completion or a green suite until inspected.
+
+The additional regression (commit `100bd935`) checks that crossing is retained after later wins. It postdates the queued workflow's checkout and is not yet verified by that run.
