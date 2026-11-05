@@ -40,11 +40,26 @@ A readout-only revision under the identical preregistered A/B/A re-ran successfu
 
 All three distinct owner prompts were actually accepted through the native action ledger, so the combined policy progressed through the entire action sequence without a prompt decoder abort. This strengthens the earlier Store root evidence. The **physical owner-payment and opponent Energy-card transfer** still require a direct per-trial Store state transition audit, since accepted prompt actions alone are insufficient to certify custody.
 
+## Native physical-card settlement, independent per-trial confirmation
+
+The existing `agent4-plumeria-after-pass.cjs` owner-only adapter records `settledEnergyDiscards` only after the real native Store accepts the source owner's mandatory **two physical hand-card discards**, confirms the selected opponent's originally attached Energy card is absent from the target and appears in the opponent's discard pile, and confirms the opponent's attached-Energy count decreased.
+
+A final **readout-only audit** was harvested from the actual original rank6 source rows under the identical preregistered A/B/A policy: [compiled CI 42098823393](https://github.com/FlareZ123/experiment-01/actions/runs/42098823393), [artifact 13448511371](https://github.com/FlareZ123/experiment-01/actions/runs/42098823393/artifacts/13448511371). This is source-state evidence within the pinned engine.
+
+| Original `6:100:A:champion-reference` source | A control | B after two early Mail | A repeated |
+| --- | --- | --- | --- |
+| Store-accepted actual Plumeria root | 1 | **1** | 1 |
+| Physically confirmed two-owner-card payment + opposing Energy discard | **1** | **1** | **1** |
+| Per-seat native audit `seat1.accepted/settled` | 1/1 | 1/1 | 1/1 |
+| Candidate voluntary turn4 action | Pass | Pass | Pass |
+
+The original rank6 New Moon matchup had zero accepted or physically settled Plumeria in every condition. The physical audits therefore establish that **early consumption of the two original Mail did not block a fully paid and physically effective later Plumeria** in this particular source opening. The optional detailed `physicallyAcceptedOwnerPayments` logging was disabled, producing an empty printed-name array. It should never be interpreted as zero payment, because the physical-settlement predicate independently verifies both owner cards reached discard. The two replacement payment card identities, option costs and future access remain unverified. Root caps, game-time and shared-RNG uncertainty still prevent any game-strength claim.
+
 ## Qualified conclusion and limits
 
-**The same physical starting-deal rank6 reference opening proves that using both Mail on turn1 did not mechanically prevent the subsequent genuine native turn3 Plumeria card play.** The existing actor-only Plumeria fallback could still select a route. That does not establish that Plumeria's two-card mandatory discard was paid with the same card identities, that the same opposing Psychic Energy was physically removed under the combined policy, or that additional Mail improved win odds. Native turn4 Pass is a real public decision; a forced Pass is not established.
+**The same physical starting-deal rank6 reference opening proves that using both Mail on turn1 did not mechanically prevent the subsequent genuine native turn3 Plumeria card play.** The existing actor-only Plumeria fallback could still select a route. The existing physical Store audit confirms actual two-card owner hand payment and an opposing attached Energy removal under both A and B, but the exact two discarded owner card printings were not separately recorded; no evidence shows that early Mail improved win odds. Native turn4 Pass is a real public decision; a forced Pass is not established.
 
-The separate Agent7 study proves physical source Plumeria two-card payment and opponent Energy discard **under its earlier control setup**, which cannot be silently imported into this changed B run. The immediate next evidence gate is to preserve the current source turn3 native Plumeria prompt actions and a fresh exact owner-payment/target/remaining Energy transfer receipt **in this same combined policy**.
+Agent7's earlier exact-rank6 study is an independent supporting baseline. The current combined B branch now also has its own native Store physical effect audit, with the exact owner-payment identities and full terminal outcomes remaining open.
 
 Two correlated rank6 openings, six negative-control arms, a 48-root cap, zero game terminals, and the unrelated rank11 native error are retained. The shared RNG confound remains, as explicitly registered. There is no demonstrated win rate, selected 60-card final deck or 99.5% result.
 
