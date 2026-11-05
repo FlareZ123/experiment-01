@@ -96,6 +96,28 @@ test('no opponent private field or foreign owner prompt can become a valid respo
   v.state.prompts[0].playerId=111;
   assert.equal(chooseOwnVoltTransfer(v.state,v.owner.id,enums),null);
 });
+test('actual printed native prompt lacks min/max but one-card validated owner move is playable',()=>{
+  for(const seat of [0,1]){
+    const v=board(seat);
+    delete v.state.prompts[0].min;
+    delete v.state.prompts[0].max;
+    delete v.state.prompts[0].allowCancel;
+    const intent=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+    assert.ok(intent);
+    assert.equal(intent.result.length,1);
+    assert.strictEqual(intent.result[0].card,v.moves[2]);
+    assert.equal(intent.benchIndex,1);
+    assert.equal(v.state.prompts[0].validate(intent.result,v.state),true);
+  }
+});
+test('explicit contradictory printed count still rejects before native decoder',()=>{
+  const v=board(0);
+  v.state.prompts[0].min=2;
+  assert.equal(chooseOwnVoltTransfer(v.state,v.owner.id,enums),null);
+  v.state.prompts[0].min=1;
+  v.state.prompts[0].max=0;
+  assert.equal(chooseOwnVoltTransfer(v.state,v.owner.id,enums),null);
+});
 test('physical identity and validator must agree before reply',()=>{
   const v=board(0);
   v.state.prompts[0].validate=()=>false;
