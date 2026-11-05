@@ -1,6 +1,6 @@
 # Agent 8 | 5 November 2026 | owner-bound Wonder Tag prompt baseline for Issue #25
 
-**Status:** new research-owned hook and ten pure two-seat mock regressions pass locally; compiled pinned-Twinleaf native fixture is committed but **not yet executed in GitHub Actions**. No release certification, no natural-game estimate and **zero qualified competitive games**.
+**Status:** new research-owned hook and twelve pure two-seat mock regressions pass locally; compiled pinned-Twinleaf native fixture is committed but **not yet executed in GitHub Actions**. No release certification, no natural-game estimate and **zero qualified competitive games**.
 
 ## Motivating native failure
 
@@ -16,7 +16,7 @@ The default first valid Supporter rule is a minimal source-independent liveness 
 
 ## Regressions and proposed native gate
 
-- [Ten pure tests](../../tests/agent8-owner-wondertag-prompt.test.cjs) passed with local Node on 5 November, testing both seats, Supporter-present/absent search, unrelated Confirm delegation, opponent-hidden-zone noninterference and prototype restoration after an exception, other-owner queued prompts, and an opt-in legal Supporter selection callback. These use a deliberately faithful mock of the relevant native callback path, **not compiled Twinleaf**.
+- [Twelve pure tests](../../tests/agent8-owner-wondertag-prompt.test.cjs) passed with local Node on 5 November, testing both seats, Supporter-present/absent search, unrelated Confirm delegation, opponent-hidden-zone noninterference and prototype restoration after an exception, other-owner queued prompts, and an opt-in legal Supporter selection callback. These use a deliberately faithful mock of the relevant native callback path, **not compiled Twinleaf**.
 - [New compiled native test](../../tests/agent8-owner-wondertag-prompt.native.test.cjs) is committed to exercise authentic rank-1/rank-10 printed original 60s staged with Lele in hand in each physical seat, genuine PlayCardAction, the actual pinned SimpleTacticsAi decoder seam, real prompt actions, Store accepted transitions and Supporter custody. Its ShowCards acknowledgment and shuffle choices are deliberately supplied by the fixture, so it **does not prove a fully autonomous whole-game policy**.
 - The existing manually dispatched [radiant-gate-engine workflow](../../.github/workflows/radiant-gate-engine.yml) now includes the two new tests. No workflow triggered on commits was introduced. **The native outcome remains UNVERIFIED until that workflow actually runs against the new source revision.** Do not treat the test file or CI configuration as a passing native fixture.
 
@@ -33,6 +33,8 @@ Under an independent uniformly random initial seven, conditional on at least one
 The first event has numerator `C(59,6)-C(50,6)`. For all full 7-hand/6-Prize physical deals satisfying the first event, exhaustive multivariate counting of the eight Supporters gives only `72,941,400 / 669,595,630,769,520 = 0.00001089335%` probability that **none** of those Supporters remains in the 47-card deck. For a target-specific search, rank 11 has two Guzma. Given the same Lele-plus-nontrigger initial-seven condition, a 6-Prize combinatorial count gives probability 23,466,973,854,240 / 669,595,630,769,520 = 3.5046486% that both Guzma are absent from the remaining 47-card deck. The disjoint cases are both Prized (0.8963295%), one in opening hand and one Prized (1.9211330%), or both in opening hand (0.6871860%). Hand-held Guzma is still usable, so absence from the deck is not absence from play. The distinction shows why searching some Supporter says little about target-specific gust access or Prize recovery; a tactical selector needs real-state testing.
 
 This is mathematical availability, not a forecast of actual ability use: the chosen setup, active locks, Bench geometry, turn state, reward quality, owner strategy and possible other Supporter access are all excluded. It is also source-11-specific, not a claim about the missing three Top-32 decks. This refines the broader previously published rank-11 **18.5338% both-trigger-card opening opportunity**, which counts Crobat-only as well as Lele openings.
+
+The generic owner-modal fallback currently declines optional Confirm prompts. Two additional locally executed mocked wrapper-precedence regressions prove that installing generic modal first and exact Wonder Tag decoder second gives the source-bound `true` response, whereas the reverse order shadows the exact handler and yields `false`. This establishes the composition precedence mechanically for the mocks. A full v14/v15 native A/B/A test is still required to prove the actual selected stack uses the intended order.
 
 ## Integration and falsification criteria
 
