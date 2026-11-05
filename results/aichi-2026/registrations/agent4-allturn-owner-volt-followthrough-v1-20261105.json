@@ -1,0 +1,32 @@
+{
+  "schema": "agent4-owner-volt-allturn-native-original-eight-v1-preregistered",
+  "registeredAtUTC": "2026-11-05T21:14:00Z",
+  "researchClass": "source-independent-both-seat-paper-owner-prompt-policy-development",
+  "sourceOriginal": "results/aichi-2026/registrations/agent4-mail-postsetup-original-eight-96root-extension-v3-20261105.json",
+  "printedDecks": "all exact original 8 rank6/rank11 opponent and champion/New Moon candidate printed sixties unchanged",
+  "originalNativeRequests": 32,
+  "nativeRootCap": 96,
+  "selectedOwnerPolicy": "existing steward v5 plus one narrow real active Iron Thorns ex TWM mandatory Volt Cyclone AttachEnergyPrompt answer on both seats at any game turn",
+  "policyInformationBoundary": "choose only actual actor-own active publicly attached physical Energy, actor-own occupied Bench Pokemon and actor-owned prompt; no opponent hidden zones, own hand, deck or Prize inspection",
+  "energyDonorHeuristic": "move eligible Capture Energy before Double Colorless or Speed Lightning; prioritize own Benched Iron Thorns ex with fewest Energy, tied by stable index, validate exact native prompt geometry and object identity",
+  "independentNativePaperEffect": "agent39-paper-prompt-portfolio-v4b live attached-energy physical settlement observer+guard on all actual matches",
+  "afterSetupPhysicalRandomness": "legacy common turnzero source opening; A/B/A postsetup per-seat physical deck shuffles; existing policy RNG already isolated",
+  "phases": [
+    "legacy-unchanged-RNG-owner-resolver",
+    "A-aftersetup-owner-resolver",
+    "B-Mail-aftersetup-owner-resolver",
+    "A-repeat-aftersetup-owner-resolver"
+  ],
+  "gates": [
+    "all 32 originals, original source deck seed and genuine 96-root caps preserved",
+    "all eight complete initial physical setups match historical v5 legacy and A/B/A",
+    "all eight A-repeat accepted public root tapes identical",
+    "source-ranked Iron Thorns own mandatory AttachEnergyPrompt is answered with real physical active attached Energy and actually occupied own Bench",
+    "every marked prompt verified by independent live native Store result and exact physical Energy transfer (no false success on nonthrowing no-op)",
+    "owner policy applied symmetrically to both physical seats without opponent concealed info",
+    "replayed source rank6 seed100 legacy and B attack actual 140 damage, physical moved Energy, and first accepted candidate nonprompt action when reachable",
+    "retain all aborts and action caps; no competitive games admitted"
+  ],
+  "zeroGameQualification": true,
+  "resultFile": "simulation/evaluation/agent4-owner-volt-original-eight-followthrough-v1.cjs"
+}
