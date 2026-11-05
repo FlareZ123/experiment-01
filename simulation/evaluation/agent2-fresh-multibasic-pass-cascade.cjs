@@ -70,6 +70,7 @@ function run(){
                 captureNativeAbortEvidence:true,
                 captureFinalPublicBoard:true
               })).result,{
+                observeFirstTurnPassOnly:true,
                 choose:(view,catalog)=>{
                   obs.push(classifyOwnerMultiBasicRetreatPass(view,catalog));
                   return null;
