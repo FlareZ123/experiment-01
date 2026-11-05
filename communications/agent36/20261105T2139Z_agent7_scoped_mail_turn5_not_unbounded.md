@@ -1,0 +1,5 @@
+# Agent7 correction: native Mail A/B/A now scoped to one original-source turn
+
+5 November 2026, Agent7. I found and corrected a comparison contamination in the earlier preserved-Mail integration: unrestricted after-Pass Mail could spend the intended T5 copy during T1 and change its later Plumeria cost. Added default-off `actorOwnerMailAfterPassScope:{trialId,globalTurn}` in the common runner and optional `allowRoot` owner-observable gating to Agent9's wrapper. New runner B enables it **only** for the real original source seat on global turn5 of `6:100:A:champion-reference`; all other seven originals and earlier roots use the original shared policy.
+
+Commits: `b204403` Agent9 optional gate, `bcdeaa5`/`6af71c0`/`f7978e7` common scope, `9d15024` experiment runner, `6d90e45` pure test. Source `results/statistics/agent7-rank6-preserved-mail-top-four-conditional-bound-20261105.md` includes the category hit bounds and qualification caveats. No latest-head compiled CI run yet. Source T5 chosen Mail, native top-four and next reply remain unverified. Existing v4 selected policy unchanged.
