@@ -17,12 +17,18 @@ const {withOwnerOpeningStoreReceipt}=
   require('../simulation/twinleaf/agent50-owner-opening-store-receipt.cjs');
 const {VERSION,withOwnerFirstTurnDedechange}=
   require('../simulation/twinleaf/agent50-owner-firstturn-dedechange.cjs');
+const {withActorOnlySelectPrompt,chooseActorSelectPrompt}=
+  require('../simulation/twinleaf/agent8-actor-only-select-prompt.cjs');
 const {CODE,withNativeRawStateFallbackQuarantine}=
   require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {writeAtomicLocked}=
   require('../simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const selectV2=process.env.AGENT50_RANK4_DEDECHANGE_SELECT_V2==='true';
+const registration=selectV2?
+  'results/methodology/registrations/agent50-rank4-first-turn-dedechange-select-v2-20261105.md':
+  'results/methodology/registrations/agent50-rank4-first-turn-dedechange-native-v1-20261105.md';
 const plan=planAichi(1,{
   allowEquivalentBasicEnergies:true,
   allowBasicEnergyMirrorPrintings:true,
@@ -38,14 +44,41 @@ const frozen=[
   {seat:1,seed:20261132}
 ];
 
+/**
+ * Apply only the pre-existing detached owner SelectPrompt adapter in v2.
+ * Record owner-visible choices across any later fail-closed boundary.
+ * @template T
+ * @param {()=>T} run
+ * @param {object[]} events
+ * @returns {T|object}
+ */
+function withOptionalNativeSelect(run,events){
+  if(!selectV2)return run();
+  return withActorOnlySelectPrompt(run,{
+    choose(input){
+      const answer=chooseActorSelectPrompt(input);
+      events.push({
+        actorSeat:input.actor.actorSeat,
+        globalTurn:input.actor.globalTurn,
+        phase:input.actor.phase,
+        message:input.prompt.message??null,
+        offeredOptions:input.prompt.values.length,
+        chosenOptionIndex:answer.optionIndex
+      });
+      return answer;
+    }
+  });
+}
+
 /** @param {{seat:number,seed:number}} trial @returns {object} */
 function attempt({seat,seed}){
   let thrown=null,returned=false;
   let inner=null;
+  const actorSelectIntents=[];
   try{
     inner=withNativeRawStateFallbackQuarantine(()=>
       withOwnerSetupConfirm(()=>
-        withGoFirstChoice(
+        withOptionalNativeSelect(()=>withGoFirstChoice(
           seat===0?[true,false]:[false,true],()=>
             withOwnerPublicAcknowledgements(()=>
               withOwnerEntryPriorityOpening(()=>
@@ -58,7 +91,7 @@ function attempt({seat,seed}){
                 )
               )
             )
-        )
+        ,actorSelectIntents))
       ,{maxRecords:8});
     returned=true;
   }catch(e){
@@ -68,8 +101,8 @@ function attempt({seat,seed}){
   const setup=thrown?.ownerOpeningStoreReceiptAudit??null;
   const hook=thrown?.agent50FirstTurnDedechangeAudit??null;
   return {
-    schema:VERSION,
-    registration:'results/methodology/registrations/agent50-rank4-first-turn-dedechange-native-v1-20261105.md',
+    schema:VERSION,variant:selectV2?'native-select-v2':'entry-v1',
+    registration,actorSelectIntents,
     sourceRank:4,seat,seed,pinnedEngine:PIN,
     source60Sha256:createHash('sha256')
       .update(JSON.stringify(source.cards)).digest('hex'),
@@ -112,7 +145,8 @@ test('four frozen original rank4 owner Dedechange native in-turn attempts',()=>{
     return row;
   });
   const summary={
-    schema:VERSION,registered:rows.length,
+    schema:VERSION,variant:selectV2?'native-select-v2':'entry-v1',
+    registered:rows.length,actorSelectIntents:rows.map(x=>x.actorSelectIntents),
     sourceSetupPhysicallyVerified:rows.filter(r=>
       r.setupNativeStore?.length===1&&
       r.setupNativeStore[0].mandatoryInitialPlacementCompleted).length,
@@ -139,4 +173,6 @@ test('four frozen original rank4 owner Dedechange native in-turn attempts',()=>{
   assert.ok(rows.every(r=>r.ownerFallback?.originalNativeDecoderExecuted===false),
     'Unsafe original native State decoder must remain quarantined');
   assert.ok(rows.every(r=>r.qualifiedCompetitiveGames===0));
+  if(selectV2)assert.ok(rows.some(r=>r.actorSelectIntents.length>0),
+    'A frozen v2 arm should encounter a native owner SelectPrompt');
 });
