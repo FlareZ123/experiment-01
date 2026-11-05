@@ -106,3 +106,7 @@ jobs:
         if: ${{ inputs.audit_type == 'steward-v4v5' }}
         run: |
           node -e "const fs=require('node:fs');const a=require('./simulation/evaluation/agent46-issue25-steward-archive-audit.cjs');for(const v of ['v4','v5']){const prefix='archived-steward/issue25-steward-'+v;const r=a.inspect(fs.readFileSync(prefix+'.json'),fs.readFileSync(prefix+'.sha256','utf8'),v);console.log('AGENT46_SELECTED_ARCHIVE_AUDIT',JSON.stringify(r));if(r.integrity!=='PASS-bounded-file-and-root-custody')process.exitCode=1;}"
+      - name: Independently compare frozen steward v4/v5 physical deals and native root prefixes
+        if: ${{ inputs.audit_type == 'steward-v4v5' }}
+        run: |
+          node -e "const fs=require('node:fs');const a=require('./simulation/evaluation/agent46-issue25-steward-archive-audit.cjs');const get=v=>{const p='archived-steward/issue25-steward-'+v;return [fs.readFileSync(p+'.json'),fs.readFileSync(p+'.sha256','utf8')]};const b=get('v4'),c=get('v5');const r=a.compareStewardV4V5(...b,...c);console.log('AGENT46_V4V5_INDEPENDENT_SAME_DEAL_PREFIX',JSON.stringify(r));if(r.status!=='PASS-bounded-controlled-prefix')process.exitCode=1;"
