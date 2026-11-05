@@ -88,8 +88,15 @@ function withLetterFork(next,deps){
     }
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
       ...prior,value:ownerDecode});
-    try{return originalMatch(request);}
-    finally{Object.defineProperty(SimpleTacticsAi.prototype,
+    try{
+      if(typeof deps.withOwnerSearchHook==='function'){
+        const selected=deps.withOwnerSearchHook(
+          ()=>originalMatch(request),{registration});
+        audit.ownerSearchAudit=selected.audit;
+        return selected.result;
+      }
+      return originalMatch(request);
+    }finally{Object.defineProperty(SimpleTacticsAi.prototype,
       'decodeNextAction',prior);}
   }
   headless.runMatch=observedRunMatch;
@@ -157,6 +164,8 @@ function run(deps={}){
     sourceOwnerCardAcceptedByNativeStore:originalSourceActionAccepted,
     nativeRootAtSelectedOrdinal:action,
     sourceOwnerPreDecisionSnapshot:observed.audit.actorSnapshot,
+    ...(observed.audit.ownerSearchAudit?{
+      sourceOwnerSearchAudit:observed.audit.ownerSearchAudit}:{}),
     sourceFollowthroughPrompts:promptRoots,
     sameTurnRealOwnerDarknessEnergyPlayRoots:sourceEnergyPlays,
     originalSourceRowDisposition:trial.status??null,
