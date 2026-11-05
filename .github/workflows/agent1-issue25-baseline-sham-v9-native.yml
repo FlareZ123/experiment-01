@@ -8,13 +8,18 @@ on:
         type: boolean
         required: false
         default: false
+      wondertag_shuffle_held_aba:
+        description: Run owner Wonder Tag yes versus decline with identical numeric shuffle in every A/B/A arm
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -80,5 +85,39 @@ jobs:
         with:
           name: agent1-issue25-shuffle-only-aba-${{ github.run_id }}
           path: artifacts/agent1-issue25-shuffle-only-aba/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-wondertag-shuffle-held-aba:
+    if: ${{ inputs.wondertag_shuffle_held_aba == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify source-invariant shim and Wonder Tag policy selection
+        run: node --test tests/agent1-issue25-wondertag-shuffle-held-aba.test.cjs
+      - name: Execute actual Store 24-attempt source-ranked A/B/A
+        env:
+          AGENT1_WONDERTAG_HELD_DIR: artifacts/agent1-issue25-wondertag-held-aba
+        run: node --test tests/agent1-issue25-wondertag-shuffle-held-aba.native.test.cjs
+      - name: Archive exact native receipt and all error/capped arms
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-issue25-wondertag-shuffle-held-${{ github.run_id }}
+          path: artifacts/agent1-issue25-wondertag-held-aba/
           if-no-files-found: warn
           retention-days: 30
