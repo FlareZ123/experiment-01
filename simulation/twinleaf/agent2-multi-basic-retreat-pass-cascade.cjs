@@ -90,7 +90,8 @@ function classifyOwnerMultiBasicRetreatPass(view,catalog){
     }
   }
   steps[STEPS[6]]=funded.length>0;
-  steps[STEPS[7]]=steps[STEPS[3]]&&steps[STEPS[4]]&&funded.some(x=>
+  steps[STEPS[7]]=Number.isSafeInteger(own?.deckCount)&&
+    own.deckCount>=1&&steps[STEPS[4]]&&funded.some(x=>
     Math.ceil((enemy.hp-enemy.damage)/x.damage)<=own.deckCount);
   const cumulative={};
   let all=true,firstFailure=null;
