@@ -154,7 +154,7 @@ function comparePromptBaselineAba(campaigns){
     [b,a2].every(c=>c.vendor===a.vendor&&c.research===a.research&&
       c.entropy===a.entropy);
   const rows=[];
-  let sameControlLedger=0,sameControlDeal=0;
+  let sameControlLedger=0,sameControlDeal=0,sameAllThreeSource=0;
   for(const id of ids){
     const first=a.attempts.get(id);
     const middle=b.attempts.get(id);
@@ -172,13 +172,17 @@ function comparePromptBaselineAba(campaigns){
         last.publicRootLedgerSha256Computed;
     const sameSource=hex64(first.sourceDealFingerprint)&&
       first.sourceDealFingerprint===last.sourceDealFingerprint;
+    const treatmentSourceMatched=hex64(first.sourceDealFingerprint)&&
+      first.sourceDealFingerprint===middle.sourceDealFingerprint;
     if(sameControls)sameControlLedger++;
     if(sameSource)sameControlDeal++;
+    if(sameSource&&treatmentSourceMatched)sameAllThreeSource++;
     rows.push({
       id,sourceRank:Number(id.split(':')[0]),
       completePublicRootLedgerAllThree:allComplete,
       identicalControlRootLedgerAndStatus:sameControls,
       identicalControlSourcePhysicalDeal:sameSource,
+      identicalTreatmentSourcePhysicalDeal:treatmentSourceMatched,
       baseline:publicFailure(first),
       promptBaseline:publicFailure(middle),
       repeatedBaseline:publicFailure(last),
@@ -196,7 +200,9 @@ function comparePromptBaselineAba(campaigns){
     'UNRESOLVED-input-or-private-entropy-mismatch':
     sameControlLedger!==8||sameControlDeal!==8?
       'FAIL-control-replay-not-identical':
-      'PASS-bounded-protected-opening-A-A-control';
+      sameAllThreeSource!==8?
+        'UNRESOLVED-treatment-physical-source-deal-mismatch':
+        'PASS-bounded-protected-opening-A-A-control';
   const audit=campaigns[1].selectedPromptAudit;
   return {
     schema:VERSION,
@@ -212,6 +218,7 @@ function comparePromptBaselineAba(campaigns){
     inputProblems,
     equalControlPublicRootAndStatusRows:sameControlLedger,
     equalControlPhysicalSourceDealRows:sameControlDeal,
+    equalAllThreePhysicalSourceDealRows:sameAllThreeSource,
     baselineReplayVerdict:baselineVerdict,
     treatmentSelectedPromptAudit:audit?{
       ownerModalPromptBaseline:audit.ownerModalPromptBaseline??null,
