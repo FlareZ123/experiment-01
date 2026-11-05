@@ -54,6 +54,12 @@ A complete enumeration of all 1,024 possible ten-game win/nonwin paths under the
 
 A single prespecified four-loss run would also be a rarity under each local null `p_i>=.84`, but this module deliberately uses the stronger time-uniform e-process that tolerates data-dependent stopping and multiple rank monitoring. Its **e-threshold 640** is a unitless evidence statistic. It is unrelated to the independent **640-game balanced-seat zero-loss confidence floor** from [Agent7's earlier confirmation design](../methodology/agent7-995-field-confidence-zero-loss-bound-20261105.md).
 
+## Compiled shared-CI check (after the original six regressions)
+
+[Existing manual Issue25 workflow 42050275918](https://github.com/FlareZ123/experiment-01/actions/runs/42050275918) was dispatched at checkout `cd1946e33d13b10edcb18651dba78d6decbed961`. Its newly added `Fixed-60 all-rank necessary win floor and anytime early-rejection SFT` **completed successfully** using the real checked-out CommonJS source and test files. The independent historical receipt-inspector SFT also succeeded. The **overall** workflow still failed at the unrelated original v6/v7 post-setup physical-position equality assertion. This is a transparent per-step test report, not a claim of green whole-workflow integration.
+
+The seventh exhaustive-null-path test and runtime convex-mixture validity checks were committed **after** that checkout and passed local Node22; they have not yet been independently confirmed by a later compiled CI. Continue to label all such observations **synthetic mathematical tests only**.
+
 ## Why this advances the objective
 
 The all-32 field optimization problem can cheaply **eliminate obviously noncompetitive frozen candidates** through prospective hard-matchup evaluation before attempting an expensive full-field positive-confidence campaign. This is a target-specific rejection tool, and it does not justify ignoring other opponents after a candidate survives. Survival without a threshold crossing offers no certification of the deck's strength.
