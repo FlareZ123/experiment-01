@@ -14,6 +14,10 @@ The first-person account gives a highly relevant opponent strategic posture. The
 
 The author separately reports eight Swiss outcomes: Regidrago wins in rounds 1, 2, 7, Regidrago loss in round 4, wins versus Lightning Toolbox, Roaring Moon and ADP Dragonite, then final first-bracket loss to Mega Absol/Garbodor. This is author-reported event chronology, **not** a controlled series or simulation. The exact published outcome sequence is useful as opponent-model context for eventual real-play decisions, never as a source-specific decklist.
 
+## Klefki-sensitive Ranger access
+
+The player explains choosing a build compatible with Klefki, whose Active Ability suppresses Tapu Lele-GX's Wonder Tag. This indicates player intention only: the actual unpublished roster remains unknown. Prior [exact Ranger/Stone access analysis](ranger-stone-joint-access.md) already measures the hypothetical **Wonder Tag suppressed, Stone still available** event at **20.22381% Hood / 20.17769% Temple** after two ordinary draws, versus unrestricted **30.26936% / 30.31531%**. These are conditional search opportunities, not actual matches. Source-true testing must first establish Active Klefki and actual Stone usability.
+
 ### Consequences for the fixed-single-60 objective
 
 1. Resolve the alias/name link using independent original result/profile or source registration **before** claiming the article belongs to rank25 Kazuki Kumegawa.
