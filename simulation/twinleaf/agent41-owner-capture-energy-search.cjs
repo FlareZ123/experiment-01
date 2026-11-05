@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent41-owner-capture-energy-deck-search-v3-exposure';
+const VERSION='agent41-owner-capture-energy-deck-search-v4-source-stamp';
 const CAPTURE='Capture Energy RCL';
 
 /**
@@ -50,7 +50,7 @@ function captureChoice(prompt,owner,Stage,state){
  * @template T
  * @param {()=>T} next Genuine synchronous native match.
  * @param {{SimpleTacticsAi?:Function,Store?:Function,
- *   ResolvePromptAction?:Function,Stage?:object}} [deps] Native test seam.
+ *   ResolvePromptAction?:Function,Stage?:object,CaptureEnergy?:Function}} [deps] Native test seam.
  * @returns {{result:T,audit:object}}
  */
 function withOwnerCaptureEnergySearch(next,deps={}){
@@ -63,6 +63,10 @@ function withOwnerCaptureEnergySearch(next,deps={}){
   const ResolvePromptAction=deps.ResolvePromptAction??
     load('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const Stage=deps.Stage??load('game/store/card/card-types').Stage;
+  const CaptureEnergy=deps.CaptureEnergy??
+    load('sets/09-sword-and-shield/set-rebel-clash/capture-energy').CaptureEnergy;
+  const sourceBefore=Object.getOwnPropertyDescriptor(CaptureEnergy.prototype,'reduceEffect');
+  assert.equal(typeof sourceBefore?.value,'function');
   const beforeBot=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
   const beforeStore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof beforeBot?.value,'function');
@@ -71,15 +75,42 @@ function withOwnerCaptureEnergySearch(next,deps={}){
   let live=null,stores=0;
   const pendingById=new Map();
   const proposals=new WeakMap();
+  const sourcePrompts=new WeakSet();
   const audit={version:VERSION,physicalStores:0,acceptedCaptureAttachments:0,
     originalCapturePlayRootAttempts:0,captureRootDispatchThrows:0,
     captureRootsWithoutPhysicalAttachment:0,
+    captureSourceReducerInvocations:0,
+    sourceReducerMarkedOwnerPrompts:0,
+    unmarkedOwnerDeckPromptsAfterCapture:0,
     acceptedCaptureWithoutMatchingPrompt:0,
     matchedOwnerDeckPrompts:0,ownerSearchProposals:0,
     ownerSearchReturnsWithoutThrow:0,acceptedOwnerSearches:0,
     rejectedOwnerSearches:0,unsettledOwnerSearches:0,
     sourceBasicPhysicallyBenched:0,emptySearchesAccepted:0,
     records:[],paperGameQualified:false,competitiveGamesQualified:0};
+
+  function reduceCaptureSource(store,state,effect){
+    const sourceRoot=store===live &&
+      effect?.constructor?.name==='AttachEnergyEffect' &&
+      effect.energyCard===this && this.fullName===CAPTURE;
+    const prior=sourceRoot?new Set(state.prompts):null;
+    const value=sourceBefore.value.call(this,store,state,effect);
+    if(prior){
+      audit.captureSourceReducerInvocations++;
+      for(const prompt of state.prompts){
+        if(!prior.has(prompt) &&
+           prompt?.constructor?.name==='ChooseCardsPrompt' &&
+           prompt.playerId===effect.player?.id &&
+           prompt.cards===effect.player.deck &&
+           prompt.filter?.stage===Stage.BASIC &&
+           prompt.options?.min===0 && prompt.options?.max===1){
+          sourcePrompts.add(prompt);
+          audit.sourceReducerMarkedOwnerPrompts++;
+        }
+      }
+    }
+    return value;
+  }
 
   function dispatch(action,...args){
     const type=action?.constructor?.name;
@@ -132,7 +163,14 @@ function withOwnerCaptureEnergySearch(next,deps={}){
         !existingPrompts.has(p.id) && p.result===undefined &&
         p.playerId===current.id &&
         p.constructor?.name==='ChooseCardsPrompt' &&
-        p.cards===current.deck):null;
+        p.cards===current.deck && sourcePrompts.has(p)):null;
+      if(attached&&!pending &&
+         this.state.prompts?.some(p=>
+           !existingPrompts.has(p.id) && p.result===undefined &&
+           p.playerId===current.id &&
+           p.constructor?.name==='ChooseCardsPrompt' &&
+           p.cards===current.deck))
+        audit.unmarkedOwnerDeckPromptsAfterCapture++;
       if(attached&&!pending)audit.acceptedCaptureWithoutMatchingPrompt++;
       if(pending)pendingById.set(current.id,{
         promptId:pending.id,turn:this.state.turn,seat,
@@ -194,6 +232,9 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     return action;
   }
 
+  Object.defineProperty(CaptureEnergy.prototype,'reduceEffect',{
+    ...sourceBefore,value:reduceCaptureSource
+  });
   Object.defineProperty(Store.prototype,'dispatch',{
     ...beforeStore,value:dispatch
   });
@@ -210,6 +251,8 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     Object.defineProperty(Ai.prototype,'decodeNextAction',beforeBot);
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',beforeStore);
+    assert.strictEqual(CaptureEnergy.prototype.reduceEffect,reduceCaptureSource);
+    Object.defineProperty(CaptureEnergy.prototype,'reduceEffect',sourceBefore);
   }
 }
 
