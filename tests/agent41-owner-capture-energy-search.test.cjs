@@ -22,8 +22,8 @@ class ChooseCardsPrompt{
 }
 class AddPlayerAction{}
 class PlayCardAction{
-  constructor(clientId,handIndex){
-    this.clientId=clientId;
+  constructor(id,handIndex){
+    this.id=id;
     this.handIndex=handIndex;
   }
 }
@@ -41,7 +41,7 @@ class Store{
   dispatch(action){
     if(action.constructor.name==='AddPlayerAction')return this.state;
     if(action instanceof PlayCardAction){
-      const owner=this.state.players.find(p=>p.id===action.clientId);
+      const owner=this.state.players.find(p=>p.id===action.id);
       const [card]=owner.hand.cards.splice(action.handIndex,1);
       owner.active.energies.cards.push(card);
       this.state.prompts.push(new ChooseCardsPrompt(17,owner));
