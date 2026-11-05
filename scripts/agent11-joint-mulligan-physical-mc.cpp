@@ -83,13 +83,18 @@ bool sourceAccess(const Deck& deck, int bonus, std::mt19937_64& rng) {
 }
 
 int main(int argc, char** argv) {
-  // Inputs: physical trial count, DCE copies, Mail copies, PRNG seed.
+  // Inputs: physical trials, DCE, Mail, PRNG seed, sourceTakeAll, candidateTakeAll.
+  // Optional flags default to one, preserving all frozen 200m main runs.
   const int iterations = argc > 1 ? std::atoi(argv[1]) : 2000000;
   const int dce = argc > 2 ? std::atoi(argv[2]) : 1;
   const int mails = argc > 3 ? std::atoi(argv[3]) : 3;
   const uint64_t seed = argc > 4
     ? std::strtoull(argv[4], nullptr, 0) : 0xA11C2026D00DULL;
-  if (iterations < 1 || !(dce == 1 || dce == 3) ||
+  const int sourceTakeAll = argc > 5 ? std::atoi(argv[5]) : 1;
+  const int candidateTakeAll = argc > 6 ? std::atoi(argv[6]) : 1;
+  if ((sourceTakeAll != 0 && sourceTakeAll != 1) ||
+      (candidateTakeAll != 0 && candidateTakeAll != 1) ||
+      iterations < 1 || !(dce == 1 || dce == 3) ||
       mails < 2 || mails > 4 || dce + mails > 51)
     throw std::invalid_argument("invalid trial count or source categories");
   std::mt19937_64 rng(seed);
@@ -128,8 +133,10 @@ int main(int argc, char** argv) {
     // The exact model proves the excluded long tails are below displayed
     // precision. Skipped extreme trials still remain in the denominator.
     if (sourceBonus > 30 || candidateBonus > 30) continue;
-    const bool screened = candidateScreen(candidate, candidateBonus);
-    const bool available = sourceAccess(source, sourceBonus, rng);
+    const bool screened = candidateScreen(candidate,
+      candidateTakeAll ? candidateBonus : 0);
+    const bool available = sourceAccess(source,
+      sourceTakeAll ? sourceBonus : 0, rng);
     const int branch = sourceBonus > 0 ? 2 : candidateBonus > 0 ? 1 : 0;
     ++branchN[branch];
     if (screened) ++branchScreen[branch];
@@ -150,7 +157,9 @@ int main(int argc, char** argv) {
     << " candidateScreen=" << double(candidateScreenCount) / iterations
     << " sourceAccess=" << double(sourceAccessCount) / iterations
     << " joint=" << double(joint) / iterations
-    << " jointCount=" << joint << " seed=" << seed;
+    << " jointCount=" << joint << " seed=" << seed
+    << " sourceTakeAll=" << sourceTakeAll
+    << " candidateTakeAll=" << candidateTakeAll;
   for (int i = 0; i < 3; ++i)
     std::cout << " branch" << i << "N=" << branchN[i]
       << " branch" << i << "Screen=" << branchScreen[i]
