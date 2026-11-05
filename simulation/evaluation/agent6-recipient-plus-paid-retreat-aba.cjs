@@ -150,6 +150,27 @@ function run(){
 if(require.main===module){
   try{
     const result=run();
+    // Expose an independently inspectable compact result in native CI logs.
+    // The full unchanged machine-readable receipt remains stdout/artifact.
+    process.stderr.write('AGENT6_RECIPIENT_PAID_NATIVE_SUMMARY '+JSON.stringify({
+      version:result.version,pinnedTwinleaf:result.pinnedTwinleaf,
+      expectedArms:result.expectedArms,actualArms:result.actualArms,
+      allGroupsStrictlyPaired:result.allGroupsStrictlyPaired,
+      summary:result.summary,paidOpportunityTotals:result.paidOpportunityTotals,
+      groups:result.groups.map(g=>({
+        seed:g.seed,rank3Seat:g.rank3Seat,status:g.status,
+        strictPhysicalAndARepeatMatched:g.strictPhysicalAndARepeatMatched,
+        opponentWinnerControl:g.opponentWinnerControl,
+        opponentWinnerTreatment:g.opponentWinnerTreatment,
+        rank1AttacksControl:g.rank1AttacksControl,
+        rank1AttacksTreatment:g.rank1AttacksTreatment,
+        nominalMultiBasicOffersBySeat:g.nominalMultiBasicOffersBySeat,
+        originalPassesBySeat:g.originalPassesBySeat,
+        typedRetreatsBySeat:g.typedRetreatsBySeat,
+        nativeObservedRetreats:g.nativeObservedRetreats
+      })),
+      competitivelyQualifiedGames:result.competitivelyQualifiedGames
+    })+'\n');
     process.stdout.write(JSON.stringify(result)+'\n');
     if(!result.allGroupsStrictlyPaired||result.actualArms!==24)process.exitCode=1;
   }catch(error){
