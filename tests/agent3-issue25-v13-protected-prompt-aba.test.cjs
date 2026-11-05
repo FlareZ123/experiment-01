@@ -78,6 +78,7 @@ test('three protected campaigns maintain native prechoice and repeat control par
   assert.equal(out.matchingNativeFirstPlayer,32);
   assert.equal(out.equalControlPublicRootAndStatusRows,8);
   assert.equal(out.equalControlPhysicalSourceDealRows,8);
+  assert.equal(out.equalAllThreePhysicalSourceDealRows,8);
   assert.equal(out.rows[0].promptBaselineChangesDisposition,true);
   assert.equal(out.rows[0].firstPromptBaselinePublicRootDifference
     .protected.publicPlayedCard,'Tapu Lele-GX');
@@ -154,4 +155,13 @@ test('undefined starter or fake physical sixty rejects native input custody',()=
   const badSixty=fixture();
   badSixty[1].witness.events[7].physicalSixtyCardCount=59;
   assert.throws(()=>comparePromptBaselineAba(badSixty));
+});
+test('treated physical source-deal digest must match the verified baseline',()=>{
+  const f=fixture();
+  f[1].receipt.attempts[2].sourceDealFingerprint=hash('different-physical-source');
+  const out=comparePromptBaselineAba(f);
+  assert.equal(out.equalControlPhysicalSourceDealRows,8);
+  assert.equal(out.equalAllThreePhysicalSourceDealRows,7);
+  assert.equal(out.baselineReplayVerdict,
+    'UNRESOLVED-treatment-physical-source-deal-mismatch');
 });
