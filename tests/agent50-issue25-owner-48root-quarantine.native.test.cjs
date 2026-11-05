@@ -89,6 +89,12 @@ test('Issue25 same owner-only 48-root bounded native profile with full-deal prov
   };
   console.log('AGENT50_ISSUE25_48ROOT_NEXT_GATE',
     JSON.stringify(diagnostic));
+  const sourceRoots=require('../simulation/evaluation/agent18-issue25-source-root-custody.cjs')
+    .summarizeSourcePanel(rows);
+  console.log('AGENT18_SOURCE_ACCEPTED_ACTIONS',JSON.stringify(sourceRoots));
+  assert.equal(sourceRoots.registeredAttempts,4);
+  assert.equal(sourceRoots.observedAttempts,4);
+  assert.equal(sourceRoots.competitiveGamesQualified,0);
   assert.equal(rows.length,registered.length);
   for(const row of rows){
     if(row.status===undefined){
