@@ -49,6 +49,22 @@ function deliberateSetup(opening){
 }
 
 /**
+ * Counterfactual first Basic in owner-hand order as Active, retaining all other
+ * Basics in hand. This isolates Active-choice impact before auto-Benching.
+ * @param {number[]} opening
+ * @returns {Array<{active:string,bench:number,placed:number,adpPlaced:number,lelePlaced:number,adpOnBench:boolean,weight:bigint}>}
+ */
+function firstOnlySetups(opening){
+  const n=opening[C.adp]+opening[C.basic]+opening[C.lele];
+  if(n===0)return [];
+  if(420%n!==0)throw new Error('Basic-order denominator unsupported');
+  return ['adp','basic','lele'].filter(type=>
+    opening[C[type]]>0).map(type=>({active:type,bench:0,placed:1,
+      adpPlaced:Number(type==='adp'),lelePlaced:Number(type==='lele'),
+      adpOnBench:false,weight:SCALE*BigInt(opening[C[type]])/BigInt(n)}));
+}
+
+/**
  * Resolve a single payable source route with actual setup card custody,
  * remaining free Bench slots, and one turn-time Wonder Tag trigger.
  * @param {number[]} opening
@@ -120,7 +136,8 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
     !Number.isSafeInteger(prizeCount)||n<handSize+prizeCount+1)
     throw new Error('Invalid physical setup sizes');
   const numerators=Object.fromEntries(PROFILES.map(p=>[p,{
-    deliberateWith:0n,deliberateWithout:0n,greedyWith:0n,greedyWithout:0n}]));
+    deliberateWith:0n,deliberateWithout:0n,greedyWith:0n,greedyWithout:0n,
+    firstOnlyWith:0n,firstOnlyWithout:0n}]));
   const opening=Array(13).fill(0);
   let handsVisited=0,sequenceVisits=0;
   function evaluate(handWeight){
@@ -128,6 +145,7 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
     if(!deliberate)return;
     handsVisited++;
     const greedy=greedySetups(opening);
+    const firstOnly=firstOnlySetups(opening);
     sequenceVisits+=greedy.length;
     const afterHand=counts.map((v,i)=>v-opening[i]);
     for(let draw=0;draw<13;draw++){
@@ -166,6 +184,12 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
             if(payableUnderSetup(opening,seen,avail,profile,false,setup))
               z.greedyWithout+=ways*setup.weight;
           }
+          for(const setup of firstOnly){
+            if(payableUnderSetup(opening,seen,avail,profile,true,setup))
+              z.firstOnlyWith+=ways*setup.weight;
+            if(payableUnderSetup(opening,seen,avail,profile,false,setup))
+              z.firstOnlyWithout+=ways*setup.weight;
+          }
         }
       }
     }
@@ -184,7 +208,8 @@ function comparePaidSetupPolicies(counts=COUNTS,options={}){
     choose(n-handSize-1,prizeCount)*SCALE;
   return {denominatorScaled,numerators,handsVisited,sequenceVisits};
 }
-module.exports={SCALE,greedySetups,deliberateSetup,payableUnderSetup,comparePaidSetupPolicies};
+module.exports={SCALE,greedySetups,deliberateSetup,firstOnlySetups,
+  payableUnderSetup,comparePaidSetupPolicies};
 if(require.main===module){
   const out=comparePaidSetupPolicies();
   console.log(JSON.stringify({denominatorScaled:String(out.denominatorScaled),
