@@ -13,6 +13,7 @@ function view(){
     ownHand:['Guzma BUS','Guzma BUS','Guzma BUS','Plumeria BUS'],
     ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false},
     ownPublic:{
+      stadium:['Thunder Mountain Prism Star LOT'],
       active:{printing:'Iron Thorns ex TWM',energies:['Speed Lightning Energy RCL']},
       bench:[
         {printing:'Iron Thorns ex TWM',energies:[
@@ -44,6 +45,8 @@ test('Guzma eligibility requires live owner hand, turn and unused Supporter',()=
     v=>{v.ownHand=[];},
     v=>{v.ownTurnResources.supporterPlayedTurn=1;},
     v=>{v.ownTurnResources.supporterPlayLocked=true;},
+    v=>{v.ownPublic.stadium=[];},
+    v=>{v.ownPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];},
     v=>{v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;},
     v=>{v.ownPublic.bench=[];},
     v=>{v.ownPublic.bench[0].energies=['Capture Energy RCL'];},
