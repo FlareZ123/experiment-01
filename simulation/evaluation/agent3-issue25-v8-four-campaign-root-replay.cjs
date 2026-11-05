@@ -39,6 +39,8 @@ function compareFourCampaigns(campaigns){
     assert.equal(witness.registeredNativeTrialLabelWitnessSelected,true);
     assert.equal(witness.exactNativeStoreRootsRecorded,8);
     assert.equal(witness.firstOwnerSetupInputsObserved,16);
+    assert.equal(witness.exactPhysicalSixtyPrintedCountComparisons,16);
+    assert.equal(witness.exactPhysicalSixtyPrintedCountMatches,16);
     assert.ok(Array.isArray(witness.events)&&witness.events.length===16);
     assert.match(witness.privateFingerprintSessionId,/^[0-9a-f]{32}$/);
     const owner=new Map(),ordinals=new Map();
@@ -49,6 +51,12 @@ function compareFourCampaigns(campaigns){
         event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=8);
       assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
       assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
+      assert.equal(event.firstBeforeAnyOwnerSetupChoice,true);
+      assert.equal(event.noPolicyChoiceOrHiddenNamesPublished,true);
+      assert.equal(event.globalTurnAtCapture,0);
+      assert.equal(event.physicalSixtyCardCount,60);
+      assert.equal(event.exactPhysicalSixtyPrintedCountMatched,true);
+      assert.ok(event.nativeFirstPlayerSeat===0||event.nativeFirstPlayerSeat===1);
       const key=event.registeredNativeTrialId+':'+event.physicalOwnerSeat;
       assert.ok(!owner.has(key),'Duplicate native trial/owner prechoice');
       owner.set(key,event);
@@ -103,8 +111,9 @@ function compareFourCampaigns(campaigns){
     prepared[0].nightWatchEntropyCommitment!==null&&
     prepared.every(c=>c.nightWatchEntropyCommitment===
       prepared[0].nightWatchEntropyCommitment);
-  const triplets=[],rows=[];
+  const rows=[];
   let equalPrivateInputs=0,equalRequests=0,unequalPrivateInputs=0,
+    unequalStarters=0,
     unequalRequests=0,missingPublicControlRootRows=0,
     equalControlLedgers=0,unequalControlLedgers=0,
     equalControlSourceDigests=0,unequalControlSourceDigests=0;
@@ -119,6 +128,8 @@ function compareFourCampaigns(campaigns){
         e.opaquePreRunRequestHmacSha256===
         four[0].opaquePreRunRequestHmacSha256);
       for(let i=1;i<four.length;i++){
+        if(four[i].nativeFirstPlayerSeat===four[0].nativeFirstPlayerSeat)
+          {}else unequalStarters++;
         if(four[i].opaquePhysicalPrechoiceInputHmacSha256===
             four[0].opaquePhysicalPrechoiceInputHmacSha256)
           equalPrivateInputs++;else unequalPrivateInputs++;
@@ -127,7 +138,9 @@ function compareFourCampaigns(campaigns){
           equalRequests++;else unequalRequests++;
       }
       return {seat,allFourPhysicalPrechoiceIdentical:samePrivate,
-        allFourNativeRequestsIdentical:sameRequest};
+        allFourNativeRequestsIdentical:sameRequest,
+        allFourPhysicalFirstPlayerSeatsIdentical:
+          four.every(e=>e.nativeFirstPlayerSeat===four[0].nativeFirstPlayerSeat)};
     });
     const [a,a2,b,a3]=prepared.map(c=>c.attempts.get(id));
     const controls=[a,a2,a3];
@@ -178,10 +191,10 @@ function compareFourCampaigns(campaigns){
       // The original experiment remains censored and player-uncertified.
       qualifiedCompetitiveGame:false
     });
-    triplets.push(pairs);
   }
   const allInputsEqual=samePrivateSession&&
     unequalPrivateInputs===0&&unequalRequests===0&&
+    unequalStarters===0&&
     sameObservedVendorPin&&sameObservedResearchPin&&
     sameNightWatchEntropyCommitment;
   const controlVerdict=!allInputsEqual?'UNRESOLVED-input-or-epoch-mismatch':
@@ -209,6 +222,7 @@ function compareFourCampaigns(campaigns){
     mismatchingOwnerPrechoiceComparisons:unequalPrivateInputs,
     matchingNativeRequestComparisons:equalRequests,
     mismatchingNativeRequestComparisons:unequalRequests,
+    mismatchingNativeFirstPlayerComparisons:unequalStarters,
     controlLedgerRowsEqual:equalControlLedgers,
     controlLedgerRowsUnequal:unequalControlLedgers,
     controlLedgerRowsIncomplete:missingPublicControlRootRows,
