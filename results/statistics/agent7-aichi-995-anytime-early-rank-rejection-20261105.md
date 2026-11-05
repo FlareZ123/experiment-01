@@ -41,7 +41,7 @@ This remains valid if experimenters schedule the next opponent rank adaptively f
 
 The checked-in pure CommonJS module `simulation/evaluation/agent7-aichi-995-early-rejection.cjs` implements the mixture using numerically stable log-sum-exp. It accepts only explicitly declared `QUALIFIED` input rows for one fixed `candidateId`, one unique game ID per row, and one original rank 1..32. It refuses censored/error/nonqualified rows, changed candidate IDs and duplicate game IDs. It still **cannot independently verify** that externally supplied `QUALIFIED` labels, independent game seeds, opponent competence, actual original 60s, physical card payments, and 25-minute adjudication are true. It returns `qualificationVerifiedExternally:false` and conditional-only verdicts.
 
-Six Node.js tests are checked in under `tests/agent7-aichi-995-early-rejection.test.cjs` and executed locally with Node v22.16.0, all passed. The purely synthetic one-rank results demonstrate:
+Seven Node.js tests are checked in under `tests/agent7-aichi-995-early-rejection.test.cjs` and executed locally with Node v22.16.0, all passed. The purely synthetic one-rank results demonstrate:
 
 - Three consecutive qualified-*hypothetical* losses: e-value about **149.432373**, below 640, no rejection.
 - Four consecutive losses: e-value about **879.808426**, exceeding 640, conditional rejection.
@@ -49,6 +49,8 @@ Six Node.js tests are checked in under `tests/agent7-aichi-995-early-rejection.t
 - One hypothetical win against each of the 32 ranks produces neither rejection nor evidence of a 99.5% achieved win rate.
 - All input integrity negatives fail closed.
 - A 10,000-nonwin hypothetical count retains finite log evidence without numerical overflow.
+
+A complete enumeration of all 1,024 possible ten-game win/nonwin paths under the least-favorable boundary `p_i=0.84` gives an exact probability of **0.000745824896** of crossing the sequential rank threshold at or before game 10. This is below the individual Bonferroni allowance `0.05/32=0.0015625`. A seventh regression checks this exhaustive numerical value; the general all-time guarantee still follows from the supermartingale/Ville proof rather than ten-game enumeration alone.
 
 A single prespecified four-loss run would also be a rarity under each local null `p_i>=.84`, but this module deliberately uses the stronger time-uniform e-process that tolerates data-dependent stopping and multiple rank monitoring. Its **e-threshold 640** is a unitless evidence statistic. It is unrelated to the independent **640-game balanced-seat zero-loss confidence floor** from [Agent7's earlier confirmation design](../methodology/agent7-995-field-confidence-zero-loss-bound-20261105.md).
 
