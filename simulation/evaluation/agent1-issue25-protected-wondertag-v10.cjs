@@ -168,6 +168,45 @@ function compareProtectedWonderTagV10(baseline,treatment){
       Number.isSafeInteger(event.globalTurn)&&
       (event.answerCardinality===0||event.answerCardinality===1)&&
       event.ownerDeckPrintingsOmitted===true);
+  const nativeSearchSettlementCertified=authenticatedWonderTagDecisions&&
+    wonder?.confirmOffers===witnessedDecisions.length&&
+    wonder?.searchOffers===witnessedDecisions.length&&
+    wonder?.confirmed===witnessedDecisions.length&&
+    wonder?.selectedSupporters+wonder?.emptySearches===witnessedDecisions.length&&
+    wonder?.nativeAccepted===2*witnessedDecisions.length&&
+    wonder?.nativeRejected===0&&
+    wonder?.nativeUnsettled===0&&
+    wonder?.nativeCustodyFailures===0&&
+    wonder?.nativeMissingSearchFollowup===0&&
+    wonder?.settledSupporterTransfers===wonder?.selectedSupporters&&
+    witnessedDecisions.filter(d=>d.answerCardinality===1).length===
+      wonder?.selectedSupporters&&
+    shuffle?.interceptedSupporterSearches===witnessedDecisions.length&&
+    shuffle?.nonzeroNativeSelections===wonder?.selectedSupporters&&
+    shuffle?.zeroSelections===wonder?.emptySearches&&
+    shuffle?.repairedShuffles===shuffle?.zeroSelections&&
+    [0,1].every(seat=>wonder?.bySeat?.[seat]===
+      2*witnessedDecisions.filter(d=>d.actorSeat===seat).length);
+  const registeredActorRoles=witnessedDecisions.map(event=>{
+    const row=rows.find(x=>x.id===event.id);
+    return {
+      id:event.id,actorSeat:event.actorSeat,globalTurn:event.globalTurn,
+      answerCardinality:event.answerCardinality,
+      role:row&&event.actorSeat===row.sourceSeat?'original-source':
+        row&&event.actorSeat===row.candidateSeat?'contender':'unverified'
+    };
+  });
+  const settledRoleCensus=nativeSearchSettlementCertified?{
+    originalSourceSearches:registeredActorRoles.filter(
+      d=>d.role==='original-source').length,
+    originalSourceSupporterTransfers:registeredActorRoles.filter(
+      d=>d.role==='original-source'&&d.answerCardinality===1).length,
+    contenderSearches:registeredActorRoles.filter(
+      d=>d.role==='contender').length,
+    contenderSupporterTransfers:registeredActorRoles.filter(
+      d=>d.role==='contender'&&d.answerCardinality===1).length,
+    registeredDecisions:registeredActorRoles
+  }:null;
   const allGenuineInitialInputsMatched=pairableSession&&
     ownerPairs.every(row=>row.samePrechoicePhysicalInput&&
       row.sameRequest&&row.sameNativeFirstPlayer);
@@ -210,12 +249,9 @@ function compareProtectedWonderTagV10(baseline,treatment){
       observedSearchDecisionCount:actorWitness.observedSearchDecisionCount,
       decisions:witnessedDecisions.map(event=>({...event})),
       authenticatedTrialAndActorSeat:authenticatedWonderTagDecisions,
-      nativeSettlementOfEveryChoiceAttested:
-        authenticatedWonderTagDecisions&&
-        wonder?.nativeUnsettled===0&&
-        wonder?.nativeCustodyFailures===0&&
-        wonder?.selectedSupporters+wonder?.emptySearches===
-          witnessedDecisions.length,
+      nativeSettlementOfEveryChoiceAttested:nativeSearchSettlementCertified,
+      settledRoleCensus,
+      originalSourceAttackAndOpponentReplyCertified:false,
       originalSourceEffectCertified:false
     }:null,
     actualZeroSearchShuffleAudit:shuffle?{
