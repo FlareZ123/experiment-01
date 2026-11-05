@@ -48,7 +48,8 @@ test('native eight-arm same-process physical prechoice inputs, honest trial link
       baseline:comparison.firstTurnPublicBoardObservations.baselineNativeBoardsBeforeFirstAction,
       protected:comparison.firstTurnPublicBoardObservations.protectedNativeBoardsBeforeFirstAction,
       changedPokemonBoards:comparison.firstTurnPublicBoardObservations.changedPhysicalOwnerPokemonBoards,
-      changedBenchCounts:comparison.firstTurnPublicBoardObservations.changedPhysicalOwnerBenchCounts
+      changedBenchCounts:comparison.firstTurnPublicBoardObservations.changedPhysicalOwnerBenchCounts,
+      byRole:comparison.firstTurnPublicBoardObservations.byRole
     },
     constraints:comparison.constraints,
     briefRows:comparison.pairedRows.map(row=>({
