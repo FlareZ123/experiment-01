@@ -5,6 +5,7 @@ const assert = require("node:assert/strict");
 const VERSION = "agent37-aichi-995-fair-orientation-pair-eprocess-v3";
 const FIELD_RANKS = 32;
 const FIELD_TARGET = 0.995;
+const BENCHMARK_ESTIMAND = "EQUAL_RANK_ACTUAL_START_AND_SOURCE_SEAT";
 const REQUIRED_RANK_WIN_RATE = 1 - FIELD_RANKS * (1 - FIELD_TARGET);
 const PAIR_NONWIN_BUDGET = 2 * (1 - REQUIRED_RANK_WIN_RATE);
 const FAMILYWISE_ALPHA = 0.05;
@@ -12,6 +13,10 @@ const E_THRESHOLD = FIELD_RANKS / FAMILYWISE_ALPHA;
 const BETS = Object.freeze([0.5, 1, 2, 3]);
 
 /**
+ * Conditional on the benchmark defining equal rank, actual first-turn
+ * and physical source-seat weights. The official tournament random start
+ * distribution may define a different estimand, so external ratification
+ * of this weighting assumption is necessary.
  * Fixed convex mixture of linear paired-seat e-processes. Under the per-rank
  * 84% equal-actual-start null, nonwins in a complete two-start
  * block have expectation <= 0.32. Thus E[1 + b*(L-0.32) | prior completed blocks] <= 1.
@@ -124,6 +129,8 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
     version: VERSION,
     fixedCandidateId,
     fieldTarget: FIELD_TARGET,
+    benchmarkEstimand: BENCHMARK_ESTIMAND,
+    benchmarkSamplingDesignVerifiedExternally: false,
     necessaryRankWinRate: REQUIRED_RANK_WIN_RATE,
     pairNonwinBudget: PAIR_NONWIN_BUDGET,
     familywiseAlpha: FAMILYWISE_ALPHA,
@@ -153,7 +160,7 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
 }
 
 module.exports = {
-  VERSION, FIELD_RANKS, FIELD_TARGET, REQUIRED_RANK_WIN_RATE,
+  VERSION, FIELD_RANKS, FIELD_TARGET, BENCHMARK_ESTIMAND, REQUIRED_RANK_WIN_RATE,
   PAIR_NONWIN_BUDGET, FAMILYWISE_ALPHA, E_THRESHOLD, BETS,
   mixtureLogEvidence, assessPairedSeatRejection
 };
