@@ -214,6 +214,10 @@ function run(){
 if(require.main===module){
   try{
     const x=run();
+    // Separately registered retrospective read-only replay of one known
+    // positive historical case; preserve the frozen 24-arm native result.
+    x.selectedCaseAttackTrace=require(
+      './agent2-skyliner-retrospective-attack-trace.cjs').run();
     process.stdout.write(JSON.stringify(x)+'\n');
     if(!x.allOriginalArchivedControlsExact||
        !x.A_B_A_PhysicalControlsPaired||
