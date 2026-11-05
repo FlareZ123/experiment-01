@@ -16,8 +16,12 @@ const native = (trial, extra = {}) => ({
   fullPhysicalDealFingerprint: B, verifiedFirstTurn: true,
   actualStarterSeat: 1, sourceSeat: 1, ...extra
 });
-const compare = (id, leftId, rightId, purpose = 'same-60-policy-ab') =>
-  ({id, leftId, rightId, purpose});
+const compare = (id, leftId, rightId, purpose = 'same-60-policy-ab',
+  overrides = {}) => ({id, leftId, rightId, purpose,
+    ...(purpose === 'same-60-policy-ab' ? {
+      policyFirstInfluences: 'after-first-stable-root',
+      policyOnsetProofSha256: A
+    } : {}), ...overrides});
 
 test('a genuine different-deck source deal mismatch remains in natural denominator', () => {
   const p = [plan('reference', 'champion'), plan('newmoon', 'newmoon')];
@@ -179,4 +183,43 @@ test('registered missing attempt produces unknown controlled parity while preser
     'UNKNOWN');
   assert.equal(out.primaryNaturalGamePopulationRetained.registeredAttempts,2);
   assert.equal(out.primaryNaturalGamePopulationRetained.missingNativeRows,1);
+});
+
+test('opening-policy treatments never qualify first-stable setup equality as pretreatment', () => {
+  const p = [plan('control'), plan('treatment')];
+  const result = registeredEstimandReceipt(p, [
+    native(p[0]), native(p[1])
+  ], [compare('setup', 'control', 'treatment',
+    'same-60-policy-ab', {policyFirstInfluences: 'during-setup-or-earlier',
+      policyOnsetProofSha256: null})]);
+  const cell = result.secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity,'POSTTREATMENT_OPENING_NOT_ELIGIBLE');
+  assert.equal(result.primaryNaturalGamePopulationRetained.registeredAttempts,2);
+});
+
+test('unknown or unproven policy onset cannot create a pretreatment control', () => {
+  const p = [plan('control'), plan('treatment')];
+  for(const overrides of [
+    {policyFirstInfluences: 'unknown', policyOnsetProofSha256:null},
+    {policyFirstInfluences: 'after-first-stable-root',
+      policyOnsetProofSha256:null}
+  ]) {
+    const cell=registeredEstimandReceipt(p, [
+      native(p[0]),native(p[1])
+    ],[compare('unknown','control','treatment','same-60-policy-ab',
+      overrides)]).secondaryControlledPairPretreatmentParity[0];
+    assert.equal(cell.parity,'UNKNOWN_POLICY_ONSET');
+    assert.equal(cell.policyOnsetEvidenceExternallyVerified,false);
+  }
+});
+
+test('postsetup policy onset proof remains external even on matching full deals', () => {
+  const p = [plan('control'), plan('treatment')];
+  const result=registeredEstimandReceipt(p, [
+    native(p[0]),native(p[1])
+  ],[compare('declared','control','treatment')]);
+  const cell=result.secondaryControlledPairPretreatmentParity[0];
+  assert.equal(cell.parity,'MATCHED_REPORTED_INITIAL_STATE');
+  assert.equal(cell.policyOnsetProofSha256,A);
+  assert.equal(cell.policyOnsetEvidenceExternallyVerified,false);
 });
