@@ -50,7 +50,14 @@ function fixture(){
     sourceDealFingerprint:i===0?reg.originalSourceDealSha256:'other',
     fullPhysicalDealFingerprint:i===0?
       reg.originalWholePhysicalDealSha256:'other',
-    status:'root-cap-censored',rootActionLedger:i===0?roots:[]}));
+    status:'root-cap-censored',rootActionLedger:i===0?roots:[],
+    nativeAbortEvidence:i===0?{
+      failureStage:'bot-decoder',pendingPrompt:'ChooseCardsPrompt',
+      actionOrdinal:38,actingSeat:1,
+      redactedMessageDigest:'a'.repeat(64),
+      decoderFrameAttribution:{errorClass:'TypeError',frames:[
+        {file:'choose-cards-prompt-resolver.js',line:42,column:2}]}
+    }:null}));
   const observed={result:{
     manifest:{observedTwinleafGitCommit:'fixture-pinned',
       version:'selected-v5'},
@@ -71,6 +78,9 @@ test('native root custody and genuine prompt are counted, zero wins',()=>{
   assert.equal(r.sourceOwnerPass37Reached,true);
   assert.equal(r.sourceOwnerCardAcceptedByNativeStore,true);
   assert.equal(r.sourceFollowthroughPrompts.length,1);
+  assert.equal(r.sourceDecoderFailure.failureStage,'bot-decoder');
+  assert.equal(r.sourceDecoderFailure.pendingPrompt,'ChooseCardsPrompt');
+  assert.equal(r.sourceDecoderFailure.decoderFrameAttribution.frames[0].line,42);
   assert.equal(r.competitiveGamesQualified,0);
   a.rows[0].rootActionLedger[37].card='Other';
   assert.equal(execute(a).sourceOwnerCardAcceptedByNativeStore,false);
