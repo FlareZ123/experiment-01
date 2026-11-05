@@ -68,6 +68,17 @@ test('frozen v6 both-seat source Capture Energy search follows accepted Energy r
       control.manifest.actualRunnerConfirmedOption===true&&
       treatment.manifest.actualRunnerConfirmedOption===true,
     captureSearchAudit:capture,
+    captureExposureVerdict:!capture?.originalCapturePlayRootAttempts?
+      'NO_SELECTED_CAPTURE_PLAY_ROOT':
+      !capture.acceptedCaptureAttachments?
+        'CAPTURE_ROOT_WITHOUT_PHYSICAL_ATTACHMENT':
+        !capture.matchedOwnerDeckPrompts?
+          'CAPTURE_ATTACHMENT_WITHOUT_MATCHED_OWNER_SEARCH':
+          !capture.acceptedOwnerSearches?
+            'CAPTURE_SEARCH_WITHOUT_NATIVE_SETTLEMENT':
+            capture.records.some(r=>r.paperEffectVerified)?
+              'CAPTURE_SEARCH_SETTLED_WITH_EFFECT':
+              'CAPTURE_SEARCH_SETTLED_EFFECT_UNVERIFIED',
     pairs,paperGamesQualified:0,competitiveGamesQualified:0
   };
   console.log('AGENT41_CAPTURE_OWNER_V6',JSON.stringify(packet));
@@ -78,6 +89,17 @@ test('frozen v6 both-seat source Capture Energy search follows accepted Energy r
   assert.ok(pairs.every(row=>row.sameOriginalDeal&&row.sameFullDeal));
   assert.equal(packet.bothSeatSourceIndependentSelected,true);
   assert.ok(capture,'Actual running wrapper must expose owner-Capture audit');
+  // Zero selected original-source Capture roots is a registered negative
+  // opportunity observation, never a failed physical prompt response.
+  if(capture.originalCapturePlayRootAttempts===0){
+    assert.equal(packet.captureExposureVerdict,'NO_SELECTED_CAPTURE_PLAY_ROOT');
+    assert.equal(capture.acceptedCaptureAttachments,0);
+    assert.equal(capture.matchedOwnerDeckPrompts,0);
+    assert.equal(capture.acceptedOwnerSearches,0);
+    assert.equal(treatment.manifest.releaseQualified,false);
+    assert.equal(packet.competitiveGamesQualified,0);
+    return;
+  }
   assert.ok(capture.acceptedCaptureAttachments>=1);
   assert.ok(capture.matchedOwnerDeckPrompts>=1,
     'Genuine Capture attachment must yield a recognizable owner-deck prompt');
