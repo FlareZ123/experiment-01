@@ -1,6 +1,7 @@
 'use strict';
 
 const {createHash}=require('node:crypto');
+const {extractNativeAbortProvenance}=require('./agent18-aborted-native-provenance.cjs');
 
 /**
  * Read-only postgame audit. The output describes actual accepted native Store
@@ -14,9 +15,19 @@ function summarizeSourceRoots(row) {
   const id=row?.trial?.id??row?.id??null;
   const isAbort=row?.status==='engine-error';
   const provenance=row?.nativeAbortProvenance??null;
+  // Recompute native receipt trust independently of the row's labels.
+  const slot=row?.trial?.candidateSlot;
+  const expectedSeat=slot==='A'?1:slot==='B'?0:null;
+  const native=isAbort&&expectedSeat!==null?
+    extractNativeAbortProvenance(row.trial,row.nativeAbortEvidence):null;
   const sourceSeat=isAbort?
-    (provenance?.sourceDealStatus==='VERIFIED'?provenance.sourceSeat:null):
-    row?.sourceSeat;
+    (native?.nativeAbortProvenance.sourceDealStatus==='VERIFIED'&&
+      provenance?.sourceDealStatus==='VERIFIED'&&
+      provenance?.sourceSeat===native.nativeAbortProvenance.sourceSeat?
+      native.nativeAbortProvenance.sourceSeat:null):
+    (expectedSeat!==null&&row?.sourceSeat===expectedSeat&&
+      /^[0-9a-f]{64}$/.test(row?.sourceDealFingerprint)?
+      expectedSeat:null);
   const ledger=isAbort?
     row?.nativeAbortEvidence?.rootActionLedger:row?.rootActionLedger;
   const claimedCount=isAbort?
@@ -29,7 +40,8 @@ function summarizeSourceRoots(row) {
   const ledgerVerified=Array.isArray(ledger)&&
     Number.isSafeInteger(claimedCount)&&claimedCount===ledger.length&&
     typeof claimedDigest==='string'&&claimedDigest===actualDigest&&
-    (!isAbort||provenance?.acceptedRootLedgerStatus==='VERIFIED');
+    (!isAbort||(native?.nativeAbortProvenance.acceptedRootLedgerStatus===
+      'VERIFIED'&&provenance?.acceptedRootLedgerStatus==='VERIFIED'));
   if((sourceSeat!==0&&sourceSeat!==1)||!ledgerVerified) {
     return {id,disposition:row?.status??'returned',
       status:'NO_VERIFIED_SOURCE_ROOT_LEDGER',sourceSeat:null,
