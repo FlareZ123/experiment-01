@@ -62,6 +62,7 @@ function withSourceAfterDceThunderVolt(execute,deps){
     submittedMandatoryEnergyMoves:0,
     nativeSettledMandatoryEnergyMoves:0,
     opponentResponseObserved:false,
+    opponentResponseAction:null,
     nativeRejectedSourceProposals:[],
     acceptedStages:[],ownerOnly:true,competitiveGamesQualified:0
   };
@@ -99,6 +100,14 @@ function withSourceAfterDceThunderVolt(execute,deps){
       action.name===ATTACK&&stage==='stadium-active'&&!token;
     const priorPrompt=token?.kind==='energy-move'?
       state.prompts.find(p=>p.id===action.id&&p.result===undefined):null;
+    // A turn transition after our own attack is not an opponent decision.
+    // Count only an actually settled, opponent-owned voluntary Store root.
+    const opponentRoot=isLive&&stage==='energy-moved'&&
+      state.activePlayer===1&&state.turn>=3&&
+      state.players[1]?.id===action.clientId&&
+      (kind==='PassTurnAction'||kind==='AttackAction')&&
+      state.prompts.every(p=>p.result!==undefined);
+    const opponentTurnBefore=opponentRoot?state.turn:null;
     let result;
     try{
       result=originalStore.value.call(this,action,...args);
@@ -176,15 +185,21 @@ function withSourceAfterDceThunderVolt(execute,deps){
         owner:publicAndOwnerSnapshot(source)
       });
     }
-    if(stage==='energy-moved'&&after.activePlayer===1)
+    if(opponentRoot&&(after.activePlayer!==1||
+       after.turn!==opponentTurnBefore||
+       after.prompts.some(p=>p.result===undefined))){
       audit.opponentResponseObserved=true;
+      audit.opponentResponseAction={
+        kind,sourceTurnBefore:opponentTurnBefore,
+        sourceTurnAfter:after.turn
+      };
+      record('opponent-accepted-voluntary-root',after,{
+        opponentResponseKind:kind
+      });
+    }
     return result;
   }
   function decode(state,...args){
-    if(this.client?.id===state?.players?.[1]?.id&&
-       stage==='energy-moved'&&state===live?.state){
-      audit.opponentResponseObserved=true;
-    }
     if(state!==live?.state||!act(state)||
        ownerOf(state).id!==this.client?.id)
       return originalAi.value.call(this,state,...args);
