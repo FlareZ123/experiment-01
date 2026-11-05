@@ -28,8 +28,9 @@ const expectedIds=[
  * @returns {object}
  */
 function summarizeSham(a,b){
-  assert.equal(a.manifest.prechoiceMode,'baseline');
-  assert.equal(b.manifest.prechoiceMode,'baseline');
+  const mode=a.manifest.prechoiceMode;
+  assert.ok(mode==='baseline'||mode==='protected');
+  assert.equal(b.manifest.prechoiceMode,mode);
   assert.deepEqual(a.diagnostic.registered,expectedIds);
   assert.deepEqual(b.diagnostic.registered,expectedIds);
   const x=a.diagnostic.actualNativePrechoicePhysicalInputs;
@@ -77,7 +78,8 @@ function summarizeSham(a,b){
     };
   });
   return {
-    schema:'agent1-issue25-native-baseline-sham-v9',
+    schema:'agent1-issue25-native-same-policy-sham-v9',
+    profile:mode,
     intent:'same-actor same-trial repeated negative-control',
     matchingPinnedEngine:a.manifest.observedTwinleafGitCommit===
       b.manifest.observedTwinleafGitCommit,
@@ -114,7 +116,7 @@ function summarizeSham(a,b){
  */
 function archive(report,directory){
   fs.mkdirSync(directory,{recursive:true});
-  const filename='issue25-baseline-sham-v9.json';
+  const filename='issue25-'+report.profile+'-sham-v9.json';
   const full=path.join(directory,filename);
   const lock=path.join(directory,'.agent1-v9-sham.lock');
   const fd=fs.openSync(lock,'wx');
@@ -132,19 +134,22 @@ function archive(report,directory){
   return {file:full,sha256:digest};
 }
 
-test('native paired A/A baseline sham identifies any post-choice nondeterminism',()=>{
-  const first=runPrechoiceCustodyV8('baseline');
-  const repeated=runPrechoiceCustodyV8('baseline');
-  const summary=summarizeSham(first,repeated);
-  const directory=process.env.ISSUE25_SHAM_RECEIPT_DIR;
-  const saved=directory?archive(summary,directory):null;
-  console.log('AGENT1_ISSUE25_BASELINE_SHAM_V9',
-    JSON.stringify({summary,archive:saved}));
-  assert.equal(summary.registeredIds.length,8);
-  assert.equal(summary.prechoiceOwnerRecords,16);
-  assert.equal(summary.privatePrechoiceInputPairsMatched,16);
-  assert.equal(summary.preRunRequestPairsMatched,16);
-  assert.equal(summary.bothActualPhysicalSixtiesCorrect,16);
-  assert.equal(summary.sameNativeFirstPlayer,16);
-  assert.equal(summary.competitiveGamesQualified,0);
-});
+for(const mode of ['baseline','protected']){
+  test('native paired A/A '+mode+' sham checks post-choice deterministic drift',()=>{
+    const first=runPrechoiceCustodyV8(mode);
+    const repeated=runPrechoiceCustodyV8(mode);
+    const summary=summarizeSham(first,repeated);
+    const directory=process.env.ISSUE25_SHAM_RECEIPT_DIR;
+    const saved=directory?archive(summary,directory):null;
+    console.log('AGENT1_ISSUE25_SAME_POLICY_SHAM_V9',
+      JSON.stringify({summary,archive:saved}));
+    assert.equal(summary.profile,mode);
+    assert.equal(summary.registeredIds.length,8);
+    assert.equal(summary.prechoiceOwnerRecords,16);
+    assert.equal(summary.privatePrechoiceInputPairsMatched,16);
+    assert.equal(summary.preRunRequestPairsMatched,16);
+    assert.equal(summary.bothActualPhysicalSixtiesCorrect,16);
+    assert.equal(summary.sameNativeFirstPlayer,16);
+    assert.equal(summary.competitiveGamesQualified,0);
+  });
+}
