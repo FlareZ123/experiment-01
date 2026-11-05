@@ -150,7 +150,7 @@ test('missing initial shuffle cannot be interpreted as zero mulligans',()=>{
 test('frozen missing or unregistered attempt rejects entire census',()=>{
   const rows=trials.map(t=>row(t));
   assert.throws(()=>auditActualMirroredV6Setup(manifest(),archive(rows.slice(1))),
-    /length|size/);
+    /Expected values to be strictly equal|length|size/);
   const other=rows.slice();other[0]={...other[0],id:'unregistered'};
   assert.throws(()=>auditActualMirroredV6Setup(manifest(),archive(other)),
     /Unregistered native result/);
