@@ -57,6 +57,8 @@ function withRegisteredSourceToolCounterfactual(next,deps={}){
   })();
   assert.ok(tools instanceof Set);
   const observe=deps.observe??actorObservation;
+  const publicView=deps.publicView??publicPlayer;
+  const printCard=deps.printing??printing;
   const registration=deps.registration??REGISTRATION;
   assert.equal(registration.targets?.length,2);
   const previousMatch=headless.runMatch;
@@ -121,14 +123,14 @@ function withRegisteredSourceToolCounterfactual(next,deps={}){
       const taggedRecord=tagged.get(action);
       if(!taggedRecord)return priorDispatch.value.call(this,action,...args);
       const owner=this.state.players[target.sourceSeat];
-      const before=publicPlayer(owner);
-      taggedRecord.ownerHandBefore=owner.hand.cards.map(printing);
+      const before=publicView(owner);
+      taggedRecord.ownerHandBefore=owner.hand.cards.map(printCard);
       taggedRecord.ownerActiveToolsBefore=before.active?.tools??null;
       try{
         const result=priorDispatch.value.call(this,action,...args);
         const afterPlayer=this.state.players[target.sourceSeat];
-        const after=publicPlayer(afterPlayer);
-        taggedRecord.ownerHandAfter=afterPlayer.hand.cards.map(printing);
+        const after=publicView(afterPlayer);
+        taggedRecord.ownerHandAfter=afterPlayer.hand.cards.map(printCard);
         taggedRecord.ownerActiveToolsAfter=after.active?.tools??null;
         taggedRecord.nativeToolActionAccepted=true;
         taggedRecord.physicalToolAttached=
