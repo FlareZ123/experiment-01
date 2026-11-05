@@ -376,10 +376,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
-      - name: Check out repository and pinned Twinleaf
+      - name: Check out research repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Initialize only the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Set up Node 22 with upstream npm cache
         uses: actions/setup-node@v4
         with:
