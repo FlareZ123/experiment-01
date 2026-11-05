@@ -90,6 +90,10 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     const energy=owner?.hand?.cards?.[action.handIndex];
     const track=actual && type==='PlayCardAction' &&
       energy?.fullName===CAPTURE;
+    const countCaptureAttached=player=>
+      [player.active,...player.bench].reduce((n,slot)=>n+
+        (slot.energies?.cards??[]).filter(c=>c.fullName===CAPTURE).length,0);
+    const beforeCount=track?countCaptureAttached(owner):null;
     const existingPrompts=track?
       new Set((before.prompts??[]).map(p=>p.id)):null;
     const proposed=actual?proposals.get(action):null;
@@ -102,9 +106,8 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     }
     if(track){
       const current=this.state.players[seat];
-      const slots=[current.active,...current.bench];
-      const attached=slots.some(slot=>
-        slot.energies?.cards?.includes(energy));
+      // Physical printing-count delta survives engines that clone card objects.
+      const attached=countCaptureAttached(current)===beforeCount+1;
       if(attached)audit.acceptedCaptureAttachments++;
       const pending=attached?this.state.prompts?.find(p=>
         !existingPrompts.has(p.id) && p.result===undefined &&
