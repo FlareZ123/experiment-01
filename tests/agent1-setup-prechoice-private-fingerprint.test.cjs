@@ -235,3 +235,26 @@ test('genuine first-turn action records only public Pokémon board cardinality a
   assert.ok(boards.every(b=>/^[0-9a-f]{64}$/.test(b.publicBoardHmacSha256)));
   assert.ok(!JSON.stringify(out.audit).includes('PUBLIC_BENCH_A'));
 });
+
+test('error audit emits only counts',()=>{
+  const n=mockNative();
+  let failure;
+  try{
+    withSetupPrechoicePrivateFingerprint(()=>{
+      const p=n.owner(101,'source'),q=n.owner(202,'candidate');
+      const state={players:[p,q],turn:0,phase:1,activePlayer:0,prompts:[]};
+      const store=new n.Store(state);
+      store.dispatch(new n.AddPlayerAction());
+      state.prompts=[new n.ChooseCardsPrompt(p)];
+      new n.SimpleTacticsAi(p.id).decodeNextAction(state);
+      throw new Error('deliberate-fixture-error');
+    },{engine:n.engine});
+  }catch(error){failure=error;}
+  assert.equal(failure.message,'deliberate-fixture-error');
+  const audit=failure.setupPrechoiceFingerprintAudit;
+  assert.equal(audit.aborted,true);
+  assert.equal(audit.firstOwnerSetupInputsObserved,1);
+  assert.equal(audit.privatePositionsOrFingerprintsPublished,false);
+  assert.ok(!('events' in audit));
+  assert.ok(!('firstTurnBoardEvents' in audit));
+});
