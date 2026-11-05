@@ -157,3 +157,33 @@ test('wrapper restores patched methods when native callback throws',()=>{
   assert.strictEqual(Bot.prototype.decodeNextAction,previousBot);
   assert.strictEqual(Store.prototype.dispatch,previousStore);
 });
+
+test('other Energy cannot hijack a matching owner-deck prompt',()=>{
+  const ps=[owner(101,[{fullName:'Speed Lightning Energy RCL'}]),
+    owner(202)];
+  const store=new Store(ps);
+  const result=withOwnerCaptureEnergySearch(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    assert.equal(new Bot(101).decodeNextAction(store.state).kind,
+      'native-fallback');
+  },dependencies);
+  assert.equal(result.audit.acceptedCaptureAttachments,0);
+  assert.equal(result.audit.ownerSearchProposals,0);
+});
+
+test('native prompt count contract mismatch delegates without mutation',()=>{
+  const ps=[owner(101),owner(202)];
+  const store=new Store(ps);
+  const result=withOwnerCaptureEnergySearch(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    store.state.prompts[0].options.min=1;
+    assert.equal(new Bot(101).decodeNextAction(store.state).kind,
+      'native-fallback');
+    assert.equal(store.state.prompts[0].result,undefined);
+  },dependencies);
+  assert.equal(result.audit.acceptedCaptureAttachments,1);
+  assert.equal(result.audit.matchedOwnerDeckPrompts,1);
+  assert.equal(result.audit.ownerSearchProposals,0);
+});
