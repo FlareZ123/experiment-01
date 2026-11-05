@@ -60,6 +60,7 @@ test('executing selected closure fixes both-seat options and retains all eight a
           trial,sourceSeat:trial.candidateSlot==='A'?1:0,
           candidateSeat:trial.candidateSlot==='A'?0:1,
           status:'development-only',rootActionLedger:[],
+          bilateralSpecialEnergyProfile:{mode:options.bilateralSpecialEnergyRoot?'both':'disabled'},
           sourceDealFingerprint:'source-'+trial.id,
           fullPhysicalDealFingerprint:'full-'+trial.id
         }))
