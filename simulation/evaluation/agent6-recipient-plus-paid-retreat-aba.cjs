@@ -174,6 +174,8 @@ if(require.main===module){
     process.stdout.write(JSON.stringify(result)+'\n');
     if(!result.allGroupsStrictlyPaired||result.actualArms!==24)process.exitCode=1;
   }catch(error){
+    process.stderr.write('AGENT6_RECIPIENT_PAID_ERROR '+
+      String(error?.stack??error).slice(0,6000)+'\n');
     process.stdout.write(JSON.stringify({
       version:VERSION,status:'runner-failure',
       error:String(error?.stack??error).slice(0,7000),
