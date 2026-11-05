@@ -412,3 +412,65 @@ test('frozen v2 wrapper records exact original root prompt counts and restores h
   assert.equal(result.nativeTrialPromptCountBinding.allCountsMatched,false);
   assert.equal(result.competitiveQualifiedGames,0);
 });
+
+/** Reproduce native Store's nonthrowing stale-prompt path without mutation. */
+class SilentPromptStore extends FakeStore{
+  dispatch(){
+    this.mutations++;
+    return {accepted:true};
+  }
+}
+
+for(const seat of [0,1]){
+  test('unified paper prompt portfolio rejects silent nonthrowing original seat '+seat+' settlement',()=>{
+    const s=state(),owner=s.players[seat],card={name:'real deck physical'};
+    owner.deck.cards.push(card);
+    const prompt=new ChooseCardsPrompt(77,owner.deck,owner,
+      {fullName:'Camping Gear BST'});
+    s.prompts=[prompt];
+    const store=new SilentPromptStore(s);
+    const initial=SilentPromptStore.prototype.dispatch;
+    const audit=withPaperPromptContractPortfolio(()=>
+      store.dispatch(new ResolvePromptAction(77,[card])),
+      {...deps,Store:SilentPromptStore}).audit;
+    assert.equal(audit.statusCounts.PAPER_PROMPT_VERIFIED,1);
+    assert.equal(audit.nativeReturnedWithoutThrow,1);
+    assert.equal(audit.nativePromptSettled,0);
+    assert.equal(audit.nativeSilentNoop,1);
+    assert.equal(audit.nativeAccepted,0);
+    assert.equal(audit.stores[0].acceptedPromptReplies,0);
+    assert.equal(audit.byTrial['6:0:A:champion-reference'].nativeAccepted,0);
+    assert.equal(audit.events[0].nativeSilentNoop,true);
+    assert.equal(audit.events[0].physicalEffectVerified,false);
+    assert.equal(prompt.result,undefined);
+    assert.strictEqual(SilentPromptStore.prototype.dispatch,initial);
+  });
+}
+
+test('undefined submitted answer cannot make unresolved prompt appear settled',()=>{
+  const s=state(),owner=s.players[0];
+  s.prompts=[new WaitPrompt(80,owner)];
+  const store=new SilentPromptStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>
+    store.dispatch(new ResolvePromptAction(80,undefined)),
+    {...deps,Store:SilentPromptStore}).audit;
+  assert.equal(audit.nativeReturnedWithoutThrow,1);
+  assert.equal(audit.nativePromptSettled,0);
+  assert.equal(audit.nativeSilentNoop,1);
+  assert.equal(audit.nativeAccepted,0);
+  assert.equal(audit.events[0].status,'PAPER_PROMPT_UNVERIFIED');
+});
+
+test('stale source prompt ID is no-throw but cannot count native acceptance',()=>{
+  const s=state(),owner=s.players[1];
+  s.prompts=[new WaitPrompt(81,owner)];
+  const store=new SilentPromptStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>
+    store.dispatch(new ResolvePromptAction(999,true)),
+    {...deps,Store:SilentPromptStore}).audit;
+  assert.equal(audit.nativeReturnedWithoutThrow,1);
+  assert.equal(audit.nativeSilentNoop,0);
+  assert.equal(audit.nativeSettlementUnverified,1);
+  assert.equal(audit.nativeAccepted,0);
+  assert.equal(audit.events[0].nativeSettlementUnverified,true);
+});
