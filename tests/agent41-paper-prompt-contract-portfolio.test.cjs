@@ -61,8 +61,11 @@ const types={
 };
 const deps={Store:FakeStore,IronThornsex,types,currentTrialId:()=> '6:0:A:champion-reference'};
 function state(){
+  const benchPokemon={name:'bench pokemon'};
   const owner={id:0,deck:{cards:[]},hand:{cards:[]},
-    active:{cards:[]},bench:[{cards:[{name:'bench pokemon'}]}]};
+    active:{cards:[],energies:{cards:[]}},
+    bench:[{cards:[benchPokemon],energies:{cards:[]},
+      getPokemonCard(){return benchPokemon;}}]};
   const opponent={id:1,deck:{cards:[]},hand:{cards:[]},
     active:{cards:[]},bench:[]};
   return {turn:4,players:[owner,opponent],prompts:[]};
@@ -178,6 +181,7 @@ test('independent PutDamage zero target is still vetoed when native prompt valid
 test('positively reducer-marked original Volt Cyclone accepts only one own Active Energy moved to occupied Bench',()=>{
   const s=state(),owner=s.players[0],energy={superType:'energy'};
   owner.active.cards.push(energy);
+  owner.active.energies.cards.push(energy);
   const store=new FakeStore(s),pokemon=new IronThornsex();
   const audit=withPaperPromptContractPortfolio(()=>{
     pokemon.reduceEffect(store,s,new AfterAttackEffect(owner,pokemon.attacks[0]));
@@ -197,6 +201,7 @@ test('positively reducer-marked original Volt Cyclone accepts only one own Activ
 test('Volt Cyclone positive physical transfer with false native validator is an unverified native veto',()=>{
   const s=state(),owner=s.players[0],energy={superType:'energy'};
   owner.active.cards.push(energy);
+  owner.active.energies.cards.push(energy);
   const store=new FakeStore(s),pokemon=new IronThornsex();
   const audit=withPaperPromptContractPortfolio(()=>{
     pokemon.reduceEffect(store,s,new AfterAttackEffect(owner,pokemon.attacks[0]));
