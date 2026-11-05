@@ -194,3 +194,113 @@ test('exact first-turn Letter rescue model reproduces rank11 hypergeometric boun
   assert.equal(firstOwnTurnRescue({
     basics:11,energies:8,items:0}).itemRescueProbability,0);
 });
+
+test('late actual native-match Letter search resolves physical owner deck cards after canonical decoder',()=>{
+  const {withLateOwnedLetterPrompt}=
+    require('../simulation/twinleaf/agent35-letter-owner-match-late-hook.cjs');
+  const types={
+    SuperType:{ENERGY:7},EnergyType:{BASIC:2},CardType:{DARK:9}
+  };
+  const dark=id=>({id,fullName:'Darkness Energy MEE',
+    superType:7,energyType:2,provides:[9]});
+  const owner={id:202,hand:{cards:[{fullName:registration.sourceCardToPlay}]},
+    deck:{cards:[dark(1),dark(2),{id:3,fullName:'Psychic Energy MEE',
+      superType:7,energyType:2,provides:[8]}]}};
+  const candidate={id:101,hand:{cards:[]},deck:{cards:[]}};
+  const state={turn:registration.sourceTurn,activePlayer:
+    registration.originalSourceSeat,players:[candidate,owner],prompts:[]};
+  class ChooseCardsPrompt{
+    constructor(){
+      this.id=45;this.playerId=owner.id;this.result=undefined;
+      this.cards=owner.deck;this.message='CHOOSE_CARD_TO_HAND';
+      this.filter={superType:7,energyType:2};
+      this.options={min:0,max:2,allowCancel:false};
+    }
+    validate(cards){
+      return Array.isArray(cards)&&cards.length===2&&
+        cards.every(c=>owner.deck.cards.includes(c)&&
+          c.superType===7&&c.energyType===2);
+    }
+  }
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}
+  }
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Store{
+    constructor(){this.state=state;}
+    dispatch(action){
+      if(action instanceof AddPlayerAction)return this.state;
+      if(action instanceof PlayCardAction){
+        assert.equal(action.id,owner.id);
+        owner.hand.cards.splice(action.handIndex,1);
+        state.prompts.push(new ChooseCardsPrompt());
+        return this.state;
+      }
+      if(action instanceof ResolvePromptAction){
+        const prompt=state.prompts[0];
+        assert.equal(prompt.id,action.id);
+        prompt.result=action.result;
+        for(const c of action.result){
+          owner.deck.cards.splice(owner.deck.cards.indexOf(c),1);
+          owner.hand.cards.push(c);
+        }
+        return this.state;
+      }
+      throw Error('Unhandled mock action');
+    }
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Generic decoder quarantine');}
+  }
+  const store=new Store(),bot=new SimpleTacticsAi(owner.id);
+  const headless={runMatch(request){
+    assert.ok(request.label.endsWith(registration.selectedOriginalId));
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(owner.id,0));
+    const answer=bot.decodeNextAction(state);
+    assert.ok(answer instanceof ResolvePromptAction);
+    assert.deepEqual(answer.result.map(c=>c.id),[1,2]);
+    store.dispatch(answer);
+    return 'native-final';
+  }};
+  const originalRun=headless.runMatch;
+  const originalStore=Store.prototype.dispatch;
+  const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
+  const trial=withLateOwnedLetterPrompt(()=>{
+    const prior=Object.getOwnPropertyDescriptor(
+      SimpleTacticsAi.prototype,'decodeNextAction');
+    function canonicalLayer(){throw Error('Canonical decoder cannot choose Letter');}
+    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
+      ...prior,value:canonicalLayer});
+    try{
+      return headless.runMatch({
+        label:'native-source-'+registration.selectedOriginalId
+      });
+    }finally{
+      assert.strictEqual(
+        SimpleTacticsAi.prototype.decodeNextAction,canonicalLayer);
+      Object.defineProperty(SimpleTacticsAi.prototype,
+        'decodeNextAction',prior);
+    }
+  },{headless,Store,SimpleTacticsAi,ResolvePromptAction,types,
+    registration});
+  assert.equal(trial.result,'native-final');
+  assert.equal(trial.audit.sourceMatches,1);
+  assert.equal(trial.audit.lateInstalls,1);
+  assert.equal(trial.audit.sourceItemsAccepted,1);
+  assert.equal(trial.audit.legitimateOwnerDeckPrompts,1);
+  assert.equal(trial.audit.searchChoicesSubmitted,1);
+  assert.equal(trial.audit.searchPromptsSettled,1);
+  assert.equal(trial.audit.physicalDarknessToHand,2);
+  assert.equal(trial.audit.physicalFailures,0);
+  assert.equal(owner.deck.cards.length,1);
+  assert.equal(owner.hand.cards.length,2);
+  assert.strictEqual(headless.runMatch,originalRun);
+  assert.strictEqual(Store.prototype.dispatch,originalStore);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,originalDecode);
+  assert.equal(trial.audit.qualifiedGames,0);
+});
