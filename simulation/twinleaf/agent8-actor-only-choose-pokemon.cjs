@@ -185,7 +185,7 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
         input.prompt.offered[intent.index].printing,
       perspectiveIsAnsweringOwner: input.prompt.perspectiveIsAnsweringOwner
     };
-    selected.set(action, record);
+    selected.set(action, {...record,physicalPendingPrompt:pending});
     audit.selected++;
     audit.bySeat[seat]++;
     if (audit.boundedSelections.length < 64)
@@ -202,7 +202,7 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
     const choice = this === liveStore ? selected.get(action) : undefined;
     if (!choice) return originalDispatch.value.apply(this, [action, ...args]);
     const before = this.state.prompts?.find(p =>
-      p.id === choice.promptId && p.result === undefined);
+      p === choice.physicalPendingPrompt && p.result === undefined);
     let result;
     try {
       result = originalDispatch.value.apply(this, [action, ...args]);
