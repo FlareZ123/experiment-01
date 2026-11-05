@@ -615,3 +615,20 @@ jobs:
             agent4-bilateral-mail-original-eight-aba-native.json.sha256
           if-no-files-found: warn
           retention-days: 14
+      - name: Compare original rank6 Mail spend against source paid Plumeria in same-deal native A/B/A
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_MAIL_PLUMERIA_ABA_OUTPUT: agent4-mail-plumeria-original-aba-native.json
+        run: |
+          node --check simulation/evaluation/agent4-mail-plumeria-source-opportunity-aba.cjs
+          node simulation/evaluation/agent4-mail-plumeria-source-opportunity-aba.cjs
+      - name: Preserve original source rank6 Mail-Plumeria A/B/A payment and candidate reply
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-mail-plumeria-native-aba
+          path: |
+            agent4-mail-plumeria-original-aba-native.json
+            agent4-mail-plumeria-original-aba-native.json.sha256
+          if-no-files-found: warn
+          retention-days: 14
