@@ -719,6 +719,26 @@ jobs:
             agent4-volt-native-abort-readout.json.sha256
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify both-seat own-visible Volt mandatory donor solver and native replay wrapper
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/evaluation/agent4-owner-volt-original-eight-followthrough-v1.cjs
+          node --test tests/agent4-allturn-owner-volt-attach-energy.test.cjs tests/agent4-owner-volt-original-eight-followthrough-v1.test.cjs
+      - name: Reevaluate original-eight real source Volt post-attack Energy transfer with independent physical Store guard
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_OWNER_VOLT_OUTPUT: agent4-original-eight-owner-volt-native.json
+        run: node simulation/evaluation/agent4-owner-volt-original-eight-followthrough-v1.cjs
+      - name: Archive both-seat owner Volt actual physically transferred Energy and candidate continuation
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-eight-owner-Volt-physical-transfer
+          path: |
+            agent4-original-eight-owner-volt-native.json
+            agent4-original-eight-owner-volt-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Compare original rank6 Mail spend against source paid Plumeria in same-deal native A/B/A
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
         env:
