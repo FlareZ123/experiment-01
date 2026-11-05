@@ -223,9 +223,15 @@ if(require.main===module){
     x.independentFreshSkylinerCohort=require(
       './agent2-skyliner-fresh-independent-aba.cjs').run();
     process.stdout.write(JSON.stringify(x)+'\n');
+    const fresh=x.independentFreshSkylinerCohort;
     if(!x.allOriginalArchivedControlsExact||
        !x.A_B_A_PhysicalControlsPaired||
-       x.actualArms!==24||x.nativeErrors>0||x.nativeCaps>0)
+       x.actualArms!==24||x.nativeErrors>0||x.nativeCaps>0||
+       !x.selectedCaseAttackTrace.exactFrozenPhysicalRootReplays||
+       !x.selectedCaseAttackTrace.lastPrizeNativeTerminalPreserved||
+       fresh.actualArms!==24||fresh.nativeErrors>0||fresh.nativeCaps>0||
+       !fresh.allSamePhysicalDeal||!fresh.allControlsRepeatedExactly||
+       !fresh.allOriginal60Unchanged)
       process.exitCode=1;
   }catch(error){
     process.stdout.write(JSON.stringify({
