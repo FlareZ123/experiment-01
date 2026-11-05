@@ -18,7 +18,7 @@ const {withIndependentSeatRng}=
 const ROOT=path.resolve(__dirname,'../..');
 const OUTPUT=path.join(ROOT,'agent19-rank5-independent-seat-rng-prospective-paired-native.json');
 const VERSION='agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6';
-const REGISTRATION_BLOB='e8298afacfedbb7d6cf6490a826c06eeb1a0cf99';
+const REGISTRATION_BLOB='02e45118baf0e660bbd48e0d686df0a7aca00e71';
 
 /** @param {Buffer} bytes @returns {string} */
 function gitBlob(bytes){
@@ -64,10 +64,10 @@ function inspect(){
     'agent19-rank5-energy-mix-independent-seat-rng-prospective-seeds-v6');
   assert.deepEqual(registration.modeNames,
     ['guarded-target-control','guarded-target-plus-paper-shuffle']);
-  assert.equal(registration.expectedNativeAttempts,16);
-  assert.equal(registration.registeredTrials.length,8);
-  assert.equal(registration.randomGroups.length,4);
-  assert.equal(new Set(registration.randomGroups.map(x=>x.seed)).size,4);
+  assert.equal(registration.expectedNativeAttempts,32);
+  assert.equal(registration.registeredTrials.length,16);
+  assert.equal(registration.randomGroups.length,8);
+  assert.equal(new Set(registration.randomGroups.map(x=>x.seed)).size,8);
   assert.equal(registration.newReplayNativeOutcomesUnobservedAtRegistration,true);
   assert.equal(gitBlob(fs.readFileSync(path.join(ROOT,
     'simulation/evaluation/agent41-frozen-bilateral-development-v2.json'))),
@@ -109,7 +109,7 @@ function inspect(){
     assert.ok(registration.candidateIds.includes(row.candidateId));
   }
   return {version:VERSION,manifestBlob:REGISTRATION_BLOB,
-    registeredPhysicalSourceGroups:4,attemptedNativeArms:16,
+    registeredPhysicalSourceGroups:8,attemptedNativeArms:32,
     originalSourceRosterGitBlobSha:registration.sourceRosterGitBlobSha,
     commonPolicyProfileGitBlobSha:registration.frozenPolicyProfileGitBlobSha,
     commonRunnerGitBlobSha:registration.originalRunnerGitBlobSha,
@@ -167,7 +167,7 @@ function run(){
         return withPaperMewEnergyMixShuffle(()=>runDevelopment(options));
       });
       assert.ok(Array.isArray(native.result.result.rows));
-      assert.equal(native.result.result.attempted,8);
+      assert.equal(native.result.result.attempted,16);
       modes.push({name,
         paperMewEnergyMixShuffleEnabled:useShuffle,
         nativeResult:native.result.result,
@@ -177,7 +177,7 @@ function run(){
     }
     return null;
     });
-    assert.equal(rngPacket.audit.matches,16,
+    assert.equal(rngPacket.audit.matches,32,
       'All 16 registered native matches must use the isolated protocol');
   }finally{
     if(previous===undefined)delete process.env[ambient];
@@ -204,9 +204,9 @@ function run(){
     independentPhysicalShuffleBySeat:true,
     independentSpeculativePolicyBySeat:true,
     independentCoinRandomness:false,
-    registeredPhysicalSourceGroups:4,
+    registeredPhysicalSourceGroups:8,
     candidatePrintedSixties:registration.candidateIds,
-    intendedNativeAttempts:16,observedNativeAttempts:
+    intendedNativeAttempts:32,observedNativeAttempts:
       modes.reduce((n,m)=>n+m.diagnostics.length,0),
     physicallyMatchedSourcePairs:matched.filter(x=>x.physicalSourceDeckMatch).length,
     matchedActualStarterPairs:matched.filter(x=>x.actualStarterMatch).length,
@@ -245,7 +245,7 @@ function run(){
     rawModes:modes,pinnedVendor:registration.pinnedTwinleaf,
     caveat:'Retrospective selected seeds with new independent physical/policy seat RNG; not an independent field sample. Global coin RNG, paper legality, opponent competence and Aichi clock remain unqualified. Preserve every abort/cap.'};
   saveEvidence(result);
-  assert.equal(summary.observedNativeAttempts,16);
+  assert.equal(summary.observedNativeAttempts,32);
   process.stdout.write(JSON.stringify({summary,matched,
     outputPath:path.basename(OUTPUT),
     registrationDigest:digest(registration)},null,2)+'\n');
