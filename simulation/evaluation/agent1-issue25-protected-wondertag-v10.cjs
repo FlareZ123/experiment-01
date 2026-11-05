@@ -247,6 +247,8 @@ function compareProtectedWonderTagV10(baseline,treatment){
     !!nativeShuffle&&
     nativeShuffle.shufflePromptsOffered===wonder.selectedSupporters&&
     nativeShuffle.shuffleCallbacksCompleted===wonder.selectedSupporters&&
+    nativeShuffle.validShuffleCallbacksCompleted===wonder.selectedSupporters&&
+    nativeShuffle.invalidNativeShufflePermutations===0&&
     nativeShuffle.outstandingShuffleCallbacks===0&&
     nativeShuffle.shuffleCallbacksFailed===0&&
     [0,1].every(seat=>nativeShuffle.bySeat?.[seat]===
@@ -328,6 +330,10 @@ function compareProtectedWonderTagV10(baseline,treatment){
       printedEntrances:nativeShuffle.printedEntrances,
       shufflePromptsOffered:nativeShuffle.shufflePromptsOffered,
       shuffleCallbacksCompleted:nativeShuffle.shuffleCallbacksCompleted,
+      validShuffleCallbacksCompleted:
+        nativeShuffle.validShuffleCallbacksCompleted,
+      invalidNativeShufflePermutations:
+        nativeShuffle.invalidNativeShufflePermutations,
       shuffleCallbacksFailed:nativeShuffle.shuffleCallbacksFailed,
       outstandingShuffleCallbacks:nativeShuffle.outstandingShuffleCallbacks,
       bySeat:nativeShuffle.bySeat,
