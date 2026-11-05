@@ -62,6 +62,11 @@ function ownerInputsById(witness,ids){
   for(const event of witness.events){
     assert.ok(expected.has(event.registeredNativeTrialId));
     assert.ok(event.physicalOwnerSeat===0||event.physicalOwnerSeat===1);
+    assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
+    assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
+    assert.equal(event.firstBeforeAnyOwnerSetupChoice,true);
+    assert.equal(event.globalTurnAtCapture,0);
+    assert.equal(event.physicalSixtyCardCount,60);
     const key=event.registeredNativeTrialId+':'+event.physicalOwnerSeat;
     assert.ok(!byKey.has(key),'Duplicate native owner setup input');
     assert.equal(event.exactPhysicalSixtyPrintedCountMatched,true);
@@ -91,6 +96,18 @@ function compareProtectedWonderTagV10(baseline,treatment){
   const pairableSession=left.privateFingerprintSessionId===
     right.privateFingerprintSessionId;
   const a=ownerInputsById(left,ids),b=ownerInputsById(right,ids);
+  const attempts=execution=>{
+    const raw=execution.diagnostic.attemptedRows;
+    assert.ok(Array.isArray(raw)&&raw.length===ids.length);
+    const byId=new Map();
+    for(const row of raw){
+      assert.ok(ids.includes(row.id),'Unexpected registered native attempt');
+      assert.ok(!byId.has(row.id),'Duplicate registered native attempt');
+      byId.set(row.id,row);
+    }
+    return byId;
+  };
+  const rawA=attempts(baseline),rawB=attempts(treatment);
   const rows=ids.map(id=>{
     const candidateSeat=id.split(':')[2]==='A'?0:1;
     const sourceSeat=1-candidateSeat;
@@ -107,8 +124,7 @@ function compareProtectedWonderTagV10(baseline,treatment){
         sameNativeFirstPlayer:l.nativeFirstPlayerSeat===r.nativeFirstPlayerSeat
       };
     });
-    const first=baseline.diagnostic.attemptedRows.find(x=>x.id===id);
-    const second=treatment.diagnostic.attemptedRows.find(x=>x.id===id);
+    const first=rawA.get(id),second=rawB.get(id);
     assert.ok(first&&second);
     return {
       id,sourceSeat,candidateSeat,ownerPairs,
