@@ -46,6 +46,7 @@ function selectLetter(view,registration){
 function withLetterFork(next,deps){
   assert.equal(typeof next,'function');
   const {headless,SimpleTacticsAi,PlayCardAction,registration}=deps;
+  const observe=deps.observe??actorObservation;
   assert.equal(typeof headless?.runMatch,'function');
   assert.equal(typeof SimpleTacticsAi?.prototype.decodeNextAction,'function');
   const originalMatch=headless.runMatch;
@@ -71,7 +72,7 @@ function withLetterFork(next,deps){
         owner?.id===this.client?.id&&
         !(state?.prompts??[]).some(p=>p.result===undefined)&&
         audit.selectedCount===0;
-      const before=eligible?actorObservation(state,seat):null;
+      const before=eligible?observe(state,seat):null;
       const baseline=prior.value.call(this,state,...args);
       if(!before||baseline?.constructor?.name!=='PassTurnAction')return baseline;
       const handIndex=selectLetter(before,registration);
