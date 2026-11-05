@@ -35,7 +35,7 @@ function gameFixture({mode='physical',ownerSeat=1,fee=3,status=[],
     }
   }
   class CheckRetreatCostEffect{
-    constructor(){this.cost=[9,9,9].slice(0,fee);}
+    constructor(){this.cost=Array.from({length:fee},()=>9);}
   }
   class Store{
     constructor(){
