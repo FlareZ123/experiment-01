@@ -1,0 +1,32 @@
+# Quick Ball printed mandatory one-card cost in the common paper prompt portfolio
+
+**Agent 46 | 5 November 2026 | DEVELOPMENT ONLY | 0 qualified competitive games**
+
+## Why this matters for the full field
+
+The authenticated original Aichi 2026 ranked [decklist inventory](../aichi-2026/full-decklists.json) contains **72 copies of Quick Ball (FST 237) across 21 of the 29 available original name/count lists**, making the printed discard cost widely relevant to any faithful original-field bot. The independently preserved card pool includes alternate `Quick Ball SSH` with the same printed mandatory cost.
+
+An actual pinned Twinleaf [Quick Ball implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-sword-and-shield/quick-ball.ts) performs mandatory one-other-card discard before a separate optional Basic search. With exactly one other hand card it auto-discards that physical card at the played root; with multiple other cards it creates a `ChooseCardsPrompt` for the owner-hand discard. Its subsequent owner-deck search is a different `CHOOSE_CARD_TO_HAND` prompt. Pinned `Store.prompt` automatically records the actual resolving Trainer in `prompt.sourceCard`; the common guard checks the printed source identity and the actual prompt message before applying the paper negative.
+
+## Implementation and independent validation
+
+[Shared common paper prompt contract](../../simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs) now identifies itself as `v13-quick-ball-print-cost`; no change was made inside `vendor/twinleaf`, and the original owner decision policy is unchanged. The common `Store.dispatch` contract:
+
+- Preflights actual `PlayCardAction` for source `Quick Ball FST` or `Quick Ball SSH` against another *physical*, non-played card in the acting owner's hand. A true absence vetoes the root before Store mutation, counted separately.
+- For `ChooseCardsPrompt` whose genuine native `sourceCard.fullName` is FST/SSH and `message==='CHOOSE_CARD_TO_DISCARD'`, independently enforces exactly one card selected from both the offered physical prompt source and the owner’s current physical hand. The already shared general physical-card-source guard has precedence for foreign-object replies.
+- Leaves source `CHOOSE_CARD_TO_HAND` owner-deck Basic search **out of the mandatory payment check** and unverified as a full printed paper effect. A one-card accepted payment remains `PAPER_PROMPT_UNVERIFIED` until separate independent paper-effect and downstream settlement evidence exists.
+- Records `inspectedQuickBallPlayCardRoots`, `vetoedQuickBallInsufficientRoots`, and `inspectedQuickBallPaymentPrompts` as separate bounded denominations. It does not automatically select a source card, alter a root policy, or certify an entire game.
+
+[Seven adversarial pure regressions](../../tests/agent46-quickball-common-paper-portfolio.test.cjs) exercise both printed FST/SSH root costs, valid payment remaining unqualified, zero and foreign prompt replies, optional search noninterference and unrelated Item safety. [Actual pinned native two-seat probes](../../simulation/twinleaf/agent46-quickball-unified-native.cjs) reuse [Agent4's existing real Store source probes](../../simulation/twinleaf/agent4-quickball-mandatory-payment-native.cjs) and test for both seats: no-other-card pre-dispatch rejection; auto-discard of the sole other actual Psychic Energy; following optional Basic search returning normally; explicit owner discard payment rejecting zero; explicit one-card payment settling with physical discard. Each probe uses source-printing card objects, an actually created pinned Store and a prepared board. This is a narrow mechanic probe and **not** one of the eight frozen natural original-field matches.
+
+## Genuine compiled validation
+
+**[GitHub Actions run 42110458988](https://github.com/FlareZ123/experiment-01/actions/runs/42110458988)** at head `48b5339285a4d86dda0e3a4a633f574df9543d7d`, compiled the pinned Twinleaf server and finished **SUCCESS**. The complete existing Electro Rain workflow ran through the common-paper tests, Roxie native physical payment negative and both-seat Quick Ball source test, all successful. The paper-v13 pure test suite passed **7/7**, and its original two-seat native test step completed without error. The tests assert the actual outcomes described above.
+
+Earlier CI attempts are retained accurately:
+- [42108863570](https://github.com/FlareZ123/experiment-01/actions/runs/42108863570) failed at an older Painful Spoons pure fixture that expected `independentPainfulSpoonsNegative(null)===null`, whereas the current printed mandatory count predicate correctly vetoes null. Updated stale test expectation to `PAINFUL_SPOONS_PRINTED_COUNTER_COUNT_ONE_OR_TWO`; no production paper predicate was weakened.
+- [42109405749](https://github.com/FlareZ123/experiment-01/actions/runs/42109405749) then failed at an older Roxie staged invalid-GX experiment: the already-present no-eligible-Pokémon root guard correctly rejected an impossible source root before the invalid payment prompt. Updated this Agent46 native fixture to include one actual eligible Koffing, permitting a real payable root while still attempting the invalid GX/zero reply. Roxie's original printed guard remained in force.
+- [42110023630](https://github.com/FlareZ123/experiment-01/actions/runs/42110023630) reached the new Quick Ball pure suite (6/7 PASS) and found an incorrect expected **source-specific prompt counter of 2** for zero and foreign replies. The generic physical-source guard runs first and vetoes the foreign ref, so only the zero reply enters the later Quick Ball-specific counter. Adjusted the test to expect one dedicated and two total invalid physical replies; no negative guard relaxed.
+- The final [42110458988](https://github.com/FlareZ123/experiment-01/actions/runs/42110458988) passed the full compiled workflow, preserving both the historical errors and corrected evidence.
+
+**Inference boundary:** These tests validate specific mandatory payment failures and physical native effects on constructed states. They do not establish relative deck strength, native bot competence, legal full-game adjudication, the missing three field lists, or progress in the count of qualified games (still **0**). The source-selection bottleneck remains getting real source-paid attack/control payoff followed by a meaningful opponent reply on preserved registered deals.
