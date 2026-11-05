@@ -1,0 +1,45 @@
+{
+  "schema": "agent45-tagcall-owner-v7-frozen-eight-retrospective",
+  "authored_utc": "2026-11-05T17:27:00Z",
+  "mode": "exploratory-retrospective-reuse-of-original-eight",
+  "original_registered_frame": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "original_source_ranks": [
+    6,
+    11
+  ],
+  "original_registered_trials": 8,
+  "fixed_native_root_cap": 48,
+  "candidate_ids": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "baseline": "agent36-issue25-steward-v5-inner-prize-and-promotion",
+  "single_treatment": "insert existing source-independent withOwnerTagCallHala adapter, using each actor's own registered printed sixty, innermost at native runMatch boundary",
+  "declared_denominator": "all eight unchanged physical first deals, both source seats",
+  "before_native_outcomes": {
+    "diagnostic_claim": "first-own-turn native Tag Call choice may reduce source Pass counts when actually held and genuinely accepted",
+    "require_proof": [
+      "accepted real hand-held Tag Call Item root",
+      "matching physical owner-deck prompt",
+      "Guzma & Hala physical owner-hand gain",
+      "full entire initial physical deal per registered ID",
+      "all error and cap statuses"
+    ],
+    "failure_outcomes": [
+      "no natural Tag Call holders",
+      "adapter masked by other wrappers",
+      "native prompt rejection",
+      "unqualified or no source attacks",
+      "any game root cap or abort"
+    ],
+    "methodological_guards": [
+      "never inspect unopened owner deck at K0",
+      "don't read opponent concealed cards",
+      "do not infer independent matchup wins",
+      "do not treat Tag Call search as proof of a payable Guzma & Hala action",
+      "do not assert a best 60 or field win rate"
+    ]
+  },
+  "releaseQualified": false,
+  "competitiveGamesQualified": 0
+}
