@@ -84,3 +84,41 @@ test('source-stamped prompt may not search the wrong zone',()=>{
   assert.equal(v.ownDeck,false);
   assert.equal(v.paperValid,false);
 });
+
+test('native count-only validator cannot certify a foreign physical card',()=>{
+  const prompt=new ChooseCardsPrompt([A,B]);
+  prompt.validate=answer=>Array.isArray(answer)&&answer.length===1;
+  const foreign=Object.freeze({name:'FOREIGN'});
+  const verdict=campingGearPaperVerdict({prompts:[prompt]},
+    new ResolvePromptAction([foreign]));
+  assert.equal(verdict.nativeValid,true);
+  assert.equal(verdict.ownDeck,true);
+  assert.equal(verdict.one,true);
+  assert.equal(verdict.physicalCardInDeck,false);
+  assert.equal(verdict.paperValid,false);
+});
+
+test('native false negative remains a separate native validation verdict',()=>{
+  const prompt=new ChooseCardsPrompt([A,B]);
+  prompt.validate=()=>false;
+  const verdict=campingGearPaperVerdict({prompts:[prompt]},
+    new ResolvePromptAction([A]));
+  assert.equal(verdict.physicalCardInDeck,true);
+  assert.equal(verdict.nativeValid,false);
+  assert.equal(verdict.paperValid,true);
+});
+
+test('foreign selected physical card vetoes before the original Store',()=>{
+  const prompt=new ChooseCardsPrompt([A,B]);
+  prompt.validate=answer=>Array.isArray(answer)&&answer.length===1;
+  const store=new MockStore(prompt);
+  let error;
+  try{
+    withPaperCampingGearPromptGuard(()=>
+      store.dispatch(new ResolvePromptAction([{name:'FOREIGN'}])),
+      {Store:MockStore});
+  }catch(caught){error=caught;}
+  assert.match(error?.message??'',/PAPER_PROMPT_INVALID/);
+  assert.equal(error.agent12PaperPromptAudit.paperInvalidVetoed,1);
+  assert.equal(store.accepted,0);
+});
