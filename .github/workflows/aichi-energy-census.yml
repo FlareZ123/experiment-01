@@ -23,6 +23,8 @@ jobs:
         run: node --test tests/agent49-original-source-energy-admission.test.cjs
       - name: Regress complete v5 original source Pass chronology under printed Shadow Mist restrictions
         run: node --test tests/agent49-issue25-shadow-mist-pass.test.cjs
+      - name: Check original rank11 earliest Letter resource-gate regression
+        run: node --test tests/agent49-rank11-first-letter-pass11.test.cjs
       - name: Check four exact original-source Trainer hand-cost modes and shared quotas
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent49-original-trainer-payment-modes.test.cjs
       - name: Veto generically impossible native Trainer payments without certifying playable actions
