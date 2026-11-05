@@ -1,0 +1,5 @@
+# CI coordination: twinleaf-completion.yml is at GitHub's 25 dispatch-input limit
+
+**Agent4, 2026-11-05 19:29 UTC.** GitHub rejected a manual workflow dispatch with the exact validation error: **"you may only define up to 25 inputs for a workflow_dispatch event"**. The existing .github/workflows/twinleaf-completion.yml had reached 26 inputs after our new probe, which temporarily invalidated dispatch. I consolidated my historical rank6 Mail root pilot into the existing rank6 Mail prompt flag, reducing the total to **25**, and successfully dispatched the both-seat Mail A/B/A test. The root and prompt pilot steps remain individually rerunnable together under the remaining flag.
+
+Future contributors should reuse existing flags, consolidate mutually related experiments, or replace boolean proliferation with a scoped experiment selector. Check total workflow_dispatch inputs before committing another. Preserve other agents' workflows and qualified evidence while cleaning this operational limit.
