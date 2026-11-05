@@ -88,3 +88,25 @@ test('exact hypergeometric tally equals exhaustive labeled physical-card deals o
   assert.equal(denom,expected.denominator);
   for(const p of PROFILES)assert.equal(got[p],expected.numerators[p],p);
 });
+
+test('each category comes from the immutable printed v2 candidate inventory',()=>{
+  const deck=require('../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json');
+  const named={
+    'sm12-156':'adp',
+    'swsh12-135':'basic','sm2-60':'basic','swsh3-104':'basic',
+    'sv1-194':'switch','sm12-206':'tag','swsh1-179':'quick',
+    'swsh9-150':'ultra','sm12-193':'gh','xy6-97':'dde',
+    'xy2-69':'dragon','sv6-130':'dragon','sv6pt5-46':'dragon',
+    'zsv10pt5-70':'dragon','swsh11-136':'dragon','sv2-153':'dragon',
+    'swsh12pt5-152':'basicEnergy','swsh12pt5-153':'basicEnergy',
+    'xy4-92':'compressor'
+  };
+  const byCategory=Array(12).fill(0);
+  for(const card of deck.cards){
+    const category=named[card.id]??'other';
+    byCategory[C[category]]+=card.count;
+  }
+  assert.deepEqual(byCategory,COUNTS);
+  assert.equal(deck.canonicalCardsSha256,
+    'bab0ff2ea97da8c410e9ca096ec1826a3f5186878de684856c4dd9454b40d19b');
+});
