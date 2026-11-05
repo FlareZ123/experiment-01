@@ -39,9 +39,26 @@ The **treatment native Store** additionally accepted the actual mandatory Plumer
 | 27–28 | 3–4 | Native Wait prompts |
 | **29** | 4 | Original candidate **PassTurnAction** |
 
-This is a real paid-line **action and mandatory prompt completion** observation, stronger than the previous `canPlay` availability witness. The first opposite-seat voluntary response after the divergence is authenticated and falls inside the same physical Store. The original historical control continued to Shadow Mist on its turn4 (as seen in the v4 prefix). The treatment's champion-reference player instead **passed** on turn4. That is a causally sequenced public *decision divergence* after source Plumeria and three mandatory prompts, but **it is not yet independently certified that the physical attached Psychic Energy left the active Pokémon**, nor that the candidate's Pass was forced by missing Energy rather than another limitation of the chosen bot.
+This is a real paid-line **action and mandatory prompt completion** observation, stronger than the previous `canPlay` availability witness. The separately verified physical-effect receipt appears below. The first opposite-seat voluntary response after the divergence is authenticated and falls inside the same physical Store. The original historical control continued to Shadow Mist on its turn4 (as seen in the v4 prefix). The treatment's champion-reference player instead **passed** on turn4. This is a causally sequenced public *decision divergence* after source Plumeria and three mandatory prompts. The follow-up physical-effect audit below additionally establishes that an actual attached opponent Energy moved to discard. The candidate's Pass still cannot be certified as *forced* by that loss without a complete native action-availability analysis.
 
 All **other seven original trial pairs** have identical full public root ledgers at their originally capped/errored counts. Their source physical initial deals and actual first-player seats match. No 25-minute clock, full-game paper-rule qualification, independent robust opponent choice or terminal outcome is established.
+
+## Independently corroborated native physical payment and Energy effect
+
+The follow-up **[compiled CI 42076859388](https://github.com/FlareZ123/experiment-01/actions/runs/42076859388)** at code HEAD `a82bb125d3ae5b507c2df591c77e08f9ba56670b`, abort-custody job `127419270540`, **passed** a strengthened native assertion on the *same exact eight original physical deals* and same Plumeria T3 root. It extracted the existing, independently implemented actor-only native Plumeria audit, returning this exact source-seat1 trial receipt:
+
+| Native printed Plumeria payment / effect predicate | Actual count |
+| --- | ---: |
+| Accepted genuine Plumeria PlayCardAction | **1** |
+| Accepted native mandatory prompt resolutions | **3** |
+| **Physically settled opposing Energy removals** | **1** |
+| Rejected Plumeria roots | **0** |
+| Unresolved native prompt chains | **0** |
+| Actual Plumeria by source seat1 | **1 accepted, 1 settled** |
+
+The physical-settlement counter is strictly implemented in the independently existing [Agent4 source-owner Plumeria adapter](../../../simulation/twinleaf/agent4-plumeria-after-pass.cjs). Its final stage confirms **all of the following on the original physical Store after the native action**: the selected opposing attached Energy card is now in the opponent's discard pile and absent from the chosen Pokémon; the opponent has fewer attached Energy cards; the source's two actual owner-selected hand cards from its mandatory first prompt have both moved into the **source discard pile**. Only then is `settledEnergyDiscards` incremented. Thus the re-run **establishes complete native physical Plumeria payment and actual Energy removal** in the original source seat1 T3 branch, in addition to the already observed candidate T4 Pass versus continued Shadow Mist in the unchanged control.
+
+The separate optional detailed payment-printing archive is disabled by default, so the receipt's `sourceOwnerPaymentsPhysicallyAccepted:0` means **zero detailed payment logs collected**, not zero physically settled payments. The code's native physical-settlement predicate still confirms two paid cards; it does not reveal their exact printings. This residual identity and strategic opportunity-cost question should be investigated with a separately labelled read-only owner receipt, before ranking Plumeria above cheaper or better-timed denial.
 
 ## Interpretation and next gate
 
@@ -49,4 +66,4 @@ The original rank6 source's very first Shadow Mist response was a strategically 
 
 This also illustrates why theoretical lock success can be radically overstated when the *opponent's response policy* is too passive. The source paid two physical hand cards and consumed its sole Supporter turn; the identity and opportunity cost of those two discarded cards must be evaluated before asserting Plumeria was a superior move. An unbiased, paper-compatible adversarial opponent could choose Guzma, another Supporter, other Items, or deliberate conservation, and these remain counterfactuals.
 
-Next proof: independently observe the physical source's two **paid hand cards** and actual opponent attached Energy removed at final prompt; then verify the candidate's attached Energy ledger before and after and whether a new Basic Psychic attachment or alternative attack was legally available on its next turn. Compare a bounded paid-counterplay line and one subsequent paid opponent action at exact original source seat and first-player settings. Carry all caps/errors and original qualifying-denominator failures. **No 99.5% win rate or fixed-60 superiority is demonstrated.**
+Next proof: record the **exact printings** of the two physically confirmed source payments and their discard-capability / future option costs; verify whether the candidate had another Basic Psychic Energy attachment or alternative attack legally available on its next turn. Compare a bounded paid-counterplay line and one subsequent paid opponent action at exact original source seat and first-player settings. Carry all caps/errors and original qualifying-denominator failures. **No 99.5% win rate or fixed-60 superiority is demonstrated.**
