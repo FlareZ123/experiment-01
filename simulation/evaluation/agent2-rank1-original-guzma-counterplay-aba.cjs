@@ -156,7 +156,7 @@ function withRank1HeldGuzmaCounterplay(execute,{evolveVmax=false}={}){
       const ownV=owner.bench.some(slot=>
         slot.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE');
       if(index>=0 && theirSnorlax && ownV &&
-         owner.supporterTurn!==state.turn &&
+         owner.supporterTurn===0 &&
          !owner.cannotPlaySupporterCards){
         audit.changedGuzmaOwnerRoots++;
         audit.proposedGuzmaOwnHandCount=hand.length;
