@@ -94,6 +94,30 @@ function runShuffleHeldWonderTagAba(){
         executed.diagnostic.audit?.firstBlockedPromptEnvelope??null};
   });
   const compared=compareWonderTagAba(campaigns);
+  const {publicAcceptedRoot}=
+    require('./agent3-issue25-v12-public-first-difference.cjs');
+  const positiveById=new Map(campaigns[1].receipt.attempts.map(attempt=>
+    [attempt.id,attempt]));
+  const nativeOwnerPublicContinuations=compared.rows.filter(row=>
+    row.firstPublicRootDifference!==null).map(row=>{
+    const attempt=positiveById.get(row.id);
+    assert.ok(attempt&&Array.isArray(attempt.publicRootActions));
+    assert.equal(attempt.publicRootActionsTruncated,false);
+    const start=row.firstPublicRootDifference.zeroBasedRootIndex;
+    assert.ok(Number.isSafeInteger(start)&&start>=0);
+    const from=Math.max(0,start-2);
+    const publicRoots=attempt.publicRootActions.slice(from,start+21)
+      .map(publicAcceptedRoot);
+    return {
+      id:row.id,sourceRank:row.sourceRank,
+      firstDifferentZeroBasedRootIndex:start,
+      firstIncludedZeroBasedRootIndex:from,
+      upTo21PostDifferenceAcceptedPublicRoots:publicRoots,
+      positiveRootActionsComplete:true,
+      nativePromptResultPrivacyPreserved:true,
+      qualifiedGame:false
+    };
+  });
   const rows=compared.rows.map(row=>({...row,
     competitivelyQualified:false
   }));
@@ -101,6 +125,7 @@ function runShuffleHeldWonderTagAba(){
     comparatorVersionUsed:compared.schema,
     rows,
     allThreeArmsUseSameNumericValidator:true,
+    nativeOwnerPublicContinuations,
     v15JointTreatmentConfoundRemoved:true,
     experimentalOnly:true,
     certifiedPaperGames:0,
