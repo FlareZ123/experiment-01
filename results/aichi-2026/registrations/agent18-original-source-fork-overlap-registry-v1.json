@@ -1,0 +1,73 @@
+{
+  "schema": "agent18-original-source-intervention-overlap-registry-v1",
+  "generatedUTC": "2026-11-05",
+  "scope": "Manually curated, non-exhaustive index of earlier native original-source forks. Same native root does not imply same experiment estimand or payoff.",
+  "notes": [
+    "An EXACT_ROOT_ACTION overlap means an earlier typed native root accepted/attempted under the same historical prefix and physical deal; it is not an automatic veto for further prompt/payoff/response validation.",
+    "Same original source turn with a different card or recipient is a separate strategic alternative.",
+    "Only source-owned Store actions with published registration and CI provenance are admitted; incomplete claims do not qualify as wins."
+  ],
+  "entries": [
+    {
+      "key": "agent20-20261105-r6-tooljammer17",
+      "sourceRegistration": "6:101:B:champion-reference",
+      "sourceSeat": 0,
+      "sourceTurn": 2,
+      "sourcePassRootOrdinal": 17,
+      "preRootSha256": "dc83fc355435b8d25fcc8a8b4df95497266418b742f80841b6cf0afba1a2f75d",
+      "fullPhysicalDealSha256": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "sourceDealSha256": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "actionKind": "PlayCardAction",
+      "card": "Tool Jammer BST",
+      "recipient": "owner-active-0",
+      "observedStage": "NATIVE_STORE_ACCEPTED_AND_PHYSICAL_TOOL_ATTACHED_WITH_OPPONENT_ROOT",
+      "nativeRun": 42080465458,
+      "artifactId": 13439944930,
+      "registrationPath": "results/aichi-2026/registrations/agent20-v5-tool-attachment-counterfactual-20261105.json",
+      "reportPath": "results/methodology/agent20-issue25-v5-original-source-pass-tools-20261105.md",
+      "competitiveGamesQualified": 0
+    },
+    {
+      "key": "agent20-20261105-r11-floatstone37",
+      "sourceRegistration": "11:102:A:champion-reference",
+      "sourceSeat": 1,
+      "sourceTurn": 8,
+      "sourcePassRootOrdinal": 37,
+      "preRootSha256": "12be9779bc0f741d300c61ccbb2a9e54c16cb70e9d5621e68e5fb992306b1386",
+      "fullPhysicalDealSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "sourceDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "actionKind": "PlayCardAction",
+      "card": "Float Stone BKT",
+      "recipient": "owner-active-0",
+      "observedStage": "NATIVE_STORE_ACCEPTED_AND_PHYSICAL_TOOL_ATTACHED_WITH_OPPONENT_ROOT",
+      "nativeRun": 42080465458,
+      "artifactId": 13439944930,
+      "registrationPath": "results/aichi-2026/registrations/agent20-v5-tool-attachment-counterfactual-20261105.json",
+      "reportPath": "results/methodology/agent20-issue25-v5-original-source-pass-tools-20261105.md",
+      "competitiveGamesQualified": 0
+    },
+    {
+      "key": "agent35-20261105-r11-professorsletter37",
+      "sourceRegistration": "11:102:A:champion-reference",
+      "sourceSeat": 1,
+      "sourceTurn": 8,
+      "sourcePassRootOrdinal": 37,
+      "preRootSha256": "12be9779bc0f741d300c61ccbb2a9e54c16cb70e9d5621e68e5fb992306b1386",
+      "fullPhysicalDealSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "sourceDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "actionKind": "PlayCardAction",
+      "card": "Professors Letter BKT",
+      "recipient": "item-from-source-hand",
+      "observedStage": "NATIVE_STORE_ROOT_ACCEPTED_THEN_ENGINE_ABORT_BEFORE_SEARCH_PROMPT",
+      "nativeRun": 42082575236,
+      "artifactId": 13441396908,
+      "registrationPath": "results/aichi-2026/registrations/agent35-rank11-letter-source-pass37-fork-20261105.json",
+      "reportPath": "results/methodology/agent35-rank11-letter-native-fork-20261105.md",
+      "competitiveGamesQualified": 0
+    }
+  ],
+  "coverageStatement": "Curated first three published exact-prefix forks only; Agent7 Plumeria/Hammer and many other forks need independent prefix and payment matching before insertion."
+}
