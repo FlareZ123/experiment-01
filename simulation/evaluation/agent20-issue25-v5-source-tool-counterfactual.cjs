@@ -214,6 +214,16 @@ function joinRegisteredToolCounterfactual(
       r.playerSlot===target.candidateSeat&&
       r.action!=='ResolvePromptAction')??null;
     const followedByOpponentDecision=firstActualOpponentRoot!==null;
+    const subsequentOpposingAttacks=after.filter(r=>
+      r.playerSlot===target.candidateSeat&&r.action==='AttackAction');
+    const subsequentSourceAttacks=after.filter(r=>
+      r.playerSlot===target.sourceSeat&&r.action==='AttackAction');
+    const firstOpposingAttack=subsequentOpposingAttacks[0]??null;
+    const firstSourceAttack=subsequentSourceAttacks[0]??null;
+    const nextSourceRootAfterOpposingAttack=firstOpposingAttack?
+      after.find(r=>r.actionOrdinal>firstOpposingAttack.actionOrdinal&&
+        r.playerSlot===target.sourceSeat&&
+        r.action!=='ResolvePromptAction')??null:null;
     const sourceDealMatched=row.sourceDealFingerprint===
       target.expectedSourcePhysicalDealSha256;
     const fullDealMatched=row.fullPhysicalDealFingerprint===
@@ -237,6 +247,12 @@ function joinRegisteredToolCounterfactual(
       ownerHandAfter:receipt.ownerHandAfter,
       firstActualOpponentRoot,
       followedByOpponentDecision,
+      firstOpposingAttack,
+      firstSourceAttack,
+      nextSourceRootAfterOpposingAttack,
+      opposingAttackAcceptedBeforeNativeCap:firstOpposingAttack!==null,
+      sourcePayoffAttackAcceptedBeforeNativeCap:firstSourceAttack!==null,
+      opponentCounterplayTracedOnlyWithinNativeRootCap:true,
       nativeToolError:receipt.nativeToolError,
       nativeFirstReplyEffectPayoffCertified:false,
       independentCompetitivePolicyCertified:false,
@@ -255,6 +271,14 @@ function joinRegisteredToolCounterfactual(
       c.actualRootActionSelected&&c.nativeToolActionAccepted&&
       c.physicalToolAttached&&c.handCopyConsumed),
     opposingRootObserved:cases.every(c=>c.followedByOpponentDecision),
+    firstOpposingAttackObserved:cases.map(c=>({
+      id:c.id,observed:c.opposingAttackAcceptedBeforeNativeCap,
+      chosenAttack:c.firstOpposingAttack?.attack??null
+    })),
+    originalSourceAttackObserved:cases.map(c=>({
+      id:c.id,observed:c.sourcePayoffAttackAcceptedBeforeNativeCap,
+      chosenAttack:c.firstSourceAttack?.attack??null
+    })),
     nativeStatuses:rows.map(r=>({
       id:r.trial?.id??r.id,
       status:r.status??null,
