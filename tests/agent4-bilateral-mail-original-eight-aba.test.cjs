@@ -56,7 +56,7 @@ test('all original eight A/B/A physical openings and root repeat verify',()=>{
   assert.equal(panel.panel[2].sourceSeat,0);
   assert.deepEqual(panel.panel[0].changeAudit.treatedPublicRootTape
     .map(root=>root.action),['PlayCardAction','PlayCardAction']);
-  assert.equal(panel.panel[2].changeAudit,null);
+  assert.equal(panel.panel[2].changeAudit.onlyPublicNativeActions,true);
   assert.equal(panel.panel[0].changeAudit.onlyPublicNativeActions,true);
   assert.equal(panel.qualifiedCompetitiveGames,0);
 });
