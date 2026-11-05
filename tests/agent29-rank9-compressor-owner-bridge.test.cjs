@@ -200,6 +200,15 @@ test('owned Compressor search is decoded before stock prompt failure',()=>{
     const item=bot.decodeNextAction(state);
     assert.equal(item.constructor.name,'PlayCardAction');
     store.dispatch(item);
+    // An unrelated owner-prompt with the same message/deck may not hijack
+    // our in-flight selected source Trainer. Identity, not text, is decisive.
+    const pending=state.prompts[0],actualCard=pending.sourceCard;
+    pending.sourceCard={fullName:'Battle Compressor PHF'};
+    assert.throws(()=>bot.decodeNextAction(state));
+    pending.sourceCard=actualCard;
+    pending.playerId=202;
+    assert.throws(()=>bot.decodeNextAction(state));
+    pending.playerId=101;
     const search=bot.decodeNextAction(state);
     assert.equal(search.constructor.name,'ResolvePromptAction');
     store.dispatch(search);
