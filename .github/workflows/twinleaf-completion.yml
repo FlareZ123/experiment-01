@@ -273,6 +273,11 @@ jobs:
         env:
           ISSUE25_AGENT45_GHALA_V9_DIR: issue25-agent45-ghala-v9
         run: node --test tests/agent45-owner-ghala-relaxed-cost.test.cjs tests/agent45-issue25-ghala-relaxed-v9.native.test.cjs
+      - name: Read-only Agent18 native physical recipient of original rank6 v9 DCE roots
+        if: ${{ inputs.include_agent45_ghala_v9 }}
+        env:
+          AGENT18_V9_DCE_DIR: issue25-agent45-ghala-v9/agent18-dce
+        run: node --test tests/agent18-v9-dce-recipient.test.cjs tests/agent18-v9-dce-recipient.native.test.cjs
       - name: Retrospective Agent45 genuine fetched G&H Supporter and paid native owner search after Tag Call
         if: ${{ inputs.include_agent45_ghala_v8 }}
         env:
