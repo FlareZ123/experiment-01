@@ -44,14 +44,20 @@ function auditEnglishSetClock(original,sets,eventDate=EVENT_DATE,
   crosswalks=JAPANESE_CROSSWALKS){
   assert.match(eventDate,/^\d{4}\/\d{2}\/\d{2}$/);
   const byCode=new Map();
+  // Historic source printings use international PTCGO codes first.
+  // The internal lower-case ID is only an alias for promo families
+  // (for example SMP -> PR-SM). An internal ID may collide with a
+  // different set's real PTCGO code; never let it override the source.
   for(const set of sets){
-    for(const code of [set.ptcgoCode,set.id?.toUpperCase()]){
-      if(!code)continue;
-      const existing=byCode.get(code);
-      assert.ok(!existing||existing.releaseDate===set.releaseDate,
-        'One abbreviated set code must not resolve to conflicting release dates');
-      byCode.set(code,set);
-    }
+    if(!set.ptcgoCode)continue;
+    const existing=byCode.get(set.ptcgoCode);
+    assert.ok(!existing||existing.releaseDate===set.releaseDate,
+      'One abbreviated set code must not resolve to conflicting release dates');
+    byCode.set(set.ptcgoCode,set);
+  }
+  for(const set of sets){
+    const alias=set.id?.toUpperCase();
+    if(alias&&!byCode.has(alias))byCode.set(alias,set);
   }
   const rows=[];
   let allDecksHaveSixty=true;
