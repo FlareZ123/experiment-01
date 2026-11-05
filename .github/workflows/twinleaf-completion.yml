@@ -76,6 +76,8 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Stage actual two-Basic-Energy VMAX retreat and native payment on both seats
+        run: node --test tests/agent42-two-unit-paid-retreat-native.test.cjs
       - name: Verify redacted abort provenance and physical fingerprint validators
         run: node --test tests/agent18-aborted-native-provenance.test.cjs tests/native-dispatch-abort-evidence.test.cjs tests/agent18-issue25-source-root-custody.test.cjs tests/agent18-source-energy-physical-custody.test.cjs
       - name: Reproduce three native failure stages with complete deal custody
