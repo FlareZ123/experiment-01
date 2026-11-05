@@ -163,7 +163,7 @@ jobs:
         run: node simulation/evaluation/agent2-fresh-rank1-rank3-multibasic-panel.cjs | tee agent2-fresh-rank1-rank3-multibasic-panel.json
       - name: Verify passive owner-root eligibility classifier and exact generic intent
         if: ${{ inputs.fresh_multibasic_cascade }}
-        run: node --test tests/agent2-multi-basic-retreat-pass-cascade.test.cjs tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
+        run: node --test tests/agent2-multi-basic-retreat-pass-cascade.test.cjs tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs tests/agent2-bilateral-multi-basic-retreat-bot.test.cjs
       - name: Replay registered original eight noninterventional paid-retreat eligibility-funnel census
         if: ${{ inputs.fresh_multibasic_cascade }}
         shell: bash
