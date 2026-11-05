@@ -131,6 +131,23 @@ test('unsettled attack and clock reset must not qualify', () => {
   r.sourceAttackSettlement.attacks[0].settlementCrossesClockReset=true;
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
 });
+test('missing or decreasing evidence of source Prize payment is rejected', () => {
+  const r=fixture();
+  const packet=r.sourceAttackSettlement.attacks[0];
+  delete packet.prizesBefore;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+  packet.prizesBefore=[6,4];
+  packet.prizesAfter=[6,5];
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
+test('missing or retrograde attack completion root fails closed', () => {
+  const r=fixture();
+  const packet=r.sourceAttackSettlement.attacks[0];
+  delete packet.completionRootOrdinal;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+  packet.completionRootOrdinal=13;
+  assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
+});
 test('intervening public Active change invalidates presumed custody', () => {
   const r=fixture();
   r.nativeAcceptedTargetSidecar.events.push({
