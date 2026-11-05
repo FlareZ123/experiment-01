@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const {createHash}=require('node:crypto');
 const path=require('node:path');
 const headless=require('../twinleaf/headless.cjs');
 const {runAgent45GuzmaHalaRelaxedV9}=
@@ -134,11 +135,17 @@ function write(file,result){
   fs.mkdirSync(path.dirname(file),{recursive:true});
   const fd=fs.openSync(file+'.lock','wx');
   const tmp=file+'.'+process.pid+'.tmp';
+  const shaTmp=file+'.'+process.pid+'.sha256.tmp';
   try{
-    fs.writeFileSync(tmp,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+    const body=JSON.stringify(result,null,2)+'\n';
+    fs.writeFileSync(tmp,body,{flag:'wx'});
     fs.renameSync(tmp,file);
+    const sha=createHash('sha256').update(body).digest('hex');
+    fs.writeFileSync(shaTmp,sha+'  '+path.basename(file)+'\n',{flag:'wx'});
+    fs.renameSync(shaTmp,file+'.sha256');
   }finally{
     if(fs.existsSync(tmp))fs.unlinkSync(tmp);
+    if(fs.existsSync(shaTmp))fs.unlinkSync(shaTmp);
     fs.closeSync(fd);
     fs.unlinkSync(file+'.lock');
   }
