@@ -33,6 +33,8 @@ function surveyFieldTrainerGates(source,gates={
   const perDeck = [];
   let trainerCopies = 0;
   let anyFamilyCopies = 0;
+  let potentialRestrictionCopies = 0;
+  let zeroDiscardAnnotationOnlyCopies = 0;
   let knownPaymentCopies = 0;
   let positiveDiscardOptionCopies = 0;
   let unavoidableDiscardCopies = 0;
@@ -48,6 +50,8 @@ function surveyFieldTrainerGates(source,gates={
       'Original source deck must be exactly 60 physical cards');
     const local = {rank:deck.rank,archetype:deck.archetype,
       trainerCopies:0,copiesWithAnyExactNegativeFamily:0,
+      copiesWithPotentialRestrictionFamily:0,
+      copiesWithOnlyZeroDiscardPaymentAnnotation:0,
       copiesWithoutTheseFourFamilies:0};
     for(const card of deck.cards){
       assert.ok(Number.isSafeInteger(card.count) && card.count>=1);
@@ -68,11 +72,28 @@ function surveyFieldTrainerGates(source,gates={
       const positive=costModes.some(mode=>mode.discards>0);
       const unavoidable=costModes.length>0 &&
         costModes.every(mode=>mode.discards>0);
+      // A known zero-card hand payment mode alone creates no conditional
+      // ineligibility. Track these catalogue annotations separately from
+      // families that can impose an actual state-dependent restriction.
+      const potentialRestriction=positive||temporal||prize||target;
+      const zeroDiscardAnnotationOnly=payment!==null&&
+        costModes.length>0&&costModes.every(mode=>mode.discards===0)&&
+        !temporal&&!prize&&!target;
+      assert.equal(potentialRestriction||zeroDiscardAnnotationOnly,
+        familyNames.length>0);
       trainerCopies+=card.count;
       local.trainerCopies+=card.count;
       if(familyNames.length){
         anyFamilyCopies+=card.count;
         local.copiesWithAnyExactNegativeFamily+=card.count;
+      }
+      if(potentialRestriction){
+        potentialRestrictionCopies+=card.count;
+        local.copiesWithPotentialRestrictionFamily+=card.count;
+      }
+      if(zeroDiscardAnnotationOnly){
+        zeroDiscardAnnotationOnlyCopies+=card.count;
+        local.copiesWithOnlyZeroDiscardPaymentAnnotation+=card.count;
       }
       if(payment)knownPaymentCopies+=card.count;
       if(positive)positiveDiscardOptionCopies+=card.count;
@@ -92,6 +113,9 @@ function surveyFieldTrainerGates(source,gates={
     }
     local.copiesWithoutTheseFourFamilies=local.trainerCopies-
       local.copiesWithAnyExactNegativeFamily;
+    assert.equal(local.copiesWithPotentialRestrictionFamily+
+      local.copiesWithOnlyZeroDiscardPaymentAnnotation,
+      local.copiesWithAnyExactNegativeFamily);
     perDeck.push(local);
   }
   const sorted=[...sourcePrintings.values()].sort((a,b)=>
@@ -100,6 +124,8 @@ function surveyFieldTrainerGates(source,gates={
   const uncovered=sorted.filter(entry=>entry.families.length===0);
   assert.equal(trainerCopies,anyFamilyCopies+
     uncovered.reduce((n,entry)=>n+entry.physicalCopies,0));
+  assert.equal(anyFamilyCopies,
+    potentialRestrictionCopies+zeroDiscardAnnotationOnlyCopies);
   return {
     version:VERSION,
     sourceArchive:source.source,
@@ -120,6 +146,8 @@ function surveyFieldTrainerGates(source,gates={
     sourceTrainerCopies:trainerCopies,
     sourceDistinctNameSetPrintings:sourcePrintings.size,
     copiesWithAnyExactNegativeFamily:anyFamilyCopies,
+    copiesWithPotentialRestrictionFamily:potentialRestrictionCopies,
+    copiesWithOnlyZeroDiscardPaymentAnnotation:zeroDiscardAnnotationOnlyCopies,
     copiesWithoutTheseFourFamilies:trainerCopies-anyFamilyCopies,
     distinctPrintingsWithAnyExactNegativeFamily:
       sorted.filter(x=>x.families.length>0).length,
