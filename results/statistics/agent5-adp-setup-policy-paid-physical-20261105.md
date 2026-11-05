@@ -75,3 +75,14 @@ A fourth narrow source-only scenario now treats **Lele alone as protected**: cho
 Exact 420-scaled weighted numerators for Lele-protected scenario: mechanical 40628501009276471620; Dragon-only 18867070734171825480; Energy 26087472843582570280; Compressor 30176385922559506560. All are divided by the same denominator **105166843059427968000**. An independent exhaustive labeled-card toy enumeration checks the physical hand order, actual Bench placements, Prize pair and first draw for this fourth policy, alongside the other three. **Six local Node22 tests PASS** after this extension, with exact source and test bytes verified against remote Git SHA-1.
 
 The source-only +1.98pp mechanical gain is an *opening opportunity*, no claim of actual native selected-v4 improvement or game win. More complete policy research must also protect in-turn Crobat V entries and investigate tactical consequences of leaving a small Bench, both sides' owner-information access, native prompt settlement, and post-setup treatment effects.
+
+
+### Controlled Wonder Tag-off contrast for the Lele-only protected policy
+
+Because the same source engine also executes each setup policy with Wonder Tag *disabled*, the observed Lele-only-protection gain can be separated into a base setup effect and an incremental ability-enabled interaction for this exact first-eight event. Under mechanical payments:
+
+- Greedy auto-Bench with Wonder Tag disabled: **32.862316520%**.
+- Lele-only protected setup with Wonder Tag disabled: **33.793077763%**, an increment of **0.930761243 percentage points** despite the Ability being unavailable.
+- Enabling legal Wonder Tag raises greedy to **36.651988469%** and Lele-protected to **38.632424277%**. The full increment of **1.980435808 pp** is therefore composed of the **0.930761243 pp baseline setup effect** and a **1.049674565 pp increase in the modeled ability-enabled increment** under this sequence of policy toggles.
+
+With the strict Dragon-only payment profile, the Wonder Tag-disabled baseline difference is **+0.504681657 pp**, versus **+0.649556596 pp** with Wonder Tag enabled. This is a conditional *factorial arithmetic decomposition*, not proof of direct cause in native games. It underscores why a protected-Ability opening policy can still change paid lines in matchups where the Ability itself is locked, through starting-Active selection and card custody; actual matchup effects need full opponent-specific validation.
