@@ -63,7 +63,7 @@ function run(seat,withAbilityLock){
   assert.equal(x.opponent.cannotPlayItemCards,true);
   const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   assert.throws(()=>x.store.dispatch(new PlayCardAction(x.opponent.id,1,target)),
-    /CANNOT_PLAY_THIS_CARD|BLOCKED/i);
+    e=>typeof e?.message==='string' && /CANNOT_PLAY_THIS_CARD|BLOCKED/i.test(e.message));
   assert.strictEqual(x.opponent.hand.cards[0],ranger);
   assert.strictEqual(x.opponent.hand.cards[1],fog);
   assert.equal(x.opponent.supporterTurn,0);
@@ -75,7 +75,7 @@ function run(seat,withAbilityLock){
   if(withAbilityLock){
     assert.throws(()=>x.store.dispatch(
       new PlayCardAction(x.opponent.id,0,target)),
-    /CANNOT_PLAY_THIS_CARD|BLOCKED/i);
+    e=>typeof e?.message==='string' && /CANNOT_PLAY_THIS_CARD|BLOCKED/i.test(e.message));
     assert.equal(x.opponent.hand.cards.includes(fog),true);
     return {seat,withAbilityLock,blockedBeforeRanger:true,
       rangerAccepted:true,itemStillBlockedByAbility:true,
