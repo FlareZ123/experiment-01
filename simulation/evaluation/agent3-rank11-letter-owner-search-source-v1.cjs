@@ -74,6 +74,9 @@ function withSourceLetterOwnerSearch(next,deps){
     nativeRejectedAnswers:0,exactOriginalEnergyObjectsToOwnerHand:0,
     ownerSearchAnswersUnsettled:0,noPromptAfterLetter:0,
     nonMatchingPromptShapes:0,postAnswerPendingMessages:[],
+    targetDecoderVisits:0,authenticatedLiveStateDecoderVisits:0,
+    matchedOwnerPromptDecoderVisits:0,failedNativePromptValidation:0,
+    searchPromptShape:null,
     sourceOpportunityCensored:false,
     opponentHiddenZoneInspected:false,zeroQualifiedGames:true
   };
@@ -92,18 +95,26 @@ function withSourceLetterOwnerSearch(next,deps){
   }
 
   function observedDecode(state,...args){
+    if(target){
+      audit.targetDecoderVisits++;
+      if(state===liveStore?.state)audit.authenticatedLiveStateDecoderVisits++;
+    }
     const owner=state?.players?.[registration.originalSourceSeat];
     const pending=state?.prompts?.find(p=>p.result===undefined);
     if(!target||state!==liveStore?.state||
        owner?.id!==this.client?.id||
        !awaiting||pending?.id!==awaiting.promptId)
       return priorAi.value.call(this,state,...args);
+    audit.matchedOwnerPromptDecoderVisits++;
     const view=observe(state,registration.originalSourceSeat);
     assert.equal(view.decisionKind,'owner-prompt');
     assert.equal(view.pendingOwnerDeckSearch,true);
     const selected=chooseTwoDarknessFromOwnerPrompt(
       pending,owner,types,state);
-    if(!selected)return priorAi.value.call(this,state,...args);
+    if(!selected){
+      audit.failedNativePromptValidation++;
+      return priorAi.value.call(this,state,...args);
+    }
     const answer=new ResolvePromptAction(pending.id,selected);
     proposals.set(answer,{
       promptId:pending.id,physicalCards:selected,
@@ -150,6 +161,15 @@ function withSourceLetterOwnerSearch(next,deps){
          next?.cards===owner.deck){
         awaiting={promptId:next.id,ownerId:owner.id};
         audit.matchedLiveOwnerSearchPrompts++;
+        audit.searchPromptShape={
+          message:next.message,
+          min:next.options?.min??null,max:next.options?.max??null,
+          allowCancel:next.options?.allowCancel??null,
+          physicalMatchingBasicDarknessCount:next.cards.cards.filter(
+            card=>card.fullName===ENERGY&&
+              card.superType===types.SuperType.ENERGY&&
+              card.energyType===types.EnergyType.BASIC).length
+        };
       }else{
         audit.noPromptAfterLetter++;
         if(next)audit.nonMatchingPromptShapes++;
@@ -279,6 +299,11 @@ if(require.main===module){
       targetStores:audit.realTargetStores,
       observedSearchPrompts:audit.matchedLiveOwnerSearchPrompts,
       proposed:audit.proposedOwnerSearchAnswers,
+      targetDecoderVisits:audit.targetDecoderVisits,
+      liveDecoderVisits:audit.authenticatedLiveStateDecoderVisits,
+      matchedOwnerPromptDecoderVisits:audit.matchedOwnerPromptDecoderVisits,
+      failedNativeValidation:audit.failedNativePromptValidation,
+      promptShape:audit.searchPromptShape,
       nativeSettled:audit.nativeResolvedAnswers,
       physicallySettled:audit.exactOriginalEnergyObjectsToOwnerHand,
       unresolved:audit.ownerSearchAnswersUnsettled,
