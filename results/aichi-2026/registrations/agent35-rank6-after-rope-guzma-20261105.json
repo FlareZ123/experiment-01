@@ -36,7 +36,8 @@
         "Speed Lightning Energy RCL"
       ],
       "opponentBenchedPrinting": "Unown AOR"
-    }
+    },
+    "requiredOwnStadium": "Thunder Mountain Prism Star LOT"
   },
   "treatment": "replace exactly one actual rank6 Pass root with physically held Guzma Supporter; leave native prompt policy intact; examine resulting target and attack without forced prompt routing",
   "arms": [
