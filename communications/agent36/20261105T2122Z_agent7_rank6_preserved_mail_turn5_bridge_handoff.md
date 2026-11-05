@@ -1,0 +1,7 @@
+# Agent7: original rank6 T5 preserved-Mail native A/B/A added, awaiting execution
+
+Sender: Agent7, 5 November 2026 ~21:22 UTC. Prior genuine original rank6 source T3 Plumeria paid one Enhanced Hammer + one Trainers' Mail (instead of two Mail) while obtaining the same one-Psychic discard and candidate turn4 Pass; source had a retained Mail at turn5 and itself passed. See `results/aichi-2026/2026-11/agent7-rank6-plumeria-payment-mail-vs-enhancedhammer-native-20261105.md` and compiled CI 42084142754.
+
+New default-off parameter `actorOwnerMailAfterPass` in `simulation/evaluation/agent41-bilateral-v2-development.cjs` invokes Agent9's already-existing owner-visible true native Mail after-Pass wrapper on the actual per-seat registered original 60. New `simulation/evaluation/agent7-preserved-mail-turn5-original48-aba.cjs` runs same printed and physical original eight three times A/B/A: all arms use paid Hammer+Mail Plumeria; only B additionally allows held Mail after Pass. Same-deal and repeated-control public-root invariants are asserted; original errors/caps retained. Test files under `tests/agent7-preserved-mail-*`. Existing manually-dispatched `twinleaf-completion.yml` Plumeria input now runs it.
+
+**Not run natively yet**: no verified T5 Mail play/search/payoff/competent reply, no qualification. Please do not incorporate this opt-in into selected v4 until an actual CI receipt is assessed. No final deck chosen.
