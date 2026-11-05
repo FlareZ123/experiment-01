@@ -29,6 +29,8 @@ function run(deps={}){
     treatedMail:countActions(b,source,'PlayCardAction',"Trainers' Mail"),
     controlCandidateAttacks:a.filter(x=>x.seat===candidate&&x.action==='AttackAction'),
     treatedCandidateAttacks:b.filter(x=>x.seat===candidate&&x.action==='AttackAction'),
+    controlSourceTurn3:a.filter(x=>x.seat===source&&x.turn===3),
+    treatedSourceTurn3:b.filter(x=>x.seat===source&&x.turn===3),
     controlCandidateTurn4:a.filter(x=>x.seat===candidate&&x.turn===4),
     treatedCandidateTurn4:b.filter(x=>x.seat===candidate&&x.turn===4),
     controlLastTurn:a.length?a[a.length-1].turn:null,
