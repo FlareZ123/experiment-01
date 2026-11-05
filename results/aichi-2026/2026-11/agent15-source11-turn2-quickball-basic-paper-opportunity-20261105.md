@@ -1,0 +1,29 @@
+# Agent15: original rank11 first-own-turn Pass11 has a payable Quick Ball into a guaranteed Basic
+
+**5 November 2026 | conditional original-source paper line; real archived root and owner hand; no native action change or competitive games.**
+
+## Identical original native registration and two independent archive witnesses
+
+Original rank11 Wataru Yano **Absol/Garbodor**, original physical seat0 in frozen selected v5 `11:103:B:champion-reference`, candidate seat1, actually starts second. The source played one basic Darkness Energy onto its Active Mega Absol ex on global turn2 (native root10), then **passed at root11**.
+
+- Exact printed original 60: `results/aichi-2026/full-decklists.json`; 11 Basic Pokémon, two Garbodor evolutions, four Quick Ball FST237, three Dark Patch ASR139, eight basic Darkness Energy.
+- [Agent36 native v5 archived eight-arm root ledger](https://github.com/FlareZ123/experiment-01/actions/runs/42059191496), artifact 13432225055, `issue25-steward-v5.json` SHA256 `22eacafb175bcc1ee365eeea3189c703c256f5555a8118dd68c988edda44cc17`. Source deal SHA `2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0`, full physical deal SHA `c6438223d1df290c826264dc1c11652b00cdfedc50dcac92bcf4bcd43b6e2f04`, original pre-root11 accepted ledger SHA `4e231f5e2d51107546d684d11fab3071625845221262ea7c48d8722c1725536c`.
+- [Agent35 owner Pass snapshot](https://github.com/FlareZ123/experiment-01/actions/runs/42079458048), artifact 13440370610. Its exact root11 source hand is `VS Seeker PHF, Quick Ball FST, Dark Patch ASR, Garbodor BKP` with SHA `e5ff17ac1ba229710697a221a9db46aaf182468a9845ed5dc6407475d974f910`. Public board SHA `4e02055ffeaa4f4abf5b7a9b2c099e15cebc81c15cd6179a805c40685f5d0685`.
+
+At this pre-Pass state, original source Active **Mega Absol ex** has one Darkness Energy; Bench contains **Tapu Lele-GX and Squawkabilly ex**, neither Darkness Pokémon. The candidate's Active is Tapu Lele-GX and Bench is empty. The source has **three free Bench slots**. The native prefix before root11 includes only setup and source root10 manual Darkness attachment; the opponent seat1 passed its opening turn at root7. No source card has been discarded or moved to Lost Zone in the action tape; the held Dark Patch therefore has **no eligible basic Darkness Energy in discard** and no legal Benched Darkness recipient at this instant.
+
+## Deterministic structural search access
+
+The original source 60 contains **11 Basic Pokémon**. Three are currently face up in play, none are in the four-card source hand, and only **six can be concealed in the Prize cards**. With no prior source discard/Lost Zone/Basic removal, at least **two Basics are in the actual remaining source deck**. Four hand cards, three Pokémon, one attached Energy and six Prizes leave **46 cards in deck**.
+
+[Quick Ball FST237 printed text](https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/series/swsh8/237/) permits discarding **another card from hand**, then searching for a Basic Pokémon. The opponent's visible board has no Item lock, source turn2 allows Items, and no prior source Item was played. The source may pay by discarding the held **Dark Patch ASR139**, which has no immediate legal application in this public state. It can then choose one of at least two actual Basics in deck and Bench the Basic if desired, or preserve it in hand. This search additionally reveals the remaining source deck to its owner, creating a K0→K1 Prize-inference opportunity.
+
+**A payable Quick Ball Basic-search line exists in the observed original source state**, conditional on the archived pre-root physical custody and lack of any omitted prohibiting effect. It does **not** show Quick Ball is the optimal move: losing Dark Patch affects future acceleration, the searchable Basic identity depends on unobserved Prizes, and ordinary Energy attachment is already spent. It does **not** prove any source attack this turn.
+
+The source-specific [CommonJS certificate](../../simulation/evaluation/agent15-rank11-quickball-source-pass11.cjs) and [five SFTs](../../tests/agent15-rank11-quickball-source-pass11.test.cjs) check the authenticated hand hash, original printed source 60, official Item effects, Basic/Prize conservation and hard vetoes for changed printings. They are included in existing manually dispatched `aichi-benchmark-stats.yml`; no new workflow or vendor edit.
+
+## Concrete native follow-up
+
+Under the steward's exact selected common-policy candidate and frozen original two-seat deal, prospectively replay this **source-owned root11** only after verifying identical original accepted prefix. From the real source hand, pay Quick Ball with the actual Dark Patch; require a genuine native source-deck search prompt, owner-visible Basic choice, exact discard-to-pile and deck-to-hand physical transfers, legal subsequent Bench play, preserved source/candidate opponent reply and all failed/capped outcomes. Retain the untouched v5 Pass source as the negative control. The existing rank11 prior [Agent10 original source Quick/Dark Patch analysis](agent10-rank11-quickball-darkpatch-opening-20261021.md) and [Agent21 connector-contention study](agent21-rank11-quickball-connector-contention-20261029.md) explain why a Quick Ball may have competing uses; this specific root11 owner-hand witness narrows that uncertainty to one true physical state.
+
+**Admission: zero native Quick Ball plays inserted, zero source-payoff/attacks from this intervention, zero competitively qualified games, no fixed best deck or demonstrated 99.5%.**
