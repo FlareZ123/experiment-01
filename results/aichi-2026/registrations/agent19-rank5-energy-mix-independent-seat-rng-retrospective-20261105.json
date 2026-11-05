@@ -1,0 +1,147 @@
+{
+  "schema": "agent19-rank5-energy-mix-independent-seat-rng-retrospective-v5",
+  "registrationTimeUTC": "2026-11-05T20:24:50.907Z",
+  "purpose": "Retrospective physical RNG sensitivity: replay exactly the previously selected original rank5 source and two frozen fixed 60s under both native paper-guard and corrected Energy Mix shuffle modes, now with independent physical-shuffle and speculative-policy RNG streams by seat. Count all 16 native attempts, initial deals, genuine source-owned Energy Mix prompts, native failures, capped actions, and opponent response; no performance claim.",
+  "historicalSourceRun": 41577868458,
+  "historicalSourceArtifact": 13204622386,
+  "originalHistoricalArchiveObservedBeforeThisRegistration": true,
+  "originalHistoricalEnergyMixChoiceCountsPerMode": 20,
+  "v3NullOpportunityObservedBeforeThisRegistration": true,
+  "originalSourceRank": 5,
+  "originalSourceArchetype": "Mew Genesect",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "frozenPolicyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "originalRunnerGitBlobSha": "099d425a50e95d66920db61dbbe60ddcd211f662",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policyBase": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "policySourceCopyFlags": {
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true
+  },
+  "nativeRootActionLimit": 260,
+  "modeNames": [
+    "guarded-target-control",
+    "guarded-target-plus-paper-shuffle"
+  ],
+  "randomGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "candidateId": "champion-reference",
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "candidateId": "champion-reference",
+      "id": "5:1:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "expectedNativeAttempts": 16,
+  "expectedSourceOriginalPrinted60": true,
+  "expectedCandidatePrinted60": true,
+  "expectedSourceDealPairGroups": 8,
+  "preserveEveryAttempt": true,
+  "treatmentDefaultOffOutsideExperiment": true,
+  "noProspectivePerformanceClaims": true,
+  "newReplayNativeOutcomesUnobservedAtRegistration": true,
+  "competitiveQualifiedGames": 0,
+  "headlessGitBlobSha": "35471edf665e71ee9e5fe105f57f2d2fff1455ed",
+  "rngWrapperGitBlobSha": "b336b7d79f40fec62713d46667318ac4e109cdbc",
+  "parentHistoricalV4RegistrationGitBlobSha": "9e2285e246bc2354f0d45d5a4d9f12ae3330d2f1",
+  "parentHistoricalV4NativeArtifactId": 13241374417,
+  "rngProtocol": {
+    "physicalShuffle": "per-seat keyed xorshift32, separate both seats, enabled both A/B",
+    "speculativePolicy": "per-seat independent policy stream, enabled both A/B",
+    "coinFlips": "headless global RNG unchanged; event-key independence unproven",
+    "seedSelection": "reused historical positive four source seed groups, not independent field sampling",
+    "newComparedToHistoricalV4": "RNG protocol only; both A/B receive the same per-seat protocol",
+    "isolationScope": "source-owned physical shuffle cannot advance candidate-owned physical shuffle cursor, but turn outcome and match randomness can still diverge"
+  },
+  "currentNativeResultsUnknownAtRegistration": true,
+  "researchStatus": "developmental reproducibility and interpretation only"
+}
