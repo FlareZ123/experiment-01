@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent41-owner-capture-energy-deck-search-v2-settled';
+const VERSION='agent41-owner-capture-energy-deck-search-v3-exposure';
 const CAPTURE='Capture Energy RCL';
 
 /**
@@ -72,6 +72,9 @@ function withOwnerCaptureEnergySearch(next,deps={}){
   const pendingById=new Map();
   const proposals=new WeakMap();
   const audit={version:VERSION,physicalStores:0,acceptedCaptureAttachments:0,
+    originalCapturePlayRootAttempts:0,captureRootDispatchThrows:0,
+    captureRootsWithoutPhysicalAttachment:0,
+    acceptedCaptureWithoutMatchingPrompt:0,
     matchedOwnerDeckPrompts:0,ownerSearchProposals:0,
     ownerSearchReturnsWithoutThrow:0,acceptedOwnerSearches:0,
     rejectedOwnerSearches:0,unsettledOwnerSearches:0,
@@ -94,6 +97,7 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     const energy=owner?.hand?.cards?.[action.handIndex];
     const track=actual && type==='PlayCardAction' &&
       energy?.fullName===CAPTURE;
+    if(track)audit.originalCapturePlayRootAttempts++;
     const countCaptureAttached=player=>
       [player.active,...player.bench].reduce((n,slot)=>n+
         (slot.energies?.cards??[]).filter(c=>c.fullName===CAPTURE).length,0);
@@ -114,7 +118,8 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     try{
       result=beforeStore.value.apply(this,[action,...args]);
     }catch(error){
-      if(proposed) audit.rejectedOwnerSearches++;
+      if(proposed)audit.rejectedOwnerSearches++;
+      if(track)audit.captureRootDispatchThrows++;
       throw error;
     }
     if(track){
@@ -122,11 +127,13 @@ function withOwnerCaptureEnergySearch(next,deps={}){
       // Physical printing-count delta survives engines that clone card objects.
       const attached=countCaptureAttached(current)===beforeCount+1;
       if(attached)audit.acceptedCaptureAttachments++;
+      else audit.captureRootsWithoutPhysicalAttachment++;
       const pending=attached?this.state.prompts?.find(p=>
         !existingPrompts.has(p.id) && p.result===undefined &&
         p.playerId===current.id &&
         p.constructor?.name==='ChooseCardsPrompt' &&
         p.cards===current.deck):null;
+      if(attached&&!pending)audit.acceptedCaptureWithoutMatchingPrompt++;
       if(pending)pendingById.set(current.id,{
         promptId:pending.id,turn:this.state.turn,seat,
         storeOrdinal:stores,card:CAPTURE
