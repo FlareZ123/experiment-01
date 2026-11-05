@@ -202,7 +202,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   // Default-off owner-visible paid alternative to consuming Float Stone.
   // Keep this before funded Tool selection so both routes can be evaluated
   // at exactly the same public root, without importing any hidden zones.
-  if(options.twoUnitPaidRetreatRoot===true){
+  if(options.twoUnitPaidRetreatRoot===true&&
+     (options.twoUnitPaidRetreatTargetTurn===null||
+      options.twoUnitPaidRetreatTargetTurn===view.globalTurn)){
     const paid=require('./agent42-public-two-unit-paid-retreat-proposal.cjs')
       .proposeTwoUnitPaidRetreat(view,catalog);
     if(paid)return {...paid,kind:'paid-retreat',
@@ -730,6 +732,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     fundedVmaxFloatStoneRootSelected:0,
     twoUnitPaidRetreatRootOptIn:deps.twoUnitPaidRetreatRoot===true,
+    twoUnitPaidRetreatTargetTurn:deps.twoUnitPaidRetreatTargetTurn??null,
     twoUnitPaidRetreatRootSelected:0,
     genericFundedFloatStoneAuditOptIn:deps.genericFundedFloatStoneAudit===true,
     genericFundedFloatStoneAudit:{
@@ -1328,6 +1331,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       twoUnitPaidRetreatRoot:audit.twoUnitPaidRetreatRootOptIn===true,
+      twoUnitPaidRetreatTargetTurn:audit.twoUnitPaidRetreatTargetTurn,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
