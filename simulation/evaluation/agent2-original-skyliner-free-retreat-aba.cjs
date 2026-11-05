@@ -218,6 +218,10 @@ if(require.main===module){
     // positive historical case; preserve the frozen 24-arm native result.
     x.selectedCaseAttackTrace=require(
       './agent2-skyliner-retrospective-attack-trace.cjs').run();
+    // Four pre-registered fresh OS-seeded physical source pairs, both seats;
+    // separate future validation cohort, never pooled with selected evidence.
+    x.independentFreshSkylinerCohort=require(
+      './agent2-skyliner-fresh-independent-aba.cjs').run();
     process.stdout.write(JSON.stringify(x)+'\n');
     if(!x.allOriginalArchivedControlsExact||
        !x.A_B_A_PhysicalControlsPaired||
