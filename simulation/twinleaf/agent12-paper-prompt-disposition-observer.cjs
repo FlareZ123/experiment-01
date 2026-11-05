@@ -35,6 +35,7 @@ function classifyPendingPaperPrompt(state,action){
       sourceContract:'Camping Gear BST: mandatory exactly one own-deck card',
       independentPaperCount:verdict.one,
       independentPaperZone:verdict.ownDeck,
+      independentPaperPhysicalDeckMembership:verdict.physicalCardInDeck,
       nativeValidateVerdict:verdict.nativeValid
     };
   }
