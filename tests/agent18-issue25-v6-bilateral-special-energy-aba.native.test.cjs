@@ -27,6 +27,16 @@ test('v6 both-seat Special Energy root vs original same eight arms',()=>{
   const byId=new Map(a.map((row,i)=>[
     row.trial?.id??row.id,{row,source:nativeBase.attempts[i]}
   ]));
+  /** @param {object|undefined} row */
+  const failure=row=>row?.status==='engine-error'?{
+    stage:row.nativeAbortEvidence?.failureStage??null,
+    ordinal:row.nativeAbortEvidence?.actionOrdinal??null,
+    turn:row.nativeAbortEvidence?.turnBefore??null,
+    phase:row.nativeAbortEvidence?.phaseBefore??null,
+    actorSeat:row.nativeAbortEvidence?.actingSeat??null,
+    actionName:row.nativeAbortEvidence?.actionName??null,
+    prompt:row.nativeAbortEvidence?.pendingPrompt??null
+  }:null;
   const pairs=b.map((row,i)=>{
     const id=row.trial?.id??row.id;
     const original=byId.get(id);
@@ -39,6 +49,8 @@ test('v6 both-seat Special Energy root vs original same eight arms',()=>{
       id,
       oldDisposition:earlier?.status??'returned',
       newDisposition:row.status??'returned',
+      oldAbortBoundary:failure(earlier),
+      newAbortBoundary:failure(row),
       oldSourceSeat:original?.source.sourceSeat??null,
       newSourceSeat:nativeTreated.attempts[i].sourceSeat,
       sameInitialSourcePhysicalDeal:sameSource,
