@@ -31,6 +31,17 @@ The [final isolated v8 validation, run 41937030010](https://github.com/FlareZ123
 
 The verdict remains `nativeStoreTrialLinkVerified=true`, `prechoiceInputParityObserved=true`, `nativeRegisteredRequestParityObserved=true`, `actualNonTreatmentExecutingClosureVerified=false`, `canAttributePostTreatmentDifferenceToOpeningSelection='UNRESOLVED'`, `competitiveGamesQualified=0` and `releaseQualified=false`. Pure and native tests passed, with no attempt to turn them into a competitive win-rate sample.
 
+## 5 November follow-up: native physical sixty and first-player custody
+
+A stronger, same-process observed Store audit checks every real owner's full physical opening inventory against the 60 card-printing strings actually supplied to the pinned headless runner. The check inventories cards in the owner's physical hand, remaining deck and six face-down Prize slots before their setup Basic selection; only Boolean print-multiset matches are archived. This survives a later result-row exception because it is captured before any owner chooses a Basic.
+
+- [Pinned native run 41940168389](https://github.com/FlareZ123/experiment-01/actions/runs/41940168389), [artifact 13375622779](https://github.com/FlareZ123/experiment-01/actions/runs/41940168389/artifacts/13375622779): **32/32 actual physical owner sixties matched their configured native printed lists** (8 trials × 2 seats × 2 policies). In addition, 16/16 cross-policy prechoice inputs and 16/16 pre-run full request HMACs matched. This closes initial deck-identity custody for all eight registered pairs even though three later completed/aborted raw rows did not preserve independent printing/seat fields.
+- [Pinned native run 41940669070](https://github.com/FlareZ123/experiment-01/actions/runs/41940669070), [artifact 13375822444](https://github.com/FlareZ123/experiment-01/actions/runs/41940669070/artifacts/13375822444): **8/8 actual first-player assignments** were independently observed at the genuine native starting-Basic prompt; the two physical owners agreed within each run, and the same starter was observed under both baseline/protected campaigns. All 32 physical sixty checks remained true, along with all 16 paired prechoice input and native request checks. All 13 current regression tests passed.
+
+The pinned upstream `setupGame` sequence determines `state.activePlayer` from `WhoBeginsEffect` or `CoinFlipPrompt`/`GO_FIRST` before choosing starting Basics. The native observer now records that first-player assignment at genuine setup prompt time. The resulting public comparison prints only the starter seat number and Boolean match, never hidden card arrays or HMAC values. The raw returned native outcome gate remains false for three abort-affected rank-11 rows, but the new before-choice evidence independently attests those rows' **initial** printing and first-player facts. It cannot certify the complete executed in-game policy, game completion or paper match result.
+
+A same-policy, same-registered-input baseline replay was separately designed as an A/A negative control to probe execution determinism. Its results must be evaluated independently; this report makes no claims about a run that has not yet completed.
+
 ## Scope and interpretation
 
 A matched physical prechoice digest establishes that the particular registered native owner saw the same prior randomized physical state at the observation boundary in the two campaigns. Trial labels are observed at `runMatch` entry and propagated to that Store. This is stronger than pairing by seed, rank and Store ordinal.
