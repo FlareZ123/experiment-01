@@ -21,8 +21,9 @@ function harness(cost){
   }
   const state={turn:12,activePlayer:1,
     players:[{id:100},{id:200}],prompts:[],
-    actorViews:[{decisionKind:'owner-root',seat:0},
-      {decisionKind:'owner-root',seat:1}]};
+    actorViews:[0,1].map(seat=>({decisionKind:'owner-root',seat,
+      ownPublic:{active:{printing:'Synthetic Active'}},
+      opponentPublic:{active:{printing:'Opponent Active'}}}))};
   const pick=()=>({kind:'skyliner-free-retreat',benchIndex:2,
     attackName:'Night Watch'});
   return {Ai,PassTurnAction,RetreatAction,CheckRetreatCostEffect,Store,
