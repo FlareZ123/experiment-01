@@ -189,3 +189,17 @@ test('generic paper status remains invalid when native count-only validator acce
   assert.equal(row.independentPaperPhysicalDeckMembership,false);
   assert.equal(row.status,'PROMPT_PAPER_INVALID');
 });
+
+test('undefined native action reply cannot certify unsettled same-undefined prompt',()=>{
+  const store=new Store(new WaitPrompt());
+  const prior=Store.prototype.dispatch;
+  const observed=withPaperPromptDispositionObserver(()=>
+    store.dispatch(new ResolvePromptAction(undefined)),{Store});
+  assert.equal(observed.audit.nativeReturnedNoThrow,1);
+  assert.equal(observed.audit.nativeAccepted,0);
+  assert.equal(observed.audit.nativeSettled,0);
+  assert.equal(observed.audit.nativeReturnOnlyNoOp,1);
+  assert.equal(observed.audit.firstByStatus.PROMPT_PAPER_UNVERIFIED.nativeSettlement,
+    'NATIVE_RETURN_ONLY_NO_OP');
+  assert.strictEqual(Store.prototype.dispatch,prior);
+});
