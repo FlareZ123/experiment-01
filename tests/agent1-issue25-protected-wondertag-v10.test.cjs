@@ -124,6 +124,7 @@ test('same exact 8 IDs and both owner prechoice physical 60 match without inferr
   assert.equal(report.registeredWonderTagActorWitness.settledRoleCensus.originalSourceSupporterTransfers,2);
   assert.equal(report.registeredWonderTagActorWitness.settledRoleCensus.contenderSearches,0);
   assert.equal(report.registeredWonderTagActorWitness.originalSourceEffectCertified,false);
+  assert.equal(report.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
   assert.equal(report.registeredWonderTagActorWitness.decisions[0].id,ids[6]);
   assert.equal(report.actualZeroSearchShuffleAudit.nonzeroNativeSelections,2);
   assert.equal(report.claimSingleExecutingChangeCertified,false);
