@@ -198,6 +198,12 @@ function compareFourCampaigns(campaigns){
     samePrivateHmacSession:samePrivateSession,
     sameObservedVendorPin,sameObservedResearchPin,
     sameNightWatchEntropyCommitment,
+    observedVendorGitPin:sameObservedVendorPin?prepared[0].vendorPin:null,
+    observedRepositoryGitCommit:
+      sameObservedResearchPin?prepared[0].researchPin:null,
+    privateNightWatchSeedCommitmentSha256:
+      sameNightWatchEntropyCommitment?
+        prepared[0].nightWatchEntropyCommitment:null,
     ownerPairwiseComparisons:48,
     matchingOwnerPrechoiceComparisons:equalPrivateInputs,
     mismatchingOwnerPrechoiceComparisons:unequalPrivateInputs,
