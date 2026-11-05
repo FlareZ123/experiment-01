@@ -115,5 +115,5 @@ test('a tampered native accepted tape fails internal digest custody',()=>{
 test('an attempt ID collision cannot become eight original outcomes',()=>{
   const [a,b]=pair();
   b.attempts[0].id=b.attempts[1].id;
-  assert.throws(()=>audit(a,b),/same-ID control/);
+  assert.throws(()=>audit(a,b),/duplicate treatment IDs/);
 });
