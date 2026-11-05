@@ -136,6 +136,10 @@ function certify(sourceDeck, cardText) {
       energyHitLowerBound(unknownPool,energyCount,3),
     k0UnconditionalSpeedLightningHitProbability:
       energyHitLowerBound(unknownPool,printedSpeed,3),
+    k0DirectDrawBothDceAndThunderMountainProbability:
+      3*2/(unknownPool*(unknownPool-1)),
+    directDrawBothSingletOnly:
+      'Two distinct unseen singleton cards each occupy one of the next three draws; this excludes any Item search or alternative route',
     k0DistributionAssumption:
       'Uniform uninspected prize/deck permutation conditional on the observed hand and in-play cards; no source search or selective sampling before this first owner turn',
     card:'Cynthia & Caitlin CEC 189',
