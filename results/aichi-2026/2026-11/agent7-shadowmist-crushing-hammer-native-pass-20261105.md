@@ -37,6 +37,21 @@ All four have `nativeItemPlayLocked:false`, `nativeSupporterPlayLocked:false`, a
 
 The same unaltered run yielded all **eight** original registered outcomes: six capped 48-root attempts, two engine errors, no paper-qualified complete games. For the target rank6 arm, five accepted source Passes were seen (including turn1 before Shadow Mist), all five observed with owner-state custody, and four original candidate attack-to-next-source-Pass windows exactly joined. The other original rank6 source arms' outcome classifications and original-root decisions were retained.
 
+## Expanded source-owned Supporter opportunity (additional compiled observation)
+
+A separately compiled extension of the *same frozen original eight v4 native attempts* verified that this source's available Trainer counterplay extends to **every observed Shadow Mist response** in the 48-root window, even before it draws Crushing Hammer. In [manual CI 42074928518](https://github.com/FlareZ123/experiment-01/actions/runs/42074928518), pinned original Store revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, abort-custody job `127412496420`, the additional `AGENT7_SHADOWMIST_OWNER_LOCK_NATIVE` marker contains:
+
+| Actual source Pass turn | Plumeria BUS in source hand | Guzma BUS in source hand | Native preliminary canPlay for both | Native `supporterTurn > 0` |
+| ---: | ---: | ---: | --- | --- |
+| **3** | 1 | 1 | **true / true** | **false** |
+| **5** | 1 | 1 | **true / true** | **false** |
+| **7** | 1 | 1 | **true / true** | **false** |
+| **9** | 1 | 1 | **true / true** | **false** |
+
+The opponent has exactly one publicly attached Energy at each Pass, the source's own hand contains 9–12 cards, and no source Supporter has been played on these turns. Under the printed **Plumeria** effect, discarding two owner-hand cards can remove one attached Energy from an opponent's Pokémon. The positive native `canPlay` preliminary check does not yet prove a valid physical two-card payment and final native target resolution at each of these specific historical original roots. **Guzma** could offer a more structural escape from a Shadow Mist lock, but its native precheck is likewise incomplete without verifying both Pokémon switches and exact target geometry. Thus it would be wrong to assert that either Supporter dominates conserving resources.
+
+Crucially, **source turns 3 and 5 held zero Special Energy and zero Crushing Hammer**, yet the source still had at least two potentially playable, unrestricted **Supporter** response routes in hand. The repeated Passes therefore cannot be causally explained by the Special Energy restriction alone, even at the earliest locked responses. This expands the tactical-policy failure from two late Hammer opportunities to all four documented v4 source responses. The prior literature already established native Plumeria denial can physically settle in *other* rank6 original deals, notably [Agent6's controlled paid-energy/Plumeria lines](../agent6-matched-t3-attack-vs-plumeria-native-20261030.md) and [Agent41's source-native Plumeria settlement](../agent41-original-rank6-common-plumeria-selected-native-20261101.md). The unique evidence here is this exact source-seat1 seed100 Shadow Mist-locked response and native owner-hand census.
+
 ## Interpretation and tactical counterfactual
 
 The original rank6 60 carries four Crushing Hammer POR and two Enhanced Hammer TWM. The actual rank1 champion reference uses Basic Psychic Energy, so the source's Enhanced Hammer has no valid attached Special Energy target in that opponent deck under the given inventory. **Crushing Hammer is a separate live Item counterplay channel** when the candidate has attached Psychic Energy. A successful coin flip could remove it, potentially disrupting subsequent Shadow Mist funding; an unsuccessful flip still consumes the Item. Whether to play it immediately or preserve it for a more dangerous attack depends on other source options, known card access and the game objective.
