@@ -45,17 +45,20 @@ function run(deps={}){
   assert.equal(typeof original,'function');
   const matchWitnesses=[];
   function observed(request){
-    const trialId=request.label??null;
+    const nativeLabel=request.label??null;
+    const trialId=nativeLabel?.startsWith('agent41-bilateral-v2-common-policy-development-')?
+      nativeLabel.slice('agent41-bilateral-v2-common-policy-development-'.length):
+      nativeLabel;
     try{
       const outcome=witness(()=>original(request),{trialId});
-      matchWitnesses.push(outcome.audit);
+      matchWitnesses.push({...outcome.audit,nativeLabel});
       return outcome.result;
     }catch(error){
-      matchWitnesses.push(error?.agent5PaidHalaDceOwnerWitness??{
+      matchWitnesses.push({...(error?.agent5PaidHalaDceOwnerWitness??{
         schema:WITNESS_VERSION,trialId,
         errorBeforeAudit:true,
         sourceTurn2Seat0DceCardPlayObservations:[]
-      });
+      }),nativeLabel});
       throw error;
     }
   }
@@ -73,6 +76,10 @@ function run(deps={}){
   assert.equal(receipt.attempts.length,8);
   assert.equal(matchWitnesses.length,8);
   const auditsById=new Map(matchWitnesses.map(a=>[a.trialId,a]));
+  assert.equal(auditsById.size,8,
+    'One unique native owner observation required for every registered arm');
+  assert.ok(receipt.attempts.every(row=>auditsById.has(row.id)),
+    'Every registered native arm requires its own source-owned Store observation');
   const rows=receipt.attempts.map(row=>{
     const recorded=auditsById.get(row.id)??null;
     const matched=EXPECTED[row.id]??null;
@@ -117,6 +124,10 @@ function run(deps={}){
         .every(r=>r.sameFrozenDevelopmentBranch===true),
     allActualNativeStoreCardObservationsOwnerOnly:matchWitnesses.every(
       audit=>!audit.opponentConcealedZonesRead&&!audit.unopenedOwnerDeckRead),
+    actualNativeLabels:matchWitnesses.map(a=>({
+      nativeMatchLabel:a.nativeLabel,registeredTrialId:a.trialId,
+      StoreDceObservations:a.sourceTurn2Seat0DceCardPlayObservations?.length??0
+    })),
     sourceDceCardPlayWitnesses:rows.reduce((n,row)=>
       n+row.ownerPhysicalDceObservations.length,0),
     rows,
