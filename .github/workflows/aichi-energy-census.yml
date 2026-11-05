@@ -7,6 +7,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent49_first_letter_native:
+        description: 'Bounded original rank11 source-turn2 first Letter native action and paper target custody'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   energy-census:
@@ -108,4 +113,38 @@ jobs:
             agent49-generic-trainer-fallback-native.json
             agent49-generic-trainer-native-summary.txt
           retention-days: 30
+          if-no-files-found: warn
+
+  original-first-letter-native:
+    if: ${{ inputs.agent49_first_letter_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned original game-engine submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact pinned game dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check early original source Letter and existing Item-fork controls
+        run: node --test tests/agent49-rank11-first-letter-pass11.test.cjs tests/agent35-rank11-source-letter-pass37-fork.test.cjs
+      - name: Execute preregistered rank11 original-first-Letter native fork
+        env:
+          AGENT49_EARLY_LETTER_RECEIPT: agent49-rank11-first-letter-pass11-native.json
+        run: node simulation/evaluation/agent49-rank11-first-letter-pass11.cjs
+      - name: Preserve original first-Letter complete native failure/success receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-rank11-first-letter-native
+          path: agent49-rank11-first-letter-pass11-native.json
+          retention-days: 21
           if-no-files-found: warn
