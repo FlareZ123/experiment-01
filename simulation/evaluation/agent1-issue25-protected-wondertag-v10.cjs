@@ -10,6 +10,8 @@ const {withOwnerWonderTagPrompts}=
   require('../twinleaf/agent8-owner-wondertag-prompt.cjs');
 const {withWonderTagZeroShuffleHook}=
   require('../twinleaf/agent8-wonder-tag-zero-shuffle-hook.cjs');
+const {createWonderTagRegisteredActorWitness}=
+  require('../twinleaf/agent1-wondertag-registered-actor-witness.cjs');
 const {hashRegisteredFile}=
   require('./agent36-issue25-selected-v0.cjs');
 
@@ -18,6 +20,8 @@ const EXTRA_HASH_PATHS=Object.freeze([
   'simulation/evaluation/agent1-issue25-protected-wondertag-v10.cjs',
   'simulation/twinleaf/agent8-owner-wondertag-prompt.cjs',
   'simulation/twinleaf/agent8-wonder-tag-zero-shuffle-hook.cjs',
+  'simulation/twinleaf/agent1-wondertag-registered-actor-witness.cjs',
+  'tests/agent1-wondertag-registered-actor-witness.test.cjs',
   'tests/agent1-issue25-protected-wondertag-v10.test.cjs',
   'tests/agent1-issue25-protected-wondertag-v10.native.test.cjs'
 ]);
@@ -28,7 +32,8 @@ const EXTRA_HASH_PATHS=Object.freeze([
  * separate source-only Rank11 script and generic raw bot are NOT added.
  * @template T
  * @param {()=>T} next Native batch with immutable eight original trial IDs.
- * @param {{attack?:Function,wonder?:Function,shuffle?:Function}} [deps]
+ * @param {{attack?:Function,wonder?:Function,shuffle?:Function,
+ *   witnessFactory?:Function}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withPrintedWonderTagAndAttacks(next,deps={}){
@@ -36,8 +41,15 @@ function withPrintedWonderTagAndAttacks(next,deps={}){
   const attack=deps.attack??withThreePrintedOwnerAttackFrontiers;
   const wonder=deps.wonder??withOwnerWonderTagPrompts;
   const shuffle=deps.shuffle??withWonderTagZeroShuffleHook;
-  for(const f of [attack,wonder,shuffle])assert.equal(typeof f,'function');
-  const outer=shuffle(()=>wonder(()=>attack(next)));
+  const factory=deps.witnessFactory??createWonderTagRegisteredActorWitness;
+  for(const f of [attack,wonder,shuffle,factory])assert.equal(typeof f,'function');
+  const witness=factory();
+  assert.equal(typeof witness.run,'function');
+  assert.equal(typeof witness.selectSupporterIndex,'function');
+  const outer=shuffle(()=>wonder(
+    ()=>witness.run(()=>attack(next)),
+    {selectSupporterIndex:witness.selectSupporterIndex}
+  ));
   assert.ok(outer&&outer.result&&outer.result.result);
   return {
     result:outer.result.result.result,
@@ -45,6 +57,7 @@ function withPrintedWonderTagAndAttacks(next,deps={}){
       ...outer.result.result.audit,
       sourceIndependentOwnerWonderTag:outer.result.audit,
       ownerWonderTagMandatoryZeroShuffle:outer.audit,
+      registeredWonderTagActorWitness:witness.audit,
       originalPrintedAttacksRetained:true,
       rankedStrengthCertified:false,
       competitiveGamesQualified:0
@@ -143,6 +156,18 @@ function compareProtectedWonderTagV10(baseline,treatment){
     ?.firstBlockedPromptEnvelope?.sourceIndependentOwnerWonderTag??null;
   const shuffle=treatment.diagnostic.audit
     ?.firstBlockedPromptEnvelope?.ownerWonderTagMandatoryZeroShuffle??null;
+  const actorWitness=treatment.diagnostic.audit
+    ?.firstBlockedPromptEnvelope?.registeredWonderTagActorWitness??null;
+  const witnessedDecisions=actorWitness?.decisions??[];
+  const authenticatedWonderTagDecisions=
+    Array.isArray(witnessedDecisions)&&
+    witnessedDecisions.length===actorWitness?.observedSearchDecisionCount&&
+    witnessedDecisions.every(event=>
+      ids.includes(event.id)&&
+      (event.actorSeat===0||event.actorSeat===1)&&
+      Number.isSafeInteger(event.globalTurn)&&
+      (event.answerCardinality===0||event.answerCardinality===1)&&
+      event.ownerDeckPrintingsOmitted===true);
   const allGenuineInitialInputsMatched=pairableSession&&
     ownerPairs.every(row=>row.samePrechoicePhysicalInput&&
       row.sameRequest&&row.sameNativeFirstPlayer);
@@ -179,6 +204,19 @@ function compareProtectedWonderTagV10(baseline,treatment){
       settledSupporterTransfers:wonder.settledSupporterTransfers,
       nativeMissingSearchFollowup:wonder.nativeMissingSearchFollowup,
       bySeat:wonder.bySeat
+    }:null,
+    registeredWonderTagActorWitness:actorWitness?{
+      version:actorWitness.version,
+      observedSearchDecisionCount:actorWitness.observedSearchDecisionCount,
+      decisions:witnessedDecisions.map(event=>({...event})),
+      authenticatedTrialAndActorSeat:authenticatedWonderTagDecisions,
+      nativeSettlementOfEveryChoiceAttested:
+        authenticatedWonderTagDecisions&&
+        wonder?.nativeUnsettled===0&&
+        wonder?.nativeCustodyFailures===0&&
+        wonder?.selectedSupporters+wonder?.emptySearches===
+          witnessedDecisions.length,
+      originalSourceEffectCertified:false
     }:null,
     actualZeroSearchShuffleAudit:shuffle?{
       version:shuffle.version,printedEntrances:shuffle.printedEntrances,
