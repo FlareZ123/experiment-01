@@ -303,6 +303,48 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     samePrivateHashSession?(beforeTreatmentMismatches===0):'UNRESOLVED';
   const nativeRegisteredRequestParityObserved=nativeStoreTrialLinkVerified&&
     samePrivateHashSession?(matchingNativeRequests===16):'UNRESOLVED';
+  const firstTurnBoardEvents=execution=>{
+    const witness=execution.diagnostic.actualNativePrechoicePhysicalInputs;
+    const map=new Map();
+    for(const event of witness.firstTurnBoardEvents??[]){
+      assert.ok(ids.includes(event.registeredNativeTrialId));
+      assert.ok(!map.has(event.registeredNativeTrialId),
+        'duplicate genuine native first-turn board');
+      assert.equal(event.beforeFirstNativeTurnAction,true);
+      assert.equal(event.boards.length,2);
+      for(const [seat,board] of event.boards.entries()){
+        assert.equal(board.physicalOwnerSeat,seat);
+        assert.match(board.publicBoardHmacSha256,/^[0-9a-f]{64}$/);
+        assert.ok(Number.isSafeInteger(board.benchOccupied)&&
+          board.benchOccupied>=0);
+      }
+      map.set(event.registeredNativeTrialId,event);
+    }
+    return map;
+  };
+  const beforeFirstA=firstTurnBoardEvents(baseline);
+  const beforeFirstB=firstTurnBoardEvents(protectedRun);
+  const firstTurnBoardRows=ids.map(id=>{
+    const first=beforeFirstA.get(id),second=beforeFirstB.get(id);
+    const individual=[0,1].map(seat=>{
+      const aBoard=first?.boards[seat],bBoard=second?.boards[seat];
+      return {
+        physicalOwnerSeat:seat,
+        baselineBenchOccupied:aBoard?.benchOccupied??null,
+        protectedBenchOccupied:bBoard?.benchOccupied??null,
+        sameBenchCount:aBoard&&bBoard?
+          aBoard.benchOccupied===bBoard.benchOccupied:null,
+        samePublicPokemonBoard:aBoard&&bBoard?
+          aBoard.publicBoardHmacSha256===bBoard.publicBoardHmacSha256:null
+      };
+    });
+    return {id,bothCaptured:!!first&&!!second,physicalSeats:individual};
+  });
+  const publicBoardSeatPairs=firstTurnBoardRows.flatMap(row=>row.physicalSeats);
+  const firstTurnBoardDifferences=publicBoardSeatPairs.filter(row=>
+    row.samePublicPokemonBoard===false).length;
+  const firstTurnBenchCountDifferences=publicBoardSeatPairs.filter(row=>
+    row.sameBenchCount===false).length;
   const actualInitialStarterMatches=rows.filter(row=>
     row.actualNativeInitialStarterVerified).length;
   const allActualInitialStartersMatch=actualInitialStarterMatches===8;
@@ -350,6 +392,14 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       actualOwnerPrintedSixtiesMatched:physicalSixtyPrintingsMatched
     },
     pairedRows:rows,
+    firstTurnPublicBoardObservations:{
+      baselineNativeBoardsBeforeFirstAction:beforeFirstA.size,
+      protectedNativeBoardsBeforeFirstAction:beforeFirstB.size,
+      changedPhysicalOwnerPokemonBoards:firstTurnBoardDifferences,
+      changedPhysicalOwnerBenchCounts:firstTurnBenchCountDifferences,
+      rawBoardNamesOrFingerprintsPublished:false,
+      trials:firstTurnBoardRows
+    },
     protectedOpeningObservations:(()=>{
       const audit=protectedRun.diagnostic.protectedOpeningAudit??null;
       const initial=Array.isArray(audit?.events)?audit.events.filter(
