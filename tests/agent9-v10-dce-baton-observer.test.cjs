@@ -53,7 +53,7 @@ test('paper-conditional vetoes require target, Stadium, quota, and legal control
     const result=classifyOwnerDceBaton(view(changed));
     assert.equal(result.directlyOfferableGuzmaBaton,false,JSON.stringify(changed));
   }
-}
+});
 
 /** @returns {object} */
 function fixture(){
