@@ -81,7 +81,7 @@ function auditTemporalProvenance(
         const counterpart=cri.get(key);
         if(counterpart?.japaneseOriginalPreEvent===true &&
           counterpart.englishDisplayPostEvent===true &&
-          /^M4 \\d{3}\\/\\d{3}$/.test(counterpart.japaneseOriginal) &&
+          /^M4 \d{3}\/\d{3}$/.test(counterpart.japaneseOriginal) &&
           counterpart.japaneseOfficialCardSource?.startsWith(
             'https://www.pokemon-card.com/card-search/details.php/')) {
           categories.englishDisplayPostEventJapaneseEarlier+=card.count;
