@@ -63,7 +63,9 @@ function auditV5RootBudget(bytes){
     }
     let promptRoots=0,sourceChosen=0,candidateChosen=0,
       sourcePass=0,sourcePlay=0,sourceAttack=0,candidateAttack=0;
-    let initialSetupRoots=0,sourceWaitPrompts=0;
+    let initialSetupRoots=0,sourceWaitPrompts=0,waitPromptRoots=0;
+    const promptCounts={};
+    const sourcePassTurns=[];
     const sourceTurnNonPrompt=new Set();
     for(let index=0;index<roots.length;index++){
       const row=roots[index];
@@ -74,6 +76,8 @@ function auditV5RootBudget(bytes){
       if(row.turnBefore===0)initialSetupRoots++;
       if(isPrompt){
         promptRoots++;
+        promptCounts[row.pendingPrompt]=(promptCounts[row.pendingPrompt]??0)+1;
+        if(row.pendingPrompt==='WaitPrompt')waitPromptRoots++;
         if(row.playerSlot===originalSourceSeat &&
            row.pendingPrompt==='WaitPrompt')sourceWaitPrompts++;
         continue;
@@ -81,7 +85,10 @@ function auditV5RootBudget(bytes){
       if(row.playerSlot===originalSourceSeat){
         sourceChosen++;
         sourceTurnNonPrompt.add(row.turnBefore);
-        if(row.action==='PassTurnAction')sourcePass++;
+        if(row.action==='PassTurnAction'){
+          sourcePass++;
+          sourcePassTurns.push(row.turnBefore);
+        }
         if(row.action==='PlayCardAction')sourcePlay++;
         if(row.action==='AttackAction')sourceAttack++;
       }else{
@@ -98,11 +105,13 @@ function auditV5RootBudget(bytes){
       sourceWentFirst:originalSourceSeat===arm.actualStarterSeat,
       roots:roots.length,
       initialSetupRoots,
-      promptRoots,
+      promptRoots,waitPromptRoots,promptCounts,
+      postSetupPromptRoots:promptRoots-initialSetupRoots,
       ownerDecisionRoots:sourceChosen+candidateChosen,
       sourceChosen,sourcePass,sourcePlay,sourceAttack,
       candidateChosen,candidateAttack,sourceWaitPrompts,
       observedSourceTurnCount:sourceTurnNonPrompt.size,
+      sourcePassTurns,
       maxGlobalTurn:Math.max(...roots.map(r=>r.turnBefore)),
       qualifiedCompetitiveGame:false
     });
@@ -114,6 +123,9 @@ function auditV5RootBudget(bytes){
   assert.equal(sum('roots'),350);
   assert.equal(sum('promptRoots'),244);
   assert.equal(sum('ownerDecisionRoots'),106);
+  assert.equal(sum('initialSetupRoots'),74);
+  assert.equal(sum('waitPromptRoots'),151);
+  assert.equal(sum('observedSourceTurnCount'),33);
   assert.equal(sum('sourcePass'),33);
   assert.equal(sum('sourcePlay'),7);
   assert.equal(sum('sourceAttack'),0);
@@ -130,6 +142,9 @@ function auditV5RootBudget(bytes){
       nativeRootActions:sum('roots'),
       setupRoots:sum('initialSetupRoots'),
       nativePromptRoots:sum('promptRoots'),
+      waitPromptRoots:sum('waitPromptRoots'),
+      postSetupPromptRoots:sum('promptRoots')-sum('initialSetupRoots'),
+      observedSourceTurnDecisions:sum('observedSourceTurnCount'),
       ownerDecisionRoots:sum('ownerDecisionRoots'),
       sourcePasses:sum('sourcePass'),
       sourcePlays:sum('sourcePlay'),
