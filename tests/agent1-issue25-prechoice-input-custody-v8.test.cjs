@@ -195,3 +195,32 @@ test('different actual physical sixty is excluded even with identical registered
   assert.equal(c.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
 });
+
+test('post-opening public boards can differ without changing genuine prechoice inputs',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  const ids=a.diagnostic.registered;
+  for(const run of [a,b]){
+    run.diagnostic.actualNativePrechoicePhysicalInputs.firstTurnBoardEvents=
+      ids.map((id,index)=>({
+        registeredNativeTrialId:id,nativeStoreOrdinal:index+1,
+        nativeFirstPlayerSeat:0,beforeFirstNativeTurnAction:true,
+        boards:[0,1].map(seat=>({
+          physicalOwnerSeat:seat,activePresent:true,benchOccupied:1,
+          publicBoardHmacSha256:digest('same-public-board-'+id+'-'+seat)
+        }))
+      }));
+  }
+  const bFirst=b.diagnostic.actualNativePrechoicePhysicalInputs
+    .firstTurnBoardEvents[0].boards[0];
+  bFirst.benchOccupied=0;
+  bFirst.publicBoardHmacSha256=digest('changed-actual-setup-board');
+  const result=comparePrechoiceCustodyV8(a,b);
+  assert.equal(result.constraints.trialPairedInputMatches,16);
+  assert.equal(result.firstTurnPublicBoardObservations.baselineNativeBoardsBeforeFirstAction,8);
+  assert.equal(result.firstTurnPublicBoardObservations.protectedNativeBoardsBeforeFirstAction,8);
+  assert.equal(result.firstTurnPublicBoardObservations.changedPhysicalOwnerPokemonBoards,1);
+  assert.equal(result.firstTurnPublicBoardObservations.changedPhysicalOwnerBenchCounts,1);
+  assert.equal(JSON.stringify(result).includes('changed-actual-setup-board'),false);
+  assert.equal(result.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
+    'UNRESOLVED');
+});
