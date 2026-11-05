@@ -74,7 +74,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify independent Camping Gear paper choice and generic silent native prompt settlement
-        run: node --test tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs
+        run: node --test tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs tests/agent41-paper-prompt-contract-portfolio.test.cjs
       - name: Reject native silent-no-op Night Watch and Get Lost source prompts on both seats
         run: node --test tests/agent36-source-stamped-nightwatch-owner.test.cjs tests/agent36-source-stamped-getlost-owner.test.cjs
       - name: Audit paper Tool payment, physical custody and next-turn opponent reply
