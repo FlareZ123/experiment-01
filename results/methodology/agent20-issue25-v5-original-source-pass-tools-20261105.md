@@ -45,3 +45,17 @@ Both target native games reached the original 48-root cap. All eight original ce
 This is a concrete source-policy coverage defect **if the intended bot policy is to enumerate structurally available legal owner Tools**: at these two exact native owner roots the unchanged policy passed, while exact-state alternate native Tool plays were offered, accepted, physically settled and followed by a real opposing root. It does not prove the original Pass was strategically wrong. Tool slots and hand-held Tools may have important future value, and these particular substitutions have no demonstrated expected-win-rate gain. A general strategic policy must compare utility, printed restrictions, matchup and contention rather than blindly exhausting all Tools.
 
 The next improvement should join these two reproducible Tool opportunities into a prospective, **source-independent** conservative owner decision algorithm, preserve symmetric seats and all 32 opponents, and then assess real attack/payoff/response. The research goal remains **unreached**: zero competitively qualified full games, no certified winning fixed 60, no evidence for 99.5%, and original field authentication 29/32 (missing ranks23/25/28).
+
+
+## Native post-Tool attack and source-response audit (18:20 UTC)
+
+A third native [workflow 42082550371](https://github.com/FlareZ123/experiment-01/actions/runs/42082550371) completed SUCCESS on a source-only replay-analysis extension, with the same frozen original eight physical deals, same intervention choices, and identical pre-intervention SHA gates. The selected [artifact 13440408560](https://github.com/FlareZ123/experiment-01/actions/runs/42082550371/artifacts/13440408560) has ZIP SHA256 7abd9de8b4b5e3fafe2327d0ec32d3a725f2b60e94a783f5d2468b014a09de2a; the audited JSON member is 6,048 bytes, SHA256 7344c34861f8b600b2599d5a017056daf4cccd434dc90389d5d0e8f581543cd1, agreeing with its atomic .sha256 sidecar.
+
+The new ordered accepted-action scan distinguishes the first actual opposing nonprompt root from the first **AttackAction**:
+
+| Original source and intervention | Actual opposing AttackAction by root48 | Subsequent original-source action by root48 | Original-source AttackAction by root48 |
+| --- | --- | --- | --- |
+| Rank6 seat0 turn2/root17, Tool Jammer BST | **None observed** | No recorded reply after an opposing attack, since no opposing attack | **None observed** |
+| Rank11 seat1 turn8/root37, Float Stone BKT | Champion opponent seat0 **Eon Blade**, native root42 turn9 | Original rank11 seat1 **PassTurnAction**, root46 turn10 | **None observed** |
+
+The immediate preceding champion root41 attaches Psychic Energy, then root42 declares Eon Blade. Root46 is the genuine post-attack original source action, a Pass. The accepted AttackAction label does **not** independently prove precise paper damage, Prize transfer, clock eligibility, source policy competence or terminal winner. The root-48 censor remains in both arms. No gameplay win sample is admitted. A future game-strength pilot should prioritize original-source actual resource funding and at least one authentic attacker move rather than adding further hypothetical connector access.
