@@ -97,8 +97,29 @@ function runOriginalShadowMistHammerAB(runner=()=>runStewardSelectedIssue25V4())
         card:after[prefix].card??null,
         attack:after[prefix].attack??null}:null
     }:null;
+    const ownerCoverage=
+      current.actorOnlyDecisionCoverage?.detailedComponentAudits??{};
+    const plumeria=ownerCoverage.ownerPlumeriaAfterPass??null;
+    const hammer=ownerCoverage.ownerHammerAfterPass??null;
+    const physicalPlumeriaAudit=plumeria?{
+      acceptedPlayRoots:plumeria.acceptedPlumeria,
+      nativeAcceptedMandatoryPrompts:plumeria.acceptedPrompts,
+      sourceOwnerPaymentsPhysicallyAccepted:
+        plumeria.physicallyAcceptedOwnerPayments?.length??null,
+      settledOpponentEnergyDiscards:plumeria.settledEnergyDiscards,
+      unresolvedPromptChains:plumeria.unresolvedChains,
+      abandonedPromptChains:plumeria.abandonedChains,
+      rejectedPlayRoots:plumeria.rejectedPlumeria,
+      bySeat:plumeria.bySeat
+    }:null;
+    const physicalHammerAudit=hammer?{
+      acceptedPlayRoots:hammer.acceptedHammerRoots,
+      settledOpponentEnergyDiscards:hammer.acceptedEnergyDiscards,
+      bySeat:hammer.bySeat
+    }:null;
     return {
       id:current.trial.id,
+      physicalPlumeriaAudit,physicalHammerAudit,
       originalSourceSeat:sourceSeat,
       acceptedSourceHammerPlayRoots,
       treatmentAcceptedRootsFromFirstChange:afterFirstChangedRoot,
