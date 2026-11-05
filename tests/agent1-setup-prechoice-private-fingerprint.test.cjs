@@ -58,7 +58,7 @@ test('first genuine owner setup prompt captures hashed private prechoice hand+de
     for(let game=0;game<2;game++){
       const people=[n.owner(101,'source-'+game),
         n.owner(202,'candidate-'+game)];
-      const state={players:people,turn:0,phase:1,prompts:[]};
+      const state={players:people,turn:0,phase:1,activePlayer:0,prompts:[]};
       const store=new n.Store(state);
       store.dispatch(new n.AddPlayerAction());
       for(let seat=0;seat<2;seat++){
@@ -87,6 +87,7 @@ test('first genuine owner setup prompt captures hashed private prechoice hand+de
     assert.equal(e.ownerDeckCount,53);
     assert.equal(e.ownerPrizeCount,0);
     assert.equal(e.globalTurnAtCapture,0);
+    assert.equal(e.nativeFirstPlayerSeat,0);
     assert.match(e.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
   }
   const printed=JSON.stringify(out.audit);
@@ -104,7 +105,7 @@ test('same physical pre-choice input is stable under distinct downstream setup c
   for(const treatment of ['all-basics','hold-entry-support']){
     const receipt=withSetupPrechoicePrivateFingerprint(()=>{
       const players=[n.owner(101,'same-source'),n.owner(202,'same-candidate')];
-      const state={turn:0,phase:1,prompts:[],players};
+      const state={turn:0,phase:1,activePlayer:0,prompts:[],players};
       const store=new n.Store(state);
       store.dispatch(new n.AddPlayerAction());
       for(let seat=0;seat<2;seat++){
@@ -128,7 +129,7 @@ test('detached speculative non-Store state never contributes to physical provena
   const n=mockNative();
   const receipt=withSetupPrechoicePrivateFingerprint(()=>{
     const source=n.owner(101,'actual');
-    const state={turn:0,phase:1,players:[source],prompts:[]};
+    const state={turn:0,phase:1,activePlayer:0,players:[source],prompts:[]};
     const store=new n.Store(state);
     store.dispatch(new n.AddPlayerAction());
     const shadow={...state,prompts:[new n.ChooseCardsPrompt(source)]};
@@ -150,7 +151,7 @@ test('registered headless trial label is carried into genuine Store setup and re
     runMatch(options){
       assert.equal(options.label,label);
       const people=[n.owner(11,'source'),n.owner(22,'candidate')];
-      const state={players:people,turn:0,phase:1,prompts:[]};
+      const state={players:people,turn:0,phase:1,activePlayer:0,prompts:[]};
       const store=new n.Store(state);
       store.dispatch(new n.AddPlayerAction());
       for(const person of people){
