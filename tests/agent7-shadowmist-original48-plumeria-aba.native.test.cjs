@@ -14,6 +14,7 @@ test('actual original-source rank6 locked Pass is replaced by native Plumeria',(
     originalSourceDealSha256:row.sourceDealSha256,
     matchedPhysicalTrialCount:r.paired.length,
     firstDivergence:row.firstDivergence,
+    physicalPlumeriaAudit:row.physicalPlumeriaAudit,
     acceptedPlumeriaNativeRootSequence:
       row.treatmentAcceptedRootsFromFirstChange,
     firstSourceNonpromptAfterPlay:row.firstSourceNonpromptAfterChange,
@@ -35,5 +36,14 @@ test('actual original-source rank6 locked Pass is replaced by native Plumeria',(
   assert.equal(row.firstDivergence.control.action,'PassTurnAction');
   assert.equal(row.firstDivergence.treatment.action,'PlayCardAction');
   assert.equal(row.firstDivergence.treatment.card,'Plumeria');
+  assert.ok(row.physicalPlumeriaAudit,
+    'Real native original Store physical payment audit must be retained');
+  assert.ok(row.physicalPlumeriaAudit.acceptedPlayRoots>=1,
+    'Source must have successfully played Plumeria');
+  assert.ok(row.physicalPlumeriaAudit.nativeAcceptedMandatoryPrompts>=3,
+    'Two-card payment, Pokemon target and attached Energy prompts must settle');
+  assert.ok(row.physicalPlumeriaAudit.settledOpponentEnergyDiscards>=1,
+    'An actual attached opponent Energy must leave through native settlement');
+  assert.equal(row.physicalPlumeriaAudit.unresolvedPromptChains,0);
   assert.equal(r.nativePaperCompetitiveGames,0);
 });
