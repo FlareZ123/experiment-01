@@ -36,7 +36,10 @@ class Store{
       if(row){
         const p=this.state.players.find(p=>p.id===prompt.playerId);
         p.active.cards.splice(p.active.cards.indexOf(row.card),1);
+        p.active.energies.cards.splice(
+          p.active.energies.cards.indexOf(row.card),1);
         p.bench[row.to.index].cards.push(row.card);
+        p.bench[row.to.index].energies.cards.push(row.card);
       }
     }
     return this.state;
@@ -44,14 +47,21 @@ class Store{
 }
 function fixture(ownerIndex=0){
   const energy={superType:types.SuperType.ENERGY};
-  const owner={id:ownerIndex+10,active:{cards:[{name:'Iron Thorns ex'},energy]},
-    bench:[{cards:[{name:'benched'}]},{cards:[]}]};
+  const owner={id:ownerIndex+10,active:{cards:[{name:'Iron Thorns ex'},energy],energies:{cards:[energy]}},
+    bench:[{cards:[{name:'benched'}],energies:{cards:[]}},{cards:[],energies:{cards:[]}}]};
   const other={id:ownerIndex+20,active:{cards:[{name:'opponent'}]},bench:[]};
   return {state:{players:ownerIndex===0?[owner,other]:[other,owner],
     prompts:[],turn:5},owner,energy};
 }
 const to={player:types.PlayerType.BOTTOM_PLAYER,slot:types.SlotType.BENCH,index:0};
 
+test('card-stack-only Energy without attached subzone is not paper payable',()=>{
+  const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
+  f.owner.active.energies.cards.length=0;
+  const proof=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
+  assert.deepEqual(proof,{valid:false,
+    reason:'energy-not-attached-in-active-energy-zone'});
+});
 test('exact one attached Energy and occupied own Bench',()=>{
   const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
   assert.equal(verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types).valid,true);
