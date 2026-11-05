@@ -234,7 +234,15 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
   }catch(error){
     if(error&&typeof error==='object')
       error.setupPrechoiceFingerprintAudit={
-        ...audit,events:audit.events.map(event=>({...event})),
+        version:audit.version,
+        exactNativeStoreRootsRecorded:audit.exactNativeStoreRootsRecorded,
+        firstOwnerSetupInputsObserved:audit.firstOwnerSetupInputsObserved,
+        firstTurnBoardObservations:audit.firstTurnBoardObservations,
+        exactPhysicalSixtyPrintedCountComparisons:
+          audit.exactPhysicalSixtyPrintedCountComparisons,
+        exactPhysicalSixtyPrintedCountMatches:
+          audit.exactPhysicalSixtyPrintedCountMatches,
+        privatePositionsOrFingerprintsPublished:false,
         aborted:true
       };
     throw error;
