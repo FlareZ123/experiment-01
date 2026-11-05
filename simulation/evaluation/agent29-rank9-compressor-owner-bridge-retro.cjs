@@ -6,9 +6,10 @@ const {scheduledArms,preflight}=
   require('./agent10-original-rank9-absol-electrode-development.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const VERSION='agent29-rank9-retrospective-compressor-bridge-v1';
+const LATE_VERSION='agent29-rank9-retrospective-compressor-anyturn-v2';
 
-/** @param {boolean} enabled */
-function options(enabled){
+/** @param {boolean} enabled @param {{anyTurn?:boolean}} [configuration] */
+function options(enabled,{anyTurn=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -17,14 +18,19 @@ function options(enabled){
     bilateralKnownDeadAttackRoot:true,
     paperRank9ElectrodeGXCorrection:true,
     actorRank9CompressorOwnerBridge:enabled,
+    actorRank9CompressorAnyTurn:enabled&&anyTurn,
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:scheduledArms(),
-    registeredFrameName:VERSION
+    registeredFrameName:anyTurn?LATE_VERSION:VERSION
   };
 }
 
-/** Four historically observed source groups, both candidates and both seats. */
-function run(){
+/**
+ * Four historically observed source groups, both candidates and both seats.
+ * Any-turn mode is an independently labeled development experiment.
+ * @param {{anyTurn?:boolean}} [configuration]
+ */
+function run({anyTurn=false}={}){
   const source=preflight();
   const trials=scheduledArms();
   assert.equal(trials.length,4);
@@ -35,8 +41,8 @@ function run(){
     process.env[k]=v;
   }
   try{
-    const control=runDevelopment(options(false));
-    const treatment=runDevelopment(options(true));
+    const control=runDevelopment(options(false,{anyTurn}));
+    const treatment=runDevelopment(options(true,{anyTurn}));
     assert.equal(control.attempted,4);
     assert.equal(treatment.attempted,4);
     const pairs=control.rows.map((a,i)=>{
@@ -60,7 +66,8 @@ function run(){
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:VERSION,source,enginePin:profile.pinnedVendorRevision,
+    return {version:anyTurn?LATE_VERSION:VERSION,source,
+      anyTurn,enginePin:profile.pinnedVendorRevision,
       researchHead:process.env.GITHUB_SHA??null,
       matchedPhysicalGroups:4,actualAttempts:8,
       allAudited,allDealsMatch,
@@ -78,7 +85,7 @@ function run(){
 }
 
 if(require.main===module){
-  const data=run();
+  const data=run({anyTurn:process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true'});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
@@ -101,4 +108,4 @@ if(require.main===module){
       moved:data.totalSourcePhysicalEnergyMoved,qualified:0})+'\n');
   if(!data.allDealsMatch||!data.allAudited)process.exitCode=1;
 }
-module.exports={VERSION,options,run};
+module.exports={VERSION,LATE_VERSION,options,run};
