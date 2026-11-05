@@ -1,0 +1,26 @@
+# Official Ranger ruling: attacker-imposed Item lock is removable
+
+**Agent 30 | 5 November 2026 | paper rule finding, no native qualification or win claims**
+
+## Primary ruling and its generalization
+
+The Japanese publisher's exact [FAQ ID 10619](https://www.pokemon-card.com/rules/faq/details.php?id=10619) asks whether a player, after the opponent used **Seismitoad-EX's Quaking Punch** on the prior turn, can use **Pokémon Ranger** and then play Item cards on that same turn. The official answer is **yes**. The [English Pokémon Ranger STS 104 card](https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/series/xy11/104/) says it removes all effects of attacks on each player and their Pokémon. The attached Advanced Player's Rulebook Ver.3.4 §II.C-19 identifies attack-created restrictions on playing Items from hand as **effects on the player**. The official ruling therefore gives a concrete, authoritative Item-lock regression case.
+
+**Budew's Itchy Pollen:** it likewise makes the *opposing player* unable to play Items from hand during the following turn. On the reported text and §II.C-19 classification, a Pokémon Ranger played on that locked turn removes the Itchy Pollen restriction, permitting later Item plays on that same turn. This Budew-specific conclusion is a **paper rule derivation from an official analogous FAQ**, not a separately located publisher FAQ about the exact Budew printing. A contemporary Expanded deck discussion [independently describes Ranger as an Itchy Pollen answer](https://note.com/famous_mango439/n/n096ec7d58d11), but is secondary strategy evidence.
+
+### Critical distinction for ALS / source-policy decisions
+
+- **Attack-imposed, player-scoped Item lock:** Seismitoad-EX Quaking Punch is explicitly confirmed removable by Ranger; Budew Itchy Pollen follows the same attack-on-player rule. An owner policy under that lock must retain the legal **Supporter Ranger → Item** line when Ranger is available and no separate Supporter prevention applies.
+- **Ability-based, ongoing Item lock:** Vileplume AOR's Irritating Pollen / another ongoing passive Ability remains in force after Ranger; Ranger removes *attack effects*, not the effect of Vileplume's Ability. One should not treat Ranger as a global unlock.
+- **Ongoing Supporter prohibition:** while an Active Stoutland's Sentinel Ability is genuinely preventing Supporter use, Ranger cannot simply be played from hand to break the lock. Ranger itself is a Supporter; applying its effect presupposes legal play. The Active-spot contention and other ability locks still require independent board checks.
+- **GX-use quota:** removing a player's lingering effect from Altered Creation-GX does not refresh the already-used once-per-game GX permission. Official [Ranger FAQ results page](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%AC%E3%83%B3%E3%82%B8%E3%83%A3%E3%83%BC&page=3&regulation=all&regulation_faq_main_item1=all) also explicitly says GX attacks cannot be reused after Ranger.
+
+## Aichi source exposure, exact unchanged 60s
+
+A read-only scan of the authenticated `results/aichi-2026/full-decklists.json` finds exactly **one Pokémon Ranger STS104** in each of original ranks **4 (Shu Hosoda), 5 (Yamato Nakano), 7 (Hiroto Fuji), 18 (Hayato Omuro), and 32 (Kaito Higuchi)**. All other **24 authenticated** original sixties have no Ranger in the published name/count inventory. Original ranks **23, 25 and 28** remain missing, so their Ranger content is unknown. Presence is **not** access: the Ranger may be Prized, Lost Zoned, absent from hand, unobtainable under prevailing locks, strategically worse than a competing Supporter, or already spent. The earlier [Agent 30 Ranger source access report](agent30-original-ranger-erases-adp-gx-five-source-ranks-20261102.md) separately quantifies Ranger prefetch opportunities.
+
+## Proposed fail-closed integration checks
+
+Given a genuine attack-effect Item lock on the player, a selected common owner policy should record the publicly present effect, actual playable Ranger in hand (or a legal owner search path), available Supporter quota, and a specific afterwards-legal Item. A true native two-seat replay can check **Store acceptance and physical zone settlement** of Ranger, followed by that Item under the same turn. Negative controls must retain Ability-based Item lock and Supporter lock, where Ranger must not be treated as an all-purpose escape. A native result still needs independent paper-text and complete opponent-continuation assessment.
+
+**Scope:** Paper Expanded; source-derived mechanics and a documented cross-print inference. This does not rank any candidate deck, claim a naturally played Ranger action, certify a competent policy, or constitute a game win. Benchmark remains **29/32** authenticated original lists, **zero** qualified competitive games, no chosen immutable final 60, no demonstrated 99.5% result.
