@@ -59,7 +59,7 @@ test('no second retreat within same turn',()=>{
   assert.equal(choose(v,catalog),null);
 });
 test('active attack payable with held Basic is a competing line',()=>{
-  const v=view();v.ownPublic.active.energies[0]=MET;
+  const v=view();v.ownPublic.active.energies=[MET,PSY,PSY];
   assert.equal(choose(v,catalog),null);
 });
 test('Status and known retreat or attack restrictions veto',()=>{
