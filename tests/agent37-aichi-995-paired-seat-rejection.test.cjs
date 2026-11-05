@@ -12,6 +12,8 @@ const candidateId = "synthetic-fixed-60-only";
 const makePair = (id, rank, outcomes = ["win", "win"]) => ({
   pairId: id, candidateId, originalRank: rank,
   pairingDesign: "SOURCE_SEAT_AND_ACTUAL_START_BALANCED",
+  orientationAssignment: "INDEPENDENT_FAIR_COIN_PER_COMPLETE_PAIR",
+  orientationCoin: 0,
   games: outcomes.map((outcome, sourceSeat) => ({
     id: id + ":source-seat-" + sourceSeat, sourceSeat,
     candidateActualStart: sourceSeat === 0 ? "first" : "second",
@@ -119,9 +121,42 @@ test("mirrored physical seats alone cannot replace balanced actual first-turn st
   const c = makePair("seats-swapped-actual-balanced", 6);
   c.games[0].candidateActualStart = "second";
   c.games[1].candidateActualStart = "first";
+  c.orientationCoin = 1;
   const report = assessPairedSeatRejection([c], candidateId);
   assert.equal(report.observedCompletePairClaims, 1);
   assert.equal(report.actualFirstTurnVerifiedExternally, false);
+  assert.equal(report.independentFairPairOrientationVerifiedExternally, false);
+});
+
+test("pair orientation must be a precommitted fair coin and match actual starts", () => {
+  const pair = makePair("fair-orientation", 6);
+  assert.throws(() => assessPairedSeatRejection([{
+    ...pair, orientationAssignment: "DETERMINISTIC_DIAGONAL"
+  }], candidateId), /fair orientation randomization/);
+  assert.throws(() => assessPairedSeatRejection([{
+    ...pair, orientationCoin: undefined
+  }], candidateId), /recorded fair coin result/);
+  assert.throws(() => assessPairedSeatRejection([{
+    ...pair, orientationCoin: 1
+  }], candidateId), /orientation coin does not match/);
+  const swapped = makePair("opposite-pair", 11);
+  swapped.games[0].candidateActualStart = "second";
+  swapped.games[1].candidateActualStart = "first";
+  swapped.orientationCoin = 1;
+  const result = assessPairedSeatRejection([swapped], candidateId);
+  assert.equal(result.observedCompletePairClaims, 1);
+  assert.equal(result.independentFairPairOrientationVerifiedExternally, false);
+});
+
+test("fair orientation averages all four physical-seat and actual-start cells", () => {
+  // Under one uniform orientation coin, two selected games span the four
+  // seat/start possibilities marginally. Within-pair game dependence is free.
+  const failureProbabilities = [0.32, 0, 0.16, 0.16];
+  const fullFourCellMean = failureProbabilities.reduce((a, b) => a + b, 0) / 4;
+  const diagonalSum = failureProbabilities[0] + failureProbabilities[3];
+  const offDiagonalSum = failureProbabilities[1] + failureProbabilities[2];
+  assert.ok(Math.abs(fullFourCellMean - 0.16) < 1e-12);
+  assert.ok(Math.abs((diagonalSum + offDiagonalSum) / 2 - 0.32) < 1e-12);
 });
 
 test("all thirty-two ranks with one perfect synthetic pair never prove 99.5%", () => {
