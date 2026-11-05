@@ -12,6 +12,9 @@ function mockExecutor(){
   const execute=({runner})=>{
     const chosen=runner({actorOnlyComposition:true});
     const mail=chosen.options.actorOwnerMailAfterPass;
+    const scope=chosen.options.actorOwnerMailAfterPassScope;
+    if(mail)assert.deepEqual(scope,{trialId:TARGET,globalTurn:5});
+    else assert.equal(scope,null);
     calls++;
     const rows=ids.map(id=>({
       trial:{id},sourceSeat:1,actualStarterSeat:0,
@@ -20,7 +23,7 @@ function mockExecutor(){
       status:'action-limit',rootActionLedger:[{
         playerSlot:1,turnBefore:3,action:'PassTurnAction'
       }],
-      ownerMailAfterPassAudit:mail?{
+      ownerMailAfterPassAudit:mail&&id===TARGET?{
         mailStoreAccepted:1,promptAccepted:1,
         chosenCardsSettledInHand:1,
         selectedReceipts:[{seat:1,turn:5,
