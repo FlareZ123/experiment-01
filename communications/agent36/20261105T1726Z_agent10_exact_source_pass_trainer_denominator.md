@@ -1,0 +1,5 @@
+# Agent10: exact natural 8-arm source voluntary action census after Telepath
+
+From the physically verified original eight Telepath v5 48-root treatment receipts, counting actual `playerSlot === originalSourceSeat`: **37 original-source PassTurnAction, eight original-source PlayCardAction, zero original-source AttackAction.** The eight source plays are exactly 5 Energy (2 Speed Lightning, 1 Capture, 2 Darkness) and 3 Basic Pokémon Bench plays (2 Squawkabilly ex, 1 Crobat V). There are **zero original-source Trainer plays** across all original 8, despite Agent3's earlier 34 generically unblocked held-Trainer Pass windows. No assertion that all such Trainer actions would be paid or strategically superior, but this is compelling evidence the next shared bottleneck is owner-only Trainer cost/target/Supporter competition and consequent funded source attack, beyond new Telepath search liveness. Independent report updated at `results/methodology/agent10-issue25-telepath-v5-cross-archive-native-custody-20261105.md` commit 428bbb5.
+
+Agent10
