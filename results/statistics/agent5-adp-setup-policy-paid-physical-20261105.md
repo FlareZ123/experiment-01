@@ -29,8 +29,8 @@ The modest difference between the historical Agent5 first-Basic gross **32.96164
 
 ## Source and adversarial verification
 
-- [Exact 13-category physical starting-order and setup-occupancy model](../../simulation/evaluation/agent5-adp-setup-paid-policy.cjs), tested byte-identical Git blob SHA-1 **c000b13c3d7e0f7eba7544b7dd1e3ea1c22a14cb**.
-- [Six regression tests](../../tests/agent5-adp-setup-paid-policy.test.cjs), tested byte-identical Git blob SHA-1 **a7794f321ec7f31cf81f998aa6f50c092ff3c3c1**. Real local Node22 **6/6 PASS** including all categories of a physically seven-Basic initial hand, exact rational greedy Active category weights, preserved versus prebenched Lele, Switch to prebenched ADP, full Bench negative controls, exact independent reproduction of all previous deliberate-policy numerators, and **an independent labeled physical-card toy enumeration of every ordered initial hand, physical Prize pair, normal draw and setup placement**.
+- [Exact 13-category physical starting-order and setup-occupancy model](../../simulation/evaluation/agent5-adp-setup-paid-policy.cjs), tested byte-identical Git blob SHA-1 **147bb6c54cabe19c4420284409caf48755a0f44d**.
+- [Six regression tests](../../tests/agent5-adp-setup-paid-policy.test.cjs), tested byte-identical Git blob SHA-1 **5eed4cc2f27e2ddb7bb630914baa8102e43d5faf**. Real local Node22 **6/6 PASS** including all categories of a physically seven-Basic initial hand, exact rational greedy Active category weights, preserved versus prebenched Lele, Switch to prebenched ADP, full Bench negative controls, exact independent reproduction of all previous deliberate-policy numerators, and **an independent labeled physical-card toy enumeration of every ordered initial hand, physical Prize pair, normal draw and setup placement**.
 - Exact source count returns 29,358 valid *category configurations* and 56,192 setup category-order configurations, each multiplied by its correct physical weight. Source uses the frozen v2 card identity IDs and printed rules; no randomized Monte Carlo approximations.
 - Three Agent5 local test suites now registered in the **existing manually dispatched** aichi-benchmark-stats.yml; **no new workflow, remote CI success claim or native Twinleaf match**. Tests are source-level computation and paper-fidelity regression only.
 
@@ -39,3 +39,21 @@ The modest difference between the historical Agent5 first-Basic gross **32.96164
 For a genuine native both-seat candidate-independent source policy, register the **same original physical seven and genuine setup order** before the setup intervention. Compare owner-selected Active, every originally Benched physical card, cards still in hand, open Bench positions, existing ADP Bench targets, and Lele's eligibility for a turn-time Wonder Tag. For any actual paid G&H/Ultra/Quick route, verify native physical discard custody, source deck-to-hand search, attempted ADP promotion, DDE attachment, source attack, and meaningful opponent response. A changed post-setup first-stable SHA is an **outcome of a setup-changing policy**, so reject conditioning a primary natural-game comparison on identical post-treatment board digests (Agent48's 5 Nov warning).
 
 No valid comparison of full game win probabilities arises from these percentages alone; candidate v2 remains unqualified and the field remains 29/32 original inventories.
+
+
+## Follow-up mediation screen: separate starting Active choice from automatic Benching
+
+A third *counterfactual setup policy* isolates the starting-Active component: it selects the **first eligible Basic in the physical hand's shuffled order**, exactly as the greedy policy does, but **retains every other Basic in hand** rather than automatically Benching them during initial setup. The source enumerates physical Basic-category order using integer 420-scaled weights; the independent labeled physical toy test additionally checks these third-policy statistics for all four DCI profiles.
+
+| Payment assumption | Deliberate ADP Active and no optional Bench | First-eligible Active, no optional Bench | First-eligible Active, automatically Bench more Basics |
+|---|---:|---:|---:|
+| Mechanical and turn-played Lele | **43.747196%** | **37.381955%** | **36.651988%** |
+| Dragon-only DCI | **20.278994%** | **17.368593%** | **17.290576%** |
+| Dragon+Energy | **27.915483%** | **23.939411%** | **23.678226%** |
+| Dragon+Energy+Compressor | **32.287038%** | **27.672625%** | **27.319041%** |
+
+For the **mechanical-payment model with legal Lele**, the total deliberate-to-greedy gap **7.095207 pp** decomposes along this specific sequential policy intervention into **6.365240 pp from choosing the first eligible Active rather than prioritizing ADP** and **0.729967 pp more from pregame Benching**. With only six Dragons eligible for discard, the corresponding gap **2.988418 pp** splits **2.910401 pp versus 0.078017 pp**. Other DCI profiles give **3.976071 and 0.261185 pp**, and **4.614412 and 0.353585 pp**, respectively. This is a *path-specific decomposition*; changing the order of interventions could yield a different attribution.
+
+As a strong independent cross-check, when Wonder Tag is disabled the first-eligible-Active/no-extra-Bench model returns exactly **32.96164378282613%** with unrestricted mechanical payments. This reproduces the already published Agent5 **32.961644%** first-Basic optimistic switch/search result from a separate earlier model. Prebenching then reduces the new mechanical/no-Lele screen to **32.86231651958380%** by removing hand discard cards and sometimes filling Bench spaces. With restrictive Dragon-only discards and no Lele, prebenching has **exactly zero effect on the enumerated paid first-eight event**, since it removes no eligible discard group and there is no simultaneously achievable new-ADP/full-Bench rescue in this limited line family.
+
+These are strictly within-source policy screens, do not imply a 6.36pp win-rate change, and do not justify hardcoding an ADP preference in the candidate-independent selected bilateral policy. To compare policies in an actual registered experiment, randomization must occur before setup and post-setup first-stable board hashes must be treated as policy outcomes.
