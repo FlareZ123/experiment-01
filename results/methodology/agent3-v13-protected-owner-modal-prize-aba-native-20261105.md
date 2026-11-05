@@ -12,7 +12,7 @@ Use the original pre-registered v11 eight trial IDs unchanged (original ranks **
 
 A/B/A was built from the same v8 owner-prechoice native witness and the same per-Store derived private Night Watch entropy root, with no deck modifications. This was an **outcome-aware retrospective replay of eight known cases**. It does not estimate frequency in unseen game states.
 
-Three successful native opt-in manual CI runs corroborate the outcome. The **final strict comparator** is [GitHub Actions 41959558815](https://github.com/FlareZ123/experiment-01/actions/runs/41959558815), running repository commit `a72afc9a51c78e32be18407de1cabdb9368a65fc`, pinned native Twinleaf. The runner compiled, passed **seven pure custody/negative regression tests** and completed its three real Store campaigns. Native artifact [13384646912](https://github.com/FlareZ123/experiment-01/actions/runs/41959558815/artifacts/13384646912), independently downloaded/rehash-verified:
+Three successful native opt-in manual CI runs corroborate the outcome. The **final strict comparator** is [GitHub Actions 41959558815](https://github.com/FlareZ123/experiment-01/actions/runs/41959558815), running repository commit `a72afc9a51c78e32be18407de1cabdb9368a65fc`, pinned native Twinleaf. The runner compiled, passed **eight pure custody/negative regression tests** and completed its three real Store campaigns. Native artifact [13384646912](https://github.com/FlareZ123/experiment-01/actions/runs/41959558815/artifacts/13384646912), independently downloaded/rehash-verified:
 
 - ZIP **2,851 bytes**, SHA256 `f49b3f62caaf1483b8f1810a075b5abe8be3123aa22016b235e9c20843671602`.
 - Inner JSON `issue25-v13-protected-modal-prize-aba.json` **21,580 bytes**, SHA256 `3b0d0fdcdf3378cae781d5d52b77ce9bad8b6d2683d04c906e82ffd9859d46c0`, matching writer sidecar.
@@ -29,11 +29,11 @@ The strict independent comparator observed:
 
 | Original registered trial | Original protected A | With owner modal + Prize B | First newly accepted Store action |
 | --- | --- | --- | --- |
-| `11:103:B:champion-reference` | `engine-error` (`bot-decoder`, `ConfirmPrompt`, ordinal 11) | **returned-unqualified**, 48-root cap rather than decoder error | `ResolvePromptAction ConfirmPrompt`, root ordinal **11** |
-| `11:103:B:new-moon-lockbreaker-v1` | `engine-error` (`bot-decoder`, `ConfirmPrompt`, ordinal 17) | **returned-unqualified**, 48-root cap | `ResolvePromptAction ConfirmPrompt`, root ordinal **17** |
+| `11:103:B:champion-reference` | `engine-error` (`bot-decoder`, `ConfirmPrompt`, ordinal 11) | **returned-unqualified**, no decoder error | `ResolvePromptAction ConfirmPrompt`, root ordinal **11** |
+| `11:103:B:new-moon-lockbreaker-v1` | `engine-error` (`bot-decoder`, `ConfirmPrompt`, ordinal 17) | **returned-unqualified**, no decoder error | `ResolvePromptAction ConfirmPrompt`, root ordinal **17** |
 | `11:102:A:champion-reference` | `engine-error` (`bot-decoder`, `ChoosePrizePrompt`, ordinal 25) | **engine-error** (`bot-decoder`, **`ChoosePokemonPrompt`**, ordinal **26**) | `ResolvePromptAction ChoosePrizePrompt`, root ordinal **25** |
 
-The five other trial IDs remained `returned-unqualified` with identical public root ledgers in A and B. **No wins, losses or stronger deck decisions can be inferred** from the change to capped status.
+The five other trial IDs remained `returned-unqualified` with identical public root ledgers in A and B. **No wins, losses or stronger deck decisions can be inferred** from the change to a returned-unqualified status.
 
 The natural public action context for the Prize failure was `AttackAction Eon Blade` ordinal23 and subsequent `WaitPrompt` ordinal24. The owner-first-Prize adapter legitimately consumes the next prompt; a further mandatory/optional Pokémon choice then fails at ordinal26. This is **policy execution coverage progress** and a concrete next action, not proof that the next action's selected Pokémon would be strategically good.
 
