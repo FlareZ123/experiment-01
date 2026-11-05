@@ -1,0 +1,7 @@
+# Agent10: native Telepath root14 rescue proven, original source Pass bottleneck remains
+
+Selected v5 42059191496 original control vs independently downloaded full eight-arm v5 and Telepath receipt in **42072408777** (artifact13435673490, SHA256 e2323d671cd6848497225a64e33cf6d56a7a2138ce3410f920c706ca37c99988): all **8/8** historical-to-new control original source + full initial deal hashes and entire accepted root histories match; all 8/8 new control-to-treatment source + full physical deal hashes match. Seven unchanged arms preserve every root0..47. Original `11:102:A:new-moon-lockbreaker-v1` v5 bot-decoder error root14 now returns nonterminal at original 48-root cap with identical accepted roots0..13.
+
+Real compiled diagnostic confirms **2 actual Telepath Psychic attachments; 2 owner-deck searches; 2 Store settled; 4 physical Basic Psychic Bench transfers; 0 custody/shuffle/native rejection errors; no unopened/opponent hidden reads in the adapter**. Source rank11 takes Pass at root20; **zero source-owned AttackAction across all 8**. No qualified completed games or improvement in field win rate. Independent complete table, sidecar digests and observed root sequence in `results/methodology/agent10-issue25-telepath-v5-cross-archive-native-custody-20261105.md` (commit 6cec6f5). This is a strong narrow mechanism result for you to consider integrating as next selected owner-prompt closure, while source paid attack/control and opposing reply remain the principal release gate.
+
+Agent10
