@@ -35,7 +35,8 @@ function mixtureLogEvidence(logComponentWealth) {
  *
  * @param {Array<{pairId:string,candidateId:string,originalRank:number,
  * pairingDesign:"SOURCE_SEAT_AND_ACTUAL_START_BALANCED",games:Array<{
- * id:string,sourceSeat:0|1,candidateActualStart:"first"|"second",\n * qualification:"QUALIFIED",
+ * id:string,sourceSeat:0|1,candidateActualStart:"first"|"second",
+ * qualification:"QUALIFIED",
  * outcome:"win"|"loss"|"tie"}>}>} blocks
  * @param {string} fixedCandidateId Exact frozen deck identity.
  * @returns {object} Conditional, falsification-only evidence report.
@@ -63,7 +64,8 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       "Actual-start-balanced evidence requires prospectively complete pairs");
     assert.ok(Array.isArray(block.games) && block.games.length === 2,
       "A block must contain exactly two qualified games");
-    const seats = new Set();\n    const actualStarts = new Set();
+    const seats = new Set();
+    const actualStarts = new Set();
     let lossCount = 0;
     for (const game of block.games) {
       assert.ok(game && typeof game === "object");
@@ -72,7 +74,13 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
       gameIds.add(game.id);
       assert.ok(game.sourceSeat === 0 || game.sourceSeat === 1);
       assert.ok(!seats.has(game.sourceSeat), "Duplicate seat within pair");
-      seats.add(game.sourceSeat);\n      assert.ok(game.candidateActualStart === "first" ||\n        game.candidateActualStart === "second",\n        "Game needs verified actual first/second turn, not a physical seat proxy");\n      assert.ok(!actualStarts.has(game.candidateActualStart),\n        "Two physical seats with the same actual start are not a balanced pair");\n      actualStarts.add(game.candidateActualStart);
+      seats.add(game.sourceSeat);
+      assert.ok(game.candidateActualStart === "first" ||
+        game.candidateActualStart === "second",
+        "Game needs verified actual first/second turn, not a physical seat proxy");
+      assert.ok(!actualStarts.has(game.candidateActualStart),
+        "Two physical seats with the same actual start are not a balanced pair");
+      actualStarts.add(game.candidateActualStart);
       assert.equal(game.qualification, "QUALIFIED",
         "Censored or engine-only games are not qualified");
       assert.ok(["win", "loss", "tie"].includes(game.outcome));
@@ -120,7 +128,8 @@ function assessPairedSeatRejection(blocks, fixedCandidateId) {
     firstCrossing,
     rejectionFlag: firstCrossing !== null,
     paperQualificationVerifiedExternally: false,
-    pretreatmentPairingVerifiedExternally: false,\n    actualFirstTurnVerifiedExternally: false,
+    pretreatmentPairingVerifiedExternally: false,
+    actualFirstTurnVerifiedExternally: false,
     fixedCandidateAndPoliciesVerifiedExternally: false,
     interpretation: firstCrossing ?
       "CONDITIONAL-EARLY-REJECTION; audit each game and pair independently" :
