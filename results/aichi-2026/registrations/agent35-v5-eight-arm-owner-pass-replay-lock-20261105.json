@@ -1,0 +1,94 @@
+{
+  "schema": "agent35-issue25-v5-eight-physical-replay-readonly-v1",
+  "registeredAtUtc": "2026-11-05T17:44:00Z",
+  "provenance": "strict retrospective lock on exact eight v5 native artifact rows, no prospective experiment",
+  "originalRunId": 42059191496,
+  "originalArtifactId": 13432225055,
+  "v5MemberBytes": 147651,
+  "v5MemberSha256": "22eacafb175bcc1ee365eeea3189c703c256f5555a8118dd68c988edda44cc17",
+  "twinleafPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rawActionCap": 48,
+  "expectedOriginalSourcePassCount": 33,
+  "allEightOriginalRows": [
+    {
+      "id": "6:100:A:champion-reference",
+      "rootLedgerSha256": "cfc02da6c7f557bc0c5d96772f1e27821eb714500683042ff8be1d3a5f562bde",
+      "wholeDealSha256": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+      "sourceDealSha256": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 1
+    },
+    {
+      "id": "6:100:A:new-moon-lockbreaker-v1",
+      "rootLedgerSha256": "b88cf51458fa3a837e8d655e50432794adbc45fd6d7a16b1a8c72a58f75d2e01",
+      "wholeDealSha256": "308eac3dfc4eb8b52214233be88b6e48884f36b5d829a9030c52f43dc6fbc1cc",
+      "sourceDealSha256": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 1
+    },
+    {
+      "id": "6:101:B:champion-reference",
+      "rootLedgerSha256": "d8921fcb1ab313e09c8523488f328769fc971e106b7cfd3aae8d7c0ba3dab222",
+      "wholeDealSha256": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "sourceDealSha256": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 0
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "rootLedgerSha256": "accfa034fe866caa304163d68fe1befa08c512f4037e45b2b784813ccc8987f2",
+      "wholeDealSha256": "86e4d2d417f403c864c0279bb6ed9955e7f133cc39f932cd7832d7dffc420c6c",
+      "sourceDealSha256": "509bc6e44713a30eb38ddfd59efb20540f9f3a6cac37d9d9f4c19fe2adf0faee",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 0
+    },
+    {
+      "id": "11:102:A:champion-reference",
+      "rootLedgerSha256": "2a0bbc4fc8574ebe8069176d15fe4691fb731b80a461ab73d574a176a2f7c070",
+      "wholeDealSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "sourceDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 1
+    },
+    {
+      "id": "11:102:A:new-moon-lockbreaker-v1",
+      "rootLedgerSha256": "ca42ff1b739ca817ce6bc6553bd41bc04549554ea7e66b1e430a463b51169aa9",
+      "wholeDealSha256": "940516606859cd569ebdd53177e5997222799005a75182ebc04af018af064260",
+      "sourceDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "acceptedRoots": 14,
+      "status": "engine-error",
+      "reportedSourceSeat": null
+    },
+    {
+      "id": "11:103:B:champion-reference",
+      "rootLedgerSha256": "3f3f502ec8af093044b3930c4cbfc58b1135fe134440bbac57c63ccd70d47610",
+      "wholeDealSha256": "c6438223d1df290c826264dc1c11652b00cdfedc50dcac92bcf4bcd43b6e2f04",
+      "sourceDealSha256": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 0
+    },
+    {
+      "id": "11:103:B:new-moon-lockbreaker-v1",
+      "rootLedgerSha256": "2f558e81d8c6e59bf2041cea8d61e1701659b433d6efe67d920def58e0d1bfb9",
+      "wholeDealSha256": "beb9e704c9a77dfb2538cfdb5cf5747393b2560c613159ee270aad760d573679",
+      "sourceDealSha256": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "acceptedRoots": 48,
+      "status": "root-cap-censored",
+      "reportedSourceSeat": 0
+    }
+  ],
+  "observationOnlyOptIn": "runDevelopment({nativeAllOwnerPassFrontier:true})",
+  "alreadyExistingObserver": "simulation/evaluation/agent31-bilateral-all-owner-pass-evidence.cjs",
+  "baselineCommonV5": "simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs",
+  "boundedPostChoiceTelemetry": true,
+  "hiddenOpponentCardsExcludedFromObserver": true,
+  "noNewNativePolicyHooks": true,
+  "qualification": "no games completed or admitted",
+  "competitiveQualifiedGames": 0
+}
