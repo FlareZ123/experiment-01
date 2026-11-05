@@ -50,8 +50,8 @@ function fixture(names=['Psychic Energy SVE','Quick Ball FST'],
   const ballIndex=owner.hand.cards.findIndex(c=>c.fullName===printing);
   return {owner,state,store,ballIndex};
 }
-test('v13 shared paper portfolio installed for frozen Aichi FST/SSH printings',()=>{
-  assert.match(VERSION,/v13-quick-ball-print-cost/);
+test('common paper portfolio retains frozen Aichi FST/SSH cost contract',()=>{
+  assert.match(VERSION,/^agent41-unified-paper-prompt-contract-portfolio-v\d+/);
 });
 test('empty original hand except printed Quick Ball vetoes played Item before Store mutation',()=>{
   for(const printing of ['Quick Ball FST','Quick Ball SSH']){
