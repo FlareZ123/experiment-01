@@ -25,6 +25,10 @@ The four historical fixed-60 comparisons include **one Ranger STS104 each** in [
 
 The independent new [two-seat staged native action test](../../tests/agent30-ranger-budew-item-native.test.cjs) is registered in an existing **manually dispatched** native fidelity workflow. It checks actual attacker Itchy Pollen, defender failed Item, genuine played Ranger, and the subsequent real Item search with a continuing Vileplume negative control. The test is currently **unverified until CI reports a result**; no value here is a measured win.
 
+### Early candidate access bound already established elsewhere
+
+The prior [exact joint-access report](ranger-stone-joint-access.md) found **30.26936%** for Hood Shield v1 and **30.31531%** for Temple v1 of having a *direct Ranger or a conditional Wonder Tag / Forest Seal Stone route* after the accepted seven-card hand and two ordinary draws. This is a restricted opportunity model; actual use requires the Tool/VSTAR and Bench resources, enabled Abilities, and the unused Supporter quota. The native regression in this report tests a **physically held Ranger**, so it does not yet attest those search sequences or opponent-optimal timing. Do not convert the 30% resource statistic into a lock-escape success rate or a matchup win probability.
+
 ## Proposed fail-closed integration checks
 
 Given a genuine attack-effect Item lock on the player, a selected common owner policy should record the publicly present effect, actual playable Ranger in hand (or a legal owner search path), available Supporter quota, and a specific afterwards-legal Item. A true native two-seat replay can check **Store acceptance and physical zone settlement** of Ranger, followed by that Item under the same turn. Negative controls must retain Ability-based Item lock and Supporter lock, where Ranger must not be treated as an all-purpose escape. A native result still needs independent paper-text and complete opponent-continuation assessment.
