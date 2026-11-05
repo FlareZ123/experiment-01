@@ -65,8 +65,18 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify redacted abort provenance and physical fingerprint validators
-        run: node --test tests/agent18-aborted-native-provenance.test.cjs tests/native-dispatch-abort-evidence.test.cjs
+        run: node --test tests/agent18-aborted-native-provenance.test.cjs tests/native-dispatch-abort-evidence.test.cjs tests/agent18-issue25-source-root-custody.test.cjs
       - name: Reproduce three native failure stages with complete deal custody
         run: node --test tests/native-dispatch-abort-archive.pinned.test.cjs
-      - name: Validate real Issue25 four-arm error-row source, full-deal and first-turn evidence
-        run: node --test tests/agent50-issue25-owner-48root-quarantine.native.test.cjs
+      - name: Validate four-arm accepted owner-root custody and error provenance
+        run: |
+          set -o pipefail
+          node --test tests/agent50-issue25-owner-48root-quarantine.native.test.cjs | tee agent18-issue25-owner-roots-native.tap
+      - name: Preserve full native owner-root audit including errors and censored attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-issue25-native-source-roots
+          path: agent18-issue25-owner-roots-native.tap
+          if-no-files-found: warn
+          retention-days: 21
