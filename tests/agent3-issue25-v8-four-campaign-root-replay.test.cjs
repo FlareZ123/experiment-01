@@ -13,10 +13,16 @@ function fixture(){
       registeredNativeTrialLabelWitnessSelected:true,
       exactNativeStoreRootsRecorded:8,
       firstOwnerSetupInputsObserved:16,
+      exactPhysicalSixtyPrintedCountComparisons:16,
+      exactPhysicalSixtyPrintedCountMatches:16,
       privateFingerprintSessionId:'a'.repeat(32),
       events:IDs.flatMap((id,n)=>[0,1].map(seat=>({
         registeredNativeTrialId:id,physicalOwnerSeat:seat,
-        nativeStoreOrdinal:n+1,
+        nativeStoreOrdinal:n+1,nativeFirstPlayerSeat:n%2,
+        firstBeforeAnyOwnerSetupChoice:true,
+        noPolicyChoiceOrHiddenNamesPublished:true,
+        globalTurnAtCapture:0,physicalSixtyCardCount:60,
+        exactPhysicalSixtyPrintedCountMatched:true,
         opaquePhysicalPrechoiceInputHmacSha256:hash('cards-'+id+'-'+seat),
         opaquePreRunRequestHmacSha256:hash('request-'+id)
       })))
@@ -108,4 +114,17 @@ test('silent source-deal movement in repeated baseline is a control failure',()=
   assert.equal(out.controlLedgerRowsEqual,8);
   assert.equal(out.controlSourceDealDigestRowsUnequalOrUnavailable,1);
   assert.equal(out.controlReplayVerdict,'FAIL-repeated-control-divergence');
+});
+
+test('miscounted physical source sixty is never promoted to input parity',()=>{
+  const data=fixture();
+  data[2].witness.events[0].physicalSixtyCardCount=59;
+  assert.throws(()=>compareFourCampaigns(data));
+});
+test('matched hidden input HMAC with a different starter fails bounded parity',()=>{
+  const data=fixture();
+  data[1].witness.events[0].nativeFirstPlayerSeat=1;
+  const out=compareFourCampaigns(data);
+  assert.equal(out.mismatchingNativeFirstPlayerComparisons,1);
+  assert.equal(out.controlReplayVerdict,'UNRESOLVED-input-or-epoch-mismatch');
 });
