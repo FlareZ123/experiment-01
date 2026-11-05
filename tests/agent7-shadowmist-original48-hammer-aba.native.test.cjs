@@ -17,6 +17,11 @@ test('same original rank6 physical deal changes from locked Pass to Hammer',()=>
     targetSourceSeat:target.originalSourceSeat,
     targetOriginalDealSha256:target.sourceDealSha256,
     targetRootDivergence:target.firstDivergence,
+    acceptedSourceHammerPlayRoots:target.acceptedSourceHammerPlayRoots,
+    afterHammerNativePublicRoots:target.treatmentAcceptedRootsFromFirstChange,
+    firstSourceNonpromptFollowingHammer:target.firstSourceNonpromptAfterChange,
+    firstCandidateNonpromptFollowingHammer:
+      target.firstCandidateNonpromptAfterChange,
     targetControlRootCount:target.controlRootCount,
     targetTreatmentRootCount:target.treatmentRootCount,
     allOriginalTrialPairs:result.paired.map(row=>({
@@ -40,5 +45,7 @@ test('same original rank6 physical deal changes from locked Pass to Hammer',()=>
   assert.equal(target.firstDivergence.control.action,'PassTurnAction');
   assert.equal(target.firstDivergence.treatment.action,'PlayCardAction');
   assert.equal(target.firstDivergence.treatment.card,'Crushing Hammer');
+  assert.ok(target.acceptedSourceHammerPlayRoots.length>=1,
+    'At least one genuine native Store source Hammer Play root required');
   assert.equal(result.competitiveGamesQualified,0);
 });
