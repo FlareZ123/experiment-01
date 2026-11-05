@@ -1,0 +1,51 @@
+{
+  "schema": "agent4-postsetup-original-eight-96root-opportunity-extension-v3-preregistered",
+  "registeredAtUTC": "2026-11-05T20:52:00Z",
+  "status": "UNEXECUTED",
+  "baseTrial": "results/aichi-2026/registrations/agent4-mail-postsetup-seat-shuffle-aba-v2-20261105.json",
+  "observedOriginal48Run": 42106147855,
+  "researchClass": "retrospective-same-original-seeds-native-extended-horizon-develop-only",
+  "fixedSourceRanks": [
+    6,
+    11
+  ],
+  "frozenTrialIDs": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "originalSeedAndPhysicalOwnerSeats": "identical to prior v2 original eight exact source rank/seed/candidate/seat; no optimization or post-hoc seed selection",
+  "candidateLists": "exact champion-reference and new-moon-lockbreaker-v1, unchanged printed card-name/count 60s",
+  "physicalRngProtocol": "original turn-zero setup common RNG, independent each owner's physical deck-shuffle PRNG from turn 1",
+  "existingPolicyRandomness": "isolatePolicyRandomness:true as frozen in agent41-crossrank-r6-r11-v1",
+  "treatment": "B physical owner-verified Trainers' Mail only when selected source-independent v5 policy would Pass; genuine native top-four prompt settlement",
+  "threeArms": [
+    "A-control-selected-v5-aftersetup",
+    "B-real-owner-Mail-aftersetup",
+    "A-repeat-selected-v5-aftersetup"
+  ],
+  "baselineLegacy": "one unchanged selected-v5 96root reference for verifying exact original physical openings under original shared RNG",
+  "registeredNativeRootActionCap": 96,
+  "priorNativeRootActionCap": 48,
+  "actualTrialCount": 32,
+  "checks": [
+    "native 96root option actually reached every game entry; reject if source print or seat changes",
+    "same original full physical opening fingerprints versus unchanged native legacy 96root",
+    "same full/source initial deals A/B/A across all eight IDs",
+    "same public accepted root tapes A vs A repeat",
+    "24 native request flags exact and returned postsetup policy+physical protocol attested",
+    "source original rank6 seed100 owner Mail native top-four actions and 2x per-arm card payment",
+    "up to 96 accepted root actions; preserve full engine errors/terminals/caps",
+    "count source payoff AttackAction and any nonattack paid control action by exact source seat, plus candidate public next-turn reply",
+    "record actual last reached global turn in each arm separately to avoid root/turn horizon bias"
+  ],
+  "targetQuestion": "Do source rank6/11 actual paid owner attacks/control or meaningful candidate response become reachable after the previously bound 48-root A/B/A, and does any observed 48root candidate convergence continue?",
+  "researchQualification": "Never count these as competitive games; both candidates, opponent paper strategy, clock and Top32 coverage unqualified",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "outputSource": "simulation/evaluation/agent4-mail-postsetup-96root-opportunity-v3.cjs"
+}
