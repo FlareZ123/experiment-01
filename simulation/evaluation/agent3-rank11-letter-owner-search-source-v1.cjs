@@ -63,6 +63,7 @@ function withSourceLetterOwnerSearch(next,deps){
   assert.equal(typeof priorAi?.value,'function');
   assert.equal(typeof priorStore?.value,'function');
   const priorRunMatch=headless.runMatch;
+  const observe=deps.observe??actorObservation;
   const proposals=new WeakMap();
   let target=false,liveStore=null,awaiting=null;
   const audit={
@@ -97,7 +98,7 @@ function withSourceLetterOwnerSearch(next,deps){
        owner?.id!==this.client?.id||
        !awaiting||pending?.id!==awaiting.promptId)
       return priorAi.value.call(this,state,...args);
-    const view=actorObservation(state,registration.originalSourceSeat);
+    const view=observe(state,registration.originalSourceSeat);
     assert.equal(view.decisionKind,'owner-prompt');
     assert.equal(view.pendingOwnerDeckSearch,true);
     const selected=chooseTwoDarknessFromOwnerPrompt(
