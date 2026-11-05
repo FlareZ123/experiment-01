@@ -1,0 +1,15 @@
+# Agent 2: Original rank-1 Guzma plus VMAX native counterexample (5 November 2026)
+
+**Developmental native result, zero qualified paper games.** Exact original rank-3 Snorlax Stall versus original rank-1 Shadow Rider Calyrex; both converted 60-card inventories unchanged. Seed 290134, both physical seats unchanged, native pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+[Manual native run 41939024832](https://github.com/FlareZ123/experiment-01/actions/runs/41939024832), at commit `9365e08db9b7b3a7ed5acaa0fb18f0629a2b581b`, **SUCCESS**; [raw artifact 13375641216](https://github.com/FlareZ123/experiment-01/actions/runs/41939024832/artifacts/13375641216), ZIP SHA-256 `1b1650f0dcfdce28bb3b4732840ed298511ff2063fb12fc58155fdfa4fbeadbc`.
+
+The registered four-arm [script](../../simulation/evaluation/agent2-rank1-original-guzma-counterplay-aba.cjs) and [workflow](../../.github/workflows/agent2-fss-float-rank3-native.yml) ran control, genuine rank-1 held Guzma at global turn 3, rank-1 Guzma plus genuine held Shadow Rider Calyrex VMAX evolution at turn 29, and repeated control. Every arm matched original full physical SHA-256 `e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb` and source fingerprint `ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a`.
+
+- **Control and repeated control:** native winner rank 3, 133 actions, twelve actual Burrows and eleven opposing Filch attacks, global-turn-25 native terminal. The original control repeated its complete root ledger digest.
+- **Guzma alone:** rank 1 played native Guzma (action ordinal 17) and validated opposing Snorlax PGO and own Shadow Rider Calyrex V CRE switches on global turn 3. Rank 3 remained native winner.
+- **Guzma plus VMAX:** native winner **rank 1** at global turn **39**, **185 actions**, rank 1 took **all six Prizes** while rank 3 took zero. Rank 3 managed only **one Burrow**; rank 1 declared ten **Shadow Mist** and six **Max Geist** attacks, zero Filch. The native VMAX action used `Shadow Rider Calyrex VMAX CRE` from owner hand onto Active `Shadow Rider Calyrex V CRE` with three Psychic Energy at turn 29.
+
+**Crucial missing rank-3 counterplay:** the unchanged source bot repeatedly passed with Snorlax Active and a funded Bunnelby on the Bench. A read-only native owner-hand audit recorded held `Guzma BUS` in source hand on turns **16, 18, 20, 22, 24, 26, 28**, own Supporter quota still available and no Supporter lock, with an opposing Bench target. A reciprocal Guzma rescue could be possible, but the actual selection, both prompt payments and the following attack must be tested natively before crediting it.
+
+These are source-specific, asymmetric historical-deal developmental counterfactuals, with paper-fidelity, competitor policy and clock unresolved. They **do not contribute competitive game wins** and do not establish a final field-leading 60. Next test: native owner-only rank-3 counter-Guzma at the first observed genuine rescue opportunity, with control-repeat and verified physical deals.
