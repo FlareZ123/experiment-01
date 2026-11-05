@@ -231,24 +231,24 @@ jobs:
         shell: bash
         run: node simulation/evaluation/agent6-rank1-rank3-energy-recipient-aba.cjs > agent6-rank1-rank3-energy-recipient-aba.json
       - name: Check Agent6 recipient and actual native paid retreat custody
-        if: ${{ inputs.agent6_recipient_paid_aba && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit }}
+        if: ${{ inputs.agent6_recipient_paid_aba && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_reserve_causal }}
         run: node --test tests/agent6-rank1-rank3-energy-recipient-aba.test.cjs tests/agent6-recipient-plus-paid-retreat-aba.test.cjs tests/agent2-bilateral-multi-basic-retreat-bot.test.cjs
       - name: Replay original eight groups with recipient plus symmetric paid-retreat
-        if: ${{ inputs.agent6_recipient_paid_aba && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit }}
+        if: ${{ inputs.agent6_recipient_paid_aba && !inputs.agent6_recipient_pass_stage && !inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_reserve_causal }}
         shell: bash
         run: node simulation/evaluation/agent6-recipient-plus-paid-retreat-aba.cjs > agent6-recipient-plus-paid-retreat-aba.json
       - name: Check owner-only passive Pass-stage census purity
-        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage }}
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage && !inputs.agent6_reserve_causal }}
         run: node --test tests/agent6-recipient-paid-pass-cascade.test.cjs tests/agent2-bilateral-multi-basic-retreat-bot.test.cjs
       - name: Replay identical policy recipient-enabled Pass-stage census
-        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage }}
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_pass_stage && !inputs.agent6_reserve_causal }}
         shell: bash
         run: node simulation/evaluation/agent6-recipient-paid-pass-cascade.cjs > agent6-recipient-paid-pass-cascade.json
       - name: Verify owner-basic reserve classifier and native settled receipt
-        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_recipient_pass_stage }}
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_recipient_pass_stage && !inputs.agent6_reserve_causal }}
         run: node --test tests/agent6-original-recipient-paid-reserve-native.test.cjs
       - name: Replay original recipient-energy alternative retreat fee windows
-        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_recipient_pass_stage }}
+        if: ${{ inputs.agent6_recipient_paid_aba && inputs.agent6_recipient_paid_reserve_audit && !inputs.agent6_recipient_pass_stage && !inputs.agent6_reserve_causal }}
         shell: bash
         run: node simulation/evaluation/agent6-original-recipient-paid-reserve-native.cjs > agent6-original-recipient-paid-reserve-native.json
       - name: Preserve failed or completed source native transcript
