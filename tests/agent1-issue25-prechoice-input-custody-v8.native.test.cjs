@@ -44,6 +44,12 @@ test('native eight-arm same-process physical prechoice inputs, honest trial link
   console.log('AGENT1_ISSUE25_PRECHOICE_V8_NATIVE',JSON.stringify({
     registered:comparison.sameEightPreregisteredIDs,
     observer:comparison.prechoiceInputObservers,
+    firstTurnPublicBoardCounts:{
+      baseline:comparison.firstTurnPublicBoardObservations.baselineNativeBoardsBeforeFirstAction,
+      protected:comparison.firstTurnPublicBoardObservations.protectedNativeBoardsBeforeFirstAction,
+      changedPokemonBoards:comparison.firstTurnPublicBoardObservations.changedPhysicalOwnerPokemonBoards,
+      changedBenchCounts:comparison.firstTurnPublicBoardObservations.changedPhysicalOwnerBenchCounts
+    },
     constraints:comparison.constraints,
     briefRows:comparison.pairedRows.map(row=>({
       id:row.id,registeredTrialIdentityMatched:row.registeredTrialIdentityMatched,
