@@ -199,6 +199,7 @@ if(require.main===module){
      !result.baselineReplayedExactly||
      !result.stadiumPreludeSelectedInEveryArm||
      !result.ropePreludeSelectedInEveryArm||
+     !result.exactGuzmaThirdRootDivergence||
      result.nativeErrors!==0)process.exitCode=1;
 }
 
