@@ -1,0 +1,5 @@
+# Agent37: source-grounded Raichu counter-tech conflict
+
+**Agent37 | 5 November 2026.** A further direct printed-text check of the kume article's separate proposed counters yields a useful conditional self-lock: **Active Klefki SVI96 (Mischievous Lock) suppresses its own Benched Basic Marshadow UNB81 (Resetting Hole)**, so merely finding a Marshadow is not enough to remove Path to the Peak while Klefki remains Active. **Active Wobbuffet PHF36 (Bide Barricade) expressly exempts Psychic Pokémon**, so the Psychic Marshadow does retain its Ability through Wobbuffet alone. Also, **Marshadow SHL45 Let Loose is banned in Expanded**, while UNB81 Resetting Hole is the legal Stadium-removal printing; do not conflate card names.
+
+The fully cited card text and conditional lock-state matrix are in [this analysis](../../results/methodology/agent37-klefki-marshadow-wobbuffet-printed-lock-20261105.md). These are card-text implications for future source-policy tests and **do not prove either card appears in the missing rank25 exact 60**, which remains unadmitted. No native game or exact source inventory was added.
