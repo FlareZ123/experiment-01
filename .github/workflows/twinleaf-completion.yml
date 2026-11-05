@@ -598,6 +598,7 @@ jobs:
           node --check simulation/evaluation/agent4-bilateral-mail-original-eight-aba-v1.cjs
           node --test tests/agent4-bilateral-mail-original-eight-aba.test.cjs
           node --test tests/agent4-shared-physical-shuffle-coupling.test.cjs
+          node --test tests/agent4-independent-physical-shuffle-rng.test.cjs
           node simulation/evaluation/agent4-shared-physical-shuffle-coupling.cjs
       - name: Run original eight A/B/A with both-seat native owner Mail Pass and top-four prompt
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
