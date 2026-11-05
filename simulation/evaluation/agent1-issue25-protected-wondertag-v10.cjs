@@ -250,6 +250,9 @@ function compareProtectedWonderTagV10(baseline,treatment){
       decisions:witnessedDecisions.map(event=>({...event})),
       authenticatedTrialAndActorSeat:authenticatedWonderTagDecisions,
       nativeSettlementOfEveryChoiceAttested:nativeSearchSettlementCertified,
+      // This certifies the chosen Supporter's native zone transfer only.
+      // A later native ShuffleDeckPrompt may remain unresolved at a root cap.
+      nativeShufflePromptCompletionIndependentlyCertified:false,
       settledRoleCensus,
       originalSourceAttackAndOpponentReplyCertified:false,
       originalSourceEffectCertified:false
