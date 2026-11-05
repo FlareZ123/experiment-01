@@ -1,0 +1,55 @@
+{
+  "schema": "agent4-mail-per-seat-physical-shuffle-aba-v1-preregistered",
+  "registeredAtUTC": "2026-11-05T20:33:00Z",
+  "researchClass": "prospective-fixed-eight-physical-shuffle-protocol-sensitivity-development-only",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "parentRegistration": "results/aichi-2026/registrations/agent4-bilateral-mail-original-eight-aba-v1-20261105.json",
+  "selectedCommonPolicy": "agent36-steward-v5-innermost-prize-promotion",
+  "nativeRootCap": 48,
+  "seededOriginalTrialIds": [
+    "6:100:A:champion-reference",
+    "6:100:A:new-moon-lockbreaker-v1",
+    "6:101:B:champion-reference",
+    "6:101:B:new-moon-lockbreaker-v1",
+    "11:102:A:champion-reference",
+    "11:102:A:new-moon-lockbreaker-v1",
+    "11:103:B:champion-reference",
+    "11:103:B:new-moon-lockbreaker-v1"
+  ],
+  "protocol": {
+    "baselineAndTreatment": "isolatePhysicalShuffleRandomness:true on every native request, regardless of actor/arm",
+    "speculativePolicy": "isolatePolicyRandomness omitted; preserve incumbent policy-random convention",
+    "physicalSource": "per-seat deterministic seededRandom streams supplied by research headless adapter",
+    "coinFlips": "legacy shared seeded game RNG; not isolated by this treatment",
+    "version": "per-seat-physical-shuffle-only-prng-v1"
+  },
+  "registeredArms": [
+    "A-control-selected-v5-seat-isolated-shuffles",
+    "B-both-seat-Owner-Mail-after-native-Pass-seat-isolated-shuffles",
+    "A-repeat-control-selected-v5-seat-isolated-shuffles"
+  ],
+  "method": "Apply the same owner-local physical-shuffle protocol to all 24 attempts before installing each v5/native Mail inner prompt policy; do not change printed 60s, original seeds, actual seats, source setup or 48-root cap. Compare all original initial physical and full game physical fingerprints, accepted-root tapes, all failures/caps, source Mail native physical search/payments, and candidate public continuation.",
+  "primaryGates": [
+    "all 24 native requests verified as using physical shuffle isolation flag",
+    "8/8 within-registered-ID initial full physical deals and original source deals match A/B/A",
+    "8/8 A/A accepted-root tape digests identical",
+    "all 8 original opponent and fixed contender configurations retained including errors/caps",
+    "source-side real Mail Store and owner search physical transfer counters recorded",
+    "candidate root differences and opposing action turns retained without winner inference"
+  ],
+  "measurements": [
+    "A/B/A first public accepted root divergence and final reached global turn",
+    "original rank6 6:100:A candidate turn4 public action, whether Klefki/Pass gap persists",
+    "source Mail top-four real cards transferred, and resulting source paid attack/control/payoff",
+    "candidate accepted attacks by name and turn with meaningful next opponent owner root",
+    "native cap/error disposition and explicit zero qualified games"
+  ],
+  "preexistingComparisons": {
+    "legacySharedShuffleControlCI": 42095285003,
+    "seedIsolationPurePositiveCI": 42097338870
+  },
+  "causalLimits": "Per-seat physical deck shuffles remove one possible cross-seat random-stream coupling. Coin flips, implicit native Math.random and state-mediated changes remain possible. A changed candidate root is not automatically strategic impact or a valid qualified game.",
+  "status": "PREREGISTERED_UNEXECUTED",
+  "qualifiedGames": 0,
+  "finalFixed60Selected": false
+}
