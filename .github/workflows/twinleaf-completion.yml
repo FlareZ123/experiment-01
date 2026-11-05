@@ -103,6 +103,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent4_bilateral_mail_aba:
+        description: 'Prospective original eight A/B/A, native owner-only Trainers Mail Pass and top-four search on both seats'
+        required: false
+        type: boolean
+        default: false
       include_agent4_rank6_mail_prompt_v2:
         description: 'Original rank6 same Mail Store fork plus exact owner-only native top-four prompt receipt'
         required: false
@@ -134,7 +139,7 @@ permissions:
 
 jobs:
   bounded-match:
-    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent3_rank11_letter_owner_search && !inputs.include_agent4_rank6_mail_prompt_v2 && !inputs.include_agent4_rank6_mail_fork }}
+    if: ${{ !inputs.abort_provenance_only && !inputs.include_agent35_v5_owner_pass_replay && !inputs.include_agent35_rank11_letter_fork && !inputs.include_agent3_rank11_letter_owner_search && !inputs.include_agent4_rank6_mail_prompt_v2 && !inputs.include_agent4_rank6_mail_fork && !inputs.include_agent4_bilateral_mail_aba }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -457,7 +462,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 21
   original-v5-owner-pass-observation:
-    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent3_rank11_letter_owner_search || inputs.include_agent4_rank6_mail_fork || inputs.include_agent4_rank6_mail_prompt_v2 }}
+    if: ${{ inputs.include_agent35_v5_owner_pass_replay || inputs.include_agent35_rank11_letter_fork || inputs.include_agent3_rank11_letter_owner_search || inputs.include_agent4_rank6_mail_fork || inputs.include_agent4_rank6_mail_prompt_v2 || inputs.include_agent4_bilateral_mail_aba }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -562,5 +567,27 @@ jobs:
           path: |
             agent4-rank6-mail-prompt-v2-native.json
             agent4-rank6-mail-prompt-v2-native.json.sha256
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Verify symmetric owner-only Mail root screening and native A/B/A panel
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/twinleaf/agent4-bilateral-mail-root-choice.cjs
+          node --check simulation/twinleaf/agent4-bilateral-mail-native.cjs
+          node --check simulation/evaluation/agent4-bilateral-mail-original-eight-aba-v1.cjs
+          node --test tests/agent4-bilateral-mail-original-eight-aba.test.cjs
+      - name: Run original eight A/B/A with both-seat native owner Mail Pass and top-four prompt
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_BILATERAL_MAIL_ABA_OUTPUT: agent4-bilateral-mail-original-eight-aba-native.json
+        run: node simulation/evaluation/agent4-bilateral-mail-original-eight-aba-v1.cjs
+      - name: Preserve original eight A/B/A source and candidate native physical receipts
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-bilateral-mail-original-eight-aba-native
+          path: |
+            agent4-bilateral-mail-original-eight-aba-native.json
+            agent4-bilateral-mail-original-eight-aba-native.json.sha256
           if-no-files-found: warn
           retention-days: 14
