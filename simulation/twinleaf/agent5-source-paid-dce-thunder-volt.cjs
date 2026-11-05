@@ -146,7 +146,9 @@ function withSourceAfterDceThunderVolt(execute,deps){
       const prompt=after.prompts.find(p=>p.result===undefined&&
         p.playerId===source.id&&p.constructor?.name==='AttachEnergyPrompt');
       if(prompt)audit.nativeVoltCycloneOwnerPrompts++;
-      stage=prompt?'attack-prompt':'attack-without-move-prompt';
+      // An opponent WaitPrompt can intervene before the mandatory owner
+      // AttachEnergyPrompt is opened. Keep the attack stage live.
+      stage='attack-awaiting-own-move';
       record('native-attack-return',after,{
         ownUnresolvedMovePrompt:Boolean(prompt),
         promptMatchesOwnerActive:Boolean(prompt?.cardList===source.active),
@@ -188,7 +190,8 @@ function withSourceAfterDceThunderVolt(execute,deps){
       return originalAi.value.call(this,state,...args);
     const source=ownerOf(state);
     const pending=state.prompts.find(p=>p.result===undefined);
-    if(stage==='attack-prompt'&&pending?.playerId===source.id&&
+    if(stage==='attack-awaiting-own-move'&&
+       pending?.playerId===source.id&&
        pending.constructor?.name==='AttachEnergyPrompt'&&
        pending.cardList===source.active&&
        pending.options?.min===1&&pending.options?.max===1&&
@@ -199,6 +202,8 @@ function withSourceAfterDceThunderVolt(execute,deps){
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:benchIndex
         }}];
         if(pending.validate(selection)){
+          if(audit.nativeVoltCycloneOwnerPrompts===0)
+            audit.nativeVoltCycloneOwnerPrompts++;
           const action=new ResolvePromptAction(pending.id,selection);
           issued.set(action,{kind:'energy-move',card:physicalDce,benchIndex});
           audit.submittedMandatoryEnergyMoves++;
