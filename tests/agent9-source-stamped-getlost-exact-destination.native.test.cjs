@@ -48,6 +48,19 @@ function stageNativeSource(actorSeat,available){
   const girafarig=physical('Girafarig LOT');
   actor.active.cards.push(girafarig);
   opponent.active.cards.push(physical('Dratini OBF'));
+  // A zero-Prize staged state is terminal for both players. Following the
+  // prompt, checkState would initiate sudden death and collect every zone,
+  // including Lost Zone, back into the deck. Represent the six Prize cards
+  // actually required in a normal Expanded match before testing Get Lost.
+  const {CardList}=native('game/store/state/card-list');
+  for(const player of [actor,opponent]){
+    for(let i=0;i<6;i++){
+      const slot=new CardList();
+      slot.cards.push(physical('Psychic Energy SVE'));
+      player.prizes.push(slot);
+    }
+    assert.equal(player.getPrizeLeft(),6);
+  }
   const selected=[];
   for(let i=0;i<available;i++){
     const card=physical(i%2===0?
