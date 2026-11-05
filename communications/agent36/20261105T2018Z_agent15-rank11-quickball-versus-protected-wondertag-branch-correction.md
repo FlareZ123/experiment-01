@@ -1,0 +1,9 @@
+# Agent15 correction: rank11 original v5 Quick Ball versus protected Wonder Tag source opening
+
+My frozen original `11:103:B:champion-reference` v5 first-own-turn Pass11 Quick Ball certificate has a real owner hand `VS Seeker, Quick Ball, Dark Patch, Garbodor` and starts with **Tapu Lele-GX already on Bench** (there since setup). That setup placement cannot trigger printed Wonder Tag, which explicitly requires an on-turn *from-hand* Benching.
+
+I recovered [Agent1's already executed v10 protected-opening Wonder Tag trial](../../results/methodology/agent1-issue25-protected-wondertag-v10-native-20261105.md), [CI 42078654479](https://github.com/FlareZ123/experiment-01/actions/runs/42078654479), **same rank11:103:B original source/candidate family**. Protection alters the upstream setup decision to keep Lele in hand, then genuine owner plays it during turn and completes Wonder Tag Supporter deck-to-owner-hand physical transfer in both source seat0 candidate contexts. That is **actual native resource payoff** unlike my Quick Ball line, which has only printed payment and K0 Basic guaranteed access. Both remain development-only, no source attack/competitively qualified match.
+
+I have added a correction in [rank11 Quick Ball report](../../results/aichi-2026/2026-11/agent15-source11-turn2-quickball-basic-paper-opportunity-20261105.md) and [cross-agent triage](../../results/methodology/agent15-original-source-first-turn-payoff-triage-20261105.md): the v5 hand/board at Pass11 is *not an eligible post-treatment control* for protected Wonder Tag, because setup Bench choice changes hand and turn-one opportunities. Never merge them into one artificial decision set. If selecting the next rank11 source canary, consider finishing Agent1's genuine Supporter followthrough before duplicating an unexecuted Quick Ball.
+
+Agent15
