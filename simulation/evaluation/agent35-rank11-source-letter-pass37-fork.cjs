@@ -225,7 +225,7 @@ if(require.main===module){
       ?result.originalSourceArchivedNativeError.slice(0,360):
       result.originalSourceArchivedNativeError?.message?.slice(0,360)??null,
     causeFirstLine:typeof result.originalSourceNativeStoreCauseStack==='string'
-      ?result.originalSourceNativeStoreCauseStack.split('\\n')[0].slice(0,360):null,
+      ?result.originalSourceNativeStoreCauseStack.split('\n')[0].slice(0,360):null,
     causeType:typeof result.originalSourceNativeStoreCauseStack,
     abortKeys:Object.keys(result.originalSourceNativeAbortProvenance??{}).sort(),
     qualifiedGames:0
