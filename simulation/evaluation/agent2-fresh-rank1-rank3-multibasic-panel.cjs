@@ -35,6 +35,7 @@ function runArm(trial,cards){
   const deckA=rank3Seat===0?cards.source:cards.candidate;
   const deckB=rank3Seat===0?cards.candidate:cards.source;
   let genericAudit=null,targetAudit=null;
+  const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(()=>{
@@ -66,7 +67,21 @@ function runArm(trial,cards){
           return added.result;
         }
         if(trial.mode!=='bilateral-multi-basic-retreat')return native();
-        const added=withBilateralMultiBasicPaidRetreat(native);
+        // Passive opt-in for an already registered recipient-enabled Pass
+        // census. Record each original owner-only opportunity, then use the
+        // identical default proposer, without changing its decision.
+        const diagnostic=trial.retreatPassStageCensus===true?{
+          choose:(view,catalog)=>{
+            const {classifyOwnerMultiBasicRetreatPass}=require(
+              '../twinleaf/agent2-multi-basic-retreat-pass-cascade.cjs');
+            const {chooseMultiBasicPaidRetreatInDeckRace}=require(
+              '../twinleaf/agent2-actor-multi-basic-paid-retreat-frontier.cjs');
+            retreatPassStageRows.push(classifyOwnerMultiBasicRetreatPass(
+              view,catalog));
+            return chooseMultiBasicPaidRetreatInDeckRace(view,catalog);
+          }
+        }:{};
+        const added=withBilateralMultiBasicPaidRetreat(native,diagnostic);
         genericAudit=added.audit;
         return added.result;
       },{root:work=>withActorOnlyRootPolicy(work,{
@@ -104,6 +119,8 @@ function runArm(trial,cards){
       nativeTerminal:terminal,
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
+      ...(trial.retreatPassStageCensus===true?{
+        retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
       competitiveGameQualified:false
     };
@@ -112,6 +129,8 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.retreatPassStageCensus===true?{
+        retreatPassStageRows}:{}),
       ...(trial.captureTargets===true?{
         nativeAcceptedTargetSidecar:targetAudit??
           acceptedTargetAbortEvidence(error)}:{}),
