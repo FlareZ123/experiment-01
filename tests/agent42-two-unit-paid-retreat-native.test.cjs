@@ -155,8 +155,14 @@ for(const seat of [0,1]){
     assert.equal(intent?.projectedPrintedDamage,160);
     assert.deepEqual(intent?.discardEnergyIndices,[0,1]);
     const ownerDiscardBefore=[...owner.discard.cards];
-    store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
-    const prompts=resolveNativeRetreat(game);
+    const {withTwoPsychicRetreatCustody}=
+      require('../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody.cjs');
+    const witness=withTwoPsychicRetreatCustody(()=>{
+      store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
+      return resolveNativeRetreat(game);
+    });
+    assert.equal(witness.audit.exactPhysicalPaidRetreats,1);
+    const prompts=witness.result;
     assert.equal(owner.retreatedTurn,34);
     assert.equal(owner.active.getPokemonCard()?.fullName,VMAX);
     assert.equal(owner.bench[0],activeBefore);
