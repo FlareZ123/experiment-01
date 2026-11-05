@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent41-owner-capture-energy-deck-search-v1';
+const VERSION='agent41-owner-capture-energy-deck-search-v2-settled';
 const CAPTURE='Capture Energy RCL';
 
 /**
@@ -73,7 +73,8 @@ function withOwnerCaptureEnergySearch(next,deps={}){
   const proposals=new WeakMap();
   const audit={version:VERSION,physicalStores:0,acceptedCaptureAttachments:0,
     matchedOwnerDeckPrompts:0,ownerSearchProposals:0,
-    acceptedOwnerSearches:0,rejectedOwnerSearches:0,
+    ownerSearchReturnsWithoutThrow:0,acceptedOwnerSearches:0,
+    rejectedOwnerSearches:0,unsettledOwnerSearches:0,
     sourceBasicPhysicallyBenched:0,emptySearchesAccepted:0,
     records:[],paperGameQualified:false,competitiveGamesQualified:0};
 
@@ -100,6 +101,15 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     const existingPrompts=track?
       new Set((before.prompts??[]).map(p=>p.id)):null;
     const proposed=actual?proposals.get(action):null;
+    const ownerBefore=proposed?before.players[proposed.seat]:null;
+    const promptBefore=proposed?(before.prompts??[]).find(p=>
+      p.id===action.id && p.playerId===proposed.ownerId &&
+      p.result===undefined && p.cards===ownerBefore?.deck):null;
+    const selected=proposed?.cards[0];
+    const deckHadSelected=!!selected&&
+      ownerBefore.deck.cards.includes(selected);
+    const benchHadSelected=!!selected&&
+      ownerBefore.bench.some(slot=>slot.cards.includes(selected));
     let result;
     try{
       result=beforeStore.value.apply(this,[action,...args]);
@@ -123,17 +133,30 @@ function withOwnerCaptureEnergySearch(next,deps={}){
       });
     }
     if(proposed){
-      audit.acceptedOwnerSearches++;
+      audit.ownerSearchReturnsWithoutThrow++;
+      // Pinned Store may silently ignore a missing prompt or item. A return
+      // cannot license an accepted search unless this exact pending native
+      // prompt received the submitted answer.
+      const settled=!!promptBefore && action.result!==undefined &&
+        promptBefore.result===action.result;
+      if(!settled){
+        audit.unsettledOwnerSearches++;
+        throw new Error('Capture Energy owner search returned without settling the pending prompt');
+      }
       const ownerAfter=this.state.players[proposed.seat];
-      const placed=proposed.cards.length===1 &&
-        ownerAfter.bench.some(slot=>slot.cards.includes(proposed.cards[0]));
+      const placed=proposed.cards.length===1 && deckHadSelected &&
+        !benchHadSelected &&
+        !ownerAfter.deck.cards.includes(selected) &&
+        ownerAfter.bench.some(slot=>slot.cards.includes(selected));
+      audit.acceptedOwnerSearches++;
       if(placed)audit.sourceBasicPhysicallyBenched++;
       if(proposed.cards.length===0)audit.emptySearchesAccepted++;
       if(audit.records.length<32)audit.records.push({
         storeOrdinal:proposed.storeOrdinal,
         seat:proposed.seat,turn:proposed.turn,
-        kind:proposed.kind,selectedBasic:proposed.cards[0]?.fullName??null,
-        nativeStoreAccepted:true,physicalBenchTransition:placed
+        kind:proposed.kind,selectedBasic:selected?.fullName??null,
+        nativePromptSettled:true,physicalDeckToBenchVerified:placed,
+        paperEffectVerified:proposed.cards.length===0||placed
       });
       pendingById.delete(proposed.ownerId);
     }
