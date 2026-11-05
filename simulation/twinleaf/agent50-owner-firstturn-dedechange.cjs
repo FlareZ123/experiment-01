@@ -105,9 +105,16 @@ function withOwnerFirstTurnDedechange(run,config){
         pending.set(action,{kind:'play',seat,card,benchIndex,
           turn:state.turn,handBefore:ownHand.length});
         audit.proposedDedenneRoots++;
+        const opposingActive=state.players[1-seat].active.getPokemonCard();
+        const sourceActive=owner.active.getPokemonCard();
         audit.rootEvents.push({seat,turn:state.turn,
           card:card.fullName,handIndex:index,
           benchIndex,availableDedenne:true,
+          sourceActivePrinting:sourceActive?.fullName??null,
+          opposingActivePrinting:opposingActive?.fullName??null,
+          opposingActiveAbilities:opposingActive?.powers?.map(p=>p.name)??[],
+          sourcePlayedStadiumPrintings:owner.stadium.cards.map(c=>c.fullName),
+          opponentPlayedStadiumPrintings:state.players[1-seat].stadium.cards.map(c=>c.fullName),
           nativeAccepted:'unverified'});
         return action;
       }
