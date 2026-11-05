@@ -141,7 +141,8 @@ test('changed post-setup source cards do not corrupt identical prechoice physica
 test('fail closed on altered hidden opening HMAC even when physical game statuses match',()=>{
   const a=fixture('control'),b=fixture('treatment');
   b.diagnostic.actualNativePrechoicePhysicalInputs.events[1]
-    .opaquePhysicalPrechoiceInputHmacSha256='altered-hidden-input';
+    .opaquePhysicalPrechoiceInputHmacSha256=
+      createHash('sha256').update('altered-hidden-input').digest('hex');
   const result=compareProtectedWonderTagV10(a,b);
   assert.equal(result.matchingGenuineOwnerPrechoiceAndRequestPairs,15);
   assert.equal(result.comparisonEligibleForPolicyStudy,false);
