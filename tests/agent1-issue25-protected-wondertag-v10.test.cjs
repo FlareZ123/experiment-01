@@ -214,3 +214,15 @@ test('trial owner witness refuses native settlement assertion after missing phys
   assert.equal(report.registeredWonderTagActorWitness.authenticatedTrialAndActorSeat,true);
   assert.equal(report.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,false);
 });
+
+test('register genuine contender and original-source searches separately',()=>{
+  const a=fixture('control'),b=fixture('treatment');
+  const evidence=b.diagnostic.audit.firstBlockedPromptEnvelope;
+  evidence.registeredWonderTagActorWitness.decisions[1].actorSeat=1;
+  evidence.sourceIndependentOwnerWonderTag.bySeat={0:2,1:2};
+  const w=compareProtectedWonderTagV10(a,b).registeredWonderTagActorWitness;
+  assert.equal(w.nativeSettlementOfEveryChoiceAttested,true);
+  assert.equal(w.settledRoleCensus.originalSourceSearches,1);
+  assert.equal(w.settledRoleCensus.contenderSearches,1);
+  assert.equal(w.settledRoleCensus.contenderSupporterTransfers,1);
+});
