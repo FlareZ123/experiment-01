@@ -2,6 +2,12 @@ name: Agent11 v4 immutable paired Quick Ball native archive audit
 
 on:
   workflow_dispatch:
+    inputs:
+      mail_access_only:
+        description: Run exact original Iron Thorns Trainers Mail combinatorics only
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -9,6 +15,7 @@ permissions:
 
 jobs:
   verify-frozen-native-archives:
+    if: ${{ !inputs.mail_access_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -49,3 +56,15 @@ jobs:
           path: guarded-enabled
       - name: Assert 105 original unchanged traces and 23 exact native abort Pass replacements
         run: node scripts/agent11-c11-fullbench-retro-archive-audit.cjs baseline/agent11-owner-tutor-native-v4.json enabled/agent11-owner-tutor-native-v4.json guarded-baseline/agent11-owner-tutor-native-v4.json guarded-enabled/agent11-owner-tutor-native-v4.json
+
+  verify-mail-access:
+    if: ${{ inputs.mail_access_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Independently enumerate toy Mail shuffles and authenticate source 60 counts
+        run: node --test tests/agent11-thorns-mail-access.test.cjs
