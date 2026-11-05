@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent17_skyliner_teamflare_targeted:
+        description: Retrospective original rank3 turn59 genuine Store Team Flare Grunt A/B/A, no competitive result
+        type: boolean
+        default: false
       agent17_skyliner_reply_owner_frontier:
         description: Original rank3/1 single immutable B replay, five owner-only postdecision Pass snapshots
         type: boolean
@@ -110,6 +114,20 @@ jobs:
         with:
           name: agent17-skyliner-rank3-five-owner-replies
           path: agent17-skyliner-reply-owner-pass-native.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Regress frozen one-root Team Flare Grunt owner selector and bypass privacy
+        if: ${{ inputs.agent17_skyliner_teamflare_targeted }}
+        run: node --test tests/agent17-targeted-owner-teamflare-native.test.cjs
+      - name: Execute three exact original physical source Team Flare A/B/A Store attempts
+        if: ${{ inputs.agent17_skyliner_teamflare_targeted }}
+        run: node simulation/evaluation/agent17-skyliner-teamflare-targeted-aba.cjs > agent17-skyliner-teamflare-targeted-aba.json
+      - name: Archive all native actions and error receipts for frozen original Team Flare experiment
+        if: ${{ always() && inputs.agent17_skyliner_teamflare_targeted }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-skyliner-rank3-teamflare-A-B-A-native
+          path: agent17-skyliner-teamflare-targeted-aba.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate historical natural original rank1 selected-v3 transport registration
