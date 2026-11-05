@@ -675,6 +675,27 @@ jobs:
             agent4-mail-postsetup-96root-native.json.sha256
           retention-days: 14
           if-no-files-found: warn
+      - name: Verify common completed-turn native action and root-budget censoring methodology
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        run: |
+          node --check simulation/evaluation/agent4-common-completed-turn-native-exposure.cjs
+          node --test tests/agent4-common-completed-turn-native-exposure.test.cjs
+      - name: Compare original-eight 96root A-B Mail actions on common completed game turns
+        if: ${{ inputs.include_agent4_bilateral_mail_aba }}
+        env:
+          AGENT4_NATIVE_96_ROOT_JSON: agent4-mail-postsetup-96root-native.json
+          AGENT4_COMMON_TURN_EXPOSURE_OUTPUT: agent4-original-eight-common-native-turn-exposure.json
+        run: node simulation/evaluation/agent4-common-completed-turn-native-exposure.cjs
+      - name: Archive common actual completed-turn exposure for all eight registered original native games
+        if: ${{ always() && inputs.include_agent4_bilateral_mail_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-eight-common-completed-turn-native-exposure
+          path: |
+            agent4-original-eight-common-native-turn-exposure.json
+            agent4-original-eight-common-native-turn-exposure.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
       - name: Test readout-only original native Volt Cyclone abort witness
         if: ${{ inputs.include_agent4_bilateral_mail_aba }}
         run: |
