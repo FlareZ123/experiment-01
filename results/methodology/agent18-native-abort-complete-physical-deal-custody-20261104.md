@@ -31,3 +31,23 @@ Integrate these native-error regression tests into the next existing manual pinn
 Commits [5de5649](https://github.com/FlareZ123/experiment-01/commit/5de56499a5ee96c5e695db5ea38cd731c66df681) and [718f119](https://github.com/FlareZ123/experiment-01/commit/718f11943cbe9cdba0624a9ff8898dd2f3daeef0) extend the **same** error-custody channel with the real Store's existing `observeFirstTurn` plus `summarizeTurnOrder` first-card-draw verification. The read-only observer records `initialTurnOrderEvidence:{firstTurnSlot,verifiedByDrawLog}` in the native abort envelope. `extractNativeAbortProvenance` produces `actualStarterSeat` and `verifiedFirstTurn:true` **only** when the first-turn observer agrees with the earliest draw log, and otherwise emits `firstTurnStatus:'UNVERIFIED'` with a null seat. Malformed first-draw receipts fail the schema gate.
 
 This enables `agent44-cross-candidate-source-pair-status.cjs` to compare both the **actual initial source deal** and **actual first-turn seat** when an aborted arm has valid evidence. The prior null/unknown outcome is preserved for genuinely uncaptured data. The original registered historical 48-root tests now assert these fields for three known post-first-turn native ATTACK-prompt aborts. The changed source and test modules passed parse-only syntax checks; **pinned compiled Store execution remains pending**. No opponent reply, paper clock, or competitive game qualification is implied by a matched initial opening.
+
+
+## 5 November 2026: first compiled pinned-native regression receipt
+
+**Compiled test gate PASS, competitive qualification unchanged.** The existing manually dispatched [Twinleaf bounded full-match probe, run 41958523102](https://github.com/FlareZ123/experiment-01/actions/runs/41958523102), head `6730bf9cada89f2c1ddcbbf815707fe8513a73e8`, selected only the new `abort-custody` job. Its original `bounded-match` job was skipped intentionally. The runner checked out the committed `vendor/twinleaf` gitlink, installed and compiled the server, then passed **21/21** pure abort-validator tests, **3/3** actual pinned Store failures (Store dispatch, bot decoder, strict prompt), and **1/1** Issue25 four-arm development regression; **25/25 tests passed**. The temporary job was added to the existing manual workflow `.github/workflows/twinleaf-completion.yml`, without adding a new workflow or a commit-triggered job.
+
+The real four-arm native output, with all registered attempts retained:
+
+| Registered arm | Disposition | Verified source seat in abort evidence | Actual first-turn seat | Accepted root count | Native source-deal SHA-256 |
+| --- | --- | --- | --- | --- | --- |
+| `6:0:A:champion-reference` | engine error | 1 | 0 | 37 | `2ce05954cf7a87661c3dc42c242ec6c10f8c9caa9a4a60c0d3580f23613744d1` |
+| `6:0:A:new-moon-lockbreaker-v1` | returned but capped at 48; nonterminal | 1 (normal row) | 0 | 48 | `2ce05954cf7a87661c3dc42c242ec6c10f8c9caa9a4a60c0d3580f23613744d1` |
+| `11:2:B:champion-reference` | engine error | 0 | 1 | 17 | `9bc69d70743d1c2d0e1406076a817309a0ae1fd73a68da3c27e1e76900d2b5f5` |
+| `11:2:B:new-moon-lockbreaker-v1` | engine error | 0 | 1 | 42 | `9bc69d70743d1c2d0e1406076a817309a0ae1fd73a68da3c27e1e76900d2b5f5` |
+
+Each aborted arm's `nativeAbortProvenance` reports `VERIFIED` for the source deal, entire physical deal, accepted-root ledger, and actual first-turn draw, with proper per-arm digest values independently present in the CI receipt. The full-physical-deal SHA differs across the two contenders because that hash includes **both** players' physical cards; do not equate the same source opening with an identical complete two-player deal.
+
+**Remaining direct-row limitation:** all three `engine-error` rows still expose top-level `sourceSeat:null` and `candidateSeat:null`, even while validated nested `nativeAbortProvenance.sourceSeat` identifies the source seat, and the source-deal receipt matches the registered orientation. The previously missing top-level source/full-deal digests and starting-seat evidence **are repaired and compiled-verified**. A separate attempt to add fail-closed top-level seat fields was blocked by repository write safety controls, so no source code seat change is claimed. Consumers must distinguish these direct nulls from verified nested provenance. The native failures remain failures, the one 48-root result remains censored, and all four are **0 competitively qualified games**.
+
+The whole-policy owner-information, paper-payment, source payoff, meaningful opponent reply, full 32-original field, and official match-clock gates remain open. The CI positive is limited to error-custody fidelity.
