@@ -92,6 +92,49 @@ requires authoritative Japanese ruling review; this audit does not
 assert different effects or pretend that an English post-event image
 is evidence of May tournament wording.
 
+## Consolidated executable provenance audit: three release clocks
+
+The companion [source-derived clock audit](../../scripts/agent12-aichi-release-clock-audit.cjs)
+and [regression fixtures](../../tests/agent12-aichi-release-clock-audit.test.cjs)
+cover all 29 original archived 60s. They prioritize printed PTCGO codes
+over internal set IDs, recognize XY/SM/BW promo aliases, and distinguish
+the mixed-release MEE Basic Energy art series.
+
+| Exact printed identifier category | Source rows | Physical copies | Historical as-of interpretation |
+| --- | ---: | ---: | --- |
+| English CRI 056/082 from the 22 May expansion | 3 | 5 | Later English localization of cards available in Japanese M4 since 13 March |
+| MEE 009-016 YOSHIROTTEN 30th Celebration artwork | 35 | 120 | Numbered art released 16 September, after tournament; underlying Basic Energy names are older |
+| Japanese S-P 127 Player's Ceremony | 4 | 5 | Domestic promo existing since approximately September 2020; not an English set-code exception |
+
+The [official Japanese S-P 127 record](https://www.pokemon-card.com/card-search/details.php/card/38633/regu/XY)
+verifies the Player's Ceremony S-P 127 / S-P catalog identity.
+[PokeBoon's historical promo record](https://pokeboon.com/127sp-playersceremony-promo/)
+dates its distribution to around September 2020.
+The [MEE Basic Energies print-series catalog](https://bulbapedia.bulbagarden.net/wiki/MEE_Basic_Energies_(TCG))
+documents 001-008 introduced in Mega Evolution September 2025 and
+009-016 in 30th Celebration September 2026.
+The [manufacturer's 30th Celebration announcement](https://pokemon.gamespress.com/MEDIA-ALERT-Pokemon-Trading-Card-Game-30th-Celebration-Expansion-Launc)
+confirms 16 September 2026.
+
+**Reproducibility and CI limitation:** initial
+[manual CI 42056107491](https://github.com/FlareZ123/experiment-01/actions/runs/42056107491)
+failed because the script did not recognize the internal SMP promo alias.
+The second [manual CI 42057074448](https://github.com/FlareZ123/experiment-01/actions/runs/42057074448)
+found a separate defect: internal set IDs can collide with another
+set's printed PTCGO code. Both were corrected with regression fixtures.
+**Neither failed CI is a passing end-to-end script verification.**
+A subsequent workflow dispatch was blocked by host safety checks.
+An independent in-chat JavaScript census using the exact original
+full-decklists.json and sets/en.json confirmed **29 complete 60s**,
+three CRI rows/five copies, 35 MEE rows/120 copies and four Japanese
+S-P rows/five copies. Post-correction compiled Node execution remains
+unverified. These are provenance counts, never competitive win evidence.
+
+The audit makes no claim that all 125 later-identified physical
+printings existed on May 10 or that any player's private registered
+artwork is known. Name/rule identity and Japanese print availability
+must be distinguished from English-normalized collector identifiers.
+
 ## Impact and scope
 
 - The **29/32 original card-name/count admission status is unchanged**.
