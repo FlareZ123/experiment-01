@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      source_rank5_isolated_rng_pair:
+        description: 'Run separate retrospective rank5 16-arm per-seat physical RNG sensitivity A/B'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -62,6 +67,13 @@ jobs:
           node --check simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs
           node simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs --inspect-only
           node simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs > agent19-rank5-energy-mix-shuffle-pair-summary.json
+      - name: Execute preregistered rank5 independent physical seat RNG sensitivity
+        if: ${{ inputs.source_rank5_isolated_rng_pair }}
+        run: |
+          node --test tests/agent19-independent-seat-rng.test.cjs
+          node --check simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs --inspect-only
+          node simulation/evaluation/agent19-rank5-independent-seat-rng-paired-native.cjs > agent19-rank5-independent-seat-rng-summary.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
       - name: Record native single-attachment attack and sole-Pokemon board
@@ -84,4 +96,6 @@ jobs:
             aichi-rank5-mew-energy-mix.json
             agent19-rank5-energy-mix-shuffle-pair-summary.json
             agent19-rank5-energy-mix-shuffle-source-paired-native.json
+            agent19-rank5-independent-seat-rng-summary.json
+            agent19-rank5-independent-seat-rng-paired-native.json
           if-no-files-found: warn
