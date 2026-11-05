@@ -35,7 +35,12 @@ function observeSeat(seat){
       };
       rows.push({event,rootIndex:rows.length,globalTurn:state.turn,
         unresolvedPromptCount:state.prompts?.filter(p=>
-          p.result===undefined).length??null,zones,
+          p.result===undefined).length??null,
+        unresolvedPromptTypes:state.prompts?.filter(p=>
+          p.result===undefined).map(p=>({
+          kind:p.constructor?.name??null,
+          physicalOwner:p.playerId===owner.id
+        }))??[],zones,
         paperCleanupEstablished:zones.ownDiscard||zones.ownLostZone});
     };
     function dispatch(action,...args){
