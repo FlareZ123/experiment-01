@@ -56,6 +56,7 @@ function withRank1HeldGuzmaCounterplay(execute){
     proposedGuzmaOwnHandCount:0,
     originalOwnerPromptValidation:true,
     rank1LiveOwnerVmaxHeldAfterGuzma:[],
+    rank3NativeOwnerRescuePassEvidence:[],
     ownerOnly:true,
     completelyQualifiedGames:0,
     receipts:[]
@@ -140,7 +141,35 @@ function withRank1HeldGuzmaCounterplay(execute){
         });
       }
     }
-    return original.call(this,state,...args);
+    const owner=state.players[SOURCE_SEAT];
+    const nativeProposal=original.call(this,state,...args);
+    if(selectedTurn!==null && !pending &&
+       state.activePlayer===SOURCE_SEAT &&
+       nativeProposal?.constructor.name==='PassTurnAction' &&
+       owner.active.getPokemonCard()?.name==='Snorlax' &&
+       owner.bench.some(slot=>slot.getPokemonCard()?.name==='Bunnelby')){
+      const ownerHand=owner.hand.cards.map(c=>c.fullName);
+      const recoverable=ownerHand.filter(c=>
+        /^(Float Stone|Guzma|Scoop Up Cyclone|Escape Rope|Switch|VS Seeker) /.test(c));
+      audit.rank3NativeOwnerRescuePassEvidence.push({
+        globalTurn:state.turn,
+        nativeChosen:'PassTurnAction',
+        ownerActive:owner.active.getPokemonCard()?.fullName??null,
+        ownerActiveEnergy:owner.active.energies.cards.map(c=>c.fullName),
+        ownerActiveTool:owner.active.tools.cards.map(c=>c.fullName),
+        benchFundedBunnelby:owner.bench.some(slot=>
+          slot.getPokemonCard()?.fullName==='Bunnelby PRC'&&
+          slot.energies.cards.length>0),
+        ownerHandCount:ownerHand.length,
+        ownerHandRescueCandidates:recoverable,
+        ownerSupporterTurn:owner.supporterTurn,
+        ownerCannotPlaySupporterCards:owner.cannotPlaySupporterCards,
+        ownerCannotPlayItemCards:owner.cannotPlayItemCards,
+        rank1HasBenchedPokemon:state.players[OPPONENT_SEAT].bench.some(
+          slot=>slot.getPokemonCard()!==undefined)
+      });
+    }
+    return nativeProposal;
   };
   SimpleTacticsAi.prototype.decodeNextAction=decoder;
   try{
