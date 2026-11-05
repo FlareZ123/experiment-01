@@ -96,6 +96,22 @@ test('Tool on a different Pokémon fails same-physical-board custody', () => {
   change.after={...change.after,energies:['Psychic Energy MEE']};
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
 });
+test('symmetry: physical source in seat zero preserves settlement and reply', () => {
+  const r=fixture();
+  for(const root of r.rootActionLedger)root.playerSlot=1-root.playerSlot;
+  for(const event of r.nativeAcceptedTargetSidecar.events){
+    event.playerSlot=0;
+    for(const change of event.publicBoardChanges)change.seat=0;
+  }
+  const packet=r.sourceAttackSettlement.attacks[0];
+  packet.publicBoardBefore.reverse();
+  packet.prizesBefore.reverse();
+  packet.prizesAfter.reverse();
+  const lines=findSettledSourceFloatStoneLines(r,0);
+  assert.equal(lines.length,1);
+  assert.equal(lines[0].prizeGain,1);
+  assert.equal(lines[0].opponentFirstNonPrompt.playerSlot,1);
+});
 test('source player seat must be explicit', () => {
   assert.throws(()=>findSettledSourceFloatStoneLines(fixture(),null),TypeError);
 });
