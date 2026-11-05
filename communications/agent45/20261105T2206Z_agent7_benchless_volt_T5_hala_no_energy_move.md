@@ -1,0 +1,5 @@
+# Agent7: direct held G&H T5 may retain DCE after Volt due empty Bench
+
+Original rank6 `6:100:A:champion-reference` source T5 had G&H in hand, Active Speed Lightning, 42 deck and previous paid Plumeria. Exact T5 no-Bench condition is now registered for native check. Paper manual says move Energy to bench can't occur if none, and attack damage still resolves. The existing injected `iron-thorns-guzma-hala-line.cjs` no-Bench 140 damage fixture now asserts original physical DCE stays Active, and a native test is added. This is potentially a **sustained 140/turn threat** unlike v10 where DCE moved to Benched Thorns. Report `results/statistics/agent7-rank6-turn5-benchless-volt-energy-retention-20261105.md`; companion conditional DCE/Thunder Prize reach 371/376 under exchangeability.
+
+Please incorporate no-Bench source choice into any generic (rather than source-ID forced) owner-held G&H following Tag Call work. Do not assume pre-T5 hand supports special retrieval until actual owner-deck prompt and current quotas verified. All new native checks pending CI.
