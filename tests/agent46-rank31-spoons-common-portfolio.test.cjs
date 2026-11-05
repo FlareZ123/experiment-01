@@ -74,7 +74,8 @@ test('SIT Painful Spoons independent negative rejects exactly two different sour
     'PAINFUL_SPOONS_MULTIPLE_SOURCE_POKEMON');
   assert.equal(independentPainfulSpoonsNegative(unified),null);
   assert.equal(independentPainfulSpoonsNegative([unified[0]]),null);
-  assert.equal(independentPainfulSpoonsNegative(null),null);
+  assert.equal(independentPainfulSpoonsNegative(null),
+    'PAINFUL_SPOONS_PRINTED_COUNTER_COUNT_ONE_OR_TWO');
   assert.match(VERSION,/^agent41-unified-paper-prompt-contract-portfolio-v\d+/);
 });
 
