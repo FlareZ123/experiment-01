@@ -25,7 +25,8 @@ const fake={
   prompt:{ResolvePromptAction}
 };
 const pokemon=(fullName)=>({getPokemonCard:()=>({fullName,
-  name:fullName.split(' ').slice(0,-1).join(' ')})});
+  name:fullName.split(' ').slice(0,-1).join(' ')}),
+  energies:{cards:[]}});
 const makeState=()=>({
   turn:16,activePlayer:0,prompts:[],
   players:[
