@@ -53,6 +53,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent6_recipient_pass_stage:
+        description: 'Passive recipient Pass-stage census opt-in'
+        type: boolean
+        required: false
+        default: false
       agent6_recipient_paid_aba:
         description: 'Agent6 original eight-group recipient plus multi-Basic paid-retreat A B A'
         type: boolean
