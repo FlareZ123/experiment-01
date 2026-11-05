@@ -52,10 +52,11 @@ function withPrintedWonderTagAndAttacks(next,deps={}){
   const witness=factory();
   assert.equal(typeof witness.run,'function');
   assert.equal(typeof witness.selectSupporterIndex,'function');
+  assert.equal(typeof witness.currentTrialId,'function');
   const outer=nativeShuffle(()=>shuffle(()=>wonder(
     ()=>witness.run(()=>attack(next)),
     {selectSupporterIndex:witness.selectSupporterIndex}
-  )));
+  )),{getCurrentTrialId:witness.currentTrialId});
   assert.ok(outer?.result?.result?.result);
   return {
     result:outer.result.result.result.result,
@@ -229,7 +230,20 @@ function compareProtectedWonderTagV10(baseline,treatment){
     shuffle?.repairedShuffles===shuffle?.zeroSelections&&
     [0,1].every(seat=>wonder?.bySeat?.[seat]===
       2*witnessedDecisions.filter(d=>d.actorSeat===seat).length);
+  const expectedShuffleTrialSeats=witnessedDecisions
+    .filter(d=>d.answerCardinality===1)
+    .map(d=>d.id+':'+d.actorSeat).sort();
+  const nativeTrialSeats=records=>Array.isArray(records)&&
+    records.every(d=>ids.includes(d.id)&&(d.seat===0||d.seat===1))?
+    records.map(d=>d.id+':'+d.seat).sort():null;
+  const nativeShuffleTrialOriginsComplete=!!nativeShuffle&&
+    nativeShuffle.nativeTrialAttributionAvailable===true&&
+    JSON.stringify(nativeTrialSeats(nativeShuffle.offeredTrialSeats))===
+      JSON.stringify(expectedShuffleTrialSeats)&&
+    JSON.stringify(nativeTrialSeats(nativeShuffle.completedTrialSeats))===
+      JSON.stringify(expectedShuffleTrialSeats);
   const nativePrintedShuffleCompleted=nativeSearchSettlementCertified&&
+    nativeShuffleTrialOriginsComplete&&
     !!nativeShuffle&&
     nativeShuffle.shufflePromptsOffered===wonder.selectedSupporters&&
     nativeShuffle.shuffleCallbacksCompleted===wonder.selectedSupporters&&
@@ -317,6 +331,11 @@ function compareProtectedWonderTagV10(baseline,treatment){
       shuffleCallbacksFailed:nativeShuffle.shuffleCallbacksFailed,
       outstandingShuffleCallbacks:nativeShuffle.outstandingShuffleCallbacks,
       bySeat:nativeShuffle.bySeat,
+      nativeTrialAttributionAvailable:
+        nativeShuffle.nativeTrialAttributionAvailable,
+      offeredTrialSeats:nativeShuffle.offeredTrialSeats,
+      completedTrialSeats:nativeShuffle.completedTrialSeats,
+      exactNativeShuffleTrialAndActorJoin:nativeShuffleTrialOriginsComplete,
       completePaperAbilityCertified:false
     }:null,
     actualZeroSearchShuffleAudit:shuffle?{
