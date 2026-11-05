@@ -441,6 +441,8 @@ jobs:
       - name: Compile pinned Twinleaf simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Owner prompt settlement and silent no-op regressions on both seats
+        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent3-issue25-owner-prompt-settlement-composition.test.cjs
       - name: Pure owner Pokemon source custody and A/B/A gates
         run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.test.cjs
       - name: Genuine native ChoosePokemon prompt owner intervention A/B/A
