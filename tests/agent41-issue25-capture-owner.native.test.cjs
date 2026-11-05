@@ -82,6 +82,30 @@ test('frozen v6 both-seat source Capture Energy search follows accepted Energy r
     pairs,paperGamesQualified:0,competitiveGamesQualified:0
   };
   console.log('AGENT41_CAPTURE_OWNER_V6',JSON.stringify(packet));
+  // Public native roots only. Preserve the post-search owner/opponent
+  // continuation without exporting concealed card identities or hands.
+  const rescued=b.find(row=>
+    row.trial.id==='6:100:A:new-moon-lockbreaker-v1');
+  const publicRoots=(rescued?.rootActionLedger??[]).filter(row=>
+    Number.isSafeInteger(row.turnBefore)&&row.turnBefore>=8&&
+    row.turnBefore<=11).slice(0,32).map(row=>({
+      ordinal:row.actionOrdinal,turn:row.turnBefore,
+      seat:row.playerSlot,action:row.action,
+      card:row.card??null,attack:row.attack??null,
+      pendingPrompt:row.pendingPrompt??null
+    }));
+  console.log('AGENT41_CAPTURE_POST_SEARCH_PUBLIC_ROOTS',
+    JSON.stringify({
+      schema:'agent41-capture-post-search-public-continuation-v1',
+      registeredTrialId:rescued?.trial?.id??null,
+      sourceSeat:rescued?.sourceSeat??null,
+      availableRootActions:rescued?.rootActionLedger?.length??null,
+      sourceAttackSettlements:
+        rescued?.sourceAttackSettlement?.attacks?.length??null,
+      redactedTurn8To11Roots:publicRoots,
+      truncated:publicRoots.length===32,
+      competitiveGamesQualified:0
+    }));
   assert.equal(a.length,8);
   assert.equal(b.length,8);
   assert.equal(byId.size,8);
