@@ -56,5 +56,23 @@
   "competitiveGamesQualified": 0,
   "noOutcomeBasedFiltering": true,
   "anticipatedInterpretation": "A/A/A controls replaying exactly under matching original inputs increases evidence for deterministic baseline. It cannot certify full non-treatment policy isolation. Divergent control root histories invalidate simple causal attribution to the protected opening.",
-  "sourceCodeAlreadyCommittedBeforeNativeRun": true
+  "sourceCodeAlreadyCommittedBeforeNativeRun": true,
+  "privateNightWatchEntropyDesign": {
+    "preRunSource": "one actual crypto.randomBytes(32) draw before four campaigns",
+    "existingInjectionSeam": "withJoinedOwnerAttackFrontier({randomBytes})",
+    "mode": "same 256-bit secret coupled across all four campaigns; independent per-native Store HMAC subkeys remain in source",
+    "rawSecretPublished": false,
+    "sha256CommitmentMatchedAcrossCampaigns": true,
+    "sourceCodeRevisionsBeforeAnyNativeExecution": true,
+    "otherUnobservedEntropy": "UNRESOLVED"
+  },
+  "controlVerdictRequires": [
+    "all 48 actor owner HMACs/requests matched",
+    "all four observed same vendor/research pins",
+    "same full precommitted NightWatch seed commitment",
+    "all eight baseline copies have complete provenance-verified native public Store action ledgers",
+    "all three control native dispositions and public root digests identical",
+    "all three control postchoice source physical-deal fingerprints present and equal"
+  ],
+  "revisionReasonBeforeExecution": "Found a concrete default v4 Night Watch randomBytes(32) draw once per independent campaign. Frozen same-process common-random-number coupling eliminates this known non-treatment random-seed confounder before any native outcomes."
 }
