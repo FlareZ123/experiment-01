@@ -90,10 +90,15 @@ function withLetterFork(next,deps){
       ...prior,value:ownerDecode});
     try{
       if(typeof deps.withOwnerSearchHook==='function'){
-        const selected=deps.withOwnerSearchHook(
-          ()=>originalMatch(request),{registration});
-        audit.ownerSearchAudit=selected.audit;
-        return selected.result;
+        try{
+          const selected=deps.withOwnerSearchHook(
+            ()=>originalMatch(request),{registration});
+          audit.ownerSearchAudit=selected.audit;
+          return selected.result;
+        }catch(error){
+          audit.ownerSearchAudit=error?.agent35OwnerLetterSearchAudit??null;
+          throw error;
+        }
       }
       return originalMatch(request);
     }finally{Object.defineProperty(SimpleTacticsAi.prototype,
