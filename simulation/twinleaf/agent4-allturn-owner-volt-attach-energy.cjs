@@ -25,7 +25,9 @@ function chooseOwnVoltTransfer(state,actorId,enums){
      pending.playerType!==enums.PlayerType.BOTTOM_PLAYER||
      !Array.isArray(pending.slots)||
      !pending.slots.includes(enums.SlotType.BENCH)||
-     pending.min!==1||pending.max!==1||pending.allowCancel===true)
+     (pending.min!=null&&pending.min!==1)||
+     (pending.max!=null&&pending.max!==1)||
+     pending.allowCancel===true)
     return null;
   const energies=owner.active.energies?.cards??[];
   if(!Array.isArray(energies)||!Array.isArray(owner.bench))
