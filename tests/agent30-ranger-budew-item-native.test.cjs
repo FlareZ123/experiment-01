@@ -97,7 +97,10 @@ function run(seat,withAbilityLock){
     assert.ok(['ShowCardsPrompt','ShuffleDeckPrompt','WaitPrompt'].includes(type),
       'Unexpected follow-on owner prompt '+type);
     observed.push(type);
-    x.store.dispatch(new ResolvePromptAction(pending.id,null));
+    const answer=type==='ShowCardsPrompt'?true:
+      type==='ShuffleDeckPrompt'?
+        Array.from({length:x.opponent.deck.cards.length},(_,j)=>j):null;
+    x.store.dispatch(new ResolvePromptAction(pending.id,answer));
   }
   assert.ok(x.opponent.hand.cards.includes(psychic),
     'Actual searched physical Energy must reach owner hand');
