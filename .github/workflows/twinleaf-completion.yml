@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent45_ghala_v9:
+        description: 'Original eight same physical deal relaxed G&H two-card native payment feasibility stress'
+        required: false
+        type: boolean
+        default: false
       include_agent45_ghala_v8:
         description: 'Registered same-eight actual Tag Call fetched Guzma Hala paid owner Supporter/Prompt follow-up'
         required: false
@@ -196,6 +201,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V5_DIR: issue25-steward-v5
         run: node --test tests/agent36-issue25-steward-innermost-prize-v5.test.cjs tests/agent36-issue25-steward-innermost-prize-v5.native.test.cjs
+      - name: Retrospective Agent45 actual paid G&H two-other-card owner native feasibility versus conservative baseline
+        if: ${{ inputs.include_agent45_ghala_v9 }}
+        env:
+          ISSUE25_AGENT45_GHALA_V9_DIR: issue25-agent45-ghala-v9
+        run: node --test tests/agent45-owner-ghala-relaxed-cost.test.cjs tests/agent45-issue25-ghala-relaxed-v9.native.test.cjs
       - name: Retrospective Agent45 genuine fetched G&H Supporter and paid native owner search after Tag Call
         if: ${{ inputs.include_agent45_ghala_v8 }}
         env:
@@ -216,6 +226,14 @@ jobs:
         env:
           AGENT9_TELEPATH_V6_DIR: agent9-telepath-v6
         run: node --test tests/agent9-issue25-telepath-v6.native.test.cjs
+      - name: Archive original eight matched relaxed G&H true two-card payment receipts and SHA digests
+        if: ${{ always() && inputs.include_agent45_ghala_v9 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent45-issue25-native-ghala-v9
+          path: issue25-agent45-ghala-v9/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Archive eight registered Tag Call then native G&H paid source experiments
         if: ${{ always() && inputs.include_agent45_ghala_v8 }}
         uses: actions/upload-artifact@v4
