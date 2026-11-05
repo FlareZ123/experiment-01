@@ -17,17 +17,20 @@ const roots=[
 ];
 
 function returned(){
-  return {trial:{id:'6:0:A:test'},sourceSeat:1,rootActionLedger:roots,
+  return {trial:{id:'6:0:A:test',candidateSlot:'A'},sourceSeat:1,
+    sourceDealFingerprint:'a'.repeat(64),rootActionLedger:roots,
     rootActionCount:roots.length,rootActionLedgerSha256:sha(roots)};
 }
 function aborted(){
-  return {trial:{id:'6:0:A:test'},status:'engine-error',
+  return {trial:{id:'6:0:A:test',candidateSlot:'A'},status:'engine-error',
     sourceSeat:null,candidateSeat:null,
     nativeAbortProvenance:{
       sourceSeat:1,sourceDealStatus:'VERIFIED',
       acceptedRootLedgerStatus:'VERIFIED'
     },
-    nativeAbortEvidence:{rootActionLedger:roots,rootActionCount:roots.length,
+    nativeAbortEvidence:{schema:'headless-native-abort-public-v1',
+      sourceDealFingerprint:{seat:1,digestSha256:'a'.repeat(64)},
+      rootActionLedger:roots,rootActionCount:roots.length,
       rootActionLedgerSha256:sha(roots)}};
 }
 
@@ -73,4 +76,16 @@ test('entire registered denominator and paper-game veto retained',()=>{
   assert.equal(result.competitiveGamesQualified,0);
   assert.equal(result.paperGameQualified,false);
   assert.equal(result.attempts[2].status,'NO_VERIFIED_SOURCE_ROOT_LEDGER');
+});
+
+test('forged nested verified receipt with wrong actual physical source seat vetoes',()=>{
+  const row=aborted();
+  row.nativeAbortEvidence.sourceDealFingerprint.seat=0;
+  const result=summarizeSourceRoots(row);
+  assert.equal(result.status,'NO_VERIFIED_SOURCE_ROOT_LEDGER');
+});
+test('returned rows require actual source physical-deal digest',()=>{
+  const row=returned();
+  row.sourceDealFingerprint=null;
+  assert.equal(summarizeSourceRoots(row).sourceSeat,null);
 });
