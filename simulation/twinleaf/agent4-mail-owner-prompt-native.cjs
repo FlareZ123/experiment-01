@@ -22,10 +22,11 @@ function withOwnedMailPrompt(next,deps){
   assert.equal(typeof priorAi?.value,'function');
   assert.equal(typeof priorStore?.value,'function');
   const oldRun=headless.runMatch,proposals=new WeakMap();
-  let target=false,liveStore=null,awaiting=null;
+  let target=false,liveStore=null,awaiting=null,activeAi=null;
   const audit={schema:VERSION,sourceId:reg.selectedOriginalId,
     targetMatches:0,realStores:0,realMailRoots:0,
-    ownerPromptsSeen:0,answersSelected:0,StoreResolved:0,
+    lateHookInstallations:0,lateHookInvocations:0,
+    gateMismatches:[],ownerPromptsSeen:0,answersSelected:0,StoreResolved:0,
     physicalTrainersToHand:0,nonchosenTopCardsToDeck:0,
     nativeRejects:0,unsettledAnswers:0,noMailPrompt:0,
     otherPromptTypes:[],opponentConcealedZonesRead:false,
@@ -37,20 +38,44 @@ function withOwnedMailPrompt(next,deps){
       return oldRun(request);
     assert.equal(target,false);
     target=true;liveStore=null;awaiting=null;audit.targetMatches++;
+    // All selected common-policy decoders are already installed by the
+    // current runMatch caller. Wrap them HERE, then restore before their
+    // own finally blocks check the expected decoder identity.
+    const installed=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
+    assert.equal(typeof installed?.value,'function');
+    activeAi=installed;
+    Object.defineProperty(ai,'decodeNextAction',{
+      ...installed,value:observedDecode});
+    audit.lateHookInstallations++;
     try{return oldRun(request);}
-    finally{target=false;liveStore=null;awaiting=null;}
+    finally{
+      assert.strictEqual(ai.decodeNextAction,observedDecode);
+      Object.defineProperty(ai,'decodeNextAction',installed);
+      activeAi=null;target=false;liveStore=null;awaiting=null;
+    }
   }
   function observedDecode(state,...args){
+    audit.lateHookInvocations++;
     const owner=state?.players?.[reg.originalSourceSeat];
     const p=state?.prompts?.find(x=>x.result===undefined);
-    if(!target||state!==liveStore?.state||
-      owner?.id!==this.client?.id||
-      state.activePlayer!==reg.originalSourceSeat||
-      !awaiting||p?.id!==awaiting.id)
-      return priorAi.value.call(this,state,...args);
+    const eligible=target&&state===liveStore?.state&&
+      owner?.id===this.client?.id&&
+      state.activePlayer===reg.originalSourceSeat&&
+      awaiting!==null&&p?.id===awaiting.id;
+    if(!eligible){
+      if(target&&awaiting&&audit.gateMismatches.length<8)
+        audit.gateMismatches.push({
+          currentStoreState:state===liveStore?.state,
+          currentOwnerClient:owner?.id===this.client?.id,
+          currentOwnerActive:state?.activePlayer===reg.originalSourceSeat,
+          nativePromptType:p?.constructor?.name??null,
+          matchingPendingPrompt:p?.id===awaiting.id
+        });
+      return activeAi.value.call(this,state,...args);
+    }
     audit.ownerPromptsSeen++;
     const cards=chooseOwnedTop4Mail(p,owner,types);
-    if(cards===null)return priorAi.value.call(this,state,...args);
+    if(cards===null)return activeAi.value.call(this,state,...args);
     const answer=new ResolvePromptAction(p.id,cards);
     proposals.set(answer,{prompt:p,selected:cards,
       originalTop:p.cards.cards.slice(),
@@ -107,14 +132,12 @@ function withOwnedMailPrompt(next,deps){
     return returnValue;
   }
   headless.runMatch=observedRun;
-  Object.defineProperty(ai,'decodeNextAction',{...priorAi,value:observedDecode});
   Object.defineProperty(store,'dispatch',{...priorStore,value:observedDispatch});
   try{return {result:next(),audit};}
   finally{
-    assert.strictEqual(ai.decodeNextAction,observedDecode);
+    assert.strictEqual(ai.decodeNextAction,priorAi.value);
     assert.strictEqual(store.dispatch,observedDispatch);
     Object.defineProperty(store,'dispatch',priorStore);
-    Object.defineProperty(ai,'decodeNextAction',priorAi);
     headless.runMatch=oldRun;
   }
 }
