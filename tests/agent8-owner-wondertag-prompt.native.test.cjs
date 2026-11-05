@@ -67,10 +67,10 @@ function nativeProbe(seat){
 test('compiled original-60 Tapu Lele Wonder Tag owner prompt policy selects a Supporter in both seats',()=>{
   for(const seat of [0,1]){
     const outer=nativeProbe(seat);
-    const selected=outer.result.result;
+    const selected=outer.result;
     const data=selected.result;
     console.log('AGENT8_WONDER_TAG_OWNER_NATIVE',JSON.stringify({
-      seat,events:data.events,policy:selected.audit,shuffle:outer.result.audit,
+      seat,events:data.events,policy:selected.audit,shuffle:outer.audit,
       sourceDigests:data.sourceDigests
     }));
     assert.deepEqual(data.events.map(e=>e.kind),[
@@ -84,7 +84,7 @@ test('compiled original-60 Tapu Lele Wonder Tag owner prompt policy selects a Su
     assert.equal(selected.audit.selectedSupporters,1);
     assert.equal(selected.audit.nativeAccepted,2);
     assert.equal(selected.audit.bySeat[seat],2);
-    assert.equal(outer.result.audit.nonzeroNativeSelections,1);
-    assert.equal(outer.result.audit.repairedShuffles,0);
+    assert.equal(outer.audit.nonzeroNativeSelections,1);
+    assert.equal(outer.audit.repairedShuffles,0);
   }
 });
