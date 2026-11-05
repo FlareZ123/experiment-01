@@ -62,6 +62,26 @@ function runOriginalShadowMistHammerAB(runner=()=>runStewardSelectedIssue25V4())
         break;
       prefix++;
     }
+    const sourceSeat=current.sourceSeat??
+      current.nativeAbortProvenance?.sourceSeat??
+      current.nativeAbortEvidence?.sourceDealFingerprint?.seat??null;
+    const compact=root=>({
+      ordinal:root.actionOrdinal,turn:root.turnBefore,
+      seat:root.playerSlot,action:root.action,
+      card:root.card??null,attack:root.attack??null,
+      prompt:root.pendingPrompt??null
+    });
+    const afterFirstChangedRoot=after.slice(prefix,prefix+16)
+      .map(compact);
+    const firstCandidateActionAfterChange=after.slice(prefix+1)
+      .find(root=>root.playerSlot===1-sourceSeat &&
+        root.action!=='ResolvePromptAction')??null;
+    const firstSourceActionAfterChange=after.slice(prefix+1)
+      .find(root=>root.playerSlot===sourceSeat &&
+        root.action!=='ResolvePromptAction')??null;
+    const acceptedSourceHammerPlayRoots=after.filter(root=>
+      root.playerSlot===sourceSeat&&root.action==='PlayCardAction' &&
+      root.card==='Crushing Hammer').map(compact);
     const firstDivergence=prefix<Math.max(before.length,after.length)?{
       ordinal:prefix,
       control:before[prefix]?{
@@ -79,9 +99,14 @@ function runOriginalShadowMistHammerAB(runner=()=>runStewardSelectedIssue25V4())
     }:null;
     return {
       id:current.trial.id,
-      originalSourceSeat:current.sourceSeat??
-        current.nativeAbortProvenance?.sourceSeat??
-        current.nativeAbortEvidence?.sourceDealFingerprint?.seat??null,
+      originalSourceSeat:sourceSeat,
+      acceptedSourceHammerPlayRoots,
+      treatmentAcceptedRootsFromFirstChange:afterFirstChangedRoot,
+      firstSourceNonpromptAfterChange:
+        firstSourceActionAfterChange?compact(firstSourceActionAfterChange):null,
+      firstCandidateNonpromptAfterChange:
+        firstCandidateActionAfterChange?
+          compact(firstCandidateActionAfterChange):null,
       sourceDealSha256:current.sourceDealFingerprint,
       fullInitialDealSha256:current.fullPhysicalDealFingerprint,
       starterSeat:current.actualStarterSeat,
