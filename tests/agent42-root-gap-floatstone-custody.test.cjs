@@ -207,7 +207,7 @@ test('Store-accepted double Tool attachment is not paper-valid', () => {
 test('Tool attachment must preserve non-Tool board state', () => {
   const r=fixture();
   r.nativeAcceptedTargetSidecar.events[0].publicBoardChanges[0]
-    .before.energies.pop();
+    .before.energies=['Psychic Energy MEE'];
   assert.equal(findSettledSourceFloatStoneLines(r,1).length,0);
 });
 test('intervening foreign nonprompt root invalidates owner-turn custody', () => {
