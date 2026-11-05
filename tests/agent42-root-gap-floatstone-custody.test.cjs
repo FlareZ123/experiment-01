@@ -58,6 +58,19 @@ test('intervening same-turn Ability and prompt do not erase paid rescue', () => 
   assert.equal(lines[0].prizeGain,1);
   assert.equal(lines[0].opponentFirstNonPrompt.action,'PlayCardAction');
 });
+test('durable extracted real source receipt survives archive expiry', () => {
+  const observed=require('../results/aichi-2026/2026-11/agent42-rank1-rootgap-projected-native-fixture.json');
+  const lines=findSettledSourceFloatStoneLines(observed,observed.trial.sourceSeat);
+  assert.equal(observed.baselineRoot163.action,'UseAbilityAction');
+  assert.equal(lines.length,1);
+  assert.equal(lines[0].toolOrdinal,163);
+  assert.equal(lines[0].retreatOrdinal,164);
+  assert.equal(lines[0].attackOrdinal,168);
+  assert.deepEqual(lines[0].interveningActionOrdinals,[165,166,167]);
+  assert.equal(lines[0].prizeGain,1);
+  assert.equal(lines[0].opponentFirstNonPrompt.actionOrdinal,174);
+  assert.deepEqual(observed.sameBenchIndexTypedDoorPrompts.map(p=>p.benchIndex),[2,2]);
+});
 test('older consecutive-root native witness is still recognized', () => {
   const r=fixture();
   r.rootActionLedger.splice(2,2);
