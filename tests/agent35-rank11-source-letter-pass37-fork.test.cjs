@@ -173,3 +173,24 @@ test('late registered match owner hook outranks inherited generic decoder and re
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,priorDecode);
   assert.strictEqual(headless.runMatch,priorRunMatch);
 });
+
+test('exact first-turn Letter rescue model reproduces rank11 hypergeometric bounds',()=>{
+  const {choose,firstOwnTurnRescue}=
+    require('../simulation/evaluation/agent35-firstturn-item-rescue-hypergeom.cjs');
+  assert.equal(choose(60,7),386206920n);
+  assert.equal(choose(60,61),0n);
+  const p=firstOwnTurnRescue({basics:11,energies:8,items:4});
+  const near=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-11,
+    String(actual)+' differs from '+String(expected));
+  near(p.legalSetupProbability,0.7775788585041408);
+  near(p.noEnergySeenProbability,0.31468608284142857);
+  near(p.noEnergyOrItemSeenProbability,0.16314646448595768);
+  near(p.itemSeenProbability,0.4257215506064711);
+  near(p.itemRescueProbability,0.1515396183554709);
+  near(p.itemGivenNoEnergyProbability,0.48155805616555414);
+  assert.equal(p.competitiveGamesQualified,0);
+  const less=firstOwnTurnRescue({basics:11,energies:8,items:3});
+  assert.ok(less.itemRescueProbability<p.itemRescueProbability);
+  assert.equal(firstOwnTurnRescue({
+    basics:11,energies:8,items:0}).itemRescueProbability,0);
+});
