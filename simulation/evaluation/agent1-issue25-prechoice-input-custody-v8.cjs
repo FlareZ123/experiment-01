@@ -259,18 +259,31 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       [recordA.sourceDeckFingerprint,recordB.sourceDeckFingerprint,
         recordA.candidateDeckFingerprint,recordB.candidateDeckFingerprint]
         .every(hex);
+    const conflictingDigest=(key)=>hex(recordA?.[key])&&
+      hex(recordB?.[key])&&recordA[key]!==recordB[key];
     const contradictoryReturnedPrintingDigests=
-      returnedPrintingDigestsComplete&&!deckPrintingIdentitiesMatched;
+      conflictingDigest('sourceDeckFingerprint')||
+      conflictingDigest('candidateDeckFingerprint');
+    const sourceSeat=physicalSeat(trialA??{candidateSlot:'Z'});
+    const contradictoryReturnedSeatOrStarter=[recordA,recordB].some(
+      (record,index)=>!!record&&(
+        ((record.sourceSeat===0||record.sourceSeat===1)&&
+          record.sourceSeat!==sourceSeat)||
+        ((record.candidateSeat===0||record.candidateSeat===1)&&
+          record.candidateSeat!==1-sourceSeat)||
+        ((record.actualStarterSeat===0||record.actualStarterSeat===1)&&
+          record.actualStarterSeat!==firstAtBaseline)
+      ));
     const nativeStoreRegisteredPrintingParity=
       trialIdentityMatched&&samePrivateHashSession&&
       actualNativeInitialStarterVerified&&
       !contradictoryReturnedPrintingDigests&&
+      !contradictoryReturnedSeatOrStarter&&
       ownerSeats.every(seat=>
         seat.trialPairedPrechoiceInputEqual===true&&
         seat.identicalNativePreRunRequest===true&&
         seat.baselineActualSixtyMatchedConfigured===true&&
         seat.protectedActualSixtyMatchedConfigured===true);
-    const sourceSeat=physicalSeat(trialA??{candidateSlot:'Z'});
     const seatAndStarterMatched=trialIdentityMatched&&
       recordA.sourceSeat===sourceSeat&&recordB.sourceSeat===sourceSeat&&
       recordA.candidateSeat===1-sourceSeat&&
@@ -286,6 +299,7 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       originalAndContenderPrintingDigestsMatched:deckPrintingIdentitiesMatched,
       returnedPrintingDigestsComplete,
       contradictoryReturnedPrintingDigests,
+      contradictoryReturnedSeatOrStarter,
       nativeStoreRegisteredPrintingParity,
       physicalSeatsAndFirstPlayerMatched:seatAndStarterMatched,
       nativeFirstPlayerSeatBeforeSetup:actualNativeInitialStarterVerified?
@@ -382,6 +396,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     row.returnedPrintingDigestsComplete).length;
   const contradictoryReturnedPrintingDigestRows=rows.filter(row=>
     row.contradictoryReturnedPrintingDigests).length;
+  const contradictoryReturnedSeatOrStarterRows=rows.filter(row=>
+    row.contradictoryReturnedSeatOrStarter).length;
   const matchingEnginePin=!!baseline.manifest.observedTwinleafGitCommit&&
     baseline.manifest.observedTwinleafGitCommit===
       protectedRun.manifest.observedTwinleafGitCommit&&
@@ -461,6 +477,7 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
         registeredTrialsAndPrintingsMatched,
       completeReturnedPrintingDigestRows,
       contradictoryReturnedPrintingDigestRows,
+      contradictoryReturnedSeatOrStarterRows,
       nativeStoreRegisteredPrintingParity,
       sameObservedPinnedEngine:matchingEnginePin,
       declaredSingleOpeningWrapperContrast:declaredWrapperContrastOnly,
