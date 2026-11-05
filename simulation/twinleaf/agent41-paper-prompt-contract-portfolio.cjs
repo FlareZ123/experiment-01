@@ -7,6 +7,9 @@ const {campingGearPaperVerdict}=
   require('./agent12-campinggear-prompt-paper-hook.cjs');
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
+const {quickBallPaymentNegative}=
+  require('./agent4-quick-ball-paper-payment-hook.cjs');
+const QUICK_BALL_PRINTINGS=new Set(['Quick Ball FST','Quick Ball SSH']);
 /**
  * Check independently observable native PutDamage zero-target, whole-packet
  * and optional total-budget negative restrictions. Do not first call prompt.validate:
@@ -118,7 +121,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v12-prompt-result-settlement';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v13-quick-ball-print-cost';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -324,6 +327,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Roxie CEC source-stamped one-or-two owner Pokémon payment and no-eligible-root exclusions',
        'Ultra Ball MEG source-stamped exactly-two physical discard and insufficient-root exclusions',
       'Secret Box TWM source-stamped exactly-three other physical discard and insufficient-root exclusions',
+      'Quick Ball FST/SSH source-stamped mandatory one OTHER owner-hand discard; optional Basic search is not cost',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
@@ -337,6 +341,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     inspectedUltraBallPaymentPrompts:0,
     inspectedSecretBoxPlayCardRoots:0,vetoedSecretBoxInsufficientRoots:0,
     inspectedSecretBoxPaymentPrompts:0,
+    inspectedQuickBallPlayCardRoots:0,vetoedQuickBallInsufficientRoots:0,
+    inspectedQuickBallPaymentPrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -410,6 +416,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
     if(type==='PlayCardAction'){
       const owner=this.state.players?.find(p=>p.id===action.id);
       const played=owner?.hand?.cards?.[action.handIndex];
+      if(QUICK_BALL_PRINTINGS.has(played?.fullName)){
+        audit.inspectedQuickBallPlayCardRoots++;
+        if(!owner.hand.cards.some(card=>card!==played)){
+          audit.vetoedQuickBallInsufficientRoots++;
+          throw new Error('PAPER_ROOT_INVALID:QUICK_BALL_ONE_OTHER_CARD_REQUIRED');
+        }
+      }
       if(played?.fullName==='Roxie CEC'){
         audit.inspectedRoxiePlayCardRoots++;
         if(!owner.hand.cards.some(card=>card!==played&&
@@ -493,6 +506,16 @@ function withPaperPromptContractPortfolio(run,deps={}){
       sourcePrinting='Ultra Ball MEG';
       contract='printed-ultra-ball-exactly-two-physical-discard-negative';
       const rejected=independentUltraBallPaymentNegative(prompt,action.result);
+      if(rejected)status='PAPER_PROMPT_INVALID';
+      reason=rejected??'only-negative-predicates-audited';
+    }else if(family==='ChooseCardsPrompt'&&
+              QUICK_BALL_PRINTINGS.has(prompt?.sourceCard?.fullName)&&
+              prompt.message==='CHOOSE_CARD_TO_DISCARD'){
+      audit.inspectedQuickBallPaymentPrompts++;
+      sourcePrinting=prompt.sourceCard.fullName;
+      contract='printed-quick-ball-exactly-one-other-owner-hand-discard-negative';
+      const owner=this.state.players?.find(p=>p.id===prompt.playerId);
+      const rejected=quickBallPaymentNegative(prompt,action.result,owner);
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
