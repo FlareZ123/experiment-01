@@ -21,9 +21,15 @@ class ShowCardsPrompt{
     this.result=undefined;
   }
 }
+class PassTurnAction{}
 class FakeStore{
   constructor(state){this.state=state;}
   dispatch(action){
+    if(action instanceof PassTurnAction){
+      this.state.turn++;
+      this.state.activePlayer=1-this.state.activePlayer;
+      return this.state;
+    }
     const prompt=this.state.prompts.find(p=>p.id===action.id);
     assert.ok(prompt);
     assert.equal(prompt.result,undefined);
@@ -95,4 +101,41 @@ test('unassociated opponent reveal never leaks pending unshown selected Supporte
   assert.deepEqual(observed.audit.publicReveals,[]);
   assert.equal(observed.audit.readsOpponentHiddenDeck,false);
   assert.equal(observed.audit.competitivelyQualifiedGames,0);
+});
+
+test('accepted source pass after public Reveal records exact held card and bounded native canPlay, no hidden cards',()=>{
+  const card={trainerType:'SUPPORTER',fullName:'Marnie SSH',
+    canPlay:(target,state,player)=>{
+      assert.equal(target,null);
+      assert.equal(state.turn,2);
+      assert.equal(player.id,11);
+      return true;
+    }};
+  const owner={id:11,deck:{cards:[card]},hand:{cards:[card]},
+    supporterTurn:0,cannotPlaySupporterCards:false};
+  const opponent={id:22,deck:{cards:[]},hand:{cards:[]}};
+  const state={turn:2,activePlayer:0,players:[owner,opponent],prompts:[]};
+  const store=new FakeStore(state);
+  const observed=withPublicSupporterRevealWitness(()=>{
+    state.prompts=[new ChooseCardsPrompt(18,owner.id,owner.deck)];
+    store.dispatch(new ResolvePromptAction(18,[card]));
+    state.prompts=[new ShowCardsPrompt(19,opponent.id,[card])];
+    store.dispatch(new ResolvePromptAction(19,true));
+    state.prompts=[];
+    store.dispatch(new PassTurnAction());
+    return state.turn;
+  },dependencies);
+  assert.equal(observed.result,3);
+  assert.equal(observed.audit.matchedNativeAcceptedPublicSupporterReveals,1);
+  assert.deepEqual(observed.audit.sourceOwnerPassAfterPublicReveal,[{
+    sourceOwnerSeat:0,turn:2,
+    revealedSupporterPrinting:'Marnie SSH',
+    samePhysicalSelectedSupporterStillHeld:true,
+    nativeSupporterTurnQuotaBeforePass:0,
+    nativeSupporterPlayLockBeforePass:false,
+    nativeNullTargetCanPlay:'true',
+    nullTargetCanPlayDoesNotCertifyTargetLegality:true,
+    publishedOnlyAfterOpponentAcceptedReveal:true,
+    actualNativePassAccepted:true
+  }]);
 });
