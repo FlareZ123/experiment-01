@@ -1,0 +1,84 @@
+{
+  "schema": "agent35-issue25-original-source-v5-pass-opportunity-pair-v1",
+  "registeredAtUtc": "2026-11-05T17:29:00Z",
+  "evidenceClass": "retrospective selection of two accepted Pass roots from previously executed original source v5; forward instrumented diagnostics require distinct registration",
+  "sourceWorkflowRun": 42059191496,
+  "artifactId": 13432225055,
+  "archiveZipSha256": "b85d014b6abb84cb82394fc3db483751ba85ff5d2cd99f173330afcc544a73e3",
+  "jsonMember": "issue25-steward-v5.json",
+  "jsonMemberBytes": 147651,
+  "jsonMemberSha256": "22eacafb175bcc1ee365eeea3189c703c256f5555a8118dd68c988edda44cc17",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceAttemptCount": 8,
+  "selectedRootCount": 2,
+  "originalRootCap": 48,
+  "eligibilityStatus": "not-a-paper-legality-claim",
+  "roots": [
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceRank": 6,
+      "sourceSeat": 0,
+      "candidateSeat": 1,
+      "actualFirstPlayer": 1,
+      "turn": 2,
+      "passRootOrdinal": 17,
+      "priorOpponentRoot": {
+        "ordinal": 14,
+        "action": "PassTurnAction",
+        "turn": 1
+      },
+      "observedFollowingOpponentRoot": {
+        "ordinal": 20,
+        "action": "PlayCardAction",
+        "card": "Psychic Energy",
+        "turn": 3
+      },
+      "sourceDealFingerprint": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "fullPhysicalDealFingerprint": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "originalAcceptedRootLedgerSha256": "d8921fcb1ab313e09c8523488f328769fc971e106b7cfd3aae8d7c0ba3dab222",
+      "ownerHandAtRoot": "not-recorded-in-public-archive",
+      "payableAlternativeAtRoot": "unknown"
+    },
+    {
+      "id": "11:102:A:champion-reference",
+      "sourceRank": 11,
+      "sourceSeat": 1,
+      "candidateSeat": 0,
+      "actualFirstPlayer": 0,
+      "turn": 8,
+      "passRootOrdinal": 37,
+      "immediatelyPrecedingSourcePlay": {
+        "ordinal": 36,
+        "action": "PlayCardAction",
+        "card": "Squawkabilly ex"
+      },
+      "observedFollowingOpponentAttack": {
+        "ordinal": 41,
+        "action": "AttackAction",
+        "attack": "Eon Blade",
+        "turn": 9
+      },
+      "sourceDealFingerprint": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "fullPhysicalDealFingerprint": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "originalAcceptedRootLedgerSha256": "2a0bbc4fc8574ebe8069176d15fe4691fb731b80a461ab73d574a176a2f7c070",
+      "ownerHandAtRoot": "not-recorded-in-public-archive",
+      "payableAlternativeAtRoot": "unknown"
+    }
+  ],
+  "requiredNextDiagnostic": {
+    "preserveExactly": "both original printed 60s; candidate printed 60; source and entire starting deals; actual seats; pinned engine and research SHA; source current owner-visible hand and public board; lock/quota flags; genuine Store selection and prompts; real opponent continuation",
+    "neverInferFromPass": "paper-legal attack, energy availability, Supporter affordability, absence of hidden card search target or source attack policy competence",
+    "mandatoryFailureOutcomes": [
+      "unreached",
+      "paper-ineligible",
+      "Store-rejected",
+      "prompt-abort",
+      "root-cap-censored",
+      "native-terminal-unqualified",
+      "competitively-qualified"
+    ],
+    "sourceIndependentPolicyRequiredForFieldClaim": true,
+    "allEightOriginalArmsRetained": true,
+    "competitiveQualifiedGames": 0
+  }
+}
