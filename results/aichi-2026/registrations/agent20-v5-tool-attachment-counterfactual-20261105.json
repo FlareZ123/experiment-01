@@ -1,0 +1,50 @@
+{
+  "schema": "agent20-issue25-original-v5-registered-tool-attachment-counterfactual-v1",
+  "registeredAtUtc": "2026-11-05T17:58:40Z",
+  "causalScope": "retrospective exact-state mechanistic test, not prospective field-win sample",
+  "referenceNativeRun": 42078785352,
+  "referenceArtifactId": 13438739276,
+  "referenceOwnerEvidenceSha256": "bb0a9545ed1d20678a1261478f4e099dcfd8cfa3c71bc5b60b453c0ceae79d6c",
+  "referenceOriginalV5Run": 42059191496,
+  "referenceOriginalV5ArchiveSha256": "22eacafb175bcc1ee365eeea3189c703c256f5555a8118dd68c988edda44cc17",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalFrozenAttemptCount": 8,
+  "nativeRootCap": 48,
+  "sourceIndependentDecisionAlgorithm": false,
+  "interventionScope": "two previously registered source-owner Pass roots, fixed hand-printing and free active recipient; all other decisions unchanged",
+  "expectedQualifiedGames": 0,
+  "targets": [
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceRank": 6,
+      "sourceSeat": 0,
+      "candidateSeat": 1,
+      "globalTurn": 2,
+      "passRootOrdinal": 17,
+      "toolPrinting": "Tool Jammer BST",
+      "sourceCardId": "swsh5-136",
+      "targetSlot": "active",
+      "targetIndex": 0,
+      "expectedOwnerVisibleSha256": "0d8b620114682a7b91b59928a00e8739b42d81707f319bcf0a30ef62eec6060c",
+      "originalPreDecisionPublicRootPrefixSha256": "dc83fc355435b8d25fcc8a8b4df95497266418b742f80841b6cf0afba1a2f75d",
+      "expectedSourcePhysicalDealSha256": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "expectedFullPhysicalDealSha256": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861"
+    },
+    {
+      "id": "11:102:A:champion-reference",
+      "sourceRank": 11,
+      "sourceSeat": 1,
+      "candidateSeat": 0,
+      "globalTurn": 8,
+      "passRootOrdinal": 37,
+      "toolPrinting": "Float Stone BKT",
+      "sourceCardId": "xy8-137",
+      "targetSlot": "active",
+      "targetIndex": 0,
+      "expectedOwnerVisibleSha256": "fee977b224092252c2fe61329e229d429d5e12c52d00a0c7a4ab2fc741f61e7f",
+      "originalPreDecisionPublicRootPrefixSha256": "12be9779bc0f741d300c61ccbb2a9e54c16cb70e9d5621e68e5fb992306b1386",
+      "expectedSourcePhysicalDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "expectedFullPhysicalDealSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48"
+    }
+  ]
+}
