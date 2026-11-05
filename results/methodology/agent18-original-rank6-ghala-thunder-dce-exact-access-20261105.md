@@ -33,7 +33,7 @@ Collapse the authenticated printed 60 into six categories with counts `(4,2,2,1,
 
 Constrain `x_B ≥ 1`. For each weighted outcome count an accessible G&H, the two singleton Prize indicators `y_M=y_D=0`, and whether the number of non-Basic, non-held-resource cards left for paid G&H is at least two. Divide the corresponding integer sum by the full legal-opening-conditioned sample count above; reduce with integer GCD. The implementation computes every term with `BigInt` and asserts the weighted enumeration exactly reconstructs the denominator, avoiding Monte Carlo or floating-point sampling error.
 
-The independent Python calculation using exact `math.comb` and `fractions.Fraction` produced the same fractions as the committed CJS implementation's assertions. A separate deterministic 350,000-opening Monte Carlo provided an initial cross-check with finite sampling error; the **exact** enumeration supersedes its reported percentages.
+An independent Python enumeration using exact `math.comb` and `fractions.Fraction` produced the fractions recorded in the committed CJS regression assertions. The new CJS module and tests have not yet executed in GitHub CI; their runtime verification remains outstanding. A separate deterministic 350,000-opening Monte Carlo provided an initial cross-check with finite sampling error; the **exact** Python enumeration supersedes its sampled percentages.
 
 ## Interpretation
 
