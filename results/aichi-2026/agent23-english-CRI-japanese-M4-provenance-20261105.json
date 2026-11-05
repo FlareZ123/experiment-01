@@ -1,0 +1,62 @@
+{
+  "schema": "agent23-original-aichi-print-equivalence-CRI-to-M4-v1",
+  "sourceArchive": "results/aichi-2026/full-decklists.json",
+  "englishSetMetadata": "resources/sets/en.json",
+  "benchmarkEventDate": "2026-05-10",
+  "originalSourceNameCountSixtiesUnchanged": true,
+  "englishDisplaySet": {
+    "code": "CRI",
+    "id": "me4",
+    "name": "Chaos Rising",
+    "releaseDate": "2026-05-22"
+  },
+  "japaneseSourceSet": {
+    "code": "M4",
+    "name": "Ninja Spinner",
+    "releaseDate": "2026-03-13",
+    "officialReleaseSource": "https://www.pokemoncenter-online.com/9900000007898.html",
+    "officialSetSource": "https://www.pokemon-card.com/ex/m4/"
+  },
+  "sourceRows": [
+    {
+      "rank": 5,
+      "archetype": "Mew Genesect",
+      "name": "Special Red Card",
+      "count": 2,
+      "englishPrinting": "CRI 82",
+      "japaneseOriginal": "M4 072/083",
+      "japaneseOfficialCardSource": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all",
+      "internationalCrosswalk": "https://limitlesstcg.com/cards/CRI/82",
+      "japaneseOriginalPreEvent": true,
+      "englishDisplayPostEvent": true
+    },
+    {
+      "rank": 16,
+      "archetype": "Absol Garbodor",
+      "name": "Trubbish",
+      "count": 2,
+      "englishPrinting": "CRI 56",
+      "japaneseOriginal": "M4 054/083",
+      "japaneseOfficialCardSource": "https://www.pokemon-card.com/card-search/details.php/card/50138",
+      "internationalCrosswalk": "https://limitlesstcg.com/cards/CRI/56",
+      "japaneseOriginalPreEvent": true,
+      "englishDisplayPostEvent": true
+    },
+    {
+      "rank": 26,
+      "archetype": "Meloetta Donk",
+      "name": "Special Red Card",
+      "count": 1,
+      "englishPrinting": "CRI 82",
+      "japaneseOriginal": "M4 072/083",
+      "japaneseOfficialCardSource": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all",
+      "internationalCrosswalk": "https://limitlesstcg.com/cards/CRI/82",
+      "japaneseOriginalPreEvent": true,
+      "englishDisplayPostEvent": true
+    }
+  ],
+  "recordedRows": 3,
+  "recordedCopies": 5,
+  "paperExpandedLegalityCertified": false,
+  "scope": "Only three archived CRI English display-print annotations with official earlier Japanese counterparts. Does not resolve other promo/energy codes or certify entire source decks."
+}
