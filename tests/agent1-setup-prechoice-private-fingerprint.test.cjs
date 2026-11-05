@@ -33,7 +33,7 @@ function mockNative(){
     'game/game-message':{GameMessage:{
       CHOOSE_STARTING_POKEMONS:'CHOOSE_STARTING_POKEMONS'
     }},
-    'game/store/state/state':{GamePhase:{SETUP:1}}
+    'game/store/state/state':{GamePhase:{SETUP:1,PLAYER_TURN:2}}
   };
   const engine=name=>{
     assert.ok(Object.prototype.hasOwnProperty.call(exportMap,name),name);
@@ -200,4 +200,38 @@ test('an unregistered native Store label fails closed and restores runner hook',
     }
   ),/not a registered trial/);
   assert.equal(headless.runMatch,original);
+});
+
+test('genuine first-turn action records only public Pokémon board cardinality and HMAC',()=>{
+  const n=mockNative();
+  const out=withSetupPrechoicePrivateFingerprint(()=>{
+    const players=[n.owner(11,'public-first'),n.owner(22,'public-second')];
+    const state={players,turn:0,phase:1,activePlayer:1,prompts:[]};
+    const store=new n.Store(state);
+    store.dispatch(new n.AddPlayerAction());
+    for(const p of players){
+      state.prompts=[new n.ChooseCardsPrompt(p)];
+      new n.SimpleTacticsAi(p.id).decodeNextAction(state);
+    }
+    state.prompts=[];
+    state.turn=1;state.phase=2;
+    players[0].active={getPokemonCard:()=>({fullName:'PUBLIC_ACTIVE_A'})};
+    players[0].bench=[
+      {getPokemonCard:()=>({fullName:'PUBLIC_BENCH_A'})},
+      {getPokemonCard:()=>null}
+    ];
+    players[1].active={getPokemonCard:()=>({fullName:'PUBLIC_ACTIVE_B'})};
+    players[1].bench=[{getPokemonCard:()=>null}];
+    store.dispatch({type:'first-real-turn-action'});
+    store.dispatch({type:'second-real-turn-action'});
+    return true;
+  },{engine:n.engine});
+  assert.equal(out.result,true);
+  assert.equal(out.audit.firstTurnBoardObservations,1);
+  assert.equal(out.audit.firstTurnBoardEvents.length,1);
+  const boards=out.audit.firstTurnBoardEvents[0].boards;
+  assert.deepEqual(boards.map(b=>b.benchOccupied),[1,0]);
+  assert.deepEqual(boards.map(b=>b.activePresent),[true,true]);
+  assert.ok(boards.every(b=>/^[0-9a-f]{64}$/.test(b.publicBoardHmacSha256)));
+  assert.ok(!JSON.stringify(out.audit).includes('PUBLIC_BENCH_A'));
 });
