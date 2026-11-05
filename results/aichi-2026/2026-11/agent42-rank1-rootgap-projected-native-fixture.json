@@ -292,5 +292,48 @@
     ],
     "sourceActiveDamageBefore": 0,
     "sourceActiveDamageAfter": 10
+  },
+  "sourceMaxGeistPrizeFollowthrough": [
+    {
+      "actionOrdinal": 168,
+      "turnBefore": 34,
+      "opponentActive": "Lunatone",
+      "sourcePrizesBefore": 6,
+      "sourcePrizesAfter": 5,
+      "settledPromptChain": true
+    },
+    {
+      "actionOrdinal": 179,
+      "turnBefore": 36,
+      "opponentActive": "Klefki",
+      "sourcePrizesBefore": 5,
+      "sourcePrizesAfter": 4,
+      "settledPromptChain": true
+    },
+    {
+      "actionOrdinal": 191,
+      "turnBefore": 38,
+      "opponentActive": "Unown",
+      "sourcePrizesBefore": 4,
+      "sourcePrizesAfter": 3,
+      "settledPromptChain": true
+    },
+    {
+      "actionOrdinal": 202,
+      "turnBefore": 40,
+      "opponentActive": "Mewtwo & Mew-GX",
+      "sourcePrizesBefore": 3,
+      "sourcePrizesAfter": 0,
+      "settledPromptChain": true
+    }
+  ],
+  "nativeTerminal": {
+    "finished": true,
+    "winnerSeat": 1,
+    "endReason": "engine-game-end",
+    "finalPrizes": [
+      6,
+      0
+    ]
   }
 }
