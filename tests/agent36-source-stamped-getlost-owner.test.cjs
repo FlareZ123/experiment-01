@@ -238,3 +238,41 @@ test('zero-card Get Lost acceptance never counts as a positive Lost Zone transfe
   assert.equal(out.audit.selectedEvents[0].exactLostZoneTransferConfirmed,
     false);
 });
+
+for(const seat of [0,1]){
+  test('Get Lost silent Store no-op never counts accepted seat '+seat,()=>{
+    const x=mock();
+    const original=x.Store.prototype.dispatch;
+    x.Store.prototype.dispatch=function(a){return a instanceof x.ResolvePromptAction?this.state:original.call(this,a);};
+    const actor={id:'owner'},other={id:'enemy',discard:{cards:[{},{}]}};
+    const state={turn:3,players:seat?[other,actor]:[actor,other],prompts:[]};
+    let error;
+    try{withSourceStampedGetLostOwner(()=>{
+      const store=new x.Store(state);store.dispatch(new x.AddPlayerAction());
+      const pokemon=new x.Girafarig();
+      pokemon.reduceEffect(store,state,new x.AttackEffect(actor,pokemon.attacks[0]));
+      store.dispatch(new x.SimpleTacticsAi(actor.id).decodeNextAction(state));
+    },{engine:x.engine});}catch(e){error=e;}
+    finally{x.Store.prototype.dispatch=original;}
+    assert.match(error?.message??'',/without resolving source prompt/);
+    assert.equal(error.agent36GetLostAudit.acceptedStoreActions,0);
+    assert.equal(error.agent36GetLostAudit.nativeUnsettledSourcePrompts,1);
+    assert.equal(other.discard.cards.length,2);
+  });
+  test('Get Lost stale pending prompt veto seat '+seat,()=>{
+    const x=mock();
+    const actor={id:'owner'},other={id:'enemy',discard:{cards:[{},{}]}};
+    const state={turn:3,players:seat?[other,actor]:[actor,other],prompts:[]};
+    let error;
+    try{withSourceStampedGetLostOwner(()=>{
+      const store=new x.Store(state);store.dispatch(new x.AddPlayerAction());
+      const pokemon=new x.Girafarig();
+      pokemon.reduceEffect(store,state,new x.AttackEffect(actor,pokemon.attacks[0]));
+      const choice=new x.SimpleTacticsAi(actor.id).decodeNextAction(state);
+      state.prompts.length=0;store.dispatch(choice);
+    },{engine:x.engine});}catch(e){error=e;}
+    assert.match(error?.message??'',/source prompt must still be pending/);
+    assert.equal(error.agent36GetLostAudit.acceptedStoreActions,0);
+    assert.equal(other.discard.cards.length,2);
+  });
+}
