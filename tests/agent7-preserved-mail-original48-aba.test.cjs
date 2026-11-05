@@ -67,7 +67,7 @@ test('rejects changed source full deal while restoring environment',()=>{
   };
   const before=FLAGS.map(name=>[name,process.env[name]]);
   assert.throws(()=>runPreservedMailTurn5Aba({...deps,execute}),
-    /Expected values to be strictly equal/);
+    /6:100:A:champion-reference/);
   for(const [name,value] of before)assert.equal(process.env[name],value);
 });
 
