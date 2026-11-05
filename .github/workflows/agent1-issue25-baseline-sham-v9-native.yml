@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Probe Wonder Tag and Iron Thorns before-versus-after-Bench Ability lock
+        run: node --test tests/agent1-wondertag-iron-thorns-entry-timing.native.test.cjs
       - name: Two exact registered same-opening baseline campaigns
         env:
           ISSUE25_SHAM_RECEIPT_DIR: artifacts/agent1-issue25-sham-v9
