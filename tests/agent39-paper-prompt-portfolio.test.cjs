@@ -169,3 +169,64 @@ test('missing live identity cannot certify a staged prompt',()=>{
   assert.equal(out.audit.paperInvalidVetoed,0);
   assert.equal(out.audit.unattributedResolutionCount,1);
 });
+
+for(const seat of [0,1]){
+  for(const mode of ['silent-noop','removed-unresolved','assigned-without-effect']){
+    test('source Volt settlement rejects return-only '+mode+' seat '+seat,()=>{
+      const f=fixture(seat);
+      class FakeStore extends Store{
+        dispatch(action){
+          if(action instanceof ResolvePromptAction){
+            const p=this.state.prompts.find(x=>x.id===action.id);
+            if(mode==='removed-unresolved'){
+              this.state.prompts.splice(this.state.prompts.indexOf(p),1);
+            }else if(mode==='assigned-without-effect'){
+              p.result=action.result;
+            }
+            return this.state;
+          }
+          return super.dispatch(action);
+        }
+      }
+      const store=new FakeStore(f.state),card=new IronThornsex();
+      const output=withPaperPromptPortfolio(()=>{
+        card.reduceEffect(store,f.state,
+          new AfterAttackEffect(f.owner,card.attacks[0]));
+        store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+        return true;
+      },{Store:FakeStore,IronThornsex,types,liveStore:store});
+      assert.equal(output.result,true);
+      assert.equal(output.audit.liveNativeReturnedWithoutThrow,1);
+      assert.equal(output.audit.paperVerifiedNativeAccepted,0);
+      assert.equal(output.audit.livePaperVerifiedPhysicalEffect,0);
+      assert.equal(output.audit.livePaperVerifiedWithoutPhysicalEffect,1);
+      assert.equal(f.owner.active.cards.includes(f.energy),true);
+      assert.equal(f.owner.bench[0].cards.includes(f.energy),false);
+      assert.equal(output.audit.events[0].nativeAccepted,false);
+      assert.equal(output.audit.events[0].nativeReturnedWithoutThrow,true);
+      assert.equal(output.audit.events[0].physicalEffectVerified,false);
+      const settled=(mode==='assigned-without-effect');
+      assert.equal(output.audit.events[0].nativePromptSettled,settled);
+      assert.equal(output.audit.liveNativeSilentNoop,settled?0:1);
+      assert.equal(output.audit.liveNativePromptSettled,settled?1:0);
+      assert.equal(output.audit.events[0].status,settled?
+        'PAPER_PROMPT_SETTLED_EFFECT_UNVERIFIED':
+        'PAPER_PROMPT_NATIVE_UNSETTLED');
+    });
+  }
+}
+for(const seat of [0,1])test('live Volt physical transfer positive receipts seat '+seat,()=>{
+  const f=fixture(seat),store=new Store(f.state),card=new IronThornsex();
+  const observed=withPaperPromptPortfolio(()=>{
+    card.reduceEffect(store,f.state,
+      new AfterAttackEffect(f.owner,card.attacks[0]));
+    store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+  },{Store,IronThornsex,types,liveStore:store});
+  assert.equal(observed.audit.liveNativeReturnedWithoutThrow,1);
+  assert.equal(observed.audit.liveNativePromptSettled,1);
+  assert.equal(observed.audit.liveNativeSilentNoop,0);
+  assert.equal(observed.audit.livePaperVerifiedPhysicalEffect,1);
+  assert.equal(observed.audit.paperVerifiedNativeAccepted,1);
+  assert.equal(observed.audit.events[0].nativeAccepted,true);
+  assert.equal(observed.audit.events[0].physicalEffectVerified,true);
+});
