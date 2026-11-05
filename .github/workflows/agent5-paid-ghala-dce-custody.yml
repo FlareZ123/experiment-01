@@ -1,0 +1,44 @@
+name: Agent5 bounded original-source paid G&H DCE physical custody
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-dce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - name: Check out immutable research code
+        uses: actions/checkout@v4
+      - name: Check out only the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile the pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Test read-only source owner physical-card custody observer
+        run: node --test tests/agent5-paid-ghala-dce-owner-witness.test.cjs
+      - name: Replay only the exact eight v9 original source/candidate physical deals
+        env:
+          AGENT5_PAID_GHALA_DCE_OUTPUT: agent5-paid-ghala-dce-native.json
+        run: node simulation/evaluation/agent5-ghala-dce-owner-witness-v1.cjs
+      - name: Preserve all eight native statuses, owner DCE zones, and SHA256 digest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-paid-ghala-dce-physical-custody-native
+          path: |
+            agent5-paid-ghala-dce-native.json
+            agent5-paid-ghala-dce-native.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
