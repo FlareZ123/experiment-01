@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rootDigest, certifiedMaterialChoice, evaluateBilateralCompetence,
+const {rootDigest, verifiedMaterialTransition,
+  certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
@@ -21,8 +22,18 @@ function certificate(root, suffix) {
     ownerInformationOnly:true, independentReviewer:'independent-reviewer',
     paperEvidenceRef:'rules/' + suffix,
     physicalReceiptRef:'archive/' + suffix,
-    consequenceType:root.action==='AttackAction'?'settled-attack':
+    consequenceType:root.action==='AttackAction'?'damage-transition':
       root.action==='PlayCardAction'?'resource-transfer':'energy-custody',
+    effectWitness:{
+      type:root.action==='AttackAction'?'damage-transition':
+        root.action==='PlayCardAction'?'resource-transfer':'energy-custody',
+      sourceActionRootOrdinal:root.actionOrdinal,changedUnits:1,
+      realNativeStateChange:true,paperRelevantTransition:true,
+      costPaymentOnly:false,independentlyReviewed:true,
+      beforeStateEvidenceRef:'before/' + suffix,
+      afterStateEvidenceRef:'after/' + suffix,
+      effectEvidenceRef:'archive-effect/' + suffix
+    },
     ownerOpportunityAudit:{actualRootOwnerView:true,
       exhaustivePaperAffordableScan:true,independentReview:true,
       evidenceRef:'owner-audit/' + suffix,
@@ -290,4 +301,48 @@ test('an archived AttackAction declaration alone cannot assert settled counterpl
   assert.equal(report.anySourceAttackSequenceContexts,1);
   assert.equal(report.attackAnchorSettledBeforeReplyContexts,0);
   assert.equal(report.competitiveGamesQualified,0);
+});
+
+test('a zero-heal Tapu Cure-GX AttackAction never passes as material',()=>{
+  const before=trialFor();
+  const cure=before.actionCertificates[0];
+  cure.consequenceType='damage-transition';
+  cure.effectWitness.type='damage-transition';
+  cure.effectWitness.changedUnits=0;
+  assert.equal(verifiedMaterialTransition(cure),false);
+  assert.equal(certifiedMaterialChoice(cure,roots[0]),false);
+  const result=evaluateBilateralCompetence(before);
+  assert.equal(result.structuralGatePassed,false);
+  assert.equal(result.reciprocalEpisodeObserved,false);
+  assert.equal(result.competitiveAdmission,false);
+});
+test('an energy or GX resource paid only as a no-op cost is not an effect witness',()=>{
+  const before=trialFor();
+  before.actionCertificates[0].effectWitness.costPaymentOnly=true;
+  assert.equal(verifiedMaterialTransition(before.actionCertificates[0]),false);
+  assert.equal(evaluateBilateralCompetence(before).reciprocalEpisodeObserved,false);
+  before.actionCertificates[0].effectWitness.costPaymentOnly=false;
+  before.actionCertificates[0].consequenceType='settled-attack';
+  before.actionCertificates[0].effectWitness.type='settled-attack';
+  assert.equal(verifiedMaterialTransition(before.actionCertificates[0]),false);
+});
+test('unanchored or identical native before-and-after receipts fail material audit',()=>{
+  const before=trialFor();
+  const c=before.actionCertificates[0];
+  c.effectWitness.sourceActionRootOrdinal=5;
+  assert.equal(verifiedMaterialTransition(c),false);
+  c.effectWitness.sourceActionRootOrdinal=c.rootOrdinal;
+  c.effectWitness.afterStateEvidenceRef=c.effectWitness.beforeStateEvidenceRef;
+  assert.equal(verifiedMaterialTransition(c),false);
+});
+test('positive damage, healing, or information changes require verified units and receipts',()=>{
+  const before=trialFor();
+  const cert=before.actionCertificates[0];
+  assert.equal(verifiedMaterialTransition(cert),true);
+  cert.consequenceType='information-transition';
+  cert.effectWitness.type='information-transition';
+  cert.effectWitness.changedUnits=3;
+  assert.equal(verifiedMaterialTransition(cert),true);
+  cert.effectWitness.paperRelevantTransition=false;
+  assert.equal(verifiedMaterialTransition(cert),false);
 });
