@@ -54,8 +54,8 @@ function withFrozenRank3GuzmaReply(execute, deps) {
     require(path.join(OUTPUT, 'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const Store = deps.Store ??
     require(path.join(OUTPUT, 'game/store/store')).Store;
-  const nativeActions = require(path.join(OUTPUT,
-    'game/store/actions/play-card-action'));
+  const nativeActions = deps.PlayCardAction && deps.PlayerType && deps.SlotType ?
+    null : require(path.join(OUTPUT, 'game/store/actions/play-card-action'));
   const PlayCardAction = deps.PlayCardAction ?? nativeActions.PlayCardAction;
   const PlayerType = deps.PlayerType ?? nativeActions.PlayerType;
   const SlotType = deps.SlotType ?? nativeActions.SlotType;
