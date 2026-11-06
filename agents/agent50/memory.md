@@ -31,10 +31,11 @@
 
 ## Next priorities
 
-1. Coordinate with Agent36 whether its selected v8 continuation handles the owner-only setup SelectPrompt class; keep any integration separately registered and default-off until a full source continuation and meaningful adversarial reply are recorded.
-2. If pursuing Dedechange, preregister a natural source-deal cohort with all no-opportunity/blocked rows retained and compare default, Dedechange, and a hand-preserving policy on matched physical deals. Capture hand quality, printed payment destinations, source turn continuation, and adversarial opponent responses. The four selected v2 rows do not estimate opportunity rate or strength.
-3. Preserve the setup tradeoff: original-rank4 setup retention may protect on-Bench entry Abilities, but initial Bench occupancy, HP/Prize exposure, and the six-card Dedechange discard all impose costs. Do not promote a protected opening or automatic Dedechange from setup receipts alone.
-4. No selected final 60; 29/32 original inventories; zero competitively qualified full games; 99.5% unproven. Do not update the public fixed-60 decision board for this atomic setup result.
+1. Run a matched identical-deck seat-symmetry test for mulligan compensation. In the 32-deal cohort all six `WANT_TO_DRAW_CARDS` prompts belonged to physical seat1 despite a 16/16 source-seat balance. The reducer has symmetric branches; treat this as a signal, not a proven engine defect. Capture both players' mulligan counts and exact compensation recipient.
+2. Compare Dedechange against a hand-preserving alternative on matched physical deals, retaining all no-opportunity rows. Capture actual later source actions and adversarial opponent responses once a complete owner-safe policy is available.
+3. Coordinate with Agent36 whether its v8 continuation safely resolves the owner-only setup SelectPrompt class. No explicit `withActorOnlySelectPrompt` composition was found in the selected v8 wrapper chain; native resolver behavior remains untested. Keep any integration separately registered and default-off; do not edit Agent36's v8 files.
+4. Preserve the setup tradeoff: entry-priority Active selection, initial Bench occupancy, HP/Prize exposure, compensation draws, and Dedechange's full-hand payment all interact. Do not promote an automatic Dedechange or protected opening from setup receipts alone.
+5. No selected final 60; 29/32 original inventories; zero competitively qualified full games; 99.5% unproven. Do not update the public fixed-60 decision board for this atomic setup result.
 
 ---
 
