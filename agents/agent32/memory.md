@@ -240,3 +240,20 @@ The objective remains one fixed legal playable 60-card paper Expanded deck again
 - Benchmark unchanged: 29/32 authenticated originals, zero qualified games, no final 60 or 99.5% evidence.
 
 Checkpoint time 2026-11-06T17:16:17.769Z. Original lease is 2026-11-06T16:57:35.069Z; do not refresh. Release threshold 2026-11-06T18:07:35.069Z UTC. After this checkpoint, compare the original lease with the actual clock and continue while elapsed <70 minutes.
+
+
+### 6 November 2026 17:20 UTC: Telepath audit verified; ConfirmPrompt sources identified
+
+- Second manual run **42259934232** completed the v8 Telepath step at checkout `8e9672b6e2f9291e3be0cd7ccb82e85b8b96114f`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Artifact 13524921310 ZIP SHA256 `adcfed62f4a2e42cb4405e480dc792522d1276c86c30f7228c7c37cc0825eac0`; control JSON SHA256 `7bc84b6a99f9e8bda68cc56801d8dda8f3aed1b6ebda9df78a668f8e5140af2c`; treatment JSON SHA256 `6c21758aeb4b2af65d2635440849d9787174d2b2257b4c20b4c937826d11f8b7`. JSON sidecars independently match.
+- Full manifest-embedded Telepath audit: rank6/New Moon had 1 accepted attachment, 1 fresh owner-deck prompt, 1 submitted/settled selection, 2 physical Basic Psychic Bench transfers (Klefki SVI, Latias ex SSP), shuffle offered; rank11/New Moon had 1 attachment/search/settlement and 1 physical transfer (Gengar & Mimikyu-GX TEU), shuffle offered. Both: zero rejection, unsettled prompt, custody failure or missing shuffle. No unopened-deck or opponent-hidden reads. Other six arms had no Telepath prompts.
+- Verified paired result: control 5/8 errors + 3/8 root128; Telepath treatment 3/8 errors + 5/8 root128. Both former ChooseCards aborts now reach 128. All eight exact prior-root prefixes and within-arm source/full physical deal fingerprints match.
+- **Correction to earlier speculative next-step note:** the three Confirm/WANT_TO_USE_ABILITY prompts are not generic Wonder Tag candidates. Pinned source and matching last accepted root/owner seat identify exact effects:
+  - rank1 champion-reference root97 played Radiant Eternatus; same seat0/turn22 prompt is Radiant Eternatus CRZ **Climactic Gate** ConfirmPrompt on PlayPokemonEffect. Its follow-up VMAX ChooseCardsPrompt has `allowCancel:false`, unlike the Telepath prompt.
+  - rank3 champion-reference root105 and rank3 New Moon root92 played Articuno-GX; same seat1/turn27 prompts are Articuno-GX CES **Legendary Ascent** ConfirmPrompts on PlayPokemonEffect. If accepted, the effect switches Articuno and may create a Water Energy MoveEnergyPrompt.
+  - Pinned files: `ptcg-server/src/sets/09-sword-and-shield/set-crown-zenith/radiant-eternatus.ts`; `ptcg-server/src/sets/08-sun-and-moon/set-celestial-storm/articuno-gx.ts`.
+- The pinned `ConfirmPromptResolver` returns `ResolvePromptAction(prompt.id,false)` for every ConfirmPrompt. Next best liveness experiment: implement a prompt-only owner-safe default-false resolver (no raw State reads), instrument native Store acceptance/settlement, then run a separate same-eight v8 treatment composed with Telepath. This reproduces the current SimpleTacticsAi baseline; it is not an optimal opponent strategy and must remain development-only.
+- Updated report: `results/methodology/agent32-v8-native-prompt-abort-classification-20261106.md`; broadcast: `communications/broadcast/20261106_agent32_v8_telepath_audit_confirm_sources.md`.
+- Second overall abort-custody job still failed at unrelated Agent42 step61. Our v8 Telepath test and artifact succeeded. Agent42 lease was active; no changes made to their test suite.
+- Benchmark remains 29/32 authenticated originals, zero qualified games, no final deck, no 99.5% evidence.
+
+Checkpoint time 2026-11-06T17:23:06.835Z. Original Agent32 lease is `2026-11-06T16:57:35.069Z`; release threshold `2026-11-06T18:07:35.069Z UTC`. Do not refresh lease. After this checkpoint compare lease timestamp with actual clock and continue while elapsed <70 minutes.
