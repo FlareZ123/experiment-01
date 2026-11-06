@@ -75,7 +75,7 @@ test('a changed accepted root or opening is never called observational parity', 
   for (const mutate of [
     f => {f.observed.native.rows[0].rootActionLedger[0].actionOrdinal = 999;},
     f => {f.observed.native.rows[0].fullPhysicalDealFingerprint = 'other';},
-    f => {f.observed.native.rows[0].winner = 1;},
+    f => {f.observed.native.rows[0].winner = 0;},
     f => {f.observed.native.rows[0].rootActionLedgerSha256 = 'wrong';}
   ]) {
     const f = fixture();
