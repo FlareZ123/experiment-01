@@ -8,7 +8,7 @@ const {rootDigest, certifiedMaterialChoice, evaluateBilateralCompetence} =
 const roots = [
   {actionOrdinal:0, turnBefore:4, playerSlot:0, action:'AttackAction'},
   {actionOrdinal:1, turnBefore:5, playerSlot:1, action:'PlayCardAction'},
-  {actionOrdinal:2, turnBefore:6, playerSlot:0, action:'AttachEnergyAction'}
+  {actionOrdinal:2, turnBefore:6, playerSlot:0, action:'PlayCardAction'}
 ];
 
 function certificate(root, suffix) {
@@ -65,7 +65,7 @@ test('complete three-turn synthetic certificate can cross structural gate',()=>{
   assert.equal(result.reciprocalEpisodeObserved,true);
   assert.deepEqual(result.episode.turns,[4,5,6]);
   assert.deepEqual(result.episode.actionTypes,
-    ['AttackAction','PlayCardAction','AttachEnergyAction']);
+    ['AttackAction','PlayCardAction','PlayCardAction']);
 });
 
 test('actual two-seat native mirror with passive source cannot pass',()=>{
@@ -179,7 +179,7 @@ test('the same test accepts original source at physical seat one',()=>{
   const reversed=[
     {actionOrdinal:0,turnBefore:10,playerSlot:1,action:'AttackAction'},
     {actionOrdinal:1,turnBefore:11,playerSlot:0,action:'PlayCardAction'},
-    {actionOrdinal:2,turnBefore:12,playerSlot:1,action:'AttachEnergyAction'}
+    {actionOrdinal:2,turnBefore:12,playerSlot:1,action:'PlayCardAction'}
   ];
   const input=trialFor(reversed);
   input.originalSourceSeat=1;input.candidateSeat=0;
@@ -191,4 +191,12 @@ test('three adjacent material actions without causal witnesses do not qualify',(
   input.actionCertificates[1].causalEvidenceRef=null;
   assert.equal(evaluateBilateralCompetence(input).reciprocalEpisodeObserved,false);
   assert.equal(evaluateBilateralCompetence(input).competitiveAdmission,false);
+});
+
+test('pinned actual action vocabulary excludes invented manual-attachment classes',()=>{
+  const input=trialFor();
+  input.rootActionLedger[2].action='AttachEnergyAction';
+  input.rootActionLedgerSha256=rootDigest(input.rootActionLedger);
+  input.actionCertificates[2].action='AttachEnergyAction';
+  assert.equal(evaluateBilateralCompetence(input).reciprocalEpisodeObserved,false);
 });
