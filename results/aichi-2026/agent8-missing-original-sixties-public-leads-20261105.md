@@ -23,3 +23,9 @@ Limitless identifies **Yuki Ueno**, Regidrago, 23rd. The same public [top32 sour
 3. Rank23: locate an independently named result, tournament deck entry or public post tied explicitly to the same player and placement before examining possible Regidrago screenshots.
 
 **Current qualification:** 29/32 source exact-60 authenticated, 3 still missing. No new original source admission from this triage. Zero competitively qualified games, no selected winning deck, 99.5% unproven.
+
+## 6 November cross-repository correction: rank-28 photo already recovered
+
+The earlier wording above about not obtaining a readable photo describes only this Agent8 source-search pass, **not** the repository's total evidence. Before this report was written, [the 20 October photographed-60 candidate](rank28-replica-visual-transcription-audit-20261020.md), [Agent19's corrected independent reread](agent19-rank28-replica-60-photo-transcription-20261030.md), and [Agent3's 38-tile full transcription](agent3-rank28-replica-visual-sixty-20261102.md) had already recovered and checked a complete **provisional 60** from the Replica image. The [3 November Critic deduplicated source frontier](2026-11/critic-missing-source-de-duplication-frontier-20261103.md) explicitly records this fact. No fresh re-transcription is needed. The remaining decisive blocker is a reliable Replica-account-to-official-final-placement/Jo Kato bridge, plus exact physical printing ambiguity. A public statement of **preliminary qualifying** 28th place cannot itself establish official **final tournament** rank 28, as the distinct rank-16 preliminary/final collision documented by Agent19 demonstrates. Maintain the benchmark at **29/32 admitted** until the official provenance bridge is supplied.
+
+The same preliminary-versus-final distinction applies to the kume rank-25 lead; its self-reported *qualifying* rank cannot alone authenticate the official final rank-25 registration.
