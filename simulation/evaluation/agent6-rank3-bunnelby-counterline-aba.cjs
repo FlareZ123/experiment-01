@@ -6,6 +6,8 @@ const VERSION='agent6-original-rank3-bunnelby-counterline-aba-v1';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=3792360798;
 const RANK3_SEAT=0;
+const EXPECTED_SOURCE_60='72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f';
+const EXPECTED_REFERENCE_60='de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311';
 const EXPECTED_FULL_DEAL='02bb2b2e4b28d1cfc9e030e70c38f389fa37948e8c3dceb34472133f4753582a';
 const EXPECTED_SOURCE_DEAL='37ed042b42966fd5c2232d28d1e458131e0ba9e0febf14cb3ad2961710c70c46';
 const EXPECTED_CONTROL_ROOT='5acd02e493800a041b5dedf4a9efa6a0a2de44eece25efc5424f5dda749c3acd';
@@ -26,7 +28,9 @@ function run(){
   const dealMatched=arms.every(x=>x.status!=='native-error'&&
     x.fullDealSha256===EXPECTED_FULL_DEAL&&
     x.rank3DealSha256===EXPECTED_SOURCE_DEAL&&
-    x.actualFirstSeat===RANK3_SEAT);
+    x.actualFirstSeat===RANK3_SEAT&&
+    x.originalSource60Hash===EXPECTED_SOURCE_60&&
+    x.originalReference60Hash===EXPECTED_REFERENCE_60);
   const controlsRepeatExactly=a.status===c.status&&a.winner===c.winner&&
     a.actions===c.actions&&a.globalTurns===c.globalTurns&&
     a.rootLedgerSha256===c.rootLedgerSha256;
@@ -37,6 +41,8 @@ function run(){
     rootLedgerSha256:x.rootLedgerSha256??null,
     fullDealSha256:x.fullDealSha256??null,
     rank3DealSha256:x.rank3DealSha256??null,
+    originalSource60Hash:x.originalSource60Hash??null,
+    originalReference60Hash:x.originalReference60Hash??null,
     deckOutRetreatAudit:x.deckOutRetreatAudit??null,
     genericAudit:x.genericAudit??null
   });
