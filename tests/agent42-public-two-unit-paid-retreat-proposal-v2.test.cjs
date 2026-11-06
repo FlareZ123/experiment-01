@@ -122,7 +122,7 @@ test('nonlethal retreat and empty Prize count are rejected',()=>{
   assert.equal(choose(view,catalog),null);
 });
 
-test('unknown Rule-Box Prize value, resistance, or visible Prize modifier fails closed',()=>{
+test('Rule-Box target, resistance, or visible Prize modifier fails closed',()=>{
   const a=fixture();
   catalog.ruleboxPokemonPrintings.add('Combee OBF');
   assert.equal(choose(a,catalog),null);
