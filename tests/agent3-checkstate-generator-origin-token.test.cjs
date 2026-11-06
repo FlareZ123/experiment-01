@@ -137,7 +137,8 @@ test('two native checkState invocations in one Store get distinct origin tokens'
   },{Store,checkModule,rootBinding});
   assert.equal(audit.authoritativeChecks,2);
   assert.equal(audit.nativeKoEffects,2);
-  assert.equal(audit.nativeDrawPrizesEffects,4);
+  assert.equal(audit.nativeDrawPrizesEffects,2,
+    'One automatic draw and one resumed deferred draw are distinct effects');
   assert.equal(audit.tokenGroups.length,2);
   assert.notEqual(audit.tokenGroups[0].token,audit.tokenGroups[1].token);
   assert.deepEqual(audit.tokenGroups.map(x=>x.ko[0].count),[1,3]);
