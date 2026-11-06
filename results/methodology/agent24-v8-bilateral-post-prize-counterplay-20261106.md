@@ -42,3 +42,17 @@ For the steward's next **one shared-policy, two-sided complete-game probe**, cap
 The existing **Rank 11 / New Moon trial** is a possible bounded continuation canary because it contains nine settled source Psychic attacks, four taken source Prizes and two earlier contender Future Sight attacks; the final source Psychic at root 125 is capped before settlement. It is not a competitive opponent competence witness, and expanding its horizon changes censoring conditions and requires a separately frozen registration. A second plausible verification target is Rank 6 / Champion's one-Prize Volt Cyclone, with eight earlier contender Get Lost attacks. The right selection belongs to the common-policy steward, avoiding another detached rank-specific lane.
 
 **Qualification:** four prize-taking source arms / eight registered contexts, zero counterattacks after source Prize, zero paper- or clock-qualified games, 29/32 authenticated original name/count lists, no selected fixed 60, no verified 99.5% field result.
+## Additional source-paired mechanism: the sole Energy holder was Knocked Out
+
+Independent before/after comparison of the **same settled attacks** reveals a sharper mechanism behind the four energy-free post-Prize snapshots. Each contender had nonzero public Energy immediately **before** the first Prize-taking source attack; **all** of it was attached to the contender's then-Active Pokémon. That Pokémon disappeared from play at the settled attack, and the previously Energy-free Bench supplied the new Active. No Energy remained in play. This is a knockout-associated **in-play Energy collapse**, not evidence the contender had already exhausted its Energy before the attack. The public board does not independently prove which physical discard pile received the cards; a future paper custody audit must do so.
+
+| Source / contender | First Prize attack root | Contender Active removed | Attached Energy before → after | Surviving Bench Energy before |
+|---|---:|---|---|---:|
+| Rank 6 / Champion | 85 | Girafarig LOT | 3 → 0 | 0 |
+| Rank 6 / New Moon | 97 | Duskull VIV | 1 → 0 | 0 |
+| Rank 11 / Champion | 84 | Dialga-GX UPR | 4 → 0 | 0 |
+| Rank 11 / New Moon | 40 | Duskull VIV | 2 → 0 | 0 |
+
+Rank 11 / New Moon has a **second** settled source Prize-taking event, Psychic root 102, which removed an Energy-bearing Mewtwo & Mew-GX (2 Energy before, zero afterward) for **three additional Prizes**. Across the eight attempts, all **five Prize-taking settled source attacks** removed the contender's only in-play Energy holder, while the total four affected attempts each later showed no contender AttackAction after their first Prize.
+
+This identifies a more concrete next policy question: on the first contender turn following the knockout, did the owner possess a paper-payable route to attach Energy, accelerate Energy, switch into a funded attacker, or rebuild its board? Analyze the owner-visible physical hand and true Store-dispatched choices before any intervention. Do not assume the earlier Energy concentration was inherently a mistake: its optimality depends on resources, matchup tempo, bench access and the opponent's credible next KO.
