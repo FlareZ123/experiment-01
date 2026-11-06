@@ -172,7 +172,7 @@ jobs:
       - name: Verify original rank6 owner-held Cynthia paper opportunity and correlated paired-seat mathematics
         run: node --test tests/agent15-rank6-cynthia-pass17-paper.test.cjs tests/agent15-rank11-quickball-source-pass11.test.cjs tests/agent15-rank11-squawk-source-pass11.test.cjs tests/agent15-aichi-995-paired-seat-rejection.test.cjs
       - name: Verify Agent31 archived bilateral Float Stone chain and visible Pass opportunity contracts
-        run: node --test tests/agent31-paired-bilateral-tool-chain-audit.test.cjs tests/agent31-shadow-rider-visible-pass-frontier.test.cjs tests/agent31-bilateral-all-owner-pass-evidence.test.cjs
+        run: node --test tests/agent31-paired-bilateral-tool-chain-audit.test.cjs tests/agent31-shadow-rider-visible-pass-frontier.test.cjs tests/agent31-bilateral-all-owner-pass-evidence.test.cjs tests/agent31-original-allpass-archive-parity.test.cjs
       - name: Regress Agent17 printed scaling KO owner-only selection (synthetic, no native games)
         run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
       - name: Verify rank17 owner-public Electrode opportunity and no-action-change observer
