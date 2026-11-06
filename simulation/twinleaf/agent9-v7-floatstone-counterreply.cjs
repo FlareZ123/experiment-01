@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=
   require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v2-optional-resetting-hole';
+const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v3-settled-resetting-hole-wait';
 
 /**
  * Owner-controlled visible answer to the exact rank6 turn5 Guzma canary:
@@ -113,11 +113,13 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
   assert.equal(typeof originalStore?.value,'function');
   const intentsByAction=new WeakMap();
   let liveStore=null;
+  let pendingHoleSettlement=null;
   const audit={
     version:VERSION,registeredRealStores:0,encounteredOwnerReplies:0,
     proposedNativeTools:0,acceptedNativeTools:0,
     proposedNativeRetreats:0,acceptedNativeRetreats:0,
     proposedResettingHole:0,acceptedResettingHole:0,
+    settledResettingHole:0,
     nativeRejects:0,records:[],genericFloatStoneIntents:[],
     includeResettingHole:deps.includeResettingHole===true,
     opponentCompetenceUnverified:true,
@@ -129,6 +131,11 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
       audit.registeredRealStores++;
     }
     const rec=this===liveStore?intentsByAction.get(action):null;
+    const settlingHole=this===liveStore&&pendingHoleSettlement&&
+      action?.constructor?.name==='ResolvePromptAction'&&
+      this.state?.prompts?.some(prompt=>
+        prompt.result===undefined&&
+        prompt.constructor.name==='WaitPrompt');
     try {
       const result=originalStore.value.apply(this,[action,...rest]);
       if(rec){
@@ -145,15 +152,34 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
           audit.acceptedNativeRetreats++;
         if(rec.kind==='remove-thunder-with-benched-marshadow'){
           audit.acceptedResettingHole++;
-          const source=state.players[0],counter=state.players[1];
-          rec.thunderStadiumAbsentAfter=!source.stadium.cards.some(card=>
-            card.fullName==='Thunder Mountain Prism Star LOT');
-          rec.thunderInSourceLostZoneAfter=source.lostzone.cards.some(card=>
-            card.fullName==='Thunder Mountain Prism Star LOT');
-          rec.marshadowBenchedAfter=counter.bench.some(slot=>
-            slot.getPokemonCard?.()?.fullName==='Marshadow UNB');
-          rec.marshadowInOwnerDiscardAfter=counter.discard.cards.some(card=>
-            card.fullName==='Marshadow UNB');
+          const prompt=state.prompts?.find(p=>p.result===undefined);
+          rec.pendingAfterAcceptedAbility=prompt?.constructor.name??null;
+          rec.settledAfterWaitPrompt=false;
+          pendingHoleSettlement=rec;
+        }
+      }
+      // Resetting Hole executes its effects only when native WaitPrompt is
+      // acknowledged. Inspecting immediately after accepted UseAbilityAction
+      // would falsely label the Stadium as still in play.
+      if(settlingHole){
+        const pending=pendingHoleSettlement;
+        const source=this.state.players[0];
+        const owner=this.state.players[1];
+        pending.thunderStadiumAbsentAfter=!source.stadium.cards.some(card=>
+          card.fullName==='Thunder Mountain Prism Star LOT');
+        pending.thunderInSourceLostZoneAfter=source.lostzone.cards.some(card=>
+          card.fullName==='Thunder Mountain Prism Star LOT');
+        pending.marshadowBenchedAfter=owner.bench.some(slot=>
+          slot.getPokemonCard?.()?.fullName==='Marshadow UNB');
+        pending.marshadowInOwnerDiscardAfter=owner.discard.cards.some(card=>
+          card.fullName==='Marshadow UNB');
+        if(pending.thunderStadiumAbsentAfter&&
+           pending.thunderInSourceLostZoneAfter&&
+           pending.marshadowBenchedAfter===false&&
+           pending.marshadowInOwnerDiscardAfter===true){
+          pending.settledAfterWaitPrompt=true;
+          pendingHoleSettlement=null;
+          audit.settledResettingHole++;
         }
       }
       return result;
