@@ -73,6 +73,18 @@ jobs:
       - name: Compare native v6 and v7 locked artifacts
         run: node simulation/evaluation/agent36-v6-v7-existing-archive-delta.cjs
 
+      - name: Download original four-rank prospective 128-root v8 source
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-broader-prospective-v8-native
+          run-id: '42148688570'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v8
+
+      - name: Audit original four-rank source attack root ledger and errors
+        run: node simulation/evaluation/agent36-v8-original-field-archive-audit.cjs
+
       - name: Pure adversarial archival audit regression
         run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
 
