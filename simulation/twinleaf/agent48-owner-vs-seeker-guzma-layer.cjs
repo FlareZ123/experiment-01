@@ -109,26 +109,44 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
       assert.ok(owner.discard.cards.includes(reply.card));
       const beforeHand=owner.hand.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const beforeDiscard=owner.discard.cards.filter(c=>c.fullName===reply.targetPrinting).length;
+      const beforeSupportItemHand=owner.hand.cards.filter(c=>c.fullName===reply.supportItemPrinting).length;
+      const beforeSupportItemDiscard=owner.discard.cards.filter(c=>c.fullName===reply.supportItemPrinting).length;
       const result=oldDispatch.value.apply(this,[action,...args]);
       assert.notEqual(result,false);
       const after=this.state.players[reply.seat];
       const afterHand=after.hand.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const afterDiscard=after.discard.cards.filter(c=>c.fullName===reply.targetPrinting).length;
+      const afterSupportItemHand=after.hand.cards.filter(c=>c.fullName===reply.supportItemPrinting).length;
+      const afterSupportItemDiscard=after.discard.cards.filter(c=>c.fullName===reply.supportItemPrinting).length;
       assert.equal(afterHand,beforeHand+1);
       assert.equal(afterDiscard,beforeDiscard-1);
       assert.ok(after.hand.cards.includes(reply.card));
       assert.ok(!after.discard.cards.includes(reply.card));
-      assert.ok(after.discard.cards.includes(reply.supportItemCard));
-      assert.ok(!after.hand.cards.includes(reply.supportItemCard));
+      assert.equal(afterSupportItemHand,
+        beforeSupportItemHand-(reply.supportItemInHandAtPrompt?1:0));
+      assert.equal(afterSupportItemDiscard,
+        beforeSupportItemDiscard+(reply.supportItemInDiscardAtPrompt?0:1));
+      const identityFields=['physicalId','instanceId','uuid'];
+      const identityField=identityFields.find(key=>reply.supportItemCard[key]!=null);
+      const identityValue=identityField?reply.supportItemCard[identityField]:null;
+      const afterSupportItems=after.discard.cards.filter(c=>c.fullName===reply.supportItemPrinting);
+      const exactPhysicalCardMoved=afterSupportItems.includes(reply.supportItemCard)||
+        (identityField!=null&&afterSupportItems.some(c=>c[identityField]===identityValue));
       pending.delete(reply.ownerId);
       audit.promptsAccepted++;
       audit.receipts.push({seat:reply.seat,ownerId:reply.ownerId,
         promptId:reply.promptId,targetPrinting:reply.targetPrinting,
         beforeHand,beforeDiscard,afterHand,afterDiscard,
         supportItemPrinting:reply.supportItemPrinting,
+        beforeSupportItemHand,beforeSupportItemDiscard,
+        afterSupportItemHand,afterSupportItemDiscard,
         supportItemInHandAtPrompt:reply.supportItemInHandAtPrompt,
         supportItemInDiscardAtPrompt:reply.supportItemInDiscardAtPrompt,
-        supportItemMovedToDiscard:true,exactPhysicalCardMoved:true});
+        supportItemMovedToDiscard:true,
+        supportItemZoneTransitionVerified:true,exactPhysicalCardMoved,
+        supportItemIdentityField:identityField,
+        supportItemCardKeys:Object.keys(reply.supportItemCard),
+        afterSupportItemCardKeys:afterSupportItems.map(card=>Object.keys(card))});
       return result;
     }
     return oldDispatch.value.apply(this,[action,...args]);
