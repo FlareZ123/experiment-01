@@ -88,7 +88,8 @@ test('Max Geist projection removes the exact two Psychic payment cards',()=>{
     printing:'Shadow Rider Calyrex VMAX CRE',energies:[P,P,P],
     attacks:[{name:'Max Geist',cost:[C,C,C],damage:10,
       damageCalculation:null,gxAttack:false}]};
-  view.ownPublic.bench=[vmax];
+  const donor={...view.ownPublic.bench[0],printing:'Girafarig LOT',energies:[P,P],attacks:[]};
+  view.ownPublic.bench=[vmax,donor];
   assert.equal(postRetreatPrintedDamage(view,vmax,vmax.attacks[0],
     {indices:[0,1]},catalog),160);
   assert.equal(choose(view,catalog)?.projectedPrintedDamage,160);
