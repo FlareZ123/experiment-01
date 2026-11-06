@@ -41,7 +41,7 @@ function run(a,b,a2,install=[false,true,false]){
 }
 
 test('v1 exposes explicit non-qualification and recorded wrapper status',()=>{
-  const a=row('t',[root(0)]);
+  const a=row('t',[root(0),root(1)]);
   const b=row('t',[root(0),root(1,'RetreatAction')]);
   const result=run(a,b,a);
   assert.equal(result.version,VERSION);
@@ -118,14 +118,14 @@ test('null divergence with installed B never passes positive witness gate',()=>{
 });
 
 test('B action from candidate seat is rejected as source retreat',()=>{
-  const a=row('t',[root(0)]);
+  const a=row('t',[root(0),root(1)]);
   const b=row('t',[root(0),root(1,'RetreatAction',0)]);
   assert.equal(run(a,b,a).rows[0].treatmentWitness,
     'WRONG_ACTION_OR_SEAT_OR_ORDINAL');
 });
 
 test('B retreat without accepted-action ordinal is rejected',()=>{
-  const a=row('t',[root(0)]);
+  const a=row('t',[root(0),root(1)]);
   const b=row('t',[root(0),{action:'RetreatAction',playerSlot:1}]);
   assert.equal(run(a,b,a).rows[0].treatmentWitness,
     'WRONG_ACTION_OR_SEAT_OR_ORDINAL');
@@ -138,7 +138,7 @@ test('post-abort extension cannot be attributed to a live treatment',()=>{
   const result=run(a,b,a);
   assert.equal(result.rows[0].controlReplay,'CENSORED_PREFIX_REPLAY');
   assert.equal(result.rows[0].treatmentWitness,
-    'CONTROL_CENSORED_AT_DIVERGENCE');
+    'CONTROL_ENDED_BEFORE_DIVERGENCE');
 });
 
 test('physical source mismatch independently vetoes treatment witness',()=>{
@@ -187,4 +187,14 @@ test('invalid A/B/A activation pattern is flagged',()=>{
   const a=row('t',[root(0)]);
   assert.equal(run(a,a,a,[true,true,false]).activationStatus,
     'INVALID_ABA_WRAPPER_ACTIVATION');
+});
+
+test('a treatment-only extension after an earlier cap is not a causal first root',()=>{
+  const control=row('t',[root(0)],{status:'root-cap'});
+  const treatment=row('t',[root(0),root(1,'RetreatAction')]);
+  const report=run(control,treatment,control);
+  assert.equal(report.rows[0].treatmentDifference.kind,'LENGTH_MISMATCH');
+  assert.equal(report.rows[0].treatmentWitness,
+    'CONTROL_ENDED_BEFORE_DIVERGENCE');
+  assert.equal(report.sourceRetreatDivergenceCandidates,0);
 });
