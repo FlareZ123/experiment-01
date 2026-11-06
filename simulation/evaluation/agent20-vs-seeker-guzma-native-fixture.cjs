@@ -162,10 +162,10 @@ function runSyntheticNativeFixture(deps={}){
     withOwnerVsSeekerGuzmaLayer:deps.withOwnerVsSeekerGuzmaLayer,
     base:deps.base,
     actorObservation:fixture.observe,
-    actorGuzmaPromptContinuation:false,
+    actorGuzmaPromptContinuation:true,
     enableHeldGuzmaMobility:false
   });
-  const raw=runner({actorOnlyComposition:false,nativeRootActionLimit:128});
+  const raw=runner({actorOnlyComposition:true,nativeRootActionLimit:128});
   const audit=raw.ownerVsSeekerGuzmaAudit;
   assert.ok(fixture.audit.injections.length>0,
     'At least one real native owner must receive the synthetic opportunity');
@@ -174,9 +174,9 @@ function runSyntheticNativeFixture(deps={}){
     gameplayEvidence:false,prospective:false,
     nativeRootActionLimit:128,
     addedOwnerVsSeekerGuzmaLayer:true,
-    addedAgent43GuzmaPromptContinuation:false,
+    addedAgent43GuzmaPromptContinuation:true,
     heldGuzmaMobilityRootOptIn:false,
-    actorOnlyComposition:false,
+    actorOnlyComposition:true,
     originalDevelopmentManifest:raw.manifest,
     fixtureAudit:fixture.audit,
     ownerVsSeekerGuzmaAudit:audit,
