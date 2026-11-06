@@ -48,6 +48,7 @@ jobs:
         run: |
           node --test \
             tests/agent20-issue25-v8-vs-seeker-guzma.test.cjs \
+            tests/agent20-vs-seeker-guzma-native-fixture.test.cjs \
             tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs \
             tests/agent43-guzma-prompt-continuation.test.cjs \
             tests/agent48-owner-vs-seeker-guzma-layer.test.cjs \
@@ -60,11 +61,18 @@ jobs:
           AGENT20_OUTPUT_PATH: ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
         run: node simulation/evaluation/agent20-issue25-v8-vs-seeker-guzma.cjs
 
+      - name: Run synthetic native Store VS Seeker prompt fixture
+        env:
+          AGENT20_FIXTURE_OUTPUT_PATH: ${{ runner.temp }}/agent20-vs-seeker-guzma-native-fixture.json
+        run: node simulation/evaluation/agent20-vs-seeker-guzma-native-fixture.cjs
+
       - name: Upload all native rows and physical prompt receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent20-v8-vs-seeker-guzma-${{ github.run_id }}
-          path: ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+          path: |
+            ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+            ${{ runner.temp }}/agent20-vs-seeker-guzma-native-fixture.json
           if-no-files-found: warn
           retention-days: 30
