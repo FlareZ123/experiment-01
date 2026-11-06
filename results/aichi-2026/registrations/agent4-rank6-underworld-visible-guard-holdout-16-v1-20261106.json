@@ -1,0 +1,102 @@
+{
+  "schema": "agent4-rank6-underworld-guard-independent-4-seed-groups-16-native-v1",
+  "registeredAtUtcCommitTimeToBeVerified": true,
+  "seedGeneration": "Real Python secrets.randbits(32) executed once before preregistration, four independent 32-bit uniform draws; no source-game or candidate results inspected for these seeds",
+  "seedDraws": [
+    2562060802,
+    4002499586,
+    3244712031,
+    4196756544
+  ],
+  "predeclaredTrials": [
+    {
+      "rank": 6,
+      "repeat": 701,
+      "candidateSlot": "A",
+      "seed": 2562060802,
+      "candidateId": "champion-reference",
+      "id": "6:701:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 701,
+      "candidateSlot": "A",
+      "seed": 2562060802,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:701:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 702,
+      "candidateSlot": "B",
+      "seed": 4002499586,
+      "candidateId": "champion-reference",
+      "id": "6:702:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 702,
+      "candidateSlot": "B",
+      "seed": 4002499586,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:702:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 703,
+      "candidateSlot": "A",
+      "seed": 3244712031,
+      "candidateId": "champion-reference",
+      "id": "6:703:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 703,
+      "candidateSlot": "A",
+      "seed": 3244712031,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:703:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 704,
+      "candidateSlot": "B",
+      "seed": 4196756544,
+      "candidateId": "champion-reference",
+      "id": "6:704:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 704,
+      "candidateSlot": "B",
+      "seed": 4196756544,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:704:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyMode": "selected-v3-paper-plus-funded-mobility",
+  "sameOriginalRank6PaperSource60": true,
+  "candidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "controlNativeAttempts": 8,
+  "guardedNativeAttempts": 8,
+  "totalNativeAttempts": 16,
+  "perGameNativeRootCap": 180,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "codeComparison": "Same current checkout for control and guard, actor-only pure root guard default-off in control, alternate allowed in treatment",
+  "primaryMeasurements": [
+    "for each 8 paired starts validate full physical and source physical original fingerprint",
+    "number of printed Underworld source propositions and narrow proof vetoes",
+    "count named Underworld rejected UNKNOWN_POWER actions in each arm",
+    "status, genuine accepted roots and terminal boolean for each arm",
+    "repeat- or seed-sensitive failures and error classes"
+  ],
+  "limitations": [
+    "Exploratory 4 independent random source seed groups, not sufficient to estimate full game performance",
+    "Selected v3 owner policy only; A/B/A was already validated on historical two contexts",
+    "Only rank6 Iron Thorns matchup, source paper list unchanged; negative lock results possible",
+    "No claim of official Top32 competitive or 99.5% performance"
+  ]
+}
