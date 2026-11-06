@@ -34,6 +34,10 @@ test('positive synthetic held Float: all coarse public gates true',()=>{
   const actual=heldFloatGateFlags(scenario(),catalog);
   assert.equal(actual.held,true);
   assert.deepEqual(FIELDS.filter(key=>!actual[key]),[]);
+  assert.deepEqual(actual.benchPayableTargets,[{
+    printing:'Mega Absol ex M1L',attack:'Claw of Darkness',
+    nominalDamage:200
+  }]);
 });
 
 test('independent co-occurrences expose empty active/bench without fake eligibility',()=>{
@@ -56,6 +60,10 @@ test('projected below 80 remains payable yet excluded from helper threshold',()=
   assert.equal(f.benchHasPayableAttack,true);
   assert.equal(f.benchHasPayable80DamageAttack,false);
   assert.equal(f.allCoarseStructuralGates,false);
+  assert.deepEqual(f.benchPayableTargets,[{
+    printing:'Mega Absol ex M1L',attack:'Claw of Darkness',
+    nominalDamage:30
+  }]);
 });
 
 test('retreat quota, occupied Tool, and opposing Tool Jammer reported separately',()=>{
