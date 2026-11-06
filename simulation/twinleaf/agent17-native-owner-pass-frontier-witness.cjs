@@ -5,13 +5,14 @@ const path = require('node:path');
 const {createHash} = require('node:crypto');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent17-native-owner-pass-frontier-witness-v1';
+const VERSION = 'agent17-native-owner-pass-frontier-witness-v2-pass-transition-attested';
 const digest = value => createHash('sha256')
   .update(JSON.stringify(value)).digest('hex');
 
 /**
- * Link read-only native-accepted Pass roots with their archived root ordinals.
- * Unknown or mismatched roots must remain unlinked; never guess an ordinal.
+ * Link real Store dispatch-returning Pass roots with archived ordinals and
+ * actual direct or WaitPrompt-mediated native turn transitions. A no-throw
+ * dispatch alone never proves a Pass settled; fail closed on missing evidence.
  *
  * @param {object[]} events Post-accepted owner-only snapshots.
  * @param {object|null} result Actual completed or capped native match result.
@@ -28,15 +29,35 @@ function ownerPassFrontierAudit(events,result) {
   });
   const rootOrdinalLinked = linked !== null &&
     linked.every(ordinal => Number.isSafeInteger(ordinal));
-  const recorded = events.map((row,index) => ({
-    ...row,rootActionOrdinal:rootOrdinalLinked ? linked[index] : null
-  }));
+  const ledger = result?.rootActionLedger ?? null;
+  const recorded = events.map((row,index) => {
+    const ordinal = rootOrdinalLinked ? linked[index] : null;
+    const direct = row.nativeImmediateTurnAfter > row.globalTurn;
+    const continuations = ordinal === null ? [] : ledger.filter(action =>
+      action.action === 'ResolvePromptAction' &&
+      action.initiatingRootActionOrdinal === ordinal &&
+      action.turnBefore === row.globalTurn &&
+      action.turnAfter > row.globalTurn);
+    const deferred = continuations.length === 1;
+    return {
+      ...row,
+      rootActionOrdinal:ordinal,
+      nativePassTransitionVerdict:direct?'immediate-native-turn-advanced':
+        deferred?'linked-prompt-advanced-turn':
+          'turn-transition-unverified',
+      nativePassTransitionVerified:direct||deferred
+    };
+  });
   return {
     version:VERSION,
     count:recorded.length,
     rootOrdinalLinked,
-    status:rootOrdinalLinked ? 'source-owned-accepted-pass-snapshots' :
-      'unlinked-observer-evidence',
+    status:rootOrdinalLinked &&
+      recorded.every(row=>row.nativePassTransitionVerified) ?
+      'source-owned-verified-pass-turn-transitions' :
+      'pass-dispatch-observed-turn-transition-unverified',
+    verifiedNativeTurnTransitions:recorded.filter(row =>
+      row.nativePassTransitionVerified).length,
     events:recorded,
     eventsSha256:digest(recorded),
     postDecisionObserverOnly:true,
@@ -47,8 +68,8 @@ function ownerPassFrontierAudit(events,result) {
 }
 
 /**
- * Capture detached actor-visible owner evidence only when the genuine Store
- * accepts a root Pass action. This observer executes AFTER bot decisions, so
+ * Capture detached actor-visible owner evidence when a genuine Store root
+ * Pass dispatch returns without throwing; settlement is independently verified. This observer executes AFTER bot decisions, so
  * it cannot influence the policy's current choice. It restores the Store
  * dispatch method after success or failure.
  *
@@ -105,7 +126,12 @@ function withNativeOwnerPassFrontier(execute,deps={}) {
         actorTurnResources:before.ownTurnResources,
         actorK1:before.ownerK1,
         opportunityAssessment:'unverified',
-        nativeStoreAcceptedPass:true
+        nativeStoreAcceptedPass:true,
+        nativeStoreDispatchReturned:true,
+        nativeStoreAcceptedPassMeaning:
+          'dispatch-return-only; see nativePassTransitionVerdict',
+        nativeImmediateTurnAfter:this.state?.turn??null,
+        nativeImmediateActiveSeatAfter:this.state?.activePlayer??null
       });
     }
     return answer;
