@@ -79,6 +79,7 @@ test('native attack-owned owner-deck Basic prompt settles selected physical card
   const originalRun=p.headless.runMatch;
   const originalStore=Store.prototype.dispatch;
   const originalAi=SimpleTacticsAi.prototype.decodeNextAction;
+  const overriddenRun=p.headless.runMatch;
   const done=withLateOwnedCallFamilyPrompt(()=>
     p.headless.runMatch({label:'x-'+reg.selectedOriginalId}),{
     headless:p.headless,Store,SimpleTacticsAi,ResolvePromptAction,
@@ -127,7 +128,7 @@ test('nonmatching native source never installs owner attack proposal',()=>{
 
 
 test('an explicit bounded later source-turn opt-in settles two genuine Basic prompts',()=>{
-  const p=fixture();const original=p.headless.runMatch;
+  const p=fixture();
   p.headless.runMatch=()=>{
     const owner=p.owner;
     p.store.dispatch(new AddPlayerAction());
@@ -164,12 +165,12 @@ test('an explicit bounded later source-turn opt-in settles two genuine Basic pro
   ]);
   assert.equal(done.result.owner.bench.filter(slot=>
     slot.cards.length>0).length,4);
-  assert.strictEqual(p.headless.runMatch,original);
+  assert.strictEqual(p.headless.runMatch,overriddenRun);
 });
 test('source turn window rejects nonsensical odd parity',()=>{
   const p=fixture();
   assert.throws(()=>withLateOwnedCallFamilyPrompt(
     ()=>null,{headless:p.headless,Store,SimpleTacticsAi,
       ResolvePromptAction,types,registration:reg,sourceEndTurn:3}),
-    /false == true/);
+    {name:'AssertionError'});
 });
