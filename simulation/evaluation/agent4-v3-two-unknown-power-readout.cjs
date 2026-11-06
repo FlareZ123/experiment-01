@@ -169,6 +169,8 @@ function run(deps={}){
       auxiliaryAbilityDispatchCount:audit.auxiliaryAbilityDispatchCount,
       nativeUnderworldRejectionAudit:
         audit.nativeUnderworldRejectionAudit??null,
+      publicUnderworldVetoAudit:
+        audit.publicUnderworldVetoAudit??null,
       nativeAttemptCount:rows.length,rows
     });
   }
