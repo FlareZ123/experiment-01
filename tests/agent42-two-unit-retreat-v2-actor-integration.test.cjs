@@ -9,7 +9,7 @@ const catalog={
   basics:new Set(),basicEnergies:new Set([P]),
   basicEnergyTypes:{Psychic:5},specialEnergies:new Set(),
   dragonPokemonPrintings:new Set(),ruleboxPokemonPrintings:new Set(),
-  stages:{BASIC:0,STAGE_1:1},colorlessEnergyType:C,
+  stages:{BASIC:0,STAGE_1:1,VMAX:5},colorlessEnergyType:C,
   specialConditions:{ASLEEP:1,PARALYZED:2}
 };
 const restrictions=()=>({
@@ -21,8 +21,8 @@ const restrictions=()=>({
 function view(){
   const active={
     printing:'Shadow Rider Calyrex VMAX CRE',name:'Shadow Rider Calyrex VMAX',
-    hp:320,damage:0,printed:{stage:1,types:[5],retreatCost:[C,C],resistance:[]},
-    energies:[P,P],tools:[],specialConditions:[],
+    hp:320,damage:0,printed:{stage:5,types:[5],retreatCost:[C,C],resistance:[]},
+    energies:[P,P],tools:[],specialConditions:[],abilityDetails:[],
     publicRestrictions:restrictions(),
     attacks:[{name:'Max Geist',cost:[C,C,C],damage:10,
       damageCalculation:null,gxAttack:false}]
@@ -31,6 +31,7 @@ function view(){
     printing:'Latias ex SSP',name:'Latias ex',hp:210,damage:0,
     printed:{stage:0,types:[5],retreatCost:[C,C],resistance:[]},
     energies:[P,P,P],tools:[],specialConditions:[],
+    abilityDetails:[{name:'Skyliner',text:'Your Basic Pokémon in play have no Retreat Cost.'}],
     publicRestrictions:restrictions(),
     attacks:[{name:'Eon Blade',cost:[5,5,C],damage:200,
       damageCalculation:null,gxAttack:false}]
