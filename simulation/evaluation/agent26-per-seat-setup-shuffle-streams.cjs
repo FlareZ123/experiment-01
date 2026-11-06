@@ -9,7 +9,7 @@ const BASE=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 const SALTS=Object.freeze([0x243f6a88,0x85a308d3]);
 
-const HASH_DOMAIN=Buffer.from('pokemon-tcg-expanded/setup-physical-shuffle/v2\\0');
+const HASH_DOMAIN=Buffer.from('pokemon-tcg-expanded/setup-physical-shuffle/v2');
 
 /**
  * Domain-separate the two physical-seat seeds through SHA-256 rather than
