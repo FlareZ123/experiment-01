@@ -171,5 +171,87 @@ function evaluateBilateralCompetence(trial) {
   };
 }
 
+
+/**
+ * An observational screening convenience for real native archives.
+ * A source-to-opponent-to-source sequence does not establish that the
+ * opponent's action was causally responsive, paper-payable or good.
+ * @param {object[]} roots Actual public accepted-root action ledger.
+ * @param {0|1} sourceSeat Actual original-source seat.
+ * @param {0|1} opponentSeat Actual contender seat.
+ * @param {{sourceAttackOnly?:boolean}} [options]
+ * @returns {object|null}
+ */
+function screenObservedReciprocalSequence(roots, sourceSeat, opponentSeat, options={}) {
+  assert.ok(Array.isArray(roots));
+  assert.ok((sourceSeat===0||sourceSeat===1)&&opponentSeat===1-sourceSeat);
+  const actions=roots.filter(r=>MATERIAL.has(r.action));
+  for(let i=0;i<actions.length;i++){
+    const source=actions[i];
+    if(source.playerSlot!==sourceSeat ||
+       (options.sourceAttackOnly===true&&source.action!=='AttackAction'))continue;
+    for(let j=i+1;j<actions.length;j++){
+      const reply=actions[j];
+      if(reply.playerSlot!==opponentSeat||
+         reply.turnBefore!==source.turnBefore+1)continue;
+      for(let k=j+1;k<actions.length;k++){
+        const continuation=actions[k];
+        if(continuation.playerSlot!==sourceSeat||
+           continuation.turnBefore!==reply.turnBefore+1)continue;
+        const describe=r=>({ordinal:r.actionOrdinal,turn:r.turnBefore,
+          action:r.action,card:r.card??null,attack:r.attack??null});
+        return {source:describe(source),opponent:describe(reply),
+          sourceReturn:describe(continuation),
+          paperQualified:false,causalReplyVerified:false,
+          ownerAlternativesVerified:false};
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Screen every registered actual-native attempt while preserving all
+ * dispositions. This is intentionally an UNQUALIFIED action-only census.
+ * @param {{attempts:object[]}} archive Source artifact with native roots.
+ * @returns {object} Fully source-linked but not competitive information.
+ */
+function screenArchivedReciprocalAttempts(archive) {
+  assert.ok(Array.isArray(archive?.attempts));
+  const ids=new Set();
+  const rows=archive.attempts.map(a=>{
+    assert.ok(typeof a.id==='string'&&!ids.has(a.id));
+    ids.add(a.id);
+    assert.equal(a.publicRootActionsTruncated,false);
+    const roots=a.publicRootActions;
+    assert.ok(Array.isArray(roots));
+    assert.equal(a.publicRootActionCount,roots.length);
+    for(let i=0;i<roots.length;i++){
+      assert.equal(roots[i].actionOrdinal,i);
+      if(i>0)assert.ok(roots[i].turnBefore>=roots[i-1].turnBefore);
+    }
+    const hash=rootDigest(roots);
+    assert.equal(a.publicRootLedgerSha256Computed,hash);
+    assert.equal(a.publicRootLedgerSha256Reported,hash);
+    const general=screenObservedReciprocalSequence(roots,
+      a.originalSourceSeat,a.candidateSeat);
+    const sourceAttack=screenObservedReciprocalSequence(roots,
+      a.originalSourceSeat,a.candidateSeat,{sourceAttackOnly:true});
+    return {trialId:a.id,disposition:a.status,
+      rootCount:roots.length,rootActionLedgerSha256:hash,
+      sourceSeat:a.originalSourceSeat,opponentSeat:a.candidateSeat,
+      generalSequence:general,sourceAttackSequence:sourceAttack,
+      fullPaperAudit:false,competitiveAdmission:false};
+  });
+  return {schema:'agent45-archive-reciprocal-screen-v1',
+    attemptedContexts:rows.length,
+    anyGeneralSequenceContexts:rows.filter(r=>r.generalSequence).length,
+    anySourceAttackSequenceContexts:rows.filter(r=>r.sourceAttackSequence).length,
+    competitiveGamesQualified:0,
+    evidenceClass:'real-native-action-only-not-causal-paper-or-policy-qualified',
+    rows};
+}
+
 module.exports = {VERSION, rootDigest, certifiedMaterialChoice,
-  evaluateBilateralCompetence};
+  evaluateBilateralCompetence, screenObservedReciprocalSequence,
+  screenArchivedReciprocalAttempts};
