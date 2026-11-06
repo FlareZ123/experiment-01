@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const {rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
-  screenNativeMaterialReciprocalExchange, screenArchivedReciprocalAttempts} =
+  screenUnmodifiedPrintedCosts, screenNativeMaterialReciprocalExchange,
+  screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
 const roots = [
@@ -478,4 +479,42 @@ test('unsettled return and absent positive source effect are not exchanges',()=>
   row.actualSourceAttackSettlement.attacks[1].settledPromptChain=true;
   row.actualSourceAttackSettlement.attacks[1].publicBoardAfter[1].active.damage=20;
   assert.equal(screenNativeMaterialReciprocalExchange(row),null);
+});
+
+test('two Psychic basics cannot pay any Dialga-GX UPR printed Metal attack',()=>{
+  const card={energyCards:['Psychic Energy','Psychic Energy'],printedAttacks:[
+    {name:'Overclock',cost:[8]},
+    {name:'Shred',cost:[8,9,9]},
+    {name:'Timeless-GX',cost:[8,8,8,9,9]}]};
+  const r=screenUnmodifiedPrintedCosts(card);
+  assert.equal(r.attachedBasicEnergyCount,2);
+  assert.equal(r.unmodifiedPrintedAttacks.length,3);
+  assert.equal(r.anyUnmodifiedPrintedAttackPayable,false);
+  assert.equal(r.externalCostModifiersAudited,false);
+  card.energyCards[1]='Metal Energy';
+  assert.equal(screenUnmodifiedPrintedCosts(card).anyUnmodifiedPrintedAttackPayable,true);
+});
+test('Psychic and Colorless costs require actual matching type and card count',()=>{
+  const trev={energyCards:[],printedAttacks:[
+    {name:'Night Watch',cost:[5,5,5]},
+    {name:'Pale Moon-GX',cost:[5,9]}
+  ]};
+  assert.equal(screenUnmodifiedPrintedCosts(trev).anyUnmodifiedPrintedAttackPayable,false);
+  trev.energyCards=['Psychic Energy','Darkness Energy'];
+  const r=screenUnmodifiedPrintedCosts(trev);
+  assert.equal(r.unmodifiedPrintedAttacks[0].unmodifiedBasicEnergyPayable,false);
+  assert.equal(r.unmodifiedPrintedAttacks[1].unmodifiedBasicEnergyPayable,true);
+});
+test('unknown Special Energy returns unknown rather than invented typed payment',()=>{
+  const card={energyCards:['Double Dragon Energy'],printedAttacks:[
+    {name:'Costly',cost:[5,9]}
+  ]};
+  assert.equal(screenUnmodifiedPrintedCosts(card),null);
+});
+test('the observed Dark basic funds unmodified Colorless attacks',()=>{
+  const source={energyCards:['Darkness Energy'],printedAttacks:[
+    {name:'Motivate',cost:[9]}
+  ]};
+  assert.equal(screenUnmodifiedPrintedCosts(source).
+    anyUnmodifiedPrintedAttackPayable,true);
 });
