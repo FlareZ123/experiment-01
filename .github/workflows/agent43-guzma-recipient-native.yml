@@ -38,6 +38,8 @@ jobs:
         run: npm run compile
       - name: Independently exercise pinned Night Watch two-seat random-selection fidelity
         run: node --test tests/agent43-nightwatch-randomness-native.test.cjs
+      - name: Exact New Moon early counter Item + triple Energy visibility
+        run: node --test tests/agent42-newmoon-counter-energy-joint-direct.test.cjs
       - name: Verify actual Perfection copied Night Watch source-marked paper selection both seats
         run: node --test tests/agent42-perfection-nightwatch-source-marked.native.test.cjs
       - name: Frozen original Skyliner native paper-random Night Watch sensitivity
