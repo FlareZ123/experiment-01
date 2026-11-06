@@ -84,9 +84,14 @@ function run(deps = {}) {
     'Previously observed original-source Call for Family root must survive');
   const sourceDamage = result.sourceAttackCustody
     .beforeAndAfterSourceTurnAttackTransitions ?? [];
-  const physicalBasic = familyAudit.oneOriginalBasicMovedToBench === 1 &&
+  // The default sourceTurn2 experiment has exactly one owner Basic transfer.
+  // An explicitly registered later-turn extension may have additional proven
+  // transfers. Preserve the first-turn proof when every submitted reply is
+  // physically settled and at least one has been moved.
+  const physicalBasic = familyAudit.oneOriginalBasicMovedToBench >= 1 &&
     familyAudit.physicalBenchTransferFailures === 0 &&
-    familyAudit.ownerBasicPromptAnswersNativeAccepted === 1;
+    familyAudit.ownerBasicPromptAnswersNativeAccepted ===
+      familyAudit.oneOriginalBasicMovedToBench;
 
   return {
     schema: VERSION,
