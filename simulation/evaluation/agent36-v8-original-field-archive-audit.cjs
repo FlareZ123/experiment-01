@@ -68,6 +68,17 @@ function inspect(bytes,sidecar,expectedDigest=null){
       x.playerSlot===expectedSourceSeat&&x.action==='AttackAction')
       .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore,
         attack:x.attack??null})):null;
+    // Store attack declarations are event-origin independent. A copied attack
+    // may begin with UseAbilityAction rather than AttackAction (Perfection).
+    // Headless builds the attack settlement from its Store declaration trace.
+    // Aborted rows without that trace remain unknown, never inferred zero.
+    const sourceStoreAttackDeclarations=Array.isArray(settled)?
+      settled.map(a=>({
+        originatingActionOrdinal:a.actionOrdinal??null,
+        attack:a.attackName??null,
+        source:'real-Store attackDeclarationTrace',
+        settledPromptChain:a.settledPromptChain===true
+      })):null;
     const sourceSettlements=Array.isArray(settled)?settled.map(a=>{
       const pre=a.publicBoardBefore?.[expectedSourceSeat]??null;
       const post=a.publicBoardAfter?.[expectedSourceSeat]??null;
@@ -100,7 +111,9 @@ function inspect(bytes,sidecar,expectedDigest=null){
       publicRootHashPass:complete,
       sourceOpeningFingerprint:row.sourceDealFingerprint??null,
       entirePhysicalOpeningFingerprint:row.fullPhysicalDealFingerprint??null,
+      // Legacy compatibility name: counts only accepted AttackAction roots.
       sourceAttackRoots,
+      sourceStoreAttackDeclarations,
       settledSourceAttackCount:Array.isArray(sourceSettlements)?
         sourceSettlements.filter(a=>a.publicSettlement).length:null,
       actualAttackSettlements:sourceSettlements,
@@ -133,8 +146,13 @@ function inspect(bytes,sidecar,expectedDigest=null){
     hitNativeRoot128Count:n(x=>x.acceptedRoots===128),
     returnedNativeTerminalCount:n(x=>
       x.nativeDisposition==='finished'||x.nativeDisposition==='native-terminal'),
-    sourceAcceptedAttackDeclarations:rows.reduce((sum,x)=>
+    // Explicitly distinguish root-action shape from real Store declarations.
+    sourceAcceptedAttackActionRoots:rows.reduce((sum,x)=>
       sum+(x.sourceAttackRoots?.length??0),0),
+    sourceRealStoreAttackDeclarationsKnown:rows.reduce((sum,x)=>
+      sum+(x.sourceStoreAttackDeclarations?.length??0),0),
+    sourceRealStoreAttackDeclarationsUnknownRows:
+      n(x=>x.sourceStoreAttackDeclarations===null),
     sourceSettledAttacksKnown:rows.reduce((sum,x)=>
       sum+(x.settledSourceAttackCount??0),0),
     sourceSettledAttacksUnknownInAborted:
