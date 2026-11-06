@@ -21,6 +21,11 @@ jobs:
           node-version: '22'
       - name: Exact original printed-card and combinatorial regression
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs
+      - name: Audit exact 29 original printed Pokémon and all retreat-denial literal hits
+        run: |
+          node --test tests/agent2-aichi-exact-retreat-prohibition-census.test.cjs
+          node simulation/evaluation/agent2-aichi-exact-retreat-prohibition-census.cjs > agent2-aichi-retreat-prohibition.json
+          sha256sum agent2-aichi-retreat-prohibition.json > agent2-aichi-retreat-prohibition.json.sha256
       - name: Preserve exact machine-readable 29-rank analysis and SHA-256
         run: |
           node simulation/evaluation/agent2-original29-fss-first-tool-collision.cjs > agent2-fss-collision.json
@@ -33,4 +38,6 @@ jobs:
           path: |
             agent2-fss-collision.json
             agent2-fss-collision.json.sha256
+            agent2-aichi-retreat-prohibition.json
+            agent2-aichi-retreat-prohibition.json.sha256
           if-no-files-found: warn
