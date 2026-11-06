@@ -1,0 +1,30 @@
+{
+  "schema": "agent5-v7-postvolt-flare-prompt-retro-v2",
+  "createdAt": "2026-11-06T13:47:16.855Z",
+  "parent": "results/aichi-2026/registrations/agent5-v7-postvolt-teamflare-aba-20261106.json",
+  "priorRun": 42227408708,
+  "priorArtifact": 13506373181,
+  "originalTrials": 8,
+  "phases": [
+    "A",
+    "B",
+    "A"
+  ],
+  "nativeActionsPerTrial": 96,
+  "target": {
+    "id": "6:201:B:champion-reference",
+    "seat": 0,
+    "turn": 5,
+    "originalPassRoot": 32
+  },
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "onlyChange": "One owner-public mandatory Select Energy prompt handled after targeted accepted Team Flare Grunt root. Reuse original card-choice selector and the previous 8 original seeded games.",
+  "gates": [
+    "Native physical opposing Active Energy enters opponent discard",
+    "Source printed Supporter consumed once and prompt accepted",
+    "Eight original attempts in each phase retained",
+    "A and A repeat exact",
+    "Seven nontarget baseline/treatment root tapes unchanged"
+  ],
+  "classification": "retrospective diagnostic, no qualified games"
+}
