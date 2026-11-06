@@ -248,7 +248,7 @@ test('archived screening retains capped and terminal attempts without promoting 
   assert.equal(report.competitiveGamesQualified,0);
   assert.deepEqual(report.rows.map(row=>row.competitiveAdmission),[false,false]);
 });
-test('archived screen rejects tampered real ledger, truncated data and duplicate IDs',()=>{
+test('archived screen rejects tampered ledger or duplicate IDs and quarantines truncation',()=>{
   const make=()=>({
     id:'trial',status:'root-cap-unqualified',
     originalSourceSeat:0,candidateSeat:1,
@@ -260,7 +260,11 @@ test('archived screen rejects tampered real ledger, truncated data and duplicate
   const changed=make();changed.publicRootLedgerSha256Reported='tampered';
   assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[changed]}));
   const truncated=make();truncated.publicRootActionsTruncated=true;
-  assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[truncated]}));
+  const screened=screenArchivedReciprocalAttempts({attempts:[truncated]});
+  assert.equal(screened.attemptedContexts,1);
+  assert.equal(screened.quarantinedContexts,1);
+  assert.equal(screened.anyGeneralSequenceContexts,0);
+  assert.match(screened.rows[0].archiveIntegrity,/QUARANTINED/);
   assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[make(),make()]}));
 });
 
@@ -345,4 +349,29 @@ test('positive damage, healing, or information changes require verified units an
   assert.equal(verifiedMaterialTransition(cert),true);
   cert.effectWitness.paperRelevantTransition=false;
   assert.equal(verifiedMaterialTransition(cert),false);
+});
+
+test('all actual attempted error and cap rows retain denominators even without a ledger',()=>{
+  const verified={
+    id:'cap',status:'root-cap-unqualified',
+    originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots)
+  };
+  const abort={
+    id:'engine-error',status:'engine-error',
+    originalSourceSeat:1,candidateSeat:0,
+    publicRootActionsTruncated:true,publicRootActions:null,
+    publicRootActionCount:null
+  };
+  const result=screenArchivedReciprocalAttempts({attempts:[verified,abort]});
+  assert.equal(result.attemptedContexts,2);
+  assert.equal(result.verifiedRootLedgerContexts,1);
+  assert.equal(result.quarantinedContexts,1);
+  assert.equal(result.anyGeneralSequenceContexts,1);
+  assert.equal(result.rows[1].disposition,'engine-error');
+  assert.equal(result.rows[1].generalSequence,null);
+  assert.equal(result.rows[1].competitiveAdmission,false);
 });
