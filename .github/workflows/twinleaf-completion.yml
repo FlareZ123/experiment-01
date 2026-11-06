@@ -365,6 +365,11 @@ jobs:
         env:
           AGENT18_V9_DCE_DIR: issue25-agent45-ghala-v9/agent18-dce
         run: node --test tests/agent18-v9-dce-recipient.test.cjs tests/agent18-v9-dce-recipient.native.test.cjs
+      - name: Verify original rank6 G&H selected K1 printings through actual Store physical custody
+        if: ${{ inputs.include_agent45_ghala_v9 }}
+        env:
+          AGENT45_K1_NATIVE_DIR: issue25-agent45-ghala-v9/direct-k1
+        run: node --test tests/agent45-rank6-ghala-k1-closure.test.cjs tests/agent45-actual-ghala-k1-custody.test.cjs tests/agent45-ghala-k1-direct-v10.native.test.cjs
       - name: Retrospective Agent45 genuine fetched G&H Supporter and paid native owner search after Tag Call
         if: ${{ inputs.include_agent45_ghala_v8 }}
         env:
