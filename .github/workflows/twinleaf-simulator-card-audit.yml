@@ -53,6 +53,18 @@ jobs:
           path: artifacts/agent15-rank1-lillie-aba/
           if-no-files-found: warn
           retention-days: 14
+      - name: Retest source Lillie under card-identity-free Night Watch random resolution
+        env:
+          AGENT15_LILLIE_RANDOM_DIR: artifacts/agent15-lillie-nightwatch-random
+        run: node --test tests/agent15-rank1-lillie-random-aba.native.test.cjs
+      - name: Archive Night Watch random physical positions and source attack settlement
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-lillie-nightwatch-paper-random-aba
+          path: artifacts/agent15-lillie-nightwatch-random/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only bot decision boundary observer
         run: node --test tests/bot-decision-card-boundary-observer.test.cjs
       - name: Count source Card changes surviving each full bot decision
