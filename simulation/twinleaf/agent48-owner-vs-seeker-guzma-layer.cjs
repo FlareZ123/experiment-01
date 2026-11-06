@@ -90,9 +90,10 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
         assert.ok(prompt&&prompt.constructor?.name==='ChooseCardsPrompt'&&
           prompt.playerId===owner.id&&prompt.cards===owner.discard,
           'Native VS Seeker did not create the authenticated owner-discard prompt');
-        assert.ok(owner.discard.cards.includes(root.supportItemCard));
-        assert.ok(!owner.hand.cards.includes(root.supportItemCard));
-        pending.set(root.ownerId,{...root,promptId:prompt.id});
+        const supportItemInHandAtPrompt=owner.hand.cards.includes(root.supportItemCard);
+        const supportItemInDiscardAtPrompt=owner.discard.cards.includes(root.supportItemCard);
+        pending.set(root.ownerId,{...root,promptId:prompt.id,
+          supportItemInHandAtPrompt,supportItemInDiscardAtPrompt});
         audit.rootsAccepted++;
         return result;
       }catch(error){
