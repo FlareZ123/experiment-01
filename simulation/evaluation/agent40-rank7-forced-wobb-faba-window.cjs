@@ -79,5 +79,9 @@ const ORIGINAL_RANK7 = Object.freeze({
   total: 60, wobbuffet: 3, otherBasics: 9, faba: 2,
   opening: 7, draws: 2
 });
+const ORIGINAL_RANK10 = Object.freeze({
+  total: 60, wobbuffet: 1, otherBasics: 14, faba: 1,
+  opening: 7, draws: 2
+});
 
-module.exports = { choose, countVisibleResources, ORIGINAL_RANK7 };
+module.exports = { choose, countVisibleResources, ORIGINAL_RANK7, ORIGINAL_RANK10 };
