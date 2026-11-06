@@ -572,6 +572,8 @@ test('32 identical-rank4 seed pairs under legacy and per-seat setup shuffle prot
       .filter(x=>x.message==='WANT_TO_DRAW_CARDS')
       .every(x=>x.physicalTransferVerified===true),
       protocol+' physical compensation moves must be verified');
+    assert.ok(subset.every(row=>(row.goFirstReceipts??[]).length>0),
+      protocol+' must retain a Go First receipt for every attempt');
     assert.ok(subset.flatMap(row=>row.goFirstReceipts??[])
       .every(x=>x.chooseFirst===(x.seat===x.sourceSeat)),
       protocol+' must select the designated first seat');
