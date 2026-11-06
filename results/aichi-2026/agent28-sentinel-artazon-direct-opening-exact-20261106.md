@@ -54,6 +54,13 @@ A 4,000,000-deal Fisher–Yates seeded enumeration (`seed=27042026`) checked sev
 
 The paired Monte Carlo difference is close to the separately exact **1.25388730 pp**. The new overall Monte Carlo's 95% Wilson interval is **[33.69986%, 33.79971%]** and contains the prior-exact-plus-new-exact 33.71661%. The Monte Carlo reuses identical physical deals for old and new predicates; it does not sample games or native bot decisions.
 
+
+## Reproducibility source
+
+- [Committed exact BigInt allocation DP and seeded Monte Carlo](../../scripts/agent28-sentinel-artazon-direct-opening.cjs), Git blob `f4244bdbfeb5ffb090d0f6bea6c7c1bb51f97f53`.
+- [Targeted deterministic regressions](../../tests/agent28-sentinel-artazon-direct-opening.test.cjs), Git blob `7a185a667faa0b16e1e3bd4d04106f52ba1f26e0`: Fan-prized positive, redundant-Fan positive, no-Art negative, Capture-energy alternative, opening-mulligan negative, Vileplume-prized negative, exact allocation integer, paired reproducibility and Fan-Prize necessity.
+- Local Node.js 22.16.0 executed the equivalent source and tests successfully. Seeded Monte Carlo ran **4,000,000** deals under `seed=27042026`. No GitHub Actions job was commissioned for this standalone numerical screen. For independent rerun, execute the committed CJS with these sample-count and seed arguments, and run the committed test file with Node 22.
+
 ## Acceptance status and next falsification
 
 **The result corrects an opening-access graph and avoids an unnecessarily fragile Fan Rotom dependency. It is not an admission of Sentinel v1 as a final contender.** Real first-turn success additionally requires actually acceptable discard cards, every source-owned Tool/attack prompt, 2× Technical Machine Evolution settlement, protected Benched Vileplume under applicable Ability/Tool locks, and a meaningful opponent response. Twinleaf still has the separately documented PFL Buneary printing gap, and the currently selected bilateral v4 release has no competitively qualified games.
