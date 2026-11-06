@@ -1,0 +1,141 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
+const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+
+const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+/** @param {string} name Relative compiled native module. */
+const native=name=>require(path.join(OUTPUT,name));
+
+/**
+ * Resolve only actual mandatory Store prompts after a staged legal attack.
+ * Up-to-three Ultimate Ray attachments may choose zero and still shuffle.
+ * @param {object} x Live stage and physical Store.
+ * @param {0|1} expectedSeat Next player to receive a normal turn.
+ * @returns {string[]} Exact native prompt types settled.
+ */
+function settleTurn(x,expectedSeat){
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const handled=[];
+  for(let i=0;i<40;i++){
+    const s=x.store.state;
+    const prompt=s.prompts.find(p=>p.result===undefined);
+    if(!prompt&&s.activePlayer===expectedSeat&&
+       s.phase===x.GamePhase.PLAYER_TURN)return handled;
+    assert.ok(prompt,'Native turn failed to expose a mandatory continuation');
+    const kind=prompt.constructor.name;
+    let response;
+    if(kind==='WaitPrompt')response=null;
+    else if(kind==='AttachEnergyPrompt'){
+      assert.equal(prompt.options.min,0);
+      response=[];
+      assert.equal(prompt.validate(response),true);
+    }else if(kind==='ShuffleDeckPrompt'){
+      const owner=s.players.find(p=>p.id===prompt.playerId);
+      assert.ok(owner);
+      response=Array.from({length:owner.deck.cards.length},(_,i)=>i);
+    }else throw Error('Unexpected native GX or attack prompt '+kind);
+    handled.push(kind);
+    x.store.dispatch(new ResolvePromptAction(prompt.id,response));
+  }
+  assert.fail('Unsettled native turn after 40 mandatory prompts');
+}
+
+/**
+ * Pair one native Altered Creation-GX with an actual opposing Supporter turn.
+ * The two branches differ only in the paper-valid, owner-held Ranger play.
+ * Both seats and real card/reducer transitions are exercised.
+ * @param {0|1} seat ADP attacker's physical seat.
+ * @param {boolean} useRanger Opponent chooses to play the held Ranger.
+ * @returns {object} Public native state changes and effect-marker receipt.
+ */
+function run(seat,useRanger){
+  const x=stage(seat);
+  const manager=initializeCards();
+  let nextId=890000+seat*10000+Number(useRanger)*20000;
+  const card=name=>{
+    const c=manager.getCardByName(name);
+    assert.ok(c,'Missing pinned native printing '+name);
+    c.id=nextId++;
+    return c;
+  };
+  const ADP='Arceus & Dialga & Palkia GX CEC';
+  const adp=card(ADP),metal=card('Metal Energy SVE');
+  const water=card('Water Energy SVE');
+  const psychic=card('Psychic Energy SVE');
+  x.owner.active.cards.length=0;
+  x.owner.active.energies.cards.length=0;
+  x.owner.active.cards.push(adp,metal,water,psychic);
+  x.owner.active.energies.cards.push(metal,water,psychic);
+  x.opponent.active.cards.length=0;
+  x.opponent.active.energies.cards.length=0;
+  x.opponent.active.cards.push(card(ADP));
+  const ranger=card('Pokemon Ranger STS');
+  x.opponent.hand.cards.unshift(ranger);
+  x.state.turn=2;
+  const {AttackAction,PassTurnAction}=
+    native('game/store/actions/game-actions');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const owner=()=>x.store.state.players.find(p=>p.id===x.owner.id);
+  const opponent=()=>x.store.state.players.find(p=>p.id===x.opponent.id);
+  assert.equal(owner().usedGX,false);
+  x.store.dispatch(new AttackAction(owner().id,'Altered Creation-GX'));
+  const gxPrompts=settleTurn(x,1-seat);
+  assert.equal(owner().usedGX,true);
+  assert.equal(owner().usedAlteredCreation,true);
+  assert.equal(owner().alteredCreationDamage,true);
+  const beforeRanger={
+    damage:owner().alteredCreationDamage,
+    extraPrize:owner().usedAlteredCreation,
+    gxUsed:owner().usedGX
+  };
+  if(useRanger){
+    x.store.dispatch(new PlayCardAction(opponent().id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    assert.equal(owner().usedGX,true,
+      'Ranger must preserve the once-per-game GX quota');
+    assert.equal(owner().usedAlteredCreation,false);
+    assert.equal(owner().alteredCreationDamage,false);
+    assert.equal(opponent().supporterTurn,1);
+    assert.equal(opponent().hand.cards.includes(ranger),false);
+  }else{
+    assert.equal(opponent().supporterTurn,0);
+    assert.ok(opponent().hand.cards.includes(ranger));
+  }
+  const afterRanger={
+    damage:owner().alteredCreationDamage,
+    extraPrize:owner().usedAlteredCreation,
+    gxUsed:owner().usedGX
+  };
+  x.store.dispatch(new PassTurnAction(opponent().id));
+  const passPrompts=settleTurn(x,seat);
+  assert.equal(x.store.state.activePlayer,seat);
+  assert.equal(owner().usedGX,true);
+  x.store.dispatch(new AttackAction(owner().id,'Ultimate Ray'));
+  const ultimatePrompts=settleTurn(x,1-seat);
+  const damage=opponent().active.damage;
+  assert.equal(damage,useRanger?150:180);
+  assert.equal(owner().usedGX,true);
+  assert.deepEqual([owner().prizes.length,opponent().prizes.length],[6,6]);
+  return {seat,useRanger,beforeRanger,afterRanger,
+    ultimateRayDamage:damage,remainingPrizeSlots:[
+      owner().prizes.length,opponent().prizes.length],
+    gxPrompts,passPrompts,ultimatePrompts,
+    nativeGameTerminal:false,qualifiedCompetitiveGames:0};
+}
+for(const seat of [0,1]){
+  for(const withRanger of [false,true]){
+    test('native ADP GX versus paper Ranger, attacker seat '+seat+
+      ' Ranger '+withRanger,()=>{
+      const receipt=run(seat,withRanger);
+      console.log('AGENT30_NATIVE_RANGER_ADP',JSON.stringify(receipt));
+      assert.equal(receipt.ultimateRayDamage,withRanger?150:180);
+    });
+  }
+}
+module.exports={run,settleTurn};
