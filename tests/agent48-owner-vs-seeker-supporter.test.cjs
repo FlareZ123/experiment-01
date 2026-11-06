@@ -21,8 +21,8 @@ class ChooseCardsPrompt{
   }
 }
 class ResolvePromptAction{
-  constructor(promptId,result){
-    this.promptId=promptId;
+  constructor(id,result){
+    this.id=id;
     this.result=result;
   }
 }
@@ -54,7 +54,7 @@ test('selects the exact owner-discard Supporter printing and returns a receipt',
   assert.equal(receipt.seat,0);
   assert.equal(receipt.promptId,91);
   assert.equal(receipt.targetPrinting,'Guzma BUS');
-  assert.equal(receipt.action.promptId,91);
+  assert.equal(receipt.action.id,91);
   assert.deepEqual(receipt.action.result,[guzma]);
 });
 
@@ -63,7 +63,7 @@ test('action-only facade remains available for existing Lillie callers',()=>{
   const action=chooseOwnerVsSeekerSupporterPrompt(
     state,0,prompt,ResolvePromptAction,'Guzma BUS'
   );
-  assert.equal(action.promptId,91);
+  assert.equal(action.id,91);
   assert.equal(action.result[0].fullName,'Guzma BUS');
 });
 
