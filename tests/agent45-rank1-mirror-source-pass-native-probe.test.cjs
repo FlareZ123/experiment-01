@@ -11,8 +11,9 @@ class PassTurnAction{
 }
 function fixture(){
   const player=(id,label)=>({id,
-    active:{getPokemonCard:()=>({fullName:label}),
-      energies:{cards:[{fullName:'Psychic Energy MEE'}]}}});
+    active:{getPokemonCard:()=>({fullName:label}),damage:0,
+      energies:{cards:[{fullName:'Psychic Energy MEE'}]}},
+    bench:[{getPokemonCard:()=>({fullName:'Healthy Bench'}),damage:0}]});
   const owners=[player(1,'Active Source'),player(2,'Active Candidate')];
   class Store{
     constructor(){this.state={players:owners,turn:3,prompts:[]};this.actions=[];}
@@ -47,6 +48,9 @@ test('records only owner source Pass after real bot choice and never mutates pro
  assert.equal(x.audit.sourcePasses[0].turn,3);
  assert.equal(x.audit.sourcePasses[0].possibleEngineAttackAnnouncements,1);
  assert.equal(x.audit.sourcePasses[0].visibleActivePrinting,'Active Source');
+ assert.equal(x.audit.sourcePasses[0].ownerActiveDamage,0);
+ assert.deepEqual(x.audit.sourcePasses[0].ownerBenchVisibleDamage,
+   [{printing:'Healthy Bench',damage:0}]);
  assert.deepEqual(x.audit.sourcePasses[0].visibleAttachedEnergyPrintings,
    ['Psychic Energy MEE']);
  assert.equal(x.audit.decisionsChanged,false);
