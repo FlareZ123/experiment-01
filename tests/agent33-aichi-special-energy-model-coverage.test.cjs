@@ -26,7 +26,7 @@ test('narrow exact model misses the original Counter/Reversal/Unit and other fam
   assert.equal(x.specialSummary.copies-x.specialSummary.narrowExactCopies,80);
   assert.equal(x.specialSummary.copies-x.specialSummary.narrowAliasCopies,74);
   const unsupported=x.printings.filter(row=>
-    row.count>0&&row.narrowExactCopies===0);
+    row.count>0&&!row.basic&&row.narrowExactCopies===0);
   assert.deepEqual(unsupported.map(row=>row.printing),[
     'Counter Energy CIN','Double Dragon Energy ROS','Jet Energy PAL',
     'Memory Energy LOT','Powerful Colorless Energy DAA',
