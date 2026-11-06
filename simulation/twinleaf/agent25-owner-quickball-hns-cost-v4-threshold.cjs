@@ -19,9 +19,8 @@ const DHELMISE='Dhelmise M5';
  * @returns {string|null} Selected owner's physically offered printing.
  */
 function chooseHnsQuickBallCost(input){
-  if(input.eligible!==true||input.heldCompressor!==true||
-     input.hasDhelmise!==true||input.visibleDiscard>=4||
-     input.visibleDiscard<0) return null;
+  if(input.eligible!==true||input.hasDhelmise!==true||
+     input.visibleDiscard!==3) return null;
   if(!Array.isArray(input.offered)||!Array.isArray(input.ownHand))
     return null;
   for(const name of DONORS){
