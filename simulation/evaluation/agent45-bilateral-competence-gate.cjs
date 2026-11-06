@@ -237,16 +237,34 @@ function screenArchivedReciprocalAttempts(archive) {
       a.originalSourceSeat,a.candidateSeat);
     const sourceAttack=screenObservedReciprocalSequence(roots,
       a.originalSourceSeat,a.candidateSeat,{sourceAttackOnly:true});
+    const settledSourceAttack=sourceAttack?
+      a.actualSourceAttackSettlement?.attacks?.find(attack=>
+        attack.actionOrdinal===sourceAttack.source.ordinal &&
+        attack.settledPromptChain===true &&
+        Number.isInteger(attack.completionRootOrdinal) &&
+        attack.completionRootOrdinal<
+          sourceAttack.opponent.ordinal)??null:null;
+    const settledSourceAttackBeforeObservedReply=settledSourceAttack!==null;
+    const settledSourceAttackPrizeChange=settledSourceAttack&&
+      Number.isInteger(settledSourceAttack.prizesBefore?.[a.originalSourceSeat])&&
+      Number.isInteger(settledSourceAttack.prizesAfter?.[a.originalSourceSeat])?
+        settledSourceAttack.prizesBefore[a.originalSourceSeat]-
+          settledSourceAttack.prizesAfter[a.originalSourceSeat]:null;
     return {trialId:a.id,disposition:a.status,
       rootCount:roots.length,rootActionLedgerSha256:hash,
       sourceSeat:a.originalSourceSeat,opponentSeat:a.candidateSeat,
       generalSequence:general,sourceAttackSequence:sourceAttack,
+      settledSourceAttackBeforeObservedReply,
+      settledSourceAttackCompletionRoot: settledSourceAttack?.completionRootOrdinal??null,
+      settledSourceAttackPrizeChange,
       fullPaperAudit:false,competitiveAdmission:false};
   });
   return {schema:'agent45-archive-reciprocal-screen-v1',
     attemptedContexts:rows.length,
     anyGeneralSequenceContexts:rows.filter(r=>r.generalSequence).length,
     anySourceAttackSequenceContexts:rows.filter(r=>r.sourceAttackSequence).length,
+    attackAnchorSettledBeforeReplyContexts:rows.filter(r=>
+      r.settledSourceAttackBeforeObservedReply).length,
     competitiveGamesQualified:0,
     evidenceClass:'real-native-action-only-not-causal-paper-or-policy-qualified',
     rows};
