@@ -100,7 +100,7 @@ The new test is required by `tests/agent50-rank4-first-turn-dedechange.native.te
 
 ## Execution result and limits
 
-<badge label="PASS" color="green"/> **Native setup fixture passed** on 6 November 2026.
+**Execution status: PASS.** Native setup fixture passed on 6 November 2026.
 
 - Workflow: [run 42278008180](https://github.com/FlareZ123/experiment-01/actions/runs/42278008180), manual input `rank4_dedechange_rank6_lock_only=true`.
 - Executed commit: `e6eaa4b43a79c2ad46a64cb446111a8f8a0ebe79`.
