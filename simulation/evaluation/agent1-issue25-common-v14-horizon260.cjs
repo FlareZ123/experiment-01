@@ -42,7 +42,7 @@ function runAgent1Horizon260V14(deps={}){
     invoked.push({before:options.nativeRootActionLimit,
       after:next.nativeRootActionLimit,
       originalSourceRanks:[...new Set(
-        (next.registeredTrials??[]).map(x=>x.rank))].sort(),
+        (next.registeredTrials??[]).map(x=>x.rank))].sort((a,b)=>a-b),
       registeredIds:(next.registeredTrials??[]).map(x=>x.id)});
     return runner(next);
   }
