@@ -201,4 +201,17 @@ jobs:
           name: agent35-rank11-firstturn-family-postattack-v5
           path: agent35-rank11-firstturn-family-postattack-v5.json
           retention-days: 21
+      - name: Regress default-off source T4 Family owner search and frozen pre-root lineage
+        run: node --test tests/agent35-rank11-second-family-native-v6.test.cjs tests/agent49-rank11-firstturn-call-family-owner-prompt.test.cjs tests/agent35-rank11-firstturn-family-native-v4.test.cjs
+      - name: Execute registered original second source Call for Family native owner prompt
+        env:
+          AGENT35_RANK11_SECOND_FAMILY_NATIVE: agent35-rank11-second-family-native-v6.json
+        run: node simulation/evaluation/agent35-rank11-second-family-native-v6.cjs
+      - name: Preserve second source Family owner Basic transfer and full eight-arm denominator
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-rank11-second-family-native-v6
+          path: agent35-rank11-second-family-native-v6.json
+          retention-days: 21
           if-no-files-found: warn
