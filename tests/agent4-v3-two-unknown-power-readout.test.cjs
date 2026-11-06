@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {selectedTrials,summarize,run}=
+const {manifestWithDriftAudit,selectedTrials,summarize,run}=
   require('../simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs');
 const registration=require('../results/aichi-2026/registrations/agent4-v3-two-unknown-power-readout-20261106.json');
 
@@ -16,6 +16,15 @@ function manifest(){
     }))
   };
 }
+test('frozen manifest and exact printed source roster verified with drift reported',()=>{
+  const {manifest,audit}=manifestWithDriftAudit();
+  assert.equal(manifest.nativeActionCap,180);
+  assert.equal(audit.currentFilesComparedWithFrozenHistoricalV3.length,6);
+  assert.equal(audit.sourceAndRosterVerified,true);
+  assert.ok(audit.currentFilesComparedWithFrozenHistoricalV3.every(x=>
+    /^[a-f0-9]{40}$/.test(x.actual)&&/^[a-f0-9]{40}$/.test(x.expected)));
+  assert.equal(audit.historicalCodeParityNotAssumed,true);
+});
 test('only exact two historical source IDs and seeds enter the native diagnostic',()=>{
   const m=manifest(),trials=selectedTrials(m);
   assert.deepEqual(trials.map(x=>x.id),registration.contexts.map(x=>x.id));
