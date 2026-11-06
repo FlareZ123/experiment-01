@@ -477,3 +477,20 @@ test('paid-Retreat v1 and v2 adapter flags are default-inert and mutually exclus
     actorTwoUnitPaidRetreatTargetTurnV2:1
   }),{name:'AssertionError'});
 });
+
+
+test('v2 paid Retreat is opt-in only for bilateral actor composition and valid target turns',()=>{
+  const {runDevelopment}=require(
+    '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
+  assert.throws(()=>runDevelopment({
+    actorTwoUnitPaidRetreatRootV2:true
+  }),/Paid Retreat v2 must be symmetric actor-only roots/);
+  assert.throws(()=>runDevelopment({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRootV2:true,
+    actorTwoUnitPaidRetreatTargetTurnV2:1
+  }),/Registered v2 paid-Retreat target turn must be an integer/);
+  assert.throws(()=>runDevelopment({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
+    actorTwoUnitPaidRetreatRootV2:true
+  }),/Select only one paid-Retreat policy version/);
+});
