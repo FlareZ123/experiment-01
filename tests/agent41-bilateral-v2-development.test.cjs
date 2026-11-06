@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials,commonPayloadOption,firstPostSourceDecision,sourceLineReplyPacket,
+const {developmentTrials,commonPayloadOption,actorPaidRetreatRootOptions,firstPostSourceDecision,sourceLineReplyPacket,
   candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks,
   scopedSpecialEnergyActorSeat}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
@@ -446,4 +446,34 @@ test('canonical bilateral Tool apply fails closed without shared active selector
   for(const flags of invalid){
     assert.throws(()=>runDevelopment(flags),/Native Tool selection requires/);
   }
+});
+
+
+test('paid-Retreat v1 and v2 adapter flags are default-inert and mutually exclusive',()=>{
+  assert.deepEqual(actorPaidRetreatRootOptions(),{});
+  assert.deepEqual(actorPaidRetreatRootOptions({
+    actorTwoUnitPaidRetreatRoot:true,
+    actorTwoUnitPaidRetreatTargetTurn:131
+  }),{
+    twoUnitPaidRetreatRoot:true,twoUnitPaidRetreatTargetTurn:131
+  });
+  assert.deepEqual(actorPaidRetreatRootOptions({
+    actorTwoUnitPaidRetreatRootV2:true,
+    actorTwoUnitPaidRetreatTargetTurnV2:132
+  }),{
+    twoUnitPaidRetreatRootV2:true,twoUnitPaidRetreatTargetTurnV2:132
+  });
+  assert.deepEqual(actorPaidRetreatRootOptions({
+    actorTwoUnitPaidRetreatRootV2:true
+  }),{
+    twoUnitPaidRetreatRootV2:true,twoUnitPaidRetreatTargetTurnV2:null
+  });
+  assert.throws(()=>actorPaidRetreatRootOptions({
+    actorTwoUnitPaidRetreatRoot:true,
+    actorTwoUnitPaidRetreatRootV2:true
+  }),{name:'AssertionError'});
+  assert.throws(()=>actorPaidRetreatRootOptions({
+    actorTwoUnitPaidRetreatRootV2:true,
+    actorTwoUnitPaidRetreatTargetTurnV2:1
+  }),{name:'AssertionError'});
 });
