@@ -1,0 +1,18 @@
+# Agent27: one opponent-mulligan bonus changes the fixed ADP opening frontier
+
+**6 November 2026, exact combinatorics, development only.** This extends the [Agent5 paid ADP–Thorton–Regidrago v2 initial-turn screen](agent5-adp-paid-opening-dci-sensitivity-20261105.md) and [Agent27 protected-discard buckets](agent27-adp-protected-payment-frontier-20261105.md). Same immutable 60, seven-card Basic-valid opener, six randomly placed Prizes, ADP starting-Active priority, one first-turn draw going second, Tag/Quick/Ultra/Guzma & Hala mechanical payments, and the three explicitly hypothetical high-DCI sets. **Treatment: exactly one optional opponent-mulligan bonus card was taken before the first turn.** No supporter or Energy limit changes; the bonus is held until first-turn actions. This is a *conditional* resource experiment, not the distribution of opponent mulligans across the Aichi field.
+
+| Event | No bonus | One bonus | Gain (percentage points) |
+| --- | ---: | ---: | ---: |
+| Any mechanically payable modeled ADP-first enhanced Altered Creation-GX route | 37.981531% | 42.086115% | +4.104584 |
+| Route without extra protected discards: Dragons only | 20.025570% | 23.986436% | +3.960866 |
+| Dragons plus Basic Grass/Fire Energy | 26.612382% | 32.069404% | +5.457022 |
+| Dragons plus Basic Energy plus Battle Compressor | 30.110197% | 35.800841% | +5.690644 |
+
+The source one-bonus weighted sample denominator is **11518273287461158400** with exactly **4847593728885719886** mechanically payable states. The original zero-bonus denominator is 250397245379590400. Both condition on a Basic-valid original seven, and neither represents an actual match win or game-play frequency without opponent-specific bonus distributions. The 1-bonus 0–4 protected-payment integer histograms sum to the common new mechanical numerator in all three profiles; see tests and executable output.
+
+Method: enumerate category hand configurations weighted by multinomial combinations; then enumerate the *ordered* two draws from the 53 post-hand physical cards, and six Prizes from the remaining 51. These counts are distributionally identical to allocating six Prizes first, then taking one optional bonus draw and the first own-turn draw. Available singleton access, initial Basic legality, and mandatory physical-card payment reservations remain separate. A labeled-card exhaustive 12-card miniature deal independently reconstructs the same two-draw-plus-Prize histogram. Published source counts: [v2 candidate JSON](../aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json).
+
+Reproduce from [exact one-bonus enumerator](../../simulation/evaluation/agent27-adp-one-mulligan-bonus.cjs), [source-level full-60 expectation test](../../tests/agent27-adp-one-mulligan-bonus.test.cjs) and [independent labeled miniature test](../../tests/agent27-adp-one-mulligan-miniature.test.cjs). Registered as opt-in `agent27_adp_one_bonus` in existing manual [Aichi opening-hand audit workflow](../../.github/workflows/aichi-opening-audit.yml), avoiding new workflows and routine extra CI cost. Compiled CI status: **pending** at initial report commit.
+
+Limitations: no opponent-mulligan probability weighting; no bonus-draw timing decision, owner K1, direct paper-Store payment custody, printed-card strategic opportunity cost, opponent lock or response, prize-loss payoff or 25-minute paper clock. The candidate has zero competitively qualified games, and the Aichi 32-opponent single-deck objective remains unfulfilled.
