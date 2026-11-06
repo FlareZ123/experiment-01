@@ -71,12 +71,12 @@ jobs:
           AGENT5_V7_OWNER_FOLLOWUP_DIR: agent5-v7-source-owner-followup
         run: node simulation/evaluation/agent5-v7-owner-followup-census.cjs
       - name: Execute exact original eight matched native source branches once
-        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_followup_owner_audit }}
+        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
       - name: Execute exact original v10 with additional passive owner DCE baton readout
-        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit }}
+        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit }}
         env:
           AGENT9_BATON_DIR: agent9-v10-baton-native
         run: node simulation/evaluation/agent9-v10-owner-baton-native.cjs
