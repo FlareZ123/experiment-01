@@ -37,12 +37,11 @@ function view(){
       damageCalculation:null,gxAttack:false}]
   };
   const defender={
-    printing:'Lunatone OBF',name:'Lunatone',hp:90,damage:10,
+    printing:'Combee OBF',name:'Combee',hp:50,damage:10,
     printed:{stage:0,types:[5],retreatCost:[C],resistance:[]},
     energies:[],tools:[],specialConditions:[],
     publicRestrictions:restrictions(),
-    abilityDetails:[{name:'New Moon',
-      text:'Prevent all effects of Stadium cards on your Pokémon.'}],
+    abilityDetails:[],
     attacks:[]
   };
   return {decisionKind:'owner-root',globalTurn:22,ownHand:['Float Stone BKT'],
