@@ -266,6 +266,51 @@ function screenPublicDefenderDamageChange(settledAttack, defenderSeat) {
 
 
 /**
+ * Test only the printed attack's unmodified energy requirement against
+ * attached visible Basic Energy cards. Known CardType numbers come from
+ * pinned Twinleaf card-types.ts (5 Psychic, 8 Metal, 9 Colorless).
+ * Special Energy, external Abilities and attack-cost modifiers require
+ * independent audit. Return null rather than guessing in those cases.
+ * @param {{energyCards:string[],printedAttacks:{name:string,cost:number[]}[]}} active
+ * @returns {object|null}
+ */
+function screenUnmodifiedPrintedCosts(active){
+  if(!active||!Array.isArray(active.energyCards)||
+     !Array.isArray(active.printedAttacks))return null;
+  const basicTypes=new Map([
+    ['Grass Energy',1],['Fire Energy',2],['Water Energy',3],
+    ['Lightning Energy',4],['Psychic Energy',5],['Fighting Energy',6],
+    ['Darkness Energy',7],['Metal Energy',8],['Fairy Energy',10]
+  ]);
+  const energy=active.energyCards.map(name=>basicTypes.get(name));
+  if(energy.some(type=>type===undefined))return null;
+  const attacks=[];
+  for(const attack of active.printedAttacks){
+    if(!Array.isArray(attack.cost)||!attack.cost.every(type=>
+      Number.isInteger(type)&&type>=1&&type<=11))return null;
+    const used=new Set();
+    let coloredPayable=true;
+    for(const requirement of attack.cost.filter(x=>x!==9)){
+      const idx=energy.findIndex((type,i)=>type===requirement&&!used.has(i));
+      if(idx<0){coloredPayable=false;break;}
+      used.add(idx);
+    }
+    attacks.push({name:attack.name,
+      printedCost:attack.cost.slice(),
+      unmodifiedBasicEnergyPayable:coloredPayable&&
+        energy.length>=attack.cost.length});
+  }
+  return {attachedBasicEnergyCount:energy.length,
+    allAttachedKnownBasicEnergy:true,
+    unmodifiedPrintedAttacks:attacks,
+    anyUnmodifiedPrintedAttackPayable:attacks.some(x=>
+      x.unmodifiedBasicEnergyPayable),
+    externalCostModifiersAudited:false,
+    copiedOrToolAttacksAudited:false,
+    fullPaperAttackAvailabilityCertified:false};
+}
+
+/**
  * Native-public material response found between two settled source attacks.
  * Receipts are only board-state observations, not independent paper rulings.
  * @param {object} a
@@ -333,6 +378,12 @@ function screenNativeMaterialReciprocalExchange(a) {
           sourceReturnAttack:z.attack,
           initialSourceDamage:first.addedDamage,
           returnSourceDamage:resumed.addedDamage,
+          unmodifiedDefenderActiveCostAfterReply:
+            screenUnmodifiedPrintedCosts(after.active),
+          unmodifiedDefenderActiveCostBeforeReply:
+            screenUnmodifiedPrintedCosts(before.active),
+          unmodifiedNewBenchCostAfterReply:viaBench?
+            screenUnmodifiedPrintedCosts(after.bench.find(p=>p.printing===bench[0])):null,
           uniqueInterveningMaterialAction:true,
           nativeBoardObserved:true,paperQualified:false,
           physicalCardIdentityCertified:false,
@@ -433,4 +484,5 @@ function screenArchivedReciprocalAttempts(archive) {
 module.exports = {VERSION, rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
-  screenNativeMaterialReciprocalExchange, screenArchivedReciprocalAttempts};
+  screenUnmodifiedPrintedCosts, screenNativeMaterialReciprocalExchange,
+  screenArchivedReciprocalAttempts};
