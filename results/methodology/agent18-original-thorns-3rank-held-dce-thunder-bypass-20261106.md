@@ -16,11 +16,11 @@ The question is the probability that a Basic-valid initial seven and the first n
 
 ## Exact disjoint-resource probabilities
 
-<escape>| Original rank | E: Thunder + at least one DCE held, no connectors | E and only one Basic among eight (solo) | E and at least one Guzma held | E, solo and Guzma held |
+| Original rank | E: Thunder + at least one DCE held, no connectors | E and only one Basic among eight (solo) | E and at least one Guzma held | E, solo and Guzma held |
 | --- | ---: | ---: | ---: | ---: |
 | **6** | **0.636384%** | 0.525235% | 0.179566% | 0.153376% |
 | **24** | **1.539457%** | 1.259560% | 0.314123% | 0.266822% |
-| **29** | **0.707404%** | 0.586309% | 0.195954% | 0.167967% |</escape>
+| **29** | **0.707404%** | 0.586309% | 0.195954% | 0.167967% |
 
 Every percentage conditions on a successful Basic-containing seven. The opponent's starting Bench, the source's Stadium/Supporter/Energy quota, lock effects, damage targets, Prize opportunities and follow-on play are **not** included. An extra held Guzma is a possible tactical resource only when a legal opponent Bench target exists. Official [Guzma solo-Bench ruling and prior actual source Store test](../aichi-2026/rank6-solo-thorns-guzma-no-bench.md) support the possibility of gusting without switching one's own sole Active, while showing that the unmodified Store needs an explicit no-opponent-Bench legality guard. The already proven native solo-Guzma mechanics are **not claimed as a new discovery** by this calculation.
 
