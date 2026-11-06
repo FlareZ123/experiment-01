@@ -18,16 +18,28 @@ function preservePublicTerminalFields(execution){
     (execution.diagnostic.attemptedRows??[]).map(status=>{
       const raw=rawById.get(status.id);
       if(!raw)return status;
+      const nativeRootActionCount=raw.rootActionCount??
+        raw.rootActionLedger?.length??null;
+      const nativeOutcome=status.status==='engine-error'||
+        raw.nativeAbortProvenance?.aborted===true||
+        raw.nativeAbortEvidence?.aborted===true||
+        raw.error!==undefined&&raw.error!==null?'engine-error':
+        raw.finished===true?'native-terminal':
+        raw.finished===false&&raw.actionCount===128&&
+          nativeRootActionCount===128?'action-cap':'returned-unqualified';
       return {
         ...status,
+        status:nativeOutcome==='native-terminal'?
+          'native-terminal-unqualified':
+          nativeOutcome==='action-cap'?'root-cap-unqualified':status.status,
+        nativeOutcome,
         actionCount:raw.actionCount??null,
         finished:raw.finished??status.finished??null,
         winner:raw.winner??null,
         endReason:raw.endReason??null,
         finalPrizes:raw.finalPrizes??null,
         finalBoard:raw.finalBoard??null,
-        nativeRootActionCount:raw.rootActionCount??
-          raw.rootActionLedger?.length??null,
+        nativeRootActionCount,
         terminalWinnerMatchesCandidate:raw.finished===true&&
           raw.winner===(raw.candidateSeat??status.candidateSeat)
       };
