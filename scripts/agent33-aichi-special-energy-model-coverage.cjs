@@ -94,7 +94,7 @@ function summarizeSpecialEnergyCoverage(){
     for(const row of rows){
       summary.energyCopies+=row.count;
       const entry=printingMap.get(row.printing)??{
-        printing:row.printing,name:row.name,count:0,ranks:[],
+        printing:row.printing,name:row.name,basic:row.basic,count:0,ranks:[],
         narrowExactCopies:0,narrowAliasCopies:0,
         genericFavorableCopies:0,genericConservativeCopies:0
       };
