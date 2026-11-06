@@ -337,20 +337,23 @@ test('native Eon Blade attack lock clears only after the Latias leaves Active',(
   attach(state.turn,latiasSlot);
   assert.equal(latiasSlot.energies.cards.length,3);
   const {AttackAction,PassTurnAction,RetreatAction}=engine('game/store/actions/game-actions');
+  const step=(name,fn)=>{
+    try{return fn();}catch(error){throw new Error(`${name}: ${error.message}`);}
+  };
 
-  store.dispatch(new AttackAction(owner.id,'Eon Blade'));
-  resolveNativeRetreat(game);
+  step('initial Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade')));
+  step('resolve initial attack prompts',()=>resolveNativeRetreat(game));
   assert.equal(opponent.active.damage,200);
   assert.equal(latiasSlot.cannotAttackNextTurnPending,true);
 
-  store.dispatch(new PassTurnAction(owner.id));
-  store.dispatch(new PassTurnAction(opponent.id));
+  step('owner end turn',()=>store.dispatch(new PassTurnAction(owner.id)));
+  step('opponent end turn',()=>store.dispatch(new PassTurnAction(opponent.id)));
   assert.equal(state.activePlayer,1);
   assert.equal(latiasSlot.cannotAttackNextTurn,true);
-  assert.throws(()=>store.dispatch(new AttackAction(owner.id,'Eon Blade')));
+  assert.throws(()=>step('restricted next-turn Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade'))));
 
-  store.dispatch(new RetreatAction(owner.id,0));
-  resolveNativeRetreat(game);
+  step('free Skyliner Retreat',()=>store.dispatch(new RetreatAction(owner.id,0)));
+  step('resolve Retreat prompts',()=>resolveNativeRetreat(game));
   assert.equal(owner.active.getPokemonCard().fullName,'Shadow Rider Calyrex VMAX CRE');
   assert.ok(owner.bench.includes(latiasSlot));
   assert.equal(latiasSlot.cannotAttackNextTurn,false);
