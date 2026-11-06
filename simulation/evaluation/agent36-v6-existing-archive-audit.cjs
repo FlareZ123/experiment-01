@@ -45,8 +45,10 @@ function inspect(bytes,sidecar){
     assert.ok(!seen.has(row.id),'Duplicate return: '+row.id);
     seen.add(row.id);
     const nativeRoots=row.publicRootActions;
-    const sourceSeat=row.originalSourceSeat;
-    const recordedOtherSeat=row.candidateSeat;
+    const sourceSeat=row.originalSourceSeat??
+      row.nativeAbortProvenance?.sourceSeat??null;
+    const recordedOtherSeat=row.candidateSeat??
+      row.nativeAbortProvenance?.candidateSeat??null;
     assert.ok(sourceSeat===0||sourceSeat===1,
       'Missing real source physical seat: '+row.id);
     const otherSeat=1-sourceSeat;
