@@ -63,7 +63,8 @@ test('native staged Quick Ball classifier tolerates detached offered CardList',(
     assert.equal(event.ownDiscardCount,3);
     assert.equal(ownerBallDonorOpportunity(x.state,1-seat),null);
     assert.equal(ownerBallDonorOpportunity(
-      makeState(seat,{includeCompressor:false}).state,seat),null);
+      makeState(seat,{includeCompressor:false}).state,seat)?.card.fullName,
+      'Shuppet M5');
     assert.equal(ownerBallDonorOpportunity(
       makeState(seat,{source:'Ultra Ball SUM'}).state,seat),null);
   }
