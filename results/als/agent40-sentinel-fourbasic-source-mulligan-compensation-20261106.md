@@ -55,6 +55,15 @@ Hence *each* unenumerated conditional event probability is at most `F`; the mixt
 
 These intervals integrate over the source mulligan count, under ideal independent shuffles and fixed resource predicates. They must **not** be interpreted as the candidate's actual turn-one Item-lock success probability. The optional maximum is itself a strategic decision, and a rational policy can take fewer than `M` cards. The four-Basic source may reveal cards during failed mulligans, producing extra opponent-archetype information outside this calculation.
 
+## Context across all 29 known original sources
+
+For context, the source Basic census has counts `{4:3 ranks, 10:1, 11:6, 12:3, 13:3, 14:6, 15:4, 16:3}`. The same geometric weighting, with `q_b=C(60-b,7)/C(60,7)` for each authentic source, gives a bounded **equal-rank average across the 29 known original source Basic counts** of:
+
+- Fan-prized new-route resource access: **1.29070842–1.29293463 pp**.
+- Same route with at least two physically spare named connectors: **0.20349336–0.20571957 pp**.
+
+These are arithmetic averages of 29 independently weighted **resource opportunities**, conditional on Sentinel's legal seven, under the hypothetical policy of accepting every offered mulligan-compensation card. They do **not** become a 32-source estimate, full turn-one establishment probability, or win rate. All ranks are counted equally solely for comparability; the three missing originals, actual opponent first-turn play, lock, hand access, and strategic option value remain unmodeled. The 29 actual Basic margins were independently read back from the repository when this summary was computed.
+
 ## Reproduction and evidence classification
 
 The [expanded exact CommonJS class-allocation evaluator](../../simulation/evaluation/agent40-sentinel-artazon-connector-discard-frontier.cjs) now accepts `bonusDraws` from 0 through 15, preserves the exact original `bonusDraws=0` numerator assertion, and reports the access and two-connector subset percentages. A separate **independent Python integer DP** produced all twelve rows with 4,361 up to 58,666 surviving terminal state classes and exact binomial weights. The exact committed JavaScript source was additionally **executed in isolated V8 under mocked fixed imports** for `m=0..7`, agreeing with Python to displayed precision. This is an execution of the source code, **not Node test runner, pinned Twinleaf, or a qualified game**. The follow-up standalone Node test-file write was blocked by platform safety and is not claimed as green.
