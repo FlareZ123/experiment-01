@@ -4,11 +4,11 @@
 
 ## Executive finding
 
-A 32-seed, source-seat-balanced rank4-vs-rank1 setup cohort using Twinleaf's default legacy shared shuffle stream produced an extreme physical-seat skew: **seat0 accumulated eight mulligans, seat1 accumulated zero**. The six unequal-mulligan attempts all had seat0 mulligan more, so all six compensation prompts belonged to seat1.
+A same-seed, source-seat-balanced rank4-vs-rank1 setup cohort showed a protocol-sensitive contrast: under the legacy shared stream, seat0 accumulated eight mulligans and seat1 zero; under Agent26's per-seat setup streams, the totals were six and seven. The six legacy unequal-mulligan attempts all favored seat1, while the per-seat cohort's ten events split recipients six to seat0 and four to seat1.
 
-The exact same 32 seeds, seat assignments, decks, and setup policy were replayed with Agent26's per-seat setup-shuffle streams. That changed the physical deck permutations. The second cohort accumulated **six mulligans in seat0 and seven in seat1**, with ten unequal-mulligan attempts and compensation recipients split **six to seat0, four to seat1**.
+A separate preregistered identical-rank4 control (new 32-seed cohort, 16/16 source-seat assignment, 64 total attempts) did **not** reproduce a general seat0-only bias. Under legacy shared shuffling, mulligan totals were seat0 five / seat1 eight; under Agent26 per-seat shuffling they were three / four. Compensation recipients were near-balanced under both protocols.
 
-This is strong evidence that opening and mulligan measurements are sensitive to the shuffle-stream protocol. It is not proof of a Twinleaf rules bug, a general RNG defect, or that the per-seat adapter exactly reproduces paper shuffling. **Do not pool the two protocols or treat legacy shared-stream opening statistics as paper-calibrated until a matched identical-deck seat-symmetry audit is completed.**
+The evidence therefore supports **shuffle-protocol sensitivity in the original rank4/rank1 seed cohort**, but it does not establish a general physical seat-order bias or a defective shared RNG. The identical-deck control uses a different seed set, so it does not isolate the original cohort's seed/deck interaction. Neither protocol is proven to reproduce paper shuffling exactly. Do not pool their results or make a causal claim before a same-seed identical-deck replay of the original rank4/rank1 seed list.
 
 ## Experimental controls
 
@@ -61,13 +61,29 @@ The public `ShowMulliganPrompt` receipts exposed both players' mulligan counts. 
 
 The Dedechange opportunity-rate difference is not decision-grade: 6/32 has a 95% Wilson interval of 8.89%–35.31%; 5/32 has 6.86%–31.75%. The intervals overlap widely.
 
+## Identical-deck seat-symmetry control
+
+The follow-up [identical-rank4 control](agent50-identical-rank4-mulligan-seat-symmetry-20261106.md) used the same rank4 60 in both physical seats, 32 newly preregistered seeds, and both shuffle protocols:
+
+| Measure | Legacy shared | Agent26 per-seat |
+|---|---:|---:|
+| Attempts / source-seat balance | 32 / 16-16 | 32 / 16-16 |
+| Mulligan pairs seat0/seat1 | 22 × 0/0; 4 × 0/1; 3 × 1/0; 2 × 1/1; 1 × 0/2 | 25 × 0/0; 4 × 0/1; 3 × 1/0 |
+| Total mulligans by seat | 5 / 8 | 3 / 4 |
+| Unequal-mulligan attempts | 8 | 7 |
+| Compensation recipients | seat0 5 / seat1 3 | seat0 4 / seat1 3 |
+| Compensation prompts / cards | 8 / 9 | 7 / 7 |
+| Exact physical compensation moves | 8/8 | 7/7 |
+
+All 64 attempts reached the first source turn; all 15 compensation prompts across the two arms matched the lower-mulligan player and exact count difference, and all physical moves were verified. This control weakens the hypothesis of a general seat0 bias in the legacy shared stream. The original rank4/rank1 8/0 result remains a cohort-specific anomaly; it may involve the particular seed set, deck composition, shuffle-stream interactions, or sampling variation.
+
 ## Plausible mechanism and limits
 
 The [headless harness](../../simulation/twinleaf/headless.cjs#L120-L135) implements `seededRandom` as xorshift32. In the default `runMatch` path, one seeded random function is assigned to global `Math.random` for the match ([lines 491–500](../../simulation/twinleaf/headless.cjs#L491-L500)). Consequently, both players' setup shuffles consume one sequential random stream.
 
-The alternative [Agent26 adapter](../../simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs) intercepts actual turn-zero `ShuffleDeckPrompt` resolutions and derives a separate deterministic xorshift32 stream per seat using fixed salts `0x243f6a88` and `0x85a308d3`. This removes sequential cross-seat consumption in the observed setup shuffles. The observed seat skew is consistent with shared-stream/seat-order correlation, but this comparison does not isolate the exact causal mechanism or prove either PRNG's statistical quality. The headless runner also has a built-in `runMatch({isolatePhysicalShuffleRandomness:true})` option (`simulation/twinleaf/headless.cjs`) that uses separate seat streams with different salts (`0x3c6ef372` / `0xa54ff53a`). Agent50's current per-seat cohorts use the Agent26 setup-only adapter, not that built-in flag; these are distinct per-seat protocols and should be compared explicitly before standardizing.
+The alternative [Agent26 adapter](../../simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs) intercepts actual turn-zero `ShuffleDeckPrompt` resolutions and derives a separate deterministic xorshift32 stream per seat using fixed salts `0x243f6a88` and `0x85a308d3`. The headless runner also has a built-in `runMatch({isolatePhysicalShuffleRandomness:true})` option that uses separate seat streams with different salts (`0x3c6ef372` / `0xa54ff53a`). Agent50's per-seat cohorts use the Agent26 setup-only adapter, not the built-in flag; these are distinct per-seat protocols and should be compared explicitly before standardizing.
 
-The per-seat adapter is a reproducible independent-stream approximation. It is not a proof of uniform paper shuffling. Its seed derivation, Fisher-Yates implementation, and distribution should still be tested. A matched identical-deck test is required to remove the one-Basic deck-composition difference entirely.
+The initial rank4/rank1 contrast is consistent with a seed/deck/shuffle-protocol interaction, but the independent identical-deck control did not reproduce a large seat imbalance. There is no demonstrated causal link between the shared xorshift stream and the original 8/0 outcome. The per-seat adapter is a reproducible independent-stream approximation, not proof of uniform paper shuffling. Its seed derivation, Fisher-Yates implementation, and distribution still require direct validation.
 
 One measurement lesson: a `WANT_TO_DRAW_CARDS` resolution may continue through `initNextTurn` in the same synchronous Store dispatch. The aggregate hand/deck delta can therefore include a subsequent turn-start `MOVE_CARDS` action. Instrument the compensation `CardList.moveTo` call itself; do not attribute every same-dispatch hand delta to the SelectPrompt.
 
@@ -81,10 +97,10 @@ One measurement lesson: a `WANT_TO_DRAW_CARDS` resolution may continue through `
 
 ## Required follow-up
 
-1. Run a matched identical-deck (rank4 vs rank4) seat-symmetry cohort under both legacy shared and per-seat setup streams, using the same fixed seed/seat pairs. Capture the full initial shuffled order or top-seven Basic counts as well as mulligan prompts.
-2. Test the xorshift32/Fisher-Yates stream pair directly over a large deterministic seed set. Quantify seat-specific Basic counts, mulligan rates, and cross-seat correlation before using it for paper-like opening frequencies.
-3. Record the physical-shuffle protocol in every Twinleaf experiment manifest. Never combine default shared-stream and per-seat-stream results without an explicit protocol-sensitivity analysis.
-4. Reassess prior mulligan-sensitive experiments that used the default shared stream. Preserve their artifacts and conclusions as results under that protocol; do not silently rewrite them.
-5. Keep the per-seat adapter research-owned and pinned. Any decision to change the shared harness default should follow independent reproduction and review.
+1. Replay the original rank4/rank1 32-seed list with identical rank4 decks under both protocols. This will isolate the one-Basic deck-composition difference while preserving the exact seed/seat cohort that produced the legacy 8/0 result. Capture the initial shuffled order or top-seven Basic counts as well as mulligan prompts.
+2. Compare Agent26's setup-only adapter against the built-in `runMatch({isolatePhysicalShuffleRandomness:true})` implementation, which uses different salts. Keep all three protocols (legacy shared, Agent26 adapter, built-in per-seat) separately labelled.
+3. Test the xorshift32/Fisher-Yates stream pair directly over a large deterministic seed set. Quantify seat-specific Basic counts, mulligan rates, and cross-seat correlation before making a causal claim.
+4. Record the physical-shuffle protocol in every Twinleaf experiment manifest. Never combine default shared-stream and per-seat-stream results without an explicit protocol-sensitivity analysis.
+5. Reassess prior mulligan-sensitive experiments as results under their recorded protocol; preserve their artifacts and do not silently rewrite them. Any decision to change shared harness defaults should follow independent reproduction and review.
 
 **Scope:** this is a simulator-fidelity warning and setup-rule validation only. It does not select a deck, establish a competitive policy, or demonstrate any win rate against the Aichi Open League 2026 Top 32.
