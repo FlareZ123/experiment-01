@@ -61,6 +61,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify bilateral adapter RNG and paid-retreat activation receipts
+        run: node --test tests/agent41-bilateral-v2-development.test.cjs tests/agent42-two-psychic-retreat-physical-custody-v2.test.cjs
       - name: Test actor-only native option prompt choices
         if: inputs.agent13_actor_option_canonical_dev
         run: node --test tests/agent13-actor-only-select-option.test.cjs
