@@ -19,7 +19,7 @@ function fixture() {
     publicRootActions:roots,publicRootActionsTruncated:false,
     publicRootActionCount:2,publicRootLedgerSha256Computed:digest,
     publicRootLedgerSha256Reported:digest,finalPrizes:[5,6],
-    actualSourceAttackSettlement:{attacks:[{settledPromptChain:true,
+    actualSourceAttackSettlement:{declarations:1,settled:1,attacks:[{settledPromptChain:true,
       actionOrdinal:0,completionRootOrdinal:1,turnBefore:4,
       attackName:'Test',prizesBefore:[6,6],prizesAfter:[5,6]}]},
     candidateAttackSettlement:{attacks:[]}
@@ -31,7 +31,8 @@ function fixture() {
     actualOriginalDispositionRows:[{
       id:'a',status:'root-cap-unqualified',sourceSeat:0,candidateSeat:1,
       sourceDealFingerprint:'source',fullPhysicalDealFingerprint:'full',
-      rootActionCount:2,finalPrizes:[5,6]
+      rootActionCount:2,finalPrizes:[5,6],
+      actualDeclaredSourceAttacks:1,completedSettledSourceAttacks:1
     }],exactTrialLinkedEveryPhysicalPrizeExit:[{
       registeredTrialId:'a',ownerSeat:0,turn:4,
       prePrizeCards:6,postPrizeCards:5,exactExitedCards:1,
