@@ -54,7 +54,7 @@ The selection remains provisional for development. Five engine errors and three 
 
 ## v9 failure interpretation
 
-The v9 runner and registration are preserved. The A/B/A run returned 24 rows and matched all initial physical-deal fingerprints. Its repeated A controls did not reproduce identical root ledgers. The test failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28`.
+The v9 runner and registration are preserved. The A/B/A run returned 24 rows and matched all initial physical-deal fingerprints. Its repeated A controls did not reproduce identical root ledgers. The test failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28`. Its first-divergence predicate passed vacuously with zero divergences; the predicate also checks action class only, without requiring the registered source seat or an exact accepted-sidecar ordinal join.
 
 The runner manifest reports `randomnessProtocol: legacy-shared-prng`, `policyRandomIsolation=false`, and `physicalShuffleRandomIsolation=false`. This is a treatment-dependent randomness confound. However, `headless.runMatch` seeds `Math.random` from each request seed and restores it after the match, so sequential phase consumption alone does not explain the A/A' mismatch. Request-seed mutation, stateful wrappers, or another source outside the per-match RNG remain possible. The exact replay defect is unisolated. The zero treatment divergence is descriptive only. The treatment did not reach a RetreatAction in the 128-root window, and the known natural paid-retreat rescue occurs at root131.
 
