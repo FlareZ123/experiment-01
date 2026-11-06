@@ -77,6 +77,7 @@ function summarize(rows) {
   assert.equal(rows.length,32);
   const byTrial = [], groups = new Map();
   let passes = 0, covered = 0, positiveRoots = 0, errors = 0;
+  let abortedKnownPasses = 0;
   for (const row of rows) {
     const trial = row.trial;
     const key = [trial.rank,trial.candidateSlot,trial.repeat].join(':');
@@ -86,6 +87,11 @@ function summarize(rows) {
     const status = row.error ? 'native-error' :
       row.finished ? 'native-engine-terminal' : 'native-action-limit';
     if (row.error) errors++;
+    const abortLedger = row.nativeAbortEvidence?.rootActionLedger;
+    const abortPasses = Array.isArray(abortLedger) ?
+      abortLedger.filter(root => root.action === 'PassTurnAction').length :
+      null;
+    if (!witness && abortPasses !== null) abortedKnownPasses += abortPasses;
     if (witness) {
       assert.equal(witness.completeNativePassCoverage,true);
       assert.equal(witness.actualNativePassRoots,witness.observedOwnerPassRoots);
@@ -102,6 +108,8 @@ function summarize(rows) {
       rootDigest:row.rootActionLedgerSha256??null,
       actualNativePasses:witness?.actualNativePassRoots??null,
       ownerPassReceipts:witness?.observedOwnerPassRoots??null,
+      knownAcceptedPassesOnAbort: witness ? null : abortPasses,
+      abortPassOwnerHandsAvailable:false,
       candidateHeldStonePasses:witness?.counts?.candidate.heldFloatStone??null,
       candidateNarrowFundedVmaxPasses:
         witness?.counts?.candidate.visibleFundedVmaxPasses??null,
@@ -128,6 +136,8 @@ function summarize(rows) {
       row.actualNativePasses!==null).length,
     nativePassRootsInCompleteRows:passes,
     ownerPassReceiptsInCompleteRows:covered,
+    knownAcceptedPassRootsOnIncompleteNativeRows:abortedKnownPasses,
+    knownAcceptedPassRootsAcrossAllRows:passes+abortedKnownPasses,
     candidateNarrowFundedVmaxPassRootObservations:positiveRoots,
     physicalSeedGroupsWithAnyVisiblePositive:groupsWithAnyCandidatePositive,
     sourceDealMatchedWithinBothContenders:matchedSourceDeals,
