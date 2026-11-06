@@ -2,9 +2,10 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {summarizeSpecialEnergyCoverage}=require(
+const {summarizeSpecialEnergyCoverage,favorableContextFor}=require(
   '../scripts/agent33-aichi-special-energy-model-coverage.cjs'
 );
+const {energyUnits}=require('../simulation/twinleaf/actor-energy-payability.cjs');
 
 test('authenticated Aichi Energy inventory and exact Special Energy denominator',()=>{
   const result=summarizeSpecialEnergyCoverage();
@@ -74,4 +75,31 @@ test('all 21 original Energy printings are recognized by the general model in fa
   assert.equal(x.printings.length,21);
   assert.ok(x.printings.every(row=>
     row.genericFavorableCopies===row.count));
+});
+
+test('all 14 field Special Energy families have the expected unit shape',()=>{
+  const any=['G','R','W','L','P','F','D','M','Y','C'];
+  const expected={
+    'Capture Energy RCL':[['C']],
+    'Counter Energy CIN':[any,any],
+    'Double Colorless Energy SUM':[['C'],['C']],
+    'Double Dragon Energy ROS':[any,any],
+    'Jet Energy PAL':[['C']],
+    'Memory Energy LOT':[['C']],
+    'Powerful Colorless Energy DAA':[['C']],
+    'Prism Energy ASC':[any],
+    'Recycle Energy UNM':[['C']],
+    'Reversal Energy PAL':[any,any,any],
+    'Speed Lightning Energy RCL':[['L']],
+    'Spiky Energy JTG':[['C']],
+    'Telepathic Psychic Energy POR':[['P']],
+    'Unit Energy LPM UPR':[['L','P','M']]
+  };
+  for(const [printing,units] of Object.entries(expected)){
+    assert.deepEqual(energyUnits(printing,favorableContextFor(printing)),
+      units,printing);
+  }
+  assert.deepEqual(energyUnits('Prism Energy ASC',{
+    ...favorableContextFor('Prism Energy ASC'),isBasic:false
+  }),[['C']]);
 });
