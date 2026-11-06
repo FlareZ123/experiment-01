@@ -10,6 +10,8 @@ const {withOwnerHnsQuickBallCost:withOwnerHnsQuickBallCostV2}=
   require('../twinleaf/agent25-owner-quickball-hns-cost-v2.cjs');
 const {withOwnerHnsQuickBallCost:withOwnerHnsQuickBallCostV3}=
   require('../twinleaf/agent25-owner-quickball-hns-cost-v3-frontier.cjs');
+const {withOwnerHnsQuickBallCost:withOwnerHnsQuickBallCostV4}=
+  require('../twinleaf/agent25-owner-quickball-hns-cost-v4-threshold.cjs');
 const {withCorrectedHnsDiscardAbilityCount,VERSION:HOOK_VERSION,pin}=
   require('../twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs');
 
@@ -56,13 +58,14 @@ function toPrintedManifest(){
 const describeError=error=>String(error?.stack||error?.message||error);
 
 /** Run exactly six pre-registered native bounded trials when the 60 resolves. */
-function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ballDonorCostV3=false}={}){
+function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ballDonorCostV3=false,ballDonorCostV4=false}={}){
   assert.equal(typeof donorCompressor,'boolean');
   assert.equal(typeof ballDonorCost,'boolean');
   assert.equal(typeof ballDonorCostV2,'boolean');
   assert.equal(typeof ballDonorCostV3,'boolean');
-  assert.ok([ballDonorCost,ballDonorCostV2,ballDonorCostV3].filter(Boolean).length<=1);
-  assert.ok(!(ballDonorCost||ballDonorCostV2||ballDonorCostV3)||donorCompressor,
+  assert.equal(typeof ballDonorCostV4,'boolean');
+  assert.ok([ballDonorCost,ballDonorCostV2,ballDonorCostV3,ballDonorCostV4].filter(Boolean).length<=1);
+  assert.ok(!(ballDonorCost||ballDonorCostV2||ballDonorCostV3||ballDonorCostV4)||donorCompressor,
     'Quick Ball donor payment extension requires same owner Compressor base');
   assert.equal(pin,registration.enginePin);
   const rows=toPrintedManifest();
@@ -129,19 +132,21 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
         deckB:seat===1?plan.candidate.cards:opponent.cards,
         seed:registration.seedsByRank[rank],
         maxActions:registration.maximumRootActions,
-        label:'agent25-preregistered-'+(ballDonorCostV3?'compressor-ball-root-v3':(ballDonorCostV2?'compressor-ball-staged-v2':(ballDonorCost?'compressor-ball-donor':(donorCompressor?'compressor-policy':'baseline'))))+'-'+key,
+        label:'agent25-preregistered-'+(ballDonorCostV4?'compressor-ball-three-v4':(ballDonorCostV3?'compressor-ball-root-v3':(ballDonorCostV2?'compressor-ball-staged-v2':(ballDonorCost?'compressor-ball-donor':(donorCompressor?'compressor-policy':'baseline')))))+'-'+key,
         ...registration.options,
         ...(donorCompressor?{dhelmiseDonorCompressorSeat:seat}:{}),
+        ...(ballDonorCostV4?{dhelmiseQuickBallThreeDonorRootSeat:seat}:{}),
         captureStartingBoard:true,captureFinalPublicBoard:true
       };
       try{
         const execution=()=>withCorrectedHnsDiscardAbilityCount(()=>
           runMatch(request));
-        const selected=ballDonorCostV3?
-          withOwnerHnsQuickBallCostV3(seat,execution):
+        const selected=ballDonorCostV4?
+          withOwnerHnsQuickBallCostV4(seat,execution):
+          (ballDonorCostV3?withOwnerHnsQuickBallCostV3(seat,execution):
           (ballDonorCostV2?withOwnerHnsQuickBallCostV2(seat,execution):
           (ballDonorCost?withOwnerHnsQuickBallCost(seat,execution):
-          {result:execution(),audit:null}));
+          {result:execution(),audit:null})));
         const wrapped=selected.result;
         const game=wrapped.result;
         attempts.push({key,rank,candidateSeat:seat,status:game.finished?
@@ -174,17 +179,20 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
     candidate:registration.candidate,
     originalSourceRanks:registration.sourceRanks,
     seedsByRank:registration.seedsByRank,
-    policy:ballDonorCostV3?
+    policy:ballDonorCostV4?
+      'DhelmiseHnsOwnerCompressor-v1 + native owner Quick Ball threshold-three root/cost v4':
+      (ballDonorCostV3?
       'DhelmiseHnsOwnerCompressor-v1 + owner-only Quick Ball source-v2 decision and v3 owner-root frontier':
       (ballDonorCostV2?
       'DhelmiseHnsOwnerCompressor-v1 + owner-only staged Quick Ball HNS preference v2 candidate seat':
       (ballDonorCost?
       'DhelmiseHnsOwnerCompressor-v1 + owner-only paid Quick Ball HNS preference candidate seat':
       (donorCompressor?'Twinleaf SimpleTacticsAi + DhelmiseHnsOwnerCompressor-v1 candidate seat':
-        'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards'))), 
+        'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards')))), 
     donorCompressorPolicy:donorCompressor,ballDonorCostPolicy:ballDonorCost,
     ballDonorCostV2Policy:ballDonorCostV2,
     ballDonorCostV3Policy:ballDonorCostV3,
+    ballDonorCostV4Policy:ballDonorCostV4,
     paperHnsHookVersion:HOOK_VERSION,
     printing,attempts,competitivelyQualifiedGames:0,
     noClockModel:true,postAichiNewCardCandidate:true};
