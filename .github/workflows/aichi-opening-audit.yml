@@ -16,11 +16,29 @@ on:
         type: string
         required: false
 
+      agent27_adp_one_bonus:
+        description: 'Exact fixed 60 ADP one opponent-mulligan paid opening and independent toy physical enumeration'
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
   actions: read
 
 jobs:
+  agent27-adp-one-bonus-math:
+    if: inputs.agent27_adp_one_bonus
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source one-bonus arithmetic and labeled physical deal parity
+        run: node --test tests/agent27-adp-one-mulligan-bonus.test.cjs tests/agent27-adp-one-mulligan-miniature.test.cjs
+
   rank8-vip-box-archive:
     if: inputs.agent7_vip_box_native_archive_run != ''
     runs-on: ubuntu-latest
