@@ -25,7 +25,8 @@ const VMAX='Shadow Rider Calyrex VMAX CRE';
  *
  * @param {0|1} seat Physical owner seat.
  * @returns {{store:object,state:object,owner:object,opponent:object,
- *   catalog:object,activeBefore:object,oldEnergy:object[],sourceSeat:0|1}}
+ *   catalog:object,manager:object,card:(name:string)=>object,
+ *   activeBefore:object,oldEnergy:object[],sourceSeat:0|1}}
  */
 function stage(seat){
   const manager=initializeCards();
@@ -105,7 +106,7 @@ function stage(seat){
     funded.energies.cards.length,
     girafarig.energies.cards.length
   ],[2,3,2]);
-  return {store,state,owner,opponent,catalog,
+  return {store,state,owner,opponent,catalog,manager,card,
     activeBefore:owner.active,oldEnergy:[...owner.active.energies.cards],
     sourceSeat:seat};
 }
@@ -324,11 +325,9 @@ test('native Snorlax Block is a public Retreat veto and Store rejects Retreat',(
 
 
 test('native Eon Blade attack lock clears only after the Latias leaves Active',()=>{
-  const game=stage(1),{store,state,owner,opponent,manager,attach}=game;
-  const latias=manager.getCardByName('Latias ex SSP');
-  const defender=manager.getCardByName('Shadow Rider Calyrex VMAX CRE');
-  assert.ok(latias&&defender);
-  latias.id=990005;defender.id=990006;
+  const game=stage(1),{store,state,owner,opponent,card,attach}=game;
+  const latias=card('Latias ex SSP');
+  const defender=card(VMAX);
   const latiasSlot=owner.active;
   latiasSlot.cards.splice(0,latiasSlot.cards.length,latias);
   latiasSlot.hp=latias.hp;latiasSlot.damage=0;
