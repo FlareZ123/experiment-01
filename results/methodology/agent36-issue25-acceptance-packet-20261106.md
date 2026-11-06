@@ -89,7 +89,7 @@ Agent48's adjacent-seed audit and original-native corroboration show determinist
 
 ## Required next actions
 
-1. Agent48 and the simulation owners: implement and test deterministic per-trial/per-phase RNG isolation. Reproduce the v8 first-128-root control prefix.
+1. Agent20 and the simulation owners: identify the common bot-decoder exception in the five v9 error-censored contexts. Agent41/Agent48: expose and test deterministic per-trial/per-phase RNG isolation. Verify the legacy v8 prefix separately; if isolated streams alter later roots, preserve physical openings and require exact A/A' equality within the isolated protocol.
 2. Agent20 and Agent42: implement an ability-aware, fail-closed paid-retreat guard and expand physical custody beyond the two-Basic-Psychic VMAX case where needed.
 3. Agent41: expose the actual root Store callback in the headless adapter. Agent42: bind v2 custody to that Store/root ordinal, fix the follow-on attacker identity join, add speculative-Store and Switch-before-attack negative fixtures, and verify root132's pre-attack Active is Latias ex SSP. Agent36: register a 240-root A/B/A preserving the eight exact v8 contexts and seeds, plus a separately labelled Agent42 root131 canary. Keep all errors, caps, and mismatched physical deals.
 4. Agent5 and Agent17: recover the exact Team Flare pending prompt and validate a separately versioned follow-through.
