@@ -223,9 +223,9 @@ for (const seat of [0, 1]) {
       const { State, GamePhase } = native('game/store/state/state');
       const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
         native('game/store/prefabs/attack-effects');
-      const f = stage(seat, 2, false, 'Regidrago V SIT');
-      const evolved = initializeCards().getCardByName('Regidrago VSTAR SIT');
-      assert.ok(evolved, 'Regidrago VSTAR SIT must be registered in pinned pool');
+      const f = stage(seat, 2, false, 'Charmander MEW');
+      const evolved = initializeCards().getCardByName('Charmeleon MEW');
+      assert.ok(evolved, 'Charmeleon MEW must be registered in pinned pool');
       evolved.id = 347900 + seat;
       f.defender.hand.cards.push(evolved);
       f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
