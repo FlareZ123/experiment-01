@@ -55,6 +55,21 @@ test('real native original-eight v13 decision policy, only root horizon extended
   assert.ok(completed.every(x=>Array.isArray(x.nativeFinalPrizes)&&
     x.nativeFinalPrizes.length===2&&
     x.nativeFinalPrizes.every(n=>Number.isInteger(n)&&n>=0&&n<=6)));
+  assert.equal(execution.diagnostic.nativePublicEndstateObservedTrials,8);
+  assert.equal(execution.diagnostic.nativePublicEndstateObservedReturns,7);
+  const returned=records.filter(x=>x.originalNativeEndstate?.nativeReturned);
+  assert.equal(returned.length,7);
+  assert.ok(returned.every(x=>
+    x.originalNativeEndstate.publicNativeStateAvailable===true&&
+    x.originalNativeEndstate.nativeFinished===x.genuineNativeFinished&&
+    x.originalNativeEndstate.nativeWinner===x.reportedNativeWinner&&
+    x.originalNativeEndstate.nativeEndReason===x.nativeEndReason&&
+    JSON.stringify(x.originalNativeEndstate.nativePrizesBySeat)===
+      JSON.stringify(x.nativeFinalPrizes)));
+  const aborted=records.filter(x=>!x.originalNativeEndstate?.nativeReturned);
+  assert.equal(aborted.length,1);
+  assert.equal(aborted[0].originalNativeEndstate.opaqueAbort,true);
+
 
   const audit={
     schema:VERSION,
