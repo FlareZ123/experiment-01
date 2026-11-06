@@ -1,5 +1,7 @@
 'use strict';
 const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 /** @param {object} r @returns {object} */
 function view(r){
  return {physicalParity:r.physicalDealParity,
@@ -31,5 +33,20 @@ function view(r){
   })),
  qualifiedGames:0};
 }
-if(require.main===module)console.log('PALEMOON_PUBLIC '+JSON.stringify(view(JSON.parse(fs.readFileSync(process.argv[2],'utf8')))));
+if(require.main===module){
+ const bytes=fs.readFileSync(process.argv[2]);
+ const record=JSON.parse(bytes.toString('utf8'));
+ assert.equal(record.version,'agent17-original-source-TeamFlare-plus-rank1-PaleMoon-single-root-ABA-v1');
+ const publicView=view(record);
+ assert.equal(publicView.validated,true);
+ assert.equal(publicView.physicalParity,true);
+ assert.equal(publicView.previousRoots,true);
+ assert.equal(publicView.acceptedGX,true);
+ assert.equal(publicView.attack,'Pale Moon-GX');
+ assert.deepEqual(publicView.winners,[0,0,0]);
+ assert.deepEqual(publicView.terminalPrizeCounts,[[6,6],[6,4],[6,6]]);
+ assert.deepEqual(publicView.terminalDeckCounts,[[2,0],[2,0],[2,0]]);
+ publicView.archiveJsonSha256=createHash('sha256').update(bytes).digest('hex');
+ console.log('PALEMOON_PUBLIC '+JSON.stringify(publicView));
+}
 module.exports={view};
