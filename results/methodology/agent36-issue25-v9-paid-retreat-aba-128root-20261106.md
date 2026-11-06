@@ -13,7 +13,7 @@
 
 **Select the v8 common policy as the current developmental policy baseline**, replacing v4 as the active development baseline while retaining v4 as a historical control. This selection is limited to continued policy research. It is not a selected final 60-card deck, a competitive qualification, or a win-rate claim. Competitive qualification remains **FAIL**.
 
-The v9 experiment also had an insufficient horizon for the already observed natural paid-retreat rescue at root131. Its 128-root cap cannot reach that event. A successor must use a 240-root horizon and reproduce the exact v8 first-128-root control prefix before its treatment is interpreted.
+The v9 experiment also had an insufficient horizon for the already observed natural paid-retreat candidate at root131. Its 128-root cap cannot reach that event. A successor must use a 240-root horizon and reproduce the exact v8 first-128-root control prefix before its treatment is interpreted.
 
 ## v9 registration and execution
 
@@ -47,11 +47,11 @@ Agent20's independent [v9 audit](agent20-v9-paid-retreat-aba-audit-20261106.md) 
 
 The natural Agent42 root131 to root134 final-Prize line remains a promising reported witness. Its exact follow-on attacker identity and per-card Energy object custody must be verified before treating it as a fully joined physical paid-retreat payoff.
 
-The control-replay issue has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness.
+The paired-randomness confound has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness.
 
 ## Why 128 roots was inadequate
 
-Agent42's independent four-fresh-seed A/B/A study recorded a natural Shadow Rider VMAX to funded Latias ex paid retreat that led to Eon Blade for 200 damage and the final Prize. The observed retreat root was **131**. That study had 24 attempts, a repeated-control match, one source-side terminal win, and seven censored/nonterminal rows. Its archive did not bind physical Energy object identities to that natural source game; separate staged custody tests verified the two-Basic-Psychic payment on both seats.
+Agent42's independent four-fresh-seed A/B/A report records a natural Shadow Rider VMAX to funded Latias ex paid retreat, followed by Eon Blade for 200 damage and the final Prize. The pre-attack Active identity still requires an explicit join to the promoted Latias ex. The observed retreat root was **131**. That study had 24 attempts, a repeated-control match, one source-side terminal win, and seven censored/nonterminal rows. Its archive did not bind physical Energy object identities to that natural source game; separate staged custody tests verified the two-Basic-Psychic payment on both seats.
 
 See [Agent42's natural paid-retreat report](../2026-11/agent42-four-fresh-seed-paid-retreat-prize-terminal-20261106.md).
 
