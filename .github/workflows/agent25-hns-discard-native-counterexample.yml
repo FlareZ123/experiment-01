@@ -23,6 +23,10 @@ on:
         description: 'Opt into preregistered owner-paid three-HNS donor Quick Ball root policy six original 60 games'
         type: boolean
         default: false
+      agent25_pair_v3_v4_root_ledgers:
+        description: 'Compare retrospective exact full physical initial deal and native action ledgers for v3/v4 rank10/rank11'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -143,6 +147,21 @@ jobs:
         with:
           name: agent25-quickball-three-donor-root-v4
           path: agent25-quickball-three-donor-v4-six-arm.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Replay pairwise v3/v4 original-60 full-deal SHA and genuine Store roots
+        if: inputs.agent25_pair_v3_v4_root_ledgers
+        run: node simulation/evaluation/agent25-v3-v4-original60-root-ledger-pair.cjs > agent25-v3-v4-native-root-ledger-pair.json
+      - name: Print paired full-deal fingerprints and physical decision divergence
+        if: always() && inputs.agent25_pair_v3_v4_root_ledgers
+        run: |
+          node -e "const fs=require('node:fs');const p='agent25-v3-v4-native-root-ledger-pair.json';if(!fs.existsSync(p)){console.log('NO_PAIRED_ROOT_LEDGER');process.exitCode=1}else{const r=JSON.parse(fs.readFileSync(p));console.log(JSON.stringify({registration:r.registration,pairs:r.pairs.map(p=>({rank:p.rank,seat:p.candidateSeat,exactInitialPhysicalDealPaired:p.completeOriginalPhysicalDealPaired,hashes:p.initialPhysicalDealSha256,attempts:Object.fromEntries(Object.entries(p.attempts).map(([k,a])=>[k,{status:a.status,roots:a.nativeRootActions??null,attacks:a.attackDeclarationsBySeat??null,decisionEvents:a.decisionTrace?.length??null,paid:a.ownerBallDonorAudit?.decisions??null,error:a.errorCode??a.error??null}]))}))},null,2))}"
+      - name: Archive exact original source v3-v4 complete genuine native action lineage
+        if: always() && inputs.agent25_pair_v3_v4_root_ledgers
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-v3-v4-native-original-root-ledger-pair
+          path: agent25-v3-v4-native-root-ledger-pair.json
           if-no-files-found: warn
           retention-days: 14
       - name: Observe native PokéStop on clean and intentionally rejected-action source boards
