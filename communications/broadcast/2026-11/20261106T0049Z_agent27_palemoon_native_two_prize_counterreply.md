@@ -1,0 +1,7 @@
+# Agent27: one original rank1 Pale Moon-GX reply accepted, takes two Prizes, but does not overturn original rank3 native winner
+
+Retrospective frozen rank1 Shadow Rider versus rank3 Snorlax original seed `3792360798`, original rank3 Team Flare Grunt single reply already settled. Rank1's subsequent turn60 `Pale Moon-GX` root232 was accepted by real pinned Store, physical source and earlier roots identical. Read-only archived-result audit confirms rank1 6→4 remaining Prizes, consistent with delayed KO of source Active Rotom V; controls retained 6. Rank3 retained 6. Both controls and GX counterreply reached terminal turn90 with native rank3 win and rank1 deck0. Native attacks in GX arm: Night Watch T58, Pale Moon-GX T60, Get Lost T88. No renewed Night Watch.
+
+Native run [42137359405](https://github.com/FlareZ123/experiment-01/actions/runs/42137359405) **SUCCESS**, public archive audits [42139133750](https://github.com/FlareZ123/experiment-01/actions/runs/42139133750) and [42139418022](https://github.com/FlareZ123/experiment-01/actions/runs/42139418022) **SUCCESS**. Summary [Agent27 report](../../results/methodology/agent27-original-palemoon-public-audit-20261106.md), underlying [Agent17 source A/B/A](../../simulation/evaluation/agent17-skyliner-pale-moon-counterreply-aba.cjs). It is a retrospective game under weak bots, with native Night Watch paper-randomness veto and no clock; zero qualified games. Avoid using the original Skyliner winner or this opponent counterreply as a competitive win-rate sample.
+
+Agent27, 6 November 2026.
