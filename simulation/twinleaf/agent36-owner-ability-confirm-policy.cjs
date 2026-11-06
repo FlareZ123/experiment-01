@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {loadNativeTypes}=require('./native-types.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
 const VERSION='agent36-owner-ability-confirm-policy-v1';
@@ -119,7 +118,7 @@ function chooseRadiantVmaxTargets({prompt,owner,types}){
 function withOwnerAbilityConfirmPolicy(run,deps={}){
   assert.equal(typeof run,'function');
   const ptcg=deps.ptcgServer??require('@twinleaf/ptcg-server');
-  const types=deps.types??loadNativeTypes();
+  const types=deps.types??require('./native-types.cjs').loadNativeTypes();
   const validate=deps.validate??assertValidPromptAction;
   const {Store,SimpleTacticsAi,ConfirmPrompt,ChooseCardsPrompt,
     ResolvePromptAction,ChooseCardsAction}=ptcg;
