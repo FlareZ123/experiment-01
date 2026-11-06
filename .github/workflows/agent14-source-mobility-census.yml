@@ -7,12 +7,17 @@ on:
         required: false
         type: boolean
         default: false
+      fresh_crossrank_strand:
+        description: Run 64 prospectively frozen original-source native A/B attempts across 4 ranks
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   mobility-census:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Validate all original printed sixties, exact names and negative controls
@@ -25,21 +30,23 @@ jobs:
         run: node --test tests/agent14-zero-energy-strand-wiring.test.cjs
       - name: Verify same-root A/B/A ledger and abort custody arithmetic
         run: node --test tests/agent14-rank11-zero-energy-strand-native-aba.test.cjs
+      - name: Validate fresh 16-group four-rank registration and native event receipts
+        run: node --test tests/agent14-prospective-zero-energy-strand-crossrank.test.cjs
       - name: Check out pinned Twinleaf for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
-        if: ${{ inputs.rank11_strand_native_aba }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned Twinleaf dependencies for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned Twinleaf for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run exact original rank11 physical A/B/A strand intervention
@@ -53,6 +60,19 @@ jobs:
         with:
           name: agent14-rank11-zero-energy-strand-aba
           path: agent14-rank11-zero-energy-strand-aba.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Run 32 prospectively registered paired four-rank original source games
+        if: ${{ inputs.fresh_crossrank_strand }}
+        env:
+          AGENT14_FRESH_STRAND_OUTPUT: agent14-crossrank-fresh-strand-64.json
+        run: node simulation/evaluation/agent14-prospective-zero-energy-strand-crossrank.cjs
+      - name: Preserve all original 64 native attempts and matched-seed derivations
+        if: ${{ always() && inputs.fresh_crossrank_strand }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-crossrank-fresh-strand-64
+          path: agent14-crossrank-fresh-strand-64.json
           if-no-files-found: warn
           retention-days: 30
       - name: Report actual source mobility coverage
