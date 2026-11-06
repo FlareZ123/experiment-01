@@ -98,7 +98,42 @@ function directlyHeldThornsResources(rank,options={}){
   };
 }
 
+/**
+ * At setup, exactly six facedown Prize cards are dealt after a legal
+ * Basic-containing initial seven. Compute the probability that every
+ * original physical DCE, the singleton Thunder Mountain, or both types
+ * are among those six. If the source owns three DCE, the 'dce' event
+ * means that all three copies are prized simultaneously.
+ *
+ * This is an exact K0 prize-inaccessibility metric for specific printings,
+ * with no search, Prize recovery or alternate Energy/Stadium routes.
+ *
+ * @param {6|24|29} rank
+ * @param {'dce'|'thunder'|'both'} [group]
+ * @returns {{rank:number,group:string,copies:number,numerator:bigint,
+ *  denominator:bigint,percentage:number}}
+ */
+function allAttackResourcesPrized(rank,group='dce'){
+  assert.ok(['dce','thunder','both'].includes(group));
+  const counts=groupOriginalSixty(rank);
+  const copies=group==='dce'?counts.dce:
+    group==='thunder'?counts.thunder:
+    counts.dce+counts.thunder;
+  assert.ok(copies>=1&&copies<=6);
+  const initialAll=choose(60,7)-choose(60-counts.basic,7);
+  const initialWithoutResources=choose(60-copies,7)-
+    choose(60-copies-counts.basic,7);
+  const favorable=initialWithoutResources*choose(53-copies,6-copies);
+  const denominator=initialAll*choose(53,6);
+  const divisor=gcd(favorable,denominator);
+  return {
+    rank,group,copies,
+    numerator:favorable/divisor,denominator:denominator/divisor,
+    percentage:100*Number(favorable)/Number(denominator)
+  };
+}
+
 module.exports={
   ORIGINAL_IRON_THORNS_RANKS,GROUPS,groupOriginalSixty,
-  directlyHeldThornsResources
+  directlyHeldThornsResources,allAttackResourcesPrized
 };
