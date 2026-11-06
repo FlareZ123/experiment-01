@@ -32,6 +32,9 @@ jobs:
       - name: Preflight sealed prospective trial IDs
         if: inputs.experiment == 'generic-field-matched' || inputs.experiment == 'generic-field-census'
         run: node -e "const trials=require('./simulation/evaluation/agent14-prospective-generic-funded-floatstone.cjs').registeredTrials(); console.log('REGISTERED_IDS',JSON.stringify(trials.map(t=>t.id)))"
+      - name: Independent held Float Stone gate regression
+        if: inputs.experiment == 'generic-field-census'
+        run: node --test tests/agent14-floatstone-held-owner-gates.test.cjs
       - name: Pinned submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
