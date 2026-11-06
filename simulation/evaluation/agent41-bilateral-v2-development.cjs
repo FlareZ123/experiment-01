@@ -1266,6 +1266,9 @@ function runDevelopment({
   onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
+  actorZeroEnergyStrandFloatStoneRoot=false,
+  actorZeroEnergyStrandFloatStoneTargetTurn=null,
+  actorZeroEnergyStrandFloatStoneOwnerSeat=null,
   actorUnderworldDoorPromptOwner=false,
   actorUnderworldAttackGapRecipient=false,
   sourceCrobatDceMewRetreat=false,
@@ -1386,6 +1389,13 @@ function runDevelopment({
     'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
     'Float Stone census must observe the same actor-only policy in both seats');
+  assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
+    'Zero-Energy strand rescue requires actor-only composition');
+  assert.ok(!actorZeroEnergyStrandFloatStoneRoot||
+    (Number.isSafeInteger(actorZeroEnergyStrandFloatStoneTargetTurn)&&
+     actorZeroEnergyStrandFloatStoneTargetTurn>1&&
+     [0,1].includes(actorZeroEnergyStrandFloatStoneOwnerSeat)),
+    'Strand rescue must be limited to a registered turn and physical seat');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorUnderworldAttackGapRecipient||
@@ -1613,6 +1623,7 @@ function runDevelopment({
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
+          !actorZeroEnergyStrandFloatStoneRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -1671,6 +1682,13 @@ function runDevelopment({
               }:{}),
               ...(actorGenericFundedFloatStoneCensus?{
                 genericFundedFloatStoneAudit:true
+              }:{}),
+              ...(actorZeroEnergyStrandFloatStoneRoot?{
+                zeroEnergyStrandFloatStoneRoot:true,
+                zeroEnergyStrandFloatStoneTargetTurn:
+                  actorZeroEnergyStrandFloatStoneTargetTurn,
+                zeroEnergyStrandFloatStoneOwnerSeat:
+                  actorZeroEnergyStrandFloatStoneOwnerSeat
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
@@ -2099,6 +2117,14 @@ function runDevelopment({
       actorOnlyComposition&&actorGenericFundedFloatStoneRoot,
     actorGenericFundedFloatStoneCensusOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneCensus,
+    actorZeroEnergyStrandFloatStoneRootOptIn:
+      actorOnlyComposition&&actorZeroEnergyStrandFloatStoneRoot,
+    actorZeroEnergyStrandFloatStoneTargetTurn:
+      actorZeroEnergyStrandFloatStoneRoot?
+        actorZeroEnergyStrandFloatStoneTargetTurn:null,
+    actorZeroEnergyStrandFloatStoneOwnerSeat:
+      actorZeroEnergyStrandFloatStoneRoot?
+        actorZeroEnergyStrandFloatStoneOwnerSeat:null,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
