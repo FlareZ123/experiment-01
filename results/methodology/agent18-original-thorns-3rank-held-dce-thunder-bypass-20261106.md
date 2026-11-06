@@ -26,6 +26,18 @@ Every percentage conditions on a successful Basic-containing seven. The opponent
 
 Rank 24 has three DCE rather than one, and more connector-free held DCE/Thunder openings in this specifically defined population; its extra Trainers' Mail also reduces the probability of meeting the **zero-connectors** condition. This is an exact marginal deck-composition observation. It does **not** prove rank24's deck, its setup, or any altered fixed contender outperforms another across games. Some connector-bearing openings can be superior; the model excludes them by design.
 
+## Broader direct-held pair, including connector-bearing hands
+
+The **zero-connectors E** rates above are intentionally disjoint from the earlier G&H/Tag/Mail access model. To avoid treating them as the full prevalence of naturally held attack resources, the same exact eight-card calculation also permits any number of those connector cards among the other held cards. The event is **Thunder Mountain plus at least one DCE held by the first own turn**, whether or not a G&H/Tag/Mail is also held.
+
+| Rank | Broader direct-held pair probability | Exact fraction | Strict no-connector E subset |
+| --- | ---: | --- | ---: |
+| **6** | **1.278355%** | `13697/1071455` | 0.636384% |
+| **24** | **3.499748%** | `722693/20649860` | 1.539457% |
+| **29** | **1.278355%** | `13697/1071455` | 0.707404% |
+
+Ranks6 and29 have identical broader probabilities because they have the same four Basics, one Thunder and one DCE; the number of held G&H/Tag/Mail and Guzma does not matter once those card identities are allowed as generic fillers. Rank24's three DCE copies raise the exact direct-held opportunity to 3.499748%. **The broader direct-held event overlaps** the G&H/Tag/Mail search route. It must not be added to the prior route probability without explicit intersection accounting. The E subset is suitable for the previously stated disjoint union; neither version includes opponent play or realized attack actions.
+
 ## Exact fractions and reproducible count
 
 | Event | Rank 6 | Rank 24 | Rank 29 |
@@ -37,7 +49,7 @@ Rank 24 has three DCE rather than one, and more connector-free held DCE/Thunder 
 
 Exact denominator is `D=[C(60,7)-C(56,7)]×53=8,177,344,560` across all three decks. Marginalize the intervening six random Prizes when calculating the first seven plus one draw. Given an unordered eight-card set with `b` Basic Pokémon, **eight** possible final-card choices preserve a legal initial seven if `b>=2`. If `b=1`, **seven** choices preserve a legal seven because the last card cannot be that sole Basic. For each `b`, DCE count `d>=1`, and held Guzma count `g`, select Thunder once, `b` of four Basics, `d` of the source's actual DCE copies, `g` Guzma copies, and the remaining observed cards from its source-specific other-card population after excluding all G&H, Tag Call and Mail. Multiply each combination by seven or eight valid final-card choices. Sum with exact BigInt and reduce by integer GCD.
 
-An independent Python `math.comb` enumeration generated all twelve exact fractions and checked the original rank6 rows against its previously independently derived method. [The committed CommonJS implementation](../../simulation/evaluation/agent18-thorns-held-thunder-dce-allranks.cjs) reads the three named inventories from the actual repository source, asserts each is 60 and has only four Basic Thorns, then performs the count with integer arithmetic. [Five Node regression cases](../../tests/agent18-thorns-held-thunder-dce-allranks.test.cjs) cover all source counts and twelve fractions, old rank6 agreement, monotonic subset relationships and unsupported-rank rejection. All five ran and passed in a local Node22 copy of the module; the local test roster preserved the authenticated relevant printing counts and modeled remaining cards as generic fillers. **The exact committed GitHub files have not yet had their own CI run**, and a full native real-Store execution with either source rank24/29 has not been performed for this result.
+An independent Python `math.comb` enumeration generated all twelve narrow exact fractions and checked the original rank6 rows against its previously independently derived method. [The committed CommonJS implementation](../../simulation/evaluation/agent18-thorns-held-thunder-dce-allranks.cjs) reads the three named inventories from the actual repository source, asserts each is 60 and has only four Basic Thorns, then performs the count with integer arithmetic. [Six Node regression cases](../../tests/agent18-thorns-held-thunder-dce-allranks.test.cjs) cover all source counts and twelve fractions, old rank6 agreement, monotonic subset relationships and unsupported-rank rejection. All six ran and passed in a local Node22 copy of the module; the local test roster preserved the authenticated relevant printing counts and modeled remaining cards as generic fillers. **The exact committed GitHub files have not yet had their own CI run**, and a full native real-Store execution with either source rank24/29 has not been performed for this result.
 
 ## Use in the shared research objective
 
