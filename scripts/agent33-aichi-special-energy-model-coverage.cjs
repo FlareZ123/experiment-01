@@ -239,6 +239,6 @@ function summarizeSpecialEnergyCoverage(){
 if(require.main===module){
   process.stdout.write(JSON.stringify(summarizeSpecialEnergyCoverage(),null,2)+'\n');
 }
-module.exports={BASIC_NAMES,NARROW_ENGINE_ALIASES,FAVORABLE_CONTEXT,
+module.exports={BASIC_NAMES,NARROW_ENGINE_ALIASES,
   CONSERVATIVE_CONTEXT,favorableContextFor,isBasicEnergy,sourcePrinting,
   summarizeSpecialEnergyCoverage};
