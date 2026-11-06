@@ -123,6 +123,10 @@ function auditOriginalV8MirrorTerminal(result){
   assert.equal(row.trial?.rank,1);
   assert.equal(row.trial?.candidateId,'champion-reference');
   assert.equal(row.trial?.candidateSlot,'B');
+  assert.equal(typeof row.sourceDeckFingerprint,'string');
+  assert.equal(typeof row.candidateDeckFingerprint,'string');
+  assert.equal(row.sourceDeckFingerprint,row.candidateDeckFingerprint,
+    'mirror certification requires equal actual native resolved 60-card roster digests');
   const sourceSeat=0,candidateSeat=1;
   assert.equal(row.finished,true);
   assert.equal(row.winner,candidateSeat);
@@ -145,6 +149,9 @@ function auditOriginalV8MirrorTerminal(result){
   return {
     schema:VERSION,originalFrozenEight:true,
     sourceAndCandidateBothOriginalRank1Printed60:true,
+    sourceResolvedDeckSha256:row.sourceDeckFingerprint,
+    candidateResolvedDeckSha256:row.candidateDeckFingerprint,
+    mirrorRostersActuallyEqualByNativeResolvedSha256:true,
     mirrorRelation:'Candidate champion-reference is loaded from the same exact original rank1 roster entry as the registered original rank1 source. Same list, independent physical shuffles.',
     registeredTrialId:TARGET,sourceSeat,candidateSeat,
     originalSeed:row.trial?.seed??null,initialSourceDealSha256:
