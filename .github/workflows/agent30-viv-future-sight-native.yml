@@ -33,6 +33,8 @@ jobs:
         run: node --test tests/agent30-ranger-budew-item-native.test.cjs
       - name: Test native both-seat Ranger clearing printed Altered Creation-GX payoff while preserving GX quota
         run: node --test tests/agent30-ranger-altered-creation-native.test.cjs
+      - name: Verify source rank19 Temple suppressed Double Dragon GX and genuine Sky Field reply
+        run: node --test tests/agent30-rank19-temple-dde-native.test.cjs
       - name: Verify actual Future Sight both-seat, both-target, top-four physical ordering
         run: node --test tests/agent30-duskull-viv-futuresight.native.test.cjs
       - name: Replay the original four Issue25 source/deals with exact printed Future Sight owner-stamped choice
