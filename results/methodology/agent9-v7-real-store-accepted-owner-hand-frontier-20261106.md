@@ -29,6 +29,14 @@ The separate conservative necessary-resource screen found **zero** of these five
 
 The supplied card pool's Guzma `sm3-115` (BUS) explicitly requires choosing one opponent Benched Pokémon for an Active switch, and on success switches the acting player's Active with one of their Benched Pokémon. The supplied Advanced Player's Rulebook, B-03 Supporters, permits one Supporter per turn. Those ordinary textual prerequisites are observable and satisfied here. **A live paper-ruling/effect-specific and Store-accepted Guzma root test is the next obligation**: player/opponent lock interaction, permissible targets, switching both sides, quota, action acceptance, and resulting board/attack must be checked. No paper-legal paid alternative is certified by the current archive.
 
+## First held-opponent counter-response check: Float Stone is already in the other hand
+
+The same read-only observer records each player's own hand only on that player's real turn. In `6:201:B:champion-reference`, after source **Pass root32** on turn5, the opponent's actual turn6 actor-owned hand contains `Float Stone BKT`, `Mysterious Treasure FLI`, `Quick Ball FST`, `Battle Compressor PHF`, `Night Stretcher ASC`, and `Psychic Energy MEE`. The very same `Float Stone` is already observed in that opponent's hand on its preceding turn4, before the source canary. This observation is **post-hoc opposing-owner evidence**. The source bot's selected action must never read the opposing hand.
+
+Printed `Float Stone` (BREAKthrough, `xy8-137`) says the attached Pokémon **has no Retreat Cost**. The opponent's original lone Benched `Marshadow UNB` has no Tool attached. If Guzma brings it Active, an opposing player holding Float Stone may be able to attach it and freely retreat back to Tapu Lele-GX on their next turn, provided no additional lock prevents the play or retreat. The v7 public source board has no Item or Tool play lock. This is a **concrete adverse-response candidate**, with native Store acceptance and resulting attack still untested. An opponent bot that leaves Marshadow stranded despite holding Float Stone would understate the strength of that counter-response, so a successful Guzma treatment must be evaluated against Tool-aware replies.
+
+Thus the new owner-hand evidence gives both an accessible source gust alternative and a specific opponent-held counter. The controlled experiment should retain the opponent's action policy and identify its actual next consequential move, with a separate appropriate counterplay canary if it overlooks Float Stone.
+
 ## Proof boundary and regression correction
 
 The original native observer recorded a proposed `PassTurnAction` using actor-only detached hand and public boards, but the join matched proposals by owner seat and turn only. This would have allowed a rejected or replaced proposal at the same turn to claim the hand seen at the accepted Pass.
