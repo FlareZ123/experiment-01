@@ -133,9 +133,11 @@ test('unknown Rule-Box Prize value, resistance, or visible Prize modifier fails 
   b.opponentPublic.active.printed.resistance=[{type:5,value:'-30'}];
   assert.equal(choose(b,catalog),null);
   const c=fixture();
-  c.opponentPublic.bench=[{abilityDetails:[{name:'Prize Guard',
+  c.opponentPublic.bench=[{tools:[],abilityDetails:[{name:'Prize Guard',
     text:'Your opponent takes no Prize cards when this Pokémon is Knocked Out.'}]}];
   assert.equal(choose(c,catalog),null);
+  const d=fixture();d.opponentPublic.active.tools=['Hard Charm BCR'];
+  assert.equal(choose(d,catalog),null);
 });
 
 test('only two distinct Basic Psychic Energy cards are admitted',()=>{
@@ -188,4 +190,6 @@ test('Skyliner and Snorlax Block are applied from the correct controller and Act
     abilityDetails:[{name:'Skyliner',
       text:'Your Basic Pokémon in play have no Retreat Cost.'}]}];
   assert.equal(choose(opponentSkyliner,catalog)?.attackName,'Eon Blade');
+  const missingStage=fixture();delete missingStage.ownPublic.active.printed.stage;
+  assert.equal(choose(missingStage,catalog),null);
 });
