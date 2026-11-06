@@ -4,7 +4,7 @@
 
 ## Result
 
-<badge label="6 / 32 opportunities" color="success" />
+**Observed opportunity rate:** 6/32 (18.75%).
 
 All **32/32** preregistered physical attempts reached the original rank4 source's first turn. The existing entry-priority opening policy left an original Dedenne-GX UNB in the source owner's hand with an empty Bench in **6/32 attempts (18.75%)**. The automatic native hook then physically Benched Dedenne, accepted the actual Dedechange confirmation, and drew six physical cards in **all 6/6 opportunities**. Opportunities were evenly split by physical source seat: **3/16 in seat 0 and 3/16 in seat 1**.
 
@@ -19,7 +19,7 @@ This is an opportunity-frequency and native-execution census under a controlled 
 - Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Source: original Aichi rank4 60, SHA-256 `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`.
 - Reference: original Aichi rank1 60, SHA-256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`.
-- The source list contains 2 Dedenne-GX and 11 other Basic Pokémon (13 Basic Pokémon total).
+- The [original rank4 decklist](../aichi-2026/full-decklists.json) contains 2 Dedenne-GX and 11 other Basic Pokémon (13 Basic Pokémon total).
 - Thirty-two unique seeds were generated using Python `secrets.randbits(32)`, fixed in the registration, and split 16/16 across physical source seats. Source was deliberately selected to go first in every arm. This is not a natural coin-outcome sample.
 - The existing single-Basic entry-priority policy was held fixed. It prefers a Basic without a printed hand-to-Bench Ability as Active where available; the min-zero optional compensation Bench choice declines the extra placement. The existing owner-only detached SelectPrompt adapter uses each prompt's default option.
 - The test records the source's actual first-turn hand, setup prompt owner, offered SelectPrompt labels, chosen index/default, and physical hand/deck changes. It observes the acting prompt owner's own zones and changes no action.
@@ -80,7 +80,7 @@ The source's first-turn hand size was 7 cards in 28 attempts, 8 cards in 3, and 
 
 ## Mulligan-compensation prompt receipts
 
-There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter selected the default maximum-draw option in each case. The pinned Twinleaf `setup-reducer.ts` constructs draw options in descending order and sets `defaultValue: 0`; the Store observer verified actual card movement for every prompt:
+There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter selected the default maximum-draw option in each case. The pinned Twinleaf [`setup-reducer.ts`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/setup-reducer.ts#L199-L225) constructs draw options in descending order and sets `defaultValue: 0`; the Store observer verified actual card movement for every prompt:
 
 | Trial | Source seat | Prompt owner seat | Selected label | Hand delta | Deck delta | Physical identity verified |
 |---:|---:|---:|---|---:|---:|:---:|
