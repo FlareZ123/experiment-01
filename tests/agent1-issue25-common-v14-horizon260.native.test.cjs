@@ -46,6 +46,16 @@ test('real native original-eight v13 decision policy, only root horizon extended
   assert.ok(records.every(x=>x.publicNativeRootCount<=260));
   assert.ok(records.every(x=>x.publicNativeRootActions.length===
     x.publicNativeRootCount));
+  assert.equal(execution.diagnostic.nativeTerminalCount,4,
+    'Native eight-arm replay should preserve four observed engine terminals');
+  const completed=records.filter(x=>x.genuineNativeFinished);
+  assert.equal(completed.length,4);
+  assert.ok(completed.every(x=>typeof x.nativeEndReason==='string'&&
+    x.nativeEndReason.length>0));
+  assert.ok(completed.every(x=>Array.isArray(x.nativeFinalPrizes)&&
+    x.nativeFinalPrizes.length===2&&
+    x.nativeFinalPrizes.every(n=>Number.isInteger(n)&&n>=0&&n<=6)));
+
   const audit={
     schema:VERSION,
     registeredOriginalTrialIds:expected,
@@ -76,6 +86,9 @@ test('real native original-eight v13 decision policy, only root horizon extended
       fullPhysicalDealFingerprint:x.fullPhysicalDealFingerprint,
       genuineNativeFinished:x.genuineNativeFinished,
       reportedNativeWinner:x.reportedNativeWinner,
+      nativeEndReason:x.nativeEndReason,
+      nativeFinalPrizes:x.nativeFinalPrizes,
+      nativeTurnCount:x.nativeTurnCount,
       lastNativeRoot:x.publicNativeRootActions.at(-1)??null
     })),
     nativeReportedTerminalCount:
