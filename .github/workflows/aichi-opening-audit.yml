@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: '22'
       - name: Check source one-bonus arithmetic and labeled physical deal parity
-        run: node --test tests/agent27-adp-one-mulligan-bonus.test.cjs tests/agent27-adp-one-mulligan-miniature.test.cjs
+        run: node --test tests/agent27-adp-one-mulligan-bonus.test.cjs tests/agent27-adp-one-mulligan-miniature.test.cjs tests/agent27-adp-original29-mulligan-bounds.test.cjs
 
   rank8-vip-box-archive:
     if: inputs.agent7_vip_box_native_archive_run != ''
