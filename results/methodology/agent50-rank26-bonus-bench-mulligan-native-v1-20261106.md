@@ -32,7 +32,7 @@ The witness script does not record whether the second Snorlax came from mulligan
 
 ## Existing Agent50 hook behavior
 
-The current Agent50 protected-entry chooser in `simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selection for a valid `min===0` prompt. `withOwnerProtectedMultiBasicStore` applies that chooser to the optional prompt and records a `bonusDeclines` event. It overrides the native default and declines the newly drawn Basic.
+The current Agent50 protected-entry chooser in `simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selection for a valid `min===0` prompt. `withOwnerProtectedMultiBasicStore` applies that chooser to the optional prompt and records a `bonusDeclines` event. It overrides the native default and declines any new candidate Basic in the optional prompt, including one drawn as compensation.
 
 However, the pinned default `SimpleTacticsAi` already has a generic optional-prompt behavior:
 
@@ -62,7 +62,7 @@ and rank6's failed-seven probability
 
 `q_d = C(56,7)/C(60,7) = 0.6005003742553344`.
 
-Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d, the normalizer for the official restart when both players fail. For rank6's four-Basic list, the probability of exactly one Basic in a valid opening seven is
+Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d`, the normalizer for the official restart when both players fail. For rank6's four-Basic list, the probability of exactly one Basic in a valid opening seven is
 
 `r_6 = 4*C(56,6)/(C(60,7)-C(56,7)) = 0.8417535034135825`.
 
@@ -70,7 +70,7 @@ Conditional on rank6 having exactly one Basic in its valid seven and both player
 
 `sum(k=1..53) [p_s*q_s^k] * [1-C(50,k)/C(53,k)] = 0.013213026568048238`
 
-or **1.32130266%**. Rank6's final valid opening is rank6's first valid seven with probability `p_d/D`; multiplying by `r_6 * p_d/D` gives the joint optional-prompt event **0.50177257%** of legal setups. This is the event that creates the optional `min=0` prompt with a new Basic available.
+or **1.32130266%**. Rank6's final valid opening is rank6's first valid seven with probability `p_d/D`; multiplying by `r_6 * p_d/D` gives the joint optional-prompt event **0.50177257%** of legal setups. This is the compensation-specific event that creates the optional `min=0` prompt with a new Basic available.
 
 The narrower fixture branch fixes exactly one rank26 mulligan, a rank6 initial seven with exactly one Basic, a Basic as the single compensation card, and exactly one Basic in rank26's second valid seven. Its probability, conditional on both players eventually obtaining valid sevens, is
 
