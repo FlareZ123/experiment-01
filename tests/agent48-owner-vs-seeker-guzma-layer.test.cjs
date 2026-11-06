@@ -121,7 +121,8 @@ test('both physical seats recover the exact owner-discard Guzma through native p
   assert.equal(result.audit.promptsProposed,2);
   assert.equal(result.audit.promptsAccepted,2);
   assert.equal(result.audit.receipts.length,2);
-  assert.ok(result.audit.receipts.every(x=>x.exactPhysicalCardMoved));
+  assert.equal(result.audit.actualGamesSeen,2);
+  assert.ok(result.audit.receipts.every(x=>x.exactPhysicalCardMoved&&x.supportItemMovedToDiscard));
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldBot);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
 });
