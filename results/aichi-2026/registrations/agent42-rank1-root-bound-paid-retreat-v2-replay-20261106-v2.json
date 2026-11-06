@@ -1,0 +1,207 @@
+{
+  "schema": "agent42-rank1-root-bound-paid-retreat-v2-replay-20261106-v2",
+  "createdAtUtc": "2026-11-06T16:34:02.753Z",
+  "registeredBeforeFirstNativeAttempt": true,
+  "originalSourceRank": 1,
+  "rank1OriginalPrintingsUnchanged": true,
+  "seedReuseDisclosure": "This paired replay deliberately reuses the four seed groups from the v4 run. Those seeds were already observed in v4. The v2 replay has no prior v2 attempts, but this is not an independent sample and must not support a fresh win-rate estimate.",
+  "priorSeedSourceRegistration": "results/aichi-2026/registrations/agent42-rank1-prospective-paid-v4-20261106.json",
+  "priorSeedSourceRegistrationBlob": "09582e7cb7e27eadcd083e17150cda8bf043006f",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenInputs": [
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "7258569fddc7e551648a8a8a87b339ce9433c48d"
+    },
+    {
+      "path": "simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs",
+      "blob": "931d7c36a12975b75b622acac80ed6c498c16f06"
+    },
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "blob": "7f97fd1d98dfb1eb158d08066a1e68ddfb5635ff"
+    },
+    {
+      "path": "simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal-v2.cjs",
+      "blob": "b256c5d62baa7f927a6cc02e4be348876f423e54"
+    },
+    {
+      "path": "simulation/twinleaf/agent42-two-psychic-retreat-physical-custody-v2.cjs",
+      "blob": "b069612b29663f1af73bb4ec59e79901f0e980d3"
+    },
+    {
+      "path": "simulation/evaluation/agent42-realstore-paid-retreat-join-v2.cjs",
+      "blob": "489532fbb1887d6bc915fdb9abb3b5b40c73b11f"
+    },
+    {
+      "path": "simulation/twinleaf/headless.cjs",
+      "blob": "779dcdb327327d8c60a369de4abd72424ccd24a1"
+    },
+    {
+      "path": "simulation/twinleaf/public-board-telemetry.cjs",
+      "blob": "2e56ad5a34f34eb35f8d0f2be35fb36edcfe16b7"
+    },
+    {
+      "path": "simulation/twinleaf/retreat-transition-evidence.cjs",
+      "blob": "943e0f85c3915b7e27a453751c2c3eb62d859928"
+    },
+    {
+      "path": "simulation/evaluation/agent37-candidate-attack-settlement.cjs",
+      "blob": "e45c87b8643a998ea449f7afea90c706ebc17652"
+    },
+    {
+      "path": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+      "blob": "8b7f7dfd271937fc613d277f03941dda663734ff"
+    },
+    {
+      "path": "simulation/evaluation/agent42-rank1-two-psychic-original-aba.cjs",
+      "blob": "c4a9cd229fd3d20c2fe281173a6f018676b61031"
+    },
+    {
+      "path": "simulation/evaluation/agent42-strict-profile-preflight.cjs",
+      "blob": "9417effa4608df30fb2b2446bf6f59cee8ffc2d4"
+    },
+    {
+      "path": "simulation/evaluation/agent31-rank1-prospective-basic-recipient-pair.cjs",
+      "blob": "c77f539346b95a2c832453b2712ba0e0d8f6d042"
+    },
+    {
+      "path": "results/aichi-2026/registrations/agent42-selected-v3-rank1-independent-heldout-20261103.json",
+      "blob": "7bdaa9c551ae1ce5d4bb818e71c21c8675a355f8"
+    }
+  ],
+  "baseSelectedPolicySource": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "selectedModeId": "selected-v3-paper-plus-funded-mobility",
+  "actionCap": 240,
+  "groups": [
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B"
+    }
+  ],
+  "trials": [
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "1:600:A:champion-reference"
+    },
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:600:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "1:601:B:champion-reference"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:601:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "1:602:A:champion-reference"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:602:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "1:603:B:champion-reference"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:603:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "same-policy-control-a",
+      "actorTwoUnitPaidRetreatRootV2": false,
+      "actorTwoUnitPaidRetreatTargetTurnV2": null
+    },
+    {
+      "id": "same-policy-v2-paid-retreat",
+      "actorTwoUnitPaidRetreatRootV2": true,
+      "actorTwoUnitPaidRetreatTargetTurnV2": null
+    },
+    {
+      "id": "same-policy-control-b",
+      "actorTwoUnitPaidRetreatRootV2": false,
+      "actorTwoUnitPaidRetreatTargetTurnV2": null
+    }
+  ],
+  "expectedContexts": 8,
+  "expectedArms": 3,
+  "expectedNativeAttempts": 24,
+  "observedTrialsBeforeRegistration": 0,
+  "admissionCriteria": [
+    "all actual recorded physical initial deals matched within each trial across all three arms",
+    "controls A and C have identical native real-root logs",
+    "custody observer registers only the actual headless root Store through onRootStoreCreated",
+    "each physical receipt carries the exact accepted root action ordinal from onRootActionDispatched and matches rootActionLedger",
+    "exact two Basic Psychic Energy objects enter discard, are absent from all board slots, and the intended target is promoted with its Energy and Tools unchanged",
+    "a subsequent attack is attributed only if publicBoardBefore[sourceSeat].active.printing equals the promoted target printing",
+    "Prize and terminal credit require the same promoted-attacker identity match",
+    "report every attempt, native abort, action cap, fixed original opponent roster and candidate 60",
+    "do not count any native terminal as a paper-qualified game or aggregate field win estimate"
+  ],
+  "competitivelyQualifiedGames": 0,
+  "fieldWinRate": null,
+  "supersedes": "results/aichi-2026/registrations/agent42-rank1-root-bound-paid-retreat-v2-replay-20261106.json"
+}
