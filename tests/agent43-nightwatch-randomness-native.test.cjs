@@ -121,3 +121,67 @@ for (const attackerSeat of [0, 1]) {
     }));
   });
 }
+
+
+const {
+  sampleDistinctHandPositions,
+  isDirectNightWatchHandPrompt,
+  withPaperRandomDirectNightWatch
+}=require('../simulation/twinleaf/agent43-nightwatch-paper-random-resolver.cjs');
+
+test('uniform-index sampler uses physical positions without card scores',()=>{
+  assert.deepEqual(sampleDistinctHandPositions(3,2,()=>0),[0,1]);
+  const values=[0.999999,0];
+  assert.deepEqual(sampleDistinctHandPositions(3,2,()=>values.shift()),[2,0]);
+});
+
+for(const attackerSeat of [0,1]){
+  test('separate seeded Night Watch diagnostic resolves owner prompt and restores bot seat '+attackerSeat,()=>{
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const defs=native('simple-bot/simple-bot-definitions');
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    const f=stage(attackerSeat);
+    const bot=new SimpleTacticsAi({id:f.attacker.id},{
+      tactics:defs.allSimpleTactics,
+      promptResolvers:defs.allPromptResolvers,
+      scores:defs.defaultStateScores,
+      arbiter:defs.defaultArbiterOptions
+    },null);
+    const before=SimpleTacticsAi.prototype.resolvePrompt;
+    const wrapped=withPaperRandomDirectNightWatch(()=>{
+      f.store.dispatch(new AttackAction(f.attacker.id,'Night Watch'));
+      const pending=f.state.prompts.find(p=>p.result===undefined);
+      assert.equal(isDirectNightWatchHandPrompt(f.state,f.attacker,pending),true);
+      const action=bot.resolvePrompt(f.attacker,f.state,pending);
+      assert.ok(action instanceof ResolvePromptAction);
+      assert.equal(action.result.length,2);
+      assert.equal(pending.validate(action.result,f.state),true);
+      f.store.dispatch(action);
+      return {
+        selected:action.result,
+        remaining:f.defender.hand.cards.slice(),
+        otherPrompts:f.state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name)
+      };
+    },{seed:20261106});
+    assert.strictEqual(SimpleTacticsAi.prototype.resolvePrompt,before);
+    assert.equal(wrapped.audit.restored,true);
+    assert.equal(wrapped.audit.samples.length,1);
+    const sample=wrapped.audit.samples[0];
+    assert.equal(sample.seat,attackerSeat);
+    assert.equal(sample.physicalHandSize,3);
+    assert.equal(sample.count,2);
+    assert.equal(sample.ownerHiddenCardNamesReadForDecision,false);
+    assert.deepEqual(wrapped.result.selected,
+      sample.sampledIndices.map(i=>f.opponentHand[i]));
+    assert.equal(wrapped.result.remaining.length,1);
+    assert.deepEqual(wrapped.result.otherPrompts,
+      ['ShowCardsPrompt','ShuffleDeckPrompt']);
+    assert.equal(wrapped.audit.qualifiedGames,0);
+    console.log('AGENT43_NIGHTWATCH_RANDOM_NATIVE',JSON.stringify({
+      attackerSeat,audit:wrapped.audit,
+      remaining:wrapped.result.remaining.map(c=>c.name)
+    }));
+  });
+}
