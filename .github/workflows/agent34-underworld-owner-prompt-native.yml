@@ -95,7 +95,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
-        run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs
+        run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs tests/agent34-pale-moon-gx-native-gate.test.cjs
       - name: Verify original rank1 printed scaling pure owner-choice and source archive
         if: ${{ inputs.agent17_max_geist_native }}
         run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
