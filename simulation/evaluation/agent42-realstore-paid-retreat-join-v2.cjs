@@ -52,7 +52,9 @@ function join(row,wrapperAudit,sourceSeat){
       x.seat===sourceSeat&&x.position==='active'&&x.index===0)?.after?.pokemon;
     const matching=receipts.filter(r=>
       r.status==='EXACT_TWO_PHYSICAL_PSYCHIC_PAID_RETREAT'&&
+      r.rootStoreRegistered===true&&r.rootActionOrdinal===root.actionOrdinal&&
       r.turn===root.turnBefore&&r.sourceSeat===sourceSeat&&
+      r.rootActionSeat===sourceSeat&&r.rootActionTurn===root.turnBefore&&
       r.benchIndex===benchIndex&&r.targetPrinting===targetPrinting);
     const candidateAttack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
       a.turnBefore===root.turnBefore&&a.settledPromptChain===true&&
