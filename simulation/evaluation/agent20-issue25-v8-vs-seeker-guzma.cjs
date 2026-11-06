@@ -48,6 +48,8 @@ function createVsSeekerRunner(deps={}){
   const development=deps.runDevelopment??runDevelopment;
   const layer=deps.withOwnerVsSeekerGuzmaLayer??withOwnerVsSeekerGuzmaLayer;
   const base=deps.base??OUTPUT;
+  const layerDeps={base};
+  if(deps.actorObservation)layerDeps.actorObservation=deps.actorObservation;
   assert.equal(typeof development,'function');
   assert.equal(typeof layer,'function');
   return options=>{
@@ -61,7 +63,7 @@ function createVsSeekerRunner(deps={}){
         if(previous===undefined)delete process.env[key];
         else process.env[key]=previous;
       }
-    },{base});
+    },layerDeps);
     assert.ok(wrapped&&wrapped.audit&&typeof wrapped.audit==='object',
       'VS Seeker/Guzma layer must return its native audit');
     assert.ok(wrapped.result&&typeof wrapped.result==='object',
