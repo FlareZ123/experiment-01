@@ -51,6 +51,7 @@ function createPublicEndstateObserver(deps={}){
           nativeEndReason:game?.endReason??null,
           nativeWinner:game?.finished===true?(game?.winner??null):null,
           nativePrizesBySeat:game?.prizesRemaining??null,
+          nativeTerminalTransition:game?.terminalTransition??null,
           ...(validPublic?{
             publicDeckCountsBySeat:players.map(p=>p.deckRemaining),
             publicHandCountsBySeat:players.map(p=>p.handSize),
