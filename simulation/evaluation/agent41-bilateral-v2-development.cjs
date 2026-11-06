@@ -417,25 +417,39 @@ function rngProtocolSelection(options={}){
 }
 
 /**
- * Fail closed if a paid-Retreat option did not activate the live actor wrapper.
- * @param {{actorOnlyComposition?:boolean,actorTwoUnitPaidRetreatRoot?:boolean,actorTwoUnitPaidRetreatRootV2?:boolean,scopedRoot?:object}} options
- * @returns {object} Explicit wrapper-selection receipt.
+ * Fail closed unless the live root wrapper receives the requested paid-Retreat selector.
+ * @param {{actorOnlyComposition?:boolean,
+ *   actorTwoUnitPaidRetreatRoot?:boolean,actorTwoUnitPaidRetreatTargetTurn?:number|null,
+ *   actorTwoUnitPaidRetreatRootV2?:boolean,actorTwoUnitPaidRetreatTargetTurnV2?:number|null,
+ *   scopedRoot?:object,rootOptions?:object}} options
+ * @returns {object} Explicit wrapper and selector-selection receipt.
  */
 function paidRetreatRootWrapperActivationReceipt({
   actorOnlyComposition=false,
   actorTwoUnitPaidRetreatRoot=false,
+  actorTwoUnitPaidRetreatTargetTurn=null,
   actorTwoUnitPaidRetreatRootV2=false,
-  scopedRoot=null
+  actorTwoUnitPaidRetreatTargetTurnV2=null,
+  scopedRoot=null,
+  rootOptions=null
 }={}){
   const optIn=actorTwoUnitPaidRetreatRoot||actorTwoUnitPaidRetreatRootV2;
-  const selected=typeof scopedRoot?.root==='function';
+  const optionPassed=actorTwoUnitPaidRetreatRoot?
+    rootOptions?.twoUnitPaidRetreatRoot===true&&
+      rootOptions?.twoUnitPaidRetreatTargetTurn===actorTwoUnitPaidRetreatTargetTurn:
+    actorTwoUnitPaidRetreatRootV2?
+      rootOptions?.twoUnitPaidRetreatRootV2===true&&
+        rootOptions?.twoUnitPaidRetreatTargetTurnV2===actorTwoUnitPaidRetreatTargetTurnV2:
+      false;
+  const selected=typeof scopedRoot?.root==='function'&&(!optIn||optionPassed);
   assert.ok(!optIn||actorOnlyComposition,
     'Paid-Retreat root selection requires bilateral actor-only composition');
   assert.ok(!optIn||selected,
-    'Paid-Retreat opt-in did not install the live scopedRoot wrapper');
+    'Paid-Retreat opt-in did not pass its selector into the live scopedRoot wrapper');
   return {
     twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
     twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+    twoUnitPaidRetreatRootOptionPassed:optIn&&optionPassed,
     twoUnitPaidRetreatRootWrapperSelected:optIn&&selected
   };
 }
@@ -1542,6 +1556,7 @@ function runDevelopment({
     let paidRetreatWrapperActivation={
       twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
       twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+      twoUnitPaidRetreatRootOptionPassed:false,
       twoUnitPaidRetreatRootWrapperSelected:false
     };
     try {
@@ -1584,6 +1599,10 @@ function runDevelopment({
             source:sourceScopedSpecialEnergyRoot,
             candidate:candidateScopedSpecialEnergyRoot
           },trial.candidateSlot);
+        const paidRetreatRootOptions=actorPaidRetreatRootOptions({
+          actorTwoUnitPaidRetreatRoot,actorTwoUnitPaidRetreatTargetTurn,
+          actorTwoUnitPaidRetreatRootV2,actorTwoUnitPaidRetreatTargetTurnV2
+        });
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
@@ -1646,10 +1665,7 @@ function runDevelopment({
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
               }:{}),
-              ...actorPaidRetreatRootOptions({
-                actorTwoUnitPaidRetreatRoot,actorTwoUnitPaidRetreatTargetTurn,
-                actorTwoUnitPaidRetreatRootV2,actorTwoUnitPaidRetreatTargetTurnV2
-              }),
+              ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
               }:{}),
@@ -1706,7 +1722,9 @@ function runDevelopment({
             })};
         paidRetreatWrapperActivation=paidRetreatRootWrapperActivationReceipt({
           actorOnlyComposition,actorTwoUnitPaidRetreatRoot,
-          actorTwoUnitPaidRetreatRootV2,scopedRoot
+          actorTwoUnitPaidRetreatTargetTurn,actorTwoUnitPaidRetreatRootV2,
+          actorTwoUnitPaidRetreatTargetTurnV2,scopedRoot,
+          rootOptions:paidRetreatRootOptions
         });
         const chargedPokemon=actorChargedPromotion?{
           pokemon:work=>require('../twinleaf/agent8-actor-only-choose-pokemon.cjs')
@@ -1947,6 +1965,10 @@ function runDevelopment({
     randomnessProtocol:rng.manifest.randomnessProtocol,
     twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
     twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+    twoUnitPaidRetreatRootOptionPassed:
+      (actorTwoUnitPaidRetreatRoot||actorTwoUnitPaidRetreatRootV2)&&
+      rows.length>0&&rows.every(row=>
+        row.twoUnitPaidRetreatRootOptionPassed===true),
     twoUnitPaidRetreatRootWrapperSelected:
       (actorTwoUnitPaidRetreatRoot||actorTwoUnitPaidRetreatRootV2)&&
       rows.length>0&&rows.every(row=>
