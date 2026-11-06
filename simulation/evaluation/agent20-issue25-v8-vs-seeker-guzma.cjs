@@ -57,7 +57,7 @@ function createVsSeekerRunner(deps={}){
     const wrapped=layer(()=>{
       const key='AGENT2_HELD_GUZMA_MOBILITY_DEV';
       const previous=process.env[key];
-      if(deps.enableHeldGuzmaMobility!==false)process.env[key]='true';
+      process.env[key]=deps.enableHeldGuzmaMobility===false?'false':'true';
       try{
         return development({...options,
           actorGuzmaPromptContinuation:deps.actorGuzmaPromptContinuation??true});
