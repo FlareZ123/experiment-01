@@ -46,6 +46,7 @@ function withSourceFollowupOwnerWitness(execute,deps) {
     const kind=action?.constructor?.name??null;
     if(kind==='AddPlayerAction'&&!live)live=this;
     const state=this.state;
+    const sourceGlobalTurn=state?.turn??null;
     const genuine=this===live;
     const source=genuine?state?.players?.[deps.sourceSeat]:null;
     const sourceTurn=Boolean(source&&
@@ -80,7 +81,7 @@ function withSourceFollowupOwnerWitness(execute,deps) {
     const result=before.value.call(this,action,...args);
     if(genuine&&voluntary&&kind==='AttackAction'&&
        action.name==='Volt Cyclone'){
-      lastVoltTurn=state.turn;
+      lastVoltTurn=sourceGlobalTurn;
       audit.acceptedSourceVoltDeclarations++;
     }
     if(pre){
