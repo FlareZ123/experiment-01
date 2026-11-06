@@ -1,0 +1,252 @@
+{
+  "schema": "agent13-rank5-selfcopy-maxmiracle-prospective-v1",
+  "registrationTimeUTC": "2026-11-06T13:21:20.672Z",
+  "purpose": "Preregister an unchanged-original-rank5 both-seat A/B of owner-only Max Miracle over same-donor Cross Fusion Strike, retaining all native errors/caps and a fresh unseen four-seed stratum.",
+  "originalSourceRank": 5,
+  "originalSourceArchetype": "Mew Genesect",
+  "sourcePrinting": "Aichi original rank5 FST Mew VMAX 114 and Genesect V 185, Double Colorless Energy SUM 136",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "champion-reference",
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "champion-reference",
+      "id": "5:1:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "stratum": "historical-mechanism-canary",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 2353612634,
+      "stratum": "fresh-uninspected",
+      "candidateId": "champion-reference",
+      "id": "5:2:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 2353612634,
+      "stratum": "fresh-uninspected",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:2:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 1858719049,
+      "stratum": "fresh-uninspected",
+      "candidateId": "champion-reference",
+      "id": "5:2:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 1858719049,
+      "stratum": "fresh-uninspected",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:2:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3071147298,
+      "stratum": "fresh-uninspected",
+      "candidateId": "champion-reference",
+      "id": "5:3:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3071147298,
+      "stratum": "fresh-uninspected",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:3:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 4128542447,
+      "stratum": "fresh-uninspected",
+      "candidateId": "champion-reference",
+      "id": "5:3:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 4128542447,
+      "stratum": "fresh-uninspected",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:3:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "registeredPhysicalGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "stratum": "historical-mechanism-canary"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "stratum": "historical-mechanism-canary"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "stratum": "historical-mechanism-canary"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "stratum": "historical-mechanism-canary"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 2353612634,
+      "stratum": "fresh-uninspected"
+    },
+    {
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 1858719049,
+      "stratum": "fresh-uninspected"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3071147298,
+      "stratum": "fresh-uninspected"
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 4128542447,
+      "stratum": "fresh-uninspected"
+    }
+  ],
+  "modeNames": [
+    "control-selfcopy-option-off",
+    "treatment-same-donor-maxmiracle-opt-in"
+  ],
+  "sourceRosterPath": "results/aichi-2026/full-decklists.json",
+  "profilePath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "commonRunnerPath": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "nativeRootActionLimit": 260,
+  "policyCommonOptions": {
+    "actorOnlyComposition": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true
+  },
+  "treatmentOnlyOption": "actorMewMaxMiracleOverSelfCopy",
+  "paperMechanicsCommon": [
+    "agent19-paper-attach-energy-blocked-target-guard",
+    "agent19-paper-mew-energy-mix-final-shuffle"
+  ],
+  "rngProtocol": {
+    "physicalShuffle": "independent per physical seat",
+    "speculativePolicy": "independent per physical seat",
+    "globalCoinRandomness": "not isolated"
+  },
+  "historicalStratumKnownSelectedOutcomes": true,
+  "historicalStratumInference": "mechanism canary only, cannot be used for prospective game win estimation",
+  "freshStratumKnownOutcomesAtRegistration": false,
+  "initialPhysicalDealsMustMatchWithinTrialAcrossModes": true,
+  "expectedNativeAttempts": 32,
+  "preserveAbortsCaps": true,
+  "nativeGameTerminalsAreNotCompetitivelyQualified": true,
+  "opponentPolicyAdversarialQualityUnverified": true,
+  "fullPaperPaymentAndMatchClockUnverified": true,
+  "competitivelyQualifiedGames": 0,
+  "noWinRateClaim": true
+}
