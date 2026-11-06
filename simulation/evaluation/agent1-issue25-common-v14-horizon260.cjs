@@ -10,6 +10,8 @@ const {hashRegisteredFile}=
   require('./agent36-issue25-selected-v0.cjs');
 const {createPublicEndstateObserver,VERSION:ENDSTATE_VERSION}=
   require('./agent1-v14-public-endstate-observer.cjs');
+const {classifyTerminalCause}=
+  require('./terminal-cause-evidence.cjs');
 
 const VERSION='agent1-issue25-native-horizon260-v14-no-policy-change';
 const LIMIT=260;
@@ -88,6 +90,13 @@ function runAgent1Horizon260V14(deps={}){
       nativeActionCount:row.actionCount??null,
       nativeClockResetCount:row.suddenDeathClockResets?.length??0,
       originalNativeEndstate:publicEndstateById.get(row.trial?.id??row.id)??null,
+      nativeTerminalCause:classifyTerminalCause({
+        status:row.finished===true?'engine-terminal':
+          row.error?'engine-error':'action-cap-or-incomplete',
+        engineWinner:row.finished===true?row.winner:null,
+        terminalTransition:publicEndstateById.get(row.trial?.id??row.id)?
+          .nativeTerminalTransition??null
+      }),
       sourceActualAttacks:row.sourceAttackSettlement?.attacks??null,
       nativeError:row.error??null
     };
