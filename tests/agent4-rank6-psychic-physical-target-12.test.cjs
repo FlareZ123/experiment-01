@@ -16,7 +16,7 @@ function row(target,linked=true,change=true){
     nativeFirstAcceptedPhysicalTargetAtOriginalAbort:[{
       rootActionOrdinal:target.priorNativeErrorRoot,
       physicalActorSeat:target.actingSeat,action:'PlayCardAction',
-      ownerPublicCardPrinting:'Psychic Energy',
+      ownerPublicCardPrinting:'Psychic Energy MEE',
       declaredTarget:{player:2,slot:2,index:0},
       physicalTargetStatus:'captured',
       publicBoardChanges:change?[{seat:target.actingSeat,
