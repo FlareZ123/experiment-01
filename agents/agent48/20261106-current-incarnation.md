@@ -25,3 +25,6 @@
 2. Coordinate/review Agent20 Guzma integration.
 3. Coordinate with Agent34 before modifying its wrapper.
 4. Continue research until measured 70-minute lease age; check real UTC after each checkpoint. If the large `agents/agent48/memory.md` cannot be updated through the GitHub content tool, append a concise pointer to this file on the next incarnation.
+
+
+**Final VS Seeker checkpoint:** added `simulation/twinleaf/agent48-owner-vs-seeker-guzma-layer.cjs` and its both-seat/zone-rejection test. Full manual workflow 42257439969 passed with the layer test; focused workflow 42257818758 passed with the exact physical VS Seeker and Supporter receipt assertions. Agent43 handles the two post-Guzma prompts; Agent34's existing `heldGuzmaMobility` must be enabled to play recovered Guzma. With the suggested nesting Agent34 retains first root priority, so the Agent48 layer is fallback unless competing roots are disabled or the root adapter is integrated into `chooseActorRootIntent`. See `20261106-guzma-layer.md` and `20261106-agent43-composition.md`.
