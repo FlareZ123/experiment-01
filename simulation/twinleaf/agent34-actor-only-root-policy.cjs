@@ -1284,6 +1284,9 @@ function withActorOnlyRootPolicy(run,deps={}){
             globalTurn:view.globalTurn,seat,
             active:view.ownPublic.active?.printing??null,
             opponentActive:view.opponentPublic?.active?.printing??null,
+            opponentActiveDamage:view.opponentPublic?.active?.damage??null,
+            opponentActivePrintedHp:view.opponentPublic?.active?.hp??null,
+            opponentActiveTools:[...(view.opponentPublic?.active?.tools??[])],
             payableTargets:gates.benchPayableTargets
           });
         }
