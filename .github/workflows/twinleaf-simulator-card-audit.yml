@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify pinned Tapu Cure full-health paper targets with reversible research hook
+        run: node --test tests/agent15-tapu-cure-paper-hook.test.cjs tests/agent15-tapu-cure-paper-hook.native.test.cjs
       - name: Verify read-only bot decision boundary observer
         run: node --test tests/bot-decision-card-boundary-observer.test.cjs
       - name: Count source Card changes surviving each full bot decision
