@@ -392,3 +392,87 @@ for(const seat of [0,1]){
     }
   });
 }
+
+
+for(const seat of [0,1]){
+  test('physical Field Blower breaks Garbotoxin for fully paid Perfection Night Watch, seat '+seat,()=>{
+    const {clearCopyAttackSessionsForTests}=
+      native('game/store/prefabs/copy-attack-delegation');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {UseAbilityAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const original=SimpleTacticsAi.prototype.resolvePrompt;
+    clearCopyAttackSessionsForTests();
+    const f=stage(seat,{garbodorBench:true,heldBlower:true});
+    const mew=f.attacker.active.getPokemonCard();
+    assert.equal(f.garbodorSlot.getPokemonCard().fullName,'Garbodor BKP');
+    assert.equal(f.garbodorSlot.tools.includes(f.garbodorTool),true);
+    assert.equal(IS_ABILITY_BLOCKED(f.store,f.state,f.attacker,mew),true);
+    const bot=Object.create(SimpleTacticsAi.prototype);
+    try{
+      f.store.dispatch(new PlayCardAction(f.attacker.id,
+        f.attacker.hand.cards.indexOf(f.heldBlower),
+        {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+      const target=settleWait(f);
+      assert.equal(target?.constructor?.name,'ChoosePokemonPrompt');
+      assert.equal(target.validate([f.garbodorSlot],f.state),true);
+      f.store.dispatch(new ResolvePromptAction(target.id,[f.garbodorSlot]));
+      assert.equal(f.garbodorSlot.tools.includes(f.garbodorTool),false);
+      assert.equal(f.defender.discard.cards.includes(f.garbodorTool),true);
+      assert.equal(IS_ABILITY_BLOCKED(f.store,f.state,f.attacker,mew),false);
+      const settled=withNumericShufflePromptValidation(()=>
+        withSourceMarkedPaperRandomNightWatch(()=>{
+          f.store.dispatch(new UseAbilityAction(f.attacker.id,'Perfection',{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+          }));
+          const choose=settleWait(f);
+          assert.equal(choose?.constructor?.name,'ChooseAttackPrompt');
+          assert.equal(choose.playerId,f.attacker.id);
+          const source=choose.cards.find(x=>x===f.donor);
+          assert.ok(source);
+          const nightWatch=source.attacks.find(x=>x.name==='Night Watch');
+          assert.ok(nightWatch);
+          assert.equal(choose.validate(nightWatch),true);
+          f.store.dispatch(new ResolvePromptAction(choose.id,nightWatch));
+          const hand=settleWait(f);
+          assert.equal(hand?.constructor?.name,'ChooseCardsPrompt');
+          assert.strictEqual(hand.cards,f.defender.hand);
+          assert.equal(isDirectNightWatchHandPrompt(f.state,f.attacker,hand),
+            false);
+          f.store.dispatch(bot.resolvePrompt(f.attacker,f.state,hand));
+          const disruptedHand=f.defender.hand.cards.length;
+          const postPrompts=settleOriginalNightWatchPostPrompts(f);
+          return {disruptedHand,postPrompts,damage:f.defender.active.damage,
+            turn:f.state.turn,activeSeat:f.state.activePlayer};
+        },{seed:420110+seat}));
+      assert.equal(settled.audit.rawRejectedCorrected,1);
+      const actual=settled.result;
+      assert.equal(actual.audit.markedSourcePrompts,1);
+      assert.equal(actual.audit.samples.length,1);
+      assert.equal(actual.audit.prototypeRestored,true);
+      assert.equal(actual.audit.samples[0].sourceBoundToCopycat,true);
+      assert.equal(actual.result.disruptedHand,1);
+      assert.equal(actual.result.damage,150);
+      assert.equal(actual.result.turn,5);
+      assert.equal(actual.result.activeSeat,1-seat);
+      assert.ok(actual.result.postPrompts.includes('ShuffleDeckPrompt'));
+      console.log('AGENT42_FIELD_BLOWER_GARBOTOXIN_PERFECTION_NATIVE',
+        JSON.stringify({
+          seat,attacker:mew.fullName,
+          removedTool:f.garbodorTool.fullName,
+          source:'Trevenant & Dusknoir-GX SMP',
+          paidCopiedAttack:'Night Watch',damage:actual.result.damage,
+          handAfterDisruption:actual.result.disruptedHand,
+          turnAfterSettlement:actual.result.turn,
+          correctedShuffle:settled.audit.rawRejectedCorrected,
+          sample:actual.audit.samples[0],qualifiedGames:0
+        }));
+    }finally{
+      clearCopyAttackSessionsForTests();
+      assert.strictEqual(SimpleTacticsAi.prototype.resolvePrompt,original);
+    }
+  });
+}
