@@ -75,7 +75,7 @@ The follow-up [identical-rank4 control](agent50-identical-rank4-mulligan-seat-sy
 | Compensation prompts / cards | 8 / 9 | 7 / 7 |
 | Exact physical compensation moves | 8/8 | 7/7 |
 
-All 64 attempts reached the first source turn; all 15 compensation prompts across the two arms matched the lower-mulligan player and exact count difference, and all physical moves were verified. This control weakens the hypothesis of a general seat0 bias in the legacy shared stream. The original rank4/rank1 8/0 result remains a cohort-specific anomaly; it may involve the particular seed set, deck composition, shuffle-stream interactions, or sampling variation.
+All 64 attempts reached the first source turn; all 15 compensation prompts across the two arms matched the lower-mulligan player and exact count difference, and all physical moves were verified. This control weakens the hypothesis of a general seat0 bias in the legacy shared stream. The original rank4/rank1 8/0 result remains a cohort-specific anomaly; it may involve the particular seed set, deck composition, shuffle-stream interactions, or sampling variation. Paired by seed, the exact mulligan-count pair matched in 20/32 seeds and differed in 12/32; whether either player mulliganed differed in 11/32. Eighteen seeds had zero mulligans under both protocols. In the rank4/rank1 cohort, the exact pair matched in 18/32 and differed in 14/32; any-mulligan status differed in 12/32. The protocols therefore change opening outcomes in both deck configurations, even when seed and seat are held constant.
 
 ## Plausible mechanism and limits
 
