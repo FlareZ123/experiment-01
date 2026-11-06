@@ -12,6 +12,7 @@ const {
 }=require('../simulation/evaluation/agent20-issue25-v8-vs-seeker-guzma.cjs');
 
 const layerVersion='agent48-owner-vs-seeker-guzma-layer-v1';
+assert.equal(LAYER_VERSION,layerVersion);
 
 test('runner enables the existing Agent43 continuation and preserves layer audit',()=>{
   let seenOptions=null,seenBase=null;
