@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent40_rank7_original_faba_hood_native:
+        description: 'Opt-in source-owned original rank7 Faba target Hood, Item response; staged only'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -91,6 +96,9 @@ jobs:
       - name: Verify corrected original rank7 Nest Ball legal Bench / prompt settlement and Wobbuffet Hood matrix
         if: inputs.agent40_rank7_wobbuffet_hood_corrected
         run: node --test tests/agent40-rank7-wobbuffet-hood-v2.native.test.cjs
+      - name: Probe original rank7 Faba Hood Tool Lost Zone and source Wobbuffet Item response on both seats
+        if: inputs.agent40_rank7_original_faba_hood_native
+        run: node --test tests/agent40-original-rank7-faba-hood.native.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
