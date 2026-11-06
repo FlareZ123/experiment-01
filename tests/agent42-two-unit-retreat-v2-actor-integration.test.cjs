@@ -106,7 +106,7 @@ test('v2 is default-off and canonical native mapping still emits RetreatAction',
   class AttackAction{}
   class PlayCardAction{}
   class SimpleTacticsAi{
-    constructor(){this.client={id:101};}
+    constructor(id=101){this.client={id};}
     decodeNextAction(){throw Error('hidden bot fallback must not run');}
   }
   const zone=()=>({cards:[]});
@@ -116,20 +116,24 @@ test('v2 is default-off and canonical native mapping still emits RetreatAction',
     discard:zone(),lostzone:zone(),supporter:zone(),hand:zone(),
     deck:zone(),prizes:[]});
   class Store{
-    constructor(){this.state={turn:22,activePlayer:0,phase:2,
+    constructor(activePlayer=0){this.state={turn:22,activePlayer,phase:2,
       players:[player(101),player(202)],prompts:[]};}
     dispatch(){return 'native-accepted';}
   }
   const beforeBot=SimpleTacticsAi.prototype.decodeNextAction;
   const beforeStore=Store.prototype.dispatch;
   const result=withActorOnlyRootPolicy(()=>{
-    const store=new Store();store.dispatch(new AddPlayerAction());
-    const action=new SimpleTacticsAi().decodeNextAction(store.state);
-    assert.ok(action instanceof RetreatAction);
-    assert.equal(action.benchIndex,0);
-    store.dispatch(action);return action.constructor.name;
+    let lastActionName=null;
+    for(const [seat,playerId] of [[0,101],[1,202]]){
+      const store=new Store(seat);store.dispatch(new AddPlayerAction());
+      const action=new SimpleTacticsAi(playerId).decodeNextAction(store.state);
+      assert.ok(action instanceof RetreatAction);
+      assert.equal(action.benchIndex,0);
+      store.dispatch(action);lastActionName=action.constructor.name;
+    }
+    return lastActionName;
   },{
-    Store,SimpleTacticsAi,observe:()=>v,getCatalog:()=>catalog,
+    Store,SimpleTacticsAi,observe:(_state,seat)=>({...v,actorSeat:seat}),getCatalog:()=>catalog,
     GamePhase:{PLAYER_TURN:2,FINISHED:7},
     cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
       SlotType:{ACTIVE:1,BENCH:2}},
@@ -138,6 +142,9 @@ test('v2 is default-off and canonical native mapping still emits RetreatAction',
   });
   assert.equal(result.result,'RetreatAction');
   assert.equal(result.audit.twoUnitPaidRetreatRootV2OptIn,true);
+  assert.equal(result.audit.twoUnitPaidRetreatRootV2Selected,2);
+  assert.deepEqual(result.audit.twoUnitPaidRetreatRootV2SelectedBySeat,[1,1]);
+  assert.equal(result.audit.twoUnitPaidRetreatRootV2SelectedUnknownSeat,0);
   assert.equal(result.audit.competitiveGameQualified,false);
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,beforeBot);
   assert.strictEqual(Store.prototype.dispatch,beforeStore);
