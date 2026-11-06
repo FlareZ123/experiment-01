@@ -53,6 +53,12 @@ function crossjoinNativePhysicalPrizeExits(v8, physical) {
     assert.equal(other.rootActionCount,row.publicRootActionCount);
     assert.equal(other.status,row.status);
     assert.deepEqual(other.finalPrizes,row.finalPrizes);
+    assert.equal(other.actualDeclaredSourceAttacks,
+      row.actualSourceAttackSettlement.declarations,
+      'Cross-run original source declaration count mismatch');
+    assert.equal(other.completedSettledSourceAttacks,
+      row.actualSourceAttackSettlement.settled,
+      'Cross-run original source settled count mismatch');
     for(const [role,packet,seat] of [
       ['source',row.actualSourceAttackSettlement,row.originalSourceSeat],
       ['contender',row.candidateAttackSettlement,row.candidateSeat]
