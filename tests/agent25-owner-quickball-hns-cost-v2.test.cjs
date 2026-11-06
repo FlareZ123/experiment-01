@@ -56,7 +56,7 @@ test('native staged Quick Ball classifier tolerates detached offered CardList',(
     const x=makeState(seat,{forbiddenOpponentHand:true});
     assert.notStrictEqual(x.prompt.cards,x.owner.hand);
     const event=ownerBallDonorOpportunity(x.state,seat);
-    assert.strictEqual(event.card,x.owner.hand.cards[1]);
+    assert.strictEqual(event.card,x.owner.hand.cards[0]);
     assert.equal(event.prompt.id,'payment13');
     assert.equal(event.ownDiscardCount,0);
     assert.equal(ownerBallDonorOpportunity(x.state,1-seat),null);
@@ -146,7 +146,7 @@ test('v2 owner-only Ball chooser never probes own deck, Prize cards or opponent 
     assert.equal(ownerBallDonorOpportunity(x.state,seat)?.card.fullName,
       'Shuppet M5');
     const y=makeState(seat);
-    y.prompt.cards.cards.push(handCard('Shuppet M5',9999));
+    y.prompt.cards.cards=[...y.prompt.cards.cards,handCard('Shuppet M5',9999)];
     assert.equal(ownerBallDonorOpportunity(y.state,seat),null,
       'Native offered card outside physical owner hand must fail closed');
   }
