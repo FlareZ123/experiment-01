@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const {rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
-  screenArchivedReciprocalAttempts} =
+  screenNativeMaterialReciprocalExchange, screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
 const roots = [
@@ -419,4 +419,63 @@ test('archived real settled source attack can emit a public delta while remainin
   assert.equal(report.rows[0].observedPublicDefenderDamage.damageCounterDelta,1);
   assert.equal(report.rows[0].competitiveAdmission,false);
   assert.equal(report.competitiveGamesQualified,0);
+});
+
+function materialReplyFixture(replyCard,kind){
+  const cards=[
+    {actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction',attack:'Motivate'},
+    {actionOrdinal:1,turnBefore:5,playerSlot:1,action:'PlayCardAction',card:replyCard},
+    {actionOrdinal:2,turnBefore:6,playerSlot:0,action:'AttackAction',attack:'Motivate'}
+  ];
+  const before={active:{printing:'Dialga-GX UPR',damage:20,
+    energyCards:['Psychic Energy']},bench:[]};
+  const after={active:{printing:'Dialga-GX UPR',damage:20,
+    energyCards:kind==='energy'?['Psychic Energy','Psychic Energy']:['Psychic Energy']},
+    bench:kind==='bench'?[{printing:'Trevenant & Dusknoir-GX SMP'}]:[]};
+  const first={actionOrdinal:0,settledPromptChain:true,completionRootOrdinal:0,
+    publicBoardBefore:[{active:{printing:'Source',damage:0}},
+      {active:{printing:'Dialga-GX UPR',damage:0}}],
+    publicBoardAfter:[{active:{printing:'Source',damage:0}},before]};
+  const second={actionOrdinal:2,settledPromptChain:true,completionRootOrdinal:2,
+    publicBoardBefore:[{active:{printing:'Source',damage:0}},after],
+    publicBoardAfter:[{active:{printing:'Source',damage:0}},
+      {active:{printing:'Dialga-GX UPR',damage:40}}]};
+  return {originalSourceSeat:0,candidateSeat:1,publicRootActions:cards,
+    actualSourceAttackSettlement:{attacks:[first,second]}};
+}
+test('sole real card play joins native active Energy custody and two settled attacks',()=>{
+  const row=materialReplyFixture('Psychic Energy','energy');
+  const r=screenNativeMaterialReciprocalExchange(row);
+  assert.equal(r?.opponentReplyKind,'attached-active-energy');
+  assert.equal(r?.observedCard,'Psychic Energy');
+  assert.equal(r?.opponentActiveEnergiesBefore,1);
+  assert.equal(r?.opponentActiveEnergiesAfter,2);
+  assert.equal(r?.initialSourceDamage,20);
+  assert.equal(r?.returnSourceDamage,20);
+  assert.equal(r?.paperQualified,false);
+});
+test('sole real card play joins native Bench transition and two settled attacks',()=>{
+  const row=materialReplyFixture('Trevenant & Dusknoir-GX','bench');
+  const r=screenNativeMaterialReciprocalExchange(row);
+  assert.equal(r?.opponentReplyKind,'benched-pokemon');
+  assert.equal(r?.opponentBenchCountBefore,0);
+  assert.equal(r?.opponentBenchCountAfter,1);
+  assert.equal(r?.physicalCardIdentityCertified,false);
+});
+test('wrong reply or extra independent card play breaks sole-action attribution',()=>{
+  const row=materialReplyFixture('Energy Recycler','energy');
+  assert.equal(screenNativeMaterialReciprocalExchange(row),null);
+  row.publicRootActions[1].card='Psychic Energy';
+  row.publicRootActions.splice(2,0,
+    {actionOrdinal:99,turnBefore:5,playerSlot:1,action:'PlayCardAction',
+      card:'Item'});
+  assert.equal(screenNativeMaterialReciprocalExchange(row),null);
+});
+test('unsettled return and absent positive source effect are not exchanges',()=>{
+  const row=materialReplyFixture('Psychic Energy','energy');
+  row.actualSourceAttackSettlement.attacks[1].settledPromptChain=false;
+  assert.equal(screenNativeMaterialReciprocalExchange(row),null);
+  row.actualSourceAttackSettlement.attacks[1].settledPromptChain=true;
+  row.actualSourceAttackSettlement.attacks[1].publicBoardAfter[1].active.damage=20;
+  assert.equal(screenNativeMaterialReciprocalExchange(row),null);
 });
