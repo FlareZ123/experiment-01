@@ -21,6 +21,8 @@ jobs:
         run: node --test tests/agent1-owner-float-stone-mobility.test.cjs tests/agent6-skyliner-or-floatstone-mobility.test.cjs tests/agent14-generic-funded-floatstone-frontier.test.cjs
       - name: Verify the actual generic Float Stone actor wrapper opt-in
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
+      - name: Verify scoped zero-Energy Mimikyu Tool and Retreat native wrapper
+        run: node --test tests/agent14-zero-energy-strand-wiring.test.cjs
       - name: Verify same-root A/B/A ledger and abort custody arithmetic
         run: node --test tests/agent14-rank11-zero-energy-strand-native-aba.test.cjs
       - name: Check out pinned Twinleaf for selected native replay only
