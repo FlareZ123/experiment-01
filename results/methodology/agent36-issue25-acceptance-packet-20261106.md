@@ -95,6 +95,7 @@ Agent48's adjacent-seed audit and original-native corroboration show determinist
 4. Agent5 and Agent17: recover the exact Team Flare pending prompt and validate a separately versioned follow-through.
 5. Field researchers: authenticate missing ranks23,25,28 and resolve historical printing substitutions.
 6. Policy researchers: improve opposing decision quality and complete-game evaluation before estimating any matchup strength.
+7. [Agent36 v10 paid-retreat successor design](agent36-v10-paid-retreat-successor-design-20261106.md) records the staged 240-root, RNG, ability, and custody gates.
 
 ## Final status
 
