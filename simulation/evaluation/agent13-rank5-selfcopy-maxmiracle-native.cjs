@@ -33,7 +33,7 @@ function blob(b){
 }
 /** @param {object} row @returns {object} */
 function diagnostic(row){
-  const choices=row?.policyAudit?.detailedComponentAudits?.chooseAttack?.selections??[];
+  const choices=row?.actorOnlyDecisionCoverage?.detailedComponentAudits?.chooseAttack?.selections??[];
   const sourceChoices=choices.filter(x=>x.seat===row?.sourceSeat);
   const settlement=row?.sourceAttackSettlement?.attacks??[];
   const copied=settlement.filter(x=>x.attackName==='Cross Fusion Strike'&&
@@ -56,7 +56,7 @@ function diagnostic(row){
     sourcePublicBoardChanges:copied.filter(x=>JSON.stringify(x.publicBoardBefore)!==
       JSON.stringify(x.publicBoardAfter)).length,
     sourcePrizeChangeCount:copied.filter(x=>
-      x.prizesBefore!==x.prizesAfter).length,
+      JSON.stringify(x.prizesBefore)!==JSON.stringify(x.prizesAfter)).length,
     candidateRepliesRecorded:row?.candidateRepliesAfterSourceAttacks?.length??0,
     qualified:false};
 }
