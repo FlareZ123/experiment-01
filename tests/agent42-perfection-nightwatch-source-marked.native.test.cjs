@@ -154,3 +154,109 @@ for(const seat of [0,1]){
     }
   });
 }
+
+
+/**
+ * Advance the mandatory printed reveal and deck shuffle after Night Watch.
+ * This fixed diagnostic shuffle is independent of opponent card identities.
+ * @param {object} f Stage.
+ * @returns {string[]} Prompt types actually settled.
+ */
+function settleOriginalNightWatchPostPrompts(f){
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const {seededRandom}=require('../simulation/twinleaf/headless.cjs');
+  const rng=seededRandom(42062026);
+  const settled=[];
+  for(let step=0;step<24;step++){
+    const prompt=f.state.prompts.find(x=>x.result===undefined);
+    if(!prompt)return settled;
+    const kind=prompt.constructor.name;
+    let answer;
+    if(kind==='WaitPrompt'||kind==='ShowCardsPrompt')answer=true;
+    else if(kind==='ShuffleDeckPrompt'){
+      const recipient=f.state.players.find(x=>x.id===prompt.playerId);
+      assert.ok(recipient);
+      answer=Array.from({length:recipient.deck.cards.length},(_,i)=>i);
+      for(let i=answer.length-1;i>0;i--){
+        const j=Math.floor(rng()*(i+1));
+        [answer[i],answer[j]]=[answer[j],answer[i]];
+      }
+      assert.equal(prompt.validate(answer,f.state),true);
+    }else throw new Error('Unexpected Perfection attack prompt: '+kind);
+    settled.push(kind);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,answer));
+  }
+  throw new Error('Mandatory Night Watch post-prompts did not settle within 24 roots');
+}
+
+for(const seat of [0,1]){
+  test('complete original copied Night Watch damage and ledger origin, seat '+seat,()=>{
+    const {clearCopyAttackSessionsForTests}=
+      native('game/store/prefabs/copy-attack-delegation');
+    const {UseAbilityAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const original=SimpleTacticsAi.prototype.resolvePrompt;
+    clearCopyAttackSessionsForTests();
+    const f=stage(seat);
+    const storeDispatch=f.store.dispatch.bind(f.store);
+    const actionTape=[];
+    f.store.dispatch=function(action){
+      actionTape.push(action.constructor.name);
+      return storeDispatch(action);
+    };
+    const bot=Object.create(SimpleTacticsAi.prototype);
+    try{
+      const corrected=withSourceMarkedPaperRandomNightWatch(()=>{
+        f.store.dispatch(new UseAbilityAction(f.attacker.id,'Perfection',{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+        }));
+        const choice=settleWait(f);
+        assert.equal(choice?.constructor?.name,'ChooseAttackPrompt');
+        const source=choice.cards.find(x=>
+          x.fullName==='Trevenant & Dusknoir-GX SMP');
+        assert.ok(source);
+        const attack=source.attacks.find(x=>x.name==='Night Watch');
+        assert.ok(attack);
+        assert.equal(choice.validate(attack),true);
+        f.store.dispatch(new ResolvePromptAction(choice.id,attack));
+        const randomHand=settleWait(f);
+        assert.equal(randomHand?.constructor.name,'ChooseCardsPrompt');
+        assert.equal(isDirectNightWatchHandPrompt(f.state,f.attacker,randomHand),
+          false);
+        const resolve=bot.resolvePrompt(f.attacker,f.state,randomHand);
+        assert.ok(resolve instanceof ResolvePromptAction);
+        f.store.dispatch(resolve);
+        const followup=settleOriginalNightWatchPostPrompts(f);
+        return {followup,handCount:f.defender.hand.cards.length,
+          damaged:f.defender.active.damage,phase:f.state.phase,
+          turn:f.state.turn,currentPlayer:f.state.activePlayer,
+          lastAttack:f.state.lastAttack?.name??null,
+          lastOwnerAttack:f.state.playerLastAttack?.[f.attacker.id]?.attack?.name??null};
+      },{seed:429260+seat});
+      assert.equal(corrected.audit.samples.length,1);
+      assert.equal(corrected.audit.markedSourcePrompts,1);
+      assert.equal(corrected.audit.prototypeRestored,true);
+      assert.equal(corrected.result.handCount,1);
+      assert.equal(corrected.result.damaged,150,
+        'Fully resolved copied printed attack must deal 150 to Rotom V');
+      assert.equal(actionTape.filter(x=>x==='UseAbilityAction').length,1);
+      assert.equal(actionTape.filter(x=>x==='AttackAction').length,0);
+      assert.ok(corrected.result.followup.includes('ShowCardsPrompt'));
+      assert.ok(corrected.result.followup.includes('ShuffleDeckPrompt'));
+      console.log('AGENT42_PERFECTION_ATTACK_LEDGER',JSON.stringify({
+        seat,actionTape,postPromptTypes:corrected.result.followup,
+        resultingActiveDamage:corrected.result.damaged,
+        phase:corrected.result.phase,turn:corrected.result.turn,
+        currentPlayer:corrected.result.currentPlayer,
+        lastAttack:corrected.result.lastAttack,
+        lastOwnerAttack:corrected.result.lastOwnerAttack,
+        competitiveGamesQualified:0
+      }));
+    }finally{
+      clearCopyAttackSessionsForTests();
+      assert.strictEqual(SimpleTacticsAi.prototype.resolvePrompt,original);
+    }
+  });
+}
