@@ -123,6 +123,8 @@ for (const seat of [0, 1]) {
     const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
       native('game/store/prefabs/attack-effects');
     const f = stage(seat, 2, false);
+    const { PokemonCardList } = native('game/store/state/pokemon-card-list');
+    f.defender.bench.push(new PokemonCardList());
     const formerActive = f.defender.active;
     const replacingCard = initializeCards().getCardByName('Rotom V LOR');
     assert.ok(replacingCard);
