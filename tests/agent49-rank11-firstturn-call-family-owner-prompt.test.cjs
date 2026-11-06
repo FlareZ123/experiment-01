@@ -80,7 +80,6 @@ test('native attack-owned owner-deck Basic prompt settles selected physical card
   const originalRun=p.headless.runMatch;
   const originalStore=Store.prototype.dispatch;
   const originalAi=SimpleTacticsAi.prototype.decodeNextAction;
-  const overriddenRun=p.headless.runMatch;
   const done=withLateOwnedCallFamilyPrompt(()=>
     p.headless.runMatch({label:'x-'+reg.selectedOriginalId}),{
     headless:p.headless,Store,SimpleTacticsAi,ResolvePromptAction,
@@ -148,6 +147,7 @@ test('an explicit bounded later source-turn opt-in settles two genuine Basic pro
     assert.deepEqual(ignored,{defaultAction:'pass'});
     return {owner,first,second};
   };
+  const overriddenRun=p.headless.runMatch;
   const done=withLateOwnedCallFamilyPrompt(()=>
     p.headless.runMatch({label:'x-'+reg.selectedOriginalId}),{
       headless:p.headless,Store,SimpleTacticsAi,ResolvePromptAction,
