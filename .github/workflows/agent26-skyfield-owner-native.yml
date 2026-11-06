@@ -32,6 +32,8 @@ jobs:
           test -f results/aichi-2026/full-decklists.json
       - name: Verify exact 29-original multi-Stadium census
         run: node --test tests/agent26-field-stadium-multi-name-census.test.cjs
+      - name: Check exact Basic-conditioned opening probability across 29 original decks
+        run: node --test tests/agent26-field-stadium-basic-conditioned-opening.test.cjs
       - name: Verify Prism-to-Prism replacement on both real Store seats
         run: node --test tests/agent26-prism-stadium-replacement.native.test.cjs
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
