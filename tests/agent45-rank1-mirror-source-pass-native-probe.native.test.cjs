@@ -53,6 +53,20 @@ test('12 original rank1 source Passes: native-visible attack alternatives after 
   passesWhoseCloneRejectedEveryEnumeratedPrintedAttack:
     audit.sourcePasses.filter(x=>x.possibleEngineAttackAnnouncements===0).length,
   actualPasses:audit.sourcePasses,
+  tapuCureTurn16DamageWitness:(()=>{
+    const entry=audit.sourcePasses.find(p=>
+      p.turn===16 && p.visibleActivePrinting==='Tapu Lele-GX GRI');
+    assert.ok(entry,'original Tapu Lele-GX turn16 Pass must be independently found');
+    const ownerDamage=[entry.ownerActiveDamage,
+      ...entry.ownerBenchVisibleDamage.map(x=>x.damage)];
+    return {
+      observedOwnerActiveAndBenchedDamage:ownerDamage,
+      exactlyAllZero:ownerDamage.every(x=>x===0),
+      pinnedNativeTapuCureGxReducerRequiresDamagePresent:true,
+      gxAttackPreviouslyUsedByOwner:false,
+      inferenceLimit:'Live owner public board damage and pinned card implementation condition; clone rejection may have additional causes'
+    };
+  })(),
   controlNativeGameUnchanged:true,paperQualifiedGames:0};
  console.log('AGENT45_MIRROR_SOURCE_PASS_ATTACK_NATIVE',JSON.stringify(matching));
  const dir=process.env.AGENT45_V8_MIRROR_EPISODE_DIR;
