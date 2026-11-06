@@ -51,7 +51,7 @@ class Store{
 }
 class SimpleTacticsAi{
   constructor(id){this.client={id};}
-  decodeNextAction(){return new PassTurnAction();}
+  decodeNextAction(...args){this.receivedArgs=args;return new PassTurnAction();}
 }
 function slot(fullName){
   const card=fullName?{
@@ -135,3 +135,16 @@ test('rejects a native prompt whose collection is not the owner discard',()=>{
     f.store.dispatch(bot.decodeNextAction(f.state));
   },deps),/authenticated owner-discard prompt/);
 });
+test('forwards every native decoder argument when no VS Seeker root applies',()=>{
+  const f=scenario(0);
+  f.owner.hand.cards=[];
+  const marker={nativeExtraArgument:true};
+  const result=withOwnerVsSeekerGuzmaLayer(()=>{
+    f.store.dispatch(new AddPlayerAction());
+    const bot=new SimpleTacticsAi(101);
+    assert.ok(bot.decodeNextAction(f.state,marker) instanceof PassTurnAction);
+    assert.deepEqual(bot.receivedArgs,[f.state,marker]);
+  },deps);
+  assert.equal(result.audit.rootsProposed,0);
+});
+
