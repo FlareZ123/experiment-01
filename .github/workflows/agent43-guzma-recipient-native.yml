@@ -7,6 +7,10 @@ on:
         description: 'Run retrospective 8-arm original source-first Guzma comparison'
         type: boolean
         default: false
+      nightwatch_paper_random_development:
+        description: 'Run registered fixed Skyliner positive original deal with independent Night Watch random index entropy'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -32,6 +36,18 @@ jobs:
         run: npm run compile
       - name: Independently exercise pinned Night Watch two-seat random-selection fidelity
         run: node --test tests/agent43-nightwatch-randomness-native.test.cjs
+      - name: Frozen original Skyliner native paper-random Night Watch sensitivity
+        if: ${{ inputs.nightwatch_paper_random_development }}
+        env:
+          AGENT43_NIGHTWATCH_OUTPUT: ${{ runner.temp }}/agent43-nightwatch-original-skyliner-random.json
+        run: node simulation/evaluation/agent43-nightwatch-paper-random-skyliner-pair.cjs
+      - name: Preserve all registered original-deal Night Watch sensitivity arms
+        if: ${{ inputs.nightwatch_paper_random_development && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-nightwatch-original-skyliner-random
+          path: ${{ runner.temp }}/agent43-nightwatch-original-skyliner-random.json
+          if-no-files-found: warn
       - name: Regress default-off forced-target Guzma owner-root and hidden-information boundary
         run: node --test tests/agent31-forced-guzma-ko-frontier.test.cjs
       - name: Test final-Prize multi-Bench Guzma owner-visible choices
