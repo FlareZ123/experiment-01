@@ -362,3 +362,38 @@ test('an archive lacking the registered original trial frame is rejected',()=>{
     '../simulation/evaluation/agent10-abort-aware-aba-audit.cjs');
   assert.throws(()=>auditArchive({phases:[]}),/Expected registered/);
 });
+
+
+test('a source retreat cannot witness treatment when A-repeat actions disagree',()=>{
+  const a=row('t',[root(0),root(1)]);
+  const b=row('t',[root(0),root(1,'RetreatAction')]);
+  const a2=row('t',[root(0),root(2)]);
+  const result=run(a,b,a2);
+  assert.equal(result.rows[0].controlReplay,'ROOT_HISTORY_MISMATCH');
+  assert.equal(result.rows[0].treatmentWitness,
+    'CONTROL_REPLAY_UNREPRODUCIBLE');
+  assert.equal(result.sourceRetreatDivergenceCandidates,0);
+});
+
+test('a source retreat cannot witness treatment when A-repeat outcomes disagree',()=>{
+  const a=row('t',[root(0),root(1)]);
+  const b=row('t',[root(0),root(1,'RetreatAction')]);
+  const a2=row('t',[root(0),root(1)],
+    {status:'terminal',finished:true,winner:0});
+  const result=run(a,b,a2);
+  assert.equal(result.rows[0].controlReplay,'OUTCOME_MISMATCH');
+  assert.equal(result.rows[0].treatmentWitness,
+    'CONTROL_REPLAY_UNREPRODUCIBLE');
+  assert.equal(result.sourceRetreatDivergenceCandidates,0);
+});
+
+test('a partial native wrapper receipt cannot be replaced by a phase claim',()=>{
+  const a=row('t',[root(0),root(1)],nativeBranch(false));
+  const b=row('t',[root(0),root(1,'RetreatAction')]);
+  const a2=row('t',[root(0),root(1)],nativeBranch(false));
+  const result=run(a,b,a2,[false,true,false]);
+  assert.equal(result.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
+  assert.equal(result.rows[0].treatmentWitness,
+    'INVALID_ABA_WRAPPER_ACTIVATION');
+  assert.equal(result.sourceRetreatDivergenceCandidates,0);
+});
