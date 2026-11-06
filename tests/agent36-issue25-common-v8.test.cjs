@@ -5,7 +5,8 @@ const {SELECTED_OUTER_TO_INNER}=
   require('../simulation/evaluation/agent36-issue25-selected-v0.cjs');
 const {ROOT_FLAG}=
   require('../simulation/evaluation/agent36-issue25-common-v6.cjs');
-const {ROOT_LIMIT,VERSION,trials,runStewardBroaderV8}=
+const {ROOT_LIMIT,VERSION,trials,summarizeNativeAttempt,
+  runStewardBroaderV8}=
   require('../simulation/evaluation/agent36-issue25-common-v8.cjs');
 
 /** @returns {Record<string,Function>} */
@@ -69,4 +70,38 @@ test('v8 passes unchanged both-seat owner algorithms to registered 128-root nati
   assert.equal(output.diagnostic.competitiveGamesQualified,0);
   assert.ok(output.manifest.resolvedSourceAndPolicyHashes
     .every(x=>/^[a-f0-9]{64}$/.test(x.sha256)));
+});
+
+test('v8 native outcome summary distinguishes natural terminals, root caps and errors',()=>{
+  const terminal=summarizeNativeAttempt({
+    id:'terminal',candidateSeat:1,sourceSeat:0,winner:1,
+    finished:true,endReason:'prizes',actionCount:110,rootActionCount:110,
+    rootActionLedger:Array.from({length:110},(_,n)=>({actionOrdinal:n})),
+    finalPrizes:[0,0],finalBoard:{active:['A','B']}
+  },{id:'terminal',status:'returned-unqualified',candidateSeat:1});
+  assert.equal(terminal.status,'native-terminal-unqualified');
+  assert.equal(terminal.nativeOutcome,'native-terminal');
+  assert.equal(terminal.actionCount,110);
+  assert.equal(terminal.acceptedNativeRootCount,110);
+  assert.equal(terminal.finished,true);
+  assert.equal(terminal.winner,1);
+  assert.equal(terminal.endReason,'prizes');
+  assert.equal(terminal.terminalWinnerMatchesCandidate,true);
+  assert.deepEqual(terminal.finalPrizes,[0,0]);
+  assert.deepEqual(terminal.finalBoard,{active:['A','B']});
+
+  const capped=summarizeNativeAttempt({
+    id:'capped',candidateSeat:0,finished:false,actionCount:128,
+    rootActionCount:128,
+    rootActionLedger:Array.from({length:128},(_,n)=>({actionOrdinal:n}))
+  },{id:'capped',status:'returned-unqualified',candidateSeat:0});
+  assert.equal(capped.status,'root-cap-unqualified');
+  assert.equal(capped.nativeOutcome,'action-cap');
+
+  const aborted=summarizeNativeAttempt({
+    id:'aborted',rootActionLedger:[],
+    nativeAbortProvenance:{aborted:true}
+  },{id:'aborted',status:'engine-error'});
+  assert.equal(aborted.status,'engine-error');
+  assert.equal(aborted.nativeOutcome,'engine-error');
 });
