@@ -80,7 +80,8 @@ function runStewardBroaderV8(deps={}){
         nativeAcceptedTargets:true,
         nativeRootActionLimit:ROOT_LIMIT,
         registeredTrials:originalTrials.map(t=>({...t})),
-        registeredFrameName:registration.schema
+        registeredFrameName:registration.schema,
+        allowAdditionalOriginalSourceRanks:true
       }),
       layers:{...deps.layers,firstBlockedPromptEnvelope:attack},
       registeredTrialIds:originalTrials.map(t=>t.id)
