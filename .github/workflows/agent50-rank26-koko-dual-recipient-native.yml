@@ -583,6 +583,10 @@ jobs:
         env:
           AGENT3_V20_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v20-v8-root-bound-ko-physical.native.test.cjs
+      - name: Certify real native Store callback registered-trial ID to KO Prize object joins
+        env:
+          AGENT3_V21_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v21-v8-trial-bound-ko-prizes.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
