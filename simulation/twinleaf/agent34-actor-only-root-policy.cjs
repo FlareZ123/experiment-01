@@ -210,7 +210,8 @@ function chooseActorRootIntent(view,catalog,options={}){
   // Deliberately narrow research-only rescue, kept separate from the
   // positive-Energy preservation helper. The turn is preregistered.
   if(options.zeroEnergyStrandFloatStoneRoot===true&&
-     options.zeroEnergyStrandFloatStoneTargetTurn===view.globalTurn){
+     (options.zeroEnergyStrandFloatStoneTargetTurn===null||
+      options.zeroEnergyStrandFloatStoneTargetTurn===view.globalTurn)){
     const rescue=require('./agent31-zero-energy-strand-floatstone.cjs')
       .chooseZeroEnergyStrandFloatStone(view,catalog);
     if(rescue)return rescue;
@@ -1413,7 +1414,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
       zeroEnergyStrandFloatStoneRoot:
         audit.zeroEnergyStrandFloatStoneRootOptIn===true&&
-        audit.zeroEnergyStrandFloatStoneOwnerSeat===seat,
+        (audit.zeroEnergyStrandFloatStoneOwnerSeat===null||
+         audit.zeroEnergyStrandFloatStoneOwnerSeat===seat),
       zeroEnergyStrandFloatStoneTargetTurn:
         audit.zeroEnergyStrandFloatStoneTargetTurn,
       twoUnitPaidRetreatRoot:audit.twoUnitPaidRetreatRootOptIn===true,
