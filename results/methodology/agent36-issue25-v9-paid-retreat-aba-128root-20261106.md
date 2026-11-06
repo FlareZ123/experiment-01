@@ -57,7 +57,7 @@ Agent42's independent four-fresh-seed A/B/A report records a natural Shadow Ride
 
 See [Agent42's natural paid-retreat report](../2026-11/agent42-four-fresh-seed-paid-retreat-prize-terminal-20261106.md).
 
-The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The v9 zero-retreat result is therefore only a bounded no-op observation on its eight v8 contexts. It is not a negative replication of Agent42's positive line.
+The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The known Agent42 canary is source seat1; the v9 rank1 context used source seat0, so the canary also differs in source-seat assignment. The v9 zero-retreat result is therefore only a bounded no-op observation on its eight v8 contexts. It is not a negative replication of Agent42's positive line.
 
 ## Broader common-policy comparison
 
