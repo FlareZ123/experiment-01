@@ -547,29 +547,43 @@ test('paid-Retreat opt-in requires the live scopedRoot wrapper and emits an acti
   }),{
     twoUnitPaidRetreatRootOptIn:false,
     twoUnitPaidRetreatRootV2OptIn:false,
+    twoUnitPaidRetreatRootOptionPassed:false,
     twoUnitPaidRetreatRootWrapperSelected:false
   });
   const root=()=>{};
   assert.deepEqual(paidRetreatRootWrapperActivationReceipt({
     actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
-    scopedRoot:{root}
+    actorTwoUnitPaidRetreatTargetTurn:131,scopedRoot:{root},
+    rootOptions:actorPaidRetreatRootOptions({
+      actorTwoUnitPaidRetreatRoot:true,actorTwoUnitPaidRetreatTargetTurn:131
+    })
   }),{
     twoUnitPaidRetreatRootOptIn:true,
     twoUnitPaidRetreatRootV2OptIn:false,
+    twoUnitPaidRetreatRootOptionPassed:true,
     twoUnitPaidRetreatRootWrapperSelected:true
   });
   assert.deepEqual(paidRetreatRootWrapperActivationReceipt({
     actorOnlyComposition:true,actorTwoUnitPaidRetreatRootV2:true,
-    scopedRoot:{root}
+    actorTwoUnitPaidRetreatTargetTurnV2:132,scopedRoot:{root},
+    rootOptions:actorPaidRetreatRootOptions({
+      actorTwoUnitPaidRetreatRootV2:true,
+      actorTwoUnitPaidRetreatTargetTurnV2:132
+    })
   }),{
     twoUnitPaidRetreatRootOptIn:false,
     twoUnitPaidRetreatRootV2OptIn:true,
+    twoUnitPaidRetreatRootOptionPassed:true,
     twoUnitPaidRetreatRootWrapperSelected:true
   });
   assert.throws(()=>paidRetreatRootWrapperActivationReceipt({
     actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
-    scopedRoot:{}
-  }),/did not install the live scopedRoot wrapper/);
+    actorTwoUnitPaidRetreatTargetTurn:131,scopedRoot:{root}
+  }),/did not pass its selector into the live scopedRoot wrapper/);
+  assert.throws(()=>paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
+    actorTwoUnitPaidRetreatTargetTurn:131,scopedRoot:{}
+  }),/did not pass its selector into the live scopedRoot wrapper/);
   assert.throws(()=>paidRetreatRootWrapperActivationReceipt({
     actorOnlyComposition:false,actorTwoUnitPaidRetreatRoot:true,
     scopedRoot:{root}
