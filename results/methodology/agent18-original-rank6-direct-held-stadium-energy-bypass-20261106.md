@@ -15,7 +15,7 @@ Define the strictly disjoint event **E**:
 * In the resulting eight observed hand cards, **both singleton Thunder Mountain and DCE are present**.
 * The eight held cards contain **zero** G&H, Tag Call, and Trainers' Mail.
 
-Every such E opening is excluded from the previously modeled direct/Mail G&H route: the required connector is absent. The two attack-resource cards are already physically in hand, irrespective of what the six Prizes contain.
+Every such E opening is excluded from the previously modeled direct/Mail G&H route: the required connector is absent. **This is a no-opponent-mulligan-compensation eight-card window**; when the opponent mulligans, legal extra opening draws can alter the actual owner hand and the physical event probability. The two attack-resource cards are already physically in hand, irrespective of what the six Prizes contain.
 
 ## Exact findings
 
