@@ -74,11 +74,39 @@ assert.equal(frozenTrials.filter(x=>x.seat===1).length,16);
  * @param {object[]} goFirstReceipts
  * @returns {T}
  */
-function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipts,sourceSeat){
+function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipts,mulliganReceipts,sourceSeat){
   const {Store}=require('../vendor/twinleaf/ptcg-server/output/game/store/store');
-  const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
-  assert.equal(typeof original?.value,'function');
-  assert.equal(original.configurable,true);
+  const {CardList}=require('../vendor/twinleaf/ptcg-server/output/game/store/state/card-list');
+  const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const originalMoveTo=Object.getOwnPropertyDescriptor(CardList.prototype,'moveTo');
+  assert.equal(typeof originalDispatch?.value,'function');
+  assert.equal(originalDispatch.configurable,true);
+  assert.equal(typeof originalMoveTo?.value,'function');
+  assert.equal(originalMoveTo.configurable,true);
+  let activeCompensationMove=null;
+  function moveTo(destination,count){
+    const active=activeCompensationMove;
+    if(active&&this===active.owner.deck&&destination===active.owner.hand){
+      const beforeDeck=this.cards.slice();
+      const beforeHand=destination.cards.slice();
+      const result=originalMoveTo.value.apply(this,[destination,count]);
+      const moved=destination.cards.filter(card=>!beforeHand.includes(card));
+      const removed=beforeDeck.filter(card=>!this.cards.includes(card));
+      const identityMatch=moved.length===removed.length&&
+        moved.every(card=>removed.includes(card))&&
+        removed.every(card=>moved.includes(card));
+      active.moves.push({
+        requestedCount:count??beforeDeck.length,
+        movedCount:moved.length,
+        deckBefore:beforeDeck.length,deckAfter:this.cards.length,
+        handBefore:beforeHand.length,handAfter:destination.cards.length,
+        identityMatch,
+        movedPrintings:moved.map(card=>card.fullName)
+      });
+      return result;
+    }
+    return originalMoveTo.value.apply(this,[destination,count]);
+  }
   function dispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&!shared.store)
       shared.store=this;
@@ -92,6 +120,9 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
     const isSelect=isResolve&&pending.constructor?.name==='SelectPrompt'&&owner;
     const isGoFirst=isResolve&&pending.constructor?.name==='ConfirmPrompt'&&
       pending.message==='GO_FIRST'&&owner;
+    const isMulligan=isResolve&&
+      pending.constructor?.name==='ShowMulliganPrompt'&&owner;
+    const isCompensation=isSelect&&pending.message==='WANT_TO_DRAW_CARDS';
     const values=isSelect?[...pending.values]:null;
     const defaultValue=isSelect?(pending.options?.defaultValue??0):null;
     const selectedOptionIndex=isSelect?action.result:null;
@@ -99,22 +130,38 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       values[action.result]??null:null;
     const handBefore=isSelect?[...owner.hand.cards]:null;
     const deckBefore=isSelect?[...owner.deck.cards]:null;
+    const moveAudit=isCompensation?{owner,moves:[]}:null;
     const goFirstRecord=isGoFirst?{
       seat,sourceSeat,chooseFirst:action.result,turn:state.turn,phase:state.phase
     }:null;
+    const mulliganRecord=isMulligan?{
+      actorSeat:seat,message:pending.message,
+      mulliganSeat:pending.message==='SETUP_PLAYER_NO_BASIC'?seat:
+        pending.message==='SETUP_OPPONENT_NO_BASIC'?1-seat:null,
+      mulliganHandsCount:Array.isArray(pending.hands)?pending.hands.length:null,
+      turn:state.turn,phase:state.phase
+    }:null;
     let result;
+    if(moveAudit)activeCompensationMove=moveAudit;
     try{
-      result=original.value.apply(this,[action,...args]);
+      result=originalDispatch.value.apply(this,[action,...args]);
     }catch(error){
       if(isSelect)selectReceipts.push({
         seat,message:pending.message,values,defaultValue,
-        selectedOptionIndex,selectedLabel,nativeAccepted:false,
+        selectedOptionIndex,selectedLabel,
+        moveCalls:moveAudit?.moves??[],
+        nativeAccepted:false,
         errorCode:error?.code??null,errorMessage:String(error?.message??error)
       });
       if(goFirstRecord)goFirstReceipts.push({
         ...goFirstRecord,nativeAccepted:false
       });
+      if(mulliganRecord)mulliganReceipts.push({
+        ...mulliganRecord,nativeAccepted:false
+      });
       throw error;
+    }finally{
+      if(moveAudit)activeCompensationMove=null;
     }
     if(isSelect){
       const after=this.state.players[seat];
@@ -126,29 +173,28 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       const identityMatch=added.length===removed.length&&
         added.every(card=>removed.includes(card))&&
         removed.every(card=>added.includes(card));
+      const firstMove=moveAudit?.moves?.[0]??null;
       const physicalTransferVerified=expectedDrawCount!==null&&
-        added.length===expectedDrawCount&&
-        removed.length===expectedDrawCount&&
-        after.hand.cards.length-handBefore.length===expectedDrawCount&&
-        deckBefore.length-after.deck.cards.length===expectedDrawCount&&
-        identityMatch;
+        firstMove?.requestedCount===expectedDrawCount&&
+        firstMove?.movedCount===expectedDrawCount&&
+        firstMove?.identityMatch===true;
       const stillPending=after.prompts?.some(p=>
         p.id===pending.id&&p.result===undefined)??false;
-      const receipt={
+      selectReceipts.push({
         seat,message:pending.message,values,defaultValue,
         selectedOptionIndex,selectedLabel,expectedDrawCount,
         handBefore:handBefore.length,handAfter:after.hand.cards.length,
         deckBefore:deckBefore.length,deckAfter:after.deck.cards.length,
+        totalHandDelta:after.hand.cards.length-handBefore.length,
+        totalDeckDelta:deckBefore.length-after.deck.cards.length,
         addedPrintings:added.map(card=>card.fullName),
         removedPrintings:removed.map(card=>card.fullName),
         nativePromptResolved:!stillPending,
         physicalIdentityMatch:identityMatch,
-        physicalTransferVerified
-      };
-      selectReceipts.push(receipt);
-      if(pending.message==='WANT_TO_DRAW_CARDS')
-        assert.equal(physicalTransferVerified,true,
-          'Native compensation choice must move the selected physical count from deck to hand');
+        physicalTransferVerified,
+        compensationMove:firstMove,
+        postPromptDeckToHandMoves:moveAudit?.moves?.slice(1)??[]
+      });
     }
     if(goFirstRecord){
       const afterPrompt=this.state.prompts?.find(p=>p.id===pending.id);
@@ -158,10 +204,21 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
           afterPrompt===undefined||afterPrompt.result===action.result
       });
     }
+    if(mulliganRecord){
+      const afterPrompt=this.state.prompts?.find(p=>p.id===pending.id);
+      mulliganReceipts.push({
+        ...mulliganRecord,
+        nativeAccepted:pending.result===action.result||
+          afterPrompt===undefined||afterPrompt.result===action.result
+      });
+    }
     return result;
   }
   Object.defineProperty(Store.prototype,'dispatch',{
-    ...original,value:dispatch
+    ...originalDispatch,value:dispatch
+  });
+  Object.defineProperty(CardList.prototype,'moveTo',{
+    ...originalMoveTo,value:moveTo
   });
   try{return run();}
   catch(error){
@@ -169,6 +226,7 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       error.agent50SetupPromptPhysicalReceipt={
         selectReceipts:[...selectReceipts],
         goFirstReceipts:[...goFirstReceipts],
+        mulliganReceipts:[...mulliganReceipts],
         liveStoreObserved:Boolean(shared.store),
         aborted:true
       };
@@ -176,7 +234,9 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
     throw error;
   }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatch);
-    Object.defineProperty(Store.prototype,'dispatch',original);
+    assert.strictEqual(CardList.prototype.moveTo,moveTo);
+    Object.defineProperty(Store.prototype,'dispatch',originalDispatch);
+    Object.defineProperty(CardList.prototype,'moveTo',originalMoveTo);
   }
 }
 
@@ -270,6 +330,7 @@ function attempt(trial){
   const actorSelectIntents=[];
   const selectReceipts=[];
   const goFirstReceipts=[];
+  const mulliganReceipts=[];
   const firstTurnHandEvents=[];
   let thrown=null,returned=false,inner=null;
   try{
@@ -291,15 +352,14 @@ function attempt(trial){
               {sourceSeat:trial.seat})
             )
           )
-        ),actorSelectIntents),shared,selectReceipts,goFirstReceipts,trial.seat)
+        ),actorSelectIntents),shared,selectReceipts,goFirstReceipts,
+        mulliganReceipts,trial.seat)
     ,{maxRecords:8}));
     returned=true;
   }catch(error){
     thrown=error;
   }
 
-  // Successful wrapper layers return nested {result,audit} records. Preserve
-  // those too; otherwise early returned games silently lose the hook receipts.
   const setupConfirmLayer=returned?inner?.result:null;
   const actorSelectLayer=setupConfirmLayer?.result??null;
   const goFirstLayer=actorSelectLayer?.result??null;
@@ -308,14 +368,14 @@ function attempt(trial){
   const openingLayer=entryLayer?.result??null;
   const dedechangeLayer=openingLayer?.result??null;
   const matchResult=dedechangeLayer?.result??null;
-
   const hook=thrown?.agent50FirstTurnDedechangeAudit??
     dedechangeLayer?.audit??null;
   const root=hook?.rootEvents?.[0]??null;
   const quarantine=thrown?.nativeRawStateFallbackQuarantine??
     inner?.audit??null;
   const promptReceipt=thrown?.agent50SetupPromptPhysicalReceipt??{
-    selectReceipts,goFirstReceipts,liveStoreObserved:Boolean(shared.store)
+    selectReceipts,goFirstReceipts,mulliganReceipts,
+    liveStoreObserved:Boolean(shared.store)
   };
   const setup=thrown?.ownerOpeningStoreReceiptAudit??
     openingLayer?.audit??null;
@@ -325,6 +385,26 @@ function attempt(trial){
   const handReceipt=thrown?.agent50FirstTurnHandReceipt??{
     events:firstTurnHandEvents
   };
+  const mulliganCountsBySeat={0:0,1:0};
+  for(const receipt of promptReceipt.mulliganReceipts??mulliganReceipts){
+    if(receipt.mulliganSeat===0||receipt.mulliganSeat===1)
+      mulliganCountsBySeat[receipt.mulliganSeat]=Math.max(
+        mulliganCountsBySeat[receipt.mulliganSeat],
+        receipt.mulliganHandsCount??0);
+  }
+  const compensation=(promptReceipt.selectReceipts??selectReceipts)
+    .filter(x=>x.message==='WANT_TO_DRAW_CARDS');
+  const expectedRecipientSeat=mulliganCountsBySeat[0]===mulliganCountsBySeat[1]?
+    null:(mulliganCountsBySeat[0]<mulliganCountsBySeat[1]?0:1);
+  const expectedCompensationDrawCount=Math.abs(
+    mulliganCountsBySeat[0]-mulliganCountsBySeat[1]);
+  const actualRecipientSeat=compensation.length===1?compensation[0].seat:null;
+  const compensationVerified=expectedRecipientSeat===null?
+    compensation.length===0:
+    compensation.length===1&&
+    compensation[0].seat===expectedRecipientSeat&&
+    compensation[0].expectedDrawCount===expectedCompensationDrawCount&&
+    compensation[0].physicalTransferVerified===true;
   const sourceTurnReached=(hook?.sourceTurnRootsSeen??0)>0;
   return {
     schema:DEDECHANGE_VERSION,
@@ -334,6 +414,7 @@ function attempt(trial){
     sourceFirst:trial.sourceFirst,
     sourceCoinChoice:trial.seat===0?[true,false]:[false,true],
     pinnedEngine:PIN,
+    shuffleProtocol:'twinleaf-default-legacy-shared-seeded-stream',
     source60Sha256:createHash('sha256')
       .update(JSON.stringify(source.cards)).digest('hex'),
     reference60Sha256:createHash('sha256')
@@ -349,9 +430,7 @@ function attempt(trial){
       turns:matchResult.turns??null,
       finished:matchResult.finished??null,
       endReason:matchResult.endReason??null,
-      winner:matchResult.winner??null,
-      actionCounts:matchResult.actionCounts??null,
-      actionsBySeat:matchResult.actionsBySeat??null
+      winner:matchResult.winner??null
     }:null,
     firstTurnHandReceipt:handReceipt.events??[],
     ownerFirstTurnHook:hook,
@@ -368,8 +447,20 @@ function attempt(trial){
     goFirstAudit:goFirstLayer?.audit??null,
     publicAcknowledgementsAudit:publicAckLayer?.audit??null,
     actorSelectIntents,
-    selectReceipts:promptReceipt.selectReceipts??[],
-    goFirstReceipts:promptReceipt.goFirstReceipts??[],
+    mulliganReceipts:promptReceipt.mulliganReceipts??mulliganReceipts,
+    mulliganCountsBySeat,
+    mulliganCountsByDeck:{
+      source:mulliganCountsBySeat[trial.seat],
+      reference:mulliganCountsBySeat[1-trial.seat]
+    },
+    expectedCompensationRecipientSeat:expectedRecipientSeat,
+    actualCompensationRecipientSeat:actualRecipientSeat,
+    expectedCompensationDrawCount,
+    actualCompensationDrawCount:compensation.length===1?
+      compensation[0].expectedDrawCount:null,
+    compensationVerified,
+    selectReceipts:promptReceipt.selectReceipts??selectReceipts,
+    goFirstReceipts:promptReceipt.goFirstReceipts??goFirstReceipts,
     ownerFallback:quarantine?{
       rawStateCalls:quarantine.rawStateFallbackCalls,
       originalNativeDecoderExecuted:quarantine.originalNativeDecoderExecuted,
@@ -394,61 +485,77 @@ function save(row){
   writeAtomicLocked(file+'.sha256',sha+'  '+name+'\n');
 }
 
-test('32 preregistered source-first physical rank4 opening opportunities',()=>{
+test('32 preregistered source-first physical rank4 opening opportunities with mulligan receipts',()=>{
   const rows=frozenTrials.map(trial=>{
     const row=attempt(trial);
     save(row);
     return row;
   });
-  const sourceTurns=rows.filter(row=>
-    (row.ownerFirstTurnHook?.sourceTurnRootsSeen??0)>0).length;
+  const sourceTurns=rows.filter(row=>row.sourceTurnReached).length;
   const opportunities=rows.filter(row=>row.dedechangeOpportunity).length;
   const played=rows.filter(row=>row.dedechangeNativePlayed>0).length;
   const confirmed=rows.filter(row=>row.dedechangeConfirmed>0).length;
   const settled=rows.filter(row=>row.settledPhysicalDedechangeDraws>0).length;
   const compensation=rows.flatMap(row=>row.selectReceipts??[])
     .filter(row=>row.message==='WANT_TO_DRAW_CARDS');
-  const blocked=rows.length-sourceTurns;
+  const recipientBySeat={
+    0:rows.filter(row=>row.actualCompensationRecipientSeat===0).length,
+    1:rows.filter(row=>row.actualCompensationRecipientSeat===1).length
+  };
   const summary={
-    schema:'agent50-rank4-dedechange-prospective-natural32-sourcefirst',
+    schema:'agent50-rank4-dedechange-natural32-sourcefirst',
     registration:REGISTRATION,registeredTrials:rows.length,
     uniqueSeeds:new Set(rows.map(row=>row.seed)).size,
     sourceSeatCounts:{0:rows.filter(row=>row.sourceSeat===0).length,
       1:rows.filter(row=>row.sourceSeat===1).length},
     sourceFirst:true,sourceTurnsReached:sourceTurns,
-    blockedBeforeSourceTurn:blocked,
     dedechangeOpportunities:opportunities,
     physicalDedennePlays:played,
     confirmedDedechanges:confirmed,
     settledSixCardDedechangeDraws:settled,
     compensationPromptCount:compensation.length,
-    compensationReceipts:compensation,
+    compensationCards:compensation.reduce((n,x)=>n+(x.expectedDrawCount??0),0),
+    recipientBySeat,
+    compensationVerified:rows.filter(row=>row.compensationVerified).length,
+    compensationVerificationFailures:rows.filter(row=>!row.compensationVerified)
+      .map(row=>({seat:row.sourceSeat,seed:row.seed,
+        counts:row.mulliganCountsBySeat,
+        expected:row.expectedCompensationRecipientSeat,
+        actual:row.actualCompensationRecipientSeat,
+        expectedDraw:row.expectedCompensationDrawCount,
+        actualDraw:row.actualCompensationDrawCount})),
     attemptOutcomes:rows.map(row=>({
       seat:row.sourceSeat,seed:row.seed,
-      sourceTurnReached:(row.ownerFirstTurnHook?.sourceTurnRootsSeen??0)>0,
-      firstTurnHand:row.firstTurnHandReceipt[0]?.hand??null,
+      sourceTurnReached:row.sourceTurnReached,
+      mulligans:row.mulliganCountsBySeat,
+      compensationRecipient:row.actualCompensationRecipientSeat,
+      compensationDraw:row.actualCompensationDrawCount,
+      compensationVerified:row.compensationVerified,
       dedechangeOpportunity:row.dedechangeOpportunity,
       played:row.dedechangeNativePlayed,
       confirmed:row.dedechangeConfirmed,
       draws:row.settledPhysicalDedechangeDraws,
       error:row.error?.code??null
     })),
-    ownerFallbacks:rows.map(row=>row.ownerFallback?.records?.[0]??null),
     qualifiedCompetitiveGames:0
   };
   console.log('AGENT50_RANK4_DEDECHANGE_NATURAL32',JSON.stringify(summary));
   assert.equal(rows.length,32);
   assert.equal(new Set(rows.map(row=>row.seed)).size,32);
-  assert.equal(sourceTurns+blocked,32);
+  assert.equal(rows.filter(row=>row.sourceSeat===0).length,16);
+  assert.equal(rows.filter(row=>row.sourceSeat===1).length,16);
+  assert.equal(sourceTurns,32,'Every registered source first turn must be reached');
   assert.ok(rows.every(row=>row.competitiveGamesQualified===0));
   assert.ok(rows.every(row=>row.ownerFirstTurnHook),
     'Every attempt must retain the first-turn Dedechange hook audit');
   assert.ok(rows.every(row=>row.ownerFallback?.originalNativeDecoderExecuted===false),
     'Original raw-State native decoder must remain quarantined');
-  assert.ok(rows.flatMap(row=>row.selectReceipts??[])
-    .filter(row=>row.message==='WANT_TO_DRAW_CARDS')
-    .every(row=>row.physicalTransferVerified===true),
-    'Every compensation SelectPrompt must have a physical hand/deck movement receipt');
+  assert.ok(rows.every(row=>row.mulliganReceipts.every(x=>x.nativeAccepted===true)),
+    'Every public mulligan acknowledgement must be natively accepted');
+  assert.ok(rows.every(row=>row.compensationVerified),
+    'The compensation recipient and draw count must match the observed mulligan difference');
+  assert.ok(compensation.every(row=>row.physicalTransferVerified===true),
+    'Every compensation SelectPrompt must have an exact physical movement receipt');
   assert.ok(rows.flatMap(row=>row.goFirstReceipts??[])
     .every(row=>row.chooseFirst===(row.seat===row.sourceSeat)),
     'The source seat must be the selected first player');
