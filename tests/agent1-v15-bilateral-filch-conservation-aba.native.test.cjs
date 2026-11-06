@@ -49,6 +49,7 @@ test('native identical eight original printed sixties A/B/A: cautious owner Filc
       id:x.id,sourceSeat:x.sourceSeat,disposition:x.disposition,
       roots:x.rootCount,winner:x.winner,
       finalPrizes:x.finalPrizes,
+      nativeTerminalConditions:x.nativeTerminalConditions,
       finalDeckCountsBySeat:x.finalDeckCountsBySeat,
       sourceWinner:x.sourceWinner,
       sourceAttackCount:x.countsBySeat[x.sourceSeat].attack,
@@ -87,6 +88,23 @@ test('native identical eight original printed sixties A/B/A: cautious owner Filc
   assert.equal(p.everyReplacementMatchedToNativeAcceptedPass,true);
   assert.equal(p.noUnexplainedTreatmentRootChanges,true);
   assert.equal(p.everyFirstNativeDivergenceIsRegisteredOwnerFilchPass,true);
+  // This exact registered cohort's native endings must be supported by
+  // actual before/after Store transitions, not a post-hoc final deck count.
+  for(const [index,arm] of result.recordsByArm.entries()){
+    const transitions=arm.nativeRows.filter(x=>x.genuineNativeFinished)
+      .map(x=>x.nativeTerminalCause);
+    const prize=transitions.filter(x=>
+      x.conditions?.includes('winner-took-final-prize')).length;
+    const draw=transitions.filter(x=>
+      x.conditions?.includes('loser-empty-deck-at-new-turn')).length;
+    assert.equal(prize,2,
+      'Both unchanged registered rank6 final-Prize engine finishes persist');
+    assert.equal(draw,index===1?1:2,
+      'Conserved Filch must preserve direct native deck-out-rule provenance');
+    assert.ok(transitions.every(x=>
+      x.status==='observed-sufficient-conditions'&&
+      x.conditions.length===1));
+  }
   assert.ok(p.treatmentByTrial.some(x=>
     x.attemptedFilchToPassReplacements>0),
     'The owner policy must change at least one actually executing Filch');
