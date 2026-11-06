@@ -8,6 +8,8 @@ const {registeredTrials}=
   require('./agent36-issue25-common-v6.cjs');
 const {hashRegisteredFile}=
   require('./agent36-issue25-selected-v0.cjs');
+const {createPublicEndstateObserver,VERSION:ENDSTATE_VERSION}=
+  require('./agent1-v14-public-endstate-observer.cjs');
 
 const VERSION='agent1-issue25-native-horizon260-v14-no-policy-change';
 const LIMIT=260;
@@ -18,7 +20,9 @@ const HASH_PATHS=[
   REGISTRATION,
   'simulation/evaluation/agent1-issue25-common-v14-horizon260.cjs',
   'tests/agent1-issue25-common-v14-horizon260.test.cjs',
-  'tests/agent1-issue25-common-v14-horizon260.native.test.cjs'
+  'tests/agent1-issue25-common-v14-horizon260.native.test.cjs',
+  'simulation/evaluation/agent1-v14-public-endstate-observer.cjs',
+  'tests/agent1-v14-public-endstate-observer.test.cjs'
 ];
 
 /**
@@ -35,6 +39,7 @@ function runAgent1Horizon260V14(deps={}){
   assert.equal(typeof runner,'function');
   assert.equal(typeof v13,'function');
   const invoked=[];
+  const publicEndstates=[];
   function extendedRunner(options){
     assert.equal(options?.nativeRootActionLimit,PRIOR_LIMIT,
       'v14 may only extend the exact v13 registered native horizon');
@@ -44,7 +49,9 @@ function runAgent1Horizon260V14(deps={}){
       originalSourceRanks:[...new Set(
         (next.registeredTrials??[]).map(x=>x.rank))].sort((a,b)=>a-b),
       registeredIds:(next.registeredTrials??[]).map(x=>x.id)});
-    return runner(next);
+    const ownerEndstateObserver=createPublicEndstateObserver({headless:deps.headless});
+    try{return ownerEndstateObserver.run(()=>runner(next));}
+    finally{publicEndstates.push(...ownerEndstateObserver.observations);}
   }
   const executed=v13({...deps,runner:extendedRunner});
   assert.equal(invoked.length,1,'Exactly one native batch required');
@@ -52,6 +59,12 @@ function runAgent1Horizon260V14(deps={}){
     registeredTrials().map(x=>x.id).sort());
   const rows=executed.rawDevelopment?.rows??[];
   assert.equal(rows.length,8,'Censored and errored original trials remain');
+  const publicEndstateById=new Map();
+  for(const event of publicEndstates){
+    assert.equal(publicEndstateById.has(event.id),false,
+      'A registered native trial cannot supply two final public owner states');
+    publicEndstateById.set(event.id,event);
+  }
   const publicRows=rows.map(row=>{
     const actions=row.rootActionLedger??
       row.nativeAbortEvidence?.rootActionLedger??null;
@@ -74,6 +87,7 @@ function runAgent1Horizon260V14(deps={}){
       nativeTurnCount:row.turns??null,
       nativeActionCount:row.actionCount??null,
       nativeClockResetCount:row.suddenDeathClockResets?.length??0,
+      originalNativeEndstate:publicEndstateById.get(row.trial?.id??row.id)??null,
       sourceActualAttacks:row.sourceAttackSettlement?.attacks??null,
       nativeError:row.error??null
     };
@@ -86,6 +100,7 @@ function runAgent1Horizon260V14(deps={}){
       actualNativeHorizonOverride:LIMIT,
       inheritedManifestPreviouslyDeclaredRootHorizon:PRIOR_LIMIT,
       nativeRootActionLimit:LIMIT,
+      originalNativePublicEndstateObserver:ENDSTATE_VERSION,
       registrationOfOneHorizonChange:REGISTRATION,
       completeSourceAndOpponentPolicyCertified:false,
       officialMatchClockCertified:false,
@@ -102,6 +117,8 @@ function runAgent1Horizon260V14(deps={}){
       extendedRunnerInvocation:invoked[0],
       actualNativeRootLimit:LIMIT,
       publicNativeRows:publicRows,
+      nativePublicEndstateObservedTrials:publicEndstateById.size,
+      nativePublicEndstateObservedReturns:publicEndstates.filter(x=>x.nativeReturned).length,
       nativeTerminalCount:publicRows.filter(x=>
         x.genuineNativeFinished===true).length,
       sourceRankIndependentActorPolicy:true,
