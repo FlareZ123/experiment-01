@@ -1,0 +1,138 @@
+{
+  "schema": "agent36-issue25-prospective-common-v6-96root-v1",
+  "createdAtUtc": "2026-11-06T01:28:49.541589+00:00",
+  "sourceRankUniverse": [
+    6,
+    11
+  ],
+  "sourceDeckManifest": "results/aichi-2026/full-decklists.json",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceOwnerSeatRule": "candidateSlot A => source seat1; B => source seat0",
+  "seedProtocol": "Four uniformly random independent 32-bit integers from Python secrets.randbits(32), sampled before implementing or executing this v6 trial",
+  "maxNativeRootActionsPerArm": 96,
+  "groups": [
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 200,
+      "seed": 1414072344
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 201,
+      "seed": 2732132720
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 202,
+      "seed": 2542724362
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 203,
+      "seed": 2635094518
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 200,
+      "seed": 1414072344,
+      "candidateId": "champion-reference",
+      "id": "6:200:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 200,
+      "seed": 1414072344,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:200:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 201,
+      "seed": 2732132720,
+      "candidateId": "champion-reference",
+      "id": "6:201:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 201,
+      "seed": 2732132720,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:201:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 202,
+      "seed": 2542724362,
+      "candidateId": "champion-reference",
+      "id": "11:202:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 202,
+      "seed": 2542724362,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:202:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 203,
+      "seed": 2635094518,
+      "candidateId": "champion-reference",
+      "id": "11:203:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 203,
+      "seed": 2635094518,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:203:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyPlan": {
+    "baseline": "selected agent36 Issue25 v4 common bilateral policy as distinct preserved reference",
+    "new": "One shared owner-observation root choice policy for both physical seats with thornsDirectLine selected globally; same v4 three printed source attack handlers, Capture Energy and both-seat Special Energy; add v5 owner Prize and promotion prompt resolution; no original rank/seat/candidate/deal-specific policy branch",
+    "rootSelectorFlag": "AGENT1_THORNS_DIRECT_ROOT_DEV=true, scoped and restored for each v6 run",
+    "ownerPromptLayer": "agent36 withStewardInnermostOwnerPrompts",
+    "nativeTargetObserver": true,
+    "initialSetup": "same agent36 v0 outer owner prompt stack, source independent resource",
+    "releaseEligible": false
+  },
+  "design": {
+    "arms": 8,
+    "sourceSeatsPerRank": [
+      0,
+      1
+    ],
+    "pairedSeedOnlyWithinRankSourceSeat": true,
+    "matchedPhysicalDealsAcrossDifferentContenderDecks": false,
+    "historical48RootCohortsNotPooled": true,
+    "allAttemptsIncluded": "errors, caps and returns each count once",
+    "noPreselectedV10TargetRoot": true,
+    "predefineNativeRootHorizon": true,
+    "policyRandomness": "existing private Night Watch HMAC seed; independent per Store; stochastic outputs recorded postgame",
+    "competitiveGameQualification": "FAIL pending paper legality owner noninterference and clock independent review"
+  },
+  "targets": {
+    "primary": "Can one actual common owner-only decision policy select and settle an original-source paid attack or control payoff with a real opponent action on freshly drawn seeds?",
+    "secondary": "Determine failure-inclusive 96-root original 6/11 source outcomes, no winner-rate inference"
+  },
+  "competitiveGamesQualified": 0
+}
