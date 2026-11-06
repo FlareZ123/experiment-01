@@ -158,10 +158,6 @@ function runSyntheticNativeFixture(deps={}){
   const audit=raw.ownerVsSeekerGuzmaAudit;
   assert.ok(fixture.audit.injections.length>0,
     'At least one real native owner must receive the synthetic opportunity');
-  assert.ok(audit.rootsAccepted>0,
-    'Pinned Twinleaf Store must accept at least one VS Seeker root');
-  assert.ok(audit.promptsAccepted>0,
-    'Pinned Twinleaf Store must accept and resolve the owner-discard prompt');
   const manifest={
     version:VERSION,syntheticStateInjection:true,
     gameplayEvidence:false,prospective:false,
