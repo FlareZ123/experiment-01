@@ -1,0 +1,124 @@
+{
+  "schema": "agent20-issue25-v8-vs-seeker-guzma-retrospective-128root-v1",
+  "createdAtUtc": "2026-11-06T19:10:18.223Z",
+  "experimentalType": "retrospective fixed-context native integration diagnostic; not prospective and not a competitive win-rate sample",
+  "sourceRegistration": "results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json",
+  "sourceOriginalRanks": [
+    6,
+    11,
+    1,
+    3
+  ],
+  "sourceSeatAllocationRule": "reuse the exact v8 candidate slots and physical source-seat assignments",
+  "contendingPrintedSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 128,
+  "groups": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "champion-reference",
+      "id": "6:210:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:210:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "champion-reference",
+      "id": "11:211:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:211:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "champion-reference",
+      "id": "1:212:B:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:212:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "champion-reference",
+      "id": "3:213:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:213:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyComposition": {
+    "baseline": "agent36 common v8 unchanged",
+    "addedRoot": "Agent48 owner-only VS Seeker PHF to Guzma BUS recovery fallback",
+    "promptContinuation": "Agent43 owner Guzma native prompt continuation enabled",
+    "priority": "Agent34 canonical owner roots first; Agent43 Guzma prompt continuation; Agent48 VS Seeker/Guzma root and owner-discard prompt fallback",
+    "opponentGust": "delegated to the existing opponent-target policy; no strategic target certification"
+  },
+  "eligibility": "genuine owner root after global turn 1; owner holds VS Seeker PHF; Guzma BUS is in that owner's discard and absent from hand; Supporter unused; Item and Supporter locks absent; both players have a Benched Pokémon",
+  "randomnessProtocol": "legacy-shared-prng inherited from v8; no RNG isolation added; same registered trial seeds",
+  "rootCensoring": "retain all eight rows, native decoder aborts, and root-128 caps; censored attempts are not wins or losses",
+  "evidenceBoundary": "record Store-accepted VS Seeker, exact owner-discard prompt, exact physical Guzma movement into owner hand, and Agent43 prompt receipts where available; this does not certify beneficial gust choice, a settled attack, a Prize, a completed game, paper-clock qualification, or competitive strength",
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false
+}
