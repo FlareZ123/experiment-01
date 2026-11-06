@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {chooseOwnerVsSeekerSupporterPrompt}=require('./agent48-owner-vs-seeker-supporter.cjs');
 
 const VERSION='agent48-owner-seeker-lillie-v1';
 const SEEKER='VS Seeker PHF';
@@ -58,18 +59,9 @@ function chooseSeekerLillieRoot(view){
  * @returns {object} Native owner-only physically selected prompt reply.
  */
 function chooseSeekerLilliePrompt(state,seat,prompt,ResolvePromptAction){
-  assert.ok((seat===0||seat===1)&&state?.players?.length===2);
-  const owner=state.players[seat];
-  assert.equal(prompt?.constructor?.name,'ChooseCardsPrompt');
-  assert.equal(prompt.playerId,owner.id);
-  assert.strictEqual(prompt.cards,owner.discard,
-    'Owner VS Seeker retrieval must never read deck, Prize or rival zones');
-  assert.ok(prompt.result===undefined);
-  const card=owner.discard.cards.find(x=>x.fullName===LILLIE);
-  assert.ok(card,'Expected own-public Lillie printing absent in live prompt');
-  assert.ok(prompt.validate([card],state),
-    'Native owner-discard prompt rejected selected Supporter');
-  return new ResolvePromptAction(prompt.id,[card]);
+  return chooseOwnerVsSeekerSupporterPrompt(
+    state,seat,prompt,ResolvePromptAction,LILLIE
+  );
 }
 
 module.exports={VERSION,SEEKER,LILLIE,
