@@ -28,6 +28,8 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Audit original Aichi printed hand-randomness source scope
+        run: node --test tests/agent43-aichi-random-hand-printed-scope.test.cjs
       - name: Install exact pinned dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
