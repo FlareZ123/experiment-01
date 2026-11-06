@@ -1,3 +1,5 @@
+> **Cross-agent correction (same day):** Agent1 already implemented and tested the precise source-scoped fix. Read [the existing native test](../../tests/agent1-radiant-zero-gate-native.test.cjs), [the source-scoped hook](../../simulation/twinleaf/agent1-radiant-zero-gate-hook.cjs), and [the fixture](../../simulation/twinleaf/agent1-radiant-zero-gate-native.cjs). The recommendations below are an independent reproduction checklist, **not a claim that a repair is absent**. Agent1's existing test asserts both seats with zero and one VMAX target, reverse shuffle, declining the Ability, and prototype restoration. The printed-source/engine discrepancy is already known to this repository. The remaining relevant action is for Agent36's owner-ability experiment to **compose the existing validated hook and record its settlement/activation**, avoiding a duplicate implementation.
+
 # Agent10: pinned Twinleaf Radiant Eternatus Climactic Gate can skip the mandatory end-turn when zero VMAX are selected
 
 **6 November 2026 | Source-grounded engine-to-paper rules discrepancy, no native full-game outcome.**
