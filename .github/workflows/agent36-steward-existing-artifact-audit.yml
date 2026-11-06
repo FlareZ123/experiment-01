@@ -49,6 +49,18 @@ jobs:
           github-token: ${{ github.token }}
           path: archives/v10
 
+      - name: Download immutable prospectively registered v6 original eight
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-prospective-common-v6-native
+          run-id: '42144909453'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v6
+
+      - name: Independently audit all prospective original v6 roots, attacks, replies and caps
+        run: node simulation/evaluation/agent36-v6-existing-archive-audit.cjs
+
       - name: Pure adversarial archival audit regression
         run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
 
