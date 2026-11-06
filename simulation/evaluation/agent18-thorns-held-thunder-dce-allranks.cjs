@@ -60,32 +60,44 @@ function gcd(a,b){
  * For a fixed unordered observed eight-card set with b Basic Pokémon,
  * exactly 8 choices of the final card are compatible with a legal initial7
  * when b>=2; only 7 choices qualify when b=1 (the Basic cannot be last).
- * Six face-down Prize cards, distributed between seven and eighth, vanish
- * under exact marginalization. This is a finite-population count.
+ * Six face-down Prize cards, distributed between opening and later draws,
+ * vanish under exact marginalization. With bonusDraws=1, one voluntary
+ * opponent-mulligan-compensation draw occurs before the natural turn draw;
+ * the initial seven must still contain a Basic. The nine-card subset has
+ * 56,70,72 legal ordered late-card pairs for 1,2,>=3 Basics respectively.
+ * This is a finite-population count, not a simulation of opponent mulligans.
  *
  * @param {6|24|29} rank
  * @param {{requireGuzma?:boolean,exactlyOneBasic?:boolean,
- *   allowConnectors?:boolean}} [options]
+ *   allowConnectors?:boolean,bonusDraws?:0|1}} [options]
  * @returns {{rank:number,numerator:bigint,denominator:bigint,
  *   percentage:number,favorable:bigint,
  *   requireGuzma:boolean,exactlyOneBasic:boolean,counts:object}}
  */
 function directlyHeldThornsResources(rank,options={}){
   const {requireGuzma=false,exactlyOneBasic=false,
-    allowConnectors=false}=options;
+    allowConnectors=false,bonusDraws=0}=options;
+  assert.ok(bonusDraws===0||bonusDraws===1);
+  const observedCount=8+bonusDraws;
   const counts=groupOriginalSixty(rank);
   const filler=counts.other+
     (allowConnectors?counts.hala+counts.tag+counts.mail:0);
-  const denominator=(choose(60,7)-choose(60-counts.basic,7))*53n;
+  const denominator=(choose(60,7)-choose(60-counts.basic,7))*
+    53n*(bonusDraws===1?52n:1n);
   let favorable=0n;
   for(let b=1;b<=counts.basic;b++){
     if(exactlyOneBasic&&b!==1)continue;
     for(let d=1;d<=counts.dce;d++){
       for(let g=Number(requireGuzma);g<=counts.guzma;g++){
-        const other=8-b-1-d-g;
+        const other=observedCount-b-1-d-g;
         const sets=choose(counts.basic,b)*choose(counts.dce,d)*
           choose(counts.guzma,g)*choose(filler,other);
-        favorable+=sets*BigInt(b===1?7:8);
+        // If an extra opponent-mulligan draw is taken before the turn draw,
+        // the two later cards have 9*8 physical ordered positions.
+        // Initial seven must still contain at least one Basic.
+        const legalOrderings=bonusDraws===0?(b===1?7:8):
+          (b===1?56:b===2?70:72);
+        favorable+=sets*BigInt(legalOrderings);
       }
     }
   }
@@ -94,7 +106,7 @@ function directlyHeldThornsResources(rank,options={}){
   return {
     rank,numerator:favorable/factor,denominator:denominator/factor,
     percentage:100*Number(favorable)/Number(denominator),
-    favorable,requireGuzma,exactlyOneBasic,allowConnectors,counts
+    favorable,requireGuzma,exactlyOneBasic,allowConnectors,bonusDraws,counts
   };
 }
 
