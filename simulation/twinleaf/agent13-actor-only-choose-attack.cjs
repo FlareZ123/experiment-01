@@ -113,6 +113,18 @@ function chooseActorCopiedAttack(input,options={}){
     if(upgraded)picked=eligible.find(x=>x.sourceIndex===upgraded.sourceIndex&&
       x.attackIndex===upgraded.attackIndex)??picked;
   }
+  // Default-off source-independent prevention of native zero-payoff copy
+  // recursion. Select only an unblocked, non-GX printed Max Miracle on
+  // the *same* Mew VMAX donor as the already chosen Cross Fusion Strike.
+  // This changes a legal menu priority, not attack-payment or KO semantics.
+  if(options.preferMewMaxMiracleOverSelfCopy===true &&
+     input.actor.ownPublic?.active?.printing==='Mew VMAX FST' &&
+     picked?.printing==='Mew VMAX FST' &&
+     picked.attackName==='Cross Fusion Strike'){
+    picked=eligible.find(x=>x.sourceIndex===picked.sourceIndex &&
+      x.printing==='Mew VMAX FST' && x.attackName==='Max Miracle' &&
+      x.gxAttack!==true)??picked;
+  }
   if(picked)return {sourceIndex:picked.sourceIndex,
     attackIndex:picked.attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
@@ -145,6 +157,7 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
+  const preferMewMaxMiracleOverSelfCopy=deps.preferMewMaxMiracleOverSelfCopy===true;
   const preferRank13DragapultPhantomDive=deps.preferRank13DragapultPhantomDive===true;
   const preferPublicFlatCopy=deps.preferPublicFlatCopy===true||
     process.env.AGENT8_PUBLIC_FLAT_COPY_DEV==='true';
@@ -155,11 +168,12 @@ function withActorOnlyChooseAttack(run,deps={}){
     (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
     (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':'')+
     (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':'')+
+    (preferMewMaxMiracleOverSelfCopy?'+agent13-mew-selfcopy-maxmiracle-v1':'')+
     (preferRank13DragapultPhantomDive?'+agent8-rank13-phantom-dive-v1':'')+
     (preferPublicFlatCopy?'+agent8-public-flat-copy-turns-v1':''),
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
-    preferMewGenesectTechnoBlast,
+    preferMewGenesectTechnoBlast,preferMewMaxMiracleOverSelfCopy,
     preferRank13DragapultPhantomDive,rank13SourceSeat,
     preferPublicFlatCopy,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
@@ -180,7 +194,7 @@ function withActorOnlyChooseAttack(run,deps={}){
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage,
-        preferMewGenesectTechnoBlast,
+        preferMewGenesectTechnoBlast,preferMewMaxMiracleOverSelfCopy,
         preferRank13DragapultPhantomDive,rank13SourceSeat,
         preferFasterNominalCopy:preferPublicFlatCopy});
     const controlIntent=preferZeroHandPrintedDamage?
