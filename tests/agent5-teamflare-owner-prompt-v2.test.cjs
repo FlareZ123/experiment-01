@@ -35,7 +35,7 @@ function slot(name, energies=[]) {
   const cards = [...energies];
   return {
     getPokemonCard:()=>({fullName:name}),
-    cards, energies:{cards}, tools: []
+    cards, energies:{cards:[...energies]}, tools: []
   };
 }
 function fixture(mode='settled') {
