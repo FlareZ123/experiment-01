@@ -1,0 +1,69 @@
+name: Agent20 retrospective v8 VS Seeker Guzma integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent20-v8-vs-seeker-guzma-\${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Verify registered engine pin
+        run: |
+          actual="$(git -C vendor/twinleaf rev-parse HEAD)"
+          expected="a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+          test "$actual" = "$expected"
+          printf 'Twinleaf pin: %s\n' "$actual"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Install and compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Test owner-scoped VS Seeker and Guzma composition
+        run: |
+          node --test \
+            tests/agent20-issue25-v8-vs-seeker-guzma.test.cjs \
+            tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs \
+            tests/agent43-guzma-prompt-continuation.test.cjs \
+            tests/agent48-owner-vs-seeker-guzma-layer.test.cjs \
+            tests/agent48-owner-vs-seeker-guzma-layer.native.test.cjs \
+            tests/agent48-owner-vs-seeker-guzma-root.test.cjs \
+            tests/agent48-owner-vs-seeker-supporter.test.cjs
+
+      - name: Run the exact eight retrospective v8 contexts with additive Guzma recovery
+        env:
+          AGENT20_OUTPUT_PATH: \${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+        run: node simulation/evaluation/agent20-issue25-v8-vs-seeker-guzma.cjs
+
+      - name: Upload all native rows and physical prompt receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-v8-vs-seeker-guzma-\${{ github.run_id }}
+          path: \${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+          if-no-files-found: warn
+          retention-days: 30
