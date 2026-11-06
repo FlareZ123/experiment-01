@@ -114,7 +114,8 @@ function runAgent1CommonWonderTagV11(deps={}){
       JSON.stringify(expected)&&
     JSON.stringify(pairIds(shuffle.completedTrialSeats??[]))===
       JSON.stringify(expected);
-  const certified=exactNativeShuffleJoin&&
+  const certified=nonempty.length>0&&
+    exactNativeShuffleJoin&&
     shuffle?.allOfferedShufflesCompleted===true&&
     shuffle?.nativeTrialAttributionAvailable===true&&
     shuffle?.shufflePromptsOffered===nonempty.length&&
