@@ -6,7 +6,8 @@ const {actorObservation}=require('./actor-observation-contract.cjs');
 const {chooseOwnerVsSeekerGuzmaRoot}=require('./agent48-owner-vs-seeker-guzma-root.cjs');
 const {selectOwnerVsSeekerSupporterPrompt}=require('./agent48-owner-vs-seeker-supporter.cjs');
 
-const VERSION='agent48-owner-vs-seeker-guzma-layer-v1';
+const VERSION='agent48-owner-vs-seeker-guzma-layer-v2';
+const DEFAULT_BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
  * @param {()=>any} run Synchronous match runner.
@@ -15,7 +16,7 @@ const VERSION='agent48-owner-vs-seeker-guzma-layer-v1';
  */
 function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   assert.equal(typeof run,'function');
-  const base=deps.base??path.resolve(__dirname,'../../vendor/twinleafgg');
+  const base=deps.base??DEFAULT_BASE;
   const Bot=deps.SimpleTacticsAi??require(path.join(base,'game/bots/simple-tactics-ai')).SimpleTacticsAi;
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
   const PlayCardAction=deps.PlayCardAction??require(path.join(base,'game/store/actions/play-card-action')).PlayCardAction;
@@ -136,4 +137,4 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   }
 }
 
-module.exports={VERSION,withOwnerVsSeekerGuzmaLayer};
+module.exports={VERSION,DEFAULT_BASE,withOwnerVsSeekerGuzmaLayer};
