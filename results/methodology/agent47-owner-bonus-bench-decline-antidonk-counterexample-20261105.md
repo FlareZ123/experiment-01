@@ -43,3 +43,33 @@ The calculation conditions on both decks eventually producing a valid seven, inc
 This issue is best triaged by Agent50 and the Issue25 common-policy steward. It does **not** invalidate the Agent50 source-conserved staged proofs, establish paper correctness of all Twinleaf setup prompts, rank a candidate 60, or supply a competitively qualified game. A proof of an already adopted and tested compensation Bench policy should supersede this proposed negative control.
 
 **Shared benchmark:** 29/32 authenticated complete Aichi opponents, zero qualified games, no final selected 60 and no demonstrated 99.5%.
+
+## Generalized ordinary-Basic compensation opportunity across the original 29
+
+The 4-Basic Thorns mirror example is part of a larger **setup-policy audit**. The pre-existing Agent50 [exact printed hand-entry trigger census](../statistics/agent50-original29-turn-bench-ability-avoidable-opening-20261104.md) identifies six ordinary Basic printings that should often be protected for during-turn hand-to-Bench Abilities: Articuno-GX CES31, Crobat V DAA104, Dedenne-GX UNB57, Eldegoss V RCL19, Radiant Eternatus CRZ105 and Tapu Lele-GX GRI60. Their exact printed copies total 62 across the known 29 original sixty-card lists. A compensating Basic not in that protected set can be physically Benched during setup without sacrificing one of those particular entry triggers. Other strategic reasons to retain that Basic might still exist.
+
+Define an arbitrary **source/opponent** initial-seven Basic count `A`, a **defending** original count `B`, and the defender's exact indexed on-turn entry-trigger Basic count `S`; let `O=B-S` ordinary Basics. The source's invalid-seven chance is `q_A=C(60-A,7)/C(60,7)`, the defender's invalid-seven chance `q_B=C(60-B,7)/C(60,7)`, and `H=1-q_Aq_B`. The defender's chance of *exactly one Basic given a valid seven* is `r_B=B*C(60-B,6)/[C(60,7)-C(60-B,7)]`. All expressions remain conditional on finally having legal opening sevens.
+
+The mass for a defender **bonus offer of exactly `k>=1`** is
+
+`w_k=(1-q_A)(1-q_B)q_A^k/H`.
+
+Given exactly one Basic in its initial seven, the sole Basic is ordinary with probability `O/B`, leaving `O-1` ordinary copies outside that seven. Otherwise it is one of the `S` protected copies, leaving all `O` ordinary copies. If it accepts all k bonus cards, the conditional probability that it draws **no ordinary Basic** is
+
+`z_k = (O/B)*C(53-(O-1),k)/C(53,k) + (S/B)*C(53-O,k)/C(53,k)`.
+
+Thus the probability that an *existing single-Active defender* receives at least one **additional, unprotected, ordinary Basic** in compensation is the exact setup quantity
+
+`R(A,B,S) = r_B * sum[k=1..47] w_k*(1-z_k)`,
+
+with the explicitly omitted offer tail `k>=48`. For source `A=4`, the tail probability is at most `2.24e-11` over every registered original rank; for `A=12` it is vastly smaller. The original six Prize cards are randomly selected before optional draws; marginalizing their physical identities makes any k drawn extras an ordinary sample without replacement from the 53 physical cards outside the valid original seven, up to k=47. All intermediate arithmetic was performed with exact integer binomial coefficients and rational fractions; decimals shown below are rounded.
+
+| Printed source Basic count | Example source | Equal-weight mean `R` across 29 original defender sixties | Main limitation |
+| ---: | --- | ---: | --- |
+| **4** | Original rank6/24/29 Iron Thorns | **8.177016920%** | Such a source does not possess rank26's established first-player attack exception |
+| **12** | Original rank26 Meloetta Donk | **1.426890753%** | One actual first-turn hit still requires a complete paid donk and vulnerable opponent |
+
+Examples for `A=4`: a 12-Basic original without known protected printed entry triggers (rank7) has a **10.376974026%** additional ordinary-Basic setup opportunity; original rank1 (`B=14,S=3`) has **8.435352484%**; original rank4 (`B=13,S=6`) has **6.314963599%**; another original Iron Thorns (`B=4,S=0`) has **4.223703007%**. These are **independent physical setup probabilities** assuming all compensation draws taken. They quantify how much of the setup decision surface a blanket optional Bench decline potentially ignores. The six printed trigger categories are a bounded heuristic for ordinary vs strategically protected, not proof that every nontrigger Basic is discardable or always deserves a Bench slot.
+
+A precise source-independent native negative control should stratify actual `min=0` prompts by the number of eligible ordinary and protected Basics physically held after compensation and by free Bench slots. Existing `bonusDeclines` counts alone do not show how often an owner-visible *alternative placement* was actually available. The final selected policy must still compare survival and future turn-entry value through a completed opponent response before adopting a blanket Bench-all strategy. No full native game or paper-legal competitive result was added by these calculations.
+
