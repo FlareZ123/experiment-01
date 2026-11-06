@@ -143,6 +143,7 @@ function runAgent1CommonWonderTagV11(deps={}){
       ]
     },
     diagnostic:{
+      ...result.diagnostic,
       schema:VERSION,
       registeredActorDecisions:decisions,
       registeredNativeShuffleTrialSeatJoin:exactNativeShuffleJoin,
@@ -164,7 +165,7 @@ function runAgent1CommonWonderTagV11(deps={}){
       estimatedWinRate:null,
       verdict:'UNQUALIFIED-common-owner-wondertag-v7-retro'
     },
-    originalRawDevelopment:result.rawDevelopment
+    rawDevelopment:result.rawDevelopment
   };
 }
 
