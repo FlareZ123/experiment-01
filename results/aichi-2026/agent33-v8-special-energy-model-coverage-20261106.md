@@ -82,6 +82,7 @@ The reproducible implementation is:
 
 - `scripts/agent33-aichi-special-energy-model-coverage.cjs`
 - `tests/agent33-aichi-special-energy-model-coverage.test.cjs`
+- `tests/agent33-bilateral-jet-bench-runner-contract.test.cjs` verifies the new shared Jet option defaults off, selects the scoped root, passes the existing Agent40 root flag, and records provenance.
 
 The test asserts the exact 29/32 source denominator, 238 total Energy copies, 118 Special Energy copies, 14 Special Energy printings, direct and alias-adjusted narrow coverage, general favorable and conservative coverage, the seven zero-Basic source ranks, and the exact unit shape for each of the 14 field Special Energy families. Favorable contexts are selected per printing. The general model returns null for Counter Energy and Double Dragon Energy under the conservative unknown context.
 
