@@ -21,7 +21,7 @@ const {VERSION:DEDECHANGE_VERSION,withOwnerFirstTurnDedechange}=
   require('../simulation/twinleaf/agent50-owner-firstturn-dedechange.cjs');
 const {withActorOnlySelectPrompt,chooseActorSelectPrompt}=
   require('../simulation/twinleaf/agent8-actor-only-select-prompt.cjs');
-const {CODE,withNativeRawStateFallbackQuarantine}=
+const {withNativeRawStateFallbackQuarantine}=
   require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {writeAtomicLocked}=
   require('../simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs');
@@ -74,7 +74,7 @@ assert.equal(frozenTrials.filter(x=>x.seat===1).length,16);
  * @param {object[]} goFirstReceipts
  * @returns {T}
  */
-function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipts){
+function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipts,sourceSeat){
   const {Store}=require('../vendor/twinleaf/ptcg-server/output/game/store/store');
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
@@ -100,7 +100,7 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
     const handBefore=isSelect?[...owner.hand.cards]:null;
     const deckBefore=isSelect?[...owner.deck.cards]:null;
     const goFirstRecord=isGoFirst?{
-      seat,chooseFirst:action.result,turn:state.turn,phase:state.phase
+      seat,sourceSeat,chooseFirst:action.result,turn:state.turn,phase:state.phase
     }:null;
     let result;
     try{
@@ -291,7 +291,7 @@ function attempt(trial){
               {sourceSeat:trial.seat})
             )
           )
-        ),actorSelectIntents),shared,selectReceipts,goFirstReceipts)
+        ),actorSelectIntents),shared,selectReceipts,goFirstReceipts,trial.seat)
     ,{maxRecords:8}));
     returned=true;
   }catch(error){
@@ -420,7 +420,6 @@ test('32 preregistered source-first physical rank4 opening opportunities',()=>{
     .every(row=>row.physicalTransferVerified===true),
     'Every compensation SelectPrompt must have a physical hand/deck movement receipt');
   assert.ok(rows.flatMap(row=>row.goFirstReceipts??[])
-    .every(row=>row.chooseFirst===(row.seat===rows.find(x=>
-      x.goFirstReceipts?.includes(row))?.sourceSeat)),
+    .every(row=>row.chooseFirst===(row.seat===row.sourceSeat)),
     'The source seat must be the selected first player');
 });
