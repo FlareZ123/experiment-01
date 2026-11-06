@@ -13,7 +13,7 @@ The two arms share seeds and first-player seats, but intentionally generate diff
 
 ## Results
 
-<badge color="success" label="64/64 setup attempts reached source turn1" />
+**64/64 setup attempts reached source turn1.**
 
 | Measure | Legacy shared | Agent26 per-seat |
 |---|---:|---:|
