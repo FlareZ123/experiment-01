@@ -19,6 +19,10 @@ on:
         description: 'Opt into six frozen original-60 owner-held Quick Ball root-choice diagnostic runs'
         type: boolean
         default: false
+      agent25_three_donor_ball_root_cost_v4:
+        description: 'Opt into preregistered owner-paid three-HNS donor Quick Ball root policy six original 60 games'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -44,6 +48,9 @@ jobs:
       - name: Test read-only owner Quick Ball root frontier on both candidate seats
         if: inputs.agent25_owner_ball_root_frontier_v3
         run: node --test tests/agent25-owner-quickball-hns-cost-v3-frontier.test.cjs
+      - name: Test v4 owner-only exact three-HNS Quick Ball root trigger and actual fee
+        if: inputs.agent25_three_donor_ball_root_cost_v4
+        run: node --test tests/agent25-quickball-three-donor-root-v4.test.cjs tests/agent25-owner-quickball-hns-cost-v4-threshold.test.cjs
       - name: Checkout exactly pinned original Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native server
@@ -121,6 +128,21 @@ jobs:
         with:
           name: agent25-quickball-root-frontier-v3
           path: agent25-quickball-root-frontier-v3.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Run preregistered exact-three-donor Quick Ball paid root original six games
+        if: inputs.agent25_three_donor_ball_root_cost_v4
+        run: node simulation/evaluation/agent25-dhelmise-quickball-three-donor-root-v4-six-arm.cjs > agent25-quickball-three-donor-v4-six-arm.json
+      - name: Report native v4 root decisions, actual physical payments, all dispositions
+        if: always() && inputs.agent25_three_donor_ball_root_cost_v4
+        run: |
+          node -e "const fs=require('node:fs');const p='agent25-quickball-three-donor-v4-six-arm.json';if(!fs.existsSync(p)){console.log('THREE_DONOR_V4_NO_OUTPUT');process.exitCode=1}else{const r=JSON.parse(fs.readFileSync(p));console.log(JSON.stringify({registration:r.v4ThreeDonorRegistration,qualified:r.competitivelyQualifiedGames,attempts:r.attempts.map(a=>({key:a.key,status:a.status,roots:a.nativeRootActions??null,ready:a.ownerBallDonorAudit?.rootsThreeDonorQuickBallReady??null,selectedBallRoots:a.ownerBallDonorAudit?.botChosenQuickBallRoots??null,prompts:a.ownerBallDonorAudit?.stagedQuickBallDiscardPrompts??null,eligible:a.ownerBallDonorAudit?.eligible??null,paid:a.ownerBallDonorAudit?.physicallyMoved??null,hnsThreshold:a.hnsHookAudit?.thresholdFourChecks??null,error:a.errorCode??null}))},null,2))}"
+      - name: Preserve all six original source v4 Quick Ball root-and-fee outcomes
+        if: always() && inputs.agent25_three_donor_ball_root_cost_v4
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-quickball-three-donor-root-v4
+          path: agent25-quickball-three-donor-v4-six-arm.json
           if-no-files-found: warn
           retention-days: 14
       - name: Observe native PokéStop on clean and intentionally rejected-action source boards
