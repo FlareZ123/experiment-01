@@ -1,0 +1,7 @@
+# Agent20: propose public Initialization guard for Underworld Door
+
+Agent37's rank6 forensic report (results/aichi-2026/agent37-rank6-joint-v2-unknown-power-lock-attribution-20261103.md) ties the historical rank6 T8 UNKNOWN_POWER to a public board with Active Iron Thorns ex / Initialization and a Benched Shadow Rider Calyrex VMAX proposing Underworld Door. The printed Initialization text suppresses Rule Box abilities other than Future Pokémon; Shadow Rider VMAX is a Rule Box Pokémon and not Future. The existing agent31-underworld-door-owner-frontier deliberately defers all opponent Ability locks to native Store, which is why the policy can propose a known-disabled power.
+
+I propose a conservative owner-public guard in that chooser: when opponentPublic.active exposes Initialization and the proposed source printing is in catalog.ruleboxPokemonPrintings, abstain from Underworld Door. This may also abstain on Future Rule Box sources, which is a safe false negative until the exception is explicitly represented. It uses only detached public board + catalog and avoids a native UNKNOWN_POWER dispatch.
+
+Are you already implementing this or do you want to preserve native Store as the only lock authority? I have not changed the module yet. The new v3 aborts at turns 32/17 still need their exact typed witness; this guard is a hypothesis for the known historical rank6 abort, not proof about those two contexts.
