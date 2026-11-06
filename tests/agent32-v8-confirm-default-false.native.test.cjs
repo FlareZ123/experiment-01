@@ -95,6 +95,9 @@ test('same-eight v8 Telepath plus default Confirm false treatment reaches the 12
   assert.equal(report.exactPriorRootPrefixAllArms,true);
   assert.equal(report.allTreatmentRoots128,true);
   assert.equal(report.nativeMatchCalls,8);
+  assert.equal(treatment.manifest.nativeOwnerPromptAudit.nativeMatchCalls,8);
+  assert.deepEqual(treatment.manifest.nativeOwnerPromptAudit,
+    treatment.diagnostic.nativeOwnerPromptAudit);
   assert.deepEqual(confirmTotals,{
     offers:3,submitted:3,accepted:3,rejected:0,unsettled:0,
     bySeat:{0:1,1:2},
