@@ -45,11 +45,14 @@ function choose(n, k) {
  * Restrict cost cards to spare printed G&H or Tag Call connectors, because
  * arbitrary other cards have state-dependent strategic discard value.
  *
+ * @param {number} [bonusDraws] Optional mulligan-compensation draws accepted after Prizes.
  * @returns {{version:string,baselineNewEvent:string,zeroSpare:string,
  *   oneSpare:string,twoOrMoreSpare:string,byRoute:object,
  *   reachableSubsetPercent:number,subsetOfNewEventPercent:number}}
  */
-function exactConnectorPaymentFrontier() {
+function exactConnectorPaymentFrontier(bonusDraws=0) {
+  assert.ok(Number.isSafeInteger(bonusDraws) && bonusDraws>=0 && bonusDraws<=15);
+  const seen=1+bonusDraws;
   const classes = [
     ['B', COUNTS.B], ['F', COUNTS.F], ['A', COUNTS.A],
     ['O', COUNTS.O], ['G', COUNTS.G], ['T', COUNTS.T],
@@ -63,7 +66,7 @@ function exactConnectorPaymentFrontier() {
     const choices = [];
     for (let h = 0; h <= total; h++)
       for (let p = 0; p <= total - h; p++)
-        for (let d = 0; d <= Math.min(1, total - h - p); d++) {
+        for (let d = 0; d <= Math.min(seen, total - h - p); d++) {
           const r = total - h - p - d;
           if (name === 'B' && (h > 0 || d > 0 || r === 0)) continue;
           if (name === 'F' && p !== 1) continue;
@@ -78,7 +81,7 @@ function exactConnectorPaymentFrontier() {
     for (const [encoded, ways] of states) {
       const [H,P,D,openingBasic,G,T,gDeck] = encoded.split(',').map(Number);
       for (const [h,p,d,r,weight] of choices) {
-        if (H+h > 7 || P+p > 6 || D+d > 1) continue;
+        if (H+h > 7 || P+p > 6 || D+d > seen) continue;
         const newBasic = openingBasic ||
           (['O','X'].includes(name) && h > 0);
         const key = [H+h,P+p,D+d,Number(Boolean(newBasic)),
@@ -95,7 +98,7 @@ function exactConnectorPaymentFrontier() {
   };
   for (const [encoded, ways] of states) {
     const [H,P,D,basic,G,T,gDeck] = encoded.split(',').map(Number);
-    if (H!==7 || P!==6 || D!==1 || basic!==1) continue;
+    if (H!==7 || P!==6 || D!==seen || basic!==1) continue;
     const spare = spareConnectorCount(G,T,gDeck);
     if (spare===null) continue;
     byRoute[G>0?'direct':'tagCall'][Math.min(2,spare)]+=ways;
@@ -104,12 +107,15 @@ function exactConnectorPaymentFrontier() {
     byRoute.tagCall[Number(i)]);
   const baseline = exactArtazonIncrement();
   const sum = buckets.reduce((a,b)=>a+b,0n);
-  assert.equal(sum,baseline.numerator,
+  if(bonusDraws===0) assert.equal(sum,baseline.numerator,
     'Preserve the exact original Fan-prized new-route denominator');
+  const validDenominator=bonusDraws===0?baseline.validDenominator:
+    (choose(60,7)-choose(46,7))*choose(53,6)*choose(47,seen);
   const stringify = counts => Object.fromEntries(
     ['zero','one','twoOrMore'].map((key,i)=>[key,counts[i].toString()]));
   return {
     version:VERSION,
+    bonusDraws,
     baselineNewEvent:sum.toString(),
     zeroSpare:buckets[0].toString(),
     oneSpare:buckets[1].toString(),
@@ -118,13 +124,16 @@ function exactConnectorPaymentFrontier() {
       direct:stringify(byRoute.direct),
       tagCall:stringify(byRoute.tagCall)
     },
+    newArtazonIncrementPercent:
+      100*Number(sum)/Number(validDenominator),
     reachableSubsetPercent:
-      100*Number(buckets[2])/Number(baseline.validDenominator),
+      100*Number(buckets[2])/Number(validDenominator),
     subsetOfNewEventPercent:100*Number(buckets[2])/Number(sum),
     caveat:'Physical two-named-connector payment subset, not free discard, play frequency or win rate'
   };
 }
 
 if (require.main===module)
-  console.log(JSON.stringify(exactConnectorPaymentFrontier(),null,2));
+  console.log(JSON.stringify(exactConnectorPaymentFrontier(
+    Number(process.argv[2]??0)),null,2));
 module.exports={VERSION,spareConnectorCount,exactConnectorPaymentFrontier};
