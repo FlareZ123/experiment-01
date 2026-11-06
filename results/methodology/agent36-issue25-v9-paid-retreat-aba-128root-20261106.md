@@ -36,7 +36,7 @@ All eight A/B/A trial triplets preserved the same source-deal fingerprint, full 
 
 The runner manifest identifies `randomnessProtocol: legacy-shared-prng`, `policyRandomIsolation=false`, and `physicalShuffleRandomIsolation=false`. The legacy shared stream remains a treatment-dependent randomness confound. The three complete rows nevertheless reproduced identical A, B, and A' root hashes. The aggregate false control flag comes from the five identical bot-decoder errors, not an observed A/A action divergence. The common exception still needs diagnosis.
 
-The treatment changed zero trial root tapes. Since no RetreatAction occurred, the first-divergence-is-Retreat condition passed vacuously. No conclusion about the quality or legality of a paid-retreat decision follows from this run.
+The treatment changed zero completed trial root tapes. The five error-censored contexts had no ledger to compare. Since no RetreatAction occurred in the three complete rows, the first-divergence-is-Retreat condition passed vacuously. No conclusion about the quality or legality of a paid-retreat decision follows from this run.
 
 ## Audit refinements required before using the natural positive as a release witness
 
