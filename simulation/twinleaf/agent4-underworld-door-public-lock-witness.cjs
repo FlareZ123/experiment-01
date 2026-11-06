@@ -16,9 +16,11 @@ function pokemon(slot){
  * Read only visible cards from the rejected action owner's field.
  * @param {object} state Authentic Store state.
  * @param {number} clientId Actual UseAbilityAction.clientId.
+ * @param {object|null} [actionTarget] Native public target position.
+ * @param {Function|null} [getTarget] Pinned native StateUtils.getTarget.
  * @returns {object}
  */
-function publicAbilityContext(state,clientId){
+function publicAbilityContext(state,clientId,actionTarget=null,getTarget=null){
   assert.ok(state&&Array.isArray(state.players));
   const seat=state.players.findIndex(player=>player.id===clientId);
   assert.ok(seat===0||seat===1,'Rejected Underworld owner ID not in live game');
@@ -32,10 +34,24 @@ function publicAbilityContext(state,clientId){
     const card=pokemon(slot);
     const power=(card?.powers??[]).find(x=>x.name==='Underworld Door');
     return power?[{zone,index,printing:card.fullName??card.name,
-      pokemon:card,power}]:[];
+      slot,pokemon:card,power}]:[];
   });
+  let nativeTargetSlot=null,targetLookupError=null;
+  if(actionTarget&&getTarget){
+    try{nativeTargetSlot=getTarget(state,owner,actionTarget);}
+    catch(error){targetLookupError=error?.constructor?.name??'Error';}
+  }
+  const nativeTargetPokemon=pokemon(nativeTargetSlot);
   return {
     actingSeat:seat,
+    nativeActionTarget:actionTarget?{
+      player:actionTarget.player,slot:actionTarget.slot,
+      index:actionTarget.index,
+      resolvedPrinting:nativeTargetPokemon?.fullName??
+        nativeTargetPokemon?.name??null,
+      hasPrintedUnderworldDoor:underworld.some(x=>x.slot===nativeTargetSlot),
+      lookupErrorClass:targetLookupError
+    }:null,
     opposingActive:sourceActive?.fullName??sourceActive?.name??null,
     opposingActiveIronThornsEx:sourceActive?.name==='Iron Thorns ex',
     opposingActivePowerNames:(sourceActive?.powers??[]).map(x=>x.name),
@@ -57,7 +73,7 @@ function publicAbilityContext(state,clientId){
  *
  * @template T
  * @param {()=>T} work A native game experiment.
- * @param {{Store?:Function,isAbilityBlocked?:Function}} [deps]
+ * @param {{Store?:Function,isAbilityBlocked?:Function,getTarget?:Function}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withRejectedUnderworldPublicLockWitness(work,deps={}){
@@ -65,6 +81,8 @@ function withRejectedUnderworldPublicLockWitness(work,deps={}){
   const Store=deps.Store??engine('game/store/store').Store;
   const blocked=deps.isAbilityBlocked??
     engine('game/store/prefabs/prefabs').IS_ABILITY_BLOCKED;
+  const getTarget=deps.getTarget??
+    engine('game/store/state-utils').StateUtils.getTarget;
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   let currentGame=null,liveGames=0;
@@ -78,7 +96,7 @@ function withRejectedUnderworldPublicLockWitness(work,deps={}){
       action?.constructor?.name==='UseAbilityAction'&&
       action?.name==='Underworld Door';
     const before=matched?
-      publicAbilityContext(this.state,action.clientId):null;
+      publicAbilityContext(this.state,action.clientId,action.target,getTarget):null;
     try{
       return previous.value.call(this,action,...args);
     }catch(error){
