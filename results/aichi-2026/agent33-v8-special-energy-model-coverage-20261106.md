@@ -82,7 +82,7 @@ The reproducible implementation is:
 - `scripts/agent33-aichi-special-energy-model-coverage.cjs`
 - `tests/agent33-aichi-special-energy-model-coverage.test.cjs`
 
-The test asserts the exact 29/32 source denominator, 238 total Energy copies, 118 Special Energy copies, 14 Special Energy printings, direct and alias-adjusted narrow coverage, general favorable and conservative coverage, and the seven zero-Basic source ranks. The general model returns null for Counter Energy and Double Dragon Energy under the conservative unknown context.
+The test asserts the exact 29/32 source denominator, 238 total Energy copies, 118 Special Energy copies, 14 Special Energy printings, direct and alias-adjusted narrow coverage, general favorable and conservative coverage, the seven zero-Basic source ranks, and the exact unit shape for each of the 14 field Special Energy families. Favorable contexts are selected per printing. The general model returns null for Counter Energy and Double Dragon Energy under the conservative unknown context.
 
 The tests run in the existing manually dispatched `aichi-energy-census.yml` workflow. No new workflow or push-triggered CI was added. The first run exposed a test-filter bug that had included Basic Energy in the unsupported list. The filter was corrected to exclude Basic printings, then [workflow run 48 completed successfully](https://github.com/FlareZ123/experiment-01/actions/runs/42290663419). The uploaded `aichi-energy-census` artifact includes `agent33-aichi-special-energy-model-coverage.json` (artifact ID `13539916405`, ZIP SHA256 `04cb8291e4e8f573ded1ccfcd3273ad14b59fdfa6a573e72955ef64c3e8ce9cb)).
 
@@ -94,6 +94,8 @@ Create a separately registered successor to the current v8 profile. Preserve v8 
 2. Rank 7 for Capture, Recycle and Jet Energy, including Jet's attachment-triggered switch consequence.
 3. Ranks 5, 6, 24 and 29 as controls for DCE, Speed Lightning, Capture and Spiky coverage.
 4. At least one mixed Basic/Special source to evaluate `bilateralEnergyContest` separately.
+
+The general unit model does not implement several printed card effects: Capture Energy's Basic Pokémon search, Speed Lightning Energy's draw, Telepathic Psychic Energy's Psychic-Pokémon search, Jet Energy's mandatory switch, Spiky Energy's damage-counter effect, Powerful Colorless Energy's damage bonus, Memory Energy's previous-Evolution attack access, and Recycle Energy's return-to-hand effect. The current public-context selector chooses for immediate attack-cost progress and deliberately skips a Bench Jet attachment unless Temple suppresses the switch. These effects need separate source-action and payoff tests.
 
 The release gate should capture owner-visible recipient facts, the exact physical Energy card attached, paper-valid payment, a settled characteristic attack or control effect, the opponent's meaningful response, and source continuation. Native Store acceptance alone is insufficient. Preserve all registered attempts, caps and errors. Do not promote action counts into game win rates.
 
