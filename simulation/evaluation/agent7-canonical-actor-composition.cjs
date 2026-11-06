@@ -252,8 +252,14 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     pokemonAudit=selected.audit;
     return selected.result;
   };
-  const runAttack=()=>options.preferMewGenesectTechnoBlast===true?
-    attack(runPokemon,{preferMewGenesectTechnoBlast:true}):attack(runPokemon);
+  const runAttack=()=>{
+    const opts={};
+    if(options.preferMewGenesectTechnoBlast===true)
+      opts.preferMewGenesectTechnoBlast=true;
+    if(options.preferMewMaxMiracleOverSelfCopy===true)
+      opts.preferMewMaxMiracleOverSelfCopy=true;
+    return Object.keys(opts).length>0?attack(runPokemon,opts):attack(runPokemon);
+  };
   const runFog = () => fog(() => select(() => option(runAttack)),
     options.nativeAorItemLock===true?{nativeAorItemLock:true}:undefined);
   // Fog's already-owned deck search is the higher-priority actor handler.
