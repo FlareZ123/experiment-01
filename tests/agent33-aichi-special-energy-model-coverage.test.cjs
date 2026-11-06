@@ -36,7 +36,7 @@ test('narrow exact model misses the original Counter/Reversal/Unit and other fam
   ]);
 });
 
-test('general model represents all 118 source Special Energy copies in favorable context',()=>{
+test('general model represents all 118 source Special Energy copies in compatible contexts',()=>{
   const x=summarizeSpecialEnergyCoverage();
   assert.equal(x.specialSummary.genericFavorableCopies,118);
   assert.equal(x.specialSummary.genericConservativeCopies,72);
@@ -70,7 +70,7 @@ test('conditional families fail closed when public recipient or Prize facts are 
   assert.equal(byName.get('Unit Energy LPM UPR').genericConservativeCopies,8);
 });
 
-test('all 21 original Energy printings are recognized by the general model in favorable context',()=>{
+test('all 21 original Energy printings are recognized by the general model in compatible contexts',()=>{
   const x=summarizeSpecialEnergyCoverage();
   assert.equal(x.printings.length,21);
   assert.ok(x.printings.every(row=>
