@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent3_v8_ko_source:
+        description: 'Passive native real-Store KO-to-physical Prize provenance on original registered common v8 eight arms'
+        required: false
+        type: boolean
+        default: false
       include_mirrored_v6_source_funnel:
         description: 'Additionally audit verified original-source owner roots on precommitted symmetric v6 eight arms'
         required: false
@@ -207,6 +212,19 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Registered eight-original v8 passive KO-to-physical Prize object provenance
+        if: ${{ inputs.include_agent3_v8_ko_source }}
+        env:
+          AGENT3_V19_V8_PRIZE_DIR: artifacts/agent3-v19-v8-ko-source
+        run: node --test tests/agent3-ko-source-prompt-physical-v2.test.cjs tests/agent3-issue25-v19-v8-ko-source-physical.native.test.cjs
+      - name: Preserve v8 Store-root Prize provenance and all original errors and caps
+        if: ${{ always() && inputs.include_agent3_v8_ko_source }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-v19-v8-ko-source-${{ github.run_id }}
+          path: artifacts/agent3-v19-v8-ko-source/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Verify owner Telepathic Psychic Bench search, physical settlement and v5 nesting pure controls
         run: node --test tests/agent8-owner-telepathic-bench-search.test.cjs tests/agent8-owner-telepathic-bench-search.native.test.cjs tests/agent8-issue25-v5-telepath-development.test.cjs
       - name: Verify source action census and all-Special Energy source matrix plus read-only lock audit pure controls
