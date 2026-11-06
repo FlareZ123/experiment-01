@@ -49,7 +49,7 @@ on:
         type: boolean
         default: false
       include_agent8_telepath_v5:
-        description: 'Retrospective original-eight v5 plus owner Telepathic Psychic Bench search, developmental only'
+        description: 'Retrospective v5 and v8 original-eight owner Telepathic Psychic Bench search treatments, developmental only'
         required: false
         type: boolean
         default: false
@@ -225,6 +225,19 @@ jobs:
         with:
           name: agent8-issue25-telepath-v5-same-eight-native
           path: issue25-agent8-telepath/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Retrospectively compare the same eight v8 arms with actual owner Telepathic search
+        if: ${{ inputs.include_agent8_telepath_v5 }}
+        env:
+          ISSUE25_STEWARD_V8_TELEPATH_DIR: issue25-agent32-v8-telepath
+        run: node --test tests/agent32-issue25-v8-telepath-development.test.cjs tests/agent32-issue25-v8-telepath-development.native.test.cjs
+      - name: Preserve original v8 control and Telepath treatment ledgers with atomic digests
+        if: ${{ always() && inputs.include_agent8_telepath_v5 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent32-issue25-v8-telepath-same-eight-native
+          path: issue25-agent32-v8-telepath/
           retention-days: 21
           if-no-files-found: warn
       - name: Audit source-held Hammer counterplay at genuine Shadow Mist Pass in original eight
