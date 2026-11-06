@@ -159,8 +159,11 @@ for(const seat of [0,1]){
     const ownerDiscardBefore=[...owner.discard.cards];
     const {withTwoPsychicRetreatCustody}=
       require('../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody.cjs');
-    const witness=withTwoPsychicRetreatCustody(()=>{
-      store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
+    const witness=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
+      const action=new RetreatAction(owner.id,intent.benchIndex);
+      onRootStoreCreated(store);
+      store.dispatch(action);
+      onRootActionDispatched(store,action,1,seat,34);
       return resolveNativeRetreat(game);
     });
     assert.equal(witness.audit.exactPhysicalPaidRetreats,1);
@@ -255,6 +258,8 @@ for(const seat of [0,1]){
     assert.equal(witness.audit.receipts[0].targetPrinting,'Latias ex SSP');
     assert.equal(witness.audit.receipts[0].targetEnergyCount,3);
     assert.equal(witness.audit.receipts[0].physicalPaymentObjectCustodyConfirmed,true);
+    assert.equal(witness.audit.receipts[0].rootStoreRegistered,true);
+    assert.equal(witness.audit.receipts[0].rootActionOrdinal,1);
     assert.equal(owner.retreatedTurn,34);
     assert.strictEqual(owner.active,target);
     assert.strictEqual(owner.bench[0],activeBefore);
