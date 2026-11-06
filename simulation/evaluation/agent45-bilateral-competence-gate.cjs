@@ -6,7 +6,7 @@ const {createHash} = require('node:crypto');
 const VERSION = 'agent45-bilateral-competence-gate-v1';
 const MATERIAL = new Set([
   'AttackAction', 'PlayCardAction', 'RetreatAction', 'UseAbilityAction',
-  'AttachEnergyAction', 'AttachEnergyFromHandAction'
+  'UseTrainerAbilityAction', 'UseEnergyAbilityAction', 'UseStadiumAction'
 ]);
 const PAYOFFS = new Set([
   'settled-attack', 'prize-transition', 'energy-custody', 'position-change',
