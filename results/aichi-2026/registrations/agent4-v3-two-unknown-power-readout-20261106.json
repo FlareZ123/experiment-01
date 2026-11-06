@@ -1,0 +1,47 @@
+{
+  "schema": "agent4-v3-two-context-unknown-power-typed-diagnostic-v1",
+  "registeredAtUTC": "2026-11-06T22:16:00Z",
+  "status": "UNEXECUTED",
+  "evidenceClass": "historical-frozen-v3-contexts-retrospective-typed-native-replay",
+  "source": "results/aichi-2026/2026-11/agent4-selected-v3-paper-funded-prospective-48-native-20261103.md",
+  "sourceManifest": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
+  "sourceManifestGitBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
+  "contexts": [
+    {
+      "id": "6:401:A:champion-reference",
+      "rank": 6,
+      "repeat": 401,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 582147744,
+      "priorNativeAbortRoot": 141,
+      "priorAbortTurn": 32,
+      "priorActingSeat": 0
+    },
+    {
+      "id": "6:402:B:champion-reference",
+      "rank": 6,
+      "repeat": 402,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2765516960,
+      "priorNativeAbortRoot": 69,
+      "priorAbortTurn": 17,
+      "priorActingSeat": 1
+    }
+  ],
+  "modes": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "plannedNativeAttempts": 6,
+  "requiredReadOnlyObserver": "simulation/twinleaf/agent39-live-unknown-power-action-witness.cjs",
+  "protocol": "Exact source rank, original printed 60s, seeds, source seat, all common runtime hooks, and native cap from original v3 manifest. Run only both predeclared contexts in each of the three untouched policy modes; capture actual Store UseAbilityAction name, actor, turn, dispatch ordinal, and rejection; retain physical deal and accepted-prefix digests and status even if no typed abort repeats.",
+  "limitations": [
+    "Modern repository and pinned source-engine may differ from historical v3 code revision.",
+    "A live Store observer must not alter action selection, paper payment, or decklists.",
+    "No qualified competitive games, deck superiority, or valid win-rate samples."
+  ],
+  "expectedOutput": "read-only typed abort audit with A/B/A replay controls and all six attempts"
+}
