@@ -39,7 +39,7 @@ Split RNG helps make repeated controls reproducible when policy and inputs are i
 
 Before interpreting a successor A/B/A run:
 
-1. Verify the paid-retreat flag reaches the actor-only policy wrapper. The v9 flag was silently dropped by `executeDevelopment`.
+1. Verify the paid-retreat flag reaches the actor-only policy wrapper. The v9 `scopedRoot` activation predicate omitted `!actorTwoUnitPaidRetreatRoot`, so the actor-only wrapper was skipped.
 2. Compare complete action ledgers, including `nativeAbortEvidence.rootActionLedger` for aborted rows.
 3. Report decoder-abort coverage separately from completed root horizons.
 4. Require a non-vacuous B divergence whose first changed action is an accepted Store RetreatAction.
