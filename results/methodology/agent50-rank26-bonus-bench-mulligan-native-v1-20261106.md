@@ -24,6 +24,12 @@ The native prompt validator is decisive. `ChooseCardsPrompt.validate` delegates 
 
 The native Store path sets `prompt.result = action.result` and invokes the registered prompt callback after the prompt group is resolved (`vendor/twinleaf/ptcg-server/src/game/store/store.ts:257-282`). The setup callback then performs the hand-to-Bench move. This is direct source evidence for the native interaction. It is not yet an observed Store-dispatch test result.
 
+## Prior actual Store precedent on the same compensation prompt
+
+The repository already contains a direct native Store witness for this exact *mechanic* at the same Twinleaf pin: `results/aichi-2026/rank3-snorlax-optional-bench-real-store.md`. In that rank3-versus-rank1 source-dealt setup, the player received a second setup prompt (ID 12) after the compensation draw. The default branch selected the second physical Snorlax and the Store placed it on the Bench; the opt-in `snorlaxSoloDeclineOptionalBench` branch selected `[]`, which the same Store accepted while leaving the Bench empty. The report records successful manual CI run **39238161077** and a follow-up run **39240015623**, both at pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+This is existing empirical native-Store evidence that both choices can be accepted for a compensation-triggered `min=0` setup prompt. It uses rank3 Snorlax against rank1, not the rank26 Meloetta versus rank6 Iron Thorns lists. The new fixture therefore targets the exact rank26/rank6 physical deal and second-Thorns identity; its execution is still pending.
+
 ## Existing Agent50 hook behavior
 
 The current Agent50 protected-entry chooser in `simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selection for a valid `min===0` prompt. `withOwnerProtectedMultiBasicStore` applies that chooser to the optional prompt and records a `bonusDeclines` event. It overrides the native default and declines the newly drawn Basic.
@@ -66,7 +72,7 @@ The new test is required by `tests/agent50-rank4-first-turn-dedechange.native.te
 
 ## Execution status and limits
 
-**Source audit: confirmed. Default resolver prediction: source-derived. Native Store fixture: committed, not executed in this invocation.** No CI artifact or observed Store-dispatch receipt is available yet. The test's assertions and receipt must be reviewed and run before claiming the physical Store treatment succeeded.
+**Source audit: confirmed. General compensation-prompt Store behavior: previously demonstrated on rank3/rank1. Rank26/rank6-specific native fixture: committed, not executed in this invocation.** No CI artifact or observed Store-dispatch receipt for the rank26/rank6 fixture is available yet. Its assertions and receipt must be reviewed and run before claiming that exact physical rank6 second-Thorns treatment succeeded.
 
 The shuffle permutations are intentionally controlled. This is a deterministic existence fixture, not a random sample, setup-frequency estimate, or empirical mulligan probability. It stops immediately after setup compensation placement. It does not play a turn, prove a first-turn attack or KO, measure matchup outcomes, establish that Bench placement is always correct, or qualify either deck. No win-rate inference is justified.
 
