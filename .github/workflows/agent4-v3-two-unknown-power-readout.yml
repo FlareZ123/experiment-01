@@ -2,6 +2,14 @@ name: Agent4 original v3 two-context UNKNOWN_POWER typed native readout
 
 on:
   workflow_dispatch:
+    inputs:
+      experiment:
+        description: 'Typed replay or post-rejection public power check'
+        type: choice
+        options:
+          - typed-replay
+          - post-rejection-power
+        default: typed-replay
 
 permissions:
   contents: read
@@ -18,7 +26,9 @@ jobs:
       - name: Validate exact readout, frozen contexts and independent pure tests
         run: |
           node --check simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
-          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs
+          node --check simulation/evaluation/agent4-rejected-underworld-public-power-v1.cjs
+          node --check simulation/twinleaf/agent4-underworld-door-public-lock-witness.cjs
+          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs
       - name: Initialize pinned native Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Verify actual pinned native engine revision
@@ -29,17 +39,33 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Execute six original-source attempts and capture actual Store failure names
+      - name: Execute twelve registered native attempts and capture typed Store failures
+        if: ${{ inputs.experiment != 'post-rejection-power' }}
         env:
           AGENT4_V3_UNKNOWN_POWER_OUTPUT: agent4-v3-two-unknown-power-native.json
         run: node simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
-      - name: Preserve all six typed-error observations including negative results
-        if: always()
+      - name: Execute twelve native attempts with post-rejection public PowerEffect witness
+        if: ${{ inputs.experiment == 'post-rejection-power' }}
+        env:
+          AGENT4_UNDERWORLD_POWER_OUTPUT: agent4-underworld-door-rejected-public-power-12.json
+        run: node simulation/evaluation/agent4-rejected-underworld-public-power-v1.cjs
+      - name: Preserve typed-error observations including negative results
+        if: ${{ always() && inputs.experiment != 'post-rejection-power' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent4-v3-two-unknown-power-native-and-checksum
           path: |
             agent4-v3-two-unknown-power-native.json
             agent4-v3-two-unknown-power-native.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preserve public PowerEffect diagnostics and exact native failures
+        if: ${{ always() && inputs.experiment == 'post-rejection-power' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-underworld-rejected-public-power-native
+          path: |
+            agent4-underworld-door-rejected-public-power-12.json
+            agent4-underworld-door-rejected-public-power-12.json.sha256
           if-no-files-found: warn
           retention-days: 21
