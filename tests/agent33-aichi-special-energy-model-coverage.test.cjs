@@ -68,3 +68,10 @@ test('conditional families fail closed when public recipient or Prize facts are 
   assert.equal(byName.get('Reversal Energy PAL').genericConservativeCopies,8);
   assert.equal(byName.get('Unit Energy LPM UPR').genericConservativeCopies,8);
 });
+
+test('all 21 original Energy printings are recognized by the general model in favorable context',()=>{
+  const x=summarizeSpecialEnergyCoverage();
+  assert.equal(x.printings.length,21);
+  assert.ok(x.printings.every(row=>
+    row.genericFavorableCopies===row.count));
+});
