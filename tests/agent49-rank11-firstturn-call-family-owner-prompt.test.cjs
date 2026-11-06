@@ -7,8 +7,8 @@ const types={SuperType:{POKEMON:1},Stage:{BASIC:2}};
 const basic=(id,name='Trubbish FST')=>({
   id,fullName:name,superType:1,stage:2});
 class ChooseCardsPrompt{
-  constructor(owner,max=1){
-    this.id=33;this.playerId=owner.id;this.cards=owner.deck;
+  constructor(owner,max=1,id=33){
+    this.id=id;this.playerId=owner.id;this.cards=owner.deck;
     this.message='CHOOSE_CARD_TO_PUT_ONTO_BENCH';
     this.options={min:0,max,allowCancel:false};this.result=undefined;
   }
@@ -36,7 +36,8 @@ class Store{
     if(action instanceof AddPlayerAction)return this.state;
     if(action instanceof AttackAction){
       assert.equal(action.clientId,source.id);
-      this.state.prompts.push(new ChooseCardsPrompt(source));
+      this.state.prompts.push(new ChooseCardsPrompt(
+        source,1,33+this.state.prompts.length));
       return this.state;
     }
     if(action instanceof ResolvePromptAction){
