@@ -4,13 +4,15 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent9-v7-real-store-actor-only-decision-observer-v1';
+const VERSION = 'agent9-v7-real-store-actor-only-decision-observer-v2';
 
 /**
  * Observe only the acting owner's real Store decision and the exposed
  * opponent board. No unopened deck, Prize identity or opponent hand is read.
- * The record is a native bot PROPOSAL, not an accepted Store root. Matching
- * to an actual root ledger is an independent obligation.
+ * The record begins as a native bot proposal. Its acceptance flag is set
+ * only after the exact native action object successfully dispatches through
+ * the registered real Store, and a separate public-root ordinal join remains
+ * mandatory. Store acceptance alone cannot prove paper legality.
  *
  * @template T
  * @param {()=>T} execute Real synchronous native game, unchanged.
@@ -87,7 +89,7 @@ function withRealOwnerDecisionObserver(execute, deps = {}) {
       ownerPublic: snapshot.ownPublic,
       opponentPublic: snapshot.opponentPublic,
       ownerResources: snapshot.ownTurnResources,
-      provenance: 'actor-only real-Store state before generic bot proposal',
+      provenance: 'preproposal actor-owned Store observation; acceptance via same action object',
       isAcceptedStoreRoot: false,
       isPaperValidatedAlternative: false
     };
