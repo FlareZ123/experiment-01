@@ -3,6 +3,11 @@ name: Twinleaf bounded full-match probe
 on:
   workflow_dispatch:
     inputs:
+      agent31_allowner_pass_native:
+        description: 'Retrospective two-original, both-seat, every-Pass owner evidence; no policy or game strength claims'
+        required: false
+        type: boolean
+        default: false
       abort_provenance_only:
         description: 'Verify Agent18 native abort physical-deal, seat, and root custody only'
         required: false
@@ -782,3 +787,34 @@ jobs:
             agent4-mail-plumeria-original-aba-native.json.sha256
           if-no-files-found: warn
           retention-days: 14
+
+  agent31-allowner-pass-native:
+    if: ${{ inputs.agent31_allowner_pass_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install and compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Verify all original Store Pass roots with acting-owner hands
+        env:
+          AGENT31_PASS_CENSUS_OUTPUT: ${{ github.workspace }}/agent31-allowner-pass.json
+        run: node --test tests/agent31-allowner-pass-retrospective-native.test.cjs
+      - name: Preserve complete historical native rows and all owner-Pass evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-allowner-pass-native
+          path: agent31-allowner-pass.json
+          if-no-files-found: warn
+          retention-days: 15
