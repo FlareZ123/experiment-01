@@ -28,13 +28,18 @@ on:
         type: boolean
         required: false
         default: false
+      common_v13_horizon260_v14:
+        description: Measure all original eight common-v13 native games to 260 action roots
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -236,5 +241,39 @@ jobs:
         with:
           name: agent1-v13-original-radiant-${{ github.run_id }}
           path: artifacts/agent1-v13-original-radiant/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-v14-horizon260:
+    if: ${{ inputs.common_v13_horizon260_v14 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check only root-horizon override and frozen registered cohort
+        run: node --test tests/agent1-issue25-common-v14-horizon260.test.cjs tests/agent1-issue25-common-v13-radiant-decline.test.cjs
+      - name: Execute all original eight native games with unchanged common v13 policy at 260 roots
+        env:
+          AGENT1_V14_OUTPUT_DIR: artifacts/agent1-v14-native-horizon260
+        run: node --test tests/agent1-issue25-common-v14-horizon260.native.test.cjs
+      - name: Archive all accepted native roots and every original error and censor
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-v14-native-horizon260-${{ github.run_id }}
+          path: artifacts/agent1-v14-native-horizon260/
           if-no-files-found: warn
           retention-days: 30
