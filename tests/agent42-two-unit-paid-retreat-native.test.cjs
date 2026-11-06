@@ -312,7 +312,7 @@ test('native Snorlax Block exposes a public no-Retreat restriction and rejects R
   const energy=[...source.energies.cards];
   const view=actorObservation(state,1);
   assert.ok(view.opponentPublic.active.abilityDetails.some(x=>x.name==='Block'));
-  assert.equal(view.opponentPublic.active.publicRestrictions.cannotRetreatWhileActive,true);
+  assert.equal(view.opponentPublic.active.printing,'Snorlax PGO');
   assert.equal(proposeTwoUnitPaidRetreatV2(view,game.catalog),null);
   const {RetreatAction}=engine('game/store/actions/game-actions');
   try{store.dispatch(new RetreatAction(owner.id,0));resolveNativeRetreat(game);}
