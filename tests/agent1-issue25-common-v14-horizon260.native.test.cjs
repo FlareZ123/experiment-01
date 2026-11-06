@@ -55,6 +55,14 @@ test('real native original-eight v13 decision policy, only root horizon extended
   assert.ok(completed.every(x=>Array.isArray(x.nativeFinalPrizes)&&
     x.nativeFinalPrizes.length===2&&
     x.nativeFinalPrizes.every(n=>Number.isInteger(n)&&n>=0&&n<=6)));
+  console.log('AGENT1_NATIVE_TERMINAL_PUBLIC_RULE_CAUSES',JSON.stringify(
+    records.filter(x=>x.genuineNativeFinished).map(x=>({
+      id:x.id,winner:x.reportedNativeWinner,
+      status:x.nativeTerminalCause?.status,
+      conditions:x.nativeTerminalCause?.conditions,
+      transitionAction:x.originalNativeEndstate?.nativeTerminalTransition?.actionName
+    }))
+  ));
   assert.equal(execution.diagnostic.nativePublicEndstateObservedTrials,8);
   assert.equal(execution.diagnostic.nativePublicEndstateObservedReturns,7);
   const returned=records.filter(x=>x.originalNativeEndstate?.nativeReturned);
@@ -107,6 +115,7 @@ test('real native original-eight v13 decision policy, only root horizon extended
       genuineNativeFinished:x.genuineNativeFinished,
       reportedNativeWinner:x.reportedNativeWinner,
       nativeEndReason:x.nativeEndReason,
+      nativeTerminalCause:x.nativeTerminalCause,
       nativeFinalPrizes:x.nativeFinalPrizes,
       nativeTurnCount:x.nativeTurnCount,
       lastNativeRoot:x.publicNativeRootActions.at(-1)??null
