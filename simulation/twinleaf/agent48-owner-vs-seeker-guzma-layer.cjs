@@ -18,8 +18,11 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   const base=deps.base??path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const Bot=deps.SimpleTacticsAi??require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
-  const PlayCardAction=deps.PlayCardAction??require(path.join(base,'game/store/actions/play-card-action')).PlayCardAction;
-  const types=deps.actionTypes??require(path.join(base,'game/store/actions/action-types'));
+  const cardActions=deps.cardActions??deps.actionTypes??
+    require(path.join(base,'game/store/actions/play-card-action'));
+  const PlayCardAction=deps.PlayCardAction??cardActions.PlayCardAction;
+  const PlayerType=deps.PlayerType??cardActions.PlayerType;
+  const SlotType=deps.SlotType??cardActions.SlotType;
   const ResolvePromptAction=deps.ResolvePromptAction??require(path.join(base,'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
   const observe=deps.actorObservation??actorObservation;
   const chooseRoot=deps.chooseOwnerVsSeekerGuzmaRoot??chooseOwnerVsSeekerGuzmaRoot;
@@ -56,8 +59,9 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
           const card=owner.discard.cards.find(c=>c.fullName===root.target);
           const supportItemCard=owner.hand.cards[root.handIndex];
           assert.ok(card&&supportItemCard?.fullName===root.supportItemPrinting);
-          const action=new PlayCardAction(playerId,types.PlayerType.ANY,
-            types.SlotType.BOARD,root.handIndex);
+          const action=new PlayCardAction(playerId,root.handIndex,{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
+          });
           roots.set(action,{seat,ownerId:playerId,target:root.target,card,
             supportItemCard,root});
           audit.rootsProposed++;
