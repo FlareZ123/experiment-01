@@ -141,6 +141,14 @@ function buildActorCardCatalog(all,types){
 function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
+  // Development-only, source-independent response to an already publicly
+  // announced paid GX attack. Only the actor's own held Ranger can be offered;
+  // default policy decisions and the canonical observation are unchanged.
+  if(options.rangerPaidGxResponse===true){
+    const ranger=require('./agent30-ranger-public-gx-frontier.cjs')
+      .proposeRangerAfterPaidGx(view);
+    if(ranger)return ranger;
+  }
   const benchIndex=own.bench.findIndex(slot=>slot===null);
   const soloThornsHold=options.thornsSoloEnergyRetention===true&&
     require('./agent14-thorns-solo-energy-retention.cjs')
@@ -847,6 +855,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     eriRevealRootOptIn:deps.eriRevealRoot??
       (process.env.AGENT50_ERI_REVEAL_DEV==='true'),
     eriPromptsProposed:0,eriPromptsAccepted:0,eriItemsDiscarded:0,
+    rangerPaidGxResponseOptIn:deps.rangerPaidGxResponse===true,
     conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
@@ -1260,7 +1269,10 @@ function withActorOnlyRootPolicy(run,deps={}){
             .buildPublicPokemonProfileIndex(path.resolve(__dirname,'../..'));
       }
     }
-    const view=observe(state,seat);
+    const baseView=observe(state,seat);
+    const view=audit.rangerPaidGxResponseOptIn?
+      require('./agent30-ranger-public-gx-frontier.cjs')
+        .observePublicPaidGxEffects(state,seat,baseView):baseView;
     let genericFundedObservation=null;
     if(audit.genericFundedFloatStoneAuditOptIn){
       const census=audit.genericFundedFloatStoneAudit;
@@ -1342,6 +1354,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(reason==='eligible'){c.eligibleRoots++;bySeat.eligibleRoots++;}
     }
     const rootOptions={
+      rangerPaidGxResponse:audit.rangerPaidGxResponseOptIn,
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
@@ -1627,6 +1640,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-team-flare-grunt-denial':
       case 'play-eri-reveal':
       case 'play-conservative-shuffle-supporter':
+      case 'play-ranger-paid-gx':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
