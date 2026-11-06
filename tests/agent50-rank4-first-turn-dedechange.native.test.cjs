@@ -182,3 +182,6 @@ test('four frozen original rank4 owner Dedechange native in-turn attempts',()=>{
   if(selectV2)assert.ok(rows.some(r=>r.actorSelectIntents.length>0),
     'A frozen v2 arm should encounter a native owner SelectPrompt');
 });
+
+// Reuse the existing manual rank4 native lane for the registered rank26/rank6 setup fixture.
+require('./agent50-rank26-bonus-bench-mulligan-store.native.test.cjs');
