@@ -11,6 +11,7 @@ function countTwoMulliganBonuses(counts=COUNTS,opts={}){
  if(counts.length!==12||counts.some(v=>!Number.isSafeInteger(v)||v<0)||
     !Number.isSafeInteger(H)||H<1||!Number.isSafeInteger(P)||P<0||n<H+P+3)
    throw Error('Invalid deck');
+ const cache=Array.from({length:n+1},(_,i)=>Array.from({length:P+1},(_,j)=>choose(i,j)));
  const hand=Array(12).fill(0),drawn=Array(12).fill(0);
  const histograms=Object.fromEntries(PROFILES.map(p=>[p,Array(5).fill(0n)]));
  let mechanical=0n,handsVisited=0;
@@ -32,8 +33,8 @@ function countTwoMulliganBonuses(counts=COUNTS,opts={}){
     for(let y=0;y<=Math.min(P-x,after[C.gh]);y++)
     for(let z=0;z<=Math.min(P-x-y,after[C.dde]);z++){
       const o=P-x-y-z;if(o>other)continue;
-      const ways=w*drawWeight*6n*choose(after[C.adp],x)*
-        choose(after[C.gh],y)*choose(after[C.dde],z)*choose(other,o);
+      const ways=w*drawWeight*6n*cache[after[C.adp]][x]*
+        cache[after[C.gh]][y]*cache[after[C.dde]][z]*cache[other][o];
       const available={adp:after[C.adp]>x,gh:after[C.gh]>y,
         dde:after[C.dde]>z};
       const costs=PROFILES.map(p=>cost(hand,seen,available,p));
