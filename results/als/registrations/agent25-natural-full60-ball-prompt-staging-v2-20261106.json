@@ -1,0 +1,40 @@
+{
+  "version": "agent25-natural-full60-hns-ball-staging-v2-precommit",
+  "date": "2026-11-06",
+  "purpose": "Correct native ChooseCardsPrompt source attribution using owner's temporary supporter-zone Quick Ball, after static v1 defect",
+  "sourceRegistration": "results/als/registrations/agent25-natural-full60-quickball-hns-owner-20261104.json",
+  "priorFrozenV1Run": 42133841156,
+  "priorFrozenV1Artifact": 13464418324,
+  "originalSourceRanks": [
+    6,
+    10,
+    11
+  ],
+  "candidateSeatIndices": [
+    0,
+    1
+  ],
+  "seedsByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "maximumRootActions": 120,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidatePrintedSHA256": "20135b47359b2a546fbe7f899b502aff0d470150e72cbb751dd810be036e122c",
+  "candidateUnchanged": true,
+  "source60Unchanged": true,
+  "chosenOwnerPolicy": "Existing candidate-only Dhelmise Compressor and Quick Ball donor priority, v2 source identification staged physically in owner.supporter",
+  "differentPolicyFromV1": true,
+  "doesNotForceBallPlay": true,
+  "allSixAttemptsPreserved": true,
+  "stagingCardIsNativeOwnedLive": true,
+  "readOnlyPromptWitness": true,
+  "qualifiedGames": 0,
+  "claimRestrictions": [
+    "No full-field inference",
+    "Native terminal cannot qualify paper match",
+    "Different runs with same seeds do not certify identical source physical openings",
+    "Previously registered v1 run cannot retroactively become v2"
+  ]
+}
