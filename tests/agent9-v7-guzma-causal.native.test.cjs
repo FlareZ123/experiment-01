@@ -19,6 +19,8 @@ test('same eight real original v7 physical deals with only one selected paid Guz
     repository:out.checkout,vendor:out.vendorPin,
     arms:c.arms,sameOriginalPhysicalOpenings:c.sameOriginalPhysicalOpenings,
     unmodifiedNonTargetRows:c.nonTargetExactPublicReplays,
+    originalReturnedAfterTreatment:
+      out.controlRoundtrip.fullABAReturnToOriginal,
     originalTarget:{id:TARGET,root:EXPECTED_PASS_ORDINAL,
       status:one.baselineStatus,first:one.firstControlDifference},
     canaryTarget:{status:one.treatmentStatus,
@@ -31,6 +33,8 @@ test('same eight real original v7 physical deals with only one selected paid Guz
   assert.equal(c.arms,8);
   assert.equal(c.sameOriginalPhysicalOpenings,true);
   assert.equal(c.nonTargetExactPublicReplays,7);
+  assert.equal(out.controlRoundtrip.fullABAReturnToOriginal,true);
+  assert.equal(out.controlRoundtrip.rows.length,8);
   assert.equal(one.firstControlDifference?.actionOrdinal,EXPECTED_PASS_ORDINAL);
   assert.equal(one.firstControlDifference?.action,'PassTurnAction');
   assert.equal(one.firstTreatmentDifference?.actionOrdinal,EXPECTED_PASS_ORDINAL);
