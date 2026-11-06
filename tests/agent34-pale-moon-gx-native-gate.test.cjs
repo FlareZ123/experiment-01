@@ -380,3 +380,80 @@ for (const seat of [0, 1]) {
     }));
   });
 }
+
+
+const { withPendingEndTurnDevolutionCleanup } =
+  require('../simulation/twinleaf/pending-end-turn-devolution-cleanup.cjs');
+
+for (const [basicPrinting, evolutionPrinting] of [
+  ['Charmander MEW', 'Charmeleon MEW'],
+  ['Regidrago V SIT', 'Regidrago VSTAR SIT']
+]) {
+  for (const seat of [0, 1]) {
+    test('opt-in paper devolution cleanup preserves ' + basicPrinting +
+      ', seat ' + seat, () => {
+      const { AttackAction } = native('game/store/actions/game-actions');
+      const { PlayPokemonEffect } =
+        native('game/store/effects/play-card-effects');
+      const { EndTurnEffect } =
+        native('game/store/effects/game-phase-effects');
+      const { GamePhase } = native('game/store/state/state');
+      const prefabs = native('game/store/prefabs/prefabs');
+      const { StateUtils } = native('game/store/state-utils');
+      const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+        native('game/store/prefabs/attack-effects');
+
+      const f = stage(seat, 2, false, basicPrinting);
+      const basic = f.defender.active.getPokemonCard();
+      const evolved = initializeCards().getCardByName(evolutionPrinting);
+      assert.ok(evolved);
+      evolved.id = 351000 + seat +
+        (evolutionPrinting === 'Regidrago VSTAR SIT' ? 2 : 0);
+      f.defender.hand.cards.push(evolved);
+      f.state.turn = 3;
+      f.state.activePlayer = 1 - seat;
+      f.state.phase = GamePhase.PLAYER_TURN;
+      f.defender.active.pokemonPlayedTurn = 1;
+      f.store.reduceEffect(f.state,
+        new PlayPokemonEffect(f.defender, evolved, f.defender.active));
+      assert.strictEqual(f.defender.active.getPokemonCard(), evolved);
+      f.state.turn = 4;
+      f.state.activePlayer = seat;
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+      f.state.turn = 5;
+      f.state.activePlayer = 1 - seat;
+      f.state.phase = GamePhase.PLAYER_TURN;
+
+      const originalDevolve = prefabs.DEVOLVE_POKEMON;
+      const corrected = withPendingEndTurnDevolutionCleanup(
+        { prefabs, StateUtils }, () => {
+          prefabs.DEVOLVE_POKEMON(
+            f.store, f.state, f.defender.active, f.defender.hand);
+          const queuedAfterDevolution =
+            f.defender.pendingEndOfTurnEffects.length;
+          assert.strictEqual(f.defender.active.getPokemonCard(), basic);
+          assert.ok(f.defender.hand.cards.includes(evolved));
+          assert.equal(queuedAfterDevolution, 0);
+          RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+            f.store, f.state, new EndTurnEffect(f.defender));
+          return {
+            pendingAfterDevolution: queuedAfterDevolution,
+            basicSurvived: f.defender.active.getPokemonCard() === basic,
+            basicNotDiscarded: !f.defender.discard.cards.includes(basic)
+          };
+        });
+      assert.strictEqual(prefabs.DEVOLVE_POKEMON, originalDevolve);
+      assert.equal(corrected.removed, 1);
+      assert.deepEqual(corrected.events[0].attacks, ['Pale Moon-GX']);
+      assert.equal(corrected.result.basicSurvived, true);
+      assert.equal(corrected.result.basicNotDiscarded, true);
+      console.log('AGENT34_PALE_MOON_DEVOLUTION_RESCUE', JSON.stringify({
+        seat, basicPrinting, evolutionPrinting,
+        effectsRemoved: corrected.removed,
+        basicSurvived: corrected.result.basicSurvived,
+        exportRestored: true, qualifiedCompetitiveGames: 0
+      }));
+    });
+  }
+}
