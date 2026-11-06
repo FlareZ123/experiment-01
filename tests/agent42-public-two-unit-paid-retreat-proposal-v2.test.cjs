@@ -27,7 +27,7 @@ function fixture(){
   const active={
     printing:'Shadow Rider Calyrex VMAX CRE',name:'Shadow Rider Calyrex VMAX',
     hp:320,damage:0,printed:{stage:5,types:[5],retreatCost:[C,C],resistance:[]},
-    energies:[P,P],tools:[],specialConditions:[],
+    energies:[P,P],tools:[],specialConditions:[],abilityDetails:[],
     publicRestrictions:restrictions(),
     attacks:[{name:'Max Geist',cost:[C,C,C],damage:10,
       damageCalculation:null,gxAttack:false}]
