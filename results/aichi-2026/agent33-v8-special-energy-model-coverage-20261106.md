@@ -66,6 +66,7 @@ Relevant implementations:
 - [Narrow Special Energy unit helper](../../simulation/twinleaf/agent3-special-energy-frontier.cjs), blob `e9d6c938649c19a8dab3b4cc83131e6c1ac76c1c`.
 - [General printed Energy unit model](../../simulation/twinleaf/actor-energy-payability.cjs), blob `69df43e6107352ed0c47780cc713a009ecb27215`.
 - [Public-context Special Energy selector](../../simulation/twinleaf/agent17-public-context-special-energy.cjs), blob `e8dea9f341148b9dd88bb87fc50ac4761a9c1566`.
+- [Agent40's default-off Jet Bench switch frontier](../../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs), blob `e1dcf03dec594333214966b5a2ec8fe33b0ad265`, already reuses the general payability helper. The generic public-context selector deliberately declines a Bench Jet attachment because the mandatory switch needs a separate decision.
 
 ## Existing native evidence
 
@@ -91,13 +92,14 @@ The tests run in the existing manually dispatched `aichi-energy-census.yml` work
 Create a separately registered successor to the current v8 profile. Preserve v8 and v9 registrations unchanged. Replace the narrow bilateral Special Energy root with the general bilateral public-context model, then test both seats on:
 
 1. Rank 4 and rank 17 for Reversal, Counter and Unit Energy LPM with exact printed recipient, Stage/Rule Box and Prize-state evidence.
-2. Rank 7 for Capture, Recycle and Jet Energy, including Jet's attachment-triggered switch consequence.
+2. Rank 7 for Capture and Recycle Energy, and coordinate its Jet line with Agent40's existing `jetBenchSwitchRoot`. The shared bilateral runner needs a separate default-false `bilateralJetBenchSwitchRoot` option before a common-policy experiment can activate it.
 3. Ranks 5, 6, 24 and 29 as controls for DCE, Speed Lightning, Capture and Spiky coverage.
 4. A Double Dragon-heavy source among ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 or 32, with a verified Dragon recipient.
 5. A Telepathic Psychic Energy source among ranks 9, 30 or 31, including the printed Psychic-Pokémon search effect and explicit engine-alias mapping.
-6. At least one mixed Basic/Special source to evaluate `bilateralEnergyContest` separately.
+6. A rank7 reciprocal Artazon/Jet/Wobbuffet acceptance line with both Hood states, source resources, forced switch, post-switch Ability/Item consequence, opponent reply and source continuation. The current [Agent40 hypothesis](../als/agent40-rank7-reciprocal-artazon-jet-wobbuffet-exact-20261106.md) remains unexecuted in native play.
+7. At least one mixed Basic/Special source to evaluate `bilateralEnergyContest` separately.
 
-The general unit model does not implement several printed card effects: Capture Energy's Basic Pokémon search, Speed Lightning Energy's draw, Telepathic Psychic Energy's Psychic-Pokémon search, Jet Energy's mandatory switch, Spiky Energy's damage-counter effect, Powerful Colorless Energy's damage bonus, Memory Energy's previous-Evolution attack access, and Recycle Energy's return-to-hand effect. The current public-context selector chooses for immediate attack-cost progress and deliberately skips a Bench Jet attachment unless Temple suppresses the switch. These effects need separate source-action and payoff tests.
+The general unit model does not implement several printed card effects: Capture Energy's Basic Pokémon search, Speed Lightning Energy's draw, Telepathic Psychic Energy's Psychic-Pokémon search, Jet Energy's mandatory switch, Spiky Energy's damage-counter effect, Powerful Colorless Energy's damage bonus, Memory Energy's previous-Evolution attack access, and Recycle Energy's return-to-hand effect. The current public-context selector chooses for immediate attack-cost progress and deliberately skips a Bench Jet attachment unless Temple suppresses the switch. Agent40 already has a separate bounded Jet Bench switch root in `agent34`, default-off, with a native two-seat physical-action witness. The shared `agent41-bilateral-v2-development.cjs` runner currently exposes no Jet Bench option and never passes `jetBenchSwitchRoot`; it cannot activate that existing work through the common runner. These effects need separate source-action and payoff tests.
 
 The release gate should capture owner-visible recipient facts, the exact physical Energy card attached, paper-valid payment, a settled characteristic attack or control effect, the opponent's meaningful response, and source continuation. Native Store acceptance alone is insufficient. Preserve all registered attempts, caps and errors. Do not promote action counts into game win rates.
 
