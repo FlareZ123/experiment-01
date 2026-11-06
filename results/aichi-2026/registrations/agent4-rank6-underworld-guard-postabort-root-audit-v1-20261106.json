@@ -1,0 +1,42 @@
+{
+  "schema": "agent4-guard-public-postoriginalabort-root-window-v1",
+  "registeredAtUTC": "2026-11-06T23:03:00Z",
+  "parentMatchedControlRun": 42308178212,
+  "parent24Registration": "results/aichi-2026/registrations/agent4-rank6-owner-underworld-veto-paired-24-v1-20261106.json",
+  "exactHistoricalTargets": [
+    {
+      "id": "6:401:A:champion-reference",
+      "priorNativeErrorRoot": 141,
+      "actingSeat": 0,
+      "opponentSeat": 1
+    },
+    {
+      "id": "6:402:B:champion-reference",
+      "priorNativeErrorRoot": 69,
+      "actingSeat": 1,
+      "opponentSeat": 0
+    }
+  ],
+  "allFourCompanionTrialsPerModePreserved": true,
+  "modes": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "nativeAttempts": 12,
+  "hardRootCap": 180,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "method": "Read-only selected public rootActionLedger slice beginning at original error ordinal, 28 actions maximum, retaining only action ordinal, global turn, actor physical seat, named action, publicly played card, public attack. The owner-public same-source veto is preserved unchanged. Observe and separately count post-cut opposing seat actions. Compare only historical fixed sources, not all Top32. These are development native action roots, not certified game state/player turn completions.",
+  "qualification": {
+    "qualifiedCompetitiveGames": 0,
+    "fieldWinRate": null
+  },
+  "noSourceChange": true,
+  "scopeLimitations": [
+    "No raw private other-hand, deck, or Prize allowed in exported trace",
+    "An accepted native action does not certify a legal paper resource payment or tactically rational action",
+    "Postcut opponent act may only be a pass; assess real attack and damage separately",
+    "Cap-limited games cannot be scored as wins",
+    "Identical source seeds do not turn deterministic repeated modes into independent samples"
+  ]
+}
