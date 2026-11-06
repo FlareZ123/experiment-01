@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseActorRootIntent,withActorOnlyRootPolicy}=
+const {buildActorCardCatalog,chooseActorRootIntent,withActorOnlyRootPolicy}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const P='Psychic Energy MEE',C=9;
@@ -10,7 +10,7 @@ const catalog={
   basicEnergyTypes:{Psychic:5},specialEnergies:new Set(),
   dragonPokemonPrintings:new Set(),ruleboxPokemonPrintings:new Set(),
   stages:{BASIC:0,STAGE_1:1,VMAX:5},colorlessEnergyType:C,
-  specialConditions:{ASLEEP:1,PARALYZED:2}
+  specialConditions:{ASLEEP:1,PARALYZED:2,CONFUSED:3}
 };
 const restrictions=()=>({
   cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
@@ -141,4 +141,17 @@ test('v2 is default-off and canonical native mapping still emits RetreatAction',
   assert.equal(result.audit.competitiveGameQualified,false);
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,beforeBot);
   assert.strictEqual(Store.prototype.dispatch,beforeStore);
+});
+
+test('pinned Twinleaf Confused enum reaches the live actor catalog',()=>{
+  const base='../vendor/twinleaf/ptcg-server/output/game/store/card/';
+  const {PokemonCard}=require(base+'pokemon-card');
+  const {EnergyCard}=require(base+'energy-card');
+  const {Stage,EnergyType,CardType,SpecialCondition}=require(base+'card-types');
+  const {PowerType}=require(base+'pokemon-types');
+  assert.notEqual(SpecialCondition.CONFUSED,undefined);
+  const actual=buildActorCardCatalog([],{
+    PokemonCard,EnergyCard,Stage,EnergyType,CardType,PowerType,SpecialCondition
+  });
+  assert.equal(actual.specialConditions.CONFUSED,SpecialCondition.CONFUSED);
 });
