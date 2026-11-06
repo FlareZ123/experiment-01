@@ -78,9 +78,37 @@ assert.equal(frozenTrials.filter(x=>x.seat===1).length,16);
  */
 function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipts,mulliganReceipts,sourceSeat){
   const {Store}=require('../vendor/twinleaf/ptcg-server/output/game/store/store');
-  const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
-  assert.equal(typeof original?.value,'function');
-  assert.equal(original.configurable,true);
+  const {CardList}=require('../vendor/twinleaf/ptcg-server/output/game/store/state/card-list');
+  const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const originalMoveTo=Object.getOwnPropertyDescriptor(CardList.prototype,'moveTo');
+  assert.equal(typeof originalDispatch?.value,'function');
+  assert.equal(originalDispatch.configurable,true);
+  assert.equal(typeof originalMoveTo?.value,'function');
+  assert.equal(originalMoveTo.configurable,true);
+  let activeCompensationMove=null;
+  function moveTo(destination,count){
+    const active=activeCompensationMove;
+    if(active&&this===active.owner.deck&&destination===active.owner.hand){
+      const beforeDeck=this.cards.slice();
+      const beforeHand=destination.cards.slice();
+      const result=originalMoveTo.value.apply(this,[destination,count]);
+      const moved=destination.cards.filter(card=>!beforeHand.includes(card));
+      const removed=beforeDeck.filter(card=>!this.cards.includes(card));
+      const identityMatch=moved.length===removed.length&&
+        moved.every(card=>removed.includes(card))&&
+        removed.every(card=>moved.includes(card));
+      active.moves.push({
+        requestedCount:count??beforeDeck.length,
+        movedCount:moved.length,
+        deckBefore:beforeDeck.length,deckAfter:this.cards.length,
+        handBefore:beforeHand.length,handAfter:destination.cards.length,
+        identityMatch,
+        movedPrintings:moved.map(card=>card.fullName)
+      });
+      return result;
+    }
+    return originalMoveTo.value.apply(this,[destination,count]);
+  }
   function dispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&!shared.store)
       shared.store=this;
@@ -96,6 +124,7 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       pending.message==='GO_FIRST'&&owner;
     const isMulligan=isResolve&&
       pending.constructor?.name==='ShowMulliganPrompt'&&owner;
+    const isCompensation=isSelect&&pending.message==='WANT_TO_DRAW_CARDS';
     const values=isSelect?[...pending.values]:null;
     const defaultValue=isSelect?(pending.options?.defaultValue??0):null;
     const selectedOptionIndex=isSelect?action.result:null;
@@ -103,6 +132,7 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       values[action.result]??null:null;
     const handBefore=isSelect?[...owner.hand.cards]:null;
     const deckBefore=isSelect?[...owner.deck.cards]:null;
+    const moveAudit=isCompensation?{owner,moves:[]}:null;
     const goFirstRecord=isGoFirst?{
       seat,sourceSeat,chooseFirst:action.result,turn:state.turn,phase:state.phase
     }:null;
@@ -114,12 +144,15 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       turn:state.turn,phase:state.phase
     }:null;
     let result;
+    if(moveAudit)activeCompensationMove=moveAudit;
     try{
-      result=original.value.apply(this,[action,...args]);
+      result=originalDispatch.value.apply(this,[action,...args]);
     }catch(error){
       if(isSelect)selectReceipts.push({
         seat,message:pending.message,values,defaultValue,
-        selectedOptionIndex,selectedLabel,nativeAccepted:false,
+        selectedOptionIndex,selectedLabel,
+        moveCalls:moveAudit?.moves??[],
+        nativeAccepted:false,
         errorCode:error?.code??null,errorMessage:String(error?.message??error)
       });
       if(goFirstRecord)goFirstReceipts.push({
@@ -129,6 +162,8 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
         ...mulliganRecord,nativeAccepted:false
       });
       throw error;
+    }finally{
+      if(moveAudit)activeCompensationMove=null;
     }
     if(isSelect){
       const after=this.state.players[seat];
@@ -140,12 +175,11 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       const identityMatch=added.length===removed.length&&
         added.every(card=>removed.includes(card))&&
         removed.every(card=>added.includes(card));
+      const firstMove=moveAudit?.moves?.[0]??null;
       const physicalTransferVerified=expectedDrawCount!==null&&
-        added.length===expectedDrawCount&&
-        removed.length===expectedDrawCount&&
-        after.hand.cards.length-handBefore.length===expectedDrawCount&&
-        deckBefore.length-after.deck.cards.length===expectedDrawCount&&
-        identityMatch;
+        firstMove?.requestedCount===expectedDrawCount&&
+        firstMove?.movedCount===expectedDrawCount&&
+        firstMove?.identityMatch===true;
       const stillPending=after.prompts?.some(p=>
         p.id===pending.id&&p.result===undefined)??false;
       selectReceipts.push({
@@ -153,11 +187,15 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
         selectedOptionIndex,selectedLabel,expectedDrawCount,
         handBefore:handBefore.length,handAfter:after.hand.cards.length,
         deckBefore:deckBefore.length,deckAfter:after.deck.cards.length,
+        totalHandDelta:after.hand.cards.length-handBefore.length,
+        totalDeckDelta:deckBefore.length-after.deck.cards.length,
         addedPrintings:added.map(card=>card.fullName),
         removedPrintings:removed.map(card=>card.fullName),
         nativePromptResolved:!stillPending,
         physicalIdentityMatch:identityMatch,
-        physicalTransferVerified
+        physicalTransferVerified,
+        compensationMove:firstMove,
+        postPromptDeckToHandMoves:moveAudit?.moves?.slice(1)??[]
       });
     }
     if(goFirstRecord){
@@ -179,7 +217,10 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
     return result;
   }
   Object.defineProperty(Store.prototype,'dispatch',{
-    ...original,value:dispatch
+    ...originalDispatch,value:dispatch
+  });
+  Object.defineProperty(CardList.prototype,'moveTo',{
+    ...originalMoveTo,value:moveTo
   });
   try{return run();}
   catch(error){
@@ -195,7 +236,9 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
     throw error;
   }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatch);
-    Object.defineProperty(Store.prototype,'dispatch',original);
+    assert.strictEqual(CardList.prototype.moveTo,moveTo);
+    Object.defineProperty(Store.prototype,'dispatch',originalDispatch);
+    Object.defineProperty(CardList.prototype,'moveTo',originalMoveTo);
   }
 }
 
