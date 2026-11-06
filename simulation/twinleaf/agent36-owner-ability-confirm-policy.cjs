@@ -196,10 +196,13 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
 
     if(meta?.kind==='radiant-search'){
       const owner=this.state.players.find(player=>player.id===meta.ownerId);
+      const sameCard=(left,right)=>left===right||
+        left?.id!==undefined&&left.id===right?.id;
       const physicallyBenched=meta.selected.every(card=>
-        (owner?.bench??[]).some(slot=>(slot.cards??[]).includes(card)));
+        (owner?.bench??[]).some(slot=>(slot.cards??[]).some(candidate=>
+          sameCard(candidate,card))));
       const stillInDeck=meta.selected.some(card=>
-        (owner?.deck?.cards??[]).includes(card));
+        (owner?.deck?.cards??[]).some(candidate=>sameCard(candidate,card)));
       const settled=meta.prompt.result!==undefined;
       const event={
         ownerId:meta.ownerId,turn:meta.turn,
