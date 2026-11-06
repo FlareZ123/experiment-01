@@ -96,3 +96,79 @@ test('Radiant search returns an empty legal selection when the deck has no VMAX 
   });
   assert.deepEqual(selected,[]);
 });
+
+
+test('unrelated later Ability Confirm cannot borrow the last played Radiant card',()=>{
+  const {withOwnerAbilityConfirmPolicy}=require(
+    '../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
+  let nextPromptId=0;
+  class ConfirmPrompt {
+    constructor(playerId,message){
+      this.id=++nextPromptId;
+      this.playerId=playerId;
+      this.message=message;
+      this.result=undefined;
+    }
+  }
+  class ChooseCardsPrompt {}
+  class PlayCardAction {
+    constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}
+  }
+  class OtherAction {}
+  class ResolvePromptAction {
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Store {
+    constructor(){
+      this.state={
+        turn:4,
+        players:[{id:101,
+          hand:{cards:[pokemon('Radiant Eternatus','radiant')]},
+          active:slot(),
+          bench:[slot(),slot(),slot(),slot(),slot()]}],
+        prompts:[]
+      };
+    }
+    dispatch(action){
+      if(action instanceof PlayCardAction||
+         action instanceof OtherAction){
+        this.state.prompts.push(new ConfirmPrompt(
+          101,'WANT_TO_USE_ABILITY'));
+      }else if(action instanceof ResolvePromptAction){
+        const target=this.state.prompts.find(p=>p.id===action.id);
+        target.result=action.result;
+      }
+      return this.state;
+    }
+  }
+  class SimpleTacticsAi {
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      return new ResolvePromptAction(pending.id,false);
+    }
+  }
+  const ptcgServer={
+    Store,SimpleTacticsAi,ConfirmPrompt,ChooseCardsPrompt,ResolvePromptAction
+  };
+  const nativeTypes={...types,
+    GameMessage:{CHOOSE_CARD_TO_PUT_ONTO_BENCH:'CHOOSE_CARD_TO_PUT_ONTO_BENCH'}};
+  const wrapped=withOwnerAbilityConfirmPolicy(()=>{
+    const store=new Store(),ai=new SimpleTacticsAi();
+    store.dispatch(new PlayCardAction(101,0));
+    const legitimate=ai.decodeNextAction(store.state);
+    store.dispatch(legitimate);
+    store.dispatch(new OtherAction());
+    const unrelated=ai.decodeNextAction(store.state);
+    store.dispatch(unrelated);
+    return {legitimate:legitimate.result,unrelated:unrelated.result};
+  },{ptcgServer,types:nativeTypes,validate:()=>{}});
+  assert.equal(wrapped.result.legitimate,true);
+  assert.equal(wrapped.result.unrelated,false);
+  assert.equal(wrapped.audit.confirmOffers,2);
+  assert.equal(wrapped.audit.confirmSettled,2);
+  assert.equal(wrapped.audit.confirmEvents[0].cardName,'Radiant Eternatus');
+  assert.equal(wrapped.audit.confirmEvents[1].cardName,null);
+  assert.equal(wrapped.audit.confirmEvents[1].reason,
+    'unrecognized-confirm-default-false');
+});
