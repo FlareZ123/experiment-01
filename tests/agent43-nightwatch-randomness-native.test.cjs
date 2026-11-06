@@ -14,7 +14,7 @@ const native = name => require(path.join(BASE, name));
  * Staged Store position, never a naturally dealt or competitively qualified game.
  * @param {0|1} attackerSeat
  */
-function stage(attackerSeat) {
+function stage(attackerSeat, copycat = false) {
   const { Store } = native('game/store/store');
   const { State, GamePhase } = native('game/store/state/state');
   const { Player } = native('game/store/state/player');
@@ -22,7 +22,7 @@ function stage(attackerSeat) {
   const { Format } = native('game/store/card/card-types');
   const { CardList } = native('game/store/state/card-list');
   const manager = initializeCards();
-  let nextId = 430000 + attackerSeat * 100;
+  let nextId = 430000 + attackerSeat * 100 + Number(copycat) * 1000;
   /** @param {string} fullName */
   function get(fullName) {
     const card = manager.getCardByName(fullName);
@@ -34,9 +34,10 @@ function stage(attackerSeat) {
   const defender = new Player();
   attacker.id = attackerSeat === 0 ? 101 : 202;
   defender.id = attackerSeat === 0 ? 202 : 101;
-  attacker.active.cards.push(get('Trevenant & Dusknoir-GX SMP'));
-  defender.active.cards.push(get('Rotom V LOR'));
-  for (let i = 0; i < 3; i++) {
+  const nightWatchCard = get('Trevenant & Dusknoir-GX SMP');
+  attacker.active.cards.push(copycat ? get('Mimikyu GRI') : nightWatchCard);
+  defender.active.cards.push(copycat ? nightWatchCard : get('Rotom V LOR'));
+  for (let i = 0; i < (copycat ? 2 : 3); i++) {
     const energy = get('Psychic Energy SVE');
     attacker.active.cards.push(energy);
     attacker.active.energies.cards.push(energy);
@@ -64,6 +65,9 @@ function stage(attackerSeat) {
   state.phase = GamePhase.PLAYER_TURN;
   state.activePlayer = attackerSeat;
   state.players = attackerSeat === 0 ? [attacker, defender] : [defender, attacker];
+  if (copycat) state.playerLastAttack = {
+    [defender.id]: { attack: nightWatchCard.attacks[0], sourceCard: nightWatchCard }
+  };
   const store = new Store({ onStateChange() {} });
   store.state = state;
   return { store, state, attacker, defender, opponentHand };
