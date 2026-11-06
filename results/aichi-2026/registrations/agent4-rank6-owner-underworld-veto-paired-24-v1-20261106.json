@@ -1,0 +1,58 @@
+{
+  "schema": "agent4-rank6-underworld-owner-public-veto-paired-24-v1",
+  "registeredAtUtc": "2026-11-06T22:50:00Z",
+  "historicalFrozenOriginalManifest": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
+  "prior12": "results/aichi-2026/registrations/agent4-v3-two-unknown-power-native-12-20261106.json",
+  "sourceModes": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "historicalAbortTargets": [
+    "6:401:A:champion-reference",
+    "6:402:B:champion-reference"
+  ],
+  "sameOriginalSourceSeedIntegerPairs": [
+    {
+      "rank": 6,
+      "seat": "A",
+      "seed": 582147744
+    },
+    {
+      "rank": 6,
+      "seat": "B",
+      "seed": 2765516960
+    }
+  ],
+  "unchangedCompanionCandidateSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "nativeAttemptsControl": 12,
+  "nativeAttemptsTreatment": 12,
+  "totalNativeAttempts": 24,
+  "nativeCap": 180,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenCurrentControlAndTreatmentAtSameCodeCommit": true,
+  "prospectiveTreatment": "Temporarily wrap research-only pure Underworld root proposer, preserving its candidate proposal then veto if public opposing Active is exactly Iron Thorns ex TWM with printed Initialization, VMAX face-up untooled original CRE, and no Stadium. Return null to original actor root planner so it can select downstream independent alternative; no hardcoded blind Pass. No rules engine changes; root source Decks and native client remain unchanged.",
+  "limitations": [
+    "A public no-Stadium/no-Tool veto proves only a narrow necessary restraint, not globally optimal response to every relevant ability suppressor",
+    "No claim source original Japanese printing equivalence or paper full-game qualification",
+    "Reproducibility uses contemporary driver and source runner, not frozen 3 Nov code revision",
+    "No full Top32 or clock/opponent qualification",
+    "Native full-game terminal remains developmental"
+  ],
+  "releaseGates": [
+    "original four source/candidate deal fingerprints match within A/B/A and across control/treatment for unchanged seed",
+    "all 24 native matches attempted with same decks",
+    "all original control and treated A/B/A are repeatable for both seed groups",
+    "control six named errors reproduced",
+    "treatment named errors reduced without introducing new engine errors",
+    "at least one evidence-backed actual veto on a historical champion abort",
+    "treatment prior native abort root continues with genuine native accepted action and opponent turn follow-up verified separately"
+  ],
+  "qualification": {
+    "competitiveQualifiedGames": 0,
+    "fieldWinRate": null
+  }
+}
