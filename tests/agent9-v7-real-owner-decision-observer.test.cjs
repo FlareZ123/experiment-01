@@ -117,3 +117,46 @@ test('records attempted quota mutation distinctly and restores after thrown engi
   assert.strictEqual(f.Ai.prototype.decodeNextAction,oldAi);
   assert.strictEqual(f.Store.prototype.dispatch,oldDispatch);
 });
+
+test('binds owner hand to the identical action accepted by the genuine Store',()=>{
+  const f=nativeFixture();
+  const owner=new f.Ai(100,new PassTurnAction());
+  const alien=new PassTurnAction();
+  const clone=new f.Store(f.state);
+  const observed=withRealOwnerDecisionObserver(()=>{
+    f.store.dispatch(new AddPlayerAction());
+    const proposed=owner.decodeNextAction(f.state);
+    assert.strictEqual(proposed,owner.action);
+    clone.dispatch(proposed);
+    f.store.dispatch(alien);
+    return f.store.dispatch(proposed);
+  },{SimpleTacticsAi:f.Ai,Store:f.Store,observe:f.view});
+  assert.equal(observed.result,'original-store');
+  assert.equal(observed.audit.actorOwnedRootObservations,1);
+  assert.equal(observed.audit.realStoreAcceptedProposals,1);
+  assert.equal(observed.audit.realStoreRootProposals[0].isAcceptedStoreRoot,true);
+  assert.deepEqual(f.store.dispatches.map(a=>a.constructor.name),
+    ['AddPlayerAction','PassTurnAction','PassTurnAction']);
+});
+
+test('rejected and replaced native proposals cannot authenticate the owner hand',()=>{
+  const f=nativeFixture();
+  const bot=new f.Ai(100,new PassTurnAction());
+  const dispatch=f.Store.prototype.dispatch;
+  f.Store.prototype.dispatch=function(action,...args){
+    if(action===bot.action)throw new Error('rejected by Store');
+    return dispatch.call(this,action,...args);
+  };
+  const original=f.Store.prototype.dispatch;
+  let reached;
+  const observed=withRealOwnerDecisionObserver(()=>{
+    f.store.dispatch(new AddPlayerAction());
+    const proposed=bot.decodeNextAction(f.state);
+    assert.throws(()=>f.store.dispatch(proposed),/rejected by Store/);
+    reached='error was handled by the native caller';
+  },{SimpleTacticsAi:f.Ai,Store:f.Store,observe:f.view});
+  assert.equal(reached,'error was handled by the native caller');
+  assert.equal(observed.audit.realStoreAcceptedProposals,0);
+  assert.equal(observed.audit.realStoreRootProposals[0].isAcceptedStoreRoot,false);
+  assert.strictEqual(f.Store.prototype.dispatch,original);
+});
