@@ -57,6 +57,7 @@ test('on exact source deal owner uses Float Stone, retreats, then Resetting Hole
   assert.equal(m.acceptedNativeRetreats,1);
   assert.equal(m.proposedResettingHole,1);
   assert.equal(m.acceptedResettingHole,1);
+  assert.equal(m.settledResettingHole,1);
   assert.equal(m.nativeRejects,0);
   const hole=m.records.find(x=>
     x.kind==='remove-thunder-with-benched-marshadow');
