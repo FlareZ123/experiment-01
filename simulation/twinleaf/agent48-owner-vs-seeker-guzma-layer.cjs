@@ -101,6 +101,7 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
       const beforeHand=owner.hand.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const beforeDiscard=owner.discard.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const result=oldDispatch.value.apply(this,[action,...args]);
+      assert.notEqual(result,false);
       const after=this.state.players[reply.seat];
       const afterHand=after.hand.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const afterDiscard=after.discard.cards.filter(c=>c.fullName===reply.targetPrinting).length;
