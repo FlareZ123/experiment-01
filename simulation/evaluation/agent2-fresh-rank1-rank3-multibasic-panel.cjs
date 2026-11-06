@@ -37,6 +37,7 @@ function runArm(trial,cards){
   let genericAudit=null,targetAudit=null,attachmentReserveAudit=null;
   let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
   let ownerPassFrontierAudit=null;
+  let deckOutRetreatAudit=null;
   let targetedTeamFlareAudit=null;
   let targetedPaleMoonAudit=null;
   let targetedGuzmaReplyAudit=null;
@@ -124,10 +125,18 @@ function runArm(trial,cards){
             targetedPaleMoonAudit=observed.audit;
             return observed.result;
           };
-          if(trial.targetedTeamFlareNative!==true)return withPaleMoon();
+          const withDeckOutRetreat=()=>{
+            if(trial.deckOutRetreat!==true)return withPaleMoon();
+            const {withBilateralDeckOutPaidRetreat}=require(
+              '../twinleaf/agent6-owner-deckout-paid-retreat.cjs');
+            const selected=withBilateralDeckOutPaidRetreat(withPaleMoon);
+            deckOutRetreatAudit=selected.audit;
+            return selected.result;
+          };
+          if(trial.targetedTeamFlareNative!==true)return withDeckOutRetreat();
           const {withTargetedTeamFlareNative}=require(
             '../twinleaf/agent17-targeted-owner-teamflare-native.cjs');
-          const targeted=withTargetedTeamFlareNative(withPaleMoon,{
+          const targeted=withTargetedTeamFlareNative(withDeckOutRetreat,{
             targetSeat:rank3Seat,targetTurn:59
           });
           targetedTeamFlareAudit=targeted.audit;
@@ -140,7 +149,8 @@ function runArm(trial,cards){
           genericAudit=added.audit;
           return added.result;
         }
-        if(trial.mode==='bilateral-skyliner-free-retreat'){
+        if(trial.mode==='bilateral-skyliner-free-retreat'||
+           trial.mode==='bilateral-skyliner-free-retreat-deckout-paid'){
           const {withBilateralSkylinerFreeRetreat}=
             require('../twinleaf/agent2-bilateral-skyliner-free-retreat-bot.cjs');
           const added=withBilateralSkylinerFreeRetreat(native);
@@ -206,6 +216,7 @@ function runArm(trial,cards){
         ownerSupporterOpportunityAudit}:{}),
       finalPublicBoard:game.finalPublicBoard??null,
       genericAudit,
+      ...(trial.deckOutRetreat===true?{deckOutRetreatAudit}:{}),
       ...(trial.reserveRecipient===true?{reserveRecipientAudit}:{}),
       ...(trial.basicRetreatReserveAudit===true?{
         attachmentReserveAudit}:{}),
@@ -223,6 +234,7 @@ function runArm(trial,cards){
       rank1Seat:1-rank3Seat,mode:trial.mode,status:'native-error',
       error:String(error?.stack??error).slice(0,4800),
       genericAudit,errorAbortProvenance:error?.nativeAbortEvidence??null,
+      ...(trial.deckOutRetreat===true?{deckOutRetreatAudit}:{}),
       ...(trial.captureOwnerSupporterOpportunity===true?{
         ownerSupporterOpportunityAudit}:{}),
       ...(trial.captureAttackTrace===true?{
