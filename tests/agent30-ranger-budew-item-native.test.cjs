@@ -64,28 +64,33 @@ function run(seat,withAbilityLock){
   const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   assert.throws(()=>x.store.dispatch(new PlayCardAction(x.opponent.id,1,target)),
     e=>typeof e?.message==='string' && /CANNOT_PLAY_THIS_CARD|BLOCKED/i.test(e.message));
-  assert.strictEqual(x.opponent.hand.cards[0],ranger);
-  assert.strictEqual(x.opponent.hand.cards[1],fog);
-  assert.equal(x.opponent.supporterTurn,0);
-  x.store.dispatch(new PlayCardAction(x.opponent.id,0,target));
-  assert.equal(x.opponent.supporterTurn,1);
-  assert.equal(x.opponent.cannotPlayItemCards,false);
-  assert.equal(x.opponent.hand.cards.includes(ranger),false);
-  assert.equal(x.opponent.hand.cards.includes(fog),true);
+  // Rejected dispatch replaces Store.state with a deep-cloned backup;
+  // x.opponent is now detached from the live Store player object.
+  const liveOpponent=()=>x.store.state.players.find(p=>p.id===x.opponent.id);
+  assert.ok(liveOpponent());
+  assert.notStrictEqual(liveOpponent(),x.opponent);
+  assert.strictEqual(liveOpponent().hand.cards[0],ranger);
+  assert.strictEqual(liveOpponent().hand.cards[1],fog);
+  assert.equal(liveOpponent().supporterTurn,0);
+  x.store.dispatch(new PlayCardAction(liveOpponent().id,0,target));
+  assert.equal(liveOpponent().supporterTurn,1);
+  assert.equal(liveOpponent().cannotPlayItemCards,false);
+  assert.equal(liveOpponent().hand.cards.includes(ranger),false);
+  assert.equal(liveOpponent().hand.cards.includes(fog),true);
   if(withAbilityLock){
     assert.throws(()=>x.store.dispatch(
-      new PlayCardAction(x.opponent.id,0,target)),
+      new PlayCardAction(liveOpponent().id,0,target)),
     e=>typeof e?.message==='string' && /CANNOT_PLAY_THIS_CARD|BLOCKED/i.test(e.message));
-    assert.equal(x.opponent.hand.cards.includes(fog),true);
+    assert.equal(liveOpponent().hand.cards.includes(fog),true);
     return {seat,withAbilityLock,blockedBeforeRanger:true,
       rangerAccepted:true,itemStillBlockedByAbility:true,
       nativeWaitPrompts:waits.length,competitiveQualifiedGames:0};
   }
-  x.store.dispatch(new PlayCardAction(x.opponent.id,0,target));
+  x.store.dispatch(new PlayCardAction(liveOpponent().id,0,target));
   const prompt=x.store.state.prompts.find(p=>p.result===undefined);
   assert.ok(prompt,'Accepted Fog Crystal must expose the search choice');
   assert.equal(prompt.constructor.name,'ChooseCardsPrompt');
-  const psychic=x.opponent.deck.cards.find(c=>c.name==='Psychic Energy');
+  const psychic=liveOpponent().deck.cards.find(c=>c.name==='Psychic Energy');
   assert.ok(psychic,'Staged original native deck has a Psychic Energy');
   assert.equal(prompt.validate([psychic]),true);
   x.store.dispatch(new ResolvePromptAction(prompt.id,[psychic]));
@@ -99,12 +104,12 @@ function run(seat,withAbilityLock){
     observed.push(type);
     const answer=type==='ShowCardsPrompt'?true:
       type==='ShuffleDeckPrompt'?
-        Array.from({length:x.opponent.deck.cards.length},(_,j)=>j):null;
+        Array.from({length:liveOpponent().deck.cards.length},(_,j)=>j):null;
     x.store.dispatch(new ResolvePromptAction(pending.id,answer));
   }
-  assert.ok(x.opponent.hand.cards.includes(psychic),
+  assert.ok(liveOpponent().hand.cards.includes(psychic),
     'Actual searched physical Energy must reach owner hand');
-  assert.equal(x.opponent.hand.cards.includes(fog),false);
+  assert.equal(liveOpponent().hand.cards.includes(fog),false);
   return {seat,withAbilityLock,blockedBeforeRanger:true,
     rangerAccepted:true,itemSearchResolved:true,
     searchedPhysicalPrinting:psychic.fullName,
