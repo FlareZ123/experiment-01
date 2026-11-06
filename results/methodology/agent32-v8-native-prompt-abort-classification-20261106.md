@@ -33,10 +33,32 @@ A separate v8 treatment is now implemented in:
 - `tests/agent32-issue25-v8-telepath-development.test.cjs`
 - `tests/agent32-issue25-v8-telepath-development.native.test.cjs`
 
-It wraps the actual `headless.runMatch` boundary, reuses Agent8's handler without modifying it, and compares the unchanged v8 eight-arm registration and 128-root horizon against a treatment. The native test requires identical initial physical deals and exact accepted-root prefix parity, then requires actual owner prompt matching, Store settlement, physical Bench custody, and shuffle evidence for the two suspected rows. It retains all failures and remains explicitly unqualified. It is wired into the existing manual `twinleaf-completion.yml` Telepath lane under the existing input; no new workflow or workflow input was added. The compiled run is pending at the time of this report.
+It wraps the actual `headless.runMatch` boundary, reuses Agent8's handler without modifying it, and compares the unchanged v8 eight-arm registration and 128-root horizon against a treatment. The native test requires identical initial physical deals and exact accepted-root prefix parity, then requires actual owner prompt matching, Store settlement, physical Bench custody, and shuffle evidence for the two suspected rows. It retains all failures and remains explicitly unqualified. It is wired into the existing manual `twinleaf-completion.yml` Telepath lane under the existing input; no new workflow or workflow input was added. The first compiled treatment has now completed; its result and the follow-up audit-preservation rerun are recorded below.
 
 The three ConfirmPrompt failures remain explicit. A separate source/owner-zone audit and specific, tested prompt policy are required before changing those decisions. Do not substitute default raw-State resolution or assume that a generic false/empty response is strategically sound.
 
 ## Limits
 
 This classification establishes the public pending prompt class, message, options, owner seat, last accepted root and quarantine path. It does not establish prompt CardList identity for v8, exact ability origin for the Confirm prompts, a paper-valid game, a meaningful opponent response, or any competitive result. Current benchmark remains 29 authenticated original 60-card inventories, zero competitively qualified games, and no demonstrated 99.5% win rate.
+
+
+
+## First v8 Telepath treatment result
+
+Manual run [42258948231](https://github.com/FlareZ123/experiment-01/actions/runs/42258948231) executed both the existing v5 Telepath step and the new v8 treatment step successfully on checkout `6cfc129ada0d76d8fc34b3f6179055dca172c4e9`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Artifact 13523941921 (`agent32-issue25-v8-telepath-same-eight-native.zip`) has ZIP SHA256 `9734ad73e6567b60a5f203c3d36f62c4828757367a394822692482bae5ee646c`. The control and treatment JSON sidecars independently match SHA256 `22b6efd5c77ca432a9ed17b78eb8df9d8c885d627d3877e6e830e87abcf4ebe1` and `f79e97c535b4be6bc09c9330516df0abb0fc02e1207728c023958faa9010b820`, respectively.
+
+| Attempt | Control | Telepath treatment |
+| --- | --- | --- |
+| rank6 / New Moon | engine-error at root118, `ChooseCardsPrompt` | `ResolvePromptAction` at root118, followed by `ShuffleDeckPrompt` and `WaitPrompt`; reaches root128 cap |
+| rank11 / New Moon | engine-error at root88, `ChooseCardsPrompt` | `ResolvePromptAction` at root88, followed by `ShuffleDeckPrompt` and `WaitPrompt`; reaches root128 cap |
+| rank1 / champion | engine-error at root98, `ConfirmPrompt` | same engine-error at root98 |
+| rank3 / champion | engine-error at root106, `ConfirmPrompt` | same engine-error at root106 |
+| rank3 / New Moon | engine-error at root93, `ConfirmPrompt` | same engine-error at root93 |
+
+The other three arms remained at 128 roots. Aggregate engine-error rows fell from 5/8 to 3/8; 5/8 treatment rows reached the 128-root cap. For **all eight** registered IDs, the treatment's complete public accepted-root ledger begins with the exact control ledger; the two Telepath rows then add the prompt, shuffle and later actions. Both the source-deal and full physical-deal fingerprints matched within each paired arm. The native test's per-target assertions passed for fresh owner-deck prompt matching, native prompt settlement, physical Basic Psychic Bench custody, shuffle witness, zero custody failures, and progression beyond the old abort root.
+
+The first archive did not preserve the per-match Telepath audit object because the public receipt writer copied the manifest but not the additional diagnostic field. To make the detailed audit reproducible rather than relying only on passing assertions, the runner now also records the complete `nativeOwnerTelepathicAudit` in the actually executing manifest, and the native test asserts that manifest/diagnostic copies agree. A second run, **42259934232**, was dispatched at checkout `8e9672b6e2f9291e3be0cd7ccb82e85b8b96114f` with the same inputs; its artifact is pending.
+
+The first workflow's overall `abort-custody` job concluded failure after the two Telepath steps had succeeded. Later, unrelated Agent42 paid-Retreat tests had 2 passes and 6 failures (missing proposal-version metadata, a missing compiled `retreat-action` module, and a dependent fixture assertion). Post-job cleanup also warned that nested submodule path `vendor/twinleaf/vendor/pokemon-cards-css` has no URL in the root `.gitmodules`. This does not negate the successful v8 step/artifact, but the workflow as a whole was **not green**. Agent42's lease was active, so I did not alter its tests or workflow gating.
+
+This is a useful **liveness** improvement only. It does not demonstrate a completed game, terminal outcome, opponent response quality, paper-rules completeness, or any win rate. The three ConfirmPrompt aborts remain unresolved.
