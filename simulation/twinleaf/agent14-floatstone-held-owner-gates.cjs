@@ -6,6 +6,8 @@ const {projectedFundedAttackDamage}=
   require('./agent14-generic-funded-floatstone-frontier.cjs');
 const {MIN_PROJECTED_DAMAGE}=
   require('./agent6-actor-paid-retreat-frontier.cjs');
+const {counterKnockoutPrerequisite}=
+  require('./agent14-public-counter-knockout-potential.cjs');
 
 const VERSION='agent14-held-floatstone-independent-readonly-gates-v1';
 const FIELDS=Object.freeze([
@@ -13,7 +15,8 @@ const FIELDS=Object.freeze([
   'activePositivePrintedRetreat','activeToolSlotEmpty',
   'unusedRetreat','toolPlayUnlocked','publicToolUnsuppressed',
   'benchHasEnergy','benchHasPayableAttack',
-  'benchHasPayable80DamageAttack','allCoarseStructuralGates'
+  'benchHasPayable80DamageAttack','benchHasKnownCounterAttack',
+  'benchHasSatisfiedCounterCondition','allCoarseStructuralGates'
 ]);
 
 /**
@@ -56,6 +59,8 @@ function heldFloatGateFlags(view,catalog){
     Array.isArray(p.energies)&&p.energies.length>0);
   let benchHasPayableAttack=false;
   let benchHasPayable80DamageAttack=false;
+  let benchHasKnownCounterAttack=false;
+  let benchHasSatisfiedCounterCondition=false;
   const benchPayableTargets=[];
   if(held){
     for(const pokemon of bench){
@@ -66,9 +71,12 @@ function heldFloatGateFlags(view,catalog){
         benchHasPayableAttack=true;
         const projected=projectedFundedAttackDamage(
           view,pokemon,attack,catalog);
+        const condition=counterKnockoutPrerequisite(view,attack);
+        if(condition.recognized)benchHasKnownCounterAttack=true;
+        if(condition.satisfied)benchHasSatisfiedCounterCondition=true;
         benchPayableTargets.push({printing:pokemon.printing,
           attack:attack.name,nominalDamage:Number.isSafeInteger(projected)?
-            projected:null});
+            projected:null,condition});
         if(Number.isSafeInteger(projected)&&
             projected>=MIN_PROJECTED_DAMAGE)
           benchHasPayable80DamageAttack=true;
@@ -83,6 +91,7 @@ function heldFloatGateFlags(view,catalog){
     activePositivePrintedRetreat,activeToolSlotEmpty,unusedRetreat,
     toolPlayUnlocked,publicToolUnsuppressed,benchHasEnergy,
     benchHasPayableAttack,benchHasPayable80DamageAttack,
+    benchHasKnownCounterAttack,benchHasSatisfiedCounterCondition,
     allCoarseStructuralGates,benchPayableTargets};
 }
 
