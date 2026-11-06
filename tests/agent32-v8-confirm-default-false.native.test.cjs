@@ -101,6 +101,7 @@ test('same-eight v8 Telepath plus default Confirm false preserves terminal-or-ca
       treatmentFinalBoard:current?.finalBoard??null,
       treatmentTerminalWinnerMatchesCandidate:
         current?.terminalWinnerMatchesCandidate??false,
+      candidateAttackSettlement:row.candidateAttackSettlement??null,
       exactControlRootPrefix:!!before&&
         rootsOf(row).length>=rootsOf(before).length&&
         JSON.stringify(rootsOf(row).slice(0,rootsOf(before).length))===
@@ -178,12 +179,19 @@ test('same-eight v8 Telepath plus default Confirm false preserves terminal-or-ca
   assert.equal(terminal.treatmentWinner,terminal.candidateSeat);
   assert.equal(terminal.treatmentTerminalWinnerMatchesCandidate,true);
   assert.ok(terminal.treatmentEndReason);
-  assert.equal(terminal.candidateAttackSettlement?.candidateSeat,
-    terminal.candidateSeat);
-  assert.equal(terminal.candidateAttackSettlement?.declarations,4);
-  assert.equal(terminal.candidateAttackSettlement?.attacks?.length,4);
-  assert.equal(terminal.candidateAttackSettlement?.qualifiedForCompetitiveInference,
-    false);
+  const candidateSettlement=terminal.candidateAttackSettlement;
+  assert.equal(candidateSettlement?.candidateSeat,terminal.candidateSeat);
+  assert.equal(candidateSettlement?.declarations,4);
+  assert.equal(candidateSettlement?.settled,4);
+  assert.equal(candidateSettlement?.attacks?.length,4);
+  assert.ok(candidateSettlement.attacks.every(attack=>
+    attack.settledPromptChain===true));
+  assert.deepEqual(candidateSettlement.attacks.map(attack=>attack.prizesAfter),
+    [[6,5],[6,3],[6,3],[6,0]]);
+  assert.equal(candidateSettlement.attacks[3].publicBoardBefore[0].active.damage,
+    200);
+  assert.equal(candidateSettlement.attacks[3].publicBoardAfter[0].active,null);
+  assert.equal(candidateSettlement?.qualifiedForCompetitiveInference,false);
   assert.equal(report.nativeMatchCalls,8);
   assert.equal(treatment.manifest.nativeOwnerPromptAudit.nativeMatchCalls,8);
   assert.deepEqual(treatment.manifest.nativeOwnerPromptAudit,
