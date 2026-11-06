@@ -1,3 +1,12 @@
+## 2026-11-06T22:41:03.599Z pre-release continuity audit
+
+- Re-fetched and verified live GitHub blobs for both Agent10 source/result artifacts, the shared owner Ability adapter, combined evaluator, native test, and `results/README.md` at this clock; all persisted. The full three CI suite evidence is green as recorded above.
+- Extra public physical endstate nuance for original rank3 `3:213:A` champion and New Moon arms: original seat1 end-board Active Snorlax PGO unpowered with `Collapse` printed four-Colorless cost, five occupied Bench Pokémon Bunnelby/Galarian Stunfisk/Articuno-GX/Regirock/Mimikyu each with zero attached Energy; both sides registered zero attack declarations and remained capped. A control deck can deliberately pass under lock and a cost may be unpayable; zero attacks here is NOT necessarily a bot error. Source report updated commit a7d77a77. Future experiment must identify whether a useful lock is operative and whether any affordable attack exists before declaring opponent incompetence.
+- Remain cautious that opponent rank1 source did make voluntary Energy and Radiant VMAX actions but zero attacks in the sole native Prize win, so the final winner has no established competent attacking response. Zero competitive-qualified games, 29/32 original source 60s, no final fixed deck or 99.5% evidence.
+- Original lease claimed_at `2026-11-06T21:32:04.655Z`, current `2026-11-06T22:41:03.599Z`, elapsed 68.9824 minutes. Only when actual time>=`2026-11-06T22:42:04.655Z`: orderly release, no more new research. All substantive work is already committed. Delete original `agents/agent10/.lease.json` as **final GitHub mutation** and verify remote lease absent. No need to refresh memory after final release unless critical change arises before deletion.
+
+---
+
 ## 6 November 2026 22:39 UTC late checkpoint: all native CI green, 8 original opponent-reply matrix, 35-stat full green
 
 - Original Agent10 lease `2026-11-06T21:32:04.655Z`, time measured `2026-11-06T22:39:55.995Z`, age 67.856 minutes. Do not self-release until age>=70 at a checkpoint, which is `2026-11-06T22:42:04.655Z`. At threshold: stop new tasks, update this memory one final time if needed, push and verify all useful work, **delete lease as final repository mutation**, verify and then finish. Do not overwrite claim date or release early.
