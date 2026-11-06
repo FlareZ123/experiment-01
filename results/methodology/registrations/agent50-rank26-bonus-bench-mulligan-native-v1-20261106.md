@@ -16,7 +16,7 @@ At the pinned Twinleaf revision, can a defending original rank6 Iron Thorns list
 
 ## Prior pinned-engine evidence
 
-Before this rank26/rank6 fixture, `results/aichi-2026/rank3-snorlax-optional-bench-real-store.md` documented a native Store witness at the same Twinleaf pin. Its optional min-zero setup prompt accepted both the default second-Snorlax Bench selection and an opt-in empty selection. The report does not record whether the second Snorlax was drawn as mulligan compensation; the reducer also invokes the optional placement helper when there are zero compensation draws. Successful manual runs are recorded as CI **39238161077** and **39240015623**. This establishes the general prompt/Store mechanism on a different rank3-versus-rank1 deal, not the compensation-specific rank26/rank6 physical hand or second-Thorns placement that this fixture targets.
+Before this rank26/rank6 fixture, `results/aichi-2026/rank3-snorlax-optional-bench-real-store.md` documented a native Store witness at the same Twinleaf pin. Its second optional min-zero prompt accepted both the default second-Snorlax Bench selection and an opt-in empty selection. The witness script does not separately log compensation count, but all pinned setup-reducer call sites for `allowExtraBenchPlacement` are inside `if (extraDraws > 0)` branches (`setup-reducer.ts:204-223,250-269,481-500,527-546`), so that prompt necessarily followed at least one compensation draw. Successful manual runs are recorded as CI **39238161077** and **39240015623**. This establishes the compensation-prompt/Store mechanism on rank3-versus-rank1, not the exact rank26/rank6 physical hand or second-Thorns placement that this fixture targets.
 
 ## Constructed physical setup
 
