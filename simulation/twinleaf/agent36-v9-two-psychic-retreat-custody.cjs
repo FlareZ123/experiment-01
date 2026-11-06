@@ -118,6 +118,7 @@ function withTwoPsychicAnyTargetCustody(execute,deps={}){
     pending.delete(store);
   }
   function witness(action,...args){
+    const existing=pending.get(this)??null;
     const before=capture(this.state,action);
     if(before){pending.set(this,before);attempts++;}
     try{
@@ -125,10 +126,11 @@ function withTwoPsychicAnyTargetCustody(execute,deps={}){
       check(this);
       return result;
     }catch(error){
-      if(before||pending.has(this)){
-        errors.push({turn:this.state?.turn??null,
-          seat:before?.seat??null,
-          benchIndex:before?.benchIndex??null,
+      const context=before??existing??pending.get(this)??null;
+      if(context){
+        errors.push({turn:this.state?.turn??context.turn??null,
+          seat:context.seat,
+          benchIndex:context.benchIndex,
           action:action?.constructor?.name??null,
           reason:String(error?.message??error)});
         pending.delete(this);
