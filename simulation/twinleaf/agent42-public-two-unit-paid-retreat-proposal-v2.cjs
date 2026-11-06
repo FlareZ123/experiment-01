@@ -83,6 +83,8 @@ function opponentHasUnmodeledDamageOrPrizeText(view){
 
 function retreatAbilityGuard(view,catalog,active){
   const own=view.ownPublic,opponent=view.opponentPublic;
+  if(!own||!Array.isArray(own.bench)||!opponent||
+     !opponent.active||!Array.isArray(opponent.bench))return 'unknown';
   const ownBoard=[own.active,...own.bench].filter(Boolean);
   const opposingBoard=[opponent.active,...opponent.bench].filter(Boolean);
   for(const pokemon of ownBoard){
