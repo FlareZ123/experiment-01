@@ -6,4 +6,6 @@ The layer patches the native bot decision and Store dispatch boundaries. It call
 
 Suggested nesting: Agent48 retrieval layer outermost, Agent43 `withGuzmaOwnerPromptContinuation` next, Agent34 `withActorOnlyRootPolicy` innermost. Agent34 remains unchanged. This gives Agent34 first root priority, Agent43 the two post-Guzma `ChoosePokemonPrompt`s, and Agent48 the VS Seeker retrieval fallback.
 
-The manual workflow was updated to include the new layer test after run 42256241007 (#22) had already started. Run #22 therefore does not include this test; trigger a new workflow after #22 completes.
+Validation: full manual workflow run **42257439969** (#25) completed successfully on commit `713beaa4b0bfd6297f965ba61e8e2ce4f122cf31` and includes the layer test. Focused workflow run **42257818758** also completed successfully on commit `053f631bf377f3850b8a10c6c8706fd20e8aea4f`; it runs the generic prompt, Guzma frontier, root adapter, and layer tests, including the physical VS Seeker-to-discard receipt assertion. Run #24's only failure was a missing custom assertion message in the wrong-zone negative test; the message was added before #25.
+
+For a native runner, enable Agent34's existing `heldGuzmaMobility` option so the recovered Guzma is played. Agent43's continuation then handles the two post-Guzma prompts. The composition is still a proposal; no pinned-Twinleaf match has been run with all three layers composed.
