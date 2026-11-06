@@ -350,7 +350,7 @@ test('native Eon Blade attack lock clears only after the Latias leaves Active',(
   step('opponent end turn',()=>store.dispatch(new PassTurnAction(opponent.id)));
   assert.equal(state.activePlayer,1);
   assert.equal(latiasSlot.cannotAttackNextTurn,true);
-  assert.throws(()=>step('restricted next-turn Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade'))));
+  assert.throws(()=>step('restricted next-turn Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade'))),/BLOCKED_BY_EFFECT/);
 
   step('free Skyliner Retreat',()=>store.dispatch(new RetreatAction(owner.id,0)));
   step('resolve Retreat prompts',()=>resolveNativeRetreat(game));
