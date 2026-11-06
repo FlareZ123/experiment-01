@@ -51,10 +51,17 @@ function createVsSeekerRunner(deps={}){
   assert.equal(typeof development,'function');
   assert.equal(typeof layer,'function');
   return options=>{
-    const wrapped=layer(
-      ()=>development({...options,actorGuzmaPromptContinuation:true}),
-      {base}
-    );
+    const wrapped=layer(()=>{
+      const key='AGENT2_HELD_GUZMA_MOBILITY_DEV';
+      const previous=process.env[key];
+      process.env[key]='true';
+      try{
+        return development({...options,actorGuzmaPromptContinuation:true});
+      }finally{
+        if(previous===undefined)delete process.env[key];
+        else process.env[key]=previous;
+      }
+    },{base});
     assert.ok(wrapped&&wrapped.audit&&typeof wrapped.audit==='object',
       'VS Seeker/Guzma layer must return its native audit');
     assert.ok(wrapped.result&&typeof wrapped.result==='object',
@@ -114,6 +121,7 @@ function runAgent20V8VsSeekerGuzma(deps={}){
     originalV8Registration:v8Registration.schema,
     addedOwnerVsSeekerGuzmaLayer:true,
     addedGuzmaPromptContinuation:true,
+    heldGuzmaMobilityRootOptIn:true,
     ownerVsSeekerGuzmaLayerVersion:LAYER_VERSION,
     unchangedPrintedSixties:true,
     unchangedRegisteredSeeds:true,
