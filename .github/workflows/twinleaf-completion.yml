@@ -128,6 +128,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent42_rank1_prospective_paid_v4:
+        description: 'Four fresh precommitted rank1 seed groups, both seats and paired 24 native paid-retreat A/B/A attempts'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -433,6 +438,17 @@ jobs:
           name: agent42-rank1-two-psychic-rebased-v3-paired
           path: agent42-rank1-two-psychic-rebased-v3-paired-native.json
           retention-days: 7
+      - name: Prospective original rank1 four fresh-seed paired paid Retreat A/B/A
+        if: ${{ inputs.include_agent42_rank1_prospective_paid_v4 }}
+        run: node simulation/evaluation/agent42-rank1-prospective-paid-v4.cjs
+      - name: Archive fresh rank1 paid Retreat public root provenance and all native attempts
+        if: ${{ always() && inputs.include_agent42_rank1_prospective_paid_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-rank1-prospective-paid-v4
+          path: agent42-rank1-prospective-paid-v4-native.json
+          retention-days: 14
+          if-no-files-found: warn
       - name: Retrospective eight original source Capture Energy 96-root followthrough
         if: ${{ inputs.include_agent4_capture_retrospective_96 }}
         env:
