@@ -34,7 +34,7 @@ test('all 29 authenticated source 60s resolve with exact card identity',()=>{
   assert.match(VERSION,/v2$/);
   assert.equal(result.originalSourceDecks,29);
   assert.equal(result.registeredPokemonRows,309);
-  assert.equal(result.exactPokemonRows,309);
+  assert.equal(result.exactPokemonRows,309,JSON.stringify(result.unresolved));
   assert.deepEqual(result.unresolved,[]);
   assert.equal(result.exactRetreatProhibitionHits,4);
   assert.deepEqual(result.sourceDeckRanksWithLiteralProhibition,[2,3,7,31]);
