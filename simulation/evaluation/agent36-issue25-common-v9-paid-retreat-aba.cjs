@@ -28,6 +28,7 @@ const HASH_PATHS=[
   'simulation/evaluation/agent36-issue25-common-v8.cjs',
   'simulation/evaluation/agent36-issue25-common-v7.cjs',
   'simulation/evaluation/agent36-issue25-selected-v0.cjs',
+  'simulation/evaluation/agent36-profile-provenance-gate.cjs',
   'simulation/evaluation/agent41-bilateral-v2-development.cjs',
   'simulation/evaluation/agent42-general-paid-retreat-root-audit.cjs',
   'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
@@ -167,8 +168,15 @@ function runPhase(mode,deps={}){
       return observed.result;
     }
   });
+  assert.equal(execution.manifest.observedTwinleafGitCommit,
+    registration.pinnedTwinleaf,'Native runner used an unregistered Twinleaf pin');
+  assert.equal(execution.diagnostic.registeredAttemptReconciliation?.exactUniqueMatch,
+    true,'v8 runner did not reconcile the exact registered attempts');
   const rawRows=execution.rawDevelopment?.rows??[];
+  assert.equal(rawRows.length,registration.expectedCandidateContexts);
   const rows=rawRows.map(row=>summarizeRow(row,custodyAudit));
+  assert.deepEqual(rows.map(row=>row.id).sort(),
+    registration.trials.map(trial=>trial.id).sort());
   const manifest={
     ...execution.manifest,
     version:VERSION,
@@ -259,8 +267,8 @@ function compare(phases,m){
     const controlDiff=firstRootDifference(ra,ra2);
     const controlsRepeated=present&&controlDiff===null&&
       sameOutcome(ra,ra2)&&
-      sa?.rootActionLedgerSha256!==null&&
-      sa?.rootActionLedgerSha256===sa2?.rootActionLedgerSha256;
+      typeof sa?.rootActionLedgerSha256==='string'&&
+      sa.rootActionLedgerSha256===sa2?.rootActionLedgerSha256;
     const treatmentDiff=firstRootDifference(ra,rb);
     const firstTreatmentDiffIsRetreat=treatmentDiff===null||
       treatmentDiff.actionB==='RetreatAction';
@@ -280,7 +288,7 @@ function compare(phases,m){
       sourcePhysicalCustodyBoundCountB:publicPaidRetreats.filter(x=>
         x.physicalCustodyBoundToThisRoot).length,
       sourcePaidRetreatSettledAttackCountB:publicPaidRetreats.filter(x=>
-        x.nextSettledSourceAttackOrdinal!==null).length,
+        Number.isSafeInteger(x.nextSettledSourceAttackOrdinal)).length,
       sourcePaidRetreatPrizeCountB:publicPaidRetreats.filter(x=>
         x.nextSettledAttackTookPrize).length,
       sourcePaidRetreatTerminalWinCountB:publicPaidRetreats.filter(x=>
@@ -315,7 +323,7 @@ function phaseSummary(phase){
     sourcePhysicalCustodyBound:sourcePaid.filter(x=>
       x.physicalCustodyBoundToThisRoot).length,
     sourceSettledFollowOnAttacks:sourcePaid.filter(x=>
-      x.nextSettledSourceAttackOrdinal!==null).length,
+      Number.isSafeInteger(x.nextSettledSourceAttackOrdinal)).length,
     sourcePrizeTakingFollowOnAttacks:sourcePaid.filter(x=>
       x.nextSettledAttackTookPrize).length,
     sourceNativeTerminalWinsAfterPaidRetreat:sourcePaid.filter(x=>
@@ -334,9 +342,12 @@ function run(deps={}){
   const summary={
     candidateContexts:m.expectedCandidateContexts,
     nativeAttempts:phases.reduce((n,p)=>n+p.rows.length,0),
-    allRegisteredIdsReturned:phases.every(p=>
-      p.rows.length===m.expectedCandidateContexts&&
-      p.rows.every(row=>m.trials.some(t=>t.id===row.id))),
+    allRegisteredIdsReturned:phases.every(p=>{
+      const ids=p.rows.map(row=>row.id).sort();
+      return ids.length===m.expectedCandidateContexts&&
+        new Set(ids).size===m.expectedCandidateContexts&&
+        JSON.stringify(ids)===JSON.stringify(m.trials.map(t=>t.id).sort());
+    }),
     allOpeningsMatchedWithinTrial:comparisons.every(x=>
       x.physicalOpeningMatchedAcrossABA),
     controlsRepeatedExactly:comparisons.every(x=>
