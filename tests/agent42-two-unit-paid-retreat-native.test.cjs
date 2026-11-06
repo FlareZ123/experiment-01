@@ -25,7 +25,7 @@ const VMAX='Shadow Rider Calyrex VMAX CRE';
  *
  * @param {0|1} seat Physical owner seat.
  * @returns {{store:object,state:object,owner:object,opponent:object,
- *   catalog:object,manager:object,card:(name:string)=>object,
+ *   catalog:object,manager:object,card:(name:string)=>object,attach:(turn:number,slot:object)=>void,
  *   activeBefore:object,oldEnergy:object[],sourceSeat:0|1}}
  */
 function stage(seat){
@@ -106,7 +106,7 @@ function stage(seat){
     funded.energies.cards.length,
     girafarig.energies.cards.length
   ],[2,3,2]);
-  return {store,state,owner,opponent,catalog,manager,card,
+  return {store,state,owner,opponent,catalog,manager,card,attach,
     activeBefore:owner.active,oldEnergy:[...owner.active.energies.cards],
     sourceSeat:seat};
 }
