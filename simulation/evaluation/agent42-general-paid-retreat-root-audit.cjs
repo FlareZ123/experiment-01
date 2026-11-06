@@ -80,15 +80,19 @@ function join(row,seat){
     if(matches.length!==1)continue;
     const pivot=publicPaidPivot(matches[0],seat);
     if(!pivot)continue;
-    const attack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
+    const candidateAttack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
       a.turnBefore===root.turnBefore&&
       a.settledPromptChain===true&&
       a.settlementCrossesClockReset!==true)??null;
+    const candidateAttackPrinting=
+      candidateAttack?.publicBoardBefore?.[seat]?.active?.printing??null;
+    const attack=candidateAttack&&candidateAttackPrinting===pivot.targetPrinting?
+      candidateAttack:null;
     const before=attack?.prizesBefore?.[seat]??null;
     const after=attack?.prizesAfter?.[seat]??null;
     const prizeDecrease=Number.isInteger(before)&&
       Number.isInteger(after)&&after<before;
-    const nativeWon=row.finished===true&&row.winner===seat&&
+    const nativeWon=attack!==null&&row.finished===true&&row.winner===seat&&
       row.finalPrizes?.[seat]===0;
     evidence.push({
       acceptedRootOrdinal:root.actionOrdinal,
@@ -96,6 +100,9 @@ function join(row,seat){
       sourceSeat:seat,
       benchIndex:matches[0].declared.benchIndex,
       ...pivot,
+      candidateAttackOrdinal:candidateAttack?.actionOrdinal??null,
+      candidateAttackActivePrinting:candidateAttackPrinting,
+      targetAttackIdentityConfirmed:attack!==null,
       nextSettledSourceAttackOrdinal:attack?.actionOrdinal??null,
       nextSettledSourceAttackName:attack?.attackName??null,
       nextSettledAttackTookPrize:prizeDecrease,
