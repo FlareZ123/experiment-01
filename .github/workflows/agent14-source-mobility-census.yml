@@ -1,12 +1,18 @@
 name: Agent14 original Aichi source mobility census
 on:
   workflow_dispatch:
+    inputs:
+      rank11_strand_native_aba:
+        description: Run six bounded pinned-Store native A/B/A replays, development-only
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   mobility-census:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - name: Validate all original printed sixties, exact names and negative controls
@@ -15,6 +21,38 @@ jobs:
         run: node --test tests/agent1-owner-float-stone-mobility.test.cjs tests/agent6-skyliner-or-floatstone-mobility.test.cjs tests/agent14-generic-funded-floatstone-frontier.test.cjs
       - name: Verify the actual generic Float Stone actor wrapper opt-in
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
+      - name: Verify same-root A/B/A ledger and abort custody arithmetic
+        run: node --test tests/agent14-rank11-zero-energy-strand-native-aba.test.cjs
+      - name: Check out pinned Twinleaf for selected native replay only
+        if: ${{ inputs.rank11_strand_native_aba }}
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.rank11_strand_native_aba }}
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies for selected native replay only
+        if: ${{ inputs.rank11_strand_native_aba }}
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf for selected native replay only
+        if: ${{ inputs.rank11_strand_native_aba }}
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run exact original rank11 physical A/B/A strand intervention
+        if: ${{ inputs.rank11_strand_native_aba }}
+        env:
+          AGENT14_STRAND_ABA_OUTPUT: agent14-rank11-zero-energy-strand-aba.json
+        run: node simulation/evaluation/agent14-rank11-zero-energy-strand-native-aba.cjs
+      - name: Preserve full pinned native A/B/A archive, including failures
+        if: ${{ always() && inputs.rank11_strand_native_aba }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-rank11-zero-energy-strand-aba
+          path: agent14-rank11-zero-energy-strand-aba.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Report actual source mobility coverage
         run: node -e "const x=require('./simulation/evaluation/agent14-authenticated-mobility-roster-audit.cjs').auditPinnedRoster();console.log('MOBILITY_FIELD',JSON.stringify({total:x.originalCompleteSixties,coverage:x.anyCoreMobility,byFamily:x.byFamily.map(v=>[v.name,v.originalListsContaining,v.aggregatePrintedCopies]),paperQualified:x.paperGameQualified}))"
       - name: Report exact opening-conditioned six-Prize collapse
