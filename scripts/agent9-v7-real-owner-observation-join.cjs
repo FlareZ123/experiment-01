@@ -64,10 +64,10 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
     const pass=ownerRecords.filter(x=>
       x.nativeProposedAction==='PassTurnAction');
     const acceptedPass=pass.filter(x=>x.isAcceptedStoreRoot===true);
-    const hasAnAcceptedPass=record.ownerActions.some(a=>
+    const acceptedPassRoots=record.ownerActions.filter(a=>
       a.action==='PassTurnAction');
-    const matchedPass = hasAnAcceptedPass&&acceptedPass.length===1 ?
-      acceptedPass[0] : null;
+    const matchedPass = acceptedPassRoots.length===1&&
+      acceptedPass.length===1 ? acceptedPass[0] : null;
     const batonScreen = matchedPass ? screen({
       decisionKind: 'owner-root',
       globalTurn: matchedPass.globalTurn,
@@ -79,7 +79,8 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
     }) : null;
     const matchStatus=record.nextOwnerTurn===null?'not-encountered':
       !read?'owner-observer-missing':
-      !hasAnAcceptedPass?'owner-turn-not-ended-by-pass':
+      acceptedPassRoots.length===0?'owner-turn-not-ended-by-pass':
+      acceptedPassRoots.length>1?'ambiguous-accepted-public-pass-roots':
       acceptedPass.length===1?'one-store-accepted-pass-proposal':
       acceptedPass.length>1?'ambiguous-store-accepted-pass-proposals':
       pass.length>0?'pass-proposed-but-not-store-accepted':
@@ -92,6 +93,9 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       matchedObservationStatus:matchStatus,
       matchingPassProposalCount:pass.length,
       matchingStoreAcceptedPassCount:acceptedPass.length,
+      matchingPublicPassRootCount:acceptedPassRoots.length,
+      acceptedOwnerPassRootOrdinal:matchedPass?
+        acceptedPassRoots[0].ordinal:null,
       printedDceBatonNecessaryScreen:batonScreen,
       screenIsPaidNativeAction:false,
       ownerHandAtNativePass:matchedPass?[...matchedPass.ownerHand]:null,
@@ -106,7 +110,7 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       opponentChoiceCompetenceCertified:false,
       gameQualified:false};
   });
-  return {schema:'agent9-v7-genuine-owner-hand-readonly-replay-v1',
+  return {schema:'agent9-v7-genuine-owner-hand-readonly-replay-v2',
     originalArchiveSha256:baseline.originalArchiveSha256,
     pinnedVendor:baseline.originalVendorPin,
     registeredArms:rows.length,
