@@ -53,3 +53,12 @@ Full A/B comparison and receipts: `simulation/evaluation/agent9-v7-guzma-causal-
 ## Next falsification and integration
 
 The immediate next step is a **same-deal, same-source-Guzma opponent Float Stone or natural-switch counter-response** with actual owner-prompt Tool payment and physical retreat, comparing the complete turn6 reply and its downstream source opportunity; a real opponent may select an even stronger line. Preserve the control and all seven unaffected attempts. The one-site wrapper should also undergo a control/treatment/control A/B/A provenance replication, proving prototype restoration and deterministic noninterference across identical registered deals; only A/B has been executed in this first run. The game outcome and the 99.5% objective remain unsupported.
+
+## Independent full A/B/A closure of the unchanged original native control
+
+A second manual [GitHub Actions 42299270552](https://github.com/FlareZ123/experiment-01/actions/runs/42299270552) completed successfully with the updated genuine **A/B/A** comparison. The checkout was `86e046cc8f8a53ced22005267c45a7996e588ce7`, still using Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Both the v7 owner-hand replay and paid Guzma native canary test/archival steps passed.
+
+The new test performed A (all eight original controls), B (one-root paid Guzma intervention in one registered case), then A again **within one synchronous process after all B's prototype adapters were restored**. The second A reproduced **8/8** original physical source deals, full opponent/source physical deals, statuses, root counts, public-ledger digests and **entire exact public action arrays**. The single B intervention again occurred at target root32 and all seven untouched B cases maintained complete public parity. This resolves the earlier unknown about post-treatment prototype contamination and provides a stronger causal provenance guarantee for this particular bounded native intervention. It does not resolve opponent competence or paper/competitive qualifications.
+
+New archived workflow artifact **13542819140**, `agent9-v7-native-original-guzma-one-root-canary`; downloaded ZIP SHA256 `2ad6778223c0311f1e13eb775ce490e0471d26909f7886d030d684b5eddeb693`; internal JSON `agent9-v7-guzma-canary-control-treatment.json`, 975,224 bytes, SHA256 `5e07fedb91ccfdead935d2b1d514cec24b94e9a3a901a7e92b604b2b479b656a`, independently compared to its SHA256 sidecar.
+
