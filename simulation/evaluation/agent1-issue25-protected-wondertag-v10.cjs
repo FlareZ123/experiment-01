@@ -251,6 +251,11 @@ function compareProtectedWonderTagV10(baseline,treatment){
     nativeShuffle.invalidNativeShufflePermutations===0&&
     nativeShuffle.outstandingShuffleCallbacks===0&&
     nativeShuffle.shuffleCallbacksFailed===0&&
+    nativeShuffle.allOfferedShufflesCompleted===true&&
+    nativeShuffle.missingRegisteredTrialIds===0&&
+    nativeShuffle.ownerReassignedPrompts===0&&
+    nativeShuffle.preCallbackRejections===0&&
+    nativeShuffle.nativeCallbackFailures===0&&
     [0,1].every(seat=>nativeShuffle.bySeat?.[seat]===
       witnessedDecisions.filter(d=>d.actorSeat===seat&&
         d.answerCardinality===1).length);
@@ -335,6 +340,12 @@ function compareProtectedWonderTagV10(baseline,treatment){
       invalidNativeShufflePermutations:
         nativeShuffle.invalidNativeShufflePermutations,
       shuffleCallbacksFailed:nativeShuffle.shuffleCallbacksFailed,
+      shuffleCallbackInvocations:nativeShuffle.shuffleCallbackInvocations,
+      preCallbackRejections:nativeShuffle.preCallbackRejections,
+      nativeCallbackFailures:nativeShuffle.nativeCallbackFailures,
+      missingRegisteredTrialIds:nativeShuffle.missingRegisteredTrialIds,
+      ownerReassignedPrompts:nativeShuffle.ownerReassignedPrompts,
+      allOfferedShufflesCompleted:nativeShuffle.allOfferedShufflesCompleted,
       outstandingShuffleCallbacks:nativeShuffle.outstandingShuffleCallbacks,
       bySeat:nativeShuffle.bySeat,
       nativeTrialAttributionAvailable:
