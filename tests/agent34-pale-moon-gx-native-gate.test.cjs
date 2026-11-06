@@ -114,3 +114,45 @@ for (const seat of [0, 1]) {
     }));
   });
 }
+
+
+for (const seat of [0, 1]) {
+  test('native delayed Pale Moon target after an opponent Active-to-Bench switch, seat ' + seat, () => {
+    const { AttackAction } = native('game/store/actions/game-actions');
+    const { EndTurnEffect } = native('game/store/effects/game-phase-effects');
+    const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+      native('game/store/prefabs/attack-effects');
+    const f = stage(seat, 2, false);
+    const formerActive = f.defender.active;
+    const replacingCard = initializeCards().getCardByName('Rotom V LOR');
+    assert.ok(replacingCard);
+    replacingCard.id = 345678 + seat;
+    f.defender.bench[0].cards.push(replacingCard);
+    f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+    assert.strictEqual(f.defender.pendingEndOfTurnEffects[0].target, formerActive);
+    f.defender.switchPokemon(f.defender.bench[0], f.store, f.state);
+    assert.strictEqual(f.defender.bench[0], formerActive);
+    assert.equal(f.defender.active.getPokemonCard().name, 'Rotom V');
+    const retainedQueue = f.defender.pendingEndOfTurnEffects.length;
+    const oldBenchPresentBefore = !!f.defender.bench[0].getPokemonCard();
+    RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+      f.store, f.state, new EndTurnEffect(f.defender));
+    const oldBenchPresentAfter = !!f.defender.bench[0].getPokemonCard();
+    const defenderDiscardNames = f.defender.discard.cards.map(c => c.name);
+    console.log('AGENT34_PALE_MOON_SWITCH_NATIVE', JSON.stringify({
+      seat, retiredTargetWasBenched: true, retainedQueue,
+      oldBenchPresentBefore, oldBenchPresentAfter,
+      defenderDiscardNames,
+      remainingPending: f.defender.pendingEndOfTurnEffects.length,
+      paperLegalityUnqualified: true,
+      competitiveGamesQualified: 0
+    }));
+    assert.equal(retainedQueue, 1,
+      'pinned engine retains delayed KO queue after defender switches');
+    assert.equal(oldBenchPresentBefore, true);
+    assert.equal(oldBenchPresentAfter, false,
+      'pinned delayed resolver actually knocks out retreated Bench Pokemon');
+    assert.ok(defenderDiscardNames.includes('Rotom V'));
+  });
+}
