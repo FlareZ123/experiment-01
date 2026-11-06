@@ -49,7 +49,31 @@ Ranks6 and29 have identical broader probabilities because they have the same fou
 
 Exact denominator is `D=[C(60,7)-C(56,7)]×53=8,177,344,560` across all three decks. Marginalize the intervening six random Prizes when calculating the first seven plus one draw. Given an unordered eight-card set with `b` Basic Pokémon, **eight** possible final-card choices preserve a legal initial seven if `b>=2`. If `b=1`, **seven** choices preserve a legal seven because the last card cannot be that sole Basic. For each `b`, DCE count `d>=1`, and held Guzma count `g`, select Thunder once, `b` of four Basics, `d` of the source's actual DCE copies, `g` Guzma copies, and the remaining observed cards from its source-specific other-card population after excluding all G&H, Tag Call and Mail. Multiply each combination by seven or eight valid final-card choices. Sum with exact BigInt and reduce by integer GCD.
 
-An independent Python `math.comb` enumeration generated all twelve narrow exact fractions and checked the original rank6 rows against its previously independently derived method. [The committed CommonJS implementation](../../simulation/evaluation/agent18-thorns-held-thunder-dce-allranks.cjs) reads the three named inventories from the actual repository source, asserts each is 60 and has only four Basic Thorns, then performs the count with integer arithmetic. [Six Node regression cases](../../tests/agent18-thorns-held-thunder-dce-allranks.test.cjs) cover all source counts and twelve fractions, old rank6 agreement, monotonic subset relationships and unsupported-rank rejection. All six ran and passed in a local Node22 copy of the module; the local test roster preserved the authenticated relevant printing counts and modeled remaining cards as generic fillers. **The exact committed GitHub files have not yet had their own CI run**, and a full native real-Store execution with either source rank24/29 has not been performed for this result.
+An independent Python `math.comb` enumeration generated all twelve narrow exact fractions and checked the original rank6 rows against its previously independently derived method. [The committed CommonJS implementation](../../simulation/evaluation/agent18-thorns-held-thunder-dce-allranks.cjs) reads the three named inventories from the actual repository source, asserts each is 60 and has only four Basic Thorns, then performs the count with integer arithmetic. [Nine Node regression cases](../../tests/agent18-thorns-held-thunder-dce-allranks.test.cjs) cover all source counts and twelve fractions, old rank6 agreement, monotonic subset relationships and unsupported-rank rejection. All nine ran and passed in a local Node22 copy of the module; the local test roster preserved the authenticated relevant printing counts and modeled remaining cards as generic fillers. **The exact committed GitHub files have not yet had their own CI run**, and a full native real-Store execution with either source rank24/29 has not been performed for this result.
+
+## Complementary K0 Prize-exhaustion risk
+
+An opening-resource comparison should also consider whether source-specific singleton or repeated resources were removed into the six face-down Prizes before the first own turn. Before the first deck search (**K0**), players do not know their exact Prize contents. Condition on a legal initial seven containing at least one Iron Thorns, followed by six Prizes sampled from the remaining 53.
+
+| Event: all specified copies in the initial six Prizes | Ranks 6 and 29 (one DCE) | Rank 24 (three DCE) |
+| --- | ---: | ---: |
+| **Every DCE printed in the original sixty is Prized** | **10.141805%** | **0.061002%** |
+| Singleton **Thunder Mountain is Prized** | 10.141805% | 10.141805% |
+| **All DCE and Thunder Mountain are simultaneously Prized** | 0.871828% | 0.003258% |
+| **Either** every DCE **or** Thunder is Prized (overlap corrected) | 19.411781% | 10.199549% |
+
+The exact fractions for `all DCE`, `Thunder`, `both` and the inclusion-exclusion union are:
+
+- Ranks 6/29: `79029/779240`, `79029/779240`, `7473/857164`, `415977/2142910`.
+- Rank 24: `2353/3857238`, `79029/779240`, `11101/340722690`, `417026131/4088672280`.
+
+If a specified group has `k` designated non-Basic physical cards, none can be in the first seven when every copy is Prized. Thus the exact probability is
+
+`P(all k in Prizes | legal opening seven) = ([C(60-k,7)-C(56-k,7)]/[C(60,7)-C(56,7)]) × [C(53-k,6-k)/C(53,6)]`.
+
+This conditions correctly on the opening Basic requirement; a naive unconditioned `C(6,k)/C(60,k)` differs slightly. The original rank24 list has more than one DCE copy, so the probability **all** are physically unavailable in Prizes is two orders of magnitude lower than in the one-copy lists. That event's strategic impact remains conditional: Speed Lightning and other Energy, Stadium replacements, alternative costs and Prize retrieval might still permit attacks even when every DCE or the sole Thunder is initially Prized. No claim of an unwinnable hand or game loss is made.
+
+The committed all-ranks CJS now includes `allAttackResourcesPrized(rank,group)` with `group='dce'|'thunder'|'both'`. Three additional exact-fraction tests bring the locally executed pure Node suite to **9/9 passing tests**, using the same authenticated source group counts. No new native or field matches were run.
 
 ## Use in the shared research objective
 
