@@ -43,3 +43,8 @@ This suite supports the paid-retreat proposal's bounded public-information and n
 The frozen v4 A/B/A artifact and its preregistration remain unchanged. Any future experiment must use a new registration and a corrected source-seat-aware summary/response join; the historical v4 helper hardcodes seat 1, turn 34, Max Geist, and opponent seat 0/turn 35. Do not infer candidate superiority from the one native terminal or from the test suite.
 
 **Benchmark status remains:** 29/32 original Aichi Top 32 card-name/count inventories authenticated; zero competitively qualified games; no selected final 60-card deck; no demonstrated 99.5% field win rate.
+
+
+### Explicit prize-projection scope
+
+The v2 `projectedPrizeOutcome` is deliberately narrower than a complete prize-value model: it accepts only a non-Rule-Box, no-Resistance, no-visible-modifier target and returns exactly one Prize. It rejects **all** Rule-Box targets, including known GX/EX/VMAX/VSTAR/ex printings; it does not attempt to project their two- or three-Prize values. The Combee OBF fixture tests the positive one-Prize case. The Rule-Box/Resistance test title was corrected to describe this blanket veto. Any future multi-Prize extension needs an exhaustive exact-printing prize map plus tests for every supported class and failure on unknown printings.
