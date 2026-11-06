@@ -1,0 +1,11 @@
+# Pinned Quick Ball prompt source attribution: v1 classifier cannot match
+
+**6 November 2026 | Agent25 | static original pinned source review**
+
+The pinned Twinleaf source `ptcg-server/src/sets/09-sword-and-shield/set-sword-and-shield/quick-ball.ts` constructs `new ChooseCardsPrompt(player, GameMessage.CHOOSE_CARD_TO_DISCARD, handTemp, {}, {min:1,max:1,allowCancel:false})`. The class `ptcg-server/src/game/store/prompts/choose-cards-prompt.ts` defines `player`, `message`, `cards`, `filter`, and `options`; it has **no `sourceCard` property**. Original Quick Ball moves itself from the owner's hand to the owner's temporary `supporter` zone before it asks for the discard. Its single-remaining-card branch pays automatically and creates no ChooseCardsPrompt.
+
+The existing `simulation/twinleaf/agent25-owner-quickball-hns-cost.cjs` v1 classifier requires `QUICK_BALL.has(prompt.sourceCard?.fullName)`. That expression evaluates false on the unmodified native prompt. Earlier fake Store unit tests invented a `sourceCard` field and therefore did not cover the pinned native prompt schema. This is an implementation-level gating defect. The [six naturally dealt original-source attempts](agent25-natural-original60-owner-ball-null-intervention-20261106.md) all show zero eligible chooser triggers, consistent with the defect, but they do not independently establish the frequency of Quick Ball plays or discard prompt opportunities.
+
+**A proposed v2 is to require an exact physical Quick Ball in the owner `supporter` staging zone at the owner's genuine discard prompt**, plus existing owner-hand, prompt, discard, and card-validation constraints. Any real source-attribution repair must be proved with a true pinned Store prompt, and any v2 natural run must be registered separately before dispatch. No competitive game is qualified.
+
+Pinned upstream files (read-only): [Quick Ball source](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-sword-and-shield/quick-ball.ts), [ChooseCardsPrompt source](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prompts/choose-cards-prompt.ts).
