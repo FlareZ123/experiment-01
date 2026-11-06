@@ -537,6 +537,11 @@ function runMatch(request) {
         ![0,1].includes(request.dhelmiseDonorCompressorSeat)) {
       throw new Error('Dhelmise owner Compressor policy requires physical seat 0 or 1');
     }
+    if (request.dhelmiseQuickBallThreeDonorRootSeat !== undefined &&
+        (![0,1].includes(request.dhelmiseQuickBallThreeDonorRootSeat) ||
+        request.dhelmiseDonorCompressorSeat !== request.dhelmiseQuickBallThreeDonorRootSeat)) {
+      throw new Error('Three-donor Quick Ball root needs same physical owner seat as Compressor');
+    }
     if (request.mimikyuApexTimelessPolicySeat !== undefined &&
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
@@ -892,6 +897,10 @@ function runMatch(request) {
       if (request.dhelmiseDonorCompressorSeat === seat) {
         configured = require('./agent25-dhelmise-compressor-donors.cjs')
           .withDhelmiseCompressorDonors(configured);
+      }
+      if (request.dhelmiseQuickBallThreeDonorRootSeat === seat) {
+        configured = require('./agent25-quickball-three-donor-root-v4.cjs')
+          .withThreeDonorQuickBallRoot(configured);
       }
       if (request.rank4RaichuCompressorSeat === seat) {
         configured = require('./rank4-raichu-compressor-policy.cjs')
@@ -1950,6 +1959,7 @@ function runMatch(request) {
       battleCompressorPositiveSelectionCorrection:
         request.battleCompressorPositiveSelectionCorrection === true,
       dhelmiseDonorCompressorSeat: request.dhelmiseDonorCompressorSeat ?? null,
+      dhelmiseQuickBallThreeDonorRootSeat: request.dhelmiseQuickBallThreeDonorRootSeat ?? null,
       grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       ...(request.doubleDragonArchiveV3 === true ? {doubleDragonArchiveV3:true} : {}),
@@ -2034,6 +2044,9 @@ function runMatch(request) {
         (request.dhelmiseDonorCompressorSeat !== undefined ?
           '+DhelmiseHnsOwnerCompressor-v1@seat' +
           request.dhelmiseDonorCompressorSeat : '') +
+        (request.dhelmiseQuickBallThreeDonorRootSeat !== undefined ?
+          '+DhelmiseHnsThreeDonorQuickBall-v4@seat' +
+          request.dhelmiseQuickBallThreeDonorRootSeat : '') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.mandatoryOptionFallback === true ? '+MandatoryOptionDefaultFallback-v1' : '') +
         (request.enforceSelectOptionLegality === true ? '+SelectOptionLegalityGate-v1' : '') +
