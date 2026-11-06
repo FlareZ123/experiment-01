@@ -41,6 +41,8 @@ function stage(attackerSeat){
   const attacker=new Player(),defender=new Player();
   attacker.id=attackerSeat===0?101:202;
   defender.id=attackerSeat===0?202:101;
+  attacker.name='Attacker Mewtwo seat '+attackerSeat;
+  defender.name='Defender Rotom seat '+(1-attackerSeat);
   attacker.active.cards.push(card('Mewtwo & Mew-GX UNM'));
   const donor=card('Trevenant & Dusknoir-GX SMP');
   attacker.discard.cards.push(donor);
@@ -268,8 +270,13 @@ for(const seat of [0,1]){
         'Fully resolved copied printed attack must deal 150 to Rotom V');
       assert.equal(actionTape.filter(x=>x==='UseAbilityAction').length,1);
       assert.equal(actionTape.filter(x=>x==='AttackAction').length,0);
-      assert.ok(loggedAttackDeclarations.some(x=>x.attackName==='Night Watch'),
-        'Common headless game-log classifier must find copied attack from ability/prompt');
+      assert.equal(loggedAttackDeclarations.length,1,
+        'One native copy produces exactly one engine attack declaration');
+      assert.equal(loggedAttackDeclarations[0].attackName,'Night Watch');
+      assert.equal(loggedAttackDeclarations[0].playerName,f.attacker.name,
+        'The logged attacker identity must match real owner on both seats');
+      assert.equal(loggedAttackDeclarations[0].triggerAction,'ResolvePromptAction',
+        'The attack declaration occurs when its Perfection source prompt is answered');
       assert.ok(corrected.result.followup.includes('ShowCardsPrompt'));
       assert.ok(corrected.result.followup.includes('ShuffleDeckPrompt'));
       console.log('AGENT42_PERFECTION_ATTACK_LEDGER',JSON.stringify({
