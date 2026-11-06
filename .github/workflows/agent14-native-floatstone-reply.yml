@@ -12,6 +12,7 @@ on:
           - generic-funded-floatstone
           - generic-field-matched
           - generic-field-census
+          - agent31-allowner-pass-native
 permissions:
   contents: read
 jobs:
@@ -48,6 +49,19 @@ jobs:
       - name: Compile engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Reinspect all owner Passes in two existing original-source matched controls
+        if: inputs.experiment == 'agent31-allowner-pass-native'
+        env:
+          AGENT31_PASS_CENSUS_OUTPUT: agent31-allowner-pass.json
+        run: node --test tests/agent31-allowner-pass-retrospective-native.test.cjs
+      - name: Preserve complete read-only two-seat Pass native archive
+        if: always() && inputs.experiment == 'agent31-allowner-pass-native'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-allowner-pass-native
+          path: agent31-allowner-pass.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute paired native falsification
         if: inputs.experiment == 'rank11-replay'
         run: node simulation/evaluation/agent14-native-floatstone-reply-falsification.cjs
