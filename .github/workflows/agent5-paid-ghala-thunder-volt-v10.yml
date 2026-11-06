@@ -18,6 +18,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent5_v7_teamflare_aba:
+        description: Retrospective exact-source owner Team Flare v7 A/B/A
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -60,18 +65,29 @@ jobs:
           node --check simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
           node --test tests/agent9-rank6-turn4-palace-book.test.cjs
       - name: Verify passive Agent5 owner follow-up witness and original v7 caller
-        if: ${{ inputs.agent5_v7_followup_owner_audit }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
         run: |
           node --check simulation/twinleaf/agent5-v7-source-followup-owner-witness.cjs
           node --check simulation/evaluation/agent5-v7-owner-followup-census.cjs
           node --test tests/agent5-v7-source-followup-owner-witness.test.cjs
       - name: Execute frozen v7 with read-only source owner-hand witness
-        if: ${{ inputs.agent5_v7_followup_owner_audit }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
         env:
           AGENT5_V7_OWNER_FOLLOWUP_DIR: agent5-v7-source-owner-followup
         run: node simulation/evaluation/agent5-v7-owner-followup-census.cjs
+      - name: Verify native owner Team Flare physical-payment witness
+        if: ${{ inputs.agent5_v7_teamflare_aba }}
+        run: |
+          node --check simulation/twinleaf/agent5-v7-teamflare-physical-witness.cjs
+          node --check simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
+          node --test tests/agent5-v7-teamflare-physical-witness.test.cjs
+      - name: Execute full original v7 matched A/B/A with exact source Team Flare fork
+        if: ${{ inputs.agent5_v7_teamflare_aba }}
+        env:
+          AGENT5_V7_TEAMFLARE_ABA_DIR: agent5-v7-teamflare-aba
+        run: node simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
       - name: Execute exact original eight matched native source branches once
-        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit }}
+        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_aba }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
@@ -115,5 +131,13 @@ jobs:
         with:
           name: agent5-v7-source-followup-owner-hand
           path: agent5-v7-source-owner-followup/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve original source Team Flare root A/B/A physical receipt
+        if: always() && inputs.agent5_v7_teamflare_aba
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-v7-source-teamflare-retrospective-aba
+          path: agent5-v7-teamflare-aba/
           if-no-files-found: warn
           retention-days: 14
