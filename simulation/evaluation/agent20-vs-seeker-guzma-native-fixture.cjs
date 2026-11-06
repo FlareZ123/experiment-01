@@ -114,10 +114,19 @@ function createSyntheticActorObservation(deps={}){
       }
       return baseObservation(state,seat);
     }
+    let handCardsReturnedToDeck=0;
+    const hand=owner.hand.cards;
+    for(let i=hand.length-1;i>=0;i--){
+      if(hand[i].fullName==='VS Seeker PHF'&&
+         hand.findIndex(card=>card.fullName==='VS Seeker PHF')===i)continue;
+      owner.deck.cards.push(hand.splice(i,1)[0]);
+      handCardsReturnedToDeck++;
+    }
     injectedOwners.add(owner);
     audit.injections.push({
       seat,ownerId:owner.id,turn:view.globalTurn,
       vsSeekerSource:seeker.source,guzmaSource:guzma.source,
+      handCardsReturnedToDeck,
       ownerBenchCount:view.ownPublic.bench.filter(Boolean).length,
       opponentBenchCount:view.opponentPublic.bench.filter(Boolean).length
     });
@@ -141,9 +150,11 @@ function runSyntheticNativeFixture(deps={}){
     runDevelopment:deps.runDevelopment,
     withOwnerVsSeekerGuzmaLayer:deps.withOwnerVsSeekerGuzmaLayer,
     base:deps.base,
-    actorObservation:fixture.observe
+    actorObservation:fixture.observe,
+    actorGuzmaPromptContinuation:false,
+    enableHeldGuzmaMobility:false
   });
-  const raw=runner({actorOnlyComposition:true,nativeRootActionLimit:128});
+  const raw=runner({actorOnlyComposition:false,nativeRootActionLimit:128});
   const audit=raw.ownerVsSeekerGuzmaAudit;
   assert.ok(fixture.audit.injections.length>0,
     'At least one real native owner must receive the synthetic opportunity');
@@ -156,8 +167,9 @@ function runSyntheticNativeFixture(deps={}){
     gameplayEvidence:false,prospective:false,
     nativeRootActionLimit:128,
     addedOwnerVsSeekerGuzmaLayer:true,
-    addedAgent43GuzmaPromptContinuation:true,
-    heldGuzmaMobilityRootOptIn:true,
+    addedAgent43GuzmaPromptContinuation:false,
+    heldGuzmaMobilityRootOptIn:false,
+    actorOnlyComposition:false,
     originalDevelopmentManifest:raw.manifest,
     fixtureAudit:fixture.audit,
     ownerVsSeekerGuzmaAudit:audit,
