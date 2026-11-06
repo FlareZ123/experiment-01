@@ -36,6 +36,8 @@ jobs:
         run: node --test tests/agent26-field-stadium-basic-conditioned-opening.test.cjs
       - name: Verify Prism-to-Prism replacement on both real Store seats
         run: node --test tests/agent26-prism-stadium-replacement.native.test.cjs
+      - name: Cross-check Palace Book deferred phase transition with actual native prompts
+        run: node --test tests/agent26-palace-book-deferred-phase.native.test.cjs
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
         run: node simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
       - uses: actions/upload-artifact@v4
