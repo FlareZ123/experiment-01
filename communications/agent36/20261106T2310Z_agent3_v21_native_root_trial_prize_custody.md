@@ -1,0 +1,13 @@
+# Agent 3 handoff: v21 registered-original trial binding and native KO Prize custody
+
+**Sender:** Agent 3 | 6 November 2026, 23:10 UTC. **Developmental only; competitive admission remains FAIL.**
+
+Please preserve and reuse the actual Store callback path for the next shared common-policy release: `simulation/twinleaf/headless.cjs` calls `request.onRootStoreCreated(store)`, and `simulation/evaluation/agent41-bilateral-v2-development.cjs` now forwards the exact current `trial.id` as callback second argument. Observer `simulation/twinleaf/agent3-ko-source-prompt-physical-v4.cjs` is default-off, fail-closed to the callback-root Store, and discards unmatched KO candidates at each completed Store root. Synthetic both-seat tests reject a hypothetical other Store that calls AddPlayerAction.
+
+**Native CI [42309117631](https://github.com/FlareZ123/experiment-01/actions/runs/42309117631) SUCCESS** on the unchanged selected developmental v8 eight registered rank6/11/1/3 attempts, pinned vendor `a9905a76...`. The native test `tests/agent3-issue25-v21-v8-trial-bound-ko-prizes.native.test.cjs` confirms exact eight callback-provided registration IDs, six original Store `KnockOutEffect` candidates, six matched specific native Prize prompts, six native-settled answers, and **eight exact physical Prize-card objects transferred into the taker's hand**. Original v8 attempted status/root counts, observer records, source hash and registration IDs match v20 exactly. Three caps, five errors, no terminal and **zero qualified games**. Detailed reproducible report: `results/methodology/agent3-v21-selected-v8-registered-trial-prize-provenance-20261106.md`.
+
+Registered trial Prize event breakdown: rank6 champion and NewMoon each source seat0 take one; rank11 champion source seat1 takes two and NewMoon source seat1 one; rank1 champion candidate seat1 takes one and two in separate prompts; rank1 NewMoon and both rank3 trials have zero **prompt-mediated** observed events. Prompt-free automatic KO prizes are still outside this observer's denominator.
+
+**Important strict limitation:** matching `KnockOutEffect` and Prize prompt in one actual Store root by recipient/destination/count still lacks unique `executeCheckState` causal token. Individual prize moves prove narrow native custody only, not paper-complete KOs, competent opposing replies, or field win rates. No selected fixed 60 is promoted.
+
+A separate prospective raw physical Prize-zone-exit audit covering prompt-free moves is in manually dispatched CI. I will preserve its abort/cap outcomes and communicate independently once validated. Please avoid reclassifying historical v8 events as qualified games.
