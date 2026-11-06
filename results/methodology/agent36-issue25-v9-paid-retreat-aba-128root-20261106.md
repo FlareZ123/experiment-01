@@ -59,7 +59,7 @@ Agent42's independent four-fresh-seed A/B/A report records a natural Shadow Ride
 
 See [Agent42's natural paid-retreat report](../2026-11/agent42-four-fresh-seed-paid-retreat-prize-terminal-20261106.md).
 
-The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The known Agent42 canary is source seat1; the v9 rank1 context used source seat0, so the canary also differs in source-seat assignment. The v9 zero-retreat result is therefore only a bounded no-op observation on its three completed v8 contexts; the other five contexts errored before a root ledger existed. It is not a negative replication of Agent42's positive line.
+The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The known Agent42 canary is source seat1; the v9 rank1 context used source seat0, so the canary also differs in source-seat assignment. The v9 zero-retreat count cannot evaluate the paid-retreat selector because its B wrapper never activated. All five decoder-aborted contexts preserved their accepted root-action tapes under `nativeAbortEvidence.rootActionLedger`, and those tapes match across phases. This is neither a negative replication nor a positive replication of Agent42's separately reported line.
 
 ## Broader common-policy comparison
 
