@@ -121,7 +121,7 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
       const added=after.hand.cards.filter(card=>!handBefore.includes(card));
       const removed=deckBefore.filter(card=>!after.deck.cards.includes(card));
       const match=typeof selectedLabel==='string'?
-        /^Draw (\\d+) card/.exec(selectedLabel):null;
+        /^Draw (\d+) card/.exec(selectedLabel):null;
       const expectedDrawCount=match?Number(match[1]):null;
       const identityMatch=added.length===removed.length&&
         added.every(card=>removed.includes(card))&&
@@ -271,9 +271,9 @@ function attempt(trial){
   const selectReceipts=[];
   const goFirstReceipts=[];
   const firstTurnHandEvents=[];
-  let thrown=null,returned=false;
+  let thrown=null,returned=false,inner=null;
   try{
-    withNativeRawStateFallbackQuarantine(()=>withOwnerSetupConfirm(()=>
+    inner=withNativeRawStateFallbackQuarantine(()=>withOwnerSetupConfirm(()=>
       withSetupPromptPhysicalReceipt(()=>withActorSelectReceipt(()=>
         withGoFirstChoice(
           trial.seat===0?[true,false]:[false,true],
@@ -297,18 +297,35 @@ function attempt(trial){
   }catch(error){
     thrown=error;
   }
-  const hook=thrown?.agent50FirstTurnDedechangeAudit??null;
+
+  // Successful wrapper layers return nested {result,audit} records. Preserve
+  // those too; otherwise early returned games silently lose the hook receipts.
+  const setupConfirmLayer=returned?inner?.result:null;
+  const actorSelectLayer=setupConfirmLayer?.result??null;
+  const goFirstLayer=actorSelectLayer?.result??null;
+  const publicAckLayer=goFirstLayer?.result??null;
+  const entryLayer=publicAckLayer?.result??null;
+  const openingLayer=entryLayer?.result??null;
+  const dedechangeLayer=openingLayer?.result??null;
+  const matchResult=dedechangeLayer?.result??null;
+
+  const hook=thrown?.agent50FirstTurnDedechangeAudit??
+    dedechangeLayer?.audit??null;
   const root=hook?.rootEvents?.[0]??null;
-  const quarantine=thrown?.nativeRawStateFallbackQuarantine??null;
+  const quarantine=thrown?.nativeRawStateFallbackQuarantine??
+    inner?.audit??null;
   const promptReceipt=thrown?.agent50SetupPromptPhysicalReceipt??{
     selectReceipts,goFirstReceipts,liveStoreObserved:Boolean(shared.store)
   };
-  const setup=thrown?.ownerOpeningStoreReceiptAudit??null;
-  const entry=thrown?.ownerEntryPriorityAudit??null;
-  const setupConfirm=thrown?.ownerSetupConfirmAudit??null;
+  const setup=thrown?.ownerOpeningStoreReceiptAudit??
+    openingLayer?.audit??null;
+  const entry=thrown?.ownerEntryPriorityAudit??entryLayer?.audit??null;
+  const setupConfirm=thrown?.ownerSetupConfirmAudit??
+    setupConfirmLayer?.audit??null;
   const handReceipt=thrown?.agent50FirstTurnHandReceipt??{
     events:firstTurnHandEvents
   };
+  const sourceTurnReached=(hook?.sourceTurnRootsSeen??0)>0;
   return {
     schema:DEDECHANGE_VERSION,
     variant:'prospective-natural32-sourcefirst-owner-entry-priority',
@@ -326,6 +343,16 @@ function attempt(trial){
       code:thrown.code??null,name:thrown.name??null,
       message:String(thrown.message??thrown).slice(0,400)
     }:null,
+    sourceTurnReached,
+    matchResult:matchResult?{
+      actions:matchResult.actions??null,
+      turns:matchResult.turns??null,
+      finished:matchResult.finished??null,
+      endReason:matchResult.endReason??null,
+      winner:matchResult.winner??null,
+      actionCounts:matchResult.actionCounts??null,
+      actionsBySeat:matchResult.actionsBySeat??null
+    }:null,
     firstTurnHandReceipt:handReceipt.events??[],
     ownerFirstTurnHook:hook,
     dedechangeOpportunity:Boolean(root?.availableDedenne===true&&
@@ -337,6 +364,9 @@ function attempt(trial){
     setupNativeStore:setup?.events??null,
     ownerEntryPriorityAudit:entry,
     ownerSetupConfirmAudit:setupConfirm,
+    actorSelectAudit:actorSelectLayer?.audit??null,
+    goFirstAudit:goFirstLayer?.audit??null,
+    publicAcknowledgementsAudit:publicAckLayer?.audit??null,
     actorSelectIntents,
     selectReceipts:promptReceipt.selectReceipts??[],
     goFirstReceipts:promptReceipt.goFirstReceipts??[],
