@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {withCombinedUnderworldWitness,run}=
   require('../simulation/evaluation/agent4-rejected-underworld-public-power-v1.cjs');
 const REG=require('../results/aichi-2026/registrations/agent4-underworld-public-lock-probe-v1-20261106.json');
+const PAIRED_REG=require('../results/aichi-2026/registrations/agent4-v3-two-unknown-power-native-12-20261106.json');
 
 test('two witness layers preserve exact native result and both audits',()=>{
   const observed=withCombinedUnderworldWitness(()=>42,{
@@ -18,7 +19,7 @@ test('two witness layers preserve exact native result and both audits',()=>{
   assert.equal(observed.audit.nativeUnderworldRejectionAudit.events.length,1);
 });
 function sample(tweak=()=>{}){
-  const modes=REG.modes.map((modeId,m)=>({
+  const modes=PAIRED_REG.modes.map((modeId,m)=>({
     modeId,observedLiveStoreCount:4,
     nativeUnderworldRejectionAudit:{liveGameCount:4,events:[]},
     rows:[
