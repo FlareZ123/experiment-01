@@ -93,6 +93,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent36_common_v6:
+        description: 'Run preregistered 96-root common owner-only two-seat v6 with complete failure denominator'
+        required: false
+        type: boolean
+        default: false
       include_agent9_telepath_v6:
         description: 'Compare frozen v5 versus exact Telepath owner-deck v6 treatment on the same original eight physical deals'
         required: false
@@ -234,6 +239,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V4_DIR: issue25-steward-v4
         run: node --test tests/agent36-issue25-steward-selected-v4.test.cjs tests/agent36-issue25-steward-selected-v4.native.test.cjs
+      - name: Execute preregistered Agent36 96-root common owner-only policy v6
+        if: ${{ inputs.include_agent36_common_v6 }}
+        env:
+          ISSUE25_STEWARD_V6_DIR: issue25-steward-v6
+        run: node --test tests/agent36-issue25-common-v6.test.cjs tests/agent36-issue25-common-v6.native.test.cjs
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
@@ -368,6 +378,14 @@ jobs:
         with:
           name: agent36-issue25-steward-selected-v4-native
           path: issue25-steward-v4/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Archive original eight-arm prospective common v6 and SHA256
+        if: ${{ always() && inputs.include_agent36_common_v6 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-prospective-common-v6-native
+          path: issue25-steward-v6/
           retention-days: 21
           if-no-files-found: warn
       - name: Verify real original rank5 setup Confirm settlements on both seats
