@@ -130,7 +130,9 @@ function writeReceipt(execution, directory, options={}) {
     'issue25-steward-v7',
     'issue25-steward-v8',
     'agent45-issue25-v5-control',
-    'agent45-issue25-v6-native-vip'].includes(prefix));
+    'agent45-issue25-v6-native-vip',
+    'issue25-trainer-v6-control-v5',
+    'issue25-trainer-v6-treatment'].includes(prefix));
   const content = JSON.stringify(buildReceipt(execution, options), null, 2) + '\n';
   const bytes = Buffer.from(content);
   assert.ok(bytes.length <= 8*1024*1024, 'Native archive exceeded 8 MiB');
