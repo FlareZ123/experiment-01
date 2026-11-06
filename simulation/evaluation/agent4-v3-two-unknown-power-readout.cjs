@@ -102,6 +102,21 @@ function summarize(row,actions,gameIndexReliable,lockEvents=[]){
     row.rootActionLedger:Array.isArray(evidence.rootActionLedger)?
       evidence.rootActionLedger:[];
   const pivot=historicalTarget?.priorNativeAbortRoot??null;
+  const nativePhysicalSidecar=row.nativeAcceptedTargetSidecar??null;
+  const physicalAtHistoricalPivot=pivot===null||
+    nativePhysicalSidecar?.rootOrdinalLinked!==true?[]:
+    nativePhysicalSidecar.events.filter(event=>
+      event.rootActionOrdinal===pivot).map(event=>({
+      rootActionOrdinal:event.rootActionOrdinal,
+      physicalActorSeat:event.playerSlot,
+      action:event.action,
+      ownerPublicCardPrinting:event.declared?.ownerHandPrinting??null,
+      declaredTarget:event.declared?.target??null,
+      physicalTargetStatus:event.declared?.status??null,
+      publicBoardChanges:event.publicBoardChanges??null,
+      visibility:event.visibility,
+      nativeStoreAccepted:event.storeAccepted===true
+    }));
   const nativeAfterPivot=pivot===null?[]:
     acceptedPublicLedger.slice(pivot,Math.min(pivot+28,
       acceptedPublicLedger.length)).map(x=>({
@@ -122,6 +137,10 @@ function summarize(row,actions,gameIndexReliable,lockEvents=[]){
     nativeFirst28AcceptedPublicRootsAfterOriginalAbort:
       nativeAfterPivot,
     nativePublicRootAfterAbortCount:nativeAfterPivot.length,
+    nativePhysicalTargetLedgerLinked:
+      nativePhysicalSidecar?.rootOrdinalLinked===true,
+    nativeFirstAcceptedPhysicalTargetAtOriginalAbort:
+      physicalAtHistoricalPivot,
     originalFullPhysicalDealFingerprint:
       row.fullPhysicalDealFingerprint??null,
     originalSourceDealFingerprint:
