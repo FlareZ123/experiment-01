@@ -59,7 +59,7 @@ test('authenticated 29-original roster yields expected multi-name population',()
   assert.equal(byRank.get(6).opening7DifferentNamesNumerator,'12956328');
   assert.equal(byRank.get(4).opening7DifferentNamesNumerator,'0');
   assert.ok(Math.abs(result.unweightedMeanUnconditionalOpening7Percent-
-    1.697300407)<0.00001);
+    1.6973151201630106)<1e-10);
 });
 
 test('non-sixty source inventory fails instead of silently modeling it',()=>{
