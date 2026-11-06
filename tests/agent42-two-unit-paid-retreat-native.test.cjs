@@ -184,4 +184,42 @@ for(const seat of [0,1]){
   });
 }
 
+
+for(const seat of [0,1]){
+  test('pinned real Store pays physical 2-Psychic Retreat VMAX to Latias ex seat '+seat,()=>{
+    const game=stage(seat);
+    const {store,state,owner,oldEnergy,activeBefore,catalog}=game;
+    const latias=initializeCards().getCardByName('Latias ex SSP');
+    assert.ok(latias,'Pinned Latias ex SSP must exist');
+    latias.id=910001+seat;
+    const previouslyFunded=owner.bench[0];
+    const fundedEnergy=[...previouslyFunded.energies.cards];
+    previouslyFunded.cards.splice(0,previouslyFunded.cards.length,latias);
+    const intent=proposeTwoUnitPaidRetreat(
+      actorObservation(state,seat),catalog);
+    assert.equal(intent?.kind,'two-unit-paid-retreat-proposal');
+    assert.equal(intent?.benchIndex,0);
+    assert.equal(intent?.printing,'Latias ex SSP');
+    assert.equal(intent?.projectedPrintedDamage,200);
+    const {RetreatAction}=engine('game/store/actions/game-actions');
+    const discardBefore=[...owner.discard.cards];
+    store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
+    resolveNativeRetreat(game);
+    assert.equal(owner.retreatedTurn,34);
+    assert.strictEqual(owner.active,previouslyFunded);
+    assert.strictEqual(owner.bench[0],activeBefore);
+    assert.equal(owner.active.getPokemonCard()?.fullName,'Latias ex SSP');
+    assert.equal(activeBefore.energies.cards.length,0);
+    assert.deepEqual(owner.active.energies.cards,fundedEnergy);
+    const added=owner.discard.cards.filter(c=>!discardBefore.includes(c));
+    assert.equal(added.length,2);
+    assert.equal(added.every(c=>oldEnergy.includes(c)),true);
+    assert.equal(new Set(added).size,2);
+    assert.ok(oldEnergy.every(card=>owner.discard.cards.includes(card)));
+    assert.ok(oldEnergy.every(card=>
+      !owner.active.energies.cards.includes(card)));
+    assert.equal(state.players[seat],owner);
+  });
+}
+
 module.exports={stage,resolveNativeRetreat};
