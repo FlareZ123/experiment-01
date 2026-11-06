@@ -29,13 +29,14 @@ const {SelectPrompt}=engine('game/store/prompts/select-prompt');
 const {GameMessage}=engine('game/game-message');
 const {Stage,CardTag,Format}=engine('game/store/card/card-types');
 const {GamePhase}=engine('game/store/state/state');
+const {PokemonCard}=engine('game/store/card/pokemon-card');
 const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
 const {ChooseCardsPromptResolver}=engine('simple-bot/prompt-resolver/choose-cards-prompt-resolver');
 
 /** @param {object} card @returns {boolean} */
 function isStartingPokemon(card){
-  return card.stage===Stage.BASIC||
-    card.tags?.includes(CardTag.PLAY_DURING_SETUP)===true;
+  return card.tags?.includes(CardTag.PLAY_DURING_SETUP)===true||
+    (card instanceof PokemonCard&&card.stage===Stage.BASIC);
 }
 
 /** @param {object} card @returns {boolean} */
