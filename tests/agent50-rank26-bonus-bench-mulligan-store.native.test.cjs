@@ -317,7 +317,7 @@ function withRank26BonusBenchFixture(run){
   }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
-    const directory=process.env.AGENT50_BONUS_BENCH_OUTPUT_DIR;
+    const directory=process.env.AGENT50_BONUS_BENCH_OUTPUT_DIR||process.env.AGENT50_RANK4_DEDECHANGE_OUTPUT;
     if(directory){
       fs.mkdirSync(directory,{recursive:true});
       const file=path.resolve(directory,'rank26-vs-rank6-bonus-bench-native-v1.json');
@@ -373,6 +373,14 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   };
   const body=JSON.stringify(receipt,null,2);
   const hash=createHash('sha256').update(body).digest('hex');
+  const directory=process.env.AGENT50_BONUS_BENCH_OUTPUT_DIR||
+    process.env.AGENT50_RANK4_DEDECHANGE_OUTPUT;
+  if(directory){
+    fs.mkdirSync(directory,{recursive:true});
+    const file=path.resolve(directory,'rank26-vs-rank6-bonus-bench-native-v1-receipt.json');
+    writeAtomicLocked(file,body+'\\n');
+    writeAtomicLocked(file+'.sha256',hash+'  '+path.basename(file)+'\\n');
+  }
   console.log('AGENT50_RANK26_BONUS_BENCH_NATIVE_RECEIPT',
     JSON.stringify({...receipt,receiptSha256:hash}));
 });
