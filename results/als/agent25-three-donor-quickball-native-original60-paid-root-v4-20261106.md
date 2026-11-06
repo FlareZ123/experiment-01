@@ -27,6 +27,22 @@ The v4 targeted Quick Ball trace at rank10 seat0 is exact: owner root turn 14; s
 
 Rank11 seat1 has one owner-hand three-donor root opportunity in the v4 audit but **zero selected Quick Ball roots**. The native policy's legality gate, timing, or action selection may explain the rejection; this result alone does not establish which constraint applied. All failures and action caps remain in the denominator.
 
+## Crucial downstream tradeoff in the rank10 original-source comparison
+
+The native artifact contains further counterevidence to equating a paid Ball root with a superior position:
+
+| Read-only same-rank/seed/seat observation at 120-root cap | V3, no chosen Ball root | V4, one paid Quick Ball root |
+| --- | --- | --- |
+| Owner attack declarations | **3** | **2** |
+| Opponent Active Squawkabilly ex damage | **160** | **80** |
+| Owner Benched Dhelmise's attached Float Stone | **Present** | **Absent** |
+| Final Prize cards remaining | [6, 6] | [6, 6] |
+| HNS four-donor checks / reducer calls | 3 / 3 | 3 / 3 |
+
+Both original-source attempts begin with the same **public** first-turn Active Pokémon (candidate Dhelmise M5, opponent Regidrago V SIT), and opponent first-turn seat 1. Public beginning-board equality plus identical rank and seed do **not** prove equal concealed hand, deck, Prize ordering or all subsequent randomness. These are therefore **descriptive cross-run divergences**, not a causal estimate.
+
+The immediate interpretation is potentially negative for this proposed cost line: v4's additional native Item/root payment appears alongside **one fewer owner attack declaration and 80 less damage on the opponent's final Active**. The loss of Dhelmise's Float Stone at the endpoint further warns of a disrupted mobility line. The exact order and paper validity of each downstream action still require root-level comparison. These concrete adverse observations **prohibit promoting the intervention based only on successful payment**.
+
 ## Comparison with read-only v3 and limits
 
 The earlier preregistered [v3 native root census](agent25-owner-quickball-root-frontier-v3-20261106.md) ([run 42136306260](https://github.com/FlareZ123/experiment-01/actions/runs/42136306260), artifact 13465337378) observed **44 held Quick Ball roots across 90 owner root decisions** in five nonexception original-60 attempts, but selected Quick Ball zero times. In v4, the same rank/seat/seed matrix yielded one real newly selected Quick Ball root and one actually paid HNS discard. **This is a bounded policy-action improvement**, not a certified same-physical-deal game comparison. No cross-run complete concealed deck/Prize parity has been independently proved, and differing actions can perturb subsequent shuffle RNG consumption. At rank10 seat0, both v3 and v4 finish at the 120-root cap with [6,6] Prizes, and both have 3/3 HNS threshold-positive checks. Rank11 seat0 similarly retains a cap and [1,5] Prizes.
