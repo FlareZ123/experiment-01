@@ -359,8 +359,6 @@ function actorPaidRetreatRootOptions({
   actorTwoUnitPaidRetreatRoot=false,
   actorTwoUnitPaidRetreatTargetTurn=null,
   actorTwoUnitPaidRetreatRootV2=false,
-  actorTwoUnitPaidRetreatTargetTurnV2=null,
-  actorTwoUnitPaidRetreatRootV2=false,
   actorTwoUnitPaidRetreatTargetTurnV2=null
 }={}){
   assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
@@ -1170,6 +1168,8 @@ function runDevelopment({
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
   actorTwoUnitPaidRetreatTargetTurn=null,
+  actorTwoUnitPaidRetreatRootV2=false,
+  actorTwoUnitPaidRetreatTargetTurnV2=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
   actorUnderworldDoorPromptOwner=false,
