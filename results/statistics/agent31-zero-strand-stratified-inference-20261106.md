@@ -14,30 +14,30 @@ These bounds constrain only this registered simulation, opportunity definition a
 
 ## Precise event and sampling model
 
-For each of the eight fixed strata (s), defined by original rank (×) actual physical contender seat, take the two prospectively generated independent random seeds (j=1,2). Define:
+For each of the eight fixed strata \(s\), defined by original rank × actual physical contender seat, take the two prospectively generated independent random seeds \(j=1,2\). Define:
 
-- (Y_{s,j}=1) if **at least one** of the unchanged champion-reference and new-moon-lockbreaker-v1 contender arms would select the exact default-off zero-Energy Float Stone rescue at any accepted native decision before engine terminal or the 260-root censor under the registered base policy and engine.
-- (Y_{s,j}=0) otherwise, as seen in the archived full native runs. All 16 observed (Y) are zero.
-- (p_s=P(Y_{s,j}=1)), with stationarity within a rank/physical-seat stratum under identical pinned engine, policy, opening RNG protocol and action horizon.
-- (̅p=(1/8)∑_{s=1}^{8}p_s), the equally weighted native-within-horizon panel opportunity probability.
+- \(Y_{s,j}=1\) if **at least one** of the unchanged champion-reference and new-moon-lockbreaker-v1 contender arms would select the exact default-off zero-Energy Float Stone rescue at any accepted native decision before engine terminal or the 260-root censor under the registered base policy and engine.
+- \(Y_{s,j}=0\) otherwise, as seen in the archived full native runs. All 16 observed \(Y\) are zero.
+- \(p_s=P(Y_{s,j}=1)\), with stationarity within a rank/physical-seat stratum under identical pinned engine, policy, opening RNG protocol and action horizon.
+- \(\bar p=(1/8)\sum_{s=1}^{8}p_s\), the equally weighted native-within-horizon panel opportunity probability.
 
-Assume that the registered source seeds are independent across groups and that the observable output is deterministic under each seed and the frozen research configuration. Different (p_s) across the eight strata are permitted. The two contender arms **within** a seed group may be arbitrarily dependent.
+Assume that the registered source seeds are independent across groups and that the observable output is deterministic under each seed and the frozen research configuration. Different \(p_s\) across the eight strata are permitted. The two contender arms **within** a seed group may be arbitrarily dependent.
 
 Then the exact probability of the observed all-zero event is:
 
-[
-P(0	ext{ groups with rescue})=prod_{s=1}^{8}(1-p_s)^2
-leqleft(1-rac{sum_{s=1}^{8}p_s}{8}ight)^{16}
-=(1-ar p)^{16}.
-]
+\[
+P(0\text{ groups with rescue})=\prod_{s=1}^{8}(1-p_s)^2
+\leq\left(1-\frac{\sum_{s=1}^{8}p_s}{8}\right)^{16}
+=(1-\bar p)^{16}.
+\]
 
-The inequality follows from the arithmetic-geometric mean inequality applied to the eight values (1-p_s). Thus if the true equally weighted panel mean were (ar pgeq q), the probability of 16 independent group-level zeros would be at most ((1-q)^{16}). Taking ((1-q)^{16}=0.05) gives:
+The inequality follows from the arithmetic-geometric mean inequality applied to the eight values \(1-p_s\). Thus if the true equally weighted panel mean were \(\bar p\geq q\), the probability of 16 independent group-level zeros would be at most \((1-q)^{16}\). Taking \((1-q)^{16}=0.05\) gives:
 
-[
+\[
 q_{0.95}=1-0.05^{1/16}=0.1707497230.
-]
+\]
 
-This is a **valid conservative upper confidence limit even with differing rank/seat event probabilities**, given exactly two independent seeds per stratum and the assumptions stated above. Equality in the probability bound occurs when all eight (p_s) are equal. It is an inference about *some candidate opportunity before the recorded censor*, not the chance of a qualified game win.
+This is a **valid conservative upper confidence limit even with differing rank/seat event probabilities**, given exactly two independent seeds per stratum and the assumptions stated above. Equality in the probability bound occurs when all eight \(p_s\) are equal. It is an inference about *some candidate opportunity before the recorded censor*, not the chance of a qualified game win.
 
 ## Numerical sensitivity
 
