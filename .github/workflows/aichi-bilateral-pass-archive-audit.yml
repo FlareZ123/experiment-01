@@ -17,6 +17,7 @@ on:
           - floatstone-pair
           - volt-donor-debt
           - steward-v4v5
+          - reciprocal-screen
         default: bilateral-pass
 
 permissions:
@@ -110,3 +111,19 @@ jobs:
         if: ${{ inputs.audit_type == 'steward-v4v5' }}
         run: |
           node -e "const fs=require('node:fs');const a=require('./simulation/evaluation/agent46-issue25-steward-archive-audit.cjs');const get=v=>{const p='archived-steward/issue25-steward-'+v;return [fs.readFileSync(p+'.json'),fs.readFileSync(p+'.sha256','utf8')]};const b=get('v4'),c=get('v5');const r=a.compareStewardV4V5(...b,...c);console.log('AGENT46_V4V5_INDEPENDENT_SAME_DEAL_PREFIX',JSON.stringify(r));if(r.status!=='PASS-bounded-controlled-prefix')process.exitCode=1;"
+
+      - name: Regress independent bilateral state-effect and owner-receipt gate
+        if: ${{ inputs.audit_type == 'reciprocal-screen' }}
+        run: node --test tests/agent45-bilateral-competence-gate.test.cjs
+      - name: Download frozen native eight-attempt reciprocal action archive
+        if: ${{ inputs.audit_type == 'reciprocal-screen' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent32-issue25-v8-telepath-confirm-default-false-same-eight-native
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: archived-reciprocal
+      - name: Verify original JSON SHA, original Store-root digests and censored eight-game denominator
+        if: ${{ inputs.audit_type == 'reciprocal-screen' }}
+        run: |
+          node -e "const assert=require('node:assert/strict');const fs=require('node:fs');const crypto=require('node:crypto');const p='archived-reciprocal/treatment/issue25-steward-v8.json';const raw=fs.readFileSync(p);const sha=crypto.createHash('sha256').update(raw).digest('hex');assert.equal(sha,'6ed9db1568aaf546e3165ddae2a2fa21fd1224f7d50e1e2dc8b8c6f578bb5a45');const sidecar=fs.readFileSync('archived-reciprocal/treatment/issue25-steward-v8.sha256','utf8');assert.ok(sidecar.startsWith(sha));const d=JSON.parse(raw);assert.equal(d.provenance.githubRunId,'42287771647');assert.equal(d.provenance.observedTwinleafCommit,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');const r=require('./simulation/evaluation/agent45-bilateral-competence-gate.cjs').screenArchivedReciprocalAttempts(d);assert.deepEqual([r.attemptedContexts,r.verifiedRootLedgerContexts,r.quarantinedContexts,r.anyGeneralSequenceContexts,r.anySourceAttackSequenceContexts,r.attackAnchorSettledBeforeReplyContexts,r.competitiveGamesQualified],[8,8,0,5,3,3,0]);assert.equal(r.rows.filter(x=>x.disposition==='native-terminal-unqualified').length,1);assert.equal(r.rows.filter(x=>x.disposition==='root-cap-unqualified').length,7);assert.equal(r.rows.filter(x=>x.settledSourceAttackPrizeChange>0).length,0);console.log('AGENT45_REAL_EIGHT_NATIVE_RECIPROCAL_SCREEN',JSON.stringify({attempted:r.attemptedContexts,verified:r.verifiedRootLedgerContexts,quarantined:r.quarantinedContexts,observed:r.anyGeneralSequenceContexts,sourceAttackAnchored:r.anySourceAttackSequenceContexts,settledBeforeReply:r.attackAnchorSettledBeforeReplyContexts,competitiveGamesQualified:r.competitiveGamesQualified,archiveJsonSha256:sha}));"
