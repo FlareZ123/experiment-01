@@ -63,3 +63,20 @@ To avoid collapsing repeated attacks into independent matchup evidence, the [imm
 | 109 (settled by root110) | Source 6, candidate 0 | Native final-Prize terminal, no source return |
 
 The original rank1 source's **zero attack declarations** coexist with a real legal-looking Energy attachment and the source's own Radiant Eternatus/Shadow Rider VMAX setup on one return. Therefore the source was not globally inert, but there is still **no observed attacking tactical reply** in the entire trajectory. The bot's available alternatives, payment constraints and adversarial response quality remain unverified. One six-Prize native terminal under these conditions is a debugging milestone, **not** a competitive demonstration against the original rank1 pilot. Crucially, the third Eon Blade produced the exact real source `PlayCardAction` whose prompt lineage and physical VMAX Bench transfer the new owner-Ability policy addresses.
+
+## Eight-row source-opponent coverage matrix, preserving censoring and attack settlement
+
+The original immutable same-eight [control and treatment artifact](https://github.com/FlareZ123/experiment-01/actions/runs/42301409119/artifacts/13543219871) has been parsed directly rather than reconstructed from the 11 Confirm counters. **S/C** below is *original source/candidate* native attack **declared/settled**. `Prizes` is **physical seat0/seat1 remaining**, as exported, not a source/candidate reorder. Every row used the registered physical opening and a 128-action cap.
+
+| Original context | Original source seat | Old control | Repaired native treatment | Source S declared/settled | Candidate C declared/settled | End Prizes seat0/seat1 |
+| --- | ---: | --- | --- | ---: | ---: | --- |
+| Rank6 :210 champion reference | 0 | 128-root cap | 128-root cap | 2/2 | 8/8 | 5/6 |
+| Rank6 :210 New Moon | 0 | decoder error | 128-root cap | 2/1 | 8/8 | 5/6 |
+| Rank11 :211 champion reference | 1 | 128-root cap | 128-root cap | 13/13 | 0/0 | 6/4 |
+| Rank11 :211 New Moon | 1 | decoder error | 128-root cap | 10/9 | 2/2 | 6/2 |
+| Rank1 :212 champion reference | 0 | decoder error | **native final-Prize terminal** | 0/0 | 4/4 | 6/0 |
+| Rank1 :212 New Moon | 0 | 128-root cap | 128-root cap | 5/4 | 9/9 | 6/6 |
+| Rank3 :213 champion reference | 1 | decoder error | 128-root cap | 0/0 | 0/0 | 6/6 |
+| Rank3 :213 New Moon | 1 | decoder error | 128-root cap | 0/0 | 0/0 | 6/6 |
+
+These rows expose the limited tactical denominator: rank3's two arms had **zero attack declarations by either seat** and remain censored despite the Confirm repair; rank11 champion source's 13 Motivate declarations are one repeated trajectory; rank1 champion source declared zero attacks before losing six Prizes; rank6 Volt Cyclone had only two declarations per same-deal context. Some source attacks in other rows did not settle. Native status, root count and declaration counts are debugging and opponent-opportunity descriptors, not estimates of victory against the original tournament pilots. Future policy work should report the source's **affordable alternative actions** and reply quality at meaningful attack windows before upgrading these rows to competitive evidence.
