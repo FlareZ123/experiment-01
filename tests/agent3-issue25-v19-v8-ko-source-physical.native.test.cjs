@@ -10,7 +10,7 @@ const {execFileSync}=require('node:child_process');
 const {runStewardBroaderV8,VERSION:V8_VERSION}=require(
   '../simulation/evaluation/agent36-issue25-common-v8.cjs');
 const {VERSION,withKoSourcePromptPhysical}=require(
-  '../simulation/twinleaf/agent3-ko-source-prompt-physical-v2.cjs');
+  '../simulation/twinleaf/agent3-ko-source-prompt-physical-v3.cjs');
 
 const ROOT=path.resolve(__dirname,'..');
 const hash=b=>createHash('sha256').update(b).digest('hex');
@@ -65,6 +65,8 @@ test('unchanged selected developmental v8 eight-original Store trials under pass
   assert.equal(audit.realStoreIdentityProofComplete,false);
   assert.equal(audit.competitivelyQualifiedGames,0);
   assert.equal(audit.chosenPrizeFacesReadByPolicy,false);
+  assert.ok(audit.expiredUnjoinedKoEffects>=0);
+  assert.ok(audit.expiredUnjoinedKoEffects<=audit.eligibleKoEffects);
   assert.equal(audit.nativeSourceSettledAnswers,
     audit.exactSourceJoinedHandTransfers+
     audit.exactSourceJoinedLostZoneTransfers+
@@ -83,7 +85,7 @@ test('unchanged selected developmental v8 eight-original Store trials under pass
     registrationHash:hash(registration),
     observerVersion:VERSION,
     observerHash:hash(fs.readFileSync(path.join(ROOT,
-      'simulation/twinleaf/agent3-ko-source-prompt-physical-v2.cjs'))),
+      'simulation/twinleaf/agent3-ko-source-prompt-physical-v3.cjs'))),
     nativeTestHash:hash(fs.readFileSync(__filename)),
     executingSelectedV8Version:V8_VERSION,
     selectedV8EntrySha256:hash(fs.readFileSync(path.join(ROOT,
@@ -106,6 +108,7 @@ test('unchanged selected developmental v8 eight-original Store trials under pass
       roots:r.acceptedNativeRootCount,sourceSeat:r.sourceSeat,
       candidateSeat:r.candidateSeat})),
     koEffects:audit.eligibleKoEffects,
+    orphanRootKoEffects:audit.expiredUnjoinedKoEffects,
     promptMediatedKoSources:audit.nativeSourcePrompts,
     exactJoinedOwnerHand:audit.exactSourceJoinedHandTransfers,
     exactJoinedLostZone:audit.exactSourceJoinedLostZoneTransfers,
