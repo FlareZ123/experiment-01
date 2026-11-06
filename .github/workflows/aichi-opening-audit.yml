@@ -20,6 +20,11 @@ on:
         description: 'Existing original Pale Moon GX archive run ID'
         type: string
         required: false
+      agent27_adp_wondertag_bonus:
+        description: 'Check paid ADP plus optional Wonder Tag after mulligan bonuses'
+        type: boolean
+        required: false
+        default: false
       agent27_adp_four_bonus:
         description: 'Exact zero through four accepted bonus ADP full60 and independent miniature proof'
         type: boolean
@@ -42,6 +47,17 @@ permissions:
   actions: read
 
 jobs:
+  agent27-adp-wondertag-bonus:
+    if: inputs.agent27_adp_wondertag_bonus
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/agent27-adp-wondertag-bonus-miniature.test.cjs
+      - run: node --test tests/agent27-adp-wondertag-bonus-exact.test.cjs
   agent27-adp-four-bonus-math:
     if: inputs.agent27_adp_four_bonus
     runs-on: ubuntu-latest
