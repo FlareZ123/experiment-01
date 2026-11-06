@@ -1,0 +1,26 @@
+{
+  "schema": "agent4-underworld-guard-first-accepted-psychic-physical-target-v1",
+  "sourcePriorFirstRootRun": 42308916513,
+  "sourcePriorPrereg": "results/aichi-2026/registrations/agent4-rank6-underworld-guard-postabort-root-audit-v1-20261106.json",
+  "predeclaredExactContextIDs": [
+    "6:401:A:champion-reference",
+    "6:402:B:champion-reference"
+  ],
+  "historicalRootOrdinals": [
+    141,
+    69
+  ],
+  "threeOriginalV3ModesUnchanged": true,
+  "otherTwoCompanionSourceCandidatesStillIncluded": true,
+  "original12AttemptDenominator": true,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "method": "Read only pinned native accepted-target-sidecar already enabled by original v3 commonPolicy.nativeAcceptedTargets. Find the Store-linked accepted rootActionOrdinal equal to original failed root 141 or 69; verify the public PlayCardAction is Psychic Energy; retain native declared physical target and public after-dispatch changed slot. Require genuine rootOrdinalLinked true and matching public ledger ordinal. Explicitly record whether the change was visible, and do not treat engine acceptance as independent paper legality.",
+  "primaryQuestions": [
+    "Did the native Store accept real physical Psychic energy at the old blocked root?",
+    "Which visible owner Pokémon received that Energy?",
+    "Was the actual target publicly resolved and the same at all A/B/A repetitions?",
+    "Did subsequent source action observation remain unchanged and provenance pass?"
+  ],
+  "zeroQualifiedCompetitiveGames": true,
+  "notAWinRateExperiment": true
+}
