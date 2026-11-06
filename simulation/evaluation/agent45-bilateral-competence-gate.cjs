@@ -250,9 +250,22 @@ function screenArchivedReciprocalAttempts(archive) {
   const rows=archive.attempts.map(a=>{
     assert.ok(typeof a.id==='string'&&!ids.has(a.id));
     ids.add(a.id);
-    assert.equal(a.publicRootActionsTruncated,false);
     const roots=a.publicRootActions;
-    assert.ok(Array.isArray(roots));
+    if(a.publicRootActionsTruncated!==false||!Array.isArray(roots)||
+       !Number.isInteger(a.publicRootActionCount)||
+       typeof a.publicRootLedgerSha256Computed!=='string'||
+       typeof a.publicRootLedgerSha256Reported!=='string'){
+      return {trialId:a.id,disposition:a.status??null,
+        rootCount:a.publicRootActionCount??null,
+        rootActionLedgerSha256:null,sourceSeat:a.originalSourceSeat??null,
+        opponentSeat:a.candidateSeat??null,
+        generalSequence:null,sourceAttackSequence:null,
+        settledSourceAttackBeforeObservedReply:false,
+        settledSourceAttackCompletionRoot:null,
+        settledSourceAttackPrizeChange:null,
+        archiveIntegrity:'QUARANTINED-incomplete-public-root-proof',
+        fullPaperAudit:false,competitiveAdmission:false};
+    }
     assert.equal(a.publicRootActionCount,roots.length);
     for(let i=0;i<roots.length;i++){
       assert.equal(roots[i].actionOrdinal,i);
@@ -285,10 +298,15 @@ function screenArchivedReciprocalAttempts(archive) {
       settledSourceAttackBeforeObservedReply,
       settledSourceAttackCompletionRoot: settledSourceAttack?.completionRootOrdinal??null,
       settledSourceAttackPrizeChange,
+      archiveIntegrity:'VERIFIED-original-public-root-ledger',
       fullPaperAudit:false,competitiveAdmission:false};
   });
   return {schema:'agent45-archive-reciprocal-screen-v1',
     attemptedContexts:rows.length,
+    verifiedRootLedgerContexts:rows.filter(r=>r.archiveIntegrity===
+      'VERIFIED-original-public-root-ledger').length,
+    quarantinedContexts:rows.filter(r=>r.archiveIntegrity!==
+      'VERIFIED-original-public-root-ledger').length,
     anyGeneralSequenceContexts:rows.filter(r=>r.generalSequence).length,
     anySourceAttackSequenceContexts:rows.filter(r=>r.sourceAttackSequence).length,
     attackAnchorSettledBeforeReplyContexts:rows.filter(r=>
