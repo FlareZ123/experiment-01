@@ -43,10 +43,22 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
   const sourceBefore=sourceRootPlays(control);
   const sourceAfter=sourceRootPlays(treatment);
   const prior=new Map(initial.map(row=>[row.id,row]));
+  const rawById=result=>new Map((result.rawDevelopment?.rows??[])
+    .map(row=>[row.trial?.id??row.id,row]));
+  const controlRaw=rawById(control);
+  const treatmentRaw=rawById(treatment);
+  const publicRoots=row=>row?.rootActionLedger??
+    row?.nativeAbortEvidence?.rootActionLedger??null;
   const pairs=updated.map(row=>{
     const same=prior.get(row.id);
     assert.ok(same,`Missing control registration ${row.id}`);
+    const controlLedger=publicRoots(controlRaw.get(row.id));
+    const treatmentLedger=publicRoots(treatmentRaw.get(row.id));
+    const acceptedRootLedgerExactMatch=
+      Array.isArray(controlLedger)&&Array.isArray(treatmentLedger)?
+        JSON.stringify(controlLedger)===JSON.stringify(treatmentLedger):null;
     return {
+      acceptedRootLedgerExactMatch,
       id:row.id,
       sourceSeat:row.sourceSeat,
       controlStatus:same.status,treatmentStatus:row.status,
@@ -86,6 +98,12 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
       row.initialSourcePhysicalDealMatched),
     allEightFullPhysicalDealsMatch:pairs.every(row=>
       row.entireInitialPhysicalDealMatched),
+    comparableAcceptedRootLedgers:pairs.filter(row=>
+      row.acceptedRootLedgerExactMatch!==null).length,
+    exactAcceptedRootLedgerMatches:pairs.filter(row=>
+      row.acceptedRootLedgerExactMatch===true).length,
+    differingAcceptedRootLedgerIds:pairs.filter(row=>
+      row.acceptedRootLedgerExactMatch===false).map(row=>row.id),
     rawArchiveReceipts:artifacts,
     nativeBotMayUseHiddenInformation:true,
     printedCostAndTargetPaymentVerified:false,
