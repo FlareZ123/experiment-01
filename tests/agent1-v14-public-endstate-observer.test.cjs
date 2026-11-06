@@ -81,3 +81,16 @@ test('the actual original headless method is restored even if execute throws',()
   assert.strictEqual(headless.runMatch,original);
   assert.deepEqual(obs.observations,[]);
 });
+
+test('capped native result cannot publish an unfinished Store winner sentinel',()=>{
+  const unfinished=game();
+  unfinished.finished=false;
+  unfinished.winner=0;
+  unfinished.endReason='action-limit';
+  const headless={runMatch:()=>unfinished};
+  const obs=createPublicEndstateObserver({headless});
+  obs.run(()=>headless.runMatch({label:PREFIX+'native-capped'}));
+  assert.equal(obs.observations[0].nativeFinished,false);
+  assert.equal(obs.observations[0].nativeWinner,null);
+  assert.equal(obs.observations[0].nativeEndReason,'action-limit');
+});
