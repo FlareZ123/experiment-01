@@ -37,3 +37,15 @@ The v8 source-side policy attempted Tapu Cure-GX with one Psychic Energy and no 
 - Keep the upstream submodule untouched. If a simulator correction is needed, implement it through a research-owned adapter hook and preserve the pinned upstream revision.
 
 No card-interaction conclusion beyond the confirmed Bench-only target mismatch is claimed here.
+
+
+## Pinned source locations
+
+In `vendor/twinleaf/ptcg-server/src/sets/08-sun-and-moon/set-guardians-rising/tapu-lele-gx.ts` at the pinned revision:
+
+- lines 176-181 build `blocked` by iterating `player.forEachPokemon`, including the Active;
+- lines 183-185 combine Bench damage and Active damage into `pokemonInPlayWithDamage`;
+- lines 187-189 reject only when neither Active nor Bench has damage;
+- lines 195-200 offer both `SlotType.ACTIVE` and `SlotType.BENCH`.
+
+The mismatch can be reviewed directly at those pinned lines; no inference from a failed game log is needed.
