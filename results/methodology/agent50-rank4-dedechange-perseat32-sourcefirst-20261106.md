@@ -102,9 +102,14 @@ The five opportunities are 15.625%, with a 95% Wilson interval of **6.86%–31.7
 | Unequal-mulligan attempts / compensation prompts | 6 | 10 |
 | Compensation cards selected | 8 | 13 |
 | Compensation recipient seats | seat0 0, seat1 6 | seat0 6, seat1 4 |
+| Total mulligans by physical seat | seat0 8, seat1 0 | seat0 6, seat1 7 |
 | Compensation recipient deck roles | source 4, reference 2 | source 4, reference 6 |
 
-The all-seat1 compensation-recipient pattern from the legacy stream did not reproduce under the per-seat protocol. The per-seat stream also yielded more unequal-mulligan attempts and more reference-deck compensation, consistent with the rank1 list's one-Basic advantage over rank4 in this cohort. These are protocol-sensitive observations, not proof that the legacy engine is defective or that per-seat streams exactly reproduce paper shuffling. The two protocols create different physical openings even when seed and seat assignment are held constant.
+The all-seat1 compensation-recipient pattern from the legacy stream did not reproduce under the per-seat protocol. The enhanced legacy rerun captured the mulligan counts: **seat0 accumulated eight mulligans and seat1 accumulated zero** across 32 attempts, despite source-seat assignments being balanced 16/16. Under per-seat streams, seat0 accumulated six and seat1 seven. The legacy result is a strong physical seat-order anomaly in this cohort; it is not proof of the underlying cause.
+
+The default [`headless.cjs` RNG](../../simulation/twinleaf/headless.cjs#L120-L135) is a single xorshift32 stream assigned to `Math.random` for the whole match ([runMatch setup](../../simulation/twinleaf/headless.cjs#L491-L500)); the two players' physical shuffles therefore consume one sequential stream. The per-seat adapter instead derives two streams using seat-specific salts and intercepts turn-zero `ShuffleDeckPrompt` resolutions. This is a plausible explanation for the observed asymmetry, but a matched identical-deck seat-symmetry test and shuffle-level validation are still needed before attributing causality.
+
+The per-seat stream also yielded more unequal-mulligan attempts and more reference-deck compensation, consistent with the rank1 list's one-Basic advantage over rank4 in this cohort. These are protocol-sensitive observations, not proof that the legacy engine is defective or that per-seat streams exactly reproduce paper shuffling. The two protocols create different physical openings even when seed and seat assignment are held constant.
 
 ## Failure-inclusive status and interpretation
 
