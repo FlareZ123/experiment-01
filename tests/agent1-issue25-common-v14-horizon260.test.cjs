@@ -60,7 +60,7 @@ test('v14 changes only passed native horizon at final actual runner boundary',()
 test('pinned original fixed eight trials remain rank6/rank11 both physical seats',()=>{
   const x=registeredTrials();
   assert.equal(x.length,8);
-  assert.deepEqual([...new Set(x.map(y=>y.rank))].sort(),[6,11]);
+  assert.deepEqual([...new Set(x.map(y=>y.rank))].sort((a,b)=>a-b),[6,11]);
   assert.deepEqual([...new Set(x.map(y=>y.candidateSlot))].sort(),
     ['A','B']);
   assert.equal(new Set(x.map(y=>y.id)).size,8);
