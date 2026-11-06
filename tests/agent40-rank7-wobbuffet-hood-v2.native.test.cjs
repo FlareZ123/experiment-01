@@ -32,7 +32,7 @@ test('corrected authentic original rank7 staged Nest Ball pays and resolves unde
       assert.equal(row.rootItemInPlayZone, true);
       assert.equal(row.rootItemHeld, false);
       assert.equal(row.settlementError, null);
-      assert.equal(row.choice, 'Snorlax PGO');
+      assert.equal(row.choice, 'Regirock XYP');
       assert.equal(row.movedBasic, true);
       assert.equal(row.itemDiscarded, true);
       assert.equal(row.itemHeldAfter, false);
