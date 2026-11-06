@@ -73,6 +73,9 @@ function sourceSpecialEnergyExposure(config){
   const noEnergyGivenValidSeven=noEnergySeven/validSource;
   const probabilityBonusAtLeastOne=qc*(1-qs)/(1-qs*qc);
   const expectedBonusOffers=probabilityBonusAtLeastOne/(1-qc);
+  // Choice-independent access before any optional opponent mulligan draws.
+  // This stays exact even if the source declines every offered bonus card.
+  const originalSevenEnergyAccess=1-noEnergyGivenValidSeven;
 
   let noEnergyMass=(1-probabilityBonusAtLeastOne)*
     noEnergyAdditionalDraws(sourceSpecialEnergy,ordinaryDraw);
@@ -88,6 +91,7 @@ function sourceSpecialEnergyExposure(config){
     sourceBasics,sourceSpecialEnergy,contenderBasics,ordinaryDraw,
     probabilitySourceMulligan:qs,probabilityContenderMulligan:qc,
     probabilityBonusAtLeastOne,expectedBonusOffers,
+    originalSevenEnergyAccess,
     energyAccessLower:1-noEnergyMass-censoredTailUpper,
     energyAccessUpper:1-noEnergyMass,censoredTailUpper
   };
