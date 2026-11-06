@@ -36,12 +36,15 @@ However, the pinned default `SimpleTacticsAi` already has a generic optional-pro
 
 Consequently, with one eligible new Basic and `min=0,max=1`, the default resolver should select that Basic and let the native Store callback Bench it. If several new Basics are eligible, the generic resolver may select multiple up to max. This is a generic hand-value heuristic, not an opponent-threat-aware choice.
 
-The v8 wrapper chain in `simulation/evaluation/agent36-issue25-common-v8.cjs` does not install the Agent50 optional-decline hook, so v8 inherits the default `ChooseCardsPromptResolver` behavior. The other nearby Agent50 setup components remain scoped to mandatory initial setup:
+The v8 wrapper chain in `simulation/evaluation/agent36-issue25-common-v8.cjs` does not install the Agent50 optional-decline hook, so v8 inherits the default `ChooseCardsPromptResolver` behavior. Other inspected setup components are narrower:
 
-- `agent50-owner-entry-priority-single-basic.cjs` selects one eligible card from the initial `min=1` setup prompt.
+- `agent21-owner-setup-starting-basics.cjs` and `agent50-owner-starting-basic-choice.cjs` handle mandatory initial setup prompts with `min>=1`; they do not make the post-compensation optional choice.
+- `agent50-owner-entry-priority-single-basic.cjs` selects one eligible card from the initial `min=1` prompt.
 - `agent50-owner-opening-store-receipt.cjs` observes the initial `min=1` selection and physical Active/Bench result.
+- `snorlax-solo-opening-policy.cjs` has a separate opt-in `declineOptionalBench` branch when the owner's Active is a lone `Snorlax PGO`; it chooses an empty selection to preserve that specialized solo strategy. Its retrospective witness uses rank3 Snorlax source, not rank6 Iron Thorns.
+- `agent14-owner-solo-bench-choice-contract.cjs` is a turn-level Bench-versus-attack root comparison for solo Iron Thorns, not the mulligan-compensation setup prompt.
 
-Thus an existing default resolver does make the generic Bench choice, but no inspected Agent50 or v8 wrapper makes an opponent-threat-aware optional Bench choice.
+Thus the default resolver makes the generic Bench choice, and a Snorlax-specific hook can decline the optional prompt. No inspected Agent50 or v8 wrapper makes an opponent-threat-aware positive choice for this rank26/rank6 setup case.
 
 ## Preregistered controlled fixture
 
