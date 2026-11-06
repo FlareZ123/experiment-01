@@ -198,3 +198,33 @@ test('a treatment-only extension after an earlier cap is not a causal first root
     'CONTROL_ENDED_BEFORE_DIVERGENCE');
   assert.equal(report.sourceRetreatDivergenceCandidates,0);
 });
+
+test('top-level ledger accompanied by native error is censored, not complete',()=>{
+  const a=row('t',[root(0)],{
+    status:'returned-unqualified',nativeError:'OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED'});
+  const result=run(a,a,a);
+  assert.deepEqual(result.rows[0].ledgerOrigins,
+    ['TOP_LEVEL','TOP_LEVEL','TOP_LEVEL']);
+  assert.equal(result.rows[0].controlReplay,'CENSORED_PREFIX_REPLAY');
+  assert.equal(result.completedControlReplays,0);
+});
+
+test('error-like status with top-level ledger stays an error prefix',()=>{
+  const a=row('t',[root(0)],{status:'ENGINE_ERROR'});
+  assert.equal(run(a,a,a).rows[0].controlReplay,'CENSORED_PREFIX_REPLAY');
+});
+
+test('invalid starter and candidate-seat metadata fail closed',()=>{
+  const a=row('t',[root(0)]);
+  const b=row('t',[root(0),root(1,'RetreatAction')]);
+  const invalidStarter=row('t',[root(0)],{actualStarterSeat:2});
+  const invalidSeat=row('t',[root(0)],{candidateSeat:1});
+  assert.equal(run(invalidStarter,b,invalidStarter).allOpeningsMatched,false);
+  assert.equal(run(invalidSeat,b,invalidSeat).allOpeningsMatched,false);
+});
+
+test('A and A-repeat native decoder errors must have matching provenance',()=>{
+  const a=row('t',[root(0)],{nativeError:'MISSING_CHOICE_A'});
+  const a2=row('t',[root(0)],{nativeError:'MISSING_CHOICE_B'});
+  assert.equal(run(a,a,a2).rows[0].controlReplay,'OUTCOME_MISMATCH');
+});
