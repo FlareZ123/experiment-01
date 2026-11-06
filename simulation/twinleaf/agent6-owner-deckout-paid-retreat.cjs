@@ -250,7 +250,7 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
     if(action?.constructor?.name==='AttackAction'&&
        (seat===0||seat===1)&&active){
       const attack=active.attacks?.find(move=>move.name===action.name);
-      if(attack?.damage===0&&attack.text===DECKOUT_TEXT){
+      if(attack?.text===DECKOUT_TEXT){
         markedDeckOutAttack={
           seat,turn:state.turn,printing:active.fullName,
           attackName:attack.name
@@ -289,7 +289,7 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
           card.fullName===markedDeckOutAttack.printing);
         const attack=printed?.attacks?.find(move=>
           move.name===markedDeckOutAttack.attackName&&
-          move.damage===0&&move.text===DECKOUT_TEXT);
+          move.text===DECKOUT_TEXT);
         if(attack&&prompt.validate(attack)===true){
           audit.chosenSecondAttackPrompts++;
           audit.secondAttackTurns.push(state.turn);
