@@ -67,8 +67,8 @@ function join(row,wrapperAudit,sourceSeat){
     const after=attack?.prizesAfter?.[sourceSeat]??null;
     const prizeDecrease=Number.isInteger(before)&&
       Number.isInteger(after)&&after<before;
-    const nativeWon=row.finished===true&&row.winner===sourceSeat&&
-      row.finalPrizes?.[sourceSeat]===0;
+    const nativeWon=attack!==null&&row.finished===true&&
+      row.winner===sourceSeat&&row.finalPrizes?.[sourceSeat]===0;
     results.push({
       acceptedRootOrdinal:root.actionOrdinal,turn:root.turnBefore,
       sourceSeat,benchIndex,targetPrinting,
