@@ -2,7 +2,9 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {developmentTrials,commonPayloadOption,actorPaidRetreatRootOptions,firstPostSourceDecision,sourceLineReplyPacket,
+const {developmentTrials,commonPayloadOption,actorPaidRetreatRootOptions,
+  rngProtocolSelection,paidRetreatRootWrapperActivationReceipt,
+  firstPostSourceDecision,sourceLineReplyPacket,
   candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks,
   scopedSpecialEnergyActorSeat}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
@@ -493,4 +495,81 @@ test('v2 paid Retreat is opt-in only for bilateral actor composition and valid t
     actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
     actorTwoUnitPaidRetreatRootV2:true
   }),/Select only one paid-Retreat policy version/);
+});
+
+ 
+test('bilateral adapter preserves legacy RNG defaults and records isolated protocols',()=>{
+  assert.deepEqual(rngProtocolSelection(),{
+    request:{
+      isolatePolicyRandomness:false,
+      isolatePhysicalShuffleRandomnessAfterSetup:false
+    },
+    manifest:{
+      policyRandomIsolation:false,
+      physicalShuffleRandomIsolation:false,
+      physicalShuffleRandomIsolationAfterSetup:false,
+      randomnessProtocol:'legacy-shared-prng'
+    }
+  });
+  assert.equal(rngProtocolSelection({
+    isolatePolicyRandomness:true
+  }).manifest.randomnessProtocol,
+  'separate-game-and-per-seat-policy-prng-v1');
+  assert.equal(rngProtocolSelection({
+    isolatePhysicalShuffleRandomnessAfterSetup:true
+  }).manifest.randomnessProtocol,
+  'per-seat-physical-shuffle-after-setup-prng-v1');
+  assert.deepEqual(rngProtocolSelection({
+    isolatePolicyRandomness:true,
+    isolatePhysicalShuffleRandomnessAfterSetup:true
+  }),{
+    request:{
+      isolatePolicyRandomness:true,
+      isolatePhysicalShuffleRandomnessAfterSetup:true
+    },
+    manifest:{
+      policyRandomIsolation:true,
+      physicalShuffleRandomIsolation:false,
+      physicalShuffleRandomIsolationAfterSetup:true,
+      randomnessProtocol:'per-seat-policy-and-physical-shuffle-after-setup-prng-v1'
+    }
+  });
+  assert.throws(()=>rngProtocolSelection({
+    isolatePolicyRandomness:'true'
+  }),{name:'AssertionError'});
+});
+
+test('paid-Retreat opt-in requires the live scopedRoot wrapper and emits an activation receipt',()=>{
+  assert.deepEqual(paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:true,scopedRoot:{}
+  }),{
+    twoUnitPaidRetreatRootOptIn:false,
+    twoUnitPaidRetreatRootV2OptIn:false,
+    twoUnitPaidRetreatRootWrapperSelected:false
+  });
+  const root=()=>{};
+  assert.deepEqual(paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
+    scopedRoot:{root}
+  }),{
+    twoUnitPaidRetreatRootOptIn:true,
+    twoUnitPaidRetreatRootV2OptIn:false,
+    twoUnitPaidRetreatRootWrapperSelected:true
+  });
+  assert.deepEqual(paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRootV2:true,
+    scopedRoot:{root}
+  }),{
+    twoUnitPaidRetreatRootOptIn:false,
+    twoUnitPaidRetreatRootV2OptIn:true,
+    twoUnitPaidRetreatRootWrapperSelected:true
+  });
+  assert.throws(()=>paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:true,actorTwoUnitPaidRetreatRoot:true,
+    scopedRoot:{}
+  }),/did not install the live scopedRoot wrapper/);
+  assert.throws(()=>paidRetreatRootWrapperActivationReceipt({
+    actorOnlyComposition:false,actorTwoUnitPaidRetreatRoot:true,
+    scopedRoot:{root}
+  }),/requires bilateral actor-only composition/);
 });
