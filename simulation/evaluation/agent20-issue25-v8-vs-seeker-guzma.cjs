@@ -108,9 +108,9 @@ function runAgent20V8VsSeekerGuzma(deps={}){
   const audit=raw.ownerVsSeekerGuzmaAudit;
   assert.ok(audit&&audit.version===LAYER_VERSION,
     'The actual Agent48 layer audit must be attached to the raw run');
-  const guzmaPromptAudits=raw.rows.map(row=>({
+  const actorOnlyDecisionCoverageByTrial=raw.rows.map(row=>({
     trialId:row.trial?.id??row.id??null,
-    audit:row.actorOnlyDecisionCoverage?.guzmaPromptAudit??null
+    actorOnlyDecisionCoverage:row.actorOnlyDecisionCoverage??null
   }));
   const extensionHashes=HASH_PATHS.map(hashRegisteredFile);
   const manifest={
@@ -122,6 +122,7 @@ function runAgent20V8VsSeekerGuzma(deps={}){
     addedOwnerVsSeekerGuzmaLayer:true,
     addedGuzmaPromptContinuation:true,
     heldGuzmaMobilityRootOptIn:true,
+    heldGuzmaMobilityEnvironmentOptIn:'AGENT2_HELD_GUZMA_MOBILITY_DEV=true',
     ownerVsSeekerGuzmaLayerVersion:LAYER_VERSION,
     unchangedPrintedSixties:true,
     unchangedRegisteredSeeds:true,
@@ -136,7 +137,7 @@ function runAgent20V8VsSeekerGuzma(deps={}){
     schema:VERSION,
     registration:REGISTRATION_PATH,
     ownerVsSeekerGuzmaAudit:audit,
-    guzmaPromptAudits,
+    actorOnlyDecisionCoverageByTrial,
     verdict:'RETROSPECTIVE-OWNER-VSSEEKER-GUZMA-INTEGRATION-ONLY',
     paperQualifiedCompetitiveGames:0,
     competitiveGamesQualified:0,
