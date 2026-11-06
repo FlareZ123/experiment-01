@@ -19,7 +19,7 @@ function preservePublicTerminalFields(execution){
       const raw=rawById.get(status.id);
       if(!raw)return status;
       const nativeRootActionCount=raw.rootActionCount??
-        raw.rootActionLedger?.length??null;
+        raw.rootActionLedger?.length??status.nativeRootActionCount??null;
       const nativeOutcome=status.status==='engine-error'||
         raw.nativeAbortProvenance?.aborted===true||
         raw.nativeAbortEvidence?.aborted===true||
