@@ -56,6 +56,12 @@ In both A and A' controls, **four of four** FINISHED games have exactly one reco
 
 These transitions establish native game-end predicates more strongly than postgame final zones alone, while preserving the limitation that paper Expanded card resolution, bot strategy and real match clock remain unqualified.
 
+## Final strict native revalidation
+
+The latest [CI 42298674682](https://github.com/FlareZ123/experiment-01/actions/runs/42298674682) **SUCCESS** additionally required the native test to fail closed unless the real `terminalTransition` classifier verified the *exact preregistered cohort* counts: A and A' each have **2** observed winning final-Prize transitions and **2** losing-owner empty-deck-at-next-turn transitions; B has **2** final-Prize and **1** empty-deck-at-next-turn transition. This verification executes alongside first-native-root exact `Filch -> Pass` identity, all actual Pass settlements and control replay checks. The tests retained all 24 native games, including censored roots and the original native error, without changing any game policy.
+
+[Artifact 13543013001](https://github.com/FlareZ123/experiment-01/actions/runs/42298674682/artifacts/13543013001) provides the complete public-root and transition receipt. Independently downloaded enclosed `agent1-v15-bilateral-filch-aba.json`: **3,839,922 bytes**, SHA-256 **`645bcfac31facbdb797eefa567c3611063f23577fe62ae56fb3e47da40a20893`**, exactly matching its atomic `.sha256` sidecar. Verified 8/8 physical openings, 8/8 unchanged A/A' root repetitions, 35 genuine owner Pass substitutions, and all three arm terminal-condition counts.
+
 ## Certification and interpretation
 
 This is a causally interpretable native **decision-policy sensitivity** witness on two selected original rank11 physical games. The native result does not demonstrate that passing is optimal; it has no competing funded attack, gust, recovery or effective game-clock evaluation. It does establish that source wins previously counted as ordinary engine terminals can be **entirely erased or delayed** by a minimal owner-deck conservation decision, with exact same original physical deals.
