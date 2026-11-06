@@ -252,3 +252,42 @@ test('archived screen rejects tampered real ledger, truncated data and duplicate
   assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[truncated]}));
   assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[make(),make()]}));
 });
+
+test('native source-attack settlement must complete before observed reply root',()=>{
+  const packet={
+    id:'settled-episode',status:'root-cap-unqualified',
+    originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots),
+    actualSourceAttackSettlement:{attacks:[{
+      actionOrdinal:0,settledPromptChain:true,completionRootOrdinal:0,
+      prizesBefore:[6,6],prizesAfter:[5,6]
+    }]}
+  };
+  let result=screenArchivedReciprocalAttempts({attempts:[packet]});
+  assert.equal(result.attackAnchorSettledBeforeReplyContexts,1);
+  assert.equal(result.rows[0].settledSourceAttackPrizeChange,1);
+  packet.actualSourceAttackSettlement.attacks[0].completionRootOrdinal=1;
+  result=screenArchivedReciprocalAttempts({attempts:[packet]});
+  assert.equal(result.attackAnchorSettledBeforeReplyContexts,0);
+  assert.equal(result.rows[0].settledSourceAttackPrizeChange,null);
+});
+test('an archived AttackAction declaration alone cannot assert settled counterplay',()=>{
+  const packet={
+    id:'unsettled',status:'root-cap-unqualified',
+    originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots),
+    actualSourceAttackSettlement:{attacks:[{
+      actionOrdinal:0,settledPromptChain:false,completionRootOrdinal:null
+    }]}
+  };
+  const report=screenArchivedReciprocalAttempts({attempts:[packet]});
+  assert.equal(report.anySourceAttackSequenceContexts,1);
+  assert.equal(report.attackAnchorSettledBeforeReplyContexts,0);
+  assert.equal(report.competitiveGamesQualified,0);
+});
