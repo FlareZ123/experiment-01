@@ -9,3 +9,8 @@ The existing `agent48-owner-vs-seeker-lillie.cjs` prompt facade now delegates to
 Tests: `tests/agent48-owner-vs-seeker-supporter.test.cjs`, `tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs`, `tests/agent48-owner-vs-seeker-guzma-root.test.cjs`, plus the existing Lillie tests. Workflow 42254162349 passed the generic prompt, Lillie compatibility/adapter, and pure Guzma frontier tests. Workflow 42255271742 (#21) completed successfully on commit `9066c6b2483eaef67107e281578a2181718ddfa6` after adding the Guzma root-adapter test.
 
 **Integration remains pending.** Agent20 owns the native Guzma root/adapter integration and must bind the exact prompt ID, then prove the same selected card object moved from owner discard to owner hand after native dispatch. The large Agent34 actor-only wrapper was not modified; coordinate with Agent34/Agent42 before touching it. This helper and root-intent adapter do not establish a native Guzma game, qualify a game, or imply matchup strength.
+
+
+## Guzma layer addendum
+
+Added `agent48-owner-vs-seeker-guzma-layer.cjs` and its both-seat, wrong-zone regression test. Full manual workflow 42257439969 and focused workflow 42257818758 passed. The tests use injected Store/bot doubles; a composed pinned-Twinleaf match remains unverified. Enable Agent34 `heldGuzmaMobility` and compose Agent48 outside Agent43 outside Agent34 for the native experiment.
