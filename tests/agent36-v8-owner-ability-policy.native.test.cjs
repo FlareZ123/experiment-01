@@ -278,3 +278,26 @@ test('nested native policy composes unchanged positive and declined Radiant path
     assert.equal(declined.audit.radiantZeroGate.repairedTurnEnds,0);
   }
 });
+
+
+test('nested native owner-Ability audit survives an intentional abort with prototypes restored',()=>{
+  const {withTelepathAndOwnerAbilityPolicy}=require(
+    '../simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs');
+  const {probeZeroClimacticGate}=require(
+    '../simulation/twinleaf/agent1-radiant-zero-gate-native.cjs');
+  const aborted=new Error('synthetic-native-abort-before-action');
+  assert.throws(()=>withTelepathAndOwnerAbilityPolicy(()=>{
+    throw aborted;
+  }),error=>error===aborted);
+  assert.equal(aborted.ownerTelepathicAudit?.disposition,
+    'native-abort-unqualified');
+  assert.equal(aborted.ownerTelepathicAudit?.competitiveGamesQualified,0);
+  assert.equal(aborted.ownerTelepathicAudit?.ownerAbilityConfirm?.confirmOffers,0);
+  assert.equal(aborted.ownerTelepathicAudit?.telepath?.physicalStores,0);
+  assert.equal(aborted.ownerTelepathicAudit?.radiantZeroGate,null);
+  // A fresh raw Store fixture after the exception must have no lingering
+  // zero-target correction: the original pinned bug still reproduces.
+  const raw=probeZeroClimacticGate(0,0);
+  assert.equal(raw.after.turn,4);
+  assert.equal(raw.shuffleChangedPhysicalOrder,null);
+});
