@@ -94,7 +94,7 @@ function selectedTrials(manifest){
  * @param {boolean} gameIndexReliable Observer saw four live game Stores.
  * @returns {object}
  */
-function summarize(row,actions,gameIndexReliable){
+function summarize(row,actions,gameIndexReliable,lockEvents=[]){
   const evidence=row.nativeAbortEvidence??{};
   return {
     id:row.trial?.id??row.id,
@@ -119,6 +119,8 @@ function summarize(row,actions,gameIndexReliable){
     actualLiveStoreAbilityActions:gameIndexReliable?actions:[],
     rejectedUnknownPowerActions:gameIndexReliable?
       actions.filter(x=>x.rejection==='UNKNOWN_POWER'):[],
+    publicLockWitnessAtActualRejectedPower:gameIndexReliable?
+      lockEvents:[],
     independentPaperPaymentCertified:false,
     competitiveGameQualified:false
   };
@@ -154,8 +156,10 @@ function run(deps={}){
     assert.deepEqual(result.rows.map(x=>x.trial?.id),trials.map(x=>x.id));
     const audit=observed.audit;
     const aligned=audit.liveGameCount===REG2.registeredPerMode;
+    const lockEvents=audit.nativeUnderworldRejectionAudit?.events??[];
     const rows=result.rows.map((row,i)=>summarize(row,
-      audit.abilityActions.filter(x=>x.liveGameIndex===i),aligned));
+      audit.abilityActions.filter(x=>x.liveGameIndex===i),aligned,
+      lockEvents.filter(x=>x.liveGameIndex===i)));
     modes.push({
       modeId:mode.id,ownerTrainerCensus:mode.ownerGenericTrainerFrontier,
       fundedShadowRiderFloatStone:mode.actorFundedShadowRiderFloatStoneRoot,
@@ -163,6 +167,8 @@ function run(deps={}){
       typedActionObserver:OBSERVER_VERSION,
       liveGameIndexAttributionReliable:aligned,
       auxiliaryAbilityDispatchCount:audit.auxiliaryAbilityDispatchCount,
+      nativeUnderworldRejectionAudit:
+        audit.nativeUnderworldRejectionAudit??null,
       nativeAttemptCount:rows.length,rows
     });
   }
