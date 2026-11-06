@@ -336,6 +336,19 @@ jobs:
           path: issue25-agent9-v7-owner-return/
           if-no-files-found: warn
           retention-days: 21
+      - name: Preregistered Agent9 one-root paid Guzma owner Pass native A/B/A exact-deal canary
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          AGENT9_V7_GUZMA_CANARY_DIR: issue25-agent9-v7-guzma-canary
+        run: node --test tests/agent9-v7-guzma-owner-canary.test.cjs tests/agent9-v7-guzma-causal.native.test.cjs
+      - name: Archive original eight native control and paid Guzma treatment including failures
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-v7-native-original-guzma-one-root-canary
+          path: issue25-agent9-v7-guzma-canary/
+          if-no-files-found: warn
+          retention-days: 21
       - name: Run prospective broader original four-rank 128-root same-policy v8
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
