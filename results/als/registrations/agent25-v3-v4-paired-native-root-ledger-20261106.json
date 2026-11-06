@@ -1,0 +1,60 @@
+{
+  "version": "agent25-v3-v4-native-root-ledger-pair-v1-precommit",
+  "date": "2026-11-06",
+  "question": "Was the additional paper-paid original-60 three-donor Quick Ball root actually beneficial in the rank10 case, and why did a seemingly ready rank11/seat1 case refuse to play it?",
+  "sourceEvidence": "results/als/agent25-three-donor-quickball-native-original60-paid-root-v4-20261106.md",
+  "pairedRankSeat": [
+    {
+      "rank": 10,
+      "candidateSeat": 0
+    },
+    {
+      "rank": 11,
+      "candidateSeat": 1
+    }
+  ],
+  "policies": [
+    {
+      "version": "v3",
+      "donorCompressor": true,
+      "ballDonorCostV3": true
+    },
+    {
+      "version": "v4",
+      "donorCompressor": true,
+      "ballDonorCostV4": true
+    }
+  ],
+  "sourceOriginalSixtiesUnchanged": true,
+  "candidateOriginalSixtyUnchanged": true,
+  "sourceRankSeeds": {
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "maxRootActions": 120,
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observationalFields": [
+    "initialFullPhysicalDealFingerprint.digestSha256",
+    "actualSourceRootActionLedger",
+    "decisionTrace",
+    "attackDeclarationTrace",
+    "publicAttackTransitions",
+    "finalPublicBoard",
+    "ownerCostAudit",
+    "paperHnsAudit",
+    "physicalZoneIntegrity"
+  ],
+  "preserveEntireNativeOutcome": true,
+  "defaultOff": true,
+  "expectedAnalysis": [
+    "Verify identical complete hidden first-turn physical deal with digest before calling matching pair",
+    "Find first accepted divergent real Store root action and any cost",
+    "Count native attacks and damage/public board transitions after first divergence",
+    "Explain rank11/seat1 v4 ready flag but no selected Ball root using legal Store action traces and public board; if unavailable classify open"
+  ],
+  "claims": [
+    "same physical deal alone is insufficient to establish policy competence or paper validity",
+    "no official match clock",
+    "zero competitively qualified games"
+  ]
+}
