@@ -495,6 +495,19 @@ for (const seat of [0, 1]) {
       f.state.turn = 4;
       f.state.activePlayer = seat;
       f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      // The native attack creates a between-turn WaitPrompt. Resolve that
+      // genuine prompt before attempting a subsequent owner Item root.
+      let waitPromptsSettled = 0;
+      while (f.state.prompts.some(p => p.result === undefined)) {
+        assert.ok(waitPromptsSettled < 8,
+          'native attack transition may only require bounded WaitPrompts');
+        const pending = f.state.prompts.find(p => p.result === undefined);
+        assert.equal(pending.constructor.name, 'WaitPrompt');
+        f.store.dispatch(new ResolvePromptAction(pending.id, true));
+        waitPromptsSettled++;
+      }
+      assert.ok(waitPromptsSettled >= 1,
+        'the native attacker must have a phase-settlement prompt');
       f.state.turn = 5;
       f.state.activePlayer = 1 - seat;
       f.state.phase = GamePhase.PLAYER_TURN;
