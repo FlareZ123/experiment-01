@@ -49,7 +49,10 @@ function runIssue25V8WithTelepathAndDefaultConfirmFalse(deps={}){
     manifest:{
       ...original.manifest,
       version:VERSION,
+      policyEntryPoint:EXTRA_HASH_PATHS[0],
       profile:'retrospective-v8-eight-registered-128root-telepath-plus-default-confirm-false',
+      confirmPolicy:'pinned SimpleTacticsAi ConfirmPromptResolver default false',
+      confirmDefaultAnswer:false,
       addedNativePromptLayer:'agent8-owner-telepathic-bench-search+agent32-owner-confirm-default-false',
       nativeOwnerPromptAudit:audit,
       resolvedSourceAndPolicyHashes:[
