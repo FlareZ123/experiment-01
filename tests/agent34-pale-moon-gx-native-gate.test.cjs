@@ -158,3 +158,57 @@ for (const seat of [0, 1]) {
     assert.ok(defenderDiscardNames.includes('Rotom V'));
   });
 }
+
+
+const { withPendingEndTurnSwitchCleanup } =
+  require('../simulation/twinleaf/pending-end-turn-switch-cleanup.cjs');
+
+for (const seat of [0, 1]) {
+  test('research-only delayed GX cleanup rescues switched target, seat ' + seat, () => {
+    const { Store } = native('game/store/store');
+    const { Player } = native('game/store/state/player');
+    const { PokemonCardList } = native('game/store/state/pokemon-card-list');
+    const { AttackAction } = native('game/store/actions/game-actions');
+    const { EndTurnEffect } = native('game/store/effects/game-phase-effects');
+    const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+      native('game/store/prefabs/attack-effects');
+    const originalDispatch = Store.prototype.dispatch;
+    const originalSwitch = Player.prototype.switchPokemon;
+    const f = stage(seat, 2, false);
+    f.defender.bench.push(new PokemonCardList());
+    const replacement = initializeCards().getCardByName('Rotom V LOR');
+    assert.ok(replacement);
+    replacement.id = 346789 + seat;
+    f.defender.bench[0].cards.push(replacement);
+    const originalDefender = f.defender.active.getPokemonCard();
+
+    const audited = withPendingEndTurnSwitchCleanup({ Store, Player }, () => {
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+      f.defender.switchPokemon(f.defender.bench[0], f.store, f.state);
+      assert.equal(f.defender.pendingEndOfTurnEffects.length, 0,
+        'paper-correct research hook must discard the delayed effect');
+      RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+        f.store, f.state, new EndTurnEffect(f.defender));
+      assert.strictEqual(f.defender.bench[0].getPokemonCard(), originalDefender);
+      assert.equal(f.defender.discard.cards.includes(originalDefender), false);
+      return {
+        afterSwitchPending: f.defender.pendingEndOfTurnEffects.length,
+        oldDefendingCardSurvived: true
+      };
+    });
+    assert.strictEqual(Store.prototype.dispatch, originalDispatch);
+    assert.strictEqual(Player.prototype.switchPokemon, originalSwitch);
+    assert.equal(audited.removedFromRoot, 0,
+      'staged Store is deliberately not labeled a genuine original-game root');
+    assert.equal(audited.removedFromSimulatedStores, 1);
+    assert.deepEqual(audited.result, {
+      afterSwitchPending: 0, oldDefendingCardSurvived: true
+    });
+    console.log('AGENT34_PALE_MOON_SWITCH_RESCUE', JSON.stringify({
+      seat, removedInStagedStore: audited.removedFromSimulatedStores,
+      nativeOriginalDefenderSurvived: true, prototypeRestored: true,
+      competitiveGamesQualified: 0
+    }));
+  });
+}
