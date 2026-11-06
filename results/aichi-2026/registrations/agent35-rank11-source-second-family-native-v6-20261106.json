@@ -1,0 +1,36 @@
+{
+  "schema": "agent35-rank11-source-second-family-native-v6-retrospective",
+  "registeredAtUtc": "2026-11-06T02:46:00Z",
+  "priorFirstFamilyNativeCi": 42150823554,
+  "priorPostattackChronologyCi": 42151564582,
+  "priorV5ArtifactMemberSha256": "20262a0dc662904ceac513bf22ed10ee713b872498d15ea821387aca724984ca",
+  "originalSourceId": "11:102:A:champion-reference",
+  "originalSourceSeat": 1,
+  "sourceInitialTurn": 2,
+  "sourceSecondTurn": 4,
+  "sourceSecondAttackRootOrdinal": 29,
+  "registeredPrefixFromSourceAttack17ThroughSecondAttack29Sha256": "ecb279a402f9dd6e89493509a174255912f28339be719d1d1017326d561c8ee5",
+  "sourceDealFingerprintSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+  "fullPhysicalFingerprintSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+  "twinleafPinnedGitSha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "changeFromV5": "One default-off owner-only extension of physically validated Trubbish FST Call for Family native Basic-deck prompt on source's next native turn4, after original T2 settlement; no new strategic root choice",
+  "actualOriginalVsCandidateDecks": "Same original rank11 source vs rank1 champion reference, same exact known source and full physical deal, all 8 frozen original trial IDs preserved",
+  "noFullBenchInjection": "Do not extend beyond source turn4; native fullbench paper behavior remains separately gated",
+  "prohibited": [
+    "Opponent hidden zones for source decision",
+    "Mutating original first turn source/card decisions",
+    "Selecting a Basic before a genuine owner deck search prompt",
+    "Assuming attack outcome from accepting a ResolvePromptAction",
+    "Dropping censored or engine-error original attempts",
+    "Claiming competitive paper strength"
+  ],
+  "expectedEvidence": [
+    "pre-mutation source roots17..29 exact hash",
+    "native source turn4 AttackAction actual clientId",
+    "real owner ChooseCardsPrompt min0max1 validated with owner deck",
+    "one second distinct Basic physically deck to open Bench",
+    "native shuffle and next opponent action if available",
+    "native error stage or noncompletion explicitly included",
+    "zero qualified games"
+  ]
+}
