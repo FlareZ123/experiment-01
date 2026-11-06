@@ -29,6 +29,9 @@ test('Basic Pokémon exactly identified by matched source set and number',()=>{
   assert.equal(sourcePokemonIsPrintedBasic(source,sets,()=>[
     {number:'17',name:'Sample',supertype:'Pokémon',subtypes:['Stage 1']}
   ]),false);
+  assert.equal(sourcePokemonIsPrintedBasic({...source,name:'Sample ♢'},sets,()=>[
+    {number:'17',name:'Sample ◇',supertype:'Pokémon',subtypes:['Basic']}
+  ]),true);
   assert.throws(()=>sourcePokemonIsPrintedBasic(source,sets,()=>[]),
     /unresolved exact Pokémon print/);
   assert.throws(()=>sourcePokemonIsPrintedBasic(source,sets,()=>[
