@@ -59,7 +59,8 @@ function auditOwnerSeekerPasses(rows) {
       findings.push({trialId, groupId, root:root.actionOrdinal, turn:root.turnBefore,
         candidateSeat:seat, earlierCandidateGuzmaRoots:earlierGuzma.map(x => x.actionOrdinal),
         fundedBenchedShadowRider:energized,
-        activePrinting:board.active?.printing ?? null,
+        activeName:board.active?.name ?? null,
+        activeEnergyCards:board.active?.energyCards?.length ?? null,
         handSha256:receipt.ownerHandSha256,
         publicBoardSha256:receipt.publicBoardSha256});
     }
