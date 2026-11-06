@@ -52,7 +52,10 @@ function gcd(a,b){
 /**
  * Both singleton Thunder Mountain and >=1 DCE are held across a legal
  * Basic-containing initial seven and one going-second natural draw.
- * No held G&H, Tag Call or Trainers' Mail may be present.
+ * By default no held G&H, Tag Call or Trainers' Mail may be present.
+ * With allowConnectors=true those cards are ordinary counted hand fillers;
+ * the broader pair event overlaps resource search routes and must not be
+ * added directly to a G&H/Tag/Mail union without subtracting overlap.
  *
  * For a fixed unordered observed eight-card set with b Basic Pokémon,
  * exactly 8 choices of the final card are compatible with a legal initial7
@@ -61,14 +64,18 @@ function gcd(a,b){
  * under exact marginalization. This is a finite-population count.
  *
  * @param {6|24|29} rank
- * @param {{requireGuzma?:boolean,exactlyOneBasic?:boolean}} [options]
+ * @param {{requireGuzma?:boolean,exactlyOneBasic?:boolean,
+ *   allowConnectors?:boolean}} [options]
  * @returns {{rank:number,numerator:bigint,denominator:bigint,
  *   percentage:number,favorable:bigint,
  *   requireGuzma:boolean,exactlyOneBasic:boolean,counts:object}}
  */
 function directlyHeldThornsResources(rank,options={}){
-  const {requireGuzma=false,exactlyOneBasic=false}=options;
+  const {requireGuzma=false,exactlyOneBasic=false,
+    allowConnectors=false}=options;
   const counts=groupOriginalSixty(rank);
+  const filler=counts.other+
+    (allowConnectors?counts.hala+counts.tag+counts.mail:0);
   const denominator=(choose(60,7)-choose(60-counts.basic,7))*53n;
   let favorable=0n;
   for(let b=1;b<=counts.basic;b++){
@@ -77,7 +84,7 @@ function directlyHeldThornsResources(rank,options={}){
       for(let g=Number(requireGuzma);g<=counts.guzma;g++){
         const other=8-b-1-d-g;
         const sets=choose(counts.basic,b)*choose(counts.dce,d)*
-          choose(counts.guzma,g)*choose(counts.other,other);
+          choose(counts.guzma,g)*choose(filler,other);
         favorable+=sets*BigInt(b===1?7:8);
       }
     }
@@ -87,7 +94,7 @@ function directlyHeldThornsResources(rank,options={}){
   return {
     rank,numerator:favorable/factor,denominator:denominator/factor,
     percentage:100*Number(favorable)/Number(denominator),
-    favorable,requireGuzma,exactlyOneBasic,counts
+    favorable,requireGuzma,exactlyOneBasic,allowConnectors,counts
   };
 }
 
