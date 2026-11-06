@@ -14,7 +14,7 @@ Final design: two authenticated original **rank6 Iron Thorns** physical starting
 
 ## Actual rejected native actions
 
-The [Agent39 live plain-text Store observer](../../simulation/twinleaf/agent39-live-unknown-power-action-witness.cjs) was installed around each native mode. All **12** genuine live Store instances aligned to their corresponding actual game indices, with no auxiliary Ability dispatch counted in the printed console summary. The observer recorded accepted and rejected real `UseAbilityAction` names without changing Store behavior.
+The [Agent39 live plain-text Store observer](../../simulation/twinleaf/agent39-live-unknown-power-action-witness.cjs) was installed around each native mode. The observer reported **4 live Store instances per mode**, giving aligned attribution for all **12** actual game indices. The console summary does not state the auxiliary-dispatch total. The observer recorded accepted and rejected real `UseAbilityAction` names without changing Store behavior.
 
 | Original source context | Owner seat of original Iron Thorns source | Abort acting seat / turn | Historical root ordinal | Actual Store-dispatch ordinal | Rejected Action field | Three mode outcomes |
 | --- | ---: | --- | ---: | ---: | --- | --- |
