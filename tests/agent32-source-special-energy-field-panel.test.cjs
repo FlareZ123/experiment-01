@@ -44,6 +44,12 @@ test('rank 6 Special-only and rank 1 no-Special source are distinct',()=>{
   const {rows}=summarizeSourceSpecialEnergyPanel(original,bRows);
   const rank6=rows.find(x=>x.rank===6);
   assert.equal(rank6.basicPokemonCopies,4);
+  assert.ok(Math.abs(rank6.sourceSpecialAccessOriginalSeven-
+    0.6101129357327705)<1e-12);
+  assert.ok(Math.abs(rank6.independentBonusChoiceDifferenceLower-
+    (0.6101129357327705-0.6141512504629808))<1e-12);
+  assert.ok(Math.abs(rank6.independentBonusChoiceDifferenceUpper-
+    (0.6289501552879545-0.6101129357327705))<1e-12);
   assert.ok(Math.abs(rank6.sourceSpecialAccessVsSeven-
     0.6289501552879545)<1e-12);
   assert.equal(rows.find(x=>x.rank===1).sourceSpecialAccessVsSeven,0);
@@ -53,6 +59,14 @@ test('equal-rank 29 and 24 differences are deterministic',()=>{
   const panel=summarizeSourceSpecialEnergyPanel(original,bRows);
   assert.ok(Math.abs(panel.acrossAll29.differenceSevenMinusFourteen-
     0.015281328670871645)<1e-12);
+  assert.ok(Math.abs(panel.acrossAll29.sourceSpecialAccessOriginalSeven-
+    0.34993464623045933)<1e-12);
+  assert.ok(Math.abs(panel.acrossAll29.independentBonusChoiceDifferenceLower-
+    (-0.00477290999183898))<1e-12);
+  assert.ok(Math.abs(panel.acrossAll29.independentBonusChoiceDifferenceUpper-
+    0.02005423866271064)<1e-12);
+  assert.ok(panel.acrossAll29.independentBonusChoiceDifferenceLower<0);
+  assert.ok(panel.acrossAll29.independentBonusChoiceDifferenceUpper>0);
   assert.ok(Math.abs(panel.acrossSpecialBearing24.differenceSevenMinusFourteen-
     0.018464938810636572)<1e-12);
 });
@@ -64,4 +78,18 @@ test('reject changed or incomplete source inventory and Basics',()=>{
     [...bRows.slice(0,-1),{...bRows[0]}]));
   original.decks[0].cards[0].count=59;
   assert.throws(()=>summarizeSourceSpecialEnergyPanel(original,bRows));
+});
+
+test('no optional draw is always attainable and bounds preserve original baseline',()=>{
+  const {original,bRows}=fixture();
+  const panel=summarizeSourceSpecialEnergyPanel(original,bRows);
+  for(const row of panel.rows){
+    const baseline=row.sourceSpecialAccessOriginalSeven;
+    assert.ok(baseline<=row.sourceSpecialAccessVsSeven+1e-12);
+    assert.ok(baseline<=row.sourceSpecialAccessVsFourteen+1e-12);
+    assert.ok(row.independentBonusChoiceDifferenceLower<=
+      row.differenceSevenMinusFourteen+1e-12);
+    assert.ok(row.independentBonusChoiceDifferenceUpper>=
+      row.differenceSevenMinusFourteen-1e-12);
+  }
 });
