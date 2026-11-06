@@ -7,6 +7,10 @@ on:
         description: Retrospective original source Team Flare then rank1 funded Pale Moon GX single response A/B/A, no competition
         type: boolean
         default: false
+      agent34_skyliner_guzma_palemoon_reply:
+        description: Frozen original rank3 owner held Guzma after rank1 GX, uncorrected vs corrected switch, 4 arms, no competition
+        type: boolean
+        default: false
       agent17_rank1_postdenial_owner_passes:
         description: Fifteen source rank1 post-Team-Flare owner-only native Pass snapshots in frozen game
         type: boolean
@@ -87,7 +91,7 @@ jobs:
       - name: Verify pure source evidence integrity and owner-typed prompt
         run: node --test tests/agent34-fresh-underworld-abort-pair-audit.test.cjs tests/agent34-actor-typed-energy-prompt.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.test.cjs tests/agent31-retreat-same-printing-physical-witness.test.cjs
       - name: Independent conversion accounting pure unit regressions
-        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs tests/agent34-underworld-active-funding-priority.test.cjs tests/agent34-owner-psychic-bench-recipient.test.cjs tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs
+        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs tests/agent34-underworld-active-funding-priority.test.cjs tests/agent34-owner-psychic-bench-recipient.test.cjs tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs tests/agent34-frozen-rank3-guzma-palemoon-native.test.cjs
       - name: Install exact pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -161,6 +165,20 @@ jobs:
         with:
           name: agent17-rank1-Pale-Moon-GX-native-reply-ABA
           path: agent17-pale-moon-counterreply-native-aba.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preflight original rank3 post-GX Guzma owner-only selector
+        if: ${{ inputs.agent34_skyliner_guzma_palemoon_reply }}
+        run: node --test tests/agent34-frozen-rank3-guzma-palemoon-native.test.cjs
+      - name: Run original source rank3 held Guzma versus paper-correct switch four native arms
+        if: ${{ inputs.agent34_skyliner_guzma_palemoon_reply }}
+        run: node simulation/evaluation/agent34-frozen-skyliner-guzma-palemoon-four-arms.cjs > agent34-skyliner-guzma-palemoon-four-arms-native.json
+      - name: Archive all four original physical source Guzma GX counterreply branches including aborts
+        if: ${{ always() && inputs.agent34_skyliner_guzma_palemoon_reply }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank3-original-guzma-after-palemoon-four-arms
+          path: agent34-skyliner-guzma-palemoon-four-arms-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate historical natural original rank1 selected-v3 transport registration
