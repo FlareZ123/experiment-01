@@ -275,3 +275,49 @@ for(const seat of [0,1]){
 }
 
 module.exports={stage,resolveNativeRetreat};
+
+
+test('native Skyliner makes the owner Basic Active Retreat free',()=>{
+  const game=stage(1),{store,state,owner}=game;
+  const manager=initializeCards();
+  const active=manager.getCardByName('Shadow Rider Calyrex V CRE');
+  const latias=manager.getCardByName('Latias ex SSP');
+  assert.ok(active&&latias);
+  active.id=990001;latias.id=990002;
+  const source=owner.active,target=owner.bench[0];
+  source.cards=[active];target.cards=[latias];
+  const energy=[...source.energies.cards];
+  const view=actorObservation(state,1);
+  assert.equal(view.ownPublic.active.printed.stage,game.catalog.stages.BASIC);
+  assert.ok(view.ownPublic.bench[0].abilityDetails.some(x=>x.name==='Skyliner'));
+  assert.equal(proposeTwoUnitPaidRetreatV2(view,game.catalog),null);
+  const {RetreatAction}=engine('game/store/actions/retreat-action');
+  store.dispatch(new RetreatAction(owner.id,0));
+  resolveNativeRetreat(game);
+  assert.strictEqual(owner.active,target);
+  assert.strictEqual(owner.bench[0],source);
+  assert.deepEqual(source.energies.cards,energy);
+  assert.equal(owner.retreatedTurn,state.turn);
+});
+
+test('native Snorlax Block exposes a public no-Retreat restriction and rejects Retreat',()=>{
+  const game=stage(1),{store,state,owner,opponent}=game;
+  const manager=initializeCards();
+  const snorlax=manager.getCardByName('Snorlax PGO 55');
+  const latias=manager.getCardByName('Latias ex SSP');
+  assert.ok(snorlax&&latias);
+  snorlax.id=990003;latias.id=990004;
+  const source=owner.active,target=owner.bench[0];
+  target.cards=[latias];opponent.active.cards=[snorlax];
+  const energy=[...source.energies.cards];
+  const view=actorObservation(state,1);
+  assert.ok(view.opponentPublic.active.abilityDetails.some(x=>x.name==='Block'));
+  assert.equal(view.opponentPublic.active.publicRestrictions.cannotRetreatWhileActive,true);
+  assert.equal(proposeTwoUnitPaidRetreatV2(view,game.catalog),null);
+  const {RetreatAction}=engine('game/store/actions/retreat-action');
+  try{store.dispatch(new RetreatAction(owner.id,0));resolveNativeRetreat(game);}
+  catch(error){assert.match(String(error?.message??error),/retreat|active|blocked/i);}
+  assert.strictEqual(owner.active,source);
+  assert.strictEqual(owner.bench[0],target);
+  assert.deepEqual(source.energies.cards,energy);
+});
