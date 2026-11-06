@@ -21,6 +21,7 @@ The two arms share seeds and first-player seats, but intentionally generate diff
 | Source-seat assignments | 16 / 16 | 16 / 16 |
 | Mulligan pairs (seat0/seat1) | 22 × 0/0; 4 × 0/1; 3 × 1/0; 2 × 1/1; 1 × 0/2 | 25 × 0/0; 4 × 0/1; 3 × 1/0 |
 | Total mulligans by seat | **5 / 8** | **3 / 4** |
+| Total mulligan hands | **13** | **7** |
 | Unequal-mulligan attempts | 8 | 7 |
 | Compensation recipients | seat0 5 / seat1 3 | seat0 4 / seat1 3 |
 | Compensation prompts / cards | 8 / 9 | 7 / 7 |
@@ -29,7 +30,7 @@ The two arms share seeds and first-player seats, but intentionally generate diff
 | Source turn reached | 32/32 | 32/32 |
 | Per-seat shuffle events | not isolated | 32/32 rows shuffled both seats |
 
-Both protocols are near-balanced in this identical-deck cohort. The legacy stream produced five mulligans in seat0 and eight in seat1; the per-seat adapter produced three and four. The eight legacy compensation events split five to seat0 and three to seat1. The seven per-seat events split four to seat0 and three to seat1. All prompt owners matched the player with fewer mulligans, every draw amount matched the difference, and all physical compensation moves preserved exact card identity. Paired by seed, the exact `(seat0, seat1)` mulligan-count pair matched in 20/32 seeds and differed in 12/32; whether either player mulliganed differed in 11/32. Eighteen seeds had zero mulligans under both protocols. The protocols therefore change a meaningful number of opening outcomes even with identical decklists; this does not establish which protocol is more paper-accurate.
+Both protocols are near-balanced in this identical-deck cohort. The legacy stream produced five mulligans in seat0 and eight in seat1; the per-seat adapter produced three and four. The eight legacy compensation events split five to seat0 and three to seat1. The seven per-seat events split four to seat0 and three to seat1. All prompt owners matched the player with fewer mulligans, every draw amount matched the difference, and all physical compensation moves preserved exact card identity. Paired by seed, the exact `(seat0, seat1)` mulligan-count pair matched in 20/32 seeds and differed in 12/32; whether either player mulliganed differed in 11/32. Eighteen seeds had zero mulligans under both protocols. The legacy arm also produced 13 total mulligan hands versus seven in the per-seat arm. The protocols therefore change a meaningful number of opening outcomes even with identical decklists; the lower count in one 32-seed sample does not establish which protocol is more paper-accurate or statistically better.
 
 ### Every unequal-mulligan attempt
 
