@@ -398,3 +398,104 @@ test('lossless actor policy ordinal ties to physical headless Store clock',()=>{
   assert.equal(bindActorNativeStoreOrdinal(unrelated,17,0),null);
   assert.throws(()=>bindActorNativeStoreOrdinal(played.result,18,1));
 });
+
+test('generic Float Stone opt-in reaches the native actor root, not only the audit',()=>{
+  const darkness='Darkness Energy MEE';
+  const ownerView={
+    decisionKind:'owner-root',globalTurn:12,
+    ownHand:['Float Stone BKT'],
+    ownTurnResources:{
+      retreatedTurn:10,toolPlayLocked:false,
+      energyPlayedTurn:12,pokemonPlayLocked:false
+    },
+    ownPublic:{
+      active:{
+        printing:'Mega Absol ex M1L',
+        printed:{stage:0,types:[7],retreatCost:[9,9]},
+        energies:[darkness],tools:[],
+        attacks:[{name:'Claw of Darkness',damage:200,cost:[7,7,9]}],
+        publicRestrictions:{},specialConditions:[]
+      },
+      bench:[{
+        printing:'Mega Absol ex M1L',
+        printed:{stage:0,types:[7],retreatCost:[9,9]},
+        energies:[darkness,darkness,darkness],tools:[],
+        attacks:[{name:'Claw of Darkness',damage:200,cost:[7,7,9]}],
+        publicRestrictions:{},specialConditions:[]
+      }],
+      stadium:[],publicTurnRestrictions:{}
+    },
+    opponentPublic:{
+      active:{printing:'Iron Thorns ex TWM',tools:[]},
+      bench:[],stadium:[]
+    }
+  };
+  const actorCatalog={
+    basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set([darkness]),specialEnergies:new Set(),
+    basicEnergyTypes:{Darkness:7},colorlessEnergyType:9,
+    specialConditions:{ASLEEP:1,PARALYZED:2},
+    dragonPokemonPrintings:new Set()
+  };
+  class PlayCardAction{
+    constructor(id,handIndex,target){
+      this.id=id;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class PassTurnAction{constructor(id){this.id=id;}}
+  class Store{
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        energies:{cards:[]},tools:[],specialConditions:[]});
+      const player=id=>({
+        id,active:empty(),bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},
+        supporter:{cards:[]}
+      });
+      this.state={
+        players:[player(10),player(20)],turn:12,activePlayer:0,
+        phase:2,prompts:[]
+      };
+    }
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Actor root must intercept generic bot');}
+  }
+  function run(enabled){
+    return withActorOnlyRootPolicy(()=>{
+      const store=new Store();
+      const action=new SimpleTacticsAi(10).decodeNextAction(store.state);
+      store.dispatch(action);
+      return action;
+    },{
+      genericFundedFloatStoneRoot:enabled,
+      SimpleTacticsAi,Store,observe:()=>ownerView,
+      getCatalog:()=>actorCatalog,
+      GamePhase:{PLAYER_TURN:2,FINISHED:7},
+      cardActions:{
+        PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
+        SlotType:{ACTIVE:1,BENCH:2}
+      },
+      gameActions:{
+        AttackAction:class{},PassTurnAction,
+        RetreatAction:class{},UseAbilityAction:class{}
+      }
+    });
+  }
+  const control=run(false);
+  const treatment=run(true);
+  assert.ok(control.result instanceof PassTurnAction);
+  assert.ok(treatment.result instanceof PlayCardAction);
+  assert.equal(treatment.result.handIndex,0);
+  assert.deepEqual(treatment.result.target,{
+    player:0,slot:1,index:0
+  });
+  assert.equal(control.audit.genericFundedFloatStoneRootOptIn,false);
+  assert.equal(treatment.audit.genericFundedFloatStoneRootOptIn,true);
+  assert.equal(control.audit.selectedRootDecisions,1);
+  assert.equal(treatment.audit.selectedRootDecisions,1);
+  assert.equal(treatment.audit.competitiveGameQualified,false);
+});
