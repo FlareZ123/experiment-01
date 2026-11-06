@@ -58,6 +58,7 @@ jobs:
           node-version: '22'
       - run: node --test tests/agent27-adp-wondertag-bonus-miniature.test.cjs
       - run: node --test tests/agent27-adp-wondertag-bonus-exact.test.cjs
+      - run: node --test tests/agent27-adp-wondertag-29field-lock-bounds.test.cjs tests/agent27-adp-iron-thorns-wondertag-veto.test.cjs
   agent27-adp-four-bonus-math:
     if: inputs.agent27_adp_four_bonus
     runs-on: ubuntu-latest
