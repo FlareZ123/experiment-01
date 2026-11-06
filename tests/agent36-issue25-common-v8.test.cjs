@@ -52,6 +52,7 @@ test('v8 passes unchanged both-seat owner algorithms to registered 128-root nati
   assert.equal(seen.nativeRootActionLimit,128);
   assert.equal(seen.actorOnlyComposition,true);
   assert.equal(seen.sourceIndependentCommonPolicy,true);
+  assert.equal(seen.allowAdditionalOriginalSourceRanks,true);
   assert.equal(seen.bilateralSpecialEnergyRoot,true);
   assert.equal(seen.nativeAcceptedTargets,true);
   assert.equal(seen.registeredFrameName,
