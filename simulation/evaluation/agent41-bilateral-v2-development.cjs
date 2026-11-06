@@ -384,6 +384,62 @@ function actorPaidRetreatRootOptions({
 }
 
 /**
+ * Select an explicit RNG protocol while preserving legacy defaults.
+ * @param {{isolatePolicyRandomness?:boolean,isolatePhysicalShuffleRandomnessAfterSetup?:boolean}} [options]
+ * @returns {{request:object,manifest:object}}
+ */
+function rngProtocolSelection(options={}){
+  const isolatePolicyRandomness=options.isolatePolicyRandomness??false;
+  const isolatePhysicalShuffleRandomnessAfterSetup=
+    options.isolatePhysicalShuffleRandomnessAfterSetup??false;
+  assert.equal(typeof isolatePolicyRandomness,'boolean');
+  assert.equal(typeof isolatePhysicalShuffleRandomnessAfterSetup,'boolean');
+  const randomnessProtocol=isolatePhysicalShuffleRandomnessAfterSetup?
+    (isolatePolicyRandomness?
+      'per-seat-policy-and-physical-shuffle-after-setup-prng-v1':
+      'per-seat-physical-shuffle-after-setup-prng-v1'):
+    (isolatePolicyRandomness?
+      'separate-game-and-per-seat-policy-prng-v1':'legacy-shared-prng');
+  return {
+    request:{
+      isolatePolicyRandomness,
+      isolatePhysicalShuffleRandomnessAfterSetup
+    },
+    manifest:{
+      policyRandomIsolation:isolatePolicyRandomness,
+      physicalShuffleRandomIsolation:false,
+      physicalShuffleRandomIsolationAfterSetup:
+        isolatePhysicalShuffleRandomnessAfterSetup,
+      randomnessProtocol
+    }
+  };
+}
+
+/**
+ * Fail closed if a paid-Retreat option did not activate the live actor wrapper.
+ * @param {{actorOnlyComposition?:boolean,actorTwoUnitPaidRetreatRoot?:boolean,actorTwoUnitPaidRetreatRootV2?:boolean,scopedRoot?:object}} options
+ * @returns {object} Explicit wrapper-selection receipt.
+ */
+function paidRetreatRootWrapperActivationReceipt({
+  actorOnlyComposition=false,
+  actorTwoUnitPaidRetreatRoot=false,
+  actorTwoUnitPaidRetreatRootV2=false,
+  scopedRoot=null
+}={}){
+  const optIn=actorTwoUnitPaidRetreatRoot||actorTwoUnitPaidRetreatRootV2;
+  const selected=typeof scopedRoot?.root==='function';
+  assert.ok(!optIn||actorOnlyComposition,
+    'Paid-Retreat root selection requires bilateral actor-only composition');
+  assert.ok(!optIn||selected,
+    'Paid-Retreat opt-in did not install the live scopedRoot wrapper');
+  return {
+    twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
+    twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+    twoUnitPaidRetreatRootWrapperSelected:optIn&&selected
+  };
+}
+
+/**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
  * @param {object} trial
@@ -417,12 +473,17 @@ function executeDevelopment(trial,candidates,{
   paperRank9ElectrodeGXCorrection=false,
   sourceIndependentCommonPolicy=false,
   losslessNativeRootJoin=false,registeredTrial=false,
+  isolatePolicyRandomness=false,
+  isolatePhysicalShuffleRandomnessAfterSetup=false,
   onRootStoreCreated=null,onRootActionDispatched=null
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
   if(garbotoxinWindow)assert.equal(trial.rank,11,
     'Garbodor power window belongs only to rank 11');
+  const rng=rngProtocolSelection({
+    isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
+  });
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -450,6 +511,7 @@ function executeDevelopment(trial,candidates,{
     onRootStoreCreated,onRootActionDispatched,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
+    ...rng.request,
     // Optional both-seat release gate: native Store must retain all physical
     // sixty cards after every settled root. Leave historical fixtures unchanged.
     capturePhysicalZoneIntegrity:physicalZoneGate,
@@ -747,6 +809,12 @@ function executeDevelopment(trial,candidates,{
   assert.equal(game.engine,'twinleafgg/'+registration.enginePin);
   assert.equal(game.verifiedByDrawLog,true);
   assert.equal(game.promptValidationMode,'predispatch-prompt-validate');
+  assert.equal(game.policyRandomIsolation,rng.manifest.policyRandomIsolation);
+  assert.equal(game.physicalShuffleRandomIsolation,
+    rng.manifest.physicalShuffleRandomIsolation);
+  assert.equal(game.physicalShuffleRandomIsolationAfterSetup,
+    rng.manifest.physicalShuffleRandomIsolationAfterSetup);
+  assert.equal(game.randomnessProtocol,rng.manifest.randomnessProtocol);
   if(nativeAcceptedTargets){
     // A completed native witness must contain genuine root-linked accepted
     // Store dispatches and a two-seat physical deal. Empty prompt effects
@@ -958,6 +1026,12 @@ function executeDevelopment(trial,candidates,{
           })
     }:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
+    rngProtocol:rng.manifest,
+    policyRandomIsolation:game.policyRandomIsolation,
+    physicalShuffleRandomIsolation:game.physicalShuffleRandomIsolation,
+    physicalShuffleRandomIsolationAfterSetup:
+      game.physicalShuffleRandomIsolationAfterSetup,
+    randomnessProtocol:game.randomnessProtocol,
     enginePin:registration.enginePin,
     candidateDeckFingerprint:sha256(candidateCards),
     sourceDeckFingerprint:sha256(opponent.cards),
@@ -1172,6 +1246,8 @@ function runDevelopment({
   actorTwoUnitPaidRetreatTargetTurn=null,
   actorTwoUnitPaidRetreatRootV2=false,
   actorTwoUnitPaidRetreatTargetTurnV2=null,
+  isolatePolicyRandomness=false,
+  isolatePhysicalShuffleRandomnessAfterSetup=false,
   onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
@@ -1227,6 +1303,9 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  const rng=rngProtocolSelection({
+    isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
+  });
   assert.ok(!sourceIndependentCommonPolicy||actorOnlyComposition,
     'Two-seat source-independent resource gate requires actor-only base policy');
   assert.ok(!ownerGenericTrainerFrontier||actorOnlyComposition,
@@ -1459,6 +1538,11 @@ function runDevelopment({
       (trial.candidateSlot==='A'?{
         0:candidatePrintedSixty,1:sourcePrintedSixty
       }:{0:sourcePrintedSixty,1:candidatePrintedSixty}):null;
+    let paidRetreatWrapperActivation={
+      twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
+      twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+      twoUnitPaidRetreatRootWrapperSelected:false
+    };
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
@@ -1474,7 +1558,9 @@ function runDevelopment({
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
-        losslessNativeRootJoin,onRootStoreCreated,onRootActionDispatched,
+        losslessNativeRootJoin,isolatePolicyRandomness,
+        isolatePhysicalShuffleRandomnessAfterSetup,
+        onRootStoreCreated,onRootActionDispatched,
         nativeRootActionLimit,nativeFirstTurnPublicBoard,
         nativeAllOwnerPassFrontier,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
@@ -1617,6 +1703,10 @@ function runDevelopment({
                 knownDeadAttackRootOwnerSeat:trial.candidateSlot==='A'?0:1
               }:{})
             })};
+        paidRetreatWrapperActivation=paidRetreatRootWrapperActivationReceipt({
+          actorOnlyComposition,actorTwoUnitPaidRetreatRoot,
+          actorTwoUnitPaidRetreatRootV2,scopedRoot
+        });
         const chargedPokemon=actorChargedPromotion?{
           pokemon:work=>require('../twinleaf/agent8-actor-only-choose-pokemon.cjs')
             .withActorOnlyChoosePokemon(work,{
@@ -1683,7 +1773,7 @@ function runDevelopment({
                   {allowBenchedMewtwo:true,maxGlobalTurn:6}:
                   {maxGlobalTurn:Number.POSITIVE_INFINITY}}
             }:{})});
-        rows.push({...observed.result,
+        rows.push({...observed.result,...paidRetreatWrapperActivation,
           ...(actorOwnerMailAfterPass?{
             ownerMailAfterPassAudit:ownerMailAudit
           }:{}),
@@ -1740,7 +1830,7 @@ function runDevelopment({
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
           qualifiesForCompetitiveInference:false});
-      }else rows.push(execute());
+      }else rows.push({...execute(),...paidRetreatWrapperActivation});
     }
     catch(error){
       const veto=error?.paperSupporterQuotaEvidence??
@@ -1758,7 +1848,15 @@ function runDevelopment({
         require('../twinleaf/native-dispatch-abort-evidence.cjs')
           .publicNativeAbortError(error);
       rows.push({
-        trial,status:error?.code===
+        trial,...paidRetreatWrapperActivation,
+        rngProtocol:rng.manifest,
+        policyRandomIsolation:rng.manifest.policyRandomIsolation,
+        physicalShuffleRandomIsolation:
+          rng.manifest.physicalShuffleRandomIsolation,
+        physicalShuffleRandomIsolationAfterSetup:
+          rng.manifest.physicalShuffleRandomIsolationAfterSetup,
+        randomnessProtocol:rng.manifest.randomnessProtocol,
+        status:error?.code===
           require('./physical-zone-qualification.cjs').INVALID_CODE?
           'engine-physical-invalid':classifyNativeAbort(veto),
         physicalZoneQualification:require('./physical-zone-qualification.cjs')
@@ -1840,6 +1938,18 @@ function runDevelopment({
     }
   }
   return {
+    rngProtocol:rng.manifest,
+    policyRandomIsolation:rng.manifest.policyRandomIsolation,
+    physicalShuffleRandomIsolation:rng.manifest.physicalShuffleRandomIsolation,
+    physicalShuffleRandomIsolationAfterSetup:
+      rng.manifest.physicalShuffleRandomIsolationAfterSetup,
+    randomnessProtocol:rng.manifest.randomnessProtocol,
+    twoUnitPaidRetreatRootOptIn:actorTwoUnitPaidRetreatRoot,
+    twoUnitPaidRetreatRootV2OptIn:actorTwoUnitPaidRetreatRootV2,
+    twoUnitPaidRetreatRootWrapperSelected:
+      (actorTwoUnitPaidRetreatRoot||actorTwoUnitPaidRetreatRootV2)&&
+      rows.length>0&&rows.every(row=>
+        row.twoUnitPaidRetreatRootWrapperSelected===true),
     schema:earlyBenchedCompressorPayload?
       'agent32-bilateral-common-policy-development-v0c-owner-compressor-benched-v1':
       (anyTurnCompressorPayload?
@@ -2137,12 +2247,17 @@ if(require.main===module){
     sameRootPositiveAttackOverPass:
       process.env.AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV==='true',
     sameRootThornsEmptyBench:
-      process.env.AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV==='true'
+      process.env.AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV==='true',
+    isolatePolicyRandomness:
+      process.env.AGENT41_ISOLATE_POLICY_RANDOMNESS==='true',
+    isolatePhysicalShuffleRandomnessAfterSetup:
+      process.env.AGENT41_ISOLATE_PHYSICAL_SHUFFLE_AFTER_SETUP==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,sourceFirstPressureTrials,
-  commonPayloadOption,actorPaidRetreatRootOptions,firstPostSourceDecision,
+  commonPayloadOption,actorPaidRetreatRootOptions,rngProtocolSelection,
+  paidRetreatRootWrapperActivationReceipt,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
   executeDevelopment,runDevelopment,registeredNativeSeatDecks,
