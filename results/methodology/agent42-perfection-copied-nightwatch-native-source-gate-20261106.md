@@ -89,3 +89,18 @@ The same genuinely paid, source-marked `UseAbilityAction('Perfection')` then cho
 **Compiled verification:** [CI 42150868907, SUCCESS](https://github.com/FlareZ123/experiment-01/actions/runs/42150868907), **8/8 native tests passed** (2 source-origin, 2 full default attack, 2 Cologne versus Thorns, 2 Field Blower versus Garbotoxin). Both Field Blower receipts document the exact removed `Float Stone BKT`, `sourceBoundToCopycat=true`, `opponentPrivateCardNamesReadForDecision=false`, native shuffle validated only via preexisting Agent33 correction (`correctedShuffle=1`) and 150 damage. The complete suite is maintained in the single [Agent42 regression](../../tests/agent42-perfection-nightwatch-source-marked.native.test.cjs) under the existing manually dispatched workflow.
 
 This confirms a second **fully resolved exact physical anti-lock chain** relative to the earlier New Moon ability-only visibility table. The two proposed Field Blower copies in the candidate 60 do **not** guarantee timely access against the four Aichi Absol/Garbodor ranks, Tool reattachment or control denial. The two-counter package remains **unqualified in naturally dealt opponent games**, with no measured attack access frequency, match outcomes, adversarial replies, prizes or win probability.
+
+## Exact direct-resource constraint for either lockbreaker and three Energy
+
+The physical Native Store tests above **inject** the Item already in hand and all three Psychic-providing Energy cards already attached to Mewtwo. The exact validated New Moon English-proxy 60 contains **17 Basic Pokémon, 2 copies of each named anti-lock Item, 6 total Psychic-providing Energy, and 35 other cards once one specific two-copy counter is designated**. Accordingly, an additional direct-resource-only **multivariate hypergeometric screen** independently conditions on a legal seven containing at least one Basic and treats the six initial Prize positions exchangeably with undrawn card positions. It divides the order into the starting **seven**, the next **one mandatory draw**, and the following **two mandatory draws**. Opponent mulligan bonus cards, every search, Powerglass, other draw, resource recycling, and all board and attack requirements are excluded.
+
+For either named two-copy Item (Cologne or Field Blower), the exact probability of seeing **at least one directly in the first eight** and **at least three of the six Energy directly in the first ten** is
+
+\[
+\frac{1,081,043,307}{121,947,076,667}
+  = 0.008864856268363013 \;\; (0.8864856268\%).
+\]
+
+As a cross-check, the same enumeration recovers the existing independent first-eight counter-only conditional result `416435 / 1708349` = **24.3764594%**, already published in the frozen candidate's access analysis. The new small joint fraction underscores how strongly the fully injected paid attacking state depends on resources. It is a **probability of a narrowly defined direct card-observation event** and is **neither an upper nor a lower bound for the actual source-play frequency or win rate**: search and Powerglass can permit routes outside the direct event, and obtaining three Energy by the third draw is insufficient if attachment windows or donor access were missed.
+
+Reproducible exact BigInt four-category segment enumeration: [source script](../../scripts/agent42-newmoon-counter-energy-joint-direct.cjs), [source-local regression](../../tests/agent42-newmoon-counter-energy-joint-direct.test.cjs). The test rederives both reduced rational fractions, checks the original access-study fraction, and is run in the **pre-existing manual native CI** without adding an independent workflow. This is a mathematical card-position calculation only. No simulated match or new competitive sample is counted.
