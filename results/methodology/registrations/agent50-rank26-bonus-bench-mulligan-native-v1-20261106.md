@@ -14,6 +14,10 @@ At the pinned Twinleaf revision, can a defending original rank6 Iron Thorns list
 - Twinleaf gitlink: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Native setup source: pinned `setup-reducer.ts`, `ChooseCardsPrompt`, `ShuffleDeckPrompt`, and `Store.dispatch`. Research code only; no vendor edits.
 
+## Prior pinned-engine evidence
+
+Before this rank26/rank6 fixture, `results/aichi-2026/rank3-snorlax-optional-bench-real-store.md` documented a native Store witness at the same Twinleaf pin. Its post-compensation setup prompt accepted both the default second-Snorlax Bench selection and an opt-in empty selection; successful manual runs are recorded as CI **39238161077** and **39240015623**. That establishes the general prompt/Store mechanism on a different rank3-versus-rank1 deal. It does not establish the exact rank26/rank6 physical hand or second-Thorns placement, which is the purpose of this fixture.
+
 ## Constructed physical setup
 
 Use one deterministic, deliberately constructed deal. Intercept only the native shuffle prompt actions and supply valid complete permutations of the actual physical deck arrays:
