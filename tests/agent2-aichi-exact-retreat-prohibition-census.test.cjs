@@ -10,7 +10,12 @@ test('duplicate set abbreviations resolve by both printed number and name',()=>{
     ['CRZ','105','Radiant Eternatus','swsh12pt5-105'],
     ['LOR','58','Rotom V','swsh11-58'],
     ['SIT','135','Regidrago V','swsh12-135'],
-    ['ASR','133','Oranguru V','swsh10-133']
+    ['ASR','133','Oranguru V','swsh10-133'],
+    ['XYP','67','Jirachi','xyp-XY67'],
+    ['XYP','49','Regirock','xyp-XY49'],
+    ['SMP','217','Trevenant & Dusknoir-GX','smp-SM217'],
+    ['LOT','154','Ditto ♢','sm8-154'],
+    ['TEU','51','Tapu Koko ♢','sm9-51']
   ]){
     const result=resolvePrinting({name,printing:{set,number}});
     assert.equal(result.status,'exact-printing',name);
@@ -31,7 +36,7 @@ test('invalid set abbreviations and wrong names fail closed',()=>{
 
 test('all 29 authenticated source 60s resolve with exact card identity',()=>{
   const result=run();
-  assert.match(VERSION,/v2$/);
+  assert.match(VERSION,/v3$/);
   assert.equal(result.originalSourceDecks,29);
   assert.equal(result.registeredPokemonRows,309);
   assert.equal(result.exactPokemonRows,309,JSON.stringify(result.unresolved));
