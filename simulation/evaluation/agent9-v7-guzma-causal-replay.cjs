@@ -109,6 +109,8 @@ function compareExactOriginalGuzma(control,treatment,nativeTreatmentReceipt){
       guzmaCanary:applied.volt?.agent9PostVoltGuzmaCanaryAudit??null,
       guzmaPromptContinuation:
         applied.volt?.agent43GuzmaPromptContinuationAudit??null,
+      opponentFloatStoneCounter:
+        applied.volt?.agent9OpponentFloatStoneReplyAudit??null,
       attackOrGameOutcomeQualified:false};
     rows.push(row);
   }
