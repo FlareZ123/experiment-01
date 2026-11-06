@@ -54,7 +54,7 @@ on:
         type: boolean
         default: false
       include_agent8_telepath_v5:
-        description: 'Retrospective v5 and v8 original-eight owner Telepathic search plus default ConfirmPrompt false treatment, developmental only'
+        description: 'Retrospective v5/v8 original-eight owner Telepathic search, default ConfirmPrompt baseline and owner-only Radiant/Articuno ability policy, developmental only'
         required: false
         type: boolean
         default: false
@@ -274,6 +274,19 @@ jobs:
         with:
           name: agent32-issue25-v8-telepath-confirm-default-false-same-eight-native
           path: issue25-agent32-v8-confirm/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Test owner-only Radiant and Articuno ability decisions with legal VMAX search
+        if: ${{ inputs.include_agent8_telepath_v5 }}
+        env:
+          ISSUE25_STEWARD_V8_ABILITY_POLICY_DIR: issue25-agent36-v8-ability-policy
+        run: node --test tests/agent36-owner-ability-confirm-policy.test.cjs tests/agent36-v8-owner-ability-policy.native.test.cjs
+      - name: Preserve v8 owner ability policy prompt and target receipts
+        if: ${{ always() && inputs.include_agent8_telepath_v5 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-v8-owner-ability-policy-same-eight-native
+          path: issue25-agent36-v8-ability-policy/
           retention-days: 21
           if-no-files-found: warn
       - name: Audit source-held Hammer counterplay at genuine Shadow Mist Pass in original eight
