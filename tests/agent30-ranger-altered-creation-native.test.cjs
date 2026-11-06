@@ -33,6 +33,17 @@ function settleTurn(x,expectedSeat){
       assert.equal(prompt.options.min,0);
       response=[];
       assert.equal(prompt.validate(response),true);
+    }else if(kind==='ChoosePrizePrompt'){
+      const player=s.players.find(p=>p.id===prompt.playerId);
+      assert.ok(player);
+      response=player.prizes.filter(p=>p.cards.length>0)
+        .slice(0,prompt.options.count);
+      assert.equal(prompt.validate(response,s),true);
+    }else if(kind==='ChoosePokemonPrompt'){
+      const player=s.players.find(p=>p.id===prompt.playerId);
+      assert.ok(player);
+      response=[player.bench.find(p=>p.cards.length>0)];
+      assert.equal(prompt.validate(response,s),true);
     }else if(kind==='ShuffleDeckPrompt'){
       const owner=s.players.find(p=>p.id===prompt.playerId);
       assert.ok(owner);
@@ -50,9 +61,10 @@ function settleTurn(x,expectedSeat){
  * Both seats and real card/reducer transitions are exercised.
  * @param {0|1} seat ADP attacker's physical seat.
  * @param {boolean} useRanger Opponent chooses to play the held Ranger.
+ * @param {boolean} koTarget Use a low-HP Basic victim with a backup Bench.
  * @returns {object} Public native state changes and effect-marker receipt.
  */
-function run(seat,useRanger){
+function run(seat,useRanger,koTarget=false){
   const x=stage(seat);
   const manager=initializeCards();
   let nextId=890000+seat*10000+Number(useRanger)*20000;
@@ -72,7 +84,8 @@ function run(seat,useRanger){
   x.owner.active.energies.cards.push(metal,water,psychic);
   x.opponent.active.cards.length=0;
   x.opponent.active.energies.cards.length=0;
-  x.opponent.active.cards.push(card(ADP));
+  x.opponent.active.cards.push(card(koTarget?'Pidgey MEW':ADP));
+  if(koTarget)x.opponent.bench[0].cards.push(card('Regidrago V SIT'));
   const ranger=card('Pokemon Ranger STS');
   x.opponent.hand.cards.unshift(ranger);
   x.state.turn=2;
@@ -118,13 +131,17 @@ function run(seat,useRanger){
   assert.equal(owner().usedGX,true);
   x.store.dispatch(new AttackAction(owner().id,'Ultimate Ray'));
   const ultimatePrompts=settleTurn(x,1-seat);
-  const damage=opponent().active.damage;
-  assert.equal(damage,useRanger?150:180);
+  const damage=koTarget?null:opponent().active.damage;
+  if(!koTarget)assert.equal(damage,useRanger?150:180);
   assert.equal(owner().usedGX,true);
-  assert.deepEqual([owner().prizes.length,opponent().prizes.length],[6,6]);
-  return {seat,useRanger,beforeRanger,afterRanger,
-    ultimateRayDamage:damage,remainingPrizeSlots:[
-      owner().prizes.length,opponent().prizes.length],
+  const remainingPrizeSlots=[owner(),opponent()]
+    .map(p=>p.prizes.filter(slot=>slot.cards.length>0).length);
+  assert.deepEqual(remainingPrizeSlots,
+    koTarget?[useRanger?5:4,6]:[6,6]);
+  if(koTarget)assert.equal(opponent().active.getPokemonCard().name,
+    'Regidrago V');
+  return {seat,useRanger,koTarget,beforeRanger,afterRanger,
+    ultimateRayDamage:damage,remainingPrizeSlots,
     gxPrompts,passPrompts,ultimatePrompts,
     nativeGameTerminal:false,qualifiedCompetitiveGames:0};
 }
@@ -135,6 +152,17 @@ for(const seat of [0,1]){
       const receipt=run(seat,withRanger);
       console.log('AGENT30_NATIVE_RANGER_ADP',JSON.stringify(receipt));
       assert.equal(receipt.ultimateRayDamage,withRanger?150:180);
+    });
+  }
+}
+for(const seat of [0,1]){
+  for(const withRanger of [false,true]){
+    test('native ADP GX actual KO Prize settlement, attacker seat '+seat+
+      ' Ranger '+withRanger,()=>{
+      const receipt=run(seat,withRanger,true);
+      console.log('AGENT30_NATIVE_RANGER_ADP_KO',JSON.stringify(receipt));
+      assert.deepEqual(receipt.remainingPrizeSlots,
+        [withRanger?5:4,6]);
     });
   }
 }
