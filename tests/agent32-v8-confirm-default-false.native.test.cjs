@@ -11,11 +11,36 @@ function idOf(row){return row.trial?.id??row.id??null;}
 function rootsOf(row){return row.rootActionLedger??[];}
 function sum(rows,key){return rows.reduce((total,row)=>total+(row[key]??0),0);}
 
-test('same-eight v8 Telepath plus default Confirm false treatment reaches the 128-root cap',()=>{
+function preservePublicTerminalFields(execution){
+  const rawById=new Map((execution.rawDevelopment?.rows??[])
+    .map(row=>[idOf(row),row]));
+  execution.diagnostic.attemptedRows=
+    (execution.diagnostic.attemptedRows??[]).map(status=>{
+      const raw=rawById.get(status.id);
+      if(!raw)return status;
+      return {
+        ...status,
+        actionCount:raw.actionCount??null,
+        finished:raw.finished??status.finished??null,
+        winner:raw.winner??null,
+        endReason:raw.endReason??null,
+        finalPrizes:raw.finalPrizes??null,
+        finalBoard:raw.finalBoard??null,
+        nativeRootActionCount:raw.rootActionCount??
+          raw.rootActionLedger?.length??null,
+        terminalWinnerMatchesCandidate:raw.finished===true&&
+          raw.winner===(raw.candidateSeat??status.candidateSeat)
+      };
+    });
+}
+
+test('same-eight v8 Telepath plus default Confirm false preserves terminal-or-cap outcomes',()=>{
   const control=runStewardBroaderV8();
   const treatment=runIssue25V8WithTelepathAndDefaultConfirmFalse();
   const controlRaw=control.rawDevelopment?.rows??[];
   const treatmentRaw=treatment.rawDevelopment?.rows??[];
+  preservePublicTerminalFields(control);
+  preservePublicTerminalFields(treatment);
   const controlSummary=new Map(control.diagnostic.actualAttemptRows.map(row=>[row.id,row]));
   const treatmentSummary=new Map(treatment.diagnostic.actualAttemptRows.map(row=>[row.id,row]));
   const controlById=new Map(controlRaw.map(row=>[idOf(row),row]));
@@ -35,6 +60,16 @@ test('same-eight v8 Telepath plus default Confirm false treatment reaches the 12
         old.fullPhysicalDealFingerprint===current?.fullPhysicalDealFingerprint,
       controlRootCount:before?rootsOf(before).length:0,
       treatmentRootCount:rootsOf(row).length,
+      candidateSeat:current?.candidateSeat??row.candidateSeat??null,
+      treatmentNativeOutcome:current?.nativeOutcome??null,
+      treatmentFinished:current?.finished??null,
+      treatmentWinner:current?.winner??null,
+      treatmentEndReason:current?.endReason??null,
+      treatmentActionCount:current?.actionCount??null,
+      treatmentFinalPrizes:current?.finalPrizes??null,
+      treatmentFinalBoard:current?.finalBoard??null,
+      treatmentTerminalWinnerMatchesCandidate:
+        current?.terminalWinnerMatchesCandidate??false,
       exactControlRootPrefix:!!before&&
         rootsOf(row).length>=rootsOf(before).length&&
         JSON.stringify(rootsOf(row).slice(0,rootsOf(before).length))===
@@ -78,7 +113,13 @@ test('same-eight v8 Telepath plus default Confirm false treatment reaches the 12
     sameInitialSourceDeals:pairs.every(row=>row.sameInitialSourceDeal),
     sameInitialFullPhysicalDeals:pairs.every(row=>row.sameInitialFullPhysicalDeal),
     exactPriorRootPrefixAllArms:pairs.every(row=>row.exactControlRootPrefix),
-    allTreatmentRoots128:pairs.every(row=>row.treatmentRootCount===128),
+    nativeTerminalCount:pairs.filter(row=>
+      row.treatmentNativeOutcome==='native-terminal').length,
+    rootCapCount:pairs.filter(row=>
+      row.treatmentNativeOutcome==='action-cap').length,
+    allTreatmentOutcomesTerminalOrCap:pairs.length===8&&pairs.every(row=>
+      row.treatmentNativeOutcome==='native-terminal'||
+      row.treatmentNativeOutcome==='action-cap'),
     nativeMatchCalls:treatment.diagnostic.nativeOwnerPromptAudit.nativeMatchCalls,
     confirmTotals,
     pairs,
@@ -93,7 +134,19 @@ test('same-eight v8 Telepath plus default Confirm false treatment reaches the 12
   assert.equal(report.sameInitialSourceDeals,true);
   assert.equal(report.sameInitialFullPhysicalDeals,true);
   assert.equal(report.exactPriorRootPrefixAllArms,true);
-  assert.equal(report.allTreatmentRoots128,true);
+  assert.equal(report.allTreatmentOutcomesTerminalOrCap,true);
+  assert.equal(report.nativeTerminalCount,1);
+  assert.equal(report.rootCapCount,7);
+  const terminal=pairs.find(row=>
+    row.treatmentNativeOutcome==='native-terminal');
+  assert.ok(terminal);
+  assert.equal(terminal.id,'1:212:B:champion-reference');
+  assert.equal(terminal.treatmentRootCount,110);
+  assert.equal(terminal.treatmentActionCount,110);
+  assert.equal(terminal.treatmentFinished,true);
+  assert.equal(terminal.treatmentWinner,terminal.candidateSeat);
+  assert.equal(terminal.treatmentTerminalWinnerMatchesCandidate,true);
+  assert.ok(terminal.treatmentEndReason);
   assert.equal(report.nativeMatchCalls,8);
   assert.equal(treatment.manifest.nativeOwnerPromptAudit.nativeMatchCalls,8);
   assert.deepEqual(treatment.manifest.nativeOwnerPromptAudit,
