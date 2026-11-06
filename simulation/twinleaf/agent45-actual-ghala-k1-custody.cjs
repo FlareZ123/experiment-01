@@ -39,7 +39,7 @@ function withActualGuzmaHalaK1Custody(execute,deps={}){
     }
     if(this!==actualStore)
       return original.value.call(this,action,...args);
-    ++dispatchOrdinal;
+    const thisOrdinal=++dispatchOrdinal;
     const before=this.state;
     const seat=kind==='PlayCardAction'?
       before.players.findIndex(p=>p.id===action.id):-1;
@@ -68,7 +68,7 @@ function withActualGuzmaHalaK1Custody(execute,deps={}){
       if(accepted){
         playedByOwner.set(player.id,{turn:before.turn,seat});
         audit.acceptedGuzmaHalaOwnerRoots.push({
-          seat,turn:before.turn,StoreDispatchOrdinal:dispatchOrdinal,
+          seat,turn:before.turn,StoreDispatchOrdinal:thisOrdinal,
           playedPrintedCard:physical.fullName
         });
       }
@@ -80,7 +80,7 @@ function withActualGuzmaHalaK1Custody(execute,deps={}){
           !after.deck.cards.includes(c)));
       audit.nativeOwnDeckSearchResults.push({
         seat:ownerSeat,turn:before.turn,promptId:String(pending.id),
-        StoreDispatchOrdinal:dispatchOrdinal,
+        StoreDispatchOrdinal:thisOrdinal,
         selectedPrintedCards:selected?.map(c=>c.fullName)??null,
         selectedCount:selected?.length??null,
         realOwnerDeckPrompt:true,selectedOriginallyInOwnDeck:fromOwnDeck,
