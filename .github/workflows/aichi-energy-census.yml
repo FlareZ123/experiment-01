@@ -26,6 +26,10 @@ jobs:
         run: node --test scripts/test-aichi-energy-audit.cjs
       - name: Gate original source Special Energy print/config coverage without claiming native games
         run: node --test tests/agent49-original-source-energy-admission.test.cjs
+      - name: Compare narrow and general Energy-unit coverage across all authenticated original lists
+        run: node --test tests/agent33-aichi-special-energy-model-coverage.test.cjs
+      - name: Emit exact narrow-versus-general source Energy coverage panel
+        run: node scripts/agent33-aichi-special-energy-model-coverage.cjs > agent33-aichi-special-energy-model-coverage.json
       - name: Regress complete v5 original source Pass chronology under printed Shadow Mist restrictions
         run: node --test tests/agent49-issue25-shadow-mist-pass.test.cjs
       - name: Check original rank11 earliest Letter resource-gate regression
@@ -66,6 +70,7 @@ jobs:
             energy-census.json
             aichi-stadium-response.json
             attached-energy-threat-inventory.json
+            agent33-aichi-special-energy-model-coverage.json
 
   generic-owner-trainer-native:
     if: ${{ inputs.agent49_original_trainer_native }}
