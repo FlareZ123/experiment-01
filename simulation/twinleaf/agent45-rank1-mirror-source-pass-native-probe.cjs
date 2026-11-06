@@ -45,7 +45,8 @@ function withActualOwnerMirrorSourcePassAttackProbe(execute,deps={}){
     const currentOrdinal=ordinal++;
     if(kind==='PassTurnAction'){
       const before=this.state;
-      const actor=before.players.findIndex(p=>p.id===action.id);
+      const actorId=action.clientId??action.id;
+      const actor=before.players.findIndex(p=>p.id===actorId);
       if(actor===sourceSeat){
         const owner=before.players[actor];
         assert.ok(owner);
