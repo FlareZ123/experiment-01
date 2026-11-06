@@ -61,6 +61,18 @@ jobs:
       - name: Independently audit all prospective original v6 roots, attacks, replies and caps
         run: node simulation/evaluation/agent36-v6-existing-archive-audit.cjs
 
+      - name: Download frozen same-eight v7 Volt transfer receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-retrospective-common-v7-volt-native
+          run-id: '42146586227'
+          repository: FlareZ123/experiment-01
+          github-token: ${{ github.token }}
+          path: archives/v7
+
+      - name: Compare native v6 and v7 locked artifacts
+        run: node simulation/evaluation/agent36-v6-v7-existing-archive-delta.cjs
+
       - name: Pure adversarial archival audit regression
         run: node --test tests/agent46-issue25-steward-archive-audit.test.cjs
 
