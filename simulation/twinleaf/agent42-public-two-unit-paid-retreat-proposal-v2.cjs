@@ -18,12 +18,12 @@ function attackBlocked(pokemon,attack){
   const r=pokemon?.publicRestrictions;
   if(!r||typeof r.cannotAttackNextTurn!=='boolean'||
      !Array.isArray(r.cannotUseAttacksNextTurn)||
-     ![null,undefined].includes(r.blockedAttackNameNextTurn)&&
-       typeof r.blockedAttackNameNextTurn!=='string'||
-     ![null,undefined].includes(r.blockedAttackNameUntilLeavesActive)&&
-       typeof r.blockedAttackNameUntilLeavesActive!=='string'||
-     ![null,undefined].includes(r.onlyAllowedAttackNameNextTurn)&&
-       typeof r.onlyAllowedAttackNameNextTurn!=='string')return null;
+     !(r.blockedAttackNameNextTurn===null||
+       typeof r.blockedAttackNameNextTurn==='string')||
+     !(r.blockedAttackNameUntilLeavesActive===null||
+       typeof r.blockedAttackNameUntilLeavesActive==='string')||
+     !(r.onlyAllowedAttackNameNextTurn===null||
+       typeof r.onlyAllowedAttackNameNextTurn==='string'))return null;
   return r.cannotAttackNextTurn===true||
     r.blockedAttackNameNextTurn===attack.name||
     r.blockedAttackNameUntilLeavesActive===attack.name||
