@@ -6,7 +6,7 @@ const {describeInPlayPokemon, publicBoardSnapshot} =
   require('../simulation/twinleaf/public-board-telemetry.cjs');
 
 function slot(name, energy=[], tools=[], attacks=[]) {
-  const pokemon = name ? {name, attacks} : undefined;
+  const pokemon = name ? {name, fullName:name+' TEST', attacks} : undefined;
   return {
     getPokemonCard: () => pokemon, damage: 20,
     energies: {cards: energy.map(value => ({name:value}))},
@@ -26,6 +26,7 @@ test('a visible Active and Benched Pokémon retain Energy identities and printed
     {active:slot('Iron Thorns ex'),bench:[],stadium:{cards:[]}}
   ]};
   const publicBoard = publicBoardSnapshot(state);
+  assert.equal(publicBoard[0].active.printing,'Shadow Rider Calyrex VMAX TEST');
   assert.deepEqual(publicBoard[0].active.energyCards,['Psychic Energy']);
   assert.deepEqual(publicBoard[0].active.toolCards,['Stealthy Hood']);
   assert.deepEqual(publicBoard[0].active.printedAttacks,
@@ -44,7 +45,7 @@ test('vacant Active or Bench slots return null and are excluded',()=>{
     active:empty, bench:[empty,slot('Mimikyu')],stadium:{cards:[]}
   }]}),[{
     active:null,
-    bench:[{name:'Mimikyu',damage:20,energyCards:[],toolCards:[],printedAttacks:[]}],
+    bench:[{name:'Mimikyu',printing:'Mimikyu TEST',damage:20,energyCards:[],toolCards:[],printedAttacks:[]}],
     stadium:[]
   }]);
 });
