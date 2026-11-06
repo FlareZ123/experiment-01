@@ -69,7 +69,8 @@ function opponentHasUnmodeledDamageOrPrizeText(view){
   const opponent=view.opponentPublic;
   if(!opponent?.active||!Array.isArray(opponent.bench))return true;
   for(const pokemon of [opponent.active,...opponent.bench].filter(Boolean)){
-    if(!Array.isArray(pokemon.abilityDetails)||!Array.isArray(pokemon.tools)||pokemon.tools.length!==0)return true;
+    if(!Array.isArray(pokemon.abilityDetails)||!Array.isArray(pokemon.tools)||
+       pokemon.tools.some(p=>!p.startsWith('Tool Jammer ')))return true;
     for(const ability of pokemon.abilityDetails){
       if(ability?.text!==null&&ability?.text!==undefined&&
          typeof ability.text!=='string')return true;
