@@ -27,6 +27,18 @@ jobs:
         run: npm run compile
       - name: Verify pinned Tapu Cure full-health paper targets with reversible research hook
         run: node --test tests/agent15-tapu-cure-paper-hook.test.cjs tests/agent15-tapu-cure-paper-hook.native.test.cjs
+      - name: Reproduce frozen rank1 source postchoice held-Energy Pass census
+        env:
+          AGENT15_RANK1_SOURCE_PASS_DIR: artifacts/agent15-rank1-owner-hand
+        run: node --test tests/agent15-rank1-source-pass-hand-census.test.cjs tests/agent15-rank1-source-pass-hand-census.native.test.cjs
+      - name: Preserve source-owned Pass hand audit and SHA256
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-rank1-owner-pass-hand-native
+          path: artifacts/agent15-rank1-owner-hand/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only bot decision boundary observer
         run: node --test tests/bot-decision-card-boundary-observer.test.cjs
       - name: Count source Card changes surviving each full bot decision
