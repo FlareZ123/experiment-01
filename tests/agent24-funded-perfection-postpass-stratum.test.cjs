@@ -120,12 +120,15 @@ test('a detached probe error is captured in a sample without changing choice',()
   assert.equal(sampler.summary().recorded,1);
 });
 
-test('funded sampling cannot read the opponent concealed hand or deck',()=>{
+test('owner filter avoids hidden-zone reads while detached probe remains unqualified',()=>{
   const sampler=createFundedPerfectionPassSampler({probe(){
     return {activationAccepted:false,validAttackNames:[]};
   }});
   const sample=sampler.observe(ownerState(1,true),123,'PassTurnAction',91);
-  assert.equal(sample.opponentHiddenZonesInspectedBySampler,false);
+  assert.equal(sample.ownerEligibilityFilterReadsOpponentHiddenZones,false);
+  assert.equal(sample.detachedNativeProbeUsesFullStateClone,true);
+  assert.equal(sample.hiddenInformationIndependenceCertified,false);
+  assert.equal(sample.livePolicyChangedByObserver,false);
 });
 
 test('invalid sample capacity is rejected',()=>{
