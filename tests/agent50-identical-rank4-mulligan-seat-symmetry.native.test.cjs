@@ -359,8 +359,8 @@ function attempt(trial,protocol){
             ()=>withOwnerPublicAcknowledgements(()=>
               withOwnerEntryPriorityOpening(()=>
                 withOwnerOpeningStoreReceipt(()=>runMatch({
-                  deckA:source.cards.map(card=>({...card})),
-                  deckB:source.cards.map(card=>({...card})),
+                  deckA:source.cards.slice(),
+                  deckB:source.cards.slice(),
                   seed:trial.seed,maxActions:80,
                   captureNativeAbortEvidence:true
                 }),{sourceSeat:trial.seat}),
