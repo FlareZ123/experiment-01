@@ -46,8 +46,21 @@ function outcome(row) {
     finished:row?.finished??false,
     winner:row?.winner??null,
     error:row?.error??null,
+    nativeError:row?.nativeError??null,
     finalPrizes:row?.finalPrizes??null
   });
+}
+
+/**
+ * An identical raw accepted-root tape can still be a truncated error prefix.
+ * @param {object} row
+ * @param {string} ledgerOrigin
+ */
+function isCensored(row,ledgerOrigin) {
+  return ledgerOrigin==='ABORT_PRESERVED' ||
+    row?.nativeAbortEvidence!=null ||
+    row?.error!=null || row?.nativeError!=null ||
+    /abort|error|quarantin|censor/i.test(String(row?.status??''));
 }
 
 /** @param {object} a @param {object} b */
@@ -55,8 +68,10 @@ function physicalDealEqual(a,b) {
   const fields=['sourceDealFingerprint','fullPhysicalDealFingerprint'];
   if(!fields.every(field=>typeof a?.[field]==='string' &&
       a[field].length>0 && a[field]===b?.[field]))return false;
-  if(!Number.isInteger(a?.actualStarterSeat) ||
+  if((a?.actualStarterSeat!==0 && a?.actualStarterSeat!==1) ||
      a.actualStarterSeat!==b?.actualStarterSeat)return false;
+  if((a?.sourceSeat!==0 && a?.sourceSeat!==1) ||
+     a?.candidateSeat!==1-a.sourceSeat)return false;
   return a?.sourceSeat===b?.sourceSeat &&
     a?.candidateSeat===b?.candidateSeat;
 }
@@ -124,7 +139,7 @@ function audit(config) {
       'MISSING_OR_CONFLICTING_CONTROL_LEDGER':
       controlDifference!==null?'ROOT_HISTORY_MISMATCH':
       outcome(a)!==outcome(a2)?'OUTCOME_MISMATCH':
-      la.kind==='ABORT_PRESERVED'||la2.kind==='ABORT_PRESERVED'?
+      isCensored(a,la.kind)||isCensored(a2,la2.kind)?
         'CENSORED_PREFIX_REPLAY':'BOUNDED_ROOT_REPLAY';
     const treatmentDifference=firstDifference(la.ledger,lb.ledger);
     let treatmentWitness='NOT_A_VALID_TREATMENT_WITNESS';
@@ -164,4 +179,4 @@ function audit(config) {
   };
 }
 
-module.exports={VERSION,evidenceLedger,firstDifference,activation,audit};
+module.exports={VERSION,evidenceLedger,firstDifference,isCensored,activation,audit};
