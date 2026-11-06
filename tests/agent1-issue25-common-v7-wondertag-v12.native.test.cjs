@@ -51,6 +51,16 @@ test('actual pinned native 8 source/candidate trials with innermost generic Wond
     x.nativeStatus==='returned-unqualified'));
   assert.equal(selected.diagnostic.registeredNativeSettledRowCount,
     all.filter(x=>x.registeredNativePrintedSettlement).length);
+  const printed=all.filter(x=>x.registeredNativePrintedSettlement);
+  assert.equal(printed.length,1,
+    'The frozen rank11 contender Wonder Tag must certify one live native Shuffle');
+  assert.equal(printed[0].id,'11:202:A:champion-reference');
+  assert.equal(printed[0].ownerNativeShuffle.nativeLivePromptRegistrationsVerified,1);
+  assert.equal(printed[0].ownerNativeShuffle.nativeLivePromptRegistrationsMissing,0);
+  assert.equal(printed[0].ownerNativeShuffle.nativeCallbackLiveOwnerMatches,1);
+  assert.equal(printed[0].ownerNativeShuffle.nativeCallbackDetachedOwners,0);
+  assert.equal(printed[0].sourceCompletedShuffles,0);
+  assert.equal(printed[0].contenderCompletedShuffles,1);
   const directory=process.env.AGENT1_ISSUE25_V12_OUTPUT_DIR;
   const audit={
     version:VERSION,originalEightIds:expected,
