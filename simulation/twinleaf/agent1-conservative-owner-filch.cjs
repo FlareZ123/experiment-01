@@ -63,6 +63,14 @@ function withConservativeOwnerFilch(execute,deps={}){
   };
   SimpleTacticsAi.prototype.decodeNextAction=guarded;
   try{return {result:execute(),audit};}
+  catch(error){
+    if(error!==null&&typeof error==='object')
+      Object.defineProperty(error,'ownerConservativeFilchAudit',{
+        value:{...audit,replacementEvents:[...audit.replacementEvents]},
+        configurable:true
+      });
+    throw error;
+  }
   finally{
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,guarded);
     SimpleTacticsAi.prototype.decodeNextAction=previous;
