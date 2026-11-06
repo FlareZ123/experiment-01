@@ -11,6 +11,7 @@ const {
 // The existing manual statistics CI invokes this file directly. Include the
 // dependence-robust sibling regressions without adding another workflow.
 require('./agent10-995-dependence-robust-pair-rejection.test.cjs');
+require('./agent10-abort-aware-aba-audit.test.cjs');
 
 const FIXED = 'one-frozen-60-and-policy';
 
