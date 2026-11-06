@@ -62,3 +62,25 @@ The current `agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selec
 ## Scope and limits
 
 This experiment stops immediately after native setup compensation placement. It does not play a turn, prove a first-turn KO, measure setup frequency, compare full-game outcomes, establish a generally optimal setup policy, or qualify any deck or opponent. Agent47's analytic probability remains a model result, not an empirical estimate. Any strategic adoption requires a separately preregistered, source-conserved A/B comparison with full opponent continuation and paper-rule validation.
+
+
+## Post-registration execution and harness amendments
+
+The preregistered fixture was executed in the existing manual rank4 native lane. The following history is retained:
+
+1. Run [42276637493](https://github.com/FlareZ123/experiment-01/actions/runs/42276637493) failed before Store dispatch because the fixture incorrectly treated `ShuffleDeckPrompt.validate` as the authority for numeric index permutations. The pinned method sorts without a numeric comparator, so it rejects a valid 60-card permutation.
+2. Run [42277562392](https://github.com/FlareZ123/experiment-01/actions/runs/42277562392) failed because the harness compared the full shuffled deck after the setup callback had already drawn the first seven cards into hand.
+3. Run [42278008180](https://github.com/FlareZ123/experiment-01/actions/runs/42278008180) passed after the harness was corrected to verify grouped Store settlement, the first seven physical cards in hand, and the remaining deck order.
+
+Passing run details:
+
+- Commit: `e6eaa4b43a79c2ad46a64cb446111a8f8a0ebe79`
+- Artifact ID: `13533623019`
+- Artifact ZIP SHA-256: `33eebba493e9eec73a63e00e3d8c5390e27e379ca6e8e59a9cb093dfab319cc5`
+- All three controlled shuffle events settled through the native Store.
+- The exact compensation-drawn second Iron Thorns ex was selected by the installed default `ChooseCardsPromptResolver` and physically placed on the Bench.
+- The four original rank4 first-turn control probes in the same job also passed.
+
+The successful fixture does not require `ShuffleDeckPrompt.validate` to return true. At this Twinleaf pin, its default JavaScript sort is lexicographic. The Store reducer accepts the complete numeric permutation and `CardList.applyOrder` validates it with a numeric comparator. The test records this discrepancy and verifies the actual physical Store result. No vendor source was changed.
+
+This remains setup-only evidence. It does not establish a full game, paper-rule certification of every relevant interaction, competitive qualification, or a win rate.
