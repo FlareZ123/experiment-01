@@ -32,6 +32,20 @@ The explicit card list at turn 16 (both seed-200 contenders after Capture Energy
 
 The exact turn17 17-card hand is: `Team Flare Grunt XY`, `Crushing Hammer POR` ×2, `Lusamine CIN`, `Plumeria BUS` ×3, `Guzma BUS` ×2, `Guzma & Hala CEC`, `Tropical Beach BWP 50`, `Enhanced Hammer TWM`, `VS Seeker PHF`, `Megaton Blower SSP`, `Player's Ceremony SP 127`, `Trainers' Mail ROS`, `Palace Belt BWP`.
 
+## Actual opposing Active and printed Energy-removal opportunities
+
+The artifact's owner snapshot also includes the **opponent's public Active and physically attached Energy at the exact Pass root**. This resolves an important feasibility prerequisite that an unordered hand list could not establish:
+
+| Source owner turn | Opponent's Active at Pass | Physical Active Energy | Source's relevant held cards | Mechanically promising route |
+| --- | --- | --- | --- | --- |
+| Rank6 A vs Champion, 16 | Radiant Eternatus CRZ, 140 damage | 2 × Psychic Energy MEE | 2 × Crushing Hammer POR | Each Hammer may flip a coin to remove an opponent-attached Energy |
+| Rank6 A vs New Moon, 16 | Duskull VIV, 0 damage | **none** | 2 × Crushing Hammer POR | No Energy on Active; target availability on opponent's Bench remains unverified |
+| Rank6 B vs Champion, 5 | Tapu Lele-GX GRI, 140 damage | 2 × Psychic Energy MEE | Team Flare Grunt XY, 2 × Crushing Hammer POR, Plumeria BUS | Team Flare Grunt can discard one Active Energy without an additional discard cost, subject to source Supporter and lock gates |
+| Rank6 B vs Champion, 13 | Marshadow UNB, 0 damage | **none** | Team Flare Grunt XY, Enhanced Hammer TWM | No Active-energy payment target; opponent Bench Energy and competing uses remain unverified |
+| Rank6 B vs Champion, 17 | Lillie's Clefairy ex JTG, 0 damage | 1 × Psychic Energy MEE | Team Flare Grunt XY, 3 × Plumeria BUS, 2 × Crushing Hammer POR | Team Flare Grunt could remove the Active Psychic, again subject to Supporter and lock gates |
+
+The bundled card corpus prints **Team Flare Grunt XY 129** as discarding one Energy attached to the opponent's Active Pokémon, and **Crushing Hammer** as flipping a coin to discard an Energy from one of the opponent's Pokémon on heads. These are supported card-text effects and owner-visible board targets, rather than inferred tactical benefits. They are **not yet native Store-accepted plays at these five exact roots**. Source turn Supporter quota, all applicable play-lock effects and exact Card `canPlay` require a separate pre- and post-root native witness.
+
 ## Interpretation and next discriminating test
 
 These hands prove that the original decision actor held abundant potentially interactive Trainers on genuine postattack Pass turns. **A large hand is evidence of a policy bottleneck worth examining; it does not by itself establish a missed legal or beneficial action.** Legality and value depend on the live opposing board, Item/Supporter/Stadium restrictions, active/bench targets, per-turn quotas, coin outcomes, discard requirements and the best competing line.
