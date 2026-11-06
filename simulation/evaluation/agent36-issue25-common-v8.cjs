@@ -60,7 +60,7 @@ function trials(){
 function summarizeNativeAttempt(row,attemptedStatus=null){
   const id=row.trial?.id??row.id??null;
   const acceptedNativeRootCount=row.rootActionLedger?.length??
-    row.rootActionCount??null;
+    row.rootActionCount??attemptedStatus?.nativeRootActionCount??null;
   const rootActionCount=row.rootActionCount??acceptedNativeRootCount;
   const finished=typeof row.finished==='boolean'?row.finished:null;
   const actionCount=Number.isSafeInteger(row.actionCount)?
