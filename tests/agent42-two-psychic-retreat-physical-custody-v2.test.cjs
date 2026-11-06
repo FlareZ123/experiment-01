@@ -15,14 +15,22 @@ function setup(seat=1,pay=true){
  return {Store,state,player,other};
 }
 for(const seat of [0,1])test('captures VMAX to Latias paid pivot on seat '+seat,()=>{
- const f=setup(seat),r=withTwoPsychicRetreatCustody(()=>new f.Store().dispatch(new RetreatAction(f.player.id,0)),{Store:f.Store});
+ const f=setup(seat),r=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
+  const store=new f.Store(),action=new RetreatAction(f.player.id,0);
+  onRootStoreCreated(store);store.dispatch(action);
+  onRootActionDispatched(store,action,131,seat,22);
+ },{Store:f.Store});
  assert.equal(r.audit.exactPhysicalPaidRetreats,1);
  assert.equal(r.audit.receipts[0].targetPrinting,'Latias ex SSP');
  assert.equal(r.audit.receipts[0].targetEnergyCount,3);
  assert.equal(r.audit.receipts[0].physicalPaymentObjectCustodyConfirmed,true);
 });
 test('a pivot without the two physical cards is not certified',()=>{
- const f=setup(1,false),r=withTwoPsychicRetreatCustody(()=>new f.Store().dispatch(new RetreatAction(f.player.id,0)),{Store:f.Store});
+ const f=setup(1,false),r=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
+  const store=new f.Store(),action=new RetreatAction(f.player.id,0);
+  onRootStoreCreated(store);store.dispatch(action);
+  onRootActionDispatched(store,action,131,1,22);
+ },{Store:f.Store});
  assert.equal(r.audit.exactPhysicalPaidRetreats,0);
 });
 test('unsupported fee and foreign actor fail before capture',()=>{
