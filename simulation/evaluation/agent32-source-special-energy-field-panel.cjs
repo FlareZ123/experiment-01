@@ -40,11 +40,22 @@ function summarizeSourceSpecialEnergyPanel(original,basicRows){
     const exposure=(candidateBasics,ordinaryDraw=0)=>specialEnergy>0?
       sourceSpecialEnergyExposure({sourceBasics:b,sourceSpecialEnergy:specialEnergy,
         contenderBasics:candidateBasics,ordinaryDraw}).energyAccessUpper:0;
+    const originalSevenAccess=specialEnergy>0?
+      sourceSpecialEnergyExposure({sourceBasics:b,
+        sourceSpecialEnergy:specialEnergy,
+        contenderBasics:CANDIDATES.adpV2Basics}).originalSevenEnergyAccess:0;
     const accessSeven=exposure(CANDIDATES.adpV2Basics);
     const accessFourteen=exposure(CANDIDATES.shadowRiderReferenceBasics);
     rows.push({rank:deck.rank,archetype:deck.archetype,
       basicPokemonCopies:b,energyCopies:totalEnergy,
       specialEnergyCopies:specialEnergy,specialOnly,
+      sourceSpecialAccessOriginalSeven:originalSevenAccess,
+      // Each contender comparison may face a different optional-draw
+      // decision. These outer bounds require no bonus acceptance policy.
+      independentBonusChoiceDifferenceLower:
+        originalSevenAccess-accessFourteen,
+      independentBonusChoiceDifferenceUpper:
+        accessSeven-originalSevenAccess,
       sourceSpecialAccessVsSeven:accessSeven,
       sourceSpecialAccessVsFourteen:accessFourteen,
       differenceSevenMinusFourteen:accessSeven-accessFourteen,
@@ -63,6 +74,12 @@ function summarizeSourceSpecialEnergyPanel(original,basicRows){
   const mean=(records,key)=>records.reduce((s,r)=>s+r[key],0)/records.length;
   const summarize=records=>({
     n:records.length,
+    sourceSpecialAccessOriginalSeven:
+      mean(records,'sourceSpecialAccessOriginalSeven'),
+    independentBonusChoiceDifferenceLower:
+      mean(records,'independentBonusChoiceDifferenceLower'),
+    independentBonusChoiceDifferenceUpper:
+      mean(records,'independentBonusChoiceDifferenceUpper'),
     sourceSpecialAccessVsSeven:
       mean(records,'sourceSpecialAccessVsSeven'),
     sourceSpecialAccessVsFourteen:
@@ -83,7 +100,7 @@ function summarizeSourceSpecialEnergyPanel(original,basicRows){
     acrossSpecialOnly7:summarize(rows.filter(r=>r.specialOnly)),
     rows,
     paperGamesQualified:0,
-    interpretation:'Uniform physical setup, full optional mulligan bonus draws, with or without one ordinary draw. Does not certify payable Energy, policy action, games or wins.'
+    interpretation:'Uniform physical setup. All-offered-bonus comparison is a conditional scenario, not a policy-free effect. The separate original-seven baseline and independent-bonus-choice interval bound any acceptance/decline behavior. No payable Energy, policy action, games or wins certified.'
   };
 }
 
