@@ -48,7 +48,9 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
         assert.strictEqual(selection.card,token.card);
         replies.set(selection.action,{...selection,
           supportItemPrinting:token.root.supportItemPrinting,
-          supportItemCard:token.supportItemCard});
+          supportItemCard:token.supportItemCard,
+          supportItemInHandAtPrompt:token.supportItemInHandAtPrompt,
+          supportItemInDiscardAtPrompt:token.supportItemInDiscardAtPrompt});
         audit.promptsProposed++;
         return selection.action;
       }
