@@ -3,9 +3,9 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseCallFamilyBasic,withLateOwnedCallFamilyPrompt}=
   require('../simulation/twinleaf/agent49-rank11-firstturn-call-family-owner-prompt.cjs');
-const types={SuperType:{POKEMON:2},Stage:{BASIC:1}};
+const types={SuperType:{POKEMON:1},Stage:{BASIC:2}};
 const basic=(id,name='Trubbish FST')=>({
-  id,fullName:name,superType:2,stage:1});
+  id,fullName:name,superType:1,stage:2});
 class ChooseCardsPrompt{
   constructor(owner,max=1){
     this.id=33;this.playerId=owner.id;this.cards=owner.deck;
@@ -15,7 +15,7 @@ class ChooseCardsPrompt{
   validate(cards){
     return Array.isArray(cards)&&cards.length<=this.options.max&&
       cards.length>=this.options.min&&cards.every(card=>
-        this.cards.cards.includes(card)&&card.superType===2&&card.stage===1);
+        this.cards.cards.includes(card)&&card.superType===1&&card.stage===2);
   }
 }
 class AddPlayerAction{}
@@ -123,4 +123,53 @@ test('nonmatching native source never installs owner attack proposal',()=>{
     types,registration:reg});
   assert.deepEqual(selected,{defaultAction:'pass'});
   assert.equal(audit.sourceAttackAttempts,0);
+});
+
+
+test('an explicit bounded later source-turn opt-in settles two genuine Basic prompts',()=>{
+  const p=fixture();const original=p.headless.runMatch;
+  p.headless.runMatch=()=>{
+    const owner=p.owner;
+    p.store.dispatch(new AddPlayerAction());
+    p.store.dispatch(new AttackAction(owner.id,'Call for Family'));
+    const first=p.bot.decodeNextAction(p.store.state);
+    assert.ok(first instanceof ResolvePromptAction);
+    p.store.dispatch(first);
+    p.store.state.turn=4;
+    p.store.dispatch(new AttackAction(owner.id,'Call for Family'));
+    const second=p.bot.decodeNextAction(p.store.state);
+    assert.ok(second instanceof ResolvePromptAction);
+    p.store.dispatch(second);
+    p.store.state.turn=6;
+    p.store.dispatch(new AttackAction(owner.id,'Call for Family'));
+    const ignored=p.bot.decodeNextAction(p.store.state);
+    assert.deepEqual(ignored,{defaultAction:'pass'});
+    return {owner,first,second};
+  };
+  const done=withLateOwnedCallFamilyPrompt(()=>
+    p.headless.runMatch({label:'x-'+reg.selectedOriginalId}),{
+      headless:p.headless,Store,SimpleTacticsAi,ResolvePromptAction,
+      types,registration:reg,sourceEndTurn:4
+    });
+  assert.deepEqual(done.audit.sourceAttackTurns,[2,4]);
+  assert.equal(done.audit.sourceAttackAttempts,2);
+  assert.equal(done.audit.nativeSourceAttackAccepted,2);
+  assert.equal(done.audit.genuineOwnerBasicDeckPrompts,2);
+  assert.equal(done.audit.ownerBasicPromptAnswersNativeAccepted,2);
+  assert.equal(done.audit.oneOriginalBasicMovedToBench,2);
+  assert.equal(done.audit.physicalBenchTransferFailures,0);
+  assert.deepEqual(done.audit.physicalBasicMovesByTurn,[
+    {turn:2,card:'Trubbish FST'},
+    {turn:4,card:'Latias ex SSP'}
+  ]);
+  assert.equal(done.result.owner.bench.filter(slot=>
+    slot.cards.length>0).length,4);
+  assert.strictEqual(p.headless.runMatch,original);
+});
+test('source turn window rejects nonsensical odd parity',()=>{
+  const p=fixture();
+  assert.throws(()=>withLateOwnedCallFamilyPrompt(
+    ()=>null,{headless:p.headless,Store,SimpleTacticsAi,
+      ResolvePromptAction,types,registration:reg,sourceEndTurn:3}),
+    /false == true/);
 });
