@@ -20,6 +20,12 @@ on:
         description: 'Existing original Pale Moon GX archive run ID'
         type: string
         required: false
+      agent27_adp_two_bonus:
+        description: 'Exact unordered three-draw ADP two accepted opponent-mulligan bonus audit'
+        type: boolean
+        required: false
+        default: false
+
       agent27_adp_one_bonus:
         description: 'Exact fixed 60 ADP one opponent-mulligan paid opening and independent toy physical enumeration'
         type: boolean
@@ -31,6 +37,17 @@ permissions:
   actions: read
 
 jobs:
+  agent27-adp-two-bonus-math:
+    if: inputs.agent27_adp_two_bonus
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/agent27-adp-two-mulligan-miniature.test.cjs
+      - run: node simulation/evaluation/agent27-adp-two-mulligan-bonus.cjs
   agent27-palemoon-archive-audit:
     if: inputs.agent27_palemoon_archive_run != ''
     runs-on: ubuntu-latest
