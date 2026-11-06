@@ -187,7 +187,7 @@ jobs:
       - name: Reject native silent-no-op Night Watch and Get Lost source prompts on both seats
         run: node --test tests/agent36-source-stamped-nightwatch-owner.test.cjs tests/agent36-source-stamped-getlost-owner.test.cjs
       - name: Audit paper Tool payment, physical custody and next-turn opponent reply
-        run: node --test tests/agent42-root-gap-floatstone-custody.test.cjs tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs tests/agent42-two-psychic-retreat-physical-custody.test.cjs tests/agent42-two-unit-retreat-actor-integration.test.cjs tests/agent42-realstore-paid-retreat-join.test.cjs
+        run: node --test tests/agent42-root-gap-floatstone-custody.test.cjs tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs tests/agent42-two-psychic-retreat-physical-custody.test.cjs tests/agent42-two-unit-retreat-actor-integration.test.cjs tests/agent42-realstore-paid-retreat-join.test.cjs tests/agent42-general-paid-retreat-root-audit.test.cjs
       - name: Install upstream server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
