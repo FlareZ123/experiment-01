@@ -10,6 +10,8 @@ Agent17's frozen original rank1 Shadow Rider vs rank3 Snorlax Team Flare counter
 | Counterreply | Genuine native accepted `AttackAction Pale Moon-GX` root232 | **4** | 6 | rank3 | 90 |
 | Repeat | Pass | 6 | 6 | rank3 | 90 |
 
+Exact public root audit of rank1 attacks: control and repeat each only `Night Watch` turn58; counterreply `Night Watch` turn58, `Pale Moon-GX` turn60, then `Get Lost` turn88. The intervened GX branch therefore does not immediately recover a second `Night Watch` sequence, but the actor does take a later different attack. [Read-only audit 42139418022](https://github.com/FlareZ123/experiment-01/actions/runs/42139418022) passed.
+
 Rank1 deckRemaining=0 in all arms. Original rank3 Active `Rotom V LOR` persisted from turn59 to turn61 post-attack and source turn61 Pass was natively settled. Rank1's two-Prize gain is consistent with the attack's printed delayed Knock Out; the specific Knocked Out identity was not individually attested in this compact public receipt. This result establishes genuine native legal-action acceptance and Prize effect rather than mere theoretical attack accessibility.
 
 The intervened outcome is a **single-seed retrospective developmental result**, with weak source/reference bots, non-paper-random native Night Watch and no 25-minute match adjudication. It cannot count as competitive evidence or validate the 99.5% objective. The frozen one-root branch retains the original native rank3 winner despite taking two Prizes.
