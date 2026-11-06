@@ -1,0 +1,51 @@
+{
+  "version": "agent25-owner-quickball-root-frontier-v3-precommit",
+  "date": "2026-11-06",
+  "purpose": "Owner-visible naturally dealt Quick Ball root-selection evidence following corrected v2 zero staged discard prompts",
+  "v2Registration": "results/als/registrations/agent25-natural-full60-ball-prompt-staging-v2-20261106.json",
+  "sourceRanks": [
+    6,
+    10,
+    11
+  ],
+  "candidateSeats": [
+    0,
+    1
+  ],
+  "seedsByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "rootActionCap": 120,
+  "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidatePrintingSHA256": "20135b47359b2a546fbe7f899b502aff0d470150e72cbb751dd810be036e122c",
+  "newBehavior": "Read-only candidate-seat root pre-decision owner hand sampling and native selected root classification; v2 staged donor prompt decision unchanged",
+  "hypotheses": [
+    "Original bot may not play any Quick Ball in six frozen natural scenarios despite held cards",
+    "No root with Quick Ball plus Compressor plus owner-held donor and Dhelmise may occur",
+    "Staged prompt canary may expose a native source attribution mismatch"
+  ],
+  "metrics": [
+    "ownerRootDecisions",
+    "rootsHeldQuickBall",
+    "rootsHeldBallCompressorDonor",
+    "botChosenQuickBallRoots",
+    "stagedQuickBallDiscardPrompts",
+    "eligible",
+    "selected",
+    "accepted",
+    "physicallyMoved",
+    "nativeStatuses",
+    "paperConservation"
+  ],
+  "allSixAttemptsRetained": true,
+  "competitiveGamesClaimed": 0,
+  "paperGameQualified": false,
+  "restrictions": [
+    "Held card is not sufficient to prove playable action under active Item lock",
+    "Native selected root is not Store accepted until settled",
+    "Same seed does not prove identical cross-run source physical initial deal",
+    "Opponent private hands and Prize cards must never influence decisions"
+  ]
+}
