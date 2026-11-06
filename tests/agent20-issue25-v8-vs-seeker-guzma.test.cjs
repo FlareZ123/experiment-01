@@ -15,11 +15,14 @@ const layerVersion='agent48-owner-vs-seeker-guzma-layer-v1';
 assert.equal(LAYER_VERSION,layerVersion);
 
 test('runner enables the existing Agent43 continuation and preserves layer audit',()=>{
-  let seenOptions=null,seenBase=null;
+  let seenOptions=null,seenBase=null,seenHeldGuzmaEnv=null;
+  const previousEnv=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
+  process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV='before';
   const runner=createVsSeekerRunner({
     base:'C:/pinned/twinleaf/output',
     runDevelopment:options=>{
       seenOptions=options;
+      seenHeldGuzmaEnv=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
       return {rows:[],manifest:{development:true}};
     },
     withOwnerVsSeekerGuzmaLayer:(execute,options)=>{
@@ -34,6 +37,10 @@ test('runner enables the existing Agent43 continuation and preserves layer audit
   assert.equal(seenOptions.actorOnlyComposition,true);
   assert.equal(seenOptions.actorGuzmaPromptContinuation,true);
   assert.equal(seenBase,'C:/pinned/twinleaf/output');
+  assert.equal(seenHeldGuzmaEnv,'true');
+  assert.equal(process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV,'before');
+  if(previousEnv===undefined)delete process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
+  else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=previousEnv;
   assert.equal(result.ownerVsSeekerGuzmaAudit.version,layerVersion);
   assert.equal(result.manifest.development,true);
 });
@@ -63,6 +70,7 @@ test('retrospective runner retains the exact eight v8 contexts and no win-rate c
   assert.equal(result.manifest.version,VERSION);
   assert.equal(result.manifest.retrospective,true);
   assert.equal(result.manifest.unchangedPrintedSixties,true);
+  assert.equal(result.manifest.heldGuzmaMobilityRootOptIn,true);
   assert.equal(result.rawDevelopment.rows.length,8);
   assert.deepEqual(result.rawDevelopment.rows.map(x=>x.trial.id).sort(),
     registration.trials.map(x=>x.id).sort());
