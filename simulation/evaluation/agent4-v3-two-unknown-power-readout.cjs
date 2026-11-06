@@ -3,8 +3,10 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {preflight,effectiveOptions,withSameRuntime}=
+const {MANIFEST,MANIFEST_BLOB,effectiveOptions,withSameRuntime}=
   require('./agent4-selected-v3-paper-funded-release.cjs');
+const {gitBlobHash}=
+  require('./agent36-profile-provenance-gate.cjs');
 const {runDevelopment}=
   require('./agent41-bilateral-v2-development.cjs');
 const {withLiveUnknownPowerActionWitness,VERSION:OBSERVER_VERSION}=
@@ -14,6 +16,48 @@ const {writeAtomicLocked}=
 const REG=require('../../results/aichi-2026/registrations/agent4-v3-two-unknown-power-readout-20261106.json');
 
 const VERSION='agent4-v3-two-context-live-store-unknown-power-readout-v1';
+/**
+ * Reuse the immutable original manifest and current printed source 60s.
+ * Changed current code is explicitly versioned and reported. Never relabel
+ * a contemporary-code reproduction as the historic frozen-v3 release.
+ * @returns {{manifest:object,audit:object}}
+ */
+function manifestWithDriftAudit(){
+  const root=path.resolve(__dirname,'../..');
+  const bytes=fs.readFileSync(path.join(root,MANIFEST));
+  assert.equal(gitBlobHash(bytes),MANIFEST_BLOB,
+    'Historical v3 manifest itself has changed');
+  const manifest=JSON.parse(bytes.toString('utf8'));
+  assert.equal(manifest.pinnedTwinleafRevision,
+    'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  assert.equal(manifest.nativeActionCap,180);
+  const keys=[
+    ['sourceRunner','sourceRunnerBlobSha'],
+    ['sourceRoster','sourceRosterBlobSha'],
+    ['baselineProfile','baselineProfileBlobSha'],
+    ['fundedFloatStoneSource','fundedFloatStoneBlobSha'],
+    ['paperOwnerNecessary','paperOwnerNecessaryBlobSha'],
+    ['canonicalActorComposition','canonicalActorCompositionBlobSha']
+  ];
+  const files=keys.map(([p,h])=>{
+    const filename=manifest.frozenInputs[p];
+    const expected=manifest.frozenInputs[h];
+    const actual=gitBlobHash(fs.readFileSync(path.join(root,filename)));
+    return {role:p,path:filename,expected,actual,matches:actual===expected};
+  });
+  assert.ok(files.find(x=>x.role==='sourceRoster')?.matches,
+    'Exact historical printed original roster drift');
+  assert.ok(files.find(x=>x.role==='baselineProfile')?.matches,
+    'Exact historical baseline policy manifest drift');
+  return {manifest,audit:{
+    frozenHistoricalManifestBlob:MANIFEST_BLOB,
+    sourceAndRosterVerified:true,
+    currentFilesComparedWithFrozenHistoricalV3:files,
+    everyFrozenInputMatches:files.every(x=>x.matches),
+    historicalCodeParityNotAssumed:true
+  }};
+}
+
 
 /**
  * Choose only the two preregistered historical original-60 contexts.
@@ -79,7 +123,11 @@ function summarize(row,actions,gameIndexReliable){
  * @returns {object} Typed error diagnosis and source-preserving A/B/A.
  */
 function run(deps={}){
-  const manifest=(deps.manifest??preflight)();
+  const checked=deps.manifest?{
+    manifest:deps.manifest(),
+    audit:{injectedSyntheticManifest:true,everyFrozenInputMatches:false}
+  }:manifestWithDriftAudit();
+  const manifest=checked.manifest;
   const trials=selectedTrials(manifest);
   assert.deepEqual(manifest.modes.map(x=>x.id),REG.modes);
   assert.equal(manifest.nativeActionCap,180);
@@ -135,7 +183,9 @@ function run(deps={}){
     schema:VERSION,registration:REG.schema,
     originalV3SourceManifestBlob:REG.sourceManifestGitBlob,
     originalPrintedSourceAndCandidateSixtiesUnchanged:true,
-    originalHistoricalNativeCodeRevisionReproduced:false,
+    originalHistoricalNativeCodeRevisionReproduced:
+      checked.audit.everyFrozenInputMatches===true,
+    provenanceDriftAudit:checked.audit,
     observer:OBSERVER_VERSION,
     proposedNativeAttemptCount:6,actualNativeAttemptCount:
       modes.reduce((n,x)=>n+x.nativeAttemptCount,0),
@@ -167,4 +217,4 @@ if(require.main===module){
   })+'\n');
 }
 
-module.exports={VERSION,selectedTrials,summarize,run};
+module.exports={VERSION,manifestWithDriftAudit,selectedTrials,summarize,run};
