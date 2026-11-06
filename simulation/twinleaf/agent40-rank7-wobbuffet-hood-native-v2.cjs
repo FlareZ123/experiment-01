@@ -92,12 +92,40 @@ function probe(params) {
 
   let settlementError = null;
   let choice = null;
+  const settledPromptTypes = [];
   if (!rootError && prompt) {
     const index = prompt.cards.cards.findIndex(c => c.id === missing.id);
     assert.ok(index >= 0, 'Deck Basic must be present at prompt time');
     choice = prompt.cards.cards[index].fullName;
     try {
       x.store.dispatch(new ResolvePromptAction(prompt.id, prompt.decode([index])));
+      settledPromptTypes.push(prompt.type);
+      // Pinned Nest Ball follows the deck search with a shuffle prompt and
+      // a nonvisual WaitPrompt. Complete both before asserting Item cleanup.
+      for (let step = 0; step < 4; step += 1) {
+        const pending = x.store.state.prompts.find(p => p.result === undefined);
+        if (!pending) break;
+        assert.equal(pending.playerId, originalId);
+        let answer;
+        if (pending.type === 'Shuffle deck') {
+          const size = currentOriginal().deck.cards.length;
+          answer = Array.from({ length: size }, (_, i) => i);
+          let state = (20261106 + params.seat * 97 +
+            Number(params.wobbuffetActive) * 101 +
+            Number(params.hood) * 103) >>> 0;
+          for (let i = answer.length - 1; i > 0; i -= 1) {
+            state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+            const j = state % (i + 1);
+            [answer[i], answer[j]] = [answer[j], answer[i]];
+          }
+        } else if (pending.type === 'WaitPrompt') {
+          answer = null;
+        } else {
+          throw new Error('Unrecognized native follow-on prompt ' + pending.type);
+        }
+        x.store.dispatch(new ResolvePromptAction(pending.id, answer));
+        settledPromptTypes.push(pending.type);
+      }
     } catch (error) {
       settlementError = String(error?.message ?? error);
     }
@@ -126,7 +154,7 @@ function probe(params) {
     emptyBefore, expectedAbilityBlocked, nativeAbilityBlocked: abilityBlocked,
     paperItemBlocked: itemBlockedByPaper,
     rootError, rootHadPrompt, rootItemHeld, rootItemInPlayZone,
-    settlementError, choice, movedBasic, itemDiscarded, itemHeldAfter,
+    settlementError, choice, settledPromptTypes, movedBasic, itemDiscarded, itemHeldAfter,
     remainingPrompts, paperParity, qualifiedGames: 0
   };
 }
