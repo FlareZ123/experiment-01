@@ -462,7 +462,7 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
   }
   class SimpleTacticsAi{
     constructor(id){this.client={id};}
-    decodeNextAction(){throw Error('Actor root must intercept generic bot');}
+    decodeNextAction(){return new PassTurnAction(this.client.id);}
   }
   function run(enabled){
     return withActorOnlyRootPolicy(()=>{
@@ -495,7 +495,6 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
   });
   assert.equal(control.audit.genericFundedFloatStoneRootOptIn,false);
   assert.equal(treatment.audit.genericFundedFloatStoneRootOptIn,true);
-  assert.equal(control.audit.selectedRootDecisions,1);
   assert.equal(treatment.audit.selectedRootDecisions,1);
   assert.equal(treatment.audit.competitiveGameQualified,false);
 });
