@@ -1,0 +1,117 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const test=require('node:test');
+const fs=require('node:fs');
+const path=require('node:path');
+const {createHash}=require('node:crypto');
+const {execFileSync}=require('node:child_process');
+
+const {runStewardBroaderV8,VERSION:V8_VERSION}=require(
+  '../simulation/evaluation/agent36-issue25-common-v8.cjs');
+const {VERSION,withKoSourcePromptPhysical}=require(
+  '../simulation/twinleaf/agent3-ko-source-prompt-physical-v2.cjs');
+
+const ROOT=path.resolve(__dirname,'..');
+const hash=b=>createHash('sha256').update(b).digest('hex');
+
+/** Only original-registered native attempts; no reroll, prospective change, or deck change. */
+function save(receipt,dir){
+  fs.mkdirSync(dir,{recursive:true});
+  const lock=path.join(dir,'.agent3-v19-v8-source.lock');
+  const fd=fs.openSync(lock,'wx');
+  const name='agent3-v19-selected-v8-ko-source-physical.json';
+  const output=path.join(dir,name);
+  const stage=output+'.'+process.pid+'.tmp';
+  const sidecar=output+'.sha256';
+  const stageHash=sidecar+'.'+process.pid+'.tmp';
+  const bytes=Buffer.from(JSON.stringify(receipt,null,2)+'\n');
+  try{
+    fs.writeFileSync(stage,bytes,{flag:'wx'});
+    fs.writeFileSync(stageHash,hash(bytes)+'  '+name+'\n',{flag:'wx'});
+    fs.renameSync(stage,output);
+    fs.renameSync(stageHash,sidecar);
+  }finally{
+    for(const x of [stage,stageHash])if(fs.existsSync(x))fs.unlinkSync(x);
+    fs.closeSync(fd);
+    fs.unlinkSync(lock);
+  }
+  return {bytes:bytes.length,sha256:hash(bytes)};
+}
+
+test('unchanged selected developmental v8 eight-original Store trials under passive native Prize provenance',()=>{
+  const vendor=execFileSync('git',['rev-parse','HEAD'],{
+    cwd:path.join(ROOT,'vendor/twinleaf'),encoding:'utf8'
+  }).trim();
+  assert.equal(vendor,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  const registrationPath=
+    'results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json';
+  const registration=fs.readFileSync(path.join(ROOT,registrationPath));
+  const registered=JSON.parse(registration.toString('utf8'));
+  const {result:selected,audit}=withKoSourcePromptPhysical(
+    ()=>runStewardBroaderV8());
+  const d=selected.diagnostic;
+  const actualRows=d.actualAttemptRows;
+  assert.equal(selected.manifest.version,V8_VERSION);
+  assert.equal(selected.manifest.originalRegisteredTrialCount,8);
+  assert.equal(actualRows.length,8);
+  assert.equal(registered.trials.length,8);
+  assert.deepEqual(actualRows.map(x=>x.id).sort(),
+    registered.trials.map(x=>x.id).sort());
+  assert.equal(d.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.equal(selected.manifest.releaseQualified,false);
+  assert.equal(audit.paperKoCertified,false);
+  assert.equal(audit.uniqueCheckStateOriginCertified,false);
+  assert.equal(audit.realStoreIdentityProofComplete,false);
+  assert.equal(audit.competitivelyQualifiedGames,0);
+  assert.equal(audit.chosenPrizeFacesReadByPolicy,false);
+  assert.equal(audit.nativeSourceSettledAnswers,
+    audit.exactSourceJoinedHandTransfers+
+    audit.exactSourceJoinedLostZoneTransfers+
+    audit.sourceJoinedOtherDestinations);
+  assert.equal(audit.records.length+audit.recordsOmitted,
+    audit.nativeSourceSettledAnswers);
+
+  // Counts are prompt-mediated only. Automatic native KO Prize taking may have
+  // no ChoosePrizePrompt, so never infer total native Prizes from this audit.
+  const receipt={
+    schema:'agent3-v19-selected-v8-real-store-source-prompt-custody',
+    researchCommit:process.env.GITHUB_SHA??null,
+    githubRun:process.env.GITHUB_RUN_ID??null,
+    vendor,
+    registrationPath,
+    registrationHash:hash(registration),
+    observerVersion:VERSION,
+    observerHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/twinleaf/agent3-ko-source-prompt-physical-v2.cjs'))),
+    nativeTestHash:hash(fs.readFileSync(__filename)),
+    executingSelectedV8Version:V8_VERSION,
+    selectedV8EntrySha256:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent36-issue25-common-v8.cjs'))),
+    registrationIds:registered.trials.map(x=>x.id),
+    actualOriginalDispositionRows:actualRows,
+    actualRegisteredReconciliation:d.registeredAttemptReconciliation,
+    nativeObserver:audit,
+    sharedV8PolicyUnchanged:true,
+    promptMediatedKOsOnly:true,
+    acceptedStoreNotPaperProof:true,
+    competitivelyQualifiedGames:0,
+    provenFieldWinRate:null
+  };
+  const dir=process.env.AGENT3_V19_V8_PRIZE_DIR;
+  const archive=dir?save(receipt,dir):null;
+  console.log('AGENT3_V19_SELECTED_V8_KO_SOURCE_PHYSICAL',JSON.stringify({
+    registeredOriginalAttempts:actualRows.length,
+    dispositions:actualRows.map(r=>({id:r.id,status:r.status,
+      roots:r.acceptedNativeRootCount,sourceSeat:r.sourceSeat,
+      candidateSeat:r.candidateSeat})),
+    koEffects:audit.eligibleKoEffects,
+    promptMediatedKoSources:audit.nativeSourcePrompts,
+    exactJoinedOwnerHand:audit.exactSourceJoinedHandTransfers,
+    exactJoinedLostZone:audit.exactSourceJoinedLostZoneTransfers,
+    unknownJoinedDestinations:audit.sourceJoinedOtherDestinations,
+    sourcePromptSettled:audit.nativeSourceSettledAnswers,
+    nativeStoreSessions:audit.registeredStoreSessions,
+    qualifiedGames:0,archive
+  }));
+});
