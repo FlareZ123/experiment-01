@@ -56,6 +56,7 @@ function heldFloatGateFlags(view,catalog){
     Array.isArray(p.energies)&&p.energies.length>0);
   let benchHasPayableAttack=false;
   let benchHasPayable80DamageAttack=false;
+  const benchPayableTargets=[];
   if(held){
     for(const pokemon of bench){
       for(const attack of pokemon.attacks??[]){
@@ -65,6 +66,9 @@ function heldFloatGateFlags(view,catalog){
         benchHasPayableAttack=true;
         const projected=projectedFundedAttackDamage(
           view,pokemon,attack,catalog);
+        benchPayableTargets.push({printing:pokemon.printing,
+          attack:attack.name,nominalDamage:Number.isSafeInteger(projected)?
+            projected:null});
         if(Number.isSafeInteger(projected)&&
             projected>=MIN_PROJECTED_DAMAGE)
           benchHasPayable80DamageAttack=true;
@@ -79,7 +83,7 @@ function heldFloatGateFlags(view,catalog){
     activePositivePrintedRetreat,activeToolSlotEmpty,unusedRetreat,
     toolPlayUnlocked,publicToolUnsuppressed,benchHasEnergy,
     benchHasPayableAttack,benchHasPayable80DamageAttack,
-    allCoarseStructuralGates};
+    allCoarseStructuralGates,benchPayableTargets};
 }
 
 module.exports={VERSION,FIELDS,heldFloatGateFlags};
