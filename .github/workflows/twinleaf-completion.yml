@@ -209,8 +209,8 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Run Agent20 native test
-        run: node --test tests/agent20-paid-retreat-alternative-guard.native.test.cjs
+      - name: Run native retreat and Float Stone regression portfolio
+        run: node --test tests/agent14-generic-funded-floatstone-frontier.native.test.cjs tests/agent16-rank6-skyliner-retreat-native.test.cjs tests/snorlax-retreat-start-hook.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs tests/agent2-fss-float-actual-store.native.test.cjs tests/agent42-two-unit-paid-retreat-native.test.cjs
       - name: Verify owner Telepathic Psychic Bench search, physical settlement and v5 nesting pure controls
         run: node --test tests/agent8-owner-telepathic-bench-search.test.cjs tests/agent8-owner-telepathic-bench-search.native.test.cjs tests/agent8-issue25-v5-telepath-development.test.cjs
       - name: Verify source action census and all-Special Energy source matrix plus read-only lock audit pure controls
