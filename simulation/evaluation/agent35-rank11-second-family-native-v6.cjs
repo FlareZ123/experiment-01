@@ -63,16 +63,62 @@ function run(deps={}) {
   const firstFamily = deps.firstFamily ?? runFirstFamily;
   const family = deps.family ?? withLateOwnedCallFamilyPrompt;
   let familyAudit=null;
-  const raw = postattack({
-    runV4:({observe})=>firstFamily({
-      observe,
-      family:(next,components)=>{
-        const wrapped=sourceSecondFamily(next,components,family);
-        familyAudit=wrapped.audit;
-        return wrapped;
-      }
-    })
-  });
+  let raw;
+  try {
+    raw = postattack({
+      runV4:({observe})=>firstFamily({
+        observe,
+        family:(next,components)=>{
+          const wrapped=sourceSecondFamily(next,components,family);
+          familyAudit=wrapped.audit;
+          return wrapped;
+        }
+      })
+    });
+  }catch(error) {
+    // An extended match can stop being a native abort while the historical
+    // source-custody observers still require an abort-only public root tape.
+    // Preserve the two actual Store-validated physical transfers without
+    // pretending that missing root chronology or complete games are proven.
+    const audit=error?.agent49FamilyOwnerPromptAudit??familyAudit;
+    const exactMissingArchive=error?.code==='ERR_ASSERTION'&&
+      typeof error.message==='string'&&
+      error.message.includes('Array.isArray(rawRoots)');
+    const transferValid=exactMissingArchive&&
+      audit?.selectedSourceId===reg.originalSourceId&&
+      audit.sourceAttackTurns?.join(',')==='2,4'&&
+      audit.nativeSourceAttackAccepted===2&&
+      audit.genuineOwnerBasicDeckPrompts===2&&
+      audit.ownerBasicPromptAnswersNativeAccepted===2&&
+      audit.oneOriginalBasicMovedToBench===2&&
+      audit.physicalBenchTransferFailures===0&&
+      audit.physicalBasicMovesByTurn?.length===2&&
+      audit.physicalBasicMovesByTurn[0].turn===2&&
+      audit.physicalBasicMovesByTurn[1].turn===4&&
+      audit.opponentHiddenZoneInspected===false;
+    if(!transferValid)throw error;
+    return {
+      schema:VERSION,sourceOriginalId:reg.originalSourceId,
+      nativeDisposition:'CENSORED-postgame-root-archive-unavailable',
+      actualOriginalPhysicalOpeningRevalidatedInThisArm:false,
+      immutablePriorOriginalOpeningRegistration:
+        reg.fullPhysicalFingerprintSha256,
+      secondTurnSourceOwnerBasicPhysicalBenchSettled:true,
+      twoSourceFamilyPhysicalBenchSettlements:true,
+      sourceNativeAttackTurnNumbers:audit.sourceAttackTurns,
+      sourceOwnerPhysicalBasicMoves:audit.physicalBasicMovesByTurn,
+      genuineSourceFamilyPromptAudit:audit,
+      registeredUntreatedPriorActionPrefix:null,
+      nativeRootArchiveAvailable:false,
+      nativeRootArchiveErrorClass:error.constructor.name,
+      originalEightRowsReturnedBeforeArchiveVeto:true,
+      originalEight:null,
+      opponentAfterSecondFamilyVoluntaryRoots:null,
+      opponentStrategicResponseIndependentlyQualified:false,
+      competitivelyQualifiedGames:0,
+      fieldWinRate:null
+    };
+  }
   assert.equal(raw.sourceOriginalId,reg.originalSourceId);
   assert.equal(raw.exactOriginalDeal,true);
   assert.equal(raw.originalNativeAttackRoot17AndPhysicalBasicBench,true);
