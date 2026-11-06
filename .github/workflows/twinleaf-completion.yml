@@ -124,12 +124,7 @@ on:
         type: boolean
         default: false
       include_agent42_rank1_paid_retreat_aba:
-        description: 'Separately preregistered paired original rank1 two-Psychic A/B/A, zero qualified games'
-        required: false
-        type: boolean
-        default: false
-      include_agent42_rank1_prospective_paid_v4:
-        description: 'Four fresh precommitted rank1 seed groups, both seats and paired 24 native paid-retreat A/B/A attempts'
+        description: 'Four fresh-seed paired prospective rank1 paid Retreat A/B/A, zero qualified games'
         required: false
         type: boolean
         default: false
@@ -428,27 +423,16 @@ jobs:
         run: node --test tests/agent1-issue25-joined-three-attacks-v5.native.test.cjs
       - name: Stage actual two-Basic-Energy VMAX retreat and native payment on both seats
         run: node --test tests/agent42-two-unit-paid-retreat-native.test.cjs
-      - name: Retrospective original rank1 three-arm paid two-Psychic native fork
+      - name: Prospective original rank1 fresh-seed paired native paid Retreat
         if: ${{ inputs.include_agent42_rank1_paid_retreat_aba }}
-        run: node simulation/evaluation/agent42-rank1-two-psychic-rebased-v3-paired.cjs
-      - name: Archive exact original rank1 paid Retreat native A/B/A
-        if: ${{ inputs.include_agent42_rank1_paid_retreat_aba }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent42-rank1-two-psychic-rebased-v3-paired
-          path: agent42-rank1-two-psychic-rebased-v3-paired-native.json
-          retention-days: 7
-      - name: Prospective original rank1 four fresh-seed paired paid Retreat A/B/A
-        if: ${{ inputs.include_agent42_rank1_prospective_paid_v4 }}
         run: node simulation/evaluation/agent42-rank1-prospective-paid-v4.cjs
-      - name: Archive fresh rank1 paid Retreat public root provenance and all native attempts
-        if: ${{ always() && inputs.include_agent42_rank1_prospective_paid_v4 }}
+      - name: Archive rank1 prospective native paid Retreat A/B/A
+        if: ${{ inputs.include_agent42_rank1_paid_retreat_aba }}
         uses: actions/upload-artifact@v4
         with:
           name: agent42-rank1-prospective-paid-v4
           path: agent42-rank1-prospective-paid-v4-native.json
-          retention-days: 14
-          if-no-files-found: warn
+          retention-days: 7
       - name: Retrospective eight original source Capture Energy 96-root followthrough
         if: ${{ inputs.include_agent4_capture_retrospective_96 }}
         env:
