@@ -782,11 +782,3 @@ jobs:
             agent4-mail-plumeria-original-aba-native.json.sha256
           if-no-files-found: warn
           retention-days: 14
-
-  agent31-allowner-pass-native:
-    if: ${{ inputs.agent31_allowner_pass_native }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 18
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check out pinned native engine
