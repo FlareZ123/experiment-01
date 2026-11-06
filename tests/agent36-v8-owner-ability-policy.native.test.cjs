@@ -122,8 +122,10 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
   assert.equal(perMatch.length,8);
   const abilityAudits=perMatch.map(entry=>entry?.telepath?.ownerAbilityConfirm);
   const telepathAudits=perMatch.map(entry=>entry?.telepath?.telepath);
+  const radiantZeroAudits=perMatch.map(entry=>entry?.telepath?.radiantZeroGate);
   assert.ok(abilityAudits.every(Boolean));
   assert.ok(telepathAudits.every(Boolean));
+  assert.ok(radiantZeroAudits.every(Boolean));
   const total=(audits,key)=>audits.reduce((sum,a)=>sum+(a[key]??0),0);
   const confirmEvents=abilityAudits.flatMap(audit=>audit.confirmEvents??[]);
   const radiantDecision=confirmEvents.filter(event=>
@@ -141,6 +143,16 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
     custodyFailures:total(telepathAudits,'custodyFailures'),
     readsOpponentHidden:telepathAudits.every(x=>x.readsOpponentHidden===false)?false:null,
     readsUnopenedDeck:telepathAudits.every(x=>x.readsUnopenedDeck===false)?false:null
+  };
+  const radiantZeroGate={
+    nativeMatches:radiantZeroAudits.length,
+    observedUseConfirmations:total(radiantZeroAudits,'observedUseConfirmations'),
+    observedSearchChoices:total(radiantZeroAudits,'observedSearchChoices'),
+    nonzeroNativeSelections:total(radiantZeroAudits,'nonzeroNativeSelections'),
+    zeroSelections:total(radiantZeroAudits,'zeroSelections'),
+    repairedShuffles:total(radiantZeroAudits,'repairedShuffles'),
+    repairedTurnEnds:total(radiantZeroAudits,'repairedTurnEnds'),
+    paperQualifiedGames:0
   };
   const archiveDir=process.env.ISSUE25_STEWARD_V8_ABILITY_POLICY_DIR;
   const archive=archiveDir?{
@@ -165,7 +177,7 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
     confirmUnsettled:total(abilityAudits,'confirmUnsettled'),
     radiantDecision,articunoDecisions,searchEvents,
     articunoMoveEnergyEvents,
-    telepathAudit,pairs,archive,
+    telepathAudit,radiantZeroGate,pairs,archive,
     readsOpponentHidden:abilityAudits.every(x=>x.readsOpponentHidden===false)?
       false:null,
     readsUnopenedDeck:abilityAudits.every(x=>x.readsUnopenedDeck===false)?
@@ -206,6 +218,14 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
   assert.equal(telepathAudit.settled,telepathAudit.matchingOwnerSearches);
   assert.equal(telepathAudit.shuffleMissing,0);
   assert.equal(telepathAudit.custodyFailures,0);
+  assert.equal(radiantZeroGate.nativeMatches,8);
+  assert.ok(radiantZeroGate.observedUseConfirmations>=1);
+  assert.ok(radiantZeroGate.observedSearchChoices>=1);
+  assert.ok(radiantZeroGate.nonzeroNativeSelections>=1);
+  assert.equal(radiantZeroGate.zeroSelections,0);
+  assert.equal(radiantZeroGate.repairedShuffles,0);
+  assert.equal(radiantZeroGate.repairedTurnEnds,0);
+  assert.equal(radiantZeroGate.paperQualifiedGames,0);
   assert.equal(treatment.manifest.releaseQualified,false);
   assert.equal(treatment.diagnostic.competitiveGamesQualified,0);
 });
