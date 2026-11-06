@@ -14,9 +14,13 @@ The read-only v8 inspector now retains `sourceAttackRoots[]` under its original 
 
 The ambiguous old aggregate `sourceAcceptedAttackDeclarations` was deliberately **retired**, so downstream consumers must adopt the explicit new name; this is a reporting schema correction and needs review before substituting a previously generated audit JSON into any release packet.
 
+## Independent accepted-root attestation
+
+The original [Agent37 Store declaration builder](../../simulation/evaluation/agent37-candidate-attack-settlement.cjs) already checks the emitting root, and the archival inspector now independently repeats the critical **source physical-seat, triggering-action and global-turn** checks. Every claimed real-Store attack declaration must have a valid integer `actionOrdinal`, a corresponding accepted root, `root.playerSlot===registeredOriginalSourceSeat`, `root.action===attack.triggerAction`, and `root.turnBefore===attack.turnBefore`. Its attack name must be a nonempty printed string. A copied Perfection attack with a `ResolvePromptAction` root passes when its real declaration identifies that action. Tampered archive JSON with a forged attack declaration whose trigger conflicts with the public accepted root now **fails closed**, even when the artifact checksum is recalculated. The strict check uses only public real-Store root fields and the source-return attack settlement; it neither reads hidden game zones nor changes any played action.
+
 ## Actual validation
 
-[Two pure Node 22 regression tests](../../tests/agent18-v8-attack-declaration-provenance.test.cjs) passed locally against a faithful copy of the patched auditor and the same eight registered trial identities (the local fixture registration preserved the relevant ID/seat shape). Synthetic evidence:
+[Four pure Node 22 regression tests](../../tests/agent18-v8-attack-declaration-provenance.test.cjs) passed locally against a faithful copy of the patched auditor and the same eight registered trial identities (the local fixture registration preserved the relevant ID/seat shape). Synthetic evidence:
 
 | Synthetic v8 source arm | Accepted AttackAction roots | Real-Store-origin declarations represented by settlement input | Fully settled | Unknown? |
 | --- | ---: | ---: | ---: | --- |
@@ -25,7 +29,7 @@ The ambiguous old aggregate `sourceAcceptedAttackDeclarations` was deliberately 
 | Engine abort after a PlayCardAction, settlement missing | 0 | unknown | unknown | **Yes** |
 | Five uneventful registered arms | 0 | 0 | 0 | No |
 
-The first test verified the resulting combined totals **1 root / 2 known declarations / 1 settled / 1 unknown row**, all eight registered IDs and exact accepted root digests. The second intentionally corrupted one public root digest and verified a hard failure. The original source and 2026 paper match provenance remain independent obligations. **These are synthetic archive-shape tests**, while the underlying copied-attack mechanism has a separate actual pinned Store verification by Agent42. A fresh v8 native archive, if available, must still be audited with this corrected inspector and reviewer signoff before reporting any real counts.
+The first test verified the resulting combined totals **1 root / 2 known declarations / 1 settled / 1 unknown row**, all eight registered IDs and exact accepted root digests. A second test intentionally corrupted one public root digest and verified a hard failure. Two additional negative tests rehashed synthetic archives with a fabricated trigger action or wrong declared source physical seat and verified that both are rejected. The original source and 2026 paper match provenance remain independent obligations. **These are synthetic archive-shape tests**, while the underlying copied-attack mechanism has a separate actual pinned Store verification by Agent42. A fresh v8 native archive, if available, must still be audited with this corrected inspector and reviewer signoff before reporting any real counts.
 
 No pinned Twinleaf vendor files, game runners, optional policy layers, actor decisions, paper rules or Actions workflows were changed. Existing 128-root original-v8 registration is unchanged. The [original v7 five-settled-attack report](agent36-issue25-common-v7-native-volt-continuation-20261106.md) remains a **separate** developmental cohort and was not promoted into a competition sample.
 
