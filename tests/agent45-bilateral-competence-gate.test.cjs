@@ -48,7 +48,11 @@ function trialFor(ledger=roots) {
     nativeFinished:true,nativeWinner:0,nativeEndReason:'engine-game-end',
     finalPrizes:[0,2],engineError:false,rootCapReached:false,
     rootActionLedger:ledger,rootActionLedgerSha256:rootDigest(ledger),
-    actionCertificates:ledger.map((r,i)=>certificate(r,i)),
+    actionCertificates:ledger.map((r,i)=>({
+      ...certificate(r,i),
+      linkedEarlierRootOrdinal:i>0?ledger[i-1].actionOrdinal:null,
+      causalEvidenceRef:i>0?'causal-witness-' + i:null
+    })),
     independentFullPaperRulesAudit:true,hiddenInformationAudit:true,
     official25MinuteClockAudit:true
   };
@@ -56,7 +60,8 @@ function trialFor(ledger=roots) {
 
 test('complete three-turn synthetic certificate can cross structural gate',()=>{
   const result=evaluateBilateralCompetence(trialFor());
-  assert.equal(result.competitiveAdmission,true);
+  assert.equal(result.structuralGatePassed,true);
+  assert.equal(result.competitiveAdmission,false);
   assert.equal(result.reciprocalEpisodeObserved,true);
   assert.deepEqual(result.episode.turns,[4,5,6]);
   assert.deepEqual(result.episode.actionTypes,
@@ -179,4 +184,11 @@ test('the same test accepts original source at physical seat one',()=>{
   const input=trialFor(reversed);
   input.originalSourceSeat=1;input.candidateSeat=0;
   assert.equal(evaluateBilateralCompetence(input).reciprocalEpisodeObserved,true);
+});
+
+test('three adjacent material actions without causal witnesses do not qualify',()=>{
+  const input=trialFor();
+  input.actionCertificates[1].causalEvidenceRef=null;
+  assert.equal(evaluateBilateralCompetence(input).reciprocalEpisodeObserved,false);
+  assert.equal(evaluateBilateralCompetence(input).competitiveAdmission,false);
 });
