@@ -42,12 +42,10 @@ function fixture(){
       damageCalculation:null,gxAttack:false}]
   };
   const defender={
-    printing:'Lunatone OBF',name:'Lunatone',hp:90,damage:10,
+    printing:'Combee OBF',name:'Combee',hp:50,damage:10,
     printed:{stage:0,types:[5],retreatCost:[C],resistance:[]},
     energies:[],tools:[],specialConditions:[],
-    publicRestrictions:restrictions(),abilities:['New Moon'],
-    abilityDetails:[{name:'New Moon',
-      text:'If you have Solrock in play, prevent all effects of any Stadium done to your Pokémon in play.'}],
+    publicRestrictions:restrictions(),abilities:[],abilityDetails:[],
     attacks:[]
   };
   const view={
@@ -75,7 +73,7 @@ test('v2 recognizes the rank1 two-Psychic Latias Eon Blade final-Prize line',()=
   assert.equal(plan?.attackName,'Eon Blade');
   assert.deepEqual(plan?.discardEnergyIndices,[0,1]);
   assert.equal(plan?.projectedPrintedDamage,200);
-  assert.equal(plan?.opponentActiveRemainingHp,80);
+  assert.equal(plan?.opponentActiveRemainingHp,40);
   assert.equal(plan?.projectedPrizeCount,1);
   assert.equal(plan?.projectedTerminalWin,true);
   assert.equal(plan?.nativeStorePaymentVerified,false);
@@ -126,9 +124,9 @@ test('nonlethal retreat and empty Prize count are rejected',()=>{
 
 test('unknown Rule-Box Prize value, resistance, or visible Prize modifier fails closed',()=>{
   const a=fixture();
-  catalog.ruleboxPokemonPrintings.add('Lunatone OBF');
+  catalog.ruleboxPokemonPrintings.add('Combee OBF');
   assert.equal(choose(a,catalog),null);
-  catalog.ruleboxPokemonPrintings.delete('Lunatone OBF');
+  catalog.ruleboxPokemonPrintings.delete('Combee OBF');
   const b=fixture();
   b.opponentPublic.active.printed.resistance=[{type:5,value:'-30'}];
   assert.equal(choose(b,catalog),null);
@@ -175,7 +173,7 @@ test('Skyliner and Snorlax Block are applied from the correct controller and Act
   ownBasic.ownPublic.active.printed.stage=catalog.stages.BASIC;
   assert.equal(choose(ownBasic,catalog),null);
   const block=fixture();
-  block.opponentPublic.active.printing='Snorlax PGO 55';
+  block.opponentPublic.active.printing='Snorlax PGO';
   block.opponentPublic.active.abilityDetails=[{name:'Block',
     text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}];
   assert.equal(choose(block,catalog),null);
