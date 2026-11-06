@@ -1,0 +1,40 @@
+name: Agent42 paid-retreat native regression suite
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paid-retreat-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Record pinned Twinleaf revision
+        run: git -C vendor/twinleaf rev-parse HEAD
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run paid-retreat public proposal, custody, join and native tests
+        run: >-
+          node --test
+          tests/agent42-general-paid-retreat-root-audit.test.cjs
+          tests/agent42-public-two-unit-paid-retreat-proposal-v2.test.cjs
+          tests/agent42-two-psychic-retreat-physical-custody-v2.test.cjs
+          tests/agent42-realstore-paid-retreat-join-v2.test.cjs
+          tests/agent42-two-unit-retreat-v2-actor-integration.test.cjs
+          tests/agent42-two-unit-paid-retreat-native.test.cjs
