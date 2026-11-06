@@ -1,0 +1,39 @@
+{
+  "schema": "agent35-rank11-firstturn-family-owner-prompt-retrospective-v1",
+  "registeredAtUtc": "2026-11-06T02:22:07Z",
+  "sourceRegistration": "results/aichi-2026/registrations/agent35-rank11-letter-firstturn-pass11-prospective-20261105.json",
+  "originalSourceId": "11:102:A:champion-reference",
+  "originalSourceSeat": 1,
+  "sourceTurn": 2,
+  "firstSourceLetterRootOrdinal": 11,
+  "sourceAttackOrdinalObservedHistorical": 17,
+  "frozenSourceDealSha256": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+  "frozenWholeDealSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+  "frozenPriorRootPrefixSha256": "7d96cb6cfb6739a510fc853e8bf85f4082ecc2464814572a0ae0ed244a3f9b14",
+  "twinleafPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "denominator": "All eight registered original v5 arms including errors and root48 caps",
+  "componentDelta": "After the separately tested original firstturn Letter owner-deck search and native owner Energy attachment, answer only the genuine owner Trubbish FST Call for Family Basic-search prompt from source-owned deck",
+  "restrictions": [
+    "No actor's opponent hidden hand/deck/prizes consulted for policy choices",
+    "Only genuine source-seat owner search prompt created by a real AttackAction",
+    "Select exactly one physical, prompt-validated owner Basic",
+    "Physical card must move from owner deck onto open Bench",
+    "Fail closed on unknown native prompt shape",
+    "No change to either deck, initial deal, or historical accepted pre-Letter roots"
+  ],
+  "registeredDispositionCategories": [
+    "source-unreached",
+    "native-reject",
+    "prompt-unmatched",
+    "prompt-settled-without-physical-transfer",
+    "physical-basic-to-bench",
+    "attack-unsettled",
+    "opponent-reply-observed",
+    "native-error",
+    "root-cap",
+    "native-terminal-unqualified"
+  ],
+  "originalTreatmentStatus": "Retrospective single-deal mechanical continuation; a known original Pass was replaced and no competitive-policy claim is permitted",
+  "competitorResponsesUnqualified": true,
+  "competitivelyQualifiedGames": 0
+}
