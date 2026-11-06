@@ -1,0 +1,116 @@
+# Agent50: prospective 32-deal rank4 Dedechange source-first opening census
+
+**6 November 2026 | prospective CSPRNG-seeded physical opening sample | setup-only evidence.**
+
+## Result
+
+<badge label="6 / 32 opportunities" color="success" />
+
+All **32/32** preregistered physical attempts reached the original rank4 source's first turn. The existing entry-priority opening policy left an original Dedenne-GX UNB in the source owner's hand with an empty Bench in **6/32 attempts (18.75%)**. The automatic native hook then physically Benched Dedenne, accepted the actual Dedechange confirmation, and drew six physical cards in **all 6/6 opportunities**. Opportunities were evenly split by physical source seat: **3/16 in seat 0 and 3/16 in seat 1**.
+
+This is an opportunity-frequency and native-execution census under a controlled source-first opening policy. It does not evaluate whether Dedechange is the strategically correct action, and it contains no completed competitive games.
+
+## Registration, source, and reproducibility
+
+- Preregistration, committed before implementation: [32 fixed seeds and protocol](registrations/agent50-rank4-dedechange-natural32-sourcefirst-20261106.md).
+- Test: [`tests/agent50-rank4-dedechange-natural32.native.test.cjs`](../../tests/agent50-rank4-dedechange-natural32.native.test.cjs).
+- Existing manual workflow lane: [`agent50-rank26-koko-dual-recipient-native.yml`](../../.github/workflows/agent50-rank26-koko-dual-recipient-native.yml), input `rank4_dedechange_natural32_only=true`. No new workflow was added.
+- Successful run: [42295981590](https://github.com/FlareZ123/experiment-01/actions/runs/42295981590), head `ed6a0def9b3ec437d90ba65daab8eb5516292939`.
+- Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Source: original Aichi rank4 60, SHA-256 `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`.
+- Reference: original Aichi rank1 60, SHA-256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`.
+- The source list contains 2 Dedenne-GX and 11 other Basic Pokémon (13 Basic Pokémon total).
+- Thirty-two unique seeds were generated using Python `secrets.randbits(32)`, fixed in the registration, and split 16/16 across physical source seats. Source was deliberately selected to go first in every arm. This is not a natural coin-outcome sample.
+- The existing single-Basic entry-priority policy was held fixed. It prefers a Basic without a printed hand-to-Bench Ability as Active where available; the min-zero optional compensation Bench choice declines the extra placement. The existing owner-only detached SelectPrompt adapter uses each prompt's default option.
+- The test records the source's actual first-turn hand, setup prompt owner, offered SelectPrompt labels, chosen index/default, and physical hand/deck changes. It observes the acting prompt owner's own zones and changes no action.
+
+The successful artifact is [13542032386](https://github.com/FlareZ123/experiment-01/actions/runs/42295981590/artifacts/13542032386), ZIP SHA-256 `afb48be04c70c3875218a25740ab8fcd92e0351c161379fdc69e88746766a04c`. The downloaded digest matches the GitHub artifact digest. All **32 JSON receipts** match their individual SHA-256 sidecars.
+
+### Instrumentation correction
+
+The first execution, [42295390547](https://github.com/FlareZ123/experiment-01/actions/runs/42295390547), stopped in the measurement harness because the label parser used an over-escaped digit regex. Native SelectPrompt dispatch had already moved the physical cards, and its before/after counts were retained in the failed artifact (ZIP SHA-256 `fe88fe0ed531e4ef589a20f19caede94b603d1cdf2e24f37e28eb3c09a7c337d`). The parser was corrected and successful wrapper audits were preserved; the exact same 32 seeds and decisions were rerun. Only the successful rerun contributes to the reported sample.
+
+## All registered attempts
+
+| Trial | Source seat | Seed | Dedechange opportunity | Hand paid after Benching Dedenne | Discard | Lost Zone | Draw |
+|---:|---:|---:|:---:|---:|---:|---:|---:|
+| 1 | 0 | 659596847 | Yes | 6 | 6 | 0 | 6 |
+| 2 | 1 | 3374395305 | Yes | 6 | 6 | 0 | 6 |
+| 3 | 0 | 3767656280 | No | — | — | — | — |
+| 4 | 1 | 1334448369 | No | — | — | — | — |
+| 5 | 0 | 1015114065 | No | — | — | — | — |
+| 6 | 1 | 2721212630 | No | — | — | — | — |
+| 7 | 0 | 3093975646 | No | — | — | — | — |
+| 8 | 1 | 3866265543 | No | — | — | — | — |
+| 9 | 0 | 3156942071 | No | — | — | — | — |
+| 10 | 1 | 2011905764 | No | — | — | — | — |
+| 11 | 0 | 1103482661 | No | — | — | — | — |
+| 12 | 1 | 795422078 | Yes | 6 | 5 | 1 | 6 |
+| 13 | 0 | 1285175489 | No | — | — | — | — |
+| 14 | 1 | 3644145136 | No | — | — | — | — |
+| 15 | 0 | 166706843 | No | — | — | — | — |
+| 16 | 1 | 3879134323 | No | — | — | — | — |
+| 17 | 0 | 633372073 | No | — | — | — | — |
+| 18 | 1 | 86623464 | No | — | — | — | — |
+| 19 | 0 | 3741635901 | No | — | — | — | — |
+| 20 | 1 | 3937313210 | No | — | — | — | — |
+| 21 | 0 | 3935354425 | No | — | — | — | — |
+| 22 | 1 | 469693129 | No | — | — | — | — |
+| 23 | 0 | 3112483819 | No | — | — | — | — |
+| 24 | 1 | 4036501400 | No | — | — | — | — |
+| 25 | 0 | 1618181490 | No | — | — | — | — |
+| 26 | 1 | 3127876404 | No | — | — | — | — |
+| 27 | 0 | 358071138 | Yes | 6 | 6 | 0 | 6 |
+| 28 | 1 | 246568075 | No | — | — | — | — |
+| 29 | 0 | 614184015 | Yes | 6 | 6 | 0 | 6 |
+| 30 | 1 | 3658443122 | Yes | 7 | 7 | 0 | 6 |
+| 31 | 0 | 988546863 | No | — | — | — | — |
+| 32 | 1 | 3425622581 | No | — | — | — | — |
+
+The six Dedechange payments were:
+
+- Trial 1, seed 659596847: Counter Energy, Hisuian Heavy Ball, Electrode-GX, Pokémon Ranger, Unit Energy, Secret Box; 6 discarded, 6 drawn.
+- Trial 2, seed 3374395305: Hisuian Heavy Ball, Counter Energy, Sky Field, Battle Compressor, Sky Field, Alolan Raichu; 6 discarded, 6 drawn.
+- Trial 12, seed 795422078: Secret Box, Battle Compressor, Voltorb, Ditto Prism Star, Hisuian Heavy Ball, Klefki; 5 discarded, Ditto Prism Star entered Lost Zone, 6 drawn.
+- Trial 27, seed 358071138: Unit Energy, Sky Field, Quick Ball, Battle Compressor, Carmine, Crobat V; 6 discarded, 6 drawn.
+- Trial 29, seed 614184015: Reversal Energy, Unit Energy, Sky Field, Unit Energy, Rescue Stretcher, Pokémon Ranger; 6 discarded, 6 drawn.
+- Trial 30, seed 3658443122: Telescopic Sight, Quick Ball, Counter Energy, Electrode-GX, Sky Field, Quick Ball, Eldegoss V; 7 discarded, 6 drawn.
+
+The source's first-turn hand size was 7 cards in 28 attempts, 8 cards in 3, and 9 cards in 1. Trial 30's seven-card Dedechange payment followed a one-card mulligan-compensation draw: after Dedenne was played from hand, seven cards remained to be paid. Across the six uses, **37 original hand cards were consumed** (36 to discard and one to Lost Zone) and **36 cards were drawn**. The extra compensation card therefore made that one Dedechange a net one-card hand reduction.
+
+## Mulligan-compensation prompt receipts
+
+There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter selected the default maximum-draw option in each case. The pinned Twinleaf `setup-reducer.ts` constructs draw options in descending order and sets `defaultValue: 0`; the Store observer verified actual card movement for every prompt:
+
+| Trial | Source seat | Prompt owner seat | Selected label | Hand delta | Deck delta | Physical identity verified |
+|---:|---:|---:|---|---:|---:|:---:|
+| 4 | 1 | 1 | Draw 2 card(s) | +2 | -2 | Yes |
+| 7 | 0 | 1 | Draw 2 card(s) | +2 | -2 | Yes |
+| 25 | 0 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
+| 26 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
+| 30 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
+| 32 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
+
+All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug: the setup reducer has branches for both directions, and the current sample is small. A matched identical-deck seat-symmetry test is warranted before treating compensation-recipient behavior as a stable prior.
+
+## Probability sanity check
+
+A simple seven-card, no-mulligan/no-compensation hypergeometric model for the rank4 list gives:
+
+`P(opportunity) = 1 - C(58,7)/C(60,7) - 2 C(47,6)/C(60,7) = 16.5864%`
+
+This model uses two Dedenne and eleven other Basics. It excludes the actual mulligan/compensation process and is only a sanity check, not the experiment's estimand. The observed `6/32 = 18.75%` has a 95% Wilson interval of **8.89%–35.31%**. The observed rate is compatible with the rough seven-card model; the sample is too small for a precise opportunity estimate.
+
+## Failure-inclusive status and interpretation
+
+All 32 attempts reached the source's first turn and then stopped at the same fail-closed boundary: `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED`, source seat, turn 1, phase 2, decision kind `root-or-setup`. Each row records one quarantined raw-State call; the original native raw-State decoder executed **zero times**. There were no opponent replies, attacks, Prize transitions, terminal games, or competitive qualifications.
+
+The forced hook proves that the native Store can execute Dedechange in these six physical opening states. It does not prove that spending the hand is good. The payments included search, setup, energy, recovery, and other cards; strategic opportunity cost, replacement draw quality, opponent response, and the value of a hand-preserving line remain untested. The 6/32 frequency is conditional on this source/reference pair, source-first choice, setup policy, and seed cohort. Do not generalize it to the full Aichi field.
+
+## Next research
+
+1. Run a matched identical-deck seat-symmetry test for mulligan compensation. The six prompts all belonged to seat 1 despite 16/16 source-seat balance; determine whether this is random variation, seed/order behavior, or a setup implementation issue.
+2. Compare Dedechange against a hand-preserving alternative on matched physical deals, retaining all no-opportunity rows. Include actual later source actions and adversarial opponent responses once the shared policy can complete them.
+3. Keep the SelectPrompt adapter default-off in the shared v8 baseline until its owner-safe semantics and full-game impact are separately validated.
+
+**Benchmark unchanged:** no selected final 60, zero competitively qualified full games, and no demonstrated 99.5% win rate against the Aichi Open League 2026 Top 32.
