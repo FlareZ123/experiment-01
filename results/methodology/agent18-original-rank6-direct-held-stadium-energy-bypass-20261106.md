@@ -30,6 +30,27 @@ The broader event *both singleton cards held regardless of connectors* is **1369
 
 For an explicit two-Basic opening/Bench-readiness version, the old 7.002435% paid-G&H/Mail metric and disjoint E-with-second-Basic add to at least **7.113584%**. This strict second-Basic cut is an operational stress test for the Energy-moving effect, rather than a blanket assertion that no-Bench attacks fail.
 
+## Separate Guzma gust channel: a rare solo offensive line
+
+The authenticated original rank6 sixty also contains **three Guzma BUS**. The [official Japanese Pokémon TCG FAQ](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%B0%E3%82%BA%E3%83%9E&page=3&regulation_faq_main=) explicitly answers **yes** when asked whether Guzma can be played while *the opponent has a Bench and the Guzma player does not*. The [official Guzma BUS115 printing](https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/series/sm3/115) first switches in an opposing Benched Pokémon; only after that does it conditionally switch the user's Active with their own Bench. Thus a solo Iron Thorns can gust an opposing Benched target while remaining Active, provided the opponent has an eligible Bench, no other play restrictions apply and the Supporter quota is free. It can then potentially announce the Stadium-reduced DCE-funded Volt Cyclone. When the owner *has* a Bench, the second switch is mandatory if the opponent was successfully gusted, which can move the DCE-bearing Active out of the attack position. The owner can choose not to Bench extra held Basics during initial setup; strategically that increases sole-Active Knock Out risk.
+
+Treat a held Guzma as three of the 47 previously grouped residual cards. The corresponding eight-card opening event is a **strict subset** of E, and neither the opponent's Bench nor a game-winning target is modeled:
+
+| Physical opening condition within E | Exact conditional fraction (given Basic-valid 7) | Probability |
+| --- | --- | ---: |
+| **At least one Guzma BUS held** | `1223641 / 681445380` | **0.179565529%** |
+| Guzma held and **exactly one Basic** among the eight, hence unavoidable solo board | `40721 / 26549820` | **0.153375804%** |
+
+Among the E openings, **28.216522%** also hold Guzma. Among those E-plus-Guzma openings, **85.414949%** hold exactly one Basic. These are physical card-access proportions and cannot be interpreted as 140-damage probability, gust success rate, Prize rate or game-win probability. The conditional opponent Bench state is not included and may be absent. Some target attacks may fail due to locks, protection, effects, timing or opponent decisions.
+
+The exact proof subtracts zero-Guzma outcomes from E. For any number of Basics, the zero-Guzma favorable count is `[C(48,5)-C(44,5)]·43 + 2·[C(48,6)-C(44,6)]`; the difference from E's 52,039,340 favorable count is **14,683,692**, yielding the first fraction. For exactly one Basic after the eighth card, the favorable count is
+
+`4·[C(47,4)·43 - C(44,4)·40 + 2·(C(47,5)-C(44,5))] = 12,542,068`,
+
+yielding the second fraction. Both values were checked by an independent full eight-category initial-seven/Prize/single-draw enumeration, and the two new Node tests passed locally (now five of five).
+
+**Decision relevance:** the connector-free setup retains the only Supporter action for a conditional gust. A planner focused solely on finding and paying G&H might miss that valuable alternative on some opening states. The exact event remains rare and insufficient to establish a realized attack or Prize. Any live decision gate should compare gust, Bench choice, target HP/damage/protection, protection against opponent's return knockout, and actual native Store settlement before admitting this as a qualified move.
+
 ## Closed-form proof and independent calculation
 
 The total number of legal-seven plus uniform eighth-card outcomes is
