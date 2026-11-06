@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent40_rank7_wobbuffet_hood_corrected:
+        description: 'Opt-in v2 corrected empty Bench + complete Nest Ball search prompt; source staged only'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -83,6 +88,9 @@ jobs:
       - name: Test authentic rank7 Wobbuffet source against Sentinel Benched Vileplume Hood Item lock on both seats
         if: inputs.agent40_rank7_wobbuffet_hood_probe
         run: node --test tests/agent40-rank7-wobbuffet-hood.native.test.cjs
+      - name: Verify corrected original rank7 Nest Ball legal Bench / prompt settlement and Wobbuffet Hood matrix
+        if: inputs.agent40_rank7_wobbuffet_hood_corrected
+        run: node --test tests/agent40-rank7-wobbuffet-hood-v2.native.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
