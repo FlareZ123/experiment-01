@@ -10,6 +10,9 @@ function view(r){
  validated:r.atLeastNativeProposalValidated,
  winners:[r.controlNativeWinner,r.counterreplyNativeWinner,r.repeatNativeWinner],
  arms:r.arms?.map(x=>({status:x.status,winner:x.winner,turn:x.globalTurns,error:!!x.error})),
+ nativeAttackRoots:r.arms?.map(arm=>
+  arm.rootActionLedger?.filter(x=>x.playerSlot===1&&
+    x.action==='AttackAction').map(x=>({turn:x.turnBefore,name:x.attack}))),
  terminalPrizeCounts:r.arms?.map(x=>
   x.terminal?.after?.players?.map(p=>p.prizesRemaining)??null),
  terminalDeckCounts:r.arms?.map(x=>
