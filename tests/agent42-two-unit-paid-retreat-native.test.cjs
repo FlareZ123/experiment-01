@@ -74,7 +74,7 @@ function stage(seat){
   putVmax(funded);
   girafarig.cards.push(card('Girafarig LOT'));
   owner.bench=[funded,girafarig];
-  opponent.active.cards.push(card('Lunatone OBF'));
+  opponent.active.cards.push(card('Combee OBF'));
   for(const player of state.players){
     for(let i=0;i<15;i++)player.deck.cards.push(card(PSY));
     for(let i=0;i<6;i++){
@@ -158,7 +158,7 @@ for(const seat of [0,1]){
     assert.deepEqual(intent?.discardEnergyIndices,[0,1]);
     const ownerDiscardBefore=[...owner.discard.cards];
     const {withTwoPsychicRetreatCustody}=
-      require('../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody.cjs');
+      require('../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody-v2.cjs');
     const witness=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
       const action=new RetreatAction(owner.id,intent.benchIndex);
       onRootStoreCreated(store);
@@ -291,7 +291,7 @@ test('native Skyliner makes the owner Basic Active Retreat free',()=>{
   assert.equal(view.ownPublic.active.printed.stage,game.catalog.stages.BASIC);
   assert.ok(view.ownPublic.bench[0].abilityDetails.some(x=>x.name==='Skyliner'));
   assert.equal(proposeTwoUnitPaidRetreatV2(view,game.catalog),null);
-  const {RetreatAction}=engine('game/store/actions/retreat-action');
+  const {RetreatAction}=engine('game/store/actions/game-actions');
   store.dispatch(new RetreatAction(owner.id,0));
   resolveNativeRetreat(game);
   assert.strictEqual(owner.active,target);
@@ -303,7 +303,7 @@ test('native Skyliner makes the owner Basic Active Retreat free',()=>{
 test('native Snorlax Block exposes a public no-Retreat restriction and rejects Retreat',()=>{
   const game=stage(1),{store,state,owner,opponent}=game;
   const manager=initializeCards();
-  const snorlax=manager.getCardByName('Snorlax PGO 55');
+  const snorlax=manager.getCardByName('Snorlax PGO');
   const latias=manager.getCardByName('Latias ex SSP');
   assert.ok(snorlax&&latias);
   snorlax.id=990003;latias.id=990004;
@@ -314,7 +314,7 @@ test('native Snorlax Block exposes a public no-Retreat restriction and rejects R
   assert.ok(view.opponentPublic.active.abilityDetails.some(x=>x.name==='Block'));
   assert.equal(view.opponentPublic.active.publicRestrictions.cannotRetreatWhileActive,true);
   assert.equal(proposeTwoUnitPaidRetreatV2(view,game.catalog),null);
-  const {RetreatAction}=engine('game/store/actions/retreat-action');
+  const {RetreatAction}=engine('game/store/actions/game-actions');
   try{store.dispatch(new RetreatAction(owner.id,0));resolveNativeRetreat(game);}
   catch(error){assert.match(String(error?.message??error),/retreat|active|blocked/i);}
   assert.strictEqual(owner.active,source);
