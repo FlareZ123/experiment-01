@@ -1,0 +1,168 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const {createHash} = require('node:crypto');
+
+const VERSION = 'agent45-bilateral-competence-gate-v1';
+const MATERIAL = new Set([
+  'AttackAction', 'PlayCardAction', 'RetreatAction', 'UseAbilityAction',
+  'AttachEnergyAction', 'AttachEnergyFromHandAction'
+]);
+const PAYOFFS = new Set([
+  'settled-attack', 'prize-transition', 'energy-custody', 'position-change',
+  'resource-transfer', 'established-lock', 'opponent-resource-denial'
+]);
+
+/**
+ * Hash the exact native public accepted-root array without reordering it.
+ * @param {object[]} roots
+ * @returns {string}
+ */
+function rootDigest(roots) {
+  return createHash('sha256').update(JSON.stringify(roots)).digest('hex');
+}
+
+/**
+ * An independently supplied payment/target/legal-opportunity certificate is
+ * a claim to audit, not a paper legality oracle. Reject ungrounded claims.
+ * @param {object} certificate
+ * @param {object} root
+ * @returns {boolean}
+ */
+function certifiedMaterialChoice(certificate, root) {
+  if (!certificate || !root || !MATERIAL.has(root.action)) return false;
+  if (certificate.rootOrdinal !== root.actionOrdinal ||
+      certificate.actorSeat !== root.playerSlot ||
+      certificate.action !== root.action) return false;
+  if (certificate.realStoreAccepted !== true ||
+      certificate.paperLegalityReviewed !== true ||
+      certificate.paidResourcesVerified !== true ||
+      certificate.targetsAndTransitionsVerified !== true ||
+      certificate.ownerInformationOnly !== true ||
+      !PAYOFFS.has(certificate.consequenceType)) return false;
+  if (typeof certificate.independentReviewer !== 'string' ||
+      certificate.independentReviewer.length === 0 ||
+      typeof certificate.paperEvidenceRef !== 'string' ||
+      certificate.paperEvidenceRef.length === 0 ||
+      typeof certificate.physicalReceiptRef !== 'string' ||
+      certificate.physicalReceiptRef.length === 0) return false;
+  const audit = certificate.ownerOpportunityAudit;
+  if (audit?.actualRootOwnerView !== true ||
+      audit?.exhaustivePaperAffordableScan !== true ||
+      audit?.independentReview !== true ||
+      !Array.isArray(audit.options) || audit.options.length === 0 ||
+      typeof audit.evidenceRef !== 'string' || !audit.evidenceRef) return false;
+  const selected = audit.options.filter(option =>
+    option?.id === certificate.selectedOptionId &&
+    option.action === root.action && option.ownerVisible === true &&
+    option.paperAffordable === true &&
+    typeof option.evidenceRef === 'string' && !!option.evidenceRef);
+  if (selected.length !== 1) return false;
+  const ids = audit.options.map(option => option?.id);
+  return ids.every(id => typeof id === 'string' && !!id) &&
+    new Set(ids).size === ids.length;
+}
+
+/**
+ * Evaluate one frozen trial without converting raw native action counts into
+ * an assertion of strategic competence. All certification fields require
+ * independent upstream evidence. No game is qualified by this helper alone.
+ * @param {object} trial Frozen, source-locked trial and audit packet.
+ * @returns {object}
+ */
+function evaluateBilateralCompetence(trial) {
+  assert.ok(trial && typeof trial === 'object');
+  const roots = trial.rootActionLedger;
+  assert.ok(Array.isArray(roots), 'Native accepted-root ledger required');
+  for (let i = 0; i < roots.length; i++) {
+    assert.equal(roots[i].actionOrdinal, i,
+      'Accepted root ordinals must be contiguous from zero');
+    assert.ok(Number.isSafeInteger(roots[i].turnBefore) &&
+      (roots[i].playerSlot === 0 || roots[i].playerSlot === 1));
+    if (i > 0) assert.ok(roots[i].turnBefore >= roots[i-1].turnBefore,
+      'Cannot accept time-regressing native roots');
+  }
+  const digest = rootDigest(roots);
+  assert.equal(trial.rootActionLedgerSha256, digest,
+    'Frozen Store ledger SHA256 mismatch');
+  const sourceSeat = trial.originalSourceSeat;
+  const candidateSeat = trial.candidateSeat;
+  assert.ok((sourceSeat === 0 || sourceSeat === 1) &&
+    candidateSeat === 1 - sourceSeat, 'The two distinct actual seats are required');
+  const nonempty = value => typeof value === 'string' && value.length > 0;
+  const source = trial.originalPrinted60Sha256;
+  const candidate = trial.candidatePrinted60Sha256;
+  const provenanceComplete = [trial.registrationRef, trial.trialId,
+    trial.sourcePhysicalDealSha256, trial.fullPhysicalDealSha256,
+    trial.vendorCommitSha, trial.researchRevisionSha,
+    trial.hookRevisionSha, source, candidate].every(nonempty) &&
+    (trial.actualFirstPlayerSeat === 0 || trial.actualFirstPlayerSeat === 1);
+  const samePolicy = nonempty(trial.policySha256BySeat?.[0]) &&
+    trial.policySha256BySeat[0] === trial.policySha256BySeat[1];
+  const nativeTerminal = trial.nativeFinished === true &&
+    (trial.nativeWinner === 0 || trial.nativeWinner === 1) &&
+    nonempty(trial.nativeEndReason) &&
+    Array.isArray(trial.finalPrizes) && trial.finalPrizes.length === 2 &&
+    trial.finalPrizes.every(x => Number.isInteger(x) && x >= 0 && x <= 6) &&
+    trial.engineError !== true && trial.rootCapReached !== true;
+  const evidence = Array.isArray(trial.actionCertificates)?trial.actionCertificates:[];
+  const certificateByRoot = new Map();
+  for (const cert of evidence) {
+    assert.ok(Number.isInteger(cert.rootOrdinal) && cert.rootOrdinal >= 0,
+      'Certificate root must be a nonnegative ordinal');
+    assert.ok(!certificateByRoot.has(cert.rootOrdinal),
+      'Duplicate certificates for a single native root');
+    certificateByRoot.set(cert.rootOrdinal,cert);
+  }
+  const eligible = roots.filter(root => certifiedMaterialChoice(
+    certificateByRoot.get(root.actionOrdinal), root));
+  let episode = null;
+  for (let i = 0; i < eligible.length && !episode; i++) {
+    const first = eligible[i];
+    if (first.playerSlot !== sourceSeat) continue;
+    for (let j = i + 1; j < eligible.length && !episode; j++) {
+      const response = eligible[j];
+      if (response.playerSlot !== candidateSeat ||
+          response.turnBefore !== first.turnBefore + 1) continue;
+      for (let k = j + 1; k < eligible.length; k++) {
+        const continuation = eligible[k];
+        if (continuation.playerSlot === sourceSeat &&
+            continuation.turnBefore === response.turnBefore + 1) {
+          episode = {
+            sourceActionOrdinal:first.actionOrdinal,
+            opponentReplyOrdinal:response.actionOrdinal,
+            sourceContinuationOrdinal:continuation.actionOrdinal,
+            turns:[first.turnBefore,response.turnBefore,
+              continuation.turnBefore],
+            actionTypes:[first.action,response.action,continuation.action]
+          };
+          break;
+        }
+      }
+    }
+  }
+  const failures = [];
+  if (!provenanceComplete) failures.push('provenance-incomplete');
+  if (!samePolicy) failures.push('policy-asymmetry-or-unverified');
+  if (!nativeTerminal) failures.push('no-natural-native-terminal');
+  if (!episode) failures.push('no-certified-source-reply-source-episode');
+  if (trial.independentFullPaperRulesAudit !== true)
+    failures.push('independent-paper-audit-pending');
+  if (trial.hiddenInformationAudit !== true)
+    failures.push('hidden-information-audit-pending');
+  if (trial.official25MinuteClockAudit !== true)
+    failures.push('official-match-clock-audit-pending');
+  const competitiveAdmission = failures.length === 0;
+  return {
+    schema:VERSION,trialId:trial.trialId??null,
+    rootActionLedgerSha256:digest,acceptedNativeRoots:roots.length,
+    certifiedMaterialRoots:eligible.length,
+    provenanceComplete,samePolicy,nativeTerminal,
+    reciprocalEpisodeObserved:episode !== null,episode,
+    competitiveAdmission,failures,
+    evidenceStatus:'independent reviewer receipts must be checked at their source; this gate does not adjudicate paper rules or action strategy'
+  };
+}
+
+module.exports = {VERSION, rootDigest, certifiedMaterialChoice,
+  evaluateBilateralCompetence};
