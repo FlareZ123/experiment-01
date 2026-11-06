@@ -186,6 +186,10 @@ function runSyntheticNativeFixture(deps={}){
   const diagnostic={
     version:VERSION,fixtureAudit:fixture.audit,
     ownerVsSeekerGuzmaAudit:audit,
+    nativeRootAccepted:audit.rootsAccepted>0,
+    ownerDiscardPromptResolved:audit.promptsAccepted>0,
+    nativeStoreGamesSeen:audit.actualGamesSeen,
+    helperOpportunityCount:fixture.audit.injections.filter(x=>x.helperOpportunity).length,
     actorOnlyDecisionCoverageByTrial:(raw.rows??[]).map(row=>({
       trialId:row.trial?.id??row.id??null,
       actorOnlyDecisionCoverage:row.actorOnlyDecisionCoverage??null
