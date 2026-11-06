@@ -139,6 +139,37 @@ function runOriginalV7GuzmaCanary(deps={}) {
   });
   const comparison=compareExactOriginalGuzma(
     control,selected,treatmentReceipt);
+  // Third A run is a real replay after the treatment's nested native
+  // prototype hooks have been torn down. It detects accidental contamination.
+  const controlAfter=(deps.runControl??runV7ReadOnlyOwnerAudit)();
+  const before=control.nativeReceipt.attempts;
+  const after=controlAfter.nativeReceipt.attempts;
+  assert.equal(after.length,before.length);
+  const matchedControlRows=before.map(a=>{
+    const b=after.find(x=>x.id===a.id);
+    assert.ok(b);
+    return {id:a.id,
+      sameSourceDeal:a.sourceDealFingerprint===b.sourceDealFingerprint,
+      sameEntireDeal:
+        a.fullPhysicalDealFingerprint===b.fullPhysicalDealFingerprint,
+      sameDisposition:a.status===b.status,
+      sameRootCount:a.nativeRootActionCount===b.nativeRootActionCount,
+      samePublicLedger:
+        a.publicRootLedgerSha256Computed===
+          b.publicRootLedgerSha256Computed&&
+        JSON.stringify(a.publicRootActions)===
+          JSON.stringify(b.publicRootActions)};
+  });
+  const controlRoundtrip={
+    originalRegisteredArms:before.length,
+    replayRegisteredArms:after.length,
+    fullABAReturnToOriginal:matchedControlRows.every(r=>
+      r.sameSourceDeal&&r.sameEntireDeal&&r.sameDisposition&&
+      r.sameRootCount&&r.samePublicLedger),
+    rows:matchedControlRows
+  };
+  assert.equal(controlRoundtrip.fullABAReturnToOriginal,true,
+    'A/B/A treatment must restore all original public roots and deals');
   return {schema:VERSION,
     checkout:selected.manifest.observedRepositoryGitCommit,
     vendorPin:selected.manifest.observedTwinleafGitCommit,
@@ -147,6 +178,8 @@ function runOriginalV7GuzmaCanary(deps={}) {
     nativeRootLimit:selected.manifest.nativeRootActionLimit,
     controlReceipt:control.nativeReceipt,
     treatmentReceipt,
+    controlAfterReceipt:controlAfter.nativeReceipt,
+    controlRoundtrip,
     comparison,
     competitorPolicyQualified:false,
     paperPaidGuzmaCertified:false,
