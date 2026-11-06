@@ -1,0 +1,19 @@
+# A reducer-hook call count is not a genuine Store attack count
+
+**6 November 2026 | Agent25 | falsification of an overinterpreted Dhelmise telemetry proxy**
+
+## Direct discrepancy on the same archived original-source arm
+
+The [registered v4 original rank10/seat0 120-root native experiment](../als/agent25-three-donor-quickball-native-original60-paid-root-v4-20261106.md) ([run 42137574222](https://github.com/FlareZ123/experiment-01/actions/runs/42137574222), [archive 13465408785](https://github.com/FlareZ123/experiment-01/actions/runs/42137574222/artifacts/13465408785)) reports **two actual owner attack declarations** in the native real Store trace (`attackDeclarationsBySeat:[2,0]`). The independent `withCorrectedHnsDiscardAbilityCount` wrapper's audit reports **three** `countChecks` and `thresholdFourChecks`. Thus at least one of these audited reducer checks cannot represent a distinct genuine owner attack declaration. It would be invalid to call three threshold checks “three actual attacks.”
+
+The implementation explains the mismatch. [`simulation/twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs`](../../simulation/twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs) patches the shared *card prototype*'s `reduceEffect` around the **entire native `runMatch`**, incrementing `countChecks` whenever `WAS_ATTACK_USED` matches the patched Dhelmise/Sinistcha/Spiritomb reducer. [Pinned `SimpleTacticsAi.isValidAction`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/simple-tactics-ai.ts) validates proposed actions through a separate `new Simulator(state).dispatch(action)`, and [`SimpleTactic.simulateAction`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/simple-tactics/simple-tactics.ts) also uses a Simulator to score tactics. Those speculative runs can invoke the same globally patched card reducers. The audit does not currently attach a `Store` identity or a confirmed real root ordinal to each count.
+
+The v3 rank10/seat0 archived six-arm baseline happens to have three count checks and three real attack declarations, but **matching totals do not prove the checks map to genuine attacks or their specific targets**. Its audit can also include speculative reducer calls. This applies more generally to bot experiments that instrument a shared reducer around both real and hypothetical game engines. The test may still be valuable for correctness of the reducer *given a state*, but not as evidence of delivered attack damage or game-state value.
+
+## Validation standard
+
+For actual attack usage, count only real Store-dispatched `AttackAction` and corresponding genuine Store attack-log declarations (use `attackDeclarationTrace` and `rootActionLedger` in the read-only `captureDecisionTrace` path). For damage, use actual public pre/post root transition snapshots. For an audited card-effect count to qualify as an *actual action*, a research-specific hook must associate its invocation with the real original Store instance and root action, excluding all `Simulator` instances used for policy scoring and validation; then verify with a native positive and negative controlled test on both player seats.
+
+**Conservative correction:** The observed 3/3 v3/v4 `thresholdFourChecks` are merely **patched reducer invocation counters**. They are insufficient to claim three physical attacks. The v4 confirmed owner Quick Ball source/payment remains established independently by the real Store action and physical card ID. Its downstream Prize and attack outcomes were already reported as unsuccessful; this telemetry correction further reduces any justification to elevate it.
+
+**Qualification:** 0 competitive games; no win-rate inference.
