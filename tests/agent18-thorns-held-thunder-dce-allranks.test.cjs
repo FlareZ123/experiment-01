@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   ORIGINAL_IRON_THORNS_RANKS,groupOriginalSixty,
-  directlyHeldThornsResources
+  directlyHeldThornsResources,allAttackResourcesPrized
 }=require('../simulation/evaluation/agent18-thorns-held-thunder-dce-allranks.cjs');
 const {heldStadiumEnergyWithoutSupporterConnectors,
   heldStadiumEnergyWithGuzma}=
@@ -114,4 +114,40 @@ test('held Thunder and at least one DCE regardless of connector overlap has a di
     directlyHeldThornsResources(6,{allowConnectors:true}).numerator,
     13697n
   );
+});
+
+test('K0: all physically printed DCE copies prized after a Basic-valid initial seven',()=>{
+  for(const [rank,n,d] of [
+    [6,79029n,779240n],
+    [24,2353n,3857238n],
+    [29,79029n,779240n]
+  ]){
+    const row=allAttackResourcesPrized(rank,'dce');
+    assert.equal(row.numerator,n);
+    assert.equal(row.denominator,d);
+    assert.equal(row.copies,rank===24?3:1);
+  }
+});
+
+test('the singleton Thunder Mountain has the same opening Prize exposure in all three source sixties',()=>{
+  for(const rank of ORIGINAL_IRON_THORNS_RANKS){
+    const row=allAttackResourcesPrized(rank,'thunder');
+    assert.equal(row.numerator,79029n);
+    assert.equal(row.denominator,779240n);
+    assert.equal(row.copies,1);
+  }
+});
+
+test('joint Thunder and all DCE Prized event is rarer in rank24',()=>{
+  const r6=allAttackResourcesPrized(6,'both');
+  const r24=allAttackResourcesPrized(24,'both');
+  const r29=allAttackResourcesPrized(29,'both');
+  assert.equal(r6.numerator,7473n);
+  assert.equal(r6.denominator,857164n);
+  assert.equal(r29.numerator,r6.numerator);
+  assert.equal(r29.denominator,r6.denominator);
+  assert.equal(r24.numerator,11101n);
+  assert.equal(r24.denominator,340722690n);
+  assert.ok(r24.percentage<r6.percentage);
+  assert.throws(()=>allAttackResourcesPrized(6,'invalid'));
 });
