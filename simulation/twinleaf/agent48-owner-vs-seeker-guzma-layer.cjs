@@ -16,7 +16,7 @@ const VERSION='agent48-owner-vs-seeker-guzma-layer-v1';
 function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   assert.equal(typeof run,'function');
   const base=deps.base??path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-  const Bot=deps.SimpleTacticsAi??require(path.join(base,'game/bots/simple-tactics-ai')).SimpleTacticsAi;
+  const Bot=deps.SimpleTacticsAi??require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
   const PlayCardAction=deps.PlayCardAction??require(path.join(base,'game/store/actions/play-card-action')).PlayCardAction;
   const types=deps.actionTypes??require(path.join(base,'game/store/actions/action-types'));
