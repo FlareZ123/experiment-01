@@ -88,7 +88,8 @@ function summarizeSpecialEnergyCoverage(){
       rank:deck.rank,archetype:deck.archetype,
       energyCopies:0,specialCopies:0,
       narrowExactCopies:0,narrowAliasCopies:0,
-      genericFavorableCopies:0,genericConservativeCopies:0
+      genericFavorableCopies:0,genericConservativeCopies:0,
+      specialGenericFavorableCopies:0,specialGenericConservativeCopies:0
     };
     for(const row of rows){
       summary.energyCopies+=row.count;
@@ -116,17 +117,25 @@ function summarizeSpecialEnergyCoverage(){
         }
         if(favorable!==null){
           summary.genericFavorableCopies+=row.count;
+          summary.specialGenericFavorableCopies+=row.count;
+          entry.genericFavorableCopies+=row.count;
+        }
+        if(conservative!==null){
+          summary.genericConservativeCopies+=row.count;
+          summary.specialGenericConservativeCopies+=row.count;
+          entry.genericConservativeCopies+=row.count;
+        }
+      }else{
+        const favorable=energyUnits(row.printing,FAVORABLE_CONTEXT);
+        const conservative=energyUnits(row.printing,CONSERVATIVE_CONTEXT);
+        if(favorable!==null){
+          summary.genericFavorableCopies+=row.count;
           entry.genericFavorableCopies+=row.count;
         }
         if(conservative!==null){
           summary.genericConservativeCopies+=row.count;
           entry.genericConservativeCopies+=row.count;
         }
-      }else{
-        const favorable=energyUnits(row.printing,FAVORABLE_CONTEXT);
-        const conservative=energyUnits(row.printing,CONSERVATIVE_CONTEXT);
-        if(favorable!==null)summary.genericFavorableCopies+=row.count;
-        if(conservative!==null)summary.genericConservativeCopies+=row.count;
       }
       printingMap.set(row.printing,entry);
     }
@@ -143,8 +152,8 @@ function summarizeSpecialEnergyCoverage(){
     distinctPrintings:sourceSpecialNames.size,
     narrowExactCopies:sum(rankRows,'narrowExactCopies'),
     narrowAliasCopies:sum(rankRows,'narrowAliasCopies'),
-    genericFavorableCopies:sum(rankRows,'genericFavorableCopies'),
-    genericConservativeCopies:sum(rankRows,'genericConservativeCopies')
+    genericFavorableCopies:sum(rankRows,'specialGenericFavorableCopies'),
+    genericConservativeCopies:sum(rankRows,'specialGenericConservativeCopies')
   };
   const totalSummary={
     originalDecks:original.decks.length,
