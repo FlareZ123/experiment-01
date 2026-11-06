@@ -27,8 +27,9 @@ function fixture(){
     {id:10,deck:{cards:[0,1,2],applyOrder:order=>applied.push([0,order])}},
     {id:20,deck:{cards:[0,1,2],applyOrder:order=>applied.push([1,order])}}
   ];
-  const state={players},prompts=[];
-  const store={prompt(_state,prompt,callback){
+  const state={players,prompts:[]},prompts=[];
+  const store={state,prompt(_state,prompt,callback){
+    _state.prompts.push(prompt);
     prompts.push({prompt,callback});return _state;
   }};
   function play(seat=0){
@@ -58,6 +59,10 @@ test('actual printed native callback records only its own resolved shuffle',()=>
   assert.equal(r.audit.shufflePromptsOffered,1);
   assert.equal(r.audit.shuffleCallbacksCompleted,1);
   assert.equal(r.audit.validShuffleCallbacksCompleted,1);
+  assert.equal(r.audit.nativeLivePromptRegistrationsVerified,1);
+  assert.equal(r.audit.nativeLivePromptRegistrationsMissing,0);
+  assert.equal(r.audit.nativeCallbackLiveOwnerMatches,1);
+  assert.equal(r.audit.nativeCallbackDetachedOwners,0);
   assert.equal(r.audit.invalidNativeShufflePermutations,0);
   assert.equal(r.audit.outstandingShuffleCallbacks,0);
   assert.deepEqual(r.audit.bySeat,{0:0,1:1});
@@ -244,9 +249,10 @@ test('delayed Confirm to Choose to Show plus Shuffle retains observer',()=>{
   const player={id:17,deck:{cards:[0,1,2],applyOrder(order){
     this.cards=order.map(i=>this.cards[i]);
   }}};
-  const other={id:18,deck:{cards:[]}},state={players:[player,other]};
+  const other={id:18,deck:{cards:[]}},state={players:[player,other],prompts:[]};
   const prompts=[];
-  const store={prompt(next,prompt,callback){
+  const store={state,prompt(next,prompt,callback){
+    next.prompts.push(prompt);
     prompts.push({prompt,callback});return next;
   }};
   const original=PrintedLele.prototype.reduceEffect;
@@ -290,8 +296,9 @@ test('zero-selected printed search requires no native Shuffle prompt',()=>{
       return state;
     }
   }
-  const player={id:1,deck:{cards:[0]}},state={players:[player,{id:2}]};
-  const prompts=[],store={prompt(st,prompt,cb){
+  const player={id:1,deck:{cards:[0]}},state={players:[player,{id:2}],prompts:[]};
+  const prompts=[],store={state,prompt(st,prompt,cb){
+    st.prompts.push(prompt);
     prompts.push({prompt,cb});return st;
   }};
   const audit=observe(()=>{
@@ -305,4 +312,40 @@ test('zero-selected printed search requires no native Shuffle prompt',()=>{
   assert.equal(audit.shufflePromptsOffered,0);
   assert.equal(audit.validShuffleCallbacksCompleted,0);
   assert.equal(audit.allOfferedShufflesCompleted,true);
+});
+
+test('post-prompt Store rollback detaches captured owner and vetoes shuffle certification',()=>{
+  const x=fixture();
+  const result=observe(()=>{
+    x.play(0);
+    x.store.state={...x.state,players:[
+      {...x.players[0],deck:{cards:[0,1,2]}},x.players[1]
+    ]};
+    x.prompts[0].callback([2,1,0]);
+  },x).audit;
+  assert.equal(result.shuffleCallbacksCompleted,1);
+  assert.equal(result.nativeLivePromptRegistrationsVerified,1);
+  assert.equal(result.nativeCallbackDetachedOwners,1);
+  assert.equal(result.nativeCallbackLiveOwnerMatches,0);
+  assert.equal(result.validShuffleCallbacksCompleted,0);
+  assert.equal(result.invalidNativeShufflePermutations,0);
+  assert.equal(result.allOfferedShufflesCompleted,false);
+  assert.deepEqual(x.applied,[[0,[2,1,0]]]);
+});
+
+test('prompt absent from actual pending Store cannot certify Shuffle completion',()=>{
+  const x=fixture();
+  x.store.prompt=(state,prompt,callback)=>{
+    x.prompts.push({prompt,callback});
+    return state;
+  };
+  const result=observe(()=>{
+    x.play(1);
+    x.prompts[0].callback([0,1,2]);
+  },x).audit;
+  assert.equal(result.shuffleCallbacksCompleted,1);
+  assert.equal(result.nativeCallbackLiveOwnerMatches,1);
+  assert.equal(result.nativeLivePromptRegistrationsMissing,1);
+  assert.equal(result.validShuffleCallbacksCompleted,1);
+  assert.equal(result.allOfferedShufflesCompleted,false);
 });
