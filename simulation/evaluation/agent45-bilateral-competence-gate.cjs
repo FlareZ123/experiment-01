@@ -123,11 +123,17 @@ function evaluateBilateralCompetence(trial) {
     for (let j = i + 1; j < eligible.length && !episode; j++) {
       const response = eligible[j];
       if (response.playerSlot !== candidateSeat ||
-          response.turnBefore !== first.turnBefore + 1) continue;
+          response.turnBefore !== first.turnBefore + 1 ||
+          certificateByRoot.get(response.actionOrdinal)?.linkedEarlierRootOrdinal !==
+            first.actionOrdinal ||
+          !certificateByRoot.get(response.actionOrdinal)?.causalEvidenceRef) continue;
       for (let k = j + 1; k < eligible.length; k++) {
         const continuation = eligible[k];
         if (continuation.playerSlot === sourceSeat &&
-            continuation.turnBefore === response.turnBefore + 1) {
+            continuation.turnBefore === response.turnBefore + 1 &&
+            certificateByRoot.get(continuation.actionOrdinal)?.linkedEarlierRootOrdinal ===
+              response.actionOrdinal &&
+            !!certificateByRoot.get(continuation.actionOrdinal)?.causalEvidenceRef) {
           episode = {
             sourceActionOrdinal:first.actionOrdinal,
             opponentReplyOrdinal:response.actionOrdinal,
@@ -152,14 +158,15 @@ function evaluateBilateralCompetence(trial) {
     failures.push('hidden-information-audit-pending');
   if (trial.official25MinuteClockAudit !== true)
     failures.push('official-match-clock-audit-pending');
-  const competitiveAdmission = failures.length === 0;
+  const structuralGatePassed = failures.length === 0;
   return {
     schema:VERSION,trialId:trial.trialId??null,
     rootActionLedgerSha256:digest,acceptedNativeRoots:roots.length,
     certifiedMaterialRoots:eligible.length,
     provenanceComplete,samePolicy,nativeTerminal,
     reciprocalEpisodeObserved:episode !== null,episode,
-    competitiveAdmission,failures,
+    structuralGatePassed,competitiveAdmission:false,
+    externalIndependentReviewRequired:true,failures,
     evidenceStatus:'independent reviewer receipts must be checked at their source; this gate does not adjudicate paper rules or action strategy'
   };
 }
