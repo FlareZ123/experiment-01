@@ -69,6 +69,11 @@ function runAgent1Horizon260V14(deps={}){
       publicNativeRootActions:actions,
       genuineNativeFinished:row.finished===true,
       reportedNativeWinner:row.winner??null,
+      nativeEndReason:row.endReason??null,
+      nativeFinalPrizes:row.finalPrizes??null,
+      nativeTurnCount:row.turns??null,
+      nativeActionCount:row.actionCount??null,
+      nativeClockResetCount:row.suddenDeathClockResets?.length??0,
       sourceActualAttacks:row.sourceAttackSettlement?.attacks??null,
       nativeError:row.error??null
     };
