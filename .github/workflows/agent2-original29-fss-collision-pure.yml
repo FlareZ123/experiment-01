@@ -26,6 +26,8 @@ jobs:
           node --test tests/agent2-aichi-exact-retreat-prohibition-census.test.cjs
           node simulation/evaluation/agent2-aichi-exact-retreat-prohibition-census.cjs > agent2-aichi-retreat-prohibition.json
           sha256sum agent2-aichi-retreat-prohibition.json > agent2-aichi-retreat-prohibition.json.sha256
+      - name: Fail closed on missing v1 and v2 live paid-retreat wrapper activation
+        run: node --test tests/agent2-paid-retreat-root-wrapper-activation.test.cjs
       - name: Preserve exact machine-readable 29-rank analysis and SHA-256
         run: |
           node simulation/evaluation/agent2-original29-fss-first-tool-collision.cjs > agent2-fss-collision.json
