@@ -9,7 +9,7 @@ Read the exact original **Agent36/Agent32 v8 Telepath + default-Confirm-false** 
 - Original run: [Actions 42287771647](https://github.com/FlareZ123/experiment-01/actions/runs/42287771647), [artifact 13538082892](https://github.com/FlareZ123/experiment-01/actions/runs/42287771647/artifacts/13538082892), archive `agent32-issue25-v8-telepath-confirm-default-false-same-eight-native`.
 - ZIP exact SHA256 `36d759b28ae75bb120d94c30a6faa2ae79bd1e03ddb0df902a94418e2ba47882` (**98,778 bytes**). Member `treatment/issue25-steward-v8.json` exact SHA256 `6ed9db1568aaf546e3165ddae2a2fa21fd1224f7d50e1e2dc8b8c6f578bb5a45` (**1,131,705 bytes**), matching its archived `.sha256` sidecar.
 - Native pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, executing research commit `a5d3657ac4cdbccd79cced59c133dd6d7d35a6a4`. All eight attempt-specific `publicRootLedgerSha256Computed` and `publicRootLedgerSha256Reported` were independently reproduced by hashing exact ordered JSON root objects; all eight `publicRootActionsTruncated` were false and action ordinals contiguous.
-- Reproduction: [`screenArchivedReciprocalAttempts`](../../simulation/evaluation/agent45-bilateral-competence-gate.cjs) and [synthetic guard tests](../../tests/agent45-bilateral-competence-gate.test.cjs). Invoke as a library on the JSON member. Its **30/30 local Node v22 tests pass** (not yet CI or pinned native reexecution), and the archive run itself completed successfully on the 1,131,705-byte native JSON.
+- Reproduction: [`screenArchivedReciprocalAttempts`](../../simulation/evaluation/agent45-bilateral-competence-gate.cjs) and [synthetic guard tests](../../tests/agent45-bilateral-competence-gate.test.cjs). Invoke as a library on the JSON member. Its **32/32 local Node v22 tests pass** (not yet CI or pinned native reexecution), and the archive run itself completed successfully on the 1,131,705-byte native JSON.
 
 ## What the native root tape actually supports
 
@@ -33,6 +33,18 @@ The concrete first source-attack-anchored native sequences are:
 - **Rank 11 / Champion, source seat 1:** source `Motivate` attack root22 turn2 → contender seat0 `Psychic Energy` PlayCardAction root26 turn3 → source `Motivate` root30 turn4. This could represent ordinary development while source repeats an attack; no independent responsive payment/alternative audit is present.
 - **Rank 11 / New Moon, source seat 1:** source `Psychic` root50 turn8 → contender `Trevenant & Dusknoir-GX` PlayCardAction root54 turn9 → source `Psychic` root58 turn10. A card entering play is not itself a proven tactical reply.
 - **Rank 1 / New Moon, source seat0:** source `Red Knuckles` root84 turn16 → contender `Future Sight` root88 turn17 → source `Psychic Energy` PlayCardAction root94 turn18. Two attacks and a later attachment are real native roots but the effect/counterfactual owner opportunities, full paper validity and later terminal remain unverified.
+
+### Direct native effect measurement on the three settled attack anchors
+
+The original settlement packets include full **public defender board before/after** snapshots. A newly added `screenPublicDefenderDamageChange` helper verifies the same *visible Active printing* at both snapshots, integer damage increase in multiples of 10, the archived original accepted AttackAction, settled prompt chain and completion before the opponent root. This is a **public board state measurement**; it deliberately does not certify identical physical card identity in a duplicate-printing case or the attack's complete paper legality.
+
+| Original source / opponent | Native settled source attack | Opponent visible Active printing | Public Active damage before → after | Added damage counters | Source Prizes |
+|---|---|---|---|---:|---:|
+| Rank 11 / Champion | root22 Motivate | Dialga-GX UPR | 0 → 20 | 2 | 0 |
+| Rank 11 / New Moon | root50 Psychic | Mewtwo & Mew-GX UNM | 0 → 30 | 3 | 0 |
+| Rank 1 / New Moon | root84 Red Knuckles | Duskull VIV | 0 → 10 | 1 | 0 |
+
+Thus **3/8** original historical attempts exhibit a settled, pre-response source attack with independently measurable **positive native public damage** on the defending Active. This is stronger than an arbitrary settled AttackAction label and provides a concrete potential `damage-transition` effect witness, while **opponent response causality, owner-affordable alternatives, paper interaction validation and match clock remain unverified**. An adversarial no-damage no-heal Tapu Cure would fail the new positive-delta rule. Two new pure local tests cover the real-board measurement and reject printing substitutions or zero damage.
 
 The **Rank 1 / Champion** historical full terminal demonstrates the false-positive danger most starkly. It has a raw setup-card sequence `Girafarig` from original source root16 turn2 → contender `Psychic Energy` root20 turn3 → original source `Fog Crystal` root24 turn4. The original rank1 source ultimately made **12 Passes, zero attacks and zero Prize gains** in the native **identical printed-60 mirror** while the contender took six Prizes. This early PlayCard triple is **not** a competent attack/reply/source-return witness; the stricter attack-anchored screen correctly returns none.
 
