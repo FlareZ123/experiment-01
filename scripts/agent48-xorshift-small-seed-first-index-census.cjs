@@ -18,6 +18,7 @@ const VERSION = 'agent48-xorshift-small-seed-first-index-v1';
 function censusFirstIndices(low = 1, high = 256, largestHandSize = 60) {
   if (!Number.isInteger(low) || low < 1 ||
       !Number.isInteger(high) || high < low || high > 0xffffffff ||
+      high - low >= 4096 ||
       !Number.isInteger(largestHandSize) ||
       largestHandSize < 1 || largestHandSize > 60) {
     throw new RangeError('Invalid sequential seed or hand-size range');
