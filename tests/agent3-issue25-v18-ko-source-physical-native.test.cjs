@@ -49,7 +49,7 @@ test('real pinned Store KO source events, prompt creation, exact Prize transfer'
   assert.equal(vendor,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   const registration=fs.readFileSync(path.join(ROOT,
     'results/aichi-2026/registrations/agent3-issue25-v8-four-campaign-root-replay-v11-20261105.json'));
-  const {result:custody,audit:origin}=withKoEffectPromptProvenance(
+  const {result:custody,audit:origin}=withKoSourcePromptPhysical(
     ()=>withOwnerKoPrizeSettlementEvidence(()=>runOwnerPokemonAba()));
   const panel=custody.result, physical=custody.audit;
   assert.equal(origin.version,VERSION);
