@@ -59,7 +59,7 @@ The 29-original result excludes missing historical full sixties at ranks **23, 2
 - The new enumerator exactly reproduces the prior full-60 zero, one and two bonus BigInt denominators, mechanical numerators, and zero-protected-payment counts.
 - An independent *labeled physical miniature* exhausts every Basic-valid four-card hand, two physical Prizes, and all 4-card / 5-card bonus-plus-natural draw choices, using the separate original minimumProtectedPayments predicate. Its mechanical counts and all five-bin payment histograms match the generic source.
 - [Full-60 and miniature regressions](../../tests/agent27-adp-additional-bonuses-exact.test.cjs), [miniature test](../../tests/agent27-adp-additional-bonuses-miniature.test.cjs), [field regression](../../tests/agent27-adp-original29-four-bonus-bounds.test.cjs), and [source 29-field bounds](../../simulation/evaluation/agent27-adp-original29-four-bonus-bounds.cjs) reproduce the table without stochastic approximation.
-- Manually dispatched [existing Aichi opening audit CI 42144108050](https://github.com/FlareZ123/experiment-01/actions/runs/42144108050), optional four-bonus math job; execution status should be checked before considering compiled CI verified.
+- Compiled [Aichi opening audit CI 42144108050](https://github.com/FlareZ123/experiment-01/actions/runs/42144108050) **SUCCESS**, including the opt-in full-60 0–4 bonus BigInt regression, independent physical miniature, and 29-source field bound regression; the ordinary audit job also succeeded. This certifies the exact resource arithmetic and listed tests only.
 
 ## Admission and interpretation
 
