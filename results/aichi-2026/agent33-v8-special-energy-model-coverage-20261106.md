@@ -93,7 +93,9 @@ Create a separately registered successor to the current v8 profile. Preserve v8 
 1. Rank 4 and rank 17 for Reversal, Counter and Unit Energy LPM with exact printed recipient, Stage/Rule Box and Prize-state evidence.
 2. Rank 7 for Capture, Recycle and Jet Energy, including Jet's attachment-triggered switch consequence.
 3. Ranks 5, 6, 24 and 29 as controls for DCE, Speed Lightning, Capture and Spiky coverage.
-4. At least one mixed Basic/Special source to evaluate `bilateralEnergyContest` separately.
+4. A Double Dragon-heavy source among ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 or 32, with a verified Dragon recipient.
+5. A Telepathic Psychic Energy source among ranks 9, 30 or 31, including the printed Psychic-Pokémon search effect and explicit engine-alias mapping.
+6. At least one mixed Basic/Special source to evaluate `bilateralEnergyContest` separately.
 
 The general unit model does not implement several printed card effects: Capture Energy's Basic Pokémon search, Speed Lightning Energy's draw, Telepathic Psychic Energy's Psychic-Pokémon search, Jet Energy's mandatory switch, Spiky Energy's damage-counter effect, Powerful Colorless Energy's damage bonus, Memory Energy's previous-Evolution attack access, and Recycle Energy's return-to-hand effect. The current public-context selector chooses for immediate attack-cost progress and deliberately skips a Bench Jet attachment unless Temple suppresses the switch. These effects need separate source-action and payoff tests.
 
