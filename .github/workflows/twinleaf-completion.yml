@@ -98,6 +98,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent9_v7_owner_return:
+        description: 'Strict read-only shared v7 owner-hand replay, with abort_provenance_only enabled'
+        required: false
+        type: boolean
+        default: false
       include_agent4_capture_retrospective_96:
         description: 'Retrospective original rank6/rank11 same-deal Capture prompt followthrough with 96 actual native roots, separate from frozen 48 cap'
         required: false
@@ -244,6 +249,22 @@ jobs:
         env:
           ISSUE25_STEWARD_V7_DIR: issue25-steward-v7
         run: node --test tests/agent4-allturn-owner-volt-attach-energy.test.cjs tests/agent36-issue25-common-v7.test.cjs tests/agent36-issue25-common-v7.native.test.cjs
+      - name: Pure read-only Agent9 v7 Store-origin and exact-root replay checks
+        if: ${{ inputs.include_agent9_v7_owner_return }}
+        run: node --test tests/agent9-v7-own-turn-continuation-audit.test.cjs tests/agent9-v7-real-owner-decision-observer.test.cjs tests/agent9-v7-real-owner-observation-join.test.cjs tests/agent9-v7-real-owner-native-audit.test.cjs
+      - name: Replay exact eight original v7 games with acting owner-only hand observer
+        if: ${{ inputs.include_agent9_v7_owner_return }}
+        env:
+          AGENT9_V7_OWNER_RETURN_DIR: issue25-agent9-v7-owner-return
+        run: node simulation/evaluation/agent9-v7-real-owner-native-audit.cjs
+      - name: Preserve complete successful or rejected root and owner-hand replay
+        if: ${{ always() && inputs.include_agent9_v7_owner_return }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-v7-original-owner-hand-exact-replay
+          path: issue25-agent9-v7-owner-return/
+          retention-days: 21
+          if-no-files-found: warn
       - name: Run prospective broader original four-rank 128-root same-policy v8
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
