@@ -34,6 +34,7 @@ function fixture(options={}){
         {actionOrdinal:1,playerSlot:owner,action:'ResolvePromptAction',turnBefore:2}
       ];
       attacks=[{actionOrdinal:1,attackName:'Night Watch',
+        triggerAction:'ResolvePromptAction',turnBefore:2,
         settledPromptChain:true,prizesBefore:[6,6],prizesAfter:[6,6]}];
     } else if(index===1){
       roots=[
@@ -42,6 +43,7 @@ function fixture(options={}){
         {actionOrdinal:1,playerSlot:owner,action:'ResolvePromptAction',turnBefore:2}
       ];
       attacks=[{actionOrdinal:0,attackName:'Volt Cyclone',
+        triggerAction:'AttackAction',turnBefore:2,
         settledPromptChain:false}];
     } else if(index===2){
       roots=[{actionOrdinal:0,playerSlot:owner,
@@ -89,6 +91,7 @@ test('source attack declarations count Store events independent of root action c
   assert.equal(audit.rows[0].sourceAttackRoots.length,0);
   assert.deepEqual(audit.rows[0].sourceStoreAttackDeclarations,[{
     originatingActionOrdinal:1,
+    originatingRootAction:'ResolvePromptAction',
     attack:'Night Watch',
     source:'real-Store attackDeclarationTrace',
     settledPromptChain:true
@@ -103,4 +106,27 @@ test('archive counter refuses even one falsified accepted root digest',()=>{
   const f=fixture({corruptRoot:true});
   assert.throws(()=>inspect(f.bytes,f.sidecar),
     /assert|false|true/i);
+});
+
+test('declaration origin check rejects a fake trigger despite valid public-root SHA',()=>{
+  const f=fixture();
+  const j=JSON.parse(f.bytes.toString('utf8'));
+  j.attempts[0].actualSourceAttackSettlement.attacks[0].triggerAction=
+    'AttackAction';
+  const bytes=Buffer.from(JSON.stringify(j));
+  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\\n'),
+    /trigger differs from accepted root/);
+});
+
+test('declaration origin check rejects a false acting physical seat',()=>{
+  const f=fixture();
+  const j=JSON.parse(f.bytes.toString('utf8'));
+  j.attempts[0].actualSourceAttackSettlement.attacks[0].actionOrdinal=0;
+  j.attempts[0].publicRootActions[0].playerSlot=
+    1-j.attempts[0].originalSourceSeat;
+  j.attempts[0].publicRootLedgerSha256Computed=
+    sha256(JSON.stringify(j.attempts[0].publicRootActions));
+  const bytes=Buffer.from(JSON.stringify(j));
+  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\\n'),
+    /wrong physical seat/);
 });
