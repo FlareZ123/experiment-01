@@ -4,7 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
-  screenObservedReciprocalSequence, screenArchivedReciprocalAttempts} =
+  screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
+  screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
 const roots = [
@@ -374,4 +375,48 @@ test('all actual attempted error and cap rows retain denominators even without a
   assert.equal(result.rows[1].disposition,'engine-error');
   assert.equal(result.rows[1].generalSequence,null);
   assert.equal(result.rows[1].competitiveAdmission,false);
+});
+
+test('actual native public defender damage delta is measurable but not physical identity proof',()=>{
+  const attack={
+    settledPromptChain:true,
+    publicBoardBefore:[{active:{printing:'Attacker',damage:0}},
+      {active:{printing:'Dialga-GX UPR',damage:0}}],
+    publicBoardAfter:[{active:{printing:'Attacker',damage:0}},
+      {active:{printing:'Dialga-GX UPR',damage:20}}]
+  };
+  const w=screenPublicDefenderDamageChange(attack,1);
+  assert.equal(w.addedDamage,20);
+  assert.equal(w.damageCounterDelta,2);
+  assert.equal(w.exactPhysicalCardIdentityProven,false);
+  assert.equal(w.printedPaperLegalityVerified,false);
+  attack.publicBoardAfter[1].active.printing='Different Active';
+  assert.equal(screenPublicDefenderDamageChange(attack,1),null);
+  attack.publicBoardAfter[1].active.printing='Dialga-GX UPR';
+  attack.publicBoardAfter[1].active.damage=0;
+  assert.equal(screenPublicDefenderDamageChange(attack,1),null);
+});
+test('archived real settled source attack can emit a public delta while remaining unqualified',()=>{
+  const attack={
+    actionOrdinal:0,settledPromptChain:true,completionRootOrdinal:0,
+    prizesBefore:[6,6],prizesAfter:[6,6],
+    publicBoardBefore:[{active:{printing:'Source',damage:0}},
+      {active:{printing:'Duskull VIV',damage:0}}],
+    publicBoardAfter:[{active:{printing:'Source',damage:0}},
+      {active:{printing:'Duskull VIV',damage:10}}]
+  };
+  const attempt={
+    id:'real-like-archive',status:'root-cap-unqualified',
+    originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots),
+    actualSourceAttackSettlement:{attacks:[attack]}
+  };
+  const report=screenArchivedReciprocalAttempts({attempts:[attempt]});
+  assert.equal(report.publicPositiveDamageBeforeReplyContexts,1);
+  assert.equal(report.rows[0].observedPublicDefenderDamage.damageCounterDelta,1);
+  assert.equal(report.rows[0].competitiveAdmission,false);
+  assert.equal(report.competitiveGamesQualified,0);
 });
