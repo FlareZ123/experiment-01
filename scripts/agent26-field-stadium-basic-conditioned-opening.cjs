@@ -70,7 +70,7 @@ function sourcePokemonIsPrintedBasic(source,sets,getCards){
     c.number===number));
   assert.equal(found.length,1,'unresolved exact Pokémon print '+source.name+
     ' '+print.set+' '+print.number);
-  assert.equal(found[0].name,source.name,
+  assert.equal(normalizeName(found[0].name),normalizeName(source.name),
     'printed Pokémon identity mismatch '+source.name);
   assert.equal(found[0].supertype,'Pokémon');
   assert.ok(Array.isArray(found[0].subtypes));
