@@ -114,7 +114,7 @@ test('declaration origin check rejects a fake trigger despite valid public-root 
   j.attempts[0].actualSourceAttackSettlement.attacks[0].triggerAction=
     'AttackAction';
   const bytes=Buffer.from(JSON.stringify(j));
-  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\\n'),
+  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\n'),
     /trigger differs from accepted root/);
 });
 
@@ -127,6 +127,6 @@ test('declaration origin check rejects a false acting physical seat',()=>{
   j.attempts[0].publicRootLedgerSha256Computed=
     sha256(JSON.stringify(j.attempts[0].publicRootActions));
   const bytes=Buffer.from(JSON.stringify(j));
-  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\\n'),
+  assert.throws(()=>inspect(bytes,sha256(bytes)+'  '+ARCHIVE+'\n'),
     /wrong physical seat/);
 });
