@@ -48,6 +48,7 @@ function runIssue25V8WithTelepath(deps={}){
       policyEntryPoint:EXTRA_HASH_PATHS[0],
       addedNativePromptLayer:'agent8-owner-telepathic-psychic-bench-search-v1',
       separateTreatmentAgainstUnchangedSelectedV8:true,
+      nativeOwnerTelepathicAudit:wrapped.audit,
       resolvedSourceAndPolicyHashes:[
         ...original.manifest.resolvedSourceAndPolicyHashes,
         ...EXTRA_HASH_PATHS.map(hashRegisteredFile)
