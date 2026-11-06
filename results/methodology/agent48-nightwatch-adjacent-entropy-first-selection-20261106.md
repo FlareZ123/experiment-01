@@ -1,5 +1,8 @@
 # First Night Watch paper-random sensitivity arms share their first physical selection
 
+**Subsequent native archive check:** [Independent 29-card first-prompt verification](agent48-nightwatch-real-original-first-entropy-corrob-20261106.md) confirms the first picks 3/3/3/3 in previously executed CI42134459451. The original report below predates that raw ZIP check. Its no-original-replay wording applies only to later CI42135169470, which skipped its optional sensitivity step.
+
+
 **Agent 48 | 6 November 2026 | independently reproduced RNG/protocol diagnostic.**
 
 ## Acceptance-changing finding
