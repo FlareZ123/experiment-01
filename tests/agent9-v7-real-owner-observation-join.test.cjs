@@ -7,6 +7,11 @@ const {reconcileOwnerObservation} =
 
 const ID='6:200:A:champion-reference';
 const LABEL='agent41-bilateral-v2-common-policy-development-'+ID;
+const classifyBaton=view=>({
+  observedOwnerSeat:view.actorSeat,
+  ownHandWasPassed:view.ownHand.includes('VS Seeker PHF'),
+  paperPaidActionCertified:false
+});
 
 /** @returns {object} Synthetic one-row terminal-free native archive. */
 function fixture() {
@@ -46,7 +51,7 @@ function fixture() {
 }
 
 test('uses the actual source seat and accepted root; owner hand is observed, not inferred',()=>{
-  const f=fixture();const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline);
+  const f=fixture();const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton});
   assert.equal(x.registeredArms,1);
   assert.equal(x.fullPublicReplayNoninterference,true);
   assert.equal(x.ownerObservationMatches,1);
@@ -54,6 +59,11 @@ test('uses the actual source seat and accepted root; owner hand is observed, not
   assert.deepEqual(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,
     ['VS Seeker PHF','Speed Lightning Energy LOT']);
   assert.equal(x.ownerReadOnlyReturns[0].paperPaidAlternativeCertified,false);
+  assert.deepEqual(x.ownerReadOnlyReturns[0].printedDceBatonNecessaryScreen,{
+    observedOwnerSeat:1,ownHandWasPassed:true,
+    paperPaidActionCertified:false
+  });
+  assert.equal(x.ownerReadOnlyReturns[0].screenIsPaidNativeAction,false);
   assert.equal(x.competitiveGamesQualified,0);
 });
 
@@ -62,7 +72,7 @@ test('refuses changed accepted Store roots or changed opening',()=>{
     'sourceDealFingerprint','fullPhysicalDealFingerprint',
     'status','publicRootActionCount']) {
     const f=fixture();f.archive.attempts[0][key]='tampered';
-    assert.throws(()=>reconcileOwnerObservation(f.archive,f.audit,f.baseline),
+    assert.throws(()=>reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton}),
       /Read-only observation changed/);
   }
 });
@@ -76,7 +86,7 @@ test('refuses missing or duplicate native trial observers',()=>{
 
 test('preserves owner proposal uncertainty when the real bot was not observed',()=>{
   const f=fixture();f.audit[0].volt.agent9RealOwnerDecisionAudit=null;
-  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline);
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton});
   assert.equal(x.ownerObservationMatches,0);
   assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
     'owner-observer-missing');
