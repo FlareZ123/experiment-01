@@ -76,6 +76,33 @@ function stage(seat){
   owner.prizes=prizes.map(card=>{
     const slot=new CardList();slot.cards.push(card);return slot;
   });
+  // Prospective staged original rank1 reply: it already has a Bench Latias
+  // and holds an authentic Guzma, preserving all 60 real opponent cards.
+  // This is explicitly a conditioned counterfactual, not opponent bot play.
+  const opponent=f.defender;
+  const latiasIndex=opponent.deck.cards.findIndex(a=>
+    a.fullName==='Latias ex SSP');
+  assert.ok(latiasIndex>=0);
+  const slot=new PokemonCardList();
+  slot.cards.push(opponent.deck.cards.splice(latiasIndex,1)[0]);
+  opponent.bench.push(slot);
+  for(const name of ['Guzma BUS','Fog Crystal CRE']){
+    if(opponent.hand.cards.some(a=>a.fullName===name))continue;
+    const idx=opponent.deck.cards.findIndex(a=>a.fullName===name);
+    assert.ok(idx>=0,'Original rank1 has '+name);
+    const heldCard=opponent.deck.cards.splice(idx,1)[0];
+    const exchanged=opponent.hand.cards.shift();
+    assert.ok(exchanged);
+    opponent.deck.cards.push(exchanged);
+    opponent.hand.cards.push(heldCard);
+  }
+  const opponentPhysical=[...opponent.active.cards,
+    ...opponent.bench.flatMap(s=>s.cards),...opponent.hand.cards,
+    ...opponent.deck.cards,...opponent.discard.cards,
+    ...opponent.prizes.flatMap(z=>z.cards)];
+  assert.equal(opponentPhysical.length,60,
+    'Every original rank1 card still occupies one physical zone');
+
   if(seat===1)state.players=[f.defender,owner];
   state.activePlayer=seat;
   state.turn=2;
@@ -271,13 +298,52 @@ for(const seat of [0,1]){
         slot:SlotType.BOARD,index:0})),e=>e?.message==='CANNOT_PLAY_THIS_CARD');
     assert.deepEqual(opponent.hand.cards,oldHand);
 
+    // The original opponent's legal Supporter remains usable under Item lock:
+    // true native Guzma prompts promote Vileplume and own Benched Latias.
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {nativeSinglePokemonChoices}=
+      require('../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs');
+    const handGuzma=opponent.hand.cards.findIndex(c=>
+      c.fullName==='Guzma BUS');
+    assert.ok(handGuzma>=0);
+    x.f.store.dispatch(new PlayCardAction(opponent.id,handGuzma,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    let gust=x.state.prompts.find(p=>p.result===undefined);
+    assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
+    const target=nativeSinglePokemonChoices(x.state,gust).find(opt=>
+      opt.seat===seat&&opt.physical.getPokemonCard()?.fullName===
+        'Vileplume AOR');
+    assert.ok(target,'Opponent's real Guzma must offer Benched Vileplume');
+    assert.equal(gust.validate([target.physical],x.state),true);
+    x.f.store.dispatch(new ResolvePromptAction(gust.id,[target.physical]));
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
+    gust=x.state.prompts.find(p=>p.result===undefined);
+    assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
+    const latias=nativeSinglePokemonChoices(x.state,gust).find(opt=>
+      opt.seat===1-seat&&
+      opt.physical.getPokemonCard()?.fullName==='Latias ex SSP');
+    assert.ok(latias,'Guzma must offer own legal Benched Latias');
+    assert.equal(gust.validate([latias.physical],x.state),true);
+    x.f.store.dispatch(new ResolvePromptAction(gust.id,[latias.physical]));
+    assert.equal(opponent.active.getPokemonCard()?.fullName,'Latias ex SSP');
+    assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
+    assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'));
+    assert.equal(x.f.store.hasPrompts(),false);
+    assert.equal(x.state.activePlayer,1-seat);
+
     console.log('AGENT28_DIRECT_ARTAZON_NATIVE',JSON.stringify({
       seat,sourceCards:60,fanPrized:true,bunnelbyBefore:beforeB,
       afterArtazonRemainingB:1,ghPaidDiscard:['Guzma BUS','Karen XYP'],
       supporter:gh,stadiumPrompts,searchPrompts,toolPrompts,jetPrompts,
       actualActive:BUN,actualEnergy:JET,actualTool:TM,
       attacks:two.attackCount,attackPrompts:two.kinds,
-      benched,opponentItemVeto:'Fog Crystal CRE',competitiveGames:0
+      benched,opponentItemVeto:'Fog Crystal CRE',
+      prospectiveOpponentSupporter:'Guzma BUS',
+      promotedSource:'Vileplume AOR',promotedOpponent:'Latias ex SSP',
+      opponentReplyMode:'conditioned genuine Store Supporter, not autonomous',
+      competitiveGames:0
     }));
   });
 }
