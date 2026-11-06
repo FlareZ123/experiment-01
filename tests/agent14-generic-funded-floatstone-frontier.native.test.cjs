@@ -7,6 +7,10 @@ const {actorObservation}=require('../simulation/twinleaf/actor-observation-contr
 const {publicCatalog}=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
 const {chooseGenericFundedFloatStone:choose,VERSION}=
   require('../simulation/twinleaf/agent14-generic-funded-floatstone-frontier.cjs');
+const {counterKnockoutPrerequisite}=
+  require('../simulation/twinleaf/agent14-public-counter-knockout-potential.cjs');
+const {publicSpecialAttackPayable}=
+  require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
 const {chooseActorRootIntent}=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=n=>require(path.join(root,n));
@@ -133,3 +137,45 @@ for(const kind of ['absol','clefairy','vmax'])for(const seat of [0,1])
       competitiveQualified:false
     }));
   });
+
+test('native paid Terminal Period after manual two-Energy Bench mobility',()=>{
+  const x=stage(0,'absol'),catalog=publicCatalog();
+  const bench=x.owner.bench[0];
+  const removed=bench.energies.cards.pop();
+  const index=bench.cards.indexOf(removed);
+  assert.ok(index>=0);
+  bench.cards.splice(index,1);
+  x.owner.discard.cards.push(removed);
+  x.foe.active.damage=60;
+  const view=actorObservation(x.state,x.seat);
+  const target=view.ownPublic.bench[0];
+  const attack=target.attacks.find(a=>a.name==='Terminal Period');
+  assert.ok(attack);
+  assert.equal(publicSpecialAttackPayable(view,catalog,target,attack),true);
+  assert.equal(counterKnockoutPrerequisite(view,attack).satisfied,true);
+  assert.equal(choose(view,catalog),null,
+    'the >=80-damage-only old helper must decline this valid-looking payoff');
+
+  x.store.dispatch(new PlayCardAction(x.owner.id,
+    view.ownHand.indexOf('Float Stone BKT'),{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+  const fee=new CheckRetreatCostEffect(x.owner);
+  x.store.reduceEffect(x.state,fee);
+  assert.equal(fee.cost.length,0);
+  x.store.dispatch(new RetreatAction(x.owner.id,0));
+  assert.equal(x.owner.active.getPokemonCard()?.fullName,'Mega Absol ex M1L');
+  assert.equal(x.owner.active.energies.cards.length,2);
+  x.store.dispatch(new AttackAction(x.owner.id,'Terminal Period'));
+  console.log('AGENT14_TERMINAL_PERIOD_STAGED',JSON.stringify({
+    opponentActive:x.foe.active.getPokemonCard()?.fullName??null,
+    opponentDamage:x.foe.active.damage,
+    opponentDiscard:x.foe.discard.cards.map(c=>c.fullName),
+    pending:x.state.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name)
+  }));
+  const discarded=x.foe.discard.cards.some(c=>
+    c.fullName==='Mega Absol ex M1L');
+  assert.equal(discarded,true,
+    'actual paid native attack must resolve conditional printed effect');
+});
