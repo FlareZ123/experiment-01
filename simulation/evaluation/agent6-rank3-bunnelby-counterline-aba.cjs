@@ -15,7 +15,9 @@ function run(){
   initializeCards();
   const cards=originals();
   const common={seed:SEED,rank3Seat:RANK3_SEAT,
-    energyRecipient:true,captureTargets:true,captureAttackTrace:true};
+    energyRecipient:true,captureTargets:true,captureAttackTrace:true,
+    captureOwnerPassSnapshots:true,captureOwnerPassSeat:0,
+    captureOwnerPassTurns:[59]};
   const arms=[
     runArm({...common,id:'A-control',mode:'bilateral-skyliner-free-retreat'},cards),
     runArm({...common,id:'B-deckout-paid-retreat',
@@ -44,11 +46,13 @@ function run(){
     originalSource60Hash:x.originalSource60Hash??null,
     originalReference60Hash:x.originalReference60Hash??null,
     deckOutRetreatAudit:x.deckOutRetreatAudit??null,
-    genericAudit:x.genericAudit??null
+    genericAudit:x.genericAudit??null,
+    ownerPassFrontierAudit:x.ownerPassFrontierAudit??null
   });
   return {
     version:VERSION,pinnedNativeRevision:PIN,
     registration:'results/aichi-2026/registrations/agent6-rank3-bunnelby-counterline-aba-20261106.md',
+    followupRegistration:'results/aichi-2026/registrations/agent6-bunnelby-hand-snapshot-followup-20261106.md',
     seed:SEED,rank3Seat:RANK3_SEAT,
     expectedControlRoot:EXPECTED_CONTROL_ROOT,
     dealMatched,controlsRepeatExactly,historicalControlExact,
