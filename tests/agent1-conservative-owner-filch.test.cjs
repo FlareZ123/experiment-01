@@ -96,4 +96,6 @@ test('original bot function is restored after match failure',()=>{
     SimpleTacticsAi:MockAI,PassTurnAction
   }),e=>e===cause);
   assert.strictEqual(MockAI.prototype.decodeNextAction,old);
+  assert.equal(cause.ownerConservativeFilchAudit.selectedOwnerPasses,0);
+  assert.equal(cause.ownerConservativeFilchAudit.ownerOnly,true);
 });
