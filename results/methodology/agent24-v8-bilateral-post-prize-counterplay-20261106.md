@@ -62,3 +62,19 @@ This identifies a more concrete next policy question: on the first contender tur
 The four contenders were **energy-free immediately after the first knockout**, but this did not remain true in every later public snapshot. In Rank 11 / Champion, later source Motivate roots 116 and 123 show the contender with **one** Energy attached before and after the source attack. In Rank 11 / New Moon, later source Psychic root 94 shows **one** contender Energy in play, and root 102 shows **two** Energy attached before the attack and **zero** afterward, as its previously Active Mewtwo & Mew-GX gives way to Trevenant & Dusknoir-GX and the source takes three additional Prizes. The contender's actual public roots include a Telepathic Psychic Energy play at root 87 and a Psychic Energy play at root 98, but the archive lacks a verified per-root physical Energy custody join for attributing those exact attachments.
 
 Thus an initial zero-Energy snapshot is a strong **immediate** constraint, while the more informative tempo question is whether refueling can produce a safe attack **before the source's next effective knockout**. The recorded Rank 11 / New Moon sequence contains a second observed energy collapse. No contender AttackAction follows its first source Prize, despite the intervening Energy buildup. This finding is still bounded by the root cap, owner-policy competency and independent paper-fidelity gaps.
+
+## The actual first contender-turn actions are already in the public attack packet
+
+The `actualSourceAttackSettlement.attacks[].nextSourceTurnActions` field, despite its legacy `nextSource` name, identifies the **other physical seat's immediately following turn** after each original-source attack; `nextSourceSameEpochProven=true` in all five Prize-taking cases. It contains a bounded actual Store-root action sequence, including prompt actions. Its recorded `sourceTurnActionsTruncated=false` for all five of these next-turn traces, so the following direct plays and Passes are complete for those turns within the native root cap.
+
+| Source / contender | Prize attack root | Contender's next full recorded voluntary turn |
+|---|---:|---|
+| Rank 6 / Champion | 85 | Pass |
+| Rank 6 / New Moon | 97 | Pass |
+| Rank 11 / Champion | 84 | Play Fog Crystal; resolve the search prompts; play Lillie's Clefairy ex; Pass |
+| Rank 11 / New Moon | 40 | Pass |
+| Rank 11 / New Moon (second Prize event) | 102 | Play Mewtwo & Mew-GX; Pass |
+
+Every one of these five observed turns ends in Pass and **none contains a contender AttackAction**. Crucially, the Rank 11 / Champion and Rank 11 / New Moon second-Prize replies each contain a meaningful non-Pass card play. This disproves the too-simple explanation that the contender bot literally did nothing after every source knockout. The exact legal Energy/search alternative frontier remains unproven: a Fog Crystal search or Basic Pokémon Bench play need not produce enough Energy for a paid attack that turn, and the published compact archive omits the `decisionHandBefore` private-owner snapshot available to the headless runner.
+
+The shared source-independent runner already computes `candidateRepliesAfterSourceAttacks` from the actual full `game.decisionTrace`, including the owner hand immediately before a Pass, `publicBoardBeforePass`, the printed-Basic-Energy check, and an opt-in bounded post-Pass cloned native attack-announcement probe. Those fields are discarded by the compact `issue25-steward-v8.json` reporting path. **An archival projection of this existing data**, correlated to the first physical source Prize event, is a smaller and more reproducible next experiment than a new bot strategy or new workflow. Its native canPlay evidence must still be independently audited against paper and printed target/cost rules.
