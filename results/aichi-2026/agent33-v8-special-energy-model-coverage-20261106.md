@@ -6,7 +6,7 @@
 
 The authenticated original field contains **118 Special Energy copies across 14 exact name/set printings**. The current v8 runner selects `bilateralSpecialEnergyRoot:true`. That option routes through the narrow `agent3-special-energy-frontier.specialEnergyUnits` helper. Exact original source name/set strings give it unit coverage for **38/118 copies (32.2%)**. If the known Telepathic Psychic Energy POR to Telepath [P] Energy M3 engine alias is explicitly applied, the count becomes **44/118 (37.3%)**.
 
-The existing `actor-energy-payability.energyUnits` model represents **118/118 copies under a deliberately favorable hypothetical public context**. Under a conservative context with recipient and Prize facts unresolved, it returns units for 72/118 copies and fails closed for 46 copies: 8 Counter Energy and 38 Double Dragon Energy.
+The existing `actor-energy-payability.energyUnits` model represents **118/118 copies under per-printing compatible hypothetical public contexts**. The favorable pass uses a Dragon recipient for Double Dragon, a Basic Pokémon for Prism, a behind-on-Prizes non-GX/EX recipient for Counter, and a behind-on-Prizes Evolution without a Rule Box for Reversal. It does not combine mutually incompatible Basic and Evolution states into one fictional Pokémon. Under a conservative context with recipient and Prize facts unresolved, the model returns units for 72/118 copies and fails closed for 46 copies: 8 Counter Energy and 38 Double Dragon Energy.
 
 The seven authenticated original lists with zero Basic Energy contain **56 Special Energy copies**. The narrow exact-name helper recognizes 30/56; the general model represents 56/56 under favorable context. This is a material source-policy coverage gap for ranks 4, 5, 6, 7, 17, 24 and 29.
 
