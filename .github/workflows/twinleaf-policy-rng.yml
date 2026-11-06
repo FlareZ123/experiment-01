@@ -46,7 +46,7 @@ jobs:
       - name: Test owner-scoped VS Seeker Supporter prompt and Lillie compatibility
         run: node --test tests/agent48-owner-vs-seeker-supporter.test.cjs tests/agent48-owner-vs-seeker-lillie.test.cjs tests/agent48-owner-vs-seeker-adapter.test.cjs
       - name: Test owner-public Guzma recovery frontier
-        run: node --test tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs
+        run: node --test tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs tests/agent48-owner-vs-seeker-guzma-root.test.cjs
       - name: Verify native decision-to-Store input identity negative controls
         run: node --test tests/agent23-native-decision-dispatch-witness.test.cjs
       - name: Initialize pinned Twinleaf
