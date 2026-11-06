@@ -75,6 +75,17 @@ jobs:
           path: agent25-natural-ball-six-arm.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Assert real pinned Quick Ball staged owner prompt identity both physical seats
+        if: inputs.agent25_staged_ball_v2_six_arm
+        run: node simulation/twinleaf/agent25-quickball-source-staging-v2-native.cjs > agent25-native-quickball-staged-v2-probe.json
+      - name: Archive four staged Quick Ball v2 physical owner-payment controls
+        if: always() && inputs.agent25_staged_ball_v2_six_arm
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-native-quickball-staged-v2-probe
+          path: agent25-native-quickball-staged-v2-probe.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Run newly registered corrected staged-source Quick Ball six original 60 attempts
         if: inputs.agent25_staged_ball_v2_six_arm
         run: node simulation/evaluation/agent25-dhelmise-v2-ball-prompt-staging-six-arm.cjs > agent25-native-ball-staged-v2-six-arm.json
