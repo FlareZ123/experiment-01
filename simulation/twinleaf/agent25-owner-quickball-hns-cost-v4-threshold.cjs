@@ -98,7 +98,7 @@ function withOwnerHnsQuickBallCost(seat,execute,deps={}){
     physicallyMoved:0,errored:0,invalidated:0,nonliveIgnored:0,
     decisions:[],stagedQuickBallDiscardPrompts:0,
     stagedPromptPrerequisites:[],ownerRootDecisions:0,
-    rootsHeldQuickBall:0,rootsHeldBallCompressorDonor:0,
+    rootsHeldQuickBall:0,rootsHeldBallCompressorDonor:0,rootsThreeDonorQuickBallReady:0,
     botChosenQuickBallRoots:0,ownerQuickBallRootSamples:[],
     policyDoesNotReadOpponentPrivateCards:true,
     compelsQuickBallRoot:false,competitiveQualifiedGames:0};
