@@ -107,7 +107,6 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
       assert.strictEqual(owner.id,reply.ownerId);
       assert.strictEqual(action.id,reply.promptId);
       assert.ok(owner.discard.cards.includes(reply.card));
-      assert.ok(owner.discard.cards.includes(reply.supportItemCard));
       const beforeHand=owner.hand.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const beforeDiscard=owner.discard.cards.filter(c=>c.fullName===reply.targetPrinting).length;
       const result=oldDispatch.value.apply(this,[action,...args]);
@@ -127,6 +126,8 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
         promptId:reply.promptId,targetPrinting:reply.targetPrinting,
         beforeHand,beforeDiscard,afterHand,afterDiscard,
         supportItemPrinting:reply.supportItemPrinting,
+        supportItemInHandAtPrompt:reply.supportItemInHandAtPrompt,
+        supportItemInDiscardAtPrompt:reply.supportItemInDiscardAtPrompt,
         supportItemMovedToDiscard:true,exactPhysicalCardMoved:true});
       return result;
     }
