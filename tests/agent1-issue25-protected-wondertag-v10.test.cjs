@@ -71,6 +71,9 @@ function fixture(label){
           shufflePromptsOffered:2,shuffleCallbacksCompleted:2,
           validShuffleCallbacksCompleted:2,invalidNativeShufflePermutations:0,
           shuffleCallbacksFailed:0,outstandingShuffleCallbacks:0,
+          shuffleCallbackInvocations:2,preCallbackRejections:0,
+          nativeCallbackFailures:0,missingRegisteredTrialIds:0,
+          ownerReassignedPrompts:0,allOfferedShufflesCompleted:true,
           bySeat:{0:2,1:0},nativeTrialAttributionAvailable:true,
           offeredTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}],
           completedTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}]
@@ -352,4 +355,22 @@ test('native physically invalid shuffle order vetoes full printed shuffle comple
   const r=compareProtectedWonderTagV10(a,b);
   assert.equal(r.registeredWonderTagActorWitness.nativeSettlementOfEveryChoiceAttested,true);
   assert.equal(r.registeredWonderTagActorWitness.nativeShufflePromptCompletionIndependentlyCertified,false);
+});
+
+test('native shuffle admission vetoes missing trial, rerouting and callback error',()=>{
+  const left=fixture('control'),right=fixture('treatment');
+  const sh=right.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  for(const problem of ['missingRegisteredTrialIds','ownerReassignedPrompts',
+    'preCallbackRejections','nativeCallbackFailures']){
+    sh[problem]=1;
+    const result=compareProtectedWonderTagV10(left,right);
+    assert.equal(result.registeredWonderTagActorWitness
+      .nativeShufflePromptCompletionIndependentlyCertified,false,problem);
+    sh[problem]=0;
+  }
+  sh.allOfferedShufflesCompleted=false;
+  const report=compareProtectedWonderTagV10(left,right);
+  assert.equal(report.registeredWonderTagActorWitness
+    .nativeShufflePromptCompletionIndependentlyCertified,false);
 });
