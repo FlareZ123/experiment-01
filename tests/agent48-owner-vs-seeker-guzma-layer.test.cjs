@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withOwnerVsSeekerGuzmaLayer}=require('../simulation/twinleaf/agent48-owner-vs-seeker-guzma-layer.cjs');
+const path=require('node:path');
+const {DEFAULT_BASE,withOwnerVsSeekerGuzmaLayer}=require('../simulation/twinleaf/agent48-owner-vs-seeker-guzma-layer.cjs');
 
 class AddPlayerAction{}
 class PlayCardAction{
@@ -92,6 +93,10 @@ const deps={
   Store,SimpleTacticsAi,PlayCardAction,ResolvePromptAction,
   actionTypes:{PlayerType:{ANY:0},SlotType:{BOARD:1}}
 };
+
+test('default Twinleaf base resolves to the pinned compiled submodule output',()=>{
+  assert.equal(DEFAULT_BASE,path.resolve(__dirname,'../..','vendor/twinleaf/ptcg-server/output'));
+});
 
 test('both physical seats recover the exact owner-discard Guzma through native prompt dispatch',()=>{
   const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
