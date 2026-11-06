@@ -195,7 +195,8 @@ if(require.main===module){
     firstAndSecondBasic:v.twoSourceFamilyPhysicalBenchSettlements,
     secondBasicToBench:v.sourceSecondTurnBasicMovedToBench,
     subsequentOpponentVoluntaryRoots:
-      v.opponentAfterSecondFamilyVoluntaryRoots.length,
+      Array.isArray(v.opponentAfterSecondFamilyVoluntaryRoots)?
+        v.opponentAfterSecondFamilyVoluntaryRoots.length:null,
     nativeAbort:v.nativeAbort,
     zeroQualifiedGames:0
   })+'\n');
