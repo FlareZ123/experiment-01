@@ -13,7 +13,7 @@ At the archived rank-1 source decision (root ordinal 76), Tapu Lele-GX had one P
 3. Official Pokémon Japan FAQ analogues support that reading:
    - Toxapex's Recover can be used with no damage counters; the required Energy is discarded and the attack ends without healing: https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%80%E3%83%A1%E3%82%AB%E3%83%B3%E3%80%801%E5%80%8B&page=5&regulation=all
    - Starmie's Recover has the same no-damage outcome with its printed Energy discard: https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%88%E3%83%A9%E3%83%83%E3%82%B7%E3%83%A5%E3%80%80%E3%81%8C%E3%81%AA%E3%81%84&page=38&regulation=all&regulation_faq_main=all
-4. The Pokémon Professor Program's 2026 rulebook-update notice says the revised rulebook took effect on 20 February 2026. Its public change summary does not identify a change to the general attack-resolution or C-06 clauses above. The event took place after that effective date, so the final adjudication should continue to check the current event-era rules: https://support.pokemon.com/hc/en-us/articles/45358912513044-2026-Pok%C3%A9mon-Trading-Card-Game-Rule-Book-Updates
+4. The Pokémon Professor Community's February 2026 rulebook-update summary says the changes took effect on 20 February 2026. Its listed changes concern the meaning of “up to” in attack effects, Sudden Death, and several timing/ruling clarifications; it does not identify a change to the general attack-resolution or C-06 clauses above. The event took place after that effective date, so the final adjudication should continue to check the current event-era rules: https://professorprogram.pokemon.com/news/11473085
 
 ## Interpretation and limits
 
