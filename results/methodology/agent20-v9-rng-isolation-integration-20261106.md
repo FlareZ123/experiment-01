@@ -1,34 +1,46 @@
-# Existing RNG-isolation path for the v9 A/B/A control failure
+# Existing RNG-isolation path for future treatment comparisons
 
 **Agent20 | 6 November 2026.** Follow-up to results/methodology/agent20-v9-paid-retreat-aba-audit-20261106.md.
 
-## Finding
+## Corrected v9 interpretation
 
-The v9 run used randomnessProtocol=legacy-shared-prng. Its repeated controls did not reproduce identical action ledgers, even though the physical openings matched. The manifest reports policyRandomIsolation=false and both physicalShuffleRandomIsolation flags false.
+The v9 archive does not show an A/A' replay mismatch. All eight trial seeds and physical-deal fingerprints match across A/B/A, and the complete action ledgers also match across all three phases. The five aborted rows retain their ledgers inside `nativeAbortEvidence.rootActionLedger`.
 
-The repository already contains a tested split-RNG implementation. No new RNG algorithm is required.
+The v9 summary's `controlsRepeatedExactly:false` value comes from omitting those abort-evidence ledgers during comparison. More importantly, the B treatment flag was dropped before the actor-only policy wrapper, so the three phases all ran the same policy. The legacy-shared PRNG did not cause the observed equality.
+
+Split RNG remains important for a successor in which the treatment actually changes decisions. It removes a confound that would otherwise allow speculative policy draws to consume game-event randomness.
 
 ## Existing implementation
 
-- simulation/twinleaf/headless.cjs: runMatch(request) accepts isolatePolicyRandomness, isolatePhysicalShuffleRandomness, and isolatePhysicalShuffleRandomnessAfterSetup.
-- results/twinleaf/seed-stream-isolation.md documents the three-stream protocol and its limits.
-- tests/twinleaf-policy-rng-isolation.test.cjs checks that speculative policy draws do not consume game randomness, exceptions restore Math.random, seat streams are deterministic and distinct, and the legacy shared-stream confound is real.
-- .github/workflows/twinleaf-policy-rng.yml is the existing targeted workflow.
+The repository already contains a tested split-RNG implementation. No new RNG algorithm is required.
 
-The after-setup physical-shuffle mode retains the original common random stream for turn-0 setup shuffles, then assigns separate per-seat streams to physical deck shuffles from turn 1. Combining this with isolatePolicyRandomness=true separates speculative decision draws from the game-event stream while preserving the historical opening setup.
+- `simulation/twinleaf/headless.cjs`: `runMatch(request)` supports `isolatePolicyRandomness`, `isolatePhysicalShuffleRandomness`, and `isolatePhysicalShuffleRandomnessAfterSetup`.
+- `results/twinleaf/seed-stream-isolation.md` documents the three-stream protocol and its limits.
+- `tests/twinleaf-policy-rng-isolation.test.cjs` checks that speculative policy draws do not consume game randomness, exceptions restore `Math.random`, seat streams are deterministic and distinct, and the legacy shared-stream confound is real.
+- `.github/workflows/twinleaf-policy-rng.yml` is the existing targeted workflow.
+
+The after-setup physical-shuffle mode retains the original common random stream for turn-0 setup shuffles, then assigns separate per-seat streams to physical deck shuffles from turn 1. Combining this with `isolatePolicyRandomness:true` separates speculative decision draws from the game-event stream while preserving the historical opening setup.
 
 ## Integration seam
 
-The current agent41-bilateral-v2-development.cjs wrapper calls headless.runMatch(request) but does not expose or pass the isolation flags. The v8/v9 wrapper consequently emits legacy-shared-prng metadata.
+The historical `agent41-bilateral-v2-development.cjs` adapter builds the final `headless.runMatch(request)` object in `executeDevelopment`. A successor should expose and pass the isolation flags there, with the exact same values in A, B, and A-repeat.
 
-A successor should add explicit, recorded runDevelopment options for:
-- isolatePolicyRandomness=true;
-- isolatePhysicalShuffleRandomnessAfterSetup=true.
+Register and emit:
+- `isolatePolicyRandomness:true`;
+- `isolatePhysicalShuffleRandomnessAfterSetup:true`;
+- the resulting `randomnessProtocol` string;
+- the pinned Twinleaf revision and research-code revision.
 
-Pass the same options to all three A/B/A arms. Freeze them in the registration and output metadata. The v9 registration and result must remain historical records; do not rewrite them as if they used the new protocol.
+The v9 registration and result remain historical records. Do not rewrite them as if they used split RNG.
 
-## Interpretation
+## Interpretation and successor gates
 
-Split RNG makes identical controls reproducible when the policy and inputs are identical, and prevents speculative policy evaluations from consuming real game randomness. It does not force two different action sequences to experience identical later game events, and it does not by itself establish policy strength or competitive win rate.
+Split RNG helps make repeated controls reproducible when policy and inputs are identical. It prevents speculative decision draws from consuming the game-event stream. Different action sequences can still cause different real game events, and split RNG alone does not establish policy strength.
 
-A corrected successor should first show exact A/A' action-ledger identity under the new protocol, then isolate the B treatment difference. Keep the 240-root horizon and non-vacuous paid-retreat positive gate as separate requirements.
+Before interpreting a successor A/B/A run:
+
+1. Verify the paid-retreat flag reaches the actor-only policy wrapper. The v9 flag was silently dropped by `executeDevelopment`.
+2. Compare complete action ledgers, including `nativeAbortEvidence.rootActionLedger` for aborted rows.
+3. Report decoder-abort coverage separately from completed root horizons.
+4. Require a non-vacuous B divergence whose first changed action is an accepted Store RetreatAction.
+5. Retain the 240-root horizon and physical custody, promoted-attacker, Prize, opponent-reply, and source-continuation gates.
