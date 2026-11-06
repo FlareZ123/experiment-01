@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const sets=require('../../resources/sets/en.json');
 const field=require('../../results/aichi-2026/full-decklists.json');
 
-const VERSION='agent2-aichi29-exact-printing-retreat-prohibition-census-v2';
+const VERSION='agent2-aichi29-exact-printing-retreat-prohibition-census-v3';
 const WORDING=/(?:can't|can’t|cannot) retreat\b/i;
 const cache=new Map();
 const byCode=new Map();
@@ -24,7 +24,7 @@ for(const set of sets){
  */
 function resolvePrinting(registered){
   const printing=registered?.printing;
-  const group=byCode.get(printing?.set)??[];
+  const group=byCode.get(printing?.set)??sets.filter(set=>set.id===String(printing?.set??'').toLowerCase());
   if(group.length===0){
     return {status:'unresolved-set-code',code:printing?.set,candidates:[]};
   }
@@ -44,7 +44,9 @@ function resolvePrinting(registered){
       cache.set(set.id,printed);
     }
     for(const card of printed){
-      if(String(card.number)===String(printing.number)){
+      const promoPrefix=set.id==='xyp'?'XY':set.id==='smp'?'SM':null;
+      if(String(card.number)===String(printing.number)||
+        (promoPrefix&&String(card.number)===promoPrefix+String(printing.number))){
         numbered.push({setId:set.id,card});
       }
     }
@@ -52,7 +54,9 @@ function resolvePrinting(registered){
   if(missing.length){
     return {status:'missing-set-files',code:printing.set,missing};
   }
-  const exact=numbered.filter(x=>x.card.name===registered.name);
+  const normalizePrismName=name=>String(name).replaceAll('♢','◇');
+  const exact=numbered.filter(x=>
+    normalizePrismName(x.card.name)===normalizePrismName(registered.name));
   if(exact.length===1){
     return {status:'exact-printing',setId:exact[0].setId,
       card:exact[0].card};
