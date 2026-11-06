@@ -24,6 +24,13 @@ function setup(seat=1,target='Latias ex SSP',attack='Eon Blade'){
     sourceAttackSettlement:{attacks:[{
       actionOrdinal:132,turnBefore:22,attackName:attack,
       settledPromptChain:true,settlementCrossesClockReset:false,
+      publicBoardBefore:seat===1?[
+        {active:{printing:'Opponent Active'}},
+        {active:{printing:target}}
+      ]:[
+        {active:{printing:target}},
+        {active:{printing:'Opponent Active'}}
+      ],
       prizesBefore:seat===1?[6,1]:[1,6],
       prizesAfter:seat===1?[6,0]:[0,6],
       nextSourceSameEpochProven:true}]},
@@ -71,4 +78,17 @@ test('missing attack, wrong target transition, and duplicate sidecar fail their 
   const c=setup();
   c.row.nativeAcceptedTargetSidecar.events.push(c.event);
   assert.equal(join(c.row,c.wrapper,1).certifiedRealStorePublicPaidRetreatRoots,0);
+});
+
+
+test('a later attack by a different Active after Switch is not attributed to the retreat',()=>{
+  const f=setup();
+  f.row.sourceAttackSettlement.attacks[0].publicBoardBefore[1].active.printing=
+    'Different Active ex';
+  const r=join(f.row,f.wrapper,1);
+  assert.equal(r.settledAttackFollowingPaidRetreat,0);
+  assert.equal(r.paidRetreatWithPrize,0);
+  assert.equal(r.paidRetreatWithNativeTerminalWin,0);
+  assert.equal(r.results[0].targetAttackIdentityConfirmed,false);
+  assert.equal(r.results[0].candidateAttackActivePrinting,'Different Active ex');
 });
