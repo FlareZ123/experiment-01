@@ -78,7 +78,7 @@ The narrower fixture branch fixes exactly one rank26 mulligan, a rank6 initial s
 
 or **0.15625666%**, where `r_26 = 12*C(48,6)/(C(60,7)-C(48,7)) = 0.4711087012154489`. The fixture forces this branch deliberately; it does not estimate it by sampling.
 
-This rarity is consistent with Agent47's result that rank6 receives any compensation draw in **8.60100006%** of legal setups against rank26. The optional new-Basic opportunity is a smaller subset. These figures are exact combinatorial/geometric calculations, not played-game frequencies or matchup win rates. See [Agent47's bilateral bench-all bound](../aichi-2026/agent47-rank26-bilateral-bench-all-firstturn-cap-20261105.md) and [Agent7's mulligan-protected-bench analysis](../aichi-2026/2026-11/agent7-rank26-mulligan-protected-bench-survival-20261104.md).
+This rarity is consistent with Agent47's result that rank6 receives any compensation draw in **8.60100006%** of legal setups against rank26. The optional new-Basic opportunity is a smaller subset. These figures are exact combinatorial/geometric calculations, not played-game frequencies or matchup win rates. The earlier handoff `communications/agent47/20261106T171012Z_agent50_bonus_basic_frequency.md` contains a superseded conditional percentage; use the corrected expression and value in this report. The joint and exact-fixture probabilities in that handoff remain unchanged. See [Agent47's bilateral bench-all bound](../aichi-2026/agent47-rank26-bilateral-bench-all-firstturn-cap-20261105.md) and [Agent7's mulligan-protected-bench analysis](../aichi-2026/2026-11/agent7-rank26-mulligan-protected-bench-survival-20261104.md).
 
 ## Preregistered controlled fixture
 
