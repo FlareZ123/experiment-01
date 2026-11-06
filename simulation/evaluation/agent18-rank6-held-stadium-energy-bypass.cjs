@@ -72,4 +72,50 @@ function heldStadiumEnergyWithoutSupporterConnectors(options={}) {
   };
 }
 
-module.exports={ORIGINAL_RANK6,choose,heldStadiumEnergyWithoutSupporterConnectors};
+/**
+ * In original rank6, three Guzma BUS are contained within the 47 residual
+ * cards of the preceding source model. Count the disjoint direct-held E
+ * event that additionally has at least one Guzma among its eight physical
+ * hand cards, either with exactly one Basic (an unavoidable solo board) or
+ * any number of Basics. A player can optionally refrain from benching
+ * additional Basics; this function does not decide that board placement.
+ *
+ * The opponent must already have a Benched Pokémon for Guzma to gust.
+ * Printed cards, Supporter quota, status, locks, target HP and real game
+ * choice remain external to this physical opening calculation.
+ *
+ * @param {{exactlyOneBasic?:boolean}} [options]
+ * @returns {{numerator:bigint,denominator:bigint,percentage:number,
+ *   favorable:bigint,scope:string}}
+ */
+function heldStadiumEnergyWithGuzma(options={}) {
+  const {exactlyOneBasic=false}=options;
+  const total=(choose(60,7)-choose(56,7))*53n;
+  let favorable;
+  if(exactlyOneBasic){
+    // All 51 E-eligible nonresource cards consist of 4 Basics,
+    // 3 Guzma and 44 others. Exactly one Basic must remain among eight.
+    // Subtract the zero-Guzma counterparts (44 ordinary residual cards).
+    favorable=4n*(
+      choose(47,4)*43n-choose(44,4)*40n+
+      2n*(choose(47,5)-choose(44,5))
+    );
+  } else {
+    const e=heldStadiumEnergyWithoutSupporterConnectors();
+    const allE=e.firstSevenBoth+e.eighthCompletesPair;
+    const noGuzma=
+      (choose(48,5)-choose(44,5))*43n+
+      2n*(choose(48,6)-choose(44,6));
+    favorable=allE-noGuzma;
+  }
+  assert.ok(favorable>0n && favorable<=total);
+  const div=gcd(favorable,total);
+  return {
+    numerator:favorable/div,denominator:total/div,
+    percentage:100*Number(favorable)/Number(total),
+    favorable,
+    scope:'Exact physical opening; possible Guzma gust requires opponent Bench and a legal chosen action'
+  };
+}
+
+module.exports={ORIGINAL_RANK6,choose,heldStadiumEnergyWithoutSupporterConnectors,heldStadiumEnergyWithGuzma};
