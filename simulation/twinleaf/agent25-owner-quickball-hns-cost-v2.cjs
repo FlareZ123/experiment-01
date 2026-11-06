@@ -97,7 +97,8 @@ function withOwnerHnsQuickBallCost(seat,execute,deps={}){
   const pending=new WeakMap();
   const audit={version:VERSION,seat,eligible:0,selected:0,accepted:0,
     physicallyMoved:0,errored:0,invalidated:0,nonliveIgnored:0,
-    decisions:[],policyDoesNotReadOpponentPrivateCards:true,
+    decisions:[],stagedQuickBallDiscardPrompts:0,
+    stagedPromptPrerequisites:[],policyDoesNotReadOpponentPrivateCards:true,
     compelsQuickBallRoot:false,competitiveQualifiedGames:0};
   function select(state){
     if(state!==realStore?.state){
@@ -106,6 +107,27 @@ function withOwnerHnsQuickBallCost(seat,execute,deps={}){
     }
     if(this.client?.id!==state.players?.[seat]?.id)
       return oldDecoder.value.call(this,state);
+    const owner=state.players[seat];
+    const prompt=state.prompts?.find(p=>p.result===undefined);
+    if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
+        prompt.playerId===owner.id &&
+        prompt.message==='CHOOSE_CARD_TO_DISCARD' &&
+        owner.supporter?.cards?.some(c=>QUICK_BALL.has(c.fullName))){
+      audit.stagedQuickBallDiscardPrompts++;
+      if(audit.stagedPromptPrerequisites.length<64){
+        audit.stagedPromptPrerequisites.push({
+          turn:state.turn,promptId:prompt.id,
+          heldCompressor:owner.hand.cards.some(c=>c.fullName===COMPRESSOR),
+          hasDhelmise:[owner.active,...owner.bench].some(slot=>
+            slot.getPokemonCard()?.fullName===DHELMISE)||
+            owner.hand.cards.some(c=>c.fullName===DHELMISE),
+          offeredHnsDonors:prompt.cards?.cards?.filter(card=>
+            DONORS.includes(card.fullName)&&owner.hand.cards.includes(card))
+            .map(card=>card.fullName)??[],
+          visibleDiscard:visibleHnsDiscardCount(owner)
+        });
+      }
+    }
     const hit=ownerBallDonorOpportunity(state,seat);
     if(!hit)return oldDecoder.value.call(this,state);
     audit.eligible++;
