@@ -27,6 +27,7 @@ function setup(seat=1,target=TGT){
     sourceAttackSettlement:{attacks:[{
       actionOrdinal:132,turnBefore:22,attackName:'Eon Blade',
       settledPromptChain:true,settlementCrossesClockReset:false,
+      publicBoardBefore:seat===1?[{active:{printing:'Opponent Active'}},{active:{printing:target}}]:[{active:{printing:target}},{active:{printing:'Opponent Active'}}],
       prizesBefore:[6,1],prizesAfter:[6,0]
     }]},
     finished:true,winner:seat,finalPrizes:seat===1?[6,0]:[0,6]
