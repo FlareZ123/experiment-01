@@ -114,7 +114,13 @@
     "promptContinuation": "Agent43 owner Guzma native prompt continuation enabled",
     "priority": "Agent34 canonical owner roots first; Agent43 Guzma prompt continuation; Agent48 VS Seeker/Guzma root and owner-discard prompt fallback",
     "opponentGust": "delegated to the existing opponent-target policy; no strategic target certification",
-    "heldGuzmaMobilityRoot": "temporarily enable Agent34's existing owner-visible heldGuzmaMobility root inside the synchronous run scope so recovered Guzma is actually played"
+    "heldGuzmaMobilityRoot": "temporarily enable Agent34's existing owner-visible heldGuzmaMobility root inside the synchronous run scope so recovered Guzma is actually played",
+    "nativeBindings": {
+      "botClass": "simple-bot/simple-tactics-ai, the exact class instantiated by simulation/twinleaf/headless.cjs and wrapped by Agent34/Agent43",
+      "storeClass": "game/store/store",
+      "playCardActionModule": "game/store/actions/play-card-action",
+      "playCardActionConstructor": "new PlayCardAction(ownerId, handIndex, {player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BOARD, index: 0})"
+    }
   },
   "eligibility": "genuine owner root after global turn 1; owner holds VS Seeker PHF; Guzma BUS is in that owner's discard and absent from hand; Supporter unused; Item and Supporter locks absent; both players have a Benched Pokémon",
   "randomnessProtocol": "legacy-shared-prng inherited from v8; no RNG isolation added; same registered trial seeds",
