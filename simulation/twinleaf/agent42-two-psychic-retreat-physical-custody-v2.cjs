@@ -10,7 +10,7 @@ function capture(state,action){
   const owner=state.players[seat],source=owner.active,target=owner.bench?.[action.benchIndex];
   const sp=source?.getPokemonCard?.(),tp=target?.getPokemonCard?.();
   const payment=source?.energies?.cards,te=target?.energies?.cards;
-  const tt=target?.tools?.cards,st=source?.tools?.cards;
+  const tt=target?.tools,st=source?.tools;
   if(sp?.fullName!==SOURCE||!tp||source===target||sp===tp||
     !Array.isArray(payment)||payment.length!==2||
     payment.some(c=>!c.fullName?.startsWith(PSY))||payment[0]===payment[1]||
@@ -34,7 +34,7 @@ function settle(b,state){
     !s?.energies?.cards?.includes(c)&&!s?.cards?.includes(c)));
   const promoted=o.active===b.target&&o.bench?.[b.benchIndex]===b.source&&
     o.active.getPokemonCard()===b.tp&&b.source.getPokemonCard()===b.sp;
-  const e=o.active?.energies?.cards??[],t=o.active?.tools?.cards??[];
+  const e=o.active?.energies?.cards??[],t=o.active?.tools??[];
   const energySame=e.length===b.te.length&&b.te.every(c=>e.includes(c));
   const toolsSame=t.length===b.tt.length&&b.tt.every(c=>t.includes(c));
   const physical=exact&&absent&&promoted&&energySame&&toolsSame&&
