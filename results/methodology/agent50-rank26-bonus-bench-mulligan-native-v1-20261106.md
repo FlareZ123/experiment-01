@@ -70,7 +70,7 @@ Conditional on rank6 having exactly one Basic in its valid seven and both player
 
 `sum(k=1..53) [p_s*q_s^k] * [1-C(50,k)/C(53,k)] = 0.013213026568048238`
 
-or **1.32130266%**. Rank6's final valid opening is rank6's first valid seven with probability `p_d/D`; multiplying by `r_6 * p_d/D` gives the joint optional-prompt event **0.50177257%** of legal setups. This is the compensation-specific event that creates the optional `min=0` prompt with a new Basic available.
+or **1.32130266%**. Rank6's initial seven is valid in the eventual legal setup with probability `p_d/D`; multiplying by `r_6 * p_d/D` gives the joint optional-prompt event **0.50177257%** of legal setups. This is the compensation-specific event that creates the optional `min=0` prompt with a new Basic available.
 
 The narrower fixture branch fixes exactly one rank26 mulligan, a rank6 initial seven with exactly one Basic, a Basic as the single compensation card, and exactly one Basic in rank26's second valid seven. Its probability, conditional on both players eventually obtaining valid sevens, is
 
