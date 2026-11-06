@@ -51,7 +51,7 @@ class RetreatAction{
   }
 }
 class Store{
-  constructor(activePlayer){
+  constructor(activePlayer,turn){
     const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
       energies:{cards:[]},tools:[],specialConditions:[]});
     const player=id=>({id,active:empty(),
@@ -59,7 +59,7 @@ class Store{
       deck:{cards:[]},prizes:[],stadium:{cards:[]},
       discard:{cards:[]},lostzone:{cards:[]},supporter:{cards:[]}});
     this.state={players:[player(10),player(20)],
-      activePlayer,turn:34,phase:2,prompts:[]};
+      activePlayer,turn,phase:2,prompts:[]};
   }
   dispatch(){return true;}
 }
@@ -67,7 +67,7 @@ class SimpleTacticsAi{
   constructor(id){this.client={id};}
   decodeNextAction(){return new PassTurnAction(this.client.id);}
 }
-function run({seat=1,turn=34,enabled=true,attached=false}={}){
+function run({seat=1,turn=34,enabled=true,attached=false,scopeAny=false}={}){
   const view=ownerView();
   view.globalTurn=turn;
   if(attached){
@@ -75,7 +75,7 @@ function run({seat=1,turn=34,enabled=true,attached=false}={}){
     view.ownHand=[];
   }
   const result=withActorOnlyRootPolicy(()=>{
-    const store=new Store(seat);
+    const store=new Store(seat,turn);
     store.dispatch(new AddPlayerAction());
     const action=new SimpleTacticsAi(store.state.players[seat].id)
       .decodeNextAction(store.state);
@@ -83,8 +83,8 @@ function run({seat=1,turn=34,enabled=true,attached=false}={}){
     return action;
   },{
     zeroEnergyStrandFloatStoneRoot:enabled,
-    zeroEnergyStrandFloatStoneTargetTurn:34,
-    zeroEnergyStrandFloatStoneOwnerSeat:1,
+    zeroEnergyStrandFloatStoneTargetTurn:scopeAny?null:34,
+    zeroEnergyStrandFloatStoneOwnerSeat:scopeAny?null:1,
     observe:()=>view,getCatalog:()=>catalog,
     Store,SimpleTacticsAi,GamePhase:{PLAYER_TURN:2,FINISHED:7},
     cardActions:{
@@ -119,4 +119,17 @@ test('a separately attached Float Stone produces real RetreatAction on target se
   assert.ok(active.result instanceof RetreatAction);
   assert.equal(active.result.benchIndex,2);
   assert.equal(active.audit.zeroEnergyStrandFloatStoneRootSelected,1);
+});
+
+test('explicit prospective all-turn scope can select both real physical seats',()=>{
+  for(const seat of [0,1]){
+    for(const turn of [10,35]){
+      const chosen=run({seat,turn,scopeAny:true});
+      assert.ok(chosen.result instanceof PlayCardAction,
+        'prospective all-turn owner should be allowed on both seats');
+      assert.equal(chosen.audit.zeroEnergyStrandFloatStoneRootSelected,1);
+      assert.equal(chosen.audit.zeroEnergyStrandFloatStoneTargetTurn,null);
+      assert.equal(chosen.audit.zeroEnergyStrandFloatStoneOwnerSeat,null);
+    }
+  }
 });
