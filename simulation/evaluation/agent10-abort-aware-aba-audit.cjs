@@ -120,7 +120,8 @@ function audit(config) {
     const openingMatched=physicalDealEqual(a,b)&&physicalDealEqual(a,a2)&&
       a.sourceSeat===trial.sourceSeat;
     const controlDifference=firstDifference(la.ledger,la2.ledger);
-    const controlReplay= !hasAll?'MISSING_OR_CONFLICTING_LEDGER':
+    const controlReplay= !Array.isArray(la.ledger)||!Array.isArray(la2.ledger)?
+      'MISSING_OR_CONFLICTING_CONTROL_LEDGER':
       controlDifference!==null?'ROOT_HISTORY_MISMATCH':
       outcome(a)!==outcome(a2)?'OUTCOME_MISMATCH':
       la.kind==='ABORT_PRESERVED'||la2.kind==='ABORT_PRESERVED'?
