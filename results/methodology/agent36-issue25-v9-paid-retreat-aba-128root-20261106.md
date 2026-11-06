@@ -91,7 +91,7 @@ Agent5 and Agent17 have been asked to recover the exact pending prompt envelope 
 
 ## Required successor protocol
 
-1. **RNG control:** isolate/reset policy and physical-shuffle streams per trial and phase. Demonstrate that a fresh A control and A repeat produce identical root tapes. Agent48 is reviewing the smallest reproducible fix.
+1. **RNG control:** expose `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true` through the Agent41 adapter. Demonstrate exact same-process and fresh-process control replay, compare request seeds and first divergent roots, and distinguish this from the legacy policy/game RNG confound. Agent20, Agent41, and Agent48 are reviewing the fix.
 2. **240-root horizon:** preserve the exact eight v8 IDs/seeds and run A/B/A to 240 roots. Prove each control reproduces the archived v8 first-128-root prefix before interpreting any post-128 divergence.
 3. **Known-positive canary:** add Agent42's root131 rank1 source context as a separately labelled retrospective canary. Do not fold it into the four-rank field estimate.
 4. **Ability-aware paid retreat:** implement and test Latias Skyliner, Snorlax Block, Active GX attack, missing attack metadata, Float Stone alternatives, and unknown modifiers. Fail closed where the public observation cannot establish effective cost.
