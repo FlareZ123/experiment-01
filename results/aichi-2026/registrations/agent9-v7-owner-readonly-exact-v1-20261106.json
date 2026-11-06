@@ -1,0 +1,97 @@
+{
+  "schema": "agent9-v7-owner-readonly-exact-public-noninterference-v1",
+  "date": "2026-11-06",
+  "benchmark": "Aichi original ranks6 and11, exact previously registered v7 8 arms 96 roots",
+  "originalCompiledRunId": 42146586227,
+  "originalCompiledArtifactId": 13469794048,
+  "originalArchiveSha256": "e54944b2592917b6578267b523718dd9cad6f929f3a2b3deffce01f8e205cb7a",
+  "originalVendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "readOnlyIntervention": "patch real Store AI observation, return unmodified original action; no card costs or policy selection changes",
+  "nativeRootCap": 96,
+  "comparators": [
+    "fullPhysicalDealFingerprint",
+    "sourceDealFingerprint",
+    "publicRootLedgerSha256Computed",
+    "status",
+    "publicRootActionCount"
+  ],
+  "baselineArms": [
+    {
+      "id": "6:200:A:champion-reference",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "36bad6a9b3c245423f7784647a815551520485a8dc31a854717f2dad17200cc3",
+      "fullPhysicalDealFingerprint": "05d8f32d3a868843ca883b83bd94b5ee0138658ae3e67154f591a8d06f489797",
+      "publicRootLedgerSha256Computed": "0e4733538c41498c3eba3532582145474b5a6be39e058938b9d3c7198e2acbe1"
+    },
+    {
+      "id": "6:200:A:new-moon-lockbreaker-v1",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "36bad6a9b3c245423f7784647a815551520485a8dc31a854717f2dad17200cc3",
+      "fullPhysicalDealFingerprint": "1133f4500ba1d0a10902b0a2c1be53000d795290ba0504177d767c059a139242",
+      "publicRootLedgerSha256Computed": "311e38d089c9e764a92fd02befc03b150b6f9526830d33cc405f9d92980570bb"
+    },
+    {
+      "id": "6:201:B:champion-reference",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "62a782929f616ab5348b93b93490ff827f915ad9e21b764c9cf6d87e732f27b7",
+      "fullPhysicalDealFingerprint": "74678590466f4500923f3c2db76751d3e3d6c65506d44c3a38ecbffa86ff5fd5",
+      "publicRootLedgerSha256Computed": "7595a416b33efe8d741de8efe2478473f714161ede1974ebb35d0b0073779466"
+    },
+    {
+      "id": "6:201:B:new-moon-lockbreaker-v1",
+      "status": "engine-error",
+      "publicRootActionCount": 84,
+      "sourceDealFingerprint": "62a782929f616ab5348b93b93490ff827f915ad9e21b764c9cf6d87e732f27b7",
+      "fullPhysicalDealFingerprint": "d94bfa327fa350509f8797d750938f7db0b8ab6d79d660c415bc736ea8420b75",
+      "publicRootLedgerSha256Computed": "e51f7e95a38a1b20b7c9dd2c1fc7660d6243b4498553b0ad222731d2792df19b"
+    },
+    {
+      "id": "11:202:A:champion-reference",
+      "status": "engine-error",
+      "publicRootActionCount": 60,
+      "sourceDealFingerprint": "78fcfd586e81dbb1726c6e92737f06d9fce2014ba0ec581b6093bde6875a09ee",
+      "fullPhysicalDealFingerprint": "060acb744e0fbc3d286c65c9c17f6999d9b1f85093da08720ffa6ff35718f0a8",
+      "publicRootLedgerSha256Computed": "5b42bf1db92ef1159f9f007b26c7493758105451d2a64a95f6c4073d7a9ef006"
+    },
+    {
+      "id": "11:202:A:new-moon-lockbreaker-v1",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "78fcfd586e81dbb1726c6e92737f06d9fce2014ba0ec581b6093bde6875a09ee",
+      "fullPhysicalDealFingerprint": "4b7eabcbca5e000b43ad2701f815e46e37709174b801f2977dd3fca51765b741",
+      "publicRootLedgerSha256Computed": "3c190e9043888570394cb9e0ea7aa8c68c78d70748ce4414f3b043c3d617ba34"
+    },
+    {
+      "id": "11:203:B:champion-reference",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "793022e4fb44cf0520b10348bec298cc698cf57a6f7f3640c4208622bb306574",
+      "fullPhysicalDealFingerprint": "8130d9236826f2b1c9e8375bf26411e03ba9eb676d170cf5a377c7070fc96dfb",
+      "publicRootLedgerSha256Computed": "a638e4a578d06c670f503cf52a2316a98924d6f2a68999ad19349ca5cdde91ed"
+    },
+    {
+      "id": "11:203:B:new-moon-lockbreaker-v1",
+      "status": "returned-unqualified",
+      "publicRootActionCount": 96,
+      "sourceDealFingerprint": "793022e4fb44cf0520b10348bec298cc698cf57a6f7f3640c4208622bb306574",
+      "fullPhysicalDealFingerprint": "db9260f8a8118c757ab2eed52ffb8330241259c3d236fd515232db1d1cab5904",
+      "publicRootLedgerSha256Computed": "213d0b17881732146306910eb9d50652c5d5e460875b256c70be1a2b9ac01157"
+    }
+  ],
+  "positiveDecisionAnchorPolicy": "For each Store-settled source Volt attack, take next accepted source-owner turn Pass and require actor-only preproposal observation, independently compare archived accepted root.",
+  "negativeControls": [
+    "one-to-one registration",
+    "all eight error/cap rows preserved",
+    "first live Store only",
+    "speculative state excluded",
+    "both physical seats",
+    "no hidden opponent cards",
+    "same real native selected roots",
+    "exact physical deals",
+    "owner read-only wrapper restored on error"
+  ],
+  "outcomeClassification": "read-only owner-hand opportunity candidates; no paper-payable, game win or rate claims"
+}
