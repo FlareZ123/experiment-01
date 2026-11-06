@@ -80,3 +80,28 @@ test('Critic registered attempt identity gate detects count-equal swapped and du
   assert.equal(missing.exactUniqueMatch,false);
   assert.equal(missing.returnedCount,2);
 });
+
+
+test('single prospective game requires explicit opt-in and carries its root limit',()=>{
+  const trialId='11:1000:B:new-moon-lockbreaker-v1';
+  const layers={};
+  for(const key of SELECTED_OUTER_TO_INNER.slice(0,-1))
+    layers[key]=next=>({result:next(),audit:{}});
+  let received=null;
+  const out=runSelectedIssue25V0({
+    layers,registeredTrialIds:[trialId],allowSingleRegisteredTrial:true,
+    nativeRootActionLimit:260,
+    runner:options=>{
+      received=options;
+      return {rows:[{id:trialId}]};
+    }
+  });
+  assert.deepEqual(received,{actorOnlyComposition:true,nativeRootActionLimit:260});
+  assert.equal(out.manifest.nativeRootActionLimit,260);
+  assert.equal(out.manifest.registeredTrialMode,'single-prospective-game');
+  assert.equal(out.diagnostic.allRegisteredAttemptsReturned,true);
+  assert.equal(out.diagnostic.competitiveGamesQualified,0);
+  assert.throws(()=>runSelectedIssue25V0({
+    layers,registeredTrialIds:[trialId],runner:()=>({rows:[{id:trialId}]})
+  }),{name:'AssertionError'});
+});
