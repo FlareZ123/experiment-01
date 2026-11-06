@@ -1,0 +1,188 @@
+{
+  "schema": "agent36-issue25-common-v9-paid-retreat-aba-128root-v1",
+  "createdAtUtc": "2026-11-06T15:38:30Z",
+  "registeredBeforeFirstNativeAttempt": true,
+  "observedV9AttemptsBeforeRegistration": 0,
+  "experimentalType": "retrospective same-physical-deal A/B/A common-policy intervention; preregistered before v9 execution; not a fresh win-rate sample",
+  "baseV8PopulationPreviouslyExecuted": true,
+  "baseRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json",
+  "baseRegistrationGitBlobSha": "5425749642c0692034f0db79c889b4ee42284b1a",
+  "sourceOriginalRanks": [
+    6,
+    11,
+    1,
+    3
+  ],
+  "sourceSeatAllocationRule": "Original source physical seat0 for candidateSlot B and seat1 for candidateSlot A; preserve the original v8 seat allocation",
+  "contendingPrintedSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 128,
+  "groups": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "champion-reference",
+      "id": "6:210:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:210:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "champion-reference",
+      "id": "11:211:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:211:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "champion-reference",
+      "id": "1:212:B:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:212:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "champion-reference",
+      "id": "3:213:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:213:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "A-v8-control",
+      "actorTwoUnitPaidRetreatRoot": false,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    },
+    {
+      "id": "B-common-paid-retreat",
+      "actorTwoUnitPaidRetreatRoot": true,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    },
+    {
+      "id": "A-repeat-control",
+      "actorTwoUnitPaidRetreatRoot": false,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    }
+  ],
+  "expectedCandidateContexts": 8,
+  "expectedNativeAttempts": 24,
+  "policyStack": "The exact v8 source-independent bilateral common policy, including selected-v4 owner prompts, v5 Prize/Promotion, v6 common Thorns root, and v7 owner Volt prompt. The sole treatment change is the existing Agent42 owner-visible two-unit paid-retreat root proposal, enabled symmetrically on both physical seats in B.",
+  "treatment": "Set runDevelopment option actorTwoUnitPaidRetreatRoot=true and actorTwoUnitPaidRetreatTargetTurn=null only in B. A and A' set false. The selector uses the acting owner's observation and public opponent state; no rank, seed, turn, opponent, target, or winner condition is added.",
+  "primaryGates": [
+    "All eight registered IDs return in each A/B/A phase; preserve every error and root128 censor.",
+    "For each trial ID, A/B/A source-deal fingerprint, full physical-deal fingerprint, source/candidate seats, and actual starter match.",
+    "A and A' reproduce identical public root-ledger hashes and native dispositions.",
+    "Any treatment divergence begins at an actual accepted RetreatAction; retain the complete prefix and all subsequent actions.",
+    "Join a Shadow Rider VMAX two-Basic-Psychic paid retreat to the real accepted Store root and public before/after board sidecar; separately bind physical Energy-object custody where available.",
+    "Record the promoted Benched attacker's actual settled attack, damage, Prize transition, immediate opponent action, and next source owner turn. Mark missing stages UNVERIFIED.",
+    "Retain Agent42's existing negative tests for an already payable Active attack, invalid/unknown payment, Stadium/Tool uncertainty, status, retreat quota, and insufficient Energy."
+  ],
+  "physicalDealComparison": "Compare only A/B/A phases within the same registered trial ID. Never infer a cross-candidate match from shared seed. The independent v8 audit already found rank11 source-deal fingerprints differ across the two candidate 60s; retain that mismatch.",
+  "scopeLimitations": "Four of 32 original ranks, one source seat per rank, two historical candidate 60s, and 128-root bounded attempts. The v8 population was previously observed, so this is a retrospective policy-mechanism comparison, not fresh prospective field evidence. No paper-qualified game or field win-rate inference.",
+  "frozenInputs": [
+    {
+      "path": "results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json",
+      "gitBlobSha": "5425749642c0692034f0db79c889b4ee42284b1a"
+    },
+    {
+      "path": "simulation/evaluation/agent36-issue25-common-v8.cjs",
+      "gitBlobSha": "5512469bd4fba5d4481239ee262806a8fe36713d"
+    },
+    {
+      "path": "simulation/evaluation/agent36-issue25-common-v7.cjs",
+      "gitBlobSha": "f789df3eb158b7b97ad0fc67681758f5a52d1f05"
+    },
+    {
+      "path": "simulation/evaluation/agent36-issue25-selected-v0.cjs",
+      "gitBlobSha": "8121dd62a6957940525580ef806b3ce1f6ded76e"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "gitBlobSha": "537157dff43fefa1a429f6e0bb72387cde51708d"
+    },
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "gitBlobSha": "3947a55d219dce055c733211eb874d4b5cbcd55a"
+    },
+    {
+      "path": "simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal.cjs",
+      "gitBlobSha": "41cc0321235e32e4c3c9b072aeb4b384d479d1dc"
+    },
+    {
+      "path": "simulation/evaluation/agent42-general-paid-retreat-root-audit.cjs",
+      "gitBlobSha": "19c945cbc5e9e9cef9e7eb25cac4bd097dd209f9"
+    },
+    {
+      "path": "simulation/evaluation/agent36-profile-provenance-gate.cjs",
+      "gitBlobSha": "fa7ed2d0ca15b9eddb795a77e89a8ad7932c6b41"
+    }
+  ],
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false,
+  "estimatedWinRate": null
+}
