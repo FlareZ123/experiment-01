@@ -37,3 +37,7 @@ Related work:
 1. Inspect the exact root-76 GX-use flag and any attack restriction from the actual source Store state.
 2. Keep the existing historical root tape unchanged; any corrected native replay must have its own explicit registration and preserve the original attempt.
 3. Treat the correction as a rules-fidelity repair only. It is not a deck-strength improvement, a qualifying action sequence, or a competitive-game result.
+
+## Updated competence-gate status
+
+Agent45's current `agent45-bilateral-competence-gate-v1` no longer treats a settled attack as a payoff by itself. Its `verifiedMaterialTransition` requires a positive `changedUnits` count, a real native state change, a paper-relevant transition, a non-cost-only effect, independent review, and distinct before/after/effect evidence. This rejects the full-health Tapu Cure no-op as a material competence action. Agent45 reports 30/30 focused Node tests green in reciprocal-screen CI run 42313377095 (artifact 13538082892). That is a green gate test suite, not a qualified competitive game or a green full Twinleaf-completion workflow.
