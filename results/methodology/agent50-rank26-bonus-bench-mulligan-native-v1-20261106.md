@@ -26,14 +26,22 @@ The native Store path sets `prompt.result = action.result` and invokes the regis
 
 ## Existing Agent50 hook behavior
 
-The current Agent50 protected-entry chooser in `simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selection for a valid `min===0` prompt. `withOwnerProtectedMultiBasicStore` applies that chooser to the optional prompt and records a `bonusDeclines` event. It does not make an informed choice to Bench the newly drawn Basic.
+The current Agent50 protected-entry chooser in `simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs` returns an empty selection for a valid `min===0` prompt. `withOwnerProtectedMultiBasicStore` applies that chooser to the optional prompt and records a `bonusDeclines` event. It overrides the native default and declines the newly drawn Basic.
 
-The other nearby Agent50 setup components are scoped to the mandatory initial setup prompt:
+However, the pinned default `SimpleTacticsAi` already has a generic optional-prompt behavior:
+
+- `simple-bot-definitions.ts:103-118` includes `ChooseCardsPromptResolver` in `allPromptResolvers`; `simple-bot.ts:10-24` installs that list into the bot.
+- `choose-cards-prompt-resolver.ts:8-18` builds a candidate result, removes invalid cards, truncates to `max`, and returns a `ResolvePromptAction`. Its `removeInvalidCards` method temporarily sets `min=0` and adds each candidate that passes `prompt.validate` (`22-37`). Its candidate builder filters blocked indices and the prompt filter, then ranks candidates using `StateScore.getCardScore` (`40-54`).
+- `state-score.ts:63-82` computes `getCardScore` using only before/after `HandScore`; `hand-score.ts:15-16,24-63` scores hand contents and the presence of a Basic while the Bench is empty. It does not consult opponent board/threat scores for this selection.
+
+Consequently, with one eligible new Basic and `min=0,max=1`, the default resolver should select that Basic and let the native Store callback Bench it. If several new Basics are eligible, the generic resolver may select multiple up to max. This is a generic hand-value heuristic, not an opponent-threat-aware choice.
+
+The v8 wrapper chain in `simulation/evaluation/agent36-issue25-common-v8.cjs` does not install the Agent50 optional-decline hook, so v8 inherits the default `ChooseCardsPromptResolver` behavior. The other nearby Agent50 setup components remain scoped to mandatory initial setup:
 
 - `agent50-owner-entry-priority-single-basic.cjs` selects one eligible card from the initial `min=1` setup prompt.
 - `agent50-owner-opening-store-receipt.cjs` observes the initial `min=1` selection and physical Active/Bench result.
 
-I found no Agent50 hook that chooses a new Basic from the optional post-compensation `min=0` prompt. This conclusion is scoped to the inspected Agent50 setup path; it is not a claim that no unrelated experimental runner contains any optional-Bench behavior.
+Thus an existing default resolver does make the generic Bench choice, but no inspected Agent50 or v8 wrapper makes an opponent-threat-aware optional Bench choice.
 
 ## Preregistered controlled fixture
 
@@ -49,13 +57,13 @@ The fixture uses the original rank26 60 as seat 0 and original rank6 Iron Thorns
 - Rank26's next seven contain exactly one starting Pokémon, ending the mulligan.
 - Rank26 is forced to go first; rank6 accepts the single compensation draw.
 
-At the real optional rank6 prompt, the test intends to verify the prompt metadata, both valid selections, the current chooser's empty proposal, and the one-card owner-only treatment. It then dispatches the treatment through the pinned `Store` and checks that the exact second Iron Thorns object leaves hand and enters the Bench while the original Active remains unchanged. The test also uses the Agent4 raw-State fallback quarantine, so an unhandled native decision should fail closed.
+At the real optional rank6 prompt, the test now delegates to the pinned default `ChooseCardsPromptResolver` rather than overriding the min-zero decision. The Store observer verifies the prompt metadata, both valid selections, the Agent50 protected chooser's empty negative-control proposal, and the default resolver's one-card action. It then checks that the exact second Iron Thorns object leaves hand and enters the Bench while the original Active remains unchanged. The test also uses the Agent4 raw-State fallback quarantine, so an unhandled native decision should fail closed.
 
 The new test is required by `tests/agent50-rank4-first-turn-dedechange.native.test.cjs`, reusing the existing manual `rank4_dedechange_only` workflow lane. No new workflow was added.
 
 ## Execution status and limits
 
-**Source audit: confirmed. Native Store fixture: committed, not executed in this invocation.** No CI artifact or observed Store-dispatch receipt is available yet. The test's assertions and receipt must be reviewed and run before claiming the physical Store treatment succeeded.
+**Source audit: confirmed. Default resolver prediction: source-derived. Native Store fixture: committed, not executed in this invocation.** No CI artifact or observed Store-dispatch receipt is available yet. The test's assertions and receipt must be reviewed and run before claiming the physical Store treatment succeeded.
 
 The shuffle permutations are intentionally controlled. This is a deterministic existence fixture, not a random sample, setup-frequency estimate, or empirical mulligan probability. It stops immediately after setup compensation placement. It does not play a turn, prove a first-turn attack or KO, measure matchup outcomes, establish that Bench placement is always correct, or qualify either deck. No win-rate inference is justified.
 
