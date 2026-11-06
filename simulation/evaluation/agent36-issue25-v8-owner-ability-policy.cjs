@@ -32,24 +32,39 @@ const EXTRA_HASH_PATHS=Object.freeze([
  */
 function withTelepathAndOwnerAbilityPolicy(run){
   let telepathAudit=null;
-  // Existing Agent1 source-scoped paper repair is nested at the native Store
-  // boundary. It restores the mandatory shuffle/end turn on legal [] choices.
-  const radiant=withRadiantZeroGateHook(()=>
-    withOwnerAbilityConfirmPolicy(()=>{
-      const telepath=withOwnerTelepathicBenchSearch(run);
-      telepathAudit=telepath.audit;
-      return telepath.result;
-    })
-  );
-  return {
-    result:radiant.result.result,
-    audit:{
-      version:VERSION,
-      ownerAbilityConfirm:radiant.result.audit,
-      radiantZeroGate:radiant.audit,
-      telepath:telepathAudit
+  try {
+    // Existing Agent1 source-scoped paper repair is nested at the native Store
+    // boundary. It restores mandatory shuffle/end turn on legal [] choices.
+    const radiant=withRadiantZeroGateHook(()=>
+      withOwnerAbilityConfirmPolicy(()=>{
+        const telepath=withOwnerTelepathicBenchSearch(run);
+        telepathAudit=telepath.audit;
+        return telepath.result;
+      })
+    );
+    return {
+      result:radiant.result.result,
+      audit:{
+        version:VERSION,
+        ownerAbilityConfirm:radiant.result.audit,
+        radiantZeroGate:radiant.audit,
+        telepath:telepathAudit
+      }
+    };
+  } catch(error){
+    if(error&&typeof error==='object'){
+      const nativeTelepath=error.ownerTelepathicAudit??telepathAudit;
+      error.ownerTelepathicAudit={
+        version:VERSION,
+        disposition:'native-abort-unqualified',
+        ownerAbilityConfirm:error.ownerAbilityConfirmAudit??null,
+        radiantZeroGate:null,
+        telepath:nativeTelepath,
+        competitiveGamesQualified:0
+      };
     }
-  };
+    throw error;
+  }
 }
 
 /**
