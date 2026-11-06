@@ -14,10 +14,10 @@ const registration = require('../results/aichi-2026/registrations/agent9-v7-owne
  * @returns {object}
  */
 function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registration, deps = {}) {
-  const classifyBaton = deps.classifyBaton ?? require(
-    '../simulation/twinleaf/agent9-v10-dce-baton-observer.cjs'
-  ).classifyOwnerDceBaton;
-  assert.equal(typeof classifyBaton, 'function');
+  const screen = deps.screen ?? require(
+    '../simulation/evaluation/agent9-v7-postvolt-necessary-screen.cjs'
+  ).screenPostVoltNecessaryRoutes;
+  assert.equal(typeof screen, 'function');
   assert.equal(baseline.schema,
     'agent9-v7-owner-readonly-exact-public-noninterference-v1');
   const raw = nativeReceipt.attempts;
@@ -66,7 +66,7 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
     const hasAnAcceptedPass=record.ownerActions.some(a=>
       a.action==='PassTurnAction');
     const matchedPass = pass.length===1 ? pass[0] : null;
-    const batonScreen = matchedPass ? classifyBaton({
+    const batonScreen = matchedPass ? screen({
       decisionKind: 'owner-root',
       globalTurn: matchedPass.globalTurn,
       actorSeat: matchedPass.seat,
