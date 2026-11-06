@@ -96,11 +96,52 @@ function byTrial(phase) {
  * @param {object[]} phases
  */
 function activation(phases) {
-  const receipts=phases.map(phase=>phase?.runtimeWrapperReceipt);
-  if(!receipts.every(r=>r?.origin==='live-scopedRoot-predicate' &&
-      typeof r.installed==='boolean'))
-    return 'ACTIVATION_UNVERIFIED';
-  const installed=receipts.map(r=>r.installed);
+  const rowReceipts=phases.map(phase=>{
+    const rows=phase?.rawDevelopment?.rows??phase?.rows;
+    if(!Array.isArray(rows)||rows.length===0)return null;
+    const hasField=rows.some(row=>Object.prototype.hasOwnProperty.call(
+      row,'twoUnitPaidRetreatRootWrapperSelected'));
+    if(!hasField)return null;
+    if(!rows.every(row=>
+      typeof row.twoUnitPaidRetreatRootOptIn==='boolean' &&
+      typeof row.twoUnitPaidRetreatRootV2OptIn==='boolean' &&
+      typeof row.twoUnitPaidRetreatRootWrapperSelected==='boolean' &&
+      typeof row.twoUnitPaidRetreatRootOptionPassed==='boolean'))
+      return 'INCOMPLETE';
+    const tuples=rows.map(row=>[
+      row.twoUnitPaidRetreatRootOptIn||
+        row.twoUnitPaidRetreatRootV2OptIn,
+      row.twoUnitPaidRetreatRootOptionPassed,
+      row.twoUnitPaidRetreatRootWrapperSelected
+    ]);
+    if(!tuples.every(x=>JSON.stringify(x)===JSON.stringify(tuples[0])))
+      return 'INCONSISTENT';
+    return {optIn:tuples[0][0],optionPassed:tuples[0][1],
+      installed:tuples[0][2]};
+  });
+  if(rowReceipts.some(x=>x==='INCOMPLETE'||x==='INCONSISTENT'))
+    return 'INVALID_ABA_WRAPPER_ACTIVATION';
+  const allNative=rowReceipts.every(x=>x!==null);
+  const explicit=phases.map(phase=>phase?.runtimeWrapperReceipt);
+  const allExplicit=explicit.every(r=>
+    r?.origin==='live-scopedRoot-predicate' &&
+    typeof r.installed==='boolean');
+  if(!allNative&&!allExplicit)return 'ACTIVATION_UNVERIFIED';
+  if(allNative) {
+    const optIns=rowReceipts.map(x=>x.optIn);
+    const options=rowReceipts.map(x=>x.optionPassed);
+    const installed=rowReceipts.map(x=>x.installed);
+    const active=JSON.stringify(optIns)===JSON.stringify([false,true,false]) &&
+      JSON.stringify(options)===JSON.stringify([false,true,false]) &&
+      JSON.stringify(installed)===JSON.stringify([false,true,false]);
+    const inactive=optIns.every(x=>x===false)&&
+      options.every(x=>x===false)&&installed.every(x=>x===false);
+    if(allExplicit&&explicit.some((r,i)=>r.installed!==installed[i]))
+      return 'INVALID_ABA_WRAPPER_ACTIVATION';
+    return active?'B_WRAPPER_INSTALLATION_RECORDED':
+      inactive?'NO_TREATMENT_APPLIED':'INVALID_ABA_WRAPPER_ACTIVATION';
+  }
+  const installed=explicit.map(r=>r.installed);
   if(installed.every(x=>x===false))return 'NO_TREATMENT_APPLIED';
   if(JSON.stringify(installed)===JSON.stringify([false,true,false]))
     return 'B_WRAPPER_INSTALLATION_RECORDED';
