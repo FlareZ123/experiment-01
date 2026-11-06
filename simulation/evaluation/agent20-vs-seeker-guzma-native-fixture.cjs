@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {actorObservation}=require('../twinleaf/actor-observation-contract.cjs');
+const {ownerVsSeekerGuzmaOpportunity}=require('../twinleaf/agent2-vs-seeker-guzma-recovery-frontier.cjs');
 const {
   createVsSeekerRunner,writeJsonAtomically
 }=require('./agent20-issue25-v8-vs-seeker-guzma.cjs');
@@ -123,14 +124,24 @@ function createSyntheticActorObservation(deps={}){
       handCardsReturnedToDeck++;
     }
     injectedOwners.add(owner);
+    const after=baseObservation(state,seat);
+    const opportunity=ownerVsSeekerGuzmaOpportunity(after);
     audit.injections.push({
       seat,ownerId:owner.id,turn:view.globalTurn,
       vsSeekerSource:seeker.source,guzmaSource:guzma.source,
       handCardsReturnedToDeck,
-      ownerBenchCount:view.ownPublic.bench.filter(Boolean).length,
-      opponentBenchCount:view.opponentPublic.bench.filter(Boolean).length
+      ownerBenchCount:after.ownPublic.bench.filter(Boolean).length,
+      opponentBenchCount:after.opponentPublic.bench.filter(Boolean).length,
+      helperOpportunity:opportunity,
+      viewSummary:{
+        decisionKind:after.decisionKind,globalTurn:after.globalTurn,
+        ownHand:after.ownHand,ownDiscard:after.ownPublic.discard,
+        ownTurnResources:after.ownTurnResources,
+        publicTurnRestrictions:after.ownPublic.publicTurnRestrictions,
+        resolvingSupporter:after.ownPublic.resolvingSupporter
+      }
     });
-    return baseObservation(state,seat);
+    return after;
   }
   return {observe,audit};
 }
