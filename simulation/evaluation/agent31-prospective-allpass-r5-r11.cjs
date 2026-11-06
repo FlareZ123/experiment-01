@@ -109,7 +109,7 @@ function summarize(rows) {
       actualNativePasses:witness?.actualNativePassRoots??null,
       ownerPassReceipts:witness?.observedOwnerPassRoots??null,
       knownAcceptedPassesOnAbort: witness ? null : abortPasses,
-      abortPassOwnerHandsAvailable:false,
+      abortPassOwnerHandsAvailable: witness ? null : false,
       candidateHeldStonePasses:witness?.counts?.candidate.heldFloatStone??null,
       candidateNarrowFundedVmaxPasses:
         witness?.counts?.candidate.visibleFundedVmaxPasses??null,
