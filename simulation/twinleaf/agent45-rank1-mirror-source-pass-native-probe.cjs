@@ -55,6 +55,11 @@ function withActualOwnerMirrorSourcePassAttackProbe(execute,deps={}){
           visibleActivePrinting:owner.active.getPokemonCard()?.fullName??null,
           visibleAttachedEnergyPrintings:owner.active.energies.cards
             .map(c=>c.fullName),
+          ownerActiveDamage:owner.active.damage,
+          ownerBenchVisibleDamage:owner.bench
+            .filter(slot=>slot.getPokemonCard())
+            .map(slot=>({printing:slot.getPokemonCard().fullName,
+              damage:slot.damage})),
           actualActorChosePass:true,sourceOwnedActualRootStore:true,
           activePrintedAttacksProbed:null,
           truncated:false,possibleEngineAttackAnnouncements:0,
