@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {captureTwoPsychicRetreat,withTwoPsychicRetreatCustody}=require('../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody-v2.cjs');
 class RetreatAction{constructor(clientId,benchIndex){Object.assign(this,{clientId,benchIndex});}}
 const card=fullName=>({fullName});
-const slot=(name,energies)=>({cards:[card(name)],energies:{cards:energies.map(card)},tools:{cards:[]},getPokemonCard(){return this.cards[0];}});
+const slot=(name,energies)=>({cards:[card(name)],energies:{cards:energies.map(card)},tools:[],getPokemonCard(){return this.cards[0];}});
 function setup(seat=1,pay=true){
  const old=slot('Shadow Rider Calyrex VMAX CRE',['Psychic Energy MEE','Psychic Energy MEE']);
  const next=slot('Latias ex SSP',['Psychic Energy MEE','Psychic Energy MEE','Psychic Energy MEE']);
