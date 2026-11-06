@@ -163,6 +163,8 @@ jobs:
         run: node simulation/twinleaf/completion-fixture.cjs
       - name: Probe real Aichi decks from both seats
         run: node simulation/twinleaf/aichi-fixture.cjs
+      - name: Verify rank7 Jet Wobbuffet suppresses opposing Vileplume Item lock
+        run: node --test tests/agent33-rank7-wobbuffet-jet-vileplume-native.test.cjs
       - name: Run preregistered v9 common paid-retreat A/B/A on the exact v8 physical deals
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
