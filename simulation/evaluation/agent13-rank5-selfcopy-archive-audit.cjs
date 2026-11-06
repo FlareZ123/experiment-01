@@ -43,9 +43,7 @@ function sourceSelfCopyChoices(row){
     const afterPrizes=source.prizesAfter[row.sourceSeat];
     assert.ok(Number.isSafeInteger(beforePrizes)&&
       Number.isSafeInteger(afterPrizes));
-    returnableCheck: {
-      assert.ok(before,'Source opponent must have a physical Active');
-    }
+    assert.ok(before,'Source opponent must have a physical Active');
     out.push({
       turn:root.turnBefore,rootOrdinal:root.actionOrdinal,
       attackOrdinal:source.actionOrdinal,donorIndex:selected.sourceIndex,
