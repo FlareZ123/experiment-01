@@ -11,7 +11,6 @@ const EXTRA_HASH_PATHS=Object.freeze([
   'simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs',
   'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
   'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
-  'simulation/twinleaf/native-types.cjs',
   'simulation/twinleaf/prompt-integrity.cjs',
   'simulation/evaluation/agent32-issue25-v8-telepath-development.cjs',
   'simulation/evaluation/agent36-issue25-common-v8.cjs',
