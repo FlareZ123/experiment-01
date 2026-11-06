@@ -1392,10 +1392,12 @@ function runDevelopment({
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
     'Zero-Energy strand rescue requires actor-only composition');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||
-    (Number.isSafeInteger(actorZeroEnergyStrandFloatStoneTargetTurn)&&
-     actorZeroEnergyStrandFloatStoneTargetTurn>1&&
-     [0,1].includes(actorZeroEnergyStrandFloatStoneOwnerSeat)),
-    'Strand rescue must be limited to a registered turn and physical seat');
+    ((actorZeroEnergyStrandFloatStoneTargetTurn===null||
+      (Number.isSafeInteger(actorZeroEnergyStrandFloatStoneTargetTurn)&&
+       actorZeroEnergyStrandFloatStoneTargetTurn>1))&&
+     (actorZeroEnergyStrandFloatStoneOwnerSeat===null||
+      [0,1].includes(actorZeroEnergyStrandFloatStoneOwnerSeat))),
+    'Strand rescue must have an explicit valid optional turn and physical-seat scope');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorUnderworldAttackGapRecipient||
