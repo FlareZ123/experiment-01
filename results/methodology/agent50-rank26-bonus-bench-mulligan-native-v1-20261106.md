@@ -62,7 +62,7 @@ and rank6's failed-seven probability
 
 `q_d = C(56,7)/C(60,7) = 0.6005003742553344`.
 
-Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d), the normalizer for the official restart when both players fail. For rank6's four-Basic list, the probability of exactly one Basic in a valid opening seven is
+Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d, the normalizer for the official restart when both players fail. For rank6's four-Basic list, the probability of exactly one Basic in a valid opening seven is
 
 `r_6 = 4*C(56,6)/(C(60,7)-C(56,7)) = 0.8417535034135825`.
 
@@ -106,4 +106,4 @@ The shuffle permutations are intentionally controlled. This is a deterministic e
 
 ## Next validation
 
-Run the existing manual rank4 native lane and inspect the failure-inclusive JSON receipt. If the fixture passes, use a separate preregistered source-conserved A/B test to compare the existing decline policy against the owner-informed optional Bench choice across the full opponent field, preserving both physical deal and policy-randomness controls. Do not promote the choice based solely on this setup existence proof.
+Run the existing manual rank4 native lane and inspect the failure-inclusive JSON receipt. If the fixture passes, use a separate preregistered source-conserved A/B test to compare the default generic bench-all resolver against the Agent50 protected-entry decline policy, with any new opponent-aware policy treated as a separate arm. Preserve physical-deal and policy-randomness controls, and do not promote a policy based solely on this setup existence proof.
