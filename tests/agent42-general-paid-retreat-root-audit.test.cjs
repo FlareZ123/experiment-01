@@ -91,3 +91,15 @@ test('duplicated sidecar cannot provide unique real root proof',()=>{
   row.nativeAcceptedTargetSidecar.events=[event,event];
   assert.equal(join(row,1).nativePublicPaidPivotCount,0);
 });
+
+
+test('a post-Retreat Switch to a different Active cannot inherit attack, Prize, or terminal credit',()=>{
+  const {row}=setup();
+  row.sourceAttackSettlement.attacks[0].publicBoardBefore[1].active.printing=
+    'Different Active ex';
+  const r=join(row,1);
+  assert.equal(r.pivotWithSettledAttackCount,0);
+  assert.equal(r.pivotWithPrizeCount,0);
+  assert.equal(r.pivotWithNativeTerminalSourceWin,0);
+  assert.equal(r.evidence[0].targetAttackIdentityConfirmed,false);
+});
