@@ -40,6 +40,12 @@ jobs:
         run: node --test tests/agent26-field-stadium-multi-name-census.test.cjs
       - name: Check exact Basic-conditioned opening probability across 29 original decks
         run: node --test tests/agent26-field-stadium-basic-conditioned-opening.test.cjs
+      - name: Check source-original identical-deck first-shuffle calibration pure SFT
+        run: node --test tests/agent26-shuffle-protocol-opening-calibration.test.cjs
+      - name: Log indexed 100000-seed physical shuffle protocol sensitivity
+        env:
+          AGENT26_SHUFFLE_TRIALS: '100000'
+        run: node scripts/agent26-shuffle-protocol-opening-calibration.cjs
       - name: Verify Prism-to-Prism replacement on both real Store seats
         run: node --test tests/agent26-prism-stadium-replacement.native.test.cjs
       - name: Cross-check Palace Book deferred phase transition with actual native prompts
