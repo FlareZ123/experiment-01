@@ -12,6 +12,13 @@ function pokemon(slot){
     slot.getPokemonCard():null;
 }
 
+/** @param {object|null} slot @returns {string[]} */
+function publicTools(slot){
+  const attached=Array.isArray(slot?.tools)?slot.tools:
+    (slot?.tools?.cards??[]);
+  return attached.map(card=>card.fullName??card.name);
+}
+
 /**
  * Read only visible cards from the rejected action owner's field.
  * @param {object} state Authentic Store state.
@@ -55,11 +62,12 @@ function publicAbilityContext(state,clientId,actionTarget=null,getTarget=null){
     opposingActive:sourceActive?.fullName??sourceActive?.name??null,
     opposingActiveIronThornsEx:sourceActive?.name==='Iron Thorns ex',
     opposingActivePowerNames:(sourceActive?.powers??[]).map(x=>x.name),
-    opposingActiveTools:(Array.isArray(opponent.active?.tools)?
-      opponent.active.tools:(opponent.active?.tools?.cards??[]))
-      .map(card=>card.fullName??card.name),
-    actingUnderworldSources:underworld.map(({zone,index,printing})=>({
-      zone,index,printing,powerName:'Underworld Door'
+    opposingActiveTools:publicTools(opponent.active),
+    publicStadiums:state.players.flatMap(player=>
+      (player.stadium?.cards??[]).map(card=>card.fullName??card.name)),
+    actingUnderworldSources:underworld.map(({zone,index,printing,slot})=>({
+      zone,index,printing,powerName:'Underworld Door',
+      attachedTools:publicTools(slot)
     })),
     // Internal Card instances remain in a temporary local closure only.
     candidatePowerTargets:underworld
