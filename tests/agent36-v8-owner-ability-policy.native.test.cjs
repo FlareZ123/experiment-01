@@ -115,14 +115,33 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
     };
   });
   const policyAudit=treatment.diagnostic.nativeOwnerAbilityPolicyAudit;
-  const abilityAudit=policyAudit?.ownerAbilityConfirm;
-  const confirmEvents=abilityAudit?.confirmEvents??[];
+  // The outer Telepath experiment wraps all eight native calls; each call
+  // carries nested ability/Telepath receipts under its telepath property.
+  const perMatch=policyAudit?.nativeMatchAttempts??[];
+  assert.equal(policyAudit?.nativeMatchCalls,8);
+  assert.equal(perMatch.length,8);
+  const abilityAudits=perMatch.map(entry=>entry?.telepath?.ownerAbilityConfirm);
+  const telepathAudits=perMatch.map(entry=>entry?.telepath?.telepath);
+  assert.ok(abilityAudits.every(Boolean));
+  assert.ok(telepathAudits.every(Boolean));
+  const total=(audits,key)=>audits.reduce((sum,a)=>sum+(a[key]??0),0);
+  const confirmEvents=abilityAudits.flatMap(audit=>audit.confirmEvents??[]);
   const radiantDecision=confirmEvents.filter(event=>
     event.cardName==='Radiant Eternatus');
   const articunoDecisions=confirmEvents.filter(event=>
     event.cardName==='Articuno-GX');
-  const searchEvents=abilityAudit?.radiantSearchEvents??[];
-  const telepathAudit=policyAudit?.telepath;
+  const searchEvents=abilityAudits.flatMap(audit=>audit.radiantSearchEvents??[]);
+  const articunoMoveEnergyEvents=abilityAudits.flatMap(audit=>
+    audit.articunoMoveEnergyEvents??[]);
+  const telepathAudit={
+    nativeMatches:telepathAudits.length,
+    matchingOwnerSearches:total(telepathAudits,'matchingOwnerSearches'),
+    settled:total(telepathAudits,'settled'),
+    shuffleMissing:total(telepathAudits,'shuffleMissing'),
+    custodyFailures:total(telepathAudits,'custodyFailures'),
+    readsOpponentHidden:telepathAudits.every(x=>x.readsOpponentHidden===false)?false:null,
+    readsUnopenedDeck:telepathAudits.every(x=>x.readsUnopenedDeck===false)?false:null
+  };
   const archiveDir=process.env.ISSUE25_STEWARD_V8_ABILITY_POLICY_DIR;
   const archive=archiveDir?{
     control:writeReceipt(control,path.join(archiveDir,'control'),{
@@ -141,14 +160,16 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
     exactPriorRootPrefixAllArms:pairs.every(row=>row.exactControlRootPrefix),
     allTreatmentOutcomesTerminalOrCap:pairs.length===8&&pairs.every(row=>
       row.nativeOutcome==='native-terminal'||row.nativeOutcome==='action-cap'),
-    confirmOffers:abilityAudit?.confirmOffers??0,
-    confirmSettled:abilityAudit?.confirmSettled??0,
-    confirmUnsettled:abilityAudit?.confirmUnsettled??0,
+    confirmOffers:total(abilityAudits,'confirmOffers'),
+    confirmSettled:total(abilityAudits,'confirmSettled'),
+    confirmUnsettled:total(abilityAudits,'confirmUnsettled'),
     radiantDecision,articunoDecisions,searchEvents,
-    articunoMoveEnergyEvents:abilityAudit?.articunoMoveEnergyEvents??[],
+    articunoMoveEnergyEvents,
     telepathAudit,pairs,archive,
-    readsOpponentHidden:abilityAudit?.readsOpponentHidden??null,
-    readsUnopenedDeck:abilityAudit?.readsUnopenedDeck??null,
+    readsOpponentHidden:abilityAudits.every(x=>x.readsOpponentHidden===false)?
+      false:null,
+    readsUnopenedDeck:abilityAudits.every(x=>x.readsUnopenedDeck===false)?
+      false:null,
     competitiveGamesQualified:0,releaseQualified:false
   };
   console.log('AGENT36_V8_OWNER_ABILITY_POLICY_NATIVE',JSON.stringify(report));
