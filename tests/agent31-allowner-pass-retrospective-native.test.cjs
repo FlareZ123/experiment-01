@@ -12,12 +12,15 @@ const {save} = require('../simulation/evaluation/agent43-guzma-original-source-p
 const VERSION = 'agent31-all-owner-pass-retrospective-two-originals-v1';
 const TRIAL_IDS = Object.freeze([
   '5:0:A:champion-reference',
-  '11:3:B:champion-reference'
+  '5:0:A:new-moon-lockbreaker-v1',
+  '11:3:B:champion-reference',
+  '11:3:B:new-moon-lockbreaker-v1'
 ]);
 
 /**
- * Reinspect two existing, outcome-known original source deals. The first is
- * a rank5 control; the second is the historical rank11 Float Stone positive.
+ * Reinspect two existing, outcome-known source-deal groups (four registered
+ * arms including both fixed contender 60s per group). The rank11 Champion
+ * reference arm is the historical Float Stone positive.
  * This is an observational regression, never a new held-out sample.
  *
  * @returns {object} Complete original native rows plus Pass custody census.
