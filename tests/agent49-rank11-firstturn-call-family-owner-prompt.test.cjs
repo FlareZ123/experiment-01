@@ -35,7 +35,7 @@ class Store{
     const source=this.state.players[1];
     if(action instanceof AddPlayerAction)return this.state;
     if(action instanceof AttackAction){
-      assert.equal(action.id,source.id);
+      assert.equal(action.clientId,source.id);
       this.state.prompts.push(new ChooseCardsPrompt(source));
       return this.state;
     }
