@@ -1,0 +1,45 @@
+name: Agent4 original v3 two-context UNKNOWN_POWER typed native readout
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  typed-source-abort:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate exact readout, frozen contexts and independent pure tests
+        run: |
+          node --check simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
+          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs
+      - name: Initialize pinned native Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify actual pinned native engine revision
+        run: node -e "const a=require('node:assert/strict'),c=require('node:child_process');a.equal(c.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - name: Install native server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute six original-source attempts and capture actual Store failure names
+        env:
+          AGENT4_V3_UNKNOWN_POWER_OUTPUT: agent4-v3-two-unknown-power-native.json
+        run: node simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
+      - name: Preserve all six typed-error observations including negative results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-v3-two-unknown-power-native-and-checksum
+          path: |
+            agent4-v3-two-unknown-power-native.json
+            agent4-v3-two-unknown-power-native.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
