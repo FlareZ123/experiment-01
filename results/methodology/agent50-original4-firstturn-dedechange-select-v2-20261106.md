@@ -24,6 +24,8 @@
 
 **Primary result: 4/4** frozen arms reached the rank-4 source turn, physically moved the original Dedenne-GX UNB from that owner's hand to that owner's Bench, accepted the genuine printed Ability confirmation, and drew six actual cards from that owner's deck. The fourth arm previously stopped at a reference-seat setup `SelectPrompt`. V2 recorded exactly one actor-only selection there: seat 0, global turn 0, phase 1, message `WANT_TO_DRAW_CARDS`, two offered options, option index 0 selected. The prompt settled and the source seat 1 subsequently completed its Dedechange.
 
+The pinned Twinleaf [setup reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/setup-reducer.ts#L199-L225) constructs the one-card compensation choices as `Draw 1 card(s)` then `Draw 0 card(s)`, with `defaultValue: 0`; index 0 therefore selects the one-card draw. The v2 artifact records the prompt owner, option count, and selected index, but it does not preserve the reference player's before/after deck and hand counts, so it does not independently quantify that compensation's physical movement. The later [32-deal follow-up](agent50-rank4-dedechange-natural32-sourcefirst-20261106.md) adds a Store-level physical receipt and verifies every compensation draw.
+
 In the seed-20261125 arm, five of the six original Dedechange payment cards entered the owner's discard and the original Ditto Prism Star LOT entered the owner's Lost Zone through its replacement rule. The other three arms moved all six original hand cards to discard. Each arm's hand count returned to six after drawing six; these receipts do not establish a net strategic gain from the Ability.
 
 ## Failure-inclusive status and limits
