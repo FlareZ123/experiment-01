@@ -523,7 +523,11 @@ function executeDevelopment(trial,candidates,{
     deckB:candidateSeat===1?candidateCards:opponent.cards,
     seed:trial.seed,
     maxActions:nativeRootActionLimit??registration.maxRootActions,
-    onRootStoreCreated,onRootActionDispatched,
+    // The actual headless Store callback also receives the exact currently
+    // executing registered trial ID. Existing single-argument users ignore it.
+    onRootStoreCreated:onRootStoreCreated?
+      store=>onRootStoreCreated(store,trial.id):null,
+    onRootActionDispatched,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     ...rng.request,
