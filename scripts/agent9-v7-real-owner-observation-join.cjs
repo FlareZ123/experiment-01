@@ -13,7 +13,11 @@ const registration = require('../results/aichi-2026/registrations/agent9-v7-owne
  * @param {object} [baseline] Frozen original native-v7 registration.
  * @returns {object}
  */
-function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registration) {
+function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registration, deps = {}) {
+  const classifyBaton = deps.classifyBaton ?? require(
+    '../simulation/twinleaf/agent9-v10-dce-baton-observer.cjs'
+  ).classifyOwnerDceBaton;
+  assert.equal(typeof classifyBaton, 'function');
   assert.equal(baseline.schema,
     'agent9-v7-owner-readonly-exact-public-noninterference-v1');
   const raw = nativeReceipt.attempts;
@@ -61,6 +65,16 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       x.nativeProposedAction==='PassTurnAction');
     const hasAnAcceptedPass=record.ownerActions.some(a=>
       a.action==='PassTurnAction');
+    const matchedPass = pass.length===1 ? pass[0] : null;
+    const batonScreen = matchedPass ? classifyBaton({
+      decisionKind: 'owner-root',
+      globalTurn: matchedPass.globalTurn,
+      actorSeat: matchedPass.seat,
+      ownHand: matchedPass.ownerHand,
+      ownPublic: matchedPass.ownerPublic,
+      opponentPublic: matchedPass.opponentPublic,
+      ownTurnResources: matchedPass.ownerResources
+    }) : null;
     const matchStatus=record.nextOwnerTurn===null?'not-encountered':
       !read?'owner-observer-missing':
       !hasAnAcceptedPass?'owner-turn-not-ended-by-pass':
@@ -72,6 +86,8 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       acceptedOwnerActions:record.ownerActions,
       matchedObservationStatus:matchStatus,
       matchingPassProposalCount:pass.length,
+      printedDceBatonNecessaryScreen:batonScreen,
+      screenIsPaidNativeAction:false,
       ownerHandAtNativePass:pass.length===1?[...pass[0].ownerHand]:null,
       ownerPublicAtNativePass:pass.length===1?pass[0].ownerPublic:null,
       opponentPublicAtNativePass:pass.length===1?pass[0].opponentPublic:null,
