@@ -151,3 +151,47 @@ test('joint Thunder and all DCE Prized event is rarer in rank24',()=>{
   assert.ok(r24.percentage<r6.percentage);
   assert.throws(()=>allAttackResourcesPrized(6,'invalid'));
 });
+
+test('optional single opponent-mulligan compensation draw has exact distinct nine-card counts',()=>{
+  const CASES={
+    6:{
+      narrow:[11239157n,1540659120n],
+      solo:[14147n,2501070n],
+      gust:[256151617n,106305479280n],
+      gustSolo:[30401n,15688530n],
+      broad:[145267n,8571640n]
+    },
+    24:{
+      narrow:[32640635n,1932826896n],
+      solo:[2233721n,172573830n],
+      gust:[1711277n,420179760n],
+      gustSolo:[6169639n,1898312130n],
+      broad:[372530779n,8177344560n]
+    },
+    29:{
+      narrow:[159659n,19258239n],
+      solo:[8084n,1250535n],
+      gust:[19061771n,7087031952n],
+      gustSolo:[62522n,28762305n],
+      broad:[145267n,8571640n]
+    }
+  };
+  for(const rank of ORIGINAL_IRON_THORNS_RANKS){
+    for(const [type,options] of [
+      ['narrow',{}],['solo',{exactlyOneBasic:true}],
+      ['gust',{requireGuzma:true}],
+      ['gustSolo',{requireGuzma:true,exactlyOneBasic:true}],
+      ['broad',{allowConnectors:true}]
+    ]){
+      const p=directlyHeldThornsResources(rank,{...options,bonusDraws:1});
+      const [n,d]=CASES[rank][type];
+      assert.equal(p.numerator,n,`rank ${rank} ${type} compensated numerator`);
+      assert.equal(p.denominator,d,`rank ${rank} ${type} compensated denominator`);
+      assert.equal(p.bonusDraws,1);
+      assert.ok(p.percentage>0);
+    }
+    assert.ok(directlyHeldThornsResources(rank,{bonusDraws:1}).percentage>
+      directlyHeldThornsResources(rank).percentage);
+  }
+  assert.throws(()=>directlyHeldThornsResources(6,{bonusDraws:2}));
+});
