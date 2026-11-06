@@ -24,6 +24,7 @@ This is an opportunity-frequency and native-execution census under a controlled 
 - **Shuffle-stream clarification:** the test calls `runMatch` without `isolatePhysicalShuffleRandomness` and does not apply Agent26's per-seat setup-shuffle adapter. Twinleaf therefore uses its default legacy shared seeded physical-shuffle stream across both seats. The seeds are random, but the two players' deck shuffles consume the shared stream sequentially. This is a deterministic simulator protocol, not an independent per-seat physical shuffle or a paper-calibrated deal-frequency claim.
 - Agent26's [32-setup per-seat shuffle study](agent26-bilateral-mulligan-bonus-exact-20261106.md) reports nine compensation-recipient events split 5 to seat0 and 4 to seat1, using different source decks/candidates. Agent4's [per-seat shuffle A/B/A study](agent4-native-postsetup-per-seat-shuffle-mail-aba-20261105.md) documents that changing shuffle-stream coupling changes initial physical deals. Neither is a direct rank4/rank1 replication.
 - A same-seed, same-seat replay under the established per-seat setup shuffle protocol was preregistered at [`agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md`](registrations/agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md); it is a protocol-sensitivity arm, not a same-physical-deal counterfactual.
+- The completed [per-seat replay](agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md) used the same seeds and seats but produced different deals: 5/32 Dedechange opportunities, ten compensation prompts, and recipient seats split 6 to seat0 / 4 to seat1. The legacy seat1-only cluster did not reproduce. The report captures both players' mulligan counts and validates every compensation recipient and amount. This is protocol sensitivity, not a causal same-deal comparison.
 - The existing single-Basic entry-priority policy was held fixed. It prefers a Basic without a printed hand-to-Bench Ability as Active where available; the min-zero optional compensation Bench choice declines the extra placement. The existing owner-only detached SelectPrompt adapter uses each prompt's default option.
 - The test records the source's actual first-turn hand, setup prompt owner, offered SelectPrompt labels, chosen index/default, and physical hand/deck changes. It observes the acting prompt owner's own zones and changes no action.
 
@@ -94,7 +95,7 @@ There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter
 | 30 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
 | 32 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
 
-All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug: the setup reducer has branches for both directions, and the current sample is small. Replay the same rank4/rank1 seeds under per-seat setup streams and capture both mulligan counts before treating the seat1 clustering as a stable prior.
+All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug. The same-seed per-seat replay recorded ten compensation prompts split 6 to seat0 and 4 to seat1, with both players' mulligan counts captured and all ten recipient/draw checks passing. The different shuffle protocols create different physical deals, so the contrast supports protocol sensitivity without proving a legacy seat bug.
 
 ## Probability sanity check
 
@@ -112,7 +113,7 @@ The forced hook proves that the native Store can execute Dedechange in these six
 
 ## Next research
 
-1. Run a matched identical-deck seat-symmetry test for mulligan compensation. The six prompts all belonged to seat 1 despite 16/16 source-seat balance; determine whether this is random variation, seed/order behavior, or a setup implementation issue.
+1. Treat the default shared PRNG and Agent26 per-seat setup streams as distinct experiment protocols. Record the protocol in every result and never pool their opening frequencies as one distribution. The per-seat replay removed the all-seat1 compensation cluster, but the two protocols produce different physical deals.
 2. Compare Dedechange against a hand-preserving alternative on matched physical deals, retaining all no-opportunity rows. Include actual later source actions and adversarial opponent responses once the shared policy can complete them.
 3. Keep the SelectPrompt adapter default-off in the shared v8 baseline until its owner-safe semantics and full-game impact are separately validated.
 
