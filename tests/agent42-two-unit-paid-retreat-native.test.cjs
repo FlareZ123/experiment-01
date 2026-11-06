@@ -335,14 +335,13 @@ test('native Eon Blade attack lock clears only after the Latias leaves Active',(
   latiasSlot.cards.splice(0,latiasSlot.cards.length,latias);
   latiasSlot.hp=latias.hp;latiasSlot.damage=0;
   opponent.active.cards.splice(0,opponent.active.cards.length,defender);
-  opponent.active.hp=defender.hp;opponent.active.damage=0;
+  defender.hp=500;opponent.active.hp=500;opponent.active.damage=0;
   assert.equal(latiasSlot.energies.cards.length,2);
   step('stage third Psychic Energy',()=>latiasSlot.energies.cards.push(card('Psychic Energy MEW')));
   assert.equal(latiasSlot.energies.cards.length,3);
   const {AttackAction,PassTurnAction,RetreatAction}=engine('game/store/actions/game-actions');
 
   step('initial Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade')));
-  step('resolve initial attack prompts',()=>resolveNativeRetreat(game));
   assert.equal(opponent.active.damage,200);
   assert.equal(latiasSlot.cannotAttackNextTurnPending,true);
 
@@ -353,7 +352,6 @@ test('native Eon Blade attack lock clears only after the Latias leaves Active',(
   assert.throws(()=>step('restricted next-turn Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade'))),/BLOCKED_BY_EFFECT/);
 
   step('free Skyliner Retreat',()=>store.dispatch(new RetreatAction(owner.id,0)));
-  step('resolve Retreat prompts',()=>resolveNativeRetreat(game));
   assert.equal(owner.active.getPokemonCard().fullName,'Shadow Rider Calyrex VMAX CRE');
   assert.ok(owner.bench.includes(latiasSlot));
   assert.equal(latiasSlot.cannotAttackNextTurn,false);
