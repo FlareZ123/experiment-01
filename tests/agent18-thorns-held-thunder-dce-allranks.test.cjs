@@ -95,3 +95,23 @@ test('model rejects non-Thorns source ranks without extending unsupported scope'
   assert.throws(()=>groupOriginalSixty(23));
   assert.throws(()=>directlyHeldThornsResources(1));
 });
+
+test('held Thunder and at least one DCE regardless of connector overlap has a distinct broader rate',()=>{
+  for(const [rank,n,d] of [
+    [6,13697n,1071455n],
+    [24,722693n,20649860n],
+    [29,13697n,1071455n]
+  ]){
+    const disjoint=directlyHeldThornsResources(rank);
+    const broad=directlyHeldThornsResources(rank,{allowConnectors:true});
+    assert.equal(broad.numerator,n);
+    assert.equal(broad.denominator,d);
+    assert.ok(broad.percentage>disjoint.percentage);
+    assert.equal(broad.allowConnectors,true);
+    assert.equal(disjoint.allowConnectors,false);
+  }
+  assert.equal(
+    directlyHeldThornsResources(6,{allowConnectors:true}).numerator,
+    13697n
+  );
+});
