@@ -193,3 +193,22 @@ test('Skyliner and Snorlax Block are applied from the correct controller and Act
   const missingStage=fixture();delete missingStage.ownPublic.active.printed.stage;
   assert.equal(choose(missingStage,catalog),null);
 });
+
+
+test('v2 refuses unknown attack restrictions and other free mobility cards',()=>{
+  const missingActive=fixture();
+  delete missingActive.ownPublic.active.publicRestrictions.cannotUseAttacksNextTurn;
+  assert.equal(choose(missingActive,catalog),null);
+  const missingBench=fixture();
+  delete missingBench.ownPublic.bench[0].publicRestrictions.cannotUseAttacksNextTurn;
+  assert.equal(choose(missingBench,catalog),null);
+  for(const card of ['Switch TEU','Escape Rope BUS','Guzma BUS',
+    'Bird Keeper SSH','Air Balloon SSH','Escape Board BCR','U-Turn Board UNM']){
+    const view=fixture();view.ownHand=[card];
+    assert.equal(choose(view,catalog),null,card);
+  }
+  const floatStone=fixture();floatStone.ownHand=['Float Stone BKT'];
+  assert.equal(choose(floatStone,catalog)?.attackName,'Eon Blade');
+  const unknownHand=fixture();delete unknownHand.ownHand;
+  assert.equal(choose(unknownHand,catalog),null);
+});
