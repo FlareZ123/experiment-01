@@ -140,6 +140,27 @@ function run() {
 if (require.main === module) {
   try {
     const result = run();
+    console.error('AGENT34_GUZMA_ORIGINAL_SOURCE_SUMMARY ' + JSON.stringify({
+      physicalParity: result.matchedActualPhysicalDeal,
+      controlParity: result.originalControlRepeatedExactly,
+      originalPassIndex: result.initialGuzmaRootDifference[0]?.originalPassIndex,
+      interventionRoots: result.initialGuzmaRootDifference.map(row => ({
+        variant: row.variant, frozenPrefix: row.frozenPrefix,
+        root: row.replacementRoot, typedGuzmaRoot: row.typedGuzmaRoot,
+        ownerRootOffer: row.ownerAudit?.ownerEligibleOffers ?? 0,
+        capturedRealStore: row.ownerAudit?.capturedRealStore ?? false,
+        correction: row.correction,
+        status: row.status
+      })),
+      outcomes: result.outcomes.map(row => ({
+        variant: row.variant, corrected: row.corrected,
+        status: row.status, winner: row.winner,
+        endReason: row.endReason, actions: row.actions,
+        terminal: row.nativeTerminal,
+        rootSha256: row.rootSha256
+      })),
+      competitiveGamesQualified: 0
+    }));
     process.stdout.write(JSON.stringify(result) + '\n');
     if (!result.nativeOwnerCounterreplyValidated) process.exitCode = 1;
   } catch (error) {
