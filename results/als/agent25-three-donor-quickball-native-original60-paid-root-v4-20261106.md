@@ -2,6 +2,9 @@
 
 **6 November 2026 | prospectively registered v4 root-and-cost policy | paper Expanded developmental test only**
 
+**Audit interpretation correction:** `hnsHookAudit.countChecks` and `thresholdFourChecks` include card-reducer invocations that can arise in speculative `Simulator.dispatch` calls during bot evaluation. They **are not verified real attack declarations**. See the [confirmed telemetry mismatch and methodological correction](../methodology/agent25-simulator-speculation-leaks-into-hns-hook-audit-20261106.md); actual attacks must be counted from the native Store root/action logs.
+
+
 ## Result in one sentence
 
 In an unchanged 60-card Dhelmise v2 candidate game against the authenticated original Aichi 2026 rank 10 Regidrago sixty, the v4 owner-only root policy made the genuine native bot select **Quick Ball SSH at owner turn 14**, then its owner prompt policy physically paid **Sinistcha M5, card ID 8**, moving the held Pokémon from hand to discard when three eligible Hide 'n' Sneak Pokémon were already discarded. Native Store accepted both root and prompt. The corresponding previous v3 observed owner roots holding Quick Ball but selected Quick Ball **zero times**. The observed game remained action-capped without taking a Prize; there is **no qualified win or demonstrated competitive payoff**.
