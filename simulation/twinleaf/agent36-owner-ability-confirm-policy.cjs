@@ -155,7 +155,6 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
   const originalDispatch=Store.prototype.dispatch;
   const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
   const submitted=new WeakMap();
-  const lastPlayedByOwner=new Map();
   const pendingByPromptId=new Map();
   const pendingAbilityByOwner=new Map();
   const audit={
@@ -190,13 +189,15 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     }
     const meta=action&&typeof action==='object'?submitted.get(action):null;
     const result=originalDispatch.call(this,action,...args);
-    if(played)lastPlayedByOwner.set(played.ownerId,played);
 
     for(const prompt of this.state?.prompts??[]){
       if(!beforePrompts.has(prompt)&&prompt instanceof ConfirmPrompt&&
           prompt.message==='WANT_TO_USE_ABILITY'){
-        const last=lastPlayedByOwner.get(prompt.playerId);
-        if(last&&last.turn===this.state.turn)pendingByPromptId.set(prompt.id,last);
+        // Source attribution is from this exact accepted PlayCardAction only.
+        // A previously played Pokémon cannot authenticate a later prompt.
+        if(played&&played.ownerId===prompt.playerId&&
+           played.turn===this.state.turn)
+          pendingByPromptId.set(prompt.id,played);
       }
     }
 
@@ -268,7 +269,7 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       candidate.playerId===ownerId&&candidate.result===undefined);
 
     if(prompt instanceof ConfirmPrompt){
-      const played=pendingByPromptId.get(prompt.id)??lastPlayedByOwner.get(ownerId)??null;
+      const played=pendingByPromptId.get(prompt.id)??null;
       const choice=prompt.message==='GO_FIRST'?
         {decision:false,reason:'go-first-default-second',details:{}}:
         prompt.message==='WANT_TO_USE_ABILITY'&&played?
