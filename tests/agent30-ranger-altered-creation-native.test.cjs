@@ -5,6 +5,10 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {chooseActorRootIntent}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {observePublicPaidGxEffects}=
+  require('../simulation/twinleaf/agent30-ranger-public-gx-frontier.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name Relative compiled native module. */
@@ -110,8 +114,25 @@ function run(seat,useRanger,koTarget=false,doubleDragonFuel=false){
     extraPrize:owner().usedAlteredCreation,
     gxUsed:owner().usedGX
   };
+  // An independently detached actor-only view reaches precisely the
+  // Ranger counterline before any native Store action is submitted.
+  // The source rank-19 board and both physical seats remain unchanged.
+  const view=observePublicPaidGxEffects(x.store.state,1-seat);
+  const chosen=chooseActorRootIntent(view,x.catalog,{
+    rangerPaidGxResponse:true
+  });
+  assert.equal(chosen?.kind,'play-ranger-paid-gx');
+  assert.equal(chosen?.printing,'Pokemon Ranger STS');
+  assert.equal(chosen?.handIndex,0);
+  assert.equal(view.opponentPublic.continuingPaidGxAttack
+    .alteredCreationBonusPrize,true);
+  assert.equal(view.ownPublic.continuingPaidGxAttack
+    .alteredCreationBonusPrize,false);
+  // The unchanged default chooser does not automatically opt in.
+  assert.notEqual(chooseActorRootIntent(view,x.catalog).kind,
+    'play-ranger-paid-gx');
   if(useRanger){
-    x.store.dispatch(new PlayCardAction(opponent().id,0,{
+    x.store.dispatch(new PlayCardAction(opponent().id,chosen.handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
     assert.equal(owner().usedGX,true,
@@ -145,7 +166,11 @@ function run(seat,useRanger,koTarget=false,doubleDragonFuel=false){
   if(koTarget)assert.equal(opponent().active.getPokemonCard().name,
     'Regidrago V');
   return {seat,useRanger,koTarget,doubleDragonFuel,
-    energyPrintings,beforeRanger,afterRanger,
+    energyPrintings,
+    selectedActorRoot:chosen.kind,
+    ownerPublicAfterGX:view.ownPublic.continuingPaidGxAttack,
+    opponentPublicAfterGX:view.opponentPublic.continuingPaidGxAttack,
+    beforeRanger,afterRanger,
     ultimateRayDamage:damage,remainingPrizeSlots,
     gxPrompts,passPrompts,ultimatePrompts,
     nativeGameTerminal:false,qualifiedCompetitiveGames:0};
