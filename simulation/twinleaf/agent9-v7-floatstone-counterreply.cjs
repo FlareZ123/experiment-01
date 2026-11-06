@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=
   require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v1';
+const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v2-optional-resetting-hole';
 
 /**
  * Owner-controlled visible answer to the exact rank6 turn5 Guzma canary:
@@ -50,6 +50,31 @@ function chooseRealOwnerFloatStoneCounter(view) {
 }
 
 /**
+ * Optional actor-owned Benched Marshadow Ability answer after the two
+ * physically settled Float Stone and Retreat roots. It removes the
+ * opponent's currently public Thunder Mountain Prism Star from play.
+ * @param {object} view Detached owner-root snapshot.
+ * @returns {object|null} Native-neutral Resetting Hole proposal.
+ */
+function chooseOwnerMarshadowResettingHole(view) {
+  if(view?.decisionKind!=='owner-root'||
+     view.globalTurn!==6||view.actorSeat!==1||
+     view.ownPublic?.active?.printing!=='Tapu Lele-GX GRI'||
+     view.opponentPublic?.active?.printing!=='Iron Thorns ex TWM'||
+     view.ownTurnResources?.retreatedTurn!==6||
+     !view.opponentPublic?.stadium?.includes('Thunder Mountain Prism Star LOT'))
+    return null;
+  const benchIndex=(view.ownPublic.bench??[]).findIndex(p=>
+    p?.printing==='Marshadow UNB'&&
+    p.tools?.includes('Float Stone BKT')&&
+    p.abilities?.includes('Resetting Hole'));
+  return benchIndex<0?null:{
+    kind:'remove-thunder-with-benched-marshadow',
+    benchIndex,printing:'Marshadow UNB'
+  };
+}
+
+/**
  * Per-match reversible two-action native Store canary with a genuinely
  * owner-owned Tool and a separate zero-cost RetreatAction. All other
  * decisions remain the original native bot's. Keep this outside Guzma's
@@ -58,7 +83,8 @@ function chooseRealOwnerFloatStoneCounter(view) {
  * @param {()=>T} execute Genuine native match.
  * @param {{SimpleTacticsAi?:Function,Store?:Function,PlayCardAction?:Function,
  *   RetreatAction?:Function,PlayerType?:object,SlotType?:object,
- *   observe?:Function,choose?:Function}} [deps] Test seams.
+ *   observe?:Function,choose?:Function,includeResettingHole?:boolean,
+ *   UseAbilityAction?:Function}} [deps] Test seams.
  * @returns {{result:T,audit:object}}
  */
 function withFloatStoneOwnerCounterReply(execute,deps={}) {
@@ -70,10 +96,11 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
   const Store=deps.Store??native('game/store/store').Store;
   const cardActions=deps.PlayCardAction&&deps.PlayerType&&deps.SlotType?
     null:native('game/store/actions/play-card-action');
-  const gameActions=deps.RetreatAction?null:
-    native('game/store/actions/game-actions');
+  const gameActions=deps.RetreatAction&&(!deps.includeResettingHole||
+    deps.UseAbilityAction)?null:native('game/store/actions/game-actions');
   const PlayCardAction=deps.PlayCardAction??cardActions.PlayCardAction;
   const RetreatAction=deps.RetreatAction??gameActions.RetreatAction;
+  const UseAbilityAction=deps.UseAbilityAction??gameActions?.UseAbilityAction??null;
   const PlayerType=deps.PlayerType??cardActions.PlayerType;
   const SlotType=deps.SlotType??cardActions.SlotType;
   const observe=deps.observe??actorObservation;
@@ -90,7 +117,9 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
     version:VERSION,registeredRealStores:0,encounteredOwnerReplies:0,
     proposedNativeTools:0,acceptedNativeTools:0,
     proposedNativeRetreats:0,acceptedNativeRetreats:0,
+    proposedResettingHole:0,acceptedResettingHole:0,
     nativeRejects:0,records:[],genericFloatStoneIntents:[],
+    includeResettingHole:deps.includeResettingHole===true,
     opponentCompetenceUnverified:true,
     paperLegalityUnverified:true,competitiveGamesQualified:0
   };
@@ -114,6 +143,18 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
           audit.acceptedNativeTools++;
         if(rec.kind==='retreat-to-original-tapu-lele')
           audit.acceptedNativeRetreats++;
+        if(rec.kind==='remove-thunder-with-benched-marshadow'){
+          audit.acceptedResettingHole++;
+          const source=state.players[0],counter=state.players[1];
+          rec.thunderStadiumAbsentAfter=!source.stadium.cards.some(card=>
+            card.fullName==='Thunder Mountain Prism Star LOT');
+          rec.thunderInSourceLostZoneAfter=source.lostzone.cards.some(card=>
+            card.fullName==='Thunder Mountain Prism Star LOT');
+          rec.marshadowBenchedAfter=counter.bench.some(slot=>
+            slot.getPokemonCard?.()?.fullName==='Marshadow UNB');
+          rec.marshadowInOwnerDiscardAfter=counter.discard.cards.some(card=>
+            card.fullName==='Marshadow UNB');
+        }
       }
       return result;
     }catch(error){
@@ -133,7 +174,8 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
        state?.prompts?.some(prompt=>prompt.result===undefined))
       return nativeAction;
     const view=observe(state,seat);
-    const intent=choose(view);
+    const intent=(deps.includeResettingHole===true?
+      chooseOwnerMarshadowResettingHole(view):null)??choose(view);
     if(!intent)return nativeAction;
     audit.encounteredOwnerReplies++;
     // Audit whether the already-shared, non-case-specific owner-only Float
@@ -165,6 +207,13 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
     } else if(intent.kind==='retreat-to-original-tapu-lele'){
       action=new RetreatAction(owner.id,intent.benchIndex);
       audit.proposedNativeRetreats++;
+    } else if(intent.kind==='remove-thunder-with-benched-marshadow'){
+      assert.equal(typeof UseAbilityAction,'function');
+      action=new UseAbilityAction(owner.id,'Resetting Hole',{
+        player:PlayerType.BOTTOM_PLAYER,
+        slot:SlotType.BENCH,index:intent.benchIndex
+      });
+      audit.proposedResettingHole++;
     } else {
       throw Error('Unexpected native opponent Float Stone intent');
     }
@@ -200,4 +249,4 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
 }
 
 module.exports={VERSION,chooseRealOwnerFloatStoneCounter,
-  withFloatStoneOwnerCounterReply};
+  chooseOwnerMarshadowResettingHole,withFloatStoneOwnerCounterReply};
