@@ -16,6 +16,16 @@ The accepted [29-of-32 source status](original-source-admission-matrix-20261102.
 - [Pokekameshi contemporaneous Top32 report](https://pokekameshi.com/cl2026aichidec-extra/2/) contains anonymous/nickname-source Regidrago entries (including キリン and なつめぐ) and May 10, 2026 performance posts. None of these pages reliably binds one of those nicknames to either **Yuki Ueno** or **Jo Kato**, or supplies an authenticated original printed 60. Do not silently relabel a nickname source as rank23 or rank28.
 - [Nayuta's May 12 public Expanded compilation](https://note.com/nayuta_poke/n/n7e3d0552090b) is an additional retrieval index expressly built from voluntarily posted recipes; its free text lists only some Top32 deck categories and does not authenticate the two missing specific players/lists. Do not extrapolate its archetype examples into an original entrant list.
 
+
+## 6 November cross-event identity corroboration for rank 25 (still no original 60)
+
+The previously unresolved public nickname-to-player link has stronger independent evidence than its May report alone:
+
+1. [The official Pokémon Card Channel's June 2026 PJCS Day-2 broadcast index](https://tw.yutura.net/channel/29690/video/x7mly-0AosQ/) records player **クメガワ カズキ / Kumegawa Kazuki** appearing at **1:56:20** in the second Day-2 match versus **ヒラサワ タクロウ / Hirasawa Takuro**, identified as Mega Greninja ex plus Mega Dragonite ex. The indexed player's deck is **Mega Excadrill ex**. This is a June Standard-format match, not an Aichi Expanded decklist.
+2. [kume's June 11 first-person PJCS Top64 tournament report](https://note.com/kume_pokeca/n/n0f7470629668) explicitly records *Day 2 match 2* against **Mega Greninja & Mega Dragonite** and describes his own **Mega Excadrill ex / Metang** deck. Its first-person biographical results independently include **CL Aichi 2026 Expanded Top32**, matching [kume's May 14 Aichi Alolan Raichu report](https://note.com/kume_pokeca/n/n6cfd126f5774).
+
+The cross-reference matches **event, physical round, both decks, opposing archetype and Top32 personal history**. It strongly corroborates that **kume = Kazuki Kumegawa**, so the May Alolan Raichu original entrant attribution is now substantially more persuasive than surname similarity. A direct player-ID or first-person real-name declaration remains unlocated. **The free May article still lacks card-by-card counts**, so rank25 is **still NOT authenticatable as a historical original printed 60**. No old or June Mega Excadrill list may be substituted for the May Expanded registration.
+
 ## Retained admission decision
 
 **0 newly admitted original printed 60s. Missing remains ranks 23, 25 and 28.** Potentially useful next queries are the first-person kume author/profile, the exact participant identity behind other Top32 nickname posts, and official registration images or deck codes. The original tournament field cannot be silently represented by near-copy or archetype-average approximations. Full 32-way competitive win-rate claims remain blocked.
