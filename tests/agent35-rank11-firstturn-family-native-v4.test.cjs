@@ -135,3 +135,18 @@ test('lock-protected atomic native receipt and reread digest', () => {
     fs.rmSync(dir, {force: true, recursive: true});
   }
 });
+
+
+test('registered later-turn native extension preserves the first genuine Basic proof', () => {
+  const deps = fixture();
+  deps.family = next => ({
+    result: next(),
+    audit: {...familyAudit(),
+      ownerBasicPromptAnswersNativeAccepted: 2,
+      oneOriginalBasicMovedToBench: 2}
+  });
+  const r = run(deps);
+  assert.equal(r.physicalCallForFamilyBasicToBench, true);
+  assert.equal(r.genuineFamilyPromptAudit.oneOriginalBasicMovedToBench, 2);
+  assert.equal(r.competitivelyQualifiedGames, 0);
+});
