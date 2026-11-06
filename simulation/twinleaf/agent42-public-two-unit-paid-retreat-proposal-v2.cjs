@@ -94,6 +94,8 @@ function retreatAbilityGuard(view,catalog,active){
       const name=ability?.name??'',text=ability?.text??'';
       if(name==='Skyliner'){
         if(active.printed?.stage===catalog.stages?.BASIC)return 'free';
+        if(active.printed?.stage===undefined||catalog.stages?.BASIC===undefined)
+          return 'unknown';
         continue;
       }
       if(pokemon.printing==='Snorlax PGO 55'&&name==='Block')continue;
