@@ -595,6 +595,8 @@ jobs:
         env:
           AGENT3_V23_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v23-telepath-confirm-auto-prize-physical.native.test.cjs
+      - name: Probe live pinned checkState source-export origin hook for unique cause token
+        run: node --test tests/agent3-native-checkstate-export-hook-viability.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
