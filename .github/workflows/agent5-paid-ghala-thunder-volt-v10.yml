@@ -23,6 +23,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent5_v7_teamflare_prompt_v2:
+        description: Preregistered Team Flare owner mandatory-energy native v2 A/B/A
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -65,39 +70,52 @@ jobs:
           node --check simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
           node --test tests/agent9-rank6-turn4-palace-book.test.cjs
       - name: Verify passive Agent5 owner follow-up witness and original v7 caller
-        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         run: |
           node --check simulation/twinleaf/agent5-v7-source-followup-owner-witness.cjs
           node --check simulation/evaluation/agent5-v7-owner-followup-census.cjs
           node --test tests/agent5-v7-source-followup-owner-witness.test.cjs
       - name: Execute frozen v7 with read-only source owner-hand witness
-        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         env:
           AGENT5_V7_OWNER_FOLLOWUP_DIR: agent5-v7-source-owner-followup
         run: node simulation/evaluation/agent5-v7-owner-followup-census.cjs
       - name: Verify native owner Team Flare physical-payment witness
-        if: ${{ inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         run: |
           node --check simulation/twinleaf/agent5-v7-teamflare-physical-witness.cjs
           node --check simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
           node --test tests/agent5-v7-teamflare-physical-witness.test.cjs
       - name: Execute full original v7 matched A/B/A with exact source Team Flare fork
-        if: ${{ inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         env:
           AGENT5_V7_TEAMFLARE_ABA_DIR: agent5-v7-teamflare-aba
         run: node simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
+      - name: Validate Team Flare owner mandatory prompt and frozen v2 runner
+        if: ${{ inputs.agent5_v7_teamflare_prompt_v2 }}
+        run: |
+          node --check simulation/twinleaf/agent5-teamflare-owner-prompt-v2.cjs
+          node --check simulation/evaluation/agent5-v7-postvolt-teamflare-prompt-aba-v2.cjs
+          node --test tests/agent5-teamflare-owner-prompt-v2.test.cjs
+          node --test tests/agent5-v7-teamflare-physical-witness.test.cjs
+          node --test tests/agent5-adp-v2-printed-release-screen.test.cjs
+      - name: Execute eight original source games x control, one owner prompt, control
+        if: ${{ inputs.agent5_v7_teamflare_prompt_v2 }}
+        env:
+          AGENT5_V7_TEAMFLARE_ABA_V2_DIR: agent5-v7-teamflare-prompt-v2
+        run: node simulation/evaluation/agent5-v7-postvolt-teamflare-prompt-aba-v2.cjs
       - name: Execute exact original eight matched native source branches once
-        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
+        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
       - name: Execute exact original v10 with additional passive owner DCE baton readout
-        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         env:
           AGENT9_BATON_DIR: agent9-v10-baton-native
         run: node simulation/evaluation/agent9-v10-owner-baton-native.cjs
       - name: Execute genuine original rank6 source held Palace Book v10 A/B/A
-        if: ${{ inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba }}
+        if: ${{ inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
         env:
           AGENT9_PALACE_BOOK_DIR: agent9-rank6-palace-book-native
         run: node simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
@@ -139,5 +157,13 @@ jobs:
         with:
           name: agent5-v7-source-teamflare-retrospective-aba
           path: agent5-v7-teamflare-aba/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve Team Flare owner prompt physical settlement v2 receipts
+        if: always() && inputs.agent5_v7_teamflare_prompt_v2
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-v7-source-teamflare-owner-prompt-v2-aba
+          path: agent5-v7-teamflare-prompt-v2/
           if-no-files-found: warn
           retention-days: 14
