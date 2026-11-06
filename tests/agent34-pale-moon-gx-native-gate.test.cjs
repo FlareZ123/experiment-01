@@ -524,9 +524,10 @@ for (const seat of [0, 1]) {
           p.result === undefined);
         assert.ok(prompt, 'native Item root must offer its owner Pokémon prompt');
         assert.equal(prompt.playerId, f.defender.id);
-        f.store.dispatch(new ResolvePromptAction(prompt.id, [{
-          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
-        }]));
+        // Direct Store dispatch takes the already-decoded CardList result.
+        // The transport layer normally runs ChoosePokemonPrompt.decode first.
+        f.store.dispatch(new ResolvePromptAction(prompt.id,
+          [f.defender.active]));
         assert.strictEqual(f.defender.active.getPokemonCard(), basic);
         assert.ok(f.defender.hand.cards.includes(evo));
         const queuedAfterItem = f.defender.pendingEndOfTurnEffects.length;
