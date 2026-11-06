@@ -2,10 +2,10 @@
 
 const fs=require('node:fs');
 const path=require('node:path');
-const manifest=require('../../results/aichi-2026/full-decklists.json');
-const sets=require('../../resources/sets/en.json');
+const manifest=require('../results/aichi-2026/full-decklists.json');
+const sets=require('../resources/sets/en.json');
 
-const CARD_ROOT=path.resolve(__dirname,'../../resources/cards/en');
+const CARD_ROOT=path.resolve(__dirname,'../resources/cards/en');
 const VERSION='agent43-original-aichi-29-printed-random-hand-census-v1';
 const SETS_BY_CODE=new Map();
 for(const set of sets){
