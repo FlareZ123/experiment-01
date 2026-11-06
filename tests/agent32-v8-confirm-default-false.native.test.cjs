@@ -8,7 +8,15 @@ const {runIssue25V8WithTelepathAndDefaultConfirmFalse}=require('../simulation/ev
 const {writeReceipt}=require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
 
 function idOf(row){return row.trial?.id??row.id??null;}
-function rootsOf(row){return row.rootActionLedger??[];}
+function rootsOf(row){
+  const direct=row.rootActionLedger;
+  const archived=row.nativePublicRootArchive?.rootActionLedger;
+  const aborted=row.nativeAbortEvidence?.rootActionLedger;
+  if(Array.isArray(direct)&&direct.length>0)return direct;
+  if(Array.isArray(archived))return archived;
+  if(Array.isArray(aborted))return aborted;
+  return Array.isArray(direct)?direct:[];
+}
 function sum(rows,key){return rows.reduce((total,row)=>total+(row[key]??0),0);}
 
 function preservePublicTerminalFields(execution){
@@ -18,8 +26,15 @@ function preservePublicTerminalFields(execution){
     (execution.diagnostic.attemptedRows??[]).map(status=>{
       const raw=rawById.get(status.id);
       if(!raw)return status;
+      const direct=raw.rootActionLedger;
+      const archived=raw.nativePublicRootArchive?.rootActionLedger;
+      const aborted=raw.nativeAbortEvidence?.rootActionLedger;
+      const observed=Array.isArray(direct)&&direct.length>0?direct:
+        Array.isArray(archived)?archived:
+        Array.isArray(aborted)?aborted:Array.isArray(direct)?direct:null;
       const nativeRootActionCount=raw.rootActionCount??
-        raw.rootActionLedger?.length??status.nativeRootActionCount??null;
+        (Array.isArray(observed)?observed.length:
+          status.nativeRootActionCount??null);
       const nativeOutcome=status.status==='engine-error'||
         raw.nativeAbortProvenance?.aborted===true||
         raw.nativeAbortEvidence?.aborted===true||
