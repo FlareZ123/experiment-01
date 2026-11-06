@@ -334,8 +334,8 @@ jobs:
         env:
           ISSUE25_V8_RECEIPT_DIR: artifacts/issue25-v8-prechoice
         run: node --test tests/agent1-issue25-prechoice-input-custody-v8.native.test.cjs
-      - name: Pure protected same-opening Wonder Tag provenance and wrapper regression
-        run: node --test tests/agent1-issue25-protected-wondertag-v10.test.cjs
+      - name: Pure protected Wonder Tag, delayed callbacks, and native trial attribution gates
+        run: node --test tests/agent1-issue25-protected-wondertag-v10.test.cjs tests/agent1-wondertag-native-shuffle-completion.test.cjs tests/agent1-wondertag-registered-actor-witness.test.cjs
       - name: Retrospective exact original eight protected opening plus owner printed Wonder Tag A/B
         env:
           ISSUE25_V10_RECEIPT_DIR: artifacts/issue25-v10-protected-wondertag
