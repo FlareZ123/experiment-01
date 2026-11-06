@@ -17,8 +17,10 @@ class FakeStore {
   dispatch(action) {
     if (action.constructor.name==='PassTurnAction') {
       if (this.rejectPass)throw Error('Native rejected Pass');
-      this.state.turn++;
-      this.state.activePlayer=1;
+      if (!this.silentNoop) {
+        this.state.turn++;
+        this.state.activePlayer=1;
+      }
     }
     return 'accepted';
   }
@@ -49,11 +51,53 @@ test('accepted native Pass snapshots only the acting player, not opposing hand',
   assert.equal(FakeStore.prototype.dispatch,old,'dispatch restored');
   assert.equal(wrapped.audit.rootOrdinalLinked,true);
   assert.equal(wrapped.audit.events[0].rootActionOrdinal,227);
+  assert.equal(wrapped.audit.events[0].nativePassTransitionVerified,true);
+  assert.equal(wrapped.audit.events[0].nativePassTransitionVerdict,
+    'immediate-native-turn-advanced');
+  assert.equal(wrapped.audit.verifiedNativeTurnTransitions,1);
   assert.deepEqual(wrapped.audit.events[0].actorHandPrintings,
     ['Water Energy MEE','Arven OBF']);
   assert.equal(JSON.stringify(wrapped.audit).includes('HiddenOpponentCard'),false);
   assert.equal(wrapped.audit.cardPlayabilityCertified,false);
   assert.equal(store.state.turn,60);
+});
+
+test('silent native Pass no-op does not manufacture settled turn',()=>{
+  const store=new FakeStore();
+  store.silentNoop=true;
+  const observed=withNativeOwnerPassFrontier(()=>{
+    store.dispatch(new AddPlayerAction());
+    assert.equal(store.dispatch(new PassTurnAction()),'accepted');
+    return {rootActionLedger:roots};
+  },{Store:FakeStore,observe,onlySeat:0,onlyTurns:[59]});
+  assert.equal(store.state.turn,59);
+  assert.equal(observed.audit.rootOrdinalLinked,true);
+  assert.equal(observed.audit.verifiedNativeTurnTransitions,0);
+  assert.equal(observed.audit.events[0].nativeStoreDispatchReturned,true);
+  assert.equal(observed.audit.events[0].nativePassTransitionVerified,false);
+  assert.equal(observed.audit.events[0].nativePassTransitionVerdict,
+    'turn-transition-unverified');
+  assert.equal(observed.audit.status,
+    'pass-dispatch-observed-turn-transition-unverified');
+});
+
+test('real subsequent WaitPrompt transition proves deferred Pass settlement',()=>{
+  const store=new FakeStore();
+  store.silentNoop=true;
+  const observed=withNativeOwnerPassFrontier(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PassTurnAction());
+    return {rootActionLedger:[...roots,{
+      action:'ResolvePromptAction',actionOrdinal:228,turnBefore:59,
+      turnAfter:60,playerSlot:0,pendingPrompt:'WaitPrompt',
+      initiatingRootActionOrdinal:227
+    }]};
+  },{Store:FakeStore,observe});
+  assert.equal(observed.audit.verifiedNativeTurnTransitions,1);
+  assert.equal(observed.audit.events[0].nativePassTransitionVerdict,
+    'linked-prompt-advanced-turn');
+  assert.equal(observed.audit.status,
+    'source-owned-verified-pass-turn-transitions');
 });
 
 test('noneligible turns and seats are never exposed',()=>{
