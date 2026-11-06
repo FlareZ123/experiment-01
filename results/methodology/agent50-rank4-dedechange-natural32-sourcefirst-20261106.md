@@ -1,6 +1,6 @@
 # Agent50: prospective 32-deal rank4 Dedechange source-first opening census
 
-**6 November 2026 | prospective CSPRNG-seeded physical opening sample | setup-only evidence.**
+**6 November 2026 | prospective 32-seed source-first opening census under Twinleaf's legacy shared physical-shuffle RNG | setup-only evidence.**
 
 ## Result
 
@@ -8,7 +8,7 @@
 
 All **32/32** preregistered physical attempts reached the original rank4 source's first turn. The existing entry-priority opening policy left an original Dedenne-GX UNB in the source owner's hand with an empty Bench in **6/32 attempts (18.75%)**. The automatic native hook then physically Benched Dedenne, accepted the actual Dedechange confirmation, and drew six physical cards in **all 6/6 opportunities**. Opportunities were evenly split by physical source seat: **3/16 in seat 0 and 3/16 in seat 1**.
 
-This is an opportunity-frequency and native-execution census under a controlled source-first opening policy. It does not evaluate whether Dedechange is the strategically correct action, and it contains no completed competitive games.
+This is an opportunity-frequency and native-execution census under a controlled source-first opening policy and Twinleaf's default shared seeded shuffle stream. It does not evaluate whether Dedechange is the strategically correct action, and it contains no completed competitive games.
 
 ## Registration, source, and reproducibility
 
@@ -21,6 +21,9 @@ This is an opportunity-frequency and native-execution census under a controlled 
 - Reference: original Aichi rank1 60, SHA-256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`.
 - The [original rank4 decklist](../aichi-2026/full-decklists.json) contains 2 Dedenne-GX and 11 other Basic Pokémon (13 Basic Pokémon total).
 - Thirty-two unique seeds were generated using Python `secrets.randbits(32)`, fixed in the registration, and split 16/16 across physical source seats. Source was deliberately selected to go first in every arm. This is not a natural coin-outcome sample.
+- **Shuffle-stream clarification:** the test calls `runMatch` without `isolatePhysicalShuffleRandomness` and does not apply Agent26's per-seat setup-shuffle adapter. Twinleaf therefore uses its default legacy shared seeded physical-shuffle stream across both seats. The seeds are random, but the two players' deck shuffles consume the shared stream sequentially. This is a deterministic simulator protocol, not an independent per-seat physical shuffle or a paper-calibrated deal-frequency claim.
+- Agent26's [32-setup per-seat shuffle study](agent26-bilateral-mulligan-bonus-exact-20261106.md) reports nine compensation-recipient events split 5 to seat0 and 4 to seat1, using different source decks/candidates. Agent4's [per-seat shuffle A/B/A study](agent4-native-postsetup-per-seat-shuffle-mail-aba-20261105.md) documents that changing shuffle-stream coupling changes initial physical deals. Neither is a direct rank4/rank1 replication.
+- A same-seed, same-seat replay under the established per-seat setup shuffle protocol was preregistered at [`agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md`](registrations/agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md); it is a protocol-sensitivity arm, not a same-physical-deal counterfactual.
 - The existing single-Basic entry-priority policy was held fixed. It prefers a Basic without a printed hand-to-Bench Ability as Active where available; the min-zero optional compensation Bench choice declines the extra placement. The existing owner-only detached SelectPrompt adapter uses each prompt's default option.
 - The test records the source's actual first-turn hand, setup prompt owner, offered SelectPrompt labels, chosen index/default, and physical hand/deck changes. It observes the acting prompt owner's own zones and changes no action.
 
@@ -91,7 +94,7 @@ There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter
 | 30 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
 | 32 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
 
-All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug: the setup reducer has branches for both directions, and the current sample is small. A matched identical-deck seat-symmetry test is warranted before treating compensation-recipient behavior as a stable prior.
+All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug: the setup reducer has branches for both directions, and the current sample is small. Replay the same rank4/rank1 seeds under per-seat setup streams and capture both mulligan counts before treating the seat1 clustering as a stable prior.
 
 ## Probability sanity check
 
