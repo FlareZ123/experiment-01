@@ -43,6 +43,20 @@ At the exact same owner Pass, the *owner-public board* is:
 
 The board shows potential Guzma targets and a funded `Max Geist` attacker. Five Basic Psychic Energy are visibly attached to candidate Pokémon at this Pass. The printed Max Geist damage baseline depends on total Psychic Energy in play; an immediate single-hit Crobat V knockout is **not established**, and the full counterfactual attack, effects, own Supporter quota, prompt payments, status, locks and response remain unexecuted.
 
+## Paper card-text target breakpoints, pending real Store selection
+
+Independently cross-checking the **supplied complete English card pool** gives a precise **conditional** attack comparison. The candidate's four Psychic on the Benched VMAX and one Psychic on Active Dialga provide five Psychic Energy in play. The printed VMAX **Max Geist** (\`swsh6-75\`) has a three-Colorless cost, base 10 plus 30 per Psychic Energy in play, so its unfettered base damage is **160**.
+
+| Opponent at root199 | Printed HP and type interaction | If VMAX actually attacks that Pokémon this turn |
+| --- | --- | --- |
+| **Benched Garbodor BKP (\`xy9-57\`)** | 100 HP; Psychic Weakness ×2 | **320 damage**, conditional immediate **one-Prize KO** after Guzma promotes it |
+| Source Active Crobat V DAA (\`swsh3-104\`) | 180 HP; Fighting Weakness; no Psychic resistance | **160 damage**, insufficient for a one-hit KO; source Active would change if Guzma successfully gusts |
+| Benched Mega Absol ex M1L (\`me1-86\`) | 280 HP; Grass Weakness; Mega Evolution **three-Prize** rule | **160 damage**, insufficient for a one-hit KO after gust |
+
+The **Guzma BUS** printing (\`sm3-115\`) requires the opponent's Bench switch *first*, then the owner's Active-to-Bench switch. **VS Seeker PHF** (\`xy4-109\`) returns one Supporter from the owner's discard to hand; its use does not itself consume the turn's Supporter quota. Both native choices, exact owner-discard physical-card identity, relevant locks and attack resolution remain absent from the archive. Removing a Tool-less Garbodor would currently remove a potential future Garbotoxin threat, though no present Tool-based Garbotoxin lock exists in this root199 board. These are **printed-card conditional arithmetic and hypothetical targets only**, with no played Store chain or final-game benefit.
+
+Native test priorities should explicitly include the **Garbodor target** and the **funded VMAX self-switch**; a generic first-Bench-target selector would choose one of the three 280-HP Mega Absol ex instead. The original rank11 source's subsequent meaningful reply is an essential test, even if the 100-HP KO resolves.
+
 ## Existing reusable native components and integration blocker
 
 The repo **already contains**:
