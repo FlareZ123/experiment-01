@@ -51,7 +51,7 @@ function fixture() {
 }
 
 test('uses the actual source seat and accepted root; owner hand is observed, not inferred',()=>{
-  const f=fixture();const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton});
+  const f=fixture();const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{screen:classifyBaton});
   assert.equal(x.registeredArms,1);
   assert.equal(x.fullPublicReplayNoninterference,true);
   assert.equal(x.ownerObservationMatches,1);
@@ -72,7 +72,7 @@ test('refuses changed accepted Store roots or changed opening',()=>{
     'sourceDealFingerprint','fullPhysicalDealFingerprint',
     'status','publicRootActionCount']) {
     const f=fixture();f.archive.attempts[0][key]='tampered';
-    assert.throws(()=>reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton}),
+    assert.throws(()=>reconcileOwnerObservation(f.archive,f.audit,f.baseline,{screen:classifyBaton}),
       /Read-only observation changed/);
   }
 });
@@ -86,7 +86,7 @@ test('refuses missing or duplicate native trial observers',()=>{
 
 test('preserves owner proposal uncertainty when the real bot was not observed',()=>{
   const f=fixture();f.audit[0].volt.agent9RealOwnerDecisionAudit=null;
-  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{classifyBaton});
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,{screen:classifyBaton});
   assert.equal(x.ownerObservationMatches,0);
   assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
     'owner-observer-missing');
