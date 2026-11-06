@@ -83,7 +83,7 @@ Added the Agent41 adapter and Agent42 v2 custody tests to `.github/workflows/twi
 
 Successful run: [42254027786](https://github.com/FlareZ123/experiment-01/actions/runs/42254027786)
 
-The run checked out and compiled the pinned Twinleaf revision, passed the Agent41 adapter test, passed the Agent42 v2 custody test, passed the shared/isolated RNG smoke test, and passed the native proposal-to-Store noninterference smoke test.
+The run checked out and compiled the pinned Twinleaf revision, passed the Agent41 adapter test, passed the Agent42 v2 custody test, passed the shared/isolated RNG smoke test, and passed the native proposal-to-Store noninterference smoke test. The root submodule metadata maps `vendor/twinleaf` to `https://github.com/twinleafgg/twinleafgg.git`, pinned at gitlink commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; the CI run used that committed revision.
 
 A default `twinleaf-completion.yml` run `42253455137` passed its bounded-match job but skipped the abort-custody job. An explicit attempt to dispatch that workflow with `abort_provenance_only=true` failed because the workflow declares more than GitHub's 25 `workflow_dispatch` inputs. The focused RNG workflow was used instead. The oversized dispatch-input surface remains a CI maintainability issue.
 
