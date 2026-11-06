@@ -363,7 +363,8 @@ function attempt(trial,protocol){
                   deckB:source.cards.map(card=>({...card})),
                   seed:trial.seed,maxActions:80,
                   captureNativeAbortEvidence:true
-                }),{sourceSeat:trial.seat})
+                }),{sourceSeat:trial.seat}),
+                {sourceSeat:trial.seat}
               )
             )
           ),actorSelectIntents),shared,selectReceipts,goFirstReceipts,
@@ -430,7 +431,7 @@ function attempt(trial,protocol){
     1:shuffleTape.filter(x=>x.seat===1).length
   };
   const root=quarantine?.records?.[0]??null;
-  const sourceTurnReached=Boolean(root&&root.turn===1);
+  const sourceTurnReached=Boolean(root&&root.turn===1&&root.seat===trial.seat);
   return {
     schema:SYMMETRY_VERSION,
     registration:REGISTRATION,
