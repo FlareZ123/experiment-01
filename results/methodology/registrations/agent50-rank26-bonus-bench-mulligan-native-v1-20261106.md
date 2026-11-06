@@ -37,7 +37,7 @@ At rank6's post-compensation `CHOOSE_STARTING_POKEMONS` prompt:
 - verify the genuine owner hand is the prompt's card list;
 - verify `min=0`, `max=1`, and the only eligible new Basic is the second physical Iron Thorns ex;
 - verify both `prompt.validate([])` and `prompt.validate([secondThorns])` are true;
-- **do not replace the default selection policy**: retrieve the installed default `ChooseCardsPromptResolver` instance from `SimpleTacticsAi.resolvers`, invoke its `resolvePrompt(state,prompt)` directly while the generic decoder remains quarantined, and observe whether it selects the second physical Iron Thorns;
+- **do not replace the default selection policy**: retrieve the installed default `ChooseCardsPromptResolver` instance from `SimpleTacticsAi.resolvers`, invoke its `resolvePrompt(state,owner,prompt)` directly while the generic decoder remains quarantined, and observe whether it selects the second physical Iron Thorns;
 - compare that action with `chooseOwnedProtectedStartingBasics` on the same prompt as a negative control; the Agent50 protected-entry chooser is expected to propose `[]` for a valid `min=0` prompt;
 - dispatch the default resolver's action through the actual pinned Store;
 - verify the exact second physical card leaves the owner's hand and enters one Bench slot, while the original Active Iron Thorns remains unchanged;
