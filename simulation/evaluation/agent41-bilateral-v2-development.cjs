@@ -1132,6 +1132,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
@@ -1222,6 +1223,8 @@ function runDevelopment({
     'Native symmetric Farewell Letter requires actor-only roots');
   assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
     'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
+  assert.ok(!actorMewMaxMiracleOverSelfCopy||actorOnlyComposition,
+    'Mew self-copy correction requires owner-only bilateral attack prompts');
   assert.ok(!actorDceMewMobilityRoot||actorOnlyComposition,
     'Owner-paid DCE retreat must use the same actor-only policy in both seats');
   assert.ok(!actorGenesectFusionDrawRoot||actorOnlyComposition,
@@ -1599,6 +1602,7 @@ function runDevelopment({
           {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
+            preferMewMaxMiracleOverSelfCopy:actorMewMaxMiracleOverSelfCopy,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             ownerGenericTrainerFrontier,nativeOwnerTrainerFallback,
             // A selected frontier always retains the independent owner-only
@@ -1868,6 +1872,8 @@ function runDevelopment({
       actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
       actorOnlyComposition&&actorMewGenesectTechnoBlast,
+    actorMewMaxMiracleOverSelfCopyOptIn:
+      actorOnlyComposition&&actorMewMaxMiracleOverSelfCopy,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
@@ -2024,6 +2030,8 @@ if(require.main===module){
     nativeOwnerTrainerFallback:process.env.AGENT50_NATIVE_TRAINER_PASS_FALLBACK_DEV==='true',
     actorMewGenesectTechnoBlast:
       process.env.AGENT13_MEW_GENES_COPY_DEV==='true',
+    actorMewMaxMiracleOverSelfCopy:
+      process.env.AGENT13_MEW_SELF_COPY_MAX_MIRACLE_DEV==='true',
     actorDceMewMobilityRoot:
       process.env.AGENT37_DCE_MEW_RETREAT_DEV==='true',
     actorGenesectFusionDrawRoot:
