@@ -75,6 +75,9 @@ function permutationFor(cards,selectors){
     if(!used.has(i))order.push(i);
   assert.equal(order.length,cards.length);
   assert.equal(new Set(order).size,cards.length);
+  assert.deepEqual([...order].sort((a,b)=>a-b),
+    Array.from({length:cards.length},(_,i)=>i),
+    'controlled shuffle must be a complete numeric index permutation');
   return order;
 }
 
@@ -219,18 +222,25 @@ function withRank26BonusBenchFixture(run){
       if(selectors){
         const deckBefore=[...state.players[seat].deck.cards];
         const order=permutationFor(deckBefore,selectors);
-        assert.equal(prompt.validate(order,state),true,
-          'controlled shuffle must be a valid complete native permutation');
         action.result=order;
-        audit.shuffleEvents.push({
+        const event={
           seat,ordinal,controlled:true,
           firstSeven:order.slice(0,7).map(i=>printing(deckBefore[i])),
           prizeWindow:seat===1&&ordinal===0?
             order.slice(7,13).map(i=>printing(deckBefore[i])):null,
           firstBonusCard:seat===1&&ordinal===0?
             printing(deckBefore[order[13]]):null,
-          validNativePermutation:true
-        });
+          validCompleteIndexPermutation:true,
+          nativePromptValidatorAccepted:prompt.validate(order,state)
+        };
+        audit.shuffleEvents.push(event);
+        const result=descriptor.value.apply(this,[action,...args]);
+        const afterDeck=this.state.players[seat].deck.cards;
+        assert.deepEqual(afterDeck,order.map(i=>deckBefore[i]),
+          'native Store must apply the exact controlled physical deck order');
+        event.nativeStoreAccepted=true;
+        event.appliedOrderMatchesPhysicalCards=true;
+        return result;
       }else{
         audit.shuffleEvents.push({seat,ordinal,controlled:false});
       }
