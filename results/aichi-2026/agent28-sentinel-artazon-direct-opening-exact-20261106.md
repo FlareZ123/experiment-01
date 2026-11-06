@@ -27,6 +27,8 @@ Sample without replacement: first seven opening cards, six unordered Prizes, the
 3. Either Guzma & Hala observed, or Tag Call observed with Guzma & Hala still in deck; TM: Evolution accessible; both Gloom and Vileplume available in deck.
 4. The two optional Guzma & Hala discards are assumed available and strategically acceptable. This is a resource model without UDP/DCI penalties or an opponent policy.
 
+**Information boundary:** Fan Rotom's actual Prize status is an analysis stratification, not information available to the actor at K0. An owner-safe Artazon policy may prefer to search Bunnelby regardless of Fan's unseen location; once the Artazon search is opened, the player may lawfully inspect their own remaining deck and discover whether Bunnelby is there. The modeled gain does not authorize looking at unsearched face-down Prize identities or reading the opponent's private deck.
+
 The disjointness is exact **within the declared access model**: with Fan Rotom in hand, Fan Call already provides Bunnelby, while with Fan Rotom in deck the older Artazon-to-Fan route supplies it. Only Fan Rotom in the six Prizes gives the newly unlocked first-turn access configurations.
 
 A multivariate-hypergeometric allocation DP enumerates each category's opening count h, Prize count p, draw count d (0 or 1), and remaining deck count r, weighting each allocation by `C(n,h) C(n-h,p) C(n-h-p,d)`. The DP tracks the opening Basic and whether Guzma & Hala was seen or reachable via Tag Call. Its exact result is:
