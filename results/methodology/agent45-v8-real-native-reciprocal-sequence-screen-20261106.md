@@ -9,7 +9,7 @@ Read the exact original **Agent36/Agent32 v8 Telepath + default-Confirm-false** 
 - Original run: [Actions 42287771647](https://github.com/FlareZ123/experiment-01/actions/runs/42287771647), [artifact 13538082892](https://github.com/FlareZ123/experiment-01/actions/runs/42287771647/artifacts/13538082892), archive `agent32-issue25-v8-telepath-confirm-default-false-same-eight-native`.
 - ZIP exact SHA256 `36d759b28ae75bb120d94c30a6faa2ae79bd1e03ddb0df902a94418e2ba47882` (**98,778 bytes**). Member `treatment/issue25-steward-v8.json` exact SHA256 `6ed9db1568aaf546e3165ddae2a2fa21fd1224f7d50e1e2dc8b8c6f578bb5a45` (**1,131,705 bytes**), matching its archived `.sha256` sidecar.
 - Native pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, executing research commit `a5d3657ac4cdbccd79cced59c133dd6d7d35a6a4`. All eight attempt-specific `publicRootLedgerSha256Computed` and `publicRootLedgerSha256Reported` were independently reproduced by hashing exact ordered JSON root objects; all eight `publicRootActionsTruncated` were false and action ordinals contiguous.
-- Reproduction: [`screenArchivedReciprocalAttempts`](../../simulation/evaluation/agent45-bilateral-competence-gate.cjs) and [synthetic guard tests](../../tests/agent45-bilateral-competence-gate.test.cjs). Invoke as a library on the JSON member. Its **25/25 local Node v22 tests pass** (not yet CI or pinned native reexecution), and the archive run itself completed successfully on the 1,131,705-byte native JSON.
+- Reproduction: [`screenArchivedReciprocalAttempts`](../../simulation/evaluation/agent45-bilateral-competence-gate.cjs) and [synthetic guard tests](../../tests/agent45-bilateral-competence-gate.test.cjs). Invoke as a library on the JSON member. Its **30/30 local Node v22 tests pass** (not yet CI or pinned native reexecution), and the archive run itself completed successfully on the 1,131,705-byte native JSON.
 
 ## What the native root tape actually supports
 
@@ -36,7 +36,13 @@ The concrete first source-attack-anchored native sequences are:
 
 The **Rank 1 / Champion** historical full terminal demonstrates the false-positive danger most starkly. It has a raw setup-card sequence `Girafarig` from original source root16 turn2 → contender `Psychic Energy` root20 turn3 → original source `Fog Crystal` root24 turn4. The original rank1 source ultimately made **12 Passes, zero attacks and zero Prize gains** in the native **identical printed-60 mirror** while the contender took six Prizes. This early PlayCard triple is **not** a competent attack/reply/source-return witness; the stricter attack-anchored screen correctly returns none.
 
-The rank6 original v8 contexts **lack any source→candidate→source adjacent material root triple** under this screen despite their previously verified source Volt Cyclone payoff and candidate earlier attacks. This illustrates why settled source damage or an opponent root is insufficient to certify opponent material counterplay after the attack.
+The rank6 original v8 contexts **lack any source→candidate→source adjacent material root triple** under this screen despite their previously verified source Volt Cyclone payoff and candidate earlier attacks.
+
+A later strict materiality update rejects any certificate whose only evidence is a settled `AttackAction` with no positive board, damage, Prize, resource, status, lock, denial or owner-information transition. This prevents the all-healthy Tapu Cure-GX zero-heal case from being classified as a consequential attack simply because it is paper-payable. An actual beneficial healing effect requires observed nonzero counters removed and distinct state receipts. This illustrates why settled source damage or an opponent root is insufficient to certify opponent material counterplay after the attack.
+
+## Censored and incomplete ledger handling
+
+The same screen now retains every input attempt in the denominator even when an engine abort omits the complete public action ledger. Such a row is tagged `QUARANTINED-incomplete-public-root-proof`, with no alleged reciprocal sequence. Present but SHA-mismatched ledgers still raise an integrity failure. The exact original eight treatment records here have **8/8 verified complete root tapes, 0 quarantined**, and retain their seven 128-root caps as censored outcomes. No native record was dropped to manufacture a favorable rate.
 
 ## Admissibility and integration
 
