@@ -62,9 +62,11 @@ function settleTurn(x,expectedSeat){
  * @param {0|1} seat ADP attacker's physical seat.
  * @param {boolean} useRanger Opponent chooses to play the held Ranger.
  * @param {boolean} koTarget Use a low-HP Basic victim with a backup Bench.
+ * @param {boolean} doubleDragonFuel Use rank-19 DDE plus one basic Colorless
+ *   payment (a generic Lightning basic proxy for the registered source).
  * @returns {object} Public native state changes and effect-marker receipt.
  */
-function run(seat,useRanger,koTarget=false){
+function run(seat,useRanger,koTarget=false,doubleDragonFuel=false){
   const x=stage(seat);
   const manager=initializeCards();
   let nextId=890000+seat*10000+Number(useRanger)*20000;
@@ -75,13 +77,15 @@ function run(seat,useRanger,koTarget=false){
     return c;
   };
   const ADP='Arceus & Dialga & Palkia GX CEC';
-  const adp=card(ADP),metal=card('Metal Energy SVE');
-  const water=card('Water Energy SVE');
-  const psychic=card('Psychic Energy SVE');
+  const adp=card(ADP);
+  const energyPrintings=doubleDragonFuel?
+    ['Double Dragon Energy ROS','Lightning Energy SVE']:
+    ['Metal Energy SVE','Water Energy SVE','Psychic Energy SVE'];
+  const energies=energyPrintings.map(card);
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
-  x.owner.active.cards.push(adp,metal,water,psychic);
-  x.owner.active.energies.cards.push(metal,water,psychic);
+  x.owner.active.cards.push(adp,...energies);
+  x.owner.active.energies.cards.push(...energies);
   x.opponent.active.cards.length=0;
   x.opponent.active.energies.cards.length=0;
   x.opponent.active.cards.push(card(koTarget?'Pidgey MEW':ADP));
@@ -140,7 +144,8 @@ function run(seat,useRanger,koTarget=false){
     koTarget?[useRanger?5:4,6]:[6,6]);
   if(koTarget)assert.equal(opponent().active.getPokemonCard().name,
     'Regidrago V');
-  return {seat,useRanger,koTarget,beforeRanger,afterRanger,
+  return {seat,useRanger,koTarget,doubleDragonFuel,
+    energyPrintings,beforeRanger,afterRanger,
     ultimateRayDamage:damage,remainingPrizeSlots,
     gxPrompts,passPrompts,ultimatePrompts,
     nativeGameTerminal:false,qualifiedCompetitiveGames:0};
@@ -164,6 +169,21 @@ for(const seat of [0,1]){
       assert.deepEqual(receipt.remainingPrizeSlots,
         [withRanger?5:4,6]);
     });
+  }
+}
+for(const seat of [0,1]){
+  for(const withRanger of [false,true]){
+    for(const koTarget of [false,true]){
+      test('rank19-representative native DDE ADP, seat '+seat+
+        ' Ranger '+withRanger+' KO '+koTarget,()=>{
+        const receipt=run(seat,withRanger,koTarget,true);
+        console.log('AGENT30_NATIVE_RANGER_ADP_DDE',
+          JSON.stringify(receipt));
+        if(koTarget)assert.deepEqual(receipt.remainingPrizeSlots,
+          [withRanger?5:4,6]);
+        else assert.equal(receipt.ultimateRayDamage,withRanger?150:180);
+      });
+    }
   }
 }
 module.exports={run,settleTurn};
