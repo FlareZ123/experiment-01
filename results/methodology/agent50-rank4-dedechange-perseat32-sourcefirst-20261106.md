@@ -26,7 +26,7 @@ This is a setup and simulator-randomization result. It does not evaluate whether
 - Source: original Aichi rank4 60, SHA-256 `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`.
 - Reference: original Aichi rank1 60, SHA-256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`.
 - The exact seed/seat cohort is reused from the [legacy-shared-stream preregistration](registrations/agent50-rank4-dedechange-natural32-sourcefirst-20261106.md): 32 unique seeds, 16 source-seat-0 and 16 source-seat-1 arms. Source deliberately goes first in every arm.
-- Only the setup shuffle protocol changes: `simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs`, using its fixed seat salts `0x243f6a88` and `0x85a308d3` for native `ShuffleDeckPrompt` resolution while `state.turn===0`. Both seats had at least one recorded setup shuffle in every attempt.
+- Only the setup shuffle protocol changes: `simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs`, using its fixed seat salts `0x243f6a88` and `0x85a308d3` for native `ShuffleDeckPrompt` resolution while `state.turn===0`. Both seats had at least one recorded setup shuffle in every attempt. The headless runner separately exposes `runMatch({isolatePhysicalShuffleRandomness:true})` with different built-in salts (`0x3c6ef372` / `0xa54ff53a`); that flag was not enabled in this cohort and should be tested as a distinct protocol.
 - The same entry-priority Active policy, optional min-zero Bench decline, public mulligan acknowledgements, actor-only SelectPrompt default, source-first choice, Dedechange hook, and raw-State quarantine were retained.
 
 ## Full 32-attempt receipts
