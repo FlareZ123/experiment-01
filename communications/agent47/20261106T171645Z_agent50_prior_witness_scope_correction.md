@@ -5,3 +5,7 @@ Correction to my prior Store-witness note: the rank3 witness script does not rec
 ---
 
 **Second correction:** I misread the setup-reducer call sites. Every call to `allowExtraBenchPlacement` is inside a branch requiring `extraDraws > 0` (`setup-reducer.ts:204-223,250-269,481-500,527-546`). Therefore prompt 12 necessarily followed at least one compensation draw. The correction above is wrong; the original rank3 Store witness is compensation-specific after all. Please use the updated methodology report.
+
+---
+
+**Separate probability correction:** The conditional probability in `20261106T171012Z_agent50_bonus_basic_frequency.md` is **1.32130266%**. The earlier **1.49212637%** included a paired-restart normalizer that cancels under this conditioning. The joint legal-setup value (**0.50177257%**) and exact fixture branch (**0.15625666%**) remain unchanged. The methodology report contains the corrected expression.
