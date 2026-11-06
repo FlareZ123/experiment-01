@@ -1,0 +1,29 @@
+{
+  "schema": "agent35-rank11-firstturn-family-postattack-source-opponent-chronology-v5",
+  "registeredAtUtc": "2026-11-06T02:38:10Z",
+  "priorSucceededNativeArtifact": {
+    "run_id": 42150823554,
+    "id": 13471784814,
+    "inner_sha256": "77b1218f3268b166bcbce4804192c2dc76b19623df183a0925510c1787ddb1ab"
+  },
+  "sourceId": "11:102:A:champion-reference",
+  "sourceSeat": 1,
+  "candidateSeat": 0,
+  "firstTurnSource": 2,
+  "attackRoot17": 17,
+  "physicalOpeningSha256": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+  "twinleafPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "newPolicyChanges": [],
+  "newInstrumentation": "Read only exact original rank11 post-source-attack Store root tape and recorded native abort; extract action turn, actor and root type; distinguish genuine opponent voluntary action from prompt churn",
+  "denominator": "All eight same v5 baseline original registered source attempts; one selected retrospective source action branch",
+  "plannedGates": [
+    "same opening and root0..10 custody",
+    "same genuine Letter and Family owner prompt transfer",
+    "source attack native root17 preserved",
+    "record all accepted actions after 17 and explicit first candidate voluntary response or none",
+    "record engine failure stage and prompt type if any",
+    "retain all original other seven attempts",
+    "zero game qualification and no effectiveness claim"
+  ],
+  "noCompetitivelyQualifiedGames": true
+}
