@@ -1,6 +1,6 @@
 {
   "schema": "agent48-nightwatch-teamflare-crossed-retrospective-registration-v1",
-  "registeredAtUtc": "2026-11-06T00:40:00Z",
+  "registeredAtUtc": "2026-11-06T00:39:00Z",
   "selectionStatus": "posthoc-historically-positive-original-source-deal",
   "experimentPurpose": "Test whether Agent17 own-hand paper-payable Team Flare Grunt counterreply remains physical and consequential when Agent43 direct Night Watch random-hand patch varies retained cards",
   "sourceSeed": 3792360798,
@@ -38,5 +38,6 @@
     "Seeded Night Watch arms have first-draw xorshift adjacent-state coupling; retain original preregistered seeds as independent indexed sensitivity treatments",
     "No inference of win probability from these eight retrospective diagnostic attempts"
   ],
-  "competitivelyQualifiedGames": 0
+  "competitivelyQualifiedGames": 0,
+  "timestampNote": "Corrected initially future-rounded human-readable timestamp before any native execution; registration content and selected arms unchanged."
 }
