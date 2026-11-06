@@ -264,7 +264,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Check only root-horizon override and frozen registered cohort
-        run: node --test tests/agent1-issue25-common-v14-horizon260.test.cjs tests/agent1-issue25-common-v13-radiant-decline.test.cjs
+        run: node --test tests/agent1-issue25-common-v14-horizon260.test.cjs tests/agent1-issue25-common-v13-radiant-decline.test.cjs tests/agent1-v14-public-endstate-observer.test.cjs
       - name: Execute all original eight native games with unchanged common v13 policy at 260 roots
         env:
           AGENT1_V14_OUTPUT_DIR: artifacts/agent1-v14-native-horizon260
