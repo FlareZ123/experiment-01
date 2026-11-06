@@ -1,0 +1,42 @@
+{
+  "schema": "agent48-nightwatch-teamflare-crossed-retrospective-registration-v1",
+  "registeredAtUtc": "2026-11-06T00:40:00Z",
+  "selectionStatus": "posthoc-historically-positive-original-source-deal",
+  "experimentPurpose": "Test whether Agent17 own-hand paper-payable Team Flare Grunt counterreply remains physical and consequential when Agent43 direct Night Watch random-hand patch varies retained cards",
+  "sourceSeed": 3792360798,
+  "originalRank3Seat": 0,
+  "originalRank1Seat": 1,
+  "rank3Original60Sha256": "72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f",
+  "rank1Original60Sha256": "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+  "expectedFullDealSha256": "02bb2b2e4b28d1cfc9e030e70c38f389fa37948e8c3dceb34472133f4753582a",
+  "expectedSourceDealSha256": "37ed042b42966fd5c2232d28d1e458131e0ba9e0febf14cb3ad2961710c70c46",
+  "baselineCorrectedPublicRootSha256": "5acd02e493800a041b5dedf4a9efa6a0a2de44eece25efc5424f5dda749c3acd",
+  "directNightWatchEntropySeeds": [
+    20261106,
+    20261107,
+    20261108,
+    20261109
+  ],
+  "treatments": [
+    "corrected-random-control",
+    "corrected-random-physical-teamflare-turn59"
+  ],
+  "expectedArms": 8,
+  "treatmentWindow": {
+    "ownerSeat": 0,
+    "globalTurn": 59,
+    "onlyAfterOriginalPass": true,
+    "tool": "Team Flare Grunt XY",
+    "nativeStoreEffect": "discard one Energy from opponent active Trevenant & Dusknoir-GX"
+  },
+  "analysisPrimary": "Whether each treated arm retains physical Team Flare, native Store accepts exact owner typed root at turn59, and opponent Active loses one Energy",
+  "analysisSecondary": "Per-seed exact pre-intervention root-prefix parity and native terminal winner, with all errors/nonterminal caps retained",
+  "limitations": [
+    "Single previously selected positive original rank3 vs rank1 source deal; not a random or representative match cohort",
+    "Night Watch patch covers direct source attack only, not copied attacks",
+    "Both A/B bots remain weak; no competent opponent, perfect paper fidelity or 25-minute tournament clock",
+    "Seeded Night Watch arms have first-draw xorshift adjacent-state coupling; retain original preregistered seeds as independent indexed sensitivity treatments",
+    "No inference of win probability from these eight retrospective diagnostic attempts"
+  ],
+  "competitivelyQualifiedGames": 0
+}
