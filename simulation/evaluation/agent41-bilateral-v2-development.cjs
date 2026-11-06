@@ -447,6 +447,7 @@ function executeDevelopment(trial,candidates,{
     deckB:candidateSeat===1?candidateCards:opponent.cards,
     seed:trial.seed,
     maxActions:nativeRootActionLimit??registration.maxRootActions,
+    onRootStoreCreated,onRootActionDispatched,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     // Optional both-seat release gate: native Store must retain all physical
