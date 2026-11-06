@@ -72,8 +72,11 @@ function createFundedPerfectionPassSampler(options={}){
         ...eligibility,
         detachedMenu:result??null,
         optionPaperAffordabilityCertified:false,
-        opponentHiddenZonesInspectedBySampler:false,
-        note:'Only an original post-choice owner-only funded/donor-visible root. Attached Energy and native prompt acceptance need separate printed-paper and physical payment verification.'
+        ownerEligibilityFilterReadsOpponentHiddenZones:false,
+        detachedNativeProbeUsesFullStateClone:true,
+        hiddenInformationIndependenceCertified:false,
+        livePolicyChangedByObserver:false,
+        note:'Only an original post-choice owner-funded/donor-visible root. The cloned native Store can read unrevealed opponent state; never feed its menu or score back to gameplay. Native prompt validation still needs printed-paper and physical payment review.'
       };
     },
     summary(){
