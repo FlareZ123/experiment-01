@@ -1,7 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {chooseRealOwnerFloatStoneCounter}=
+const {chooseRealOwnerFloatStoneCounter,
+  chooseOwnerMarshadowResettingHole}=
   require('../simulation/twinleaf/agent9-v7-floatstone-counterreply.cjs');
 
 /** @returns {object} Opposing actor's own hand and public post-Guzma board. */
@@ -35,4 +36,27 @@ test('counterline requires real actor-owned Tool and original benched Tapu Lele'
     ownTurnResources:{toolPlayLocked:true,retreatedTurn:0}}),null);
   assert.equal(chooseRealOwnerFloatStoneCounter({...withTool,
     ownTurnResources:{retreatedTurn:6}}),null);
+});
+
+test('benched Marshadow optional Resetting Hole needs public Thunder and used retreat',()=>{
+  const owner=observed();
+  const v={...owner,
+    ownPublic:{active:{printing:'Tapu Lele-GX GRI'},
+      bench:[{printing:'Marshadow UNB',
+        tools:['Float Stone BKT'],abilities:['Resetting Hole']}]},
+    opponentPublic:{active:{printing:'Iron Thorns ex TWM'},
+      stadium:['Thunder Mountain Prism Star LOT']},
+    ownTurnResources:{...owner.ownTurnResources,retreatedTurn:6}};
+  assert.deepEqual(chooseOwnerMarshadowResettingHole(v),{
+    kind:'remove-thunder-with-benched-marshadow',benchIndex:0,
+    printing:'Marshadow UNB'
+  });
+  assert.equal(chooseOwnerMarshadowResettingHole({...v,
+    opponentPublic:{...v.opponentPublic,stadium:[]}}),null);
+  assert.equal(chooseOwnerMarshadowResettingHole({...v,
+    ownPublic:{...v.ownPublic,bench:[]}}),null);
+  assert.equal(chooseOwnerMarshadowResettingHole({...v,
+    ownTurnResources:{retreatedTurn:0}}),null);
+  assert.equal(chooseOwnerMarshadowResettingHole({...v,
+    actorSeat:0}),null);
 });
