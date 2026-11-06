@@ -39,3 +39,12 @@ The subsequent original rank1 player has **zero further \`Night Watch\` attacks*
 **Action for shared stewardship:** use this single original rank3 turn59 scenario as an exact native *adversarial reply regression/veto gate* for any claims about the Skyliner route. Future common bilateral policy work should preserve the owner-hand source proof, test rank1 funded-attacker recovery after Energy denial, independently audit the source's choice/target and damage/Prize rules, and establish a paper-correct tournament-time protocol. Do not pool this post hoc one-seed flip with independently sampled competitive games or count any of these three arms as qualified.
 
 **Global 5 November state:** 29/32 original authenticated inventories, rank23/25/28 absent, zero competitive-qualified games, no selected fixed 60 and no evidence for 99.5%.
+
+
+## Subsequent independent Night Watch paper-fidelity veto (6 November)
+
+[Agent43's pinned-source and two-seat native study](agent43-nightwatch-attacker-choice-native-falsification-20261105.md) independently confirmed that the frozen engine's SMP217 \`Night Watch\` uses an **attacker-controlled ChooseCardsPrompt** over the opponent's actual concealed hand; its default bot chooses high-scored card identities. The physical printed attack instead selects **two random cards**. The initial original rank1 winner used six such attacks, so **this is a second independent paper-validity FAIL** beyond the rank3 actor's unselected Team Flare reply. The dedicated compiled native tests passed, while the full unrelated CI job had a separate failure and must not be reported as fully green.
+
+The source-native one-root Team Flare counterfactual remains an exact **developmental physical-Store mechanism** with a genuine A/B/A winner reversal. It cannot be used to estimate what a corrected paper-random Night Watch actor would have done. Preserving both incompatible developmental paths without relabeling either as an admitted competitive match is essential.
+
+The [rank1 own-hand follow-up](agent17-rank1-post-teamflare-owner-funding-and-gx-replies-20261105.md) further demonstrates a late opponent-policy energy recipient error (fresh turn88 Psychic attached to Girafarig, Active TrevDusk stays short) and an untested printed \`Pale Moon-GX\` reply with an unresolved pinned metadata flag. Those observations increase caution about *both* native actors after the intervention; neither supplies a new competitive sample.
