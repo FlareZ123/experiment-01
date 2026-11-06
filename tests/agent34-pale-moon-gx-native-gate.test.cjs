@@ -16,7 +16,7 @@ const native = name => require(path.join(ROOT, name));
  * @param {2|3} psychicCount
  * @param {boolean} gxAlreadyUsed
  */
-function stage(attackingSeat, psychicCount, gxAlreadyUsed) {
+function stage(attackingSeat, psychicCount, gxAlreadyUsed, defenderPrinting = 'Rotom V LOR') {
   const { Store } = native('game/store/store');
   const { State, GamePhase } = native('game/store/state/state');
   const { Player } = native('game/store/state/player');
@@ -37,7 +37,7 @@ function stage(attackingSeat, psychicCount, gxAlreadyUsed) {
   attacker.id = attackingSeat === 0 ? 101 : 202;
   defender.id = attackingSeat === 0 ? 202 : 101;
   attacker.active.cards.push(get('Trevenant & Dusknoir-GX SMP'));
-  defender.active.cards.push(get('Rotom V LOR'));
+  defender.active.cards.push(get(defenderPrinting));
   for (let i = 0; i < psychicCount; i++) {
     const energy = get('Psychic Energy SVE');
     attacker.active.cards.push(energy);
@@ -211,4 +211,49 @@ for (const seat of [0, 1]) {
       competitiveGamesQualified: 0
     }));
   });
+}
+
+
+for (const seat of [0, 1]) {
+  test('uncorrected deferred GX KO survives genuine defender evolution, seat ' + seat,
+    () => {
+      const { AttackAction } = native('game/store/actions/game-actions');
+      const { EndTurnEffect } = native('game/store/effects/game-phase-effects');
+      const { PlayPokemonEffect } = native('game/store/effects/play-card-effects');
+      const { State, GamePhase } = native('game/store/state/state');
+      const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+        native('game/store/prefabs/attack-effects');
+      const f = stage(seat, 2, false, 'Regidrago V SIT');
+      const evolved = initializeCards().getCardByName('Regidrago VSTAR SIT');
+      assert.ok(evolved, 'Regidrago VSTAR SIT must be registered in pinned pool');
+      evolved.id = 347900 + seat;
+      f.defender.hand.cards.push(evolved);
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+      const originalCard = f.defender.active.getPokemonCard();
+      f.state.turn = 5;
+      f.state.activePlayer = 1 - seat;
+      f.state.phase = GamePhase.PLAYER_TURN;
+      f.defender.active.pokemonPlayedTurn = 2;
+      f.store.reduceEffect(f.state,
+        new PlayPokemonEffect(f.defender, evolved, f.defender.active));
+      assert.strictEqual(f.defender.active.getPokemonCard(), evolved,
+        'native PlayPokemonEffect must establish the evolved defender');
+      const queuedAfterEvolution = f.defender.pendingEndOfTurnEffects.length;
+      RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+        f.store, f.state, new EndTurnEffect(f.defender));
+      const originalInDiscard = f.defender.discard.cards.includes(originalCard);
+      const evolvedInDiscard = f.defender.discard.cards.includes(evolved);
+      console.log('AGENT34_PALE_MOON_EVOLUTION_NATIVE', JSON.stringify({
+        seat, queuedAfterEvolution, originalInDiscard, evolvedInDiscard,
+        originalActiveAfter: f.defender.active.getPokemonCard()?.name ?? null,
+        testKind: 'staged native attack plus PlayPokemonEffect plus pending resolver',
+        competitiveGamesQualified: 0
+      }));
+      assert.equal(queuedAfterEvolution, 1,
+        'pinned engine retains delayed KO even after evolution cleared local attack effects');
+      assert.equal(evolvedInDiscard, true,
+        'pinned delayed resolver knocks out the evolved Active target');
+      assert.equal(originalInDiscard, true);
+    });
 }
