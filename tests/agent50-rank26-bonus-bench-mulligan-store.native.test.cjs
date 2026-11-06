@@ -175,6 +175,7 @@ function withRank26BonusBenchFixture(run){
   const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
   assert.equal(descriptor.configurable,true);
+  const pendingShuffleEvents=[];
   const audit={
     schema:'agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v2-default-resolver',
     pinnedEngine:PIN,
@@ -231,15 +232,27 @@ function withRank26BonusBenchFixture(run){
           firstBonusCard:seat===1&&ordinal===0?
             printing(deckBefore[order[13]]):null,
           validCompleteIndexPermutation:true,
+          // Pinned ShuffleDeckPrompt.validate sorts numbers lexicographically.
+          // Record that UI-validator result; verify the real Store application
+          // against the numeric CardList.applyOrder semantics instead.
           nativePromptValidatorAccepted:prompt.validate(order,state)
         };
         audit.shuffleEvents.push(event);
+        pendingShuffleEvents.push({seat,deckBefore,order,event});
         const result=descriptor.value.apply(this,[action,...args]);
-        const afterDeck=this.state.players[seat].deck.cards;
-        assert.deepEqual(afterDeck,order.map(i=>deckBefore[i]),
-          'native Store must apply the exact controlled physical deck order');
-        event.nativeStoreAccepted=true;
-        event.appliedOrderMatchesPhysicalCards=true;
+        const unresolvedShuffle=this.state.prompts.some(p=>
+          p instanceof ShuffleDeckPrompt&&p.result===undefined);
+        if(!unresolvedShuffle){
+          for(const pending of pendingShuffleEvents){
+            const afterDeck=this.state.players[pending.seat].deck.cards;
+            assert.deepEqual(afterDeck,
+              pending.order.map(i=>pending.deckBefore[i]),
+              'native Store must apply the exact controlled physical deck order');
+            pending.event.nativeStoreAccepted=true;
+            pending.event.appliedOrderMatchesPhysicalCards=true;
+          }
+          pendingShuffleEvents.length=0;
+        }
         return result;
       }else{
         audit.shuffleEvents.push({seat,ordinal,controlled:false});
