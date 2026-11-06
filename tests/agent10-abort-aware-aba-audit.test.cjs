@@ -292,3 +292,73 @@ test('per-row inconsistent native wrapper evidence fails closed',()=>{
     phases:[{rows:[a,a2]},{rows:[b,b2]},{rows:[a,a2]}]});
   assert.equal(report.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
 });
+
+test('actual v9-shaped envelope reconciles five preserved aborts plus three bounded controls',()=>{
+  const trials=Array.from({length:8},(_,i)=>({id:'v9:'+i}));
+  const compact=trials.map((t,i)=>({
+    id:t.id,sourceSeat:i%2,candidateSeat:1-i%2,
+    actualStarterSeat:i%2,
+    sourceDealFingerprint:'source-'+i,
+    fullPhysicalDealFingerprint:'physical-'+i,
+    status:i<5?'engine-error':'root-cap-unqualified'
+  }));
+  const raw=trials.map((t,i)=>({
+    trial:{id:t.id},sourceSeat:i<5?null:i%2,
+    candidateSeat:i<5?null:1-i%2,
+    actualStarterSeat:i%2,
+    sourceDealFingerprint:'source-'+i,
+    fullPhysicalDealFingerprint:'physical-'+i,
+    status:i<5?'engine-error':undefined,
+    error:i<5?'quarantined':null,
+    rootActionLedger:i<5?null:[root(0)],
+    nativeAbortEvidence:i<5?{rootActionLedger:[root(0)]}:null
+  }));
+  const phases=[0,1,2].map(()=>({
+    rows:compact.map(r=>({...r})),
+    rawDevelopment:{rows:raw.map(r=>({
+      ...r,nativeAbortEvidence:r.nativeAbortEvidence?
+        {rootActionLedger:r.nativeAbortEvidence.rootActionLedger.map(x=>({...x}))}:null,
+      rootActionLedger:r.rootActionLedger?.map(x=>({...x}))??null
+    }))}
+  }));
+  const archive={registration:{trials},phases};
+  const {auditArchive}=require(
+    '../simulation/evaluation/agent10-abort-aware-aba-audit.cjs');
+  const result=auditArchive(archive);
+  assert.equal(result.registeredTrialCount,8);
+  assert.equal(result.allOpeningsMatched,true);
+  assert.equal(result.completedControlReplays,3);
+  assert.equal(result.censoredControlPrefixReplays,5);
+  assert.equal(result.activationStatus,'ACTIVATION_UNVERIFIED');
+  assert.equal(result.competitivelyQualifiedGames,0);
+  assert.equal(result.sourceRetreatDivergenceCandidates,0);
+});
+
+test('raw and summarized physical provenance conflicts fail closed',()=>{
+  const a=row('t',[root(0)]);
+  const summary={...a,id:'t',sourceDealFingerprint:'bogus'};
+  const archive={registration:{trials:[{id:'t'}]},
+    phases:Array.from({length:3},()=>({
+      rows:[summary],rawDevelopment:{rows:[a]}
+    }))};
+  const {auditArchive}=require(
+    '../simulation/evaluation/agent10-abort-aware-aba-audit.cjs');
+  assert.throws(()=>auditArchive(archive),/Conflicting raw\/summary custody/);
+});
+
+test('archive raw trial without compact summary is rejected',()=>{
+  const raw=row('t',[root(0)]);
+  const archive={registration:{trials:[{id:'t'}]},
+    phases:Array.from({length:3},()=>({
+      rows:[{id:'other'}],rawDevelopment:{rows:[raw]}
+    }))};
+  const {auditArchive}=require(
+    '../simulation/evaluation/agent10-abort-aware-aba-audit.cjs');
+  assert.throws(()=>auditArchive(archive),/Raw trial missing matching compact summary/);
+});
+
+test('an archive lacking the registered original trial frame is rejected',()=>{
+  const {auditArchive}=require(
+    '../simulation/evaluation/agent10-abort-aware-aba-audit.cjs');
+  assert.throws(()=>auditArchive({phases:[]}),/Expected registered/);
+});
