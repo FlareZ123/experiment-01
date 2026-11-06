@@ -149,6 +149,9 @@ function activation(phases) {
   if(rowReceipts.some(x=>x==='INCOMPLETE'||x==='INCONSISTENT'))
     return 'INVALID_ABA_WRAPPER_ACTIVATION';
   const allNative=rowReceipts.every(x=>x!==null);
+  // A partial live receipt cannot be laundered by a phase-supplied claim.
+  if(!allNative&&rowReceipts.some(x=>x!==null))
+    return 'INVALID_ABA_WRAPPER_ACTIVATION';
   const explicit=phases.map(phase=>phase?.runtimeWrapperReceipt);
   const allExplicit=explicit.every(r=>
     r?.origin==='live-scopedRoot-predicate' &&
@@ -213,6 +216,9 @@ function audit(config) {
     let treatmentWitness='NOT_A_VALID_TREATMENT_WITNESS';
     if(!hasAll)treatmentWitness='MISSING_OR_CONFLICTING_LEDGER';
     else if(!openingMatched)treatmentWitness='PHYSICAL_OPENING_MISMATCH';
+    else if(!['BOUNDED_ROOT_REPLAY','CENSORED_PREFIX_REPLAY']
+      .includes(controlReplay))
+      treatmentWitness='CONTROL_REPLAY_UNREPRODUCIBLE';
     else if(activationStatus!=='B_WRAPPER_INSTALLATION_RECORDED')
       treatmentWitness=activationStatus;
     else if(treatmentDifference===null)treatmentWitness='ACTIVE_NO_DIVERGENCE';
