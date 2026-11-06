@@ -33,9 +33,11 @@ function withRealOwnerDecisionObserver(execute, deps = {}) {
   assert.equal(typeof oldDecode?.value, 'function');
   assert.equal(typeof oldDispatch?.value, 'function');
   let live = null;
+  const proposedByAction = new WeakMap();
   const audit = {
     schema: VERSION, trialId: deps.trialId ?? null,
     liveStoreRegistrations: 0, actorOwnedRootObservations: 0,
+    realStoreAcceptedProposals: 0,
     realStoreRootProposals: [], changedAnyBotSelection: false,
     observedOnlyRealStoreState: true, competitiveGamesQualified: 0
   };
@@ -44,7 +46,21 @@ function withRealOwnerDecisionObserver(execute, deps = {}) {
       live = this;
       audit.liveStoreRegistrations++;
     }
-    return oldDispatch.value.call(this, action, ...args);
+    // Only an action object returned from the genuine owner's decoder may
+    // carry the pre-decision hand. A replacement action, a speculative Store,
+    // and an unsuccessful dispatch do not authenticate that observation.
+    const prior = action && typeof action === 'object' ?
+      proposedByAction.get(action) : null;
+    const sameRealRoot = Boolean(prior && this === live &&
+      this.state?.turn === prior.globalTurn &&
+      this.state?.activePlayer === prior.seat &&
+      !this.state?.prompts?.some(prompt => prompt.result === undefined));
+    const result = oldDispatch.value.call(this, action, ...args);
+    if (sameRealRoot && prior.isAcceptedStoreRoot === false) {
+      prior.isAcceptedStoreRoot = true;
+      audit.realStoreAcceptedProposals++;
+    }
+    return result;
   }
   function decode(state, ...args) {
     const seat = state?.activePlayer;
@@ -60,7 +76,7 @@ function withRealOwnerDecisionObserver(execute, deps = {}) {
     const chosen = oldDecode.value.call(this, state, ...args);
     const played = chosen?.constructor?.name === 'PlayCardAction' ?
       snapshot.ownHand[chosen.handIndex] ?? null : null;
-    audit.realStoreRootProposals.push({
+    const record = {
       seat, globalTurn: snapshot.globalTurn, phase: snapshot.phase,
       decisionKind: snapshot.decisionKind,
       nativeProposedAction: chosen?.constructor?.name ?? null,
@@ -74,7 +90,11 @@ function withRealOwnerDecisionObserver(execute, deps = {}) {
       provenance: 'actor-only real-Store state before generic bot proposal',
       isAcceptedStoreRoot: false,
       isPaperValidatedAlternative: false
-    });
+    };
+    audit.realStoreRootProposals.push(record);
+    if (chosen && typeof chosen === 'object') {
+      proposedByAction.set(chosen, record);
+    }
     audit.actorOwnedRootObservations++;
     return chosen;
   }
