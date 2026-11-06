@@ -19,7 +19,7 @@ test('default layer resolves the pinned Twinleaf output and restores native prot
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
 });
 
-test('constructs the exact native PlayCardAction shape used by Agent34',()=>{
+test('constructs a native PlayCardAction using Agent34's constructor call',()=>{
   const action=new PlayCardAction(101,2,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
   });
