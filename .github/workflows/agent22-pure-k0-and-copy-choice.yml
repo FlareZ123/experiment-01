@@ -21,3 +21,4 @@ jobs:
         run: |
           node --test tests/agent22-k0-complementarity-search.test.cjs
           node --test tests/agent22-source-copy-choice-audit.test.cjs
+          node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent13-mew-selfcopy-maxmiracle.test.cjs
