@@ -221,7 +221,7 @@ jobs:
           AGENT50_RANK4_DEDECHANGE_SELECT_V2: ${{ (inputs.rank4_dedechange_select_v2_only == true || inputs.rank4_dedechange_rank6_lock_only == true) && 'true' || 'false' }}
           AGENT50_RANK4_DEDECHANGE_RANK6_LOCK: ${{ inputs.rank4_dedechange_rank6_lock_only == true && 'true' || 'false' }}
         run: node --test tests/agent50-rank4-first-turn-dedechange.native.test.cjs
-      - name: Preserve all four source original attempts including failures and no-Ability
+      - name: Preserve every registered source attempt including failures and no-Ability
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
