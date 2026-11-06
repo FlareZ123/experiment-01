@@ -787,6 +787,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     twoUnitPaidRetreatRootV2OptIn:deps.twoUnitPaidRetreatRootV2===true,
     twoUnitPaidRetreatTargetTurnV2:deps.twoUnitPaidRetreatTargetTurnV2??null,
     twoUnitPaidRetreatRootV2Selected:0,
+    twoUnitPaidRetreatRootV2SelectedBySeat:[0,0],
+    twoUnitPaidRetreatRootV2SelectedUnknownSeat:0,
     twoUnitPaidRetreatV2FreeToolSelected:0,
     genericFundedFloatStoneAuditOptIn:deps.genericFundedFloatStoneAudit===true,
     genericFundedFloatStoneAudit:{
@@ -1632,8 +1634,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.zeroEnergyStrandFloatStoneRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
       audit.twoUnitPaidRetreatRootSelected++;
-    if(intent.source==='agent42-owner-two-unit-paid-retreat-v2')
+    if(intent.source==='agent42-owner-two-unit-paid-retreat-v2'){
       audit.twoUnitPaidRetreatRootV2Selected++;
+      if(seat===0||seat===1)
+        audit.twoUnitPaidRetreatRootV2SelectedBySeat[seat]++;
+      else audit.twoUnitPaidRetreatRootV2SelectedUnknownSeat++;
+    }
     if(intent.source==='agent42-paid-retreat-v2-floatstone-arbitration')
       audit.twoUnitPaidRetreatV2FreeToolSelected++;
     if(intent.singleHeldPsychicContestedByUnderworld===true)
