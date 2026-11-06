@@ -8,6 +8,22 @@ const {runStewardBroaderV8}=require('../simulation/evaluation/agent36-issue25-co
 const {runIssue25V8WithOwnerAbilityPolicy}=require('../simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs');
 const {writeReceipt}=require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
 
+test('pinned native owner-ability loader resolves actual Store, bot and prompt classes',()=>{
+  initializeCards();
+  const {loadNativeAbilityDependencies}=require(
+    '../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
+  const {ptcgServer,types}=loadNativeAbilityDependencies();
+  for(const name of ['Store','SimpleTacticsAi','ConfirmPrompt',
+    'ChooseCardsPrompt','ResolvePromptAction']){
+    assert.equal(typeof ptcgServer[name],'function',name);
+  }
+  assert.equal(typeof types.CardType.WATER,'number');
+  assert.equal(typeof types.SuperType.POKEMON,'number');
+  assert.equal(typeof types.Stage.VMAX,'number');
+  assert.equal(types.GameMessage.WANT_TO_USE_ABILITY,
+    'WANT_TO_USE_ABILITY');
+});
+
 function idOf(row){return row.trial?.id??row.id??null;}
 function rootsOf(row){
   const direct=row.rootActionLedger;
