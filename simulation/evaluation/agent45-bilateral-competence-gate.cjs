@@ -239,6 +239,32 @@ function screenObservedReciprocalSequence(roots, sourceSeat, opponentSeat, optio
 }
 
 /**
+ * Observe a positive change in public Active damage on the defender board.
+ * Equal printing is not a physical-card identity certificate; duplicate
+ * printings may exist. This says nothing about printed attack legality.
+ * @param {object} settledAttack Archived native attack settlement packet.
+ * @param {0|1} defenderSeat Actual defending physical seat.
+ * @returns {object|null}
+ */
+function screenPublicDefenderDamageChange(settledAttack, defenderSeat) {
+  if(settledAttack?.settledPromptChain!==true||
+     (defenderSeat!==0&&defenderSeat!==1))return null;
+  const before=settledAttack.publicBoardBefore?.[defenderSeat]?.active;
+  const after=settledAttack.publicBoardAfter?.[defenderSeat]?.active;
+  if(!before||!after||typeof before.printing!=='string'||
+     before.printing!==after.printing||
+     !Number.isSafeInteger(before.damage)||!Number.isSafeInteger(after.damage)||
+     after.damage<=before.damage||((after.damage-before.damage)%10)!==0)return null;
+  return {defenderPrinting:before.printing,
+    beforeDamage:before.damage,afterDamage:after.damage,
+    addedDamage:after.damage-before.damage,
+    damageCounterDelta:(after.damage-before.damage)/10,
+    nativePublicChangeObserved:true,
+    exactPhysicalCardIdentityProven:false,
+    printedPaperLegalityVerified:false};
+}
+
+/**
  * Screen every registered actual-native attempt while preserving all
  * dispositions. This is intentionally an UNQUALIFIED action-only census.
  * @param {{attempts:object[]}} archive Source artifact with native roots.
@@ -261,6 +287,7 @@ function screenArchivedReciprocalAttempts(archive) {
         opponentSeat:a.candidateSeat??null,
         generalSequence:null,sourceAttackSequence:null,
         settledSourceAttackBeforeObservedReply:false,
+        observedPublicDefenderDamage:null,
         settledSourceAttackCompletionRoot:null,
         settledSourceAttackPrizeChange:null,
         archiveIntegrity:'QUARANTINED-incomplete-public-root-proof',
@@ -286,6 +313,8 @@ function screenArchivedReciprocalAttempts(archive) {
         attack.completionRootOrdinal<
           sourceAttack.opponent.ordinal)??null:null;
     const settledSourceAttackBeforeObservedReply=settledSourceAttack!==null;
+    const observedPublicDefenderDamage=settledSourceAttack?
+      screenPublicDefenderDamageChange(settledSourceAttack,a.candidateSeat):null;
     const settledSourceAttackPrizeChange=settledSourceAttack&&
       Number.isInteger(settledSourceAttack.prizesBefore?.[a.originalSourceSeat])&&
       Number.isInteger(settledSourceAttack.prizesAfter?.[a.originalSourceSeat])?
@@ -296,6 +325,7 @@ function screenArchivedReciprocalAttempts(archive) {
       sourceSeat:a.originalSourceSeat,opponentSeat:a.candidateSeat,
       generalSequence:general,sourceAttackSequence:sourceAttack,
       settledSourceAttackBeforeObservedReply,
+      observedPublicDefenderDamage,
       settledSourceAttackCompletionRoot: settledSourceAttack?.completionRootOrdinal??null,
       settledSourceAttackPrizeChange,
       archiveIntegrity:'VERIFIED-original-public-root-ledger',
@@ -311,6 +341,8 @@ function screenArchivedReciprocalAttempts(archive) {
     anySourceAttackSequenceContexts:rows.filter(r=>r.sourceAttackSequence).length,
     attackAnchorSettledBeforeReplyContexts:rows.filter(r=>
       r.settledSourceAttackBeforeObservedReply).length,
+    publicPositiveDamageBeforeReplyContexts:rows.filter(r=>
+      r.observedPublicDefenderDamage!==null).length,
     competitiveGamesQualified:0,
     evidenceClass:'real-native-action-only-not-causal-paper-or-policy-qualified',
     rows};
@@ -318,4 +350,5 @@ function screenArchivedReciprocalAttempts(archive) {
 
 module.exports = {VERSION, rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
-  screenObservedReciprocalSequence, screenArchivedReciprocalAttempts};
+  screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
+  screenArchivedReciprocalAttempts};
