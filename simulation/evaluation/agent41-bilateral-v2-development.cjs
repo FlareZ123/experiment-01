@@ -363,8 +363,6 @@ function actorPaidRetreatRootOptions({
 }={}){
   assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
     'Select only one paid-Retreat policy version');
-  assert.ok(onRootStoreCreated===null||typeof onRootStoreCreated==='function');
-  assert.ok(onRootActionDispatched===null||typeof onRootActionDispatched==='function');
   assert.ok(actorTwoUnitPaidRetreatTargetTurn===null||
     (actorTwoUnitPaidRetreatRoot&&Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurn)&&
      actorTwoUnitPaidRetreatTargetTurn>1),
@@ -1288,6 +1286,8 @@ function runDevelopment({
     'Registered v2 paid-Retreat target turn must be an integer >1');
   assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
     'Select only one paid-Retreat policy version');
+  assert.ok(onRootStoreCreated===null||typeof onRootStoreCreated==='function');
+  assert.ok(onRootActionDispatched===null||typeof onRootActionDispatched==='function');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
