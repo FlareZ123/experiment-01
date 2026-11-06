@@ -44,6 +44,8 @@ In the second affected trial, control's contender seat1 used Filch **14** times 
 
 **Native finish disposition:** A = 4 finishes / 3 caps / 1 error; B = **3 finishes / 4 caps / 1 error**; A' = identical to A. Both affected trials' printed physical source/deck lists, initial draw and native rules were identical; the positive effect comes from the single source-independent owner-decision guard.
 
+The native successor decisions **genuinely diverged downstream**. For the `11:202:A:champion-reference` trial, original control recorded 13 contender Filch declarations and **no other contender attack**. Conservative treatment recorded 5 Filch declarations, **3 actual Full Moon Rondo declarations** by the contender, and **9 actual Motivate declarations** by the original source, consistent with a substantially changed board interaction. For `11:203:B:champion-reference`, native source `Terminal Period` attack declarations grew from **2** to **16** as the game extended to root252. These are action declarations and resulting public game progress under a weak bot, and do not by themselves independently certify attack effectiveness, Prize custody or human strategic quality.
+
 ## Certification and interpretation
 
 This is a causally interpretable native **decision-policy sensitivity** witness on two selected original rank11 physical games. The native result does not demonstrate that passing is optimal; it has no competing funded attack, gust, recovery or effective game-clock evaluation. It does establish that source wins previously counted as ordinary engine terminals can be **entirely erased or delayed** by a minimal owner-deck conservation decision, with exact same original physical deals.
