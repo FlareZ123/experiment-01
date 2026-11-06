@@ -90,7 +90,8 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
     version:VERSION,registeredRealStores:0,encounteredOwnerReplies:0,
     proposedNativeTools:0,acceptedNativeTools:0,
     proposedNativeRetreats:0,acceptedNativeRetreats:0,
-    nativeRejects:0,records:[],opponentCompetenceUnverified:true,
+    nativeRejects:0,records:[],genericFloatStoneIntents:[],
+    opponentCompetenceUnverified:true,
     paperLegalityUnverified:true,competitiveGamesQualified:0
   };
   function dispatch(action,...rest) {
@@ -135,6 +136,24 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
     const intent=choose(view);
     if(!intent)return nativeAction;
     audit.encounteredOwnerReplies++;
+    // Audit whether the already-shared, non-case-specific owner-only Float
+    // Stone helper detects this exact observed source, without influencing
+    // any game action or disclosing non-owner concealed zones.
+    const {Stage,SpecialCondition}=native('game/store/card/card-types');
+    const generic=require('./agent1-owner-float-stone-mobility.cjs')
+      .chooseOwnerFloatStoneMobility(view,{
+        stages:Stage,specialConditions:SpecialCondition
+      });
+    audit.genericFloatStoneIntents.push({
+      turn:view.globalTurn,seat,
+      selectedCanaryIntent:intent.kind,
+      sharedGenericIntent:generic?.kind??null,
+      sharedGenericTargetPrinting:generic?.printing??null,
+      samePhysicalHandIndex:
+        intent.handIndex===undefined||generic?.handIndex===intent.handIndex,
+      sameBenchDestination:
+        (intent.benchIndex??intent.nextBenchIndex)===generic?.benchIndex
+    });
     let action;
     if(intent.kind==='attach-floatstone-to-stranded-marshadow'){
       assert.equal(owner.hand.cards[intent.handIndex]?.fullName,
