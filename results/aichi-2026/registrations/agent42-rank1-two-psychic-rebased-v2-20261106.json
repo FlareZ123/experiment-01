@@ -1,0 +1,48 @@
+{
+  "schema": "agent42-rank1-two-psychic-rebased-v2-registered-before-native-execution",
+  "createdAtUtc": "2026-11-06T09:35:03Z",
+  "reason": "Historical A/B/A 20261105 blocked before execution at strict preflight by changed agent41 runner code, observed in CI run 42195215099. Rebase is distinct and cannot be pooled with pre-drift native results.",
+  "baseRegistrationPath": "results/aichi-2026/registrations/agent42-rank1-two-psychic-paid-retreat-original-deal-aba-20261105.json",
+  "baseRegistrationBlob": "337aec2fc79536a104296c29e8f5fc1b6b0eb177",
+  "frozenSourceRegistration": "results/aichi-2026/registrations/agent42-selected-v3-rank1-independent-heldout-20261103.json",
+  "frozenSourceBlob": "7bdaa9c551ae1ce5d4bb818e71c21c8675a355f8",
+  "frozenTransport": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "frozenTransportBlob": "8b7f7dfd271937fc613d277f03941dda663734ff",
+  "frozenSourceSelectedManifest": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
+  "frozenSourceSelectedManifestBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
+  "preexistingCurrentCodeBlobs": [
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "49c979ab14d0574119b31f3c238e2d47c6ee512c"
+    },
+    {
+      "path": "simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs",
+      "blob": "931d7c36a12975b75b622acac80ed6c498c16f06"
+    }
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rank": 1,
+  "seed": 884910343,
+  "sourceTrialId": "1:432:A:new-moon-lockbreaker-v1",
+  "sourcePhysicalSeat": 1,
+  "conditionalPriorWitness": true,
+  "actionCap": 240,
+  "modeSequence": [
+    "original-selected-v3-control-a",
+    "native-two-basic-psychic-paid-retreat-at-owner-turn34",
+    "original-selected-v3-control-b"
+  ],
+  "nAttempts": 3,
+  "competitionMode": "Developmental retrospective physical-deal A/B/A; original fixed 60s and both seat algorithms retained; new runner pin separated from old",
+  "requiredEvidence": [
+    "preflight all pinned original printed 60s, current code and selected v3 modes",
+    "one identical first physical source and full initial deal per arm",
+    "repeated-control identical real root ledgers",
+    "first actually accepted divergence under owner-only opt-in",
+    "actual physical two distinct Basic Psychic cards in real Store discard and target promotion",
+    "settled Max Geist with independently observed Prize deltas and same-epoch opponent reply",
+    "account speculative Store calls separately; do not treat global Store wrapper count as actual real-game payment"
+  ],
+  "qualifyingGames": 0,
+  "winRate": null
+}
