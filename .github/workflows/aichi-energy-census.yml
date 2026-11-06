@@ -188,4 +188,17 @@ jobs:
           name: agent35-rank11-firstturn-family-native-v4
           path: agent35-rank11-firstturn-family-native-v4.json
           retention-days: 21
+      - name: Verify independent original post-Family source and opponent action attribution
+        run: node --test tests/agent35-rank11-firstturn-family-postattack-v5.test.cjs
+      - name: Observe original source and opponent voluntary root chronology without changing decisions
+        env:
+          AGENT35_FIRSTTURN_FAMILY_POSTATTACK_OUTPUT: agent35-rank11-firstturn-family-postattack-v5.json
+        run: node simulation/evaluation/agent35-rank11-firstturn-family-postattack-v5.cjs
+      - name: Preserve after-source-attack accepted root denominator and native abort
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-rank11-firstturn-family-postattack-v5
+          path: agent35-rank11-firstturn-family-postattack-v5.json
+          retention-days: 21
           if-no-files-found: warn
