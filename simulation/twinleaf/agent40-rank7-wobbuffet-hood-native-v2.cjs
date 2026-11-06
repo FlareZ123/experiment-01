@@ -54,7 +54,7 @@ function probe(params) {
   const originalId = x.originalPlayer.id;
   const currentOriginal = () =>
     x.store.state.players.find(p => p.id === originalId);
-  const missing = currentOriginal().deck.cards.find(c => c.fullName === 'Snorlax PGO');
+  const missing = currentOriginal().deck.cards.find(c => c.fullName === 'Regirock XYP');
   assert.ok(missing, 'Exact original rank7 source Basic deck target');
   const before = currentOriginal();
   const emptyBefore = before.bench.filter(b => b.cards.length === 0).length;
