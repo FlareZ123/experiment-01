@@ -51,6 +51,60 @@ function trials(){
 }
 
 /**
+ * Preserve public terminal evidence and distinguish a natural finish from
+ * the configured all-actions root cap. The policy result remains unqualified.
+ * @param {object} row Raw native development row.
+ * @param {object|null} attemptedStatus Registered attempt status.
+ * @returns {object}
+ */
+function summarizeNativeAttempt(row,attemptedStatus=null){
+  const id=row.trial?.id??row.id??null;
+  const acceptedNativeRootCount=row.rootActionLedger?.length??
+    row.rootActionCount??null;
+  const rootActionCount=row.rootActionCount??acceptedNativeRootCount;
+  const finished=typeof row.finished==='boolean'?row.finished:null;
+  const actionCount=Number.isSafeInteger(row.actionCount)?
+    row.actionCount:null;
+  const sourceSeat=row.sourceSeat??
+    attemptedStatus?.originalSourceSeat??
+    row.nativeAbortProvenance?.sourceSeat??null;
+  const candidateSeat=row.candidateSeat??
+    attemptedStatus?.candidateSeat??
+    row.nativeAbortProvenance?.candidateSeat??null;
+  const winner=row.winner??null;
+  const aborted=attemptedStatus?.status==='engine-error'||
+    row.nativeAbortProvenance?.aborted===true||
+    row.nativeAbortEvidence?.aborted===true||
+    row.error!==undefined&&row.error!==null;
+  const nativeOutcome=aborted?'engine-error':
+    finished===true?'native-terminal':
+    finished===false&&acceptedNativeRootCount===ROOT_LIMIT&&
+      actionCount===ROOT_LIMIT?'action-cap':'returned-unqualified';
+  const status=nativeOutcome==='native-terminal'?
+    'native-terminal-unqualified':
+    nativeOutcome==='action-cap'?'root-cap-unqualified':
+    nativeOutcome==='engine-error'?'engine-error':
+    attemptedStatus?.status??row.status??'returned-unqualified';
+  return {
+    id,status,nativeOutcome,acceptedNativeRootCount,rootActionCount,
+    actionCount,finished,winner,endReason:row.endReason??null,
+    finalPrizes:row.finalPrizes??null,finalBoard:row.finalBoard??null,
+    terminalWinnerMatchesCandidate:nativeOutcome==='native-terminal'&&
+      winner!==null&&candidateSeat!==null&&winner===candidateSeat,
+    sourceSeat,candidateSeat,
+    sourceDealFingerprint:row.sourceDealFingerprint??
+      attemptedStatus?.sourceDealFingerprint??null,
+    fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??
+      attemptedStatus?.fullPhysicalDealFingerprint??null,
+    actualDeclaredSourceAttacks:row.sourceAttackSettlement?.attacks?.length??null,
+    completedSettledSourceAttacks:
+      row.sourceAttackSettlement?.attacks?.filter(a=>
+        a.settledPromptChain===true).length??null,
+    declaredPaperGameQualified:false
+  };
+}
+
+/**
  * Exactly one source-independent algorithm on both real physical seats.
  * The only change since v7 is fresh prospective game population and root128.
  * All source attacks and prompt replies go through native pinned Store.
@@ -93,22 +147,12 @@ function runStewardBroaderV8(deps={}){
   assert.ok(voltWrapper.result&&typeof voltWrapper.result==='object');
   const selected=voltWrapper.result.result;
   const originalRows=selected.rawDevelopment?.rows??[];
-  const nativeRows=originalRows.map(row=>({
-    id:row.trial?.id??row.id??null,
-    status:row.status??'returned-unqualified',
-    acceptedNativeRootCount:row.rootActionLedger?.length??null,
-    sourceSeat:row.sourceSeat??
-      row.nativeAbortProvenance?.sourceSeat??null,
-    candidateSeat:row.candidateSeat??
-      row.nativeAbortProvenance?.candidateSeat??null,
-    sourceDealFingerprint:row.sourceDealFingerprint??null,
-    fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
-    actualDeclaredSourceAttacks:row.sourceAttackSettlement?.attacks?.length??null,
-    completedSettledSourceAttacks:
-      row.sourceAttackSettlement?.attacks?.filter(a=>
-        a.settledPromptChain===true).length??null,
-    declaredPaperGameQualified:false
-  }));
+  const attemptedStatusById=new Map(
+    (selected.diagnostic.attemptedRows??[]).map(row=>[row.id,row])
+  );
+  const nativeRows=originalRows.map(row=>summarizeNativeAttempt(
+    row,attemptedStatusById.get(row.trial?.id??row.id??null)??null
+  ));
   const manifest={
     ...selected.manifest,
     version:VERSION,policyEntryPoint:HASH_PATHS[0],
@@ -148,4 +192,4 @@ function runStewardBroaderV8(deps={}){
   return {manifest,diagnostic,rawDevelopment:selected.rawDevelopment};
 }
 module.exports={VERSION,ROOT_LIMIT,REGISTRATION_PATH,HASH_PATHS,trials,
-  runStewardBroaderV8};
+  summarizeNativeAttempt,runStewardBroaderV8};
