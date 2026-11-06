@@ -39,6 +39,7 @@ function runArm(trial,cards){
   let ownerPassFrontierAudit=null;
   let targetedTeamFlareAudit=null;
   let targetedPaleMoonAudit=null;
+  let targetedGuzmaReplyAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -101,12 +102,23 @@ function runArm(trial,cards){
             ownerSupporterOpportunityAudit=observedSupporters.audit;
             return observedSupporters.result;
           };
+          const withFrozenGuzmaReply=()=>{
+            if(trial.targetedGuzmaAfterPaleMoonNative!==true)
+              return withSupporterAudit();
+            const {withFrozenRank3GuzmaReply}=require(
+              '../twinleaf/agent34-frozen-rank3-guzma-palemoon-native.cjs');
+            const observed=withFrozenRank3GuzmaReply(withSupporterAudit,{
+              targetSeat:rank3Seat,targetTurn:61
+            });
+            targetedGuzmaReplyAudit=observed.audit;
+            return observed.result;
+          };
           const withPaleMoon=()=>{
             if(trial.targetedPaleMoonNative!==true)
-              return withSupporterAudit();
+              return withFrozenGuzmaReply();
             const {withTargetedFundedPaleMoon}=require(
               '../twinleaf/agent17-targeted-rank1-pale-moon-native.cjs');
-            const observed=withTargetedFundedPaleMoon(withSupporterAudit,{
+            const observed=withTargetedFundedPaleMoon(withFrozenGuzmaReply,{
               targetSeat:1-rank3Seat,targetTurn:60
             });
             targetedPaleMoonAudit=observed.audit;
@@ -203,6 +215,7 @@ function runArm(trial,cards){
       ...(trial.captureOwnerPassSnapshots===true?{ownerPassFrontierAudit}:{}),
       ...(trial.targetedTeamFlareNative===true?{targetedTeamFlareAudit}:{}),
       ...(trial.targetedPaleMoonNative===true?{targetedPaleMoonAudit}:{}),
+      ...(trial.targetedGuzmaAfterPaleMoonNative===true?{targetedGuzmaReplyAudit}:{}),
       competitiveGameQualified:false
     };
   }catch(error){
