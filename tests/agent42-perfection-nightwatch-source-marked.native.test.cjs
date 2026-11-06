@@ -231,8 +231,12 @@ for(const seat of [0,1]){
         const resolve=bot.resolvePrompt(f.attacker,f.state,randomHand);
         assert.ok(resolve instanceof ResolvePromptAction);
         f.store.dispatch(resolve);
+        const handAfterDisruption=f.defender.hand.cards.length;
+        assert.equal(handAfterDisruption,1,
+          'Before the next-turn draw, two printed-random cards left the three-card hand');
         const followup=settleOriginalNightWatchPostPrompts(f);
-        return {followup,handCount:f.defender.hand.cards.length,
+        return {followup,handAfterDisruption,
+          handAfterNextTurn:f.defender.hand.cards.length,
           damaged:f.defender.active.damage,phase:f.state.phase,
           turn:f.state.turn,currentPlayer:f.state.activePlayer,
           lastAttack:f.state.lastAttack?.name??null,
@@ -244,7 +248,11 @@ for(const seat of [0,1]){
       assert.equal(corrected.audit.samples.length,1);
       assert.equal(corrected.audit.markedSourcePrompts,1);
       assert.equal(corrected.audit.prototypeRestored,true);
-      assert.equal(corrected.result.handCount,1);
+      console.log('AGENT42_PERFECTION_SETTLED_DIAGNOSTIC',JSON.stringify({
+        seat,actionTape,shuffleAudit:shuffled.audit,
+        observed:corrected.result,competitivelyQualifiedGames:0
+      }));
+      assert.equal(corrected.result.handAfterDisruption,1);
       assert.equal(corrected.result.damaged,150,
         'Fully resolved copied printed attack must deal 150 to Rotom V');
       assert.equal(actionTape.filter(x=>x==='UseAbilityAction').length,1);
