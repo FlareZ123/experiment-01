@@ -133,9 +133,8 @@ function audit(config) {
     else if(activationStatus!=='B_WRAPPER_INSTALLATION_RECORDED')
       treatmentWitness=activationStatus;
     else if(treatmentDifference===null)treatmentWitness='ACTIVE_NO_DIVERGENCE';
-    else if(la.kind==='ABORT_PRESERVED' &&
-       treatmentDifference.index>=la.ledger.length)
-      treatmentWitness='CONTROL_CENSORED_AT_DIVERGENCE';
+    else if(treatmentDifference.control===null)
+      treatmentWitness='CONTROL_ENDED_BEFORE_DIVERGENCE';
     else if(treatmentDifference.treatment?.action==='RetreatAction' &&
       treatmentDifference.treatment?.playerSlot===trial.sourceSeat &&
       Number.isSafeInteger(treatmentDifference.treatment?.actionOrdinal))
