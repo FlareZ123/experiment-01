@@ -477,7 +477,7 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(audit.actorDecisions.filter(x=>x.kind==='accept-one-compensation-card').length,1);
   assert.equal(audit.defaultChooseCardsResolverInstalled,true);
   assert.equal(audit.defaultChooseCardsResolverInvoked,true);
-  assert.ok(Number.isSafeInteger(audit.defaultChooseCardsResolverIndex));
+  assert.equal(audit.defaultChooseCardsResolverIndex,3);
   assert.deepEqual(audit.optionalPrompt?.defaultResolverSelection,
     [audit.optionalPrompt?.candidate]);
   assert.equal(audit.optionalPrompt?.defaultResolverInstalled,true);
