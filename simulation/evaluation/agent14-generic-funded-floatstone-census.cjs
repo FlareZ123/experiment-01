@@ -10,7 +10,7 @@ const {registeredTrials}=require(
 const {treatmentOptions}=require(
   './agent10-rank9-known-dead-attack-counterfactual.cjs');
 
-const VERSION='agent14-generic-funded-original-source-opportunity-census-v1';
+const VERSION='agent14-generic-funded-original-source-opportunity-census-v2-held-gates';
 const ROOT=path.resolve(__dirname,'../..');
 const BASELINE_FINGERPRINT=
   'cf2722c6fbd637a43c20a05dcc4a0d26cae7f1171d5cb2ecdab229ddee65b4b6';
@@ -113,6 +113,16 @@ function run(){
     ]));
     aggregate.eligibleBySeat=[0,1].map(seat=>sections.reduce(
       (sum,s)=>sum+s.census.eligibleBySeat[seat],0));
+    const gateFields=require('../twinleaf/agent14-floatstone-held-owner-gates.cjs')
+      .FIELDS;
+    aggregate.heldGateCounts=Object.fromEntries(gateFields.map(gate=>[
+      gate,sections.reduce((sum,s)=>sum+
+        (s.census.heldGateCounts?.[gate]??0),0)
+    ]));
+    for(const gate of gateFields){
+      assert.ok(aggregate.heldGateCounts[gate]<=aggregate.ownerHeldToolRoots,
+        'held-only gate count exceeds held-root denominator');
+    }
     const result={
       version:VERSION,registeredTrials:trials.map(x=>x.id),
       enginePin:profile.pinnedVendorRevision,
