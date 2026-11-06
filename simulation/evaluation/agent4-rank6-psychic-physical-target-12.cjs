@@ -9,6 +9,8 @@ const {withGuardAndTypedWitness}=
   require('./agent4-rank6-owner-underworld-veto-paired-24.cjs');
 const {writeAtomicLocked}=
   require('./agent20-frozen-rank6-canary-v1.cjs');
+const {rootLabelMatchesNativePrinting}=
+  require('../twinleaf/native-accepted-target-store-observer.cjs');
 const REG=require('../../results/aichi-2026/registrations/agent4-underworld-guard-psychic-native-target-receipt-20261106.json');
 const ROOT_REG=require('../../results/aichi-2026/registrations/agent4-rank6-underworld-guard-postabort-root-audit-v1-20261106.json');
 const VERSION='agent4-rank6-first-native-accepted-psychic-physical-target-v1';
@@ -40,7 +42,8 @@ function physicalTargetReceipt(row,target){
     declaredPhysicalTarget:sole?.declaredTarget??null,
     publicAfterStoreSlotChanges:sole?.publicBoardChanges??null,
     targetCardMatchedPublicRoot:
-      sole?.ownerPublicCardPrinting==='Psychic Energy'&&
+      rootLabelMatchesNativePrinting('Psychic Energy',
+        sole?.ownerPublicCardPrinting)&&
       sole?.action==='PlayCardAction'&&
       sole?.nativeStoreAccepted===true,
     publicTargetVisibleAfterNativeStore:
