@@ -6,8 +6,8 @@ const {withOwnerVsSeekerGuzmaLayer}=require('../simulation/twinleaf/agent48-owne
 
 class AddPlayerAction{}
 class PlayCardAction{
-  constructor(playerId,playerType,slotType,handIndex){
-    Object.assign(this,{playerId,playerType,slotType,handIndex});
+  constructor(playerId,handIndex,position){
+    Object.assign(this,{playerId,handIndex,...position});
   }
 }
 class ResolvePromptAction{
@@ -90,7 +90,7 @@ function scenario(ownerSeat,wrongZone=false){
 }
 const deps={
   Store,SimpleTacticsAi,PlayCardAction,ResolvePromptAction,
-  actionTypes:{PlayerType:{ANY:0},SlotType:{BOARD:1}}
+  actionTypes:{PlayerType:{BOTTOM_PLAYER:0},SlotType:{BOARD:1}}
 };
 
 test('both physical seats recover the exact owner-discard Guzma through native prompt dispatch',()=>{
