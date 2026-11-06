@@ -85,6 +85,8 @@ function publicOutcome(row){
     finalPrizes:row.nativeFinalPrizes,
     finalDeckCountsBySeat:end?.publicDeckCountsBySeat??null,
     terminalReason:row.nativeEndReason,
+    nativeTerminalRuleStatus:row.nativeTerminalCause?.status??null,
+    nativeTerminalConditions:row.nativeTerminalCause?.conditions??[],
     originalSourcePrintedAttacks:row.sourceActualAttacks?.map(x=>x.attackName)??[],
     rootLedgerSHA256:sha256(row.publicNativeRootActions),
     countsBySeat:[0,1].map(seat=>({
