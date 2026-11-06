@@ -51,12 +51,21 @@ test('native abort remains in denominator with explicit absent observation',()=>
  sample[0].finished=false;
  sample[0].nativeAllOwnerPassFrontier=null;
  sample[0].sourceDealFingerprint=null;
+ sample[0].nativeAbortEvidence={rootActionLedger:[
+   {action:'PassTurnAction',playerSlot:0,actionOrdinal:5},
+   {action:'PlayCardAction',playerSlot:1,actionOrdinal:6},
+   {action:'PassTurnAction',playerSlot:1,actionOrdinal:7}
+ ]};
  const result=summarize(sample);
  assert.equal(result.registeredOriginalNativeArms,32);
  assert.equal(result.returnedOriginalNativeArms,32);
  assert.equal(result.nativeErrors,1);
  assert.equal(result.rowsWithCompletePassEvidence,31);
  assert.equal(result.nativePassRootsInCompleteRows,62);
+ assert.equal(result.knownAcceptedPassRootsOnIncompleteNativeRows,2);
+ assert.equal(result.knownAcceptedPassRootsAcrossAllRows,64);
+ assert.equal(result.byTrial[0].knownAcceptedPassesOnAbort,2);
+ assert.equal(result.byTrial[0].ownerPassReceipts,null);
  assert.equal(result.byTrial[0].status,'native-error');
  assert.equal(result.byTrial[0].actualNativePasses,null);
  assert.equal(result.sourceDealMatchedWithinBothContenders,15);
