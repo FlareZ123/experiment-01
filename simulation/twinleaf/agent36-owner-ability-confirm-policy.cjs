@@ -1,9 +1,34 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const path=require('node:path');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
 const VERSION='agent36-owner-ability-confirm-policy-v1';
+
+/**
+ * Load actual classes exported by pinned Twinleaf (not a nonexistent package
+ * alias). Keep the direct dependency injection path for isolated tests.
+ * @returns {{ptcgServer:object,types:object}}
+ */
+function loadNativeAbilityDependencies(){
+  const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+  const load=name=>require(path.join(output,name));
+  const {CardType,SuperType,Stage}=
+    load('game/store/card/card-types');
+  return {
+    ptcgServer:{
+      Store:load('game/store/store').Store,
+      SimpleTacticsAi:load('simple-bot/simple-tactics-ai').SimpleTacticsAi,
+      ConfirmPrompt:load('game/store/prompts/confirm-prompt').ConfirmPrompt,
+      ChooseCardsPrompt:load('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt,
+      ResolvePromptAction:load('game/store/actions/resolve-prompt-action')
+        .ResolvePromptAction
+    },
+    types:{CardType,SuperType,Stage,
+      GameMessage:load('game/game-message').GameMessage}
+  };
+}
 
 /** @param {object} slot */
 function energyCards(slot){return slot?.energies?.cards??[];}
@@ -117,14 +142,15 @@ function chooseRadiantVmaxTargets({prompt,owner,types}){
  */
 function withOwnerAbilityConfirmPolicy(run,deps={}){
   assert.equal(typeof run,'function');
-  const ptcg=deps.ptcgServer??require('@twinleaf/ptcg-server');
-  const types=deps.types??require('./native-types.cjs').loadNativeTypes();
+  const native=deps.ptcgServer&&deps.types?null:loadNativeAbilityDependencies();
+  const ptcg=deps.ptcgServer??native.ptcgServer;
+  const types=deps.types??native.types;
   const validate=deps.validate??assertValidPromptAction;
   const {Store,SimpleTacticsAi,ConfirmPrompt,ChooseCardsPrompt,
-    ResolvePromptAction,ChooseCardsAction}=ptcg;
+    ResolvePromptAction}=ptcg;
   assert.ok(Store?.prototype&&SimpleTacticsAi?.prototype);
   assert.equal(typeof ResolvePromptAction,'function');
-  assert.equal(typeof ChooseCardsAction,'function');
+
 
   const originalDispatch=Store.prototype.dispatch;
   const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
@@ -263,10 +289,12 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     if(ability?.cardName==='Radiant Eternatus'&&
         prompt instanceof ChooseCardsPrompt&&
         prompt.message===types.GameMessage.CHOOSE_CARD_TO_PUT_ONTO_BENCH&&
-        prompt.filter?.stage===types.Stage.VMAX){
+        prompt.filter?.superType===types.SuperType.POKEMON&&
+        prompt.cards===owner?.deck&&
+        prompt.options?.min===0&&prompt.options?.max<=2){
       audit.radiantSearchOffers++;
       const selected=chooseRadiantVmaxTargets({prompt,owner,types});
-      const action=new ChooseCardsAction(prompt.id,selected);
+      const action=new ResolvePromptAction(prompt.id,selected);
       validate(state,action);
       submitted.set(action,{
         kind:'radiant-search',prompt,selected,ownerId,
@@ -302,6 +330,6 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
 }
 
 module.exports={
-  VERSION,decideAbilityConfirm,chooseRadiantVmaxTargets,
-  withOwnerAbilityConfirmPolicy
+  VERSION,loadNativeAbilityDependencies,decideAbilityConfirm,
+  chooseRadiantVmaxTargets,withOwnerAbilityConfirmPolicy
 };
