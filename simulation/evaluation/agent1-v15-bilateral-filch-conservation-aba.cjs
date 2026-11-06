@@ -174,6 +174,20 @@ function runAgent1V15FilchAba(deps={}){
     const unchanged=
       repeatedOriginal.length===treatedRoots.length&&
       shared===repeatedOriginal.length;
+    const first=rootJoins[0]??null;
+    const before=repeatedOriginal[shared]??null;
+    const after=treatedRoots[shared]??null;
+    const firstDivergenceExactlyOwnerFilchToAcceptedPass=first===null?
+      unchanged:
+      first.nativeAcceptedPassRootOrdinal===shared&&
+      before?.actionOrdinal===shared&&
+      before?.action==='AttackAction'&&before.attack==='Filch'&&
+      before.playerSlot===first.ownerSeat&&
+      before.turnBefore===first.globalTurn&&
+      after?.actionOrdinal===shared&&
+      after?.action==='PassTurnAction'&&
+      after.playerSlot===first.ownerSeat&&
+      after.turnBefore===first.globalTurn;
     return {
       id,proposals:guard?.filch?.proposedPrintedOwnerFilch??null,
       originalFilchAccepted:guard?.filch?.acceptedOriginalFilch??null,
@@ -183,8 +197,9 @@ function runAgent1V15FilchAba(deps={}){
       rootJoins,
       sharedControlPrefixRoots:shared,
       hadAnyNativeRootDivergence:!unchanged,
+      firstDivergenceExactlyOwnerFilchToAcceptedPass,
       noChangedNativeRootsWithoutAnOfferedReplacement:
-        replacements.length>0||unchanged
+        firstDivergenceExactlyOwnerFilchToAcceptedPass
     };
   });
   const presentIds=registered.every(id=>auditById.has(id));
@@ -219,6 +234,9 @@ function runAgent1V15FilchAba(deps={}){
       noUnexplainedTreatmentRootChanges:
         treatmentRootAssertions.every(x=>
           x.noChangedNativeRootsWithoutAnOfferedReplacement),
+      everyFirstNativeDivergenceIsRegisteredOwnerFilchPass:
+        treatmentRootAssertions.every(x=>
+          x.firstDivergenceExactlyOwnerFilchToAcceptedPass),
       treatmentByTrial:treatmentRootAssertions,
       registeredHashes:HASH_PATHS.map(hashRegisteredFile)
     },
