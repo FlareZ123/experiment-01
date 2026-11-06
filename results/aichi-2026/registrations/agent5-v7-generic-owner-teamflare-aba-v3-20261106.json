@@ -1,0 +1,40 @@
+{
+  "schema": "agent5-v7-generic-teamflare-owner-prompt-aba-v3",
+  "createdUtc": "2026-11-06T22:56:00Z",
+  "method": "Post-result reproducibility equivalence check, not independent prospective benchmark.",
+  "parentRegisteredV2": "results/aichi-2026/registrations/agent5-v7-postvolt-teamflare-prompt-aba-v2-20261106.json",
+  "parentNativeRun": 42306693831,
+  "parentArtifact": 13547110518,
+  "parentSHA256": "3dce1bba154e22fb97ad2177769aa2b302996b6633ede0cb9a52209127452db5",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceTrials": 8,
+  "phases": [
+    "A",
+    "B",
+    "ARepeat"
+  ],
+  "rootActionsPerTrial": 96,
+  "singleTarget": {
+    "id": "6:201:B:champion-reference",
+    "seat": 0,
+    "globalTurn": 5
+  },
+  "expectedV2Frozen": {
+    "targetRootA": "7595a416b33efe8d741de8efe2478473f714161ede1974ebb35d0b0073779466",
+    "targetRootB": "585a0644f7451c393e5cbab916fe8e057eae33bc4bfc29fb731c646b116f3e0e",
+    "firstOpponentPrizeTurnA": 8,
+    "firstOpponentPrizeTurnB": 10,
+    "physicalEnergyMoved": [
+      "Psychic Energy MEE"
+    ],
+    "finalPrizeVector": [
+      3,
+      4
+    ],
+    "capsPerPhase": 6,
+    "errorsPerPhase": 2,
+    "terminalPerPhase": 0
+  },
+  "intervention": "Same exactly one original source owner Team Flare root decision as v2, replace target-only owner prompt with general owner-root-sourced prompt handler. Prove same public root tapes and physical outcomes for this already known source 96-root window.",
+  "notQualifiedForCompetitiveRate": true
+}
