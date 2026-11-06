@@ -84,6 +84,28 @@ test('twelve exact live trials retain both target errors and companion contexts'
   assert.equal(simulated.competitiveQualifiedGames,0);
   assert.equal(simulated.fieldWinRate,null);
 });
+test('read-only public root window begins at historical abort ordinal',()=>{
+  const {summarize}=require('../simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs');
+  const trace=Array.from({length:180},(_,i)=>({
+    actionOrdinal:i,turnBefore:i<141?32:33,
+    playerSlot:i%2,action:i===141?'AttackAction':'PassTurnAction',
+    card:null,attack:i===141?'Trinity Nova':null,
+    privateFieldShouldNeverLeak:'secret'
+  }));
+  const row={trial:{id:registration.contexts[0].id},
+    status:null,finished:false,rootActionLedger:trace,
+    rootActionCount:trace.length,endReason:'max-actions',
+    turns:40};
+  const x=summarize(row,[],true);
+  assert.equal(x.acceptedRootCount,180);
+  assert.equal(x.historicalOriginalAbortOrdinal,141);
+  assert.equal(x.nativeFirst28AcceptedPublicRootsAfterOriginalAbort.length,28);
+  assert.equal(x.nativeFirst28AcceptedPublicRootsAfterOriginalAbort[0].action,'AttackAction');
+  assert.equal(x.nativeFirst28AcceptedPublicRootsAfterOriginalAbort[0].actionOrdinal,141);
+  assert.equal(x.nativeFirst28AcceptedPublicRootsAfterOriginalAbort[0].
+    privateFieldShouldNeverLeak,undefined);
+  assert.equal(x.nativeFinished,false);
+});
 test('native mismatched or missing source ID fails rather than being reported',()=>{
   assert.throws(()=>run({
     manifest,runtime:fn=>fn(),
