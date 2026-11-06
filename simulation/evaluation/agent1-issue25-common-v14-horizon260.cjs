@@ -94,8 +94,7 @@ function runAgent1Horizon260V14(deps={}){
         status:row.finished===true?'engine-terminal':
           row.error?'engine-error':'action-cap-or-incomplete',
         engineWinner:row.finished===true?row.winner:null,
-        terminalTransition:publicEndstateById.get(row.trial?.id??row.id)?
-          .nativeTerminalTransition??null
+        terminalTransition:publicEndstateById.get(row.trial?.id??row.id)?.nativeTerminalTransition??null
       }),
       sourceActualAttacks:row.sourceAttackSettlement?.attacks??null,
       nativeError:row.error??null
