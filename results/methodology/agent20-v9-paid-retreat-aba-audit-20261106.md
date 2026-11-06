@@ -30,7 +30,7 @@ The archive reports zero RetreatAction roots, zero public paid-retreat transitio
 
 The historical adapter at commit 7ea8479c6acda71916aade2f28f73065a50b7c88 accepts and validates `actorTwoUnitPaidRetreatRoot` in `runDevelopment`. Its trial loop adds `twoUnitPaidRetreatRoot:true` and the target turn to the options object passed to `executeDevelopment`.
 
-The `executeDevelopment` parameter list does not destructure either property. Its call to the actor-only root-policy wrapper therefore receives neither option. The wrapper never activates the paid-retreat selector in B. The manifest records the requested mode, while the native policy wrapper runs the same configuration in all three phases.
+The actual defect is in the `scopedRoot` activation predicate immediately above `withActorOnlyRootPolicy`. Its conjunction omits `!actorTwoUnitPaidRetreatRoot`. When paid retreat is the only enabled root option, the predicate selects an empty object and the wrapper is never installed. The manifest records the requested mode, while all three phases run the same policy.
 
 This explains the complete absence of treatment divergence. The v9 run is effectively A/A/A. Its zero retreat count cannot be interpreted as a policy rejection or a strategic failure.
 
@@ -102,7 +102,7 @@ This run provides no strategic evidence about the paid-retreat policy. The `cont
 
 ## Minimum requirements for a successor
 
-1. Destructure `twoUnitPaidRetreatRoot` and `twoUnitPaidRetreatTargetTurn` in `executeDevelopment`, then pass them to the actor-only root-policy wrapper.
+1. Add `!actorTwoUnitPaidRetreatRoot` to the `scopedRoot` activation predicate and assert that the Agent34 audit records the opt-in and a nonzero selection count in B.
 2. Add a request-level policy activation receipt proving the v2 selector was active in every intended B match.
 3. Update summary and comparison code to use `nativeAbortEvidence.rootActionLedger` when an aborted row has no top-level ledger.
 4. Report decoder-abort coverage separately from root-cap completion.
