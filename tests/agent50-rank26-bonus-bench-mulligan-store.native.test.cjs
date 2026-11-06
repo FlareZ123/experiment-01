@@ -150,7 +150,7 @@ function withOwnerSetupAndBonusChoices(run,audit){
  * construct a physical deal only; the optional Bench decision reads the
  * defender's own hand and native prompt.
  * @template T
- * @param {()=>T} run
+ * @param {(audit:object)=>T} run
  * @returns {object} Failure-inclusive native setup receipt.
  */
 function withRank26BonusBenchFixture(run){
@@ -428,7 +428,7 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(defender.cards.length,60);
   assert.equal(defender.cards.filter(name=>name.includes('Iron Thorns ex')).length,4);
 
-  const audit=withRank26BonusBenchFixture(()=>withNativeRawStateFallbackQuarantine(
+  const audit=withRank26BonusBenchFixture(audit=>withNativeRawStateFallbackQuarantine(
     ()=>withOwnerPublicAcknowledgements(
       ()=>withGoFirstChoice(
         [true,false],
@@ -469,8 +469,8 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   if(directory){
     fs.mkdirSync(directory,{recursive:true});
     const file=path.resolve(directory,'rank26-vs-rank6-bonus-bench-native-v1-receipt.json');
-    writeAtomicLocked(file,body+'\\n');
-    writeAtomicLocked(file+'.sha256',hash+'  '+path.basename(file)+'\\n');
+    writeAtomicLocked(file,body+'\n');
+    writeAtomicLocked(file+'.sha256',hash+'  '+path.basename(file)+'\n');
   }
   console.log('AGENT50_RANK26_BONUS_BENCH_NATIVE_RECEIPT',
     JSON.stringify({...receipt,receiptSha256:hash}));
