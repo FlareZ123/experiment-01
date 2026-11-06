@@ -362,6 +362,19 @@ jobs:
           path: issue25-agent9-v7-floatstone-opponent/
           if-no-files-found: warn
           retention-days: 21
+      - name: Validate opponent Marshadow Resetting Hole after native Float Stone retreat
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          AGENT9_V7_RESETTING_HOLE_DIR: issue25-agent9-v7-postfloat-hole
+        run: node --test tests/agent9-v7-floatstone-counterreply.test.cjs tests/agent9-v7-resetting-hole-after-floatstone.native.test.cjs
+      - name: Archive exact original source opponent Resetting Hole followthrough
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-v7-opponent-postfloat-marshadow-resetting-hole
+          path: issue25-agent9-v7-postfloat-hole/
+          if-no-files-found: warn
+          retention-days: 21
       - name: Run prospective broader original four-rank 128-root same-policy v8
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
