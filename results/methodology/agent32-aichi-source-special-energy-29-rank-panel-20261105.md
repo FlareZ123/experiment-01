@@ -63,6 +63,8 @@ three compositions. A new manual CI step executes the **production** 29-roster
 entry point and both regression suites rather than relying solely on the
 previous synthetic-field tests.
 
+**Reproduction status, 6 November:** the new step `Verify original-29 Special Energy optional-bonus choice envelope` **PASSED** in [manual CI 42225839004](https://github.com/FlareZ123/experiment-01/actions/runs/42225839004), running both Node regression suites and the actual production `main()` on the authenticated 29 source records at head `ad1d1e7c22c795cfaefe0c7abe9bcab159b24d38`. The overall workflow **FAILED** from a separately named `Verify all 29 original Basic-conditioned first-turn Item and Trainer holdings` step; this distinction must be retained. No native match was dispatched by this step.
+
 ## Verification and limitations
 
 The [four new Node regression tests](../../tests/agent32-source-special-energy-field-panel.test.cjs) passed locally on a separately constructed synthetic 29-row source fixture, checking rank6, 29/24 mean values and corrupted input rejection. The production full original-roster main entry was not executed through GitHub Actions in this incarnation. Equivalent formula arithmetic on the actual authenticated roster plus prior independently audited Basic counts produced the table.
