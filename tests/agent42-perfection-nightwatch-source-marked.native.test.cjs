@@ -8,6 +8,8 @@ const {withSourceMarkedPaperRandomNightWatch}=
   require('../simulation/twinleaf/agent43-nightwatch-source-marked-random.cjs');
 const {isDirectNightWatchHandPrompt}=
   require('../simulation/twinleaf/agent43-nightwatch-paper-random-resolver.cjs');
+const {withNumericShufflePromptValidation}=
+  require('../simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs');
 
 const BASE=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -208,7 +210,8 @@ for(const seat of [0,1]){
     };
     const bot=Object.create(SimpleTacticsAi.prototype);
     try{
-      const corrected=withSourceMarkedPaperRandomNightWatch(()=>{
+      const shuffled=withNumericShufflePromptValidation(()=>
+        withSourceMarkedPaperRandomNightWatch(()=>{
         f.store.dispatch(new UseAbilityAction(f.attacker.id,'Perfection',{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
         }));
@@ -234,7 +237,10 @@ for(const seat of [0,1]){
           turn:f.state.turn,currentPlayer:f.state.activePlayer,
           lastAttack:f.state.lastAttack?.name??null,
           lastOwnerAttack:f.state.playerLastAttack?.[f.attacker.id]?.attack?.name??null};
-      },{seed:429260+seat});
+      },{seed:429260+seat}));
+      const corrected=shuffled.result;
+      assert.ok(shuffled.audit.rawRejectedCorrected>=1,
+        'Existing Agent33 numeric shuffle hook must correct real pinned 12-card reject');
       assert.equal(corrected.audit.samples.length,1);
       assert.equal(corrected.audit.markedSourcePrompts,1);
       assert.equal(corrected.audit.prototypeRestored,true);
