@@ -19,6 +19,8 @@ jobs:
         run: node --test tests/agent26-origin-bound-attack-choices.test.cjs
       - name: Verify exact rank19 ADP DDE source and frozen Ranger challenger counts
         run: node --test tests/agent30-rank19-adp-ranger-source.test.cjs
+      - name: Verify opt-in owner-only Ranger public GX proposal gates and hidden-zone isolation
+        run: node --test tests/agent30-ranger-public-gx-frontier.test.cjs
       - name: Check out existing pinned Twinleaf dependency
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Assert research-pinned engine revision
