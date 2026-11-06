@@ -57,7 +57,24 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
     const acceptedRootLedgerExactMatch=
       Array.isArray(controlLedger)&&Array.isArray(treatmentLedger)?
         JSON.stringify(controlLedger)===JSON.stringify(treatmentLedger):null;
+    const diagnostic=treatmentRaw.get(row.id)?.actorOnlyDecisionCoverage?.
+      nativeOwnerTrainerFallbackAudit??null;
+    const trainerFallbackDiagnostic=diagnostic===null?null:{
+      attemptedUnsupportedPasses:diagnostic.attemptedUnsupportedPasses,
+      selectedNativeTrainerRoots:diagnostic.selectedNativeTrainerRoots,
+      acceptedNativeTrainerRoots:diagnostic.acceptedNativeTrainerRoots,
+      rejectedNativeTrainerRoots:diagnostic.rejectedNativeTrainerRoots,
+      declinedByReason:diagnostic.declinedByReason,
+      sourceSelectedCount:(diagnostic.receipts??[]).filter(x=>
+        x.seat===row.sourceSeat).length,
+      candidateSelectedCount:(diagnostic.receipts??[]).filter(x=>
+        x.seat!==row.sourceSeat).length,
+      receiptsOmitted:diagnostic.receiptsOmitted
+    };
+    assert.ok(row.status==='engine-error'||diagnostic!==null,
+      `Missing native fallback disposition for registered ${row.id}`);
     return {
+      trainerFallbackDiagnostic,
       acceptedRootLedgerExactMatch,
       id:row.id,
       sourceSeat:row.sourceSeat,
@@ -104,6 +121,20 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
       row.acceptedRootLedgerExactMatch===true).length,
     differingAcceptedRootLedgerIds:pairs.filter(row=>
       row.acceptedRootLedgerExactMatch===false).map(row=>row.id),
+    fallbackDispositionKnownRows:pairs.filter(row=>
+      row.trainerFallbackDiagnostic!==null).length,
+    fallbackAttemptedUnsupportedPasses:pairs.reduce((sum,row)=>
+      sum+(row.trainerFallbackDiagnostic?.attemptedUnsupportedPasses??0),0),
+    fallbackSelectedNativeTrainerRoots:pairs.reduce((sum,row)=>
+      sum+(row.trainerFallbackDiagnostic?.selectedNativeTrainerRoots??0),0),
+    fallbackAcceptedNativeTrainerRoots:pairs.reduce((sum,row)=>
+      sum+(row.trainerFallbackDiagnostic?.acceptedNativeTrainerRoots??0),0),
+    fallbackDeclinedReasons:pairs.reduce((counts,row)=>{
+      for(const [reason,n] of Object.entries(
+        row.trainerFallbackDiagnostic?.declinedByReason??{}))
+        counts[reason]=(counts[reason]??0)+n;
+      return counts;
+    },{}),
     rawArchiveReceipts:artifacts,
     nativeBotMayUseHiddenInformation:true,
     printedCostAndTargetPaymentVerified:false,
