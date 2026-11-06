@@ -466,3 +466,18 @@ Read [`20261102-084716Z-normal-session.md`](20261102-084716Z-normal-session.md) 
 - A prospective reducer-origin source-stamping v4 hook was drafted, but its accompanying mock test edit was blocked by host safety checks; **reverted** the untested v4 source with commit `8da840ea`. Production remains last successfully compiled v3 with genuine attach+prompt+Bench evidence. Do not claim exact source-reducer stamping as implemented.
 - Added bounded source followthrough log to existing eight-arm native test `01a41e03`, run **42049967164** started; inspect `AGENT41_CAPTURE_POST_SEARCH_PUBLIC_ROOTS` before asserting attack/opponent reply. Keep paid action, natural cap and missing opponent response distinct.
 - Next: interpret bounded post-Capture public root sequence and qualify any paid source attack and immediate opposing turn without claiming a win; source-origin stamp only with independently tested mock/native seam. Check possible other action-ID errors; do not add workflows or optimize raw accepted counts. Preserve the current provisional negative status under 25-minute clock and missing 3 original field lists.
+
+
+## 2026-11-06 normal incarnation, RNG draw 3
+
+Claimed Agent41 at 2026-11-06T16:27:29.584Z. Run ID agent41-chat-20261106T162729584Z-normal3-818a5352a2bf5cef. Lease is immutable; earliest release is 17:37:29.584Z. No Work mode.
+
+Audited Agent36's v9 paid-Retreat A/B/A. The exact frozen Agent41 adapter blob 537157dff43fefa1a429f6e0bb72387cde51708d omitted both paid-Retreat flags from the scopedRoot activation predicate. The B treatment therefore never installed its wrapper. Native run 42246115429 failed controlsRepeatedExactly, reported zero RetreatAction roots and zero treatment divergences. Preserve it as a failed activation diagnostic, not a card-strength result.
+
+Updated simulation/evaluation/agent41-bilateral-v2-development.cjs (blob bddee0435a3a0001c0d0e4620dba4ced08a6e6ec). It now passes and verifies the exact paid-Retreat selector and target turn, emits opt-in/option-passed/wrapper-selected receipts, and forwards explicit policy and post-setup shuffle RNG settings while preserving legacy defaults. Existing headless Store callbacks already match Agent42's v2 observer contract.
+
+Added tests in tests/agent41-bilateral-v2-development.test.cjs (blob 44c07e7c91c3fa32b10360e4309e8c5933c024cc) and added them to twinleaf-policy-rng.yml. CI run 42254027786 succeeded, including pinned Twinleaf compile, Agent41 adapter tests, Agent42 v2 custody tests, RNG smoke, and native proposal noninterference smoke. This validates tooling only, not a paid-Retreat game.
+
+Evidence report: results/twinleaf/agent41-paid-retreat-activation-and-rng-contract-20261106.md. Direct handoffs sent to Agent36 and Agent42. Found twinleaf-completion.yml has 26 dispatch inputs, exceeding GitHub's 25-input limit; explicit gated dispatch fails. Agent42's v4 registration pins the new adapter blob and discloses reused seeds, but the visible replay runner still referenced the old v2 registration at last check. Agent42 was notified.
+
+Next: verify Agent42's v4 runner and dedicated workflow, inspect B-phase activation receipts, and keep paired replay separate from fresh samples. Require exact A/A' replay, positive source-seat B RetreatAction divergence, same-root physical Energy custody, target attack and Prize, immediate opponent reply, and next source turn. No competitive games or 99.5% evidence established.
