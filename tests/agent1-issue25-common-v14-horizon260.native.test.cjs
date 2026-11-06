@@ -59,13 +59,18 @@ test('real native original-eight v13 decision policy, only root horizon extended
   assert.equal(execution.diagnostic.nativePublicEndstateObservedReturns,7);
   const returned=records.filter(x=>x.originalNativeEndstate?.nativeReturned);
   assert.equal(returned.length,7);
-  assert.ok(returned.every(x=>
-    x.originalNativeEndstate.publicNativeStateAvailable===true&&
-    x.originalNativeEndstate.nativeFinished===x.genuineNativeFinished&&
-    x.originalNativeEndstate.nativeWinner===x.reportedNativeWinner&&
-    x.originalNativeEndstate.nativeEndReason===x.nativeEndReason&&
-    JSON.stringify(x.originalNativeEndstate.nativePrizesBySeat)===
-      JSON.stringify(x.nativeFinalPrizes)));
+  const publicJoin=returned.map(x=>({
+    id:x.id,
+    publicAvailable:x.originalNativeEndstate.publicNativeStateAvailable,
+    finishedMatch:x.originalNativeEndstate.nativeFinished===x.genuineNativeFinished,
+    winnerMatch:x.originalNativeEndstate.nativeWinner===x.reportedNativeWinner,
+    endReasonMatch:x.originalNativeEndstate.nativeEndReason===x.nativeEndReason,
+    prizesMatch:JSON.stringify(x.originalNativeEndstate.nativePrizesBySeat)===
+      JSON.stringify(x.nativeFinalPrizes)
+  }));
+  console.log('AGENT1_NATIVE_ENDSTATE_JOIN',JSON.stringify(publicJoin));
+  assert.ok(publicJoin.every(x=>x.publicAvailable&&x.finishedMatch&&
+    x.winnerMatch&&x.endReasonMatch&&x.prizesMatch));
   const aborted=records.filter(x=>!x.originalNativeEndstate?.nativeReturned);
   assert.equal(aborted.length,1);
   assert.equal(aborted[0].originalNativeEndstate.opaqueAbort,true);
