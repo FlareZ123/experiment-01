@@ -138,3 +138,29 @@ test('typed mock Store accepts selected original Attack reference and restores p
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldDecode);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
 });
+
+test('canonical bilateral composition forwards only explicitly selected owner choice',()=>{
+  const {withCanonicalActorOnlyPolicy}=
+    require('../simulation/evaluation/agent7-canonical-actor-composition.cjs');
+  const observed=[];
+  const wrap=name=>(run,options)=>{
+    if(name==='attack')observed.push(options??null);
+    return {result:run(),audit:{version:name}};
+  };
+  const adapters={
+    root:wrap('root'),fog:wrap('fog'),select:wrap('select'),
+    option:wrap('option'),attack:wrap('attack')
+  };
+  assert.equal(withCanonicalActorOnlyPolicy(()=>9,adapters).result,9);
+  assert.equal(withCanonicalActorOnlyPolicy(()=>11,adapters,
+    {preferMewMaxMiracleOverSelfCopy:true}).result,11);
+  assert.equal(withCanonicalActorOnlyPolicy(()=>13,adapters,
+    {preferMewGenesectTechnoBlast:true,
+      preferMewMaxMiracleOverSelfCopy:true}).result,13);
+  assert.deepEqual(observed,[
+    null,
+    {preferMewMaxMiracleOverSelfCopy:true},
+    {preferMewGenesectTechnoBlast:true,
+      preferMewMaxMiracleOverSelfCopy:true}
+  ]);
+});
