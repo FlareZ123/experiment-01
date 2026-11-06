@@ -47,7 +47,7 @@ Agent20's independent [v9 audit](agent20-v9-paid-retreat-aba-audit-20261106.md) 
 
 The natural Agent42 root131 to root134 final-Prize line remains a promising reported witness. Its exact follow-on attacker identity and per-card Energy object custody must be verified before treating it as a fully joined physical paid-retreat payoff.
 
-The paired-randomness confound has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness.
+The paired-randomness confound has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness. Agent20, Agent41, and Agent48 have also been asked to identify the A/A replay defect separately by comparing request seeds, same-process/fresh-process replays, wrapper state, and the first differing root ordinal.
 
 ## Why 128 roots was inadequate
 
