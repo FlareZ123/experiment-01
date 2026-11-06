@@ -254,6 +254,10 @@ function compareProtectedWonderTagV10(baseline,treatment){
     nativeShuffle.allOfferedShufflesCompleted===true&&
     nativeShuffle.missingRegisteredTrialIds===0&&
     nativeShuffle.ownerReassignedPrompts===0&&
+    nativeShuffle.nativeLivePromptRegistrationsVerified===wonder.selectedSupporters&&
+    nativeShuffle.nativeLivePromptRegistrationsMissing===0&&
+    nativeShuffle.nativeCallbackLiveOwnerMatches===wonder.selectedSupporters&&
+    nativeShuffle.nativeCallbackDetachedOwners===0&&
     nativeShuffle.preCallbackRejections===0&&
     nativeShuffle.nativeCallbackFailures===0&&
     [0,1].every(seat=>nativeShuffle.bySeat?.[seat]===
@@ -345,6 +349,14 @@ function compareProtectedWonderTagV10(baseline,treatment){
       nativeCallbackFailures:nativeShuffle.nativeCallbackFailures,
       missingRegisteredTrialIds:nativeShuffle.missingRegisteredTrialIds,
       ownerReassignedPrompts:nativeShuffle.ownerReassignedPrompts,
+      nativeLivePromptRegistrationsVerified:
+        nativeShuffle.nativeLivePromptRegistrationsVerified,
+      nativeLivePromptRegistrationsMissing:
+        nativeShuffle.nativeLivePromptRegistrationsMissing,
+      nativeCallbackLiveOwnerMatches:
+        nativeShuffle.nativeCallbackLiveOwnerMatches,
+      nativeCallbackDetachedOwners:
+        nativeShuffle.nativeCallbackDetachedOwners,
       allOfferedShufflesCompleted:nativeShuffle.allOfferedShufflesCompleted,
       outstandingShuffleCallbacks:nativeShuffle.outstandingShuffleCallbacks,
       bySeat:nativeShuffle.bySeat,
