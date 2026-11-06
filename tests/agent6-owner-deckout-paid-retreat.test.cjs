@@ -205,8 +205,9 @@ test('bilateral wrapper submits native retreat and accepts only real second-atta
     WANT_TO_USE_ABILITY:'want-ability',
     CHOOSE_ATTACK_TO_COPY:'choose-copy'
   };
-  const {view}=fixture();
-  view.ownPublic.active.energies=['Water Energy MEE'];
+  const {view:recipientView}=fixture();
+  const {view:retreatView}=fixture();
+  retreatView.ownPublic.active.energies=['Water Energy MEE'];
   const card={
     fullName:'Bunnelby PRC',
     attacks:[{name:'Burrow',text:DECKOUT_TEXT,damage:'',cost:[9]}]
@@ -224,12 +225,12 @@ test('bilateral wrapper submits native retreat and accepts only real second-atta
   const oldRecipient=recipientModule.chooseActorEnergyRecipient;
   const deps={
     SimpleTacticsAi,RetreatAction,Store,CheckRetreatCostEffect,
-    ResolvePromptAction,GameMessage,catalog,observe:()=>view,recipientModule
+    ResolvePromptAction,GameMessage,catalog,observe:()=>retreatView,recipientModule
   };
   const result=withBilateralDeckOutPaidRetreat(()=>{
     const ai=new SimpleTacticsAi();
     const store=new Store();store.state=state;
-    const recipient=recipientModule.chooseActorEnergyRecipient(view,catalog);
+    const recipient=recipientModule.chooseActorEnergyRecipient(recipientView,catalog);
     const retreat=ai.decodeNextAction(state);
     store.dispatch(new AttackAction('Burrow'));
     state.prompts=[new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)];
