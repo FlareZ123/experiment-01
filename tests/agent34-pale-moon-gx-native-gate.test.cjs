@@ -320,3 +320,63 @@ for (const [basicPrinting, evolutionPrinting] of [
     });
   }
 }
+
+
+for (const seat of [0, 1]) {
+  test('devolving post-GX defender bypasses existing evolution-only cleanup, seat ' +
+    seat, () => {
+    const { Player } = native('game/store/state/player');
+    const { AttackAction } = native('game/store/actions/game-actions');
+    const { PlayPokemonEffect } = native('game/store/effects/play-card-effects');
+    const { EndTurnEffect } = native('game/store/effects/game-phase-effects');
+    const { GamePhase } = native('game/store/state/state');
+    const { DEVOLVE_POKEMON } = native('game/store/prefabs/prefabs');
+    const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+      native('game/store/prefabs/attack-effects');
+    const f = stage(seat, 2, false, 'Charmander MEW');
+    const basic = f.defender.active.getPokemonCard();
+    const stage1 = initializeCards().getCardByName('Charmeleon MEW');
+    assert.ok(stage1);
+    stage1.id = 349900 + seat;
+    f.defender.hand.cards.push(stage1);
+    f.state.turn = 3;
+    f.state.activePlayer = 1 - seat;
+    f.state.phase = GamePhase.PLAYER_TURN;
+    f.defender.active.pokemonPlayedTurn = 1;
+    f.store.reduceEffect(f.state,
+      new PlayPokemonEffect(f.defender, stage1, f.defender.active));
+    assert.strictEqual(f.defender.active.getPokemonCard(), stage1);
+    f.state.turn = 4;
+    f.state.activePlayer = seat;
+    f.state.phase = GamePhase.PLAYER_TURN;
+    f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+    assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+    f.state.turn = 5;
+    f.state.activePlayer = 1 - seat;
+    f.state.phase = GamePhase.PLAYER_TURN;
+    const audited = withPendingEndTurnEvolutionCleanup({ Player }, () => {
+      DEVOLVE_POKEMON(f.store, f.state, f.defender.active, f.defender.hand);
+      assert.strictEqual(f.defender.active.getPokemonCard(), basic);
+      assert.ok(f.defender.hand.cards.includes(stage1));
+      const pending = f.defender.pendingEndOfTurnEffects.length;
+      RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+        f.store, f.state, new EndTurnEffect(f.defender));
+      return {
+        pendingAfterDevolution: pending,
+        originalBasicKO: f.defender.discard.cards.includes(basic),
+        stage1ReturnedToHand: f.defender.hand.cards.includes(stage1)
+      };
+    });
+    assert.equal(audited.removed, 0,
+      'the existing evolution-only hook does not observe native DEVOLVE_POKEMON');
+    assert.equal(audited.result.pendingAfterDevolution, 1);
+    assert.equal(audited.result.originalBasicKO, true);
+    assert.equal(audited.result.stage1ReturnedToHand, true);
+    console.log('AGENT34_PALE_MOON_DEVOLUTION_NATIVE', JSON.stringify({
+      seat, queuedAfterDevolution: audited.result.pendingAfterDevolution,
+      uncorrectedBasicKnockedOut: audited.result.originalBasicKO,
+      evolutionOnlyHookRemoved: audited.removed,
+      competitiveGamesQualified: 0
+    }));
+  });
+}
