@@ -10,6 +10,8 @@ const {isDirectNightWatchHandPrompt}=
   require('../simulation/twinleaf/agent43-nightwatch-paper-random-resolver.cjs');
 const {withNumericShufflePromptValidation}=
   require('../simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs');
+const {newlyLoggedAttackDeclarations}=
+  require('../simulation/evaluation/twinleaf-attack-log-declarations.cjs');
 
 const BASE=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -204,9 +206,18 @@ for(const seat of [0,1]){
     const f=stage(seat);
     const storeDispatch=f.store.dispatch.bind(f.store);
     const actionTape=[];
+    const loggedAttackDeclarations=[];
     f.store.dispatch=function(action){
-      actionTape.push(action.constructor.name);
-      return storeDispatch(action);
+      const logStart=f.state.logs.length;
+      const turnBefore=f.state.turn;
+      const name=action.constructor.name;
+      const ordinal=actionTape.length;
+      actionTape.push(name);
+      const result=storeDispatch(action);
+      loggedAttackDeclarations.push(...newlyLoggedAttackDeclarations(
+        f.state.logs,logStart,{actionOrdinal:ordinal,turnBefore,
+          triggerAction:name}));
+      return result;
     };
     const bot=Object.create(SimpleTacticsAi.prototype);
     try{
@@ -249,7 +260,7 @@ for(const seat of [0,1]){
       assert.equal(corrected.audit.markedSourcePrompts,1);
       assert.equal(corrected.audit.prototypeRestored,true);
       console.log('AGENT42_PERFECTION_SETTLED_DIAGNOSTIC',JSON.stringify({
-        seat,actionTape,shuffleAudit:shuffled.audit,
+        seat,actionTape,loggedAttackDeclarations,shuffleAudit:shuffled.audit,
         observed:corrected.result,competitivelyQualifiedGames:0
       }));
       assert.equal(corrected.result.handAfterDisruption,1);
@@ -257,10 +268,13 @@ for(const seat of [0,1]){
         'Fully resolved copied printed attack must deal 150 to Rotom V');
       assert.equal(actionTape.filter(x=>x==='UseAbilityAction').length,1);
       assert.equal(actionTape.filter(x=>x==='AttackAction').length,0);
+      assert.ok(loggedAttackDeclarations.some(x=>x.attackName==='Night Watch'),
+        'Common headless game-log classifier must find copied attack from ability/prompt');
       assert.ok(corrected.result.followup.includes('ShowCardsPrompt'));
       assert.ok(corrected.result.followup.includes('ShuffleDeckPrompt'));
       console.log('AGENT42_PERFECTION_ATTACK_LEDGER',JSON.stringify({
-        seat,actionTape,postPromptTypes:corrected.result.followup,
+        seat,actionTape,loggedAttackDeclarations,
+        postPromptTypes:corrected.result.followup,
         resultingActiveDamage:corrected.result.damaged,
         phase:corrected.result.phase,turn:corrected.result.turn,
         currentPlayer:corrected.result.currentPlayer,
