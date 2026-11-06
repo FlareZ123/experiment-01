@@ -1,0 +1,40 @@
+{
+  "schema": "agent5-v7-original-rank6-postvolt-teamflare-aba-retro-v1",
+  "createdUtc": "2026-11-06T13:35:47.874Z",
+  "purpose": "Distinguish owner-held paper-payable Team Flare Grunt energy removal from selected v7 original-source Pass at one already observed root.",
+  "classification": "Retrospective known-root developmental policy mechanism, not competitive held-out evidence.",
+  "controlPolicy": "Existing Agent36 v7 unchanged 8 registered native 96-root games",
+  "treatment": "Existing Agent17 targeted single-root Team Flare Grunt chooser applied only to native original trial 6:201:B:champion-reference, owner source seat0 global turn5 at pre-Pass root32; no other root intervention",
+  "controlReplication": "A(control v7), B(targeted counterfactual), A'(repeated v7); all eight original registered trials per phase, no omissions",
+  "registration": "results/aichi-2026/registrations/agent36-issue25-common-v6-96root-20261106.json",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "unchangedDecks": true,
+  "originalTrialCount": 8,
+  "rootLimitEach": 96,
+  "target": {
+    "id": "6:201:B:champion-reference",
+    "sourceSeat": 0,
+    "sourceTurn": 5,
+    "originalPassRootOrdinal": 32,
+    "sourceDealFingerprint": "62a782929f616ab5348b93b93490ff827f915ad9e21b764c9cf6d87e732f27b7",
+    "fullPhysicalDealFingerprint": "74678590466f4500923f3c2db76751d3e3d6c65506d44c3a38ecbffa86ff5fd5",
+    "baselineRootLedgerSha256": "7595a416b33efe8d741de8efe2478473f714161ede1974ebb35d0b0073779466",
+    "ownerHeldCard": "Team Flare Grunt XY",
+    "opponentActive": "Tapu Lele-GX GRI",
+    "opponentActiveEnergies": [
+      "Psychic Energy MEE",
+      "Psychic Energy MEE"
+    ]
+  },
+  "priorEvidence": "Agent5 CI 42225278402 artifact 13505372427; six witness tests and 5/5 source next-turn anchor matches",
+  "primaryGate": "Actual targeted source-held physical Team Flare selected and genuine Store-accepted at same root, correct paper paid/no-discard cost, one original opponent Active Energy moved to opponent discard by physical identity, unchanged initial deal and prefix through root31.",
+  "secondaryGate": "Report actual first opponent response and source return, complete eight-arm errors/caps/terminals under each profile, and control A/A' root tapes; no winner inference.",
+  "limitations": [
+    "Explicitly retrospective intervention chosen after seeing v7 hand",
+    "Card text/Supporter effects still need independent paper rules audit",
+    "Native bot ability to select/discard target is not evidence of opponent competence",
+    "Physical source-deal equality A/B only",
+    "Selected v4 unchanged and zero qualified games",
+    "No official 25-minute clock"
+  ]
+}
