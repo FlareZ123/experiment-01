@@ -264,6 +264,85 @@ function screenPublicDefenderDamageChange(settledAttack, defenderSeat) {
     printedPaperLegalityVerified:false};
 }
 
+
+/**
+ * Native-public material response found between two settled source attacks.
+ * Receipts are only board-state observations, not independent paper rulings.
+ * @param {object} a
+ * @returns {object|null}
+ */
+function screenNativeMaterialReciprocalExchange(a) {
+  const rs=a.publicRootActions, packets=a.actualSourceAttackSettlement?.attacks;
+  const src=a.originalSourceSeat,opp=a.candidateSeat;
+  if(!Array.isArray(rs)||!Array.isArray(packets)||(src!==0&&src!==1)||
+     opp!==1-src)return null;
+  const byRoot=new Map(packets.map(p=>[p.actionOrdinal,p]));
+  const add=(b,after)=>{
+    if(!Array.isArray(b)||!Array.isArray(after))return null;
+    const m=new Map(),added=[];
+    for(const name of b)m.set(name,(m.get(name)??0)+1);
+    for(const name of after){const n=m.get(name)??0;
+      if(n>0)m.set(name,n-1);else added.push(name);}
+    return [...m.values()].some(n=>n>0)?null:added;
+  };
+  for(let i=0;i<rs.length;i++){
+    const x=rs[i],xp=byRoot.get(x.actionOrdinal);
+    if(x.playerSlot!==src||x.action!=='AttackAction'||!xp?.settledPromptChain)
+      continue;
+    const first=screenPublicDefenderDamageChange(xp,opp);
+    if(!first)continue;
+    for(let j=i+1;j<rs.length;j++){
+      const y=rs[j];
+      if(y.turnBefore>x.turnBefore+1)break;
+      if(y.playerSlot!==opp||y.action!=='PlayCardAction'||
+         y.turnBefore!==x.turnBefore+1||
+         !Number.isSafeInteger(xp.completionRootOrdinal)||
+         xp.completionRootOrdinal>=y.actionOrdinal)continue;
+      for(let k=j+1;k<rs.length;k++){
+        const z=rs[k],zp=byRoot.get(z.actionOrdinal);
+        if(z.turnBefore>y.turnBefore+1)break;
+        if(z.playerSlot!==src||z.action!=='AttackAction'||
+           z.turnBefore!==y.turnBefore+1||!zp?.settledPromptChain)continue;
+        const intervening=rs.slice(i+1,k).filter(r=>MATERIAL.has(r.action));
+        if(intervening.length!==1||
+           intervening[0].actionOrdinal!==y.actionOrdinal)continue;
+        const resumed=screenPublicDefenderDamageChange(zp,opp);
+        const before=xp.publicBoardAfter?.[opp],after=zp.publicBoardBefore?.[opp];
+        if(!resumed||!before?.active||!after?.active||
+           before.active.printing!==after.active.printing||
+           before.active.damage!==after.active.damage)continue;
+        const energies=add(before.active.energyCards,after.active.energyCards);
+        const bench=add(before.bench?.map(p=>p.printing),
+          after.bench?.map(p=>p.printing));
+        if(!energies||!bench)continue;
+        const viaEnergy=energies.length===1&&energies[0]===y.card&&
+          bench.length===0;
+        const viaBench=bench.length===1&&
+          bench[0]?.startsWith(y.card+' ')&&energies.length===0;
+        if(!viaEnergy&&!viaBench)continue;
+        return {sourceAttackOrdinal:x.actionOrdinal,sourceAttack:x.attack,
+          opponentReplyOrdinal:y.actionOrdinal,opponentCard:y.card,
+          opponentReplyKind:viaEnergy?'attached-active-energy':'benched-pokemon',
+          observedCard:viaEnergy?energies[0]:bench[0],
+          opponentActivePrinting:before.active.printing,
+          opponentActiveEnergiesBefore:before.active.energyCards.length,
+          opponentActiveEnergiesAfter:after.active.energyCards.length,
+          opponentBenchCountBefore:before.bench.length,
+          opponentBenchCountAfter:after.bench.length,
+          sourceReturnAttackOrdinal:z.actionOrdinal,
+          sourceReturnAttack:z.attack,
+          initialSourceDamage:first.addedDamage,
+          returnSourceDamage:resumed.addedDamage,
+          uniqueInterveningMaterialAction:true,
+          nativeBoardObserved:true,paperQualified:false,
+          physicalCardIdentityCertified:false,
+          ownerAlternativesReviewed:false,causalTacticalResponseCertified:false};
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Screen every registered actual-native attempt while preserving all
  * dispositions. This is intentionally an UNQUALIFIED action-only census.
@@ -288,6 +367,7 @@ function screenArchivedReciprocalAttempts(archive) {
         generalSequence:null,sourceAttackSequence:null,
         settledSourceAttackBeforeObservedReply:false,
         observedPublicDefenderDamage:null,
+        nativeMaterialExchange:null,
         settledSourceAttackCompletionRoot:null,
         settledSourceAttackPrizeChange:null,
         archiveIntegrity:'QUARANTINED-incomplete-public-root-proof',
@@ -326,6 +406,7 @@ function screenArchivedReciprocalAttempts(archive) {
       generalSequence:general,sourceAttackSequence:sourceAttack,
       settledSourceAttackBeforeObservedReply,
       observedPublicDefenderDamage,
+      nativeMaterialExchange:screenNativeMaterialReciprocalExchange(a),
       settledSourceAttackCompletionRoot: settledSourceAttack?.completionRootOrdinal??null,
       settledSourceAttackPrizeChange,
       archiveIntegrity:'VERIFIED-original-public-root-ledger',
@@ -343,6 +424,7 @@ function screenArchivedReciprocalAttempts(archive) {
       r.settledSourceAttackBeforeObservedReply).length,
     publicPositiveDamageBeforeReplyContexts:rows.filter(r=>
       r.observedPublicDefenderDamage!==null).length,
+    nativeMaterialExchangeContexts:rows.filter(r=>r.nativeMaterialExchange!==null).length,
     competitiveGamesQualified:0,
     evidenceClass:'real-native-action-only-not-causal-paper-or-policy-qualified',
     rows};
@@ -351,4 +433,4 @@ function screenArchivedReciprocalAttempts(archive) {
 module.exports = {VERSION, rootDigest, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
-  screenArchivedReciprocalAttempts};
+  screenNativeMaterialReciprocalExchange, screenArchivedReciprocalAttempts};
