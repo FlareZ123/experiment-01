@@ -363,6 +363,8 @@ function actorPaidRetreatRootOptions({
 }={}){
   assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
     'Select only one paid-Retreat policy version');
+  assert.ok(onRootStoreCreated===null||typeof onRootStoreCreated==='function');
+  assert.ok(onRootActionDispatched===null||typeof onRootActionDispatched==='function');
   assert.ok(actorTwoUnitPaidRetreatTargetTurn===null||
     (actorTwoUnitPaidRetreatRoot&&Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurn)&&
      actorTwoUnitPaidRetreatTargetTurn>1),
@@ -1172,6 +1174,7 @@ function runDevelopment({
   actorTwoUnitPaidRetreatTargetTurn=null,
   actorTwoUnitPaidRetreatRootV2=false,
   actorTwoUnitPaidRetreatTargetTurnV2=null,
+  onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneCensus=false,
   actorUnderworldDoorPromptOwner=false,
@@ -1471,7 +1474,7 @@ function runDevelopment({
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
-        losslessNativeRootJoin,
+        losslessNativeRootJoin,onRootStoreCreated,onRootActionDispatched,
         nativeRootActionLimit,nativeFirstTurnPublicBoard,
         nativeAllOwnerPassFrontier,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
