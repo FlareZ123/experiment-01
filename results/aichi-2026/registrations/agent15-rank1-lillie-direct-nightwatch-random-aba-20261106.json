@@ -1,0 +1,30 @@
+{
+  "schema": "agent15-rank1-lillie-direct-nightwatch-random-aba-v1",
+  "purpose": "Sensitivity of native source turn20 Lillie continuation to preexisting paper-random Night Watch correction; same original rank1 physical source mirror.",
+  "historicalTrial": "1:212:B:champion-reference",
+  "seed": 1084952875,
+  "sourceSeat": 0,
+  "independentNightWatchRandomSeed": 20261106,
+  "baselineUncorrectedLillieNativeRootSHA256": "13ab25c071544c887a1226ebfea909798e73eb7c6f2b92a4c0",
+  "baselineNativeLillieActionOrdinal": 90,
+  "sourcePaperCorrection": "simulation/twinleaf/agent43-nightwatch-paper-random-resolver.cjs",
+  "treatmentAction": "only owner T20 held Lillie's Determination in place of original Pass",
+  "phases": [
+    "A same original v8+Telepath Confirm source",
+    "B owner Lillie with printed direct Night Watch random two-card hand selection",
+    "A-repeat unchanged"
+  ],
+  "actualNativeVendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedRegisteredArms": 8,
+  "rootLimit": 128,
+  "expectedNoGamesQualified": true,
+  "checks": [
+    "same complete physical opening all phases",
+    "native original A and A-repeat root-identical all 8 arms",
+    "B identical source/public action prefix to Lillie fork",
+    "owner-only selected supporter",
+    "all direct Night Watch prompt choices use uniformly sampled physical hand positions and independent seed",
+    "preserve source attack settlement and actual opponent follow-up packet",
+    "zero paper-game admission absent all rule and clock qualification"
+  ]
+}
