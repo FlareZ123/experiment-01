@@ -244,6 +244,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V7_DIR: issue25-steward-v7
         run: node --test tests/agent4-allturn-owner-volt-attach-energy.test.cjs tests/agent36-issue25-common-v7.test.cjs tests/agent36-issue25-common-v7.native.test.cjs
+      - name: Run prospective broader original four-rank 128-root same-policy v8
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          ISSUE25_STEWARD_V8_DIR: issue25-steward-v8
+        run: node --test tests/agent36-issue25-common-v8.test.cjs tests/agent36-issue25-common-v8.native.test.cjs
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
@@ -394,6 +399,14 @@ jobs:
         with:
           name: agent36-issue25-retrospective-common-v7-volt-native
           path: issue25-steward-v7/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Archive prospective original four-rank v8 and SHA256
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-broader-prospective-v8-native
+          path: issue25-steward-v8/
           retention-days: 21
           if-no-files-found: warn
       - name: Verify real original rank5 setup Confirm settlements on both seats
