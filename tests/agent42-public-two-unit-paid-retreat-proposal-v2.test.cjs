@@ -8,7 +8,7 @@ const {
 
 const P='Psychic Energy MEE',C=9;
 const catalog={
-  stages:{BASIC:0,STAGE_1:1},
+  stages:{BASIC:0,STAGE_1:1,VMAX:5},
   basicEnergies:new Set([P,'Darkness Energy MEE']),
   basicEnergyTypes:{Psychic:5,Darkness:7},
   specialEnergies:new Set(['Double Colorless Energy EVO','Prism Energy ASC']),
@@ -26,7 +26,7 @@ const restrictions=()=>({
 function fixture(){
   const active={
     printing:'Shadow Rider Calyrex VMAX CRE',name:'Shadow Rider Calyrex VMAX',
-    hp:320,damage:0,printed:{stage:1,types:[5],retreatCost:[C,C],resistance:[]},
+    hp:320,damage:0,printed:{stage:5,types:[5],retreatCost:[C,C],resistance:[]},
     energies:[P,P],tools:[],specialConditions:[],
     publicRestrictions:restrictions(),
     attacks:[{name:'Max Geist',cost:[C,C,C],damage:10,
@@ -36,6 +36,7 @@ function fixture(){
     printing:'Latias ex SSP',name:'Latias ex',hp:210,damage:0,
     printed:{stage:0,types:[5],retreatCost:[C,C],resistance:[]},
     energies:[P,P,P],tools:[],specialConditions:[],
+    abilityDetails:[{name:'Skyliner',text:'Your Basic Pokémon in play have no Retreat Cost.'}],
     publicRestrictions:restrictions(),
     attacks:[{name:'Eon Blade',cost:[5,5,C],damage:200,
       damageCalculation:null,gxAttack:false}]
@@ -164,4 +165,27 @@ test('owner observation is immutable and opposing hidden information is untouche
   assert.equal(JSON.stringify(view),before);
   view.decisionKind='owner-prompt';
   assert.throws(()=>choose(view,catalog),/owner-root/);
+});
+
+
+test('Skyliner and Snorlax Block are applied from the correct controller and Active state',()=>{
+  const ownBasic=fixture();
+  ownBasic.ownPublic.active.printed.stage=catalog.stages.BASIC;
+  assert.equal(choose(ownBasic,catalog),null);
+  const block=fixture();
+  block.opponentPublic.active.printing='Snorlax PGO 55';
+  block.opponentPublic.active.abilityDetails=[{name:'Block',
+    text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}];
+  assert.equal(choose(block,catalog),null);
+  const unknown=fixture();
+  unknown.ownPublic.bench[0].abilityDetails=[{name:'Unknown',
+    text:'Your Pokémon have a different Retreat Cost.'}];
+  assert.equal(choose(unknown,catalog),null);
+  const opponentSkyliner=fixture();
+  opponentSkyliner.ownPublic.bench[0].abilityDetails=[];
+  opponentSkyliner.ownPublic.active.printed.stage=catalog.stages.BASIC;
+  opponentSkyliner.opponentPublic.bench=[{printing:'Latias ex SSP',tools:[],
+    abilityDetails:[{name:'Skyliner',
+      text:'Your Basic Pokémon in play have no Retreat Cost.'}]}];
+  assert.equal(choose(opponentSkyliner,catalog)?.attackName,'Eon Blade');
 });
