@@ -27,6 +27,12 @@ This upgrades the previous [native accepted-root followthrough](agent4-rank6-und
 
 ## Strategic interpretation and limits
 
+### Why these particular recipients may matter
+
+The provided full Pokémon card database confirms that **Girafarig LOT 94** has `Get Lost` costing **one Colorless**, an attack that puts **two cards from the opponent's discard pile into the Lost Zone**. A single attached Basic Psychic can therefore fund that printed attack if the rest of its use conditions are met. **Tapu Lele-GX GRI 60** has `Tapu Cure-GX` costing **one Psychic**, healing all damage from two of the user's Benched Pokémon, and `Energy Drive` costing **two Colorless**, dealing 20 damage per Energy attached to both Active Pokémon. Its single Psychic opens the printed GX cost but does not by itself fund Energy Drive; the Tapu Lele in this observed game is Benched, and GX use/retreat and healing conditions were not examined.
+
+These are **mechanical possibilities from the provided card text**, not evidence that the selected attachment was tactically optimal. In particular, Girafarig's one-Energy Get Lost could matter against a discard-dependent attacker, while Tapu Lele's healing GX is situation-specific and competes with the once-per-game GX allowance. Before classifying either energy placement as wasteful, a policy must inspect the intended next-turn attack and whether the necessary opponent-discard targets, position, remaining GX allowance, retreat channels, damage and Prize race support it.
+
 The narrow guard successfully avoids a repeatedly invalid Underworld Door declaration, but the **first alternative Energy placement goes to Tapu Lele-GX or Girafarig**, not to an independently certified primary attacker. This is a concrete reason to evaluate alternative actions for strategic value instead of scoring additional native accepted roots as inherently good. The real native Store demonstrates the card moved onto those Pokémon; it does not certify the move was strategically optimal, that the Energy placement best supports a follow-up attacker, or that the unchanged deck wins.
 
 No independent paper turn-by-turn payment validation, source opponent full attack damage/Prize consequence audit, official paper clock calibration or full-Top32 competitive evaluation was performed. All 12 source games are developmental data, with **zero** qualifying competitive-game wins or losses. The 99.5% field target remains entirely unverified.
