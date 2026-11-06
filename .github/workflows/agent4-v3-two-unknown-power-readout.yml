@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       experiment:
-        description: 'Typed replay or post-rejection public power check'
+        description: 'Typed replay, post-rejection power, or 24-attempt owner guard'
         type: choice
         options:
           - typed-replay
           - post-rejection-power
+          - guarded-veto-pair
         default: typed-replay
 
 permissions:
@@ -28,7 +29,9 @@ jobs:
           node --check simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
           node --check simulation/evaluation/agent4-rejected-underworld-public-power-v1.cjs
           node --check simulation/twinleaf/agent4-underworld-door-public-lock-witness.cjs
-          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs
+          node --check simulation/twinleaf/agent4-underworld-visible-thorns-veto.cjs
+          node --check simulation/evaluation/agent4-rank6-owner-underworld-veto-paired-24.cjs
+          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs tests/agent4-underworld-visible-thorns-veto.test.cjs tests/agent4-rank6-owner-underworld-veto-paired-24.test.cjs
       - name: Initialize pinned native Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Verify actual pinned native engine revision
@@ -40,7 +43,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute twelve registered native attempts and capture typed Store failures
-        if: ${{ inputs.experiment != 'post-rejection-power' }}
+        if: ${{ inputs.experiment == 'typed-replay' }}
         env:
           AGENT4_V3_UNKNOWN_POWER_OUTPUT: agent4-v3-two-unknown-power-native.json
         run: node simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs
@@ -49,8 +52,13 @@ jobs:
         env:
           AGENT4_UNDERWORLD_POWER_OUTPUT: agent4-underworld-door-rejected-public-power-12.json
         run: node simulation/evaluation/agent4-rejected-underworld-public-power-v1.cjs
+      - name: Execute twenty-four physically paired source/candidate guarded owner roots
+        if: ${{ inputs.experiment == 'guarded-veto-pair' }}
+        env:
+          AGENT4_UNDERWORLD_VETO_OUTPUT: agent4-rank6-owner-underworld-veto-paired-24.json
+        run: node simulation/evaluation/agent4-rank6-owner-underworld-veto-paired-24.cjs
       - name: Preserve typed-error observations including negative results
-        if: ${{ always() && inputs.experiment != 'post-rejection-power' }}
+        if: ${{ always() && inputs.experiment == 'typed-replay' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent4-v3-two-unknown-power-native-and-checksum
@@ -67,5 +75,15 @@ jobs:
           path: |
             agent4-underworld-door-rejected-public-power-12.json
             agent4-underworld-door-rejected-public-power-12.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preserve paired guard-versus-original outcomes and native receipts
+        if: ${{ always() && inputs.experiment == 'guarded-veto-pair' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank6-underworld-veto-paired-24-native
+          path: |
+            agent4-rank6-owner-underworld-veto-paired-24.json
+            agent4-rank6-owner-underworld-veto-paired-24.json.sha256
           if-no-files-found: warn
           retention-days: 21
