@@ -150,39 +150,66 @@
       "gitBlobSha": "5425749642c0692034f0db79c889b4ee42284b1a"
     },
     {
+      "path": "simulation/evaluation/agent36-issue25-common-v7.cjs",
+      "gitBlobSha": "f789df3eb158b7b97ad0fc67681758f5a52d1f05"
+    },
+    {
       "path": "simulation/evaluation/agent36-issue25-common-v8.cjs",
       "gitBlobSha": "5512469bd4fba5d4481239ee262806a8fe36713d"
     },
     {
-      "path": "simulation/evaluation/agent36-issue25-common-v7.cjs",
-      "gitBlobSha": "f789df3eb158b7b97ad0fc67681758f5a52d1f05"
+      "path": "simulation/evaluation/agent36-issue25-common-v9-paid-retreat-aba.cjs",
+      "gitBlobSha": "2d6e0fd8c29bfeb52b28b3edac5aa4d95488fd19"
     },
     {
       "path": "simulation/evaluation/agent36-issue25-selected-v0.cjs",
       "gitBlobSha": "8121dd62a6957940525580ef806b3ce1f6ded76e"
     },
     {
+      "path": "simulation/evaluation/agent36-profile-provenance-gate.cjs",
+      "gitBlobSha": "fa7ed2d0ca15b9eddb795a77e89a8ad7932c6b41"
+    },
+    {
       "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
       "gitBlobSha": "537157dff43fefa1a429f6e0bb72387cde51708d"
-    },
-    {
-      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
-      "gitBlobSha": "3947a55d219dce055c733211eb874d4b5cbcd55a"
-    },
-    {
-      "path": "simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal.cjs",
-      "gitBlobSha": "41cc0321235e32e4c3c9b072aeb4b384d479d1dc"
     },
     {
       "path": "simulation/evaluation/agent42-general-paid-retreat-root-audit.cjs",
       "gitBlobSha": "19c945cbc5e9e9cef9e7eb25cac4bd097dd209f9"
     },
     {
-      "path": "simulation/evaluation/agent36-profile-provenance-gate.cjs",
-      "gitBlobSha": "fa7ed2d0ca15b9eddb795a77e89a8ad7932c6b41"
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "gitBlobSha": "3947a55d219dce055c733211eb874d4b5cbcd55a"
+    },
+    {
+      "path": "simulation/twinleaf/agent36-v9-two-psychic-retreat-custody.cjs",
+      "gitBlobSha": "fc18d2ba11abc5995b2ab61f278f710285dba9b8"
+    },
+    {
+      "path": "simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal.cjs",
+      "gitBlobSha": "41cc0321235e32e4c3c9b072aeb4b384d479d1dc"
+    },
+    {
+      "path": "tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs",
+      "gitBlobSha": "0bd84b820e2737892fa04cdcf50c7e0091e84af9"
+    },
+    {
+      "path": "tests/agent36-issue25-common-v9-paid-retreat-aba.test.cjs",
+      "gitBlobSha": "b5ed89d5de31832b1c61aa68d13e23bbf0e0e06a"
+    },
+    {
+      "path": "tests/agent36-v9-two-psychic-retreat-custody.test.cjs",
+      "gitBlobSha": "ccc4833071684d359668d2993efbefa5dca7fa34"
     }
   ],
   "paperQualifiedCompetitiveGames": 0,
   "releaseEligible": false,
-  "estimatedWinRate": null
+  "estimatedWinRate": null,
+  "runnerGitBlobSha": "2d6e0fd8c29bfeb52b28b3edac5aa4d95488fd19",
+  "custodyObserverGitBlobSha": "fc18d2ba11abc5995b2ab61f278f710285dba9b8",
+  "preregisteredControlTreatmentControl": [
+    "A-v8-control",
+    "B-common-paid-retreat",
+    "A-repeat-control"
+  ]
 }
