@@ -186,6 +186,41 @@ function runOriginalV7GuzmaCanary(deps={}) {
     competitiveGamesQualified:0,winRate:null};
 }
 
+/**
+ * Opponent-held Float Stone + retreat as a separately gated C-policy.
+ * @param {{float?:Function,root?:Function,guzma?:Function,volt?:Function}} [deps]
+ * @returns {Function}
+ */
+function makeOpponentFloatStoneReplyLayer(deps={}) {
+  const float=deps.float??require('../twinleaf/agent9-v7-floatstone-counterreply.cjs')
+    .withFloatStoneOwnerCounterReply;
+  const root=deps.root??withOriginalRank6PostVoltGuzma;
+  const guzma=deps.guzma??withGuzmaOwnerPromptContinuation;
+  const volt=deps.volt??withOwnerVoltTransfer;
+  return next=>{
+    try{
+      const f=float(()=>root(()=>guzma(()=>volt(next),{
+        choosePlan:chooseOriginalRank6PostVoltGuzma
+      })));
+      const r=f.result,g=r.result,v=g.result;
+      return {result:v.result,audit:{
+        ...v.audit,agent9PostVoltGuzmaCanaryAudit:r.audit,
+        agent43GuzmaPromptContinuationAudit:g.audit,
+        agent9OpponentFloatStoneReplyAudit:f.audit
+      }};
+    }catch(error){
+      if(error&&typeof error==='object')
+        error.nativeOwnerVoltAttemptAudit={
+          ...(error.nativeOwnerVoltAttemptAudit??{}),
+          agent9PostVoltGuzmaCanaryAudit:error.agent9GuzmaCanaryAudit??null,
+          agent9OpponentFloatStoneReplyAudit:
+            error.agent9FloatStoneNativeAudit??null
+        };
+      throw error;
+    }
+  };
+}
+
 module.exports={VERSION,TARGET,EXPECTED_PASS_ORDINAL,
-  makeOriginalPostVoltGuzmaLayer,compareExactOriginalGuzma,
-  runOriginalV7GuzmaCanary};
+  makeOriginalPostVoltGuzmaLayer,makeOpponentFloatStoneReplyLayer,
+  compareExactOriginalGuzma,runOriginalV7GuzmaCanary};
