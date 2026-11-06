@@ -27,7 +27,7 @@ const {ShuffleDeckPrompt}=engine('game/store/prompts/shuffle-prompt');
 const {ChooseCardsPrompt}=engine('game/store/prompts/choose-cards-prompt');
 const {SelectPrompt}=engine('game/store/prompts/select-prompt');
 const {GameMessage}=engine('game/game-message');
-const {Stage,CardTag}=engine('game/store/card/card-types');
+const {Stage,CardTag,Format}=engine('game/store/card/card-types');
 const {GamePhase}=engine('game/store/state/state');
 const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
 
@@ -97,6 +97,9 @@ function withOwnerSetupAndBonusChoices(run,audit){
     if(owner&&prompt instanceof ChooseCardsPrompt&&
         prompt.message===GameMessage.CHOOSE_STARTING_POKEMONS&&
         prompt.cards===owner.hand){
+      assert.equal(Boolean(state.gameSettings?.sandboxMode&&
+        state.gameSettings?.sandboxAllPokemonBasic),false,
+        'fixture must use normal paper setup candidate rules, not sandbox all-Basic mode');
       const blocked=new Set(prompt.options.blocked??[]);
       const eligible=owner.hand.cards.filter((card,index)=>
         !blocked.has(index)&&isStartingPokemon(card));
@@ -435,6 +438,7 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
         ()=>withOwnerSetupAndBonusChoices(
           ()=>runMatch({
             deckA:source.cards,deckB:defender.cards,
+            format:Format.EXPANDED,
             seed:20261106,maxActions:80,
             captureNativeAbortEvidence:true
           }),audit
