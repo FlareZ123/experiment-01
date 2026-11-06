@@ -212,6 +212,7 @@ jobs:
         run: |
           node --test tests/agent5-adp-switch-first8-exact.test.cjs tests/agent5-adp-setup-active-priority.test.cjs tests/agent5-adp-lele-setup-collision.test.cjs
           node --test tests/agent5-adp-paid-opening.test.cjs
+          node --test tests/agent27-adp-protected-payment-cost.test.cjs tests/agent27-adp-protected-payment-frontier.test.cjs
           node --test tests/agent5-adp-wondertag-paid-opening.test.cjs
           node --test tests/agent5-adp-setup-paid-policy.test.cjs
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
