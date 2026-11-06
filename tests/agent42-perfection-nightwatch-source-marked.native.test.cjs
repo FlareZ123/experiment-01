@@ -22,8 +22,9 @@ const native=name=>require(path.join(BASE,name));
  * Trevenant & Dusknoir-GX Night Watch attack from its owner's discard.
  * This is a constructed eligibility witness, not a natural-deal game.
  * @param {0|1} attackerSeat
+ * @param {{ironThornsActive?:boolean,heldCologne?:boolean}} [options]
  */
-function stage(attackerSeat){
+function stage(attackerSeat,options={}){
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
   const {GamePhase}=native('game/store/state/state');
@@ -51,7 +52,11 @@ function stage(attackerSeat){
     attacker.active.cards.push(energy);
     attacker.active.energies.cards.push(energy);
   }
-  defender.active.cards.push(card('Rotom V LOR'));
+  defender.active.cards.push(card(options.ironThornsActive?
+    'Iron Thorns ex TWM':'Rotom V LOR'));
+  const heldCologne=options.heldCologne?
+    card('Canceling Cologne ASR'):null;
+  if(heldCologne)attacker.hand.cards.push(heldCologne);
   const victimHand=['Psychic Energy SVE','Water Energy SVE','Grass Energy SVE']
     .map(card);
   defender.hand.cards.push(...victimHand);
@@ -70,7 +75,7 @@ function stage(attackerSeat){
   state.turn=4;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
-  return {store,state,attacker,defender,donor,victimHand};
+  return {store,state,attacker,defender,donor,victimHand,heldCologne};
 }
 
 /**
