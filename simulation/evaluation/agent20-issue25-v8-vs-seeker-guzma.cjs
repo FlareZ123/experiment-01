@@ -41,7 +41,8 @@ assert.equal(registration.schema,VERSION.replace('-retrospective','-retrospectiv
  * unchanged.
  *
  * @param {{runDevelopment?:Function,withOwnerVsSeekerGuzmaLayer?:Function,
- *   base?:string}} [deps]
+ *   actorObservation?:Function,actorGuzmaPromptContinuation?:boolean,
+ *   enableHeldGuzmaMobility?:boolean,base?:string}} [deps]
  * @returns {(options:object)=>object}
  */
 function createVsSeekerRunner(deps={}){
@@ -56,9 +57,10 @@ function createVsSeekerRunner(deps={}){
     const wrapped=layer(()=>{
       const key='AGENT2_HELD_GUZMA_MOBILITY_DEV';
       const previous=process.env[key];
-      process.env[key]='true';
+      if(deps.enableHeldGuzmaMobility!==false)process.env[key]='true';
       try{
-        return development({...options,actorGuzmaPromptContinuation:true});
+        return development({...options,
+          actorGuzmaPromptContinuation:deps.actorGuzmaPromptContinuation??true});
       }finally{
         if(previous===undefined)delete process.env[key];
         else process.env[key]=previous;
