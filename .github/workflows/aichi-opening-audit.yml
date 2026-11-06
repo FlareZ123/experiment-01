@@ -20,6 +20,11 @@ on:
         description: 'Existing original Pale Moon GX archive run ID'
         type: string
         required: false
+      agent27_adp_four_bonus:
+        description: 'Exact zero through four accepted bonus ADP full60 and independent miniature proof'
+        type: boolean
+        required: false
+        default: false
       agent27_adp_two_bonus:
         description: 'Exact unordered three-draw ADP two accepted opponent-mulligan bonus audit'
         type: boolean
@@ -37,6 +42,19 @@ permissions:
   actions: read
 
 jobs:
+  agent27-adp-four-bonus-math:
+    if: inputs.agent27_adp_four_bonus
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Independent physical miniature and 29-source field multiplicity
+        run: node --test tests/agent27-adp-additional-bonuses-miniature.test.cjs tests/agent27-adp-original29-four-bonus-bounds.test.cjs
+      - name: Exact printed 60 all bonus counts through four
+        run: node --test tests/agent27-adp-additional-bonuses-exact.test.cjs
   agent27-adp-two-bonus-math:
     if: inputs.agent27_adp_two_bonus
     runs-on: ubuntu-latest
