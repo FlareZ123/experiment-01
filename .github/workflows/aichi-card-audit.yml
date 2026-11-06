@@ -143,6 +143,11 @@ jobs:
         run: |
           node --test tests/agent32-adp-field-mulligan-offers.test.cjs
           node simulation/evaluation/agent32-adp-field-mulligan-offers.cjs
+      - name: Verify original-29 Special Energy optional-bonus choice envelope
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-source-special-energy-exposure.test.cjs tests/agent32-source-special-energy-field-panel.test.cjs
+          node -e "const x=require('./simulation/evaluation/agent32-source-special-energy-field-panel.cjs').main(); console.log(JSON.stringify({rows:x.rows.length,baseline:x.acrossAll29.sourceSpecialAccessOriginalSeven,allBonusSeven:x.acrossAll29.sourceSpecialAccessVsSeven,allBonusFourteen:x.acrossAll29.sourceSpecialAccessVsFourteen,deltaMin:x.acrossAll29.independentBonusChoiceDifferenceLower,deltaMax:x.acrossAll29.independentBonusChoiceDifferenceUpper}));"
       - name: Verify ADP versus rank1 equal-field bilateral mulligan exposure
         if: ${{ always() && !cancelled() }}
         run: |
