@@ -74,6 +74,10 @@ function fixture(label){
           shuffleCallbackInvocations:2,preCallbackRejections:0,
           nativeCallbackFailures:0,missingRegisteredTrialIds:0,
           ownerReassignedPrompts:0,allOfferedShufflesCompleted:true,
+          nativeLivePromptRegistrationsVerified:2,
+          nativeLivePromptRegistrationsMissing:0,
+          nativeCallbackLiveOwnerMatches:2,
+          nativeCallbackDetachedOwners:0,
           bySeat:{0:2,1:0},nativeTrialAttributionAvailable:true,
           offeredTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}],
           completedTrialSeats:[{id:ids[6],seat:0},{id:ids[7],seat:0}]
@@ -373,4 +377,30 @@ test('native shuffle admission vetoes missing trial, rerouting and callback erro
   const report=compareProtectedWonderTagV10(left,right);
   assert.equal(report.registeredWonderTagActorWitness
     .nativeShufflePromptCompletionIndependentlyCertified,false);
+});
+
+test('forged completed callback vetoed when registered Store prompt is missing',()=>{
+  const left=fixture('control'),right=fixture('treatment');
+  const audit=right.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  audit.nativeLivePromptRegistrationsVerified=1;
+  audit.nativeLivePromptRegistrationsMissing=1;
+  const receipt=compareProtectedWonderTagV10(left,right);
+  assert.equal(receipt.registeredWonderTagActorWitness
+    .nativeShufflePromptCompletionIndependentlyCertified,false);
+  assert.equal(receipt.actualNativeShuffleCompletionAudit
+    .nativeLivePromptRegistrationsMissing,1);
+});
+
+test('forged completed callback vetoed when native Store owner is detached',()=>{
+  const left=fixture('control'),right=fixture('treatment');
+  const audit=right.diagnostic.audit.firstBlockedPromptEnvelope
+    .ownerWonderTagNativeShuffleCompletion;
+  audit.nativeCallbackLiveOwnerMatches=1;
+  audit.nativeCallbackDetachedOwners=1;
+  const receipt=compareProtectedWonderTagV10(left,right);
+  assert.equal(receipt.registeredWonderTagActorWitness
+    .nativeShufflePromptCompletionIndependentlyCertified,false);
+  assert.equal(receipt.actualNativeShuffleCompletionAudit
+    .nativeCallbackDetachedOwners,1);
 });
