@@ -42,3 +42,26 @@ test('unsupported fee and foreign actor fail before capture',()=>{
  assert.equal(captureTwoPsychicRetreat(f.state,new RetreatAction(f.player.id,0)),null);
  const g=setup();assert.equal(captureTwoPsychicRetreat(g.state,new RetreatAction(g.other.id,0)),null);
 });
+
+
+test('speculative Store without root registration is ignored',()=>{
+ const f=setup(1);
+ const r=withTwoPsychicRetreatCustody(()=>{
+  new f.Store().dispatch(new RetreatAction(f.player.id,0));
+ },{Store:f.Store});
+ assert.equal(r.audit.rootStoreRegistrations,0);
+ assert.equal(r.audit.attempts,0);
+ assert.equal(r.audit.exactPhysicalPaidRetreats,0);
+});
+
+test('physical payment without accepted root ordinal remains unrooted',()=>{
+ const f=setup(1);
+ const r=withTwoPsychicRetreatCustody(({onRootStoreCreated})=>{
+  const store=new f.Store();
+  onRootStoreCreated(store);
+  store.dispatch(new RetreatAction(f.player.id,0));
+ },{Store:f.Store});
+ assert.equal(r.audit.unrootedPhysicalPaymentObservations,1);
+ assert.equal(r.audit.exactPhysicalPaidRetreats,0);
+ assert.equal(r.audit.receipts[0].status,'PHYSICAL_PAYMENT_UNROOTED');
+});
