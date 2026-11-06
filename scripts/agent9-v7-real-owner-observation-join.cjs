@@ -63,9 +63,11 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       x.seat===record.sourceSeat&&x.globalTurn===record.nextOwnerTurn);
     const pass=ownerRecords.filter(x=>
       x.nativeProposedAction==='PassTurnAction');
+    const acceptedPass=pass.filter(x=>x.isAcceptedStoreRoot===true);
     const hasAnAcceptedPass=record.ownerActions.some(a=>
       a.action==='PassTurnAction');
-    const matchedPass = pass.length===1 ? pass[0] : null;
+    const matchedPass = hasAnAcceptedPass&&acceptedPass.length===1 ?
+      acceptedPass[0] : null;
     const batonScreen = matchedPass ? screen({
       decisionKind: 'owner-root',
       globalTurn: matchedPass.globalTurn,
@@ -78,7 +80,10 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
     const matchStatus=record.nextOwnerTurn===null?'not-encountered':
       !read?'owner-observer-missing':
       !hasAnAcceptedPass?'owner-turn-not-ended-by-pass':
-      pass.length===1?'one-observed-pass-proposal':'ambiguous-pass-proposals';
+      acceptedPass.length===1?'one-store-accepted-pass-proposal':
+      acceptedPass.length>1?'ambiguous-store-accepted-pass-proposals':
+      pass.length>0?'pass-proposed-but-not-store-accepted':
+      'pass-proposal-not-observed';
     return {id:record.id,sourceSeat:record.sourceSeat,
       sourceDealFingerprint:record.sourceDealFingerprint,
       settledSourceAttackOrdinal:record.attackOrdinal,
@@ -86,16 +91,17 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
       acceptedOwnerActions:record.ownerActions,
       matchedObservationStatus:matchStatus,
       matchingPassProposalCount:pass.length,
+      matchingStoreAcceptedPassCount:acceptedPass.length,
       printedDceBatonNecessaryScreen:batonScreen,
       screenIsPaidNativeAction:false,
-      ownerHandAtNativePass:pass.length===1?[...pass[0].ownerHand]:null,
-      ownerPublicAtNativePass:pass.length===1?pass[0].ownerPublic:null,
-      opponentPublicAtNativePass:pass.length===1?pass[0].opponentPublic:null,
-      ownerResourcesAtNativePass:pass.length===1?pass[0].ownerResources:null,
-      usedSupporterQuotaBeforeBot:pass.length===1?
-        pass[0].supporterQuotaBeforeBot:null,
-      usedSupporterQuotaAfterBot:pass.length===1?
-        pass[0].supporterQuotaAfterBot:null,
+      ownerHandAtNativePass:matchedPass?[...matchedPass.ownerHand]:null,
+      ownerPublicAtNativePass:matchedPass?.ownerPublic??null,
+      opponentPublicAtNativePass:matchedPass?.opponentPublic??null,
+      ownerResourcesAtNativePass:matchedPass?.ownerResources??null,
+      usedSupporterQuotaBeforeBot:matchedPass?.
+        supporterQuotaBeforeBot??null,
+      usedSupporterQuotaAfterBot:matchedPass?.
+        supporterQuotaAfterBot??null,
       paperPaidAlternativeCertified:false,
       opponentChoiceCompetenceCertified:false,
       gameQualified:false};
@@ -109,7 +115,7 @@ function reconcileOwnerObservation(nativeReceipt, attempts, baseline = registrat
     sourceOwnerReturnObserved:next.attacksWithObservedOwnerReturn,
     ownerReadOnlyReturns:returns,
     ownerObservationMatches:returns.filter(x=>
-      x.matchedObservationStatus==='one-observed-pass-proposal').length,
+      x.matchedObservationStatus==='one-store-accepted-pass-proposal').length,
     unknownSourceAborts:next.unknownAttackSettlementRows,
     rows,competitiveGamesQualified:0,estimatedWinRate:null};
 }
