@@ -64,12 +64,14 @@ test('native identical eight original printed sixties A/B/A: cautious owner Filc
     everyTreatmentNativeTrialAudited:p.everyTreatmentNativeTrialAudited,
     allReplacementsNativePasses:p.everyReplacementMatchedToNativeAcceptedPass,
     noUnexplainedChanges:p.noUnexplainedTreatmentRootChanges,
+    exactFirstNativeChanges:p.everyFirstNativeDivergenceIsRegisteredOwnerFilchPass,
     trialGuard:p.treatmentByTrial.map(x=>({
       id:x.id,proposals:x.proposals,
       selectedPasses:x.attemptedFilchToPassReplacements,
       nativeMatchedPasses:x.matchedNativePassRoots,
       commonPrefix:x.sharedControlPrefixRoots,
-      diverged:x.hadAnyNativeRootDivergence
+      diverged:x.hadAnyNativeRootDivergence,
+      exactInitialFilchPass:x.firstDivergenceExactlyOwnerFilchToAcceptedPass
     })),
     sourceAndCandidateStatus:sums,archive:saved,
     competitiveGamesQualified:0
@@ -84,6 +86,7 @@ test('native identical eight original printed sixties A/B/A: cautious owner Filc
   assert.equal(p.everyTreatmentNativeTrialAudited,true);
   assert.equal(p.everyReplacementMatchedToNativeAcceptedPass,true);
   assert.equal(p.noUnexplainedTreatmentRootChanges,true);
+  assert.equal(p.everyFirstNativeDivergenceIsRegisteredOwnerFilchPass,true);
   assert.ok(p.treatmentByTrial.some(x=>
     x.attemptedFilchToPassReplacements>0),
     'The owner policy must change at least one actually executing Filch');
