@@ -1,15 +1,17 @@
-# Agent36: v9 paid-retreat A/B/A 128-root preflight failure and common-policy decision
+# Agent36: v9 requested paid-retreat A/B/A, actual A/A/A after inactive wrapper
 
 **Date:** 6 November 2026  
-**Status:** v9 executed, control gate failed; no policy promotion  
+**Status:** historical v9 phases executed with no treatment applied; A/A/A exact replay, no policy promotion  
 **Native workflow:** [42246115429](https://github.com/FlareZ123/experiment-01/actions/runs/42246115429)  
 **Native artifact:** [agent36-issue25-common-v9-paid-retreat-aba, artifact 13519261081](https://github.com/FlareZ123/experiment-01/actions/runs/42246115429/artifacts/13519261081)  
 **Archive SHA-256:** `f91552274c354e54226b315ff3ca9e39ddfa7dc3cf3096b2ea863a0d3d602bc4`  
 **Artifact ZIP SHA-256:** `0c69696de15c66d0dcad6a6d75a88f9fdd63e4f8825bf82e2dd7f7cf4c3f458e`
 
-## Decision
+## Decision: corrected 6 November 2026
 
-**Do not select v9.** Its 24 native attempts returned, but only three contexts produced complete 128-root ledgers. Those three A/B/A root hashes were identical. Five contexts errored in every phase and had no root ledger, so the aggregate control-coverage gate failed. No A/A action divergence was observed in the completed rows. The treatment generated zero RetreatAction roots in the returned summaries and zero root divergences among the three contexts with complete ledgers; five contexts errored before a root ledger existed. This is a bounded no-op observation, not evidence that the paid-retreat option is ineffective.
+**Do not select v9. Its paid-retreat treatment never ran.** The historical `runDevelopment` `scopedRoot` activation predicate omitted `!actorTwoUnitPaidRetreatRoot`. Although the B flag was correctly passed into the trial options, the adapter selected an empty wrapper configuration when paid retreat was the sole opt-in. All three phases therefore executed the A control: **NO TREATMENT APPLIED / A = B = A-REPEAT**. See [Agent20's corrected artifact audit](agent20-v9-paid-retreat-aba-audit-20261106.md) and the [Critic's corrected release contract](../../communications/broadcast/2026-11/20261106T162100Z_critic_v9_wrapper_activation_and_experiment_contract.md).
+
+All eight original physical openings and root-action sequences matched across phases. Three groups had complete 128-root ledgers. The other five hit deterministic bot-decoder quarantine errors and retained their partial accepted root ledgers under `nativeAbortEvidence.rootActionLedger`, which also match across all phases. The summary's `controlsRepeatedExactly=false` omitted those preserved partial ledgers; this is a reporting-coverage defect. The historical all-first-divergences predicate accepted null vacuously. Zero B RetreatAction roots are expected when no B treatment executed and must never be described as a negative result of the paid-retreat selector.
 
 **Select the v8 common policy as the current developmental policy baseline**, replacing v4 as the active development baseline while retaining v4 as a historical control. This selection is limited to continued policy research. It is not a selected final 60-card deck, a competitive qualification, or a win-rate claim. Competitive qualification remains **FAIL**.
 
@@ -19,7 +21,7 @@ The v9 experiment also had an insufficient horizon for the already observed natu
 
 The frozen registration is [`agent36-issue25-common-v9-paid-retreat-aba-20261106.json`](../registrations/agent36-issue25-common-v9-paid-retreat-aba-20261106.json). The runner is [`agent36-issue25-common-v9-paid-retreat-aba.cjs`](../../simulation/evaluation/agent36-issue25-common-v9-paid-retreat-aba.cjs). It reused the exact eight v8 trial IDs, seeds, source seats, two candidate 60s, and pinned Twinleaf revision. The only configured treatment change was `actorTwoUnitPaidRetreatRoot=false/true/false`, with no target-turn restriction. The physical custody observer and its tests are in [`agent36-v9-two-psychic-retreat-custody.cjs`](../../simulation/twinleaf/agent36-v9-two-psychic-retreat-custody.cjs).
 
-| Measure | A control | B paid-retreat | A repeat |
+| Measure | A control | B paid-retreat requested (inactive) | A repeat |
 |---|---:|---:|---:|
 | Registered contexts returned | 8/8 | 8/8 | 8/8 |
 | Native attempts | 8 | 8 | 8 |
@@ -32,11 +34,11 @@ The frozen registration is [`agent36-issue25-common-v9-paid-retreat-aba-20261106
 | Settled follow-on attacks after paid retreat | 0 | 0 | 0 |
 | Source Prize transitions after paid retreat | 0 | 0 | 0 |
 
-All eight A/B/A trial triplets preserved the same source-deal fingerprint, full physical-deal fingerprint, source/candidate seats, and actual starter. Agent20's raw-artifact parse shows that three rows had complete 128-root ledgers and identical A, B, and A' rootActionLedgerSha256 values. The other five rows were engine-error in all three phases with the same bot-decoder exception SHA256 `2dc3a55f9b6d7dbc60aaa8883b43982e213957c44179b1baf52cb1139effe11f`; they had no root ledger. Thus `controlsRepeatedExactly=false` reflects five error-censored rows, not an observed A/A action mismatch. The native test correctly failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28` because complete control coverage was not achieved. The artifact was still uploaded and contains the complete 5.8 MB raw phase archive. Agent1 also observed a post-job cleanup warning that nested submodule path `vendor/twinleaf/vendor/pokemon-cards-css` is absent from the top-level `.gitmodules`; this did not cause the line-28 test failure and remains a separate CI cleanup issue.
+All eight A/B/A trial triplets preserved exact source/full physical deals, seats, and starter. Agent20 compared all full and `nativeAbortEvidence` root-action tapes. All eight are equal across phases, including five error-censored partial tapes. The shared error digest is `2dc3a55f9b6d7dbc60aaa8883b43982e213957c44179b1baf52cb1139effe11f`. The native test failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28` because the aggregator saw null top-level ledgers on abort rows; this does not establish different actual A/A' decisions. The raw artifact is preserved, including the 5.8 MB phase archive. A separate nested submodule cleanup warning does not explain the failed assertion.
 
-The runner manifest identifies `randomnessProtocol: legacy-shared-prng`, `policyRandomIsolation=false`, and `physicalShuffleRandomIsolation=false`. The legacy shared stream remains a treatment-dependent randomness confound. The three complete rows nevertheless reproduced identical A, B, and A' root hashes. The aggregate false control flag comes from the five identical bot-decoder errors, not an observed A/A action divergence. The common exception still needs diagnosis.
+The runner manifest identifies `randomnessProtocol: legacy-shared-prng`, `policyRandomIsolation=false`, and `physicalShuffleRandomIsolation=false`. The legacy shared stream remains a treatment-dependent randomness confound. All eight complete or abort-preserved tapes reproduced identical A, B, and A' root actions. The aggregate false control flag results from not reading the abort-preserved tapes, while the five deterministic decoder quarantine errors separately block full games. The common exception still needs diagnosis.
 
-The treatment changed zero completed trial root tapes. The five error-censored contexts had no ledger to compare. Since no RetreatAction occurred in the three complete rows, the first-divergence-is-Retreat condition passed vacuously. No conclusion about the quality or legality of a paid-retreat decision follows from this run.
+No treatment was applied to any trial. All eight root tapes compare exactly when abort-preserved partial ledgers are included. Since no first divergence existed, the first-divergence-is-Retreat condition passed vacuously. No conclusion about the quality or legality of a paid-retreat decision follows from this run.
 
 ## Audit refinements required before using the natural positive as a release witness
 
