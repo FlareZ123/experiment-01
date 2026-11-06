@@ -26,12 +26,14 @@ const HASH_PATHS=[
  * Override only the final accepted root horizon at the true development
  * runner after the inherited v6 registrar has passed its historical 96.
  *
- * @param {{runner?:Function,base?:Function,ownerLayer?:Function}} [deps]
+ * @param {{runner?:Function,v13?:Function,ownerLayer?:Function}} [deps]
  * @returns {{manifest:object,diagnostic:object,rawDevelopment:object|null}}
  */
 function runAgent1Horizon260V14(deps={}){
   const runner=deps.runner??runDevelopment;
+  const v13=deps.v13??runAgent1CommonRadiantV13;
   assert.equal(typeof runner,'function');
+  assert.equal(typeof v13,'function');
   const invoked=[];
   function extendedRunner(options){
     assert.equal(options?.nativeRootActionLimit,PRIOR_LIMIT,
@@ -44,7 +46,7 @@ function runAgent1Horizon260V14(deps={}){
       registeredIds:(next.registeredTrials??[]).map(x=>x.id)});
     return runner(next);
   }
-  const executed=runAgent1CommonRadiantV13({...deps,runner:extendedRunner});
+  const executed=v13({...deps,runner:extendedRunner});
   assert.equal(invoked.length,1,'Exactly one native batch required');
   assert.deepEqual(invoked[0].registeredIds.sort(),
     registeredTrials().map(x=>x.id).sort());
