@@ -30,6 +30,8 @@ jobs:
           node --check simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
           node --check simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
           test -f results/aichi-2026/full-decklists.json
+      - name: Verify exact 29-original multi-Stadium census
+        run: node --test tests/agent26-field-stadium-multi-name-census.test.cjs
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
         run: node simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
       - uses: actions/upload-artifact@v4
