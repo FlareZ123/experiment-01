@@ -83,7 +83,7 @@ test('real pinned Store KO source events, prompt creation, exact Prize transfer'
     vendor,
     registrationSha256:digest(registration),
     sourceSha256:digest(fs.readFileSync(path.join(ROOT,
-      'simulation/twinleaf/agent3-ko-effect-prompt-provenance.cjs'))),
+      'simulation/twinleaf/agent3-ko-source-prompt-physical-v2.cjs'))),
     nativeTestSha256:digest(fs.readFileSync(__filename)),
     unchangedV14RunnerSha256:digest(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-issue25-v14-owner-pokemon-aba.cjs')))
@@ -108,7 +108,9 @@ test('real pinned Store KO source events, prompt creation, exact Prize transfer'
     sourceKoEffects:origin.eligibleKoEffects,
     sourceKoPrompts:origin.nativeSourcePrompts,
     sourcePromptAnswers:origin.nativeSourceSettledAnswers,
-    sourceJoinedExactHandTransfers:origin.exactSourceJoinedHandTransfers,\n    sourceStoreSessions:origin.registeredStoreSessions,\n    physicalChosenPrizes:physical.exactOwnerHandTransfers,
+    sourceJoinedExactHandTransfers:origin.exactSourceJoinedHandTransfers,
+    sourceStoreSessions:origin.registeredStoreSessions,
+    physicalChosenPrizes:physical.exactOwnerHandTransfers,
     nativePrizeResolutions:physical.nativeResolved,
     correlationMatched:receipt.strictOriginAndPhysicalCountMatch,
     qualifiedGames:0,archive
