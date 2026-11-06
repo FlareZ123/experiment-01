@@ -70,6 +70,7 @@ The follow-up [identical-rank4 control](agent50-identical-rank4-mulligan-seat-sy
 | Attempts / source-seat balance | 32 / 16-16 | 32 / 16-16 |
 | Mulligan pairs seat0/seat1 | 22 × 0/0; 4 × 0/1; 3 × 1/0; 2 × 1/1; 1 × 0/2 | 25 × 0/0; 4 × 0/1; 3 × 1/0 |
 | Total mulligans by seat | 5 / 8 | 3 / 4 |
+| Total mulligan hands | 13 | 7 |
 | Unequal-mulligan attempts | 8 | 7 |
 | Compensation recipients | seat0 5 / seat1 3 | seat0 4 / seat1 3 |
 | Compensation prompts / cards | 8 / 9 | 7 / 7 |
