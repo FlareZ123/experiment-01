@@ -28,10 +28,13 @@ test('observed source Unown with zero damage never qualifies',()=>{
 });
 
 test('exact six counters is a conditional witness, not paper legality',()=>{
-  const actual=check(view(60),terminal);
+  const v=view(60);
+  v.opponentPublic.active={printing:'Snorlax SVI',damage:60,
+    hp:150,tools:[]};
+  const actual=check(v,terminal);
   assert.equal(actual.satisfied,true);
   assert.equal(actual.targets[0].observedDamage,60);
-  assert.equal(actual.targets[0].printing,'Unown AOR');
+  assert.equal(actual.targets[0].printing,'Snorlax SVI');
 });
 
 test('extra seventh counter fails exact six prerequisite',()=>{
