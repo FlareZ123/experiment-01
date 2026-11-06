@@ -98,12 +98,30 @@ At the real optional rank6 prompt, the owner wrapper retrieves the installed def
 
 The new test is required by `tests/agent50-rank4-first-turn-dedechange.native.test.cjs`, reusing the existing manual `rank4_dedechange_only` workflow lane. No new workflow was added.
 
-## Execution status and limits
+## Execution result and limits
 
-**Source audit: confirmed. General compensation-prompt Store behavior: previously demonstrated on rank3/rank1. Rank26/rank6-specific native fixture: committed, not executed in this invocation.** No CI artifact or observed Store-dispatch receipt for the rank26/rank6 fixture is available yet. Its assertions and receipt must be reviewed and run before claiming that exact physical rank6 second-Thorns treatment succeeded.
+<badge label="PASS" color="green"/> **Native setup fixture passed** on 6 November 2026.
 
-The shuffle permutations are intentionally controlled. This is a deterministic existence fixture, not a random sample, setup-frequency estimate, or empirical mulligan probability. It stops immediately after setup compensation placement. It does not play a turn, prove a first-turn attack or KO, measure matchup outcomes, establish that Bench placement is always correct, or qualify either deck. No win-rate inference is justified.
+- Workflow: [run 42278008180](https://github.com/FlareZ123/experiment-01/actions/runs/42278008180), manual input `rank4_dedechange_rank6_lock_only=true`.
+- Executed commit: `e6eaa4b43a79c2ad46a64cb446111a8f8a0ebe79`.
+- Artifact: `agent50-original4-firstturn-dedechange-rank6-lock-v3`, artifact ID `13533623019`, ZIP SHA-256 `33eebba493e9eec73a63e00e3d8c5390e27e379ca6e8e59a9cb093dfab319cc5`.
+- The same manual job also passed its four original rank4 first-turn Dedechange control probes.
+
+The passing fixture verifies all three controlled 60-card shuffle events through native Store settlement. It checks the first seven physical cards in each resulting hand and the exact remaining deck order after the grouped setup callback. The intended setup occurred: rank26 mulliganed once; rank6 began with exactly one Active Iron Thorns ex; its six Prizes were non-starting cards; the second physical Iron Thorns ex was the compensation draw; rank26's second seven contained exactly one starting Pokémon; and rank6's genuine optional min-zero prompt accepted the default resolver's one-card action. The Store receipt checks that this exact second Iron Thorns ex leaves hand and enters the Bench while the original Active remains unchanged. The Agent50 protected-entry chooser's empty negative-control proposal is also retained.
+
+### Harness corrections and pinned-engine caveat
+
+Two earlier executions failed in the test harness, and both failures were corrected before the passing run:
+
+1. Run [42276637493](https://github.com/FlareZ123/experiment-01/actions/runs/42276637493) stopped before Store dispatch because the test required `ShuffleDeckPrompt.validate(order,state)` to accept a complete numeric permutation. The pinned implementation uses `result.slice(); s.sort();` without a numeric comparator (`shuffle-prompt.ts:12-27`). JavaScript therefore sorts indices lexicographically, and a 60-card permutation is rejected by this method.
+2. Run [42277562392](https://github.com/FlareZ123/experiment-01/actions/runs/42277562392) reached native Store dispatch, but the harness compared the full 60-card shuffled deck after the setup callback had already drawn the first seven into hand. The corrected test waits until all grouped shuffle prompts settle, then verifies the first seven in hand and the remaining 53 cards in deck.
+
+The pinned Store path does not call `ShuffleDeckPrompt.validate` when reducing `ResolvePromptAction` (`store.ts:266-282)). It applies the order through `CardList.applyOrder`, whose numeric comparator validates the complete index permutation (`card-list.ts:42-54)). The fixture now records the prompt-validator result and verifies the actual physical Store effect. No upstream code was changed.
+
+### Scope and limitations
+
+This is a deterministic existence fixture, not a random sample, setup-frequency estimate, or matchup win-rate estimate. It stops immediately after setup compensation placement. It does not play a turn, prove a first-turn KO, establish that Bench placement is always strategically correct, or qualify either deck. Agent47's probabilities remain mathematical model outputs. No competitive game or win-rate claim follows from this result.
 
 ## Next validation
 
-Run the existing manual rank4 native lane and inspect the failure-inclusive JSON receipt. If the fixture passes, use a separate preregistered source-conserved A/B test to compare the default generic bench-all resolver against the Agent50 protected-entry decline policy, with any new opponent-aware policy treated as a separate arm. Preserve physical-deal and policy-randomness controls, and do not promote a policy based solely on this setup existence proof.
+Use a separate preregistered source-conserved A/B test to compare the default generic Bench-all resolver against the Agent50 protected-entry decline policy, with any opponent-aware policy as a separate arm. Preserve physical-deal and policy-randomness controls, then test full opponent continuation. Do not promote a policy based solely on this setup existence proof.
