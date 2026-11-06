@@ -1240,6 +1240,58 @@ function bilateralJetBenchRootOptions(enabled){
   return enabled?{jetBenchSwitchRoot:true}:{};
 }
 
+/**
+ * Validate immutable source/candidate trial groups. The default remains the
+ * historical paired-candidate design. A single candidate arm is allowed only
+ * as an explicit one-game prospective probe.
+ * @param {object[]} registeredTrials
+ * @param {number[]} admittedRanks
+ * @param {boolean} allowSingleCandidateArm
+ * @returns {{groupCount:number,trialIds:string[]}}
+ */
+function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
+  allowSingleCandidateArm=false) {
+  assert.ok(Array.isArray(registeredTrials)&&registeredTrials.length>0);
+  assert.ok(Array.isArray(admittedRanks));
+  if(allowSingleCandidateArm) {
+    assert.equal(registeredTrials.length,1,
+      'Single-candidate mode must register exactly one natural game');
+  }
+  const expectedCandidateIds=['champion-reference','new-moon-lockbreaker-v1'];
+  const groups=new Map();
+  const ids=new Set();
+  for(const trial of registeredTrials) {
+    assert.ok(admittedRanks.includes(trial.rank),
+      'Registered source rank requires an authenticated original 60');
+    assert.ok(['A','B'].includes(trial.candidateSlot));
+    assert.ok(expectedCandidateIds.includes(trial.candidateId));
+    assert.ok(Number.isSafeInteger(trial.repeat)&&trial.repeat>=0);
+    assert.ok(Number.isSafeInteger(trial.seed)&&trial.seed>=0&&
+      trial.seed<=0xffffffff);
+    assert.equal(trial.id,[trial.rank,trial.repeat,trial.candidateSlot,
+      trial.candidateId].join(':'));
+    assert.ok(!ids.has(trial.id),'Duplicate preregistered arm');
+    ids.add(trial.id);
+    const groupId=trial.id.slice(0,trial.id.lastIndexOf(':'));
+    const group=groups.get(groupId)||{seed:trial.seed,ids:[]};
+    assert.equal(group.seed,trial.seed,
+      'Candidate pair must use identical preregistered integer seed');
+    group.ids.push(trial.candidateId);
+    groups.set(groupId,group);
+  }
+  if(allowSingleCandidateArm) {
+    assert.equal(groups.size,1,
+      'Single-candidate mode must contain exactly one registered group');
+    assert.equal([...groups.values()][0].ids.length,1,
+      'Single-candidate mode must contain exactly one candidate arm');
+  } else {
+    for(const group of groups.values()) {
+      assert.deepEqual(group.ids.slice().sort(),expectedCandidateIds);
+    }
+  }
+  return {groupCount:groups.size,trialIds:[...ids]};
+}
+
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   anyTurnCompressorPayload=false,earlyBenchedCompressorPayload=false,
@@ -1327,7 +1379,7 @@ function runDevelopment({
   sameRootThornsEmptyBench=false,
   candidateOnlyKnownDeadRoot=false,bilateralKnownDeadAttackRoot=false,
   registeredTrials=null,registeredFrameName=null,
-  allowAdditionalOriginalSourceRanks=false
+  allowSingleCandidateArm=false,allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
   const rng=rngProtocolSelection({
@@ -1526,34 +1578,10 @@ function runDevelopment({
     assert.ok(typeof registeredFrameName==='string' &&
       registeredFrameName.length>0);
     assert.ok(Array.isArray(registeredTrials)&&registeredTrials.length>0);
-    const groups=new Map();
-    const ids=new Set();
     const admittedRanks=require('./agent25-authenticated-source-admission.cjs')
       .authenticatedSourceRanks(roster,allowAdditionalOriginalSourceRanks);
-    for(const trial of registeredTrials){
-      assert.ok(admittedRanks.includes(trial.rank),
-        'Registered source rank requires an authenticated original 60');
-      assert.ok(['A','B'].includes(trial.candidateSlot));
-      assert.ok(['champion-reference','new-moon-lockbreaker-v1']
-        .includes(trial.candidateId));
-      assert.ok(Number.isSafeInteger(trial.repeat)&&trial.repeat>=0);
-      assert.ok(Number.isSafeInteger(trial.seed)&&trial.seed>=0&&
-        trial.seed<=0xffffffff);
-      assert.equal(trial.id,[trial.rank,trial.repeat,trial.candidateSlot,
-        trial.candidateId].join(':'));
-      assert.ok(!ids.has(trial.id),'Duplicate preregistered arm');
-      ids.add(trial.id);
-      const group=trial.id.slice(0,trial.id.lastIndexOf(':'));
-      const existing=groups.get(group)||{seed:trial.seed,ids:[]};
-      assert.equal(existing.seed,trial.seed,
-        'Candidate pair must use identical preregistered integer seed');
-      existing.ids.push(trial.candidateId);
-      groups.set(group,existing);
-    }
-    for(const group of groups.values()){
-      assert.deepEqual(group.ids.slice().sort(),
-        ['champion-reference','new-moon-lockbreaker-v1']);
-    }
+    validateRegisteredTrialGroups(registeredTrials,admittedRanks,
+      allowSingleCandidateArm);
   }
   const scheduled=registeredTrials??(sourceFirstRetrospective?
     sourceFirstPressureTrials():developmentTrials());
@@ -2023,6 +2051,8 @@ function runDevelopment({
       (compressorPayload?
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')))),
+    registeredCandidateArmMode:registeredTrials===null?'historical-schedule':
+      (allowSingleCandidateArm?'single-candidate-arm':'paired-candidate-arms'),
     sourceRegistration:registeredTrials!==null?
       registeredFrameName:(sourceFirstRetrospective?
       'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
@@ -2336,4 +2366,4 @@ module.exports={developmentTrials,sourceFirstPressureTrials,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
   executeDevelopment,runDevelopment,registeredNativeSeatDecks,
-  classifyNativeAbort};
+  validateRegisteredTrialGroups,classifyNativeAbort};
