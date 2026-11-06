@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent40_rank7_wobbuffet_hood_probe:
+        description: 'Opt-in staged both-seat original rank7 Wobbuffet versus Sentinel Hood/Item lock matrix; no games'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -75,6 +80,9 @@ jobs:
       - name: Test Fan-prized Sentinel Artazon direct Bench Bunnelby into real Jet and two TM attacks
         if: inputs.sentinel_artazon_direct_probe
         run: node --test tests/agent28-sentinel-direct-artazon-native.test.cjs tests/agent28-sentinel-artazon-direct-opening.test.cjs
+      - name: Test authentic rank7 Wobbuffet source against Sentinel Benched Vileplume Hood Item lock on both seats
+        if: inputs.agent40_rank7_wobbuffet_hood_probe
+        run: node --test tests/agent40-rank7-wobbuffet-hood.native.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
