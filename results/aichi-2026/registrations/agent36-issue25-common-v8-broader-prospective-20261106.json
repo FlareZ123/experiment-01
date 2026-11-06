@@ -1,0 +1,118 @@
+{
+  "schema": "agent36-issue25-broader-prospective-common-v8-128root-v1",
+  "createdAtUtc": "2026-11-06T02:01:32.471111+00:00",
+  "experimentalType": "prospective fresh-seed frozen common owner-only selected-v7 policy without case or winner feedback",
+  "sourceOriginalRanks": [
+    6,
+    11,
+    1,
+    3
+  ],
+  "sourceSeatAllocationRule": "original source physical seat0 if B, seat1 if A, all physically tested over four ranks",
+  "contendingPrintedSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 128,
+  "groups": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "champion-reference",
+      "id": "6:210:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 210,
+      "seed": 2950430245,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:210:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "champion-reference",
+      "id": "11:211:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 211,
+      "seed": 517355142,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:211:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "champion-reference",
+      "id": "1:212:B:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 212,
+      "seed": 1084952875,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:212:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "champion-reference",
+      "id": "3:213:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:213:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "seedOrigin": "Four independent secrets.randbits(32) calls executed on Python runtime and output observed at 2026-11-06T02:01:32.471111 UTC before this registration and before native v8 trial",
+  "policyLayers": "exact v7 common owner-only thornsDirectLine, the bilateral Special Energy + v4 source attack/Capture modules, v5 owner Prize+Promotion, v7 generic owner all-turn Volt mandatory prompt. One shared algorithm each native seat; no source rank-specific hand or winner condition. Historical root48 v0 boundary overridden only in actual v8 native runner to 128",
+  "rootCensoring": "all 8 original physical attempts retained, caps and bot decoder error are neither match wins nor match losses",
+  "provenanceBoundary": "same source within each seed group, different contenders can change whole original deal via mulligans",
+  "scopeLimitations": "four of 32 original ranks with one source seat per rank, original ranks23/25/28 missing; generic fallback paper fidelity and 25-minute clock still unverified",
+  "independentVerification": "compare artifact raw native card moves, source attacks, complete roots <=128, opponent next action and next source turn, verify digest; separate historical v6 and retrospective v7 never pooled into prospectively estimated win rate",
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false
+}
