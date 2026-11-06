@@ -1,0 +1,27 @@
+{
+  "schema": "agent4-v3-two-unknown-power-native-paired-candidate-amendment-v2",
+  "registeredAtUTC": "2026-11-06T22:24:00Z",
+  "supersedes": "results/aichi-2026/registrations/agent4-v3-two-unknown-power-readout-20261106.json",
+  "supersessionReason": "Pinned research runner enforces both fixed candidate 60s per registered source rank/seed/seat group. Initial 6-attempt registration stopped before any native match at original frozen-code-integrity preflight (run 42303633609), second revision stopped before any match at pair cardinality assertion (run 42304136227). Maintain all original target IDs and integer seeds; add only exact same-seed New Moon companion for every group.",
+  "originalTargetTrialIDs": [
+    "6:401:A:champion-reference",
+    "6:402:B:champion-reference"
+  ],
+  "companionIDs": [
+    "6:401:A:new-moon-lockbreaker-v1",
+    "6:402:B:new-moon-lockbreaker-v1"
+  ],
+  "modes": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "registeredPerMode": 4,
+  "plannedNativeAttempts": 12,
+  "originalPrintedCardSixtiesAndOpposingSeedsUnchanged": true,
+  "observer": "simulation/twinleaf/agent39-live-unknown-power-action-witness.cjs",
+  "currentCodeDrift": "Every one of original six frozen input Git blobs audited; original printed 60 roster and baseline manifest must match. Source runner and other drift recorded, never labeled original v3 frozen-release reproduction.",
+  "paperQualification": false,
+  "commitPolicy": "No unverified root, deck win, or paper result to be upgraded from this developmental abort audit",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+}
