@@ -6,6 +6,8 @@ const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const {withSourceMarkedPaperRandomNightWatch}=
   require('../simulation/twinleaf/agent43-nightwatch-source-marked-random.cjs');
+const {isDirectNightWatchHandPrompt}=
+  require('../simulation/twinleaf/agent43-nightwatch-paper-random-resolver.cjs');
 
 const BASE=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -112,6 +114,8 @@ for(const seat of [0,1]){
         assert.ok(randomHand instanceof ChooseCardsPrompt);
         assert.equal(randomHand.playerId,f.attacker.id);
         assert.strictEqual(randomHand.cards,f.defender.hand);
+        assert.equal(isDirectNightWatchHandPrompt(f.state,f.attacker,randomHand),false,
+          'Direct-only paper-random resolver misses an otherwise matching Perfection copy');
         assert.equal(randomHand.options.min,2);
         assert.equal(randomHand.options.max,2);
         const answer=bot.resolvePrompt(f.attacker,f.state,randomHand);
