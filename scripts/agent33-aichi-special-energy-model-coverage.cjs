@@ -59,9 +59,9 @@ function sourcePrinting(card){
  * Compare exact original-field printings against the narrow v8 Energy-unit
  * helper and the general owner-public flexible Energy model.
  *
- * The favorable context intentionally makes conditional effects available.
- * It measures recognition capacity, not whether a real recipient or Prize
- * state exists. The conservative context leaves Dragon/GX/Prize facts
+ * The favorable pass supplies a separate compatible public context for each
+ * conditional family. It measures recognition capacity, not whether that
+ * exact recipient or Prize state occurs in a real game. The conservative context leaves Dragon/GX/Prize facts
  * unresolved and therefore preserves fail-closed behavior.
  *
  * @returns {object} Reproducible source-field model coverage.
