@@ -106,6 +106,41 @@ test('read-only public root window begins at historical abort ordinal',()=>{
     privateFieldShouldNeverLeak,undefined);
   assert.equal(x.nativeFinished,false);
 });
+test('native accepted physical target is linked only at old public root ordinal',()=>{
+  const {summarize}=require('../simulation/evaluation/agent4-v3-two-unknown-power-readout.cjs');
+  const row={trial:{id:registration.contexts[0].id},status:null,
+    rootActionLedger:Array.from({length:180},(_,i)=>({
+      actionOrdinal:i,action:i===141?'PlayCardAction':'PassTurnAction',
+      card:i===141?'Psychic Energy':null,turnBefore:32,playerSlot:0
+    })),
+    nativeAcceptedTargetSidecar:{
+      rootOrdinalLinked:true,events:[
+        {rootActionOrdinal:9,action:'PlayCardAction',
+          declared:{status:'captured',ownerHandPrinting:'Item',
+            target:{player:1,slot:2,index:1}},storeAccepted:true},
+        {rootActionOrdinal:141,playerSlot:0,
+          action:'PlayCardAction',
+          declared:{status:'captured',ownerHandPrinting:'Psychic Energy',
+            target:{player:1,slot:2,index:0},
+            secretOwnerHandIndex:8},
+          visibility:'public-after-dispatch',storeAccepted:true,
+          publicBoardChanges:[{seat:0,position:'bench',index:0,
+            after:{energy:['Psychic Energy']}}]}
+      ]
+    }
+  };
+  const x=summarize(row,[],true);
+  const p=x.nativeFirstAcceptedPhysicalTargetAtOriginalAbort;
+  assert.equal(x.nativePhysicalTargetLedgerLinked,true);
+  assert.equal(p.length,1);
+  assert.equal(p[0].ownerPublicCardPrinting,'Psychic Energy');
+  assert.equal(p[0].declaredTarget.index,0);
+  assert.equal(p[0].secretOwnerHandIndex,undefined);
+  const bad=summarize({...row,nativeAcceptedTargetSidecar:{
+    ...row.nativeAcceptedTargetSidecar,rootOrdinalLinked:false
+  }},[],true);
+  assert.equal(bad.nativeFirstAcceptedPhysicalTargetAtOriginalAbort.length,0);
+});
 test('native mismatched or missing source ID fails rather than being reported',()=>{
   assert.throws(()=>run({
     manifest,runtime:fn=>fn(),
