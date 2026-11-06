@@ -78,15 +78,42 @@ function physicalDealEqual(a,b) {
 
 /** @param {object} phase */
 function byTrial(phase) {
-  const rows=phase?.rawDevelopment?.rows??phase?.rows;
+  const rawRows=phase?.rawDevelopment?.rows;
+  const summaryRows=phase?.rows;
+  const rows=rawRows??summaryRows;
   if(!Array.isArray(rows))throw new TypeError('Phase rows required');
-  const out=new Map();
-  for(const row of rows) {
-    const id=row?.trial?.id??row?.id;
-    if(typeof id!=='string' || !id || out.has(id))
-      throw new Error('Missing or duplicate trial identity');
-    out.set(id,row);
+  const summaries=new Map();
+  if(Array.isArray(rawRows)&&Array.isArray(summaryRows)){
+    for(const summary of summaryRows){
+      const id=summary?.id??summary?.trial?.id;
+      if(typeof id!=='string'||!id||summaries.has(id))
+        throw new Error('Missing or duplicate phase summary trial');
+      summaries.set(id,summary);
+    }
   }
+  const out=new Map();
+  for(const raw of rows){
+    const id=raw?.trial?.id??raw?.id;
+    if(typeof id!=='string'||!id||out.has(id))
+      throw new Error('Missing or duplicate trial identity');
+    const compact=summaries.get(id);
+    if(summaries.size&&!compact)
+      throw new Error('Raw trial missing matching compact summary');
+    const normalized={...compact,...raw};
+    for(const key of [
+      'sourceDealFingerprint','fullPhysicalDealFingerprint',
+      'actualStarterSeat','sourceSeat','candidateSeat','status'
+    ]){
+      const left=compact?.[key],right=raw?.[key];
+      if(left!=null&&right!=null&&
+         JSON.stringify(left)!==JSON.stringify(right))
+        throw new Error('Conflicting raw/summary custody field '+key);
+      normalized[key]=right??left??null;
+    }
+    out.set(id,normalized);
+  }
+  if(summaries.size&&summaries.size!==out.size)
+    throw new Error('Compact summary missing matching raw trial');
   return out;
 }
 
@@ -220,4 +247,24 @@ function audit(config) {
   };
 }
 
-module.exports={VERSION,evidenceLedger,firstDifference,isCensored,activation,audit};
+/**
+ * Audit the actual exported three-phase archival envelope, whose condensed
+ * phase rows retain opening/seat metadata and rawDevelopment contains
+ * complete or abort-preserved root evidence.
+ * @param {object} archive
+ * @returns {object}
+ */
+function auditArchive(archive){
+  const phases=archive?.phases;
+  const registered=archive?.registration?.trials;
+  if(!Array.isArray(phases)||!Array.isArray(registered))
+    throw new TypeError('Expected registered three-phase native archive');
+  const first=byTrial(phases[0]);
+  const trials=registered.map(trial=>{
+    const recorded=first.get(trial.id);
+    return {id:trial.id,sourceSeat:recorded?.sourceSeat};
+  });
+  return audit({trials,phases});
+}
+
+module.exports={VERSION,evidenceLedger,firstDifference,isCensored,activation,audit,auditArchive};
