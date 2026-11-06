@@ -94,3 +94,21 @@ test('duplicate candidate Pass sidecars cannot inflate sampled coverage',()=>{
  const archive={rows:[{id:row.trial.id}],base:{rows:[row]},rescue:{rows:[row]}};
  assert.throws(()=>auditPairedPasses(archive),/Duplicate Pass capture/);
 });
+
+test('a full five-Pokémon Bench does not block Retreat into a funded Bench Pokémon',()=>{
+ const {pass,row}=fixture();
+ const bench=pass.publicBoardBeforePass[1].bench;
+ bench.push(
+   {name:'Tapu Lele-GX',energyCards:[],toolCards:[]},
+   {name:'Girafarig',energyCards:[],toolCards:[]},
+   {name:'Tapu Lele-GX',energyCards:[],toolCards:[]},
+   {name:"Lillie's Clefairy ex",energyCards:[],toolCards:[]}
+ );
+ assert.equal(bench.length,5);
+ const match=visibleFundedVmaxPass(row,pass);
+ assert.ok(match,'full Bench preserves the already occupied retreat destination');
+ assert.equal(match.fundedBenchedVmaxIndex,0);
+ assert.equal(match.fundedBenchedPsychicCards,3);
+ // The provided Advanced Player's Rulebook A-03 explicitly allows retreat
+ // with a full Bench, provided another Benched Pokémon exists.
+});
