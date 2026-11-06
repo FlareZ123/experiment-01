@@ -31,7 +31,7 @@ test('true native root result produces only public counts and active/bench names
     id:'11:202:A:champion-reference',nativeReturned:true,
     publicNativeStateAvailable:true,opaqueAbort:false,
     nativeFinished:true,nativeEndReason:'engine-game-end',
-    nativeWinner:1,nativePrizesBySeat:[6,6],
+    nativeWinner:1,nativePrizesBySeat:[6,6],nativeTerminalTransition:null,
     publicDeckCountsBySeat:[0,15],publicHandCountsBySeat:[2,6],
     publicActiveNamesBySeat:['Girafarig','Mega Absol ex'],
     publicBenchNamesBySeat:[['Latias ex'],['Garbodor']]
@@ -93,4 +93,28 @@ test('capped native result cannot publish an unfinished Store winner sentinel',(
   assert.equal(obs.observations[0].nativeFinished,false);
   assert.equal(obs.observations[0].nativeWinner,null);
   assert.equal(obs.observations[0].nativeEndReason,'action-limit');
+});
+
+test('real native public transition is preserved as detached aggregate counts',()=>{
+  const native=game();
+  const aggregate=(turn,deck0)=>({
+    phase:turn===21?4:3,turn,activePlayer:0,winner:turn===21?1:0,
+    players:[
+      {deckRemaining:deck0,handSize:4,prizesRemaining:6,inPlayPokemon:2},
+      {deckRemaining:17,handSize:5,prizesRemaining:6,inPlayPokemon:3}
+    ]
+  });
+  native.terminalTransition={
+    evidenceType:'observed-engine-terminal-transition-v1',
+    actionName:'ResolvePromptAction',playerSlot:0,pendingPrompt:'WaitPrompt',
+    before:aggregate(20,0),after:aggregate(21,0)
+  };
+  const headless={runMatch:()=>native};
+  const obs=createPublicEndstateObserver({headless});
+  obs.run(()=>headless.runMatch({label:PREFIX+'registered'}));
+  const capture=obs.observations[0].nativeTerminalTransition;
+  assert.equal(capture.evidenceType,'observed-engine-terminal-transition-v1');
+  assert.equal(capture.before.players[0].deckRemaining,0);
+  assert.equal(capture.after.players[0].deckRemaining,0);
+  assert.equal(capture.after.turn,21);
 });
