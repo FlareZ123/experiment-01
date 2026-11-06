@@ -33,11 +33,17 @@ At rank6's post-compensation `CHOOSE_STARTING_POKEMONS` prompt:
 - verify the genuine owner hand is the prompt's card list;
 - verify `min=0`, `max=1`, and the only eligible new Basic is the second physical Iron Thorns ex;
 - verify both `prompt.validate([])` and `prompt.validate([secondThorns])` are true;
-- dispatch `ResolvePromptAction(prompt.id, [secondThorns])` through the actual pinned Store;
+- **do not override the optional prompt**: let the pinned default `SimpleTacticsAi` `ChooseCardsPromptResolver` produce the action, then observe whether it selects the second physical Iron Thorns;
+- compare that action with `chooseOwnedProtectedStartingBasics` on the same prompt as a negative control; the Agent50 protected-entry chooser is expected to propose `[]` for a valid `min=0` prompt;
+- dispatch the default resolver's action through the actual pinned Store;
 - verify the exact second physical card leaves the owner's hand and enters one Bench slot, while the original Active Iron Thorns remains unchanged;
-- capture the prompt metadata, before/after physical zones, accepted action, controlled shuffle summaries, source/defender deck hashes, actual first player, and engine pin.
+- capture the prompt metadata, both policy proposals, before/after physical zones, accepted action, controlled shuffle summaries, source/defender deck hashes, actual first player, and engine pin.
 
-The optional choice is made solely from the defending player's own hand and prompt. The shuffle controller is a test fixture, not a playing policy.
+The default resolver is part of Twinleaf's `allPromptResolvers`. It ranks unblocked prompt cards using `StateScore.getCardScore`, which evaluates the owner's `HandScore`; this is a generic hand-value heuristic, not an opponent-threat-aware Bench policy. The shuffle controller is a test fixture, not a playing policy.
+
+## Amendment before execution, 6 November 2026
+
+The initial fixture draft explicitly selected the bonus Basic in a test wrapper. Before any run, this was changed to delegate the optional prompt to the default `ChooseCardsPromptResolver` and observe its native action. The owner-only wrapper now handles only mandatory initial setup selections and the compensation-draw prompt. The Store observer compares the default action with the Agent50 protected chooser's empty proposal. The test receipt schema was advanced to `agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v2-default-resolver`. No CI execution has occurred between the draft and this amendment.
 
 ## Existing-hook comparison
 
