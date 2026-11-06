@@ -20,7 +20,7 @@ class ChooseCardsPrompt{
 }
 class AddPlayerAction{}
 class AttackAction{
-  constructor(id,name){this.id=id;this.name=name;}
+  constructor(clientId,name){this.clientId=clientId;this.name=name;}
 }
 class ResolvePromptAction{
   constructor(id,result){this.id=id;this.result=result;}
