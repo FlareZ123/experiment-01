@@ -128,7 +128,7 @@ function withOwnerInitialSetupAndCompensationDraw(run,audit){
         audit.defaultChooseCardsResolverInstalled=true;
         audit.defaultChooseCardsResolverIndex=resolverIndex;
         audit.defaultResolverResolutionMode='direct installed resolver call under generic-decoder quarantine';
-        const resolved=resolver.resolvePrompt(state,prompt);
+        const resolved=resolver.resolvePrompt(state,owner,prompt);
         assert.ok(resolved instanceof ResolvePromptAction,
           'the pinned default ChooseCardsPromptResolver must return a native action');
         assert.ok(Array.isArray(resolved.result));
