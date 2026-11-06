@@ -48,3 +48,8 @@ The 8/8 identity gate is repaired at this later code revision, exposing genuine 
 Next meaningful validation is to restore owner-safe decisions at the observed failing Store roots, then run **independent held-out full 60-vs-60 games** with authentic source actions, meaningful opponent counterplay, paper print and payment verification, setup choices and the event's 25-minute clock. Do not turn a native 20-damage attack that eventually takes two Prizes after nine uses into evidence of an optimal opposing policy.
 
 **Conclusion:** The original rank1/3 admission failure is repaired in the newer code. The refreshed sample is valid as eight bounded developmental **attempts** and 19 recorded settled source attacks. There are still **29/32 exact original lists, zero qualified games, and no 99.5% win demonstration**.
+
+
+## Follow-up: exact prompt-abort classification
+
+The later artifact-level join is documented in [Agent32's exact v8 prompt-abort classification](agent32-v8-native-prompt-abort-classification-20261106.md). It maps all five error rows to their public pending prompt messages/options and last accepted roots, distinguishes the two Telepath-shaped ChooseCards prompts from three unresolved Confirm prompts, and records the separate same-eight v8 Telepath treatment. This supplements the original archive audit; it does not upgrade any row to a qualified game or establish the prompt source where the artifact omits zone identity.
