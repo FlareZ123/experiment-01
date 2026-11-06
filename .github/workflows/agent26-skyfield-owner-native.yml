@@ -2,6 +2,12 @@ name: Agent26 frozen original Store Sky Field public-board receipt
 
 on:
   workflow_dispatch:
+    inputs:
+      agent26_palace_handoff:
+        description: Replay existing Agent9 original-rank6 Palace Book A/B/A and inspect post-wait native voluntary roots
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -38,6 +44,21 @@ jobs:
         run: node --test tests/agent26-prism-stadium-replacement.native.test.cjs
       - name: Cross-check Palace Book deferred phase transition with actual native prompts
         run: node --test tests/agent26-palace-book-deferred-phase.native.test.cjs
+      - name: Verify pure original Palace postwait root provenance extractor
+        if: ${{ inputs.agent26_palace_handoff }}
+        run: node --test tests/agent26-original-palace-postwait-handoff.test.cjs
+      - name: Replay registered original rank6 Palace A/B/A and inspect deferred native turn
+        if: ${{ inputs.agent26_palace_handoff }}
+        env:
+          AGENT26_PALACE_DEFERRED_DIR: agent26-palace-postwait-original
+        run: node simulation/evaluation/agent26-original-palace-postwait-handoff.cjs
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.agent26_palace_handoff
+        with:
+          name: agent26-original-palace-postwait-native
+          path: agent26-palace-postwait-original/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
         run: node simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
       - uses: actions/upload-artifact@v4
