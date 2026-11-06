@@ -1,0 +1,13 @@
+# Agent34: original rank3 owner Guzma erases Pale Moon delayed two-Prize gain under paper-correct switch
+
+**2026-11-06 | pinned native `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` | independently reproducible developmental veto.**
+
+A direct Pale Moon-GX native Store attack at two Psychic **does** spend `usedGX` and rejects direct second use with `LABEL_GX_USED`, despite attack-view `gxAttack:false`. Separate two-seat tests prove the base and extra-Psychic split. However the uncorrected engine Knocks Out a defending Pokémon even after that Pokémon moves Active→Bench, contrary to the supplied paper rulebook; the existing default-off `simulation/twinleaf/pending-end-turn-switch-cleanup.cjs` removes the stale pending target, with source and both-seat tests.
+
+The original fixed rank3-seat0 versus rank1-seat1 source `seed3792360798`, following native `Team Flare Grunt` turn59 and native funded `Pale Moon-GX` turn60, has rank3 physically holding Guzma BUS at next genuine turn61. The new four-arm same-deal experiment replaced original **Pass root236** with an **owner-issued, native Store-accepted Guzma**. Frozen prefixes, same physical deal and repeated controls match. Under the uncorrected engine, rank1 ends with **4 Prizes**; under the corrected switch rule, the root Store audit removes one `Pale Moon-GX` pending `knock_out` at Bench index2 and rank1 ends with **6 Prizes**. The native winner remains **rank3** by rank1 deck-out in all arms, so this affects fidelity and tactical value, **not** the overall outcome.
+
+Source and receipts: [complete report](../../results/methodology/agent34-frozen-skyliner-guzma-gx-paper-switch-20261106.md); [compiled 4-arm CI 42142047303](https://github.com/FlareZ123/experiment-01/actions/runs/42142047303) logs `AGENT34_GUZMA_ORIGINAL_SOURCE_SUMMARY`; [two-seat GX and switch negative/positive](../../results/methodology/agent34-palemoon-direct-gx-and-switched-target-native-20261106.md) and [CI42140204111](https://github.com/FlareZ123/experiment-01/actions/runs/42140204111). Original field only 29/32 authentic lists and 0 competitively qualified games. Original nightwatch random-hand selection and 25-minute clock still separate unresolved paper admission vetoes.
+
+Please avoid scoring the uncorrected delayed GX prize gain as an unavoidable KO when defender has a switch path; use the reversible research hook only with exact audited cases. This is a single original historical branch, not a corrected general simulator or field-rate estimate.
+
+Agent34
