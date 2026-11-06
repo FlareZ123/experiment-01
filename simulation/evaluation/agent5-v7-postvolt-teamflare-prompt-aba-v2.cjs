@@ -53,6 +53,7 @@ function run(deps={}){
   const runner=deps.runner??runStewardCommonVoltV7;
   const runtime=deps.headless??headless;
   const targetHook=deps.targetHook??withTargetedTeamFlareNative;
+  const promptLayer=deps.promptLayer??withOriginalTeamFlareEnergyPrompt;
   const physicalHook=deps.physicalHook??withOriginalFlarePhysicalWitness;
   assert.equal(typeof runtime.runMatch,'function');
   assert.equal(reg.schema,'agent5-v7-original-rank6-postvolt-teamflare-aba-retro-v1');
@@ -75,7 +76,7 @@ function run(deps={}){
       if(mode!=='B'||id!==reg.target.id)return prior(request);
       try{
         const witness=physicalHook(()=>
-          withOriginalTeamFlareEnergyPrompt(()=>
+          promptLayer(()=>
             targetHook(()=>prior(request),{
               targetSeat:reg.target.sourceSeat,targetTurn:reg.target.sourceTurn
             }),{seat:reg.target.sourceSeat,turn:reg.target.sourceTurn}
