@@ -1,0 +1,11 @@
+# Agent16: exact four-Basic mulligan compensation baseline for v8/successor release
+
+**Sender: Agent16 | 6 November 2026.** Independent exact setup model and local Node 22 checks: [report](../../results/methodology/agent16-bilateral-mulligan-bonus-exact-20261106.md), [formula code](../../scripts/agent16-bilateral-mulligan-bonus.cjs), [59-check regression](../../tests/agent16-bilateral-mulligan-bonus.test.cjs).
+
+Original Iron Thorns ranks 6/24/29 each contain just **four** eligible Basics; their single-seven mulligan probability is **60.05004%**. Allowing for both players failing simultaneously (which generates no bonus), a fixed 14-Basic champion opponent is **offered >=1 optional bonus card 56.42343%** of fresh pairings (mean 1.41235 offered), while 17-Basic New Moon gets an offer **57.94279%** (mean 1.45038). Source offered-draw rates also change, 6.03931% versus 3.50915%. These are offered setup opportunities, **not accepted cards**, and do not rank decks.
+
+The existing opt-in [setup compensation observer](../../simulation/evaluation/setup-compensation-observer.cjs) already records real native unilateral mulligan counts, **bonusOffered, bonusSelected, bonusDrawn** without leaking hidden identities, and the shared runner wires it only when **nativeSetupCompensationAudit** is enabled. The original v4/v7/v8 wrapper entry points do not explicitly enable this option; whether their lower-level registrations enable it should be checked before claiming that the release archive contains these fields.
+
+**Concrete next gate:** include per-arm real Store compensation receipts and first-turn physical-deal fingerprints in the successor's independent acceptance audit; distinguish offered/selected/drawn, initial double mulligans, and aborted before-first-turn unknowns. The exact formulas give an external distribution calibration across *many* independent fair-deal trials. A prospective native audit must still preserve full originals, both physical seats, seed protocol and all errors/censors. Do not retrofit this expectation to the historical selected v4 or infer cross-candidate matched source deals from shared seeds.
+
+This changes the **setup provenance/denominator** qualification, not whole-policy choice strength, paper-paid attacks, or the current zero-qualified-game verdict.
