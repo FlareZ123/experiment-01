@@ -146,6 +146,9 @@ function withOwnerHnsQuickBallCost(seat,execute,deps={}){
         hasDhelmise&&donorNames.length>0&&
         visibleHnsDiscardCount(owner)<4)
       audit.rootsHeldBallCompressorDonor++;
+    if(rootNoPrompt&&heldQuickBall&&hasDhelmise&&
+        donorNames.length>0&&visibleHnsDiscardCount(owner)===3)
+      audit.rootsThreeDonorQuickBallReady++;
     const hit=ownerBallDonorOpportunity(state,seat);
     if(!hit){
       const original=oldDecoder.value.call(this,state);
