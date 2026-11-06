@@ -442,6 +442,7 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
       this.id=id;this.handIndex=handIndex;this.target=target;
     }
   }
+  class AddPlayerAction{}
   class PassTurnAction{constructor(id){this.id=id;}}
   class Store{
     constructor(){
@@ -467,6 +468,7 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
   function run(enabled){
     return withActorOnlyRootPolicy(()=>{
       const store=new Store();
+      store.dispatch(new AddPlayerAction());
       const action=new SimpleTacticsAi(10).decodeNextAction(store.state);
       store.dispatch(action);
       return action;
