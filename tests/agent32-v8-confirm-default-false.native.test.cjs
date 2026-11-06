@@ -54,6 +54,10 @@ function preservePublicTerminalFields(execution){
         endReason:raw.endReason??null,
         finalPrizes:raw.finalPrizes??null,
         finalBoard:raw.finalBoard??null,
+        candidateAttackSettlement:raw.candidateAttackSettlement??null,
+        settledPublicAttackCount:raw.settledPublicAttackCount??null,
+        attackDeclarations:raw.attackDeclarations??null,
+        firstSettledPublicAttack:raw.firstSettledPublicAttack??null,
         nativeRootActionCount,
         terminalWinnerMatchesCandidate:raw.finished===true&&
           raw.winner===(raw.candidateSeat??status.candidateSeat)
@@ -174,6 +178,12 @@ test('same-eight v8 Telepath plus default Confirm false preserves terminal-or-ca
   assert.equal(terminal.treatmentWinner,terminal.candidateSeat);
   assert.equal(terminal.treatmentTerminalWinnerMatchesCandidate,true);
   assert.ok(terminal.treatmentEndReason);
+  assert.equal(terminal.candidateAttackSettlement?.candidateSeat,
+    terminal.candidateSeat);
+  assert.equal(terminal.candidateAttackSettlement?.declarations,4);
+  assert.equal(terminal.candidateAttackSettlement?.attacks?.length,4);
+  assert.equal(terminal.candidateAttackSettlement?.qualifiedForCompetitiveInference,
+    false);
   assert.equal(report.nativeMatchCalls,8);
   assert.equal(treatment.manifest.nativeOwnerPromptAudit.nativeMatchCalls,8);
   assert.deepEqual(treatment.manifest.nativeOwnerPromptAudit,
