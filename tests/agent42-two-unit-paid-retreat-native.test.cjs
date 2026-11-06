@@ -10,6 +10,8 @@ const {buildActorCardCatalog}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {proposeTwoUnitPaidRetreat}=
   require('../simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal.cjs');
+const {proposeTwoUnitPaidRetreatV2}=
+  require('../simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
 
 const OUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const engine=name=>require(path.join(OUT,name));
@@ -218,6 +220,48 @@ for(const seat of [0,1]){
     assert.ok(oldEnergy.every(card=>owner.discard.cards.includes(card)));
     assert.ok(oldEnergy.every(card=>
       !owner.active.energies.cards.includes(card)));
+    assert.equal(state.players[seat],owner);
+  });
+}
+
+
+for(const seat of [0,1]){
+  test('v2 native two-Psychic Retreat to Latias preserves target Energy and exact custody seat '+seat,()=>{
+    const game=stage(seat);
+    const {store,state,owner,opponent,activeBefore,catalog}=game;
+    const latias=initializeCards().getCardByName('Latias ex SSP');
+    assert.ok(latias,'Pinned Latias ex SSP must exist');
+    latias.id=920001+seat;
+    const target=owner.bench[0];
+    const targetEnergy=[...target.energies.cards];
+    target.cards.splice(0,target.cards.length,latias);
+    opponent.active.damage=10;
+    owner.prizes=owner.prizes.slice(0,1);
+    const intent=proposeTwoUnitPaidRetreatV2(actorObservation(state,seat),catalog);
+    assert.equal(intent?.kind,'two-unit-paid-retreat-proposal-v2');
+    assert.equal(intent?.printing,'Latias ex SSP');
+    assert.equal(intent?.attackName,'Eon Blade');
+    assert.equal(intent?.projectedPrintedDamage,200);
+    assert.equal(intent?.projectedPrizeCount,1);
+    assert.equal(intent?.projectedTerminalWin,true);
+    const {RetreatAction}=engine('game/store/actions/game-actions');
+    const {withTwoPsychicRetreatCustody}=require(
+      '../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody-v2.cjs');
+    const witness=withTwoPsychicRetreatCustody(()=>{
+      store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
+      return resolveNativeRetreat(game);
+    });
+    assert.equal(witness.audit.exactPhysicalPaidRetreats,1);
+    assert.equal(witness.audit.receipts[0].targetPrinting,'Latias ex SSP');
+    assert.equal(witness.audit.receipts[0].targetEnergyCount,3);
+    assert.equal(witness.audit.receipts[0].physicalPaymentObjectCustodyConfirmed,true);
+    assert.equal(owner.retreatedTurn,34);
+    assert.strictEqual(owner.active,target);
+    assert.strictEqual(owner.bench[0],activeBefore);
+    assert.equal(owner.active.getPokemonCard()?.fullName,'Latias ex SSP');
+    assert.deepEqual(owner.active.energies.cards,targetEnergy);
+    assert.equal(activeBefore.energies.cards.length,0);
+    assert.ok(game.oldEnergy.every(card=>owner.discard.cards.includes(card)));
     assert.equal(state.players[seat],owner);
   });
 }

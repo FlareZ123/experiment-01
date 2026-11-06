@@ -451,6 +451,8 @@ jobs:
         run: node --test tests/agent1-issue25-joined-three-attacks-v5.native.test.cjs
       - name: Stage actual two-Basic-Energy VMAX retreat and native payment on both seats
         run: node --test tests/agent42-two-unit-paid-retreat-native.test.cjs
+      - name: Verify v2 terminal KO, Float Stone arbitration and any-target physical custody
+        run: node --test tests/agent42-public-two-unit-paid-retreat-proposal-v2.test.cjs tests/agent42-two-psychic-retreat-physical-custody-v2.test.cjs tests/agent42-realstore-paid-retreat-join-v2.test.cjs tests/agent42-two-unit-retreat-v2-actor-integration.test.cjs
       - name: Prospective original rank1 fresh-seed paired native paid Retreat
         if: ${{ inputs.include_agent42_rank1_paid_retreat_aba }}
         run: node simulation/evaluation/agent42-rank1-prospective-paid-v4.cjs

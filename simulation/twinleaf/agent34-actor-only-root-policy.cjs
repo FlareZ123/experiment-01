@@ -207,6 +207,30 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseGenericFundedFloatStone(view,catalog);
     if(mobility)return mobility;
   }
+  // V2 compares a same-target free Float Stone line before any paid fee.
+  if(options.twoUnitPaidRetreatRootV2===true&&
+     ((options.twoUnitPaidRetreatTargetTurnV2??null)===null||
+      options.twoUnitPaidRetreatTargetTurnV2===view.globalTurn)){
+    const paid=require('./agent42-public-two-unit-paid-retreat-proposal-v2.cjs')
+      .proposeTwoUnitPaidRetreatV2(view,catalog);
+    if(paid){
+      const freeGeneric=require('./agent14-generic-funded-floatstone-frontier.cjs')
+        .chooseGenericFundedFloatStone(view,catalog);
+      if(freeGeneric&&freeGeneric.benchIndex===paid.benchIndex&&
+         freeGeneric.targetAttackName===paid.attackName){
+        return {...freeGeneric,
+          source:'agent42-paid-retreat-v2-floatstone-arbitration'};
+      }
+      if(options.fundedVmaxFloatStoneRoot===true){
+        const freeVmax=require('./agent31-shadow-rider-funded-bench-floatstone.cjs')
+          .chooseFundedShadowRiderFloatStone(view,catalog);
+        if(freeVmax&&freeVmax.benchIndex===paid.benchIndex&&
+           freeVmax.targetAttackName===paid.attackName)return freeVmax;
+      }
+      return {...paid,kind:'paid-retreat',
+        source:'agent42-owner-two-unit-paid-retreat-v2'};
+    }
+  }
   // Default-off owner-visible paid alternative to consuming Float Stone.
   // Keep this before funded Tool selection so both routes can be evaluated
   // at exactly the same public root, without importing any hidden zones.
@@ -742,6 +766,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     twoUnitPaidRetreatRootOptIn:deps.twoUnitPaidRetreatRoot===true,
     twoUnitPaidRetreatTargetTurn:deps.twoUnitPaidRetreatTargetTurn??null,
     twoUnitPaidRetreatRootSelected:0,
+    twoUnitPaidRetreatRootV2OptIn:deps.twoUnitPaidRetreatRootV2===true,
+    twoUnitPaidRetreatTargetTurnV2:deps.twoUnitPaidRetreatTargetTurnV2??null,
+    twoUnitPaidRetreatRootV2Selected:0,
+    twoUnitPaidRetreatV2FreeToolSelected:0,
     genericFundedFloatStoneAuditOptIn:deps.genericFundedFloatStoneAudit===true,
     genericFundedFloatStoneAudit:{
       ownerRoots:0,ownerHeldToolRoots:0,ownerAttachedToolRoots:0,
@@ -1368,6 +1396,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       twoUnitPaidRetreatRoot:audit.twoUnitPaidRetreatRootOptIn===true,
       twoUnitPaidRetreatTargetTurn:audit.twoUnitPaidRetreatTargetTurn,
+      twoUnitPaidRetreatRootV2:audit.twoUnitPaidRetreatRootV2OptIn===true,
+      twoUnitPaidRetreatTargetTurnV2:audit.twoUnitPaidRetreatTargetTurnV2,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
@@ -1575,6 +1605,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
       audit.twoUnitPaidRetreatRootSelected++;
+    if(intent.source==='agent42-owner-two-unit-paid-retreat-v2')
+      audit.twoUnitPaidRetreatRootV2Selected++;
+    if(intent.source==='agent42-paid-retreat-v2-floatstone-arbitration')
+      audit.twoUnitPaidRetreatV2FreeToolSelected++;
     if(intent.singleHeldPsychicContestedByUnderworld===true)
       audit.underworldActiveFundingPrioritySelected++;
     if(intent.source==='rank13-dragon-donor')
