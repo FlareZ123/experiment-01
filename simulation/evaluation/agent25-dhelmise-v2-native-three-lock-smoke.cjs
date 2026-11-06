@@ -58,12 +58,15 @@ function toPrintedManifest(){
 const describeError=error=>String(error?.stack||error?.message||error);
 
 /** Run exactly six pre-registered native bounded trials when the 60 resolves. */
-function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ballDonorCostV3=false,ballDonorCostV4=false}={}){
+function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ballDonorCostV3=false,ballDonorCostV4=false,sourceRankOnly=null,candidateSeatOnly=null,captureOriginalRootLedger=false}={}){
   assert.equal(typeof donorCompressor,'boolean');
   assert.equal(typeof ballDonorCost,'boolean');
   assert.equal(typeof ballDonorCostV2,'boolean');
   assert.equal(typeof ballDonorCostV3,'boolean');
   assert.equal(typeof ballDonorCostV4,'boolean');
+  assert.equal(typeof captureOriginalRootLedger,'boolean');
+  assert.ok(sourceRankOnly===null||registration.sourceRanks.includes(sourceRankOnly));
+  assert.ok(candidateSeatOnly===null||registration.candidateSeatIndices.includes(candidateSeatOnly));
   assert.ok([ballDonorCost,ballDonorCostV2,ballDonorCostV3,ballDonorCostV4].filter(Boolean).length<=1);
   assert.ok(!(ballDonorCost||ballDonorCostV2||ballDonorCostV3||ballDonorCostV4)||donorCompressor,
     'Quick Ball donor payment extension requires same owner Compressor base');
@@ -113,12 +116,14 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
     printing.identityVerification='all-60-native-set-number-and-name-exact';
   }
   const attempts=[];
-  for(const rank of registration.sourceRanks){
+  const selectedRanks=sourceRankOnly===null?registration.sourceRanks:[sourceRankOnly];
+  const selectedSeats=candidateSeatOnly===null?registration.candidateSeatIndices:[candidateSeatOnly];
+  for(const rank of selectedRanks){
     const original=registeredSource.decks.find(deck=>deck.rank===rank);
     assert.ok(original,'not a recovered published original 60 for rank '+rank);
     assert.equal(original.cards.reduce((n,x)=>n+x.count,0),60);
     const opponent=plan.opponents.find(x=>x.rank===rank);
-    for(const seat of registration.candidateSeatIndices){
+    for(const seat of selectedSeats){
       const key=rank+':seat'+seat;
       if(!plan.candidate.cards||opponent?.status!=='ready'){
         attempts.push({key,rank,candidateSeat:seat,
@@ -136,7 +141,10 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
         ...registration.options,
         ...(donorCompressor?{dhelmiseDonorCompressorSeat:seat}:{}),
         ...(ballDonorCostV4?{dhelmiseQuickBallThreeDonorRootSeat:seat}:{}),
-        captureStartingBoard:true,captureFinalPublicBoard:true
+        captureStartingBoard:true,captureFinalPublicBoard:true,
+        ...(captureOriginalRootLedger?{
+          captureDecisionTrace:true,captureInitialFullPhysicalDeal:true,
+          capturePublicAttackTransitions:true}: {})
       };
       try{
         const execution=()=>withCorrectedHnsDiscardAbilityCount(()=>
@@ -157,6 +165,13 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
           nativeWinner:game.winner,
           prizesRemaining:game.prizesRemaining,
           startingBoard:game.initialBoardAtFirstTurn??null,
+          ...(captureOriginalRootLedger?{
+            initialFullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint??null,
+            decisionTrace:game.decisionTrace??null,
+            rootActionLedger:game.rootActionLedger??null,
+            attackDeclarationTrace:game.attackDeclarationTrace??null,
+            publicAttackTransitions:game.publicAttackTransitions??null
+          }: {}),
           hnsHookAudit:wrapped.audit,
           ownerBallDonorAudit:selected.audit,
           physicalZoneIntegrity:game.physicalZoneIntegrity??null,
@@ -174,11 +189,12 @@ function run({donorCompressor=false,ballDonorCost=false,ballDonorCostV2=false,ba
       }
     }
   }
-  assert.equal(attempts.length,6);
+  assert.equal(attempts.length,selectedRanks.length*selectedSeats.length);
   return {version:registration.version,enginePin:pin,
     candidate:registration.candidate,
-    originalSourceRanks:registration.sourceRanks,
+    originalSourceRanks:selectedRanks,
     seedsByRank:registration.seedsByRank,
+    captureOriginalRootLedger, selectedCandidateSeats:selectedSeats,
     policy:ballDonorCostV4?
       'DhelmiseHnsOwnerCompressor-v1 + native owner Quick Ball threshold-three root/cost v4':
       (ballDonorCostV3?
