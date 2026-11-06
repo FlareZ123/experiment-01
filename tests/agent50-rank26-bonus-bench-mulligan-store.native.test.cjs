@@ -30,6 +30,7 @@ const {GameMessage}=engine('game/game-message');
 const {Stage,CardTag,Format}=engine('game/store/card/card-types');
 const {GamePhase}=engine('game/store/state/state');
 const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+const {ChooseCardsPromptResolver}=engine('simple-bot/prompt-resolver/choose-cards-prompt-resolver');
 
 /** @param {object} card @returns {boolean} */
 function isStartingPokemon(card){
@@ -77,14 +78,15 @@ function permutationFor(cards,selectors){
 }
 
 /**
- * Explicit owner-only setup/compensation choices. The outer Agent4 quarantine
- * makes any unhandled native raw-State fallback fail closed.
+ * Owner-only mandatory setup and compensation-draw choices. The optional
+ * min=0 Bench prompt is deliberately delegated to Twinleaf's default resolver.
+ * The outer Agent4 quarantine makes unhandled raw-State fallback fail closed.
  * @template T
  * @param {()=>T} run
  * @param {object} audit
  * @returns {T}
  */
-function withOwnerSetupAndBonusChoices(run,audit){
+function withOwnerInitialSetupAndCompensationDraw(run,audit){
   const descriptor=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof descriptor?.value,'function');
@@ -116,15 +118,10 @@ function withOwnerSetupAndBonusChoices(run,audit){
         assert.equal(state.phase,GamePhase.SETUP);
         assert.equal(owner.active.cards.length,1);
         assert.equal(owner.bench.flatMap(slot=>slot.cards).length,0);
-        assert.equal(eligible.length,1);
-        assert.equal(isIronThorns(eligible[0]),true);
-        assert.equal(prompt.validate([]),true);
-        assert.equal(prompt.validate([eligible[0]]),true);
-        audit.actorDecisions.push({
-          seat,kind:'bonus-bench-second-thorns',
-          selected:printing(eligible[0]),selectedCardId:eligible[0].id
-        });
-        return new ResolvePromptAction(prompt.id,[eligible[0]]);
+        assert.ok(this.resolvers.some(resolver=>
+          resolver instanceof ChooseCardsPromptResolver),
+          'default SimpleTacticsAi must have its native ChooseCardsPromptResolver');
+        audit.defaultChooseCardsResolverInstalled=true;
       }
     }
     if(owner&&prompt instanceof SelectPrompt&&
@@ -162,7 +159,7 @@ function withRank26BonusBenchFixture(run){
   assert.equal(typeof descriptor?.value,'function');
   assert.equal(descriptor.configurable,true);
   const audit={
-    schema:'agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v1',
+    schema:'agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v2-default-resolver',
     pinnedEngine:PIN,
     controlledPhysicalShuffle:true,
     sourceSeat:0,sourceRank:26,
@@ -316,6 +313,8 @@ function withRank26BonusBenchFixture(run){
           'native optional prompt must accept the empty selection');
         assert.equal(prompt.validate([secondThorns]),true,
           'native optional prompt must accept the second Iron Thorns');
+        assert.equal(prompt.validate(action.result),true,
+          'default resolver action must pass the native prompt validator');
         const currentHookChoice=chooseOwnedProtectedStartingBasics(
           prompt,owner,Stage,CardTag);
         assert.deepEqual(currentHookChoice,[],
@@ -351,6 +350,9 @@ function withRank26BonusBenchFixture(run){
           candidate:printing(secondThorns),candidateId:secondThorns.id,
           emptySelectionValid:true,oneCardSelectionValid:true,
           existingProtectedEntryHookSelection:currentHookChoice.map(printing),
+          defaultResolverName:'ChooseCardsPromptResolver',
+          defaultResolverInstalled:audit.defaultChooseCardsResolverInstalled===true,
+          defaultResolverSelection:action.result.map(printing),
           nativeAction:action.constructor.name,
           nativeActionSelection:action.result.map(printing),
           nativePromptResult:prompt.result.map(printing),
@@ -435,7 +437,7 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
     ()=>withOwnerPublicAcknowledgements(
       ()=>withGoFirstChoice(
         [true,false],
-        ()=>withOwnerSetupAndBonusChoices(
+        ()=>withOwnerInitialSetupAndCompensationDraw(
           ()=>runMatch({
             deckA:source.cards,deckB:defender.cards,
             format:Format.EXPANDED,
@@ -457,7 +459,10 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(audit.initialSetups.length,2);
   assert.equal(audit.actorDecisions.filter(x=>x.kind==='initial-starting-basic').length,2);
   assert.equal(audit.actorDecisions.filter(x=>x.kind==='accept-one-compensation-card').length,1);
-  assert.equal(audit.actorDecisions.filter(x=>x.kind==='bonus-bench-second-thorns').length,1);
+  assert.equal(audit.defaultChooseCardsResolverInstalled,true);
+  assert.deepEqual(audit.optionalPrompt?.defaultResolverSelection,
+    [audit.optionalPrompt?.candidate]);
+  assert.equal(audit.optionalPrompt?.defaultResolverInstalled,true);
   assert.equal(audit.rawStateFallbackQuarantine?.rawStateFallbackCalls,0);
 
   const receipt={
