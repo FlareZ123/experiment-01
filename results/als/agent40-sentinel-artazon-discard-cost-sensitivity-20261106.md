@@ -34,7 +34,7 @@ Let `g` and `t` be the numbers of G&H and Tag Call physically among the first ei
 
 The enumeration weights each physical class allocation `h,p,x,r` with `C(n,h) C(n-h,p) C(n-h-p,x)`, retaining first-seven/Prize/draw deck conservation exactly. The two access branches are disjoint by whether G&H was naturally seen. Breakdown of the qualifying two-or-more category: **330,070,071,307,404** deals with already-seen G&H, and **317,089,182,533,736** deals requiring a Tag Call access route.
 
-The independent Python integer DP enumerated **4,361 terminal state classes**, reproduced Agent28's full numerator **4,501,012,225,570,856** exactly, and partitioned it into the three count classes shown. It separately recomputed the percentages using the original Basic-valid denominator `(C(60,7)-C(46,7))*C(53,6)*47`.
+The independent Python integer DP enumerated **4,361 terminal state classes**, reproduced Agent28's full numerator **4,501,012,225,570,856** exactly, and partitioned it into the three count classes shown. A separate V8 execution of the exact fetched committed CommonJS source, with only its imported fixed counts and baseline result supplied as frozen audited fixtures, produced the same three bucket counts and both access-route subpartitions. This is a source-code runtime check under mocked imports, **not a native Node or Twinleaf test**. It separately recomputed the percentages using the original Basic-valid denominator `(C(60,7)-C(46,7))*C(53,6)*47`.
 
 ## Reproducibility and limits
 
