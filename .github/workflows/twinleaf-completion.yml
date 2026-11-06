@@ -244,6 +244,21 @@ jobs:
         env:
           ISSUE25_STEWARD_V7_DIR: issue25-steward-v7
         run: node --test tests/agent4-allturn-owner-volt-attach-energy.test.cjs tests/agent36-issue25-common-v7.test.cjs tests/agent36-issue25-common-v7.native.test.cjs
+      - name: Observe shared v7 first real owner hand after settled attacks with strict replay check
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          AGENT9_V7_OWNER_RETURN_DIR: issue25-agent9-v7-owner-return
+        run: |
+          node --test tests/agent9-v7-own-turn-continuation-audit.test.cjs tests/agent9-v7-real-owner-decision-observer.test.cjs tests/agent9-v7-real-owner-observation-join.test.cjs tests/agent9-v7-real-owner-native-audit.test.cjs
+          node simulation/evaluation/agent9-v7-real-owner-native-audit.cjs
+      - name: Archive genuine owner-hand v7 replay with failed noninterference receipts
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-v7-owner-hand-readonly-exact-original
+          path: issue25-agent9-v7-owner-return/
+          if-no-files-found: warn
+          retention-days: 21
       - name: Run prospective broader original four-rank 128-root same-policy v8
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
