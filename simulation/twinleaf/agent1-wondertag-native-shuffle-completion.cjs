@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent1-wondertag-native-shuffle-callback-witness-v2';
+const VERSION='agent1-wondertag-native-shuffle-callback-witness-v3';
 
 /**
  * Observe one printed Lele Wonder Tag native deck shuffle without selecting
@@ -39,6 +39,9 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
     shuffleCallbackInvocations:0,preCallbackRejections:0,
     nativeCallbackFailures:0,missingRegisteredTrialIds:0,
     ownerReassignedPrompts:0,
+    nativeLivePromptRegistrationsVerified:0,
+    nativeLivePromptRegistrationsMissing:0,
+    nativeCallbackLiveOwnerMatches:0,nativeCallbackDetachedOwners:0,
     validShuffleCallbacksCompleted:0,invalidNativeShufflePermutations:0,
     bySeat:{0:0,1:0},nativeTrialAttributionAvailable:
       typeof deps.getCurrentTrialId==='function',
@@ -62,7 +65,11 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
         audit.shuffleCallbacksFailed===0&&
         audit.invalidNativeShufflePermutations===0&&
         audit.missingRegisteredTrialIds===0&&
-        audit.ownerReassignedPrompts===0
+        audit.ownerReassignedPrompts===0&&
+        audit.nativeLivePromptRegistrationsMissing===0&&
+        audit.nativeCallbackDetachedOwners===0&&
+        audit.nativeLivePromptRegistrationsVerified===audit.shufflePromptsOffered&&
+        audit.nativeCallbackLiveOwnerMatches===audit.shuffleCallbacksCompleted
     };
   }
 
@@ -100,6 +107,10 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
                 assert.equal(prompt.playerId,owner.id,
                   'Native Wonder Tag shuffle prompt routed away from printed owner');
                 resolved=true;
+                const liveOwner=target.state?.players?.[seat]??null;
+                const ownerStillAttached=liveOwner===owner;
+                if(ownerStillAttached)audit.nativeCallbackLiveOwnerMatches++;
+                else audit.nativeCallbackDetachedOwners++;
                 const order=args[0];
                 const deckSize=owner.deck.cards.length;
                 const validOrder=Array.isArray(order)&&order.length===deckSize&&
@@ -109,7 +120,8 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
                 phase='native callback';
                 const result=callback(...args);
                 audit.shuffleCallbacksCompleted++;
-                if(validOrder)audit.validShuffleCallbacksCompleted++;
+                if(validOrder&&ownerStillAttached)
+                  audit.validShuffleCallbacksCompleted++;
                 audit.bySeat[seat]++;
                 audit.completedTrialSeats.push({id,seat});
                 return result;
@@ -121,6 +133,10 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
               }
             });
             if(prompt.playerId!==owner.id)audit.ownerReassignedPrompts++;
+            const registered=Array.isArray(target.state?.prompts)&&
+              target.state.prompts.some(p=>p===prompt&&p.playerId===owner.id);
+            if(registered)audit.nativeLivePromptRegistrationsVerified++;
+            else audit.nativeLivePromptRegistrationsMissing++;
             return next;
           }
           return target.prompt(nextState,prompt,callback);
