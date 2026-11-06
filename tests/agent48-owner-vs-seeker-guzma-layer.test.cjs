@@ -30,7 +30,9 @@ class Store{
     if(action instanceof PlayCardAction){
       const owner=this.state.players[seat];
       assert.equal(owner.hand.cards[action.handIndex].fullName,'VS Seeker PHF');
-      this.pendingSeeker=owner.hand.cards[action.handIndex];
+      const seeker=owner.hand.cards.splice(action.handIndex,1)[0];
+      owner.discard.cards.push(seeker);
+      this.pendingSeeker=seeker;
       const cards=this.wrongZone?owner.deck:owner.discard;
       this.state.prompts=[new ChooseCardsPrompt(91,owner.id,cards)];
       return true;
@@ -44,8 +46,6 @@ class Store{
       owner.discard.cards.splice(index,1);
       owner.hand.cards.push(card);
     }
-    const seekerIndex=owner.hand.cards.indexOf(this.pendingSeeker);
-    if(seekerIndex>=0)owner.discard.cards.push(owner.hand.cards.splice(seekerIndex,1)[0]);
     prompt.result=action.result;
     return true;
   }
