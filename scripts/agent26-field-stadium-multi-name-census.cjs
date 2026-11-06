@@ -68,8 +68,14 @@ function analyzeRoster(roster,catalogStadiumNames){
   const rows=roster.decks.map(deck=>{
     const total=deck.cards.reduce((sum,c)=>sum+c.count,0);
     assert.equal(total,60,'deck '+deck.rank+' must contain 60 cards');
-    const stadium=deck.cards.filter(c=>c.category==='Trainer'&&
-      catalogStadiumNames.has(normalizeName(c.name)));
+    const byName=new Map();
+    for(const card of deck.cards){
+      if(card.category!=='Trainer')continue;
+      const name=normalizeName(card.name);
+      if(catalogStadiumNames.has(name))
+        byName.set(name,(byName.get(name)??0)+card.count);
+    }
+    const stadium=[...byName].map(([name,count])=>({name,count}));
     const copies=stadium.map(c=>c.count);
     const opening=distinctStadiumOpening(copies);
     return {
