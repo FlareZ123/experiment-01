@@ -24,6 +24,10 @@ for(const seat of [0,1])test('captures VMAX to Latias paid pivot on seat '+seat,
  assert.equal(r.audit.receipts[0].targetPrinting,'Latias ex SSP');
  assert.equal(r.audit.receipts[0].targetEnergyCount,3);
  assert.equal(r.audit.receipts[0].physicalPaymentObjectCustodyConfirmed,true);
+ assert.equal(r.audit.receipts[0].rootStoreRegistered,true);
+ assert.equal(r.audit.receipts[0].rootActionOrdinal,131);
+ assert.equal(r.audit.receipts[0].rootActionSeat,seat);
+ assert.equal(r.audit.receipts[0].rootActionTurn,22);
 });
 test('a pivot without the two physical cards is not certified',()=>{
  const f=setup(1,false),r=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
