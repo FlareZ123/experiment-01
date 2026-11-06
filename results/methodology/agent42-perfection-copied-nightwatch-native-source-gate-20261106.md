@@ -40,3 +40,32 @@ The selected bilateral Issue25 v4 remains **unchanged** and unqualified. A futur
 The next meaningful audit is a native original-source or frozen challenger opportunity whose actor **actually funds** the copy, followed by native ShowCards/Shuffle settlement, resulting 150 attack damage, a genuine opposing counterdecision, and a coherent root ledger. In particular, Perfection is initiated by `UseAbilityAction`, so any attack-only measurement based solely on `AttackAction` roots should explicitly assess whether it excludes an actually resolved Perfection copied attack; that ledger issue is currently **hypothesis**, not an independently demonstrated full-game undercount. Ability lock and Energy shortage can eliminate the line in an actual matchup.
 
 **Benchmark status:** 29/32 authenticated original 60s, three source decklists still missing (23/25/28), no nominated fixed optimized 60, **zero** competitively qualified complete games, and no demonstrated 99.5% win rate.
+
+## New independent extension: fully settled printed damage, shuffle and root action origin
+
+**6 November 2026, later same invocation.** A further **two physical-seat regression** using the same staged original Mewtwo Perfection path passes after completing **both** the ShowCardsPrompt and ShuffleDeckPrompt as well as three ensuing native WaitPrompts, with one prior paper-random ChooseCardsPrompt. This extension supersedes the stage-stop limitation above for this *separately tested fixture*. It does not alter the earlier receipt.
+
+The pinned engine's ShuffleDeckPrompt validator lexicographically sorts index arrays with default JavaScript `.sort()`, rejecting valid numeric permutations when the deck has 11 or more cards. This was **already diagnosed and patched independently by Agent22 and Agent33**. The extension reuses their existing [Agent33 reversible numeric validation hook](../../simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs) and logs `checked=1, rawRejectedCorrected=1, correctedAccepted=1` **for each seat**. It does not change the pinned vendor. This exact paper-fidelity hook must be explicitly versioned for any downstream simulation comparison.
+
+**Full pinned native receipt:** [manual workflow 42149067263, SUCCESS, all steps](https://github.com/FlareZ123/experiment-01/actions/runs/42149067263) at main head `17e4bbedaf07a726b673495c0f1a3513836801b9`, with tested source code committed under `367ced068a9e46d049412bbeef70f839823876a1`. The dedicated test file reports **4/4 tests passed**, including **2/2 full settled damage paths** after the original **2/2 prompt-origin proofs**.
+
+| Observed native stage/result | Attacker seat 0 | Attacker seat 1 |
+| --- | --- | --- |
+| Printed donor from own discard | Trevenant & Dusknoir-GX SMP | Same |
+| Actual initiating physical action | `UseAbilityAction('Perfection')` | Same |
+| Root `AttackAction` count | **0** | **0** |
+| Source marker on original copied Night Watch | **1** | **1** |
+| Defender hand immediately after hand effect | **1** of original 3 cards | **1** |
+| Corrected shuffle validations, previously rejected by pin | **1** | **1** |
+| Native prompt sequence after hand selection | ShowCards, ShuffleDeck, 3 Wait | Same |
+| Defender Active Rotom V attack damage | **150** | **150** |
+| Turn after settlement | **5** | **5** |
+| Current active-player seat after settlement | **1** | **0** |
+| Defender hand after mandatory next-turn draw | **2** | **2** |
+| `playerLastAttack[owner].attack.name` | Night Watch | Night Watch |
+| `state.lastAttack` after settlement | null | null |
+| Competitively qualified games | **0** | **0** |
+
+**Implication:** An attack-root diagnostic counting only `AttackAction` excludes this genuinely executed copied 150-damage attack. The shared `simulation/twinleaf/headless.cjs` has a distinct `attackDeclarationTrace` path sourced from `newlyLoggedAttackDeclarations`, which is expressly designed to recognize native attack declarations from `UseAbilityAction`/prompt resolution as well. Its *specific behavior in a naturally dealt game* requires separate testing. The staged fixture proves a blind spot of the action-type-only count, without claiming that all shared metrics are blind.
+
+This is **one deliberate legal attack setup** with an artificial board, no game result, no adversarial response, no official 25-minute timer and no measured occurrence rate in a shuffled 60. It strengthens the engine-qualification basis for the existing fixed New Moon candidate. It cannot rank that candidate or be counted as a competitive win.
