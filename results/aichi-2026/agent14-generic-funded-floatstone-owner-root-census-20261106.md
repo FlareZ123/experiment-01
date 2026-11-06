@@ -39,4 +39,29 @@ The helper excludes opportunities outside its design: it requires a nonzero-cost
 
 Do **not** conclude that natural-paper Float Stone opportunities are absent, that the owner bots are competent, or that Float Stone is generally unimportant. The native engine has known paper-fidelity gaps, including the [Tool Jammer/Float Stone counterexample](agent6-tool-jammer-floatstone-native-fidelity-20261102.md). The evidence does not modify the current fixed-60 selection gate, demonstrate a matchup win rate, or certify a complete official-timed paper game.
 
+## Compiled independent held-gate decomposition, 6 November addendum
+
+To determine what the zero helper activations conceal, a **second read-only replay** added a separate per-gate observation classifier, [`agent14-floatstone-held-owner-gates.cjs`](../../simulation/twinleaf/agent14-floatstone-held-owner-gates.cjs), invoked only at acting-owner roots holding printed Float Stone. It computes individual owner-public facts independently of the original chosen helper and leaves that helper disabled. The [six pure regression tests](../../tests/agent14-floatstone-held-owner-gates.test.cjs) cover positive paid attackers, missing board resources, below-threshold yet payable moves, Tool/retreat locks, absence of Float Stone and hidden-zone Proxy denial.
+
+**Compiled manual native run [42142112624](https://github.com/FlareZ123/experiment-01/actions/runs/42142112624), SUCCESS, 6/6 pure tests**, research HEAD `b7702a961fae0071315747f0712849e9deafb134`, same pinned upstream commit. Its [archived structured JSON artifact 13466744580](https://github.com/FlareZ123/experiment-01/actions/runs/42142112624/artifacts/13466744580) has Actions-uploader ZIP SHA-256 `8705ed553e0f53287b736960c246b70e7f4ee88bd6032a243ff042c9a83c46db` (uploader-reported, not independently rehashed here). **The same ordered 12-trial full-deal/native-ledger SHA `cf2722c6fbd637a43c20a05dcc4a0d26cae7f1171d5cb2ecdab229ddee65b4b6` was independently reproduced a second time.** Gameplay selections, trial IDs, source/candidate printed decks, first-player and known native endings are unchanged.
+
+| Independent condition, restricted to the **84 held-Float-Stone owner roots** | Satisfying roots |
+| --- | ---: |
+| After global turn 1 | 84 |
+| Any occupied owner Bench slot | 75 |
+| Any Energy attached to owner Active | 70 |
+| Owner Active has positive printed Retreat Cost | 84 |
+| Owner Active Tool slot is empty | 84 |
+| Once-per-turn retreat remains unused | 84 |
+| No visible Tool-play lock | 84 |
+| No recognized Jamming Tower or opponent Active Tool Jammer | 84 |
+| Any Energy attached to a Bench Pokémon | **18** |
+| At least one Bench attack payable under **public recognized Energy-cost model**, regardless of damage | **15** |
+| At least one recognized payable Bench attack with **nominal projected damage >=80** | **0** |
+| All coarse structural gates (including >=80 payable Bench attack) | **0** |
+
+These flags **overlap and are not mutually exclusive**; they do not partition 84 into different games or hands. The old aggregate's 84 held Float Stone versus 410 energized Active ambiguity is now partially resolved: **70** of the 84 held-Tool owner roots had an energized Active. The decisive missing eligibility witness is a Bench attack that the *conservative model* recognizes as both Energy-payable and at least 80 nominal damage. The 15 model-payable Bench-attack roots establish a concrete class that the helper's hard damage threshold can exclude; the data do not say their attacks had beneficial control, could legally resolve under every paper effect, or were preferred to existing options. Nor does zero recognized >=80 exclude high-damage attacks with unimplemented multipliers or other complex effects.
+
+The observed obstacle is therefore predominantly in the **funded Bench payoff recognition and hard damage threshold**, rather than an ordinary inability to hold Float Stone, a used retreat quota, a filled Active Tool slot, a public Tool Jammer, or a general Turn 1 restriction. This conclusion is specific to the recorded actor-root population and the enumerated public gate model. No player-choice policy was improved, no new payoff was native-settled, and zero competitive games remain.
+
 **Research consequence:** A new Float Stone priority-tuning A/B on these same deals has little information value without first broadening and independently validating the actual owner-visible opportunity definition. For the common Issue #25 release, prioritize **paper-paid source attack/control payoffs, competent opponent counterplay, physical provenance, and independent rule fidelity**. Preserve the original 12-pair negative trial and this replay as a bounded non-activation example.
