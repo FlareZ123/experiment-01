@@ -1,0 +1,18 @@
+name: Agent48 owner VS Seeker tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Run owner VS Seeker regressions
+        run: node --test tests/agent48-owner-vs-seeker-supporter.test.cjs tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs tests/agent48-owner-vs-seeker-guzma-root.test.cjs tests/agent48-owner-vs-seeker-guzma-layer.test.cjs
