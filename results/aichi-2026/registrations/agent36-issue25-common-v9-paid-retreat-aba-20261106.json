@@ -146,6 +146,10 @@
   "scopeLimitations": "Four of 32 original ranks, one source seat per rank, two historical candidate 60s, and 128-root bounded attempts. The v8 population was previously observed, so this is a retrospective policy-mechanism comparison, not fresh prospective field evidence. No paper-qualified game or field win-rate inference.",
   "frozenInputs": [
     {
+      "path": ".github/workflows/twinleaf-completion.yml",
+      "gitBlobSha": "f6e0a649c7ab27a53e1552f72a15aacd68e51786"
+    },
+    {
       "path": "results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json",
       "gitBlobSha": "5425749642c0692034f0db79c889b4ee42284b1a"
     },
@@ -159,7 +163,7 @@
     },
     {
       "path": "simulation/evaluation/agent36-issue25-common-v9-paid-retreat-aba.cjs",
-      "gitBlobSha": "2d6e0fd8c29bfeb52b28b3edac5aa4d95488fd19"
+      "gitBlobSha": "856f2898dd19476bed3a11a4353c064fc8fbd9cc"
     },
     {
       "path": "simulation/evaluation/agent36-issue25-selected-v0.cjs",
@@ -205,7 +209,7 @@
   "paperQualifiedCompetitiveGames": 0,
   "releaseEligible": false,
   "estimatedWinRate": null,
-  "runnerGitBlobSha": "2d6e0fd8c29bfeb52b28b3edac5aa4d95488fd19",
+  "runnerGitBlobSha": "856f2898dd19476bed3a11a4353c064fc8fbd9cc",
   "custodyObserverGitBlobSha": "fc18d2ba11abc5995b2ab61f278f710285dba9b8",
   "preregisteredControlTreatmentControl": [
     "A-v8-control",
