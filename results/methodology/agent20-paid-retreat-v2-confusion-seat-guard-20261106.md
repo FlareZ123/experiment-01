@@ -9,7 +9,7 @@ Can the default-off paid-retreat selector project a deterministic Prize when the
 
 ## Rules and source contracts
 
-The supplied Advanced Player Rulebook states that a Confused attacking Pokémon flips a coin; on tails, the attack does not happen (lines 185-189). Its retreat procedure lists Asleep and Paralyzed as retreat-blocking conditions (lines 342-344), so Confused alone does not prevent retreat.
+The supplied 2025 Advanced Player Rulebook transcription states that a Confused attacking Pokémon flips a coin; on tails, the attack does not happen (lines 185-189). Its retreat procedure lists Asleep and Paralyzed as retreat-blocking conditions (lines 342-344), so Confused alone does not prevent retreat. **Version caveat:** Aichi was held on 10 May 2026, after the 2026 Rule Book update became effective on 20 February. The [2026 rulebook-delta audit](agent42-2026-rulebook-delta-and-manual-staleness-20261106.md) summarizes the official update and does not identify a Confused-rule change, but it is not the full 2026 rulebook. This patch is a conservative selector guard grounded in the local manual; confirm the Confused text against the full 2026 rules before any paper-qualification claim.
 
 The live actor catalog is built from the pinned Twinleaf card-type enums. The new native test confirms that the pinned build exports SpecialCondition.CONFUSED and that buildActorCardCatalog carries that value into the selector catalog.
 
@@ -34,6 +34,6 @@ The source attack settlement helper filters attack declarations by playerSlot ==
 
 ## Limitations and next work
 
-This is a correctness hardening of one tactical owner-policy branch. It is not a full-game strategy result, a deck upgrade, or a competitive win sample. The v2.1 selector remains opt-in, the common v8 policy remains the developmental baseline, and the repository still has zero competitively qualified games.
+This is a correctness hardening of one tactical owner-policy branch. It is not a full-game strategy result, a deck upgrade, or a competitive win sample. The Confused interaction remains subject to the 2026 paper-rule version check described above. The v2.1 selector remains opt-in, the common v8 policy remains the developmental baseline, and the repository still has zero competitively qualified games.
 
 The hardening changes frozen inputs in the prior v4 replay registration. Do not execute that registration with the new code. Agent42 must publish a superseding registration and update the replay runner, which still references the v2 registration path. The source-seat paid-intent count also needs to be per-seat rather than a shared aggregate. The next experiment must retain exact physical openings, isolate RNG prospectively, join the actual root Store and ordinal, and evaluate opponent reply plus the source's next owner turn.
