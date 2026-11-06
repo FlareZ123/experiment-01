@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent5_v7_generic_flare_v3:
+        description: Exact general owner Team Flare prompt v3 matches original-source v2 receipt
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -70,24 +75,24 @@ jobs:
           node --check simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
           node --test tests/agent9-rank6-turn4-palace-book.test.cjs
       - name: Verify passive Agent5 owner follow-up witness and original v7 caller
-        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         run: |
           node --check simulation/twinleaf/agent5-v7-source-followup-owner-witness.cjs
           node --check simulation/evaluation/agent5-v7-owner-followup-census.cjs
           node --test tests/agent5-v7-source-followup-owner-witness.test.cjs
       - name: Execute frozen v7 with read-only source owner-hand witness
-        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         env:
           AGENT5_V7_OWNER_FOLLOWUP_DIR: agent5-v7-source-owner-followup
         run: node simulation/evaluation/agent5-v7-owner-followup-census.cjs
       - name: Verify native owner Team Flare physical-payment witness
-        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         run: |
           node --check simulation/twinleaf/agent5-v7-teamflare-physical-witness.cjs
           node --check simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
           node --test tests/agent5-v7-teamflare-physical-witness.test.cjs
       - name: Execute full original v7 matched A/B/A with exact source Team Flare fork
-        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         env:
           AGENT5_V7_TEAMFLARE_ABA_DIR: agent5-v7-teamflare-aba
         run: node simulation/evaluation/agent5-v7-postvolt-teamflare-aba.cjs
@@ -104,18 +109,29 @@ jobs:
         env:
           AGENT5_V7_TEAMFLARE_ABA_V2_DIR: agent5-v7-teamflare-prompt-v2
         run: node simulation/evaluation/agent5-v7-postvolt-teamflare-prompt-aba-v2.cjs
+      - name: Verify generalized source owner Team Flare prompt preflight
+        if: ${{ inputs.agent5_v7_generic_flare_v3 }}
+        run: |
+          node --check simulation/twinleaf/agent5-owner-teamflare-prompt-generic-v1.cjs
+          node --check simulation/evaluation/agent5-v7-generic-owner-teamflare-aba-v3.cjs
+          node --test tests/agent5-owner-teamflare-prompt-generic-v1.test.cjs
+      - name: Replay original v7 source Team Flare with generalized mandatory owner prompt
+        if: ${{ inputs.agent5_v7_generic_flare_v3 }}
+        env:
+          AGENT5_V7_GENERIC_FLARE_DIR: agent5-v7-teamflare-generic-v3
+        run: node simulation/evaluation/agent5-v7-generic-owner-teamflare-aba-v3.cjs
       - name: Execute exact original eight matched native source branches once
-        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ !inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         env:
           AGENT5_THUNDER_VOLT_V10_DIR: agent5-rank6-thunder-volt-v10
         run: node simulation/evaluation/agent5-rank6-paid-dce-thunder-volt-v10.cjs
       - name: Execute exact original v10 with additional passive owner DCE baton readout
-        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent9_baton_audit && !inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         env:
           AGENT9_BATON_DIR: agent9-v10-baton-native
         run: node simulation/evaluation/agent9-v10-owner-baton-native.cjs
       - name: Execute genuine original rank6 source held Palace Book v10 A/B/A
-        if: ${{ inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 }}
+        if: ${{ inputs.agent9_palace_book_audit && !inputs.agent5_v7_followup_owner_audit && !inputs.agent5_v7_teamflare_aba && !inputs.agent5_v7_teamflare_prompt_v2 && !inputs.agent5_v7_generic_flare_v3 }}
         env:
           AGENT9_PALACE_BOOK_DIR: agent9-rank6-palace-book-native
         run: node simulation/evaluation/agent9-rank6-palace-book-native-aba.cjs
@@ -165,5 +181,13 @@ jobs:
         with:
           name: agent5-v7-source-teamflare-owner-prompt-v2-aba
           path: agent5-v7-teamflare-prompt-v2/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve generalized source Team Flare prompt native v3 equivalence
+        if: always() && inputs.agent5_v7_generic_flare_v3
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-v7-source-teamflare-generic-owner-v3-aba
+          path: agent5-v7-teamflare-generic-v3/
           if-no-files-found: warn
           retention-days: 14
