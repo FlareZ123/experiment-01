@@ -18,13 +18,18 @@ on:
         type: boolean
         required: false
         default: false
+      common_v7_wondertag_v12:
+        description: Run innermost native owner Wonder Tag for same original eight
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -158,5 +163,39 @@ jobs:
         with:
           name: agent1-v7-common-wondertag-v11-${{ github.run_id }}
           path: artifacts/agent1-issue25-v11-common-wondertag/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-common-v7-wondertag-v12:
+    if: ${{ inputs.common_v7_wondertag_v12 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact native engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure per-match owner prompt composition, provenance and failure gates
+        run: node --test tests/agent1-issue25-common-v7-wondertag-v12.test.cjs tests/agent1-issue25-common-v7-wondertag-v11.test.cjs tests/agent1-wondertag-native-shuffle-completion.test.cjs
+      - name: Eight genuine original v7 physical deals with newly innermost owner Wonder Tag
+        env:
+          AGENT1_ISSUE25_V12_OUTPUT_DIR: artifacts/agent1-issue25-v12-common-wondertag
+        run: node --test tests/agent1-issue25-common-v7-wondertag-v12.native.test.cjs
+      - name: Preserve all registered original roots, errors and owner audits
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-inner-owner-wondertag-v12-${{ github.run_id }}
+          path: artifacts/agent1-issue25-v12-common-wondertag/
           if-no-files-found: warn
           retention-days: 30
