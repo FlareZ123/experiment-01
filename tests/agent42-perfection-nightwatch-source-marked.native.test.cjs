@@ -300,3 +300,82 @@ for(const seat of [0,1]){
     }
   });
 }
+
+
+for(const seat of [0,1]){
+  test('actual Cologne unlock -> paid Perfection Night Watch through Iron Thorns, seat '+seat,()=>{
+    const {clearCopyAttackSessionsForTests}=
+      native('game/store/prefabs/copy-attack-delegation');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {UseAbilityAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+    const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const original=SimpleTacticsAi.prototype.resolvePrompt;
+    clearCopyAttackSessionsForTests();
+    const f=stage(seat,{ironThornsActive:true,heldCologne:true});
+    const mew=f.attacker.active.getPokemonCard();
+    assert.equal(f.defender.active.getPokemonCard().fullName,'Iron Thorns ex TWM');
+    assert.equal(IS_ABILITY_BLOCKED(f.store,f.state,f.attacker,mew),true);
+    const bot=Object.create(SimpleTacticsAi.prototype);
+    try{
+      f.store.dispatch(new PlayCardAction(f.attacker.id,
+        f.attacker.hand.cards.indexOf(f.heldCologne),
+        {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+      assert.equal(f.attacker.hand.cards.includes(f.heldCologne),false);
+      assert.equal(f.defender.marker.hasMarker('CANCELING_COLOGNE_MARKER',
+        f.heldCologne),true);
+      assert.equal(IS_ABILITY_BLOCKED(f.store,f.state,f.attacker,mew),false);
+      const settled=withNumericShufflePromptValidation(()=>
+        withSourceMarkedPaperRandomNightWatch(()=>{
+          f.store.dispatch(new UseAbilityAction(f.attacker.id,'Perfection',{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+          }));
+          const choose=settleWait(f);
+          assert.equal(choose?.constructor?.name,'ChooseAttackPrompt');
+          assert.equal(choose.playerId,f.attacker.id);
+          const source=choose.cards.find(x=>x===f.donor);
+          assert.ok(source);
+          const nightWatch=source.attacks.find(x=>x.name==='Night Watch');
+          assert.ok(nightWatch);
+          assert.equal(choose.validate(nightWatch),true);
+          f.store.dispatch(new ResolvePromptAction(choose.id,nightWatch));
+          const hand=settleWait(f);
+          assert.equal(hand?.constructor?.name,'ChooseCardsPrompt');
+          assert.strictEqual(hand.cards,f.defender.hand);
+          assert.equal(isDirectNightWatchHandPrompt(f.state,f.attacker,hand),
+            false);
+          f.store.dispatch(bot.resolvePrompt(f.attacker,f.state,hand));
+          const disruptedHand=f.defender.hand.cards.length;
+          const postPrompts=settleOriginalNightWatchPostPrompts(f);
+          return {disruptedHand,postPrompts,damage:f.defender.active.damage,
+            turn:f.state.turn,activeSeat:f.state.activePlayer};
+        },{seed:420010+seat}));
+      assert.equal(settled.audit.rawRejectedCorrected,1);
+      const actual=settled.result;
+      assert.equal(actual.audit.markedSourcePrompts,1);
+      assert.equal(actual.audit.samples.length,1);
+      assert.equal(actual.audit.prototypeRestored,true);
+      assert.equal(actual.audit.samples[0].sourceBoundToCopycat,true);
+      assert.equal(actual.audit.samples[0].activeUser,'Mewtwo & Mew-GX UNM');
+      assert.equal(actual.result.disruptedHand,1);
+      assert.equal(actual.result.damage,150);
+      assert.equal(actual.result.turn,5);
+      assert.equal(actual.result.activeSeat,1-seat);
+      assert.ok(actual.result.postPrompts.includes('ShuffleDeckPrompt'));
+      console.log('AGENT42_COLOGNE_PERFECTION_THORNS_NATIVE',JSON.stringify({
+        seat,attackingPokemon:mew.fullName,
+        opponentActive:'Iron Thorns ex TWM',source:'Trevenant & Dusknoir-GX SMP',
+        paidCopiedAttack:'Night Watch',damage:actual.result.damage,
+        handAfterDisruption:actual.result.disruptedHand,
+        turnAfterSettlement:actual.result.turn,
+        correctedShuffle: settled.audit.rawRejectedCorrected,
+        sample:actual.audit.samples[0],qualifiedGames:0
+      }));
+    }finally{
+      clearCopyAttackSessionsForTests();
+      assert.strictEqual(SimpleTacticsAi.prototype.resolvePrompt,original);
+    }
+  });
+}
