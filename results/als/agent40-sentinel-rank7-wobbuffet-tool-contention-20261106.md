@@ -39,6 +39,16 @@ Re-evaluate the candidate no-Tool probability as **Q(14,5,1+m)** and sum the geo
 
 This remains a hypothetical independent-deal matchup resource envelope: some players decline extra cards, other source/candidate mulligans and public reveals may affect the policies, and every first-turn search/payment/action is still unmodeled. It must not be described as an 18.72% forced lock failure or matchup loss.
 
+### Rank7 Wobbuffet forced starting Active versus optional starting Active
+
+The previous 38.9730381662% is a **Wobbuffet available in legal starting seven** screen, where the rank7 player might choose another Basic. More sharply, original rank7 has three Wobbuffet, **nine other Basics**, and 48 non-Basics. If the legal starting seven includes any Wobbuffet and **zero other Basics**, the initial Active must be Wobbuffet regardless of opponent preference. This forced-at-setup probability is exactly
+
+**[C(51,7) − C(48,7)] / [C(60,7) − C(48,7)] = 1,170,723 / 8,682,718 = 13.4833700691%**.
+
+The difference, **25.4896680970 percentage points**, is the Wobbuffet-available-but-other-Basic-also-present class. Among source hands containing Wobbuffet, **34.5966614449%** have no alternative starting Basic. These are physical *initial setup* statements. Rank7 gets a normal first turn before Sentinel attacks going second and might legally move Wobbuffet away or search/Bench another Basic, so none of this proves Wobbuffet remains Active during Sentinel's turn.
+
+Under the same **independent Basic-valid two-deck initial hands and zero extra candidate mulligan bonus draws** used earlier, the joint rank7 **forced Wobbuffet at setup** plus Sentinel no Hood/TM in its first eight is exactly **42,250,406,150,511 / 637,896,091,237,504 = 6.6233994425%**. With source rank7's full geometric mulligan distribution and Sentinel taking every allowed extra card under the restricted model, this changes to approximately **6.4761157776%**. Both are starting-card opportunity screens and must not be called forced first-turn lock failures or matchup losses.
+
 **Next meaningful falsification:** In the existing Agent28 two-seat native paid Bunnelby/TM/Artazon line, place an authentic source rank7 Active Wobbuffet from a Basic-valid original initial seven; cover cases with/without a genuinely paid attached Hood. Record whether Bide Barricade actually suppresses Vileplume's Item lock, whether the Tool connector was used by TM or Hood, and an independently selected original reply. This is conditional testing; random games and the stronger shared bilateral policy remain separate release gates.
 
 **No finalist or field-strength claim:** 29/32 original sixty-card inventories authenticated, ranks 23/25/28 absent, zero qualified competitive games, no demonstrated 99.5% win rate.
