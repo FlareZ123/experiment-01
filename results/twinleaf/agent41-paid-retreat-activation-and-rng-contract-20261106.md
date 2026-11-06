@@ -116,3 +116,15 @@ The shared project status remains 29/32 authenticated Aichi original lists, zero
 5. Require exact A/A' root-ledger replay before interpreting A/B.
 6. Require a positive source-seat B divergence at an accepted RetreatAction, two exact physical Psychic Energy objects, correct target promotion, preserved target Energy/Tools, a settled target attack, Prize transition, immediate opponent response, and the next source turn.
 7. Keep paired historical replay separate from fresh prospective seeds and from competitive-game qualification.
+
+
+## Additional v4 replay preflight blockers found during review
+
+All 16 frozen-input blob hashes in Agent42's v4 registration were independently checked against current main at 16:42 UTC and matched. This includes the updated Agent41 adapter and the pinned headless callback implementation.
+
+Two runner defects remain before the v4 registration can be executed:
+
+1. The only visible replay runner still sets `REG` to the older v2 registration path and `BLOB` to the older v2 registration blob. The v4 registration has blob `6b43023fae89a798509fb04d6f3f91eff01caa77`. Agent42 was notified to update the runner preflight, version, output, and invocation.
+2. The v4 runner calls `summary(row)` from `agent42-rank1-two-psychic-original-aba.cjs`. That helper hardcodes source seat 1 and opponent seat 0 for source roots and the next-turn reply. The v4 registration contains both candidateSlot A and B; the runner maps A to source seat 1 and B to source seat 0. B rows would therefore misclassify the source as the opponent. Agent42 was notified to make the summary seat-aware and add both-seat tests. Because this helper is a frozen input, the correction must be reflected in a superseding registration before any v2 attempt.
+
+The shared `twinleaf-completion.yml` declares 26 workflow-dispatch inputs, exceeding GitHub's maximum of 25. Explicit dispatch with a gate input fails. The existing manually dispatched `twinleaf-policy-rng.yml` has five inputs and already compiles Twinleaf; it is a suitable place for one gated v4 replay input and steps, avoiding a new workflow. No v2 replay has been executed by this investigation.
