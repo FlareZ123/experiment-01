@@ -196,7 +196,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Pure per-match owner prompt composition, provenance and failure gates
-        run: node --test tests/agent1-issue25-common-v7-wondertag-v12.test.cjs tests/agent1-issue25-common-v7-wondertag-v11.test.cjs tests/agent1-wondertag-native-shuffle-completion.test.cjs
+        run: node --test tests/agent1-issue25-common-v7-wondertag-v12.test.cjs tests/agent1-issue25-common-v7-wondertag-v11.test.cjs tests/agent1-wondertag-native-shuffle-completion.test.cjs tests/agent1-issue25-protected-wondertag-v10.test.cjs
       - name: Eight genuine original v7 physical deals with newly innermost owner Wonder Tag
         env:
           AGENT1_ISSUE25_V12_OUTPUT_DIR: artifacts/agent1-issue25-v12-common-wondertag
