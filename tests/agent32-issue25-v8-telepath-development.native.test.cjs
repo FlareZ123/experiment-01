@@ -83,6 +83,9 @@ test('retrospective same-eight v8 Telepath treatment preserves deals and prior n
   assert.equal(report.sameInitialFullPhysicalDeals,true);
   assert.equal(report.exactPriorRootPrefixAllArms,true);
   assert.equal(report.telepathNativeMatchCalls,8);
+  assert.equal(treatment.manifest.nativeOwnerTelepathicAudit.nativeMatchCalls,8);
+  assert.deepEqual(treatment.manifest.nativeOwnerTelepathicAudit,
+    treatment.diagnostic.nativeOwnerTelepathicAudit);
   assert.equal(treatment.manifest.releaseQualified,false);
   assert.equal(treatment.diagnostic.competitiveGamesQualified,0);
   for(const id of [
