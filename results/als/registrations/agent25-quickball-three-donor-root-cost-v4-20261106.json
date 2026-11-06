@@ -1,0 +1,43 @@
+{
+  "version": "agent25-quickball-three-donor-root-cost-v4-precommit",
+  "date": "2026-11-06",
+  "objective": "Test owner-only paper-costed Quick Ball when 3 printed HNS donors already visibly discarded and another is physically held, Dhelmise relevant, without Battle Compressor prerequisite",
+  "motivatingEvidence": "results/als/agent25-owner-quickball-root-frontier-v3-20261106.md",
+  "frozenSourcePolicyControlRun": 42136306260,
+  "frozenControlArtifact": 13465337378,
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "candidatePrintedSha256": "20135b47359b2a546fbe7f899b502aff0d470150e72cbb751dd810be036e122c",
+  "sourceRanks": [
+    6,
+    10,
+    11
+  ],
+  "seats": [
+    0,
+    1
+  ],
+  "seedsByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "maximumRootActions": 120,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "newHeuristic": "Insert candidate-seat quick-ball root tactic ahead of generic PlayTrainer only when exactly three owner-visible named HNS donor Pokemon in discard, at least one eligible hand donor, at least one Quick Ball in hand, owner Dhelmise in play or hand, and nonempty deck. Prompt payment chooses actual offered owner donor and validates real Store payment; native root's isValidAction must accept under locks. No opponent private inspection.",
+  "preservedControls": [
+    "Both exact 60 lists unchanged",
+    "Same base donor Compressor tactic",
+    "Owner-only route on designated physical seat",
+    "No source-rank or turn number special casing",
+    "Same declared seeds and root horizons, results contain all errors and caps",
+    "No official clock, full qualification zero"
+  ],
+  "expectedFalsification": [
+    "Native Item lock can veto the Quick Ball root",
+    "Bot may still never receive a three-discard owner hand opportunity",
+    "Payment may not resolve or may be inaccessible",
+    "Extra payment may harm future setup",
+    "Even genuine damage gain need not increase Prize cards or game outcome"
+  ],
+  "competitiveGamesClaimed": 0
+}
