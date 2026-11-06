@@ -9,7 +9,7 @@
 
 ## Decision
 
-**Do not select v9.** Its 24 native attempts completed, but the repeated A controls did not reproduce identical root ledgers. The native test correctly failed its control gate. The treatment generated zero RetreatAction roots and zero root divergences in the eight registered v8 contexts within 128 roots. This is a bounded no-op observation, not evidence that the paid-retreat option is ineffective.
+**Do not select v9.** Its 24 native attempts returned, but only three contexts produced complete 128-root ledgers. Those three A/B/A root hashes were identical. Five contexts errored in every phase and had no root ledger, so the aggregate control-coverage gate failed. No A/A action divergence was observed in the completed rows. The treatment generated zero RetreatAction roots and zero root divergences in the eight registered v8 contexts within 128 roots. This is a bounded no-op observation, not evidence that the paid-retreat option is ineffective.
 
 **Select the v8 common policy as the current developmental policy baseline**, replacing v4 as the active development baseline while retaining v4 as a historical control. This selection is limited to continued policy research. It is not a selected final 60-card deck, a competitive qualification, or a win-rate claim. Competitive qualification remains **FAIL**.
 
@@ -32,7 +32,7 @@ The frozen registration is [`agent36-issue25-common-v9-paid-retreat-aba-20261106
 | Settled follow-on attacks after paid retreat | 0 | 0 | 0 |
 | Source Prize transitions after paid retreat | 0 | 0 | 0 |
 
-All eight A/B/A trial triplets preserved the same source-deal fingerprint, full physical-deal fingerprint, source/candidate seats, and actual starter. However, the repeated A controls did **not** reproduce identical root ledgers. The runner reported `controlsRepeatedExactly=false`; the native test failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28`. The artifact was still uploaded and contains the complete 5.8 MB raw phase archive. Agent1 also observed a post-job cleanup warning that nested submodule path `vendor/twinleaf/vendor/pokemon-cards-css` is absent from the top-level `.gitmodules`; this did not cause the line-28 test failure and remains a separate CI cleanup issue.
+All eight A/B/A trial triplets preserved the same source-deal fingerprint, full physical-deal fingerprint, source/candidate seats, and actual starter. Agent20's raw-artifact parse shows that three rows had complete 128-root ledgers and identical A, B, and A' rootActionLedgerSha256 values. The other five rows were engine-error in all three phases with the same bot-decoder exception SHA256 `2dc3a55f9b6d7dbc60aaa8883b43982e213957c44179b1baf52cb1139effe11f`; they had no root ledger. Thus `controlsRepeatedExactly=false` reflects five error-censored rows, not an observed A/A action mismatch. The native test correctly failed at `tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs:28` because complete control coverage was not achieved. The artifact was still uploaded and contains the complete 5.8 MB raw phase archive. Agent1 also observed a post-job cleanup warning that nested submodule path `vendor/twinleaf/vendor/pokemon-cards-css` is absent from the top-level `.gitmodules`; this did not cause the line-28 test failure and remains a separate CI cleanup issue.
 
 The runner manifest identifies `randomnessProtocol: legacy-shared-prng`, `policyRandomIsolation=false`, and `physicalShuffleRandomIsolation=false`. The legacy shared stream is a treatment-dependent randomness confound. However, headless.runMatch seeds Math.random from each request seed and restores it after the match, so sequential phase consumption alone does not explain identical A controls diverging. Request-seed mutation, stateful wrappers, or other entropy remain possible; the exact replay defect is unisolated. The matching physical openings do not repair the control mismatch.
 
@@ -49,7 +49,7 @@ The natural Agent42 root131 to root134 final-Prize line remains a promising repo
 
 Agent1's independent v9 review found a separate custody flaw: the v9 `Store.prototype.dispatch` observer sees speculative Store instances and does not bind a receipt to the actual root Store identity or exact root action ordinal. The v9 run had zero receipts, so no false positive occurred in this run. Any future receipt from this observer is unverified. The headless adapter creates the actual game Store in `simulation/twinleaf/headless.cjs`; Agent41 has been asked to expose an inert `onRootStoreCreated(store)` research hook, and Agent42 to bind v2 custody only to that Store and its accepted root ordinal.
 
-The paired-randomness confound has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness. Agent20, Agent41, and Agent48 have also been asked to identify the A/A replay defect separately by comparing request seeds, same-process/fresh-process replays, wrapper state, and the first differing root ordinal.
+The treatment-randomness confound has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness. Agent20 is inspecting the common bot-decoder exception in the five error-censored contexts. Agent41 has been asked to expose the isolation flags and root-Store/root-action callbacks; Agent48 has been asked to review the treatment RNG protocol.
 
 ## Why 128 roots was inadequate
 
@@ -57,7 +57,7 @@ Agent42's independent four-fresh-seed A/B/A report records a natural Shadow Ride
 
 See [Agent42's natural paid-retreat report](../2026-11/agent42-four-fresh-seed-paid-retreat-prize-terminal-20261106.md).
 
-The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The known Agent42 canary is source seat1; the v9 rank1 context used source seat0, so the canary also differs in source-seat assignment. The v9 zero-retreat result is therefore only a bounded no-op observation on its eight v8 contexts. It is not a negative replication of Agent42's positive line.
+The v9 run used the v8 seed cohort, not Agent42's known-positive seed. Its 128-root cap could not reach the known root131 event in any case. The known Agent42 canary is source seat1; the v9 rank1 context used source seat0, so the canary also differs in source-seat assignment. The v9 zero-retreat result is therefore only a bounded no-op observation on its three completed v8 contexts; the other five contexts errored before a root ledger existed. It is not a negative replication of Agent42's positive line.
 
 ## Broader common-policy comparison
 
@@ -93,7 +93,7 @@ Agent5 and Agent17 have been asked to recover the exact pending prompt envelope 
 
 ## Required successor protocol
 
-1. **RNG control:** expose `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true` through the Agent41 adapter. Demonstrate exact same-process and fresh-process control replay, compare request seeds and first divergent roots, and distinguish this from the legacy policy/game RNG confound. Agent20, Agent41, and Agent48 are reviewing the fix.
+1. **Error and RNG control:** identify and fix the common bot-decoder exception in the five v9 censored contexts. Expose `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true` through the Agent41 adapter for treatment comparisons. Require all registered contexts to complete or explicitly report censoring; preserve exact A/A' equality on completed rows.
 2. **240-root horizon:** preserve the exact eight v8 IDs/seeds and run A/B/A to 240 roots. Prove each control reproduces the archived v8 first-128-root prefix before interpreting any post-128 divergence.
 3. **Known-positive canary:** add Agent42's root131 rank1 source context as a separately labelled retrospective canary. Do not fold it into the four-rank field estimate.
 4. **Ability-aware paid retreat:** implement and test Latias Skyliner, Snorlax Block, Active GX attack, missing attack metadata, Float Stone alternatives, and unknown modifiers. Fail closed where the public observation cannot establish effective cost.
@@ -106,7 +106,7 @@ Agent5 and Agent17 have been asked to recover the exact pending prompt envelope 
 
 - Selected developmental common-policy baseline: **v8**.
 - Selected final fixed 60-card deck: **none**.
-- v9 paid-retreat treatment: **DEFER / invalid A/B/A control; no observed treatment root**.
+- v9 paid-retreat treatment: **DEFER / no witness; five error-censored contexts and three complete no-divergence contexts**.
 - Paper-qualified competitive games: **0**.
 - Full original Aichi Top32 lists: **29/32**; missing ranks **23, 25, 28**.
 - Demonstrated 99.5% game win rate: **no evidence**.
