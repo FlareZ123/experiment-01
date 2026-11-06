@@ -26,10 +26,10 @@ test('eight new pre-registered original ranks6/11/1/3 native 128-root both-owner
     originalNativeAttempts:d.actualAttemptRows,
     registeredTrialIDs:d.registered,
     registrationReconciliation:d.registeredAttemptReconciliation,
-    // The selected-v0 outer catch can preserve a failed preflight and return
-    // zero rows. Keep this diagnostic visible even when the 8/8 gate fails.
-    preflightThrownCode:d.thrownCode??null,
-    preflightThrownMessage:d.thrownMessage??null,
+    // The selected-v0 outer catch can preserve exceptions both before and
+    // after native attempts. Preserve their cause without inferring phase.
+    outerCaughtErrorCode:d.thrownCode??null,
+    outerCaughtErrorMessage:d.thrownMessage??null,
     actualOriginalVendorRevision:selected.manifest.observedTwinleafGitCommit,
     observedCurrentGit:selected.manifest.observedRepositoryGitCommit,
     provenanceHashes:selected.manifest.resolvedSourceAndPolicyHashes,
