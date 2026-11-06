@@ -54,9 +54,13 @@ function join(row,wrapperAudit,sourceSeat){
       r.status==='EXACT_TWO_PHYSICAL_PSYCHIC_PAID_RETREAT'&&
       r.turn===root.turnBefore&&r.sourceSeat===sourceSeat&&
       r.benchIndex===benchIndex&&r.targetPrinting===targetPrinting);
-    const attack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
+    const candidateAttack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
       a.turnBefore===root.turnBefore&&a.settledPromptChain===true&&
       a.settlementCrossesClockReset!==true)??null;
+    const candidateAttackPrinting=
+      candidateAttack?.publicBoardBefore?.[sourceSeat]?.active?.printing??null;
+    const attack=candidateAttack&&candidateAttackPrinting===targetPrinting?
+      candidateAttack:null;
     const before=attack?.prizesBefore?.[sourceSeat]??null;
     const after=attack?.prizesAfter?.[sourceSeat]??null;
     const prizeDecrease=Number.isInteger(before)&&
@@ -70,6 +74,9 @@ function join(row,wrapperAudit,sourceSeat){
       independentPhysicalCustodyReceiptCount:matching.length,
       physicalPaymentObjectCustodyConfirmed:matching.length===1&&
         matching[0].physicalPaymentObjectCustodyConfirmed===true,
+      candidateAttackOrdinal:candidateAttack?.actionOrdinal??null,
+      candidateAttackActivePrinting:candidateAttackPrinting,
+      targetAttackIdentityConfirmed:attack!==null,
       nextSettledSourceAttackOrdinal:attack?.actionOrdinal??null,
       nextSettledSourceAttackName:attack?.attackName??null,
       nextSettledAttackTookPrize:prizeDecrease,
