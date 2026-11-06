@@ -61,12 +61,10 @@ test('frozen 110-root rank1 mirror: postchoice owner-hand and normal Energy quot
   if(dir){
     fs.mkdirSync(dir,{recursive:true});
     const filename='agent15-rank1-mirror-owner-hand-postchoice.json';
-    const bytes=JSON.stringify(counts,null,2)+'
-';
+    const bytes=JSON.stringify(counts,null,2)+'\n';
     const filepath=path.join(dir,filename);
     writeAtomicLocked(filepath,bytes);
     writeAtomicLocked(filepath+'.sha256',createHash('sha256')
-      .update(bytes).digest('hex')+'  '+filename+'
-');
+      .update(bytes).digest('hex')+'  '+filename+'\n');
   }
 });
