@@ -9,6 +9,10 @@ const VERSION='agent32-issue25-v8-telepath-plus-default-confirm-false-v1';
 const EXTRA_HASH_PATHS=[
   'simulation/evaluation/agent32-issue25-v8-telepath-confirm-default-false.cjs',
   'simulation/twinleaf/agent32-owner-confirm-default-false.cjs',
+  'simulation/twinleaf/prompt-integrity.cjs',
+  'simulation/twinleaf/attach-energy-targets.cjs',
+  'simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs',
+  'simulation/twinleaf/cynthia-caitlin-required-recovery.cjs',
   'tests/agent32-confirm-false.test.cjs',
   'tests/agent32-v8-confirm-default-false.test.cjs',
   'tests/agent32-v8-confirm-default-false.native.test.cjs',
