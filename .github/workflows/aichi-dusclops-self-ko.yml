@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      sentinel_artazon_direct_probe:
+        description: 'Opt-in conditioned 60-card Fan-prized Artazon to Bunnelby then Jet and TM Store chain'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -67,6 +72,9 @@ jobs:
       - name: Test new Sentinel Mega Lopunny original native attack transition
         if: inputs.sentinel_native_probe
         run: node --test tests/agent28-sentinel-mega-lopunny-native.test.cjs
+      - name: Test Fan-prized Sentinel Artazon direct Bench Bunnelby into real Jet and two TM attacks
+        if: inputs.sentinel_artazon_direct_probe
+        run: node --test tests/agent28-sentinel-direct-artazon-native.test.cjs tests/agent28-sentinel-artazon-direct-opening.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
