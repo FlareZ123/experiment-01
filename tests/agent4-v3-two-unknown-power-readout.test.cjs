@@ -9,7 +9,9 @@ function manifest(){
   return {
     nativeActionCap:180,
     commonPolicy:{actorOnlyComposition:true,nativeRootActionLimit:180},
-    registeredTrials:registration.contexts.map(x=>({...x})),
+    registeredTrials:registration.contexts.flatMap(x=>[x,{...x,
+      candidateId:'new-moon-lockbreaker-v1',
+      id:x.id.replace(':champion-reference',':new-moon-lockbreaker-v1')}]),
     modes:registration.modes.map((id,i)=>({
       id,ownerGenericTrainerFrontier:i===1,
       actorFundedShadowRiderFloatStoneRoot:i===1
@@ -27,7 +29,7 @@ test('frozen manifest and exact printed source roster verified with drift report
 });
 test('only exact two historical source IDs and seeds enter the native diagnostic',()=>{
   const m=manifest(),trials=selectedTrials(m);
-  assert.deepEqual(trials.map(x=>x.id),registration.contexts.map(x=>x.id));
+  assert.deepEqual(trials.map(x=>x.id),manifest().registeredTrials.map(x=>x.id));
   m.registeredTrials[0].seed=123;
   assert.throws(()=>selectedTrials(m),/seed drift/);
 });
@@ -47,13 +49,13 @@ test('typed Store witness cannot be attributed when live game index is ambiguous
   assert.equal(aligned.rejectedUnknownPowerActions[0].abilityName,
     'Unknown Ability');
 });
-test('all six exact live trials and three unchanged modes retain both errors',()=>{
+test('twelve exact live trials retain both target errors and companion contexts',()=>{
   const m=manifest(),callOptions=[];
   const simulated=run({
     manifest:()=>m,runtime:fn=>fn(),
     native:options=>{
       callOptions.push(options);
-      return {attempted:2,rows:options.registeredTrials.map((trial,i)=>({
+      return {attempted:4,rows:options.registeredTrials.map((trial,i)=>({
         trial,status:'engine-error',finished:false,
         sourceDealFingerprint:'source'+i,
         fullPhysicalDealFingerprint:'whole'+i,
@@ -63,7 +65,7 @@ test('all six exact live trials and three unchanged modes retain both errors',()
     },
     witness:fn=>({
       result:fn(),
-      audit:{liveGameCount:2,auxiliaryAbilityDispatchCount:0,
+      audit:{liveGameCount:4,auxiliaryAbilityDispatchCount:0,
         abilityActions:[
           {liveGameIndex:0,abilityName:'A',rejection:'UNKNOWN_POWER'},
           {liveGameIndex:1,abilityName:'B',rejection:'UNKNOWN_POWER'}
@@ -71,9 +73,9 @@ test('all six exact live trials and three unchanged modes retain both errors',()
     })
   });
   assert.equal(callOptions.length,3);
-  assert.ok(callOptions.every(x=>x.registeredTrials.length===2));
-  assert.equal(simulated.actualNativeAttemptCount,6);
-  assert.equal(simulated.paired.length,2);
+  assert.ok(callOptions.every(x=>x.registeredTrials.length===4));
+  assert.equal(simulated.actualNativeAttemptCount,12);
+  assert.equal(simulated.paired.length,4);
   assert.ok(simulated.paired.every(x=>
     x.sourceFingerprintMatchedAllThree&&
     x.fullPhysicalDealMatchedAllThree&&
@@ -85,10 +87,11 @@ test('all six exact live trials and three unchanged modes retain both errors',()
 test('native mismatched or missing source ID fails rather than being reported',()=>{
   assert.throws(()=>run({
     manifest,runtime:fn=>fn(),
-    witness:fn=>({result:fn(),audit:{liveGameCount:2,
+    witness:fn=>({result:fn(),audit:{liveGameCount:4,
       auxiliaryAbilityDispatchCount:0,abilityActions:[]}}),
-    native:()=>({attempted:2,rows:[
-      {trial:{id:'wrong'}},{trial:{id:registration.contexts[1].id}}
+    native:()=>({attempted:4,rows:[
+      {trial:{id:'wrong'}},
+      ...manifest().registeredTrials.slice(1).map(trial=>({trial}))
     ]})
   }),/deep-equal/);
 });
