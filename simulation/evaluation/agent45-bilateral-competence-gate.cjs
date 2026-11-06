@@ -9,8 +9,9 @@ const MATERIAL = new Set([
   'UseTrainerAbilityAction', 'UseEnergyAbilityAction', 'UseStadiumAction'
 ]);
 const PAYOFFS = new Set([
-  'settled-attack', 'prize-transition', 'energy-custody', 'position-change',
-  'resource-transfer', 'established-lock', 'opponent-resource-denial'
+  'damage-transition', 'prize-transition', 'energy-custody',
+  'position-change', 'resource-transfer', 'status-transition',
+  'established-lock', 'opponent-resource-denial', 'information-transition'
 ]);
 
 /**
@@ -20,6 +21,33 @@ const PAYOFFS = new Set([
  */
 function rootDigest(roots) {
   return createHash('sha256').update(JSON.stringify(roots)).digest('hex');
+}
+
+/**
+ * Reject a resolved no-op attack, GX quota spending, or a mere move that
+ * consumes a cost without a separately witnessed effect. A witness is a
+ * proposed external fact; the library cannot independently authenticate it.
+ * @param {object} certificate
+ * @returns {boolean}
+ */
+function verifiedMaterialTransition(certificate) {
+  const witness=certificate?.effectWitness;
+  return PAYOFFS.has(certificate?.consequenceType) &&
+    witness?.type===certificate.consequenceType &&
+    witness?.sourceActionRootOrdinal===certificate.rootOrdinal &&
+    Number.isSafeInteger(witness.changedUnits) &&
+    witness.changedUnits>0 &&
+    witness.realNativeStateChange===true &&
+    witness.paperRelevantTransition===true &&
+    witness.costPaymentOnly===false &&
+    witness.independentlyReviewed===true &&
+    typeof witness.beforeStateEvidenceRef==='string' &&
+    witness.beforeStateEvidenceRef.length>0 &&
+    typeof witness.afterStateEvidenceRef==='string' &&
+    witness.afterStateEvidenceRef.length>0 &&
+    witness.beforeStateEvidenceRef!==witness.afterStateEvidenceRef &&
+    typeof witness.effectEvidenceRef==='string' &&
+    witness.effectEvidenceRef.length>0;
 }
 
 /**
@@ -39,7 +67,7 @@ function certifiedMaterialChoice(certificate, root) {
       certificate.paidResourcesVerified !== true ||
       certificate.targetsAndTransitionsVerified !== true ||
       certificate.ownerInformationOnly !== true ||
-      !PAYOFFS.has(certificate.consequenceType)) return false;
+      !verifiedMaterialTransition(certificate)) return false;
   if (typeof certificate.independentReviewer !== 'string' ||
       certificate.independentReviewer.length === 0 ||
       typeof certificate.paperEvidenceRef !== 'string' ||
@@ -270,6 +298,6 @@ function screenArchivedReciprocalAttempts(archive) {
     rows};
 }
 
-module.exports = {VERSION, rootDigest, certifiedMaterialChoice,
-  evaluateBilateralCompetence, screenObservedReciprocalSequence,
-  screenArchivedReciprocalAttempts};
+module.exports = {VERSION, rootDigest, verifiedMaterialTransition,
+  certifiedMaterialChoice, evaluateBilateralCompetence,
+  screenObservedReciprocalSequence, screenArchivedReciprocalAttempts};
