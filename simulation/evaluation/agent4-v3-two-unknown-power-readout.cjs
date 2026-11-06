@@ -15,7 +15,8 @@ const {writeAtomicLocked}=
   require('./agent20-frozen-rank6-canary-v1.cjs');
 const REG=require('../../results/aichi-2026/registrations/agent4-v3-two-unknown-power-readout-20261106.json');
 
-const VERSION='agent4-v3-two-context-live-store-unknown-power-readout-v1';
+const REG2=require('../../results/aichi-2026/registrations/agent4-v3-two-unknown-power-native-12-20261106.json');
+const VERSION='agent4-v3-two-context-paired-candidate-live-store-readout-v2';
 /**
  * Reuse the immutable original manifest and current printed source 60s.
  * Changed current code is explicitly versioned and reported. Never relabel
@@ -60,20 +61,28 @@ function manifestWithDriftAudit(){
 
 
 /**
- * Choose only the two preregistered historical original-60 contexts.
+ * Include each preregistered target and the mandatory same-seed companion.
  * @param {object} manifest Validated original v3 manifest.
  * @returns {object[]} Immutable original trial descriptions.
  */
 function selectedTrials(manifest){
-  const trials=REG.contexts.map(target=>{
-    const trial=manifest.registeredTrials.find(x=>x.id===target.id);
-    assert.ok(trial,'Missing registered original v3 trial: '+target.id);
-    for(const key of ['rank','repeat','candidateSlot','candidateId','seed'])
-      assert.equal(trial[key],target[key],key+' drift for '+target.id);
-    return trial;
-  });
-  assert.equal(trials.length,2);
-  assert.equal(new Set(trials.map(x=>x.id)).size,2);
+  const trials=[];
+  for(const target of REG.contexts){
+    const partnerId=target.id.replace(/:champion-reference$/,
+      ':new-moon-lockbreaker-v1');
+    for(const id of [target.id,partnerId]){
+      const trial=manifest.registeredTrials.find(x=>x.id===id);
+      assert.ok(trial,'Missing original v3 registered trial: '+id);
+      for(const key of ['rank','repeat','candidateSlot','seed'])
+        assert.equal(trial[key],target[key],key+' drift for '+id);
+      assert.equal(trial.id,id);
+      trials.push(trial);
+    }
+  }
+  assert.equal(trials.length,REG2.registeredPerMode);
+  assert.equal(new Set(trials.map(x=>x.id)).size,4);
+  assert.deepEqual(trials.filter(x=>x.candidateId==='new-moon-lockbreaker-v1')
+    .map(x=>x.id),REG2.companionIDs);
   return trials;
 }
 
@@ -82,7 +91,7 @@ function selectedTrials(manifest){
  * Ability action. Do not expose private cards to either acting policy.
  * @param {object} row Native row returned or abort-preserved by runner.
  * @param {object[]} actions All actual observer Ability events for this game.
- * @param {boolean} gameIndexReliable Observer saw exactly two live game Stores.
+ * @param {boolean} gameIndexReliable Observer saw four live game Stores.
  * @returns {object}
  */
 function summarize(row,actions,gameIndexReliable){
@@ -116,7 +125,7 @@ function summarize(row,actions,gameIndexReliable){
 }
 
 /**
- * Six native attempts, with unchanged original v3 policy modes and
+ * Twelve native attempts, with unchanged original v3 policy modes and
  * paper-source sixties. Override dependencies only for pure tests.
  * @param {{manifest?:Function,native?:Function,runtime?:Function,
  *   witness?:Function,witnessDeps?:object}} [deps]
@@ -141,10 +150,10 @@ function run(deps={}){
     const observed=runtime(()=>witness(()=>native(options),
       deps.witnessDeps??{}));
     const result=observed.result;
-    assert.equal(result.attempted,2);
+    assert.equal(result.attempted,REG2.registeredPerMode);
     assert.deepEqual(result.rows.map(x=>x.trial?.id),trials.map(x=>x.id));
     const audit=observed.audit;
-    const aligned=audit.liveGameCount===2;
+    const aligned=audit.liveGameCount===REG2.registeredPerMode;
     const rows=result.rows.map((row,i)=>summarize(row,
       audit.abilityActions.filter(x=>x.liveGameIndex===i),aligned));
     modes.push({
@@ -180,16 +189,20 @@ function run(deps={}){
     };
   });
   return {
-    schema:VERSION,registration:REG.schema,
+    schema:VERSION,registration:REG2.schema,
+    previousSixAttemptRegistration:REG.schema,
     originalV3SourceManifestBlob:REG.sourceManifestGitBlob,
     originalPrintedSourceAndCandidateSixtiesUnchanged:true,
     originalHistoricalNativeCodeRevisionReproduced:
       checked.audit.everyFrozenInputMatches===true,
     provenanceDriftAudit:checked.audit,
     observer:OBSERVER_VERSION,
-    proposedNativeAttemptCount:6,actualNativeAttemptCount:
+    proposedNativeAttemptCount:REG2.plannedNativeAttempts,
+    actualNativeAttemptCount:
       modes.reduce((n,x)=>n+x.nativeAttemptCount,0),
     modes,paired,
+    registeredOriginalAbortTargets:REG2.originalTargetTrialIDs,
+    exactOriginalSourceSeedPairsMaintained:true,
     typedDiagnosisOnly:true,competitiveQualifiedGames:0,
     fieldWinRate:null
   };
