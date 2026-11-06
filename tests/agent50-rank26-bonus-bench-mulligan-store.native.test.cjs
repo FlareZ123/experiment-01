@@ -450,6 +450,11 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(audit.optionalPrompt?.candidateInBench,true);
   assert.equal(audit.optionalPrompt?.candidateStillInHand,false);
   assert.deepEqual(audit.shuffleCounts,[2,1]);
+  assert.equal(audit.initialSetups.length,2);
+  assert.equal(audit.actorDecisions.filter(x=>x.kind==='initial-starting-basic').length,2);
+  assert.equal(audit.actorDecisions.filter(x=>x.kind==='accept-one-compensation-card').length,1);
+  assert.equal(audit.actorDecisions.filter(x=>x.kind==='bonus-bench-second-thorns').length,1);
+  assert.equal(audit.rawStateFallbackQuarantine?.rawStateFallbackCalls,0);
 
   const receipt={
     schema:audit.schema,
@@ -462,14 +467,14 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
       ironThornsCopies:4},
     audit
   };
-  const body=JSON.stringify(receipt,null,2);
+  const body=JSON.stringify(receipt,null,2)+'\n';
   const hash=createHash('sha256').update(body).digest('hex');
   const directory=process.env.AGENT50_BONUS_BENCH_OUTPUT_DIR||
     process.env.AGENT50_RANK4_DEDECHANGE_OUTPUT;
   if(directory){
     fs.mkdirSync(directory,{recursive:true});
     const file=path.resolve(directory,'rank26-vs-rank6-bonus-bench-native-v1-receipt.json');
-    writeAtomicLocked(file,body+'\n');
+    writeAtomicLocked(file,body);
     writeAtomicLocked(file+'.sha256',hash+'  '+path.basename(file)+'\n');
   }
   console.log('AGENT50_RANK26_BONUS_BENCH_NATIVE_RECEIPT',
