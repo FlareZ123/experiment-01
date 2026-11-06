@@ -76,15 +76,15 @@ function stage(seat){
   owner.prizes=prizes.map(card=>{
     const slot=new CardList();slot.cards.push(card);return slot;
   });
-  // Prospective staged original rank1 reply: it already has a Bench Latias
+  // Prospective staged original rank1 reply: it already has a Bench Mimikyu
   // and holds an authentic Guzma, preserving all 60 real opponent cards.
   // This is explicitly a conditioned counterfactual, not opponent bot play.
   const opponent=f.defender;
-  const latiasIndex=opponent.deck.cards.findIndex(a=>
-    a.fullName==='Latias ex SSP');
-  assert.ok(latiasIndex>=0);
+  const mimikyuIndex=opponent.deck.cards.findIndex(a=>
+    a.fullName==='Mimikyu GRI');
+  assert.ok(mimikyuIndex>=0);
   const slot=new PokemonCardList();
-  slot.cards.push(opponent.deck.cards.splice(latiasIndex,1)[0]);
+  slot.cards.push(opponent.deck.cards.splice(mimikyuIndex,1)[0]);
   opponent.bench.push(slot);
   for(const name of ['Guzma BUS','Fog Crystal CRE']){
     if(opponent.hand.cards.some(a=>a.fullName===name))continue;
@@ -299,7 +299,7 @@ for(const seat of [0,1]){
     assert.deepEqual(opponent.hand.cards,oldHand);
 
     // The original opponent's legal Supporter remains usable under Item lock:
-    // true native Guzma prompts promote Vileplume and own Benched Latias.
+    // true native Guzma prompts promote Vileplume and own Benched Mimikyu.
     const {ResolvePromptAction}=
       native('game/store/actions/resolve-prompt-action');
     const {nativeSinglePokemonChoices}=
@@ -321,13 +321,13 @@ for(const seat of [0,1]){
     assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
     gust=x.state.prompts.find(p=>p.result===undefined);
     assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
-    const latias=nativeSinglePokemonChoices(x.state,gust).find(opt=>
+    const mimikyu=nativeSinglePokemonChoices(x.state,gust).find(opt=>
       opt.seat===1-seat&&
-      opt.physical.getPokemonCard()?.fullName==='Latias ex SSP');
-    assert.ok(latias,'Guzma must offer own legal Benched Latias');
-    assert.equal(gust.validate([latias.physical],x.state),true);
-    x.f.store.dispatch(new ResolvePromptAction(gust.id,[latias.physical]));
-    assert.equal(opponent.active.getPokemonCard()?.fullName,'Latias ex SSP');
+      opt.physical.getPokemonCard()?.fullName==='Mimikyu GRI');
+    assert.ok(mimikyu,'Guzma must offer own legal Benched Mimikyu');
+    assert.equal(gust.validate([mimikyu.physical],x.state),true);
+    x.f.store.dispatch(new ResolvePromptAction(gust.id,[mimikyu.physical]));
+    assert.equal(opponent.active.getPokemonCard()?.fullName,'Mimikyu GRI');
     assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
     assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'));
     assert.equal(x.f.store.hasPrompts(),false);
@@ -341,7 +341,7 @@ for(const seat of [0,1]){
       attacks:two.attackCount,attackPrompts:two.kinds,
       benched,opponentItemVeto:'Fog Crystal CRE',
       prospectiveOpponentSupporter:'Guzma BUS',
-      promotedSource:'Vileplume AOR',promotedOpponent:'Latias ex SSP',
+      promotedSource:'Vileplume AOR',promotedOpponent:'Mimikyu GRI',
       opponentReplyMode:'conditioned genuine Store Supporter, not autonomous',
       competitiveGames:0
     }));
