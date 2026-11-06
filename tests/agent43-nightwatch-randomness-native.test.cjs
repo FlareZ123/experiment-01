@@ -189,3 +189,61 @@ for(const attackerSeat of [0,1]){
     }));
   });
 }
+
+
+const {withSourceMarkedPaperRandomNightWatch}=
+  require('../simulation/twinleaf/agent43-nightwatch-source-marked-random.cjs');
+
+for(const attackerSeat of [0,1]){
+  for(const copycat of [false,true]){
+    test('source-marked original Night Watch '+(copycat?'copied':'direct')+
+      ' native responder seat '+attackerSeat,()=>{
+      const {clearCopyAttackSessionsForTests}=native(
+        'game/store/prefabs/copy-attack-delegation');
+      const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+      const {AttackAction}=native('game/store/actions/game-actions');
+      const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+      clearCopyAttackSessionsForTests();
+      const f=stage(attackerSeat,copycat);
+      const bot=new SimpleTacticsAi({id:f.attacker.id},{
+        tactics:[],promptResolvers:[]
+      },null);
+      const before=SimpleTacticsAi.prototype.resolvePrompt;
+      try{
+        const result=withSourceMarkedPaperRandomNightWatch(()=>{
+          f.store.dispatch(new AttackAction(f.attacker.id,
+            copycat?'Copycat':'Night Watch'));
+          const prompt=f.state.prompts.find(p=>p.result===undefined&&
+            p.constructor.name==='ChooseCardsPrompt');
+          assert.ok(prompt,'original source must create attacker-owned hand prompt');
+          assert.equal(prompt.playerId,f.attacker.id);
+          assert.strictEqual(prompt.cards,f.defender.hand);
+          const action=bot.resolvePrompt(f.attacker,f.state,prompt);
+          assert.ok(action instanceof ResolvePromptAction);
+          assert.equal(action.result.length,2);
+          assert.equal(prompt.validate(action.result,f.state),true);
+          f.store.dispatch(action);
+          return {chosen:action.result,
+            remaining:f.defender.hand.cards.slice()};
+        },{seed:20261106+attackerSeat+Number(copycat)*10});
+        assert.equal(result.audit.markedSourcePrompts,1);
+        assert.equal(result.audit.samples.length,1);
+        assert.equal(result.audit.prototypeRestored,true);
+        const sample=result.audit.samples[0];
+        assert.equal(sample.sourceBoundToCopycat,copycat);
+        assert.equal(sample.activeUser,
+          copycat?'Mimikyu GRI':'Trevenant & Dusknoir-GX SMP');
+        assert.deepEqual(result.result.chosen,
+          sample.sampledPhysicalIndices.map(i=>f.opponentHand[i]));
+        assert.equal(result.result.remaining.length,1);
+        assert.strictEqual(SimpleTacticsAi.prototype.resolvePrompt,before);
+        console.log('AGENT43_NIGHTWATCH_SOURCE_NATIVE',JSON.stringify({
+          attackerSeat,copycat,audit:result.audit,
+          remaining:result.result.remaining.map(c=>c.name)
+        }));
+      }finally{
+        clearCopyAttackSessionsForTests();
+      }
+    });
+  }
+}
