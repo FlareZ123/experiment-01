@@ -8,7 +8,7 @@ Why did the same-eight v8 plus Telepath plus default-Confirm-false native test f
 
 ## CI evidence
 
-Failed workflow run [42262243840](https://github.com/FlareZ123/experiment-01/actions/runs/42262243840), head `e2fb21fb4136d692de1b91bf361fa903797e9f05`, emitted:
+Failed workflow run [42262243840](https://github.com/FlareZ123/experiment-01/actions/runs/42262243840), head `e2fb21fb4136d692de1b91bf361fa903797e9f05`, artifact ID `13526350437` (ZIP SHA-256 `a5ea7372e12dfbb374dd469e27cdc9c69c35adcf2229749480bdc0f69928e2bb`), emitted:
 
 - 8 control attempts and 8 treatment attempts.
 - Same registration, same initial source deals, same initial full physical deals, and exact prior root prefix across all eight arms.
