@@ -128,4 +128,51 @@ for(const seat of [0,1]){
   }
 }
 
-module.exports={run};
+
+/**
+ * The ongoing opponent Active Stoutland BCR122 Ability denies Ranger itself.
+ * This negative control is a separately constructed, legitimate evolved
+ * Stoutland board; no simultaneous Budew Active attack is presumed.
+ * @param {0|1} seat Physical Stoutland seat.
+ * @returns {object} Native Store denial receipt.
+ */
+function stoutlandSupporterDenial(seat){
+  const x=stage(seat);
+  const manager=initializeCards();
+  const physical=name=>{
+    const c=manager.getCardByName(name);
+    assert.ok(c,'Missing pinned printing '+name);
+    return c;
+  };
+  x.owner.active.cards.length=0;
+  x.owner.active.energies.cards.length=0;
+  for(const name of ['Lillipup BCR','Herdier BCR','Stoutland BCR'])
+    x.owner.active.cards.push(physical(name));
+  assert.equal(x.owner.active.getPokemonCard().name,'Stoutland');
+  const ranger=physical('Pokemon Ranger STS');
+  x.opponent.hand.cards.unshift(ranger);
+  x.store.state.activePlayer=1-seat;
+  x.store.state.turn=4;
+  x.store.state.phase=x.GamePhase.PLAYER_TURN;
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  assert.throws(()=>x.store.dispatch(new PlayCardAction(
+    x.opponent.id,0,{player:PlayerType.ANY,slot:SlotType.BOARD,index:0}
+  )),e=>typeof e?.message==='string'&&
+    /CANNOT_PLAY_THIS_CARD|BLOCKED/i.test(e.message));
+  const live=x.store.state.players.find(p=>p.id===x.opponent.id);
+  assert.ok(live);
+  assert.equal(live.supporterTurn,0);
+  assert.ok(live.hand.cards.includes(ranger));
+  return {seat,stoutlandActive:true,rangerDenied:true,
+    rangerStillInHand:true,competitivelyQualifiedGames:0};
+}
+for(const seat of [0,1]){
+  test('native Active Stoutland forbids Pokemon Ranger, seat '+seat,()=>{
+    const result=stoutlandSupporterDenial(seat);
+    console.log('AGENT30_NATIVE_STOUTLAND_RANGER',JSON.stringify(result));
+    assert.equal(result.rangerDenied,true);
+  });
+}
+
+module.exports={run,stoutlandSupporterDenial};
