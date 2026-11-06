@@ -207,6 +207,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseGenericFundedFloatStone(view,catalog);
     if(mobility)return mobility;
   }
+  // Deliberately narrow research-only rescue, kept separate from the
+  // positive-Energy preservation helper. The turn is preregistered.
+  if(options.zeroEnergyStrandFloatStoneRoot===true&&
+     options.zeroEnergyStrandFloatStoneTargetTurn===view.globalTurn){
+    const rescue=require('./agent31-zero-energy-strand-floatstone.cjs')
+      .chooseZeroEnergyStrandFloatStone(view,catalog);
+    if(rescue)return rescue;
+  }
   // V2 compares a same-target free Float Stone line before any paid fee.
   if(options.twoUnitPaidRetreatRootV2===true&&
      ((options.twoUnitPaidRetreatTargetTurnV2??null)===null||
@@ -763,6 +771,13 @@ function withActorOnlyRootPolicy(run,deps={}){
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
+    zeroEnergyStrandFloatStoneRootOptIn:
+      deps.zeroEnergyStrandFloatStoneRoot===true,
+    zeroEnergyStrandFloatStoneTargetTurn:
+      deps.zeroEnergyStrandFloatStoneTargetTurn??null,
+    zeroEnergyStrandFloatStoneOwnerSeat:
+      deps.zeroEnergyStrandFloatStoneOwnerSeat??null,
+    zeroEnergyStrandFloatStoneRootSelected:0,
     fundedVmaxFloatStoneRootSelected:0,
     twoUnitPaidRetreatRootOptIn:deps.twoUnitPaidRetreatRoot===true,
     twoUnitPaidRetreatTargetTurn:deps.twoUnitPaidRetreatTargetTurn??null,
@@ -1396,6 +1411,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
+      zeroEnergyStrandFloatStoneRoot:
+        audit.zeroEnergyStrandFloatStoneRootOptIn===true&&
+        audit.zeroEnergyStrandFloatStoneOwnerSeat===seat,
+      zeroEnergyStrandFloatStoneTargetTurn:
+        audit.zeroEnergyStrandFloatStoneTargetTurn,
       twoUnitPaidRetreatRoot:audit.twoUnitPaidRetreatRootOptIn===true,
       twoUnitPaidRetreatTargetTurn:audit.twoUnitPaidRetreatTargetTurn,
       twoUnitPaidRetreatRootV2:audit.twoUnitPaidRetreatRootV2OptIn===true,
@@ -1605,6 +1625,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.underworldDoorRootSelected++;
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
       audit.fundedVmaxFloatStoneRootSelected++;
+    if(intent.source==='agent31-zero-energy-strand-to-funded-ko-v1')
+      audit.zeroEnergyStrandFloatStoneRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
       audit.twoUnitPaidRetreatRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v2')
