@@ -258,6 +258,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V8_CONFIRM_DIR: issue25-agent32-v8-confirm
         run: node --test tests/agent36-issue25-common-v8.test.cjs tests/agent32-confirm-false.test.cjs tests/agent32-v8-confirm-default-false.test.cjs tests/agent32-v8-confirm-default-false.native.test.cjs
+      - name: Independently audit true v8 native rank1 mirror terminal attack and Prize episodes
+        if: ${{ inputs.include_agent8_telepath_v5 }}
+        env:
+          AGENT45_V8_MIRROR_EPISODE_DIR: issue25-agent32-v8-confirm/agent45-mirror
+        run: node --test tests/agent45-v8-terminal-mirror-public-episodes.test.cjs tests/agent45-v8-terminal-mirror-public-episodes.native.test.cjs
       - name: Preserve v8 Telepath and default Confirm treatment ledgers with atomic digests
         if: ${{ always() && inputs.include_agent8_telepath_v5 }}
         uses: actions/upload-artifact@v4
