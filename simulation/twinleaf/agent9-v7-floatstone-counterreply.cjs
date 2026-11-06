@@ -5,7 +5,7 @@ const path=require('node:path');
 const {actorObservation}=
   require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v3-settled-resetting-hole-wait';
+const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v4-early-stadium-counter';
 
 /**
  * Owner-controlled visible answer to the exact rank6 turn5 Guzma canary:
@@ -75,6 +75,29 @@ function chooseOwnerMarshadowResettingHole(view) {
 }
 
 /**
+ * A proactive original-deal counter needs neither source Guzma nor any Tool:
+ * the opponent's already-Benched Marshadow can remove source Thunder
+ * Mountain on its own earlier turn. This is a separate, default-off case.
+ * @param {object} view Actual owner-root observation.
+ * @returns {object|null}
+ */
+function chooseOwnerMarshadowEarlyResettingHole(view){
+  if(view?.decisionKind!=='owner-root'||
+     view.globalTurn!==4||view.actorSeat!==1||
+     view.ownPublic?.active?.printing!=='Tapu Lele-GX GRI'||
+     view.opponentPublic?.active?.printing!=='Iron Thorns ex TWM'||
+     !view.opponentPublic?.stadium?.
+       includes('Thunder Mountain Prism Star LOT'))return null;
+  const benchIndex=(view.ownPublic.bench??[]).findIndex(p=>
+    p?.printing==='Marshadow UNB'&&
+    p.abilities?.includes('Resetting Hole'));
+  return benchIndex<0?null:{
+    kind:'remove-thunder-with-benched-marshadow',
+    benchIndex,printing:'Marshadow UNB'
+  };
+}
+
+/**
  * Per-match reversible two-action native Store canary with a genuinely
  * owner-owned Tool and a separate zero-cost RetreatAction. All other
  * decisions remain the original native bot's. Keep this outside Guzma's
@@ -84,6 +107,7 @@ function chooseOwnerMarshadowResettingHole(view) {
  * @param {{SimpleTacticsAi?:Function,Store?:Function,PlayCardAction?:Function,
  *   RetreatAction?:Function,PlayerType?:object,SlotType?:object,
  *   observe?:Function,choose?:Function,includeResettingHole?:boolean,
+ *   includeEarlyResettingHole?:boolean,
  *   UseAbilityAction?:Function}} [deps] Test seams.
  * @returns {{result:T,audit:object}}
  */
@@ -96,8 +120,10 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
   const Store=deps.Store??native('game/store/store').Store;
   const cardActions=deps.PlayCardAction&&deps.PlayerType&&deps.SlotType?
     null:native('game/store/actions/play-card-action');
-  const gameActions=deps.RetreatAction&&(!deps.includeResettingHole||
-    deps.UseAbilityAction)?null:native('game/store/actions/game-actions');
+  const gameActions=deps.RetreatAction&&
+    (!(deps.includeResettingHole||deps.includeEarlyResettingHole)||
+      deps.UseAbilityAction)?null:
+    native('game/store/actions/game-actions');
   const PlayCardAction=deps.PlayCardAction??cardActions.PlayCardAction;
   const RetreatAction=deps.RetreatAction??gameActions.RetreatAction;
   const UseAbilityAction=deps.UseAbilityAction??gameActions?.UseAbilityAction??null;
@@ -122,6 +148,7 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
     settledResettingHole:0,
     nativeRejects:0,records:[],genericFloatStoneIntents:[],
     includeResettingHole:deps.includeResettingHole===true,
+    includeEarlyResettingHole:deps.includeEarlyResettingHole===true,
     opponentCompetenceUnverified:true,
     paperLegalityUnverified:true,competitiveGamesQualified:0
   };
@@ -200,8 +227,10 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
        state?.prompts?.some(prompt=>prompt.result===undefined))
       return nativeAction;
     const view=observe(state,seat);
-    const intent=(deps.includeResettingHole===true?
-      chooseOwnerMarshadowResettingHole(view):null)??choose(view);
+    const intent=(deps.includeEarlyResettingHole===true?
+      chooseOwnerMarshadowEarlyResettingHole(view):null)??
+      (deps.includeResettingHole===true?
+        chooseOwnerMarshadowResettingHole(view):null)??choose(view);
     if(!intent)return nativeAction;
     audit.encounteredOwnerReplies++;
     // Audit whether the already-shared, non-case-specific owner-only Float
@@ -275,4 +304,6 @@ function withFloatStoneOwnerCounterReply(execute,deps={}) {
 }
 
 module.exports={VERSION,chooseRealOwnerFloatStoneCounter,
-  chooseOwnerMarshadowResettingHole,withFloatStoneOwnerCounterReply};
+  chooseOwnerMarshadowResettingHole,
+  chooseOwnerMarshadowEarlyResettingHole,
+  withFloatStoneOwnerCounterReply};
