@@ -1,0 +1,184 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {actorObservation}=
+  require('./actor-observation-contract.cjs');
+
+const VERSION='agent9-v7-own-hand-floatstone-guzma-counterreply-v1';
+
+/**
+ * Owner-controlled visible answer to the exact rank6 turn5 Guzma canary:
+ * active untooled Marshadow receives a genuinely held Float Stone, then
+ * immediately retreats to the damaged Tapu Lele-GX which was gusted away.
+ * This does not use any hidden cards from the opposing player's perspective.
+ * @param {object} view Detached acting-owner root view.
+ * @returns {object|null} Owner-visible real native action intent.
+ */
+function chooseRealOwnerFloatStoneCounter(view) {
+  if(view?.decisionKind!=='owner-root'||
+     view.globalTurn!==6||view.actorSeat!==1||
+     view.ownPublic?.active?.printing!=='Marshadow UNB'||
+     view.opponentPublic?.active?.printing!=='Iron Thorns ex TWM'||
+     view.ownPublic?.publicTurnRestrictions?.attackLockTurnsRemaining>0)
+    return null;
+  const r=view.ownTurnResources??{};
+  const active=view.ownPublic.active;
+  const ownBench=view.ownPublic.bench??[];
+  const benchIndex=ownBench.findIndex(p=>
+    p?.printing==='Tapu Lele-GX GRI'&&p.damage>=140);
+  if(benchIndex<0)return null;
+  const tools=active.tools??[];
+  if(tools.some(printing=>/^Float Stone [A-Z0-9]+$/.test(printing))){
+    if(r.retreatedTurn===view.globalTurn||
+       active.publicRestrictions?.cannotRetreat===true)
+      return null;
+    return {kind:'retreat-to-original-tapu-lele',
+      benchIndex,activePrinting:active.printing,
+      destinationPrinting:ownBench[benchIndex].printing};
+  }
+  if(tools.length>0||r.toolPlayLocked===true||
+     view.ownPublic.publicTurnRestrictions?.toolPlayLocked===true)
+    return null;
+  const handIndex=view.ownHand.findIndex(printing=>
+    /^Float Stone [A-Z0-9]+$/.test(printing));
+  return handIndex<0?null:{
+    kind:'attach-floatstone-to-stranded-marshadow',
+    handIndex,printing:view.ownHand[handIndex],
+    nextBenchIndex:benchIndex
+  };
+}
+
+/**
+ * Per-match reversible two-action native Store canary with a genuinely
+ * owner-owned Tool and a separate zero-cost RetreatAction. All other
+ * decisions remain the original native bot's. Keep this outside Guzma's
+ * native prompt continuation to let the original exact owner act first.
+ * @template T
+ * @param {()=>T} execute Genuine native match.
+ * @param {{SimpleTacticsAi?:Function,Store?:Function,PlayCardAction?:Function,
+ *   RetreatAction?:Function,PlayerType?:object,SlotType?:object,
+ *   observe?:Function,choose?:Function}} [deps] Test seams.
+ * @returns {{result:T,audit:object}}
+ */
+function withFloatStoneOwnerCounterReply(execute,deps={}) {
+  assert.equal(typeof execute,'function');
+  const native=name=>require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output',name));
+  const Ai=deps.SimpleTacticsAi??
+    native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store=deps.Store??native('game/store/store').Store;
+  const cardActions=deps.PlayCardAction&&deps.PlayerType&&deps.SlotType?
+    null:native('game/store/actions/play-card-action');
+  const gameActions=deps.RetreatAction?null:
+    native('game/store/actions/game-actions');
+  const PlayCardAction=deps.PlayCardAction??cardActions.PlayCardAction;
+  const RetreatAction=deps.RetreatAction??gameActions.RetreatAction;
+  const PlayerType=deps.PlayerType??cardActions.PlayerType;
+  const SlotType=deps.SlotType??cardActions.SlotType;
+  const observe=deps.observe??actorObservation;
+  const choose=deps.choose??chooseRealOwnerFloatStoneCounter;
+  const originalBot=Object.getOwnPropertyDescriptor(
+    Ai.prototype,'decodeNextAction');
+  const originalStore=Object.getOwnPropertyDescriptor(
+    Store.prototype,'dispatch');
+  assert.equal(typeof originalBot?.value,'function');
+  assert.equal(typeof originalStore?.value,'function');
+  const intentsByAction=new WeakMap();
+  let liveStore=null;
+  const audit={
+    version:VERSION,registeredRealStores:0,encounteredOwnerReplies:0,
+    proposedNativeTools:0,acceptedNativeTools:0,
+    proposedNativeRetreats:0,acceptedNativeRetreats:0,
+    nativeRejects:0,records:[],opponentCompetenceUnverified:true,
+    paperLegalityUnverified:true,competitiveGamesQualified:0
+  };
+  function dispatch(action,...rest) {
+    if(!liveStore&&action?.constructor?.name==='AddPlayerAction'){
+      liveStore=this;
+      audit.registeredRealStores++;
+    }
+    const rec=this===liveStore?intentsByAction.get(action):null;
+    try {
+      const result=originalStore.value.apply(this,[action,...rest]);
+      if(rec){
+        rec.accepted=true;
+        const state=this.state;
+        const owner=state.players[rec.seat];
+        const current=observe(state,rec.seat);
+        rec.realActiveAfter=current.ownPublic.active?.printing??null;
+        rec.realActiveToolsAfter=current.ownPublic.active?.tools??null;
+        rec.realRetreatedTurnAfter=owner.retreatedTurn??null;
+        if(rec.kind==='attach-floatstone-to-stranded-marshadow')
+          audit.acceptedNativeTools++;
+        if(rec.kind==='retreat-to-original-tapu-lele')
+          audit.acceptedNativeRetreats++;
+      }
+      return result;
+    }catch(error){
+      if(rec){
+        rec.rejected=String(error?.message??error);
+        audit.nativeRejects++;
+      }
+      throw error;
+    }
+  }
+  function decode(state,...rest) {
+    const nativeAction=originalBot.value.apply(this,[state,...rest]);
+    const seat=state?.activePlayer;
+    const owner=state?.players?.[seat];
+    if(state!==liveStore?.state||seat!==1||
+       owner?.id!==this.client?.id||
+       state?.prompts?.some(prompt=>prompt.result===undefined))
+      return nativeAction;
+    const view=observe(state,seat);
+    const intent=choose(view);
+    if(!intent)return nativeAction;
+    audit.encounteredOwnerReplies++;
+    let action;
+    if(intent.kind==='attach-floatstone-to-stranded-marshadow'){
+      assert.equal(owner.hand.cards[intent.handIndex]?.fullName,
+        intent.printing);
+      action=new PlayCardAction(owner.id,intent.handIndex,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+      });
+      audit.proposedNativeTools++;
+    } else if(intent.kind==='retreat-to-original-tapu-lele'){
+      action=new RetreatAction(owner.id,intent.benchIndex);
+      audit.proposedNativeRetreats++;
+    } else {
+      throw Error('Unexpected native opponent Float Stone intent');
+    }
+    const rec={seat,turn:state.turn,kind:intent.kind,
+      originalBotAction:nativeAction.constructor.name,
+      intendedDestination:intent.destinationPrinting??null,
+      originalOpposingActive:view.opponentPublic.active.printing,
+      ownActiveBefore:view.ownPublic.active.printing,
+      ownerHandIndex:intent.handIndex??null,
+      benchIndex:intent.benchIndex??intent.nextBenchIndex??null,
+      accepted:false};
+    intentsByAction.set(action,rec);
+    audit.records.push(rec);
+    return action;
+  }
+  Object.defineProperty(Store.prototype,'dispatch',{
+    ...originalStore,value:dispatch});
+  Object.defineProperty(Ai.prototype,'decodeNextAction',{
+    ...originalBot,value:decode});
+  try{return {result:execute(),audit};}
+  catch(error){
+    if(error&&typeof error==='object')
+      error.agent9FloatStoneNativeAudit={...audit,
+        records:audit.records.map(r=>({...r}))};
+    throw error;
+  }
+  finally {
+    assert.strictEqual(Store.prototype.dispatch,dispatch);
+    assert.strictEqual(Ai.prototype.decodeNextAction,decode);
+    Object.defineProperty(Ai.prototype,'decodeNextAction',originalBot);
+    Object.defineProperty(Store.prototype,'dispatch',originalStore);
+  }
+}
+
+module.exports={VERSION,chooseRealOwnerFloatStoneCounter,
+  withFloatStoneOwnerCounterReply};
