@@ -8,14 +8,14 @@ Did the same-eight v8 treatment with owner Telepathic Psychic search and a defau
 
 ## Provenance and reproducibility
 
-- Manual workflow: [run 42285741118](https://github.com/FlareZ123/experiment-01/actions/runs/42285741118), overall **success**.
-- Repository revision and CI revision: `ab2a6f3c76941da19151379ca6e2298c9c80caf7`; runtime Git attestation: **VERIFIED**.
+- Initial corrected validation: [run 42285741118](https://github.com/FlareZ123/experiment-01/actions/runs/42285741118), overall **success**. The expanded settlement receipt and assertions then passed in [run 42287771647](https://github.com/FlareZ123/experiment-01/actions/runs/42287771647), overall **success**.
+- Final repository revision and CI revision: `a5d3657ac4cdbccd79cced59c133dd6d7d35a6a4`; runtime Git attestation: **VERIFIED**.
 - Pinned Twinleaf gitlink and observed runtime commit: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Treatment entry point: `simulation/evaluation/agent32-issue25-v8-telepath-confirm-default-false.cjs`; registration reuses the eight original v8 trial contexts and 128-action cap.
-- Artifact ID: `13536929153`, name `agent32-issue25-v8-telepath-confirm-default-false-same-eight-native`.
-- ZIP SHA256: `4a9ef24b104d51a9da27f8d1150aa592fa9e08d5cc75be3855ba1d281bb2c548`.
-- Treatment JSON SHA256: `3b39cd284b9328d1a9901b48f0a700794231cc0293660fc0f2ad7b06c57e224f`.
-- Control JSON SHA256: `f71f52e2c5e2eb847a9b8c068987c4466367d109abe51096f951a672f3821048`.
+- Final artifact ID: `13538082892`, name `agent32-issue25-v8-telepath-confirm-default-false-same-eight-native`.
+- ZIP SHA256: `36d759b28ae75bb120d94c30a6faa2ae79bd1e03ddb0df902a94418e2ba47882`.
+- Treatment JSON SHA256: `6ed9db1568aaf546e3165ddae2a2fa21fd1224f7d50e1e2dc8b8c6f578bb5a45`.
+- Control JSON SHA256: `b329cdba4e0b2dc937251993cb379ec6b62a56d3e22f1f328fc58fe1e3b4996d`.
 
 The treatment and control retain the same source-deal and full-physical-deal fingerprints in all eight registered contexts. The corrected test now reads abort-preserved roots from `nativeAbortEvidence.rootActionLedger`, rather than treating an aborted row with no top-level ledger as zero roots. All eight full control root sequences are exact prefixes of their corresponding treatment sequences:
 
@@ -37,7 +37,8 @@ The treatment and control retain the same source-deal and full-physical-deal fin
 - Confirm resolver: **11/11** submitted false answers were accepted and settled; zero rejects and zero unsettled prompts. Across the eight contexts these were eight `GO_FIRST` prompts and three `WANT_TO_USE_ABILITY` prompts.
 - The terminal context is `1:212:B:champion-reference`. Its control aborted at action/root 98 with pending `ConfirmPrompt`. The treatment completed at 110 actions/roots with `finished=true`, `endReason=engine-game-end`, winner seat 1, and `terminalWinnerMatchesCandidate=true`.
 - Final prize-zone counts are `[6,0]` in seat order: source seat 0 has six remaining, candidate seat 1 has zero remaining. The uploaded Advanced Player's Manual, section E (Win and Loss), defines taking all of the opponent's Prize cards as a win condition. The engine's terminal is consistent with a candidate Prize win.
-- The final public board is preserved in the artifact. Seat 1's Active is Latias ex SSP with three Psychic Energy; seat 0 has no Active and four Benched Pokémon. The attack ledger records four seat-1 Eon Blade attacks at turns 13, 17, 21 and 25.
+- Candidate-side attack settlement is now preserved and asserted in the receipt: **4 declarations, 4 settled attacks, all four prompt chains settled**. The Prize-zone transitions are `[6,6] -> [6,5] -> [6,3] -> [6,3] -> [6,0]`, corresponding to deltas of 1, 2, 0 and 3 Prize cards. The public board snapshots show the first attack removing Marshadow, the second removing Tapu Lele-GX, the third leaving Trevenant & Dusknoir-GX Active with 200 damage, and the fourth removing that same Tag Team after the second 200-damage Eon Blade. This is consistent with the card-list text for Eon Blade (200 damage), Tapu Lele-GX's two-Prize rule and Trevenant & Dusknoir-GX's three-Prize TAG TEAM rule. The receipt still explicitly reports `paperRuleAuditPassed=false` and `qualifiedForCompetitiveInference=false`; this consistency check does not certify all paper rules or card implementations.
+- The final public board is preserved in the artifact. Seat 1's Active is Latias ex SSP with three Psychic Energy; seat 0 has no Active and four Benched Pokémon. The final prize state and the four settled attack transitions explain the engine's terminal result more concretely than the final board alone.
 
 On this particular terminal arm, the Confirm resolver accepted two seat-0 false answers: `GO_FIRST` at turn 0 and `WANT_TO_USE_ABILITY` at turn 22. The latter is the prompt at which the matching control aborts. The Telepath wrapper recorded one physical Store but **zero Telepath root attempts, zero attachments, zero matching searches and no Telepath events** on this arm. Therefore this specific terminal is a Confirm-resolution/completion witness; it must not be attributed to a successful Telepath search. The default-false answer is a conservative resolver choice, not an optimized strategic decision.
 
