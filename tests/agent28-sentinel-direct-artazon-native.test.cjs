@@ -315,7 +315,7 @@ for(const seat of [0,1]){
     const target=nativeSinglePokemonChoices(x.state,gust).find(opt=>
       opt.seat===seat&&opt.physical.getPokemonCard()?.fullName===
         'Vileplume AOR');
-    assert.ok(target,'Opponent's real Guzma must offer Benched Vileplume');
+    assert.ok(target,'Guzma must offer Benched Vileplume');
     assert.equal(gust.validate([target.physical],x.state),true);
     x.f.store.dispatch(new ResolvePromptAction(gust.id,[target.physical]));
     assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
