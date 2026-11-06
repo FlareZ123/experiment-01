@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const test=require('node:test');
+const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const {runStewardBroaderV8}=require('../simulation/evaluation/agent36-issue25-common-v8.cjs');
 const {runIssue25V8WithOwnerAbilityPolicy}=require('../simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs');
 const {writeReceipt}=require('../simulation/evaluation/agent1-issue25-v4-public-receipt.cjs');
@@ -65,6 +66,7 @@ function preservePublicTerminalFields(execution){
 }
 
 test('same-eight v8 owner ability policy settles Radiant VMAX search and Articuno negative controls',()=>{
+  initializeCards();
   const control=runStewardBroaderV8();
   const treatment=runIssue25V8WithOwnerAbilityPolicy();
   const controlRaw=control.rawDevelopment?.rows??[];
