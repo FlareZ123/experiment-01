@@ -6,7 +6,7 @@ const {developmentTrials,commonPayloadOption,actorPaidRetreatRootOptions,
   rngProtocolSelection,paidRetreatRootWrapperActivationReceipt,
   firstPostSourceDecision,sourceLineReplyPacket,
   candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks,
-  scopedSpecialEnergyActorSeat}=require(
+  scopedSpecialEnergyActorSeat,validateRegisteredTrialGroups}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -588,4 +588,28 @@ test('paid-Retreat opt-in requires the live scopedRoot wrapper and emits an acti
     actorOnlyComposition:false,actorTwoUnitPaidRetreatRoot:true,
     scopedRoot:{root}
   }),/requires bilateral actor-only composition/);
+});
+
+
+test('single-candidate registration is explicit, one-game, and preserves paired defaults',()=>{
+  const one={rank:11,repeat:1000,candidateSlot:'B',
+    candidateId:'new-moon-lockbreaker-v1',seed:314159,
+    id:'11:1000:B:new-moon-lockbreaker-v1'};
+  assert.throws(()=>validateRegisteredTrialGroups([one],[11],false),
+    {name:'AssertionError'});
+  assert.deepEqual(validateRegisteredTrialGroups([one],[11],true),{
+    groupCount:1,trialIds:[one.id]
+  });
+  const paired=[one,{...one,candidateId:'champion-reference',
+    id:'11:1000:B:champion-reference'}];
+  assert.deepEqual(validateRegisteredTrialGroups(paired,[11],false),{
+    groupCount:1,trialIds:paired.map(row=>row.id)
+  });
+  assert.throws(()=>validateRegisteredTrialGroups(paired,[11],true),
+    /exactly one natural game/);
+  assert.throws(()=>validateRegisteredTrialGroups([one],[6],true),
+    /authenticated original 60/);
+  assert.throws(()=>validateRegisteredTrialGroups([
+    {...one,seed:314160}
+  ],[11],true),{name:'AssertionError'});
 });
