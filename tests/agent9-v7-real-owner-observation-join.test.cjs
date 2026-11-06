@@ -57,6 +57,7 @@ test('uses the actual source seat and accepted root; owner hand is observed, not
   assert.equal(x.fullPublicReplayNoninterference,true);
   assert.equal(x.ownerObservationMatches,1);
   assert.equal(x.ownerReadOnlyReturns[0].matchingStoreAcceptedPassCount,1);
+  assert.equal(x.ownerReadOnlyReturns[0].acceptedOwnerPassRootOrdinal,7);
   assert.equal(x.ownerReadOnlyReturns[0].nextOwnerTurn,16);
   assert.deepEqual(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,
     ['VS Seeker PHF','Speed Lightning Energy LOT']);
@@ -130,5 +131,19 @@ test('accepted Store Pass still needs an accepted matching public root',()=>{
   const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,
     {screen:classifyBaton});
   assert.equal(x.ownerObservationMatches,0);
+  assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
+});
+
+test('two accepted public owner Pass roots cannot authenticate one hand',()=>{
+  const f=fixture();
+  f.archive.attempts[0].publicRootActions.push({
+    actionOrdinal:8,turnBefore:16,playerSlot:1,action:'PassTurnAction'
+  });
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,
+    {screen:classifyBaton});
+  assert.equal(x.ownerObservationMatches,0);
+  assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
+    'ambiguous-accepted-public-pass-roots');
+  assert.equal(x.ownerReadOnlyReturns[0].acceptedOwnerPassRootOrdinal,null);
   assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
 });
