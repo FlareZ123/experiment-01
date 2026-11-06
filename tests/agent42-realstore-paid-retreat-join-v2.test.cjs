@@ -38,6 +38,8 @@ function setup(seat=1,target='Latias ex SSP',attack='Eon Blade'){
   const wrapper={exactPhysicalPaidRetreats:1,receipts:[{
     status:'EXACT_TWO_PHYSICAL_PSYCHIC_PAID_RETREAT',
     turn:22,sourceSeat:seat,benchIndex:1,targetPrinting:target,
+    rootStoreRegistered:true,rootActionOrdinal:131,
+    rootActionSeat:seat,rootActionTurn:22,
     physicalPaymentObjectCustodyConfirmed:true}]};
   return {event,row,wrapper};
 }
