@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rootDigest, certifiedMaterialChoice, evaluateBilateralCompetence} =
+const {rootDigest, certifiedMaterialChoice, evaluateBilateralCompetence,
+  screenObservedReciprocalSequence, screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
 const roots = [
@@ -199,4 +200,55 @@ test('pinned actual action vocabulary excludes invented manual-attachment classe
   input.rootActionLedgerSha256=rootDigest(input.rootActionLedger);
   input.actionCertificates[2].action='AttachEnergyAction';
   assert.equal(evaluateBilateralCompetence(input).reciprocalEpisodeObserved,false);
+});
+
+test('real-archive observable three-turn sequence is not a competence certificate',()=>{
+  const generic=screenObservedReciprocalSequence(roots,0,1);
+  assert.deepEqual(generic?.source?.ordinal,0);
+  assert.deepEqual(generic?.opponent?.ordinal,1);
+  assert.deepEqual(generic?.sourceReturn?.ordinal,2);
+  assert.equal(generic?.paperQualified,false);
+  assert.equal(generic?.causalReplyVerified,false);
+  assert.equal(generic?.ownerAlternativesVerified,false);
+});
+test('attack-anchored observational screen can separate setup from attacks',()=>{
+  const fixture=[
+    {actionOrdinal:0,turnBefore:2,playerSlot:0,action:'PlayCardAction',card:'Basic'},
+    {actionOrdinal:1,turnBefore:3,playerSlot:1,action:'PlayCardAction',card:'Energy'},
+    {actionOrdinal:2,turnBefore:4,playerSlot:0,action:'PlayCardAction',card:'Item'}
+  ];
+  assert.equal(screenObservedReciprocalSequence(fixture,0,1,{sourceAttackOnly:true}),null);
+  assert.equal(screenObservedReciprocalSequence(fixture,0,1)?.source.action,'PlayCardAction');
+});
+test('archived screening retains capped and terminal attempts without promoting wins',()=>{
+  const make=(id,ledger,status)=>({
+    id, status, originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:ledger,
+    publicRootActionCount:ledger.length,
+    publicRootLedgerSha256Computed:rootDigest(ledger),
+    publicRootLedgerSha256Reported:rootDigest(ledger)
+  });
+  const terminal=make('mirror',roots,'native-terminal-unqualified');
+  const capped=make('capped',[roots[0]],'root-cap-unqualified');
+  const report=screenArchivedReciprocalAttempts({attempts:[terminal,capped]});
+  assert.equal(report.attemptedContexts,2);
+  assert.equal(report.anyGeneralSequenceContexts,1);
+  assert.equal(report.anySourceAttackSequenceContexts,1);
+  assert.equal(report.competitiveGamesQualified,0);
+  assert.deepEqual(report.rows.map(row=>row.competitiveAdmission),[false,false]);
+});
+test('archived screen rejects tampered real ledger, truncated data and duplicate IDs',()=>{
+  const make=()=>({
+    id:'trial',status:'root-cap-unqualified',
+    originalSourceSeat:0,candidateSeat:1,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots)
+  });
+  const changed=make();changed.publicRootLedgerSha256Reported='tampered';
+  assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[changed]}));
+  const truncated=make();truncated.publicRootActionsTruncated=true;
+  assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[truncated]}));
+  assert.throws(()=>screenArchivedReciprocalAttempts({attempts:[make(),make()]}));
 });
