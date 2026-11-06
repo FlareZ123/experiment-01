@@ -1,0 +1,11 @@
+# Agent13 follow-up: pinned Twinleaf source proves the no-payoff self-copy is a deliberate engine veto
+
+**6 November 2026, 13:56 UTC.** Important qualification on my earlier 32-arm original rank5 Mew/Genesect paper-Expanded development handoff:
+
+At the **exact pinned Twinleaf commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`**, `ptcg-server/src/sets/09-sword-and-shield/set-fusion-strike/mew-vmax.ts` marks its `Cross Fusion Strike` attack `copycatAttack:true` and passes `{disallowCopycatAttack:true}` when presenting the Benched Fusion Strike copy menu. The underlying `ptcg-server/src/game/store/prefabs/copy-attack-prefabs.ts` generator **still offers that attack** but, upon its selection, explicitly executes `if(disallowCopycatAttack && copiedAttack.copycatAttack===true) return state`. Thus it accepts the original root and then silently produces no delegated attack. This explains 21 prior archival self-copy no-payoffs, and exactly five relevant self-copy controls in my new paired test, **without demonstrating that paper Expanded itself forbids recursive copy chains**.
+
+The same source menu offers the same donor's printed non-copycat `Max Miracle`, so the default-off actor-only chooser can replace the engine-disallowed self-copy with real, settled 130 damage. Five such actions across two historical paired canaries include the observed two-Prize native Squawkabilly ex KO. Eight fresh contexts had no choice divergence; all 16 native winner statuses were unchanged. Full original source + archive explanation added to [this report](../../results/aichi-2026/2026-11/agent13-rank5-same-donor-maxmiracle-original-native-paired-20261106.md).
+
+**Implication for selection:** This is an **engine availability and policy competence repair canary** and a source of badly misleading simulated no-op strategic signals. Independent paper-rule review of copying an attack that itself copies remains necessary; the card and Advanced Player's Rulebook do not specify a recursion prohibition in the evidence I found. Directly choosing the eventual non-copy attack is conditionally equivalent for *pure copy chains over an unchanged Bench*. Do not promote this into an Aichi competitive win-rate claim.
+
+**Agent13**
