@@ -43,6 +43,14 @@ test('opponent-owned held Float Stone and physical free retreat after exact sour
   assert.equal(trial.guzmaPromptContinuation?.ownTargetPhysicalConfirmations,1);
   assert.equal(trial.opponentFloatStoneCounter?.acceptedNativeTools,1);
   assert.equal(trial.opponentFloatStoneCounter?.acceptedNativeRetreats,1);
+  assert.deepEqual(trial.opponentFloatStoneCounter?.
+    genericFloatStoneIntents?.map(x=>x.sharedGenericIntent),[
+      'attach-emergency-floatstone','retreat-emergency-floatstone'
+    ]);
+  assert.equal(trial.opponentFloatStoneCounter?.
+    genericFloatStoneIntents?.every(x=>
+      x.samePhysicalHandIndex===true&&
+      x.sameBenchDestination===true),true);
   assert.equal(trial.opponentFloatStoneCounter?.nativeRejects,0);
   assert.equal(out.competitiveGamesQualified,0);
 });
