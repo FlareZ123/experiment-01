@@ -61,7 +61,7 @@ jobs:
           AGENT20_OUTPUT_PATH: ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
         run: node simulation/evaluation/agent20-issue25-v8-vs-seeker-guzma.cjs
 
-      - name: Run synthetic native Store VS Seeker prompt fixture
+      - name: Run synthetic native Store VS Seeker activation diagnostic
         env:
           AGENT20_FIXTURE_OUTPUT_PATH: ${{ runner.temp }}/agent20-vs-seeker-guzma-native-fixture.json
         run: node simulation/evaluation/agent20-vs-seeker-guzma-native-fixture.cjs
