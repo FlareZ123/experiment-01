@@ -1232,6 +1232,10 @@ function registeredNativeSeatDecks(trial,prepared){
 }
 
 /** @returns {object} */
+function bilateralJetBenchRootOptions(enabled){
+  return enabled?{jetBenchSwitchRoot:true}:{};
+}
+
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   anyTurnCompressorPayload=false,earlyBenchedCompressorPayload=false,
@@ -1305,6 +1309,7 @@ function runDevelopment({
   bilateralBasicEnergyRecipientFrontier=false,
   bilateralConservativeShuffleRoot=false,
   bilateralEnergyContest=false,
+  bilateralJetBenchSwitchRoot=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   nativeToolAttachRoot=false,nativePlumeriaChoice=false,
@@ -1442,6 +1447,8 @@ function runDevelopment({
     'Basic/Special contention requires symmetric both-seat Special root');
   assert.ok(!bilateralPublicContextSpecialEnergy||actorOnlyComposition,
     'Public-context Special Energy requires canonical actor composition');
+  assert.ok(!bilateralJetBenchSwitchRoot||actorOnlyComposition,
+    'Bilateral Jet Bench switch requires canonical actor composition');
   assert.ok(!bilateralBasicEnergyRecipientFrontier||actorOnlyComposition,
     'Two-seat Basic Energy recipient frontier requires canonical actor composition');
   const conservativeSupporterRootOptions=commonConservativeSupporterRootOptions({
@@ -1616,6 +1623,7 @@ function runDevelopment({
           actorTwoUnitPaidRetreatRootV2,actorTwoUnitPaidRetreatTargetTurnV2
         });
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
+          !bilateralJetBenchSwitchRoot&&
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
@@ -1644,6 +1652,7 @@ function runDevelopment({
                 publicContextSpecialEnergy:true,
                 specialEnergyRootOwnerSeat:null
               }:{}),
+              ...bilateralJetBenchRootOptions(bilateralJetBenchSwitchRoot),
               ...(bilateralBasicEnergyRecipientFrontier?{
                 energyRecipientFrontier:true,
                 mobilityAwareRecipient:true
@@ -1826,6 +1835,12 @@ function runDevelopment({
               mode:'both',ownerSeat:null,sharedPolicy:true,
               specialEnergyModel:'actor-energy-payability',
               rootSelector:'agent17-public-context-special-energy'
+            }
+          }:{}),
+          ...(bilateralJetBenchSwitchRoot?{
+            bilateralJetBenchSwitchProfile:{
+              version:require('../twinleaf/agent40-public-jet-bench-frontier.cjs').VERSION,
+              mode:'both',ownerSeat:null,sharedPolicy:true
             }
           }:{}),
           ...(bilateralBasicEnergyRecipientFrontier?{
@@ -2019,6 +2034,7 @@ function runDevelopment({
       (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v11-source-payment-opt-in':'')+
       (paperQuickBallPayment?'+agent4-paper-quickball-v3-live-store-cost':'')+
       (paperSecretBoxPayment?'+agent4-paper-secretbox-twm-three-cost-v1-live-store':'')+
+      (bilateralJetBenchSwitchRoot?'+'+require('../twinleaf/agent40-public-jet-bench-frontier.cjs').VERSION:'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -2059,6 +2075,7 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    bilateralJetBenchSwitchRootOptIn:bilateralJetBenchSwitchRoot,
     bilateralConservativeShuffleRootOptIn:bilateralConservativeShuffleRoot,
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
@@ -2271,6 +2288,8 @@ if(require.main===module){
       process.env.AGENT41_BILATERAL_PUBLIC_SPECIAL_DEV==='true',
     bilateralEnergyContest:
       process.env.AGENT41_ENERGY_CONTEST_DEV==='true',
+    bilateralJetBenchSwitchRoot:
+      process.env.AGENT41_BILATERAL_JET_BENCH_DEV==='true',
     sameRootProposalChoice:
       process.env.AGENT41_SAME_ROOT_PROPOSALS_DEV==='true',
     sameRootChoiceApply:
@@ -2307,7 +2326,8 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,sourceFirstPressureTrials,
-  commonPayloadOption,actorPaidRetreatRootOptions,rngProtocolSelection,
+  commonPayloadOption,actorPaidRetreatRootOptions,bilateralJetBenchRootOptions,
+  rngProtocolSelection,
   paidRetreatRootWrapperActivationReceipt,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
