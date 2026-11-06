@@ -22,14 +22,25 @@ const NARROW_CATALOG=Object.freeze({
   basicEnergyTypes:BASIC_TYPES,
   colorlessEnergyType:10
 });
-const FAVORABLE_CONTEXT=Object.freeze({
-  isBasic:true,isEvolution:true,isDragon:true,hasRuleBox:false,
-  behindOnPrizes:true,isPokemonGXorEX:false
-});
 const CONSERVATIVE_CONTEXT=Object.freeze({
-  isBasic:false,isEvolution:false,isDragon:false,hasRuleBox:true,
+  isBasic:false,isEvolution:true,isDragon:false,hasRuleBox:true,
   behindOnPrizes:true,isPokemonGXorEX:undefined
 });
+
+/** @param {string} printing Exact original name/set printing. */
+function favorableContextFor(printing){
+  const context={isBasic:false,isEvolution:false,isDragon:false,
+    hasRuleBox:true,behindOnPrizes:false,isPokemonGXorEX:false};
+  if(printing.startsWith('Double Dragon Energy '))context.isDragon=true;
+  if(printing.startsWith('Prism Energy '))context.isBasic=true;
+  if(printing.startsWith('Counter Energy '))context.behindOnPrizes=true;
+  if(printing.startsWith('Reversal Energy ')){
+    context.isEvolution=true;
+    context.hasRuleBox=false;
+    context.behindOnPrizes=true;
+  }
+  return context;
+}
 
 /** @param {object} card Original printed card row. */
 function isBasicEnergy(card){
@@ -105,7 +116,7 @@ function summarizeSpecialEnergyCoverage(){
         const exact=specialEnergyUnits(row.printing,narrowCatalog,false);
         const alias=NARROW_ENGINE_ALIASES[row.printing]??row.printing;
         const aliased=specialEnergyUnits(alias,narrowCatalog,false);
-        const favorable=energyUnits(row.printing,FAVORABLE_CONTEXT);
+        const favorable=energyUnits(row.printing,favorableContextFor(row.printing));
         const conservative=energyUnits(row.printing,CONSERVATIVE_CONTEXT);
         if(exact!==null){
           summary.narrowExactCopies+=row.count;
@@ -126,7 +137,7 @@ function summarizeSpecialEnergyCoverage(){
           entry.genericConservativeCopies+=row.count;
         }
       }else{
-        const favorable=energyUnits(row.printing,FAVORABLE_CONTEXT);
+        const favorable=energyUnits(row.printing,favorableContextFor(row.printing));
         const conservative=energyUnits(row.printing,CONSERVATIVE_CONTEXT);
         if(favorable!==null){
           summary.genericFavorableCopies+=row.count;
@@ -196,7 +207,18 @@ function summarizeSpecialEnergyCoverage(){
     },
     specialSummary,totalSummary,rankRows,printings,
     context:{
-      favorable:FAVORABLE_CONTEXT,
+      favorableByFamily:{
+        default:{isBasic:false,isEvolution:false,isDragon:false,
+          hasRuleBox:true,behindOnPrizes:false,isPokemonGXorEX:false},
+        doubleDragon:{isBasic:false,isEvolution:false,isDragon:true,
+          hasRuleBox:true,behindOnPrizes:false,isPokemonGXorEX:false},
+        prism:{isBasic:true,isEvolution:false,isDragon:false,
+          hasRuleBox:true,behindOnPrizes:false,isPokemonGXorEX:false},
+        counter:{isBasic:false,isEvolution:false,isDragon:false,
+          hasRuleBox:true,behindOnPrizes:true,isPokemonGXorEX:false},
+        reversal:{isBasic:false,isEvolution:true,isDragon:false,
+          hasRuleBox:false,behindOnPrizes:true,isPokemonGXorEX:false}
+      },
       conservative:{
         isBasic:false,isEvolution:false,isDragon:false,hasRuleBox:true,
         behindOnPrizes:true,isPokemonGXorEX:'unknown'
@@ -218,5 +240,5 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(summarizeSpecialEnergyCoverage(),null,2)+'\n');
 }
 module.exports={BASIC_NAMES,NARROW_ENGINE_ALIASES,FAVORABLE_CONTEXT,
-  CONSERVATIVE_CONTEXT,isBasicEnergy,sourcePrinting,
+  CONSERVATIVE_CONTEXT,favorableContextFor,isBasicEnergy,sourcePrinting,
   summarizeSpecialEnergyCoverage};
