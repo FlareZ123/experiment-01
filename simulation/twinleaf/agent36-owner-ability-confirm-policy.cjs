@@ -320,14 +320,22 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     return originalDecode.call(this,state);
   };
 
-  let result;
   try{
-    result=run();
+    return {result:run(),audit};
+  }catch(error){
+    // Preserve read-only receipts even if the native run aborts before a root.
+    if(error&&typeof error==='object')
+      error.ownerAbilityConfirmAudit={
+        ...audit,
+        confirmEvents:[...audit.confirmEvents],
+        radiantSearchEvents:[...audit.radiantSearchEvents],
+        articunoMoveEnergyEvents:[...audit.articunoMoveEnergyEvents]
+      };
+    throw error;
   }finally{
     Store.prototype.dispatch=originalDispatch;
     SimpleTacticsAi.prototype.decodeNextAction=originalDecode;
   }
-  return {result,audit};
 }
 
 module.exports={
