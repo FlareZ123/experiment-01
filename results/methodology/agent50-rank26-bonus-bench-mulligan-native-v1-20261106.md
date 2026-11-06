@@ -68,13 +68,13 @@ Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d, the normalizer for the official 
 
 Conditional on rank6 having exactly one Basic in its valid seven and both players eventually obtaining valid sevens, the probability that its compensation draws contain at least one of the three remaining Basics is
 
-`sum(k=1..53) [p_s*q_s^k/D] * [1-C(50,k)/C(53,k)] = 0.014921263725700344`
+`sum(k=1..53) [p_s*q_s^k] * [1-C(50,k)/C(53,k)] = 0.013213026568048238`
 
-or **1.49212637%**. Including the probability that rank6's final valid seven has exactly one Basic and that rank6 is valid in the eventual legal setup, the joint event is **0.50177257%** of legal setups. This is the event that creates the optional `min=0` prompt with a new Basic available.
+or **1.32130266%**. Rank6's final valid opening is rank6's first valid seven with probability `p_d/D`; multiplying by `r_6 * p_d/D` gives the joint optional-prompt event **0.50177257%** of legal setups. This is the event that creates the optional `min=0` prompt with a new Basic available.
 
 The narrower fixture branch fixes exactly one rank26 mulligan, a rank6 initial seven with exactly one Basic, a Basic as the single compensation card, and exactly one Basic in rank26's second valid seven. Its probability, conditional on both players eventually obtaining valid sevens, is
 
-`r_6 * (p_s*p_d*q_s/D) * (3/53) * r_26 = 0.0015625666094505385`
+`r_6 * (p_d/D) * (p_s*q_s) * (3/53) * r_26 = 0.001562566609450539`
 
 or **0.15625666%**, where `r_26 = 12*C(48,6)/(C(60,7)-C(48,7)) = 0.4711087012154489`. The fixture forces this branch deliberately; it does not estimate it by sampling.
 
