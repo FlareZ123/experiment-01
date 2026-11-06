@@ -457,3 +457,92 @@ for (const [basicPrinting, evolutionPrinting] of [
     });
   }
 }
+
+
+for (const seat of [0, 1]) {
+  for (const corrected of [false, true]) {
+    test('native Devolution Spray owner Item after GX, seat ' + seat +
+      ' correction ' + corrected, () => {
+      const { AttackAction } = native('game/store/actions/game-actions');
+      const { PlayCardAction, PlayerType, SlotType } =
+        native('game/store/actions/play-card-action');
+      const { ResolvePromptAction } =
+        native('game/store/actions/resolve-prompt-action');
+      const { PlayPokemonEffect } =
+        native('game/store/effects/play-card-effects');
+      const { EndTurnEffect } =
+        native('game/store/effects/game-phase-effects');
+      const { GamePhase } = native('game/store/state/state');
+      const prefabs = native('game/store/prefabs/prefabs');
+      const { StateUtils } = native('game/store/state-utils');
+      const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
+        native('game/store/prefabs/attack-effects');
+      const f = stage(seat, 2, false, 'Charmander MEW');
+      const basic = f.defender.active.getPokemonCard();
+      const evo = initializeCards().getCardByName('Charmeleon MEW');
+      const spray = initializeCards().getCardByName('Devolution Spray EVO');
+      assert.ok(evo && spray, 'both exact registered pinned printings required');
+      evo.id = 354000 + seat;
+      spray.id = 354100 + seat;
+      f.defender.hand.cards.push(evo);
+      f.state.turn = 3;
+      f.state.activePlayer = 1 - seat;
+      f.state.phase = GamePhase.PLAYER_TURN;
+      f.defender.active.pokemonPlayedTurn = 1;
+      f.store.reduceEffect(f.state,
+        new PlayPokemonEffect(f.defender, evo, f.defender.active));
+      assert.strictEqual(f.defender.active.getPokemonCard(), evo);
+      f.state.turn = 4;
+      f.state.activePlayer = seat;
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      f.state.turn = 5;
+      f.state.activePlayer = 1 - seat;
+      f.state.phase = GamePhase.PLAYER_TURN;
+      f.defender.hand.cards.push(spray);
+
+      function executeItem() {
+        const handIndex = f.defender.hand.cards.indexOf(spray);
+        assert.ok(handIndex >= 0);
+        f.store.dispatch(new PlayCardAction(f.defender.id, handIndex, {
+          player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+        }));
+        const prompt = f.state.prompts.find(p =>
+          p.constructor.name === 'ChoosePokemonPrompt' &&
+          p.result === undefined);
+        assert.ok(prompt, 'native Item root must offer its owner Pokémon prompt');
+        assert.equal(prompt.playerId, f.defender.id);
+        f.store.dispatch(new ResolvePromptAction(prompt.id, [{
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }]));
+        assert.strictEqual(f.defender.active.getPokemonCard(), basic);
+        assert.ok(f.defender.hand.cards.includes(evo));
+        const queuedAfterItem = f.defender.pendingEndOfTurnEffects.length;
+        RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS(
+          f.store, f.state, new EndTurnEffect(f.defender));
+        return {
+          queuedAfterItem,
+          basicSurvived: f.defender.active.getPokemonCard() === basic,
+          basicKnockedOut: f.defender.discard.cards.includes(basic),
+          sprayDiscarded: f.defender.discard.cards.includes(spray)
+        };
+      }
+
+      const patched = corrected ?
+        withPendingEndTurnDevolutionCleanup(
+          { prefabs, StateUtils }, executeItem) :
+        { result: executeItem(), removed: 0, events: [] };
+      assert.equal(patched.result.queuedAfterItem, corrected ? 0 : 1);
+      assert.equal(patched.result.basicSurvived, corrected);
+      assert.equal(patched.result.basicKnockedOut, !corrected);
+      assert.equal(patched.result.sprayDiscarded, true);
+      assert.equal(patched.removed, corrected ? 1 : 0);
+      console.log('AGENT34_PALE_MOON_DEVOLUTION_SPRAY_NATIVE', JSON.stringify({
+        seat, corrected, afterItemPending: patched.result.queuedAfterItem,
+        basicSurvived: patched.result.basicSurvived,
+        printedItemNativePromptExecuted: true,
+        sprayDiscarded: patched.result.sprayDiscarded,
+        qualifiedCompetitiveGames: 0
+      }));
+    });
+  }
+}
