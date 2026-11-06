@@ -349,6 +349,19 @@ jobs:
           path: issue25-agent9-v7-guzma-canary/
           if-no-files-found: warn
           retention-days: 21
+      - name: Validate opponent own-hand Float Stone and physical retreat against paid Guzma
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          AGENT9_V7_FLOATSTONE_COUNTER_DIR: issue25-agent9-v7-floatstone-opponent
+        run: node --test tests/agent9-v7-floatstone-counterreply.test.cjs tests/agent9-v7-floatstone-counterreply.native.test.cjs
+      - name: Archive exact native adversarial Float Stone counterreply and all original control arms
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-v7-opponent-held-floatstone-after-source-guzma
+          path: issue25-agent9-v7-floatstone-opponent/
+          if-no-files-found: warn
+          retention-days: 21
       - name: Run prospective broader original four-rank 128-root same-policy v8
         if: ${{ inputs.include_agent36_selected_v4 }}
         env:
