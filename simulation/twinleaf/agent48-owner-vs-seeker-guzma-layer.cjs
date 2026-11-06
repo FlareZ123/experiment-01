@@ -8,6 +8,11 @@ const {selectOwnerVsSeekerSupporterPrompt}=require('./agent48-owner-vs-seeker-su
 
 const VERSION='agent48-owner-vs-seeker-guzma-layer-v1';
 
+/**
+ * @param {()=>any} run Synchronous match runner.
+ * @param {object} [deps] Twinleaf classes and injectable helpers.
+ * @returns {{result:any,audit:object}}
+ */
 function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   assert.equal(typeof run,'function');
   const base=deps.base??path.resolve(__dirname,'../../vendor/twinleafgg');
