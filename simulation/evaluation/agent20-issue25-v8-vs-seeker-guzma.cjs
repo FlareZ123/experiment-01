@@ -170,6 +170,6 @@ if(require.main===module){
 }
 
 module.exports={
-  VERSION,REGISTRATION_PATH,HASH_PATHS,createVsSeekerRunner,
+  VERSION,REGISTRATION_PATH,HASH_PATHS,LAYER_VERSION,createVsSeekerRunner,
   runAgent20V8VsSeekerGuzma,writeJsonAtomically
 };
