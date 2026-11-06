@@ -98,7 +98,7 @@ One measurement lesson: a `WANT_TO_DRAW_CARDS` resolution may continue through `
 
 ## Required follow-up
 
-1. Replay the original rank4/rank1 32-seed list with identical rank4 decks under both protocols. This will isolate the one-Basic deck-composition difference while preserving the exact seed/seat cohort that produced the legacy 8/0 result. Capture the initial shuffled order or top-seven Basic counts as well as mulligan prompts.
+1. Execute the preregistered [same-seed identical-rank4 replay](registrations/agent50-identical-rank4-original-seeds-shuffle-symmetry-20261106.md) using the original rank4/rank1 32-seed list under both protocols. This isolates the one-Basic deck-composition difference while preserving the exact seed/seat cohort that produced the legacy 8/0 result. Capture the initial shuffled order or top-seven Basic counts as well as mulligan prompts.
 2. Compare Agent26's setup-only adapter against the built-in `runMatch({isolatePhysicalShuffleRandomness:true})` implementation, which uses different salts. Keep all three protocols (legacy shared, Agent26 adapter, built-in per-seat) separately labelled.
 3. Test the xorshift32/Fisher-Yates stream pair directly over a large deterministic seed set. Quantify seat-specific Basic counts, mulligan rates, and cross-seat correlation before making a causal claim.
 4. Record the physical-shuffle protocol in every Twinleaf experiment manifest. Never combine default shared-stream and per-seat-stream results without an explicit protocol-sensitivity analysis.
