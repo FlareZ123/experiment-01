@@ -32,24 +32,35 @@ function fixture(after){
 
 test('actual same-root native next opponent turn supports deferred item handoff',()=>{
   const root=[
-    {actionOrdinal:41,playerSlot:1,turnBefore:5,
+    {actionOrdinal:41,playerSlot:0,turnBefore:4,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:42,playerSlot:1,turnBefore:5,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:43,playerSlot:1,turnBefore:5,
       action:'PlayCardAction',card:'Psychic Energy'},
-    {actionOrdinal:42,playerSlot:0,turnBefore:6,
+    {actionOrdinal:44,playerSlot:0,turnBefore:6,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:45,playerSlot:0,turnBefore:6,
       action:'PlayCardAction',card:'Spiky Energy'}
   ];
   const result=extractDeferredHandoff(fixture(root));
   assert.equal(result.version,VERSION);
   assert.equal(result.nativeRootSupportsItemEndedSourceTurn,true);
   assert.deepEqual(result.sourceOwnerVoluntaryRootsAfterBookOnTurn4,[]);
-  assert.deepEqual(result.nextVoluntaryRoot,root[0]);
-  assert.deepEqual(result.firstSourceTurn6Root,root[1]);
+  assert.deepEqual(result.nextVoluntaryRoot,root[2]);
+  assert.equal(result.firstPostItemRawAcceptedRoot.action,
+    'ResolvePromptAction');
+  assert.equal(result.postItemDeferredPromptRoots.length,3);
+  assert.deepEqual(result.firstSourceTurn6Root,root[4]);
   assert.equal(result.competitiveQualifiedGames,0);
 });
 
 test('an extra source same-turn Pass after Item refutes direct handoff',()=>{
   const after=[
-    {actionOrdinal:41,playerSlot:0,turnBefore:4,action:'PassTurnAction'},
-    {actionOrdinal:42,playerSlot:1,turnBefore:5,
+    {actionOrdinal:41,playerSlot:0,turnBefore:4,
+      action:'ResolvePromptAction'},
+    {actionOrdinal:42,playerSlot:0,turnBefore:4,action:'PassTurnAction'},
+    {actionOrdinal:43,playerSlot:1,turnBefore:5,
       action:'PlayCardAction',card:'Psychic Energy'}
   ];
   const got=extractDeferredHandoff(fixture(after));
@@ -61,11 +72,14 @@ test('an extra source same-turn Pass after Item refutes direct handoff',()=>{
 test('no evidence of next root cannot pass deferred handoff positive screen',()=>{
   const after=[
     {actionOrdinal:41,playerSlot:0,turnBefore:4,
-      action:'PlayCardAction',card:'Spiky Energy'}
+      action:'ResolvePromptAction'},
+    {actionOrdinal:42,playerSlot:1,turnBefore:5,
+      action:'ResolvePromptAction'}
   ];
   const got=extractDeferredHandoff(fixture(after));
   assert.equal(got.nativeRootSupportsItemEndedSourceTurn,false);
   assert.equal(got.firstOpponentTurn5Root,null);
+  assert.equal(got.nextVoluntaryRoot,null);
 });
 
 test('invalid original control parity cannot be labeled a handoff',()=>{
