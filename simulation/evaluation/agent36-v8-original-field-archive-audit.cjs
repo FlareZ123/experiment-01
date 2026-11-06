@@ -73,12 +73,29 @@ function inspect(bytes,sidecar,expectedDigest=null){
     // Headless builds the attack settlement from its Store declaration trace.
     // Aborted rows without that trace remain unknown, never inferred zero.
     const sourceStoreAttackDeclarations=Array.isArray(settled)?
-      settled.map(a=>({
-        originatingActionOrdinal:a.actionOrdinal??null,
-        attack:a.attackName??null,
-        source:'real-Store attackDeclarationTrace',
-        settledPromptChain:a.settledPromptChain===true
-      })):null;
+      settled.map(a=>{
+        // The source trace builder already joins the real game-log
+        // declaration to a Store root. Recheck those identities from the
+        // immutable archive instead of accepting unsupported attack claims.
+        const origin=roots[a.actionOrdinal];
+        assert.ok(Number.isSafeInteger(a.actionOrdinal) &&
+          a.actionOrdinal>=0&&origin,
+        'Archive attack declaration has no accepted Store root');
+        assert.equal(origin.playerSlot,expectedSourceSeat,
+          'Archive attack declaration attributed to the wrong physical seat');
+        assert.equal(origin.action,a.triggerAction,
+          'Archive attack declaration trigger differs from accepted root');
+        assert.equal(origin.turnBefore,a.turnBefore,
+          'Archive attack declaration turn differs from accepted root');
+        assert.ok(typeof a.attackName==='string'&&a.attackName.length>0);
+        return {
+          originatingActionOrdinal:a.actionOrdinal,
+          originatingRootAction:origin.action,
+          attack:a.attackName,
+          source:'real-Store attackDeclarationTrace',
+          settledPromptChain:a.settledPromptChain===true
+        };
+      }):null;
     const sourceSettlements=Array.isArray(settled)?settled.map(a=>{
       const pre=a.publicBoardBefore?.[expectedSourceSeat]??null;
       const post=a.publicBoardAfter?.[expectedSourceSeat]??null;
