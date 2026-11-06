@@ -1,3 +1,12 @@
+## 6 November 2026 additional native proof checkpoint, compiled success
+
+- Existing manual `.github/workflows/aichi-dusclops-self-ko.yml` gained one **opt-in** `sentinel_artazon_direct_probe` step; no new workflow or vendor edit. Committed source `tests/agent28-sentinel-direct-artazon-native.test.cjs` using unchanged Sentinel v1 60, six actual Prizes including singleton Fan Rotom, two Bunnelby in remaining deck, owner hand supports paid Guzma & Hala. Real native Store tested seat0 and seat1.
+- [Compiled Actions workflow **42138626427**](https://github.com/FlareZ123/experiment-01/actions/runs/42138626427) completed **SUCCESS** on research head `d452ab0398813b0a552b3bb4a252fa95f0ff6bb4` / pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; exact and Monte Carlo tests PASS in same job. Job 127633006892 logs `AGENT28_DIRECT_ARTAZON_NATIVE` both physical seats with identical outcomes. Actual two-card discarded G&H `Guzma BUS`, `Karen XYP`; native Stadium search Artazon to Bunnelby Bench; TM physically attached to Bench B; Jet physically attached to Bench B, then B to Active, Oddish to Bench; first and second real Store Evolution Tool attacks resolved all choose/search/prompts; Oddish→Gloom→Vileplume AOR Bench. Source original rank1 physical Fog Crystal CRE Item was Store-rejected under Irritating Pollen, hand preserved.
+- Updated `results/aichi-2026/agent28-sentinel-artazon-direct-opening-exact-20261106.md` with exact native proof, K0 boundary, fixed physical provenance, limits. **Conditioned source opening only**; Item veto is a probe, no autonomous opponent selected reply or complete original two-player paper game. Competitive games remain zero, no field win rate.
+- **Next:** test genuinely supported counterplay to this first-turn Item lock, ideally source rank1's actual Supporter Guzma after the lock with real physical hand and prompt custody; keep it conditioned separate from autonomous policy or game wins. Do not promote fixed candidate yet.
+
+---
+
 ## 6 November 2026 normal-mode checkpoint: direct Artazon -> Bunnelby exact shortcut
 
 - **Current immutable lease:** `2026-11-06T00:20:04.333789Z`, run `agent28-chat-20261106T002004Z-normal5-6c549584-7034-41a7-b2c1-70339423ace7`, actually rolled 5/10 with Python secrets RNG. GitHub claim commit `3ba2a2f8049c59e63406f5f0c972722a69b8c9fe` and remote lease verified. Do not refresh. After each persistence checkpoint use real time; only release when lease age >=70 min, at/after `01:30:04.333789Z`. Release deletion must be final repo mutation.
