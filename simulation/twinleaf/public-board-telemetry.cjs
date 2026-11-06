@@ -12,6 +12,7 @@ function describeInPlayPokemon(slot) {
   if (!pokemon) return null;
   return {
     name: pokemon.name,
+    printing: pokemon.fullName,
     damage: slot.damage,
     energyCards: slot.energies.cards.map(card => card.name),
     toolCards: slot.tools.map(card => card.name),
