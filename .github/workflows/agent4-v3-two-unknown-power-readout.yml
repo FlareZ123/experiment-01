@@ -12,6 +12,7 @@ on:
           - guarded-veto-pair
           - guarded-public-postabort-root
           - rank6-independent-holdout-16
+          - postguard-physical-energy-target-12
         default: typed-replay
 
 permissions:
@@ -35,7 +36,8 @@ jobs:
           node --check simulation/evaluation/agent4-rank6-owner-underworld-veto-paired-24.cjs
           node --check simulation/evaluation/agent4-rank6-underworld-guard-postabort-root-audit.cjs
           node --check simulation/evaluation/agent4-rank6-underworld-visible-guard-holdout-16.cjs
-          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs tests/agent4-underworld-visible-thorns-veto.test.cjs tests/agent4-rank6-owner-underworld-veto-paired-24.test.cjs tests/agent4-rank6-underworld-guard-postabort-root-audit.test.cjs tests/agent4-rank6-underworld-visible-guard-holdout-16.test.cjs
+          node --check simulation/evaluation/agent4-rank6-psychic-physical-target-12.cjs
+          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs tests/agent4-underworld-visible-thorns-veto.test.cjs tests/agent4-rank6-owner-underworld-veto-paired-24.test.cjs tests/agent4-rank6-underworld-guard-postabort-root-audit.test.cjs tests/agent4-rank6-underworld-visible-guard-holdout-16.test.cjs tests/agent4-rank6-psychic-physical-target-12.test.cjs
       - name: Initialize pinned native Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Verify actual pinned native engine revision
@@ -89,6 +91,21 @@ jobs:
           path: |
             agent4-rank6-underworld-guard-holdout-16.json
             agent4-rank6-underworld-guard-holdout-16.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Execute original twelve source matches and capture physical Psychic Energy target custody
+        if: ${{ inputs.experiment == 'postguard-physical-energy-target-12' }}
+        env:
+          AGENT4_FIRST_ENERGY_TARGET_OUTPUT: agent4-rank6-psychic-native-physical-target-12.json
+        run: node simulation/evaluation/agent4-rank6-psychic-physical-target-12.cjs
+      - name: Preserve actual linked native physical Energy targets and after-Store public boards
+        if: ${{ always() && inputs.experiment == 'postguard-physical-energy-target-12' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank6-postguard-first-physical-energy-target-12
+          path: |
+            agent4-rank6-psychic-native-physical-target-12.json
+            agent4-rank6-psychic-native-physical-target-12.json.sha256
           if-no-files-found: warn
           retention-days: 21
       - name: Preserve typed-error observations including negative results
