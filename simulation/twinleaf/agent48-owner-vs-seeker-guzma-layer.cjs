@@ -15,7 +15,7 @@ const VERSION='agent48-owner-vs-seeker-guzma-layer-v1';
  */
 function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   assert.equal(typeof run,'function');
-  const base=deps.base??path.resolve(__dirname,'../../vendor/twinleafgg');
+  const base=deps.base??path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const Bot=deps.SimpleTacticsAi??require(path.join(base,'game/bots/simple-tactics-ai')).SimpleTacticsAi;
   const Store=deps.Store??require(path.join(base,'game/store/store')).Store;
   const PlayCardAction=deps.PlayCardAction??require(path.join(base,'game/store/actions/play-card-action')).PlayCardAction;
@@ -33,7 +33,7 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
   const audit={version:VERSION,actualGamesSeen:0,rootsProposed:0,
     rootsAccepted:0,rootsRejected:0,promptsProposed:0,promptsAccepted:0,
     receipts:[]};
-  function decode(state){
+  function decode(state,...rest){
     const playerId=this?.client?.id;
     const seat=state?.players?.findIndex(p=>p.id===playerId)??-1;
     if(nativeStore&&state===nativeStore.state&&seat!==-1){
@@ -65,7 +65,7 @@ function withOwnerVsSeekerGuzmaLayer(run,deps={}){
         }
       }
     }
-    return oldBot.value.call(this,state);
+    return oldBot.value.apply(this,[state,...rest]);
   }
   function dispatch(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
