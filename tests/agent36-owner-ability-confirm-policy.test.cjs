@@ -75,7 +75,8 @@ test('Radiant search selects only VMAX cards and respects open bench slots',()=>
     superType:'POKEMON',stage:'VMAX'};
   const vmax2={name:'VMAX Two',fullName:'VMAX Two',id:'vmax2',
     superType:'POKEMON',stage:'VMAX'};
-  const owner={bench:[slot([pokemon('Radiant Eternatus','radiant')]),slot(),slot(),
+  const owner={bench:[slot([pokemon('Radiant Eternatus','radiant')]),
+    slot([pokemon('Bench One','b1')]),slot([pokemon('Bench Two','b2')]),
     slot([pokemon('Tapu Lele-GX','lele')]),slot()]};
   const selected=chooseRadiantVmaxTargets({
     owner,types,
