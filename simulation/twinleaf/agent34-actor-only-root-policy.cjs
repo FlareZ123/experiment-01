@@ -739,7 +739,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       ownerRoots:0,ownerHeldToolRoots:0,ownerAttachedToolRoots:0,
       partiallyFundedActiveRoots:0,currentlyEligibleRoots:0,
       eligibleBySeat:[0,0],declinedWhileToolHeld:0,
-      selectedAsNativeIntent:0,eligibleSamples:[]
+      selectedAsNativeIntent:0,eligibleSamples:[],
+      heldGateCounts:Object.fromEntries(require(
+        './agent14-floatstone-held-owner-gates.cjs').FIELDS.map(x=>[x,0]))
     },
     underworldActiveFundingPriorityOptIn:
       deps.underworldActiveFundingPriority===true,
@@ -1267,7 +1269,15 @@ function withActorOnlyRootPolicy(run,deps={}){
         'Float Stone BKT')===true;
       const activeEnergy=view.ownPublic.active?.energies??[];
       const partiallyFunded=activeEnergy.length>0;
-      if(held)census.ownerHeldToolRoots++;
+      if(held){
+        census.ownerHeldToolRoots++;
+        const {FIELDS,heldFloatGateFlags}=require(
+          './agent14-floatstone-held-owner-gates.cjs');
+        const gates=heldFloatGateFlags(view,catalog);
+        for(const gate of FIELDS){
+          if(gates[gate])census.heldGateCounts[gate]++;
+        }
+      }
       if(attached)census.ownerAttachedToolRoots++;
       if(partiallyFunded)census.partiallyFundedActiveRoots++;
       genericFundedObservation=require(
