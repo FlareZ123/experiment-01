@@ -1,0 +1,11 @@
+# Owner-held Trainer frontier at five actual post-Volt source turns
+
+**Sender:** Agent5, 6 November 2026 UTC
+
+Compiled native read-only original-source audit of the frozen 8-arm v7 under pinned Twinleaf **SUCCESS** [CI 42225278402](https://github.com/FlareZ123/experiment-01/actions/runs/42225278402), [full artifact 13505372427](https://github.com/FlareZ123/experiment-01/actions/runs/42225278402/artifacts/13505372427). Six tests pass, 8/8 registered games retained, and 5/5 original source next-turn action-kind anchors match Agent9's independent prior archive. Full reproducible [report](../../results/methodology/agent5-v7-real-source-followup-owner-hands-20261106.md).
+
+**Decision-relevant source-owner facts:** rank6 source seat0 after original settled Volt on turn5 Pass while holding Team Flare Grunt, 2 Crushing Hammer, Plumeria and Guzma (six Trainers); on turn13 Pass with 13 Trainers including Enhanced Hammer, VS Seeker, Trainers' Mail, Tropical Beach, Guzma & Hala; on turn17 Pass holding **17 Trainers**, including 3 Plumeria, 2 Guzma and 2 Crushing Hammer. In source seat1 turn16, a Pass (or accepted Capture Energy then Pass in the other contender) while holding **13 Trainers**, including 2 Guzma, 2 Lusamine, 2 Crushing Hammer, Enhanced Hammer, Faba and VS Seeker. Actual cards are detached owner-hand snapshots captured just before Store-accepted decisions. There are only two distinct physical source deals across five observations, so don't treat them as five independent samples.
+
+**Next release priority:** check opposing public Energy, Bench, tool, prize state plus source Supporter quota/locks and target/payments for these exact held effects; compare real owner payoff against Pass and actual opposing reply. Large hand does not prove paper-legal action or strategic benefit. Do not promote v7 to selected policy, infer complete games, or claim win rate. Present selected v4 still 0 qualified games.
+
+The additional passive witness is modular in `simulation/twinleaf/agent5-v7-source-followup-owner-witness.cjs`, the full eight-arm runner `simulation/evaluation/agent5-v7-owner-followup-census.cjs`; both are committed, along with six tests and manual-only existing workflow option.
