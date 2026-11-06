@@ -354,6 +354,37 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
       {newMoonAttackPayloadCompressorSeat:candidateSeat});
 }
 
+/** @returns {object} Canonical actor-wrapper paid-Retreat flags. */
+function actorPaidRetreatRootOptions({
+  actorTwoUnitPaidRetreatRoot=false,
+  actorTwoUnitPaidRetreatTargetTurn=null,
+  actorTwoUnitPaidRetreatRootV2=false,
+  actorTwoUnitPaidRetreatTargetTurnV2=null,
+  actorTwoUnitPaidRetreatRootV2=false,
+  actorTwoUnitPaidRetreatTargetTurnV2=null
+}={}){
+  assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
+    'Select only one paid-Retreat policy version');
+  assert.ok(actorTwoUnitPaidRetreatTargetTurn===null||
+    (actorTwoUnitPaidRetreatRoot&&Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurn)&&
+     actorTwoUnitPaidRetreatTargetTurn>1),
+    'Registered v1 paid-Retreat target turn must be an integer >1');
+  assert.ok(actorTwoUnitPaidRetreatTargetTurnV2===null||
+    (actorTwoUnitPaidRetreatRootV2&&Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurnV2)&&
+     actorTwoUnitPaidRetreatTargetTurnV2>1),
+    'Registered v2 paid-Retreat target turn must be an integer >1');
+  return {
+    ...(actorTwoUnitPaidRetreatRoot?{
+      twoUnitPaidRetreatRoot:true,
+      twoUnitPaidRetreatTargetTurn:actorTwoUnitPaidRetreatTargetTurn
+    }:{}),
+    ...(actorTwoUnitPaidRetreatRootV2?{
+      twoUnitPaidRetreatRootV2:true,
+      twoUnitPaidRetreatTargetTurnV2:actorTwoUnitPaidRetreatTargetTurnV2
+    }:{})
+  };
+}
+
 /**
  * A real frozen Store development arm. The v1 source-side policy is retained,
  * the v1 candidate-only New Moon policy is deliberately replaced by common v0.
@@ -1243,6 +1274,15 @@ function runDevelopment({
      Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurn)&&
      actorTwoUnitPaidRetreatTargetTurn>1),
     'Registered two-Card Retreat target turn must be an integer >1');
+  assert.ok(!actorTwoUnitPaidRetreatRootV2||actorOnlyComposition,
+    'Paid Retreat v2 must be symmetric actor-only roots');
+  assert.ok(actorTwoUnitPaidRetreatTargetTurnV2===null||
+    (actorTwoUnitPaidRetreatRootV2&&
+     Number.isSafeInteger(actorTwoUnitPaidRetreatTargetTurnV2)&&
+     actorTwoUnitPaidRetreatTargetTurnV2>1),
+    'Registered v2 paid-Retreat target turn must be an integer >1');
+  assert.ok(!(actorTwoUnitPaidRetreatRoot&&actorTwoUnitPaidRetreatRootV2),
+    'Select only one paid-Retreat policy version');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
@@ -1459,6 +1499,7 @@ function runDevelopment({
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
+          !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
           !sourceCrobatDceMewRetreat&&
@@ -1513,10 +1554,10 @@ function runDevelopment({
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
               }:{}),
-              ...(actorTwoUnitPaidRetreatRoot?{
-                twoUnitPaidRetreatRoot:true,
-                twoUnitPaidRetreatTargetTurn:actorTwoUnitPaidRetreatTargetTurn
-              }:{}),
+              ...actorPaidRetreatRootOptions({
+                actorTwoUnitPaidRetreatRoot,actorTwoUnitPaidRetreatTargetTurn,
+                actorTwoUnitPaidRetreatRootV2,actorTwoUnitPaidRetreatTargetTurnV2
+              }),
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
               }:{}),
@@ -2096,7 +2137,7 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,sourceFirstPressureTrials,
-  commonPayloadOption,firstPostSourceDecision,
+  commonPayloadOption,actorPaidRetreatRootOptions,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
   executeDevelopment,runDevelopment,registeredNativeSeatDecks,
