@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  choose, countVisibleResources, ORIGINAL_RANK7
+  choose, countVisibleResources, ORIGINAL_RANK7, ORIGINAL_RANK10
 } = require('../simulation/evaluation/agent40-rank7-forced-wobb-faba-window.cjs');
 
 test('exact original rank7 forced Wobbuffet and naturally seen Faba resource counts', () => {
@@ -15,6 +15,15 @@ test('exact original rank7 forced Wobbuffet and naturally seen Faba resource cou
   assert.equal(r.available, 167869453752n);
   assert.equal(r.availableFabaSeen, 43242840927n);
   assert.equal(r.optionalNonWobbActiveFabaSeen, 26444891943n);
+  assert.equal(r.availableFabaSeen,
+    r.forcedFabaSeen + r.optionalNonWobbActiveFabaSeen);
+});
+
+test('original rank10 Wobbuffet one-copy Faba one-copy field counterpart', () => {
+  const r = countVisibleResources(ORIGINAL_RANK10);
+  assert.equal(r.legal, 469660019400n);
+  assert.equal(r.forcedFabaSeen, 1863589728n);
+  assert.equal(r.availableFabaSeen, 8418874464n);
   assert.equal(r.availableFabaSeen,
     r.forcedFabaSeen + r.optionalNonWobbActiveFabaSeen);
 });
