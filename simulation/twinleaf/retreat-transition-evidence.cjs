@@ -2,8 +2,8 @@
 
 /**
  * Record the effect of one accepted RetreatAction on public board position.
- * A name-only trace cannot distinguish the declared Bench target from a later
- * Switch or from another same-name Pokémon. No hidden zones are inspected.
+ * Exact public printings distinguish the declared Bench target from a later
+ * Switch or another same-name printing. No hidden zones are inspected.
  *
  * @param {object[]} before Public snapshots before dispatch.
  * @param {object[]} after Public snapshots after dispatch.
@@ -18,11 +18,17 @@ function retreatTransitionEvidence(before, after, seat, benchIndex) {
   }
   const ownBefore = before[seat];
   const ownAfter = after[seat];
+  const intendedActive = ownBefore.bench[benchIndex] || null;
+  const actualActiveAfter = ownAfter.active;
   return {
     fromActive: ownBefore.active,
     destinationBenchIndex: benchIndex,
-    intendedActive: ownBefore.bench[benchIndex] || null,
-    actualActiveAfter: ownAfter.active,
+    intendedActive,
+    actualActiveAfter,
+    intendedActivePrinting: intendedActive?.printing ?? null,
+    actualActivePrinting: actualActiveAfter?.printing ?? null,
+    intendedPrintingMatchesActual: typeof intendedActive?.printing === 'string' &&
+      intendedActive.printing === actualActiveAfter?.printing,
     benchAfter: ownAfter.bench
   };
 }
