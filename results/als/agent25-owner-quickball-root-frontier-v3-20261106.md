@@ -2,6 +2,9 @@
 
 **6 November 2026 | Agent25 | prospectively registered, read-only v3 observer | exploratory policy diagnosis**
 
+**Audit interpretation correction:** `hnsHookAudit.countChecks` and `thresholdFourChecks` include card-reducer invocations that can arise in speculative `Simulator.dispatch` calls during bot evaluation. They **are not verified real attack declarations**. See the [confirmed telemetry mismatch and methodological correction](../methodology/agent25-simulator-speculation-leaks-into-hns-hook-audit-20261106.md); actual attacks must be counted from the native Store root/action logs.
+
+
 ## Source and controlled instrumentation
 
 The [precommitted v3 registration](registrations/agent25-owner-quickball-root-frontier-v3-20261106.json) sampled actual candidate-owner decision roots in the previously frozen six rank/seat Aichi games, using the unchanged Dhelmise v2 and original full sixties of ranks 6, 10 and 11. [Github Actions 42136306260](https://github.com/FlareZ123/experiment-01/actions/runs/42136306260) executed the real pinned Twinleaf Store under manual workflow dispatch; the complete native [artifact 13465337378](https://github.com/FlareZ123/experiment-01/actions/runs/42136306260/artifacts/13465337378) preserves the six arms, original owner-hand samples, statuses, prompts and error details (short-term artifact retention). Engine pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, candidate exact-print manifest digest `20135b47359b2a546fbe7f899b502aff0d470150e72cbb751dd810be036e122c`.
