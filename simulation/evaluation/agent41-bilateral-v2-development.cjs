@@ -403,6 +403,7 @@ function rngProtocolSelection(options={}){
   return {
     request:{
       isolatePolicyRandomness,
+      isolatePhysicalShuffleRandomness:false,
       isolatePhysicalShuffleRandomnessAfterSetup
     },
     manifest:{
