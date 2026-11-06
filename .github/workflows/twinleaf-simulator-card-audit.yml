@@ -39,6 +39,20 @@ jobs:
           path: artifacts/agent15-rank1-owner-hand/
           if-no-files-found: warn
           retention-days: 14
+      - name: Validate frozen owner-only Lillie A/B/A policy fork before source replay
+        run: node --test tests/agent15-rank1-mirror-lillie-aba.test.cjs
+      - name: Evaluate exact original rank1 same-deal Lillie A/B/A native roots
+        env:
+          AGENT15_RANK1_LILLIE_ABA_DIR: artifacts/agent15-rank1-lillie-aba
+        run: node --test tests/agent15-rank1-mirror-lillie-aba.native.test.cjs
+      - name: Preserve A/B/A dispositions and public accepted root SHA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-rank1-lillie-owner-native-aba
+          path: artifacts/agent15-rank1-lillie-aba/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify read-only bot decision boundary observer
         run: node --test tests/bot-decision-card-boundary-observer.test.cjs
       - name: Count source Card changes surviving each full bot decision
