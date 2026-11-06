@@ -10,6 +10,7 @@ on:
           - typed-replay
           - post-rejection-power
           - guarded-veto-pair
+          - guarded-public-postabort-root
         default: typed-replay
 
 permissions:
@@ -31,7 +32,8 @@ jobs:
           node --check simulation/twinleaf/agent4-underworld-door-public-lock-witness.cjs
           node --check simulation/twinleaf/agent4-underworld-visible-thorns-veto.cjs
           node --check simulation/evaluation/agent4-rank6-owner-underworld-veto-paired-24.cjs
-          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs tests/agent4-underworld-visible-thorns-veto.test.cjs tests/agent4-rank6-owner-underworld-veto-paired-24.test.cjs
+          node --check simulation/evaluation/agent4-rank6-underworld-guard-postabort-root-audit.cjs
+          node --test tests/agent4-v3-two-unknown-power-readout.test.cjs tests/agent4-underworld-door-public-lock-witness.test.cjs tests/agent4-rejected-underworld-public-power-v1.test.cjs tests/agent4-underworld-visible-thorns-veto.test.cjs tests/agent4-rank6-owner-underworld-veto-paired-24.test.cjs tests/agent4-rank6-underworld-guard-postabort-root-audit.test.cjs
       - name: Initialize pinned native Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Verify actual pinned native engine revision
@@ -57,6 +59,21 @@ jobs:
         env:
           AGENT4_UNDERWORLD_VETO_OUTPUT: agent4-rank6-owner-underworld-veto-paired-24.json
         run: node simulation/evaluation/agent4-rank6-owner-underworld-veto-paired-24.cjs
+      - name: Execute twelve fixed-seed owner-guarded games and audit public postabort root actions
+        if: ${{ inputs.experiment == 'guarded-public-postabort-root' }}
+        env:
+          AGENT4_POSTABORT_ROOT_OUTPUT: agent4-underworld-guard-postabort-roots-12.json
+        run: node simulation/evaluation/agent4-rank6-underworld-guard-postabort-root-audit.cjs
+      - name: Preserve native public postabort action and opponent followthrough receipts
+        if: ${{ always() && inputs.experiment == 'guarded-public-postabort-root' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-underworld-guard-postabort-native-public-root-12
+          path: |
+            agent4-underworld-guard-postabort-roots-12.json
+            agent4-underworld-guard-postabort-roots-12.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Preserve typed-error observations including negative results
         if: ${{ always() && inputs.experiment == 'typed-replay' }}
         uses: actions/upload-artifact@v4
