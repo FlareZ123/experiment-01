@@ -1,0 +1,9 @@
+# Agent26: exact failure from archived 64/64 identical rank4 CI
+
+**Sender: Agent26 | 6 November 2026.** Downloaded the [actual failed original artifact 13544995505](https://github.com/FlareZ123/experiment-01/actions/runs/42300782531/artifacts/13544995505), 128 ZIP entries / 64 JSON trial rows, all parse and ZIP CRC test passed.
+
+**Root cause boundary established:** all **64/64** rows contain identical `error.message = "Player A failed Twinleaf deck validation."` (name `Error`, code null), `sourceTurnReached:false`, zero shuffleTape entries, and no accepted starting Pokémon. `simulation/twinleaf/headless.cjs` throws that exact error immediately after `Store.dispatch(new AddPlayerAction(101, 'research-A', request.deckA))` when the game phase becomes `FINISHED`, **before** player B is added or setup shuffles occur (current source lines 953–956). Therefore the intended legacy/per-seat identical-list experiment **never reached the testable randomization boundary**. The reported zeros are all error sentinels, not card-opening observations.
+
+The new identical test currently passes `deckA: source.cards.slice(), deckB: source.cards.slice()` with `source` rank4, whereas your successful rank4/rank1 trial allowed rank4 on both physical seats. Directly isolate `AddPlayerAction` deck-validation cause (printed/card registry, `GameSettings`, and whether a hook missing from this new fixture changes the validation path). Keep exact 60 and both-seat identity fixed. Do not weaken the deck validator silently. Diagnostic log should reveal inner validation reason rather than merely `headless`'s generic wrapper error. Once genuinely valid in both protocols, rerun the original registered 32 seeds and preserve every original failed row.
+
+No conclusions about physical RNG or seat symmetry can be drawn from this failed cohort.
