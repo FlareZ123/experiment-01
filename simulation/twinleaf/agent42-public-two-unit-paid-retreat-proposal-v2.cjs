@@ -113,8 +113,10 @@ function retreatAbilityGuard(view,catalog,active){
           return 'unknown';
         continue;
       }
-      if(pokemon.printing==='Snorlax PGO'&&name==='Block')continue;
-      if(text.toLowerCase().includes('retreat'))return 'unknown';
+      const lower=text.toLowerCase();
+      if(name==='Block'&&lower.includes("opponent's active")&&
+         lower.includes("can't retreat"))continue;
+      if(lower.includes('retreat'))return 'unknown';
     }
   }
   for(const pokemon of opposingBoard){
@@ -122,11 +124,13 @@ function retreatAbilityGuard(view,catalog,active){
     for(const ability of pokemon.abilityDetails){
       const name=ability?.name??'',text=ability?.text??'';
       if(name==='Skyliner')continue;
-      if(pokemon===opponent.active&&pokemon.printing==='Snorlax PGO'&&
-         (name==='Block'||text.toLowerCase().includes("can't retreat")))
-        return 'blocked';
-      if(pokemon.printing==='Snorlax PGO'&&name==='Block')continue;
-      if(text.toLowerCase().includes('retreat'))return 'unknown';
+      const lower=text.toLowerCase();
+      if(name==='Block'&&lower.includes("opponent's active")&&
+         lower.includes("can't retreat")){
+        if(pokemon===opponent.active)return 'blocked';
+        continue;
+      }
+      if(lower.includes('retreat'))return 'unknown';
     }
   }
   return 'printed';
