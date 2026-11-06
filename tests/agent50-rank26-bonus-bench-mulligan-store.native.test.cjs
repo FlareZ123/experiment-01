@@ -8,6 +8,10 @@ const {createHash}=require('node:crypto');
 const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
 const {runMatch}=require('../simulation/twinleaf/headless.cjs');
 const {withGoFirstChoice}=require('../simulation/twinleaf/agent6-go-first-choice.cjs');
+const {withOwnerPublicAcknowledgements}=
+  require('../simulation/twinleaf/agent50-owner-public-acknowledgements.cjs');
+const {withNativeRawStateFallbackQuarantine}=
+  require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {chooseOwnedProtectedStartingBasics}=
   require('../simulation/twinleaf/agent50-owner-preserve-turn-entry-setup.cjs');
 const {writeAtomicLocked}=
@@ -25,6 +29,7 @@ const {SelectPrompt}=engine('game/store/prompts/select-prompt');
 const {GameMessage}=engine('game/game-message');
 const {Stage,CardTag}=engine('game/store/card/card-types');
 const {GamePhase}=engine('game/store/state/state');
+const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
 
 /** @param {object} card @returns {boolean} */
 function isStartingPokemon(card){
@@ -72,6 +77,75 @@ function permutationFor(cards,selectors){
 }
 
 /**
+ * Explicit owner-only setup/compensation choices. The outer Agent4 quarantine
+ * makes any unhandled native raw-State fallback fail closed.
+ * @template T
+ * @param {()=>T} run
+ * @param {object} audit
+ * @returns {T}
+ */
+function withOwnerSetupAndBonusChoices(run,audit){
+  const descriptor=Object.getOwnPropertyDescriptor(
+    SimpleTacticsAi.prototype,'decodeNextAction');
+  assert.equal(typeof descriptor?.value,'function');
+  function decode(state){
+    const id=this.client?.id;
+    const seat=state.players?.findIndex(player=>player.id===id)??-1;
+    const owner=seat===0||seat===1?state.players[seat]:null;
+    const prompt=state.prompts?.find(p=>
+      p.playerId===id&&p.result===undefined);
+    if(owner&&prompt instanceof ChooseCardsPrompt&&
+        prompt.message===GameMessage.CHOOSE_STARTING_POKEMONS&&
+        prompt.cards===owner.hand){
+      const blocked=new Set(prompt.options.blocked??[]);
+      const eligible=owner.hand.cards.filter((card,index)=>
+        !blocked.has(index)&&isStartingPokemon(card));
+      if(prompt.options.min===1&&(seat===0||seat===1)){
+        assert.equal(eligible.length,1);
+        assert.equal(prompt.validate([eligible[0]]),true);
+        audit.actorDecisions.push({
+          seat,kind:'initial-starting-basic',
+          selected:printing(eligible[0]),selectedCardId:eligible[0].id
+        });
+        return new ResolvePromptAction(prompt.id,[eligible[0]]);
+      }
+      if(prompt.options.min===0&&seat===1){
+        assert.equal(state.phase,GamePhase.SETUP);
+        assert.equal(owner.active.cards.length,1);
+        assert.equal(owner.bench.flatMap(slot=>slot.cards).length,0);
+        assert.equal(eligible.length,1);
+        assert.equal(isIronThorns(eligible[0]),true);
+        assert.equal(prompt.validate([]),true);
+        assert.equal(prompt.validate([eligible[0]]),true);
+        audit.actorDecisions.push({
+          seat,kind:'bonus-bench-second-thorns',
+          selected:printing(eligible[0]),selectedCardId:eligible[0].id
+        });
+        return new ResolvePromptAction(prompt.id,[eligible[0]]);
+      }
+    }
+    if(owner&&prompt instanceof SelectPrompt&&
+        prompt.message===GameMessage.WANT_TO_DRAW_CARDS&&seat===1){
+      assert.equal(prompt.values[0],'Draw 1 card(s)');
+      audit.actorDecisions.push({
+        seat,kind:'accept-one-compensation-card',
+        selectedOptionIndex:0,selectedOption:prompt.values[0]
+      });
+      return new ResolvePromptAction(prompt.id,0);
+    }
+    return descriptor.value.call(this,state);
+  }
+  Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
+    ...descriptor,value:decode
+  });
+  try{return run();}
+  finally{
+    assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
+    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',descriptor);
+  }
+}
+
+/**
  * Apply one source-conserved, deterministic setup fixture. Shuffle overrides
  * construct a physical deal only; the optional Bench decision reads the
  * defender's own hand and native prompt.
@@ -92,6 +166,8 @@ function withRank26BonusBenchFixture(run){
     defenderSeat:1,defenderRank:6,
     shuffleCounts:[0,0],
     shuffleEvents:[],
+    actorDecisions:[],
+    rawStateFallbackQuarantine:null,
     sourceInitialMulliganHand:null,
     initialSetups:[],
     compensationDraw:null,
@@ -153,7 +229,7 @@ function withRank26BonusBenchFixture(run){
       assert.equal(seat,1,'rank6 must receive the mulligan compensation');
       assert.equal(prompt.values[0],'Draw 1 card(s)');
       assert.equal(prompt.values.length,2);
-      action.result=0;
+      assert.equal(action.result,0,'owner policy must explicitly accept one compensation card');
       const before=[...state.players[seat].hand.cards];
       const result=descriptor.value.apply(this,[action,...args]);
       const owner=this.state.players[seat];
@@ -191,7 +267,10 @@ function withRank26BonusBenchFixture(run){
             'rank26 must have exactly one mulligan before its valid seven');
         }
         assert.equal(prompt.validate([chosen]),true);
-        action.result=[chosen];
+        assert.ok(Array.isArray(action.result)&&action.result.length===1);
+        assert.strictEqual(action.result[0],chosen,
+          'owner-only setup policy must select the sole eligible physical Basic');
+        const ownerHandBefore=owner.hand.cards.map(printing);
         const result=descriptor.value.apply(this,[action,...args]);
         const after=this.state.players[seat];
         assert.equal(after.active.cards.length,1);
@@ -199,7 +278,7 @@ function withRank26BonusBenchFixture(run){
         assert.equal(after.bench.flatMap(slot=>slot.cards).length,0);
         audit.initialSetups.push({
           seat,chosenActive:printing(chosen),chosenCardId:chosen.id,
-          ownerHandBefore:owner.hand.cards.map(printing),
+          ownerHandBefore,
           actualActiveAfter:after.active.cards.map(printing),
           actualBenchAfter:after.bench.flatMap(slot=>slot.cards).map(printing),
           sixPrizesPlaced:after.prizes.length===6&&
@@ -242,7 +321,9 @@ function withRank26BonusBenchFixture(run){
         const activeBefore=owner.active.cards[0];
         const handBefore=owner.hand.cards.map(printing);
         const benchBefore=owner.bench.flatMap(slot=>slot.cards).map(printing);
-        action.result=[secondThorns];
+        assert.ok(Array.isArray(action.result)&&action.result.length===1);
+        assert.strictEqual(action.result[0],secondThorns,
+          'owner-only treatment must select the exact new physical Iron Thorns');
         const result=descriptor.value.apply(this,[action,...args]);
         const after=this.state.players[seat];
         const benchCards=after.bench.flatMap(slot=>slot.cards);
@@ -294,10 +375,13 @@ function withRank26BonusBenchFixture(run){
   try{
     let stopped=false;
     try{
-      run();
+      run(audit);
     }catch(error){
       if(error?.cause?.code===STOP_CODE){
         stopped=true;
+        audit.rawStateFallbackQuarantine=error.nativeRawStateFallbackQuarantine??null;
+        assert.equal(audit.rawStateFallbackQuarantine?.rawStateFallbackCalls,0,
+          'no native raw-State decoder fallback may execute');
       }else{
         audit.failure={
           name:error?.name??'Error',
@@ -344,13 +428,20 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(defender.cards.length,60);
   assert.equal(defender.cards.filter(name=>name.includes('Iron Thorns ex')).length,4);
 
-  const audit=withRank26BonusBenchFixture(()=>withGoFirstChoice(
-    [true,false],
-    ()=>runMatch({
-      deckA:source.cards,deckB:defender.cards,
-      seed:20261106,maxActions:80,
-      captureNativeAbortEvidence:true
-    })
+  const audit=withRank26BonusBenchFixture(()=>withNativeRawStateFallbackQuarantine(
+    ()=>withOwnerPublicAcknowledgements(
+      ()=>withGoFirstChoice(
+        [true,false],
+        ()=>withOwnerSetupAndBonusChoices(
+          ()=>runMatch({
+            deckA:source.cards,deckB:defender.cards,
+            seed:20261106,maxActions:80,
+            captureNativeAbortEvidence:true
+          }),audit
+        )
+      )
+    ),
+    {maxRecords:8}
   ));
 
   assert.equal(audit.nativeStoreAccepted,true);
