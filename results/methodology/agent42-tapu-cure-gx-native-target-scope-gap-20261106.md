@@ -49,3 +49,6 @@ In `vendor/twinleaf/ptcg-server/src/sets/08-sun-and-moon/set-guardians-rising/ta
 - lines 195-200 offer both `SlotType.ACTIVE` and `SlotType.BENCH`.
 
 The mismatch can be reviewed directly at those pinned lines; no inference from a failed game log is needed.
+
+
+The manual reference is `resources/manual/EN_advanced_manual-2025-transcription-structured.md` lines 1180-1183 (C-06). Its text is explicitly scoped to Trainer cards and Abilities, which is why it does not settle the attack-specific no-damage question.
