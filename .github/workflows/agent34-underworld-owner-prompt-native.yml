@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent17_pale_moon_counterreply:
+        description: Retrospective original source Team Flare then rank1 funded Pale Moon GX single response A/B/A, no competition
+        type: boolean
+        default: false
       agent17_rank1_postdenial_owner_passes:
         description: Fifteen source rank1 post-Team-Flare owner-only native Pass snapshots in frozen game
         type: boolean
@@ -143,6 +147,20 @@ jobs:
         with:
           name: agent17-rank1-post-Team-Flare-own-passes
           path: agent17-rank1-postdenial-owner-passes-native.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Verify owner-only GX sourced from actual post-denial funded Active
+        if: ${{ inputs.agent17_pale_moon_counterreply }}
+        run: node --test tests/agent17-targeted-rank1-pale-moon-native.test.cjs
+      - name: Replay one original rank1 Pale Moon GX native response after source Team Flare
+        if: ${{ inputs.agent17_pale_moon_counterreply }}
+        run: node simulation/evaluation/agent17-skyliner-pale-moon-counterreply-aba.cjs > agent17-pale-moon-counterreply-native-aba.json
+      - name: Archive all three paper-uncertified native source/GX counterresponses
+        if: ${{ always() && inputs.agent17_pale_moon_counterreply }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-rank1-Pale-Moon-GX-native-reply-ABA
+          path: agent17-pale-moon-counterreply-native-aba.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate historical natural original rank1 selected-v3 transport registration
