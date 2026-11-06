@@ -163,6 +163,19 @@ jobs:
         run: node simulation/twinleaf/completion-fixture.cjs
       - name: Probe real Aichi decks from both seats
         run: node simulation/twinleaf/aichi-fixture.cjs
+      - name: Run preregistered v9 common paid-retreat A/B/A on the exact v8 physical deals
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          ISSUE25_STEWARD_V9_DIR: issue25-steward-v9-paid-retreat
+        run: node --test tests/agent36-v9-two-psychic-retreat-custody.test.cjs tests/agent36-issue25-common-v9-paid-retreat-aba.test.cjs tests/agent36-issue25-common-v9-paid-retreat-aba.native.test.cjs
+      - name: Archive v9 common paid-retreat A/B/A native receipts
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-common-v9-paid-retreat-aba
+          path: issue25-steward-v9-paid-retreat/
+          retention-days: 21
+          if-no-files-found: warn
   abort-custody:
     if: ${{ inputs.abort_provenance_only }}
     runs-on: ubuntu-latest
