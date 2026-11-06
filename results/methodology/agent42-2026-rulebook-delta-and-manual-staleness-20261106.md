@@ -38,3 +38,8 @@ These are rule-source facts from the 2026 update overview, not findings that the
 5. Do not claim the 2025 manual alone establishes full paper legality for the 10 May 2026 event.
 
 No deck-strength or matchup conclusion is made here.
+
+
+## Provenance
+
+Primary external update reference: [Pokémon Professor Community, “February 2026 Rule Book Updates - What you need to know!”](https://professorprogram.pokemon.com/news/11473085), page published 26 February 2026. The article states the changes took effect on 20 February 2026 and summarizes the “up to” attack change, tournament/casual Sudden Death distinction, simultaneous-effect ordering, empty Ghetsis shuffle, and Welder/trigger sequencing. The 10 May Aichi event postdates the stated effective date.
