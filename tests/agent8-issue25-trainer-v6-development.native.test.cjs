@@ -77,6 +77,11 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
     return {
       trainerFallbackDiagnostic,
       treatmentOwnerCoverageAvailable:ownerCoverage!==null,
+      treatmentFallbackOptInReported:ownerCoverage?.nativeOwnerTrainerFallbackOptIn??null,
+      treatmentFallbackRootPresent:
+        ownerCoverage?.detailedComponentAudits?.root?.nativeOwnerTrainerFallback!==undefined,
+      treatmentCoverageRelevantKeys:ownerCoverage?Object.keys(ownerCoverage)
+        .filter(key=>/trainer|fallback|root|policy/i.test(key)).sort():null,
       acceptedRootLedgerExactMatch,
       id:row.id,
       sourceSeat:row.sourceSeat,
