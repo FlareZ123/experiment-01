@@ -80,8 +80,9 @@ function permutationFor(cards,selectors){
 
 /**
  * Owner-only mandatory setup and compensation-draw choices. The optional
- * min=0 Bench prompt is deliberately delegated to Twinleaf's default resolver.
- * The outer Agent4 quarantine makes unhandled raw-State fallback fail closed.
+ * min=0 Bench prompt is resolved by directly invoking Twinleaf's installed
+ * default ChooseCardsPromptResolver instance. This preserves the outer Agent4
+ * generic-decoder quarantine for every unhandled decision.
  * @template T
  * @param {()=>T} run
  * @param {object} audit
