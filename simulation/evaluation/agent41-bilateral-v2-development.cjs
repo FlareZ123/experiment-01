@@ -416,7 +416,8 @@ function executeDevelopment(trial,candidates,{
   rank11ExclusiveOpening=false,
   paperRank9ElectrodeGXCorrection=false,
   sourceIndependentCommonPolicy=false,
-  losslessNativeRootJoin=false,registeredTrial=false
+  losslessNativeRootJoin=false,registeredTrial=false,
+  onRootStoreCreated=null,onRootActionDispatched=null
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
