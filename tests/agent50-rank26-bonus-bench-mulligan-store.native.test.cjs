@@ -325,7 +325,7 @@ function withRank26BonusBenchFixture(run){
         const benchBefore=owner.bench.flatMap(slot=>slot.cards).map(printing);
         assert.ok(Array.isArray(action.result)&&action.result.length===1);
         assert.strictEqual(action.result[0],secondThorns,
-          'owner-only treatment must select the exact new physical Iron Thorns');
+          'default native resolver must select the exact new physical Iron Thorns');
         const result=descriptor.value.apply(this,[action,...args]);
         const after=this.state.players[seat];
         const benchCards=after.bench.flatMap(slot=>slot.cards);
