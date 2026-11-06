@@ -250,8 +250,11 @@ for(const seat of [0,1]){
     const {RetreatAction}=engine('game/store/actions/game-actions');
     const {withTwoPsychicRetreatCustody}=require(
       '../simulation/twinleaf/agent42-two-psychic-retreat-physical-custody-v2.cjs');
-    const witness=withTwoPsychicRetreatCustody(()=>{
-      store.dispatch(new RetreatAction(owner.id,intent.benchIndex));
+    const witness=withTwoPsychicRetreatCustody(({onRootStoreCreated,onRootActionDispatched})=>{
+      const action=new RetreatAction(owner.id,intent.benchIndex);
+      onRootStoreCreated(store);
+      store.dispatch(action);
+      onRootActionDispatched(store,action,1,seat,34);
       return resolveNativeRetreat(game);
     });
     assert.equal(witness.audit.exactPhysicalPaidRetreats,1);
