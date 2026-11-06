@@ -15,7 +15,7 @@ This is an opportunity-frequency and native-execution census under a controlled 
 - Preregistration, committed before implementation: [32 fixed seeds and protocol](registrations/agent50-rank4-dedechange-natural32-sourcefirst-20261106.md).
 - Test: [`tests/agent50-rank4-dedechange-natural32.native.test.cjs`](../../tests/agent50-rank4-dedechange-natural32.native.test.cjs).
 - Existing manual workflow lane: [`agent50-rank26-koko-dual-recipient-native.yml`](../../.github/workflows/agent50-rank26-koko-dual-recipient-native.yml), input `rank4_dedechange_natural32_only=true`. No new workflow was added.
-- Successful run: [42295981590](https://github.com/FlareZ123/experiment-01/actions/runs/42295981590), head `ed6a0def9b3ec437d90ba65daab8eb5516292939`.
+- Initial successful run: [42295981590](https://github.com/FlareZ123/experiment-01/actions/runs/42295981590), head `ed6a0def9b3ec437d90ba65daab8eb5516292939`. Enhanced authoritative receipt rerun: [42299490842](https://github.com/FlareZ123/experiment-01/actions/runs/42299490842), head `3ac7837aa57ab8b10610ce0a5dc2bfc31706c37`.
 - Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Source: original Aichi rank4 60, SHA-256 `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`.
 - Reference: original Aichi rank1 60, SHA-256 `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`.
@@ -30,9 +30,13 @@ This is an opportunity-frequency and native-execution census under a controlled 
 
 The successful artifact is [13542032386](https://github.com/FlareZ123/experiment-01/actions/runs/42295981590/artifacts/13542032386), ZIP SHA-256 `afb48be04c70c3875218a25740ab8fcd92e0351c161379fdc69e88746766a04c`. The downloaded digest matches the GitHub artifact digest. All **32 JSON receipts** match their individual SHA-256 sidecars.
 
+The enhanced receipt artifact is [13543720846](https://github.com/FlareZ123/experiment-01/actions/runs/42299490842/artifacts/13543720846), ZIP SHA-256 `e7feb738ac399788cdd2728c3b245c4006233940148c4feff284da8181399c4c`. Its downloaded digest matches GitHub's artifact digest, and all 32 JSON receipts match their sidecars. Use this enhanced artifact for mulligan-count and exact compensation-move analysis; it reuses the same seeds and decisions.
+
 ### Instrumentation correction
 
 The first execution, [42295390547](https://github.com/FlareZ123/experiment-01/actions/runs/42295390547), stopped in the measurement harness because the label parser used an over-escaped digit regex. Native SelectPrompt dispatch had already moved the physical cards, and its before/after counts were retained in the failed artifact (ZIP SHA-256 `fe88fe0ed531e4ef589a20f19caede94b603d1cdf2e24f37e28eb3c09a7c337d`). The parser was corrected and successful wrapper audits were preserved; the exact same 32 seeds and decisions were rerun. Only the successful rerun contributes to the reported sample.
+
+The enhanced [42299490842](https://github.com/FlareZ123/experiment-01/actions/runs/42299490842) replay added public mulligan-count receipts and a `CardList.moveTo` observer so the exact compensation movement is isolated from any later movement in the same dispatch. It reproduced all six prompts and all six exact physical transfers, and establishes the seat0 mulligan skew above. It uses the same 32 seeds and choices; no additional sample rows were added.
 
 ## All registered attempts
 
@@ -86,16 +90,16 @@ The source's first-turn hand size was 7 cards in 28 attempts, 8 cards in 3, and 
 
 There were six native `WANT_TO_DRAW_CARDS` SelectPrompts. The actor-only adapter selected the default maximum-draw option in each case. The pinned Twinleaf [`setup-reducer.ts`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/setup-reducer.ts#L199-L225) constructs draw options in descending order and sets `defaultValue: 0`; the Store observer verified actual card movement for every prompt:
 
-| Trial | Source seat | Prompt owner seat | Selected label | Hand delta | Deck delta | Physical identity verified |
-|---:|---:|---:|---|---:|---:|:---:|
-| 4 | 1 | 1 | Draw 2 card(s) | +2 | -2 | Yes |
-| 7 | 0 | 1 | Draw 2 card(s) | +2 | -2 | Yes |
-| 25 | 0 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
-| 26 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
-| 30 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
-| 32 | 1 | 1 | Draw 1 card(s) | +1 | -1 | Yes |
+| Trial | Source seat | Mulligans seat0/seat1 | Prompt owner | Selected label | Compensation move | Identity verified |
+|---:|---:|---:|---:|---|---:|:---:|
+| 4 | 1 | 2/0 | 1 | Draw 2 card(s) | +2 / -2 | Yes |
+| 7 | 0 | 2/0 | 1 | Draw 2 card(s) | +2 / -2 | Yes |
+| 25 | 0 | 1/0 | 1 | Draw 1 card(s) | +1 / -1 | Yes |
+| 26 | 1 | 1/0 | 1 | Draw 1 card(s) | +1 / -1 | Yes |
+| 30 | 1 | 1/0 | 1 | Draw 1 card(s) | +1 / -1 | Yes |
+| 32 | 1 | 1/0 | 1 | Draw 1 card(s) | +1 / -1 | Yes |
 
-All six prompts happened to belong to physical seat 1, which received eight cards total across the six events. Four events were in source-seat-1 trials, so the source received five compensation cards across those four attempts; two were in source-seat-0 trials, so the reference received three. This is an observation, not evidence of a Twinleaf seat bug. The same-seed per-seat replay recorded ten compensation prompts split 6 to seat0 and 4 to seat1, with both players' mulligan counts captured and all ten recipient/draw checks passing. The different shuffle protocols create different physical deals, so the contrast supports protocol sensitivity without proving a legacy seat bug.
+All six prompts belonged to physical seat1. The enhanced rerun captured the actual mulligan counts: **seat0 had a total of eight mulligans (four one-mulligan cases and two two-mulligan cases), while seat1 had zero mulligans in all 32 attempts**. The 16/16 source-seat balance means the seat0 skew persisted regardless of whether seat0 held rank4 or rank1; this is a strong seat-order anomaly in this legacy shared-stream cohort. All six prompts correctly gave seat1 the exact difference (four Draw-1 and two Draw-2), and all six compensation moves were physically verified at the `CardList.moveTo` boundary. The 12 public mulligan acknowledgements were accepted. This is evidence of a simulator randomization asymmetry in this cohort, not proof of the underlying cause. The same-seed per-seat replay had ten unequal-mulligan cases, seat0 total six and seat1 total seven, with recipient seats split 6/4. The different shuffle protocols produce different deals; see the [protocol comparison](agent50-rank4-dedechange-perseat32-sourcefirst-20261106.md).
 
 ## Probability sanity check
 
