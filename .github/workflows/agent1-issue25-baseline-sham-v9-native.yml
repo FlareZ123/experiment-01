@@ -23,13 +23,18 @@ on:
         type: boolean
         required: false
         default: false
+      common_v7_radiant_v13:
+        description: Run common-v12 with printed native Radiant optional decline
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -197,5 +202,39 @@ jobs:
         with:
           name: agent1-inner-owner-wondertag-v12-${{ github.run_id }}
           path: artifacts/agent1-issue25-v12-common-wondertag/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-common-v12-radiant-v13:
+    if: ${{ inputs.common_v7_radiant_v13 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Unit-test actual printed Radiant owner decision and native runner restoration
+        run: node --test tests/agent1-issue25-common-v13-radiant-decline.test.cjs tests/agent1-issue25-common-v7-wondertag-v12.test.cjs tests/agent1-wondertag-native-shuffle-completion.test.cjs
+      - name: Eight original native physical deals with both generic owner prompt handlers
+        env:
+          AGENT1_V13_OUTPUT_DIR: artifacts/agent1-v13-original-radiant
+        run: node --test tests/agent1-issue25-common-v13-radiant-decline.native.test.cjs
+      - name: Preserve every native trial, public root and optional-prompt settlement
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-v13-original-radiant-${{ github.run_id }}
+          path: artifacts/agent1-v13-original-radiant/
           if-no-files-found: warn
           retention-days: 30
