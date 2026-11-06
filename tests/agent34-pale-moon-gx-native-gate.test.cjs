@@ -214,8 +214,12 @@ for (const seat of [0, 1]) {
 }
 
 
-for (const seat of [0, 1]) {
-  test('uncorrected deferred GX KO survives genuine defender evolution, seat ' + seat,
+for (const [basicPrinting, evolutionPrinting] of [
+  ['Regidrago V SIT', 'Regidrago VSTAR SIT'],
+  ['Charmander MEW', 'Charmeleon MEW']
+]) {
+  for (const seat of [0, 1]) {
+  test('uncorrected deferred GX KO survives ' + evolutionPrinting + ', seat ' + seat,
     () => {
       const { AttackAction } = native('game/store/actions/game-actions');
       const { EndTurnEffect } = native('game/store/effects/game-phase-effects');
@@ -223,10 +227,10 @@ for (const seat of [0, 1]) {
       const { State, GamePhase } = native('game/store/state/state');
       const { RESOLVE_PENDING_END_OF_OPPONENTS_NEXT_TURN_EFFECTS } =
         native('game/store/prefabs/attack-effects');
-      const f = stage(seat, 2, false, 'Charmander MEW');
-      const evolved = initializeCards().getCardByName('Charmeleon MEW');
-      assert.ok(evolved, 'Charmeleon MEW must be registered in pinned pool');
-      evolved.id = 347900 + seat;
+      const f = stage(seat, 2, false, basicPrinting);
+      const evolved = initializeCards().getCardByName(evolutionPrinting);
+      assert.ok(evolved, evolutionPrinting + ' must be registered in pinned pool');
+      evolved.id = 347900 + seat + (evolutionPrinting === 'Charmeleon MEW' ? 2 : 0);
       f.defender.hand.cards.push(evolved);
       f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
       assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
@@ -245,7 +249,7 @@ for (const seat of [0, 1]) {
       const originalInDiscard = f.defender.discard.cards.includes(originalCard);
       const evolvedInDiscard = f.defender.discard.cards.includes(evolved);
       console.log('AGENT34_PALE_MOON_EVOLUTION_NATIVE', JSON.stringify({
-        seat, queuedAfterEvolution, originalInDiscard, evolvedInDiscard,
+        seat, basicPrinting, evolutionPrinting, queuedAfterEvolution, originalInDiscard, evolvedInDiscard,
         originalActiveAfter: f.defender.active.getPokemonCard()?.name ?? null,
         testKind: 'staged native attack plus PlayPokemonEffect plus pending resolver',
         competitiveGamesQualified: 0
@@ -256,4 +260,5 @@ for (const seat of [0, 1]) {
         'pinned delayed resolver knocks out the evolved Active target');
       assert.equal(originalInDiscard, true);
     });
+  }
 }
