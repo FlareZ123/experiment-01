@@ -1,0 +1,118 @@
+{
+  "schema": "agent36-issue25-common-v9-bilateral-competence-probe-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "frozenAt": "2026-11-06T23:57:25.008Z",
+  "purpose": "One prospective natural-game competence probe of the same source-independent actor-only policy on both physical seats; not a competitive win-rate experiment.",
+  "objective": "Advance the single fixed 60-card paper Expanded deck objective against the complete Aichi Open League 2026 Top 32. This one game contributes only bounded policy-competence evidence.",
+  "targetWinRate": 0.995,
+  "targetWinRateDemonstrated": false,
+  "sourceOriginalRanks": [
+    11
+  ],
+  "candidateDeckIds": [
+    "new-moon-lockbreaker-v1"
+  ],
+  "contendingPrintedSixties": [
+    "new-moon-lockbreaker-v1"
+  ],
+  "maxNativeRootActionsPerArm": 260,
+  "nativeRootActionLimit": 260,
+  "allowSingleCandidateArm": true,
+  "allowSingleRegisteredTrial": true,
+  "samePolicyBothSeats": true,
+  "sourceIndependentCommonPolicy": true,
+  "actorOnlyComposition": true,
+  "sourceRankSpecificOverrides": false,
+  "trialCount": 1,
+  "trials": [
+    {
+      "id": "11:1000:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 1000,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 626469135,
+      "seedSource": "Python secrets.randbits(32), executed before registration freeze"
+    }
+  ],
+  "twinleaf": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "rank": 11,
+    "cardCount": 60,
+    "cardIdentityAndCountStatus": "Authenticated original Top 32 name/count 60",
+    "physicalPrintingStatus": "Exact original physical printing identity is unresolved. Agent17's audit identifies eight Basic Darkness Energy entries annotated MEE 015, a post-event September 2026 printing. The Twinleaf engine uses the generic Darkness Energy card identity. No exact original printed-60 hash will be claimed.",
+    "nameCountHashCanonicalization": "Sort card names lexicographically; hash UTF-8 lines '<name>\\t<count>' joined with LF."
+  },
+  "candidateDeck": {
+    "id": "new-moon-lockbreaker-v1",
+    "sourcePath": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "proposedJapanesePrintManifest": "results/als/new-moon-lockbreak-japanese-print-60.json",
+    "printManifestStatus": "PROPOSED research candidate; not an official tournament registration or complete legality ruling",
+    "cardCount": 60,
+    "engineUsesEnglishProxy": true,
+    "printHashCanonicalization": "Sort entries by japanese_card_id ascending; hash UTF-8 lines '<japanese_card_id>\\t<count>' joined with LF."
+  },
+  "policy": {
+    "name": "selected-v0 common actor-only baseline plus owner Ability Confirm and Telepathic Bench Search",
+    "sameImplementationForBothSeats": true,
+    "ownerScopedAdaptersAppliedToBothSeats": true,
+    "components": [
+      "agent36 selected-v0 outer-to-inner prompt and actor-only composition",
+      "agent36 common Thorns root and Agent4 owner Volt adapter (frozen baseline components; expected inactive in this matchup)",
+      "agent8 owner Telepathic Bench Search",
+      "agent10 owner Ability Confirm",
+      "paper Supporter-per-turn quota",
+      "bilateral Special Energy root"
+    ],
+    "flags": {
+      "actorOnlyComposition": true,
+      "sourceIndependentCommonPolicy": true,
+      "bilateralSpecialEnergyRoot": true,
+      "paperSupporterQuota": true,
+      "nativeAcceptedTargets": true
+    }
+  },
+  "randomness": {
+    "protocol": "separate-game-and-per-seat-policy-prng-v1",
+    "isolatePolicyRandomness": true,
+    "isolatePhysicalShuffleRandomness": false,
+    "isolatePhysicalShuffleRandomnessAfterSetup": false,
+    "physicalShuffleStream": "Legacy shared Twinleaf PRNG",
+    "note": "This is not the Agent26 v2 per-seat setup-shuffle protocol. Historical v1 RNG archives remain distinct."
+  },
+  "observations": {
+    "nativeActionInputWitness": true,
+    "nativeAllOwnerPassFrontier": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "physicalZoneGate": true,
+    "agent3AuthoritativeRootPrizeExitObserver": true,
+    "agent24FundedPerfectionPostPassStratum": {
+      "enabled": true,
+      "maxRecords": 4
+    },
+    "preserveCandidateRepliesAfterSourceAttacks": true,
+    "preserveAllNativeRootAttempts": true,
+    "agent45BilateralCompetenceScreen": true
+  },
+  "gate": {
+    "exactOriginalPrinted60Sha256": null,
+    "candidatePrinted60Sha256": "computed from the frozen proposed Japanese print manifest at execution",
+    "independentFullPaperRulesAudit": false,
+    "hiddenInformationAudit": false,
+    "official25MinuteClockAudit": false,
+    "actionCertificates": [],
+    "competitiveAdmissionExpected": false
+  },
+  "limitations": [
+    "One game cannot estimate matchup win rate or support a 99.5% claim.",
+    "The original rank11 card identity/count list is authenticated, but exact historical physical Basic Darkness Energy printings are unresolved.",
+    "The New Moon candidate's Japanese print manifest is proposed, not an official registration.",
+    "Native acceptance and detached probes do not independently establish paper legality.",
+    "No full hidden-information or official paper-clock certification is claimed."
+  ]
+}
