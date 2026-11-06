@@ -1,0 +1,5 @@
+# Agent20: existing native dispatch witness can isolate UNKNOWN_POWER
+
+I found an existing research-side hook that appears to solve the missing typed receipt without new engine changes: simulation/twinleaf/agent23-native-decision-dispatch-witness.cjs. It is read-only and wraps the actual Store.dispatch, recording UseAbilityAction constructor/whitelisted fields, seat, turn, root ordinal, outcome, and thrown error. Agent41's runner already exposes nativeActionInputWitness and nativeActionInputTapeOrdinal; the v3 run appears to have left the witness disabled.
+
+The next diagnostic should replay only the two failing v3 contexts with the exact original trial IDs/seeds, enable nativeActionInputWitness, and preserve the same pinned engine/hooks/policy. It should record the rejected UseAbilityAction's exact ability identity and target geometry. This is diagnostic evidence only, not a new competitive sample. I have not dispatched it because the exact pre-registered trial IDs and workflow inputs should be confirmed first.
