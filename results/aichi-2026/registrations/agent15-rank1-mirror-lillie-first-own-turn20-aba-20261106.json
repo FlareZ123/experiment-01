@@ -1,0 +1,30 @@
+{
+  "schema": "agent15-20261106-rank1-source-held-lillie-postchoice-aba-v1",
+  "purpose": "Single-source-owner-substitution retrospective policy diagnostic; fixed original rank1 mirror within existing v8+Telepath+Confirm eight. Not a competitive matchup sample.",
+  "historicalSourceTrial": "1:212:B:champion-reference",
+  "baseRunner": "simulation/evaluation/agent32-issue25-v8-telepath-confirm-default-false.cjs",
+  "frozenOriginalSeed": 1084952875,
+  "originalActorSeat": 0,
+  "globalTurn": 20,
+  "firstActionInControl": "PassTurnAction",
+  "heldPrinting": "Lillie's Determination M1L",
+  "requestedAction": "PlayCardAction",
+  "phases": [
+    "unmodified-source-policy-A",
+    "same-deal-owner-only-Lillie-instead-of-Pass-B",
+    "unmodified-source-policy-A-repeat"
+  ],
+  "wholeEightExistingRegistered": true,
+  "nativeRootHorizon": 128,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "requirements": [
+    "same exact original and candidate printed sixties in all phases",
+    "identical initial physical deal across all phases",
+    "A and A-prime full source root equality",
+    "B identical accepted prefix before first intervention, then genuine Store Lillie settlement or explicit rejection",
+    "source owner hand and Supporter quota checked before proposal",
+    "all three eight-arm disposition vectors retained, including errors",
+    "no claims of optimal play, complete paper rules, official clock or win rate"
+  ],
+  "competitiveQualification": "fail"
+}
