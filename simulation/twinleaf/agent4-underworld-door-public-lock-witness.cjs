@@ -39,8 +39,9 @@ function publicAbilityContext(state,clientId){
     opposingActive:sourceActive?.fullName??sourceActive?.name??null,
     opposingActiveIronThornsEx:sourceActive?.name==='Iron Thorns ex',
     opposingActivePowerNames:(sourceActive?.powers??[]).map(x=>x.name),
-    opposingActiveTools:(opponent.active?.tools?.cards??[]).map(card=>
-      card.fullName??card.name),
+    opposingActiveTools:(Array.isArray(opponent.active?.tools)?
+      opponent.active.tools:(opponent.active?.tools?.cards??[]))
+      .map(card=>card.fullName??card.name),
     actingUnderworldSources:underworld.map(({zone,index,printing})=>({
       zone,index,printing,powerName:'Underworld Door'
     })),
