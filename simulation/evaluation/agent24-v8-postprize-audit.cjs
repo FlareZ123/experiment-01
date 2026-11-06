@@ -26,6 +26,38 @@ function attachedPublicEnergyCount(board) {
 }
 
 /**
+ * A conservative witness that the only Energy-bearing in-play Pokemon before
+ * a settled source Prize attack was the Active and the visible board then
+ * lost all attached Energy. Physical-card KO identity needs a zone audit.
+ * @param {object} attack A settled attack with public before/after boards.
+ * @param {0|1} seat Contender's physical seat.
+ * @returns {object}
+ */
+function energyCustodyAtPrizeAttack(attack, seat) {
+  const before = attack.publicBoardBefore?.[seat];
+  const after = attack.publicBoardAfter?.[seat];
+  assert.ok(before && after && Array.isArray(before.bench));
+  const activeBeforeEnergy = before.active?.energyCards?.length ?? 0;
+  const benchBeforeEnergy = before.bench.reduce((sum, p) => {
+    assert.ok(Array.isArray(p.energyCards));
+    return sum + p.energyCards.length;
+  }, 0);
+  const beforeEnergy = attachedPublicEnergyCount(before);
+  const afterEnergy = attachedPublicEnergyCount(after);
+  const activePrinting = before.active?.printing ?? null;
+  const afterPokemon = [after.active, ...after.bench].filter(Boolean);
+  const activePrintingGone = activePrinting !== null &&
+    !afterPokemon.some(p => p.printing === activePrinting);
+  const activeSlotPrintingChanged = activePrinting !== null &&
+    after.active?.printing !== activePrinting;
+  return {beforeEnergy, afterEnergy, activeBeforeEnergy,
+    benchBeforeEnergy, activePrintingGone, activeSlotPrintingChanged,
+    soleFundedActiveBoardEnergyCollapse: activeBeforeEnergy > 0 &&
+      benchBeforeEnergy === 0 && afterEnergy === 0 &&
+      activeSlotPrintingChanged};
+}
+
+/**
  * Audit one genuine root-bounded development attempt from the archived v8
  * Telepath/Confirm run. This is observational and never certifies legality.
  * @param {object} row An archive attempt with full untruncated public roots.
@@ -69,13 +101,19 @@ function auditPostPrizeAttempt(row) {
   const sourcePrizesBySettledAttacks = prizeAttacks.reduce((sum, attack) =>
     sum + attack.prizesBefore[row.originalSourceSeat] -
     attack.prizesAfter[row.originalSourceSeat], 0);
+  const prizeEnergyEvents = prizeAttacks.map(attack =>
+    energyCustodyAtPrizeAttack(attack, row.candidateSeat));
+  const soleFundedActiveCollapseEvents = prizeEnergyEvents.filter(
+    event => event.soleFundedActiveBoardEnergyCollapse).length;
   if (prizeAttacks.length === 0) return {
     id: row.id, status: row.status, sourceSeat: row.originalSourceSeat,
     contenderSeat: row.candidateSeat, sourceSettledAttacks: source.settled,
     contenderSettledAttacks: opponent.settled,
-    sourcePrizesBySettledAttacks, firstSourcePrize: null,
+    sourcePrizesBySettledAttacks, sourcePrizeAttackEvents:0,
+    soleFundedActiveCollapseEvents, firstSourcePrize: null,
     contenderPostPrizeAttackDeclarations: null, nextContenderRoot: null,
     nextSourceRoot: null, contenderAttachedEnergyAfterPrize: null,
+    contenderAttachedEnergyBeforePrize: null,
     competitivelyQualified: false
   };
   const first = prizeAttacks[0];
@@ -100,7 +138,8 @@ function auditPostPrizeAttempt(row) {
     id: row.id, status: row.status, sourceSeat: row.originalSourceSeat,
     contenderSeat: row.candidateSeat, sourceSettledAttacks: source.settled,
     contenderSettledAttacks: opponent.settled,
-    sourcePrizesBySettledAttacks,
+    sourcePrizesBySettledAttacks, sourcePrizeAttackEvents:prizeAttacks.length,
+    soleFundedActiveCollapseEvents,
     firstSourcePrize: {attackOrdinal: first.actionOrdinal,
       completionRootOrdinal: end, attack: first.attackName,
       sourcePrizesTaken: first.prizesBefore[row.originalSourceSeat] -
@@ -112,8 +151,10 @@ function auditPostPrizeAttempt(row) {
     nextSourceRoot: nextSource && {
       ordinal: nextSource.actionOrdinal, turn: nextSource.turnBefore,
       action: nextSource.action},
-    contenderAttachedEnergyAfterPrize: attachedPublicEnergyCount(
-      first.publicBoardAfter[row.candidateSeat]),
+    contenderAttachedEnergyBeforePrize:prizeEnergyEvents[0].beforeEnergy,
+    contenderAttachedEnergyAfterPrize:prizeEnergyEvents[0].afterEnergy,
+    firstPrizeSoleFundedActiveBoardEnergyCollapsed:
+      prizeEnergyEvents[0].soleFundedActiveBoardEnergyCollapse,
     competitivelyQualified: false
   };
 }
@@ -131,6 +172,10 @@ function auditPostPrizeArchive(archive) {
   return {
     version: VERSION, attemptedContexts: rows.length,
     sourcePrizeContexts: positive.length,
+    sourcePrizeAttackEvents: rows.reduce((sum,row) =>
+      sum + row.sourcePrizeAttackEvents,0),
+    soleFundedActiveCollapseEvents: rows.reduce((sum,row) =>
+      sum + row.soleFundedActiveCollapseEvents,0),
     recordedContenderCounterattackContexts: positive.filter(row =>
       row.contenderPostPrizeAttackDeclarations > 0).length,
     energyFreeContenderBoardAtFirstPrizeContexts: positive.filter(row =>
@@ -146,4 +191,5 @@ function auditPostPrizeArchive(archive) {
 }
 
 module.exports = {VERSION, attachedPublicEnergyCount,
+  energyCustodyAtPrizeAttack,
   auditPostPrizeAttempt, auditPostPrizeArchive};
