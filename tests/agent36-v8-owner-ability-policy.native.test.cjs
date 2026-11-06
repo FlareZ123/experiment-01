@@ -229,3 +229,52 @@ test('same-eight v8 owner ability policy settles Radiant VMAX search and Articun
   assert.equal(treatment.manifest.releaseQualified,false);
   assert.equal(treatment.diagnostic.competitiveGamesQualified,0);
 });
+
+
+test('nested owner-Ability/Telepath and Agent1 paper hook ends zero-target Radiant turns on both seats',()=>{
+  const {probeZeroClimacticGate}=require(
+    '../simulation/twinleaf/agent1-radiant-zero-gate-native.cjs');
+  const {withTelepathAndOwnerAbilityPolicy}=require(
+    '../simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs');
+  for(const seat of [0,1]){
+    const raw=probeZeroClimacticGate(seat,0,{reverseShuffle:true});
+    const {result,audit}=withTelepathAndOwnerAbilityPolicy(()=>
+      probeZeroClimacticGate(seat,0,{reverseShuffle:true}));
+    assert.equal(raw.after.turn,4);
+    assert.equal(raw.after.activePlayer,seat);
+    assert.equal(raw.shuffleChangedPhysicalOrder,null);
+    assert.equal(result.after.turn,5);
+    assert.equal(result.after.activePlayer,1-seat);
+    assert.equal(result.shuffleChangedPhysicalOrder,true);
+    assert.deepEqual(result.pendingPrompts,[]);
+    assert.equal(audit.radiantZeroGate.zeroSelections,1);
+    assert.equal(audit.radiantZeroGate.repairedShuffles,1);
+    assert.equal(audit.radiantZeroGate.repairedTurnEnds,1);
+    assert.equal(audit.radiantZeroGate.paperQualifiedGames,0);
+    assert.ok(result.events.every(e=>e.validated&&e.error===null));
+  }
+});
+
+test('nested native policy composes unchanged positive and declined Radiant paths',()=>{
+  const {probeZeroClimacticGate}=require(
+    '../simulation/twinleaf/agent1-radiant-zero-gate-native.cjs');
+  const {withTelepathAndOwnerAbilityPolicy}=require(
+    '../simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs');
+  for(const seat of [0,1]){
+    const accepted=withTelepathAndOwnerAbilityPolicy(()=>
+      probeZeroClimacticGate(seat,1));
+    assert.equal(accepted.result.after.turn,5);
+    assert.equal(accepted.result.after.activePlayer,1-seat);
+    assert.equal(accepted.result.vmaxBenched,true);
+    assert.equal(accepted.audit.radiantZeroGate.nonzeroNativeSelections,1);
+    assert.equal(accepted.audit.radiantZeroGate.repairedTurnEnds,0);
+    assert.equal(accepted.audit.radiantZeroGate.repairedShuffles,0);
+    const declined=withTelepathAndOwnerAbilityPolicy(()=>
+      probeZeroClimacticGate(seat,0,{useAbility:false}));
+    assert.equal(declined.result.after.turn,4);
+    assert.equal(declined.result.after.activePlayer,seat);
+    assert.equal(declined.audit.radiantZeroGate.declinedUses,1);
+    assert.equal(declined.audit.radiantZeroGate.zeroSelections,0);
+    assert.equal(declined.audit.radiantZeroGate.repairedTurnEnds,0);
+  }
+});
