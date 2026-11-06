@@ -57,10 +57,13 @@ function countVisibleResources(p) {
   const availableNoFOpening =
     choose(n - f, h) - choose(n - w - f, h);
   const forcedFabaOpening = (forcedOpening - forcedNoFOpening) * allDraws;
+  // If the opener is larger than the entire non-Faba population, the
+  // "no Faba in first h+d" complement has zero physical allocations.
+  const noFDraws = n - f >= h ? choose(n - f - h, d) : 0n;
   const forcedFabaSeen = forced -
-    forcedNoFOpening * choose(n - f - h, d);
+    forcedNoFOpening * noFDraws;
   const availableFabaSeen = available -
-    availableNoFOpening * choose(n - f - h, d);
+    availableNoFOpening * noFDraws;
   return {
     legal: legalOpening * allDraws,
     forced,
