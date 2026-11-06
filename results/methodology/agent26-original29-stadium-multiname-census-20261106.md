@@ -54,3 +54,28 @@ The common two-seat trainer policy should independently enumerate owner-held **d
 The existing manually dispatched workflow [42194732076](https://github.com/FlareZ123/experiment-01/actions/runs/42194732076) **finished SUCCESS** on commit `ff41344519c83ed1a53e5e883309e0342129d1ef`, using Node 22 and the pinned Twinleaf gitlink. Both the exact five-test field census and the staged both-seat [Prism-to-Prism Store regression](../../tests/agent26-prism-stadium-replacement.native.test.cjs) passed before the historical Sky Field observer (which also completed). The native regression covers replacement of own- and opponent-owned Wondrous Labyrinth Prism Star TEU by held Thunder Mountain Prism Star LOT, on each acting seat, and verifies that the displaced *physical old card* moves to its owner's Lost Zone while Thunder enters the acting player's Stadium area. Same-name and already-consumed Stadium-turn negative tests also passed on both seats.
 
 This establishes narrow **staged native Store replacement and zone fidelity**, alongside the exact 29-original composition math and earlier original-source omission witnesses. The staged cases do not replay any original rank6 physical deal, do not measure whether the common policy chooses a replacement, and do not qualify an opponent reply or game. The immediately preceding [workflow 42194187232](https://github.com/FlareZ123/experiment-01/actions/runs/42194187232) failed only because a regression expected a rounded wrong aggregate mean; all four other tests passed. The field mean and test were then corrected from exact integer numerators before this successful run. Preserve the failed run as part of the validation history.
+
+## Exact printed-Basic-conditioned opening extension, 6 November 2026
+
+A raw unconditional seven-card hand can lack a Basic Pokémon and require a mulligan, so the original unconditioned numbers above should not be presented as probabilities for an accepted initial hand. I implemented the [source-print-verified Basic-conditioned model](../../scripts/agent26-field-stadium-basic-conditioned-opening.cjs) and [four regression tests](../../tests/agent26-field-stadium-basic-conditioned-opening.test.cjs). For each original source Pokémon row, the model resolves its exact set and collector number in the checked-in English archive, checks source versus archive Pokémon name, accepts only the previously documented `♢`/`◇` Prism Star display variant, and counts the archived `Basic` subtype. Unresolvable Pokémon identities raise an error. All **29 exact source 60s** and all Pokémon print identities passed the compiled Node tests in [manual CI 42196603251](https://github.com/FlareZ123/experiment-01/actions/runs/42196603251), which completed **SUCCESS** after compiling the same pinned Twinleaf and running the earlier Stadium and native Prism tests.
+
+Let `B` be the number of printed Basic Pokémon among the source 60, `s` the total Stadium copies, and `c_i` each distinct Stadium-name copy count. Define `F(N)=C(N,7)-C(N-s,7)-sum_i(C(N-s+c_i,7)-C(N-s,7))` for a pool of `N` cards retaining all `s` Stadiums. Since Stadiums and Basics are disjoint cards, the exact conditional probability is
+
+`P(>=2 Stadium names in first seven | >=1 printed Basic in first seven) = [F(60)-F(60-B)] / [C(60,7)-C(60-B,7)]`.
+
+The **field-uniform mean across 29 individually Basic-conditioned original source sixties is 1.4618047251%**. The denominator is deck-specific and the result should be averaged across decks only as a declared equal-weighted descriptive comparison.
+
+| Known original rank | Printed Basic copies | Unconditional 7 | Conditioned on Basic-valid 7 |
+| ---: | ---: | ---: | ---: |
+| 5 Mew/Genesect | 11 | 4.3438% | **3.7558%** |
+| 6 Iron Thorns | 4 | 3.3548% | **2.6278%** |
+| 9 Absol/Electrode | 11 | 5.3329% | **4.6209%** |
+| 11 Absol/Garbodor | 11 | 4.3438% | **3.7558%** |
+| 15 Lopunny/Vileplume | 14 | 9.0242% | **8.1281%** |
+| 24 Iron Thorns | 4 | 1.1864% | **0.9201%** |
+| 29 Iron Thorns | 4 | 5.3329% | **4.2104%** |
+| **Mean of 29** | Varies | **1.6973%** | **1.4618%** |
+
+This model conditions only on a seven-card opening containing a *printed Basic*. It does not incorporate alternative starting Pokémon abilities (if applicable), Pokémon selected as Active, player choices about opening Bench, the opponent's mulligans and compensatory draw, six Prize cards, any subsequent search/draw, observed game-state legality, or whether the replacement is tactically beneficial. It still measures a **card-in-hand event, not an enumerator error rate or win-rate change**. The three missing original rank inventories remain outside its denominator.
+
+The immediately preceding [run 42196341008](https://github.com/FlareZ123/experiment-01/actions/runs/42196341008) failed only on a documented diamond-glyph mismatch for exact Ditto Prism Star name comparison. The already-vetted numeric collector identity was correct; after adding explicit normalization and a matching regression, [run 42196603251](https://github.com/FlareZ123/experiment-01/actions/runs/42196603251) passed every stage, including the original native Prism replacement observer.
