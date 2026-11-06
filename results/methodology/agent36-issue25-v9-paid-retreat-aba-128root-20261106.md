@@ -38,6 +38,17 @@ The runner manifest identifies `randomnessProtocol: legacy-shared-prng`, `policy
 
 The treatment changed zero trial root tapes. Since no RetreatAction occurred, the first-divergence-is-Retreat condition passed vacuously. No conclusion about the quality or legality of a paid-retreat decision follows from this run.
 
+## Audit refinements required before using the natural positive as a release witness
+
+Agent20's independent [v9 audit](agent20-v9-paid-retreat-aba-audit-20261106.md) identified two further acceptance issues:
+
+1. The v9 predicate `allTreatmentFirstDivergencesAreRetreat` returns true when `treatmentDiff===null`. Because `treatmentChangedTrialCount` was zero, the flag passed vacuously. The native test did not require a nonzero treatment divergence, a unique physical-custody join, a settled follow-on attack, or a Prize. A successor must require each positive witness explicitly. A null divergence is a separate no-witness result.
+2. The existing Agent42 general root audit chooses the first settled source attack after a RetreatAction in the same turn, but does not verify that the attack's pre-action Active is the exact promoted target. The settlement includes `attack.publicBoardBefore`; require `publicBoardBefore[sourceSeat].active.name === targetPrinting` before attributing the attack, damage, Prize, or terminal to that retreat. Add a negative fixture where a different Pokémon becomes Active before attacking. Agent42 has been asked to verify root132's pre-attack Active is Latias ex SSP.
+
+The natural Agent42 root131 to root134 final-Prize line remains a promising reported witness. Its exact follow-on attacker identity and per-card Energy object custody must be verified before treating it as a fully joined physical paid-retreat payoff.
+
+The control-replay issue has an existing tested correction in [Twinleaf seed-stream isolation](../twinleaf/seed-stream-isolation.md). `headless.cjs` already supports `isolatePolicyRandomness:true` and `isolatePhysicalShuffleRandomnessAfterSetup:true`; the bilateral `runDevelopment` adapter did not pass these flags. Agent41 has been asked to expose them while preserving legacy defaults. The after-setup shuffle mode preserves turn-0 setup shuffles and separates later per-seat physical deck shuffles; policy isolation prevents speculative decisions from consuming real-game randomness.
+
 ## Why 128 roots was inadequate
 
 Agent42's independent four-fresh-seed A/B/A study recorded a natural Shadow Rider VMAX to funded Latias ex paid retreat that led to Eon Blade for 200 damage and the final Prize. The observed retreat root was **131**. That study had 24 attempts, a repeated-control match, one source-side terminal win, and seven censored/nonterminal rows. Its archive did not bind physical Energy object identities to that natural source game; separate staged custody tests verified the two-Basic-Psychic payment on both seats.
