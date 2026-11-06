@@ -41,6 +41,7 @@ function fixture() {
   const audit=[{label:LABEL,volt:{agent9RealOwnerDecisionAudit:{
     actorOwnedRootObservations:1,realStoreRootProposals:[{
       seat:1,globalTurn:16,nativeProposedAction:'PassTurnAction',
+      isAcceptedStoreRoot:true,
       ownerHand:['VS Seeker PHF','Speed Lightning Energy LOT'],
       ownerPublic:{active:{printing:'Iron Thorns ex TWM'}},
       opponentPublic:{active:{printing:'Tapu Lele-GX GRI'}},
@@ -55,6 +56,7 @@ test('uses the actual source seat and accepted root; owner hand is observed, not
   assert.equal(x.registeredArms,1);
   assert.equal(x.fullPublicReplayNoninterference,true);
   assert.equal(x.ownerObservationMatches,1);
+  assert.equal(x.ownerReadOnlyReturns[0].matchingStoreAcceptedPassCount,1);
   assert.equal(x.ownerReadOnlyReturns[0].nextOwnerTurn,16);
   assert.deepEqual(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,
     ['VS Seeker PHF','Speed Lightning Energy LOT']);
@@ -90,5 +92,43 @@ test('preserves owner proposal uncertainty when the real bot was not observed',(
   assert.equal(x.ownerObservationMatches,0);
   assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
     'owner-observer-missing');
+  assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
+});
+
+test('never admits owner-hand information from an unaccepted Pass proposal',()=>{
+  const f=fixture();
+  f.audit[0].volt.agent9RealOwnerDecisionAudit.realStoreRootProposals[0].
+    isAcceptedStoreRoot=false;
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,
+    {screen:classifyBaton});
+  assert.equal(x.ownerObservationMatches,0);
+  assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
+    'pass-proposed-but-not-store-accepted');
+  assert.equal(x.ownerReadOnlyReturns[0].matchingPassProposalCount,1);
+  assert.equal(x.ownerReadOnlyReturns[0].matchingStoreAcceptedPassCount,0);
+  assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
+  assert.equal(x.ownerReadOnlyReturns[0].printedDceBatonNecessaryScreen,null);
+});
+
+test('multiple accepted native Pass proposals in one owner turn remain ambiguous',()=>{
+  const f=fixture();
+  const proposals=f.audit[0].volt.agent9RealOwnerDecisionAudit.
+    realStoreRootProposals;
+  proposals.push({...proposals[0],ownerHand:['Mysterious Treasure FLI']});
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,
+    {screen:classifyBaton});
+  assert.equal(x.ownerObservationMatches,0);
+  assert.equal(x.ownerReadOnlyReturns[0].matchedObservationStatus,
+    'ambiguous-store-accepted-pass-proposals');
+  assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
+  assert.equal(x.ownerReadOnlyReturns[0].printedDceBatonNecessaryScreen,null);
+});
+
+test('accepted Store Pass still needs an accepted matching public root',()=>{
+  const f=fixture();
+  f.archive.attempts[0].publicRootActions[2].action='PlayCardAction';
+  const x=reconcileOwnerObservation(f.archive,f.audit,f.baseline,
+    {screen:classifyBaton});
+  assert.equal(x.ownerObservationMatches,0);
   assert.equal(x.ownerReadOnlyReturns[0].ownerHandAtNativePass,null);
 });
