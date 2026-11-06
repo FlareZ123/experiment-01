@@ -47,20 +47,25 @@ if (require.main === module) {
   const rank6 = require('../results/aichi-2026/full-decklists.json').decks.find(d => d.rank === 6);
   assert.ok(rank6);
   const policy = require('../simulation/twinleaf/agent45-owner-ghala-after-tagcall.cjs');
-  const witness = {
-    postSearchHand:[
-      'Cynthia & Caitlin CEC','Sidney FST 241','Captivating Poké Puff STS',
-      'Thunder Mountain Prism Star LOT','Double Colorless Energy SUM',
-      'Handheld Fan TWM'
-    ],
-    absentImmediatelyBeforeSearch:[
-      'Thunder Mountain Prism Star LOT','Double Colorless Energy SUM'
-    ],
-    physicalOwnerDeckCardsMoved:3,
-    noOtherHandAcquisition:true
-  };
-  const solution=inferThreeNames(rank6.cards,policy,witness);
-  process.stdout.write(JSON.stringify({sourceRank:6,trialIds:[
-    '6:101:B:champion-reference','6:101:B:new-moon-lockbreaker-v1'
-  ],...solution},null,2)+'\n');
+  const commonHand = [
+    'Cynthia & Caitlin CEC','Sidney FST 241','Captivating Poké Puff STS',
+    'Thunder Mountain Prism Star LOT','Double Colorless Energy SUM',
+    'Handheld Fan TWM'
+  ];
+  const trials = [
+    {id:'6:101:B:champion-reference',additionalHand:[]},
+    {id:'6:101:B:new-moon-lockbreaker-v1',additionalHand:['Echoing Horn CRE']}
+  ];
+  const results = trials.map(trial => {
+    const witness = {
+      postSearchHand:[...commonHand,...trial.additionalHand],
+      absentImmediatelyBeforeSearch:[
+        'Thunder Mountain Prism Star LOT','Double Colorless Energy SUM'
+      ],
+      physicalOwnerDeckCardsMoved:3,
+      noOtherHandAcquisition:true
+    };
+    return {id:trial.id,...inferThreeNames(rank6.cards,policy,witness)};
+  });
+  process.stdout.write(JSON.stringify({sourceRank:6,results},null,2)+'\n');
 }
