@@ -344,6 +344,8 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [capturePublicMulliganReveals] Read-only exact public invalid opening hands from the opponent-facing native ShowMulliganPrompt.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
+ * @property {(store:object)=>void} [onRootStoreCreated] Runtime-only callback for the actual match Store.
+ * @property {(store:object,action:object,actionOrdinal:number,seat:number,turnBefore:number)=>void} [onRootActionDispatched] Runtime-only callback after each successful actual Store dispatch.
  * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
@@ -775,6 +777,7 @@ function runMatch(request) {
     });
     store.state.gameSettings = settings;
     store.state.rules = settings.rules;
+    request.onRootStoreCreated?.(store);
     if (request.paperTerminalAttackKoCorrection === true) {
       const {EndTurnEffect}=engine('game/store/effects/game-phase-effects');
       const {CheckHpEffect}=engine('game/store/effects/check-effects');
@@ -1838,6 +1841,7 @@ function runMatch(request) {
           }} : {})
         });
       }
+      request.onRootActionDispatched?.(store,action,actions,seat,turnBefore);
       if (abilityInfo) abilityTrace.push(abilityInfo);
       if (attackInfo) {
         attackInfo.prizeCountAfter = store.state.players.map(player =>
