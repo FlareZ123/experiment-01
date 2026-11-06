@@ -6,9 +6,10 @@ const {publicAbilityContext,withRejectedUnderworldPublicLockWitness}=
 
 class AddPlayerAction{}
 class UseAbilityAction{
-  constructor(clientId,name){
+  constructor(clientId,name,target={player:2,slot:2,index:1}){
     this.clientId=clientId;
     this.name=name;
+    this.target=target;
   }
 }
 class DummyStore{
@@ -39,11 +40,16 @@ function state(){
   };
 }
 test('printed live public Underworld targets and owner seat only',()=>{
-  const publicState=publicAbilityContext(state(),1);
+  const publicState=publicAbilityContext(state(),1,
+    {player:2,slot:2,index:1},(_state,owner,target)=>
+      owner.bench[target.index]);
   assert.equal(publicState.actingSeat,0);
   assert.equal(publicState.opposingActiveIronThornsEx,true);
   assert.deepEqual(publicState.opposingActivePowerNames,['Initialization']);
   assert.equal(publicState.actingUnderworldSources.length,2);
+  assert.equal(publicState.nativeActionTarget.hasPrintedUnderworldDoor,true);
+  assert.equal(publicState.nativeActionTarget.resolvedPrinting,
+    'Shadow Rider Calyrex VMAX');
   assert.deepEqual(publicState.actingUnderworldSources.map(x=>x.zone),
     ['Active','Bench']);
 });
@@ -61,6 +67,7 @@ test('post native rejection, probe printed Powers without changing dispatch',()=
     return true;
   },{
     Store:DummyStore,
+    getTarget:(_state,owner,target)=>owner.bench[target.index],
     isAbilityBlocked:(store,st,owner,card,power)=>{
       assert.equal(originalThrowSeen,false);
       checkAfterThrow=store.trace.includes('UseAbilityAction');
@@ -77,6 +84,8 @@ test('post native rejection, probe printed Powers without changing dispatch',()=
   assert.equal(observed.audit.exactRejectedUnderworldActions,1);
   const event=observed.audit.events[0];
   assert.equal(event.preDispatchPublicContext.actingSeat,0);
+  assert.equal(event.preDispatchPublicContext.nativeActionTarget.
+    hasPrintedUnderworldDoor,true);
   assert.equal(event.preDispatchPublicContext.opposingActive,
     'Iron Thorns ex');
   assert.equal(event.postRejectionSpecificNativePowerChecks.length,2);
@@ -92,7 +101,8 @@ test('separate games indexed and non-target rejected action excluded',()=>{
         i===0?'Other Power':'Underworld Door')),/UNKNOWN_POWER/);
     }
     return 2;
-  },{Store:DummyStore,isAbilityBlocked:()=>false});
+  },{Store:DummyStore,getTarget:(_s,owner,t)=>owner.bench[t.index],
+    isAbilityBlocked:()=>false});
   assert.equal(x.audit.liveGameCount,2);
   assert.equal(x.audit.events.length,1);
   assert.equal(x.audit.events[0].liveGameIndex,1);
@@ -104,6 +114,7 @@ test('unrecognized owner ID fails closed and restores native dispatch',()=>{
     const store=new DummyStore(state());
     store.dispatch(new AddPlayerAction());
     store.dispatch(new UseAbilityAction(9,'Underworld Door'));
-  },{Store:DummyStore,isAbilityBlocked:()=>true}),/owner ID/);
+  },{Store:DummyStore,getTarget:(_s,owner,t)=>owner.bench[t.index],
+    isAbilityBlocked:()=>true}),/owner ID/);
   assert.equal(DummyStore.prototype.dispatch,original);
 });
