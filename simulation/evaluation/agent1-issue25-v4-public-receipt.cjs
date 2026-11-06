@@ -128,6 +128,7 @@ function writeReceipt(execution, directory, options={}) {
     'issue25-steward-v5',
     'issue25-steward-v6',
     'issue25-steward-v7',
+    'issue25-steward-v8',
     'agent45-issue25-v5-control',
     'agent45-issue25-v6-native-vip'].includes(prefix));
   const content = JSON.stringify(buildReceipt(execution, options), null, 2) + '\n';
