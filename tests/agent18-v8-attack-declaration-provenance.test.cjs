@@ -13,7 +13,7 @@ function sha256(value){
 }
 
 /**
- * Construct a synthetic, stamped 8-arm archive with true Store-origin
+ * Construct a synthetic, stamped 8-arm archive with Store-origin-shaped
  * declarations that need not arise from an AttackAction root.
  * @param {{corruptRoot?:boolean}} [options]
  * @returns {{bytes:Buffer,sidecar:string}}
