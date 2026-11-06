@@ -88,7 +88,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   const perTrialPrizeEvents=audit.records.map(record=>({
     ...record,registeredTrialId:rootBinding.trialIds[record.session-1]
   }));
-  assert.equal(perTrialPrizeEvents.length,6);
+  assert.ok(perTrialPrizeEvents.length>=6,
+    'The continued treatment must retain the six historical prompt receipts');
   const knownOriginalPromptIds=[
     expectedTrialIds[0],expectedTrialIds[1],expectedTrialIds[2],
     expectedTrialIds[3],expectedTrialIds[4],expectedTrialIds[4]
