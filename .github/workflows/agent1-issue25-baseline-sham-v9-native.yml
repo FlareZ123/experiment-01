@@ -33,13 +33,18 @@ on:
         type: boolean
         required: false
         default: false
+      common_v14_filch_v15:
+        description: Run registered original-eight bilateral cautious Filch A/B/A at 260 roots
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -275,5 +280,39 @@ jobs:
         with:
           name: agent1-v14-native-horizon260-${{ github.run_id }}
           path: artifacts/agent1-v14-native-horizon260/
+          if-no-files-found: warn
+          retention-days: 30
+
+  issue25-v15-bilateral-filch-native:
+    if: ${{ inputs.common_v14_filch_v15 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check bilateral Filch owner action and exact native A/B/A provenance
+        run: node --test tests/agent1-conservative-owner-filch.test.cjs tests/agent1-v15-bilateral-filch-conservation-aba.test.cjs
+      - name: Execute 24 native original-eight A/B/A with single owner Filch difference
+        env:
+          AGENT1_V15_FILCH_ABA_DIR: artifacts/agent1-v15-bilateral-filch-aba
+        run: node --test tests/agent1-v15-bilateral-filch-conservation-aba.native.test.cjs
+      - name: Archive all registered 24 native original roots and outcomes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-v15-bilateral-filch-aba-${{ github.run_id }}
+          path: artifacts/agent1-v15-bilateral-filch-aba/
           if-no-files-found: warn
           retention-days: 30
