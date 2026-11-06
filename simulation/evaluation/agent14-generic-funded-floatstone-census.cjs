@@ -123,6 +123,13 @@ function run(){
       assert.ok(aggregate.heldGateCounts[gate]<=aggregate.ownerHeldToolRoots,
         'held-only gate count exceeds held-root denominator');
     }
+    aggregate.heldPayableTargetSamples=sections.flatMap(section=>
+      (section.census.heldPayableTargetSamples??[]).map(sample=>({
+        trialId:section.id,...sample
+      })));
+    assert.equal(aggregate.heldPayableTargetSamples.length,
+      aggregate.heldGateCounts.benchHasPayableAttack,
+      'sample coverage must equal full low-count payable owner-root census');
     const result={
       version:VERSION,registeredTrials:trials.map(x=>x.id),
       enginePin:profile.pinnedVendorRevision,
