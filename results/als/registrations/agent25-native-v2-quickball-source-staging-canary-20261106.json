@@ -1,0 +1,24 @@
+{
+  "version": "agent25-v2-native-quickball-source-staging-canary-precommit",
+  "date": "2026-11-06",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "purpose": "Check v2 owner source attribution against exact genuine native Quick Ball staging and false-positive controls",
+  "seats": [
+    0,
+    1
+  ],
+  "payments": [
+    "Shuppet M5",
+    "Grass Energy MEE"
+  ],
+  "ownerHasDhelmiseActive": true,
+  "ownerHoldsBattleCompressor": true,
+  "quickBallPrinting": "Quick Ball SSH",
+  "hypotheses": {
+    "donor": "Actual native single-card discard prompt has no sourceCard and a Quick Ball in owner.supporter; v2 selects physical held Shuppet and its valid prompt moves to owner discard.",
+    "nondonor": "With Grass Energy offered and no HNS donor, v2 returns null but a native valid payer still exists."
+  },
+  "stagedBoard": true,
+  "notNatural60": true,
+  "qualifiedGameCount": 0
+}
