@@ -96,18 +96,40 @@ function selectedTrials(manifest){
  */
 function summarize(row,actions,gameIndexReliable,lockEvents=[]){
   const evidence=row.nativeAbortEvidence??{};
+  const id=row.trial?.id??row.id;
+  const historicalTarget=REG.contexts.find(context=>context.id===id);
+  const acceptedPublicLedger=Array.isArray(row.rootActionLedger)?
+    row.rootActionLedger:Array.isArray(evidence.rootActionLedger)?
+      evidence.rootActionLedger:[];
+  const pivot=historicalTarget?.priorNativeAbortRoot??null;
+  const nativeAfterPivot=pivot===null?[]:
+    acceptedPublicLedger.slice(pivot,Math.min(pivot+28,
+      acceptedPublicLedger.length)).map(x=>({
+      actionOrdinal:x.actionOrdinal??null,
+      turnBefore:x.turnBefore??null,
+      playerSlot:x.playerSlot??null,
+      action:x.action??null,
+      card:x.card??null,
+      attack:x.attack??null
+    }));
   return {
-    id:row.trial?.id??row.id,
+    id,
     status:row.status??null,
     nativeFinished:row.finished===true,
+    nativeEndReason:row.endReason??null,
+    nativeTurnCount:row.turns??null,
+    historicalOriginalAbortOrdinal:pivot,
+    nativeFirst28AcceptedPublicRootsAfterOriginalAbort:
+      nativeAfterPivot,
+    nativePublicRootAfterAbortCount:nativeAfterPivot.length,
     originalFullPhysicalDealFingerprint:
       row.fullPhysicalDealFingerprint??null,
     originalSourceDealFingerprint:
       row.sourceDealFingerprint??evidence.sourceDealFingerprint??null,
     acceptedRootLedgerSha256:
       row.rootActionLedgerSha256??evidence.rootActionLedgerSha256??null,
-    acceptedRootCount:Array.isArray(row.rootActionLedger)?
-      row.rootActionLedger.length:null,
+    acceptedRootCount:row.rootActionCount??evidence.rootActionCount??
+      (acceptedPublicLedger.length>0?acceptedPublicLedger.length:null),
     abortStage:evidence.failureStage??null,
     abortedRootOrdinal:evidence.actionOrdinal??null,
     abortTurn:evidence.turnBefore??null,
