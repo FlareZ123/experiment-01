@@ -502,6 +502,7 @@ test('bilateral adapter preserves legacy RNG defaults and records isolated proto
   assert.deepEqual(rngProtocolSelection(),{
     request:{
       isolatePolicyRandomness:false,
+      isolatePhysicalShuffleRandomness:false,
       isolatePhysicalShuffleRandomnessAfterSetup:false
     },
     manifest:{
@@ -525,6 +526,7 @@ test('bilateral adapter preserves legacy RNG defaults and records isolated proto
   }),{
     request:{
       isolatePolicyRandomness:true,
+      isolatePhysicalShuffleRandomness:false,
       isolatePhysicalShuffleRandomnessAfterSetup:true
     },
     manifest:{
