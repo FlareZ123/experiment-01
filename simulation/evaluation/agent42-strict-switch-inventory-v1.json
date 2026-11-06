@@ -1,5 +1,5 @@
 {
-  "version": "agent42-strict-switch-inventory-v1.2-known-six-source",
+  "version": "agent42-strict-switch-inventory-v1.3-known-six-source",
   "status": "six-source-partial-transitive-inventory-only-not-competitive",
   "scope": "existing canonical native development runner and nested actor policy",
   "checkedSources": [
@@ -28,13 +28,14 @@
       "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 128,
+  "keyCount": 132,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
     "AGENT12_NATIVE_TARGET_SIDECAR_DEV",
     "AGENT12_SAME_TARGET_ATTACH_DEV",
     "AGENT13_MEW_GENES_COPY_DEV",
+    "AGENT13_MEW_SELF_COPY_MAX_MIRACLE_DEV",
     "AGENT14_THORNS_SOLO_HOLD_DEV",
     "AGENT15_SHARED_SOURCE_PAYMENT_PORTFOLIO_DEV",
     "AGENT16_OWNER_ARBITRATION_CENSUS_DEV",
@@ -88,9 +89,12 @@
     "AGENT40_JET_BENCH_SWITCH_DEV",
     "AGENT41_ACTOR_POWERGLASS_ROOT_DEV",
     "AGENT41_ACTOR_SINGLE_SEARCH_DEV",
+    "AGENT41_BILATERAL_JET_BENCH_DEV",
     "AGENT41_BILATERAL_PUBLIC_SPECIAL_DEV",
     "AGENT41_BILATERAL_SPECIAL_ENERGY_DEV",
     "AGENT41_ENERGY_CONTEST_DEV",
+    "AGENT41_ISOLATE_PHYSICAL_SHUFFLE_AFTER_SETUP",
+    "AGENT41_ISOLATE_POLICY_RANDOMNESS",
     "AGENT41_MANDATORY_OPTION_DEV",
     "AGENT41_NATIVE_FREE_FLARE_CHOICE_DEV",
     "AGENT41_NATIVE_HIDDEN_READ_DEV",
@@ -168,7 +172,7 @@
     "informationSafe": false,
     "officialAichiClockCertified": false
   },
-  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin. 2026-11-02 Agent16 audited 14 newly reachable literal environment names against exact source text (12 opt-ins/seat selectors; AGENT41_PARTITION is CLI partition selection and GITHUB_SHA a read-only provenance label). These keys remain disabled/neutral absent their specified values. This classification is a static mention audit, not a frozen effective profile or a behavioral/paper safety certification. 2026-11-02 evening Agent16 separately reaudited six newly reachable opt-in environment names (four actor/guard, one scripted scenario guard and one Quick Ball transaction audit), with their exact current source paths. Generic development may tolerate source SHA drift only; actual inventory-test failure still vetoes both execution lanes.",
+  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin. 2026-11-02 Agent16 audited 14 newly reachable literal environment names against exact source text (12 opt-ins/seat selectors; AGENT41_PARTITION is CLI partition selection and GITHUB_SHA a read-only provenance label). These keys remain disabled/neutral absent their specified values. This classification is a static mention audit, not a frozen effective profile or a behavioral/paper safety certification. 2026-11-02 evening Agent16 separately reaudited six newly reachable opt-in environment names (four actor/guard, one scripted scenario guard and one Quick Ball transaction audit), with their exact current source paths. Generic development may tolerate source SHA drift only; actual inventory-test failure still vetoes both execution lanes. 2026-11-06 Agent31 audited four newly statically reachable literal true opt-ins only in the canonical bilateral runner: two actor-branch selectors and two RNG protocol toggles. They remain default OFF and do not establish equivalent physical deals across changed RNG flags, successful native payments, paper-rule legality, or a release-qualified policy. Existing six historical entrypoint blob pins were deliberately not repinned and still report moving-main drift.",
   "reviewedNewEnvironmentKeys20261102": {
     "AGENT13_MEW_GENES_COPY_DEV": {
       "kind": "opt-in",
@@ -300,6 +304,28 @@
       "kind": "actor-opt-in",
       "firstVerifiedSource": "simulation/twinleaf/agent4-plumeria-after-pass.cjs",
       "sourceInterpretation": "Default-off explicit true selects an alternate exact two-card owner-hand payment only inside an authentic, already chosen Plumeria mandatory discard prompt; keeps one Trainers' Mail when opposing public board has no visible Special Energy and an eligible Enhanced Hammer is physically held. Native prompt validator still decides legality; not a strategy or paper-game certification."
+    }
+  },
+  "reviewedNewEnvironmentKeys20261106": {
+    "AGENT13_MEW_SELF_COPY_MAX_MIRACLE_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "Default-off literal true maps to actorMewMaxMiracleOverSelfCopy. This changes the experimental owner copied-attack preference; the Store and paper attack legality, target, cost and outcome remain unverified. No default policy drift is implied."
+    },
+    "AGENT41_BILATERAL_JET_BENCH_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "Default-off literal true maps to bilateralJetBenchSwitchRoot and exposes an owner-public Jet Energy Bench-switch option on both physical seats. Actual Energy attachment and switch settlement require native Store receipts; this is no paper-play certification."
+    },
+    "AGENT41_ISOLATE_PHYSICAL_SHUFFLE_AFTER_SETUP": {
+      "kind": "rng-protocol-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "Default-off literal true maps to isolatePhysicalShuffleRandomnessAfterSetup; changes the experimental random stream after the opening setup. This affects reproducibility and paired comparison identity and must be registered separately for any simulation inference."
+    },
+    "AGENT41_ISOLATE_POLICY_RANDOMNESS": {
+      "kind": "rng-protocol-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "Default-off literal true maps to isolatePolicyRandomness; changes research actor RNG isolation while leaving the exact physical source-deal protocol subject to separate verification. Seed and RNG configuration must be carried with every result."
     }
   }
 }
