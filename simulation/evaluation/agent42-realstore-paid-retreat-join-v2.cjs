@@ -42,7 +42,7 @@ function join(row,wrapperAudit,sourceSeat){
   const attacks=row.sourceAttackSettlement?.attacks??[];
   const receipts=wrapperAudit?.receipts??[];
   const sourceSettlementSeat=row.sourceAttackSettlement?.candidateSeat??null;
-  const sourceSettlementActorMatches=sourceSettlementSeat===sourceSeat;
+  const sourceAttackSettlementActorMatches=sourceSettlementSeat===sourceSeat;
   const results=[];
   for(const root of row.rootActionLedger){
     if(root.playerSlot!==sourceSeat||root.action!=='RetreatAction')continue;
@@ -58,7 +58,7 @@ function join(row,wrapperAudit,sourceSeat){
       r.turn===root.turnBefore&&r.sourceSeat===sourceSeat&&
       r.rootActionSeat===sourceSeat&&r.rootActionTurn===root.turnBefore&&
       r.benchIndex===benchIndex&&r.targetPrinting===targetPrinting);
-    const candidateAttack=sourceSettlementActorMatches?
+    const candidateAttack=sourceAttackSettlementActorMatches?
       attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
         a.turnBefore===root.turnBefore&&a.settledPromptChain===true&&
         a.settlementCrossesClockReset!==true)??null:null;
