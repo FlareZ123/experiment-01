@@ -740,6 +740,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       partiallyFundedActiveRoots:0,currentlyEligibleRoots:0,
       eligibleBySeat:[0,0],declinedWhileToolHeld:0,
       selectedAsNativeIntent:0,eligibleSamples:[],
+      heldPayableTargetSamples:[],
       heldGateCounts:Object.fromEntries(require(
         './agent14-floatstone-held-owner-gates.cjs').FIELDS.map(x=>[x,0]))
     },
@@ -1276,6 +1277,15 @@ function withActorOnlyRootPolicy(run,deps={}){
         const gates=heldFloatGateFlags(view,catalog);
         for(const gate of FIELDS){
           if(gates[gate])census.heldGateCounts[gate]++;
+        }
+        if(gates.benchHasPayableAttack&&
+            census.heldPayableTargetSamples.length<32){
+          census.heldPayableTargetSamples.push({
+            globalTurn:view.globalTurn,seat,
+            active:view.ownPublic.active?.printing??null,
+            opponentActive:view.opponentPublic?.active?.printing??null,
+            payableTargets:gates.benchPayableTargets
+          });
         }
       }
       if(attached)census.ownerAttachedToolRoots++;
