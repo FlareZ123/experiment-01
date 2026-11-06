@@ -16,7 +16,14 @@ function twoPsychicPayment(active,catalog){
 
 function attackBlocked(pokemon,attack){
   const r=pokemon?.publicRestrictions;
-  if(!r||!Array.isArray(r.cannotUseAttacksNextTurn))return true;
+  if(!r||typeof r.cannotAttackNextTurn!=='boolean'||
+     !Array.isArray(r.cannotUseAttacksNextTurn)||
+     ![null,undefined].includes(r.blockedAttackNameNextTurn)&&
+       typeof r.blockedAttackNameNextTurn!=='string'||
+     ![null,undefined].includes(r.blockedAttackNameUntilLeavesActive)&&
+       typeof r.blockedAttackNameUntilLeavesActive!=='string'||
+     ![null,undefined].includes(r.onlyAllowedAttackNameNextTurn)&&
+       typeof r.onlyAllowedAttackNameNextTurn!=='string')return null;
   return r.cannotAttackNextTurn===true||
     r.blockedAttackNameNextTurn===attack.name||
     r.blockedAttackNameUntilLeavesActive===attack.name||
@@ -31,7 +38,9 @@ function activeHasCompetingAttack(view,catalog,active){
   for(const attack of active.attacks){
     if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
       return null;
-    if(attackBlocked(active,attack))continue;
+    const blocked=attackBlocked(active,attack);
+    if(blocked===null)return null;
+    if(blocked)continue;
     if(attack.gxAttack===true){
       if(typeof usage?.gxUsed!=='boolean'||
          typeof usage?.cannotUseGXAttacks!=='boolean')return null;
@@ -80,6 +89,12 @@ function opponentHasUnmodeledDamageOrPrizeText(view){
     }
   }
   return false;
+}
+
+function ownerHasUnmodeledFreeMobility(view){
+  if(!Array.isArray(view.ownHand))return true;
+  const patterns=/^(?:Switch|Switch Cart|Escape Rope|Guzma|Bird Keeper|Tate & Liza|AZ|Acerola|Super Scoop Up|Scoop Up Net|Air Balloon|Escape Board|U-Turn Board) /;
+  return view.ownHand.some(card=>typeof card!=='string'||patterns.test(card));
 }
 
 function retreatAbilityGuard(view,catalog,active){
@@ -138,6 +153,7 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active;
   const resources=view.ownTurnResources,opponent=view.opponentPublic;
+  if(ownerHasUnmodeledFreeMobility(view))return null;
   if(active&&retreatAbilityGuard(view,catalog,active)!=='printed')return null;
   if(!active||!opponent?.active||!Array.isArray(own?.bench)||
      !Array.isArray(own.stadium)||!Array.isArray(opponent.stadium)||
@@ -172,7 +188,9 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
     for(const attack of pokemon.attacks){
       if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
         return null;
-      if(attack.gxAttack===true||attackBlocked(pokemon,attack)||
+      const blocked=attackBlocked(pokemon,attack);
+      if(blocked===null)return null;
+      if(attack.gxAttack===true||blocked||
          !publicSpecialAttackPayable(view,catalog,pokemon,attack))continue;
       const damage=postRetreatPrintedDamage(view,pokemon,attack,payment,catalog);
       if(!Number.isSafeInteger(damage)||damage<=0)continue;
@@ -197,6 +215,6 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
 }
 
 module.exports={VERSION,twoPsychicPayment,attackBlocked,
-  activeHasCompetingAttack,postRetreatPrintedDamage,
+  activeHasCompetingAttack,ownerHasUnmodeledFreeMobility,postRetreatPrintedDamage,
   opponentHasUnmodeledDamageOrPrizeText,projectedPrizeOutcome,
   proposeTwoUnitPaidRetreatV2};
