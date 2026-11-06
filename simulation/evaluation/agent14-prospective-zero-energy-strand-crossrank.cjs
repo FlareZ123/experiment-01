@@ -18,14 +18,14 @@ const REGISTERED_BLOB='212b9f0756529746e6a1b0e9008b27a914bbb951';
 
 /**
  * Only ever inspect the committed registration with no native result reads.
+ * @param {{requireNativePin?:boolean}} [options] Require engine checkout only before native runs.
  * @returns {object} Immutable preregistered experimental frame.
  */
-function preflight(){
+function preflight({requireNativePin=false}={}){
   const bytes=fs.readFileSync(path.resolve(__dirname,'../..',REG));
   assert.equal(gitBlobHash(bytes),REGISTERED_BLOB);
   const reg=JSON.parse(bytes.toString('utf8'));
-  assert.equal(reg.schema,VERSION.replace('agent14-fresh-crossrank-zero-energy-strand-pair-v1',
-    'agent14-prospective-zero-energy-strand-crossrank-v1'));
+  assert.equal(reg.schema,'agent14-prospective-zero-energy-strand-crossrank-v1');
   assert.equal(reg.registrationPrecedesAllNativeResultsForTheseSeeds,true);
   assert.equal(reg.noResultsExaminedAtRegistration,true);
   assert.equal(reg.expectedNativeAttempts,64);
@@ -56,10 +56,10 @@ function preflight(){
     assert.ok(reg.candidateIds.includes(trial.candidateId));
   }
   assert.equal(new Set(reg.trials.map(x=>x.id)).size,32);
-  const parent=preflightPinnedSource();
-  assert.equal(parent.pin,parent.registration.nativeEnginePin);
-  return {reg,enginePin:parent.pin,registeredBlob:REGISTERED_BLOB,
-    frozenCommonPolicy:parent.registration.frozenCommonPolicy};
+  const parent=requireNativePin?preflightPinnedSource():null;
+  if(parent)assert.equal(parent.pin,parent.registration.nativeEnginePin);
+  return {reg,enginePin:parent?.pin??null,registeredBlob:REGISTERED_BLOB,
+    frozenCommonPolicy:parent?.registration.frozenCommonPolicy??null};
 }
 
 /** @param {object} row @returns {object[]} Accepted roots, including native aborts. */
@@ -197,7 +197,7 @@ function pairSummary(before,after){
 
 /** @returns {object} Two full native arms, never competitive games. */
 function run(){
-  const p=preflight();
+  const p=preflight({requireNativePin:true});
   const common={
     ...p.frozenCommonPolicy,
     registeredTrials:p.reg.trials,
