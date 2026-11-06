@@ -116,14 +116,16 @@ test('nominal opposing Guzma gust is default-off, explicitly forwarded, and requ
     guzmaOwnerPromptContinuation:true
   });
   assert.equal(original.result,17);
-  assert.deepEqual(forwarded,{nominalGust:false});
+  assert.deepEqual(forwarded,{nominalGust:false,
+    forcedGuzmaNominalKo:false,rank9SpecialFundedGuzma:false});
   assert.equal(original.audit.guzmaNominalGustOptIn,false);
   forwarded=null;
   const proposed=withCanonicalActorOnlyPolicy(()=>18,adapters,{
     guzmaOwnerPromptContinuation:true,guzmaNominalGust:true
   });
   assert.equal(proposed.result,18);
-  assert.deepEqual(forwarded,{nominalGust:true});
+  assert.deepEqual(forwarded,{nominalGust:true,
+    forcedGuzmaNominalKo:false,rank9SpecialFundedGuzma:false});
   assert.equal(proposed.audit.guzmaNominalGustOptIn,true);
   assert.ok(proposed.audit.version.includes('agent43-nominal-guzma-gust'));
   assert.equal(proposed.audit.qualification.competitiveGames,0);
