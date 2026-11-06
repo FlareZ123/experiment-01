@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {
   VERSION,withOwnerVsSeekerGuzmaLayer
 }=require('../simulation/twinleaf/agent48-owner-vs-seeker-guzma-layer.cjs');
-const {SimpleTacticsAi}=require('../vendor/twinleaf/ptcg-server/output/game/bots/simple-tactics-ai');
+const {SimpleTacticsAi}=require('../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai');
 const {Store}=require('../vendor/twinleaf/ptcg-server/output/game/store/store');
 
 test('default layer resolves the pinned Twinleaf output and restores native prototypes',()=>{
