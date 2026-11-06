@@ -81,6 +81,37 @@ function opponentHasUnmodeledDamageOrPrizeText(view){
   return false;
 }
 
+function retreatAbilityGuard(view,catalog,active){
+  const own=view.ownPublic,opponent=view.opponentPublic;
+  const ownBoard=[own.active,...own.bench].filter(Boolean);
+  const opposingBoard=[opponent.active,...opponent.bench].filter(Boolean);
+  for(const pokemon of ownBoard){
+    if(!Array.isArray(pokemon.abilityDetails))return 'unknown';
+    for(const ability of pokemon.abilityDetails){
+      const name=ability?.name??'',text=ability?.text??'';
+      if(name==='Skyliner'){
+        if(active.printed?.stage===catalog.stages?.BASIC)return 'free';
+        continue;
+      }
+      if(pokemon.printing==='Snorlax PGO 55'&&name==='Block')continue;
+      if(text.toLowerCase().includes('retreat'))return 'unknown';
+    }
+  }
+  for(const pokemon of opposingBoard){
+    if(!Array.isArray(pokemon.abilityDetails))return 'unknown';
+    for(const ability of pokemon.abilityDetails){
+      const name=ability?.name??'',text=ability?.text??'';
+      if(name==='Skyliner')continue;
+      if(pokemon===opponent.active&&pokemon.printing==='Snorlax PGO 55'&&
+         (name==='Block'||text.toLowerCase().includes("can't retreat")))
+        return 'blocked';
+      if(pokemon.printing==='Snorlax PGO 55'&&name==='Block')continue;
+      if(text.toLowerCase().includes('retreat'))return 'unknown';
+    }
+  }
+  return 'printed';
+}
+
 function projectedPrizeOutcome(view,catalog,damage){
   const own=view.ownPublic,defender=view.opponentPublic?.active;
   if(!defender||!Number.isSafeInteger(defender.hp)||
@@ -102,6 +133,7 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active;
   const resources=view.ownTurnResources,opponent=view.opponentPublic;
+  if(active&&retreatAbilityGuard(view,catalog,active)!=='printed')return null;
   if(!active||!opponent?.active||!Array.isArray(own?.bench)||
      !Array.isArray(own.stadium)||!Array.isArray(opponent.stadium)||
      view.globalTurn<=1||
