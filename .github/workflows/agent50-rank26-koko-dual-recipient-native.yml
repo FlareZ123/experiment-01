@@ -575,6 +575,10 @@ jobs:
         env:
           AGENT3_V18_PHYSICAL_RECEIPT_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v18-ko-source-physical-native.test.cjs
+      - name: Audit unchanged selected developmental v8 native KO source and physical Prize custody
+        env:
+          AGENT3_V19_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v19-v8-ko-source-physical.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
