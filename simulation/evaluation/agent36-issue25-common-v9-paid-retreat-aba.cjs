@@ -22,6 +22,7 @@ const BASE_REGISTRATION_PATH=
   'results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json';
 const BASE_REGISTRATION_BLOB='5425749642c0692034f0db79c889b4ee42284b1a';
 const HASH_PATHS=[
+  '.github/workflows/twinleaf-completion.yml',
   'simulation/evaluation/agent36-issue25-common-v9-paid-retreat-aba.cjs',
   REGISTRATION_PATH,
   BASE_REGISTRATION_PATH,
@@ -46,6 +47,7 @@ function bytes(relative){return fs.readFileSync(path.join(ROOT,relative));}
 /** Verify the immutable base registration and every v9 frozen input. */
 function preflight(){
   const m=registration;
+  assert.deepEqual(m,JSON.parse(bytes(REGISTRATION_PATH).toString('utf8')));
   assert.equal(m.schema,'agent36-issue25-common-v9-paid-retreat-aba-128root-v1');
   assert.equal(m.registeredBeforeFirstNativeAttempt,true);
   assert.equal(m.observedV9AttemptsBeforeRegistration,0);
