@@ -166,3 +166,32 @@ test('locked atomic v6 output is complete or refused',()=>{
     finally{fs.closeSync(fd);fs.unlinkSync(file+'.lock');}
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+
+test('strictly classified native archive loss preserves only proven physical moves',()=>{
+  const err=new Error('The expression evaluated to a falsy value: assert.ok(Array.isArray(rawRoots))');
+  err.code='ERR_ASSERTION';
+  err.agent49FamilyOwnerPromptAudit={
+    ...audit(),selectedSourceId:ID,
+    nativeSourceAttackAccepted:2,genuineOwnerBasicDeckPrompts:2
+  };
+  const r=run({postattack:()=>{throw err;}});
+  assert.equal(r.nativeDisposition,'CENSORED-postgame-root-archive-unavailable');
+  assert.equal(r.secondTurnSourceOwnerBasicPhysicalBenchSettled,true);
+  assert.equal(r.actualOriginalPhysicalOpeningRevalidatedInThisArm,false);
+  assert.equal(r.nativeRootArchiveAvailable,false);
+  assert.equal(r.registeredUntreatedPriorActionPrefix,null);
+  assert.equal(r.originalEight,null);
+  assert.equal(r.opponentAfterSecondFamilyVoluntaryRoots,null);
+  assert.equal(r.competitivelyQualifiedGames,0);
+});
+test('a missing native root ledger cannot excuse unproven physical transfers',()=>{
+  const err=new Error('assert.ok(Array.isArray(rawRoots))');
+  err.code='ERR_ASSERTION';
+  err.agent49FamilyOwnerPromptAudit={
+    ...audit(),selectedSourceId:ID,
+    nativeSourceAttackAccepted:2,genuineOwnerBasicDeckPrompts:2,
+    physicalBenchTransferFailures:1
+  };
+  assert.throws(()=>run({postattack:()=>{throw err;}}), /Array.isArray/);
+});
