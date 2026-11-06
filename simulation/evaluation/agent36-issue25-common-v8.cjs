@@ -59,8 +59,17 @@ function trials(){
  */
 function summarizeNativeAttempt(row,attemptedStatus=null){
   const id=row.trial?.id??row.id??null;
-  const acceptedNativeRootCount=row.rootActionLedger?.length??
-    row.rootActionCount??attemptedStatus?.nativeRootActionCount??null;
+  const directLedger=row.rootActionLedger;
+  const archivedLedger=row.nativePublicRootArchive?.rootActionLedger;
+  const abortLedger=row.nativeAbortEvidence?.rootActionLedger??
+    row.nativeAbortProvenance?.rootActionLedger??null;
+  const observedLedger=Array.isArray(directLedger)&&directLedger.length>0?
+    directLedger:Array.isArray(archivedLedger)?archivedLedger:
+    Array.isArray(abortLedger)?abortLedger:
+    Array.isArray(directLedger)?directLedger:null;
+  const acceptedNativeRootCount=row.rootActionCount??
+    (Array.isArray(observedLedger)?observedLedger.length:
+      attemptedStatus?.nativeRootActionCount??null);
   const rootActionCount=row.rootActionCount??acceptedNativeRootCount;
   const finished=typeof row.finished==='boolean'?row.finished:null;
   const actionCount=Number.isSafeInteger(row.actionCount)?
