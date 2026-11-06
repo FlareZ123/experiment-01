@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent42-any-target-two-psychic-retreat-root-custody-join-v2';
+const VERSION='agent42-any-target-two-psychic-retreat-root-custody-join-v3';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 
 function twoPsychic(cards){
@@ -41,6 +41,8 @@ function join(row,wrapperAudit,sourceSeat){
   const side=row.nativeAcceptedTargetSidecar?.events??[];
   const attacks=row.sourceAttackSettlement?.attacks??[];
   const receipts=wrapperAudit?.receipts??[];
+  const sourceSettlementSeat=row.sourceAttackSettlement?.candidateSeat??null;
+  const sourceSettlementActorMatches=sourceSettlementSeat===sourceSeat;
   const results=[];
   for(const root of row.rootActionLedger){
     if(root.playerSlot!==sourceSeat||root.action!=='RetreatAction')continue;
@@ -56,9 +58,10 @@ function join(row,wrapperAudit,sourceSeat){
       r.turn===root.turnBefore&&r.sourceSeat===sourceSeat&&
       r.rootActionSeat===sourceSeat&&r.rootActionTurn===root.turnBefore&&
       r.benchIndex===benchIndex&&r.targetPrinting===targetPrinting);
-    const candidateAttack=attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
-      a.turnBefore===root.turnBefore&&a.settledPromptChain===true&&
-      a.settlementCrossesClockReset!==true)??null;
+    const candidateAttack=sourceSettlementActorMatches?
+      attacks.find(a=>a.actionOrdinal>root.actionOrdinal&&
+        a.turnBefore===root.turnBefore&&a.settledPromptChain===true&&
+        a.settlementCrossesClockReset!==true)??null:null;
     const candidateAttackPrinting=
       candidateAttack?.publicBoardBefore?.[sourceSeat]?.active?.printing??null;
     const attack=candidateAttack&&candidateAttackPrinting===targetPrinting?
@@ -71,7 +74,8 @@ function join(row,wrapperAudit,sourceSeat){
       row.winner===sourceSeat&&row.finalPrizes?.[sourceSeat]===0;
     results.push({
       acceptedRootOrdinal:root.actionOrdinal,turn:root.turnBefore,
-      sourceSeat,benchIndex,targetPrinting,
+      sourceSeat,sourceAttackSettlementSeat:sourceSettlementSeat,
+      sourceAttackSettlementActorMatches,benchIndex,targetPrinting,
       publiclyObservedTwoPsychicPayment:true,
       independentPhysicalCustodyReceiptCount:matching.length,
       physicalPaymentObjectCustodyConfirmed:matching.length===1&&
@@ -88,6 +92,8 @@ function join(row,wrapperAudit,sourceSeat){
   }
   return {
     schema:VERSION,trialId:row.trial?.id??null,sourceSeat,
+    sourceAttackSettlementSeat:sourceSettlementSeat,
+    sourceAttackSettlementActorMatches,
     sourceAcceptedRetreatRoots:row.rootActionLedger.filter(x=>
       x.playerSlot===sourceSeat&&x.action==='RetreatAction').length,
     globalWrapperPhysicalPaidRetreats:wrapperAudit?.exactPhysicalPaidRetreats??null,

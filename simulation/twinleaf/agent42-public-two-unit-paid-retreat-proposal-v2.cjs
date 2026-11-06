@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=require('./agent17-public-context-special-energy.cjs');
 const {projectedPrintedDamage}=require('./agent6-actor-paid-retreat-frontier.cjs');
-const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2';
+const VERSION='agent42-owner-visible-two-basic-psychic-retreat-terminal-v2.1';
 const SOURCE='Shadow Rider Calyrex VMAX CRE';
 const PSY='Psychic Energy ';
 
@@ -33,7 +33,10 @@ function attackBlocked(pokemon,attack){
 }
 
 function activeHasCompetingAttack(view,catalog,active){
-  if(!Array.isArray(active.attacks))return null;
+  if(!Array.isArray(active.attacks)||!Array.isArray(active.specialConditions)||
+     catalog.specialConditions?.CONFUSED===undefined)return null;
+  const confused=active.specialConditions.includes(
+    catalog.specialConditions.CONFUSED);
   const usage=view.ownPublic?.publicTurnRestrictions;
   for(const attack of active.attacks){
     if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
@@ -46,7 +49,8 @@ function activeHasCompetingAttack(view,catalog,active){
          typeof usage?.cannotUseGXAttacks!=='boolean')return null;
       if(usage.gxUsed||usage.cannotUseGXAttacks)continue;
     }
-    if(publicSpecialAttackPayable(view,catalog,active,attack))return true;
+    if(publicSpecialAttackPayable(view,catalog,active,attack))
+      return confused?null:true;
   }
   return false;
 }
@@ -81,10 +85,9 @@ function opponentHasUnmodeledDamageOrPrizeText(view){
     if(!Array.isArray(pokemon.abilityDetails)||!Array.isArray(pokemon.tools)||
        pokemon.tools.some(p=>!p.startsWith('Tool Jammer ')))return true;
     for(const ability of pokemon.abilityDetails){
-      if(ability?.text!==null&&ability?.text!==undefined&&
-         typeof ability.text!=='string')return true;
-      const text=ability?.text??'';
-      if(text.toLowerCase().includes('damage')||
+      if(!ability||typeof ability.text!=='string')return true;
+      const text=ability.text.toLowerCase();
+      if(text.includes('damage')||
          text.toLowerCase().includes('prize'))return true;
     }
   }
@@ -157,6 +160,7 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active;
   const resources=view.ownTurnResources,opponent=view.opponentPublic;
+  if(catalog.specialConditions?.CONFUSED===undefined)return null;
   if(ownerHasUnmodeledFreeMobility(view))return null;
   if(active&&retreatAbilityGuard(view,catalog,active)!=='printed')return null;
   if(!active||!opponent?.active||!Array.isArray(own?.bench)||
@@ -188,7 +192,8 @@ function proposeTwoUnitPaidRetreatV2(view,catalog){
        !Array.isArray(pokemon.specialConditions)||
        pokemon.specialConditions.some(x=>
          x===catalog.specialConditions?.ASLEEP||
-         x===catalog.specialConditions?.PARALYZED))continue;
+         x===catalog.specialConditions?.PARALYZED||
+         x===catalog.specialConditions.CONFUSED))continue;
     for(const attack of pokemon.attacks){
       if(!attack||typeof attack.name!=='string'||!Array.isArray(attack.cost))
         return null;

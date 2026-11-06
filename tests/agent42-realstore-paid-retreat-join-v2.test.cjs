@@ -21,7 +21,7 @@ function setup(seat=1,target='Latias ex SSP',attack='Eon Blade'){
       {actionOrdinal:131,playerSlot:seat,turnBefore:22,action:'RetreatAction'},
       {actionOrdinal:132,playerSlot:seat,turnBefore:22,action:'AttackAction'}],
     nativeAcceptedTargetSidecar:{events:[event]},
-    sourceAttackSettlement:{attacks:[{
+    sourceAttackSettlement:{candidateSeat:seat,attacks:[{
       actionOrdinal:132,turnBefore:22,attackName:attack,
       settledPromptChain:true,settlementCrossesClockReset:false,
       publicBoardBefore:seat===1?[
@@ -93,4 +93,25 @@ test('a later attack by a different Active after Switch is not attributed to the
   assert.equal(r.paidRetreatWithNativeTerminalWin,0);
   assert.equal(r.results[0].targetAttackIdentityConfirmed,false);
   assert.equal(r.results[0].candidateAttackActivePrinting,'Different Active ex');
+});
+
+test('missing or mismatched source settlement seat cannot receive attack or Prize credit',()=>{
+  const mismatch=setup();
+  mismatch.row.sourceAttackSettlement.candidateSeat=0;
+  const a=join(mismatch.row,mismatch.wrapper,1);
+  assert.equal(a.sourceAttackSettlementSeat,0);
+  assert.equal(a.sourceAttackSettlementActorMatches,false);
+  assert.equal(a.certifiedRealStorePublicPaidRetreatRoots,1);
+  assert.equal(a.physicallyCustodiedPaidRetreatRoots,1);
+  assert.equal(a.settledAttackFollowingPaidRetreat,0);
+  assert.equal(a.paidRetreatWithPrize,0);
+  assert.equal(a.results[0].targetAttackIdentityConfirmed,false);
+
+  const missing=setup();
+  delete missing.row.sourceAttackSettlement.candidateSeat;
+  const b=join(missing.row,missing.wrapper,1);
+  assert.equal(b.sourceAttackSettlementSeat,null);
+  assert.equal(b.sourceAttackSettlementActorMatches,false);
+  assert.equal(b.settledAttackFollowingPaidRetreat,0);
+  assert.equal(b.paidRetreatWithNativeTerminalWin,0);
 });

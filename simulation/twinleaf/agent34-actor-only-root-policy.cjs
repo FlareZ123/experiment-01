@@ -126,7 +126,8 @@ function buildActorCardCatalog(all,types){
     },
     colorlessEnergyType:CardType.COLORLESS,
     specialConditions:{
-      ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED
+      ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED,
+      CONFUSED:SpecialCondition.CONFUSED
     }
   };
 }
@@ -135,7 +136,7 @@ function buildActorCardCatalog(all,types){
  * Pure decision from a detached owner observation plus the public print catalog.
  * No native State, opposing hidden zones, or own unknown deck identities enter.
  * @param {object} view
- * @param {{basics:Set<string>,abilityBasics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number}}} catalog
+ * @param {{basics:Set<string>,abilityBasics:Set<string>,basicEnergies:Set<string>,basicEnergyTypes:Record<string,number>,colorlessEnergyType:number,specialConditions:{ASLEEP:number,PARALYZED:number,CONFUSED:number}}} catalog
  * @returns {object} Native-neutral intent.
  */
 function chooseActorRootIntent(view,catalog,options={}){

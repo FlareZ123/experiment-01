@@ -5,6 +5,8 @@ const {
   VERSION,twoPsychicPayment,postRetreatPrintedDamage,
   proposeTwoUnitPaidRetreatV2:choose
 }=require('../simulation/twinleaf/agent42-public-two-unit-paid-retreat-proposal-v2.cjs');
+const {buildActorCardCatalog}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const P='Psychic Energy MEE',C=9;
 const catalog={
@@ -15,7 +17,7 @@ const catalog={
   dragonPokemonPrintings:new Set(),
   ruleboxPokemonPrintings:new Set(),
   colorlessEnergyType:C,
-  specialConditions:{ASLEEP:1,PARALYZED:2}
+  specialConditions:{ASLEEP:1,PARALYZED:2,CONFUSED:3}
 };
 const restrictions=()=>({
   cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
@@ -209,4 +211,39 @@ test('v2 refuses unknown attack restrictions and other free mobility cards',()=>
   assert.equal(choose(floatStone,catalog)?.attackName,'Eon Blade');
   const unknownHand=fixture();delete unknownHand.ownHand;
   assert.equal(choose(unknownHand,catalog),null);
+});
+
+test('actor catalog exposes the pinned Confused enum for attack projection',()=>{
+  class PokemonCard {}
+  class EnergyCard {}
+  const actual=buildActorCardCatalog([],{
+    PokemonCard,EnergyCard,
+    Stage:{RESTORED:0,BASIC:1,STAGE_1:2,STAGE_2:3,VMAX:4,VSTAR:5},
+    EnergyType:{BASIC:0,SPECIAL:1},
+    CardType:{GRASS:0,FIRE:1,WATER:2,LIGHTNING:3,PSYCHIC:4,
+      FIGHTING:5,DARK:6,METAL:7,FAIRY:8,COLORLESS:9,DRAGON:10},
+    PowerType:{ABILITY:1},
+    SpecialCondition:{ASLEEP:11,PARALYZED:12,CONFUSED:13}
+  });
+  assert.equal(actual.specialConditions.CONFUSED,13);
+});
+
+test('Confused target and a payable Confused Active cannot certify a deterministic Prize',()=>{
+  const target=fixture();
+  target.ownPublic.bench[0].specialConditions=[catalog.specialConditions.CONFUSED];
+  assert.equal(choose(target,catalog),null);
+
+  const active=fixture();
+  active.ownPublic.active.specialConditions=[catalog.specialConditions.CONFUSED];
+  active.ownPublic.active.attacks=[{
+    name:'Confused payable attack',cost:[5,5],damage:200,
+    damageCalculation:null,gxAttack:false
+  }];
+  assert.equal(choose(active,catalog),null);
+});
+
+test('missing opponent ability text fails closed for projected Prize',()=>{
+  const view=fixture();
+  view.opponentPublic.active.abilityDetails=[{name:'Unparsed ability'}];
+  assert.equal(choose(view,catalog),null);
 });
