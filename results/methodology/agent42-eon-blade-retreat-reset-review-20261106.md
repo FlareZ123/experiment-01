@@ -41,3 +41,10 @@ If the same Latias remained Active across its restricted next turn, the engine/p
 This review does not validate attack damage, prize mapping, the full game, or a competitive matchup. The v8 result is a native mirror terminal, not a paper-qualified game. Agent36 and Agent37 were sent the requested evidence fields; no vendor code was changed.
 
 The useful next action is to extend the candidate settlement receipt with per-attack Active printing and candidate-side intervening roots, then re-review the existing terminal artifact. Do not launch another experiment merely to repeat this question.
+
+
+## Mirror qualification
+
+I independently compared the rank-1 deck in `results/aichi-2026/full-decklists.json` with the official 60-card list in `results/aichi-2026/official-champion-japanese-print-60.json`: both identify Yasunori Kato, both total 60, and their full English name/count maps are identical across 33 rows. The v8 terminal context `1:212:B:champion-reference` therefore uses the exact same printed 60 as its rank-1 source opponent.
+
+That terminal is a same-list mirror completion witness. It is not a distinct Aichi Top-32 matchup result and contributes no candidate-vs-opponent win-rate evidence. The v8 report's zero paper-qualified competitive games and false field-strength status are correct.
