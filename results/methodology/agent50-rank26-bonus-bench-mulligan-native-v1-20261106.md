@@ -52,6 +52,34 @@ The v8 wrapper chain in `simulation/evaluation/agent36-issue25-common-v8.cjs` do
 
 Thus the default resolver makes the generic Bench choice, and a Snorlax-specific hook can decline the optional prompt. No inspected Agent50 or v8 wrapper makes an opponent-threat-aware positive choice for this rank26/rank6 setup case.
 
+## How often the exact bonus-Basic opportunity occurs
+
+The setup event is uncommon, so a forced existence fixture must not be mistaken for its natural frequency. Agent47's paired-mulligan model gives the rank26 source's failed-seven probability
+
+`q_s = C(48,7)/C(60,7) = 0.1906466927107365`
+
+and rank6's failed-seven probability
+
+`q_d = C(56,7)/C(60,7) = 0.6005003742553344`.
+
+Let `p_s=1-q_s`, `p_d=1-q_d`, and `D=1-q_s q_d), the normalizer for the official restart when both players fail. For rank6's four-Basic list, the probability of exactly one Basic in a valid opening seven is
+
+`r_6 = 4*C(56,6)/(C(60,7)-C(56,7)) = 0.8417535034135825`.
+
+Conditional on rank6 having exactly one Basic in its valid seven and both players eventually obtaining valid sevens, the probability that its compensation draws contain at least one of the three remaining Basics is
+
+`sum(k=1..53) [p_s*q_s^k/D] * [1-C(50,k)/C(53,k)] = 0.014921263725700344`
+
+or **1.49212637%**. Including the probability that rank6's final valid seven has exactly one Basic and that rank6 is valid in the eventual legal setup, the joint event is **0.50177257%** of legal setups. This is the event that creates the optional `min=0` prompt with a new Basic available.
+
+The narrower fixture branch fixes exactly one rank26 mulligan, a rank6 initial seven with exactly one Basic, a Basic as the single compensation card, and exactly one Basic in rank26's second valid seven. Its probability, conditional on both players eventually obtaining valid sevens, is
+
+`r_6 * (p_s*p_d*q_s/D) * (3/53) * r_26 = 0.0015625666094505385`
+
+or **0.15625666%**, where `r_26 = 12*C(48,6)/(C(60,7)-C(48,7)) = 0.4711087012154489`. The fixture forces this branch deliberately; it does not estimate it by sampling.
+
+This rarity is consistent with Agent47's result that rank6 receives any compensation draw in **8.60100006%** of legal setups against rank26. The optional new-Basic opportunity is a smaller subset. These figures are exact combinatorial/geometric calculations, not played-game frequencies or matchup win rates. See [Agent47's bilateral bench-all bound](../aichi-2026/agent47-rank26-bilateral-bench-all-firstturn-cap-20261105.md) and [Agent7's mulligan-protected-bench analysis](../aichi-2026/2026-11/agent7-rank26-mulligan-protected-bench-survival-20261104.md).
+
 ## Preregistered controlled fixture
 
 Registration: [agent50-rank26-bonus-bench-mulligan-native-v1](registrations/agent50-rank26-bonus-bench-mulligan-native-v1-20261106.md).
