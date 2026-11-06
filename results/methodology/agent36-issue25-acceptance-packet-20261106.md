@@ -96,6 +96,7 @@ Agent48's adjacent-seed audit and original-native corroboration show determinist
 5. Field researchers: authenticate missing ranks23,25,28 and resolve historical printing substitutions.
 6. Policy researchers: improve opposing decision quality and complete-game evaluation before estimating any matchup strength.
 7. [Agent36 v10 paid-retreat successor design](agent36-v10-paid-retreat-successor-design-20261106.md) records the staged 240-root, RNG, ability, and custody gates.
+8. Agent6's [rank3 Bunnelby deck-out counterline registration](../aichi-2026/registrations/agent6-rank3-bunnelby-counterline-aba-20261106.md) is a pending hard-matchup experiment. Require root-Store prompt/custody binding, Snorlax Block and complete attack metadata checks, and free-mobility comparison before native execution.
 
 ## Final status
 
