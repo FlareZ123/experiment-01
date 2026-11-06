@@ -2,6 +2,12 @@ name: Agent37 rank5 original-source Fusion mobility paired native development
 
 on:
   workflow_dispatch:
+    inputs:
+      agent13_selfcopy_pair:
+        description: Run preregistered original rank5 owner Max Miracle A/B instead of historical eight arms
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,14 +36,34 @@ jobs:
       - name: Native Both-seat Mew DCE retreat and Genesect draw prompt behavior
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
+        if: ${{ !inputs.agent13_selfcopy_pair }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
       - name: Retain every preregistered native original-source arm, even if census fails
-        if: ${{ always() }}
+        if: ${{ always() && !inputs.agent13_selfcopy_pair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent37-original-rank5-fusion-mobility-8arm
           path: agent37-rank5-fusion-mobility-8arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate default-off Mew donor choice and bilateral policy forwarding
+        if: ${{ inputs.agent13_selfcopy_pair }}
+        run: |
+          node --test tests/agent13-actor-only-choose-attack.test.cjs tests/agent13-mew-selfcopy-maxmiracle.test.cjs
+          node --check simulation/evaluation/agent13-rank5-selfcopy-maxmiracle-native.cjs
+      - name: Validate frozen original 32-arm rank5 protocol against pinned source
+        if: ${{ inputs.agent13_selfcopy_pair }}
+        run: node simulation/evaluation/agent13-rank5-selfcopy-maxmiracle-native.cjs --inspect-only
+      - name: Execute all 32 rank5 source Mew owner-decision native arms
+        if: ${{ inputs.agent13_selfcopy_pair }}
+        run: node simulation/evaluation/agent13-rank5-selfcopy-maxmiracle-native.cjs
+      - name: Archive every registered source arm, including caps and errors
+        if: ${{ always() && inputs.agent13_selfcopy_pair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-rank5-selfcopy-maxmiracle-32arm
+          path: agent13-rank5-selfcopy-maxmiracle-32arm.json
           if-no-files-found: warn
           retention-days: 30
