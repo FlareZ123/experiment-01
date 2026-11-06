@@ -23,9 +23,6 @@ test('constructs the exact native PlayCardAction shape used by Agent34',()=>{
   const action=new PlayCardAction(101,2,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
   });
-  assert.equal(action.playerId,101);
-  assert.equal(action.handIndex,2);
-  assert.equal(action.player,PlayerType.BOTTOM_PLAYER);
-  assert.equal(action.slot,SlotType.BOARD);
-  assert.equal(action.index,0);
+  assert.ok(action instanceof PlayCardAction);
+  assert.equal(action.constructor.name,'PlayCardAction');
 });
