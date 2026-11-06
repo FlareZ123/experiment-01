@@ -1,0 +1,27 @@
+{
+  "schema": "agent4-rejected-underworld-public-power-check-v1",
+  "registeredAtUTC": "2026-11-06T22:35:00Z",
+  "researchClass": "post-native-rejection-read-only-public-power-effect-necessary-probe",
+  "sourceTypedNativeRun": 42304596431,
+  "sourceTypedReport": "results/methodology/agent4-v3-two-underworld-door-native-typed-dispatch-20261106.md",
+  "priorAmended12": "results/aichi-2026/registrations/agent4-v3-two-unknown-power-native-12-20261106.json",
+  "exactOriginalTargetIDs": [
+    "6:401:A:champion-reference",
+    "6:402:B:champion-reference"
+  ],
+  "originalCompanionAndAllModeTrialsUnchanged": true,
+  "expectedNativeAttempts": 12,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "protocol": "Only observed live Store UseAbilityAction named Underworld Door whose native dispatch throws UNKNOWN_POWER. Snapshot actor-own face-up Underworld print, opponent face-up Active name and powers, visible attached Tools. Only after original Store rejects, invoke pinned native IS_ABILITY_BLOCKED on the real owner PowerEffect and capture results. Rethrow same error. Combine with Agent39 typed witness around the same unchanged original physical requests, preserve all failures and original action trace.",
+  "comparisons": [
+    "All previous 12 IDs and seeds, 3 A/B/A modes, both original 60s unchanged",
+    "4 genuine native games per mode, 12 total",
+    "Same source/full initial physical deals within each of 4 registered groups across A/B/A",
+    "A-repeated exact accepted-root traces and statuses",
+    "Six typed Underworld Door UNKNOWN_POWER rejections still observed",
+    "For each rejected action, source active Iron Thorns? all printed owner Underworld powers native blocked?",
+    "Never infer unique causal lock or competitive paper win from native PowerEffect probe"
+  ],
+  "zeroCompetitiveQualifiedGames": true,
+  "output": "agent4-underworld-door-rejected-public-power-12.json"
+}
