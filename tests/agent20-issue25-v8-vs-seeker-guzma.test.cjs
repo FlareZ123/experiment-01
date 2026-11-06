@@ -47,6 +47,33 @@ test('runner enables the existing Agent43 continuation and preserves layer audit
     else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=previousEnv;
   }
 });
+test('isolated fixture can disable the held Guzma root and prompt continuation',()=>{
+  const previousEnv=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
+  process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV='before';
+  let seenEnv=null,seenContinuation=null;
+  try{
+    const runner=createVsSeekerRunner({
+      enableHeldGuzmaMobility:false,
+      actorGuzmaPromptContinuation:false,
+      runDevelopment:options=>{
+        seenEnv=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
+        seenContinuation=options.actorGuzmaPromptContinuation;
+        return {rows:[],manifest:{}};
+      },
+      withOwnerVsSeekerGuzmaLayer:execute=>({
+        result:execute(),audit:{version:layerVersion}
+      })
+    });
+    runner({});
+    assert.equal(seenEnv,'false');
+    assert.equal(seenContinuation,false);
+    assert.equal(process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV,'before');
+  }finally{
+    if(previousEnv===undefined)delete process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
+    else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=previousEnv;
+  }
+});
+
 test('retrospective runner retains the exact eight v8 contexts and no win-rate claim',()=>{
   const runV8=({runner})=>{
     const raw=runner({actorOnlyComposition:true,nativeRootActionLimit:128});
