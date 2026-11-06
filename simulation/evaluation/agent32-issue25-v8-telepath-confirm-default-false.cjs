@@ -12,10 +12,10 @@ const EXTRA_HASH_PATHS=[
   'tests/agent32-confirm-false.test.cjs',
   'tests/agent32-v8-confirm-default-false.test.cjs',
   'tests/agent32-v8-confirm-default-false.native.test.cjs',
-  'vendor/twinleafgg/ptcg-server/src/simple-bot/prompt-resolver/confirm-prompt-resolver.ts',
-  'vendor/twinleafgg/ptcg-server/src/game/store/prompts/confirm-prompt.ts',
-  'vendor/twinleafgg/ptcg-server/src/game/store/actions/resolve-prompt-action.ts',
-  'vendor/twinleafgg/ptcg-server/src/simple-bot/simple-tactics-ai.ts',
+  'vendor/twinleaf/ptcg-server/src/simple-bot/prompt-resolver/confirm-prompt-resolver.ts',
+  'vendor/twinleaf/ptcg-server/src/game/store/prompts/confirm-prompt.ts',
+  'vendor/twinleaf/ptcg-server/src/game/store/actions/resolve-prompt-action.ts',
+  'vendor/twinleaf/ptcg-server/src/simple-bot/simple-tactics-ai.ts',
   '.github/workflows/twinleaf-completion.yml'
 ];
 
