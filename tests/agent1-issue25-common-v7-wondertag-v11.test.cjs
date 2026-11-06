@@ -136,3 +136,19 @@ test('wrong trial, absent shuffle and missing paper settlement each veto admissi
     assert.equal(r.diagnostic.competitiveGamesQualified,0,kind);
   }
 });
+
+test('zero actual printed Supporter searches is an unmet witness, not vacuous success',()=>{
+  const deps=baseline();
+  deps.audit.currentRegisteredActorWitness.decisions=[];
+  deps.audit.ownerWonderTag.selectedSupporters=0;
+  deps.audit.ownerWonderTag.settledSupporterTransfers=0;
+  deps.audit.ownerNativeShuffle.offeredTrialSeats=[];
+  deps.audit.ownerNativeShuffle.completedTrialSeats=[];
+  deps.audit.ownerNativeShuffle.shufflePromptsOffered=0;
+  deps.audit.ownerNativeShuffle.validShuffleCallbacksCompleted=0;
+  const r=runAgent1CommonWonderTagV11(deps);
+  assert.equal(r.diagnostic.registeredNativeShuffleTrialSeatJoin,true);
+  assert.equal(r.diagnostic.registeredActorDecisions.length,0);
+  assert.equal(r.diagnostic.nativePrintedShuffleCompletionCertified,false);
+  assert.equal(r.diagnostic.competitiveGamesQualified,0);
+});
