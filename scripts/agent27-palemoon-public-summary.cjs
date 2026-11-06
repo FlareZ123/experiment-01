@@ -10,6 +10,11 @@ function view(r){
  validated:r.atLeastNativeProposalValidated,
  winners:[r.controlNativeWinner,r.counterreplyNativeWinner,r.repeatNativeWinner],
  arms:r.arms?.map(x=>({status:x.status,winner:x.winner,turn:x.globalTurns,error:!!x.error})),
+ terminalPrizeCounts:r.arms?.map(x=>
+  x.terminal?.after?.players?.map(p=>p.prizesRemaining)??null),
+ terminalDeckCounts:r.arms?.map(x=>
+  x.terminal?.after?.players?.map(p=>p.deckRemaining)??null),
+ sourceTurn59:r.arms?.[1]?.sourceTurn59Pass?.actorPublic?.active?.printing,
  sourceTurn61: r.opponentNextTurnOwnerPublic ? {
   sourceActive:r.opponentNextTurnOwnerPublic.actorPublic?.active?.printing,
   opponentActive:r.opponentNextTurnOwnerPublic.opponentPublic?.active?.printing,
