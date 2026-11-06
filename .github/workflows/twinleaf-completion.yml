@@ -89,7 +89,7 @@ on:
         type: boolean
         default: false
       include_agent36_selected_v4:
-        description: 'Run selected v4 benchmark and separately preregistered owner-only 96-root common v6'
+        description: 'Run v4 baseline plus distinct prospective v6 and exact-deal v7 physical Volt treatment'
         required: false
         type: boolean
         default: false
@@ -239,6 +239,11 @@ jobs:
         env:
           ISSUE25_STEWARD_V6_DIR: issue25-steward-v6
         run: node --test tests/agent36-issue25-common-v6.test.cjs tests/agent36-issue25-common-v6.native.test.cjs
+      - name: Verify separate exact-deal v7 generic physical Volt prompt treatment
+        if: ${{ inputs.include_agent36_selected_v4 }}
+        env:
+          ISSUE25_STEWARD_V7_DIR: issue25-steward-v7
+        run: node --test tests/agent4-allturn-owner-volt-attach-energy.test.cjs tests/agent36-issue25-common-v7.test.cjs tests/agent36-issue25-common-v7.native.test.cjs
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
@@ -381,6 +386,14 @@ jobs:
         with:
           name: agent36-issue25-prospective-common-v6-native
           path: issue25-steward-v6/
+          retention-days: 21
+          if-no-files-found: warn
+      - name: Archive original eight-arm same-deal owner Volt v7 and SHA256
+        if: ${{ always() && inputs.include_agent36_selected_v4 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-retrospective-common-v7-volt-native
+          path: issue25-steward-v7/
           retention-days: 21
           if-no-files-found: warn
       - name: Verify real original rank5 setup Confirm settlements on both seats
