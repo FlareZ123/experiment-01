@@ -346,7 +346,7 @@ test('native Eon Blade attack lock clears only after the Latias leaves Active',(
   assert.equal(opponent.active.damage,200);
   assert.equal(latiasSlot.cannotAttackNextTurnPending,true);
 
-  step('owner end turn',()=>store.dispatch(new PassTurnAction(owner.id)));
+  assert.equal(state.activePlayer,0);
   step('opponent end turn',()=>store.dispatch(new PassTurnAction(opponent.id)));
   assert.equal(state.activePlayer,1);
   assert.equal(latiasSlot.cannotAttackNextTurn,true);
