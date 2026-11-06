@@ -228,9 +228,11 @@ test('missing hand, lock, or Tool Jammer metadata fails closed when Float Stone 
   const noOpponentTools = fixture();
   noOpponentTools.ownHand = ['Float Stone BKT'];
   delete noOpponentTools.opponentPublic.active.tools;
-  const noToolsResult = proposeGuardedTwoUnitPaidRetreatV2(noOpponentTools, catalog);
-  assert.equal(noToolsResult.proposal, null);
-  assert.ok(noToolsResult.assessment.reasons.includes(
+  const knownProposal = proposeTwoUnitPaidRetreatV2(fixture(), catalog);
+  const noToolsAssessment = assessPaidRetreatAlternatives(
+    noOpponentTools, knownProposal);
+  assert.equal(noToolsAssessment.eligible, false);
+  assert.ok(noToolsAssessment.reasons.includes(
     'unknown-opponent-active-tools'));
 
   const unknownHand = fixture();
