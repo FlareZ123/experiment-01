@@ -171,8 +171,17 @@ function runSelectedIssue25V0(injected={}){
   // historical v0/v1/v2/v3 default remains the same exact four IDs.
   const expected=injected.registeredTrialIds??
     developmentTrials().map(row=>row.id);
-  assert.ok(Array.isArray(expected)&&expected.length>=4,
-    'Native trial registration must contain at least four explicit arms');
+  const allowSingleRegisteredTrial=injected.allowSingleRegisteredTrial===true;
+  const nativeRootActionLimit=injected.nativeRootActionLimit??48;
+  if(allowSingleRegisteredTrial) {
+    assert.equal(expected.length,1,
+      'Single registered mode is restricted to exactly one prospective game');
+  } else {
+    assert.ok(Array.isArray(expected)&&expected.length>=4,
+      'Historical native trial registration must contain at least four explicit arms');
+  }
+  assert.ok(Number.isSafeInteger(nativeRootActionLimit)&&nativeRootActionLimit>0,
+    'Native root-action limit must be a positive safe integer');
   assert.ok(expected.every(id=>typeof id==='string'&&id.length>0),
     'Registered native trial IDs must be nonempty strings');
   assert.equal(new Set(expected).size,expected.length,
@@ -180,7 +189,7 @@ function runSelectedIssue25V0(injected={}){
   const audit={};
   let development=null,thrown=null;
   let next=()=>{
-    development=runner({actorOnlyComposition:true,nativeRootActionLimit:48});
+    development=runner({actorOnlyComposition:true,nativeRootActionLimit});
     return development;
   };
   // The single declared order is executed, rather than merely recorded.
@@ -243,7 +252,8 @@ function runSelectedIssue25V0(injected={}){
       'agent21DevelopmentStartingBasics'
     ],
     selectedGoFirstChoices:[false,false],
-    actorOnlyComposition:true,nativeRootActionLimit:48,
+    actorOnlyComposition:true,nativeRootActionLimit,
+    registeredTrialMode:allowSingleRegisteredTrial?'single-prospective-game':'historical-or-paired',
     firstNativeFallback:'fail-closed',
     outerOwnerPromptWrappersSelectedForBothSeats:true,
     fullDecisionPolicySymmetryCertified:false,
