@@ -1,6 +1,6 @@
 {
   "schema": "agent4-guard-public-postoriginalabort-root-window-v1",
-  "registeredAtUTC": "2026-11-06T23:03:00Z",
+  "registeredAtUTC": "2026-11-06T22:59:51Z",
   "parentMatchedControlRun": 42308178212,
   "parent24Registration": "results/aichi-2026/registrations/agent4-rank6-owner-underworld-veto-paired-24-v1-20261106.json",
   "exactHistoricalTargets": [
@@ -38,5 +38,6 @@
     "Postcut opponent act may only be a pass; assess real attack and damage separately",
     "Cap-limited games cannot be scored as wins",
     "Identical source seeds do not turn deterministic repeated modes into independent samples"
-  ]
+  ],
+  "registrationTimestampSource": "GitHub commit 71d1cdf6f00a5f916e6dd90865df99b3e7e3c018 committer.date; previous handwritten timestamp was mistakenly forward-dated; original preregistration commit predates runner and native CI"
 }
