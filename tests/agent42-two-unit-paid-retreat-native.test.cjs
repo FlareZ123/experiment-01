@@ -325,21 +325,21 @@ test('native Snorlax Block is a public Retreat veto and Store rejects Retreat',(
 
 
 test('native Eon Blade attack lock clears only after the Latias leaves Active',()=>{
-  const game=stage(1),{store,state,owner,opponent,card,attach}=game;
-  const latias=card('Latias ex SSP');
-  const defender=card(VMAX);
+  const game=stage(1),{store,state,owner,opponent,card}=game;
+  const step=(name,fn)=>{
+    try{return fn();}catch(error){throw new Error(`${name}: ${error.message}`);}
+  };
+  const latias=step('load Latias',()=>card('Latias ex SSP'));
+  const defender=step('load defender',()=>card(VMAX));
   const latiasSlot=owner.active;
   latiasSlot.cards.splice(0,latiasSlot.cards.length,latias);
   latiasSlot.hp=latias.hp;latiasSlot.damage=0;
   opponent.active.cards.splice(0,opponent.active.cards.length,defender);
   opponent.active.hp=defender.hp;opponent.active.damage=0;
   assert.equal(latiasSlot.energies.cards.length,2);
-  attach(state.turn,latiasSlot);
+  step('stage third Psychic Energy',()=>latiasSlot.energies.cards.push(card('Psychic Energy MEW')));
   assert.equal(latiasSlot.energies.cards.length,3);
   const {AttackAction,PassTurnAction,RetreatAction}=engine('game/store/actions/game-actions');
-  const step=(name,fn)=>{
-    try{return fn();}catch(error){throw new Error(`${name}: ${error.message}`);}
-  };
 
   step('initial Eon Blade',()=>store.dispatch(new AttackAction(owner.id,'Eon Blade')));
   step('resolve initial attack prompts',()=>resolveNativeRetreat(game));
