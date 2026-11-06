@@ -321,3 +321,40 @@ test('native Snorlax Block is a public Retreat veto and Store rejects Retreat',(
   assert.strictEqual(owner.bench[0],target);
   assert.deepEqual(source.energies.cards,energy);
 });
+
+
+test('native Eon Blade attack lock clears only after the Latias leaves Active',()=>{
+  const game=stage(1),{store,state,owner,opponent,manager,attach}=game;
+  const latias=manager.getCardByName('Latias ex SSP');
+  const defender=manager.getCardByName('Shadow Rider Calyrex VMAX CRE');
+  assert.ok(latias&&defender);
+  latias.id=990005;defender.id=990006;
+  const latiasSlot=owner.active;
+  latiasSlot.cards.splice(0,latiasSlot.cards.length,latias);
+  latiasSlot.hp=latias.hp;latiasSlot.damage=0;
+  opponent.active.cards.splice(0,opponent.active.cards.length,defender);
+  opponent.active.hp=defender.hp;opponent.active.damage=0;
+  assert.equal(latiasSlot.energies.cards.length,2);
+  attach(state.turn,latiasSlot);
+  assert.equal(latiasSlot.energies.cards.length,3);
+  const {AttackAction,PassTurnAction,RetreatAction}=engine('game/store/actions/game-actions');
+
+  store.dispatch(new AttackAction(owner.id,'Eon Blade'));
+  resolveNativeRetreat(game);
+  assert.equal(opponent.active.damage,200);
+  assert.equal(latiasSlot.cannotAttackNextTurnPending,true);
+
+  store.dispatch(new PassTurnAction(owner.id));
+  store.dispatch(new PassTurnAction(opponent.id));
+  assert.equal(state.activePlayer,1);
+  assert.equal(latiasSlot.cannotAttackNextTurn,true);
+  assert.throws(()=>store.dispatch(new AttackAction(owner.id,'Eon Blade')));
+
+  store.dispatch(new RetreatAction(owner.id,0));
+  resolveNativeRetreat(game);
+  assert.equal(owner.active.getPokemonCard().fullName,'Shadow Rider Calyrex VMAX CRE');
+  assert.ok(owner.bench.includes(latiasSlot));
+  assert.equal(latiasSlot.cannotAttackNextTurn,false);
+  assert.equal(latiasSlot.cannotAttackNextTurnPending,false);
+  assert.equal(latiasSlot.energies.cards.length,3);
+});
