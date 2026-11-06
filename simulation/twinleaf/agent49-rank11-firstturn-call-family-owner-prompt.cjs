@@ -65,10 +65,18 @@ function withLateOwnedCallFamilyPrompt(next,deps){
   assert.equal(typeof originalAi?.value,'function');
   assert.equal(reg.sourceTurn,2);
   assert.equal(reg.originalSourceSeat,1);
+  // Opt-in continuation for a registered later source turn. The default
+  // remains the original first-turn-only native experiment.
+  const sourceEndTurn=deps.sourceEndTurn??reg.sourceTurn;
+  assert.ok(Number.isInteger(sourceEndTurn)&&
+    sourceEndTurn>=reg.sourceTurn&&
+    (sourceEndTurn-reg.sourceTurn)%2===0);
 
   const selected=new WeakMap();
   let target=false,liveStore=null,awaiting=null,innerAi=null;
   const audit={version:VERSION,selectedSourceId:reg.selectedOriginalId,
+    sourceTurnWindow:{start:reg.sourceTurn,end:sourceEndTurn},
+    sourceAttackTurns:[],physicalBasicMovesByTurn:[],
     realOwnerStores:0,sourceAttackAttempts:0,nativeSourceAttackAccepted:0,
     genuineOwnerBasicDeckPrompts:0,unmatchedAttackPrompts:0,
     promptShape:null,ownerBasicPromptChoicesSubmitted:0,
@@ -111,7 +119,7 @@ function withLateOwnedCallFamilyPrompt(next,deps){
       if(cards!==null){
         const answer=new ResolvePromptAction(prompt.id,cards);
         selected.set(answer,{prompt,seat:reg.originalSourceSeat,
-          cards,ownerHandBefore:new Set(owner.hand.cards),
+          turn:state.turn,cards,ownerHandBefore:new Set(owner.hand.cards),
           ownerDeckBefore:new Set(owner.deck.cards),
           sourceBenchBefore:owner.bench
             .filter(slot=>slot.cards.length>0).length});
@@ -132,13 +140,16 @@ function withLateOwnedCallFamilyPrompt(next,deps){
     const state=this.state;
     const owner=state.players[reg.originalSourceSeat];
     const attack=action?.constructor?.name==='AttackAction'&&
-      action.clientId===owner?.id&&state.turn===reg.sourceTurn&&
+      action.clientId===owner?.id&&
+      state.turn>=reg.sourceTurn&&state.turn<=sourceEndTurn&&
+      (state.turn-reg.sourceTurn)%2===0&&
       state.activePlayer===reg.originalSourceSeat&&
       action.name===TARGET_ATTACK&&
       owner.active.getPokemonCard()?.fullName===SOURCE_BASIC;
     const priorPromptIds=attack?
       new Set(state.prompts.map(p=>p.id)):null;
-    if(attack)audit.sourceAttackAttempts++;
+    if(attack){audit.sourceAttackAttempts++;
+      audit.sourceAttackTurns.push(state.turn);}
     const proposal=selected.get(action);
     let result;
     try{result=originalStore.value.apply(this,[action,...args]);}
@@ -174,8 +185,12 @@ function withLateOwnedCallFamilyPrompt(next,deps){
         after.bench.filter(slot=>slot.cards.length>0).length===
           proposal.sourceBenchBefore+proposal.cards.length;
       if(changed)audit.ownerBasicPromptAnswersNativeAccepted++;
-      if(changed&&moved)audit.oneOriginalBasicMovedToBench++;
-      else audit.physicalBenchTransferFailures++;
+      if(changed&&moved){
+        audit.oneOriginalBasicMovedToBench++;
+        audit.physicalBasicMovesByTurn.push({
+          turn:proposal.turn,card:proposal.cards[0].fullName
+        });
+      }else audit.physicalBenchTransferFailures++;
       awaiting=null;
     }
     return result;
