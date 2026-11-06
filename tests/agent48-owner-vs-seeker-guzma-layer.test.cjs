@@ -54,24 +54,35 @@ class SimpleTacticsAi{
   decodeNextAction(){return new PassTurnAction();}
 }
 function slot(fullName){
-  const card=fullName?{fullName}:null;
-  return {cards:card?[card]:[],getPokemonCard(){return card;}};
+  const card=fullName?{
+    fullName,name:fullName,hp:100,stage:'Basic',cardType:['Psychic'],
+    retreat:[],weakness:[],resistance:[],attacks:[],powers:[]
+  }:null;
+  return {cards:card?[card]:[],energies:{cards:[]},tools:[],
+    specialConditions:[],damage:0,pokemonPlayedTurn:1,
+    getPokemonCard(){return card;}};
 }
 function scenario(ownerSeat,wrongZone=false){
   const owner={
     id:101,hand:{cards:[{fullName:'VS Seeker PHF'}]},
     discard:{cards:[{fullName:'Guzma BUS',id:'physical-guzma'}]},
-    deck:{cards:[]},prizes:{cards:Array(6).fill({fullName:'Prize'})},
+    deck:{cards:[]},prizes:Array.from({length:6},()=>({cards:[{fullName:'Prize'}]})),
+    stadium:{cards:[]},lostzone:{cards:[]},supporter:{cards:[]},
     active:slot('Own Active'),bench:[slot('Own Bench'),slot(null)],
-    supporterTurn:0,itemPlayLocked:false,resolvingSupporter:[],
-    publicTurnRestrictions:{supporterPlayLocked:false,itemPlayLocked:false}
+    supporterTurn:0,retreatedTurn:0,energyPlayedTurn:0,
+    stadiumPlayedTurn:0,stadiumUsedTurn:0,usedGX:false,usedVSTAR:false,
+    cannotPlayItemCards:false,cannotPlaySupporterCards:false,
+    cannotPlayPokemonCards:false
   };
   const rival={
     id:202,hand:{cards:[]},discard:{cards:[]},deck:{cards:[]},
-    prizes:{cards:Array(6).fill({fullName:'Prize'})},
+    prizes:Array.from({length:6},()=>({cards:[{fullName:'Prize'}]})),
+    stadium:{cards:[]},lostzone:{cards:[]},supporter:{cards:[]},
     active:slot('Rival Active'),bench:[slot('Rival Bench'),slot(null)],
-    supporterTurn:0,itemPlayLocked:false,resolvingSupporter:[],
-    publicTurnRestrictions:{supporterPlayLocked:false,itemPlayLocked:false}
+    supporterTurn:0,retreatedTurn:0,energyPlayedTurn:0,
+    stadiumPlayedTurn:0,stadiumUsedTurn:0,usedGX:false,usedVSTAR:false,
+    cannotPlayItemCards:false,cannotPlaySupporterCards:false,
+    cannotPlayPokemonCards:false
   };
   const state={turn:3,phase:2,activePlayer:ownerSeat,prompts:[],
     players:ownerSeat===0?[owner,rival]:[rival,owner]};
