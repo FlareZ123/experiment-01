@@ -7,6 +7,10 @@ on:
         description: 'Opt into four staged native Ball-plus-Compressor donor-payment arms'
         type: boolean
         default: false
+      agent25_natural_ball_six_arm:
+        description: 'Opt into preregistered six original 60-card Quick Ball donor-payment replay'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -47,6 +51,21 @@ jobs:
         with:
           name: agent25-ball-compressor-staged-native
           path: agent25-ball-compressor-staged-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Run registered six natural complete-60 owner Quick Ball payment trials
+        if: inputs.agent25_natural_ball_six_arm
+        run: node simulation/evaluation/agent25-dhelmise-v2-ball-payment-natural-six-arm.cjs > agent25-natural-ball-six-arm.json
+      - name: Report all natural Quick Ball payment trials, including native failures
+        if: always() && inputs.agent25_natural_ball_six_arm
+        run: |
+          node -e "const fs=require('node:fs');const p='agent25-natural-ball-six-arm.json';if(!fs.existsSync(p)){console.log('NATURAL_BALL_SIX_ARM_NO_OUTPUT');process.exitCode=1}else{const r=JSON.parse(fs.readFileSync(p));console.log(JSON.stringify({registration:r.newPolicyRegistration,qualified:r.competitivelyQualifiedGames,attempts:r.attempts.map(a=>({key:a.key,status:a.status,roots:a.nativeRootActions??null,eligible:a.ownerBallDonorAudit?.eligible??null,selected:a.ownerBallDonorAudit?.selected??null,accepted:a.ownerBallDonorAudit?.accepted??null,moved:a.ownerBallDonorAudit?.physicallyMoved??null,invalidated:a.ownerBallDonorAudit?.invalidated??null,error:a.errorCode??a.error??null}))},null,2))}"
+      - name: Archive every preregistered natural full-60 Quick Ball owner-payment attempt
+        if: always() && inputs.agent25_natural_ball_six_arm
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-natural-full60-quickball-hns-six-arm
+          path: agent25-natural-ball-six-arm.json
           if-no-files-found: warn
           retention-days: 14
       - name: Observe native PokéStop on clean and intentionally rejected-action source boards
