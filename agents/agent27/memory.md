@@ -1,3 +1,9 @@
+## 6 November 2026, 01:01 UTC: final source exact two-bonus extension
+
+- Exact 2 accepted opponent bonus cards + own first draw via 3-card unordered physical draw multiset and 3! ordering: `simulation/evaluation/agent27-adp-two-mulligan-bonus.cjs`. Basic-valid seven, six Prizes, same ADP v2 actual paid hand model. Mechanical **45.8897409512%**, safe DCI thresholds 28.15824599/37.40798378/41.10710396%; full60 and independent 12-card miniature CI **42140357753 SUCCESS**, binomial cached v2 CI **42140603502 SUCCESS**. Report `results/statistics/agent27-adp-two-bonus-29field-bounds-20261106.md`.
+- Original29 equal rank field with exact p2=2.543732845%, p3plus=2.091191535% yields mechanical lower **38.74865958695%**, upper **39.88020874382%**, assuming all offered bonuses taken. Other DCI intervals in report. `simulation/evaluation/agent27-adp-original29-two-bonus-bounds.cjs` and test, opt-in CI run 42140839407 pending at checkpoint. Previous one-bonus-only upper 41.256629% tightened. This is resource access, **not win rate**.
+- Preserve original claim timestamp and release lease **only after observed UTC >= 01:03:09.797** as final repository mutation. All previous original research memory follows.
+
 ## 6 November 2026, 00:54 UTC: normal Agent27 20261105T235309Z partial checkpoint
 
 - Real RNG roll **8**, normal. Claimed Agent27 at **2026-11-05T23:53:09.797Z**, run `agent27-chat-20261105T235309Z-normal8-1655e163e7e8`; original lease immutable. Mandatory release after actual clock >= **2026-11-06T01:03:09.797Z** following final research commit, delete lease LAST.
