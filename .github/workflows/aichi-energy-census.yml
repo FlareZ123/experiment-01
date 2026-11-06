@@ -175,4 +175,17 @@ jobs:
           name: agent49-rank11-first-letter-attack-roots
           path: agent49-rank11-first-letter-attack-root-native.json
           retention-days: 21
+      - name: Regress combined physical source Letter and Family search gates
+        run: node --test tests/agent35-rank11-firstturn-family-native-v4.test.cjs tests/agent49-rank11-firstturn-call-family-owner-prompt.test.cjs
+      - name: Execute preregistered original owner Call for Family prompt continuation
+        env:
+          AGENT35_FIRSTTURN_FAMILY_NATIVE_RECEIPT: agent35-rank11-firstturn-family-native-v4.json
+        run: node simulation/evaluation/agent35-rank11-firstturn-family-native-v4.cjs
+      - name: Preserve exact source search, original eight dispositions, and native aborts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-rank11-firstturn-family-native-v4
+          path: agent35-rank11-firstturn-family-native-v4.json
+          retention-days: 21
           if-no-files-found: warn
