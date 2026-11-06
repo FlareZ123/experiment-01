@@ -119,7 +119,8 @@ test('Terminal Period is payable but only has a counter-state witness',()=>{
   assert.equal(witness.benchHasKnownCounterAttack,true);
   assert.equal(witness.benchHasSatisfiedCounterCondition,false);
   assert.equal(witness.benchPayableTargets[0].condition.requiredDamage,60);
-  v.opponentPublic.active.damage=60;
+  v.opponentPublic.active={printing:'Snorlax SVI',damage:60,
+    hp:150,tools:[]};
   witness=heldFloatGateFlags(v,catalog);
   assert.equal(witness.benchHasSatisfiedCounterCondition,true);
 });
