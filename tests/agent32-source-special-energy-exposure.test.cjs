@@ -21,6 +21,7 @@ test('rank6 first-seven baseline agrees with independent source audit',()=>{
     contenderBasics:60});
   close(baseline.probabilityBonusAtLeastOne,0);
   close(baseline.energyAccessUpper,0.6101129357327705);
+  close(baseline.originalSevenEnergyAccess,0.6101129357327705);
   const draw=energy({sourceBasics:4,sourceSpecialEnergy:8,
     contenderBasics:60,ordinaryDraw:1});
   close(draw.energyAccessUpper,0.6689638133580127);
@@ -31,6 +32,8 @@ test('correct simultaneous failure correction, source rank6 vs 7-Basic pilot',()
   close(result.probabilityBonusAtLeastOne,0.20971010738377938);
   close(result.expectedBonusOffers,0.3490052334976388);
   close(result.energyAccessUpper,0.6289501552879545);
+  close(result.originalSevenEnergyAccess,0.6101129357327705);
+  assert.ok(result.energyAccessLower>=result.originalSevenEnergyAccess);
   assert.ok(result.censoredTailUpper<1e-18);
 });
 test('rank6 source access differs against 14-Basic reference',()=>{
@@ -39,6 +42,7 @@ test('rank6 source access differs against 14-Basic reference',()=>{
   close(result.probabilityBonusAtLeastOne,0.060393062632150364);
   close(result.expectedBonusOffers,0.07010959980469617);
   close(result.energyAccessUpper,0.6141512504629808);
+  close(result.originalSevenEnergyAccess,0.6101129357327705);
   close(energy({sourceBasics:4,sourceSpecialEnergy:8,
     contenderBasics:7,ordinaryDraw:1}).energyAccessUpper,0.6852385887454201);
   close(energy({sourceBasics:4,sourceSpecialEnergy:8,
