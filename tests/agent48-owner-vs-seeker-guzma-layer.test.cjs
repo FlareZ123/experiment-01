@@ -95,7 +95,7 @@ const deps={
 };
 
 test('default Twinleaf base resolves to the pinned compiled submodule output',()=>{
-  assert.equal(DEFAULT_BASE,path.resolve(__dirname,'../..','vendor/twinleaf/ptcg-server/output'));
+  assert.equal(DEFAULT_BASE,path.resolve(__dirname,'..','vendor/twinleaf/ptcg-server/output'));
 });
 
 test('both physical seats recover the exact owner-discard Guzma through native prompt dispatch',()=>{
