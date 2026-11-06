@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: agent20-v8-vs-seeker-guzma-\${{ github.ref }}
+  group: agent20-v8-vs-seeker-guzma-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -56,14 +56,14 @@ jobs:
 
       - name: Run the exact eight retrospective v8 contexts with additive Guzma recovery
         env:
-          AGENT20_OUTPUT_PATH: \${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+          AGENT20_OUTPUT_PATH: ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
         run: node simulation/evaluation/agent20-issue25-v8-vs-seeker-guzma.cjs
 
       - name: Upload all native rows and physical prompt receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent20-v8-vs-seeker-guzma-\${{ github.run_id }}
-          path: \${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
+          name: agent20-v8-vs-seeker-guzma-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent20-v8-vs-seeker-guzma.json
           if-no-files-found: warn
           retention-days: 30
