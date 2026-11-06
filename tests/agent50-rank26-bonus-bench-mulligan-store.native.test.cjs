@@ -244,12 +244,15 @@ function withRank26BonusBenchFixture(run){
           p instanceof ShuffleDeckPrompt&&p.result===undefined);
         if(!unresolvedShuffle){
           for(const pending of pendingShuffleEvents){
-            const afterDeck=this.state.players[pending.seat].deck.cards;
-            assert.deepEqual(afterDeck,
-              pending.order.map(i=>pending.deckBefore[i]),
-              'native Store must apply the exact controlled physical deck order');
+            const expected=pending.order.map(i=>pending.deckBefore[i]);
+            const owner=this.state.players[pending.seat];
+            assert.deepEqual(owner.hand.cards,expected.slice(0,7),
+              'native Store must physically draw the controlled first seven cards');
+            assert.deepEqual(owner.deck.cards,expected.slice(7),
+              'native Store must preserve the exact remaining controlled deck order');
             pending.event.nativeStoreAccepted=true;
-            pending.event.appliedOrderMatchesPhysicalCards=true;
+            pending.event.firstSevenPhysicallyDrawn=true;
+            pending.event.remainingDeckOrderVerified=true;
           }
           pendingShuffleEvents.length=0;
         }
@@ -438,6 +441,13 @@ function withRank26BonusBenchFixture(run){
     assert.equal(stopped,true,
       'native Store did not reach the registered optional compensation prompt');
     assert.equal(audit.nativeStoreAccepted,true);
+    const controlledShuffles=audit.shuffleEvents.filter(event=>event.controlled);
+    assert.equal(controlledShuffles.length,3);
+    assert.equal(controlledShuffles.every(event=>
+      event.nativeStoreAccepted===true&&
+      event.firstSevenPhysicallyDrawn===true&&
+      event.remainingDeckOrderVerified===true),true,
+      'all controlled grouped shuffles must settle into physical hands and decks');
     assert.deepEqual(audit.shuffleCounts,[2,1],
       'the fixture must contain exactly one source mulligan and one defender shuffle');
     assert.equal(audit.compensationDraw?.gainedCard?.startsWith('Iron Thorns ex'),true);
