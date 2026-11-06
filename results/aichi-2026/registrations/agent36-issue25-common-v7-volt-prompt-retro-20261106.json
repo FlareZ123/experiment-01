@@ -1,0 +1,22 @@
+{
+  "schema": "agent36-issue25-volt-transfer-retrospective-original-v6-96root-v1",
+  "registeredAtUtc": "2026-11-06T01:51:18Z",
+  "designType": "retrospective same-deal treatment, specified after observing 4 real source Volt Cyclone roots at original v6 errors; never a prospective game win panel",
+  "frozenControlRegistration": "results/aichi-2026/registrations/agent36-issue25-common-v6-96root-20261106.json",
+  "frozenControlNativeRun": 42144909453,
+  "frozenControlArchiveSha256": "ecff915c5cb7a8c573fb790c00b7c5134949ec6f70a2bb6b357c6cceb55bd964",
+  "frozenControlOriginalTrials": 8,
+  "frozenOriginalRanks": [
+    6,
+    11
+  ],
+  "frozenNativeRootActionCap": 96,
+  "treatment": "Only add agent4-allturn-owner-volt-attach-energy.cjs globally inside true runMatch: genuine owner AttachEnergyPrompt, owner Active physical donor, occupied owner Bench, native validate; same all-turn decision function both seats. Preserve complete v6 original roots, cards, seeds, other wrappers",
+  "sourcePolicy": "No case ID, rank, turn, opposing candidate, seed or observed v6 root ordinal used in treatment handler",
+  "selectedBaselineUnchanged": "agent36 Issue25 steward selected v4 remains selected developmental",
+  "registeredBeforeTreatmentNativeExecution": true,
+  "nativeOutcomeAdmission": "developmental physical native settlement only; any changed result still fails paper owner noninterference, complete policy, clock and 32-rank field",
+  "pairedComparison": "source initial physical deals verified by hashes per same trial ID; full physical deals verified per ID; no independent winner probability inference",
+  "releaseQualified": false,
+  "competitivelyQualifiedGames": 0
+}
