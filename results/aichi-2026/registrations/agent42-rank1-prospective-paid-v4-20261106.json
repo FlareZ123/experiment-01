@@ -1,0 +1,163 @@
+{
+  "schema": "agent42-rank1-original-fresh-public-paid-retreat-a-b-a-20261106-v4",
+  "createdAtUtc": "2026-11-06T10:01:00Z",
+  "registeredBeforeFirstNativeAttempt": true,
+  "originalSourceRank": 1,
+  "rank1OriginalPrintingsUnchanged": true,
+  "seedGeneration": "Python secrets.randbelow(2**32), executed at 2026-11-06 09:58 UTC before preregistration and before any native trial; four uniform independent 32-bit integers",
+  "priorObservedRank1Seed884910343Excluded": true,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenInputs": [
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "49c979ab14d0574119b31f3c238e2d47c6ee512c"
+    },
+    {
+      "path": "simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs",
+      "blob": "931d7c36a12975b75b622acac80ed6c498c16f06"
+    },
+    {
+      "path": "simulation/twinleaf/agent42-two-psychic-retreat-physical-custody.cjs",
+      "blob": "a01d32247fee30802abcc2c61f29408a176b1de2"
+    },
+    {
+      "path": "simulation/evaluation/agent42-realstore-paid-retreat-join.cjs",
+      "blob": "94e1729a1cae2bc5282350fbafe10d934f324230"
+    },
+    {
+      "path": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+      "blob": "8b7f7dfd271937fc613d277f03941dda663734ff"
+    }
+  ],
+  "baseSelectedPolicySource": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "selectedModeId": "selected-v3-paper-plus-funded-mobility",
+  "actionCap": 240,
+  "groups": [
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B"
+    }
+  ],
+  "trials": [
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "1:600:A:champion-reference"
+    },
+    {
+      "seed": 2532423208,
+      "rank": 1,
+      "repeat": 600,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:600:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "1:601:B:champion-reference"
+    },
+    {
+      "seed": 3103663673,
+      "rank": 1,
+      "repeat": 601,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:601:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "1:602:A:champion-reference"
+    },
+    {
+      "seed": 3749399793,
+      "rank": 1,
+      "repeat": 602,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:602:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "1:603:B:champion-reference"
+    },
+    {
+      "seed": 2762430059,
+      "rank": 1,
+      "repeat": 603,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:603:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modes": [
+    {
+      "id": "same-policy-control-a",
+      "actorTwoUnitPaidRetreatRoot": false,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    },
+    {
+      "id": "same-policy-unrestricted-public-paid-retreat",
+      "actorTwoUnitPaidRetreatRoot": true,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    },
+    {
+      "id": "same-policy-control-b",
+      "actorTwoUnitPaidRetreatRoot": false,
+      "actorTwoUnitPaidRetreatTargetTurn": null
+    }
+  ],
+  "expectedContexts": 8,
+  "expectedArms": 3,
+  "expectedNativeAttempts": 24,
+  "admissionCriteria": [
+    "all actual recorded physical initial deals matched within each trial across all three arms",
+    "controls A and C same native real-root log",
+    "native accepted public target-sidecar records any physically paid two-Psychic retreat and target promotion",
+    "all global Store wrapper payment receipts treated as potentially speculative until root-correlated",
+    "report every attempt, native abort, cap, fixed original opponent roster and candidate 60",
+    "report acceptance frequency and exact original-source followthrough per candidate and seat",
+    "never count native engine terminal as a paper-qualified game or aggregate field win estimate"
+  ],
+  "observedTrialsBeforeRegistration": 0,
+  "competitivelyQualifiedGames": 0,
+  "fieldWinRate": null
+}
