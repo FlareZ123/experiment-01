@@ -22,13 +22,15 @@ const native=name=>require(path.join(BASE,name));
  * Trevenant & Dusknoir-GX Night Watch attack from its owner's discard.
  * This is a constructed eligibility witness, not a natural-deal game.
  * @param {0|1} attackerSeat
- * @param {{ironThornsActive?:boolean,heldCologne?:boolean}} [options]
+ * @param {{ironThornsActive?:boolean,heldCologne?:boolean,
+ *   garbodorBench?:boolean,heldBlower?:boolean}} [options]
  */
 function stage(attackerSeat,options={}){
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
   const {GamePhase}=native('game/store/state/state');
   const {CardList}=native('game/store/state/card-list');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
   const {Format}=native('game/store/card/card-types');
   const manager=initializeCards();
   let id=420000+attackerSeat*100;
@@ -57,6 +59,16 @@ function stage(attackerSeat,options={}){
   const heldCologne=options.heldCologne?
     card('Canceling Cologne ASR'):null;
   if(heldCologne)attacker.hand.cards.push(heldCologne);
+  const heldBlower=options.heldBlower?card('Field Blower GRI'):null;
+  if(heldBlower)attacker.hand.cards.push(heldBlower);
+  let garbodorSlot=null,garbodorTool=null;
+  if(options.garbodorBench){
+    garbodorSlot=new PokemonCardList();
+    garbodorSlot.cards.push(card('Trubbish BKP'),card('Garbodor BKP'));
+    garbodorTool=card('Float Stone BKT');
+    garbodorSlot.tools.push(garbodorTool);
+    defender.bench.push(garbodorSlot);
+  }
   const victimHand=['Psychic Energy SVE','Water Energy SVE','Grass Energy SVE']
     .map(card);
   defender.hand.cards.push(...victimHand);
@@ -75,7 +87,8 @@ function stage(attackerSeat,options={}){
   state.turn=4;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
-  return {store,state,attacker,defender,donor,victimHand,heldCologne};
+  return {store,state,attacker,defender,donor,victimHand,heldCologne,
+    heldBlower,garbodorSlot,garbodorTool};
 }
 
 /**
