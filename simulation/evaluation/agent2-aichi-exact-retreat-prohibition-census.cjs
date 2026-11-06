@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const sets=require('../../resources/sets/en.json');
 const field=require('../../results/aichi-2026/full-decklists.json');
 
-const VERSION='agent2-aichi29-exact-printing-retreat-prohibition-census-v1';
+const VERSION='agent2-aichi29-exact-printing-retreat-prohibition-census-v2';
 const WORDING=/(?:can't|can’t|cannot) retreat\b/i;
 const cache=new Map();
 const byCode=new Map();
@@ -25,33 +25,49 @@ for(const set of sets){
 function resolvePrinting(registered){
   const printing=registered?.printing;
   const group=byCode.get(printing?.set)??[];
-  if(group.length!==1){
-    return {status:'unresolved-set-code',code:printing?.set,
-      candidates:group.map(x=>x.id)};
+  if(group.length===0){
+    return {status:'unresolved-set-code',code:printing?.set,candidates:[]};
   }
-  const set=group[0];
-  let printed=cache.get(set.id);
-  if(!printed){
-    const filename=path.resolve(__dirname,
-      '../../resources/cards/en',set.id+'.json');
-    if(!fs.existsSync(filename)){
-      return {status:'missing-set-file',code:printing?.set,
-        id:set.id};
+  const numbered=[];
+  const missing=[];
+  for(const set of group){
+    let printed=cache.get(set.id);
+    if(!printed){
+      const filename=path.resolve(__dirname,
+        '../../resources/cards/en',set.id+'.json');
+      if(!fs.existsSync(filename)){
+        missing.push(set.id);
+        continue;
+      }
+      printed=JSON.parse(fs.readFileSync(filename,'utf8'));
+      assert.ok(Array.isArray(printed));
+      cache.set(set.id,printed);
     }
-    printed=JSON.parse(fs.readFileSync(filename,'utf8'));
-    assert.ok(Array.isArray(printed));
-    cache.set(set.id,printed);
+    for(const card of printed){
+      if(String(card.number)===String(printing.number)){
+        numbered.push({setId:set.id,card});
+      }
+    }
   }
-  const match=printed.filter(card=>
-    String(card.number)===String(printing.number));
-  if(match.length!==1||match[0].name!==registered.name){
-    return {status:'unresolved-exact-printing',
-      code:printing.set,number:printing.number,
-      names:match.map(c=>c.name),
-      expectedName:registered.name};
+  if(missing.length){
+    return {status:'missing-set-files',code:printing.set,missing};
   }
-  return {status:'exact-printing',setId:set.id,card:match[0]};
+  const exact=numbered.filter(x=>x.card.name===registered.name);
+  if(exact.length===1){
+    return {status:'exact-printing',setId:exact[0].setId,
+      card:exact[0].card};
+  }
+  if(exact.length>1){
+    return {status:'ambiguous-exact-printing',code:printing.set,
+      number:printing.number,matchingIds:exact.map(x=>x.card.id)};
+  }
+  return {status:'unresolved-exact-printing',
+    code:printing.set,number:printing.number,
+    names:numbered.map(x=>x.card.name),
+    candidateIds:numbered.map(x=>x.card.id),
+    expectedName:registered.name};
 }
+
 /**
  * Exact registered opponent source Pokémon whose card printing contains an
  * Ability or attack with explicit can't-retreat text. This enumerates literal
