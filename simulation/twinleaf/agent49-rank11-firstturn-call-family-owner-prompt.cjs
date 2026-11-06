@@ -132,7 +132,7 @@ function withLateOwnedCallFamilyPrompt(next,deps){
     const state=this.state;
     const owner=state.players[reg.originalSourceSeat];
     const attack=action?.constructor?.name==='AttackAction'&&
-      action.id===owner?.id&&state.turn===reg.sourceTurn&&
+      action.clientId===owner?.id&&state.turn===reg.sourceTurn&&
       state.activePlayer===reg.originalSourceSeat&&
       action.name===TARGET_ATTACK&&
       owner.active.getPokemonCard()?.fullName===SOURCE_BASIC;
