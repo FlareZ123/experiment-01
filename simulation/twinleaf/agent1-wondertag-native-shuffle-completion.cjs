@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent1-wondertag-native-shuffle-callback-witness-v1';
+const VERSION='agent1-wondertag-native-shuffle-callback-witness-v2';
 
 /**
  * Observe one printed Lele Wonder Tag native deck shuffle without selecting
@@ -36,6 +36,9 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
   const audit={
     version:VERSION,printedEntrances:0,shufflePromptsOffered:0,
     shuffleCallbacksCompleted:0,shuffleCallbacksFailed:0,
+    shuffleCallbackInvocations:0,preCallbackRejections:0,
+    nativeCallbackFailures:0,missingRegisteredTrialIds:0,
+    ownerReassignedPrompts:0,
     validShuffleCallbacksCompleted:0,invalidNativeShufflePermutations:0,
     bySeat:{0:0,1:0},nativeTrialAttributionAvailable:
       typeof deps.getCurrentTrialId==='function',
@@ -44,6 +47,24 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
     changesNativeActions:false,readsHiddenDeck:false,
     completePaperAbilityCertified:false,qualifiedGames:0
   };
+
+  /** Immutable point-in-time audit, also preserved on native exceptions. */
+  function snapshot(){
+    return {
+      ...audit,
+      bySeat:{...audit.bySeat},
+      offeredTrialSeats:audit.offeredTrialSeats.map(x=>({...x})),
+      completedTrialSeats:audit.completedTrialSeats.map(x=>({...x})),
+      outstandingShuffleCallbacks:
+        audit.shufflePromptsOffered-audit.shuffleCallbacksCompleted,
+      allOfferedShufflesCompleted:
+        audit.shufflePromptsOffered===audit.validShuffleCallbacksCompleted&&
+        audit.shuffleCallbacksFailed===0&&
+        audit.invalidNativeShufflePermutations===0&&
+        audit.missingRegisteredTrialIds===0&&
+        audit.ownerReassignedPrompts===0
+    };
+  }
 
   function scopedReduce(store,state,effect){
     if(!(effect instanceof PlayPokemonEffect)||
@@ -60,30 +81,47 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
             assert.equal(typeof callback,'function');
             audit.shufflePromptsOffered++;
             const id=deps.getCurrentTrialId?.()??null;
-            assert.ok(id===null||(typeof id==='string'&&id.length>0));
+            if(deps.getCurrentTrialId&&
+               !(typeof id==='string'&&id.length>0)){
+              audit.missingRegisteredTrialIds++;
+              assert.fail('Printed Wonder Tag shuffle has no registered native trial ID');
+            }
             audit.offeredTrialSeats.push({id,seat});
             let resolved=false;
-            return target.prompt(nextState,prompt,(...args)=>{
-              assert.equal(resolved,false,'Native Wonder Tag shuffle callback replayed');
-              if(deps.getCurrentTrialId)
-                assert.equal(deps.getCurrentTrialId(),id,
-                  'Native Wonder Tag shuffle callback crossed registered trials');
-              resolved=true;
-              const order=args[0];
-              const deckSize=owner.deck.cards.length;
-              const validOrder=Array.isArray(order)&&order.length===deckSize&&
-                order.every(n=>Number.isSafeInteger(n)&&n>=0&&n<deckSize)&&
-                new Set(order).size===deckSize;
-              if(!validOrder)audit.invalidNativeShufflePermutations++;
-              let result;
-              try{result=callback(...args);}
-              catch(e){audit.shuffleCallbacksFailed++;throw e;}
-              audit.shuffleCallbacksCompleted++;
-              if(validOrder)audit.validShuffleCallbacksCompleted++;
-              audit.bySeat[seat]++;
-              audit.completedTrialSeats.push({id,seat});
-              return result;
+            const next=target.prompt(nextState,prompt,(...args)=>{
+              audit.shuffleCallbackInvocations++;
+              let phase='validation';
+              try{
+                assert.equal(resolved,false,
+                  'Native Wonder Tag shuffle callback replayed');
+                if(deps.getCurrentTrialId)
+                  assert.equal(deps.getCurrentTrialId(),id,
+                    'Native Wonder Tag shuffle callback crossed registered trials');
+                assert.equal(prompt.playerId,owner.id,
+                  'Native Wonder Tag shuffle prompt routed away from printed owner');
+                resolved=true;
+                const order=args[0];
+                const deckSize=owner.deck.cards.length;
+                const validOrder=Array.isArray(order)&&order.length===deckSize&&
+                  order.every(n=>Number.isSafeInteger(n)&&n>=0&&n<deckSize)&&
+                  new Set(order).size===deckSize;
+                if(!validOrder)audit.invalidNativeShufflePermutations++;
+                phase='native callback';
+                const result=callback(...args);
+                audit.shuffleCallbacksCompleted++;
+                if(validOrder)audit.validShuffleCallbacksCompleted++;
+                audit.bySeat[seat]++;
+                audit.completedTrialSeats.push({id,seat});
+                return result;
+              }catch(error){
+                audit.shuffleCallbacksFailed++;
+                if(phase==='validation')audit.preCallbackRejections++;
+                else audit.nativeCallbackFailures++;
+                throw error;
+              }
             });
+            if(prompt.playerId!==owner.id)audit.ownerReassignedPrompts++;
+            return next;
           }
           return target.prompt(nextState,prompt,callback);
         };
@@ -97,14 +135,15 @@ function withWonderTagNativeShuffleCompletion(run,deps={}){
     ...previous,value:scopedReduce
   });
   try{
-    return {result:run(),audit:{
-      ...audit,
-      outstandingShuffleCallbacks:
-        audit.shufflePromptsOffered-audit.shuffleCallbacksCompleted-
-        audit.shuffleCallbacksFailed
-    }};
+    const result=run();
+    return {result,audit:snapshot()};
+  }catch(error){
+    if(error&&typeof error==='object'&&Object.isExtensible(error))
+      Object.defineProperty(error,'wonderTagNativeShuffleAudit',{
+        value:snapshot(),configurable:true,enumerable:true
+      });
+    throw error;
   }finally{
-    assert.strictEqual(TapuLeleGX.prototype.reduceEffect,scopedReduce);
     Object.defineProperty(TapuLeleGX.prototype,'reduceEffect',previous);
   }
 }
