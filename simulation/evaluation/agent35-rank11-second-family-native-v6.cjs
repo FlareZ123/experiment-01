@@ -91,9 +91,6 @@ function run(deps={}) {
   );
   const afterSecond=raw.postAttackAcceptedPublicRoots.filter(x=>
     x.actionOrdinal>reg.sourceSecondAttackRootOrdinal);
-  const candidateT5=afterSecond.filter(x=>
-    x.turnBefore>reg.sourceSecondTurn&&
-    x.playerSlot===reg.originalSourceSeat?false:true);
   const nextOpponent=afterSecond.filter(x=>
     x.turnBefore>reg.sourceSecondTurn&&
     x.playerSlot!==reg.originalSourceSeat);
