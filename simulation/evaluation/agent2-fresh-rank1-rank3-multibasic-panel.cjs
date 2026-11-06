@@ -38,6 +38,7 @@ function runArm(trial,cards){
   let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
   let ownerPassFrontierAudit=null;
   let targetedTeamFlareAudit=null;
+  let targetedPaleMoonAudit=null;
   const retreatPassStageRows=[];
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
@@ -100,10 +101,21 @@ function runArm(trial,cards){
             ownerSupporterOpportunityAudit=observedSupporters.audit;
             return observedSupporters.result;
           };
-          if(trial.targetedTeamFlareNative!==true)return withSupporterAudit();
+          const withPaleMoon=()=>{
+            if(trial.targetedPaleMoonNative!==true)
+              return withSupporterAudit();
+            const {withTargetedFundedPaleMoon}=require(
+              '../twinleaf/agent17-targeted-rank1-pale-moon-native.cjs');
+            const observed=withTargetedFundedPaleMoon(withSupporterAudit,{
+              targetSeat:1-rank3Seat,targetTurn:60
+            });
+            targetedPaleMoonAudit=observed.audit;
+            return observed.result;
+          };
+          if(trial.targetedTeamFlareNative!==true)return withPaleMoon();
           const {withTargetedTeamFlareNative}=require(
             '../twinleaf/agent17-targeted-owner-teamflare-native.cjs');
-          const targeted=withTargetedTeamFlareNative(withSupporterAudit,{
+          const targeted=withTargetedTeamFlareNative(withPaleMoon,{
             targetSeat:rank3Seat,targetTurn:59
           });
           targetedTeamFlareAudit=targeted.audit;
@@ -190,6 +202,7 @@ function runArm(trial,cards){
       ...(trial.captureTargets===true?{nativeAcceptedTargetSidecar:targetAudit}:{}),
       ...(trial.captureOwnerPassSnapshots===true?{ownerPassFrontierAudit}:{}),
       ...(trial.targetedTeamFlareNative===true?{targetedTeamFlareAudit}:{}),
+      ...(trial.targetedPaleMoonNative===true?{targetedPaleMoonAudit}:{}),
       competitiveGameQualified:false
     };
   }catch(error){
@@ -216,6 +229,8 @@ function runArm(trial,cards){
       ...(trial.targetedTeamFlareNative===true?{
         targetedTeamFlareAudit:targetedTeamFlareAudit??
           error?.targetedTeamFlareEvidence??null}:{}),
+      ...(trial.targetedPaleMoonNative===true?{
+        targetedPaleMoonAudit:targetedPaleMoonAudit??null}:{}),
       competitiveGameQualified:false};
   }
 }
