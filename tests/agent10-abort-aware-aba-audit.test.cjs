@@ -228,3 +228,67 @@ test('A and A-repeat native decoder errors must have matching provenance',()=>{
   const a2=row('t',[root(0)],{nativeError:'MISSING_CHOICE_B'});
   assert.equal(run(a,a,a2).rows[0].controlReplay,'OUTCOME_MISMATCH');
 });
+
+/** @param {boolean} active @returns {object} */
+function nativeBranch(active) {
+  return {
+    twoUnitPaidRetreatRootOptIn:active,
+    twoUnitPaidRetreatRootV2OptIn:false,
+    twoUnitPaidRetreatRootOptionPassed:active,
+    twoUnitPaidRetreatRootWrapperSelected:active
+  };
+}
+
+test('real adapter per-row scopedRoot receipts attest A/B/A without invented phase receipt',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const b=row('t',[root(0),root(1)],nativeBranch(true));
+  const report=audit({trials:[{id:'t',sourceSeat:1}],
+    phases:[{rows:[a]},{rows:[b]},{rows:[a]}]});
+  assert.equal(report.activationStatus,'B_WRAPPER_INSTALLATION_RECORDED');
+});
+
+test('real per-row historical A/A/A receipts fail to report treatment',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const report=audit({trials:[{id:'t',sourceSeat:1}],
+    phases:[{rows:[a]},{rows:[a]},{rows:[a]}]});
+  assert.equal(report.activationStatus,'NO_TREATMENT_APPLIED');
+});
+
+test('native claimed B opt-in with inactive wrapper is invalid',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const b=row('t',[root(0)],{
+    ...nativeBranch(true),twoUnitPaidRetreatRootWrapperSelected:false
+  });
+  const report=audit({trials:[{id:'t',sourceSeat:1}],
+    phases:[{rows:[a]},{rows:[b]},{rows:[a]}]});
+  assert.equal(report.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
+});
+
+test('missing one native branch field is invalid provenance',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const b=row('t',[root(0)],nativeBranch(true));
+  delete b.twoUnitPaidRetreatRootOptionPassed;
+  const report=audit({trials:[{id:'t',sourceSeat:1}],
+    phases:[{rows:[a]},{rows:[b]},{rows:[a]}]});
+  assert.equal(report.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
+});
+
+test('native and explicit wrapper receipts must agree',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const b=row('t',[root(0)],nativeBranch(true));
+  const report=audit({trials:[{id:'t',sourceSeat:1}],
+    phases:[phase([a],false),phase([b],false),phase([a],false)]});
+  assert.equal(report.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
+});
+
+test('per-row inconsistent native wrapper evidence fails closed',()=>{
+  const a=row('t',[root(0)],nativeBranch(false));
+  const b=row('t',[root(0)],nativeBranch(true));
+  const b2=row('u',[root(0)],{
+    ...nativeBranch(true),twoUnitPaidRetreatRootWrapperSelected:false});
+  const a2=row('u',[root(0)],nativeBranch(false));
+  const report=audit({trials:[
+    {id:'t',sourceSeat:1},{id:'u',sourceSeat:1}],
+    phases:[{rows:[a,a2]},{rows:[b,b2]},{rows:[a,a2]}]});
+  assert.equal(report.activationStatus,'INVALID_ABA_WRAPPER_ACTIVATION');
+});
