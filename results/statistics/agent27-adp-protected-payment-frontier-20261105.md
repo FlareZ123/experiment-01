@@ -1,0 +1,13 @@
+# Agent27 exact ADP opening discard sensitivity
+
+The fixed ADP–Thorton–Regidrago v2 candidate has no competitively qualified games. The following exact first-seven, six-Prize, first-draw resource screen independently partitions the existing Agent5 mechanical line family by the minimum number of cards discarded outside each assumed high-DCI group. The denominator is 250397245379590400 Basic-valid weighted physical configurations, with no mulligan bonus. Values are percentages of that denominator.
+
+| High-DCI group | 0 extra | 1 extra | 2 extra | 3 extra | 4 extra |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Six Dragon payloads | 20.025570% | 8.188409% | 9.004754% | 0.504681% | 0.258116% |
+| Dragons + seven Basic Energy | 26.612382% | 7.457473% | 3.485568% | 0.332826% | 0.093281% |
+| Dragons + Energy + four Battle Compressor | 30.110197% | 5.657827% | 1.940471% | 0.227683% | 0.045352% |
+
+Every row sums to the identical 37.9815305186% mechanically payable line probability. A zero-extra event means the line is possible without discarding outside the named DCI group; a positive bucket indicates the number of additional non-high-DCI hand cards sacrificed under the best modeled connector route. These are physical payment classes within the narrow ADP-first opening model, not strategic harm measures, native Store receipts, game completions, or win-rate estimates. A chosen low-DCI card may have little opportunity cost in an actual state, and a presumed high-DCI card may be essential later.
+
+The enumeration used the full source v2 count vector [2,5,2,4,3,4,3,4,6,7,4,16] and the same exact combinatorial draw/prize weighting as Agent5. An independent labeled miniature-deck physical-deal enumeration matched all three five-bucket histograms. The local CJS tests passed. Repository CI and a source-backed native payment sample remain outstanding; treat this report as provisional until the executable source is committed and run in shared CI. No selected final 60 and zero qualified matches.
