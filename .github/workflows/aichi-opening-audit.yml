@@ -16,6 +16,10 @@ on:
         type: string
         required: false
 
+      agent27_palemoon_archive_run:
+        description: 'Existing original Pale Moon GX archive run ID'
+        type: string
+        required: false
       agent27_adp_one_bonus:
         description: 'Exact fixed 60 ADP one opponent-mulligan paid opening and independent toy physical enumeration'
         type: boolean
@@ -27,6 +31,19 @@ permissions:
   actions: read
 
 jobs:
+  agent27-palemoon-archive-audit:
+    if: inputs.agent27_palemoon_archive_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent17-rank1-Pale-Moon-GX-native-reply-ABA
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.agent27_palemoon_archive_run }}
+      - run: node scripts/agent27-palemoon-public-summary.cjs agent17-pale-moon-counterreply-native-aba.json
   agent27-adp-one-bonus-math:
     if: inputs.agent27_adp_one_bonus
     runs-on: ubuntu-latest
