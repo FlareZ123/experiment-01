@@ -46,9 +46,12 @@ function inspect(bytes,sidecar){
     seen.add(row.id);
     const nativeRoots=row.publicRootActions;
     const sourceSeat=row.originalSourceSeat;
-    const otherSeat=row.candidateSeat;
-    assert.ok((sourceSeat===0||sourceSeat===1)&&otherSeat===1-sourceSeat,
-      'Missing real source/candidate physical seat: '+row.id);
+    const recordedOtherSeat=row.candidateSeat;
+    assert.ok(sourceSeat===0||sourceSeat===1,
+      'Missing real source physical seat: '+row.id);
+    const otherSeat=1-sourceSeat;
+    assert.ok(recordedOtherSeat===null||recordedOtherSeat===otherSeat,
+      'Contradictory native candidate physical seat: '+row.id);
     const rootsOk=Array.isArray(nativeRoots)&&
       row.publicRootActionsTruncated===false&&
       row.publicRootActionCount===nativeRoots.length&&
@@ -103,8 +106,23 @@ function inspect(bytes,sidecar){
         x.action!=='ResolvePromptAction').length
     }:null;
     rows.push({
-      id:row.id,sourceSeat,opponentSeat:otherSeat,
+      id:row.id,sourceSeat,
+      opponentSeat:otherSeat,
+      candidateSeatDirectlyAuthenticated:recordedOtherSeat!==null,
       nativeDisposition:row.rawDisposition??row.status??null,
+      abortActionOrdinal:row.abortActionOrdinal??null,
+      abortActionName:row.abortActionName??null,
+      abortPendingPrompt:row.abortPendingPrompt??null,
+      abortFailureStage:row.abortFailureStage??null,
+      lastPublicRoot:rootsOk&&nativeRoots.length>0?{
+        ordinal:nativeRoots.at(-1).actionOrdinal,
+        turn:nativeRoots.at(-1).turnBefore,
+        seat:nativeRoots.at(-1).playerSlot,
+        action:nativeRoots.at(-1).action,
+        card:nativeRoots.at(-1).card??null,
+        attack:nativeRoots.at(-1).attack??null,
+        pendingPrompt:nativeRoots.at(-1).pendingPrompt??null
+      }:null,
       nativeFinalWinner:row.finalNativeWinner??null,
       rootCount:row.publicRootActionCount,
       completeRootLedger:rootsOk,
