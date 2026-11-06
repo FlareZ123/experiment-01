@@ -77,7 +77,7 @@ test('retrospective runner retains the exact eight v8 contexts and no win-rate c
   assert.deepEqual(result.rawDevelopment.rows.map(x=>x.trial.id).sort(),
     registration.trials.map(x=>x.id).sort());
   assert.equal(result.diagnostic.ownerVsSeekerGuzmaAudit.rootsAccepted,1);
-  assert.equal(result.diagnostic.guzmaPromptAudits.length,8);
+  assert.equal(result.diagnostic.actorOnlyDecisionCoverageByTrial.length,8);
   assert.equal(result.diagnostic.competitiveGamesQualified,0);
   assert.equal(result.diagnostic.estimatedWinRate,null);
   assert.equal(result.diagnostic.winRateCertified,false);
