@@ -1,0 +1,310 @@
+{
+  "schema": "agent31-prospective-all-owner-pass-rank5-rank11-20261106-v1",
+  "registeredUtc": "2026-11-06T02:03:57.837Z",
+  "registeredBeforeAnyNativeExecutionForTheseSeeds": true,
+  "objective": "Coverage of actual acting-owner Pass roots and narrow visible funded Shadow Rider VMAX Float Stone geometry using unselected fresh source/contender physical games",
+  "sourceRanks": [
+    5,
+    11
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "physicalSeedGroups": 16,
+  "attempts": 32,
+  "seedGeneration": "Python secrets.randbits(32), independent uniformly random 32-bit integers, no previous outcomes inspected",
+  "seeds": {
+    "5": {
+      "A": [
+        1466499531,
+        1504819735,
+        1706988420,
+        3397410821
+      ],
+      "B": [
+        2293153259,
+        3665396456,
+        1789223898,
+        2310639080
+      ]
+    },
+    "11": {
+      "A": [
+        1971503854,
+        2702642998,
+        986716272,
+        2571835312
+      ],
+      "B": [
+        910468085,
+        421888474,
+        2234229318,
+        1101197735
+      ]
+    }
+  },
+  "trials": [
+    {
+      "id": "5:0:A:champion-reference",
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1466499531
+    },
+    {
+      "id": "5:0:A:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1466499531
+    },
+    {
+      "id": "5:1:A:champion-reference",
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1504819735
+    },
+    {
+      "id": "5:1:A:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1504819735
+    },
+    {
+      "id": "5:2:A:champion-reference",
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1706988420
+    },
+    {
+      "id": "5:2:A:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1706988420
+    },
+    {
+      "id": "5:3:A:champion-reference",
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3397410821
+    },
+    {
+      "id": "5:3:A:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3397410821
+    },
+    {
+      "id": "5:0:B:champion-reference",
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2293153259
+    },
+    {
+      "id": "5:0:B:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2293153259
+    },
+    {
+      "id": "5:1:B:champion-reference",
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3665396456
+    },
+    {
+      "id": "5:1:B:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3665396456
+    },
+    {
+      "id": "5:2:B:champion-reference",
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1789223898
+    },
+    {
+      "id": "5:2:B:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1789223898
+    },
+    {
+      "id": "5:3:B:champion-reference",
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2310639080
+    },
+    {
+      "id": "5:3:B:new-moon-lockbreaker-v1",
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2310639080
+    },
+    {
+      "id": "11:0:A:champion-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1971503854
+    },
+    {
+      "id": "11:0:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1971503854
+    },
+    {
+      "id": "11:1:A:champion-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2702642998
+    },
+    {
+      "id": "11:1:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2702642998
+    },
+    {
+      "id": "11:2:A:champion-reference",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 986716272
+    },
+    {
+      "id": "11:2:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 986716272
+    },
+    {
+      "id": "11:3:A:champion-reference",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2571835312
+    },
+    {
+      "id": "11:3:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2571835312
+    },
+    {
+      "id": "11:0:B:champion-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 910468085
+    },
+    {
+      "id": "11:0:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 910468085
+    },
+    {
+      "id": "11:1:B:champion-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 421888474
+    },
+    {
+      "id": "11:1:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 421888474
+    },
+    {
+      "id": "11:2:B:champion-reference",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2234229318
+    },
+    {
+      "id": "11:2:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2234229318
+    },
+    {
+      "id": "11:3:B:champion-reference",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1101197735
+    },
+    {
+      "id": "11:3:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1101197735
+    }
+  ],
+  "frozenPolicy": "Prior pinned original source 60s and fixed two contenders, agent31-crossrank5-11 historical control native actor policy, existing Underworld hook and Basic recipient handling, actorFundedShadowRiderFloatStoneRoot=false, nativeAllOwnerPassFrontier=true, no policy treatment",
+  "independenceUnit": "physical seed group; contender 60s share seed but differ physically",
+  "eligibility": "Printed original rank5/rank11 source 60s; baseline control. Record all errors, action-limit censoring, complete owner Pass receipts, and per-trial owner-visible narrow VMAX passes",
+  "noPaperOutcomePromotion": true,
+  "competitivelyQualifiedGames": 0
+}
