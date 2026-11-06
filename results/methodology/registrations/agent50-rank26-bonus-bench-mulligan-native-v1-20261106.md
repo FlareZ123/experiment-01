@@ -37,7 +37,7 @@ At rank6's post-compensation `CHOOSE_STARTING_POKEMONS` prompt:
 - verify the genuine owner hand is the prompt's card list;
 - verify `min=0`, `max=1`, and the only eligible new Basic is the second physical Iron Thorns ex;
 - verify both `prompt.validate([])` and `prompt.validate([secondThorns])` are true;
-- **do not override the optional prompt**: let the pinned default `SimpleTacticsAi` `ChooseCardsPromptResolver` produce the action, then observe whether it selects the second physical Iron Thorns;
+- **do not replace the default selection policy**: retrieve the installed default `ChooseCardsPromptResolver` instance from `SimpleTacticsAi.resolvers`, invoke its `resolvePrompt(state,prompt)` directly while the generic decoder remains quarantined, and observe whether it selects the second physical Iron Thorns;
 - compare that action with `chooseOwnedProtectedStartingBasics` on the same prompt as a negative control; the Agent50 protected-entry chooser is expected to propose `[]` for a valid `min=0` prompt;
 - dispatch the default resolver's action through the actual pinned Store;
 - verify the exact second physical card leaves the owner's hand and enters one Bench slot, while the original Active Iron Thorns remains unchanged;
@@ -47,7 +47,7 @@ The default resolver is part of Twinleaf's `allPromptResolvers`. It ranks unbloc
 
 ## Amendment before execution, 6 November 2026
 
-The initial fixture draft explicitly selected the bonus Basic in a test wrapper. Before any run, this was changed to delegate the optional prompt to the default `ChooseCardsPromptResolver` and observe its native action. The owner-only wrapper now handles only mandatory initial setup selections and the compensation-draw prompt. The Store observer compares the default action with the Agent50 protected chooser's empty proposal. The test receipt schema was advanced to `agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v2-default-resolver`. No CI execution has occurred between the draft and this amendment.
+The initial fixture draft explicitly selected the bonus Basic in a test wrapper. Before any run, this was changed to invoke the installed default `ChooseCardsPromptResolver` instance directly for the optional prompt, keeping the generic decoder quarantine active. The owner-only wrapper handles mandatory initial setup selections and the compensation-draw prompt. The Store observer compares the default action with the Agent50 protected chooser's empty proposal. The test receipt schema was advanced to `agent50-rank26-vs-rank6-mulligan-bonus-bench-native-v2-default-resolver`. No CI execution has occurred between the draft and this amendment.
 
 ## Existing-hook comparison
 
