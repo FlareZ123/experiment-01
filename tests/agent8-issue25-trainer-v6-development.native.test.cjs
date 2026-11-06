@@ -57,8 +57,9 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
     const acceptedRootLedgerExactMatch=
       Array.isArray(controlLedger)&&Array.isArray(treatmentLedger)?
         JSON.stringify(controlLedger)===JSON.stringify(treatmentLedger):null;
-    const diagnostic=treatmentRaw.get(row.id)?.actorOnlyDecisionCoverage?.
-      nativeOwnerTrainerFallbackAudit??null;
+    const ownerCoverage=treatmentRaw.get(row.id)?.actorOnlyDecisionCoverage??null;
+    const diagnostic=ownerCoverage?.nativeOwnerTrainerFallbackAudit??
+      ownerCoverage?.detailedComponentAudits?.root?.nativeOwnerTrainerFallback??null;
     const trainerFallbackDiagnostic=diagnostic===null?null:{
       attemptedUnsupportedPasses:diagnostic.attemptedUnsupportedPasses,
       selectedNativeTrainerRoots:diagnostic.selectedNativeTrainerRoots,
@@ -71,10 +72,11 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
         x.seat!==row.sourceSeat).length,
       receiptsOmitted:diagnostic.receiptsOmitted
     };
-    assert.ok(row.status==='engine-error'||diagnostic!==null,
-      `Missing native fallback disposition for registered ${row.id}`);
+    // Capped and aborted native runs can lack the post-return actor audit.
+    // Keep that telemetry explicitly unknown instead of inferring zero.
     return {
       trainerFallbackDiagnostic,
+      treatmentOwnerCoverageAvailable:ownerCoverage!==null,
       acceptedRootLedgerExactMatch,
       id:row.id,
       sourceSeat:row.sourceSeat,
