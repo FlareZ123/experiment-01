@@ -20,9 +20,14 @@ function fixture(prize = true) {
     {actionOrdinal:2,playerSlot:1,action:'PassTurnAction',turnBefore:5},
     {actionOrdinal:3,playerSlot:0,action:'PassTurnAction',turnBefore:6}
   ];
+  const before = [
+    {active:{printing:'source-active',energyCards:['Lightning']},bench:[]},
+    {active:{printing:'funded-active',energyCards:['P','P']},
+      bench:[{printing:'bench-card',energyCards:[]}]}
+  ];
   const board = [
-    {active:{energyCards:['Lightning']},bench:[]},
-    {active:{energyCards:[]},bench:[{energyCards:[]}]}
+    {active:{printing:'source-active',energyCards:['Lightning']},bench:[]},
+    {active:{printing:'bench-card',energyCards:[]},bench:[]}
   ];
   return {
     id:'source-vs-contender',status:'root-cap-unqualified',
@@ -35,7 +40,7 @@ function fixture(prize = true) {
       attacks:[{actionOrdinal:0,completionRootOrdinal:1,
         attackName:'TestAttack',settledPromptChain:true,
         prizesBefore:[6,6],prizesAfter:[prize?5:6,6],
-        publicBoardAfter:board}]},
+        publicBoardBefore:before,publicBoardAfter:board}]},
     candidateAttackSettlement:{declarations:0,settled:0,attacks:[]}
   };
 }
@@ -50,7 +55,9 @@ test('preserves first paid Prize, immediate reply, and source return', () => {
   const row = auditPostPrizeAttempt(fixture());
   assert.equal(row.sourcePrizesBySettledAttacks,1);
   assert.equal(row.firstSourcePrize.completionRootOrdinal,1);
+  assert.equal(row.contenderAttachedEnergyBeforePrize,2);
   assert.equal(row.contenderAttachedEnergyAfterPrize,0);
+  assert.equal(row.firstPrizeSoleFundedActiveBoardEnergyCollapsed,true);
   assert.equal(row.nextContenderRoot.action,'PassTurnAction');
   assert.equal(row.nextSourceRoot.action,'PassTurnAction');
   assert.equal(row.contenderPostPrizeAttackDeclarations,0);
@@ -62,6 +69,8 @@ test('keeps zero-Prize contexts and correct denominators', () => {
     {...fixture(false),id:'other'}]});
   assert.equal(archive.attemptedContexts,2);
   assert.equal(archive.sourcePrizeContexts,1);
+  assert.equal(archive.sourcePrizeAttackEvents,1);
+  assert.equal(archive.soleFundedActiveCollapseEvents,1);
   assert.equal(archive.recordedContenderCounterattackContexts,0);
   assert.equal(archive.energyFreeContenderBoardAtFirstPrizeContexts,1);
   assert.equal(archive.contenderResponseObservedContexts,1);
