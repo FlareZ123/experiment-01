@@ -119,10 +119,22 @@ function withOwnerInitialSetupAndCompensationDraw(run,audit){
         assert.equal(state.phase,GamePhase.SETUP);
         assert.equal(owner.active.cards.length,1);
         assert.equal(owner.bench.flatMap(slot=>slot.cards).length,0);
-        assert.ok(this.resolvers.some(resolver=>
-          resolver instanceof ChooseCardsPromptResolver),
+        const resolverIndex=this.resolvers.findIndex(resolver=>
+          resolver instanceof ChooseCardsPromptResolver);
+        assert.ok(resolverIndex>=0,
           'default SimpleTacticsAi must have its native ChooseCardsPromptResolver');
+        const resolver=this.resolvers[resolverIndex];
         audit.defaultChooseCardsResolverInstalled=true;
+        audit.defaultChooseCardsResolverIndex=resolverIndex;
+        audit.defaultResolverResolutionMode='direct installed resolver call under generic-decoder quarantine';
+        const resolved=resolver.resolvePrompt(state,prompt);
+        assert.ok(resolved instanceof ResolvePromptAction,
+          'the pinned default ChooseCardsPromptResolver must return a native action');
+        assert.ok(Array.isArray(resolved.result));
+        audit.defaultChooseCardsResolverInvoked=true;
+        audit.defaultChooseCardsResolverAction=resolved.constructor.name;
+        audit.defaultChooseCardsResolverSelection=resolved.result.map(printing);
+        return resolved;
       }
     }
     if(owner&&prompt instanceof SelectPrompt&&
@@ -353,6 +365,8 @@ function withRank26BonusBenchFixture(run){
           existingProtectedEntryHookSelection:currentHookChoice.map(printing),
           defaultResolverName:'ChooseCardsPromptResolver',
           defaultResolverInstalled:audit.defaultChooseCardsResolverInstalled===true,
+          defaultResolverInvoked:audit.defaultChooseCardsResolverInvoked===true,
+          defaultResolverIndex:audit.defaultChooseCardsResolverIndex,
           defaultResolverSelection:action.result.map(printing),
           nativeAction:action.constructor.name,
           nativeActionSelection:action.result.map(printing),
@@ -461,9 +475,12 @@ test('rank26 mulligan compensation permits a second rank6 Iron Thorns on the nat
   assert.equal(audit.actorDecisions.filter(x=>x.kind==='initial-starting-basic').length,2);
   assert.equal(audit.actorDecisions.filter(x=>x.kind==='accept-one-compensation-card').length,1);
   assert.equal(audit.defaultChooseCardsResolverInstalled,true);
+  assert.equal(audit.defaultChooseCardsResolverInvoked,true);
+  assert.ok(Number.isSafeInteger(audit.defaultChooseCardsResolverIndex));
   assert.deepEqual(audit.optionalPrompt?.defaultResolverSelection,
     [audit.optionalPrompt?.candidate]);
   assert.equal(audit.optionalPrompt?.defaultResolverInstalled,true);
+  assert.equal(audit.optionalPrompt?.defaultResolverInvoked,true);
   assert.equal(audit.rawStateFallbackQuarantine?.rawStateFallbackCalls,0);
 
   const receipt={
