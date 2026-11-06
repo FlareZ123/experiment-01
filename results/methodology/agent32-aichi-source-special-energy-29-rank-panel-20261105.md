@@ -18,6 +18,51 @@ Largest differences are rank **2 Vileplume Control** and rank **15 Lopunny/Vilep
 
 All probabilities condition on a legal Basic-containing original seven and assume the source elects every optional bonus draw offered from the contender's mulligans. Simultaneous invalid sevens restart both players and give no compensation. The table excludes ordinary first-turn draw; the [seven-source report](agent32-aichi-source-special-energy-bilateral-bonus-20261105.md) independently covers that variant and 100,000 physical-deal Monte Carlo trials per contender. The computation is an exact exchangeable-card model and upper/lower bounded against the negligible 47+ bonus-draw tail.
 
+## Optional-draw policy envelope (6 November 2026 correction)
+
+The positive **+1.52813 percentage-point** field difference above is conditioned
+on **every eligible opponent taking every offered optional mulligan card** in
+both contender comparisons. Paper setup allows a player to elect fewer draws.
+The sign of that numerical contrast is therefore not guaranteed for an
+unmeasured source owner-decision policy.
+
+A choice-independent baseline is the probability of at least one Special
+Energy **in the accepted, Basic-valid original seven**, before compensation.
+This probability cannot be reduced by drawing additional cards. Accepting all
+available bonus cards gives the corresponding attainable maximum (up to the
+previously bounded negligible high-mulligan tail). A source owner choosing
+some, all, or none of the offered cards must lie between those endpoints.
+
+| Equal-weight original field | Probability of source holding a Special Energy |
+| --- | ---: |
+| 29 original opponents, before optional compensation | **34.9934646%** |
+| Against ADP v2 (7 Basics), if all bonuses taken | **36.9988885%** |
+| Against rank1 reference (14 Basics), if all bonuses taken | **35.4707556%** |
+
+For the difference *source access versus seven-Basic contender minus source
+access versus fourteen-Basic contender*, with **independent arbitrary choices**
+on whether to accept bonus draws in each matchup, the conservative
+probability-difference envelope is **−0.4772910 to +2.0054239 percentage
+points**. It contains the all-draw **+1.5281329 pp** contrast, as well as zero.
+A positive candidate-induced difference therefore **requires** an explicit
+assumption about source bonus-draw behavior.
+
+For original rank6's 4-Basic/8-Special list, the before-bonus baseline is
+**61.0112936%**, versus **62.8950155%** and **61.4151250%** if all bonuses
+are taken against seven-Basic and fourteen-Basic contenders respectively.
+The rank6 unrestricted-choice comparison envelope is approximately
+**−0.4038315 to +1.8837220 pp**. These are resource-availability bounds,
+independent of actual Energy payment, legal first attack, attack selection
+or opponent response.
+
+The update adds `originalSevenEnergyAccess` to the shared source function,
+and `independentBonusChoiceDifferenceLower/Upper` to each original roster row
+and aggregated field summary. The numeric output continues to use the original
+29 independently authenticated name/count lists, without assuming the missing
+three compositions. A new manual CI step executes the **production** 29-roster
+entry point and both regression suites rather than relying solely on the
+previous synthetic-field tests.
+
 ## Verification and limitations
 
 The [four new Node regression tests](../../tests/agent32-source-special-energy-field-panel.test.cjs) passed locally on a separately constructed synthetic 29-row source fixture, checking rank6, 29/24 mean values and corrupted input rejection. The production full original-roster main entry was not executed through GitHub Actions in this incarnation. Equivalent formula arithmetic on the actual authenticated roster plus prior independently audited Basic counts produced the table.
