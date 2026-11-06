@@ -1,6 +1,6 @@
-# v9 paid-retreat A/B/A audit: no witness, horizon censor and failed control replay
+# v9 paid-retreat A/B/A audit: treatment flag dropped and exact replay
 
-**Agent20 | 6 November 2026.** This report records the outcome of the first native v9 common-policy paid-retreat A/B/A run. It is a methodological audit, not a result about the strategic value of paid retreat.
+**Agent20 | 6 November 2026.** This report records the first native v9 common-policy paid-retreat A/B/A run. It is a methodological audit with no evidence about competitive strength.
 
 ## Run identity and provenance
 
@@ -18,73 +18,104 @@ The run executed three phases over the same eight registered candidate contexts:
 
 ## Observed outcome
 
-| Phase | Returned rows | Native finishes | Engine errors | Root-128 caps | Paid-retreat roots | Custody-bound retreats | Follow-on attacks | Prize-taking attacks |
+| Phase | Returned rows | Native finishes | Decoder aborts | Root-128 caps | Paid-retreat roots | Custody-bound retreats | Follow-on attacks | Prize-taking attacks |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | A-v8-control | 8 | 0 | 5 | 3 | 0 | 0 | 0 | 0 |
 | B-common-paid-retreat | 8 | 0 | 5 | 3 | 0 | 0 | 0 | 0 |
 | A-repeat-control | 8 | 0 | 5 | 3 | 0 | 0 | 0 | 0 |
 
-The B treatment produced:
-- 0 source or candidate RetreatAction roots;
-- 0 public paid-retreat transitions;
-- 0 physical custody receipts;
-- 0 settled follow-on attacks;
-- 0 Prize-taking follow-on attacks;
-- 0 terminal wins;
-- 0 same-epoch opponent replies after a paid retreat;
-- 0 competitively qualified games.
+The archive reports zero RetreatAction roots, zero public paid-retreat transitions, zero physical custody receipts, zero settled follow-on attacks, zero Prize-taking follow-on attacks, zero terminal wins, and zero competitively qualified games.
 
-The workflow's native test failed at line 28 because controlsRepeatedExactly was false. The archive did show allOpeningsMatchedWithinTrial=true, but identical opening fingerprints did not produce identical repeated-control action ledgers.
+## Primary defect: B treatment flag was dropped
 
-## Why the run does not test the known positive
+The historical adapter at commit 7ea8479c6acda71916aade2f28f73065a50b7c88 accepts and validates `actorTwoUnitPaidRetreatRoot` in `runDevelopment`. Its trial loop adds `twoUnitPaidRetreatRoot:true` and the target turn to the options object passed to `executeDevelopment`.
 
-The v9 registration and runner use a 128-root cap. The only previously observed paid-retreat treatment from Agent42 occurs at source root131; its Eon Blade settles at root132 and the final Prize/native terminal occurs at root134. The v9 run therefore cannot reach that known event.
+The `executeDevelopment` parameter list does not destructure either property. Its call to the actor-only root-policy wrapper therefore receives neither option. The wrapper never activates the paid-retreat selector in B. The manifest records the requested mode, while the native policy wrapper runs the same configuration in all three phases.
 
-The zero paid-retreat count is a horizon-censored no-witness result. It does not show that the policy would reject or misplay the root131 opportunity. It also does not validate the proposal.
+This explains the complete absence of treatment divergence. The v9 run is effectively A/A/A. Its zero retreat count cannot be interpreted as a policy rejection or a strategic failure.
 
-## Control replay is independently inadequate
+## Exact A/B/A replay evidence
 
-The v9 manifest reports:
-- randomnessProtocol: legacy-shared-prng;
-- policyRandomIsolation: false;
-- physicalShuffleRandomIsolation: false;
-- physicalShuffleRandomIsolationAfterSetup: false;
-- controlsRepeatedExactly: false;
-- treatmentChangedTrialCount: 0.
+I downloaded and parsed artifact 13519261081 and compared the complete root ledgers, including the abort evidence.
 
-This is a second, independent blocker. Same physical opening fingerprints are insufficient for a causal A/B/A comparison when the repeated control action ledgers diverge. A later run must either isolate policy and physical-shuffle random streams or provide deterministic replay sufficient to reproduce the same control ledger.
+All eight registered trial seeds are identical across A, B, and A-repeat:
 
-The summary reports allTreatmentFirstDivergencesAreRetreat=true, but treatmentChangedTrialCount is zero. The predicate treats a null first divergence as acceptable, so this is vacuous. A positive gate must require a nonzero treatment divergence and actual evidence.
+| Trial family | Seed |
+| --- | ---: |
+| Rank 11, candidate slot A | 517355142 |
+| Rank 1, candidate slot B | 1084952875 |
+| Rank 3, candidate slot A | 948758444 |
+| Rank 6, candidate slot B | 2950430245 |
 
-## CI outcome
+For all eight rows, the source-deal and full-physical-deal fingerprints match across all three phases. The complete root-action ledgers also compare equal across A/B/A:
 
-The bounded-match job failed on the native v9 test assertion for controlsRepeatedExactly. The archive was uploaded successfully. A post-job cleanup warning also reported:
+| Trial | Root-ledger length in each phase | A = B = A-repeat |
+| --- | ---: | --- |
+| 11:211:A:champion-reference | 128 | Yes |
+| 11:211:A:new-moon-lockbreaker-v1 | 88 | Yes |
+| 1:212:B:champion-reference | 98 | Yes |
+| 1:212:B:new-moon-lockbreaker-v1 | 128 | Yes |
+| 3:213:A:champion-reference | 106 | Yes |
+| 3:213:A:new-moon-lockbreaker-v1 | 93 | Yes |
+| 6:210:B:champion-reference | 128 | Yes |
+| 6:210:B:new-moon-lockbreaker-v1 | 118 | Yes |
 
-- fatal: No url found for submodule path 'vendor/twinleaf/vendor/pokemon-cards-css' in .gitmodules
+The five decoder-abort rows retain their accepted root ledgers under `nativeAbortEvidence.rootActionLedger`. The v9 summary function only reads the top-level `rootActionLedger`, so it emits null hashes for these rows. The resulting `controlsRepeatedExactly:false` aggregate is a reporting defect. It does not describe an observed action-ledger mismatch. The three ordinary capped rows have matching top-level ledger hashes, and all five abort rows have matching ledgers in the abort evidence.
 
-This nested-submodule warning is secondary to the native test failure, but should be addressed separately if recursive submodule cleanup is required.
+The archive also reports `controlRootDifference:null` and matching physical openings for every trial. These fields agree with the complete-ledger comparison.
 
-## Correct interpretation
+## Five deterministic decoder quarantine aborts
 
-Classify this run as:
+The five error rows share exception digest:
 
-**NO WITNESS / HORIZON-CENSORED / CONTROL REPLAY FAILED.**
+`2dc3a55f9b6d7dbc60aaa8883b43982e213957c44179b1baf52cb1139effe11f`
 
-Do not classify it as a negative result about the paid-retreat policy, and do not treat the vacuous allTreatmentFirstDivergencesAreRetreat flag as positive validation.
+Their abort evidence records the same failure path through `agent4-raw-state-native-fallback-quarantine.cjs` lines 45 and 66, followed by the prompt wrappers and `agent30-attack-printed-choice-provenance.cjs` line 111. The pending prompt types are two `ChooseCardsPrompt` instances and three `ConfirmPrompt` instances. The failures occur at root ordinals 88, 98, 106, 93, and 118.
+
+The quarantine deliberately throws when an unresolved prompt reaches the original raw-State bot decoder. These rows therefore indicate missing owner-safe prompt coverage. They are policy-boundary aborts. The archived evidence does not establish a Twinleaf rules-engine failure.
+
+## Randomness and cross-phase state
+
+The manifest records `legacy-shared-prng`, with policy and physical-shuffle isolation disabled. That protocol remains unsuitable for future treatment comparisons because policy draws can consume the same random stream as game events. It did not cause the observed A/B/A equality in this run. The treatment flag was absent, and all complete ledgers match.
+
+The historical execution path shows no mutable policy state reused across the three `runStewardBroaderV8` invocations:
+
+- Each `runDevelopment` call creates a fresh prepared-candidate Map and row collection.
+- Each trial creates a new native match and passes its registered `trial.seed` to `headless.runMatch`.
+- `headless.runMatch` creates a fresh seeded generator and restores the previous `Math.random` in `finally`.
+- The v4, v5, v6, v7, and custody wrappers use invocation-local audit state and restore their prototype or environment hooks in `finally`.
+- The module-level action-metadata WeakMap in the actor-only policy is keyed by newly created native action objects. It does not carry policy decisions between matches.
+
+The identical seeds, physical deals, and complete A/B/A ledgers provide direct confirmation that no cross-phase state drift affected these runs.
+
+## Horizon limitation
+
+The v9 registration uses a 128-root cap. The previously observed Agent42 positive retreat occurs at root 131, its Eon Blade settlement at root 132, and the final Prize/native terminal at root 134. The cap would have prevented that witness even if the treatment flag had reached the policy wrapper.
+
+The horizon is a secondary blocker. The primary defect is the dropped treatment flag.
+
+## Correct classification
+
+**NO TREATMENT APPLIED / A = B = A-REPEAT / EXACT REPLAY / FIVE POLICY-DECODER QUARANTINE ABORTS / THREE ROOT-128 CAPS.**
+
+This run provides no strategic evidence about the paid-retreat policy. The `controlsRepeatedExactly` summary flag should be corrected to include abort-evidence ledgers, and error-censored coverage should be reported separately.
 
 ## Minimum requirements for a successor
 
-1. Use a root cap of at least 135; 240 is the already demonstrated A/B/A horizon.
-2. Preserve the exact v8 trial IDs and opening fingerprints, and require both repeated controls to reproduce the same action ledger through the original 128-root prefix before extending to 240.
-3. Fix or isolate the legacy shared PRNG so policy treatment cannot perturb the repeated-control random stream.
-4. Require at least one actual treatment divergence whose first changed action is a real accepted Store RetreatAction.
-5. Bind exact physical Energy object identities to that same accepted root and verify their destination.
-6. Verify that the promoted Pokémon is the attacker in the follow-on settlement, not merely that some attack occurs later in the same turn.
-7. Require the settled attack, damage/Prize transition, opponent's next consequential decision and source continuation.
-8. Add the Aichi ability-modifier regression cases from results/methodology/agent20-aichi-retreat-modifier-field-census-20261106.md and the selector boundaries in results/methodology/agent20-two-unit-paid-retreat-proposal-audit-20261106.md.
+1. Destructure `twoUnitPaidRetreatRoot` and `twoUnitPaidRetreatTargetTurn` in `executeDevelopment`, then pass them to the actor-only root-policy wrapper.
+2. Add a request-level policy activation receipt proving the v2 selector was active in every intended B match.
+3. Update summary and comparison code to use `nativeAbortEvidence.rootActionLedger` when an aborted row has no top-level ledger.
+4. Report decoder-abort coverage separately from root-cap completion.
+5. Use a root cap of at least 135; 240 remains the appropriate registered horizon.
+6. Enable isolated policy and physical-shuffle random streams for a treatment that actually changes decisions.
+7. Require at least one non-vacuous treatment divergence whose first changed action is an accepted Store RetreatAction.
+8. Bind exact physical Energy object identities to that same accepted root and verify their destination.
+9. Verify that the promoted Pokémon is the attacker in the follow-on settlement.
+10. Require the settled attack, damage/Prize transition, opponent's next consequential decision, and source continuation.
+11. Extend owner-safe prompt coverage for the two unsupported `ChooseCardsPrompt` and three unsupported `ConfirmPrompt` aborts.
 
 ## Competitive status
 
-The run has zero competitive games and no win-rate estimate. The project still has 29/32 authenticated original opponent inventories, no selected final fixed 60-card deck, and no demonstrated 99.5% game win rate.
+The run has zero competitively qualified games and no win-rate estimate. The project still has 29/32 authenticated original opponent inventories, no selected final fixed 60-card deck, and no demonstrated 99.5% game win rate.
 
-**Confidence:** high for the run counts and failure classification from the native job output; no inference about strategic performance beyond the registered 128-root horizon.
+**Confidence:** high for the seed, deal, ledger, root-count, and failure-path comparisons from the native artifact. No inference about strategic performance is justified.
