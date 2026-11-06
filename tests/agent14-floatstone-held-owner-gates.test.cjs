@@ -33,10 +33,14 @@ function scenario(){
 test('positive synthetic held Float: all coarse public gates true',()=>{
   const actual=heldFloatGateFlags(scenario(),catalog);
   assert.equal(actual.held,true);
-  assert.deepEqual(FIELDS.filter(key=>!actual[key]),[]);
+  assert.deepEqual(FIELDS.filter(key=>!actual[key]&&
+    !['benchHasKnownCounterAttack','benchHasSatisfiedCounterCondition']
+      .includes(key)),[]);
   assert.deepEqual(actual.benchPayableTargets,[{
     printing:'Mega Absol ex M1L',attack:'Claw of Darkness',
-    nominalDamage:200
+    nominalDamage:200,
+    condition:{recognized:false,satisfied:false,condition:null,
+      requiredDamage:null,targets:[]}
   }]);
 });
 
@@ -62,7 +66,9 @@ test('projected below 80 remains payable yet excluded from helper threshold',()=
   assert.equal(f.allCoarseStructuralGates,false);
   assert.deepEqual(f.benchPayableTargets,[{
     printing:'Mega Absol ex M1L',attack:'Claw of Darkness',
-    nominalDamage:30
+    nominalDamage:30,
+    condition:{recognized:false,satisfied:false,condition:null,
+      requiredDamage:null,targets:[]}
   }]);
 });
 
@@ -98,4 +104,22 @@ test('cannot access concealed opponent hand, deck or Prize cards',()=>{
   view.ownPublic.prizes=deny;
   assert.equal(heldFloatGateFlags(view,catalog).allCoarseStructuralGates,
     true);
+});
+
+test('Terminal Period is payable but only has a counter-state witness',()=>{
+  const v=scenario();
+  v.ownPublic.bench[0].attacks=[{
+    name:'Terminal Period',damage:0,cost:[7,9],
+    text:"If your opponent's Active Pokémon has exactly 6 damage counters on it, that Pokémon is Knocked Out."
+  }];
+  v.opponentPublic.active.damage=0;
+  v.opponentPublic.active.hp=60;
+  let witness=heldFloatGateFlags(v,catalog);
+  assert.equal(witness.benchHasPayableAttack,true);
+  assert.equal(witness.benchHasKnownCounterAttack,true);
+  assert.equal(witness.benchHasSatisfiedCounterCondition,false);
+  assert.equal(witness.benchPayableTargets[0].condition.requiredDamage,60);
+  v.opponentPublic.active.damage=60;
+  witness=heldFloatGateFlags(v,catalog);
+  assert.equal(witness.benchHasSatisfiedCounterCondition,true);
 });
