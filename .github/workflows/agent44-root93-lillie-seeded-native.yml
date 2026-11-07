@@ -1,0 +1,45 @@
+name: Agent44 root93 Lillie shuffled five-replay check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-root-lillie-seeded:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Validate script syntax
+        run: node --check simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Check out pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Original root93 Lillie five-seed physically shuffled A/B/A receipt
+        env:
+          AGENT44_LILLIE_SEED_BUNDLE: 'true'
+        run: node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Preserve owner-visible native outputs even if negative
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-root93-lillie-seeded-native
+          path: |
+            artifacts/agent44-root93-lillie-seeded-v1.json
+            artifacts/agent44-root93-lillie-seed-*.json
+          if-no-files-found: warn
+          retention-days: 30
