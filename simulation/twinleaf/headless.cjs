@@ -12,6 +12,8 @@ const {captureNativeResetPrestate}=
   require('../evaluation/agent3-native-reset-prestate.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
+const {dispatchSpecialRedCardPaperRoot} =
+  require('./agent44-special-red-card-empty-hand-hook.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
 const {installPostSuperAliasRepairHook} = require('./post-super-alias-repair-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
@@ -264,6 +266,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [isolatePolicyRandomness] Use independent RNG streams for speculative bot decisions (experimental).
  * @property {boolean} [isolatePhysicalShuffleRandomness] Use independent per-seat physical shuffle RNG streams, preserving legacy behavior when omitted.
  * @property {boolean} [isolatePhysicalShuffleRandomnessAfterSetup] Keep historical shared RNG during turn-0 setup shuffles, then use independent per-seat physical deck shuffle streams from turn 1 onward; mutually exclusive with isolatePhysicalShuffleRandomness.
+ * @property {boolean} [specialRedCardPaperCorrection] Opt-in exact M4 printed hand0 veto and physically seeded hand-only shuffle during the real native Store action; source physical RNG is selected for the opponent hand owner, never consumed by speculative bot decisions.
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
@@ -1505,7 +1508,17 @@ function runMatch(request) {
         require('./agent34-actor-only-root-policy.cjs')
           .bindActorNativeStoreOrdinal(action,actions,seat):null;
       try {
-        store.dispatch(action);
+        if (request.specialRedCardPaperCorrection === true) {
+          const realHandShuffleRandom=()=>{
+            const current=store.state;
+            const affectedSeat=current.players.findIndex(p=>p.id!==action.id);
+            return choosePhysicalShuffleRandom(random,physicalShuffleRandomBySeat,
+              affectedSeat,current.turn,isolateShuffleAfterSetup)();
+          };
+          dispatchSpecialRedCardPaperRoot(store,action,realHandShuffleRandom);
+        } else {
+          store.dispatch(action);
+        }
         if(setupCoinChoiceReceipt)setupCoinChoiceReceipt.onAccepted({
           pending,action,ordinal:actions,phaseBefore,turnBefore
         });
@@ -2153,6 +2166,10 @@ function runMatch(request) {
       physicalShuffleRandomIsolation:
         request.isolatePhysicalShuffleRandomness === true,
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
+      specialRedCardPaperCorrection: request.specialRedCardPaperCorrection === true,
+      specialRedCardPaperShuffleProtocol:
+        request.specialRedCardPaperCorrection === true ?
+          'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1' : null,
       randomnessProtocol: isolateShuffleAfterSetup ?
         (request.isolatePolicyRandomness === true ?
           'per-seat-policy-and-physical-shuffle-after-setup-prng-v1' :
