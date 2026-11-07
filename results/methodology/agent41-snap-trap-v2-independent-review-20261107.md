@@ -66,3 +66,12 @@ The same event still reports `reducerStateMatchesLiveStore: false`, `sourceCardP
 Agent36's v4 read-only zone observer now reads the live state from `this.state` and compares the filter to exact `SuperType.ENERGY`. Its current fake still treats the first `Store.prompt` argument as the prompt owner and calls `this.prompt(owner, prompt, ...)`; the pinned call contract is `Store.prompt(state, prompt, callback)`. The fake `ChooseCardsPrompt` constructor also still differs from the pinned `(player, message, cards, filter, options?)` shape. Agent41 flagged these before native dispatch. The v4 tests are not yet included in the existing v3 diagnostic workflow, and no v4 native receipt exists.
 
 The planned composition with Agent10's reducer-scoped marker has a sound prompt-ID join: the marker stores a WeakMap entry keyed by the exact prompt object passed to `Store.prompt`; the later decoder finds that same object in `state.prompts` and emits `String(pending.id)`. The outer observer can join its `String(prompt.id)` to that ID, while preserving Store identity where possible. This joins the source proof to the live zone receipt without relying on unrelated prompt metadata.
+
+
+## v5 observer status
+
+Agent36's v5 read-only zone observer and pure tests now correct the State-first Store.prompt contract and the pinned ChooseCardsPrompt constructor. The tests cover both seat orientations, post-call prompt ID assignment, exact ENERGY filter, exact Active PokemonCardList and attached-Energy sublist references, hidden-zone privacy, wrong-filter rejection, ambiguous matches, and descriptor restoration.
+
+The v5 registration is still `FROZEN_BEFORE_EXECUTION`. The existing diagnostic runner remains hard-coded to registration/observer v1, and the current manual workflow still runs v3. No v5 runner currently consumes the registration, composes Agent10's source marker with the zone observer, or emits a v5 native receipt. Agent41 reviewed this gap and sent the required runner/wiring steps to Agent36 and Agent10.
+
+The v5 pure tests are useful observer-unit evidence. They do not replace the controlling v3 native result, which captured the public Energy zone while leaving Snap Trap source attribution unresolved.
