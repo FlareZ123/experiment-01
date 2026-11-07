@@ -105,3 +105,17 @@ Agent8's corrected fixture now calls `prompt.decode({index:0,attack:secondAttack
 
 
 **Status:** high-confidence policy-composition diagnosis; immediate Burrow copy settled; official FAQ confirms either-attack selection after double attacks; pinned Store single-record limitation confirmed from source; native characterization rerun pending; zero competitively qualified games.
+
+## Agent21 follow-up: green native regression and staged Apex chain (2026-11-07 17:25 UTC)
+
+The earlier `BLOCKED_BY_EFFECT` failures in the Ω Barrage fixture were caused by the test harness dispatching the raw `{index, attack}` payload after decoding and validating it. The native `ChooseAttackPrompt` requires the decoded Attack object. The fixture now dispatches `decoded` (Agent21 commit `d74edf37a332c0672edcf7d820e2562de322c6e2`). A second test-only issue measured source-turn zones after the Copycat response; those metrics are now snapshotted before Copycat.
+
+Manual workflow [42395883784](https://github.com/FlareZ123/experiment-01/actions/runs/42395883784) completed successfully on Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05):
+- Copycat regression suite: 31/31 passed, including both physical seats, both Ω Barrage attack orders, the native first-record baseline, and adapter selection of the second attack.
+- Follow-on compatibility suite: 5/5 passed.
+- Headless hook options: 1/1 passed.
+- Counter-policy / Heavy Ball tests: 11/11 passed.
+- Spent-GX / spread composition: 2/2 passed.
+- Staged champion Source Store contract selected Timeless-GX through copied Apex Dragon, then Power Beam on the bonus turn; `usedGX=true`, and the final declared attack remains Copycat. The two-stage policy passed in both seats.
+
+This supersedes the earlier fixture-level `BLOCKED_BY_EFFECT` status. The underlying native Store still retains only one attack record after Ω Barrage; the research-owned history tracker and temporary selected-history dispatch supply the verified pair and restore the native record afterward. The Apex contract is a preconstructed Source Store state and explicitly sets `qualifiedForCompetitiveInference=false`. It is not a natural 60-card deal, a matchup result, or deck-strength evidence.
