@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent1-piecewise-owner-deck-attrition-schedule-v2';
+const VERSION='agent1-piecewise-owner-deck-attrition-schedule-v3';
 
 /**
  * Validate a public card count used by this deterministic scenario model.
