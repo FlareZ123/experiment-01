@@ -120,6 +120,34 @@ function auditNativeOnePrizeBoxKo(baseline,treatment){
   assert.ok(settlement.attacks.some(x=>
     x.actionOrdinal===114&&x.attackName==='Hidden Power'&&
     x.settledPromptChain===true));
+  // Compare the same two source turn numbers after the 93-root divergence.
+  // This is a real local matched-state contrast; downstream hands/draw order
+  // can diverge and are not presumed counterfactually identical.
+  const sourceActions=(attempt,turn)=>attempt.rootActionLedger
+    .filter(x=>x.playerSlot===0&&x.turnBefore===turn);
+  const initialControl=baseline.nativeAttempt;
+  assert.deepEqual(sourceActions(initialControl,15)
+    .filter(x=>x.action==='AttackAction').map(x=>x.actionOrdinal),[96]);
+  assert.deepEqual(sourceActions(initialControl,17)
+    .filter(x=>x.action==='AttackAction').map(x=>x.actionOrdinal),[103]);
+  assert.deepEqual(sourceActions(a,15)
+    .filter(x=>x.action==='PassTurnAction').map(x=>x.actionOrdinal),[111]);
+  assert.deepEqual(sourceActions(a,17)
+    .filter(x=>x.action==='PassTurnAction').map(x=>x.actionOrdinal),[118]);
+  assert.equal(sourceActions(a,15).some(x=>x.action==='AttackAction'),false);
+  assert.equal(sourceActions(a,17).some(x=>x.action==='AttackAction'),false);
+  const sourceBaseline=initialControl.sourceAttackSettlement.attacks;
+  const control15=sourceBaseline.find(x=>x.actionOrdinal===96);
+  const control17=sourceBaseline.find(x=>x.actionOrdinal===103);
+  assert.equal(control15.attackName,'Super Poison Breath');
+  assert.deepEqual(control15.prizesAfter,[5,6]);
+  assert.equal(control15.publicBoardAfter[1].active.printing,'Unown AOR');
+  assert.equal(control15.publicBoardAfter[1].active.damage,30);
+  assert.equal(control17.attackName,'Super Poison Breath');
+  assert.deepEqual(control17.prizesBefore,[5,6]);
+  assert.deepEqual(control17.prizesAfter,[4,6]);
+  assert.equal(control17.publicBoardAfter[1].active.printing,
+    'Mewtwo & Mew-GX UNM');
   assert.equal(a.status,'root-cap-unqualified');
   assert.equal(a.finished,false);
   assert.equal(a.winner,null);
@@ -151,6 +179,14 @@ function auditNativeOnePrizeBoxKo(baseline,treatment){
     candidatePrizeBefore:6,candidatePrizeAfter:5,
     nextSourceTurnHadAttack:false,
     nextSourceTurnPlayedMegaAbsol:true,
+    comparisonControlTurn15:{attack:'Super Poison Breath',
+      attackRoot:96,candidateActiveAfter:'Unown AOR',
+      candidateDamageAfter:30,sourcePrizesAfter:5},
+    comparisonTreatmentTurn15:{sourcePassedAtRoot:111,sourceAttacks:0},
+    comparisonControlTurn17:{attack:'Super Poison Breath',
+      attackRoot:103,sourcePrizesBefore:5,sourcePrizesAfter:4,
+      candidateActiveAfter:'Mewtwo & Mew-GX UNM'},
+    comparisonTreatmentTurn17:{sourcePassedAtRoot:118,sourceAttacks:0},
     nextCandidateHiddenPowerSettled:true,
     postgameRootCap:260,sourcePrizesAtCap:5,candidatePrizesAtCap:3,
     nativeWinner:null,competitiveGamesQualified:0,
