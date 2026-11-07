@@ -8,21 +8,30 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
 const native=name=>require(path.join(output,name));
 
-/** @param {object} x Resolve native prompts, declining Bunnelby's Ω Barrage repeat. */
+/** @param {object} x Resolve Burrow reveal, Omega Barrage choice, and Wait prompts. */
 function settlePrompts(x){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const {GameMessage}=native('game/game-message');
   const resolved=[];
   for(let n=0;n<24;n++){
     const prompt=x.state.prompts.find(p=>p.result===undefined);
     if(!prompt)return resolved;
     const kind=prompt.constructor.name;
-    if(kind==='ConfirmPrompt'){
+    if(kind==='ConfirmPrompt'&&prompt.message===GameMessage.WANT_TO_USE_ABILITY){
+      assert.equal(prompt.playerId,x.owner.id,
+        'Only the Bunnelby owner should receive its Omega Barrage prompt');
       resolved.push(kind);
       x.store.dispatch(new ResolvePromptAction(prompt.id,false));
       continue;
     }
+    if(kind==='ShowCardsPrompt'&&
+        prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
+      resolved.push(kind);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+      continue;
+    }
     assert.equal(kind,'WaitPrompt',
-      'Unexpected discretionary prompt in native Burrow/Copycat sequence');
+      'Unexpected prompt in native Burrow/Copycat sequence: '+kind);
     resolved.push(kind);
     x.store.dispatch(new ResolvePromptAction(prompt.id,null));
   }
