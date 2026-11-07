@@ -98,3 +98,18 @@ test('conflicts are retained as unresolved native games, not counted as victorie
   assert.equal(summary.capped,1);
   assert.equal(summary.competitiveGamesQualified,0);
 });
+
+test('all basic outcomes are symmetric under physical seat reversal',()=>{
+  for(let mask=0;mask<16;mask++){
+    const row=terminalMask(mask);
+    row.engineWinner=0;
+    row.terminalTransition.before.players.reverse();
+    row.terminalTransition.after.players.reverse();
+    row.terminalTransition.after.winner=0;
+    assert.equal(basicPaperResult(row.terminalTransition.after,0),
+      EXPECTED[mask],`reversed mask ${mask}`);
+    const actual=classifyTerminalCause(row);
+    if(EXPECTED[mask]==='tie'||EXPECTED[mask]==='loser')
+      assert.equal(actual.status,'paper-basic-result-conflict');
+  }
+});
