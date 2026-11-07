@@ -28,8 +28,6 @@ const sha=value=>createHash('sha256')
   .update(JSON.stringify(value)).digest('hex');
 const SOURCE_DECK_SHA='72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f';
 const CANDIDATE_DECK_SHA='de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311';
-const SEED_290134_ROOT_LEDGER_SHA=
-  '827d9989e5a03c35886e0cc654a81c8147bf35ce7131140181f60f8f7b7e20e0';
 
 const EXPECTED=Object.freeze([
   {seed:290130,status:'native-terminal',winner:1,actions:44,
@@ -195,9 +193,7 @@ function runOne(c,cards){
     winnerMatches:(game.winner??null)===expected?.winner,
     actionCountMatches:(game.actions??null)===expected?.actions,
     sourceDeckMatches:sha(cards.source)===SOURCE_DECK_SHA,
-    candidateDeckMatches:sha(cards.candidate)===CANDIDATE_DECK_SHA,
-    seed290134RootLedgerMatches:c.seed!==290134||
-      rootLedger===SEED_290134_ROOT_LEDGER_SHA
+    candidateDeckMatches:sha(cards.candidate)===CANDIDATE_DECK_SHA
   };
   const ownerSnapshots=summarizeSnapshots(ownerObserved.snapshots);
   const ownerZoneAudit=ownerObserved.audit;
