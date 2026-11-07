@@ -16,6 +16,8 @@ const native=p=>require(path.join(BASE,p));
  *
  * This deliberately supports only simple simultaneous Prize-to-hand transfers
  * with exactly two Active KOs, two Prize groups, and no other KO effects.
+ * It only corrects rows where both players have matching promotion
+ * availability. Mixed terminal conditions require a separate full resolver.
 
  * Scope: one attack's EndTurnEffect/checkState transaction. A multi-turn runner
  * must apply this wrapper around each attack transaction separately.
@@ -55,6 +57,8 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
     firstPrizeDestinationIsHand:false,
     secondPrizeDestinationIsHand:false,
     winnerLogRewritten:false,tieApplied:false,
+    firstPlayerCanPromote:null,otherPlayerCanPromote:null,
+    promotionAvailabilitySymmetric:null,
     bothPrizeTransfersCompleted:false,
     storeLogRestored:false,storeReduceRestored:false,
     otherStoresUnmodified:true
@@ -120,8 +124,15 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       const otherPlayer=state.players.find(p=>p.id!==firstPlayer.id);
       const firstGroup=prizeGroups.find(g=>g.playerId===firstPlayer.id);
       const otherGroup=prizeGroups.find(g=>g.playerId===otherPlayer.id);
+      if(state.players.length!==2||!otherPlayer)return result;
+      const firstCanPromote=firstPlayer.bench.some(slot=>slot.getPokemonCard());
+      const otherCanPromote=otherPlayer.bench.some(slot=>slot.getPokemonCard());
+      audit.firstPlayerCanPromote=firstCanPromote;
+      audit.otherPlayerCanPromote=otherCanPromote;
+      audit.promotionAvailabilitySymmetric=firstCanPromote===otherCanPromote;
       const activeKoIds=new Set(audit.activeKoPlayerIds);
       const candidate=
+        state.players.length===2&&
         audit.knockoutEffects===2&&
         activeKoIds.size===2&&
         audit.nonActiveKoEffects===0&&
@@ -130,6 +141,7 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         firstGroup&&otherGroup&&
         firstGroup.destination===firstPlayer.hand&&
         otherGroup.destination===otherPlayer.hand&&
+        firstCanPromote===otherCanPromote&&
         firstGroup.count>=firstPlayer.getPrizeLeft()&&
         otherGroup.count>=otherPlayer.getPrizeLeft()&&
         firstPlayer.getPrizeLeft()>0&&
