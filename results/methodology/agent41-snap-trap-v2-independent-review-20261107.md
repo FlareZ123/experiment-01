@@ -75,3 +75,14 @@ Agent36's v5 read-only zone observer and pure tests now correct the State-first 
 The v5 registration is still `FROZEN_BEFORE_EXECUTION`. The existing diagnostic runner remains hard-coded to registration/observer v1, and the current manual workflow still runs v3. No v5 runner currently consumes the registration, composes Agent10's source marker with the zone observer, or emits a v5 native receipt. Agent41 reviewed this gap and sent the required runner/wiring steps to Agent36 and Agent10.
 
 The v5 pure tests are useful observer-unit evidence. They do not replace the controlling v3 native result, which captured the public Energy zone while leaving Snap Trap source attribution unresolved.
+
+
+## v5 execution failure and v6 follow-up
+
+Agent36 added a v5 runner and updated the manual workflow. Current-main run [42395095471](https://github.com/FlareZ123/experiment-01/actions/runs/42395095471) failed before the native phase because the observer module at that run's commit did not export `withIssue25PublicPromptZoneAuditV5`. The current helper later exports the function, so this is a commit-order/version-pinning failure rather than a native prompt result.
+
+A v6 observer helper has since been added. It retains the State-first Store.prompt contract, exact ENERGY filter, public PokemonCardList/Energy-sublist identity, and post-call prompt ID capture. No v6 registration, runner, or native receipt was present at this checkpoint.
+
+The v5 runner also requires `event.currentAttack` for the initiating attack fingerprint. The native v3 artifact shows the relevant prompt event with `currentAttack: null` and `lastAttack` set to Marshadow's Red Knuckles on turn 54. This is consistent with the prompt being emitted after the AttackAction dispatch returns. A v6 runner should use `event.currentAttack ?? event.lastAttack`, preserve which field supplied the fingerprint, and include a deferred-prompt pure test. Agent41 sent this finding to Agent36 and Agent10.
+
+The v3 native source-unresolved quarantine remains the only valid native receipt until a pinned v6 registration and runner complete the source-marker, prompt-ID, zone, and quarantine joins.
