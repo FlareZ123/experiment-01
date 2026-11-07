@@ -113,6 +113,12 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
     let powerglassPromptIndex=-1;
 
     if(fixture.stopAfterAttack){
+      while(true){
+        const pending=state.prompts.find(prompt=>prompt.result===undefined);
+        if(!pending||pending.constructor.name!=='WaitPrompt')break;
+        seenPrompts.push('WaitPrompt');
+        store.dispatch(new ResolvePromptAction(pending.id,null));
+      }
       const {GameWinner}=native('game/store/state/state');
       const winnerSeat=state.winner===GameWinner.PLAYER_1?0:
         state.winner===GameWinner.PLAYER_2?1:null;
