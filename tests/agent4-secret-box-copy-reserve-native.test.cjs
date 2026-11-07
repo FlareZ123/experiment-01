@@ -24,10 +24,12 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
       assert.equal(result.adapter.sourcePrinting,null);
       assert.equal(result.adapter.handLength,9);
       assert.equal(result.adapter.possibleFirstPaymentCount,'56');
-      assert.equal(result.adapter.hardReservedCards.length,1);
-      assert.equal(result.adapter.hardReservedCards[0].printing,'Rescue Carrier EVS');
-      assert.equal(result.adapter.softProtectedCards.length,1);
-      assert.equal(result.adapter.softProtectedCards[0].printing,"Lillie's Determination M1L");
+      assert.deepEqual(result.adapter.hardReservedCards,[
+        {promptIndex:1,physicalId:80032,printing:'Rescue Carrier EVS'}
+      ]);
+      assert.deepEqual(result.adapter.softProtectedCards,[
+        {promptIndex:4,physicalId:80035,printing:"Lillie's Determination M1L"}
+      ]);
       assert.equal(result.adapter.hardRequirementsSatisfied,true);
       assert.equal(result.adapter.softPreferenceCapacityAvailable,true);
       assert.equal(result.selectedPhysicalUniqueCount,3);
@@ -39,6 +41,15 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
       assert.equal(result.paymentError,null);
       assert.equal(result.paymentSettled,true);
       assert.equal(result.physicalPaymentSettled,true);
+      assert.deepEqual(result.selectedCards,candidate==='carrier'?[
+        {promptIndex:0,physicalId:80030,printing:'Battle VIP Pass FST'},
+        {promptIndex:2,physicalId:80033,printing:'Battle VIP Pass FST'},
+        {promptIndex:3,physicalId:80034,printing:'Rescue Carrier EVS'}
+      ]:[
+        {promptIndex:0,physicalId:80030,printing:'Battle VIP Pass FST'},
+        {promptIndex:2,physicalId:80033,printing:'Battle VIP Pass FST'},
+        {promptIndex:4,physicalId:80035,printing:"Lillie's Determination M1L"}
+      ]);
       assert.deepEqual(result.selectedPrintings,candidate==='carrier'?
         ['Battle VIP Pass FST','Battle VIP Pass FST','Rescue Carrier EVS']:
         ['Battle VIP Pass FST','Battle VIP Pass FST',"Lillie's Determination M1L"]);
@@ -47,7 +58,7 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
         candidate==='carrier'?0:1);
       assert.equal(result.adapter.vector.nextUnprotectedPaymentWays,
         candidate==='carrier'?'6':'10');
-      assert.ok(result.adapter.equivalentPhysicalPayments>=1);
+      assert.equal(result.adapter.equivalentPhysicalPayments,candidate==='carrier'?5:1);
       const hardId=result.adapter.hardReservedCards[0].physicalId;
       const softId=result.adapter.softProtectedCards[0].physicalId;
       assert.ok(!result.selectedPhysicalIds.includes(hardId));
