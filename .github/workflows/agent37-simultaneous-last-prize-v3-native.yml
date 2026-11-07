@@ -44,6 +44,7 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs
           node --check simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
+          node --test tests/agent37/rulebook-e-terminal-outcome.test.cjs
 
       - name: Run bounded native simultaneous final-Prize regression
         run: |
