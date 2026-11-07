@@ -28,6 +28,9 @@ function censusAichiBasics() {
   // Roster abbreviations differ from official PR-SM and PR-XY set codes.
   byCode.set('SMP', ['smp']);
   byCode.set('XYP', ['xyp']);
+  // The archived roster uses U+2662 (♢) for Prism Star names; the retained
+  // English card database uses U+25C7 (◇) for the same printed symbol.
+  const normalizeName = name => name.replace(/\u2662/gu, '\u25c7');
   const cache = new Map();
   /** @param {string} setId */
   function setCards(setId) {
@@ -53,7 +56,7 @@ function censusAichiBasics() {
       const sourceNumber = Number(row.printing.number);
       for (const setId of ids) {
         for (const printed of setCards(setId)) {
-          if (printed.name !== row.name) continue;
+          if (normalizeName(printed.name) !== normalizeName(row.name)) continue;
           // SMP 217 in original source becomes SM217 in card DB;
           // XYP 49 becomes XY49. Ordinary set numbers are unchanged.
           const normalizedPrintedNumber =
