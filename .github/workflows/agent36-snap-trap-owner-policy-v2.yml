@@ -57,4 +57,4 @@ jobs:
         run: |
           node --test \
             tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v3.test.cjs \
-            tests/2026-11/agent12-snap-trap-source-to-settlement-native-v1.test.cjs
+            tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs
