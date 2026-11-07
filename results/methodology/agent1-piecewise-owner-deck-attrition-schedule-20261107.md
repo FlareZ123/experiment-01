@@ -101,12 +101,16 @@ For a repeated iid Handiwork stress scenario with outcome weights 1:2:1 for mill
 
 The expected horizon is **69675/16384 (about 4.25262)**, and the chance of at least five future starts is **193/512 (about 37.6953%)**. Under repeated Pass, the expected horizon is **523879358914293/70368744177664 (about 7.44477)**, and the chance of at least five future starts is **1023/1024 (about 99.9023%)**. This repeated-use case is a stress scenario because each field list contains one Handiwork and further plays require recovery.
 
+The rank-3 Snorlax Stall list contains both Bunnelby and Handiwork. Combining one or two Burrows with the Handiwork coin outcomes gives a stronger conditional stress case. With one Burrow, the mill outcomes are 1/3/5 cards at weights 1:2:1. With two Burrows, they are 2/4/6. At D=23 with repeated Filch, the one-Burrow combination has expected horizon **3439/1024 (about 3.35840)** and only **11/1024 (about 1.0742%)** probability of at least five future starts. The two-Burrow combination has expected horizon **749/256 (about 2.92578)** and zero probability of five future starts. Repeated Pass raises those values to **22282325/4194304 (about 5.31252)** with **53/64 (82.8125%)** at least five starts for one Burrow, and **69675/16384 (about 4.25262)** with **193/512 (about 37.6953%)** for two Burrows.
+
+These combined schedules assume Bunnelby is Active, has attack payment, chooses the Burrow attacks, and Handiwork is recovered and played each turn. The rank-3 list and its recovery cards make the scenario worth testing. The outcome remains conditional on those decisions and resources.
+
 ## Reproduction
 
 - Implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
 - Tests: **tests/agent1-owner-deck-attrition-schedule.test.cjs**.
-- Local Node 22.16.0 run: **14/14 tests passed**.
-- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module, 17,199 finite-schedule cases against an independent literal recurrence, 1,525 deterministic stochastic-tail comparisons, the exact Handiwork coin distribution, and the eleven-turn native rank-3 deck-count reconstruction.
+- Local Node 22.16.0 run: **15/15 tests passed**.
+- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module, 17,199 finite-schedule cases against an independent literal recurrence, 1,525 deterministic stochastic-tail comparisons, the exact Handiwork coin distribution, combined Bunnelby/Handiwork pressure, and the eleven-turn native rank-3 deck-count reconstruction.
 - It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, deadline classifications, the empty-deck boundary, and invalid inputs.
 
 ## Rule boundary
