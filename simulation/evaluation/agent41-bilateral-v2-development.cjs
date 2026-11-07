@@ -1394,7 +1394,8 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   sourceIndependentCommonPolicy=false,
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
-  ownerFallbackDiagnosticView=false,
+  ownerFallbackDiagnosticView=false,mysteriousTreasureRoot=false,
+  firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
@@ -1473,6 +1474,7 @@ function runDevelopment({
   sameRootThornsEmptyBench=false,
   candidateOnlyKnownDeadRoot=false,bilateralKnownDeadAttackRoot=false,
   registeredTrials=null,registeredFrameName=null,
+  registeredCandidateDecks=null,
   allowSingleCandidateArm=false,allowSingleCandidatePerGroup=false,
   allowAdditionalOriginalSourceRanks=false
 }={}){
@@ -1497,6 +1499,13 @@ function runDevelopment({
     'Owner fallback diagnostic view requires native Trainer fallback');
   assert.ok(!ownerFallbackDiagnosticView||actorOnlyComposition,
     'Owner fallback diagnostic view requires canonical actor composition');
+  assert.ok(!mysteriousTreasureRoot||actorOnlyComposition,
+    'Mysterious Treasure root requires canonical actor composition');
+  assert.ok(!firstBlockedPromptContractObserver||actorOnlyComposition,
+    'First blocked prompt observer requires canonical actor composition');
+  assert.ok(registeredCandidateDecks===null||
+    (registeredTrials!==null&&(allowSingleCandidateArm||allowSingleCandidatePerGroup)),
+    'Custom candidate decks require an explicit single-candidate registration');
   assert.ok(nativeRootActionLimit===null||
     (Number.isSafeInteger(nativeRootActionLimit)&&
       nativeRootActionLimit>=16&&
@@ -1675,11 +1684,22 @@ function runDevelopment({
     'results/aichi-2026/full-decklists.json'),'utf8'));
   const reference=roster.decks.find(x=>x.rank===1);
   assert.ok(reference);
-  const candidateDecks=[
+  const baseCandidateDecks=[
     ['champion-reference',{label:'champion-reference',cards:reference.cards}],
     ['new-moon-lockbreaker-v1',{
       label:'new-moon-lockbreaker-v1',cards:loadNewMoonCandidate().cards}]
   ];
+  const extraCandidateDecks=Object.entries(registeredCandidateDecks??{}).map(
+    ([id,manifest])=>{
+      assert.ok(typeof id==='string'&&id.length>0);
+      assert.ok(!baseCandidateDecks.some(([baseId])=>baseId===id),
+        'Custom candidate id cannot replace a frozen base candidate');
+      assert.ok(manifest&&Array.isArray(manifest.cards));
+      assert.equal(manifest.cards.reduce((n,x)=>n+x.count,0),60,
+        'Custom registered candidate must contain exactly 60 printed cards');
+      return [id,{label:manifest.label??id,cards:manifest.cards}];
+    });
+  const candidateDecks=[...baseCandidateDecks,...extraCandidateDecks];
   const prepared=new Map(candidateDecks.map(([id,manifest])=>
     [id,{plan:planAichi(manifest,{allowEquivalentBasicEnergies:true,
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
@@ -1703,6 +1723,8 @@ function runDevelopment({
   const scheduled=registeredTrials??(sourceFirstRetrospective?
     sourceFirstPressureTrials():developmentTrials());
   for(const trial of scheduled){
+    assert.ok(prepared.has(trial.candidateId),
+      'Every registered trial must resolve to a prepared candidate deck');
     // Own-registered-60 information is available to the owning actor but
     // never to the opponent actor. Preserve original printed manifest entries
     // separately from the resolver's flattened native card IDs.
@@ -1728,7 +1750,8 @@ function runDevelopment({
       twoUnitPaidRetreatRootWrapperSelected:false
     };
     try {
-      const execute=()=>executeDevelopment(trial,prepared,{
+      let firstBlockedPromptContractObserverAudit=null;
+      const executeBase=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
@@ -1758,6 +1781,15 @@ function runDevelopment({
         initializationWindow:nativePressureWindows&&trial.rank===6,
         garbotoxinWindow:nativePressureWindows&&trial.rank===11
       });
+      const execute=()=>{
+        if(!firstBlockedPromptContractObserver)return executeBase();
+        const observed=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs')
+          .withFirstBlockedPromptContract(executeBase);
+        firstBlockedPromptContractObserverAudit=observed.audit;
+        return observed.result&&typeof observed.result==='object'?
+          {...observed.result,
+            firstBlockedPromptContractObserverAudit}:observed.result;
+      };
       if(actorOnlyComposition){
         // A two-seat mode applies one native-owned root selector to both
         // players. One-seat modes remain explicitly asymmetric diagnostics.
@@ -1790,7 +1822,8 @@ function runDevelopment({
           !actorRank9SpecialPaidRetreatSource&&
           !actorFlexiblePaidRetreatRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot&&
-          !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView)?{}:
+          !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView&&
+          !mysteriousTreasureRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
@@ -1840,6 +1873,9 @@ function runDevelopment({
               }:{}),
               ...(ownerFallbackDiagnosticView?{
                 ownerFallbackDiagnosticView:true
+              }:{}),
+              ...(mysteriousTreasureRoot?{
+                mysteriousTreasureRoot:true
               }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
@@ -2099,6 +2135,9 @@ function runDevelopment({
         // Post-abort aggregate from the actual actor root, with no hand cards.
         actorNativeTrainerFallbackAbortAudit:
           error?.actorNativeTrainerFallbackAbortAudit??null,
+        firstBlockedPromptContract:
+          error?.agent2FirstBlockedPromptContract??
+          error?.cause?.agent2FirstBlockedPromptContract??null,
         nativeAbortEvidence:nativeAbort,
         // Owner-only post-attack physical search evidence remains visible
         // even if a later native prompt or dispatch aborts the same game.
