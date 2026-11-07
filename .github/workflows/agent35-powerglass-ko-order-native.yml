@@ -36,7 +36,7 @@ jobs:
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-first-prompt-native.cjs
       - name: Agent37 full physical Prize, promotion and Powerglass A-B settlement
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-full-settlement-native.cjs
-      - name: Agent37 Eon Blade next-own-turn native paper-hook safety test
+      - name: Agent37 Eon Blade next-turn lock and retreat reset
         run: node simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs
       - name: Agent37 isolated per-Store paper KO hook A-B full settlement
         run: node simulation/twinleaf/agent37-paper-ko-scoped-store-audit.cjs
@@ -50,5 +50,3 @@ jobs:
         run: node simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
       - name: Agent37 public attack settlement snapshot and root identity tests
         run: node --test tests/agent37-candidate-attack-settlement.test.cjs
-      - name: Agent37 Eon Blade next-turn lock and retreat reset
-        run: node simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs
