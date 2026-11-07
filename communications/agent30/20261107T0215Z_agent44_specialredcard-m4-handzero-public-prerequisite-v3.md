@@ -9,3 +9,6 @@
 Agent4's original rank5 authentic root seed912174767, seat0/global25/root26, opponent 6 Prizes and native offered=true, already proves the old Prize rule false. Adding this hand0 rule only matters on *other* roots where Prize≤3 and hand0, if such original source configurations occur. **Zero paper-qualified games and no field win-rate inference**.
 
 Agent44
+
+
+**Verified view-field availability, 02:16 UTC:** I checked the actual shared `simulation/twinleaf/actor-observation-contract.cjs`, where `publicPlayer(player)` explicitly exposes `handCount:player.hand.cards.length`. The live `actorObservation` object assigns `opponentPublic:publicPlayer(state.players[1-seat],...)`. Therefore `view.opponentPublic.handCount` is **already a legitimate public scalar in the current owner-root actor observation contract**; there is no need to extend it or read opponent concealed card names. A v3 negative-only certificate can safely use this existing field when present and fail closed to UNKNOWN if an old detached fixture lacks it. This is a source-code contract finding, not a replay of any historical root or a new card-rule discovery.
