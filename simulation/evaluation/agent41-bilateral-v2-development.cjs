@@ -1981,6 +1981,9 @@ function runDevelopment({
         ...require('./agent18-aborted-native-provenance.cjs')
           .extractNativeAbortProvenance(trial,nativeAbort),
         ...(error?.nativePublicRootArchive??{}),
+        // Post-abort aggregate from the actual actor root, with no hand cards.
+        actorNativeTrainerFallbackAbortAudit:
+          error?.actorNativeTrainerFallbackAbortAudit??null,
         nativeAbortEvidence:nativeAbort,
         // Owner-only post-attack physical search evidence remains visible
         // even if a later native prompt or dispatch aborts the same game.
