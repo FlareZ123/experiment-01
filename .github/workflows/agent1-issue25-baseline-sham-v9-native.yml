@@ -39,7 +39,7 @@ on:
         required: false
         default: false
       rank3_owner_deck_cause_audit:
-        description: Audit the frozen rank3/rank1 turn-15 owner deck decrement with read-only Store prompt metadata
+        description: Audit frozen rank3/rank1 owner-deck cause and Mimikyu Copycat/Burrow A/B/A
         type: boolean
         required: false
         default: false
@@ -61,7 +61,7 @@ jobs:
   rank3-owner-deck-cause-audit:
     if: ${{ inputs.rank3_owner_deck_cause_audit == true }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Checkout pinned Twinleaf gitlink
@@ -89,6 +89,20 @@ jobs:
         with:
           name: agent1-rank3-owner-deck-cause-${{ github.run_id }}
           path: artifacts/agent1-rank3-owner-deck-cause/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Test Mimikyu Burrow Copycat tactic and headless opt-in
+        run: node --test tests/mimikyu-burrow-copycat-policy.test.cjs
+      - name: Replay frozen rank3 versus rank1 Copycat/Burrow A/B/A
+        env:
+          AGENT1_RANK3_COPYCAT_OUTPUT: artifacts/agent1-rank3-copycat-burrow
+        run: node --test tests/agent1-rank3-copycat-burrow-aba.native.test.cjs
+      - name: Preserve Copycat/Burrow A/B/A receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank3-copycat-burrow-${{ github.run_id }}
+          path: artifacts/agent1-rank3-copycat-burrow/
           if-no-files-found: warn
           retention-days: 30
 

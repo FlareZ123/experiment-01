@@ -1,11 +1,21 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const test = require('node:test');
 const {run} = require('../simulation/evaluation/agent1-rank3-copycat-burrow-aba.cjs');
 
 test('native rank3/rank1 Copycat-Burrow A/B/A is deterministic and resolves one-card mill',()=>{
   const result=run();
+  const outputDir=process.env.AGENT1_RANK3_COPYCAT_OUTPUT;
+  if(outputDir) {
+    fs.mkdirSync(outputDir,{recursive:true});
+    const target=path.join(outputDir,'copycat-burrow-aba.json');
+    const temporary=target+'.tmp';
+    fs.writeFileSync(temporary,JSON.stringify(result,null,2));
+    fs.renameSync(temporary,target);
+  }
   assert.equal(result.controls.sameOriginalPhysicalDealAllArms,true);
   assert.equal(result.controls.exactControlRepeat,true);
   assert.equal(result.controls.copycatPolicyEnabledOnlyInTreatment,true);
