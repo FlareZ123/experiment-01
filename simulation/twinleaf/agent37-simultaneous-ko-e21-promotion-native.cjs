@@ -19,9 +19,10 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean|Function} useHook Apply v1 (true) or a supplied research-owned per-Store hook.
  * @param {number} prizesPerPlayer Prize cards created for each player.
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
+ * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
-function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false){
+function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true){
   const cards=initializeCards();
   let id=940000+actorSeat*1000;
   const card=name=>{
@@ -63,9 +64,11 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false){
   const ownerBench=new PokemonCardList();
   ownerBench.cards.push(card('Unown AOR'));
   owner.bench.push(ownerBench);
-  const enemyBench=new PokemonCardList();
-  enemyBench.cards.push(card('Trubbish FST'));
-  enemy.bench.push(enemyBench);
+  if(enemyHasBench){
+    const enemyBench=new PokemonCardList();
+    enemyBench.cards.push(card('Trubbish FST'));
+    enemy.bench.push(enemyBench);
+  }
 
   owner.hand.cards.push(card('Powerglass SFA'));
   owner.discard.cards.push(card('Psychic Energy MEE'));
