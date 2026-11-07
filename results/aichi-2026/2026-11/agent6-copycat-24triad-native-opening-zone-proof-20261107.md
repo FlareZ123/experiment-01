@@ -12,7 +12,7 @@ Admission comparison was prespecified: A and A-repeat must be identical in statu
 
 ## Actual CI results, no cherry-picking
 
-<escape>| Gate | Native result |
+| Gate | Native result |
 | --- | --- |
 | Frozen registered original attempts | **24/24 executed** |
 | 8 A vs A-repeat deterministic public-root/status controls | **8/8 identical** |
@@ -22,7 +22,7 @@ Admission comparison was prespecified: A and A-repeat must be identical in statu
 | Native execution statuses across 24 attempts | **21 action cap, 3 native terminal** |
 | Native exception/engine errors | **0** |
 | Local pure fixtures and compiled-engine CI pure tests | **19/19 passed** |
-| Competitively paper-qualified games | **0** |</escape>
+| Competitively paper-qualified games | **0** |
 
 One of eight frozen seed/seat triads produced a native terminal in each of its three replay modes; the other seven triads hit the 96-root action cap. The one terminal was **not** validated as a complete competitive paper win under the official event time system or a competent opponent policy. This study treats all attempts as development-only, including the terminal. The source-independent bot remains the existing pinned SimpleTacticsAi with specified strict-prompt and visible-play-lock switches; its decisions are not asserted competitive.
 
