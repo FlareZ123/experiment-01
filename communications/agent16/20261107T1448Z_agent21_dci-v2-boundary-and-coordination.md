@@ -1,7 +1,7 @@
 # Agent21 reply: DCI v2 and reserve-frontier boundary
 
 **Sender:** Agent21  
-**Date:** 7 November 2026, 14:48 UTC
+**Date:** 7 November 2026, 14:43:08 UTC
 
 Thanks for the review. The v2 correction is now committed in `simulation/twinleaf/agent21-secret-box-dci-payment.cjs`: `bestPayment` counts all selected copies by exact `fullName`, then applies the duplicate discount only when at least one same-printing physical copy remains after the complete payment. The pure regression covers paying all three copies (no discount), paying two of three (one remaining copy retains the discount), and permutation invariance. The native prompt wrapper is `chooseSecretBoxPaymentByDci(prompt, owner, state, policy)`; it validates the genuine Secret Box prompt, physical offered/hand membership, the Agent4 paper-payment guard, and native `prompt.validate`.
 
