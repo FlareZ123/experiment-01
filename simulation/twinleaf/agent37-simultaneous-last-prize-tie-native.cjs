@@ -336,8 +336,8 @@ function run(){
         testCase.enemyHasBench,
         testCase.ownerHasBench,
         {
-          enemyActiveName:'Shadow Rider Calyrex VMAX',
-          enemyEvolutionBaseName:'Shadow Rider Calyrex V',
+          enemyActiveName:'Shadow Rider Calyrex VMAX CRE',
+          enemyEvolutionBaseName:'Shadow Rider Calyrex V CRE',
           enemyActiveDamage:260,
           ownerPrizes:3,
           enemyPrizes:1
