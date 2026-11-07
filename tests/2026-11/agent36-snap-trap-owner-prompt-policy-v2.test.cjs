@@ -20,6 +20,9 @@ const {SimpleTacticsAi: NativeSimpleTacticsAi} = require(path.join(OUTPUT, 'simp
 const {runSnapTrapPrismStarDestinationContract} = require('../../simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs');
 const nativeHeadless = require('../../simulation/twinleaf/headless.cjs');
 const {runSelectedIssue25V0} = require('../../simulation/evaluation/agent36-issue25-selected-v0.cjs');
+const {withStewardInnermostOwnerPrompts} = require('../../simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs');
+const {withCommonOwnerThornsRoot} = require('../../simulation/evaluation/agent36-issue25-common-v6.cjs');
+const {withOwnerVoltAcrossNativeMatches} = require('../../simulation/evaluation/agent36-issue25-common-v7.cjs');
 
 const types = loadTypes();
 const {CardTag, CardType, EnergyType, GameMessage, SuperType} = types;
@@ -612,7 +615,9 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
   const matchResults = [];
   const selectedRuns = [];
   const originalRunMatch = nativeHeadless.runMatch;
-  const execution = withSnapTrapInsideNativeMatchesV2(() => {
+  const execution = withSnapTrapInsideNativeMatchesV2(() => withOwnerVoltAcrossNativeMatches(
+    () => withStewardInnermostOwnerPrompts(
+      () => withCommonOwnerThornsRoot(() => {
     for (const sourceSeat of [0, 1]) {
       const trialId = 'synthetic-snap-trap-source-seat-' + sourceSeat;
       const request = {
@@ -647,8 +652,12 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
         }
       }));
     }
-    return selectedRuns;
-  }, {headless: nativeHeadless});
+        return selectedRuns;
+      }),
+      {headless: nativeHeadless}
+    ),
+    {headless: nativeHeadless}
+  ), {headless: nativeHeadless});
 
   console.log('AGENT36_SNAP_TRAP_HEADLESS_DEBUG', JSON.stringify({
     nativeMatchCalls: execution.audit.nativeMatchCalls,
@@ -660,7 +669,8 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
       thrownMessage: selected.diagnostic.thrownMessage,
       fallbackCalls: selected.diagnostic.fallbackCalls,
       attemptedRows: selected.diagnostic.attemptedRows,
-      auditKeys: Object.keys(selected.diagnostic.audit ?? {})
+      auditKeys: Object.keys(selected.diagnostic.audit ?? {}),
+      quarantineRecords: selected.diagnostic.audit?.nativeRawStateQuarantine?.records ?? null
     }))
   }));
   assert.strictEqual(nativeHeadless.runMatch, originalRunMatch);
