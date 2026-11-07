@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_prospective_v5:
+        description: 'Run pre-registered fresh eight rank9 physical group source Bomb real Store comparison, isolated policy and shuffle RNG'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -99,6 +104,19 @@ jobs:
         with:
           name: agent29-rank9-post-compressor-bomb-v4
           path: agent29-rank9-post-compressor-bomb-v4.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Fresh preregistered original rank9 Bomb prospective v5, 32 native attempts
+        if: ${{ inputs.rank9_source_prospective_v5 }}
+        env:
+          AGENT29_RANK9_PROSPECTIVE_V5: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-bomb-prospective-v5.json
+      - name: Preserve every prospective v5 original, negative, cap and native error
+        if: ${{ always() && inputs.rank9_source_prospective_v5 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-bomb-prospective-v5
+          path: agent29-rank9-bomb-prospective-v5.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
