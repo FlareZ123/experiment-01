@@ -614,6 +614,10 @@ jobs:
         env:
           AGENT3_V25_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v25-exhaustive-ko-source-prize-join.native.test.cjs
+      - name: Bind every physical Prize exit to the actual accepted Store action ordinal
+        env:
+          AGENT3_V26_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v26-true-accepted-root-ordinal.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
