@@ -1,6 +1,8 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {assessDirectEnergy}=
+  require('../twinleaf/agent30-source-attack-energy-reachability.cjs');
 
 const VERSION='agent3-native-pre-attack-public-board-join-v1';
 
@@ -94,6 +96,17 @@ function joinNativePreAttackBoard(
     const originalAttackSourceIsPhysicalActive=actor.printing===expectedFullName;
     if(originalAttackSourceIsPhysicalActive)
       assert.equal(attackIsPrintedOnActualActive,true);
+    // Cost modifiers and granted attacks require separate paper adjudication.
+    // This reports direct printed funding by attached public Energy only.
+    const directPrintedEnergySufficiency=originalAttackSourceIsPhysicalActive?
+      assessDirectEnergy({
+        types:nominal.attackerTypes,
+        stage:nominal.attackerStage
+      },nominal.printedAttackCost,
+      actor.energyCards.map(name=>({name,count:1}))):null;
+    assert.ok(directPrintedEnergySufficiency===null||
+      ['POSSIBLE','IMPOSSIBLE','UNVERIFIED'].includes(
+        directPrintedEnergySufficiency.status));
     assert.ok(Number.isSafeInteger(defender.damage)&&defender.damage>=0);
     assert.ok(Number.isSafeInteger(victim.victimDamageBeforeNativeKo));
     const incrementalNativeDamage=
@@ -116,6 +129,8 @@ function joinNativePreAttackBoard(
       attackerEnergyNamesBeforeAttack:[...actor.energyCards],
       attackerToolNamesBeforeAttack:[...actor.toolCards],
       printedAttackCost:nominal.printedAttackCost,
+      directPrintedEnergySufficiency,
+      printedEnergyTestIncludesExternalCostModifiers:false,
       targetPrinting: defender.printing,
       targetEnergyNamesBeforeAttack:[...defender.energyCards],
       targetPreAttackDamage: defender.damage,
