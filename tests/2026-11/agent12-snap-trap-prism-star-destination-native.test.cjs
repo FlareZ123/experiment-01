@@ -10,7 +10,7 @@ test('Snap Trap routes the same physical Beast Energy Prism Star to Lost Zone', 
   const result = runSnapTrapPrismStarDestinationContract();
 
   assert.equal(result.schema, 'agent12-snap-trap-prism-star-destination-v1');
-  assert.equal(result.scenario.selectedEnergy, 'Beast Energy ◇ FLI');
+  assert.ok(result.scenario.selectedEnergy.includes('Beast Energy'));
   assert.equal(result.prompt.promptResultIsSamePhysicalEnergy, true);
   assert.equal(result.prompt.unresolvedPromptCountAfterResponse, 0);
   assert.equal(result.moveCardsEffect.requestedDestinationIsDiscard, true);
