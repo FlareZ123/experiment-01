@@ -1302,7 +1302,9 @@ function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
     assert.ok(admittedRanks.includes(trial.rank),
       'Registered source rank requires an authenticated original 60');
     assert.ok(['A','B'].includes(trial.candidateSlot));
-    assert.ok(expectedCandidateIds.includes(trial.candidateId));
+    assert.ok((allowSingleCandidateArm||allowSingleCandidatePerGroup)?
+      (typeof trial.candidateId==='string'&&trial.candidateId.length>0):
+      expectedCandidateIds.includes(trial.candidateId));
     assert.ok(Number.isSafeInteger(trial.repeat)&&trial.repeat>=0);
     assert.ok(Number.isSafeInteger(trial.seed)&&trial.seed>=0&&
       trial.seed<=0xffffffff);
