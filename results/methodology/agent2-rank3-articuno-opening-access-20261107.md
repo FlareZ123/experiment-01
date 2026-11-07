@@ -57,9 +57,9 @@ For route 4, the Prize enumeration tracks whether Articuno, the two one-copy Ite
 
 ## Result
 
-<badge color="success">4/4 local Node tests passed</badge>
+**Local test result:** 4/4 Node tests passed.
 
-<text>Percentages are conditional on a valid opening seven.</text>
+**Percentages are conditional on a valid opening seven.**
 
 | Disjoint route | Probability |
 | --- | ---: |
