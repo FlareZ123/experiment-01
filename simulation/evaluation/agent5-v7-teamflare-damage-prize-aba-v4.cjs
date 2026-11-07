@@ -64,7 +64,7 @@ function run(deps = {}) {
   let phaseIndex = 0;
   let activePhase = 'unassigned';
 
-  const runtime = {...baseHeadless};
+  const runtime = Object.create(baseHeadless);
   runtime.runMatch = request => {
     try {
       const prize = withOwnerKoPrizeSettlementEvidence(() =>
