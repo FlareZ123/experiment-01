@@ -361,6 +361,16 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       'Each actor-only adapter must return its own audit');
   }
 
+  // A separately injected root adapter bypasses the built-in native Trainer
+  // fallback constructor. Reject a silently uninstalled requested treatment.
+  if(options.nativeOwnerTrainerFallback===true){
+    const fallback=rootAudit.nativeOwnerTrainerFallback;
+    assert.ok(fallback&&
+      Number.isSafeInteger(fallback.attemptedUnsupportedPasses)&&
+      Number.isSafeInteger(fallback.selectedNativeTrainerRoots)&&
+      Number.isSafeInteger(fallback.acceptedNativeTrainerRoots),
+    'Native Trainer opt-in was masked by another actor root adapter');
+  }
   const finalGenericPromptFallbacks =
     rootAudit.unsupportedPromptFallbacks ?? null;
   const audit = {
