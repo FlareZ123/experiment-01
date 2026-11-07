@@ -56,6 +56,28 @@ function hasKnownPublicAbilityLock(state) {
  * @param {object} player
  * @returns {boolean}
  */
+/**
+ * Conservative visible-cost prefilter for Mimikyu GRI Copycat [Psychic][Colorless].
+ * A Basic Psychic plus a second attached Energy pays the printed cost. With
+ * Dimension Valley in play, one Basic Psychic pays the reduced cost. Special
+ * Energy providers are intentionally not inferred here; the Store remains the
+ * final legality authority.
+ *
+ * @param {object} state
+ * @param {object} player
+ * @returns {boolean}
+ */
+function canPayMimikyuCopycatCost(state, player) {
+  const active = player.active.getPokemonCard();
+  if (active?.fullName !== 'Mimikyu GRI') return false;
+  const energies = player.active.energies.cards;
+  const hasBasicPsychic = energies.some(card => card.name === 'Psychic Energy');
+  if (!hasBasicPsychic) return false;
+  const hasDimensionValley = state.players.some(owner =>
+    (owner.stadium?.cards ?? []).some(card => card.name === 'Dimension Valley'));
+  return energies.length >= 2 || hasDimensionValley;
+}
+
 function hasEffectiveFairyZone(state, player) {
   const slots = [player.active, ...player.bench];
   const clefairy = slots.map(slot => slot.getPokemonCard())
@@ -77,6 +99,7 @@ function isCopycatApexTimelessSituation(state, player) {
   const opponent = state.players.find(p => p.id !== player.id);
   const last = opponent && state.playerLastAttack?.[opponent.id];
   return active?.fullName === 'Mimikyu GRI' &&
+    canPayMimikyuCopycatCost(state, player) &&
     player.usedGX !== true &&
     last?.sourceCard?.fullName === 'Regidrago VSTAR SIT' &&
     last?.attack?.name === 'Apex Dragon' &&
@@ -88,7 +111,8 @@ function isCopycatApexTimelessSituation(state, player) {
  * Bonus-turn follow-up: after the owner's GX allowance is spent, copy the
  * owner's discarded Radiant Eternatus Power Beam into an opposing Regidrago
  * VSTAR while Fairy Zone is visibly effective. Copycat's own Energy cost is
- * still enforced by Twinleaf's ordinary action validator.
+ * still filtered by a conservative visible Basic-Psychic/Dimension-Valley gate
+ * and enforced by Twinleaf's ordinary action validator.
  *
  * @param {object} state
  * @param {object} player
@@ -101,6 +125,7 @@ function isCopycatApexPowerBeamSituation(state, player) {
   const last = opponent && state.playerLastAttack?.[opponent.id];
   return (state.phase === GamePhase.PLAYER_TURN || state.phase === GamePhase.ATTACK) &&
     active?.fullName === 'Mimikyu GRI' &&
+    canPayMimikyuCopycatCost(state, player) &&
     player.usedGX === true &&
     last?.sourceCard?.fullName === 'Regidrago VSTAR SIT' &&
     last?.attack?.name === 'Apex Dragon' &&
@@ -208,6 +233,7 @@ function withCopycatApexTimelessPolicy(options) {
 module.exports = {
   hasKnownPublicAbilityLock,
   hasEffectiveFairyZone,
+  canPayMimikyuCopycatCost,
   isCopycatApexTimelessSituation,
   isCopycatApexPowerBeamSituation,
   copycatApexResponseKind,
