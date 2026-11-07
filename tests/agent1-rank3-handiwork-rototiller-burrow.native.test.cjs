@@ -104,7 +104,11 @@ function resolveRototillerThenBurrow(context){
       console.log('ROTOTILLER_SHUFFLE',JSON.stringify({
         playerId:prompt.playerId,keys:Object.keys(prompt)
       }));
-      store.dispatch(new ResolvePromptAction(prompt.id,null));
+      assert.equal(prompt.playerId,owner.id,
+        'Rototiller must shuffle the owner's deck');
+      const order=Array.from({length:owner.deck.cards.length},
+        (_,index)=>index);
+      store.dispatch(new ResolvePromptAction(prompt.id,order));
       flags.shuffled=true;
       continue;
     }
@@ -119,13 +123,13 @@ function resolveRototillerThenBurrow(context){
     if(prompt.constructor.name==='ChooseAttackPrompt'&&
         prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
       assert.equal(prompt.playerId,owner.id);
-      const bunnelby=prompt.cards.find(value=>
-        value.fullName==='Bunnelby PRC');
-      const burrow=bunnelby?.attacks.find(attack=>
+      assert.equal(prompt.cards[0]?.fullName,'Bunnelby PRC');
+      const burrow=prompt.cards[0].attacks.find(attack=>
         attack.name==='Burrow');
       assert.ok(burrow,'Omega Barrage must offer printed Burrow');
-      assert.equal(prompt.validate(burrow),true);
-      store.dispatch(new ResolvePromptAction(prompt.id,burrow));
+      const choice={index:0,attack:'Burrow'};
+      assert.equal(prompt.validate(choice),true);
+      store.dispatch(new ResolvePromptAction(prompt.id,choice));
       flags.burrow=true;
       continue;
     }
