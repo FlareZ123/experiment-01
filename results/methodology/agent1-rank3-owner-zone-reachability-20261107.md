@@ -54,6 +54,8 @@ The counts are repeated observations within 32 games, not independent samples. T
 
 The observer's `owner.supporterTurn` field is Twinleaf's count of Supporters already used during the current owner turn. In all 434 snapshots with Handiwork in hand, that count was zero and `cannotPlaySupporterCards` was false. Eleven snapshots occurred on global turn 1 and remain subject to the first-player Supporter restriction. The other **423 later-turn snapshots** passed the observer's basic Supporter quota/lock/turn screen. This screen is not a printed-paper legality or benefit certificate.
 
+The supplied card pool identifies Bunnelby PRC 121 (XY5-121) with Ω Barrage and both one-Colorless attacks: Burrow discards the opponent's top card, while Rototiller shuffles one card from the owner's discard into the deck. Team Rocket's Handiwork FCO 112 (XY10-112) is a Supporter that flips two coins and discards two cards from the opponent's deck per heads. The local card pool marks both printings Expanded legal. The public opponent deck count was nonzero in all 423 later-turn Handiwork-in-hand snapshots (range 1–46), so an empty opposing deck was not the reason the policy skipped the Supporter. The rulebook's Supporter section also confirms the one-per-turn limit.
+
 In those 423 later-turn snapshots, the existing policy dispatched 371 owner-root actions and 52 prompt resolutions. Root action classes were:
 
 | Root action while Handiwork was held | Snapshots |
