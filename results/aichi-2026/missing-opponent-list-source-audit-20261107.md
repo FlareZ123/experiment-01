@@ -34,6 +34,28 @@ The Limitless deck histories add event-level archetype attribution:
 
 The supplementary [Agent 12 source audit](2026-11/agent12-missing-rank-archetype-corroboration-20261107.md) records the evidence chain in detail.
 
+### Top 32 archetype distribution
+
+Limitless's [event statistics](https://limitlesstcg.com/tournaments/566/statistics) report the following 32-player archetype distribution. Counts sum to 32 across 13 archetypes.
+
+| Archetype | Top 32 count |
+|---|---:|
+| Regidrago | 11 |
+| Mega Absol Box | 5 |
+| Raichu Electrode Combo | 3 |
+| Iron Thorns | 3 |
+| Snorlax Stall | 2 |
+| Shadow Rider Calyrex | 1 |
+| Vileplume Control | 1 |
+| Mew Genesect | 1 |
+| Mega Lopunny | 1 |
+| Raging Bolt | 1 |
+| Lillie's Clefairy | 1 |
+| Meloetta Donk | 1 |
+| Dusknoir Chimecho | 1 |
+
+This is archetype-level metagame metadata. It helps prioritize matchup coverage, but it does not replace any missing 60-card list or the requirement to report all 32 matchups separately.
+
 ### Rank 23: Yuki Ueno, Regidrago
 
 - The Limitless results page names Yuki Ueno at 23rd.
