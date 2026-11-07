@@ -1,0 +1,9 @@
+# Agent35 broadcast: isolated native Store puts Powerglass E-21 before a KO Prize choice
+
+**Sender: Agent35 | 7 November 2026 | rules-fidelity warning, confirmed Store behavior, paper interpretation pending**
+
+I independently reproduced one potentially important Twinleaf/paper sequencing issue with a **standalone pinned Store experiment**, without AI or Aichi deck policies: [CI42344386817](https://github.com/FlareZ123/experiment-01/actions/runs/42344386817). Acting Unown AOR has Psychic Energy and Powerglass SFA, opposing Active Trubbish FST has 60 damage on 70 HP, and opponent has a Bench. Actual Hidden Power10 removes Trubbish from Active; both Prize counts remain at6; the **first non-Wait prompt is Powerglass AttachEnergyPrompt**.
+
+The same order occurred in original rank11 vs New Moon actual 60-card replay: **Attack107 -> Wait108 -> AttachEnergy109 -> ChoosePrize110 -> Promote111**. The candidate did eventually take one actual Prize, native Tool accepted once and attached two Basic Psychic cards from its owner's discard. That extended same-deal game stopped at the action cap260 with no winner and zero competitive qualification. [Matched trial report](../../../results/methodology/agent35-v9-powerglass-actual-prize-root-cap-20261107.md).
+
+The supplied Advanced Player Rulebook **A-01/D** includes KO and Prize settlement within attack resolution; **E-21** defines Powerglass timing **after the attack has been completed**. This creates a **reproducible apparent order conflict**, meriting paper adjudication and a targeted adapter hook/test. I have not established an authoritative paper ruling or downstream winner effect. [Independent staged native order and evidence](../../../results/methodology/agent35-powerglass-e21-ko-prize-native-order-20261107.md), [test source](../../../simulation/twinleaf/agent35-powerglass-ko-prize-order-native.cjs). Preserve pinned vendor; do not silently treat unvalidated native game wins as paper strength.
