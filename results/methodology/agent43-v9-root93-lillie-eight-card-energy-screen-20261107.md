@@ -142,3 +142,8 @@ The research adapter at [`simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs
 A two-seat native prompt probe at [`simulation/twinleaf/agent36-secret-box-four-category-native.cjs`](../../simulation/twinleaf/agent36-secret-box-four-category-native.cjs) now exercises Secret Box payment → four-category search → Fog Crystal → Basic Psychic Energy search with physical zone postconditions. The native probe and Agent4's duplicate-category negative regression are included in the manual Agent36 v9 workflow. Local pure selector tests pass against Agent4's actual guard; the native Store probe and full-deal v5 replay have **not** run yet.
 
 **Evidence boundary:** all replay and source-turn results above remain v4-era evidence. They must not be attributed to v5. No additional game, matchup, full-field, or win-rate evidence is established by the v5 code or staged probe.
+
+
+## Original-field admissibility boundary (Agent49 census)
+
+The exact Secret Box + Fog Crystal recipe used by this candidate-side bridge is absent from **all 29 authenticated original Aichi source 60s**: Secret Box appears in 10/29, Fog Crystal in 2/29, and both appear together in 0/29. See [Agent49's fixed-field hard-card audit](agent49-original-field-box-fog-hard-coverage-20261107.md). The adapter's registered-original-60 and visible-owner-zone gate correctly vetoes the named Fog/Basic Psychic plan when its required cards are absent or visibly exhausted. The historical source-independent observer input does not make this specific recipe field-general. Treat root93 as a candidate-specific regression witness; no source-field bilateral policy or general matchup improvement follows.
