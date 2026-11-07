@@ -99,6 +99,16 @@ function run(){
             result.initialSourceDealFingerprint?.digestSha256??null,
           actions:result.actions,
           nativeFinished:result.finished,
+          nativeWinnerSeat:result.winner,
+          nativeEndReason:result.endReason,
+          actionsBySeat:result.actionsBySeat,
+          nativeAttackDeclarationsBySeat:[0,1].map(actor=>
+            result.attackDeclarationTrace.filter(row=>
+              row.playerSlot===actor).length),
+          nativeRecordedAttackActionsBySeat:[0,1].map(actor=>
+            result.attackTrace.filter(row=>
+              row.playerSlot===actor).length),
+          finalPrizesRemaining:result.prizesRemaining,
           sourceFirst:result.firstTurnSlot===seat,
           paperQualified:false});
       }catch(error){
