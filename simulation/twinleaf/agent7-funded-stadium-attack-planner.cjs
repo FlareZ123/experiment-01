@@ -2,13 +2,14 @@
 
 const assert = require('node:assert/strict');
 const { printedEnergyPayability } = require('./actor-energy-payability.cjs');
-const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v1';
+const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v2';
 const MIN_DAMAGE = 80;
 
 /**
  * Two source Prism Star modifiers and Psychic-only Dimension Valley are
- * modeled. Four verified control/Bench/draw Stadiums have zero *direct*
- * printed attack-cost modification. Unknown other Stadiums are unresolved.
+ * modeled. Dimension Valley and Thunder Mountain can be considered as
+ * owner-hand candidates. Four verified control/Bench/draw Stadiums have zero
+ * *direct* printed attack-cost modification. Unknown other Stadiums are unresolved.
  * The printed game uses full native CardType enum values supplied by caller.
  * Unknown costs and unsupported candidate Stadiums receive no positive
  * feasibility certificate.
@@ -78,8 +79,8 @@ function publicEnergyContext(view, pokemon, types, basicStage) {
 }
 
 /**
- * Find an owner hand Stadium that makes at least one damaging Active attack
- * payable now under two paper-verified Stadium cost modifiers. The source is
+ * Find an owner-hand Stadium that makes at least one damaging Active attack
+ * payable now under the paper-verified Stadium cost modifiers. The source is
  * a detached actorObservation and only public printed card metadata.
  *
  * This is a conservative *candidate* for a real selected root, never a
@@ -88,6 +89,22 @@ function publicEnergyContext(view, pokemon, types, basicStage) {
  * modifier Stadiums, conditional counter-Energy ambiguity and zero-damage
  * attacks, and does not claim complete move enumeration.
  *
+ * @param {object} view Owner-only actorObservation.
+ * @param {{trainerCatalog:Map<string,{name:string,type:string}>,
+ *  cardTypes:object,stageBasic:number,specialConditions:object}} refs
+ * @returns {object|null}
+ */
+function estimatedAttackDamage(attack, ownActive, opponentActive) {
+  if (attack.name === 'Energy Drive') {
+    if (!Array.isArray(ownActive.energies) ||
+        !Array.isArray(opponentActive?.energies)) return null;
+    return 20 * (ownActive.energies.length +
+      opponentActive.energies.length);
+  }
+  return Number.isSafeInteger(attack.damage) ? attack.damage : null;
+}
+
+/**
  * @param {object} view Owner-only actorObservation.
  * @param {{trainerCatalog:Map<string,{name:string,type:string}>,
  *  cardTypes:object,stageBasic:number,specialConditions:object}} refs
@@ -116,7 +133,8 @@ function chooseFundedStadiumAttack(view, refs) {
   const beforeAllowed =
     beforeName === null ||
     beforeName === 'Wondrous Labyrinth Prism Star' ||
-    beforeName === 'Thunder Mountain Prism Star';
+    beforeName === 'Thunder Mountain Prism Star' ||
+    beforeName === 'Dimension Valley';
   if (!beforeAllowed) return null;
   const pokemonTypes = active.printed?.types;
   const isBasic = active.printed?.stage === refs.stageBasic;
@@ -125,9 +143,11 @@ function chooseFundedStadiumAttack(view, refs) {
 
   const availableAttackOptions = [];
   for (const attack of active.attacks ?? []) {
+    const damage = estimatedAttackDamage(
+      attack,active,view.opponentPublic.active);
     if (attack.gxAttack === true ||
-        !Number.isSafeInteger(attack.damage) ||
-        attack.damage < MIN_DAMAGE ||
+        !Number.isSafeInteger(damage) ||
+        damage < MIN_DAMAGE ||
         !Array.isArray(attack.cost) ||
         active.publicRestrictions?.cannotUseAttacksNextTurn?.includes(attack.name) ||
         active.publicRestrictions?.blockedAttackNameNextTurn === attack.name ||
@@ -146,7 +166,7 @@ function chooseFundedStadiumAttack(view, refs) {
     const oldPayment=printedEnergyPayability(
       oldSymbols,active.energies,ctx);
     if(oldPayment.payable!==false || oldPayment.unknownPrintings.length)continue;
-    availableAttackOptions.push({attack,ctx,oldSymbols,oldPayment});
+    availableAttackOptions.push({attack,ctx,oldSymbols,oldPayment,damage});
   }
   if (!availableAttackOptions.length) return null;
 
@@ -155,7 +175,8 @@ function chooseFundedStadiumAttack(view, refs) {
     const held = view.ownHand[index];
     const meta = refs.trainerCatalog.get(held);
     if(meta?.type!=='Stadium'||meta.name===beforeName||
-       meta.name!=='Thunder Mountain Prism Star')continue;
+       !['Thunder Mountain Prism Star','Dimension Valley']
+         .includes(meta.name))continue;
     for(const option of availableAttackOptions){
       const nextCost = costUnderStadium(
         option.attack.cost,pokemonTypes,meta.name,refs.cardTypes);
@@ -172,18 +193,21 @@ function chooseFundedStadiumAttack(view, refs) {
         handIndex:index,printing:held,name:meta.name,
         originalStadium:original,
         originalStadiumName:beforeName,
-        attackName:option.attack.name,baseDamage:option.attack.damage,
+        attackName:option.attack.name,baseDamage:option.damage,
+        damageModel:option.attack.name==='Energy Drive'?
+          'energy-drive-20x-both-actives':'printed-static',
         nominalTargetRemainingHP:Number.isFinite(nominalRemaining)?
           nominalRemaining:null,
         printedPotentialKnockout:Number.isFinite(nominalRemaining) &&
           nominalRemaining>0 &&
-          option.attack.damage>=nominalRemaining,
+          option.damage>=nominalRemaining,
         modeledOldCost:option.oldSymbols,
         modeledNewCost:nextSymbols,
         availableModeledEnergyUnits:nextPayment.modeledUnits,
         eligibility:'owner-paper-printed-cost-improvement-native-store-final',
-        modelLimits:'Two known Stadium cost modifiers; other effects, locks, '
-          +'attack legality, damage and opponent tactics unresolved'
+        modelLimits:'Known Stadium cost modifiers only; Energy Drive damage '
+          +'uses public attached-Energy counts; weakness, resistance, '
+          +'prevention and opponent tactics unresolved'
       });
     }
   }
@@ -195,5 +219,5 @@ function chooseFundedStadiumAttack(view, refs) {
 
 module.exports = {
   VERSION,MIN_DAMAGE,costUnderStadium,toEnergySymbols,
-  publicEnergyContext,chooseFundedStadiumAttack
+  publicEnergyContext,estimatedAttackDamage,chooseFundedStadiumAttack
 };
