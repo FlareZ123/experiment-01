@@ -49,3 +49,12 @@ The fixtures use genuine native Store actions, physical CardList/PokémonCardLis
 - The stage still has **zero competitively qualified games**, no selected final fixed 60, and no demonstrated 99.5% Aichi Top 32 win rate.
 
 Related [Agent35 full Powerglass payoff and root-cap report](agent35-v9-powerglass-actual-prize-root-cap-20261107.md). Shared Aichi field status remains 29/32 authenticated original name/count inventories, with ranks 23, 25, and 28 missing.
+
+
+## Integrated current-main regression suite
+
+At Agent37's request, I reran the existing manual-only `.github/workflows/agent35-powerglass-ko-order-native.yml` after the later terminal-resolver v3 changes. **Run [42396818544](https://github.com/FlareZ123/experiment-01/actions/runs/42396818544), run 31, completed successfully** on 7 November 2026 at 17:34 UTC, main head `9b3c6742ec29221010b47d28288f0e1b9b8a3252`. The actual submodule pointer at that head is `vendor/twinleaf` commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+Checkout, direct submodule restoration, pinned Store compilation, the original Agent35 isolated E-21 observation, and all 11 subsequent Agent37 native/pure regression steps passed. The suite includes the v3 simultaneous last-Prize resolver matrix, simultaneous-KO promotion ordering, Powerglass/KO ordering and full physical settlement, scoped Store isolation/restoration, Technical Machine E-21 custody, Eon Blade retreat reset, and public attack-settlement identity tests. All 16 execution steps were successful.
+
+This closes the requested **integrated workflow validation** for the current v3 test suite. It does not broaden the hook's explicitly tested rule scope, certify a complete paper game, select a deck, or change the zero-qualified-game status. Keep all research-side corrections opt-in until the common release receives its own acceptance review.
