@@ -4,6 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {VERSION, summarizeContextCoverage} =
   require('../simulation/evaluation/agent13-v8-context-concentration.cjs');
+const {candidateAttackPrefixCoverage} =
+  require('../simulation/evaluation/agent13-v8-context-concentration-archive.cjs');
 
 /** @param {number} n @param {number} settled @param {number} prizes */
 function events(n, settled, prizes) {
@@ -169,4 +171,70 @@ test('unclosed native abort may have unauthenticated candidate physical seat',()
   const y=fixture();
   y.rows[0].candidateSeatAuthenticated=false;
   assert.throws(()=>summarizeContextCoverage(y),/authenticated opponent seat/);
+});
+
+function candidatePrefixFixture() {
+  const census=fixture();
+  for(const row of census.rows)
+    if(row.actualAttackSettlements===null)
+      row.candidateSeatAuthenticated=false;
+  const archive={attempts:census.rows.map(row=>({
+    id:row.id,candidateSeat:row.actualAttackSettlements===null?
+      null:1-row.sourceSeat,publicRootActionsTruncated:false,
+    publicRootActions:Array.from({length:row.acceptedRoots},(_,ordinal)=>({
+      actionOrdinal:ordinal,playerSlot:1-row.sourceSeat,
+      action:'PassTurnAction',turnBefore:ordinal+1
+    }))
+  }))};
+  archive.attempts[0].publicRootActions[2].action='AttackAction';
+  archive.attempts[0].publicRootActions[2].attack='Get Lost';
+  archive.attempts[0].publicRootActions[3].action='AttackAction';
+  archive.attempts[0].publicRootActions[3].attack='Get Lost';
+  archive.attempts[5].publicRootActions[11].action='AttackAction';
+  archive.attempts[5].publicRootActions[11].attack='Future Sight';
+  return {archive,census};
+}
+
+test('whole candidate-root prefix denominator keeps 5 abort rows unknown',()=>{
+  const {archive,census}=candidatePrefixFixture();
+  const out=candidateAttackPrefixCoverage(archive,census);
+  assert.equal(out.originalNativeAttempts,8);
+  assert.equal(out.knownCandidateContexts,3);
+  assert.equal(out.unknownCandidateContexts,5);
+  assert.equal(out.candidateAttackActionRootTotal,3);
+  assert.equal(out.candidateAttackActionRootAfterFirstSettledSourceTotal,3);
+  assert.deepEqual(out.observedCandidateAttackNames,
+    {'Future Sight':1,'Get Lost':2});
+  assert.deepEqual(out.rows.filter(x=>x.candidateAttackActionRoots!==null)
+    .map(x=>x.candidateAttackActionRoots),[2,0,1]);
+  assert.equal(out.verifiedOpponentAttackSettlements,null);
+  assert.equal(out.competitivelyQualifiedGames,0);
+  assert.ok(out.rows.filter(x=>x.status==='unknown-candidate-attack-prefix')
+    .every(x=>x.candidateAttackActionRoots===null&&
+      x.candidateAttackActionRootsAfterSourceSettlement===null));
+});
+
+test('candidate prefix screen fails closed on mismatched physical seats or roots',()=>{
+  const {archive,census}=candidatePrefixFixture();
+  archive.attempts[0].candidateSeat=0;
+  assert.throws(()=>candidateAttackPrefixCoverage(archive,census));
+  const x=candidatePrefixFixture();
+  x.archive.attempts[0].publicRootActionsTruncated=true;
+  assert.throws(()=>candidateAttackPrefixCoverage(x.archive,x.census));
+  const y=candidatePrefixFixture();
+  y.archive.attempts[0].publicRootActions.pop();
+  assert.throws(()=>candidateAttackPrefixCoverage(y.archive,y.census));
+  const z=candidatePrefixFixture();
+  z.census.allNativeRootLedgersDigestVerified=false;
+  assert.throws(()=>candidateAttackPrefixCoverage(z.archive,z.census));
+});
+
+test('known candidate with no settled original source attack leaves after-line null',()=>{
+  const {archive,census}=candidatePrefixFixture();
+  census.rows[0].actualAttackSettlements.forEach(x=>x.publicSettlement=false);
+  const out=candidateAttackPrefixCoverage(archive,census);
+  assert.equal(out.rows[0].candidateAttackActionRoots,2);
+  assert.equal(out.rows[0].firstSettledSourceOrdinal,null);
+  assert.equal(out.rows[0].candidateAttackActionRootsAfterSourceSettlement,null);
+  assert.equal(out.competitivelyQualifiedGames,0);
 });
