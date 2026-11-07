@@ -237,3 +237,40 @@ test('Roxanne uses only public opponent Prize threshold for negative admission',
   assert.equal(eligible.paperPlayabilityCertified,false);
   assert.equal(early.opponentConcealedUsed,false);
 });
+
+test('M1L alias root93: two held Lillies each displace the tactical Box line',()=>{
+  // The hand is an authentic source-exposed native first-Pass inventory.
+  // This isolated pure test is not a same-deal native counterfactual.
+  const hand=[
+    'Battle VIP Pass FST','Battle VIP Pass FST','Secret Box TWM',
+    'Rescue Carrier EVS','Rescue Carrier EVS','Powerglass SFA',
+    "Lillie's Determination M1L","Lillie's Determination M1L",
+    'Forest Seal Stone SIT','Mysterious Treasure FLI'
+  ];
+  const candidate=view(hand,6);
+  const observed=summarizeOwnerBulkHandTransitions(candidate,
+    rows(hand,[6,7]),new Set([2]));
+  assert.equal(observed.knownBulkHandTrainerCopies,2);
+  assert.equal(observed.summedOtherHandCopiesExposedAcrossAlternatives,18);
+  for(const row of observed.rows){
+    assert.equal(row.printing,"Lillie's Determination M1L");
+    assert.equal(row.rulePrinting,"Lillie's Determination MEG");
+    assert.equal(row.nativeFullNameAliasUsed,true);
+    assert.equal(row.sourceCardId,'me1-119');
+    assert.equal(row.destination,'deck');
+    assert.equal(row.drawnCardCountRequested,8);
+    assert.equal(row.movedHandCount,9);
+    assert.equal(row.protectedMovedCount,1);
+    assert.ok(row.protectedMovedIndices.includes(2));
+    assert.ok(row.movedHandCopies.some(x=>x.printing==='Secret Box TWM'));
+    assert.equal(row.displacedHeldTrainerCopies,1);
+    assert.equal(row.paperPlayabilityCertified,false);
+  }
+  const source=ownerBulkHandTransition(
+    view(["Lillie's Determination MEG",'Other'],6),
+    rows(["Lillie's Determination MEG",'Other'],[0])[0]);
+  assert.equal(source.nativeFullNameAliasUsed,false);
+  assert.equal(source.rulePrinting,"Lillie's Determination MEG");
+  assert.equal(source.drawnCardCountRequested,8);
+  assert.equal(source.sourceCardId,observed.rows[0].sourceCardId);
+});
