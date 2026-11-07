@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent8-public-event-receipt-v1';
+const VERSION='agent8-public-event-receipt-v2';
 
 /**
  * Only face-up cards and native public-use markers enter this detached
@@ -10,12 +10,34 @@ const VERSION='agent8-public-event-receipt-v1';
  *
  * @param {object} state Authenticated pinned Twinleaf State.
  * @param {0|1} seat Real current acting seat.
+ * @param {object[]|null} [previousOpponentTurnAttacks=null]
+ *   Research-owned, turn-stamped public history; null means unavailable,
+ *   while [] means the opponent's previous turn contained no attacks.
  * @returns {Readonly<object>}
  */
-function publicEventReceipt(state,seat){
+function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(state.activePlayer,seat,'Event receipt is actor-turn scoped');
   const owner=state.players[seat];
+  const opponent=state.players[1-seat];
+  let opponentLastTurnAttacks=null;
+  if(previousOpponentTurnAttacks!==null){
+    assert.ok(Array.isArray(previousOpponentTurnAttacks));
+    opponentLastTurnAttacks=previousOpponentTurnAttacks.map(row=>{
+      assert.equal(row.playerId,opponent.id);
+      assert.ok(Number.isSafeInteger(row.turn)&&row.turn>=0);
+      assert.ok(typeof row.sourceCardFullName==='string'&&row.sourceCardFullName.length>0);
+      assert.ok(typeof row.attackName==='string'&&row.attackName.length>0);
+      assert.equal(typeof row.gxAttack,'boolean');
+      assert.equal(typeof row.copycatAttack,'boolean');
+      return Object.freeze({
+        turn:row.turn,sourcePrinting:row.sourceCardFullName,
+        attackName:row.attackName,gxAttack:row.gxAttack,
+        copycatAttack:row.copycatAttack
+      });
+    });
+    Object.freeze(opponentLastTurnAttacks);
+  }
 
   /** @param {object} slot @returns {object|null} */
   const view=slot=>{
@@ -79,7 +101,10 @@ function publicEventReceipt(state,seat){
       byAttack:typeof owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn==='boolean'?
         owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn:null
     }),
-    opponentLastTurnAttack:null
+    // Legacy single-record field stays unknown; the turn-stamped list below
+    // is supplied only by the research-owned Store event tracker.
+    opponentLastTurnAttack:null,
+    opponentLastTurnAttacks
   });
 }
 module.exports={VERSION,publicEventReceipt};
