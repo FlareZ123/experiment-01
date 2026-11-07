@@ -39,6 +39,13 @@ test('actual original pinned Store ordinary simultaneous last-Prize KO exposes f
     status:'engine-terminal',engineWinner:0,
     terminalTransition:terminal
   });
+  assert.deepEqual(result,{
+    status:'bilateral-prize-settlement-unverified',
+    conditions:[],engineWinner:0
+  });
+  assert.ok(terminal.after.players.every((p,seat)=>
+    p.prizesRemaining<terminal.before.players[seat].prizesRemaining),
+  'Pinned native real Store changed both players Prize counts in one dispatch');
   console.log('AGENT1_ORDINARY_NATIVE_BILATERAL_KO',JSON.stringify({
     sourceFixture:'Agent24 ordinary original ranks11/20 staged double final-KO',
     before:terminal.before,after:terminal.after,
