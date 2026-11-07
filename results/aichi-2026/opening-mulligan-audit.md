@@ -2,7 +2,7 @@
 
 **Source:** [Published Aichi 2026 Top 32 decklists](full-decklists.json), tournament [Limitless 566](https://www.limitlesstcg.com/tournaments/566/decklists). **Scope:** all 29 published complete lists; placements 23, 25 and 28 lack published lists and are excluded. This audits opening-hand composition, not strategic win rates.
 
-We checked card counts, identified Basic Pokémon using the repository English snapshot's `subtypes` (including Mega ex stage distinctions), and normalized the Limitless Prism Star glyph `♢` to the database glyph `◇`. The canonical reproducible implementation is [`scripts/aichi_opening_audit.cjs`](../../scripts/aichi_opening_audit.cjs), with [Node regression tests](../../tests/aichi_opening_audit.test.cjs).
+We checked card counts, identified Basic Pokémon using the repository English snapshot's `subtypes` (including Mega ex stage distinctions), and normalized the Limitless Prism Star glyph `♢` to the database glyph `◇`. The canonical reproducible implementation is [`scripts/aichi_opening_audit.cjs`](../../scripts/aichi_opening_audit.cjs), with [Node regression tests](../../tests/aichi_opening_audit.test.cjs). An independent [exact set-and-number Pokémon printing census](../../scripts/agent12-aichi-basic-opening-census.cjs) cross-checks every Pokémon row across the 29 lists against the name-index results, including Ditto LOT 154 and Tapu Koko TEU 51. Manual Node22 CI [42381804142](https://github.com/FlareZ123/experiment-01/actions/runs/42381804142) passed all **46/46** combined confidence, pairing, and printing-stage tests.
 
 ## Calculations
 
