@@ -81,7 +81,9 @@ function verifySnapTrapPrompt(state, prompt, proof, ai, types, ChooseCardsPrompt
   if (proof?.promptMessage !== 'CHOOSE_CARD_TO_DISCARD') fail('proof prompt message');
   if (proof?.promptIdAssignedByStore !== true) fail('Store-assigned prompt ID');
   if (proof?.pendingNativePromptId !== String(prompt.id)) fail('pending prompt ID');
-  if (proof?.promptIdAfterStore !== String(prompt.id)) fail('post-Store prompt ID');
+  if (String(proof?.promptIdAfterStore) !== String(prompt.id)) fail('post-Store prompt ID');
+  if (proof?.moveSourceCard !== SOURCE_PRINTING ||
+      proof?.moveSourceEffect !== SOURCE_ABILITY) fail('MoveCardsEffect source identity');
   if (proof?.promptOwnerSeat !== proof.sourceSeat) fail('prompt owner seat');
   if (!Number.isInteger(proof.sourceSeat) || !Number.isInteger(proof.attackerSeat) ||
       proof.sourceSeat === proof.attackerSeat ||
@@ -129,9 +131,10 @@ function verifySnapTrapPrompt(state, prompt, proof, ai, types, ChooseCardsPrompt
   const eligibleEnergy = attacker.active.energies.cards.filter(card =>
     card?.superType === SuperType.ENERGY
   );
-  const eligiblePrintings = eligibleEnergy.map(card =>
-    typeof card?.fullName === 'string' ? card.fullName : null
-  );
+  const publicPrinting = card =>
+    typeof card?.fullName === 'string' ? card.fullName :
+      typeof card?.name === 'string' ? card.name : null;
+  const eligiblePrintings = eligibleEnergy.map(publicPrinting);
   if (eligibleEnergy.length !== proof.eligibleEnergyCount ||
       JSON.stringify(eligiblePrintings) !== JSON.stringify(proof.eligibleEnergyPrintings)) {
     fail('attached Energy count/printing join');
@@ -163,7 +166,10 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
   assert.equal(typeof deps.getOriginForPrompt, 'function',
     'A scoped same-prompt source-origin lookup is required');
 
-  const loaded = deps.engine ? null : loadDependencies();
+  const needsLoad = !deps.SimpleTacticsAi || !deps.Store ||
+    !deps.ResolvePromptAction || !deps.ChooseCardsPrompt ||
+    !deps.MoveCardsEffect || !deps.types;
+  const loaded = needsLoad ? loadDependencies() : null;
   const SimpleTacticsAi = deps.SimpleTacticsAi ?? loaded?.SimpleTacticsAi;
   const Store = deps.Store ?? loaded?.Store;
   const ResolvePromptAction = deps.ResolvePromptAction ?? loaded?.ResolvePromptAction;
@@ -171,7 +177,6 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
   const MoveCardsEffect = deps.MoveCardsEffect ?? loaded?.MoveCardsEffect;
   const types = deps.types ?? loaded?.types;
   const chooseEnergy = deps.chooseEnergy ?? chooseSnapTrapEnergy;
-  const engine = deps.engine ?? loadEngine;
 
   assert.equal(typeof SimpleTacticsAi, 'function');
   assert.equal(typeof Store, 'function');
@@ -198,9 +203,11 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
     liveStoresObserved: 0,
     sourceProofPromptsSeen: 0,
     exactPromptContracts: 0,
+    promptContractFailures: 0,
     delegatedUnmarkedPrompts: 0,
     delegatedNonLiveStates: 0,
     ownerChoices: 0,
+    choiceFailures: 0,
     promptDispatchFailures: 0,
     physicalSettlements: 0,
     physicalSettlementFailures: 0,
@@ -339,17 +346,25 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
 
     const {prompt, proof} = matches[0];
     audit.sourceProofPromptsSeen++;
-    const verified = verifySnapTrapPrompt(
-      state, prompt, proof, this, types, ChooseCardsPrompt
-    );
-    audit.exactPromptContracts++;
+    let verified;
+    try {
+      verified = verifySnapTrapPrompt(
+        state, prompt, proof, this, types, ChooseCardsPrompt
+      );
+      audit.exactPromptContracts++;
+    } catch (error) {
+      audit.promptContractFailures++;
+      throw error;
+    }
 
     const choice = chooseEnergy(prompt, verified.attacker.active, types);
     if (!choice || !choice.card || !prompt.validate([choice.card])) {
+      audit.choiceFailures++;
       throw new Error('Snap Trap public Energy selector returned no native-valid physical Card');
     }
     if (!prompt.cards.cards.includes(choice.card) ||
         !prompt.cards.energies.cards.includes(choice.card)) {
+      audit.choiceFailures++;
       throw new Error('Snap Trap selector returned a card outside the exact public attached-Energy sublist');
     }
 
