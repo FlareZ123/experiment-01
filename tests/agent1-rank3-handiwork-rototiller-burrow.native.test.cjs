@@ -127,10 +127,9 @@ function resolveRototillerThenBurrow(context){
       const burrow=prompt.cards[0].attacks.find(attack=>
         attack.name==='Burrow');
       assert.ok(burrow,'Omega Barrage must offer printed Burrow');
-      const choice={index:0,attack:'Burrow'};
-      // decode accepts the wire choice; validate receives the decoded Attack.
+      // Native Store.reducePrompt passes the Attack directly to the callback.
       assert.equal(prompt.validate(burrow),true);
-      store.dispatch(new ResolvePromptAction(prompt.id,choice));
+      store.dispatch(new ResolvePromptAction(prompt.id,burrow));
       flags.burrow=true;
       continue;
     }
