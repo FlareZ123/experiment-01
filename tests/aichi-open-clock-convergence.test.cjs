@@ -184,7 +184,7 @@ test('A tied knockout tiebreaker restarts; an unexplained both-zero state stays 
   assert.equal(agent27Unknown.competitiveAdmission, false);
 });
 
-test('Both-zero tiebreaker without paper outcome exposes the Agent26 review-boundary difference', () => {
+test('Both-zero tiebreaker states fail closed with model-specific review labels', () => {
   const agent26 = adjudicateMay2026AichiTime({
     stage: 'top32',
     phase: 'tiebreak',
@@ -193,7 +193,8 @@ test('Both-zero tiebreaker without paper outcome exposes the Agent26 review-boun
     prizeRemaining: [0, 0]
   });
   const agent27 = classifyTiebreaker([0, 0]);
-  assert.equal(agent26.status, 'PAPER_TIEBREAKER_CONTINUE');
+  assert.equal(agent26.status, 'NATURAL_PAPER_TERMINAL_UNVERIFIED');
   assert.equal(agent27.status, 'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED');
+  assert.equal(agent26.competitiveAdmission, false);
   assert.equal(agent27.competitiveAdmission, false);
 });
