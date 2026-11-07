@@ -50,6 +50,16 @@ This is why card-name-only field searches are insufficient for opponent-mill cla
 - Repeated Handiwork use is a stress scenario. Each field list contains one copy, and further uses depend on recovery and the opponent's policy.
 - The piecewise schedule model accepts the realized per-turn mill amount. Its stochastic extension also returns an exact rational survival-horizon distribution for repeated independent 0/2/4 Handiwork outcomes. It does not infer whether the opponent plays Handiwork or recovers it.
 
+## Candidate test priority
+
+For any candidate whose consistency engine removes cards from its own deck, the field inventory suggests this order for targeted attrition validation:
+
+1. **Rank 3 Snorlax Stall:** combined Bunnelby Burrow and Team Rocket's Handiwork, with a verified recovery package.
+2. **Ranks 2, 15 and 26:** Bunnelby-only pressure, including the optional second Burrow.
+3. **Ranks 6, 7 and 29:** Handiwork-only stochastic bursts with Supporter recovery.
+
+This is a test-priority order based on available mill mechanisms. It is not a matchup-strength ranking or a substitute for evaluating all 32 opponents.
+
 ## Limits
 
 This is a card-text and published-list census. It does not establish how often any opponent chooses these cards, whether Bunnelby can pay and attack on a given turn, or whether a deck wins the matchup. Three Top 32 lists are missing, historical Japanese printing provenance remains open, and no paper-qualified matchup result follows from this audit.
