@@ -95,9 +95,9 @@ shuffle, it is certainly among the 44 and its chance of appearing in the
 new eight-card hand is exactly:
 
 \[
-P(\\text{Box redrawn}) =
-1 - \\frac{\\binom{43}{8}}{\\binom{44}{8}} =
-\\frac{8}{44}=\\frac{2}{11} \\approx 18.18182\\%.
+P(\text{Box redrawn}) =
+1 - \frac{\binom{43}{8}}{\binom{44}{8}} =
+\frac{8}{44}=\frac{2}{11} \approx 18.18182\%.
 \]
 
 The probability of **losing immediate access to that originally held
