@@ -200,3 +200,21 @@ The runner now derives expected transfers from the captured two Prize groups and
 Manual native run [42409458179](https://github.com/FlareZ123/experiment-01/actions/runs/42409458179) succeeded on 7 November 2026 at 20:09 UTC, research head `110342df6ad1451328f7a988552a32444310685e`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. All workflow steps, including the 16-row transfer-completeness assertions, passed. Artifact ID `13588673584`, 3,648 bytes, SHA-256 `cdb730cae8d505dacc18ea3b8ca469ac0923905a7d9da706dbad7d1d6e839435`, expires 21 November 2026.
 
 **Disposition:** this is a newly explicit native baseline defect, not a v4 correction. The v3 adapter still only arms when both Prize groups exhaust both players' remaining Prizes. A separate opt-in mixed-terminal adapter must process both Prize groups exactly once, apply the full §E table, preserve the original native winner/log receipt, and cover both physical seats before any integration is considered. No upstream code was modified; no complete paper game or competitive game is qualified.
+
+
+## 7 November 2026 20:14 UTC: exhaustive Rulebook §E outcome helper
+
+To make the mixed-terminal paper expectation auditable and reusable for a future adapter, the shared research adapter now exports a pure `resolveRulebookETerminalOutcome` helper. It takes four explicit Boolean conditions: whether each player took all Prizes and whether each player can promote. It resolves all 16 combinations:
+
+- the 11 combinations explicitly enumerated in the Advanced Player's Rulebook §E table;
+- ordinary single-Prize win/loss conditions when only one player takes all Prizes and the other has no simultaneous loss condition;
+- ordinary no-Pokémon win/loss conditions when neither player takes all Prizes;
+- the ongoing case when neither terminal condition is met.
+
+The existing both-final v3 resolver now delegates to this helper, preserving its prior outcome behavior. The mixed-terminal diagnostic also uses the same helper instead of its earlier special-case expression, so the paper outcome matrix and the future adapter share one explicit rule implementation.
+
+New test file: `tests/agent37/rulebook-e-terminal-outcome.test.cjs`. It checks all 16 Boolean states, verifies seat-swap symmetry (wins invert; draws and ongoing remain unchanged), and rejects non-Boolean inputs. All three Node test groups passed in CI.
+
+Manual workflow [42409977942](https://github.com/FlareZ123/experiment-01/actions/runs/42409977942) succeeded on 7 November 2026 at 20:14 UTC, research head `6a83aedbb9b1860341b0adcb5bd78b724327eb89`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The pure rule tests, adapter/runner syntax checks, native v3 regression, mixed-transfer assertions, and artifact upload all passed. Artifact ID `13589620469`, 3,648 bytes, SHA-256 `eaf965ba97e6835e584ece210275d16d9ff1aef6f30053df48091a50620b321a`, expires 21 November 2026.
+
+This helper is an adjudication model, not a mixed-terminal settlement fix. The native baseline still omits one Prize group in 12/16 mixed rows. A separate adapter must complete both transfers exactly once and then use this rule helper to choose the terminal result.
