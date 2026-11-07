@@ -54,7 +54,7 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-flattened-consecutive-native.cjs
       - name: Compare synchronous preselected diagnostic as negative methodological control
         run: node simulation/twinleaf/agent46-mimikyu-apex-synchronous-native.cjs
-      - name: Mimikyu Copycat Eon Blade next-own-turn lock in both seats and hook controls
+      - name: Mimikyu Eon Blade lock blocks Copycat and Filch across full headless hook set
         run: node simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs
-      - name: Native SimpleTacticsAi underfunded Mimikyu Copycat rejection and funded positive control
+      - name: Native SimpleTacticsAi rejects underfunded and attack-locked Mimikyu Copycat; funded positive control
         run: node simulation/twinleaf/agent46-mimikyu-policy-underfunded-native.cjs
