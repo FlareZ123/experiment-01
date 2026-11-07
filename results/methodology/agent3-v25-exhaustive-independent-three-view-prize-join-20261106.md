@@ -1,6 +1,6 @@
 # Agent 3: exhaustive three-view native Prize accounting with no unmatched awards
 
-**6 November 2026. Developmental-only native validation.** This adds a strict, every-event physical reconciliation to [v24's unique `checkState` source-token study](agent3-v24-unique-checkstate-ko-prize-origin-20261106.md). It retains the same **original eight registered Aichi rank 1/3/6/11 trial IDs**, frozen printed source/candidate 60s and seeds, pinned engine revision, actual native Store callback, and **separate retrospective owner Telepath + default-Confirm-false treatment**. All historical root statuses and game outcomes remain unchanged. **Zero paper-qualified games**.
+**7 November 2026 identifier correction:** the eight values in the table's *Prize-exit record index* column (0–7) and legacy JSON field `exactPhysicalRootOrdinal` are indexes in the filtered physical Prize-exit array. They are **not** the actual native accepted-game `actionOrdinal`. The original event trial/seat/turn/count custody joins remain unchanged. See [the reproducible correction and true-root binding contract](agent3-v25-filtered-prize-event-index-correction-20261107.md). A separate v26 compiled replay will be required to validate actual root ordinals.\n\n**6 November 2026. Developmental-only native validation.** This adds a strict, every-event physical reconciliation to [v24's unique `checkState` source-token study](agent3-v24-unique-checkstate-ko-prize-origin-20261106.md). It retains the same **original eight registered Aichi rank 1/3/6/11 trial IDs**, frozen printed source/candidate 60s and seeds, pinned engine revision, actual native Store callback, and **separate retrospective owner Telepath + default-Confirm-false treatment**. All historical root statuses and game outcomes remain unchanged. **Zero paper-qualified games**.
 
 ## Three independently observed native witnesses
 
@@ -14,7 +14,7 @@ This prevents a merely equal aggregate total from hiding reassigned trials, seat
 
 **Native CI:** [successful manual-only run 42313620281](https://github.com/FlareZ123/experiment-01/actions/runs/42313620281), workflow `.github/workflows/agent50-rank26-koko-dual-recipient-native.yml` with `issue25_v14_only=true`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. [Archived raw artifact 13549782670](https://github.com/FlareZ123/experiment-01/actions/runs/42313620281/artifacts/13549782670), ZIP SHA-256 `f8114a690a4ad0ed0e8aba2af6cdbe6dbba2eab92abf868f89b0d3c523b24d4f`; `agent3-v25-selected-v8-ko-source-physical.json` SHA-256 `38c99ab150c133345ca3e2b94ad3bbc61c3d319870153aa51a741cced4ba8f5b`. Both were independently verified after downloading the actual archive. All 8 source-token → root physical exit joins and all 7 prompt joins passed. No unmatched exit, source token or Prize-choice event.
 
-| Original trial ID | Source check token | Turn | KO owner seat | Prize recipient seat | Exact Prize card objects | Physical root ordinal | Settled Prize prompt ordinal |
+| Original trial ID | Source check token | Turn | KO owner seat | Prize recipient seat | Exact Prize card objects | Prize-exit record index (0-based) | Settled Prize prompt ordinal |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `6:210:B:champion-reference` | 61 | 17 | 1 | 0 | 1 | 0 | 0 |
 | `6:210:B:new-moon-lockbreaker-v1` | 154 | 17 | 1 | 0 | 1 | 1 | 1 |
