@@ -300,7 +300,7 @@ jobs:
         if: ${{ inputs.include_agent8_telepath_v5 }}
         env:
           ISSUE25_STEWARD_V8_ABILITY_POLICY_DIR: issue25-agent36-v8-ability-policy
-        run: node --test tests/agent36-owner-ability-confirm-policy.test.cjs tests/agent36-v8-owner-ability-policy.native.test.cjs
+        run: node --test tests/agent36-owner-ability-confirm-policy.test.cjs tests/agent36-v8-owner-ability-policy.native.test.cjs tests/agent32-articuno-cold-crush-native.test.cjs
       - name: Preserve v8 owner ability policy prompt and target receipts
         if: ${{ always() && inputs.include_agent8_telepath_v5 }}
         uses: actions/upload-artifact@v4
