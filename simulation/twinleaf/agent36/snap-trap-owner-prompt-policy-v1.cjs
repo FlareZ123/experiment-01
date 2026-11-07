@@ -287,14 +287,12 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
     const receipt = matchingReceipts[0];
     const prismStar = Array.isArray(selected.card.tags) &&
       selected.card.tags.includes(types.CardTag.PRISM_STAR);
-    const expectedDestination = prismStar
-      ? selected.attackerLostzone
-      : selected.attackerDiscard;
+    const inDiscard = selected.attackerDiscard.cards.includes(selected.card);
+    const inLostzone = selected.attackerLostzone.cards.includes(selected.card);
     const physicallyTransferred =
       !selected.attackerActive.cards.includes(selected.card) &&
       !selected.attackerActive.energies.cards.includes(selected.card) &&
-      expectedDestination.cards.includes(selected.card) &&
-      (prismStar || !selected.attackerDiscard.cards.includes(selected.card));
+      (prismStar ? inLostzone && !inDiscard : inDiscard && !inLostzone);
     const exactEffectReceipt = matchingReceipts.length === 1 &&
       receipt.source === selected.attackerActive &&
       receipt.destination === selected.attackerDiscard &&
