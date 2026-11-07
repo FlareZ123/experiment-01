@@ -249,3 +249,32 @@ V4 result summary:
 The workflow cross-checks each v4 row's expected and actual Prize transfers against the v3 native baseline's recorded Prize-group expectations. Artifact ID `13589789207`, 5,115 bytes, SHA-256 `27cffecf707f0961e09948ed178632bea77384488f6c326210d5b353196e6bab`, expires 21 November 2026. The same manual workflow still runs the v3 both-final regression, the 12/16 mixed native baseline diagnostic, the exhaustive §E tests, and the v4 mixed-terminal regression.
 
 **Disposition:** v4 resolves the 16 controlled mixed-terminal cases that v3 intentionally leaves unsupported. This is still a narrow staged native mechanics fixture, not a complete paper game, Japanese Extra legality proof, shared-policy integration, or competitive qualification. Keep v4 default-off until broader sequencing, interruption, replacement-destination, prevention, non-Active KO, simultaneous no-Pokémon, deck-out, and full multi-turn acceptance tests are established.
+
+
+## 7 November 2026 20:53 UTC: v4 expanded to mixed and both-final cases, both sequencing paths observed
+
+The v4 runner now includes eight additional both-final cases (owner starts with 3 Prizes, opponent with 1), alongside the 16 mixed cases. This validates the same adapter's compatibility with the v3 both-final scope while retaining the mixed-terminal expansion.
+
+Run [42413075016](https://github.com/FlareZ123/experiment-01/actions/runs/42413075016) succeeded on 7 November 2026 at 20:53 UTC, research head `2826462cfd41bf56169a9a7eb2b80d794d49ce6b`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+| Measure | Result |
+| --- | ---: |
+| Total v4 rows | 24 |
+| Mixed rows | 16 |
+| Both-final rows | 8 |
+| Both Prize groups transferred exactly once | 24/24 |
+| §E draws | 8 |
+| Owner wins | 8 |
+| Opponent wins | 8 |
+| Original native winner logs captured | 24/24 |
+| Native winner corrections | 10 |
+| Store method restoration | 24/24 |
+| First-group-terminal manual transfers | 20 |
+| Second-group-native transfers | 4 |
+| Competitive games qualified | 0 |
+
+Both second-group sequencing paths are therefore exercised: v4 manually transfers the second group in 20 rows where the first processed group is already terminal; in four rows it leaves the second native Prize effect to process and terminate the game. All 24 rows preserve exact Prize deltas and the expected §E result.
+
+The workflow now asserts the 24-row summary, the 16 mixed rows against the v3 baseline, and the eight both-final rows with the [3,1] expected Prize transfers. Artifact ID `13590536576`, 5,271 bytes, SHA-256 `01baec92a972f95242e0e8143d30f32dd78468f6ee3d592db688711cf1a5b63e`, expires 21 November 2026.
+
+**Disposition:** the v4 result now covers 24 staged native terminal transactions across both mixed and both-final profiles. It remains a narrow fixture, default-off, and unintegrated. It does not establish complete paper-game fidelity or competitive strength.
