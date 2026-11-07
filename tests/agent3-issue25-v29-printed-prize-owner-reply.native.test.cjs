@@ -27,6 +27,9 @@ const {VERSION:VICTIM_VERSION,withNativePublicKoVictims}=
 
 const {VERSION:BASE_SCREEN_VERSION,screenNativeKoBasePrizes}=
   require('../simulation/evaluation/agent3-printed-base-prize-screen.cjs');
+const {VERSION:SECOND_SCREEN_VERSION,
+  auditNativeKoPrintedPrizeValues:crossCheckPublicNativeKoPrizes}=
+  require('../simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs');
 const {VERSION:OWNER_REPLY_VERSION,projectOwnerRepliesAfterSourcePrize}=
   require('../simulation/evaluation/agent3-postprize-owner-reply-projection.cjs');
 
@@ -232,6 +235,20 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   assert.equal(independentlyPrintedBasePrizeScreens.every(row=>
     row.independentPrintedBasePrizeScreenPass===true &&
     row.competitiveGameQualified===false),true);
+  // Independent exact-ID and KO-damage-threshold verification against the
+  // supplied card pool. Neither screen qualifies game play or attack legality.
+  const independentlyRecheckedPrintedKoPrizes=
+    crossCheckPublicNativeKoPrizes(fullyRootedPublicVictimJoins);
+  assert.equal(independentlyRecheckedPrintedKoPrizes.allMatched,true);
+  assert.equal(independentlyRecheckedPrintedKoPrizes.rows.length,8);
+  assert.deepEqual(independentlyRecheckedPrintedKoPrizes.rows.map(row=>row.cardId),
+    independentlyPrintedBasePrizeScreens.map(row=>row.matchedEnglishCardDbId));
+  assert.deepEqual(independentlyRecheckedPrintedKoPrizes.rows.map(row=>row.printedPrizeCount),
+    independentlyPrintedBasePrizeScreens.map(row=>row.paperPrintedBasePrizes));
+  assert.deepEqual(independentlyRecheckedPrintedKoPrizes.rows.map(row=>row.nativePrizeCount),
+    attackPrizeRootJoins.map(row=>row.exactPhysicalPrizeCards));
+  assert.equal(independentlyRecheckedPrintedKoPrizes.paperGameCertified,false);
+  assert.equal(independentlyRecheckedPrintedKoPrizes.qualifiedCompetitiveGames,0);
   const exactPostPrizeOwnerReplies=projectOwnerRepliesAfterSourcePrize(
     selected.rawDevelopment.rows,attackPrizeRootJoins);
   assert.equal(exactPostPrizeOwnerReplies.length,5);
@@ -435,6 +452,10 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
       'simulation/twinleaf/agent3-public-ko-victim-print-observer.cjs'))),
     publicKoVictimObserver:publicVictimAudit,
     fullyRootedPublicKoVictimJoins:fullyRootedPublicVictimJoins,
+    separatePrintedKoPrizeCrosscheckVersion:SECOND_SCREEN_VERSION,
+    separatePrintedKoPrizeCrosscheckHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs'))),
+    independentlyRecheckedPrintedKoPrizes,
     printedBasePrizeScreenVersion:BASE_SCREEN_VERSION,
     printedBasePrizeScreenHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-printed-base-prize-screen.cjs'))),
