@@ -53,3 +53,40 @@ The root ledger already records `initiatingRootActionOrdinal`. For the copied at
 ## Evidence boundary
 
 These changes improve provenance and timing attribution. They do not certify attack payment, all card-specific modifiers, complete paper rules, the official tournament clock, a full competitive game, or a matchup win. The repository's zero competitively qualified games and no-selected-final-deck status remain unchanged.
+
+
+## Follow-up: attack-root identity and physical Active source
+
+The settlement helper in `simulation/evaluation/agent37-candidate-attack-settlement.cjs` now separates trigger facts, physical-card facts, and prompt-closure lineage.
+
+The declaration/event/root join requires agreement on:
+- `actionOrdinal`;
+- candidate actor seat;
+- `turnBefore`;
+- `triggerAction`;
+- the declaring root's player slot, turn, and action.
+
+A later prompt-closing root must retain the exact `initiatingRootActionOrdinal`. When both values are present, the closing root's `turnBefore` must match the attack event's `turnAfter`. If legacy telemetry omits one of those turn values, the helper returns an unknown match rather than fabricating chronology. A known mismatch prevents settlement.
+
+The projection now exposes:
+- `activePrintingBefore`;
+- `activePrintedAttackNamesBefore`;
+- `attackNamePrintedOnPhysicalActiveBefore`;
+- `directAttackPrintedOnPhysicalActiveBefore`;
+- `declarationOccurredDuringResolvePrompt`;
+- `delegatedCopyTriggerProxy`;
+- `completionRootTurnBefore` and `completionRootTurnMatchesDeclarationTurn`.
+
+For a direct `AttackAction`, the helper can now verify that the declared attack name appears on the physical Active's printed attack list. For a `ResolvePromptAction`, it reports that trigger fact separately. The legacy `delegatedCopy` field remains for compatibility, but it is only a trigger proxy and does not prove Copycat identity. A copied-attack claim still requires the exact Copycat root, donor printing, selected donor attack, and matching prior-turn source evidence.
+
+The prompt-closing root's player slot is intentionally not required to match the attack actor: the opponent may legitimately resolve Prize or promotion prompts. The initiating-root lineage and observed turn continuity provide the relevant chain identity.
+
+Regression coverage now includes:
+- A prompt-resolved declaration whose attack name is absent from the physical Active's printed attacks.
+- A direct Eon Blade `AttackAction` whose name is present on the physical Latias ex SSP.
+- A direct attack whose name is absent from the physical Active's printed attacks.
+- Declaration/event turn mismatch.
+- Prompt-closing root turn mismatch.
+- Legacy missing turn data reported as unknown.
+
+These tests are included as step 16 in [manual native workflow 42372045012](https://github.com/FlareZ123/experiment-01/actions/runs/42372045012), which completed successfully after the pinned Twinleaf build. The test validates the evidence projection and lineage contract; it does not independently establish a Copycat card interaction or authenticate any missing Aichi opponent list.
