@@ -192,7 +192,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const choose=()=>require('../twinleaf/agent29-rank9-compressor-owner-bridge.cjs')
       .withRank9CompressorAfterPass(runWithHammer,
         options.rank9CompressorOwnerSeat,
-        {maxGlobalTurn:options.rank9CompressorMaxGlobalTurn??12});
+        {maxGlobalTurn:options.rank9CompressorMaxGlobalTurn??12,
+         targetDiscardEnergy:options.rank9CompressorEnergyTarget??3});
     if(options.rank9CompressorBombAfter!==true){
       const selected=choose();
       ownerRank9CompressorAudit=selected.audit;
