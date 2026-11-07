@@ -198,7 +198,8 @@ function rootPhysicalSnapshot(state,seat,intent){
       farewellPrizeCounts:state.players.map(p=>
         p.prizes.reduce((sum,slot)=>sum+slot.cards.length,0))
     }:{}),
-    ...(intent.kind==='play-seeker-get-lillie'?{
+    ...(['play-seeker-get-lillie','play-seeker-get-research']
+      .includes(intent.kind)?{
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
@@ -212,7 +213,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     }:{}),
     ...(['play-stranded-marnie','play-lowhand-lillie',
       'play-conservative-shuffle-supporter','play-carmine-first',
-      'play-seeker-recovered-lillie','play-held-guzma-mobility',
+      'play-seeker-recovered-lillie','play-seeker-recovered-research',
+      'play-held-guzma-mobility',
       'play-guzma-forced-nominal-ko',
       'play-team-flare-grunt-denial','play-plumeria-payment-menu',
       'play-eri-reveal'].includes(intent.kind)?{
@@ -366,6 +368,7 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-conservative-shuffle-supporter'||
      intent.kind==='play-carmine-first'||
      intent.kind==='play-seeker-recovered-lillie'||
+     intent.kind==='play-seeker-recovered-research'||
      intent.kind==='play-held-guzma-mobility'||
      intent.kind==='play-guzma-forced-nominal-ko'||
      intent.kind==='play-team-flare-grunt-denial'||
@@ -380,7 +383,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.supporterTurn>before.supporterTurn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
-  if(intent.kind==='play-seeker-get-lillie'){
+  if(intent.kind==='play-seeker-get-lillie'||
+     intent.kind==='play-seeker-get-research'){
     // Physical native Item departure, with the own-discard retrieval pending.
     return after.seekerSpent>before.seekerSpent&&
       after.handCount<before.handCount?
