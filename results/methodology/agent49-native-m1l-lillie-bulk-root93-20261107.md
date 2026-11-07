@@ -81,6 +81,42 @@ A source-independent decision system must evaluate the **attainable tactical
 payoff and competing use of held resources**, rather than count access or
 draws as success.
 
+## Conditional exact loss of immediate Secret Box access under Lillie
+
+The already archived root93 owner had **35 cards in deck** and ten in hand,
+including one Secret Box and two Lillie's Determination. If the owner legally
+plays one Lillie as the sole new Supporter action, its source card leaves
+the hand first and its nine *other* hand cards are shuffled into that
+35-card deck, making a **44-card** uniformly randomized paper deck.
+Exactly **eight** are then drawn at the owner's six remaining Prizes.
+
+Because the Secret Box is a *known held physical singleton* before this
+shuffle, it is certainly among the 44 and its chance of appearing in the
+new eight-card hand is exactly:
+
+\[
+P(\\text{Box redrawn}) =
+1 - \\frac{\\binom{43}{8}}{\\binom{44}{8}} =
+\\frac{8}{44}=\\frac{2}{11} \\approx 18.18182\\%.
+\]
+
+The probability of **losing immediate access to that originally held
+Box** is therefore `9/11 ≈ 81.81818%`, conditional on this one Lillie
+line, a correct uniform paper shuffle and no intervening search effects.
+The second physically held Lillie has the same individual redraw
+probability. Both would be redrawn together with probability
+`(8 × 7)/(44 × 43) = 14/473 ≈ 2.95983%`.
+
+This calculation does **not** infer Box's value, ongoing game win
+probability, future search/recovery, or that the Lillie action should
+be avoided in all states. It isolates the immediate option-displacement
+risk before the player can use a paid Box/Fog attack. In the exposed
+real Store replay, the alternative paid Box line removed the current
+powered Trubbish and took a Prize, while the separate Lillie line
+missed Energy; neither constitutes prospective policy proof.
+The fractions were independently checked using Python's exact
+`fractions.Fraction` arithmetic.
+
 ## Validation and boundaries
 
 After commit `f2ace8ced0b72ccdb937a8c5b1449f2c4d75bce8` and regression commit
