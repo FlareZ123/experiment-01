@@ -82,7 +82,7 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
   let prizeLeftBefore={};
   let prizeTakenBefore={};
   let candidatePlayers=null;
-  const manuallyTransferredPrizePlayerIds=new Set();
+  const processedPrizePlayerIds=new Set();
 
   const restoreStore=()=>{
     inCheckState=false;
@@ -135,18 +135,14 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
     }
 
     if(inCheckState&&effect instanceof DrawPrizesEffect){
-      if(!secondPrizeTransfer&&manuallyTransferredPrizePlayerIds.has(effect.player.id)){
-        audit.nativeDuplicatePrizeEffectSuppressed++;
-        return undefined;
-      }
-
       const result=originalReduce.call(store,state,effect);
       if(secondPrizeTransfer){
         audit.secondPrizeDestinationIsHand=
           !effect.preventDefault&&effect.destination===effect.player.hand;
-        manuallyTransferredPrizePlayerIds.add(effect.player.id);
+        processedPrizePlayerIds.add(effect.player.id);
         return result;
       }
+      processedPrizePlayerIds.add(effect.player.id);
 
       const firstPlayer=effect.player;
       const otherPlayer=state.players.find(p=>p.id!==firstPlayer.id);
@@ -185,26 +181,31 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
       audit.simultaneousLastPrizeCandidate=
         firstGroupExhausts&&otherGroupExhausts;
       audit.firstPrizeDestinationIsHand=true;
+      audit.secondPrizeDestinationIsHand=
+        otherGroup.destination===otherPlayer.hand;
       candidatePlayers={
         firstPlayer,otherPlayer,firstGroup,otherGroup,
         nativeTerminalPlayer:firstGroupExhausts?firstPlayer:otherPlayer
       };
       audit.nativeTerminalPlayerId=candidatePlayers.nativeTerminalPlayer.id;
 
-      const prizes=otherPlayer.prizes
-        .filter(prize=>prize.cards.length>0)
-        .slice(0,Math.min(otherGroup.count,prizeLeftBefore[otherPlayer.id]));
-      audit.secondPrizeTransferAttempted=true;
-      secondPrizeTransfer=true;
-      try{
-        TAKE_SPECIFIC_PRIZES(store,state,otherPlayer,prizes,{
-          destination:otherGroup.destination,
-          skipReduce:false
-        });
-      }finally{
-        secondPrizeTransfer=false;
+      const otherGroupAlreadyProcessed=
+        processedPrizePlayerIds.has(otherPlayer.id);
+      if(firstGroupExhausts&&!otherGroupAlreadyProcessed){
+        const prizes=otherPlayer.prizes
+          .filter(prize=>prize.cards.length>0)
+          .slice(0,Math.min(otherGroup.count,prizeLeftBefore[otherPlayer.id]));
+        audit.secondPrizeTransferAttempted=true;
+        secondPrizeTransfer=true;
+        try{
+          TAKE_SPECIFIC_PRIZES(store,state,otherPlayer,prizes,{
+            destination:otherGroup.destination,
+            skipReduce:false
+          });
+        }finally{
+          secondPrizeTransfer=false;
+        }
       }
-      manuallyTransferredPrizePlayerIds.add(otherPlayer.id);
       const expectedOtherTransfer=
         Math.min(otherGroup.count,prizeLeftBefore[otherPlayer.id]);
       audit.secondPrizeTransferCompleted=
