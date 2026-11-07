@@ -15,8 +15,9 @@ const {withNativePaperSupporterDiscipline}=require(
   '../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withSameTargetAttachEnergySelection}=require(
   '../twinleaf/same-target-attach-energy-hook.cjs');
+const {withGoFirstChoice}=require('../twinleaf/agent6-go-first-choice.cjs');
 
-const VERSION='agent2-first-native-quarantined-owner-view-original2seat-v1';
+const VERSION='agent2-first-native-quarantined-owner-view-original2seat-v2-go-first';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=290134,ACTION_LIMIT=220;
 const hash=x=>createHash('sha256').update(JSON.stringify(x))
@@ -44,31 +45,36 @@ function runOne(candidateSeat,cards){
   };
   try{
     const guarded=withNativeRawStateFallbackQuarantine(()=>
-      withNativePaperSupporterDiscipline(()=>
-        withCanonicalActorOnlyPolicy(()=>
+      withGoFirstChoice([false,false],()=>
+        withNativePaperSupporterDiscipline(()=>
+          withCanonicalActorOnlyPolicy(()=>
           withSameTargetAttachEnergySelection(()=>
             runMatch(request)).result,
         {root:work=>withActorOnlyRootPolicy(work,{
           publicContextSpecialEnergy:true,specialEnergyRoot:true,
           nativeOwnerTrainerFallback:true,
           ownerFallbackDiagnosticView:true
-        })},{ownerSingleSearch:true,genericFallbackAttribution:true})));
+        })},{ownerSingleSearch:true,genericFallbackAttribution:true}))));
     return {
       candidateSeat,sourceSeat,seed:SEED,enginePin:PIN,
       status:'no-quarantine-abort',
       returnedAudit:guarded.audit??null,
+      goFirstChoiceAudit:guarded.result?.audit??null,
       capturedFirstUnsupportedOwnerRoot:null,
       competitivelyQualified:false
     };
   }catch(error){
     const agg=error?.actorNativeTrainerFallbackAbortAudit??null;
     const first=agg?.firstUnsupportedOwnerRoot??null;
+    const goFirstChoiceAudit=error?.goFirstChoiceAudit??null;
     const guard=error?.nativeRawStateFallbackQuarantine??null;
     const native=error?.nativeAbortEvidence??error?.nativeAbortProvenance??null;
     const valid=error?.code===CODE&&
       agg?.attemptedUnsupportedPasses===1&&
       first?.ownerView?.decisionKind==='owner-root'&&
       typeof first.ownerVisibleSha256==='string'&&
+      goFirstChoiceAudit?.choices?.length===1&&
+      goFirstChoiceAudit.choices[0].chooseFirst===false&&
       guard?.rawStateFallbackCalls===1&&
       guard.originalNativeDecoderExecuted===false&&
       first.hiddenSourceIdentitiesIncluded===false;
@@ -79,6 +85,7 @@ function runOne(candidateSeat,cards){
       thrownCode:error?.code??null,errorName:error?.name??null,
       nativeErrorDigest:hash(String(error?.stack??error)),
       nativeErrorPrefix:String(error?.message??error).slice(0,250),
+      goFirstChoiceAudit,
       actorAbortCounters:agg?{
         attemptedUnsupportedPasses:agg.attemptedUnsupportedPasses,
         selectedNativeTrainerRoots:agg.selectedNativeTrainerRoots,
@@ -106,6 +113,7 @@ function run(){
   const rows=[0,1].map(seat=>runOne(seat,cards));
   return {
     version:VERSION,enginePin:PIN,seed:SEED,actionLimit:ACTION_LIMIT,
+    goFirstPolicy:[false,false],
     originalCandidateRank:13,originalSourceRank:3,
     candidateSha256:hash(cards.candidate),
     sourceSha256:hash(cards.source),
@@ -123,6 +131,7 @@ if(require.main===module){
     JSON.stringify(r.rows.map(x=>({
       candidateSeat:x.candidateSeat,status:x.status,
       thrownCode:x.thrownCode,
+      goFirstChoices:x.goFirstChoiceAudit?.choices??null,
       actorSeat:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.actorSeat??null,
       globalTurn:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.globalTurn??null,
       ownHand:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.ownHand??null,
