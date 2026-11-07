@@ -9,7 +9,7 @@ permissions:
 jobs:
   cold-crush-aba:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Checkout pinned Twinleaf submodule
@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Validate runner syntax
+        run: node --check simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs
       - name: Run preregistered rank3 Articuno A-B-A panel
         run: node simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs > agent32-rank3-articuno-cold-crush-aba.json
       - name: Upload raw A-B-A evidence
