@@ -39,11 +39,12 @@ function makeStore(options={}){
     publicBoard:options.publicBoard??[{active:'Candidate'},{active:'Source'}]
   }};
 }
-function observer(store,rootBinding){
+function observer(store,rootBinding,options={}){
   return createPostPrizeResponseActionSequenceObserver({
     registeredTrials:[{id:'trial1',candidateSlot:'A'}],
     rootBinding,
-    publicBoardSnapshot:state=>state.publicBoard
+    publicBoardSnapshot:state=>state.publicBoard,
+    ...options
   });
 }
 test('captures every post-dispatch candidate response root after an exact source Prize exit',()=>{
@@ -116,6 +117,73 @@ test('multiple source Prize exits in one turn stay attached to the same response
   assert.equal(sequence.firstResponseRootOrdinal,3);
 });
 
+test('candidate Prize-taking can be followed by the original source response',()=>{
+  const rootBinding={currentTrialId:'trial1'};
+  const obs=observer(null,rootBinding,{prizeTakingSlot:'candidate'});
+  const store=makeStore({turn:14});
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),0,0,14);
+
+  store.state.players[1].prizes.splice(0,2);
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
+  store.state.players[1].prizes.splice(0,1);
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),2,0,14);
+
+  const pending=obs.result().pendingPrizeExits[0];
+  assert.deepEqual(pending.prizeTakingRootOrdinals,[1,2]);
+  assert.equal(pending.prizesTaken,3);
+  assert.equal(pending.prizeTakingPlayerId,'candidate');
+  assert.equal(pending.responsePlayerId,'source');
+
+  store.state.players=[store.state.players[1],store.state.players[0]];
+  store.state.turn=15;
+  store.state.players[0].hand.cards=[card('Field Blower')];
+  store.state.players[0].discard.cards=[card('Field Blower')];
+  obs.onRootActionDispatched(store,new PlayCardAction(),3,0,15);
+
+  store.state.turn=16;
+  obs.onRootActionDispatched(store,new PassTurnAction(),4,0,15);
+
+  const result=obs.result();
+  assert.equal(result.sequences.length,1);
+  const [sequence]=result.sequences;
+  assert.equal(sequence.prizeTakingSlot,'candidate');
+  assert.equal(sequence.responseSlot,'source');
+  assert.equal(sequence.prizeTakingSeat,0);
+  assert.equal(sequence.responseSeat,1);
+  assert.equal(sequence.prizeTakingTurn,14);
+  assert.equal(sequence.responseTurn,15);
+  assert.equal(sequence.candidateTurn,14);
+  assert.equal(sequence.sourceTurn,15);
+  assert.deepEqual(sequence.prizeTakingRootOrdinals,[1,2]);
+  assert.deepEqual(sequence.candidatePrizeRootOrdinals,[1,2]);
+  assert.deepEqual(sequence.sourcePrizeRootOrdinals,[]);
+  assert.equal(sequence.firstResponseRootOrdinal,3);
+  assert.equal(sequence.firstCandidateResponseRootOrdinal,null);
+  assert.equal(sequence.completedByPass,true);
+  assert.equal(sequence.turnEndObserved,true);
+  assert.deepEqual(sequence.actions.map(action=>action.rootOrdinal),[3,4]);
+  assert.equal(sequence.actions[0].actorPlayerId,'source');
+  assert.equal(sequence.actions[0].responsePlayerId,'source');
+  assert.deepEqual(sequence.actions[0].ownerHandPrintingsAfterAction,['Field Blower']);
+  assert.equal(result.hiddenHandReadBeforeCandidateResponse,false);
+  assert.equal(result.policyInputModified,false);
+  assert.equal(result.paperLegalityCertified,false);
+});
+
+test('candidate Prize exit without source action remains pending',()=>{
+  const rootBinding={currentTrialId:'trial1'};
+  const obs=observer(null,rootBinding,{prizeTakingSlot:'candidate'});
+  const store=makeStore({turn:14});
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),0,0,14);
+  store.state.players[1].prizes.shift();
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
+  const result=obs.result();
+  assert.equal(result.sequences.length,0);
+  assert.equal(result.pendingPrizeExits.length,1);
+  assert.deepEqual(result.pendingPrizeExits[0].prizeTakingRootOrdinals,[1]);
+  assert.equal(result.pendingPrizeExits[0].responsePlayerId,'source');
+});
+
 test('action-capped response remains explicitly incomplete',()=>{
   const rootBinding={currentTrialId:'trial1'};
   const obs=observer(null,rootBinding);
@@ -180,6 +248,42 @@ test('joins post-action hand changes to the exact projected response root',()=>{
   assert.equal(action.playedCardInDiscard,true);
   assert.deepEqual(action.handCardsRemoved,['Fog Crystal']);
   assert.deepEqual(action.handCardsAdded,['Basic Psychic Energy']);
+});
+
+test('joins a source response to the exact candidate Prize-taking root',()=>{
+  const rootBinding={currentTrialId:'trial1'};
+  const obs=observer(null,rootBinding,{prizeTakingSlot:'candidate'});
+  const store=makeStore({turn:14});
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),0,0,14);
+  store.state.players[1].prizes.shift();
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
+  store.state.turn=15;
+  store.state.players[1].hand.cards=[card('Field Blower')];
+  store.state.players[1].discard.cards=[card('Field Blower')];
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,1,15);
+
+  const rawRows=[{
+    trial:{id:'trial1'},
+    rootActionLedger:[{actionOrdinal:2,action:'PlayCardAction',card:'Field Blower'}],
+    decisionTrace:[{actionOrdinal:2,decisionHandBefore:{
+      ownHandPrintings:['Field Blower','Darkness Energy']
+    }}]
+  }];
+  const projected=[{
+    registeredTrialId:'trial1',
+    responseOwnerSeat:1,
+    responseNativeTurn:15,
+    causalPrizeTakingRootOrdinal:1,
+    firstResponseRootOrdinal:2
+  }];
+  const joined=joinPostPrizeResponseActionSequences(rawRows,projected,obs.result());
+  assert.equal(joined.length,1);
+  const action=joined[0].postPrizeResponseActionSequence.firstProjectedResponseAction;
+  assert.equal(action.actionType,'PlayCardAction');
+  assert.equal(action.playedCard,'Field Blower');
+  assert.equal(action.playedCardInDiscard,true);
+  assert.deepEqual(action.handCardsRemoved,['Field Blower']);
+  assert.deepEqual(action.handCardsAdded,[]);
 });
 
 test('a snapshot from a different Prize root cannot satisfy the join',()=>{
