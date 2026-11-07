@@ -42,6 +42,9 @@ test('zero Supporter uses at global turn14 does not trigger quota veto',()=>{
 test('opening-turn used count still vetoes; global turn stamps remain separate',()=>{
   const first=preflightOwnerSearchPlan(view(1,1),null,plan);
   assert.equal(first.status,'blocked');
+  assert.deepEqual(first.reasons.map(x=>x.kind),[
+    'first-player-opening-supporter-rule','supporter-quota-spent'
+  ]);
   const energyPlan={id:'energy',actionKind:'energy',
     handPrintings:[],deckRequirements:[],freeBenchNeeded:0};
   const stillAvailable=preflightOwnerSearchPlan(view(14,1),null,energyPlan);
@@ -50,4 +53,31 @@ test('opening-turn used count still vetoes; global turn stamps remain separate',
     ownTurnResources:{...view(14,1).ownTurnResources,energyPlayedTurn:14}};
   assert.deepEqual(preflightOwnerSearchPlan(energySpent,null,energyPlan)
     .reasons.map(r=>r.kind),['energy-attachment-quota-spent']);
+});
+
+test('first player ordinary Lillie is blocked; printed Carmine exception admitted',()=>{
+  const opening=view(1,0);
+  const ordinary=preflightOwnerSearchPlan(opening,null,plan);
+  assert.deepEqual(ordinary.reasons.map(x=>x.kind),[
+    'first-player-opening-supporter-rule'
+  ]);
+  const carmineRoot={...opening,ownHand:['Carmine TWM']};
+  const carmine={
+    id:'carmine',actionKind:'supporter',
+    handPrintings:['Carmine TWM'],
+    deckRequirements:[],firstTurnSupporterException:true
+  };
+  const admitted=preflightOwnerSearchPlan(carmineRoot,null,carmine);
+  assert.equal(admitted.status,'not-disproven');
+  assert.equal(admitted.nativeLegalityCertified,false);
+  assert.deepEqual(admitted.reasons,[]);
+  // The printed exception does not override the one-Supporter quota.
+  const consumed={...carmineRoot,
+    ownTurnResources:{...carmineRoot.ownTurnResources,
+      supporterPlayedTurn:1}};
+  assert.deepEqual(preflightOwnerSearchPlan(consumed,null,carmine)
+    .reasons.map(x=>x.kind),['supporter-quota-spent']);
+  assert.throws(()=>preflightOwnerSearchPlan(carmineRoot,null,{
+    ...carmine,firstTurnSupporterException:'true'
+  }),/boolean|false/);
 });
