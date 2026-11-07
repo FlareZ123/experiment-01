@@ -11,9 +11,10 @@ const TARGET='Regidrago V SIT';
  * explicit owner-disposable hand and deck containing a search target.
  * No owner deck contents enter the pre-Item root decision.
  * @param {0|1} seat
+ * @param {{afterSearch?:(context:object)=>object}} [options]
  * @returns {object}
  */
-function runSeat(seat){
+function runSeat(seat,options={}){
   const x=stage(seat),manager=initializeCards();
   let counter=123000;
   const nativeCard=name=>{
@@ -94,7 +95,12 @@ function runSeat(seat){
       acceptedAndMoved:true
     };
   }
-  return {seat,printing:TREASURE,target:TARGET,pre,error,post,nativeEffect};
+  // Optional research-only continuation lets a separate probe complete the
+  // native animation/shuffle prompts without changing this fixture's default.
+  const continuation=typeof options.afterSearch==='function'?
+    options.afterSearch(x):null;
+  return {seat,printing:TREASURE,target:TARGET,pre,error,post,
+    nativeEffect,continuation};
 }
 function run(){return {
   schema:'agent49-native-original-mysterious-treasure-first-prompt-v1',
