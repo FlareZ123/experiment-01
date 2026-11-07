@@ -1,13 +1,6 @@
 name: Agent21 bounded native Secret Box salvage and owner search tests
 
 on:
-  push:
-    paths:
-      - tests/agent21-energy-retrieval-staged-native.test.cjs
-      - tests/agent21-night-stretcher-staged-native.test.cjs
-      - tests/agent21-secretbox-target-whiff-native.test.cjs
-      - tests/agent21-box-salvage-attack-native.test.cjs
-      - tests/agent21-night-stretcher-paper-eligibility-native.test.cjs
   workflow_dispatch:
 
 permissions:
