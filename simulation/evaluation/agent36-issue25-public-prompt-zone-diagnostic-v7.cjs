@@ -13,7 +13,7 @@ const REGISTRATION_PATH = path.resolve(
   __dirname,
   '../../results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json'
 );
-const EXPECTED_REGISTRATION_SHA = 'REGISTRATION_SHA_TO_FILL';
+const EXPECTED_REGISTRATION_SHA = '24d2a8a11044e9c0325e56313af677b67fcc7501';
 const ARTIFACT_DIR = path.resolve(
   process.cwd(),
   'artifacts/agent36-issue25-public-prompt-zone-diagnostic-v7'
@@ -260,7 +260,7 @@ function main() {
         ...promptEvent,
         sourceCardPublic: true,
         sourcePrinting: origin.sourcePrinting,
-        sourceAttribution: 'agent10-reducer-scoped-marker',
+        sourceAttribution: 'agent30-reducer-scoped-marker-v2',
         sourceEffect: origin.sourceAbility,
         sourceMarker: {
           pendingNativePromptId: origin.pendingNativePromptId,
@@ -311,7 +311,8 @@ function main() {
     markerAudit,
     promptZoneAudit,
     sourceProof,
-    blockedPromptOrigin: origin,
+    sourceOrigin: origin,
+    blockedPromptOrigins: blockedOrigins,
     promptIdJoin: {
       sourceMarkerProof,
       markerOriginCount: promptEvents.filter(event => event.sourceOrigin === sourceProof).length,
