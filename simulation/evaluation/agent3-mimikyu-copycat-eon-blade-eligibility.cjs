@@ -63,10 +63,11 @@ function auditOneCopycat({
   const unknownStadiums=stadiumNames.filter(name=>!knownStadiums.has(name));
   const conflictingStadiums=stadiumNames.length>1;
   const dimensionValleyVisible=stadiumNames.includes('Dimension Valley');
-  const benchNames=(actorBoard?.bench??[]).map(pokemon=>pokemon.printing);
+  const boardPokemonNames=[actorBoard?.active?.printing,
+    ...(actorBoard?.bench??[]).map(pokemon=>pokemon.printing)];
   const newMoonPairVisible=
-    benchNames.some(name=>name==='Lunatone OBF')&&
-    benchNames.some(name=>name==='Solrock CES');
+    boardPokemonNames.some(name=>name==='Lunatone OBF')&&
+    boardPokemonNames.some(name=>name==='Solrock CES');
   const physicalCopycatMenu=actor?.printedAttacks?.find(
     printed=>printed.name==='Copycat')??null;
   const copycatCost=Array.isArray(copycat?.cost)?[...copycat.cost]:null;
