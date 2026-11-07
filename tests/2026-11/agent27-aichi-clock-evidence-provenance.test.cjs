@@ -8,6 +8,7 @@ const {auditTimeCallPacket,auditExtensionLedger} = require('../../simulation/eva
 function makeTimeCallPacket(prizes) {
   return {stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
     officialEndCallObserved:true,officialClockEvidenceRef:'official-clock-record',
+    stageEvidenceRef:'official-round-pairing',
     firstPlayerEvidenceRef:'original-starter-record',
     turnOwnerWhenCalledEvidenceRef:'call-turn-owner-record',
     turnSequenceEvidenceRef:'ordered-turn-sequence',
@@ -61,7 +62,7 @@ test('Audit refuses missing final-turn sequence provenance despite complete turn
 test('Audit rejects whitespace-only evidence references',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
     turnOwnerWhenCalled:0,officialEndCallObserved:true,
-    officialClockEvidenceRef:'   ',firstPlayerEvidenceRef:' ',
+    officialClockEvidenceRef:'   ',stageEvidenceRef:' ',firstPlayerEvidenceRef:' ',
     turnOwnerWhenCalledEvidenceRef:'  ',turnSequenceEvidenceRef:'   ',
     independentPaperStateEvidenceRef:' ',
     paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
@@ -69,10 +70,12 @@ test('Audit rejects whitespace-only evidence references',()=>{
     observedExtraSecondTurns:1,trailingPokemonCheckupWasExcluded:true});
   assert.equal(r.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
   assert.ok(r.missing.includes('official-clock-source-not-cited'));
+  assert.ok(r.missing.includes('official-stage-source-not-cited'));
   assert.ok(r.missing.includes('original-first-player-source-missing'));
   assert.ok(r.missing.includes('end-call-turn-owner-source-missing'));
   assert.ok(r.missing.includes('final-turn-sequence-source-missing'));
   assert.ok(r.missing.includes('independent-paper-state-source-missing'));
+  assert.ok(r.missing.includes('official-stage-source-not-cited'));
 });
 
 
@@ -192,4 +195,14 @@ test('Extension ledger is not required outside an eligible knockout extension',(
     extensionLedgerEvidenceRef:'ledger',extensionLedgerIndependentlyReviewed:true,
     transitions:[extensionTransition(1,[2,2],[2,1])]});
   assert.equal(insufficient.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+});
+
+
+test('Audit requires a source for the actual tournament stage',()=>{
+  const packet=makeTimeCallPacket([2,3]);
+  delete packet.stageEvidenceRef;
+  const result=auditTimeCallPacket(packet);
+  assert.equal(result.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  assert.ok(result.missing.includes('official-stage-source-not-cited'));
+  assert.equal(result.conditionalWinnerSeat,null);
 });
