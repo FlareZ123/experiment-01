@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 39 source-direct pure tests.** The current 39-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42399098688](https://github.com/FlareZ123/experiment-01/actions/runs/42399098688). The eight-case cross-implementation suite also passes in that run. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 39 source-direct pure tests.** The 39 cases are split into a 36-case core suite and three namespaced evidence-provenance regressions. Both plus the eight-case cross-implementation suite pass the compiled Node 22 CI run [42399606928](https://github.com/FlareZ123/experiment-01/actions/runs/42399606928). This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -114,6 +114,11 @@ The existing manual-only `aichi-benchmark-stats.yml` workflow now explicitly run
 
 ### Whitespace-only evidence-reference rejection, 7 November
 
-The evidence-reference predicate now trims strings before checking nonemptiness. A whitespace-only value cannot satisfy the official clock, original starter, call-time turn owner, final-turn sequence, or independent paper-state reference requirement. A new negative regression supplies whitespace-only values for all five references and verifies that the packet returns every corresponding missing-evidence reason. The current suite contains **39 tests**.
+The evidence-reference predicate now trims strings before checking nonemptiness. A whitespace-only value cannot satisfy the official clock, original starter, call-time turn owner, final-turn sequence, or independent paper-state reference requirement. A new negative regression supplies whitespace-only values for all five references and verifies that the packet returns every corresponding missing-evidence reason. The current suite contains **36 core tests plus three namespaced provenance tests** in `tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs`.
 
-The existing manual [Aichi benchmark workflow run 42399098688](https://github.com/FlareZ123/experiment-01/actions/runs/42399098688) passed on Node 22. Its test-benchmark and rank11-source-census jobs both succeeded; the explicit 39-case Agent27 suite and eight-case cross-implementation suite ran together. This is still pure validation only. No physical clock or judge record was authenticated, and no competitive match was qualified.
+The existing manual [Aichi benchmark workflow run 42399606928](https://github.com/FlareZ123/experiment-01/actions/runs/42399606928) passed on Node 22. Its test-benchmark and rank11-source-census jobs both succeeded; the 36-case core suite, three namespaced provenance tests, and eight-case cross-implementation suite ran together. This is still pure validation only. No physical clock or judge record was authenticated, and no competitive match was qualified.
+
+
+### Namespaced regression placement, 7 November
+
+Following the repository-wide flat-directory routing correction, the three newly added evidence-provenance regressions were moved out of the legacy flat tests root into `tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs`. The existing root suite retains its 36 core cases and the fixture updates required by the strengthened evidence contract. The manual workflow explicitly runs the core suite, namespaced provenance suite, and existing eight-case convergence suite. [Run 42399606928](https://github.com/FlareZ123/experiment-01/actions/runs/42399606928) passed all of them on Node 22. No new workflow was created.
