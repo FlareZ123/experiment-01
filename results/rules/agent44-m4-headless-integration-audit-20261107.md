@@ -71,7 +71,7 @@ The wrapper passes the active seat's `policyRandomBySeat` callback to the hook. 
 
 Native adapter coverage is in `tests/agent44-m4-owner-root-preselection.native.test.cjs`: both physical seats dispatch M4 in a separate staged clone, assert the expected policy-RNG permutation and unchanged real root, then dispatch the actual root Store action and assert that only the physical RNG is consumed. `tests/agent44-specialredcard-headless-run-option.test.cjs` checks required flags and a bilateral no-M4 inertness control. The native test was added to step 39 of `.github/workflows/twinleaf-smoke.yml`.
 
-The first smoke run [42362189659](https://github.com/FlareZ123/experiment-01/actions/runs/42362189659) was in progress when this report was updated. It was dispatched on commit `21fb1608892dc8ef3f63777bb5a3819e0995a7ce`, before the final validation requirement for per-seat physical shuffle isolation. A second run against the latest main head is required before calling the final protocol CI-validated.
+The M4-specific smoke step 39 completed **success** in run [42362189659](https://github.com/FlareZ123/experiment-01/actions/runs/42362189659), including the clone/physical RNG split test and no-M4 bilateral inertness control. The overall workflow was still progressing through later steps when this report was updated. This run was dispatched on commit `21fb1608892dc8ef3f63777bb5a3819e0995a7ce`, before the final validation requirement for per-seat physical shuffle isolation. A second run against the latest main head is required before calling the final protocol CI-validated.
 
 ## Additional open question: speculative bot evaluation
 
