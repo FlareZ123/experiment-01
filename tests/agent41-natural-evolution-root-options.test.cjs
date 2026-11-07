@@ -11,33 +11,33 @@ test('disabled natural-evolution root emits no actor option',()=>{
 
 test('null owner seat preserves bilateral natural-evolution behavior',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,null),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null
   });
 });
 
 test('physical source seat zero is forwarded exactly',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,0),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0
   });
 });
 
 test('physical source seat one is forwarded exactly',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,1),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1
   });
 });
 
 test('Garbodor Tool root shares the natural-evolution owner-seat scope',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0,
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
     garbotoxinToolRoot:true
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,1,true),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1,
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1,
     garbotoxinToolRoot:true
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,null,true),{
-    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null,
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null,
     garbotoxinToolRoot:true
   });
 });
