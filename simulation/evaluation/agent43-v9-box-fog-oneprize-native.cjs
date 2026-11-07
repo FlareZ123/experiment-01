@@ -97,6 +97,66 @@ function main(){
   // bilateral policy, after the reversible historical intervention restores.
   const baseline=runStewardBilateralProbeV9();
   writeJsonAtomic(BASELINE,baseline);
+
+  const preAuditNativeAudit=result.nativeAdapterAudit.agent43OneEnergyBoxKo;
+  const preAuditRoots=result.nativeAttempt.rootActionLedger??[];
+  const compactRoot=row=>({
+    ordinal:row.actionOrdinal,seat:row.playerSlot,turn:row.turnBefore,
+    action:row.action,card:row.card??null,prompt:row.pendingPrompt??null
+  });
+  const preAuditDiagnostic={
+    version:'agent49-v5-preaudit-diagnostic-v1',
+    trial:result.nativeAttempt.id,
+    sourceDealFingerprint:result.nativeAttempt.sourceDealFingerprint,
+    fullPhysicalDealFingerprint:result.nativeAttempt.fullPhysicalDealFingerprint,
+    seed:result.nativeAttempt.seed,
+    rootActionCount:result.nativeAttempt.rootActionCount,
+    treatmentLedgerSha256:result.nativeAttempt.publicRootLedgerSha256Computed,
+    baselineLedgerSha256:baseline.nativeAttempt.publicRootLedgerSha256Computed,
+    actionWindow93to125:preAuditRoots.filter(x=>
+      x.actionOrdinal>=93&&x.actionOrdinal<=125).map(compactRoot),
+    sourceTurns15and17:[15,17].map(turn=>({
+      turn,actions:preAuditRoots.filter(x=>
+        x.playerSlot===0&&x.turnBefore===turn).map(compactRoot)
+    })),
+    candidateTurns15to17:preAuditRoots.filter(x=>
+      x.playerSlot===1&&x.turnBefore>=15&&x.turnBefore<=17).map(compactRoot),
+    nativeAudit:{
+      version:preAuditNativeAudit.version,
+      liveRuns:preAuditNativeAudit.liveRuns,
+      candidatePlans:preAuditNativeAudit.candidatePlans,
+      acceptedActions:preAuditNativeAudit.acceptedActions,
+      rejectedActions:preAuditNativeAudit.rejectedActions,
+      paperPaymentsAccepted:preAuditNativeAudit.paperPaymentsAccepted,
+      physicalBoxSearches:preAuditNativeAudit.physicalBoxSearches,
+      physicalFogSearches:preAuditNativeAudit.physicalFogSearches,
+      physicallyAttachedBasic:preAuditNativeAudit.physicallyAttachedBasic,
+      submittedAttacks:preAuditNativeAudit.submittedAttacks,
+      actions:preAuditNativeAudit.actions,
+      promptObservations:preAuditNativeAudit.promptObservations
+    },
+    candidateAttacks:(result.candidateAttackSettlement?.attacks??[])
+      .filter(x=>[104,114].includes(x.actionOrdinal)).map(x=>({
+        actionOrdinal:x.actionOrdinal,attackName:x.attackName,
+        settledPromptChain:x.settledPromptChain,
+        completionRootOrdinal:x.completionRootOrdinal,
+        prizesBefore:x.prizesBefore,prizesAfter:x.prizesAfter,
+        publicBoardBefore:x.publicBoardBefore,
+        publicBoardAfter:x.publicBoardAfter
+      })),
+    sourceAttacks:(result.sourceAttackSettlement?.attacks??[]).map(x=>({
+      actionOrdinal:x.actionOrdinal,attackName:x.attackName,
+      prizesBefore:x.prizesBefore,prizesAfter:x.prizesAfter
+    })),
+    status:result.nativeAttempt.status,
+    finished:result.nativeAttempt.finished,
+    winner:result.nativeAttempt.winner,
+    endReason:result.nativeAttempt.endReason,
+    finalPrizes:result.nativeAttempt.finalPrizes
+  };
+  writeJsonAtomic(DIAGNOSTIC,preAuditDiagnostic);
+  process.stdout.write('AGENT49_V5_PREAUDIT '+JSON.stringify(preAuditDiagnostic)+'\\n');
+
   const proof=auditNativeOnePrizeBoxKo(baseline,result);
   writeJsonAtomic(PROOF,proof);
   const a=result.nativeAdapterAudit.agent43OneEnergyBoxKo;

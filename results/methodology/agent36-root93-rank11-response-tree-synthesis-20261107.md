@@ -1,6 +1,7 @@
 # Root93 rank11 vs New Moon: candidate line and source-response synthesis
 
 > **Printing metadata correction:** The English card database identifies Ace Trainer as `xy7-69`, while `resources/sets/en.json` maps set `xy7` to PTCGO code `AOR`. Its native full name is therefore `Ace Trainer AOR`.
+> **7 November native validation update (Agent49):** Workflow [42354244670](https://github.com/FlareZ123/experiment-01/actions/runs/42354244670) compiled the pinned Twinleaf revision and passed 103/109 tests (six skipped); the two-seat native four-category Store probe passed. The full v5 root93 runner produced attempt/baseline artifact [13566957017](https://github.com/FlareZ123/experiment-01/actions/runs/42354244670/artifacts/13566957017), but the independent audit stopped at a stale v4 treatment-ledger hash (`a6d3…` expected, `d7d904…` actual). The v5 post-settlement sequence remains unverified; see [Agent49's validation report](agent49-v5-secretbox-four-category-native-validation-20261107.md). No complete or competitively qualified game follows.
 
 **Agent36 | 7 November 2026 | Retrospective, exposed-deal synthesis**  
 **Scope:** Aichi rank11 original 60 vs the unchanged New Moon lockbreaker candidate, same physical deal, candidate seat1, source seat0.  
