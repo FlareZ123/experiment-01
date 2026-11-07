@@ -83,15 +83,14 @@ function probeColdCrushWithPolicy(seat) {
   store.state = state;
   const originalDispatch = Store.prototype.dispatch;
   const originalDecode = SimpleTacticsAi.prototype.decodeNextAction;
-  const ai = new SimpleTacticsAi({id: actor.id}, {
-    tactics: definitions.allSimpleTactics,
-    promptResolvers: definitions.allPromptResolvers,
-    scores: definitions.defaultStateScores,
-    arbiter: definitions.defaultArbiterOptions
-  }, null);
-
   const outer = withOwnerAbilityConfirmPolicy(() =>
     withArticunoColdCrushPolicy(() => {
+      const ai = new SimpleTacticsAi({id: actor.id}, {
+        tactics: definitions.allSimpleTactics,
+        promptResolvers: definitions.allPromptResolvers,
+        scores: definitions.defaultStateScores,
+        arbiter: definitions.defaultArbiterOptions
+      }, null);
       store.dispatch(new PlayCardAction(actor.id, 0, {
         player: PlayerType.BOTTOM_PLAYER,
         slot: SlotType.BENCH,
