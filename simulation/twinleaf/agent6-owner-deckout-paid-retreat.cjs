@@ -107,6 +107,22 @@ function deckOutPaidRetreatOpportunity(view,catalog,attachedEnergyCount){
      [own.active,...(own.bench??[])].some(p=>
        p?.abilities?.includes('Skyliner')))
     return null;
+  // The original active attack catalogue is a public, printed-paper
+  // opportunity cost. Unknown move metadata must not be interpreted as an
+  // absence of payable attacks.
+  if(!Array.isArray(active.attacks)||active.attacks.length===0||
+     active.attacks.some(attack=>!attack||
+       typeof attack.name!=='string'||
+       !Array.isArray(attack.cost)||
+       !Number.isSafeInteger(attack.damage)||
+       typeof attack.text!=='string'))return null;
+  // Snorlax BW8/PGO Block is an Active-only, opponent-side retreat veto.
+  // Conservatively decline the paid route even if a later effect might
+  // suppress the Ability. The native Store still decides actual legality.
+  if(opponent.active?.abilities?.includes('Block')||
+     (opponent.active?.abilityDetails??[]).some(power=>
+       /opponent.s Active Pok.mon can.t retreat/i.test(power?.text??'')))
+    return null;
   if(attachedEnergyCount===1&&
      !catalog.basicEnergies.has(active.energies[0]))return null;
   if((active.attacks??[]).some(attack=>
