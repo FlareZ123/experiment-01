@@ -371,7 +371,9 @@
       "type": "Trainer",
       "english_proxy_card_id": "sv1-171",
       "english_database_name": "Energy Retrieval",
-      "mechanics": "Put up to two Basic Energy cards from own discard into hand (Item); owner-only and native prompt unverified"
+      "mechanics": "Put up to two Basic Energy cards from own discard into hand (Item); owner-only and native prompt unverified",
+      "twinleaf_full_name": "Energy Retrieval SVI",
+      "twinleaf_provenance": "Pinned a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, ptcg-server/src/sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-retrieval.ts; static source inspected only"
     }
   ],
   "related_evidence": "results/methodology/agent21-secretbox-energy-retrieval-vs-fog-20261107.md"
