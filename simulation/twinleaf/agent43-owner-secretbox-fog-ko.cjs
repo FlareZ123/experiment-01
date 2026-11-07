@@ -332,6 +332,13 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         ownDeckBefore:beforeDeck.length,ownDeckAfter:after.deck.cards.length,
         ownerPrizeBefore:beforePrizes,
         ownerPrizeAfter:after.prizes.reduce((n,p)=>n+p.cards.length,0),
+        paidPhysicalPrintings:proof.kind==='box-payment'?
+          proof.physicalSelected.map(x=>x.fullName):null,
+        selectedSearchPrinting:proof.kind==='box-search'||
+          proof.kind==='fog-search'?
+            proof.physicalSelected[0].fullName:null,
+        attachedBasicPrinting:proof.kind==='attach-basic'?
+          proof.originalCard.fullName:null,
         sourceRemainingBefore:proof.opponentRemainingHp??null,
         attackTargetBefore:proof.beforeOpponent??null});
       return result;
