@@ -142,13 +142,13 @@ function buildActorCardCatalog(all,types){
 function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
-  const garbodorResponseOwnerSeat=options.garbodorResponseOwnerSeat??null;
-  assert.ok(garbodorResponseOwnerSeat===null||
-    garbodorResponseOwnerSeat===0||garbodorResponseOwnerSeat===1,
-  'garbodorResponseOwnerSeat must be null, 0, or 1');
-  assert.ok(garbodorResponseOwnerSeat===null||
+  const naturalEvolutionRootOwnerSeat=options.naturalEvolutionRootOwnerSeat??null;
+  assert.ok(naturalEvolutionRootOwnerSeat===null||
+    naturalEvolutionRootOwnerSeat===0||naturalEvolutionRootOwnerSeat===1,
+  'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
+  assert.ok(naturalEvolutionRootOwnerSeat===null||
     options.naturalEvolutionRoot===true||options.garbotoxinToolRoot===true,
-  'garbodorResponseOwnerSeat requires a Garbodor response root');
+  'naturalEvolutionRootOwnerSeat requires a Garbodor response root');
   // Development-only, source-independent response to an already publicly
   // announced paid GX attack. Only the actor's own held Ranger can be offered;
   // default policy decisions and the canonical observation are unchanged.
@@ -197,17 +197,17 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(path)return path;
   }
   if(options.naturalEvolutionRoot===true&&
-     (garbodorResponseOwnerSeat===null||
-      view.actorSeat===garbodorResponseOwnerSeat)){
+     (naturalEvolutionRootOwnerSeat===null||
+      view.actorSeat===naturalEvolutionRootOwnerSeat)){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
   if(options.garbotoxinToolRoot===true&&
-     (garbodorResponseOwnerSeat===null||
-      view.actorSeat===garbodorResponseOwnerSeat)){
+     (naturalEvolutionRootOwnerSeat===null||
+      view.actorSeat===naturalEvolutionRootOwnerSeat)){
     const tool=require('./agent36-garbotoxin-tool-intent.cjs')
-      .chooseGarbodorFloatStoneIntent(view,catalog);
+      .chooseGarbodorToolIntent(view,catalog);
     if(tool)return tool;
   }
   // Optional owner-public Ditto Prism permission after the native board check.
@@ -862,9 +862,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
-    garbodorResponseOwnerSeat:deps.garbodorResponseOwnerSeat??null,
+    naturalEvolutionRootOwnerSeat:deps.naturalEvolutionRootOwnerSeat??null,
     garbotoxinToolRootOptIn:deps.garbotoxinToolRoot===true,
     garbotoxinToolRootSelected:0,
+    garbotoxinFloatStoneRootSelected:0,
+    garbotoxinFssFallbackRootSelected:0,
     rank17ElectrodeBombCensusOptIn:deps.rank17ElectrodeBombCensus===true,
     dittoStage1RootOptIn:deps.dittoStage1Root===true,
     farewellLetterRootOptIn:deps.farewellLetterRoot===true,
@@ -1498,7 +1500,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
-      garbodorResponseOwnerSeat:audit.garbodorResponseOwnerSeat,
+      naturalEvolutionRootOwnerSeat:audit.naturalEvolutionRootOwnerSeat,
       garbotoxinToolRoot:audit.garbotoxinToolRootOptIn,
       dittoStage1Root:audit.dittoStage1RootOptIn,
       dittoStage1Receipt:audit.dittoStage1RootOptIn?
@@ -1609,8 +1611,12 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
-    if(intent.source==='agent36-garbotoxin-float-stone-v1')
+    if(intent.source?.startsWith('agent36-garbotoxin-'))
       audit.garbotoxinToolRootSelected++;
+    if(intent.source==='agent36-garbotoxin-float-stone-v1')
+      audit.garbotoxinFloatStoneRootSelected++;
+    if(intent.source==='agent36-garbotoxin-fss-fallback-v1')
+      audit.garbotoxinFssFallbackRootSelected++;
     if(audit.genericFundedFloatStoneAuditOptIn&&
         genericFundedObservation!==null&&
         intent.kind===genericFundedObservation.kind&&
