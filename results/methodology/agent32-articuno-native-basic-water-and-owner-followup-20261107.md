@@ -40,6 +40,10 @@ Printed Articuno-GX Legendary Ascent refers to moving [W] Energy from other Pok√
 
 The [public Aichi rank3 original inventory](https://www.limitlesstcg.com/tournaments/566/decklists) contains **two Basic Water Energy and three Capture Energy**. The current owner-only acceptance heuristic assumes that moving Basic Water alone can immediately satisfy Articuno's Ice Wing. Thus its prepared test with three Basic Water does **not** demonstrate that this immediate line is available in the unmodified rank3 original list. A two-Water-plus-next-manual-attachment plan would require a separate attachment-quota/hand/Supporter analysis, and the controller must also consider other attacks, bench pressure, two-Prize exposure and opponent counterplay. None of that is claimed implemented.
 
+## Authenticated-field scope of the Special Water concern
+
+A cross-check of the 29 authenticated original lists in `results/aichi-2026/full-decklists.json` (blob SHA `ae773f6201d7aa69d31914dbfee66f3fba692200`) finds Articuno-GX only in rank3. That list's Energy package is exactly **2 Basic Water Energy + 3 Capture Energy**. No Special Energy providing Water is registered in that rank3 list. Other authenticated lists contain multi-type Special Energy such as Prism Energy or Double Dragon Energy, but those lists do not contain Articuno-GX; Double Dragon Energy's Water provision is also restricted to Dragon Pok√©mon. Thus the exact-name Basic Water filter is not an observed mismatch for the authenticated rank3 source inventory. The broader paper-fidelity caveat remains relevant to other future Articuno decks and generic Expanded handling, while the current field-specific open issue is the tactical decision and one-Water prompt variant.
+
 ## Research decision
 
 This work repairs a measurable native-state representation bug and tests the physical prompt capability. It does **not** validate opponent policy competence, introduce a field-complete response, qualify a game, or justify changing the fixed-60 nominee. **29/32 original opponent list inventories; zero competitively qualified complete games; 99.5% remains aspirational.**
