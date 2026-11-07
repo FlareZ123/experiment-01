@@ -35,8 +35,14 @@ test('rank9 original Aichi deck exposes native natural and intervention VIP root
     assert.equal(audit.rootOrdinalInitialized,true);
     assert.equal(audit.dispatchRootCount,result.actions);
     assert.equal(result.rootActionLedger.length,result.actions);
-    const naturalVipRoots=result.rootActionLedger.filter(root=>
+    const allVipRoots=result.rootActionLedger.filter(root=>
       root.action==='PlayCardAction'&&root.card==='Battle VIP Pass');
+    const interventionItemOrdinals=new Set(audit.examples.filter(event=>
+      event.kind==='vip-item'&&event.accepted===true&&
+      Number.isSafeInteger(event.itemRootOrdinal))
+      .map(event=>event.itemRootOrdinal));
+    const naturalVipRoots=allVipRoots.filter(root=>
+      !interventionItemOrdinals.has(root.actionOrdinal));
     const interventionEvents=audit.examples.map(event=>({
       ...event,
       itemRoot:event.itemRootOrdinal===undefined?null:
@@ -50,10 +56,20 @@ test('rank9 original Aichi deck exposes native natural and intervention VIP root
       rootLedgerRows:result.rootActionLedger.length,
       acceptedItems:audit.acceptedItems,acceptedSearches:audit.acceptedSearches,
       rejectedItems:audit.rejectedItems,rejectedSearches:audit.rejectedSearches,
-      naturalVipRoots:naturalVipRoots.map(root=>({
+      allVipRoots:allVipRoots.map(root=>({
         actionOrdinal:root.actionOrdinal,playerSlot:root.playerSlot,
         turnBefore:root.turnBefore,card:root.card
       })),
+      naturalVipRoots:naturalVipRoots.map(root=>{
+        const prompt=result.rootActionLedger.find(candidate=>
+          candidate.action==='ResolvePromptAction'&&
+          candidate.initiatingRootActionOrdinal===root.actionOrdinal);
+        return {
+          actionOrdinal:root.actionOrdinal,playerSlot:root.playerSlot,
+          turnBefore:root.turnBefore,card:root.card,
+          promptActionOrdinal:prompt?.actionOrdinal??null
+        };
+      }),
       interventionEvents,
       competitiveGameQualified:false
     });
