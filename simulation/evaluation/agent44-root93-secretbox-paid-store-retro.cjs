@@ -306,8 +306,13 @@ function run(options={}){
               const kind=p.constructor.name;
               let answer;
               if(kind==='WaitPrompt')answer=null;
-              else if(kind==='ChoosePrizePrompt'&&p.playerId===owner.id)
-                answer=[0]; // physical face-down Prize position only
+              else if(kind==='ChoosePrizePrompt'&&p.playerId===owner.id){
+                const firstFaceDownPrize=owner.prizes.find(x=>x.cards.length>0);
+                assert.ok(firstFaceDownPrize,
+                  'Take an actual physical face-down owner Prize slot');
+                assert.equal(p.validate([firstFaceDownPrize],this.state),true);
+                answer=[firstFaceDownPrize]; // Store accepts CardList objects
+              }
               else if(kind==='ShowCardsPrompt')answer=true;
               else if(kind==='ChoosePokemonPrompt'&&
                   p.playerId===opponent.id&&promoteOpponentIndex!==null){
@@ -315,8 +320,7 @@ function run(options={}){
                 assert.ok(target?.getPokemonCard(),
                   'Scripted response must name an occupied original Bench');
                 assert.equal(p.validate([target],this.state),true);
-                answer=[{player:PlayerType.BOTTOM_PLAYER,
-                  slot:SlotType.BENCH,index:promoteOpponentIndex}];
+                answer=[target]; // pinned Store passes physical CardList directly
                 follow.opponentPromotionScript={
                   physicalSeat:state.players.indexOf(opponent),
                   benchIndex:promoteOpponentIndex,
