@@ -70,7 +70,7 @@ function run(){
   assert.equal(singleLastPrize.scopedHookAudit.winnerLogRewritten,false);
   assert.equal(singleLastPrize.scopedHookAudit.terminalSuppressed,1);
   assert.equal(singleLastPrize.finalState.ownerPrizesRemaining,0);
-  assert.equal(singleLastPrize.finalState.opponentPrizesRemaining,6);
+  assert.equal(singleLastPrize.finalState.sourcePrizesRemaining,6);
 
   return {
     schema:'agent37-simultaneous-last-prize-tie-native-v1',
