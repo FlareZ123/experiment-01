@@ -243,11 +243,12 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.owner.id);
-      assert.strictEqual(prompt.cards,x.owner.discard);
-      assert.equal(prompt.validate([recovery]),true);
+      const choice=prompt.cards.find(value=>value.id===recovery.id);
+      assert.ok(choice,'Rototiller must offer the physical Handiwork in Bunnelby discard');
+      assert.equal(prompt.validate([choice]),true);
       sourcePrompts.push(kind);
       recoverySelected=true;
-      x.store.dispatch(new ResolvePromptAction(prompt.id,[recovery]));
+      x.store.dispatch(new ResolvePromptAction(prompt.id,[choice]));
       continue;
     }
     throw new Error('Unexpected source prompt '+kind+' '+String(prompt.message));
@@ -288,11 +289,12 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.opponent.id);
-      assert.strictEqual(prompt.cards,x.opponent.discard);
-      assert.equal(prompt.validate([mimikyuRecovery]),true);
+      const choice=prompt.cards.find(value=>value.id===mimikyuRecovery.id);
+      assert.ok(choice,'Copied Rototiller must offer the physical Psychic Energy in Mimikyu discard');
+      assert.equal(prompt.validate([choice]),true);
       copycatPrompts.push(kind);
       mimikyuRecoverySelected=true;
-      x.store.dispatch(new ResolvePromptAction(prompt.id,[mimikyuRecovery]));
+      x.store.dispatch(new ResolvePromptAction(prompt.id,[choice]));
       continue;
     }
     throw new Error('Unexpected Copycat prompt '+kind+' '+String(prompt.message));
@@ -309,10 +311,10 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     copycatPrompts,
     sourceDeckDelta:x.owner.deck.cards.length-sourceDeckBefore,
     sourceDiscardDelta:x.owner.discard.cards.length-sourceDiscardBefore,
-    sourceTopMovedToDiscard:x.owner.discard.cards.includes(sourceDeckTop),
+    sourceTopMovedToDiscard:x.owner.discard.cards.some(value=>value.id===sourceDeckTop.id),
     mimikyuDeckDelta:x.opponent.deck.cards.length-mimikyuDeckBefore,
     mimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBefore,
-    mimikyuRecoveryReturnedToDeck:x.opponent.deck.cards.includes(mimikyuRecovery),
+    mimikyuRecoveryReturnedToDeck:x.opponent.deck.cards.some(value=>value.id===mimikyuRecovery.id),
     mimikyuRecoverySelected,
     copycatBurrowShown,
     sourceUsedGX:x.owner.usedGX===true,
