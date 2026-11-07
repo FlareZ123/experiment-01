@@ -48,7 +48,7 @@ I downloaded and inspected Agent36's phase-A diagnostic [run 42380667306](https:
 
 The v2 helper passes `vipAudit.rootActionCount` to `validRootLedger`, whose default `expectedCount=null` intentionally skips the length comparison. The v10b `nativeVipOutcome(row)` currently derives `rootActionCount` from `row.rootActionLedger.length` or `row.nativeAbortEvidence.rootActionLedger.length`. The sibling `rootLedger(row)` can additionally select `nativePublicRootArchive.rootActionLedger` or `nativeAbortProvenance.rootActionLedger`. An archive-only fallback can therefore leave the expected count null, and a count derived from the same ledger array cannot detect truncation of that array.
 
-For strict attribution, require a safe-integer expected count and exact equality. Populate it from an independently retained successful-dispatch counter, or fail closed when such a counter is unavailable.
+The phase-A v10b artifact also preserves independent count fields: ordinary rows carry `actionCount` and `rootActionCount`; the aborted row carries `nativeRootActionCount` and `nativeAbortEvidence.rootActionCount`. In the eight-row artifact these match the available ledger lengths, including the aborted 249-root prefix. The helper currently ignores these fields. Prefer the independently retained root/action count fields, cross-check them against the selected ledger length, and require a safe-integer expected count. If an archive/provenance fallback has no independent count, fail closed.
 
 ## Recommendations
 
