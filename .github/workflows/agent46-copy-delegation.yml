@@ -26,3 +26,15 @@ jobs:
         run: node simulation/twinleaf/agent46-regidrago-apex-overclock-payload-native.cjs
       - name: Native original Dragon source-handler and effect trace
         run: node simulation/twinleaf/agent46-apex-source-delegation-trace.cjs
+      - name: Mimikyu Copycat non-GX Apex paper gate with no nested choice
+        run: node simulation/twinleaf/agent46-mimikyu-apex-copycat-native.cjs
+      - name: Genuine prior Apex turn then original Mimikyu Copycat
+        run: node simulation/twinleaf/agent46-mimikyu-apex-consecutive-native.cjs
+      - name: Corrected nested Dragon choice under reversible Mimikyu source hook
+        run: node simulation/twinleaf/agent46-mimikyu-apex-timeless-native.cjs
+      - name: Corrected flattened Dragon choice in both physical source seats
+        run: node simulation/twinleaf/agent46-mimikyu-apex-flattened-native.cjs
+      - name: Real preceding Apex with flattened Dragon choice both seats
+        run: node simulation/twinleaf/agent46-mimikyu-apex-flattened-consecutive-native.cjs
+      - name: Compare synchronous preselected diagnostic as negative methodological control
+        run: node simulation/twinleaf/agent46-mimikyu-apex-synchronous-native.cjs
