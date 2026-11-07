@@ -32,3 +32,5 @@ jobs:
         run: node simulation/twinleaf/agent35-powerglass-ko-prize-order-native.cjs
       - name: Agent37 independent winning-KO terminal Powerglass order
         run: node simulation/twinleaf/agent37-powerglass-winning-ko-native.cjs
+      - name: Agent37 reversible paper KO-before-endturn hook prompt comparison
+        run: node simulation/twinleaf/agent37-paper-ko-powerglass-first-prompt-native.cjs
