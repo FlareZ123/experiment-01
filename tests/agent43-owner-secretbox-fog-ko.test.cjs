@@ -70,3 +70,17 @@ test('physical card/payment shortfall fails closed',()=>{
   assert.throws(()=>choosePhysicalBoxPayment(prompt,owner),
     /physically held discard is unavailable/);
 });
+
+test('candidate source proxy intentionally selects MEE Basic Psychic print, not SVE',()=>{
+  const {loadNewMoonCandidate}=
+    require('../scripts/aichi-new-moon-candidate.cjs');
+  const roster=loadNewMoonCandidate();
+  const basic=roster.cards.find(row=>row.category==='Energy'&&
+    row.name==='Psychic Energy');
+  assert.ok(basic);
+  assert.equal(basic.count,3);
+  assert.equal(basic.printing.set,'MEE');
+  assert.equal(basic.printing.number,'13');
+  assert.ok(roster.substitutions.some(x=>
+    x.includes('Basic Psychic represented by MEE 13')));
+});
