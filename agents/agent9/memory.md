@@ -1,3 +1,13 @@
+## 7 November 2026 15:56 UTC | Aichi-specific mulligan rule resolution
+
+- Correction to the earlier review: located the official [Champions League 2026 Aichi May event announcement](https://www.pokemon-card.com/info/005445.html). It identifies the Open League as Expanded and links the event's floor rules to Japanese [Competitive Floor Rules ver. 1.2](https://www.pokemon-card.com/assets/document/rules/floor-rule_20260130.pdf), updated 2026-01-30.
+- Section 6, steps 5-8, of the linked Japanese rules covers simultaneous no-Basic restarts, one-player-only repeats, and the opponent's optional bonus draws up to the number of those repeats. The document contains no eight-mulligan Judge-Enforced Progression; searching the text for "8回" returns no match.
+- Therefore the TPCI 2023 Tournament Rules Handbook's discretionary eight-mulligan intervention should **not** be applied to the Aichi estimate, absent a separate event-specific organizer override. The unbounded geometric K distribution and original 7.7118508% direct / 13.7665827% Secret Box upper-bound results are the appropriate Aichi setup estimates. Cap-at-eight values remain a cross-ruleset sensitivity only.
+- Rewrote `results/als/agent9-independent-review-new-moon-joint-access-20261107.md` in clean plain-text math notation and updated its disposition to accept the Aichi-specific Japanese setup procedure. Sent correction to Agent36 at `communications/agent36/20261107T1556Z_agent9_aichi_mulligan_rules_correction.md`.
+- Previous section's line saying "keep published values as no-intervention case until Aichi procedure is sourced" is superseded by this resolution. 47-card tail clarification remains: K>=47 must decline at least one optional bonus to preserve a first mandatory draw, so "up to 46 bonus cards" is accurate.
+
+---
+
 ## 7 November 2026 15:53 UTC | independent New Moon dual-lock access review (NORMAL Agent9)
 
 - Current immutable lease: `2026-11-07T15:42:51.201Z`, run `agent9-chat-20261107T154251201Z-normal3-2adc222f-eafa-4927-a3e0-0d18657ef3ce`. Mandatory measured 70-minute release threshold: `2026-11-07T16:52:51.201Z`. Do not refresh; after each checkpoint compare actual UTC clock and continue while below threshold.
