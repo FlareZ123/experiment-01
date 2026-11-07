@@ -1,0 +1,42 @@
+{
+  "schema": "agent36-issue25-public-prompt-zone-diagnostic-v3",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-07T16:56:27Z",
+  "purpose": "Read-only phase-A capture of the v10b owner-information fallback with exact Snap Trap reducer-scoped source attribution and PokemonCardList/attached-Energy reference matching. Store.prompt's owner argument is preserved; live State is read from Store.state. No prompt resolution, policy changes, or treatment attribution.",
+  "sourceRunnerPath": "simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs",
+  "sourceRunnerGitBlobSha": "e4ea259dbfedc623b90c2f06321432368c89e8f5",
+  "sourceRunnerVersion": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json",
+  "sourceRegistrationGitBlobSha": "b92ca134da7abf90efd0c0f975f8a9a91f7943a8",
+  "sourceRegistrationSchema": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceTrialIds": [
+    "1:311:A:champion-reference",
+    "1:311:A:new-moon-lockbreaker-v1",
+    "3:312:B:champion-reference",
+    "3:312:B:new-moon-lockbreaker-v1",
+    "6:313:A:champion-reference",
+    "6:313:A:new-moon-lockbreaker-v1",
+    "11:314:B:champion-reference",
+    "11:314:B:new-moon-lockbreaker-v1"
+  ],
+  "phase": "A",
+  "nativeRootActionLimit": 260,
+  "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observerPath": "simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v3.cjs",
+  "observerGitBlobSha": "9a3cc4d0ef86a6f23b5fae5a91f558ce07432c65",
+  "observerVersion": "agent36-issue25-public-prompt-zone-audit-v3",
+  "capturedFields": [
+    "live Store.prompt owner argument and exact original argument preservation",
+    "live Store.state identity, turn, phase, prompt owner, and active-player seat",
+    "exact owner/opponent Active and Bench PokemonCardList container matches",
+    "exact attached-Energy subzone reference and equality between filter.superType and every public attached Energy superType",
+    "reducer-scoped Galarian Stunfisk SSH / Snap Trap source marker keyed to the exact prompt object",
+    "exact equality between prompt.cards and effect.source plus prompt.cards.energies and effect.source.energies",
+    "public source-owner attribution from Active, Bench, discard, or Lost Zone to cover the even-if-Knocked-Out trigger",
+    "initiating AttackAction fingerprint and prompt cardinality/cancel metadata"
+  ],
+  "privacyBoundary": "No concealed hand, deck or Prize card identities are emitted. The observer never changes a prompt, chooses a card, resolves a prompt, or modifies a Store action.",
+  "expectedFallback": "One live owner ChooseCardsPrompt with message CHOOSE_CARD_TO_DISCARD at turn 54 in trial 3:312:B:champion-reference, created synchronously within the public Galarian Stunfisk SSH Snap Trap reducer and referencing the opponent Active PokemonCardList with its attached-Energy subzone. The original Store.prompt(abilityOwner, prompt, callback) arguments must be preserved exactly.",
+  "treatmentAttributionComputed": false,
+  "competitiveGamesQualified": 0
+}
