@@ -71,3 +71,8 @@ A later cross-agent composition audit (Agent20, broadcast `communications/broadc
 Therefore the selected v8/v10b execution path already handles GO_FIRST. The Agent2 direct canary and standalone Agent36 Snap Trap integration test omit these wrappers, so their turn-0 failures are local composition gaps. They do not establish a GO_FIRST blocker in v8/v10b, and the v10b turn-54 abort is separate.
 
 The alternative `simulation/twinleaf/agent4-owner-setup-confirm.cjs` helper is restricted to phase 1 / turn 0 and owner-matched ConfirmPrompt, but it does not check `message===GO_FIRST`; it can answer any setup ConfirmPrompt. Do not use it unmodified under strict fail-closed rules. If used, add an exact GO_FIRST message guard. For direct tests, prefer the existing `withGoFirstChoice` helper. Its `[false,false]` setting is a deterministic development baseline, not an optimized tournament preference.
+
+
+### GO_FIRST audit persistence on later abort
+
+`withGoFirstChoice` currently returns its `choices` audit only when the wrapped run succeeds; if a later unsupported prompt throws, its `finally` restores the prototype but the audit is not attached to the error. For a direct canary expected to abort at a later owner root, preserve the choice by adding an error-audit catch to that helper or by attaching the existing `captureSetupCoinChoiceReceipt` result in the headless bot-decoder failure catch. The v10b `withOwnerAbilityConfirmPolicy` already attaches its confirm audit to thrown errors. This is an observability issue, not a prompt-resolution defect.
