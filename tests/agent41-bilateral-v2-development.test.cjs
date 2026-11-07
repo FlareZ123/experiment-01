@@ -6,7 +6,8 @@ const {developmentTrials,commonPayloadOption,actorPaidRetreatRootOptions,
   rngProtocolSelection,paidRetreatRootWrapperActivationReceipt,
   firstPostSourceDecision,sourceLineReplyPacket,
   candidatePostChoicePassEvidence,candidateRepliesAfterSourceAttacks,
-  scopedSpecialEnergyActorSeat,validateRegisteredTrialGroups}=require(
+  scopedSpecialEnergyActorSeat,validateRegisteredTrialGroups,
+  registeredSourcePairKeys}=require(
   '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
 
 test('only historical source streams enter the policy development packet',()=>{
@@ -620,3 +621,18 @@ test('single-candidate registration is explicit, one-game, and preserves paired 
     {...one,seed:0x100000000}
   ],[11],true),{name:'AssertionError'});
 });
+
+test('single registered native game has no fabricated second-contender source pair',()=>{
+  const single=[{
+    id:'11:1000:B:new-moon-lockbreaker-v1',
+    rank:11,repeat:1000,candidateSlot:'B',
+    candidateId:'new-moon-lockbreaker-v1',seed:626469135
+  }];
+  assert.deepEqual(registeredSourcePairKeys(single,true),[]);
+  assert.deepEqual(registeredSourcePairKeys(developmentTrials(),false),[
+    '6:0:A','11:2:B'
+  ]);
+  assert.throws(()=>registeredSourcePairKeys(developmentTrials(),true),
+    /requires exactly one scheduled game/);
+});
+
