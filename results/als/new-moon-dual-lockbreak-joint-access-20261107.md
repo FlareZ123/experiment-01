@@ -34,6 +34,10 @@ The opponent offers at least one bonus card in **57.9428%** of valid-start proce
 
 The first-draw exact fractions are 58,575,077 / 1,103,593,454 for direct joint access and 11,937,071,285 / 121,947,076,667 for the Secret Box-assisted upper bound. The implementation also checks that its observed-card compositions reproduce the full valid-deal denominator and that the exact mulligan-bonus distribution sums to one.
 
+## Reproducibility check
+
+The manual `aichi-newmoon-source-coverage` workflow completed successfully in **3.72 minutes** on run `42376153778` (job `128414032730`, head `14b2e24de75250360607a1b25ac0a1f79fb2cb0c`). The exact joint-access test and JSON-generation steps both passed; the uploaded artifact is `newmoon-lockbreak-joint-access-v1` (artifact ID `13575593883`, 1,837 bytes, SHA-256 `1a0f3caab42c0ff873d7d4ed989ae5161eb1bb5988894f247a58344bee398070`). The artifact was uploaded successfully; the calculations remain reproducible from the checked-in script and exact-fraction tests.
+
 ## Interpretation and limits
 
 The four-slot 2+2 package is **not a reliable simultaneous dual-lock answer**. Even under the favorable Secret Box upper bound, fewer than one in ten valid openings can access both counters by the first mandatory draw; accepting every optional opponent-mulligan bonus raises that to only 13.77%.
