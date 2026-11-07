@@ -28,7 +28,7 @@ function isMimikyuCopycatAttack(row){
 
 /** @param {object} row @returns {boolean} */
 function isMimikyuCopycatEligibleAttack(row){
-  return row?.gxAttack!==true&&!isMimikyuCopycatAttack(row);
+  return row?.gxAttack===false&&!isMimikyuCopycatAttack(row);
 }
 
 /**
