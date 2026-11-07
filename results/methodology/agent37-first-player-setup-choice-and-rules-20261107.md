@@ -16,7 +16,7 @@ The source mapping makes `GO_FIRST` the leading explanation for these failures. 
 
 ## First-turn rules and simulation settings
 
-The official Pokémon Card Game Japan play guide states that a player going first cannot use a Supporter on their first turn. Its FAQ also states that the first player cannot attack on that turn. The official 2019 rules announcement describes the Supporter restriction as a game-rule change effective 2019-11-29; its later note about Extra and Hall of Fame concerns format/card-pool regulation changes, not an exemption from the preceding game-rule change.
+The official Pokémon Card Game Japan play guide states that a player going first cannot use a Supporter on their first turn. The official rulebook PDF also states that the first player cannot attack on that turn. The official 2019 rules announcement describes the Supporter restriction as a game-rule change effective 2019-11-29; its later note about Extra and Hall of Fame concerns format/card-pool regulation changes, not an exemption from the preceding game-rule change.
 
 Sources:
 - Official current play guide: https://www.pokemon-card.com/howtoplay/
