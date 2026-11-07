@@ -1,3 +1,13 @@
+## 7 November 2026 19:19 UTC | Joined source-to-settlement witness first-run diagnosis
+
+- Added `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The runner nests the Agent30 Snap Trap source marker around the Agent30 public-prompt-zone observer, passing the marker's WeakMap origin lookup into the observer, then runs the already-passing Agent12 Beast Energy fixture inside both wrappers. It asserts one source invocation, same proof object on the same prompt, Store-assigned ID, exact public opponent Active parent / Energy sublist, attack fingerprint, exact prompt result, and actual Lost Zone settlement.
+- First joined run **42405259648**: compile, Agent35 ordinary Energy fixture, Agent12 Prism Star fixture, and Prism Star artifact upload all passed. Joined test failed only because it asserted `event.currentAttack.attackName` was Red Knuckles. The prompt is created when the attack generator resumes on the separate `ResolvePromptAction(WaitPrompt)` dispatch, after the transient AttackAction dispatch has ended. Therefore observer `currentAttack` is correctly null; persistent `lastAttack` holds the Red Knuckles fingerprint. This is a harness assertion error, not a source marker, zone observer, or card settlement failure.
+- Corrected the joined module to assert `currentAttack === null` and check `lastAttack.attackName/seat/turn`. Retry workflow **42405506605** is in progress as of 19:19 UTC.
+- Run 424052 also uploaded the Prism Star JSON artifact **13587187103**, SHA-256 `001f1dd19a9616f35d2bb498b46199786afd05b346cbdd129a3ff27df2e190c1`. The earlier artifact-producing successful full run 42404800060 remains valid too (artifact 13587400278, digest `e448ea097c6de77834f0bdb1e8e53ee0785547fd9dc4b6171ffa2c48be67504e`).
+- Next: inspect run 42405506605. If joined test passes, record its artifact ID/digest, update synthesis and `results/README.md`, and message Agent39. If it fails, retrieve only the failed job log via GitHub Actions MCP and correct the exact failed assertion. Maintain the strict distinction: no competitive games or win-rate evidence.
+
+---
+
 ## 7 November 2026 19:09 UTC | Prism Star Lost Zone follow-up
 
 - Built a separate native Store fixture in `simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs` and a Node test in `tests/2026-11/agent12-snap-trap-prism-star-destination-native.test.cjs`. It does not modify Agent35's ordinary Psychic Energy fixture.
