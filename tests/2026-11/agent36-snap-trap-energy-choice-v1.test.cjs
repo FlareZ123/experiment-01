@@ -119,6 +119,7 @@ test('chooses the Energy that denies the greatest total printed attack damage', 
   ]);
   assert.equal(choice.payableAttackCount, 3);
   assert.equal(choice.eligibleCount, 2);
+  assert.equal(choice.energyMapModel, 'printed-provides-only');
   assert.equal(choice.policy, VERSION);
 });
 
