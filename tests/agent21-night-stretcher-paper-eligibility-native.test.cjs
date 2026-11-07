@@ -55,6 +55,7 @@ for(const seat of [0,1]){
     assert.equal(wrapped.audit.rejectedSpecialOnlyOrEmpty,2);
     assert.equal(wrapped.audit.eligibleBasicOrPokemon,2);
     assert.equal(wrapped.audit.ownerDiscardOnly,true);
+    assert.equal(special.owner.discard.cards.length,1);
     assert.equal(wrapped.audit.prospectiveOriginalGamesQualified,0);
     assert.equal(special.night.canPlay(null,null,special.owner),true,
       'Original property must be fully restored');
