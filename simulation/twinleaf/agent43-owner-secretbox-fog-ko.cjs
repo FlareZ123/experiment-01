@@ -20,9 +20,10 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * finish the opposing Active and an immediately affordable search channel.
  * This is a historical diagnostic policy; printed damage may be modified.
  * @param {object} view Deeply detached actorObservation.
+ * @param {{psychic:number,colorless:number}} [fundableCosts] Native cost enums.
  * @returns {{attackName:string,sourcePrinting:string,energyPrinting:string}|null}
  */
-function choosePublicOneEnergyBoxKo(view){
+function choosePublicOneEnergyBoxKo(view,fundableCosts={psychic:5,colorless:9}){
   if(view?.decisionKind!=='owner-root'||view.globalTurn<=2)return null;
   const hand=view.ownHand??[];
   const own=view.ownPublic,opp=view.opponentPublic;
@@ -45,7 +46,8 @@ function choosePublicOneEnergyBoxKo(view){
   const candidate=own.active.attacks.find(a=>
     a.gxAttack!==true&&Array.isArray(a.cost)&&a.cost.length===1&&
     Number.isFinite(a.damage)&&a.damage>=missing&&
-    a.cost[0]!==undefined&&a.cost[0]>=0&&
+    (a.cost[0]===fundableCosts.psychic||
+     a.cost[0]===fundableCosts.colorless)&&
     own.active.publicRestrictions?.blockedAttackNameNextTurn!==a.name&&
     own.active.publicRestrictions?.blockedAttackNameUntilLeavesActive!==a.name);
   if(!candidate)return null;
@@ -102,7 +104,8 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {AttackAction}=native('game/store/actions/game-actions');
-  const {EnergyType,SuperType}=native('game/store/card/card-types');
+  const {EnergyType,SuperType,CardType}=
+    native('game/store/card/card-types');
   const isBasicPsychic=card=>card?.name===BASIC&&
     card?.superType===SuperType.ENERGY&&
     card?.energyType===EnergyType.BASIC;
@@ -244,7 +247,9 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       if(ordinary?.constructor?.name!=='PassTurnAction')return ordinary;
       audit.passObservations++;
       const view=actorObservation(state,seat);
-      const plan=choosePublicOneEnergyBoxKo(view);
+      const plan=choosePublicOneEnergyBoxKo(view,{
+        psychic:CardType.PSYCHIC,colorless:CardType.COLORLESS
+      });
       if(!plan||stepsByOwner.has(owner.id))return ordinary;
       const handIndex=view.ownHand.indexOf(BOX);
       const newStep={ownerId:owner.id,seat,turn:state.turn,
