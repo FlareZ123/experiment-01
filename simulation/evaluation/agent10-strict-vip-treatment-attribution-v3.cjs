@@ -299,8 +299,31 @@ function strictVipTreatmentAttribution(input){
   };
 }
 
+/**
+ * Adapt actual agent41 development rows without deriving an independent
+ * count from the ledger. `actionCount` is the Store/headless count;
+ * `rootActionCount` is only a ledger-derived summary and is deliberately
+ * ignored.
+ * @param {object} controlRow
+ * @param {object} treatmentRow
+ */
+function strictVipTreatmentAttributionFromRows(controlRow,treatmentRow){
+  const vipAudit=treatmentRow?.actorOnlyDecisionCoverage
+    ?.detailedComponentAudits?.ownerVipAfterPass??null;
+  return strictVipTreatmentAttribution({
+    controlLedger:controlRow?.rootActionLedger,
+    controlRootActionCount:controlRow?.actionCount,
+    controlCompleted:controlRow?.finished,
+    treatmentLedger:treatmentRow?.rootActionLedger,
+    treatmentRootActionCount:treatmentRow?.actionCount,
+    treatmentCompleted:treatmentRow?.finished,
+    vipAudit
+  });
+}
+
 module.exports={
   VERSION,VIP_NAME,VIP_PRINTING,ROOT_ORDINAL_PROTOCOL,
   validRootLedger,firstDivergence,completeVipExamples,
-  acceptedEventsMatchRoots,strictVipTreatmentAttribution
+  acceptedEventsMatchRoots,strictVipTreatmentAttribution,
+  strictVipTreatmentAttributionFromRows
 };
