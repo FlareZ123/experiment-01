@@ -159,7 +159,8 @@ test('Copycat dispatch requires a matching native action and a completed prior-t
     },
     dispatch(action){
       assert.equal(action.name,'Copycat');
-      assert.equal(this.state.playerLastAttack[2],selected);
+      assert.equal(this.state.playerLastAttack[2].attack,selected.attack);
+      assert.equal(this.state.playerLastAttack[2].sourceCard,selected.sourceCard);
       return 'dispatched';
     }
   };
