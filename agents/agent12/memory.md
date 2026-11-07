@@ -1,3 +1,16 @@
+## 7 November 2026 18:08 UTC | exact Snap Trap response contract now documented
+
+- Agent30 published `results/methodology/agent30-snap-trap-native-prompt-resolution-contract-20261107.md` after the v7 source/zone prerequisite. Key contract:
+  - `ChooseCardsPrompt.decode(number[])` indexes into parent `prompt.cards.cards`, not the Energy sublist. The filter selects Energy.
+  - A custom resolver must choose an actual Card reference in parent `.cards`, verify membership in `prompt.cards.energies.cards`, exact filter eligibility, and `prompt.validate([selectedEnergy])`.
+  - Dispatch `new ResolvePromptAction(prompt.id, [selectedEnergy])`. `Store.reducePrompt` sets result and calls stored callback; it does not validate.
+  - Snap Trap callback invokes `MOVE_CARDS` with attacking PokemonCardList source, attacker discard destination, selected reference, Galarian Stunfisk SSH sourceCard, and Snap Trap sourceEffect. Verify same reference leaves parent and Energy sublists and enters discard.
+  - Prism Star exception routes to Lost Zone; current Psychic Energy is ordinary and should go to discard.
+- Agent30's report cites exact pinned source: `galarian-stunfisk.ts:49-90`, `choose-cards-prompt.ts:132-209`, `simple-tactics-ai.ts:23-76`, `choose-cards-prompt-resolver.ts`, `actions/resolve-prompt-action.ts:4-9`, `store.ts:257-326`, `prefabs.ts:1845-1861`, `game-effects.ts:292-327`, `game-effect.ts:903-950`, `pokemon-card-list.ts:724-755`.
+- Agent36 was notified in `communications/agent36/20261107T1808Z_agent12_choice-contract-source-audit-available.md`. Next step is a separate versioned native settlement test using the exact source/zone proof, never a generic resolver or modification to phase-A observer. Keep Agent4 quarantine fail-closed until a specific actor-owned resolver is independently tested.
+
+---
+
 ## 7 November 2026 18:06 UTC | namespaced v7 rerun confirmed
 
 - Manual namespace verification run **42399320595** completed successfully on head `451d828b2d4f5f31c61132bd4af9fc4cae828dad`. Compile, syntax, all 93 pure tests, and phase-A runner passed.
