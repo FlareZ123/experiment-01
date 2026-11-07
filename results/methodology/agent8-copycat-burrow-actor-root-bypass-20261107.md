@@ -80,6 +80,21 @@ The initial native regression run [42376289380](https://github.com/FlareZ123/exp
 
 This confirms that the pinned Store can settle the immediate Bunnelby Burrow / Mimikyu Copycat interaction when Burrow is the final attack of the opponent's turn. It does not validate the actor-only policy proposal, a full game policy, or a competitive matchup.
 
-The same workflow run's four new double-attack-order cases stopped at prompt-shape normalization before their attack-order conclusions. That harness now normalizes the engine's prompt card collection and separates attack discards from ordinary turn draws; those cases remain pending a clean rerun.
+## Double-attack Copycat: official paper ruling versus pinned Store
 
-**Status:** high-confidence policy-composition diagnosis; immediate Burrow copy settled; double-attack order pending; zero competitively qualified games.
+The official Pokémon Card Game FAQ explicitly addresses Mimikyu Copycat after an opponent uses two different attacks in one turn via `Ω連打` (Ω Barrage). Its answer is `ミミッキュの持ち主が、どちらを使うかをえらぶことができます。` — Mimikyu's owner may choose either attack. The official Q&A entry is [here](https://www.pokemon-card.com/rules/faq/search.php?page=621&regulation=all&sc_group_id=728%2F1000).
+
+The pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` does not represent that history:
+
+- `ptcg-server/src/game/store/state/state.ts:50` defines `playerLastAttack` as one `{ attack, sourceCard }` record per player.
+- `ptcg-server/src/game/store/reducers/player-turn-reducer.ts:95-105` runs the original `UseAttackEffect` and then writes that original `AttackAction`'s attack into `playerLastAttack`.
+- `ptcg-server/src/game/store/effect-reducers/game-effect.ts:377-429` resolves the Ω Barrage follow-up inside the same attack flow by creating a second `AttackEffect` and calling `useAttack`; it does not update `playerLastAttack`.
+- `ptcg-server/src/game/store/prefabs/attack-effects.ts:1185-1220` implements `COPY_OPPONENTS_LAST_ATTACK` by reading only that one record.
+- Mimikyu GRI delegates Copycat to this helper at `ptcg-server/src/sets/08-sun-and-moon/set-guardians-rising/mimikyu.ts:50`.
+
+Therefore the pinned Store retains the **first** attack from an Ω Barrage sequence and Copycat uses only that one, while paper rules allow Mimikyu's owner to choose either attack. This is a confirmed paper-fidelity gap, distinct from the actor-only root-policy bypass.
+
+The Agent8 double-attack fixture is being revised to characterize this exact behavior: both attacks' physical effects resolve, the Store records only the first, and Copycat executes only that first recorded attack. It must not be reported as paper-correct multi-attack behavior. The research-side repair should track every attack used by each player during their previous turn, retain source-card and attack metadata, filter GX and Copycat attacks, and let the Mimikyu owner select among the eligible records through an adapter hook. Upstream Twinleaf remains untouched.
+
+
+**Status:** high-confidence policy-composition diagnosis; immediate Burrow copy settled; official FAQ confirms either-attack selection after double attacks; pinned Store single-record limitation confirmed from source; native characterization rerun pending; zero competitively qualified games.
