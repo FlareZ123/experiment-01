@@ -73,6 +73,21 @@ function readCardIndex(root){
 }
 
 /**
+ * Public roster uses U+2662 (♢), whereas the local Pokemon card database
+ * encodes the same Prism Star glyph as U+25C7 (◇). This limited alias is
+ * allowed only for a card whose actual subtype is precisely Prism Star.
+ * @param {object} card Actual printed card.
+ * @param {string} label Tournament roster name.
+ * @returns {boolean}
+ */
+function printedNameMatches(card,label){
+  return card?.name===label ||
+    (card?.subtypes?.includes('Prism Star')===true &&
+      typeof label==='string'&&
+      card.name.replaceAll('◇','♢')===label);
+}
+
+/**
  * Resolve the exact printed Pokémon card and name, rejecting ambiguities.
  * @param {object} entry Deck Pokémon with printed locator.
  * @param {object} index Card index.
@@ -82,7 +97,7 @@ function printedPokemon(entry,index){
   const direct=entry.cardId??entry.english_proxy_card_id;
   if(typeof direct==='string'){
     const c=index.byId.get(direct);
-    return c?.supertype==='Pokémon'&&c.name===entry.name?c:null;
+    return c?.supertype==='Pokémon'&&printedNameMatches(c,entry.name)?c:null;
   }
   const code=entry.printing?.set?.toUpperCase();
   const ids=index.byCode.get(code);
@@ -95,7 +110,7 @@ function printedPokemon(entry,index){
   const matches=[];
   for(const id of ids)for(const n of numbers){
     const c=index.byId.get(id+'-'+n);
-    if(c?.name===entry.name&&c.supertype==='Pokémon')matches.push(c);
+    if(c?.supertype==='Pokémon'&&printedNameMatches(c,entry.name))matches.push(c);
   }
   return matches.length===1?matches[0]:null;
 }
@@ -163,4 +178,4 @@ function studyField(root){
 }
 
 module.exports={HP_THRESHOLDS,choose,exactForcedOpening,
-  readCardIndex,printedPokemon,inspectDeck,studyField};
+  readCardIndex,printedNameMatches,printedPokemon,inspectDeck,studyField};
