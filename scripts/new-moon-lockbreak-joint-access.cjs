@@ -5,6 +5,11 @@ const variant = require('../results/als/new-moon-lockbreak-english-proxy-60.json
 const field = require('../results/aichi-2026/full-decklists.json');
 const {choose} = require('./new-moon-lockbreak-access.cjs');
 
+/** @param {number} n @param {number} k @returns {bigint} */
+function chooseOrZero(n, k) {
+  return n < 0 || k < 0 || k > n ? 0n : choose(n, k);
+}
+
 /** @param {bigint} a @param {bigint} b @returns {bigint} */
 function gcd(a, b) {
   while (b) [a, b] = [b, a % b];
@@ -99,7 +104,7 @@ function jointAccessByDraws(d) {
           // Of the observed cards, count which seven-card subsets could have
           // been the initial hand and contain at least one Basic.
           const validInitialHandSubsets = choose(observed, 7) -
-            choose(observed - basics, 7);
+            chooseOrZero(observed - basics, 7);
           if (validInitialHandSubsets === 0n) continue;
 
           const prizeSets = choose(60 - observed, 6);
