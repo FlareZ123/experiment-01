@@ -131,3 +131,46 @@ test('an original 60 with Fog but zero Basic Psychic also hard-vetoes Box',()=>{
   assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
     v,original,{psychic:5,colorless:9}),null);
 });
+
+test('public-zone exhaustion of originally present Fog or Basic hard-vetoes Box',()=>{
+  const original=[
+    'Secret Box TWM','Rescue Carrier EVS',
+    'Battle VIP Pass FST','Battle VIP Pass FST','Unown AOR',
+    ...Array(4).fill('Fog Crystal CRE'),
+    ...Array(3).fill('Psychic Energy MEE 13'),
+    ...Array(48).fill('Other Trainer FST')
+  ];
+  assert.equal(original.length,60);
+  const view={
+    decisionKind:'owner-root',globalTurn:14,
+    ownHand:['Secret Box TWM','Battle VIP Pass FST',
+      'Battle VIP Pass FST','Rescue Carrier EVS'],
+    ownTurnResources:{energyPlayedTurn:0,itemPlayLocked:false,
+      energyPlayLocked:false},
+    ownPublic:{
+      active:{
+        printing:'Unown AOR',evolutionPrintings:['Unown AOR'],
+        energies:[],tools:[],specialConditions:[],
+        publicRestrictions:{},
+        attacks:[{name:'Hidden Power',cost:[9],damage:10,gxAttack:false}]
+      },
+      bench:[null,null,null,null,null],
+      stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+      publicTurnRestrictions:{itemPlayLocked:false,
+        attackLockTurnsRemaining:0}
+    },
+    opponentPublic:{active:{hp:70,damage:60}}
+  };
+  assert.equal(choosePublicOneEnergyBoxKo(view,{psychic:5,colorless:9})
+    ?.attackName,'Hidden Power');
+  assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
+    view,original,{psychic:5,colorless:9})?.attackName,'Hidden Power');
+  const spentFog={...view,ownPublic:{...view.ownPublic,
+    discard:Array(4).fill('Fog Crystal CRE')}};
+  assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
+    spentFog,original,{psychic:5,colorless:9}),null);
+  const spentBasic={...view,ownPublic:{...view.ownPublic,
+    discard:Array(3).fill('Psychic Energy MEE 13')}};
+  assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
+    spentBasic,original,{psychic:5,colorless:9}),null);
+});
