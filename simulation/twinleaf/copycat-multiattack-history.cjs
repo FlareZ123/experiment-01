@@ -223,10 +223,17 @@ function installCopycatMultiAttackHistory(store){
  * @returns {any} Native Store dispatch result.
  */
 function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,action){
+  assert.ok(action instanceof AttackAction,'A native Copycat AttackAction is required');
+  assert.equal(action.clientId,copycatPlayerId);
+  assert.equal(action.name,'Copycat');
   assert.ok(selected?.sourceCard&&selected?.attack);
   assert.equal(selected.gxAttack,false,'GX attacks cannot be selected');
   assert.equal(selected.copycatAttack,false,'Copycat attacks cannot be selected');
+  assert.equal(selected.attackName,selected.attack.name);
+  assert.equal(selected.sourceCardFullName,selected.sourceCard.fullName);
   const state=store.state;
+  assert.ok(Number.isSafeInteger(selected.turn)&&selected.turn<state.turn,
+    'Selected attack must come from a completed previous turn');
   const opponent=state.players.find(player=>player.id!==copycatPlayerId);
   assert.ok(opponent);
   assert.equal(selected.playerId,opponent.id);
