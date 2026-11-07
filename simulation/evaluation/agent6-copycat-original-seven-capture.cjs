@@ -13,18 +13,22 @@ const {PRINTS,summarizeCopycatInitialPhysicalZones}=
  * @param {0|1} sourceSeat Real physical source player slot.
  * @param {3|4} sourceVCount Printed count of Shadow Rider Calyrex V.
  * @param {string|number} startingMessage Engine's CHOOSE_STARTING_POKEMONS value.
+ * @param {Set<string>} sourceBasicPrints Exactly the 14 original source Basic printing IDs.
  * @returns {object}
  */
-function createOriginalSevenCopycatCapture(sourceSeat,sourceVCount,startingMessage) {
+function createOriginalSevenCopycatCapture(sourceSeat,sourceVCount,startingMessage,sourceBasicPrints) {
   assert.ok(sourceSeat===0||sourceSeat===1);
   assert.ok(sourceVCount===3||sourceVCount===4);
   assert.ok(startingMessage!==null&&startingMessage!==undefined);
+  assert.ok(sourceBasicPrints instanceof Set && sourceBasicPrints.size>=1,
+    'Source original 60 must supply the physical Basic printing IDs');
   let store=null;
   let exactSeven=null;
   let postsetup=null;
   let constructed=null;
   let dispatches=0;
   let setupSelectionObservations=0;
+  let invalidSevenPromptObservations=0;
   let detached=false;
   return Object.freeze({
     onRootStoreCreated(realStore) {
@@ -43,9 +47,12 @@ function createOriginalSevenCopycatCapture(sourceSeat,sourceVCount,startingMessa
           if(exactSeven===null) {
             const hand=source.hand?.cards;
             assert.ok(Array.isArray(hand));
-            assert.equal(hand.length,7,'first source setup selection must see original seven');
-            exactSeven=Object.freeze({
+            assert.equal(hand.length,7,'source starting selection must see seven cards');
+            const basicCount=hand.filter(c=>sourceBasicPrints.has(c.fullName)).length;
+            if(basicCount===0) invalidSevenPromptObservations++;
+            else exactSeven=Object.freeze({
               size:hand.length,
+              startingBasicCount:basicCount,
               namedInHand:Object.freeze(Object.fromEntries(
                 ['mimikyu','dialga','ball','seal'].map(role=>[role,
                   hand.filter(c=>c.fullName===PRINTS[role]).length===1]))),
@@ -95,6 +102,7 @@ function createOriginalSevenCopycatCapture(sourceSeat,sourceVCount,startingMessa
     audit(){return Object.freeze({actualStoreBound:store!==null,
       originalSevenCaptured:exactSeven!==null,
       sourceStartingPromptsSeen:setupSelectionObservations,
+      rejectedInvalidSevenPromptsSeen:invalidSevenPromptObservations,
       realDispatchesThroughSnapshot:dispatches,
       exactSevenAndSixPrizeCaptured:constructed!==null,
       instanceWrapperDetached:detached});}
