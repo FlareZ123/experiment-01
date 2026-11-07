@@ -1740,6 +1740,9 @@ function runDevelopment({
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
               }:{}),
+              ...(nativeOwnerTrainerFallback?{
+                nativeOwnerTrainerFallback:true
+              }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
