@@ -347,3 +347,6 @@ test('paper hook uses explicit physical randomness and is strictly reversible',(
 });
 
 module.exports = {inspectNativeSpecialRedCard};
+
+// Paper-public preselection is a separate prerequisite to the native Store hook.
+require('./agent44-m4-public-prerequisite.test.cjs');
