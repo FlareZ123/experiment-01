@@ -1060,6 +1060,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       acceptedNativeTrainerRoots:0,rejectedNativeTrainerRoots:0,
       declinedByReason:{},receipts:[],receiptsOmitted:0,
       nativePolicyMayUseHiddenInformation:true,
+      ...(deps.ownerFallbackDiagnosticView===true?{
+        firstUnsupportedOwnerRoot:null
+      }:{}),
       paperPaymentVerified:false,competitiveGameQualified:false
     };
   }
@@ -1741,6 +1744,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       const bridge=require('./agent50-native-owner-trainer-pass-bridge.cjs');
       const stats=audit.nativeOwnerTrainerFallback;
       stats.attemptedUnsupportedPasses++;
+      if(deps.ownerFallbackDiagnosticView===true&&
+         stats.firstUnsupportedOwnerRoot===null){
+        stats.firstUnsupportedOwnerRoot=
+          require('./agent2-first-unsupported-owner-root-observer.cjs')
+            .snapshotFirstUnsupportedOwnerRoot(view);
+      }
       if(trainerCatalog===null)trainerCatalog=getNativeTrainerCatalog();
       const nativeAction=original.value.call(this,state);
       const proposal=bridge.classifyNativeTrainerAfterPass(
@@ -2279,7 +2288,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         selectedNativeTrainerRoots:fallback.selectedNativeTrainerRoots,
         acceptedNativeTrainerRoots:fallback.acceptedNativeTrainerRoots,
         rejectedNativeTrainerRoots:fallback.rejectedNativeTrainerRoots,
-        declinedByReason:{...fallback.declinedByReason}
+        declinedByReason:{...fallback.declinedByReason},
+        ...(deps.ownerFallbackDiagnosticView===true?{
+          firstUnsupportedOwnerRoot:fallback.firstUnsupportedOwnerRoot
+        }:{})
       };
     }
     throw error;
