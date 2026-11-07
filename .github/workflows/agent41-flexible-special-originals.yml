@@ -55,6 +55,11 @@ on:
         type: boolean
         required: false
         default: false
+      capture_owner_native:
+        description: 'Run the isolated native Capture Energy owner-search regression on the pinned Store'
+        type: boolean
+        required: false
+        default: false
 
 
 permissions:
@@ -62,6 +67,7 @@ permissions:
 
 jobs:
   native-paired-flexible-special:
+    if: ${{ !inputs.capture_owner_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -242,3 +248,25 @@ jobs:
             agent14-rank17-original-8arm.json
           if-no-files-found: warn
           retention-days: 20
+
+  capture-owner-native-regression:
+    if: ${{ inputs.capture_owner_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile the pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run the native Capture Energy owner-search regression
+        run: node --test tests/agent41-issue25-capture-owner.native.test.cjs
