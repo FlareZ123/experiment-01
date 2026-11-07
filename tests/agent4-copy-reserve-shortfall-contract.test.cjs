@@ -34,8 +34,24 @@ function shortfall(result, group, printing) {
   const row = result.reserveRows.find(item => item.printing === printing);
   assert.ok(row, `missing reserve row for ${printing}`);
   const baseline = row.softCapacityShortfall;
-  const post = group.vector.softReserveDeficitByPrinting[printing] ?? 0;
-  return {baseline, post, incremental: post - baseline};
+  const post = group.vector.postPaymentSoftReserveDeficitByPrinting[printing] ?? 0;
+  const incremental = post - baseline;
+  assert.equal(
+    group.vector.baselineSoftReserveDeficitByPrinting[printing] ?? 0,
+    baseline
+  );
+  assert.equal(
+    group.vector.paymentInducedSoftReserveDeficitByPrinting[printing] ?? 0,
+    incremental
+  );
+  assert.equal(group.vector.baselineSoftReserveDeficit,
+    result.reserveRows.reduce((sum, item) =>
+      sum + item.softCapacityShortfall, 0));
+  assert.equal(group.vector.postPaymentSoftReserveDeficit,
+    group.vector.softReserveDeficit);
+  assert.deepEqual(group.vector.postPaymentSoftReserveDeficitByPrinting,
+    group.vector.softReserveDeficitByPrinting);
+  return {baseline, post, incremental};
 }
 
 /**
@@ -48,6 +64,10 @@ function shortfall(result, group, printing) {
 function assertAggregate(result, group, expectedPost, expectedIncremental) {
   const baseline = result.reserveRows.reduce((sum, row) =>
     sum + row.softCapacityShortfall, 0);
+  assert.equal(group.vector.baselineSoftReserveDeficit, baseline);
+  assert.equal(group.vector.postPaymentSoftReserveDeficit, expectedPost);
+  assert.equal(group.vector.paymentInducedSoftReserveDeficit,
+    expectedIncremental);
   assert.equal(group.vector.softReserveDeficit, expectedPost);
   assert.equal(group.vector.protectedSacrificed, expectedPost);
   assert.equal(expectedPost - baseline, expectedIncremental);
