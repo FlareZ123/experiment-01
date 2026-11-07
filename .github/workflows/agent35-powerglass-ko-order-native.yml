@@ -41,6 +41,8 @@ jobs:
           retention-days: 30
       - name: Agent12 joined Snap Trap source-to-settlement witness
         run: node --test tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs
+      - name: Agent36 native Snap Trap owner-policy v2 with Agent4 quarantine
+        run: node --test tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs
       - name: Upload Agent12 joined source-to-settlement result
         uses: actions/upload-artifact@v4
         with:
