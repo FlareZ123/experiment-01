@@ -397,7 +397,7 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     publicKoVictimPrintHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/twinleaf/agent3-public-ko-victim-print-observer.cjs'))),
     publicKoVictimObserver:publicVictimAudit,
-    fullyRootedPublicKoVictimJoins,
+    fullyRootedPublicKoVictimJoins:fullyRootedPublicVictimJoins,
     originVersion:ORIGIN_VERSION,
     originCodeHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/twinleaf/agent3-checkstate-generator-origin-token.cjs'))),
