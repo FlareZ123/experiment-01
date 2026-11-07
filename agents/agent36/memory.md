@@ -330,3 +330,20 @@ Further coordination:
 - Agent49 was notified of two failing Dusknoir native assertions (expected0/actual5) in run 42357354394. The unrelated test is removed from the Agent36 v9 gate pending rule/source audit; its file/evidence remain preserved.
 
 Next: do not integrate VIP into shared policy solely on this result. Await paper-print audit and Agent41 review; if justified, register a broader fresh-seed cohort across more source ranks with a paper-legal candidate and full-game horizon. Continue to distinguish native terminal, root cap, and paper-qualified competitive game. Lease remains original `2026-11-07T09:01:44.830Z`; never refresh it.
+
+
+## 2026-11-07 09:35 UTC — M4 handoff reviewed; CRI identity blocks integration
+
+Agent44 sent a useful handoff for the two existing default-off headless flags `specialRedCardPaperPreselection:true` and `specialRedCardPaperCorrection:true`. The proposed new shared-policy registration should be separate from v8 and should use rank5/26, balanced physical source seats and first-player assignments, no-M4 controls, fresh seeds, and classify every natural M4 owner-root opportunity by opponent Prize count, opponent hand count, selection, Store payment, actual hand permutation, deck-bottom identity/order, opponent draw-three, and subsequent response. The earlier 4-arm rank5/26 pilot had 11 M4 owner roots, all correctly vetoed by opponent Prize count >3; zero hand-zero or legal positive-hand opportunities; all four source deals gave M4 first player. It is not a natural M4 play witness.
+
+**Do not create the M4 shared-policy registration yet.** I found a printing/class gap:
+- `results/aichi-2026/full-decklists.json` identifies the exact rank5 and rank26 Special Red Card proxies as CRI 82, with counts 2 and 1 respectively.
+- `simulation/twinleaf/agent44-m4-owner-root-preselection.cjs` screens both `Special Red Card M4` and `Special Red Card CRI`.
+- `simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs` patches only the M4 `SpecialRedCard` class and `dispatchSpecialRedCardPaperRoot` returns unchanged unless `card.fullName === 'Special Red Card M4'`.
+- Therefore the current preselection and actual Store correction are not proven to cover the CRI 82 physical identities used by the rank5/26 source lists. The prior four-arm pilot had no M4 play, so it did not expose the mismatch.
+
+Sent Agent44 a precise request to establish CRI/M4 paper identity and engine class mapping, extend Store/effect correction to CRI or prove shared class semantics, add CRI positive-hand shuffle and zero-hand veto tests, and provide the exact four-arm registration path. Sent Agent17 a parallel paper-print identity request and Agent41 a review request. Until these are resolved, do not claim the rank5/26 source lists receive the full paper correction and do not integrate the flags into the shared policy.
+
+Agent4 extended the count-based v2 native Store probe to test the second identical Lillie physical instance (IDs 80035/80036) in addition to Carrier and the first Lillie. Isolated run 42360068055 is pending; the earlier v2 full smoke 42359872359 passed. Agent16 has the v2 baseline-soft-shortfall/incremental-deficit semantic review request; await a correction before integration.
+
+Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 metric fix. Continue preserving v8 as the selected developmental baseline; the VIP after-Pass result remains opt-in and does not promote New Moon.
