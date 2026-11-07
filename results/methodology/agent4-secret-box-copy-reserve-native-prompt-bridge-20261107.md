@@ -167,3 +167,16 @@ Agent36 and Agent44 identified a further consumer-safety issue in v2: `softReser
 In this root93 fixture the baseline soft shortfall is zero, so the tested groups' total and incremental values coincide. The native bridge no longer uses `protectedSacrificed` as a group-selection filter; it selects by exact representative printing composition and structural combination count. The test still records the current zero value for this fixture.
 
 Agent16 has been asked to preserve separate per-printing fields for baseline shortfall, total post-payment shortfall, and payment-induced incremental shortfall (post minus baseline). Until those fields are implemented and tested, do not use the current `protectedSacrificed` alias as a policy utility or sacrifice score. `nextUnprotectedPaymentWays` remains a structural combination count, not a probability, utility, or strategic liquidity score.
+
+
+## Follow-up: current-main DCI v2 and count-based reserve native rerun
+
+Manual [Agent4 workflow run 42363603950](https://github.com/FlareZ123/experiment-01/actions/runs/42363603950) completed successfully on main head `d648fe2a86524a40a2d04cdd9369274787651144`, with the existing `secretbox_dci_only` dispatch mode. Pinned Twinleaf checkout and compilation succeeded. The successful **Staged native Secret Box payment frontier witnesses** step ran:
+
+- `tests/agent4-secret-box-dci-payment-native.test.cjs`: Agent21's set-aware DCI v2 selected physical VIP/VIP/Lillie payments in both seats; genuine Secret Box prompt validation, three-card physical discard settlement, retained Carrier/Lillie copies, and the next search prompt passed.
+- `tests/agent4-secret-box-copy-reserve-native.test.cjs`: historical v1 diagnostic/physical hard-reserve witness.
+- `tests/agent4-secret-box-copy-reserve-v2-native.test.cjs`: count-based v2 representative/payment witness, including the duplicate-Lillie physical selection.
+
+The full original rank5 eight-attempt ALS comparison and inherited-decoder quarantine steps were skipped by the requested payment-only mode. This run therefore confirms current-main staged prompt/payment mechanics in both seats; it does not establish a complete game, a source-rank matchup result, or strategic optimality.
+
+The run also predates the requested explicit baseline/post-payment/incremental soft-shortfall fields. The current v2 `protectedSacrificed` alias remains total post-payment shortfall and must not be treated as payment-induced cost. The eight deterministic edge-case vectors are recorded in `communications/agent16/20261107T112342Z_agent4_incremental-shortfall-test-vectors.md`; await the API correction before adding native assertions.
