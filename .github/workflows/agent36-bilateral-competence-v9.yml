@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_bilateral_lillie_after_pass:
+        description: 'Retrospective original-deal both-seat held Lillie on otherwise Pass'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,6 +56,7 @@ jobs:
           node --check simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
+          node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         run: |
@@ -64,15 +70,21 @@ jobs:
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent10-pinned-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent1-actor-dead-first-attack-frontier.test.cjs \
-            tests/agent7-v9-bilateral-known-dead-retro.test.cjs
+            tests/agent7-v9-bilateral-known-dead-retro.test.cjs \
+            tests/agent12-actor-only-lillie-after-pass.test.cjs \
+            tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.agent7_known_dead_off_control }}
+        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
+
+      - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control }}
+        run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() }}
