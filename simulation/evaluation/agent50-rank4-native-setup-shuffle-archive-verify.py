@@ -158,7 +158,7 @@ def verify_archives(old_archive: Path, strict_archive: Path) -> dict:
         rows = read_verified_rows(archive)
         per_seat = [row for row in rows
                     if row.get("protocol", row.get("shuffleProtocol"))
-                    in ("per-seat", "per-seat-setup-shuffle")]
+                    in ("per-seat", "agent26-per-seat-setup-shuffle-streams-v1")]
         if len(per_seat) != 32:
             raise AssertionError((key, len(per_seat)))
         labels = set()
