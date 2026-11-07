@@ -89,12 +89,12 @@ function adjudicateAtPrescribedEnd({
       'final second-starting-player turn ended before its Pokemon Checkup',
       'independently paper-validated normal win, Prizes and rule effects'
     ],competitiveAdmission:false,externalIndependentReviewRequired:true};
-  if(!secondPlayerTurnFinished)
-    return {...base,status:'AWAITING_PRESCRIBED_SECOND_TURN',
-      conditionalWinnerSeat:null};
   if(paperGameWinner!==null)
     return {...base,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
+  if(!secondPlayerTurnFinished)
+    return {...base,status:'AWAITING_PRESCRIBED_SECOND_TURN',
+      conditionalWinnerSeat:null};
   if(!rules.elimination)
     return {...base,status:'SWISS_BOTH_LOSE',
       conditionalWinnerSeat:null};
