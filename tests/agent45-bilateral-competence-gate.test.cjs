@@ -523,6 +523,7 @@ test('authenticated v8 abort prefix recovers source physical seat from native pr
   const attempt={
     id:'6:210:B:new-moon-lockbreaker-v1',
     status:'engine-error',originalSourceSeat:null,candidateSeat:null,
+    sourceDealFingerprint:'a'.repeat(64),
     nativeAbortProvenance:{sourceSeat:0,
       sourceDealStatus:'VERIFIED',fullPhysicalDealStatus:'VERIFIED'},
     publicRootActionsTruncated:false,
@@ -562,13 +563,45 @@ test('no native physical-seat provenance preserves error as an unqualified quara
 
 test('normal and native-abort physical-seat contradiction rejects',()=>{
   assert.deepEqual(archivedPhysicalSeats({
-    originalSourceSeat:1,candidateSeat:0,nativeAbortProvenance:{sourceSeat:1}
+    originalSourceSeat:1,candidateSeat:0,
+    sourceDealFingerprint:'b'.repeat(64),
+    nativeAbortProvenance:{sourceSeat:1,sourceDealStatus:'VERIFIED'}
   }),{sourceSeat:1,opponentSeat:0,
     seatProvenance:'ordinary-native-seat+candidate-seat-complement+native-abort-provenance'});
   assert.throws(()=>archivedPhysicalSeats({
-    originalSourceSeat:0,candidateSeat:1,nativeAbortProvenance:{sourceSeat:1}
+    originalSourceSeat:0,candidateSeat:1,
+    sourceDealFingerprint:'b'.repeat(64),
+    nativeAbortProvenance:{sourceSeat:1,sourceDealStatus:'VERIFIED'}
   }),/Contradictory real native/);
   assert.throws(()=>archivedPhysicalSeats({
     originalSourceSeat:2,candidateSeat:null
   }),/physical seat/);
+});
+
+test('registration-derived abort seat cannot authenticate an unobserved source deal',()=>{
+  for(const sourceDealStatus of ['NOT_CAPTURED','NO_VERIFIED_RECEIPT',
+    'SOURCE_SEAT_MISMATCH',undefined]) {
+    const attempt={
+      id:'rank11-native-error',status:'engine-error',
+      originalSourceSeat:null,candidateSeat:null,
+      sourceDealFingerprint:'a'.repeat(64),
+      nativeAbortProvenance:{sourceSeat:0,sourceDealStatus},
+      publicRootActionsTruncated:false,publicRootActions:roots,
+      publicRootActionCount:roots.length,
+      publicRootLedgerSha256Computed:rootDigest(roots),
+      publicRootLedgerSha256Reported:rootDigest(roots)
+    };
+    const seats=archivedPhysicalSeats(attempt);
+    assert.equal(seats.sourceSeat,null);
+    assert.equal(seats.seatProvenance,'missing-physical-seat-proof');
+    const screen=screenArchivedReciprocalAttempts({attempts:[attempt]});
+    assert.equal(screen.verifiedRootLedgerContexts,0);
+    assert.equal(screen.quarantinedContexts,1);
+    assert.equal(screen.rows[0].competitiveAdmission,false);
+  }
+  const missingDigest=archivedPhysicalSeats({
+    originalSourceSeat:null,candidateSeat:null,
+    nativeAbortProvenance:{sourceSeat:0,sourceDealStatus:'VERIFIED'}
+  });
+  assert.equal(missingDigest.sourceSeat,null);
 });
