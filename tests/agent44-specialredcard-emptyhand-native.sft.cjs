@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {stage} =
   require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
-const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom} =
+  require('../simulation/twinleaf/headless.cjs');
 
 const nativeOutput = path.resolve(__dirname,
   '../vendor/twinleaf/ptcg-server/output');
@@ -291,6 +292,31 @@ for(const seat of [0,1])for(const reverse of [false,true]){
     console.log('AGENT44_M4_LOW_DECK_PAPER_DIFF',
       JSON.stringify({seat,reverse,randomDraws:draws,
         original:baseline,corrected,stagedOnly:true,
+        competitivelyQualifiedGames:0}));
+  });
+}
+
+for(const seat of [0,1]){
+  test('real seeded M4 hand-only native permutations cover all six three-card orders, seat '+seat,()=>{
+    const allOrders=new Set();
+    const seedReceipts=[];
+    for(let k=1;k<=12;k+=1){
+      const seed=(0x9e3779b9 ^ Math.imul(k,0x85ebca6b))>>>0;
+      const observed=inspectNativeBottomOrder(seat,false,
+        seededRandom(seed));
+      allOrders.add(observed.bottomOrder.join('|'));
+      seedReceipts.push({seed,bottomOrder:observed.bottomOrder});
+    }
+    assert.equal(allOrders.size,6,
+      'Real seeded physical events must realize all 3! hand orders');
+    const seed=seedReceipts[4].seed;
+    const again=inspectNativeBottomOrder(seat,false,seededRandom(seed));
+    assert.deepEqual(again.bottomOrder,seedReceipts[4].bottomOrder,
+      'Same physical seed and input hand must reproduce exact result');
+    console.log('AGENT44_M4_SEEDED_PHYSICAL_PERMUTATIONS',
+      JSON.stringify({seat,seedsChecked:seedReceipts.length,
+        distinctOrders:allOrders.size,seedReceipts,
+        deterministicRepeat:true,stagedOnly:true,
         competitivelyQualifiedGames:0}));
   });
 }
