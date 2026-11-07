@@ -24,6 +24,26 @@ test('Rank 1 repository list matches all 60 cards in the official Japanese deck 
   }, { pokemon: 0, trainer: 0, energy: 0 });
   assert.deepEqual(categoryTotals, official.categories);
 
+  const trainerSubcategories = official.cards
+    .filter(card => card.category === 'trainer')
+    .reduce((totals, card) => {
+      totals[card.trainer_type] += card.count;
+      return totals;
+    }, { item: 0, pokemon_tool: 0, supporter: 0, stadium: 0 });
+  assert.deepEqual(trainerSubcategories, {
+    item: official.trainer_subcategories.items,
+    pokemon_tool: official.trainer_subcategories.pokemon_tools,
+    supporter: official.trainer_subcategories.supporters,
+    stadium: official.trainer_subcategories.stadiums
+  });
+
+  const pokemon = official.cards.filter(card => card.category === 'pokemon');
+  assert.equal(pokemon.length, 11);
+  for (const card of pokemon) {
+    assert.ok(card.japanese_set_code);
+    assert.ok(card.collector_number);
+  }
+
   const expected = official.cards
     .map(card => [card.english_name, card.count])
     .sort(([a], [b]) => a.localeCompare(b));
