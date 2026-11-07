@@ -27,7 +27,9 @@ function fixture(perStratum) {
           trialId: id, physicalDealId: 'deal/' + id,
           paperReceiptId: 'receipt/' + id, status: 'paper-qualified-win',
           source60Sha: source.source60Sha,
-          candidate60Sha: A, candidatePolicySha: B, registrationSha: C
+          candidate60Sha: A, candidatePolicySha: B, registrationSha: C,
+          engineAndHooksSha: A, opponentPolicyBundleSha: B,
+          adjudicationProtocolSha: C
         });
         }
       }
@@ -109,6 +111,22 @@ test('candidate swap or policy mutation invalidates a fixed-treatment panel', ()
     request.attempts[1][key] = D;
     const result = assessPerfectField(request);
     assert.ok(result.rejectionReasons.includes('candidate-or-policy-changed'));
+  }
+});
+
+test('mixed engine, opponent policy or adjudication invalidate pooled inference', () => {
+  for (const key of ['engineAndHooksSha', 'opponentPolicyBundleSha',
+    'adjudicationProtocolSha']) {
+    const request = fixture(5);
+    request.attempts[1][key] = D;
+    const changed = assessPerfectField(request);
+    assert.equal(changed.conditionalLowerBound, null);
+    assert.ok(changed.rejectionReasons.includes(
+      'engine-opponent-or-adjudication-changed'));
+    request.attempts[1][key] = 'INVALID';
+    const malformed = assessPerfectField(request);
+    assert.ok(malformed.rejectionReasons.includes(
+      'engine-opponent-or-adjudication-unverified'));
   }
 });
 
