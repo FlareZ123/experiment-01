@@ -38,3 +38,5 @@ jobs:
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-full-settlement-native.cjs
       - name: Agent37 Eon Blade next-own-turn native paper-hook safety test
         run: node simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs
+      - name: Agent37 isolated per-Store paper KO hook A-B full settlement
+        run: node simulation/twinleaf/agent37-paper-ko-scoped-store-audit.cjs
