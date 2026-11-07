@@ -1,0 +1,90 @@
+{
+  "schema": "agent36-issue25-common-v9-vip-aba-240root-v1",
+  "createdAtUtc": "2026-11-07T09:09:57Z",
+  "experimentalType": "fresh-seed prospective A/B/A owner-policy intervention; same registered physical deals and candidate/source 60s in all phases",
+  "sourceOriginalRanks": [
+    6,
+    11
+  ],
+  "sourceSeatAllocationRule": "Rank 6 uses candidateSlot B (original source physical seat 0); rank 11 uses candidateSlot A (original source physical seat 1), covering both source seats.",
+  "contendingPrintedSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 240,
+  "phases": [
+    {
+      "id": "A",
+      "role": "control",
+      "ownerVipAfterPass": false
+    },
+    {
+      "id": "B",
+      "role": "treatment",
+      "ownerVipAfterPass": true
+    },
+    {
+      "id": "A2",
+      "role": "repeated-control",
+      "ownerVipAfterPass": false
+    }
+  ],
+  "groups": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 214,
+      "seed": 2037689663
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 215,
+      "seed": 1518610907
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 214,
+      "seed": 2037689663,
+      "candidateId": "champion-reference",
+      "id": "6:214:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 214,
+      "seed": 2037689663,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:214:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 215,
+      "seed": 1518610907,
+      "candidateId": "champion-reference",
+      "id": "11:215:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 215,
+      "seed": 1518610907,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:215:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "seedOrigin": "Two independent secrets.randbits(32) calls executed on Python runtime and observed at 2026-11-07T09:09:57 UTC before registration and before any native run: rank6=2037689663, rank11=1518610907.",
+  "policyLayers": "All phases use the same source-independent bilateral v8 common policy, Telepath owner-only ChooseCards continuation, owner-only Radiant Eternatus/Articuno-GX Confirm policy, Radiant zero-search correction, owner Prize/Promotion continuation, bilateral Volt continuation and Thorns direct-root flag. Only phase B enables the existing canonical actor inner ownerVipAfterPass handler through AGENT9_BATTLE_VIP_AFTER_PASS_DEV=true; A and A2 leave it disabled.",
+  "randomnessProtocol": "isolatePolicyRandomness=true and isolatePhysicalShuffleRandomnessAfterSetup=true for all phases. Each phase reuses identical registered trial IDs, decklists, physical seat allocation and seed. No seed selection or root filtering after results.",
+  "controlProtocol": "A/B/A in fixed order. Compare sourceDealFingerprint and fullPhysicalDealFingerprint within each exact trial. A2 must reproduce A's public root ledger and outcome. B's first root-ledger divergence is attributed to the VIP treatment only if it is a genuine Battle VIP Pass FST PlayCardAction replacing the same owner's PassTurnAction; otherwise record the actual divergence without treating it as a VIP effect.",
+  "rootCensoring": "240 accepted native root actions per arm. Native terminal, engine error, early return and root cap are retained separately. A capped game is not a win or loss. The 240-root ceiling is a development horizon, not a completed-game guarantee.",
+  "independentVerification": "Require exact A/A2 ledger parity, physical deal fingerprint parity across phases, native accepted VIP Store action, actual owner deck prompt settlement, physical deck-to-Bench movement, source/candidate action traces, and all failure receipts. Existing Agent16 v11 native VIP tests and v8 Telepath/Confirm tests remain part of the manual workflow.",
+  "scopeLimitations": "Only original source ranks 6 and 11 of the 29 authenticated source lists are included. Both candidate 60s are developmental contenders, not a final selection. This experiment does not establish full-field performance, a completed paper-valid game, opponent competence, official 25-minute clock compliance, or any win-rate estimate.",
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false
+}
