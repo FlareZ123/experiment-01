@@ -45,6 +45,8 @@ function runSeat(seat,options={}){
   let seenChoose=false;
   let usedOriginalApex=false;
   let lastRecorded=null;
+  let sourceHandAfterApex=null;
+  let sourceDeckAfterApex=null;
   try{
     x.store.dispatch(new AttackAction(x.opponent.id,'Apex Dragon'));
     usedOriginalApex=true;
@@ -68,6 +70,8 @@ function runSeat(seat,options={}){
         recordedSource:last?.sourceCard?.fullName??null,
         activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
     }
+    sourceHandAfterApex=x.opponent.hand.cards.length;
+    sourceDeckAfterApex=x.opponent.deck.cards.length;
     const last=x.state.playerLastAttack?.[x.opponent.id];
     lastRecorded={attack:last?.attack?.name??null,
       source:last?.sourceCard?.fullName??null,
@@ -108,6 +112,8 @@ function runSeat(seat,options={}){
     sourceChooseAttackPromptSeen:seenChoose,
     originalSourceLastAttackAfterResolvedApex:lastRecorded,
     sourceHandAfter:x.opponent.hand.cards.length,
+    sourceHandImmediatelyAfterApex:sourceHandAfterApex,
+    sourceDeckImmediatelyAfterApex:sourceDeckAfterApex,
     sourceActive:x.opponent.active.getPokemonCard()?.fullName,
     mimikyuActive:x.owner.active.getPokemonCard()?.fullName,
     mimikyuOwnerGXUsed:x.owner.usedGX===true,
