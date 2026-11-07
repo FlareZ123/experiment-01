@@ -78,6 +78,7 @@ function probe(seat,energyCount){
   try{
     const bot=new SimpleTacticsAi({id:x.owner.id},policyOptions,null);
     selected=bot.decodeNextAction(x.state);
+    clearCopyAttackSessionsForTests();
 
     const baseBot=new SimpleTacticsAi({id:x.owner.id},baseOptions,null);
     baseline=baseBot.decodeNextAction(x.state);
@@ -126,8 +127,8 @@ function run(){
     const underfunded=probe(seat,1);
     assert.equal(underfunded.explicitSimulatorAccepted,false,
       'One Psychic Energy must not pay Mimikyu Copycat');
-    assert.notEqual(underfunded.selectedAction.type,'ATTACK_ACTION',
-      'SimpleTacticsAi must reject the proposed underfunded Copycat');
+    assert.equal(underfunded.selectedCopycat,false,
+      'SimpleTacticsAi must not select the proposed underfunded Copycat');
     assert.equal(underfunded.sameActionAsBaseline,true,
       'Invalid custom tactic must leave the remaining tactic order unchanged');
 
