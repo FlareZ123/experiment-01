@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   exact-rng-audit:
@@ -21,3 +22,27 @@ jobs:
         run: node --test tests/agent50-three-protocol-shuffle-calibration.test.cjs
       - name: Execute exactly 200000 frozen 32-bit seeds across four protocols
         run: node simulation/evaluation/agent50-three-protocol-shuffle-calibration.cjs
+
+  exact-native-setup-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Read original rank4 versus rank1 native per-seat evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: agent50-original4-firstturn-dedechange-perseat32-sourcefirst-42298886655
+          run-id: 42298886655
+          github-token: ${{ github.token }}
+          path: artifacts/old-perseat
+      - name: Read identical rank4 exact seed strict native evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: agent50-original4-firstturn-dedechange-original32-identical-rank4-42325500697
+          run-id: 42325500697
+          github-token: ${{ github.token }}
+          path: artifacts/strict-identical
+      - name: Verify all native permutation SHA-256 and source opening hands independently
+        run: python simulation/evaluation/agent50-rank4-native-setup-shuffle-archive-verify.py artifacts/old-perseat artifacts/strict-identical
