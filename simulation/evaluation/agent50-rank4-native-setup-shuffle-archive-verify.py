@@ -4,7 +4,7 @@ Independent Python stdlib reimplementation of pinned CJS seededRandom and
 deckPermutation. No engine import or test-only hidden player information.
 Inputs are the original rank4/rank1 per-seat native archive and the later
 identical-rank4 same-seed strict archive, downloaded unchanged from GitHub
-Actions. Historical legacy-shared rows in the latter archive are deliberately
+Actions as ZIPs or extracted directories. Historical legacy-shared rows in the latter archive are deliberately
 excluded: their shared random stream includes other event consumers.
 
 Usage on Windows 11:
@@ -84,16 +84,27 @@ def permutation(random: Iterator[float], length: int = 60) -> list[int]:
 def read_verified_rows(archive: Path) -> list[dict]:
     """Read only signed-by-sidecar JSON members; reject missing/mismatched."""
     rows: list[dict] = []
-    with zipfile.ZipFile(archive) as z:
-        json_names = [name for name in z.namelist() if name.endswith(".json")]
-        assert len(json_names) == 32 or len(json_names) == 64, archive
-        for name in json_names:
-            body = z.read(name)
-            sidecar = z.read(name + ".sha256").decode("utf-8")
+    if archive.is_dir():
+        paths = list(archive.rglob("*.json"))
+        assert len(paths) in (32, 64), archive
+        for path in paths:
+            body = path.read_bytes()
+            sidecar = Path(str(path) + ".sha256").read_text(encoding="utf-8")
             claimed_sha, claimed_name = sidecar.strip().split(maxsplit=1)
-            assert claimed_name == Path(name).name, (name, claimed_name)
-            assert hashlib.sha256(body).hexdigest() == claimed_sha, name
+            assert claimed_name == path.name, (path, claimed_name)
+            assert hashlib.sha256(body).hexdigest() == claimed_sha, path
             rows.append(json.loads(body))
+    else:
+        with zipfile.ZipFile(archive) as z:
+            json_names = [name for name in z.namelist() if name.endswith(".json")]
+            assert len(json_names) in (32, 64), archive
+            for name in json_names:
+                body = z.read(name)
+                sidecar = z.read(name + ".sha256").decode("utf-8")
+                claimed_sha, claimed_name = sidecar.strip().split(maxsplit=1)
+                assert claimed_name == Path(name).name, (name, claimed_name)
+                assert hashlib.sha256(body).hexdigest() == claimed_sha, name
+                rows.append(json.loads(body))
     return rows
 
 
