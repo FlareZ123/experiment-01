@@ -8,28 +8,30 @@ How many future owner turns can begin with a successful mandatory draw when the 
 
 The stationary model assumes fixed voluntary draws and fixed opposing mill every turn. Native Aichi research contains both one-Burrow turns and a selected two-Burrow turn. A schedule model can preserve those differences without assuming that a single observed burst repeats forever.
 
-## Printed-card and native evidence
+## Printed-card and field evidence
 
 The supplied English card pool identifies:
 
-- Mimikyu SM2 58, whose Filch attack draws 2 cards.
-- Bunnelby PRC 121, whose Burrow attack discards the top card of the opponent's deck. Its Omega Barrage Ancient Trait permits a second attack during the turn.
+- Mimikyu GRI 58 (card-pool ID **sm2-58**), whose Filch attack draws 2 cards.
+- Bunnelby PRC 121 (card-pool ID **xy5-121**), whose Burrow attack discards the top card of the opponent's deck. Its Omega Barrage Ancient Trait permits a second attack during the turn.
+
+A programmatic scan of **results/aichi-2026/full-decklists.json** finds Bunnelby PRC 121 in ranks 2, 3, 15 and 26, and the Filch Mimikyu GRI 58 in ranks 1 and 30. This establishes direct name/count relevance across six of the 29 published complete decklists. Ranks 23, 25 and 28 have no full list. The source inventory preserves English display printings; exact Japanese historical printing provenance remains open.
 
 The repository contains two relevant native observations:
 
-- Agent 2's original rank-3 Burrow replay recorded 12 actual Burrow AttackAction dispatches. Each removed exactly one opposing deck card. The source owner declined the optional second attack in that natural trace. The separate ordinary next-turn draw was measured independently. See `results/methodology/agent2-original-rank3-bunnelby-native-burrow-terminal-20261104.md`.
-- Agent 6's selected original rank-3/rank-1 counterline settled two Burrows in one turn after a paid retreat. The optional Omega Barrage prompt was offered and accepted, and the opponent answered with Night Watch. The winner and terminal turn remained unchanged. See `results/aichi-2026/2026-11/agent6-rank3-bunnelby-counterline-native-20261106.md`.
+- Agent 2's original rank-3 Burrow replay recorded 12 actual Burrow AttackAction dispatches. Each removed exactly one opposing deck card. The source owner declined the optional second attack in that natural trace. The separate ordinary next-turn draw was measured independently. See **results/methodology/agent2-original-rank3-bunnelby-native-burrow-terminal-20261104.md**.
+- Agent 6's selected original rank-3/rank-1 counterline settled two Burrows in one turn after a paid retreat. The optional Omega Barrage prompt was offered and accepted, and the opponent answered with Night Watch. The winner and terminal turn remained unchanged. See **results/aichi-2026/2026-11/agent6-rank3-bunnelby-counterline-native-20261106.md**.
 
 These observations ground one-card and two-card opponent-mill scenarios. Future attack frequency remains dependent on board state, payment, survival, restrictions and the opponent's decision policy.
 
 ## Model
 
-New implementation: `simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs`.
+New implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
 
 Each schedule row specifies:
 
-- `ownerDraw`: cards voluntarily drawn by the owner during that owner turn.
-- `opponentMill`: cards milled by the opponent before the next owner turn.
+- **ownerDraw**: cards voluntarily drawn by the owner during that owner turn.
+- **opponentMill**: cards milled by the opponent before the next owner turn.
 
 After both effects, the model applies the next mandatory owner draw. A future owner turn counts only when at least one card remains for that draw. A finite schedule can be followed by a stationary tail, such as repeated Filch, repeated Pass, one Burrow per opponent turn, or two Burrows per opponent turn.
 
@@ -76,10 +78,10 @@ The schedule explicitly represents the observed two-Burrow capability while leav
 
 ## Reproduction
 
-- Implementation: `simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs`.
-- Tests: `tests/agent1-owner-deck-attrition-schedule.test.cjs`.
+- Implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
+- Tests: **tests/agent1-owner-deck-attrition-schedule.test.cjs**.
 - Local Node 22.16.0 run: **7/7 tests passed**.
-- The test suite checks 4,941 stationary-tail comparisons against Agent 2's model and 17,199 finite-schedule cases against an independent literal recurrence.
+- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module and 17,199 finite-schedule cases against an independent literal recurrence.
 - It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, the empty-deck boundary, and invalid inputs.
 
 ## Limits and next experiment
@@ -88,4 +90,4 @@ The schedule is a mathematical scenario evaluator. It does not infer that an opp
 
 A useful successor is a preregistered, owner-only Mimikyu Filch policy comparison on matched original rank-3 and rank-11 deals, both physical seats. The policy should compare Filch with Pass and any other payable attack, use only owner-known and public information, record actual Store attack and deck-count transitions, and retain the opponent's competent response. Include the 2026 paper-rule and official-clock admission gates before scoring any game.
 
-**Competitive status is unchanged:** zero paper-qualified games, no selected final fixed 60-card deck, 29/32 authenticated original opponent lists, and no demonstrated 99.5% win rate.
+**Competitive status is unchanged:** zero paper-qualified games, no selected final fixed 60-card deck, 29/32 published complete name/count inventories (ranks 23, 25 and 28 are missing), and no demonstrated 99.5% win rate. Exact historical printing provenance remains open.
