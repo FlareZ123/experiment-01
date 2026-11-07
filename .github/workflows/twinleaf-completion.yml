@@ -209,6 +209,8 @@ jobs:
       - name: Compile pinned upstream Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify live Garbotoxin versus Forest Seal Star Alchemy two-seat discrepancy
+        run: node --test tests/agent2-garbotoxin-fss-star-alchemy-paper-gap.native.test.cjs
       - name: Registered eight-original v8 passive KO-to-physical Prize object provenance
         if: ${{ inputs.include_agent3_v8_ko_source }}
         env:
