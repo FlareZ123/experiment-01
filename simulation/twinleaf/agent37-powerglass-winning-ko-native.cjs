@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string,targetPrinting?:string}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack'}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack',targetPrinting='Trubbish FST'}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -40,8 +40,10 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   owner.active.energies.cards.push(card('Psychic Energy MEE'));
   owner.hand.cards.push(card('Powerglass SFA'));
   owner.discard.cards.push(card('Psychic Energy MEE'));
-  enemy.active.cards.push(card('Trubbish FST'));
-  assert.ok(Number.isInteger(targetDamage)&&targetDamage>=0&&targetDamage<=60);
+  assert.ok((targetPrinting==='Trubbish FST'&&targetDamage>=0&&targetDamage<=60)||
+    (targetPrinting==='Trevenant & Dusknoir-GX SMP'&&targetDamage===260));
+  enemy.active.cards.push(card(targetPrinting));
+  assert.ok(Number.isInteger(targetDamage));
   enemy.active.damage=targetDamage;
   if(opponentHasBench){
     const bench=new PokemonCardList();
@@ -94,9 +96,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       assert.equal(p.validate(answer),true);
     }else if(p.constructor.name==='ChoosePrizePrompt'){
       assert.equal(p.playerId,owner.id);
-      const prize=owner.prizes.find(x=>x.cards.length>0);
-      assert.ok(prize,'Expected physical Prize slot');
-      answer=[prize];
+      const remaining=owner.prizes.filter(x=>x.cards.length>0);
+      answer=remaining.slice(0,p.options.count);
+      assert.equal(answer.length,p.options.count,'Must choose exact physical Prize count');
       assert.equal(p.validate(answer,state),true);
     }else if(p.constructor.name==='ChoosePokemonPrompt'){
       assert.equal(p.playerId,enemy.id);
@@ -119,9 +121,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       'Before promotion, occupied source Bench count must match fixture');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
-    lastPrize,opponentHasBench,targetDamage,actorSeat,actionKind,
+    lastPrize,opponentHasBench,targetDamage,actorSeat,actionKind,targetPrinting,
     printedScenario:(actionKind==='attack'?'Unown AOR Hidden Power10':'Unown AOR pass')+
-      ' vs Trubbish FST with'+targetDamage+'/70 damage',
+      ' vs '+targetPrinting+' with'+targetDamage+' damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
     sourceActiveAfterAttack:sourceActive?.fullName??null,
     sourceBenchCount:enemy.bench.filter(slot=>slot.getPokemonCard()).length,
