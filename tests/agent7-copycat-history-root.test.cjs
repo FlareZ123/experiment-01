@@ -12,8 +12,15 @@ const BURROW={turn:14,sourcePrinting:'Bunnelby PRC',
   attackName:'Burrow',gxAttack:false,copycatAttack:false};
 const ROTOTILLER={turn:14,sourcePrinting:'Bunnelby PRC',
   attackName:'Rototiller',gxAttack:false,copycatAttack:false};
+const BURROW_FIRST={...BURROW,barragePairIndex:0,barragePairRole:'first'};
+const ROTOTILLER_SECOND={...ROTOTILLER,barragePairIndex:0,barragePairRole:'second'};
+const ROTOTILLER_FIRST={...ROTOTILLER,barragePairIndex:0,barragePairRole:'first'};
+const BURROW_SECOND={...BURROW,barragePairIndex:0,barragePairRole:'second'};
 
-function makeView(rows,turn=14,activePrinting='Mimikyu GRI',energyCount=2){
+function makeView(rows,turn=14,activePrinting='Mimikyu GRI',energyCount=2,choices){
+  const copycatChoices=choices===undefined?
+    (rows===null?null:rows.filter(row=>!row.gxAttack&&!row.copycatAttack).slice(-1)):
+    choices;
   return {
     actorSeat:1,globalTurn:15,decisionKind:'owner-root',ownHand:[],
     ownPublic:{
@@ -51,7 +58,7 @@ function makeView(rows,turn=14,activePrinting='Mimikyu GRI',energyCount=2){
     },
     publicEventReceipt:{
       actorSeat:1,turn:15,opponentLastTurnTurn:turn,
-      opponentLastTurnAttacks:rows
+      opponentLastTurnAttacks:rows,opponentCopycatChoices:copycatChoices
     }
   };
 }
@@ -63,7 +70,7 @@ const catalog={
   specialConditions:{ASLEEP:1,PARALYZED:2,CONFUSED:3}
 };
 
-test('attaches the latest stamped public opponent snapshot without collapsing null and empty',()=>{
+test('attaches the latest stamped public snapshot and its exact Copycat choice set',()=>{
   const slot=printing=>({getPokemonCard:()=>printing?{fullName:printing,id:1}:null});
   const state={
     players:[
@@ -74,68 +81,100 @@ test('attaches the latest stamped public opponent snapshot without collapsing nu
   };
   const base={actorSeat:0,globalTurn:15,decisionKind:'owner-root'};
   const unknown=attachPreviousOpponentTurnReceipt(base,state,0,{
-    getPreviousTurnSnapshot:()=>null
+    getPreviousTurnSnapshot:()=>null,getCopycatChoices:()=>[]
   });
   assert.equal(unknown.publicEventReceipt.opponentLastTurnAttacks,null);
   assert.equal(unknown.publicEventReceipt.opponentLastTurnTurn,null);
-  const empty=attachPreviousOpponentTurnReceipt(base,state,0,{
+  assert.equal(unknown.publicEventReceipt.opponentCopycatChoices,null);
+  const nativeBurrow={playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
+    attackName:'Burrow',gxAttack:false,copycatAttack:false};
+  const known=attachPreviousOpponentTurnReceipt(base,state,0,{
     getPreviousTurnSnapshot:id=>{
       assert.equal(id,2);
-      return {turn:14,attacks:[]};
-    }
+      return {turn:14,attacks:[nativeBurrow]};
+    },
+    getCopycatChoices:()=>[nativeBurrow]
+  });
+  assert.equal(known.publicEventReceipt.opponentLastTurnTurn,14);
+  assert.deepEqual(known.publicEventReceipt.opponentCopycatChoices,
+    [known.publicEventReceipt.opponentLastTurnAttacks[0]]);
+  assert.ok(Object.isFrozen(known));
+  assert.ok(Object.isFrozen(known.publicEventReceipt));
+  const empty=attachPreviousOpponentTurnReceipt(base,state,0,{
+    getPreviousTurnSnapshot:()=>({turn:14,attacks:[]}),
+    getCopycatChoices:()=>[]
   });
   assert.deepEqual(empty.publicEventReceipt.opponentLastTurnAttacks,[]);
-  assert.equal(empty.publicEventReceipt.opponentLastTurnTurn,14);
-  assert.ok(Object.isFrozen(empty));
-  assert.ok(Object.isFrozen(empty.publicEventReceipt));
+  assert.deepEqual(empty.publicEventReceipt.opponentCopycatChoices,[]);
 });
 
 test('selects Copycat for one exact prior-turn Bunnelby Burrow and passes it into the actor-root chooser',()=>{
   const view=makeView([BURROW]);
   const expected={
     kind:'attack',attackName:'Copycat',source:VERSION,
-    previousTurn:14,previousSource:'Bunnelby PRC',previousAttack:'Burrow'
+    previousTurn:14,previousSource:'Bunnelby PRC',previousAttack:'Burrow',
+    previousChoiceIndex:0,previousBarragePairIndex:null,
+    previousBarragePairRole:null
   };
   assert.deepEqual(chooseMimikyuBurrowCopycat(view),expected);
   assert.deepEqual(chooseActorRootIntent(view,catalog,{copycatHistoryRoot:true}),expected);
 });
 
-test('fails closed for unavailable and known-empty previous turns',()=>{
-  for(const rows of [null,[]]){
-    const view=makeView(rows);
+test('fails closed for unavailable, known-empty, and ineligible latest attacks',()=>{
+  for(const [rows,choices] of [[null,null],[[],[]],[[BURROW,ROTOTILLER],[ROTOTILLER]]]){
+    const view=makeView(rows,14,'Mimikyu GRI',2,choices);
     assert.equal(chooseMimikyuBurrowCopycat(view),null);
     assert.deepEqual(chooseActorRootIntent(view,catalog,{copycatHistoryRoot:true}),
       {kind:'attack',attackName:'Filch'});
   }
 });
 
-test('fails closed for multiattack turns until Ω Barrage pair eligibility is explicit',()=>{
-  const view=makeView([BURROW,ROTOTILLER]);
-  assert.equal(chooseMimikyuBurrowCopycat(view),null);
-  assert.deepEqual(chooseActorRootIntent(view,catalog,{copycatHistoryRoot:true}),
-    {kind:'attack',attackName:'Filch'});
+test('uses only the tracker-certified two-member Ω Barrage pair, in either attack order',()=>{
+  const first=makeView([BURROW_FIRST,ROTOTILLER_SECOND],14,'Mimikyu GRI',2,
+    [BURROW_FIRST,ROTOTILLER_SECOND]);
+  const firstIntent=chooseMimikyuBurrowCopycat(first);
+  assert.equal(firstIntent.attackName,'Copycat');
+  assert.equal(firstIntent.previousChoiceIndex,0);
+  assert.equal(firstIntent.previousBarragePairIndex,0);
+  assert.equal(firstIntent.previousBarragePairRole,'first');
+  assert.deepEqual(chooseActorRootIntent(first,catalog,{copycatHistoryRoot:true}),
+    firstIntent);
+  const second=makeView([ROTOTILLER_FIRST,BURROW_SECOND],14,'Mimikyu GRI',2,
+    [ROTOTILLER_FIRST,BURROW_SECOND]);
+  const secondIntent=chooseMimikyuBurrowCopycat(second);
+  assert.equal(secondIntent.attackName,'Copycat');
+  assert.equal(secondIntent.previousChoiceIndex,1);
+  assert.equal(secondIntent.previousBarragePairRole,'second');
+  assert.deepEqual(chooseActorRootIntent(second,catalog,{copycatHistoryRoot:true}),
+    secondIntent);
 });
 
-test('rejects GX, Copycat, wrong source, wrong attack, stale stamp, and non-Mimikyu actors',()=>{
-  const rows=[
-    {...BURROW,gxAttack:true},
-    {...BURROW,copycatAttack:true},
-    {...BURROW,sourcePrinting:'Regidrago VSTAR SIT'},
-    {...BURROW,attackName:'Rototiller'}
-  ];
-  for(const row of rows)assert.equal(
-    chooseMimikyuBurrowCopycat(makeView([row])),null);
+test('rejects incomplete, malformed, same-attack, stale, and wrong-actor choice sets',()=>{
+  const incomplete=makeView([BURROW_FIRST],14,'Mimikyu GRI',2,[BURROW_FIRST]);
+  assert.equal(chooseMimikyuBurrowCopycat(incomplete),null);
+  const mismatchedPair=makeView([BURROW_FIRST,ROTOTILLER_SECOND],14,
+    'Mimikyu GRI',2,[BURROW_FIRST,{...ROTOTILLER_SECOND,barragePairIndex:1}]);
+  assert.equal(chooseMimikyuBurrowCopycat(mismatchedPair),null);
+  const sameAttack=makeView([BURROW_FIRST,{...BURROW_SECOND}],14,
+    'Mimikyu GRI',2,[BURROW_FIRST,{...BURROW_SECOND}]);
+  assert.equal(chooseMimikyuBurrowCopycat(sameAttack),null);
   assert.equal(chooseMimikyuBurrowCopycat(makeView([BURROW],13)),null);
   assert.equal(chooseMimikyuBurrowCopycat(
     makeView([BURROW],14,'Mew VMAX FST')),null);
+  assert.equal(chooseMimikyuBurrowCopycat(makeView(
+    [{...BURROW,gxAttack:true}])),null);
+  assert.equal(chooseMimikyuBurrowCopycat(makeView(
+    [{...BURROW,copycatAttack:true}])),null);
+  assert.equal(chooseMimikyuBurrowCopycat(makeView(
+    [{...BURROW,sourcePrinting:'Regidrago VSTAR SIT'}])),null);
+  assert.equal(chooseMimikyuBurrowCopycat(makeView(
+    [{...BURROW,attackName:'Rototiller'}])),null);
 });
 
 test('Copycat still requires native-payable attack cost',()=>{
   const view=makeView([BURROW],14,'Mimikyu GRI',1);
-  assert.deepEqual(chooseMimikyuBurrowCopycat(view),{
-    kind:'attack',attackName:'Copycat',source:VERSION,
-    previousTurn:14,previousSource:'Bunnelby PRC',previousAttack:'Burrow'
-  });
+  const expected=chooseMimikyuBurrowCopycat(view);
+  assert.ok(expected);
   assert.deepEqual(chooseActorRootIntent(view,catalog,{copycatHistoryRoot:true}),
     {kind:'attack',attackName:'Filch'});
 });
