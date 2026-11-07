@@ -130,9 +130,10 @@ function rootLedger(row){
   const archived=row.nativePublicRootArchive?.rootActionLedger;
   const aborted=row.nativeAbortEvidence?.rootActionLedger??
     row.nativeAbortProvenance?.rootActionLedger??null;
-  if(Array.isArray(direct))return direct;
+  if(Array.isArray(direct)&&direct.length>0)return direct;
   if(Array.isArray(archived))return archived;
   if(Array.isArray(aborted))return aborted;
+  if(Array.isArray(direct))return direct;
   return null;
 }
 
@@ -401,8 +402,9 @@ function runPhase(phase,deps={}){
     diagnostic:{
       ...result.diagnostic,phase,
       nativeVipRows:vipRows,
-      nativeAttempts:(result.rawDevelopment?.rows??[]).map(row=>
-        summarizeNativeAttempt(row)),
+      nativeAttempts:result.diagnostic.nativeAttempts??
+        (result.rawDevelopment?.rows??[]).map(row=>
+          summarizeNativeAttempt(row)),
       verdict:'DEVELOPMENT-ONLY-NO-COMPETITIVE-ADMISSION',
       competitiveGamesQualified:0,estimatedWinRate:null
     },
