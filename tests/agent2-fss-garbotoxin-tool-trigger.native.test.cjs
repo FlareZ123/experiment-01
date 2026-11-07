@@ -44,7 +44,7 @@ function fixture(toolOwnerSeat, garbodorName) {
   toolOwner.name = 'Garbodor owner';
   abilityOwner.name = 'Ability owner';
 
-  toolOwner.active.cards.push(card('Mega Absol ex MEG'));
+  toolOwner.active.cards.push(card('Snorlax PGO'));
   toolOwner.bench = Array.from({length: 5}, () => new PokemonCardList());
   const garbodorSlot = toolOwner.bench[0];
   garbodorSlot.cards.push(card('Trubbish FST'), card(garbodorName));
