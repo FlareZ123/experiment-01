@@ -345,6 +345,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
  * @property {(store:object)=>void} [onRootStoreCreated] Runtime-only callback for the actual match Store.
+ * @property {(agents:object[])=>void} [onRootAgentsCreated] Runtime-only callback with the two real player bot instances.
  * @property {(store:object,action:object,actionOrdinal:number,seat:number,turnBefore:number)=>void} [onRootActionDispatched] Runtime-only callback after each successful actual Store dispatch.
  * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
@@ -950,6 +951,7 @@ function runMatch(request) {
       new SimpleTacticsAi({ id: 101 }, optionsBySeat[0], request.deckA),
       new SimpleTacticsAi({ id: 202 }, optionsBySeat[1], request.deckB)
     ];
+    request.onRootAgentsCreated?.(seats);
     store.dispatch(new AddPlayerAction(101, 'research-A', request.deckA));
     if (store.state.phase === GamePhase.FINISHED) {
       throw new Error('Player A failed Twinleaf deck validation.');
