@@ -14,6 +14,12 @@ on:
         required: false
         default: false
 
+      agent6_copycat_original_source_root:
+        description: Preregistered 24 original rank10/champion native Store read-only Copycat opening-zone A/B/A, no competitive games
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
@@ -97,3 +103,15 @@ jobs:
 
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
+
+      - name: Optional original rank10/champion read-only Copycat root-zone A/B/A
+        if: inputs.agent6_copycat_original_source_root == true
+        run: |
+          node --test tests/agent6-copycat-opening-locations.test.cjs tests/agent6-copycat-prize-recovery-profile.test.cjs tests/agent6-copycat-star-alchemy-opening.test.cjs tests/agent6-copycat-source-zone-observer.test.cjs tests/agent6-copycat-root-state-capture.test.cjs
+          node simulation/evaluation/agent6-copycat-root-original-native.cjs > agent6-copycat-root-original-native.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent6_copycat_original_source_root == true }}
+        with:
+          name: agent6-copycat-root-original-native
+          path: agent6-copycat-root-original-native.json
+          if-no-files-found: warn
