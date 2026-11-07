@@ -63,6 +63,7 @@ function executeSecretBoxDciPayment(seat){
   assert.ok(plan,'Expected owner-visible DCI selector to return a legal payment');
   const nativeValidatorAccepted=prompt.validate(plan.cards,f.state)===true;
   const selected=plan.cards.slice();
+  const selectedPromptIndices=selected.map(card=>prompt.cards.cards.indexOf(card));
   const beforeHand=f.source.hand.cards.slice();
   const beforeDiscard=f.source.discard.cards.slice();
   let paymentError=null;
@@ -91,6 +92,8 @@ function executeSecretBoxDciPayment(seat){
       selectedPrintings:selected.map(card=>card.fullName)
     },
     nativeValidatorAccepted,paymentError,
+    selectedPromptIndices,
+    selectedPhysicalIds:selected.map(card=>card.id),
     paymentSettled:prompt.result!==undefined,
     physicalPaymentSettled:selected.every(card=>
       beforeHand.includes(card)&&
