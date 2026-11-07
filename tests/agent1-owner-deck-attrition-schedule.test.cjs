@@ -84,7 +84,7 @@ test('one Filch followed by passing has a different budget from repeated Filch',
   }],{ownerDraw:0,opponentMill:0});
   assert.equal(repeatFilch.futureOwnerStarts,7);
   assert.equal(repeatPass.futureOwnerStarts,23);
-  assert.equal(oneFilchThenPass21});
+  assert.equal(oneFilchThenPass.futureOwnerStarts,21);
 });
 
 test('sustained double-Burrow pressure changes the repeated-draw horizon',()=>{
@@ -123,7 +123,7 @@ test('a one-turn double-Burrow burst is represented without assuming it repeats'
   }],{ownerDraw:0,opponentMill:0});
   assert.equal(repeatedFilchAfterBurst.futureOwnerStarts,4);
   assert.equal(passAfterBurst.futureOwnerStarts,13);
-  assert.equal(oneFilchThenPass11);
+  assert.equal(oneFilchThenPass.futureOwnerStarts,11);
   assert.deepEqual(repeatedFilchAfterBurst.ledger,[{
     scheduledOwnerTurn:1,
     ownerDrawRequested:2,
