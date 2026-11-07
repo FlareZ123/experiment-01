@@ -80,6 +80,14 @@ function classifyTerminalCause(row) {
     return {status:'tiebreaker-batch-adjudication-unresolved',
       conditions:[],engineWinner:winner};
   }
+  const paperBasicOutcome=basicPaperResult(after,winner);
+  // A native reported winner can disagree with a simultaneous loss/tie in the
+  // supplied paper rules. Card text might override basic rules; such a record
+  // needs separate card-level adjudication, not a sufficient-condition tag.
+  if(paperBasicOutcome==='tie'||paperBasicOutcome==='loser') {
+    return {status:'paper-basic-result-conflict',conditions:[],
+      engineWinner:winner,paperBasicOutcome};
+  }
   // Two players receiving Prize cards inside one terminal dispatch implies
   // that a bilateral KO/Prize settlement or another multi-player transition
   // occurred. The native winner may have been chosen before all Prize rights
@@ -91,14 +99,6 @@ function classifyTerminalCause(row) {
   if(bothSidesPrizesFell){
     return {status:'bilateral-prize-settlement-unverified',
       conditions:[],engineWinner:winner};
-  }
-  const paperBasicOutcome=basicPaperResult(after,winner);
-  // A native reported winner can disagree with a simultaneous loss/tie in the
-  // supplied paper rules. Card text might override basic rules; such a record
-  // needs separate card-level adjudication, not a sufficient-condition tag.
-  if(paperBasicOutcome==='tie'||paperBasicOutcome==='loser') {
-    return {status:'paper-basic-result-conflict',conditions:[],
-      engineWinner:winner,paperBasicOutcome};
   }
   const loser=1-winner;
   const winningBefore=before.players[winner];
