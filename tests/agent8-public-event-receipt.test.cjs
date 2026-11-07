@@ -132,16 +132,20 @@ test('accepts detached turn-stamped public multiattack history',()=>{
   const state={players:[owner,opponent],activePlayer:0,turn:15};
   const history=[
     {playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
-      attackName:'Burrow',gxAttack:false,copycatAttack:false},
+      attackName:'Burrow',gxAttack:false,copycatAttack:false,
+      barragePairId:'2:14:0',barragePairRole:'first'},
     {playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
-      attackName:'Rototiller',gxAttack:false,copycatAttack:false}
+      attackName:'Rototiller',gxAttack:false,copycatAttack:false,
+      barragePairId:'2:14:0',barragePairRole:'second'}
   ];
   const r=publicEventReceipt(state,0,history,14);
   assert.deepEqual(r.opponentLastTurnAttacks,[
     {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Burrow',
-      gxAttack:false,copycatAttack:false},
+      gxAttack:false,copycatAttack:false,barragePairIndex:0,
+      barragePairRole:'first'},
     {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Rototiller',
-      gxAttack:false,copycatAttack:false}
+      gxAttack:false,copycatAttack:false,barragePairIndex:0,
+      barragePairRole:'second'}
   ]);
   assert.equal(r.opponentLastTurnTurn,14);
   assert.ok(Object.isFrozen(r.opponentLastTurnAttacks));
@@ -152,6 +156,14 @@ test('accepts detached turn-stamped public multiattack history',()=>{
   assert.equal(noAttacks.opponentLastTurnTurn,14);
   assert.ok(Object.isFrozen(noAttacks.opponentLastTurnAttacks));
   assert.throws(()=>publicEventReceipt(state,0,[{...history[0],playerId:1}],14));
+  assert.throws(()=>publicEventReceipt(state,0,[history[0]],14),
+    'incomplete Barrage pairs must be rejected');
+  assert.throws(()=>publicEventReceipt(state,0,[history[0],
+    {...history[1],barragePairRole:'first'}],14),
+    'duplicate first roles must be rejected');
+  assert.throws(()=>publicEventReceipt(state,0,[history[0],
+    {...history[1],sourceCardFullName:'Different Pokemon'}],14),
+    'Barrage pairs must share a source printing');
   assert.throws(()=>publicEventReceipt(state,0,[history[0],
     {...history[1],turn:13}],14),'mixed snapshot turns must be rejected');
   assert.throws(()=>publicEventReceipt(state,0,[{...history[0],turn:15}],15),
