@@ -315,6 +315,12 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     (Number.isSafeInteger(row.initiatingRootActionOrdinal)||
       row.initiatingRootActionOrdinal===null)&&
     Number.isSafeInteger(row.declarationRootTurnAfter)&&
+    Number.isSafeInteger(row.completionRootOrdinal)&&
+    (Number.isSafeInteger(row.completionRootTurnBefore)||
+      row.completionRootTurnBefore===null)&&
+    (row.completionRootTurnMatchesDeclarationTurn===null||
+      typeof row.completionRootTurnMatchesDeclarationTurn==='boolean')&&
+    typeof row.laterPromptResolutionRootsPresent==='boolean'&&
     typeof row.declarationRootPromptPendingAfter==='boolean'&&
     Array.isArray(row.publicBoardImmediatelyAfterDeclarationRoot)&&
     Array.isArray(row.publicBoardAfterPromptClosure)&&
@@ -345,6 +351,11 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
         initiatingRootActionOrdinal:row.initiatingRootActionOrdinal,
         declarationRootTurnAfter:row.declarationRootTurnAfter,
         declarationRootPromptPendingAfter:row.declarationRootPromptPendingAfter,
+        completionRootOrdinal:row.completionRootOrdinal,
+        completionRootTurnBefore:row.completionRootTurnBefore,
+        completionRootTurnMatchesDeclarationTurn:
+          row.completionRootTurnMatchesDeclarationTurn,
+        laterPromptResolutionRootsPresent:row.laterPromptResolutionRootsPresent,
         physicalActivePrintingBefore:row.physicalActivePrintingBefore,
         physicalActivePrintedAttackNamesBefore:
           row.physicalActivePrintedAttackNamesBefore,
