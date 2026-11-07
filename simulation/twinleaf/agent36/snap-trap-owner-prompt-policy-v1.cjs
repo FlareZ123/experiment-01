@@ -36,7 +36,8 @@ function loadDependencies() {
   const {MoveCardsEffect} = loadEngine('game/store/effects/move-cards-effect');
   const types = {
     ...loadEngine('game/store/card/card-types'),
-    GameMessage: loadEngine('game/game-message').GameMessage
+    GameMessage: loadEngine('game/game-message').GameMessage,
+    StateUtils: loadEngine('game/store/state-utils').StateUtils
   };
   return {
     SimpleTacticsAi,
@@ -79,6 +80,9 @@ function verifySnapTrapPrompt(state, prompt, proof, ai, types, ChooseCardsPrompt
   if (proof?.eligibleSubzone !== 'attacker-active-energies') fail('eligible subzone');
   if (proof?.promptType !== 'ChooseCardsPrompt') fail('proof prompt type');
   if (proof?.promptMessage !== 'CHOOSE_CARD_TO_DISCARD') fail('proof prompt message');
+  if (proof?.moveSourceCard !== SOURCE_PRINTING ||
+      proof?.moveSourceEffect !== SOURCE_ABILITY) fail('MoveCardsEffect source identity');
+  if (proof?.promptCardsClass !== prompt.cards?.constructor?.name) fail('prompt parent-list class');
   if (proof?.promptIdAssignedByStore !== true) fail('Store-assigned prompt ID');
   if (proof?.pendingNativePromptId !== String(prompt.id)) fail('pending prompt ID');
   if (String(proof?.promptIdAfterStore) !== String(prompt.id)) fail('post-Store prompt ID');
@@ -121,8 +125,10 @@ function verifySnapTrapPrompt(state, prompt, proof, ai, types, ChooseCardsPrompt
   const sourceEffect = sourceCard?.powers?.[0];
   const attackerPokemon = attacker.active?.getPokemonCard?.();
   if (sourceCard?.fullName !== SOURCE_PRINTING ||
-      sourceEffect?.name !== SOURCE_ABILITY) fail('live source identity');
-  if (attackerPokemon?.fullName !== proof.attackerPrinting) fail('live attacker identity');
+      sourceEffect?.name !== SOURCE_ABILITY ||
+      !sourceOwner.active.cards.includes(sourceCard)) fail('live source identity');
+  if (attackerPokemon?.fullName !== proof.attackerPrinting ||
+      !attacker.active.cards.includes(attackerPokemon)) fail('live attacker identity');
   if (prompt.cards !== attacker.active ||
       prompt.cards?.energies !== attacker.active?.energies) {
     fail('exact attacking Active and Energy sublist references');
