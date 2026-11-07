@@ -77,6 +77,7 @@ test('Mimikyu Copycat joins its own cost to a settled prior-turn non-GX Eon Blad
   assert.equal(result.supportedRows,1);
   const row=result.rows[0];
   assert.equal(row.paperCopycatConditionSupported,true,row.failureReasons.join(', '));
+  assert.equal(row.currentCopycatLineageValid,true);
   assert.equal(row.attackRole,'fixed-contender');
   assert.deepEqual(row.copycatPrintedCost,['Psychic','Colorless']);
   assert.deepEqual(row.donorPrintedAttackCost,['Psychic','Psychic','Colorless']);
@@ -121,6 +122,7 @@ test('the same join works when Mimikyu is the original-source seat',()=>{
   assert.equal(row.attackerSeat,0);
   assert.equal(row.opponentSeat,1);
   assert.equal(row.paperCopycatConditionSupported,true,row.failureReasons.join(', '));
+  assert.equal(row.currentCopycatLineageValid,true);
 });
 
 test('direct Latias ex Eon Blade attacks are excluded from the Copycat audit',()=>{
