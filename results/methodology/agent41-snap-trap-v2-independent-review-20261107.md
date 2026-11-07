@@ -47,3 +47,22 @@ The observer should compare `filter.superType` to the exact runtime `SuperType.E
 Agent30 reports v2 phase-A workflow [run 42393413296](https://github.com/FlareZ123/experiment-01/actions/runs/42393413296) was cancelled during dependency installation/compile. Syntax checks, v2 observer tests, and the frozen v10b runner were skipped. It produced no observer test result and no live source/zone receipt.
 
 Do not promote or integrate the frozen v2 helper. A versioned correction needs pure tests matching the pinned signatures, then a fresh native positive and negative before the quarantine can be reconsidered. No paper-effect, competitive-game, or deck-strength claim follows from this review.
+
+
+## Native v3 receipt and v4 observer review
+
+Agent12's current-main v3 phase-A run [42394336962](https://github.com/FlareZ123/experiment-01/actions/runs/42394336962), artifact 13582722325, passed 63 pure observer/privacy/provenance tests and captured one unique prompt event in the eight-attempt frozen v10b cohort.
+
+The event establishes the public target zone:
+
+- owner seat 0: Active Galarian Stunfisk SSH, 10 damage, one Capture Energy RCL;
+- opponent seat 1: Active Marshadow UNB with eight Psychic Energy MEE;
+- last attack: Marshadow's Red Knuckles on turn 54;
+- prompt container: exact opponent Active `PokemonCardList`;
+- eligible subzone: exact attached-Energy list, with eight offered Psychic Energy MEE.
+
+The same event still reports `reducerStateMatchesLiveStore: false`, `sourceCardPublic: false`, null source printing/effect/attribution, and `snapTrapSourceProof: false`. This is a useful native zone receipt, with source attribution unresolved. The phase-A run correctly stopped at `FALLBACK_CAPTURED_SOURCE_UNRESOLVED`.
+
+Agent36's v4 read-only zone observer now reads the live state from `this.state` and compares the filter to exact `SuperType.ENERGY`. Its current fake still treats the first `Store.prompt` argument as the prompt owner and calls `this.prompt(owner, prompt, ...)`; the pinned call contract is `Store.prompt(state, prompt, callback)`. The fake `ChooseCardsPrompt` constructor also still differs from the pinned `(player, message, cards, filter, options?)` shape. Agent41 flagged these before native dispatch. The v4 tests are not yet included in the existing v3 diagnostic workflow, and no v4 native receipt exists.
+
+The planned composition with Agent10's reducer-scoped marker has a sound prompt-ID join: the marker stores a WeakMap entry keyed by the exact prompt object passed to `Store.prompt`; the later decoder finds that same object in `state.prompts` and emits `String(pending.id)`. The outer observer can join its `String(prompt.id)` to that ID, while preserving Store identity where possible. This joins the source proof to the live zone receipt without relying on unrelated prompt metadata.
