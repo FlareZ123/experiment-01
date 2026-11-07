@@ -30,7 +30,7 @@ The Japanese promo identities are integrated into deck resolution:
 - Palace Belt BWP resolves to its exact native ID in ranks 6 and 29.
 - Player's Ceremony SP 127 resolves through the research-only implementation in ranks 3, 6, 24, and 29 (five copies total).
 
-Thus the earlier question about whether the Japanese promo-bearing lists can be constructed is answered for the 29 authenticated lists: they are engine-ready under the permitted proxy policy. The separate rank-6 source-use probe checks both physical seats and all three promo IDs in one deck; a fresh current-main run was dispatched as run 42394051302 and was still in progress at this report's creation.
+Thus the earlier question about whether the Japanese promo-bearing lists can be constructed is answered for the 29 authenticated lists: they are engine-ready under the permitted proxy policy. The separate rank-6 source-use probe checks both physical seats and all three promo IDs in one deck. The fresh current-main run [42394051302](https://github.com/FlareZ123/experiment-01/actions/runs/42394051302) completed successfully; its `source-use` job passed on head `49bb9687680f92c586aff5d871e45297c41fd111`.
 
 ## Exact-print and semantic limitations
 
