@@ -5,6 +5,7 @@ const {createHash}=require('node:crypto');
 const registration=require('../../results/aichi-2026/registrations/agent6-copycat-exact-seven-24arm-native-20261107.json');
 const {runMatch}=require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
+const source60=require('../../results/aichi-2026/full-decklists.json');
 const {createOriginalSevenCopycatCapture}=
   require('./agent6-copycat-original-seven-capture.cjs');
 const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
@@ -23,7 +24,24 @@ function originals() {
   assert.equal(opp?.status,'ready','The authenticated original rank10 must resolve');
   assert.equal(plan.candidate.cards.length,60);
   assert.equal(opp.cards.length,60);
+  const original=source60.decks.find(d=>d.rank===1);
+  assert.ok(original);
+  let cursor=0,physicalBasicCopies=0;
+  const basicPrints=new Set();
+  for(const card of original.cards){
+    const resolved=plan.candidate.cards.slice(cursor,cursor+card.count);
+    assert.equal(resolved.length,card.count);
+    if(card.category==='Pokémon'&&card.name!=='Shadow Rider Calyrex VMAX') {
+      resolved.forEach(print=>basicPrints.add(print));
+      physicalBasicCopies+=resolved.length;
+    }
+    cursor+=card.count;
+  }
+  assert.equal(cursor,60);
+  assert.equal(physicalBasicCopies,14,
+    'Frozen original champion basic-count integrity drift');
   return {champion:plan.candidate.cards,rank10:opp.cards,
+    championBasicPrints:basicPrints,
     nativeManifestSha256:plan.manifestDigest,
     explicitPrintingSubstitutions:{
       champion:plan.candidate.substitutions,
@@ -43,7 +61,8 @@ function originals() {
 function runOne(group,mode,decks) {
   const championSeat=group.championSeat;
   const capture=mode==='B-observe-true-starting-seven'?
-    createOriginalSevenCopycatCapture(championSeat,3,GameMessage.CHOOSE_STARTING_POKEMONS):null;
+    createOriginalSevenCopycatCapture(championSeat,3,
+      GameMessage.CHOOSE_STARTING_POKEMONS,decks.championBasicPrints):null;
   const request={
     deckA:championSeat===0?decks.champion:decks.rank10,
     deckB:championSeat===1?decks.champion:decks.rank10,
@@ -120,6 +139,7 @@ function run() {
       b.observerRootAudit.exactSevenAndSixPrizeCaptured===true &&
       b.observerRootCapture.exactInitialSevenComparable===true &&
       b.observerRootCapture.initialSeven.size===7 &&
+      b.observerRootCapture.initialSeven.startingBasicCount>=1 &&
       b.observerRootAudit.instanceWrapperDetached===true;
     groups.push({seed:a.seed,championSeat:a.championSeat,
       replayControlIdentical,observerPolicyNeutral,actualSourceCapture,
@@ -163,6 +183,14 @@ if(require.main===module){
       row.observerRootCapture?.oneCorePrizedBallDeck).length,
     observedHeldSealAndInitialHandV:observed.filter(row=>
       row.observerRootCapture?.directInitialSealAndV).length,
+    sourceFirstSevenBasicCounts:observed.map(row=>
+      row.observerRootCapture?.initialSeven?.startingBasicCount??null),
+    actualSourceStartingPromptsObserved:observed.map(row=>
+      row.observerRootAudit?.sourceStartingPromptsSeen??null),
+    actualInvalidInitialSevenPromptCounts:observed.map(row=>
+      row.observerRootAudit?.rejectedInvalidSevenPromptsSeen??null),
+    sourceMulligansFromNativeSetup:observed.map(row=>
+      row.setupCompensation?.mulligans?.[row.championSeat]??null),
     competitivelyQualifiedGames:0};
   process.stderr.write(JSON.stringify(stats)+'\n');
   if(!data.allControlsMatched||!data.observerNoninterfering||
