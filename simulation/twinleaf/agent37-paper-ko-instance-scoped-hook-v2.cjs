@@ -95,9 +95,10 @@ function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
     if(this!==store)throw Error('SIMULTANEOUS_KO_HOOK_WRONG_STORE');
 
     if(resolvingPaperCheck&&effect instanceof KnockOutEffect){
+      const wasActive=effect.target===effect.player.active;
       const result=originalReduce.call(store,state,effect);
       audit.knockoutEffects++;
-      if(effect.target===effect.player.active){
+      if(wasActive){
         if(!effect.preventDefault&&effect.prizeCount>0){
           audit.activeKoPlayerIds.push(effect.player.id);
         }
