@@ -54,3 +54,5 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-flattened-consecutive-native.cjs
       - name: Compare synchronous preselected diagnostic as negative methodological control
         run: node simulation/twinleaf/agent46-mimikyu-apex-synchronous-native.cjs
+      - name: Mimikyu Copycat Eon Blade next-own-turn lock in both seats and hook controls
+        run: node simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs
