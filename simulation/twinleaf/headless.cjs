@@ -32,6 +32,7 @@ const {installRadiantGateLockHook} = require('./radiant-gate-lock-hook.cjs');
 const {installEntryDrawLockHook} = require('./entry-draw-lock-hook.cjs');
 const {installEldegossEntryLockHook} = require('./eldegoss-entry-lock-hook.cjs');
 const {installArticunoEntryLockHook} = require('./articuno-entry-lock-hook.cjs');
+const {installArticunoZeroMovementPromptHook} = require('./articuno-zero-movement-prompt-hook.cjs');
 const {installDistinctAttachTargetsHook} = require('./distinct-attach-targets-hook.cjs');
 const {installHerdierTreasureHuntHook} = require('./herdier-treasure-hunt-hook.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
@@ -283,6 +284,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [entryDrawLockCorrection] Opt-in correction for Dedenne-GX and Crobat V Bench-entry draw Abilities under in-play-only locks.
  * @property {boolean} [eldegossEntryLockCorrection] Opt-in correction for Eldegoss V RCL Happy Match Bench-entry recovery under in-play-only locks.
  * @property {boolean} [articunoEntryLockCorrection] Opt-in correction for Articuno-GX CES Legendary Ascent Bench-entry switch under in-play-only locks.
+ * @property {boolean} [articunoZeroMovementPromptCorrection] Opt-in D-02 correction allowing zero Water transfers after the accepted Articuno-GX CES switch.
  * @property {boolean} [distinctAttachTargetsCorrection] Opt-in bot prompt choice fix for Energy effects requiring distinct attachment destinations.
  * @property {boolean} [herdierTreasureHuntCorrection] Opt-in printed one-Item Herdier SUM 104 Treasure Hunt under applicable Ability locks.
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
@@ -522,6 +524,7 @@ function runMatch(request) {
   let restoreEntryDrawLockHook;
   let restoreEldegossEntryLockHook;
   let restoreArticunoEntryLockHook;
+  let restoreArticunoZeroMovementPromptHook;
   let restoreDistinctAttachTargetsHook;
   let restoreHerdierTreasureHuntHook;
   let restoreSnorlaxRetreatStartHook;
@@ -664,6 +667,9 @@ function runMatch(request) {
     }
     if (request.articunoEntryLockCorrection === true) {
       restoreArticunoEntryLockHook = installArticunoEntryLockHook();
+    }
+    if (request.articunoZeroMovementPromptCorrection === true) {
+      restoreArticunoZeroMovementPromptHook = installArticunoZeroMovementPromptHook();
     }
     if (request.distinctAttachTargetsCorrection === true) {
       restoreDistinctAttachTargetsHook = installDistinctAttachTargetsHook();
@@ -2003,6 +2009,7 @@ function runMatch(request) {
       entryDrawLockCorrection: request.entryDrawLockCorrection === true,
       eldegossEntryLockCorrection: request.eldegossEntryLockCorrection === true,
       articunoEntryLockCorrection: request.articunoEntryLockCorrection === true,
+      articunoZeroMovementPromptCorrection: request.articunoZeroMovementPromptCorrection === true,
       distinctAttachTargetsCorrection: request.distinctAttachTargetsCorrection === true,
       herdierTreasureHuntCorrection: request.herdierTreasureHuntCorrection === true,
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
@@ -2140,6 +2147,7 @@ function runMatch(request) {
         (request.entryDrawLockCorrection === true ? '+EntryDrawLockGuard-v1' : '') +
         (request.eldegossEntryLockCorrection === true ? '+EldegossEntryLockGuard-v1' : '') +
         (request.articunoEntryLockCorrection === true ? '+ArticunoEntryLockGuard-v1' : '') +
+        (request.articunoZeroMovementPromptCorrection === true ? '+ArticunoZeroMovementPrompt-v1' : '') +
         (request.distinctAttachTargetsCorrection === true ? '+DistinctAttachTargetsGuard-v1' : '') +
         (request.herdierTreasureHuntCorrection === true ? '+HerdierTreasureHuntPaper-v1' : '') +
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
@@ -2209,6 +2217,7 @@ function runMatch(request) {
     if (restoreMimikyuNonGxCopycatHook) restoreMimikyuNonGxCopycatHook();
     if (restoreHerdierTreasureHuntHook) restoreHerdierTreasureHuntHook();
     if (restoreDistinctAttachTargetsHook) restoreDistinctAttachTargetsHook();
+    if (restoreArticunoZeroMovementPromptHook) restoreArticunoZeroMovementPromptHook();
     if (restoreArticunoEntryLockHook) restoreArticunoEntryLockHook();
     if (restoreEldegossEntryLockHook) restoreEldegossEntryLockHook();
     if (restoreEntryDrawLockHook) restoreEntryDrawLockHook();
