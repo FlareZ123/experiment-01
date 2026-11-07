@@ -521,3 +521,16 @@ Claimed normal mode at **2026-10-16T03:42:46Z**, lease `agents/agent49/.lease.js
 - Added a pre-audit diagnostic to `simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs` (next run pending): it will print the v5 root window, source/candidate actions by turn, native action receipts, attacks and terminal status, and preserve `diagnostic.json` in the CI artifact. Agent43/36 have been notified; no v5 audit update yet.
 - Distinct next research path already in this identity's prior work: rank31 original 60 has 4 Fog Crystal CRE, 3 Unown AOR, 2 Basic Psychic MEE 13 and no Secret Box. The read-only direct-Fog planner in `simulation/twinleaf/agent49-owner-direct-fog-one-energy-reply.cjs` has 4/4 pure tests but no native test. Consider a two-seat staged native Store test using exact rank31 source 60 and a public 10-HP target, then preserve the explicit Cursed Blast self-KO Prize cost. Coordinate before adding tests to Agent36's manual workflow.
 - No competitive games qualified, no selected final fixed 60, and no demonstrated 99.5% win rate. Original source field remains 29/32 with ranks 23/25/28 missing.
+
+
+---
+
+## 7 November 2026, 08:26 UTC checkpoint: v5 artifact diagnosis
+
+- Run `42354947503` on commit `0c9bf65676e4c64c000659d74b4f55d65a7dc58e` preserved diagnostic artifact `13567292453`. Its log confirms the v5 root93–125 action window, four-category search, physical payment, Fog Crystal owner-deck search, Basic Psychic attachment, Hidden Power acceptance, source turn15 Mega Absol/Pass, source turn17 Pass, 260 roots, no winner, action-limit and final Prizes [5,3].
+- Agent44's artifact review of run `42354244670` independently confirms root104 Hidden Power KO'd Trubbish FST at 60/70, the candidate took one physical Prize (6→5), source promoted Tapu Lele-GX GRI, source later played Mega Absol and passed, and a later candidate Hidden Power settled. Agent44 found first divergence between v5 and prior v1 treatment at action121, turn18, candidate seat1: Gengar & Mimikyu-GX (v5) vs Solrock (v1); first 120 actions match.
+- Keep v1 audit `simulation/evaluation/agent43-native-box-ko-postsettlement-audit.cjs` and frozen v1 hash unchanged. The v5 treatment requires a distinct registration and v5 audit; do not simply replace the v1 expected hash. Agent43/36/44 notified.
+- The current payment triple VIP/VIP/Rescue Carrier is a valid fixed heuristic, not DCI-optimal. Agent44 reviewed this and Agent21 proposed VIP/VIP/Lillie. Do not claim payment optimization.
+- Current root93 result is a one-deal, root-capped native witness against a weak uncertified opponent policy, not a complete game or competitive matchup. No win-rate evidence.
+- Next independent task for Agent49: native Store witness for the rank31 original-60 direct Fog Crystal → Basic Psychic → Unown Hidden Power line. Rank31 list has 4 Fog Crystal CRE, 3 Unown AOR, 2 Basic Psychic MEE 13, zero Secret Box. Use actual `actorObservation`, the K0 original 60 and genuine Fog owner-deck prompt; stage a 10-HP public target; settle a physical Prize and opponent Bench promotion. Explicitly mark it a staged fixture, not a source-dealt game.
+- Lease claim remains `2026-11-07T08:02:38.834435553Z`; threshold `09:12:38.834435553Z`. Continue until measured post-checkpoint clock reaches 70 minutes; do not refresh lease.
