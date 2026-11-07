@@ -11,6 +11,8 @@ const {withNativePaperSupporterDiscipline}=require(
   '../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withSameTargetAttachEnergySelection}=require(
   '../twinleaf/same-target-attach-energy-hook.cjs');
+const {withProfessorResearchDrawSettlement}=require(
+  '../twinleaf/agent2-professor-research-native-settlement.cjs');
 
 const VERSION='agent2-owner-seeker-research-original-rank13-aba-native-v1';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -88,8 +90,13 @@ function runArm(trial,cards){
     capturePublicAttackTransitions:true,captureFinalPublicBoard:true
   };
   try{
-    const simulate=()=>withSameTargetAttachEnergySelection(()=>
-      runMatch(request)).result;
+    let drawAudit=null;
+    const simulate=()=>withSameTargetAttachEnergySelection(()=>{
+      const watched=withProfessorResearchDrawSettlement(()=>
+        runMatch(request));
+      drawAudit=watched.audit;
+      return watched.result;
+    }).result;
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(simulate,{
         root:work=>withActorOnlyRootPolicy(work,{
@@ -136,10 +143,15 @@ function runArm(trial,cards){
         x.accepted&&x.nativePhysicalEffect==='confirmed-public-effect').length,
       retrievedResearchPromptsAccepted:root?.seekerResearchPromptsAccepted??0,
       retrievedResearchPromptsProposed:root?.seekerResearchPromptsProposed??0,
+      independentPhysicalResearchDraws:drawAudit?.exactSevenPhysicalDraws??null,
+      independentPhysicalResearchDrawReceipts:
+        drawAudit?.observedReceipts??[],
+      independentDrawsAwaitingSettlement:drawAudit?.pendingAtExit??null,
       paidNativeRootCount:root?.acceptedActorRoots??null,
       rejectedNativeRootCount:root?.rejectedActorRoots??null,
       nativePaperSupporterVetoes:guarded.audit?.vetoCount??null,
-      researchDrawCountNativeCertified:false,
+      researchDrawCountNativeCertified:
+        (drawAudit?.exactSevenPhysicalDraws??0)>0,
       paperValidWholeGame:false,competitivelyQualified:false
     };
   }catch(error){
@@ -221,11 +233,33 @@ function run(){
     treatmentAcceptedPromptCount:rows.filter(x=>
       x.trial.variant==='treatment').reduce((n,x)=>
       n+(x.retrievedResearchPromptsAccepted??0),0),
+    treatmentPhysicallyCertifiedDraws:rows.filter(x=>
+      x.trial.variant==='treatment').reduce((n,x)=>
+      n+(x.independentPhysicalResearchDraws??0),0),
     qualifiedGames:0,rows
   };
 }
 if(require.main===module){
   const r=run();
+  process.stderr.write('AGENT2_RANK13_RESEARCH_ABA '+
+    JSON.stringify({
+      executedArms:r.executedArms,
+      treatmentSelectedItemCount:r.treatmentSelectedItemCount,
+      treatmentAcceptedPromptCount:r.treatmentAcceptedPromptCount,
+      treatmentPhysicallyCertifiedDraws:r.treatmentPhysicallyCertifiedDraws,
+      pairControls:r.pairs.map(p=>({
+        candidateSeat:p.candidateSeat,seed:p.seed,
+        samePhysicalDeal:p.samePhysicalDeal,
+        controlReplayIdentical:p.controlReplayIdentical,
+        meaningfulTreatmentComparison:p.meaningfulTreatmentComparison,
+        treatmentResearchItemRoots:p.treatmentResearchItemRoots,
+        treatmentRecoveredResearchRoots:p.treatmentRecoveredResearchRoots
+      })),
+      statuses:r.rows.map(x=>({
+        seat:x.trial.candidateSeat,seed:x.trial.seed,
+        variant:x.trial.variant,status:x.status
+      }))
+    })+'\n');
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
   if(r.rows.length!==12||r.pairs.some(x=>!x.controlReplayIdentical))
     process.exitCode=1;
