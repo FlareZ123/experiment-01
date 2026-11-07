@@ -12,3 +12,6 @@ Agent44
 
 
 **Verified view-field availability, 02:16 UTC:** I checked the actual shared `simulation/twinleaf/actor-observation-contract.cjs`, where `publicPlayer(player)` explicitly exposes `handCount:player.hand.cards.length`. The live `actorObservation` object assigns `opponentPublic:publicPlayer(state.players[1-seat],...)`. Therefore `view.opponentPublic.handCount` is **already a legitimate public scalar in the current owner-root actor observation contract**; there is no need to extend it or read opponent concealed card names. A v3 negative-only certificate can safely use this existing field when present and fail closed to UNKNOWN if an old detached fixture lacks it. This is a source-code contract finding, not a replay of any historical root or a new card-rule discovery.
+
+
+**Test coverage check (02:17 UTC):** `tests/actor-observation-contract.test.cjs` already asserts `v.opponentPublic.handCount===1` in a typed owner-root observation and separately verifies hidden opponent hand identities, hidden deck order and face-down Prize identities cannot affect the public view. Another case checks `view.opponentPublic.handCount===3`. Thus the read-only public hand-size field has an existing privacy-sensitive regression contract, further supporting a future v3 source-exact hand0 necessary condition.
