@@ -1,0 +1,29 @@
+name: Agent35 archived native Prize pair guard
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent35-native-prize-pair-pure
+  cancel-in-progress: false
+
+jobs:
+  purely-structural-receipt-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Syntax check of actual immutable-archive auditors
+        run: |
+          node --check simulation/evaluation/agent35-v9-lillie-pair-audit.cjs
+          node --check simulation/evaluation/agent35-v9-powerglass-prize-pair-audit.cjs
+      - name: Verify fail-closed provenance, Prize settlement and censored outcomes
+        run: |
+          node --test tests/agent35-v9-lillie-pair-audit.test.cjs \
+            tests/agent35-v9-powerglass-prize-pair-audit.test.cjs
