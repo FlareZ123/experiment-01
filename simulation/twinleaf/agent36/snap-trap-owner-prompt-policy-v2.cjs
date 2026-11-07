@@ -6,7 +6,7 @@ const {
   SOURCE_PRINTING,
   SOURCE_ABILITY,
   withStunfiskSnapTrapPromptMarker
-} = require('../agent30/stunfisk-snap-trap-prompt-marker-v2.cjs');
+} = require('../agent30/stunfisk-snap-trap-prompt-marker-v3.cjs');
 const {
   VERSION: QUARANTINE_VERSION,
   CODE: QUARANTINE_CODE,
@@ -101,6 +101,8 @@ function withSelected(cards, selected) {
 function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
   assert.equal(typeof run, 'function');
   assert.equal(typeof deps.getOriginForPrompt, 'function');
+  assert.equal(typeof deps.getStoreForPrompt, 'function',
+    'Private same-prompt Store identity lookup from marker v3 is required');
   assert.equal(typeof deps.getRootStore, 'function',
     'Exact onRootStoreCreated Store capture is required');
 
@@ -157,6 +159,7 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     quarantineActiveAtInstall: true,
     rootStoreLookups: 0,
     promptStoreJoins: 0,
+    markerStoreIdentityJoins: 0,
     exactPromptIdentityJoins: 0,
     sourceProofPromptsSeen: 0,
     exactPromptContracts: 0,
@@ -196,6 +199,11 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     if (!proof) return result;
 
     const rootStore = requireRootStore();
+    assert.equal(proof.sourceStoreIdentityCaptured, true,
+      'marker v3 must capture the exact prompt Store in its private WeakMap');
+    assert.strictEqual(deps.getStoreForPrompt(createdPrompt), this,
+      'marker v3 prompt-to-Store identity does not match Store.prompt receiver');
+    audit.markerStoreIdentityJoins++;
     assert.strictEqual(this, rootStore,
       'source-marked prompt was created by a Store other than onRootStoreCreated');
     assert.strictEqual(state, rootStore.state,
@@ -279,6 +287,7 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     }
     if (identity.store !== rootStore ||
         promptStoreByPrompt.get(livePrompt) !== rootStore ||
+        deps.getStoreForPrompt(livePrompt) !== rootStore ||
         identity.state !== state ||
         identity.proof !== proof) {
       audit.promptContractFailures++;
@@ -364,6 +373,7 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     if (this.state !== selected.state || rootStore.state !== selected.state ||
         identity.state !== selected.state) fail('exact live Store State identity');
     if (promptStoreByPrompt.get(livePrompt) !== rootStore ||
+        deps.getStoreForPrompt(livePrompt) !== rootStore ||
         originIdentityByPrompt.get(livePrompt) !== identity ||
         deps.getOriginForPrompt(livePrompt) !== proof ||
         identity.proof !== proof) fail('same-prompt origin identity');
@@ -576,10 +586,11 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
 function withSnapTrapOwnerPolicyV2(run, deps = {}) {
   const markerLayer = deps.markerLayer ?? withStunfiskSnapTrapPromptMarker;
   assert.equal(typeof markerLayer, 'function');
-  const marked = markerLayer(getOriginForPrompt =>
+  const marked = markerLayer((getOriginForPrompt, getStoreForPrompt) =>
     withOwnerSnapTrapPromptResolutionV2(run, {
       ...deps,
-      getOriginForPrompt
+      getOriginForPrompt,
+      getStoreForPrompt
     }), deps.markerDeps);
   return {
     result: marked.result.result,
