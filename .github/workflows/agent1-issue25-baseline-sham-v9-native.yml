@@ -1,6 +1,6 @@
 name: Agent1 issue25 baseline sham A-A native replay
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       shuffle_only_aba:
