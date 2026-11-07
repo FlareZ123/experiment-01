@@ -150,3 +150,8 @@ The [two real declared-attack fixture](../twinleaf/mimikyu-extra-turn-progressio
 ## Missing rank-25 qualitative evidence
 
 [The participant's publicly accessible Alolan Raichu one-shot discussion](rank25-public-strategic-prior.md) contains first-person matchup reports and deck-design priorities relevant to early Klefki Ability lock and Regidrago pressure. The exact 60 and card printings are still unavailable, and the self-reported games are not independent competitive test samples. Keep ranks **23, 25 and 28** unresolved until complete lists are sourced.
+
+
+## Matchup-specific research synthesis
+
+- [Rank-1 Mimikyu Copycat into rank-10 Regidrago Apex Dragon](../twinleaf/mimikyu-apex-copycat-audit.md) connects the staged two-seat native mechanics, the original-60 constructed-board line, the exact-seven and Prize-location work, and the limits on natural-game access. The evidence remains developmental; it does not qualify a competitive game or nominate a fixed deck.
