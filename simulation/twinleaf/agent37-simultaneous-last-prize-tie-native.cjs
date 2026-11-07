@@ -8,6 +8,7 @@ const {
 }=require('./agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
 const {inspectPowerglassWinningKo}=require('./agent37-powerglass-winning-ko-native.cjs');
 const {GameWinner}=require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+const {GameLog}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
 const {KnockOutEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/store/effects/game-effects');
 
 
@@ -77,6 +78,10 @@ function run(){
     assert.equal(a.secondPrizeDestinationIsHand,true);
     assert.equal(a.bothPrizeTransfersCompleted,true);
     assert.equal(a.winnerLogRewritten,true);
+    assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_DRAW);
+    assert.equal(a.winnerLogName,null);
+    assert.equal(a.winnerLogParams,null);
+    assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
     assert.equal(a.tieApplied,true);
     assert.equal(a.terminalSuppressed,1);
     assert.equal(a.storeLogRestored,true);
@@ -151,9 +156,15 @@ function run(){
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,false);
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2);
-    assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
+    assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assert.equal(a.nativeWinnerName,actorSeat===0?'Ferroseed attacker':'Duskull defender');
+    assert.equal(a.nativeWinnerPlayerId,actorSeat===0?101:202);
+    assert.equal(a.winnerOverridden,actorSeat===1);
     assert.equal(a.winnerLogHandled,true);
-    assert.equal(a.winnerLogRewritten,a.winnerOverridden);
+    assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.winnerLogName,'Ferroseed attacker');
+    assert.deepEqual(a.winnerLogParams,{name:'Ferroseed attacker'});
+    assert.equal(a.winnerLogRewritten,actorSeat===1);
     return {
       actorSeat,
       firstPlayerCanPromote:a.firstPlayerCanPromote,
@@ -161,8 +172,11 @@ function run(){
       promotionAvailabilitySymmetric:a.promotionAvailabilitySymmetric,
       terminalOutcome:a.terminalOutcome,
       nativeWinner:a.nativeWinner,
+      nativeWinnerName:a.nativeWinnerName,
       expectedWinner:a.expectedWinner,
       winnerOverridden:a.winnerOverridden,
+      winnerLogMessage:a.winnerLogMessage,
+      winnerLogName:a.winnerLogName,
       winnerSeat:result.winnerSeat
     };
   });
