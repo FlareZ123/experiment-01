@@ -11,8 +11,16 @@ const VERSION = 'agent36-issue25-public-prompt-zone-selection-v1';
  *   version:string,
  *   status:string,
  *   candidateCount:number,
- *   blockedPromptZoneCandidates:{quarantineRecordIndex:number,eventIndex:number}[],
- *   candidateGroups:{quarantineRecordIndex:number,matchingEventIndices:number[]}[],
+ *   blockedPromptZoneCandidates:{
+ *     quarantineRecordIndex:number,
+ *     eventIndex:number,
+ *     joinComplete:boolean,
+ *     missingFields:string[]
+ *   }[],
+ *   candidateGroups:{
+ *     quarantineRecordIndex:number,
+ *     matchingEvents:{eventIndex:number,joinComplete:boolean,missingFields:string[]}[]
+ *   }[],
  *   blockedPromptZoneEventIndex:number|null,
  *   blockedPromptZoneEvent:object|null
  * }}
