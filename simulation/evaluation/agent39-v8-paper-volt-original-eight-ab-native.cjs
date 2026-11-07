@@ -4,7 +4,9 @@ const {createHash}=require('node:crypto');
 const {runStewardBroaderV8,trials}=require('./agent36-issue25-common-v8.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 
-const VERSION='agent39-v8-original-eight-volt-paper-portfolio-ab-v2-root-ledger';
+const VERSION='agent39-v8-original-eight-volt-paper-portfolio-ab-v3-archived-root-anchor';
+const archivedV8RootReference=require(
+  '../../results/methodology/agent48-v9-control-ledger-reconciliation-20261106.json');
 
 /**
  * A and B share the immutable prospective v8 eight-arm registration, source
@@ -66,6 +68,9 @@ function run(){
   const registered=trials();
   assert.equal(registered.length,8);
   assert.deepEqual(registered.map(r=>r.rank),[6,6,11,11,1,1,3,3]);
+  const reference=new Map(archivedV8RootReference.trials.map(row=>[
+    row.id,row.rootActionLedgerSha256]));
+  assert.equal(reference.size,8);
   const baseline=execute(false);
   const treatment=execute(true);
   const a=baseline.diagnostic.actualAttemptRows;
@@ -91,7 +96,12 @@ function run(){
     const exactLedgerMatched=leftLedger!==null&&rightLedger!==null&&
       leftLedger.sha256===rightLedger.sha256&&
       leftLedger.count===rightLedger.count;
+    const referenceSha=reference.get(trial.id);
+    assert.match(referenceSha,/^[a-f0-9]{64}$/);
     return {id:trial.id,originalRank:trial.rank,
+      archivedV8RootSha256:referenceSha,
+      baselineMatchesArchivedV8:leftLedger?.sha256===referenceSha,
+      treatmentMatchesArchivedV8:rightLedger?.sha256===referenceSha,
       baselineRootLedger:leftLedger,treatmentRootLedger:rightLedger,
       exactLedgerMatched,
       sourceDealFingerprint:right.sourceDealFingerprint,
@@ -110,6 +120,9 @@ function run(){
   const auditRows=rows.map(summarize);
   assert.ok(auditRows.length<=8);
   const nativeGuardRows=auditRows.filter(r=>r.paperGuardObserved);
+  assert.equal(comparisons.filter(r=>
+    r.baselineRootLedger&&r.treatmentRootLedger).length,8,
+  'All eight actual accepted-root ledgers must be preserved after abort');
   return {schema:VERSION,
     profile:'retrospective original-v8 same-eight native opt-in Volt paper prompt guard',
     pin:treatment.manifest.observedGitVendorPinExpected,
@@ -117,6 +130,12 @@ function run(){
     boundedRootsPerArm:treatment.manifest.nativeRootActionLimit,
     originalRegisteredTrials:8,sourcePrintsPreserved:true,
     sameInitialPhysicalDeals:true,
+    archivedV8Reference:'results/methodology/agent48-v9-control-ledger-reconciliation-20261106.json',
+    archivedV8ReferenceOrigin:'verified cross-workflow v8-to-v9 A-control replay',
+    baselineMatchesArchivedV8:comparisons.filter(r=>
+      r.baselineMatchesArchivedV8).length,
+    treatmentMatchesArchivedV8:comparisons.filter(r=>
+      r.treatmentMatchesArchivedV8).length,
     reportedGuardAudits:nativeGuardRows.length,
     exactNativeRootLedgerComparisons:comparisons.filter(r=>
       r.exactLedgerMatched).length,
