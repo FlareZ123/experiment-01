@@ -53,6 +53,36 @@ test('Temple 15-Basic legal-opener conditioning changes the exact cut',()=>{
   near(r.immediatePrizeOnlyCut,0.023779125071408926);
 });
 
+test('hypothetical additional Balls reduce only this Prize-capacity obstruction',()=>{
+  const expected14=[
+    0.1876634079594381,
+    0.02366909103369581,
+    0.00219491873859848,
+    0.0001466325908281072,
+    0.000006404625921624924
+  ];
+  const expected15=[
+    0.18832935536007006,
+    0.023779125071408926,
+    0.0022056234726730195,
+    0.00014732532861271215,
+    0.000006432584242439006
+  ];
+  for(const [basicCount,expected] of [[14,expected14],[15,expected15]]){
+    for(let heavyBallCopies=0;heavyBallCopies<=4;heavyBallCopies++){
+      const r=prizeMinCut({basicCount,heavyBallCopies});
+      assert.equal(r.heavyBallCopies,heavyBallCopies);
+      near(r.immediatePrizeOnlyCut,expected[heavyBallCopies]);
+      if(heavyBallCopies!==1){
+        assert.equal(r.heavyBallPrizedWithAtLeastOneCore,null);
+        assert.equal(r.allThreePrized,null);
+      }
+      if(heavyBallCopies>0)assert.ok(r.immediatePrizeOnlyCut<
+        expected[heavyBallCopies-1]);
+    }
+  }
+});
+
 test('probabilities are genuine components not a proxy win-rate',()=>{
   for(const basics of [2,3,10,14,15,30,59]){
     const r=prizeMinCut({basicCount:basics});
@@ -63,7 +93,11 @@ test('probabilities are genuine components not a proxy win-rate',()=>{
 });
 
 test('invalid Basic count cannot silently change singletons',()=>{
-  for(const basics of [0,1,60,-1,2.5,NaN,Infinity]){
+  for(const basics of [0,1,-1,2.5,NaN,Infinity]){
     assert.throws(()=>prizeMinCut({basicCount:basics}));
   }
+  for(const copies of [-1,5,NaN,1.3,Infinity]){
+    assert.throws(()=>prizeMinCut({heavyBallCopies:copies}));
+  }
+  assert.throws(()=>prizeMinCut({basicCount:60,heavyBallCopies:1}));
 });
