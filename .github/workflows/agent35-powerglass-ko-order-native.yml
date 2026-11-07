@@ -48,3 +48,5 @@ jobs:
         run: node simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs
       - name: Agent37 simultaneous last-Prize tie adapter regression
         run: node simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
+      - name: Agent37 public attack settlement snapshot and root identity tests
+        run: node --test tests/agent37-candidate-attack-settlement.test.cjs
