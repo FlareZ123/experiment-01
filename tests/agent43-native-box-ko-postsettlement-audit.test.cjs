@@ -8,7 +8,7 @@ const {FROZEN,ledgerSha256,auditNativeOnePrizeBoxKo}=
 
 test('public ledger SHA-256 is bounded to exact accepted source roots',()=>{
   assert.equal(ledgerSha256([]),
-    '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e6b0dd0098cbb0a5cb3c7c21');
+    '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945');
   const r=[{actionOrdinal:93,action:'PlayCardAction',card:'Secret Box'}];
   assert.equal(ledgerSha256(r).length,64);
   assert.notEqual(ledgerSha256(r),ledgerSha256([{...r[0],card:'Fog Crystal'}]));
