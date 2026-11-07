@@ -140,6 +140,8 @@ The v29 cases attach Speed Lightning Energy to Iron Thorns ex, so their direct-c
 
 The v2 receipt establishes the public board before each accepted attack root. The v3 compatibility join now consumes the immediate public board after the declaration root and the final public board after prompt closure from the existing candidate-attack-settlement packet. It preserves the declaration root ordinal, initiating root ordinal, declaration turn, prompt-pending state, completion root ordinal/turn, physical Active printing, printed attack names, whether the declared attack is printed on that Active, whether the direct AttackAction matches the printed attack, and the trigger action.
 
+The public-board telemetry exposes card printing and attack menu, not a unique physical card-instance ID. The v3 receipt explicitly labels target identity as printing-only and physical Active identity as printing-plus-printed-attack-menu; the locator marks multiple simultaneous same-printing matches ambiguous. These fields must not be read as unique card-instance tracking.
+
 For each of the eight actual KO-victim joins, the v3 row records:
 - the target's location and damage immediately after declaration and after prompt closure;
 - target printed HP and whether its damage threshold was reached at either snapshot;
