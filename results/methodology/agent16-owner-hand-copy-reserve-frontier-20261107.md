@@ -51,17 +51,22 @@ There are two distinct identity problems in the existing physical-index frontier
 
 The current v1 adapter therefore remains useful for deterministic index mapping and hard-reserve feasibility, but its soft-reserve frontier is diagnostic only. The one-soft-printing guard is retained as a conservative guard against cross-printing collapse; it does **not** make the soft result copy-invariant. Do not integrate v1 soft-sacrifice or future-way scores into a strategic policy.
 
-I built a **local-only count-based v2 prototype**, not yet committed. It enumerates physical payment combinations, then computes each printing's remaining count after payment:
+The count-based v2 is now committed separately from the v1 diagnostic adapter:
+
+- implementation: [`owner-hand-discard-copy-reserve-frontier.cjs`](../../simulation/twinleaf/planning/owner-hand-discard-copy-reserve-frontier.cjs)
+- tests: [`owner-hand-discard-copy-reserve-frontier.test.cjs`](../../tests/planning/owner-hand-discard-copy-reserve-frontier.test.cjs)
+
+It enumerates physical payment combinations, then computes each printing's remaining count after payment:
 
 - soft deficit: `max(0, softRequired - max(0, remainingCopies - hardRequired))`;
 - unprotected remaining copies: `max(0, remainingCopies - hardRequired - softRequired)`.
 
-The frontier key and componentwise dominance retain the per-printing soft-deficit vector, per-printing unprotected remainder, desired-discard multiplicities, dead-card count, and future combinations. Physical indices remain only as representatives for prompt mapping. The two identical Lillie payments now share one printing-count group with `equivalentPhysicalPayments: 2` and identical reserve/future metrics, while different remaining Carrier/Lillie compositions remain distinguishable. The prototype supports multiple soft-reserved printings and passed **8/8 local tests**, including a 144-case count-invariant sweep. It has not been committed or CI-tested; Agent36 and Agent44 have been asked whether they prefer an adapter-owned v2 or a shared-core extension.
+The frontier key and componentwise dominance retain the per-printing soft-deficit vector, remaining/unprotected printing counts, desired-discard multiplicities, dead-card count, and future combinations. Physical indices remain only as representatives for prompt mapping. The two identical Lillie payments share one printing-count group with `equivalentPhysicalPayments: 2` and identical reserve/future metrics, while different remaining Carrier/Lillie compositions remain distinguishable. It supports multiple soft-reserved printings. The v2 suite passes **8/8 local tests**, including a 144-case count-invariant sweep. Agent36 approved a separate adapter-owned v2; the shared core and common v8 runner remain unchanged. The manual Aichi workflow now includes the v2 suite; CI validation is pending.
 
 ## Validation
 
 - Runtime: Node v22.16.0.
-- Local tests: **15/15 passed**.
+- Local tests: v1 index-level adapter **15/15**, count-based v2 **8/8**, and core Pareto **5/5**; the combined local Node 22 run passed **28/28**. The v1 tests document the known identity artifact; the v2 tests validate count-based behavior.
 - Coverage includes hard and soft reserve mapping, additive hard/soft counts for one printing, source-card exclusion, explicit hard shortfalls, non-vetoing soft shortfalls, future unprotected payment counts, the root93-shaped fixture, the multi-soft-printing fail-closed guard, input immutability, invalid inputs, and a deterministic 144-case small-domain invariant sweep.
 - The existing core Pareto regression is also wired into the repository's existing manual [Aichi benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml), alongside the new adapter test. No new workflow or push-triggered CI was introduced.
 - Manual Aichi statistics CI runs [42356996900](https://github.com/FlareZ123/experiment-01/actions/runs/42356996900) (12 tests), [42357346860](https://github.com/FlareZ123/experiment-01/actions/runs/42357346860) (13 tests), [42357588709](https://github.com/FlareZ123/experiment-01/actions/runs/42357588709) (14 tests), and [42358235892](https://github.com/FlareZ123/experiment-01/actions/runs/42358235892) (15 tests) all succeeded. Latest run `42358235892` completed on head `3f79a9ec`; repository-wide preflight and the Agent16 test step passed with the exact nine-card post-play fixture included. The prior run [42356811491](https://github.com/FlareZ123/experiment-01/actions/runs/42356811491) failed before the Agent16 step because two other workflows had prohibited push triggers; only those trigger blocks were removed, retaining `workflow_dispatch`.
@@ -70,14 +75,14 @@ The frontier key and componentwise dominance retain the per-printing soft-defici
 
 ## Limits and next work
 
-This adapter does not inspect deck or Prize identities, opponent hidden information, K0/K1 provenance, card text, target availability, Bench capacity, Item/Tool/Supporter locks, or opponent responses. The current v1 soft reserve is explicitly index-based and must not be treated as count-based strategic evidence. The local v2 prototype is not yet a repository artifact.
+Neither adapter inspects deck or Prize identities, opponent hidden information, K0/K1 provenance, card text, target availability, Bench capacity, Item/Tool/Supporter locks, or opponent responses. The v1 soft reserve is explicitly index-based and must not be treated as count-based strategic evidence. The v2 frontier is a structural resource model, not a complete strategic evaluator or a proof of paper playability.
 
 Next steps:
 
-1. Obtain Agent36/Agent44's decision on whether the count-based v2 belongs in a separate adapter-owned module or in the shared Pareto core. Do not modify the core or common v8 runner without coordination.
-2. Add/retain an adversarial regression proving that paying either of two identical printing copies produces the same per-printing reserve deficit and future-liquidity vector.
-3. Once count-based semantics are accepted, rerun Agent4's native prompt bridge with the revised API, preserving actual prompt indices and physical Store settlement. Keep the native test scoped to prompt/payment evidence.
+1. Obtain Agent41/Agent36 review of the committed v2 implementation and dominance semantics. Keep the shared core and common v8 runner unchanged unless their owners request integration.
+2. Add the v2 test to the manual workflow (done) and verify the updated run. Preserve the identical-copy permutation regression and exact payment-count accounting.
+3. Ask Agent4 to adapt the native prompt bridge to the v2 API, then validate representative payments through genuine prompt validation and physical Store settlement. Keep the native test scoped to prompt/payment evidence.
 4. Only integrate a validated frontier into a shared policy after matched fresh-deal tests and meaningful source responses. Preserve no-target, prompt, and response failures.
-5. Do not promote this local tactical line or any DCI score into deck-strength or win-rate evidence.
+5. Do not promote this tactical line or any DCI score into deck-strength or win-rate evidence.
 
 The overall objective remains unmet: 29/32 original Aichi source lists are authenticated, no final fixed 60-card deck is selected, and competitively qualified games remain zero. No 99.5% result is claimed.
