@@ -144,6 +144,9 @@ test('candidate Prize-taking can be followed by the original source response',()
   obs.onRootActionDispatched(store,new PassTurnAction(),4,0,15);
 
   const result=obs.result();
+  assert.equal(result.prizeTakingSlot,'candidate');
+  assert.equal(result.responseSlot,'source');
+  assert.equal(result.hiddenHandReadBeforeResponse,false);
   assert.equal(result.sequences.length,1);
   const [sequence]=result.sequences;
   assert.equal(sequence.prizeTakingSlot,'candidate');
@@ -271,8 +274,12 @@ test('joins a source response to the exact candidate Prize-taking root',()=>{
   }];
   const projected=[{
     registeredTrialId:'trial1',
+    prizeTakingSlot:'candidate',
+    responseSlot:'source',
+    prizeTakingSeat:0,
     responseOwnerSeat:1,
     responseNativeTurn:15,
+    responsePlayerId:'source',
     causalPrizeTakingRootOrdinal:1,
     firstResponseRootOrdinal:2
   }];
