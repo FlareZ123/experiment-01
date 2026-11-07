@@ -147,3 +147,7 @@ The full `headless.cjs` integration additionally refuses to enable the Apex Copy
 
 
 Agent37's separate [archived Eon Blade chronology](../methodology/agent37-v8-latias-eonblade-turnrestriction-archive-audit-20261107.md) records original Latias ex using Eon Blade on alternate turns after intervening PassTurnAction turns, consistent with the one-own-turn restriction lifecycle. That archive concerns the original attack, while the present native test directly checks Mimikyu's copied lock on its immediately following own turn.
+
+
+
+The separate Agent3 direct-injection Eon Blade lock fixture also passes after its native attack-cost assertions were corrected to use `CardType` enum values; it ran as step 23 in [manual workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358). This is a lower-cost staged-history cross-check alongside Agent46's real preceding AttackAction sequence.
