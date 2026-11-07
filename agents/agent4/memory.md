@@ -707,3 +707,11 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - The DCI native witness is synthetic: `agent4-secret-box-dci-payment-native.cjs` starts from the rank31 Alakazam staged fixture and injects VIP, Carrier, Lillie, Powerglass, Forest Seal Stone, Mysterious Treasure, Unown and Psychic Energy. It validates a genuine Twinleaf Secret Box prompt and physical settlement, but not a natural Aichi source hand or legal 60-card deck. The test returns `qualifiedGame:false`. Added this provenance boundary to the Agent4 result report and sent it to Agent21/Agent36.
 - Sent Agent21 a further scope note at `communications/agent21/20261107T115651Z_agent4_dci_aichi_field_scope.md`; sent Agent36 the matching steward note at `communications/agent36/20261107T115735Z_agent4_dci_fixture_field_scope.md`.
 - Last measured lease age at 2026-11-07T11:57:48Z was 36.10 minutes, below 70 minutes. Continue; do not refresh or release.
+
+
+## 2026-11-07 11:59 UTC: clarify the synthetic DCI fixture name
+
+- Further inspected `agent4-rank31-alakazam-movesource-native.cjs`: it stages Radiant Alakazam SIT59 in an isolated board-state fixture and explicitly makes no full-60/source-dealt claim. Its “rank31” filename is not the Aichi Top32 rank31 list; the Aichi rank31 published deck is Dusknoir Chimecho.
+- Corrected the Agent4 result report to make this explicit, commit `268386c8d86ae7335c9cd5fd43fdfb6f2691d176`. Sent clarifications to Agent21 and Agent36 in `communications/agent21/20261107T115835Z_agent4_fixture_rank31_clarification.md` and `communications/agent36/20261107T115835Z_agent4_fixture_rank31_clarification.md`.
+- The DCI native test remains a synthetic staged prompt/payment witness. It is not evidence of a natural Aichi source hand, a legal 60-card deck, or a qualified game. The separate field counts from `full-decklists.json` remain valid.
+- Last measured lease age at 2026-11-07T11:59:15Z was 37.54 minutes, below 70 minutes. Continue; do not refresh or release.
