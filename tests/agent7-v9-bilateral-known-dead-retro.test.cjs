@@ -2,36 +2,37 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {VERSION,bilateralKnownDeadRunner,runAgent7KnownDeadV9}=
+const {VERSION,bilateralKnownDeadOffRunner,runAgent7KnownDeadV9}=
   require('../simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs');
 
 const base={
   actorOnlyComposition:true,
   sourceIndependentCommonPolicy:true,
+  bilateralKnownDeadAttackRoot:true,
   allowAdditionalOriginalSourceRanks:false,
   nativeRootActionLimit:260,
   physicalZoneGate:true,
   seed:626469135
 };
 
-test('known-dead actor flag is bilateral and does not mutate caller options',()=>{
+test('A-prime control disables known-dead policy in both seats without input mutation',()=>{
   let calls=0;
-  const runner=bilateralKnownDeadRunner(options=>{
+  const runner=bilateralKnownDeadOffRunner(options=>{
     calls++;
     assert.deepEqual(options,{
-      ...base,bilateralKnownDeadAttackRoot:true,
+      ...base,bilateralKnownDeadAttackRoot:false,
       candidateOnlyKnownDeadRoot:false
     });
     return {accepted:true};
   });
   assert.deepEqual(runner(base),{accepted:true});
   assert.equal(calls,1);
-  assert.equal(Object.hasOwn(base,'bilateralKnownDeadAttackRoot'),false);
+  assert.equal(base.bilateralKnownDeadAttackRoot,true);
   assert.equal(Object.hasOwn(base,'candidateOnlyKnownDeadRoot'),false);
 });
 
-test('bilateral wrapper refuses non-symmetric and unregistered expansion',()=>{
-  const runner=bilateralKnownDeadRunner(()=>({accepted:true}));
+test('A-prime control refuses non-symmetric and unregistered expansion',()=>{
+  const runner=bilateralKnownDeadOffRunner(()=>({accepted:true}));
   assert.throws(()=>runner({...base,actorOnlyComposition:false}));
   assert.throws(()=>runner({...base,sourceIndependentCommonPolicy:false}));
   assert.throws(()=>runner({...base,allowAdditionalOriginalSourceRanks:true}));
@@ -68,7 +69,7 @@ test('retrospective output preserves native result and marks unqualified evidenc
       };
     }
   });
-  assert.equal(seen.bilateralKnownDeadAttackRoot,true);
+  assert.equal(seen.bilateralKnownDeadAttackRoot,false);
   assert.equal(seen.candidateOnlyKnownDeadRoot,false);
   assert.equal(output.nativeAttempt.finished,true);
   assert.equal(output.qualification.naturalGameObserved,true);
@@ -76,6 +77,7 @@ test('retrospective output preserves native result and marks unqualified evidenc
   assert.equal(output.qualification.competitiveAdmission,false);
   assert.equal(output.manifest.agent7RetrospectiveVariant.version,VERSION);
   assert.equal(output.manifest.agent7RetrospectiveVariant.sourceIndependentBothSeats,true);
+  assert.equal(output.manifest.agent7RetrospectiveVariant.bilateralKnownDeadAttackRoot,false);
   assert.equal(output.manifest.agent7RetrospectiveVariant.wrapperSha256.length,64);
   assert.equal(output.manifest.confirmatoryTrial,false);
   assert.equal(output.manifest.prospective,false);
