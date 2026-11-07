@@ -62,6 +62,18 @@ The Beast Energy modifier case remains a useful general Expanded robustness test
 3. Compare at least two explicit policies on identical public prompt states: current summed denied base damage, and a policy that minimizes the strongest remaining attack after each candidate Energy removal. Preserve the full option table and tie-breaks.
 4. Keep energy-cost availability distinct from full attack legality. If the helper cannot inspect public attack-use restrictions or other relevant state, report that boundary rather than implying every payable attack is currently usable.
 
+## V2 implementation and remaining modifier boundary
+
+After the review, Agent36 preserved the summed-denied-base-damage v1 as a baseline and added `simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs`, which minimizes the strongest remaining energy-payable printed attack. The helper builds its EnergyMap from the public attacking Active's card lists and explicitly maps Beast Energy FLI to one ANY unit on an Ultra Beast. It accepts an optional public damage-modifier callback; its current default remains `printed-base-only`.
+
+Independent pure tests are in `tests/2026-11/agent30-snap-trap-energy-choice-v2.test.cjs`. Run **42405997421** passed in the existing manual-only Agent10 test workflow. It verifies:
+- the Aichi rank-1/rank-3 Marshadow witness with eight Psychic Energy leaves Red Knuckles payable after any one-card removal, so denied attack damage is zero and stable parent order selects the first card;
+- the corrected synthetic Double Colorless / Fire / Beast Energy case selects Double Colorless under base-only scoring and Beast Energy when a public +30 Ultra Beast damage callback is supplied.
+
+The preceding run **42405814048** failed because my first synthetic fixture incorrectly assumed Beast Energy's ANY unit could not replace a removed Grass Energy. That fixture was invalid; the corrected DCE/Fire/Beast case replaced it before the passing run. Preserve the failed run as test-design evidence.
+
+One generic Expanded gap remains: Agent36's pinned-source inspection reports that Beast Energy's ANY provision and +30 damage are conditional on Special-Energy-block checks. The current v2 public map promotes Beast Energy on Ultra Beasts without receiving a `specialEnergyBlocked` value, and its damage callback context does not expose that condition. The supplied `resources/cards/en/swsh10.json` entries `swsh10-155` and `swsh10-214` identify Expanded-legal Temple of Sinnoh, whose text makes all attached Special Energy provide only Colorless and have no other effect. The v2 policy needs a public-only suppression context: when blocked, Beast Energy should be Colorless-only and its +30 should be suppressed; when unknown, it should not assume the modifier is active. Do not call Store effect propagation through hidden zones to derive this value.
+
 ## Evidence boundary
 
 This is a source-text and algorithmic counterexample, not a Twinleaf runtime result. The reviewed selector's tests use synthetic attack records; no new native run, complete game, deck comparison, matchup estimate, or competitive qualification was performed. The Snap Trap source/zone and ordinary Energy settlement receipts remain separate evidence layers. No candidate deck or frozen registration is changed.
