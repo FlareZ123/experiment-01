@@ -66,7 +66,7 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
         candidate==='carrier'?'6':'10');
       assert.equal(result.adapter.equivalentPhysicalPayments,candidate==='carrier'?5:1);
       const hardId=result.adapter.hardReservedCards[0].physicalId;
-      const softId=result.adapter.softProtectedCards[0].physicalId;
+      const softId=result.adapter.softIndexDiagnosticCards[0].physicalId;
       assert.ok(!result.selectedPhysicalIds.includes(hardId));
       assert.equal(result.selectedPhysicalIds.includes(softId),candidate==='lillie');
       assert.equal(result.remainingVipCopies,0);
