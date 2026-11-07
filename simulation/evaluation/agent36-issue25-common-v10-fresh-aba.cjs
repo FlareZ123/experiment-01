@@ -62,7 +62,6 @@ const HASH_PATHS=Object.freeze([
   '.github/workflows/agent36-bilateral-competence-v9.yml'
 ]);
 
-/** @returns {object[]} Frozen registered contexts in their committed order. */
 /** @returns {object[]} Frozen eight-context fresh-deal cohort. */
 function trials(){
   assert.equal(registration.schema,VERSION);
@@ -250,11 +249,6 @@ function firstRootDifference(before,after){
     afterContainsVip:false,beforeContainsPass:false};
 }
 
-/**
- * Preserve native outcome distinctions. A terminal is still unqualified.
- * @param {object} row
- * @param {object|null} attemptedStatus
- */
 /**
  * Preserve native outcome distinctions and screen public reciprocal action
  * sequences without certifying paper legality, causality or strategic quality.
@@ -463,6 +457,8 @@ function runRegisteredV10(deps={}){
     vipAfterPassEnabled:phase==='B',
     registeredTrialIds:registered.map(x=>x.id),
     nativeRootActionLimit:ROOT_LIMIT,
+    capturePublicAttackTransitions:true,
+    nativeSetupCoinChoiceReceipt:true,
     selectedSourceIndependentCommonPolicy:true,
     selectedBilateralSpecialEnergy:true,
     selectedNativeAcceptedTargets:true,
@@ -558,7 +554,6 @@ function runPhase(phase,deps={}){
 }
 
 /** @param {object} phase */
-/** @param {object} phase */
 function phaseSummary(phase){
   const rows=phase.diagnostic.nativeAttempts??[];
   const vip=phase.diagnostic.nativeVipRows??[];
@@ -585,7 +580,6 @@ function phaseSummary(phase){
 }
 
 /** Run A/B/A in the exact preregistered order. */
-/** Run A/B/A in the exact preregistered order. */
 function run(deps={}){
   const execute=deps.phaseRunner??runPhase;
   const phases=PHASES.map(phase=>execute(phase,deps));
@@ -598,16 +592,27 @@ function run(deps={}){
     .filter(x=>x===0||x===1))].sort();
   const firstPlayerSeats=[...new Set(baselineAttempts.map(x=>
     x.actualFirstPlayerSeat).filter(x=>x===0||x===1))].sort();
+  const sourceSeatCoverageByRank=Object.fromEntries(
+    registration.sourceOriginalRanks.map(rank=>[String(rank),
+      [...new Set(baselineAttempts.filter(x=>x.rank===rank).map(x=>x.sourceSeat)
+        .filter(x=>x===0||x===1))].sort()])
+  );
+  const sourceRanksObserved=[...new Set(baselineAttempts.map(x=>x.rank)
+    .filter(Number.isSafeInteger))].sort((a,b)=>a-b);
   const cohortCoverage={
     registeredContexts:trials().length,
-    sourceRanksObserved:[...new Set(baselineAttempts.map(x=>x.rank)
-      .filter(Number.isSafeInteger))].sort((a,b)=>a-b),
+    sourceRanksObserved,
     sourceSeatsObserved:sourceSeats,
     bothPhysicalSourceSeatsObserved:sourceSeats.length===2,
+    sourceSeatCoverageByRank,
+    allSourceRanksHaveBothSourceSeats:Object.values(sourceSeatCoverageByRank)
+      .every(seats=>seats.length===2),
+    allSourceRanksRepresented:sourceRanksObserved.length===registration.sourceOriginalRanks.length,
     firstPlayerSeatsObserved:firstPlayerSeats,
     bothFirstPlayerSeatsObserved:firstPlayerSeats.length===2,
     uniqueSourceDealFingerprints:unique('sourceDealFingerprint').length,
     uniqueFullPhysicalDealFingerprints:unique('fullPhysicalDealFingerprint').length,
+    allSourceDealsUnique:unique('sourceDealFingerprint').length===trials().length,
     allPhysicalDealsUnique:unique('fullPhysicalDealFingerprint').length===trials().length
   };
   return {
@@ -686,6 +691,7 @@ function main(){
     treatmentChangedTrialCount:output.summary.treatmentChangedTrialCount,
     firstTreatmentDifferenceIsVipCount:
       output.summary.firstTreatmentDifferenceIsVipCount,
+    cohortCoverage:output.cohortCoverage,
     comparisons:output.comparisons.map(x=>({
       id:x.id,physicalOpeningMatchedAcrossABA:x.physicalOpeningMatchedAcrossABA,
       controlsRepeatedExactly:x.controlsRepeatedExactly,
