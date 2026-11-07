@@ -180,6 +180,9 @@ test('both physical seats produce genuine accepted search and physical Bench set
     assert.equal(response.audit.nativeBenchConfirmed,1);
     assert.equal(response.audit.bySeat[seat].benchConfirmed,1);
     assert.equal(response.audit.rootOrdinalInitialized,true);
+    assert.equal(response.audit.nativeStoreSeen,true);
+    assert.equal(response.audit.policyRecorded,true);
+    assert.equal(response.audit.unresolvedOwnerSearches,0);
     assert.equal(response.audit.rootOrdinalProtocol,
       'headless-match-loop-after-two-add-player-actions-v1');
     assert.equal(response.audit.examples[0].itemRootOrdinal,1);
@@ -327,4 +330,12 @@ test('original-rank9 VIP owner prompt can preferentially Bench its Voltorb and M
   assert.equal(preferRank9MegaVoltorbVipRecipient(p,owner,{
     BASIC:STAGE.BASIC,POKEMON:TYPES.POKEMON
   }),null);
+});
+
+
+test('policyRecorded remains false unless the adapter observes a native Store',()=>{
+  const response=withActorBattleVipAfterPass(()=>42);
+  assert.equal(response.result,42);
+  assert.equal(response.audit.nativeStoreSeen,false);
+  assert.equal(response.audit.policyRecorded,false);
 });
