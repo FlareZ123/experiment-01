@@ -48,6 +48,8 @@ function summarizeMatch(row) {
  */
 function run(deps = {}) {
   const baseHeadless = deps.headless ?? require('../twinleaf/headless.cjs');
+  const baseRunMatch = baseHeadless.runMatch;
+  assert.equal(typeof baseRunMatch, 'function');
   const runGenericTeamFlareV3 =
     require('./agent5-v7-generic-owner-teamflare-aba-v3.cjs').run;
   const runStewardCommonVoltV7 =
@@ -64,12 +66,12 @@ function run(deps = {}) {
   let phaseIndex = 0;
   let activePhase = 'unassigned';
 
-  const runtime = Object.create(baseHeadless);
-  runtime.runMatch = request => {
+  const runtime = baseHeadless;
+  const instrumentedRunMatch = request => {
     try {
       const prize = withOwnerKoPrizeSettlementEvidence(() =>
         withNativeAttackDamageObserver(
-          () => baseHeadless.runMatch(request), {Store}
+          () => baseRunMatch.call(baseHeadless, request), {Store}
         ), {Store});
       const game = prize.result.result;
       observedMatches.push({
@@ -104,6 +106,7 @@ function run(deps = {}) {
       throw error;
     }
   };
+  runtime.runMatch = instrumentedRunMatch;
 
   const runner = options => {
     activePhase = PHASES[phaseIndex++] ?? 'unexpected-phase';
@@ -113,11 +116,16 @@ function run(deps = {}) {
     });
   };
 
-  const result = runGenericTeamFlareV3({
-    ...deps,
-    headless: runtime,
-    runner
-  });
+  let result;
+  try {
+    result = runGenericTeamFlareV3({
+      ...deps,
+      headless: runtime,
+      runner
+    });
+  } finally {
+    runtime.runMatch = baseRunMatch;
+  }
 
   assert.equal(phaseIndex, 3, 'Expected exactly A, B and ARepeat native cohorts');
   assert.equal(observedMatches.length, 24, 'Every original registered attempt must be observed');
