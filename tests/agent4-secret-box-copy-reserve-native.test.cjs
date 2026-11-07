@@ -22,12 +22,18 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
       assert.equal(result.adapter.sourceIndex,null);
       assert.equal(result.adapter.sourceCardPresentInHand,false);
       assert.equal(result.adapter.sourcePrinting,null);
+      assert.equal(result.adapter.frontierIdentityScope,
+        'physical-index-soft-reserve-not-copy-invariant');
+      assert.equal(result.adapter.softReserveSemantics,
+        'deterministic-physical-index-proxy');
+      assert.equal(result.adapter.softReserveCopyInvariant,false);
+      assert.equal(result.adapter.softReserveCountSemanticsCertified,false);
       assert.equal(result.adapter.handLength,9);
       assert.equal(result.adapter.possibleFirstPaymentCount,'56');
       assert.deepEqual(result.adapter.hardReservedCards,[
         {promptIndex:1,physicalId:80032,printing:'Rescue Carrier EVS'}
       ]);
-      assert.deepEqual(result.adapter.softProtectedCards,[
+      assert.deepEqual(result.adapter.softIndexDiagnosticCards,[
         {promptIndex:4,physicalId:80035,printing:"Lillie's Determination M1L"}
       ]);
       assert.equal(result.adapter.hardRequirementsSatisfied,true);
