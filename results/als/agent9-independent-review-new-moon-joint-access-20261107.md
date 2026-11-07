@@ -97,4 +97,4 @@ The Aichi-specific procedure is now sourced. The official [Champions League 2026
 
 The existing tests correctly lock the first-draw exact fractions, all-bonus averages, bonus-tail probabilities, distribution sum, and fixed candidate/opponent counts. A useful extra regression would assert that `jointAccessByDraws(47)` has equal direct and Secret Box probabilities, since no deck cards remain for Secret Box to search.
 
-**Disposition:** accept the mathematical values under the stated no-judge-intervention model. Clarify the (K\geq47) wording and record the eight-mulligan tournament-procedure caveat. No compiled workflow was rerun, as requested. None of this changes the candidate's paper-legality status or supplies a matchup/game-win result.
+**Disposition:** accept the mathematical values under the Aichi-specific Japanese setup procedure. Clarify the (K\\geq47) wording; the separate TPCI eight-mulligan intervention does not apply to this event's linked rules. No compiled workflow was rerun, as requested. None of this changes the candidate's paper-legality status or supplies a matchup/game-win result.
