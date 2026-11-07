@@ -90,7 +90,7 @@ function probeColdCrushAscent(seat,useAscent){
   store.dispatch(confirming);
   emitted.push({prompt:confirm.constructor.name,answer:useAscent});
 
-  let movedWater=false,attackSettled=false;
+  let movedWater=false,attackSettled=false,aiAttackChoice=null;
   if(useAscent){
     const pending=store.state.prompts.find(p=>p.result===undefined);
     assert.equal(pending?.constructor.name,'MoveEnergyPrompt');
@@ -112,6 +112,22 @@ function probeColdCrushAscent(seat,useAscent){
       actorGX:actor.usedGX===true
     };
     assert.deepEqual(before,{actorEnergy:1,opponentEnergy:3,actorGX:false});
+
+    // Verify the pinned default SimpleTacticsAi's AttackTactic selects the
+    // one-Water GX attack after the owner-side ability/transfer treatment.
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const ai=new SimpleTacticsAi({id:actor.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:definitions.defaultArbiterOptions
+    },null);
+    const planned=ai.decodeNextAction(store.state);
+    assert.equal(planned?.constructor.name,'AttackAction');
+    assert.equal(planned?.name,'Cold Crush-GX');
+    aiAttackChoice=planned.name;
+
     store.dispatch(new AttackAction(actor.id,'Cold Crush-GX'));
     emitted.push({attack:'Cold Crush-GX'});
     // Cold Crush has no decision prompt, but the pinned phase reducer uses
@@ -129,7 +145,7 @@ function probeColdCrushAscent(seat,useAscent){
   }
 
   return {
-    seat,useAscent,movedWater,attackSettled,turnAfter:state.turn,
+    seat,useAscent,movedWater,attackSettled,aiAttackChoice,turnAfter:state.turn,
     active:actor.active.getPokemonCard()?.fullName??null,
     bench:actor.bench.map(s=>s.getPokemonCard()?.fullName).filter(Boolean),
     actorActiveWater:actor.active.energies.cards.includes(ownedWater),
