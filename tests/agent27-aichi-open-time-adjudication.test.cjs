@@ -24,6 +24,7 @@ test('Natural pre-call Open knockout draw starts a six-Prize tiebreaker',()=>{
     assert.equal(result.tiebreakerRule,'first-player-to-fewer-prizes-remaining');
     assert.equal(result.conditionalWinnerSeat,null);
     assert.equal(result.requiresEventRuling,false);
+    assert.equal(result.precondition,'independent-proof-that-no-official-call-preceded-the-natural-tie');
     assert.equal(result.competitiveAdmission,false);
   }
 });
@@ -33,6 +34,7 @@ test('Natural pre-call Open Swiss draw remains unadjudicated',()=>{
   assert.equal(result.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
   assert.equal(result.conditionalWinnerSeat,null);
   assert.equal(result.requiresEventRuling,true);
+  assert.equal(result.precondition,'independent-proof-that-no-official-call-preceded-the-natural-tie');
   assert.equal(result.competitiveAdmission,false);
 });
 

@@ -73,7 +73,7 @@ function adjudicateNaturalPaperTie(stage) {
     schema: VERSION,
     stage,
     observation: 'conditional-on-independent-natural-paper-tie-before-official-call',
-    officialClockCallObserved: false,
+    precondition: 'independent-proof-that-no-official-call-preceded-the-natural-tie',
     source: rules.source,
     competitiveAdmission: false,
     externalIndependentReviewRequired: true
