@@ -44,13 +44,34 @@ native attack with 10 printed damage might be blocked by effects,
 change a Special Condition, fail to take a Prize, or be strategically
 dominated by a better line.
 
-[Three pure regressions](../../tests/agent49-owner-direct-fog-one-energy-reply.test.cjs)
-passed **3/3** against the actual fetched source:
+[Four pure regressions](../../tests/agent49-owner-direct-fog-one-energy-reply.test.cjs)
+passed **4/4** against the actual fetched source:
 an actor-owned synthetic root aligned to rank31's exact registered
 source 60, exhaustion/first-turn/attachment negative controls,
 and public attack/item lock or inaccessible damage negatives.
 An explicit getter on forbidden opponent hidden data would throw if
 accessed and remained untouched.
+
+## Optional authenticated K1 deck membership
+
+The pure proposer also accepts an **optional fourth parameter**:
+an actual `captureOwnerK1` snapshot from a prior
+owner-authorized `ChooseCardsPrompt`. It requires that the captured
+owner seat matches the current acting physical seat and that the
+snapshot was not obtained in the future. If the snapshot still has
+`exactMembershipKnown:true` and
+`deckMembershipStale:false`, the proposer rejects this one-energy
+line when its exact owner-deck printing list contains **zero**
+Basic Psychic. A stale K1 is ignored, preserving K0 uncertainty.
+This is a stronger condition than original60 presence but still
+cannot prove that the player will execute the best line.
+
+The fourth pure test exercises a valid owner1 snapshot missing
+Basic Psychic (blocked), one containing a Basic (admitted as a
+proposal), stale uncertain K1 (no hard veto), wrong owner0 and
+future-turn snapshots (assert errors). The input must genuinely
+come from the already implemented owner K1 capture mechanism;
+an arbitrary fabricated claim of deck knowledge is not endorsed.
 
 ## Why rank31 is especially interesting
 
