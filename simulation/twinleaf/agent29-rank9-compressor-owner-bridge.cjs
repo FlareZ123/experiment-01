@@ -23,10 +23,14 @@ const sourceVoltorb=slot=>slot?.name==='Voltorb'||
  * public board/discard are consulted. Own deck contents remain concealed.
  *
  * @param {object} view Detached actorObservation, not live native State.
- * @param {{maxGlobalTurn?:number}} [options] Defaults to the historical v1 cutoff.
+ * @param {{maxGlobalTurn?:number,targetDiscardEnergy?:number}} [options]
+ *   Defaults to v1 cutoff and historical three-Energy target.
  * @returns {{handIndex:number,printing:string,reason:string}|null}
  */
-function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12}={}){
+function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12,
+  targetDiscardEnergy=3}={}){
+  assert.ok(Number.isSafeInteger(targetDiscardEnergy)&&
+    targetDiscardEnergy>=1&&targetDiscardEnergy<=3);
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,resources=view.ownTurnResources;
   if(view.globalTurn>maxGlobalTurn||resources.itemPlayLocked||
@@ -35,7 +39,7 @@ function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12}={}){
   if(index<0)return null;
   const all=[own.active,...own.bench];
   if(!all.some(sourceMega)||!all.some(sourceVoltorb))return null;
-  if(own.discard.filter(sourceEnergy).length>=3)return null;
+  if(own.discard.filter(sourceEnergy).length>=targetDiscardEnergy)return null;
   return {handIndex:index,printing:ITEM,
     reason:'owner-visible-voltorb-mega-discard-energy-deficit'};
 }
@@ -47,13 +51,18 @@ function chooseRank9CompressorAfterPass(view,{maxGlobalTurn=12}={}){
  *
  * @param {object} prompt Actual native owner ChooseCardsPrompt.
  * @param {object} owner Actual prompted owner, whose deck is exposed by prompt.
- * @param {{globalTurn?:number}} [options] For dead first-turn-only fallback priority.
+ * @param {{globalTurn?:number,targetDiscardEnergy?:number}} [options]
+ *   Exact destination target for a separately registered one-vs-three trial.
  * @returns {object[]} Native physical card references, at least one if deck nonempty.
  */
-function chooseRank9CompressorDiscard(prompt,owner,{globalTurn=1}={}){
+function chooseRank9CompressorDiscard(prompt,owner,{globalTurn=1,
+  targetDiscardEnergy=3}={}){
+  assert.ok(Number.isSafeInteger(targetDiscardEnergy)&&
+    targetDiscardEnergy>=1&&targetDiscardEnergy<=3);
   assert.strictEqual(prompt.cards,owner.deck);
   const already=owner.discard.cards.filter(c=>sourceEnergy(c.fullName)).length;
-  const wanted=Math.min(3,Math.max(0,3-already));
+  const wanted=Math.min(targetDiscardEnergy,
+    Math.max(0,targetDiscardEnergy-already));
   const priority=['Prism Energy ','Darkness Energy ','Telepath [P] Energy ',
     'Telepathic Psychic Energy '];
   const cards=owner.deck.cards.filter(c=>sourceEnergy(c.fullName));
@@ -80,13 +89,17 @@ function chooseRank9CompressorDiscard(prompt,owner,{globalTurn=1}={}){
  * @param {()=>T} run
  * @param {0|1} sourceSeat
  * @param {object} [deps] Test-only injectable native classes, observation,
- *   or maxGlobalTurn (12 for historical v1, Infinity for v2 late probe).
+ *   or maxGlobalTurn (12 for historical v1, Infinity for v2 late probe),
+ *   targetDiscardEnergy (3 default, 1 for prospective v6).
  * @returns {{result:T,audit:object}}
  */
 function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   assert.equal(typeof run,'function');
   assert.ok(sourceSeat===0||sourceSeat===1);
   const maxGlobalTurn=deps.maxGlobalTurn??12;
+  const targetDiscardEnergy=deps.targetDiscardEnergy??3;
+  assert.ok(Number.isSafeInteger(targetDiscardEnergy)&&
+    targetDiscardEnergy>=1&&targetDiscardEnergy<=3);
   assert.ok(maxGlobalTurn===Infinity||
     (Number.isSafeInteger(maxGlobalTurn)&&maxGlobalTurn>=12));
   const compiled=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -112,6 +125,7 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   const promptByAction=new WeakMap();
   const audit={version:maxGlobalTurn===12?VERSION:LATE_VERSION,sourceSeat,
     maxGlobalTurn:maxGlobalTurn===Infinity?'unbounded':maxGlobalTurn,
+    targetDiscardEnergy,
     actualPasses:0,heldItemPasses:0,
     beforeTurnLimitOtherwiseEligible:0,heldLatePasses:0,
     observedHeldPasses:[],
@@ -141,7 +155,7 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
       waiting.message==='CHOOSE_CARD_TO_DISCARD'&&
       waiting.sourceCard===inflight.sourceCard){
       const chosen=chooseRank9CompressorDiscard(waiting,source,
-        {globalTurn:state.turn});
+        {globalTurn:state.turn,targetDiscardEnergy});
       assert.ok(chosen.length>=1&&chosen.length<=3,
         'Paper Battle Compressor requires positive selected cards');
       assert.equal(waiting.validate(chosen,state),true);
@@ -168,17 +182,20 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
         voltorbPresent:board.some(sourceVoltorb),
         itemLocked:view.ownTurnResources.itemPlayLocked===true,
         ownDiscardEnergy:own.discard.filter(sourceEnergy).length,
+        targetDiscardEnergy,
         opponentPrizes:view.opponentPublic.prizeCount
       };
       if(view.globalTurn>12)audit.heldLatePasses++;
       if(picture.deckCount>=3&&picture.megaPresent&&
         picture.voltorbPresent&&!picture.itemLocked&&
-        picture.ownDiscardEnergy<3&&picture.opponentPrizes>2)
+        picture.ownDiscardEnergy<targetDiscardEnergy&&
+        picture.opponentPrizes>2)
         audit.beforeTurnLimitOtherwiseEligible++;
       if(audit.observedHeldPasses.length<30)
         audit.observedHeldPasses.push(picture);
     }
-    const choice=chooseRank9CompressorAfterPass(view,{maxGlobalTurn});
+    const choice=chooseRank9CompressorAfterPass(view,
+      {maxGlobalTurn,targetDiscardEnergy});
     if(!choice)return previous;
     audit.eligiblePasses++;
     const physical=source.hand.cards[choice.handIndex];
