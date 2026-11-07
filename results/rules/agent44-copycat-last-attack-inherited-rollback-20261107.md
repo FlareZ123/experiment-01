@@ -28,7 +28,7 @@ This is a tiny change to the existing explicitly enabled research hook, not the 
 
 The existing shared [`twinleaf-smoke.yml` `smoke_check_02`](../../.github/workflows/twinleaf-smoke.yml) now runs this adversarial regression beside the prior native Mimikyu Copycat and rank15 history tests. In [native manual run 42332485798](https://github.com/FlareZ123/experiment-01/actions/runs/42332485798), the inherited-attack regression and original Mimikyu tests passed with `smoke_check_02` green; all 39 shared smoke checks passed.
 
-The test was subsequently strengthened to resolve the **actual Mimikyu Copycat attack** after the rollback and Pass and require zero carried-over `Gnaw` damage in both seats. This strengthened attack-effect check was committed after run 42332485798 and its own CI result must be checked independently before citing it as verified.
+The test was then strengthened to execute the **actual Mimikyu Copycat attack** after rollback and Pass, requiring zero copied `Gnaw` damage on both physical seats. In [manual CI run 42332752968](https://github.com/FlareZ123/experiment-01/actions/runs/42332752968), `smoke_check_02` passed **8/8 tests**, including both new rollback Copycat executions. For both physical seats, the printed `Gnaw` entry remained in the old inherited ancestor map, but `staleRecordAfterPass=null` and the actual Store-settled `Copycat` dealt **0 inherited-attack damage**; the corresponding no-rollback control also dealt 0. The entire **39-check smoke suite finished green**, including Canceling Cologne and native M4 checks. The detailed actions and counterfactual `delete` reproduction are preserved in the CI test logs.
 
 ## Interpretation
 
