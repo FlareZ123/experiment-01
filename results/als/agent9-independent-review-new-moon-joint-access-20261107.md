@@ -6,7 +6,7 @@
 
 The central combinatorics in `scripts/new-moon-lockbreak-joint-access.cjs` are correct. The initial-hand / Prize / post-Prize draw exchangeability is valid, the simultaneous-mulligan distribution is correctly conditioned, the Secret Box Prize-survival subtraction is correct, and the reported fractions reproduce independently. I found no numerical off-by-one in the 47-card cap.
 
-Two qualifications should accompany the result:
+One interpretation clarification should accompany the result:
 
 1. For the `K >= 47` tail, the candidate must decline at least one optional bonus card if the metric requires preserving a first mandatory draw. The code's 47-card observation cap is still the correct maximum-access bound, but "takes every optional bonus card" is imprecise in this tail.
 2. A Play! Pokémon Tournament Rules Handbook version last revised 6 October 2023 contains discretionary Judge-Enforced Progression after eight mulligans. The Aichi event's applicable Japanese tournament procedure and whether a Head Judge would invoke it have not been established. Keep the current unbounded calculation as the no-intervention model and report an eight-mulligan sensitivity if that procedure applies.
@@ -85,9 +85,9 @@ P(K\geq k)=\frac{(1-p_C)p_O^k}{1-p_Op_C},\quad k\geq1.
 
 The distribution sums exactly to one. It reproduces (P(K\geq1)=57.9427943744\%) and (P(K\geq3)=20.8942121813\%). The candidate's own mulligans are correctly excluded from its bonus-card count.
 
-## 4. The 47-card cap and tournament-procedure caveat
+## 4. The 47-card cap and Aichi event rules
 
-After six Prizes, 47 cards remain. To measure access by the first mandatory draw, at most 46 optional bonus cards can be taken before that draw. Therefore (d=47) is the maximum observation window. The code's (K=46\) case (46 bonuses plus the mandatory draw) and (K\geq47\) tail both correctly use (d=47). The exact no-intervention tail mass is only (P(K\geq47)=3.7550\times10^{-11}).
+After six Prizes, 47 cards remain. To measure access by the first mandatory draw, at most 46 optional bonus cards can be taken before that draw. Therefore (d=47) is the maximum observation window. The code's (K=46\) case (46 bonuses plus the mandatory draw) and (K\geq47\) tail both correctly use (d=47). The exact unbounded-tail mass is only (P(K\geq47)=3.7550\times10^{-11}).
 
 For (K\geq47), however, the candidate must announce fewer than all offered bonuses to retain a first mandatory draw. The report and code comments should say "take up to 46 bonus cards, preserving the first mandatory draw" or equivalent, rather than asserting that every offered bonus is accepted in that tail. This is a wording/assumption clarification, not a meaningful numerical correction.
 
