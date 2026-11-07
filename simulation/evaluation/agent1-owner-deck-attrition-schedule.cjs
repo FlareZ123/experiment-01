@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent1-piecewise-owner-deck-attrition-schedule-v1';
+const VERSION='agent1-piecewise-owner-deck-attrition-schedule-v2';
 
 /**
  * Validate a public card count used by this deterministic scenario model.
@@ -19,7 +19,7 @@ function assertCardCount(value,name){
  * under a finite sequence of per-turn draw/mill effects and a stationary tail.
  *
  * The owner has already completed the mandatory draw for the current turn.
- * Each schedule row describes voluntary cards drawn by the owner this turn,
+ * Each schedule row describes cards removed from the owner's deck by its own effects this turn,
  * cards milled by the opponent before the next owner turn, and the mandatory
  * draw that starts that next owner turn. If the deck is empty before that
  * mandatory draw, no next owner turn starts. After the finite schedule, the
@@ -30,19 +30,19 @@ function assertCardCount(value,name){
  * estimate a game's winner.
  *
  * @param {number} remaining Owner deck count after the current mandatory draw.
- * @param {{ownerDraw:number,opponentMill:number}[]} schedule
+ * @param {{ownerDeckLoss:number,opponentMill:number}[]} schedule
  *   Per-turn effects, beginning with the current owner turn.
- * @param {{ownerDraw:number,opponentMill:number}} [tail]
+ * @param {{ownerDeckLoss:number,opponentMill:number}} [tail]
  *   Stationary scenario after the finite schedule; defaults to Pass/no mill.
  * @returns {object} Future-turn budget and a reproducible public-count ledger.
  */
 function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
-  ownerDraw:0,opponentMill:0
+  ownerDeckLoss:0,opponentMill:0
 }){
   assertCardCount(remaining,'remaining');
   assert.ok(Array.isArray(schedule),'schedule must be an array');
   assert.ok(tail&&typeof tail==='object','tail must be a scenario object');
-  assertCardCount(tail.ownerDraw,'tail.ownerDraw');
+  assertCardCount(tail.ownerDeckLoss,'tail.ownerDeckLoss');
   assertCardCount(tail.opponentMill,'tail.opponentMill');
 
   let deck=remaining;
@@ -53,19 +53,19 @@ function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
     const row=schedule[i];
     assert.ok(row&&typeof row==='object',
       'schedule rows must be scenario objects');
-    assertCardCount(row.ownerDraw,'schedule['+i+'].ownerDraw');
+    assertCardCount(row.ownerDeckLoss,'schedule['+i+'].ownerDeckLoss');
     assertCardCount(row.opponentMill,'schedule['+i+'].opponentMill');
 
-    const ownerCardsDrawn=Math.min(deck,row.ownerDraw);
-    deck-=ownerCardsDrawn;
+    const ownerDeckLossApplied=Math.min(deck,row.ownerDeckLoss);
+    deck-=ownerDeckLossApplied;
     const opponentCardsMilled=Math.min(deck,row.opponentMill);
     deck-=opponentCardsMilled;
 
     if(deck===0){
       ledger.push({
         scheduledOwnerTurn:i+1,
-        ownerDrawRequested:row.ownerDraw,
-        ownerCardsDrawn,
+        ownerDeckLossRequested:row.ownerDeckLoss,
+        ownerDeckLossApplied,
         opponentMillRequested:row.opponentMill,
         opponentCardsMilled,
         mandatoryDrawForNextOwnerTurn:0,
@@ -87,8 +87,8 @@ function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
     scheduledStarts++;
     ledger.push({
       scheduledOwnerTurn:i+1,
-      ownerDrawRequested:row.ownerDraw,
-      ownerCardsDrawn,
+      ownerDeckLossRequested:row.ownerDeckLoss,
+      ownerDeckLossApplied,
       opponentMillRequested:row.opponentMill,
       opponentCardsMilled,
       mandatoryDrawForNextOwnerTurn:1,
@@ -98,7 +98,7 @@ function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
   }
 
   const tailStarts=Math.floor(
-    deck/(1+tail.ownerDraw+tail.opponentMill)
+    deck/(1+tail.ownerDeckLoss+tail.opponentMill)
   );
   return {
     version:VERSION,
@@ -130,10 +130,10 @@ function compareStationaryDrawToDeadline(
   assertCardCount(requiredFutureOwnerStarts,'requiredFutureOwnerStarts');
 
   const drawHorizon=futureOwnerStartsUnderSchedule(remaining,[],{
-    ownerDraw:voluntaryDraw,opponentMill
+    ownerDeckLoss:voluntaryDraw,opponentMill
   }).futureOwnerStarts;
   const passHorizon=futureOwnerStartsUnderSchedule(remaining,[],{
-    ownerDraw:0,opponentMill
+    ownerDeckLoss:0,opponentMill
   }).futureOwnerStarts;
   const drawCanReachDeadline=drawHorizon>=requiredFutureOwnerStarts;
   const passCanReachDeadline=passHorizon>=requiredFutureOwnerStarts;
