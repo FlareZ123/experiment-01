@@ -9,7 +9,7 @@ const {nativePublicCatalog}=
 const {publicSpecialAttackPayable}=
   require('./agent17-public-context-special-energy.cjs');
 
-const VERSION='agent6-bilateral-owner-deckout-paid-retreat-v1';
+const VERSION='agent6-bilateral-owner-deckout-paid-retreat-v2-root-accepted';
 const DECKOUT_TEXT="Discard the top card of your opponent's deck.";
 const native=name=>require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output',name));
@@ -183,7 +183,7 @@ function chooseDeckOutPaidRetreat(view,catalog){
  * deck-out attack prompt. The Store remains authoritative for every action.
  *
  * @template T
- * @param {()=>T} execute Native match execution.
+ * @param {(hooks:object)=>T} execute Native match execution with actual-root callbacks.
  * @param {object} [deps] Reversible test seams.
  * @returns {{result:T,audit:object}}
  */
@@ -206,10 +206,7 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
   const oldRecipient=recipientModule.chooseActorEnergyRecipient;
   const oldDecoder=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
-  const oldDispatch=Object.getOwnPropertyDescriptor(
-    Store.prototype,'dispatch');
   assert.equal(typeof oldDecoder?.value,'function');
-  assert.equal(typeof oldDispatch?.value,'function');
   const audit={
     version:VERSION,sameAlgorithmBothSeats:true,
     actorOnlySelection:true,opponentHiddenZonesRead:false,
@@ -219,12 +216,14 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
     nativeExactFeeBySeat:[0,0],nativeFeeVetoBySeat:[0,0],
     typedRetreatsBySeat:[0,0],retreatProposals:[],
     deckOutAttackRoots:[],
+    rootStoreBound:false,rootAgentsBound:false,
+    ignoredNonRootActions:0,acceptedRootDeckOutActions:0,
     eligibleSecondAttackConfirmPrompts:0,
     acceptedSecondAttackConfirmPrompts:0,
     chosenSecondAttackPrompts:0,secondAttackTurns:[],
     competitivelyQualifiedGames:0
   };
-  let markedDeckOutAttack=null;
+  let rootStore=null,rootAgents=null,markedDeckOutAttack=null;
 
   function chooseRecipient(view,publicCatalog,...args){
     const original=oldRecipient(view,publicCatalog,...args);
@@ -243,27 +242,40 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
     return selected;
   }
 
-  function dispatch(action,...args){
-    const state=this.state;
-    const seat=state?.activePlayer;
-    const active=state?.players?.[seat]?.active?.getPokemonCard?.();
-    if(action?.constructor?.name==='AttackAction'&&
-       (seat===0||seat===1)&&active){
-      const attack=active.attacks?.find(move=>move.name===action.name);
-      if(attack?.text===DECKOUT_TEXT){
-        markedDeckOutAttack={
-          seat,turn:state.turn,printing:active.fullName,
-          attackName:attack.name
-        };
-        audit.deckOutAttackRoots.push({...markedDeckOutAttack});
+  // Only the actual headless Store may authorize an attack prompt override.
+  // These hooks are called by the research adapter after real acceptance;
+  // hypothetical reducer Stores never acquire this identity.
+  const hooks={
+    onRootStoreCreated(store){
+      assert.equal(rootStore,null,'A deck-out wrapper binds exactly one root Store');
+      rootStore=store;
+      audit.rootStoreBound=true;
+    },
+    onRootAgentsCreated(agents){
+      assert.ok(Array.isArray(agents)&&agents.length===2);
+      rootAgents=[...agents];
+      audit.rootAgentsBound=true;
+    },
+    onRootActionDispatched(store,action,ordinal,seat,turnBefore){
+      if(store!==rootStore||!rootStore||!rootAgents){
+        audit.ignoredNonRootActions++;
+        return;
       }
+      if(markedDeckOutAttack&&turnBefore!==markedDeckOutAttack.turn)
+        markedDeckOutAttack=null;
+      if(action?.constructor?.name!=='AttackAction'||(seat!==0&&seat!==1))
+        return;
+      const active=store.state?.players?.[seat]?.active?.getPokemonCard?.();
+      const attack=active?.attacks?.find(move=>move.name===action.name);
+      if(attack?.text!==DECKOUT_TEXT)return;
+      markedDeckOutAttack={
+        seat,turn:turnBefore,printing:active.fullName,
+        attackName:attack.name,acceptedRootOrdinal:ordinal
+      };
+      audit.acceptedRootDeckOutActions++;
+      audit.deckOutAttackRoots.push({...markedDeckOutAttack});
     }
-    const result=oldDispatch.value.call(this,action,...args);
-    if(markedDeckOutAttack!==null&&
-       this.state?.turn!==markedDeckOutAttack.turn)
-      markedDeckOutAttack=null;
-    return result;
-  }
+  };
 
   function decoder(state,...args){
     const prompt=(state.prompts??[]).find(p=>p.result===undefined);
@@ -271,6 +283,7 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
     const player=state.players?.[seat];
     const opponent=state.players?.[1-seat];
     if(markedDeckOutAttack!==null&&
+       rootStore?.state===state&&rootAgents?.[seat]===this&&
        state.turn===markedDeckOutAttack.turn&&
        seat===markedDeckOutAttack.seat&&
        player&&prompt?.playerId===player.id){
@@ -341,19 +354,14 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
   }
 
   recipientModule.chooseActorEnergyRecipient=chooseRecipient;
-  Object.defineProperty(Store.prototype,'dispatch',{
-    ...oldDispatch,value:dispatch
-  });
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
     ...oldDecoder,value:decoder
   });
   try{
-    return {result:execute(),audit};
+    return {result:execute(hooks),audit};
   }finally{
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decoder);
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',oldDecoder);
-    assert.strictEqual(Store.prototype.dispatch,dispatch);
-    Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
     assert.strictEqual(recipientModule.chooseActorEnergyRecipient,chooseRecipient);
     recipientModule.chooseActorEnergyRecipient=oldRecipient;
   }
