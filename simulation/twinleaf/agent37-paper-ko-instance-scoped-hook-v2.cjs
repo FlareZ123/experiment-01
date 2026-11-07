@@ -68,15 +68,17 @@ function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
   let promptWrapperInstalled=false;
   let originalPlayerOrder=null;
   let originalActivePlayer=null;
+  let activeState=null;
   let prizeGroups=[];
 
   const restorePlayerState=()=>{
     if(originalPlayerOrder===null)return;
-    state.players[0]=originalPlayerOrder[0];
-    state.players[1]=originalPlayerOrder[1];
-    state.activePlayer=originalActivePlayer;
+    activeState.players[0]=originalPlayerOrder[0];
+    activeState.players[1]=originalPlayerOrder[1];
+    activeState.activePlayer=originalActivePlayer;
     originalPlayerOrder=null;
     originalActivePlayer=null;
+    activeState=null;
     audit.originalPlayerOrderRestoredBeforeEndTurn=true;
     audit.originalActivePlayerRestoredBeforeEndTurn=true;
   };
@@ -126,6 +128,7 @@ function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
 
     if(effect instanceof EndTurnEffect&&state.phase===GamePhase.ATTACK){
       audit.intercepted++;
+      activeState=state;
       let didComplete=false;
       let stateSwapped=false;
 
