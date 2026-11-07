@@ -109,6 +109,31 @@ test('soft reserve shortfall is a preference limit, not a hard payment veto', ()
   assert.equal(result.frontier.noFirstPaymentAvailable, false);
 });
 
+test('post-play prompt hand works when the source card is already absent', () => {
+  const hand = [VIP, VIP, CARRIER, LILLIE];
+  const result = ownerHandDiscardWithCopyReserves({
+    handPrintings: hand,
+    sourceIndex: null,
+    cost: 2,
+    hardMinimumCopiesByPrinting: {[CARRIER]: 1},
+    softAdditionalCopiesByPrinting: {[LILLIE]: 1},
+    deadPrintings: [VIP],
+    nextHandDiscardCost: 1
+  });
+  assert.equal(result.sourceCardPresentInHand, false);
+  assert.equal(result.sourcePrinting, null);
+  assert.equal(result.sourceIndex, null);
+  assert.deepEqual(result.hardReservedIndices, [2]);
+  assert.deepEqual(result.softProtectedIndices, [3]);
+  assert.equal(result.frontier.handLength, hand.length);
+  assert.equal(result.frontier.sourceIndex, null);
+  assert.equal(result.frontier.availableOtherPhysicalCards, 3);
+  assert.equal(result.frontier.possibleFirstPaymentCount, '3');
+  assert.deepEqual(result.frontier.reservedSourceOrConnectorIndices, [2]);
+  assert.ok(result.frontier.structurallyUndominatedPaymentGroups.every(group =>
+    group.representativePaymentIndices.every(index => index < hand.length)));
+});
+
 test('the played source copy cannot satisfy its own future reserve', () => {
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: [CARRIER, CARRIER, BOX],
