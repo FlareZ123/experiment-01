@@ -240,6 +240,10 @@ test('strict source printing, victim, root and period validation rejects false j
     f=>{f.attempts[0].sourceAttackSettlement.attacks[0].settlementCrossesClockReset=true;},
     f=>{f.attempts[0].sourceAttackSettlement.attacks[0].publicBoardBefore[0].active.printing='Iron Thorns ex PRE';},
     f=>{f.attempts[0].sourceAttackSettlement.attacks[0].publicBoardBefore[1].active.printing='Girafarig UNB';},
+    f=>{f.attempts[0].sourceAttackSettlement.attacks[0].activePrintingBefore='Iron Thorns ex PRE';},
+    f=>{f.attempts[0].sourceAttackSettlement.attacks[0].activePrintedAttackNamesBefore=['Wrong Attack'];},
+    f=>{f.attempts[0].sourceAttackSettlement.attacks[0].attackNamePrintedOnPhysicalActiveBefore=false;},
+    f=>{f.attempts[0].sourceAttackSettlement.attacks[0].directAttackPrintedOnPhysicalActiveBefore=false;},
     f=>{f.roots[0].attackSeat=1;},
     f=>{f.victims[0].victimDamageBeforeNativeKo=0;},
     f=>{f.attempts[0].sourceAttackSettlement.attacks.push(
