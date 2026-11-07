@@ -25,7 +25,6 @@ The card database confirms Rescue Carrier (`swsh7-154`) is Expanded Legal and re
 | 31 | Dusknoir Chimecho | 4 | 22 | 13 |
 | **Total** | **5 lists** | **17** | **83** | **41** |
 
-<Chart content={{"chartType":"bar","xKey":"rank","series":[{"dataKey":"eligible","label":"Pokémon copies with HP ≤90","valueFormat":"integer"}],"data":[{"rank":"9","eligible":6},{"rank":"17","eligible":10},{"rank":"26","eligible":7},{"rank":"30","eligible":5},{"rank":"31","eligible":13}]}} />
 
 The five lists contain 41 potential target copies among 83 Pokémon copies, or **49.40%** of their Pokémon counts.
 
