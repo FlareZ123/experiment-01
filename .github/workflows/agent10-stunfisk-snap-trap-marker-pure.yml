@@ -26,3 +26,5 @@ jobs:
         run: node --check simulation/twinleaf/agent30/issue25-public-prompt-zone-audit-v7.cjs
       - name: Run Agent30 v7 public prompt observer tests
         run: node --test tests/2026-11/agent30-issue25-public-prompt-zone-audit-v7.test.cjs
+      - name: Run Agent30 v2 Snap Trap energy-choice public fixtures
+        run: node --test tests/2026-11/agent30-snap-trap-energy-choice-v2.test.cjs
