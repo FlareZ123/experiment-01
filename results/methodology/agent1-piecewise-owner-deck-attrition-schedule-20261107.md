@@ -30,7 +30,7 @@ New implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule
 
 Each schedule row specifies:
 
-- **ownerDraw**: cards voluntarily drawn by the owner during that owner turn.
+- **ownerDeckLoss**: cards removed from the owner's deck by its own effects during that owner turn. Filch contributes two; a search or self-mill effect can contribute additional loss.
 - **opponentMill**: cards milled by the opponent before the next owner turn.
 
 After both effects, the model applies the next mandatory owner draw. A future owner turn counts only when at least one card remains for that draw. A finite schedule can be followed by a stationary tail, such as repeated Filch, repeated Pass, one Burrow per opponent turn, or two Burrows per opponent turn.
@@ -40,14 +40,20 @@ The function returns a per-row public-count ledger, the number of future owner t
 For a stationary tail, the model reduces to Agent 2's closed form:
 
 \[
-H(D,f,m)=\left\lfloor\frac{D}{1+f+m}\right\rfloor
+H(D,\ell,m)=\left\lfloor\frac{D}{1+\ell+m}\right\rfloor
 \]
 
-Here D is the owner's deck count after the current mandatory draw, f is voluntary draw per owner turn, and m is opponent mill per opponent turn.
+Here D is the owner's deck count after the current mandatory draw, l is owner-side deck loss per owner turn, and m is opponent mill per opponent turn. When l is Filch's two-card draw, this is Agent 2's original f=2 scenario.
 
 The module also exports **compareStationaryDrawToDeadline**. It compares repeated voluntary draw with repeated Pass against an externally supplied number of future owner turns required by a Prize-plan or board evaluator. It classifies the result as draw-horizon-sufficient, pass-required-to-reach-deadline, or neither-policy-reaches-deadline. The helper supplies a decision boundary while leaving the required-turn estimate to a separate game-state component.
 
 For D=23 and m=2, a five-future-turn plan is unreachable under repeated Filch (4 starts) and reachable under repeated Pass (7 starts). An eight-turn plan is unreachable under both policies. A three-turn plan fits both horizons.
+
+## Native trace reconstruction
+
+The [public dispatch artifact from Agent 2's original rank-3 replay](https://github.com/FlareZ123/experiment-01/actions/runs/41933612198/artifacts/13372503402) permits a direct schedule reconstruction. Begin with the Mimikyu owner's deck count **44** at turn 3, after the preceding Burrow and turn-start draw. The next eleven Mimikyu turns have owner-side deck losses **[2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2]**. Each corresponding Bunnelby turn mills one card. The turn-15 row uses three because the artifact records an additional one-card owner-deck decrement in a ResolvePromptAction before Filch; the public-count receipt does not expose that effect's card identity or cause.
+
+The model reproduces the opponent deck counts after the subsequent Bunnelby turn and prompt settlement exactly: **[40, 36, 32, 28, 24, 20, 15, 11, 7, 3, 0]**. It counts ten future Mimikyu turn starts. The final Burrow empties the deck before the next mandatory draw, matching the native terminal at turn 24 to 25. This is a public-count trace reconstruction. It leaves the extra turn-15 deck loss unclassified and makes no paper-match or optimal-opponent claim.
 
 ## Results
 
@@ -84,8 +90,8 @@ The schedule explicitly represents the observed two-Burrow capability while leav
 
 - Implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
 - Tests: **tests/agent1-owner-deck-attrition-schedule.test.cjs**.
-- Local Node 22.16.0 run: **8/8 tests passed**.
-- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module and 17,199 finite-schedule cases against an independent literal recurrence.
+- Local Node 22.16.0 run: **9/9 tests passed**.
+- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module, 17,199 finite-schedule cases against an independent literal recurrence, and the eleven-turn native rank-3 deck-count reconstruction.
 - It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, deadline classifications, the empty-deck boundary, and invalid inputs.
 
 ## Rule boundary
