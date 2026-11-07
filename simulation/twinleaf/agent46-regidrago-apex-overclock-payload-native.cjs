@@ -80,9 +80,10 @@ function run(){
     assert.equal(apex.sourceChooseAttackPromptSeen,true);
     assert.equal(apex.originalSourceLastAttackAfterResolvedApex?.attack,
       'Apex Dragon');
-    assert.equal(apex.sourceHandImmediatelyAfterApex,0,
-      'Native Apex choosing Overclock appears to fail to draw from deck');
-    assert.equal(apex.sourceDeckImmediatelyAfterApex,8);
+    assert.equal(apex.sourceHandImmediatelyAfterApex,6,
+      'Prompt-validated native Apex Overclock should draw to six');
+    assert.equal(apex.sourceDeckImmediatelyAfterApex,2,
+      'Copied Overclock should consume the same six cards as direct Overclock');
     rows.push({seat,direct,
       apex:{sourceChooseAttackPromptSeen:apex.sourceChooseAttackPromptSeen,
         lastAttack:apex.originalSourceLastAttackAfterResolvedApex,
