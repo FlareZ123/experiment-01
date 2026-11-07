@@ -122,6 +122,8 @@ test('records exact native damage effect and public before/after board',()=>{
   assert.equal(observed.audit.realStores,1);
   assert.equal(observed.audit.acceptedAttackActions,1);
   assert.equal(observed.audit.observedDamageEffects,1);
+  assert.equal(observed.audit.observedDamagePipelineEffects,1);
+  assert.equal(observed.audit.observedDamageCounterEffects,0);
   assert.equal(observed.audit.observedKnockOutEffects,0);
   assert.equal(observed.audit.attacks.length,1);
   const attack=observed.audit.attacks[0];
@@ -129,6 +131,8 @@ test('records exact native damage effect and public before/after board',()=>{
   assert.equal(attack.turn,6);
   assert.equal(attack.effects[0].damage,100);
   assert.equal(attack.effects[0].target.seat,1);
+  assert.equal(attack.effects[0].effectPlayerSeat,0);
+  assert.equal(attack.effects[0].victimSeat,null);
   assert.equal(attack.effects[0].target.zone,'active');
   assert.equal(attack.effects[0].targetDamageBefore,0);
   assert.equal(attack.effects[0].targetDamageAfter,100);
@@ -150,8 +154,13 @@ test('records KnockOutEffect, physical Prize-to-hand transfer and promotion',()=
   },{Store:env.Store});
   const attack=observed.audit.attacks[0];
   assert.equal(observed.audit.observedDamageEffects,1);
+  assert.equal(observed.audit.observedDamagePipelineEffects,1);
+  assert.equal(observed.audit.observedDamageCounterEffects,0);
   assert.equal(observed.audit.observedKnockOutEffects,1);
+  assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').effectPlayerSeat,1);
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimSeat,1);
+  assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimPokemonBefore,'Tapu Lele-GX');
+  assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimDamageBefore,230);
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').prizeCount,1);
   assert.equal(attack.promptResolutions.length,2);
   assert.equal(attack.promptResolutions[0].promptType,'ChoosePrizePrompt');
