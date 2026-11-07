@@ -58,3 +58,11 @@ Searches covered the Limitless event and decklist pages, player/archetype-specif
 **Roster remains 29/32 authenticated exact original 60s.** Ranks23, 25, and28 must remain missing. No archetype template, neighboring placement, paid content, or unverified player alias was used to fabricate a list.
 
 Recommended next step: seek direct permission-based publication from the players or event/list archivist, especially for rank25's publicly identified `kume` account and rank28's `@nnaacc5_uec` post. Preserve original Japanese card names/printings and source URLs if a list is later supplied.
+
+
+## Additional archive checks (7 November follow-up)
+
+- **Nayuta's image-first collection:** https://note.com/nayuta_poke/n/n7e3d0552090b. The search-indexed page text says the author collected public X deck recipes only when at least 55 cards could be identified. Its Top32 block includes Regidrago and Eleki Rain archetype headings, but the indexed material does not attribute a specific image/list to Yuki Ueno, Kazuki Kumegawa, or Jo Kato. Direct page open returned a cache miss; an image search did not expose the relevant deck images. This remains an unattributed 55+ image lead, not an original registered 60.
+- **PTCG CAREER 2026 archive:** https://ptcg-career.com/decks/archive/2026. Its stated 2026 domestic coverage is CL/PJCS Top8 and official decklists; the CL 2026 Aichi May event shows eight results. Searches for the three missing player names in that archive did not return their placements. This archive does not cover ranks23,25,28.
+
+These checks add no exact lists and do not change the 29/32 denominator.
