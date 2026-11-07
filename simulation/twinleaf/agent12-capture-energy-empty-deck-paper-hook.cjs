@@ -45,7 +45,8 @@ function withPaperCaptureEnergyEmptyDeck(execute, deps = {}) {
   function reduceEffect(store, state, effect) {
     if (effect instanceof AttachEnergyEffect && effect.energyCard === this &&
         effect.player?.hand?.cards?.includes(this) === true &&
-        effect.player?.deck?.cards?.length === 0) {
+        effect.player?.deck?.cards?.length === 0 &&
+        effect.player?.bench?.some(slot => slot.cards.length === 0) === true) {
       audit.beforeAttachmentOwnDeckEmpty++;
       audit.skippedOnlyEmptySearch++;
       return state;
