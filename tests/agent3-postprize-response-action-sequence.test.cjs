@@ -260,10 +260,11 @@ test('joins a source response to the exact candidate Prize-taking root',()=>{
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,0,14);
   store.state.players[1].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
+  store.state.players=[store.state.players[1],store.state.players[0]];
   store.state.turn=15;
-  store.state.players[1].hand.cards=[card('Darkness Energy')];
-  store.state.players[1].discard.cards=[card('Field Blower')];
-  obs.onRootActionDispatched(store,new PlayCardAction(),2,1,15);
+  store.state.players[0].hand.cards=[card('Darkness Energy')];
+  store.state.players[0].discard.cards=[card('Field Blower')];
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,15);
 
   const rawRows=[{
     trial:{id:'trial1'},
