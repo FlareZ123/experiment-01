@@ -270,6 +270,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [isolatePhysicalShuffleRandomness] Use independent per-seat physical shuffle RNG streams, preserving legacy behavior when omitted.
  * @property {boolean} [isolatePhysicalShuffleRandomnessAfterSetup] Keep historical shared RNG during turn-0 setup shuffles, then use independent per-seat physical deck shuffle streams from turn 1 onward; mutually exclusive with isolatePhysicalShuffleRandomness.
  * @property {boolean} [specialRedCardPaperCorrection] Opt-in exact M4 printed hand0 veto and physically seeded hand-only shuffle during the real native Store action; source physical RNG is selected for the opponent hand owner, never consumed by speculative bot decisions.
+ * @property {boolean} [specialRedCardPaperSpeculativeShuffle] Opt-in M4 hand-only shuffle inside speculative owner-root clones using the actor's policy RNG; requires paper preselection, real Store correction, and isolatePolicyRandomness.
  * @property {boolean} [prototypeSafeSimulatorIsolation] Opt-in experimental detached speculative Cards/prototypes, not certified for competitive inference.
  * @property {boolean} [postSuperAliasRepairIsolation] Opt-in experimental source-graph reconciliation after the pinned Simulator constructor.
  * @property {boolean} [supporterDecisionCorrection] Opt-in, reversible correction for premature Supporter turn consumption.
@@ -499,6 +500,12 @@ function runMatch(request) {
   const random = seededRandom(request.seed);
   const policyRandomBySeat = request.isolatePolicyRandomness === true ?
     policyRandomStreams(request.seed) : null;
+  if(request.specialRedCardPaperSpeculativeShuffle===true &&
+      (request.specialRedCardPaperPreselection!==true ||
+       request.specialRedCardPaperCorrection!==true ||
+       request.isolatePolicyRandomness!==true)){
+    throw new Error('M4 speculative shuffle requires paper preselection, physical Store correction, and isolated policy RNG');
+  }
   const isolateShuffleAfterSetup=
     request.isolatePhysicalShuffleRandomnessAfterSetup===true;
   const physicalShuffleRandomBySeat =
@@ -1170,11 +1177,14 @@ function runMatch(request) {
           decodeWithPolicyRandom(seats[state.activePlayer], state,
             policyRandomBySeat[state.activePlayer]) :
           seats[state.activePlayer].decodeNextAction(state);
+        const m4PolicyShuffleRandom=
+          request.specialRedCardPaperSpeculativeShuffle===true ?
+            policyRandomBySeat[state.activePlayer] : undefined;
         action=m4OwnerRootPaperAudits ?
           withM4PaperOwnerRoot(state,state.activePlayer,selectRoot,
             audit=>m4OwnerRootPaperAudits.push({
               ...audit,actionOrdinal:actions
-            })) : selectRoot();
+            }),m4PolicyShuffleRandom) : selectRoot();
         if (!action) {
           throw new Error('Policy failed to generate a turn action.');
         }
@@ -2185,13 +2195,20 @@ function runMatch(request) {
       ...(request.specialRedCardPaperPreselection === true ? {
         specialRedCardPaperPreselection:true,
         specialRedCardPaperPreselectionVersion:
-          'agent44-m4-owner-root-preselection-v1',
+          request.specialRedCardPaperSpeculativeShuffle===true?
+            'agent44-m4-owner-root-preselection-v2-policy-rng-clone-shuffle':
+            'agent44-m4-owner-root-preselection-v1',
         specialRedCardPaperPreselectionAudits:m4OwnerRootPaperAudits
       } : {}),
       ...(request.specialRedCardPaperCorrection === true ? {
         specialRedCardPaperCorrection: true,
         specialRedCardPaperShuffleProtocol:
           'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1'
+      } : {}),
+      ...(request.specialRedCardPaperSpeculativeShuffle===true ? {
+        specialRedCardPaperSpeculativeShuffle:true,
+        specialRedCardPaperSpeculativeShuffleProtocol:
+          'exact-M4-opponent-hand-fisher-yates-policy-clone-prng-v1'
       } : {}),
       randomnessProtocol: isolateShuffleAfterSetup ?
         (request.isolatePolicyRandomness === true ?
