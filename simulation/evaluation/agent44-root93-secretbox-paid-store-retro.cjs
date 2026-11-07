@@ -28,6 +28,7 @@ const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex'
  * @returns {object} Real physical owner card custody and prefix identity.
  */
 function run(options={}){
+  const requireFogFollowup=options.followup===true;
   const {Store}=native('game/store/store');
   const {PassTurnAction,AttackAction}=native('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
@@ -149,7 +150,7 @@ function run(options={}){
           result.promptTrace.push({kind,owner:next.playerId===owner.id});
           callOriginal(this,new ResolvePromptAction(next.id,selection),args);
         }
-        if(options.followup===true){
+        if(requireFogFollowup){
           const follow={requested:true,originalOwnerTurn:state.turn,
             psychicFromFogAvailable:false,fogSearchSettled:false,
             energyAttachmentAccepted:false,hiddenPowerAccepted:false,
@@ -316,7 +317,9 @@ function run(options={}){
   assert.equal(result.nativeStorePaymentVerified,true);
   assert.equal(result.nativeStoreFogSearchVerified,true,
     'Archived later Fog Crystal print must be searchable at this exact root');
-  if(options.followup===true&&receipt.fogFollowup?.psychicFromFogAvailable){
+  if(requireFogFollowup)assert.equal(receipt.fogFollowup?.requested,true,
+    'Selected opt-in branch must actually run Fog Crystal and attack test');
+  if(requireFogFollowup&&receipt.fogFollowup?.psychicFromFogAvailable){
     assert.equal(receipt.fogFollowup.energyAttachmentAccepted,true);
     assert.equal(receipt.fogFollowup.hiddenPowerAccepted,true);
     assert.equal(receipt.fogFollowup.sourceTrubbishKO,true,
