@@ -46,6 +46,7 @@ const HASH_PATHS=Object.freeze([
   'tests/agent16-issue25-canonical-vip-v11.native.test.cjs',
   'tests/agent36-owner-ability-confirm-policy.test.cjs',
   'tests/agent36-v8-owner-ability-policy.native.test.cjs',
+  'tests/agent36-issue25-common-v9-vip-aba.test.cjs',
   '.github/workflows/agent36-bilateral-competence-v9.yml'
 ]);
 
@@ -98,8 +99,10 @@ function withVipFlag(enabled,run,env=process.env){
 
 /** @param {object} row */
 function nativeVipOutcome(row){
-  const audit=row.actorOnlyDecisionCoverage?.detailedComponentAudits
-    ?.ownerVipAfterPass??null;
+  const coverage=row.actorOnlyDecisionCoverage??
+    row.nativeAbortEvidence?.actorOnlyDecisionCoverage??
+    row.nativeAbortProvenance?.actorOnlyDecisionCoverage??null;
+  const audit=coverage?.detailedComponentAudits?.ownerVipAfterPass??null;
   return {
     id:row.trial?.id??row.id??null,
     policyRecorded:audit!==null,
@@ -141,6 +144,18 @@ function rootLedger(row){
 function ledgerSha256(ledger){
   return Array.isArray(ledger)?
     createHash('sha256').update(JSON.stringify(ledger)).digest('hex'):null;
+}
+
+/** @param {object} row */
+function sourceDealFingerprint(row){
+  return row.sourceDealFingerprint??
+    row.nativeAbortProvenance?.sourceDealFingerprint??null;
+}
+
+/** @param {object} row */
+function fullPhysicalDealFingerprint(row){
+  return row.fullPhysicalDealFingerprint??
+    row.nativeAbortProvenance?.fullPhysicalDealFingerprint??null;
 }
 
 /** @param {object|null} event */
@@ -226,8 +241,10 @@ function summarizeNativeAttempt(row,attemptedStatus=null){
     winner:row.winner??null,endReason:row.endReason??null,
     finalPrizes:row.finalPrizes??null,finalBoard:row.finalBoard??null,
     sourceSeat,candidateSeat,
-    sourceDealFingerprint:row.sourceDealFingerprint??null,
-    fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
+    sourceDealFingerprint:sourceDealFingerprint(row)??
+      attemptedStatus?.sourceDealFingerprint??null,
+    fullPhysicalDealFingerprint:fullPhysicalDealFingerprint(row)??
+      attemptedStatus?.fullPhysicalDealFingerprint??null,
     declaredSourceAttacks:row.sourceAttackSettlement?.attacks?.length??null,
     settledSourceAttacks:row.sourceAttackSettlement?.attacks?.filter(x=>
       x.settledPromptChain===true).length??null,
@@ -254,8 +271,8 @@ function compare(phases){
     const a2=maps[2].get(trial.id)??null;
     const all= [a,b,a2];
     const fingerprints=all.map(row=>({
-      source:row?.sourceDealFingerprint??null,
-      full:row?.fullPhysicalDealFingerprint??null
+      source:row?sourceDealFingerprint(row):null,
+      full:row?fullPhysicalDealFingerprint(row):null
     }));
     const physicalOpeningMatchedAcrossABA=all.every(Boolean)&&
       fingerprints.every(x=>x.source!==null&&x.full!==null)&&
@@ -519,7 +536,8 @@ if(require.main===module)main();
 
 module.exports={
   VERSION,ROOT_LIMIT,ENV,PHASES,HASH_PATHS,trials,withVipFlag,
-  nativeVipOutcome,rootLedger,ledgerSha256,actionKind,firstRootDifference,
+  nativeVipOutcome,rootLedger,ledgerSha256,sourceDealFingerprint,
+  fullPhysicalDealFingerprint,actionKind,firstRootDifference,
   summarizeNativeAttempt,compare,runRegisteredV9,runPhase,phaseSummary,
   run,writeArchive
 };
