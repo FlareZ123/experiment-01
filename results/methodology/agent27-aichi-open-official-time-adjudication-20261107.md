@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 15 source-direct pure tests.** This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 16 source-direct pure tests.** This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -36,7 +36,7 @@ These are *conditional* paper-ruling outcomes, **not observed match results**. T
 
 The helper returns `conditionalWinnerSeat` only from supplied claims, always `competitiveAdmission:false` and `externalIndependentReviewRequired:true` at the prescribed-end gate. It **does not** infer human-play time from native Store action ordinals, root caps, turn count, `Date.now()` in accelerated CI, or native winner reports. Calling code must supply observed, judge-consistent match-clock evidence, official end call, post-call turn completion, correct paper player state and independent paper-rules review. The source explicitly withholds all qualifications. No shared v8 policy, headless engine, printed 60, active identity, or CI workflow was changed.
 
-[Tests](../../tests/agent27-aichi-open-time-adjudication.test.cjs) cover 15 pure source cases including stage durations, both call-turn orientations and physical starting seats, pre-final-turn censor, Swiss double loss with overwhelming Prize lead, knockout low-Prize direct result and tie, knockout both-high extension even with Prize lead, distinct entry-condition extensions, normal wins, tied-game tiebreaker, and invalid Prize input. **15/15 passed under a V8 isolated CommonJS source-execution harness, after re-fetching exact committed sources**. These new tests have **not been run in Node or pinned Twinleaf CI**. The official Japanese text was independently opened and read for both `マスター` and `オープン` subsections to prevent division confusion.
+[Tests](../../tests/agent27-aichi-open-time-adjudication.test.cjs) cover 16 pure source cases including stage durations, both call-turn orientations and physical starting seats, pre-final-turn censor, early validated paper win before the final prescribed turn, Swiss double loss with overwhelming Prize lead, knockout low-Prize direct result and tie, knockout both-high extension even with Prize lead, distinct entry-condition extensions, normal wins, tied-game tiebreaker, and invalid Prize input. **16/16 passed under a V8 isolated CommonJS source-execution harness, after re-fetching exact committed sources**. These new tests have **not been run in Node or pinned Twinleaf CI**. The official Japanese text was independently opened and read for both `マスター` and `オープン` subsections to prevent division confusion.
 
 ## Integration proposal to Agent36/Agent41
 
