@@ -16,8 +16,13 @@ const {withNativePaperSupporterDiscipline}=require(
 const {withSameTargetAttachEnergySelection}=require(
   '../twinleaf/same-target-attach-energy-hook.cjs');
 const {withGoFirstChoice}=require('../twinleaf/agent6-go-first-choice.cjs');
+const {withOwnerStartingBasicChoice}=require('../twinleaf/agent50-owner-starting-basic-choice.cjs');
+const {withOwnerPublicAcknowledgements}=require('../twinleaf/agent50-owner-public-acknowledgements.cjs');
+const {withOwnerMandatoryShowCards}=require('../twinleaf/agent50-owner-mandatory-showcards.cjs');
+const {withBlockedPromptEnvelope}=require('../twinleaf/agent50-first-blocked-prompt-envelope.cjs');
+const {withFirstBlockedPromptContract}=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 
-const VERSION='agent2-first-native-quarantined-owner-view-original2seat-v2-go-first';
+const VERSION='agent2-first-native-quarantined-owner-view-original2seat-v3-selected-setup-stack';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=290134,ACTION_LIMIT=220;
 const hash=x=>createHash('sha256').update(JSON.stringify(x))
@@ -45,21 +50,27 @@ function runOne(candidateSeat,cards){
   };
   try{
     const guarded=withNativeRawStateFallbackQuarantine(()=>
-      withGoFirstChoice([false,false],()=>
-        withNativePaperSupporterDiscipline(()=>
-          withCanonicalActorOnlyPolicy(()=>
+      withFirstBlockedPromptContract(()=>
+        withGoFirstChoice([false,false],()=>
+          withOwnerStartingBasicChoice(()=>
+            withOwnerPublicAcknowledgements(()=>
+              withOwnerMandatoryShowCards(()=>
+                withBlockedPromptEnvelope(()=>
+                  withNativePaperSupporterDiscipline(()=>
+                    withCanonicalActorOnlyPolicy(()=>
           withSameTargetAttachEnergySelection(()=>
             runMatch(request)).result,
         {root:work=>withActorOnlyRootPolicy(work,{
           publicContextSpecialEnergy:true,specialEnergyRoot:true,
           nativeOwnerTrainerFallback:true,
           ownerFallbackDiagnosticView:true
-        })},{ownerSingleSearch:true,genericFallbackAttribution:true}))));
+        })},{ownerSingleSearch:true,genericFallbackAttribution:true})))))))));
     return {
       candidateSeat,sourceSeat,seed:SEED,enginePin:PIN,
       status:'no-quarantine-abort',
       returnedAudit:guarded.audit??null,
-      goFirstChoiceAudit:guarded.result?.audit??null,
+      goFirstChoiceAudit:guarded.result?.result?.audit??null,
+      firstBlockedPromptContract:guarded.result?.audit?.firstBlockedPromptContract??null,
       capturedFirstUnsupportedOwnerRoot:null,
       competitivelyQualified:false
     };
@@ -67,6 +78,8 @@ function runOne(candidateSeat,cards){
     const agg=error?.actorNativeTrainerFallbackAbortAudit??null;
     const first=agg?.firstUnsupportedOwnerRoot??null;
     const goFirstChoiceAudit=error?.goFirstChoiceAudit??null;
+    const firstBlockedPromptContract=
+      error?.agent2FirstBlockedPromptContract??null;
     const guard=error?.nativeRawStateFallbackQuarantine??null;
     const native=error?.nativeAbortEvidence??error?.nativeAbortProvenance??null;
     const valid=error?.code===CODE&&
@@ -77,6 +90,8 @@ function runOne(candidateSeat,cards){
       goFirstChoiceAudit.choices[0].chooseFirst===false&&
       guard?.rawStateFallbackCalls===1&&
       guard.originalNativeDecoderExecuted===false&&
+      Number.isSafeInteger(native?.actionOrdinal)&&
+      native?.rootActionCount===native.actionOrdinal&&
       first.hiddenSourceIdentitiesIncluded===false;
     return {
       candidateSeat,sourceSeat,seed:SEED,enginePin:PIN,
@@ -86,6 +101,24 @@ function runOne(candidateSeat,cards){
       nativeErrorDigest:hash(String(error?.stack??error)),
       nativeErrorPrefix:String(error?.message??error).slice(0,250),
       goFirstChoiceAudit,
+      firstBlockedPromptContract,
+      firstRootProvenance:first?{
+        candidateSeat,sourceSeat,
+        actorSeat:first.ownerView?.actorSeat??null,
+        actionOrdinal:native?.actionOrdinal??null,
+        acceptedRootCount:native?.rootActionCount??null,
+        intentKind:'pass',
+        intentReason:'no-supported-owner-visible-root',
+        quarantineCode:error?.code??null,
+        quarantineMessage:String(error?.message??error).slice(0,250),
+        rootActionPrefixSha256:native?.rootActionLedgerSha256??null
+      }:null,
+      acceptedRootPrefix:Array.isArray(native?.rootActionLedger)?
+        native.rootActionLedger.slice(-12).map(root=>({
+          actionOrdinal:root.actionOrdinal,turnBefore:root.turnBefore,
+          turnAfter:root.turnAfter,playerSlot:root.playerSlot,
+          action:root.action,pendingPrompt:root.pendingPrompt
+        })):[],
       actorAbortCounters:agg?{
         attemptedUnsupportedPasses:agg.attemptedUnsupportedPasses,
         selectedNativeTrainerRoots:agg.selectedNativeTrainerRoots,
@@ -114,6 +147,12 @@ function run(){
   return {
     version:VERSION,enginePin:PIN,seed:SEED,actionLimit:ACTION_LIMIT,
     goFirstPolicy:[false,false],
+    selectedSetupAdapters:[
+      'agent50-owner-starting-basic-choice',
+      'agent50-owner-public-acknowledgements',
+      'agent50-owner-mandatory-showcards',
+      'agent50-first-blocked-prompt-envelope'
+    ],
     originalCandidateRank:13,originalSourceRank:3,
     candidateSha256:hash(cards.candidate),
     sourceSha256:hash(cards.source),
@@ -132,6 +171,8 @@ if(require.main===module){
       candidateSeat:x.candidateSeat,status:x.status,
       thrownCode:x.thrownCode,
       goFirstChoices:x.goFirstChoiceAudit?.choices??null,
+      blockedPrompt:x.firstBlockedPromptContract??null,
+      firstRootProvenance:x.firstRootProvenance??null,
       actorSeat:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.actorSeat??null,
       globalTurn:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.globalTurn??null,
       ownHand:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.ownHand??null,
