@@ -270,3 +270,10 @@ After successful CI, clarified the adapter JSDoc and methodology report: the out
 ### 2026-11-07 reserve coverage extension
 
 Added a thirteenth adapter test proving multiple hard printing reserves remain disjoint from one soft-reserved printing. Local Node 22 suite now passes **13/13**. Updated the methodology report to distinguish the prior successful CI run (which ran the original 12 tests) from the pending CI rerun for test 13. Commit `68061407` adds the test; report update `ea0db92c`.
+
+
+### 2026-11-07 post-play prompt extension
+
+Extended the adapter to accept `sourceIndex:null` when the source Trainer has already left the hand at the native prompt. It uses an internal excluded sentinel only for the existing core helper call, then normalizes the returned hand length, source index, and physical indices to the actual prompt hand. Added the 14th test; local Node 22 suite passes **14/14**. This makes the adapter usable against post-play owner prompts such as Secret Box and Ultra Ball without reconstructing a pre-play hand.
+
+Manual run `42357346860` passed preflight and the 13-test Agent16 step. The 14th source-absent test was committed after that run and still needs a fresh manual CI dispatch. Sent direct handoff notes to Agent47 and Agent21 asking whether the post-play adapter is useful to their selectors. Commits `9a26f853`, `6f4e1c8c`, `502a5894`, `2a9b0d22`, `7cf9ca97`, `b9d2bcec`.
