@@ -32,6 +32,7 @@ function loadTypes() {
  * @param {object} prompt Native ChooseCardsPrompt.
  * @param {object} attackerActive The exact public attacking Active PokemonCardList.
  * @param {object} [types] Pinned engine enums and StateUtils injection for tests.
+ * @param {{energyMap?:object[]}} [options] Optional public EnergyMap override.
  * @returns {null|{
  *   card:object,parentIndex:number,denialScore:number,deniedAttacks:string[],
  *   eligibleCount:number,payableAttackCount:number,prismStar:boolean,
@@ -39,7 +40,7 @@ function loadTypes() {
  *   energyMapModel:string,policy:string
  * }}
  */
-function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes()) {
+function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes(), options = {}) {
   const {
     CardTag, EnergyType, SuperType, GameMessage, StateUtils
   } = types;
@@ -81,7 +82,7 @@ function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes()) {
   const attacks = Array.isArray(attackerPokemon?.attacks)
     ? attackerPokemon.attacks.filter(attack => Array.isArray(attack.cost))
     : [];
-  const energyMap = energyCards.map(card => ({
+  const energyMap = options.energyMap ?? energyCards.map(card => ({
     card,
     provides: Array.isArray(card?.provides) ? [...card.provides] : []
   }));
@@ -116,7 +117,9 @@ function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes()) {
       specialEnergy,
       providedUnitCount: StateUtils.getProvidesUnitCount(provides),
       providedTypeCount: new Set(provides).size,
-      energyMapModel: 'printed-provides-only',
+      energyMapModel: options.energyMap
+        ? 'caller-supplied-public-energy-map'
+        : 'printed-provides-only',
       policy: VERSION
     };
   });
