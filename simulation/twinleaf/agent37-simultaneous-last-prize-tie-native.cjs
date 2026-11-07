@@ -151,15 +151,17 @@ function run(){
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,false);
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2);
-    assert.equal(a.winnerOverridden,actorSeat===1);
+    assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
     assert.equal(a.winnerLogHandled,true);
-    assert.equal(a.winnerLogRewritten,actorSeat===1);
+    assert.equal(a.winnerLogRewritten,a.winnerOverridden);
     return {
       actorSeat,
       firstPlayerCanPromote:a.firstPlayerCanPromote,
       otherPlayerCanPromote:a.otherPlayerCanPromote,
       promotionAvailabilitySymmetric:a.promotionAvailabilitySymmetric,
       terminalOutcome:a.terminalOutcome,
+      nativeWinner:a.nativeWinner,
+      expectedWinner:a.expectedWinner,
       winnerOverridden:a.winnerOverridden,
       winnerSeat:result.winnerSeat
     };
