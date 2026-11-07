@@ -14,7 +14,7 @@ Touched files:
 - `simulation/evaluation/agent2-fresh-rank1-rank3-multibasic-panel.cjs`
 - `tests/agent6-owner-deckout-paid-retreat.test.cjs`
 
-The focused pure regression explicitly constructs a speculative Store sharing the **same state object** and calls the accepted-action callback for it: the real bot must reject the synthetic prompt authorization. A different bot instance also must not consume the actual owner's prompt override. The real Store/real bot positive control accepts the second attack prompts and records `acceptedRootOrdinal:7`. All ten focused tests pass in both native CI executions.
+The focused pure regression explicitly constructs a speculative Store sharing the **same state object** and calls the accepted-action callback for it: the real bot must reject the synthetic prompt authorization. A different bot instance also must not consume the actual owner's prompt override. The real Store/real bot positive control accepts the second attack prompts and records `acceptedRootOrdinal:7`. All eleven focused tests pass in the third native CI execution (ten passed before the additional Block/incomplete-attack regression).
 
 ## Two actual native executions and exact replay
 
@@ -25,13 +25,17 @@ Existing **manually dispatched** workflow `.github/workflows/agent2-fss-float-ra
 | [42322205638](https://github.com/FlareZ123/experiment-01/actions/runs/42322205638) | Root Store/agent binding and regression, before the additional paid-Pass guard | PASS | ZIP `c98c727aec2305b53940f5349a50686f6098f3602a4a8eb16a509f41ffad574b` |
 | [42322504632](https://github.com/FlareZ123/experiment-01/actions/runs/42322504632) | Includes the paid-Pass real-Store/agent guard | PASS | ZIP `6fd0c1b39c7aace95f5e3ea2c51311e62dd07332412b547c607026844cbc1c44` |
 
-The one JSON member inside each independently downloaded ZIP is **byte-identical**, SHA-256 `efb2f26e6190dee13abef1389da7ed80f2ecc81ccf8c215b14fb40d7778122cf`, 1,038,300 bytes. Both executions used original seed `3792360798`, rank3 actual seat 0, unchanged source-60 hash `72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f`, rank1 hash `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`. Their runner certifies the same expected full/source initial physical-deal hashes, and `dealMatched`, `controlsRepeatExactly`, and `historicalControlExact` all equal `true`.
+A third manually dispatched exact-control run [42322965459](https://github.com/FlareZ123/experiment-01/actions/runs/42322965459) **PASS** followed the additional default-off safe vetoes for opponent Active `Block` and incomplete printed Active attack metadata. Its ZIP SHA-256 is `9f32f96ce4001cfa13d85456f247448ac52153ede9b82c61d32c297173b44dcc`. The three independent JSON members are byte-identical, SHA-256 `efb2f26e6190dee13abef1389da7ed80f2ecc81ccf8c215b14fb40d7778122cf`, 1,038,300 bytes. All three executions used original seed `3792360798`, rank3 actual seat 0, unchanged source-60 hash `72c61d594eee5ee1d593b738af627c3ab8f3a38d1a5f29695ff39c8c09c2264f`, rank1 hash `de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311`. Their runner certifies the same expected full/source initial physical-deal hashes, and `dealMatched`, `controlsRepeatExactly`, and `historicalControlExact` all equal `true`.
 
 All three arms reached native terminals at global turn 68 with rank1 (seat 1) winning. Their complete accepted-root SHA-256 values:
 - A and A-prime: `5acd02e493800a041b5dedf4a9efa6a0a2de44eece25efc5424f5dda749c3acd` (291 actions);
 - B: `ee130f3489fe1998d90377f4a5218aa45942d81e1a2b57edd5212e16ace9ad40` (296 actions).
 
 The B audit establishes `rootStoreBound:true`, `rootAgentsBound:true`, `acceptedRootDeckOutActions:1`, `ignoredNonRootActions:0`, `typedRetreatsBySeat:[1,0]`, `acceptedSecondAttackConfirmPrompts:1`, `chosenSecondAttackPrompts:1`. The actual root Store accepted **RetreatAction ordinal 227** after a held Basic Water attachment, the **Burrow AttackAction ordinal 228** by Active `Bunnelby PRC` on owner turn 59, optional second-attack **ConfirmPrompt ordinal 230**, and **ChooseAttackPrompt ordinal 231**. The explicit authoritative marker is `{seat:0,turn:59,printing:"Bunnelby PRC",attackName:"Burrow",acceptedRootOrdinal:228}`; both Burrow declarations appear as settled native attack transitions. Original rank1 then used `Night Watch` at turn 60, Knocked Out Bunnelby for a Prize, and ultimately won at turn 68. The native winner and endpoint were unchanged relative to control. This is a bounded historical mechanical/control-policy result.
+
+### Fail-closed public-rule checks
+
+The original `deckOutPaidRetreatOpportunity` allowed an absent or nonnumeric Active attack list to imply that the Active had no payable damaging move, and lacked an opponent Active Ability-lock check. It now refuses a paid retreat when the Active printed attack catalogue is absent, incomplete, or contains an unknown damage/cost/text field. It also rejects a public opponent Active `Block` Ability, including the exact printed Snorlax BW8 and PGO text: `your opponent's Active Pokémon can't retreat`. When the Ability might be suppressed, this conservative refusal may miss an opportunity; it does not introduce a false claim of known legality. The additional pure test reproduces positive and negative states, including Block present by name or printed text. The source text came from the provided English card-pool archive. The third CI's historical frozen original source had no such veto and correctly reproduced the same three action tapes.
 
 ## Remaining guards and admission status
 
@@ -41,4 +45,4 @@ This patch provides a component for the common bilateral competence probe reques
 
 ## Reproduction
 
-Run the existing manual workflow at a commit containing these four changes with `agent6_bunnelby_counterline_aba=true`. Its focused Node test and original-three-arm native Store replay must both pass. Download the single generated artifact; verify the source hashes, physical opening equivalence, exact A/A-prime control root SHA, treatment's root ordinal 228, the root-bound audit flags, and full action tape. A successful workflow run is a component validation receipt only.
+Run the existing manual workflow at a commit containing the root-safety changes and the Block/incomplete-attack safeguards with `agent6_bunnelby_counterline_aba=true`. Its focused Node test and original-three-arm native Store replay must both pass. Download the single generated artifact; verify the source hashes, physical opening equivalence, exact A/A-prime control root SHA, treatment's root ordinal 228, the root-bound audit flags, and full action tape. A successful workflow run is a component validation receipt only.
