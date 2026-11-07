@@ -34,3 +34,22 @@ This is source/provenance validation only. No game, simulator match, or competit
 ## Regression test
 
 The official Japanese name/count capture is preserved in `official-rank1-deck-code.json`. `tests/aichi-rank1-official-deckcode.test.cjs` checks all 33 names and counts against rank 1 in `full-decklists.json`, including the 60-card total and category totals. It passes 1/1 in the isolated V8 harness against the full fetched dataset. A targeted local Node.js v22.16.0 run also passes 1/1 using the exact official JSON and test blobs with a rank-1-only fixture extracted from the exact full-dataset blob; the repository test will use the complete dataset in CI.
+## Japanese print identifiers visible on the official page
+
+The official page exposes set and collector numbers for all 11 Pokémon. These are retained in `official-rank1-deck-code.json`:
+
+| Card | Japanese set | Collector number |
+| --- | --- | --- |
+| Shadow Rider Calyrex VMAX | S6K | 037/070 |
+| Shadow Rider Calyrex V | S6K | 075/070 |
+| Trevenant & Dusknoir-GX | SM12a | 178/173 |
+| Lillie's Clefairy ex | SV9 | 115/100 |
+| Tapu Lele-GX | SM2L | 052/050 |
+| Latias ex | SV7a | 078/064 |
+| Dialga-GX | SM5S | 069/066 |
+| Mimikyu | SM4p | 043/114 |
+| Girafarig | SM8 | 045/095 |
+| Marshadow | SM12a | 064/173 |
+| Radiant Eternatus | S12a | 115/172 |
+
+The official page's Trainer breakdown is 17 Items, 2 Pokémon Tools, 9 Supporters, and 3 Stadiums (31 Trainer cards total). The text view does not expose set/collector identifiers for the Trainer cards or Energy, so none are inferred.
