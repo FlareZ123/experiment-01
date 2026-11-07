@@ -349,6 +349,8 @@ function run(){
           }
         );
         const result=treatment.result,a=treatment.audit;
+        assert.equal(a.prizeLeftBefore[101],profile.ownerPrizes);
+        assert.equal(a.prizeLeftBefore[202],profile.enemyPrizes);
         assert.equal(result.finished,true);
         assert.equal(result.winner,testCase.expected);
         assert.equal(result.winnerSeat,
@@ -466,6 +468,8 @@ function run(){
           }
         );
         const result=treatment.result,a=treatment.audit;
+        assert.equal(a.prizeLeftBefore[101],profile.ownerPrizes);
+        assert.equal(a.prizeLeftBefore[202],profile.enemyPrizes);
         const finalTakerCanPromote=profile.finalTaker==='owner'
           ?testCase.ownerHasBench:testCase.enemyHasBench;
         const otherCanPromote=profile.finalTaker==='owner'
@@ -496,6 +500,7 @@ function run(){
           nativeWinnerEnum:result.winner,
           playersOrderAfterTurn:result.playersOrderAfterTurn,
           initialPrizeCounts:{owner:profile.ownerPrizes,opponent:profile.enemyPrizes},
+          baselinePrizeCountsByPlayer:a.prizeLeftBefore,
           ownerPrizesTakenThisTurn:result.ownerPrizesTakenThisTurn,
           opponentPrizesTakenThisTurn:result.opponentPrizesTakenThisTurn,
           ownerPrizesRemaining:result.ownerPrizesRemaining,
