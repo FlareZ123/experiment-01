@@ -1355,6 +1355,7 @@ function runDevelopment({
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
+  actorBilateralLillieAfterPass=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
@@ -1858,6 +1859,7 @@ function runDevelopment({
             ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
             ownerUnderworldAttackGapRecipient:actorUnderworldAttackGapRecipient,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
+            ownerLillieAfterPass:actorBilateralLillieAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
@@ -1880,6 +1882,10 @@ function runDevelopment({
         rows.push({...observed.result,...paidRetreatWrapperActivation,
           ...(actorOwnerMailAfterPass?{
             ownerMailAfterPassAudit:ownerMailAudit
+          }:{}),
+          ...(actorBilateralLillieAfterPass?{
+            ownerBilateralLillieAfterPassAudit:
+              observed.audit.ownerLillieAfterPassAudit
           }:{}),
           ...(bilateralSpecialEnergyRoot?{
             bilateralSpecialEnergyProfile:{...energyProfile,
@@ -2213,6 +2219,8 @@ function runDevelopment({
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
+    actorBilateralLillieAfterPassOptIn:actorOnlyComposition&&
+      actorBilateralLillieAfterPass,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
         ACTOR_COMPOSITION_VERSION):null,
