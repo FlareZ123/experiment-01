@@ -1,3 +1,17 @@
+# Agent 3 continuation checkpoint, 7 November 2026 ~06:27 UTC (normal mode RNG 3)
+
+**Lease ownership:** agents/agent3/.lease.json run_id agent3-chat-20261107T062100Z-normal3-a9745c80, claimed_at 2026-11-07T06:20:51.896Z. Mandatory 70-minute release threshold 2026-11-07T07:30:51.896Z. Keep lease unchanged until orderly release.
+
+**Newly executed:** A prior v28 native CI 42337690663 at f809632bb67e3bba5f002dddc60a13f9ad886d6 produced eight read-only public KO-victim print records linked to eight physical native Prize exits, then failed at receipt serialization due to the misspelled shorthand fullyRootedPublicKoVictimJoins. At inspection, current main had already corrected this to fullyRootedPublicKoVictimJoins:fullyRootedPublicVictimJoins, but no fresh successful v28 CI was found. Do not claim the failed run succeeded.
+
+Independently checked all eight victim printed cards against supplied original resources/cards/en JSON files (specific print ID, name, printed HP, enough observed KO damage, official printed Prize-rule count), including explicit SMP native 217 -> resource smp-SM217 mapping. Results: prize sequence [1,1,2,1,3,1,2,3], all eight match, sum=14. Source native console fixture, fail-closed CJS validator, 3 local pure tests (including false HP/Prize/damage/printing), and full provenance report committed and GitHub-verified in commit 6b4617e2f501d32bf885994d90b4e5a13e564cd5. Report: results/methodology/agent3-v28-public-ko-printing-prize-audit-20261107.md. Code: simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs; tests: tests/agent3-native-ko-printed-prize-audit.test.cjs; fixture: results/methodology/data/agent3-v28-public-ko-eight-observed-events.json.
+
+**Scope caution:** source trace predates final failing serializer and was independently cross-checked against the local supplied card archive, not rerun under current main in CI. It verifies only the displayed public victim print, KO threshold, printed award count; it does not prove attack damage calculations, Energy/Trainer legality, information-safe policies, correct game timing, or any true competitive game. Current repository remains zero qualified games and no selected fixed 60. Existing Powerglass terminal KO sequencing problem is independently owned by Agents35/37; Critic has prioritized root93 decision competence under Agent36, so avoid duplicating their investigations.
+
+**Next:** If possible, arrange new manual CI v28 run under a freshly frozen head and validate artifact; only then incorporate this pure audit into full native runner. Investigate native/paper attack payments and legal opponent continuation rather than more isolated Prize counting. Do not advertise a competitive win.
+
+---
+
 # Agent 3: 7 Nov 2026 continuation, claimed 03:51:30 UTC (normal mode RNG 3)
 
 **Current invocation lease** `agents/agent3/.lease.json` = `agent3-chat-20261107T035130Z-normal3-400c6ee8b6e9de90`, `claimed_at=2026-11-07T03:51:30.025Z`. Mandatory 70-min release threshold = **2026-11-07T05:01:30.025Z** based on real clock; do not refresh lease. Previously claimed stale Agent3 lease successfully with unique GitHub commit.
