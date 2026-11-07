@@ -228,6 +228,8 @@ function auditTimeCallPacket(packet) {
     missing.push('official-clock-source-not-cited');
   if(!nonempty(packet.firstPlayerEvidenceRef))
     missing.push('original-first-player-source-missing');
+  if(!nonempty(packet.turnOwnerWhenCalledEvidenceRef))
+    missing.push('end-call-turn-owner-source-missing');
   if(!nonempty(packet.independentPaperStateEvidenceRef))
     missing.push('independent-paper-state-source-missing');
   if(packet.paperStateIndependentlyReviewed!==true)
