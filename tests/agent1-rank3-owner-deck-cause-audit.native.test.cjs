@@ -16,6 +16,11 @@ test('frozen rank-3/rank-1 source deal preserves native controls and attributes 
   assert.equal(event.deckAfter[1],19);
   assert.ok(event.pendingPromptsBefore.length>0,
     'the deck decrement must be associated with a pending native prompt');
+  assert.equal(event.pendingPromptsBefore[0].className,'ChooseCardsPrompt');
+  assert.equal(event.previousOwnerAction.actionClass,'PlayCardAction');
+  assert.ok(typeof event.previousOwnerAction.ownerHandCardName==='string'&&
+    event.previousOwnerAction.ownerHandCardName.length>0,
+    'the acting owners handIndex must resolve to an owner-visible card name');
   assert.ok(result.artifactPath===null||
     result.artifactPath.endsWith('agent1-rank3-owner-deck-cause-audit.json'));
   process.stdout.write(JSON.stringify({

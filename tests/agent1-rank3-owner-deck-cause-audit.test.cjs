@@ -12,6 +12,7 @@ class PlayItemAction{
   constructor(card){this.card=card;}
 }
 class ResolvePromptAction{}
+class PlayCardAction{constructor(handIndex){this.handIndex=handIndex;}}
 class SearchDeckPrompt{
   constructor(){
     this.playerId=101;
@@ -77,11 +78,24 @@ test('the observer never emits an action card identity from the other players ha
   assert.equal(JSON.stringify(summary).includes('Opponent private card'),false);
 });
 
+test('PlayCardAction handIndex resolves only against the acting owners own hand',()=>{
+  const state={
+    players:[
+      {id:101,hand:{cards:[{fullName:'Mysterious Treasure'}]}},
+      {id:202,hand:{cards:[{fullName:'Opponent private card'}]}}
+    ]
+  };
+  const summary=summarizeAction(new PlayCardAction(0),0,state);
+  assert.equal(summary.ownerHandIndex,0);
+  assert.equal(summary.ownerHandCardName,'Mysterious Treasure');
+});
+
 test('prompt summaries retain safe scalar metadata and omit nested option identities',()=>{
   const prompt=new SearchDeckPrompt();
   const summary=safePromptSummary(prompt,[{id:101},{id:202}]);
   assert.equal(summary.className,'SearchDeckPrompt');
   assert.equal(summary.ownerSeat,0);
+  assert.ok(summary.keys.includes('options'));
   assert.deepEqual(summary.safeFields,{
     type:'search',
     title:'Search your deck'

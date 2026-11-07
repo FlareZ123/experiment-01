@@ -16,7 +16,7 @@ const {withNativePaperSupporterDiscipline}=
 const {withSameTargetAttachEnergySelection}=
   require('../twinleaf/same-target-attach-energy-hook.cjs');
 
-const VERSION='agent1-rank3-owner-deck-prompt-cause-audit-v1';
+const VERSION='agent1-rank3-owner-deck-prompt-cause-audit-v2';
 const SOURCE_SEAT=0;
 const OWNER_SEAT=1;
 const SEED=290134;
@@ -42,24 +42,35 @@ function safePromptSummary(prompt,players){
   return {
     className:prompt?.constructor?.name??null,
     ownerSeat:found>=0?found:null,
-    safeFields
+    safeFields,
+    keys:Object.keys(prompt).sort()
   };
 }
 
 function summarizeAction(action,seat,state){
   const owner=state.players[seat];
   const handCards=owner?.hand?.cards??[];
+  let ownerHandIndex=null;
   let ownerHandCardName=null;
   for(const key of ['card','item','supporter','stadium','pokemon']){
     const candidate=action?.[key];
-    if(candidate&&handCards.includes(candidate)){
+    const index=handCards.indexOf(candidate);
+    if(candidate&&index>=0){
+      ownerHandIndex=index;
       ownerHandCardName=candidate.fullName??candidate.name??null;
       break;
     }
   }
+  if(ownerHandIndex===null&&Number.isSafeInteger(action?.handIndex)&&
+     action.handIndex>=0&&action.handIndex<handCards.length){
+    ownerHandIndex=action.handIndex;
+    const candidate=handCards[ownerHandIndex];
+    ownerHandCardName=candidate.fullName??candidate.name??null;
+  }
   return {
     actionClass:action?.constructor?.name??null,
     actionName:typeof action?.name==='string'?action.name:null,
+    ownerHandIndex,
     ownerHandCardName,
     keys:action&&typeof action==='object'?Object.keys(action).sort():[]
   };
