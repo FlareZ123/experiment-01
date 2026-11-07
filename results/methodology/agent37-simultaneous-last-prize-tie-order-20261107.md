@@ -218,3 +218,34 @@ New test file: `tests/agent37/rulebook-e-terminal-outcome.test.cjs`. It checks a
 Manual workflow [42409977942](https://github.com/FlareZ123/experiment-01/actions/runs/42409977942) succeeded on 7 November 2026 at 20:14 UTC, research head `6a83aedbb9b1860341b0adcb5bd78b724327eb89`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The pure rule tests, adapter/runner syntax checks, native v3 regression, mixed-transfer assertions, and artifact upload all passed. Artifact ID `13589620469`, 3,648 bytes, SHA-256 `eaf965ba97e6835e584ece210275d16d9ff1aef6f30053df48091a50620b321a`, expires 21 November 2026.
 
 This helper is an adjudication model, not a mixed-terminal settlement fix. The native baseline still omits one Prize group in 12/16 mixed rows. A separate adapter must complete both transfers exactly once and then use this rule helper to choose the terminal result.
+
+
+## 7 November 2026 20:44 UTC: opt-in mixed-terminal v4 passes all 16 rows
+
+A separate v4 adapter now closes the controlled mixed-final-Prize gap without changing the v3 adapter's narrower contract:
+
+- Adapter: `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-adapter.cjs`
+- Runner: `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-native.cjs`
+- Shared pure outcome resolver: `resolveRulebookETerminalOutcome` in `simulation/twinleaf/agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs`
+
+The key sequencing rule is order-sensitive. If the first native Prize group is already terminal, v4 manually transfers the other group before the terminal callback. If the first group is nonterminal, v4 leaves the second native `DrawPrizesEffect` in place and uses its completion to end the game. The audit distinguishes the two paths, verifies both groups' actual `prizesTakenThisTurn` deltas against the recorded KO groups, captures the original native terminal player and winner log, then applies the §E outcome to the fully settled state. The v4 wrapper is per-Store, opt-in, and restores the original Store methods.
+
+The v4 fixture is identical to the v3 mixed baseline: Shadow Rider Calyrex VMAX (three Prize cards) plus Ferroseed (one Prize card), with both physical seats, both one-final-Prize profiles, and all four promotion-availability combinations. Run [42412363070](https://github.com/FlareZ123/experiment-01/actions/runs/42412363070) succeeded on 7 November 2026 at 20:44 UTC, research head `a1e1bc09cab20fdb79861230c5d09ff72f80f009`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+<text>V4 result summary:</text>
+
+| Measure | Result |
+| --- | ---: |
+| Mixed terminal rows | 16 |
+| Both Prize groups transferred exactly once | 16/16 |
+| §E draws | 4 |
+| Owner wins | 6 |
+| Opponent wins | 6 |
+| Original native winner logs captured | 16/16 |
+| Native winner corrections | 4 |
+| Store method restoration | 16/16 |
+| Competitive games qualified | 0 |
+
+The workflow cross-checks each v4 row's expected and actual Prize transfers against the v3 native baseline's recorded Prize-group expectations. Artifact ID `13589789207`, 5,115 bytes, SHA-256 `27cffecf707f0961e09948ed178632bea77384488f6c326210d5b353196e6bab`, expires 21 November 2026. The same manual workflow still runs the v3 both-final regression, the 12/16 mixed native baseline diagnostic, the exhaustive §E tests, and the v4 mixed-terminal regression.
+
+**Disposition:** v4 resolves the 16 controlled mixed-terminal cases that v3 intentionally leaves unsupported. This is still a narrow staged native mechanics fixture, not a complete paper game, Japanese Extra legality proof, shared-policy integration, or competitive qualification. Keep v4 default-off until broader sequencing, interruption, replacement-destination, prevention, non-Active KO, simultaneous no-Pokémon, deck-out, and full multi-turn acceptance tests are established.
