@@ -56,6 +56,7 @@ for(const seat of [0,1])test('receipt respects actual acting seat '+seat,()=>{
   assert.deepEqual(r.ownerBench[2].knownAbilityUse,
     [{name:'Fusion Strike System',usedThisTurn:true}]);
   assert.equal(r.opponentLastTurnAttack,null);
+  assert.equal(r.opponentLastTurnAttacks,null);
   assert.deepEqual(r.priorOpponentTurnKO,{any:true,byAttack:false});
   assert.ok(Object.isFrozen(r.priorOpponentTurnKO));
   const json=JSON.stringify(r);
@@ -121,4 +122,32 @@ test('global once-use Abilities do not pretend per-card availability',()=>{
     [{name:'Dark Asset',usedThisTurn:true}]);
   assert.deepEqual(r.ownerBench[2].knownAbilityUse,
     [{name:'Squawk and Seize',usedThisTurn:false}]);
+});
+
+test('accepts detached turn-stamped public multiattack history',()=>{
+  const owner=player(slot(card('Mimikyu GRI',10)),[],[],[]);
+  owner.id=1;
+  const opponent=player(slot(card('Bunnelby PRC',20)),[],[],[]);
+  opponent.id=2;
+  const state={players:[owner,opponent],activePlayer:0,turn:15};
+  const history=[
+    {playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
+      attackName:'Burrow',gxAttack:false,copycatAttack:false},
+    {playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
+      attackName:'Rototiller',gxAttack:false,copycatAttack:false}
+  ];
+  const r=publicEventReceipt(state,0,history);
+  assert.deepEqual(r.opponentLastTurnAttacks,[
+    {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Burrow',
+      gxAttack:false,copycatAttack:false},
+    {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Rototiller',
+      gxAttack:false,copycatAttack:false}
+  ]);
+  assert.ok(Object.isFrozen(r.opponentLastTurnAttacks));
+  assert.ok(Object.isFrozen(r.opponentLastTurnAttacks[0]));
+  assert.equal(r.opponentLastTurnAttack,null);
+  const noAttacks=publicEventReceipt(state,0,[]);
+  assert.deepEqual(noAttacks.opponentLastTurnAttacks,[]);
+  assert.ok(Object.isFrozen(noAttacks.opponentLastTurnAttacks));
+  assert.throws(()=>publicEventReceipt(state,0,[{...history[0],playerId:1}]));
 });
