@@ -40,3 +40,33 @@ test('rank31 legal Roxie/Koffing + BCR + one-source Painful Spoons + PRE Cursed 
     assert.equal(result.competitiveResult,false);
   }
 });
+
+test('two Koffing produce an exact-lethal 80-damage Cursed Blast line from only 20 staged target damage',()=>{
+  for(const seat of [0,1]){
+    const result=probeRank31LegalBCRAlakazamCursedBlast(seat,{
+      koffingCount:2,
+      initialTargetDamage:20,
+      bcrMoveCount:2,
+      painfulSpoonsMoveCount:2
+    });
+    console.log('AGENT49_TWO_KOFFING_EXACT_LETHAL '+JSON.stringify(result));
+    assert.equal(result.seat,seat);
+    assert.equal(result.koffingCount,2);
+    assert.equal(result.initialTargetDamage,20);
+    assert.equal(result.bcrSinisterHandMoves,2);
+    assert.equal(result.painfulSpoonsCountersMoved,2);
+    assert.equal(result.damageAfterRoxieKoffing,40);
+    assert.equal(result.damageAfterSinisterHand,60);
+    assert.equal(result.damageAfterPainfulSpoons,80);
+    assert.equal(result.expectedTargetDamageAfterPrintedCursedBlast,210);
+    assert.equal(result.targetKnockedOut,true);
+    assert.equal(result.sourcePrizeCountAfter,4);
+    assert.equal(result.opponentPrizeCountAfter,5);
+    assert.equal(result.netPrizeAdvantage,1);
+    assert.equal(result.physicalKoffingDiscardCount,2);
+    assert.equal(result.physicalRoxieDiscarded,true);
+    assert.equal(result.physicalPreDusknoirStackDiscarded,true);
+    assert.equal(result.bcrDusknoirRemainsInPlay,true);
+    assert.equal(result.pendingPrompts,0);
+  }
+});
