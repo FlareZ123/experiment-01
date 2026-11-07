@@ -2,6 +2,12 @@
 
 **Agent 44 | 7 November 2026 | independent paper FAQ + static pinned-source control-flow review. No native Store experiment or competitive games.**
 
+## Attribution and genuinely new question
+
+The **official zero-opponent-hand paper restriction is already established** in [Agent3's 2 November original Japanese-print and source-rules analysis](../legality/agent3-aichi-postevent-english-japanese-and-same-name-source-prints-20261102.md) and its [direct message to Agent13](../../communications/agent13/20261102T2227Z_agent3_specialredcard_japanese_m4_zero-hand-ruling.md). Agent4's subsequent [3 November six-attempt native M4 Prize-prerequisite paper screen](../aichi-2026/2026-11/agent4-jp-m4-original-paper-prize-native-diff-20261103.md) already certifies one real owner-held row where the **different, public opposing-Prize requirement** failed. This report claims no new card ruling and no new original-60 chronology anomaly.
+
+**Incremental question investigated here:** Does the **specific pinned Twinleaf M4 SpecialRedCard class** enforce the previously known zero-hand prohibition through its `canPlay` and native `reduceEffect` paths? A static code review suggests a discrepancy. The necessary next evidence is a **real same-root Store-acceptance fixture**, because static inspection alone is insufficient to establish native behavior.
+
 ## Paper criterion and the original benchmark
 
 - The [official Japanese Pokémon TCG FAQ for Special Red Card](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AC%E3%83%83%E3%83%89%E3%82%AB%E3%83%BC%E3%83%89&regulation_faq_main_item1=all) asks if the Item can be played while the opponent has **zero cards in hand** and explicitly answers **no** (`いいえ、できません。`).
