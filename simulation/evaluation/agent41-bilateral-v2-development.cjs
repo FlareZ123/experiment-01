@@ -1948,6 +1948,8 @@ function runDevelopment({
         error?.cause?.nativeHiddenReadEvidence??null;
       const genericAbort=error?.nativeGenericFallbackEvidence??
         error?.cause?.nativeGenericFallbackEvidence??null;
+      const sharedFamilyAbort=error?.agent47SharedFamilyPromptAudit??
+        error?.cause?.agent47SharedFamilyPromptAudit??null;
       const sameTargetAbort=error?.nativeSameTargetEnergyEvidence??
         error?.cause?.nativeSameTargetEnergyEvidence??null;
       const {error:archivedError,nativeStoreCauseStack,
@@ -1977,6 +1979,9 @@ function runDevelopment({
           .extractNativeAbortProvenance(trial,nativeAbort),
         ...(error?.nativePublicRootArchive??{}),
         nativeAbortEvidence:nativeAbort,
+        // Owner-only post-attack physical search evidence remains visible
+        // even if a later native prompt or dispatch aborts the same game.
+        sharedTrubbishFamilyOwnerAbortAudit:sharedFamilyAbort,
         // Independently preserve accepted first-setup coin/chooser/draw even
         // when a later Store dispatch fails before the normal game return.
         nativeSetupCoinChoiceReceipt:
