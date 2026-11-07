@@ -44,8 +44,8 @@ This means the current policy is safe against underfunded and attack-locked Copy
 
 - Workflow: existing manual-only `.github/workflows/agent46-copy-delegation.yml`.
 - Initial underfunded/funded run: [42358715870, success](https://github.com/FlareZ123/experiment-01/actions/runs/42358715870).
-- Expanded underfunded/locked/funded policy step: [42360502325](https://github.com/FlareZ123/experiment-01/actions/runs/42360502325), step 23 passed.
-- Expanded policy test source was present in commit `f91888a702420b5d9ffe7e7f4e9ee2ff22c42607`.
+- Expanded underfunded/locked/funded policy run: [42360502325, full workflow success](https://github.com/FlareZ123/experiment-01/actions/runs/42360502325).
+- Tested repository commit: `e360681679d7928edbc5abdac2364e28a4bae80d`.
 - Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Node.js: `20.19.0`.
 
