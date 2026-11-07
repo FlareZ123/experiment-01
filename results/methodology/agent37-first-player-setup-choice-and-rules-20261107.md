@@ -50,17 +50,15 @@ No deck qualification or win-rate claim follows from this note.
 
 ## Follow-up: existing owner-safe handlers and wrapper composition
 
-A later audit found that the repository already has two suitable setup handlers:
+A later audit found three existing helpers:
 
-- `simulation/twinleaf/agent4-owner-setup-confirm.cjs` exports `withOwnerSetupConfirm`. It is explicitly documented to install after the raw-State fallback quarantine and before canonical actor adapters. It handles a matching owner `ConfirmPrompt` in phase 1 / turn 0, uses an actor-only observation, validates and submits a native `ResolvePromptAction`, defaults to false, and records owner-visible prompt message codes.
-- `simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs` handles `ConfirmPrompt` with `message==='GO_FIRST'` as false with reason `go-first-default-second`. Its audit records the message, owner seat, decision and settlement.
+- `simulation/twinleaf/agent6-go-first-choice.cjs` exports `withGoFirstChoice`. It intercepts only an owner-matched `ConfirmPrompt` with `message===GameMessage.GO_FIRST`, maps the physical seat using headless client IDs 101/202, and returns a native `ResolvePromptAction` using an explicit per-seat boolean. Its audit records seat, turn and choice.
+- `simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs` also handles `GO_FIRST` as false with reason `go-first-default-second`, alongside owner ability confirmation. Its audit records the message, owner seat, decision and settlement.
+- `simulation/twinleaf/agent4-owner-setup-confirm.cjs` exports `withOwnerSetupConfirm`. It is restricted to an owner-matched ConfirmPrompt in phase 1 / turn 0, uses actor-only observation, validates a native `ResolvePromptAction`, defaults to false, and records owner-visible prompt message codes. It does not check `message===GO_FIRST`, so it is broader than the exact setup choice and should not be used unmodified under strict fail-closed rules.
 
-The selected v8 policy already composes the second handler: `simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs` wraps the run with `withOwnerAbilityConfirmPolicy`, and `simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs` calls `runIssue25V8WithOwnerAbilityPolicy` in `runPhase` around line 532. Therefore the selected v8/v10b path already handles GO_FIRST. Its turn-54 failure is a distinct later prompt issue.
+The selected v8 baseline composes `withGoFirstChoice([false,false])` as `declineGoFirstBothSeats` in `simulation/evaluation/agent36-issue25-selected-v0.cjs`, after raw-State quarantine and before canonical actor adapters. The v8 artifact reviewed by Agent20 contains no GO_FIRST abort. The v10b runner separately invokes `runIssue25V8WithOwnerAbilityPolicy`; `simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs` composes `withOwnerAbilityConfirmPolicy`, which also handles GO_FIRST. Thus both selected v8 and v10b already resolve GO_FIRST, through different wrappers.
 
-The Agent2 direct actor-only canary and the standalone Agent36 Snap Trap integration test fail at setup because their wrapper compositions omit the existing setup-confirm layer. These failures are composition gaps in those diagnostics; they are not evidence that the selected v8/v10b policy is blocked at GO_FIRST. For the direct Snap Trap fixture, reuse the narrow `withOwnerSetupConfirm` helper. For the Agent2 canary, place the same helper after quarantine and before `withActorOnlyRootPolicy`. Keep all other unsupported prompts fail-closed. No new prompt handler or CI lane is needed.
-
-The setup prompt's exact runtime message remains unconfirmed in the two direct failed runs because neither includes the owner-confirm audit. The existing setup helper records message codes, while the v8 ability-confirm helper records confirm events. The postdispatch `captureSetupCoinChoiceReceipt` attachment gap on bot-decoder errors remains a separate observability issue.
-
+The Agent2 direct actor-only canary and standalone Agent36 Snap Trap integration test omit the exact GO_FIRST wrapper, so their turn-0 failures are local composition gaps. They do not establish a GO_FIRST blocker in v8/v10b, and the v10b turn-54 abort is separate. For direct tests, prefer the existing `withGoFirstChoice` helper. Its `[false,false]` setting is a deterministic development baseline, not an optimized tournament preference.
 
 ## Correction: exact GO_FIRST wrapper already used by the selected v8/v10b paths
 
