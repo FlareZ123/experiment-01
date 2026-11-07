@@ -355,7 +355,27 @@ function run(options={}){
         result.opponentHandContentsObserved=false;
         result.ownerDeckContentsBeforeSearchObserved=false;
       }catch(error){
-        result.error=String(error?.stack??error).slice(0,5000);
+        result.error={
+          kind:error?.constructor?.name??typeof error,
+          message:error?.message??null,
+          plainText:String(error),
+          ownKeys:Object.getOwnPropertyNames(error??{}),
+          detail:Object.fromEntries(Object.getOwnPropertyNames(error??{})
+            .map(k=>[k,String(error[k]).slice(0,600)])),
+          stack:String(error?.stack??'').slice(0,2500)
+        };
+        result.postErrorState={
+          phase:this.state.phase,turn:this.state.turn,
+          activePlayer:this.state.activePlayer,
+          currentOwnerActive:owner.active.getPokemonCard()?.fullName??null,
+          sourceActive:opponent.active.getPokemonCard()?.fullName??null,
+          sourceBench:opponent.bench.map(s=>s.getPokemonCard()?.fullName??null),
+          sourceDiscard:opponent.discard.cards.map(c=>c.fullName),
+          ownerPrizes:owner.prizes.reduce((n,p)=>n+p.cards.length,0),
+          prompts:this.state.prompts.filter(p=>p.result===undefined)
+            .map(p=>({kind:p.constructor.name,
+              owner:p.playerId,index:p.id,message:p.message??null}))
+        };
       }
       // The true Pass is never dispatched. Stop immediately after the native
       // fork to avoid a malformed game or accidental competitiveness claim.
