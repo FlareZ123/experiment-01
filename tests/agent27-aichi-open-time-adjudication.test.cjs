@@ -263,3 +263,26 @@ test('Reject simultaneously declaring a unique paper winner and paper tie',()=>{
     turnOwnerWhenCalled:0,prizesRemaining:[2,2],
     paperGameWinner:0,paperGameTie:true}),/simultaneous/);
 });
+
+test('Zero physical Prizes without ordinary victory or tie vetoes a timed award',()=>{
+  for(const stage of ['open-swiss','open-top32','open-final']){
+    const r=adjudicateAtPrescribedEnd({stage,prizesRemaining:[0,5],
+      secondPlayerTurnFinished:true});
+    assert.equal(r.status,'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE');
+    assert.equal(r.conditionalWinnerSeat,null);
+    assert.equal(r.competitiveAdmission,false);
+  }
+});
+
+test('Zero physical Prizes without ordinary outcome vetoes extension victory',()=>{
+  const r=adjudicateExtension({extensionRule:'both-high',
+    prizesRemaining:[0,2]});
+  assert.equal(r.status,'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE');
+  assert.equal(r.conditionalWinnerSeat,null);
+});
+
+test('Proved simultaneous zero-Prize natural tie overrides conflicting Prize lead',()=>{
+  const r=adjudicateAtPrescribedEnd({stage:'open-top32',prizesRemaining:[0,0],
+    secondPlayerTurnFinished:false,paperGameTie:true});
+  assert.equal(r.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+});
