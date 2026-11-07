@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Probe actual pinned Capture Energy empty-deck partial attachment on both seats
+        run: node --test tests/agent12-capture-energy-empty-deck-native.test.cjs
       - name: Audit Lillie empty-deck pure policy predicate
         run: node --test tests/agent12-lillie-deckzero-opportunity.test.cjs tests/agent12-rank6-deckzero-pass-observer.test.cjs tests/agent12-rank6-deckzero-historical.native.test.cjs
       - name: Probe actual pinned both-seat Thorton Regidrago-to-ADP swap and evolved-target rejection
