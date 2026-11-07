@@ -20,6 +20,8 @@ const engine = name => require(path.join(output,name));
  */
 function stagedChampionPowerBeamAfterRealApex(options={}) {
   const useOriginal60=options.useOriginal60===true;
+  const ownerSeat=options.ownerSeat??0;
+  assert.ok(ownerSeat===0||ownerSeat===1,'Physical champion owner seat must be 0 or 1');
   const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),'utf8'));
   const champion=roster.decks.find(d=>d.rank===1);
@@ -102,7 +104,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     const opponent=new Player();
     opponent.id=202;
     opponent.name='regidrago-staged';
-    state.players=[candidate,opponent];
+    state.players=ownerSeat===0?[candidate,opponent]:[opponent,candidate];
     candidate.active.cards.push(mimikyu,psychic1,psychic2);
     candidate.active.energies.cards.push(psychic1,psychic2);
     candidate.discard.cards.push(dialga,radiant);
@@ -179,7 +181,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       'Both target Regidrago must have distinct physical V and VSTAR cards');
     const originalPrizeInHand=()=>
       originalPrizeCards.filter(card=>candidate.hand.cards.includes(card));
-    state.activePlayer=1;
+    state.activePlayer=1-ownerSeat;
     state.phase=GamePhase.PLAYER_TURN;
     state.turn=4;
     state.playerLastAttack={};
@@ -206,13 +208,13 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       'Overclock must transfer six unique physical cards from source deck to hand');
     assert.equal(state.playerLastAttack[opponent.id]?.attack?.name,
       'Apex Dragon','Declared-history hook must retain real source attack');
-    assert.equal(state.activePlayer,0,'Opponent passed turn after Apex');
+    assert.equal(state.activePlayer,ownerSeat,'Opponent passed turn after Apex');
     assert.equal(state.phase,GamePhase.PLAYER_TURN);
     auditPhysicalZones('after-native-opponent-apex-overclock');
 
     /** Resolve a copied attack from own discard through a real source prompt. */
     function copyPayload(payload,attackName) {
-      assert.equal(state.activePlayer,0);
+      assert.equal(state.activePlayer,ownerSeat);
       assert.equal(state.phase,GamePhase.PLAYER_TURN);
       store.dispatch(new AttackAction(candidate.id,'Copycat'));
       const prompt=state.prompts.find(p=>p.result===undefined &&
@@ -285,7 +287,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     assert.equal(physicalFirstPrizes.length,2,
       'First two actual Prize card objects must enter owner hand');
     assert.strictEqual(opponent.active.getPokemonCard(),regidragoSecond);
-    assert.equal(state.activePlayer,0,
+    assert.equal(state.activePlayer,ownerSeat,
       'Timeless-GX bonus turn must skip the opponent after promoted KO');
     assert.equal(state.phase,GamePhase.PLAYER_TURN);
     assert.equal(state.playerLastAttack[opponent.id]?.attack?.name,'Apex Dragon',
@@ -318,6 +320,8 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       schema:'agent46-real-prior-apex-champion-two-copycat-extra-turn-v1',
       originalSourceAttack,
       priorAttackMetadataInjected:false,
+      championOwnerSeat:ownerSeat,
+      regidragoSourceSeat:1-ownerSeat,
       bothReversibleHooksEnabled:true,
       priorAttackStoreSettled:true,
       bothRegidragoEvolutionStacksPresent:true,
@@ -329,7 +333,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       rank10PrintSubstitutions:sourceRank10?.substitutions??null,
       candidatePrintSubstitutions:plan?.candidate.substitutions??null,
       sourceRank1BasicPsychicPrinting:'MEE',
-      engineBasicPsychicPrinting:'SVE (functional Basic Energy reprint)',
+      nativeBasicPsychicPrinting:useOriginal60?'MEE (resolver native card)':'SVE (synthetic fixture)',
       activeAfterTwoKnockouts:'Budew ASC',
       first,second:secondCopy,
       firstPrompts,secondPrompts,secondTurn:bonusTurn,
