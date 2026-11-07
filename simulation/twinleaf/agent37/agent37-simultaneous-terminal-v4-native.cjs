@@ -102,7 +102,7 @@ function run(){
             GameLog.LOG_GAME_FINISHED_WINNER);
         assert.equal(audit.winnerLogName,expectedWinnerName);
         assert.equal(audit.winnerOverridden,expectedPaperWinner!==expectedNativeWinner);
-        assert.equal(audit.winnerLogRewritten,true);
+        assert.equal(audit.winnerLogRewritten,expectedPaperWinner!==expectedNativeWinner);
         assert.equal(audit.storeLogRestored,true);
         assert.equal(audit.storeReduceRestored,true);
         assert.equal(audit.otherStoresUnmodified,true);
