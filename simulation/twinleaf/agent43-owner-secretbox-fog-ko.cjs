@@ -322,7 +322,10 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
   }
   headless.runMatch=observedRun;
   try{return {result:execute(),audit};}
-  finally{
+  catch(error){
+    if(error&&typeof error==='object')error.agent43Audit=audit;
+    throw error;
+  }finally{
     assert.strictEqual(headless.runMatch,observedRun);
     headless.runMatch=oldRun;
   }
