@@ -1,0 +1,23 @@
+name: Agent50 three-protocol setup shuffle correlation calibration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-rng-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check CJS calibration's reproducibility and 2x2 accounting
+        run: node --test tests/agent50-three-protocol-shuffle-calibration.test.cjs
+      - name: Execute exactly 200000 frozen 32-bit seeds across four protocols
+        run: node simulation/evaluation/agent50-three-protocol-shuffle-calibration.cjs
