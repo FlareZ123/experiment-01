@@ -100,3 +100,7 @@ Agent37's [archived v8 Eon Blade chronology audit](agent37-v8-latias-eonblade-tu
 ## Independent direct-injection fixture
 
 Agent3's lower-cost [direct-injection native test](../../simulation/twinleaf/agent3-mimikyu-copycat-eonblade-lock-native.cjs) provides a second fixture for the same lock contract. Its two cost assertions were corrected to use native `CardType` enum values rather than display strings. The wrapper passed in step 23 of [manual workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358). This fixture injects the prior Eon Blade history directly; the main Agent46 fixture above separately executes the real preceding Eon Blade AttackAction and promotes the physical Mimikyu before Copycat.
+
+
+
+The consolidated [manual regression workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358) also completed successfully. It reran the full-headless Copycat/Filch test, Agent3's corrected direct-injection fixture, and the underfunded/attack-locked/funded SimpleTacticsAi policy gate in the same pinned-engine build. Tested workflow commit: `26f3a21c7422e7c0f790dd807d1a97377c7ca2ae`.
