@@ -11,6 +11,7 @@
 - Physical seats: rank 3 source fixed at seat 0, rank 1 reference fixed at seat 1.
 - Seeds: exactly 290130 through 290145 inclusive, 16 disjoint original source-seat-0 deals.
 - Action cap: 260 native action roots per game.
+- Seat mapping: `deckA = candidateSeat === 0 ? rank1 : rank3`; `deckB = candidateSeat === 1 ? rank1 : rank3`. For this scan, rank 3 is deckA at seat 0 and rank 1 is deckB at seat 1.
 - Policy: reuse the exact `runOne` action composition from `simulation/evaluation/agent2-rank3-original-fss-float-census.cjs`, with the same label `agent2-original-rank3-passive-fss-float-rank3-fresh-1-<seed>`, canonical actor-only policy, actor-only root policy, paper Supporter discipline, and same-target Energy selection. Environment toggles `AGENT8_ACTOR_QUICK_BALL_DEV` and `AGENT41_OWNER_TERMINAL_ARBITRATION_DEV` are false. No card, seed, policy, prompt choice, shuffle, or game rule is changed.
 
 The schedule and expected full-deal/source-deal fingerprints, terminal/cap status, winner, and action count are taken from Agent 2's already executed 32-deal exposure artifact 13364048992, documented in `results/methodology/agent2-rank3-fss-float-natural-32-exposure-20261104.md`. Agent 1's separate seed-290134 root-ledger digest is excluded because that audit used the opposite seat orientation (rank 1 at seat 0, rank 3 at seat 1). The present scan records its own per-seed root-ledger digests for future reproduction.
@@ -38,3 +39,10 @@ The observer runs around the existing native Store dispatch and only copies stat
 
 This is a fixed 16-seed, one-seat diagnostic of state reachability under the existing weak common policy. It is not an estimate of optimal policy frequency, a matchup win rate, a paper-qualified game, or evidence for a deck nomination. Repeated decision roots inside one game are dependent. If no structural candidate appears, the conclusion is limited to this registered seed panel and policy.
 
+
+
+## Execution correction
+
+The first manual dispatch, workflow run 42412579717 (artifact 13589804794), is excluded from analysis. Its initial runner implementation placed the candidate deck in deckA and the source deck in deckB unconditionally, reversing the registered physical seats. The resulting full-deal fingerprints, source-deal fingerprints, statuses, winners, and action counts failed parity. It captured rank-1 owner zones at seat 0, so its zero Handiwork counts have no bearing on this question.
+
+The runner was corrected to derive deckA/deckB from each case's `candidateSeat` and now asserts the seat-to-deck hash mapping before interpreting a row. Only a subsequent run with all per-seed parity checks passing may be treated as the registered scan.
