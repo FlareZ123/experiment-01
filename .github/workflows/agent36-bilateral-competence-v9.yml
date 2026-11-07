@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent3_owner_information_fallback_diagnostic:
+        description: 'Phase-A-only diagnostic to capture the native owner-information fallback prompt; no treatment attribution'
+        required: false
+        type: boolean
+        default: false
       agent36_v10_fresh_aba:
         description: 'Single fixed New Moon candidate across four source ranks and both physical seats, with native settlement capture and fail-closed execution checks (260-root development only)'
         required: false
@@ -99,6 +104,7 @@ jobs:
           node --check simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
           node --check simulation/evaluation/agent36-issue25-common-v10-fresh-aba.cjs
           node --check simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
+          node --check simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
           node --check simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs
@@ -153,33 +159,36 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
-        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Execute exposed rank11 owner-visible Secret Box Fog one-Energy KO
-        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
 
       - name: Execute same-deal Box/Fog plus owner-only pre-attack Ace Trainer A/B/A
-        if: ${{ inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs
 
       - name: Execute preregistered single-candidate four-rank fresh A/B/A
-        if: ${{ inputs.agent36_v10_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba }}
+        if: ${{ inputs.agent36_v10_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-issue25-common-v10-fresh-aba.cjs
       - name: Execute preregistered paired four-rank fresh A/B/A with reciprocal screens
-        if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
+      - name: Capture owner-information fallback prompt (phase A diagnostic only)
+        if: ${{ inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only }}
+        run: node simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
       - name: Execute preregistered shared-policy owner VIP A/B/A
-        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba }}
+        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
@@ -194,5 +203,6 @@ jobs:
             artifacts/agent36-v9-vip-aba/
             artifacts/agent36-v10-fresh-aba/
             artifacts/agent36-v10b-paired-fresh-aba/
+            artifacts/agent3-owner-information-fallback-diagnostic/
           retention-days: 21
           if-no-files-found: warn
