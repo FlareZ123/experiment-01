@@ -141,9 +141,9 @@ jobs:
             tests/agent36-issue25-common-v9-vip-aba.test.cjs \
             tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs
 
-      - name: Verify natural-evolution seat-scope contracts only
+      - name: Verify pure Agent34 and Agent41 policy/registration contracts only
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs
+        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba }}
