@@ -92,27 +92,44 @@ test('a single loss in one rank fails its simultaneous matchup bound', () => {
   assert.ok(result.perRank.slice(1).every(row => row.reachesTarget));
 });
 
-test('a larger all-rank panel can tolerate one loss in a difficult matchup', () => {
-  const request = fixture(500);
+test('one-loss simultaneous bound first passes at 486 games per stratum', () => {
+  const tooSmall = fixture(485);
+  tooSmall.attempts[0].status = 'paper-qualified-loss';
+  const failed = assessSimultaneousMatchups(tooSmall);
+  assert.ok(Math.abs(failed.perRank[0].conditionalLowerBound -
+    0.9949919849070881) < 1e-12);
+  assert.equal(failed.conditionalSimultaneousThresholdMet, false);
+
+  const request = fixture(486);
   request.attempts[0].status = 'paper-qualified-loss';
   const result = assessSimultaneousMatchups(request);
-  assert.equal(result.totalAttempts, 64000);
-  assert.equal(result.perRank[0].totalAttempts, 2000);
-  assert.equal(result.perRank[0].winCount, 1999);
+  assert.equal(result.totalAttempts, 62208);
+  assert.equal(result.perRank[0].totalAttempts, 1944);
+  assert.equal(result.perRank[0].winCount, 1943);
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
-    0.9951418973286925) < 1e-12);
+    0.9950022663189595) < 1e-12);
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
 });
 
-test('two losses can pass at 2500 games per opponent when frozen in advance', () => {
-  const request = fixture(625);
+test('two nonwins first pass at 602 games per stratum', () => {
+  const tooSmall = fixture(601);
+  tooSmall.attempts[0].status = 'paper-qualified-loss';
+  tooSmall.attempts[1].status = 'paper-qualified-tie';
+  const failed = assessSimultaneousMatchups(tooSmall);
+  assert.ok(Math.abs(failed.perRank[0].conditionalLowerBound -
+    0.994996345963929) < 1e-12);
+  assert.equal(failed.conditionalSimultaneousThresholdMet, false);
+
+  const request = fixture(602);
   request.attempts[0].status = 'paper-qualified-loss';
   request.attempts[1].status = 'paper-qualified-tie';
   const result = assessSimultaneousMatchups(request);
-  assert.equal(result.perRank[0].winCount, 2498);
+  assert.equal(result.totalAttempts, 77056);
+  assert.equal(result.perRank[0].totalAttempts, 2408);
+  assert.equal(result.perRank[0].winCount, 2406);
   assert.equal(result.perRank[0].nonwinCount, 2);
   assert.ok(Math.abs(result.perRank[0].conditionalLowerBound -
-    0.9951881000157565) < 1e-12);
+    0.9950046403347648) < 1e-12);
   assert.equal(result.conditionalSimultaneousThresholdMet, true);
 });
 
