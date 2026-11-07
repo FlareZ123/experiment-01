@@ -531,7 +531,7 @@ test('natural evolution root is bilateral when its owner-seat filter is null',()
   for(const seat of [0,1]){
     assert.equal(chooseActorRootIntent(
       garbodorView(seat),naturalEvolutionCatalog,
-      {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null}
+      {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null}
     ).kind,'evolve-pokemon');
   }
 });
@@ -542,36 +542,37 @@ test('natural evolution root can be scoped to physical source seat zero',()=>{
   };
   assert.deepEqual(chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
   ),expected);
   assert.equal(chooseActorRootIntent(
     garbodorView(1),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
   ).kind,'pass');
 });
 test('natural evolution root can be scoped to physical candidate seat one',()=>{
   assert.equal(chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1}
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
   ).kind,'pass');
   assert.equal(chooseActorRootIntent(
     garbodorView(1),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1}
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
   ).kind,'evolve-pokemon');
 });
 test('invalid natural evolution owner seat is rejected and missing actor seat fails closed',()=>{
   assert.throws(()=>chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:2}
-  ),/garbodorResponseOwnerSeat/);
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:2}
+  ),/naturalEvolutionRootOwnerSeat/);
   assert.equal(chooseActorRootIntent(
     garbodorView(undefined),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
   ).kind,'pass');
 });
 
 
-const {chooseGarbodorFloatStoneIntent}=
+
+const {chooseGarbodorToolIntent}=
   require('../simulation/twinleaf/agent36-garbotoxin-tool-intent.cjs');
 const garbotoxinToolCatalog={
   ...catalog,
@@ -584,7 +585,10 @@ function garbotoxinToolView({
   targetAbilities=[{name:'Garbotoxin'}],
   opponentAbilities=[{name:'Perfection'}],
   targetSlot='bench',
-  toolLocked=false
+  toolLocked=false,
+  ownVRecipient=false,
+  vstarToolAttached=false,
+  vstarUsed=false
 }={}){
   const view=base();
   view.actorSeat=0;
@@ -592,16 +596,27 @@ function garbotoxinToolView({
   view.ownTurnResources={
     ...view.ownTurnResources,toolPlayLocked:toolLocked
   };
-  view.ownPublic.publicTurnRestrictions={toolPlayLocked:toolLocked};
+  view.ownPublic.publicTurnRestrictions={
+    toolPlayLocked:toolLocked,vstarUsed
+  };
   const garbodor={
     name:'Garbodor',printing:'Garbodor BKP',
     abilities:targetAbilities,tools:targetTools
   };
+  const crobatV={
+    name:'Crobat V',printing:'Crobat V DAA',
+    abilities:[{name:'Dark Asset'}],
+    tools:vstarToolAttached?['Forest Seal Stone SIT']:[]
+  };
   if(targetSlot==='active'){
     view.ownPublic.active=garbodor;
-    view.ownPublic.bench=[null,null,null,null,null];
+    view.ownPublic.bench=[
+      null,ownVRecipient?crobatV:null,null,null,null
+    ];
   }else{
-    view.ownPublic.bench=[null,garbodor,null,null,null];
+    view.ownPublic.bench=[
+      null,garbodor,ownVRecipient?crobatV:null,null,null
+    ];
   }
   view.opponentPublic={
     active:{
@@ -618,7 +633,7 @@ test('Garbotoxin root prefers held Float Stone over Forest Seal Stone',()=>{
   const view=garbotoxinToolView({
     hand:['Forest Seal Stone SIT','Float Stone BKT']
   });
-  assert.deepEqual(chooseGarbodorFloatStoneIntent(
+  assert.deepEqual(chooseGarbodorToolIntent(
     view,garbotoxinToolCatalog
   ),{
     kind:'attach-tool-candidate',printing:'Float Stone BKT',
@@ -626,36 +641,77 @@ test('Garbotoxin root prefers held Float Stone over Forest Seal Stone',()=>{
     source:'agent36-garbotoxin-float-stone-v1'
   });
 });
-test('Garbotoxin root does not use Forest Seal Stone as a fallback',()=>{
-  assert.equal(chooseGarbodorFloatStoneIntent(
+test('Garbotoxin root uses Forest Seal Stone fallback when Star Alchemy is unavailable',()=>{
+  const intent=chooseGarbodorToolIntent(
     garbotoxinToolView({hand:['Forest Seal Stone SIT']}),
+    garbotoxinToolCatalog
+  );
+  assert.equal(intent.printing,'Forest Seal Stone SIT');
+  assert.equal(intent.source,'agent36-garbotoxin-fss-fallback-v1');
+});
+test('Garbotoxin root defers while an unused Star Alchemy can be used from hand',()=>{
+  assert.equal(chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Forest Seal Stone SIT','Float Stone BKT'],
+      ownVRecipient:true,vstarUsed:false
+    }),
     garbotoxinToolCatalog
   ),null);
 });
+test('Garbotoxin root defers while Forest Seal Stone is attached to an unused V',()=>{
+  assert.equal(chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Float Stone BKT'],
+      ownVRecipient:true,vstarToolAttached:true,vstarUsed:false
+    }),
+    garbotoxinToolCatalog
+  ),null);
+});
+test('Garbotoxin root can proceed after VSTAR is used',()=>{
+  const intent=chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Forest Seal Stone SIT','Float Stone BKT'],
+      ownVRecipient:true,vstarUsed:true
+    }),
+    garbotoxinToolCatalog
+  );
+  assert.equal(intent.printing,'Float Stone BKT');
+});
+test('Garbotoxin root allows Forest Seal Stone fallback after VSTAR is used',()=>{
+  const intent=chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Forest Seal Stone SIT'],
+      ownVRecipient:true,vstarUsed:true
+    }),
+    garbotoxinToolCatalog
+  );
+  assert.equal(intent.printing,'Forest Seal Stone SIT');
+  assert.equal(intent.source,'agent36-garbotoxin-fss-fallback-v1');
+});
 test('Garbotoxin root requires an opposing public Pokémon Ability',()=>{
-  assert.equal(chooseGarbodorFloatStoneIntent(
+  assert.equal(chooseGarbodorToolIntent(
     garbotoxinToolView({opponentAbilities:[]}),
     garbotoxinToolCatalog
   ),null);
 });
 test('Garbotoxin root requires an unequipped Garbotoxin Garbodor',()=>{
-  assert.equal(chooseGarbodorFloatStoneIntent(
+  assert.equal(chooseGarbodorToolIntent(
     garbotoxinToolView({targetTools:['Float Stone BKT']}),
     garbotoxinToolCatalog
   ),null);
-  assert.equal(chooseGarbodorFloatStoneIntent(
+  assert.equal(chooseGarbodorToolIntent(
     garbotoxinToolView({targetAbilities:[{name:'Trashalanche'}]}),
     garbotoxinToolCatalog
   ),null);
 });
 test('Garbotoxin root respects the public Tool-play lock',()=>{
-  assert.equal(chooseGarbodorFloatStoneIntent(
+  assert.equal(chooseGarbodorToolIntent(
     garbotoxinToolView({toolLocked:true}),
     garbotoxinToolCatalog
   ),null);
 });
 test('Garbotoxin root can target an Active Garbodor',()=>{
-  const intent=chooseGarbodorFloatStoneIntent(
+  const intent=chooseGarbodorToolIntent(
     garbotoxinToolView({targetSlot:'active'}),
     garbotoxinToolCatalog
   );
@@ -667,22 +723,22 @@ test('Garbotoxin root never reads the opponent hidden hand',()=>{
   Object.defineProperty(view.opponentPublic,'hand',{
     get(){throw new Error('opponent hidden hand was read');}
   });
-  assert.equal(chooseGarbodorFloatStoneIntent(
+  assert.equal(chooseGarbodorToolIntent(
     view,garbotoxinToolCatalog
   ).printing,'Float Stone BKT');
 });
-test('Garbotoxin root shares the Garbodor package owner-seat scope',()=>{
+test('Garbotoxin root shares the natural-evolution package owner-seat scope',()=>{
   const sourceView=garbotoxinToolView();
   const candidateView=garbotoxinToolView();
   candidateView.actorSeat=1;
   const sourceIntent=chooseActorRootIntent(
     sourceView,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:0}
+    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:0}
   );
   assert.equal(sourceIntent.source,'agent36-garbotoxin-float-stone-v1');
   assert.equal(chooseActorRootIntent(
     candidateView,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:0}
+    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:0}
   ).kind,'pass');
 });
 test('Garbotoxin root is bilateral when the package owner seat is null',()=>{
@@ -690,12 +746,12 @@ test('Garbotoxin root is bilateral when the package owner seat is null',()=>{
   view.actorSeat=1;
   assert.equal(chooseActorRootIntent(
     view,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:null}
+    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:null}
   ).source,'agent36-garbotoxin-float-stone-v1');
 });
 test('Garbodor package owner seat requires an enabled package action',()=>{
   assert.throws(()=>chooseActorRootIntent(
     garbotoxinToolView(),garbotoxinToolCatalog,
-    {garbodorResponseOwnerSeat:0}
+    {naturalEvolutionRootOwnerSeat:0}
   ),/requires a Garbodor response root/);
 });
