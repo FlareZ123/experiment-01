@@ -301,3 +301,113 @@ test('nested native owner-Ability audit survives an intentional abort with proto
   assert.equal(raw.after.turn,4);
   assert.equal(raw.shuffleChangedPhysicalOrder,null);
 });
+
+
+test('pinned Store settles owner-only Articuno Ascent Water transfer on both physical seats',()=>{
+  initializeCards();
+  const {withOwnerAbilityConfirmPolicy}=require(
+    '../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
+  const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+  const load=name=>require(path.join(output,name));
+  const {Store}=load('game/store/store');
+  const {State,GamePhase}=load('game/store/state/state');
+  const {Player}=load('game/store/state/player');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {CardList}=load('game/store/state/card-list');
+  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+  const {PlayCardAction,PlayerType,SlotType}=
+    load('game/store/actions/play-card-action');
+  const {CardManager}=load('game/cards/card-manager');
+  const manager=CardManager.getInstance();
+  const card=name=>{
+    const physical=manager.getCardByName(name);
+    assert.ok(physical,'Missing pinned printing '+name);
+    return physical;
+  };
+  for(const seat of [0,1]){
+    const actor=new Player(),other=new Player();
+    actor.id=801;
+    actor.name='articuno-owner';
+    other.id=802;
+    other.name='opponent';
+    actor.bench=Array.from({length:5},()=>new PokemonCardList());
+    other.bench=Array.from({length:5},()=>new PokemonCardList());
+    actor.active.cards.push(card('Snorlax PGO'));
+    other.active.cards.push(card('Regidrago V SIT'));
+    const waterCards=Array.from({length:3},()=>card('Water Energy SVE'));
+    for(const energy of waterCards){
+      actor.active.cards.push(energy);
+      actor.active.energies.cards.push(energy);
+    }
+    actor.hand.cards.push(card('Articuno-GX CES'));
+    const state=new State();
+    state.players=seat===0?[actor,other]:[other,actor];
+    state.turn=4;
+    state.activePlayer=seat;
+    state.phase=GamePhase.PLAYER_TURN;
+    for(const player of state.players){
+      player.deck.cards.push(card('Psychic Energy SVE'),
+        card('Psychic Energy SVE'),card('Psychic Energy SVE'));
+      player.prizes=Array.from({length:6},()=>{
+        const prize=new CardList();
+        prize.cards.push(card('Psychic Energy SVE'));
+        return prize;
+      });
+    }
+    const store=new Store({onStateChange(){}});
+    store.state=state;
+    const bot=new SimpleTacticsAi({id:actor.id},
+      {tactics:[],promptResolvers:[]},null);
+    const {result,audit}=withOwnerAbilityConfirmPolicy(()=>{
+      store.dispatch(new PlayCardAction(actor.id,0,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }));
+      const prompts=[];
+      for(let i=0;i<5;i++){
+        const prompt=store.state.prompts.find(p=>p.result===undefined);
+        if(!prompt)break;
+        const action=bot.decodeNextAction(store.state);
+        assert.ok(action,'Owner policy did not answer '+prompt.constructor.name);
+        assert.equal(action.constructor.name,'ResolvePromptAction');
+        store.dispatch(action);
+        prompts.push({name:prompt.constructor.name,message:prompt.message,
+          answered:action.result});
+      }
+      return {
+        prompts,
+        active:actor.active.getPokemonCard()?.name,
+        benched:actor.bench.map(slot=>slot.getPokemonCard()?.name).filter(Boolean),
+        attachedWater:actor.active.energies.cards.filter(e=>e.name==='Water Energy'),
+        priorWater:actor.bench.flatMap(slot=>slot.energies.cards)
+          .filter(e=>e.name==='Water Energy'),
+        unsettled:store.state.prompts.filter(p=>p.result===undefined).length
+      };
+    });
+    assert.equal(result.active,'Articuno-GX');
+    assert.ok(result.benched.includes('Snorlax'));
+    assert.equal(result.attachedWater.length,3);
+    assert.equal(result.priorWater.length,0);
+    assert.ok(waterCards.every(energy=>result.attachedWater.includes(energy)));
+    assert.equal(result.unsettled,0);
+    assert.deepEqual(result.prompts.map(p=>p.name),
+      ['ConfirmPrompt','MoveEnergyPrompt']);
+    assert.equal(result.prompts[0].answered,true);
+    assert.equal(result.prompts[1].answered.length,3);
+    assert.equal(audit.confirmSettled,1);
+    assert.equal(audit.confirmEvents[0].cardName,'Articuno-GX');
+    assert.equal(audit.confirmEvents[0].decision,true);
+    assert.equal(audit.articunoMoveEnergyEvents.length,1);
+    assert.equal(audit.articunoMoveEnergyEvents[0].physicallyMoved,true);
+    assert.equal(audit.articunoMoveEnergyEvents[0].promptSettled,true);
+    assert.equal(audit.articunoMoveEnergyEvents[0].allWaterEnergy,true);
+    assert.equal(audit.readsOpponentHidden,false);
+    assert.equal(audit.readsUnopenedDeck,false);
+    console.log('AGENT32_OWNER_ARTICUNO_NATIVE',
+      JSON.stringify({seat,
+        prompts:result.prompts.map(p=>({name:p.name,
+          answerCount:Array.isArray(p.answered)?p.answered.length:null})),
+        attachedWaterCount:result.attachedWater.length,
+        settledTransfers:audit.articunoMoveEnergyEvents[0].transferCount,
+        stage:'native-prepared-board-unqualified'}));
+  }
+});
