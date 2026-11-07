@@ -46,6 +46,21 @@ Exact fractions:
 
 The 1x result exactly reproduces Agent 46's published four-Basic baseline of 4.6811456582%. A second Heavy Ball lowers the modeled obstruction to 0.5474454531%, and its hypothetical field contribution to 0.1881843745 percentage points. A third copy lowers the obstruction further, with diminishing practical justification because it consumes another deck slot.
 
+
+## One-slot role-copy comparison
+
+I also compared adding one copy of a single required Basic role instead of adding a second Heavy Ball. Each variant replaces one other non-Basic card and keeps the deck at 60 cards.
+
+| One-slot change | Prize-only obstruction | 11/32 field-weighted contribution |
+|---|---:|---:|
+| 2x Mimikyu | 2.6789522745% | 0.9208898443 percentage points |
+| 2x Dialga-GX | 2.6789522745% | 0.9208898443 percentage points |
+| 2x Radiant Eternatus | 2.6789522745% | 0.9208898443 percentage points |
+| 3x Lillie's Clefairy ex | 4.5291890682% | 1.5569087422 percentage points |
+| 2x Hisuian Heavy Ball | **0.5474454531%** | **0.1881843745 percentage points** |
+
+Under this narrowly defined Prize-only metric, a second Heavy Ball is more effective than one extra copy of any single required Basic role. The model does not capture the additional benefits a duplicate Basic might provide through ordinary draw, search, or having Mimikyu available to promote, so this is not a general card-strength ranking.
+
 ## Interpretation
 
 The single-copy package's modeled Prize-only obstruction would exceed the entire 0.5% aggregate loss budget if every such obstruction were a loss across the 11/32 Regidrago field share. The 2x Heavy Ball scenario brings this particular hypothetical contribution below 0.5 percentage points.
