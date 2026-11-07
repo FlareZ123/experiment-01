@@ -18,6 +18,10 @@ This is a **policy-conditioned reachability result**. The existing weak common p
 - Source-seat 1 panel: source rank 3 at seat 1, rank 1 at seat 0; 16 rows. Prospective schedule: [registration](registrations/agent1-rank3-owner-zone-scan-seat1-20261107.md). Native run [42420139127](https://github.com/FlareZ123/experiment-01/actions/runs/42420139127), artifact 13592869386, ZIP SHA-256 `b2a6c7911ba6c2e89a37ad7a03ccaed505128e34d8edeeafd0b02b01090edd6f`, JSON SHA-256 `6df5ebaf102d2cdf743c7a57ca38814346a4b7bbddf09d2cad9031ab714dca81`.
 - Policy and game conditions were unchanged between panels: canonical actor-only policy, actor-only root policy, native paper Supporter discipline, same-target Energy selection, 260 native action-root cap, and no card or policy intervention. The owner-zone observer was installed around the real Store dispatch and never supplied to the policy.
 
+## Deck-resolution and paper-legality boundary
+
+This run reuses the original converted Aichi rank-3 list, which contains five `Player's Ceremony SP 127` copies represented by the repository's research-only implementation. Agent41's independent [29-list native print census](../aichi-2026/agent41-japanese-promo-resolution-validation-20261107.md) reports that all 29 authenticated lists are engine-ready under permitted proxies, but 40 original printing rows still lack exact native IDs and semantic effects / paper legality are not certified. Therefore the two-seat replay establishes native reproducibility of this converted list, not paper legality of every original printing or a paper-competitive game. The Handiwork FCO 112 and Bunnelby PRC 121 interactions themselves are ordinary card-pool printings marked Expanded legal.
+
 ## Results
 
 | Measure | Source at seat 0 | Source at seat 1 | Combined |
