@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-original-rank1-actual-owner-pass-resource-observer-v1';
+const VERSION='agent11-original-rank1-actual-owner-pass-resource-observer-v2-distinct-store-vs-headless-ordinal';
 
 /**
  * Preserve one acting owner's information set immediately before a chosen
@@ -11,13 +11,13 @@ const VERSION='agent11-original-rank1-actual-owner-pass-resource-observer-v1';
  * or uses the result. All opponent concealed zones remain outside this view.
  *
  * @param {object} view A detached actorObservation produced for this owner.
- * @param {number} rootOrdinal The actual headless root Store action ordinal.
+ * @param {number} storeDispatchOrdinal All actual Store dispatches, including setup actions.
  * @returns {object} Read-only source-owner resource receipt.
  */
-function summarizeOwnerPassResources(view,rootOrdinal){
+function summarizeOwnerPassResources(view,storeDispatchOrdinal){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(view.actorSeat===0||view.actorSeat===1);
-  assert.ok(Number.isSafeInteger(rootOrdinal)&&rootOrdinal>=0);
+  assert.ok(Number.isSafeInteger(storeDispatchOrdinal)&&storeDispatchOrdinal>=0);
   assert.ok(Array.isArray(view.ownHand));
   const r=view.ownTurnResources;
   assert.ok(r&&typeof r==='object');
@@ -34,7 +34,7 @@ function summarizeOwnerPassResources(view,rootOrdinal){
     damage:slot.damage
   }:null;
   return {
-    schema:VERSION,rootOrdinal,actorSeat:view.actorSeat,
+    schema:VERSION,storeDispatchOrdinal,actorSeat:view.actorSeat,
     globalTurn:view.globalTurn,
     ownerHandPrintings:[...view.ownHand],
     ownerHandSize:view.ownHand.length,
@@ -93,14 +93,14 @@ function withActualOwnerPassResourceObserver(execute,deps={}){
       audit.actualStores++;
     }
     if(this!==realStore)return previous.value.apply(this,[action,...args]);
-    const rootOrdinal=ordinal++;
+    const storeDispatchOrdinal=ordinal++;
     if(kind==='PassTurnAction'){
       const state=this.state;
       const actorId=action.clientId??action.id;
       const seat=state.players.findIndex(player=>player.id===actorId);
       if(seat===sourceSeat){
         const view=observation(state,seat);
-        const entry=summarizeOwnerPassResources(view,rootOrdinal);
+        const entry=summarizeOwnerPassResources(view,storeDispatchOrdinal);
         audit.sourcePasses.push(entry);
         audit.selectedSourcePassCount++;
       }
