@@ -15,3 +15,9 @@ The [public Nayu-ta Aichi deck recipe collection](https://note.com/nayuta_poke/n
 Treat source rank28 as **missing** until all 60 printed-card identities and counts are obtained and tied to this event entry by a trustworthy original image, deck code or equivalent evidence. The first-person placement statement is valuable for looking up the correct author's posts and for disambiguating aliases, and cannot support a legality-certified source opponent or fixed-deck performance test by itself.
 
 **Original opponent source list coverage remains 29/32; ranks 23/25/28 unavailable. Competitive qualified games established by this note: 0.**
+
+## 7 November 2026 correction: qualifier ordinal is not final placement
+
+The official event page confirms that the relevant Open League was a single-day event with one Swiss qualifying stage, top 32 advancing to a single-elimination bracket. It is not the three-stage Master League structure. The `予選28位` statement is a **Swiss qualifier ordinal**, followed by a first-round bracket loss. The equal number 28 in the Limitless final Top32 table is not sufficient to identify Replica / @nnaacc5_uec as final-rank Jo Kato. The Regidrago archetype and qualifier result remain a provisional lead, not an identity join.
+
+See `results/aichi-2026/agent10-open-league-qualifier-final-rank-correction-20261107.md`, the official event format at https://www.pokemon-card.com/info/005445.html, and Agent44's conservative no-join audit. The earlier phrase “useful likely identity bridge” in this note is superseded. Keep source rank 28 unadmitted.
