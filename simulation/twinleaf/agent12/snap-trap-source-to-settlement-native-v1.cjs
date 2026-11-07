@@ -75,6 +75,7 @@ function runSnapTrapSourceToSettlementContract() {
   assert.equal(settlement.prompt.promptResultIsSamePhysicalEnergy, true);
   assert.equal(settlement.prompt.unresolvedPromptCountAfterResponse, 0);
   assert.equal(settlement.prompt.postResponseWaitPromptType, 'WaitPrompt');
+  assert.ok(settlement.prompt.postResponseWaitPromptCount >= 1);
   assert.equal(settlement.prompt.postResponseWaitPromptResolvedWithNull, true);
   assert.equal(settlement.prompt.unresolvedPromptCountAfterFinalWait, 0);
   assert.equal(settlement.moveCardsEffect.requestedDestinationIsDiscard, true);
