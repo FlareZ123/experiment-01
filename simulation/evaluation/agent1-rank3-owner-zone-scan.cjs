@@ -49,7 +49,7 @@ const EXPECTED=Object.freeze([
     source:'ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a'},
   {seed:290135,status:'action-cap',winner:-1,actions:260,
     full:'8be7348a8b07a434595351e3c9d2003a648443c7d50af469997f385e0fd0dac9',
-    source:'6269f134689aabe7b56fe0c991279c75e7ea1868ee0d3782ee1c05d74c'},
+    source:'6269f134689aabe7b56fe0c991279c75e7ea01aa5e1868ee0d3782ee1c05d74c'},
   {seed:290136,status:'native-terminal',winner:1,actions:42,
     full:'f7478a732e0bc8ecdd861385360185c788a5e498b5c081cac78ced8437d87770',
     source:'bf82eb03b6867265385f0a9b30730ea40ad78cddbb02bad991777cb5628cff73'},
@@ -146,6 +146,7 @@ function summarizeSnapshots(snapshots){
 
 /** @param {object} c Frozen physical-deal slot @param {object} cards Original 60s. */
 function runOne(c,cards){
+  try{
   const {Store}=native('game/store/store');
   const {GamePhase}=native('game/store/state/state');
   const request={
@@ -219,6 +220,12 @@ function runOne(c,cards){
     candidateDeckSha256:sha(cards.candidate),
     competitivelyQualified:false
   };
+  }catch(error){
+    return {
+      case:c,status:'native-error',error:error?.stack??String(error),
+      parityPass:false,competitivelyQualified:false
+    };
+  }
 }
 
 /** @returns {object[]} Frozen, one-seat scan schedule. */
@@ -248,8 +255,6 @@ function writeReceipt(receipt){
 }
 
 function run(){
-  initializeCards();
-  const cards=originals();
   const old=new Map([
     ['AGENT8_ACTOR_QUICK_BALL_DEV',process.env.AGENT8_ACTOR_QUICK_BALL_DEV],
     ['AGENT41_OWNER_TERMINAL_ARBITRATION_DEV',
@@ -258,6 +263,8 @@ function run(){
   try{
     process.env.AGENT8_ACTOR_QUICK_BALL_DEV='false';
     process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV='false';
+    initializeCards();
+    const cards=originals();
     const rows=schedule().map(c=>runOne(c,cards));
     const summary={
       attempted:rows.length,
