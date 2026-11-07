@@ -125,6 +125,7 @@ function inspectDeck(deck,index){
   assert.ok(Array.isArray(deck.cards));
   assert.equal(deck.cards.reduce((s,c)=>s+c.count,0),60);
   const missing=[],specialSetup=[],hp=[];
+  let printedPsychic280KO=0;
   for(const entry of deck.cards.filter(c=>c.category==='Pokémon')){
     assert.ok(Number.isSafeInteger(entry.count)&&entry.count>=1&&entry.count<=4);
     const c=printedPokemon(entry,index);
@@ -142,12 +143,37 @@ function inspectDeck(deck,index){
       const n=Number(c.hp);
       if(!Number.isSafeInteger(n)||n<=0){
         missing.push({name:entry.name,locator:c.id,issue:'unverified-hp'});
-      } else hp.push(...Array(entry.count).fill(n));
+      } else {
+        hp.push(...Array(entry.count).fill(n));
+        const weakness=c.weaknesses?.find(x=>x.type==='Psychic');
+        const resistance=c.resistances?.find(x=>x.type==='Psychic');
+        const multiplier=weakness?
+          Number(String(weakness.value).replace(/^[×x]/,'')):1;
+        const reduction=resistance?Number(resistance.value):0;
+        if(!Number.isFinite(multiplier)||multiplier<0||
+            !Number.isFinite(reduction)){
+          missing.push({name:entry.name,locator:c.id,
+            issue:'psychic-weakness-or-resistance-unverified'});
+        }else if(n<=280*multiplier+reduction){
+          printedPsychic280KO+=entry.count;
+        }
+      }
     }
   }
   if(missing.length)return {status:'unresolved-printings',missing};
   if(specialSetup.length)return {status:'special-setup-unmodeled',specialSetup};
-  return {status:'exact-conditional-opening',...exactForcedOpening(60,hp)};
+  const opening=exactForcedOpening(60,hp);
+  const factor=choose(60-hp.length,6);
+  const numerator=BigInt(printedPsychic280KO)*factor;
+  return {status:'exact-conditional-opening',...opening,
+    psychic280:{sourceAttack:'Crisis Punch (PAF 90)',
+      type:'Psychic',baseDamage:280,
+      printedKOCopies:printedPsychic280KO,
+      exactNumerator:numerator.toString(),
+      exactDenominator:opening.legalHands,
+      conditionalForcedLoneKO:Number(numerator)/Number(BigInt(opening.legalHands)),
+      excludes:['source-alternative-search','damage modifiers','Abilities','Tools',
+        'prior damage','actual KO batch','full match policy']}};
 }
 
 /**
