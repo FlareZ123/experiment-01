@@ -121,4 +121,51 @@ for (const seat of [0,1]) {
   }
 }
 
+const {installSpecialRedCardEmptyHandHook} =
+  require('../simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs');
+
+for (const seat of [0,1]) {
+  test('paper-correct M4 hook repairs native Store in seat '+seat+
+    ', leaves permitted play and original methods intact',()=>{
+    const original = inspectNativeSpecialRedCard(seat,3,0);
+    assert.equal(original.nativeCanPlayAdvertises,true);
+    assert.equal(original.paperViolationObserved,true);
+    const restore = installSpecialRedCardEmptyHandHook();
+    try {
+      const blocked = inspectNativeSpecialRedCard(seat,3,0);
+      assert.equal(blocked.officialPaperEligible,false);
+      assert.equal(blocked.nativeCanPlayAdvertises,false);
+      assert.equal(blocked.nativeStoreAccepted,false);
+      assert.equal(blocked.nativeError,'CANNOT_PLAY_THIS_CARD');
+      assert.equal(blocked.ownerItemInHand,true);
+      assert.equal(blocked.ownerItemInDiscard,false);
+      assert.equal(blocked.opponentHandAfter,0);
+
+      const allowed = inspectNativeSpecialRedCard(seat,3,1);
+      assert.equal(allowed.nativeCanPlayAdvertises,true);
+      assert.equal(allowed.nativeStoreAccepted,true);
+      assert.equal(allowed.opponentHandAfter,3);
+      assert.equal(allowed.ownerItemInDiscard,true);
+
+      const tooManyPrizes = inspectNativeSpecialRedCard(seat,4,1);
+      assert.equal(tooManyPrizes.nativeCanPlayAdvertises,false);
+      assert.equal(tooManyPrizes.nativeStoreAccepted,false);
+      assert.equal(tooManyPrizes.ownerItemInHand,true);
+      assert.equal(tooManyPrizes.nativeError,'CANNOT_PLAY_THIS_CARD');
+
+      console.log('AGENT44_M4_PAPER_HOOK',
+        JSON.stringify({seat,originalViolation:original,
+          correctedEmptyHand:blocked,validPlay:allowed,
+          originalPrizeBlock:tooManyPrizes,
+          qualifiedCompetitiveGames:0}));
+    } finally {
+      restore();
+    }
+    const restored = inspectNativeSpecialRedCard(seat,3,0);
+    assert.equal(restored.nativeCanPlayAdvertises,true);
+    assert.equal(restored.nativeStoreAccepted,true);
+    assert.equal(restored.paperViolationObserved,true);
+  });
+}
+
 module.exports = {inspectNativeSpecialRedCard};
