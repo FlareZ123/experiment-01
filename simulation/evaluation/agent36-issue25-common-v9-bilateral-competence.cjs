@@ -21,6 +21,8 @@ const {withStewardOwnerPromptFrontier}=require('./agent36-issue25-steward-select
 const {withTelepathInsideNativeMatches}=require('./agent8-issue25-v5-telepath-development.cjs');
 const {withOwnerTelepathicBenchSearch}=require('../twinleaf/agent8-owner-telepathic-bench-search.cjs');
 const {withOwnerAbilityConfirmPolicy}=require('../twinleaf/agent36-owner-ability-confirm-policy.cjs');
+const {withSharedTrubbishFamilyPrompt}=require(
+  '../twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs');
 const {withAuthoritativeRootPrizeExitObserver}=require('../twinleaf/agent3-authoritative-root-prize-exit-observer.cjs');
 const {createFundedPerfectionPassObserver,sanitizePostPassProbe,
   sanitizeHeldTelepathProbe,sanitizeFinalPass}=require('../twinleaf/agent36-funded-perfection-pass-observer.cjs');
@@ -56,6 +58,8 @@ const POLICY_PATHS=[
   'simulation/twinleaf/agent1-charged-promotion-choice.cjs',
   'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
   'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
+  'simulation/twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs',
+  'simulation/twinleaf/agent49-rank11-firstturn-call-family-owner-prompt.cjs',
   'simulation/twinleaf/prompt-integrity.cjs',
   'simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs',
   'simulation/twinleaf/forest-stone-v-recipient-policy.cjs',
@@ -542,8 +546,10 @@ function requireOneNativeDevelopmentRow(selected,outputPath,metadata) {
  *
  * @param {Function} run Native match continuation.
  * @param {{Store:Function,rootBinding:object,prizeObserver?:Function,
- *   abilityPolicy?:Function,telepathPolicy?:Function}} deps
- * @returns {{result:object,audit:{prize:object,ability:object,telepath:object}}}
+ *   abilityPolicy?:Function,telepathPolicy?:Function,
+ *   familyPolicy?:Function}} deps
+ * @returns {{result:object,audit:{prize:object,ability:object,
+ *   family:object,telepath:object}}}
  */
 function withInstalledNativeMatchPolicies(run,deps) {
   assert.equal(typeof run,'function');
@@ -553,17 +559,23 @@ function withInstalledNativeMatchPolicies(run,deps) {
     withOwnerAbilityConfirmPolicy;
   const telepathPolicy=deps.telepathPolicy??
     withOwnerTelepathicBenchSearch;
+  const familyPolicy=deps.familyPolicy??
+    withSharedTrubbishFamilyPrompt;
   const tele=telepathPolicy(()=>
     abilityPolicy(()=>
-      prizeObserver(run,{
-        Store:deps.Store,rootBinding:deps.rootBinding
-      })
+      familyPolicy(()=>
+        prizeObserver(run,{
+          Store:deps.Store,rootBinding:deps.rootBinding
+        }),{
+          Store:deps.Store,rootBinding:deps.rootBinding
+        })
     )
   );
   return {
-    result:tele.result.result.result,
+    result:tele.result.result.result.result,
     audit:{
-      prize:tele.result.result.audit,
+      prize:tele.result.result.result.audit,
+      family:tele.result.result.audit,
       ability:tele.result.audit,
       telepath:tele.audit
     }
