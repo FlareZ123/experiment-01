@@ -94,3 +94,30 @@ test('candidate 60 including exact Fog remains eligible for tactical Box plan',(
   assert.equal(plan.attackName,'Hidden Power');
   assert.equal(plan.energyPrinting,'Psychic Energy');
 });
+
+test('an original 60 with Fog but zero Basic Psychic also hard-vetoes Box',()=>{
+  const original=[
+    'Secret Box TWM','Fog Crystal CRE',
+    'Battle VIP Pass FST','Battle VIP Pass FST',
+    'Rescue Carrier EVS',...Array(55).fill('Other Item FST')
+  ];
+  assert.equal(original.length,60);
+  const v={
+    decisionKind:'owner-root',globalTurn:14,
+    ownHand:['Secret Box TWM','Battle VIP Pass FST',
+      'Battle VIP Pass FST','Rescue Carrier EVS'],
+    ownTurnResources:{energyPlayedTurn:0,itemPlayLocked:false,
+      energyPlayLocked:false},
+    ownPublic:{
+      active:{printing:'Unown AOR',energies:[],specialConditions:[],
+        publicRestrictions:{},
+        attacks:[{name:'Hidden Power',cost:[9],damage:10,gxAttack:false}]},
+      publicTurnRestrictions:{itemPlayLocked:false,
+        attackLockTurnsRemaining:0}
+    },
+    opponentPublic:{active:{hp:70,damage:60}}
+  };
+  assert.ok(choosePublicOneEnergyBoxKo(v,{psychic:5,colorless:9}));
+  assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
+    v,original,{psychic:5,colorless:9}),null);
+});
