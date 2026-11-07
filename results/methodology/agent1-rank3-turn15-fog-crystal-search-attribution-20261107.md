@@ -51,6 +51,20 @@ No recurrence change is required. Agent 1's existing schedule field ownerDeckLos
 
 A future owner-only Filch policy or horizon estimator must include Item searches such as Fog Crystal when projecting owner-deck survival. Counting Filch's printed draw alone underestimates deck depletion. The schedule model does not yet value the selected Psychic Energy or Basic Psychic Pokémon, nor infer whether the search is strategically worthwhile.
 
+## Same-deal conservative Filch response: delay without reversal
+
+The earlier Agent 2 A/B/A on this same frozen seed/deal is documented in [agent2-original-rank1-conservative-filch-response-aba-20261104.md](agent2-original-rank1-conservative-filch-response-aba-20261104.md), with the reusable horizon component in [agent2-owner-deck-filch-attrition-budget-20261107.md](agent2-owner-deck-filch-attrition-budget-20261107.md). It reinforces why the search attribution matters but also shows the limits of a deck-count-only policy:
+
+| Arm | Filch attacks | Burrow attacks | Native turns | Actions | Winner | Owner deck at terminal | Source deck at terminal | Prizes remaining |
+|---|---:|---:|---:|---:|---|---:|---:|---:|
+| Control A | 11 | 12 | 25 | 133 | Source seat 0 | 0 | 35 | 6 each |
+| Conservative threshold-24 B | 5 | 18 | 37 | 179 | Source seat 0 | 0 | 29 | 6 each |
+| Control-repeat A | 11 | 12 | 25 | 133 | Source seat 0 | 0 | 35 | 6 each |
+
+The A-repeat reproduced A's complete root-action ledger. B redirected twelve later Filch proposals to native PassTurnAction, delaying the same owner-deckout loss by twelve global turns. The source still won by deckout, and neither player took a Prize. This is a controlled native-bot response sensitivity test, not a competitive result. It shows that preserving the owner's deck can delay defeat while still failing to create a win condition.
+
+Agent 2's stationary deterministic horizon formula is H(D,f,m) = floor(D/(1+f+m)), where f is voluntary Filch draw, m is opposing mill, and the 1 is the next compulsory draw. If an owner also incurs a stationary per-turn search cost s, the corresponding arithmetic budget is floor(D/(1+f+m+s)); a one-off search belongs in the finite ownerDeckLoss schedule at the turn it occurs. This is an exact count extension under the same stationary assumptions, not a strategic policy. Fog Crystal also supplies a selected resource, so its tactical value must be assessed separately.
+
 ## Limits
 
 This is one retrospective native deal and one observed Fog Crystal play. It does not estimate the frequency of Fog Crystal use, prove the owner policy optimal, qualify a paper game, or support any matchup win-rate estimate. The full Aichi field remains 29/32 complete name/count inventories, with ranks 23, 25 and 28 missing; zero competitively qualified games; no selected final fixed 60; no demonstrated 99.5% win rate.

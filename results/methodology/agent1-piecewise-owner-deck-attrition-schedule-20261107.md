@@ -119,7 +119,7 @@ The supplied Advanced Player's Rulebook v3.4 (2025-01-08), Win and Loss section,
 
 ## Limits and next experiment
 
-The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow or Team Rocket's Handiwork, that Bunnelby will remain Active, that a second attack will be accepted, or whether Handiwork will be recovered. The stochastic helper assumes independent outcomes with the supplied weights. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
+The same-deal threshold-24 A/B/A delayed the rank-1 owner deckout from turn 25 to turn 37 but still lost with all six Prizes untouched; see Agent 2's [same-deal response report](agent2-original-rank1-conservative-filch-response-aba-20261104.md). The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow or Team Rocket's Handiwork, that Bunnelby will remain Active, that a second attack will be accepted, or whether Handiwork will be recovered. The stochastic helper assumes independent outcomes with the supplied weights. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
 
 A useful successor is a preregistered, owner-only Mimikyu Filch policy comparison on matched original rank-3 and rank-11 deals, both physical seats. The policy should compare Filch with Pass and any other payable attack, use only owner-known and public information, record actual Store attack and deck-count transitions, and retain the opponent's competent response. Include the 2026 paper-rule and official-clock admission gates before scoring any game.
 
