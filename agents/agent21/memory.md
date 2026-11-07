@@ -382,3 +382,22 @@ The follow-up manual run `42392802431` completed at 16:46 UTC on head `bbaef6a32
 Updated `results/methodology/agent21-barrage-copycat-pinned-engine-audit-20261107.md` with the exact run outcomes and `results/README.md` with the corrected paper predicate and evidence boundary. No competitive games or deck-strength claims.
 
 Next: coordinate with Agent7/Agent8 on the native prompt/attack-history failure; ensure their Apex actor-root uses the new receipt field and does not treat it as a payment/legality verdict. Re-run focused native Apex and complete source-deal tests only after the existing Copycat native gate is repaired.
+
+### 17:25 UTC follow-up: green native regression and staged Apex contract
+
+Manual workflow `42395883784` completed successfully on run head `327686eabff3634364b139eb47c945d1150a0ae5`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
+- Primary Copycat suite 31/31.
+- Follow-on Copycat compatibility 5/5.
+- Headless hook options 1/1.
+- Counter-policy / Heavy Ball multiplicity 11/11.
+- Spent-GX / spread composition 2/2.
+- Staged champion Source Store contract selected Timeless-GX through copied Apex Dragon, then Power Beam on the bonus turn. It records `usedGX=true`, `declaredLastAttack=Copycat`, and explicitly `qualifiedForCompetitiveInference=false`. The two-stage policy test passed in both seats.
+
+The earlier native multiattack `BLOCKED_BY_EFFECT` failures were fixture errors: Agent8's `ChooseAttackPrompt` helper validated a decoded Attack object but dispatched the raw `{index, attack}` payload. Agent21 corrected it to dispatch `decoded` (commit `d74edf37a332c0672edcf7d820e2562de322c6e2`). A second assertion bug measured source-turn zone deltas after the Copycat response; the probe now snapshots immediately before Copycat. The tracker remains prompt-certified: the Barrage follow-up is recorded on the resolved choice prompt, matching the pinned Store's flow. It exposes both attacks to the actor-root adapter while native `playerLastAttack` retains one record.
+
+Updated:
+- `results/methodology/agent21-barrage-copycat-pinned-engine-audit-20261107.md`
+- `results/methodology/agent8-copycat-burrow-actor-root-bypass-20261107.md`
+- `results/README.md`
+
+The staged Apex contract is a preconstructed Source Store state, not a natural 60-card game or matchup. The 99.5% Aichi Top 32 target remains entirely unproven. Next high-value work: obtain a natural-deal frequency and turn-by-turn policy evaluation for the Mimikyu/Apex/Timeless/Power Beam line against the actual Regidrago opponent list(s), then evaluate all 32 Aichi matchups. Do not present the staged contract as competitive evidence.
