@@ -395,6 +395,37 @@ function screenNativeMaterialReciprocalExchange(a) {
 }
 
 /**
+ * Recover paper-seat labels from authentic accepted-root native abort
+ * provenance without treating an unclosed error tape as a complete game.
+ * Conflicting labels reject rather than selecting whichever came first.
+ * @param {object} attempt
+ * @returns {{sourceSeat:0|1|null,opponentSeat:0|1|null,seatProvenance:string}}
+ */
+function archivedPhysicalSeats(attempt) {
+  const isSeat=value=>value===0||value===1;
+  const ordinary=attempt.originalSourceSeat;
+  const candidate=attempt.candidateSeat;
+  const aborted=attempt.nativeAbortProvenance?.sourceSeat;
+  for (const value of [ordinary,candidate,aborted]) {
+    assert.ok(value===null||value===undefined||isSeat(value),
+      'Archived native physical seat must be 0, 1 or null');
+  }
+  const sources=[
+    ...(isSeat(ordinary)?[{seat:ordinary,provenance:'ordinary-native-seat'}]:[]),
+    ...(isSeat(candidate)?[{seat:1-candidate,provenance:'candidate-seat-complement'}]:[]),
+    ...(isSeat(aborted)?[{seat:aborted,provenance:'native-abort-provenance'}]:[])
+  ];
+  if(sources.length===0)
+    return {sourceSeat:null,opponentSeat:null,
+      seatProvenance:'missing-physical-seat-proof'};
+  assert.ok(sources.every(x=>x.seat===sources[0].seat),
+    'Contradictory real native original-source physical seats');
+  const sourceSeat=sources[0].seat;
+  return {sourceSeat,opponentSeat:1-sourceSeat,
+    seatProvenance:sources.map(x=>x.provenance).join('+')};
+}
+
+/**
  * Screen every registered actual-native attempt while preserving all
  * dispositions. This is intentionally an UNQUALIFIED action-only census.
  * @param {{attempts:object[]}} archive Source artifact with native roots.
@@ -406,6 +437,8 @@ function screenArchivedReciprocalAttempts(archive) {
   const rows=archive.attempts.map(a=>{
     assert.ok(typeof a.id==='string'&&!ids.has(a.id));
     ids.add(a.id);
+    const seats=archivedPhysicalSeats(a);
+    const {sourceSeat,opponentSeat,seatProvenance}=seats;
     const roots=a.publicRootActions;
     if(a.publicRootActionsTruncated!==false||!Array.isArray(roots)||
        !Number.isInteger(a.publicRootActionCount)||
@@ -413,8 +446,8 @@ function screenArchivedReciprocalAttempts(archive) {
        typeof a.publicRootLedgerSha256Reported!=='string'){
       return {trialId:a.id,disposition:a.status??null,
         rootCount:a.publicRootActionCount??null,
-        rootActionLedgerSha256:null,sourceSeat:a.originalSourceSeat??null,
-        opponentSeat:a.candidateSeat??null,
+        rootActionLedgerSha256:null,sourceSeat,
+        opponentSeat,seatProvenance,
         generalSequence:null,sourceAttackSequence:null,
         settledSourceAttackBeforeObservedReply:false,
         observedPublicDefenderDamage:null,
@@ -432,10 +465,24 @@ function screenArchivedReciprocalAttempts(archive) {
     const hash=rootDigest(roots);
     assert.equal(a.publicRootLedgerSha256Computed,hash);
     assert.equal(a.publicRootLedgerSha256Reported,hash);
+    // A valid accepted prefix may still lack any trustworthy player-seat
+    // provenance. Preserve the registered attempt, but fail closed.
+    if(sourceSeat===null){
+      return {trialId:a.id,disposition:a.status??null,
+        rootCount:roots.length,rootActionLedgerSha256:hash,
+        sourceSeat:null,opponentSeat:null,seatProvenance,
+        generalSequence:null,sourceAttackSequence:null,
+        settledSourceAttackBeforeObservedReply:false,
+        observedPublicDefenderDamage:null,nativeMaterialExchange:null,
+        settledSourceAttackCompletionRoot:null,
+        settledSourceAttackPrizeChange:null,
+        archiveIntegrity:'QUARANTINED-unverified-native-seat',
+        fullPaperAudit:false,competitiveAdmission:false};
+    }
     const general=screenObservedReciprocalSequence(roots,
-      a.originalSourceSeat,a.candidateSeat);
+      sourceSeat,opponentSeat);
     const sourceAttack=screenObservedReciprocalSequence(roots,
-      a.originalSourceSeat,a.candidateSeat,{sourceAttackOnly:true});
+      sourceSeat,opponentSeat,{sourceAttackOnly:true});
     const settledSourceAttack=sourceAttack?
       a.actualSourceAttackSettlement?.attacks?.find(attack=>
         attack.actionOrdinal===sourceAttack.source.ordinal &&
@@ -445,19 +492,21 @@ function screenArchivedReciprocalAttempts(archive) {
           sourceAttack.opponent.ordinal)??null:null;
     const settledSourceAttackBeforeObservedReply=settledSourceAttack!==null;
     const observedPublicDefenderDamage=settledSourceAttack?
-      screenPublicDefenderDamageChange(settledSourceAttack,a.candidateSeat):null;
+      screenPublicDefenderDamageChange(settledSourceAttack,opponentSeat):null;
     const settledSourceAttackPrizeChange=settledSourceAttack&&
-      Number.isInteger(settledSourceAttack.prizesBefore?.[a.originalSourceSeat])&&
-      Number.isInteger(settledSourceAttack.prizesAfter?.[a.originalSourceSeat])?
-        settledSourceAttack.prizesBefore[a.originalSourceSeat]-
-          settledSourceAttack.prizesAfter[a.originalSourceSeat]:null;
+      Number.isInteger(settledSourceAttack.prizesBefore?.[sourceSeat])&&
+      Number.isInteger(settledSourceAttack.prizesAfter?.[sourceSeat])?
+        settledSourceAttack.prizesBefore[sourceSeat]-
+          settledSourceAttack.prizesAfter[sourceSeat]:null;
     return {trialId:a.id,disposition:a.status,
       rootCount:roots.length,rootActionLedgerSha256:hash,
-      sourceSeat:a.originalSourceSeat,opponentSeat:a.candidateSeat,
+      sourceSeat,opponentSeat,seatProvenance,
       generalSequence:general,sourceAttackSequence:sourceAttack,
       settledSourceAttackBeforeObservedReply,
       observedPublicDefenderDamage,
-      nativeMaterialExchange:screenNativeMaterialReciprocalExchange(a),
+      nativeMaterialExchange:screenNativeMaterialReciprocalExchange({
+        ...a,originalSourceSeat:sourceSeat,candidateSeat:opponentSeat
+      }),
       settledSourceAttackCompletionRoot: settledSourceAttack?.completionRootOrdinal??null,
       settledSourceAttackPrizeChange,
       archiveIntegrity:'VERIFIED-original-public-root-ledger',
@@ -481,7 +530,8 @@ function screenArchivedReciprocalAttempts(archive) {
     rows};
 }
 
-module.exports = {VERSION, rootDigest, verifiedMaterialTransition,
+module.exports = {VERSION, rootDigest, archivedPhysicalSeats,
+  verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
   screenUnmodifiedPrintedCosts, screenNativeMaterialReciprocalExchange,
