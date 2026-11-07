@@ -5,7 +5,8 @@ const test=require('node:test');
 const {
   makeRank3HandiworkCadenceSchedule,
   distributionOfFutureOwnerStartsUnderSchedule,
-  probabilityHandiworkAccessByNaturalDrawAndMail
+  probabilityHandiworkAccessByNaturalDrawAndMail,
+  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy
 }=require('../simulation/evaluation/agent1-handwork-cadence-horizon.cjs');
 
 /**
@@ -268,4 +269,244 @@ test('the exact Mail access model rejects impossible zone counts',()=>{
   assert.throws(()=>probabilityHandiworkAccessByNaturalDrawAndMail(
     0,0,0,0
   ),/deckSize must be 1..60/);
+});
+
+
+/**
+ * Reduce a nonnegative exact rational for the independent card-subset oracle.
+ * @param {bigint} numerator
+ * @param {bigint} denominator
+ * @returns {{n:bigint,d:bigint}}
+ */
+function oracleFraction(numerator,denominator){
+  let a=numerator,b=denominator;
+  while(b!==0n){
+    const remainder=a%b;
+    a=b;
+    b=remainder;
+  }
+  const divisor=a===0n?denominator:a;
+  return {n:numerator/divisor,d:denominator/divisor};
+}
+
+/**
+ * @param {{n:bigint,d:bigint}} left
+ * @param {{n:bigint,d:bigint}} right
+ * @returns {{n:bigint,d:bigint}}
+ */
+function addOracleFractions(left,right){
+  return oracleFraction(
+    left.n*right.d+right.n*left.d,left.d*right.d
+  );
+}
+
+/**
+ * @param {{n:bigint,d:bigint}} value
+ * @param {bigint} divisor
+ * @returns {{n:bigint,d:bigint}}
+ */
+function divideOracleFraction(value,divisor){
+  return oracleFraction(value.n,value.d*divisor);
+}
+
+/**
+ * Enumerate all subsets of a small deck without using the production
+ * hypergeometric state transition.
+ * @param {number} size
+ * @param {number} count
+ * @returns {number[][]}
+ */
+function indexCombinations(size,count){
+  const rows=[];
+  const visit=(next,chosen)=>{
+    if(chosen.length===count){
+      rows.push([...chosen]);
+      return;
+    }
+    for(let index=next;index<=size-(count-chosen.length);index++){
+      chosen.push(index);
+      visit(index+1,chosen);
+      chosen.pop();
+    }
+  };
+  visit(0,[]);
+  return rows;
+}
+
+/**
+ * Literal subset oracle for a sequence of Trainers' Mail actions.
+ * A successful target or usable seal is selected; otherwise one other
+ * eligible Trainer is selected when the revealed four contain one.
+ * @param {string[]} deck
+ * @param {number} mailsInHand
+ * @param {boolean} useForestSealStone
+ * @returns {{n:bigint,d:bigint}}
+ */
+function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone){
+  if(mailsInHand===0)return {n:0n,d:1n};
+  const revealSize=Math.min(4,deck.length);
+  const subsets=indexCombinations(deck.length,revealSize);
+  let total={n:0n,d:1n};
+  for(const subset of subsets){
+    const revealed=subset.map(index=>deck[index]);
+    let branch;
+    if(revealed.includes('target')||
+       (useForestSealStone&&revealed.includes('seal'))){
+      branch={n:1n,d:1n};
+    }else{
+      const selectedOther=subset.find(index=>deck[index]==='other');
+      const nextDeck=selectedOther===undefined
+        ?deck
+        :deck.filter((card,index)=>index!==selectedOther);
+      branch=bruteMailStarAlchemyAccess(
+        nextDeck,mailsInHand-1,useForestSealStone
+      );
+    }
+    total=addOracleFractions(total,
+      divideOracleFraction(branch,BigInt(subsets.length)));
+  }
+  return total;
+}
+
+/**
+ * Literal natural-draw enumeration followed by the subset oracle.
+ * @param {string[]} deck
+ * @param {number} mailsInHand
+ * @param {boolean} useForestSealStone
+ * @returns {{n:bigint,d:bigint}}
+ */
+function bruteNaturalDrawMailStarAlchemyAccess(
+  deck,mailsInHand,useForestSealStone
+){
+  let total={n:0n,d:1n};
+  for(let index=0;index<deck.length;index++){
+    const card=deck[index];
+    let branch;
+    if(card==='target'||(useForestSealStone&&card==='seal')){
+      branch={n:1n,d:1n};
+    }else{
+      const nextDeck=deck.filter((_,i)=>i!==index);
+      branch=bruteMailStarAlchemyAccess(
+        nextDeck,mailsInHand+(card==='mail'?1:0),useForestSealStone
+      );
+    }
+    total=addOracleFractions(total,
+      divideOracleFraction(branch,BigInt(deck.length)));
+  }
+  return total;
+}
+
+test('post-Rototiller Star Alchemy exact access matches exhaustive labelled-card draw and top-four enumeration',()=>{
+  for(const deckSize of [5,6,7,8,9]){
+    for(const forestSealStoneInDeck of [false,true]){
+      const sealCount=forestSealStoneInDeck?1:0;
+      for(let mailsInDeck=0;mailsInDeck<=2;mailsInDeck++){
+        for(let mailsInHand=0;mailsInHand<=2-mailsInDeck;mailsInHand++){
+          const maximumOtherTrainers=Math.min(
+            3,deckSize-1-sealCount-mailsInDeck
+          );
+          for(let otherTrainerCount=0;
+              otherTrainerCount<=maximumOtherTrainers;
+              otherTrainerCount++){
+            const fillerCount=deckSize-1-sealCount-
+              mailsInDeck-otherTrainerCount;
+            const deck=[
+              'target',
+              ...Array(otherTrainerCount).fill('other'),
+              ...Array(mailsInDeck).fill('mail'),
+              ...(forestSealStoneInDeck?['seal']:[]),
+              ...Array(fillerCount).fill('filler')
+            ];
+            const expected=bruteNaturalDrawMailStarAlchemyAccess(
+              deck,mailsInHand,forestSealStoneInDeck
+            );
+            const actual=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+              deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+              forestSealStoneInDeck
+            );
+            assert.deepEqual(actual.exactProbability,{
+              numerator:expected.n.toString(),
+              denominator:expected.d.toString()
+            },JSON.stringify({
+              deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+              forestSealStoneInDeck
+            }));
+          }
+        }
+      }
+    }
+  }
+});
+
+test('Star Alchemy materially expands direct access when its usable Stone is in deck',()=>{
+  const oneMail=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,15,0,1,true
+  );
+  assert.deepEqual(oneMail.exactProbability,{
+    numerator:'37',denominator:'156'
+  });
+  const twoMails=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,15,0,2,true
+  );
+  assert.deepEqual(twoMails.exactProbability,{
+    numerator:'3525213607',denominator:'9020302668'
+  });
+  const oneMailInDeck=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,15,1,0,true
+  );
+  assert.deepEqual(oneMailInDeck.exactProbability,{
+    numerator:'407',denominator:'7410'
+  });
+  const twoMailsInDeck=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,15,2,0,true
+  );
+  assert.deepEqual(twoMailsInDeck.exactProbability,{
+    numerator:'887',denominator:'14820'
+  });
+});
+
+test('one in-hand Mail plus a usable in-deck Forest Seal Stone is independent of other Trainer density',()=>{
+  const probabilities=[];
+  for(const otherTrainerCount of [0,8,16,37]){
+    const result=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+      40,otherTrainerCount,0,1,true
+    );
+    probabilities.push(result.exactProbability);
+  }
+  for(const probability of probabilities){
+    assert.deepEqual(probability,{numerator:'37',denominator:'156'});
+  }
+});
+
+test('Star Alchemy access preserves the prior Mail-only model when no usable Stone is present',()=>{
+  for(const [deckSize,otherTrainerCount,mailsInDeck,mailsInHand] of [
+    [8,2,0,1],[20,7,1,1],[40,15,2,0],[50,30,0,2]
+  ]){
+    const oldModel=probabilityHandiworkAccessByNaturalDrawAndMail(
+      deckSize,otherTrainerCount,mailsInDeck,mailsInHand
+    );
+    const newModel=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+      deckSize,otherTrainerCount,mailsInDeck,mailsInHand,false
+    );
+    assert.deepEqual(newModel.exactProbability,oldModel.exactProbability);
+  }
+});
+
+test('a ready Forest Seal Stone gives immediate access and impossible zone states are rejected',()=>{
+  const ready=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    39,15,0,1,false,true
+  );
+  assert.deepEqual(ready.exactProbability,{numerator:'1',denominator:'1'});
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,0,2,1,true
+  ),/only two Trainers/);
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    10,9,0,0,true
+  ),/cannot exceed deckSize/);
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    0,0,0,0,false
+  ),/deckSize must be 1..60/);
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    40,15,0,1,true,true
+  ),/cannot be both in deck and ready/);
 });
