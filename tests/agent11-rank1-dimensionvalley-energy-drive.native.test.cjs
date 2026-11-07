@@ -53,13 +53,15 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     'Energy Drive should deal 20 times the four Energy attached to both Active Pokémon');
   assert.deepEqual(alternate.unresolvedPromptTypes,[]);
   assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
-  assert.equal(alternate.baselineOpponentReply.opponentPrizesAfter,4,
-    'without retreat, Eon Blade should take two Prizes from Active Tapu Lele-GX');
+  assert.equal(alternate.baselineOpponentReply.ownerActiveAfter,null,
+    'without retreat, Eon Blade should Knock Out Active Tapu Lele-GX');
+  assert.equal(alternate.baselineOpponentReply.unresolvedPromptTypes.includes('ChoosePrizePrompt'),true,
+    'the native KO should create the opponent Prize-selection prompt');
   assert.equal(alternate.defensiveLine.sourceOwnerHasSkylinerBenchPokemon,true);
   assert.equal(alternate.defensiveLine.retreatNativeAccepted,true,
     'bench Latias ex should provide the retreat-cost reduction');
   assert.equal(alternate.defensiveLine.ownerActiveAfterRetreat,
-    'Trevenant & Dusknoir-GX UNM');
+    'Trevenant & Dusknoir-GX SMP');
   assert.equal(alternate.defensiveLine.opponentAttackNativeAccepted,true);
   assert.equal(alternate.defensiveLine.status,'native-defensive-reply-settled');
   assert.equal(alternate.defensiveLine.ownerActiveDamageAfter,200);
