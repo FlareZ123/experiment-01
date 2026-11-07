@@ -1,0 +1,35 @@
+{
+  "schema": "agent7-root93-powerglass-postattack-physical-prize-continuation-v1",
+  "registeredUtc": "2026-11-07T05:35:00Z",
+  "status": "FROZEN_BEFORE_FIRST_FOLLOWUP_NATIVE_RUN",
+  "originalStagedRegistration": "results/methodology/registrations/agent7-root93-unown-powerglass-printed-payoff-stage-20261107.json",
+  "originalStagedSuccessfulRun": 42342959403,
+  "originalArtifact": 13562227819,
+  "originalZipSha256": "1f85fbec8423d5af50ca939f779f14f2696993158d3602c116f2397939d3a7a6",
+  "firstStageFinding": "Both seats with Tool reach real Hidden Power source Trubbish KO but Prize receipt pending behind a second Powerglass AttachEnergyPrompt; not yet qualified for Prize payoff.",
+  "intervention": "In existing four-arm staged Store fixture, after KO first resolve eligible optional second Basic Psychic source from owner's discard, then choose an actual owner Prize and promote source's only Bench Pokemon; preserve two no-Tool controls unchanged. No real-game or opponent strategy claims.",
+  "initialPrintedBoard": "Identical original four-arm staged setup as existing registration; source response still intentionally passive",
+  "stopping": "At first cleared pending prompts / source promoted / exact 1 Prize owner taken, or preserve explicit abort and all prompt types",
+  "expectedPositive": {
+    "seat0": {
+      "sourceTrubbishInDiscard": true,
+      "ownerPrizesRemaining": 5,
+      "sourceNewActive": "Tapu Lele-GX GRI"
+    },
+    "seat1": {
+      "sourceTrubbishInDiscard": true,
+      "ownerPrizesRemaining": 5,
+      "sourceNewActive": "Tapu Lele-GX GRI"
+    }
+  },
+  "expectedControl": {
+    "seat0": {
+      "ownerPrizesRemaining": 6
+    },
+    "seat1": {
+      "ownerPrizesRemaining": 6
+    }
+  },
+  "disclosure": "Retrospective staged mechanism after earlier tool success; cannot count as competitive success",
+  "qualifiedGames": 0
+}
