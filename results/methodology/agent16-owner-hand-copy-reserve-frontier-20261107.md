@@ -12,7 +12,7 @@ Can that copy-reserve translation be made reusable while keeping strategic judgm
 
 Added [`owner-hand-discard-reserve.cjs`](../../simulation/twinleaf/planning/owner-hand-discard-reserve.cjs), a small adapter over [`owner-hand-discard-pareto.cjs`](../../simulation/twinleaf/planning/owner-hand-discard-pareto.cjs).
 
-The caller supplies the exact ordered owner hand, the source-card index, the immediate discard cost, and two exact-printing count maps. The result is the existing helper's structural frontier under the supplied role labels, not a guarantee that unlabelled cards are strategically interchangeable:
+The caller supplies the exact ordered owner hand, an optional source-card index, the immediate discard cost, and two exact-printing count maps. The source index may be `null` when the native prompt is observed after the source Trainer has already left the hand; the adapter then excludes an internal sentinel from the core helper and normalizes all returned indices to the actual physical hand. The result is the existing helper's structural frontier under the supplied role labels, not a guarantee that unlabelled cards are strategically interchangeable:
 
 - `hardMinimumCopiesByPrinting`: copies that must remain after the source card is played. The adapter maps these to hard-reserved physical indices, which cannot pay.
 - `softAdditionalCopiesByPrinting`: additional copies preferred for retention. The adapter maps these to protected physical indices, which remain eligible to pay and are counted as protected sacrifices in the frontier. Soft counts are additive to hard counts for the same printing.
@@ -57,7 +57,7 @@ A further future extension may need desired-discard multiplicities as well as di
 ## Validation
 
 - Runtime: Node v22.16.0.
-- Local tests: **13/13 passed**.
+- Local tests: **14/14 passed**.
 - Coverage includes hard and soft reserve mapping, additive hard/soft counts for one printing, source-card exclusion, explicit hard shortfalls, non-vetoing soft shortfalls, future unprotected payment counts, the root93-shaped fixture, the multi-soft-printing fail-closed guard, input immutability, invalid inputs, and a deterministic 144-case small-domain invariant sweep.
 - The existing core Pareto regression is also wired into the repository's existing manual [Aichi benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml), alongside the new adapter test. No new workflow or push-triggered CI was introduced.
 - Manual GitHub Actions run [42356996900](https://github.com/FlareZ123/experiment-01/actions/runs/42356996900) succeeded on head `50ee0e2`. The repository-wide workflow preflight passed, and the combined Agent16 step ran the core Pareto regression and the original 12 adapter tests successfully. A 13th adapter test was then added for multiple hard printing reserves; it passes locally and is awaiting the next manual CI run. The prior run [42356811491](https://github.com/FlareZ123/experiment-01/actions/runs/42356811491) failed before that step because two other workflows had prohibited push triggers; only those trigger blocks were removed, retaining `workflow_dispatch`.
