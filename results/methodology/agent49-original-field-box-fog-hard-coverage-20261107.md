@@ -59,18 +59,45 @@ that such a live source decision actually arose or that any game crashed.
 Ordinary Store acceptance does not prove the existence of a follow-on search
 target.
 
+### Exact selector reaches the unfillable plan in a synthetic owner state
+
+A follow-up regression imports **the actual, unchanged Agent43
+`choosePublicOneEnergyBoxKo` function**. For each original rank **9, 17, 30**,
+the authenticated 60 contains *Unown AOR* with the one-Colorless, 10-damage
+Hidden Power attack as well as the physical Item/hand prerequisite copies.
+In a deliberately constructed owner-public root with four corresponding
+held cards, unpowered Active Unown, unused ordinary Energy attachment and
+an opposing 70-HP Active with 60 damage, **the hook returns an attack plan
+for all three ranks**, regardless of the known absence of Fog from each
+fixed roster. The subsequent required Fog search therefore has no eligible
+matching original owner-deck object for this recipe.
+
+The standalone
+[`agent49-original-field-box-fog-hook-unfillable-plan.test.cjs`](../../tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs)
+passes its **three-rank synthetic positive test** with the actual imported
+hook in an isolated V8 harness. This strengthens the conditional algorithm
+failure from static-source reasoning to an executable pure decision-policy
+counterexample. It remains **synthetic**: no actual original source root has
+been shown to meet that particular combination of held cards, board
+position and damage, and no real native error is asserted.
+
 ## Reproducibility
 
 - Read-only, roster-validated
   [coverage analyzer](../../simulation/evaluation/agent49-original-field-box-fog-hard-coverage.cjs)
   checks every original rank once, exactly 60 copies, and separate
   trigger versus downstream necessary card counts.
-- [Three regressions](../../tests/agent49-original-field-box-fog-hard-coverage.test.cjs)
+- [Three census regressions](../../tests/agent49-original-field-box-fog-hard-coverage.test.cjs)
   include the actual 29 source rows and synthetic positive/negative complete
-  60s; when a source does contain all card types, the pure gate flags only
+  60s; a source with all needed cards is classified only as having
   **inventory compatibility**, never paper playability.
+- [One additional imported-hook regression](../../tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs)
+  confirms the exact selector proposes the missing-search target line in
+  an otherwise plausible synthetic owner-public root for each of ranks
+  9, 17 and 30.
 - The fetched actual module, actual 29-deck roster and three tests executed in
   an isolated V8 test harness with minimal Node assertions: **3/3 passed**.
+  The separate imported-hook counterexample **1/1 passed**.
   This is **not** a Node22 CI job or a native Twinleaf Store experiment.
 
 The benchmark remains 29/32 authenticated fixed original inventories,
