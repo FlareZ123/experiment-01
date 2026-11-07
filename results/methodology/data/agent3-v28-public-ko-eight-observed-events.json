@@ -1,0 +1,109 @@
+{
+  "provenance": {
+    "nativeWorkflowRun": 42337690663,
+    "headSha": "f809632bb67e3bba5f002dddc60a13f9ad886d6b",
+    "source": "AGENT3_V28_PUBLIC_KO_VICTIMS console trace before a receipt-serialization ReferenceError",
+    "nativeOriginalAttemptCount": 8,
+    "nativePrizeEventCount": 8,
+    "qualifiedPaperGames": 0,
+    "capturedFields": "Only public victim printing, observed damage and native Prize award."
+  },
+  "observations": [
+    {
+      "registeredTrialId": "6:210:B:champion-reference",
+      "attackName": "Volt Cyclone",
+      "victimPrinting": {
+        "name": "Girafarig",
+        "set": "LOT",
+        "setNumber": "94",
+        "printedHp": 90
+      },
+      "victimDamageBeforeNativeKo": 140,
+      "nativePrizeCount": 1
+    },
+    {
+      "registeredTrialId": "6:210:B:new-moon-lockbreaker-v1",
+      "attackName": "Volt Cyclone",
+      "victimPrinting": {
+        "name": "Duskull",
+        "set": "VIV",
+        "setNumber": "69",
+        "printedHp": 60
+      },
+      "victimDamageBeforeNativeKo": 140,
+      "nativePrizeCount": 1
+    },
+    {
+      "registeredTrialId": "11:211:A:champion-reference",
+      "attackName": "Motivate",
+      "victimPrinting": {
+        "name": "Dialga-GX",
+        "set": "UPR",
+        "setNumber": "100",
+        "printedHp": 180
+      },
+      "victimDamageBeforeNativeKo": 180,
+      "nativePrizeCount": 2
+    },
+    {
+      "registeredTrialId": "11:211:A:new-moon-lockbreaker-v1",
+      "attackName": "Psychic",
+      "victimPrinting": {
+        "name": "Duskull",
+        "set": "VIV",
+        "setNumber": "69",
+        "printedHp": 60
+      },
+      "victimDamageBeforeNativeKo": 130,
+      "nativePrizeCount": 1
+    },
+    {
+      "registeredTrialId": "11:211:A:new-moon-lockbreaker-v1",
+      "attackName": "Psychic",
+      "victimPrinting": {
+        "name": "Mewtwo & Mew-GX",
+        "set": "UNM",
+        "setNumber": "71",
+        "printedHp": 270
+      },
+      "victimDamageBeforeNativeKo": 360,
+      "nativePrizeCount": 3
+    },
+    {
+      "registeredTrialId": "1:212:B:champion-reference",
+      "attackName": "Eon Blade",
+      "victimPrinting": {
+        "name": "Marshadow",
+        "set": "UNB",
+        "setNumber": "81",
+        "printedHp": 80
+      },
+      "victimDamageBeforeNativeKo": 200,
+      "nativePrizeCount": 1
+    },
+    {
+      "registeredTrialId": "1:212:B:champion-reference",
+      "attackName": "Eon Blade",
+      "victimPrinting": {
+        "name": "Tapu Lele-GX",
+        "set": "GRI",
+        "setNumber": "60",
+        "printedHp": 170
+      },
+      "victimDamageBeforeNativeKo": 200,
+      "nativePrizeCount": 2
+    },
+    {
+      "registeredTrialId": "1:212:B:champion-reference",
+      "attackName": "Eon Blade",
+      "victimPrinting": {
+        "name": "Trevenant & Dusknoir-GX",
+        "set": "SMP",
+        "setNumber": "217",
+        "printedHp": 270
+      },
+      "victimDamageBeforeNativeKo": 400,
+      "nativePrizeCount": 3
+    }
+  ]
+}
