@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent20_box_fog_ace_trainer_aba:
+        description: 'Same-deal A/B/A: Box/Fog baseline versus owner-only Ace Trainer before lethal Hidden Power'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -76,6 +81,9 @@ jobs:
           node --check simulation/twinleaf/agent49-rank31-dusknoir-cursed-blast-native.cjs
           node --check simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
           node --check simulation/evaluation/agent43-native-box-ko-postsettlement-audit.cjs
+          node --check simulation/twinleaf/agent20-owner-pre-attack-ace-trainer.cjs
+          node --check simulation/twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs
+          node --check simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         run: |
@@ -99,29 +107,34 @@ jobs:
             tests/agent49-owner-direct-fog-one-energy-native.test.cjs \
             tests/agent4-secret-box-paper-search-native.test.cjs \
             tests/agent43-native-box-ko-postsettlement-audit.test.cjs \
+            tests/agent20-owner-pre-attack-ace-trainer.test.cjs \
             tests/agent16-issue25-canonical-vip-v11.native.test.cjs \
             tests/agent8-owner-telepathic-bench-search.native.test.cjs \
             tests/agent36-v8-owner-ability-policy.native.test.cjs \
             tests/agent36-issue25-common-v9-vip-aba.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
+        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
-        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Execute exposed rank11 owner-visible Secret Box Fog one-Energy KO
-        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba }}
+        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
         run: node simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
 
+      - name: Execute same-deal Box/Fog plus owner-only pre-attack Ace Trainer A/B/A
+        if: ${{ inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
+        run: node simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs
+
       - name: Execute preregistered shared-policy owner VIP A/B/A
-        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
+        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
@@ -132,6 +145,7 @@ jobs:
           path: |
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent43-v9-root93-secretbox-oneprize/
+            artifacts/agent20-v9-box-fog-ace-trainer-aba/
             artifacts/agent36-v9-vip-aba/
           retention-days: 21
           if-no-files-found: warn
