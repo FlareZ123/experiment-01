@@ -24,15 +24,17 @@ const {GameSettings}=native('game/core/game-settings');
 const {Format}=native('game/store/card/card-types');
 const {RetreatAction}=native('game/store/actions/game-actions');
 const {CheckRetreatCostEffect}=native('game/store/effects/check-effects');
+const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
 
 /**
  * Explicitly staged source-printed board, never an actual game/deal.
  * Original rank1 Dialga-GX with three Basic Psychic and funded Shadow Rider
  * against original rank3 Active Snorlax PGO Block. Both seats exercised.
  * @param {0|1} seat Acting owner physical seat.
+ * @param {{ownerGarbotoxin?:boolean}} [options] Public suppression source.
  * @returns {object} Staged Store and physical source prints.
  */
-function fixture(seat){
+function fixture(seat,options={}){
   const cards=initializeCards();
   let nextId=44000000+seat*100000;
   const card=printing=>{
@@ -51,6 +53,11 @@ function fixture(seat){
   own.bench[0].cards.push(shadow);
   const snorlax=card('Snorlax PGO');
   opp.active.cards.push(snorlax);
+  if(options.ownerGarbotoxin===true){
+    const slot=own.bench[1];
+    slot.cards.push(card('Trubbish FST'),card('Garbodor BKP'));
+    slot.tools.push(card('Float Stone BKT'));
+  }
   opp.bench=Array.from({length:5},()=>new PokemonCardList());
   const attach=(slot,n)=>{
     for(let i=0;i<n;i++){
@@ -114,6 +121,39 @@ for(const seat of [0,1]){
       oldNominalOffer:true,guardedNominalOffer:false,
       actualNativeStoreRetreatRejected:'BLOCKED_BY_EFFECT',
       printedFeeUnits:3,competitiveGamesQualified:0
+    }));
+  });
+}
+
+for(const seat of [0,1]){
+  test('actual Tool Garbotoxin suppresses Active Snorlax Block seat '+seat,()=>{
+    const f=fixture(seat,{ownerGarbotoxin:true});
+    const power=f.snorlax.powers.find(p=>p.name==='Block');
+    assert.ok(power,'Exact PGO Block native printed power required');
+    assert.equal(Boolean(IS_ABILITY_BLOCKED(
+      f.store,f.state,f.opp,f.snorlax,power)),true,
+    'Owner Benched Garbotoxin with Tool must suppress opposing Block');
+    const view=actorObservation(f.state,seat);
+    const catalog=nativePublicCatalog();
+    assert.equal(chooseMultiBasicPaidRetreatInDeckRace(view,catalog)?.kind,
+      'paid-retreat');
+    assert.equal(chooseMultiBasicPaidRetreatInDeckRaceGuarded(view,catalog),
+      null,'Current conservative printed-Block guard declines even if suppressed');
+    const paid=[...f.own.active.energies.cards];
+    const fee=new CheckRetreatCostEffect(f.own);
+    f.store.reduceEffect(f.state,fee);
+    assert.equal(fee.cost.length,3);
+    f.store.dispatch(new RetreatAction(f.own.id,0));
+    assert.strictEqual(f.own.active.getPokemonCard(),f.shadow);
+    assert.strictEqual(f.own.bench[0].getPokemonCard(),f.dialga);
+    assert.ok(paid.every(energy=>f.own.discard.cards.includes(energy)),
+      'Exactly funded Basic Energy must move physically to owner discard');
+    console.log('AGENT2_GARBOTOXIN_SUPPRESSED_BLOCK',JSON.stringify({
+      seat,sourcePrints:['Snorlax PGO','Garbodor BKP',
+        'Float Stone BKT'],abilitySuppressed:true,
+      nativeRetreatAccepted:true,paidBasicEnergyCards:paid.length,
+      guardedPlannerConservativeFalseNegative:true,
+      competitiveGamesQualified:0
     }));
   });
 }
