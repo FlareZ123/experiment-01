@@ -298,6 +298,39 @@ test('Flash Energy AOR classifies matching and incompatible recipients by printe
     {valid:false,reason:'flash-energy-target-type-unresolved'});
 });
 
+test('Temple-suppressed Flash restriction is unverified before native dispatch',()=>{
+  const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
+  f.energy.fullName='Flash Energy AOR';
+  f.owner.bench[0].getPokemonCard=()=>({cardType:[types.CardType.PSYCHIC]});
+  f.owner.stadium={cards:[{fullName:'Temple of Sinnoh ASR'}]};
+  assert.deepEqual(verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types),{
+    valid:true,unverified:true,expectedRoute:null,
+    reason:'flash-energy-temple-effective-route-unverified'
+  });
+});
+for(const seat of [0,1]){
+  test('Temple Flash native mock final bench stays explicitly unverified seat '+seat,()=>{
+    const f=fixture(seat);
+    f.energy.fullName='Flash Energy AOR';
+    f.owner.bench[0].getPokemonCard=()=>({cardType:[types.CardType.PSYCHIC]});
+    f.owner.stadium={cards:[{fullName:'Temple of Sinnoh ASR'}]};
+    const store=new Store(f.state),card=new IronThornsex();
+    const out=withPaperPromptPortfolio(()=>{
+      card.reduceEffect(store,f.state,
+        new AfterAttackEffect(f.owner,card.attacks[0]));
+      store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+    },{Store,IronThornsex,types,liveStore:store});
+    assert.equal(out.audit.events[0].status,'PAPER_PROMPT_UNVERIFIED');
+    assert.equal(out.audit.events[0].reason,
+      'flash-energy-temple-effective-route-unverified');
+    assert.equal(out.audit.liveNativePromptSettled,1);
+    assert.equal(out.audit.paperVerifiedNativeAccepted,0);
+    assert.equal(out.audit.paperUnverified,1);
+    assert.equal(out.audit.paperInvalidVetoed,0);
+    assert.ok(f.owner.bench[0].cards.includes(f.energy));
+  });
+}
+
 for(const seat of [0,1]){
   test('Flash Energy incompatible recipient: discard settlement seat '+seat,()=>{
     const f=fixture(seat);
