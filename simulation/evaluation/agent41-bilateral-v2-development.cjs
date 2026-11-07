@@ -1292,6 +1292,25 @@ function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
   return {groupCount:groups.size,trialIds:[...ids]};
 }
 
+/**
+ * Return only complete two-contender comparison keys. A registered one-game
+ * probe is still executed and retained as one native row, but has no valid
+ * cross-candidate source-pair audit.
+ * @param {object[]} scheduled
+ * @param {boolean} allowSingleCandidateArm
+ * @returns {string[]}
+ */
+function registeredSourcePairKeys(scheduled,allowSingleCandidateArm=false) {
+  assert.ok(Array.isArray(scheduled));
+  if(allowSingleCandidateArm){
+    assert.equal(scheduled.length,1,
+      'Single-candidate comparison gate requires exactly one scheduled game');
+    return [];
+  }
+  return [...new Set(scheduled.map(row=>
+    row.id.slice(0,row.id.lastIndexOf(':'))))];
+}
+
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
   anyTurnCompressorPayload=false,earlyBenchedCompressorPayload=false,
@@ -2208,8 +2227,8 @@ function runDevelopment({
     rows,attempted:rows.length,
     // A one-game prospective registration has no second fixed contender
     // against which a cross-candidate comparison can be constructed.
-    sourcePairs:allowSingleCandidateArm?[]:[...new Set(scheduled.map(row=>
-      row.id.slice(0,row.id.lastIndexOf(':'))))].map(key=>{
+    sourcePairs:registeredSourcePairKeys(scheduled,allowSingleCandidateArm)
+      .map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
       const first=here.find(row=>row.trial.candidateId==='champion-reference');
       const second=here.find(row=>row.trial.candidateId==='new-moon-lockbreaker-v1');
@@ -2370,4 +2389,5 @@ module.exports={developmentTrials,sourceFirstPressureTrials,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
   executeDevelopment,runDevelopment,registeredNativeSeatDecks,
-  validateRegisteredTrialGroups,classifyNativeAbort};
+  validateRegisteredTrialGroups,registeredSourcePairKeys,
+  classifyNativeAbort};
