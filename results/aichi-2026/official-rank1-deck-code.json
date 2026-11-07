@@ -17,193 +17,236 @@
       "japanese_name": "こくばバドレックスVMAX",
       "english_name": "Shadow Rider Calyrex VMAX",
       "count": 4,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "S6K",
+      "collector_number": "037/070"
     },
     {
       "japanese_name": "こくばバドレックスV",
       "english_name": "Shadow Rider Calyrex V",
       "count": 3,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "S6K",
+      "collector_number": "075/070"
     },
     {
       "japanese_name": "オーロット&ヨノワールGX",
       "english_name": "Trevenant & Dusknoir-GX",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM12a",
+      "collector_number": "178/173"
     },
     {
       "japanese_name": "リーリエのピッピex",
       "english_name": "Lillie's Clefairy ex",
       "count": 2,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SV9",
+      "collector_number": "115/100"
     },
     {
       "japanese_name": "カプ・テテフGX",
       "english_name": "Tapu Lele-GX",
       "count": 2,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM2L",
+      "collector_number": "052/050"
     },
     {
       "japanese_name": "ラティアスex",
       "english_name": "Latias ex",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SV7a",
+      "collector_number": "078/064"
     },
     {
       "japanese_name": "ディアルガGX",
       "english_name": "Dialga-GX",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM5S",
+      "collector_number": "069/066"
     },
     {
       "japanese_name": "ミミッキュ",
       "english_name": "Mimikyu",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM4p",
+      "collector_number": "043/114"
     },
     {
       "japanese_name": "キリンリキ",
       "english_name": "Girafarig",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM8",
+      "collector_number": "045/095"
     },
     {
       "japanese_name": "マーシャドー",
       "english_name": "Marshadow",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "SM12a",
+      "collector_number": "064/173"
     },
     {
       "japanese_name": "かがやくムゲンダイナ",
       "english_name": "Radiant Eternatus",
       "count": 1,
-      "category": "pokemon"
+      "category": "pokemon",
+      "japanese_set_code": "S12a",
+      "collector_number": "115/172"
     },
     {
       "japanese_name": "ミステリートレジャー",
       "english_name": "Mysterious Treasure",
       "count": 4,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "霧の水晶",
       "english_name": "Fog Crystal",
       "count": 4,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "クイックボール",
       "english_name": "Quick Ball",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "ヒスイのヘビーボール",
       "english_name": "Hisuian Heavy Ball",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "バトルサーチャー",
       "english_name": "VS Seeker",
       "count": 3,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "バトルコンプレッサー（フレア団ギア）",
       "english_name": "Battle Compressor",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "フィールドブロアー",
       "english_name": "Field Blower",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "夜のタンカ",
       "english_name": "Night Stretcher",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "アンフェアスタンプ(ACE SPEC)",
       "english_name": "Unfair Stamp",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "item"
     },
     {
       "japanese_name": "かるいし",
       "english_name": "Float Stone",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "pokemon_tool"
     },
     {
       "japanese_name": "森の封印石",
       "english_name": "Forest Seal Stone",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "pokemon_tool"
     },
     {
       "japanese_name": "リーリエの決心",
       "english_name": "Lillie's Determination",
       "count": 2,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "ゼイユ",
       "english_name": "Carmine",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "ナンジャモ",
       "english_name": "Iono",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "センパイとコウハイ",
       "english_name": "Teammates",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "キバナ",
       "english_name": "Raihan",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "アセロラ",
       "english_name": "Acerola",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "グズマ",
       "english_name": "Guzma",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "リップ",
       "english_name": "Tulip",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "supporter"
     },
     {
       "japanese_name": "スカイフィールド",
       "english_name": "Sky Field",
       "count": 2,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "stadium"
     },
     {
       "japanese_name": "次元の谷",
       "english_name": "Dimension Valley",
       "count": 1,
-      "category": "trainer"
+      "category": "trainer",
+      "trainer_type": "stadium"
     },
     {
       "japanese_name": "基本超エネルギー",
@@ -211,5 +254,11 @@
       "count": 11,
       "category": "energy"
     }
-  ]
+  ],
+  "trainer_subcategories": {
+    "items": 17,
+    "pokemon_tools": 2,
+    "supporters": 9,
+    "stadiums": 3
+  }
 }
