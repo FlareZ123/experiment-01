@@ -303,7 +303,7 @@ test('damage reaching printed HP during later prompt resolution is distinct from
   const f=fixture();
   const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
   attack.publicBoardImmediatelyAfterDeclarationRoot[1].active.damage=20;
-  attack.publicBoardAfter[1].active=structuredClone(f.before[1].active);
+  attack.publicBoardAfter[1].active=structuredClone(attack.publicBoardBefore[1].active);
   attack.publicBoardAfter[1].active.damage=100;
   const result=run(f);
   assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
@@ -317,7 +317,7 @@ test('a settled native KO with a below-HP target still in play is flagged incons
   const f=fixture();
   const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
   attack.publicBoardImmediatelyAfterDeclarationRoot[1].active.damage=20;
-  attack.publicBoardAfter[1].active=structuredClone(f.before[1].active);
+  attack.publicBoardAfter[1].active=structuredClone(attack.publicBoardBefore[1].active);
   attack.publicBoardAfter[1].active.damage=20;
   const result=run(f);
   assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
