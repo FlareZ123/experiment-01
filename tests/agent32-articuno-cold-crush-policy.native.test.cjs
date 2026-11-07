@@ -20,7 +20,7 @@ function native(modulePath) {
 }
 
 /** @param {0|1} seat */
-function probeColdCrushWithPolicy(seat) {
+function probeColdCrushWithPolicy(seat, mode = 'intervene') {
   const {Store} = native('game/store/store');
   const {State, GamePhase} = native('game/store/state/state');
   const {Player} = native('game/store/state/player');
@@ -101,22 +101,24 @@ function probeColdCrushWithPolicy(seat) {
       assert.equal(confirm?.constructor?.name, 'ResolvePromptAction');
       store.dispatch(confirm);
 
-      const move = ai.decodeNextAction(store.state);
-      assert.equal(move?.constructor?.name, 'ResolvePromptAction');
-      store.dispatch(move);
+      if (mode === 'intervene') {
+        const move = ai.decodeNextAction(store.state);
+        assert.equal(move?.constructor?.name, 'ResolvePromptAction');
+        store.dispatch(move);
 
-      const attack = ai.decodeNextAction(store.state);
-      assert.equal(attack?.constructor?.name, 'AttackAction');
-      assert.equal(attack.name, 'Cold Crush-GX');
-      store.dispatch(attack);
+        const attack = ai.decodeNextAction(store.state);
+        assert.equal(attack?.constructor?.name, 'AttackAction');
+        assert.equal(attack.name, 'Cold Crush-GX');
+        store.dispatch(attack);
 
-      let promptActions = 0;
-      while (store.state.prompts.some(prompt => prompt.result === undefined)) {
-        const action = ai.decodeNextAction(store.state);
-        assert.ok(action, 'default bot must resolve every post-attack prompt');
-        store.dispatch(action);
-        promptActions++;
-        assert.ok(promptActions <= 4, 'post-attack prompt loop must remain bounded');
+        let promptActions = 0;
+        while (store.state.prompts.some(prompt => prompt.result === undefined)) {
+          const action = ai.decodeNextAction(store.state);
+          assert.ok(action, 'default bot must resolve every post-attack prompt');
+          store.dispatch(action);
+          promptActions++;
+          assert.ok(promptActions <= 4, 'post-attack prompt loop must remain bounded');
+        }
       }
 
       const finalActor = store.state.players.find(player => player.id === actor.id);
@@ -132,7 +134,7 @@ function probeColdCrushWithPolicy(seat) {
         opponentEnergyInDiscard: finalOpponent.discard.cards.filter(item =>
           item.superType === 'ENERGY').length
       };
-    })
+    }, {mode})
   );
 
   return {
