@@ -8,7 +8,7 @@ on:
         type: boolean
         default: false
       secretbox_dci_only:
-        description: Run only staged native Secret Box DCI and copy-reserve payment witnesses
+        description: Run only staged native Secret Box DCI, v1 diagnostic and count-based v2 payment witnesses
         required: false
         type: boolean
         default: false
@@ -37,13 +37,14 @@ jobs:
         run: npm run compile
       - name: Quarantine inherited bot decoder in pinned original rank5 both seats
         if: ${{ inputs.quarantine_smoke_only && !inputs.secretbox_dci_only }}
-        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs tests/agent4-owner-setup-confirm.test.cjs tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs tests/agent4-owner-bonus-bench-native.test.cjs tests/agent4-bonus-bench-native-seed-replay.test.cjs tests/agent4-owner-wait-progress.test.cjs tests/agent4-owner-setup-wait-native.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent4-owner-modal-acknowledgements-native.test.cjs tests/agent4-opening-basic-role-hypergeom.test.cjs tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs
+        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs tests/agent4-owner-setup-confirm.test.cjs tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs tests/agent4-owner-bonus-bench-native.test.cjs tests/agent4-bonus-bench-native-seed-replay.test.cjs tests/agent4-owner-wait-progress.test.cjs tests/agent4-owner-setup-wait-native.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent4-owner-modal-acknowledgements-native.test.cjs tests/agent4-opening-basic-role-hypergeom.test.cjs tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs tests/agent4-secret-box-copy-reserve-v2-native.test.cjs
       - name: Staged native Secret Box payment frontier witnesses
         if: ${{ inputs.secretbox_dci_only && !inputs.quarantine_smoke_only }}
         run: |
           node --check simulation/twinleaf/agent4-secret-box-dci-payment-native.cjs
           node --check simulation/twinleaf/agent4-secret-box-copy-reserve-native.cjs
-          node --test tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs
+          node --check simulation/twinleaf/agent4-secret-box-copy-reserve-v2-native.cjs
+          node --test tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs tests/agent4-secret-box-copy-reserve-v2-native.test.cjs
       - name: Registered two-seat full original source rank5 8-attempt ALS comparison
         if: ${{ !inputs.quarantine_smoke_only && !inputs.secretbox_dci_only }}
         run: node simulation/evaluation/agent4-rank5-special-energy-root-prospective.cjs > agent4-rank5-special-energy-root-prospective.json
