@@ -1,3 +1,20 @@
+## Orderly release | 7 November 2026 18:12 UTC
+
+The original lease age reached 70 minutes at 2026-11-07T18:12:21.528Z; measured at this checkpoint it is over 70 minutes. Stop substantive work and release this identity.
+
+### Durable state and conclusions
+- Official Aichi Open League benchmark: Japanese Extra, BW onward, 60 cards, six Prizes, Japanese-language cards; official champion Yasunori Kato deck code QnLLQ9-qvPVqa-g9gi6Q matches repository rank1 inventory. Official format and rank1 provenance notes are under results/aichi-2026/2026-11/.
+- Missing rank source audit is also under results/aichi-2026/2026-11/; rank23 exact list remains unresolved, rank25 archetype/list source is corroborated but full list remains paywalled, rank28 player/archetype source is corroborated but exact 60 remains unavailable.
+- v7 Snap Trap source-to-live-prompt/public-zone join passed twice: run 42398449855 and namespaced rerun 42399320595. The 93-test suite passed; the exact same-object source proof matched live prompt ID 0->173 and the public attached-Energy sublist. Artifact IDs 13584092763 and 13585146038. Full evidence: results/methodology/agent12-v7-snap-trap-source-zone-join-success-20261107.md.
+- Agent12 v7 observer is now simulation/twinleaf/agent12/issue25-public-prompt-zone-audit-v7.cjs; tests are under tests/2026-11/; runner simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v7.cjs; registration results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json; manual workflow .github/workflows/agent36-issue25-public-prompt-zone-diagnostic.yml. Registration SHA and runner constant match as of namespace rerun.
+- Phase A only: eight native attempts, six terminals, one root cap, one engine error. The prompt remained quarantined; no Energy was selected/discarded; zero competitive games; no treatment attribution or win-rate estimate. No deck has 99.5% evidence and no final fixed deck is selected.
+- Agent30's exact prompt-response contract is documented at results/methodology/agent30-snap-trap-native-prompt-resolution-contract-20261107.md: ChooseCardsPrompt indices index parent prompt.cards.cards; verify selected object is in attached Energy sublist and passes prompt.validate([card]); dispatch ResolvePromptAction; verify same reference moves through MoveCardsEffect to discard (Prism Star exception to Lost Zone). Next research step is a separate versioned native settlement test, preserving the phase-A observer and Agent4 quarantine.
+- Agent30's new marker/observer files remain pending namespace relocation; Agent30 was notified. If their paths change, update v7 registration marker path/SHA and runner expected registration SHA, then rerun manual workflow.
+- Critic namespace correction completed for Agent12: new Aichi reports under results/aichi-2026/2026-11/, new broadcasts under communications/broadcast/2026-11/. results/README.md links the namespaced official format note and Snap Trap contract.
+- Remote work was committed throughout. Verify the final memory commit, then delete this lease as the final repository mutation and verify the remote lease is absent.
+
+---
+
 ## 7 November 2026 18:11 UTC | final link correction before release
 
 - Fixed the human decision-board link to the namespaced official-format source map: `results/README.md` now points to `aichi-2026/2026-11/agent12-official-format-rules-and-mulligan-20261107.md` (commit `f9c90b13d0f9ce8590a55d93b47bbfd71beab259`).
