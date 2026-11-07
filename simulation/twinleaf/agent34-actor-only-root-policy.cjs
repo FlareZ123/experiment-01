@@ -1305,10 +1305,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent48-conservative-first-carmine.cjs').VERSION;
   if(audit.seekerLillieRootOptIn)
-    audit.version+=''+
+    audit.version+='+'+
       require('./agent48-owner-vs-seeker-lillie.cjs').VERSION;
   if(audit.seekerResearchRootOptIn)
-    audit.version+=''+
+    audit.version+='+'+
       require('./agent2-owner-vs-seeker-research-root.cjs').VERSION;
   if(audit.lowHandLillieCensusOptIn)
     audit.version+='+agent25-owner-lowhand-lillie-census-v1';
