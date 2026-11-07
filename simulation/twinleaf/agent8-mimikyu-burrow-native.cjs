@@ -8,14 +8,22 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
 const native=name=>require(path.join(output,name));
 
-/** @param {object} x Resolve only non-discretionary native Wait prompts. */
-function settleWaitPrompts(x){
+/** @param {object} x Resolve native prompts, declining Bunnelby's Ω Barrage repeat. */
+function settlePrompts(x){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const resolved=[];
   for(let n=0;n<24;n++){
     const prompt=x.state.prompts.find(p=>p.result===undefined);
-    if(!prompt)return;
-    assert.equal(prompt.constructor.name,'WaitPrompt',
-      'Burrow/Copycat should not create a discretionary prompt');
+    if(!prompt)return resolved;
+    const kind=prompt.constructor.name;
+    if(kind==='ConfirmPrompt'){
+      resolved.push(kind);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,false));
+      continue;
+    }
+    assert.equal(kind,'WaitPrompt',
+      'Unexpected discretionary prompt in native Burrow/Copycat sequence');
+    resolved.push(kind);
     x.store.dispatch(new ResolvePromptAction(prompt.id,null));
   }
   assert.fail('Native Copycat/Burrow prompt sequence did not settle');
@@ -74,7 +82,7 @@ function probe(sourceSeat){
   const sourceDeckBeforeBurrow=x.owner.deck.cards.length;
 
   x.store.dispatch(new AttackAction(x.owner.id,'Burrow'));
-  settleWaitPrompts(x);
+  const sourceAttackPrompts=settlePrompts(x);
 
   assert.equal(x.state.activePlayer,1-sourceSeat,
     'Bunnelby attack must pass the turn to Mimikyu');
@@ -91,7 +99,7 @@ function probe(sourceSeat){
   const sourceDeckBeforeCopycat=x.owner.deck.cards.length;
   const sourceDiscardBeforeCopycat=x.owner.discard.cards.length;
   x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
-  settleWaitPrompts(x);
+  const copiedAttackPrompts=settlePrompts(x);
 
   const copiedAttack={
     previousSource:previous.sourceCard.fullName,
@@ -103,6 +111,8 @@ function probe(sourceSeat){
     sourceSeat,
     ownerSeat:1-sourceSeat,
     copiedAttack,
+    sourceAttackPrompts,
+    copiedAttackPrompts,
     sourceDeckBeforeBurrow,
     sourceDeckBeforeCopycat,
     sourceDeckAfterCopycat:x.owner.deck.cards.length,
