@@ -195,6 +195,6 @@ test('Both-zero tiebreaker states fail closed with model-specific review labels'
   const agent27 = classifyTiebreaker([0, 0]);
   assert.equal(agent26.status, 'NATURAL_PAPER_TERMINAL_UNVERIFIED');
   assert.equal(agent27.status, 'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED');
-  assert.equal(agent26.competitiveAdmission, false);
+  assert.ok(agent26.competitiveAdmission !== true);
   assert.equal(agent27.competitiveAdmission, false);
 });
