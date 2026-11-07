@@ -45,7 +45,7 @@ function sourceRow(){
     }]
   };
 }
-test('actual physical source Prize roots bind owner's full post-KO response and hand',()=>{
+test('actual physical source Prize roots bind complete post-KO owner response and hand',()=>{
   const projected=project([sourceRow()],[sourcePrize()]);
   assert.equal(VERSION,'agent3-postprize-owner-reply-projection-v1');
   assert.equal(projected.length,1);
