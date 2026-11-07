@@ -69,3 +69,16 @@ test('three original source Iron Thorns 60s have exactly four eligible Basics', 
       comparison.expectedOptionalDrawsAvailableToOpponent)<1e-14);
   }
 });
+
+test('Prism Star diamond variants resolve the same printed Basic card', () => {
+  const data = censusAichiBasics();
+  const ditto = data.rows.find(row => row.rank === 4)
+    .basicPrintings.find(card => card.name === 'Ditto ♢');
+  assert.equal(ditto.databaseCardId, 'sm8-154');
+  assert.ok(ditto.printedSubtypes.includes('Basic'));
+
+  const tapuKoko = data.rows.find(row => row.rank === 8)
+    .basicPrintings.find(card => card.name === 'Tapu Koko ♢');
+  assert.equal(tapuKoko.databaseCardId, 'sm9-51');
+  assert.ok(tapuKoko.printedSubtypes.includes('Basic'));
+});
