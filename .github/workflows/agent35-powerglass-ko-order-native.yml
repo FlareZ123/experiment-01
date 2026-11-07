@@ -30,6 +30,8 @@ jobs:
           npm run compile
       - name: Agent35 native Snap Trap ChooseCards response contract
         run: node simulation/twinleaf/agent35/snap-trap-choice-response-contract-native.cjs
+      - name: Agent12 native Snap Trap Prism Star Lost Zone destination
+        run: node --test tests/2026-11/agent12-snap-trap-prism-star-destination-native.test.cjs
       - name: Isolated actual Tool, KO, end-turn and Prize prompt order
         run: node simulation/twinleaf/agent35-powerglass-ko-prize-order-native.cjs
       - name: Agent37 independent winning-KO terminal Powerglass order
