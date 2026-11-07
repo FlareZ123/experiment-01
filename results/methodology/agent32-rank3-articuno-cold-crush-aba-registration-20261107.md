@@ -81,6 +81,6 @@ If the 16 fixed deal assignments produce no exact hand-play Articuno prompt with
 - Choice helper: `simulation/twinleaf/agent32-articuno-cold-crush-choice.cjs`
 - Prompt/transfer overlay: `simulation/twinleaf/agent32-articuno-cold-crush-policy.cjs`
 - Pure and native tests: `tests/agent32-articuno-cold-crush-choice.test.cjs`, `tests/agent32-articuno-cold-crush-native.test.cjs`, `tests/agent32-articuno-cold-crush-policy.native.test.cjs`
-- Manual CI workflow: `.github/workflows/agent32-articuno-cold-crush-pilot.yml` (to be added for this registered run).
+- Manual CI workflow: `.github/workflows/agent32-articuno-cold-crush-pilot.yml`.
 
 No deck-strength or 99.5% claim is made.
