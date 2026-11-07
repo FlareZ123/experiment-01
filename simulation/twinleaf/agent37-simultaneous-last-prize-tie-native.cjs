@@ -436,6 +436,86 @@ function run(){
     })
   );
 
+  const mixedFinalPrizeProfiles=[
+    {name:'owner-final',ownerPrizes:1,enemyPrizes:6,finalTaker:'owner'},
+    {name:'opponent-final',ownerPrizes:6,enemyPrizes:1,finalTaker:'opponent'}
+  ];
+  const mixedTerminalRows=mixedFinalPrizeProfiles.flatMap(profile=>
+    [0,1].flatMap(actorSeat=>{
+      const cases=[
+        {name:'both-can-promote',ownerHasBench:true,enemyHasBench:true},
+        {name:'owner-only-promotes',ownerHasBench:true,enemyHasBench:false},
+        {name:'opponent-only-promotes',ownerHasBench:false,enemyHasBench:true},
+        {name:'neither-can-promote',ownerHasBench:false,enemyHasBench:false}
+      ];
+      return cases.map(testCase=>{
+        const treatment=runOne(
+          actorSeat,
+          withInstanceScopedSimultaneousLastPrizeResolutionV3,
+          6,
+          true,
+          testCase.enemyHasBench,
+          testCase.ownerHasBench,
+          {
+            enemyActiveName:'Shadow Rider Calyrex VMAX CRE',
+            enemyEvolutionBaseName:'Shadow Rider Calyrex V CRE',
+            enemyActiveDamage:260,
+            ownerPrizes:profile.ownerPrizes,
+            enemyPrizes:profile.enemyPrizes,
+            stopAfterAttack:true
+          }
+        );
+        const result=treatment.result,a=treatment.audit;
+        const finalTakerCanPromote=profile.finalTaker==='owner'
+          ?testCase.ownerHasBench:testCase.enemyHasBench;
+        const otherCanPromote=profile.finalTaker==='owner'
+          ?testCase.enemyHasBench:testCase.ownerHasBench;
+        const expectedOutcome=!finalTakerCanPromote&&otherCanPromote
+          ?'DRAW':profile.finalTaker;
+        const actualOutcome=result.winnerPlayer??'DRAW';
+        const expectedOwnerTaken=profile.ownerPrizes===1
+          ?1:(actorSeat===0&&!testCase.enemyHasBench?3:0);
+        const expectedOpponentTaken=profile.enemyPrizes===1
+          ?1:(actorSeat===1&&!testCase.ownerHasBench?1:0);
+        assert.equal(result.finished,true);
+        assert.equal(result.winnerPlayer,profile.finalTaker);
+        assert.equal(result.winnerSeat,
+          profile.finalTaker==='owner'?actorSeat:1-actorSeat);
+        assert.deepEqual(result.pendingPrompts,[]);
+        assert.equal(result.ownerPrizesTakenThisTurn,expectedOwnerTaken);
+        assert.equal(result.opponentPrizesTakenThisTurn,expectedOpponentTaken);
+        assert.equal(result.ownerPrizesRemaining,
+          profile.ownerPrizes-expectedOwnerTaken);
+        assert.equal(result.opponentPrizesRemaining,
+          profile.enemyPrizes-expectedOpponentTaken);
+        assert.equal(a.simultaneousLastPrizeCandidate,false);
+        assert.equal(a.storeLogRestored,true);
+        assert.equal(a.storeReduceRestored,true);
+        assert.equal(a.otherStoresUnmodified,true);
+        return {
+          profile:profile.name,
+          finalTaker:profile.finalTaker,
+          actorSeat,
+          scenario:testCase.name,
+          ownerCanPromote:testCase.ownerHasBench,
+          opponentCanPromote:testCase.enemyHasBench,
+          paperOutcome:expectedOutcome,
+          nativeOutcome:actualOutcome,
+          nativeMatchesPaper:actualOutcome===expectedOutcome,
+          ownerPrizesTakenThisTurn:result.ownerPrizesTakenThisTurn,
+          opponentPrizesTakenThisTurn:result.opponentPrizesTakenThisTurn,
+          ownerPrizesRemaining:result.ownerPrizesRemaining,
+          opponentPrizesRemaining:result.opponentPrizesRemaining,
+          pendingPrompts:result.pendingPrompts,
+          v3Candidate:a.simultaneousLastPrizeCandidate,
+          v3WinnerCorrectionApplied:a.winnerLogHandled
+        };
+      });
+    })
+  );
+  const mixedSingleFinalPrizeMismatches=
+    mixedTerminalRows.filter(row=>!row.nativeMatchesPaper);
+
   const neighborStoreIsolationVerified=rows.every(row=>
     row.v3Audit?.otherStoresUnmodified===true);
   const restorationVerified=rows.every(row=>
@@ -460,12 +540,16 @@ function run(){
     asymmetricPrizeGroupCountsBothSeatsVerified:asymmetricPrizeGroupCounts.length===16,
     opponentOnlyPromotionWinnerCorrected:true,
     neitherPromotableTieCorrected:true,
-    mixedTerminalRowsSupported:true,
+    bothFinalPrizePromotionAsymmetryCovered:true,
+    mixedSingleFinalPrizeRowsSupported:false,
+    mixedSingleFinalPrizeRuleTableGapDemonstrated:
+      mixedSingleFinalPrizeMismatches.length===4,
+    mixedSingleFinalPrizeMismatchCount:mixedSingleFinalPrizeMismatches.length,
     competitiveGamesQualified:0,
     rows,
     controls:{
       singleLastPrize,nonHandDestination,asymmetricPromotionAvailability,
-      asymmetricPrizeGroupCounts,opponentOnlyPromotionAvailability,neitherCanPromote
+      asymmetricPrizeGroupCounts,mixedTerminalRows,opponentOnlyPromotionAvailability,neitherCanPromote
     }
   };
 }
