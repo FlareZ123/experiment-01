@@ -25,7 +25,14 @@ const native=name=>require(path.join(OUTPUT,name));
  * @param {0|1} [seat=0] Physical source seat.
  * @returns {object} Native staged-line evidence.
  */
-function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
+function probeRank31LegalBCRAlakazamCursedBlast(seat=0,options={}){
+  const koffingCount=options.koffingCount??1;
+  const initialTargetDamage=options.initialTargetDamage??80;
+  const bcrMoveCount=options.bcrMoveCount??1;
+  const painfulSpoonsMoveCount=options.painfulSpoonsMoveCount??1;
+  assert.ok(Number.isInteger(koffingCount)&&koffingCount>=1&&koffingCount<=2);
+  assert.ok(Number.isInteger(bcrMoveCount)&&bcrMoveCount>=1&&bcrMoveCount<=3);
+  assert.ok(Number.isInteger(painfulSpoonsMoveCount)&&painfulSpoonsMoveCount>=1&&painfulSpoonsMoveCount<=2);
   assert.ok(seat===0||seat===1);
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
@@ -79,7 +86,7 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
   const target=targetSlot.getPokemonCard();
   assert.equal(target.fullName,'Shadow Rider Calyrex V CRE');
   assert.equal(Number(target.hp),210);
-  targetSlot.damage=80;
+  targetSlot.damage=initialTargetDamage;
   opponent.active.damage=0;
   opponent.bench[0].damage=0;
 
@@ -92,9 +99,9 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
   const evidence=[];
   const resolveRoxie=()=>{
     const roxie=f.card('Roxie CEC');
-    const koffing=f.card('Koffing CEC');
-    source.hand.cards.push(koffing,roxie);
-    store.dispatch(new PlayCardAction(source.id,1,{
+    const koffings=Array.from({length:koffingCount},()=>f.card('Koffing CEC'));
+    source.hand.cards.push(...koffings,roxie);
+    store.dispatch(new PlayCardAction(source.id,koffingCount,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
     for(let i=0;i<20;i++){
@@ -104,9 +111,9 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
       let answer;
       if(kind==='ChooseCardsPrompt'){
         assert.equal(prompt.playerId,source.id);
-        answer=[koffing];
+        answer=koffings;
         assert.equal(prompt.validate(answer,state),true,
-          'The physical Koffing is a legal Roxie payment');
+          'The physical Koffing cards are legal Roxie payments');
       }else if(kind==='ConfirmPrompt')answer=true;
       else if(kind==='WaitPrompt')answer=null;
       else throw new Error('Unexpected Roxie/Koffing prompt '+kind);
@@ -115,21 +122,21 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
       store.dispatch(new ResolvePromptAction(prompt.id,answer));
     }
     assert.equal(pending(),undefined,'Roxie and Blow-Away Bomb must settle');
-    assert.equal(source.discard.cards.includes(koffing),true);
+    assert.ok(koffings.every(koffing=>source.discard.cards.includes(koffing)));
     assert.equal(source.discard.cards.includes(roxie),true);
-    assert.equal(source.hand.cards.length,3,
-      'Roxie draws three cards for the one discarded Koffing');
-    assert.equal(source.deck.cards.length,4);
+    assert.equal(source.hand.cards.length,3*koffingCount,
+      'Roxie draws three cards for each discarded Koffing');
+    assert.equal(source.deck.cards.length,7-3*koffingCount);
     assert.deepEqual([
       opponent.active.damage,
       opponent.bench[0].damage,
       targetSlot.damage
-    ],[10,10,90]);
-    return {roxie,koffing};
+    ],[10*koffingCount,10*koffingCount,initialTargetDamage+10*koffingCount]);
+    return {roxie,koffings};
   };
 
   const resolveMoveAbility=(abilityName,sourceSlot,sourceIndex,from,to,
-      expectedTargetDamage)=>{
+      expectedTargetDamage,moveCount=1)=>{
     store.dispatch(new UseAbilityAction(source.id,abilityName,{
       player:PlayerType.BOTTOM_PLAYER,slot:sourceSlot,index:sourceIndex
     }));
@@ -143,11 +150,11 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
         store.dispatch(new ResolvePromptAction(prompt.id,null));
       }else if(kind==='MoveDamagePrompt'){
         assert.equal(prompt.playerId,source.id);
-        const answer=[{from,to}];
+        const answer=Array.from({length:moveCount},()=>({from,to}));
         assert.equal(prompt.validate(answer,state),true,
           abilityName+' must accept its single-source printed move');
         evidence.push({phase:abilityName,kind,nativeValidated:true,
-          sourceDamageBefore:from.slot===SlotType.ACTIVE?
+          moveCount,sourceDamageBefore:from.slot===SlotType.ACTIVE?
             opponent.active.damage:opponent.bench[from.index].damage,
           targetDamageBefore:targetSlot.damage});
         store.dispatch(new ResolvePromptAction(prompt.id,answer));
@@ -163,7 +170,8 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
   };
 
   const execute=()=>{
-    const {roxie,koffing}=resolveRoxie();
+    const {roxie,koffings}=resolveRoxie();
+    const damageAfterRoxieKoffing=targetSlot.damage;
     const opponentActive={player:PlayerType.TOP_PLAYER,
       slot:SlotType.ACTIVE,index:0};
     const opponentBench0={player:PlayerType.TOP_PLAYER,
@@ -171,12 +179,19 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
     const opponentBench1={player:PlayerType.TOP_PLAYER,
       slot:SlotType.BENCH,index:1};
 
-    resolveMoveAbility('Sinister Hand',SlotType.BENCH,0,
-      opponentActive,opponentBench1,100);
-    assert.equal(opponent.active.damage,0);
+    let damageAfterSinisterHand=targetSlot.damage;
+    for(let i=0;i<bcrMoveCount;i++){
+      damageAfterSinisterHand+=10;
+      resolveMoveAbility('Sinister Hand',SlotType.BENCH,0,
+        opponentActive,opponentBench1,damageAfterSinisterHand);
+    }
+    assert.equal(opponent.active.damage,10*koffingCount-10*bcrMoveCount);
+    const damageAfterPainfulSpoons=targetSlot.damage+10*painfulSpoonsMoveCount;
     resolveMoveAbility('Painful Spoons',SlotType.ACTIVE,0,
-      opponentBench0,opponentBench1,110);
-    assert.equal(opponent.bench[0].damage,0);
+      opponentBench0,opponentBench1,damageAfterPainfulSpoons,
+      painfulSpoonsMoveCount);
+    assert.equal(opponent.bench[0].damage,
+      10*koffingCount-10*painfulSpoonsMoveCount);
 
     store.dispatch(new UseAbilityAction(source.id,'Cursed Blast',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
@@ -229,7 +244,7 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
     assert.equal(source.discard.cards.includes(preDuskull),true);
     assert.equal(source.discard.cards.includes(preDusclops),true);
     assert.equal(source.discard.cards.includes(preDusknoir),true);
-    assert.equal(source.discard.cards.includes(koffing),true);
+    assert.ok(koffings.every(koffing=>source.discard.cards.includes(koffing)));
     assert.equal(source.discard.cards.includes(roxie),true);
     assert.equal(source.bench.length,5);
     assert.equal(source.bench.filter(slot=>slot.getPokemonCard()).length,1);
@@ -247,16 +262,22 @@ function probeRank31LegalBCRAlakazamCursedBlast(seat=0){
       seat,turn:state.turn,source60K0:true,source60Count:original60.length,
       source60Counts,sourceDeckPhysicalComplete:false,
       opponentDeckPhysicalComplete:false,
-      stagedTargetDamage:80,damageAfterRoxieKoffing:90,
-      damageAfterSinisterHand:100,damageAfterPainfulSpoons:110,
+      koffingCount,initialTargetDamage,
+      bcrSinisterHandMoves:bcrMoveCount,
+      painfulSpoonsCountersMoved:painfulSpoonsMoveCount,
+      stagedTargetDamage:initialTargetDamage,
+      damageAfterRoxieKoffing,
+      damageAfterSinisterHand,
+      damageAfterPainfulSpoons,
       printedCursedBlastCounters:13,printedCursedBlastDamage:130,
-      expectedTargetDamageAfterPrintedCursedBlast:240,
+      expectedTargetDamageAfterPrintedCursedBlast:damageAfterPainfulSpoons+130,
       targetKnockedOut:true,sourcePrizeCountBefore:sourcePrizesBefore,
       sourcePrizeCountAfter:sourcePrizesAfter,sourcePrizeCardsTaken,
       opponentPrizeCountBefore:opponentPrizesBefore,
       opponentPrizeCountAfter:opponentPrizesAfter,opponentPrizeCardsTaken,
       netPrizeAdvantage:sourcePrizeCardsTaken-opponentPrizeCardsTaken,
-      physicalKoffingDiscarded:source.discard.cards.includes(koffing),
+      physicalKoffingDiscarded:koffings.every(koffing=>source.discard.cards.includes(koffing)),
+      physicalKoffingDiscardCount:koffings.filter(koffing=>source.discard.cards.includes(koffing)).length,
       physicalRoxieDiscarded:source.discard.cards.includes(roxie),
       physicalPreDusknoirStackDiscarded:
         source.discard.cards.includes(preDuskull)&&
