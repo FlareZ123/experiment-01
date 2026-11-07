@@ -53,10 +53,10 @@ test('public Store snapshot captures tiebreaker state without hidden cards',()=>
   assert.equal(s.players[1].deckRemaining,2);
   assert.equal('cards' in s.players[0],false);
   assert.equal(JSON.stringify(s).includes('Basic'),false);
-  assert.equal(publicSnapshot({...{
+  assert.equal(publicSnapshot({
     phase:3,turn:1,activePlayer:1,winner:-1,isSuddenDeath:false,
     players:[player(),player()]
-  }}).suddenDeath,false);
+  }).suddenDeath,false);
 });
 
 test('tiebreaker native reported winner is quarantined regardless of seat',()=>{
