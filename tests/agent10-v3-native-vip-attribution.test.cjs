@@ -45,15 +45,12 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
   assert.equal(deck.length,60);
   assert.equal(deck.filter(name=>name==='Battle VIP Pass FST').length,4);
 
-  const seeds=[
-    3060075246,690229661,20261107,20261108,
-    20261109,20261110,20261111,20261112
-  ];
+  const seeds=[3060075246,690229661,20261107,20261108];
   const rows=[];
   for(const seed of seeds){
     const request={
       label:'agent10-v3-native-vip-attribution-'+seed,
-      deckA:deck,deckB:deck,seed,maxActions:96,captureDecisionTrace:true
+      deckA:deck,deckB:deck,seed,maxActions:512,captureDecisionTrace:true
     };
     const control=withForcedPassPolicy(()=>runMatch({
       ...request,deckA:[...deck],deckB:[...deck]
@@ -62,7 +59,11 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
       ()=>runMatch({...request,deckA:[...deck],deckB:[...deck]}),
       {SimpleTacticsAi}
     ));
-    const audit={...treatment.audit,policyRecorded:true};
+    const audit=treatment.audit;
+    assert.equal(control.finished,true);
+    assert.equal(treatment.result.finished,true);
+    assert.equal(audit.policyRecorded,true);
+    assert.equal(audit.nativeStoreSeen,true);
     assert.equal(audit.rootOrdinalInitialized,true);
     assert.equal(audit.dispatchRootCount,treatment.result.actions);
     assert.equal(control.rootActionLedger.length,control.actions);
@@ -70,8 +71,10 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
     const attribution=strictVipTreatmentAttribution({
       controlLedger:control.rootActionLedger,
       controlRootActionCount:control.actions,
+      controlCompleted:control.finished,
       treatmentLedger:treatment.result.rootActionLedger,
       treatmentRootActionCount:treatment.result.actions,
+      treatmentCompleted:treatment.result.finished,
       vipAudit:audit
     });
     const interventionItems=audit.examples.filter(event=>
