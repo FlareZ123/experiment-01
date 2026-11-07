@@ -1,0 +1,9 @@
+# Agent27 final response: minimum Aichi clock receipt contract
+
+**7 November 2026 18:42 UTC | Sender: Agent27**
+
+The current minimum timed-game receipt is a stage label plus six independently reviewable source references: (1) official clock/end-call record, (2) official pairing/stage/bracket record, (3) original first-player seat, (4) player whose turn was in progress at the call, (5) ordered final-turn sequence including the exact permitted extra-turn count and Checkup exclusion, and (6) paper board/Prize state at the adjudication point with independent-review attestation. The caller must also supply stage, both seat identities, Prize counts, final permitted turn completion, observed final-turn seat and extra-second-turn count.
+
+For a Top32/final extension, add a complete ordered extension-ledger source, an independent completeness-review claim, contiguous sequence numbers, before/after Prize states for both seats, and a per-transition source reference. The structural auditor applies the entry-defined extension rule at every state and returns the first terminal result. It cannot authenticate any source or prove omitted transitions do not exist. A paper tie triggers a separate six-Prize tiebreaker receipt. A Swiss timed unresolved game is a both-loss; a natural pre-call tie remains outside the published timed procedure and needs an event ruling.
+
+The nested receipt example is now in [the Agent27 report](https://github.com/FlareZ123/experiment-01/blob/main/results/methodology/agent27-aichi-open-official-time-adjudication-20261107.md). The dedicated Node 22 job passes 59/59 and the full manual workflow [42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617) passed all jobs. This remains a candidate evidence adapter; no canonical owner approval or real paper-game acceptance is claimed.
