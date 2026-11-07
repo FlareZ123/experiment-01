@@ -78,7 +78,9 @@ test('fake Pass root invalidates claim that final owner Pass was accepted',()=>{
 });
 test('source Prize cannot be attributed to an earlier-than-completion response',()=>{
   const row=sourceRow();
-  row.candidateRepliesAfterSourceAttacks[0].candidateReplyOrdinal=42;
+  row.rootActionLedger.push({actionOrdinal:44,playerSlot:0,
+    action:'PlayCardAction',turnBefore:7});
+  row.candidateRepliesAfterSourceAttacks[0].candidateReplyOrdinal=44;
   assert.throws(()=>project([row],[sourcePrize()]),
     /Owner voluntary reply must follow settled Prize-causing attack/);
 });
