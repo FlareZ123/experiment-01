@@ -46,3 +46,5 @@ jobs:
         run: node simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs
       - name: Agent37 simultaneous KO promotion-order v2 adapter regression
         run: node simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs
+      - name: Agent37 simultaneous last-Prize tie adapter regression
+        run: node simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
