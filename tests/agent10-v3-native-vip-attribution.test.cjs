@@ -65,11 +65,11 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
     const audit={...treatment.audit,policyRecorded:true};
     assert.equal(audit.rootOrdinalInitialized,true);
     assert.equal(audit.dispatchRootCount,treatment.result.actions);
-    assert.equal(control.result.rootActionLedger.length,control.result.actions);
+    assert.equal(control.rootActionLedger.length,control.actions);
     assert.equal(treatment.result.rootActionLedger.length,treatment.result.actions);
     const attribution=strictVipTreatmentAttribution({
-      controlLedger:control.result.rootActionLedger,
-      controlRootActionCount:control.result.actions,
+      controlLedger:control.rootActionLedger,
+      controlRootActionCount:control.actions,
       treatmentLedger:treatment.result.rootActionLedger,
       treatmentRootActionCount:treatment.result.actions,
       vipAudit:audit
@@ -90,7 +90,7 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
       assert.equal(searchRoot?.initiatingRootActionOrdinal,event.itemRootOrdinal);
     }
     rows.push({
-      seed,controlActions:control.result.actions,
+      seed,controlActions:control.actions,
       treatmentActions:treatment.result.actions,
       hookDispatchRootCount:audit.dispatchRootCount,
       acceptedItems:audit.acceptedItems,
