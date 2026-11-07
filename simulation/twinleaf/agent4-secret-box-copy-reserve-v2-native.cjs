@@ -20,7 +20,7 @@ const POWERGLASS='Powerglass SFA';
  * Validate a count-based copy-reserve frontier representative on a genuine
  * post-play Secret Box prompt. Returned payment indices address prompt.cards.
  * @param {0|1} seat Physical owner seat.
- * @param {'carrier'|'lillie'} candidate Nondominated payment representative.
+ * @param {'carrier'|'lillie'|'lillie-second'} candidate Nondominated payment representative.
  * @returns {object} Native validation, physical movement, count frontier, guard.
  */
 function executeCopyReserveV2Payment(seat,candidate){
@@ -79,7 +79,6 @@ function executeCopyReserveV2Payment(seat,candidate){
     nextHandDiscardCost:2
   });
 
-  const isLillie=candidate==='lillie'||candidate==='lillie-second';
   const desired=candidate==='carrier'?
     {printings:[VIP,VIP,CARRIER],equivalent:1}:
     {printings:[VIP,VIP,LILLIE],equivalent:2};
@@ -194,7 +193,7 @@ function executeCopyReserveV2Payment(seat,candidate){
 /**
  * Run one candidate with the reversible Agent4 paper-payment guard.
  * @param {0|1} seat Physical owner seat.
- * @param {'carrier'|'lillie'} candidate Nondominated payment representative.
+ * @param {'carrier'|'lillie'|'lillie-second'} candidate Nondominated payment representative.
  * @returns {{result:object,audit:object}}
  */
 function probeSecretBoxCopyReserveV2Payment(seat,candidate){
