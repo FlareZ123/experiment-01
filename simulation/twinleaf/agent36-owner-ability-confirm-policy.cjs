@@ -281,7 +281,14 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       audit.confirmEvents.push({
         ownerId:meta.ownerId,turn:meta.turn,seat:meta.seat,
         message:meta.message,cardName:meta.played?.cardName??null,
-        decision:meta.decision,reason:meta.reason,settled
+        decision:meta.decision,reason:meta.reason,settled,
+        // Strategy-scoping receipts. Opponent Active Energy is public; do not
+        // inspect their hand, Prize contents or deck to infer tactical payoffs.
+        details:meta.details,
+        opponentActiveEnergyCount:meta.opponentActiveEnergyCount,
+        actorActiveName:meta.actorActiveName,
+        actorUsedGX:meta.actorUsedGX,
+        actorHandAttachmentAvailable:meta.actorHandAttachmentAvailable
       });
     }
 
@@ -356,11 +363,19 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
           {decision:false,reason:'unrecognized-confirm-default-false',details:{}};
       audit.confirmOffers++;
       const seat=state.players.findIndex(player=>player.id===ownerId);
+      const opponent=state.players.find(player=>player.id!==ownerId);
+      const decisionContext={
+        opponentActiveEnergyCount:opponent?.active?.energies?.cards?.length??null,
+        actorActiveName:owner?.active?.getPokemonCard?.()?.name??null,
+        actorUsedGX:owner?.usedGX===true,
+        actorHandAttachmentAvailable:owner?.energyPlayedTurn!==state.turn
+      };
       const action=new ResolvePromptAction(prompt.id,choice.decision);
       validate(state,action);
       submitted.set(action,{
         kind:'confirm',prompt,decision:choice.decision,played,ownerId,
-        turn:state.turn,seat,message:prompt.message,reason:choice.reason
+        turn:state.turn,seat,message:prompt.message,reason:choice.reason,
+        details:choice.details,...decisionContext
       });
       return action;
     }
