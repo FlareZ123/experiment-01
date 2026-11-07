@@ -23,12 +23,14 @@ function makeStore(options={}){
     turn:options.turn??1,
     players:[
       {
+        id:'candidate',
         prizes:prizes(options.candidatePrizes??6),
         hand:{cards:(options.hand??['Fog Crystal']).map(card)},
         discard:{cards:(options.discard??[]).map(card)},
         deck:{cards:Array.from({length:options.deckCount??5},(_,i)=>({id:i}))}
       },
       {
+        id:'source',
         prizes:prizes(options.sourcePrizes??6),
         hand:{cards:[]},discard:{cards:[]},deck:{cards:[]}
       }
@@ -53,28 +55,30 @@ test('captures every post-dispatch candidate response root after an exact source
   store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
 
+  store.state.players=[store.state.players[1],store.state.players[0]];
   store.state.turn=1;
-  store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
-  store.state.players[0].discard.cards=[card('Fog Crystal')];
-  store.state.players[0].deck.cards=Array.from({length:4},(_,i)=>({id:i}));
-  store.state.prompts=[{constructor:{name:'ChooseCardsPrompt'},playerId:0}];
-  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,1);
+  store.state.players[1].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
+  store.state.players[1].discard.cards=[card('Fog Crystal')];
+  store.state.players[1].deck.cards=Array.from({length:4},(_,i)=>({id:i}));
+  store.state.prompts=[{constructor:{name:'ChooseCardsPrompt'},playerId:'candidate'}];
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,1,1);
 
-  store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
+  store.state.players[1].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
   store.state.prompts=[];
-  obs.onRootActionDispatched(store,new ResolvePromptAction(),3,0,1);
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),3,1,1);
 
   store.state.turn=2;
-  obs.onRootActionDispatched(store,new PassTurnAction(),4,0,1);
+  obs.onRootActionDispatched(store,new PassTurnAction(),4,1,1);
 
   const result=obs.result();
-  assert.equal(VERSION,'agent3-postprize-response-action-sequence-v1');
+  assert.equal(VERSION,'agent3-postprize-response-action-sequence-v2');
   assert.equal(result.version,VERSION);
   assert.equal(result.sequences.length,1);
   const [sequence]=result.sequences;
   assert.equal(sequence.registeredTrialId,'trial1');
   assert.equal(sequence.sourceSeat,1);
   assert.equal(sequence.candidateSeat,0);
+  assert.equal(sequence.actions[0].actorSeat,1,'candidate player identity survives player-array reordering');
   assert.equal(sequence.candidateTurn,1,'response capture must not require a numeric turn increment');
   assert.deepEqual(sequence.sourcePrizeRootOrdinals,[1]);
   assert.equal(sequence.prizesTaken,1);
@@ -84,6 +88,7 @@ test('captures every post-dispatch candidate response root after an exact source
   assert.deepEqual(sequence.actions.map(action=>action.rootOrdinal),[2,3,4]);
   assert.equal(sequence.actions[0].pendingPromptTypesAfterAction[0].type,
     'ChooseCardsPrompt');
+  assert.equal(sequence.actions[0].pendingPromptTypesAfterAction[0].actorSeat,1);
   assert.deepEqual(sequence.actions[1].pendingPromptTypesAfterAction,[]);
   assert.ok(result.diagnostics.callbackCount>0);
   assert.equal(result.diagnostics.prizeCardChanges.length,1);
@@ -116,7 +121,7 @@ test('action-capped response remains explicitly incomplete',()=>{
   const obs=observer(null,rootBinding);
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
-  store.state.players[0].prizes=prizes(5);
+  store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
   store.state.turn=1;
   obs.onRootActionDispatched(store,new PlayCardAction(),2,0,1);
