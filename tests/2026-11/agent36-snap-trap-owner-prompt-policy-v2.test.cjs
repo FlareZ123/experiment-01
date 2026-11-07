@@ -56,6 +56,13 @@ function withSelectPromptCapture(run, captures) {
         min: options.min ?? null,
         max: options.max ?? null,
         allowCancel: options.allowCancel ?? null,
+        defaultValue: options.defaultValue ?? null,
+        values: Array.isArray(prompt.values)
+          ? prompt.values.slice(0, 12).map(value =>
+            value === null || ['string', 'number', 'boolean'].includes(typeof value)
+              ? value
+              : {type: value.constructor?.name ?? 'object', keys: Object.keys(value).sort()})
+          : null,
         optionCount: Array.isArray(options.options) ? options.options.length : null,
         optionTypes: Array.isArray(options.options)
           ? options.options.slice(0, 12).map(option =>
@@ -665,7 +672,7 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
   const stunfisk = fullName('Galarian Stunfisk SSH');
   const marshadow = fullName('Marshadow UNB');
   const psychic = fullName('Psychic Energy MEE');
-  const deckFor = pokemon => [pokemon, ...Array(59).fill(psychic)];
+  const deckFor = pokemon => [pokemon, pokemon, pokemon, pokemon, ...Array(56).fill(psychic)];
   const rootStores = [];
   const matchResults = [];
   const actorAudits = [];
