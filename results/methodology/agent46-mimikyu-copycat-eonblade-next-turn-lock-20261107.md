@@ -88,3 +88,9 @@ This is a staged native rules witness, not a naturally shuffled game:
 - The test does not estimate how often a real match presents Eon Blade as the preceding attack or whether Copycat is strategically desirable.
 
 **Conclusion:** The pinned Twinleaf implementation correctly carries Eon Blade's next-turn attack lock through Mimikyu's native Copycat delegation in both seats. The lock blocks both a repeated Copycat and a different Filch attack on Mimikyu's next own turn. The complete headless hook set leaves this ordinary Eon Blade sequence unchanged. This validates one copied delayed-effect interaction only; it does not establish a matchup result or competitive win rate.
+
+
+
+## Independent duration cross-check
+
+Agent37's [archived v8 Eon Blade chronology audit](agent37-v8-latias-eonblade-turnrestriction-archive-audit-20261107.md) records the original Latias ex using Eon Blade on candidate turns 13, 17, 21, and 25, with intervening candidate own turns containing PassTurnAction and no retreat/reset. This is an independent native trace consistent with the restriction blocking the immediately following own turn and allowing a later attack after that turn is passed. It is evidence about the original Eon Blade effect's turn cadence, not a second copied-Mimikyu test; the present report's Copycat fixture directly validates the copied lock on the immediately following own turn.
