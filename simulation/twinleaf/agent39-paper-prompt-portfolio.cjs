@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4d-undefined-result-unsettled';
+const VERSION='agent39-paper-prompt-portfolio-v4e-flash-stadium-unverified';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -53,8 +53,16 @@ function verdictVoltCyclone(state,prompt,result,types){
     if(!Array.isArray(recipient.cardType)||
        typeof CardType?.LIGHTNING==='undefined')
       return {valid:false,reason:'flash-energy-target-type-unresolved'};
-    if(!recipient.cardType.includes(CardType.LIGHTNING))
+    if(!recipient.cardType.includes(CardType.LIGHTNING)){
+      // Temple can suppress Flash's Lightning-only restriction. Whether
+      // Stadium effects themselves are negated is out of this paper guard's
+      // verified scope; classify the destination as uncertain, never invalid.
+      if(state.players.some(p=>p.stadium?.cards?.some(c=>
+        c.fullName==='Temple of Sinnoh ASR')))
+        return {valid:true,unverified:true,expectedRoute:null,
+          reason:'flash-energy-temple-effective-route-unverified'};
       expectedRoute='discard';
+    }
   }
   // Native validator disagreement is separate from independent printed geometry.
   return {valid:true,reason:'printed-one-active-energy-to-own-bench',expectedRoute};
@@ -165,8 +173,8 @@ function withPaperPromptPortfolio(run,deps={}){
     const marked=!!pending&&attributed.has(pending);
     const paper=marked?
       verdictVoltCyclone(this.state,pending,action.result,types):null;
-    const status=!marked?'PAPER_PROMPT_UNVERIFIED':paper.valid?
-      'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
+    const status=!marked||paper?.unverified?'PAPER_PROMPT_UNVERIFIED':
+      paper.valid?'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
     const entry={turn:this.state.turn??null,promptId:pending?.id??null,
       storeOrdinal:ordinal,storeScope,
       sourceSeat:this.state.players?.findIndex(p=>
