@@ -12,7 +12,7 @@ This v2 marker exposes a direct, read-only lookup from the exact prompt object t
 
 - Implementation: `simulation/twinleaf/agent30-stunfisk-snap-trap-prompt-marker-v2.cjs`
 - Tests: `tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v2.test.cjs`
-- Workflow: `.github/workflows/agent30-snap-trap-prompt-marker-v2-pure.yml`
+- Workflow: existing manual-only `.github/workflows/agent10-stunfisk-snap-trap-marker-pure.yml` (v2 tests folded into this workflow; the temporary standalone push-triggered workflow was removed to comply with root README CI policy)
 
 ## Behavior
 
@@ -31,7 +31,7 @@ The marker retains its decoder-origin telemetry for contexts where it is called.
 
 ## Tests and evidence
 
-[GitHub Actions run 42397180114](https://github.com/FlareZ123/experiment-01/actions/runs/42397180114) completed successfully. The current test file contains 20 tests, including:
+[GitHub Actions run 42397517716](https://github.com/FlareZ123/experiment-01/actions/runs/42397517716) completed successfully through the existing manual-only workflow, running both Agent10's original marker tests and Agent30's v2 tests. The current v2 test file contains 20 tests, including:
 - native zero-to-assigned prompt ID transition;
 - same-object lookup returns the exact source proof;
 - a cloned prompt does not return the source proof;
@@ -46,3 +46,16 @@ The marker retains its decoder-origin telemetry for contexts where it is called.
 The v7 observer should accept `getSourceOriginForPrompt` and call it with `args[1]` after the original State-first `Store.prompt(state,prompt,callback)` returns. The returned proof must be the same source proof object; the observer should record `sourceMarkerSamePromptObject: true` and the assigned ID. The runner should require that same-object join, one exact public Active Energy zone match, and one consistent Agent4 quarantine receipt.
 
 This result proves only the marker's pure behavior. It does not prove the native observer/runner join, resolve any prompt, or qualify a competitive game.
+
+
+## Observer integration ordering detail
+
+The marker's Store.prompt proxy encloses the observer's patched Store.prototype.prompt. The observer wrapper runs inside the marker's proxy call: it calls the original Store.prompt, reads the now-assigned live `prompt.id`, and performs `getOriginForPrompt(prompt)` before returning. Only after the observer returns does the marker's outer `finally` mutate the source proof with `promptIdAfterStore` and `pendingNativePromptId`.
+
+Therefore the observer should:
+- read the live `String(prompt.id)` immediately after the original Store.prompt returns;
+- retain the returned source proof object by reference until the complete wrapper stack unwinds;
+- avoid `{...sourceProof}` before the marker's outer finally, because that copies the still-null post-ID fields;
+- serialize the retained proof only after the full marker/observer composition has returned.
+
+The manual-only workflow now runs the v2 suite; no standalone push-triggered per-card workflow remains.
