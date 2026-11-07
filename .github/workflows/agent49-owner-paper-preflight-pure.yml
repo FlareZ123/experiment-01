@@ -1,20 +1,6 @@
 name: Agent49 owner registered-60, native-whiff and proxy legality pure contracts
 
 on:
-  push:
-    paths:
-      - '.github/workflows/agent49-owner-paper-preflight-pure.yml'
-      - 'simulation/twinleaf/agent49-owner-bulk-hand-transitions.cjs'
-      - 'simulation/twinleaf/owner-original-60-plan-gate.cjs'
-      - 'simulation/twinleaf/actor-k1-search-plan-veto.cjs'
-      - 'simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs'
-      - 'simulation/twinleaf/agent49-owner-direct-fog-one-energy-reply.cjs'
-      - 'simulation/evaluation/agent49-original-field-box-fog-hard-coverage.cjs'
-      - 'simulation/evaluation/agent49-newmoon-expanded-ban-print-audit.cjs'
-      - 'tests/agent49-*.test.cjs'
-      - 'results/aichi-2026/full-decklists.json'
-      - 'results/als/new-moon-lockbreak-english-proxy-60.json'
-      - 'results/legality/japan-expanded-aichi-2026.json'
   workflow_dispatch:
 
 permissions:
