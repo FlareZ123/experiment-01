@@ -40,7 +40,7 @@ function slot(pokemonCards = [], energies = []) {
 
 /** @param {object[]} benchWater */
 function scene(benchWater = [water(1)], opponentEnergyCount = 3) {
-  const articuno = pokemon('Articuno-GX', 10);
+  const articuno = {...pokemon('Articuno-GX', 10), fullName: 'Articuno-GX CES'};
   const owner = {
     id: 101,
     usedGX: false,
@@ -76,7 +76,7 @@ test('Cold Crush proposal declines when GX is spent, Water is absent, or public 
   assert.equal(decideOneWaterColdCrush({
     card: noWater.articuno, owner: noWater.owner,
     opponent: noWater.opponent, types
-  }).reason, 'no-owner-basic-water-for-cold-crush');
+  }).reason, 'no-transferable-owner-basic-water-for-cold-crush');
 
   const twoEnergy = scene([water(2)], 2);
   assert.equal(decideOneWaterColdCrush({
