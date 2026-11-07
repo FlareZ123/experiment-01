@@ -1273,17 +1273,20 @@ function bilateralJetBenchRootOptions(enabled){
 
 /**
  * Validate immutable source/candidate trial groups. The default remains the
- * historical paired-candidate design. A single candidate arm is allowed only
- * as an explicit one-game prospective probe.
+ * historical paired-candidate design. Single-arm modes distinguish one
+ * natural game from one fixed candidate across many source groups.
  * @param {object[]} registeredTrials
  * @param {number[]} admittedRanks
  * @param {boolean} allowSingleCandidateArm
+ * @param {boolean} allowSingleCandidatePerGroup
  * @returns {{groupCount:number,trialIds:string[]}}
  */
 function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
-  allowSingleCandidateArm=false) {
+  allowSingleCandidateArm=false,allowSingleCandidatePerGroup=false) {
   assert.ok(Array.isArray(registeredTrials)&&registeredTrials.length>0);
   assert.ok(Array.isArray(admittedRanks));
+  assert.ok(!(allowSingleCandidateArm&&allowSingleCandidatePerGroup),
+    'Single-candidate modes are mutually exclusive');
   if(allowSingleCandidateArm) {
     assert.equal(registeredTrials.length,1,
       'Single-candidate mode must register exactly one natural game');
@@ -1315,6 +1318,17 @@ function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
       'Single-candidate mode must contain exactly one registered group');
     assert.equal([...groups.values()][0].ids.length,1,
       'Single-candidate mode must contain exactly one candidate arm');
+  } else if(allowSingleCandidatePerGroup) {
+    assert.ok(groups.size>1,
+      'Single-candidate-per-group mode requires multiple source groups');
+    const candidateIds=new Set();
+    for(const group of groups.values()) {
+      assert.equal(group.ids.length,1,
+        'Each source group must contain exactly one candidate arm');
+      candidateIds.add(group.ids[0]);
+    }
+    assert.equal(candidateIds.size,1,
+      'Every source group must use the same fixed candidate');
   } else {
     for(const group of groups.values()) {
       assert.deepEqual(group.ids.slice().sort(),expectedCandidateIds);
@@ -1324,18 +1338,39 @@ function validateRegisteredTrialGroups(registeredTrials,admittedRanks,
 }
 
 /**
- * Return only complete two-contender comparison keys. A registered one-game
- * probe is still executed and retained as one native row, but has no valid
- * cross-candidate source-pair audit.
+ * Return only complete two-contender comparison keys. Explicit single-arm
+ * modes retain native rows without fabricating cross-candidate comparisons.
  * @param {object[]} scheduled
  * @param {boolean} allowSingleCandidateArm
+ * @param {boolean} allowSingleCandidatePerGroup
  * @returns {string[]}
  */
-function registeredSourcePairKeys(scheduled,allowSingleCandidateArm=false) {
+function registeredSourcePairKeys(scheduled,allowSingleCandidateArm=false,
+  allowSingleCandidatePerGroup=false) {
   assert.ok(Array.isArray(scheduled));
+  assert.ok(!(allowSingleCandidateArm&&allowSingleCandidatePerGroup));
   if(allowSingleCandidateArm){
     assert.equal(scheduled.length,1,
       'Single-candidate comparison gate requires exactly one scheduled game');
+    return [];
+  }
+  if(allowSingleCandidatePerGroup){
+    const groups=new Map();
+    for(const row of scheduled){
+      const key=row.id.slice(0,row.id.lastIndexOf(':'));
+      const group=groups.get(key)||[];
+      group.push(row.candidateId);
+      groups.set(key,group);
+    }
+    assert.ok(groups.size>1);
+    const candidateIds=new Set();
+    for(const ids of groups.values()){
+      assert.equal(ids.length,1,
+        'Single-candidate-per-group comparison gate requires one arm per group');
+      candidateIds.add(ids[0]);
+    }
+    assert.equal(candidateIds.size,1,
+      'Single-candidate-per-group comparison gate requires one fixed candidate');
     return [];
   }
   return [...new Set(scheduled.map(row=>
@@ -1437,7 +1472,8 @@ function runDevelopment({
   sameRootThornsEmptyBench=false,
   candidateOnlyKnownDeadRoot=false,bilateralKnownDeadAttackRoot=false,
   registeredTrials=null,registeredFrameName=null,
-  allowSingleCandidateArm=false,allowAdditionalOriginalSourceRanks=false
+  allowSingleCandidateArm=false,allowSingleCandidatePerGroup=false,
+  allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
   const naturalEvolutionOptions=actorGarbodorResponseRootOptions(
@@ -1643,8 +1679,11 @@ function runDevelopment({
     [id,{plan:planAichi(manifest,{allowEquivalentBasicEnergies:true,
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
-  assert.ok(!allowSingleCandidateArm||registeredTrials!==null,
-    'Single-candidate mode requires explicit registered trials');
+  assert.ok(!(allowSingleCandidateArm&&allowSingleCandidatePerGroup),
+    'Single-candidate modes are mutually exclusive');
+  assert.ok(!(allowSingleCandidateArm||allowSingleCandidatePerGroup)||
+    registeredTrials!==null,
+    'Single-candidate modes require explicit registered trials');
   if(registeredTrials!==null){
     assert.equal(sourceFirstRetrospective,false,
       'Prospective trials cannot activate selected historical source-first seeds');
@@ -1654,7 +1693,7 @@ function runDevelopment({
     const admittedRanks=require('./agent25-authenticated-source-admission.cjs')
       .authenticatedSourceRanks(roster,allowAdditionalOriginalSourceRanks);
     validateRegisteredTrialGroups(registeredTrials,admittedRanks,
-      allowSingleCandidateArm);
+      allowSingleCandidateArm,allowSingleCandidatePerGroup);
   }
   const scheduled=registeredTrials??(sourceFirstRetrospective?
     sourceFirstPressureTrials():developmentTrials());
@@ -2151,7 +2190,15 @@ function runDevelopment({
         'agent5-bilateral-common-policy-development-v0c-owner-compressor-v1':
         'agent41-bilateral-common-policy-development-v0c-live-lock-guard')))),
     registeredCandidateArmMode:registeredTrials===null?'historical-schedule':
-      (allowSingleCandidateArm?'single-candidate-arm':'paired-candidate-arms'),
+      (allowSingleCandidatePerGroup?'single-candidate-per-source-group':
+      (allowSingleCandidateArm?'single-candidate-arm':'paired-candidate-arms')),
+    registeredTrialCount:scheduled.length,
+    registeredTrialGroupCount:new Set(scheduled.map(row=>
+      row.id.slice(0,row.id.lastIndexOf(':')))).size,
+    registeredSourceRanks:registeredTrials===null?null:
+      [...new Set(scheduled.map(row=>row.rank))].sort((a,b)=>a-b),
+    registeredCandidateIds:registeredTrials===null?null:
+      [...new Set(scheduled.map(row=>row.candidateId))].sort(),
     sourceRegistration:registeredTrials!==null?
       registeredFrameName:(sourceFirstRetrospective?
       'Retrospective source-first selected exposure; rank11 chosen after source Tool-Garbodor success; not preregistered':
@@ -2317,7 +2364,8 @@ function runDevelopment({
     rows,attempted:rows.length,
     // A one-game prospective registration has no second fixed contender
     // against which a cross-candidate comparison can be constructed.
-    sourcePairs:registeredSourcePairKeys(scheduled,allowSingleCandidateArm)
+    sourcePairs:registeredSourcePairKeys(scheduled,allowSingleCandidateArm,
+      allowSingleCandidatePerGroup)
       .map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
       const first=here.find(row=>row.trial.candidateId==='champion-reference');
