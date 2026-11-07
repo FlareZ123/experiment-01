@@ -136,7 +136,7 @@ test('candidate Prize-taking can be followed by the original source response',()
 
   store.state.players=[store.state.players[1],store.state.players[0]];
   store.state.turn=15;
-  store.state.players[0].hand.cards=[card('Field Blower')];
+  store.state.players[0].hand.cards=[];
   store.state.players[0].discard.cards=[card('Field Blower')];
   obs.onRootActionDispatched(store,new PlayCardAction(),3,0,15);
 
@@ -164,7 +164,7 @@ test('candidate Prize-taking can be followed by the original source response',()
   assert.deepEqual(sequence.actions.map(action=>action.rootOrdinal),[3,4]);
   assert.equal(sequence.actions[0].actorPlayerId,'source');
   assert.equal(sequence.actions[0].responsePlayerId,'source');
-  assert.deepEqual(sequence.actions[0].ownerHandPrintingsAfterAction,['Field Blower']);
+  assert.deepEqual(sequence.actions[0].ownerHandPrintingsAfterAction,[]);
   assert.equal(result.hiddenHandReadBeforeCandidateResponse,false);
   assert.equal(result.policyInputModified,false);
   assert.equal(result.paperLegalityCertified,false);
@@ -258,7 +258,7 @@ test('joins a source response to the exact candidate Prize-taking root',()=>{
   store.state.players[1].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
   store.state.turn=15;
-  store.state.players[1].hand.cards=[card('Field Blower')];
+  store.state.players[1].hand.cards=[card('Darkness Energy')];
   store.state.players[1].discard.cards=[card('Field Blower')];
   obs.onRootActionDispatched(store,new PlayCardAction(),2,1,15);
 
