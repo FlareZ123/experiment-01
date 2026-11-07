@@ -239,7 +239,10 @@ function joinNativePreAttackBoard(
       attack.completionRootOrdinal>attack.actionOrdinal;
     const targetKnockedOutDuringLaterPromptResolution=
       declarationRootVsPromptClosureClassification===
-        'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION'||
+        'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION'
+        ?true:declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')?
+          null:false;
+    const targetDamageThresholdReachedDuringLaterPromptResolution=
       declarationRootVsPromptClosureClassification===
         'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION'
         ?true:declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')?
@@ -302,6 +305,7 @@ function joinNativePreAttackBoard(
         finalTarget.captured?finalTarget.location==='absent':null,
       laterPromptResolutionRootsPresent,
       targetKnockedOutDuringLaterPromptResolution,
+      targetDamageThresholdReachedDuringLaterPromptResolution,
       declarationRootVsPromptClosureClassification,
       attackerPrintingFromActualNativeBoard:actor.printing,
       physicalActivePrintingBefore,
@@ -359,6 +363,8 @@ function joinNativePreAttackBoard(
       r.physicalActiveIdentityComplete).length,
     laterPromptResolutionKoRows:rows.filter(r=>
       r.targetKnockedOutDuringLaterPromptResolution===true).length,
+    laterPromptResolutionThresholdRows:rows.filter(r=>
+      r.targetDamageThresholdReachedDuringLaterPromptResolution===true).length,
     declarationRootClassificationCounts,
     paperGameCertified:false,qualifiedCompetitiveGames:0};
 }
