@@ -143,7 +143,8 @@ function runSeat(seat,hookMode='none'){
 
     assert.equal(damageAfterCopycat-damageBeforeCopycat,200,
       'Mimikyu Copycat must settle the donor Eon Blade damage');
-    assert.equal(copiedRecord?.attack?.name,'Eon Blade');
+    assert.equal(copiedRecord?.attack?.name,'Copycat',
+      'Store must retain Mimikyu declared Copycat as its last attack');
     assert.strictEqual(copiedRecord?.sourceCard,mimikyu,
       'The copied attack must remain attached to the exact physical Mimikyu');
     assert.equal(mimikyuAttackBefore,false);
@@ -185,7 +186,8 @@ function runSeat(seat,hookMode='none'){
         donorCostAppliedToMimikyu:false,
         damage:damageAfterCopycat-damageBeforeCopycat,
         recordedAttack:copiedRecord.attack.name,
-        recordedSource:copiedRecord.sourceCard.fullName
+        recordedSource:copiedRecord.sourceCard.fullName,
+        copiedPayload:'Eon Blade'
       },
       lock:{
         activeImmediatelyAfterCopycat:x.owner.active.cannotAttackNextTurn===true,
