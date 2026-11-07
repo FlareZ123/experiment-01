@@ -110,3 +110,42 @@ for(const sourceSeat of [0,1]){
     console.log('AGENT8_COPYCAT_ADAPTER_SECOND_ROTOTILLER',JSON.stringify(result));
   });
 }
+
+
+const {installCopycatMultiAttackHistory}=
+  require('../simulation/twinleaf/copycat-multiattack-history.cjs');
+
+test('history distinguishes unavailable from a completed empty previous turn',()=>{
+  const store={
+    state:{players:[{id:10},{id:20}],activePlayer:0,turn:1},
+    dispatch(){
+      this.state={
+        ...this.state,
+        activePlayer:1-this.state.activePlayer,
+        turn:this.state.turn+1
+      };
+    }
+  };
+  const history=installCopycatMultiAttackHistory(store);
+  try{
+    assert.equal(history.hasPreviousTurn(10),false);
+    assert.equal(history.getPreviousTurnSnapshot(10),null);
+    assert.equal(history.hasPreviousTurn(20),false);
+
+    // Player 10 completes a turn without an attack. This is known-empty.
+    store.dispatch({kind:'pass'});
+    assert.equal(history.hasPreviousTurn(10),true);
+    assert.deepEqual(history.getPreviousTurnSnapshot(10),
+      {turn:1,attacks:[]});
+    assert.deepEqual(history.getPreviousTurnAttacks(10),[]);
+    assert.equal(history.hasPreviousTurn(20),false);
+
+    // Player 20 has still not completed a turn at this point.
+    assert.equal(history.getPreviousTurnSnapshot(20),null);
+    store.dispatch({kind:'pass'});
+    assert.deepEqual(history.getPreviousTurnSnapshot(20),
+      {turn:2,attacks:[]});
+  }finally{
+    history.restore();
+  }
+});
