@@ -128,7 +128,7 @@ test('headless action identity mismatch fails closed and restores both bindings'
     rootBinding.bindAuthoritativePrizeRootOrdinal(
       store,new TakePrizeAction(0,'hand'),7,0,5);
   },{Store,rootBinding,bindAcceptedRootOrdinals:true}),
-  /exact Store-dispatched action object/);
+  /not reference-equal/);
   assert.strictEqual(Store.prototype.dispatch,original);
   assert.equal(Object.hasOwn(rootBinding,'bindAuthoritativePrizeRootOrdinal'),false);
 });
