@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4c-flash-energy-discard-route';
+const VERSION='agent39-paper-prompt-portfolio-v4d-undefined-result-unsettled';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -157,7 +157,7 @@ function withPaperPromptPortfolio(run,deps={}){
       audit.events.push(entry);
       const output=d.value.call(this,action,...args);
       entry.nativeReturnedWithoutThrow=true;
-      entry.nativePromptSettled=!!pending&&pending.result===action.result;
+      entry.nativePromptSettled=!!pending&&action.result!==undefined&&pending.result===action.result;
       entry.nativeAccepted=entry.nativePromptSettled;
       return output;
     }
@@ -203,7 +203,7 @@ function withPaperPromptPortfolio(run,deps={}){
       const output=d.value.call(this,action,...args);
       entry.nativeReturnedWithoutThrow=true;
       audit.liveNativeReturnedWithoutThrow++;
-      entry.nativePromptSettled=!!pending&&pending.result===action.result;
+      entry.nativePromptSettled=!!pending&&action.result!==undefined&&pending.result===action.result;
       if(entry.nativePromptSettled)audit.liveNativePromptSettled++;
       else audit.liveNativeSilentNoop++;
       entry.physicalEffectVerified=!!(marked&&entry.nativePromptSettled&&
