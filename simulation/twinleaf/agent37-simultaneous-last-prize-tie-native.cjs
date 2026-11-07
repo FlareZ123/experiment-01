@@ -318,6 +318,13 @@ function run(){
     };
   });
 
+  const neighborStoreIsolationVerified=rows.every(row=>
+    row.v3Audit?.otherStoresUnmodified===true);
+  const restorationVerified=rows.every(row=>
+    row.v3Audit?.storeLogRestored===true&&
+    row.v3Audit?.storeReduceRestored===true);
+  assert.equal(neighborStoreIsolationVerified,true);
+  assert.equal(restorationVerified,true);
   return {
     schema:'agent37-simultaneous-last-prize-resolution-native-v3',
     pinnedTwinleaf:PINNED,
@@ -326,6 +333,8 @@ function run(){
     nativeDefectConfirmedBothSeats:true,
     simultaneousLastPrizeResolutionBothSeats:true,
     bothPrizeTransfersVerified:true,
+    neighborStoreIsolationVerified,
+    restorationVerified,
     drawLogAndWinnerVerified:true,
     singlePlayerLastPrizeControlPreserved:true,
     nonHandPrizeDestinationControlPreserved:true,
