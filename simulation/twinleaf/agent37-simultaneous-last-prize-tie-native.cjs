@@ -467,6 +467,27 @@ function run(){
         const expectedOutcome=!finalTakerCanPromote&&otherCanPromote
           ?'DRAW':profile.finalTaker;
         const actualOutcome=result.winnerPlayer??'DRAW';
+        assert.equal(a.prizeGroupCount,2);
+        assert.equal(a.prizeGroupCounts.length,2);
+        assert.equal(a.prizeGroupCounts.every(g=>g.destinationIsHand),true);
+        const groupCountsByRecipient=Object.fromEntries(
+          a.prizeGroupCounts.map(g=>[g.playerId,g.count])
+        );
+        const expectedPrizeTransfers={
+          owner:Math.min(groupCountsByRecipient[101]??0,profile.ownerPrizes),
+          opponent:Math.min(groupCountsByRecipient[202]??0,profile.enemyPrizes)
+        };
+        const actualPrizeTransfers={
+          owner:result.ownerPrizesTakenThisTurn,
+          opponent:result.opponentPrizesTakenThisTurn
+        };
+        const prizeTransfersComplete=
+          actualPrizeTransfers.owner===expectedPrizeTransfers.owner&&
+          actualPrizeTransfers.opponent===expectedPrizeTransfers.opponent;
+        const missingPrizeRecipients=[
+          ...(actualPrizeTransfers.owner!==expectedPrizeTransfers.owner?['owner']:[]),
+          ...(actualPrizeTransfers.opponent!==expectedPrizeTransfers.opponent?['opponent']:[])
+        ];
         assert.equal(result.finished,true);
         assert.equal(result.ownerPrizesRemaining,
           profile.ownerPrizes-result.ownerPrizesTakenThisTurn);
@@ -490,6 +511,13 @@ function run(){
           nativeWinnerEnum:result.winner,
           playersOrderAfterTurn:result.playersOrderAfterTurn,
           initialPrizeCounts:{owner:profile.ownerPrizes,opponent:profile.enemyPrizes},
+          prizeGroupCounts:a.prizeGroupCounts.map(g=>({
+            recipientPlayerId:g.playerId,count:g.count,destinationIsHand:g.destinationIsHand
+          })),
+          expectedPrizeTransfers,
+          actualPrizeTransfers,
+          prizeTransfersComplete,
+          missingPrizeRecipients,
           baselinePrizeCountsByPlayer:a.prizeLeftBefore,
           ownerPrizesTakenThisTurn:result.ownerPrizesTakenThisTurn,
           opponentPrizesTakenThisTurn:result.opponentPrizesTakenThisTurn,
@@ -504,6 +532,15 @@ function run(){
   );
   const mixedSingleFinalPrizeMismatches=
     mixedTerminalRows.filter(row=>!row.nativeMatchesPaper);
+  const mixedPrizeTransferIncompleteRows=
+    mixedTerminalRows.filter(row=>!row.prizeTransfersComplete);
+  const mixedPrizeTransferIncompleteByProfile={
+    ownerFinal:mixedPrizeTransferIncompleteRows.filter(row=>row.profile==='owner-final').length,
+    opponentFinal:mixedPrizeTransferIncompleteRows.filter(row=>row.profile==='opponent-final').length
+  };
+  assert.equal(mixedPrizeTransferIncompleteRows.length,12);
+  assert.equal(mixedPrizeTransferIncompleteByProfile.ownerFinal,6);
+  assert.equal(mixedPrizeTransferIncompleteByProfile.opponentFinal,6);
 
   const neighborStoreIsolationVerified=rows.every(row=>
     row.v3Audit?.otherStoresUnmodified===true);
@@ -536,6 +573,8 @@ function run(){
       mixedSingleFinalPrizeMismatches.some(row=>
         row.paperOutcome==='DRAW'&&row.nativeOutcome!=='DRAW'),
     mixedSingleFinalPrizeMismatchCount:mixedSingleFinalPrizeMismatches.length,
+    mixedPrizeTransferIncompleteCount:mixedPrizeTransferIncompleteRows.length,
+    mixedPrizeTransferIncompleteByProfile,
     competitiveGamesQualified:0,
     rows,
     controls:{
