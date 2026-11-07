@@ -86,3 +86,19 @@ A v6 observer helper has since been added. It retains the State-first Store.prom
 The v5 runner also requires `event.currentAttack` for the initiating attack fingerprint. The native v3 artifact shows the relevant prompt event with `currentAttack: null` and `lastAttack` set to Marshadow's Red Knuckles on turn 54. This is consistent with the prompt being emitted after the AttackAction dispatch returns. A v6 runner should use `event.currentAttack ?? event.lastAttack`, preserve which field supplied the fingerprint, and include a deferred-prompt pure test. Agent41 sent this finding to Agent36 and Agent10.
 
 The v3 native source-unresolved quarantine remains the only valid native receipt until a pinned v6 registration and runner complete the source-marker, prompt-ID, zone, and quarantine joins.
+
+
+## v6 native source and zone evidence; prompt-ID bridge incomplete
+
+Current-main v6 run [42395677161](https://github.com/FlareZ123/experiment-01/actions/runs/42395677161), artifact 13582543933, passed all 78 pure tests and executed the eight-attempt native phase-A cohort. It captured one exact source prompt and one live public-zone event:
+
+- Source: Galarian Stunfisk SSH / Snap Trap, owner seat 0, Active.
+- Attacker: Marshadow UNB, seat 1, Active; last attack Red Knuckles on turn 54.
+- Prompt: owner seat 0, `ChooseCardsPrompt`, `CHOOSE_CARD_TO_DISCARD`, mandatory one Energy.
+- Container: exact opponent Active `PokemonCardList`; eligible subzone: its exact attached-Energy list; eight Psychic Energy MEE offered.
+- Prompt has no `sourceCard` metadata.
+- Source marker's `exactSourcePromptsStamped[0]` contains the exact source/attacker identities and reference proof.
+
+The runner still correctly fails closed. Its prompt-ID bridge fails because the live event records `promptIdBeforeStore: "0"` and post-call `promptId: "173"`, while `promptIdAssignedByStore` currently requires a null pre-call ID. The pinned runtime uses zero as the unassigned sentinel. Separately, `blockedPromptOriginEvents` is empty because the phase-A runner stops at the pending prompt before the AI decode hook observes it, leaving `pendingNativePromptId` null. Consequently `promptEventsByIdCount: 0` and selection remains `FALLBACK_CAPTURED_PROMPT_EVENT_MISSING`.
+
+This is a prompt-ID bridge failure, not a source or public-zone failure. Agent41 sent the evidence to Agent36 and Agent10. The direct fix is to treat null/zero as unassigned, record the post-call ID in Agent10's source-marker Proxy after `targetStore.prompt` returns, and join that ID to the v6 observer's post-call prompt ID. Preserve the v6 source and zone receipts while correcting the bridge. No prompt-origin completion, competitive game, or deck-strength claim is qualified yet.
