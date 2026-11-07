@@ -3,7 +3,8 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
-  futureOwnerStartsUnderSchedule
+  futureOwnerStartsUnderSchedule,
+  compareStationaryDrawToDeadline
 }=require('../simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs');
 const {
   futureOwnerStarts:stationaryOwnerStarts
@@ -155,4 +156,27 @@ test('invalid counts and malformed schedules are rejected',()=>{
   assert.throws(()=>futureOwnerStartsUnderSchedule(12,[],{
     ownerDraw:0,opponentMill:-1
   }),/feasible/);
+});
+
+
+test('draw deadline classification separates safe, pass-required and unreachable plans',()=>{
+  const passRequired=compareStationaryDrawToDeadline(23,2,2,5);
+  assert.equal(passRequired.drawHorizon,4);
+  assert.equal(passRequired.passHorizon,7);
+  assert.equal(passRequired.drawCanReachDeadline,false);
+  assert.equal(passRequired.passCanReachDeadline,true);
+  assert.equal(passRequired.classification,
+    'pass-required-to-reach-deadline');
+
+  const unreachable=compareStationaryDrawToDeadline(23,2,2,8);
+  assert.equal(unreachable.drawCanReachDeadline,false);
+  assert.equal(unreachable.passCanReachDeadline,false);
+  assert.equal(unreachable.classification,'neither-policy-reaches-deadline');
+
+  const safe=compareStationaryDrawToDeadline(23,2,2,3);
+  assert.equal(safe.drawCanReachDeadline,true);
+  assert.equal(safe.passCanReachDeadline,true);
+  assert.equal(safe.classification,'draw-horizon-sufficient');
+
+  assert.throws(()=>compareStationaryDrawToDeadline(23,2,2,61),/feasible/);
 });
