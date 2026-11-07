@@ -172,6 +172,9 @@ function runSelectedIssue25V0(injected={}){
   const expected=injected.registeredTrialIds??
     developmentTrials().map(row=>row.id);
   const allowSingleRegisteredTrial=injected.allowSingleRegisteredTrial===true;
+  assert.ok(Array.isArray(expected),'Registered trial IDs must be an array');
+  assert.ok(!allowSingleRegisteredTrial||runner!==runDevelopment,
+    'Single prospective mode requires an explicit registered-trial runner');
   const nativeRootActionLimit=injected.nativeRootActionLimit??48;
   if(allowSingleRegisteredTrial) {
     assert.equal(expected.length,1,
