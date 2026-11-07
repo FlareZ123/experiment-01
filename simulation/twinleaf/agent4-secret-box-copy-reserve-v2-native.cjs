@@ -79,6 +79,7 @@ function executeCopyReserveV2Payment(seat,candidate){
     nextHandDiscardCost:2
   });
 
+  const isLillie=candidate==='lillie'||candidate==='lillie-second';
   const desired=candidate==='carrier'?
     {printings:[VIP,VIP,CARRIER],equivalent:1}:
     {printings:[VIP,VIP,LILLIE],equivalent:2};
@@ -89,6 +90,16 @@ function executeCopyReserveV2Payment(seat,candidate){
   assert.ok(group,'Expected count-based nondominated payment group');
 
   const selectedPromptIndices=group.representativePaymentIndices.slice();
+  if(candidate==='lillie-second'){
+    const vipIndices=promptCards.map((card,index)=>
+      card.fullName===VIP?index:-1).filter(index=>index>=0);
+    const lillieIndices=promptCards.map((card,index)=>
+      card.fullName===LILLIE?index:-1).filter(index=>index>=0);
+    assert.equal(vipIndices.length,2);
+    assert.equal(lillieIndices.length,2);
+    selectedPromptIndices.splice(0,selectedPromptIndices.length,
+      vipIndices[0],vipIndices[1],lillieIndices[1]);
+  }
   const selected=selectedPromptIndices.map(index=>promptCards[index]);
   const hardReservedCards=adapter.hardReservedIndices.map(index=>({
     promptIndex:index,physicalId:promptCards[index].id,
@@ -136,7 +147,8 @@ function executeCopyReserveV2Payment(seat,candidate){
       paymentScoreGroups:adapter.paymentScoreGroups,
       paymentScoreGroupPhysicalPayments:adapter.paymentScoreGroupPhysicalPayments,
       frontierPhysicalPaymentCount:adapter.frontierPhysicalPaymentCount,
-      representativePaymentIndices:selectedPromptIndices,
+      representativePaymentIndices:group.representativePaymentIndices,
+      selectedPromptIndices,
       representativePaymentPrintings:group.representativePaymentPrintings,
       equivalentPhysicalPayments:group.equivalentPhysicalPayments,
       vector:group.vector,
@@ -159,9 +171,13 @@ function executeCopyReserveV2Payment(seat,candidate){
       f.source.discard.cards.includes(card)),
     discardedCarrierCopies:selected.filter(card=>card.fullName===CARRIER).length,
     discardedLillieCopies:selected.filter(card=>card.fullName===LILLIE).length,
+    discardedLilliePhysicalIds:f.source.discard.cards.filter(card=>
+      card.fullName===LILLIE).map(card=>card.id),
     remainingVipCopies:remaining.filter(card=>card.fullName===VIP).length,
     remainingCarrierCopies:remaining.filter(card=>card.fullName===CARRIER).length,
     remainingLillieCopies:remaining.filter(card=>card.fullName===LILLIE).length,
+    remainingLilliePhysicalIds:remaining.filter(card=>
+      card.fullName===LILLIE).map(card=>card.id),
     remainingPowerglass:remaining.some(card=>card.fullName===POWERGLASS),
     remainingForestSealStone:remaining.some(card=>
       card.fullName==='Forest Seal Stone SIT'),
@@ -183,7 +199,7 @@ function executeCopyReserveV2Payment(seat,candidate){
  */
 function probeSecretBoxCopyReserveV2Payment(seat,candidate){
   assert.ok(seat===0||seat===1);
-  assert.ok(candidate==='carrier'||candidate==='lillie');
+  assert.ok(candidate==='carrier'||candidate==='lillie'||candidate==='lillie-second');
   return withPaperSecretBoxMandatoryPayment(()=>
     executeCopyReserveV2Payment(seat,candidate));
 }
