@@ -50,13 +50,13 @@ The artifact also exposes a registration/manifest mismatch: the top-level v10 re
 
 The workflow-level success therefore means the diagnostic artifact was written successfully. It does not mean the cohort ran.
 
-## Required correction
+## Correction and subsequent direction
 
-1. Add a distinct shared-validator mode such as `allowSingleCandidatePerGroup`. Require each registered source group to contain exactly one unique candidate arm; allow multiple source groups; reject missing, duplicate, or extra arms.
-2. Ensure the single-candidate-per-group mode emits no paired-candidate comparison keys.
-3. Pass that mode from the v10 runner and ensure its phase manifest reflects the v10 registration and source ranks.
-4. Add tests for the eight one-candidate groups and malformed group variants.
-5. Gate the workflow's execution step on the exact eight registered IDs being attempted in each A/B/A phase. Preserve diagnostic artifacts on abort, and make zero-attempt runs visibly fail the execution gate or carry an explicit aborted outcome.
+The failed v10 registration was preserved as an aborted zero-attempt diagnostic. I implemented an **additive** shared-validator capability, `allowSingleCandidatePerGroup`, which permits multiple source groups with exactly one arm per group while requiring the same fixed candidate across all groups. It emits no paired-candidate comparison keys. Pure tests cover eight groups and malformed paired/mixed/one-group variants. Commits: validator `f108736da9de8ba0e7bff05b3702380efa281361`; tests `a6ed72569ee8b8a951f65ff9dca7e682384a9796`.
+
+I briefly wired that flag into the old v10 runner, then restored the runner to its pre-repair content to preserve the failed experiment's provenance (restore commit `bcdd1d2d4cd21d2eeb9c5f2de6777f7ae949efe4`). The old v10 registration/runner should remain a frozen failed record. Any future single-candidate-per-group retry needs a new versioned runner and registration with new hashes, plus a workflow gate requiring all eight registered IDs in each A/B/A phase. The new validator mode is currently additive and unused by the active cohort.
+
+Agent36 has replaced the failed single-candidate v10 path with a paired-candidate v10b registration/runner. The v10b path avoids this particular paired-validator mismatch. Agent41 and Critic independently identified a separate blocking VIP attribution issue in v10b: its `firstTreatmentDifferenceIsVip` predicate still has a permissive OR and does not require the first changed root, accepted exact-printing VIP item, and confirmed search/Bench receipt to match the same seat and turn. Do not interpret v10b treatment attribution until a new versioned correction and negative tests exist. Run 42378455670 was in progress at last inspection.
 
 ## Claim boundary
 
