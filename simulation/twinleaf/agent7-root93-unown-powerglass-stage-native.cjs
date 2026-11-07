@@ -13,9 +13,10 @@ const pinned=name=>require(path.join(OUTPUT,name));
  * @param {0|1} ownerSeat
  * @param {boolean} equipPowerglass
  * @param {boolean} [settlePrize] Resolve real postattack Powerglass/Prize prompts
+ * @param {boolean} [sourceAttacks] Native observed source Super Poison Breath reply
  * @returns {object}
  */
-function runArm(ownerSeat,equipPowerglass,settlePrize=false){
+function runArm(ownerSeat,equipPowerglass,settlePrize=false,sourceAttacks=false){
   assert.ok(ownerSeat===0||ownerSeat===1);
   const manager=initializeCards();
   let nextId=93000+ownerSeat*1000;
@@ -133,9 +134,24 @@ function runArm(ownerSeat,equipPowerglass,settlePrize=false){
   };
   assert.equal(afterTurnEnd.actorSeat,1-ownerSeat);
 
-  store.dispatch(new PassTurnAction(source.id));
+  if(sourceAttacks)
+    store.dispatch(new AttackAction(source.id,'Super Poison Breath'));
+  else
+    store.dispatch(new PassTurnAction(source.id));
   flushWait();
   assert.equal(state.activePlayer,ownerSeat);
+  const afterSourceReply={
+    reply:sourceAttacks?'Super Poison Breath':'PassTurnAction',
+    ownerActiveDamage:owner.active.damage,
+    ownerActiveSpecialConditions:[...owner.active.specialConditions],
+    ownerActivePrinting:owner.active.getPokemonCard()?.fullName??null,
+    sourceActiveDamage:source.active.damage
+  };
+  if(sourceAttacks){
+    assert.equal(afterSourceReply.ownerActivePrinting,'Unown AOR');
+    assert.ok(afterSourceReply.ownerActiveDamage>=20);
+    assert.equal(source.active.getPokemonCard()?.fullName,'Trubbish FST');
+  }
   let candidateAttack=null;
   if(equipPowerglass){
     store.dispatch(new AttackAction(owner.id,'Hidden Power'));
@@ -240,7 +256,10 @@ function runArm(ownerSeat,equipPowerglass,settlePrize=false){
     paperResources:{ownerActiveEnergyBefore:0,
       twoDiscardedBasicPsychic:true,sourceDamageBefore:60},
     activeAfterTool,promptTypes,attachAccepted,afterTurnEnd,
-    sourceChosenResponse:'PassTurnAction, intentionally passive staged foil',
+    sourceChosenResponse:sourceAttacks?
+      'Super Poison Breath, original A observed source next-turn action':
+      'PassTurnAction, intentionally passive staged foil',
+    ...(sourceAttacks?{afterSourceReply}:{}),
     candidateAttack,afterCandidateTurn,
     ...(settlePrize?{afterFullPromptResolution}:{}),
     qualification:'staged mechanism, not an original Aichi game',
