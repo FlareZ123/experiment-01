@@ -3,7 +3,8 @@
 const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {initializeCards, runMatch} = require('./headless.cjs');
-const {copycatApexResponseKind, hasEffectiveFairyZone, hasKnownPublicAbilityLock} =
+const {copycatApexResponseKind, hasEffectiveFairyZone, hasKnownPublicAbilityLock,
+  canPayMimikyuCopycatCost} =
   require('./mimikyu-counter-policy.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -62,8 +63,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
         candidateKnownPublicAbilityLock: hasKnownPublicAbilityLock(state, player),
         candidateEnergyCount: energyCards.length,
         candidateEnergyNames: energyCards.map(card => card.fullName),
-        candidateCopycatCostConservative: energyCards.length >= 2 &&
-          energyCards.some(card => card.name === 'Psychic Energy'),
+        candidateCopycatCostConservative: canPayMimikyuCopycatCost(state, player),
         candidateUsedGX: player.usedGX === true,
         candidatePrizeCount: player.getPrizeLeft(),
         candidateHandCardNames: player.hand.cards.map(card => card.fullName),
