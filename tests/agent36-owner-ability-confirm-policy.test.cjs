@@ -350,7 +350,8 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
   assert.equal(wrapped.result.confirm,true);
   assert.equal(wrapped.audit.confirmSettled,1);
   assert.equal(wrapped.audit.articunoMoveEnergyEvents.length,1);
-  assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].transferCount,1);
+  assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].transferCount,3);
+  assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].physicallyMoved,true);
   assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].allWaterEnergy,true);
 });
 
