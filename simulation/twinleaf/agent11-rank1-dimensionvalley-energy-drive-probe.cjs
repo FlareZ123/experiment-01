@@ -82,7 +82,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const beforeStadium=StateUtils.getStadiumCard(clone.state)?.fullName??null;
     result.stadiumBefore=beforeStadium;
     result.opponentDamageBefore=opposing.active.damage;
-    result.opponentPrizesBefore=opposing.prizes.cards.length;
+    result.opponentPrizesBefore=opposing.prizes.length;
     try{
       clone.dispatch(new PlayCardAction(ownerId,handIndex,{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
@@ -116,8 +116,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const finalOwner=clone.state.players.find(p=>p.id===ownerId);
     const finalOpponent=clone.state.players.find(p=>p.id!==ownerId);
     result.opponentDamageAfter=finalOpponent.active.damage;
-    result.opponentPrizesAfter=finalOpponent.prizes.cards.length;
-    result.ownerPrizesAfter=finalOwner.prizes.cards.length;
+    result.opponentPrizesAfter=finalOpponent.prizes.length;
+    result.ownerPrizesAfter=finalOwner.prizes.length;
     result.activeEnergyPrintings=finalOwner.active.energies.cards
       .map(c=>c.fullName);
     result.unresolvedPromptTypes=clone.state.prompts
