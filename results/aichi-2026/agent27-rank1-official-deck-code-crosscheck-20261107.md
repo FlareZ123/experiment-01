@@ -30,3 +30,7 @@ The official recipe and repository rank-1 entry therefore agree on the complete 
 This verifies the rank-1 card-name/count composition against an official event-linked deck recipe. It does not establish the exact English proxy printings in `full-decklists.json`. The official Japanese deck page is the authoritative source for the event-language printings; preserve its Japanese set and collector-number data when checking paper legality. Do not infer that the repository's English printing fields are the physical copies used at Aichi.
 
 This is source/provenance validation only. No game, simulator match, or competitive-strength result was produced. The 29/32 exact-opponent denominator is unchanged.
+
+## Regression test
+
+The official Japanese name/count capture is preserved in `official-rank1-deck-code.json`. `tests/aichi-rank1-official-deckcode.test.cjs` checks all 33 names and counts against rank 1 in `full-decklists.json`, including the 60-card total and category totals. It passes 1/1 in the isolated V8 harness against the full fetched dataset. A targeted local Node.js v22.16.0 run also passes 1/1 using the exact official JSON and test blobs with a rank-1-only fixture extracted from the exact full-dataset blob; the repository test will use the complete dataset in CI.
