@@ -218,7 +218,10 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       assert.equal(targetSlot.damage,expectedTargetDamage);
     };
 
-    resolveMoveAbility('Sinister Hand',0,opponentBench0,opponentActive,70,2);
+    // Sinister Hand moves one counter per activation; use it twice.
+    resolveMoveAbility('Sinister Hand',0,opponentBench0,opponentActive,60,1);
+    assert.equal(opponent.bench[0].damage,10);
+    resolveMoveAbility('Sinister Hand',0,opponentBench0,opponentActive,70,1);
     assert.equal(opponent.bench[0].damage,0);
     resolveMoveAbility('Painful Spoons',2,opponentBench1,opponentActive,90,2);
     assert.equal(opponent.bench[1].damage,0);
