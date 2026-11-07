@@ -194,6 +194,9 @@ test('Articuno one-Water Cold Crush policy composes with the shared owner policy
       'public-three-energy-active-one-water-cold-crush-proposal');
     assert.equal(result.overlayAudit.moveEnergyEvents.length, 1);
     assert.equal(result.overlayAudit.moveEnergyEvents[0].transferCount, 1);
+    assert.equal(result.overlayAudit.moveEnergyEvents[0].promptMessage, 'MOVE_ENERGY_CARDS_TO_ACTIVE');
+    assert.equal(result.overlayAudit.moveEnergyEvents[0].promptMessage,
+      result.overlayAudit.moveEnergyEvents[0].expectedPromptMessage);
     assert.equal(result.overlayAudit.moveEnergyEvents[0].physicallyMoved, true);
     assert.equal(result.overlayAudit.coldCrushAttackEvents.length, 1);
     assert.equal(result.overlayAudit.coldCrushAttackEvents[0].opponentActiveEnergyBefore, 3);
