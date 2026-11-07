@@ -197,6 +197,7 @@ test('Swiss time-call audit classifies an end-call paper tie as both loss',()=>{
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
     officialClockEvidenceRef:'clock-claim',firstPlayerEvidenceRef:'starter-claim',
     turnOwnerWhenCalledEvidenceRef:'call-turn-owner-claim',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'tie-claim',paperStateIndependentlyReviewed:true,
     prizesRemaining:[0,0],paperGameTie:true});
   assert.equal(r.status,'SWISS_BOTH_LOSE');
@@ -238,12 +239,28 @@ test('Audit refuses an ungrounded end-call turn owner even when a paper win is s
   assert.equal(r.conditionalWinnerSeat,null);
 });
 
+test('Audit refuses missing final-turn sequence provenance despite complete turn claims',()=>{
+  const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
+    turnOwnerWhenCalled:0,officialEndCallObserved:true,
+    officialClockEvidenceRef:'official-judge-reference',
+    firstPlayerEvidenceRef:'initial-game-proof',
+    turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
+    independentPaperStateEvidenceRef:'complete-paper-game-state',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
+    finalPermittedTurnFinished:true,observedFinalTurnSeat:1,
+    observedExtraSecondTurns:1,trailingPokemonCheckupWasExcluded:true});
+  assert.equal(r.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  assert.ok(r.missing.includes('final-turn-sequence-source-missing'));
+  assert.equal(r.conditionalWinnerSeat,null);
+});
+
 test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
   const r=auditTimeCallPacket({
     stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
     officialEndCallObserved:true,officialClockEvidenceRef:'judge-record',
     firstPlayerEvidenceRef:'actual-initial-seat',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'paper-ledger',
     paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
     finalPermittedTurnFinished:true,observedFinalTurnSeat:0,
@@ -261,6 +278,7 @@ test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>
     officialClockEvidenceRef:'official-judge-reference',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'complete-paper-game-state',
     paperStateIndependentlyReviewed:true,prizesRemaining:[2,6],
     finalPermittedTurnFinished:true,observedFinalTurnSeat:0,
@@ -278,6 +296,7 @@ test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
     officialClockEvidenceRef:'official-judge-reference',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'complete-paper-game-state',
     paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
     finalPermittedTurnFinished:true,observedFinalTurnSeat:1,
@@ -293,6 +312,7 @@ test('Proved paper winner ends overtime without waiting for other turn',()=>{
     officialClockEvidenceRef:'official-judge-reference',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'reviewed-game-over-effect',
     paperStateIndependentlyReviewed:true,prizesRemaining:[3,3],
     paperGameWinner:1,finalPermittedTurnFinished:false});
@@ -335,6 +355,7 @@ test('Official end-call audit retains proved prior paper tie without invented wi
     officialClockEvidenceRef:'verified-official-judge-call',
     firstPlayerEvidenceRef:'independent-opening-seat-ledger',
     turnOwnerWhenCalledEvidenceRef:'independent-call-turn-owner-ledger',
+    turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'complete-simultaneous-KO-ledger',
     paperStateIndependentlyReviewed:true,prizesRemaining:[2,2],
     paperGameTie:true,finalPermittedTurnFinished:false});
