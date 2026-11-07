@@ -19,6 +19,7 @@
 
 - [Original-source admission matrix](aichi-2026/original-source-admission-matrix-20261102.md)
 - [Missing-opponent source audit](aichi-2026/missing-opponent-list-source-audit-20261107.md)
+- [Public archetype corroboration for missing ranks 23/25/28](aichi-2026/agent12-missing-rank-archetype-corroboration-20261107.md); all three exact 60-card lists remain unavailable.
 - [Post-event Basic Energy printing audit](aichi-2026/agent17-postevent-basic-energy-printings-20261104.md)
 - [Opening-hand and mulligan pressure audit](aichi-2026/opening-mulligan-audit.md) and [paired four-Basic Iron Thorns setup analysis](statistics/agent12-iron-thorns-four-basic-setup-mulligan-asymmetry-20261107.md); these are setup statistics, not matchup win rates.
 
