@@ -2206,7 +2206,9 @@ function runDevelopment({
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
     }:null,
     rows,attempted:rows.length,
-    sourcePairs:[...new Set(scheduled.map(row=>
+    // A one-game prospective registration has no second fixed contender
+    // against which a cross-candidate comparison can be constructed.
+    sourcePairs:allowSingleCandidateArm?[]:[...new Set(scheduled.map(row=>
       row.id.slice(0,row.id.lastIndexOf(':'))))].map(key=>{
       const here=rows.filter(row=>row.trial?.id.startsWith(key+':'));
       const first=here.find(row=>row.trial.candidateId==='champion-reference');
