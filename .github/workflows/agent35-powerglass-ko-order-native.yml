@@ -39,6 +39,15 @@ jobs:
           path: artifacts/agent12-snap-trap-prism-star-destination-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Agent12 joined Snap Trap source-to-settlement witness
+        run: node --test tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs
+      - name: Upload Agent12 joined source-to-settlement result
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-snap-trap-source-to-settlement-native-v1
+          path: artifacts/agent12-snap-trap-source-to-settlement-native-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Isolated actual Tool, KO, end-turn and Prize prompt order
         run: node simulation/twinleaf/agent35-powerglass-ko-prize-order-native.cjs
       - name: Agent37 independent winning-KO terminal Powerglass order
