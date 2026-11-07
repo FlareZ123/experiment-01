@@ -5,9 +5,9 @@ const assert=require('node:assert/strict');
 const VERSION='agent3-postprize-response-action-sequence-v2';
 
 /**
- * Capture the candidate's post-dispatch response sequence after a physical
- * Prize exit. Player identity is tracked by stable player IDs because the
- * engine may reorder state.players between turns.
+ * Capture the responding player's post-dispatch sequence after a physical
+ * Prize exit. By default the source takes the Prize and the candidate responds;
+ * prizeTakingSlot can reverse those roles. Stable IDs tolerate player reordering.
  *
  * @param {object} options
  * @param {Array<{id:string,candidateSlot:'A'|'B'}>} options.registeredTrials
@@ -246,6 +246,7 @@ function createPostPrizeResponseActionSequenceObserver(options){
       }));
       return {
         version:VERSION,
+        prizeTakingSlot,responseSlot,
         sequences:[...completed,...active],
         pendingPrizeExits:[...unansweredPrizeExits,
           ...[...pendingByTrial.entries()].map(([registeredTrialId,pending])=>({
@@ -256,6 +257,7 @@ function createPostPrizeResponseActionSequenceObserver(options){
           trialIdsObserved:[...diagnostics.trialIdsObserved],
           playerIdsByTrial:[...diagnostics.playerIdsByTrial],
           prizeCardChanges:[...diagnostics.prizeCardChanges]},
+        hiddenHandReadBeforeResponse:false,
         hiddenHandReadBeforeCandidateResponse:false,
         policyInputModified:false,
         paperLegalityCertified:false
@@ -282,8 +284,8 @@ function multisetDifference(values,subtract){
 }
 
 /**
- * Join post-dispatch snapshots to the exact candidate response root identified
- * by the independent post-Prize projection and the actual headless root ledger.
+ * Join post-dispatch snapshots to the exact response root identified by the
+ * independent Prize projection and the actual headless root ledger.
  *
  * @param {object[]} rawDevelopmentRows
  * @param {object[]} projectedReplies
@@ -317,6 +319,18 @@ function joinPostPrizeResponseActionSequences(
 
     assert.equal(sequence.responseSeat??sequence.candidateSeat,responseSeat);
     assert.equal(sequence.responseTurn??sequence.candidateTurn,responseTurn);
+    if(reply.prizeTakingSlot!==undefined){
+      assert.equal(sequence.prizeTakingSlot,reply.prizeTakingSlot);
+    }
+    if(reply.responseSlot!==undefined){
+      assert.equal(sequence.responseSlot,reply.responseSlot);
+    }
+    if(reply.prizeTakingSeat!==undefined){
+      assert.equal(sequence.prizeTakingSeat,reply.prizeTakingSeat);
+    }
+    if(reply.responsePlayerId!==undefined){
+      assert.equal(sequence.responsePlayerId,reply.responsePlayerId);
+    }
     const prizeRoots=sequence.prizeTakingRootOrdinals??
       sequence.sourcePrizeRootOrdinals;
     assert.ok(prizeRoots.includes(prizeTakingRootOrdinal),
