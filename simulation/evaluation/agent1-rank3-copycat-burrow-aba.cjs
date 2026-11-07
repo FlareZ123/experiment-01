@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
@@ -221,6 +222,14 @@ function run() {
 if(require.main===module) {
   const data=run();
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
+  const outputDir=process.env.AGENT1_RANK3_COPYCAT_OUTPUT;
+  if(outputDir) {
+    fs.mkdirSync(outputDir,{recursive:true});
+    const target=path.join(outputDir,'copycat-burrow-aba.json');
+    const temporary=target+'.tmp';
+    fs.writeFileSync(temporary,JSON.stringify(data,null,2));
+    fs.renameSync(temporary,target);
+  }
   if(data.arms.some(arm=>arm.status==='native-error') ||
     !data.controls.sameOriginalPhysicalDealAllArms ||
     !data.controls.exactControlRepeat ||

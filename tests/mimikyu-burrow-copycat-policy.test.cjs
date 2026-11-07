@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const path = require('node:path');
-const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,runMatch,upstreamSmokeDeck} = require('../simulation/twinleaf/headless.cjs');
 const {
   isCopycatBurrowSituation,
   withCopycatBurrowPolicy
@@ -82,4 +82,21 @@ test('tactic inserts before AttackTactic, is idempotent and returns Copycat acti
   assert.ok(action instanceof AttackAction);
   assert.equal(action.name,'Copycat');
   assert.equal(action.clientId,f.owner.id);
+});
+
+
+test('headless Burrow Copycat option is seat-scoped and requires pass-history correction',()=>{
+  const deck=upstreamSmokeDeck();
+  const common={deckA:deck,deckB:deck,seed:73421,maxActions:12};
+  assert.throws(()=>runMatch({
+    ...common,mimikyuBurrowCopycatPolicy:true,mimikyuBurrowCopycatPolicySeat:1
+  }),/requires pass-clears-last-attack correction/);
+  const result=runMatch({
+    ...common,mimikyuBurrowCopycatPolicy:true,
+    mimikyuBurrowCopycatPolicySeat:1,passClearsLastAttackCorrection:true
+  });
+  assert.equal(result.mimikyuBurrowCopycatPolicy,true);
+  assert.equal(result.mimikyuBurrowCopycatPolicySeat,1);
+  assert.equal(result.passClearsLastAttackCorrection,true);
+  assert.match(result.policy,/MimikyuBurrowCopycatPolicy-v1@seat1/);
 });
