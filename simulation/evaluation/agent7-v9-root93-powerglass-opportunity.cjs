@@ -67,6 +67,9 @@ function auditPowerglassOpportunity(baseline, lillie) {
   assert.equal(source.active.printing,'Trubbish FST');
   assert.equal(source.bench.length,5);
   assert.equal(actor.active.printing,'Unown AOR');
+  assert.deepEqual(actor.active.toolCards,[]);
+  assert.deepEqual(actor.active.energyCards,[]);
+  assert.equal(source.active.damage,60);
   assert.equal(actor.bench.length,4);
   const mewtwo=actor.bench.find(p=>p.printing==='Mewtwo & Mew-GX UNM');
   assert.ok(mewtwo);
@@ -101,6 +104,11 @@ function auditPowerglassOpportunity(baseline, lillie) {
     priorEnergyAttachmentRootOrdinals:energyRoots,
     basicEnergyCardsPreviouslyAttachedToKnockedOutUnown:2,
     initialAvailableBenchTarget:'Mewtwo & Mew-GX UNM',
+    cheaperCompetingLine:[
+      'Attach held Powerglass directly to untooled Active Unown AOR',
+      'End turn without attack; attach own discarded Basic Psychic to Active Unown',
+      'If source Trubbish FST (70 HP, 60 damage) remains Active through the source reply, Hidden Power 10 on the next candidate turn can Knock Out it'
+    ],
     searchableItemSupportedByLaterSameDealOwnerDraw:'Escape Rope BST',
     proposedActions:[
       'Secret Box: discard two now-dead Battle VIP Pass and one of two Rescue Carrier',
