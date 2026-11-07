@@ -124,3 +124,49 @@ test('warning is invariant to opponent concealed hand and prizes',()=>{
   assert.deepEqual(diagnoseKnownDeadLeadingAttack(a,[terminal]),
     diagnoseKnownDeadLeadingAttack(b,[terminal]));
 });
+
+test('exact Trubbish FST full Bench uses payable Super Poison Breath instead of dead search',()=>{
+  const v=view();
+  const call={name:'Call for Family',cost:[7],damage:0};
+  const poison={name:'Super Poison Breath',cost:[7,9],damage:20};
+  v.ownPublic.active={
+    name:'Trubbish',printing:'Trubbish FST',
+    energies:['Darkness Energy MEE','Darkness Energy MEE'],
+    attacks:[call,poison],specialConditions:[],publicRestrictions:{}
+  };
+  v.ownPublic.bench=Array.from({length:5},(_,i)=>({
+    name:'Occupied '+i,printing:'Bench Basic'
+  }));
+  assert.equal(chooseActorRootIntent(v,catalog).attackName,
+    'Call for Family','default historical source policy unchanged');
+  assert.equal(chooseKnownDeadLeadingAttack(v,[call,poison])?.attackName,
+    'Super Poison Breath');
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }).attackName,'Super Poison Breath');
+  v.ownPublic.bench[4]=null;
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }).attackName,'Call for Family','an open Bench preserves family setup');
+});
+
+test('Trubbish full Bench alternatives require native payable printed attack',()=>{
+  const v=view();
+  const call={name:'Call for Family',cost:[7],damage:0};
+  const poison={name:'Super Poison Breath',cost:[7,9],damage:20};
+  v.ownPublic.active={
+    name:'Trubbish',printing:'Trubbish FST',
+    energies:['Darkness Energy MEE'],
+    attacks:[call,poison],specialConditions:[],publicRestrictions:{}
+  };
+  v.ownPublic.bench=Array.from({length:5},()=>({printing:'Bench Basic'}));
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }).attackName,'Call for Family','insufficient Energy to use Poison');
+  v.ownPublic.active.energies.push('Darkness Energy MEE');
+  v.ownPublic.active.attacks[1].damage=10;
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }).attackName,'Call for Family',
+  'unverified attack damage may not be substituted');
+});
