@@ -33,16 +33,31 @@ const {
 const POLICY_PATHS=[
   'simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs',
   'simulation/evaluation/agent41-bilateral-v2-development.cjs',
+  'simulation/evaluation/agent36-bilateral-two-seat-common-policy.cjs',
+  'simulation/evaluation/agent41-bilateral-common-policy.cjs',
+  'simulation/evaluation/agent41-bilateral-special-energy-profile.cjs',
+  'simulation/evaluation/agent41-bilateral-conservative-supporter-option.cjs',
+  'simulation/evaluation/agent7-canonical-actor-composition.cjs',
   'simulation/evaluation/agent36-issue25-selected-v0.cjs',
   'simulation/evaluation/agent36-issue25-common-v6.cjs',
   'simulation/evaluation/agent36-issue25-common-v7.cjs',
   'simulation/evaluation/agent36-issue25-steward-selected-v4.cjs',
   'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
+  'simulation/evaluation/agent1-issue25-joined-three-attacks-v5.cjs',
   'simulation/evaluation/agent8-issue25-v5-telepath-development.cjs',
+  'simulation/twinleaf/agent41-paper-supporter-discipline.cjs',
+  'simulation/twinleaf/canceling-cologne-once-per-turn-hook.cjs',
   'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
   'simulation/twinleaf/agent4-allturn-owner-volt-attach-energy.cjs',
+  'simulation/twinleaf/agent41-owner-capture-energy-search.cjs',
+  'simulation/twinleaf/agent21-owner-first-prize-reveal.cjs',
+  'simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs',
+  'simulation/twinleaf/agent1-charged-promotion-choice.cjs',
   'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
-  'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs'
+  'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
+  'simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs',
+  'simulation/twinleaf/forest-stone-v-recipient-policy.cjs',
+  'simulation/twinleaf/candidate-stone-star-alchemy-policy.cjs'
 ];
 const OBSERVER_PATHS=[
   'simulation/twinleaf/agent3-authoritative-root-prize-exit-observer.cjs',
@@ -50,34 +65,93 @@ const OBSERVER_PATHS=[
   'simulation/twinleaf/agent23-native-decision-dispatch-witness.cjs',
   'simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs',
   'simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs',
-  'simulation/evaluation/agent45-bilateral-competence-gate.cjs'
+  'simulation/twinleaf/agent31-bilateral-all-owner-pass-evidence.cjs',
+  'simulation/twinleaf/native-accepted-target-store-observer.cjs',
+  'simulation/twinleaf/native-prompt-choice-evidence.cjs',
+  'simulation/twinleaf/native-dispatch-abort-evidence.cjs',
+  'simulation/twinleaf/agent41-native-paired-target-audit.cjs',
+  'simulation/twinleaf/agent41-native-opponent-hidden-read-observer.cjs',
+  'simulation/twinleaf/agent41-native-proposal-validation-audit.cjs',
+  'simulation/twinleaf/agent2-native-owner-supporter-opportunity.cjs',
+  'simulation/twinleaf/agent22-supporter-proposal-state-audit.cjs',
+  'simulation/evaluation/agent45-bilateral-competence-gate.cjs',
+  'simulation/evaluation/physical-zone-qualification.cjs',
+  'simulation/evaluation/agent37-candidate-attack-settlement.cjs',
+  'simulation/evaluation/agent44-cross-candidate-source-pair-status.cjs',
+  'simulation/evaluation/agent44-native-epoch-boundary-audit.cjs',
+  'simulation/evaluation/agent18-aborted-native-provenance.cjs',
+  'simulation/evaluation/agent1-source-first-owned-affordances.cjs',
+  'simulation/evaluation/agent17-source-own-postpass-mobility.cjs'
+];
+const DEVELOPMENT_DEPENDENCY_PATHS=[
+  'scripts/aichi-new-moon-candidate.cjs',
+  'simulation/twinleaf/accepted-energy-prompt-public-witness.cjs',
+  'simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs',
+  'simulation/twinleaf/agent2-rank9-mega-absol-funding.cjs',
+  'simulation/twinleaf/agent2-rank9-special-guzma-frontier.cjs',
+  'simulation/twinleaf/agent24-mandatory-source-exposure.cjs',
+  'simulation/twinleaf/agent38-paper-fullbench-callforfamily-hook.cjs',
+  'simulation/twinleaf/agent39-live-initialization-window.cjs',
+  'simulation/twinleaf/agent39-paper-prompt-portfolio.cjs',
+  'simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs',
+  'simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs',
+  'simulation/twinleaf/agent40-public-jet-bench-frontier.cjs',
+  'simulation/twinleaf/agent41-live-garbotoxin-ability-window.cjs',
+  'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs',
+  'simulation/twinleaf/agent41-rank11-source-pass-supporter.cjs',
+  'simulation/twinleaf/agent44-actor-energy-recipient.cjs',
+  'simulation/twinleaf/agent9-native-owner-mail-after-pass.cjs',
+  'simulation/twinleaf/owner-compressor-opportunity-audit.cjs',
+  'simulation/twinleaf/rank11-direct-boostshake.cjs',
+  'simulation/twinleaf/rank11-exclusive-openers.cjs',
+  'simulation/twinleaf/rank6-broad-thorns-policy.cjs',
+  'simulation/twinleaf/same-target-attach-energy-hook.cjs',
+  'simulation/evaluation/agent1-source-first-owned-affordances.cjs',
+  'simulation/evaluation/agent17-source-own-postpass-mobility.cjs',
+  'simulation/evaluation/agent18-aborted-native-provenance.cjs',
+  'simulation/evaluation/agent25-authenticated-source-admission.cjs',
+  'simulation/evaluation/agent31-bilateral-all-owner-pass-evidence.cjs',
+  'simulation/evaluation/agent37-candidate-attack-settlement.cjs',
+  'simulation/evaluation/agent39-print-prompt-root-reconciliation.cjs',
+  'simulation/evaluation/agent41-crossrank-actual-decisions.cjs',
+  'simulation/evaluation/agent41-native-paired-target-audit.cjs',
+  'simulation/evaluation/agent41-passive-rank6-pressure.cjs',
+  'simulation/evaluation/agent41-quickball-owner-transaction.cjs',
+  'simulation/evaluation/agent44-cross-candidate-source-pair-status.cjs',
+  'simulation/evaluation/agent44-native-epoch-boundary-audit.cjs',
+  'simulation/evaluation/agent48-cologne-native-ledger-audit.cjs',
+  'simulation/evaluation/aichi-bilateral-reply-packet.cjs',
+  'simulation/evaluation/aichi-pilot.cjs',
+  'simulation/evaluation/native-clock-episodes.cjs',
+  'simulation/evaluation/physical-zone-qualification.cjs'
 ];
 const HASH_PATHS=[...new Set([
   REGISTRATION_PATH,
-  'simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs',
+  'results/aichi-2026/full-decklists.json',
+  'results/als/new-moon-lockbreak-japanese-print-60.json',
+  'results/als/new-moon-lockbreak-english-proxy-60.json',
   'simulation/evaluation/agent36-issue25-registered-file-hash.cjs',
-  'simulation/evaluation/agent41-bilateral-v2-development.cjs',
-  'simulation/evaluation/agent36-issue25-selected-v0.cjs',
-  'simulation/evaluation/agent36-issue25-common-v6.cjs',
-  'simulation/evaluation/agent36-issue25-common-v7.cjs',
-  'simulation/evaluation/agent36-issue25-steward-selected-v4.cjs',
-  'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
-  'simulation/evaluation/agent8-issue25-v5-telepath-development.cjs',
   ...POLICY_PATHS,
   ...OBSERVER_PATHS,
+  ...DEVELOPMENT_DEPENDENCY_PATHS,
   'simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs',
   'simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs',
   'tests/agent36-funded-perfection-pass-observer.test.cjs',
   'tests/agent36-issue25-selected-v0.test.cjs',
-  'tests/agent41-bilateral-v2-development.test.cjs'
+  'tests/agent41-bilateral-v2-development.test.cjs',
+  'tests/agent36-issue25-common-v9-bilateral-competence.test.cjs'
 ])];
 
 const REPLY_FIELDS=[
   'sourceAttackOrdinal',
   'sourceTurn',
   'sourceAttackName',
+  'sameEpochCandidateReplyVerified',
+  'candidateReplyOrdinal',
   'candidateReplyTurn',
   'candidateReplyAction',
+  'status',
+  'caveat',
   'ownerHandAfterDecision',
   'publicBoardBeforePass',
   'printedBasicEnergyBeforePass',
@@ -165,6 +239,31 @@ function projectCandidateRepliesAfterSourceAttacks(row) {
 }
 
 /**
+ * Return source attacks that actually reduced the source player's Prize count.
+ * @param {object} row
+ * @returns {number[]}
+ */
+function postPrizeSourceAttackOrdinals(row) {
+  const sourceSeat=row.sourceSeat;
+  return (row.sourceAttackSettlement?.attacks??[]).filter(attack=>{
+    const before=attack.prizesBefore?.[sourceSeat];
+    const after=attack.prizesAfter?.[sourceSeat];
+    return Number.isSafeInteger(before)&&Number.isSafeInteger(after)&&after<before;
+  }).map(attack=>attack.actionOrdinal);
+}
+
+/**
+ * Keep only owner/public response rows immediately following source Prize takes.
+ * @param {object} row
+ * @returns {object[]}
+ */
+function projectPostPrizeOwnerDecisionAudit(row) {
+  const prizeOrdinals=new Set(postPrizeSourceAttackOrdinals(row));
+  return projectCandidateRepliesAfterSourceAttacks(row)
+    .filter(reply=>prizeOrdinals.has(reply.sourceAttackOrdinal));
+}
+
+/**
  * Produce a bounded, owner/public evidence row from the native development
  * output. The root ledger is the actual accepted Store-root sequence.
  * @param {object} row
@@ -212,6 +311,7 @@ function summarizeNativeAttempt(row) {
     candidatePerfectionPassSamples:row.candidatePerfectionPassSamples??[],
     candidateRepliesAfterSourceAttacks:
       projectCandidateRepliesAfterSourceAttacks(row),
+    postPrizeSourceAttackOrdinals:postPrizeSourceAttackOrdinals(row),
     attackDeclarations:row.attackDeclarations??null,
     settledPublicAttackCount:row.settledPublicAttackCount??null,
     candidateAttackSettlement:row.candidateAttackSettlement??null,
@@ -477,7 +577,6 @@ function runStewardBilateralProbeV9(deps={}) {
   });
   const competence=evaluateGate(nativeAttempt,metadata);
 
-  const policyMatchAudit=voltWrapper.result.result?.audit??null;
   const ownerPromptAudit=voltWrapper.result?.audit??null;
   const telepathAudit=voltWrapper.result.result?.audit??null;
   const manifest={
@@ -529,19 +628,26 @@ function runStewardBilateralProbeV9(deps={}) {
     selectedPolicyManifest:selected.manifest,
     selectedPolicyDiagnostic:selected.diagnostic,
     nativeAttempt,
-    postPrizeOwnerDecisionAudit:{
+    sourceAttackReplyOwnerDecisionAudit:{
       source:"runDevelopment.candidateRepliesAfterSourceAttacks",
       ownerPrivateAftergameEvidence:true,
       opponentHiddenHandIncluded:false,
       alternativeActionLegalityCertified:false,
       rows:nativeAttempt.candidateRepliesAfterSourceAttacks
     },
+    postPrizeOwnerDecisionAudit:{
+      source:"candidateRepliesAfterSourceAttacks filtered to source attacks with a verified Prize-count decrease",
+      ownerPrivateAftergameEvidence:true,
+      opponentHiddenHandIncluded:false,
+      alternativeActionLegalityCertified:false,
+      sourceAttackOrdinals:nativeAttempt.postPrizeSourceAttackOrdinals,
+      rows:projectPostPrizeOwnerDecisionAudit(raw.rows[0])
+    },
     fundedPerfectionPassObserver:fundedPerfection.summary(),
     nativeAdapterAudit:{
       volt:voltWrapper.audit??null,
       ownerPrompt:ownerPromptAudit,
-      telepathMatches:telepathAudit,
-      policyMatch:policyMatchAudit
+      telepathMatches:telepathAudit
     },
     agent45ArchiveScreen:archiveScreen,
     agent45CompetenceEvaluation:competence,
@@ -579,6 +685,7 @@ if(require.main===module)main();
 module.exports={
   VERSION,ROOT_LIMIT,REGISTRATION_PATH,POLICY_PATHS,OBSERVER_PATHS,HASH_PATHS,
   trials,sourceNameCountSha256,candidatePrinted60Sha256,
-  projectCandidateRepliesAfterSourceAttacks,summarizeNativeAttempt,toGateAttempt,
+  projectCandidateRepliesAfterSourceAttacks,postPrizeSourceAttackOrdinals,
+  projectPostPrizeOwnerDecisionAudit,summarizeNativeAttempt,toGateAttempt,
   evaluateGate,writeJsonAtomic,runStewardBilateralProbeV9
 };
