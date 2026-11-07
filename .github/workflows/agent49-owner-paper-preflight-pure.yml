@@ -1,0 +1,38 @@
+name: Agent49 owner registered-60, native-whiff and proxy legality pure contracts
+
+on:
+  push:
+    paths:
+      - '.github/workflows/agent49-owner-paper-preflight-pure.yml'
+      - 'simulation/twinleaf/agent49-owner-bulk-hand-transitions.cjs'
+      - 'simulation/twinleaf/owner-original-60-plan-gate.cjs'
+      - 'simulation/twinleaf/actor-k1-search-plan-veto.cjs'
+      - 'simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs'
+      - 'simulation/evaluation/agent49-original-field-box-fog-hard-coverage.cjs'
+      - 'simulation/evaluation/agent49-newmoon-expanded-ban-print-audit.cjs'
+      - 'tests/agent49-*.test.cjs'
+      - 'results/aichi-2026/full-decklists.json'
+      - 'results/als/new-moon-lockbreak-english-proxy-60.json'
+      - 'results/legality/japan-expanded-aichi-2026.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent49-owner-paper-preflight-pure
+  cancel-in-progress: false
+
+jobs:
+  pure-research-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify owner K0/K1 rules, registered source and printed identity
+        run: |
+          node --version
+          node --test tests/agent49-owner-bulk-hand-transitions.test.cjs tests/agent49-original-field-box-fog-hard-coverage.test.cjs tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs tests/agent49-owner-original-60-plan-gate.test.cjs tests/agent49-visible-owner-deck-exhaustion-gate.test.cjs tests/agent49-supporter-usage-count-k1-preflight.test.cjs tests/agent49-newmoon-expanded-ban-print-audit.test.cjs tests/agent49-native-owner-search-whiff-fallback.test.cjs
