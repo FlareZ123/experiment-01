@@ -5,7 +5,7 @@ const test=require('node:test');
 const {
   VERSION,SOURCE_PRINTING,SOURCE_ABILITY,
   withStunfiskSnapTrapPromptMarker
-}=require('../../simulation/twinleaf/agent30-stunfisk-snap-trap-prompt-marker-v2.cjs');
+}=require('../../simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v2.cjs');
 
 function makeFixture(overrides={}){
   const GameMessage={CHOOSE_CARD_TO_DISCARD:'CHOOSE_CARD_TO_DISCARD'};
