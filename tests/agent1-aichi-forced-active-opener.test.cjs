@@ -66,6 +66,15 @@ test('real Basic subtype, exact printing and missing-locator cases are distinct'
     {category:'Trainer',count:56,name:'Synthetic non-Pokémon'}
   ]};
   assert.equal(inspectDeck(synthetic,idx).status,'unresolved-printings');
+  const exception={cards:[
+    {category:'Pokémon',count:4,name:'Unown',printing:{set:'AOR',number:'30'}},
+    {category:'Pokémon',count:1,name:'Cinderace',
+      printing:{set:'MEG',number:'28'}},
+    {category:'Trainer',count:55,name:'Synthetic non-Pokémon'}
+  ]};
+  const marked=inspectDeck(exception,idx);
+  assert.equal(marked.status,'special-setup-unmodeled');
+  assert.deepEqual(marked.specialSetup,[{name:'Cinderace',id:'me1-28'}]);
 });
 
 test('all twenty-nine preserved originals and six fixed study candidates are enumerated',()=>{
@@ -83,13 +92,13 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
   assert.equal(r.candidates.some(x=>x.name==='Apex Alchemy'),true);
   assert.equal(r.candidates.some(x=>x.name==='Sentinel Lopunny'),true);
   for(const row of [...r.originals,...r.candidates]){
-    assert.ok(['exact-conditional-opening','unresolved-printings'].includes(row.status));
+    assert.ok(['exact-conditional-opening','unresolved-printings','special-setup-unmodeled'].includes(row.status));
     if(row.status==='exact-conditional-opening'){
       assert.equal(row.total,60);
       assert.ok(row.basics>=1&&row.basics<=60);
       assert.ok(row.hpTiers.every(x=>x.conditionalForcedActive>=0&&
         x.conditionalForcedActive<=row.exactlyOneBasicProbability));
-    }else assert.ok(row.missing.length>0);
+    }else assert.ok((row.missing??row.specialSetup).length>0);
   }
   console.log('AGENT1_AICHI_FORCED_SINGLE_BASIC_HP_MATRIX',JSON.stringify({
     schema:r.schema,originalCount:r.originalCount,
