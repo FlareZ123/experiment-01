@@ -37,7 +37,7 @@ The extended obstruction's reduced rational is exactly **11,638,172,101 / 248,61
 
 ## Reproduction and evidence boundaries
 
-Source cardinalities and card identities are asserted from the original [Aichi 60-card inventory](../aichi-2026/full-decklists.json) by [the exact BigInt enumerator](../../scripts/agent46-champion-copycat-prize-frontier.cjs); [node regression tests](../../tests/agent46-champion-copycat-prize-frontier.test.cjs) verify reduced fractions and conditional normalization. The dedicated copied-attack GitHub Actions workflow includes both the test and reproducible JSON output.
+Source cardinalities and card identities are asserted from the original [Aichi 60-card inventory](../aichi-2026/full-decklists.json) by [the exact BigInt enumerator](../../scripts/agent46-champion-copycat-prize-frontier.cjs); [node regression tests](../../tests/agent46-champion-copycat-prize-frontier.test.cjs) verify reduced fractions and conditional normalization. The dedicated copied-attack GitHub Actions workflow includes both the test and reproducible JSON output. **[CI run 42336215942](https://github.com/FlareZ123/experiment-01/actions/runs/42336215942) SUCCESS**, including the BigInt test suite and full native regression, produced the source-checked fractions reported above; the run additionally completed both original60 native seat orientations and the GX-spent controls.
 
 A separate [full-original-60 native physical-zone experiment](agent46-original60-rank1-rank10-copycat-apex-physical-ledger-20261107.md) demonstrates the actual two-Knock-Out/four-Prize mechanics on **constructed**, fully funded/evolved boards across both physical seats. It cannot establish how frequently those constructed states are reached.
 
