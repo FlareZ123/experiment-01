@@ -18,9 +18,9 @@ class FakeStore {
     this.state={
       turn:1,activePlayer:0,phase:0,prompts:[],
       players:[
-        {active:empty,bench:[{getPokemonCard:()=>garbodor,
+        {vstarUsed:false,active:empty,bench:[{getPokemonCard:()=>garbodor,
           tools:[{name:'Float Stone'}]}]},
-        {active:{getPokemonCard:()=>lunatone},bench:[]}
+        {vstarUsed:false,active:{getPokemonCard:()=>lunatone},bench:[]}
       ]
     };
   }
@@ -59,10 +59,18 @@ test('actual game Store captures New Moon blocked before owner Tool removal and 
     real.dispatch(new AdvanceTurnAction());
     shadow=new FakeStore();
     shadow.dispatch(new RemoveGarbodorToolAction());
+    real.state.players[0].vstarUsed=true;
+    real.state.players[1].vstarUsed=true;
     real.dispatch(new RemoveGarbodorToolAction());
     return real;
   },{sourceSeat:0,candidateSeat:1,turn:2},injected);
   assert.equal(FakeStore.prototype.dispatch,original);
+  assert.equal(response.audit.schema,
+    'agent41-authentic-rank11-garbotoxin-ability-window-v2');
+  assert.equal(response.audit.before.sourceVstarUsed,false);
+  assert.equal(response.audit.before.candidateVstarUsed,false);
+  assert.equal(response.audit.after.sourceVstarUsed,true);
+  assert.equal(response.audit.after.candidateVstarUsed,true);
   assert.equal(response.audit.before.action,'AdvanceTurnAction');
   assert.equal(response.audit.after.action,'RemoveGarbodorToolAction');
   assert.equal(response.audit.before.sourceGarbodorHasTool,true);
