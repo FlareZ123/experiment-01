@@ -171,7 +171,7 @@ function runWhiff(seat,hasFog) {
   assert.equal(f.owner.hand.cards.length,0);
   assert.equal(f.owner.prizes.reduce((n,p)=>n+p.cards.length,0),prizes);
   assert.equal(f.owner.deck.cards.length,initialDeck-Number(hasFog));
-  console.log('AGENT21_SECRETBOX_NATIVE_DECK_WHiff',JSON.stringify({
+  console.log('AGENT21_SECRETBOX_NATIVE_DECK_WHIFF',JSON.stringify({
     seat,boxSearchWhiff:whiffedBox,fogSearchWhiff:whiffedFog,
     physicalThreeCardPaymentConfirmed:true,
     boxPhysicallyDiscarded:true,fogPhysicallyDiscarded:!!f.fog,
