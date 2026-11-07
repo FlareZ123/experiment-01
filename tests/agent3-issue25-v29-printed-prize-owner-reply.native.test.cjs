@@ -354,7 +354,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
       actionTypes:sequence.actions.map(action=>action.actionType),
       completedByPass:sequence.completedByPass,turnEndObserved:sequence.turnEndObserved
     })),
-    pendingPrizeExits:postPrizeResponseActionObservation.pendingPrizeExits
+    pendingPrizeExits:postPrizeResponseActionObservation.pendingPrizeExits,
+    diagnostics:postPrizeResponseActionObservation.diagnostics
   }));
   assert.ok(fogCrystalResponse,'Fog Crystal first response must join to a post-dispatch sequence');
   const fogCrystalSequence=fogCrystalResponse.postPrizeResponseActionSequence;
