@@ -213,6 +213,52 @@ prompt flow and earlier historical root93 candidate payoff have not been
 replayed on the revised hook. This is a conservative plan admissibility
 improvement only; no new winner, match result or paper legality is claimed.
 
+## Real native whiff semantics and v4 adapter repair
+
+**Important correction to the original risk description.** Agent21
+independently ran **four real pinned Twinleaf Store cases** across
+both physical seats:
+[green CI 42348491623](https://github.com/FlareZ123/experiment-01/actions/runs/42348491623),
+[reported native source test](../../tests/agent21-secretbox-target-whiff-native.test.cjs),
+[physical receipts](agent21-pinned-native-box-fog-search-whiff-20261107.md).
+When the physically paid Box has no Fog in its actual owner deck,
+the native ChooseCardsPrompt has `min:0,max:0`,
+`validate([])===true`, and accepts `ResolvePromptAction(id,[])`.
+After a paid Fog yields no Basic Psychic Energy or eligible Basic
+Psychic Pokémon, the native prompt similarly permits `[]`.
+Box, three paid cards, and played Fog correctly remain discarded.
+There is **no intrinsic native crash or illegally playable Box** merely
+because the desired search target is absent. The error was in this
+developmental **JavaScript tactical wrapper** using
+`assert.ok(fog)` / `assert.ok(basic)`.
+
+The default-off Agent43 wrapper was therefore updated to **v4**.
+The new pure helper
+`choosePhysicalOwnerSearchOrWhiff(prompt, owner, predicate)`
+chooses one original physical card if and only if the owner-authenticated
+native prompt validates it. If no desired legal physical card is
+selectable and `prompt.validate([])===true`, it submits exactly the
+native zero-card resolution and records
+`box-search-whiff` or `fog-search-whiff`. The audit tracks
+`nativeSearchZeroSelections` and preserves the already paid Box,
+Fog and discard receipts. The specialized plan is then cleared so
+ordinary AI may continue on later roots. If the current native prompt
+cannot validate `[]`, the wrapper delegates that prompt to the
+original AI and records `nativeSearchDelegatedWhiffs`; it never
+invents a required target.
+
+[Five pure regression cases](../../tests/agent49-native-owner-search-whiff-fallback.test.cjs)
+passed **5/5** against the actual fetched amended wrapper in V8,
+covering physically valid one-card search, both legal zero-card searches,
+native non-optional delegation and native-ineligible candidate with a
+valid empty alternative. These are **developmental pure adapter tests**;
+the native **4/4 proof belongs to Agent21's independent pinned Store
+fixtures**, and Agent49 has not yet rerun the full wrapper v4 in a real
+native match. The guaranteed-absence K0 hard gate still prevents
+wasting Box in known-impossible plans before payment. Genuine uncertainty
+from Prizes and prior-use effects can produce whiffs; those must remain
+valid observed negative outcomes.
+
 ## Direction for shared competence work
 
 Before integrating a historically successful candidate-only tactical
