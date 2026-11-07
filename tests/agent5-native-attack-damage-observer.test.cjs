@@ -159,7 +159,7 @@ test('records KnockOutEffect, physical Prize-to-hand transfer and promotion',()=
   assert.equal(observed.audit.observedKnockOutEffects,1);
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').effectPlayerSeat,1);
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimSeat,1);
-  assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimPokemonBefore,'Tapu Lele-GX');
+  assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimPokemonBefore,'Iron Thorns ex');
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').victimDamageBefore,230);
   assert.equal(attack.effects.find(x=>x.effectType==='KnockOutEffect').prizeCount,1);
   assert.equal(attack.promptResolutions.length,2);
