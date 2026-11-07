@@ -35,6 +35,7 @@ function fixture(){
       setNumber:'94',printedHp:90},victimDamageBeforeNativeKo:140}];
   const nominal=[{trialId:trial,originalRank:6,attackName:'Volt Cyclone',
     rosterAttackerPrintedId:'sv6-77',rosterAttackerName:'Iron Thorns ex',
+    attackerTypes:['Lightning'],attackerStage:'Basic',
     printedAttackCost:['Lightning','Colorless','Colorless'],
     unmodifiedPrintedFinalAttackDamage:140}];
   const field={decks:[{rank:6,cards:[{category:'Pokémon',name:'Iron Thorns ex',
@@ -57,6 +58,7 @@ test('real-root keyed native active card and pre-damage must join unique attacke
   assert.equal(result.rows[0].incrementalNativeDamageSincePreAttack,140);
   assert.deepEqual(result.rows[0].attackerEnergyNamesBeforeAttack,
     ['Lightning Energy','Double Colorless Energy']);
+  assert.equal(result.rows[0].directPrintedEnergySufficiency.status,'POSSIBLE');
   assert.equal(result.rows[0].actualAttachedEnergyPaymentCertified,false);
 });
 
@@ -106,6 +108,7 @@ test('synthetic delegated attack name never reidentifies the public Active',()=>
   f.victims[0].victimDamageBeforeNativeKo=400;
   f.nominal[0]={trialId:id,originalRank:1,attackName:'Eon Blade',
     rosterAttackerPrintedId:'sv8-76',rosterAttackerName:'Latias ex',
+    attackerTypes:['Psychic'],attackerStage:'Basic',
     printedAttackCost:['Psychic','Psychic','Colorless'],
     unmodifiedPrintedFinalAttackDamage:200};
   f.field.decks=[{rank:1,cards:[
@@ -119,8 +122,23 @@ test('synthetic delegated attack name never reidentifies the public Active',()=>
   assert.equal(result.rows[0].attackerPrintingFromActualNativeBoard,'Mimikyu GRI');
   assert.equal(result.rows[0].sourceAttackPrintEqualsPhysicalActive,false);
   assert.equal(result.rows[0].copiedOrGrantedSourceUnresolved,true);
+  assert.equal(result.rows[0].directPrintedEnergySufficiency,null);
   assert.equal(result.rows[0].nativeDeltaEqualsPrintedNominal,true);
   assert.equal(result.rows[0].actualAttachedEnergyPaymentCertified,false);
+});
+
+test('direct printed funding remains observational under missing or unknown Energy',()=>{
+  const f=fixture();
+  const attacker=f.attempts[0].sourceAttackSettlement.attacks[0]
+    .publicBoardBefore[0].active;
+  attacker.energyCards=['Double Colorless Energy'];
+  const missing=run(f);
+  assert.equal(missing.rows[0].directPrintedEnergySufficiency.status,'IMPOSSIBLE');
+  assert.equal(missing.rows[0].actualAttachedEnergyPaymentCertified,false);
+  assert.equal(missing.paperGameCertified,false);
+  attacker.energyCards.push('Unmodeled Energy');
+  const unknown=run(f);
+  assert.equal(unknown.rows[0].directPrintedEnergySufficiency.status,'UNVERIFIED');
 });
 
 test('strict source printing, victim, root and period validation rejects false joins',()=>{
