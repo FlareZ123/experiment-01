@@ -93,7 +93,22 @@ function installCopycatMultiAttackHistory(store){
       }
     }
 
-    const result=original.call(this,action,clientRoleId);
+    let result;
+    try{
+      result=original.call(this,action,clientRoleId);
+    }catch(error){
+      console.error('AGENT8_HISTORY_DISPATCH_ERROR',{
+        action:action?.constructor?.name??null,
+        name:action?.name??null,id:action?.id??null,
+        result:action?.result?.name??action?.result??null,
+        activePlayer:before.activePlayer,turn:before.turn,
+        prompts:(before.prompts??[]).map(prompt=>({
+          type:prompt.constructor.name,message:prompt.message,id:prompt.id
+        })),
+        error:String(error)
+      });
+      throw error;
+    }
     if(declared)record(declared.playerId,declared);
     if(barrageFollowup)record(barrageFollowup.playerId,barrageFollowup);
 
