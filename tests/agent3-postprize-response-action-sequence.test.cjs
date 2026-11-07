@@ -136,7 +136,7 @@ test('Prize exit without a candidate action is retained as pending evidence',()=
   const obs=observer(null,rootBinding);
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
-  store.state.players[0].prizes=prizes(5);
+  store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
   const result=obs.result();
   assert.equal(result.sequences.length,0);
@@ -149,7 +149,7 @@ test('joins post-action hand changes to the exact projected response root',()=>{
   const obs=observer(null,rootBinding);
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
-  store.state.players[0].prizes=prizes(5);
+  store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
   store.state.turn=1;
   store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
@@ -187,7 +187,7 @@ test('a snapshot from a different Prize root cannot satisfy the join',()=>{
   const obs=observer(null,rootBinding);
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
-  store.state.players[0].prizes=prizes(5);
+  store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
   store.state.turn=2;
   obs.onRootActionDispatched(store,new PlayCardAction(),2,0,2);
