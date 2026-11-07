@@ -5,8 +5,10 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
+const {preflightOriginal60Plan}=
+  require('./owner-original-60-plan-gate.cjs');
 
-const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v1';
+const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v2-owner-original60-preflight';
 const BOX='Secret Box TWM';
 const FOG='Fog Crystal CRE';
 const BASIC='Psychic Energy';
@@ -53,6 +55,28 @@ function choosePublicOneEnergyBoxKo(view,fundableCosts={psychic:5,colorless:9}){
   if(!candidate)return null;
   return {attackName:candidate.name,sourcePrinting:own.active.printing,
     energyPrinting:BASIC};
+}
+
+/**
+ * Constrain a public candidate Box/Fog attack to targets that are present
+ * in this owner's genuine registered original 60. This is K0-safe: the owner
+ * knows its own full list before ever seeing its shuffled deck or Prizes.
+ * Absence is a hard veto. Presence never certifies a still-live target.
+ * @param {object} view Owner-only detached public observation.
+ * @param {string[]} ownRegistered60 Native fullName list from request.deckA/B.
+ * @param {{psychic:number,colorless:number}} [fundableCosts]
+ * @returns {{attackName:string,sourcePrinting:string,energyPrinting:string}|null}
+ */
+function choosePublicOneEnergyBoxKoWithRegistered60(
+  view,ownRegistered60,fundableCosts={psychic:5,colorless:9}
+){
+  const plan=choosePublicOneEnergyBoxKo(view,fundableCosts);
+  if(plan===null)return null;
+  const gate=preflightOriginal60Plan(ownRegistered60,[{
+    role:'secret-box-owner-deck-fog-search',
+    acceptablePrintings:[FOG],copies:1
+  }]);
+  return gate.status==='blocked-impossible-original60'?null:plan;
 }
 
 /**
@@ -115,12 +139,19 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     bothPhysicalSeats:true,sourceIndependent:true,ownerOnly:true,
     retiredActionWasPass:true,liveRuns:0,passObservations:0,
     candidatePlans:0,acceptedActions:0,rejectedActions:0,
+    original60HardVetoes:0,
     paperPaymentChecks:0,paperPaymentsAccepted:0,
     physicalBoxSearches:0,physicalFogSearches:0,
     physicallyAttachedBasic:0,submittedAttacks:0,
     actions:[],errors:[],promptObservations:[],qualification:'development-only',
     competitiveGamesQualified:0};
   function observedRun(request){
+    // The caller supplies each actual player's own fixed 60 before shuffle.
+    // During decision-making use only the acting physical seat's registration,
+    // never the opponent's other deck or any unsearched hidden zone.
+    const registeredBySeat=[request.deckA,request.deckB];
+    assert.ok(registeredBySeat.every(list=>Array.isArray(list)&&
+      list.length===60&&list.every(x=>typeof x==='string'&&x.length>0)));
     const ai=SimpleTacticsAi.prototype,st=Store.prototype;
     const priorAi=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
     const priorStore=Object.getOwnPropertyDescriptor(st,'dispatch');
@@ -247,10 +278,17 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       if(ordinary?.constructor?.name!=='PassTurnAction')return ordinary;
       audit.passObservations++;
       const view=actorObservation(state,seat);
-      const plan=choosePublicOneEnergyBoxKo(view,{
+      const fundableCosts={
         psychic:CardType.PSYCHIC,colorless:CardType.COLORLESS
-      });
-      if(!plan||stepsByOwner.has(owner.id))return ordinary;
+      };
+      const proposed=choosePublicOneEnergyBoxKo(view,fundableCosts);
+      if(!proposed||stepsByOwner.has(owner.id))return ordinary;
+      const plan=choosePublicOneEnergyBoxKoWithRegistered60(
+        view,registeredBySeat[seat],fundableCosts);
+      if(!plan){
+        audit.original60HardVetoes++;
+        return ordinary;
+      }
       const handIndex=view.ownHand.indexOf(BOX);
       const newStep={ownerId:owner.id,seat,turn:state.turn,
         stage:'box-payment',...plan};
@@ -369,4 +407,5 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
   }
 }
 module.exports={VERSION,BOX,FOG,BASIC,VIP,CARRIER,
-  choosePublicOneEnergyBoxKo,choosePhysicalBoxPayment,withOwnerOneEnergyBoxKo};
+  choosePublicOneEnergyBoxKo,choosePublicOneEnergyBoxKoWithRegistered60,
+  choosePhysicalBoxPayment,withOwnerOneEnergyBoxKo};
