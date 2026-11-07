@@ -18,7 +18,7 @@ const POWERGLASS='Powerglass SFA';
 
 /**
  * Validate a representative copy-reserve frontier payment on a real native
- * Secret Box prompt. The frontier itself supplies no strategic weights.
+ * Secret Box prompt. The adapter consumes the exact post-play prompt hand.
  * @param {0|1} seat Physical owner seat.
  * @param {'carrier'|'lillie'} candidate Nondominated payment representative.
  * @returns {object} Native validation, physical movement, frontier and guard.
@@ -33,28 +33,18 @@ function executeCopyReservePayment(seat,candidate){
   f.state.turn=14;
   f.source.supporterTurn=0;
 
-  const prePlayHand=[
-    f.card(VIP),f.card(BOX),f.card(CARRIER),f.card(VIP),f.card(CARRIER),
+  const box=f.card(BOX);
+  f.source.hand.cards.push(
+    f.card(VIP),box,f.card(CARRIER),f.card(VIP),f.card(CARRIER),
     f.card(LILLIE),f.card(LILLIE),f.card(POWERGLASS),
     f.card('Forest Seal Stone SIT'),f.card('Mysterious Treasure FLI')
-  ];
-  f.source.hand.cards.push(...prePlayHand);
+  );
   const recoveryTarget=f.card('Unown AOR');
   const psychicA=f.card('Psychic Energy MEE');
   const psychicB=f.card('Psychic Energy MEE');
   f.source.discard.cards.push(recoveryTarget,psychicA,psychicB);
 
-  const boxIndex=prePlayHand.findIndex(card=>card.fullName===BOX);
-  const adapter=ownerHandDiscardWithCopyReserves({
-    handPrintings:prePlayHand.map(card=>card.fullName),
-    sourceIndex:boxIndex,
-    cost:3,
-    hardMinimumCopiesByPrinting:{[CARRIER]:1},
-    softAdditionalCopiesByPrinting:{[LILLIE]:1},
-    deadPrintings:[VIP],
-    nextHandDiscardCost:2
-  });
-
+  const boxIndex=f.source.hand.cards.indexOf(box);
   let rootError=null;
   try{
     f.store.dispatch(new PlayCardAction(f.source.id,boxIndex,{
@@ -66,10 +56,23 @@ function executeCopyReservePayment(seat,candidate){
 
   const prompt=f.state.prompts.find(p=>p.result===undefined);
   assert.ok(prompt,'Expected genuine Secret Box payment prompt');
-  const expectedOffered=prePlayHand.filter((_,index)=>index!==boxIndex);
-  assert.equal(prompt.cards.cards.length,expectedOffered.length);
-  assert.ok(expectedOffered.every(card=>prompt.cards.cards.includes(card)),
-    'Native payment prompt must expose the same physical hand objects');
+  const promptCards=prompt.cards.cards;
+  assert.equal(promptCards.length,9);
+  assert.ok(!promptCards.some(card=>card.fullName===BOX),
+    'The source Secret Box must already be outside the payment hand');
+
+  // Agent16's current adapter accepts sourceIndex:null when the source has
+  // already left the hand. Its returned indices now address promptCards
+  // directly, without reconstructing the pre-play hand.
+  const adapter=ownerHandDiscardWithCopyReserves({
+    handPrintings:promptCards.map(card=>card.fullName),
+    sourceIndex:null,
+    cost:3,
+    hardMinimumCopiesByPrinting:{[CARRIER]:1},
+    softAdditionalCopiesByPrinting:{[LILLIE]:1},
+    deadPrintings:[VIP],
+    nextHandDiscardCost:2
+  });
 
   const desired=candidate==='carrier'?
     {printings:[VIP,VIP,CARRIER],protectedSacrificed:0,ways:'6'}:
@@ -80,9 +83,16 @@ function executeCopyReservePayment(seat,candidate){
     row.vector.nextUnprotectedPaymentWays===desired.ways);
   assert.ok(group,'Expected requested nondominated copy-reserve payment group');
 
-  const selected=group.representativePaymentIndices.map(index=>
-    prePlayHand[index]);
-  assert.ok(selected.every(card=>prompt.cards.cards.includes(card)));
+  const selectedPromptIndices=group.representativePaymentIndices.slice();
+  const selected=selectedPromptIndices.map(index=>promptCards[index]);
+  const hardReservedCards=adapter.hardReservedIndices.map(index=>({
+    promptIndex:index,physicalId:promptCards[index].id,
+    printing:promptCards[index].fullName
+  }));
+  const softProtectedCards=adapter.softProtectedIndices.map(index=>({
+    promptIndex:index,physicalId:promptCards[index].id,
+    printing:promptCards[index].fullName
+  }));
   const nativeValidatorAccepted=prompt.validate(selected,f.state)===true;
   const beforeHand=f.source.hand.cards.slice();
   const beforeDiscard=f.source.discard.cards.slice();
@@ -103,20 +113,31 @@ function executeCopyReservePayment(seat,candidate){
       type:prompt.constructor.name,source:prompt.sourceCard?.fullName??null,
       ownerId:prompt.playerId,message:prompt.message,
       min:prompt.options?.min??null,max:prompt.options?.max??null,
-      offeredCount:prompt.cards.cards.length
+      offeredCount:promptCards.length
     },
     adapter:{
       version:adapter.version,
+      sourceIndex:adapter.sourceIndex,
+      sourceCardPresentInHand:adapter.sourceCardPresentInHand,
+      sourcePrinting:adapter.sourcePrinting,
+      handLength:adapter.frontier.handLength,
+      possibleFirstPaymentCount:adapter.frontier.possibleFirstPaymentCount,
       hardReservedIndices:adapter.hardReservedIndices,
       softProtectedIndices:adapter.softProtectedIndices,
+      hardReservedCards,softProtectedCards,
       hardRequirementsSatisfied:adapter.hardRequirementsSatisfied,
       softPreferenceCapacityAvailable:adapter.softPreferenceCapacityAvailable,
-      representativePaymentIndices:group.representativePaymentIndices,
+      representativePaymentIndices:selectedPromptIndices,
       representativePaymentPrintings:group.representativePaymentPrintings,
       equivalentPhysicalPayments:group.equivalentPhysicalPayments,
       vector:group.vector
     },
+    selectedCards:selected.map((card,index)=>({
+      promptIndex:selectedPromptIndices[index],
+      physicalId:card.id,printing:card.fullName
+    })),
     selectedPrintings:selected.map(card=>card.fullName),
+    selectedPhysicalIds:selected.map(card=>card.id),
     selectedPhysicalUniqueCount:new Set(selected).size,
     nativeValidatorAccepted,paymentError,
     paymentSettled:prompt.result!==undefined,
