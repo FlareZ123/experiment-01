@@ -85,6 +85,7 @@ jobs:
           node --check simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/twinleaf/agent41-live-garbotoxin-ability-window.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
@@ -110,6 +111,7 @@ jobs:
             tests/agent41-bilateral-v2-development.test.cjs \
             tests/agent34-actor-only-root-policy.test.cjs \
             tests/agent41-natural-evolution-root-options.test.cjs \
+            tests/agent41-live-garbotoxin-ability-window.test.cjs \
             tests/agent47-shared-trubbish-family-owner-prompt.test.cjs \
             tests/agent47-shared-motivate-owner-prompt.test.cjs \
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
@@ -133,7 +135,7 @@ jobs:
 
       - name: Verify natural-evolution seat-scope contracts only
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs
+        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
