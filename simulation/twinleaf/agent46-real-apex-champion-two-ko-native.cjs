@@ -286,6 +286,10 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       const afterCopyDeck=candidate.deck.cards.length;
       assert.equal(afterCopyHand-beforeCopyHand,
         beforeCopyDeck-afterCopyDeck,'Raw Overclock copy must conserve draw transfer');
+      assert.equal(afterCopyHand,beforeCopyHand,
+        'Pinned raw Copycat of the misrecorded Overclock must be effectless here');
+      assert.equal(afterCopyDeck,beforeCopyDeck,
+        'Pinned raw Copycat must leave both original physical draw zones unchanged');
       return {
         schema:'agent46-unpatched-original60-real-apex-copycat-control-v1',
         championOwnerSeat:ownerSeat,regidragoSourceSeat:1-ownerSeat,
