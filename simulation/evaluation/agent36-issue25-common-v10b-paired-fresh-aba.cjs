@@ -62,7 +62,6 @@ const HASH_PATHS=Object.freeze([
   '.github/workflows/agent36-bilateral-competence-v9.yml'
 ]);
 
-/** @returns {object[]} Frozen eight-context fresh-deal cohort. */
 /** @returns {object[]} Frozen paired eight-context fresh-deal cohort. */
 function trials(){
   assert.equal(registration.schema,VERSION);
