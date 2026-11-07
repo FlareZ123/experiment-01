@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const fs=require('node:fs');
 const {
-  binomial,probabilityAtLeastOne,auditRoot93
+  binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss
 }=require('../simulation/evaluation/agent43-v9-root93-energy-screen.cjs');
 
 test('binomial supports exact small combinations and out-of-range k',()=>{
@@ -43,4 +43,17 @@ test('full original archived native audit, when supplied',{
   assert.equal(result.afterHypotheticalLillieShuffle,44);
   assert.ok(Math.abs(result.hypotheticalExchangeableMarginal-
     0.5020994316846803)<1e-12);
+});
+
+test('actual same-deal Lillie treatment: zero Energy in eight-card refresh',{
+  skip:!(process.env.AGENT43_ROOT93_ARCHIVE&&
+    process.env.AGENT43_ROOT93_TREATMENT_ARCHIVE)
+},()=>{
+  const base=JSON.parse(fs.readFileSync(process.env.AGENT43_ROOT93_ARCHIVE,'utf8'));
+  const treated=JSON.parse(fs.readFileSync(
+    process.env.AGENT43_ROOT93_TREATMENT_ARCHIVE,'utf8'));
+  const result=auditMatchedLillieMiss(base,treated);
+  assert.equal(result.preInterventionRootsIdentical,93);
+  assert.equal(result.inferredEnergyHitInEightCardDraw,0);
+  assert.equal(result.competitivelyQualifiedGames,0);
 });
