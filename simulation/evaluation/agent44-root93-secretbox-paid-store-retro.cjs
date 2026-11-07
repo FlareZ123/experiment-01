@@ -17,6 +17,7 @@ const SENTINEL='AGENT44_RETROSPECTIVE_ROOT93_STOP_AFTER_PAID_SECRET_BOX';
 const OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-secretbox-paid-store-retro.json');
 const FOG_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-fog-energy-attack-retro.json');
 const LILLIE_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-lillie-draw-retro.json');
+const PROMOTION_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-postko-promotion-retro.json');
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
@@ -31,6 +32,10 @@ const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex'
 function run(options={}){
   const requireFogFollowup=options.followup===true;
   const targetLine=options.line??'secret-box';
+  const promoteOpponentIndex=options.promoteOpponentIndex??null;
+  assert.ok(promoteOpponentIndex===null||
+    (Number.isSafeInteger(promoteOpponentIndex)&&promoteOpponentIndex>=0&&
+    promoteOpponentIndex<=4&&requireFogFollowup&&targetLine==='secret-box'));
   assert.ok(['secret-box','lillie'].includes(targetLine));
   assert.ok(!(targetLine==='lillie'&&requireFogFollowup));
   const {Store}=native('game/store/store');
@@ -278,7 +283,22 @@ function run(options={}){
               else if(kind==='ChoosePrizePrompt'&&p.playerId===owner.id)
                 answer=[0]; // physical face-down Prize position only
               else if(kind==='ShowCardsPrompt')answer=true;
-              else break; // no opponent decisions in this one-root probe
+              else if(kind==='ChoosePokemonPrompt'&&
+                  p.playerId===opponent.id&&promoteOpponentIndex!==null){
+                const target=opponent.bench[promoteOpponentIndex];
+                assert.ok(target?.getPokemonCard(),
+                  'Scripted response must name an occupied original Bench');
+                assert.equal(p.validate([target],this.state),true);
+                answer=[{player:PlayerType.BOTTOM_PLAYER,
+                  slot:SlotType.BENCH,index:promoteOpponentIndex}];
+                follow.opponentPromotionScript={
+                  physicalSeat:state.players.indexOf(opponent),
+                  benchIndex:promoteOpponentIndex,
+                  printing:target.getPokemonCard()?.fullName,
+                  premise:'scripted source promotion for KO settlement only'
+                };
+              }
+              else break; // do not invent further opponent policy
               follow.attackPromptTail=(follow.attackPromptTail??[]).concat(kind);
               callOriginal(this,new ResolvePromptAction(p.id,answer),args);
             }
@@ -348,6 +368,7 @@ function run(options={}){
       receipt?.selectedSearchPrintings.includes('Fog Crystal CRE')===true,
     competitionQualified:false};
   const outputFile=targetLine==='lillie'?LILLIE_OUT_FILE:
+    promoteOpponentIndex!==null?PROMOTION_OUT_FILE:
     requireFogFollowup?FOG_OUT_FILE:OUT_FILE;
   writeJsonAtomic(outputFile,result);
   console.log('AGENT44_ROOT93_SECRETBOX_PAID_STORE '+JSON.stringify({
@@ -382,12 +403,20 @@ function run(options={}){
     assert.equal(receipt.fogFollowup.hiddenPowerAccepted,true);
     assert.equal(receipt.fogFollowup.sourceTrubbishKO,true,
       'The printed Unown Hidden Power must KO 60-damaged 70-HP Trubbish');
+    if(promoteOpponentIndex!==null){
+      assert.equal(receipt.fogFollowup.opponentPromotionScript?.benchIndex,
+        promoteOpponentIndex);
+      assert.equal(receipt.fogFollowup.sourcePrizeTaken,true,
+        'Native prize must be taken after explicitly scripted source promotion');
+    }
   }
   return result;
 }
 
 if(require.main===module)run({
   followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
-  line:process.env.AGENT44_ROOT93_LILLIE_NATIVE==='true'?'lillie':'secret-box'
+  line:process.env.AGENT44_ROOT93_LILLIE_NATIVE==='true'?'lillie':'secret-box',
+  promoteOpponentIndex:process.env.AGENT44_PROMOTE_OPPONENT_INDEX===undefined?
+    null:Number(process.env.AGENT44_PROMOTE_OPPONENT_INDEX)
 });
 module.exports={run,EXPECTED_HAND,TARGET_TRIAL};
