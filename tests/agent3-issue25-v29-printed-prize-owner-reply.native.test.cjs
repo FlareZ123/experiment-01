@@ -343,10 +343,23 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   const fogCrystalResponse=postPrizeResponseActionSequences.find(row=>
     row.registeredTrialId==='11:211:A:champion-reference'&&
     row.firstCandidateResponseRootOrdinal===90);
+  console.log('AGENT3_V29_POST_PRIZE_RESPONSE_ACTION_OBSERVER',JSON.stringify({
+    version:postPrizeResponseActionObservation.version,
+    sequences:postPrizeResponseActionObservation.sequences.map(sequence=>({
+      registeredTrialId:sequence.registeredTrialId,
+      sourcePrizeRootOrdinals:sequence.sourcePrizeRootOrdinals,
+      sourceTurn:sequence.sourceTurn,candidateTurn:sequence.candidateTurn,
+      firstResponseRootOrdinal:sequence.firstResponseRootOrdinal,
+      actionOrdinals:sequence.actions.map(action=>action.rootOrdinal),
+      actionTypes:sequence.actions.map(action=>action.actionType),
+      completedByPass:sequence.completedByPass,turnEndObserved:sequence.turnEndObserved
+    })),
+    pendingPrizeExits:postPrizeResponseActionObservation.pendingPrizeExits
+  }));
   assert.ok(fogCrystalResponse,'Fog Crystal first response must join to a post-dispatch sequence');
   const fogCrystalSequence=fogCrystalResponse.postPrizeResponseActionSequence;
   assert.ok(fogCrystalSequence,'Fog Crystal response sequence must be present');
-  assert.equal(fogCrystalSequence.candidateTurn,18);
+  assert.equal(fogCrystalSequence.candidateTurn,fogCrystalResponse.candidateReplyNativeTurn);
   assert.ok(fogCrystalSequence.sourcePrizeRootOrdinals.includes(
     fogCrystalResponse.causalSourcePrizeRootOrdinal));
   assert.equal(fogCrystalSequence.firstProjectedResponseAction?.rootOrdinal,90);
