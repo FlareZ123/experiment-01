@@ -208,6 +208,7 @@ function makeFixture(energyCards, attacks) {
     sourceSeat: 0,
     sourceZone: 'owner-active-pokemon-list',
     attackerSeat: 1,
+    attackerPrinting: attackerPokemon.fullName,
     attackerZone: 'opponent-active-pokemon-list',
     turn: 54,
     promptType: 'ChooseCardsPrompt',
