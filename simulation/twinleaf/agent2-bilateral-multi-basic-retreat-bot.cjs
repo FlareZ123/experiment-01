@@ -37,7 +37,8 @@ function nativePublicCatalog(){
  * @template T
  * @param {()=>T} execute Native match.
  * @param {{SimpleTacticsAi?:Function,RetreatAction?:Function,
- *   observe?:Function,catalog?:object,choose?:Function}} deps Test seam.
+ *   observe?:Function,catalog?:object,choose?:Function,
+ *   isActualRoot?:(bot:object,state:object,seat:number)=>boolean}} deps Test seam.
  * @returns {{result:T,audit:object}}
  */
 function withBilateralMultiBasicPaidRetreat(execute,deps={}){
@@ -51,6 +52,8 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
   const catalog=deps.catalog??nativePublicCatalog();
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseMultiBasicPaidRetreatInDeckRace;
+  if(deps.isActualRoot!==undefined)
+    assert.equal(typeof deps.isActualRoot,'function');
   const old=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof old?.value,'function');
@@ -59,6 +62,8 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
     proposerIdentityIndependent:true,neverReadOpposingConcealedZones:true,
     originalPassesBySeat:[0,0],nominalOffersBySeat:[0,0],
     chosenTypedRetreatsBySeat:[0,0],proposedActions:[],
+    rootIdentityGuardEnabled:typeof deps.isActualRoot==='function',
+    rejectedNonRootPassesBySeat:[0,0],
     nativePhysicalPaymentVerifiedHere:false,competitivelyQualifiedGames:0
   };
 
@@ -71,6 +76,12 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
        state.prompts?.some(p=>p.result===undefined))
       return original;
     const seat=state.activePlayer;
+    // Opt-in only: historical v1 treatments remain byte-for-byte in policy
+    // semantics when no real Store/bot identity guard is supplied.
+    if(deps.isActualRoot && deps.isActualRoot(this,state,seat)!==true){
+      audit.rejectedNonRootPassesBySeat[seat]++;
+      return original;
+    }
     audit.originalPassesBySeat[seat]++;
     const view=observe(state,seat);
     const intent=choose(view,catalog);
