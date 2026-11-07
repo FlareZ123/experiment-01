@@ -694,6 +694,8 @@ function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
     'delayedGatewayReady must be boolean');
   assert.ok(!(immediateGatewayReady&&immediateGatewayCountInDeck>0),
     'an immediate gateway cannot be both in deck and ready');
+  assert.ok(delayedGatewayCountInDeck+(delayedGatewayReady?1:0)<=6,
+    'the rank-3 list contains only six Arven/Teammates gateway copies');
 
   const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-
     immediateGatewayCountInDeck-delayedGatewayCountInDeck;
