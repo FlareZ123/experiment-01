@@ -1,0 +1,64 @@
+name: Agent35 owner Powerglass after Lillie native fork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent35-v9-powerglass-owner-after-lillie
+  cancel-in-progress: false
+
+jobs:
+  one-exposed-deal-development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact research revision
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Twinleaf code
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Compile actual pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Check additive code and policy syntax
+        run: |
+          node --check simulation/twinleaf/agent35-v9-owner-powerglass-after-lillie.cjs
+          node --check simulation/evaluation/agent35-v9-powerglass-after-lillie-development.cjs
+          node --check simulation/evaluation/agent35-v9-powerglass-root98.cjs
+          node --check simulation/evaluation/agent35-v9-lillie-pair-audit.cjs
+
+      - name: Pure actual-printing and root/owner policy regressions
+        run: |
+          node --test tests/agent35-v9-lillie-pair-audit.test.cjs \
+            tests/agent35-v9-powerglass-root98.test.cjs \
+            tests/agent35-v9-owner-powerglass-after-lillie.test.cjs \
+            tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs
+
+      - name: Existing genuine pinned Store E-21 Powerglass mechanism
+        run: node simulation/twinleaf/agent41-powerglass-after-pass-native.cjs
+
+      - name: One original rank11 historical deal with shared bilateral owner Tool and Lillie
+        run: node simulation/evaluation/agent35-v9-powerglass-after-lillie-development.cjs
+
+      - name: Preserve actual native root ledger and owner-accepted Tool evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-v9-powerglass-after-lillie
+          path: artifacts/agent35-v9-powerglass-development/
+          retention-days: 21
+          if-no-files-found: warn
