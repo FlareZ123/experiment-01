@@ -47,6 +47,12 @@ The current research adapter has the right conceptual separation:
 
 This keeps speculative policy randomness separate from the physical paper shuffle stream. The empty-hand rule also remains an owner-visible preselection gate; the clone shuffle correction alone does not establish whether M4 may be played.
 
+## Scope relative to the selected v8 common policy
+
+This source trace is specifically about the default SimpleTacticsAi / PlayTrainerTactic path. The current v8 development stack sets actorOnlyComposition and enters withCanonicalActorOnlyPolicy, which installs agent34-actor-only-root-policy over live roots. That wrapper chooses from detached owner-visible intents rather than running the default tactic list at a live root. It delegates to the original SimpleTacticsAi decoder for non-live speculative states, prompts and fallbacks; the v8 registration does not enable nativeOwnerTrainerFallback. The v8 runDevelopment request also has no M4 preselection, physical-correction or speculative-shuffle flags. Agent44's 07:54 integration note independently records that the selected v8 wrapper does not set the M4 flags.
+
+Therefore this audit does **not** establish that selected v8 currently evaluates or plays M4 through the default Item tactic. It establishes a default-bot fidelity defect and a requirement for any future policy that enables native Trainer fallback or returns to the default SimpleTacticsAi root. Keep the M4 integration default-off in v8 and do not reinterpret historical v8 receipts as M4-corrected.
+
 ## Test status and remaining validation
 
 The current `tests/agent44-m4-owner-root-preselection.native.test.cjs` exercises the wrapper's synthetic cloned-Store path, the hand permutation, physical Store settlement, RNG stream separation and both seat orientations. It does not instantiate SimpleTacticsAi and prove that its default PlayTrainerTactic reaches the wrapped clone path. The source trace above establishes that connection, while an end-to-end test would make the integration contract stronger.
