@@ -12,6 +12,13 @@ Does the current headless Twinleaf adapter already provide a supported way to ap
 
 The research-owned `simulation/twinleaf/headless.cjs` already exposes both corrections as opt-in `runMatch` request flags. A new adapter or vendor edit is unnecessary.
 
+### CRI 82 source annotation and pinned engine identity
+
+The rank5/rank26 source inventories annotate this card as English representative `CRI 82`; the chronology crosswalk maps it to the pre-event Japanese counterpart `M4 072/083`. The repository card pool confirms that `resources/sets/en.json` maps set ID `me4` to **Chaos Rising**, `ptcgoCode: "CRI"`, released **22 May 2026**. `resources/cards/en/me4.json` contains `me4-82` (and alternate-art `me4-113`), both named **Special Red Card** with the Prize-limit, shuffled-hand-to-deck-bottom and draw-three effect. The later English CRI printing remains a representative annotation; do not imply it was physically available at the 10 May event.
+
+The pinned native fixture already resolves the CRI 82 engine object and asserts:
+`name === "Special Red Card"`, `fullName === "Special Red Card M4"`, `set === "CRI"`, and `setNumber === "82"`. See `tests/agent44-specialredcard-emptyhand-native.sft.cjs`. The same native object is used by the both-seat zero-hand, positive-hand and seeded hand-shuffle fixtures. Therefore the Store dispatch guard's `card.fullName === "Special Red Card M4"` **does match the actual CRI 82 engine object**; the existing staged tests already exercise that exact CRI 82 physical identity. No second CRI-named class or additional fullName branch is needed for this source printing. The source chronology mapping remains separate from engine identity.
+
 ### 1. Owner-root preselection
 
 Set:
