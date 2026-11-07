@@ -206,3 +206,21 @@ test('Audit requires a source for the actual tournament stage',()=>{
   assert.ok(result.missing.includes('official-stage-source-not-cited'));
   assert.equal(result.conditionalWinnerSeat,null);
 });
+
+
+test('Extension ledger uses observed Prize states for multi-Prize and overkill deltas',()=>{
+  const exact=auditExtensionLedger({timeCallPacket:makeTimeCallPacket([3,3]),
+    extensionLedgerEvidenceRef:'complete-extension-ledger',
+    extensionLedgerIndependentlyReviewed:true,
+    transitions:[extensionTransition(1,[3,3],[0,2],{paperGameWinner:0})]});
+  assert.equal(exact.status,'EXTENSION_LEDGER_TERMINAL');
+  assert.equal(exact.terminalStatus,'NORMAL_PAPER_GAME_WIN');
+  assert.equal(exact.conditionalWinnerSeat,0);
+  const overkill=auditExtensionLedger({timeCallPacket:makeTimeCallPacket([3,3]),
+    extensionLedgerEvidenceRef:'complete-extension-ledger',
+    extensionLedgerIndependentlyReviewed:true,
+    transitions:[extensionTransition(1,[3,3],[1,2])]});
+  assert.equal(overkill.status,'EXTENSION_LEDGER_TERMINAL');
+  assert.equal(overkill.terminalStatus,'EXTENSION_WIN');
+  assert.equal(overkill.conditionalWinnerSeat,0);
+});
