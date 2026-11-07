@@ -11,30 +11,10 @@ const {GameWinner}=require('../../vendor/twinleaf/ptcg-server/output/game/store/
 const {GameLog}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
 const {KnockOutEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/store/effects/game-effects');
 
-function assertNativeWinnerLogReceipt(a,actorSeat,firstPlayerHasBench){
+function assertNativeWinnerLogReceipt(a,actorSeat){
   const firstName=actorSeat===0?'Ferroseed attacker':'Duskull defender';
   const firstId=actorSeat===0?101:202;
-  if(firstPlayerHasBench){
-    assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
-    assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
-    assert.equal(a.nativeWinnerName,firstName);
-    assert.equal(a.nativeWinnerPlayerId,firstId);
-    assert.equal(a.nativeWinnerLogName,firstName);
-    assert.deepEqual(a.nativeWinnerLogParams,{name:firstName});
-    return;
-  }
-  assert.ok(
-    a.nativeWinnerLogMessage===GameLog.LOG_GAME_FINISHED_WINNER||
-    a.nativeWinnerLogMessage===GameLog.LOG_GAME_FINISHED_DRAW
-  );
-  if(a.nativeWinnerLogMessage===GameLog.LOG_GAME_FINISHED_DRAW){
-    assert.equal(a.nativeWinner,GameWinner.DRAW);
-    assert.equal(a.nativeWinnerName,null);
-    assert.equal(a.nativeWinnerPlayerId,null);
-    assert.equal(a.nativeWinnerLogName,null);
-    assert.equal(a.nativeWinnerLogParams,null);
-    return;
-  }
+  assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
   assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
   assert.equal(a.nativeWinnerName,firstName);
   assert.equal(a.nativeWinnerPlayerId,firstId);
@@ -116,7 +96,7 @@ function run(){
     assert.equal(a.winnerLogName,null);
     assert.equal(a.winnerLogParams,null);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
-    assertNativeWinnerLogReceipt(a,actorSeat,true);
+    assertNativeWinnerLogReceipt(a,actorSeat);
     assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
     assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
     assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
@@ -194,7 +174,7 @@ function run(){
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,false);
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2);
-    assertNativeWinnerLogReceipt(a,actorSeat,actorSeat===0);
+    assertNativeWinnerLogReceipt(a,actorSeat);
     assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
     assert.equal(a.winnerLogHandled,true);
     assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
@@ -241,7 +221,7 @@ function run(){
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,false);
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_2:GameWinner.PLAYER_1);
-    assertNativeWinnerLogReceipt(a,actorSeat,actorSeat===1);
+    assertNativeWinnerLogReceipt(a,actorSeat);
     assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
     assert.equal(a.winnerLogHandled,true);
     assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
@@ -291,7 +271,7 @@ function run(){
     assert.equal(a.secondPrizeTransferAttempted,true);
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,true);
-    assertNativeWinnerLogReceipt(a,actorSeat,false);
+    assertNativeWinnerLogReceipt(a,actorSeat);
     assert.equal(a.expectedWinner,GameWinner.DRAW);
     assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
     assert.equal(a.winnerLogHandled,true);
@@ -404,8 +384,7 @@ function run(){
         assert.equal(a.storeLogRestored,true);
         assert.equal(a.storeReduceRestored,true);
         assert.equal(a.otherStoresUnmodified,true);
-        assertNativeWinnerLogReceipt(a,actorSeat,
-          actorSeat===0?testCase.ownerHasBench:testCase.enemyHasBench);
+        assertNativeWinnerLogReceipt(a,actorSeat);
         return {
           actorSeat,
           prizeProfile:profile.name,
@@ -430,6 +409,17 @@ function run(){
             count:x.count,destinationIsHand:x.destinationIsHand
           })),
           nativeWinner:a.nativeWinner,
+          nativeWinnerLabel:a.nativeWinner===GameWinner.PLAYER_1?'PLAYER_1':
+            a.nativeWinner===GameWinner.PLAYER_2?'PLAYER_2':'DRAW',
+          nativeWinnerName:a.nativeWinnerName,
+          nativeWinnerPlayerId:a.nativeWinnerPlayerId,
+          nativeWinnerLogType:a.nativeWinnerLogMessage===GameLog.LOG_GAME_FINISHED_WINNER
+            ?'WINNER':a.nativeWinnerLogMessage===GameLog.LOG_GAME_FINISHED_DRAW?'DRAW':'UNKNOWN',
+          nativeWinnerLogMessage:a.nativeWinnerLogMessage,
+          nativeWinnerLogName:a.nativeWinnerLogName,
+          nativeWinnerLogParams:a.nativeWinnerLogParams,
+          firstPrizeGroupTakerId:a.nativeWinnerPlayerId,
+          firstPrizeGroupTakerName:a.nativeWinnerName,
           expectedWinner:a.expectedWinner,
           winnerOverridden:a.winnerOverridden,
           winnerLogName:a.winnerLogName
