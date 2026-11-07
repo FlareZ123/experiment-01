@@ -56,6 +56,7 @@ const POLICY_PATHS=[
   'simulation/twinleaf/agent1-charged-promotion-choice.cjs',
   'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
   'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
+  'simulation/twinleaf/prompt-integrity.cjs',
   'simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs',
   'simulation/twinleaf/forest-stone-v-recipient-policy.cjs',
   'simulation/twinleaf/candidate-stone-star-alchemy-policy.cjs'
@@ -142,6 +143,7 @@ const HASH_PATHS=[...new Set([
   'tests/agent24-funded-perfection-postpass-stratum.test.cjs',
   'tests/agent36-issue25-selected-v0.test.cjs',
   'tests/agent41-bilateral-v2-development.test.cjs',
+  '.github/workflows/agent36-bilateral-competence-v9.yml',
   'tests/agent36-issue25-common-v9-bilateral-competence.test.cjs'
 ])];
 
@@ -626,7 +628,12 @@ function runStewardBilateralProbeV9(deps={}) {
     actorOnlyComposition:true,
     policyHash,
     policySha256BySeat:[policyHash,policyHash],
+    policyHashScope:'Declared policy entrypoints and adapter modules; complete source closure is pinned by researchRevision and vendorPin.',
     hookHash,
+    hookHashScope:'Declared runner, observer, test, data, and workflow inputs; complete repository source is pinned by researchRevision and vendorPin.',
+    policyPaths:POLICY_PATHS,
+    observerPaths:OBSERVER_PATHS,
+    hashPaths:HASH_PATHS,
     policyHashes,
     observerHashes,
     codeHashes:allHashes,
