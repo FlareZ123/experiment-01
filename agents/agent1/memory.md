@@ -562,3 +562,54 @@ Next useful actions: check opt-in parity CI 40987309992, fix any issue and appen
 - Current access inventory from the exact rank3 60: Trainers' Mail x2, Forest Seal Stone x1, Teammates x2, Arven x4, Lillie's Determination x1, Rotom V x1, Tropical Beach x1, Player's Ceremony x1, VS Seeker x3, Lusamine x2. Trainers' Mail/Forest Seal Stone/Teammates/Arven provide conditional search; Lillie/Rotom/Tropical Beach/Player's Ceremony provide draw with differing Supporter/turn-ending constraints. VS Seeker/Lusamine recover Supporters from discard, not a Handiwork remaining in deck. No post-Rototiller access probability has been measured.
 - Repo state: `.gitmodules` path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned revision above. Root README prohibits per-commit CI; current work uses existing manual workflow. `results/README.md` still reports 29/32 complete field inventories, zero competitively qualified games and no selected final deck. No 99.5% claim.
 - Next: continue the post-Rototiller Handiwork access analysis under the exact list and resolved Japanese card pool; distinguish same-turn Item/Star Alchemy access from Supporter and turn-ending draw routes. Audit all 32 lists for Japanese-only printings/cards and wait for responses to the broadcast. Avoid duplicating Agent8's Copycat policy work; validate their fix when available.
+
+
+## 2026-11-07 18:50 UTC: exact post-Rototiller access models extended
+
+Invocation mode draw was 3/10, so this is normal research mode. Claimed Agent1 with lease `agent1-chat-20261107T182217384256Z-normal3-29623cb9bcee423db094`, claimed_at `2026-11-07T18:22:17.385804Z`. The claim was pushed and verified. Do not release until the 70-minute lease-age threshold is measured at a checkpoint.
+
+### Durable new model/code
+
+The existing `simulation/evaluation/agent1-handwork-cadence-horizon.cjs` and `tests/agent1-handwork-cadence-horizon.test.cjs` now contain three layers of exact conditional access analysis:
+
+1. `probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy`: next mandatory draw plus up to two in-hand Trainers' Mail, with one usable Forest Seal Stone as a second special gateway. Trainers' Mail excludes other Trainers' Mail from its top-four search. FSS can be found by natural draw or Mail; if found and a Pokémon V has an open Tool slot and Star Alchemy is unused, it searches Handiwork immediately. A ready FSS in hand/attached yields 100% conditional access.
+2. `probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways`: separates immediate playable access from any Handiwork hand access. Delayed gateways are Arven only if a usable FSS remains in deck and an Item target is available, and Teammates only if a Pokémon was Knocked Out during the opponent's last turn. Both use the turn's Supporter, so Handiwork is only playable later. Inactive copies remain ordinary eligible Trainers. The generic model supports 0-6 active delayed gateways and validates the rank-3 list's six total Arven/Teammates copies.
+3. The same generic model accepts `finalDrawCount`, applied after all Mail/search actions to each residual no-access state. This represents one chosen turn-ending draw effect, not stacking: Rotom V Instant Charge draws 3, Player's Ceremony draws 2, or Tropical Beach draws until 7 (caller supplies the effective count). The output keeps immediate-playable access separate from search-gateway and final-draw hand access.
+4. `probabilityHandiworkAccessByLilliesDetermination`: direct conditional Lillie draw only. Lillie shuffles the other hand cards into deck and draws 8 at exactly six Prizes remaining, otherwise 6. It consumes the turn's Supporter; drawn Handiwork is delayed. It does not include post-Lillie Mail chains.
+
+All probabilities use exact BigInt rational fractions. The tests include an independent labelled-card oracle that enumerates natural draws and every top-four subset for small deck sizes 5-9, including delayed gateways and final draws. CI manual pure cadence runs all passed:
+- 42401687986: initial Star Alchemy exact model.
+- 42402261017: delayed Arven/Teammates gateways.
+- 42402431350: gateway copy conservation.
+- 42402774441: final turn-ending draw.
+- 42402926367: latest Lillie helper and test.
+The tested job is `owner-deck-attrition-cadence`; these are mathematical/helper tests, not native games or matchup results.
+
+### Exact illustrative outputs and limitations
+
+For a controlled D=40 post-Rototiller state with one Mail in hand, no Mail in deck, 15 base other Trainers:
+- Handiwork + usable FSS direct access: 37/156 = 23.7179% immediate playable.
+- Four active Arven plus usable FSS: 15823/27417 = 57.7124% any Handiwork in hand; immediate remains 37/156.
+- Four active Arven and two active Teammates plus usable FSS: 57079/82251 = 69.3961% any hand access; immediate remains 37/156.
+- FSS unusable and two Teammates active: 667/1976 = 33.7551% any hand access; immediate 1/8 = 12.5%.
+- A final draw of 2, 3, or 5 cards after searches raises the 69.3961% scenario to 71.0041%, 71.8081%, or 73.4161% respectively. The immediate metric does not change.
+- Lillie with D=40, five other cards shuffled from hand, and six Prizes remaining: 8/45 = 17.7778% direct draw. At five Prizes remaining: 6/45 = 13.3333%.
+
+These are conditional scenario probabilities only. No physical source-game post-Rototiller zone distribution has been reconstructed. Do not promote them as the full rank-3 access rate, matchup win rate, or deck-strength evidence. The caller must condition on actual FSS zone, V in play/free Tool slot, unused VSTAR Power, active Supporter availability, Teammates KO trigger, remaining Arven Item targets, Stadium/Rotom availability, hand size and any Ability lock/disruption.
+
+Forest Seal Stone is a Pokémon Tool and Trainer, so Trainers' Mail can find it. The rank-3 list contains one Rotom V and no Garbodor. Official Pokémon Asia Q&A confirms Star Alchemy under Path to the Peak; its interaction with Garbotoxin remains a strong rules-based inference without a direct official ruling. Keep FSS as a conditional gateway and do not claim the model proves it usable under Garbotoxin. The supplied manual §§B-02/B-03 grounds Tool slot and one-Supporter-per-turn constraints. Player's Ceremony SP 127 is a Japanese-only Stadium (draw 2, end turn) missing from the English-only archive; the current model's finalDrawCount can represent it only when the Stadium effect is available and unused.
+
+### Repository/communications state
+
+- `.gitmodules`: path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. Agent38's latest gitlink audit reports pinned SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; no later submodule-pointer change surfaced in `vendor/twinleaf` commit search. Do not modify upstream.
+- Expanded methodology report: `results/methodology/agent1-piecewise-owner-deck-attrition-schedule-20261107.md`, latest report commit `cbb13cf41cc7ec63bac0f7106fc66604c6455444`. It records assumptions, fractions, limits, CI links and Japanese card gap.
+- Requested independent model/card/timing review from Agent2 in `communications/agent2/20261107T183306Z_agent1_star_alchemy_access_model_review.md` and a delayed-gateway follow-up in `communications/agent2/20261107T183927Z_agent1_delayed-search-gateways-review.md`. Await and evaluate any response; Agent2's existing 13:11 note to Agent36 says their Star Alchemy/Garbotoxin native probe does not yet settle the direct paper ruling.
+- Current public benchmark remains 29/32 authenticated complete name/count inventories, zero competitively qualified games, no selected final fixed deck, and no demonstrated 99.5% win rate.
+
+### Next high-value work
+
+1. Reconstruct a real post-Rototiller physical zone state from a source-owned, authenticated full deal: deck count, target, Mail zones, FSS, Arven, Teammates, Lillie, Rotom, Stadium, hand size, Prize count, board/Tool slots and VSTAR state. Do not invent a representative state from the 60 alone.
+2. Extend Lillie analysis to the optional post-draw Mail chain only if hand shuffle, Supporter exclusivity, and post-draw Item order are explicitly modeled.
+3. Validate Player's Ceremony and Tropical Beach availability/type from original Japanese printings and existing native Store tests; keep the Japanese Expanded legality caveat explicit.
+4. Ask Agent2 to independently audit the exact gateway assumptions and test output; preserve disagreement if Garbotoxin or Arven search legality remains unresolved.
+5. Continue connecting this opponent-side analysis to the single fixed deck against all 32 opponents; do not let one rank-3 matchup substitute for full-field deck evaluation.
