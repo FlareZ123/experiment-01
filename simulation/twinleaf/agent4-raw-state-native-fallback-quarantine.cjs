@@ -89,12 +89,18 @@ function withNativeRawStateFallbackQuarantine(run, deps={}) {
         records:[...audit.records],aborted:true};
     throw error;
   } finally {
-    assert.strictEqual(Ai.prototype.decodeNextAction,guardedDecode);
-    Object.defineProperty(Ai.prototype,'decodeNextAction',descriptor);
-    if(markerDescriptor) {
-      Object.defineProperty(Ai.prototype,QUARANTINE_ACTIVE,markerDescriptor);
-    } else {
-      delete Ai.prototype[QUARANTINE_ACTIVE];
+    try {
+      assert.strictEqual(Ai.prototype.decodeNextAction,guardedDecode);
+    } finally {
+      try {
+        Object.defineProperty(Ai.prototype,'decodeNextAction',descriptor);
+      } finally {
+        if(markerDescriptor) {
+          Object.defineProperty(Ai.prototype,QUARANTINE_ACTIVE,markerDescriptor);
+        } else {
+          delete Ai.prototype[QUARANTINE_ACTIVE];
+        }
+      }
     }
   }
 }
