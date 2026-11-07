@@ -17,9 +17,10 @@ const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
  * search, and both physical cards remain present in the original native Store.
  *
  * @param {0|1} seat Mimikyu source physical seat.
+ * @param {{chooseMimikyuTimeless?:boolean}} [options] Opt-in second source prompt resolution.
  * @returns {object} Actual two consecutive native attacks and history.
  */
-function runSeat(seat){
+function runSeat(seat,options={}){
   const s=stageCopycat(seat,'apex'),x=s.x,manager=initializeCards();
   let id=950001;
   const make=fullName=>{
@@ -84,6 +85,18 @@ function runSeat(seat){
         const family=pending.constructor.name;
         history.push({during:'mimikyu-copycat',pending:family,
           activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
+        if(family==='ChooseAttackPrompt'&&options.chooseMimikyuTimeless===true){
+          const ci=pending.cards.findIndex(c=>
+            c.fullName==='Dialga-GX UPR');
+          assert.ok(ci>=0,
+            'Native nested Apex should offer owner discarded Dragon Dialga GX');
+          x.store.dispatch(new ResolvePromptAction(pending.id,
+            {index:ci,attack:'Timeless-GX'}));
+          history.push({during:'mimikyu-copycat',
+            resolved:'ChooseAttackPrompt',chosen:'Timeless-GX',
+            activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
+          continue;
+        }
         if(family!=='WaitPrompt')break;
         x.store.dispatch(new ResolvePromptAction(pending.id,null));
       }
@@ -98,6 +111,8 @@ function runSeat(seat){
     sourceActive:x.opponent.active.getPokemonCard()?.fullName,
     mimikyuActive:x.owner.active.getPokemonCard()?.fullName,
     mimikyuOwnerGXUsed:x.owner.usedGX===true,
+    mimikyuOwnerTurnSkip:x.owner.usedTurnSkip===true,
+    mimikyuOwnerTurnSkipClearArmed:x.owner.usedTurnSkipClearArmed===true,
     originalMimikyuDragonDiscard:x.owner.discard.cards.map(c=>c.fullName)
       .filter(n=>n==='Dialga-GX UPR'),
     mimikyuOpponentDamage:x.opponent.active.damage,
