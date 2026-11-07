@@ -17,7 +17,10 @@ const {withOwnerEntryPriorityOpening}=
   require('../simulation/twinleaf/agent50-owner-entry-priority-single-basic.cjs');
 const {withOwnerOpeningStoreReceipt}=
   require('../simulation/twinleaf/agent50-owner-opening-store-receipt.cjs');
-const SYMMETRY_VERSION='agent50-identical-rank4-mulligan-seat-symmetry-v1';
+const ORIGINAL_SEED_REPLAY=process.env.AGENT50_SYMMETRY_ORIGINAL32==='true';
+const SYMMETRY_VERSION=ORIGINAL_SEED_REPLAY?
+  'agent50-identical-rank4-original32-seed-replay-v1':
+  'agent50-identical-rank4-mulligan-seat-symmetry-v1';
 const {withActorOnlySelectPrompt,chooseActorSelectPrompt}=
   require('../simulation/twinleaf/agent8-actor-only-select-prompt.cjs');
 const {withNativeRawStateFallbackQuarantine}=
@@ -28,7 +31,8 @@ const {withPerSeatSetupShuffleStreams}=
   require('../simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const REGISTRATION=
+const REGISTRATION=ORIGINAL_SEED_REPLAY?
+  'results/methodology/registrations/agent50-identical-rank4-original32-seed-replay-20261107.md':
   'results/methodology/registrations/agent50-identical-rank4-mulligan-seat-symmetry-legacy-vs-perseat-20261106.md';
 const plan=planAichi(1,{
   allowEquivalentBasicEnergies:true,
@@ -41,7 +45,40 @@ const reference=source;
 assert.equal(source?.status,'ready');
 assert.equal(reference?.status,'ready');
 
-const frozenTrials=[
+const frozenTrials=ORIGINAL_SEED_REPLAY?[
+  {seat:0,seed:659596847,sourceFirst:true},
+  {seat:1,seed:3374395305,sourceFirst:true},
+  {seat:0,seed:3767656280,sourceFirst:true},
+  {seat:1,seed:1334448369,sourceFirst:true},
+  {seat:0,seed:1015114065,sourceFirst:true},
+  {seat:1,seed:2721212630,sourceFirst:true},
+  {seat:0,seed:3093975646,sourceFirst:true},
+  {seat:1,seed:3866265543,sourceFirst:true},
+  {seat:0,seed:3156942071,sourceFirst:true},
+  {seat:1,seed:2011905764,sourceFirst:true},
+  {seat:0,seed:1103482661,sourceFirst:true},
+  {seat:1,seed:795422078,sourceFirst:true},
+  {seat:0,seed:1285175489,sourceFirst:true},
+  {seat:1,seed:3644145136,sourceFirst:true},
+  {seat:0,seed:166706843,sourceFirst:true},
+  {seat:1,seed:3879134323,sourceFirst:true},
+  {seat:0,seed:633372073,sourceFirst:true},
+  {seat:1,seed:86623464,sourceFirst:true},
+  {seat:0,seed:3741635901,sourceFirst:true},
+  {seat:1,seed:3937313210,sourceFirst:true},
+  {seat:0,seed:3935354425,sourceFirst:true},
+  {seat:1,seed:469693129,sourceFirst:true},
+  {seat:0,seed:3112483819,sourceFirst:true},
+  {seat:1,seed:4036501400,sourceFirst:true},
+  {seat:0,seed:1618181490,sourceFirst:true},
+  {seat:1,seed:3127876404,sourceFirst:true},
+  {seat:0,seed:358071138,sourceFirst:true},
+  {seat:1,seed:246568075,sourceFirst:true},
+  {seat:0,seed:614184015,sourceFirst:true},
+  {seat:1,seed:3658443122,sourceFirst:true},
+  {seat:0,seed:988546863,sourceFirst:true},
+  {seat:1,seed:3425622581,sourceFirst:true}
+]:[
   {seat:0,seed:10568873,sourceFirst:true},
   {seat:1,seed:311814060,sourceFirst:true},
   {seat:0,seed:3883014030,sourceFirst:true},
@@ -484,7 +521,8 @@ function save(row){
   const dir=process.env.AGENT50_MULLIGAN_SYMMETRY_OUTPUT;
   if(!dir)return;
   fs.mkdirSync(dir,{recursive:true});
-  const name='identical-rank4-seat-symmetry-'+row.protocol+
+  const name=(ORIGINAL_SEED_REPLAY?'identical-rank4-original32-':
+    'identical-rank4-seat-symmetry-')+row.protocol+
     '-seat'+row.sourceSeat+'-seed'+row.seed+'.json';
   const file=path.resolve(dir,name);
   const body=JSON.stringify(row,null,2)+'\n';
@@ -494,7 +532,9 @@ function save(row){
 }
 
 
-test('32 identical-rank4 seed pairs under legacy and per-seat setup shuffle protocols',()=>{
+test(ORIGINAL_SEED_REPLAY?
+  'Original 32 rank4/rank1 seeds replayed as identical rank4 decks in two shuffle protocols':
+  '32 identical-rank4 seed pairs under legacy and per-seat setup shuffle protocols',()=>{
   const rows=[];
   for(const trial of frozenTrials){
     for(const protocol of ['legacy-shared','per-seat']){
@@ -552,7 +592,9 @@ test('32 identical-rank4 seed pairs under legacy and per-seat setup shuffle prot
       error:row.error?.code??null
     }))
   };
-  console.log('AGENT50_IDENTICAL_RANK4_MULLIGAN_SEAT_SYMMETRY',JSON.stringify(summary));
+  console.log(ORIGINAL_SEED_REPLAY?
+    'AGENT50_IDENTICAL_RANK4_ORIGINAL32_SEED_REPLAY':
+    'AGENT50_IDENTICAL_RANK4_MULLIGAN_SEAT_SYMMETRY',JSON.stringify(summary));
   assert.equal(rows.length,64);
   assert.equal(new Set(rows.map(row=>row.seed)).size,32);
   for(const protocol of ['legacy-shared','per-seat']){
