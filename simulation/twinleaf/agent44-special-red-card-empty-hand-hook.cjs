@@ -14,14 +14,16 @@ let installed = null;
  * Paper source: the Pokémon Japan named-card FAQ answers "no" when asked
  * whether Special Red Card can be played against an empty opposing hand.
  *
- * @param {(()=>number)|undefined} shuffleRandom Optional explicit game-physical
- *   uniform random stream, used solely for real opposing-hand permutation.
- *   Omit to keep the existing zero-hand-only correction without random draws.
+ * @param {(()=>number)|undefined} shuffleRandom Optional explicit uniform
+ *   random stream. The caller must supply the policy/decision stream for a
+ *   speculative clone or the affected hand owner's physical stream for a real
+ *   Store dispatch; never reuse one stream for both contexts. Omit to keep the
+ *   existing zero-hand-only correction without random draws.
  * @returns {() => void} Idempotent restoration of pinned methods.
  */
 function installSpecialRedCardPaperHook(shuffleRandom) {
   if (shuffleRandom !== undefined && typeof shuffleRandom !== 'function')
-    throw new TypeError('shuffleRandom must be an explicit game-physical random callback');
+    throw new TypeError('shuffleRandom must be an explicit random callback');
   if (installed) {
     if (installed.shuffleRandom !== shuffleRandom)
       throw new Error('Special Red Card hook is installed with another random stream');
