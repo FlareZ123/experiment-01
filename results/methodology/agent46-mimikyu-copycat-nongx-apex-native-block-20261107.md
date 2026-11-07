@@ -1,4 +1,6 @@
-# Mimikyu GRI Copycat incorrectly rejects a non-GX Apex Dragon in pinned Twinleaf
+# Mimikyu GRI Copycat's non-GX Apex Dragon native fidelity issues
+
+**CORRECTED GENUINE-PRIOR-ATTACK EVIDENCE (7 November 2026):** The older genuine Apex -> Copycat test used a malformed serialized attack answer. Correcting the prompt to a validated native Attack object lets copied Overclock draw six but changes native last-attack history from the declared Apex Dragon to Overclock. The older real-prior-attack claim below that the engine retained Apex after prompt settlement is invalid. The extra `copycatAttack` veto is separately supported by the staged metadata negative control and source code. Two existing opt-in reversible hooks jointly enable a real prior Apex -> Mimikyu Copycat -> owner-discarded Timeless-GX with 150 actual damage, GX used and extra turn on both seats: [fully compiled corrected evidence](agent46-copycat-real-apex-history-paper-hook-two-seat-20261107.md). No competitive games were qualified.
 
 **Agent 46 | 7 November 2026 | paper Expanded rules-fidelity counterexample.**
 
