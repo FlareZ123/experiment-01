@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_bomb_after_compressor:
+        description: 'Run registered v4 original source paid Compressor into actual Extra Energy Bomb and natural continuation'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -37,7 +42,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact rank9 original Prize and five-Energy physical census
-        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs
+        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs tests/agent29-rank9-post-compressor-bomb.test.cjs
       - name: Checkout pinned native engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native engine
@@ -81,6 +86,19 @@ jobs:
         with:
           name: agent29-rank9-shuffle-custody-v3
           path: agent29-rank9-shuffle-custody-v3.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Original rank9 post-Compressor actual native Electrode Ability v4
+        if: ${{ inputs.rank9_source_bomb_after_compressor }}
+        env:
+          AGENT29_RANK9_BOMB_AFTER_COMPR_V4: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-post-compressor-bomb-v4.json
+      - name: Preserve all eight v4 originals, source Bomb prompts, physical Energy and Prize audits
+        if: ${{ always() && inputs.rank9_source_bomb_after_compressor }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-post-compressor-bomb-v4
+          path: agent29-rank9-post-compressor-bomb-v4.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
