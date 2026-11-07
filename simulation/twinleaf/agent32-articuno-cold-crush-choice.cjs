@@ -37,12 +37,18 @@ function findArticunoSlot(owner, card) {
  * @param {{card:object,owner:object,opponent:object,types:object}} args
  * @returns {{decision:boolean,reason:string,details:object}}
  */
-function decideOneWaterColdCrush({card, owner, opponent, types}) {
+function decideOneWaterColdCrush({
+  card, owner, opponent, types,
+  minOpponentActiveEnergy = MIN_OPPONENT_ACTIVE_ENERGY
+}) {
+  if (!Number.isInteger(minOpponentActiveEnergy) || minOpponentActiveEnergy < 1) {
+    throw new Error('Cold Crush opponent Energy threshold must be a positive integer.');
+  }
   const details = {
     opponentActiveEnergyCount: opponent?.active?.energies?.cards?.length ?? 0,
     otherBasicWaterCount: 0,
     ownerUsedGX: owner?.usedGX === true,
-    minOpponentActiveEnergy: MIN_OPPONENT_ACTIVE_ENERGY,
+    minOpponentActiveEnergy,
     readsOpponentHidden: false,
     readsUnopenedDeck: false
   };
@@ -65,7 +71,7 @@ function decideOneWaterColdCrush({card, owner, opponent, types}) {
     .flatMap(slot => slot.energies?.cards ?? [])
     .filter(energy => isBasicWaterEnergy(energy, types)).length;
 
-  if (details.opponentActiveEnergyCount < MIN_OPPONENT_ACTIVE_ENERGY) {
+  if (details.opponentActiveEnergyCount < minOpponentActiveEnergy) {
     return decline('opponent-active-below-energy-threshold');
   }
   if (details.otherBasicWaterCount < 1) {
