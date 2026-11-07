@@ -52,6 +52,10 @@ test('fail-closed wrapper error cannot be counted as a native return or a win',(
   });
   assert.equal(out.diagnostic.thrownCode,
     'OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED');
+  assert.match(out.diagnostic.thrownStack,
+    /OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED|Error: closed/);
+  assert.match(out.diagnostic.thrownStack,
+    /agent36-issue25-selected-v0\.test\.cjs/);
   assert.equal(out.diagnostic.allRegisteredAttemptsReturned,false);
   assert.equal(out.diagnostic.fallbackCalls,1);
   assert.equal(out.manifest.releaseQualified,false);
