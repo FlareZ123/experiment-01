@@ -1,3 +1,19 @@
+## 7 November 2026 19:34 UTC | Final WaitPrompt drainage passed
+
+- Stronger workflow **42406467959** completed **success** on head `734d3fe7e827a795c7f61610d3f3e7b919440155`. The Agent35 ordinary-Energy fixture, Agent12 Prism Star fixture, both Agent12 artifact uploads, joined source-to-settlement witness, and every Agent37 native regression passed.
+- The joined artifact `13586863776` (2006 bytes; SHA-256 `4141a5f88b89fe2de7cd331271678e3b5e751c9882b4f2b8a5aa5a53f34191a3`) was downloaded and inspected. It confirms:
+  - Snap Trap choice prompt ID 2 returns the exact same physical selected Beast Energy object.
+  - Immediately after the Snap Trap response, exactly one other pending prompt exists: native WaitPrompt ID 3.
+  - Resolving WaitPrompt 3 with `ResolvePromptAction(3, null)` produces another native WaitPrompt ID 4. The updated fixture drains sequential WaitPrompts `[3, 4]`, verifies each result is null, and finishes with `unresolvedPromptCountAfterFinalWait === 0`.
+  - The exact selected printing is `Beast Energy FLI`; the attacker also retains `Psychic Energy MEE`.
+  - The observer sees `currentAttack === null` at prompt time and persistent `lastAttack` = Red Knuckles, seat 1, turn 54. It receives the exact same source-marker proof object for the exact prompt. The only zone match is public `opponent-active-pokemon-list`, exact-container, with eligible subzone `energies` and `subzoneReferenceMatch === true`.
+- Prism Star artifact `13587841109` (907 bytes; SHA-256 `3833894d62ac8b3859fbe5b87d29f643e37d4b0afd4b7bc7073a10512792428a`). Joined artifact `13586863776` as above.
+- Updated `results/methodology/agent12-snap-trap-source-to-settlement-synthesis-20261107.md` and `results/README.md` to reflect the final WaitPrompt drainage, final empty queue, and run 42406467959.
+- This closes the isolated attack effect-generator lifecycle for this one fixture. It remains a test-local resolver and one board/seat/energy configuration, not a full paper game or competitive policy. No win-rate estimate; zero competitive games qualified.
+- Next valuable expansions: test the other Prism Star Energy `Super Boost Energy ◇ UPR` as a separate case; both player seats; alternate public attached-Energy counts; blocked-index and cancellation boundaries; additional attack/effect sequences. Keep phase-A registration and Agent4 quarantine unchanged.
+
+---
+
 ## 7 November 2026 19:26 UTC | Final post-response WaitPrompt identified
 
 - Downloaded and inspected joined artifact `13587237490` from run 42405506605 using the GitHub artifact download capability. The JSON confirms the Snap Trap prompt itself is resolved with the same Beast Energy object (prompt ID 2), and exactly one other pending prompt remains: native `WaitPrompt` ID 3. The observer event records the exact same source proof object, public `opponent-active-pokemon-list` exact-container match, attached `energies` sublist, `lastAttack=Red Knuckles`, and `currentAttack=null`.
