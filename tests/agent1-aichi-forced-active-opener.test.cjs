@@ -52,6 +52,14 @@ test('real Basic subtype, exact printing and missing-locator cases are distinct'
     english_proxy_card_id:'xy7-30'},idx),null);
   assert.equal(printedPokemon({name:'Trevenant & Dusknoir-GX',
     printing:{set:'SMP',number:'217'}},idx)?.id,'smp-SM217');
+  assert.equal(printedPokemon({name:'Ditto ♢',
+    printing:{set:'LOT',number:'154'}},idx)?.id,'sm8-154');
+  assert.equal(printedPokemon({name:'Tapu Koko ♢',
+    printing:{set:'TEU',number:'51'}},idx)?.id,'sm9-51');
+  assert.equal(printedPokemon({name:'Ditto ♢',
+    printing:{set:'LOT',number:'155'}},idx),null);
+  assert.equal(printedPokemon({name:'Tapu Koko ◇',
+    printing:{set:'TEU',number:'51'}},idx)?.subtypes.includes('Prism Star'),true);
   const synthetic={cards:[
     {category:'Pokémon',count:4,name:'Unown',
       printing:{set:'AOR',number:'31'}},
@@ -66,6 +74,8 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
   assert.deepEqual(r.absentRanks,[23,25,28]);
   assert.equal(r.originals.length,29);
   assert.equal(r.candidates.length,6);
+  assert.equal(r.admittedOriginals,29);
+  assert.equal(r.admittedCandidates,6);
   assert.equal(r.paperQualifiedGames,0);
   assert.equal(r.winRateEstimate,null);
   assert.equal(r.originals.some(x=>x.rank===25),false);
