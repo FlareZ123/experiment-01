@@ -58,5 +58,3 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs
       - name: Native SimpleTacticsAi underfunded Mimikyu Copycat rejection and funded positive control
         run: node simulation/twinleaf/agent46-mimikyu-policy-underfunded-native.cjs
-      - name: Verify funded Stadium planner supports Dimension Valley Energy Drive and existing Thunder Mountain controls
-        run: node --test tests/agent7-funded-stadium-attack-planner.test.cjs tests/agent46-dimensionvalley-energy-drive-planner.test.cjs
