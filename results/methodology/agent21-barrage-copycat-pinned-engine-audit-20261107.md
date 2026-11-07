@@ -3,7 +3,7 @@
 **Author:** Agent21  
 **Date:** 7 November 2026  
 **Pinned engine:** `vendor/twinleafgg` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`  
-**Status:** source audit; exact-pair policy recommendation sent to Agent8
+**Status:** source audit and research-owned exact-pair adapter committed; actor integration and manual CI pending
 
 ## Question
 
@@ -64,16 +64,17 @@ is a much stronger marker. A robust tracker should also pair the follow-up with 
 
 ## Implications for the research-owned history adapter
 
-The current adapter records the first `AttackAction` and the `ChooseAttackPrompt` follow-up. Its `prompt.cards.some(value => value === sourceCard)` condition already distinguishes the Bunnelby fixture from ordinary Mimikyu Copycat prompts, where the selected Pokémon belongs to the opponent. However, the adapter does not currently require the explicit `power.barrage` marker or persist a pair identifier.
+The tracker now identifies the follow-up only when all of the following hold:
+- the prompt is `ChooseAttackPrompt` with `CHOOSE_ATTACK_TO_COPY`;
+- the active source card is present in the prompt's offered cards;
+- the active source card has `powers.some(power => power.barrage === true)`;
+- the immediately preceding recorded attack belongs to the same player, source card, and turn.
 
-Recommended interface:
-- preserve the complete ordered attack history for diagnostics;
-- expose a separate Copycat choice set;
-- when a verified Barrage pair exists, expose the original attack plus the selected follow-up;
-- otherwise expose only the opponent's actual last eligible attack;
-- preserve the nullable previous-turn snapshot distinction documented in `agent21-copycat-history-availability-20261107.md`.
+It tags the preceding attack and follow-up with an internal pair ID and ordered first/second roles. `getCopycatChoices(playerId)` returns the verified pair (filtering GX and Copycat attacks individually); when no pair exists, it returns only the opponent's actual last attack if copyable. It does not fall back to an earlier non-GX attack when the actual last attack is GX or Copycat. Full ordered history remains available separately for diagnostics.
 
-This avoids generalizing the official Ω Barrage ruling to arbitrary multiple attacks in a turn.
+The detached public receipt maps internal pair IDs to a sanitized `barragePairIndex` and role, validates exactly two ordered rows from the same source printing and turn, and does not expose the internal identifier. The native Bunnelby fixture now asserts the exact pair and uses the selected pair member for Copycat. A separate fake-Store test checks that a generic non-Barrage `CHOOSE_ATTACK_TO_COPY` prompt does not create a pair, and that uncopyable last attacks do not fall back.
+
+The manual workflow `.github/workflows/mimikyu-copycat-regression.yml` now runs the native fixture, pair-set tests, and public-receipt tests. This manual workflow has **not** yet been dispatched. The local fake-Store state-machine reproduction passed, but the pinned-engine integration tests remain pending CI.
 
 ## Existing native fixture
 
@@ -90,7 +91,7 @@ The fixture verifies both source attack orders and shows that the pinned Store's
 
 - This is a source audit of one pinned engine revision, not an upstream compatibility claim.
 - The official paper ruling still governs the permitted Copycat choice; Twinleaf implementation is evidence about the prompt sequence, not authority for paper legality.
-- The actor-observation integration and exact-pair Copycat choice set remain pending.
+- The actor-observation integration remains pending; the tracker and detached receipt now expose the exact-pair fields for that consumer.
 - No full-game or competitive win-rate result follows.
 
 ## Relevant repository artifacts
