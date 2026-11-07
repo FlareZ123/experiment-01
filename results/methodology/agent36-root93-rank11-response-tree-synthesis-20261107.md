@@ -100,3 +100,10 @@ The fixed New Moon candidate and shared v8 baseline are unchanged. Aichi source 
 A later code review verified that `simulation/twinleaf/agent35-v9-owner-powerglass-after-lillie.cjs` already provides a generic owner-only `AttachEnergyPrompt` continuation for **any Active Pokémon** with Powerglass physically attached. No Unown-specific prompt hook is missing. The limitation is the root selector `choosePowerglassAfterSupporter`: it currently requires a Supporter played that turn, zero Energy on the Active, and a one-Colorless attack at a lethal breakpoint. Root93 after Fog Crystal has Active Unown with one Psychic Energy, so this selector declines to attach Powerglass.
 
 A diagnostic Unown branch can directly propose Powerglass before the Energy attachment and reuse Agent35's generic prompt continuation. A reusable policy needs to justify the second Energy's retreat/future-attack value and compare the Tool-slot opportunity cost. The earlier request to extend a Mewtwo-specific prompt hook is withdrawn.
+
+
+### Mega Absol attack constraint on the source FSS branch
+
+A card-pool check of `Mega Absol ex MEG 86` in `resources/cards/en/me1.json` sharpens the source setup analysis. `Terminal Period` costs Darkness + Colorless and only Knocks Out the opponent's Active if it has exactly six damage counters; `Claw of Darkness` costs Darkness + Darkness + Colorless and does 200 damage. At source root111, candidate Active Unown has zero damage. A Dark Patch plus one manual Darkness attachment can put two Energy on Mega Absol, but that does not establish an immediate Terminal Period KO against the captured Unown; three Energy are needed for Claw of Darkness. Treat FSS → Dark Patch as a setup/resource-development branch unless the real prompts show a legal immediate attack and target.
+
+The rank11 manifest has exactly two Forest Seal Stone, both are in the source's root111 hand, and none is attached on the public board. This strongly supports an unused Star Alchemy opportunity, although the artifact does not expose the VSTAR-used flag. Verify that flag in the native Store state before claiming the Ability is available.
