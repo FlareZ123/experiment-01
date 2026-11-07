@@ -1,0 +1,28 @@
+name: Agent 46 native copied-attack effect isolation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-source-effect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Direct printed Overclock versus copied Apex Overclock controls
+        run: node simulation/twinleaf/agent46-regidrago-apex-overclock-payload-native.cjs
+      - name: Native original Dragon source-handler and effect trace
+        run: node simulation/twinleaf/agent46-apex-source-delegation-trace.cjs
