@@ -450,11 +450,7 @@ function runRegisteredV10b(deps={}){
   );
   const selected=voltWrapper.result.result;
   assert.ok(selected?.manifest&&selected?.diagnostic);
-  assert.equal(selected.diagnostic?.thrownCode??null,null,
-    'Native adapter reported a thrown validation or execution error');
   const rows=selected.rawDevelopment?.rows??[];
-  assert.equal(rows.length,registered.length,
-    'Every registered native trial must return exactly one raw row');
   const attempted=new Map((selected.diagnostic.attemptedRows??[])
     .map(x=>[x.id,x]));
   const nativeAttempts=rows.map(row=>summarizeNativeAttempt(
@@ -599,13 +595,21 @@ function phaseSummary(phase){
 function run(deps={}){
   const execute=deps.phaseRunner??runPhase;
   const phases=PHASES.map(phase=>execute(phase,deps));
-  assert.ok(phases.every(x=>(x.rawDevelopment?.rows??[]).length===trials().length),
-    'A/B/A run aborted: one or more phases did not return all registered native rows');
   const comparisons=compare(phases);
-  assert.ok(comparisons.every(x=>x.physicalOpeningMatchedAcrossABA),
-    'A/B/A physical opening fingerprints must match within every registered trial');
-  assert.ok(comparisons.every(x=>x.controlsRepeatedExactly),
-    'A2 must exactly reproduce A within every registered trial');
+  const allRegisteredTrialsReturned=phases.every(x=>
+    (x.rawDevelopment?.rows??[]).length===trials().length);
+  const noAdapterThrownCode=phases.every(x=>
+    x.diagnostic?.thrownCode===undefined||x.diagnostic?.thrownCode===null);
+  const allPhysicalOpeningsMatchedAcrossABA=
+    comparisons.length===trials().length&&comparisons.every(x=>x.physicalOpeningMatchedAcrossABA);
+  const controlsRepeatedExactly=
+    comparisons.length===trials().length&&comparisons.every(x=>x.controlsRepeatedExactly);
+  const executionGate={
+    allRegisteredTrialsReturned,noAdapterThrownCode,
+    allPhysicalOpeningsMatchedAcrossABA,controlsRepeatedExactly,
+    passed:allRegisteredTrialsReturned&&noAdapterThrownCode&&
+      allPhysicalOpeningsMatchedAcrossABA&&controlsRepeatedExactly
+  };
   const summaries=phases.map(phaseSummary);
   const baselineAttempts=phases[0].diagnostic.nativeAttempts??[];
   const unique=key=>[...new Set(baselineAttempts.map(x=>x[key])
@@ -655,14 +659,13 @@ function run(deps={}){
     schema:VERSION,
     registrationPath:'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
     registration,
-    phases,comparisons,cohortCoverage,
+    phases,comparisons,cohortCoverage,executionGate,
     summary:{
       attempts:phases.reduce((n,x)=>n+(x.diagnostic.nativeAttempts?.length??0),0),
-      allRegisteredTrialsReturned:phases.every(x=>
-        (x.rawDevelopment?.rows??[]).length===trials().length),
-      allPhysicalOpeningsMatchedAcrossABA:comparisons.every(x=>
-        x.physicalOpeningMatchedAcrossABA),
-      controlsRepeatedExactly:comparisons.every(x=>x.controlsRepeatedExactly),
+      allRegisteredTrialsReturned,
+      allPhysicalOpeningsMatchedAcrossABA,
+      controlsRepeatedExactly,
+      executionGate,
       treatmentChangedTrialCount:comparisons.filter(x=>x.treatmentChanged).length,
       firstTreatmentDifferenceIsVipCount:comparisons.filter(x=>
         x.firstTreatmentDifferenceIsVip).length,
@@ -717,6 +720,10 @@ function writeArchive(value,directory){
 function main(){
   const output=run();
   const saved=writeArchive(output,'artifacts/agent36-v10b-paired-fresh-aba');
+  if(!output.executionGate.passed){
+    process.stderr.write('FAIL-CLOSED: native cohort did not satisfy execution/A-B/A control gates\n');
+    process.exitCode=1;
+  }
   process.stdout.write(JSON.stringify({
     version:output.schema,
     registeredTrials:trials().length,
