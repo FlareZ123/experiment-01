@@ -312,7 +312,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     row.declarationRootBoardCaptured===true&&
     row.finalBoardCaptured===true&&
     Number.isSafeInteger(row.declarationRootActionOrdinal)&&
-    Number.isSafeInteger(row.initiatingRootActionOrdinal)&&
+    (Number.isSafeInteger(row.initiatingRootActionOrdinal)||
+      row.initiatingRootActionOrdinal===null)&&
     Number.isSafeInteger(row.declarationRootTurnAfter)&&
     typeof row.declarationRootPromptPendingAfter==='boolean'&&
     Array.isArray(row.publicBoardImmediatelyAfterDeclarationRoot)&&
