@@ -136,6 +136,20 @@ test('declines when the Supporter is absent or locked', () => {
   assert.equal(chooseOwnerPreAttackAceTrainer(view, { index: 0 }), null);
 });
 
+test('does not inspect opponent hand identities', () => {
+  const view = fixture();
+  Object.defineProperty(view, 'opponentHand', {
+    get() { throw new Error('opponent hidden hand was accessed'); }
+  });
+  Object.defineProperty(view.opponentPublic, 'hand', {
+    get() { throw new Error('opponent public wrapper exposed hidden hand'); }
+  });
+  assert.equal(
+    chooseOwnerPreAttackAceTrainer(view, { index: 0 }).kind,
+    'play-ace-trainer'
+  );
+});
+
 test('requires an owner-root observation', () => {
   const view = fixture();
   view.decisionKind = 'opponent-root';
