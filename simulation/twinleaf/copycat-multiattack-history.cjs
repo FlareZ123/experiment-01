@@ -216,7 +216,7 @@ function installCopycatMultiAttackHistory(store){
  *
  * @param {object} store Pinned Twinleaf Store.
  * @param {number} copycatPlayerId Player using Copycat.
- * @param {object} selected Eligible record from getEligiblePreviousTurnAttacks.
+ * @param {object} selected Eligible record from getCopycatChoices.
  * @param {object} action Native AttackAction for Copycat.
  * @returns {any} Native Store dispatch result.
  */
