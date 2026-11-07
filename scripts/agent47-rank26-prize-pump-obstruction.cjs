@@ -58,6 +58,30 @@ function enumerate() {
   return result;
 }
 
+
+/** Expand the physical-card Prize census with two original TM: Crisis Punch copies. */
+function enumerateWithCrisisTools() {
+  const counts = { total: 0n, oldUnion: 0n, toolLock: 0n, newUnion: 0n };
+  for (let mask = 0; mask < 1 << (MARKED.length + 2); mask += 1) {
+    let k = 0;
+    for (let v = mask; v > 0; v >>= 1) k += v & 1;
+    if (k > 6) continue;
+    let weight = 0n;
+    for (let b = 0; b <= 6 - k; b += 1) {
+      weight += choose(12, b) * choose(36, 6 - k - b) * validHands(b);
+    }
+    const prior = classify(mask & ((1 << MARKED.length) - 1));
+    const originalUnion = prior.energyLock || prior.pumpLock;
+    const toolLock = (mask & (1 << idx.T)) !== 0 &&
+      (mask & (3 << MARKED.length)) === (3 << MARKED.length);
+    counts.total += weight;
+    if (originalUnion) counts.oldUnion += weight;
+    if (toolLock) counts.toolLock += weight;
+    if (originalUnion || toolLock) counts.newUnion += weight;
+  }
+  return counts;
+}
+
 /** The conditional Probability(q_k) of k specified non-Basic cards being Prized. */
 function qNumerator(k) {
   return (choose(60 - k, 7) - choose(48 - k, 7)) * choose(53 - k, 6 - k);
@@ -100,6 +124,10 @@ function testAndReport() {
     2n * qNumerator(2) - 2n * qNumerator(4) + qNumerator(5), qDenominator);
   assertFraction(x.pumpLock, x.total,
     10n * qNumerator(4) - 15n * qNumerator(5) + 6n * qNumerator(6), qDenominator);
+  const extended = enumerateWithCrisisTools();
+  assertFraction(extended.oldUnion, extended.total, x.union, x.total);
+  assertFraction(extended.toolLock, extended.total, 212710n, 355596769n);
+  assertFraction(extended.newUnion, extended.total, 671403282958n, 37374998405745n);
   const lone = soleBasicProbability();
   assert.ok(Math.abs(lone - 0.8367357777206609) < 1e-12);
   const p = (v) => Number(v) / Number(x.total);
@@ -111,7 +139,16 @@ function testAndReport() {
   console.log('P(G outside F | valid seven):', (100 * p(x.pumpLock - x.intersection)).toFixed(9) + '%');
   console.log('P(F or G | valid seven):', (100 * p(x.union)).toFixed(9) + '%');
   console.log('Iron Thorns bench-all first-turn upper bound:', (100 * ceiling).toFixed(9) + '%');
+  const crisisCeiling = lone *
+    (1 - Number(extended.newUnion) / Number(extended.total));
+  assert.ok(Math.abs(crisisCeiling - 0.8217046828151501) < 1e-12);
+  console.log('P(Ticket plus both Crisis Tools Prized | valid seven):',
+    (100 * Number(extended.toolLock) / Number(extended.total)).toFixed(9) + '%');
+  console.log('P(F or G or Crisis-Tool lock | valid seven):',
+    (100 * Number(extended.newUnion) / Number(extended.total)).toFixed(9) + '%');
+  console.log('Further tightened first-turn bench-all upper bound:',
+    (100 * crisisCeiling).toFixed(9) + '%');
 }
 
 if (require.main === module) testAndReport();
-module.exports = { choose, patternWeight, classify, enumerate, qNumerator, soleBasicProbability, testAndReport };
+module.exports = { choose, patternWeight, classify, enumerate, enumerateWithCrisisTools, qNumerator, soleBasicProbability, testAndReport };
