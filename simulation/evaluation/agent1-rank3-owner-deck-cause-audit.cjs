@@ -33,7 +33,7 @@ function safePromptSummary(prompt,players){
     prompt?.ownerId??null;
   const found=players.findIndex(player=>player.id===playerId);
   const safeFields={};
-  for(const key of ['type','promptType','name','title','description']){
+  for(const key of ['type','promptType','title']){
     const value=prompt?.[key];
     if(typeof value==='string'||typeof value==='number'||
        typeof value==='boolean')
