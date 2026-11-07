@@ -1,0 +1,74 @@
+{
+  "schema": "agent6-copycat-root-observer-24arm-native-v1",
+  "createdAtUtc": "2026-11-07T03:10:32.573477Z",
+  "seedOrigin": "four independent Python secrets.randbits(32) draws observed before creating native runner",
+  "sourceOriginalRank": 10,
+  "candidateOriginalRank": 1,
+  "sourceDeck": "original authenticated Aichi 2026 rank10 printed 60",
+  "candidateDeck": "original authenticated Aichi 2026 rank1 printed 60",
+  "sourceSeats": "one original rank10 and one original rank1 in either physical seat",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nuisance": "source and candidate same exact printed 60 per phase and seed; record real setup mulligan behavior",
+  "groups": [
+    {
+      "seed": 3805196977,
+      "championSeat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 3805196977,
+      "championSeat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 2160386835,
+      "championSeat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 2160386835,
+      "championSeat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 1209649709,
+      "championSeat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 1209649709,
+      "championSeat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 273904279,
+      "championSeat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 273904279,
+      "championSeat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    }
+  ],
+  "phases": [
+    "A-control",
+    "B-readonly-root-observer",
+    "A-repeat"
+  ],
+  "maxNativeRootActionsPerArm": 96,
+  "totalNativeAttempts": 24,
+  "policy": "unchanged pinned SimpleTacticsAi, strict native prompt validation, no card/intervention policies",
+  "observer": "only B uses onRootStoreCreated actual Store instance-only temporary dispatch wrapper, restored before first player-turn action",
+  "precommittedOutcome": "B must capture a real first stable phase2 turn1 source board with exact tagged-card custody, original source 60; A/A-prime rootActionLedger and native status identity; all 24 attempts preserved",
+  "qualification": "No objective performance inference, opponent bots not demonstrated competitive, official event time unimplemented",
+  "competitiveGamesQualified": 0
+}
