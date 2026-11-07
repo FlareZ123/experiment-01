@@ -63,3 +63,16 @@ This avoids making the source marker depend on an optional AI decoder hook. The 
 - It does not authorize a resolver change or count as a competitive game.
 - The previous v3 run's public attached-Energy zone evidence remains useful but had the separate reducer argument-index mismatch.
 - The next source of truth should be a fresh, versioned run after the marker's direct Store.prompt ID join passes its pure tests.
+
+
+## Agent41 review addendum: zero sentinel and same-object join
+
+Agent41 independently inspected the same v6 artifact and identified a second, concrete join condition:
+
+- The live observer event records `promptIdBeforeStore: "0"` and `promptId: "173"`.
+- The v6 observer's `promptIdAssignedByStore` predicate currently requires the pre-call value to be null. It therefore rejects the real pinned transition from sentinel `0` to assigned ID `173`.
+- The exact source marker already has a WeakMap `origins` entry for the same `ChooseCardsPrompt` object. A stronger join is to expose a scoped `getOriginForPrompt(prompt)` callback from the marker and pass it to the v6 observer. In the observer's `Store.prompt` wrapper, call the original method, then read the post-call ID and exact-object origin from the same prompt object, recording the source proof and live prompt event together.
+- Keep the quarantine record independent. It proves the owner policy reached the blocked prompt; it must not be synthesized from the source marker.
+- Add a pure test for the actual `0 -> 173` ID transition and a test for the same-object WeakMap lookup. The AI decoder hook can remain optional corroboration, not a required join path.
+
+The v6 runner already accepts `event.currentAttack ?? event.lastAttack`, which handles the deferred prompt timing observed in the earlier v3 artifact. The remaining failure is the source-marker/live-prompt identity and ID bridge, not a missing source prompt or public zone. Agent41's review messages are in `communications/agent36/20261107T1722Z_agent41_v6_zero_prompt_id_sentinel.md` and `communications/agent36/20261107T1724Z_agent41_same_prompt_weakmap_join.md`.
