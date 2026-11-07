@@ -354,6 +354,25 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
       {newMoonAttackPayloadCompressorSeat:candidateSeat});
 }
 
+/**
+ * Build the Agent34 natural-evolution root option while preserving the
+ * historical bilateral default. A physical-seat restriction is opt-in.
+ * @param {boolean} enabled
+ * @param {null|0|1} ownerSeat
+ * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1}}
+ */
+function actorNaturalEvolutionRootOptions(enabled,ownerSeat=null){
+  assert.equal(typeof enabled,'boolean');
+  assert.ok(ownerSeat===null||ownerSeat===0||ownerSeat===1,
+    'Natural-evolution owner seat must be null, 0, or 1');
+  assert.ok(ownerSeat===null||enabled,
+    'A seat-scoped natural-evolution root requires the root to be enabled');
+  return enabled?{
+    naturalEvolutionRoot:true,
+    naturalEvolutionRootOwnerSeat:ownerSeat
+  }:{};
+}
+
 /** @returns {object} Canonical actor-wrapper paid-Retreat flags. */
 function actorPaidRetreatRootOptions({
   actorTwoUnitPaidRetreatRoot=false,
@@ -1330,7 +1349,8 @@ function runDevelopment({
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorNaturalEvolutionRoot=false,actorNaturalEvolutionRootOwnerSeat=null,
+  actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
@@ -1407,6 +1427,8 @@ function runDevelopment({
   allowSingleCandidateArm=false,allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  const naturalEvolutionOptions=actorNaturalEvolutionRootOptions(
+    actorNaturalEvolutionRoot,actorNaturalEvolutionRootOwnerSeat);
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
@@ -1731,9 +1753,7 @@ function runDevelopment({
                   1-(trial.candidateSlot==='A'?0:1):
                   (trial.candidateSlot==='A'?0:1)
               }:{}),
-              ...(actorNaturalEvolutionRoot?{
-                naturalEvolutionRoot:true
-              }:{}),
+              ...naturalEvolutionOptions,
               ...(actorDceMewMobilityRoot?{
                 dceMewMobilityRoot:true
               }:{}),
@@ -2177,6 +2197,11 @@ function runDevelopment({
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
+    actorNaturalEvolutionRootOwnerSeat:
+      actorOnlyComposition&&actorNaturalEvolutionRoot?
+        actorNaturalEvolutionRootOwnerSeat:null,
+    actorNaturalEvolutionRootScope:!actorNaturalEvolutionRoot?'disabled':
+      (actorNaturalEvolutionRootOwnerSeat===null?'bilateral':'seat-scoped'),
     actorDceMewMobilityRootOptIn:
       actorOnlyComposition&&actorDceMewMobilityRoot,
     actorGenesectFusionDrawRootOptIn:
@@ -2427,7 +2452,8 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,sourceFirstPressureTrials,
-  commonPayloadOption,actorPaidRetreatRootOptions,bilateralJetBenchRootOptions,
+  commonPayloadOption,actorNaturalEvolutionRootOptions,
+  actorPaidRetreatRootOptions,bilateralJetBenchRootOptions,
   rngProtocolSelection,
   paidRetreatRootWrapperActivationReceipt,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
