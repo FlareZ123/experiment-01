@@ -42,6 +42,8 @@ function probe(seat,funding,temple,parallelCounter){
   const {AttackAction}=native('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
   const {CheckProvidedEnergyEffect}=
     native('game/store/effects/check-effects');
   const {CardType}=native('game/store/card/card-types');
@@ -73,6 +75,19 @@ function probe(seat,funding,temple,parallelCounter){
     scene.store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
+    const stadiumDirection=state.prompts.find(p=>p.result===undefined);
+    assert.ok(stadiumDirection,'Parallel City needs native facing choice');
+    assert.equal(stadiumDirection.constructor.name,'SelectPrompt');
+    assert.equal(stadiumDirection.values.length,2);
+    scene.store.dispatch(new ResolvePromptAction(stadiumDirection.id,0));
+    for(let i=0;i<12;i++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      scene.store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(state.prompts.some(p=>p.result===undefined),false,
+      'Parallel facing and mandatory animation must settle before attack');
     assert.equal(opponent.stadium.cards.some(x=>
       x.fullName==='Temple of Sinnoh ASR'),false);
     assert.equal(owner.stadium.cards.some(x=>
