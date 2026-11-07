@@ -84,6 +84,10 @@ test('real-root keyed native active card and pre-damage must join unique attacke
   assert.equal(result.rows[0].completionRootTurnMatchesDeclarationTurn,true);
   assert.equal(result.rows[0].publicBoardImmediatelyAfterDeclarationRoot.length,2);
   assert.equal(result.rows[0].publicBoardAfterPromptClosure.length,2);
+  assert.equal(result.rows[0].targetIdentityGranularity,
+    'printing-only-no-instance-id');
+  assert.equal(result.rows[0].physicalActiveIdentityGranularity,
+    'printing-and-printed-attack-menu-no-instance-id');
   assert.equal(result.rows[0].targetDamageImmediatelyAfterDeclarationRoot,140);
   assert.equal(result.rows[0].targetDamageAfterPromptClosure,null);
   assert.equal(result.rows[0].targetDamageThresholdReachedImmediatelyAfterDeclarationRoot,true);
