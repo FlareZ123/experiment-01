@@ -18,6 +18,7 @@ const OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-secretbox-paid-store-ret
 const FOG_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-fog-energy-attack-retro.json');
 const LILLIE_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-lillie-draw-retro.json');
 const PROMOTION_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-postko-promotion-retro.json');
+const LILLIE_SEEDED_OUT=path.join(ROOT,'artifacts/agent44-root93-lillie-seeded-v1.json');
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
@@ -33,6 +34,10 @@ function run(options={}){
   const requireFogFollowup=options.followup===true;
   const targetLine=options.line??'secret-box';
   const promoteOpponentIndex=options.promoteOpponentIndex??null;
+  const lillieShuffleSeed=options.lillieShuffleSeed??null;
+  assert.ok(lillieShuffleSeed===null||
+    (targetLine==='lillie'&&Number.isSafeInteger(lillieShuffleSeed)
+      &&lillieShuffleSeed>=0));
   assert.ok(promoteOpponentIndex===null||
     (Number.isSafeInteger(promoteOpponentIndex)&&promoteOpponentIndex>=0&&
     promoteOpponentIndex<=4&&requireFogFollowup&&targetLine==='secret-box'));
@@ -116,6 +121,10 @@ function run(options={}){
           const lillieIndex=owner.hand.cards.indexOf(lillie);
           assert.ok(lillieIndex>=0);
           const draw={selected:'Lillie\'s Determination M1L',
+            shuffleProtocol:lillieShuffleSeed===null?
+              'identity-nonpaper-negative-control':
+              'SHA256-per-index-key-sorted-reproducible-pseudorandom-permutation',
+            shuffleSeed:lillieShuffleSeed,
             priorSupporterQuota,
             priorOwnerHandCount:owner.hand.cards.length,
             expectedCardsDrawn:8,
@@ -130,8 +139,25 @@ function run(options={}){
             if(!p)break;
             let answer;
             if(p.constructor.name==='WaitPrompt')answer=null;
-            else if(p.constructor.name==='ShuffleDeckPrompt')
-              answer=owner.deck.cards.map((_,index)=>index);
+            else if(p.constructor.name==='ShuffleDeckPrompt'){
+              const deck=owner.deck.cards;
+              // Forensic aggregate only, never input to the owner policy.
+              draw.deckBeforeShuffleCount=deck.length;
+              draw.deckBeforeShuffleEnergyPrintings=deck.filter(card=>
+                card.superType===native('game/store/card/card-types')
+                  .SuperType.ENERGY).map(card=>card.fullName);
+              if(lillieShuffleSeed===null){
+                answer=deck.map((_,index)=>index);
+              }else{
+                const keyed=deck.map((_,index)=>({index,
+                  key:createHash('sha256').update(
+                    'agent44-root93-lillie-v1:'+lillieShuffleSeed+':'+index)
+                    .digest('hex')}));
+                keyed.sort((a,b)=>a.key.localeCompare(b.key));
+                answer=keyed.map(row=>row.index);
+              }
+              draw.shuffleOrderSha256=sha(answer);
+            }
             else if(p.constructor.name==='ShowCardsPrompt')answer=true;
             else break;
             draw.prompts.push({type:p.constructor.name,
@@ -367,9 +393,9 @@ function run(options={}){
     nativeStoreFogSearchVerified:receipt?.acceptedSearch===true&&
       receipt?.selectedSearchPrintings.includes('Fog Crystal CRE')===true,
     competitionQualified:false};
-  const outputFile=targetLine==='lillie'?LILLIE_OUT_FILE:
+  const outputFile=options.outputPath??(targetLine==='lillie'?LILLIE_OUT_FILE:
     promoteOpponentIndex!==null?PROMOTION_OUT_FILE:
-    requireFogFollowup?FOG_OUT_FILE:OUT_FILE;
+    requireFogFollowup?FOG_OUT_FILE:OUT_FILE);
   writeJsonAtomic(outputFile,result);
   console.log('AGENT44_ROOT93_SECRETBOX_PAID_STORE '+JSON.stringify({
     artifact:outputFile,hitTarget:result.hitTarget,
@@ -413,10 +439,45 @@ function run(options={}){
   return result;
 }
 
-if(require.main===module)run({
-  followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
-  line:process.env.AGENT44_ROOT93_LILLIE_NATIVE==='true'?'lillie':'secret-box',
-  promoteOpponentIndex:process.env.AGENT44_PROMOTE_OPPONENT_INDEX===undefined?
-    null:Number(process.env.AGENT44_PROMOTE_OPPONENT_INDEX)
-});
+if(require.main===module){
+  if(process.env.AGENT44_LILLIE_SEED_BUNDLE==='true'){
+    const seeds=[101,202,303,404,101];
+    const rows=seeds.map((seed,index)=>{
+      const result=run({line:'lillie',lillieShuffleSeed:seed,
+        outputPath:path.join(ROOT,'artifacts/agent44-root93-lillie-seed-'+
+          index+'.json')});
+      const draw=result.capture.lillieNative;
+      return {seed,index,ownerHandSha256:result.capture.handDigest,
+        priorAcceptedOrdinalMax:result.capture.priorAcceptedOrdinalMax,
+        originalRoot:result.capture.actionOriginallyOffered,
+        shuffledDeckCount:draw.deckBeforeShuffleCount,
+        shuffledDeckEnergy:draw.deckBeforeShuffleEnergyPrintings,
+        shuffleOrderSha256:draw.shuffleOrderSha256,
+        shuffleProtocol:draw.shuffleProtocol,
+        handAfter:draw.handAfter,
+        nativeEnergyFound:draw.nativeEnergyCardsFound,
+        accepted:draw.accepted,error:result.capture.error};
+    });
+    assert.deepEqual(rows[0].handAfter,rows[4].handAfter,
+      'Repeated deterministic shuffle seed must replay same physical draw');
+    assert.deepEqual(rows[0].shuffleOrderSha256,rows[4].shuffleOrderSha256);
+    assert.ok(rows.every(r=>r.accepted&&r.error===null&&
+      r.ownerHandSha256===EXPECTED_HAND&&
+      r.priorAcceptedOrdinalMax===92));
+    const summary={schema:'agent44-root93-lillie-seeded-shuffle-v1',
+      originalSourceDealWasPreviouslyExposed:true,
+      registeredOriginalTrial:TARGET_TRIAL,
+      deterministicReplayedPriorRoot:true,
+      seeds,separateShuffles:4,duplicateSeedReplay:true,
+      allCompetitiveQualifiedGames:0,
+      rows};
+    writeJsonAtomic(LILLIE_SEEDED_OUT,summary);
+    console.log('AGENT44_LILLIE_SEEDED_SUMMARY '+JSON.stringify(summary));
+  }else run({
+    followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
+    line:process.env.AGENT44_ROOT93_LILLIE_NATIVE==='true'?'lillie':'secret-box',
+    promoteOpponentIndex:process.env.AGENT44_PROMOTE_OPPONENT_INDEX===undefined?
+      null:Number(process.env.AGENT44_PROMOTE_OPPONENT_INDEX)
+  });
+}
 module.exports={run,EXPECTED_HAND,TARGET_TRIAL};
