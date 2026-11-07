@@ -7,6 +7,59 @@ const { chooseOwnerPreAttackAceTrainer } =
   require('./agent20-owner-pre-attack-ace-trainer.cjs');
 
 /**
+ * Summarize only owner-held and public information for a pending attack.
+ *
+ * @param {object} view
+ * @param {object} action
+ * @returns {object}
+ */
+function summarizeAttempt(view, action) {
+  const own = view.ownPublic ?? {};
+  const opponent = view.opponentPublic ?? {};
+  const active = own.active ?? {};
+  const target = opponent.active ?? {};
+  const ownHand = Array.isArray(view.ownHand) ? view.ownHand : [];
+  const requestedName = action.attackName ?? action.attack?.name ?? action.name;
+  const attacks = active.attacks ?? [];
+  const attackIndex = typeof requestedName === 'string'
+    ? attacks.findIndex(attack => attack.name === requestedName)
+    : attacks.length === 1 ? 0 : -1;
+  const attack = attacks[attackIndex] ?? null;
+  const targetHp = Number(target.hp);
+  const targetDamage = Number(target.damage);
+
+  return {
+    decisionKind: view.decisionKind,
+    actorSeat: own.seat ?? null,
+    globalTurn: view.globalTurn ?? null,
+    ownHandCount: ownHand.length,
+    opponentHandCount: opponent.handCount ?? null,
+    aceTrainerHandIndex: ownHand.findIndex(card =>
+      String(card).includes('Ace Trainer')),
+    ownPrizeCount: own.prizeCount ?? null,
+    opponentPrizeCount: opponent.prizeCount ?? null,
+    supporterPlayedTurn: view.ownTurnResources?.supporterPlayedTurn ?? null,
+    supporterPlayLocked: view.ownTurnResources?.supporterPlayLocked ?? null,
+    ownActivePrinting: active.printing ?? null,
+    targetPrinting: target.printing ?? null,
+    attackName: attack?.name ?? requestedName ?? null,
+    attackDamage: attack?.damage ?? null,
+    attackText: attack?.text ?? null,
+    attackCostCount: Array.isArray(attack?.cost) ? attack.cost.length : null,
+    attachedEnergyCount: Array.isArray(active.energies)
+      ? active.energies.length : null,
+    targetHp: Number.isFinite(targetHp) ? targetHp : null,
+    targetDamage: Number.isFinite(targetDamage) ? targetDamage : null,
+    targetRemainingHp: Number.isFinite(targetHp) &&
+      Number.isFinite(targetDamage) ? targetHp - targetDamage : null,
+    targetToolCount: (target.tools ?? []).length,
+    targetAbilityCount: (target.abilities ?? []).length,
+    opponentStadiumCount: (opponent.stadium ?? []).length,
+    targetResistanceCount: (target.printed?.resistance ?? []).length
+  };
+}
+
+/**
  * Install an owner-only Ace Trainer continuation at the native Store
  * dispatch boundary. The headless callback and returned root ledger are
  * corrected to record the actual dispatched PlayCardAction.
@@ -28,11 +81,15 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
   assert.equal(typeof originalRun, 'function');
   const maxDecisions = options.maxDecisions ?? 1;
   const audit = {
-    schema: 'agent20-owner-pre-attack-ace-trainer-audit-v2',
+    schema: 'agent20-owner-pre-attack-ace-trainer-audit-v3',
     policyVersion: require('./agent20-owner-pre-attack-ace-trainer.cjs').VERSION,
     ownerOnly: true,
     opponentHiddenHandRead: false,
     maxDecisions,
+    storeInstances: 0,
+    dispatchCalls: 0,
+    attackDispatchCalls: 0,
+    attempts: [],
     decisions: [],
     rootActionLedgerRewrites: []
   };
@@ -42,6 +99,7 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
     const priorOnRootActionDispatched = request.onRootActionDispatched;
     const restores = [];
     const replacements = new Map();
+    const attemptsByAction = new Map();
     const replacementEvents = [];
 
     try {
@@ -49,19 +107,30 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
         ...request,
         onRootStoreCreated(store, ...args) {
           priorOnRootStoreCreated?.(store, ...args);
+          audit.storeInstances++;
           const priorOwnDispatch = Object.getOwnPropertyDescriptor(
             store, 'dispatch'
           );
           const priorDispatch = store.dispatch.bind(store);
           const wrappedDispatch = function (action, ...dispatchArgs) {
-            if (action instanceof AttackAction &&
-                audit.decisions.length < maxDecisions) {
+            audit.dispatchCalls++;
+            const isAttackAction = action instanceof AttackAction ||
+              action?.constructor?.name === 'AttackAction';
+            if (isAttackAction) {
+              audit.attackDispatchCalls++;
               const actorId = action.clientId ?? action.id;
               if (typeof actorId === 'string') {
                 const view = actorObservation(store, actorId);
-                const intent = chooseOwnerPreAttackAceTrainer(
-                  view, action, options
-                );
+                const attempt = summarizeAttempt(view, action);
+                attempt.actorIdType = typeof actorId;
+                attempt.constructorName = action.constructor?.name ?? null;
+                const intent = audit.decisions.length < maxDecisions
+                  ? chooseOwnerPreAttackAceTrainer(view, action, options)
+                  : null;
+                attempt.policyStatus = intent === null
+                  ? 'declined-or-limit-reached' : 'selected';
+                audit.attempts.push(attempt);
+                attemptsByAction.set(action, attempt);
                 if (intent !== null) {
                   const replacement = new PlayCardAction(
                     actorId,
@@ -69,19 +138,11 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
                     { player: PlayerType.ANY, slot: SlotType.BOARD, index: 0 }
                   );
                   const event = {
-                    actorSeat: view.ownPublic.seat,
-                    globalTurn: view.globalTurn,
+                    ...attempt,
                     handIndex: intent.handIndex,
                     printing: intent.printing,
-                    attackName: intent.attackName,
-                    attackIndex: intent.attackIndex,
                     damage: intent.damage,
-                    targetPrinting: intent.targetPrinting,
                     targetRemainingHp: intent.targetRemainingHp,
-                    ownPrizeCount: intent.ownPrizeCount,
-                    opponentPrizeCount: intent.opponentPrizeCount,
-                    ownHandCount: intent.ownHandCount,
-                    opponentHandCount: intent.opponentHandCount,
                     reason: intent.reason,
                     opponentHiddenHandRead: false,
                     accepted: false
@@ -95,6 +156,12 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
                   });
                   return priorDispatch(replacement, ...dispatchArgs);
                 }
+              } else {
+                audit.attempts.push({
+                  actorIdType: typeof actorId,
+                  constructorName: action?.constructor?.name ?? null,
+                  policyStatus: 'declined-invalid-actor-id'
+                });
               }
             }
             return priorDispatch(action, ...dispatchArgs);
@@ -110,6 +177,8 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
           });
         },
         onRootActionDispatched(store, action, actionOrdinal, seat, turnBefore) {
+          const attempt = attemptsByAction.get(action);
+          if (attempt) attempt.actionOrdinal = actionOrdinal;
           const replacement = replacements.get(action);
           if (replacement !== undefined) {
             const event = replacementEvents.find(row =>
