@@ -15,10 +15,14 @@ for(const sourceSeat of [0,1]){
       'Bunnelby Ω Barrage must ask whether to take its optional second attack');
     assert.ok(!result.copiedAttackPrompts.includes('ConfirmPrompt'),
       'Mimikyu Copycat must not inherit Bunnelby Ω Barrage');
-    assert.equal(result.sourceDeckDelta,-1);
+    assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
+    assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
-    assert.equal(result.candidateDeckDelta,-1);
+    assert.equal(result.sourceNextTopMovedToHand,true);
+    assert.equal(result.candidateDeckDelta,-2);
+    assert.equal(result.candidateDiscardDelta,1);
+    assert.equal(result.candidateHandDelta,1);
     assert.deepEqual(result.unresolvedPrompts,[]);
     assert.equal(result.ownerActiveEnergyCount,2);
     assert.equal(result.ownerUsedGX,false);
@@ -35,9 +39,11 @@ for(const sourceSeat of [0,1]){
     assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
     assert.ok(result.sourcePrompts.includes('ShowCardsPrompt'));
-    assert.equal(result.sourceDeckDelta,-1);
+    assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
+    assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
+    assert.equal(result.sourceNextTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,0);
     assert.ok(result.copycatPrompts.includes('ShowCardsPrompt'));
     assert.equal(result.competitiveQualifiedGames,0);
@@ -51,9 +57,11 @@ for(const sourceSeat of [0,1]){
     assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
     assert.ok(result.sourcePrompts.includes('ShowCardsPrompt'));
-    assert.equal(result.sourceDeckDelta,0);
+    assert.equal(result.sourceDeckDelta,-1);
     assert.equal(result.sourceDiscardDelta,0);
+    assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,false);
+    assert.equal(result.sourceTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,1);
     assert.equal(result.mimikyuDiscardDelta,-1);
     assert.equal(result.mimikyuRecoveryReturnedToDeck,true);
