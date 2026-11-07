@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const fs=require('node:fs');
 const {
-  binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss
+  binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss,auditRoot93OnePrizeHypothesis
 }=require('../simulation/evaluation/agent43-v9-root93-energy-screen.cjs');
 
 test('binomial supports exact small combinations and out-of-range k',()=>{
@@ -56,4 +56,27 @@ test('actual same-deal Lillie treatment: zero Energy in eight-card refresh',{
   assert.equal(result.preInterventionRootsIdentical,93);
   assert.equal(result.inferredEnergyHitInEightCardDraw,0);
   assert.equal(result.competitivelyQualifiedGames,0);
+});
+
+test('same-deal printed-card source Trubbish 60/70 one-prize Secret Box line preflight',{
+  skip:!(process.env.AGENT43_ROOT93_ARCHIVE&&
+    process.env.AGENT43_ROOT93_TREATMENT_ARCHIVE)
+},()=>{
+  const base=JSON.parse(fs.readFileSync(process.env.AGENT43_ROOT93_ARCHIVE,'utf8'));
+  const treated=JSON.parse(fs.readFileSync(
+    process.env.AGENT43_ROOT93_TREATMENT_ARCHIVE,'utf8'));
+  const cards={
+    unown:require('../resources/cards/en/xy7.json').find(x=>x.id==='xy7-30'),
+    trubbish:require('../resources/cards/en/swsh8.json').find(x=>x.id==='swsh8-168'),
+    secret:require('../resources/cards/en/sv6.json').find(x=>x.id==='sv6-163'),
+    fog:require('../resources/cards/en/swsh6.json').find(x=>x.id==='swsh6-140')
+  };
+  const result=auditRoot93OnePrizeHypothesis(base,treated,cards);
+  assert.equal(result.targetKnockedOutIfDamageUnprevented,true);
+  assert.equal(result.noPlayedAlternateLine,true);
+  assert.deepEqual(result.possibleRemainingTotalEnergyPrized,[0,1,2]);
+  assert.equal(result.competitivelyQualifiedGames,0);
+  assert.throws(()=>auditRoot93OnePrizeHypothesis(base,treated,{
+    ...cards,unown:{...cards.unown,attacks:[{...cards.unown.attacks[0],damage:'0'}]}
+  }));
 });
