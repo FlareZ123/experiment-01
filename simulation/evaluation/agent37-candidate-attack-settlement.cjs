@@ -29,18 +29,28 @@ function candidateAttackSettlement(game,candidateSeat) {
     const event=game.publicAttackTransitions.find(row=>
       row.actionOrdinal===declaration.actionOrdinal &&
       row.triggerPlayerSlot===candidateSeat &&
+      row.turnBefore===declaration.turnBefore &&
+      row.triggerAction===declaration.triggerAction &&
       row.declarations.some(entry=>
         entry.attackName===declaration.attackName &&
         entry.playerName===declaration.playerName));
     assert.ok(event,'Candidate real attack declaration missing from public Store observation');
     const declaringRoot=roots[event.actionOrdinal];
     assert.ok(declaringRoot &&
+      event.turnBefore===declaration.turnBefore &&
+      event.triggerAction===declaration.triggerAction &&
       declaringRoot.playerSlot===candidateSeat &&
       declaringRoot.turnBefore===declaration.turnBefore &&
       declaringRoot.action===declaration.triggerAction,
     'Candidate public attack and root action disagree');
     const completion=event.settled?.completionRootActionOrdinal;
     const closingRoot=Number.isSafeInteger(completion)?roots[completion]:null;
+    const completionRootTurnMatchesDeclarationTurn=
+      completion===event.actionOrdinal?true:Boolean(
+        closingRoot&&Number.isSafeInteger(event.turnAfter)&&
+        Number.isSafeInteger(closingRoot.turnBefore)&&
+        closingRoot.turnBefore===event.turnAfter
+      );
     // A terminal attack can immediately trigger a native sudden-death replay.
     // Its next Store snapshot then belongs to a freshly dealt game. Never
     // interpret that replay opening as damage or Prizes caused in this epoch.
@@ -60,7 +70,8 @@ function candidateAttackSettlement(game,candidateSeat) {
       (completion===event.actionOrdinal ||
         (closingRoot.action==='ResolvePromptAction' &&
          closingRoot.initiatingRootActionOrdinal===
-           event.initiatingRootActionOrdinal)));
+           event.initiatingRootActionOrdinal &&
+         completionRootTurnMatchesDeclarationTurn)));
     // A native sudden-death restart is a new game with its own deal. A
     // later replay can revisit the same numeric turn; never join it to an
     // attack from the previous episode. This veto applies even when the
@@ -101,6 +112,12 @@ function candidateAttackSettlement(game,candidateSeat) {
       ...(row.attack===undefined?{}:{attack:row.attack}),
       ...(row.ability===undefined?{}:{ability:row.ability})
     })):[];
+    const activeBefore=event.before?.[candidateSeat]?.active??null;
+    const activePrintedAttackNamesBefore=Array.isArray(activeBefore?.printedAttacks)?
+      activeBefore.printedAttacks.map(row=>row.name):null;
+    const attackNamePrintedOnPhysicalActiveBefore=
+      activePrintedAttackNamesBefore===null?null:
+        activePrintedAttackNamesBefore.includes(declaration.attackName);
     const printed=declaration.attackName==='Poltergeist'?
       audits.find(row=>row.attackerSeat===candidateSeat &&
         row.actionOrdinal===event.actionOrdinal):null;
@@ -111,10 +128,25 @@ function candidateAttackSettlement(game,candidateSeat) {
       turnBefore:event.turnBefore,
       attackName:declaration.attackName,
       triggerAction:event.triggerAction,
+      declarationTurnMatchesEvent:event.turnBefore===declaration.turnBefore,
+      declarationOccurredDuringResolvePrompt:
+        declaration.triggerAction==='ResolvePromptAction',
+      // Legacy trigger proxy only. ResolvePromptAction does not independently
+      // prove that the declared attack came from Copycat.
+      delegatedCopyTriggerProxy:
+        declaration.triggerAction==='ResolvePromptAction',
       delegatedCopy:declaration.triggerAction==='ResolvePromptAction',
+      activePrintingBefore:activeBefore?.printing??null,
+      activePrintedAttackNamesBefore,
+      attackNamePrintedOnPhysicalActiveBefore,
+      directAttackPrintedOnPhysicalActiveBefore:
+        declaration.triggerAction==='AttackAction'?
+          attackNamePrintedOnPhysicalActiveBefore:null,
       settledPromptChain:settled,
       settlementCrossesClockReset,
       completionRootOrdinal:settled?completion:null,
+      completionRootTurnBefore:closingRoot?.turnBefore??null,
+      completionRootTurnMatchesDeclarationTurn,
       publicBoardBefore:event.before,
       // The declaration root's immediate post-dispatch board can precede
       // later prompt-resolved damage. Keep it distinct from final settlement.
@@ -158,7 +190,7 @@ function candidateAttackSettlement(game,candidateSeat) {
     };
   });
   return {
-    schema:'agent37-actual-candidate-attack-public-settlement-v1',
+    schema:'agent37-actual-candidate-attack-public-settlement-v2',
     candidateSeat,
     declarations:attacks.length,
     settled:attacks.filter(row=>row.settledPromptChain).length,
