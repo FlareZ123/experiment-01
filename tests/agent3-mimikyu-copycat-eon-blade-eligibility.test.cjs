@@ -11,10 +11,10 @@ const trialId='1:212:B:champion-reference';
 function fixture(){
   const sourceBoard=[
     {active:{printing:'Latias ex SSP'},bench:[],stadium:['Sky Field']},
-    {active:{printing:'Mimikyu GRI'},bench:[],stadium:['Sky Field']}
+    {active:{printing:'Mimikyu GRI'},bench:[],stadium:[]}
   ];
   const candidateBoard=[
-    {active:{printing:'Latias ex SSP'},bench:[],stadium:['Sky Field']},
+    {active:{printing:'Latias ex SSP'},bench:[],stadium:[]},
     {active:{
       printing:'Mimikyu GRI',
       energyCards:['Psychic Energy','Psychic Energy'],
@@ -104,6 +104,7 @@ test('Mimikyu pays its own Copycat cost and copies the prior-turn non-GX Eon Bla
 
 test('Dimension Valley reduces one Colorless from Psychic Mimikyu Copycat',()=>{
   const f=fixture();
+  f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[0].stadium=[];
   f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[1].stadium=
     ['Dimension Valley'];
   f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[1].active.energyCards=
