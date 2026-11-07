@@ -80,6 +80,58 @@ const EXPECTED=Object.freeze([
     source:'ffe853f8799da783d9a2b2e53fb82e8286066350c1ac85fcc567f568d64f6a9c'}
 ]);
 
+
+const EXPECTED_SEAT1=Object.freeze([
+  {seed:290130,status:'action-cap',winner:-1,actions:260,
+    full:'4c46da00ca0d354b01006b99576a794d7204e99f1287c3bb3932215f4f0da4d4',
+    source:'2f30815a2f49597af602599cca15f23904d7f2f9825771d9b53856fe6df8d40e'},
+  {seed:290131,status:'action-cap',winner:-1,actions:260,
+    full:'511489c1ef54cd1790a85a2f7f3967f0cc31d2d0122fea6eb1b6b5efe5e5fc56',
+    source:'516411915dd2b040f425c7e943655de5947fded6899c2321d5af8f8e90644471'},
+  {seed:290132,status:'action-cap',winner:-1,actions:260,
+    full:'ce60d0f2227efd47b37a38d61ee080ccf2b741e99ab3b23e148942ac9c95849c',
+    source:'616863096413adde2d3cdc7fb075258ff4e283b5d86183ee1c206977c5de6024'},
+  {seed:290133,status:'action-cap',winner:-1,actions:260,
+    full:'511e736ccce4eda198065c19bd6807ecd5b53671f4293fdae53ac63af1ebfc1f',
+    source:'b4d136caa027ffa1e6f233230e93ce19266f30aed109ae4a715abaa59c92d71a'},
+  {seed:290134,status:'native-terminal',winner:0,actions:28,
+    full:'e3dee5a4c35354678cc55a7c8862a914c3542e3478d1396b0186f9a6bfedaeb7',
+    source:'16608739e6e910d0464fbd3bdb7df623f2d599adc6eea6251a7a0e20bc2868e3'},
+  {seed:290135,status:'action-cap',winner:-1,actions:260,
+    full:'77ff520dbdc940311f85513720f9629c0e0ae6b2d6858dfc1bdc961a01253e96',
+    source:'91c503c53baf28f5f7a161db3dece4ea1b0c3274103ee1e7a820105341e86d61'},
+  {seed:290136,status:'action-cap',winner:-1,actions:260,
+    full:'5935141d98844a26ad5af9ee5b874850cd08dd33362907830cd5c6fbd72a7536',
+    source:'78ea9d7b12e7200b633a065de15dd1e795217ea72ac4b85b3ec53dbe6980b396'},
+  {seed:290137,status:'action-cap',winner:-1,actions:260,
+    full:'1e7e9837b20209285e45d15cc066341a3a43bfa563961d94ed9c74e8b6cfe82e',
+    source:'a98056a84961b27f7d3cea33ae2b4696b89463fdf485135f1ebfd3c92658d64d'},
+  {seed:290138,status:'action-cap',winner:-1,actions:260,
+    full:'d0fddb9bf8884e5c7367422adc2c17f860ee970be416e491de01be432f26201a',
+    source:'f067dd6b7079adb94e421f1cb201903c02edb1304435797ee9393dc25fb19b09'},
+  {seed:290139,status:'action-cap',winner:-1,actions:260,
+    full:'545e60c672990b9d84b51678fce9596d93ed986637241d89060a055b64b79ac6',
+    source:'cd61abf32b05ea52d7686171ea050d8e45754776103e5f48df5eb24bd43780df'},
+  {seed:290140,status:'action-cap',winner:-1,actions:260,
+    full:'5dac973a3ce964669ed1e6d7b76b3fb2cda1b82bcf050a3df7bb095070d77589',
+    source:'7e33f293d735a4391c14e348be1b1f06a2d43333fbe7530ec0cb79766d60b8f9'},
+  {seed:290141,status:'action-cap',winner:-1,actions:260,
+    full:'f4f12995ee8da9acfe8e34df6eecb9fb42764e3e323ba8de850c64d29785cfd3',
+    source:'ae2cc825fc06ea7d5676466e75907366af66fe1dbd73b02d68664aa6abc0a143'},
+  {seed:290142,status:'action-cap',winner:-1,actions:260,
+    full:'e3d1b5955977bfecf19f9736f4c5befca502e0c79d4a75bfb07fd0198d50978c',
+    source:'6cee0049c474a797c5ae4d6ee6531d4839429f8c51b45ebb9cc3552dd914f68f'},
+  {seed:290143,status:'native-terminal',winner:0,actions:146,
+    full:'4c8f2770a0304cb8bd86fac8c464ee06eb4641453ef4c634cecc963478bc05d2',
+    source:'40bafc90e9e325388037ac9a977a6dfbeb1e7d3d777e5eeaa93e0061df55cd3a'},
+  {seed:290144,status:'action-cap',winner:-1,actions:260,
+    full:'d29d03619ea09f9e6521cb1c8277d03e01090ebe8dbba7fe2dbace6f571a4f0d',
+    source:'61825bcc6ba4c8a70fdbd2d36af46573c3064c095fd71c14921331f793585589'},
+  {seed:290145,status:'native-terminal',winner:0,actions:92,
+    full:'78c2e21c62ab224cbfcea1ddde02da8143f248f4f3ba853f65634fcc107b57a2',
+    source:'b4500894417c3515e75650e3047864976b859ebf612da7c975d82a62873e742f'}
+]);
+
 const PREFIXES=Object.freeze({
   handiwork:"Team Rocket's Handiwork",
   trainersMail:"Trainers' Mail",
@@ -190,7 +242,7 @@ function runOne(c,cards){
   const ownerObserved=guarded.result.result;
   const fssObserved=ownerObserved.result;
   const game=fssObserved.result;
-  const expected=EXPECTED.find(row=>row.seed===c.seed);
+  const expected=(c.sourceSeat===0?EXPECTED:EXPECTED_SEAT1).find(row=>row.seed===c.seed);
   const full=game.initialFullPhysicalDealFingerprint?.digestSha256??null;
   const source=game.initialSourceDealFingerprint?.digestSha256??null;
   const status=game.finished?'native-terminal':'action-cap';
@@ -238,15 +290,19 @@ function runOne(c,cards){
 }
 
 /** @returns {object[]} Frozen, one-seat scan schedule. */
-function schedule(){
+function schedule(sourceSeat=0){
+  assert.ok(sourceSeat===0||sourceSeat===1);
+  const candidateSeat=1-sourceSeat;
   return SEEDS.map(seed=>({
-    candidateSeat:1,sourceSeat:0,seed,
-    id:'rank3-fresh-1-'+seed
+    candidateSeat,sourceSeat,seed,
+    id:'rank3-fresh-'+candidateSeat+'-'+seed
   }));
 }
 
-function writeReceipt(receipt){
-  const directory=process.env.AGENT1_RANK3_OWNER_ZONE_SCAN_DIR;
+function writeReceipt(receipt,sourceSeat=0){
+  const directory=sourceSeat===0?
+    process.env.AGENT1_RANK3_OWNER_ZONE_SCAN_DIR:
+    process.env.AGENT1_RANK3_OWNER_ZONE_SCAN_SEAT1_DIR;
   if(!directory)return null;
   const fs=require('node:fs');
   fs.mkdirSync(directory,{recursive:true});
@@ -263,7 +319,8 @@ function writeReceipt(receipt){
   return target;
 }
 
-function run(){
+function run(sourceSeat=0){
+  assert.ok(sourceSeat===0||sourceSeat===1);
   const old=new Map([
     ['AGENT8_ACTOR_QUICK_BALL_DEV',process.env.AGENT8_ACTOR_QUICK_BALL_DEV],
     ['AGENT41_OWNER_TERMINAL_ARBITRATION_DEV',
@@ -274,7 +331,7 @@ function run(){
     process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV='false';
     initializeCards();
     const cards=originals();
-    const rows=schedule().map(c=>runOne(c,cards));
+    const rows=schedule(sourceSeat).map(c=>runOne(c,cards));
     const summary={
       attempted:rows.length,
       errors:rows.filter(row=>row.status==='native-error').length,
@@ -308,8 +365,8 @@ function run(){
       candidateDeckSha256:sha(cards.candidate),
       nativePin:PIN,
       actionLimit:ROOT_LIMIT,
-      sourceSeat:0,
-      candidateSeat:1,
+      sourceSeat,
+      candidateSeat:1-sourceSeat,
       seeds:[...SEEDS],
       expectedSourceDeckSha256:SOURCE_DECK_SHA,
       expectedCandidateDeckSha256:CANDIDATE_DECK_SHA,
@@ -321,7 +378,7 @@ function run(){
       rows.every(row=>row.ownerZoneAudit?.liveStoreFound===true&&
         row.ownerZoneAudit?.opponentHiddenZonesInspected===false&&
         row.ownerZoneAudit?.notPolicyInput===true);
-    result.artifactPath=writeReceipt(result);
+    result.artifactPath=writeReceipt(result,sourceSeat);
     return result;
   }finally{
     for(const [name,value] of old){
@@ -336,5 +393,5 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(!result.controlsPass)process.exitCode=1;
 }
-module.exports={VERSION,PIN,ROOT_LIMIT,SEEDS,EXPECTED,schedule,
+module.exports={VERSION,PIN,ROOT_LIMIT,SEEDS,EXPECTED,EXPECTED_SEAT1,schedule,
   relevantCounts,summarizeSnapshots,runOne,run};
