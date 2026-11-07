@@ -572,7 +572,7 @@ test('invalid natural evolution owner seat is rejected and missing actor seat fa
 
 
 
-const {chooseGarbodorToolIntent}=
+const {chooseGarbodorToolIntent,evaluateGarbodorToolIntent}=
   require('../simulation/twinleaf/agent36-garbotoxin-tool-intent.cjs');
 const garbotoxinToolCatalog={
   ...catalog,
@@ -641,6 +641,22 @@ test('Garbotoxin root prefers held Float Stone over Forest Seal Stone',()=>{
     handIndex:1,slot:'bench',index:1,
     source:'agent36-garbotoxin-float-stone-v1'
   });
+});
+
+test('Star Alchemy deferral status is explicit and opt-in',()=>{
+  const view=garbotoxinToolView({
+    hand:['Forest Seal Stone SIT','Float Stone BKT'],
+    ownVRecipient:true,vstarUsed:false
+  });
+  const immediate=evaluateGarbodorToolIntent(view,garbotoxinToolCatalog);
+  assert.equal(immediate.starAlchemyDeferred,false);
+  assert.equal(immediate.intent.printing,'Float Stone BKT');
+  const deferred=evaluateGarbodorToolIntent(view,garbotoxinToolCatalog,{
+    deferForStarAlchemy:true
+  });
+  assert.equal(deferred.starAlchemyDeferred,true);
+  assert.equal(deferred.reason,'star-alchemy-available');
+  assert.equal(deferred.intent,null);
 });
 
 test('Garbotoxin root locks immediately by default while Star Alchemy remains available',()=>{
