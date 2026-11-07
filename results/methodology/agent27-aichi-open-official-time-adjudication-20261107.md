@@ -226,3 +226,10 @@ The ordered extension wrapper receives that packet plus the independently review
 ```
 
 The second block embeds the full time-call packet. A terminal result remains conditional, and `competitiveAdmission` remains false until the external reviewer authenticates the clock, stage, paper state, and complete ledger. A valid reference shape does not establish that the source is genuine or complete.
+
+
+### Per-attempt clock disposition integration boundary
+
+Agent12 recommends that the complete-game attempt schema carry an explicit `clockDisposition` and nullable `clockReceiptId`, while retaining `paperReceiptId` as a separate reference to the independently audited paper game record. This belongs in the Agent12 per-attempt validator; Agent27's module remains scoped to actual official-call and extension adjudication.
+
+Recommended conditional shape: `no-official-call` requires a null clockReceiptId plus complete paper evidence and review establishing that the game ended naturally before any official call; a null ID alone must not be treated as proof that no call occurred. `official-call` requires a nonempty unique clockReceiptId resolving to the complete stage-specific timeCallPacket, then invokes `auditTimeCallPacket` and, if extension is entered, `auditExtensionLedger`. Disputed, unverified, capped, or engine-only dispositions remain explicit and non-admitting. The frozen `adjudicationProtocolSha` should cover the exact event rules and Agent27 module revision. Agent12 received this boundary and schema recommendation on 7 November.
