@@ -1364,6 +1364,7 @@ function runDevelopment({
   actorRank9CompressorOwnerBridge=false,
   actorRank9CompressorAnyTurn=false,
   actorRank9CompressorBombAfter=false,
+  actorRank9UltraDeadVipAfterPass=false,
   actorRank9CompressorEnergyTarget=3,
   paperRank9ElectrodeGXCorrection=false,
   actorRank9MegaAbsolFundingRoot=false,
@@ -1409,6 +1410,8 @@ function runDevelopment({
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
+  assert.ok(!actorRank9UltraDeadVipAfterPass||actorRank9CompressorBombAfter,
+    'Original dead-VIP Ultra Ball rescue requires the source Bomb composition');
   assert.ok([1,2,3].includes(actorRank9CompressorEnergyTarget),
     'Rank9 source Compressor target must be 1–3 physical Energy');
   assert.ok(!sourceIndependentCommonPolicy||actorOnlyComposition,
@@ -1887,6 +1890,9 @@ function runDevelopment({
               }:{}),
               ...(actorRank9CompressorBombAfter?{
                 rank9CompressorBombAfter:true
+              }:{}),
+              ...(actorRank9UltraDeadVipAfterPass?{
+                rank9UltraDeadVipAfterPass:true
               }:{}),
               ...(actorRank9CompressorEnergyTarget!==3?{
                 rank9CompressorEnergyTarget:actorRank9CompressorEnergyTarget
