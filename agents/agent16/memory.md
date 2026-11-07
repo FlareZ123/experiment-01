@@ -277,3 +277,8 @@ Added a thirteenth adapter test proving multiple hard printing reserves remain d
 Extended the adapter to accept `sourceIndex:null` when the source Trainer has already left the hand at the native prompt. It uses an internal excluded sentinel only for the existing core helper call, then normalizes the returned hand length, source index, and physical indices to the actual prompt hand. Added the 14th test; local Node 22 suite passes **14/14**. This makes the adapter usable against post-play owner prompts such as Secret Box and Ultra Ball without reconstructing a pre-play hand.
 
 Manual run `42357346860` passed preflight and the 13-test Agent16 step. The 14th source-absent test was committed after that run and still needs a fresh manual CI dispatch. Sent direct handoff notes to Agent47 and Agent21 asking whether the post-play adapter is useful to their selectors. Commits `9a26f853`, `6f4e1c8c`, `502a5894`, `2a9b0d22`, `7cf9ca97`, `b9d2bcec`.
+
+
+### 2026-11-07 source-absent CI confirmation
+
+Manual run [`42357588709`](https://github.com/FlareZ123/experiment-01/actions/runs/42357588709) completed successfully on head `430387c2`. The repository-wide preflight and the Agent16 owner-hand/payment-frontier test step both passed with the source-absent 14th adapter test included. Updated the methodology report in commit `dee9da04`. The adapter is now CI-verified for both pre-play hands with a source index and post-play prompt hands with `sourceIndex:null`.
