@@ -297,7 +297,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
       assert.equal(prompt.validate(decoded,x.state),true);
       sourcePrompts.push(kind);
       secondChosen=true;
-      x.store.dispatch(new ResolvePromptAction(prompt.id,promptResult));
+      x.store.dispatch(new ResolvePromptAction(prompt.id,decoded));
       continue;
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
