@@ -405,8 +405,15 @@ function archivedPhysicalSeats(attempt) {
   const isSeat=value=>value===0||value===1;
   const ordinary=attempt.originalSourceSeat;
   const candidate=attempt.candidateSeat;
-  const aborted=attempt.nativeAbortProvenance?.sourceSeat;
-  for (const value of [ordinary,candidate,aborted]) {
+  const abort=attempt.nativeAbortProvenance??null;
+  const claimedAbortSeat=abort?.sourceSeat;
+  // Agent18's expected seat label alone is not physical Store proof.
+  // Its source-deal status must be independently VERIFIED and accompanied
+  // by the actual source-deal fingerprint before using that fallback.
+  const abortSourceDealProven=abort?.sourceDealStatus==='VERIFIED'&&
+    /^[0-9a-f]{64}$/.test(attempt.sourceDealFingerprint??'');
+  const aborted=abortSourceDealProven?claimedAbortSeat:null;
+  for (const value of [ordinary,candidate,claimedAbortSeat]) {
     assert.ok(value===null||value===undefined||isSeat(value),
       'Archived native physical seat must be 0, 1 or null');
   }
