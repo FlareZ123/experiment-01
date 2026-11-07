@@ -230,6 +230,8 @@ function auditTimeCallPacket(packet) {
     missing.push('original-first-player-source-missing');
   if(!nonempty(packet.turnOwnerWhenCalledEvidenceRef))
     missing.push('end-call-turn-owner-source-missing');
+  if(!nonempty(packet.turnSequenceEvidenceRef))
+    missing.push('final-turn-sequence-source-missing');
   if(!nonempty(packet.independentPaperStateEvidenceRef))
     missing.push('independent-paper-state-source-missing');
   if(packet.paperStateIndependentlyReviewed!==true)
