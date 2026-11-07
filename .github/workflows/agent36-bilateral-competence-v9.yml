@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent36_v9_vip_aba:
+        description: 'Fresh-seed bilateral common-policy A/B/A for inner owner VIP after Pass (240-root development only)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,7 +34,7 @@ concurrency:
 jobs:
   one-game-probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out research repository
         uses: actions/checkout@v4
@@ -60,6 +65,7 @@ jobs:
           node --check simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs
           node --check simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
+          node --check simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
           node --check simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs
@@ -93,23 +99,31 @@ jobs:
             tests/agent49-owner-direct-fog-one-energy-native.test.cjs \
             tests/agent49-rank31-dusknoir-cursed-blast-native.test.cjs \
             tests/agent4-secret-box-paper-search-native.test.cjs \
-            tests/agent43-native-box-ko-postsettlement-audit.test.cjs
+            tests/agent43-native-box-ko-postsettlement-audit.test.cjs \
+            tests/agent16-issue25-canonical-vip-v11.native.test.cjs \
+            tests/agent8-owner-telepathic-bench-search.native.test.cjs \
+            tests/agent36-v8-owner-ability-policy.native.test.cjs \
+            tests/agent36-issue25-common-v9-vip-aba.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
+        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
-        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass }}
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Execute exposed rank11 owner-visible Secret Box Fog one-Energy KO
-        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
+        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba }}
         run: node simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
+
+      - name: Execute preregistered shared-policy owner VIP A/B/A
+        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
+        run: node simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() }}
@@ -119,5 +133,6 @@ jobs:
           path: |
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent43-v9-root93-secretbox-oneprize/
+            artifacts/agent36-v9-vip-aba/
           retention-days: 21
           if-no-files-found: warn
