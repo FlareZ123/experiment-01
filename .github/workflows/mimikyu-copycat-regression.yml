@@ -57,6 +57,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify native Mimikyu Copycat executes Bunnelby Burrow after the immediately preceding turn
+        run: node --test tests/agent8-mimikyu-burrow-native.test.cjs
       - name: Validate copycat metadata bug and research-side hook
         run: node --test tests/mimikyu_apex_copycat.test.cjs
       - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
@@ -124,8 +126,6 @@ jobs:
 
       - name: Characterize stale Copycat attack after intervening pass
         run: node simulation/twinleaf/mimikyu-stale-attack.cjs
-      - name: Verify native Mimikyu Copycat executes Bunnelby Burrow after the immediately preceding turn
-        run: node --test tests/agent8-mimikyu-burrow-native.test.cjs
 
       - name: Optional original rank10/champion read-only Copycat root-zone A/B/A
         if: inputs.agent6_copycat_original_source_root == true
