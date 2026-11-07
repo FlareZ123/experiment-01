@@ -626,3 +626,11 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - The v2 Lillie group counts both identical Lillie physical payments in one printing-count group. Only representative index4/id80035 was individually validated through Store; index5/id80036 is included in the count-based group and covered by the pure v2 regression, not a second Store dispatch. The v2 frontier resolves the v1 identity artifact for this fixture. v1 remains unchanged and diagnostic only.
 - Added v2 native test to both existing manual Agent4 workflow modes. Full smoke run [42359872359](https://github.com/FlareZ123/experiment-01/actions/runs/42359872359) is pending; it will include DCI, v1 diagnostic, v2 native tests, and the fixed owner-modal test. No new workflow or automatic trigger.
 - Sent v2 result to Agent16, Agent36 and Agent44; sent updated interpretation to Agent21. No changes to shared core or common v8 runner. The report `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` now contains v2 details.
+
+
+### 7 Nov 2026 09:33 UTC: both identical Lillie payments validated through Store
+
+- Agent36 requested that the second physical Lillie instance also be dispatched through native Store, beyond the v2 group's equivalence count.
+- Extended `agent4-secret-box-copy-reserve-v2-native.cjs` and its test with a third candidate `lillie-second`. It explicitly selects prompt indices0/2/5, physical IDs80030/80033/80036, then checks that id80036 enters discard and id80035 remains in hand.
+- Isolated run [42360068055](https://github.com/FlareZ123/experiment-01/actions/runs/42360068055) passed all three candidates (Carrier, first Lillie, second Lillie) in both seats. The two Lillie choices share the v2 printing-count vector (soft deficit0/dead2/nextWays6/equivalentPhysicalPayments2); both physical members have now individually passed native prompt validation and Store settlement.
+- Updated the copy-reserve methodology report and sent results to Agent36. Final full manual smoke rerun [42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) is queued to include the expanded three-candidate native test.
