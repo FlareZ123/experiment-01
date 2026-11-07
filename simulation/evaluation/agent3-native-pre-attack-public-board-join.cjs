@@ -4,11 +4,65 @@ const assert=require('node:assert/strict');
 const {assessDirectEnergy}=
   require('../twinleaf/agent30-source-attack-energy-reachability.cjs');
 
-const VERSION='agent3-native-pre-attack-public-board-join-v2';
+const VERSION='agent3-native-pre-attack-public-board-join-v3';
 const CARD_TYPE_ENUM=Object.freeze({
   Grass:1,Fire:2,Water:3,Lightning:4,Psychic:5,Fighting:6,
   Darkness:7,Metal:8,Colorless:9,Fairy:10,Dragon:11
 });
+
+function locatePublicPrinting(board,seat,fullName){
+  if(!Array.isArray(board)||board.length!==2)
+    return {captured:false,location:'unknown',damage:null};
+  const player=board[seat];
+  if(!player||typeof player!=='object')
+    return {captured:false,location:'unknown',damage:null};
+  const active=player.active;
+  const activeMatches=active?.printing===fullName;
+  const bench=Array.isArray(player.bench)?player.bench:[];
+  const benchMatches=bench.filter(slot=>slot?.printing===fullName);
+  if(activeMatches&&benchMatches.length===0)
+    return {captured:true,location:'active',
+      damage:Number.isSafeInteger(active.damage)?active.damage:null};
+  if(!activeMatches&&benchMatches.length===1)
+    return {captured:true,location:'bench',
+      damage:Number.isSafeInteger(benchMatches[0].damage)?
+        benchMatches[0].damage:null};
+  if(!activeMatches&&benchMatches.length===0)
+    return {captured:true,location:'absent',damage:null};
+  return {captured:true,location:'ambiguous',damage:null};
+}
+
+function classifyDeclarationTiming(immediate,final,printedHp,
+  promptPending,actionOrdinal,completionRootOrdinal){
+  if(!immediate.captured)return 'UNKNOWN_NO_DECLARATION_ROOT_BOARD';
+  if(!Number.isSafeInteger(printedHp))return 'UNKNOWN_NO_PRINTED_HP';
+  if(immediate.damage!==null&&immediate.damage>=printedHp)
+    return 'TARGET_DAMAGE_THRESHOLD_REACHED_AT_DECLARATION_ROOT';
+  if(immediate.location==='absent')
+    return 'TARGET_ABSENT_FROM_IN_PLAY_AT_DECLARATION_ROOT';
+  if(immediate.location==='bench')
+    return 'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT';
+  if(immediate.location!=='active')
+    return 'UNKNOWN_IMMEDIATE_TARGET_LOCATION';
+  const laterPromptRoots=promptPending===true&&
+    Number.isSafeInteger(actionOrdinal)&&
+    Number.isSafeInteger(completionRootOrdinal)&&
+    completionRootOrdinal>actionOrdinal;
+  if(laterPromptRoots&&final.captured){
+    if(final.location==='absent')
+      return 'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION';
+    if(final.damage!==null&&final.damage>=printedHp)
+      return 'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION';
+  }
+  if(final.captured&&final.location==='absent')
+    return 'TARGET_REMOVED_AFTER_DECLARATION_WITHOUT_PROMPT_CHAIN';
+  if(final.captured&&final.damage!==null&&final.damage>=printedHp)
+    return 'TARGET_DAMAGE_THRESHOLD_REACHED_AFTER_DECLARATION_ROOT';
+  if(final.captured&&final.location==='active'&&
+    final.damage!==null&&final.damage<printedHp)
+    return 'TARGET_REMAINS_BELOW_PRINTED_HP_AFTER_PROMPT_CLOSURE';
+  return 'UNKNOWN_FINAL_TARGET_STATE';
+}
 
 /**
  * Join an accepted, settled physical-Prize attack to its native public
