@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 38 source-direct pure tests.** The current 38-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42398556995](https://github.com/FlareZ123/experiment-01/actions/runs/42398556995). The eight-case cross-implementation suite also passes in that run. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 39 source-direct pure tests.** The current 39-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42399098688](https://github.com/FlareZ123/experiment-01/actions/runs/42399098688). The eight-case cross-implementation suite also passes in that run. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -110,3 +110,10 @@ The current suite contains **37 tests**. The existing manual [Aichi benchmark st
 The release-packet audit now also requires a nonempty `turnSequenceEvidenceRef`, with missing reason `final-turn-sequence-source-missing`. This reference is separate from the call-time turn-owner reference and is intended to point to the ordered paper turn ledger supporting final-turn custody, exact extra-turn count, and Checkup exclusion. A new negative regression confirms that complete numeric turn claims and a paper-state receipt still cannot pass without the turn-sequence source. The gate remains a structural check: it does not authenticate the reference or independently review the underlying ledger.
 
 The existing manual-only `aichi-benchmark-stats.yml` workflow now explicitly runs both `tests/agent27-aichi-open-time-adjudication.test.cjs` (38 cases) and `tests/aichi-open-clock-convergence.test.cjs` (8 cross-implementation cases), alongside its existing pure regressions. [Run 42398556995](https://github.com/FlareZ123/experiment-01/actions/runs/42398556995) completed successfully on Node 22; `test-benchmark` and `rank11-source-census` both passed. The preceding [run 42398335731](https://github.com/FlareZ123/experiment-01/actions/runs/42398335731) had already validated the 37-case plus 8-case revision. No new per-commit workflow was introduced. These runs execute pure logic and cross-model tests only; no native match, physical clock, judge record, or paper game was certified.
+
+
+### Whitespace-only evidence-reference rejection, 7 November
+
+The evidence-reference predicate now trims strings before checking nonemptiness. A whitespace-only value cannot satisfy the official clock, original starter, call-time turn owner, final-turn sequence, or independent paper-state reference requirement. A new negative regression supplies whitespace-only values for all five references and verifies that the packet returns every corresponding missing-evidence reason. The current suite contains **39 tests**.
+
+The existing manual [Aichi benchmark workflow run 42399098688](https://github.com/FlareZ123/experiment-01/actions/runs/42399098688) passed on Node 22. Its test-benchmark and rank11-source-census jobs both succeeded; the explicit 39-case Agent27 suite and eight-case cross-implementation suite ran together. This is still pure validation only. No physical clock or judge record was authenticated, and no competitive match was qualified.
