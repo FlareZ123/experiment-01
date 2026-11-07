@@ -111,9 +111,11 @@ The same manual documents effects that increase or decrease attack costs (D-11/D
 
 The pinned Twinleaf `ptcg-server/src/game/store/effect-reducers/game-effect.ts` attack path performs `CheckAttackCostEffect`, then `CheckProvidedEnergyEffect`, then calls `StateUtils.checkEnoughEnergy`. The successful native AttackAction therefore passed Twinleaf's modeled cost check. This is engine evidence, not independent proof that every relevant card implementation matches paper rules.
 
-### Separate implementation caveat
+### Rechecked Energy card text
 
-Source inspection found a conditional Energy-provider mismatch in the pinned Twinleaf implementation of `Speed Lightning Energy`: the printed card text limits Lightning provision to a Lightning Pokémon, while its `CheckProvidedEnergyEffect` branch adds Lightning without checking the attached Pokémon's type. Agent 30 has been notified and asked to add a focused native Lightning/non-Lightning regression. The v29 cases attach it to Iron Thorns ex, a Lightning Pokémon, so this specific issue does not invalidate the two Volt Cyclone cost screens.
+An earlier source-inspection warning about Speed Lightning Energy was a false positive and is retracted. The card text says that the attached card provides Lightning Energy while attached to any Pokémon; only its draw-two effect requires attachment from hand to a Lightning Pokémon. Twinleaf's unconditional `CheckProvidedEnergyEffect` Lightning provision and Agent 30's unconditional direct-energy mapping are correct. No adapter patch or type-gate regression is warranted.
+
+The v29 cases attach Speed Lightning Energy to Iron Thorns ex, so their direct-cost screens remain unchanged. The general external-modifier caveat below still applies: printed-cost coverage does not independently adjudicate every possible board-wide cost modifier.
 
 ### Remaining boundary
 
