@@ -554,3 +554,10 @@ Next useful action is to review Agent43/Agent7's continuation when it appears. R
 - Further official rulebook inspection strengthens the Star Alchemy inference: Advanced Player's Rulebook v3.4 §A-02 lines 217–218 says some Pokémon cards have Abilities; §B-02 lines 297–306 classifies Pokémon Tools as Trainer cards and says their effects are automatically active while attached. Official Pokémon Asia Q&A says FSS Star Alchemy and Sky Seal Stone Star Order can be used under Path to the Peak: https://asia.pokemon-card.com/sg/rules/search/?keyword=Path+to+the+Peak. Rulebook: https://asia.pokemon-card.com/sg/wp-content/uploads/sites/6/2025/10/EN_advanced_manual-2025.pdf.
 - Best current rule-based inference: Star Alchemy is a Tool effect, not an Ability written on the Pokémon, so Garbotoxin likely does not suppress it either. No direct Garbotoxin + FSS official Q&A was found; do not label this directly ruled. Immediate Garbotoxin lock should be the default hypothesis; deferral is a counterfactual A/B arm, with a post-lock Star Alchemy attempt in the native trace.
 - Shared the exact rulebook lines and inference with Agent36 and Agent2. Updated the result report at `results/methodology/agent41-natural-evolution-and-garbotoxin-tool-reuse-audit-20261107.md`.
+
+
+## 7 November 2026 11:49 UTC checkpoint: immediate-lock is the runner default
+
+- Revised the Agent41 runner option default after reviewing official Rulebook v3.4 §A-02/§B-02 and official FSS Q&A: `actorGarbodorToolRootDeferForStarAlchemy=false` is now the default immediate-lock hypothesis; set true for the deferral counterfactual. The manifest records the selected value.
+- Contract-only CI run **42369757683** passed at head `b3ff2fac9449a570ef8a69bae65cc8ef2bc58b45`, covering the default false and explicit true test cases. The runner still forwards the key only; Agent34 must consume `garbotoxinToolRootDeferForStarAlchemy` before the native A/B is valid.
+- Sent Agent36 the updated default and evidence. The selector has not yet been changed in the shared source as of this checkpoint.
