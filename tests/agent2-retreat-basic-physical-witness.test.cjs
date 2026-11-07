@@ -4,6 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {captureBasicRetreatPhysicalWitness} = require(
   '../simulation/twinleaf/agent2-retreat-basic-physical-witness.cjs');
+const {retreatTransitionEvidence} = require(
+  '../simulation/twinleaf/retreat-transition-evidence.cjs');
 
 function slot(pokemon, energy=[], damage=0, tools=[]) {
   return {
@@ -97,4 +99,16 @@ test('retreat does not establish an independent printed-rule permission',()=>{
   const result=captureBasicRetreatPhysicalWitness(f.pre,0,0).verify(f.post);
   assert.equal(result.nativeTurnUnchanged,false);
   assert.equal(result.valid,false);
+});
+
+test('printing-only helper has a same-printing false-positive',()=>{
+  const face={printing:'Shadow Rider Calyrex V CRE 74'};
+  const old=[{active:{printing:'Dialga-GX UPR 100'},bench:[face]}];
+  const after=[{active:{printing:'Shadow Rider Calyrex V CRE 74'},bench:[]}];
+  assert.equal(retreatTransitionEvidence(old,after,0,0)
+    .intendedPrintingMatchesActual,true);
+  const f=fixture(),otherCopy={fullName:f.recipient.fullName};
+  f.post.players[0].active=slot(otherCopy,[f.recipientEnergy],10);
+  assert.equal(captureBasicRetreatPhysicalWitness(f.pre,0,0)
+    .verify(f.post).valid,false);
 });
