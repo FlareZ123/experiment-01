@@ -51,6 +51,10 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     if(final.damage!==null&&final.damage>=printedHp)
       return 'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION';
   }
+  if(final.captured&&
+    (final.location==='active'||final.location==='bench')&&
+    final.damage!==null&&final.damage<printedHp)
+    return 'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP';
   if(immediate.location==='bench')
     return 'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT';
   if(immediate.location!=='active')
@@ -59,10 +63,6 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     return 'TARGET_REMOVED_AFTER_DECLARATION_WITHOUT_PROMPT_CHAIN';
   if(final.captured&&final.damage!==null&&final.damage>=printedHp)
     return 'TARGET_DAMAGE_THRESHOLD_REACHED_AFTER_DECLARATION_ROOT';
-  if(final.captured&&
-    (final.location==='active'||final.location==='bench')&&
-    final.damage!==null&&final.damage<printedHp)
-    return 'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP';
   return 'UNKNOWN_FINAL_TARGET_STATE';
 }
 
