@@ -10,8 +10,8 @@ const B = 'b'.repeat(64);
 const C = 'c'.repeat(64);
 const D = 'd'.repeat(64);
 
-/** @param {number} perSeat */
-function fixture(perSeat) {
+/** @param {number} perStratum */
+function fixture(perStratum) {
   const originalSources = Array.from({length: 32}, (_, i) => ({
     rank: i + 1, source60Sha: (i + 1).toString(16).padStart(64, '0'),
     authenticatedSource60: true
@@ -19,15 +19,17 @@ function fixture(perSeat) {
   const attempts = [];
   for (const source of originalSources) {
     for (const seat of [0, 1]) {
-      for (let i = 0; i < perSeat; i++) {
-        const id = source.rank + '/' + seat + '/' + i;
+      for (const firstPlayerSeat of [0, 1]) {
+        for (let i = 0; i < perStratum; i++) {
+        const id = source.rank + '/' + seat + '/' + firstPlayerSeat + '/' + i;
         attempts.push({
-          rank: source.rank, seat,
+          rank: source.rank, seat, firstPlayerSeat,
           trialId: id, physicalDealId: 'deal/' + id,
           paperReceiptId: 'receipt/' + id, status: 'paper-qualified-win',
           source60Sha: source.source60Sha,
           candidate60Sha: A, candidatePolicySha: B, registrationSha: C
         });
+        }
       }
     }
   }
@@ -37,11 +39,11 @@ function fixture(perSeat) {
   };
 }
 
-test('ten distinct wins per seat and rank pass conditional 99.5% threshold', () => {
-  const result = assessPerfectField(fixture(10));
+test('five distinct wins per rank-seat-first-player pass conditional 99.5% threshold', () => {
+  const result = assessPerfectField(fixture(5));
   assert.equal(result.totalAttempts, 640);
-  assert.equal(result.attemptsPerRankSeat, 10);
-  assert.equal(result.requiredPerRankSeat, 10);
+  assert.equal(result.attemptsPerRankSeatAndFirstPlayer, 5);
+  assert.equal(result.requiredPerRankSeatAndFirstPlayer, 5);
   assert.deepEqual(result.rejectionReasons, []);
   assert.equal(result.conditionalStatisticalThresholdMet, true);
   assert.ok(Math.abs(result.conditionalLowerBound -
@@ -49,16 +51,16 @@ test('ten distinct wins per seat and rank pass conditional 99.5% threshold', () 
   assert.equal(result.externalPaperAndIndependenceAuditRequired, true);
 });
 
-test('nine per rank-seat fail threshold without claiming an invalid ledger', () => {
-  const result = assessPerfectField(fixture(9));
+test('four per rank-seat-first-player fail threshold without claiming an invalid ledger', () => {
+  const result = assessPerfectField(fixture(4));
   assert.equal(result.conditionalStatisticalThresholdMet, false);
   assert.deepEqual(result.rejectionReasons, []);
   assert.ok(Math.abs(result.conditionalLowerBound -
-    0.9948125773029356) < 1e-12);
+    0.9941660443994437) < 1e-12);
 });
 
 test('missing three original source 60s fail closed', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.originalSources =
     request.originalSources.filter(source => ![23, 25, 28].includes(source.rank));
   const result = assessPerfectField(request);
@@ -69,7 +71,7 @@ test('missing three original source 60s fail closed', () => {
 
 test('a nonwin, an unqualified native terminal, or a censored attempt is vetoed', () => {
   for (const status of ['loss', 'native-win', 'censored', 'error', 'tie']) {
-    const request = fixture(10);
+    const request = fixture(5);
     request.attempts[0].status = status;
     const result = assessPerfectField(request);
     assert.equal(result.conditionalLowerBound, null);
@@ -78,7 +80,7 @@ test('a nonwin, an unqualified native terminal, or a censored attempt is vetoed'
 });
 
 test('same physical opening reused as a paired game is not independent', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.attempts[1].physicalDealId = request.attempts[0].physicalDealId;
   const result = assessPerfectField(request);
   assert.equal(result.conditionalLowerBound, null);
@@ -86,7 +88,7 @@ test('same physical opening reused as a paired game is not independent', () => {
 });
 
 test('an unreported preregistered attempt cannot be silently dropped', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.registeredAttemptCount++;
   const result = assessPerfectField(request);
   assert.ok(result.rejectionReasons.includes(
@@ -94,16 +96,16 @@ test('an unreported preregistered attempt cannot be silently dropped', () => {
 });
 
 test('unequal seat exposure, including a missing seat, is rejected', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.attempts.pop();
   request.registeredAttemptCount--;
   const result = assessPerfectField(request);
-  assert.ok(result.rejectionReasons.includes('rank-seat-exposure-unbalanced'));
+  assert.ok(result.rejectionReasons.includes('rank-seat-first-player-exposure-unbalanced'));
 });
 
 test('candidate swap or policy mutation invalidates a fixed-treatment panel', () => {
   for (const key of ['candidate60Sha', 'candidatePolicySha']) {
-    const request = fixture(10);
+    const request = fixture(5);
     request.attempts[1][key] = D;
     const result = assessPerfectField(request);
     assert.ok(result.rejectionReasons.includes('candidate-or-policy-changed'));
@@ -111,7 +113,7 @@ test('candidate swap or policy mutation invalidates a fixed-treatment panel', ()
 });
 
 test('nonmatching registration and source identities are rejected', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.attempts[0].registrationSha = D;
   request.attempts[1].source60Sha = D;
   const result = assessPerfectField(request);
@@ -120,7 +122,7 @@ test('nonmatching registration and source identities are rejected', () => {
 });
 
 test('duplicate game and paper receipts do not count twice', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.attempts[1].trialId = request.attempts[0].trialId;
   request.attempts[2].paperReceiptId = request.attempts[0].paperReceiptId;
   const result = assessPerfectField(request);
@@ -129,13 +131,13 @@ test('duplicate game and paper receipts do not count twice', () => {
 });
 
 test('unverified source manifests and malformed confidence are rejected', () => {
-  const request = fixture(10);
+  const request = fixture(5);
   request.originalSources[0].authenticatedSource60 = false;
   assert.ok(assessPerfectField(request).rejectionReasons.includes(
     'source-unverified'));
-  assert.throws(() => assessPerfectField({...fixture(10), confidence: 1}),
+  assert.throws(() => assessPerfectField({...fixture(5), confidence: 1}),
     RangeError);
-  assert.throws(() => assessPerfectField({...fixture(10), target: 0}),
+  assert.throws(() => assessPerfectField({...fixture(5), target: 0}),
     RangeError);
   assert.throws(() => assessPerfectField(null), TypeError);
 });
@@ -144,5 +146,5 @@ test('empty or incomplete panel never produces a numeric lower bound', () => {
   const request = fixture(0);
   const result = assessPerfectField(request);
   assert.equal(result.conditionalLowerBound, null);
-  assert.ok(result.rejectionReasons.includes('rank-seat-exposure-unbalanced'));
+  assert.ok(result.rejectionReasons.includes('rank-seat-first-player-exposure-unbalanced'));
 });
