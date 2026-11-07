@@ -71,17 +71,20 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true}={}){
   // A final-KO engine may terminate immediately without a selectable prompt.
   // Preserve that outcome as evidence instead of treating it as a probe error.
   const sourceActive=enemy.active.getPokemonCard();
+  const occupiedBench=enemy.bench.filter(slot=>slot.getPokemonCard()).length;
+  assert.equal(occupiedBench,opponentHasBench?1:0,
+    'Bench length counts five physical slots; distinguish real occupied Pokémon');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
     lastPrize,opponentHasBench,
     printedScenario:'Unown AOR Hidden Power10 to Trubbish FST with60/70 damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
     sourceActiveAfterAttack:sourceActive?.fullName??null,
-    sourceBenchCount:enemy.bench.length,
+    sourceBenchCount:enemy.bench.filter(slot=>slot.getPokemonCard()).length,
     ownerPrizesRemaining:owner.prizes.length,
     ownerPrizesBeforeAttack:lastPrize?1:6,
     gamePhaseAfterFirstSelectablePrompt:state.phase,
-    opponentRemainingBench:enemy.bench.length,
+    opponentRemainingBench:enemy.bench.filter(slot=>slot.getPokemonCard()).length,
     firstChoiceBeforeUnclaimedWinningPrize:
       lastPrize&&choice==='AttachEnergyPrompt'&&
       owner.prizes.length===1&&!sourceActive,
