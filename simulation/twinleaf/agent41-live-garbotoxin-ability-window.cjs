@@ -8,7 +8,8 @@ const engine=relative=>require(path.join(output,relative));
 
 /**
  * Read-only native Store observation of rank11's source-first Tool Garbodor
- * and candidate's first response during global turn two. An Ability-block
+ * and candidate's response at a configured decision turn (default turn two).
+ * An Ability-block
  * check uses the pinned engine's real PowerEffect reduction against an actual
  * candidate in-play Pokémon, but a probe alone cannot certify all paper rules.
  *
@@ -37,7 +38,7 @@ function withLiveGarbodorAbilityWindow(execute,{
   assert.equal(typeof previous?.value,'function');
   let actual=null;
   const audit={
-    schema:'agent41-authentic-rank11-garbotoxin-ability-window-v1',
+    schema:'agent41-authentic-rank11-garbotoxin-ability-window-v2',
     sourceSeat,candidateSeat,turn,
     before:null,after:null,realStoreOnly:true,
     expectedPrintedGarbodor:'Garbodor BKP',
@@ -87,6 +88,8 @@ function withLiveGarbodorAbilityWindow(execute,{
       action:action.constructor.name,
       globalTurn:state.turn,
       sourceGarbodorHasTool:sourceTool,
+      sourceVstarUsed:source.vstarUsed??null,
+      candidateVstarUsed:candidate.vstarUsed??null,
       candidateActive:ownActive.fullName,
       candidatePrintedPowerNames:(ownActive.powers??[]).map(p=>p.name),
       candidatePrintedPowerChecks:activePowerChecks,
