@@ -89,7 +89,7 @@ function copycatEonBladeNextOwnTurn(seat){
   assert.equal(x.owner.active.cannotAttackNextTurn,true,
     'Copied Eon Blade restriction must attach to physical Mimikyu');
   assert.equal(x.owner.active.cannotAttackNextTurnPending,false);
-  assert.equal(x.opponent.active.cannotAttackNextTurn,true===false);
+  assert.equal(Boolean(x.opponent.active.cannotAttackNextTurn),false);
   assert.equal(x.state.activePlayer,1-seat);
   const afterCopycatTurn=x.state.turn;
 
