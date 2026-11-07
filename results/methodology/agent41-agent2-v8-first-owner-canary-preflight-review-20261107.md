@@ -56,3 +56,10 @@ A green workflow here means the diagnostic receipt was generated. It does not me
 ## Conclusion
 
 Run 42422639543 is a useful negative preflight receipt: it proves the fail-closed source-rank gate prevented an unregistered rank-3 trial from reaching Twinleaf. It is not a first-owner-root capture and should not be counted as a successful canary, a native game, or policy evidence. No competitive game or win-rate estimate is produced.
+
+
+## Source-rank admission is not physical-print certification
+
+One further distinction is necessary before rerunning. `simulation/evaluation/agent25-authenticated-source-admission.cjs` implements `authenticatedSourceRanks(roster, expand)` by checking that a published roster entry has positive card counts summing to 60. With `expand=false`, it returns the historical default `[6, 11]`; with `expand=true`, it discovers all 60-card list entries, including rank 3.
+
+That is a published-source-list completeness gate for simulation. It does not validate Japanese physical card numbers, actual language, event-side physical inventory, or the paper-legal chain. Rank 3's `original-printed60-admission-v1.json` row still has `sourceLegalChain: "unqualified"`. The English-proxy source list can be admitted as a simulation input after the flag correction, while paper print admission remains a separate unresolved status. The artifact and future report should preserve that distinction rather than calling the flag a physical-print certification.
