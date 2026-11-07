@@ -217,7 +217,7 @@ function summarize(rows) {
     nativeErrors: rows.filter(row => row.status === 'native-error').length,
     nativeTerminals: rows.filter(row => row.status === 'native-terminal').length,
     actionCaps: rows.filter(row => row.status === 'action-cap').length,
-    articu​noConfirmOffers: events.length,
+    articunoConfirmOffers: events.length,
     proposalAccepts: events.filter(event => event.proposalDecision === true).length,
     actualAccepts: events.filter(event => event.actualDecision === true).length,
     coldCrushGames: coldCrushRows.length,
