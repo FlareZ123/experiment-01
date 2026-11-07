@@ -9,14 +9,17 @@ const sets = [
   {id:'me4',ptcgoCode:'CRI',name:'Chaos Rising',releaseDate:'2026/05/22'},
   {id:'me3',ptcgoCode:'POR',name:'Perfect Order',releaseDate:'2026/03/27'},
   {id:'x',ptcgoCode:'DUO',name:'One',releaseDate:'2025/01/01'},
-  {id:'y',ptcgoCode:'DUO',name:'Two',releaseDate:'2025/02/01'}
+  {id:'y',ptcgoCode:'DUO',name:'Two',releaseDate:'2025/02/01'},
+  {id:'a',ptcgoCode:'SAME',name:'One',releaseDate:'2022/01/01'},
+  {id:'b',ptcgoCode:'SAME',name:'Two',releaseDate:'2022/01/01'}
 ];
 const cards = [
   {category:'Trainer',name:'Special Red Card',count:2,printing:{set:'CRI',number:'82'}},
   {category:'Pokémon',name:'Trubbish',count:3,printing:{set:'CRI',number:'56'}},
   {category:'Pokémon',name:'Pikachu',count:1,printing:{set:'POR',number:'1'}},
   {category:'Energy',name:'Psychic Energy',count:4,printing:{set:'MEE',number:'13'}},
-  {category:'Trainer',name:'Fixture',count:1,printing:{set:'DUO',number:'2'}}
+  {category:'Trainer',name:'Fixture',count:1,printing:{set:'DUO',number:'2'}},
+  {category:'Trainer',name:'SharedDate',count:1,printing:{set:'SAME',number:'1'}}
 ];
 const data = {decks:[{rank:5,player:'Test',cards}]};
 
@@ -30,7 +33,7 @@ test('counts only known later English release labels and records unresolved code
   assert.equal(result.unresolvedRows,2);
   assert.equal(result.unresolvedCopies,5);
   assert.deepEqual(result.unresolvedRowDetails.map(row=>row.reason),
-    ['unknown-english-set-code','ambiguous-english-set-code']);
+    ['unknown-english-set-code','conflicting-english-set-release-dates']);
   assert.deepEqual(data,original);
   assert.equal(result.historicalPrintingEstablished,false);
   assert.equal(result.paperLegalityEstablished,false);
@@ -39,7 +42,8 @@ test('counts only known later English release labels and records unresolved code
 test('date boundary is strict and category is retained without legal inference', () => {
   const result = auditEnglishProxySetChronology(data,sets,'2026/05/22');
   assert.equal(result.postdatedCopies,0);
-  assert.equal(result.knownSetRows,3);
+  assert.equal(result.datedSetRows,4);
+  assert.equal(result.sameDateMultiSetRows,1);
   assert.equal(result.originalNamesAndCountsChanged,false);
 });
 
@@ -48,6 +52,10 @@ test('all 29 original rosters flag five CRI copies without changing any row', ()
   const fullSets = require('../resources/sets/en.json');
   const result = auditEnglishProxySetChronology(roster,fullSets);
   assert.equal(result.sourceDecks,29);
+  assert.equal(result.sourceInventoryRows,989);
+  assert.equal(result.datedSetRows,932);
+  assert.equal(result.sameDateMultiSetRows,76);
+  assert.equal(result.unresolvedRows,57);
   assert.equal(result.postdatedRows,3);
   assert.equal(result.postdatedCopies,5);
   assert.deepEqual(result.affectedRanks,[5,16,26]);
