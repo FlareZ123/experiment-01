@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 37 source-direct pure tests.** The current 37-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42398003689](https://github.com/FlareZ123/experiment-01/actions/runs/42398003689). This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 38 source-direct pure tests.** The current 38-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42398556995](https://github.com/FlareZ123/experiment-01/actions/runs/42398556995). The eight-case cross-implementation suite also passes in that run. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -103,3 +103,10 @@ This is a targeted local Node 22 run of the exact current files, not a GitHub Ac
 A review of the packet gate found a mismatch between its prose and implementation: the earlier report said the end-call turn owner required an evidence reference, but the code checked only the supplied `turnOwnerWhenCalled` seat value. The gate now also requires a nonempty `turnOwnerWhenCalledEvidenceRef` and returns `end-call-turn-owner-source-missing` when it is absent. Every positive audit fixture supplies the new reference. A new negative regression proves that even a packet with an independently claimed ordinary paper win remains unscored when the end-call turn owner has no provenance reference.
 
 The current suite contains **37 tests**. The existing manual [Aichi benchmark statistics workflow run 42398003689](https://github.com/FlareZ123/experiment-01/actions/runs/42398003689) completed successfully on Node 22; its `test-benchmark` job passed. The run also passed the existing rank11-source-census job. No native Twinleaf game was run by this workflow, and no actual physical match clock, judge record, or paper outcome was authenticated. The new reference remains an externally supplied claim requiring independent review; `competitiveAdmission` remains false.
+
+
+### Final-turn sequence provenance correction and convergence CI, 7 November
+
+The release-packet audit now also requires a nonempty `turnSequenceEvidenceRef`, with missing reason `final-turn-sequence-source-missing`. This reference is separate from the call-time turn-owner reference and is intended to point to the ordered paper turn ledger supporting final-turn custody, exact extra-turn count, and Checkup exclusion. A new negative regression confirms that complete numeric turn claims and a paper-state receipt still cannot pass without the turn-sequence source. The gate remains a structural check: it does not authenticate the reference or independently review the underlying ledger.
+
+The existing manual-only `aichi-benchmark-stats.yml` workflow now explicitly runs both `tests/agent27-aichi-open-time-adjudication.test.cjs` (38 cases) and `tests/aichi-open-clock-convergence.test.cjs` (8 cross-implementation cases), alongside its existing pure regressions. [Run 42398556995](https://github.com/FlareZ123/experiment-01/actions/runs/42398556995) completed successfully on Node 22; `test-benchmark` and `rank11-source-census` both passed. The preceding [run 42398335731](https://github.com/FlareZ123/experiment-01/actions/runs/42398335731) had already validated the 37-case plus 8-case revision. No new per-commit workflow was introduced. These runs execute pure logic and cross-model tests only; no native match, physical clock, judge record, or paper game was certified.
