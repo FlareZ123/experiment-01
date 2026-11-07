@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const {
   VERSION,
+  beastEnergyAwareAttackDamageValue,
   chooseSnapTrapEnergyV2
 } = require('../../simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs');
 
@@ -157,6 +158,55 @@ test('Aichi rank-1 Marshadow field witness: eight Psychic Energy removals leave 
   assert.deepEqual(choice.dynamicEnergyOverrides, []);
 });
 
+
+test('Beast Energy fails closed when Special Energy suppression is blocked or unknown', () => {
+  const doubleColorless = makeEnergy(
+    'Double Colorless Energy SUM',
+    [CardType.COLORLESS, CardType.COLORLESS],
+    EnergyType.SPECIAL
+  );
+  const fire = makeEnergy('Fire Energy', [CardType.FIRE]);
+  const beast = makeEnergy(
+    'Beast Energy FLI',
+    [CardType.COLORLESS],
+    EnergyType.SPECIAL,
+    [CardTag.PRISM_STAR]
+  );
+  beast.set = 'FLI';
+  beast.setNumber = '117';
+  const pokemon = {
+    fullName: 'Synthetic Ultra Beast fixture',
+    attacks: [
+      {name: 'Colorless barrage', cost: [
+        CardType.COLORLESS,
+        CardType.COLORLESS,
+        CardType.COLORLESS
+      ], damage: 130},
+      {name: 'Fire attack', cost: [CardType.FIRE, CardType.FIRE], damage: 120}
+    ],
+    hasTag(tag) {
+      return tag === CardTag.ULTRA_BEAST;
+    }
+  };
+  const {active, prompt} = makeScenario(pokemon, [doubleColorless, fire, beast]);
+  const types = makeTypes();
+
+  const blocked = chooseSnapTrapEnergyV2(prompt, active, types, {
+    specialEnergyBlocked: true,
+    attackDamageValue: beastEnergyAwareAttackDamageValue
+  });
+  const unknown = chooseSnapTrapEnergyV2(prompt, active, types, {
+    attackDamageValue: beastEnergyAwareAttackDamageValue
+  });
+
+  assert.equal(blocked.specialEnergyBlockStatus, 'blocked');
+  assert.equal(unknown.specialEnergyBlockStatus, 'unknown-fail-closed');
+  assert.deepEqual(blocked.dynamicEnergyOverrides, []);
+  assert.deepEqual(unknown.dynamicEnergyOverrides, []);
+  assert.equal(blocked.bestBeforeAttackDamage, 130);
+  assert.equal(unknown.bestBeforeAttackDamage, 130);
+});
+
 test('Ultra Beast counterexample: verified public Beast Energy damage modifier changes the best removal', () => {
   const doubleColorless = makeEnergy(
     'Double Colorless Energy SUM',
@@ -190,16 +240,16 @@ test('Ultra Beast counterexample: verified public Beast Energy damage modifier c
   const {active, prompt} = makeScenario(pokemon, [doubleColorless, fire, beast]);
   const types = makeTypes();
 
-  const baseOnly = chooseSnapTrapEnergyV2(prompt, active, types);
+  const baseOnly = chooseSnapTrapEnergyV2(prompt, active, types, {
+    specialEnergyBlocked: false
+  });
   assert.strictEqual(baseOnly.card, doubleColorless);
   assert.equal(baseOnly.bestRemainingAttackDamage, 120);
   assert.equal(baseOnly.damageModel, 'printed-base-only');
 
   const withBeastModifier = chooseSnapTrapEnergyV2(prompt, active, types, {
-    attackDamageValue(attack, context) {
-      return attack.damage
-        + (context.ultraBeast && context.beastEnergyAttached ? 30 : 0);
-    }
+    specialEnergyBlocked: false,
+    attackDamageValue: beastEnergyAwareAttackDamageValue
   });
 
   assert.strictEqual(withBeastModifier.card, beast);
