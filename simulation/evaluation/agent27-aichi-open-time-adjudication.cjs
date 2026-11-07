@@ -72,15 +72,18 @@ function checkPrizes(prizes) {
  * @param {[number,number]} options.prizesRemaining
  * @param {boolean} options.secondPlayerTurnFinished
  * @param {0|1|null} [options.paperGameWinner] A separately proved normal win
+ * @param {boolean} [options.paperGameTie] A separately proved simultaneous paper tie
  * @returns {object}
  */
 function adjudicateAtPrescribedEnd({
-  stage,prizesRemaining,secondPlayerTurnFinished,paperGameWinner=null
+  stage,prizesRemaining,secondPlayerTurnFinished,paperGameWinner=null,paperGameTie=false
 }) {
   const rules=stageRules(stage);
   checkPrizes(prizesRemaining);
   assert.ok(typeof secondPlayerTurnFinished==='boolean');
   assert.ok(paperGameWinner===null||paperGameWinner===0||paperGameWinner===1);
+  assert.ok(typeof paperGameTie==='boolean');
+  assert.ok(!(paperGameTie&&paperGameWinner!==null),'A simultaneous tie cannot have a unique normal winner');
   const base={schema:VERSION,stage,clockLimitMinutes:rules.minutes,
     observation:'conditional-on-real-end-call-and-valid-paper-state',
     evidenceRequired:[
@@ -89,6 +92,11 @@ function adjudicateAtPrescribedEnd({
       'final second-starting-player turn ended before its Pokemon Checkup',
       'independently paper-validated normal win, Prizes and rule effects'
     ],competitiveAdmission:false,externalIndependentReviewRequired:true};
+  if(paperGameTie)
+    return {...base,status:rules.elimination?'TIEBREAKER_REQUIRED_SIX_PRIZE':
+      'SWISS_PAPER_TIE_JUDGE_REVIEW_REQUIRED',
+      conditionalWinnerSeat:null,
+      tieResolvedByClockRules:false};
   if(paperGameWinner!==null)
     return {...base,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
@@ -120,17 +128,23 @@ function adjudicateAtPrescribedEnd({
  * @param {'tied-low'|'both-high'} options.extensionRule
  * @param {[number,number]} options.prizesRemaining
  * @param {0|1|null} [options.paperGameWinner]
+ * @param {boolean} [options.paperGameTie]
  * @returns {object}
  */
 function adjudicateExtension({
-  extensionRule,prizesRemaining,paperGameWinner=null
+  extensionRule,prizesRemaining,paperGameWinner=null,paperGameTie=false
 }) {
   assert.ok(extensionRule==='tied-low'||extensionRule==='both-high');
   checkPrizes(prizesRemaining);
   assert.ok(paperGameWinner===null||paperGameWinner===0||paperGameWinner===1);
+  assert.ok(typeof paperGameTie==='boolean');
+  assert.ok(!(paperGameTie&&paperGameWinner!==null),'A simultaneous tie cannot have a unique normal winner');
   const result={schema:VERSION,extensionRule,
     evaluation:'requires-complete-ordered-paper-state-transition-ledger',
     conditionalWinnerSeat:null,competitiveAdmission:false};
+  if(paperGameTie)
+    return {...result,status:'TIEBREAKER_REQUIRED_SIX_PRIZE',
+      conditionalWinnerSeat:null};
   if(paperGameWinner!==null)
     return {...result,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
@@ -195,9 +209,12 @@ function auditTimeCallPacket(packet) {
     missing.push('paper-state-independent-review-pending');
   checkPrizes(packet.prizesRemaining);
   const winner=packet.paperGameWinner??null;
+  const tie=packet.paperGameTie??false;
   assert.ok(winner===null||winner===0||winner===1);
-  // A verified normal game win may terminate the overtime immediately.
-  if(winner===null){
+  assert.ok(typeof tie==='boolean');
+  assert.ok(!(tie&&winner!==null),'A simultaneous tie cannot have a unique normal winner');
+  // A verified ordinary game win or genuine simultaneous tie ends overtime.
+  if(winner===null&&!tie){
     if(packet.finalPermittedTurnFinished!==true)
       missing.push('prescribed-second-starting-player-turn-unfinished');
     if(packet.observedFinalTurnSeat!==turns.lastTurnSeat)
@@ -214,7 +231,7 @@ function auditTimeCallPacket(packet) {
   const result=adjudicateAtPrescribedEnd({stage:packet.stage,
     prizesRemaining:packet.prizesRemaining,
     secondPlayerTurnFinished:packet.finalPermittedTurnFinished===true,
-    paperGameWinner:winner});
+    paperGameWinner:winner,paperGameTie:tie});
   return {...result,
     officialEndCallEvidenceShapeComplete:true,
     evidenceFieldsRemainExternallyAsserted:true,
