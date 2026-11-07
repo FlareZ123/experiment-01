@@ -82,8 +82,8 @@ jobs:
       - name: Compile pinned game engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Test Handiwork recovery through Rototiller and second Burrow
-        run: node --test tests/agent1-rank3-handiwork-rototiller-burrow.native.test.cjs
+      - name: Test Handiwork Rototiller/Burrow and post-recycle Mail access
+        run: node --test tests/agent1-rank3-handiwork-rototiller-burrow.native.test.cjs tests/agent1-handwork-cadence-horizon.test.cjs
       - name: Test read-only owner deck cause observer
         run: node --test tests/agent1-rank3-owner-deck-cause-audit.test.cjs
       - name: Replay frozen original rank3 versus rank1 physical deal
