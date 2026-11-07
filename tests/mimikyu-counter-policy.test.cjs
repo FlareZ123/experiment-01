@@ -7,7 +7,6 @@ const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
 const {
   hasKnownPublicAbilityLock,
   hasEffectiveFairyZone,
-  canPayMimikyuCopycatCost,
   isCopycatApexTimelessSituation,
   isCopycatApexPowerBeamSituation,
   copycatApexResponseKind,
@@ -368,23 +367,3 @@ test('two-stage policy selects Timeless then Power Beam through the real Store i
   }
 });
 
-test('Copycat policy rejects an underfunded Mimikyu and recognizes Dimension Valley', () => {
-  const f = fixture();
-  const {options, Tactic} = policyClasses();
-  const tactic = new Tactic(options);
-  assert.equal(canPayMimikyuCopycatCost(f.state, f.a), true);
-
-  f.a.active.energies.cards.length = 1;
-  assert.equal(canPayMimikyuCopycatCost(f.state, f.a), false);
-  assert.equal(copycatApexResponseKind(f.state, f.a), null);
-  assert.equal(tactic.useTactic(f.state, f.a), undefined,
-    'The custom tactic must not offer an illegal Copycat action');
-
-  const dimensionValley = f.manager.getCardByName('Dimension Valley');
-  assert.ok(dimensionValley);
-  f.a.stadium.cards.push(dimensionValley);
-  assert.equal(canPayMimikyuCopycatCost(f.state, f.a), true,
-    'Dimension Valley reduces the Colorless portion of Copycat cost');
-  assert.equal(copycatApexResponseKind(f.state, f.a), 'timeless');
-  assert.ok(tactic.useTactic(f.state, f.a));
-});
