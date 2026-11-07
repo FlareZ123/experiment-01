@@ -11,8 +11,45 @@ const {
   VERSION,ROOT_LIMIT,trials,sourceNameCountSha256,candidatePrinted60Sha256,
   projectCandidateRepliesAfterSourceAttacks,postPrizeSourceAttackOrdinals,
   projectPostPrizeOwnerDecisionAudit,summarizeNativeAttempt,toGateAttempt,
-  evaluateGate,writeJsonAtomic,requireOneNativeDevelopmentRow
+  evaluateGate,writeJsonAtomic,requireOneNativeDevelopmentRow,
+  withInstalledNativeMatchPolicies
 }=require('../simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs');
+
+test('live v9 native Store executes under all three simultaneously installed policies',()=>{
+  const active=[];
+  const events=[];
+  const mock=(name)=>(run)=>{
+    events.push('install:'+name);
+    active.push(name);
+    try{
+      return {result:run(),audit:{name}};
+    }finally{
+      assert.equal(active.pop(),name);
+      events.push('restore:'+name);
+    }
+  };
+  const result=withInstalledNativeMatchPolicies(()=>{
+    events.push('native-run');
+    assert.deepEqual(active,['telepath','ability','prize']);
+    return {executed:true,realStore:true};
+  },{
+    Store:class NativeStore {},
+    rootBinding:{current:null},
+    prizeObserver:mock('prize'),
+    abilityPolicy:mock('ability'),
+    telepathPolicy:mock('telepath')
+  });
+  assert.deepEqual(result.result,{executed:true,realStore:true});
+  assert.deepEqual(result.audit,{
+    prize:{name:'prize'},ability:{name:'ability'},
+    telepath:{name:'telepath'}
+  });
+  assert.deepEqual(events,[
+    'install:telepath','install:ability','install:prize','native-run',
+    'restore:prize','restore:ability','restore:telepath'
+  ]);
+  assert.deepEqual(active,[]);
+});
 
 test('v9 is exactly one frozen rank11/New Moon natural-game registration',()=>{
   const registered=trials();
