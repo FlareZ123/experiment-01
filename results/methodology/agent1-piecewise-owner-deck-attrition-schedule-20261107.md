@@ -45,6 +45,10 @@ H(D,f,m)=\left\lfloor\frac{D}{1+f+m}\right\rfloor
 
 Here D is the owner's deck count after the current mandatory draw, f is voluntary draw per owner turn, and m is opponent mill per opponent turn.
 
+The module also exports **compareStationaryDrawToDeadline**. It compares repeated voluntary draw with repeated Pass against an externally supplied number of future owner turns required by a Prize-plan or board evaluator. It classifies the result as draw-horizon-sufficient, pass-required-to-reach-deadline, or neither-policy-reaches-deadline. The helper supplies a decision boundary while leaving the required-turn estimate to a separate game-state component.
+
+For D=23 and m=2, a five-future-turn plan is unreachable under repeated Filch (4 starts) and reachable under repeated Pass (7 starts). An eight-turn plan is unreachable under both policies. A three-turn plan fits both horizons.
+
 ## Results
 
 The following table uses stationary scenarios. Filch draws two cards, and Pass draws zero.
@@ -80,9 +84,13 @@ The schedule explicitly represents the observed two-Burrow capability while leav
 
 - Implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
 - Tests: **tests/agent1-owner-deck-attrition-schedule.test.cjs**.
-- Local Node 22.16.0 run: **7/7 tests passed**.
+- Local Node 22.16.0 run: **8/8 tests passed**.
 - The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module and 17,199 finite-schedule cases against an independent literal recurrence.
-- It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, the empty-deck boundary, and invalid inputs.
+- It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, deadline classifications, the empty-deck boundary, and invalid inputs.
+
+## Rule boundary
+
+The supplied Advanced Player's Rulebook v3.4 (2025-01-08), Win and Loss section, page 13, lists a loss when a player has no card left to draw at the beginning of their turn. Agent 42's 2026 delta audit flags the 2025 manual as incomplete for the 10 May 2026 event. Its enumerated official 2026 changes do not mention a deck-out timing change. This model uses the page-13 start-of-turn trigger for its mathematical recurrence. Full paper qualification still requires the 2026 rule-delta supplement and card-interaction review.
 
 ## Limits and next experiment
 
