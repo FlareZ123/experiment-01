@@ -10,12 +10,15 @@ const LATE_VERSION='agent29-rank9-retrospective-compressor-anyturn-v2';
 const SHUFFLE_AUDIT_VERSION='agent29-rank9-retrospective-compressor-shuffle-custody-v3';
 const BOMB_VERSION='agent29-rank9-retrospective-post-compressor-bomb-v4';
 const PROSPECTIVE_VERSION='agent29-rank9-fresh-eight-groups-isolated-bomb-v5';
+const OWNER_ZONE_VERSION='agent29-rank9-fresh-original-owner-role-zones-v7';
 const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json');
 
 /** @param {boolean} enabled @param {{anyTurn?:boolean,shuffleCustody?:boolean,
- *   bombAfterCompressor?:boolean,prospectiveV5?:boolean}} [configuration] */
+ *   bombAfterCompressor?:boolean,prospectiveV5?:boolean,
+ *   ownerZoneCensus?:boolean,ownerZoneRegister?:Function|null}} [configuration] */
 function options(enabled,{anyTurn=false,shuffleCustody=false,
-  bombAfterCompressor=false,prospectiveV5=false}={}){
+  bombAfterCompressor=false,prospectiveV5=false,
+  ownerZoneCensus=false,ownerZoneRegister=null}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -30,7 +33,9 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
     isolatePhysicalShuffleRandomnessAfterSetup:prospectiveV5,
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms(),
-    registeredFrameName:prospectiveV5?PROSPECTIVE_VERSION:
+    ...(ownerZoneRegister?{onRootStoreCreated:ownerZoneRegister}:{}),
+    registeredFrameName:ownerZoneCensus?OWNER_ZONE_VERSION:
+      prospectiveV5?PROSPECTIVE_VERSION:
       bombAfterCompressor?BOMB_VERSION:
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION
   };
@@ -40,10 +45,14 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
  * Four historically observed source groups, both candidates and both seats.
  * Any-turn mode is an independently labeled development experiment.
  * @param {{anyTurn?:boolean,shuffleCustody?:boolean,
- *   bombAfterCompressor?:boolean,prospectiveV5?:boolean}} [configuration]
+ *   bombAfterCompressor?:boolean,prospectiveV5?:boolean,
+ *   ownerZoneCensus?:boolean}} [configuration]
  */
 function run({anyTurn=false,shuffleCustody=false,
-  bombAfterCompressor=false,prospectiveV5=false}={}){
+  bombAfterCompressor=false,prospectiveV5=false,
+  ownerZoneCensus=false}={}){
+  assert.ok(!ownerZoneCensus||prospectiveV5,
+    'V7 role location audit reuses unchanged fresh v5 original trials');
   assert.ok(!prospectiveV5||(bombAfterCompressor&&anyTurn&&shuffleCustody),
     'V5 requires both independent paper min1 and exact source v4 payoff');
   assert.ok(!bombAfterCompressor||(anyTurn&&shuffleCustody),
@@ -80,16 +89,28 @@ function run({anyTurn=false,shuffleCustody=false,
         '../twinleaf/battle-compressor-minimum-hook.cjs')
         .installBattleCompressorMinimumHook();
       try{
-        const numeric=()=>require(
+        const numeric=ownerZoneRegister=>require(
           '../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
           .withNumericShufflePromptValidation(()=>
             runDevelopment(options(enabled,{anyTurn,shuffleCustody,
-              bombAfterCompressor,prospectiveV5})));
-        if(!shuffleCustody)return numeric();
+              bombAfterCompressor,prospectiveV5,ownerZoneCensus,
+              ownerZoneRegister})));
+        if(!shuffleCustody)return numeric(null);
         const {withAuthoritativeShuffleOrderWitness}=require(
           '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
-        const witnessed=withAuthoritativeShuffleOrderWitness(numeric);
-        return {...witnessed.result,shuffleAudit:witnessed.audit};
+        const witnessed=register=>withAuthoritativeShuffleOrderWitness(
+          ()=>numeric(register));
+        if(!ownerZoneCensus){
+          const result=witnessed(null);
+          return {...result.result,shuffleAudit:result.audit};
+        }
+        const {withOriginalRank9OwnerCardLocations}=require(
+          '../twinleaf/agent29-rank9-owner-card-location-witness.cjs');
+        const zoned=withOriginalRank9OwnerCardLocations(register=>{
+          const result=witnessed(register);
+          return {...result.result,shuffleAudit:result.audit};
+        });
+        return {...zoned.result,zoneAudit:zoned.audit};
       }finally{restorePositiveItem();}
     };
     const left=runArm(false),right=runArm(true);
@@ -123,16 +144,23 @@ function run({anyTurn=false,shuffleCustody=false,
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:prospectiveV5?PROSPECTIVE_VERSION:
+    return {version:ownerZoneCensus?OWNER_ZONE_VERSION:
+      prospectiveV5?PROSPECTIVE_VERSION:
       bombAfterCompressor?BOMB_VERSION:
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION,source,
-      anyTurn,bombAfterCompressor,prospectiveV5,
+      anyTurn,bombAfterCompressor,prospectiveV5,ownerZoneCensus,
       freshRegistration:prospectiveV5?
         'results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json':null,
       enginePin:profile.pinnedVendorRevision,
       shuffleOrderWitness:shuffleCustody?{
         version:'agent29-authoritative-shuffle-order-witness-v1',
         control:left.shuffleAudit,treatment:right.shuffleAudit,
+        readOnly:true,competitiveQualification:false
+      }:null,
+      originalOwnerRoleZoneWitness:ownerZoneCensus?{
+        version:'agent29-rank9-owner-card-location-v7-read-only',
+        control:left.zoneAudit,treatment:right.zoneAudit,
+        privatePrizeOracleNeverAvailableToPolicy:true,
         readOnly:true,competitiveQualification:false
       }:null,
       numericShufflePaperAdapter:anyTurn?{
@@ -174,14 +202,16 @@ function run({anyTurn=false,shuffleCustody=false,
 }
 
 if(require.main===module){
-  const prospectiveV5=process.env.AGENT29_RANK9_PROSPECTIVE_V5==='true';
+  const ownerZoneCensus=process.env.AGENT29_RANK9_OWNER_ZONE_V7==='true';
+  const prospectiveV5=ownerZoneCensus||
+    process.env.AGENT29_RANK9_PROSPECTIVE_V5==='true';
   const bombAfterCompressor=prospectiveV5||
     process.env.AGENT29_RANK9_BOMB_AFTER_COMPR_V4==='true';
   const shuffleCustody=bombAfterCompressor||
     process.env.AGENT29_RANK9_SHUFFLE_AUDIT_V3==='true';
   const data=run({anyTurn:shuffleCustody||
     process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody,
-    bombAfterCompressor,prospectiveV5});
+    bombAfterCompressor,prospectiveV5,ownerZoneCensus});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
@@ -215,4 +245,4 @@ if(require.main===module){
   if(!data.allDealsMatch||!data.allAudited)process.exitCode=1;
 }
 module.exports={VERSION,LATE_VERSION,SHUFFLE_AUDIT_VERSION,
-  BOMB_VERSION,PROSPECTIVE_VERSION,options,run};
+  BOMB_VERSION,PROSPECTIVE_VERSION,OWNER_ZONE_VERSION,options,run};
