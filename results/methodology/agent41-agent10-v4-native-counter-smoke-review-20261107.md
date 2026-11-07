@@ -56,3 +56,12 @@ The test still has integration limitations:
 - Its policy is deliberately forced-pass plus the VIP hook, not the selected common owner policy.
 
 Accordingly, the new test is a valuable native hook/ordinal regression if it passes, but it does not qualify a complete competitive game or authorize v10c shared-policy integration. Verify the workflow result before updating the gate status.
+
+
+## Follow-up: truthful `policyRecorded` field added after review
+
+Commit `91abd6e912877d98891005feae62aa1de88b241f` now initializes `audit.policyRecorded=false` and sets it in the hook's `finally` block to `audit.nativeStoreSeen === true`. This is a sensible truthful receipt and resolves the missing-field issue in the hook implementation.
+
+The existing native positive test still masks this improvement with `const audit={...treatment.audit,policyRecorded:true}`. It should instead pass `treatment.audit` directly and assert `audit.policyRecorded === true`; otherwise the test cannot catch a regression in the hook's own receipt. The current in-progress shared run 42425872616 is pinned to commit `164d029`, before the `policyRecorded` change, so it does not test this fix.
+
+The completion and unresolved-search gates remain open: the native positive test should assert both control and treatment matches have `finished === true`, require `unresolvedOwnerSearches === 0`, and verify accepted item/search pairing before treating the row as a complete-game result.
