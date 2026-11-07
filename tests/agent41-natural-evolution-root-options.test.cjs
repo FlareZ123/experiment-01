@@ -27,6 +27,26 @@ test('physical source seat one is forwarded exactly',()=>{
   });
 });
 
+test('Garbodor Tool root shares the natural-evolution owner-seat scope',()=>{
+  assert.deepEqual(actorNaturalEvolutionRootOptions(true,0,true),{
+    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0,
+    garbotoxinToolRoot:true
+  });
+  assert.deepEqual(actorNaturalEvolutionRootOptions(true,1,true),{
+    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1,
+    garbotoxinToolRoot:true
+  });
+  assert.deepEqual(actorNaturalEvolutionRootOptions(true,null,true),{
+    naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null,
+    garbotoxinToolRoot:true
+  });
+});
+
+test('Garbodor Tool root requires the natural-evolution package root',()=>{
+  assert.throws(()=>actorNaturalEvolutionRootOptions(false,null,true),
+    /requires the natural-evolution root to be enabled/);
+});
+
 test('invalid physical owner seats are rejected',()=>{
   for(const seat of [-1,2,0.5,'0',false]){
     assert.throws(()=>actorNaturalEvolutionRootOptions(true,seat),
