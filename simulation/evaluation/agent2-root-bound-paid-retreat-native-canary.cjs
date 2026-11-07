@@ -26,8 +26,10 @@ const {createPaidRetreatAcceptedRootReceipt}=
   require('../twinleaf/agent2-paid-retreat-accepted-root-receipt.cjs');
 const {captureBasicRetreatPhysicalWitness}=
   require('../twinleaf/agent2-retreat-basic-physical-witness.cjs');
+const {actorObservation}=
+  require('../twinleaf/actor-observation-contract.cjs');
 
-const VERSION='agent2-root-bound-paid-retreat-native-canary-v3';
+const VERSION='agent2-root-bound-paid-retreat-native-canary-v4';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const FULL='e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
 const SOURCE='ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
@@ -55,7 +57,8 @@ function runArm(variant,cards){
             const retreat=withOwnerSelectedDialgaPaidRetreat(()=>{
               const rootIdentity=createActualRootIdentityGuard();
               const acceptedReceipt=createPaidRetreatAcceptedRootReceipt();
-              const payment={selected:null,witness:null,selectedCount:0,receipts:[]};
+              const payment={selected:null,witness:null,selectedCount:0,
+                receipts:[],publicDecisionContext:null};
               const native=()=>withSameTargetAttachEnergySelection(()=>runMatch(rootIdentity.attach(acceptedReceipt.attach({
                 deckA:cards.source,deckB:cards.candidate,
                 seed:SEED,maxActions:520,
@@ -87,13 +90,27 @@ function runArm(variant,cards){
                   payment.selectedCount++;
                   payment.witness=captureBasicRetreatPhysicalWitness(
                     state,seat,action.benchIndex);
+                  const observation=actorObservation(state,seat);
+                  const own=observation.ownPublic;
+                  const foe=observation.opponentPublic;
+                  payment.publicDecisionContext={
+                    actorSeat:seat,turn:state.turn,
+                    ownActive:own.active,
+                    ownBenchTarget:own.bench[action.benchIndex],
+                    ownStadium:own.stadium,
+                    opponentActive:foe.active,
+                    opponentBench:foe.bench,
+                    opponentStadium:foe.stadium,
+                    ownRetreatedTurn:observation.ownTurnResources.retreatedTurn
+                  };
                 }
               });
               genericAudit=generic.audit;
               identityAudit=rootIdentity.audit;
               acceptedRootAudit=acceptedReceipt.audit;
               physicalPaymentAudit={selectedCount:payment.selectedCount,
-                receipts:payment.receipts};
+                receipts:payment.receipts,
+                publicDecisionContext:payment.publicDecisionContext};
               return generic.result;
             },{
                 treatment:false,
