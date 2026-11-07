@@ -3,6 +3,10 @@ name: Aichi Garbotoxin cross-lock action audit
 on:
   workflow_dispatch:
     inputs:
+      fss_garbodor_tool_only:
+        description: 'Run only the native Forest Seal Stone-to-Garbodor Tool trigger check'
+        type: boolean
+        default: false
       rank8_v11_paper_cost_retrospective:
         description: 'Audit 3 previously exposed rank8 original source Box roots under legal three-discard shared portfolio v11'
         type: boolean
@@ -92,21 +96,34 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify Forest Seal Stone can activate Garbotoxin as a Pokémon Tool
+        if: inputs.fss_garbodor_tool_only
         run: node --test tests/agent2-fss-garbotoxin-tool-trigger.native.test.cjs
       - run: node --test tests/rank8-latias-escape-policy.test.cjs tests/rank8-latias-effect-ledger.test.cjs tests/rank11-candidate-first-printed-attack-audit.test.cjs tests/rank11-unown-pre-retreat-payment-audit.test.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/garbotoxin-vileplume-action.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - name: Test Jamming Tower against Tool-attached Garbotoxin
+        if: ${{ !inputs.fss_garbodor_tool_only }}
         run: node simulation/twinleaf/jamming-tower-garbotoxin-action.cjs
       - name: Test preemptive Jamming Tower versus Star Alchemy
+        if: ${{ !inputs.fss_garbodor_tool_only }}
         run: node simulation/twinleaf/jamming-tower-star-alchemy-action.cjs
       - run: node simulation/twinleaf/garbotoxin-removal-tempo.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/garbotoxin-faba-tempo.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/garbotoxin-retool-after-faba.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/rank11-shopping-center-diagnostic.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/rank11-shopping-center-store-cycle.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node simulation/twinleaf/rank11-two-garbo-field-blower.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - run: node scripts/aichi-grand-tree-opening.cjs
+        if: ${{ !inputs.fss_garbodor_tool_only }}
       - name: Audit raw Grand Tree opening-turn restriction
+        if: ${{ !inputs.fss_garbodor_tool_only }}
         run: node simulation/twinleaf/grand-tree-first-turn-audit.cjs
       - name: Observe exact-source rank11 own-hand Shopping Center opportunities
         if: inputs.rank11_shop_source_observer
