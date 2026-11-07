@@ -207,7 +207,10 @@ function chooseActorRootIntent(view,catalog,options={}){
      (garbodorResponseOwnerSeat===null||
       view.actorSeat===garbodorResponseOwnerSeat)){
     const tool=require('./agent36-garbotoxin-tool-intent.cjs')
-      .chooseGarbodorToolIntent(view,catalog);
+      .chooseGarbodorToolIntent(view,catalog,{
+        deferForStarAlchemy:
+          options.garbotoxinToolRootDeferForStarAlchemy===true
+      });
     if(tool)return tool;
   }
   // Optional owner-public Ditto Prism permission after the native board check.
@@ -864,6 +867,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     garbodorResponseOwnerSeat:deps.garbodorResponseOwnerSeat??null,
     garbotoxinToolRootOptIn:deps.garbotoxinToolRoot===true,
+    garbotoxinToolRootDeferForStarAlchemy:
+      deps.garbotoxinToolRootDeferForStarAlchemy===true,
     garbotoxinToolRootSelected:0,
     garbotoxinFloatStoneRootSelected:0,
     garbotoxinFssFallbackRootSelected:0,
@@ -1508,6 +1513,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       garbodorResponseOwnerSeat:audit.garbodorResponseOwnerSeat,
       garbotoxinToolRoot:audit.garbotoxinToolRootOptIn,
+      garbotoxinToolRootDeferForStarAlchemy:
+        audit.garbotoxinToolRootDeferForStarAlchemy,
       dittoStage1Root:audit.dittoStage1RootOptIn,
       dittoStage1Receipt:audit.dittoStage1RootOptIn?
         require('./agent1-ditto-prism-actor-evolution.cjs')
@@ -1576,7 +1583,10 @@ function withActorOnlyRootPolicy(run,deps={}){
        (rootOptions.garbodorResponseOwnerSeat===null||
         view.actorSeat===rootOptions.garbodorResponseOwnerSeat)){
       const status=require('./agent36-garbotoxin-tool-intent.cjs')
-        .evaluateGarbodorToolIntent(view,catalog);
+        .evaluateGarbodorToolIntent(view,catalog,{
+          deferForStarAlchemy:
+            rootOptions.garbotoxinToolRootDeferForStarAlchemy===true
+        });
       const counter={
         'star-alchemy-available':'garbotoxinToolRootDeferredForStarAlchemy',
         'no-opponent-ability':'garbotoxinToolRootNoOpponentAbility',
