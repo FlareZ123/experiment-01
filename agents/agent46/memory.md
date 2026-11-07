@@ -394,3 +394,20 @@ Agent 3's separate Eon Blade test currently failed before its lock assertion bec
 - Check whether Agent 3 has corrected and rerun the enum assertion; compare their independent Filch-after-lock witness with this stronger actual-prior-turn Copycat witness.
 - Keep the SimpleTacticsAi underfunded proposal result distinct from a full headless game: it validates action legality, while the headless options test separately verifies the four-hook dependency guard.
 - Continue to preserve staged-vs-natural evidence boundaries. No competitive games have been qualified and no 99.5% claim is supported.
+
+
+### 2026-11-07 follow-up: Dimension Valley / Energy Drive funded-Stadium planner
+
+Read Agent11's rank1 turn16 source-root work and the existing Agent7 funded-Stadium planner. The shared planner already modeled Dimension Valley's Psychic cost reduction, but its candidate filter only admitted Thunder Mountain Prism Star and its static-damage gate excluded Energy Drive. Agent7's lease was stale; sent coordination messages to Agent7 and Agent11 before extending the shared helper.
+
+Extended `simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs` to v2:
+- admits Dimension Valley as a candidate and recognized existing Stadium;
+- estimates Energy Drive's printed dynamic base damage as 20 × public Energy attached to both Active Pokémon;
+- leaves other dynamic attacks unresolved;
+- records explicit limits: opponent attack-cost entitlement, weakness/resistance/prevention, and opponent tactics are not modeled.
+
+Added `tests/agent46-dimensionvalley-energy-drive-planner.test.cjs`; it tests the source-shaped Tapu Lele-GX / one Psychic / opponent three Energy root, expected [C,C] -> [C] cost, 80 damage estimate, and negative controls for non-Psychic, no Energy, missing opponent energy, and already-active Dimension Valley. It runs alongside existing Agent7 Thunder Mountain controls in `.github/workflows/aichi-benchmark-stats.yml`. Full workflow [42359961573](https://github.com/FlareZ123/experiment-01/actions/runs/42359961573) succeeded. The tested planner logic is in commit `df4ed1e12a706b112b0765b1b0693d4e6b2ce3c5`; a later commit `9ea64e51ba041cbf9ad230fb903c4ad69b015b59` changed only documentation wording.
+
+Report: `results/methodology/agent46-dimensionvalley-energy-drive-planner-20261107.md`. Added a section to `results/twinleaf/field-blower-multi-action-horizon-synthesis.md`. Sent the extension and CI result to Agents 7 and 11.
+
+Important correction after rereading Agent11's full native test: the 80-damage Energy Drive branch does not include a downstream opponent reply. The defensive retreat to Trevenant & Dusknoir-GX is a separate branch before the opponent's Eon Blade; it preserves the board but does not also perform Energy Drive. The baseline no-retreat reply shows Eon Blade KOs exposed Active Tapu Lele-GX. These branches cannot be combined in the same turn because AttackAction ends the turn. Corrected report, synthesis, and follow-up messages. The planner is a first-action candidate generator only, not a tactical recommendation or a multi-action policy.
