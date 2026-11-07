@@ -110,7 +110,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     paperPaymentChecks:0,paperPaymentsAccepted:0,
     physicalBoxSearches:0,physicalFogSearches:0,
     physicallyAttachedBasic:0,submittedAttacks:0,
-    actions:[],errors:[],qualification:'development-only',
+    actions:[],errors:[],promptObservations:[],qualification:'development-only',
     competitiveGamesQualified:0};
   function observedRun(request){
     const ai=SimpleTacticsAi.prototype,st=Store.prototype;
@@ -136,6 +136,25 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       const owner=state.players[seat];
       const pending=state.prompts?.find(x=>x.result===undefined);
       const step=stepsByOwner.get(owner.id);
+      if(pending&&step?.stage==='fog-search'&&audit.promptObservations.length<12){
+        // Only metadata and the owner-authenticated open search are inspected.
+        const offered=owner.deck.cards.filter(x=>x.fullName===BASIC);
+        const match=pending.cards===owner.deck;
+        audit.promptObservations.push({
+          turn:state.turn,seat,stage:step.stage,
+          pendingType:pending.constructor?.name??null,
+          ownerAuthenticated:pending.playerId===owner.id,
+          promptOnOwnerDeck:match,promptMessage:pending.message??null,
+          offeredBasicPhysicalCount:match?offered.length:null,
+          offeredBasicNativeValid:match&&offered.length>0?
+            pending.validate([offered[0]])===true:null,
+          nativeMaxTrainers:pending.options?.maxTrainers??null,
+          nativeMaxEnergies:pending.options?.maxEnergies??null,
+          nativeMaxBasicEnergies:pending.options?.maxBasicEnergies??null,
+          pendingPrompts:state.prompts?.filter(p=>p.result===undefined)
+            .map(p=>p.constructor?.name??null)
+        });
+      }
       if(pending){
         if(!step||pending.playerId!==owner.id)
           return priorAi.value.call(this,state);
