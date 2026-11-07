@@ -111,6 +111,16 @@ The same manual documents effects that increase or decrease attack costs (D-11/D
 
 The pinned Twinleaf `ptcg-server/src/game/store/effect-reducers/game-effect.ts` attack path performs `CheckAttackCostEffect`, then `CheckProvidedEnergyEffect`, then calls `StateUtils.checkEnoughEnergy`. The successful native AttackAction therefore passed Twinleaf's modeled cost check. This is engine evidence, not independent proof that every relevant card implementation matches paper rules.
 
+### Public attack-cost modifier context
+
+I inspected the v2 artifact's public board fields for all eight attack roots:
+- all eight pre-attack Stadium arrays are empty;
+- all eight attacking Active `attackerToolNamesBeforeAttack` arrays are empty;
+- none of the public in-play Pokémon printings is Espathra ex, the manual's D-11 example of an attack-cost increase;
+- there is therefore no identified Stadium, attacking-Active Tool, or documented Espathra-style cost increase in these eight snapshots.
+
+This is useful corroboration for the direct printed-cost screen. It is not an exhaustive card-by-card modifier proof: `printedEnergyTestIncludesExternalCostModifiers` remains `false`, and the test still reports `actualAttachedEnergyPaymentCertified:false`. Do not promote these rows to paper-certified attacks solely from this board scan.
+
 ### Rechecked Energy card text
 
 An earlier source-inspection warning about Speed Lightning Energy was a false positive and is retracted. The card text says that the attached card provides Lightning Energy while attached to any Pokémon; only its draw-two effect requires attachment from hand to a Lightning Pokémon. Twinleaf's unconditional `CheckProvidedEnergyEffect` Lightning provision and Agent 30's unconditional direct-energy mapping are correct. No adapter patch or type-gate regression is warranted.
