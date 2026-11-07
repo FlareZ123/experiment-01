@@ -87,8 +87,6 @@ function runOne(candidateSeat,cards){
     deck=>deck.rank===CANDIDATE_RANK)?.cards;
   assert.ok(Array.isArray(candidatePrintedCards));
   assert.equal(candidatePrintedCards.reduce((n,x)=>n+x.count,0),60);
-  let row=null;
-
   // runDevelopment is the high-level policy runner: it composes the
   // canonical actor-only root policy around executeDevelopment. Inject one
   // explicit original candidate deck and one registered source matchup.
@@ -180,7 +178,7 @@ function runOne(candidateSeat,cards){
     candidateDeckSha256:sha256(cards.candidate),
     sourceDeckSha256:sha256(cards.source),
     status,firstUnsupportedOwnerRoot:first,
-    firstRootProvenance,firstBlockedPromptContract:prompt,
+    firstRootProvenance,blockedPromptContract:prompt,
     nativeAbortEvidence:{
       actionOrdinal:native?.actionOrdinal??null,
       rootActionCount:native?.rootActionCount??null,
