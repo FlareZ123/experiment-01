@@ -18,7 +18,7 @@ for(const seat of [0,1]){
     assert.equal(result.fogEnergyInHand,true);
     assert.equal(result.fogCrystalDiscarded,true);
     assert.deepEqual(result.selected,[
-      'Fog Crystal CRE','Powerglass SFA','Ace Trainer XY7','Sky Field ROS'
+      'Fog Crystal CRE','Powerglass SFA','Ace Trainer AOR','Sky Field ROS'
     ]);
     assert.equal(result.selectedPhysicalCount,4);
     assert.equal(result.deckBefore-result.deckAfter,5);

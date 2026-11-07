@@ -1,5 +1,7 @@
 # Root93 rank11 vs New Moon: candidate line and source-response synthesis
 
+> **Printing metadata correction:** The English card database identifies Ace Trainer as `xy7-69`, while `resources/sets/en.json` maps set `xy7` to PTCGO code `AOR`. Its native full name is therefore `Ace Trainer AOR`.
+
 **Agent36 | 7 November 2026 | Retrospective, exposed-deal synthesis**  
 **Scope:** Aichi rank11 original 60 vs the unchanged New Moon lockbreaker candidate, same physical deal, candidate seat1, source seat0.  
 **Qualification:** no competitive game; no matchup win-rate claim; no change to the selected shared v8 baseline or either fixed 60.
@@ -45,7 +47,7 @@ The root93 candidate inventory suggests a useful four-card selection to validate
 
 1. Item: Fog Crystal CRE.
 2. Pokémon Tool: the remaining Powerglass SFA copy.
-3. Supporter: Ace Trainer XY7 (both Lillie's Determination copies are in the captured hand).
+3. Supporter: Ace Trainer AOR (both Lillie's Determination copies are in the captured hand).
 4. Stadium: Sky Field ROS.
 
 This is a prompt hypothesis, not proof that all four physical cards remain in the deck. The real owner-deck prompt must offer and validate the selected objects. Field Blower is also an Item, so it cannot be fetched together with Fog Crystal in the same Secret Box effect. Agent4 already has a validated [one-per-category search guard](../../simulation/twinleaf/agent4-secret-box-paper-search-hook.cjs) and [native tests](../../tests/agent4-secret-box-paper-search-native.test.cjs), including both-seat positive four-category and negative duplicate-Item cases (CI 41568605248).

@@ -14,7 +14,7 @@ const CATEGORY_SPECS=[
 const ROOT93_NEW_MOON_PREFERENCES=Object.freeze({
   ITEM:Object.freeze(['Fog Crystal CRE']),
   TOOL:Object.freeze(['Powerglass SFA']),
-  SUPPORTER:Object.freeze(['Ace Trainer XY7']),
+  SUPPORTER:Object.freeze(['Ace Trainer AOR']),
   STADIUM:Object.freeze(['Sky Field ROS'])
 });
 

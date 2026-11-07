@@ -22,7 +22,7 @@ function fixture(){
     new TrainerCard('Fog Crystal CRE',TrainerType.ITEM),
     new TrainerCard('Field Blower GRI',TrainerType.ITEM),
     new TrainerCard('Powerglass SFA',TrainerType.TOOL),
-    new TrainerCard('Ace Trainer XY7',TrainerType.SUPPORTER),
+    new TrainerCard('Ace Trainer AOR',TrainerType.SUPPORTER),
     new TrainerCard('Sky Field ROS',TrainerType.STADIUM)
   ];
   const owner={id:'candidate-seat1',deck:{cards}};
@@ -46,7 +46,7 @@ test('selects one distinct physical card per available Secret Box category',()=>
   const selected=chooseSecretBoxCategories(
     f.prompt,f.owner,f.state,types,ROOT93_NEW_MOON_PREFERENCES);
   assert.deepEqual(selected.map(card=>card.fullName),[
-    'Fog Crystal CRE','Powerglass SFA','Ace Trainer XY7','Sky Field ROS'
+    'Fog Crystal CRE','Powerglass SFA','Ace Trainer AOR','Sky Field ROS'
   ]);
   assert.equal(new Set(selected).size,4);
   assert.equal(secretBoxSearchCategoryNegative(
@@ -57,7 +57,7 @@ test('selects one distinct physical card per available Secret Box category',()=>
 test('skips a category when its preferred physical card is absent',()=>{
   const f=fixture();
   f.owner.deck.cards=f.owner.deck.cards.filter(
-    card=>card.fullName!=='Ace Trainer XY7');
+    card=>card.fullName!=='Ace Trainer AOR');
   const selected=chooseSecretBoxCategories(
     f.prompt,f.owner,f.state,types,ROOT93_NEW_MOON_PREFERENCES);
   assert.deepEqual(selected.map(card=>card.fullName),[
@@ -73,7 +73,7 @@ test('respects a zero category maximum',()=>{
   const selected=chooseSecretBoxCategories(
     f.prompt,f.owner,f.state,types,ROOT93_NEW_MOON_PREFERENCES);
   assert.deepEqual(selected.map(card=>card.fullName),[
-    'Fog Crystal CRE','Ace Trainer XY7','Sky Field ROS'
+    'Fog Crystal CRE','Ace Trainer AOR','Sky Field ROS'
   ]);
 });
 

@@ -24,8 +24,7 @@ const native=modulePath=>require(path.join(output,modulePath));
 function probeSecretBoxFourCategories(seat=0){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
-  const {ResolvePromptAction}=
-    native('game/store/actions/resolve-prompt-action');
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {Store}=native('game/store/store');
   const {TrainerCard}=native('game/store/card/trainer-card');
   const {TrainerType}=native('game/store/card/card-types');
@@ -40,7 +39,7 @@ function probeSecretBoxFourCategories(seat=0){
     const targets=[
       f.card('Fog Crystal CRE'),
       f.card('Powerglass SFA'),
-      f.card('Ace Trainer XY7'),
+      f.card('Ace Trainer AOR'),
       f.card('Sky Field ROS')
     ];
     f.source.hand.cards.push(...payment,box);
@@ -81,7 +80,7 @@ function probeSecretBoxFourCategories(seat=0){
       {TrainerCard,TrainerType},ROOT93_NEW_MOON_PREFERENCES);
     assert.ok(selected,'The genuine owner prompt must offer the four preferred cards');
     assert.deepEqual(selected.map(card=>card.fullName),[
-      'Fog Crystal CRE','Powerglass SFA','Ace Trainer XY7','Sky Field ROS'
+      'Fog Crystal CRE','Powerglass SFA','Ace Trainer AOR','Sky Field ROS'
     ]);
     assert.equal(searchPrompt.validate(selected,f.state),true);
     f.store.dispatch(new ResolvePromptAction(searchPrompt.id,selected));
