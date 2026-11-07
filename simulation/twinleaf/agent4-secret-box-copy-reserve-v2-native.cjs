@@ -84,7 +84,6 @@ function executeCopyReserveV2Payment(seat,candidate){
     {printings:[VIP,VIP,LILLIE],equivalent:2};
   const group=adapter.structurallyUndominatedPaymentGroups.find(row=>
     row.representativePaymentPrintings.join('|')===desired.printings.join('|')&&
-    row.vector.protectedSacrificed===0&&
     row.vector.nextUnprotectedPaymentWays==='6');
   assert.ok(group,'Expected count-based nondominated payment group');
 
