@@ -147,7 +147,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
     selectedBasics:0,selectedEmpty:0,
     bySeat:{0:{items:0,searches:0,benchConfirmed:0},
       1:{items:0,searches:0,benchConfirmed:0}},
-    examples:[],nativeStoreSeen:false,
+    examples:[],nativeStoreSeen:false,policyRecorded:false,
     rootOrdinalProtocol:'headless-match-loop-after-two-add-player-actions-v1',
     rootOrdinalInitialized:false,dispatchRootCount:null,
     qualification:{
@@ -358,6 +358,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
     throw error;
   }
   finally{
+    audit.policyRecorded=audit.nativeStoreSeen===true;
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
     assert.strictEqual(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
