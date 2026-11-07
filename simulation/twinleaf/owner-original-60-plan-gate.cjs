@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {knownOutsideDeck}=require('./owner-k1-prize-knowledge.cjs');
 
 const VERSION='agent49-owner-original60-mandatory-plan-gate-v1';
 
@@ -67,4 +68,69 @@ function preflightOriginal60Plan(ownOriginal60,requirements){
   };
 }
 
-module.exports={VERSION,preflightOriginal60Plan};
+/**
+ * K0-visible upper bound on copies that can STILL reside in the acting
+ * owner's deck. Subtract only physically known original cards already in
+ * the owner's hand or face-up own zones. Face-down Prizes are never read:
+ * an unknown copy counts as potentially in deck, even if actually Prized.
+ *
+ * The plan must require its named cards from the DECK, not merely in play.
+ * A necessary target exhausted in public zones cannot be owner-searched.
+ * A not-disproven target may still be Prized, absent, locked or unusable.
+ *
+ * @param {string[]} ownOriginal60 Immutable registered native fullNames.
+ * @param {object} view Genuine actor-owned detached root/prompt observation.
+ * @param {Array<{role:string,acceptablePrintings:string[],copies:number}>}
+ *   requirements Independent required source-card print families.
+ * @returns {object} Read-only, public-only necessary-condition certificate.
+ */
+function preflightVisibleOwnerRemainingUpperBound(
+  ownOriginal60,view,requirements
+){
+  assert.ok(view?.decisionKind==='owner-root'||
+    view?.decisionKind==='owner-prompt');
+  assert.ok(Array.isArray(view.ownHand));
+  assert.ok(view.ownPublic&&typeof view.ownPublic==='object');
+  const starting=preflightOriginal60Plan(ownOriginal60,requirements);
+  const originalCounts=new Map();
+  for(const printing of ownOriginal60)
+    originalCounts.set(printing,(originalCounts.get(printing)??0)+1);
+  const visibleCounts=new Map();
+  for(const printing of knownOutsideDeck(view))
+    visibleCounts.set(printing,(visibleCounts.get(printing)??0)+1);
+  // Certify ownership inventory is consistent before computing vetoes.
+  // Mismatched public/native printing names must be repaired at the caller,
+  // never converted into a guessed playable card.
+  for(const [printing,visibleCopies] of visibleCounts){
+    const registered=originalCounts.get(printing)??0;
+    assert.ok(visibleCopies<=registered,
+      'Visible own zone exceeds registered original60 printing: '+printing);
+  }
+  const requirementsStatus=starting.required.map(row=>{
+    const seenOutside=row.acceptablePrintings.reduce((sum,name)=>
+      sum+(visibleCounts.get(name)??0),0);
+    const maximumStillInDeck=row.original60Copies-seenOutside;
+    assert.ok(maximumStillInDeck>=0);
+    return {
+      ...row,visibleOutsideDeckCopies:seenOutside,
+      maximumRemainingDeckCopies:maximumStillInDeck,
+      guaranteedInsufficientInCurrentDeck:maximumStillInDeck<row.needed
+    };
+  });
+  const blockedBy=requirementsStatus.filter(
+    row=>row.guaranteedInsufficientInCurrentDeck);
+  return {
+    version:VERSION,
+    status:blockedBy.length?
+      'blocked-impossible-visible-exhaustion':'not-disproven',
+    requirements:requirementsStatus,blockedBy,
+    usedOnlyOwnRegistered60AndPublicOwnerZones:true,
+    ownerHiddenDeckInspected:false,ownerHiddenPrizesInspected:false,
+    opponentHiddenInformationInspected:false,
+    currentDeckMembershipCertified:false,paperLegalityCertified:false,
+    nativePromptOrAttackCertified:false,competitiveGamesQualified:0
+  };
+}
+
+module.exports={VERSION,preflightOriginal60Plan,
+  preflightVisibleOwnerRemainingUpperBound};
