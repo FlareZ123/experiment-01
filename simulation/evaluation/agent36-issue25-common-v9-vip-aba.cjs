@@ -28,6 +28,12 @@ const PHASES=Object.freeze(['A','B','A2']);
 const HASH_PATHS=Object.freeze([
   'simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs',
   'results/aichi-2026/registrations/agent36-issue25-common-v9-vip-aba-20261107.json',
+  'results/aichi-2026/full-decklists.json',
+  'scripts/aichi-new-moon-candidate.cjs',
+  'results/als/new-moon-official-japanese-print-60.json',
+  'results/als/new-moon-lockbreak-english-proxy-60.json',
+  'results/als/new-moon-perfection-english-map.json',
+  'resources/cards/en/swsh8.json',
   'simulation/evaluation/agent36-issue25-common-v8.cjs',
   'simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs',
   'simulation/evaluation/agent32-issue25-v8-telepath-development.cjs',
@@ -397,6 +403,19 @@ function runRegisteredV9(deps={}){
     physicalShuffleRandomnessIsolatedAfterSetup:true,
     observedGitVendorPinExpected:registration.pinnedTwinleaf,
     fullPaperCardInteractionCertified:false,
+    candidateDeckPaperStatus:{
+      'champion-reference':{
+        originalTournamentList:true,printingAuditInThisExperiment:false
+      },
+      'new-moon-lockbreaker-v1':{
+        provisionalEnglishProxy:true,sourceJapanesePrintsArchived:true,
+        paperLegalPrintsVerified:false
+      }
+    },
+    listedBattleVipPassNameCounts:{
+      sourceRank6:0,sourceRank11:4,championReferenceRank1:0,
+      newMoonEnglishProxy:4
+    },
     fullFieldOriginalSixtiesAuthenticated:false,
     official25MinuteClockImplemented:false,
     resolvedSourceAndPolicyHashes:[
