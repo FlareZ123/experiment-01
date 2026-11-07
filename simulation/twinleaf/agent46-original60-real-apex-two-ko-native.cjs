@@ -16,8 +16,10 @@ const {stagedChampionPowerBeamAfterRealApex} =
  *
  * @returns {object} Source-inventory hashes, physical-zone ledger, native payoffs.
  */
-function run(){
-  const out=stagedChampionPowerBeamAfterRealApex({useOriginal60:true});
+function runOne(ownerSeat){
+  const out=stagedChampionPowerBeamAfterRealApex({useOriginal60:true,ownerSeat});
+  assert.equal(out.championOwnerSeat,ownerSeat);
+  assert.equal(out.regidragoSourceSeat,1-ownerSeat);
   assert.equal(out.exactOriginal60PhysicalObjectsStaged,true);
   assert.equal(out.originalRank1AndRank10StagedNamedCardCountsVerified,true);
   assert.equal(out.original60ZoneChecks.length,8);
@@ -54,8 +56,28 @@ function run(){
     original60CardsByOwner:60,
     naturallyReachedState:false,
     competitiveQualifiedGames:0};
-  console.log('AGENT46_ORIGINAL60_APEX_TWO_KO '+JSON.stringify(report));
+  console.log('AGENT46_ORIGINAL60_APEX_TWO_KO_SEAT '+JSON.stringify(report));
   return report;
 }
+/** @returns {object} Native original60 both physical owner-seat custody comparison. */
+function run(){
+  const rows=[runOne(0),runOne(1)];
+  assert.equal(rows.length,2);
+  assert.deepEqual(rows.map(row=>row.championOwnerSeat),[0,1]);
+  assert.equal(rows[0].candidateNativeOrderedSha256,
+    rows[1].candidateNativeOrderedSha256,
+    'Both seats must have the same original native 60-card list');
+  const out={
+    schema:'agent46-original-rank1-rank10-full60-both-physical-seats-v2',
+    enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    originalRank1AndRank10SourceLists:true,
+    original60ZoneSnapshots:16,
+    naturallyReachedState:false,
+    competitiveQualifiedGames:0,
+    rows
+  };
+  console.log('AGENT46_ORIGINAL60_APEX_TWO_KO '+JSON.stringify(out));
+  return out;
+}
 if(require.main===module)run();
-module.exports={run};
+module.exports={run,runOne};
