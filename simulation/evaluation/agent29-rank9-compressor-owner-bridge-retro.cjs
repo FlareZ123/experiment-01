@@ -9,11 +9,13 @@ const VERSION='agent29-rank9-retrospective-compressor-bridge-v1';
 const LATE_VERSION='agent29-rank9-retrospective-compressor-anyturn-v2';
 const SHUFFLE_AUDIT_VERSION='agent29-rank9-retrospective-compressor-shuffle-custody-v3';
 const BOMB_VERSION='agent29-rank9-retrospective-post-compressor-bomb-v4';
+const PROSPECTIVE_VERSION='agent29-rank9-fresh-eight-groups-isolated-bomb-v5';
+const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json');
 
 /** @param {boolean} enabled @param {{anyTurn?:boolean,shuffleCustody?:boolean,
- *   bombAfterCompressor?:boolean}} [configuration] */
+ *   bombAfterCompressor?:boolean,prospectiveV5?:boolean}} [configuration] */
 function options(enabled,{anyTurn=false,shuffleCustody=false,
-  bombAfterCompressor=false}={}){
+  bombAfterCompressor=false,prospectiveV5=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -24,9 +26,12 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
     actorRank9CompressorOwnerBridge:enabled,
     actorRank9CompressorAnyTurn:enabled&&anyTurn,
     actorRank9CompressorBombAfter:enabled&&bombAfterCompressor,
+    isolatePolicyRandomness:prospectiveV5,
+    isolatePhysicalShuffleRandomnessAfterSetup:prospectiveV5,
     allowAdditionalOriginalSourceRanks:true,
-    registeredTrials:scheduledArms(),
-    registeredFrameName:bombAfterCompressor?BOMB_VERSION:
+    registeredTrials:prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms(),
+    registeredFrameName:prospectiveV5?PROSPECTIVE_VERSION:
+      bombAfterCompressor?BOMB_VERSION:
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION
   };
 }
@@ -35,17 +40,26 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
  * Four historically observed source groups, both candidates and both seats.
  * Any-turn mode is an independently labeled development experiment.
  * @param {{anyTurn?:boolean,shuffleCustody?:boolean,
- *   bombAfterCompressor?:boolean}} [configuration]
+ *   bombAfterCompressor?:boolean,prospectiveV5?:boolean}} [configuration]
  */
 function run({anyTurn=false,shuffleCustody=false,
-  bombAfterCompressor=false}={}){
+  bombAfterCompressor=false,prospectiveV5=false}={}){
+  assert.ok(!prospectiveV5||(bombAfterCompressor&&anyTurn&&shuffleCustody),
+    'V5 requires both independent paper min1 and exact source v4 payoff');
   assert.ok(!bombAfterCompressor||(anyTurn&&shuffleCustody),
     'Separate v4 Bomb requires native v3 shuffle custody');
   assert.ok(!shuffleCustody||anyTurn,
     'Independent shuffle witness requires an explicitly new any-turn cohort');
   const source=preflight();
-  const trials=scheduledArms();
-  assert.equal(trials.length,4);
+  if(prospectiveV5){
+    assert.equal(PROSPECTIVE_REGISTRATION.schema,
+      'agent29-original-rank9-prospective-new-seeds-v5-preregistered');
+    assert.equal(PROSPECTIVE_REGISTRATION.groupCount,8);
+    assert.equal(PROSPECTIVE_REGISTRATION.pairedNativeAttempts,32);
+    assert.equal(PROSPECTIVE_REGISTRATION.trials.length,16);
+  }
+  const trials=prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms();
+  assert.equal(trials.length,prospectiveV5?16:4);
   assert.ok(trials.every(x=>x.rank===9));
   const previous={};
   for(const [k,v] of Object.entries(profile.injectedResearchEnvironment)){
@@ -70,7 +84,7 @@ function run({anyTurn=false,shuffleCustody=false,
           '../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
           .withNumericShufflePromptValidation(()=>
             runDevelopment(options(enabled,{anyTurn,shuffleCustody,
-              bombAfterCompressor})));
+              bombAfterCompressor,prospectiveV5})));
         if(!shuffleCustody)return numeric();
         const {withAuthoritativeShuffleOrderWitness}=require(
           '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
@@ -80,8 +94,8 @@ function run({anyTurn=false,shuffleCustody=false,
     };
     const left=runArm(false),right=runArm(true);
     const control=left.result,treatment=right.result;
-    assert.equal(control.attempted,4);
-    assert.equal(treatment.attempted,4);
+    assert.equal(control.attempted,trials.length);
+    assert.equal(treatment.attempted,trials.length);
     const pairs=control.rows.map((a,i)=>{
       const b=treatment.rows[i];
       assert.ok(b);
@@ -102,13 +116,20 @@ function run({anyTurn=false,shuffleCustody=false,
         sourceShufflesSettled:audit?.nativeSettledShuffles??null,
         nonEnergyEmergencySelections:audit?.nonEnergyEmergencySelections??null,
         baselineWin:a.winner??null,treatmentWin:b.winner??null,
-        baselineStatus:a.status??null,treatmentStatus:b.status??null};
+        baselineStatus:prospectiveV5?
+          (a.error?'engine-error':a.finished?'finished':'capped'):a.status??null,
+        treatmentStatus:prospectiveV5?
+          (b.error?'engine-error':b.finished?'finished':'capped'):b.status??null};
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:bombAfterCompressor?BOMB_VERSION:
+    return {version:prospectiveV5?PROSPECTIVE_VERSION:
+      bombAfterCompressor?BOMB_VERSION:
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION,source,
-      anyTurn,bombAfterCompressor,enginePin:profile.pinnedVendorRevision,
+      anyTurn,bombAfterCompressor,prospectiveV5,
+      freshRegistration:prospectiveV5?
+        'results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json':null,
+      enginePin:profile.pinnedVendorRevision,
       shuffleOrderWitness:shuffleCustody?{
         version:'agent29-authoritative-shuffle-order-witness-v1',
         control:left.shuffleAudit,treatment:right.shuffleAudit,
@@ -127,7 +148,7 @@ function run({anyTurn=false,shuffleCustody=false,
         historicalV1NotComparableWithoutQualification:true
       }:null,
       researchHead:process.env.GITHUB_SHA??null,
-      matchedPhysicalGroups:4,actualAttempts:8,
+      matchedPhysicalGroups:trials.length/2,actualAttempts:trials.length*2,
       allAudited,allDealsMatch,
       totalAcceptedCompressorRoots:pairs.reduce(
         (n,x)=>n+(x.sourceCompressorRootAccepted??0),0),
@@ -142,7 +163,9 @@ function run({anyTurn=false,shuffleCustody=false,
       totalBombTwoPrizeSelfKos:pairs.reduce(
         (n,x)=>n+(x.bombAudit?.physicalElectrodeSelfKosWithTwoPrizes??0),0),
       pairs,control,treatment,competitiveQualifiedGames:0,
-      studyType:'historically reused original source seeds; development only'};
+      studyType:prospectiveV5?
+        'fresh preregistered physical seeds with per-seat policy and physical-shuffle-after-setup RNG isolation; developmental opponents, not paper-qualified':
+        'historically reused original source seeds; development only'};
   }finally{
     for(const [k,v] of Object.entries(previous)){
       if(v===undefined)delete process.env[k];else process.env[k]=v;
@@ -151,12 +174,14 @@ function run({anyTurn=false,shuffleCustody=false,
 }
 
 if(require.main===module){
-  const bombAfterCompressor=process.env.AGENT29_RANK9_BOMB_AFTER_COMPR_V4==='true';
+  const prospectiveV5=process.env.AGENT29_RANK9_PROSPECTIVE_V5==='true';
+  const bombAfterCompressor=prospectiveV5||
+    process.env.AGENT29_RANK9_BOMB_AFTER_COMPR_V4==='true';
   const shuffleCustody=bombAfterCompressor||
     process.env.AGENT29_RANK9_SHUFFLE_AUDIT_V3==='true';
   const data=run({anyTurn:shuffleCustody||
     process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody,
-    bombAfterCompressor});
+    bombAfterCompressor,prospectiveV5});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
@@ -190,4 +215,4 @@ if(require.main===module){
   if(!data.allDealsMatch||!data.allAudited)process.exitCode=1;
 }
 module.exports={VERSION,LATE_VERSION,SHUFFLE_AUDIT_VERSION,
-  BOMB_VERSION,options,run};
+  BOMB_VERSION,PROSPECTIVE_VERSION,options,run};
