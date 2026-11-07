@@ -20,9 +20,10 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {number} prizesPerPlayer Prize cards created for each player.
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
+ * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
-function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true){
+function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true){
   const cards=initializeCards();
   let id=940000+actorSeat*1000;
   const card=name=>{
@@ -61,9 +62,11 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
   );
   enemy.active.cards.push(card('Duskull VIV'));
 
-  const ownerBench=new PokemonCardList();
-  ownerBench.cards.push(card('Unown AOR'));
-  owner.bench.push(ownerBench);
+  if(ownerHasBench){
+    const ownerBench=new PokemonCardList();
+    ownerBench.cards.push(card('Unown AOR'));
+    owner.bench.push(ownerBench);
+  }
   if(enemyHasBench){
     const enemyBench=new PokemonCardList();
     enemyBench.cards.push(card('Trubbish FST'));
@@ -82,10 +85,12 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
     }
   }
 
-  store.dispatch(new PlayCardAction(owner.id,0,{
-    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
-  }));
-  assert.equal(owner.bench[0].tools[0].fullName,'Powerglass SFA');
+  if(ownerHasBench){
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    assert.equal(owner.bench[0].tools[0].fullName,'Powerglass SFA');
+  }
   assert.equal(owner.active.getPokemonCard().fullName,'Ferroseed NXD');
   assert.equal(enemy.active.getPokemonCard().fullName,'Duskull VIV');
   assert.equal(owner.active.energies.cards.length,2);
