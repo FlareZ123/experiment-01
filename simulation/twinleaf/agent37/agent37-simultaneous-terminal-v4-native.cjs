@@ -83,7 +83,8 @@ function run(){
         assert.equal(audit.prizeGroupCount,2);
         assert.equal(audit.prizeGroupCounts.length,2);
         assert.equal(audit.prizeGroupCounts.every(g=>g.destinationIsHand),true);
-        assert.equal(audit.secondPrizeTransferAttempted,true);
+        assert.equal(audit.secondPrizeTransferAttempted,
+          profile.finalTaker===(actorSeat===0?'owner':'opponent'));
         assert.equal(audit.secondPrizeTransferCompleted,true);
         assert.equal(audit.firstPrizeTransferCompleted,true);
         assert.equal(audit.bothPrizeTransfersCompleted,true);
@@ -91,6 +92,7 @@ function run(){
         assert.equal(audit.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
         assert.equal(audit.nativeWinner,expectedNativeWinner);
         assert.equal(audit.nativeWinnerPlayerId,finalTakerId);
+        assert.equal(audit.nativeTerminalPlayerId,finalTakerId);
         assert.equal(audit.nativeWinnerName,
           profile.finalTaker==='owner'?'Ferroseed attacker':'Duskull defender');
         assert.equal(audit.nativeWinnerLogName,audit.nativeWinnerName);
