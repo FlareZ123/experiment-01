@@ -284,3 +284,30 @@ test('a target moved to Bench at declaration is not misclassified as a later KO'
     'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT');
   assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
 });
+
+test('damage reaching printed HP during later prompt resolution is distinct from KO removal',()=>{
+  const f=fixture();
+  const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].active.damage=20;
+  attack.publicBoardAfter[1].active=structuredClone(f.before[1].active);
+  attack.publicBoardAfter[1].active.damage=100;
+  const result=run(f);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION');
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
+  assert.equal(result.rows[0].targetDamageThresholdReachedDuringLaterPromptResolution,true);
+  assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToPromptClosure,80);
+});
+
+test('a settled native KO with a below-HP target still in play is flagged inconsistent',()=>{
+  const f=fixture();
+  const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].active.damage=20;
+  attack.publicBoardAfter[1].active=structuredClone(f.before[1].active);
+  attack.publicBoardAfter[1].active.damage=20;
+  const result=run(f);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP');
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
+  assert.equal(result.rows[0].targetDamageThresholdReachedDuringLaterPromptResolution,false);
+});
