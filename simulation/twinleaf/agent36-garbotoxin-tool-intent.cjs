@@ -76,13 +76,17 @@ function shouldDeferForStarAlchemy(view){
  *
  * @param {object} view Frozen actorObservation for an owner root.
  * @param {{toolPrintings:Set<string>}} catalog Public Tool printing catalog.
+ * @param {{deferForStarAlchemy?:boolean}} [options]
  * @returns {{intent:object|null,reason:string,opponentAbilityCount:number,
  *   garbodorTargetCount:number,toolCandidateCount:number,
  *   vstarUsed:boolean|null,starAlchemyDeferred:boolean}}
  */
-function evaluateGarbodorToolIntent(view,catalog){
+function evaluateGarbodorToolIntent(view,catalog,options={}){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(catalog?.toolPrintings instanceof Set);
+  assert.ok(options&&typeof options==='object');
+  assert.ok(options.deferForStarAlchemy===undefined||
+    typeof options.deferForStarAlchemy==='boolean');
 
   const opponentPokemon=[
     view.opponentPublic.active,
@@ -127,7 +131,7 @@ function evaluateGarbodorToolIntent(view,catalog){
   if(eligibleCandidates.length===0)
     return {...candidateStatus,reason:'no-tool-candidate'};
 
-  if(shouldDeferForStarAlchemy(view))
+  if(options.deferForStarAlchemy===true&&shouldDeferForStarAlchemy(view))
     return {...candidateStatus,reason:'star-alchemy-available',
       starAlchemyDeferred:true};
 
@@ -158,10 +162,11 @@ function evaluateGarbodorToolIntent(view,catalog){
  *
  * @param {object} view Frozen actorObservation for an owner root.
  * @param {{toolPrintings:Set<string>}} catalog Public Tool printing catalog.
+ * @param {{deferForStarAlchemy?:boolean}} [options]
  * @returns {object|null} Native owner-root Tool candidate intent.
  */
-function chooseGarbodorToolIntent(view,catalog){
-  return evaluateGarbodorToolIntent(view,catalog).intent;
+function chooseGarbodorToolIntent(view,catalog,options={}){
+  return evaluateGarbodorToolIntent(view,catalog,options).intent;
 }
 
 module.exports={
