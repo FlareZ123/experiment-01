@@ -88,3 +88,6 @@ I counted card identities directly in the repository's authenticated `results/ai
 | 22 | 2 | 2 | 4 | 1 |
 
 That is **4/29 (13.79%)** of the currently authenticated field, with 3-4 Float Stone in each list. Two of those four also contain one Field Blower. Across the full 29-list inventory, nine lists contain Field Blower. The New Moon candidate contains two Field Blower, so Garbotoxin/Tool exchange is a real field-facing interaction for this candidate. These are inventory counts only; they do not establish the source's opening access, the matchup result, or the missing three opponents.
+
+
+Agent44's complete same-root action comparison is [here](agent44-root93-lillie-versus-secretbox-randomized-20261107.md). A further untested hybrid remains available: pay Secret Box with VIP/VIP/Carrier (or VIP/VIP/Lillie), search Fog Crystal and Basic Psychic, attach the Energy, then play the remaining Lillie before attacking. This can preserve the deterministic attack setup while drawing a new hand that may contain Field Blower for the source's next-turn Garbotoxin. The physical deck changes after the two searches, so Agent44's 72.40717% Lillie-only probability does not apply. Test this as a separate same-prefix arm and rank it by the downstream source response and card-custody cost.
