@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      include_agent39_v8_paper_volt:
+        description: 'Read-only original v8 eight-arm same-deal Volt paper prompt A/B evidence; developmental'
+        required: false
+        type: boolean
+        default: false
       include_agent3_v8_ko_source:
         description: 'Passive native real-Store KO-to-physical Prize provenance on original registered common v8 eight arms'
         required: false
@@ -566,6 +571,9 @@ jobs:
         run: node --test tests/agent50-owner-protected-multibasic-store.native.test.cjs
       - name: Verify original Volt Cyclone paper prompt physical settlement and stale native no-op
         run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
+      - name: Observe original frozen v8 eight-arm same-deal Volt paper prompt A/B
+        if: ${{ inputs.include_agent39_v8_paper_volt }}
+        run: node simulation/evaluation/agent39-v8-paper-volt-original-eight-ab-native.cjs
       - name: Verify printed Night Watch selected v3 native prompt settlement
         run: node --test tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs
       - name: Verify staged nonempty source Get Lost physical Lost Zone custody on both seats
