@@ -149,3 +149,66 @@ test('real quarantine guard catches first owner unsupported fallback after exact
     .firstUnsupportedOwnerRoot.ownerVisibleSha256,
     snapshotFirstUnsupportedOwnerRoot(known).ownerVisibleSha256);
 });
+
+test('repeated unsupported owner roots retain only the first detached owner view',()=>{
+  const {withNativeRawStateFallbackQuarantine,CODE}=require(
+    '../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+  class AddPlayerAction{}
+  class PlayCardAction{}
+  class AttackAction{}
+  class PassTurnAction{}
+  class Store{
+    constructor(){this.state={turn:17,phase:2,activePlayer:0,prompts:[],
+      players:[{id:10},{id:20}]};}
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){
+      throw Error('Native hidden State decoder must never execute');
+    }
+  }
+  const prior=SimpleTacticsAi.prototype.decodeNextAction;
+  const firstView=view();
+  const secondView=view();
+  secondView.globalTurn=18;
+  secondView.ownHand=['Trainers Mail XY6'];
+  let current=firstView;
+  let actorResult;
+  let caught;
+  try{
+    withNativeRawStateFallbackQuarantine(()=>{
+      actorResult=withActorOnlyRootPolicy(()=>{
+        const store=new Store();
+        store.dispatch(new AddPlayerAction());
+        const bot=new SimpleTacticsAi(10);
+        assert.throws(()=>bot.decodeNextAction(store.state));
+        current=secondView;
+        assert.throws(()=>bot.decodeNextAction(store.state));
+        return 'two-quarantined-root-attempts';
+      },{
+        SimpleTacticsAi,Store,observe:()=>current,getCatalog:()=>catalog,
+        getNativeTrainerCatalog:()=>({}),
+        GamePhase:{PLAYER_TURN:2,FINISHED:7},
+        cardActions:{PlayCardAction,PlayerType:{ANY:1,BOTTOM_PLAYER:0},
+          SlotType:{BOARD:0,ACTIVE:1,BENCH:2}},
+        gameActions:{AttackAction,PassTurnAction},
+        nativeOwnerTrainerFallback:true,
+        ownerFallbackDiagnosticView:true
+      });
+      return actorResult.result;
+    },{SimpleTacticsAi});
+  }catch(error){caught=error;}
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,prior);
+  assert.equal(caught?.code,CODE);
+  assert.ok(caught.nativeRawStateFallbackQuarantine.rawStateFallbackCalls>=2);
+  const audit=actorResult.audit.nativeOwnerTrainerFallback;
+  assert.equal(audit.attemptedUnsupportedPasses,2);
+  assert.equal(audit.originalNativeDecoderExecuted,false);
+  const first=audit.firstUnsupportedOwnerRoot;
+  assert.deepEqual(first,snapshotFirstUnsupportedOwnerRoot(firstView));
+  assert.equal(first.ownerView.globalTurn,17);
+  assert.deepEqual(first.ownerView.ownHand,['Quick Ball FST','VS Seeker PHF']);
+  assert.notEqual(first.ownerVisibleSha256,
+    snapshotFirstUnsupportedOwnerRoot(secondView).ownerVisibleSha256);
+});
