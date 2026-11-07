@@ -28,7 +28,9 @@ const native=modulePath=>require(path.join(BASE,modulePath));
 function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
   assert.equal(typeof execute,'function');
   const {Store}=native('game/store/store');
-  const {EndTurnEffect,KnockOutEffect}=
+  const {EndTurnEffect}=
+    native('game/store/effects/game-phase-effects');
+  const {KnockOutEffect}=
     native('game/store/effects/game-effects');
   const {GamePhase}=native('game/store/state/state');
   const {GameMessage}=native('game/game-message');
