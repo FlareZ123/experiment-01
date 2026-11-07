@@ -1,0 +1,44 @@
+name: Agent44 root93 Hidden Power post-KO promotion receipt
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  root93-postko:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Validate script syntax
+        run: node --check simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Check out pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce root93 Secret Box Fog Psychic Hidden Power and scripted opponent promotion
+        env:
+          AGENT44_FOG_KO_NATIVE: 'true'
+          AGENT44_PROMOTE_OPPONENT_INDEX: '0'
+        run: node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Upload forensic native receipt even on failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-root93-postko-promotion
+          path: artifacts/agent44-root93-postko-promotion-retro.json
+          if-no-files-found: warn
+          retention-days: 30
