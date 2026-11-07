@@ -78,6 +78,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const before=clone.state.players.find(p=>p.id===ownerId);
     const opposing=clone.state.players.find(p=>p.id!==ownerId);
     const beforeHand=before.hand.cards.length;
+    const selectedHeldStadium=before.hand.cards[handIndex];
     const beforeStadium=StateUtils.getStadiumCard(clone.state)?.fullName??null;
     result.stadiumBefore=beforeStadium;
     result.opponentDamageBefore=opposing.active.damage;
@@ -97,7 +98,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     result.stadiumAfter=StateUtils.getStadiumCard(clone.state)?.fullName??null;
     result.stadiumEffectiveInPlay=result.stadiumAfter===STADIUM;
     result.stadiumPhysicalMove=beforeHand-afterStadium.hand.cards.length===1 &&
-      !afterStadium.hand.cards.includes(initial.hand.cards[handIndex]);
+      !afterStadium.hand.cards.includes(selectedHeldStadium);
     if(!result.stadiumPhysicalMove||!result.stadiumEffectiveInPlay){
       result.status='stadium-physical-custody-unverified';
       return result;
