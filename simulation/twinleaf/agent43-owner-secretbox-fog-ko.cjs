@@ -498,6 +498,8 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       record({kind:proof.kind,seat:proof.seat,turn:proof.turn,
         accepted:true,ownHandBefore:beforeHand.length,
         ownHandAfter:after.hand.cards.length,
+        remainingHandPrintings:proof.kind==='box-payment'?
+          after.hand.cards.map(card=>card.fullName):null,
         ownDeckBefore:beforeDeck.length,ownDeckAfter:after.deck.cards.length,
         ownerPrizeBefore:beforePrizes,
         ownerPrizeAfter:after.prizes.reduce((n,p)=>n+p.cards.length,0),
