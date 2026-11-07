@@ -15,6 +15,7 @@ const EXTRA_HASH_PATHS=Object.freeze([
   'simulation/twinleaf/agent49-trainer-hand-payment-veto.cjs',
   'tests/agent8-issue25-trainer-v6-development.test.cjs',
   'tests/agent8-native-trainer-scoped-root-activation.test.cjs',
+  'tests/agent8-native-trainer-abort-receipt.test.cjs',
   'tests/agent8-issue25-trainer-v6-development.native.test.cjs'
 ]);
 
