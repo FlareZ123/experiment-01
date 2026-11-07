@@ -21,6 +21,21 @@ test('native rank3/rank1 Copycat-Burrow A/B/A is deterministic and resolves one-
   assert.equal(result.controls.copycatPolicyEnabledOnlyInTreatment,true);
   assert.ok(result.arms.every(arm=>arm.status!=='native-error'));
   const treatment=result.arms[1];
+  console.log('AGENT1_COPYCAT_DIAG',JSON.stringify({
+    controls:result.controls,
+    arms:result.arms.map(arm=>({variant:arm.variant,status:arm.status,
+      policy:arm.policy,copycatDeclarations:arm.copycatDeclarations,
+      copycatTurns:arm.copycatTurns,filchDeclarations:arm.filchDeclarations,
+      burrowDeclarations:arm.burrowDeclarations,
+      copycatTurnEvidence:arm.copycatTurnEvidence,
+      turnStartEvidence:arm.copycatTurnStartEvidence?.filter(item=>
+        item.previousOpponentAttack?.name==='Burrow').slice(0,12),
+      attackActions:arm.deckAudit?.attackActions?.filter(item=>
+        ['Copycat','Filch','Burrow'].includes(item.actionName)).slice(0,40),
+      deckChanges:arm.deckAudit?.deckChanges?.slice(0,40),
+      terminalTransition:arm.terminalTransition,
+      finalPublicBoard:arm.finalPublicBoard}))
+  }));
   assert.ok(treatment.copycatDeclarations>0,
     'Treatment must declare Mimikyu Copycat at least once');
   assert.ok(treatment.copycatEffects.every(effect=>effect.effectObserved),

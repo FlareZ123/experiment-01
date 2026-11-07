@@ -134,6 +134,8 @@ function runArm(variant,cards) {
       return {
         turn:attack.turnBefore,
         previousOpponentAttack:snapshot?.previousOpponentAttack?.name??null,
+        previousOpponentAttackSource:snapshot?.previousOpponentAttack?.source??null,
+        previousOpponentAttackGx:snapshot?.previousOpponentAttack?.gx??null,
         activeMimikyu:snapshot?.mimikyu?.some(item=>item.location==='active')??false,
         activeMimikyuEnergy:snapshot?.mimikyu?.find(item=>item.location==='active')?.energyPrintings??[]
       };
