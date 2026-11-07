@@ -209,9 +209,6 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     assert.strictEqual(state, rootStore.state,
       'source-marked prompt State argument is not the exact root Store State');
 
-    const sourceSeat = proof.sourceSeat;
-    const sourceOwner = state.players?.[sourceSeat];
-    assert.ok(sourceOwner, 'source owner must exist in the exact prompt State');
     assert.equal(createdPrompt.constructor?.name, 'ChooseCardsPrompt');
     const sourceOwner = state.players?.[proof.sourceSeat];
     const attacker = state.players?.[proof.attackerSeat];
