@@ -226,6 +226,8 @@ function auditTimeCallPacket(packet) {
     missing.push('official-end-call-not-observed');
   if(!nonempty(packet.officialClockEvidenceRef))
     missing.push('official-clock-source-not-cited');
+  if(!nonempty(packet.stageEvidenceRef))
+    missing.push('official-stage-source-not-cited');
   if(!nonempty(packet.firstPlayerEvidenceRef))
     missing.push('original-first-player-source-missing');
   if(!nonempty(packet.turnOwnerWhenCalledEvidenceRef))
