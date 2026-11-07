@@ -57,7 +57,9 @@ choosePhysicalShuffleRandom(
 )
 ```
 
-This is the actual root Store dispatch path. The random draws are not consumed by speculative bot clones. The returned manifest identifies the protocol as `exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1`.
+This is the actual root Store dispatch path. The **physical RNG draws** are not consumed by speculative bot clones. The returned manifest identifies the protocol as `exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1`.
+
+Because M4 is playable only when the opponent has at most three Prizes, an actual M4 shuffle cannot occur during turn-0 setup. Under `isolatePhysicalShuffleRandomnessAfterSetup:true`, its actual shuffle therefore uses the affected opponent hand owner's per-seat physical stream. That flag still keeps turn-0 setup deck shuffles and coin flips on the shared stream; it only isolates turn-1-and-later deck-search shuffles. Full `isolatePhysicalShuffleRandomness:true` is the distinct mode that isolates setup shuffles too. See the [four-arm source-census RNG limitation](agent44-original-m4-source-owner-root-four-arm-20261107.md).
 
 Both flags should be enabled together for a shared-policy treatment. Preselection prevents the policy from selecting a publicly illegal M4 play; the Store correction enforces the paper rule and correct physical hand shuffle at execution.
 
