@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: '22'
       - name: Validate 128-stratum all-win and heterogeneous-win Chernoff-KL CI
-        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs
+        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs tests/agent12-expanded-mulligan-pairing.test.cjs
