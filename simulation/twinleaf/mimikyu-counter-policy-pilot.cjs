@@ -61,6 +61,9 @@ function runSourcePolicyTrace(request, candidateSeat) {
           slot.getPokemonCard()?.fullName === "Lillie's Clefairy ex JTG"),
         candidateFairyZoneEffective: hasEffectiveFairyZone(state, player),
         candidateKnownPublicAbilityLock: hasKnownPublicAbilityLock(state, player),
+        candidateHasDimensionValley: state.players.some(owner =>
+          (owner.stadium?.cards ?? []).some(card =>
+            card.name === 'Dimension Valley')),
         candidateEnergyCount: energyCards.length,
         candidateEnergyNames: energyCards.map(card => card.fullName),
         candidateCopycatCostConservative: canPayMimikyuCopycatCost(state, player),
