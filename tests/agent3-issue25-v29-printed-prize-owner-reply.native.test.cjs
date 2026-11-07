@@ -325,6 +325,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
       typeof row.targetDamageThresholdReachedImmediatelyAfterDeclarationRoot==='boolean')&&
     (row.targetKnockedOutDuringLaterPromptResolution===null||
       typeof row.targetKnockedOutDuringLaterPromptResolution==='boolean')&&
+    (row.targetDamageThresholdReachedDuringLaterPromptResolution===null||
+      typeof row.targetDamageThresholdReachedDuringLaterPromptResolution==='boolean')&&
     row.paperGameCertified===false&&
     row.actualAttachedEnergyPaymentCertified===false),true);
   assert.equal(actualPreAttackBoardJoins.qualifiedCompetitiveGames,0);
@@ -359,6 +361,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
           row.targetDamageDeltaFromDeclarationRootToActualNativeKo,
         targetKnockedOutDuringLaterPromptResolution:
           row.targetKnockedOutDuringLaterPromptResolution,
+        targetDamageThresholdReachedDuringLaterPromptResolution:
+          row.targetDamageThresholdReachedDuringLaterPromptResolution,
         classification:row.declarationRootVsPromptClosureClassification
       }))
     }));
