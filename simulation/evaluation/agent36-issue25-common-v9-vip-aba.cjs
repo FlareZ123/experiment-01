@@ -265,14 +265,20 @@ function compare(phases){
       row.trial?.id??row.id??null,row
     ])
   ));
+  const summaryMaps=phases.map(phase=>new Map(
+    (phase.diagnostic?.nativeAttempts??[]).map(row=>[row.id,row])
+  ));
   return trials().map(trial=>{
     const a=maps[0].get(trial.id)??null;
     const b=maps[1].get(trial.id)??null;
     const a2=maps[2].get(trial.id)??null;
     const all= [a,b,a2];
-    const fingerprints=all.map(row=>({
-      source:row?sourceDealFingerprint(row):null,
-      full:row?fullPhysicalDealFingerprint(row):null
+    const metadata=[0,1,2].map(i=>summaryMaps[i].get(trial.id)??null);
+    const fingerprints=all.map((row,i)=>({
+      source:metadata[i]?.sourceDealFingerprint??
+        (row?sourceDealFingerprint(row):null),
+      full:metadata[i]?.fullPhysicalDealFingerprint??
+        (row?fullPhysicalDealFingerprint(row):null)
     }));
     const physicalOpeningMatchedAcrossABA=all.every(Boolean)&&
       fingerprints.every(x=>x.source!==null&&x.full!==null)&&
