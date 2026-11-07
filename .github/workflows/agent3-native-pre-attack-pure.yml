@@ -25,4 +25,4 @@ jobs:
         with:
           node-version: '22'
       - name: Verify public board join and original-source printed nominal screen
-        run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs tests/agent3-v28-public-attack-damage-screen.test.cjs tests/agent3-mimikyu-copycat-eon-blade-eligibility.test.cjs
+        run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs tests/agent3-postprize-response-action-sequence.test.cjs tests/agent3-postprize-owner-reply-projection.test.cjs tests/agent3-v28-public-attack-damage-screen.test.cjs tests/agent3-mimikyu-copycat-eon-blade-eligibility.test.cjs
