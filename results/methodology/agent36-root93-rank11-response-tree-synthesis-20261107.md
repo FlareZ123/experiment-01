@@ -93,3 +93,10 @@ Use the same fixed source/candidate 60s and exact root93 physical prefix, but ke
 ## Benchmark status
 
 The fixed New Moon candidate and shared v8 baseline are unchanged. Aichi source inventory remains **29/32** exact originals (ranks23,25,28 missing). No full-game result in this response tree is competitively qualified. **Qualified games: 0. Demonstrated 99.5% field win rate: none.**
+
+
+## Powerglass prompt-continuation correction
+
+A later code review verified that `simulation/twinleaf/agent35-v9-owner-powerglass-after-lillie.cjs` already provides a generic owner-only `AttachEnergyPrompt` continuation for **any Active Pokémon** with Powerglass physically attached. No Unown-specific prompt hook is missing. The limitation is the root selector `choosePowerglassAfterSupporter`: it currently requires a Supporter played that turn, zero Energy on the Active, and a one-Colorless attack at a lethal breakpoint. Root93 after Fog Crystal has Active Unown with one Psychic Energy, so this selector declines to attach Powerglass.
+
+A diagnostic Unown branch can directly propose Powerglass before the Energy attachment and reuse Agent35's generic prompt continuation. A reusable policy needs to justify the second Energy's retreat/future-attack value and compare the Tool-slot opportunity cost. The earlier request to extend a Mewtwo-specific prompt hook is withdrawn.
