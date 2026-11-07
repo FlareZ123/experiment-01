@@ -167,5 +167,59 @@ function classifyTiebreaker(prizesRemaining) {
     requireCompletePaperAndClockReview:true};
 }
 
+
+/**
+ * Fail-closed evidence-shape gate for the event-specific classifier.
+ * The fields are externally supplied claims and need independent source review.
+ * No self-asserted boolean or receipt string certifies a paper match by itself.
+ *
+ * @param {object} packet
+ * @returns {object}
+ */
+function auditTimeCallPacket(packet) {
+  assert.ok(packet && typeof packet === 'object');
+  const turns=requiredTurnsAfterCall({stage:packet.stage,
+    firstPlayerSeat:packet.firstPlayerSeat,
+    turnOwnerWhenCalled:packet.turnOwnerWhenCalled});
+  const missing=[];
+  const nonempty=x=>typeof x==='string'&&x.length>0;
+  if(packet.officialEndCallObserved!==true)
+    missing.push('official-end-call-not-observed');
+  if(!nonempty(packet.officialClockEvidenceRef))
+    missing.push('official-clock-source-not-cited');
+  if(!nonempty(packet.firstPlayerEvidenceRef))
+    missing.push('original-first-player-source-missing');
+  if(!nonempty(packet.independentPaperStateEvidenceRef))
+    missing.push('independent-paper-state-source-missing');
+  if(packet.paperStateIndependentlyReviewed!==true)
+    missing.push('paper-state-independent-review-pending');
+  checkPrizes(packet.prizesRemaining);
+  const winner=packet.paperGameWinner??null;
+  assert.ok(winner===null||winner===0||winner===1);
+  // A verified normal game win may terminate the overtime immediately.
+  if(winner===null){
+    if(packet.finalPermittedTurnFinished!==true)
+      missing.push('prescribed-second-starting-player-turn-unfinished');
+    if(packet.observedFinalTurnSeat!==turns.lastTurnSeat)
+      missing.push('final-turn-custody-not-second-starting-player');
+    if(packet.observedExtraSecondTurns!==turns.additionalSecondPlayerTurns)
+      missing.push('additional-second-player-turn-count-mismatch');
+    if(packet.trailingPokemonCheckupWasExcluded!==true)
+      missing.push('trailing-pokemon-checkup-must-be-excluded');
+  }
+  if(missing.length)return {schema:VERSION,status:'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE',
+    missing,stage:packet.stage,clockLimitMinutes:turns.clockLimitMinutes,
+    conditionalWinnerSeat:null,competitiveAdmission:false,
+    externalIndependentReviewRequired:true};
+  const result=adjudicateAtPrescribedEnd({stage:packet.stage,
+    prizesRemaining:packet.prizesRemaining,
+    secondPlayerTurnFinished:packet.finalPermittedTurnFinished===true,
+    paperGameWinner:winner});
+  return {...result,
+    officialEndCallEvidenceShapeComplete:true,
+    evidenceFieldsRemainExternallyAsserted:true,
+    competitiveAdmission:false,externalIndependentReviewRequired:true};
+}
+
 module.exports={VERSION,STAGES,stageRules,requiredTurnsAfterCall,
-  adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker};
+  adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket};
