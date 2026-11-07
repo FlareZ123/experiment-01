@@ -56,3 +56,8 @@ This is a deck-resolution and print-identity census only. It does not certify th
 ## Consequence for the 99.5% objective
 
 The simulator can construct all 29 authenticated lists under the documented permitted resolver policy. Full Top32 evaluation remains blocked by the three missing decklists and by the 40 original-print identity rows. Even after those are addressed, semantic card coverage and competitive policy validation remain separate requirements. No 99.5% or full-field win-rate claim is supported by this census.
+
+
+## Governing Aichi legality profile
+
+Agent12's primary-source confirmation establishes that the Aichi Open League used the official Japanese Extra profile: BW through the latest series, Japanese-language cards, 60 cards and six Prizes, under the contemporaneous official Extra banned list. The broad repository research scope remains BW onward, but international Expanded legality is not a substitute for Aichi event legality. This census establishes engine deck construction under permitted proxies only. It does not certify Japanese physical-printing provenance, individual card legality, or the event clock. See `results/aichi-2026/agent12-official-format-rules-and-mulligan-20261107.md`.
