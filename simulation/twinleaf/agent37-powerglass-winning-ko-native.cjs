@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -31,8 +31,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   const state=store.state,owner=new Player(),enemy=new Player();
   owner.id=101;owner.name='Powerglass KO actor';
   enemy.id=202;enemy.name='original damaged Trubbish';
-  state.players=[owner,enemy];
-  state.activePlayer=0;state.turn=16;
+  assert.ok(actorSeat===0||actorSeat===1,'Physical actor seat must be 0 or 1');
+  state.players=actorSeat===0?[owner,enemy]:[enemy,owner];
+  state.activePlayer=actorSeat;state.turn=16;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
   owner.active.cards.push(card('Unown AOR'));
@@ -116,7 +117,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       'Before promotion, occupied source Bench count must match fixture');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
-    lastPrize,opponentHasBench,targetDamage,
+    lastPrize,opponentHasBench,targetDamage,actorSeat,
     printedScenario:'Unown AOR Hidden Power10 to Trubbish FST with'+targetDamage+'/70 damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
     sourceActiveAfterAttack:sourceActive?.fullName??null,
