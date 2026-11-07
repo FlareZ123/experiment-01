@@ -40,3 +40,5 @@ jobs:
         run: node simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs
       - name: Agent37 isolated per-Store paper KO hook A-B full settlement
         run: node simulation/twinleaf/agent37-paper-ko-scoped-store-audit.cjs
+      - name: Agent37 Technical Machine endturn custody and Prize order
+        run: node simulation/twinleaf/agent37-technical-machine-e21-scoped-ko-native.cjs
