@@ -25,8 +25,8 @@
   "sourceMarkerPath": "simulation/twinleaf/agent30-stunfisk-snap-trap-prompt-marker-v2.cjs",
   "sourceMarkerGitBlobSha": "daf66d330a441523fee4a74d9f5087ad97298434",
   "sourceMarkerVersion": "agent30-stunfisk-snap-trap-prompt-marker-v2",
-  "observerPath": "simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v7.cjs",
-  "observerGitBlobSha": "5d559586c418697188ffea4d3e82e82b0baf9f5e",
+  "observerPath": "simulation/twinleaf/agent12/issue25-public-prompt-zone-audit-v7.cjs",
+  "observerGitBlobSha": "320053d87f18b51de2ad54c96c5183ed5e45b9fe",
   "observerVersion": "agent36-issue25-public-prompt-zone-audit-v7",
   "capturedFields": [
     "Agent30 v2 reducer-scoped Galarian Stunfisk SSH / Snap Trap source proof",
