@@ -1,0 +1,161 @@
+{
+  "schema": "agent36-issue25-common-v10-fresh-aba-260root-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-07T13:26:03.736Z",
+  "experimentalType": "fresh-seed prospective A/B/A policy cohort; one unchanged New Moon candidate 60 against four authenticated original Aichi source lists, both physical source seats for every source rank; native attack-settlement and reciprocal-sequence screens enabled",
+  "sourceOriginalRanks": [
+    1,
+    3,
+    6,
+    11
+  ],
+  "sourceSeatAllocationRule": "Each original source rank appears twice: candidateSlot B places the original source in physical seat 0; candidateSlot A places the original source in physical seat 1. Each rank therefore covers both physical source seats.",
+  "contendingPrintedSixties": [
+    "new-moon-lockbreaker-v1"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 260,
+  "trialCount": 8,
+  "phases": [
+    {
+      "id": "A",
+      "role": "control",
+      "ownerVipAfterPass": false
+    },
+    {
+      "id": "B",
+      "role": "treatment",
+      "ownerVipAfterPass": true
+    },
+    {
+      "id": "A2",
+      "role": "repeated-control",
+      "ownerVipAfterPass": false
+    }
+  ],
+  "groups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 301,
+      "seed": 866485604
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 302,
+      "seed": 1551119314
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 303,
+      "seed": 1634405212
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 304,
+      "seed": 4137534982
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 305,
+      "seed": 3827289565
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 306,
+      "seed": 4131643824
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 307,
+      "seed": 3249368238
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 308,
+      "seed": 1279416371
+    }
+  ],
+  "trials": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 301,
+      "seed": 866485604,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:301:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 302,
+      "seed": 1551119314,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:302:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 303,
+      "seed": 1634405212,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:303:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 304,
+      "seed": 4137534982,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:304:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 305,
+      "seed": 3827289565,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:305:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 306,
+      "seed": 4131643824,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:306:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 307,
+      "seed": 3249368238,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:307:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 308,
+      "seed": 1279416371,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:308:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "seedOrigin": "Eight independent secrets.randbits(32) draws executed on the Python runtime before this registration and before any native run: rank1/A=866485604, rank1/B=1551119314, rank3/A=1634405212, rank3/B=4137534982, rank6/A=3827289565, rank6/B=4131643824, rank11/A=3249368238, rank11/B=1279416371.",
+  "policyLayers": "All phases use the same source-independent bilateral v8 common policy, Telepath owner-only ChooseCards continuation, owner-only Radiant Eternatus/Articuno-GX Confirm policy, Radiant zero-search correction, owner Prize/Promotion continuation, bilateral Volt continuation and Thorns direct-root flag. Only phase B enables the existing canonical actor inner ownerVipAfterPass handler through AGENT9_BATTLE_VIP_AFTER_PASS_DEV=true; A and A2 leave it disabled.",
+  "randomnessProtocol": "isolatePolicyRandomness=true and isolatePhysicalShuffleRandomnessAfterSetup=true for all phases. Each phase reuses identical registered trial IDs, fixed candidate/source 60s, physical seat allocation and seed. No seed selection or root filtering after results. Actual first-player seat is captured from the native setup coin-choice receipt and must be reported across both seats; the registration does not infer it from candidateSlot.",
+  "controlProtocol": "A/B/A in fixed order. Compare sourceDealFingerprint and fullPhysicalDealFingerprint within each exact trial. A2 must reproduce A's public root ledger and outcome. B's first root-ledger divergence is attributed to the VIP treatment only if it is a genuine Battle VIP Pass PlayCardAction replacing the same owner's PassTurnAction; otherwise record the actual divergence without treating it as a VIP effect.",
+  "rootCensoring": "260 accepted native root actions per arm. Native terminal, engine error, early return and root cap are retained separately. A capped game is not a win or loss. The 260-root ceiling is a development horizon, not a completed-game guarantee.",
+  "evidencePlan": "Capture public accepted roots, native setup coin-choice receipt, settled source and candidate attack transitions, actual physical source/candidate seats, source/full physical-deal fingerprints, owner-only VIP prompt outcomes, and Agent45 general/source-attack/source-return sequence screens. All sequence screens are observational and remain paper/causal/policy unqualified.",
+  "scopeLimitations": "Only four of the 29 authenticated source lists are included. New Moon is a provisional English mechanics-equivalent proxy; its exact Japanese print manifest is archived but paper-legal physical printings remain unverified. This cohort does not establish full-field performance, a completed paper-valid game, official 25-minute clock compliance, or any win-rate estimate.",
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false
+}
