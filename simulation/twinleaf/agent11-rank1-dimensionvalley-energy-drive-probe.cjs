@@ -81,6 +81,12 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const selectedHeldStadium=before.hand.cards[handIndex];
     const beforeStadium=StateUtils.getStadiumCard(clone.state)?.fullName??null;
     result.stadiumBefore=beforeStadium;
+    result.sourceActiveEnergyBefore=before.active.energies.cards
+      .map(c=>c.fullName);
+    result.opponentActiveBefore=
+      opposing.active.getPokemonCard?.()?.fullName??null;
+    result.opponentActiveEnergyBefore=opposing.active.energies.cards
+      .map(c=>c.fullName);
     result.opponentDamageBefore=opposing.active.damage;
     result.opponentPrizesBefore=opposing.prizes.length;
     try{
@@ -116,6 +122,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const finalOwner=clone.state.players.find(p=>p.id===ownerId);
     const finalOpponent=clone.state.players.find(p=>p.id!==ownerId);
     result.opponentDamageAfter=finalOpponent.active.damage;
+    result.opponentActiveAfter=
+      finalOpponent.active.getPokemonCard?.()?.fullName??null;
     result.opponentPrizesAfter=finalOpponent.prizes.length;
     result.ownerPrizesAfter=finalOwner.prizes.length;
     result.activeEnergyPrintings=finalOwner.active.energies.cards
