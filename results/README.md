@@ -13,6 +13,8 @@
 
 **Selection: none.** These lists are comparison controls and proposals. None has passed competitive automated-player admission.
 
+- [New Moon Lockbreaker Japanese print audit](legality/agent39-newmoon-lockbreaker-print-audit-20261107.md): 34 exact physical print identities, 32 retained from an Aichi source deck and two pre-event additions; zero exact restricted-print collisions. Full paper legality remains provisional, and the Cologne once-per-turn hook is absent from current v10/v10b runners.
+
 ## Benchmark admission
 
 **29/32** original Top 32 opponents have authenticated 60-card name/count inventories. Ranks **23, 25 and 28** remain missing. The 29 inventories do not establish all historical Japanese printings: 120 Basic Energy artwork annotations across 22 ranks appear to use post-event printings and need provenance normalization. Forty original printing rows still lack exact native IDs, including 35 Basic Energy rows, four Player's Ceremony rows and one Electrike PRC 60 row. Engine construction readiness is not paper legality.
