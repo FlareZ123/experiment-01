@@ -34,7 +34,8 @@ function makeFixture(overrides={}){
     }
     reduceEffect(store,state,effect){
       const abilityOwner=state.players.find(player=>
-        player.active===effect.target);
+        player.active===effect.target||
+        (player.bench??[]).includes(effect.target));
       const prompt=new ChooseCardsPrompt(
         abilityOwner,GameMessage.CHOOSE_CARD_TO_DISCARD,
         typeof overrides.promptCards==='function'
