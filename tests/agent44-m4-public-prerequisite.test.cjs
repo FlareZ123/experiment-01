@@ -94,6 +94,7 @@ test('multi-copy screen counts union of proven Prize and hand blockers exactly',
   const rows=[row(0,hand[0]),row(1,hand[1]),
     row(2,hand[2]),row(3,hand[3])];
   const v=view(hand,1,3,0);
+  v.ownPublic.prizeCount=3;
   const audit=screenOwnerTrainerPaperNecessitiesV3(v,rows);
   assert.equal(audit.heldTrainerCopies,4);
   assert.equal(audit.exactPrintedRulesSeen,3);
@@ -107,7 +108,9 @@ test('multi-copy screen counts union of proven Prize and hand blockers exactly',
     [false,false,false,null]);
   assert.throws(()=>screenOwnerTrainerPaperNecessitiesV3(v,
     [rows[0],rows[0]]),/Repeated physical owner hand index/);
-  const normal=screenOwnerTrainerPaperNecessitiesV3(view(hand,1,3,1),rows);
+  const normalView=view(hand,1,3,1);
+  normalView.ownPublic.prizeCount=3;
+  const normal=screenOwnerTrainerPaperNecessitiesV3(normalView,rows);
   assert.equal(normal.provenEmptyOpponentHandBlockedCopies,0);
   assert.equal(normal.provenPaperBlockedCopies,1);
 });
