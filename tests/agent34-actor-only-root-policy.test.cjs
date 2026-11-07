@@ -591,6 +591,7 @@ function garbotoxinToolView({
   vstarUsed=false
 }={}){
   const view=base();
+  view.ownPublic.active={...view.ownPublic.active,tools:[]};
   view.actorSeat=0;
   view.ownHand=hand;
   view.ownTurnResources={
