@@ -59,6 +59,9 @@ test('all 29 originals remain represented, with absent-FSS classifications expli
   assert.equal(rank3.noOpeningV.scaledNumerator,'529011945');
   assert.equal(rank3.allValid.scaledNumerator,'608135220');
   console.log('AGENT2_ORIGINAL29_FSS_FIRST_FLOAT',JSON.stringify({
-    eligibleRanks:a.fssFloatRanks,top:a.highestNoOpeningV
+    eligibleRanks:a.fssFloatRanks,top:a.highestNoOpeningV,
+    everyEligible:a.rows.filter(row=>row.firstToolEventPossible)
+      .map(row=>({rank:row.rank,fss:row.fss,float:row.float,
+        chance:row.noOpeningV.probabilityGivenValidStart}))
   }));
 });
