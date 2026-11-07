@@ -28,6 +28,8 @@ Exact bundled card entries:
 
 There are **four Bunnelby lists** containing six copies total and **four Handiwork lists** containing four copies total. Rank 3 contains both cards, so seven distinct published lists contain at least one confirmed direct opponent-deck mill card. All four Handiwork lists also contain **3 VS Seeker** and **2 Lusamine**. This is a concrete recovery package that can support further Supporter plays, although it does not establish how often Handiwork is recovered or played.
 
+The exact recovery texts are in **resources/cards/en/xy4.json** (VS Seeker, card ID **xy4-109**), which returns a Supporter from discard to hand, and **resources/cards/en/sm4.json** (Lusamine, card ID **sm4-96**), which returns two Supporter and/or Stadium cards from discard to hand. Both entries mark Expanded legality. These cards make Handiwork reuse mechanically available within the listed counts; each turn still permits only one Supporter play.
+
 ## Relevant owner-side draw card
 
 Mimikyu GRI 58 appears once in rank 1 and once in rank 30. The bundled entry **resources/cards/en/sm2.json**, card ID **sm2-58**, identifies Filch as a one-Colorless attack that draws 2 cards. These two field lists create a relevant owner-deck-loss interaction when a future candidate uses this Mimikyu.
