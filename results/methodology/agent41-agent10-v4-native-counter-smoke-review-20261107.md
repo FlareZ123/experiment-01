@@ -65,3 +65,15 @@ Commit `91abd6e912877d98891005feae62aa1de88b241f` now initializes `audit.policyR
 The existing native positive test still masks this improvement with `const audit={...treatment.audit,policyRecorded:true}`. It should instead pass `treatment.audit` directly and assert `audit.policyRecorded === true`; otherwise the test cannot catch a regression in the hook's own receipt. The current in-progress shared run 42425872616 is pinned to commit `164d029`, before the `policyRecorded` change, so it does not test this fix.
 
 The completion and unresolved-search gates remain open: the native positive test should assert both control and treatment matches have `finished === true`, require `unresolvedOwnerSearches === 0`, and verify accepted item/search pairing before treating the row as a complete-game result.
+
+
+## Result of shared-gate run 42425872616
+
+Run 42425872616 completed successfully at 23:37:20Z on commit `164d02934fc65623913fe67d74c5a45c568bb3c9`. All workflow steps passed, including:
+- the Agent10 strict v3 pure attribution tests;
+- the native VIP attribution test on both physical seats;
+- the frozen v10b phase-A diagnostic.
+
+The native positive test's assertions therefore passed for its eight-seed forced-pass fixture: it found at least one attributed native VIP event for each physical seat, and every accepted item/search example checked by the test mapped to the corresponding headless ledger ordinals and initiating item root. This closes the bounded native item/search ordinal attribution gap for the forced-pass hook fixture.
+
+It does not close shared-policy integration. The successful run is pinned to `164d029), before the truthful `policyRecorded` change at `91abd6e), and the test still overwrites the audit with `policyRecorded:true`. It also does not assert match completion or zero unresolved searches. The run is not a selected-common-policy performance game. Keep v10b frozen and v10c unpromoted until those gates and owner-safe shared-policy execution are satisfied.
