@@ -609,7 +609,14 @@ test('single-candidate registration is explicit, one-game, and preserves paired 
     /exactly one natural game/);
   assert.throws(()=>validateRegisteredTrialGroups([one],[6],true),
     /authenticated original 60/);
-  assert.throws(()=>validateRegisteredTrialGroups([
+  // A single prospective game can use any valid, fixed uint32 seed.
+  assert.deepEqual(validateRegisteredTrialGroups([
     {...one,seed:314160}
+  ],[11],true),{groupCount:1,trialIds:[one.id]});
+  assert.throws(()=>validateRegisteredTrialGroups([
+    {...one,seed:-1}
+  ],[11],true),{name:'AssertionError'});
+  assert.throws(()=>validateRegisteredTrialGroups([
+    {...one,seed:0x100000000}
   ],[11],true),{name:'AssertionError'});
 });
