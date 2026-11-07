@@ -114,12 +114,23 @@ function probeColdCrushAscent(seat,useAscent){
     };
     assert.deepEqual(before,{actorEnergy:1,opponentEnergy:3,actorGX:false});
     store.dispatch(new AttackAction(actor.id,'Cold Crush-GX'));
-    attackSettled=true;
     emitted.push({attack:'Cold Crush-GX'});
+    // Cold Crush has no decision prompt, but the pinned phase reducer uses
+    // WaitPrompt for the attack/checkup transition. Resolve it through Store.
+    for(let i=0;i<8;i++){
+      const pending=store.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      const reply=new ResolvePromptAction(pending.id,null);
+      assertValidPromptAction(store.state,reply);
+      store.dispatch(reply);
+      emitted.push({prompt:pending.constructor.name,answer:null});
+    }
+    attackSettled=store.state.prompts.every(p=>p.result!==undefined);
   }
 
   return {
-    seat,useAscent,movedWater,attackSettled,
+    seat,useAscent,movedWater,attackSettled,turnAfter:state.turn,
     active:actor.active.getPokemonCard()?.fullName??null,
     bench:actor.bench.map(s=>s.getPokemonCard()?.fullName).filter(Boolean),
     actorActiveWater:actor.active.energies.cards.includes(ownedWater),
