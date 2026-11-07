@@ -175,21 +175,23 @@ function installCopycatMultiAttackHistory(store){
     getPreviousTurnAttacks(playerId).filter(row=>
       row.gxAttack!==true&&row.copycatAttack!==true);
   /**
-   * Copycat's ordinary case is the opponent's last eligible attack. A
-   * verified Barrage pair is the narrow exception: both attacks in that
-   * pair are exposed in their original order.
+   * Copycat's ordinary case is the opponent's actual last attack, if it is
+   * copyable. A verified Barrage pair is the narrow exception: both attacks
+   * in that pair are considered, with GX/Copycat exclusions applied per row.
    * @param {number} playerId
    * @returns {object[]}
    */
   const getCopycatChoices=playerId=>{
-    const eligible=getEligiblePreviousTurnAttacks(playerId);
-    const paired=eligible.filter(row=>typeof row.barragePairId==='string');
+    const history=getPreviousTurnAttacks(playerId);
+    const paired=history.filter(row=>typeof row.barragePairId==='string');
     if(paired.length>0){
       const pairId=paired[paired.length-1].barragePairId;
-      const pair=eligible.filter(row=>row.barragePairId===pairId);
-      if(pair.length===2)return pair;
+      const pair=history.filter(row=>row.barragePairId===pairId);
+      if(pair.length===2)
+        return pair.filter(row=>row.gxAttack!==true&&row.copycatAttack!==true);
     }
-    return eligible.length>0?[eligible[eligible.length-1]]:[];
+    const last=history[history.length-1];
+    return last&&last.gxAttack!==true&&last.copycatAttack!==true?[last]:[];
   };
 
   return {
