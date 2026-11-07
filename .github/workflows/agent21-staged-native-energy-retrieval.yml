@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - tests/agent21-energy-retrieval-staged-native.test.cjs
+      - tests/agent21-night-stretcher-staged-native.test.cjs
   workflow_dispatch:
 
 permissions:
@@ -36,16 +37,20 @@ jobs:
         run: npm run compile
       - name: Check source-only recovery variant arithmetic and printing
         run: |
-          node --test tests/agent21-root93-k0-two-target-availability.test.cjs tests/agent21-secretbox-retrieval-item-fork.test.cjs tests/agent21-energy-retrieval-slot-60.test.cjs
+          node --test tests/agent21-root93-k0-two-target-availability.test.cjs tests/agent21-secretbox-retrieval-item-fork.test.cjs tests/agent21-energy-retrieval-slot-60.test.cjs tests/agent21-fog-preserving-night-stretcher-fork.test.cjs
       - name: Run bounded native two-seat Energy Retrieval Item custody
         run: |
           node --test tests/agent21-energy-retrieval-staged-native.test.cjs > agent21-energy-retrieval-staged-native.log 2>&1 || { cat agent21-energy-retrieval-staged-native.log; exit 1; }
           cat agent21-energy-retrieval-staged-native.log
+      - name: Run bounded native Night Stretcher both-seat dual mode and paper-eligibility control
+        run: |
+          node --test tests/agent21-night-stretcher-staged-native.test.cjs > agent21-night-stretcher-staged-native.log 2>&1 || { cat agent21-night-stretcher-staged-native.log; exit 1; }
+          cat agent21-night-stretcher-staged-native.log
       - name: Preserve native output including any negative assertion
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent21-staged-native-retrieval-${{ github.run_id }}
+          name: agent21-staged-native-recovery-item-panel-${{ github.run_id }}
           path: agent21-energy-retrieval-staged-native.log
           if-no-files-found: warn
           retention-days: 14
