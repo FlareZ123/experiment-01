@@ -48,7 +48,9 @@ function decideOneWaterColdCrush({card, owner, opponent, types}) {
   };
   const decline = reason => ({decision: false, reason, details});
 
-  if (card?.name !== 'Articuno-GX') return decline('not-articuno-gx');
+  if (card?.name !== 'Articuno-GX' || card?.fullName !== 'Articuno-GX CES') {
+    return decline('not-articuno-ces-31');
+  }
   if (details.ownerUsedGX) return decline('gx-attack-already-used');
 
   const articunoSlot = findArticunoSlot(owner, card);
@@ -66,8 +68,8 @@ function decideOneWaterColdCrush({card, owner, opponent, types}) {
   if (details.opponentActiveEnergyCount < MIN_OPPONENT_ACTIVE_ENERGY) {
     return decline('opponent-active-below-energy-threshold');
   }
-  if (details.articunoBasicWaterCount + details.otherBasicWaterCount < 1) {
-    return decline('no-owner-basic-water-for-cold-crush');
+  if (details.otherBasicWaterCount < 1) {
+    return decline('no-transferable-owner-basic-water-for-cold-crush');
   }
   return {
     decision: true,
@@ -93,7 +95,8 @@ function sameTarget(left, right) {
  */
 function chooseOneArticunoWaterTransfer({prompt, owner, played, types}) {
   const {PlayerType, SlotType, SuperType, GameMessage} = types;
-  if (prompt?.constructor?.name !== 'MoveEnergyPrompt' ||
+  if (played?.card?.fullName !== 'Articuno-GX CES' ||
+      prompt?.constructor?.name !== 'MoveEnergyPrompt' ||
       prompt.playerId !== owner?.id ||
       prompt.message !== GameMessage.MOVE_ENERGY_TO_ACTIVE ||
       prompt.playerType !== PlayerType.BOTTOM_PLAYER ||
