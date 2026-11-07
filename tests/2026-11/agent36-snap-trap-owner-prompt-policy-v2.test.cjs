@@ -23,6 +23,7 @@ const {runSelectedIssue25V0} = require('../../simulation/evaluation/agent36-issu
 const {withStewardInnermostOwnerPrompts} = require('../../simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs');
 const {withCommonOwnerThornsRoot} = require('../../simulation/evaluation/agent36-issue25-common-v6.cjs');
 const {withOwnerVoltAcrossNativeMatches} = require('../../simulation/evaluation/agent36-issue25-common-v7.cjs');
+const {withActorOnlyRootPolicy} = require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const types = loadTypes();
 const {CardTag, CardType, EnergyType, GameMessage, SuperType} = types;
@@ -613,6 +614,7 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
   const deckFor = pokemon => [pokemon, ...Array(59).fill(psychic)];
   const rootStores = [];
   const matchResults = [];
+  const actorAudits = [];
   const selectedRuns = [];
   const originalRunMatch = nativeHeadless.runMatch;
   const execution = withSnapTrapInsideNativeMatchesV2(() => withOwnerVoltAcrossNativeMatches(
@@ -637,7 +639,12 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
         allowSingleRegisteredTrial: true,
         nativeRootActionLimit: 96,
         runner: () => {
-          const result = nativeHeadless.runMatch(request);
+          const actor = withActorOnlyRootPolicy(
+            () => nativeHeadless.runMatch(request),
+            {nativeOwnerTrainerFallback: false}
+          );
+          actorAudits.push(actor.audit);
+          const result = actor.result;
           matchResults.push(result);
           return {
             rows: [{
@@ -664,6 +671,7 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
     nativeMatchAttempts: execution.audit.nativeMatchAttempts,
     rootStoreCount: rootStores.length,
     matchResultCount: matchResults.length,
+    actorAudits: actorAudits,
     selectedRuns: selectedRuns.map(selected => ({
       thrownCode: selected.diagnostic.thrownCode,
       thrownMessage: selected.diagnostic.thrownMessage,
