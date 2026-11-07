@@ -109,7 +109,8 @@ function twoStepFixture(candidateSeat) {
   state.players = candidateSeat === 0 ?
     [candidate, opponent] : [opponent, candidate];
 
-  candidate.active.cards.push(mimikyu, psychicA, psychicB);
+  candidate.active.cards.push(mimikyu);
+  candidate.active.energies.cards.push(psychicA, psychicB);
   candidate.discard.cards.push(dialga, radiant);
   const clefairySlot = new PokemonCardList();
   clefairySlot.cards.push(clefairy);
