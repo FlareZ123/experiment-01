@@ -148,8 +148,9 @@ function verifyNoBenchSeat(seat){
  * Check both same-type Bench retention and incompatible-type mandatory discard.
  * @param {0|1} seat
  * @param {boolean} nonLightningTarget
+ * @param {boolean} temple Whether the opposing owner has public Temple of Sinnoh.
  */
-function verifyFlashRouteSeat(seat,nonLightningTarget){
+function verifyFlashRouteSeat(seat,nonLightningTarget,temple=false){
   const scene=prepare(seat),manager=initializeCards();
   const flash=manager.getCardByName('Flash Energy AOR');
   assert.ok(flash,'Flash Energy AOR must be registered at pinned revision');
@@ -169,10 +170,16 @@ function verifyFlashRouteSeat(seat,nonLightningTarget){
     scene.opponent.discard.cards.push(...old);
     scene.opponent.bench[0].cards.push(giratina);
   }
+  if(temple){
+    const stadium=manager.getCardByName('Temple of Sinnoh ASR');
+    assert.ok(stadium);
+    stadium.id=99550+seat;
+    scene.owner.stadium.cards.push(stadium);
+  }
   const target=scene.opponent.bench[0];
   const targetPokemon=target.getPokemonCard();
   assert.ok(targetPokemon);
-  const expectedRoute=nonLightningTarget?'discard':'bench';
+  const expectedRoute=nonLightningTarget&&!temple?'discard':'bench';
   assert.equal(scene.opponent.discard.cards.includes(flash),false);
   const observed=withPaperPromptPortfolio(()=>{
     const prompt=generatePrompt(scene);
@@ -189,18 +196,26 @@ function verifyFlashRouteSeat(seat,nonLightningTarget){
     target.energies.cards.includes(flash);
   assert.equal(source.cards.includes(flash),false);
   assert.equal(source.energies.cards.includes(flash),false);
-  assert.equal(endsInDiscard,nonLightningTarget,
-    'Printed Flash incompatibility requires discard after transfer');
-  assert.equal(endsOnBench,!nonLightningTarget);
+  assert.equal(endsInDiscard,nonLightningTarget&&!temple,
+    'Printed Flash restriction is suppressed by Temple in this staged board');
+  assert.equal(endsOnBench,!nonLightningTarget||temple);
   assert.equal(observed.audit.liveNativePromptSettled,1);
-  assert.equal(observed.audit.paperVerifiedNativeAccepted,1);
-  assert.equal(observed.audit.events[0].expectedRoute,expectedRoute);
-  assert.equal(observed.audit.events[0].physicalEffectVerified,true);
+  assert.equal(observed.audit.paperVerifiedNativeAccepted,
+    nonLightningTarget&&temple?0:1);
+  assert.equal(observed.audit.events[0].expectedRoute,
+    nonLightningTarget&&temple?null:expectedRoute);
+  assert.equal(observed.audit.events[0].physicalEffectVerified,
+    !nonLightningTarget||!temple);
   assert.equal(observed.audit.livePaperVerifiedDiscardedFlashEnergy,
-    nonLightningTarget?1:0);
+    nonLightningTarget&&!temple?1:0);
+  if(nonLightningTarget&&temple){
+    assert.equal(observed.audit.events[0].status,'PAPER_PROMPT_UNVERIFIED');
+    assert.equal(observed.audit.paperUnverified,1);
+  }
   return {seat,sourcePrinting:'Iron Thorns ex TWM',
     specialEnergy:'Flash Energy AOR',target:targetPokemon.fullName,
-    expectedRoute,nativePromptSettled:1,endsInDiscard,endsOnBench,
+    temple,expectedRoute,nativePromptSettled:1,endsInDiscard,endsOnBench,
+    paperCertificate:observed.audit.events[0].status,
     status:'NARROW_NATIVE_SPECIAL_ENERGY_FINAL_ZONE_ONLY'};
 }
 
@@ -210,6 +225,8 @@ function run(){
     noBenchCases:[verifyNoBenchSeat(0),verifyNoBenchSeat(1)],
     flashRoutes:[verifyFlashRouteSeat(0,false),verifyFlashRouteSeat(1,false),
       verifyFlashRouteSeat(0,true),verifyFlashRouteSeat(1,true)],
+    templeFlashRoutes:[verifyFlashRouteSeat(0,true,true),
+      verifyFlashRouteSeat(1,true,true)],
     nativeStoreUsed:true,
     originalPhysical60:false,fullMatch:false,competitiveQualifiedGames:0};
 }
