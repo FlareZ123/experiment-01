@@ -185,19 +185,24 @@ test('A tied knockout tiebreaker restarts; an unexplained both-zero state stays 
   assert.equal(agent27Unknown.competitiveAdmission, false);
 });
 
-test('Both-zero tiebreaker states fail closed with model-specific review labels', () => {
-  const agent26 = adjudicateMay2026AichiTime({
-    stage: 'top32',
-    phase: 'tiebreak',
-    firstPlayerSeat: 0,
-    lastCompletedTurnSeat: 1,
-    prizeRemaining: [0, 0]
-  });
-  const agent27 = classifyTiebreaker([0, 0]);
-  assert.equal(agent26.status, 'NATURAL_PAPER_TERMINAL_UNVERIFIED');
-  assert.equal(agent27.status, 'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED');
-  assert.ok(agent26.competitiveAdmission !== true);
-  assert.equal(agent27.competitiveAdmission, false);
+test('All 13 zero-containing tiebreaker Prize states fail closed in Agent26 and Agent27', () => {
+  for (let a = 0; a <= 6; a++) {
+    for (let b = 0; b <= 6; b++) {
+      if (a !== 0 && b !== 0) continue;
+      const agent26 = adjudicateMay2026AichiTime({
+        stage: 'top32',
+        phase: 'tiebreak',
+        firstPlayerSeat: 0,
+        lastCompletedTurnSeat: 1,
+        prizeRemaining: [a, b]
+      });
+      const agent27 = classifyTiebreaker([a, b]);
+      assert.equal(agent26.status, 'NATURAL_PAPER_TERMINAL_UNVERIFIED', `Agent26 [${a},${b}]`);
+      assert.equal(agent27.status, 'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED', `Agent27 [${a},${b}]`);
+      assert.ok(agent26.competitiveAdmission !== true);
+      assert.equal(agent27.competitiveAdmission, false);
+    }
+  }
 });
 
 test('Agent26 unified extension predicate matches Agent27 tied-low and both-high transitions', () => {
