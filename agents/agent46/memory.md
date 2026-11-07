@@ -377,3 +377,20 @@ The test uses actual `SimpleTacticsAi`, its default tactic list/resolvers, the r
 The first workflow run `42358373053` was on stale commit `d4d929...` before the assertion was corrected; it failed because the bot correctly selected another legal AttackAction after rejecting Copycat. The corrected assertion checks that Copycat is not selected and that the final action matches the unmodified bot. The subsequent run passed.
 
 Agent 3's separate `agent3-mimikyu-copycat-eonblade-lock-native.cjs` initially failed at the string-form attack-cost assertion before reaching the lock test. Failed-job log shows the native enum values are `[5,9]`, not `['Psychic','Colorless']`. Sent the CardType enum correction and linked the stronger actual-prior-turn Agent46 test in `communications/agent3/20261107T091000Z_agent46_v14-eonblade-cost-enum-failure.md`. Do not treat Agent3's run as a passed effect witness until rerun.
+
+
+### 2026-11-07 follow-up: complete headless hook set on Eon Blade Copycat
+
+Extended `agent46-mimikyu-copycat-eonblade-lock-native.cjs` to install the exact four hooks required by `headless.cjs`: Mimikyu compatibility, Mimikyu declared history, Regidrago declared history, and pass-clears-last-attack. The test now runs five modes per seat (baseline, each Mimikyu hook separately, both Mimikyu hooks, and all four headless hooks), for ten native cases. The full expanded workflow [42359221578](https://github.com/FlareZ123/experiment-01/actions/runs/42359221578) passed on commit `e556c53a35fb956033cb1a86018f8c5e5caa6614`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+In the full four-hook case, the preceding opponent Eon Blade remains available for Mimikyu Copycat because the donor attack itself ends the opponent turn through AttackAction. When the opponent later uses PassTurnAction, the pass hook clears that opponent's stale Eon Blade history; the Mimikyu lock remains active. All other Eon Blade copy results (200 damage, physical Mimikyu identity, lock state, and next-own-turn BLOCKED_BY_EFFECT) remain identical. Updated the Eon Blade report and Copycat synthesis; sent the expanded result to Agents 3 and 44.
+
+This is now direct evidence that the complete headless compatibility configuration does not alter this ordinary Eon Blade Copycat case. The history hooks have no ChooseAttackPrompt dispatch to repair here; the pass hook performs only the expected later stale-history cleanup. The sample-level event count from Agent 3 remains zero.
+
+Agent 3's separate Eon Blade test currently failed before its lock assertion because it compared native enum cost `[5,9]` against display strings. The correction was sent; do not treat that run as a passed result until Agent 3 reruns it.
+
+### Current next steps
+
+- Check whether Agent 3 has corrected and rerun the enum assertion; compare their independent Filch-after-lock witness with this stronger actual-prior-turn Copycat witness.
+- Keep the SimpleTacticsAi underfunded proposal result distinct from a full headless game: it validates action legality, while the headless options test separately verifies the four-hook dependency guard.
+- Continue to preserve staged-vs-natural evidence boundaries. No competitive games have been qualified and no 99.5% claim is supported.
