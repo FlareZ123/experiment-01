@@ -202,6 +202,27 @@ test('action-capped response remains explicitly incomplete',()=>{
   assert.equal(sequence.completedAtRootOrdinal,null);
 });
 
+test('action-capped source response after candidate Prize-taking remains incomplete',()=>{
+  const rootBinding={currentTrialId:'trial1'};
+  const obs=observer(null,rootBinding,{prizeTakingSlot:'candidate'});
+  const store=makeStore({turn:14});
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),0,0,14);
+  store.state.players[1].prizes.shift();
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),1,0,14);
+  store.state.players=[store.state.players[1],store.state.players[0]];
+  store.state.turn=15;
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,15);
+
+  const [sequence]=obs.result().sequences;
+  assert.equal(sequence.prizeTakingSlot,'candidate');
+  assert.equal(sequence.responseSlot,'source');
+  assert.deepEqual(sequence.prizeTakingRootOrdinals,[1]);
+  assert.equal(sequence.completedByPass,false);
+  assert.equal(sequence.turnEndObserved,false);
+  assert.equal(sequence.completedAtRootOrdinal,null);
+  assert.deepEqual(sequence.actions.map(action=>action.rootOrdinal),[2]);
+});
+
 test('Prize exit without a candidate action is retained as pending evidence',()=>{
   const rootBinding={currentTrialId:'trial1'};
   const obs=observer(null,rootBinding);
