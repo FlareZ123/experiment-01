@@ -24,6 +24,7 @@ test('Snap Trap routes the same physical Beast Energy Prism Star to Lost Zone', 
   assert.equal(result.prompt.unresolvedPromptCountAfterResponse, 0);
   assert.equal(result.prompt.otherPendingPromptCountAfterResponse, 1);
   assert.equal(result.prompt.postResponseWaitPromptType, 'WaitPrompt');
+  assert.ok(result.prompt.postResponseWaitPromptCount >= 1);
   assert.equal(result.prompt.postResponseWaitPromptResolvedWithNull, true);
   assert.equal(result.prompt.unresolvedPromptCountAfterFinalWait, 0);
   assert.equal(result.moveCardsEffect.requestedDestinationIsDiscard, true);
