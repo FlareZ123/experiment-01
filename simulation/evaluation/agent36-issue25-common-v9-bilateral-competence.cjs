@@ -49,6 +49,8 @@ const POLICY_PATHS=[
   'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
   'simulation/evaluation/agent1-issue25-joined-three-attacks-v5.cjs',
   'simulation/evaluation/agent8-issue25-v5-telepath-development.cjs',
+  'simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs',
+  'simulation/twinleaf/agent1-girafarig-dead-attack-frontier.cjs',
   'simulation/twinleaf/agent41-paper-supporter-discipline.cjs',
   'simulation/twinleaf/canceling-cologne-once-per-turn-hook.cjs',
   'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
@@ -677,6 +679,11 @@ function runStewardBilateralProbeV9(deps={}) {
           actorOnlyComposition:true,
           sourceIndependentCommonPolicy:true,
           bilateralSpecialEnergyRoot:true,
+          // Physical full-Bench Trubbish Call for Family is a known-dead
+          // leading attack when the separately cost-payable printed
+          // Super Poison Breath can damage and Poison the live defender.
+          // Existing owner-public policy applies symmetrically to both seats.
+          bilateralKnownDeadAttackRoot:true,
           nativeAcceptedTargets:true,
           nativeRootActionLimit:ROOT_LIMIT,
           isolatePolicyRandomness:true,
