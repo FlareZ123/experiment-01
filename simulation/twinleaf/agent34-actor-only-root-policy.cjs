@@ -142,6 +142,10 @@ function buildActorCardCatalog(all,types){
 function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
+  const evolutionOwnerSeat=options.naturalEvolutionRootOwnerSeat??null;
+  assert.ok(evolutionOwnerSeat===null||evolutionOwnerSeat===0||
+    evolutionOwnerSeat===1,
+  'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
   // Development-only, source-independent response to an already publicly
   // announced paid GX attack. Only the actor's own held Ranger can be offered;
   // default policy decisions and the canonical observation are unchanged.
@@ -189,7 +193,8 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
     if(path)return path;
   }
-  if(options.naturalEvolutionRoot===true){
+  if(options.naturalEvolutionRoot===true&&
+     (evolutionOwnerSeat===null||view.actorSeat===evolutionOwnerSeat)){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
@@ -846,6 +851,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    naturalEvolutionRootOwnerSeat:deps.naturalEvolutionRootOwnerSeat??null,
     rank17ElectrodeBombCensusOptIn:deps.rank17ElectrodeBombCensus===true,
     dittoStage1RootOptIn:deps.dittoStage1Root===true,
     farewellLetterRootOptIn:deps.farewellLetterRoot===true,
@@ -1479,6 +1485,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      naturalEvolutionRootOwnerSeat:audit.naturalEvolutionRootOwnerSeat,
       dittoStage1Root:audit.dittoStage1RootOptIn,
       dittoStage1Receipt:audit.dittoStage1RootOptIn?
         require('./agent1-ditto-prism-actor-evolution.cjs')
