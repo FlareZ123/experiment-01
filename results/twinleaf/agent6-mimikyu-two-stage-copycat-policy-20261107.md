@@ -40,6 +40,8 @@ The opt-in policy is implemented in `simulation/twinleaf/mimikyu-counter-policy.
 
 The fixture has active Mimikyu with two Psychic Energy, Dialga-GX and Radiant Eternatus in the candidate's discard, Lillie's Clefairy ex on the candidate's Bench, and two opposing Regidrago VSTAR with a Dratini promotion target. The opponent's last declared attack is seeded as Apex Dragon.
 
+Lillie's Clefairy ex Fairy Zone changes Dragon Pokémon's Weakness to Psychic. Mimikyu is Psychic, so the copied attack hits Regidrago VSTAR's Psychic Weakness: Dialga-GX Timeless-GX is 150 base damage and resolves for 300; Radiant Eternatus Power Beam is 200 base damage and resolves for 400. The native test asserts these damage values and both Knock Outs.
+
 For each seat, the research tactic selects Copycat and the research resolver selects the exact legal prompt payload:
 
 1. Timeless-GX resolves through Copycat, Fairy Zone doubles damage to 300, the first Regidrago VSTAR is Knocked Out, and two Prizes are taken.
