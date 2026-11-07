@@ -3,14 +3,14 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent5-v7-targeted-source-teamflare-physical-custody-v1';
+const VERSION='agent5-v7-targeted-source-teamflare-physical-custody-v2';
 const FLARE='Team Flare Grunt XY';
 
 /**
  * Read-only physical Store observer around a singled-out original-source
- * Supporter play. Records exact owner-hand card and one physical opposing
- * Active Energy object leaving for public discard after successful dispatch.
- * Does not choose, modify or submit any action.
+ * Supporter play. Records the physical card and Energy movement through the
+ * actual owner prompt settlement. Later dispatch errors are kept separate
+ * from rejection of the target Flare root.
  *
  * @template T
  * @param {()=>T} execute Native match.
@@ -37,24 +37,33 @@ function withOriginalFlarePhysicalWitness(execute,deps){
     opponentActiveBefore:null,opponentActiveEnergyBefore:[],
     exactOpponentEnergyMovedToDiscard:[],
     exactOriginalOpponentEnergyCountAfter:null,
+    opponentActiveEnergyCountAfterSettlement:null,
     rootActionKindsThroughSettlement:[],nativeError:null,
-    observerReadOnly:true,paperCompetitiveGameQualified:false
+    laterNativeErrors:[],observerReadOnly:true,
+    paperCompetitiveGameQualified:false
   };
   function captureAfter(state){
-    if(!tracked)return;
+    if(!tracked||tracked.settled)return;
     const owner=state.players[deps.seat];
     const opponent=state.players[1-deps.seat];
     audit.physicalOriginalFlareLeftHand=
       !owner.hand.cards.includes(tracked.physical);
     audit.physicalFlareReachedOwnerDiscard=
       owner.discard.cards.includes(tracked.physical);
-    audit.sourceSupporterTurnAfter=owner.supporterTurn;
-    audit.exactOpponentEnergyMovedToDiscard=
-      tracked.originalEnergy.filter(card=>
-        !tracked.active.energies.cards.includes(card)&&
-        opponent.discard.cards.includes(card)).map(card=>card.fullName);
-    audit.exactOriginalOpponentEnergyCountAfter=
-      tracked.active.energies.cards.length;
+    const moved=tracked.originalEnergy.filter(card=>
+      !tracked.active.energies.cards.includes(card)&&
+      opponent.discard.cards.includes(card));
+    audit.exactOpponentEnergyMovedToDiscard=moved.map(card=>card.fullName);
+    if(audit.physicalOriginalFlareLeftHand&&
+       audit.physicalFlareReachedOwnerDiscard&&moved.length>0){
+      tracked.settled=true;
+      audit.sourceSupporterTurnAfter=owner.supporterTurn;
+      audit.exactOriginalOpponentEnergyCountAfter=
+        tracked.active.energies.cards.filter(card=>
+          tracked.originalEnergy.includes(card)).length;
+      audit.opponentActiveEnergyCountAfterSettlement=
+        tracked.active.energies.cards.length;
+    }
   }
   function dispatch(action,...args){
     const kind=action?.constructor?.name??null;
@@ -63,8 +72,7 @@ function withOriginalFlarePhysicalWitness(execute,deps){
     }
     const state=this.state;
     const genuine=this===live&&state?.turn===deps.turn&&
-      state.activePlayer===deps.seat&&
-      state.players?.[deps.seat];
+      state.activePlayer===deps.seat&&state.players?.[deps.seat];
     const owner=genuine?state.players[deps.seat]:null;
     const actor=action?.id??action?.clientId;
     const physical=owner&&kind==='PlayCardAction'&&
@@ -74,7 +82,7 @@ function withOriginalFlarePhysicalWitness(execute,deps){
       audit.trueActorFlareAttempts++;
       const opponent=state.players[1-deps.seat];
       tracked={physical,active:opponent.active,
-        originalEnergy:[...opponent.active.energies.cards]};
+        originalEnergy:[...opponent.active.energies.cards],settled:false};
       audit.sourceSupporterTurnBefore=owner.supporterTurn;
       audit.opponentActiveBefore=opponent.active.getPokemonCard()?.fullName??null;
       audit.opponentActiveEnergyBefore=tracked.originalEnergy.map(c=>c.fullName);
@@ -83,12 +91,19 @@ function withOriginalFlarePhysicalWitness(execute,deps){
     try{
       result=previous.value.call(this,action,...args);
     }catch(error){
-      if(target) audit.nativeRejectedFlareRoots++;
-      audit.nativeError=String(error?.message??error).slice(0,320);
+      if(target){
+        audit.nativeRejectedFlareRoots++;
+        audit.nativeError=String(error?.message??error).slice(0,320);
+      }else if(tracked&&this===live){
+        audit.laterNativeErrors.push({
+          globalTurn:state?.turn??null,kind,
+          error:String(error?.message??error).slice(0,320)
+        });
+      }
       throw error;
     }
     if(target)audit.acceptedStoreFlareRoots++;
-    if(tracked&&this===live&&
+    if(tracked&&!tracked.settled&&this===live&&
        audit.rootActionKindsThroughSettlement.length<24){
       audit.rootActionKindsThroughSettlement.push({
         globalTurn:state.turn,kind,sourceAction:actor===owner?.id,
