@@ -37,7 +37,10 @@ function hookedTrial(seat){
         const index=p.cards.findIndex(c=>c===s.target);
         assert.ok(index>=0,
           'Only Dragon Dialga-GX UPR must be the eligible owned discard payload');
-        answer={index,attack:'Timeless-GX'};
+        answer=p.cards[index].attacks.find(a=>a.name==='Timeless-GX');
+        assert.ok(answer);
+        assert.equal(p.validate(answer),true,
+          'Native source choice must be exact Attack object');
         choseTimeless=true;
       }else if(kind==='WaitPrompt')answer=null;
       else if(kind==='ShowCardsPrompt')answer=true;
