@@ -304,8 +304,8 @@ test('Agent41 native row 9:205 ignores unlogged natural seat-1 VIP root ordinal 
     ledger[22]=root(22,'PlayCardAction',1,2,{card:VIP_NAME});
   }
   const f={
-    controlLedger:control,controlRootActionCount:23,
-    treatmentLedger:treatment,treatmentRootActionCount:23,
+    controlLedger:control,controlRootActionCount:23,controlCompleted:true,
+    treatmentLedger:treatment,treatmentRootActionCount:23,treatmentCompleted:true,
     vipAudit:audit([itemEvent(13,0,1),searchEvent(13,14,0,1)],{
       dispatchRootCount:23
     })
