@@ -3,8 +3,7 @@
 const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {initializeCards, runMatch} = require('./headless.cjs');
-const {copycatApexResponseKind, hasEffectiveFairyZone, hasKnownPublicAbilityLock,
-  canPayMimikyuCopycatCost} =
+const {copycatApexResponseKind, hasEffectiveFairyZone, hasKnownPublicAbilityLock} =
   require('./mimikyu-counter-policy.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -66,7 +65,6 @@ function runSourcePolicyTrace(request, candidateSeat) {
             card.name === 'Dimension Valley')),
         candidateEnergyCount: energyCards.length,
         candidateEnergyNames: energyCards.map(card => card.fullName),
-        candidateCopycatCostConservative: canPayMimikyuCopycatCost(state, player),
         candidateUsedGX: player.usedGX === true,
         candidatePrizeCount: player.getPrizeLeft(),
         candidateHandCardNames: player.hand.cards.map(card => card.fullName),
@@ -181,7 +179,7 @@ function runMimikyuCounterSourcePilot() {
       };
       const base = {ranks: rankOrder, candidateSeat: championSeat,
         opponentSeat: 1 - championSeat,
-        policy: experimental ? 'public-copycat-response-v3' : 'base-with-semantic-corrections',
+        policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
         const {game, eligibleChoices, observedChoices, payloadChoiceObservations, apexWindowObservations} =
@@ -221,7 +219,7 @@ function runMimikyuCounterSourcePilot() {
     const pair = rows.filter(row => row.status === 'engine-completed-or-bounded' &&
       row.candidateSeat === candidateSeat);
     const baseline = pair.find(row => row.policy === 'base-with-semantic-corrections');
-    const treatment = pair.find(row => row.policy === 'public-copycat-response-v3');
+    const treatment = pair.find(row => row.policy === 'public-copycat-response-v2');
     return {
       candidateSeat,
       baselineFingerprint: baseline?.initialSourceDealFingerprint ?? null,
