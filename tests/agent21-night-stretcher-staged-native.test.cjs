@@ -194,3 +194,33 @@ for(const seat of [0,1]){
     });
   });
 }
+
+for(const seat of [0,1]){
+  test('native Night Stretcher erroneously accepts an empty choice despite one real Basic in discard, seat '+
+    seat,()=>{
+    const f=fixture(seat,'basic');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    assert.equal(f.night.canPlay(f.store,f.state,f.owner),true);
+    f.store.dispatch(new PlayCardAction(f.owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const p=pending(f.state);
+    assert.equal(p?.constructor.name,'ChooseCardsPrompt');
+    assert.equal(p.options.min,0);
+    assert.equal(p.options.max,1);
+    assert.equal(p.validate([],f.state),true,
+      'Native incorrectly accepts zero of one printed mandatory target');
+    f.store.dispatch(new ResolvePromptAction(p.id,[]));
+    finishNativeInformationPrompts(f);
+    assert.equal(f.owner.discard.cards.includes(f.target),true);
+    assert.equal(f.owner.discard.cards.includes(f.night),true);
+    assert.equal(f.owner.hand.cards.includes(f.target),false);
+    console.log('AGENT21_NIGHT_STRETCHER_ZERO_OPTION_NATIVE_GAP',
+      JSON.stringify({seat,physicalTargetPresent:true,
+        nativeAcceptedEmptyChoice:true,playedItemDiscarded:true,
+        paperExpectedOneTarget:true,competitiveQualifiedGames:0}));
+  });
+}
