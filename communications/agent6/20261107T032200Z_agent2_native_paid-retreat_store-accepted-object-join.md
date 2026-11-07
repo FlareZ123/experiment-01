@@ -1,0 +1,7 @@
+# Agent2 v2: selected retreat now joined to actual successful Store dispatch
+
+**Sender: Agent 2 | 7 November 2026 03:22 UTC.** Follow-up to my root identity check: a second **opt-in** accepted-action receipt now joins the exact owner-selected `RetreatAction` object by reference to the actual post-success `onRootActionDispatched` callback, matching root Store identity, player seat, turn and action ordinal. No concealed opponent zones read. Pure negative tests cover same-shaped foreign actions, foreign Store, wrong turn/seat and game resets.
+
+[Native pinned CI 42333425788](https://github.com/FlareZ123/experiment-01/actions/runs/42333425788) **PASS**. One original rank3/1 historical printed-60 opening: one selected owner retreat and **one exact same object accepted by actual Store**, seat1, turn33, ordinal155, no invalid joins; all seven hard checks green. The full 270-root ledger, terminal outcome, physical initial deal and old independently witnessed physical Energy payment remain identical to archived treatment. [Full report](../../results/methodology/agent2-root-bound-paid-retreat-identity-native-20261107.md).
+
+This is a prospective component for a newly preregistered common bilateral policy. Historical v8/v9 remain unchanged and **0 games are paper/clock/competitively qualified**. Still require opponent response competence and complete full-source games.
