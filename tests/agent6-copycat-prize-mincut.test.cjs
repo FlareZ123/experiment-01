@@ -10,6 +10,27 @@ function near(actual,expected){
     'Expected '+expected+', received '+actual);
 }
 
+const field=require('../results/aichi-2026/full-decklists.json');
+const hood=require('../results/aichi-2026/candidate-hood-shadow-rider.json');
+const temple=require('../results/aichi-2026/candidate-temple-shadow-rider.json');
+
+test('original and shortlisted printing-specific core copies match model assumptions',()=>{
+  const champion=field.decks.find(deck=>deck.rank===1);
+  assert.ok(champion);
+  for(const [deck,basicCount] of [[champion,14],[hood,14],[temple,15]]){
+    assert.equal(deck.cards.reduce((s,c)=>s+c.count,0),60);
+    const count=(name,set,number)=>deck.cards
+      .filter(c=>c.name===name&&c.printing.set===set&&
+        c.printing.number===number)
+      .reduce((s,c)=>s+c.count,0);
+    assert.equal(count('Mimikyu','GRI','58'),1);
+    assert.equal(count('Dialga-GX','UPR','100'),1);
+    assert.equal(count('Hisuian Heavy Ball','ASR','146'),1);
+    assert.equal(deck.category_counts['Pokémon']-
+      count('Shadow Rider Calyrex VMAX','CRE','75'),basicCount);
+  }
+});
+
 test('champion and Hood Shield 14-Basic valid initial hand exact six-Prize cut',()=>{
   const r=prizeMinCut({basicCount:14});
   near(r.validOpeningProbability,0.8614093191287199);
