@@ -102,7 +102,7 @@ function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
   );
   return {
     version:VERSION,
-    futureOwnerStarts:scheduledStarts++tailStarts,
+    futureOwnerStarts:scheduledStarts+tailStarts,
     scheduledFutureOwnerStarts:scheduledStarts,
     tailFutureOwnerStarts:tailStarts,
     remainingDeckAtTail:deck,
