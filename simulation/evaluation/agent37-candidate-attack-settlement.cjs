@@ -116,6 +116,18 @@ function candidateAttackSettlement(game,candidateSeat) {
       settlementCrossesClockReset,
       completionRootOrdinal:settled?completion:null,
       publicBoardBefore:event.before,
+      // The declaration root's immediate post-dispatch board can precede
+      // later prompt-resolved damage. Keep it distinct from final settlement.
+      initiatingRootActionOrdinal:Number.isSafeInteger(
+        event.initiatingRootActionOrdinal)?
+        event.initiatingRootActionOrdinal:null,
+      declarationRootTurnAfter:Number.isSafeInteger(event.turnAfter)?
+        event.turnAfter:null,
+      declarationRootPromptPendingAfter:
+        typeof event.promptPendingAfter==='boolean'?
+          event.promptPendingAfter:null,
+      publicBoardImmediatelyAfterDeclarationRoot:
+        Array.isArray(event.after)?event.after:null,
       publicBoardAfter:settled?event.settled.after:null,
       prizesBefore:event.beforePrizesRemaining,
       prizesAfter:settled?event.settled.prizesRemaining:null,

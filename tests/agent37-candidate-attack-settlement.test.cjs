@@ -35,7 +35,9 @@ function fixture(){
       initiatingRootActionOrdinal:0,
       turnBefore:21,triggerAction:'ResolvePromptAction',
       declarations:[{attackName:'Poltergeist',playerName:'research-B'}],
-      before:initial,beforePrizesRemaining:[6,5],
+      before:initial,after:damaged,turnAfter:21,
+      promptPendingAfter:false,initiatingRootActionOrdinal:0,
+      beforePrizesRemaining:[6,5],
       settled:{completionRootActionOrdinal:1,
         after:damaged,prizesRemaining:[6,5]}
     }],
@@ -58,6 +60,10 @@ test('authentic prompt settlement, public board, printed base, opponent reply, r
   const event=result.attacks[0];
   assert.equal(event.delegatedCopy,true);
   assert.equal(event.completionRootOrdinal,1);
+  assert.equal(event.initiatingRootActionOrdinal,0);
+  assert.equal(event.declarationRootTurnAfter,21);
+  assert.equal(event.declarationRootPromptPendingAfter,false);
+  assert.equal(event.publicBoardImmediatelyAfterDeclarationRoot[0].active.damage,150);
   assert.equal(event.publicBoardAfter[0].active.damage,150);
   assert.deepEqual(event.prizesBefore,[6,5]);
   assert.equal(event.nextSourceRoot.action,'PlayCardAction');
@@ -382,4 +388,28 @@ test('unchanged Store roots certify complete legacy label equality',()=>{
   const games=new Map(rows.map(row=>['trial-'+row.trial.id,{rootActionLedger:[{actionOrdinal:0,turnBefore:1,playerSlot:0,action:'PassTurnAction'}]}]));
   const b={development:{rows},games};
   assert.equal(compareNativePairs(b,b).pairs.every(row=>row.priorNativeRootLabelsIdentical),true);
+});
+
+test('declaration-root snapshot stays distinct from later prompt-chain damage',()=>{
+  const game=fixture();
+  const event=game.publicAttackTransitions[0];
+  event.after=event.before;
+  event.promptPendingAfter=true;
+  const out=candidateAttackSettlement(game,1);
+  const attack=out.attacks[0];
+  assert.equal(attack.settledPromptChain,true);
+  assert.equal(attack.declarationRootPromptPendingAfter,true);
+  assert.equal(attack.publicBoardImmediatelyAfterDeclarationRoot[0].active.damage,0);
+  assert.equal(attack.publicBoardAfter[0].active.damage,150);
+  assert.equal(attack.initiatingRootActionOrdinal,0);
+});
+
+test('historical events without immediate post-root snapshots remain explicitly unknown',()=>{
+  const game=fixture();
+  delete game.publicAttackTransitions[0].after;
+  delete game.publicAttackTransitions[0].promptPendingAfter;
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.settled,1);
+  assert.equal(out.attacks[0].publicBoardImmediatelyAfterDeclarationRoot,null);
+  assert.equal(out.attacks[0].declarationRootPromptPendingAfter,null);
 });
