@@ -1,0 +1,60 @@
+name: Agent36 Snap Trap owner policy v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent36-snap-trap-owner-policy-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  owner-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Install and compile the pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Syntax-check Agent36 Snap Trap policy and selectors
+        run: |
+          node --check simulation/twinleaf/agent36/snap-trap-energy-choice-v1.cjs
+          node --check simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs
+          node --check simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v1.cjs
+          node --check simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v2.cjs
+          node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
+          node --check tests/2026-11/agent36-snap-trap-energy-choice-v1.test.cjs
+          node --check tests/2026-11/agent36-snap-trap-energy-choice-v2.test.cjs
+          node --check tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs
+
+      - name: Run Agent36 Snap Trap selector and quarantined owner-policy tests
+        run: |
+          node --test \
+            tests/2026-11/agent36-snap-trap-energy-choice-v1.test.cjs \
+            tests/2026-11/agent36-snap-trap-energy-choice-v2.test.cjs \
+            tests/2026-11/agent36-snap-trap-owner-prompt-policy-v1.test.cjs \
+            tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs
+
+      - name: Run Agent30 private Store-identity marker and Agent12 joined native witness tests
+        run: |
+          node --test \
+            tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v3.test.cjs \
+            tests/2026-11/agent12-snap-trap-source-to-settlement-native-v1.test.cjs
