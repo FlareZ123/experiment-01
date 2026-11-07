@@ -2,6 +2,8 @@
 
 **7 November 2026. Actual compiled headless Store A/B with physical prompt settlement; tested native scope, no paper-certified competitive matches.**
 
+**Extended acceptance:** [CI 42347637304](https://github.com/FlareZ123/experiment-01/actions/runs/42347637304), job **128328735208**, **passed six native scenario types in both physical seats, twelve full baseline/treatment pairs**. This later run supersedes the earlier eight-pair coverage and adds the real pass-without-attack E-21 case and a three-Prize TAG TEAM KO. The original pinned Store remains untouched and every prompt chain fully settled.
+
 ## Motivation and governing rules
 
 The supplied **Advanced Player's Rulebook v3.4** §A-01 resolves an attack through its Knock Out check; §D's KO procedure includes the Prize-taking step; §E resolves the game as soon as the last Prize is taken or a player has no Pokémon in play; §E-21 places the optional Powerglass attachment at end of turn **after the attack has completed**. [The independent original-artifact paper-order audit](agent37-powerglass-postko-prize-rule-order-adjudication-20261107.md) and [the two terminal Store counterexamples](agent37-powerglass-winning-ko-terminal-early-e21-native-20261107.md) established that the unmodified pinned engine offered a selectable `AttachEnergyPrompt` before a KO's Prize selection or a resulting game end.
@@ -39,6 +41,14 @@ For the ordinary KO arm, both A and B finish with the **same Prize count, promot
 
 All eight paired fixtures are synthetic, intentionally small and highly controlled. They certify direct engine behavior, not player policy or match competitiveness. They do not establish comprehensive cross-effect semantics, simultaneous KO ordering, end-of-turn attacks that place damage counters instead of damage, rule-specific exceptions, tournament setup, or complete Aichi Top 32 coverage.
 
+## Additional validated genuine actions
+
+- **Pass without attacking, both seats:** owner plays actual Powerglass, then real `PassTurnAction`. The research hook observes **zero** attack EndTurnEffect interceptions, leaves the native E-21 event in place, and the native Powerglass prompt transfers the second Basic Psychic in both baseline and treatment. This directly covers the manual's §E-21 statement that end-of-turn effects still activate after passing.
+- **Three-Prize TAG TEAM KO, both seats:** source Active `Trevenant & Dusknoir-GX SMP` has printed 270 HP, with 260 preexisting damage. Owner Active Unown AOR's real Hidden Power10 KOs it and awards **three physical Prizes**. With a still-occupied opposing Bench, the pinned baseline selects Powerglass Energy **before** all three Prizes and promotion; the research hook resolves the exact three Prize cards and opponent Active promotion **before** Powerglass. Both final states contain three candidate Prizes remaining and the same two Psychic Energy attached, with all prompts closed.
+- **No-KO attack, both seats:** with no prior Trubbish damage, the real Hidden Power attack deals 10 without KO. Both implementations present normal end-of-turn Powerglass and attach Energy, taking no Prize.
+
+The later six-type workflow printed each label twice, once per physical actor seat, and all twelve full settlement assertions passed without a native decoder error. They provide method-level mechanistic evidence, with zero qualified matchup games.
+
 ## Cautions and next qualification gates
 
-The first-pass audit deliberately stopped at the first substantive prompt and therefore could not by itself verify asynchronous closure. The subsequently green **full physical settlement** test supplies that missing evidence for the eight bounded arms. Future admissibility requires testing the same hook under pass-without-attacking (Powerglass §E-21 explicitly applies), multiple-Prize Knock Outs, simultaneous KOs, attack chains with other pending prompts, both sides' ability locks, and the complete common-policy runner. Deck and field sampling remain independent mandatory requirements. Until then the current shared competitive qualification count remains **zero**, with **29/32** opponent inventories authenticated and no demonstrated 99.5% rate.
+The first-pass audit deliberately stopped at the first substantive prompt and therefore could not by itself verify asynchronous closure. The subsequently green **full physical settlement** test supplies that missing evidence for the eight bounded arms. The expanded validation now covers native passing and a multi-Prize TAG TEAM Knock Out. Further admissibility requires testing simultaneous KOs, attack chains with other pending prompts, multiple card-specific end-turn effects, both sides' Ability locks, and the complete common-policy runner. Deck and field sampling remain independent mandatory requirements. Until then the current shared competitive qualification count remains **zero**, with **29/32** opponent inventories authenticated and no demonstrated 99.5% rate.
