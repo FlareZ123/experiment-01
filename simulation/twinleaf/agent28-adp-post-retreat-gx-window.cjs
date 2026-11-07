@@ -28,19 +28,30 @@ function observeAdpBoostedGxResourceWindow(view){
     active.publicRestrictions?.cannotUseAttacksNextTurn?.includes(GX)===true||
     active.publicRestrictions?.blockedAttackNameNextTurn===GX||
     active.publicRestrictions?.blockedAttackNameUntilLeavesActive===GX;
-  const templeOfSinnoh=[...(own.stadium??[]),
-    ...(view.opponentPublic?.stadium??[])].some(name=>
+  const publicStadiums=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  const templeOfSinnoh=publicStadiums.some(name=>
     name.startsWith('Temple of Sinnoh '));
-  // One functioning Double Dragon provides Metal plus the additional Water
-  // for boosted Altered Creation-GX on this Dragon TAG TEAM. Other Energy
-  // suppression, attack permission, Prize effects and replies remain unproved.
+  const wondrousLabyrinth=publicStadiums.some(name=>
+    name.startsWith('Wondrous Labyrinth Prism Star '));
+  // Basic Energy identities are public once attached. Unknown Special Energy
+  // never adds a claimed guaranteed unit in this read-only lower-bound check.
+  const basicEnergyCount=active.energies.filter(printing=>
+    /^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy /.test(printing)).length;
+  const knownAvailableEnergyUnits=2*ddeCount+basicEnergyCount;
+  const energyUnitsForEnhancedGX=2+Number(wondrousLabyrinth);
+  // One Double Dragon is Metal + extra Water only when no extra Stadium tax
+  // applies. Under Wondrous, Metal + Colorless + extra Water needs three units.
+  // This protects boosted-GX claims; native base-GX eligibility stays separate.
   const nominalBoostedResourceWindow=Boolean(printedAttack)&&ddeCount>=1&&
-    !usedGX&&!gxLocked&&!attackLocked&&!templeOfSinnoh;
+    !usedGX&&!gxLocked&&!attackLocked&&!templeOfSinnoh&&
+    knownAvailableEnergyUnits>=energyUnitsForEnhancedGX;
   return {printing:ADP,globalTurn:view.globalTurn,
     ddeAttachedCards:ddeCount,printedGxFound:Boolean(printedAttack),
     printedCost:printedAttack?[...printedAttack.cost]:null,
     engineGxAttackAnnotation:printedAttack?.gxAttack===true,
     gxAlreadyUsed:usedGX,gxLocked,attackLocked,templeOfSinnoh,
+    wondrousLabyrinth,knownAvailableEnergyUnits,energyUnitsForEnhancedGX,
     nominalBoostedResourceWindow,nativePlayableCertified:false,
     opponentResponseCertified:false};
 }
