@@ -159,9 +159,13 @@ test('A/B/A comparison requires matched physical deals and exact repeated contro
 });
 
 test('native reciprocal screen preserves first-player and source-attack sequence evidence',()=>{
-  const trial=trials()[0];
+  const trial=trials()[1];
   const row=nativeRow(trial,{action:'AttackAction',playerSlot:0,
     turnBefore:4,actionOrdinal:0});
+  const before={active:{printing:'Dialga-GX UPR',damage:20,
+    energyCards:['Psychic Energy']},bench:[]};
+  const after={active:{printing:'Dialga-GX UPR',damage:20,
+    energyCards:['Psychic Energy','Psychic Energy']},bench:[]};
   row.rootActionLedger=[
     {actionOrdinal:0,turnBefore:4,playerSlot:0,action:'AttackAction',attack:'Motivate'},
     {actionOrdinal:1,turnBefore:5,playerSlot:1,action:'PlayCardAction',card:'Psychic Energy'},
@@ -171,17 +175,15 @@ test('native reciprocal screen preserves first-player and source-attack sequence
     prizesBefore:[6,6],prizesAfter:[6,6],
     publicBoardBefore:[{active:{printing:'Source',damage:0}},
       {active:{printing:'Dialga-GX UPR',damage:0}}],
-    publicBoardAfter:[{active:{printing:'Source',damage:0}},
-      {active:{printing:'Dialga-GX UPR',damage:20}}]};
+    publicBoardAfter:[{active:{printing:'Source',damage:0}},before]};
   const second={actionOrdinal:2,settledPromptChain:true,completionRootOrdinal:2,
     prizesBefore:[6,6],prizesAfter:[6,6],
-    publicBoardBefore:[{active:{printing:'Source',damage:0}},
-      {active:{printing:'Dialga-GX UPR',damage:20,
-        energyCards:['Psychic Energy','Psychic Energy']}}],
+    publicBoardBefore:[{active:{printing:'Source',damage:0}},after],
     publicBoardAfter:[{active:{printing:'Source',damage:0}},
       {active:{printing:'Dialga-GX UPR',damage:40}}]};
   row.sourceAttackSettlement={attacks:[first,second]};
   const summary=summarizeNativeAttempt(row);
+  assert.equal(summary.sourceSeat,0);
   assert.equal(summary.actualFirstPlayerSeat,trial.seed%2);
   assert.ok(summary.generalSequence);
   assert.ok(summary.sourceAttackSequence);
