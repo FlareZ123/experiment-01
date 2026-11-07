@@ -6,7 +6,7 @@ const { printedEnergyPayability } =
 const { costUnderStadium, toEnergySymbols, publicEnergyContext } =
   require('./agent7-funded-stadium-attack-planner.cjs');
 
-const VERSION = 'agent5-opponent-public-stadium-attack-entitlement-v1';
+const VERSION = 'agent5-opponent-public-stadium-attack-entitlement-v2';
 
 /**
  * Read-only opposing Active printed-Energy attack-cost comparison after a
@@ -15,11 +15,11 @@ const VERSION = 'agent5-opponent-public-stadium-attack-entitlement-v1';
  * printed name, once-per-turn Stadium quota, public lock and actual Store
  * resolution before treating the proposal as playable.
  *
- * This compares public printed Energy under the two verified cost-modifier
- * Stadiums (Wondrous Labyrinth and Thunder Mountain) or no Stadium. Other
- * Stadiums, damage modifiers, GX permission, Special Conditions, attack
- * effects, Weakness/Resistance, card-effect immunity and future responses
- * remain unresolved.
+ * This compares public printed Energy under the known cost-modifier Stadiums
+ * (Wondrous Labyrinth, Thunder Mountain, and Psychic-only Dimension Valley)
+ * or no Stadium. Other Stadiums, damage modifiers, GX permission, Special
+ * Conditions, attack effects, Weakness/Resistance, card-effect immunity and
+ * future responses remain unresolved.
  *
  * @param {object} view Detached genuine owner-root actorObservation.
  * @param {string|null} previousName Printed name currently affecting board.
