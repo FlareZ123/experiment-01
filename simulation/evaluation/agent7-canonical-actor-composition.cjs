@@ -292,7 +292,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const adapter=adapters.vipAfterPass??
       require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs')
         .withActorBattleVipAfterPass;
-    const observed=adapter(runRemaining);
+    const observed=adapter(runRemaining,{
+      preferRank9MegaVoltorbRecipient:
+        options.ownerVipRank9MegaVoltorbRecipient===true
+    });
     ownerVipAfterPassAudit=observed.audit;
     return observed;
   };
