@@ -192,6 +192,17 @@ test('All 49 legal Prize pairs remain conditional across knockout and extension 
     else assert.equal(bothHigh.status,Math.min(a,b)<=2&&a!==b?'EXTENSION_WIN':'EXTENSION_CONTINUES');
   }
 });
+test('Swiss time-call audit classifies an end-call paper tie as both loss',()=>{
+  const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:0,
+    turnOwnerWhenCalled:1,officialEndCallObserved:true,
+    officialClockEvidenceRef:'clock-claim',firstPlayerEvidenceRef:'starter-claim',
+    independentPaperStateEvidenceRef:'tie-claim',paperStateIndependentlyReviewed:true,
+    prizesRemaining:[0,0],paperGameTie:true});
+  assert.equal(r.status,'SWISS_BOTH_LOSE');
+  assert.equal(r.tieResolvedByClockRules,true);
+  assert.equal(r.evidenceFieldsRemainExternallyAsserted,true);
+  assert.equal(r.competitiveAdmission,false);
+});
 test('Reject missing or invalid physical Prize state and unknown result',()=>{
   assert.throws(()=>classifyTiebreaker([1,-1]),/Expected/);
   assert.throws(()=>classifyTiebreaker([7,1]),/Expected/);
