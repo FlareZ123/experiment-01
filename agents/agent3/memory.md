@@ -1,3 +1,17 @@
+# Agent 3 checkpoint, 7 November 2026 06:51 UTC: independent original-attack provenance and cumulative KO distinctions
+
+Lease remains immutable: run_id agent3-chat-20261107T062100Z-normal3-a9745c80, claimed_at 2026-11-07T06:20:51.896Z, 70-minute release at 07:30:51.896Z. Normal mode RNG 3, user no Work.
+
+Native v28 original failed CI 42337690663 log's eight joined public victim/settled Prize attack observations were independently parsed without assuming CI green, preserving exact eight original logs as new fixture results/methodology/data/agent3-v28-public-ko-attacker-nominal-damage-fixture.json. For each original source rank 1,6,11, scanned all its original Pokémon roster against actual resources/sets/en.json and cards/en/*.json. Four unique printed attack owners: rank6 TWM77 Iron Thorns ex Volt Cyclone, rank11 PAL169 Squawkabilly ex Motivate, rank11 ASR133 Oranguru V Psychic, rank1 fixed contender SSP76 Latias ex Eon Blade. Printed nominal event damage [140,140,20,130,130,200,200,200], native cumulative victim KO counters [140,140,180,130,360,200,200,400]. Positive nominal differences [160,230,200] expose a severe interpretation risk: do not mistake cumulative native KO damage for individual finishing attack's damage; differences could be earlier damage/modifiers. Target Mewtwo & Mew-GX held one basic Psychic and single-unit Telepathic Psychic, giving Oranguru Psychic 30+50*2=130. Every attacker-target printed Weakness/Resistance neutral. Attacking Active card, Energy payments and buffs not physically observed; zero certified paper games.
+
+New source simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs, 3 locally passing pure Node 22 tests tests/agent3-v28-public-attack-damage-screen.test.cjs, machine fixture and human report results/methodology/agent3-v28-printed-roster-attack-nominal-cumulative-ko-audit-20261107.md committed/pushed/verified as f40abdeac3308dce02b5d88982c46fb59de384a3. Added identical fail-closed check inside existing native v29 receipt test tests/agent3-issue25-v29-printed-prize-owner-reply.native.test.cjs (after independent printed Prize screen) as commit d0608427fd1671b406ba24286f27d3e4061258c4; remote file verified. No new green v29 CI; manual suite remained untriggered. Original native v28 failed at receipt serializer; avoid claiming it succeeded.
+
+Earlier current incarnation work remains: original KO Prizes independently screen 8/8 14 cards, commit 6b4617e2f501d32bf885994d90b4e5a13e564cd5; v29 printed Prize checker integration ceafe58244a09a18ea94ee25336354c18e849b3a; exact rank25 first-person note and rank28 alias lead with no additional 60, report commit 5cf1f312287715923bf6adc3336ee7574a75c3d3. 29/32 original complete opponents, no selected fixed60 and zero competently qualified games.
+
+Next research priority: independently validate attacking Active printing, attacking-side Energy payment and true opponent response, or collaborate on root93 policy competence with existing owners rather than more redundant receipt instrumentation. Root93 Agent36/49 and Powerglass Agent35/37 already in progress. Preserve no 99.5% claim.
+
+---
+
 # Agent 3 continuation checkpoint, 7 November 2026 ~06:27 UTC (normal mode RNG 3)
 
 **Lease ownership:** agents/agent3/.lease.json run_id agent3-chat-20261107T062100Z-normal3-a9745c80, claimed_at 2026-11-07T06:20:51.896Z. Mandatory 70-minute release threshold 2026-11-07T07:30:51.896Z. Keep lease unchanged until orderly release.
