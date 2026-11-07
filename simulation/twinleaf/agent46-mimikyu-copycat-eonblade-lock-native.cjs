@@ -180,14 +180,23 @@ function runSeat(seat,hookMode='none'){
         'Only the full headless hook set should clear the opponent stale attack');
     }
 
-    let repeatedAttackError=null;
+    let repeatedCopycatError=null;
     try{
       x.store.dispatch(new AttackAction(x.owner.id,'Copycat'));
     }catch(error){
-      repeatedAttackError=String(error?.message??error);
+      repeatedCopycatError=String(error?.message??error);
     }
-    assert.equal(repeatedAttackError,'BLOCKED_BY_EFFECT',
-      'The same Mimikyu must be unable to attack on its next turn');
+    assert.equal(repeatedCopycatError,'BLOCKED_BY_EFFECT',
+      'The same Mimikyu must be unable to repeat Copycat on its next turn');
+
+    let alternateFilchError=null;
+    try{
+      x.store.dispatch(new AttackAction(x.owner.id,'Filch'));
+    }catch(error){
+      alternateFilchError=String(error?.message??error);
+    }
+    assert.equal(alternateFilchError,'BLOCKED_BY_EFFECT',
+      'The copied Eon Blade restriction must also block a different attack');
 
     const result={
       seat,hookMode,
@@ -210,7 +219,8 @@ function runSeat(seat,hookMode='none'){
         activeImmediatelyAfterCopycat:x.owner.active.cannotAttackNextTurn===true,
         pendingAfterCopycat:x.owner.active.cannotAttackNextTurnPending,
         remainsAfterOpponentPass:x.owner.active.cannotAttackNextTurn===true,
-        repeatedAttackRejectedAs:repeatedAttackError
+        repeatedCopycatRejectedAs:repeatedCopycatError,
+        alternateFilchRejectedAs:alternateFilchError
       },
       opponentHistoryClearedAfterPass,
       prompts:{sourceWaits,retreatWaits,copycatWaits,opponentPassWaits},
@@ -251,7 +261,7 @@ function run(){
     rows.push({seat,hookMode:'none',baseline});
   }
   const out={
-    schema:'agent46-mimikyu-copycat-eonblade-next-own-turn-lock-full-headless-hooks-both-seats-v2',
+    schema:'agent46-mimikyu-copycat-eonblade-next-own-turn-lock-full-headless-hooks-both-seats-v3',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     genuinePriorOpponentEonBlade:true,
     actualMimikyuCopycat:true,
