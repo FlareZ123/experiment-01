@@ -116,6 +116,7 @@ function run(){
     assert.equal(a.winnerLogName,null);
     assert.equal(a.winnerLogParams,null);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assertNativeWinnerLogReceipt(a,actorSeat,true);
     assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
     assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
     assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
