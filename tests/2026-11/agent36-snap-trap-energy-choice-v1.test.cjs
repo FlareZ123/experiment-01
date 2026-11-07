@@ -57,35 +57,48 @@ function activeList(energyCards, attacks) {
   };
 }
 
-/**
- * @param {object} active
- * @param {number[]} [blocked]
- * @returns {object}
- */
-function promptFor(active, blocked = []) {
-  return {
-    id: nextId++,
-    playerId: 100,
-    result: undefined,
-    message: GameMessage.CHOOSE_CARD_TO_DISCARD,
-    cards: active,
-    filter: {superType: SuperType.ENERGY},
-    options: {
+class ChooseCardsPrompt {
+  /**
+   * @param {object} active
+   * @param {number[]} [blocked]
+   */
+  constructor(active, blocked = []) {
+    this.id = nextId++;
+    this.playerId = 100;
+    this.result = undefined;
+    this.message = GameMessage.CHOOSE_CARD_TO_DISCARD;
+    this.cards = active;
+    this.filter = {superType: SuperType.ENERGY};
+    this.options = {
       min: 1,
       max: 1,
       allowCancel: false,
       isSecret: false,
       blocked: [...blocked]
-    },
-    validate(selected) {
-      return Array.isArray(selected) &&
-        selected.length === 1 &&
-        active.cards.includes(selected[0]) &&
-        active.energies.cards.includes(selected[0]) &&
-        selected[0].superType === SuperType.ENERGY &&
-        !blocked.includes(active.cards.indexOf(selected[0]));
-    }
-  };
+    };
+  }
+
+  /**
+   * @param {object[]} selected
+   * @returns {boolean}
+   */
+  validate(selected) {
+    return Array.isArray(selected) &&
+      selected.length === 1 &&
+      this.cards.cards.includes(selected[0]) &&
+      this.cards.energies.cards.includes(selected[0]) &&
+      selected[0].superType === SuperType.ENERGY &&
+      !this.options.blocked.includes(this.cards.cards.indexOf(selected[0]));
+  }
+}
+
+/**
+ * @param {object} active
+ * @param {number[]} [blocked]
+ * @returns {ChooseCardsPrompt}
+ */
+function promptFor(active, blocked = []) {
+  return new ChooseCardsPrompt(active, blocked);
 }
 
 test('chooses the Energy that denies the greatest total printed attack damage', () => {
