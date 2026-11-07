@@ -38,6 +38,10 @@ The source is rank 3 in [full-decklists.json](../aichi-2026/full-decklists.json)
 
 All seven non-Articuno Pokémon printings were checked in the repository card pool for Basic subtype and Expanded legality. The relevant Articuno and search cards were checked for Expanded legality and the card text described above. The broader Japanese historical-printing admission question remains separate.
 
+## Field incidence
+
+A scan of the 29 authenticated complete source lists finds Articuno-GX only in rank 3 (1/29). This is therefore a rank-3-specific opponent branch, not a broad field policy improvement. The opening prior is useful for evaluating that matchup's source behavior; it does not justify promoting a general policy branch by itself.
+
 ## Exact method
 
 A valid opening is a seven-card hand containing at least one Basic Pokémon. There are
