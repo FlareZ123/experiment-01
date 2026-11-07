@@ -758,6 +758,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
+  const copycatHistoryByAction=new WeakMap();
   const nativeTrainerFallbackActions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
   const ownerSeekerPending=new Map();
@@ -1039,7 +1040,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.copycatHistoryRoot={
       trackerStores:0,ownerRoots:0,unavailableRoots:0,knownEmptyRoots:0,
       singleAttackRoots:0,multiattackRoots:0,singleBurrowRoots:0,
-      selected:0,samples:[]
+      choiceSetRoots:0,barragePairRoots:0,selected:0,historyOverrides:0,
+      samples:[]
     };
   }else delete audit.copycatHistoryRootOptIn;
   if(deps.nativeOwnerTrainerFallback===true){
@@ -1381,15 +1383,17 @@ function withActorOnlyRootPolicy(run,deps={}){
       else if(rows.length===0)stats.knownEmptyRoots++;
       else if(rows.length===1)stats.singleAttackRoots++;
       else stats.multiattackRoots++;
-      if(rows?.length===1&&
-          rows[0].sourcePrinting.startsWith('Bunnelby PRC')&&
-          rows[0].attackName==='Burrow'&&
-          rows[0].gxAttack===false&&rows[0].copycatAttack===false)
+      const choices=receipt.opponentCopycatChoices;
+      if(Array.isArray(choices)&&choices.length>0)stats.choiceSetRoots++;
+      if(Array.isArray(choices)&&choices.length===2)stats.barragePairRoots++;
+      if(choices?.some(row=>row.sourcePrinting.startsWith('Bunnelby PRC')&&
+          row.attackName==='Burrow'&&row.gxAttack===false&&row.copycatAttack===false))
         stats.singleBurrowRoots++;
       if(stats.samples.length<32)stats.samples.push({
         globalTurn:state.turn,actorSeat:seat,
         opponentLastTurnTurn:receipt.opponentLastTurnTurn,
-        attacks:rows===null?null:rows.map(row=>({...row}))
+        attacks:rows===null?null:rows.map(row=>({...row})),
+        copycatChoices:choices===null?null:choices.map(row=>({...row}))
       });
     }
     const view=audit.rangerPaidGxResponseOptIn?
@@ -1873,6 +1877,20 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'pass':action=new PassTurnAction(ownerId);break;
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }
+    if(intent.source===require('./agent7-copycat-history-root.cjs').VERSION){
+      const tracker=copycatHistoryByStore.get(nativeStore);
+      const opponentId=state.players[1-seat].id;
+      const choices=tracker?.getCopycatChoices(opponentId)??[];
+      const selected=choices[intent.previousChoiceIndex];
+      assert.ok(selected,'Copycat intent must map to its exact native tracker choice');
+      assert.equal(selected.turn,intent.previousTurn);
+      assert.equal(selected.sourceCardFullName,intent.previousSource);
+      assert.equal(selected.attackName,intent.previousAttack);
+      assert.equal(selected.barragePairRole??null,intent.previousBarragePairRole??null);
+      assert.equal(selected.gxAttack,false);
+      assert.equal(selected.copycatAttack,false);
+      copycatHistoryByAction.set(action,{copycatPlayerId:ownerId,selected});
+    }
     audit.selectedRootDecisions++;
     if(audit.losslessNativeRootJoinOptIn||
        (audit.nativePlumeriaChoiceOptIn&&
@@ -2029,7 +2047,30 @@ function withActorOnlyRootPolicy(run,deps={}){
     const ownerBefore=before===null?null:
       rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
     try{
-      const result=beforeDispatch.value.apply(this,[action,...args]);
+      let result;
+      const selectedHistory=copycatHistoryByAction.get(action);
+      if(selectedHistory){
+        assert.ok(action instanceof AttackAction&&action.name==='Copycat',
+          'Selected prior-turn history may only be dispatched through Copycat');
+        const opponent=this.state.players.find(player=>
+          player.id!==selectedHistory.copycatPlayerId);
+        assert.ok(opponent&&selectedHistory.selected.playerId===opponent.id);
+        const history=this.state.playerLastAttack;
+        assert.ok(history&&history[opponent.id],
+          'Copycat requires the native prior-attack record to restore after dispatch');
+        const prior=history[opponent.id];
+        history[opponent.id]={attack:selectedHistory.selected.attack,
+          sourceCard:selectedHistory.selected.sourceCard};
+        try{
+          result=beforeDispatch.value.apply(this,[action,...args]);
+        }finally{
+          history[opponent.id]=prior;
+          copycatHistoryByAction.delete(action);
+        }
+        audit.copycatHistoryRoot.historyOverrides++;
+      }else{
+        result=beforeDispatch.value.apply(this,[action,...args]);
+      }
       if(choice.kind==='play-eri-reveal'){
         const owner=this.state.players[choice.seat];
         const rival=this.state.players[1-choice.seat];
