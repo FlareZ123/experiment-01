@@ -24,8 +24,8 @@ test('physical Store opt-in M4 paper mode leaves unrelated games unchanged',()=>
   const {specialRedCardPaperCorrection:enabled,
     specialRedCardPaperShuffleProtocol:protocol,
     ...newGame}=corrected;
-  assert.equal(oldFlag,false);
-  assert.equal(oldProtocol,null);
+  assert.equal(oldFlag,undefined,'Legacy result schema must remain unchanged');
+  assert.equal(oldProtocol,undefined,'Legacy result has no M4 paper flag');
   assert.equal(enabled,true);
   assert.equal(protocol,
     'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1');
