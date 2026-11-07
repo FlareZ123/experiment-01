@@ -1,59 +1,78 @@
-# Agent37: simultaneous last-Prize resolution awards a false winner in the pinned Store
+# Agent37: simultaneous final-Prize terminal resolution
 
-**7 November 2026 | Pinned Twinleaf Store | Manual CI run 42362862568 | Native regression reproduced**
+**7 November 2026 | Pinned Twinleaf Store | Manual CI run 42372045012: success**
 
 ## Finding
 
-When both players' Active Pokémon are Knocked Out by the same attack and each player has exactly one Prize card remaining, the pinned Store declares the first element of `state.players` the winner. The other player retains their final Prize card.
+The pinned Store's native `choosePrizeCards` routine processes Prize groups in `state.players` order. When the first group exhausts that player's remaining Prizes, it calls `endGame` and returns immediately. The second group's Prize transfer is skipped.
 
-This is inconsistent with the supplied Advanced Player's Rulebook, §E, “Win and Loss”. The simultaneous-loss table states that when both players have taken all their Prize cards, the result is a tie (rulebook lines 565-575, especially row 574).
+In the controlled two-Active-KO fixture, both players have one Prize remaining. Native behavior therefore awards the first processed player and leaves the other player with one Prize. The result depends on `state.players` order rather than the paper simultaneous terminal outcome.
 
-The result is seat-order dependent. In both physical actor-seat fixtures, `state.winner` is `GameWinner.PLAYER_1`, corresponding to `state.players[0]`. The attacking player is not consistently the winner.
+Pinned source: `vendor/twinleaf/ptcg-server/src/game/store/effect-reducers/check-effect.ts`. The relevant `choosePrizeCards` logic starts around line 212; the early returns occur around lines 219-221 and 228-230.
 
-## Source-level explanation
+## Paper rule: Advanced Player's Rulebook §E
 
-Pinned source: `vendor/twinleaf/ptcg-server/src/game/store/effect-reducers/check-effect.ts`.
+The simultaneous terminal table distinguishes promotion availability when both players take their final Prize cards:
 
-- `choosePrizeCards` begins at line 212 and iterates the Prize groups in `state.players` order.
-- At lines 219-221, if the first group's Prize count is at least the first player's remaining Prize count, the routine calls `autoTakePrizeCards`, calls `endGame` with `PLAYER_1`, and immediately returns an empty prompt list.
-- The second Prize group is never processed.
-- The second early-return path at lines 228-230 similarly awards `PLAYER_2` when its group is processed first.
-- The `GameWinner` enum includes `DRAW`, but this Prize-resolution path never evaluates the simultaneous two-player condition.
+- Both players can promote: draw.
+- Neither player can promote: draw.
+- Exactly one player can promote: that player wins.
 
-The direct headless fixture uses physical seat order in `state.players` and the attacking seat in `state.activePlayer`, consistent with `simulation/twinleaf/headless.cjs`. No shuffle or RNG is involved.
+The earlier tie-only interpretation was incomplete. The adapter now resolves all three outcomes for the supported simultaneous two-Active-KO case.
 
-## Native regression
+## Research-owned terminal resolver v2
 
-The test is included in [`simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs`](../../simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs). Its fixture runner now supports a one-Prize terminal mode in [`agent37-simultaneous-ko-e21-promotion-native.cjs`](../../simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs).
+Implementation: `simulation/twinleaf/agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs`.
 
-[Manual CI run 42362862568](https://github.com/FlareZ123/experiment-01/actions/runs/42362862568), job **128374693395**, completed successfully. The regression asserts the observed engine defect as an expected failure of paper-rule fidelity, so the workflow itself passes.
+Public entry point: `withInstanceScopedSimultaneousLastPrizeResolutionV2`. The older `withInstanceScopedSimultaneousLastPrizeTieV1` export remains as a compatibility alias.
 
-For both actor seats, it verifies:
+The adapter arms only when all of these conditions hold:
 
-- The game enters the finished phase.
-- `state.players[0]` is recorded as the winner.
-- The first player's Prize count reaches zero.
-- The second player's Prize count remains one.
-- No ChoosePrizePrompt or promotion prompt is created.
-- The v2 adapter does not arm and does not change the native result.
-- The terminal path suppresses E-21.
+1. Exactly two players are present.
+2. The same checkState batch contains exactly two Active KnockOutEffects, one for each player.
+3. No non-Active KO effects occur in the batch.
+4. Exactly two Prize groups exist, one per player.
+5. Both Prize destinations are their respective players' hands.
+6. Each Prize group is sufficient to exhaust that player's remaining Prizes.
+7. The game is not in sudden death and the Prize effect is not prevented.
 
-The paper-expected outcome is a tie in both seats. The native outcome therefore fails the paper rule.
+It processes the second Prize group with the research-side `TAKE_SPECIFIC_PRIZES` helper before the native early-return path can finish the game. It then resolves the terminal winner from bench availability:
 
-## Relationship to the v2 promotion adapter
+- Matching promotion availability produces `GameWinner.DRAW`.
+- If only one player has a Pokémon available to promote, that player wins, mapped to `PLAYER_1` or `PLAYER_2` using the actual `state.players` order.
 
-The [v2 adapter report](agent37-simultaneous-ko-promotion-v2-adapter-20261107.md) covers a nonterminal event with two single-Prize groups and more than one Prize remaining for each player. This last-Prize case terminates inside `choosePrizeCards` before any ChoosePrizePrompt is created. The current v2 adapter intentionally leaves it unchanged.
+The Store's winner log is handled consistently with the resolved state winner. Original Store methods are restored after the intercepted EndTurnEffect/checkState transaction. No upstream Twinleaf files are modified.
 
-The two issues are distinct:
-1. Nonterminal simultaneous Active KOs can produce the wrong promotion order.
-2. Simultaneous final-Prize resolution can produce a false winner instead of a tie.
+### Scope and limitations
 
-Both arise in the same native `checkState` path, so a future research adapter should model the complete simultaneous outcome before declaring the game finished.
+This is a one-attack EndTurnEffect/checkState adapter, not a whole-match wrapper. A multi-turn runner must apply it around each attack transaction separately.
 
-## Recommended follow-up
+Promotion availability is currently inferred from whether the player's Bench contains a Pokémon. Effect-based promotion restrictions are not modeled. The adapter also deliberately excludes non-hand Prize destinations, non-Active KOs, additional KO effects, more than two players, sudden death, and other simultaneous loss conditions such as deck-out. These are explicit unsupported cases, not evidence that the native implementation handles them correctly.
 
-Build a separately tested research-owned correction that resolves all Prize groups arising from the same simultaneous KO batch before applying the Win/Loss table. It should award the tie when both players take their final Prize cards simultaneously, preserve the actual Prize-card transfers for both players, and avoid emitting promotion prompts after a terminal result.
+## Native regression coverage
 
-Test both physical seats, both players reaching zero Prizes, mixed terminal conditions from §E, and cases where only one player reaches a loss condition. Keep this correction separate from v2 until its card movement and winner semantics are validated. Do not edit upstream Twinleaf.
+Runner: `simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs`.
 
-**Competitive games qualified: 0.** This is a paper-rules fidelity finding, not evidence about deck strength or win rate.
+The regression now covers:
+
+- Both physical actor seats with both players able to promote: both Prize groups transfer and the outcome is a draw.
+- Both physical actor seats with only the owner able to promote: both Prize groups transfer and the owner wins, regardless of whether the owner is `state.players[0]` or `state.players[1]`.
+- Pure terminal-table checks for both players able to promote, neither able to promote, first-only promotion, second-only promotion, and reversed player ordering.
+- A one-sided last-Prize control: an ordinary single-player Prize win remains a win.
+- A non-hand Prize-destination control: the adapter declines to arm and does not perform the second Prize transfer.
+
+The shared fixture helper `simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs` accepts an optional `enemyHasBench` parameter; existing callers retain the default of `true`.
+
+## CI evidence
+
+[Manual native workflow 42372045012](https://github.com/FlareZ123/experiment-01/actions/runs/42372045012) completed successfully. It includes the simultaneous last-Prize resolver regression and the public attack-settlement regression suite.
+
+Earlier incremental runs also passed:
+- [42370344373](https://github.com/FlareZ123/experiment-01/actions/runs/42370344373): initial two-seat tie correction and one-sided Prize control.
+- [42370733404](https://github.com/FlareZ123/experiment-01/actions/runs/42370733404): non-hand Prize-destination negative control.
+- [42371084916](https://github.com/FlareZ123/experiment-01/actions/runs/42371084916): promotion-availability guard before the full winner resolver was added.
+- [42371075778](https://github.com/FlareZ123/experiment-01/actions/runs/42371075778): shared Aichi Dusclops conditional self-KO regression after the fixture helper change.
+
+Two intermediate workflow failures were test-expectation mistakes, not native regressions: the reversed-seat pure test initially expected PLAYER_2 when the winning player was actually `state.players[0]`; a later test also assumed the native winner was always PLAYER_1. Both assertions were corrected to use the actual player ordering and observed native winner. The successful run above contains those corrections.
+
+**Competitive games qualified: 0.** This is a bounded paper-rules fidelity improvement, not evidence of competitive deck strength or a 99.5% win rate.
