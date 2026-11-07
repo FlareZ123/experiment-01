@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=
   require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
+const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const {installPassClearsLastAttackHook}=
   require('../simulation/twinleaf/last-attack-pass-hook.cjs');
 
@@ -38,6 +39,22 @@ function lastAttackAfterPass(seat,causeRollback){
   const x=stage(seat),restore=installPassClearsLastAttackHook();
   try{
     const store=x.store,owner=x.owner,other=x.opponent;
+    const manager=initializeCards();
+    let uniqueId=940000+seat*1000;
+    const make=name=>{
+      const card=manager.getCardByName(name);
+      assert.ok(card,'Pinned printed card missing: '+name);
+      card.id=uniqueId++;
+      return card;
+    };
+    other.active.cards.length=0;
+    other.active.energies.cards.length=0;
+    other.active.cards.push(make('Mimikyu GRI'));
+    for(let n=0;n<2;n++){
+      const energy=make('Psychic Energy SVE');
+      other.active.cards.push(energy);
+      other.active.energies.cards.push(energy);
+    }
     store.dispatch(new AttackAction(owner.id,'Gnaw'));
     settle(store);
     assert.equal(store.state.activePlayer,1-seat);
@@ -70,10 +87,18 @@ function lastAttackAfterPass(seat,causeRollback){
     assert.equal(store.state.playerLastAttack[player.id]?.attack.name,'Gnaw');
     store.dispatch(new PassTurnAction(player.id));
     settle(store);
+    const staleRecordAfterPass=
+      store.state.playerLastAttack[player.id]?.attack.name??null;
+    assert.equal(store.state.activePlayer,1-seat);
+    const damageBefore=store.state.players[seat].active.damage;
+    store.dispatch(new AttackAction(other.id,'Copycat'));
+    settle(store);
+    const copiedDamage=store.state.players[seat].active.damage-damageBefore;
     return {
       seat,rollback:causeRollback,rejection,
-      staleRecordAfterPass:
-        store.state.playerLastAttack[player.id]?.attack.name??null,
+      copiedDamageFromPaperInvalidStaleAttack:copiedDamage,
+      mimikyuActualCopycatSettled:true,
+      staleRecordAfterPass,
       remainingOwnRecord:
         Object.hasOwn(store.state.playerLastAttack,player.id),
       remainingInheritedRecord:
@@ -91,6 +116,9 @@ for(const seat of [0,1]){
     assert.equal(control.staleRecordAfterPass,null);
     assert.equal(rollback.staleRecordAfterPass,null,
       'Paper Pass must clear inherited prior attack after real Store rollback');
+    assert.equal(control.copiedDamageFromPaperInvalidStaleAttack,0);
+    assert.equal(rollback.copiedDamageFromPaperInvalidStaleAttack,0,
+      'Native Mimikyu Copycat must not copy Gnaw from two opponent turns ago');
     console.log('AGENT44_LAST_ATTACK_ROLLBACK',JSON.stringify({
       seat,control,rollback,competitiveQualifiedGames:0
     }));
