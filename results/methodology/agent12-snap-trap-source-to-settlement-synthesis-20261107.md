@@ -4,13 +4,14 @@
 
 ## Executive status
 
-The research now has three separate, successful evidence layers for Galarian Stunfisk SSH's Snap Trap:
+The research now has four successful evidence layers for Galarian Stunfisk SSH's Snap Trap:
 
 1. A **phase-A source/zone diagnostic** joins the exact native reducer prompt to its live Store prompt ID and the opponent Active Pokémon's public attached-Energy sublist. The prompt remains quarantined and is not resolved in that diagnostic.
 2. A separate **native ordinary-Energy response fixture** creates a real Snap Trap prompt after a real attack, uses a test-local public-zone-only resolver, and verifies that the actual callback moves the same physical Psychic Energy reference from the attacking Pokémon's Active list into discard.
 3. A separate **native Prism Star destination fixture** verifies that the actual callback requests discard but the pinned reducer routes the same physical Beast Energy ◇ reference to the Lost Zone, with exact prompt-result identity and same-prompt-ID settlement assertions.
+4. A **joined source-to-settlement witness** nests the Agent30 source marker and public-zone observer around the native Prism Star fixture, proving that the same source-origin proof object is attached to the exact observed Store prompt and that the resulting prompt is physically settled.
 
-All three run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. A fourth, separately versioned test now joins the source marker, public-zone observer, response resolver and Prism Star settlement in one fixture; it is committed and added to the manual workflow, but has not yet been run. None of these is a competitive game.
+All four run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Full integrated workflow **42405506605** completed successfully, including both Agent12 tests, both artifact uploads, and all Agent35/Agent37 native regressions. None of these is a competitive game.
 
 ## Evidence layers
 
@@ -20,7 +21,7 @@ All three run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. 
 | Source-to-prompt and public zone | Agent12 v7 phase-A runner and Agent30 marker v2; [run 42402401871](https://github.com/FlareZ123/experiment-01/actions/runs/42402401871) | Success; exact prompt ID 0→173, same-object source origin, one public-zone match | Eight attempts: six native terminals, one root cap, one engine error; prompt quarantined; no selection or discard |
 | Ordinary-Energy native settlement | Agent35 `simulation/twinleaf/agent35/snap-trap-choice-response-contract-native.cjs`; [run 42403132882](https://github.com/FlareZ123/experiment-01/actions/runs/42403132882) | Success; real attack-animation WaitPrompt advanced, genuine ChooseCardsPrompt created, validated physical Psychic Energy selected, and same object moved to attacker discard | Test-local resolver and isolated fixture; no production-policy or complete-game claim |
 | Prism Star native destination | Agent12 `simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs`; [artifact-producing run 42404800060](https://github.com/FlareZ123/experiment-01/actions/runs/42404800060) | Success; same physical Beast Energy ◇ is selected, recorded in prompt.result, removed from Active arrays and routed to Lost Zone, absent from discard | Isolated fixture; one unrelated pending prompt remains after the callback; not a completed attack or game |
-| Joined source-to-settlement witness | Agent12 `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs` | Implemented and added to the existing manual workflow | Pending first CI validation; do not cite as a pass yet |
+| Joined source-to-settlement witness | Agent12 `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs` | Success in [run 42405506605](https://github.com/FlareZ123/experiment-01/actions/runs/42405506605); exact same marker proof object, Store prompt ID, public-zone match, persisted Red Knuckles fingerprint, and Prism Star settlement | One unrelated pending prompt remains after callback; no complete-game claim |
 
 ## Phase-A source/zone identity join
 
@@ -61,7 +62,7 @@ The test verifies:
 
 The first global pending-queue assertion was deliberately narrowed after the fixture showed one other pending prompt after the Snap Trap callback. The accepted assertion is scoped to the same Snap Trap prompt ID. The result records the type/message summaries of other pending prompts. This proves Snap Trap prompt settlement, not that the whole attack generator or all animation prompts have completed.
 
-The full manual workflow **42404800060** completed successfully on head `a3c90e7872bcaf168f1e5faa8cf4b20f2892bc4a`, including the Prism Star test and all subsequent Agent37 regressions. Artifact `13587400278` (`agent12-snap-trap-prism-star-destination-v1`) was uploaded successfully, size 854 bytes, SHA-256 `e448ea097c6de77834f0bdb1e8e53ee0785547fd9dc4b6171ffa2c48be67504e`.
+The full manual workflow **42405506605** completed successfully on head `1802593f52275d38260cd0d2fe9aaff441f5776d`, including the Prism Star test, joined witness, both artifact uploads, and all Agent35/Agent37 native regressions. Its Prism Star artifact is `13587401303` (`agent12-snap-trap-prism-star-destination-v1`), size 854 bytes, SHA-256 `ded45ca856c3ab412fa6721e5b5a203dd83af526aa0ffb16386ac77deb491007`.
 
 The repository card pool identifies Beast Energy ◇ as `sm6-117`, Special Energy / Prism Star / Expanded legal, in `resources/cards/en/sm6.json`. Super Boost Energy ◇ (`sm5-136`) is a second Expanded-legal Prism Star candidate in `resources/cards/en/sm5.json`. The successful native fixture uses the Beast Energy candidate. The ordinary Psychic Energy case remains separate so the discard positive and Lost Zone exception are not conflated.
 
@@ -71,22 +72,26 @@ Pinned Twinleaf's `UseAttackEffect` yields an `Attack animation` WaitPrompt befo
 
 Resolve the exact pending WaitPrompt with `null`, not `undefined`: the Store uses `undefined` as the unresolved sentinel. Preserve the returned State before the next dispatch. Agent39 and Agent36 independently reviewed this sequence; see [the reusable broadcast](../../communications/broadcast/2026-11/20261107T185154202Z_agent12_twinleaf-attack-waitprompt-sequencing.md).
 
-## Joined source-to-settlement witness in progress
+## Joined source-to-settlement witness validated
 
-The new Agent12 runner nests the Agent30 source marker around the Agent30 public-prompt-zone observer, passing the marker's WeakMap lookup into the observer as `getSourceOriginForPrompt`. The inner fixture is the already-passing Prism Star native Store scenario. Its assertions require:
+The Agent12 runner nests the Agent30 source marker around the Agent30 public-prompt-zone observer, passing the marker's WeakMap lookup into the observer as `getSourceOriginForPrompt`. The inner fixture is the passing Prism Star native Store scenario. The joined test requires and passed:
 - exactly one printed Snap Trap source invocation and one marker proof;
 - the observer to receive the exact same proof object for the exact same prompt object;
 - Store-assigned prompt ID and the observer's live Store state;
 - the attacking Active PokemonCardList as the public prompt parent and its Energy sublist as the selectable subset;
-- Red Knuckles as the triggering attack;
+- Red Knuckles as the persisted `lastAttack` fingerprint;
 - the same prompt result, MoveCardsEffect provenance and Lost Zone settlement already verified in the separate Prism Star test.
 
-Files: `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The test and artifact upload are added to the existing manual Agent35 workflow. This is a new joined witness, not a modification to the frozen phase-A registration or Agent4 quarantine. It remains **unvalidated until a run passes**.
+The first joined attempt (run 42405259648) failed only because it incorrectly expected `currentAttack` to remain set when the prompt was created. The attack generator resumes on the separate WaitPrompt response dispatch, so `currentAttack` is null and `lastAttack` is the correct persisted fingerprint. The assertion was corrected and run **42405506605** passed.
+
+Files: `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The joined JSON artifact is `13587237490` (`agent12-snap-trap-source-to-settlement-native-v1`), size 1952 bytes, SHA-256 `9b93be51bbfd6e03bd4bfee76e8b1fc167600edfef2d3273166b4c7da3333dde`. The Prism Star JSON artifact from the same run is `13587401303`, SHA-256 `ded45ca856c3ab412fa6721e5b5a203dd83af526aa0ffb16386ac77deb491007`.
+
+This is a joined native witness, not a modification to the frozen phase-A registration or Agent4 quarantine. It proves the exact source-origin / prompt / zone / response / destination chain in the isolated fixture. It does not prove a complete attack, game, production policy, or competitive strength.
 
 ## Remaining gaps and limits
 
-- The joined source-marker/observer/resolver/settlement witness must pass its first CI run.
 - The unrelated pending prompt recorded after the Prism Star callback should be identified and understood; do not describe the whole attack sequence as complete until it is resolved or justified.
+- The joined witness validates one board/seat arrangement and one Energy selection. Expand to both player seats, alternate public attached-Energy counts, blocked-index cases, and other attack/effect paths before generalizing.
 - The fixtures use a test-local resolver, not a validated competitive playing policy.
 - Both fixtures are isolated native interactions, not complete paper games.
 - They do not prove Japanese physical-print legality for the Aichi field.
@@ -97,4 +102,4 @@ The benchmark remains 29/32 authenticated original Aichi Top 32 60-card lists, n
 
 ## Next gate
 
-Run and validate the joined source-to-settlement witness, inspect its JSON artifact, and resolve the unrelated pending prompt's meaning. Keep the phase-A registration and Agent4 quarantine unchanged. Only after the joined native witness is stable should the work be promoted into broader board/seat tests and then complete paper-valid games against all 32 authenticated source lists.
+Inspect the joined JSON artifact and identify the unrelated pending prompt's meaning. Keep the phase-A registration and Agent4 quarantine unchanged. Next, expand the joined native witness across board/seat variations and additional Energy choices, then move toward complete paper-valid games against all 32 authenticated source lists.
