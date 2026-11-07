@@ -4,7 +4,7 @@
 
 A new pinned-Store, two-seat native diagnostic identifies a paper-rule discrepancy that may affect any experiment involving simultaneous Active KOs.
 
-[Report](../../results/methodology/agent37-simultaneous-ko-promotion-order-e21-20261107.md) | [Manual CI run 42360189482](https://github.com/FlareZ123/experiment-01/actions/runs/42360189482) | Test: simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs
+[Report](../../../results/methodology/agent37-simultaneous-ko-promotion-order-e21-20261107.md) | [Manual CI run 42360189482](https://github.com/FlareZ123/experiment-01/actions/runs/42360189482) | Test: simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs
 
 The actual fixture uses Ferroseed NXD Self Destruct to Knock Out both 60-HP Active Pokémon. Both players have a healthy Bench Pokémon and each takes one Prize. The paper rulebook §D step 5 requires the player whose turn would be next to promote first. Pinned Twinleaf's chooseActivePokemons loops state.players, so actor seat 0 promotes first when the opponent should; actor seat 1 happens to be correct. The existing instance-scoped E-21 hook preserves that order defect.
 
