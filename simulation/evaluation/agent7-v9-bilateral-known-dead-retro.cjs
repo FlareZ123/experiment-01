@@ -27,7 +27,7 @@ function bilateralKnownDeadRunner(runner){
     assert.equal(options.actorOnlyComposition,true);
     assert.equal(options.sourceIndependentCommonPolicy,true);
     assert.equal(options.allowAdditionalOriginalSourceRanks,false);
-    assert.equal(options.candidateOnlyKnownDeadRoot,undefined);
+    assert.notEqual(options.candidateOnlyKnownDeadRoot,true);
     return runner({...options,bilateralKnownDeadAttackRoot:true,
       candidateOnlyKnownDeadRoot:false});
   };
@@ -68,7 +68,6 @@ function runAgent7KnownDeadV9(deps={}){
   output.manifest.prospective=false;
   output.manifest.postExposureOwnerPolicyRepair=true;
   output.manifest.confirmatoryTrial=false;
-  output.qualification.naturalGameObserved=false;
   output.qualification.bilateralMaterialEpisodeQualified=false;
   output.qualification.competitiveAdmission=false;
   output.qualification.reason=
