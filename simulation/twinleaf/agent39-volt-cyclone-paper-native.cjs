@@ -142,12 +142,76 @@ function verifyNoBenchSeat(seat){
     sourceEnergyRetained:true,status:'PRINTED_NO_ELIGIBLE_RECIPIENT'};
 }
 
+/**
+ * Full pinned Store route for one already-attached special Energy, with the
+ * attack's original payment held outside this narrow post-attack fixture.
+ * Check both same-type Bench retention and incompatible-type mandatory discard.
+ * @param {0|1} seat
+ * @param {boolean} nonLightningTarget
+ */
+function verifyFlashRouteSeat(seat,nonLightningTarget){
+  const scene=prepare(seat),manager=initializeCards();
+  const flash=manager.getCardByName('Flash Energy AOR');
+  assert.ok(flash,'Flash Energy AOR must be registered at pinned revision');
+  flash.id=99530+seat*2+(nonLightningTarget?1:0);
+  const source=scene.opponent.active;
+  assert.ok(source.energies.cards.includes(scene.energy));
+  source.cards.splice(source.cards.indexOf(scene.energy),1);
+  source.energies.cards.splice(source.energies.cards.indexOf(scene.energy),1);
+  scene.opponent.discard.cards.push(scene.energy);
+  source.cards.push(flash);
+  source.energies.cards.push(flash);
+  if(nonLightningTarget){
+    const giratina=manager.getCardByName('Giratina LOT');
+    assert.ok(giratina,'Non-Lightning Giratina LOT native printing required');
+    giratina.id=99540+seat;
+    const old=scene.opponent.bench[0].cards.splice(0);
+    scene.opponent.discard.cards.push(...old);
+    scene.opponent.bench[0].cards.push(giratina);
+  }
+  const target=scene.opponent.bench[0];
+  const targetPokemon=target.getPokemonCard();
+  assert.ok(targetPokemon);
+  const expectedRoute=nonLightningTarget?'discard':'bench';
+  assert.equal(scene.opponent.discard.cards.includes(flash),false);
+  const observed=withPaperPromptPortfolio(()=>{
+    const prompt=generatePrompt(scene);
+    const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
+    const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
+    scene.store.dispatch(new ResolvePromptAction(prompt.id,[{
+      card:flash,to:{player:PlayerType.BOTTOM_PLAYER,
+        slot:SlotType.BENCH,index:0}
+    }]));
+    return true;
+  },{liveStore:scene.store});
+  const endsInDiscard=scene.opponent.discard.cards.includes(flash);
+  const endsOnBench=target.cards.includes(flash)&&
+    target.energies.cards.includes(flash);
+  assert.equal(source.cards.includes(flash),false);
+  assert.equal(source.energies.cards.includes(flash),false);
+  assert.equal(endsInDiscard,nonLightningTarget,
+    'Printed Flash incompatibility requires discard after transfer');
+  assert.equal(endsOnBench,!nonLightningTarget);
+  assert.equal(observed.audit.liveNativePromptSettled,1);
+  assert.equal(observed.audit.paperVerifiedNativeAccepted,1);
+  assert.equal(observed.audit.events[0].expectedRoute,expectedRoute);
+  assert.equal(observed.audit.events[0].physicalEffectVerified,true);
+  assert.equal(observed.audit.livePaperVerifiedDiscardedFlashEnergy,
+    nonLightningTarget?1:0);
+  return {seat,sourcePrinting:'Iron Thorns ex TWM',
+    specialEnergy:'Flash Energy AOR',target:targetPokemon.fullName,
+    expectedRoute,nativePromptSettled:1,endsInDiscard,endsOnBench,
+    status:'NARROW_NATIVE_SPECIAL_ENERGY_FINAL_ZONE_ONLY'};
+}
+
 function run(){
   return {schema:VERSION,pinnedEngine:PIN,
     cases:[verifySeat(0),verifySeat(1)],
     noBenchCases:[verifyNoBenchSeat(0),verifyNoBenchSeat(1)],
+    flashRoutes:[verifyFlashRouteSeat(0,false),verifyFlashRouteSeat(1,false),
+      verifyFlashRouteSeat(0,true),verifyFlashRouteSeat(1,true)],
     nativeStoreUsed:true,
     originalPhysical60:false,fullMatch:false,competitiveQualifiedGames:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={prepare,generatePrompt,verifySeat,verifyNoBenchSeat,run};
+module.exports={prepare,generatePrompt,verifySeat,verifyNoBenchSeat,verifyFlashRouteSeat,run};
