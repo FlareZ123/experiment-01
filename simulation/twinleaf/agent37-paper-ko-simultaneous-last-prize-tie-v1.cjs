@@ -32,12 +32,53 @@ function hasPokemonToPromote(player){
   return player.bench.some(slot=>slot.getPokemonCard());
 }
 
+/**
+ * Resolve all simultaneous terminal combinations from Advanced Player's
+ * Rulebook §E, including the ordinary single-condition and ongoing cases.
+ *
+ * @param {{
+ *   youTookAllPrizes:boolean,
+ *   opponentTookAllPrizes:boolean,
+ *   youCanPromote:boolean,
+ *   opponentCanPromote:boolean
+ * }} conditions
+ * @returns {'YOU_WIN'|'YOU_LOSE'|'DRAW'|'ONGOING'}
+ */
+function resolveRulebookETerminalOutcome(conditions){
+  const {
+    youTookAllPrizes,opponentTookAllPrizes,youCanPromote,opponentCanPromote
+  }=conditions;
+  assert.equal(typeof youTookAllPrizes,'boolean');
+  assert.equal(typeof opponentTookAllPrizes,'boolean');
+  assert.equal(typeof youCanPromote,'boolean');
+  assert.equal(typeof opponentCanPromote,'boolean');
+
+  if(youTookAllPrizes&&opponentTookAllPrizes){
+    if(youCanPromote===opponentCanPromote)return 'DRAW';
+    return youCanPromote?'YOU_WIN':'YOU_LOSE';
+  }
+  if(youTookAllPrizes){
+    return !youCanPromote&&opponentCanPromote?'DRAW':'YOU_WIN';
+  }
+  if(opponentTookAllPrizes){
+    return youCanPromote&&!opponentCanPromote?'DRAW':'YOU_LOSE';
+  }
+  if(!youCanPromote&&!opponentCanPromote)return 'DRAW';
+  if(!youCanPromote)return 'YOU_LOSE';
+  if(!opponentCanPromote)return 'YOU_WIN';
+  return 'ONGOING';
+}
+
 function resolveSimultaneousLastPrizeWinner(state,firstPlayer,otherPlayer){
   const {GameWinner}=native('game/store/state/state');
-  const firstCanPromote=hasPokemonToPromote(firstPlayer);
-  const otherCanPromote=hasPokemonToPromote(otherPlayer);
-  if(firstCanPromote===otherCanPromote)return GameWinner.DRAW;
-  const winner=firstCanPromote?firstPlayer:otherPlayer;
+  const outcome=resolveRulebookETerminalOutcome({
+    youTookAllPrizes:true,
+    opponentTookAllPrizes:true,
+    youCanPromote:hasPokemonToPromote(firstPlayer),
+    opponentCanPromote:hasPokemonToPromote(otherPlayer)
+  });
+  if(outcome==='DRAW')return GameWinner.DRAW;
+  const winner=outcome==='YOU_WIN'?firstPlayer:otherPlayer;
   return state.players[0]===winner?GameWinner.PLAYER_1:GameWinner.PLAYER_2;
 }
 
@@ -336,6 +377,7 @@ module.exports={
   withInstanceScopedSimultaneousLastPrizeResolutionV2,
   withInstanceScopedSimultaneousLastPrizeResolutionV3,
   hasPokemonToPromote,
+  resolveRulebookETerminalOutcome,
   resolveSimultaneousLastPrizeWinner,
   VERSION,PINNED
 };
