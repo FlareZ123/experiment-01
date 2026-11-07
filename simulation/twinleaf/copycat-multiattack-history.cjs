@@ -28,6 +28,7 @@ const {GameMessage}=require(path.join(output,'game/game-message'));
  *   hasPreviousTurn:(playerId:number)=>boolean,
  *   getPreviousTurnAttacks:(playerId:number)=>object[],
  *   getEligiblePreviousTurnAttacks:(playerId:number)=>object[],
+ *   getCopycatChoices:(playerId:number)=>object[],
  *   restore:()=>void
  * }}
  */
@@ -39,10 +40,11 @@ function installCopycatMultiAttackHistory(store){
   const previous=new Map();
 
   /** @param {number} playerId @param {object} record */
-  function record(playerId,record){
+  function record(playerId,recordValue){
     const rows=current.get(playerId)??[];
-    rows.push(record);
+    rows.push(recordValue);
     current.set(playerId,rows);
+    return recordValue;
   }
 
   /**
@@ -64,6 +66,7 @@ function installCopycatMultiAttackHistory(store){
       const attack=sourceCard?.attacks?.find(value=>value.name===action.name);
       if(player&&sourceCard&&attack){
         declared={
+          kind:'declared',
           playerId:player.id,turn:before.turn,
           sourceCard,attack,
           sourceCardFullName:sourceCard.fullName,
@@ -81,9 +84,22 @@ function installCopycatMultiAttackHistory(store){
         const selected=action.result&&typeof action.result.name==='string'?
           action.result:prompt.decode(action.result,before);
         const attack=sourceCard?.attacks?.find(value=>value.name===selected?.name);
-        if(player&&sourceCard&&attack&&
-            prompt.cards.some(value=>value===sourceCard)){
+        const hasBarragePower=sourceCard?.powers?.some(
+          power=>power.barrage===true
+        )===true;
+        const rows=player?current.get(player.id)??[]:[];
+        const preceding=rows[rows.length-1];
+        if(player&&sourceCard&&attack&&hasBarragePower&&
+            prompt.cards.some(value=>value===sourceCard)&&
+            preceding?.playerId===player.id&&
+            preceding.turn===before.turn&&
+            preceding.sourceCard===sourceCard){
+          const barragePairId=player.id+':'+before.turn+':'+(rows.length-1);
+          preceding.barragePairId=barragePairId;
+          preceding.barragePairRole='first';
           barrageFollowup={
+            kind:'barrage-followup',
+            barragePairId,barragePairRole:'second',
             playerId:player.id,turn:before.turn,
             sourceCard,attack,
             sourceCardFullName:sourceCard.fullName,
@@ -158,6 +174,23 @@ function installCopycatMultiAttackHistory(store){
   const getEligiblePreviousTurnAttacks=playerId=>
     getPreviousTurnAttacks(playerId).filter(row=>
       row.gxAttack!==true&&row.copycatAttack!==true);
+  /**
+   * Copycat's ordinary case is the opponent's last eligible attack. A
+   * verified Barrage pair is the narrow exception: both attacks in that
+   * pair are exposed in their original order.
+   * @param {number} playerId
+   * @returns {object[]}
+   */
+  const getCopycatChoices=playerId=>{
+    const eligible=getEligiblePreviousTurnAttacks(playerId);
+    const paired=eligible.filter(row=>typeof row.barragePairId==='string');
+    if(paired.length>0){
+      const pairId=paired[paired.length-1].barragePairId;
+      const pair=eligible.filter(row=>row.barragePairId===pairId);
+      if(pair.length===2)return pair;
+    }
+    return eligible.length>0?[eligible[eligible.length-1]]:[];
+  };
 
   return {
     getCurrentTurnAttacks,
@@ -165,6 +198,7 @@ function installCopycatMultiAttackHistory(store){
     hasPreviousTurn,
     getPreviousTurnAttacks,
     getEligiblePreviousTurnAttacks,
+    getCopycatChoices,
     restore(){
       if(store.dispatch===observedDispatch){
         if(hadOwn)store.dispatch=original;
