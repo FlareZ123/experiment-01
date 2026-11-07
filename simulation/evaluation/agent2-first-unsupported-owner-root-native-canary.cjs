@@ -127,7 +127,10 @@ if(require.main===module){
       globalTurn:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.globalTurn??null,
       ownHand:x.capturedFirstUnsupportedOwnerRoot?.ownerView?.ownHand??null,
       firstViewSha256:x.capturedFirstUnsupportedOwnerRoot?.ownerVisibleSha256??null,
-      originalNativeRootPrefixLength:x.originalNativeRootPrefixLength
+      originalNativeRootPrefixLength:x.originalNativeRootPrefixLength,
+      nativeErrorPrefix:x.nativeErrorPrefix??null,
+      actorAbortCounters:x.actorAbortCounters??null,
+      quarantineRecords:x.nativeQuarantine?.records??null
     })))+'\n');
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
   if(!r.bothSeatsCaptured)process.exitCode=1;
