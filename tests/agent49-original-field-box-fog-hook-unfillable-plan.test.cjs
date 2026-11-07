@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const roster=require('../results/aichi-2026/full-decklists.json');
-const {choosePublicOneEnergyBoxKo}=
+const {choosePublicOneEnergyBoxKo,
+  choosePublicOneEnergyBoxKoWithRegistered60}=
   require('../simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs');
 const {countName}=
   require('../simulation/evaluation/agent49-original-field-box-fog-hard-coverage.cjs');
@@ -50,8 +51,46 @@ test('three real source rosters can trigger a Box plan even though Fog is absent
     assert.equal(plan.attackName,'Hidden Power');
     assert.equal(plan.sourcePrinting,'Unown AOR');
     assert.equal(plan.energyPrinting,'Psychic Energy');
-    // The real hook would next require Fog from the owner deck during its
+    const registered60=deck.cards.flatMap(row=>
+      Array(row.count).fill(row.name+' '+row.printing.set));
+    assert.equal(registered60.length,60);
+    assert.equal(choosePublicOneEnergyBoxKoWithRegistered60(
+      view,registered60,{psychic:5,colorless:9}),null,
+      'The registered owner original60 vetoes a missing Fog target');
+    // The old ungated hook would next require Fog during its
     // actual prompted search. Since original rank has zero Fog copies,
     // its eventual assert.ok(fog) cannot succeed on this exact recipe.
   }
+});
+
+test('candidate 60 including exact Fog remains eligible for tactical Box plan',()=>{
+  const original=[
+    'Secret Box TWM','Fog Crystal CRE',
+    'Battle VIP Pass FST','Battle VIP Pass FST',
+    'Rescue Carrier EVS','Psychic Energy MEE 13',
+    ...Array(54).fill('Other card FST')
+  ];
+  assert.equal(original.length,60);
+  const root={
+    decisionKind:'owner-root',globalTurn:14,
+    ownHand:[
+      'Secret Box TWM','Battle VIP Pass FST',
+      'Battle VIP Pass FST','Rescue Carrier EVS'
+    ],
+    ownTurnResources:{energyPlayedTurn:0,itemPlayLocked:false,
+      energyPlayLocked:false},
+    ownPublic:{
+      active:{printing:'Unown AOR',energies:[],specialConditions:[],
+        publicRestrictions:{},
+        attacks:[{name:'Hidden Power',cost:[9],damage:10,gxAttack:false}]},
+      publicTurnRestrictions:{itemPlayLocked:false,
+        attackLockTurnsRemaining:0}
+    },
+    opponentPublic:{active:{hp:70,damage:60}}
+  };
+  const plan=choosePublicOneEnergyBoxKoWithRegistered60(
+    root,original,{psychic:5,colorless:9});
+  assert.ok(plan);
+  assert.equal(plan.attackName,'Hidden Power');
+  assert.equal(plan.energyPrinting,'Psychic Energy');
 });
