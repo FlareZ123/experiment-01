@@ -267,6 +267,36 @@ test('the first divergent roots must retain the same physical seat and turn',()=
   assert.equal(run(f).attributed,false);
 });
 
+
+test('Agent41 native row 9:205 ignores unlogged natural seat-1 VIP root ordinal 22',()=>{
+  const control=Array.from({length:23},(_,i)=>root(i,'NoopAction',0,1));
+  const treatment=Array.from({length:23},(_,i)=>root(i,'NoopAction',0,1));
+  control[5]=root(5,'PassTurnAction',0,1);
+  treatment[5]=root(5,'PlayCardAction',0,1,{card:'Battle Compressor'});
+  for(const ledger of [control,treatment]){
+    ledger[13]=root(13,'PlayCardAction',0,1,{card:VIP_NAME});
+    ledger[14]=root(14,'ResolvePromptAction',0,1,{
+      pendingPrompt:'ChooseCardsPrompt',initiatingRootActionOrdinal:13
+    });
+    ledger[22]=root(22,'PlayCardAction',1,2,{card:VIP_NAME});
+  }
+  const f={
+    controlLedger:control,controlRootActionCount:23,
+    treatmentLedger:treatment,treatmentRootActionCount:23,
+    vipAudit:audit([itemEvent(13,0,1),searchEvent(13,14,0,1)],{
+      dispatchRootCount:23
+    })
+  };
+  const naturalRoot=control[22];
+  assert.equal(naturalRoot.playerSlot,1);
+  assert.equal(naturalRoot.turnBefore,2);
+  assert.equal(f.vipAudit.examples.some(event=>
+    event.kind==='vip-item'&&event.itemRootOrdinal===22),false);
+  const result=run(f);
+  assert.equal(result.attributed,false);
+  assert.equal(result.reason,'treatment-root-is-not-vip-play');
+});
+
 test('event roots must be unique and point to accepted native actions',()=>{
   const f=fixture();
   f.vipAudit.examples[0].itemRootOrdinal=4;
