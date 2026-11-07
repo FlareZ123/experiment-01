@@ -327,8 +327,14 @@ function runSnapTrapPrismStarDestinationContract() {
   assert.strictEqual(finalWaitPrompt.result, null,
     'the post-response WaitPrompt must be resolved with null');
   const pendingFinal = store.state.prompts.filter(item => item.result === undefined);
+  const pendingFinalSummaries = pendingFinal.map(item => ({
+    id: item.id,
+    type: item.constructor?.name,
+    message: item.message
+  }));
   assert.equal(pendingFinal.length, 0,
-    'the full attack effect generator must have no unresolved prompts after the final WaitPrompt');
+    'the full attack effect generator must have no unresolved prompts after the final WaitPrompt; remaining='
+      + JSON.stringify(pendingFinalSummaries));
 
   const after = store.state;
   const attackerAfter = after.players.find(player => player.id === attacker.id);
