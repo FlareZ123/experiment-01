@@ -56,3 +56,16 @@ The previous run `42358373053` tested an earlier assertion that incorrectly reje
 The opponent Apex Dragon history, board, and discard preconditions are staged. This test validates the policy dispatch and action-legality boundary, not a naturally shuffled game, a full original 60, the strategic quality of the alternative action, or a competitive win rate. Qualified competitive games remain zero.
 
 **Conclusion:** The common Twinleaf SimpleTacticsAi dispatcher rejects an underfunded specialized Copycat proposal before final action selection. The policy does not currently need an extra Energy predicate for correctness, though one could avoid wasted simulation work.
+
+
+
+## Headless integration boundary
+
+This isolated legality runner calls `withCopycatApexTimelessPolicy` directly so it can instrument the real tactic and Simulator without introducing the separate hook behavior into the test. The production research wrapper has an additional fail-closed dependency guard: `simulation/twinleaf/headless.cjs` rejects `mimikyuApexTimelessPolicy:true` unless all four opt-in rule-history flags are true:
+
+1. `mimikyuApexCopycatCompatibility`
+2. `mimikyuDeclaredHistoryCorrection`
+3. `regidragoDeclaredHistoryCorrection`
+4. `passClearsLastAttackCorrection`
+
+The wrapper installs those hooks before creating the game and restores them after the run. This integration contract already has a dedicated regression in [mimikyu-headless-hook-options.test.cjs](../../tests/mimikyu-headless-hook-options.test.cjs), which verifies the opt-in policy metadata, prototype restoration, and rejection of an incomplete request. The underfunded test complements that contract by validating the actual SimpleTacticsAi action-selection gate.
