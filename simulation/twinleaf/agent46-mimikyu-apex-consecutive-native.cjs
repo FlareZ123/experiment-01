@@ -17,7 +17,7 @@ const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
  * search, and both physical cards remain present in the original native Store.
  *
  * @param {0|1} seat Mimikyu source physical seat.
- * @param {{chooseMimikyuTimeless?:boolean,beforeApex?:(ctx:object)=>void,beforeMimikyu?:(ctx:object)=>void}} [options] Opt-in native source callbacks and second prompt resolution.
+ * @param {{chooseMimikyuTimeless?:boolean,mimikyuAttackChoice?:'Timeless-GX'|'Shred'|'Overclock',beforeApex?:(ctx:object)=>void,beforeMimikyu?:(ctx:object)=>void}} [options] Opt-in native source callbacks and second prompt resolution.
  * @returns {object} Actual two consecutive native attacks and history.
  */
 function runSeat(seat,options={}){
@@ -96,19 +96,20 @@ function runSeat(seat,options={}){
         const family=pending.constructor.name;
         history.push({during:'mimikyu-copycat',pending:family,
           activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
-        if(family==='ChooseAttackPrompt'&&options.chooseMimikyuTimeless===true){
+        const choice=options.mimikyuAttackChoice||
+          (options.chooseMimikyuTimeless===true?'Timeless-GX':null);
+        if(family==='ChooseAttackPrompt'&&choice!==null){
           const ci=pending.cards.findIndex(c=>
             c.fullName==='Dialga-GX UPR');
           assert.ok(ci>=0,
             'Native nested Apex should offer owner discarded Dragon Dialga GX');
-          const attack=pending.cards[ci].attacks.find(a=>
-            a.name==='Timeless-GX');
+          const attack=pending.cards[ci].attacks.find(a=>a.name===choice);
           assert.ok(attack);
           assert.equal(pending.validate(attack),true,
             'Native prompt must receive the source Attack object');
           x.store.dispatch(new ResolvePromptAction(pending.id,attack));
           history.push({during:'mimikyu-copycat',
-            resolved:'ChooseAttackPrompt',chosen:'Timeless-GX',
+            resolved:'ChooseAttackPrompt',chosen:choice,
             activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
           continue;
         }
