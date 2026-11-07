@@ -194,7 +194,24 @@ The ordered extension wrapper receives that packet plus the independently review
 
 ```json
 {
-  "timeCallPacket": "THE_PACKET_ABOVE",
+  "timeCallPacket": {
+    "stage": "open-top32",
+    "firstPlayerSeat": 0,
+    "turnOwnerWhenCalled": 0,
+    "officialEndCallObserved": true,
+    "officialClockEvidenceRef": "REPLACE_WITH_OFFICIAL_CLOCK_RECORD",
+    "stageEvidenceRef": "REPLACE_WITH_OFFICIAL_PAIRING_OR_BRACKET_RECORD",
+    "firstPlayerEvidenceRef": "REPLACE_WITH_STARTER_SEAT_RECORD",
+    "turnOwnerWhenCalledEvidenceRef": "REPLACE_WITH_CALL_TURN_OWNER_RECORD",
+    "turnSequenceEvidenceRef": "REPLACE_WITH_COMPLETE_FINAL_TURN_SEQUENCE",
+    "independentPaperStateEvidenceRef": "REPLACE_WITH_PAPER_BOARD_AND_PRIZE_STATE",
+    "paperStateIndependentlyReviewed": true,
+    "prizesRemaining": [2, 2],
+    "finalPermittedTurnFinished": true,
+    "observedFinalTurnSeat": 1,
+    "observedExtraSecondTurns": 1,
+    "trailingPokemonCheckupWasExcluded": true
+  },
   "extensionLedgerEvidenceRef": "REPLACE_WITH_COMPLETE_ORDERED_EXTENSION_LEDGER",
   "extensionLedgerIndependentlyReviewed": true,
   "transitions": [
@@ -208,4 +225,4 @@ The ordered extension wrapper receives that packet plus the independently review
 }
 ```
 
-The second block uses a string marker for readability; the actual caller must pass the packet object, not that marker. A terminal result remains conditional, and `competitiveAdmission` remains false until the external reviewer authenticates the clock, stage, paper state, and complete ledger. A valid reference shape does not establish that the source is genuine or complete.
+The second block embeds the full time-call packet. A terminal result remains conditional, and `competitiveAdmission` remains false until the external reviewer authenticates the clock, stage, paper state, and complete ledger. A valid reference shape does not establish that the source is genuine or complete.
