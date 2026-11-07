@@ -36,3 +36,5 @@ jobs:
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-first-prompt-native.cjs
       - name: Agent37 full physical Prize, promotion and Powerglass A-B settlement
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-full-settlement-native.cjs
+      - name: Agent37 Eon Blade next-own-turn native paper-hook safety test
+        run: node simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs
