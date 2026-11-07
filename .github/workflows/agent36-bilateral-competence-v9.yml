@@ -36,6 +36,8 @@ jobs:
 
       - name: Check research adapter and runner syntax
         run: |
+          node --check simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs
+          node --check simulation/twinleaf/perfection-post-pass-probe.cjs
           node --check simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
