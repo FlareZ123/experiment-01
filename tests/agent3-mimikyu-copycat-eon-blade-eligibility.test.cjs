@@ -231,3 +231,17 @@ test('missing physical Copycat AttackAction root fails closed',()=>{
   assert.ok(row.failureReasons.includes(
     'physical-Copycat-AttackAction-root-missing'));
 });
+
+
+test('New Moon pair across Active and Bench is surfaced without assuming a Valley discount',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
+  f.current.publicBoardBefore[1].active.energyCards=['Psychic Energy'];
+  f.current.publicBoardBefore[1].bench=[
+    {printing:'Lunatone OBF'},{printing:'Solrock CES'}
+  ];
+  const row=audit(f).rows[0];
+  assert.equal(row.newMoonPairVisible,true);
+  assert.equal(row.copycatCostFunding.status,'UNVERIFIED');
+  assert.equal(row.paperCopycatConditionSupported,false);
+});
