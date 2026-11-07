@@ -119,7 +119,9 @@ jobs:
       - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
         id: smoke_check_22
         continue-on-error: true
-        run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
+        run: |
+          node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
+          node --test tests/agent44-cologne-rollback-prototype-epoch.native.test.cjs
       - name: Verify Forest Seal Stone Power bypasses Ability lock
         id: smoke_check_23
         continue-on-error: true
