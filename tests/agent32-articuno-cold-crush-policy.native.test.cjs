@@ -10,6 +10,7 @@ const {
   VERSION,
   withArticunoColdCrushPolicy
 } = require('../simulation/twinleaf/agent32-articuno-cold-crush-policy.cjs');
+const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
 
 const output = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
 
@@ -18,84 +19,68 @@ function native(modulePath) {
   return require(path.join(output, modulePath));
 }
 
-/** @param {string} name @param {number} id @param {object} [extra] */
-function card(name, id, extra = {}) {
-  return {id, name, fullName: name, ...extra};
-}
-
-/** @param {object[]} pokemonCards @param {object[]} energies */
-function slot(pokemonCards = [], energies = []) {
-  return {
-    cards: [...pokemonCards, ...energies],
-    energies: {cards: [...energies]},
-    getPokemonCard() {
-      return pokemonCards.find(item => item.superType === 'POKEMON') ?? null;
-    }
-  };
-}
-
-/** @param {number} seat */
+/** @param {0|1} seat */
 function probeColdCrushWithPolicy(seat) {
   const {Store} = native('game/store/store');
-  const {PlayCardAction} = native('game/store/actions/play-card-action');
+  const {State, GamePhase} = native('game/store/state/state');
+  const {Player} = native('game/store/state/player');
+  const {PokemonCardList} = native('game/store/state/pokemon-card-list');
+  const {CardList} = native('game/store/state/card-list');
+  const {PlayCardAction, PlayerType, SlotType} =
+    native('game/store/actions/play-card-action');
   const {SimpleTacticsAi} = native('simple-bot/simple-tactics-ai');
   const definitions = native('simple-bot/simple-bot-definitions');
-  const {GamePhase} = native('game/game-phase');
-  const {SlotType} = native('game/store/slot-utils');
+  const manager = initializeCards();
 
-  const water = card('Water Energy', 1, {
-    fullName: 'Water Energy MEE',
-    superType: 'ENERGY',
-    provides: ['WATER']
-  });
-  const grass = Array.from({length: 3}, (_, i) => card('Grass Energy', 20 + i, {
-    fullName: 'Grass Energy SVE',
-    superType: 'ENERGY',
-    provides: ['GRASS']
-  }));
-  const snorlax = card('Snorlax', 2, {superType: 'POKEMON'});
-  const articuno = card('Articuno-GX', 3, {
-    fullName: 'Articuno-GX CES',
-    superType: 'POKEMON',
-    stage: 'BASIC',
-    hp: 170,
-    retreat: 2,
-    attacks: [
-      {name: 'Ice Wing', cost: ['WATER', 'WATER', 'COLORLESS'], damage: 130},
-      {name: 'Cold Crush-GX', cost: ['WATER'], damage: 0}
-    ]
-  });
-  const regidrago = card('Regidrago V', 4, {superType: 'POKEMON'});
-  const makePlayer = (id, active, bench, hand) => ({
-    id,
-    active,
-    bench,
-    hand: slot(hand),
-    deck: {cards: Array.from({length: 30}, (_, i) =>
-      card('Unused Card ' + i, 100 + i, {superType: 'TRAINER'}))},
-    discard: {cards: []},
-    prizes: {cards: Array.from({length: 6}, (_, i) => card('Prize ' + i, 200 + i))},
-    usedGX: false
-  });
-
-  const actor = makePlayer(100 + seat,
-    slot([snorlax], [water]),
-    [slot(), slot(), slot(), slot(), slot()],
-    [articuno]);
-  const opponent = makePlayer(200 + seat,
-    slot([regidrago], grass),
-    [slot(), slot(), slot(), slot(), slot()],
-    []);
-  const state = {
-    phase: GamePhase.PLAYER_TURN,
-    turn: 7,
-    activePlayer: seat,
-    players: seat === 0 ? [actor, opponent] : [opponent, actor],
-    prompts: [],
-    stadium: null,
-    active: true
+  /** @param {string} name */
+  const card = name => {
+    const instance = manager.getCardByName(name);
+    assert.ok(instance, 'Unavailable pinned printing: ' + name);
+    return instance;
   };
-  const store = new Store(state);
+
+  const actor = new Player();
+  const opponent = new Player();
+  actor.id = 801 + seat;
+  actor.name = 'rank3-articuno-policy-staged';
+  opponent.id = 901 + seat;
+  opponent.name = 'regidrago-policy-staged';
+  actor.bench = Array.from({length: 5}, () => new PokemonCardList());
+  opponent.bench = Array.from({length: 5}, () => new PokemonCardList());
+  actor.active.cards.push(card('Snorlax PGO'));
+  opponent.active.cards.push(card('Regidrago V SIT'));
+
+  const ownedWater = card('Water Energy MEE');
+  actor.active.cards.push(ownedWater);
+  actor.active.energies.cards.push(ownedWater);
+
+  for (let i = 0; i < 3; i++) {
+    const energy = card('Grass Energy SVE');
+    opponent.active.cards.push(energy);
+    opponent.active.energies.cards.push(energy);
+  }
+  actor.hand.cards.push(card('Articuno-GX CES'));
+
+  const state = new State();
+  state.players = seat === 0 ? [actor, opponent] : [opponent, actor];
+  state.activePlayer = seat;
+  state.turn = 4;
+  state.phase = GamePhase.PLAYER_TURN;
+  for (const player of state.players) {
+    player.deck.cards.push(
+      card('Psychic Energy SVE'),
+      card('Psychic Energy SVE'),
+      card('Psychic Energy SVE')
+    );
+    player.prizes = Array.from({length: 6}, () => {
+      const prize = new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      return prize;
+    });
+  }
+
+  const store = new Store({onStateChange() {}});
+  store.state = state;
   const originalDispatch = Store.prototype.dispatch;
   const originalDecode = SimpleTacticsAi.prototype.decodeNextAction;
   const ai = new SimpleTacticsAi({id: actor.id}, {
@@ -105,9 +90,13 @@ function probeColdCrushWithPolicy(seat) {
     arbiter: definitions.defaultArbiterOptions
   }, null);
 
-  const nested = withOwnerAbilityConfirmPolicy(() =>
+  const outer = withOwnerAbilityConfirmPolicy(() =>
     withArticunoColdCrushPolicy(() => {
-      store.dispatch(new PlayCardAction(actor.id, 0, SlotType.BENCH, 0));
+      store.dispatch(new PlayCardAction(actor.id, 0, {
+        player: PlayerType.BOTTOM_PLAYER,
+        slot: SlotType.BENCH,
+        index: 0
+      }));
 
       const confirm = ai.decodeNextAction(store.state);
       assert.equal(confirm?.constructor?.name, 'ResolvePromptAction');
@@ -149,9 +138,9 @@ function probeColdCrushWithPolicy(seat) {
 
   return {
     seat,
-    result: nested.result.result,
-    overlayAudit: nested.result.audit,
-    baseAudit: nested.audit,
+    result: outer.result.result,
+    overlayAudit: outer.result.audit,
+    baseAudit: outer.audit,
     wrappersRestored:
       Store.prototype.dispatch === originalDispatch &&
       SimpleTacticsAi.prototype.decodeNextAction === originalDecode
@@ -163,7 +152,7 @@ test('Articuno one-Water Cold Crush policy composes with the shared owner policy
     const result = probeColdCrushWithPolicy(seat);
     assert.equal(result.wrappersRestored, true);
     assert.equal(result.result.actorActive, 'Articuno-GX CES');
-    assert.equal(result.result.opponentActive, 'Regidrago V');
+    assert.equal(result.result.opponentActive, 'Regidrago V SIT');
     assert.equal(result.result.actorActiveEnergy, 0);
     assert.equal(result.result.opponentActiveEnergy, 0);
     assert.equal(result.result.actorUsedGX, true);
