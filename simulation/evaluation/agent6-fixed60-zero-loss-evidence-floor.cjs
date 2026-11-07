@@ -94,5 +94,77 @@ function allMatchupsFloor(options={}){
       Math.pow(alphaEach,1/matchesPerOpponent)};
 }
 
+/**
+ * Binary relative entropy for an observed empirical win fraction above the
+ * null win-probability limit. Used as the exact Chernoff exponent.
+ * @param {number} observed Wins divided by fixed number of independent games.
+ * @param {number} nullLimit Claimed upper bound on average true win rate.
+ * @returns {number}
+ */
+function bernoulliKLDivergence(observed,nullLimit){
+  validateProbability(nullLimit);
+  assert.ok(Number.isFinite(observed)&&observed>=0&&observed<=1);
+  if(observed<=nullLimit)return 0;
+  if(observed===1)return Math.log(1/nullLimit);
+  return observed*Math.log(observed/nullLimit)+
+    (1-observed)*Math.log((1-observed)/(1-nullLimit));
+}
+
+/**
+ * Conservative valid fixed-sample one-sided Chernoff upper-tail p-bound for
+ * an arbitrary collection of independent Bernoulli game outcomes, whose
+ * equally represented true probabilities average at most target. Repeated
+ * opponents and seat contexts may differ in difficulty. Jensen's inequality
+ * for log(1-p+p*exp(t)) controls the moment generating function.
+ *
+ * For zero losses this exactly equals target^N; for nonzero losses the bound
+ * is generally conservative and may be much larger than the exact tail.
+ * This is a fixed-N test, not valid for retrospective deck/policy selection,
+ * sequential optional stopping, dependence, or unqualified game outcomes.
+ *
+ * @param {{wins:number,losses:number,target?:number}} options
+ * @returns {number} Valid upper bound on one-sided p-value under null mean.
+ */
+function chernoffUpperTailP(options){
+  const {wins,losses,target=TARGET}=options;
+  assert.ok(Number.isSafeInteger(wins)&&wins>=0);
+  assert.ok(Number.isSafeInteger(losses)&&losses>=0);
+  assert.ok(Number.isSafeInteger(wins+losses)&&wins+losses>0);
+  const n=wins+losses;
+  return Math.exp(-n*bernoulliKLDivergence(wins/n,target));
+}
+
+/**
+ * Smallest fixed number of independent games for which exactly f losses and
+ * all other wins yields a Chernoff upper-tail bound <= 1-confidence. This
+ * does not recommend stopping based on observed data: select N in advance.
+ *
+ * @param {{losses:number,target?:number,confidence?:number}} options
+ * @returns {number}
+ */
+function minGamesForLossBudget(options){
+  const {losses,target=TARGET,confidence=CONFIDENCE}=options;
+  assert.ok(Number.isSafeInteger(losses)&&losses>=0);
+  validateProbability(target);
+  validateProbability(confidence);
+  const alpha=1-confidence;
+  const upperBound=n=>chernoffUpperTailP({
+    wins:n-losses,losses,target
+  });
+  let low=losses+1,high=low;
+  while(upperBound(high)>alpha){
+    high*=2;
+    assert.ok(Number.isSafeInteger(high),
+      'Required sample exceeds safe integer range');
+  }
+  while(low<high){
+    const middle=low+Math.floor((high-low)/2);
+    if(upperBound(middle)<=alpha)high=middle;
+    else low=middle+1;
+  }
+  return low;
+}
+
 module.exports={TARGET,CONFIDENCE,FIELD_SIZE,validateProbability,
-  allWinsLowerBound,minAllWins,balancedFieldFloor,allMatchupsFloor};
+  allWinsLowerBound,minAllWins,balancedFieldFloor,allMatchupsFloor,
+  bernoulliKLDivergence,chernoffUpperTailP,minGamesForLossBudget};
