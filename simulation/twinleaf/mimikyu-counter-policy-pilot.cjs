@@ -15,7 +15,7 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @param {object} request
  * @param {number} candidateSeat
- * @returns {{game:object,eligibleChoices:Array<object>,observedChoices:number}}
+ * @returns {{game:object,eligibleChoices:Array<object>,observedChoices:number,payloadChoiceObservations:Array<object>}}
  */
 function runSourcePolicyTrace(request, candidateSeat) {
   initializeCards();
@@ -25,6 +25,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
     require(path.join(output, 'game/store/state/state'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const eligibleChoices = [];
+  const payloadChoiceObservations = [];
   let observedChoices = 0;
   SimpleTacticsAi.prototype.decodeNextAction = function trace(state) {
     const seat = state.players.findIndex(p => p.id === this.client.id);
@@ -33,7 +34,25 @@ function runSourcePolicyTrace(request, candidateSeat) {
       state.phase === GamePhase.PLAYER_TURN &&
       state.activePlayer === candidateSeat ?
         copycatApexResponseKind(state, player) : null;
+    const prompt = state.prompts?.find(p => p.result === undefined &&
+      p.playerId === player?.id && p.constructor.name === 'ChooseAttackPrompt');
+    const payloadResponseKind = seat === candidateSeat && player &&
+      state.phase === GamePhase.ATTACK && prompt ?
+        copycatApexResponseKind(state, player) : null;
     const action = original.call(this, state);
+    if (payloadResponseKind &&
+        action?.constructor?.name === 'ResolvePromptAction') {
+      const chosen = action.result;
+      const source = prompt.cards.find(card =>
+        card.attacks.includes(chosen));
+      payloadChoiceObservations.push({
+        turn: state.turn,
+        responseKind: payloadResponseKind,
+        sourceCard: source?.fullName ?? null,
+        chosenAttack: chosen?.name ?? null,
+        promptValid: prompt.validate(chosen)
+      });
+    }
     if (responseKind) {
       observedChoices += 1;
       if (eligibleChoices.length < 40) {
@@ -56,7 +75,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
     return action;
   };
   try {
-    return {game: runMatch(request), eligibleChoices, observedChoices};
+    return {game: runMatch(request), eligibleChoices, observedChoices, payloadChoiceObservations};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
   }
@@ -95,6 +114,7 @@ function runMimikyuCounterSourcePilot() {
         label: 'Mimikyu public Copycat source pilot ' +
           rankOrder.join('-') + ' ' + (experimental ? 'counter-v2' : 'baseline'),
         isolatePolicyRandomness: true,
+        captureInitialSourceDealFingerprintSeat: championSeat,
         mimikyuApexCopycatCompatibility: true,
         mimikyuDeclaredHistoryCorrection: true,
         regidragoDeclaredHistoryCorrection: true,
@@ -106,7 +126,7 @@ function runMimikyuCounterSourcePilot() {
         policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
-        const {game, eligibleChoices, observedChoices} =
+        const {game, eligibleChoices, observedChoices, payloadChoiceObservations} =
           runSourcePolicyTrace(request, championSeat);
         rows.push({...base, status: 'engine-completed-or-bounded',
           finished: game.finished, endReason: game.endReason,
@@ -122,6 +142,9 @@ function runMimikyuCounterSourcePilot() {
             a.seat === championSeat).length,
           eligiblePublicChoiceObservations: observedChoices,
           eligibleChoiceSamples: eligibleChoices,
+          payloadChoiceObservations,
+          payloadChoiceCount: payloadChoiceObservations.length,
+          initialSourceDealFingerprint: game.initialSourceDealFingerprint,
           policyFingerprint: game.policy
         });
       } catch (error) {
@@ -130,6 +153,20 @@ function runMimikyuCounterSourcePilot() {
       }
     }
   }
+  const openingMatchAudit = [0, 1].map(candidateSeat => {
+    const pair = rows.filter(row => row.status === 'engine-completed-or-bounded' &&
+      row.candidateSeat === candidateSeat);
+    const baseline = pair.find(row => row.policy === 'base-with-semantic-corrections');
+    const treatment = pair.find(row => row.policy === 'public-copycat-response-v2');
+    return {
+      candidateSeat,
+      baselineFingerprint: baseline?.initialSourceDealFingerprint ?? null,
+      treatmentFingerprint: treatment?.initialSourceDealFingerprint ?? null,
+      sameInitialSourceDeal: !!baseline && !!treatment &&
+        JSON.stringify(baseline.initialSourceDealFingerprint) ===
+        JSON.stringify(treatment.initialSourceDealFingerprint)
+    };
+  });
   return {
     study: 'Fixed published rank 1 vs rank 10 public Copycat decision experiment',
     publishedDeckRanks: [1, 10],
@@ -139,6 +176,7 @@ function runMimikyuCounterSourcePilot() {
     evidenceClass: 'bounded engine execution and selected-action diagnostic',
     qualifiedWinRateEvidence: false,
     candidateRankingPermitted: false,
+    openingMatchAudit,
     rows
   };
 }
