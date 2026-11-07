@@ -16,6 +16,9 @@ const native=p=>require(path.join(BASE,p));
  *
  * This deliberately supports only simple simultaneous Prize-to-hand transfers
  * with exactly two Active KOs, two Prize groups, and no other KO effects.
+
+ * Scope: one attack's EndTurnEffect/checkState transaction. A multi-turn runner
+ * must apply this wrapper around each attack transaction separately.
  *
  * @template T
  * @param {any} store Actual pinned Twinleaf Store instance.
@@ -125,6 +128,8 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         prizeGroups.length===2&&
         new Set(prizeGroups.map(g=>g.playerId)).size===2&&
         firstGroup&&otherGroup&&
+        firstGroup.destination===firstPlayer.hand&&
+        otherGroup.destination===otherPlayer.hand&&
         firstGroup.count>=firstPlayer.getPrizeLeft()&&
         otherGroup.count>=otherPlayer.getPrizeLeft()&&
         firstPlayer.getPrizeLeft()>0&&
