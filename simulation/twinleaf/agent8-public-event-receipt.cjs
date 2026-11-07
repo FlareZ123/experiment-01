@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent8-public-event-receipt-v2';
+const VERSION='agent8-public-event-receipt-v3-turn-stamped';
 
 /**
  * Only face-up cards and native public-use markers enter this detached
@@ -13,19 +13,33 @@ const VERSION='agent8-public-event-receipt-v2';
  * @param {object[]|null} [previousOpponentTurnAttacks=null]
  *   Research-owned, turn-stamped public history; null means unavailable,
  *   while [] means the opponent's previous turn contained no attacks.
+ * @param {number|null} [previousOpponentTurnTurn=null]
+ *   The tracker snapshot's turn. Required for known-empty history; inferred
+ *   from rows only for backward-compatible non-empty callers.
  * @returns {Readonly<object>}
  */
-function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null){
+function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
+    previousOpponentTurnTurn=null){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(state.activePlayer,seat,'Event receipt is actor-turn scoped');
   const owner=state.players[seat];
   const opponent=state.players[1-seat];
+  let opponentLastTurnTurn=null;
   let opponentLastTurnAttacks=null;
   if(previousOpponentTurnAttacks!==null){
     assert.ok(Array.isArray(previousOpponentTurnAttacks));
+    let snapshotTurn=previousOpponentTurnTurn;
+    if(snapshotTurn===null&&previousOpponentTurnAttacks.length>0)
+      snapshotTurn=previousOpponentTurnAttacks[0].turn;
+    assert.ok(Number.isSafeInteger(snapshotTurn)&&snapshotTurn>=0,
+      'Known previous-turn history requires its snapshot turn stamp');
+    assert.ok(snapshotTurn<state.turn,
+      'Previous-opponent-turn history must predate the acting turn');
+    opponentLastTurnTurn=snapshotTurn;
     opponentLastTurnAttacks=previousOpponentTurnAttacks.map(row=>{
       assert.equal(row.playerId,opponent.id);
-      assert.ok(Number.isSafeInteger(row.turn)&&row.turn>=0);
+      assert.equal(row.turn,snapshotTurn,
+        'All previous-turn attacks must share the latest snapshot turn');
       assert.ok(typeof row.sourceCardFullName==='string'&&row.sourceCardFullName.length>0);
       assert.ok(typeof row.attackName==='string'&&row.attackName.length>0);
       assert.equal(typeof row.gxAttack,'boolean');
@@ -37,6 +51,9 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null){
       });
     });
     Object.freeze(opponentLastTurnAttacks);
+  }else{
+    assert.equal(previousOpponentTurnTurn,null,
+      'Unavailable previous-turn history cannot carry a turn stamp');
   }
 
   /** @param {object} slot @returns {object|null} */
@@ -104,6 +121,7 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null){
     // Legacy single-record field stays unknown; the turn-stamped list below
     // is supplied only by the research-owned Store event tracker.
     opponentLastTurnAttack:null,
+    opponentLastTurnTurn,
     opponentLastTurnAttacks
   });
 }
