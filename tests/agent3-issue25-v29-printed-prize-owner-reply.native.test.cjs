@@ -309,6 +309,9 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     row.physicalActiveAtActualNativeAttackObserved===true&&
     row.physicalActivePrintingAccountedForByOriginal60===true&&
     row.physicalActiveIdentityComplete===true&&
+    row.targetIdentityGranularity==='printing-only-no-instance-id'&&
+    row.physicalActiveIdentityGranularity===
+      'printing-and-printed-attack-menu-no-instance-id'&&
     row.declarationRootBoardCaptured===true&&
     row.finalBoardCaptured===true&&
     Number.isSafeInteger(row.declarationRootActionOrdinal)&&
@@ -357,6 +360,9 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
           row.completionRootTurnMatchesDeclarationTurn,
         laterPromptResolutionRootsPresent:row.laterPromptResolutionRootsPresent,
         physicalActivePrintingBefore:row.physicalActivePrintingBefore,
+        targetIdentityGranularity:row.targetIdentityGranularity,
+        physicalActiveIdentityGranularity:
+          row.physicalActiveIdentityGranularity,
         physicalActivePrintedAttackNamesBefore:
           row.physicalActivePrintedAttackNamesBefore,
         attackNamePrintedOnPhysicalActiveBefore:
