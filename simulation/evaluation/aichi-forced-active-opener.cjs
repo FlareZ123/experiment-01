@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 
-const HP_THRESHOLDS=Object.freeze([60,70,90,120,160,200]);
+const HP_THRESHOLDS=Object.freeze([60,70,90,120,160,200,230,280,300,330]);
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n,k){
