@@ -34,6 +34,22 @@ test('physical Store opt-in M4 paper mode leaves unrelated games unchanged',()=>
     'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1');
   assert.deepEqual(newGame,oldGame,
     'Opt-in Store hook must not alter any unrelated card or RNG sequence');
+
+  // The independent owner-root public-paper preselection is opt-in too.
+  // When no M4 is physically present, neither AI choice nor physical RNG
+  // can be affected; only the explicit versioned metadata may differ.
+  const preselected=runMatch({...request,specialRedCardPaperPreselection:true});
+  const {specialRedCardPaperPreselection:selectionEnabled,
+    specialRedCardPaperPreselectionVersion:selectionProtocol,
+    specialRedCardPaperPreselectionAudits:selectionAudit,
+    ...preselectedGame}=preselected;
+  assert.equal(selectionEnabled,true);
+  assert.equal(selectionProtocol,'agent44-m4-owner-root-preselection-v1');
+  assert.deepEqual(selectionAudit,[],
+    'No M4 printing can yield a paper preselection certificate');
+  assert.deepEqual(preselectedGame,baseline,
+    'Default-off owner-root screen must not mutate unrelated match traces');
+  assert.equal(baseline.specialRedCardPaperPreselection,undefined);
   assert.ok(baseline.actions>0);
   console.log('AGENT44_M4_HEADLESS_NO_CARD_BILATERAL',
     JSON.stringify({seed:request.seed,actions:baseline.actions,
