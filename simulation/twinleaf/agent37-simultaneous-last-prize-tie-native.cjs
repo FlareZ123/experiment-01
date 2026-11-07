@@ -211,6 +211,10 @@ function run(){
     assert.equal(a.winnerLogName,'Duskull defender');
     assert.deepEqual(a.winnerLogParams,{name:'Duskull defender'});
     assert.equal(a.winnerLogRewritten,actorSeat===0);
+    assert.equal(a.terminalSuppressed,1);
+    assert.equal(a.storeLogRestored,true);
+    assert.equal(a.storeReduceRestored,true);
+    assert.equal(a.otherStoresUnmodified,true);
     return {
       actorSeat,
       firstPlayerCanPromote:a.firstPlayerCanPromote,
@@ -255,6 +259,10 @@ function run(){
     assert.equal(a.winnerLogName,null);
     assert.equal(a.winnerLogParams,null);
     assert.equal(a.winnerLogRewritten,true);
+    assert.equal(a.terminalSuppressed,1);
+    assert.equal(a.storeLogRestored,true);
+    assert.equal(a.storeReduceRestored,true);
+    assert.equal(a.otherStoresUnmodified,true);
     return {
       actorSeat,
       firstPlayerCanPromote:a.firstPlayerCanPromote,
