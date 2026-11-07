@@ -65,7 +65,11 @@ function probe(seat, deckCards) {
     if (!pending) break;
     let answer;
     if (pending.constructor.name === 'WaitPrompt') answer = null;
-    else if (pending.constructor.name === 'ChooseCardsPrompt' &&
+    else if (pending.constructor.name === 'ShuffleDeckPrompt') {
+      answer = f.source.deck.cards.map((_, index) => index);
+      assert.equal(pending.validate(answer, f.state), true,
+        'Native real shuffle must accept a physical deck permutation');
+    } else if (pending.constructor.name === 'ChooseCardsPrompt' &&
              pending.cards === f.source.deck) {
       answer = deckCards === 1 ? [basic] : [];
       assert.equal(pending.validate(answer, f.state), true,
