@@ -124,3 +124,6 @@ The extension-ledger schema consumes actual before/after Prize counts for both p
 The namespaced suite also compares `auditExtensionLedger` with `adjudicateExtension` over all 49 after-Prize pairs under both entry rules (98 combinations), with explicit paper outcomes supplied for zero-Prize terminals. [Run 42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617) passed all **59** clock/convergence tests on Node 22. The dedicated clock and source-census jobs succeeded; the broader benchmark job was still running at this report update.
 
 Current exact blob SHAs after these additions: module `1955dd2c159adaeeedbcb138a40ac9d10afccafe`; core test `faffc373dace5be748b25d188e5a7cbc87c9dca3`; namespaced evidence/ledger test `900cb737f8ec4aed00dedc27e7e29f2d892c73de`; cross-implementation test `6d09e0958dfae53cfab813805327d38edf92f3d9`.
+
+
+The full manual workflow [42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617) completed successfully across all jobs. Its isolated clock job passed 59/59, including the exhaustive 98-state extension comparison and the multi-Prize/overkill state-delta test.
