@@ -15,5 +15,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate 128-stratum all-win and heterogeneous-win Chernoff-KL CI
-        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs tests/agent12-expanded-mulligan-pairing.test.cjs tests/agent12-aichi-basic-opening-census.test.cjs
+      - name: Validate field-mean, simultaneous matchup, and heterogeneous-win confidence bounds
+        run: node --test tests/agent12-balanced-perfect-field-bound.test.cjs tests/agent12-balanced-kl-field-bound.test.cjs tests/agent12-simultaneous-matchup-kl-bound.test.cjs tests/agent12-expanded-mulligan-pairing.test.cjs tests/agent12-aichi-basic-opening-census.test.cjs
