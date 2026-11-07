@@ -671,7 +671,15 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
     nativeMatchAttempts: execution.audit.nativeMatchAttempts,
     rootStoreCount: rootStores.length,
     matchResultCount: matchResults.length,
-    actorAudits: actorAudits,
+    actorAudits: actorAudits.map(audit => ({
+      version: audit.version,
+      selectedRootDecisions: audit.selectedRootDecisions,
+      ownerFallbackDiagnosticViewOptIn: audit.ownerFallbackDiagnosticViewOptIn ?? false,
+      nativeOwnerTrainerFallback: audit.nativeOwnerTrainerFallback === null ? null : {
+        attemptedUnsupportedPasses: audit.nativeOwnerTrainerFallback?.attemptedUnsupportedPasses ?? null,
+        selectedNativeTrainerRoots: audit.nativeOwnerTrainerFallback?.selectedNativeTrainerRoots ?? null
+      }
+    })),
     selectedRuns: selectedRuns.map(selected => ({
       thrownCode: selected.diagnostic.thrownCode,
       thrownMessage: selected.diagnostic.thrownMessage,
