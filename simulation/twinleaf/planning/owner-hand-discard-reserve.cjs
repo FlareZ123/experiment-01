@@ -5,6 +5,7 @@ const {ownerHandDiscardPareto} =
   require('./owner-hand-discard-pareto.cjs');
 
 const VERSION = 'owner-hand-discard-copy-reserve-v1';
+const VIRTUAL_SOURCE_PRINTING = '__agent16_source_already_played__';
 
 /**
  * Normalize a JSON-friendly exact-printing requirement map.
@@ -56,7 +57,7 @@ function normalizePrintingSet(value, label) {
  *
  * @param {{
  *   handPrintings:string[],
- *   sourceIndex:number,
+ *   sourceIndex?:number|null,
  *   cost:number,
  *   hardMinimumCopiesByPrinting?:Record<string,number>,
  *   softAdditionalCopiesByPrinting?:Record<string,number>,
@@ -70,15 +71,21 @@ function ownerHandDiscardWithCopyReserves(input) {
   assert.ok(input && typeof input === 'object');
   const {
     handPrintings,
-    sourceIndex,
+    sourceIndex = null,
     cost,
     nextHandDiscardCost = 0
   } = input;
   assert.ok(Array.isArray(handPrintings) &&
     handPrintings.every(printing =>
       typeof printing === 'string' && printing.length > 0));
-  assert.ok(Number.isSafeInteger(sourceIndex) &&
-    sourceIndex >= 0 && sourceIndex < handPrintings.length);
+  const sourceCardPresentInHand = sourceIndex !== null;
+  if (sourceCardPresentInHand) {
+    assert.ok(Number.isSafeInteger(sourceIndex) &&
+      sourceIndex >= 0 && sourceIndex < handPrintings.length);
+  } else {
+    assert.ok(!handPrintings.includes(VIRTUAL_SOURCE_PRINTING),
+      'Owner hand collides with internal virtual source sentinel');
+  }
   assert.ok(Number.isSafeInteger(cost) && cost >= 0 && cost <= 3);
   assert.ok(Number.isSafeInteger(nextHandDiscardCost) &&
     nextHandDiscardCost >= 0 && nextHandDiscardCost <= 3);
@@ -99,6 +106,10 @@ function ownerHandDiscardWithCopyReserves(input) {
     input.desiredDiscardPrintings, 'desiredDiscardPrintings');
 
   const names = [...new Set([...hard.keys(), ...soft.keys()])].sort();
+  const coreHand = sourceCardPresentInHand ? handPrintings :
+    [...handPrintings, VIRTUAL_SOURCE_PRINTING];
+  const coreSourceIndex = sourceCardPresentInHand ?
+    sourceIndex : handPrintings.length;
   const hardReservedIndices = [];
   const softProtectedIndices = [];
   const reserveRows = [];
@@ -106,7 +117,8 @@ function ownerHandDiscardWithCopyReserves(input) {
   for (const printing of names) {
     // The source card is played now, so it cannot satisfy a future reserve.
     const available = handPrintings.map((name, index) =>
-      name === printing && index !== sourceIndex ? index : -1)
+      name === printing &&
+        (!sourceCardPresentInHand || index !== sourceIndex) ? index : -1)
       .filter(index => index >= 0);
     const hardRequired = hard.get(printing) ?? 0;
     const softAdditionalRequired = soft.get(printing) ?? 0;
@@ -132,12 +144,13 @@ function ownerHandDiscardWithCopyReserves(input) {
   }
 
   const deadIndices = handPrintings.map((printing, index) =>
-    index !== sourceIndex && deadPrintings.has(printing) ? index : -1)
+    (!sourceCardPresentInHand || index !== sourceIndex) &&
+      deadPrintings.has(printing) ? index : -1)
     .filter(index => index >= 0);
 
-  const frontier = ownerHandDiscardPareto({
-    hand: handPrintings,
-    sourceIndex,
+  const rawFrontier = ownerHandDiscardPareto({
+    hand: coreHand,
+    sourceIndex: coreSourceIndex,
     cost,
     reservedIndices: new Set(hardReservedIndices),
     protectedIndices: new Set(softProtectedIndices),
@@ -145,6 +158,15 @@ function ownerHandDiscardWithCopyReserves(input) {
     desiredDiscardPrintings,
     nextHandDiscardCost
   });
+  const frontier = {
+    ...rawFrontier,
+    handLength: handPrintings.length,
+    sourceIndex,
+    reservedSourceOrConnectorIndices: [
+      ...(sourceCardPresentInHand ? [sourceIndex] : []),
+      ...hardReservedIndices
+    ].sort((a, b) => a - b)
+  };
 
   const hardRequirementsSatisfied =
     reserveRows.every(row => row.hardShortfall === 0);
@@ -153,7 +175,10 @@ function ownerHandDiscardWithCopyReserves(input) {
 
   return {
     version: VERSION,
-    sourcePrinting: handPrintings[sourceIndex],
+    sourcePrinting: sourceCardPresentInHand ?
+      handPrintings[sourceIndex] : null,
+    sourceCardPresentInHand,
+    sourceIndex,
     hardReservedIndices: hardReservedIndices.sort((a, b) => a - b),
     softProtectedIndices: softProtectedIndices.sort((a, b) => a - b),
     deadIndices,
