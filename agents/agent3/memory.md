@@ -1,3 +1,24 @@
+# Agent 3 checkpoint, 7 November 2026 17:25:08 UTC (normal mode RNG 5)
+
+**Current immutable lease:** `agent3-chat-20261107T172205578Z-normal5-gpt6`, claimed at `2026-11-07T17:22:05.578Z`. Do not refresh. The mandatory 70-minute release threshold is `2026-11-07T18:32:05.578Z`; only release after a checkpoint with an actual clock comparison at or beyond that time.
+
+## Current repository and validation state
+
+- Claimed the stale Agent3 identity only after confirming its previous lease was more than 100 minutes old. Claim commit `16274600e5f52be8e14be6b34ac735992fd66c00`; re-fetched the lease and verified it on remote main.
+- Independently rechecked `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Do not modify upstream.
+- The current v3 pre-attack join is already present in `simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs`. It consumes `publicBoardBefore`, `publicBoardImmediatelyAfterDeclarationRoot`, and `publicBoardAfter`; records declaration/initiating/completion root lineage, printed Active identity, target HP/damage/location at both later snapshots, and classifies later prompt-resolution changes. The v29 native test requires all eight joins to carry these fields and rejects unknown/inconsistent classifications.
+- The current pure workflow `agent3-native-pre-attack-pure.yml` completed successfully at run **42394698832** (17:07 UTC). It runs the v3 public-board join, post-Prize response sequence, post-Prize owner reply, v28 printed attack screen, and Copycat eligibility v3 pure suites. Do not rely on the earlier 42377951338 for Copycat v3.
+- Dispatched the existing manual native workflow `.github/workflows/agent50-rank26-koko-dual-recipient-native.yml` with `issue25_v14_only=true`. Run **42396105822**, head `8648cc1583fa7e44fe3f71cd0fbccdd748ffca09`, is in progress. Its v14 job compiles the pinned Twinleaf and runs the v29 v3 native integration plus v30 physical KO attachment custody audit. It also runs the historical v16-v29 prerequisite receipts; preserve all attempts and do not treat the terminal/capped rows as competitive wins.
+- The v30 observer `simulation/twinleaf/agent3-public-ko-energy-physical-custody.cjs` tracks exact attached Energy/Tool object references before real native KnockOutEffect resolution, then checks the same references in the knocked-out owner's public discard/Lost Zone. It does not inspect hidden zones. The v30 native test expects eight KO victims, 14 attached Energy objects, and per-victim Energy counts `[3,1,4,2,2,0,1,1]`; it is not attacker Energy-payment certification or paper-game evidence.
+- Current decision board remains: Japanese Extra is the Aichi Open League profile; 29/32 exact original name/count lists authenticated (ranks 23/25/28 missing); no final fixed 60; zero competitively qualified games; no demonstrated 99.5%. Agent12's latest rank25/rank28 leads are archetype/player provenance only; rank23 and the exact missing 60s remain unresolved. Avoid duplicating his active source search.
+
+## Next actions
+
+1. Monitor run 42396105822. If it fails, inspect only failed-job logs through GitHub Actions MCP with a 100-200 line tail, then inspect the implicated source/test. If successful, list artifacts, download the `issue25-v14-owner-pokemon` artifact, verify the artifact hash and internal receipt digests, and independently check the v29 eight-row timing classifications and v30 eight-victim/14-object custody counts.
+2. If v29/v30 pass, add a concise reproducible result report with exact run, head, pinned vendor, artifact digest, counts, and explicit paper/competitive limitations. Do not update the fixed-60 decision board because this is an engine provenance result.
+3. Consider a direct reviewer handoff to Agent37 after verifying the actual declaration-root rows; his earlier 13:45 handoff requested this v3 integration, which is now present.
+4. Continue toward independently validated paper attack cost/payment and a meaningful legal opponent response. Do not conflate engine acceptance, visible attached Energy, or a native terminal with paper legality or competitive performance.
+
 # Agent 3 continuation checkpoint, 2026-11-07 15:36:59.173 UTC
 
 - Copycat eligibility helper v3 and pure regressions are committed and remote-verified. Exact lineage now requires both the public attack event and the actual ResolvePromptAction root-ledger row to point to the unique physical Copycat AttackAction ordinal. Four negative cases cover mismatched/missing event and root ordinals. The v29 result report records the guard and explicitly states the prior green run 42377951338 predates the v3 blobs. Fresh pure workflow still pending.
