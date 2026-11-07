@@ -20,10 +20,13 @@ const native=name=>require(path.join(OUTPUT,name));
  * Koffing Poison Gas + poison checkup -> two-Koffing Roxie -> Dusknoir BCR
  * Sinister Hand -> Radiant Alakazam Painful Spoons -> Dusknoir PRE Cursed Blast.
  *
- * No target damage is staged. Koffing's attack and poison checkup create 20;
- * Roxie/Koffing and the two separate counter-moving Abilities create the
- * remaining 60 before Cursed Blast. Energy attachments and the developed
- * board are staged; this is not a complete source-dealt game.
+ * No target damage is staged. Poison Gas's printed 10 plus two between-turns
+ * Poison Checkups create 30; two Roxie-discarded Koffing add 20 to every
+ * opposing Pokémon, two one-counter Sinister Hand activations add 20, and
+ * Painful Spoons moves 20 more before Cursed Blast. One Basic Psychic is
+ * staged as a prior attachment; the second is attached through a native
+ * PlayCardAction. The evolved board and opponent board are staged, so this
+ * remains a conditional native witness rather than a source-dealt game.
  *
  * @param {0|1} [seat=0] Physical source seat.
  * @returns {object} Native staged-line evidence.
@@ -71,10 +74,12 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   const attackingKoffing=f.card('Koffing CEC');
   const psychic1=f.card('Psychic Energy MEE');
   const psychic2=f.card('Psychic Energy MEE');
-  source.active.cards.push(attackingKoffing,psychic1,psychic2);
-  source.active.energies.cards.push(psychic1,psychic2);
+  source.active.cards.push(attackingKoffing);
+  source.active.energies.cards.push(psychic1);
+  source.hand.cards.push(psychic2);
   assert.equal(source.active.getPokemonCard().fullName,'Koffing CEC');
-  assert.equal(source.active.energies.cards.length,2);
+  assert.equal(source.active.cards.length,1);
+  assert.equal(source.active.energies.cards.length,1);
 
   const bcrDuskull=f.card('Duskull PRE');
   const bcrDusclops=f.card('Dusclops PRE');
@@ -125,6 +130,16 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   };
 
   const execute=()=>{
+    const energyIndex=source.hand.cards.indexOf(psychic2);
+    assert.notEqual(energyIndex,-1,'second Basic Psychic must be in hand');
+    dispatchAt('Attach second Basic Psychic',new PlayCardAction(source.id,energyIndex,{
+      player:PlayerType.ANY,slot:SlotType.ACTIVE,index:0
+    }));
+    resolveWaits('Koffing second Basic Psychic attachment');
+    assert.equal(source.active.cards.length,1,
+      'attached Energy must not enter the Pokémon evolution stack');
+    assert.equal(source.active.energies.cards.length,2,
+      'Koffing needs the prior plus current-turn Basic Psychic attachments');
     dispatchAt('AttackAction Poison Gas',new AttackAction(source.id,'Poison Gas'));
     resolveWaits('Koffing Poison Gas attack');
     assert.equal(state.activePlayer,seat===0?1:0);
