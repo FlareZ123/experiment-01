@@ -242,12 +242,16 @@ test('phase summary and injected runner preserve A/B/A order, both seats and all
   assert.equal(phaseSummary(fakePhase('B')).acceptedVipItems,8);
 });
 
-test('runner refuses a phase that returns no registered native rows',()=>{
-  assert.throws(()=>run({
+test('runner records missing native rows in a failed execution gate',()=>{
+  const result=run({
     phaseRunner:phase=>{
-      const result=fakePhase(phase);
-      result.rawDevelopment.rows=[];
-      return result;
+      const phaseResult=fakePhase(phase);
+      phaseResult.rawDevelopment.rows=[];
+      return phaseResult;
     }
-  }),/did not return all registered native rows/);
+  });
+  assert.equal(result.executionGate.passed,false);
+  assert.equal(result.executionGate.allRegisteredTrialsReturned,false);
+  assert.equal(result.executionGate.allPhysicalOpeningsMatchedAcrossABA,false);
+  assert.equal(result.executionGate.controlsRepeatedExactly,false);
 });
