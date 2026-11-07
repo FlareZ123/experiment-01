@@ -13,6 +13,7 @@ const {withPaperKoBeforeEndTurn,VERSION}=
  */
 function compareNativePromptOrder(){
   const scenarios=[
+    {label:'noKo',lastPrize:false,opponentHasBench:true,targetDamage:0},
     {label:'regularPrize',lastPrize:false,opponentHasBench:true},
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
     {label:'lastPokemon',lastPrize:false,opponentHasBench:false}
@@ -25,7 +26,8 @@ function compareNativePromptOrder(){
     assert.equal(baseline.firstChoicePrompt,'AttachEnergyPrompt');
     assert.equal(a.attackEndTurnIntercepts,1);
     assert.equal(a.originalStoreMethodRestored,true);
-    const expectedFirst=label==='regularPrize'?'ChoosePrizePrompt':null;
+    const expectedFirst=label==='regularPrize'?'ChoosePrizePrompt':
+      label==='noKo'?'AttachEnergyPrompt':null;
     const exactFirstMatch=t.firstChoicePrompt===expectedFirst;
     const auditMatch=a.attackEndTurnIntercepts===1;
     return {label,baseline,treatment:t,audit:a,
@@ -34,7 +36,7 @@ function compareNativePromptOrder(){
   assert.ok(arms.every(x=>x.exactFirstMatch&&x.auditMatch),
     'Paper KO-first native prompt and callback contract changed');
   return {
-    version:VERSION,realPinnedStore:true,threeActualAcceptedAttacks:true,
+    version:VERSION,realPinnedStore:true,fourActualAcceptedAttacks:true,
     allPaperFirstPromptInvariantsPassed:arms.every(x=>x.exactFirstMatch),
     followupFullPromptClosureNeeded:true,
     competitiveGamesQualified:0,arms
