@@ -690,3 +690,15 @@ test('single registered native game has no fabricated second-contender source pa
     /requires exactly one scheduled game/);
 });
 
+test('explicit single-arm registration accepts a custom original-candidate id',()=>{
+  const trial={
+    id:'3:0:A:agent2-original-rank13-v8-common',
+    rank:3,repeat:0,candidateSlot:'A',
+    candidateId:'agent2-original-rank13-v8-common',seed:290134
+  };
+  assert.doesNotThrow(()=>validateRegisteredTrialGroups(
+    [trial],[3],true,false));
+  assert.deepEqual(registeredSourcePairKeys([trial],true),[]);
+  assert.throws(()=>validateRegisteredTrialGroups(
+    [trial],[3],false,false));
+});
