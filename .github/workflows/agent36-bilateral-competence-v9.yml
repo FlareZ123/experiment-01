@@ -63,6 +63,7 @@ jobs:
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
           node --check simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs
+          node --check simulation/twinleaf/agent36-secret-box-four-category-selector.cjs
           node --check simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
           node --check simulation/evaluation/agent43-native-box-ko-postsettlement-audit.cjs
 
@@ -82,6 +83,7 @@ jobs:
             tests/agent12-actor-only-lillie-after-pass.test.cjs \
             tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs \
             tests/agent43-owner-secretbox-fog-ko.test.cjs \
+            tests/agent36-secret-box-four-category-selector.test.cjs \
             tests/agent43-native-box-ko-postsettlement-audit.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
