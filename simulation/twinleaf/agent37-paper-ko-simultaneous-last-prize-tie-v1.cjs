@@ -73,8 +73,10 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
     winnerLogRewritten:false,tieApplied:false,
     firstPlayerCanPromote:null,otherPlayerCanPromote:null,
     promotionAvailabilitySymmetric:null,
-    nativeWinner:null,expectedWinner:null,winnerOverridden:false,
-    winnerLogHandled:false,terminalOutcome:null,
+    nativeWinner:null,nativeWinnerPlayerId:null,nativeWinnerName:null,
+    expectedWinner:null,winnerOverridden:false,
+    winnerLogHandled:false,winnerLogMessage:null,winnerLogName:null,
+    winnerLogParams:null,terminalOutcome:null,
     bothPrizeTransfersCompleted:false,
     storeLogRestored:false,storeReduceRestored:false,
     otherStoresUnmodified:true
@@ -211,12 +213,13 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
               prizeTakenBefore[candidatePlayers.firstPlayer.id]&&
             candidatePlayers.otherPlayer.prizesTakenThisTurn>
               prizeTakenBefore[candidatePlayers.otherPlayer.id]){
-            const nativeWinner=audit.nativeWinner===null?state.winner:audit.nativeWinner;
+            assert.equal(audit.winnerLogHandled,true,
+              'native terminal winner log must be captured before winner correction');
+            const nativeWinner=audit.nativeWinner;
             const expectedWinner=resolveSimultaneousLastPrizeWinner(
               state,candidatePlayers.firstPlayer,candidatePlayers.otherPlayer
             );
             state.winner=expectedWinner;
-            audit.nativeWinner=nativeWinner;
             audit.expectedWinner=expectedWinner;
             audit.winnerOverridden=nativeWinner!==expectedWinner;
             audit.terminalOutcome=expectedWinner===GameWinner.DRAW
@@ -247,23 +250,45 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       audit.firstPrizeDestinationIsHand&&
       audit.secondPrizeDestinationIsHand&&
       message===GameLog.LOG_GAME_FINISHED_WINNER){
-      const nativeWinner=state.winner;
+      // choosePrizeCards processes Prize groups in state.players order and
+      // ends the game on the first group's final Prize. endGame logs before
+      // assigning state.winner, so state.winner is still NONE here. Capture
+      // the real native result from the first processed Prize-group player.
+      const firstProcessedPlayer=candidatePlayers.firstPlayer;
+      const nativeWinner=state.players[0]===firstProcessedPlayer
+        ?GameWinner.PLAYER_1
+        :state.players[1]===firstProcessedPlayer
+          ?GameWinner.PLAYER_2:null;
+      assert.ok(nativeWinner!==null,
+        'first Prize-group player must be present in state.players');
       const expectedWinner=resolveSimultaneousLastPrizeWinner(
         state,candidatePlayers.firstPlayer,candidatePlayers.otherPlayer
       );
+      const winnerPlayer=expectedWinner===GameWinner.PLAYER_1
+        ?state.players[0]
+        :expectedWinner===GameWinner.PLAYER_2
+          ?state.players[1]:null;
+      const winnerLogMessage=expectedWinner===GameWinner.DRAW
+        ?GameLog.LOG_GAME_FINISHED_DRAW
+        :GameLog.LOG_GAME_FINISHED_WINNER;
+      const winnerLogParams=winnerPlayer
+        ?{...(params||{}),name:winnerPlayer.name}:undefined;
       state.winner=expectedWinner;
       audit.nativeWinner=nativeWinner;
+      audit.nativeWinnerPlayerId=state.players[0].id;
+      audit.nativeWinnerName=state.players[0].name;
       audit.expectedWinner=expectedWinner;
       audit.winnerOverridden=nativeWinner!==expectedWinner;
       audit.winnerLogHandled=true;
       audit.terminalOutcome=expectedWinner===GameWinner.DRAW
         ?'DRAW':expectedWinner===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2';
       audit.winnerLogRewritten=expectedWinner===GameWinner.DRAW||
-        nativeWinner!==expectedWinner;
-      if(expectedWinner===GameWinner.DRAW){
-        return originalLog.call(store,state,GameLog.LOG_GAME_FINISHED_DRAW,undefined,client);
-      }
-      return originalLog.call(store,state,GameLog.LOG_GAME_FINISHED_WINNER,params,client);
+        nativeWinner!==expectedWinner||
+        (winnerPlayer!==null&&params?.name!==winnerPlayer.name);
+      audit.winnerLogMessage=winnerLogMessage;
+      audit.winnerLogName=winnerPlayer?.name??null;
+      audit.winnerLogParams=winnerLogParams??null;
+      return originalLog.call(store,state,winnerLogMessage,winnerLogParams,client);
     }
     return originalLog.call(store,state,message,params,client);
   };
