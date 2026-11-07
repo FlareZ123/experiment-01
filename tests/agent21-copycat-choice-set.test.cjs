@@ -52,9 +52,13 @@ function makeStore(sourceCard){
   };
 }
 
-function runChoicePrompt(powers){
+function runChoicePrompt(powers,options={}){
   const first={name:'First attack',gxAttack:false,copycatAttack:false};
-  const second={name:'Second attack',gxAttack:false,copycatAttack:false};
+  const second={
+    name:'Second attack',
+    gxAttack:options.secondGx===true,
+    copycatAttack:options.secondCopycat===true
+  };
   const sourceCard={
     fullName:'Fixture Pokemon',
     powers,
@@ -64,6 +68,8 @@ function runChoicePrompt(powers){
   const history=installCopycatMultiAttackHistory(store);
   try{
     store.dispatch(new AttackAction(1,first.name));
+    if(options.declareSecondAttack===true)
+      store.dispatch(new AttackAction(1,second.name));
     const prompt=new ChooseAttackPrompt(1,sourceCard,second);
     store.state.prompts=[prompt];
     store.dispatch(new ResolvePromptAction(prompt.id,{name:second.name}));
@@ -97,4 +103,22 @@ test('Barrage power marks the preceding attack and selected follow-up as the Cop
     result.snapshot.attacks[1].barragePairId);
   assert.deepEqual(result.copycatChoices.map(row=>row.attackName),
     ['First attack','Second attack']);
+});
+
+test('Copycat does not fall back to an earlier attack when the actual last attack is uncopyable',()=>{
+  const gxResult=runChoicePrompt([],{declareSecondAttack:true,secondGx:true});
+  assert.deepEqual(gxResult.snapshot.attacks.map(row=>row.attackName),
+    ['First attack','Second attack']);
+  assert.deepEqual(gxResult.copycatChoices,[]);
+
+  const copycatResult=runChoicePrompt([],
+    {declareSecondAttack:true,secondCopycat:true});
+  assert.deepEqual(copycatResult.copycatChoices,[]);
+});
+
+test('a Barrage pair with one uncopyable member exposes only the other member',()=>{
+  const result=runChoicePrompt([{name:'Barrage',barrage:true}],
+    {secondGx:true});
+  assert.deepEqual(result.copycatChoices.map(row=>row.attackName),
+    ['First attack']);
 });
