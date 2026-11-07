@@ -40,7 +40,15 @@ const BULK_HAND_PRINTS = Object.freeze({
   })
 });
 
-const VERSION='agent49-owner-bulk-hand-transform-v2-sevenprint-dewguard-unknown';
+// Twinleaf uses M1L for its native fullName of the same me1-119 card
+// which the authenticated English roster records as MEG. This exact alias
+// keeps the roster's eight original print families unchanged while allowing
+// the New Moon English-proxy candidate's actual held card to be observed.
+const NATIVE_PRINT_ALIASES=Object.freeze({
+  "Lillie's Determination M1L":"Lillie's Determination MEG"
+});
+
+const VERSION='agent49-owner-bulk-hand-transform-v3-native-lillie-alias';
 
 /**
  * Describe the complete compulsory remaining-hand transition of one printed
@@ -62,10 +70,12 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
   assert.ok(protectedIndices instanceof Set);
   assert.ok([...protectedIndices].every(i=>Number.isSafeInteger(i)&&
     i>=0&&i<view.ownHand.length));
-  const rule=Object.hasOwn(BULK_HAND_PRINTS,row.printing)?
-    BULK_HAND_PRINTS[row.printing]:null;
+  const rulePrinting=NATIVE_PRINT_ALIASES[row.printing]??row.printing;
+  const rule=Object.hasOwn(BULK_HAND_PRINTS,rulePrinting)?
+    BULK_HAND_PRINTS[rulePrinting]:null;
   const common={
     version:VERSION,printing:row.printing,handIndex:row.handIndex,
+    rulePrinting,nativeFullNameAliasUsed:rulePrinting!==row.printing,
     knownBulkHandEffect:rule!==null,
     sourceCardId:rule?.sourceId??null,
     readOnly:true,ownerHandOnly:true,opponentConcealedUsed:false,
@@ -180,5 +190,6 @@ function summarizeOwnerBulkHandTransitions(view,rows,
   };
 }
 
-module.exports={VERSION,BULK_HAND_PRINTS,ownerBulkHandTransition,
+module.exports={VERSION,BULK_HAND_PRINTS,NATIVE_PRINT_ALIASES,
+  ownerBulkHandTransition,
   summarizeOwnerBulkHandTransitions};
