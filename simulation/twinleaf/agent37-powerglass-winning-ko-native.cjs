@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -61,12 +61,47 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true}={}){
   store.dispatch(new AttackAction(owner.id,'Hidden Power'));
   const prompts=[];
   let choice=null;
-  for(let n=0;n<16;n++){
+  let firstChoiceSnapshot=null;
+  for(let n=0;n<32;n++){
     const p=state.prompts.find(x=>x.result===undefined);
     if(!p)break;
     prompts.push(p.constructor.name);
-    if(p.constructor.name!=='WaitPrompt'){choice=p.constructor.name;break;}
-    store.dispatch(new ResolvePromptAction(p.id,null));
+    if(p.constructor.name!=='WaitPrompt'&&choice===null){
+      choice=p.constructor.name;
+      firstChoiceSnapshot={
+        sourceActive:enemy.active.getPokemonCard()?.fullName??null,
+        sourceOccupiedBench:enemy.bench.filter(s=>s.getPokemonCard()).length,
+        ownerPrizesRemaining:owner.prizes.filter(x=>x.cards.length>0).length,
+        statePhase:state.phase
+      };
+    }
+    if(!settleAll&&p.constructor.name!=='WaitPrompt')break;
+    let answer=null;
+    if(p.constructor.name==='AttachEnergyPrompt'){
+      assert.strictEqual(p.cardList,owner.discard);
+      const donor=owner.discard.cards.find(x=>x.fullName==='Psychic Energy MEE');
+      assert.ok(donor,'Expected one physical Basic Psychic in owner discard');
+      answer=[{card:donor,to:{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+      }}];
+      assert.equal(p.validate(answer),true);
+    }else if(p.constructor.name==='ChoosePrizePrompt'){
+      assert.equal(p.playerId,owner.id);
+      const prize=owner.prizes.find(x=>x.cards.length>0);
+      assert.ok(prize,'Expected physical Prize slot');
+      answer=[prize];
+      assert.equal(p.validate(answer,state),true);
+    }else if(p.constructor.name==='ChoosePokemonPrompt'){
+      assert.equal(p.playerId,enemy.id);
+      const promote=enemy.bench.find(x=>x.getPokemonCard());
+      assert.ok(promote,'Expected available source Bench promotion');
+      answer=[promote];
+      assert.equal(p.validate(answer,state),true);
+    }else{
+      assert.equal(p.constructor.name,'WaitPrompt',
+        'Unexpected pending choice outside the bounded physical KO');
+    }
+    store.dispatch(new ResolvePromptAction(p.id,answer));
   }
   // A final-KO engine may terminate immediately without a selectable prompt.
   // Preserve that outcome as evidence instead of treating it as a probe error.
@@ -91,6 +126,18 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true}={}){
     sourcePrizesRemaining:enemy.prizes.length,
     PowerglassBeforePrize:choice==='AttachEnergyPrompt'&&!sourceActive&&
       owner.prizes.length===(lastPrize?1:6),
+    settleAll,firstChoiceSnapshot,
+    finalState:{
+      phase:state.phase,finished:state.phase===GamePhase.FINISHED,
+      winner:state.winner,
+      ownerPrizesRemaining:owner.prizes.filter(x=>x.cards.length>0).length,
+      sourcePrizesRemaining:enemy.prizes.filter(x=>x.cards.length>0).length,
+      sourceActive:enemy.active.getPokemonCard()?.fullName??null,
+      ownerActive:owner.active.getPokemonCard()?.fullName??null,
+      ownerActiveEnergy:owner.active.energies.cards.map(x=>x.fullName),
+      openPrompts:state.prompts.filter(x=>x.result===undefined)
+        .map(x=>x.constructor.name)
+    },
     paperRulesToCheck:'Advanced Player Rulebook A-01/D versus E-21',
     paperOrderingQualified:false,competitiveGamesQualified:0
   };
