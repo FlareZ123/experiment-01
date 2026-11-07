@@ -46,14 +46,15 @@ The lock was checked against the exact Mimikyu object after it moved from Bench 
 
 ## Hook-scope A/B
 
-The same staged native sequence was run in both seats under four conditions:
+The same staged native sequence was run in both seats under five conditions:
 
 - no research hooks;
 - declared-history hook only, with the Mimikyu target enabled;
 - Mimikyu non-GX Apex compatibility hook only;
-- both hooks enabled.
+- both Mimikyu hooks enabled;
+- the complete four-hook set required by the production headless policy: Mimikyu compatibility, Mimikyu declared history, Regidrago declared history, and pass-clears-last-attack.
 
-All eight runs produced identical damage, declared history, active-card identity, lock state, and next-turn rejection.
+All ten runs produced identical damage, declared history, active-card identity, lock state, and next-turn rejection. The full four-hook case additionally confirmed that the opponent's stale Eon Blade history is cleared after its subsequent PassTurnAction while Mimikyu's attack lock remains active.
 
 This is consistent with the hooks' source-level scope:
 
@@ -61,18 +62,19 @@ This is consistent with the hooks' source-level scope:
 - [copycat-declared-history-hook.cjs](../../simulation/twinleaf/copycat-declared-history-hook.cjs) acts when a `ResolvePromptAction` resolves a pending `ChooseAttackPrompt` for the printed Mimikyu Copycat or Regidrago Apex declaration. This ordinary Eon Blade copy produced only `WaitPrompt` animations and no `ChooseAttackPrompt`, so the history hook had no dispatch to repair.
 - The pinned delegation boundary in [copy-attack-delegation.ts](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prefabs/copy-attack-delegation.ts) runs the donor's `reduceEffect` with `this` bound to the copycat Pokémon and sets the attack effect source to the copycat player's Active slot. The native result confirms Latias ex's Eon Blade restriction lands on Mimikyu.
 
-The compatibility hook is Apex-specific. The history hook is broader than Apex, because it can repair any matching declared Copycat that opens a nested attack-choice prompt. This Eon Blade case does not open one.
+The compatibility hook is Apex-specific. The history hook is broader than Apex, because it can repair any matching declared Copycat that opens a nested attack-choice prompt. This Eon Blade case does not open one. The complete headless four-hook set also includes the pass-clears-last-attack correction: it leaves the immediately preceding Eon Blade available after the opponent's attack ends the turn, then clears the opponent's stale record when that opponent later passes. That history cleanup does not remove the Mimikyu lock.
 
 ## CI and provenance
 
 - Workflow: [Agent46 native copied-attack effect isolation](../../.github/workflows/agent46-copy-delegation.yml), manual dispatch only.
-- Run: [42357724295](https://github.com/FlareZ123/experiment-01/actions/runs/42357724295), success.
-- Tested repository commit: `868b598f5c2d916fdd221cddd15a0cb9c37762d3`.
+- Initial 8-case run: [42357724295](https://github.com/FlareZ123/experiment-01/actions/runs/42357724295), success.
+- Final 10-case full-headless-hook run: [42359221578](https://github.com/FlareZ123/experiment-01/actions/runs/42359221578), success.
+- Final tested repository commit: `e556c53a35fb956033cb1a86018f8c5e5caa6614`.
 - Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Node.js: `20.19.0`.
 - The new regression is the final native step in the existing workflow. No new workflow was created and no vendored Twinleaf source was changed.
 
-The first test attempt failed at an incorrect expectation that the last-attack record would retain the donor payload name. The actual native record was `Copycat`, source Mimikyu. The assertion was corrected to distinguish the declared attack from its copied payload. The subsequent complete workflow passed, including all eight hook-comparison cases.
+The first test attempt failed at an incorrect expectation that the last-attack record would retain the donor payload name. The actual native record was `Copycat`, source Mimikyu. The assertion was corrected to distinguish the declared attack from its copied payload. The subsequent complete workflows passed. The final run includes all ten hook-comparison cases, including the full four-hook headless configuration.
 
 ## Limitations and interpretation
 
