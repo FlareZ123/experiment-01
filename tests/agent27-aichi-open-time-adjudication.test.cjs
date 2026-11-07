@@ -100,13 +100,14 @@ test('No-call natural Swiss tie remains unresolved despite complete evidence sha
 test('No-call packet fails closed when call status, clock limit, references or review are insufficient',()=>{
   const base={
     stage:'open-final',officialEndCallObserved:false,
-    elapsedSecondsAtNaturalTerminal:2000,
+    elapsedSecondsAtNaturalTerminal:2100,
     officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
     paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
     noCallIndependentlyReviewed:true,paperGameWinner:1
   };
   const late=auditNoCallClockPacket(base);
   assert.equal(late.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
+  assert.equal(late.clockLimitMinutes,35);
   assert.ok(late.missing.includes('natural-terminal-not-before-official-time-limit'));
   const missing=auditNoCallClockPacket({...base,
     officialEndCallObserved:true,officialClockEvidenceRef:' ',
