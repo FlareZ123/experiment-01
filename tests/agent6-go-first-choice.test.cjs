@@ -68,6 +68,6 @@ test('later prompt abort preserves detached GO_FIRST choice receipt',()=>{
     choices:[{seat:0,turn:0,chooseFirst:false}],
     competitiveQualified:false
   });
-  assert.equal(Object.getOwnPropertyDescriptor(
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
     Bot.prototype,'decodeNextAction'),old);
 });
