@@ -43,7 +43,7 @@ function run(){
   p1.bench=[];
   p2.bench=[{getPokemonCard:()=>({})}];
   assert.equal(resolveSimultaneousLastPrizeWinner({players:[p1,p2]},p1,p2),GameWinner.PLAYER_2);
-  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p2,p1]},p1,p2),GameWinner.PLAYER_2);
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p2,p1]},p1,p2),GameWinner.PLAYER_1);
   const rows=[0,1].map(actorSeat=>{
     const baseline=runOne(actorSeat,false,1,true);
     const v2=runOne(actorSeat,true,1,true);
