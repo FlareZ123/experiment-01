@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
   futureOwnerStartsUnderSchedule,
-  compareStationaryDrawToDeadline
+  compareStationaryDrawToDeadline,
+  distributionOfFutureOwnerStarts
 }=require('../simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs');
 const {
   futureOwnerStarts:stationaryOwnerStarts
@@ -195,4 +196,69 @@ test('the rank-3 native Burrow trace is reproduced by its public deck-loss sched
   ]);
   assert.equal(result.ledger[6].ownerDeckLossApplied,3,
     'the turn-15 receipt contains one extra unclassified owner-deck decrement');
+});
+
+
+test('stochastic Handiwork outcomes produce an exact normalized distribution',()=>{
+  const result=distributionOfFutureOwnerStarts(4,2,[
+    {opponentMill:0,weight:1},
+    {opponentMill:2,weight:2},
+    {opponentMill:4,weight:1}
+  ]);
+  assert.equal(result.commonDenominator,'1024');
+  assert.deepEqual(result.distribution,[
+    {futureOwnerStarts:0,numerator:'768'},
+    {futureOwnerStarts:1,numerator:'256'}
+  ]);
+  assert.deepEqual(result.expectedFutureOwnerStarts,{
+    numerator:'1',denominator:'4'
+  });
+});
+
+test('repeated Handiwork distribution gives exact horizon and deadline probabilities',()=>{
+  const result=distributionOfFutureOwnerStarts(23,2,[
+    {opponentMill:0,weight:1},
+    {opponentMill:2,weight:2},
+    {opponentMill:4,weight:1}
+  ]);
+  assert.deepEqual(result.expectedFutureOwnerStarts,{
+    numerator:'69675',denominator:'16384'
+  });
+  const denominator=BigInt(result.commonDenominator);
+  const atLeastFive=result.distribution
+    .filter(row=>row.futureOwnerStarts>=5)
+    .reduce((sum,row)=>sum+BigInt(row.numerator),0n);
+  const gcd=(a,b)=>{
+    while(b!==0n){const r=a%b;a=b;b=r;}
+    return a;
+  };
+  const divisor=gcd(atLeastFive,denominator);
+  assert.equal((atLeastFive/divisor).toString(),'193');
+  assert.equal((denominator/divisor).toString(),'512');
+});
+
+test('single-outcome stochastic tails equal stationary horizons for 1,525 cases',()=>{
+  for(let deck=0;deck<=60;deck++)
+    for(let ownerLoss=0;ownerLoss<=4;ownerLoss++)
+      for(let mill=0;mill<=4;mill++){
+        const result=distributionOfFutureOwnerStarts(deck,ownerLoss,[
+          {opponentMill:mill,weight:1}
+        ]);
+        const horizon=futureOwnerStartsUnderSchedule(deck,[],{
+          ownerDeckLoss:ownerLoss,opponentMill:mill
+        }).futureOwnerStarts;
+        assert.deepEqual(result.distribution,[{
+          futureOwnerStarts:horizon,numerator:'1'
+        }],JSON.stringify({deck,ownerLoss,mill}));
+      }
+});
+
+test('stochastic mill inputs reject empty outcomes and invalid weights',()=>{
+  assert.throws(()=>distributionOfFutureOwnerStarts(10,2,[]),/nonempty/);
+  assert.throws(()=>distributionOfFutureOwnerStarts(10,2,[{
+    opponentMill:2,weight:0
+  }]),/positive safe integer/);
+  assert.throws(()=>distributionOfFutureOwnerStarts(10,2,[{
+    opponentMill:61,weight:1
+  }]),/feasible/);
 });
