@@ -34,6 +34,8 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-consecutive-native.cjs
       - name: Both-seat genuine prior Apex with opt-in declared history and printed Mimikyu Copycat
         run: node simulation/twinleaf/agent46-apex-history-copycat-two-seat-native.cjs
+      - name: Genuine prior Apex then two Regidrago knockouts with native GX and four Prizes
+        run: node simulation/twinleaf/agent46-real-apex-champion-two-ko-native.cjs
       - name: Corrected nested Dragon choice under reversible Mimikyu source hook
         run: node simulation/twinleaf/agent46-mimikyu-apex-timeless-native.cjs
       - name: Corrected flattened Dragon choice in both physical source seats
