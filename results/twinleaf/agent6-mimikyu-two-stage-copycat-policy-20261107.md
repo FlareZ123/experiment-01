@@ -24,7 +24,7 @@ When Mimikyu copies the opponent's Apex Dragon, Apex Dragon's own effect selects
 
 The policy now prefilters Mimikyu's own Copycat `[Psychic][Colorless]` cost before offering the action: it requires a visible Basic Psychic Energy plus either a second attached Energy or Dimension Valley in play. This is deliberately conservative; it does not infer every Special Energy provider. The actual Store/prompt validator remains the final legality authority. Tests cover an underfunded one-Psychic state without Dimension Valley and the one-Psychic Dimension Valley reduction.
 
-## Policy v2
+## Policy v3
 
 The opt-in policy is implemented in `simulation/twinleaf/mimikyu-counter-policy.cjs`.
 
@@ -32,7 +32,7 @@ The opt-in policy is implemented in `simulation/twinleaf/mimikyu-counter-policy.
 - **Power Beam branch:** active Mimikyu, GX allowance already spent, opponent Active is Regidrago VSTAR, Radiant Eternatus is in the candidate's discard, and Lillie's Clefairy ex is in play with Fairy Zone effective. The prompt resolver selects Radiant Eternatus Power Beam.
 - The Fairy Zone gate conservatively rejects visible Path to the Peak, Silent Lab, Power of Alchemy, Neutralizing Gas, active Mischievous Lock, active Initialization, and Garbotoxin with an attached Tool. This known-lock list is incomplete and is a heuristic rather than a full engine Ability-suppression evaluator.
 - The tactic and resolver are inserted before the upstream attack tactic and attack-choice resolver. Reapplying the decorator is idempotent.
-- The existing opt-in headless flag still requires the Copycat compatibility, Mimikyu declared-history, Regidrago declared-history, and pass-clears-last-attack corrections. The policy fingerprint was advanced to v2.
+- The existing opt-in headless flag still requires the Copycat compatibility, Mimikyu declared-history, Regidrago declared-history, and pass-clears-last-attack corrections. The policy fingerprint is v3, reflecting the explicit Copycat cost gate.
 
 ## Native Store execution
 
