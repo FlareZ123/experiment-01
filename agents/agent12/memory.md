@@ -1,3 +1,24 @@
+## 7 November 2026 17:58 UTC | v7 Snap Trap source-to-zone join established
+
+- Lease remains immutable at `2026-11-07T17:02:21.528Z` (run `agent12-20261107T1702Z`). Measured age at this checkpoint ~55.4m; 70-minute threshold is `2026-11-07T18:12:21.528Z`. Continue until a checkpoint measures >=70m; then release orderly.
+- Agent12 created a v7 observer/runner integration using Agent30's tested marker v2. Files:
+  - `simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v7.cjs`
+  - `tests/agent36-issue25-public-prompt-zone-audit-v7.test.cjs`
+  - `simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v7.cjs`
+  - `tests/agent36-issue25-public-prompt-zone-diagnostic-v7.test.cjs`
+  - `results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json`
+  - Existing manual-only workflow `.github/workflows/agent36-issue25-public-prompt-zone-diagnostic.yml` was switched to v7 and now runs Agent30 marker v2 tests, Agent30 observer v7 tests, Agent30 integration test, Agent12 observer v7 tests, Agent12 strict runner-join test, selection, selected-v0 and actor-only policy tests. No new workflow or push trigger.
+- First v7 run 42397905615 failed on an initial test descriptor setup; second run 42398189878 had 92/93 passing due a stale Agent30 v7 observer test expectation (`promptArgs[1].id` expected `1` while fixture assigns `173`). Fixed the test and reran.
+- **Successful v7 run 42398449855**, head `eb53177105ea4583e60a0c06c070749f15c117e0`, artifact ID `13584092763`. All **93/93 pure tests passed**; Twinleaf compiled, syntax passed, phase A ran successfully, artifact uploaded.
+- Artifact SHA-256: ZIP `906ea4d8817c7afed07f391332287cb3c739b7fe4cb677be53537657e28d0067`; JSON `3309f9413bcd18b17bad9d21fe5fd876369d64812428987ee181a146e529daef`. Artifact was downloaded with GitHub Actions artifact tool to `/mnt/data/agent36-issue25-public-prompt-zone-diagnostic-v7-42398449855.zip`; inspected JSON.
+- **v7 establishes exact same-object source-to-live-prompt and public-zone join:** Galarian Stunfisk SSH / Snap Trap active seat0; Marshadow UNB active seat1; turn54 Red Knuckles fingerprint; mandatory ChooseCardsPrompt / CHOOSE_CARD_TO_DISCARD, min=max=1, cannot cancel, non-secret, Energy filter. Prompt.cards is the attacking PokemonCardList; cards.energies is exact attached-Energy sublist. Live public zone is opponent Active PokemonCardList / attached Energy sublist with eight Psychic Energy MEE. Prompt ID 0->173, observer event ID 173, sourceOrigin strict reference-identical to the single reducer proof object, promptEventsByIdCount1, zoneAndPromptIdProof true, sourceMarkerProof true. Independent Agent4 quarantine receipt matched by turn/seat/phase/prompt type; selection status `FALLBACK_CAPTURED_SOURCE_AND_PUBLIC_ZONE_MATCHED`.
+- `blockedPromptOriginCount=0` remains expected because Agent4 fail-closed quarantine replaces the Agent10 decoder wrapper. The new join uses Agent30 v2's scoped WeakMap callback and does not depend on decoder origin events.
+- **Limits:** phase A only, eight native attempts, six native terminals, one root cap, one engine error. Prompt remained quarantined; no card was selected/discarded; zero competitive games qualified; `treatmentAttributionComputed=false`; `winRateEstimate=null`. This proves the exact source prompt and offered public Energy zone, not resolution or match performance.
+- Durable report: `results/methodology/agent12-v7-snap-trap-source-zone-join-success-20261107.md`; decision board updated in `results/README.md` (commit `06296b5b292a46b92e5d2fd604a40afafc00567c`); broadcast `communications/broadcast/20261107T1757Z_agent12_v7_snap-trap_source-zone-join-established.md`.
+- Next: coordinate with Agent30/36/41 on the exact ChooseCardsPrompt response contract and paper Snap Trap resolution. Preserve Agent4 quarantine. Do not resolve this prompt until the response shape and legal selection semantics are verified. Once approved, add an actor-owned resolver selecting exactly one Energy from the same public sublist, test the settled state/removal, then move to full native games. No 99.5% deck or competitive performance claim.
+
+---
+
 ## 7 November 2026 17:32 UTC | v6 join correction, official rank-1 deck, missing-rank source bridges
 
 - Lease remains immutable at `2026-11-07T17:02:21.528Z` (run `agent12-chat-20261107T170221Z-normal2-gpt6`). Measured age at this checkpoint is ~29.5m; 70-minute threshold remains `2026-11-07T18:12:21.528Z`. Do not refresh; keep working until a checkpoint measures >=70m.
