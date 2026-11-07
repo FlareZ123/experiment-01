@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {stageRules,requiredTurnsAfterCall,adjudicateAtPrescribedEnd,
-  adjudicateExtension,classifyTiebreaker} =
+  adjudicateExtension,classifyTiebreaker,auditTimeCallPacket} =
   require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
 test('Open Swiss and Top32 preliminary elimination are 25 minutes, final 35',()=>{
@@ -144,4 +144,71 @@ test('Reject missing or invalid physical Prize state and unknown result',()=>{
     paperGameWinner:2}));
   assert.throws(()=>requiredTurnsAfterCall({stage:'open-top32',
     firstPlayerSeat:3,turnOwnerWhenCalled:0}));
+});
+
+
+test('Audit refuses missing official call and all ungrounded receipt strings',()=>{
+  const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
+    turnOwnerWhenCalled:0,prizesRemaining:[1,4]});
+  assert.equal(r.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  assert.ok(r.missing.includes('official-end-call-not-observed'));
+  assert.ok(r.missing.includes('independent-paper-state-source-missing'));
+  assert.equal(r.conditionalWinnerSeat,null);
+});
+
+test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
+  const r=auditTimeCallPacket({
+    stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
+    officialEndCallObserved:true,officialClockEvidenceRef:'judge-record',
+    firstPlayerEvidenceRef:'actual-initial-seat',
+    independentPaperStateEvidenceRef:'paper-ledger',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
+    finalPermittedTurnFinished:true,observedFinalTurnSeat:0,
+    observedExtraSecondTurns:0,trailingPokemonCheckupWasExcluded:false
+  });
+  assert.equal(r.status,'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE');
+  assert.ok(r.missing.includes('final-turn-custody-not-second-starting-player'));
+  assert.ok(r.missing.includes('additional-second-player-turn-count-mismatch'));
+  assert.ok(r.missing.includes('trailing-pokemon-checkup-must-be-excluded'));
+});
+
+test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>{
+  const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:1,
+    turnOwnerWhenCalled:0,officialEndCallObserved:true,
+    officialClockEvidenceRef:'official-judge-reference',
+    firstPlayerEvidenceRef:'initial-game-proof',
+    independentPaperStateEvidenceRef:'complete-paper-game-state',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[2,6],
+    finalPermittedTurnFinished:true,observedFinalTurnSeat:0,
+    observedExtraSecondTurns:0,trailingPokemonCheckupWasExcluded:true});
+  assert.equal(r.status,'SWISS_BOTH_LOSE');
+  assert.equal(r.competitiveAdmission,false);
+  assert.equal(r.officialEndCallEvidenceShapeComplete,true);
+});
+
+test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
+  const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
+    turnOwnerWhenCalled:0,officialEndCallObserved:true,
+    officialClockEvidenceRef:'official-judge-reference',
+    firstPlayerEvidenceRef:'initial-game-proof',
+    independentPaperStateEvidenceRef:'complete-paper-game-state',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[2,3],
+    finalPermittedTurnFinished:true,observedFinalTurnSeat:1,
+    observedExtraSecondTurns:1,trailingPokemonCheckupWasExcluded:true});
+  assert.equal(r.status,'ELIMINATION_PRIZE_LEAD');
+  assert.equal(r.conditionalWinnerSeat,0);
+  assert.equal(r.competitiveAdmission,false);
+});
+
+test('Proved paper winner ends overtime without waiting for other turn',()=>{
+  const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
+    turnOwnerWhenCalled:1,officialEndCallObserved:true,
+    officialClockEvidenceRef:'official-judge-reference',
+    firstPlayerEvidenceRef:'initial-game-proof',
+    independentPaperStateEvidenceRef:'reviewed-game-over-effect',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[3,3],
+    paperGameWinner:1,finalPermittedTurnFinished:false});
+  assert.equal(r.status,'NORMAL_PAPER_GAME_WIN');
+  assert.equal(r.conditionalWinnerSeat,1);
+  assert.equal(r.competitiveAdmission,false);
 });
