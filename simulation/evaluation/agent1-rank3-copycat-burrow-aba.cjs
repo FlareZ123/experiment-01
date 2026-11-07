@@ -14,6 +14,8 @@ const {withNativePaperSupporterDiscipline} =
   require('../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withSameTargetAttachEnergySelection} =
   require('../twinleaf/same-target-attach-energy-hook.cjs');
+const {resetCopycatBurrowPolicyAudit,getCopycatBurrowPolicyAudit} =
+  require('../twinleaf/mimikyu-burrow-copycat-policy.cjs');
 
 const VERSION = 'agent1-rank3-rank1-mimikyu-copycat-burrow-aba-v1';
 const SOURCE_SEAT = 0;
@@ -73,6 +75,7 @@ function withDeckDispatchAudit(execute) {
  * @returns {object}
  */
 function runArm(variant,cards) {
+  resetCopycatBurrowPolicyAudit();
   const request = {
     deckA:cards.source,deckB:cards.candidate,
     seed:SEED,maxActions:ACTION_LIMIT,
@@ -155,6 +158,7 @@ function runArm(variant,cards) {
       copycatEffects,copycatTurnEvidence,
       copycatTurnStartEvidence:turnEvidence,
       deckAudit:observed.audit,
+      tacticAudit:getCopycatBurrowPolicyAudit(),
       terminalTransition:game.terminalTransition??null,
       finalState:game.finalState,
       finalPublicBoard:game.finalPublicBoard??null,

@@ -5,6 +5,10 @@ const path = require('node:path');
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
 const engine = modulePath => require(path.join(output, modulePath));
+const tacticAudit = [];
+
+function resetCopycatBurrowPolicyAudit() { tacticAudit.length = 0; }
+function getCopycatBurrowPolicyAudit() { return tacticAudit.map(row=>({...row})); }
 
 /**
  * Public-state condition for copying the opponent's immediately preceding
@@ -33,7 +37,17 @@ function makeCopycatBurrowTactic() {
   return class CopycatBurrowTactic extends SimpleTactic {
     /** @param {object} state @param {object} player */
     useTactic(state, player) {
-      if (!isCopycatBurrowSituation(state, player)) return undefined;
+      const opponent = state.players.find(p=>p.id!==player.id);
+      const last = opponent && state.playerLastAttack?.[opponent.id];
+      const active = player.active.getPokemonCard();
+      const eligible = isCopycatBurrowSituation(state, player);
+      tacticAudit.push({
+        turn:state.turn,playerId:player.id,activeFullName:active?.fullName??null,
+        opponentId:opponent?.id??null,lastSource:last?.sourceCard?.fullName??null,
+        lastAttack:last?.attack?.name??null,lastGx:last?.attack?.gxAttack??null,
+        eligible
+      });
+      if (!eligible) return undefined;
       return new AttackAction(player.id, 'Copycat');
     }
   };
@@ -64,5 +78,7 @@ function withCopycatBurrowPolicy(options) {
 module.exports = {
   isCopycatBurrowSituation,
   makeCopycatBurrowTactic,
+  resetCopycatBurrowPolicyAudit,
+  getCopycatBurrowPolicyAudit,
   withCopycatBurrowPolicy
 };
