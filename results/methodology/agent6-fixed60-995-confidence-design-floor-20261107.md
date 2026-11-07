@@ -54,6 +54,31 @@ For the 32-matchup **simultaneous** version, the all-wins one-sided lower bound 
 
 At 18 per opponent (`576` total), the all-wins null probability `0.995^576 = 0.05573070` still exceeds 0.05; at 19 each (`608` total) it is `0.04747152`. A first/second-seat-balanced test uses 20 per opponent rather than 19, so the seat-weighted target is unambiguous.
 
+## Conservatively validating nonzero losses with a heterogeneous-matchup Chernoff test
+
+All-wins evidence is an optimistic benchmark. A realistic frozen candidate may lose, and a pooled ordinary binomial calculation can be misleading when opponent and seat win probabilities differ. The companion CJS code now exposes a **fixed-sample Chernoff upper-tail test** valid for *arbitrary independent opponent/seat Bernoulli probabilities with a predeclared equally represented mean*. For observed `N` independent games and `f` losses, `r = (N-f)/N`. Under the composite null `H0: mean true win probability <= p0 = .995`, for every `t>0`:
+
+`E[exp(t*totalWins)] = product_j (1-p_j+p_j*exp(t)) <= (1-p0+p0*exp(t))^N`.
+
+The first inequality uses concavity of `log(1-p+p*exp(t))` and the stipulated population mean; the second uses the null upper bound. Optimizing Markov's inequality gives the conservative one-sided upper-tail bound
+
+`P(totalWins >= N*r | H0) <= exp(-N*D(r||p0))`,
+
+where `D(r||p0) = r*ln(r/p0) + (1-r)*ln((1-r)/(1-p0))`, provided `r>p0`. For `r<=p0` use the trivial bound 1. **With zero losses this coincides with the exact all-wins bound.** For nonzero losses it is generally conservative, preserving validity without an unjustified identical-matchup assumption.
+
+| Maximum observed losses in predeclared fixed panel | Smallest total `N` meeting 95% one-sided bound | Full opponent-and-seat-balanced `N` (multiple of 64) |
+| ---: | ---: | ---: |
+| 0 | 598 | 640 |
+| 1 | 1,147 | 1,152 |
+| 2 | 1,535 | 1,536 |
+| 3 | 1,884 | 1,920 |
+| 5 | 2,522 | 2,560 |
+| 10 | 3,966 | 3,968 |
+
+For example, a frozen *1,152-game* panel with **18 independent games per opponent-seat context**, **one loss** and 1,151 wins would have a conservative upper-bound p-value `0.04885335` against an equal-weight 99.5% field-mean null. The identity and count of each loss must remain available for matchup-specific reporting. If 1,152 games were **chosen after** examining the first 640 outcomes, a naive fixed-N p-value would be invalid; the sample size, policy, deck, opponent set, seat balance, stopping protocol and exclusions must be committed before the holdout begins.
+
+This test estimates the uniform **field aggregate** only. It does not demonstrate any individual matchup exceeds 99.5%; that requires separate simultaneous confidence bounds. It also cannot compensate for an unauthenticated opponent 60, weak opponent, simulator errors, unmodeled game clocks, correlated reruns, or rules mismatches. The test's correctness is mathematical and conditional; actual paper-qualified sample count remains zero.
+
 ## Implications for the shared Aichi benchmark
 
 1. **Zero qualified games** remain the current state. The numbers above are sample-size requirements in a hypothetical best-case no-loss holdout, not retrospective estimates. Any losses require more sophisticated confidence calculations and generally larger sample sizes.
@@ -64,6 +89,6 @@ At 18 per opponent (`576` total), the all-wins null probability `0.995^576 = 0.0
 
 ## Reproduction and scope
 
-The CJS library computes `minAllWins`, `balancedFieldFloor`, `allMatchupsFloor` and an exact one-sided all-wins lower bound. The focused pure test checks the 598, 608, 640 and 41,280 floors and invalid parameters. Calculations were independently cross-checked with Python's `math.log` and direct power expressions before codification. The exact committed CJS module and test sources were fetched and parsed/executed in a separate V8 runtime with a minimal compatible `node:assert/strict` and `node:test` shim; **all 5 test callbacks passed**. This verifies the committed arithmetic paths without a native Node test-runner receipt. No native Twinleaf run, card-play assertion, opponent source authentication or claim of achieved performance is contained in this result.
+The CJS library computes `minAllWins`, `balancedFieldFloor`, `allMatchupsFloor` and an exact one-sided all-wins lower bound. The focused pure test checks the 598, 608, 640 and 41,280 floors, fixed-sample Chernoff loss budgets, and invalid parameters. Calculations were independently cross-checked with Python's `math.log` and direct power expressions before codification. The exact committed CJS module and test sources were fetched and parsed/executed in a separate V8 runtime with a minimal compatible `node:assert/strict` and `node:test` shim; **all 8 test callbacks passed**. This verifies the committed arithmetic paths without a native Node test-runner receipt. No native Twinleaf run, card-play assertion, opponent source authentication or claim of achieved performance is contained in this result.
 
 **Interpretation caution:** The prompt's 99.5% field target does not itself prescribe whether *equal-weight field mean*, a chosen metagame weight model, *every opponent mean*, or *each opponent-seat mean* is intended. These are distinct scientific questions, and the table gives mathematically different evidence requirements for them. The final research release should state the exact estimand in advance.
