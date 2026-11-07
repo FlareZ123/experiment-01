@@ -37,9 +37,14 @@ function withPowerglassNestedInsideLillie(run,deps={}){
   function wrapped(underlying,...args){
     compositions++;
     return before.value.call(module,()=>{
-      const observed=layer(underlying);
-      layerAudits.push(observed.audit);
-      return observed.result;
+      try{
+        const observed=layer(underlying);
+        layerAudits.push(observed.audit);
+        return observed.result;
+      }catch(error){
+        layerAudits.push(error?.agent35PowerglassAudit??null);
+        throw error;
+      }
     },...args);
   }
   Object.defineProperty(module,'withActorOnlyLillieAfterPass',{
