@@ -339,6 +339,10 @@ test('same-object source origin joins after Store.prompt and accepts the zero ID
       if (typeof callback === 'function') callback();
       return stateArgument;
     }
+
+    dispatch(action) {
+      return action;
+    }
   }
 
   const store = new ZeroSentinelStore(state, () => prompt);
