@@ -450,7 +450,7 @@ function runRegisteredV10b(deps={}){
   );
   const selected=voltWrapper.result.result;
   assert.ok(selected?.manifest&&selected?.diagnostic);
-  assert.equal(selected.diagnostic?.thrownCode,undefined,
+  assert.equal(selected.diagnostic?.thrownCode??null,null,
     'Native adapter reported a thrown validation or execution error');
   const rows=selected.rawDevelopment?.rows??[];
   assert.equal(rows.length,registered.length,
