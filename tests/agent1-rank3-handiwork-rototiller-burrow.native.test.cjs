@@ -66,10 +66,22 @@ function resolveRototillerThenBurrow(context){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {GameMessage}=native('game/game-message');
   const flags={recovery:false,omega:false,burrow:false,shown:false,shuffled:false};
+  let confirmCount=0,chooseAttackCount=0;
+  console.log('PROMPT_TRACE_START',JSON.stringify({
+    seat,turn:state.turn,activePlayer:state.activePlayer,
+    ownerDeck:owner.deck.cards.length,opponentDeck:opponent.deck.cards.length,
+    opponentDiscard:opponent.discard.cards.length
+  }));
   for(let i=0;i<30;i++){
     const prompt=state.prompts.find(value=>
       value&&value.result===undefined);
     if(!prompt)break;
+    console.log('PROMPT_TRACE_EVENT',JSON.stringify({
+      seat,type:prompt.constructor.name,message:prompt.message??null,
+      playerId:prompt.playerId,turn:state.turn,activePlayer:state.activePlayer,
+      ownerDeck:owner.deck.cards.length,opponentDeck:opponent.deck.cards.length,
+      opponentDiscard:opponent.discard.cards.length
+    }));
     if(prompt.constructor.name==='WaitPrompt'){
       store.dispatch(new ResolvePromptAction(prompt.id,null));
       continue;
@@ -114,6 +126,7 @@ function resolveRototillerThenBurrow(context){
     }
     if(prompt.constructor.name==='ConfirmPrompt'&&
         prompt.message===GameMessage.WANT_TO_USE_ABILITY){
+      confirmCount++;
       assert.equal(prompt.playerId,owner.id);
       assert.equal(prompt.validate(true),true);
       store.dispatch(new ResolvePromptAction(prompt.id,true));
@@ -122,6 +135,7 @@ function resolveRototillerThenBurrow(context){
     }
     if(prompt.constructor.name==='ChooseAttackPrompt'&&
         prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
+      chooseAttackCount++;
       assert.equal(prompt.playerId,owner.id);
       assert.equal(prompt.cards[0]?.fullName,'Bunnelby PRC');
       const burrow=prompt.cards[0].attacks.find(attack=>
@@ -129,7 +143,13 @@ function resolveRototillerThenBurrow(context){
       assert.ok(burrow,'Omega Barrage must offer printed Burrow');
       // Native Store.reducePrompt passes the Attack directly to the callback.
       assert.equal(prompt.validate(burrow),true);
+      const beforeDeck=opponent.deck.cards.length;
       store.dispatch(new ResolvePromptAction(prompt.id,burrow));
+      console.log('BURROW_DISPATCH_RESULT',JSON.stringify({
+        seat,beforeDeck,afterDeck:opponent.deck.cards.length,
+        opponentDiscard:opponent.discard.cards.length,
+        turn:state.turn,activePlayer:state.activePlayer,phase:state.phase
+      }));
       flags.burrow=true;
       continue;
     }
@@ -140,6 +160,12 @@ function resolveRototillerThenBurrow(context){
     'all native Rototiller and Omega Barrage prompts must resolve');
   assert.equal(flags.recovery,true,'Rototiller must select Handiwork');
   assert.equal(flags.omega,true,'Omega Barrage must be accepted');
+  console.log('PROMPT_TRACE_END',JSON.stringify({
+    seat,confirmCount,chooseAttackCount,ownerDeck:owner.deck.cards.length,
+    opponentDeck:opponent.deck.cards.length,
+    opponentDiscard:opponent.discard.cards.length,
+    turn:state.turn,activePlayer:state.activePlayer,phase:state.phase
+  }));
   assert.equal(flags.burrow,true,'the second attack must be printed Burrow');
   assert.equal(flags.shown,true,'Rototiller must reveal its selected discard card');
   assert.equal(flags.shuffled,true,'Rototiller must resolve the deck shuffle');
