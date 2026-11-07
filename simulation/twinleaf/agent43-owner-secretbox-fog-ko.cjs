@@ -9,7 +9,7 @@ const {secretBoxPaymentNegative}=
 const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v1';
 const BOX='Secret Box TWM';
 const FOG='Fog Crystal CRE';
-const BASIC='Psychic Energy SVE';
+const BASIC='Psychic Energy';
 const VIP='Battle VIP Pass FST';
 const CARRIER='Rescue Carrier EVS';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -35,7 +35,8 @@ function choosePublicOneEnergyBoxKo(view){
     return null;
   if(!hand.includes(BOX)||!hand.includes(VIP)||!hand.includes(CARRIER)||
      hand.filter(x=>x===VIP).length<2)return null;
-  if(hand.includes(BASIC)||own.active.energies?.length!==0)return null;
+  if(hand.some(x=>x===BASIC||x.startsWith(BASIC+' '))||
+     own.active.energies?.length!==0)return null;
   if((own.publicTurnRestrictions?.attackLockTurnsRemaining??0)>0||
      own.active.publicRestrictions?.cannotAttackNextTurn===true||
      (own.active.specialConditions??[]).length>0)return null;
@@ -101,6 +102,10 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {AttackAction}=native('game/store/actions/game-actions');
+  const {EnergyType,SuperType}=native('game/store/card/card-types');
+  const isBasicPsychic=card=>card?.name===BASIC&&
+    card?.superType===SuperType.ENERGY&&
+    card?.energyType===EnergyType.BASIC;
   const oldRun=headless.runMatch;
   assert.equal(typeof oldRun,'function');
   const audit={version:VERSION,
@@ -138,7 +143,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       const step=stepsByOwner.get(owner.id);
       if(pending&&step?.stage==='fog-search'&&audit.promptObservations.length<12){
         // Only metadata and the owner-authenticated open search are inspected.
-        const offered=owner.deck.cards.filter(x=>x.fullName===BASIC);
+        const offered=owner.deck.cards.filter(isBasicPsychic);
         const match=pending.cards===owner.deck;
         audit.promptObservations.push({
           turn:state.turn,seat,stage:step.stage,
@@ -185,7 +190,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         if(step.stage==='fog-search'&&
            pending.cards===owner.deck&&
            pending.message==='CHOOSE_CARD_TO_HAND'){
-          const basic=owner.deck.cards.find(x=>x.fullName===BASIC&&
+          const basic=owner.deck.cards.find(x=>isBasicPsychic(x)&&
             pending.validate([x])===true);
           assert.ok(basic,'Owner Fog Crystal search cannot select Basic Psychic');
           return propose(new ResolvePromptAction(pending.id,[basic]),{
@@ -207,7 +212,9 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
             originalCard:owner.hand.cards[handIndex],step});
         }
         if(step.stage==='attach-basic'){
-          const handIndex=view.ownHand.indexOf(BASIC);
+          const handIndex=view.ownHand.findIndex((name,i)=>
+            (name===BASIC||name.startsWith(BASIC+' '))&&
+            isBasicPsychic(owner.hand.cards[i]));
           assert.ok(handIndex>=0,'Basic Psychic left hand before planned attachment');
           assert.equal(view.ownPublic.active.printing,step.sourcePrinting);
           assert.ok(view.ownPublic.active.energies.length===0);
@@ -219,7 +226,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         }
         if(step.stage==='attack'){
           assert.equal(view.ownPublic.active.printing,step.sourcePrinting);
-          assert.ok(view.ownPublic.active.energies.includes(BASIC));
+          assert.ok(owner.active.energies.cards.some(isBasicPsychic));
           assert.ok(view.ownPublic.active.attacks.some(a=>
             a.name===step.attackName));
           return propose(new AttackAction(owner.id,step.attackName),{
