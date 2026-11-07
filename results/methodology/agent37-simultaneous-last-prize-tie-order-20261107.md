@@ -132,3 +132,15 @@ Artifact: `agent37-simultaneous-last-prize-v3-native-42400712562`, ID `135852134
 **Evidence boundary:** this is a staged native Store mechanics regression. The fixture uses Twinleaf's English card definitions and its `Format.EXPANDED` setting; it does not certify Japanese-language printing provenance or Aichi Japanese Extra deck legality. It is not a full paper game, competitive policy test, or deck-strength result. `competitiveGamesQualified` remains zero.
 
 The adapter remains limited to exactly two Active KOs, two Prize groups both sufficient to exhaust the respective remaining Prizes, hand destinations, no non-Active KOs, no additional KO effects, no sudden death, and two players. Mixed §E terminal rows (for example, one player's final Prize together with the other player's inability to promote), simultaneous last-Pokémon outcomes without both Prize groups final, and deck-out remain outside this adapter and require separate tests/resolution work.
+
+
+## VMAX Prize-count audit and overkill clamping
+
+A second pinned native run, [42401217366](https://github.com/FlareZ123/experiment-01/actions/runs/42401217366), succeeded at 18:27 UTC on research head `a868a19865017d438c39664da5d777e8aff9180a`, with the same Twinleaf pin. It expanded the matrix to **16 rows**: two Prize profiles × two physical seats × four promotion states.
+
+- `exact-3-to-1`: owner starts with three Prizes and opponent with one; the engine records KO Prize counts `[3,1]` and transfers `[3,1]`.
+- `overkill-3-to-1`: owner starts with two Prizes and opponent with one; the VMAX KnockOutEffect still records a three-Prize group, while the native Prize transfer correctly clamps the actual transfer to `[2,1]`.
+
+The adapter now exposes `knockoutPrizeCounts` (target printing, native Prize count, active status, owner ID) and `prizeGroupCounts` (group count and destination) in its audit. The runner asserts the VMAX effect contributes exactly three Prizes, Ferroseed contributes one, both groups target hand, and the expected number of actual Prize cards is taken in both profiles. The workflow gates all 16 rows and all these receipts.
+
+Artifact: `agent37-simultaneous-last-prize-v3-native-42401217366`, ID `13585029982`, 2,638 bytes, SHA-256 `30ba436fa007f89631c1e5093648586b8f54302d4cefe5bd666383d4764e7514`. This is still staged native mechanics evidence only; all qualification boundaries above remain unchanged.
