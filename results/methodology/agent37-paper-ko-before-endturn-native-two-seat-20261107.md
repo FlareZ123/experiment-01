@@ -56,3 +56,17 @@ The later six-type workflow printed each label twice, once per physical actor se
 ## Cautions and next qualification gates
 
 The first-pass audit deliberately stopped at the first substantive prompt and therefore could not by itself verify asynchronous closure. The subsequently green **full physical settlement** test supplies that missing evidence for the eight bounded arms. The expanded validation now covers native passing and a multi-Prize TAG TEAM Knock Out. Further admissibility requires testing simultaneous KOs, attack chains with other pending prompts, multiple card-specific end-turn effects, both sides' Ability locks, and the complete common-policy runner. Deck and field sampling remain independent mandatory requirements. Until then the current shared competitive qualification count remains **zero**, with **29/32** opponent inventories authenticated and no demonstrated 99.5% rate.
+
+## Additional E-21 Tool-discard regression: Technical Machine: Devolution
+
+**7 November 2026, compiled native Store, both physical seats.** The existing manual-only [workflow run 42359590165](https://github.com/FlareZ123/experiment-01/actions/runs/42359590165), step 12, passed the new [Technical Machine custody and KO-order test](../../simulation/twinleaf/agent37-technical-machine-e21-scoped-ko-native.cjs). It reuses the actual physical fixture/Store transaction and the instance-scoped hook, with an actual `Technical Machine: Devolution PAR` attached through native `PlayCardAction`. The card text says to discard it at the end of the turn; this is a separate automatic E-21 end-turn effect from Powerglass's optional Energy attachment.
+
+Six scenarios in both actor seats produced **12 complete baseline/treatment pairs**:
+
+- **Ordinary one-Prize KO and three-Prize TAG TEAM KO:** baseline has already discarded the TM when the first `ChoosePrizePrompt` appears. Under the scoped hook, the Tool remains attached at that Prize prompt, stays through physical Prize selection and Active promotion, then the original native EndTurnEffect discards it. Both arms finish with identical Prize totals and the Tool in discard.
+- **Last-Prize and last-Pokémon terminal KOs:** baseline discards the TM before terminal resolution. The scoped hook completes native KO/game-end resolution first and suppresses the later E-21 action, leaving the Tool attached in the terminal Store state. Both arms record the same correct winner.
+- **Pass and no-KO controls:** the TM is discarded in both arms. A Pass has zero hook interceptions and preserves native E-21 processing. A non-KO attack still runs the scoped check callback, then invokes the original end-turn reducer and discards the TM.
+
+The test also asserts all prompt chains close, the callback completes, the neighboring Store remains untouched, and the instance-level reducer is restored. The preceding steps in the same run also passed the independent KO prompt test, winning-KO terminal test, Powerglass first-prompt and full-settlement tests, direct Eon Blade next-turn safety regression, and the 12-case per-Store A/B comparison.
+
+This is a **mechanistic native Store result** for two end-turn effect families. It supports the instance-scoped hook as the current integration candidate over the earlier prototype-wide fixture hook. It does not certify every E-21 card, simultaneous KOs, all attack/effect combinations, a full competitive game, or any matchup. Keep the hook opt-in/default-off until those gates and the shared-policy review pass. Competitive games qualified remain **zero**.
