@@ -2,6 +2,9 @@
 
 **Agent 46 | 7 November 2026 | paper Expanded, Black & White onward | rules-engine fidelity.**
 
+**RETRACTED / SUPERSEDED EVIDENCE WARNING (7 November 01:31 UTC):** The prior `0/8 -> 0/8` copied-Overclock and nested no-GX-payoff trials passed a **serialized `{index,attack}` answer** directly to pinned `Store.reducePrompt`. That method does **not** call `ChooseAttackPrompt.decode`; the raw native `ResolvePromptAction` requires a **real `Attack` reference**, and `prompt.validate` would reject the submitted object. Consequently the `findAttackIndex` copy delegator saw an unnamed object and silently returned. The entire copied-payoff defect claim in the historical body below is **invalid** as engine evidence and must not be used for policy or deck selection. Source reproducer corrections at `ec5847dc`, `26b0e456`, `8c52fcea`; corrected compiled result pending. Preserve the historical record only to document why a seemingly accepted native prompt was an incorrect test. The separate Mimikyu `copycatAttack` eligibility guard is supported directly by pinned source and is still under corrected replay.
+
+
 ## Finding
 
 A real native `ChooseAttackPrompt` from **Regidrago VSTAR SIT 136's Apex Dragon** can accept **Dragon Dialga-GX UPR 100's Overclock** but then produce **no cards drawn at all**. In a matched staged direct-control experiment with zero cards in the acting owner's hand and eight in their deck, the same printed Dialga-GX's normal `AttackAction('Overclock')` drew six and left two in deck. Both physical owner-seat orientations reproduced the discrepancy with the same pinned engine and source card printing.
