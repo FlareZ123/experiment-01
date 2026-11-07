@@ -1,0 +1,31 @@
+# Independent Agent8 audit: 209-root v9 rank11/New Moon terminal fails bilateral competence
+
+**7 November 2026 | independent read-only audit of an already executed common-policy game | no new native run, no altered deck.**
+
+## Exact actual native input and execution provenance
+
+- Shared Agent36 v9 one-game attempt `11:1000:B:new-moon-lockbreaker-v1`, original authenticated Aichi rank11 source versus proposed New Moon Lockbreaker v1. Frozen source ranks and both originally printed/proxy sixties remain unchanged; the registered physical seed is `626469135`. The selection was repaired after exposure, so this specific replay is *retrospective/developmental*, despite the original frozen registration.
+- [CI run 42332015390](https://github.com/FlareZ123/experiment-01/actions/runs/42332015390), head `124a44e3b99d3b88012c2c06c6f75972ed0f908b`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, 74/74 pure regressions passed and one native runner succeeded. [Artifact 13558301530](https://github.com/FlareZ123/experiment-01/actions/runs/42332015390/artifacts/13558301530), ZIP SHA256 `b0780756f1b4a7e2c0be1e73349416b18f2cb15d4e3c81fad093a08291168474`, inner `issue25-common-v9.json` SHA256 `ad78b652d48015329109ac333f4401b1e44458b8b8f66d79a6d24d9c839c676f`. I independently downloaded, hashed and parsed the artifact. Accepted public Store-root ledger SHA256 `696c0f66624c5ee51026f0d006ce80e8ca9e48dcc435c338f5b6617231d75176`.
+- Actual source seat0, candidate seat1, source started. **209 accepted Store roots, 40 global turns, natural native terminal, winner source seat0, final prizes [0,5]**. This is a *native terminal*, with no printed-card, opponent-quality or official 25-minute-clock qualification. The archived Agent45 gate itself reports zero qualified reciprocal-material exchanges, zero competitive games and one mere source-attack/opponent-action/source-return sequence.
+
+## Every material root by acting seat
+
+| Category | Aichi original rank11, source seat0 | New Moon, candidate seat1 |
+| --- | ---: | ---: |
+| Attacks declared and settled | **19** | **7** |
+| Repeated *Call for Family* | 4 | 0 |
+| Repeated *Super Poison Breath* | **15** | 0 |
+| Repeated *Hidden Power* | 0 | 6 |
+| Single *Motivate* | 0 | 1 |
+| `PlayCardAction` roots | 3 | 12 |
+| `PassTurnAction` roots | 1 | **13** |
+
+Each attack listed is a unique accepted native attack root and the archive's attack settlement receipt marks all 26 chains as settled. No root count is mistaken for an independent game. The candidate's six *Hidden Power* attacks occur on global turns 2,4,6,8,10,12. **Its next attack comes at global turn40** after 13 candidate Pass turns and is *Motivate*, not a demonstrated competitive counterattack against the opponent's prolonged Poison sequence. The source's fifteen *Super Poison Breath* attacks span global turns 11 through 39. The source took two single-Prize reductions at its settled attack chains root86 and root103, plus a three-Prize reduction at root155. Remaining source Prize changed 1→0 within the candidate's final root203 *Motivate* settlement, while candidate Prize changed 6→5. Before that final candidate attack, source Trubbish had **60 damage**, candidate Squawkabilly ex **150 damage**; after settlement both had left the Active position. This supports a simultaneous end-window knockout/Poison interpretation but **does not independently certify paper resolution or a tournament clock outcome**.
+
+## Why this cannot nominate either fixed 60
+
+A naked 209-root native terminal proves only that the current simulation/prompt policy can sometimes run to completion. The source owner prevailed during a severe opponent material-decision deficit: candidate repeatedly ended turns without an attack even though both previous development and attached copies of Mewtwo & Mew-GX / Trevenant & Dusknoir-GX are present in the public history. We have **not** enumerated its owner-hand legal affordable alternatives at those Pass roots, so competence failure is strongly suggested by behavior but not independently adjudicated for each turn. The large Pass denominator and zero native reciprocal-material exchange directly defeat the Critic's stronger bilateral competence gate. At 40 turns with no authentic official event clock record, the original 25-minute Top32 policy is also unresolved.
+
+Next useful work is to choose **one source-independent owner-visible alternative decision with real payment and public board custody for the candidate after the first source poisoned Active**, and verify its legality on the actual root before counting any replay as improved. Root85–113, with candidate first Pass at root93, gives a concrete failure region; a candidate-side held-card audit should be private to that candidate's actor and not enter the opponent's policy. The many prior detached rank6 or paid-retreat probes are less directly connected to this v9 shared problem.
+
+**Admission:** zero competitively qualified games, 29/32 original inventories authenticated (missing ranks 23,25,28), no selected fixed final 60, no demonstrated 99.5%.
