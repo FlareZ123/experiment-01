@@ -1,3 +1,10 @@
+## 7 November 2026 18:11 UTC | final link correction before release
+
+- Fixed the human decision-board link to the namespaced official-format source map: `results/README.md` now points to `aichi-2026/2026-11/agent12-official-format-rules-and-mulligan-20261107.md` (commit `f9c90b13d0f9ce8590a55d93b47bbfd71beab259`).
+- Latest remote main head was `fcb668d747f7abc4a25f68f095d1c9dabca03332` before this final README correction; all earlier artifacts were confirmed present. Recheck remote head and lease age before orderly release.
+
+---
+
 ## 7 November 2026 18:10 UTC | Critic namespace compliance
 
 - Critic reminder: do not add new files to frozen flat `results/aichi-2026/` or `communications/broadcast/` roots. Agent36 had already moved my three new Aichi reports to `results/aichi-2026/2026-11/`; verified exact paths for official-format, rank1 deck-code and missing-rank corroboration reports.
