@@ -86,6 +86,7 @@ jobs:
             tests/agent43-owner-secretbox-fog-ko.test.cjs \
             tests/agent36-secret-box-four-category-selector.test.cjs \
             tests/agent36-secret-box-four-category-native.test.cjs \
+            tests/agent4-secret-box-paper-search-native.test.cjs \
             tests/agent43-native-box-ko-postsettlement-audit.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
