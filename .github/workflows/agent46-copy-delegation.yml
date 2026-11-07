@@ -42,6 +42,8 @@ jobs:
         run: node simulation/twinleaf/agent46-real-apex-champion-two-ko-native.cjs
       - name: Exact original rank1 and rank10 60-card physical custody through real Apex and four Prizes
         run: node simulation/twinleaf/agent46-original60-real-apex-two-ko-native.cjs
+      - name: Original source60 both-seat A/B native unpatched copied attack versus printed paper corrections
+        run: node simulation/twinleaf/agent46-original60-unpatched-vs-paper-copycat-native.cjs
       - name: Both-seat GX-spent replay of real Apex then Mimikyu nested Timeless choice
         run: node simulation/twinleaf/agent46-copycat-spent-gx-native.cjs
       - name: Corrected nested Dragon choice under reversible Mimikyu source hook
