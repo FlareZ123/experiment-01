@@ -404,6 +404,11 @@ function toGateAttempt(row) {
  */
 function evaluateGate(row,metadata) {
   if(!Array.isArray(row.publicRootActions))return null;
+  // A native-aborted row may lack a verified physical Store seat. The
+  // registration's planned seat cannot substitute for actual Store evidence.
+  // Deny the competence gate without attempting an inadmissible audit.
+  if(!((row.sourceSeat===0||row.sourceSeat===1)&&
+    row.candidateSeat===1-row.sourceSeat))return null;
   const roots=row.publicRootActions;
   return evaluateBilateralCompetence({
     registrationRef:REGISTRATION_PATH,
