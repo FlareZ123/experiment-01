@@ -65,6 +65,16 @@ function classifyTerminalCause(row) {
     return {status:'missing-or-inconsistent-transition',
       conditions:[],engineWinner:winner};
   }
+  // Sudden-death tiebreakers compare each player's remaining Prizes after the
+  // *complete* simultaneous KO batch. Pinned Twinleaf can end as soon as
+  // seat 0 claims a Prize in sudden death, before moving either Prize card.
+  // The ordinary six-Prize table is not a valid substitute for that batch.
+  // Both live snapshots now retain the real Store isSuddenDeath flag. A
+  // legacy snapshot without that flag cannot certify the epoch's absence.
+  if(before.suddenDeath===true||after.suddenDeath===true){
+    return {status:'tiebreaker-batch-adjudication-unresolved',
+      conditions:[],engineWinner:winner};
+  }
   const paperBasicOutcome=basicPaperResult(after,winner);
   // A native reported winner can disagree with a simultaneous loss/tie in the
   // supplied paper rules. Card text might override basic rules; such a record
@@ -112,11 +122,14 @@ function summarizeTerminalCauses(rows) {
     engineTerminals:count('observed-sufficient-conditions')+
       count('terminal-rule-unresolved')+
       count('missing-or-inconsistent-transition')+
-      count('paper-basic-result-conflict'),
+      count('paper-basic-result-conflict')+
+      count('tiebreaker-batch-adjudication-unresolved'),
     observedTerminals:count('observed-sufficient-conditions'),
     unresolvedTerminals:count('terminal-rule-unresolved')+
       count('missing-or-inconsistent-transition')+
-      count('paper-basic-result-conflict'),
+      count('paper-basic-result-conflict')+
+      count('tiebreaker-batch-adjudication-unresolved'),
+    tiebreakerUnresolved:count('tiebreaker-batch-adjudication-unresolved'),
     paperBasicConflicts:count('paper-basic-result-conflict'),
     capped:count('action-capped'),
     errors:count('engine-error'),
