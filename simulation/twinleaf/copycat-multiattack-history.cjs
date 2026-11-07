@@ -116,7 +116,7 @@ function installCopycatMultiAttackHistory(store){
     if(beforeActive&&
         (beforeActiveIndex!==after.activePlayer||beforeTurn!==after.turn)){
       const endedPlayerId=beforeActive.id;
-      previous.set(endedPlayerId,(current.get(endedPlayerId)??[]).slice());
+      previous.set(endedPlayerId,{\n        turn:beforeTurn,attacks:(current.get(endedPlayerId)??[]).slice()\n      });
       current.set(endedPlayerId,[]);
     }
     return result;
@@ -133,7 +133,24 @@ function installCopycatMultiAttackHistory(store){
    * @param {number} playerId
    * @returns {object[]}
    */
-  const getPreviousTurnAttacks=playerId=>(previous.get(playerId)??[]).slice();
+  /**
+   * A missing snapshot means the tracker has not observed this player's
+   * completed turn yet. An empty attacks array means a completed turn with
+   * no attacks; callers must preserve this distinction for public receipts.
+   * @param {number} playerId
+   * @returns {{turn:number,attacks:object[]}|null}
+   */
+  const getPreviousTurnSnapshot=playerId=>{
+    const snapshot=previous.get(playerId);
+    return snapshot===undefined?null:{
+      turn:snapshot.turn,attacks:snapshot.attacks.slice()
+    };
+  };
+  /** @param {number} playerId @returns {boolean} */
+  const hasPreviousTurn=playerId=>previous.has(playerId);
+  /** @param {number} playerId @returns {object[]} */
+  const getPreviousTurnAttacks=playerId=>
+    getPreviousTurnSnapshot(playerId)?.attacks??[];
   /**
    * @param {number} playerId
    * @returns {object[]}
