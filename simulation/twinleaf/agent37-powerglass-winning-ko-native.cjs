@@ -84,6 +84,8 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
         sourceActive:enemy.active.getPokemonCard()?.fullName??null,
         sourceOccupiedBench:enemy.bench.filter(s=>s.getPokemonCard()).length,
         ownerPrizesRemaining:owner.prizes.filter(x=>x.cards.length>0).length,
+        ownerTools:owner.active.tools.map(x=>x.fullName),
+        ownerDiscard:owner.discard.cards.map(x=>x.fullName),
         statePhase:state.phase
       };
     }
