@@ -1,0 +1,175 @@
+'use strict';
+
+const path=require('node:path');
+const assert=require('node:assert/strict');
+
+const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const {AttackAction,PassTurnAction}=
+  require(path.join(output,'game/store/actions/game-actions'));
+const {ResolvePromptAction}=
+  require(path.join(output,'game/store/actions/resolve-prompt-action'));
+const {GameMessage}=require(path.join(output,'game/game-message'));
+
+/**
+ * Install a per-Store, research-owned public attack-history observer.
+ *
+ * It records declared AttackActions and the selected follow-up attack from
+ * CHOOSE_ATTACK_TO_COPY prompts (e.g. Ω Barrage). A turn boundary is detected
+ * from the native Store's active-player or global-turn transition, so it
+ * covers both attacks that end a turn and PassTurnAction.
+ *
+ * The tracker does not change Store state or upstream code. Its attack/source
+ * references are retained only for an explicit opt-in Copycat adapter choice.
+ *
+ * @param {object} store Pinned Twinleaf Store instance.
+ * @returns {{
+ *   getCurrentTurnAttacks:(playerId:number)=>object[],
+ *   getPreviousTurnAttacks:(playerId:number)=>object[],
+ *   getEligiblePreviousTurnAttacks:(playerId:number)=>object[],
+ *   restore:()=>void
+ * }}
+ */
+function installCopycatMultiAttackHistory(store){
+  assert.ok(store&&typeof store.dispatch==='function');
+  const hadOwn=Object.prototype.hasOwnProperty.call(store,'dispatch');
+  const original=store.dispatch;
+  const current=new Map();
+  const previous=new Map();
+
+  /** @param {number} playerId @param {object} record */
+  function record(playerId,record){
+    const rows=current.get(playerId)??[];
+    rows.push(record);
+    current.set(playerId,rows);
+  }
+
+  /**
+   * @param {any} action
+   * @param {number} [clientRoleId]
+   * @returns {any}
+   */
+  function observedDispatch(action,clientRoleId){
+    const before=this.state;
+    const beforeActive=before.players?.[before.activePlayer];
+    const beforeActiveIndex=before.activePlayer;
+    const beforeTurn=before.turn;
+    let declared=null;
+    let barrageFollowup=null;
+
+    if(action instanceof AttackAction){
+      const player=before.players.find(value=>value.id===action.clientId);
+      const sourceCard=player?.active.getPokemonCard();
+      const attack=sourceCard?.attacks?.find(value=>value.name===action.name);
+      if(player&&sourceCard&&attack){
+        declared={
+          playerId:player.id,turn:before.turn,
+          sourceCard,attack,
+          sourceCardFullName:sourceCard.fullName,
+          attackName:attack.name,
+          gxAttack:attack.gxAttack===true,
+          copycatAttack:attack.copycatAttack===true
+        };
+      }
+    }else if(action instanceof ResolvePromptAction){
+      const prompt=before.prompts?.find(value=>value.id===action.id);
+      if(prompt?.constructor.name==='ChooseAttackPrompt'&&
+          prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
+        const player=before.players.find(value=>value.id===prompt.playerId);
+        const sourceCard=player?.active.getPokemonCard();
+        const selected=action.result&&typeof action.result.name==='string'?
+          action.result:prompt.decode(action.result,before);
+        const attack=sourceCard?.attacks?.find(value=>value.name===selected?.name);
+        if(player&&sourceCard&&attack&&
+            prompt.cards.some(value=>value===sourceCard)){
+          barrageFollowup={
+            playerId:player.id,turn:before.turn,
+            sourceCard,attack,
+            sourceCardFullName:sourceCard.fullName,
+            attackName:attack.name,
+            gxAttack:attack.gxAttack===true,
+            copycatAttack:attack.copycatAttack===true
+          };
+        }
+      }
+    }
+
+    const result=original.call(this,action,clientRoleId);
+    if(declared)record(declared.playerId,declared);
+    if(barrageFollowup)record(barrageFollowup.playerId,barrageFollowup);
+
+    const after=result??this.state;
+    if(beforeActive&&
+        (beforeActiveIndex!==after.activePlayer||beforeTurn!==after.turn)){
+      const endedPlayerId=beforeActive.id;
+      previous.set(endedPlayerId,(current.get(endedPlayerId)??[]).slice());
+      current.set(endedPlayerId,[]);
+    }
+    return result;
+  }
+
+  store.dispatch=observedDispatch;
+
+  /**
+   * @param {number} playerId
+   * @returns {object[]}
+   */
+  const getCurrentTurnAttacks=playerId=>(current.get(playerId)??[]).slice();
+  /**
+   * @param {number} playerId
+   * @returns {object[]}
+   */
+  const getPreviousTurnAttacks=playerId=>(previous.get(playerId)??[]).slice();
+  /**
+   * @param {number} playerId
+   * @returns {object[]}
+   */
+  const getEligiblePreviousTurnAttacks=playerId=>
+    getPreviousTurnAttacks(playerId).filter(row=>
+      row.gxAttack!==true&&row.copycatAttack!==true);
+
+  return {
+    getCurrentTurnAttacks,
+    getPreviousTurnAttacks,
+    getEligiblePreviousTurnAttacks,
+    restore(){
+      if(store.dispatch===observedDispatch){
+        if(hadOwn)store.dispatch=original;
+        else delete store.dispatch;
+      }
+    }
+  };
+}
+
+/**
+ * Execute a Copycat action using one explicitly selected prior-turn attack.
+ * The pinned helper reads playerLastAttack synchronously at Copycat entry,
+ * before any copied-effect prompts are resolved. Restore the actual recorded
+ * attack immediately after dispatch so persistent state remains truthful.
+ *
+ * @param {object} store Pinned Twinleaf Store.
+ * @param {number} copycatPlayerId Player using Copycat.
+ * @param {object} selected Eligible record from getEligiblePreviousTurnAttacks.
+ * @param {object} action Native AttackAction for Copycat.
+ * @returns {any} Native Store dispatch result.
+ */
+function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,action){
+  assert.ok(selected?.sourceCard&&selected?.attack);
+  assert.equal(selected.gxAttack,false,'GX attacks cannot be selected');
+  assert.equal(selected.copycatAttack,false,'Copycat attacks cannot be selected');
+  const state=store.state;
+  const opponent=state.players.find(player=>player.id!==copycatPlayerId);
+  assert.ok(opponent);
+  const history=state.playerLastAttack??{};
+  const prior=history[opponent.id];
+  history[opponent.id]={attack:selected.attack,sourceCard:selected.sourceCard};
+  try{
+    return store.dispatch(action);
+  }finally{
+    history[opponent.id]=prior;
+  }
+}
+
+module.exports={
+  installCopycatMultiAttackHistory,
+  dispatchCopycatWithSelectedHistory
+};
