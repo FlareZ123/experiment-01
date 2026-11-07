@@ -151,3 +151,7 @@ Agent37's separate [archived Eon Blade chronology](../methodology/agent37-v8-lat
 
 
 The separate Agent3 direct-injection Eon Blade lock fixture also passes after its native attack-cost assertions were corrected to use `CardType` enum values; it ran as step 23 in [manual workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358). This is a lower-cost staged-history cross-check alongside Agent46's real preceding AttackAction sequence.
+
+
+
+The consolidated [manual regression workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358) passed the full-headless Copycat/Filch sequence, Agent3's corrected direct-injection fixture, and the underfunded/attack-locked/funded SimpleTacticsAi legality test in one pinned-engine build.
