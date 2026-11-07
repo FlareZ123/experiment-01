@@ -96,6 +96,9 @@ function auditMimikyuCopycatEonBlade(
       card.category==='Pokémon'&&card.name===nominal?.rosterAttackerName&&
       nominal?.rosterAttackerPrintedId?.endsWith('-'+card.printing?.number))??[];
     const donorEntry=donorCopies.length===1?donorCopies[0]:null;
+    const mimikyuCopies=sourceDeck?.cards?.filter(card=>
+      card.category==='Pokémon'&&card.name==='Mimikyu'&&
+      card.printing?.set==='GRI'&&card.printing?.number==='58')??[];
     const donorFullName=donorEntry?
       donorEntry.name+' '+donorEntry.printing.set:null;
     const donorCard=cardById(nominal?.rosterAttackerPrintedId);
@@ -161,6 +164,8 @@ function auditMimikyuCopycatEonBlade(
     addFailure(reasons,nominal?.rosterAttackerPrintedId==='sv8-76'&&
       nominal?.rosterAttackerName==='Latias ex'&&
       donorFullName==='Latias ex SSP','Eon-Blade-donor-print-not-authenticated');
+    addFailure(reasons,mimikyuCopies.length>0,
+      'Mimikyu-GRI-58-not-in-champion-reference-60');
     addFailure(reasons,donorCard?.id==='sv8-76'&&
       donorCard.legalities?.expanded==='Legal'&&
       !donorCard.subtypes?.includes('GX')&&
@@ -169,12 +174,15 @@ function auditMimikyuCopycatEonBlade(
     addFailure(reasons,Boolean(mimikyu&&mimikyu.id==='sm2-58'&&
       mimikyu.legalities?.expanded==='Legal'&&
       copycat?.name==='Copycat'&&
-      copycat.text?.includes('isn\\'t a GX attack')&&
+      copycat.text?.includes("isn't a GX attack")&&
       copycat.text?.includes('during their last turn')&&
       JSON.stringify(copycatCost)===JSON.stringify(['Psychic','Colorless'])),
       'printed-Mimikyu-Copycat-text-or-cost-unverified');
     addFailure(reasons,pre?.attackerPrintingFromActualNativeBoard==='Mimikyu GRI'&&
       actor?.printing==='Mimikyu GRI','physical-attacker-is-not-Mimikyu-GRI');
+    addFailure(reasons,JSON.stringify(pre?.attackerEnergyNamesBeforeAttack)===
+      JSON.stringify(actor?.energyCards),
+      'pre-attack-energy-join-does-not-match-native-board');
     addFailure(reasons,Array.isArray(actor?.energyCards)&&
       Array.isArray(actor?.printedAttacks)&&
       JSON.stringify(physicalCopycatMenu?.cost)===JSON.stringify(copycatCost),
