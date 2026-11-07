@@ -38,9 +38,10 @@ function assertSourceHistory(result,firstAttack,secondAttack){
   assert.deepEqual(result.eligibleHistoryAttackNames,[firstAttack,secondAttack]);
   assert.equal(result.engineRecordedAttackCount,1);
   assert.equal(result.historyRecordedAttackCount,2);
-  assert.equal(result.sourceTurnMimikyuDeckDelta,-2);
-  assert.equal(result.sourceTurnMimikyuDiscardDelta,1);
-  assert.equal(result.sourceTurnMimikyuHandDelta,1);
+  const burrowWasFirst=result.historyAttackNames[0]==='Burrow';
+  assert.equal(result.sourceTurnMimikyuDeckDelta,burrowWasFirst?-2:-1);
+  assert.equal(result.sourceTurnMimikyuDiscardDelta,burrowWasFirst?1:0);
+  assert.equal(result.sourceTurnMimikyuHandDelta,burrowWasFirst?1:0);
   assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
   assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
   assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
