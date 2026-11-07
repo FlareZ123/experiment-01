@@ -166,9 +166,32 @@ The exact any-hand-access fractions for the five rows are respectively 37/156, 1
 
 The manual pure cadence lane passed again in [workflow run 42402261017](https://github.com/FlareZ123/experiment-01/actions/runs/42402261017), including the exhaustive search-gateway oracle. The owner-deck-attrition-cadence job completed successfully. No Twinleaf game or matchup was simulated by this calculation.
 
+#### Turn-ending draw effects after search
+
+The generic search-gateway function now accepts an optional finalDrawCount. After the mandatory draw, all available Trainers' Mail actions, and any active search gateway, it applies one chosen final draw effect to each residual no-access state. The target Handiwork remains in deck in those residual states, so the exact conditional hit probability is min(finalDrawCount, remainingDeckSize)/remainingDeckSize. The result reports:
+
+- immediatePlayableProbability: Handiwork found by natural draw or the immediate Forest Seal Stone route, still playable as this turn's Supporter;
+- searchGatewayHandAccessProbability: Handiwork in hand through the search gateways, including Arven/Teammates, before a final draw;
+- anyHandAccessProbability: the search-gateway result plus the chosen final draw effect. Cards found by the final effect are in hand for a later turn, because the effect ends the turn.
+
+The finalDrawCount parameter is conditional and represents **one** available final draw effect, used after all searches. It can represent Rotom V's Instant Charge (draw 3), Player's Ceremony (draw 2), or Tropical Beach (draw until 7, so the caller supplies the actual number remaining to draw at activation). These effects end the turn; they cannot be stacked in one turn. Player's Ceremony and Tropical Beach are Stadiums, so only the Stadium currently in play and not yet used that player's turn can supply the Stadium draw. Rotom V must be in play with Instant Charge available and not blocked. The model does not estimate the probability that any of these board states or Stadiums is available, and it does not track hand size; the caller must supply the effective draw count after prior actions.
+
+For the same illustrative 40-card state with one Mail in hand, 15 base other Trainers, a usable Stone and all six delayed gateways active, immediate playable access stays at 23.7179% and search-gateway hand access stays at 69.3961%. The chosen final draw raises total hand access as follows:
+
+| One final draw effect | Cards drawn | Any Handiwork in hand |
+| --- | ---: | ---: |
+| None | 0 | 69.3961% |
+| Player's Ceremony | 2 | 71.0041% |
+| Rotom V Instant Charge | 3 | 71.8081% |
+| Tropical Beach, if five cards remain to reach seven | 5 | 73.4161% |
+
+These remain conditional values. For comparison, with no active search gateway and one Mail in hand in a 40-card deck, a three-card final draw raises any hand access from 12.5000% to 19.4028%, while immediate playable access remains 12.5000%.
+
+The labelled-card oracle now also enumerates the final draw after every residual Mail state and checks exact fractions for final draw counts 0 through 3. The manual pure cadence lane passed in [workflow run 42402774441](https://github.com/FlareZ123/experiment-01/actions/runs/42402774441), job owner-deck-attrition-cadence. This validates the combinatorics and action ordering under the stated conditional inputs, not the availability assumptions or game policy.
+
 Important format caveat: the exact rank-3 list names `Player's Ceremony SP 127`, a Japanese-only S-P promo absent from the repository's English-only card database. Its translated effect draws two cards and ends the turn. Limitless marks it Expanded JP legal and international Expanded not legal ([card record](https://limitlesstcg.com/cards/jp/sp/127?translate=en)). The repository already has a research-side registration in `simulation/twinleaf/card-patches.cjs` and actual Store coverage in `tests/palace_promos_store.test.cjs` and `tests/agent33-players-ceremony-full-action-pinned.test.cjs`; do not build a duplicate hook. What remains unverified is that the exact rank-3 full 60-card builder and full-field runner load this registration. The Aichi benchmark's Japanese-versus-international Expanded legality boundary remains unresolved. The card adds a draw-2 route after Rototiller, with Handiwork playable only on a later turn if drawn. Agent 42's [29-list exact card archive audit](agent42-original-29-exact-card-archive-coverage-20261101.md) already identifies the three Japanese-only promo identities across five authenticated lists; the source inventory remains 29/32, with ranks 23, 25 and 28 missing. See the [field-wide format-boundary correction](../../communications/broadcast/2026-11/20261107T164303Z_agent1_correction-aichi-29-list-audit-existing-promo-hooks.md).
 
-Consequently, the prior iid Handiwork-every-turn stress remains a sensitivity scenario. It is not proven achievable or impossible. The Lusamine/VS Seeker schedule is only one conditional line and must not be treated as a bound on real rank-3 pressure. The next research step is to add the turn-ending draw routes (Rotom V, Tropical Beach and Player's Ceremony) and Lillie's Determination with explicit hand-size and board-state conditions, then reconstruct the post-Rototiller state distribution from a source-owned full physical deal. Keep same-turn Handiwork play separate from cards merely drawn into hand after a Supporter or turn-ending effect.
+Consequently, the prior iid Handiwork-every-turn stress remains a sensitivity scenario. It is not proven achievable or impossible. The Lusamine/VS Seeker schedule is only one conditional line and must not be treated as a bound on real rank-3 pressure. The next research step is to add Lillie's Determination with its hand-shuffle, Prize-count and Supporter constraints, then reconstruct the post-Rototiller state distribution from a source-owned full physical deal. Keep same-turn Handiwork play separate from cards merely drawn into hand after a Supporter or turn-ending effect.
 
 The manual-only pure CI run [42374053812](https://github.com/FlareZ123/experiment-01/actions/runs/42374053812) passed the new finite-schedule test plus the existing Agent 1 and Agent 2 owner-deck horizon suites. This is mathematical/model validation only; it does not validate the omitted Rototiller/search route.
 
