@@ -124,6 +124,7 @@ function runRetrieval(seat,recoveredCount) {
   assert.equal(p.message,'CHOOSE_CARD_TO_HAND');
   assert.equal(p.options.min,1);
   assert.equal(p.options.max,2);
+  assert.equal(p.options.allowCancel,false);
   const selection=basic.slice(0,recoveredCount);
   assert.equal(p.validate(selection,f.state),true);
   assert.equal(p.validate([f.specials],f.state),false);
