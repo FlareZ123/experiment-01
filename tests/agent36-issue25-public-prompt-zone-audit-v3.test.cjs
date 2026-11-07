@@ -46,8 +46,8 @@ class FakeGalarianStunfisk {
   reduceEffect(state, effect) {
     const owner = state.players.find(player => player.id === this.ownerId);
     if (this.knockOutOnAttack) {
-      owner.active = pokemonList(null, [], 0);
-      owner.discard.cards.push(this);
+      // Damage-triggered effects resolve before the Knock Out is processed.
+      owner.active.damage = 120;
     }
     const prompt = new ChooseCardsPrompt(
       this.ownerId,
@@ -207,7 +207,8 @@ test('Snap Trap marker joins exact Store.prompt signature and Active Energy refe
       assert.equal(event.currentAttack.attackName, 'Red Knuckles');
       assert.equal(event.currentAttack.seat, attackerSeat);
       if (knockOutOnAttack) {
-        assert.equal(publicCardOwnerSeat(state, state.players[stunfiskSeat].discard.cards.at(-1)), stunfiskSeat);
+        assert.equal(publicCardOwnerSeat(state, state.players[stunfiskSeat].active.getPokemonCard()), stunfiskSeat);
+        assert.equal(state.players[stunfiskSeat].active.damage, 120);
       }
       assert.equal(FakeStore.prototype.prompt, originalPrompt);
       assert.equal(FakeStore.prototype.dispatch, originalDispatch);
