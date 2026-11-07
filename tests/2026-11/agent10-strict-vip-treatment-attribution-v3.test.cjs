@@ -268,7 +268,7 @@ test('invalid root ordinals and missing divergence fail closed',()=>{
   const g=fixture();
   g.controlLedger=g.treatmentLedger;
   g.controlRootActionCount=g.treatmentRootActionCount;
-  assert.equal(run(g).reason,'missing-ledger-or-no-treatment-divergence');
+  assert.equal(run(g).reason,'no-treatment-divergence');
 });
 
 test('first control root must be PassTurnAction and treatment root must be VIP',()=>{
