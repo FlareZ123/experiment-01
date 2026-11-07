@@ -72,7 +72,9 @@ test('the same native cumulative KO value can include earlier attack damage',()=
   assert.equal(result.nativeDamageDeltaPrintMatches,0);
 });
 
-test('copies preserve actual attacker identity distinct from printed attack source',()=>{
+test('synthetic delegated attack name never reidentifies the public Active',()=>{
+  // Deliberately inconsistent abstract native attacker/source labels exercise
+  // provenance separation. This does not claim a paper-legal copied attack.
   const f=fixture();
   const id='1:212:B:champion-reference';
   f.roots[0].registeredTrialId=id;
