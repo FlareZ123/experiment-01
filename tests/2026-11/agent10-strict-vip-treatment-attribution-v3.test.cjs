@@ -31,10 +31,10 @@ function searchEvent(itemRootOrdinal,searchRootOrdinal,seat=0,turn=1,extra={}){
 }
 function audit(examples,extra={}){
   return {
-    policyRecorded:true,
+    policyRecorded:true,nativeStoreSeen:true,
     rootOrdinalProtocol:ROOT_ORDINAL_PROTOCOL,
     rootOrdinalInitialized:true,
-    dispatchRootCount:2,
+    dispatchRootCount:2,unresolvedOwnerSearches:0,
     acceptedItems:1,rejectedItems:0,
     acceptedSearches:1,rejectedSearches:0,
     examples,...extra
@@ -49,8 +49,8 @@ function fixture(){
     })
   ];
   return {
-    controlLedger:control,controlRootActionCount:1,
-    treatmentLedger:treatment,treatmentRootActionCount:2,
+    controlLedger:control,controlRootActionCount:1,controlCompleted:true,
+    treatmentLedger:treatment,treatmentRootActionCount:2,treatmentCompleted:true,
     vipAudit:audit([itemEvent(0),searchEvent(0,1)])
   };
 }
@@ -217,11 +217,34 @@ test('duplicate item or search event identities fail closed',()=>{
   const f=fixture();
   f.vipAudit.examples.push(itemEvent(0));
   f.vipAudit.acceptedItems=2;
-  assert.equal(run(f).reason,'accepted-vip-event-root-join-invalid');
+  assert.equal(run(f).reason,'vip-item-search-pair-incomplete');
   const g=fixture();
   g.vipAudit.examples.push(searchEvent(0,1));
   g.vipAudit.acceptedSearches=2;
-  assert.equal(run(g).reason,'accepted-vip-event-root-join-invalid');
+  assert.equal(run(g).reason,'vip-item-search-pair-incomplete');
+});
+
+
+test('capped or aborted control/treatment matches cannot be attributed',()=>{
+  const f=fixture();
+  f.controlCompleted=false;
+  assert.equal(run(f).reason,'incomplete-or-aborted-match');
+  const g=fixture();
+  g.treatmentCompleted=false;
+  assert.equal(run(g).reason,'incomplete-or-aborted-match');
+});
+
+test('every accepted VIP item needs exactly one settled search and no unresolved owner search',()=>{
+  const f=fixture();
+  f.vipAudit.unresolvedOwnerSearches=1;
+  assert.equal(run(f).reason,'vip-item-search-pair-incomplete');
+  const g=fixture();
+  delete g.vipAudit.unresolvedOwnerSearches;
+  assert.equal(run(g).reason,'vip-item-search-pair-incomplete');
+  const h=fixture();
+  h.vipAudit.examples=[itemEvent(0)];
+  h.vipAudit.acceptedSearches=0;
+  assert.equal(run(h).reason,'vip-item-search-pair-incomplete');
 });
 
 test('event archive completeness is checked against hook counters',()=>{
