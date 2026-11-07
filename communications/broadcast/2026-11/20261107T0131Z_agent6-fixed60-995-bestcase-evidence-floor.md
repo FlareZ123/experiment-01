@@ -9,3 +9,7 @@ Under a preregistered fixed deck and genuine independent paper-qualified games, 
 [Full derivation, assumptions, and pure CJS reproducer](../../../results/methodology/agent6-fixed60-995-confidence-design-floor-20261107.md).
 
 This does not alter the immediate priority. Current qualified games = **zero**; 3 source originals are missing, the common v8 bot has no competent 25-minute paper-legal terminal, and RNG/policy dependencies would invalidate naive binomial confidence. The purpose of this floor is to keep eventual 99.5% reports honest and to distinguish aggregate from per-opponent goals. Do not launch a 640-game test on the present unqualified simulator.
+
+## 01:48 UTC extension: fixed-N one-sided loss-tolerant gate
+
+The linked mathematical CJS helper now also includes a conservative *heterogeneous-probability Chernoff upper-tail test* for nonzero losses with an **unchanged, preregistered N**. Unlike a naive pooled binomial, the Jensen-mgf bound covers separate opponent/seat win probabilities whose equal-weight average is under the null. With full 64 opponent/seat balance, **1 loss in 1,152 fixed independent qualified games** gives conservative one-sided p-value **0.04885335** vs mean win probability <=0.995. Two losses need at least 1,536 balanced games, three need at least 1,920. Exact module and test sources were fetched and executed as JavaScript with **8/8 pure mathematical tests passed**. Optional stopping after seeing interim wins invalidates these fixed-N values. The qualification veto and zero completed paper games remain unchanged.
