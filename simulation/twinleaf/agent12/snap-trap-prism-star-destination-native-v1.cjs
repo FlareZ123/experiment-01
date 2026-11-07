@@ -291,10 +291,10 @@ function runSnapTrapPrismStarDestinationContract() {
     }
   }
 
-  const afterResponse = store.state;
+  const afterResponseState = store.state;
   const resolvedPromptAfterResponse =
-    afterResponse.prompts.find(item => item.id === prompt.id);
-  const pendingAfter = afterResponse.prompts.filter(item => item.result === undefined);
+    afterResponseState.prompts.find(item => item.id === prompt.id);
+  const pendingAfter = afterResponseState.prompts.filter(item => item.result === undefined);
   const unresolvedSamePrompt = pendingAfter.filter(item => item.id === prompt.id);
   const otherPendingPrompts = pendingAfter
     .filter(item => item.id !== prompt.id)
