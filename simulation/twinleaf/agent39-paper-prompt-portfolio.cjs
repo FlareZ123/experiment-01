@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4b-bench-pokemon-settlement';
+const VERSION='agent39-paper-prompt-portfolio-v4c-flash-energy-discard-route';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -17,7 +17,7 @@ const PRINTING='Iron Thorns ex TWM';
  * @returns {{valid:boolean,reason:string}}
  */
 function verdictVoltCyclone(state,prompt,result,types){
-  const {PlayerType,SlotType,SuperType}=types;
+  const {PlayerType,SlotType,SuperType,CardType}=types;
   const owner=state?.players?.find(p=>p.id===prompt?.playerId);
   if(!owner||!Array.isArray(owner.bench)||
      !Array.isArray(owner.active?.cards)||
@@ -44,8 +44,20 @@ function verdictVoltCyclone(state,prompt,result,types){
      typeof owner.bench[to.index].getPokemonCard!=='function'||
      !owner.bench[to.index].getPokemonCard())
     return {valid:false,reason:'recipient-not-occupied-own-bench'};
+  // Flash Energy AOR can start attached to this Lightning attacker, yet
+  // cannot remain on a non-Lightning recipient after a legal move (C-10).
+  // Preserve that distinct printed final-zone requirement.
+  let expectedRoute='bench';
+  if(card.fullName==='Flash Energy AOR'){
+    const recipient=owner.bench[to.index].getPokemonCard();
+    if(!Array.isArray(recipient.cardType)||
+       typeof CardType?.LIGHTNING==='undefined')
+      return {valid:false,reason:'flash-energy-target-type-unresolved'};
+    if(!recipient.cardType.includes(CardType.LIGHTNING))
+      expectedRoute='discard';
+  }
   // Native validator disagreement is separate from independent printed geometry.
-  return {valid:true,reason:'printed-one-active-energy-to-own-bench'};
+  return {valid:true,reason:'printed-one-active-energy-to-own-bench',expectedRoute};
 }
 
 /**
@@ -94,6 +106,7 @@ function withPaperPromptPortfolio(run,deps={}){
     liveNativeReturnedWithoutThrow:0,liveNativePromptSettled:0,
     liveNativeSilentNoop:0,livePaperVerifiedPhysicalEffect:0,
     livePaperVerifiedWithoutPhysicalEffect:0,
+    livePaperVerifiedDiscardedFlashEnergy:0,
     livePaperInvalidVetoed:0,livePaperUnverified:0,
     liveNativeRejectedAfterPreflight:0,
     auxiliaryResolutionCount:0,unattributedResolutionCount:0,
@@ -162,6 +175,7 @@ function withPaperPromptPortfolio(run,deps={}){
       sourcePrinting:marked?PRINTING:null,status,
       count:Array.isArray(action.result)?action.result.length:null,
       reason:paper?.reason??'no-independent-printed-contract',
+      expectedRoute:paper?.expectedRoute??null,
       nativeReturnedWithoutThrow:false,nativePromptSettled:false,
       physicalEffectVerified:false,nativeAccepted:false};
     if(status==='PAPER_PROMPT_UNVERIFIED'){
@@ -182,6 +196,9 @@ function withPaperPromptPortfolio(run,deps={}){
     const movedCard=marked?action.result[0].card:null;
     const target=marked?owner.bench[action.result[0].to.index]:null;
     const targetPreviouslyHadCard=marked&&target.cards.includes(movedCard);
+    const discardPreviouslyHadCard=marked&&
+      Array.isArray(owner.discard?.cards)&&
+      owner.discard.cards.includes(movedCard);
     try{
       const output=d.value.call(this,action,...args);
       entry.nativeReturnedWithoutThrow=true;
@@ -192,11 +209,18 @@ function withPaperPromptPortfolio(run,deps={}){
       entry.physicalEffectVerified=!!(marked&&entry.nativePromptSettled&&
         !targetPreviouslyHadCard&&
         !owner.active.cards.includes(movedCard)&&
-        target.cards.includes(movedCard)&&
         (!Array.isArray(owner.active.energies?.cards)||
           !owner.active.energies.cards.includes(movedCard))&&
-        (!Array.isArray(target.energies?.cards)||
-          target.energies.cards.includes(movedCard)));
+        (paper.expectedRoute==='discard'?
+          Array.isArray(owner.discard?.cards)&&
+          !discardPreviouslyHadCard&&
+          owner.discard.cards.includes(movedCard)&&
+          !target.cards.includes(movedCard)&&
+          (!Array.isArray(target.energies?.cards)||
+            !target.energies.cards.includes(movedCard)):
+          target.cards.includes(movedCard)&&
+          (!Array.isArray(target.energies?.cards)||
+            target.energies.cards.includes(movedCard))));
       entry.nativeAccepted=marked?
         entry.nativePromptSettled&&entry.physicalEffectVerified:
         entry.nativePromptSettled;
@@ -205,6 +229,8 @@ function withPaperPromptPortfolio(run,deps={}){
           audit.paperVerifiedNativeAccepted++;
           audit.livePaperVerifiedNativeAccepted++;
           audit.livePaperVerifiedPhysicalEffect++;
+          if(paper.expectedRoute==='discard')
+            audit.livePaperVerifiedDiscardedFlashEnergy++;
         }else{
           audit.livePaperVerifiedWithoutPhysicalEffect++;
           entry.status=entry.nativePromptSettled?
