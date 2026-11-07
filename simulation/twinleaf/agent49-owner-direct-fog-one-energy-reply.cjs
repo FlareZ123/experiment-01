@@ -20,10 +20,12 @@ const BASIC='Psychic Energy';
  * @param {object} view Detached owner-root actor observation.
  * @param {string[]} original60 Actual owner's registered native fullNames.
  * @param {{psychic:number,colorless:number}} [costs] Pinned native enums.
+ * @param {object|null} [ownerK1] Authenticated owner-deck search snapshot,
+ *   maintained by owner-k1-prize-knowledge, never hidden-zone inference.
  * @returns {object|null} Proposed plan, never a success certificate.
  */
 function proposeOwnerDirectFogOneEnergyKo(
-  view,original60,costs={psychic:5,colorless:9}
+  view,original60,costs={psychic:5,colorless:9},ownerK1=null
 ){
   if(view?.decisionKind!=='owner-root'||view.globalTurn<=1)
     return null;
@@ -60,6 +62,24 @@ function proposeOwnerDirectFogOneEnergyKo(
       acceptablePrintings:energyPrints,copies:1
     }]);
   if(preflight.status!=='not-disproven')return null;
+  // Only an authenticated, still-fresh K1 from this *same owner seat*
+  // can narrow the source K0 upper bound to exact current deck copies.
+  // A stale observation cannot veto a source-legal line.
+  if(ownerK1!==null){
+    assert.equal(ownerK1.ownerSeat,view.actorSeat,
+      'K1 snapshot must belong to this acting physical seat');
+    assert.ok(Number.isSafeInteger(ownerK1.observedAt?.turn)&&
+      ownerK1.observedAt.turn<=view.globalTurn,
+      'Future or unauthenticated K1 is invalid');
+    if(ownerK1.exactMembershipKnown===true&&
+      ownerK1.deckMembershipStale===false){
+      assert.ok(Array.isArray(ownerK1.knownPrintings));
+      const known=new Map(ownerK1.knownPrintings.map(row=>
+        [row.printing,row.copies]));
+      if(energyPrints.reduce((n,p)=>n+(known.get(p)??0),0)<1)
+        return null;
+    }
+  }
   return {
     version:VERSION,source:'actor-owner-public-plus-registered60',
     heldSearchPrinting:FOG,attackName:attack.name,
@@ -71,6 +91,8 @@ function proposeOwnerDirectFogOneEnergyKo(
     prizeTakeCertified:false,gameWinCertified:false,
     opponentHiddenInspected:false,ownHiddenDeckInspected:false,
     ownHiddenPrizesInspected:false,
+    authenticatedOwnerK1Used:ownerK1?.exactMembershipKnown===true&&
+      ownerK1.deckMembershipStale===false,
     qualifiedCompetitiveGame:false
   };
 }
