@@ -28,7 +28,7 @@ test('retrospective pre-Pass receipt conserves physical copies and all Bench slo
   const view=syntheticOwnerView();
   const row=summarizeOwnerPassResources(view,9);
   assert.equal(row.schema,VERSION);
-  assert.equal(row.rootOrdinal,9);
+  assert.equal(row.storeDispatchOrdinal,9);
   assert.equal(row.handBasicPsychicCount,2);
   assert.deepEqual(row.handBasicPsychicPrintings,
     ['Psychic Energy MEE','Psychic Energy MEE']);
@@ -90,7 +90,7 @@ test('one genuine Store source Pass, opponent Pass, and a speculative Store skip
   assert.equal(result.result.b,2);
   assert.equal(result.audit.actualStores,1);
   assert.equal(result.audit.selectedSourcePassCount,1);
-  assert.equal(result.audit.sourcePasses[0].rootOrdinal,1);
+  assert.equal(result.audit.sourcePasses[0].storeDispatchOrdinal,1);
   assert.equal(observeCount,1);
   assert.equal(actual.accepted.length,3);
   assert.equal(speculative.accepted.length,1);
