@@ -436,7 +436,7 @@ jobs:
         if: ${{ inputs.include_agent8_trainer_v6 }}
         env:
           AGENT8_ISSUE25_TRAINER_V6_DIR: issue25-agent8-trainer-v6
-        run: node --test tests/agent8-native-trainer-scoped-root-activation.test.cjs tests/agent8-issue25-trainer-v6-development.test.cjs tests/agent8-issue25-trainer-v6-development.native.test.cjs
+        run: node --test tests/agent8-native-trainer-abort-receipt.test.cjs tests/agent8-native-trainer-scoped-root-activation.test.cjs tests/agent8-issue25-trainer-v6-development.test.cjs tests/agent8-issue25-trainer-v6-development.native.test.cjs
       - name: Retrospective Agent45 actual paid G&H two-other-card owner native feasibility versus conservative baseline
         if: ${{ inputs.include_agent45_ghala_v9 }}
         env:
