@@ -17,7 +17,7 @@ const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
  * search, and both physical cards remain present in the original native Store.
  *
  * @param {0|1} seat Mimikyu source physical seat.
- * @param {{chooseMimikyuTimeless?:boolean}} [options] Opt-in second source prompt resolution.
+ * @param {{chooseMimikyuTimeless?:boolean,beforeApex?:(ctx:object)=>void,beforeMimikyu?:(ctx:object)=>void}} [options] Opt-in native source callbacks and second prompt resolution.
  * @returns {object} Actual two consecutive native attacks and history.
  */
 function runSeat(seat,options={}){
@@ -87,6 +87,8 @@ function runSeat(seat,options={}){
     // the attacking side. Only then can an actual follow-up Copycat run.
     if(x.state.activePlayer===seat &&
        x.state.phase===x.GamePhase.PLAYER_TURN){
+      if(typeof options.beforeMimikyu==='function')
+        options.beforeMimikyu({x,usedDragon});
       x.store.dispatch(new AttackAction(x.owner.id,'Copycat'));
       for(let i=0;i<16;i++){
         const pending=x.state.prompts.find(p=>p.result===undefined);
