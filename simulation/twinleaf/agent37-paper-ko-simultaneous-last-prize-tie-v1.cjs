@@ -75,8 +75,10 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
     promotionAvailabilitySymmetric:null,
     nativeWinner:null,nativeWinnerPlayerId:null,nativeWinnerName:null,
     expectedWinner:null,winnerOverridden:false,
-    winnerLogHandled:false,winnerLogMessage:null,winnerLogName:null,
-    winnerLogParams:null,terminalOutcome:null,
+    winnerLogHandled:false,
+    nativeWinnerLogMessage:null,nativeWinnerLogName:null,nativeWinnerLogParams:null,
+    winnerLogMessage:null,winnerLogName:null,winnerLogParams:null,
+    terminalOutcome:null,
     bothPrizeTransfersCompleted:false,
     storeLogRestored:false,storeReduceRestored:false,
     otherStoresUnmodified:true
@@ -255,6 +257,9 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       // assigning state.winner, so state.winner is still NONE here. Capture
       // the real native result from the first processed Prize-group player.
       const firstProcessedPlayer=candidatePlayers.firstPlayer;
+      audit.nativeWinnerLogMessage=message;
+      audit.nativeWinnerLogName=params?.name??null;
+      audit.nativeWinnerLogParams=params??null;
       const nativeWinner=state.players[0]===firstProcessedPlayer
         ?GameWinner.PLAYER_1
         :state.players[1]===firstProcessedPlayer
