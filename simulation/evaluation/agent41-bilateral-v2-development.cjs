@@ -359,17 +359,24 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  * historical bilateral default. A physical-seat restriction is opt-in.
  * @param {boolean} enabled
  * @param {null|0|1} ownerSeat
- * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1}}
+ * @param {boolean} garbodorToolRoot
+ * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1,
+ *   garbotoxinToolRoot?:true}}
  */
-function actorNaturalEvolutionRootOptions(enabled,ownerSeat=null){
+function actorNaturalEvolutionRootOptions(enabled,ownerSeat=null,
+  garbodorToolRoot=false){
   assert.equal(typeof enabled,'boolean');
+  assert.equal(typeof garbodorToolRoot,'boolean');
+  assert.ok(!garbodorToolRoot||enabled,
+    'Garbodor Tool root requires the natural-evolution root to be enabled');
   assert.ok(ownerSeat===null||ownerSeat===0||ownerSeat===1,
     'Natural-evolution owner seat must be null, 0, or 1');
   assert.ok(ownerSeat===null||enabled,
     'A seat-scoped natural-evolution root requires the root to be enabled');
   return enabled?{
     naturalEvolutionRoot:true,
-    naturalEvolutionRootOwnerSeat:ownerSeat
+    naturalEvolutionRootOwnerSeat:ownerSeat,
+    ...(garbodorToolRoot?{garbotoxinToolRoot:true}:{})
   }:{};
 }
 
@@ -1350,7 +1357,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorNaturalEvolutionRootOwnerSeat=null,
-  actorMewGenesectTechnoBlast=false,
+  actorGarbodorToolRoot=false,actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
@@ -1428,7 +1435,8 @@ function runDevelopment({
 }={}){
   assertManifest();
   const naturalEvolutionOptions=actorNaturalEvolutionRootOptions(
-    actorNaturalEvolutionRoot,actorNaturalEvolutionRootOwnerSeat);
+    actorNaturalEvolutionRoot,actorNaturalEvolutionRootOwnerSeat,
+    actorGarbodorToolRoot);
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
@@ -1462,6 +1470,8 @@ function runDevelopment({
     'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
   assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
     'Native symmetric natural evolution requires actor-only roots');
+  assert.ok(!actorGarbodorToolRoot||actorOnlyComposition,
+    'Native Garbotoxin Tool response requires actor-only roots');
   assert.ok(!actorFarewellLetterRoot||actorOnlyComposition,
     'Native symmetric Farewell Letter requires actor-only roots');
   assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
@@ -2202,6 +2212,11 @@ function runDevelopment({
         actorNaturalEvolutionRootOwnerSeat:null,
     actorNaturalEvolutionRootScope:!actorNaturalEvolutionRoot?'disabled':
       (actorNaturalEvolutionRootOwnerSeat===null?'bilateral':'seat-scoped'),
+    actorGarbodorToolRootOptIn:
+      actorOnlyComposition&&actorGarbodorToolRoot,
+    actorGarbodorResponseOwnerSeat:
+      actorOnlyComposition&&actorNaturalEvolutionRoot?
+        actorNaturalEvolutionRootOwnerSeat:null,
     actorDceMewMobilityRootOptIn:
       actorOnlyComposition&&actorDceMewMobilityRoot,
     actorGenesectFusionDrawRootOptIn:
