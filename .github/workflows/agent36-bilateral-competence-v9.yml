@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent39_secretbox_dci_payment_aba:
+        description: 'Retrospective same-deal fixed/DCI/fixed Secret Box payment A/B/A (260-root development only)'
+        required: false
+        type: boolean
+        default: false
       agent36_v9_vip_aba:
         description: 'Fresh-seed bilateral common-policy A/B/A for inner owner VIP after Pass (240-root development only)'
         required: false
@@ -118,6 +123,8 @@ jobs:
           node --check simulation/twinleaf/agent20-owner-pre-attack-ace-trainer.cjs
           node --check simulation/twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs
           node --check simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs
+          node --check simulation/twinleaf/agent21-secret-box-dci-payment.cjs
+          node --check simulation/evaluation/agent39-secretbox-dci-payment-aba.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         if: ${{ !inputs.contract_only }}
@@ -140,6 +147,7 @@ jobs:
             tests/agent12-actor-only-lillie-after-pass.test.cjs \
             tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs \
             tests/agent43-owner-secretbox-fog-ko.test.cjs \
+            tests/agent21-secret-box-dci-payment.test.cjs \
             tests/agent36-secret-box-four-category-selector.test.cjs \
             tests/agent36-secret-box-four-category-native.test.cjs \
             tests/agent49-owner-direct-fog-one-energy-reply.test.cjs \
@@ -159,36 +167,40 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
-        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
 
       - name: Execute exposed rank11 owner-visible Secret Box Fog one-Energy KO
-        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
 
+      - name: Execute same-deal Secret Box fixed/DCI/fixed payment A/B/A
+        if: ${{ inputs.agent39_secretbox_dci_payment_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v9_vip_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only }}
+        run: node simulation/evaluation/agent39-secretbox-dci-payment-aba.cjs
+
       - name: Execute same-deal Box/Fog plus owner-only pre-attack Ace Trainer A/B/A
-        if: ${{ inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs
 
       - name: Execute preregistered single-candidate four-rank fresh A/B/A
-        if: ${{ inputs.agent36_v10_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent36_v10_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v10-fresh-aba.cjs
       - name: Execute preregistered paired four-rank fresh A/B/A with reciprocal screens
-        if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
       - name: Capture owner-information fallback prompt (phase A diagnostic only)
-        if: ${{ inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only }}
+        if: ${{ inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
       - name: Execute preregistered shared-policy owner VIP A/B/A
-        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent39_secretbox_dci_payment_aba }}
         run: node simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
@@ -199,6 +211,7 @@ jobs:
           path: |
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent43-v9-root93-secretbox-oneprize/
+            artifacts/agent39-secretbox-dci-payment-aba/
             artifacts/agent20-v9-box-fog-ace-trainer-aba/
             artifacts/agent36-v9-vip-aba/
             artifacts/agent36-v10-fresh-aba/
