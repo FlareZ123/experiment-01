@@ -70,7 +70,7 @@ The tracker now identifies the follow-up only when all of the following hold:
 - the active source card has `powers.some(power => power.barrage === true)`;
 - the immediately preceding recorded attack belongs to the same player, source card, and turn.
 
-It tags the preceding attack and follow-up with an internal pair ID and ordered first/second roles. `getCopycatChoices(playerId)` returns the verified pair (filtering GX and Copycat attacks individually); when no pair exists, it returns only the opponent's actual last attack if copyable. It does not fall back to an earlier non-GX attack when the actual last attack is GX or Copycat. Full ordered history remains available separately for diagnostics.
+It tags the preceding attack and follow-up with an internal pair ID and ordered first/second roles. `getCopycatChoices(playerId)` returns the verified pair, filtering GX attacks and the opponent's own Mimikyu Copycat attack individually. Other copied-attack effects remain eligible when they are non-GX. When no pair exists, it returns only the opponent's actual last attack if eligible; it does not fall back to an earlier attack when the actual last attack is GX or Mimikyu's Copycat. Full ordered history remains available separately for diagnostics.
 
 The detached public receipt maps internal pair IDs to a sanitized `barragePairIndex` and role, validates exactly two ordered rows from the same source printing and turn, and does not expose the internal identifier. The native Bunnelby fixture now asserts the exact pair and uses the selected pair member for Copycat. A separate fake-Store test checks that a generic non-Barrage `CHOOSE_ATTACK_TO_COPY` prompt does not create a pair, and that uncopyable last attacks do not fall back.
 
@@ -102,3 +102,20 @@ The fixture verifies both source attack orders and shows that the pinned Store's
 - Test: `tests/agent8-mimikyu-burrow-native.test.cjs`
 - Manual workflow: `.github/workflows/mimikyu-copycat-regression.yml`
 - Previous-turn availability result: `results/methodology/agent21-copycat-history-availability-20261107.md`
+
+## 7 November correction: copied-attack metadata is not Mimikyu Copycat eligibility
+
+A review of the official Pokémon Card Game FAQ found that the previous implementation's blanket `copycatAttack === true` exclusion was too broad. The official FAQ page [here](https://www.pokemon-card.com/rules/faq/search.php?page=621&regulation=all&sc_group_id=728%2F1000) establishes three distinct cases:
+
+- Mimikyu may copy Zoroark BREAK's Foul Play, even though Foul Play itself selects and uses another Pokémon's attack.
+- After an Ω Barrage Pokémon uses two different attacks during one turn, Mimikyu's owner may choose either attack.
+- Mimikyu may not copy an attack that was itself used through an opponent Mimikyu's Copycat.
+
+Therefore the paper eligibility predicate is now **non-GX and not an opponent Mimikyu's own Copycat attack**. Twinleaf's generic `copycatAttack` metadata cannot substitute for this rule: Regidrago VSTAR's Apex Dragon is non-GX and must remain eligible despite that metadata flag. The correction is research-owned and does not modify the pinned submodule.
+
+Committed changes:
+- Tracker correction `c58453208aa3970f4800e1313eef709a200b9f4c`, with source-card name retained on each attack record and exported predicates `isMimikyuCopycatAttack` / `isMimikyuCopycatEligibleAttack`.
+- Test expansion `4426897c6ae8b0ded5ac81b5ea7bfec263e0fb43` and assertion repair `ceb8338da139c0657336cbb072917b1b662bb7a9`: Apex Dragon and Foul Play metadata-positive records remain eligible; GX and Mimikyu's own Copycat are rejected; temporary history dispatch restores the original record.
+- Receipt marker `mimikyuCopycatCompatible` added by `0d92ddd8d4abacde6d71af81263bab944913119b` with tri-state semantics: `null` when the previous-turn snapshot or tracker choice API is unavailable; otherwise `true` only when the actor's Active Pokémon has a printed Copycat attack and the tracker-certified choice set is non-empty; `false` when history is known but either condition is absent. This is a history-compatibility marker only, not a full attack-legality or native-settlement claim. Tests are in `tests/agent7-copycat-history-root.test.cjs` (commit `b345a69f389e7c8570fee906f435915a3c7e90f8`).
+
+The existing manual `.github/workflows/mimikyu-copycat-regression.yml` already includes the tracker and receipt test suites. It has not yet been dispatched against these corrections. Native CI validation remains pending; no full game, matchup, deck-strength, or win-rate conclusion follows.
