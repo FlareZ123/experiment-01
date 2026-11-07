@@ -52,7 +52,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
   const output=path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output');
   const load=name=>require(path.join(output,name));
-  const {deepClone}=deps.utils??load('utils');
+  const {deepClone}=deps.utils??load('utils/utils');
   const {Store}=deps.StoreModule??load('game/store/store');
   const {AttackAction}=deps.gameActions??load('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
