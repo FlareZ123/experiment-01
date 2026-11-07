@@ -198,3 +198,31 @@ test('Both-zero tiebreaker states fail closed with model-specific review labels'
   assert.ok(agent26.competitiveAdmission !== true);
   assert.equal(agent27.competitiveAdmission, false);
 });
+
+test('Agent26 unified extension predicate matches Agent27 tied-low and both-high transitions', () => {
+  const compare = (a, b, extensionRule) => {
+    const agent26 = adjudicateMay2026AichiTime({
+      stage: 'top32',
+      phase: 'extension',
+      firstPlayerSeat: 0,
+      lastCompletedTurnSeat: 1,
+      prizeRemaining: [a, b]
+    });
+    const agent27 = require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs')
+      .adjudicateExtension({ extensionRule, prizesRemaining: [a, b] });
+    const winner = Math.min(a, b) <= 2 && a !== b ? (a < b ? 0 : 1) : null;
+    assert.equal(agent26.status, winner === null ? 'EXTENSION_CONTINUES' : 'EXTENSION_PAPER_TIME_WIN');
+    assert.equal(agent27.status, winner === null ? 'EXTENSION_CONTINUES' : 'EXTENSION_WIN');
+    if (winner !== null) {
+      assert.equal(agent26.winner, winner);
+      assert.equal(agent27.conditionalWinnerSeat, winner);
+    }
+  };
+
+  for (let a = 1; a <= 2; a++) {
+    for (let b = 1; b <= 2; b++) compare(a, b, 'tied-low');
+  }
+  for (let a = 1; a <= 6; a++) {
+    for (let b = 1; b <= 6; b++) compare(a, b, 'both-high');
+  }
+});
