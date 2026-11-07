@@ -15,7 +15,7 @@ const VERSION='agent3-authoritative-root-prize-exit-v1';
  * @template T
  * @param {()=>T} execute Native experiment.
  * @param {{Store?:Function,rootBinding:{current:object|null},
- *   maxRecords?:number}} deps
+ *   maxRecords?:number,bindAcceptedRootOrdinals?:boolean}} deps
  * @returns {{result:T,audit:object}}
  */
 function withAuthoritativeRootPrizeExitObserver(execute,deps) {
@@ -33,6 +33,12 @@ function withAuthoritativeRootPrizeExitObserver(execute,deps) {
   assert.equal(original.configurable,true);
 
   const sessions=new WeakMap();
+  const lastRootDispatch=new WeakMap();
+  const bindAcceptedRootOrdinals=deps.bindAcceptedRootOrdinals===true;
+  const callbackName='bindAuthoritativePrizeRootOrdinal';
+  if(bindAcceptedRootOrdinals)assert.equal(
+    Object.getOwnPropertyDescriptor(deps.rootBinding,callbackName),undefined,
+    'A root callback binding must not overwrite another observer');
   let nextSession=0;
   let depth=0;
   const audit={
@@ -52,6 +58,40 @@ function withAuthoritativeRootPrizeExitObserver(execute,deps) {
     qualifiesPaperPrizeAccounting:false,
     competitivelyQualifiedGames:0
   };
+
+  if(bindAcceptedRootOrdinals){
+    Object.assign(audit,{
+      actualHeadlessRootCallbacks:0,
+      prizeExitRecordsBoundToAcceptedRoots:0,
+      rootOrdinalBindingEnabled:true
+    });
+    Object.defineProperty(deps.rootBinding,callbackName,{
+      configurable:true,enumerable:false,
+      value:(store,action,ordinal,actorSeat,turnBefore)=>{
+        assert.strictEqual(store,deps.rootBinding.current,
+          'Bind only the registered native headless Store');
+        assert.ok(Number.isSafeInteger(ordinal)&&ordinal>=0);
+        assert.ok(actorSeat===0||actorSeat===1);
+        assert.ok(Number.isSafeInteger(turnBefore));
+        const last=lastRootDispatch.get(store);
+        assert.ok(last,'No successful physical Store dispatch for callback');
+        assert.strictEqual(last.action,action,
+          'Headless callback must identify the exact Store-dispatched action object');
+        assert.equal(last.bound,false,'Cannot bind the same native root twice');
+        last.bound=true;
+        audit.actualHeadlessRootCallbacks++;
+        for(const index of last.recordIndices){
+          const event=audit.records[index];
+          assert.ok(event,'A Prize record must be retained before binding');
+          assert.equal(event.acceptedRootActionOrdinal,undefined);
+          event.acceptedRootActionOrdinal=ordinal;
+          event.acceptedRootActorSeat=actorSeat;
+          event.acceptedRootTurnBefore=turnBefore;
+          audit.prizeExitRecordsBoundToAcceptedRoots++;
+        }
+      }
+    });
+  }
 
   function prizeCards(player){
     return Array.isArray(player?.prizes)?
@@ -131,7 +171,15 @@ function withAuthoritativeRootPrizeExitObserver(execute,deps) {
     }
     if(outer) {
       audit.successfulRootDispatches++;
+      const beforeIndex=audit.records.length;
       afterRoot(this,action,before);
+      if(bindAcceptedRootOrdinals){
+        assert.equal(audit.omittedRecords,0,
+          'Cannot certify all roots after truncating physical Prize records');
+        const indices=[];
+        for(let i=beforeIndex;i<audit.records.length;i++)indices.push(i);
+        lastRootDispatch.set(this,{action,recordIndices:indices,bound:false});
+      }
     }
     return returned;
   }
@@ -144,6 +192,7 @@ function withAuthoritativeRootPrizeExitObserver(execute,deps) {
     throw error;
   } finally {
     Object.defineProperty(proto,'dispatch',original);
+    if(bindAcceptedRootOrdinals)delete deps.rootBinding[callbackName];
   }
 }
 
