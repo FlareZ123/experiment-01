@@ -32,32 +32,19 @@ for(const sourceSeat of [0,1]){
 }
 
 for(const sourceSeat of [0,1]){
-  test('native Copycat follows Rototiller then Burrow and discards one source card, seat '+sourceSeat,()=>{
+  test('native Store retains first attack after Rototiller then Burrow; Copycat uses Rototiller, seat '+sourceSeat,()=>{
     const result=probeAttackOrder(sourceSeat,'Rototiller','Burrow');
-    assert.equal(result.finalPreviousAttack,'Burrow');
+    assert.equal(result.recordedPreviousAttack,'Rototiller');
+    assert.deepEqual(result.paperRuleEligibleAttacks,['Rototiller','Burrow']);
+    assert.equal(result.engineRecordedAttackCount,1);
+    assert.equal(result.paperRuleMismatch,true);
+    assert.equal(result.sourceTurnMimikyuDeckDelta,-2);
+    assert.equal(result.sourceTurnMimikyuDiscardDelta,1);
+    assert.equal(result.sourceTurnMimikyuHandDelta,1);
     assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
     assert.ok(result.sourcePrompts.includes('ShuffleDeckPrompt'));
-    assert.equal(result.sourceDeckDelta,-2);
-    assert.equal(result.sourceDiscardDelta,1);
-    assert.equal(result.sourceHandDelta,1);
-    assert.equal(result.sourceTopMovedToDiscard,true);
-    assert.equal(result.sourceNextTopMovedToHand,true);
-    assert.equal(result.mimikyuDeckDelta,0);
-    assert.ok(!result.copycatPrompts.includes('ChooseCardsPrompt'));
-    assert.ok(!result.copycatPrompts.includes('ShuffleDeckPrompt'));
-    assert.equal(result.competitiveQualifiedGames,0);
-    console.log('AGENT8_COPYCAT_ROTOTILLER_BURROW',JSON.stringify(result));
-  });
-
-  test('native Copycat follows Burrow then Rototiller and recycles its own discard, seat '+sourceSeat,()=>{
-    const result=probeAttackOrder(sourceSeat,'Burrow','Rototiller');
-    assert.equal(result.finalPreviousAttack,'Rototiller');
-    assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
-    assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
-    assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
-    assert.ok(result.sourcePrompts.includes('ShowCardsPrompt'));
     assert.equal(result.sourceDeckDelta,-1);
     assert.equal(result.sourceDiscardDelta,0);
     assert.equal(result.sourceHandDelta,1);
@@ -69,6 +56,32 @@ for(const sourceSeat of [0,1]){
     assert.ok(result.copycatPrompts.includes('ChooseCardsPrompt'));
     assert.ok(result.copycatPrompts.includes('ShuffleDeckPrompt'));
     assert.equal(result.competitiveQualifiedGames,0);
-    console.log('AGENT8_COPYCAT_BURROW_ROTOTILLER',JSON.stringify(result));
+    console.log('AGENT8_COPYCAT_FIRST_ATTACK_ROTOTILLER_BURROW',JSON.stringify(result));
+  });
+
+  test('native Store retains first attack after Burrow then Rototiller; Copycat uses Burrow, seat '+sourceSeat,()=>{
+    const result=probeAttackOrder(sourceSeat,'Burrow','Rototiller');
+    assert.equal(result.recordedPreviousAttack,'Burrow');
+    assert.deepEqual(result.paperRuleEligibleAttacks,['Burrow','Rototiller']);
+    assert.equal(result.engineRecordedAttackCount,1);
+    assert.equal(result.paperRuleMismatch,true);
+    assert.equal(result.sourceTurnMimikyuDeckDelta,-2);
+    assert.equal(result.sourceTurnMimikyuDiscardDelta,1);
+    assert.equal(result.sourceTurnMimikyuHandDelta,1);
+    assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
+    assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
+    assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
+    assert.ok(result.sourcePrompts.includes('ShuffleDeckPrompt'));
+    assert.equal(result.sourceDeckDelta,-2);
+    assert.equal(result.sourceDiscardDelta,1);
+    assert.equal(result.sourceHandDelta,1);
+    assert.equal(result.sourceTopMovedToDiscard,true);
+    assert.equal(result.sourceNextTopMovedToHand,true);
+    assert.equal(result.mimikyuDeckDelta,0);
+    assert.equal(result.mimikyuRecoverySelected,false);
+    assert.ok(!result.copycatPrompts.includes('ChooseCardsPrompt'));
+    assert.ok(!result.copycatPrompts.includes('ShuffleDeckPrompt'));
+    assert.equal(result.competitiveQualifiedGames,0);
+    console.log('AGENT8_COPYCAT_FIRST_ATTACK_BURROW_ROTOTILLER',JSON.stringify(result));
   });
 }
