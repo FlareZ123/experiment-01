@@ -31,6 +31,8 @@ function compareNativePromptOrder(){
     return {label,baseline,treatment:t,audit:a,
       expectedFirst,exactFirstMatch,auditMatch};
   });
+  assert.ok(arms.every(x=>x.exactFirstMatch&&x.auditMatch),
+    'Paper KO-first native prompt and callback contract changed');
   return {
     version:VERSION,realPinnedStore:true,threeActualAcceptedAttacks:true,
     allPaperFirstPromptInvariantsPassed:arms.every(x=>x.exactFirstMatch),
