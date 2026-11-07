@@ -5,7 +5,7 @@ const path=require('node:path');
 const {assessDirectEnergy}=
   require('../twinleaf/agent30-source-attack-energy-reachability.cjs');
 
-const VERSION='agent3-mimikyu-copycat-eon-blade-eligibility-v2';
+const VERSION='agent3-mimikyu-copycat-eon-blade-eligibility-v3';
 const CARD_DIR=path.resolve(__dirname,'../../resources/cards/en');
 const cardCache=new Map();
 
@@ -105,6 +105,17 @@ function auditOneCopycat({
     currentRoot.action==='ResolvePromptAction'&&
     currentRoot.attackChoice?.attackName===attack.attackName&&
     currentChoice?.printing===donorFullName);
+  const copycatRootOrdinal=Number.isSafeInteger(copycatRoot?.actionOrdinal)?
+    copycatRoot.actionOrdinal:null;
+  const currentAttackInitiatingRootOrdinal=
+    Number.isSafeInteger(attack.initiatingRootActionOrdinal)?
+      attack.initiatingRootActionOrdinal:null;
+  const currentRootInitiatingRootOrdinal=
+    Number.isSafeInteger(currentRoot?.initiatingRootActionOrdinal)?
+      currentRoot.initiatingRootActionOrdinal:null;
+  const currentCopycatLineageValid=copycatRootOrdinal!==null&&
+    currentAttackInitiatingRootOrdinal===copycatRootOrdinal&&
+    currentRootInitiatingRootOrdinal===copycatRootOrdinal;
   const hasResetBetween=Boolean(prior&&ledger.some(row=>
     row.actionOrdinal>=prior.actionOrdinal&&
     row.actionOrdinal<=attack.actionOrdinal&&
@@ -148,6 +159,8 @@ function auditOneCopycat({
     'physical-Copycat-AttackAction-root-missing');
   addFailure(reasons,currentRootValid,
     'current-copied-attack-choice-does-not-match-donor');
+  addFailure(reasons,currentCopycatLineageValid,
+    'current-copied-attack-not-initiated-by-this-Copycat-root');
   addFailure(reasons,prior!==null&&
     prior.settledPromptChain===true&&
     prior.settlementCrossesClockReset===false&&
@@ -182,7 +195,10 @@ function auditOneCopycat({
     currentCopiedAttack:attack.attackName,
     currentCopiedAttackDonor:currentChoice?.printing??null,
     currentAttackDelegatedCopy:attack.delegatedCopy===true,
-    currentCopycatAttackActionOrdinal:copycatRoot?.actionOrdinal??null,
+    currentCopycatAttackActionOrdinal:copycatRootOrdinal,
+    currentAttackInitiatingRootOrdinal,
+    currentRootInitiatingRootOrdinal,
+    currentCopycatLineageValid,
     priorOpponentAttackObserved:prior!==null,
     priorOpponentAttackName:prior?.attackName??null,
     priorOpponentAttackTurn:prior?.turnBefore??null,
