@@ -58,7 +58,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify native Mimikyu Copycat executes Bunnelby Burrow after the immediately preceding turn
-        run: node --test tests/agent8-mimikyu-burrow-native.test.cjs
+        run: node --test tests/agent8-mimikyu-burrow-native.test.cjs tests/agent21-copycat-choice-set.test.cjs
       - name: Validate copycat metadata bug and research-side hook
         run: node --test tests/mimikyu_apex_copycat.test.cjs
       - name: Validate nested Copycat to Apex Dragon to Timeless-GX effects
