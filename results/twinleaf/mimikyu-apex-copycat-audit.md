@@ -143,3 +143,7 @@ This closes the concern that the custom tactic can return an underfunded or atta
 
 
 The full `headless.cjs` integration additionally refuses to enable the Apex Copycat policy unless all four compatibility/history/pass-clearing flags are explicitly enabled, then restores those hooks after the run. The existing [headless hook-options regression](../../tests/mimikyu-headless-hook-options.test.cjs) covers that fail-closed dependency contract; Agent46's new underfunded-policy test isolates the independent SimpleTacticsAi legality gate.
+
+
+
+Agent37's separate [archived Eon Blade chronology](../methodology/agent37-v8-latias-eonblade-turnrestriction-archive-audit-20261107.md) records original Latias ex using Eon Blade on alternate turns after intervening PassTurnAction turns, consistent with the one-own-turn restriction lifecycle. That archive concerns the original attack, while the present native test directly checks Mimikyu's copied lock on its immediately following own turn.
