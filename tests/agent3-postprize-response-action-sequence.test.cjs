@@ -53,19 +53,19 @@ test('captures every post-dispatch candidate response root after an exact source
   store.state.players[0].prizes=prizes(5);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
 
-  store.state.turn=2;
+  store.state.turn=1;
   store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
   store.state.players[0].discard.cards=[card('Fog Crystal')];
   store.state.players[0].deck.cards=Array.from({length:4},(_,i)=>({id:i}));
   store.state.prompts=[{constructor:{name:'ChooseCardsPrompt'},playerId:0}];
-  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,2);
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,1);
 
   store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
   store.state.prompts=[];
-  obs.onRootActionDispatched(store,new ResolvePromptAction(),3,0,2);
+  obs.onRootActionDispatched(store,new ResolvePromptAction(),3,0,1);
 
-  store.state.turn=3;
-  obs.onRootActionDispatched(store,new PassTurnAction(),4,0,2);
+  store.state.turn=2;
+  obs.onRootActionDispatched(store,new PassTurnAction(),4,0,1);
 
   const result=obs.result();
   assert.equal(VERSION,'agent3-postprize-response-action-sequence-v1');
@@ -75,6 +75,7 @@ test('captures every post-dispatch candidate response root after an exact source
   assert.equal(sequence.registeredTrialId,'trial1');
   assert.equal(sequence.sourceSeat,1);
   assert.equal(sequence.candidateSeat,0);
+  assert.equal(sequence.candidateTurn,1,'both players may act in the same global round number');
   assert.deepEqual(sequence.sourcePrizeRootOrdinals,[1]);
   assert.equal(sequence.prizesTaken,1);
   assert.equal(sequence.firstResponseRootOrdinal,2);
@@ -98,8 +99,8 @@ test('multiple source Prize exits in one turn stay attached to the same response
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
   store.state.players[0].prizes=prizes(3);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),2,1,1);
-  store.state.turn=2;
-  obs.onRootActionDispatched(store,new PlayCardAction(),3,0,2);
+  store.state.turn=1;
+  obs.onRootActionDispatched(store,new PlayCardAction(),3,0,1);
   const [sequence]=obs.result().sequences;
   assert.deepEqual(sequence.sourcePrizeRootOrdinals,[1,2]);
   assert.equal(sequence.prizesTaken,3);
@@ -113,8 +114,8 @@ test('action-capped response remains explicitly incomplete',()=>{
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
   store.state.players[0].prizes=prizes(5);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
-  store.state.turn=2;
-  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,2);
+  store.state.turn=1;
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,1);
   const [sequence]=obs.result().sequences;
   assert.equal(sequence.completedByPass,false);
   assert.equal(sequence.turnEndObserved,false);
@@ -158,7 +159,7 @@ test('joins post-action hand changes to the exact projected response root',()=>{
     registeredTrialId:'trial1',
     causalSourcePrizeRootOrdinal:1,
     candidateOwnerSeat:0,
-    candidateReplyNativeTurn:2,
+    candidateReplyNativeTurn:1,
     firstCandidateResponseRootOrdinal:2
   }];
   const joined=joinPostPrizeResponseActionSequences(
