@@ -98,8 +98,8 @@ test('unlogged natural VIP roots before and after the intervention do not invali
     })
   ];
   const f={
-    controlLedger:control,controlRootActionCount:3,
-    treatmentLedger:treatment,treatmentRootActionCount:6,
+    controlLedger:control,controlRootActionCount:3,controlCompleted:true,
+    treatmentLedger:treatment,treatmentRootActionCount:6,treatmentCompleted:true,
     vipAudit:audit([itemEvent(2,0,1),searchEvent(2,3,0,1)],{
       dispatchRootCount:6
     })
