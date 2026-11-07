@@ -642,32 +642,6 @@ test('single-candidate-per-source-group accepts a fixed candidate across eight c
   assert.deepEqual(registeredSourcePairKeys(rows,false,true),[]);
 });
 
-test('single-candidate-per-source-group rejects paired, mixed, and one-group inputs',()=>{
-  const base={
-    rank:1,repeat:301,candidateSlot:'A',
-    candidateId:'new-moon-lockbreaker-v1',seed:9001
-  };
-  const one=[{...base,id:'1:301:A:new-moon-lockbreaker-v1'}];
-  const paired=[...one,{...base,candidateId:'champion-reference',
-    id:'1:301:A:champion-reference'}];
-  const mixed=[
-    ...one,
-    {rank:3,repeat:303,candidateSlot:'B',
-      candidateId:'champion-reference',seed:9003,
-      id:'3:303:B:champion-reference'}
-  ];
-  assert.throws(()=>validateRegisteredTrialGroups(one,[1],false,true),
-    /requires multiple source groups/);
-  assert.throws(()=>validateRegisteredTrialGroups(paired,[1],false,true),
-    /exactly one candidate arm/);
-  assert.throws(()=>validateRegisteredTrialGroups(mixed,[1,3],false,true),
-    /same fixed candidate/);
-  assert.throws(()=>validateRegisteredTrialGroups(one,[1],true,true),
-    /mutually exclusive/);
-  assert.throws(()=>registeredSourcePairKeys(paired,false,true),
-    /one arm per group/);
-});
-
 test('single-candidate-per-source-group validates a fixed deck across eight registered contexts',()=>{
   const rows=[];
   const ranks=[1,3,6,11];
@@ -689,22 +663,30 @@ test('single-candidate-per-source-group validates a fixed deck across eight regi
 });
 
 test('single-candidate-per-source-group rejects malformed group shapes',()=>{
-  const base={
+  const one=[{
+    id:'1:301:A:new-moon-lockbreaker-v1',
     rank:1,repeat:301,candidateSlot:'A',
     candidateId:'new-moon-lockbreaker-v1',seed:9001
+  }];
+  const second={
+    id:'3:303:B:new-moon-lockbreaker-v1',
+    rank:3,repeat:303,candidateSlot:'B',
+    candidateId:'new-moon-lockbreaker-v1',seed:9003
   };
-  const one=[{...base,id:'1:301:A:new-moon-lockbreaker-v1'}];
-  const paired=[...one,{...base,candidateId:'champion-reference',
-    id:'1:301:A:champion-reference'}];
+  const paired=[
+    ...one,
+    {...one[0],id:'1:301:A:champion-reference',
+      candidateId:'champion-reference'},
+    second
+  ];
   const mixed=[
     ...one,
-    {rank:3,repeat:303,candidateSlot:'B',
-      candidateId:'champion-reference',seed:9003,
-      id:'3:303:B:champion-reference'}
+    {...second,id:'3:303:B:champion-reference',
+      candidateId:'champion-reference'}
   ];
   assert.throws(()=>validateRegisteredTrialGroups(one,[1],false,true),
     /requires multiple source groups/);
-  assert.throws(()=>validateRegisteredTrialGroups(paired,[1],false,true),
+  assert.throws(()=>validateRegisteredTrialGroups(paired,[1,3],false,true),
     /exactly one candidate arm/);
   assert.throws(()=>validateRegisteredTrialGroups(mixed,[1,3],false,true),
     /same fixed candidate/);
