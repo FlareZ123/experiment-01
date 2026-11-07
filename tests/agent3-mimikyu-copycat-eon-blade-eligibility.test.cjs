@@ -110,9 +110,10 @@ test('the same join works when Mimikyu is the original-source seat',()=>{
     {actionOrdinal:10,turnBefore:4,turnAfter:4,playerSlot:1,
       action:'AttackAction',attack:'Eon Blade'},
     {actionOrdinal:15,turnBefore:5,turnAfter:5,playerSlot:0,
-      action:'AttackAction',attack:'Copycat'},
+      action:'AttackAction',attack:'Copycat',
+      initiatingRootActionOrdinal:15},
     {actionOrdinal:20,turnBefore:5,turnAfter:5,playerSlot:0,
-      action:'ResolvePromptAction',
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:15,
       attackChoice:{printing:'Latias ex SSP',attackName:'Eon Blade'}}
   ];
   const row=audit(f).rows[0];
