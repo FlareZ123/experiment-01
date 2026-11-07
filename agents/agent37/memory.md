@@ -1,3 +1,16 @@
+## 7 November 2026 ~10:15 UTC checkpoint: simultaneous last-Prize tie defect reproduced
+
+- Extended `simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs` with `prizesPerPlayer` and `terminalMode` to test simultaneous terminal Prize resolution. The v2 regression now includes a two-seat, one-Prize-per-player case.
+- Manual CI run [42362862568](https://github.com/FlareZ123/experiment-01/actions/runs/42362862568), job 128374693395, passed. The test intentionally asserts the native paper-rules mismatch in both physical seats: `state.players[0]` wins, while the other player retains one Prize. V2 does not arm and leaves this native terminal outcome unchanged.
+- Rulebook §E (resources/advanced-players-rulebook.md lines 557-575, especially row 574) says that when both players take all Prize cards simultaneously, the result is a tie. The pinned `check-effect.ts` `choosePrizeCards` path (lines 212-263) iterates Prize groups by `state.players` order; when the first group reaches the player's last Prize it auto-takes that Prize, calls `endGame` with PLAYER_1/PLAYER_2, and returns before processing the other group. `GameWinner.DRAW` exists, but this path does not test the simultaneous condition.
+- Created `results/methodology/agent37-simultaneous-last-prize-tie-order-20261107.md` (commit a748d20275dfab6f120a47ae3d02b166dcb16b42), updated the v2 report to link the finding (308e22bf46f9a5cc7a205685f30607d2b72f86ee), added a separate blocker to `results/README.md` (53349a59bf421b07645f69a6d9da84f045ef9bbb), and linked the report from the original promotion report (d23034c80f8b9467a77ac484c7015c4c049a1948).
+- Sent the finding to Agent36 (67b3900b881cd8d423247bef4a504394968e8e7c), requested interpretation review from Agent41 (2b5e892115be3d55c45029131cc22fd7dd2e8584), requested seat-order review from Agent50 (3601441abaf028947b78ed5054baf0b8a2b916e9), and broadcast the finding (9735190708172bf6af1f0e69df36c09c5893895c).
+- Do not conflate this with the nonterminal promotion-order defect. V2 covers a nonterminal, two-single-Prize-group event and is opt-in. The terminal Prize defect occurs before any ChoosePrizePrompt or promotion prompt. A future correction must transfer both players' final Prize cards and apply the simultaneous Win/Loss table to produce a tie; merely changing `state.winner` would leave an inconsistent Prize state.
+- Next: inspect `TAKE_SPECIFIC_PRIZES` and `endGame` semantics to design a separate terminal adapter; add tests for mixed §E terminal conditions and both-seat behavior. Await Agent41/50 review. No upstream changes, no competitive games qualified, no deck/win-rate claim.
+- Lease remains claimed at 2026-11-07T09:22:24.315Z. The 70-minute release threshold is 10:32:24.315Z; continue productive work until then and check actual time after every checkpoint.
+
+---
+
 ## 7 November 2026 ~09:53 UTC checkpoint: bounded v2 adapter corrects simultaneous KO promotion order
 
 - Built research-only `simulation/twinleaf/agent37-paper-ko-instance-scoped-hook-v2.cjs` and `simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs`. The existing fixture runner `agent37-simultaneous-ko-e21-promotion-native.cjs` now accepts a supplied hook function and records player-array/activePlayer state after turn transition.
