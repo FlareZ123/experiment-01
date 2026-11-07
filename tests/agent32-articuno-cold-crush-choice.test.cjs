@@ -38,14 +38,14 @@ function slot(pokemonCards = [], energies = []) {
   return {cards: [...pokemonCards, ...energies], energies: {cards: [...energies]}};
 }
 
-/** @param {object[]} benchWater */
-function scene(benchWater = [water(1)], opponentEnergyCount = 3) {
+/** @param {object[]} otherWater */
+function scene(otherWater = [water(1)], opponentEnergyCount = 3) {
   const articuno = {...pokemon('Articuno-GX', 10), fullName: 'Articuno-GX CES'};
   const owner = {
     id: 101,
     usedGX: false,
-    active: slot([pokemon('Snorlax', 11)]),
-    bench: [slot([articuno], benchWater), slot(), slot(), slot(), slot()]
+    active: slot([pokemon('Snorlax', 11)], otherWater),
+    bench: [slot([articuno]), slot(), slot(), slot(), slot()]
   };
   const opponent = {
     active: slot([pokemon('Shadow Rider Calyrex VMAX', 20)],
