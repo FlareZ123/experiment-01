@@ -163,16 +163,22 @@ function runSnapTrapChoiceContract() {
 
   const fullIndex = prompt.cards.cards.indexOf(energy);
   const energySublistIndex = prompt.cards.energies.cards.indexOf(energy);
+  const fullListCountBefore = prompt.cards.cards.length;
+  const attachedEnergyCountBefore = prompt.cards.energies.cards.length;
+  const fullIndexDecoded = prompt.decode([fullIndex]);
+  const sublistIndexDecoded = prompt.decode([energySublistIndex]);
+  const fullIndexValid = prompt.validate(fullIndexDecoded);
+  const sublistIndexValid = prompt.validate(sublistIndexDecoded);
   assert.equal(fullIndex, 1,
     'the full PokemonCardList contains Marshadow first and Energy second');
   assert.equal(energySublistIndex, 0,
     'the attached-Energy sublist contains only the Energy');
-  assert.strictEqual(prompt.decode([fullIndex])[0], energy,
+  assert.strictEqual(fullIndexDecoded[0], energy,
     'client indices decode against the full PokemonCardList.cards array');
-  assert.strictEqual(prompt.decode([energySublistIndex])[0], marshadow,
+  assert.strictEqual(sublistIndexDecoded[0], marshadow,
     'using an Energy-sublist index would select the wrong full-list object');
-  assert.equal(prompt.validate(prompt.decode([fullIndex])), true);
-  assert.equal(prompt.validate(prompt.decode([energySublistIndex])), false);
+  assert.equal(fullIndexValid, true);
+  assert.equal(sublistIndexValid, false);
   assert.equal(prompt.validate(null), false,
     'the mandatory prompt cannot be cancelled');
 
@@ -212,7 +218,8 @@ function runSnapTrapChoiceContract() {
     'SimpleTacticsAi prompt actions carry Card[] rather than numeric indices');
   assert.equal(action.result.length, 1);
   assert.strictEqual(action.result[0], energy);
-  assert.equal(prompt.validate(action.result), true);
+  const actionPromptValid = prompt.validate(action.result);
+  assert.equal(actionPromptValid, true);
 
   store.dispatch(action);
 
@@ -250,16 +257,16 @@ function runSnapTrapChoiceContract() {
       max: prompt.options.max,
       allowCancel: prompt.options.allowCancel,
       isSecret: prompt.options.isSecret,
-      fullPokemonCardListCount: prompt.cards.cards.length + 1,
-      attachedEnergyCountBefore: 1
+      fullPokemonCardListCount: fullListCountBefore,
+      attachedEnergyCountBefore
     },
     indexContract: {
       selectedEnergyFullListIndex: fullIndex,
       selectedEnergySublistIndex: energySublistIndex,
-      fullListDecodeReturnsSameObject: prompt.decode([fullIndex])[0] === energy,
-      sublistIndexWouldReturnPokemon: prompt.decode([energySublistIndex])[0] === marshadow,
-      fullListDecodeValid: prompt.validate(prompt.decode([fullIndex])),
-      sublistIndexDecodeValid: prompt.validate(prompt.decode([energySublistIndex]))
+      fullListDecodeReturnsSameObject: fullIndexDecoded[0] === energy,
+      sublistIndexWouldReturnPokemon: sublistIndexDecoded[0] === marshadow,
+      fullListDecodeValid: fullIndexValid,
+      sublistIndexDecodeValid: sublistIndexValid
     },
     aiContract: {
       resolver: 'test-local deterministic public attached-Energy selector',
@@ -267,7 +274,7 @@ function runSnapTrapChoiceContract() {
       actionType: action.constructor.name,
       actionResultType: 'Card[]',
       actionContainsSamePhysicalEnergy: action.result[0] === energy,
-      explicitPromptValidationBeforeDispatch: true,
+      explicitPromptValidationBeforeDispatch: actionPromptValid,
       hiddenIdentityReadAttempts: hiddenReadAttempts.length
     },
     resolution: {
