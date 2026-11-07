@@ -7,6 +7,7 @@ on:
       - tests/agent21-night-stretcher-staged-native.test.cjs
       - tests/agent21-secretbox-target-whiff-native.test.cjs
       - tests/agent21-box-salvage-attack-native.test.cjs
+      - tests/agent21-night-stretcher-paper-eligibility-native.test.cjs
   workflow_dispatch:
 
 permissions:
@@ -56,6 +57,10 @@ jobs:
         run: |
           node --test tests/agent21-box-salvage-attack-native.test.cjs > agent21-box-salvage-attack-native.log 2>&1 || { cat agent21-box-salvage-attack-native.log; exit 1; }
           cat agent21-box-salvage-attack-native.log
+      - name: Run scoped native Night Stretcher paper eligibility source hook and restoration
+        run: |
+          node --test tests/agent21-night-stretcher-paper-eligibility-native.test.cjs > agent21-night-stretcher-paper-eligibility-native.log 2>&1 || { cat agent21-night-stretcher-paper-eligibility-native.log; exit 1; }
+          cat agent21-night-stretcher-paper-eligibility-native.log
       - name: Preserve native output including any negative assertion
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -66,5 +71,6 @@ jobs:
             agent21-night-stretcher-staged-native.log
             agent21-secretbox-target-whiff-native.log
             agent21-box-salvage-attack-native.log
+            agent21-night-stretcher-paper-eligibility-native.log
           if-no-files-found: warn
           retention-days: 14
