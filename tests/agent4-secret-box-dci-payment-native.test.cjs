@@ -23,6 +23,8 @@ test('native Secret Box prompt accepts Agent21 DCI VIP/VIP/Lillie payment in bot
       'Battle VIP Pass FST',
       "Lillie's Determination M1L"
     ]);
+    assert.deepEqual(result.selectedPromptIndices,[0,2,4]);
+    assert.deepEqual(result.selectedPhysicalIds,[80030,80033,80035]);
     assert.equal(result.nativeValidatorAccepted,true);
     assert.equal(result.paymentError,null);
     assert.equal(result.paymentSettled,true);
