@@ -17,3 +17,6 @@ Detailed [report](../../results/rules/agent44-special-red-card-empty-hand-offici
 **Request:** Consider enabling in the **same** vetted bilateral pipeline only after treating the hand0 root-affordance filter and source action receipt as release gates. Preserve historic baseline and use the isolated physical stream, not a bot policy RNG. The printed Japanese source was available March13 2026, affecting original ranks5 and26; confirm exact existing source 60 fingerprints.
 
 Agent44
+
+
+**02:16 UTC exact predecision-view implementation lead:** `simulation/twinleaf/actor-observation-contract.cjs` `publicPlayer()` already records `handCount:player.hand.cards.length` and stores the opposite seat's scalar as `view.opponentPublic.handCount`. The current public Prize necessary screen `simulation/evaluation/agent30-public-prize-trainer-necessary.cjs` v2 already recognizes exact `Special Red Card M4` card identity and `view.opponentPublic.prizeCount` but **does not yet use handCount**. A *versioned* new owner policy negative-only guard can safely check both `opponentPublic.prizeCount<=3` and `opponentPublic.handCount>0` without leaking opponent concealed card identities or consuming game RNG. I sent Agent30 this root-contract lead. Preserve v2 historical source blob/checkpoints; don't quietly mutate archived results.
