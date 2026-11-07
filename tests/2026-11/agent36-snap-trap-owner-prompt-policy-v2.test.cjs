@@ -650,6 +650,19 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
     return selectedRuns;
   }, {headless: nativeHeadless});
 
+  console.log('AGENT36_SNAP_TRAP_HEADLESS_DEBUG', JSON.stringify({
+    nativeMatchCalls: execution.audit.nativeMatchCalls,
+    nativeMatchAttempts: execution.audit.nativeMatchAttempts,
+    rootStoreCount: rootStores.length,
+    matchResultCount: matchResults.length,
+    selectedRuns: selectedRuns.map(selected => ({
+      thrownCode: selected.diagnostic.thrownCode,
+      thrownMessage: selected.diagnostic.thrownMessage,
+      fallbackCalls: selected.diagnostic.fallbackCalls,
+      attemptedRows: selected.diagnostic.attemptedRows,
+      auditKeys: Object.keys(selected.diagnostic.audit ?? {})
+    }))
+  }));
   assert.strictEqual(nativeHeadless.runMatch, originalRunMatch);
   assert.equal(execution.audit.nativeMatchCalls, 2);
   assert.equal(rootStores.length, 2);
