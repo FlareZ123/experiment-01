@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v4e-flash-stadium-unverified';
+const VERSION='agent39-paper-prompt-portfolio-v4f-no-unverified-physical-cert';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -214,7 +214,8 @@ function withPaperPromptPortfolio(run,deps={}){
       entry.nativePromptSettled=!!pending&&action.result!==undefined&&pending.result===action.result;
       if(entry.nativePromptSettled)audit.liveNativePromptSettled++;
       else audit.liveNativeSilentNoop++;
-      entry.physicalEffectVerified=!!(marked&&entry.nativePromptSettled&&
+      entry.physicalEffectVerified=!!(marked&&
+        status==='PAPER_PROMPT_VERIFIED'&&entry.nativePromptSettled&&
         !targetPreviouslyHadCard&&
         !owner.active.cards.includes(movedCard)&&
         (!Array.isArray(owner.active.energies?.cards)||
@@ -229,7 +230,7 @@ function withPaperPromptPortfolio(run,deps={}){
           target.cards.includes(movedCard)&&
           (!Array.isArray(target.energies?.cards)||
             target.energies.cards.includes(movedCard))));
-      entry.nativeAccepted=marked?
+      entry.nativeAccepted=marked&&status==='PAPER_PROMPT_VERIFIED'?
         entry.nativePromptSettled&&entry.physicalEffectVerified:
         entry.nativePromptSettled;
       if(status==='PAPER_PROMPT_VERIFIED'){
