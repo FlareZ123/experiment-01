@@ -46,7 +46,7 @@ H(D,\ell,m)=\left\lfloor\frac{D}{1+\ell+m}\right\rfloor
 
 Here D is the owner's deck count after the current mandatory draw, l is owner-side deck loss per owner turn, and m is opponent mill per opponent turn. When l is Filch's two-card draw, this is Agent 2's original f=2 scenario.
 
-The module also exports **compareStationaryDrawToDeadline**. It compares repeated voluntary draw with repeated Pass against an externally supplied number of future owner turns required by a Prize-plan or board evaluator. It classifies the result as draw-horizon-sufficient, pass-required-to-reach-deadline, or neither-policy-reaches-deadline. The helper supplies a decision boundary while leaving the required-turn estimate to a separate game-state component.
+The module also exports **compareStationaryDrawToDeadline**. It compares repeated voluntary draw with repeated Pass against an externally supplied number of future owner turns required by a Prize-plan or board evaluator. It classifies the result as draw-horizon-sufficient, pass-required-to-reach-deadline, or neither-policy-reaches-deadline. The helper supplies a decision boundary while leaving the required-turn estimate to a separate game-state component. The **distributionOfFutureOwnerStarts** export accepts weighted mill outcomes and returns an exact rational distribution using BigInt numerators and a common denominator. It assumes independent, identically distributed opponent-mill outcomes on each future cycle.
 
 For D=23 and m=2, a five-future-turn plan is unreachable under repeated Filch (4 starts) and reachable under repeated Pass (7 starts). An eight-turn plan is unreachable under both policies. A three-turn plan fits both horizons.
 
@@ -73,7 +73,7 @@ The following table uses stationary scenarios. Filch draws two cards, and Pass d
 | 15 | 2 | 5 | 4 | 3 |
 | 4 | 2 | 1 | 0 | 0 |
 
-The deck counts 23 and 22 are the two first Filch-to-Pass divergence roots in Agent 1's original-rank-11 v15 experiment. The table treats opponent mill as a scenario input. The m=0 column is a no-mill comparison, while m=1 and m=2 represent one or two settled Burrows per opposing turn. Team Rocket's Handiwork adds stochastic 0/2/4-card mill outcomes. The deterministic m=2 case is its expected-value approximation; the current schedule records realized outcomes and does not yet compute a coin-flip survival distribution.
+The deck counts 23 and 22 are the two first Filch-to-Pass divergence roots in Agent 1's original-rank-11 v15 experiment. The table treats opponent mill as a scenario input. The m=0 column is a no-mill comparison, while m=1 and m=2 represent one or two settled Burrows per opposing turn. Team Rocket's Handiwork adds stochastic 0/2/4-card mill outcomes. The deterministic m=2 case is its expected-mill approximation. The stochastic helper retains the full 0/2/4 outcome distribution under an explicit repeated-use assumption.
 
 At D=23 and m=2, one Filch followed by Pass has the same whole-turn budget as passing immediately: seven future starts. Repeating Filch reduces the budget to four. This integer boundary illustrates why a single-action comparison can miss the cumulative cost of a repeated draw policy.
 
@@ -87,12 +87,26 @@ A piecewise schedule captures a short burst. At D=15, assume the opponent settle
 
 The schedule explicitly represents the observed two-Burrow capability while leaving future opponent actions open. The three values are conditional survival budgets. They do not evaluate the cards Filch could find, alternative attacks, Prize progress or the official match clock.
 
+Team Rocket's Handiwork adds a stochastic mill source. For one use at D=23 followed by a no-mill tail, its 0/2/4 outcomes give future-turn budgets **[21, 19, 17]** after Filch and **[23, 21, 19]** after Pass. The weighted expected budgets are 19 and 21.
+
+For a repeated iid Handiwork stress scenario with outcome weights 1:2:1 for mill 0:2:4, the exact distribution at D=23 is:
+
+| Future owner starts | Repeat Filch probability |
+|---:|---:|
+| 3 | 37/256 |
+| 4 | 245/512 |
+| 5 | 1465/4096 |
+| 6 | 301/16384 |
+| 7 | 15/16384 |
+
+The expected horizon is **69675/16384 (about 4.25262)**, and the chance of at least five future starts is **193/512 (about 37.6953%)**. Under repeated Pass, the expected horizon is **523879358914293/70368744177664 (about 7.44477)**, and the chance of at least five future starts is **1023/1024 (about 99.9023%)**. This repeated-use case is a stress scenario because each field list contains one Handiwork and further plays require recovery.
+
 ## Reproduction
 
 - Implementation: **simulation/evaluation/agent1-owner-deck-attrition-schedule.cjs**.
 - Tests: **tests/agent1-owner-deck-attrition-schedule.test.cjs**.
-- Local Node 22.16.0 run: **9/9 tests passed**.
-- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module, 17,199 finite-schedule cases against an independent literal recurrence, and the eleven-turn native rank-3 deck-count reconstruction.
+- Local Node 22.16.0 run: **14/14 tests passed**.
+- The test suite checks 4,941 stationary-tail comparisons against Agent 2's actual module, 17,199 finite-schedule cases against an independent literal recurrence, 1,525 deterministic stochastic-tail comparisons, the exact Handiwork coin distribution, and the eleven-turn native rank-3 deck-count reconstruction.
 - It also checks the D=23 Filch comparison, sustained double-Burrow pressure, a one-turn double-Burrow burst, deadline classifications, the empty-deck boundary, and invalid inputs.
 
 ## Rule boundary
@@ -101,7 +115,7 @@ The supplied Advanced Player's Rulebook v3.4 (2025-01-08), Win and Loss section,
 
 ## Limits and next experiment
 
-The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow or Team Rocket's Handiwork, that Bunnelby will remain Active, that a second attack will be accepted, or how coin flips resolve. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
+The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow or Team Rocket's Handiwork, that Bunnelby will remain Active, that a second attack will be accepted, or whether Handiwork will be recovered. The stochastic helper assumes independent outcomes with the supplied weights. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
 
 A useful successor is a preregistered, owner-only Mimikyu Filch policy comparison on matched original rank-3 and rank-11 deals, both physical seats. The policy should compare Filch with Pass and any other payable attack, use only owner-known and public information, record actual Store attack and deck-count transitions, and retain the opponent's competent response. Include the 2026 paper-rule and official-clock admission gates before scoring any game.
 
