@@ -1,0 +1,34 @@
+name: Agent 3 native pre-attack public board pure regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs
+      - tests/agent3-native-pre-attack-public-board-join.test.cjs
+      - .github/workflows/agent3-native-pre-attack-pure.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent3-native-pre-attack-pure-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pure-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Checkout research modules without Twinleaf
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run four public-only KO root regression scenarios
+        run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs
