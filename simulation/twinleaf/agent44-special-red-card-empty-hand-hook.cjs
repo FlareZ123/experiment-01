@@ -82,5 +82,33 @@ function installSpecialRedCardEmptyHandHook() {
   return installSpecialRedCardPaperHook();
 }
 
+/**
+ * Dispatch exactly one genuine physical Store action with the full source
+ * printing paper correction. The hook is active only during a *real* native
+ * action, so speculative bot Store clones cannot consume physical RNG.
+ * Unrelated cards are dispatched unchanged.
+ *
+ * @param {object} store Pinned physical game's Store instance.
+ * @param {object} action Exact selected native Action.
+ * @param {()=>number} physicalRandom Deterministic reproducible fair game RNG.
+ * @returns {object} Pinned native Store.dispatch result.
+ */
+function dispatchSpecialRedCardPaperRoot(store,action,physicalRandom) {
+  const {PlayCardAction} = require(path.join(output,
+    'game/store/actions/play-card-action'));
+  if (!(action instanceof PlayCardAction)) return store.dispatch(action);
+  const actor=store.state.players.find(p=>p.id===action.id);
+  const card=actor?.hand.cards[action.handIndex];
+  if (card?.fullName !== 'Special Red Card M4') return store.dispatch(action);
+  if (typeof physicalRandom !== 'function')
+    throw new TypeError('Physical M4 Store dispatch requires an explicit game RNG');
+  const restore=installSpecialRedCardPaperHook(physicalRandom);
+  try {
+    return store.dispatch(action);
+  } finally {
+    restore();
+  }
+}
+
 module.exports = {installSpecialRedCardEmptyHandHook,
-  installSpecialRedCardPaperHook};
+  installSpecialRedCardPaperHook,dispatchSpecialRedCardPaperRoot};
