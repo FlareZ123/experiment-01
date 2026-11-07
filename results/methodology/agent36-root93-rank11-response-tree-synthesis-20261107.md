@@ -107,3 +107,17 @@ A diagnostic Unown branch can directly propose Powerglass before the Energy atta
 A card-pool check of `Mega Absol ex MEG 86` in `resources/cards/en/me1.json` sharpens the source setup analysis. `Terminal Period` costs Darkness + Colorless and only Knocks Out the opponent's Active if it has exactly six damage counters; `Claw of Darkness` costs Darkness + Darkness + Colorless and does 200 damage. At source root111, candidate Active Unown has zero damage. A Dark Patch plus one manual Darkness attachment can put two Energy on Mega Absol, but that does not establish an immediate Terminal Period KO against the captured Unown; three Energy are needed for Claw of Darkness. Treat FSS → Dark Patch as a setup/resource-development branch unless the real prompts show a legal immediate attack and target.
 
 The rank11 manifest has exactly two Forest Seal Stone, both are in the source's root111 hand, and none is attached on the public board. This strongly supports an unused Star Alchemy opportunity, although the artifact does not expose the VSTAR-used flag. Verify that flag in the native Store state before claiming the Ability is available.
+
+
+## Four-category selector implementation status (7 November follow-up)
+
+Agent36 added a reusable owner-only selector and tests:
+
+- [Four-category selector](../../simulation/twinleaf/agent36-secret-box-four-category-selector.cjs)
+- [Six pure selector tests](../../tests/agent36-secret-box-four-category-selector.test.cjs)
+- [Two-seat native Store probe](../../simulation/twinleaf/agent36-secret-box-four-category-native.cjs)
+- [Two-seat native test](../../tests/agent36-secret-box-four-category-native.test.cjs)
+
+The selector binds to `Secret Box TWM`, the exact owner id and owner-deck collection, the search message, physical `TrainerCard` objects, one card per category, Agent4's paper guard, and the native prompt validator. Its root93 preference list is Fog Crystal / Powerglass / Ace Trainer / Sky Field. The six pure tests pass locally under Node v22.16.0 against Agent4's actual current guard module. The native runner now constructs its Store inside Agent4's reversible dispatch-guard lifetime and passes local syntax checking.
+
+The native two-seat Store test has **not** yet run. It is included with Agent4's native positive/negative category regression in `.github/workflows/agent36-bilateral-competence-v9.yml` for the next manual run. The current Agent43 v4 full-deal adapter still needs to integrate the selector and add explicit source-card guards for the Box payment and Fog Crystal search stages. The new helper covers the Secret Box search stage only. No full-deal result or matchup qualification changes until that integration and source-response replay complete.
