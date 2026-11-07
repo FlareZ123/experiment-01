@@ -7,10 +7,14 @@ const {candidateAttackSettlement}=require(
 
 /** @returns {object} Minimal fake public Store audit of one delegated attack. */
 function fixture(){
-  const initial=[{active:{name:'Mega Absol ex',damage:0}},
-    {active:{name:'Mewtwo & Mew-GX',damage:0}}];
-  const damaged=[{active:{name:'Mega Absol ex',damage:150}},
-    {active:{name:'Mewtwo & Mew-GX',damage:0}}];
+  const initial=[{active:{name:'Mega Absol ex',printing:'Mega Absol ex',damage:0,
+      printedAttacks:[{name:'Darkness Fang'}]}},
+    {active:{name:'Mewtwo & Mew-GX',printing:'Mewtwo & Mew-GX',damage:0,
+      printedAttacks:[{name:'Miraculous Duo-GX'}]}}];
+  const damaged=[{active:{name:'Mega Absol ex',printing:'Mega Absol ex',damage:150,
+      printedAttacks:[{name:'Darkness Fang'}]}},
+    {active:{name:'Mewtwo & Mew-GX',printing:'Mewtwo & Mew-GX',damage:0,
+      printedAttacks:[{name:'Miraculous Duo-GX'}]}}];
   return {
     rootActionLedgerProtocol:'actual-store-root-action-ledger-v1',
     attackDeclarationTraceProtocol:'real-store-attack-log-declarations-v1',
@@ -59,7 +63,16 @@ test('authentic prompt settlement, public board, printed base, opponent reply, r
   assert.equal(result.withImmediateSourceReturn,1);
   const event=result.attacks[0];
   assert.equal(event.delegatedCopy,true);
+  assert.equal(event.declarationOccurredDuringResolvePrompt,true);
+  assert.equal(event.delegatedCopyTriggerProxy,true);
+  assert.equal(event.declarationTurnMatchesEvent,true);
+  assert.equal(event.activePrintingBefore,'Mewtwo & Mew-GX');
+  assert.deepEqual(event.activePrintedAttackNamesBefore,['Miraculous Duo-GX']);
+  assert.equal(event.attackNamePrintedOnPhysicalActiveBefore,false);
+  assert.equal(event.directAttackPrintedOnPhysicalActiveBefore,null);
   assert.equal(event.completionRootOrdinal,1);
+  assert.equal(event.completionRootTurnBefore,21);
+  assert.equal(event.completionRootTurnMatchesDeclarationTurn,true);
   assert.equal(event.initiatingRootActionOrdinal,0);
   assert.equal(event.declarationRootTurnAfter,21);
   assert.equal(event.declarationRootPromptPendingAfter,false);
@@ -75,6 +88,59 @@ test('authentic prompt settlement, public board, printed base, opponent reply, r
   assert.equal(JSON.stringify(result).includes('Secret Box'),false,
     'Retrospective opponent hand names must never be exported');
   assert.equal(result.qualifiedForCompetitiveInference,false);
+});
+
+function directAttackFixture(){
+  const game=fixture();
+  const declaration=game.attackDeclarationTrace[0];
+  const event=game.publicAttackTransitions[0];
+  declaration.triggerAction='AttackAction';
+  declaration.attackName='Eon Blade';
+  game.rootActionLedger[0].action='AttackAction';
+  event.triggerAction='AttackAction';
+  event.declarations[0].attackName='Eon Blade';
+  event.promptPendingAfter=true;
+  event.before[1].active={
+    name:'Latias ex SSP',printing:'Latias ex SSP',damage:0,
+    printedAttacks:[{name:'Eon Blade',cost:['Psychic','Psychic','Colorless']}]
+  };
+  event.after[1].active={...event.before[1].active};
+  return game;
+}
+
+test('direct AttackAction is checked against the physical Active printing',()=>{
+  const out=candidateAttackSettlement(directAttackFixture(),1);
+  const attack=out.attacks[0];
+  assert.equal(attack.triggerAction,'AttackAction');
+  assert.equal(attack.declarationOccurredDuringResolvePrompt,false);
+  assert.equal(attack.delegatedCopyTriggerProxy,false);
+  assert.equal(attack.activePrintingBefore,'Latias ex SSP');
+  assert.equal(attack.attackNamePrintedOnPhysicalActiveBefore,true);
+  assert.equal(attack.directAttackPrintedOnPhysicalActiveBefore,true);
+  assert.equal(attack.completionRootTurnMatchesDeclarationTurn,true);
+});
+
+test('direct attack with no matching printed attack is explicitly flagged',()=>{
+  const game=directAttackFixture();
+  game.publicAttackTransitions[0].before[1].active.printedAttacks=[
+    {name:'Different Attack',cost:['Psychic']}
+  ];
+  const out=candidateAttackSettlement(game,1);
+  assert.equal(out.attacks[0].attackNamePrintedOnPhysicalActiveBefore,false);
+  assert.equal(out.attacks[0].directAttackPrintedOnPhysicalActiveBefore,false);
+});
+
+test('attack declaration and completion roots must retain turn identity when observed',()=>{
+  const wrongDeclarationTurn=fixture();
+  wrongDeclarationTurn.publicAttackTransitions[0].turnBefore=20;
+  assert.throws(()=>candidateAttackSettlement(wrongDeclarationTurn,1),
+    /missing from public/);
+  const wrongCompletionTurn=fixture();
+  wrongCompletionTurn.rootActionLedger[1].turnBefore=22;
+  const out=candidateAttackSettlement(wrongCompletionTurn,1);
+  assert.equal(out.settled,0);
+  assert.equal(out.attacks[0].completionRootTurnMatchesDeclarationTurn,false);
+  assert.equal(out.attacks[0].publicBoardAfter,null);
 });
 
 test('unfinished effect, missing response and missing printed audit are explicit',()=>{
