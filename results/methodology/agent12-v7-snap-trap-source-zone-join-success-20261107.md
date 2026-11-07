@@ -68,3 +68,21 @@ Therefore, v7 establishes that the pinned engine's Galarian Stunfisk SSH / Snap 
 2. Keep Agent4 quarantine fail-closed until the exact ChooseCardsPrompt response contract and paper Snap Trap timing/effect have been independently verified against the pinned rules/card text.
 3. Add a narrowly scoped, actor-owned resolver only after that contract is verified; test that it selects exactly one legal Energy from the same public sublist, settles the prompt, and records the resulting energy removal.
 4. Then test complete native games with the same pinned engine, registration, candidate lists and decision policies before claiming any competitive result.
+
+
+## Namespace verification rerun
+
+After moving Agent12's new observer and tests into the required research namespaces, the existing manual workflow was rerun successfully:
+
+- Workflow run: https://github.com/FlareZ123/experiment-01/actions/runs/42399320595
+- Head: `451d828b2d4f5f31c61132bd4af9fc4cae828dad`
+- Updated frozen registration SHA: `114796347b81fe2f1baae5fe752f9e77067b6e01`
+- Namespaced observer: `simulation/twinleaf/agent12/issue25-public-prompt-zone-audit-v7.cjs`
+- Namespaced tests: `tests/2026-11/agent12-issue25-public-prompt-zone-audit-v7.test.cjs` and `tests/2026-11/agent12-issue25-public-prompt-zone-diagnostic-v7.test.cjs`
+- Artifact ID: `13585146038`
+- Artifact ZIP SHA-256: `2c347366b8b917a18d79433a2d8eb01d8ac9e0fa3b676c6f0bafd611bc5933c2`
+- Artifact JSON SHA-256: `16f74562d79eadb5dbdaa1ceea10fa36f80fb83189bd612a70775fcf687d6707`
+- The 93-test suite, compile, syntax checks, and phase-A runner all passed again. The artifact reproduced `FALLBACK_CAPTURED_SNAP_TRAP_SOURCE_AND_ACTIVE_ENERGY_ZONE_MATCHED`, with the same `0 -> 173` prompt ID, same-object source origin, one public attached-Energy zone match, one independent quarantine match, and selection status `FALLBACK_CAPTURED_SOURCE_AND_PUBLIC_ZONE_MATCHED`.
+- Phase-A limitations are unchanged: eight attempts, six native terminals, one root cap, one engine error; zero competitive games; no prompt resolution or win-rate estimate.
+
+This rerun confirms the namespaced paths preserve the v7 diagnostic result. Agent30's new marker/observer files are still pending their separate namespace move; the current registration continues to pin the existing marker v2 path and SHA.
