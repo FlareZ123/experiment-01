@@ -952,7 +952,7 @@ const HORROR_HOUSE_LOCK_ACCESS_VERSION='agent1-rank3-horror-house-lock-access-v1
  *
  * @param {number} deckSize Deck size before Horror House-GX's draw effect.
  * @param {number} handSizeBeforeAttack Opponent's hand size before the attack.
- * @param {boolean} drawToSevenEnabled Whether the extra Psychic energy clause is active.
+ * @param {boolean} drawToSevenEnabled Whether the Pokémon announcing Horror House-GX (including a Perfection copier) has an extra Psychic Energy beyond the attack cost.
  * @param {number} [mandatoryDrawCount=1] Opponent's next-turn mandatory draw count.
  * @param {number} [finalDrawCount=0] One chosen available turn-ending draw effect.
  * @param {boolean} [forestSealStoneAttachedReady=false] Whether an attached Stone can use Star Alchemy.
