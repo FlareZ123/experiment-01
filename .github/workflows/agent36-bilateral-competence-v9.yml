@@ -39,6 +39,7 @@ jobs:
           node --check simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs
           node --check simulation/twinleaf/perfection-post-pass-probe.cjs
           node --check simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs
+          node --check simulation/twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
@@ -47,9 +48,10 @@ jobs:
             tests/agent36-funded-perfection-pass-observer.test.cjs \
             tests/agent36-issue25-common-v9-bilateral-competence.test.cjs \
             tests/agent36-issue25-selected-v0.test.cjs \
-            tests/agent41-bilateral-v2-development.test.cjs
+            tests/agent41-bilateral-v2-development.test.cjs \
+            tests/agent47-shared-trubbish-family-owner-prompt.test.cjs
 
-      - name: Execute the single prospective rank11/New Moon natural game
+      - name: Execute registered rank11/New Moon developmental source-family replay
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
