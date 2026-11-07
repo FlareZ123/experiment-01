@@ -26,19 +26,21 @@ The selector's attack-payability calculation can potentially account for the cur
 
 This is a **synthetic policy fixture**, not a claim about a particular printed Pokémon:
 
-- Ultra Beast Active has attack A: cost [Grass, Grass], base damage 130.
+- Ultra Beast Active has attack A: cost [Colorless, Colorless, Colorless], base damage 130.
 - It also has attack B: cost [Fire, Fire], base damage 120.
-- Attached Energy: Grass, Grass, Fire, Beast Energy ◇.
-- Beast Energy can pay one Fire Energy and grants +30 to both attacks while attached.
+- Attached Energy: Double Colorless Energy (two Colorless units), Fire Energy, Beast Energy ◇.
+- Beast Energy ◇ provides one Energy of any type while attached to an Ultra Beast and adds 30 damage to both attacks.
 
-Both attacks are initially payable.
+Both attacks are initially payable. After removing Beast Energy, attack A remains payable with Double Colorless plus Fire, while attack B is denied. After removing Double Colorless, attack A is denied because Fire plus Beast provides only two units, while attack B remains payable for 150 damage (120 + 30).
 
-| Energy removed | Current selector's denied base-damage score | Strongest remaining attack |
+| Energy removed | Current v1 denied base-damage score | Strongest remaining attack |
 |---|---:|---:|
 | Beast Energy ◇ | 120 (attack B) | 130 (attack A, with Beast bonus gone) |
-| One Grass Energy | 130 (attack A) | 150 (attack B, still boosted by Beast Energy) |
+| Double Colorless Energy | 130 (attack A) | 150 (attack B, still boosted by Beast Energy) |
 
-The current summed-denied-damage score prefers removing Grass (130 > 120). A one-attack-per-turn best-response objective prefers removing Beast Energy, because the opponent's strongest remaining attack is 130 rather than 150. The example isolates two choices of objective: aggregate disabled-option value versus best remaining attack value. Neither should be silently treated as the other.
+The current summed-disabled-base-damage score prefers removing Double Colorless (130 > 120). A one-attack-per-turn best-response objective prefers removing Beast Energy, because the opponent's strongest remaining attack is 130 rather than 150. The example isolates two choices of objective: aggregate disabled-option value versus best remaining attack value. Neither should be silently treated as the other.
+
+The first pure-test attempt used two Grass Energy and incorrectly assumed Beast Energy could not replace a removed Grass unit. The run exposed that fixture error: Beast Energy's ANY unit can satisfy Grass as well as Fire. The committed regression now uses Double Colorless, Fire and Beast Energy, so the candidate Energy roles are correctly represented.
 
 ## Aichi Top 32 relevance
 
