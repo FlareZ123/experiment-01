@@ -31,6 +31,11 @@ test('real accepted native Box -> Fog -> Basic -> Hidden Power KO and source rep
   assert.equal(result.mandatoryOtherCardsPaid,3);
   assert.equal(result.candidatePrizeAfter,5);
   assert.equal(result.nextSourceTurnHadAttack,false);
+  assert.equal(result.comparisonControlTurn15.attackRoot,96);
+  assert.equal(result.comparisonControlTurn15.candidateDamageAfter,30);
+  assert.equal(result.comparisonControlTurn17.sourcePrizesAfter,4);
+  assert.equal(result.comparisonTreatmentTurn15.sourceAttacks,0);
+  assert.equal(result.comparisonTreatmentTurn17.sourceAttacks,0);
   assert.equal(result.nativeWinner,null);
   assert.equal(result.competitiveGamesQualified,0);
 });
@@ -54,5 +59,21 @@ test('rejects any altered predecision native Store root',{
 },()=>{
   const {baseline,treatment}=load();
   treatment.nativeAttempt.rootActionLedger[90].turnBefore=999;
+  assert.throws(()=>auditNativeOnePrizeBoxKo(baseline,treatment));
+});
+
+test('rejects falsified original next-source attack counters',{
+  skip:!haveArchives
+},()=>{
+  const {baseline,treatment}=load();
+  baseline.nativeAttempt.sourceAttackSettlement.attacks
+    .find(x=>x.actionOrdinal===103).prizesAfter=[5,6];
+  assert.throws(()=>auditNativeOnePrizeBoxKo(baseline,treatment));
+});
+test('rejects falsified treatment source turn17 attack vs Pass',{
+  skip:!haveArchives
+},()=>{
+  const {baseline,treatment}=load();
+  treatment.nativeAttempt.rootActionLedger[118].action='AttackAction';
   assert.throws(()=>auditNativeOnePrizeBoxKo(baseline,treatment));
 });
