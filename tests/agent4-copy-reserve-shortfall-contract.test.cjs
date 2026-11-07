@@ -45,11 +45,13 @@ function shortfall(result, group, printing) {
  * @param {number} expectedPost Aggregate post-payment deficit
  * @param {number} expectedIncremental Aggregate payment-induced deficit
  */
-function assertAggregate(group, expectedPost, expectedIncremental) {
+function assertAggregate(result, group, expectedPost, expectedIncremental) {
+  const baseline = result.reserveRows.reduce((sum, row) =>
+    sum + row.softCapacityShortfall, 0);
   assert.equal(group.vector.softReserveDeficit, expectedPost);
   assert.equal(group.vector.protectedSacrificed, expectedPost);
+  assert.equal(expectedPost - baseline, expectedIncremental);
   assert.ok(expectedIncremental >= 0);
-  assert.equal(expectedPost - group.vector.protectedSacrificed, 0);
 }
 
 test('pre-existing soft deficit unchanged by unrelated payment has zero increment', () => {
@@ -62,7 +64,7 @@ test('pre-existing soft deficit unchanged by unrelated payment has zero incremen
   const group = findGroup(result, [1, 2]);
   const value = shortfall(result, group, LILLIE);
   assert.deepEqual(value, {baseline: 1, post: 1, incremental: 0});
-  assertAggregate(group, 1, 0);
+  assertAggregate(result, group, 1, 0);
 });
 
 test('payment that spends the last held soft printing increases existing deficit', () => {
@@ -76,7 +78,7 @@ test('payment that spends the last held soft printing increases existing deficit
   const group = findGroup(result, [0, 1]);
   const value = shortfall(result, group, LILLIE);
   assert.deepEqual(value, {baseline: 1, post: 2, incremental: 1});
-  assertAggregate(group, 2, 1);
+  assertAggregate(result, group, 2, 1);
 });
 
 test('a satisfied soft reserve can be retained or consumed by the payment', () => {
@@ -101,6 +103,7 @@ test('a satisfied soft reserve can be retained or consumed by the payment', () =
   const consumedGroup = findGroup(consumed, [0]);
   assert.deepEqual(shortfall(consumed, consumedGroup, LILLIE),
     {baseline: 0, post: 1, incremental: 1});
+  assertAggregate(consumed, consumedGroup, 1, 1);
 });
 
 test('zero-held soft printing remains a baseline deficit, not payment cost', () => {
@@ -117,7 +120,7 @@ test('zero-held soft printing remains a baseline deficit, not payment cost', () 
   const group = findGroup(result, [0, 1]);
   assert.deepEqual(shortfall(result, group, 'L'),
     {baseline: 2, post: 2, incremental: 0});
-  assertAggregate(group, 2, 0);
+  assertAggregate(result, group, 2, 0);
 });
 
 test('hard-reserved physical copy is excluded from every available payment', () => {
@@ -137,6 +140,7 @@ test('hard-reserved physical copy is excluded from every available payment', () 
   for (const group of result.structurallyUndominatedPaymentGroups) {
     assert.deepEqual(shortfall(result, group, 'C'),
       {baseline: 1, post: 1, incremental: 0});
+    assertAggregate(result, group, 1, 0);
   }
 });
 
@@ -155,6 +159,7 @@ test('hard shortage and hard-plus-soft reserve remain separate', () => {
   const shortageGroup = findGroup(shortage, [1, 2]);
   assert.deepEqual(shortfall(shortage, shortageGroup, 'C'),
     {baseline: 1, post: 1, incremental: 0});
+  assertAggregate(shortage, shortageGroup, 1, 0);
 
   const hardAndSoft = ownerHandDiscardCopyReserveFrontier({
     handPrintings: ['C', 'C', 'A', 'B'],
@@ -170,6 +175,7 @@ test('hard shortage and hard-plus-soft reserve remain separate', () => {
   const group = findGroup(hardAndSoft, [1, 2]);
   assert.deepEqual(shortfall(hardAndSoft, group, 'C'),
     {baseline: 0, post: 1, incremental: 1});
+  assertAggregate(hardAndSoft, group, 1, 1);
 });
 
 test('sourceIndex is excluded before baseline and payment shortfall are measured', () => {
@@ -201,5 +207,5 @@ test('multiple soft printings expose independent baseline and incremental defici
     {baseline: 0, post: 0, incremental: 0});
   assert.deepEqual(shortfall(result, group, 'X'),
     {baseline: 0, post: 1, incremental: 1});
-  assertAggregate(group, 1, 1);
+  assertAggregate(result, group, 1, 1);
 });
