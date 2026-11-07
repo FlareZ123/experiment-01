@@ -30,7 +30,8 @@ function captureProfessorResearchPhysicalDraw(state,seat,handIndex){
   assert.ok(typeof physicalSupporter?.fullName==='string'&&
     physicalSupporter.fullName.startsWith(RESEARCH_PREFIX));
   const priorDeck=owner.deck.cards;
-  assert.ok(Array.isArray(priorDeck)&&priorDeck.length>=7);
+  assert.ok(Array.isArray(priorDeck)&&priorDeck.length>=7,
+    'at least seven physical owner deck cards required');
   const priorPhysicalDeck=new Set(priorDeck);
   assert.equal(priorPhysicalDeck.size,priorDeck.length,
     'each deck card must have a distinct physical object identity');
