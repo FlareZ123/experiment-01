@@ -1,6 +1,6 @@
 # Pinned Twinleaf copy-of-copy conflict: Mimikyu GRI 58 vs Regidrago VSTAR
 
-**Agent 7, 15 October 2026.** Status: **source-level behavioral mismatch identified; targeted stateful regression pending**. This is a simulation-validity issue, not a claim about matchup win rate or an evaluated deck change.
+**Initial audit: Agent 7, 15 October 2026. Current status: 7 November 2026.** The staged two-seat native Copycat/Apex/Timeless line and a constructed original-60 two-Knock-Out sequence have since been reproduced with opt-in research hooks. Full natural shuffled-60 games remain untested, these hooks remain outside the selected v8 policy, and zero competitive games qualify. The October pending-test statements below are historical and are superseded by the November synthesis at the end. This remains a simulation-validity and matchup-research issue, not a win-rate claim.
 
 ## Exact opposing card texts and human hypothesis
 
@@ -67,3 +67,50 @@ The [manual workflow](../../.github/workflows/mimikyu-copycat-regression.yml) co
 The subsequent **actual Store/State nested attack fixture failed**: with the opt-in hook, selecting Dialga-GX's Timeless-GX from Mimikyu's discard gave the opponent 150 damage, but the player's `usedGX` remained false (assertion at `mimikyu-apex-integration.cjs:93`). The assertion of `usedTurnSkip` was never reached, so the additional-turn effect remains unmeasured. This is direct computational evidence that the isolated hook has **not** restored full copied attack semantics. It is inappropriate to enable it in matchup research yet. The failure could be a nested engine delegation defect or an isolated reducer-fixture lifecycle artifact; further trace instrumentation and fully declared attack-state regression are required.
 
 A subsequent optional-diagnostics run was dispatched after instrumenting the nested Dialga reducer entry/exit and marker state. Official Pokémon [Expanded-format strategy analysis](https://www.pokemon.com/uk/features/a-deep-dive-into-the-2025-pokemon-tcg-expanded-format) independently describes Timeless-GX as a once-per-game extra turn attack and explicitly cites Regidrago's Apex Dragon copying it. The expected GX accounting remains a rules matter pending precise copy-specific ruling.
+
+
+## 7 November 2026 synthesis: the conditional Copycat line is native-reproduced, natural access remains unproven
+
+### Paper and engine semantics
+
+The original rank-1 Shadow Rider 60 contains one Mimikyu GRI 58 and one Dialga-GX UPR 100. Regidrago VSTAR's Apex Dragon is a non-GX attack. Mimikyu's Copycat condition permits copying a preceding non-GX attack, and Advanced Player's Rulebook II-C-18 preserves the name of the attack that was declared even when its effect chooses another attack.
+
+Pinned Twinleaf had two distinct mismatches in this line:
+
+1. The raw `playerLastAttack` record could contain the nested chosen attack, Overclock, instead of the declared Apex Dragon. The opt-in `copycat-declared-history-hook.cjs` preserves the printed declared attack history after the native choice prompt.
+2. The raw Mimikyu Copycat helper rejected any previous attack carrying `copycatAttack:true`, which also blocked the non-GX Apex Dragon. The opt-in `copycat-compat.cjs` narrows that gate for Mimikyu and retains the GX exclusion.
+
+The current compiled evidence is materially stronger than the original October reducer-only diagnosis:
+
+- [Agent46's actual two-seat native Copycat/Apex history test](../methodology/agent46-copycat-real-apex-history-paper-hook-two-seat-20261107.md) uses a genuine preceding Regidrago Apex Dragon, a real ChooseAttackPrompt selecting Dialga-GX Overclock, and a subsequent Mimikyu Copycat. Both physical owner seats reproduce the copied Timeless-GX effect, 150 damage, `usedGX:true`, and `usedTurnSkip:true`, with no unresolved prompts or native errors.
+- [Agent46's original-60 A/B comparison](../methodology/agent46-original60-copycat-real-apex-unpatched-vs-paper-bothseats-20261107.md) preserves both authenticated original 60-card inventories and a genuine preceding Apex action. On a deliberately constructed, already-funded board, the unpatched branch produces no Copycat damage or payoff. The two-hook branch copies Timeless-GX for 300 damage and two Prizes, then uses the bonus turn to copy Power Beam for 400 damage and two further Prizes in both physical seats.
+- [The physical custody ledger](../methodology/agent46-original60-rank1-rank10-copycat-apex-physical-ledger-20261107.md) accounts for 60 distinct original-owner card objects in every reported zone checkpoint across both physical seat orientations. It is a constructed midgame state, not a natural shuffled game.
+- [The spent-GX control](../methodology/agent46-mimikyu-apex-spent-gx-prompt-choice-20261107.md) shows that an already-spent GX allowance blocks the copied Timeless-GX payoff. The native prompt still exposes the unusable choice repeatedly, while choosing non-GX Shred deals 80 damage. The specialized `mimikyu-counter-policy.cjs` already guards the spent-GX Timeless branch.
+
+The [official Japanese Timeless-GX FAQ](timeless-bonus-turn-copycat-ruling.md) also says an extra turn does not reset the opponent's preceding attack memory. That supports the proposed second Copycat during the bonus turn. It does not establish that the player can naturally assemble the required cards or win the game.
+
+### Natural-access constraints
+
+The opening-zone work quantifies necessary card-location constraints:
+
+- [Agent6's exact 27-location model](../aichi-2026/2026-11/agent6-copycat-27-location-opening-frontier-20261107.md) gives a **2.366909%** immediate Prize-only cut for the Mimikyu/Dialga pair with one Hisuian Heavy Ball, conditional on a legal initial seven. This is the event where one Heavy Ball cannot recover the required Basic cards because of the specific Prize placement.
+- [Agent46's independent four-Basic extension](../methodology/agent46-champion-four-basic-heavyball-legal-opening-prize-frontier-20261107.md) raises the necessary pre-Prize obstruction to **4.6811456582%** when the line also requires Radiant Eternatus and at least one of two Clefairy ex. This assumes optimistic Heavy Ball recovery capacity. It is a physical-location ceiling, not a successful-line probability.
+- [Agent6's 24-attempt native A/B/A observer](../aichi-2026/2026-11/agent6-copycat-24triad-native-opening-zone-proof-20261107.md) preserves identical original rank-1 and rank-10 source conditions across eight seed/seat triads. All eight read-only snapshots matched their controls. The eight snapshots are too few for an opening-probability estimate. None had Mimikyu in the opening/field zone; Dialga-GX was Prized in four; Heavy Ball was Prized in two. Seven triads hit the 96-root action cap, and one triad reached a native terminal in all three replay modes. None qualified as a competitive paper game.
+
+The min-cut analysis estimates that the Regidrago label appears in 11/32 field entries, with nine complete original 60s and two incomplete entries. Under the extreme hypothetical that every other matchup is a win, a uniform 99.5% aggregate still requires at least **98.5455%** wins against Regidrago. If every 2.3669% pair-only Prize-cut case were an automatic loss, the field ceiling would be **99.186375%** under that same hypothetical. The Prize cut is not an automatic loss, and neither the rescue rate nor the full Regidrago matchup win rate has been measured. These figures are prioritization bounds, not observed results.
+
+### Integration and release status
+
+The research hooks remain opt-in. The shared v8 bilateral policy has not admitted the Mimikyu/Apex correction bundle. A separate headless lifecycle issue was found and fixed: pending end-turn cleanup had been restored after earlier Store dispatch wrappers, leaving Copycat and Pass wrappers installed across matches. The correction restores pending cleanup first, followed by earlier wrappers in reverse installation order. The combined Copycat/Pass/pending regression passed in [manual smoke run 42339130590](https://github.com/FlareZ123/experiment-01/actions/runs/42339130590), with the complete workflow successful. See [the stack-order report](agent44-headless-store-dispatch-stack-20261107.md).
+
+### What this evidence supports
+
+The paper-legal counterline exists as a staged, native-reproduced sequence. The exact engine corrections are isolated, reversible, and tested in both physical seats. The original lists contain the necessary named card roles, and the combinatorial work quantifies some initial Prize obstructions.
+
+The evidence does not establish natural assembly frequency, optimality against an adversarial Regidrago policy, opponent counterplay, official event-clock outcomes, or a competitive win rate. The two-Knock-Out result starts from a constructed midgame board. The 24 native observer attempts are development-only and mostly action-capped. No candidate deck or card count is promoted by these findings.
+
+### Highest-value next experiment
+
+Run a prospectively frozen, natural shuffled original rank-1 versus rank-10 60-card experiment in both physical seats. Keep the original card inventories fixed. Use the actual native Store and an actor-visible policy that does not inspect opponent hidden zones. Record every gate in order: Mimikyu and Dialga location, Heavy Ball access and use, Radiant/Clefairy availability, Energy attachment and Active access, Dialga discard setup, the opponent's actual Apex declaration and selected attack, Mimikyu's Copycat prompt, GX allowance, bonus-turn handoff, second Copycat, Power Beam choice, opponent response, and final game adjudication under the official 25-minute event clock. Register matched A/B/A controls and preserve abort prefixes. Compare the line with alternative rank-1 plans when the required state is absent. Only then can this counterline's practical value against the Regidrago field be estimated.
+
+**Global benchmark status remains unchanged:** 29/32 original opponent inventories are authenticated, ranks 23/25/28 remain unresolved, zero games qualify competitively, no final fixed 60 has been selected, and 99.5% remains unproven.
