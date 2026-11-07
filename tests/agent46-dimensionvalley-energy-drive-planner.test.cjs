@@ -2,16 +2,15 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const path=require('node:path');
-const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
-const {CardType}=require(path.join(OUTPUT,'game/store/card/card-types'));
+const types={GRASS:1,FIRE:2,WATER:3,LIGHTNING:4,PSYCHIC:5,
+  FIGHTING:6,DARK:7,METAL:8,COLORLESS:9,FAIRY:10,DRAGON:11};
 const {
   VERSION,MIN_DAMAGE,costUnderStadium,estimatedAttackDamage,
   chooseFundedStadiumAttack
 }=require('../simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs');
 
 const refs={
-  cardTypes:CardType,
+  cardTypes:types,
   stageBasic:2,
   specialConditions:{ASLEEP:3,PARALYZED:4},
   trainerCatalog:new Map([
@@ -37,11 +36,11 @@ function energyDriveView(){
       active:{
         printing:'Tapu Lele-GX GRI',
         name:'Tapu Lele-GX',
-        printed:{stage:refs.stageBasic,types:[CardType.PSYCHIC]},
+        printed:{stage:refs.stageBasic,types:[types.PSYCHIC]},
         energies:['Psychic Energy SVE'],
         attacks:[{
           name:'Energy Drive',
-          cost:[CardType.COLORLESS,CardType.COLORLESS],
+          cost:[types.COLORLESS,types.COLORLESS],
           damage:0,
           gxAttack:false
         }],
@@ -107,7 +106,7 @@ test('Energy Drive estimate uses both public Active Energy counts only',()=>{
 
 test('Dimension Valley cannot fund the same line without Psychic typing or Energy',()=>{
   const nonPsychic=energyDriveView();
-  nonPsychic.ownPublic.active.printed.types=[CardType.LIGHTNING];
+  nonPsychic.ownPublic.active.printed.types=[types.LIGHTNING];
   nonPsychic.ownPublic.active.energies=['Lightning Energy SVE'];
   assert.equal(chooseFundedStadiumAttack(nonPsychic,refs),null);
 
@@ -125,11 +124,11 @@ test('an existing Dimension Valley means the attack is already payable, so no re
 
 test('Dimension Valley cost modifier removes one Colorless only for Psychic Pokémon',()=>{
   assert.deepEqual(costUnderStadium(
-    [CardType.COLORLESS,CardType.COLORLESS],
-    [CardType.PSYCHIC],'Dimension Valley',CardType
-  ),[CardType.COLORLESS]);
+    [types.COLORLESS,types.COLORLESS],
+    [types.PSYCHIC],'Dimension Valley',types
+  ),[types.COLORLESS]);
   assert.deepEqual(costUnderStadium(
-    [CardType.COLORLESS,CardType.COLORLESS],
-    [CardType.LIGHTNING],'Dimension Valley',CardType
-  ),[CardType.COLORLESS,CardType.COLORLESS]);
+    [types.COLORLESS,types.COLORLESS],
+    [types.LIGHTNING],'Dimension Valley',types
+  ),[types.COLORLESS,types.COLORLESS]);
 });
