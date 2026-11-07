@@ -28,6 +28,8 @@ jobs:
         run: node --test tests/agent2-apex-sm12a-release.test.cjs
       - name: Verify Japanese Expanded exact-print structural vetoes
         run: node --test tests/agent9-jp-expanded-structure.test.cjs
+      - name: Verify dated English proxy crosswalk against original 29 Aichi source inventories
+        run: node --test tests/agent44-source-set-chronology-audit.test.cjs
       - name: Audit all 29 original printed sixties against dated Japanese structural conditions
         run: node scripts/agent9-jp-expanded-source-audit.cjs > agent9-jp-expanded-source-audit.json
       - name: Print source-29 negative-screen summary
