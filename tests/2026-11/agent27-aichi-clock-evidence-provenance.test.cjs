@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {auditTimeCallPacket,auditExtensionLedger} = require('../../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
+const {auditTimeCallPacket,adjudicateExtension,auditExtensionLedger} = require('../../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
 /** @param {[number,number]} prizes @returns {object} */
 function makeTimeCallPacket(prizes) {
@@ -223,4 +223,28 @@ test('Extension ledger uses observed Prize states for multi-Prize and overkill d
   assert.equal(overkill.status,'EXTENSION_LEDGER_TERMINAL');
   assert.equal(overkill.terminalStatus,'EXTENSION_WIN');
   assert.equal(overkill.conditionalWinnerSeat,0);
+});
+
+
+test('Extension ledger wrapper agrees with per-state classifier over all Prize pairs for both entry rules',()=>{
+  for(const [start,extensionRule] of [[[2,2],'tied-low'],[[3,3],'both-high']]){
+    for(let a=0;a<=6;a++)for(let b=0;b<=6;b++){
+      const after=[a,b];
+      const outcome=a===0&&b===0?{paperGameTie:true}:
+        a===0?{paperGameWinner:0}:b===0?{paperGameWinner:1}:{};
+      const state=adjudicateExtension({extensionRule,prizesRemaining:after,...outcome});
+      const ledger=auditExtensionLedger({timeCallPacket:makeTimeCallPacket(start),
+        extensionLedgerEvidenceRef:'complete-extension-ledger',
+        extensionLedgerIndependentlyReviewed:true,
+        transitions:[extensionTransition(1,start,after,outcome)]});
+      if(state.status==='EXTENSION_CONTINUES'){
+        assert.equal(ledger.status,'EXTENSION_LEDGER_INCOMPLETE',`rule=${extensionRule} prizes=[${a},${b}]`);
+        assert.equal(ledger.conditionalWinnerSeat,null);
+      }else{
+        assert.equal(ledger.status,'EXTENSION_LEDGER_TERMINAL',`rule=${extensionRule} prizes=[${a},${b}]`);
+        assert.equal(ledger.terminalStatus,state.status);
+        assert.equal(ledger.conditionalWinnerSeat,state.conditionalWinnerSeat);
+      }
+    }
+  }
 });
