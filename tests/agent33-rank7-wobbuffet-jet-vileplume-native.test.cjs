@@ -30,11 +30,11 @@ function stageWobbuffetJet(seat){
   };
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
-  x.owner.active.tools.cards.length=0;
+  x.owner.active.tools.length=0;
   x.owner.active.cards.push(get('Snorlax PGO'));
   x.owner.bench[1].cards.length=0;
   x.owner.bench[1].energies.cards.length=0;
-  x.owner.bench[1].tools.cards.length=0;
+  x.owner.bench[1].tools.length=0;
   const wobbuffet=get('Wobbuffet PHF');
   x.owner.bench[1].cards.push(wobbuffet);
   x.owner.hand.cards.length=0;
@@ -43,7 +43,7 @@ function stageWobbuffetJet(seat){
   x.owner.hand.cards.push(jet,floatStone);
   x.opponent.active.cards.length=0;
   x.opponent.active.energies.cards.length=0;
-  x.opponent.active.tools.cards.length=0;
+  x.opponent.active.tools.length=0;
   const vileplume=get('Vileplume AOR');
   x.opponent.active.cards.push(vileplume);
   x.state.turn=4;
@@ -120,7 +120,7 @@ for(const seat of [0,1]){
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
     settleWaitPrompts(x);
-    assert.equal(x.owner.active.tools.cards.some(c=>
+    assert.equal(x.owner.active.tools.some(c=>
       c.fullName==='Float Stone BKT'),true,
       'Owner can now play an Item that Vileplume had prohibited');
     assert.equal(x.owner.hand.cards.length,0);
