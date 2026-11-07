@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {SEEDS,VARIANTS,schedule,compare,originalPrintings}=
+const {SEEDS,VARIANTS,schedule,compare}=
   require('../simulation/evaluation/agent2-vs-seeker-research-original-rank13-aba.cjs');
 
 test('complete unchosen two seeds, both seats, A/B/A schedule',()=>{
@@ -17,12 +17,14 @@ test('complete unchosen two seeds, both seats, A/B/A schedule',()=>{
   }
 });
 
-test('source originals remain full ranked 60s',()=>{
-  const {source,candidate}=originalPrintings();
-  assert.equal(source.length,60);
-  assert.equal(candidate.length,60);
-  assert.equal(candidate.filter(x=>x==='VS Seeker PHF').length,3);
-  assert.equal(candidate.filter(x=>x==="Professor's Research JTG").length,3);
+test('source original ranked inventories remain exact 60s',()=>{
+  const corpus=require('../results/aichi-2026/full-decklists.json');
+  const source=corpus.decks.find(x=>x.rank===3);
+  const candidate=corpus.decks.find(x=>x.rank===13);
+  assert.equal(source.cards.reduce((n,x)=>n+x.count,0),60);
+  assert.equal(candidate.cards.reduce((n,x)=>n+x.count,0),60);
+  assert.equal(candidate.cards.find(x=>x.name==='VS Seeker').count,3);
+  assert.equal(candidate.cards.find(x=>x.name==="Professor's Research").count,3);
 });
 
 function fakeRows(treatmentShift=false){
