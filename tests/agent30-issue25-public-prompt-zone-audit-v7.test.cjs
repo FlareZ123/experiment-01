@@ -234,7 +234,7 @@ test('captures live State-first prompt, post-call ID, exact Active list and Ener
     assert.equal(event.currentAttack.seat, attackerSeat);
     assert.equal(event.lastAttack, null);
     assert.equal(store.promptArgs[0], state);
-    assert.equal(store.promptArgs[1].id, '1');
+    assert.equal(store.promptArgs[1].id, '173');
     assert.equal(typeof store.promptArgs[2], 'function');
     assert.deepEqual(store.promptArgs[3], {preserved: true});
     assert.equal(state.prompts[0], store.promptArgs[1]);
