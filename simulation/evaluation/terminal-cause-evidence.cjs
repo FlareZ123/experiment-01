@@ -80,6 +80,18 @@ function classifyTerminalCause(row) {
     return {status:'tiebreaker-batch-adjudication-unresolved',
       conditions:[],engineWinner:winner};
   }
+  // Two players receiving Prize cards inside one terminal dispatch implies
+  // that a bilateral KO/Prize settlement or another multi-player transition
+  // occurred. The native winner may have been chosen before all Prize rights
+  // were honored (reproduced by Agent24 in ordinary and sudden-death fixtures).
+  // Public totals cannot prove the *complete* resolution batch was settled.
+  // Retain the terminal observation but withhold a paper-sufficient cause.
+  const bothSidesPrizesFell=before.players.every((player,seat)=>
+    after.players[seat].prizesRemaining<player.prizesRemaining);
+  if(bothSidesPrizesFell){
+    return {status:'bilateral-prize-settlement-unverified',
+      conditions:[],engineWinner:winner};
+  }
   const paperBasicOutcome=basicPaperResult(after,winner);
   // A native reported winner can disagree with a simultaneous loss/tie in the
   // supplied paper rules. Card text might override basic rules; such a record
@@ -129,13 +141,16 @@ function summarizeTerminalCauses(rows) {
       count('missing-or-inconsistent-transition')+
       count('paper-basic-result-conflict')+
       count('tiebreaker-batch-adjudication-unresolved')+
-      count('terminal-epoch-unverified'),
+      count('terminal-epoch-unverified')+
+      count('bilateral-prize-settlement-unverified'),
     observedTerminals:count('observed-sufficient-conditions'),
     unresolvedTerminals:count('terminal-rule-unresolved')+
       count('missing-or-inconsistent-transition')+
       count('paper-basic-result-conflict')+
       count('tiebreaker-batch-adjudication-unresolved')+
-      count('terminal-epoch-unverified'),
+      count('terminal-epoch-unverified')+
+      count('bilateral-prize-settlement-unverified'),
+    bilateralPrizeUnverified:count('bilateral-prize-settlement-unverified'),
     epochUnverified:count('terminal-epoch-unverified'),
     tiebreakerUnresolved:count('tiebreaker-batch-adjudication-unresolved'),
     paperBasicConflicts:count('paper-basic-result-conflict'),
