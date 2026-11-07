@@ -8,7 +8,7 @@ const {secretBoxPaymentNegative}=
 const {preflightVisibleOwnerRemainingUpperBound}=
   require('./owner-original-60-plan-gate.cjs');
 
-const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v3-owner-k0-public-target-preflight';
+const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v4-native-zero-search-fallback';
 const BOX='Secret Box TWM';
 const FOG='Fog Crystal CRE';
 const BASIC='Psychic Energy';
@@ -100,6 +100,28 @@ function choosePublicOneEnergyBoxKoWithRegistered60(
  * @param {object} owner Genuine prompted player.
  * @returns {object[]}
  */
+/**
+ * Handle an already opened, owner-authenticated native search prompt.
+ * A physical card is chosen only if the live prompt validates it.
+ * If no matching card is available, return an empty answer ONLY if the
+ * exact native prompt accepts []; otherwise delegate the prompt to
+ * ordinary native AI rather than inventing a card or aborting the match.
+ *
+ * @param {object} prompt Active native ChooseCardsPrompt on owner.deck.
+ * @param {object} owner Actual prompted native player.
+ * @param {(card:object)=>boolean} eligible Exact desired printing test.
+ * @returns {{cards:object[],whiff:boolean}|null}
+ */
+function choosePhysicalOwnerSearchOrWhiff(prompt,owner,eligible){
+  assert.ok(prompt?.cards===owner?.deck);
+  assert.equal(typeof eligible,'function');
+  const selected=owner.deck.cards.find(card=>eligible(card)&&
+    prompt.validate([card])===true);
+  if(selected)return {cards:[selected],whiff:false};
+  if(prompt.validate([])===true)return {cards:[],whiff:true};
+  return null;
+}
+
 function choosePhysicalBoxPayment(prompt,owner){
   const own=owner.hand.cards;
   const offered=prompt.cards.cards;
@@ -152,6 +174,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     retiredActionWasPass:true,liveRuns:0,passObservations:0,
     candidatePlans:0,acceptedActions:0,rejectedActions:0,
     ownerK0TargetHardVetoes:0,
+    nativeSearchZeroSelections:0,nativeSearchDelegatedWhiffs:0,
     paperPaymentChecks:0,paperPaymentsAccepted:0,
     physicalBoxSearches:0,physicalFogSearches:0,
     physicallyAttachedBasic:0,submittedAttacks:0,
@@ -225,23 +248,33 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
            pending.cards===owner.deck&&
            pending.message==='CHOOSE_CARD_TO_HAND'&&
            pending.options?.maxItems===1){
-          const fog=owner.deck.cards.find(x=>x.fullName===FOG&&
-            pending.validate([x])===true);
-          assert.ok(fog,'Original owner deck has no native-selectable Fog Crystal');
-          return propose(new ResolvePromptAction(pending.id,[fog]),{
-            kind:'box-search',seat,turn:state.turn,ownerId:owner.id,
-            promptId:pending.id,physicalSelected:[fog],step
+          const answer=choosePhysicalOwnerSearchOrWhiff(
+            pending,owner,x=>x.fullName===FOG);
+          if(answer===null){
+            stepsByOwner.delete(owner.id);
+            audit.nativeSearchDelegatedWhiffs++;
+            return priorAi.value.call(this,state);
+          }
+          return propose(new ResolvePromptAction(pending.id,answer.cards),{
+            kind:answer.whiff?'box-search-whiff':'box-search',
+            seat,turn:state.turn,ownerId:owner.id,
+            promptId:pending.id,physicalSelected:answer.cards,step
           });
         }
         if(step.stage==='fog-search'&&
            pending.cards===owner.deck&&
            pending.message==='CHOOSE_CARD_TO_HAND'){
-          const basic=owner.deck.cards.find(x=>isBasicPsychic(x)&&
-            pending.validate([x])===true);
-          assert.ok(basic,'Owner Fog Crystal search cannot select Basic Psychic');
-          return propose(new ResolvePromptAction(pending.id,[basic]),{
-            kind:'fog-search',seat,turn:state.turn,ownerId:owner.id,
-            promptId:pending.id,physicalSelected:[basic],step
+          const answer=choosePhysicalOwnerSearchOrWhiff(
+            pending,owner,isBasicPsychic);
+          if(answer===null){
+            stepsByOwner.delete(owner.id);
+            audit.nativeSearchDelegatedWhiffs++;
+            return priorAi.value.call(this,state);
+          }
+          return propose(new ResolvePromptAction(pending.id,answer.cards),{
+            kind:answer.whiff?'fog-search-whiff':'fog-search',
+            seat,turn:state.turn,ownerId:owner.id,
+            promptId:pending.id,physicalSelected:answer.cards,step
           });
         }
         return priorAi.value.call(this,state);
@@ -353,6 +386,12 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         }
         audit.paperPaymentsAccepted++;
         step.stage='box-search';
+      }else if(proof.kind==='box-search-whiff'||
+                proof.kind==='fog-search-whiff'){
+        assert.deepEqual(proof.physicalSelected,[]);
+        assert.equal(after.deck.cards.length,beforeDeck.length);
+        audit.nativeSearchZeroSelections++;
+        stepsByOwner.delete(owner.id);
       }else if(proof.kind==='box-search'){
         const c=proof.physicalSelected[0];
         assert.ok(beforeDeck.includes(c)&&!after.deck.cards.includes(c));
@@ -420,4 +459,5 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
 }
 module.exports={VERSION,BOX,FOG,BASIC,VIP,CARRIER,
   choosePublicOneEnergyBoxKo,choosePublicOneEnergyBoxKoWithRegistered60,
-  choosePhysicalBoxPayment,withOwnerOneEnergyBoxKo};
+  choosePhysicalBoxPayment,choosePhysicalOwnerSearchOrWhiff,
+  withOwnerOneEnergyBoxKo};
