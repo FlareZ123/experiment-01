@@ -23,9 +23,10 @@ const {clearCopyAttackSessionsForTests}=
  *
  * @param {0|1} seat Physical owner seat.
  * @param {1|2} energyCount Psychic Energy attached to Mimikyu.
+ * @param {boolean} attackLocked Whether Mimikyu carries the next-turn lock.
  * @returns {object} Tactic proposal, Simulator legality and selected action.
  */
-function probe(seat,energyCount){
+function probe(seat,energyCount,attackLocked=false){
   assert.ok(energyCount===1||energyCount===2);
   clearCopyAttackSessionsForTests();
   const staged=stageCopycat(seat,'apex');
@@ -48,6 +49,10 @@ function probe(seat,energyCount){
   x.owner.hand.cards.length=0;
   x.state.activePlayer=seat;
   x.state.phase=x.GamePhase.PLAYER_TURN;
+  if(attackLocked){
+    x.owner.active.cannotAttackNextTurn=true;
+    x.owner.active.cannotAttackNextTurnPending=false;
+  }
 
   assert.equal(x.owner.active.getPokemonCard()?.fullName,'Mimikyu GRI');
   assert.equal(x.owner.active.energies.cards.length,energyCount);
@@ -100,7 +105,7 @@ function probe(seat,energyCount){
   }
 
   const result={
-    seat,energyCount,
+    seat,energyCount,attackLocked,
     visibleSituation:true,
     tacticInvocations,
     proposedAction:{type:proposed.type,name:proposed.name},
@@ -132,12 +137,22 @@ function run(){
     assert.equal(underfunded.sameActionAsBaseline,true,
       'Invalid custom tactic must leave the remaining tactic order unchanged');
 
+    const locked=probe(seat,2,true);
+    assert.equal(locked.visibleSituation,true);
+    assert.equal(locked.explicitSimulatorAccepted,false,
+      'An attack-locked Mimikyu must not pass Copycat through Simulator');
+    assert.ok(locked.explicitSimulatorError.includes('BLOCKED_BY_EFFECT'),
+      'The Store must reject Copycat specifically because of the next-turn lock');
+    assert.equal(locked.selectedCopycat,false);
+    assert.equal(locked.sameActionAsBaseline,true,
+      'The locked Copycat proposal must fall through to the unmodified bot action');
+
     const funded=probe(seat,2);
     assert.equal(funded.explicitSimulatorAccepted,true,
       'Two Psychic Energy must make Mimikyu Copycat legal');
     assert.equal(funded.selectedCopycat,true,
       'The specialized tactic must win precedence when its attack is legal');
-    rows.push({seat,underfunded,funded});
+    rows.push({seat,underfunded,locked,funded});
   }
   const out={
     schema:'agent46-mimikyu-apex-policy-underfunded-simulator-gate-both-seats-v1',
@@ -147,6 +162,7 @@ function run(){
     visibleSituationHeldInBothBranches:true,
     bothPhysicalSeats:true,
     underfundedProposalsRejected:true,
+    attackLockedProposalsRejected:true,
     fundedPositiveControlsAccepted:true,
     qualifiedCompetitiveGames:0,
     rows
