@@ -35,3 +35,28 @@ The suite was expanded with tests of Double Colorless plus Basic Lightning payab
 1. Manually dispatch the existing native v29 workflow with its established v14-only control in a pinned checkout, then inspect the new accepted pre-attack rows and check whether actual native incremental damage agrees with printed nominal damage after accounting for modifiers.
 2. Independently validate the exact physical attacker and its Energy attachments against its printed attack cost, including DCE and any attack-copy cases, without promoting an ambiguous attack-name match to a paper-payable attack.
 3. Only then revisit genuine opponent turn responses and official tournament-clock adjudication. Maintain zero qualified competitive full games and 29/32 exact original field inventories.
+
+
+## 7 November 2026: successful v29 replay and Copycat scope correction
+
+A fresh manual v14 native integration run, **42354520604**, completed successfully on commit e473eb120acfda7b94d5d4bc1b625f57811dc04e. Its receipt artifact was ID 13566744223, 94,936 bytes, SHA256 2d3fb50c5d0ada628f96e2eb4c0a628ceac285222a422beaa460becd00a1252c. This is a successful replay of the v29 pre-attack board integration and its existing assertions. It does not certify a complete paper game.
+
+A first attempt to attach a Mimikyu Copycat audit to the eight Prize-exit joins was incorrectly scoped. Manual run **42355921734** failed at the new Copycat assertion, after the v29 board-join assertions had passed. The failed log shows that the three fixed-contender Eon Blade Prize-exit rows were **direct Latias ex SSP attacks**, not Mimikyu Copycat attacks:
+
+| Candidate turn | Physical Active | Attached Energy before attack | Native declaration |
+|---:|---|---|---|
+| 13 | Latias ex SSP | 3 Psychic Energy | Direct AttackAction |
+| 17 | Latias ex SSP | 3 Psychic Energy | Direct AttackAction |
+| 25 | Latias ex SSP | 3 Psychic Energy | Direct AttackAction |
+
+Each row had delegatedCopy=false; the physical Active printed Eon Blade itself. The first Copycat audit mistakenly tried to treat these three direct attacks as Mimikyu events and returned zero supported Copycat rows out of three. This is an audit-scope error, not evidence of an illegal native attack or a failure of the v29 pre-attack board join. The failed-run receipt artifact is ID 13567577455, 66,352 bytes, SHA256 3f7167e771989db78af82f0b32861cb500ed3d6c11de1960f0800b561739dc85.
+
+This correction agrees with Agent37's independent archive audit, which identifies four direct Latias ex Eon Blade declarations on turns 13, 17, 21 and 25; turn 21 did not produce a Prize exit and therefore is absent from the three-row Prize-exit join. See [Agent37's Eon Blade turn-restriction archive audit](agent37-v8-latias-eonblade-turnrestriction-archive-audit-20261107.md).
+
+The replacement helper, simulation/evaluation/agent3-mimikyu-copycat-eon-blade-eligibility.cjs v2, scans both source-seat and candidate-seat full attack settlements. It only emits a row when the actual physical Active is Mimikyu GRI 58 and the accepted attack declaration is a delegated Eon Blade copy. Direct Latias ex attacks are excluded. It joins the current Copycat AttackAction and donor choice to a settled Eon Blade by the opponent on the immediately preceding global turn, checks the non-GX donor, and checks the physical Mimikyu's own printed [Psychic, Colorless] cost against attached Energy.
+
+The cost check is deliberately conservative. It does not automatically apply Dimension Valley's Colorless reduction: Agent44's native cost probes show that Stadium suppression and Lunatone OBF + Solrock CES New Moon can prevent the apparent reduction, while the detached public board does not expose all of that state. If the full printed Copycat cost is directly funded, the helper reports POSSIBLE; if Dimension Valley is visible and the base cost is not funded, it reports UNVERIFIED. See [Agent44's Copycat Stadium-cost frontier](agent44-copycat-stadium-suppression-cost-frontier-20261107.md) and [Agent44's native Mimikyu payment probe](agent44-mimikyu-turn27-psychic-native-20261107.md). The helper never certifies actual Energy payment or a paper game. It also records that Eon Blade carries a next-turn attack restriction, whose application to a copied Mimikyu attack remains unaudited.
+
+The revised 13-test pure suite passed in manual workflow run **42356575752** on commit a0f2f37b8fbee448e996a4bdae397a3da257f828. A fresh manual v14 native replay **42356602565** was then queued on that same commit; its outcome is pending. The full-history Copycat scan may legitimately return zero rows. A zero count means no Mimikyu Copycat Eon Blade event was observed in this registered trial, not that the mechanic is unsupported.
+
+No competitive game is qualified by these attack-level joins. The 99.5% objective remains unproven.
