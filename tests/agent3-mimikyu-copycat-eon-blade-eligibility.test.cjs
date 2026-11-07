@@ -226,6 +226,18 @@ test('delegated attack and Store root must share the exact Copycat initiating or
   assert.equal(rootRow.currentCopycatLineageValid,false);
   assert.ok(rootRow.failureReasons.includes(
     'current-copied-attack-not-initiated-by-this-Copycat-root'));
+
+  const missingEvent=fixture();
+  delete missingEvent.current.initiatingRootActionOrdinal;
+  const missingEventRow=audit(missingEvent).rows[0];
+  assert.equal(missingEventRow.currentCopycatLineageValid,false);
+  assert.equal(missingEventRow.currentAttackInitiatingRootOrdinal,null);
+
+  const missingRoot=fixture();
+  delete missingRoot.attempt.rootActionLedger[2].initiatingRootActionOrdinal;
+  const missingRootRow=audit(missingRoot).rows[0];
+  assert.equal(missingRootRow.currentCopycatLineageValid,false);
+  assert.equal(missingRootRow.currentRootInitiatingRootOrdinal,null);
 });
 
 test('a clock reset between the prior attack and Copycat breaks the join',()=>{
