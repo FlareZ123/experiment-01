@@ -57,6 +57,12 @@ function analyzeSource29(){
   const source=analyzeOriginal29();
   assert.equal(source.totalAuthenticatedSourceDecks,29);
   const rows=source.rows.map(row=>{
+    // The upstream original-29 FSS census intentionally omits card-class
+    // work on decks without FSS. Such a deck cannot satisfy this event,
+    // so do not silently report its uninspected Float/Basic quantities.
+    if(row.fss===0)return {rank:row.rank,fss:0,float:null,
+      otherTools:null,basic:null,vBasic:null,
+      allValid:null,noOpeningV:null,firstToolEventPossible:false};
     const float=row.otherToolNames.find(x=>x[0]==='Float Stone')?.[1]??0;
     const profile={fss:row.fss,float,otherTools:row.otherTool-float,
       basic:row.basic,vBasic:row.vBasic};
@@ -64,7 +70,8 @@ function analyzeSource29(){
     const noOpeningV=exactFssFloatFirst(profile,true);
     assert.ok(noOpeningV.probabilityGivenValidStart<=
       allValid.probabilityGivenValidStart);
-    return {rank:row.rank,...profile,allValid,noOpeningV};
+    return {rank:row.rank,...profile,allValid,noOpeningV,
+      firstToolEventPossible:float>0};
   });
   rows.sort((a,b)=>a.rank-b.rank);
   return {version:VERSION,
