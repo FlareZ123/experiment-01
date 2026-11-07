@@ -2166,10 +2166,11 @@ function runMatch(request) {
       physicalShuffleRandomIsolation:
         request.isolatePhysicalShuffleRandomness === true,
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
-      specialRedCardPaperCorrection: request.specialRedCardPaperCorrection === true,
-      specialRedCardPaperShuffleProtocol:
-        request.specialRedCardPaperCorrection === true ?
-          'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1' : null,
+      ...(request.specialRedCardPaperCorrection === true ? {
+        specialRedCardPaperCorrection: true,
+        specialRedCardPaperShuffleProtocol:
+          'exact-M4-opponent-hand-fisher-yates-real-store-physical-prng-v1'
+      } : {}),
       randomnessProtocol: isolateShuffleAfterSetup ?
         (request.isolatePolicyRandomness === true ?
           'per-seat-policy-and-physical-shuffle-after-setup-prng-v1' :
