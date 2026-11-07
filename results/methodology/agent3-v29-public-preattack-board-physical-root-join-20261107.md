@@ -1,6 +1,6 @@
 # Agent 3: public native pre-attack board to accepted KO root join (7 November 2026)
 
-**Status:** Four synthetic pure regression scenarios **passed** in [GitHub Actions run 42349590966](https://github.com/FlareZ123/experiment-01/actions/runs/42349590966), 4/4, zero failures, Node 22, commit 04a98d3e505cb4d5c2c014534c80fff7aad1cd9b. The real eight-victim native v29 integration is **committed but not yet rerun**. **Zero paper-qualified full games; no competitive win rate.**
+**Status:** The v2 pure helper suite and eight-victim native v29 integration both passed, including pure run 42364129705 and native run 42364148824. The v3 declaration-root timing extension and expanded pure/integration assertions are committed but **pending fresh manual validation**. **Zero paper-qualified full games; no competitive win rate.**
 
 ## Motivation
 
@@ -134,3 +134,23 @@ The v29 cases attach Speed Lightning Energy to Iron Thorns ex, so their direct-c
 - The first candidate response after the rank-11 champion-reference physical Prize exit at root ordinal 86 is Fog Crystal at root ordinal 90, turn 19, with no captured final Pass. Its post-action hand/board/prompt settlement is still an evidence gap.
 - No matchup-level win-rate estimate or 99.5% claim is supported.
 - The next useful extension is a post-Store-dispatch snapshot of the candidate's first response after each source Prize root, joined by registered trial ID and exact root ordinal. Capture only after the action has dispatched; do not feed hidden-state telemetry into either policy.
+
+
+## 2026-11-07 v3 declaration-root timing extension (validation pending)
+
+The v2 receipt establishes the public board before each accepted attack root. The v3 compatibility join now consumes the immediate public board after the declaration root and the final public board after prompt closure from the existing candidate-attack-settlement packet. It preserves the declaration root ordinal, initiating root ordinal, declaration turn, prompt-pending state, completion root ordinal/turn, physical Active printing, printed attack names, whether the declared attack is printed on that Active, whether the direct AttackAction matches the printed attack, and the trigger action.
+
+For each of the eight actual KO-victim joins, the v3 row records:
+- the target's location and damage immediately after declaration and after prompt closure;
+- target printed HP and whether its damage threshold was reached at either snapshot;
+- damage change from pre-attack board to declaration root, declaration root to actual native KO, and declaration root to prompt closure;
+- whether the target was actually removed during later prompt resolution, separately from whether it merely reached printed HP during that later resolution;
+- a declaration-root versus prompt-closure classification and both raw public snapshots.
+
+The classification distinguishes threshold already reached at declaration, KO removal during later prompt resolution, threshold reached during later prompt resolution, target absent from in-play after declaration, target on Bench after declaration, removal without a recorded prompt chain, and inconsistent final board evidence. A final public board that still shows the KO-observed printing in play below printed HP is explicitly marked inconsistent. Missing legacy immediate-board data remains readable and is classified unknown; old v2 artifacts are preserved unchanged.
+
+The pure regression suite now covers direct declaration-root damage, a delegated Copycat-style KO during later prompt resolution, later HP-threshold evidence without conflating it with KO removal, a target moved to Bench and later KO'd, a target still on Bench conflicting with a native KO receipt, missing legacy declaration-root snapshots, and mismatched physical Active identity fields. The v29 native integration test requires all eight rows to contain immediate/final boards, physical Active identity, root/prompt lineage, and a non-unknown/non-inconsistent classification. It emits an additional AGENT3_V29_DECLARATION_ROOT_TIMING summary with per-row damage deltas and classification counts.
+
+No new workflow was added. The existing manual-only pure workflow is .github/workflows/agent3-native-pre-attack-pure.yml. The existing manual-only native integration workflow is .github/workflows/agent50-rank26-koko-dual-recipient-native.yml; dispatch it with issue25_v14_only=true to run the v29 integration test. The successful v2 native artifact 13571042806 from run 42364148824 remains the immutable prior receipt. A fresh v3 pure run and native v29 replay have not yet been observed.
+
+Current patch commits: helper b69ea2937e415557b138df314b0476f088ed64fb; pure regression suite d373eaa9a186fa5065a70435d2ab391e27918d4f; v29 integration assertions 293c47f381eacbfece14376124ad1c8975e89bac. These are research telemetry and join improvements only. They do not certify paper rules, legal Energy payment, completed games, or competitive strength.
