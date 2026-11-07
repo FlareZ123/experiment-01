@@ -2,6 +2,11 @@ name: Agent 2 original 29 first Tool collision exact census
 
 on:
   workflow_dispatch:
+    inputs:
+      native_root_identity_canary:
+        description: 'Run one pinned Store/root registered-bot identity canary'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -44,4 +49,33 @@ jobs:
             agent2-fss-collision.json.sha256
             agent2-aichi-retreat-prohibition.json
             agent2-aichi-retreat-prohibition.json.sha256
+          if-no-files-found: warn
+
+  native-root-identity:
+    if: inputs.native_root_identity_canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Single authentic original 60 versus 60 actual root identity receipt
+        run: node simulation/evaluation/agent2-root-bound-paid-retreat-native-canary.cjs > agent2-root-bound-native-canary.json
+      - name: Preserve native root-identity receipt including failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-root-bound-native-canary
+          path: agent2-root-bound-native-canary.json
           if-no-files-found: warn
