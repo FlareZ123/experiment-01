@@ -867,6 +867,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     garbotoxinToolRootSelected:0,
     garbotoxinFloatStoneRootSelected:0,
     garbotoxinFssFallbackRootSelected:0,
+    garbotoxinToolRootDeferredForStarAlchemy:0,
+    garbotoxinToolRootNoOpponentAbility:0,
+    garbotoxinToolRootNoGarbodorTarget:0,
+    garbotoxinToolRootNoToolCandidate:0,
+    garbotoxinToolRootStatusSamples:[],
+    garbotoxinToolRootStatusSamplesOmitted:0,
     rank17ElectrodeBombCensusOptIn:deps.rank17ElectrodeBombCensus===true,
     dittoStage1RootOptIn:deps.dittoStage1Root===true,
     farewellLetterRootOptIn:deps.farewellLetterRoot===true,
@@ -1566,6 +1572,29 @@ function withActorOnlyRootPolicy(run,deps={}){
     // Option contract is obtained before selecting the owner root. The same
     // detached view supplies both Bench and attack/setup proposals; no native
     // Store action is attempted during proposal collection.
+    if(rootOptions.garbotoxinToolRoot===true&&
+       (rootOptions.garbodorResponseOwnerSeat===null||
+        view.actorSeat===rootOptions.garbodorResponseOwnerSeat)){
+      const status=require('./agent36-garbotoxin-tool-intent.cjs')
+        .evaluateGarbodorToolIntent(view,catalog);
+      const counter={
+        'star-alchemy-available':'garbotoxinToolRootDeferredForStarAlchemy',
+        'no-opponent-ability':'garbotoxinToolRootNoOpponentAbility',
+        'no-unequipped-garbodor':'garbotoxinToolRootNoGarbodorTarget',
+        'no-tool-candidate':'garbotoxinToolRootNoToolCandidate'
+      }[status.reason];
+      if(counter)audit[counter]++;
+      if(audit.garbotoxinToolRootStatusSamples.length<24){
+        const {intent,...receipt}=status;
+        audit.garbotoxinToolRootStatusSamples.push({
+          globalTurn:view.globalTurn,actorSeat:view.actorSeat,
+          ...receipt,
+          selectedPrinting:intent?.printing??null,
+          selectedSlot:intent?.slot??null,
+          selectedIndex:intent?.index??null
+        });
+      }else audit.garbotoxinToolRootStatusSamplesOmitted++;
+    }
     const soloChoice=audit.thornsSoloEnergyRetentionOptIn?
       require('./agent14-owner-solo-bench-choice-contract.cjs')
         .collectSoloBenchChoice(view,catalog,chooseActorRootIntent,rootOptions):null;
