@@ -84,7 +84,7 @@ This is a **route-specific opening prior**, not a natural-game opportunity censu
 
 The model also requires the opponent Active to have Energy before Cold Crush-GX has an Energy-discard target. It does not model the opponent's board, the source's next decision, the GX opportunity cost, the source's own Energy loss, prize consequences, a paper match clock, or opponent response. It supplies no game sample, matchup estimate, deck nomination, or evidence of competitive strength.
 
-Most importantly, the source list's three Nest Ball and three Capture Energy copies must not be counted as Articuno hand-access outs. Both put the searched Basic directly onto the Bench, while Legendary Ascent is worded around playing Articuno from hand.
+Most importantly, the source list's three Nest Ball and three Capture Energy copies must not be counted as Articuno hand-access outs. Both put the searched Basic directly onto the Bench, while Legendary Ascent is worded around playing Articuno from hand. They may still establish Articuno on the Bench for a slower direct-attachment line; that distinct line is outside this calculation.
 
 ## Reproduction
 
