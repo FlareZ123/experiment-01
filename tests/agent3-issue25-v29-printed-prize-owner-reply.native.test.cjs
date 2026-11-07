@@ -30,6 +30,8 @@ const {VERSION:BASE_SCREEN_VERSION,screenNativeKoBasePrizes}=
 const {VERSION:SECOND_SCREEN_VERSION,
   auditNativeKoPrintedPrizeValues:crossCheckPublicNativeKoPrizes}=
   require('../simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs');
+const {VERSION:NOMINAL_ATTACK_SCREEN_VERSION,screenNativeAttackDamage}=
+  require('../simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs');
 const {VERSION:OWNER_REPLY_VERSION,projectOwnerRepliesAfterSourcePrize}=
   require('../simulation/evaluation/agent3-postprize-owner-reply-projection.cjs');
 
@@ -249,6 +251,26 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     attackPrizeRootJoins.map(row=>row.exactPhysicalPrizeCards));
   assert.equal(independentlyRecheckedPrintedKoPrizes.paperGameCertified,false);
   assert.equal(independentlyRecheckedPrintedKoPrizes.qualifiedCompetitiveGames,0);
+  // Source-roster unique printed attack witnesses; native KO victim damage
+  // remains cumulative, and the model deliberately cannot certify payment.
+  const originalField=JSON.parse(fs.readFileSync(path.join(ROOT,
+    'results/aichi-2026/full-decklists.json'),'utf8'));
+  const printedNativeAttackNominals=screenNativeAttackDamage(
+    fullyRootedPublicVictimJoins.map((victim,i)=>({
+      ...victim,attackRole:attackPrizeRootJoins[i].attackRole
+    })),originalField);
+  assert.deepEqual(printedNativeAttackNominals.rows.map(row=>
+    row.rosterAttackerPrintedId),
+    ['sv6-77','sv6-77','sv2-169','swsh10-133','swsh10-133',
+      'sv8-76','sv8-76','sv8-76']);
+  assert.deepEqual(printedNativeAttackNominals.rows.map(row=>
+    row.unmodifiedPrintedFinalAttackDamage),
+    [140,140,20,130,130,200,200,200]);
+  assert.deepEqual(printedNativeAttackNominals.rows.map(row=>
+    row.nominalDamageDifference),
+    [0,0,160,0,230,0,0,200]);
+  assert.equal(printedNativeAttackNominals.paperGameCertified,false);
+  assert.equal(printedNativeAttackNominals.qualifiedCompetitiveGames,0);
   const exactPostPrizeOwnerReplies=projectOwnerRepliesAfterSourcePrize(
     selected.rawDevelopment.rows,attackPrizeRootJoins);
   assert.equal(exactPostPrizeOwnerReplies.length,5);
@@ -456,6 +478,12 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     separatePrintedKoPrizeCrosscheckHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs'))),
     independentlyRecheckedPrintedKoPrizes,
+    originalFieldSourceHash:hash(fs.readFileSync(path.join(ROOT,
+      'results/aichi-2026/full-decklists.json'))),
+    nominalPrintedAttackerScreenVersion:NOMINAL_ATTACK_SCREEN_VERSION,
+    nominalPrintedAttackerScreenHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs'))),
+    printedNativeAttackNominals,
     printedBasePrizeScreenVersion:BASE_SCREEN_VERSION,
     printedBasePrizeScreenHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-printed-base-prize-screen.cjs'))),
