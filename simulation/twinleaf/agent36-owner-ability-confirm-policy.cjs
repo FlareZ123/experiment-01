@@ -288,7 +288,8 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
         opponentActiveEnergyCount:meta.opponentActiveEnergyCount,
         actorActiveName:meta.actorActiveName,
         actorUsedGX:meta.actorUsedGX,
-        actorHandAttachmentAvailable:meta.actorHandAttachmentAvailable
+        actorHandAttachmentQuotaUnused:meta.actorHandAttachmentQuotaUnused,
+        actorHandEnergyNames:meta.actorHandEnergyNames
       });
     }
 
@@ -368,7 +369,10 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
         opponentActiveEnergyCount:opponent?.active?.energies?.cards?.length??null,
         actorActiveName:owner?.active?.getPokemonCard?.()?.name??null,
         actorUsedGX:owner?.usedGX===true,
-        actorHandAttachmentAvailable:owner?.energyPlayedTurn!==state.turn
+        actorHandAttachmentQuotaUnused:owner?.energyPlayedTurn!==state.turn,
+        actorHandEnergyNames:(owner?.hand?.cards??[])
+          .filter(card=>card.superType===types.SuperType.ENERGY)
+          .map(card=>card.name??null)
       };
       const action=new ResolvePromptAction(prompt.id,choice.decision);
       validate(state,action);
