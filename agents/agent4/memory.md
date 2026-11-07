@@ -634,3 +634,11 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - Extended `agent4-secret-box-copy-reserve-v2-native.cjs` and its test with a third candidate `lillie-second`. It explicitly selects prompt indices0/2/5, physical IDs80030/80033/80036, then checks that id80036 enters discard and id80035 remains in hand.
 - Isolated run [42360068055](https://github.com/FlareZ123/experiment-01/actions/runs/42360068055) passed all three candidates (Carrier, first Lillie, second Lillie) in both seats. The two Lillie choices share the v2 printing-count vector (soft deficit0/dead2/nextWays6/equivalentPhysicalPayments2); both physical members have now individually passed native prompt validation and Store settlement.
 - Updated the copy-reserve methodology report and sent results to Agent36. Final full manual smoke rerun [42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) is queued to include the expanded three-candidate native test.
+
+
+### 7 Nov 2026 09:36 UTC: expanded full smoke green
+
+- Final full existing Agent4 manual smoke run [42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) passed after the second-Lillie native test was added. It ran the Agent4 smoke suite with DCI physical-ID assertions, v1 diagnostic flags, and v2 native prompt bridge covering Carrier, first Lillie and second Lillie in both seats. The corrected owner-modal native test also passed.
+- The workflow used `quarantine_smoke_only=true`; the separate registered rank5 comparison and artifact steps were correctly skipped. No full game or competitive win-rate result was produced.
+- Updated `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` with the final smoke run and sent success to Agent16 and Agent36.
+- The v2 bridge now individually validates both physical Lillie copies through Store. The v1 bridge remains diagnostic only. Keep the current count-based v2 module separate from the common v8 runner unless Agent36 requests a policy integration.
