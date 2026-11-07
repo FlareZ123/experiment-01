@@ -28,7 +28,13 @@ function chooseSetupAction(state,player) {
   if (!dialgaDiscard && dialgaHand && treasure>=0)
     return {kind:'discard-dialga',handIndex:treasure};
   if (!dialgaDiscard) return null;
-  if (mimikyu.energies.cards.length<2 && player.energyPlayedTurn<state.turn) {
+  // Copycat GRI costs Psychic plus Colorless. Two attached Energy cards
+  // without a known Psychic provider are insufficient. This source-locked
+  // tactic credits only printed Basic Psychic, leaving other Energy or cost
+  // modifiers to native legality checks rather than guessing their effects.
+  const copycatPaid=mimikyu.energies.cards.length>=2 &&
+    mimikyu.energies.cards.some(card=>card.name==='Psychic Energy');
+  if (!copycatPaid && player.energyPlayedTurn<state.turn) {
     const psychic=hand.findIndex(c=>c.name==='Psychic Energy');
     if (psychic>=0)
       return {kind:'attach-psychic',handIndex:psychic,benchIndex};
@@ -36,8 +42,8 @@ function chooseSetupAction(state,player) {
     if (stretcher>=0 && player.discard.cards.some(c=>c.name==='Psychic Energy'))
       return {kind:'recover-psychic',handIndex:stretcher};
   }
-  if (benchIndex>=0 && mimikyu.energies.cards.length>=2 &&
-      player.retreatedTurn!==state.turn && active==='Latias ex SSP')
+  if (copycatPaid && player.retreatedTurn!==state.turn &&
+      active==='Latias ex SSP')
     return {kind:'promote-mimikyu',benchIndex};
   return null;
 }
