@@ -28,6 +28,18 @@ L_{\rm field}=(0.05)^{1/(32m)}.
 
 This all-wins-only test is valid even when opponent win probabilities differ, under independent games and equal matchup sample counts. It does **not** license treating correlated reruns of one physical deal, linked RNG streams, repeated action roots, bot-aborted games, or unqualified Store terminals as independent trials.
 
+## Structural feasibility: the field has only a 16-percentage-point total loss budget
+
+For a uniform 32-deck benchmark, the 99.5% mean target is equivalent to
+
+\[
+\sum_{i=1}^{32}(1-p_i)\le 32(1-0.995)=0.16.
+\]
+
+This is a strict **total loss-probability budget across all 32 opponent matchups**. Even granting 100% wins against the other 31, **one matchup below 84%** makes the target impossible. Two 92% matchups, four 96% matchups or sixteen 99% matchups each exhaust the entire allowed deficit if every remaining matchup is perfect. An exactly symmetric 50/50 mirror alone caps the uniform aggregate at **98.4375%** (the current fixed-60 decision board already identifies this special case for the unchanged rank1 reference). These are deterministic necessary conditions, independent of sample size, simulator, card identity and hypothesis-testing method.
+
+This makes hard-counter coverage and worst-matchup improvement primary deck-selection objectives even before a qualified evaluation cohort exists. It does not estimate any actual matchup strength. Different opponent weights would change the budget allocation and need their own predeclared estimand.
+
 ## Numerical thresholds
 
 | Evidentiary question (95% one-sided) | Minimum flawless qualified evidence | What it establishes under the assumptions |
