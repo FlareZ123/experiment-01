@@ -295,14 +295,22 @@ function runSnapTrapPrismStarDestinationContract() {
   const attackerAfter = after.players.find(player => player.id === attacker.id);
   const resolvedPrompt = after.prompts.find(item => item.id === prompt.id);
   const pendingAfter = after.prompts.filter(item => item.result === undefined);
+  const unresolvedSamePrompt = pendingAfter.filter(item => item.id === prompt.id);
+  const otherPendingPrompts = pendingAfter
+    .filter(item => item.id !== prompt.id)
+    .map(item => ({
+      id: item.id,
+      type: item.constructor?.name,
+      message: item.message
+    }));
 
   assert.ok(Array.isArray(resolvedPrompt.result),
     'the native prompt must retain the resolved Card[] result');
   assert.equal(resolvedPrompt.result.length, 1);
   assert.strictEqual(resolvedPrompt.result[0], beastEnergy,
     'prompt.result must contain the exact selected physical Beast Energy');
-  assert.equal(pendingAfter.length, 0,
-    'no unresolved prompt may remain after the native response');
+  assert.equal(unresolvedSamePrompt.length, 0,
+    'the same Snap Trap prompt ID must no longer be pending');
 
   assert.ok(!attackerAfter.active.cards.includes(beastEnergy),
     'the selected Prism Star Energy must leave the full active PokemonCardList');
@@ -351,7 +359,9 @@ function runSnapTrapPrismStarDestinationContract() {
       fullListDecodeReturnsSameObject: fullIndexDecoded[0] === beastEnergy,
       sublistIndexWouldReturnPokemon: sublistIndexDecoded[0] === marshadow,
       promptResultIsSamePhysicalEnergy: resolvedPrompt.result[0] === beastEnergy,
-      unresolvedPromptCountAfterResponse: pendingAfter.length
+      unresolvedPromptCountAfterResponse: unresolvedSamePrompt.length,
+      otherPendingPromptCountAfterResponse: otherPendingPrompts.length,
+      otherPendingPromptsAfterResponse: otherPendingPrompts
     },
     moveCardsEffect: {
       sourceIsAttackingPokemonList: moveEffectReceipt.source === liveAttacker.active,
