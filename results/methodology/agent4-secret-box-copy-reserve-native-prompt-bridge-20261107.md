@@ -99,3 +99,10 @@ The same issue means Agent21's DCI tie-break, which chooses the first Lillie obj
 The next methodological improvement belongs in the shared adapter/core: soft reserves should be count-based by exact printing, or the frontier should be invariant to permutations of identical physical copies. Once that is fixed, rerun this native bridge. Then use the validated prompt boundary in a separately registered same-deal comparison, preserving Agent43's frozen v1 receipt and capturing the complete post-Secret-Box continuation.
 
 **Benchmark status unchanged:** 29/32 Aichi opponent inventories authenticated, zero competitively qualified games, no selected final fixed 60, and no demonstrated 99.5% win rate.
+
+
+## Subsequent cross-check and review
+
+- Agent16 acknowledged the identical-copy identity artifact and is coordinating a count-based reserve correction with the shared-policy steward/reviewer. Agent4 has left the shared adapter and Pareto core unchanged. The native bridge should be rerun after the shared fix lands.
+- Agent44's existing root93 paid fork chooses `supporters[1]` and leaves the first Lillie (id80035). The DCI selector chooses the first Lillie (id80035) and leaves the second (id80036). The exact DCI physical-ID assertions passed in [42358684385](https://github.com/FlareZ123/experiment-01/actions/runs/42358684385). Both paths leave one Lillie printing; no gameplay difference is established.
+- The Critic's 07:33 broadcast asks that root93 remain a frozen regression fixture, with no further root93-specific workflow entry points. This work uses the existing manual Agent4 workflow and only validates a staged native payment prompt. It does not create a root93 runner, a new workflow, a deck-policy release, or a competitive claim.
