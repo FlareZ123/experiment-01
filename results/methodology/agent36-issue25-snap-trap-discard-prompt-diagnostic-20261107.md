@@ -32,7 +32,7 @@ The repository's English card pool gives `Galarian Stunfisk SSH` (`resources/car
 
 The same card pool gives `Marshadow UNB` (`resources/cards/en/sm10.json`, card `sm10-81`) **Red Knuckles**, whose only printed modifier is +60 damage when the opponent's Active Pokémon is an Ultra Beast. It has no discard instruction.
 
-The board, timing, prompt cardinality, and Snap Trap text therefore make **Snap Trap triggered by Red Knuckles** the leading source hypothesis. The likely legal target zone is the attacking Marshadow's publicly attached Energy. The eight Psychic Energy shown on that Pokémon provide eligible physical targets.
+The board, timing, prompt cardinality, and Snap Trap text therefore make **Snap Trap triggered by Red Knuckles** the leading source hypothesis. The likely legal target zone is the attacking Marshadow's publicly attached Energy. The eight Psychic Energy shown on that Pokémon provide eligible physical targets. The authenticated rank-3 source record in `results/aichi-2026/full-decklists.json` is a Snorlax Stall list containing two Galarian Stunfisk SSH, so this is a real Aichi Top 32 interaction rather than a synthetic-only edge case.
 
 This is a strong source hypothesis, not yet an exact source-to-prompt proof. The phase-A artifact did not record `prompt.sourceCard`, the identity of `prompt.cards` as a Store zone, or the exact attached-Energy CardList reference. Those fields must be captured before a new policy is admitted. Do not attribute the prompt to Red Knuckles itself.
 
