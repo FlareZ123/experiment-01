@@ -30,27 +30,53 @@ test('v9 is exactly one frozen rank11/New Moon natural-game registration',()=>{
 });
 
 test('owner post-source reply projection excludes unlisted and opponent-hidden fields',()=>{
-  const row={candidateRepliesAfterSourceAttacks:[{
-    sourceAttackOrdinal:46,sourceTurn:7,sourceAttackName:'Psychic',
-    sameEpochCandidateReplyVerified:true,candidateReplyOrdinal:51,
-    candidateReplyTurn:8,candidateReplyAction:'PassTurnAction',
-    status:'candidate-passed',caveat:'owner-only aftergame evidence',
-    ownerHandAfterDecision:['Psychic Energy','Marnie'],
-    publicBoardBeforePass:{active:'Mewtwo & Mew-GX'},
-    printedBasicEnergyBeforePass:1,
-    postChoiceAttackProbe:{available:[]},
-    clonedHeldTelepathActiveAttachment:{available:false},
-    candidateReplyTurnRootSequence:[{ordinal:51,action:'PassTurnAction'}],
-    candidateReplyTurnFinalPass:{ordinal:51,ownerHandAfterDecision:['Marnie']},
-    opponentHand:['hidden card must not be copied'],
-    privateOpponentDeck:['must not be copied']
-  }]};
+  const row={
+    candidateSeat:1,
+    rootActionLedger:Array.from({length:33},(_,i)=>({
+      actionOrdinal:i,playerSlot:1,turnBefore:8,action:'PlayCardAction'
+    })),
+    candidateRepliesAfterSourceAttacks:[{
+      sourceAttackOrdinal:46,sourceTurn:7,sourceAttackName:'Psychic',
+      sameEpochCandidateReplyVerified:true,candidateReplyOrdinal:51,
+      candidateReplyTurn:8,candidateReplyAction:'PassTurnAction',
+      status:'candidate-passed',caveat:'owner-only aftergame evidence',
+      ownerHandAfterDecision:['Psychic Energy','Marnie'],
+      publicBoardBeforePass:{active:'Mewtwo & Mew-GX'},
+      printedBasicEnergyBeforePass:1,
+      postChoiceAttackProbe:{
+        validAttackNames:['Miraculous Duo'],
+        rejection:'hidden card name in native exception'
+      },
+      clonedHeldTelepathActiveAttachment:{
+        nativeAccepted:false,nativeRejection:'another hidden card name'
+      },
+      candidateReplyTurnRootSequence:Array.from({length:32},(_,i)=>({
+        ordinal:51+i,action:'PlayCardAction'
+      })),
+      candidateReplyTurnFinalPass:{
+        ordinal:83,ownerHandAfterDecision:['Marnie'],
+        postChoiceAttackProbe:{auditError:'hidden identity in nested error'}
+      },
+      opponentHand:['hidden card must not be copied'],
+      privateOpponentDeck:['must not be copied']
+    }]
+  };
   const [reply]=projectCandidateRepliesAfterSourceAttacks(row);
   assert.equal(reply.sourceAttackOrdinal,46);
   assert.equal(reply.sameEpochCandidateReplyVerified,true);
   assert.deepEqual(reply.ownerHandAfterDecision,['Psychic Energy','Marnie']);
   assert.equal(Object.hasOwn(reply,'opponentHand'),false);
   assert.equal(Object.hasOwn(reply,'privateOpponentDeck'),false);
+  assert.equal(reply.rootSequenceExpectedCount,33);
+  assert.equal(reply.rootSequenceObservedCount,32);
+  assert.equal(reply.rootSequenceTruncated,true);
+  assert.equal(reply.postChoiceAttackProbe.rejectionPresent,true);
+  assert.equal(Object.hasOwn(reply.postChoiceAttackProbe,'rejection'),false);
+  assert.equal(reply.clonedHeldTelepathActiveAttachment.nativeRejectionPresent,true);
+  assert.equal(Object.hasOwn(reply.clonedHeldTelepathActiveAttachment,
+    'nativeRejection'),false);
+  assert.equal(reply.candidateReplyTurnFinalPass.postChoiceAttackProbe
+    .auditErrorPresent,true);
 });
 
 test('post-Prize audit keeps only source attacks with a verified Prize-count decrease',()=>{
