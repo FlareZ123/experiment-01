@@ -15,7 +15,7 @@ const {
   withInstalledNativeMatchPolicies
 }=require('../simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs');
 
-test('live v9 native Store executes under all three simultaneously installed policies',()=>{
+test('live v9 native Store executes under all four simultaneously installed policies',()=>{
   const active=[];
   const events=[];
   const mock=(name)=>(run)=>{
@@ -30,23 +30,25 @@ test('live v9 native Store executes under all three simultaneously installed pol
   };
   const result=withInstalledNativeMatchPolicies(()=>{
     events.push('native-run');
-    assert.deepEqual(active,['telepath','ability','prize']);
+    assert.deepEqual(active,['telepath','ability','family','prize']);
     return {executed:true,realStore:true};
   },{
     Store:class NativeStore {},
     rootBinding:{current:null},
     prizeObserver:mock('prize'),
+    familyPolicy:mock('family'),
     abilityPolicy:mock('ability'),
     telepathPolicy:mock('telepath')
   });
   assert.deepEqual(result.result,{executed:true,realStore:true});
   assert.deepEqual(result.audit,{
     prize:{name:'prize'},ability:{name:'ability'},
-    telepath:{name:'telepath'}
+    family:{name:'family'},telepath:{name:'telepath'}
   });
   assert.deepEqual(events,[
-    'install:telepath','install:ability','install:prize','native-run',
-    'restore:prize','restore:ability','restore:telepath'
+    'install:telepath','install:ability','install:family',
+    'install:prize','native-run','restore:prize','restore:family',
+    'restore:ability','restore:telepath'
   ]);
   assert.deepEqual(active,[]);
 });
