@@ -153,6 +153,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
     paperRulesToCheck:'Advanced Player Rulebook A-01/D versus E-21',
     paperOrderingQualified:false,competitiveGamesQualified:0
   };
+  };
   if(!withStoreHook)return runNativeTransaction();
   const wrapped=withStoreHook(store,runNativeTransaction);
   return {...wrapped.result,scopedHookAudit:wrapped.audit};
