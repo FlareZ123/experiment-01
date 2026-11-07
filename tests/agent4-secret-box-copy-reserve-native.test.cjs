@@ -19,11 +19,22 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
       assert.equal(result.prompt.max,3);
       assert.equal(result.prompt.offeredCount,9);
       assert.equal(result.adapter.version,'owner-hand-discard-copy-reserve-v1');
-      assert.deepEqual(result.adapter.hardReservedIndices,[2]);
-      assert.deepEqual(result.adapter.softProtectedIndices,[5]);
+      assert.equal(result.adapter.sourceIndex,null);
+      assert.equal(result.adapter.sourceCardPresentInHand,false);
+      assert.equal(result.adapter.sourcePrinting,null);
+      assert.equal(result.adapter.handLength,9);
+      assert.equal(result.adapter.possibleFirstPaymentCount,'56');
+      assert.equal(result.adapter.hardReservedCards.length,1);
+      assert.equal(result.adapter.hardReservedCards[0].printing,'Rescue Carrier EVS');
+      assert.equal(result.adapter.softProtectedCards.length,1);
+      assert.equal(result.adapter.softProtectedCards[0].printing,"Lillie's Determination M1L");
       assert.equal(result.adapter.hardRequirementsSatisfied,true);
       assert.equal(result.adapter.softPreferenceCapacityAvailable,true);
       assert.equal(result.selectedPhysicalUniqueCount,3);
+      assert.equal(new Set(result.selectedPhysicalIds).size,3);
+      assert.ok(result.selectedCards.every(card=>
+        Number.isSafeInteger(card.promptIndex)&&
+        Number.isSafeInteger(card.physicalId)));
       assert.equal(result.nativeValidatorAccepted,true);
       assert.equal(result.paymentError,null);
       assert.equal(result.paymentSettled,true);
@@ -37,6 +48,10 @@ test('copy-reserve frontier representatives map to real Secret Box payments in b
       assert.equal(result.adapter.vector.nextUnprotectedPaymentWays,
         candidate==='carrier'?'6':'10');
       assert.ok(result.adapter.equivalentPhysicalPayments>=1);
+      const hardId=result.adapter.hardReservedCards[0].physicalId;
+      const softId=result.adapter.softProtectedCards[0].physicalId;
+      assert.ok(!result.selectedPhysicalIds.includes(hardId));
+      assert.equal(result.selectedPhysicalIds.includes(softId),candidate==='lillie');
       assert.equal(result.remainingVipCopies,0);
       assert.equal(result.remainingCarrierCopies,candidate==='carrier'?1:2);
       assert.equal(result.remainingLillieCopies,candidate==='carrier'?2:1);
