@@ -40,8 +40,7 @@ jobs:
           node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic.cjs
 
       - name: Test prompt-zone observer privacy and both-seat mapping
-        run: |
-          node --test             tests/agent36-issue25-public-prompt-zone-audit.test.cjs             tests/agent36-issue25-selected-v0.test.cjs             tests/agent34-actor-only-root-policy.test.cjs
+        run: node --test tests/agent36-issue25-public-prompt-zone-audit.test.cjs tests/agent36-issue25-selected-v0.test.cjs tests/agent34-actor-only-root-policy.test.cjs
 
       - name: Run frozen v10b phase-A diagnostic with read-only prompt observer
         run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic.cjs
