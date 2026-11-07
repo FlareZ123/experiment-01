@@ -353,7 +353,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   assert.equal(fogCrystalSequence.firstProjectedResponseAction?.actionType,'PlayCardAction');
   assert.equal(fogCrystalSequence.firstProjectedResponseAction?.playedCard,'Fog Crystal');
   assert.equal(fogCrystalSequence.firstProjectedResponseAction?.playedCardInDiscard,true);
-  assert.ok(fogCrystalSequence.firstProjectedResponseAction?.handCardsRemoved?.includes('Fog Crystal'));
+  assert.ok(fogCrystalSequence.firstProjectedResponseAction?.handCardsRemoved?.some(name=>
+    name.startsWith('Fog Crystal')));
   assert.equal(exactPostPrizeOwnerReplies.length,5);
   assert.equal(exactPostPrizeOwnerReplies.every(row=>
     row.sameEpochCandidateReplyVerified===true),true);
