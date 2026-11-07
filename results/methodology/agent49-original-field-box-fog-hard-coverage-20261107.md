@@ -143,7 +143,7 @@ No native actions, qualified games or shared-policy integration occurred.
 
 Following the hard-zero census and imported-hook counterexample, the
 historical **default-off** `agent43-owner-secretbox-fog-ko.cjs` wrapper
-now has a registered-original-60 preflight (**v2**). At each genuine
+now has a registered-original-60 and publicly visible owner-zone preflight (**v3**). At each genuine
 `headless.runMatch(request)` boundary it captures only the acting
 player's own fixed registered 60-card strings from the already-provided
 `request.deckA/deckB` arrays. Before replacing an ordinary native
@@ -180,6 +180,38 @@ selection may still be necessary. Earlier historical native treatment
 provenance is pinned to its original source SHA and remains valid as
 a separate archived observation. The new hook requires new native
 replay verification before adoption as competitive policy.
+
+## K0 upper bound improves on mere starting-deck membership
+
+Starting-60 membership cannot certify current deck contents. Even before
+the first owner-authorized deck search, a player can deduct every physical
+card already known in their own hand, discard, Lost Zone, attached board,
+Stadium, or currently resolving Supporter from the registered 60.
+The new read-only
+[`preflightVisibleOwnerRemainingUpperBound`](../../simulation/twinleaf/owner-original-60-plan-gate.cjs)
+uses the existing `knownOutsideDeck(actorObservation)` helper for exactly
+those owner-known zones. An exhausted necessary target yields
+`blocked-impossible-visible-exhaustion`; a possible residual copy
+yields only `not-disproven`, with all face-down Prize identities still
+unknown. It fail-closes when a presented visible physical printing count
+exceeds the registered original60 (provenance inconsistency).
+
+[Three dedicated pure regressions](../../tests/agent49-visible-owner-deck-exhaustion-gate.test.cjs)
+pass against the fetched actual helper: 4/4 Fog already held/discarded
+vetoes Fog; all three Basic Psychic already attached/discarded veto Basic;
+a residual possible card preserves uncertainty and an injected
+opponent-hidden-data trap is never read.
+
+The default-off original Agent43 Box/Fog wrapper now uses this stronger
+K0 public-zone bound as well as the registered 60 for the two named search
+targets, with a combined `ownerK0TargetHardVetoes` counter (v3). The
+[original-field hook regressions](../../tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs)
+are **4/4 passing** in isolated V8: zero-Fog source ranks 9/17/30,
+synthetic eligible candidate, zero-Basic negative, and otherwise eligible
+but **visibly exhausted Fog or Basic** negative. The real Store owner-only
+prompt flow and earlier historical root93 candidate payoff have not been
+replayed on the revised hook. This is a conservative plan admissibility
+improvement only; no new winner, match result or paper legality is claimed.
 
 ## Direction for shared competence work
 
