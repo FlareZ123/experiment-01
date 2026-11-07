@@ -1,4 +1,4 @@
-name: Agent37 simultaneous final-Prize resolver v3 native
+name: Agent37 simultaneous terminal resolver v3 and v4 native
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: agent37-last-prize-v3-native-${{ github.ref }}
+  group: agent37-simultaneous-terminal-v3-v4-native-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -44,21 +44,33 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs
           node --check simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-adapter.cjs
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-native.cjs
           node --test tests/agent37/rulebook-e-terminal-outcome.test.cjs
 
       - name: Run bounded native simultaneous final-Prize regression
         run: |
           node simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs > agent37-simultaneous-last-prize-v3-native.json
 
+      - name: Run opt-in mixed terminal v4 regression
+        run: |
+          node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-native.cjs > agent37-simultaneous-terminal-v4-native.json
+
       - name: Assert v3 schema, pinned engine and native outcomes
         run: |
           node -e "const fs=require('node:fs');const assert=require('node:assert/strict');const r=JSON.parse(fs.readFileSync('agent37-simultaneous-last-prize-v3-native.json','utf8'));assert.equal(r.schema,'agent37-simultaneous-last-prize-resolution-native-v3');assert.equal(r.pinnedTwinleaf,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');assert.equal(Array.isArray(r.rows),true);assert.equal(r.rows.length,2);assert.deepEqual(r.rows.map(x=>x.actorSeat),[0,1]);assert.equal(Array.isArray(r.controls.asymmetricPromotionAvailability),true);assert.equal(r.controls.asymmetricPromotionAvailability.length,2);assert.equal(r.controls.opponentOnlyPromotionAvailability.length,2);assert.equal(r.controls.neitherCanPromote.length,2);assert.equal(r.controls.asymmetricPrizeGroupCounts.length,16);assert.equal(r.controls.asymmetricPrizeGroupCounts.every(x=>x.expectedOutcome===x.actualOutcome&&x.prizesTakenThisTurn.owner===(x.prizeProfile==='overkill-3-to-1'?2:3)&&x.prizesTakenThisTurn.opponent===1&&x.knockoutPrizeCounts.some(k=>k.targetPrinting==='Shadow Rider Calyrex VMAX CRE'&&k.prizeCount===3)&&x.knockoutPrizeCounts.some(k=>k.targetPrinting==='Ferroseed NXD'&&k.prizeCount===1)&&x.prizeGroupCounts.every(g=>g.destinationIsHand)&&x.nativeWinnerLabel==='PLAYER_1'&&x.nativeWinnerLogType==='WINNER'&&x.nativeWinnerPlayerId===(x.actorSeat===0?101:202)&&x.nativeWinnerName===(x.actorSeat===0?'Ferroseed attacker':'Duskull defender')&&x.nativeWinnerLogName===x.nativeWinnerName&&JSON.stringify(x.nativeWinnerLogParams)===JSON.stringify({name:x.nativeWinnerName})&&x.firstPrizeGroupTakerId===(x.actorSeat===0?101:202)&&x.firstPrizeGroupTakerName===(x.actorSeat===0?'Ferroseed attacker':'Duskull defender')),true);assert.equal(r.controls.nonHandDestination.length,2);assert.equal(r.controls.singleLastPrize.finalState.finished,true);assert.equal(r.controls.mixedTerminalRows.length,16);assert.equal(r.controls.mixedTerminalRows.every(x=>x.v3Candidate===false&&x.ownerPrizesRemaining+x.ownerPrizesTakenThisTurn===x.initialPrizeCounts.owner&&x.opponentPrizesRemaining+x.opponentPrizesTakenThisTurn===x.initialPrizeCounts.opponent&&x.prizeGroupCounts.length===2&&x.prizeGroupCounts.every(g=>g.destinationIsHand)&&x.expectedPrizeTransfers.owner===(x.profile==='owner-final'?1:3)&&x.expectedPrizeTransfers.opponent===1&&x.actualPrizeTransfers.owner===x.ownerPrizesTakenThisTurn&&x.actualPrizeTransfers.opponent===x.opponentPrizesTakenThisTurn&&x.prizeTransfersComplete===(x.actualPrizeTransfers.owner===x.expectedPrizeTransfers.owner&&x.actualPrizeTransfers.opponent===x.expectedPrizeTransfers.opponent)&&x.missingPrizeRecipients.length===(x.prizeTransfersComplete?0:1)),true);assert.equal(r.mixedPrizeTransferIncompleteCount,12);assert.deepEqual(r.mixedPrizeTransferIncompleteByProfile,{ownerFinal:6,opponentFinal:6});assert.equal(r.mixedPrizeTransferIncompleteCount,r.controls.mixedTerminalRows.filter(x=>!x.prizeTransfersComplete).length);assert.equal(r.mixedSingleFinalPrizeMismatchCount,r.controls.mixedTerminalRows.filter(x=>!x.nativeMatchesPaper).length);assert.equal(r.mixedSingleFinalPrizeRuleTableGapDemonstrated,true);assert.equal(r.mixedSingleFinalPrizeRowsSupported,false);const mixedDefects=r.controls.mixedTerminalRows.filter(x=>!x.nativeMatchesPaper);assert.equal(mixedDefects.length,4);assert.equal(mixedDefects.every(x=>x.paperOutcome==='DRAW'&&x.nativeOutcome===x.finalTaker),true);assert.equal(r.controls.mixedTerminalRows.every(x=>x.nativeOutcome===x.finalTaker),true);assert.equal(mixedDefects.filter(x=>x.profile==='owner-final').length,2);assert.equal(mixedDefects.filter(x=>x.profile==='opponent-final').length,2);assert.equal(r.controls.mixedTerminalRows.every(x=>x.ownerPrizesTakenThisTurn===(x.profile==='owner-final'?1:(x.actorSeat===0&&!x.opponentCanPromote?3:0))&&x.opponentPrizesTakenThisTurn===(x.profile==='opponent-final'?1:(x.actorSeat===1&&!x.ownerCanPromote?1:0))),true);assert.equal(r.competitiveGamesQualified,0);for(const k of ['nativeDefectConfirmedBothSeats','simultaneousLastPrizeResolutionBothSeats','bothPrizeTransfersVerified','asymmetricPromotionAvailabilityWinnerCorrected','asymmetricPrizeGroupCountsBothSeatsVerified','opponentOnlyPromotionWinnerCorrected','neitherPromotableTieCorrected','bothFinalPrizePromotionAsymmetryCovered','mixedSingleFinalPrizeRuleTableGapDemonstrated','singlePlayerLastPrizeControlPreserved','nonHandPrizeDestinationControlPreserved','drawLogAndWinnerVerified','neighborStoreIsolationVerified','restorationVerified'])assert.equal(r[k],true,k);console.log(JSON.stringify(r.controls.mixedTerminalRows.map(x=>({profile:x.profile,actorSeat:x.actorSeat,scenario:x.scenario,paperOutcome:x.paperOutcome,nativeOutcome:x.nativeOutcome,ownerPrizesTakenThisTurn:x.ownerPrizesTakenThisTurn,opponentPrizesTakenThisTurn:x.opponentPrizesTakenThisTurn,ownerPrizesRemaining:x.ownerPrizesRemaining,opponentPrizesRemaining:x.opponentPrizesRemaining,playersOrderAfterTurn:x.playersOrderAfterTurn,prizeGroupCounts:x.prizeGroupCounts,expectedPrizeTransfers:x.expectedPrizeTransfers,actualPrizeTransfers:x.actualPrizeTransfers,prizeTransfersComplete:x.prizeTransfersComplete,missingPrizeRecipients:x.missingPrizeRecipients})),null,2));console.log('Agent37 v3 native regression passed.');"
+
+      - name: Assert v4 mixed terminal Prize transfers and §E outcomes
+        run: |
+          node -e "const fs=require('node:fs');const assert=require('node:assert/strict');const v=JSON.parse(fs.readFileSync('agent37-simultaneous-terminal-v4-native.json','utf8'));assert.equal(v.schema,'agent37-simultaneous-terminal-resolution-native-v4');assert.equal(v.version,'agent37-instance-scoped-simultaneous-terminal-resolution-v4');assert.equal(v.pinnedTwinleaf,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');assert.equal(v.rows.length,16);assert.deepEqual(v.summary,{rows:16,transferCompleteRows:16,draws:4,ownerWins:6,opponentWins:6,nativeWinnerCorrections:4,nativeWinnerLogs:16,storeRestoredRows:16});assert.equal(v.rows.every(x=>x.prizeTransfersComplete&&x.actualPrizeTransfers.owner===x.expectedPrizeTransfers.owner&&x.actualPrizeTransfers.opponent===x.expectedPrizeTransfers.opponent),true);assert.equal(v.rows.every(x=>x.expectedPrizeTransfers.owner===(x.profile==='owner-final'?1:3)&&x.expectedPrizeTransfers.opponent===1),true);assert.equal(v.rows.every(x=>x.nativeWinnerLogType==='WINNER'&&x.nativeWinnerPlayerId===(x.profile==='owner-final'?101:202)&&x.storeRestored),true);assert.equal(v.rows.every(x=>x.actualWinner===x.expectedWinner),true);assert.equal(v.rows.filter(x=>x.winnerOverridden).length,4);assert.equal(v.competitiveGamesQualified,0);console.log(JSON.stringify(v.summary,null,2));"
 
       - name: Preserve native result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent37-simultaneous-last-prize-v3-native-${{ github.run_id }}
-          path: agent37-simultaneous-last-prize-v3-native.json
+          name: agent37-simultaneous-terminal-v3-v4-native-${{ github.run_id }}
+          path: |
+            agent37-simultaneous-last-prize-v3-native.json
+            agent37-simultaneous-terminal-v4-native.json
           if-no-files-found: ignore
           retention-days: 14
