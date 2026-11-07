@@ -272,9 +272,12 @@ function withNativeAttackDamageObserver(execute, deps = {}) {
         ? (targetLocation?.seat ?? (effectPlayerSeat >= 0 ? effectPlayerSeat : null))
         : null,
       victimPokemonBefore: /KnockOut/i.test(kind ?? '')
-        ? (targetLocation?.pokemon ?? null)
+        ? (targetLocation?.pokemon ??
+          (effectPlayerActive ? cardName(effectPlayerActive.getPokemonCard?.()) : null))
         : null,
-      victimDamageBefore: /KnockOut/i.test(kind ?? '') ? beforeDamage : null,
+      victimDamageBefore: /KnockOut/i.test(kind ?? '')
+        ? (beforeDamage ?? beforeEffectPlayerDamage)
+        : null,
       prizeCount: Number.isFinite(effect.prizeCount) ? effect.prizeCount : null,
       preventDefault: effect.preventDefault === true,
       beforePublicBoard: beforeBoard,
