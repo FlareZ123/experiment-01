@@ -634,6 +634,10 @@ jobs:
         env:
           AGENT3_V30_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v30-physical-knockout-energy-objects.native.test.cjs
+      - name: Verify copied Eon Blade restriction on physical Mimikyu
+        env:
+          AGENT3_COPYCAT_LOCK_OUT_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-mimikyu-copycat-eonblade-lock-native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
