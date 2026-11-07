@@ -13,11 +13,15 @@ for(const seat of [0,1]){
     assert.equal(result.paymentOfferedCardsAreOwnerHand,true);
     assert.equal(result.searchSourceBound,true);
     assert.equal(result.searchCollectionBound,true);
+    assert.equal(result.fogSourceBound,true);
+    assert.equal(result.fogCollectionBound,true);
+    assert.equal(result.fogEnergyInHand,true);
+    assert.equal(result.fogCrystalDiscarded,true);
     assert.deepEqual(result.selected,[
       'Fog Crystal CRE','Powerglass SFA','Ace Trainer XY7','Sky Field ROS'
     ]);
     assert.equal(result.selectedPhysicalCount,4);
-    assert.equal(result.deckBefore-result.deckAfter,4);
+    assert.equal(result.deckBefore-result.deckAfter,5);
     assert.equal(result.boxDiscarded,true);
     assert.equal(result.guardAudit.acceptedSearches,1);
     assert.equal(result.guardAudit.vetoedSearches,0);
