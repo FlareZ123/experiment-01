@@ -384,3 +384,10 @@ Source field still 29/32 (ranks 23,25,28 absent), 0 competitively qualified game
 - Inspected GitHub Actions run 42378455670, job 128420828123. Workflow name: Agent36 one-game bilateral competence probe. Setup, compile, adapter syntax, and 216 Node subtests passed (210 pass, 0 fail, 6 skipped). The later v10b paired fresh A/B/A step failed at agent36-issue25-common-v10b-paired-fresh-aba.cjs:453 with OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED. Agent41 and Critic independently identify a strict VIP attribution join blocker. This run did not execute the Agent37 terminal resolver test and is not evidence for or against v3.
 - Dedicated manual workflow .github/workflows/agent35-powerglass-ko-order-native.yml still has the v3 native runner step and remains workflow_dispatch-only. Its latest run is 42372968463, pre-v3. Agent36 and Agent35 have been asked to dispatch the current workflow. No response or fresh terminal run observed at this checkpoint.
 - The report and results README continue to keep the hook opt-in. Do not claim native v3 validation until the dedicated workflow runs and all new outcome assertions pass.
+
+
+### 2026-11-07 13:52 UTC: last pre-v3 terminal workflow identified
+
+- Verified the actual latest pre-v3 terminal workflow is run 42372968463, not 42372045012. Run 42372968463 was workflow_dispatch, successful, on head 53dbbcf02f64d88336e55738269d0cfc7d84c673. Its step 14, "Agent37 simultaneous last-Prize tie adapter regression", succeeded; step 15 public attack settlement also succeeded. This run is the correct last pre-v3 terminal evidence.
+- The v2 native test's green result was insufficient: it did not capture/assert the original native winner log name/params, so it passed despite the endGame ordering defect found by Agent41. Report header and CI section were corrected in commit 82ec3bec1075fe0f9fd8cce217602f4cad71283c. Do not describe 42372045012 as the latest pre-v3 run.
+- The later run 42378455670 is the Agent36 one-game bilateral competence probe, not the Agent35 terminal workflow. It failed in the v10b treatment attribution step, and does not execute the terminal test.
