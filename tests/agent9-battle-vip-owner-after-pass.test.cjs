@@ -288,3 +288,30 @@ test('genuine native legal zero-Basic VIP prompt never masquerades as Bench plac
   assert.equal(observed.audit.nativeBenchConfirmed,0);
   assert.equal(observed.audit.nativeBenchUnconfirmed,0);
 });
+
+test('original-rank9 VIP owner prompt can preferentially Bench its Voltorb and Mega without earlier hidden reads',()=>{
+  const {preferRank9MegaVoltorbVipRecipient}=require(
+    '../simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs');
+  const all=[basic('Toedscool','Toedscool PAR'),
+    basic('Voltorb','Voltorb ROS'),
+    basic('Mega Absol ex','Mega Absol ex M1L'),
+    evolution('Electrode-GX','Voltorb')];
+  const owner={...view(1,2),decisionKind:'owner-prompt',
+    pendingOwnerDeckSearch:true};
+  const p={cards:{cards:all},validate(selected){
+    return Array.isArray(selected)&&selected.length<=2&&
+      selected.every(c=>all.includes(c)&&c.stage===STAGE.BASIC);
+  }};
+  assert.deepEqual(preferRank9MegaVoltorbVipRecipient(p,owner,{
+    BASIC:STAGE.BASIC,POKEMON:TYPES.POKEMON
+  }).map(c=>c.fullName),['Voltorb ROS','Mega Absol ex M1L']);
+  owner.ownPublic.bench=[{name:'A'},{name:'B'},{name:'C'},{name:'D'},null];
+  assert.equal(preferRank9MegaVoltorbVipRecipient(p,owner,{
+    BASIC:STAGE.BASIC,POKEMON:TYPES.POKEMON
+  }),null);
+  owner.ownPublic.bench=Array(5).fill(null);
+  p.cards.cards.splice(2,1);
+  assert.equal(preferRank9MegaVoltorbVipRecipient(p,owner,{
+    BASIC:STAGE.BASIC,POKEMON:TYPES.POKEMON
+  }),null);
+});
