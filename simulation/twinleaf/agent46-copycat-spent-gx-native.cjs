@@ -18,9 +18,10 @@ const {clearCopyAttackSessionsForTests} =
  *
  * @param {0|1} ownerSeat Actual Mimikyu physical seat.
  * @param {boolean} gxAlreadySpent Whether Mimikyu owner already used a GX.
+ * @param {'Timeless-GX'|'Shred'} [copyChoice] Printed own-discard Dragon payload attack.
  * @returns {object} Engine effect and prompt outcome.
  */
-function trial(ownerSeat, gxAlreadySpent) {
+function trial(ownerSeat, gxAlreadySpent, copyChoice = 'Timeless-GX') {
   clearCopyAttackSessionsForTests();
   const restoreCopycat = installMimikyuNonGxCopycatHook();
   const restoreHistory = installDeclaredCopyHistoryHook({
@@ -29,7 +30,7 @@ function trial(ownerSeat, gxAlreadySpent) {
   let result;
   try {
     result = runSeat(ownerSeat, {
-      chooseMimikyuTimeless: true,
+      mimikyuAttackChoice: copyChoice,
       beforeMimikyu({x}) {
         assert.equal(x.state.playerLastAttack[x.opponent.id].attack.name,
           'Apex Dragon', 'Paper history remains the originally declared attack');
@@ -50,16 +51,17 @@ function trial(ownerSeat, gxAlreadySpent) {
   assert.equal(result.sourceDeckImmediatelyAfterApex, 2);
   const offeredCopyPrompt = result.history.some(e =>
     e.during === 'mimikyu-copycat' && e.pending === 'ChooseAttackPrompt');
-  const resolvedGXChoice = result.history.some(e =>
+  const resolvedChoice = result.history.some(e =>
     e.during === 'mimikyu-copycat' && e.resolved === 'ChooseAttackPrompt' &&
-    e.chosen === 'Timeless-GX');
+    e.chosen === copyChoice);
   return {
     ownerSeat,
     gxAlreadySpent,
+    copyChoice,
     sourceAttackTrulyOccurred: true,
     existingHooksRestored: true,
     offeredCopyPrompt,
-    resolvedGXChoice,
+    resolvedChoice,
     damage: result.mimikyuOpponentDamage,
     gxFlagAfter: result.mimikyuOwnerGXUsed,
     extraTurn: result.mimikyuOwnerTurnSkip,
@@ -76,18 +78,34 @@ function run() {
   for (const seat of [0, 1]) {
     const fresh = trial(seat, false);
     const spent = trial(seat, true);
+    const nonGxAlternative = trial(seat, true, 'Shred');
     assert.equal(fresh.error, null);
-    assert.equal(fresh.resolvedGXChoice, true);
+    assert.equal(fresh.resolvedChoice, true);
     assert.equal(fresh.damage, 150);
     assert.equal(fresh.gxFlagAfter, true);
     assert.equal(fresh.extraTurn, true);
+    assert.equal(spent.damage, 0,
+      'Spent GX allowance cannot execute a copied Timeless-GX');
+    assert.equal(spent.extraTurn, false);
+    assert.equal(spent.error, null);
+    assert.equal(nonGxAlternative.error, null);
+    assert.equal(nonGxAlternative.resolvedChoice, true);
+    assert.equal(nonGxAlternative.damage, 80,
+      'A legitimate non-GX Shred must remain a usable copied alternative');
+    assert.equal(nonGxAlternative.extraTurn, false);
+    assert.equal(nonGxAlternative.gxFlagAfter, true,
+      'Non-GX alternative must preserve the already spent GX allowance');
     rows.push({
       ownerSeat: seat,
       fresh,
       spent,
+      nonGxAlternative,
       nativeSpentGXProvidesDamage: spent.damage > 0,
       nativeSpentGXProvidesExtraTurn: spent.extraTurn,
-      paperOneGXRuleBreached: spent.damage > 0 || spent.extraTurn
+      paperOneGXRuleBreached: spent.damage > 0 || spent.extraTurn,
+      spentGxOfferCount:spent.acceptedHistory.filter(e=>
+        e.during==='mimikyu-copycat'&&e.pending==='ChooseAttackPrompt').length,
+      nonGxFallbackWorks:nonGxAlternative.damage===80
     });
     console.log('AGENT46_GX_SPENT_SEAT ' + JSON.stringify(rows[rows.length - 1]));
   }
