@@ -83,3 +83,27 @@ test('invalid fixed-deck configurations are rejected', () => {
     ...base, heavyBallCopies: 100
   }), /Card counts exceed the fixed deck size/);
 });
+
+test('one extra Heavy Ball outperforms one extra copy of any single Basic role on Prize obstruction', () => {
+  const result = runCopycatHeavyBallSensitivity();
+  const [mimikyu, dialga, radiant, clefairy] =
+    result.singleSlotRoleVariants;
+  for (const variant of [mimikyu, dialga, radiant]) {
+    assert.deepEqual(variant.prizeOnlyObstruction, {
+      numerator: '89579309009',
+      denominator: '3343818770600'
+    });
+  }
+  assert.deepEqual(clefairy.prizeOnlyObstruction, {
+    numerator: '151447874219',
+    denominator: '3343818770600'
+  });
+  assert.ok(result.variants[1].prizeOnlyObstructionPercent <
+    mimikyu.prizeOnlyObstructionPercent);
+  assert.ok(result.variants[1].prizeOnlyObstructionPercent <
+    dialga.prizeOnlyObstructionPercent);
+  assert.ok(result.variants[1].prizeOnlyObstructionPercent <
+    radiant.prizeOnlyObstructionPercent);
+  assert.ok(result.variants[1].prizeOnlyObstructionPercent <
+    clefairy.prizeOnlyObstructionPercent);
+});
