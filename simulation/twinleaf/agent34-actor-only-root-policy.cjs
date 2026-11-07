@@ -452,6 +452,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSeekerLillieRoot(view);
     if(follow)return follow;
   }
+  if(options.seekerResearchRoot===true){
+    const research=require('./agent2-owner-vs-seeker-research-root.cjs')
+      .chooseOwnerSeekerResearchRoot(view);
+    if(research)return research;
+  }
   if(options.carmineFirstRoot===true){
     const first=require('./agent48-conservative-first-carmine.cjs')
       .chooseConservativeFirstCarmine(view);
@@ -939,8 +944,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT48_CARMINE_FIRST_ROOT_DEV==='true'),
     seekerLillieRootOptIn:deps.seekerLillieRoot??
       (process.env.AGENT48_VS_SEEKER_LILLIE_DEV==='true'),
+    seekerResearchRootOptIn:deps.seekerResearchRoot===true,
     seekerLilliePromptsProposed:0,
     seekerLilliePromptsAccepted:0,
+    seekerResearchPromptsProposed:0,
+    seekerResearchPromptsAccepted:0,
     eriRevealRootOptIn:deps.eriRevealRoot??
       (process.env.AGENT50_ERI_REVEAL_DEV==='true'),
     eriPromptsProposed:0,eriPromptsAccepted:0,eriItemsDiscarded:0,
@@ -1297,8 +1305,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent48-conservative-first-carmine.cjs').VERSION;
   if(audit.seekerLillieRootOptIn)
-    audit.version+='+'+
+    audit.version+=''+
       require('./agent48-owner-vs-seeker-lillie.cjs').VERSION;
+  if(audit.seekerResearchRootOptIn)
+    audit.version+=''+
+      require('./agent2-owner-vs-seeker-research-root.cjs').VERSION;
   if(audit.lowHandLillieCensusOptIn)
     audit.version+='+agent25-owner-lowhand-lillie-census-v1';
   if(audit.strandedMarnieRootOptIn)
@@ -1321,15 +1332,20 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);
     }
-    if(seat!==-1&&pending&&audit.seekerLillieRootOptIn&&
+    if(seat!==-1&&pending&&
+       (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn)&&
        pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
-      const planned=require('./agent48-owner-vs-seeker-lillie.cjs')
-        .chooseSeekerLilliePrompt(state,seat,pending,ResolvePromptAction);
+      const target=ownerSeekerPending.get(playerId).target;
+      const planned=require('./agent48-owner-vs-seeker-supporter.cjs')
+        .chooseOwnerVsSeekerSupporterPrompt(
+          state,seat,pending,ResolvePromptAction,target);
       typedSeekerReplies.set(planned,{seat,ownerId:playerId,
-        printing:ownerSeekerPending.get(playerId).target});
-      audit.seekerLilliePromptsProposed++;
+        printing:target});
+      if(target.startsWith("Professor's Research "))
+        audit.seekerResearchPromptsProposed++;
+      else audit.seekerLilliePromptsProposed++;
       return planned;
     }
     if(seat!==-1&&pending&&audit.eriRevealRootOptIn&&
@@ -1592,6 +1608,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       eriRevealRoot:audit.eriRevealRootOptIn===true,
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
+      seekerResearchRoot:audit.seekerResearchRootOptIn,
       protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
       protectPotentialPrintedPrizeAttack:audit.protectPotentialPrintedPrizeAttackOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
@@ -1819,6 +1836,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-seeker-get-lillie':
       case 'play-seeker-recovered-lillie':
+      case 'play-seeker-get-research':
+      case 'play-seeker-recovered-research':
       case 'play-carmine-first':
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
@@ -2023,7 +2042,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       assert.equal(afterDiscard,beforeDiscard-1,
         'VS Seeker live owner prompt did not remove exact own-discard Lillie');
       ownerSeekerPending.delete(seekerReply.ownerId);
-      audit.seekerLilliePromptsAccepted++;
+      if(seekerReply.printing.startsWith("Professor's Research "))
+        audit.seekerResearchPromptsAccepted++;
+      else audit.seekerLilliePromptsAccepted++;
       return result;
     }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
@@ -2086,7 +2107,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         ownerEriPending.set(owner.id,{seat:choice.seat,
           promptId:pending.id,globalTurn:choice.globalTurn});
       }
-      if(choice.kind==='play-seeker-get-lillie'){
+      if(choice.kind==='play-seeker-get-lillie'||
+         choice.kind==='play-seeker-get-research'){
         const owner=this.state.players[choice.seat];
         const pending=this.state.prompts?.find(p=>p.result===undefined);
         assert.ok(owner&&pending&&
