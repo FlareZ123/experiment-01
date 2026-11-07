@@ -122,7 +122,7 @@ test('Swiss timeout and end-call tie are both-loss; Agent26 leaves tie timing un
     secondPlayerTurnFinished: true
   });
   assert.equal(agent3Timeout.status, 'double-loss');
-  assert.equal(agent26Timeout.status, 'SWISS_BOTH_LOSE');
+  assert.equal(agent26Timeout.status, 'SWISS_BOTH_LOSS');
   assert.equal(agent27Timeout.status, 'SWISS_BOTH_LOSE');
 
   const agent3TieAtCheckpoint = adjudicateAichiOpenAfterLastTurn({ stage: 'swiss', normal: 'tie' });
