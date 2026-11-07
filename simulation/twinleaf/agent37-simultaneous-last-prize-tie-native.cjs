@@ -318,6 +318,103 @@ function run(){
     };
   });
 
+  const asymmetricPrizeGroupCounts=[0,1].flatMap(actorSeat=>{
+    const cases=[
+      {name:'both-can-promote',enemyHasBench:true,ownerHasBench:true,expected:GameWinner.DRAW},
+      {name:'owner-only-promotes',enemyHasBench:false,ownerHasBench:true,
+        expected:actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2},
+      {name:'opponent-only-promotes',enemyHasBench:true,ownerHasBench:false,
+        expected:actorSeat===0?GameWinner.PLAYER_2:GameWinner.PLAYER_1},
+      {name:'neither-can-promote',enemyHasBench:false,ownerHasBench:false,expected:GameWinner.DRAW}
+    ];
+    return cases.map(testCase=>{
+      const treatment=runOne(
+        actorSeat,
+        withInstanceScopedSimultaneousLastPrizeResolutionV3,
+        3,
+        true,
+        testCase.enemyHasBench,
+        testCase.ownerHasBench,
+        {
+          enemyActiveName:'Shadow Rider Calyrex VMAX',
+          enemyEvolutionBaseName:'Shadow Rider Calyrex V',
+          enemyActiveDamage:260,
+          ownerPrizes:3,
+          enemyPrizes:1
+        }
+      );
+      const result=treatment.result,a=treatment.audit;
+      assert.equal(result.finished,true);
+      assert.equal(result.winner,testCase.expected);
+      assert.equal(result.winnerSeat,
+        testCase.expected===GameWinner.DRAW?null:
+          testCase.expected===GameWinner.PLAYER_1?0:1);
+      assert.equal(result.ownerPrizesRemaining,0);
+      assert.equal(result.opponentPrizesRemaining,0);
+      assert.equal(result.ownerPrizesTakenThisTurn,3);
+      assert.equal(result.opponentPrizesTakenThisTurn,1);
+      assert.equal(result.seenPrompts.includes('ChoosePrizePrompt'),false);
+      assert.equal(result.seenPrompts.includes('ChoosePokemonPrompt'),false);
+      assert.equal(result.seenPrompts.includes('AttachEnergyPrompt'),false);
+      assert.equal(a.knockoutEffects,2);
+      assert.equal(a.activeKoPlayerIds.length,2);
+      assert.equal(a.prizeGroupCount,2);
+      assert.equal(a.simultaneousLastPrizeCandidate,true);
+      assert.equal(a.secondPrizeTransferAttempted,true);
+      assert.equal(a.secondPrizeTransferCompleted,true);
+      assert.equal(a.firstPrizeDestinationIsHand,true);
+      assert.equal(a.secondPrizeDestinationIsHand,true);
+      assert.equal(a.bothPrizeTransfersCompleted,true);
+      assert.equal(a.firstPlayerCanPromote,
+        actorSeat===0?testCase.ownerHasBench:testCase.enemyHasBench);
+      assert.equal(a.otherPlayerCanPromote,
+        actorSeat===0?testCase.enemyHasBench:testCase.ownerHasBench);
+      assert.equal(a.promotionAvailabilitySymmetric,
+        testCase.ownerHasBench===testCase.enemyHasBench);
+      assert.equal(a.expectedWinner,testCase.expected);
+      assert.equal(a.winnerOverridden,a.nativeWinner!==a.expectedWinner);
+      assert.equal(a.winnerLogMessage,
+        testCase.expected===GameWinner.DRAW
+          ?GameLog.LOG_GAME_FINISHED_DRAW
+          :GameLog.LOG_GAME_FINISHED_WINNER);
+      const expectedLogName=testCase.expected===GameWinner.DRAW?null:
+        testCase.expected===GameWinner.PLAYER_1
+          ?(actorSeat===0?'Ferroseed attacker':'Duskull defender')
+          :(actorSeat===0?'Duskull defender':'Ferroseed attacker');
+      assert.equal(a.winnerLogName,expectedLogName);
+      assert.deepEqual(a.winnerLogParams,
+        expectedLogName===null?null:{name:expectedLogName});
+      assert.equal(a.winnerLogHandled,true);
+      assert.equal(a.terminalSuppressed,1);
+      assert.equal(a.storeLogRestored,true);
+      assert.equal(a.storeReduceRestored,true);
+      assert.equal(a.otherStoresUnmodified,true);
+      assertNativeWinnerLogReceipt(a,actorSeat,
+        actorSeat===0?testCase.ownerHasBench:testCase.enemyHasBench);
+      return {
+        actorSeat,
+        scenario:testCase.name,
+        expectedOutcome:testCase.expected===GameWinner.DRAW?'DRAW':
+          testCase.expected===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2',
+        actualOutcome:result.winner===GameWinner.DRAW?'DRAW':
+          result.winner===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2',
+        initialPrizeCounts:{owner:3,opponent:1},
+        prizesTakenThisTurn:{
+          owner:result.ownerPrizesTakenThisTurn,
+          opponent:result.opponentPrizesTakenThisTurn
+        },
+        remainingPrizes:{
+          owner:result.ownerPrizesRemaining,
+          opponent:result.opponentPrizesRemaining
+        },
+        nativeWinner:a.nativeWinner,
+        expectedWinner:a.expectedWinner,
+        winnerOverridden:a.winnerOverridden,
+        winnerLogName:a.winnerLogName
+      };
+    });
+  });
+
   const neighborStoreIsolationVerified=rows.every(row=>
     row.v3Audit?.otherStoresUnmodified===true);
   const restorationVerified=rows.every(row=>
@@ -339,6 +436,7 @@ function run(){
     singlePlayerLastPrizeControlPreserved:true,
     nonHandPrizeDestinationControlPreserved:true,
     asymmetricPromotionAvailabilityWinnerCorrected:true,
+    asymmetricPrizeGroupCountsBothSeatsVerified:asymmetricPrizeGroupCounts.length===8,
     opponentOnlyPromotionWinnerCorrected:true,
     neitherPromotableTieCorrected:true,
     mixedTerminalRowsSupported:true,
@@ -346,7 +444,7 @@ function run(){
     rows,
     controls:{
       singleLastPrize,nonHandDestination,asymmetricPromotionAvailability,
-      opponentOnlyPromotionAvailability,neitherCanPromote
+      asymmetricPrizeGroupCounts,opponentOnlyPromotionAvailability,neitherCanPromote
     }
   };
 }
