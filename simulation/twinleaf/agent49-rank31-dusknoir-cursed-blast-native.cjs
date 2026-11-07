@@ -67,7 +67,7 @@ function probeRank31DusknoirCursedBlast(seat=0){
   let targetPromptSeen=false;
   let sourcePrizeCardsTaken=0;
   let opponentPrizeCardsTaken=0;
-  const actorSide=seat===0?PlayerType.BOTTOM_PLAYER:PlayerType.TOP_PLAYER;
+  const actorSide=PlayerType.BOTTOM_PLAYER;
 
   store.dispatch(new UseAbilityAction(source.id,'Cursed Blast',{
     player:actorSide,slot:SlotType.BENCH,index:0
