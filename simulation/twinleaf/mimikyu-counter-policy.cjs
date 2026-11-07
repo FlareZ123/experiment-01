@@ -99,7 +99,7 @@ function isCopycatApexPowerBeamSituation(state, player) {
   const active = player.active.getPokemonCard();
   const opponent = state.players.find(p => p.id !== player.id);
   const last = opponent && state.playerLastAttack?.[opponent.id];
-  return state.phase === GamePhase.PLAYER_TURN &&
+  return (state.phase === GamePhase.PLAYER_TURN || state.phase === GamePhase.ATTACK) &&
     active?.fullName === 'Mimikyu GRI' &&
     player.usedGX === true &&
     last?.sourceCard?.fullName === 'Regidrago VSTAR SIT' &&
