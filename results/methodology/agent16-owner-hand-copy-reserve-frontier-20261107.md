@@ -14,45 +14,49 @@ Added [`owner-hand-discard-reserve.cjs`](../../simulation/twinleaf/planning/owne
 
 The caller supplies the exact ordered owner hand, an optional source-card index, the immediate discard cost, and two exact-printing count maps. The source index may be `null` when the native prompt is observed after the source Trainer has already left the hand; the adapter then excludes an internal sentinel from the core helper and normalizes all returned indices to the actual physical hand. The result is the existing helper's structural frontier under the supplied role labels, not a guarantee that unlabelled cards are strategically interchangeable:
 
-- `hardMinimumCopiesByPrinting`: copies that must remain after the source card is played. The adapter maps these to hard-reserved physical indices, which cannot pay.
-- `softAdditionalCopiesByPrinting`: additional copies preferred for retention. The adapter maps these to protected physical indices, which remain eligible to pay and are counted as protected sacrifices in the frontier. Soft counts are additive to hard counts for the same printing.
+- `hardMinimumCopiesByPrinting`: copies that must remain after the source card is played. The adapter maps these to hard-reserved physical indices, which cannot pay. Because only the count is strategic, choosing a deterministic physical representative does not change the remaining printing multiplicities.
+- `softAdditionalCopiesByPrinting`: additional copies preferred for retention. **In v1 these are mapped to deterministic physical protected indices only. This is an index-level diagnostic proxy, not a count-based soft reserve.** The core helper treats spending the marked object as a sacrifice even when an identical copy remains, so the resulting soft-sacrifice and future-way coordinates are not invariant under swapping identical copies. The output explicitly sets `softReserveCopyInvariant: false` and `softReserveCountSemanticsCertified: false`.
 
 The adapter also accepts caller-supplied dead and desired-discard printings and one next-hand discard cost. It returns physical indices, per-printing availability and shortfalls, the underlying frontier, and explicit false flags for paper playability, downstream target access, and strategic optimality. It does not infer whether a card is dead, whether a future line is needed, or which payment is best.
 
 The source index is excluded from reserve counts because that physical card is being played now. If a hard reserve cannot be met, the adapter reports the shortfall while retaining the raw mechanical payment result. A soft-reserve shortfall is reported separately and does not veto a payment.
 
-## Root93-shaped illustration
+## Root93-shaped identity counterexample
 
-The test uses the ten-card owner-hand contents documented in [Agent21's DCI report](agent21-secret-box-discard-cost-index-20261107.md), in a fixed fixture order:
+The post-play native prompt fixture contains nine cards in this fixed order:
 
-`[VIP, Secret Box, Carrier, VIP, Carrier, Lillie, Lillie, Powerglass, Forest Seal Stone, Mysterious Treasure]`
+`[VIP, Carrier, VIP, Carrier, Lillie, Lillie, Powerglass, Forest Seal Stone, Mysterious Treasure]`
 
-For illustration only, the caller declares one Rescue Carrier as a hard reserve, one Lillie's Determination as a soft reserve, both Battle VIP Pass copies dead, and a hypothetical next discard cost of two. These are explicit test assumptions, not claims that the historical game required those reserves.
+For illustration, the caller declares one Rescue Carrier as a hard reserve, one Lillie's Determination as a soft reserve, both Battle VIP Pass copies dead, and a hypothetical next discard cost of two. The adapter marks Carrier index `[1]` hard-reserved and Lillie index `[4]` soft-protected. These are test labels, not claims that the historical game required those reserves.
 
-The resulting reserve indices are hard Carrier `[2]` and soft Lillie `[5]`. The current structural frontier contains two non-dominated groups:
+Under this physical-index proxy, the existing core returns two representative groups:
 
-| Representative payment | Protected copies sacrificed | Dead VIP copies spent | Unprotected next-payment combinations |
+| Representative payment | Current protected-index count | Current future combinations | Physical combinations sharing the vector |
 |---|---:|---:|---:|
-| VIP + VIP + Carrier | 0 | 2 | 6 |
-| VIP + VIP + Lillie | 1 | 2 | 10 |
+| VIP + VIP + Carrier (indices 0,2,3) | 0 | 6 | 5 |
+| VIP + VIP + Lillie (indices 0,2,4) | 1 | 10 | 1 |
 
-The first group represents five physical payments equivalent under the supplied vector; the second represents one. The second choice spends the soft Lillie reserve while retaining the hard Carrier reserve, increasing the helper's count of future combinations. The values 6 and 10 are combinations of unprotected remaining hand cards, not probabilities or proof that a future Trainer is legally playable.
+**These are not two validated strategic reserve outcomes.** The first five-member group includes the payment VIP + VIP + the *other* Lillie copy at index `[5]`, while the second group uses the arbitrarily marked Lillie at index `[4]`. Both Lillie payments discard one Lillie printing and leave one identical Lillie printing. Their printing-level remaining counts are the same, but the v1 vector assigns different sacrifice and future-way values solely because one physical index was marked protected.
 
-This representation preserves the two alternatives without assigning DCI weights. It complements [Agent21's ordinal DCI selector](../../simulation/twinleaf/agent21-secret-box-dci-payment.cjs) and [Agent44's discard-liquidity synthesis](../als/discard-liquidity-and-copy-aware-payment-synthesis-20261107.md). It does not validate either selector's strategic ranking.
+Agent4's native fixture identifies the two physical Lillies as IDs 80035 and 80036. The adapter marks ID 80035/index4. Agent21's DCI tie-break discards ID 80035 and leaves ID 80036; Agent44's paid fork discards ID 80036 and leaves ID 80035. Both paths leave one Lillie printing. No gameplay difference between these identical-copy outcomes has been demonstrated.
 
-## Important limitation discovered in the underlying frontier
+The current group with representative Carrier also contains payments of other printings, so its five members are equivalent only under the incomplete index-level vector. The values 6 and 10 are therefore **not valid copy-count future-liquidity comparisons**. The native bridge validates prompt mapping and physical settlement, not the strategic quality of these groups.
 
-A synthetic counterexample exposed a grouping limitation in the existing Pareto helper. With one soft reserve each for Carrier and Lillie, the payments VIP + VIP + Carrier and VIP + VIP + Lillie can have identical scalar coordinates:
+## Important limitation and count-based correction
 
-- `protectedSacrificed = 1`
-- `deadCardsSpent = 2`
-- `nextUnprotectedPaymentWays = 1`
+There are two distinct identity problems in the existing physical-index frontier:
 
-The current grouping key does not retain the exact printing of a protected card sacrificed. It can therefore merge these two payments and keep only one representative, despite their different remaining printing multiplicities.
+1. **Different protected printings can collapse.** The core grouping key preserves only scalar `protectedSacrificed`, so payments sacrificing different protected printings can merge.
+2. **Identical copies of one printing can split.** The adapter deterministically marks one physical duplicate as protected. Spending that object is penalized even when another identical copy remains, while spending the other object is not. A `protectedSacrificedByPrinting` vector alone would fix the first problem but not the second.
 
-I sent this counterexample and a proposed additive fix to Agent44. The proposed core change is a sorted `protectedSacrificedByPrinting` vector in the grouping key and componentwise dominance, while retaining the scalar for compatibility. Until that is reviewed, adapter v1 **fails closed when more than one exact printing has a nonzero soft reserve**. Multiple hard reserves remain supported. This restriction prevents the adapter from presenting the current grouped frontier as complete across distinct soft-reserve roles.
+The current v1 adapter therefore remains useful for deterministic index mapping and hard-reserve feasibility, but its soft-reserve frontier is diagnostic only. The one-soft-printing guard is retained as a conservative guard against cross-printing collapse; it does **not** make the soft result copy-invariant. Do not integrate v1 soft-sacrifice or future-way scores into a strategic policy.
 
-A further future extension may need desired-discard multiplicities as well as distinct desired-printing sets. The current adapter deliberately does not change the shared Pareto implementation.
+I built a **local-only count-based v2 prototype**, not yet committed. It enumerates physical payment combinations, then computes each printing's remaining count after payment:
+
+- soft deficit: `max(0, softRequired - max(0, remainingCopies - hardRequired))`;
+- unprotected remaining copies: `max(0, remainingCopies - hardRequired - softRequired)`.
+
+The frontier key and componentwise dominance retain the per-printing soft-deficit vector, per-printing unprotected remainder, desired-discard multiplicities, dead-card count, and future combinations. Physical indices remain only as representatives for prompt mapping. The two identical Lillie payments now share one printing-count group with `equivalentPhysicalPayments: 2` and identical reserve/future metrics, while different remaining Carrier/Lillie compositions remain distinguishable. The prototype supports multiple soft-reserved printings and passed **8/8 local tests**, including a 144-case count-invariant sweep. It has not been committed or CI-tested; Agent36 and Agent44 have been asked whether they prefer an adapter-owned v2 or a shared-core extension.
 
 ## Validation
 
@@ -61,18 +65,19 @@ A further future extension may need desired-discard multiplicities as well as di
 - Coverage includes hard and soft reserve mapping, additive hard/soft counts for one printing, source-card exclusion, explicit hard shortfalls, non-vetoing soft shortfalls, future unprotected payment counts, the root93-shaped fixture, the multi-soft-printing fail-closed guard, input immutability, invalid inputs, and a deterministic 144-case small-domain invariant sweep.
 - The existing core Pareto regression is also wired into the repository's existing manual [Aichi benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml), alongside the new adapter test. No new workflow or push-triggered CI was introduced.
 - Manual Aichi statistics CI runs [42356996900](https://github.com/FlareZ123/experiment-01/actions/runs/42356996900) (12 tests), [42357346860](https://github.com/FlareZ123/experiment-01/actions/runs/42357346860) (13 tests), [42357588709](https://github.com/FlareZ123/experiment-01/actions/runs/42357588709) (14 tests), and [42358235892](https://github.com/FlareZ123/experiment-01/actions/runs/42358235892) (15 tests) all succeeded. Latest run `42358235892` completed on head `3f79a9ec`; repository-wide preflight and the Agent16 test step passed with the exact nine-card post-play fixture included. The prior run [42356811491](https://github.com/FlareZ123/experiment-01/actions/runs/42356811491) failed before the Agent16 step because two other workflows had prohibited push triggers; only those trigger blocks were removed, retaining `workflow_dispatch`.
-- Agent4 added a staged native bridge in [`agent4-secret-box-copy-reserve-native.cjs`](../../simulation/twinleaf/agent4-secret-box-copy-reserve-native.cjs) and [its test](../../tests/agent4-secret-box-copy-reserve-native.test.cjs). Existing manual workflow [run 42358100339](https://github.com/FlareZ123/experiment-01/actions/runs/42358100339), using the `secretbox_dci_only` mode, succeeded. Its native witness step validated both nondominated representative payments in both seats with fresh fixtures, genuine `prompt.validate`, the Agent4 paper payment guard, physical Store settlement of three cards, retained reserve resources, and the next Secret Box search prompt. The first structural group contains five equivalent payment sets under the declared vector, and only its representative was individually tested. This is a native prompt/payment witness, not a full game.
+- Agent4 added a staged native bridge in [`agent4-secret-box-copy-reserve-native.cjs`](../../simulation/twinleaf/agent4-secret-box-copy-reserve-native.cjs) and [its test](../../tests/agent4-secret-box-copy-reserve-native.test.cjs). Existing manual workflow [run 42358100339](https://github.com/FlareZ123/experiment-01/actions/runs/42358100339), using the `secretbox_dci_only` mode, succeeded. Its native witness step validated two representative physical payments in both seats with fresh fixtures, genuine `prompt.validate`, the Agent4 paper payment guard, physical Store settlement of three cards, and the next Secret Box search prompt. The first current index-level group has five members, but only its representative was individually tested and the members are not proven strategically equivalent. This is a native prompt/payment mapping witness for v1, not validation of its soft-reserve ranking or a full game.
 - The repository's pinned Twinleaf submodule remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This pure adapter did not invoke Twinleaf or alter the submodule.
 
 ## Limits and next work
 
-This is a resource-label adapter, not a card-strength model. It does not inspect deck or Prize identities, opponent hidden information, K0/K1 provenance, card text, target availability, Bench capacity, Item/Tool/Supporter locks, prompt validation, native action acceptance, or opponent responses. The caller must aggregate simultaneous line obligations and choose which alternative line is being evaluated. The single `nextHandDiscardCost` remains a coarse structural count and does not model a multi-stage future plan.
+This adapter does not inspect deck or Prize identities, opponent hidden information, K0/K1 provenance, card text, target availability, Bench capacity, Item/Tool/Supporter locks, or opponent responses. The current v1 soft reserve is explicitly index-based and must not be treated as count-based strategic evidence. The local v2 prototype is not yet a repository artifact.
 
 Next steps:
 
-1. Obtain Agent44's review of the protected-printing identity limitation. If approved, extend the shared Pareto vector and remove the one-soft-printing guard with a dedicated regression.
-2. Have the shared policy steward decide whether this adapter belongs at the native owner-hand selector boundary. Keep it default-off until the caller supplies line-specific roles and the actual prompt's physical cards.
-3. Compare candidate payment choices on fresh, matched physical deals with the real Store validator and a meaningful source response. Preserve no-target, prompt, and response failures.
-4. Do not promote this local tactical line or any DCI score into deck-strength or win-rate evidence.
+1. Obtain Agent36/Agent44's decision on whether the count-based v2 belongs in a separate adapter-owned module or in the shared Pareto core. Do not modify the core or common v8 runner without coordination.
+2. Add/retain an adversarial regression proving that paying either of two identical printing copies produces the same per-printing reserve deficit and future-liquidity vector.
+3. Once count-based semantics are accepted, rerun Agent4's native prompt bridge with the revised API, preserving actual prompt indices and physical Store settlement. Keep the native test scoped to prompt/payment evidence.
+4. Only integrate a validated frontier into a shared policy after matched fresh-deal tests and meaningful source responses. Preserve no-target, prompt, and response failures.
+5. Do not promote this local tactical line or any DCI score into deck-strength or win-rate evidence.
 
 The overall objective remains unmet: 29/32 original Aichi source lists are authenticated, no final fixed 60-card deck is selected, and competitively qualified games remain zero. No 99.5% result is claimed.
