@@ -642,6 +642,28 @@ test('Garbotoxin root prefers held Float Stone over Forest Seal Stone',()=>{
     source:'agent36-garbotoxin-float-stone-v1'
   });
 });
+
+test('Garbotoxin root locks immediately by default while Star Alchemy remains available',()=>{
+  const intent=chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Forest Seal Stone SIT','Float Stone BKT'],
+      ownVRecipient:true,vstarUsed:false
+    }),
+    garbotoxinToolCatalog
+  );
+  assert.equal(intent.printing,'Float Stone BKT');
+});
+
+test('immediate-lock default permits FSS fallback while Star Alchemy remains available',()=>{
+  const intent=chooseGarbodorToolIntent(
+    garbotoxinToolView({
+      hand:['Forest Seal Stone SIT'],
+      ownVRecipient:true,vstarUsed:false
+    }),
+    garbotoxinToolCatalog
+  );
+  assert.equal(intent.printing,'Forest Seal Stone SIT');
+});
 test('Garbotoxin root uses Forest Seal Stone fallback when Star Alchemy is unavailable',()=>{
   const intent=chooseGarbodorToolIntent(
     garbotoxinToolView({hand:['Forest Seal Stone SIT']}),
@@ -656,16 +678,38 @@ test('Garbotoxin root defers while an unused Star Alchemy can be used from hand'
       hand:['Forest Seal Stone SIT','Float Stone BKT'],
       ownVRecipient:true,vstarUsed:false
     }),
-    garbotoxinToolCatalog
+    garbotoxinToolCatalog,
+    {deferForStarAlchemy:true}
   ),null);
 });
+test('actor-only Garbodor root forwards immediate-lock and deferral options',()=>{
+  const view=garbotoxinToolView({
+    hand:['Forest Seal Stone SIT','Float Stone BKT'],
+    ownVRecipient:true,vstarUsed:false
+  });
+  view.actorSeat=0;
+  const options={
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
+    garbotoxinToolRoot:true
+  };
+  const immediate=chooseActorRootIntent(view,garbotoxinToolCatalog,{
+    ...options,garbotoxinToolRootDeferForStarAlchemy:false
+  });
+  assert.equal(immediate.source,'agent36-garbotoxin-float-stone-v1');
+  const deferred=chooseActorRootIntent(view,garbotoxinToolCatalog,{
+    ...options,garbotoxinToolRootDeferForStarAlchemy:true
+  });
+  assert.equal(deferred,null);
+});
+
 test('Garbotoxin root defers while Forest Seal Stone is attached to an unused V',()=>{
   assert.equal(chooseGarbodorToolIntent(
     garbotoxinToolView({
       hand:['Float Stone BKT'],
       ownVRecipient:true,vstarToolAttached:true,vstarUsed:false
     }),
-    garbotoxinToolCatalog
+    garbotoxinToolCatalog,
+    {deferForStarAlchemy:true}
   ),null);
 });
 test('Garbotoxin root can proceed after VSTAR is used',()=>{
