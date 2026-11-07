@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 16 source-direct pure tests.** This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 21 source-direct pure tests.** This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -33,10 +33,11 @@ These are *conditional* paper-ruling outcomes, **not observed match results**. T
 - `adjudicateAtPrescribedEnd(...)` for Swiss both-loss versus the two knockout Prize/extension branches;
 - `adjudicateExtension(...)` with entry-specific `tied-low` or `both-high` condition, requiring an independently audited **complete ordered state-transition history** so the first threshold crossing is not missed;
 - `classifyTiebreaker(...)` for a separate six-Prize tied-game reset.
+- `auditTimeCallPacket(...)` for a **fail-closed** field-level provenance gate requiring explicit original starter and end-call turns, judge-origin clock evidence, independently reviewed source-state evidence, actual permitted turn count, no trailing Checkup, or an independently paper-validated earlier normal win.
 
 The helper returns `conditionalWinnerSeat` only from supplied claims, always `competitiveAdmission:false` and `externalIndependentReviewRequired:true` at the prescribed-end gate. It **does not** infer human-play time from native Store action ordinals, root caps, turn count, `Date.now()` in accelerated CI, or native winner reports. Calling code must supply observed, judge-consistent match-clock evidence, official end call, post-call turn completion, correct paper player state and independent paper-rules review. The source explicitly withholds all qualifications. No shared v8 policy, headless engine, printed 60, active identity, or CI workflow was changed.
 
-[Tests](../../tests/agent27-aichi-open-time-adjudication.test.cjs) cover 16 pure source cases including stage durations, both call-turn orientations and physical starting seats, pre-final-turn censor, early validated paper win before the final prescribed turn, Swiss double loss with overwhelming Prize lead, knockout low-Prize direct result and tie, knockout both-high extension even with Prize lead, distinct entry-condition extensions, normal wins, tied-game tiebreaker, and invalid Prize input. **16/16 passed under a V8 isolated CommonJS source-execution harness, after re-fetching exact committed sources**. These new tests have **not been run in Node or pinned Twinleaf CI**. The official Japanese text was independently opened and read for both `マスター` and `オープン` subsections to prevent division confusion.
+[Tests](../../tests/agent27-aichi-open-time-adjudication.test.cjs) cover 21 pure source cases including stage durations, both call-turn orientations and physical starting seats, pre-final-turn censor, early validated paper win before the final prescribed turn, Swiss double loss with overwhelming Prize lead, knockout low-Prize direct result and tie, knockout both-high extension even with Prize lead, distinct entry-condition extensions, normal wins, tied-game tiebreaker, invalid Prize input, and five additional real-clock evidence-shape positive/negative controls. **21/21 passed under a V8 isolated CommonJS source-execution harness, after re-fetching exact committed sources**. These new tests have **not been run in Node or pinned Twinleaf CI**. The official Japanese text was independently opened and read for both `マスター` and `オープン` subsections to prevent division confusion.
 
 ## Integration proposal to Agent36/Agent41
 
@@ -48,3 +49,7 @@ The shared prospective complete-game competence trial needs a **registered stage
 4. Keep independently paper-reviewed native game terminal certification and competent opposing decisions as separate gates from this scoring rule. The scorer is an optional downstream **conditional result classifier**, not a source-policy patch.
 
 **Current benchmark admission:** 29/32 authenticated original name/count 60s (23,25,28 absent), v8 only developmental, zero qualified competitive games, no selected final fixed 60, no demonstrated 99.5% win rate.
+
+### Source-gate enhancement, 7 November
+
+The initial 16-case pure suite was extended to **21/21 source-direct V8 tests**. A new `auditTimeCallPacket` refuses to classify timed outcomes without explicit real judge call, original starter seat, independent paper state references, end-call turn owner, exact additional second-starter turns, final second-starter turn custody, and exclusion of Checkup. A separately witnessed normal game win may terminate overtime immediately, even before prescribed turns are complete. The five additional cases include missing clock, forged wrong-seat/turn-count/Checkup packets, positive Swiss both loss, positive Top32 lead, and genuine earlier paper win. **All flags and refs remain external assertions requiring human/independent validation; no competitive admission arises from an internally self-declared packet.** New source and tests are committed, with no Node/compiled CI run.
