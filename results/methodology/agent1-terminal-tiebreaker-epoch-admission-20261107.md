@@ -26,7 +26,7 @@ Files:
 - `tests/terminal-cause-evidence.test.cjs` and `tests/agent1-terminal-paper-result-conflicts.test.cjs` (ordinary synthetic snapshots now label `suddenDeath:false` explicitly);
 - manually dispatched existing `.github/workflows/agent1-issue25-baseline-sham-v9-native.yml` runs all terminal regressions before its unchanged 24-attempt native v15 A/B/A test.
 
-Compiled pinned workflow **42335777719** was dispatched to confirm the extended test suite and historical natural native attempts. The result was pending when this report was first authored; inspect the final CI conclusion and relevant step logs before citing native validation. Its checkout will fix an exact research commit, rather than changing the archived v15 24-root trial identities.
+[Compiled pinned workflow 42335777719](https://github.com/FlareZ123/experiment-01/actions/runs/42335777719) completed **SUCCESS**, checkout SHA **`6739f34f9e4a1c6af3622e534617e564d0afbfcc`**. The newly extended paper-table and tiebreaker-epoch unit step passed together with the unchanged **24 genuine native original-eight A/B/A attempts** and artifact upload. All historical v15 finishing-rule assertions remain green under the new snapshots, and all original capped and errored attempts remain in their registered cohorts. These tests demonstrate classifier compatibility and evidence exclusion, not an actual corrected natural sudden-death adjudication.
 
 ## Limits
 
