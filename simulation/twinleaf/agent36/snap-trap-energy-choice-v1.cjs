@@ -24,6 +24,8 @@ function loadTypes() {
  * the removal, then prefers Prism Star, Special, and higher-unit Energy cards.
  * It reads only the prompt's public Active list, its Energy sublist, and the
  * Active Pokemon's printed attacks. It never inspects hand, deck, or Prizes.
+ * Energy payment uses each card's static `provides` array. Dynamic Stadium,
+ * Ability, and other in-play Energy modifiers are not applied in this v1 model.
  *
  * This is a deterministic developmental heuristic, not an optimal-play claim.
  *
@@ -34,7 +36,7 @@ function loadTypes() {
  *   card:object,parentIndex:number,denialScore:number,deniedAttacks:string[],
  *   eligibleCount:number,payableAttackCount:number,prismStar:boolean,
  *   specialEnergy:boolean,providedUnitCount:number,providedTypeCount:number,
- *   policy:string
+ *   energyMapModel:string,policy:string
  * }}
  */
 function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes()) {
@@ -114,6 +116,7 @@ function chooseSnapTrapEnergy(prompt, attackerActive, types = loadTypes()) {
       specialEnergy,
       providedUnitCount: StateUtils.getProvidesUnitCount(provides),
       providedTypeCount: new Set(provides).size,
+      energyMapModel: 'printed-provides-only',
       policy: VERSION
     };
   });
