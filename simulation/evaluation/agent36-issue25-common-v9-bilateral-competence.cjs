@@ -464,6 +464,46 @@ function writeJsonAtomic(outputPath,value) {
 }
 
 /**
+ * Preserve an upstream selected-layer error before the normal game-result
+ * projection. A swallowed exception must not masquerade as a game with zero
+ * attacks, and the original thrown diagnostic remains inspectable as a
+ * post-run artifact rather than being silently lost in the outer assertion.
+ *
+ * @param {object} selected Selected-v0 result including its diagnostic.
+ * @param {string} outputPath Same-run artifact, protected by writeJsonAtomic.
+ * @param {{researchRevision:string,vendorPin:string,hookHash:string}} metadata
+ * @returns {object} Exactly one real native raw development row.
+ */
+function requireOneNativeDevelopmentRow(selected,outputPath,metadata) {
+  const raw=selected?.rawDevelopment;
+  if(Array.isArray(raw?.rows) && raw.rows.length===1)return raw;
+  const diagnostic=selected?.diagnostic??null;
+  const actualRows=Array.isArray(raw?.rows)?raw.rows.length:null;
+  const error={
+    schema:'agent13-v9-selected-layer-failure-receipt-v1',
+    disposition:'NO_USABLE_NATIVE_GAME_ROW',
+    phase:'selected-v0-before-outer-game-projection',
+    registrationPath:REGISTRATION_PATH,
+    registeredTrialIds:REGISTRATION.trials.map(x=>x.id),
+    originalNativeRowCount:actualRows,
+    selectedPolicyManifest:selected?.manifest??null,
+    selectedPolicyDiagnostic:diagnostic,
+    researchRevision:metadata.researchRevision,
+    vendorPin:metadata.vendorPin,
+    hookHash:metadata.hookHash,
+    certifiedPaperGame:false,
+    competitiveGamesQualified:0,
+    estimatedWinRate:null,
+    caveat:'Diagnostic only; no game result, win or opponent response established.'
+  };
+  writeJsonAtomic(outputPath,error);
+  assert.fail('Selected runner returned '+String(actualRows)+
+    ' native rows (expected exactly 1); '+
+    'see protected diagnostic artifact '+outputPath+
+    '; swallowedCode='+String(diagnostic?.thrownCode??'none'));
+}
+
+/**
  * Execute the one prospectively frozen game under the identical policy stack
  * on both seats. Observers are post-choice and never feed private information
  * into either player's decision policy.
@@ -601,11 +641,8 @@ function runStewardBilateralProbeV9(deps={}) {
     fundedPerfection.restore();
   }
 
-  const raw=selected.rawDevelopment;
-  assert.ok(raw&&Array.isArray(raw.rows),
-    'Selected runner must return its native development rows');
-  assert.equal(raw.rows.length,1,
-    'Prospective registration must execute exactly one natural game');
+  const raw=requireOneNativeDevelopmentRow(selected,path.join(ROOT,
+    'artifacts/agent36-bilateral-competence-v9/issue25-common-v9-preflight-failure.json'),metadata);
   const nativeAttempt=summarizeNativeAttempt(raw.rows[0]);
   const gateAttempt=toGateAttempt(nativeAttempt);
   const archiveScreen=screenArchivedReciprocalAttempts({
@@ -739,5 +776,6 @@ module.exports={
   trials,sourceNameCountSha256,candidatePrinted60Sha256,
   projectCandidateRepliesAfterSourceAttacks,postPrizeSourceAttackOrdinals,
   projectPostPrizeOwnerDecisionAudit,summarizeNativeAttempt,toGateAttempt,
-  evaluateGate,writeJsonAtomic,runStewardBilateralProbeV9
+  evaluateGate,writeJsonAtomic,requireOneNativeDevelopmentRow,
+  runStewardBilateralProbeV9
 };
