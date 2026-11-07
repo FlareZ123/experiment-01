@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {runOne}=require('./agent37-simultaneous-ko-e21-promotion-native.cjs');
 const {
-  withInstanceScopedSimultaneousLastPrizeResolutionV2,
+  withInstanceScopedSimultaneousLastPrizeResolutionV3,
   resolveSimultaneousLastPrizeWinner,
   VERSION,PINNED
 }=require('./agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
@@ -13,7 +13,7 @@ const {KnockOutEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/st
 
 
 function withNonHandPrizeDestination(store,execute){
-  return withInstanceScopedSimultaneousLastPrizeResolutionV2(store,()=>{
+  return withInstanceScopedSimultaneousLastPrizeResolutionV3(store,()=>{
     const hookedReduce=store.reduceEffect;
     store.reduceEffect=function(state,effect){
       if(effect instanceof KnockOutEffect){
@@ -48,7 +48,7 @@ function run(){
   const rows=[0,1].map(actorSeat=>{
     const baseline=runOne(actorSeat,false,1,true);
     const v2=runOne(actorSeat,true,1,true);
-    const v3=runOne(actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV2,1,true);
+    const v3=runOne(actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV3,1,true);
     const b=baseline.result,old=v2.result,fixed=v3.result,a=v3.audit;
 
     assert.equal(b.finished,true);
@@ -102,7 +102,7 @@ function run(){
 
   const singleLastPrize=inspectPowerglassWinningKo({
     actorSeat:0,lastPrize:true,opponentHasBench:true,settleAll:true,
-    withStoreHook:withInstanceScopedSimultaneousLastPrizeResolutionV2
+    withStoreHook:withInstanceScopedSimultaneousLastPrizeResolutionV3
   });
   assert.equal(singleLastPrize.finalState.finished,true);
   assert.equal(singleLastPrize.scopedHookAudit.simultaneousLastPrizeCandidate,false);
@@ -139,7 +139,7 @@ function run(){
   // has a Pokémon to promote, that player wins.
   const asymmetricPromotionAvailability=[0,1].map(actorSeat=>{
     const treatment=runOne(
-      actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV2,1,true,false
+      actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV3,1,true,false
     );
     const result=treatment.result,a=treatment.audit;
     assert.equal(result.finished,true);
@@ -182,7 +182,7 @@ function run(){
   });
 
   return {
-    schema:'agent37-simultaneous-last-prize-resolution-native-v2',
+    schema:'agent37-simultaneous-last-prize-resolution-native-v3',
     pinnedTwinleaf:PINNED,
     hook:VERSION,
     paperRule:'Rulebook §E: simultaneous Prize exhaustion is a draw when promotion availability matches; the only player able to promote wins when it differs',
