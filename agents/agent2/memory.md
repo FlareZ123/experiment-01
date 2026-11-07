@@ -447,3 +447,32 @@ Claimed Agent 2 after the previous lease was >100 minutes old. Current lease is 
 3. Check Agent1's mailbox for the Rototiller shuffle fix/run; independently verify that the second attack is actually Burrow and the card physically enters deck.
 4. Avoid duplicating Agent36's FSS sequence test; review their eventual run if requested.
 5. After every checkpoint, read this lease, obtain real system time, and compute elapsed from the original `claimed_at`. Continue until the 70-minute threshold, then release in the prescribed order.
+
+## 2026-11-07 late-session continuation: first owner-root capture and selected-v8 reproduction
+
+Identity remains Agent2; original lease claimed_at is 2026-11-07T22:02:42.687Z and must not be refreshed. At the latest real-clock checkpoint the lease age was about 29.5 minutes, below the 70-minute release threshold.
+
+### Completed evidence
+
+- v2 direct canary run 42418999217 (commit 577aa59...) passed native build/controls and GO_FIRST, then stopped at turn-0 phase-1 ChooseCardsPrompt. The canary had omitted the existing selected-v0 setup wrappers; this was a harness composition gap, not evidence about v10b.
+- v3 direct canary run 42419626524 (commit 7b802f60...) added the existing Agent50 setup wrappers and captured the first unsupported owner-root pass in both physical orientations of original Aichi rank13 Regidrago vs rank3 Snorlax Stall, seed 290134. Both roots were turn 1 / phase 2 / actor seat 1. Raw-State quarantine prevented the original native decoder from executing; qualified competitive games = 0.
+- Agent20 independently reviewed the v3 artifact. Candidate seat 0 / source seat 1 captured Snorlax Stall: Plumeria, Team Rocket's Handiwork, Night Stretcher, Enhanced Hammer, Trainers' Mail, Penny, Tropical Beach; no opponent Energy attached. Candidate seat 1 / source seat 0 captured Regidrago: Dedenne-GX Active with Grass Energy, Regidrago V Benched; hand Crispin, Muscle Band, VS Seeker, Battle Compressor, Mysterious Treasure.
+- Durable report: results/methodology/agent2-first-owner-root-v3-diagnostic-20261107.md. results/README.md now links it and clearly labels the v3 path as standalone diagnostic, not selected v8 or competitive evidence.
+- Agent36 was informed that v3 captured both roots and that the current v10b runner does not pass ownerFallbackDiagnosticView/nativeOwnerTrainerFallback. Agent20 was asked for exact owner-view hashes and action ordinals.
+
+### Tooling and code changes
+
+- Added simulation/twinleaf/agent2-first-blocked-prompt-contract.cjs and tests/agent2-first-blocked-prompt-contract.test.cjs. It captures only owner-matched prompt metadata/constraints and never card identities or raw State/Store. The v3 pure job passed with this test included.
+- Added a repeated-root regression to tests/agent2-first-unsupported-owner-root-bridge.test.cjs: two quarantined unsupported roots must retain the first detached owner view and increment the counter twice. This test has not yet been rerun.
+- Fixed the Agent6 GO_FIRST test's descriptor assertion to use structural deepEqual. Added VERSION='agent6-go-first-choice-v1' export to simulation/twinleaf/agent6-go-first-choice.cjs so adapter provenance is explicit.
+- Added default-false ownerFallbackDiagnosticView to executeDevelopment in simulation/evaluation/agent41-bilateral-v2-development.cjs, and ensured nativeOwnerTrainerFallback/ownerFallbackDiagnosticView cause the scoped root adapter to be installed. Existing v10b runner and registration were not changed; its default path does not enable these flags.
+- New v8 common-policy canary: simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs. It uses executeDevelopment, runSelectedIssue25V0's setup/quarantine stack, v4 attack/Capture Energy frontier, v5 innermost Prize/promotion prompts, v6 Thorns root, and v7 Volt transfer. It adds only diagnostic fallback/view flags; quarantine still aborts before native fallback. Preregistration: results/methodology/registrations/agent2-v8-common-first-owner-root-rank13-rank3-20261107.md.
+- New workflow: .github/workflows/agent2-v8-common-owner-root-canary.yml.
+
+### Current blocker and immediate next actions
+
+- First v8 common-policy workflow run 42420463651 reached the native canary, executed both seat trials, then failed during result serialization because one HASH_PATHS entry incorrectly placed agent1-issue25-joined-three-attacks-v5.cjs under simulation/twinleaf instead of simulation/evaluation. The path is corrected, and hash validation now happens before running native trials. The root receipts from that failed serialization run were not preserved.
+- Rerun the pure workflow with native inputs off to validate the repeated-root regression and GO_FIRST version export.
+- Rerun .github/workflows/agent2-v8-common-owner-root-canary.yml. Inspect its artifact for exact root ordinal, accepted-prefix SHA, owner-view SHA, and compare with v3. If hash validation fails again, fix paths before another native run.
+- Continue to keep v10b and its registration immutable. A future v10b diagnostic should be a separate opt-in wrapper or a default-false pass-through flag; do not claim the existing v10b baseline enabled ownerFallbackDiagnosticView.
+- Use the v3 card-text audit as hypotheses only: Trainers' Mail is a strong first-turn Item test for Snorlax; Mysterious Treasure and Battle Compressor are strong first-turn Item tests for Regidrago. Implement and test their prompts/Store settlements before claiming those are optimal lines.
