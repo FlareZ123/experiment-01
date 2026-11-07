@@ -313,6 +313,7 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
 
     const original=oldDecoder.value.call(this,state,...args);
     if(original?.constructor?.name!=='PassTurnAction'||
+       rootStore?.state!==state||rootAgents?.[seat]!==this||
        !Number.isSafeInteger(state?.turn)||state.turn<=1||
        (seat!==0&&seat!==1)||
        (state.prompts??[]).some(p=>p.result===undefined))
