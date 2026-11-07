@@ -39,12 +39,26 @@ This explicitly includes multivariate Prize configurations and avoids treating i
 
 An additional manifest-provenance test now reads the three exact machine-readable 60-card inventories and verifies 60 total cards, exactly one `Mimikyu GRI 58`, `Dialga-GX UPR 100`, and `Hisuian Heavy Ball ASR 146`, plus the VMAX-based 14/15 Basic count for these known all-other-Basic shells. The rank1 and Hood Shield lists each have 14 Basics. Temple v1 has 15 because it plays three rather than four VMAX with a corresponding additional Basic. All three contain the three named singleton roles. The difference in conditional percentages is caused by the opening-hand Basic count; the nominal three-singleton/unconditional six-Prize combinatorics otherwise match.
 
+## Counterfactual: extra Heavy Balls as direct Prize-rescue capacity
+
+For a *hypothetical* 60-card list containing the same two Basic singletons and `H` copies of Hisuian Heavy Ball, the cut condition generalizes to `number of Prized core Basics > (H - Prized Heavy Balls)`. In the enumeration, add `C(H,h)` for the chosen `h` Prized Balls and reduce the other non-Basic pool to `60 - basicCount - H`. The nominal 60-card count stays fixed by replacing otherwise unspecified non-Basic slots. Actual counterfactual deck construction, legality and sacrificed card functions remain unexamined.
+
+| Copies of Hisuian Heavy Ball | 14-Basic immediate Prize-capacity cut | 15-Basic immediate Prize-capacity cut |
+| ---: | ---: | ---: |
+| 0 | 18.766341% | 18.832936% |
+| **1 (all three actual lists)** | **2.366909%** | **2.377913%** |
+| 2 (hypothetical) | 0.219492% | 0.220562% |
+| 3 (hypothetical) | 0.014663% | 0.014733% |
+| 4 (hypothetical) | 0.000640% | 0.000643% |
+
+Thus a second Ball would reduce this *isolated* original 14-Basic Prize cut by roughly a factor of ten, while consuming a slot potentially needed for setup, draw, a tactical Supporter, or another countermeasure. This does **not** show a beneficial deck swap or a win-rate change. Real Item locks and retrieval access remain unresolved, and two retrieved Basics still require the Copycat attack conditions. This illustrative count comparison is useful for evaluating discrete, catastrophic-but-rare resource failure modes without pretending that the other 59 card choices are free.
+
 ## Strategy interpretation and limits
 
 - This is the probability of **one precise immediate access mechanism** being obstructed by Prize placement, conditional on a legal seven. It does **not** imply a loss, absence of any Regidrago counterplay, or the champion's failure to take Prizes. A skilled player might recover the missing component later via Prize-taking, execute a different attack line, or win without Copycat.
 - The complement (97.633091% rank1) means only that *this particular initial Prize cut is absent*. It is **not** the probability the Copycat counterline is executable: Mimikyu still needs Energy and Active access, Dialga must be in discard when copied, the opponent must actually declare Apex, and the turn/match rules and locks must permit the attacks. Heavy Ball may be inaccessible from hand or blocked by Item lock even when it is outside Prizes.
 - The Basic-opening conditioning accounts for initial mulligans on the player's side but assumes uniform legal-seven sampling and does not incorporate information learned from opponent mulligans, which can change policy choices. Three exact historically valid physical printings and other paper rules still require independent validation across all matchup states.
 - The specific Prize-only cut persists across the two shortlisted Shadow Rider modifications. It is therefore a focused risk to evaluate in source-dealt matches, especially when testing the prominent Regidrago archetype, without treating the 2.37% figure as a predicted competitive loss fraction.
-- Both model and tests are pure CJS. The exact committed module and test callbacks were independently fetched, parsed and executed in a separate JavaScript V8 runtime: **5/5 tests passed**; champion and Temple probabilities match a separate Python exact-enumeration calculation. No compiled Twinleaf/native Node CI or competitive sample is claimed.
+- Both model and tests are pure CJS. The exact committed module and test callbacks were independently fetched, parsed and executed in a separate JavaScript V8 runtime: **6/6 tests passed**; champion and Temple probabilities match a separate Python exact-enumeration calculation. No compiled Twinleaf/native Node CI or competitive sample is claimed.
 
 The field remains **29/32 fully authenticated original name/count inventories**, zero paper-qualified competitive games, no selected final 60, and no demonstrated 99.5% win rate.
