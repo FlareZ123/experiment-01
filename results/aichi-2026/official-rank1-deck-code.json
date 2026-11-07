@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "event": "CL Aichi 2026 Open League",
+  "rank": 1,
+  "player": "Yasunori Kato",
+  "deck_id": "QnLLQ9-qvPVqa-g9gi6Q",
+  "source_url": "https://www.pokemon-card.com/deck/confirm.html/deckID/QnLLQ9-qvPVqa-g9gi6Q",
+  "source_context": "Official Open League winner interview links to this official Pokémon Card Game deck recipe.",
+  "language": "Japanese",
+  "categories": {
+    "pokemon": 18,
+    "trainer": 31,
+    "energy": 11
+  },
+  "cards": [
+    {
+      "japanese_name": "こくばバドレックスVMAX",
+      "english_name": "Shadow Rider Calyrex VMAX",
+      "count": 4,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "こくばバドレックスV",
+      "english_name": "Shadow Rider Calyrex V",
+      "count": 3,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "オーロット&ヨノワールGX",
+      "english_name": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "リーリエのピッピex",
+      "english_name": "Lillie's Clefairy ex",
+      "count": 2,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "カプ・テテフGX",
+      "english_name": "Tapu Lele-GX",
+      "count": 2,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "ラティアスex",
+      "english_name": "Latias ex",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "ディアルガGX",
+      "english_name": "Dialga-GX",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "ミミッキュ",
+      "english_name": "Mimikyu",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "キリンリキ",
+      "english_name": "Girafarig",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "マーシャドー",
+      "english_name": "Marshadow",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "かがやくムゲンダイナ",
+      "english_name": "Radiant Eternatus",
+      "count": 1,
+      "category": "pokemon"
+    },
+    {
+      "japanese_name": "ミステリートレジャー",
+      "english_name": "Mysterious Treasure",
+      "count": 4,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "霧の水晶",
+      "english_name": "Fog Crystal",
+      "count": 4,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "クイックボール",
+      "english_name": "Quick Ball",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "ヒスイのヘビーボール",
+      "english_name": "Hisuian Heavy Ball",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "バトルサーチャー",
+      "english_name": "VS Seeker",
+      "count": 3,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+      "english_name": "Battle Compressor",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "フィールドブロアー",
+      "english_name": "Field Blower",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "夜のタンカ",
+      "english_name": "Night Stretcher",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "アンフェアスタンプ(ACE SPEC)",
+      "english_name": "Unfair Stamp",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "かるいし",
+      "english_name": "Float Stone",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "森の封印石",
+      "english_name": "Forest Seal Stone",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "リーリエの決心",
+      "english_name": "Lillie's Determination",
+      "count": 2,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "ゼイユ",
+      "english_name": "Carmine",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "ナンジャモ",
+      "english_name": "Iono",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "センパイとコウハイ",
+      "english_name": "Teammates",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "キバナ",
+      "english_name": "Raihan",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "アセロラ",
+      "english_name": "Acerola",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "グズマ",
+      "english_name": "Guzma",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "リップ",
+      "english_name": "Tulip",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "スカイフィールド",
+      "english_name": "Sky Field",
+      "count": 2,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "次元の谷",
+      "english_name": "Dimension Valley",
+      "count": 1,
+      "category": "trainer"
+    },
+    {
+      "japanese_name": "基本超エネルギー",
+      "english_name": "Psychic Energy",
+      "count": 11,
+      "category": "energy"
+    }
+  ]
+}
