@@ -166,7 +166,6 @@ test('public EnergyMap applies Beast Energy FLI as one ANY unit only on an Ultra
     set: 'FLI',
     setNumber: '117'
   });
-  const fighting = energy('Fighting Energy', [CardType.FIGHTING]);
   const ultra = fixture([beast], [
     {name: 'Sledgehammer', cost: [CardType.FIGHTING], damage: 30}
   ], {ultraBeast: true, fullName: 'Buzzwole FLI'});
@@ -187,7 +186,7 @@ test('public EnergyMap applies Beast Energy FLI as one ANY unit only on an Ultra
   assert.equal(ultraMap.beastEnergyAttached, true);
   assert.deepEqual(ultraMap.dynamicOverrides, ['Beast Energy FLI: ANY']);
   assert.equal(ordinaryMap.dynamicOverrides.length, 0);
-  assert.ok(fighting);
+  assert.equal(ultraMap.energyMap.length, 1);
 });
 
 test('the former Grass/Fire/Beast-ANY fixture leaves both attacks payable after one Grass is removed', () => {
@@ -261,7 +260,7 @@ test('caller-supplied public damage modifier models Beast Energy plus 30 while i
   assert.equal(choice.card, beast);
 });
 
-test('Prism Star is a tie-break only after best remaining attack damage', () => {
+test('attack denial outranks Prism Star when best remaining attack damage differs', () => {
   const psychic = energy('Psychic Energy', [CardType.PSYCHIC]);
   const beast = energy('Beast Energy FLI', [CardType.COLORLESS], {
     special: true,
@@ -277,8 +276,28 @@ test('Prism Star is a tie-break only after best remaining attack damage', () => 
 
   assert.equal(choice.card, psychic);
   assert.equal(choice.bestRemainingAttackDamage, 0);
-  assert.equal(choice.denialScore, undefined);
+  assert.equal(choice.bestAttackDenial, 10);
   assert.equal(choice.prismStar, false);
+});
+
+test('Prism Star is a tie-break when best remaining attack damage is equal', () => {
+  const psychicA = energy('Psychic Energy A', [CardType.PSYCHIC]);
+  const psychicB = energy('Psychic Energy B', [CardType.PSYCHIC]);
+  const beast = energy('Beast Energy FLI', [CardType.COLORLESS], {
+    special: true,
+    prismStar: true,
+    set: 'FLI',
+    setNumber: '117'
+  });
+  const state = fixture([psychicA, psychicB, beast], [
+    {name: 'Red Knuckles', cost: [CardType.PSYCHIC], damage: 10}
+  ]);
+
+  const choice = chooseSnapTrapEnergyV2(state.prompt, state.active, types);
+
+  assert.equal(choice.card, beast);
+  assert.equal(choice.bestRemainingAttackDamage, 10);
+  assert.equal(choice.prismStar, true);
 });
 
 test('v2 respects parent-list blocked indices and does not mutate public lists', () => {
