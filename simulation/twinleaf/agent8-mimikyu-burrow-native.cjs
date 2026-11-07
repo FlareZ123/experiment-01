@@ -446,6 +446,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
     assert.equal(result.mimikyuRecoverySelected,true);
   }
   assert.deepEqual(result.unresolvedPrompts,[]);
+  history.restore();
   return result;
 }
 
