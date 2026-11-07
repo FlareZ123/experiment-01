@@ -4,6 +4,10 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const {
+  VERSION: PROMPT_ZONE_SELECTION_VERSION,
+  resolveBlockedPromptZoneEvent
+} = require('./agent36-issue25-public-prompt-zone-selection.cjs');
 
 const REGISTRATION_PATH = path.resolve(
   __dirname,
@@ -138,24 +142,8 @@ function main() {
   const events = Array.isArray(promptZoneAudit?.events)
     ? promptZoneAudit.events
     : [];
-  const firstRecord = quarantineRecords[0] ?? null;
-  const blockedPromptZoneEvent = firstRecord
-    ? events.find(event =>
-      event.turn === firstRecord.turn
-      && event.ownerSeat === firstRecord.seat
-      && event.phase === firstRecord.phase
-      && event.promptType === firstRecord.promptType
-    ) ?? null
-    : null;
-
-  let status = 'NO_FALLBACK_RECORD';
-  if (quarantineRecords.length > 0 && blockedPromptZoneEvent) {
-    status = blockedPromptZoneEvent.zoneMatches.length > 0
-      ? 'FALLBACK_CAPTURED_ZONE_MATCHED'
-      : 'FALLBACK_CAPTURED_ZONE_UNRESOLVED';
-  } else if (quarantineRecords.length > 0) {
-    status = 'FALLBACK_CAPTURED_PROMPT_EVENT_MISSING';
-  }
+  const promptZoneSelection = resolveBlockedPromptZoneEvent(quarantineRecords, events);
+  const {status, blockedPromptZoneEvent} = promptZoneSelection;
 
   const phaseSummary = phase ? sourceRunner.phaseSummary(phase) : null;
   const artifact = {
@@ -183,6 +171,11 @@ function main() {
     quarantineRecordCount: quarantineRecords.length,
     quarantineRecords,
     promptZoneAudit,
+    promptZoneSelectionVersion: PROMPT_ZONE_SELECTION_VERSION,
+    blockedPromptZoneCandidateCount: promptZoneSelection.candidateCount,
+    blockedPromptZoneCandidates: promptZoneSelection.blockedPromptZoneCandidates,
+    blockedPromptZoneCandidateGroups: promptZoneSelection.candidateGroups,
+    blockedPromptZoneEventIndex: promptZoneSelection.blockedPromptZoneEventIndex,
     blockedPromptZoneEvent,
     phaseSummary,
     treatmentAttributionComputed: false,
@@ -207,10 +200,12 @@ function main() {
     artifactSha256: saved.sha256,
     nativeAttemptCount: artifact.nativeAttemptCount,
     quarantineRecordCount: artifact.quarantineRecordCount,
+    blockedPromptZoneCandidateCount: artifact.blockedPromptZoneCandidateCount,
+    blockedPromptZoneCandidates: artifact.blockedPromptZoneCandidates,
     blockedPromptZoneEvent: artifact.blockedPromptZoneEvent
   }, null, 2));
 
-  if (quarantineRecords.length === 0 || !blockedPromptZoneEvent) {
+  if (status !== 'FALLBACK_CAPTURED_SOURCE_AND_PUBLIC_ZONE_MATCHED') {
     process.exitCode = 1;
   }
 }
