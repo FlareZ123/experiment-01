@@ -75,7 +75,7 @@ test('captures every post-dispatch candidate response root after an exact source
   assert.equal(sequence.registeredTrialId,'trial1');
   assert.equal(sequence.sourceSeat,1);
   assert.equal(sequence.candidateSeat,0);
-  assert.equal(sequence.candidateTurn,1,'both players may act in the same global round number');
+  assert.equal(sequence.candidateTurn,1,'response capture must not require a numeric turn increment');
   assert.deepEqual(sequence.sourcePrizeRootOrdinals,[1]);
   assert.equal(sequence.prizesTaken,1);
   assert.equal(sequence.firstResponseRootOrdinal,2);
