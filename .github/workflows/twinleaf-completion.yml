@@ -275,6 +275,11 @@ jobs:
         env:
           AGENT11_RANK1_MIRROR_RESOURCE_DIR: issue25-agent11-rank1-owner-resources
         run: node --test tests/agent11-rank1-mirror-owner-pass-resources.test.cjs tests/agent11-rank1-mirror-owner-pass-resources.native.test.cjs
+      - name: Reproduce held Dimension Valley and Energy Drive on exact original rank1 pre-Pass native clone
+        if: ${{ !cancelled() && inputs.include_agent8_telepath_v5 }}
+        env:
+          AGENT11_RANK1_MIRROR_RESOURCE_DIR: issue25-agent11-rank1-owner-resources
+        run: node --test tests/agent11-rank1-dimensionvalley-energy-drive.test.cjs tests/agent11-rank1-dimensionvalley-energy-drive.native.test.cjs
       - name: Preserve read-only owner resource evidence with atomic digest
         if: ${{ always() && inputs.include_agent8_telepath_v5 }}
         uses: actions/upload-artifact@v4
