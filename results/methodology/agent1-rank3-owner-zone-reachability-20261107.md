@@ -62,7 +62,7 @@ In those 423 later-turn snapshots, the existing policy dispatched 371 owner-root
 | PlayCardAction | 56 |
 | AttackAction | 12 |
 
-No Supporter was played in any of the 434 Handiwork-in-hand snapshots. The observer does not record a selected Handiwork hand index, but the zero current-turn Supporter count establishes that the 56 generic PlayCardAction roots were not settled Supporter plays.
+No Supporter was played in any of the 434 Handiwork-in-hand snapshots. I also compared each of the 58 `PlayCardAction` roots with the immediately following owner snapshot (the next native Store ordinal). The hand delta removed only Pokémon/Energy printings: Capture Energy (12), Water Energy (11), Snorlax (10), Galarian Stunfisk (9), Rotom V (5), Girafarig (4), Regirock (3), Mimikyu (3), and Bunnelby (1). No Trainer printing left the hand. This is a retrospective adjacent-state inference, not a selected hand-index receipt, but it independently corroborates that the baseline root policy played no Trainer while Handiwork was held.
 
 The source-seat-0 panel contained 30 Handiwork-in-hand snapshots with Bunnelby PRC Active and printed Rototiller. In 14 of those, Bunnelby had an attached Energy and had not attacked that turn. The policy chose Burrow in 12 of those 14 paid-attack snapshots. The source-seat-1 panel contained no Bunnelby-Active Handiwork-in-hand snapshot. In neither panel did Handiwork enter the discard, and no Rototiller structural candidate existed.
 
