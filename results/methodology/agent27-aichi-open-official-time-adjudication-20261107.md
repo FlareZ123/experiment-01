@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 48 Agent27 tests (36 core +12 namespaced evidence/extension-ledger cases), plus eight cross-implementation tests.** The dedicated Node 22 `Aichi Open clock adjudication and evidence tests` job passed **56/56** in [manual run 42401253356](https://github.com/FlareZ123/experiment-01/actions/runs/42401253356). The broader `test-benchmark` and `rank11-source-census` jobs also completed successfully in that run. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 49 Agent27 tests (36 core +13 namespaced evidence/extension-ledger cases), plus eight cross-implementation tests.** The dedicated Node 22 `Aichi Open clock adjudication and evidence tests` job passed **57/57** in [manual run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361). The broader `test-benchmark` and `rank11-source-census` jobs also completed successfully in that run. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -137,9 +137,16 @@ The module now exports `auditExtensionLedger`, a structural wrapper around `audi
 
 The wrapper explicitly cannot authenticate the source, verify reviewer independence, or prove that an omitted transition does not exist. The reviewer must attest that the ledger is complete. Outputs retain `competitiveAdmission:false` and `externalIndependentReviewRequired:true`. The namespaced test file now contains 12 cases: the three provenance-reference regressions plus nine extension-ledger cases covering tied-low, both-high multi-transition, normal win, tie/tiebreaker, incomplete history, missing source/review, sequence and chain errors, missing transition reference, zero-Prize conflict, post-terminal states, and non-applicable/insufficient packets.
 
-The dedicated `aichi-clock-adjudication` job was added inside the existing manual `aichi-benchmark-stats.yml` workflow. It runs only the 36 core Agent27 cases, 12 namespaced provenance/ledger cases, and eight cross-implementation cases, without requiring the Twinleaf submodule. [Run 42401253356](https://github.com/FlareZ123/experiment-01/actions/runs/42401253356) reports the clock job successful; its Node 22 log shows **56 tests, 56 passed, 0 failed**. This isolates clock validation from unrelated policy-audit failures in the broader benchmark job. No new workflow or per-commit trigger was added.
+The dedicated `aichi-clock-adjudication` job was added inside the existing manual `aichi-benchmark-stats.yml` workflow. It runs only the 36 core Agent27 cases, 13 namespaced provenance/ledger cases, and eight cross-implementation cases, without requiring the Twinleaf submodule. [Run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361) reports the clock job successful; its Node 22 log shows **57 tests, 57 passed, 0 failed**. This isolates clock validation from unrelated policy-audit failures in the broader benchmark job. No new workflow or per-commit trigger was added.
 
 The immediately preceding isolated run [42401140684](https://github.com/FlareZ123/experiment-01/actions/runs/42401140684) caught one result-shape defect in the zero-Prize ledger error path: `conditionalWinnerSeat` was omitted rather than explicitly null. That output was corrected, and the subsequent 56/56 run passed.
 
 
 The earlier run [42400880717](https://github.com/FlareZ123/experiment-01/actions/runs/42400880717) had passed the Node test step but failed later in the Agent16 policy-audit lane. The subsequent full manual run 42401253356 passed all jobs, including the isolated 56/56 clock suite and the broader benchmark lane.
+
+
+### Official tournament-stage provenance, 7 November
+
+The packet now requires a sixth source reference, `stageEvidenceRef`, in addition to the official clock, original starter, call-time turn owner, final-turn sequence, and independent paper-state references. The stage selects materially different Swiss versus knockout adjudication and the final's 35-minute limit, so a caller-supplied `stage` label must be tied to an official pairing sheet, round record, or bracket source. A clock image alone may not establish which event stage the game belongs to. The evidence gate rejects missing or whitespace-only stage references with `official-stage-source-not-cited`; the namespaced suite includes a dedicated missing-stage regression and the whitespace test now checks all six references.
+
+The extension-ledger auditor inherits this stage requirement through its mandatory `timeCallPacket`. The dedicated manual Node 22 clock job passed **57/57** in [run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361). At the time of this report update, the separate broader `test-benchmark` job was still running; the clock job and rank11-source-census job had completed successfully.
