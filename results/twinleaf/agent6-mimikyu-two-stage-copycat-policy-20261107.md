@@ -67,7 +67,7 @@ A follow-up reused seed `20261016` in both physical seat orientations and enable
 
 Workflow run `42373882810` completed four games:
 
-| Candidate seat | Opponent Apex Dragon declarations | Candidate Copycat attacks | Eligible policy decisions |
+| Candidate seat | Opponent Apex Dragon declarations | Candidate Copycat attacks | Branch-predicate observations |
 |---:|---:|---:|---:|
 | 0 | 4 | 0 | 0 |
 | 1 | 3 | 0 | 0 |
