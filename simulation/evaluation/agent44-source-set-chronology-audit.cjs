@@ -4,8 +4,9 @@ const assert = require('node:assert/strict');
 
 /**
  * Find dated English representative-set labels that postdate the source
- * event. Unrecognized and ambiguous set codes remain unresolved. This is
- * an inventory annotation audit, not a Japanese legality or printing proof.
+ * event. Unrecognized codes and sets with conflicting release dates remain
+ * unresolved; multi-set codes with one shared date are chronologically
+ * classifiable. This is an inventory annotation audit, not a Japanese legality or printing proof.
  * @param {{decks:Array<{rank:number,player:string,cards:Array<{category:string,name:string,count:number,printing:{set:string,number:string|number}}>}>}} roster
  * @param {Array<{id:string,ptcgoCode?:string,releaseDate:string,name:string}>} sets
  * @param {string} [eventDay] YYYY/MM/DD
@@ -24,20 +25,24 @@ function auditEnglishProxySetChronology(roster, sets, eventDay = '2026/05/10') {
   }
   const postdatedRows = [];
   const unresolvedRows = [];
-  let knownSetRows = 0;
+  let datedSetRows = 0;
+  let sameDateMultiSetRows = 0;
   for (const deck of roster.decks) {
     for (const row of deck.cards) {
       assert.ok(Number.isInteger(row.count) && row.count >= 1);
       const code = row.printing.set.toUpperCase();
       const matchingSets = byCode.get(code) || [];
-      if (matchingSets.length !== 1) {
+      const sameKnownDate = matchingSets.length > 0 &&
+        matchingSets.every(set => set.releaseDate === matchingSets[0].releaseDate);
+      if (!sameKnownDate) {
         unresolvedRows.push({rank:deck.rank,name:row.name,set:code,
           number:String(row.printing.number),copies:row.count,
           reason:matchingSets.length === 0 ? 'unknown-english-set-code' :
-            'ambiguous-english-set-code'});
+            'conflicting-english-set-release-dates'});
         continue;
       }
-      knownSetRows += 1;
+      datedSetRows += 1;
+      if (matchingSets.length > 1) sameDateMultiSetRows += 1;
       const set = matchingSets[0];
       if (set.releaseDate > eventDay) {
         postdatedRows.push({rank:deck.rank,player:deck.player,
@@ -50,10 +55,10 @@ function auditEnglishProxySetChronology(roster, sets, eventDay = '2026/05/10') {
   }
   postdatedRows.sort((a, b) => a.rank - b.rank || a.name.localeCompare(b.name));
   return {
-    schema:'agent44-aichi-known-english-proxy-chronology-v1',
+    schema:'agent44-aichi-known-english-proxy-chronology-v2',
     eventDay,sourceDecks:roster.decks.length,
     sourceInventoryRows:roster.decks.reduce((n,d)=>n+d.cards.length,0),
-    knownSetRows,unresolvedRows:unresolvedRows.length,
+    datedSetRows,sameDateMultiSetRows,unresolvedRows:unresolvedRows.length,
     unresolvedCopies:unresolvedRows.reduce((n,r)=>n+r.copies,0),
     postdatedRows:postdatedRows.length,
     postdatedCopies:postdatedRows.reduce((n,r)=>n+r.copies,0),
