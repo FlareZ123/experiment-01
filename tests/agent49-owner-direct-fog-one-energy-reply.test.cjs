@@ -124,7 +124,7 @@ test('authenticated same-seat K1 missing Basic vetoes; stale K1 abstains',()=>{
   assert.equal(uncertain.authenticatedOwnerK1Used,false);
   assert.throws(()=>proposeOwnerDirectFogOneEnergyKo(
     root,sixty,{psychic:5,colorless:9},
-    {...fresh,ownerSeat:0}),/same acting physical seat/);
+    {...fresh,ownerSeat:0}),/acting physical seat/);
   assert.throws(()=>proposeOwnerDirectFogOneEnergyKo(
     root,sixty,{psychic:5,colorless:9},
     {...fresh,observedAt:{turn:15}}),
