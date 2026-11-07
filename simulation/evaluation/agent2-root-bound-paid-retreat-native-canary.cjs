@@ -22,8 +22,10 @@ const {withBilateralMultiBasicPaidRetreat}=
   require('../twinleaf/agent2-bilateral-multi-basic-retreat-bot.cjs');
 const {createActualRootIdentityGuard}=
   require('../twinleaf/agent2-root-identity-guard.cjs');
+const {createPaidRetreatAcceptedRootReceipt}=
+  require('../twinleaf/agent2-paid-retreat-accepted-root-receipt.cjs');
 
-const VERSION='agent2-root-bound-paid-retreat-native-canary-v1';
+const VERSION='agent2-root-bound-paid-retreat-native-canary-v2';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const FULL='e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
 const SOURCE='ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
@@ -42,7 +44,7 @@ const hash=value=>createHash('sha256').update(JSON.stringify(value))
  */
 function runArm(variant,cards){
   let sourceAudit=null,rank1Audit=null,retreatAudit=null,genericAudit=null;
-  let identityAudit=null;
+  let identityAudit=null,acceptedRootAudit=null;
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(()=>{
@@ -50,7 +52,8 @@ function runArm(variant,cards){
           const source=withRank3SourceGuzmaReply(()=>{
             const retreat=withOwnerSelectedDialgaPaidRetreat(()=>{
               const rootIdentity=createActualRootIdentityGuard();
-              const native=()=>withSameTargetAttachEnergySelection(()=>runMatch(rootIdentity.attach({
+              const acceptedReceipt=createPaidRetreatAcceptedRootReceipt();
+              const native=()=>withSameTargetAttachEnergySelection(()=>runMatch(rootIdentity.attach(acceptedReceipt.attach({
                 deckA:cards.source,deckB:cards.candidate,
                 seed:SEED,maxActions:520,
                 label:'agent2-original-bilateral-multi-basic-retreat-'+variant,
@@ -64,13 +67,15 @@ function runArm(variant,cards){
                 capturePublicAttackTransitions:true,
                 captureNativeAbortEvidence:true,
                 captureFinalPublicBoard:true
-              }))).result;
+              })))).result;
               if(variant!=='root-bound-treatment')return native();
               const generic=withBilateralMultiBasicPaidRetreat(native,{
-                isActualRoot:rootIdentity.isActualRoot
+                isActualRoot:rootIdentity.isActualRoot,
+                onRetreatSelected:acceptedReceipt.onRetreatSelected
               });
               genericAudit=generic.audit;
               identityAudit=rootIdentity.audit;
+              acceptedRootAudit=acceptedReceipt.audit;
               return generic.result;
             },{
                 treatment:false,
@@ -121,7 +126,7 @@ function runArm(variant,cards){
         row.turnBefore>=33),
       rank3SourceResponseTimeline:sourceRoots.filter(row=>
         row.turnBefore>=33),
-      retreatAudit,genericAudit,identityAudit,sourceAudit,rank1Audit,
+      retreatAudit,genericAudit,identityAudit,acceptedRootAudit,sourceAudit,rank1Audit,
       finalPublicBoard:game.finalPublicBoard??null,
       nativeTerminal:game.terminalTransition??null,
       competitivelyQualified:false
@@ -148,6 +153,7 @@ function run(){
     process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV='false';
     const arm=runArm('root-bound-treatment',cards);
     const identity=arm.identityAudit,policy=arm.genericAudit;
+    const accepted=arm.acceptedRootAudit;
     const guards={
       rootStoreRegisteredExactlyOnce:
         identity?.rootStoreRegistrations===1,
@@ -160,6 +166,15 @@ function run(){
           (policy?.originalPassesBySeat??[]).reduce((a,b)=>a+b,0),
       guardedNativeWrapperSelected:
         policy?.rootIdentityGuardEnabled===true,
+      exactSelectedRetreatNativeAccepted:
+        accepted?.selectedProposals===1&&
+        accepted?.acceptedNativeProposals===1&&
+        accepted?.invalidNativeJoins===0&&
+        accepted?.receipts?.some(receipt=>
+          receipt.actorSeat===1&&receipt.turnBefore===33&&
+          receipt.actionName==='RetreatAction'&&
+          arm.rank1NativeRetreatRoots?.some(x=>
+            x.actionOrdinal===receipt.actionOrdinal)),
       sameSourcePhysicalDeal:
         arm.initialFullPhysicalDealSha256===FULL &&
         arm.initialSourceDealSha256===SOURCE
