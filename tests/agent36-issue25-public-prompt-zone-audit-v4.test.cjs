@@ -219,7 +219,7 @@ test('hidden hand, deck and Prize prompts never emit hidden card identities', ()
   const {state, ownerSeat} = makeScenario(0);
   const owner = state.players[ownerSeat];
   for (const zone of [owner.hand, owner.deck, owner.prizes]) {
-    const prompt = makePrompt(owner, zone, null);
+    const prompt = makePrompt(owner, zone);
     const result = promptZoneMatches(state, prompt, SuperType);
     assert.equal(result.matches.length, 1);
     assert.equal(result.matches[0].visibility, 'hidden');
@@ -233,7 +233,7 @@ test('wrong superType filter cannot be reported as an Energy subzone', () => {
   const attacker = state.players[1].active;
   const result = promptZoneMatches(
     state,
-    makePrompt(owner, attacker, {superType: SuperType.POKEMON}),
+    makePrompt(owner, attacker, attacker, {filter: {superType: SuperType.POKEMON}}),
     SuperType
   );
   assert.equal(result.eligibleSubzone, null);
@@ -261,7 +261,7 @@ test('multiple zone matches remain explicit rather than selecting the first', ()
   const {state, ownerSeat} = makeScenario(0);
   const owner = state.players[ownerSeat];
   const attacker = state.players[1].active;
-  owner.discard.cards.push(attacker.energies.cards[0]);
+  owner.discard.cards.push(...attacker.energies.cards);
   const result = promptZoneMatches(
     state,
     makePrompt(owner, attacker),
