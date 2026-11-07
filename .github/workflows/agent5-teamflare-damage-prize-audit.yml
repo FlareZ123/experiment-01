@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   forensic-audit:
@@ -40,6 +40,31 @@ jobs:
         env:
           AGENT5_V7_TEAMFLARE_DAMAGE_PRIZE_DIR: issue25-agent5-teamflare-damage-prize-v4
         run: node simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs
+
+      - name: Publish immutable forensic result to repository
+        if: success()
+        env:
+          RESULT_DIR: issue25-agent5-teamflare-damage-prize-v4
+        run: |
+          result="results/aichi-2026/forensics/agent5-v7-teamflare-damage-prize-aba-v4-run-${GITHUB_RUN_NUMBER}.json"
+          mkdir -p "$(dirname "$result")"
+          jq --arg runId "$GITHUB_RUN_ID" --arg runNumber "$GITHUB_RUN_NUMBER" --arg headSha "$GITHUB_SHA" '. + {workflowRunId: $runId, workflowRunNumber: ($runNumber | tonumber), workflowHeadSha: $headSha}' "$RESULT_DIR/agent5-v7-teamflare-damage-prize-aba-v4.json" > "$result"
+          sha256sum "$result" > "$result.sha256"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase origin/main
+          git add "$result" "$result.sha256"
+          git commit -m "Agent 5: preserve native Team Flare damage and Prize audit"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep 2
+          done
+          exit 1
 
       - name: Archive native attack, KO, Prize and promotion evidence
         if: always()
