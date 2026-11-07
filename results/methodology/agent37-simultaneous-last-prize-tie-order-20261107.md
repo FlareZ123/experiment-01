@@ -63,19 +63,23 @@ Promotion availability is currently inferred from whether the player's Bench con
 
 Runner: `simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs`.
 
-The regression now covers:
+The regression now covers, on both physical actor seats:
 
-- Both physical actor seats with both players able to promote: both Prize groups transfer and the outcome is a draw.
-- Both physical actor seats with only the owner able to promote: both Prize groups transfer and the owner wins, regardless of whether the owner is `state.players[0]` or `state.players[1]`.
+- Both players able to promote: both Prize groups transfer and the outcome is a draw.
+- Only the owner able to promote: both Prize groups transfer and the owner wins.
+- Only the opponent able to promote: both Prize groups transfer and the opponent wins.
+- Neither player able to promote: both Prize groups transfer and the outcome is a draw.
 - Pure terminal-table checks for both players able to promote, neither able to promote, first-only promotion, second-only promotion, and reversed player ordering.
 - A one-sided last-Prize control: an ordinary single-player Prize win remains a win.
 - A non-hand Prize-destination control: the adapter declines to arm and does not perform the second Prize transfer.
 
-The shared fixture helper `simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs` accepts an optional `enemyHasBench` parameter; existing callers retain the default of `true`.
+The shared fixture helper `simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs` accepts optional `enemyHasBench` and `ownerHasBench` parameters; existing callers retain the default of `true`.
+
+The four native promotion-availability families were added after the winner-log correction. They are committed in v3, but the expanded suite has not yet been rerun in CI.
 
 ## CI evidence
 
-[Manual native workflow 42372045012](https://github.com/FlareZ123/experiment-01/actions/runs/42372045012) completed successfully. It includes the simultaneous last-Prize resolver regression and the public attack-settlement regression suite.
+[Manual native workflow 42372045012](https://github.com/FlareZ123/experiment-01/actions/runs/42372045012) completed successfully for the pre-v3 implementation. It includes the earlier simultaneous last-Prize resolver regression and the public attack-settlement regression suite, but does not validate the winner-log correction or expanded native outcome matrix.
 
 Earlier incremental runs also passed:
 - [42370344373](https://github.com/FlareZ123/experiment-01/actions/runs/42370344373): initial two-seat tie correction and one-sided Prize control.
