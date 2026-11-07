@@ -17,7 +17,7 @@ function fixture(){
     {active:{name:'Iron Thorns ex',printing:'Iron Thorns ex TWM',
       damage:0,energyCards:['Lightning Energy','Double Colorless Energy'],
       toolCards:[],printedAttacks:[{name:'Volt Cyclone',
-        cost:['Lightning','Colorless','Colorless']}]},bench:[],stadium:[]},
+        cost:[4,9,9]}]},bench:[],stadium:[]},
     {active:{name:'Girafarig',printing:'Girafarig LOT',
       damage:0,energyCards:['Psychic Energy','Psychic Energy','Psychic Energy'],
       toolCards:[],printedAttacks:[{name:'Get Lost',cost:['Colorless']}]},
@@ -60,6 +60,21 @@ test('real-root keyed native active card and pre-damage must join unique attacke
     ['Lightning Energy','Double Colorless Energy']);
   assert.equal(result.rows[0].directPrintedEnergySufficiency.status,'POSSIBLE');
   assert.equal(result.rows[0].actualAttachedEnergyPaymentCertified,false);
+  assert.deepEqual(result.rows[0].actualPrintedAttackCostEnum,[4,9,9]);
+  assert.equal(result.rows[0].actualPrintedAttackCostMatchesSourceScreen,true);
+  assert.deepEqual(result.rows[0].publicStadiumNamesBeforeAttack,[[],[]]);
+  assert.deepEqual(result.rows[0].publicInPlayPrintingsBeforeAttack,[
+    {active:'Iron Thorns ex TWM',bench:[]},
+    {active:'Girafarig LOT',bench:[]}
+  ]);
+});
+
+
+test('engine Active attack cost must match the independently registered source print',()=>{
+  const f=fixture();
+  f.attempts[0].sourceAttackSettlement.attacks[0]
+    .publicBoardBefore[0].active.printedAttacks[0].cost=[5,9,9];
+  assert.throws(()=>run(f));
 });
 
 test('the same native cumulative KO value can include earlier attack damage',()=>{
@@ -97,7 +112,7 @@ test('synthetic delegated attack name never reidentifies the public Active',()=>
       {active:{name:'Mimikyu',printing:'Mimikyu GRI',damage:0,
         energyCards:['Psychic Energy','Psychic Energy'],
         toolCards:[],printedAttacks:[{name:'Copycat',
-          cost:['Colorless','Colorless']}]}}
+          cost:[9,9]}]}}
     ]
   }]};
   f.victims[0].registeredTrialId=id;
