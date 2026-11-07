@@ -69,6 +69,33 @@ The three pair columns give **mulligan hands for physical seat0 / seat1**. The f
 - Both native seats used **identical original rank4 paper 60s**, each name/count deck digest `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`. Legacy uses Twinleaf's default shared seeded shuffle RNG. Per-seat uses the existing Agent26 setup-shuffle wrapper and salts `0x243f6a88` / `0x85a308d3`. Exact seed and source seat are equal across protocols, but physical card deal and shuffle streams intentionally differ.
 - All 64 native attempts reached the source's first owner turn, then correctly encountered `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED` rather than allowing any unqualified raw-State bot decision. This code is the *intentional stopping boundary*, not a first-turn gameplay crash. No attempt played a complete game.
 
+## Independent archive integrity and source-owner matched controls
+
+After the corrected rerun, I downloaded and independently inspected **three actual Actions ZIP files** in the local runtime:
+
+| Archive | ZIP SHA-256 verified independently | JSON receipts / valid sidecars |
+| --- | --- | --- |
+| New original32 identical rank4, strict State settlement [13554757634](https://github.com/FlareZ123/experiment-01/actions/runs/42325500697/artifacts/13554757634) | `210a46dd5d64f779ae2f3e8ce8d89a3fb37f6d7713d82bb85f35ef62cf72bfdf` | 64 / 64 |
+| Original rank4/rank1 legacy enhanced [13543720846](https://github.com/FlareZ123/experiment-01/actions/runs/42299490842/artifacts/13543720846) | `e7feb738ac399788cdd2728c3b245c4006233940148c4feff284da8181399c4c` | 32 / 32 |
+| Original rank4/rank1 per-seat [13541919790](https://github.com/FlareZ123/experiment-01/actions/runs/42298886655/artifacts/13541919790) | `06b042fb6884b2803f46f8317751106bd89ed108af354b9a791eaa02a32cd491` | 32 / 32 |
+
+Each ZIP SHA-256 was calculated from the downloaded bytes and matched its independently recorded expected artifact digest; every JSON sidecar's SHA256 matched the hash independently calculated from that JSON's original ZIP member bytes. The strict archive's **16 actual SelectPrompt** receipts are all `nativePromptResolved===true` and `physicalTransferVerified===true`; these consist of five legacy-shared and eleven per-seat compensations. All earlier archives were retained unmodified.
+
+A **new, stronger same-seed owner-control** is available by joining all 96 actual native rows on `(seed, original source/first seat, shuffle protocol)`:
+
+| Rank4 original source-owner invariant when opponent changes rank1→rank4 | Legacy shared, 32 paired seeds | Per-seat XOR-v1, 32 paired seeds |
+| --- | ---: | ---: |
+| Exact source-owner opening-hand SHA256 equal | **32/32** | **32/32** |
+| Exact source Active printing selected equal | **32/32** | **32/32** |
+| Exact source eligible Basic printings equal | **32/32** | **32/32** |
+| Source's own mulligan count equal | **32/32** | **32/32** |
+| Both players' complete mulligan count pair equal | 30/32 | 31/32 |
+| Both players' recorded shuffled permutation hash tape equal | No legacy per-seat tape | 31/32 |
+
+Under legacy, the two altered opponent mulligan counts were seeds **3127876404** (seat0 original 1→new0) and **3658443122** (seat0 original 1→new2), both with rank4 original in seat1. Under per-seat, seed **3374395305** changed the opponent seat0 from 0→1 mulligan; the owner source seat1's eligible hand and Active remained identical. This means the initial **rank4 source-owner setup** was physically matched in both deck-composition arms for all 32 seeds per shuffle protocol, even though the two-player full setup (compensation draws, possible Prize deals, reshuffles and the opposing hand) is **not guaranteed** matched.
+
+These are genuine native archived hand/Active identity joins rather than assumptions from equal RNG seeds. They strengthen the selected-cohort experiment as a control of the rank4 owner's opening-hand exposure. They still cannot establish independent uniform randomization, general seat bias, equal full game state, adversarial competence, or a competitive win-rate.
+
 ## Interpretation and remaining discrimination
 
 1. The rank1-versus-rank4 Basic-count difference **cannot be the sole cause** of the selected 8/0 legacy outcome, because exactly that aggregate occurred when the two decks were identical. Five of six original anomalous seeds still produced seat0 mulligans in the new legacy setup, with one original positive (seed 3127876404) becoming 0/0 and another (seed 3658443122) becoming 2/0.
