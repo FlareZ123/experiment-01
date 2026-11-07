@@ -5,10 +5,12 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
+const {chooseSecretBoxCategories,ROOT93_NEW_MOON_PREFERENCES}=
+  require('./agent36-secret-box-four-category-selector.cjs');
 const {preflightVisibleOwnerRemainingUpperBound}=
   require('./owner-original-60-plan-gate.cjs');
 
-const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v4-native-zero-search-fallback';
+const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v5-four-category-source-bound';
 const BOX='Secret Box TWM';
 const FOG='Fog Crystal CRE';
 const BASIC='Psychic Energy';
@@ -162,8 +164,9 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {AttackAction}=native('game/store/actions/game-actions');
-  const {EnergyType,SuperType,CardType}=
+  const {EnergyType,SuperType,CardType,TrainerType}=
     native('game/store/card/card-types');
+  const {TrainerCard}=native('game/store/card/trainer-card');
   const isBasicPsychic=card=>card?.name===BASIC&&
     card?.superType===SuperType.ENERGY&&
     card?.energyType===EnergyType.BASIC;
@@ -176,7 +179,9 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     ownerK0TargetHardVetoes:0,
     nativeSearchZeroSelections:0,nativeSearchDelegatedWhiffs:0,
     paperPaymentChecks:0,paperPaymentsAccepted:0,
-    physicalBoxSearches:0,physicalFogSearches:0,
+    physicalBoxSearches:0,physicalBoxSearchCards:0,
+    fullCategoryBoxSearches:0,partialCategoryBoxSearches:0,
+    physicalFogSearches:0,
     physicallyAttachedBasic:0,submittedAttacks:0,
     actions:[],errors:[],promptObservations:[],qualification:'development-only',
     competitiveGamesQualified:0};
@@ -218,6 +223,8 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
           turn:state.turn,seat,stage:step.stage,
           pendingType:pending.constructor?.name??null,
           ownerAuthenticated:pending.playerId===owner.id,
+          sourceCard:pending.sourceCard?.fullName??null,
+          sourceBound:pending.sourceCard?.fullName===FOG,
           promptOnOwnerDeck:match,promptMessage:pending.message??null,
           offeredBasicPhysicalCount:match?offered.length:null,
           offeredBasicNativeValid:match&&offered.length>0?
@@ -235,9 +242,12 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         if(pending.constructor?.name!=='ChooseCardsPrompt')
           return priorAi.value.call(this,state);
         if(step.stage==='box-payment'&&
+           pending.sourceCard?.fullName===BOX&&
+           pending.playerId===owner.id&&
            pending.message==='CHOOSE_CARD_TO_DISCARD'&&
            pending.options?.min===3&&pending.options?.max===3&&
-           pending.cards!==owner.deck){
+           Array.isArray(pending.cards?.cards)&&
+           pending.cards.cards.every(card=>owner.hand.cards.includes(card))){
           const answer=choosePhysicalBoxPayment(pending,owner);
           return propose(new ResolvePromptAction(pending.id,answer),{
             kind:'box-payment',seat,turn:state.turn,ownerId:owner.id,
@@ -245,23 +255,38 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
           });
         }
         if(step.stage==='box-search'&&
+           pending.sourceCard?.fullName===BOX&&
+           pending.playerId===owner.id&&
            pending.cards===owner.deck&&
-           pending.message==='CHOOSE_CARD_TO_HAND'&&
-           pending.options?.maxItems===1){
-          const answer=choosePhysicalOwnerSearchOrWhiff(
-            pending,owner,x=>x.fullName===FOG);
-          if(answer===null){
-            stepsByOwner.delete(owner.id);
-            audit.nativeSearchDelegatedWhiffs++;
-            return priorAi.value.call(this,state);
+           pending.message==='CHOOSE_CARD_TO_HAND'){
+          const preferred=chooseSecretBoxCategories(pending,owner,state,
+            {TrainerCard,TrainerType},ROOT93_NEW_MOON_PREFERENCES);
+          const preferredWithFog=preferred?.some(card=>card.fullName===FOG)?
+            preferred:null;
+          let selected=preferredWithFog;
+          let whiff=false;
+          if(selected===null){
+            const fallback=choosePhysicalOwnerSearchOrWhiff(
+              pending,owner,x=>x.fullName===FOG);
+            if(fallback===null){
+              stepsByOwner.delete(owner.id);
+              audit.nativeSearchDelegatedWhiffs++;
+              return priorAi.value.call(this,state);
+            }
+            selected=fallback.cards;
+            whiff=fallback.whiff;
           }
-          return propose(new ResolvePromptAction(pending.id,answer.cards),{
-            kind:answer.whiff?'box-search-whiff':'box-search',
+          return propose(new ResolvePromptAction(pending.id,selected),{
+            kind:whiff?'box-search-whiff':'box-search',
             seat,turn:state.turn,ownerId:owner.id,
-            promptId:pending.id,physicalSelected:answer.cards,step
+            promptId:pending.id,physicalSelected:selected,
+            categorySelectionMode:preferredWithFog?
+              'preferred-categories':'single-item-fallback',step
           });
         }
         if(step.stage==='fog-search'&&
+           pending.sourceCard?.fullName===FOG&&
+           pending.playerId===owner.id&&
            pending.cards===owner.deck&&
            pending.message==='CHOOSE_CARD_TO_HAND'){
           const answer=choosePhysicalOwnerSearchOrWhiff(
@@ -393,10 +418,16 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         audit.nativeSearchZeroSelections++;
         stepsByOwner.delete(owner.id);
       }else if(proof.kind==='box-search'){
-        const c=proof.physicalSelected[0];
-        assert.ok(beforeDeck.includes(c)&&!after.deck.cards.includes(c));
-        assert.ok(after.hand.cards.includes(c));
+        const selected=proof.physicalSelected;
+        assert.ok(selected.length>=1&&selected.length<=4);
+        for(const c of selected){
+          assert.ok(beforeDeck.includes(c)&&!after.deck.cards.includes(c));
+          assert.ok(after.hand.cards.includes(c));
+        }
         audit.physicalBoxSearches++;
+        audit.physicalBoxSearchCards+=selected.length;
+        if(selected.length===4)audit.fullCategoryBoxSearches++;
+        else audit.partialCategoryBoxSearches++;
         step.stage='play-fog';
       }else if(proof.kind==='play-fog'){
         assert.ok(beforeHand.includes(proof.originalCard));
@@ -431,6 +462,10 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
         selectedSearchPrinting:proof.kind==='box-search'||
           proof.kind==='fog-search'?
             proof.physicalSelected[0].fullName:null,
+        selectedSearchPrintings:proof.kind==='box-search'||
+          proof.kind==='fog-search'?
+            proof.physicalSelected.map(x=>x.fullName):null,
+        categorySelectionMode:proof.categorySelectionMode??null,
         attachedBasicPrinting:proof.kind==='attach-basic'?
           proof.originalCard.fullName:null,
         sourceRemainingBefore:proof.opponentRemainingHp??null,
@@ -460,4 +495,4 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
 module.exports={VERSION,BOX,FOG,BASIC,VIP,CARRIER,
   choosePublicOneEnergyBoxKo,choosePublicOneEnergyBoxKoWithRegistered60,
   choosePhysicalBoxPayment,choosePhysicalOwnerSearchOrWhiff,
-  withOwnerOneEnergyBoxKo};
+  chooseSecretBoxCategories,withOwnerOneEnergyBoxKo};
