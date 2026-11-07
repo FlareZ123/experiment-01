@@ -380,9 +380,14 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
       throw new Error('Snap Trap dispatch revalidation failed: ' + message);
     };
     const rootStore = requireRootStore();
-    const {identity, prompt: livePrompt, card, proof} = selected;
+    const {identity, prompt: livePrompt, card, proof, choice} = selected;
     if (!(action instanceof ResolvePromptAction)) fail('action class');
-    if (action.promptId !== livePrompt.id) fail('prompt ID');
+    if (String(action.promptId) !== String(livePrompt.id)) {
+      fail('prompt ID (action.promptId=' + String(action.promptId) +
+        ' [' + typeof action.promptId + '], livePrompt.id=' +
+        String(livePrompt.id) + ' [' + typeof livePrompt.id +
+        '], actionKeys=' + Object.keys(action).join(',') + ')');
+    }
     if (!Array.isArray(action.result) ||
         action.result.length !== 1 ||
         action.result[0] !== card) fail('exact one-card action result');
