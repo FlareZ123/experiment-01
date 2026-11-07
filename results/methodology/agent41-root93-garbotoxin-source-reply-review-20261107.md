@@ -121,3 +121,10 @@ The current Agent43 adapter's `choosePhysicalOwnerSearchOrWhiff` returns a one-c
 
 
 The four field packages above are confirmed as **Garbotoxin** printings, not merely cards named Garbodor: rank 8 uses LTR 68 (`bw11-68`); rank 11 uses BKP 57 (`xy9-57`); rank 16 uses two LTR 68 and one BKP 57; rank 22 uses two BKP 57. The local card pool gives both `bw11-68` and `xy9-57` the Garbotoxin Ability text. Across these four lists there are nine Garbotoxin copies in total.
+
+
+## Additional candidate-side Powerglass line on Active Unown
+
+The root93 candidate owner hand also contains `Powerglass SFA`; the candidate's public discard has two Basic Psychic Energy, and Active Unown AOR has no Tool attached. Powerglass's printed end-of-turn effect applies to any Pokémon it is attached to that remains Active. Attaching it to Unown before Hidden Power should expose an owner-only prompt to attach one of those Basic Psychic Energy after the attack, Knock Out and Prize sequence. This can happen before the source's next-turn Garbotoxin response. The extra Energy attaches to Unown, so its retreat/next-turn utility must be measured separately; it does not directly power Benched Mewtwo & Mew-GX.
+
+The current `agent41-owner-powerglass-attach-prompt.cjs` requires Active Mewtwo & Mew-GX, and the staged `agent41-powerglass-after-pass-native.cjs` covers only Mewtwo. The shared v9 profile does not invoke the owner prompt hook. Root93 Active Unown therefore falls outside the current policy. This is a candidate-side action hypothesis requiring a native owner-prompt test with Active Unown, both-seat observation checks, and the existing paper order of attack → Knock Out/Prize → end-of-turn Powerglass. Garbotoxin should be tested against the Tool effect directly; it suppresses Pokémon Abilities, and the Powerglass trigger is a Tool effect. Do not infer a Mewtwo attack from the Energy attached to Unown.
