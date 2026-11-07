@@ -18,6 +18,7 @@ on:
           - volt-donor-debt
           - steward-v4v5
           - reciprocal-screen
+          - original-v8-contexts
         default: bilateral-pass
 
 permissions:
@@ -127,3 +128,21 @@ jobs:
         if: ${{ inputs.audit_type == 'reciprocal-screen' }}
         run: |
           node -e "const assert=require('node:assert/strict');const fs=require('node:fs');const crypto=require('node:crypto');const p='archived-reciprocal/treatment/issue25-steward-v8.json';const raw=fs.readFileSync(p);const sha=crypto.createHash('sha256').update(raw).digest('hex');assert.equal(sha,'6ed9db1568aaf546e3165ddae2a2fa21fd1224f7d50e1e2dc8b8c6f578bb5a45');const sidecar=fs.readFileSync('archived-reciprocal/treatment/issue25-steward-v8.sha256','utf8');assert.ok(sidecar.startsWith(sha));const d=JSON.parse(raw);assert.equal(d.provenance.githubRunId,'42287771647');assert.equal(d.provenance.observedTwinleafCommit,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');const r=require('./simulation/evaluation/agent45-bilateral-competence-gate.cjs').screenArchivedReciprocalAttempts(d);assert.deepEqual([r.attemptedContexts,r.verifiedRootLedgerContexts,r.quarantinedContexts,r.anyGeneralSequenceContexts,r.anySourceAttackSequenceContexts,r.attackAnchorSettledBeforeReplyContexts,r.publicPositiveDamageBeforeReplyContexts,r.nativeMaterialExchangeContexts,r.competitiveGamesQualified],[8,8,0,5,3,3,3,2,0]);assert.equal(r.rows.filter(x=>x.disposition==='native-terminal-unqualified').length,1);assert.equal(r.rows.filter(x=>x.disposition==='root-cap-unqualified').length,7);assert.equal(r.rows.filter(x=>x.settledSourceAttackPrizeChange>0).length,0);assert.deepEqual(r.rows.filter(x=>x.nativeMaterialExchange).map(x=>[x.trialId,x.nativeMaterialExchange.sourceAttackOrdinal,x.nativeMaterialExchange.opponentReplyOrdinal,x.nativeMaterialExchange.sourceReturnAttackOrdinal,x.nativeMaterialExchange.opponentReplyKind,x.nativeMaterialExchange.initialSourceDamage,x.nativeMaterialExchange.returnSourceDamage]),[['11:211:A:champion-reference',22,26,30,'attached-active-energy',20,20],['11:211:A:new-moon-lockbreaker-v1',50,54,58,'benched-pokemon',30,30]]);const champions=r.rows.find(x=>x.trialId==='11:211:A:champion-reference').nativeMaterialExchange;const newMoon=r.rows.find(x=>x.trialId==='11:211:A:new-moon-lockbreaker-v1').nativeMaterialExchange;assert.equal(champions.unmodifiedDefenderActiveCostAfterReply.anyUnmodifiedPrintedAttackPayable,false);assert.deepEqual(champions.unmodifiedDefenderActiveCostAfterReply.unmodifiedPrintedAttacks.map(x=>x.unmodifiedBasicEnergyPayable),[false,false,false]);assert.equal(newMoon.unmodifiedDefenderActiveCostAfterReply.anyUnmodifiedPrintedAttackPayable,false);assert.equal(newMoon.unmodifiedNewBenchCostAfterReply.anyUnmodifiedPrintedAttackPayable,false);console.log('AGENT45_REAL_EIGHT_NATIVE_RECIPROCAL_SCREEN',JSON.stringify({attempted:r.attemptedContexts,verified:r.verifiedRootLedgerContexts,quarantined:r.quarantinedContexts,observed:r.anyGeneralSequenceContexts,sourceAttackAnchored:r.anySourceAttackSequenceContexts,settledBeforeReply:r.attackAnchorSettledBeforeReplyContexts,positiveNativeDefenderDamage:r.publicPositiveDamageBeforeReplyContexts,nativePublicMaterialExchanges:r.nativeMaterialExchangeContexts,competitiveGamesQualified:r.competitiveGamesQualified,archiveJsonSha256:sha}));"
+
+      - name: Validate original v8 per-context coverage code and regression tests
+        if: ${{ inputs.audit_type == 'original-v8-contexts' }}
+        run: |
+          node --check simulation/evaluation/agent13-v8-context-concentration.cjs
+          node --check simulation/evaluation/agent13-v8-context-concentration-archive.cjs
+          node --test tests/agent13-v8-context-concentration.test.cjs
+      - name: Download SHA-pinned original eight-context v8 source archive
+        if: ${{ inputs.audit_type == 'original-v8-contexts' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-issue25-broader-prospective-v8-native
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: archived-original-v8
+      - name: Recheck original v8 source roots, genuine first replies, and game context denominator
+        if: ${{ inputs.audit_type == 'original-v8-contexts' }}
+        run: node simulation/evaluation/agent13-v8-context-concentration-archive.cjs archived-original-v8
