@@ -129,6 +129,23 @@ test('A/B/A comparison requires matched physical deals and exact repeated contro
   assert.equal(compare([phases[0],phases[1],broken])[0].controlsRepeatedExactly,false);
 });
 
+
+test('A/B/A opening match can use authenticated abort-provenance summaries',()=>{
+  const phases=PHASES.map(fakePhase);
+  for(const phase of phases){
+    phase.diagnostic.nativeAttempts=phase.rawDevelopment.rows.map(row=>({
+      ...summarizeNativeAttempt(row),
+      sourceDealFingerprint:row.sourceDealFingerprint,
+      fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint
+    }));
+    for(const row of phase.rawDevelopment.rows){
+      delete row.sourceDealFingerprint;
+      delete row.fullPhysicalDealFingerprint;
+    }
+  }
+  assert.ok(compare(phases).every(x=>x.physicalOpeningMatchedAcrossABA));
+});
+
 test('native attempt summary distinguishes engine errors, terminals and 240-root caps',()=>{
   const cap=nativeRow('cap',{actionType:'PassTurnAction'},{
     rootActionCount:ROOT_LIMIT,actionCount:ROOT_LIMIT,finished:false
