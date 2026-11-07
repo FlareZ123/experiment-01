@@ -111,4 +111,47 @@ function futureOwnerStartsUnderSchedule(remaining,schedule,tail={
   };
 }
 
-module.exports={VERSION,futureOwnerStartsUnderSchedule};
+/**
+ * Compare a repeated voluntary-draw scenario with Pass against an externally
+ * supplied future-turn deadline. The deadline must come from a separate
+ * game-state or Prize-plan evaluator.
+ *
+ * @param {number} remaining Owner deck count after the current mandatory draw.
+ * @param {number} voluntaryDraw Cards voluntarily drawn on each future owner turn.
+ * @param {number} opponentMill Cards milled before each next owner turn.
+ * @param {number} requiredFutureOwnerStarts Future owner turns required by the plan.
+ * @returns {object} Deadline classification without selecting a game action.
+ */
+function compareStationaryDrawToDeadline(
+  remaining,voluntaryDraw,opponentMill,requiredFutureOwnerStarts
+){
+  assertCardCount(voluntaryDraw,'voluntaryDraw');
+  assertCardCount(opponentMill,'opponentMill');
+  assertCardCount(requiredFutureOwnerStarts,'requiredFutureOwnerStarts');
+
+  const drawHorizon=futureOwnerStartsUnderSchedule(remaining,[],{
+    ownerDraw:voluntaryDraw,opponentMill
+  }).futureOwnerStarts;
+  const passHorizon=futureOwnerStartsUnderSchedule(remaining,[],{
+    ownerDraw:0,opponentMill
+  }).futureOwnerStarts;
+  const drawCanReachDeadline=drawHorizon>=requiredFutureOwnerStarts;
+  const passCanReachDeadline=passHorizon>=requiredFutureOwnerStarts;
+  const classification=drawCanReachDeadline?
+    'draw-horizon-sufficient':
+    passCanReachDeadline?
+      'pass-required-to-reach-deadline':
+      'neither-policy-reaches-deadline';
+
+  return {
+    remaining,voluntaryDraw,opponentMill,requiredFutureOwnerStarts,
+    drawHorizon,passHorizon,drawCanReachDeadline,passCanReachDeadline,
+    classification
+  };
+}
+
+module.exports={
+  VERSION,
+  futureOwnerStartsUnderSchedule,
+  compareStationaryDrawToDeadline
+};
