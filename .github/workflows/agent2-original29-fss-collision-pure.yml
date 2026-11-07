@@ -72,6 +72,8 @@ jobs:
       - name: Compile pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native both-seat Active Block excludes nominal paid RetreatAction
+        run: node --test tests/agent2-multi-basic-active-block.native.test.cjs
       - name: Single authentic original 60 versus 60 actual root identity receipt
         run: node simulation/evaluation/agent2-root-bound-paid-retreat-native-canary.cjs > agent2-root-bound-native-canary.json
       - name: Preserve native root-identity receipt including failure
