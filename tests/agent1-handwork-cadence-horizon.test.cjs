@@ -77,7 +77,7 @@ function probabilityAtLeast(result,minimum){
   return reduceFraction(numerator,BigInt(result.commonDenominator));
 }
 
-test('rank-3 resource witness uses four initial Handiwork turns then a legal alternating recovery cadence',()=>{
+test('rank-3 Lusamine/VS Seeker-only example uses four initial Handiwork turns then an alternating recovery cadence',()=>{
   const rows=makeRank3HandiworkCadenceSchedule(12,{
     ownerDeckLoss:2,burrowPerTurn:1
   });

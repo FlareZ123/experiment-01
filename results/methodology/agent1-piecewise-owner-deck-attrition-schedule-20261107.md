@@ -56,6 +56,45 @@ The [public dispatch artifact from Agent 2's original rank-3 replay](https://git
 
 The model reproduces the opponent deck counts after the subsequent Bunnelby turn and prompt settlement exactly: **[40, 36, 32, 28, 24, 20, 15, 11, 7, 3, 0]**. It counts ten future Mimikyu turn starts. The final Burrow empties the deck before the next mandatory draw, matching the native terminal at turn 24 to 25. This is a public-count trace reconstruction. It leaves the extra turn-15 deck loss unclassified and makes no paper-match or optimal-opponent claim.
 
+## Conditional stochastic scenario: Lusamine/VS Seeker-only Handiwork loop
+
+The additional pure module simulation/evaluation/agent1-handwork-cadence-horizon.cjs models one explicit Supporter-recovery sequence from the rank-3 list. It is deliberately narrower than a complete rank-3 opponent policy.
+
+The example assumes the single Handiwork, all three VS Seeker, both Lusamine, and one other legal Supporter are accessible. Its sequence is:
+
+1. Handiwork on the first eligible turn.
+2. On the next three turns, play one VS Seeker, recover Handiwork, and play it.
+3. Play one filler Supporter (for example, Arven with legal Item/Tool targets) so two Supporter targets are in discard.
+4. Play Lusamine 1 to recover Handiwork and the filler.
+5. Play Handiwork, then Lusamine 2 to recover Handiwork and Lusamine 1. Alternate Handiwork and the two Lusamine copies thereafter.
+
+This avoids relying on partial resolution of Lusamine's printed two-card effect. It assumes the pieces are already accessible, the filler is legal, no lock or disruption occurs, and the opponent is on a turn where the relevant Supporter/attack actions are permitted. It is a conditional example line, not a maximum cadence, an upper/lower bound, or a likely opponent policy.
+
+The exact finite stochastic calculation uses one schedule row per opponent turn. Each Handiwork row has 0/2/4 cards milled with weights 1:2:1; non-Handiwork rows have deterministic Burrow mill. Owner-side loss, opponent mill, and the next mandatory draw are applied in that order. The DP enumerates the weighted outcomes exactly with BigInt numerators and a common denominator. The independent exhaustive test agrees for all tested deck counts 0-8, owner losses 0-2, and Burrow counts 0-2.
+
+For D=23 cards after the current mandatory draw, the scenario gives:
+
+| Burrow pressure each opponent turn | Owner policy | Expected future owner starts | P(at least 5 starts) |
+| --- | --- | ---: | ---: |
+| One Burrow | Filch every owner turn | 433/128 = 3.3828 | 9/256 = 3.5156% |
+| One Burrow | Pass every owner turn | 104657/16384 = 6.3878 | 247/256 = 96.4844% |
+| Two Burrows | Filch every owner turn | 749/256 = 2.9258 | 0% |
+| Two Burrows | Pass every owner turn | 4759/1024 = 4.6475 | 163/256 = 63.6719% |
+
+These are exact conditional deck-survival distributions under the supplied schedule. They do not model a winning Prize plan, opponent decision quality, a full game, or competitive win rate. The two-Burrow rows assume both Bunnelby attacks are Burrow; they leave no attack for Rototiller. The one-Burrow rows also do not model Rototiller.
+
+### Critical omitted route: Rototiller and deck-to-hand access
+
+The exact rank-3 list also contains Bunnelby PRC 121. Its printed Ω Barrage allows a second attack, Burrow mills one card from the opponent's deck, and Rototiller shuffles a card from its own discard pile into its deck. Therefore a Handiwork that has been played and discarded can potentially be shuffled back into the rank-3 deck. This creates a different Handiwork-reuse route from the Lusamine/VS Seeker loop above.
+
+The list also contains Trainers' Mail, Forest Seal Stone, Teammates, Rotom V, Tropical Beach, Player's Ceremony, and draw/search Supporters. Their exact timing, search probability, once-per-game limits, turn-ending effects, Supporter limit, and interaction with a Rototiller attack determine whether Handiwork can be found again. The current schedule does not model those cards or their resource costs.
+
+Agent 37's existing [native Rototiller recovery test](../twinleaf/agent37-bunnelby-rototiller-native-recovery-20261030.md) proves that the pinned Store exposes the genuine owner-discard-to-deck prompt and can move a selected card from discard into its owner's deck. That fixture uses Technical Machine: Evolution, not Handiwork. It does not test the full Handiwork/Rototiller/search loop or a same-turn Ω Barrage Burrow-plus-Rototiller line.
+
+Consequently, the prior iid Handiwork-every-turn stress remains a sensitivity scenario. It is not proven achievable or impossible. The Lusamine/VS Seeker schedule is only one conditional line and must not be treated as a bound on real rank-3 pressure. Next validation should test Handiwork as the actual Rototiller target, verify the same-turn second-attack sequence in the pinned engine, and analyze how the deck can access Handiwork after it is shuffled back into the deck.
+
+The manual-only pure CI run [42374053812](https://github.com/FlareZ123/experiment-01/actions/runs/42374053812) passed the new finite-schedule test plus the existing Agent 1 and Agent 2 owner-deck horizon suites. This is mathematical/model validation only; it does not validate the omitted Rototiller/search route.
+
 ## Results
 
 The following table uses stationary scenarios. Filch draws two cards, and Pass draws zero.

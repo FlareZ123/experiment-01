@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent1-rank3-handiwork-resource-cadence-owner-horizon-v1';
+const VERSION='agent1-rank3-lusamine-loop-stochastic-owner-horizon-v2';
 
 /**
  * Validate a card count or count-like scenario input.
@@ -30,25 +30,28 @@ function gcdBigInt(a,b){
 }
 
 /**
- * Build an optimistic, resource-feasible Team Rocket's Handiwork cadence
+ * Build one illustrative Lusamine/VS Seeker-only Handiwork recovery schedule
  * from the published rank-3 Snorlax Stall inventory.
  *
- * The witness sequence assumes one Handiwork, three VS Seeker, two Lusamine,
- * and one other legal Supporter are accessible. Turns 1-4 use Handiwork;
- * turns 2-4 first use one VS Seeker to recover it. Turn 5 uses a filler
- * Supporter so the first Lusamine has two eligible Supporters to recover.
- * Turn 6 uses Lusamine 1 to recover Handiwork and the filler. Thereafter
- * Handiwork and the two Lusamine copies alternate.
+ * The example assumes one Handiwork, three VS Seeker, two Lusamine, and one
+ * other legal Supporter are accessible. Turns 1-4 use Handiwork; turns 2-4
+ * first use one VS Seeker to recover it. Turn 5 uses a filler Supporter so
+ * the first Lusamine has two eligible Supporters to recover. Turn 6 uses
+ * Lusamine 1 to recover Handiwork and the filler. Thereafter Handiwork and
+ * the two Lusamine copies alternate.
  *
  * Each Handiwork use has two independent coin flips: 0, 2, or 4 cards
  * milled with relative weights 1:2:1. Burrow mill is a separate scenario
- * input and is added to every turn's outcomes.
+ * input and is added to every turn's outcomes. Rototiller is not modeled.
  *
- * This is a resource-availability upper-pressure witness, not a claim that
- * the opponent can assemble or choose the sequence in an actual game.
- * The schedule starts at the first opponent turn where the modeled
- * Supporter/attack actions are legal; prepend or adjust rows for turn order,
- * first-turn restrictions, unavailable resources, or disruption.
+ * This is one conditional sequence, not a maximum, upper bound, lower bound,
+ * or representative opponent policy. It deliberately omits Bunnelby's
+ * Rototiller and the deck-to-hand search/draw lines that may enable further
+ * Handiwork reuse. The all-turn iid Handiwork stress is not established as
+ * achievable or impossible. The schedule starts at the first opponent turn
+ * where the modeled Supporter/attack actions are legal; prepend or adjust
+ * rows for turn order, first-turn restrictions, unavailable resources, or
+ * disruption.
  *
  * @param {number} turns Number of opponent turns to describe.
  * @param {{ownerDeckLoss?:number,burrowPerTurn?:number}} [options]
