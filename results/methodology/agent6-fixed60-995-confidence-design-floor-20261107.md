@@ -40,6 +40,21 @@ This is a strict **total loss-probability budget across all 32 opponent matchups
 
 Because **three exact original lists remain unauthenticated**, testing all 29 authenticated lists cannot establish a 99.5% full-32 claim. Even if a candidate truly won 100% against those 29, the three unknown matchups would still need to average **at least 94⅔%** to reach the uniform 99.5% target: `(32*0.995 - 29)/3 = 71/75`. Without data for the missing three, the pessimistic 32-field average compatible with perfect 29-known performance is only **90.625%**. This is an identification gap, distinct from the sampling confidence for known opponents. This makes hard-counter coverage and worst-matchup improvement primary deck-selection objectives even before a qualified evaluation cohort exists. It does not estimate any actual matchup strength. Different opponent weights would change the budget allocation and need their own predeclared estimand.
 
+### Archetype-weighted implications from the authenticated 29 plus three known archetype labels
+
+The exact source-field inventory `results/aichi-2026/full-decklists.json` has 29 authenticated original card/name counts, while ranks 23/25/28 have **recorded archetype labels but no authenticated 60**. Grouping all 32 entries by these labels yields the following *conditional* threshold: if the candidate wins **every game against all other archetypes**, how well must it beat the listed group to reach a uniform 99.5% 32-opponent mean? For an archetype occurring `k` times this is `p_group >= 1 - 0.16/k`.
+
+| Opponent archetype grouping | Count in recorded field | Required group-average win rate, assuming perfection outside that group |
+| --- | ---: | ---: |
+| **Regidrago** | **11** (9 exact originals, 2 missing 60s) | **98.5455%** |
+| **Absol Garbodor** | **4** | **96%** |
+| **Raichu Electrode Combo** | **3** (2 exact, 1 missing 60) | **94.6667%** |
+| **Iron Thorns** | **3** | **94.6667%** |
+| **Snorlax Stall** | **2** | **92%** |
+| Any singleton archetype (nine separate original entries) | **1 each** | **84% per singled-out archetype** |
+
+The nine singleton categories are Shadow Rider Calyrex, Vileplume Control, Mew Genesect, Absol Electrode, Lopunny Vileplume, Raging Bolt, Meloetta Donk, Lillie's Clefairy and Dusknoir Chimecho. These are *separately optimistic* bounds; multiple groups cannot simultaneously consume their entire allowable `0.16` loss-probability budget. A Regidrago group at 98.55% leaves almost no losses available anywhere else. This arithmetic strongly favors investigating difficult archetype classes, meaningful alternate win lines and event timing. It supplies **no evidence that any candidate currently clears a threshold**, and exact missing 60s remain required.
+
 ## Numerical thresholds
 
 | Evidentiary question (95% one-sided) | Minimum flawless qualified evidence | What it establishes under the assumptions |
