@@ -38,6 +38,7 @@ for(const sourceSeat of [0,1]){
     assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
+    assert.ok(result.sourcePrompts.includes('ShuffleDeckPrompt'));
     assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceHandDelta,1);
@@ -45,6 +46,7 @@ for(const sourceSeat of [0,1]){
     assert.equal(result.sourceNextTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,0);
     assert.ok(!result.copycatPrompts.includes('ChooseCardsPrompt'));
+    assert.ok(!result.copycatPrompts.includes('ShuffleDeckPrompt'));
     assert.equal(result.competitiveQualifiedGames,0);
     console.log('AGENT8_COPYCAT_ROTOTILLER_BURROW',JSON.stringify(result));
   });
@@ -65,6 +67,7 @@ for(const sourceSeat of [0,1]){
     assert.equal(result.mimikyuDiscardDelta,-1);
     assert.equal(result.mimikyuRecoveryReturnedToDeck,true);
     assert.ok(result.copycatPrompts.includes('ChooseCardsPrompt'));
+    assert.ok(result.copycatPrompts.includes('ShuffleDeckPrompt'));
     assert.equal(result.competitiveQualifiedGames,0);
     console.log('AGENT8_COPYCAT_BURROW_ROTOTILLER',JSON.stringify(result));
   });
