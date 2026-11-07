@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v1';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v2';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -55,7 +55,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
   const load=name=>require(path.join(output,name));
   const {deepClone}=deps.utils??load('utils/utils');
   const {Store}=deps.StoreModule??load('game/store/store');
-  const {AttackAction}=deps.gameActions??load('game/store/actions/game-actions');
+  const {AttackAction,RetreatAction,PassTurnAction}=
+    deps.gameActions??load('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
     deps.playActions??load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=deps.resolvePromptAction??
@@ -151,6 +152,84 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     result.attackSettled=result.unresolvedPromptTypes.length===0;
     result.status=result.attackSettled?'native-stadium-attack-settled':
       'native-attack-prompt-pending';
+
+    const ownerBenchTargetIndex=initial.bench.findIndex(cardList=>
+      cardList.cards[0]?.fullName==='Trevenant & Dusknoir-GX UNM');
+    const hasSkylinerBenchPokemon=initial.bench.some(cardList=>
+      cardList.cards.some(card=>card.fullName==='Latias ex SSP'));
+    const opponentId=opposing.id;
+    const baselineReply=copy();
+    const baselineResult={
+      opponentAttackName:'Eon Blade',opponentAttackNativeAccepted:false,
+      ownerActiveAfter:null,ownerActiveDamageAfter:null,
+      ownerPrizesAfter:null,opponentPrizesAfter:null,
+      unresolvedPromptTypes:[],waitPrompts:[]
+    };
+    try{
+      baselineReply.dispatch(new PassTurnAction(ownerId));
+      settleWaitPrompts(baselineReply);
+      baselineReply.dispatch(new AttackAction(opponentId,'Eon Blade'));
+      baselineResult.opponentAttackNativeAccepted=true;
+      baselineResult.waitPrompts=settleWaitPrompts(baselineReply);
+    }catch(error){
+      baselineResult.error=String(error?.message??error);
+    }
+    const baselineOwner=baselineReply.state.players.find(p=>p.id===ownerId);
+    const baselineOpponent=baselineReply.state.players.find(p=>p.id===opponentId);
+    baselineResult.ownerActiveAfter=
+      baselineOwner.active.getPokemonCard?.()?.fullName??null;
+    baselineResult.ownerActiveDamageAfter=baselineOwner.active.damage??null;
+    baselineResult.ownerPrizesAfter=baselineOwner.prizes.length;
+    baselineResult.opponentPrizesAfter=baselineOpponent.prizes.length;
+    baselineResult.unresolvedPromptTypes=baselineReply.state.prompts
+      .filter(p=>p.result===undefined).map(p=>p.constructor.name);
+
+    const defense=copy();
+    const defensiveLine={
+      sourceOwnerHasSkylinerBenchPokemon:hasSkylinerBenchPokemon,
+      retreatTargetIndex:ownerBenchTargetIndex,
+      retreatNativeAccepted:false,opponentAttackName:'Eon Blade',
+      opponentAttackNativeAccepted:false,ownerActiveAfterRetreat:null,
+      ownerActiveAfterReply:null,ownerActiveDamageAfter:null,
+      ownerPrizesAfter:null,opponentPrizesAfter:null,
+      retreatWaitPrompts:[],opponentAttackWaitPrompts:[],
+      unresolvedPromptTypes:[]
+    };
+    try{
+      if(ownerBenchTargetIndex<0)throw new Error('Trevenant & Dusknoir bench target missing');
+      defense.dispatch(new RetreatAction(ownerId,ownerBenchTargetIndex));
+      defensiveLine.retreatNativeAccepted=true;
+      defensiveLine.retreatWaitPrompts=settleWaitPrompts(defense);
+      const afterRetreatOwner=defense.state.players.find(p=>p.id===ownerId);
+      defensiveLine.ownerActiveAfterRetreat=
+        afterRetreatOwner.active.getPokemonCard?.()?.fullName??null;
+      const currentId=defense.state.players[defense.state.activePlayer].id;
+      if(currentId===ownerId){
+        defense.dispatch(new PassTurnAction(ownerId));
+        settleWaitPrompts(defense);
+      }
+      const nextId=defense.state.players[defense.state.activePlayer].id;
+      if(nextId!==opponentId)throw new Error('opponent turn was not reached after retreat');
+      defense.dispatch(new AttackAction(opponentId,'Eon Blade'));
+      defensiveLine.opponentAttackNativeAccepted=true;
+      defensiveLine.opponentAttackWaitPrompts=settleWaitPrompts(defense);
+    }catch(error){
+      defensiveLine.error=String(error?.message??error);
+    }
+    const defensiveOwner=defense.state.players.find(p=>p.id===ownerId);
+    const defensiveOpponent=defense.state.players.find(p=>p.id===opponentId);
+    defensiveLine.ownerActiveAfterReply=
+      defensiveOwner.active.getPokemonCard?.()?.fullName??null;
+    defensiveLine.ownerActiveDamageAfter=defensiveOwner.active.damage??null;
+    defensiveLine.ownerPrizesAfter=defensiveOwner.prizes.length;
+    defensiveLine.opponentPrizesAfter=defensiveOpponent.prizes.length;
+    defensiveLine.unresolvedPromptTypes=defense.state.prompts
+      .filter(p=>p.result===undefined).map(p=>p.constructor.name);
+    defensiveLine.status=defensiveLine.opponentAttackNativeAccepted&&
+      defensiveLine.unresolvedPromptTypes.length===0?
+      'native-defensive-reply-settled':'native-defensive-reply-incomplete';
+    result.baselineOpponentReply=baselineResult;
+    result.defensiveLine=defensiveLine;
     return result;
   }finally{
     Math.random=previousRandom;
