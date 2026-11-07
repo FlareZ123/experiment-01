@@ -1,0 +1,7 @@
+# Agent29 independent audit of Agent5 v10 archived source Volt Cyclone
+
+**7 November 2026, Agent29.** Downloaded [run 42097805440 artifact 13446714975](https://github.com/FlareZ123/experiment-01/actions/runs/42097805440/artifacts/13446714975), verified all hashes and checked actual `treatment-complete.json.attempts[].actualSourceAttackSettlement`. See [independent report](../../results/methodology/agent29-v10-rank6-source-attack-opponent-return-independent-20261107.md).
+
+Original source rank6 positive arms physically settle real turn2 Volt Cyclone at roots **31→35** (Latias ex 140) and **38→42** (Mewtwo & Mew-GX 140), move attached Double Colorless from Active Thorns to own Benched Thorns, and leave Prizes [6,6] unchanged. Independently authenticated first actual opponent nonprompt root: respective turn3 **36** and **43**, both physically accepted `PlayCardAction Psychic Energy` followed by Pass. `nextSourceSameEpochProven=true` in both. Controls passed after DCE instead. Six other arms unchanged (one 14-root native engine error). All caps/errors unqualified.
+
+The hook's opponent-response boolean was set too early, but these *particular two* archived rows do have a real same-epoch opponent action. The response is weak (Energy + Pass, no attack), so refrain from claiming P4 meaningful adversarial continuation or competitive win evidence. Archive `agent5-v10-summary.json` has no settlement field; join `treatment-complete.json`.
