@@ -14,7 +14,7 @@ The source-locked turn-27 response helper previously promoted a Benched `Mimikyu
 
 ## Verification
 
-The fixed upstream submodule is `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The native two-seat test was added to the **existing manually dispatched** `twinleaf-smoke.yml` check 02. In [run 42344122658](https://github.com/FlareZ123/experiment-01/actions/runs/42344122658), compiled-upstream smoke **step 8 succeeded** on head `3ec3a0a723b53f9116c8ef558f54918b3a435ae4`. Full-workflow conclusion should be inspected separately. No on-push CI, vendor source, fixed 60, or shared bilateral policy was changed.
+The fixed upstream submodule is `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The native two-seat test was added to the **existing manually dispatched** `twinleaf-smoke.yml` check 02. In [run 42344122658](https://github.com/FlareZ123/experiment-01/actions/runs/42344122658), compiled-upstream smoke **step 8 succeeded** and the **full manual workflow concluded SUCCESS with all 39 independent smoke checks passing** on head `3ec3a0a723b53f9116c8ef558f54918b3a435ae4`. The completed run's conclusion and tested commit were independently checked via GitHub Actions. No on-push CI, vendor source, fixed 60, or shared bilateral policy was changed.
 
 ## What remains unproven
 
