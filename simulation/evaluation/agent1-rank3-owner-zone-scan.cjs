@@ -147,9 +147,11 @@ function runOne(c,cards){
   try{
   const {Store}=native('game/store/store');
   const {GamePhase}=native('game/store/state/state');
+  const deckA=c.candidateSeat===0?cards.candidate:cards.source;
+  const deckB=c.candidateSeat===1?cards.candidate:cards.source;
   const request={
-    deckA:cards.candidate,
-    deckB:cards.source,
+    deckA,
+    deckB,
     seed:c.seed,
     maxActions:ROOT_LIMIT,
     label:'agent2-original-rank3-passive-fss-float-'+c.id,
@@ -193,7 +195,10 @@ function runOne(c,cards){
     winnerMatches:(game.winner??null)===expected?.winner,
     actionCountMatches:(game.actions??null)===expected?.actions,
     sourceDeckMatches:sha(cards.source)===SOURCE_DECK_SHA,
-    candidateDeckMatches:sha(cards.candidate)===CANDIDATE_DECK_SHA
+    candidateDeckMatches:sha(cards.candidate)===CANDIDATE_DECK_SHA,
+    seatDeckMappingMatches:
+      sha(deckA)===(c.candidateSeat===0?CANDIDATE_DECK_SHA:SOURCE_DECK_SHA)&&
+      sha(deckB)===(c.candidateSeat===1?CANDIDATE_DECK_SHA:SOURCE_DECK_SHA)
   };
   const ownerSnapshots=summarizeSnapshots(ownerObserved.snapshots);
   const ownerZoneAudit=ownerObserved.audit;
