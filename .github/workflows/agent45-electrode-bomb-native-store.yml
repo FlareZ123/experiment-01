@@ -27,6 +27,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_owner_zones_v7:
+        description: 'Read-only v7 physical role identity zones at actual source Pass on preregistered unchanged v5 original seed groups'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -47,7 +52,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact rank9 original Prize and five-Energy physical census
-        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs tests/agent29-rank9-post-compressor-bomb.test.cjs tests/agent29-rank9-prospective-v5-registration.test.cjs
+        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs tests/agent29-rank9-post-compressor-bomb.test.cjs tests/agent29-rank9-prospective-v5-registration.test.cjs tests/agent29-rank9-owner-card-location-witness.test.cjs
       - name: Checkout pinned native engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native engine
@@ -117,6 +122,19 @@ jobs:
         with:
           name: agent29-rank9-bomb-prospective-v5
           path: agent29-rank9-bomb-prospective-v5.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Source original rank9 real owner role-location oracle v7 on unchanged v5 deals
+        if: ${{ inputs.rank9_source_owner_zones_v7 }}
+        env:
+          AGENT29_RANK9_OWNER_ZONE_V7: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-original-owner-role-zones-v7.json
+      - name: Preserve complete v7 source card zone custody and independent v5 replay
+        if: ${{ always() && inputs.rank9_source_owner_zones_v7 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-original-owner-zones-v7
+          path: agent29-rank9-original-owner-role-zones-v7.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
