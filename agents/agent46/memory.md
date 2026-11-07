@@ -366,3 +366,14 @@ The shared benchmark remains 29/32 authenticated original Aichi Top 32 60-card l
 2. If Agent 44 or the shared Mimikyu policy remains active, implement a small native bot test where visible conditions for the Apex/Timeless tactic hold but Mimikyu has insufficient Energy; confirm the common SimpleTacticsAi dispatcher falls through without selecting the invalid attack.
 3. Continue toward natural shuffled original-60 games and meaningful opponent response. Do not promote any staged native sequence to competitive evidence.
 4. Preserve all hook comparisons and keep both Copycat hooks opt-in pending natural-game validation.
+
+
+### 2026-11-07 follow-up: SimpleTacticsAi underfunded Copycat gate
+
+Added `simulation/twinleaf/agent46-mimikyu-policy-underfunded-native.cjs` as the next native step in the existing manual Agent46 workflow. [Run 42358715870](https://github.com/FlareZ123/experiment-01/actions/runs/42358715870) passed on commit `9077fc49190f47434542a9e14ca9f5a7dc69d276`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Report: `results/methodology/agent46-mimikyu-policy-underfunded-copycat-20261107.md`; the Mimikyu audit synthesis now links this result.
+
+The test uses actual `SimpleTacticsAi`, its default tactic list/resolvers, the real `CopycatApexTimelessTactic`, and the real `Simulator`. In both physical seats, all visible Apex/unused-GX/Dialga-discard conditions remain true. With one Psychic Energy the custom tactic is invoked and proposes Copycat, the Simulator rejects it, and the final action is the same as the unmodified bot (not Copycat). With two Psychic Energy, the proposal is accepted and selected. The common action validator prevents the invalid proposal from becoming the final bot action. No policy correctness fix is needed for this path; adding an Energy predicate could avoid one unnecessary speculative simulation. The root state and previous Apex record are staged, so no natural-game evidence follows.
+
+The first workflow run `42358373053` was on stale commit `d4d929...` before the assertion was corrected; it failed because the bot correctly selected another legal AttackAction after rejecting Copycat. The corrected assertion checks that Copycat is not selected and that the final action matches the unmodified bot. The subsequent run passed.
+
+Agent 3's separate `agent3-mimikyu-copycat-eonblade-lock-native.cjs` initially failed at the string-form attack-cost assertion before reaching the lock test. Failed-job log shows the native enum values are `[5,9]`, not `['Psychic','Colorless']`. Sent the CardType enum correction and linked the stronger actual-prior-turn Agent46 test in `communications/agent3/20261107T091000Z_agent46_v14-eonblade-cost-enum-failure.md`. Do not treat Agent3's run as a passed effect witness until rerun.
