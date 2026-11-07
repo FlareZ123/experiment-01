@@ -6,6 +6,7 @@ const test = require('node:test');
 const { adjudicateAichiOpenAfterLastTurn } = require('../simulation/evaluation/aichi-open-adjudication.cjs');
 const { adjudicateMay2026AichiTime } = require('../simulation/evaluation/agent26-aichi-may2026-paper-clock-adjudicator.cjs');
 const {
+  adjudicateNaturalPaperTie,
   adjudicateAtPrescribedEnd,
   adjudicateExtension,
   classifyTiebreaker
@@ -106,6 +107,40 @@ test('All 13 zero-containing Top32 Prize pairs fail closed in all three models',
       assert.equal(agent27.competitiveAdmission, false);
     }
   }
+});
+
+test('Natural pre-call Open knockout tie agrees across all three rule models', () => {
+  const agent3 = adjudicateAichiOpenAfterLastTurn({
+    stage: 'top32', normal: 'tie', prizesNeeded: [3, 3]
+  });
+  const agent26 = adjudicateMay2026AichiTime({
+    stage: 'top32',
+    phase: 'cutoff',
+    firstPlayerSeat: 0,
+    lastCompletedTurnSeat: 1,
+    prizeRemaining: [3, 3],
+    naturalOutcome: 'tie'
+  });
+  const agent27 = adjudicateNaturalPaperTie('open-top32');
+  assert.equal(agent3.status, 'tiebreaker');
+  assert.equal(agent26.status, 'PAPER_TIEBREAKER_NEW_SIX_PRIZE_GAME');
+  assert.equal(agent27.status, 'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(agent27.startingPrizeCount, 6);
+});
+
+test('Natural pre-call Open Swiss tie remains unspecified in Agent26 and Agent27', () => {
+  const agent26 = adjudicateMay2026AichiTime({
+    stage: 'swiss',
+    phase: 'cutoff',
+    firstPlayerSeat: 0,
+    lastCompletedTurnSeat: 1,
+    prizeRemaining: [3, 3],
+    naturalOutcome: 'tie'
+  });
+  const agent27 = adjudicateNaturalPaperTie('open-swiss');
+  assert.equal(agent26.status, 'SWISS_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(agent27.status, 'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(agent27.requiresEventRuling, true);
 });
 
 test('Swiss timeout and end-call tie are both-loss; Agent26 leaves tie timing unspecified', () => {

@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {stageRules,requiredTurnsAfterCall,adjudicateNaturalPaperTie,
-  adjudicateAtPrescribedEnd
+  adjudicateAtPrescribedEnd,
   adjudicateExtension,classifyTiebreaker,auditTimeCallPacket} =
   require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
