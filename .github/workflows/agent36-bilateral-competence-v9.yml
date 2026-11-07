@@ -1,0 +1,60 @@
+name: Agent36 one-game bilateral competence probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent36-bilateral-competence-v9-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  one-game-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Install and compile the pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Check research adapter and runner syntax
+        run: |
+          node --check simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs
+          node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
+
+      - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
+        run: |
+          node --test \
+            tests/agent36-funded-perfection-pass-observer.test.cjs \
+            tests/agent36-issue25-common-v9-bilateral-competence.test.cjs \
+            tests/agent36-issue25-selected-v0.test.cjs \
+            tests/agent41-bilateral-v2-development.test.cjs
+
+      - name: Execute the single prospective rank11/New Moon natural game
+        run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
+
+      - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
+          path: artifacts/agent36-bilateral-competence-v9/
+          retention-days: 21
+          if-no-files-found: warn
