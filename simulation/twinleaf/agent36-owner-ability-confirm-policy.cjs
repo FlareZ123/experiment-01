@@ -39,8 +39,12 @@ function pokemonCards(slot){return slot?.cards??[];}
 
 /** @param {object} card @param {object} types */
 function isWaterEnergy(card,types){
-  return Array.isArray(card?.cardType)&&
-    card.cardType.includes(types.CardType.WATER);
+  // Pinned Twinleaf EnergyCard uses 'provides'; 'cardType' belongs to Pokémon.
+  // The native Legendary Ascent prompt currently selects Basic Water by name.
+  return card?.superType===types.SuperType.ENERGY&&
+    card.name==='Water Energy'&&
+    Array.isArray(card.provides)&&
+    card.provides.includes(types.CardType.WATER);
 }
 
 /**
