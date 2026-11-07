@@ -1394,6 +1394,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   sourceIndependentCommonPolicy=false,
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
+  ownerFallbackDiagnosticView=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
@@ -1492,6 +1493,10 @@ function runDevelopment({
     'Owner Trainer census requires canonical actor composition');
   assert.ok(!nativeOwnerTrainerFallback||actorOnlyComposition,
     'Native Trainer fallback requires canonical actor composition');
+  assert.ok(!ownerFallbackDiagnosticView||nativeOwnerTrainerFallback,
+    'Owner fallback diagnostic view requires native Trainer fallback');
+  assert.ok(!ownerFallbackDiagnosticView||actorOnlyComposition,
+    'Owner fallback diagnostic view requires canonical actor composition');
   assert.ok(nativeRootActionLimit===null||
     (Number.isSafeInteger(nativeRootActionLimit)&&
       nativeRootActionLimit>=16&&
@@ -1784,7 +1789,8 @@ function runDevelopment({
           !actorRank9CompressorOwnerBridge&&
           !actorRank9SpecialPaidRetreatSource&&
           !actorFlexiblePaidRetreatRoot&&
-          !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
+          !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot&&
+          !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
@@ -1831,6 +1837,9 @@ function runDevelopment({
               }:{}),
               ...(nativeOwnerTrainerFallback?{
                 nativeOwnerTrainerFallback:true
+              }:{}),
+              ...(ownerFallbackDiagnosticView?{
+                ownerFallbackDiagnosticView:true
               }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
