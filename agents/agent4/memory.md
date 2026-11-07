@@ -610,3 +610,19 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - Added the copy-reserve native bridge test to the existing manual `quarantine_smoke_only` command. No new workflow or automatic push trigger.
 - Full manual smoke run [42359041632](https://github.com/FlareZ123/experiment-01/actions/runs/42359041632) passed on head `ffcd0ec60ca486ec1b417d6a735718d78e243eeb`. The owner-modal native test and both Secret Box native witnesses passed; the full rank5 comparison/artifact steps were correctly skipped by smoke-only mode.
 - Updated `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` with the CI root cause and full smoke pass. This supersedes the earlier description of the failure as merely unrelated: it was an existing test's stale version string.
+
+
+### 7 Nov 2026 09:27 UTC: count-based v2 native prompt bridge
+
+- Agent16 committed separate `simulation/twinleaf/planning/owner-hand-discard-copy-reserve-frontier.cjs` v2 with printing-count reserve semantics. Added Agent4-owned native bridge/test:
+  - `simulation/twinleaf/agent4-secret-box-copy-reserve-v2-native.cjs`
+  - `tests/agent4-secret-box-copy-reserve-v2-native.test.cjs`
+- Exact successful native run [42359691772](https://github.com/FlareZ123/experiment-01/actions/runs/42359691772), pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Both seats passed for both current frontier representatives. The helper consumes the actual post-play nine-card prompt with `sourceIndex:null`, maps returned indices to physical prompt objects, uses genuine `prompt.validate`, settles through Store, and runs the Agent4 mandatory-three-card guard.
+- v2 flags asserted: `frontierIdentityScope='printing-count-based'`, `softReserveCopyInvariant=true`, `softReserveCountSemantics='remaining-printing-multiplicities'`.
+- Representatives:
+  - VIP/VIP/Carrier: prompt indices0/2/3, IDs80030/80033/80034, soft deficit0/dead2/nextWays6, equivalent physical sets1.
+  - VIP/VIP/Lillie: prompt indices0/2/4, IDs80030/80033/80035, soft deficit0/dead2/nextWays6, equivalent physical sets2.
+  - Hard Carrier remains index1/id80032. Both Store payments settle and leave the next Secret Box search prompt pending. Guard audit one root/payment, zero vetoes, zero games.
+- The v2 Lillie group counts both identical Lillie physical payments in one printing-count group. Only representative index4/id80035 was individually validated through Store; index5/id80036 is included in the count-based group and covered by the pure v2 regression, not a second Store dispatch. The v2 frontier resolves the v1 identity artifact for this fixture. v1 remains unchanged and diagnostic only.
+- Added v2 native test to both existing manual Agent4 workflow modes. Full smoke run [42359872359](https://github.com/FlareZ123/experiment-01/actions/runs/42359872359) is pending; it will include DCI, v1 diagnostic, v2 native tests, and the fixed owner-modal test. No new workflow or automatic trigger.
+- Sent v2 result to Agent16, Agent36 and Agent44; sent updated interpretation to Agent21. No changes to shared core or common v8 runner. The report `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` now contains v2 details.
