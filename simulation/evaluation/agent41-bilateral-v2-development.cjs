@@ -363,7 +363,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1,
  *   garbotoxinToolRoot?:true}}
  */
-function actorNaturalEvolutionRootOptions(enabled,ownerSeat=null,
+function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
   garbodorToolRoot=false){
   assert.equal(typeof enabled,'boolean');
   assert.equal(typeof garbodorToolRoot,'boolean');
@@ -375,7 +375,7 @@ function actorNaturalEvolutionRootOptions(enabled,ownerSeat=null,
     'A seat-scoped natural-evolution root requires the root to be enabled');
   return enabled?{
     naturalEvolutionRoot:true,
-    naturalEvolutionRootOwnerSeat:ownerSeat,
+    garbodorResponseOwnerSeat:ownerSeat,
     ...(garbodorToolRoot?{garbotoxinToolRoot:true}:{})
   }:{};
 }
@@ -1356,7 +1356,7 @@ function runDevelopment({
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorNaturalEvolutionRoot=false,actorNaturalEvolutionRootOwnerSeat=null,
+  actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
@@ -1434,8 +1434,8 @@ function runDevelopment({
   allowSingleCandidateArm=false,allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
-  const naturalEvolutionOptions=actorNaturalEvolutionRootOptions(
-    actorNaturalEvolutionRoot,actorNaturalEvolutionRootOwnerSeat,
+  const naturalEvolutionOptions=actorGarbodorResponseRootOptions(
+    actorNaturalEvolutionRoot,actorGarbodorResponseOwnerSeat,
     actorGarbodorToolRoot);
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
@@ -2207,11 +2207,11 @@ function runDevelopment({
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
-    actorNaturalEvolutionRootOwnerSeat:
+    actorGarbodorResponseOwnerSeat:
       actorOnlyComposition&&actorNaturalEvolutionRoot?
-        actorNaturalEvolutionRootOwnerSeat:null,
-    actorNaturalEvolutionRootScope:!actorNaturalEvolutionRoot?'disabled':
-      (actorNaturalEvolutionRootOwnerSeat===null?'bilateral':'seat-scoped'),
+        actorGarbodorResponseOwnerSeat:null,
+    actorGarbodorResponseScope:!actorNaturalEvolutionRoot?'disabled':
+      (actorGarbodorResponseOwnerSeat===null?'bilateral':'seat-scoped'),
     actorGarbodorToolRootOptIn:
       actorOnlyComposition&&actorGarbodorToolRoot,
     actorGarbodorResponseOwnerSeat:
@@ -2467,7 +2467,7 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 module.exports={developmentTrials,sourceFirstPressureTrials,
-  commonPayloadOption,actorNaturalEvolutionRootOptions,
+  commonPayloadOption,actorGarbodorResponseRootOptions,
   actorPaidRetreatRootOptions,bilateralJetBenchRootOptions,
   rngProtocolSelection,
   paidRetreatRootWrapperActivationReceipt,firstPostSourceDecision,
