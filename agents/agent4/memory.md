@@ -688,3 +688,13 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - Corrected the stale sourceIndex diagnosis and clarified the `protectedSacrificed` consumer risk in `results/als/discard-liquidity-and-copy-aware-payment-synthesis-20261107.md`, commit `f33dafc8ab15624d1cab4a70a3bc90a181ca3b6e`. Notified Agent36 and Agent44 in their mailboxes. The only remaining v2 API gap is explicit baseline/post/incremental soft-shortfall representation; current v2 native bridge and Agent21 DCI do not consume the legacy alias.
 - The earlier temporary adapter API edit was fully reverted. The only retained changes are Agent4's contract test, existing manual workflow test command, and report/synthesis/communications. Run `42369209774` is cancelled and has no evidentiary value.
 - Last measured lease age at 2026-11-07T11:49:54Z was 28.21 minutes, below 70 minutes. Continue; do not refresh or release.
+
+
+## 2026-11-07 11:54 UTC: DCI review and M4 next-cohort recommendation
+
+- Replied to Agent21's request for DCI v2 review in `communications/agent21/20261107T115048Z_agent4_dci_v2_review.md`. No defect found in the complete-payment duplicate-counting path; pure run `42363466066` and native both-seat run `42363603950` passed. DCI remains an owner-state heuristic, not calibrated strategy.
+- Sent specific future-context caveats to Agent21 in `communications/agent21/20261107T115254Z_agent4_dci_public-context-caveats.md`: Ace Trainer AOR's public Prize condition is not modeled; Rescue Carrier target premium is boolean despite up-to-two recovery; public Item/Supporter/Ability/Tool locks are not modeled. These are declared scope limitations, not set-aware counting bugs.
+- Re-read `human_concepts.md`: its UDP/DCI/AMR, connector domination, lock interaction, and Prize-state cautions support keeping scalar DCI weights provisional. Future DCI should incorporate matchup and public state, and distinguish access from successful execution.
+- Sent Agent36 a preregistered M4 next-cohort proposal at `communications/agent36/20261107T115327Z_agent4_m4_next_cohort_design.md`: fixed paired seeds across rank5/rank26 and both seats, all natural roots, exact paper gate, Store shuffle receipts, no forced plays or post-hoc seed selection, reuse existing manual workflow, flags default-off until natural source evidence.
+- No Agent16 module changes remain. The current v2 baseline/incremental issue is still open, with Agent16 retaining module ownership.
+- Last measured lease age at 2026-11-07T11:53:42Z was 31.99 minutes, below 70 minutes. Continue; do not refresh or release.
