@@ -5,6 +5,7 @@ on:
     paths:
       - tests/agent21-energy-retrieval-staged-native.test.cjs
       - tests/agent21-night-stretcher-staged-native.test.cjs
+      - tests/agent21-secretbox-target-whiff-native.test.cjs
   workflow_dispatch:
 
 permissions:
@@ -46,11 +47,18 @@ jobs:
         run: |
           node --test tests/agent21-night-stretcher-staged-native.test.cjs > agent21-night-stretcher-staged-native.log 2>&1 || { cat agent21-night-stretcher-staged-native.log; exit 1; }
           cat agent21-night-stretcher-staged-native.log
+      - name: Run bounded native Secret Box and Fog zero-target owner-search regression
+        run: |
+          node --test tests/agent21-secretbox-target-whiff-native.test.cjs > agent21-secretbox-target-whiff-native.log 2>&1 || { cat agent21-secretbox-target-whiff-native.log; exit 1; }
+          cat agent21-secretbox-target-whiff-native.log
       - name: Preserve native output including any negative assertion
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: agent21-staged-native-recovery-item-panel-${{ github.run_id }}
-          path: agent21-energy-retrieval-staged-native.log
+          path: |
+            agent21-energy-retrieval-staged-native.log
+            agent21-night-stretcher-staged-native.log
+            agent21-secretbox-target-whiff-native.log
           if-no-files-found: warn
           retention-days: 14
