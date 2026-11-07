@@ -32,7 +32,7 @@ test('hard copy reserve preserves one Carrier while three dead VIPs pay', () => 
     group.vector.protectedSacrificed === 0));
 });
 
-test('soft extra copy reserve preserves a nondominated future-liquidity tradeoff', () => {
+test('legacy physical soft index creates a known identity-sensitive tradeoff', () => {
   const hand = [BOX, VIP, VIP, CARRIER, CARRIER, LILLIE, LILLIE];
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: hand,
@@ -43,6 +43,10 @@ test('soft extra copy reserve preserves a nondominated future-liquidity tradeoff
     nextHandDiscardCost: 2
   });
   assert.deepEqual(result.softProtectedIndices, [3]);
+  assert.equal(result.softReserveCopyInvariant, false);
+  assert.equal(result.softReserveCountSemanticsCertified, false);
+  assert.equal(result.frontierIdentityScope,
+    'physical-index-soft-reserve-not-copy-invariant');
   const frontier = result.frontier.structurallyUndominatedPaymentGroups;
   assert.ok(frontier.some(group =>
     group.representativePaymentIndices.join(',') === '1,2,4' &&
@@ -54,7 +58,7 @@ test('soft extra copy reserve preserves a nondominated future-liquidity tradeoff
     group.vector.nextUnprotectedPaymentWays === '3'));
 });
 
-test('root93-style ten-card hand retains distinct carrier and Lillie choices', () => {
+test('root93 pre-play fixture exposes physical-index soft-reserve split', () => {
   const hand = [
     VIP, BOX, CARRIER, VIP, CARRIER, LILLIE, LILLIE,
     'Powerglass SFA', 'Forest Seal Stone SIT', 'Mysterious Treasure FLI'
@@ -83,7 +87,7 @@ test('root93-style ten-card hand retains distinct carrier and Lillie choices', (
     group.vector.nextUnprotectedPaymentWays === '10'));
 });
 
-test('root93 post-play nine-card prompt maps indices to the actual prompt hand', () => {
+test('root93 post-play nine-card fixture exposes identity-sensitive frontier', () => {
   const hand = [
     VIP, CARRIER, VIP, CARRIER, LILLIE, LILLIE,
     'Powerglass SFA', 'Forest Seal Stone SIT', 'Mysterious Treasure FLI'
@@ -188,7 +192,7 @@ test('hard and soft requirements for one printing reserve additive copies', () =
   assert.equal(result.reserveRows[0].softShortfall, 0);
 });
 
-test('multiple hard printing reserves remain disjoint from one soft reserve', () => {
+test('multiple hard reserves remain disjoint from one diagnostic soft index', () => {
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: [BOX, CARRIER, LILLIE, VIP, CARRIER, LILLIE, 'A'],
     sourceIndex: 0,
@@ -207,7 +211,7 @@ test('multiple hard printing reserves remain disjoint from one soft reserve', ()
   assert.equal(result.softPreferenceCapacityAvailable, true);
 });
 
-test('soft-protected copies do not inflate future unprotected payment ways', () => {
+test('legacy soft-index future count excludes an arbitrary duplicate', () => {
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: [BOX, VIP, CARRIER, LILLIE, 'A', 'B'],
     sourceIndex: 0,
