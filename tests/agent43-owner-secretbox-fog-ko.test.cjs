@@ -45,6 +45,8 @@ test('reject when paid search, attack, Item or Energy constraints fail',()=>{
     {...v,ownTurnResources:{...v.ownTurnResources,energyPlayedTurn:14}},
     {...v,opponentPublic:{active:{hp:70,damage:59}}},
     {...v,ownPublic:{...v.ownPublic,active:{...v.ownPublic.active,
+      attacks:[{name:'False-Fire-Only',cost:[2],damage:10,gxAttack:false}]}}},
+    {...v,ownPublic:{...v.ownPublic,active:{...v.ownPublic.active,
       energies:[BASIC]}}},
     {...v,ownPublic:{...v.ownPublic,active:{...v.ownPublic.active,
       specialConditions:['PARALYZED']}}},
@@ -83,4 +85,18 @@ test('candidate source proxy intentionally selects MEE Basic Psychic print, not 
   assert.equal(basic.printing.number,'13');
   assert.ok(roster.substitutions.some(x=>
     x.includes('Basic Psychic represented by MEE 13')));
+});
+
+test('native Psychic Basic can fund Psychic or Colorless cost, never typed Fire',()=>{
+  const v=view();
+  const p={psychic:5,colorless:9};
+  assert.equal(choosePublicOneEnergyBoxKo(v,p)?.attackName,'Hidden Power');
+  const psychic={...v,ownPublic:{...v.ownPublic,active:{
+    ...v.ownPublic.active,attacks:[
+      {name:'Psychic10',cost:[5],damage:10,gxAttack:false}]}}};
+  assert.equal(choosePublicOneEnergyBoxKo(psychic,p)?.attackName,'Psychic10');
+  const fire={...v,ownPublic:{...v.ownPublic,active:{
+    ...v.ownPublic.active,attacks:[
+      {name:'Fire10',cost:[2],damage:10,gxAttack:false}]}}};
+  assert.equal(choosePublicOneEnergyBoxKo(fire,p),null);
 });
