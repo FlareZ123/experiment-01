@@ -34,7 +34,7 @@ function slotHasCard(slot, card) {
  *
  * @param {()=>any} run
  * @param {{ptcgServer?:object,types?:object,validate?:(state:object,action:object)=>void,
- *   minOpponentActiveEnergy?:number}} [deps]
+ *   minOpponentActiveEnergy?:number,mode?:'observe'|'intervene'}} [deps]
  * @returns {{result:any,audit:object}}
  */
 function withArticunoColdCrushPolicy(run, deps = {}) {
@@ -45,6 +45,10 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
   const validate = deps.validate ?? assertValidPromptAction;
   const minOpponentActiveEnergy =
     deps.minOpponentActiveEnergy ?? MIN_OPPONENT_ACTIVE_ENERGY;
+  const mode = deps.mode ?? 'intervene';
+  if (mode !== 'observe' && mode !== 'intervene') {
+    throw new Error('Articuno Cold Crush policy mode must be observe or intervene.');
+  }
   if (!Number.isInteger(minOpponentActiveEnergy) || minOpponentActiveEnergy < 1) {
     throw new Error('Cold Crush opponent Energy threshold must be a positive integer.');
   }
@@ -57,12 +61,14 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
   const originalDecode = SimpleTacticsAi.prototype.decodeNextAction;
   const pendingByPrompt = new WeakMap();
   const pendingByOwner = new Map();
+  const observedByPrompt = new WeakMap();
   const submitted = new WeakMap();
   const pendingColdCrushByStore = new WeakMap();
   const storesWithArticuno = new WeakSet();
   const audit = {
     version: VERSION,
     choiceVersion: CHOICE_VERSION,
+    mode,
     minOpponentActiveEnergy,
     readsOpponentHidden: false,
     readsUnopenedDeck: false,
@@ -98,6 +104,10 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
     }
 
     const meta = action && typeof action === 'object' ? submitted.get(action) : null;
+    const actionPrompt = action?.constructor?.name === 'ResolvePromptAction' ?
+      (stateBefore?.prompts ?? []).find(prompt => prompt.id === action.id) ?? null : null;
+    const observation = actionPrompt ? observedByPrompt.get(actionPrompt) : null;
+    const observedDecision = typeof action?.result === 'boolean' ? action.result : null;
     if (storesWithArticuno.has(this) &&
         action?.constructor?.name === 'AttackAction' &&
         action.name === 'Cold Crush-GX') {
@@ -155,10 +165,34 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
       audit.confirmEvents.push({
         ownerId: meta.ownerId,
         turn: meta.turn,
+        proposalDecision: meta.proposalDecision,
+        actualDecision: meta.decision,
         decision: meta.decision,
         reason: meta.reason,
         details: meta.details,
-        opponentActiveEnergyCount: meta.opponentActiveEnergyCount
+        opponentActiveEnergyCount: meta.opponentActiveEnergyCount,
+        moveEnergyPromptCount: newPrompts.filter(prompt =>
+          prompt.playerId === meta.ownerId &&
+          prompt.constructor?.name === 'MoveEnergyPrompt').length
+      });
+    }
+
+    if (observation && mode === 'observe') {
+      pendingByPrompt.delete(actionPrompt);
+      observedByPrompt.delete(actionPrompt);
+      audit.confirmSettled++;
+      audit.confirmEvents.push({
+        ownerId: observation.ownerId,
+        turn: observation.turn,
+        proposalDecision: observation.choice.decision,
+        actualDecision: observedDecision,
+        decision: observedDecision,
+        reason: observation.choice.reason,
+        details: observation.choice.details,
+        opponentActiveEnergyCount: observation.opponentActiveEnergyCount,
+        moveEnergyPromptCount: newPrompts.filter(prompt =>
+          prompt.playerId === observation.ownerId &&
+          prompt.constructor?.name === 'MoveEnergyPrompt').length
       });
     }
 
@@ -253,18 +287,30 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
           minOpponentActiveEnergy
         });
         audit.confirmOffers++;
+        const observation = {
+          played,
+          choice,
+          ownerId,
+          turn: state.turn,
+          opponentActiveEnergyCount: opponent?.active?.energies?.cards?.length ?? 0
+        };
+        if (mode === 'observe') {
+          observedByPrompt.set(prompt, observation);
+          return originalDecode.call(this, state);
+        }
         const action = new ResolvePromptAction(prompt.id, choice.decision);
         validate(state, action);
         submitted.set(action, {
           kind: 'confirm',
           prompt,
           decision: choice.decision,
+          proposalDecision: choice.decision,
           played,
           ownerId,
           turn: state.turn,
           reason: choice.reason,
           details: choice.details,
-          opponentActiveEnergyCount: opponent?.active?.energies?.cards?.length ?? 0
+          opponentActiveEnergyCount: observation.opponentActiveEnergyCount
         });
         return action;
       }
