@@ -46,7 +46,7 @@ const HASH_PATHS=Object.freeze([
   'simulation/twinleaf/agent50-owner-public-acknowledgements.cjs',
   'simulation/twinleaf/agent50-owner-mandatory-showcards.cjs',
   'simulation/twinleaf/agent50-first-blocked-prompt-envelope.cjs',
-  'simulation/twinleaf/agent1-issue25-joined-three-attacks-v5.cjs',
+  'simulation/evaluation/agent1-issue25-joined-three-attacks-v5.cjs',
   'simulation/twinleaf/agent41-owner-capture-energy-search.cjs',
   'simulation/twinleaf/agent21-owner-first-prize-reveal.cjs',
   'simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs',
@@ -238,6 +238,7 @@ function runOne(candidateSeat,cards){
 }
 
 function run(){
+  const resolvedSourceAndPolicyHashes=HASH_PATHS.map(hashRegisteredFile);
   const cards=originalPrintings();
   const rows=[runOne(0,cards),runOne(1,cards)];
   return {
@@ -246,7 +247,7 @@ function run(){
     observedRepositoryCommit:observedGitRevision('.'),
     sourceCodeCommit:process.env.GITHUB_SHA??null,
     observedLoadedResearchModuleDigest:observedLoadedResearchModuleDigest(),
-    resolvedSourceAndPolicyHashes:HASH_PATHS.map(hashRegisteredFile),
+    resolvedSourceAndPolicyHashes,
     selectedV8OuterVersions:{
       stewardOwnerPromptFrontier:
         require('./agent36-issue25-steward-selected-v4.cjs').VERSION,
