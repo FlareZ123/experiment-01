@@ -75,9 +75,11 @@ function blockHiddenCardIdentities(cardList, label, attemptedReads) {
  * Prove that the real Snap Trap callback routes a selected Prism Star Energy
  * to Lost Zone while retaining discard as the requested MoveCardsEffect
  * destination.
+ * @param {{sourceSeat?:0|1,onRootStoreCreated?:(store:object)=>void,
+ *   resolveOwnerPrompt?:(context:object)=>object}} [options]
  * @returns {object}
  */
-function runSnapTrapPrismStarDestinationContract() {
+function runSnapTrapPrismStarDestinationContract(options = {}) {
   const cardManager = initializeCards();
   let nextCardId = 9200;
   const card = fullName => {
@@ -132,6 +134,7 @@ function runSnapTrapPrismStarDestinationContract() {
       store.state = nextState;
     }
   });
+  options.onRootStoreCreated?.(store);
   const state = store.state;
   const owner = new Player();
   const attacker = new Player();
@@ -139,8 +142,11 @@ function runSnapTrapPrismStarDestinationContract() {
   owner.name = 'Snap Trap owner';
   attacker.id = 402;
   attacker.name = 'Prism Star attacker';
-  state.players = [owner, attacker];
-  state.activePlayer = 1;
+  const sourceSeat = options.sourceSeat ?? 0;
+  assert.ok(sourceSeat === 0 || sourceSeat === 1, 'sourceSeat must be 0 or 1');
+  const attackerSeat = 1 - sourceSeat;
+  state.players = sourceSeat === 0 ? [owner, attacker] : [attacker, owner];
+  state.activePlayer = attackerSeat;
   state.turn = 54;
   state.phase = GamePhase.PLAYER_TURN;
   state.gameSettings.format = Format.EXPANDED;
@@ -238,17 +244,29 @@ function runSnapTrapPrismStarDestinationContract() {
 
   let action;
   try {
-    const ai = new SimpleTacticsAi(
-      {id: liveOwner.id},
-      {
-        tactics: [],
-        promptResolvers: [PublicSnapTrapEnergyResolver],
-        scores: {},
-        arbiter: {}
-      },
-      null
-    );
-    action = ai.resolvePrompt(liveOwner, liveState, prompt);
+    if (typeof options.resolveOwnerPrompt === 'function') {
+      action = options.resolveOwnerPrompt({
+        store,
+        state: liveState,
+        prompt,
+        owner: liveOwner,
+        attacker: liveAttacker,
+        sourceSeat,
+        attackerSeat
+      });
+    } else {
+      const ai = new SimpleTacticsAi(
+        {id: liveOwner.id},
+        {
+          tactics: [],
+          promptResolvers: [PublicSnapTrapEnergyResolver],
+          scores: {},
+          arbiter: {}
+        },
+        null
+      );
+      action = ai.resolvePrompt(liveOwner, liveState, prompt);
+    }
   } finally {
     restore.reverse().forEach(restoreZone => restoreZone());
   }
