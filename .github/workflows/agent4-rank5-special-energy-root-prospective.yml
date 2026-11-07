@@ -8,7 +8,7 @@ on:
         type: boolean
         default: false
       secretbox_dci_only:
-        description: Run only the staged native Secret Box DCI payment witness
+        description: Run only staged native Secret Box DCI and copy-reserve payment witnesses
         required: false
         type: boolean
         default: false
