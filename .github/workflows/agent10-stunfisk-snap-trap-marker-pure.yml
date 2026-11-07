@@ -19,6 +19,6 @@ jobs:
       - name: Run read-only Snap Trap marker contract tests
         run: node --test tests/2026-11/agent10-stunfisk-snap-trap-prompt-marker.test.cjs
       - name: Syntax check Agent30 same-object marker
-        run: node --check simulation/twinleaf/agent30-stunfisk-snap-trap-prompt-marker-v2.cjs
+        run: node --check simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v2.cjs
       - name: Run Agent30 same-object marker tests
         run: node --test tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v2.test.cjs
