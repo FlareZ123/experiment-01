@@ -123,16 +123,16 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
     store.dispatch(new AttackAction(source.id,'Poison Gas'));
     resolveWaits('Koffing Poison Gas attack');
     assert.equal(state.activePlayer,seat===0?1:0);
-    assert.equal(opponent.active.damage,10,
-      'Poison Gas must deal its printed 10 damage');
-    evidence.push({phase:'Poison Gas',targetDamage:opponent.active.damage});
+    assert.equal(opponent.active.damage,20,
+      'Poison Gas deals 10 and the first between-turns checkup adds 10 poison damage');
+    evidence.push({phase:'Poison Gas + first checkup',targetDamage:opponent.active.damage});
 
     store.dispatch(new PassTurnAction(opponent.id));
     resolveWaits('opponent turn / poison checkup');
     assert.equal(state.activePlayer,seat);
-    assert.equal(opponent.active.damage,20,
-      'Poison checkup must add 10 after the opponent passes');
-    evidence.push({phase:'Poison checkup',targetDamage:opponent.active.damage});
+    assert.equal(opponent.active.damage,30,
+      'The second between-turns checkup adds another 10 poison damage after the opponent passes');
+    evidence.push({phase:'second poison checkup',targetDamage:opponent.active.damage});
 
     const koffing1=f.card('Koffing CEC');
     const koffing2=f.card('Koffing CEC');
@@ -168,8 +168,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       opponent.active.damage,
       opponent.bench[0].damage,
       opponent.bench[1].damage
-    ],[40,20,20]);
-    evidence.push({phase:'two Blow-Away Bombs',damage:[40,20,20]});
+    ],[50,20,20]);
+    evidence.push({phase:'two Blow-Away Bombs',damage:[50,20,20]});
 
     const opponentActive={player:PlayerType.TOP_PLAYER,
       slot:SlotType.ACTIVE,index:0};
@@ -211,9 +211,9 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       assert.equal(targetSlot.damage,expectedTargetDamage);
     };
 
-    resolveMoveAbility('Sinister Hand',0,opponentBench0,opponentActive,60,2);
+    resolveMoveAbility('Sinister Hand',0,opponentBench0,opponentActive,70,2);
     assert.equal(opponent.bench[0].damage,0);
-    resolveMoveAbility('Painful Spoons',2,opponentBench1,opponentActive,80,2);
+    resolveMoveAbility('Painful Spoons',2,opponentBench1,opponentActive,90,2);
     assert.equal(opponent.bench[1].damage,0);
 
     store.dispatch(new UseAbilityAction(source.id,'Cursed Blast',{
@@ -301,11 +301,11 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       seat,turn:state.turn,source60K0:true,source60Count:original60.length,
       source60Counts,sourceDeckPhysicalComplete:false,
       opponentDeckPhysicalComplete:false,
-      initialTargetDamage:0,damageAfterPoisonGas:10,
-      damageAfterPoisonCheckup:20,damageAfterTwoKoffingRoxie:40,
-      damageAfterSinisterHand:60,damageAfterPainfulSpoons:80,
+      initialTargetDamage:0,damageAfterAttackAndFirstCheckup:20,
+      damageAfterSecondPoisonCheckup:30,damageAfterTwoKoffingRoxie:50,
+      damageAfterSinisterHand:70,damageAfterPainfulSpoons:90,
       printedCursedBlastCounters:13,printedCursedBlastDamage:130,
-      expectedTargetDamageAfterCursedBlast:210,targetKnockedOut:true,
+      expectedTargetDamageAfterCursedBlast:220,targetKnockedOut:true,
       sourcePrizeCountBefore:sourcePrizesBefore,sourcePrizeCountAfter:sourcePrizesAfter,
       sourcePrizeCardsTaken,opponentPrizeCountBefore:opponentPrizesBefore,
       opponentPrizeCountAfter:opponentPrizesAfter,opponentPrizeCardsTaken,
