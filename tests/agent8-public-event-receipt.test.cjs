@@ -136,18 +136,26 @@ test('accepts detached turn-stamped public multiattack history',()=>{
     {playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
       attackName:'Rototiller',gxAttack:false,copycatAttack:false}
   ];
-  const r=publicEventReceipt(state,0,history);
+  const r=publicEventReceipt(state,0,history,14);
   assert.deepEqual(r.opponentLastTurnAttacks,[
     {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Burrow',
       gxAttack:false,copycatAttack:false},
     {turn:14,sourcePrinting:'Bunnelby PRC',attackName:'Rototiller',
       gxAttack:false,copycatAttack:false}
   ]);
+  assert.equal(r.opponentLastTurnTurn,14);
   assert.ok(Object.isFrozen(r.opponentLastTurnAttacks));
   assert.ok(Object.isFrozen(r.opponentLastTurnAttacks[0]));
   assert.equal(r.opponentLastTurnAttack,null);
-  const noAttacks=publicEventReceipt(state,0,[]);
+  const noAttacks=publicEventReceipt(state,0,[],14);
   assert.deepEqual(noAttacks.opponentLastTurnAttacks,[]);
+  assert.equal(noAttacks.opponentLastTurnTurn,14);
   assert.ok(Object.isFrozen(noAttacks.opponentLastTurnAttacks));
-  assert.throws(()=>publicEventReceipt(state,0,[{...history[0],playerId:1}]));
+  assert.throws(()=>publicEventReceipt(state,0,[{...history[0],playerId:1}],14));
+  assert.throws(()=>publicEventReceipt(state,0,[history[0],
+    {...history[1],turn:13}],14),'mixed snapshot turns must be rejected');
+  assert.throws(()=>publicEventReceipt(state,0,[{...history[0],turn:15}],15),
+    'current-turn attacks must not enter the previous-turn receipt');
+  assert.throws(()=>publicEventReceipt(state,0,null,14),
+    'unavailable history cannot claim a snapshot turn');
 });
