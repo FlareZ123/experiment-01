@@ -35,16 +35,32 @@ function withPaperKoBeforeEndTurn(execute){
     version:VERSION,pinnedTwinleaf:PINNED,attackEndTurnIntercepts:0,
     checkedCallbacks:0,terminalEndTurnsSuppressed:0,
     completedAttackEndTurns:0,callbackBeforeReturn:0,
-    originalStoreMethodRestored:false,competitiveGamesQualified:0
+    originalStoreMethodRestored:false,competitiveGamesQualified:0,
+    trace:[]
   };
   /** @this {any} @param {any} state @param {any} effect */
   function paperReduceEffect(state,effect){
     if(effect instanceof EndTurnEffect && state.phase===GamePhase.ATTACK){
       const store=this;
       audit.attackEndTurnIntercepts++;
+      audit.trace.push({
+        when:'begin-KO-before-endturn',phase:state.phase,
+        pending:state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
+        actorActive:effect.player.active.getPokemonCard()?.fullName??null,
+        otherActive:state.players.find(p=>p!==effect.player)?.active
+          .getPokemonCard()?.fullName??null
+      });
       let didReturn=false;
       const result=checkState(store,state,()=>{
         audit.checkedCallbacks++;
+        audit.trace.push({
+          when:'after-KO-before-endturn',phase:state.phase,
+          pending:state.prompts.filter(p=>p.result===undefined)
+            .map(p=>p.constructor.name),
+          actorPrizes:effect.player.prizes.filter(p=>p.cards.length>0).length,
+          otherActive:state.players.find(p=>p!==effect.player)?.active
+            .getPokemonCard()?.fullName??null
+        });
         if(!didReturn)audit.callbackBeforeReturn++;
         if(state.phase===GamePhase.FINISHED){
           audit.terminalEndTurnsSuppressed++;
@@ -54,6 +70,11 @@ function withPaperKoBeforeEndTurn(execute){
         original.call(store,state,effect);
       });
       didReturn=true;
+      audit.trace.push({
+        when:'returned-preKO-check',phase:state.phase,
+        pending:state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name)
+      });
       return result;
     }
     return original.call(this,state,effect);
