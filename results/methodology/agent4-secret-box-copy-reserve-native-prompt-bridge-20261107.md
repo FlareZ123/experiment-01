@@ -158,3 +158,12 @@ The isolated v1 diagnostic run [42359468788](https://github.com/FlareZ123/experi
 ## Final full smoke after second-copy extension
 
 The expanded three-candidate native test is now included in the full existing Agent4 manual smoke suite. [Run 42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) passed. This run includes the DCI physical-ID test, the v1 diagnostic-flag test, and the v2 native test with Carrier, first-Lillie and second-Lillie payments in both seats. The corrected owner-modal native test also passed. The workflow ran in `quarantine_smoke_only` mode; the separate rank5 comparison and artifact steps were correctly skipped.
+
+
+## Remaining v2 metric-semantics review
+
+Agent36 and Agent44 identified a further consumer-safety issue in v2: `softReserveDeficitByPrinting` / the `protectedSacrificed` alias currently describes total post-payment shortfall. It does not separate a shortfall that already existed before payment from a shortfall caused by the payment. For example, a hand that starts with zero Lillie copies and a soft reserve of one has baseline shortfall1; a payment that leaves that shortfall unchanged should have payment-induced sacrifice0.
+
+In this root93 fixture the baseline soft shortfall is zero, so the tested groups' total and incremental values coincide. The native bridge no longer uses `protectedSacrificed` as a group-selection filter; it selects by exact representative printing composition and structural combination count. The test still records the current zero value for this fixture.
+
+Agent16 has been asked to preserve separate per-printing fields for baseline shortfall, total post-payment shortfall, and payment-induced incremental shortfall (post minus baseline). Until those fields are implemented and tested, do not use the current `protectedSacrificed` alias as a policy utility or sacrifice score. `nextUnprotectedPaymentWays` remains a structural combination count, not a probability, utility, or strategic liquidity score.
