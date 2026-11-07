@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const {
   BOX,FOG,BASIC,VIP,CARRIER,choosePublicOneEnergyBoxKo,
-  choosePhysicalBoxPayment
+  choosePhysicalBoxPayment,choosePhysicalBoxPaymentWithMode
 }=require('../simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs');
 
 /** @returns {object} Detached actor-only owner view with printed lethal attack. */
@@ -99,4 +99,39 @@ test('native Psychic Basic can fund Psychic or Colorless cost, never typed Fire'
     ...v.ownPublic.active,attacks:[
       {name:'Fire10',cost:[2],damage:10,gxAttack:false}]}}};
   assert.equal(choosePublicOneEnergyBoxKo(fire,p),null);
+});
+
+
+test('default Secret Box payment mode preserves VIP/VIP/Carrier',()=>{
+  const {fixture}=require('./helpers/agent43-secretbox-dci-fixture.cjs');
+  const f=fixture();
+  const result=choosePhysicalBoxPaymentWithMode(
+    f.prompt,f.owner,f.state);
+  assert.deepEqual(result.cards.map(card=>card.fullName),[VIP,VIP,CARRIER]);
+  assert.equal(result.plan,null);
+});
+
+test('opt-in DCI Secret Box payment chooses VIP/VIP/Lillie from the real offered set',()=>{
+  const {fixture,LILLIE}=require('./helpers/agent43-secretbox-dci-fixture.cjs');
+  const f=fixture();
+  const result=choosePhysicalBoxPaymentWithMode(
+    f.prompt,f.owner,f.state,'dci');
+  assert.deepEqual(result.cards.map(card=>card.fullName),[VIP,VIP,LILLIE]);
+  assert.equal(result.plan.totalCost,4);
+  assert.equal(result.plan.version,
+    'agent21-secret-box-owner-visible-discard-cost-v2-set-aware');
+  assert.ok(result.cards.every(card=>f.owner.hand.cards.includes(card)&&
+    f.prompt.cards.cards.includes(card)));
+  assert.equal(new Set(result.cards).size,3);
+  assert.equal(f.owner.hand.cards.filter(card=>
+    card.fullName===CARRIER).length,2);
+  assert.equal(f.owner.hand.cards.filter(card=>
+    card.fullName===LILLIE).length,1);
+});
+
+test('unknown Secret Box payment mode fails closed',()=>{
+  const {fixture}=require('./helpers/agent43-secretbox-dci-fixture.cjs');
+  const f=fixture();
+  assert.throws(()=>choosePhysicalBoxPaymentWithMode(
+    f.prompt,f.owner,f.state,'hidden'),/Unknown Secret Box payment mode/);
 });
