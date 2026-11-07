@@ -65,7 +65,7 @@ function resolveRototillerThenBurrow(context){
   const {store,state,owner,opponent,recovery,seat}=context;
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {GameMessage}=native('game/game-message');
-  const flags={recovery:false,omega:false,burrow:false,shown:false};
+  const flags={recovery:false,omega:false,burrow:false,shown:false,shuffled:false};
   for(let i=0;i<30;i++){
     const prompt=state.prompts.find(value=>
       value&&value.result===undefined);
@@ -100,6 +100,14 @@ function resolveRototillerThenBurrow(context){
       flags.shown=true;
       continue;
     }
+    if(prompt.constructor.name==='ShuffleDeckPrompt'){
+      console.log('ROTOTILLER_SHUFFLE',JSON.stringify({
+        playerId:prompt.playerId,keys:Object.keys(prompt)
+      }));
+      store.dispatch(new ResolvePromptAction(prompt.id,null));
+      flags.shuffled=true;
+      continue;
+    }
     if(prompt.constructor.name==='ConfirmPrompt'&&
         prompt.message===GameMessage.WANT_TO_USE_ABILITY){
       assert.equal(prompt.playerId,owner.id);
@@ -129,7 +137,8 @@ function resolveRototillerThenBurrow(context){
   assert.equal(flags.recovery,true,'Rototiller must select Handiwork');
   assert.equal(flags.omega,true,'Omega Barrage must be accepted');
   assert.equal(flags.burrow,true,'the second attack must be printed Burrow');
-  assert.equal(flags.shown,true,'Burrow must resolve its public top-card reveal');
+  assert.equal(flags.shown,true,'Rototiller must reveal its selected discard card');
+  assert.equal(flags.shuffled,true,'Rototiller must resolve the deck shuffle');
   assert.equal(owner.discard.cards.includes(recovery),false);
   assert.equal(owner.deck.cards.includes(recovery),true);
   assert.equal(owner.deck.cards.length,15);
@@ -144,6 +153,6 @@ for(const seat of [0,1]){
     const {AttackAction}=native('game/store/actions/game-actions');
     context.store.dispatch(new AttackAction(context.owner.id,'Rototiller'));
     const flags=resolveRototillerThenBurrow(context);
-    assert.deepEqual(flags,{recovery:true,omega:true,burrow:true,shown:true});
+    assert.deepEqual(flags,{recovery:true,omega:true,burrow:true,shown:true,shuffled:true});
   });
 }
