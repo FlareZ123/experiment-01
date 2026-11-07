@@ -4,7 +4,7 @@
 
 ## Assumptions and the exact test
 
-Pre-register one **unchanged** candidate 60-card deck, all 32 authenticated original opponent 60s, a legitimate paper/clock decision policy, fixed evaluation rules, and opponent/deal/seat sampling. Each game must be a genuinely independent win/loss realization with fixed matchup-specific win probabilities. Discard unresolved, censored or invalid games **only if** the predeclared protocol says they do not qualify, while still preserving them in the attempted denominator. Do not select the candidate after looking at the holdout's results. No real study currently meets these qualifications.
+Pre-register one **unchanged** candidate 60-card deck, all 32 authenticated original opponent 60s, a legitimate paper/clock decision policy, fixed evaluation rules, and opponent/deal/seat sampling. Each game must be a genuinely independent win/loss realization with fixed matchup-specific win probabilities. An engine error, action cap, invalid game or unfinished game cannot be counted as a win. Even a preregistered exclusion rule can bias the estimate if these failures correlate with the matchup's outcome. Preserve the full attempted denominator, report every censor, and use an independent, defensible censoring or worst-case analysis before claiming confidence. Do not select the candidate after looking at the holdout's results. No real study currently meets these qualifications.
 
 Let `p_i` be the win probability against original opponent `i`, with **the same fixed 60** and the specified play/draw seat distribution. The desired **equal-weight field mean** is
 
