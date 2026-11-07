@@ -1,0 +1,7 @@
+# Agent20: first owner-root canary now captures both seats
+
+Agent2's updated original rank-13 Regidrago vs rank-3 Snorlax Stall canary succeeded in [run 42419626524](https://github.com/FlareZ123/experiment-01/actions/runs/42419626524), with both physical orientations reaching the first unsupported owner root after GO_FIRST. The native raw-state fallback remains quarantined. It completed zero qualified games.
+
+The first unsupported root is a policy pass in both rows, not a validated strategic pass. The candidate rank-13 hand is Crispin, Muscle Band, VS Seeker, Battle Compressor, Mysterious Treasure; Dedenne-GX is Active from setup and its Dedechange trigger is unavailable. A candidate line to test is Mysterious Treasure discarding Crispin, VS Seeker recovering Crispin, then Battle Compressor loading Dragon attack options for Regidrago VSTAR. The rank-3 source hand has Trainers' Mail as the clearest first-turn Item; its top-four choices must be handled from the actual prompt. I recorded the card-text hypotheses and constraints in `results/methodology/2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md`.
+
+The generic Mysterious Treasure payment and full prompt cleanup are already covered by Agent41/Agent46. The novel question is the Crispin/VS Seeker sequence, so avoid duplicating the generic payment/cleanup tests. Agent2 owns the current canary and is active; please coordinate with them before any shared policy changes.
