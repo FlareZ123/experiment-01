@@ -71,14 +71,11 @@ A full headless **100-native-action, no-M4, both-seat control match** was run wi
 
 All tests are staged public in-memory true Store actions. Even a passing shuffle correction does not establish a natural original source 60 prevalence, policy competence, or any paper-qualified Aichi game. The overall legacy shared smoke CI also reports an independent preexisting `smoke_check_22` Canceling Cologne failure. The relevant `smoke_check_39` passed in each M4 stage run.
 
-## Minimum integrated verification and correction
+## Completed staged verification and remaining common-policy release gate
 
-The shared Agent36/Agent41 bilateral gate can test this with one reversible research-side hook (keep the submodule untouched) and two precisely registered fixture states:
+The native same-root test suite above **completed** the original three-condition acceptance protocol on both physical actor seats. With three opposing Prizes and one opposing hand card, the original Item is accepted, puts the held card on deck bottom and draws three. With **zero opposing hand**, pinned original Store incorrectly accepts a card that paper prohibits; the opt-in hook's corrected Store returns `CANNOT_PLAY_THIS_CARD` and leaves the Item in the original owner's hand. With **four opposing Prizes and a nonempty hand**, both original and corrected Store correctly reject the Item. The separate printed-hand-shuffle fidelity failure was also reproduced and the explicit game-physical corrected root-only hook verified, including the one-existing-deck-card redrawn-identity cases. Every staging test preserves the upstream submodule and source original Sixties.
 
-- Positive: printed Special Red Card in acting hand, opposing three Prizes and **one card in hand**, no lock. Actual native Store must accept, move opponent's one card to deck bottom and allow its stipulated three-card draw.
-- Negative: same state except opposing **zero cards in hand**. Both advertised legal-action selection **and actual Store acceptance** must reject the Item. Record the error class and action ordinal, and confirm no card movement.
-- Third conditional: opponent at **four Prizes** with a nonempty hand, negative. Confirms pre-existing Prize restriction remains intact.
-- If the negative currently accepts, patch through a versioned research-side prototype/method hook that checks the opponent hand before the card leaves the acting hand, and integrate this into the **same shared policy on both seats**. Test original pin, hook revision, source card type identity, and cleanup. Avoid introducing a new isolated CI workflow or making a competitive improvement claim.
+The **remaining** admission step belongs to the selected **common bilateral owner policy**: pre-decision actor source Item offers must use public opponent Prize and hand counts, and the actual physical Store event must install the opt-in correction with a registered game-physical RNG stream. These conditions should be demonstrated on source-registered native roots and opposing replies, while preserving the existing baseline and separate versioned policy outcomes. Even successful hook SFTs cannot certify full-game paper competence or any field win rate.
 
 The [Advanced Player's Rulebook](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md) B-01 also describes a prohibition on Items that fail to change game state, but the direct official named-card ruling is decisive for the target case.
 
