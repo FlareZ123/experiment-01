@@ -1,0 +1,57 @@
+name: Agent36 Issue25 public prompt zone diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent36-issue25-public-prompt-zone-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  phase-a-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Install and compile the pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Check diagnostic and observer syntax
+        run: |
+          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit.cjs
+          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic.cjs
+
+      - name: Test prompt-zone observer privacy and both-seat mapping
+        run: |
+          node --test             tests/agent36-issue25-public-prompt-zone-audit.test.cjs             tests/agent36-issue25-selected-v0.test.cjs             tests/agent34-actor-only-root-policy.test.cjs
+
+      - name: Run frozen v10b phase-A diagnostic with read-only prompt observer
+        run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic.cjs
+
+      - name: Preserve public prompt source and zone evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-issue25-public-prompt-zone-diagnostic-${{ github.run_id }}
+          path: |
+            artifacts/agent36-issue25-public-prompt-zone-diagnostic/
+          retention-days: 21
+          if-no-files-found: warn
