@@ -1,0 +1,55 @@
+{
+  "schema": "agent3-missing-original-top32-source-leads-v1",
+  "checked_at": "2026-11-07",
+  "event": {
+    "name": "CL Aichi Open League",
+    "date": "2026-05-10",
+    "players": 926,
+    "results_url": "https://limitlesstcg.com/tournaments/566"
+  },
+  "full_original_sixties_authenticated": 29,
+  "original_rank_count": 32,
+  "missing": [
+    {
+      "rank": 23,
+      "player": "Yuki Ueno",
+      "archetype": "Regidrago",
+      "archetype_url": "https://limitlesstcg.com/decks/260/results",
+      "player_specific_social_source": null,
+      "complete_original_60_found": false,
+      "identity_confidence": "organizer-indexed-name",
+      "notes": "No directly linked contemporary original 60 found."
+    },
+    {
+      "rank": 25,
+      "player": "Kazuki Kumegawa",
+      "archetype": "Raichu Electrode Combo",
+      "archetype_url": "https://limitlesstcg.com/decks/282/results",
+      "self_reported_alias": "kume",
+      "first_person_source": "https://note.com/kume_pokeca/n/n6cfd126f5774",
+      "social_handle_url": "https://x.com/kume_pokeca",
+      "public_swiss_record": "7-1",
+      "swiss_place_reported": 25,
+      "top32_loss_to": "Mega Absol Garbodor",
+      "complete_original_60_found": false,
+      "full_list_beyond_public_access": true,
+      "identity_confidence": "high-converging-rank-archetype-self-report",
+      "notes": "Do not infer paywalled 60 from article intro."
+    },
+    {
+      "rank": 28,
+      "player": "Jo Kato",
+      "archetype": "Regidrago",
+      "archetype_url": "https://limitlesstcg.com/decks/260/results",
+      "probable_social_alias": "レプリカ",
+      "probable_handle_url": "https://x.com/nnaacc5_uec",
+      "secondhand_quote_source": "https://pokekameshi.com/cl2026aichidec-extra/2/",
+      "swiss_place_reported": 28,
+      "complete_original_60_found": false,
+      "identity_confidence": "probable-alias-from-convergent-rank-and-archetype-not-explicitly-proven",
+      "notes": "Post describes Regidrago, Top32 and Swiss 28. Do not confuse 2025 list."
+    }
+  ],
+  "certified_complete_original_inventory_count_new": 0,
+  "competitive_paper_qualified_games": 0
+}
