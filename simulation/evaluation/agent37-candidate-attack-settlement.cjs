@@ -46,11 +46,10 @@ function candidateAttackSettlement(game,candidateSeat) {
     const completion=event.settled?.completionRootActionOrdinal;
     const closingRoot=Number.isSafeInteger(completion)?roots[completion]:null;
     const completionRootTurnMatchesDeclarationTurn=
-      completion===event.actionOrdinal?true:Boolean(
+      completion===event.actionOrdinal?true:
         closingRoot&&Number.isSafeInteger(event.turnAfter)&&
-        Number.isSafeInteger(closingRoot.turnBefore)&&
-        closingRoot.turnBefore===event.turnAfter
-      );
+        Number.isSafeInteger(closingRoot.turnBefore)?
+          closingRoot.turnBefore===event.turnAfter:null;
     // A terminal attack can immediately trigger a native sudden-death replay.
     // Its next Store snapshot then belongs to a freshly dealt game. Never
     // interpret that replay opening as damage or Prizes caused in this epoch.
@@ -71,7 +70,7 @@ function candidateAttackSettlement(game,candidateSeat) {
         (closingRoot.action==='ResolvePromptAction' &&
          closingRoot.initiatingRootActionOrdinal===
            event.initiatingRootActionOrdinal &&
-         completionRootTurnMatchesDeclarationTurn)));
+         completionRootTurnMatchesDeclarationTurn!==false)));
     // A native sudden-death restart is a new game with its own deal. A
     // later replay can revisit the same numeric turn; never join it to an
     // attack from the previous episode. This veto applies even when the
