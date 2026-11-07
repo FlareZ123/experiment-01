@@ -7,9 +7,10 @@ const {scheduledArms,preflight}=
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const VERSION='agent29-rank9-retrospective-compressor-bridge-v1';
 const LATE_VERSION='agent29-rank9-retrospective-compressor-anyturn-v2';
+const SHUFFLE_AUDIT_VERSION='agent29-rank9-retrospective-compressor-shuffle-custody-v3';
 
 /** @param {boolean} enabled @param {{anyTurn?:boolean}} [configuration] */
-function options(enabled,{anyTurn=false}={}){
+function options(enabled,{anyTurn=false,shuffleCustody=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -21,16 +22,19 @@ function options(enabled,{anyTurn=false}={}){
     actorRank9CompressorAnyTurn:enabled&&anyTurn,
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:scheduledArms(),
-    registeredFrameName:anyTurn?LATE_VERSION:VERSION
+    registeredFrameName:shuffleCustody?SHUFFLE_AUDIT_VERSION:
+      anyTurn?LATE_VERSION:VERSION
   };
 }
 
 /**
  * Four historically observed source groups, both candidates and both seats.
  * Any-turn mode is an independently labeled development experiment.
- * @param {{anyTurn?:boolean}} [configuration]
+ * @param {{anyTurn?:boolean,shuffleCustody?:boolean}} [configuration]
  */
-function run({anyTurn=false}={}){
+function run({anyTurn=false,shuffleCustody=false}={}){
+  assert.ok(!shuffleCustody||anyTurn,
+    'Independent shuffle witness requires an explicitly new any-turn cohort');
   const source=preflight();
   const trials=scheduledArms();
   assert.equal(trials.length,4);
@@ -54,9 +58,15 @@ function run({anyTurn=false}={}){
         '../twinleaf/battle-compressor-minimum-hook.cjs')
         .installBattleCompressorMinimumHook();
       try{
-        return require('../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
+        const numeric=()=>require(
+          '../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
           .withNumericShufflePromptValidation(()=>
-            runDevelopment(options(enabled,{anyTurn})));
+            runDevelopment(options(enabled,{anyTurn,shuffleCustody})));
+        if(!shuffleCustody)return numeric();
+        const {withAuthoritativeShuffleOrderWitness}=require(
+          '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
+        const witnessed=withAuthoritativeShuffleOrderWitness(numeric);
+        return {...witnessed.result,shuffleAudit:witnessed.audit};
       }finally{restorePositiveItem();}
     };
     const left=runArm(false),right=runArm(true);
@@ -86,8 +96,14 @@ function run({anyTurn=false}={}){
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:anyTurn?LATE_VERSION:VERSION,source,
+    return {version:shuffleCustody?SHUFFLE_AUDIT_VERSION:
+      anyTurn?LATE_VERSION:VERSION,source,
       anyTurn,enginePin:profile.pinnedVendorRevision,
+      shuffleOrderWitness:shuffleCustody?{
+        version:'agent29-authoritative-shuffle-order-witness-v1',
+        control:left.shuffleAudit,treatment:right.shuffleAudit,
+        readOnly:true,competitiveQualification:false
+      }:null,
       numericShufflePaperAdapter:anyTurn?{
         version:'agent33-native-shuffle-numeric-validation-hook-v1',
         control:left.audit,treatment:right.audit,
@@ -119,7 +135,9 @@ function run({anyTurn=false}={}){
 }
 
 if(require.main===module){
-  const data=run({anyTurn:process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true'});
+  const shuffleCustody=process.env.AGENT29_RANK9_SHUFFLE_AUDIT_V3==='true';
+  const data=run({anyTurn:shuffleCustody||
+    process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
@@ -144,4 +162,4 @@ if(require.main===module){
       moved:data.totalSourcePhysicalEnergyMoved,qualified:0})+'\n');
   if(!data.allDealsMatch||!data.allAudited)process.exitCode=1;
 }
-module.exports={VERSION,LATE_VERSION,options,run};
+module.exports={VERSION,LATE_VERSION,SHUFFLE_AUDIT_VERSION,options,run};
