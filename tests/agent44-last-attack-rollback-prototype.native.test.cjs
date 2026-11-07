@@ -59,6 +59,12 @@ function lastAttackAfterPass(seat,causeRollback){
         pre.playerLastAttack,
         'Real pinned Store rollback must inherit preceding attack map');
       assert.equal(Object.hasOwn(store.state.playerLastAttack,owner.id),true);
+      const attackMap=store.state.playerLastAttack;
+      const current=attackMap[owner.id];
+      delete attackMap[owner.id];
+      assert.equal(attackMap[owner.id]?.attack.name,'Gnaw',
+        'Counterfactual old delete resurrects inherited stale attack');
+      attackMap[owner.id]=current;
     }
     const player=store.state.players[seat];
     assert.equal(store.state.playerLastAttack[player.id]?.attack.name,'Gnaw');
