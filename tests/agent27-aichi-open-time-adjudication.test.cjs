@@ -149,11 +149,14 @@ test('A tied tiebreaker game requires a fresh six-Prize tiebreaker',()=>{
     'TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE');
 });
 
-test('Both-zero tiebreaker state without paper outcome is unresolved',()=>{
-  const result=classifyTiebreaker([0,0]);
-  assert.equal(result.status,'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED');
-  assert.equal(result.conditionalWinnerSeat,null);
-  assert.equal(result.missing[0],'independent-normal-win-or-simultaneous-tie-ruling');
+test('Any zero-Prize tiebreaker state without paper outcome is unresolved',()=>{
+  for(let a=0;a<=6;a++)for(let b=0;b<=6;b++){
+    if(a!==0&&b!==0)continue;
+    const result=classifyTiebreaker([a,b]);
+    assert.equal(result.status,'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED',`[${a},${b}]`);
+    assert.equal(result.conditionalWinnerSeat,null);
+    assert.equal(result.missing[0],'independent-normal-win-or-simultaneous-tie-ruling');
+  }
 });
 
 test('Reject contradictory paper outcomes for a knockout tiebreaker',()=>{
