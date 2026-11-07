@@ -3,8 +3,11 @@
 const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
+const {opponentActiveBlocksRetreat}=
+  require('./agent2-owner-skyliner-funded-bench-frontier.cjs');
 
 const VERSION='agent2-actor-owner-multi-basic-paid-retreat-draw-race-v1';
+const GUARDED_VERSION='agent2-actor-owner-multi-basic-paid-retreat-public-lock-v2';
 
 /**
  * Nominal owner-observable opportunity: an Active with no payable
@@ -20,14 +23,18 @@ const VERSION='agent2-actor-owner-multi-basic-paid-retreat-draw-race-v1';
  *
  * @param {object} view Frozen detached actorObservation.
  * @param {object} catalog Public printed Basic Energy/attack metadata.
+ * @param {{strictPublicRestrictions?:boolean}} [options] Opt-in for new policies.
  * @returns {object|null} Native-neutral owner intent or no proven offer.
  */
-function chooseMultiBasicPaidRetreatInDeckRace(view,catalog){
+function chooseMultiBasicPaidRetreatInDeckRace(view,catalog,options={}){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,foe=view.opponentPublic;
   const active=own?.active,enemy=foe?.active;
   const r=view.ownTurnResources;
-  if(!active||!enemy||view.globalTurn<=1||!r||
+  if(!active||!enemy||
+     (options.strictPublicRestrictions===true&&
+       opponentActiveBlocksRetreat(view))||
+     view.globalTurn<=1||!r||
      !Number.isSafeInteger(r.retreatedTurn)||
      r.retreatedTurn===view.globalTurn||
      (own.publicTurnRestrictions?.attackLockTurnsRemaining??0)>0||
@@ -72,7 +79,11 @@ function chooseMultiBasicPaidRetreatInDeckRace(view,catalog){
          slot.publicRestrictions?.blockedAttackNameUntilLeavesActive===
            attack.name||
          slot.publicRestrictions?.cannotUseAttacksNextTurn?.includes(
-           attack.name))continue;
+           attack.name)||
+         (options.strictPublicRestrictions===true&&
+           slot.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
+           slot.publicRestrictions.onlyAllowedAttackNameNextTurn!==
+             attack.name))continue;
       const nominalTurnsToKo=Math.ceil(
         (enemy.hp-enemy.damage)/attack.damage);
       if(nominalTurnsToKo>own.deckCount)continue;
@@ -96,4 +107,21 @@ function chooseMultiBasicPaidRetreatInDeckRace(view,catalog){
     a.attackName.localeCompare(b.attackName));
   return affordable[0]??null;
 }
-module.exports={VERSION,chooseMultiBasicPaidRetreatInDeckRace};
+/**
+ * Conservative, owner-visible supplemental public lock screen for newly
+ * registered policies. Presence of a printed Ability can over-veto when
+ * the Ability is suppressed, so this remains a nominal safety filter.
+ * @param {object} view Detached owner observation.
+ * @param {object} catalog Printed public card catalog.
+ * @returns {object|null} Nominal intent or null.
+ */
+function chooseMultiBasicPaidRetreatInDeckRaceGuarded(view,catalog){
+  const selected=chooseMultiBasicPaidRetreatInDeckRace(view,catalog,{
+    strictPublicRestrictions:true
+  });
+  return selected?{...selected,source:GUARDED_VERSION,
+    publicLockGate:'conservative-active-ability-and-bench-attack-restriction'}:null;
+}
+module.exports={VERSION,GUARDED_VERSION,
+  chooseMultiBasicPaidRetreatInDeckRace,
+  chooseMultiBasicPaidRetreatInDeckRaceGuarded};
