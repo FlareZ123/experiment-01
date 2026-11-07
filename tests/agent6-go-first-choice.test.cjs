@@ -50,3 +50,24 @@ test('invalid preferences and thrown games leave old policy intact',()=>{
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     Bot.prototype,'decodeNextAction'),old);
 });
+
+test('later prompt abort preserves detached GO_FIRST choice receipt',()=>{
+  const old=Object.getOwnPropertyDescriptor(Bot.prototype,'decodeNextAction');
+  let thrown;
+  try{
+    withGoFirstChoice([false,true],()=>{
+      const action=new Bot(101).decodeNextAction(state(101));
+      assert.ok(action instanceof Resolve);
+      throw new Error('later owner prompt is quarantined');
+    },deps);
+  }catch(error){thrown=error;}
+  assert.match(thrown.message,/later owner prompt/);
+  assert.deepEqual(thrown.goFirstChoiceAudit,{
+    schema:'agent6-go-first-choice-v1',
+    goFirstBySeat:[false,true],
+    choices:[{seat:0,turn:0,chooseFirst:false}],
+    competitiveQualified:false
+  });
+  assert.equal(Object.getOwnPropertyDescriptor(
+    Bot.prototype,'decodeNextAction'),old);
+});
