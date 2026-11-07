@@ -61,7 +61,10 @@ function runSeat(seat,options={}){
         seenChoose=true;
         const ci=pending.cards.findIndex(c=>c===usedDragon);
         assert.ok(ci>=0,'Printed Dragon owner discard target must be offered');
-        answer={index:ci,attack:'Overclock'};
+        answer=pending.cards[ci].attacks.find(a=>a.name==='Overclock');
+        assert.ok(answer);
+        assert.equal(pending.validate(answer),true,
+          'Raw native Store requires exact Attack object, not serialized index/name');
       }else if(family==='WaitPrompt')answer=null;
       else if(family==='ShowCardsPrompt')answer=true;
       else throw Error('Unresolved genuine source prompt: '+family);
@@ -96,8 +99,12 @@ function runSeat(seat,options={}){
             c.fullName==='Dialga-GX UPR');
           assert.ok(ci>=0,
             'Native nested Apex should offer owner discarded Dragon Dialga GX');
-          x.store.dispatch(new ResolvePromptAction(pending.id,
-            {index:ci,attack:'Timeless-GX'}));
+          const attack=pending.cards[ci].attacks.find(a=>
+            a.name==='Timeless-GX');
+          assert.ok(attack);
+          assert.equal(pending.validate(attack),true,
+            'Native prompt must receive the source Attack object');
+          x.store.dispatch(new ResolvePromptAction(pending.id,attack));
           history.push({during:'mimikyu-copycat',
             resolved:'ChooseAttackPrompt',chosen:'Timeless-GX',
             activeSeat:x.state.activePlayer,globalTurn:x.state.turn});
