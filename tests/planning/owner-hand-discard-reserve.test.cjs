@@ -83,6 +83,35 @@ test('root93-style ten-card hand retains distinct carrier and Lillie choices', (
     group.vector.nextUnprotectedPaymentWays === '10'));
 });
 
+test('root93 post-play nine-card prompt maps indices to the actual prompt hand', () => {
+  const hand = [
+    VIP, CARRIER, VIP, CARRIER, LILLIE, LILLIE,
+    'Powerglass SFA', 'Forest Seal Stone SIT', 'Mysterious Treasure FLI'
+  ];
+  const result = ownerHandDiscardWithCopyReserves({
+    handPrintings: hand,
+    sourceIndex: null,
+    cost: 3,
+    hardMinimumCopiesByPrinting: {[CARRIER]: 1},
+    softAdditionalCopiesByPrinting: {[LILLIE]: 1},
+    deadPrintings: [VIP],
+    nextHandDiscardCost: 2
+  });
+  assert.deepEqual(result.hardReservedIndices, [1]);
+  assert.deepEqual(result.softProtectedIndices, [4]);
+  const frontier = result.frontier.structurallyUndominatedPaymentGroups;
+  assert.ok(frontier.some(group =>
+    group.representativePaymentIndices.join(',') === '0,2,3' &&
+    group.vector.protectedSacrificed === 0 &&
+    group.vector.nextUnprotectedPaymentWays === '6'));
+  assert.ok(frontier.some(group =>
+    group.representativePaymentIndices.join(',') === '0,2,4' &&
+    group.vector.protectedSacrificed === 1 &&
+    group.vector.nextUnprotectedPaymentWays === '10'));
+  assert.ok(frontier.every(group =>
+    group.representativePaymentIndices.every(index => index < hand.length)));
+});
+
 test('unavailable hard reserve is explicit and does not erase raw payment options', () => {
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: [BOX, VIP, LILLIE],
