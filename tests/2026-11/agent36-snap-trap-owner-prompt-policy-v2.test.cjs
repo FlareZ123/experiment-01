@@ -67,7 +67,7 @@ class ChooseCardsPrompt {
 
 class ResolvePromptAction {
   constructor(promptId, result) {
-    this.promptId = promptId;
+    this.id = promptId;
     this.result = result;
   }
 }
@@ -96,7 +96,7 @@ class Store {
     if (!(action instanceof ResolvePromptAction)) {
       throw new Error('Unexpected fake Store action: ' + action?.constructor?.name);
     }
-    const prompt = this.state.prompts.find(item => item.id === action.promptId);
+    const prompt = this.state.prompts.find(item => item.id === action.id);
     assert.ok(prompt);
     prompt.result = action.result;
     const sourceOwner = this.state.players.find(player => player.id === prompt.playerId);
