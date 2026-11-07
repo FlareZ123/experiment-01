@@ -1,6 +1,6 @@
 # Agent 20: Root93 Ace Trainer Before Attack Experiment
 
-**Status:** implementation committed; native A/B/A run queued; no result claim yet.
+**Status:** first native integration attempt failed because an AI-prototype descriptor was unavailable at store creation. The revised Store-dispatch hook and root-ledger correction are committed; rerun pending. No result claim.
 
 ## Question
 
@@ -32,7 +32,7 @@ simulation/twinleaf/agent20-owner-pre-attack-ace-trainer.cjs selects Ace Trainer
 6. The actor's current Active has a simple, funded attack that KOs the public opposing Active.
 7. The attack has no unresolved damage calculation or attack text; the opposing Active has no Tool or Ability, the opponent has no Stadium, and no matching resistance is present.
 
-The helper reads no opponent hand identities, deck order, Prize identities, candidate identity, rank, or seed. The wrapper is symmetric across seats. It returns the actual PlayCardAction at the AI decode boundary, before the engine dispatches the action, so the root ledger can record the Supporter action rather than a substituted dispatch.
+The helper reads no opponent hand identities, deck order, Prize identities, candidate identity, rank, or seed. The wrapper is symmetric across seats and defaults to one decision per match. It intercepts the native Store dispatch, replaces the pending AttackAction with a real PlayCardAction, forwards that actual action to the root-action observer, and rewrites the corresponding returned root-ledger row. This keeps the evidence aligned with the action the engine actually dispatched.
 
 ## Experiment design
 
@@ -44,7 +44,9 @@ simulation/evaluation/agent20-v9-box-fog-ace-trainer-aba.cjs runs:
 
 All three arms use the same registered development trial, 11:1000:B:new-moon-lockbreaker-v1. The runner asserts identical source/candidate deck fingerprints and initial physical-deal fingerprints across arms. It also asserts A1/A2 root-action-ledger parity, one Ace Trainer decision in B, and an Ace Trainer root action before Hidden Power.
 
-The raw native outputs and summary are written to artifacts/agent20-v9-box-fog-ace-trainer-aba/.
+The raw native outputs and summary are written to artifacts/agent20-v9-box-fog-ace-trainer-aba/. The runner verifies that the Ace Trainer action was accepted and that exactly one root-ledger row was corrected from AttackAction to PlayCardAction.
+
+The first CI attempt compiled Twinleaf and passed the unit/syntax checks, then failed at the first native Store creation because the expected SimpleTacticsAi prototype descriptor was unavailable. The hook was redesigned to intercept Store.dispatch instead; it no longer depends on the AI prototype. The root ledger is corrected after the native run returns, and the run's action observer receives the actual replacement action.
 
 ## Important limitations
 
