@@ -50,7 +50,7 @@ test('captures every post-dispatch candidate response root after an exact source
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
 
-  store.state.players[0].prizes=prizes(5);
+  store.state.players[0].prizes.shift();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
 
   store.state.turn=1;
@@ -86,8 +86,9 @@ test('captures every post-dispatch candidate response root after an exact source
     'ChooseCardsPrompt');
   assert.deepEqual(sequence.actions[1].pendingPromptTypesAfterAction,[]);
   assert.ok(result.diagnostics.callbackCount>0);
-  assert.equal(result.diagnostics.prizeCountChanges.length,1);
-  assert.equal(result.diagnostics.prizeCountChanges[0].rootOrdinal,1);
+  assert.equal(result.diagnostics.prizeCardChanges.length,1);
+  assert.equal(result.diagnostics.prizeCardChanges[0].rootOrdinal,1);
+  assert.equal(result.diagnostics.prizeCardChanges[0].removedPrizeCardCount,1);
   assert.equal(result.hiddenHandReadBeforeCandidateResponse,false);
   assert.equal(result.policyInputModified,false);
   assert.equal(result.paperLegalityCertified,false);
@@ -98,9 +99,9 @@ test('multiple source Prize exits in one turn stay attached to the same response
   const obs=observer(null,rootBinding);
   const store=makeStore();
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
-  store.state.players[0].prizes=prizes(4);
+  store.state.players[0].prizes.splice(0,2);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
-  store.state.players[0].prizes=prizes(3);
+  store.state.players[0].prizes.splice(0,1);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),2,1,1);
   store.state.turn=1;
   obs.onRootActionDispatched(store,new PlayCardAction(),3,0,1);
