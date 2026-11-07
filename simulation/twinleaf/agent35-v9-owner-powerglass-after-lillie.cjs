@@ -86,8 +86,8 @@ function withOwnerPowerglassAfterSupporter(run,deps={}){
         const card=owner.discard.cards.find(c=>
           c.superType===SuperType.ENERGY&&c.energyType===EnergyType.BASIC);
         const proposed=card?[{card,to:{player:PlayerType.BOTTOM_PLAYER,
-          slot:SlotType.ACTIVE,index:0}}]:null;
-        if(proposed&&pending.validate(proposed,state)===true){
+          slot:SlotType.ACTIVE,index:0}}]:[];
+        if(pending.validate(proposed,state)===true){
           const action=new ResolvePromptAction(pending.id,proposed);
           promptIntended.set(action,{seat,ownerId:owner.id,prompt:pending,
             physicalCard:card,turn:state.turn});
@@ -121,7 +121,7 @@ function withOwnerPowerglassAfterSupporter(run,deps={}){
     const track=this===live?intended.get(action):null;
     const promptTrack=this===live?promptIntended.get(action):null;
     const beforeOwner=promptTrack?this.state.players[promptTrack.seat]:null;
-    const wasDiscarded=promptTrack&&
+    const wasDiscarded=promptTrack?.physicalCard&&
       beforeOwner.discard.cards.includes(promptTrack.physicalCard);
     try{
       const result=previousDispatch.value.call(this,action,...args);
@@ -138,15 +138,20 @@ function withOwnerPowerglassAfterSupporter(run,deps={}){
       if(promptTrack){
         const owner=this.state.players[promptTrack.seat];
         const settled=promptTrack.prompt.result===action.result;
-        const moved=wasDiscarded&&
+        const moved=!!wasDiscarded&&
           owner.active.energies.cards.includes(promptTrack.physicalCard)&&
           !owner.discard.cards.includes(promptTrack.physicalCard);
-        if(!settled||!moved)throw Error('AGENT35_POWERGLASS_PROMPT_NO_PHYSICAL_TRANSFER');
+        const empty=promptTrack.physicalCard===undefined&&
+          Array.isArray(action.result)&&action.result.length===0;
+        if(!settled||(!moved&&!empty))
+          throw Error('AGENT35_POWERGLASS_PROMPT_NOT_PHYSICALLY_RESOLVED');
         audit.promptAccepted++;
-        audit.attachedFromDiscard++;
+        if(moved)audit.attachedFromDiscard++;
         audit.promptEvents.push({seat:promptTrack.seat,turn:promptTrack.turn,
-          printing:promptTrack.physicalCard.fullName,settled:true,physicallyAttached:true});
-        equippedByOwner.delete(owner.id);
+          printing:promptTrack.physicalCard?.fullName??null,
+          settled:true,physicallyAttached:moved,emptyOptional:empty});
+        // An attached Powerglass may activate again on later turns.
+        // Keep its owner marker until a different physically attached Tool is observed.
       }
       return result;
     }catch(error){
