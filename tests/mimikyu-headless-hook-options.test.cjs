@@ -37,7 +37,7 @@ test('headless Mimikyu hooks opt in, report policy and restore prototypes', () =
   assert.match(hooked.policy, /MimikyuDeclaredHistory-v1/);
   assert.match(hooked.policy, /RegidragoDeclaredHistory-v1/);
   assert.match(hooked.policy, /PassClearsLastAttack-v1/);
-  assert.match(hooked.policy, /MimikyuApexTimelessCounterPolicy-v1/);
+  assert.match(hooked.policy, /MimikyuApexTwoStageCounterPolicy-v2/);
   assert.equal(Store.prototype.dispatch, originalDispatch);
   assert.equal(Mimikyu.prototype.reduceEffect, originalReduce);
 
