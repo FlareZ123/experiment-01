@@ -25,6 +25,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent6_copycat_response_pilot:
+        description: Four bounded original rank1 vs rank10 two-seat baseline/two-stage Copycat policy runs, no competitive estimate
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -80,6 +85,16 @@ jobs:
 
       - name: Verify research Mimikyu counterpolicy uses only public source-state actions
         run: node --test tests/mimikyu-counter-policy.test.cjs
+
+      - name: Optional four-run original rank1 vs rank10 two-stage Copycat response pilot
+        if: inputs.agent6_copycat_response_pilot == true
+        run: node simulation/twinleaf/mimikyu-counter-policy-pilot.cjs > agent6-copycat-counter-policy-pilot.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent6_copycat_response_pilot == true }}
+        with:
+          name: agent6-copycat-counter-policy-pilot
+          path: agent6-copycat-counter-policy-pilot.json
+          if-no-files-found: warn
 
       - name: Inspect spent GX allowance on nested copied Timeless-GX
         run: node simulation/twinleaf/mimikyu-gx-reuse-probe.cjs
