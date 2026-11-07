@@ -33,11 +33,19 @@ function executeCopyReservePayment(seat,candidate){
   f.state.turn=14;
   f.source.supporterTurn=0;
 
+  const vipA=f.card(VIP);
   const box=f.card(BOX);
+  const carrierA=f.card(CARRIER);
+  const vipB=f.card(VIP);
+  const carrierB=f.card(CARRIER);
+  const lillieA=f.card(LILLIE);
+  const lillieB=f.card(LILLIE);
+  const powerglass=f.card(POWERGLASS);
+  const forestSeal=f.card('Forest Seal Stone SIT');
+  const treasure=f.card('Mysterious Treasure FLI');
   f.source.hand.cards.push(
-    f.card(VIP),box,f.card(CARRIER),f.card(VIP),f.card(CARRIER),
-    f.card(LILLIE),f.card(LILLIE),f.card(POWERGLASS),
-    f.card('Forest Seal Stone SIT'),f.card('Mysterious Treasure FLI')
+    vipA,box,carrierA,vipB,carrierB,lillieA,lillieB,
+    powerglass,forestSeal,treasure
   );
   const recoveryTarget=f.card('Unown AOR');
   const psychicA=f.card('Psychic Energy MEE');
