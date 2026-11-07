@@ -25,7 +25,7 @@ The actual pinned Store fixture in [`simulation/twinleaf/agent37-simultaneous-ko
 - Defending Active: **Duskull VIV**, 60 HP.
 - Each player has one healthy Benched Pokémon, so both can promote.
 - Attacker's Bench: **Unown AOR** with an actual **Powerglass SFA** attached. One Basic Psychic Energy is in the attacker's discard.
-- Both players start with six Prizes. The actual attack, KO processing, Prize selection, promotion prompts and end-turn effects are settled through the pinned Store.
+- Both players start with six Prizes. The actual attack, KO processing, Prize selection, promotion prompts and end-turn effects are settled through the pinned Store. The fixture's physical-seat mapping follows the shared headless runner: `simulation/twinleaf/headless.cjs:809-836` builds per-seat policies from `state.players[seat]`, and `:1169-1172` dispatches the active actor through `state.activePlayer`. This direct Store transaction uses no shuffle or RNG.
 
 The existing manual-only workflow [42360189482](https://github.com/FlareZ123/experiment-01/actions/runs/42360189482), job **128366732007**, step 13, passed both full baseline/treatment pairs.
 
