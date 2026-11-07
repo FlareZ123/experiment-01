@@ -150,8 +150,124 @@ function compareStationaryDrawToDeadline(
   };
 }
 
+/**
+ * Greatest common divisor for exact probability fractions.
+ * @param {bigint} a
+ * @param {bigint} b
+ * @returns {bigint}
+ */
+function gcdBigInt(a,b){
+  while(b!==0n){
+    const remainder=a%b;
+    a=b;
+    b=remainder;
+  }
+  return a<0n?-a:a;
+}
+
+/**
+ * Exact rational distribution of future owner-turn starts under repeated,
+ * independent opponent-mill outcomes and a stationary owner-side deck loss.
+ *
+ * Each outcome's positive integer weight is proportional to its probability.
+ * A fixed remaining+1 cycle horizon and absorbing deckout state give every
+ * result a common exact BigInt denominator.
+ *
+ * @param {number} remaining Owner deck count after the current mandatory draw.
+ * @param {number} ownerDeckLoss Cards removed from the owner's deck each turn.
+ * @param {{opponentMill:number,weight:number}[]} outcomes IID opponent-mill outcomes.
+ * @returns {object} Exact distribution and expected future owner-turn starts.
+ */
+function distributionOfFutureOwnerStarts(remaining,ownerDeckLoss,outcomes){
+  assertCardCount(remaining,'remaining');
+  assertCardCount(ownerDeckLoss,'ownerDeckLoss');
+  assert.ok(Array.isArray(outcomes)&&outcomes.length>0,
+    'outcomes must be a nonempty array');
+
+  let totalWeight=0;
+  const normalized=outcomes.map((outcome,index)=>{
+    assert.ok(outcome&&typeof outcome==='object',
+      'outcomes['+index+'] must be an object');
+    assertCardCount(outcome.opponentMill,
+      'outcomes['+index+'].opponentMill');
+    assert.ok(Number.isSafeInteger(outcome.weight)&&outcome.weight>0,
+      'outcomes['+index+'].weight must be a positive safe integer');
+    assert.ok(Number.isSafeInteger(totalWeight+outcome.weight),
+      'total outcome weight must be a safe integer');
+    totalWeight+=outcome.weight;
+    return {
+      opponentMill:outcome.opponentMill,
+      weight:outcome.weight
+    };
+  });
+
+  const totalWeightBig=BigInt(totalWeight);
+  let states=new Map([[remaining+':0',1n]]);
+  for(let step=0;step<=remaining;step++){
+    const next=new Map();
+    const add=(deck,starts,numerator)=>{
+      const key=deck+':'+starts;
+      next.set(key,(next.get(key)??0n)+numerator);
+    };
+
+    for(const [key,numerator] of states){
+      const [deck,starts]=key.split(':').map(Number);
+      if(deck===0){
+        add(0,starts,numerator*totalWeightBig);
+        continue;
+      }
+      for(const outcome of normalized){
+        const cycleLoss=ownerDeckLoss+outcome.opponentMill+1;
+        const weightedNumerator=numerator*BigInt(outcome.weight);
+        if(cycleLoss<=deck){
+          add(deck-cycleLoss,starts+1,weightedNumerator);
+        }else{
+          add(0,starts,weightedNumerator);
+        }
+      }
+    }
+    states=next;
+  }
+
+  const commonDenominator=totalWeightBig**BigInt(remaining+1);
+  const countsByStarts=new Map();
+  for(const [key,numerator] of states){
+    const [deck,starts]=key.split(':').map(Number);
+    assert.ok(deck===0,'fixed stochastic horizon must reach an absorbing state');
+    countsByStarts.set(starts,(countsByStarts.get(starts)??0n)+numerator);
+  }
+
+  let expectedNumerator=0n;
+  const distribution=[...countsByStarts.entries()]
+    .sort((a,b)=>a[0]-b[0])
+    .map(([futureOwnerStarts,numerator])=>{
+      expectedNumerator+=BigInt(futureOwnerStarts)*numerator;
+      return {
+        futureOwnerStarts,
+        numerator:numerator.toString()
+      };
+    });
+  const divisor=gcdBigInt(expectedNumerator,commonDenominator);
+
+  return {
+    version:VERSION,
+    remaining,
+    ownerDeckLoss,
+    outcomes:normalized,
+    totalWeight,
+    fixedHorizonCycles:remaining+1,
+    commonDenominator:commonDenominator.toString(),
+    distribution,
+    expectedFutureOwnerStarts:{
+      numerator:(expectedNumerator/divisor).toString(),
+      denominator:(commonDenominator/divisor).toString()
+    }
+  };
+}
+
 module.exports={
   VERSION,
   futureOwnerStartsUnderSchedule,
-  compareStationaryDrawToDeadline
+  compareStationaryDrawToDeadline,
+  distributionOfFutureOwnerStarts
 };
