@@ -46,6 +46,8 @@ jobs:
           node --test tests/agent35-v9-lillie-pair-audit.test.cjs \
             tests/agent35-v9-powerglass-root98.test.cjs \
             tests/agent35-v9-owner-powerglass-after-lillie.test.cjs \
+            tests/agent35-v9-powerglass-native-wrapper.test.cjs \
+            tests/agent35-v9-powerglass-injection.test.cjs \
             tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs
 
       - name: Existing genuine pinned Store E-21 Powerglass mechanism
