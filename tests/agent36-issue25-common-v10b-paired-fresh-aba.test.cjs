@@ -234,6 +234,8 @@ test('phase summary and injected runner preserve A/B/A order, both seats and all
   assert.equal(result.cohortCoverage.allSourceRanksRepresented,true);
   assert.equal(result.cohortCoverage.bothFirstPlayerSeatsObserved,true);
   assert.equal(result.cohortCoverage.uniqueSourceDealFingerprints,4);
+  assert.equal(result.cohortCoverage.sourceDealPairsMatchAcrossCandidateArms,true);
+  assert.ok(result.cohortCoverage.sourceDealPairs.every(x=>x.matched));
   assert.equal(result.cohortCoverage.uniqueFullPhysicalDealFingerprints,8);
   assert.equal(result.cohortCoverage.allSourceDealsUnique,true);
   assert.equal(result.cohortCoverage.allPhysicalDealsUnique,true);
