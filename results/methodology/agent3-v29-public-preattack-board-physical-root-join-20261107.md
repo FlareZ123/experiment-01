@@ -62,3 +62,63 @@ The initial revised 13-test pure suite passed in manual workflow run **423565757
 The v31 receipt reports four accepted attack settlements scanned, four Eon Blade attacks, and **zero** delegated Mimikyu GRI Copycat Eon Blade events. Therefore, in this registered rank-1 / champion-reference mirror, all four observed Eon Blade declarations were direct Latias ex attacks; three caused Prize exits (turns 13, 17 and 25) and the fourth did not (turn 21). This agrees with Agent37's independent archive audit. The zero Copycat count is a trial-specific observation, not evidence that Mimikyu Copycat is invalid or absent in other matchups. The synthetic positive and negative Copycat fixtures are covered by the pure helper tests; this native trial supplied no positive Copycat event to qualify.
 
 No competitive game is qualified by these attack-level joins. The 99.5% objective remains unproven.
+
+
+## 2026-11-07 v2 attack-cost and damage cross-check
+
+The earlier provisional statement that the v29 replay had no measured incremental pre-attack damage deltas is superseded by the completed v2 validation below.
+
+### Reproducible CI evidence
+
+- Pure public-board join workflow: run `42364129705`, successful.
+- Native v14 replay workflow: run `42364148824`, successful.
+- Native run commit: `4a304a970d86700640685e7d5025f3728b847b85`.
+- Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Archived native artifact: `13571042806`, `issue25-v14-owner-pokemon-42364148824`.
+- Artifact digest: `sha256:283e649307808dc2f43b41c4bdbf86465189ec107962912ba162a9c28f17d5f3`.
+
+The v2 join helper is `simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs`. It now compares the physical Active's actual pinned attack-cost enum against the independently registered source-print cost, and records both players' pre-attack Stadium names and in-play Pokémon printings. The pure test covers a positive direct-source cost match, a negative cost-mismatch fixture, and the public-board context fields.
+
+The native v14 test now requires all eight joined rows to satisfy all of the following:
+- actual physical Active observed at the native attack;
+- independently registered source attack printing matched;
+- actual pinned Active attack cost matches the independent source-print cost;
+- direct attached-Energy screen returns `POSSIBLE`;
+- native incremental damage delta equals the independently screened printed nominal damage.
+
+The pure workflow and the full manually dispatched native v14 workflow both passed. Thus the current evidence is **8/8 attack roots with exact incremental-damage agreement and 8/8 direct printed-cost coverage**, with actual engine Active-print cost agreement for all eight. This remains attack-level evidence from four original ranks and two candidate lists, not a game-win estimate.
+
+### Eight joined attack roots
+
+| Registered trial | Physical attacker and attack | Printed cost | Pre-attack Energy screen | Target | Native damage delta |
+|---|---|---|---|---|---:|
+| `6:210:B:champion-reference` | Iron Thorns ex TWM — Volt Cyclone | Lightning + C + C | Speed Lightning Energy + Double Colorless Energy | Girafarig LOT | +140 |
+| `6:210:B:new-moon-lockbreaker-v1` | Iron Thorns ex TWM — Volt Cyclone | Lightning + C + C | Speed Lightning Energy + Double Colorless Energy | Duskull VIV | +140 |
+| `11:211:A:champion-reference` | Squawkabilly ex PAL — Motivate | C | Darkness Energy ×2 | Dialga-GX UPR | +20 |
+| `11:211:A:new-moon-lockbreaker-v1` | Oranguru V ASR — Psychic | C + C + C | Darkness Energy ×3 | Duskull VIV | +130 |
+| `11:211:A:new-moon-lockbreaker-v1` | Oranguru V ASR — Psychic | C + C + C | Darkness Energy ×6 | Mewtwo & Mew-GX UNM | +130 |
+| `1:212:B:champion-reference` | Latias ex SSP — Eon Blade | Psychic + Psychic + C | Psychic Energy ×3 | Marshadow UNB | +200 |
+| `1:212:B:champion-reference` | Latias ex SSP — Eon Blade | Psychic + Psychic + C | Psychic Energy ×3 | Tapu Lele-GX GRI | +200 |
+| `1:212:B:champion-reference` | Latias ex SSP — Eon Blade | Psychic + Psychic + C | Psychic Energy ×3 | Trevenant & Dusknoir-GX SMP | +200 |
+
+There are **three** Eon Blade roots, all from the physical Latias ex SSP Active. The eight rows contain no Mimikyu Copycat delegation. The Oranguru/Mewtwo & Mew row's two opposing attached Energy cards are Telepathic Psychic Energy and Psychic Energy; the native attack's +130 delta matches the printed 30 + 50-per-Psychic-Energy formula for those two cards.
+
+### Correct interpretation of Energy cost
+
+The repository manual states that an attack requires the right amount and type(s) of Energy matching its cost (lines 154–156). It also states that Energy normally stays attached after an attack unless the attack specifies otherwise (lines 501–503). Therefore, "actual attached Energy payment" is not a separate discard transaction: the relevant evidence is the pre-attack Energy provider set against the attack's effective cost.
+
+The same manual documents effects that increase or decrease attack costs (D-11/D-12, lines 1947–1955). The v2 artifact records public Stadiums and in-play Pokémon printings to support that review, but this run does **not** certify every possible board-wide cost modifier or every card interaction. The direct-energy status remains a conservative printed-cost screen, and paper attack legality remains unqualified.
+
+The pinned Twinleaf `ptcg-server/src/game/store/effect-reducers/game-effect.ts` attack path performs `CheckAttackCostEffect`, then `CheckProvidedEnergyEffect`, then calls `StateUtils.checkEnoughEnergy`. The successful native AttackAction therefore passed Twinleaf's modeled cost check. This is engine evidence, not independent proof that every relevant card implementation matches paper rules.
+
+### Separate implementation caveat
+
+Source inspection found a conditional Energy-provider mismatch in the pinned Twinleaf implementation of `Speed Lightning Energy`: the printed card text limits Lightning provision to a Lightning Pokémon, while its `CheckProvidedEnergyEffect` branch adds Lightning without checking the attached Pokémon's type. Agent 30 has been notified and asked to add a focused native Lightning/non-Lightning regression. The v29 cases attach it to Iron Thorns ex, a Lightning Pokémon, so this specific issue does not invalidate the two Volt Cyclone cost screens.
+
+### Remaining boundary
+
+- Eight joined attack roots do not establish eight completed games.
+- The v8 treatment still has root-capped attempts and an unqualified terminal attempt; the qualified competitive-game count remains zero.
+- The first candidate response after the rank-11 champion-reference Prize is Fog Crystal at root ordinal 90, turn 18, with no captured final Pass. Its post-action hand/board/prompt settlement is still an evidence gap.
+- No matchup-level win-rate estimate or 99.5% claim is supported.
+- The next useful extension is a post-Store-dispatch snapshot of the candidate's first response after each source Prize root, joined by registered trial ID and exact root ordinal. Capture only after the action has dispatched; do not feed hidden-state telemetry into either policy.
