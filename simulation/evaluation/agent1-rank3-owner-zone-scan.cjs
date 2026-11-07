@@ -76,7 +76,7 @@ const EXPECTED=Object.freeze([
     full:'b96f75c6658d9e301a37eb79e15b1bbfb5e3f4aab7d85c224793d17b5a625e99',
     source:'c389e9e38c73c7fdc8c1dd52cce641fa8b0b50d9c5304cf691c9b8a3774d67b7'},
   {seed:290145,status:'action-cap',winner:-1,actions:260,
-    full:'e23f12bb8716132873187dcbb771e107f2e36ee84d43974d48b451c755d79bc9',
+    full:'e23f12bb8716132873187dcbb771e107f2e36ee84d43974d48b451c755d79bc8',
     source:'ffe853f8799da783d9a2b2e53fb82e8286066350c1ac85fcc567f568d64f6a9c'}
 ]);
 
@@ -126,6 +126,14 @@ function summarizeSnapshots(snapshots){
       bunnelbyActive:owner.bunnelbyActive,
       bunnelbyAttachedEnergyCount:owner.bunnelbyAttachedEnergyCount,
       bunnelbyAttacksThisTurn:owner.bunnelbyAttacksThisTurn,
+      ownerSupporterTurn:owner.supporterTurn,
+      ownerEnergyPlayedTurn:owner.energyPlayedTurn,
+      ownerUsedGX:owner.usedGX,
+      ownerUsedVSTAR:owner.usedVSTAR,
+      ownerCannotPlaySupporterCards:owner.cannotPlaySupporterCards,
+      ownerActivePrinting:zones.activePublic?.printing??null,
+      ownerActiveEnergyPrintings:zones.active.energies,
+      ownerSupporterZonePrintings:zones.supporter,
       hasRototiller:owner.hasRototiller,
       structuralRototillerCandidate:owner.structuralRototillerCandidate,
       ownerDeckCount:zones.deck.length,
@@ -309,11 +317,11 @@ function run(){
       summary,rows,
       caveat:'Sixteen source-seat-0 original-deal diagnostic replays under the existing weak common policy. Owner deck and Prize identities are retrospective observer data and never policy input. Opponent hidden identities are not read. Structural Rototiller candidates are not validated native attack prompts. This is not a paper-competitive matchup or win-rate estimate.'
     };
-    result.artifactPath=writeReceipt(result);
     result.controlsPass=summary.errors===0&&summary.parityFailures===0&&
       rows.every(row=>row.ownerZoneAudit?.liveStoreFound===true&&
         row.ownerZoneAudit?.opponentHiddenZonesInspected===false&&
         row.ownerZoneAudit?.notPolicyInput===true);
+    result.artifactPath=writeReceipt(result);
     return result;
   }finally{
     for(const [name,value] of old){
