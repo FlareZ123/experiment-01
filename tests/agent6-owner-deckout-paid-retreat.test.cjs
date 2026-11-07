@@ -273,6 +273,25 @@ test('bilateral wrapper submits native retreat and accepts only real second-atta
     state.prompts=[new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)];
     assert.equal(otherAi.decodeNextAction(state).constructor.name,'PassTurnAction',
       'Non-acting root AI cannot consume the owner prompt override');
+    const getActive=state.players[0].active.getPokemonCard;
+    state.players[0].active.getPokemonCard=()=>({
+      fullName:'Unrelated Active',attacks:card.attacks
+    });
+    assert.equal(ai.decodeNextAction(state).constructor.name,'PassTurnAction',
+      'A switched-out first attacker cannot authorize its former prompt');
+    state.players[0].active.getPokemonCard=getActive;
+    const printedAttacks=card.attacks;
+    card.attacks=[];
+    assert.equal(ai.decodeNextAction(state).constructor.name,'PassTurnAction',
+      'Missing current printed attack revokes a stale marker');
+    card.attacks=printedAttacks;
+    state.prompts=[
+      new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY),
+      new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)
+    ];
+    assert.equal(ai.decodeNextAction(state).constructor.name,'PassTurnAction',
+      'Multiple unresolved prompts cannot borrow the previous attack marker');
+    state.prompts=[new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)];
     const confirm=ai.decodeNextAction(state);
     state.prompts=[new ChooseAttackPrompt('owner',
       GameMessage.CHOOSE_ATTACK_TO_COPY,[card])];
