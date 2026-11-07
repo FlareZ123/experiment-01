@@ -245,6 +245,7 @@ test('uses stable public parent-list order for otherwise equal Energy choices', 
 test('does not mutate the prompt, Active arrays, printed attacks or Energy provides', () => {
   nextId = 1;
   const psychic = energy('Psychic Energy', [CardType.PSYCHIC]);
+  const psychicB = energy('Psychic Energy B', [CardType.PSYCHIC]);
   const beast = energy('Beast Energy FLI', [CardType.COLORLESS], {
     energyType: EnergyType.SPECIAL,
     tags: [CardTag.PRISM_STAR]
@@ -256,8 +257,9 @@ test('does not mutate the prompt, Active arrays, printed attacks or Energy provi
       damage: 10
     })
   ]);
-  const active = activeList([psychic, beast], attacks);
+  const active = activeList([psychic, psychicB, beast], attacks);
   Object.freeze(psychic.provides);
+  Object.freeze(psychicB.provides);
   Object.freeze(beast.provides);
   Object.freeze(active.energies.cards);
   Object.freeze(active.cards);
@@ -272,8 +274,9 @@ test('does not mutate the prompt, Active arrays, printed attacks or Energy provi
   const choice = chooseSnapTrapEnergy(prompt, active, types);
 
   assert.equal(choice.card, beast);
-  assert.deepEqual(active.energies.cards, [psychic, beast]);
-  assert.deepEqual(active.cards.slice(1), [psychic, beast]);
+  assert.deepEqual(active.energies.cards, [psychic, psychicB, beast]);
+  assert.deepEqual(active.cards.slice(1), [psychic, psychicB, beast]);
   assert.deepEqual(psychic.provides, [CardType.PSYCHIC]);
+  assert.deepEqual(psychicB.provides, [CardType.PSYCHIC]);
   assert.deepEqual(beast.provides, [CardType.COLORLESS]);
 });
