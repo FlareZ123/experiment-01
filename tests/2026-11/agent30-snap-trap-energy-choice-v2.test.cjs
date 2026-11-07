@@ -20,23 +20,24 @@ const CardTag = {ULTRA_BEAST: 'ULTRA_BEAST', PRISM_STAR: 'PRISM_STAR'};
 const GameMessage = {CHOOSE_CARD_TO_DISCARD: 'CHOOSE_CARD_TO_DISCARD'};
 
 /**
- * Small test-only Energy matcher. Each map entry represents one Energy unit;
+ * Small test-only Energy matcher. Each item in provides represents one unit;
  * ANY matches one requirement, and every Energy can pay Colorless.
  * @param {object[]} energyMap
  * @param {string[]} cost
  * @returns {boolean}
  */
 function checkEnoughEnergy(energyMap, cost) {
+  const units = energyMap.flatMap(entry => entry.provides ?? []);
   const used = new Set();
   const visit = index => {
     if (index === cost.length) return true;
-    for (let energyIndex = 0; energyIndex < energyMap.length; energyIndex++) {
+    for (let energyIndex = 0; energyIndex < units.length; energyIndex++) {
       if (used.has(energyIndex)) continue;
-      const provides = energyMap[energyIndex].provides ?? [];
+      const provides = units[energyIndex];
       const requirement = cost[index];
       if (requirement !== CardType.COLORLESS
-        && !provides.includes(CardType.ANY)
-        && !provides.includes(requirement)) {
+        && provides !== CardType.ANY
+        && provides !== requirement) {
         continue;
       }
       used.add(energyIndex);
@@ -157,8 +158,11 @@ test('Aichi rank-1 Marshadow field witness: eight Psychic Energy removals leave 
 });
 
 test('Ultra Beast counterexample: verified public Beast Energy damage modifier changes the best removal', () => {
-  const grass1 = makeEnergy('Grass Energy 1', [CardType.GRASS]);
-  const grass2 = makeEnergy('Grass Energy 2', [CardType.GRASS]);
+  const doubleColorless = makeEnergy(
+    'Double Colorless Energy SUM',
+    [CardType.COLORLESS, CardType.COLORLESS],
+    EnergyType.SPECIAL
+  );
   const fire = makeEnergy('Fire Energy', [CardType.FIRE]);
   const beast = makeEnergy(
     'Beast Energy FLI',
@@ -172,18 +176,22 @@ test('Ultra Beast counterexample: verified public Beast Energy damage modifier c
   const pokemon = {
     fullName: 'Synthetic Ultra Beast fixture',
     attacks: [
-      {name: 'Grass attack', cost: [CardType.GRASS, CardType.GRASS], damage: 130},
+      {
+        name: 'Colorless barrage',
+        cost: [CardType.COLORLESS, CardType.COLORLESS, CardType.COLORLESS],
+        damage: 130
+      },
       {name: 'Fire attack', cost: [CardType.FIRE, CardType.FIRE], damage: 120}
     ],
     hasTag(tag) {
       return tag === CardTag.ULTRA_BEAST;
     }
   };
-  const {active, prompt} = makeScenario(pokemon, [grass1, grass2, fire, beast]);
+  const {active, prompt} = makeScenario(pokemon, [doubleColorless, fire, beast]);
   const types = makeTypes();
 
   const baseOnly = chooseSnapTrapEnergyV2(prompt, active, types);
-  assert.strictEqual(baseOnly.card, grass1);
+  assert.strictEqual(baseOnly.card, doubleColorless);
   assert.equal(baseOnly.bestRemainingAttackDamage, 120);
   assert.equal(baseOnly.damageModel, 'printed-base-only');
 
