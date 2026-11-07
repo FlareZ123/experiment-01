@@ -110,4 +110,71 @@ function auditRoot93(archive) {
     qualifier:'No actual Lillie played; Prize identities and paper legality unresolved',
     competitiveGamesQualified:0};
 }
-module.exports={VERSION,FROZEN,binomial,probabilityAtLeastOne,auditRoot93};
+
+/**
+ * Independently check the existing Agent7 Lillie treatment against the same
+ * original deal and the full untouched predecision source/candidate Store roots.
+ * The eight-card zero-Energy event is inferred from owner-hand custody after
+ * one Bench play, not from the private identities of the opponent's cards.
+ * @param {object} baseline Native control JSON.
+ * @param {object} treatment Native real-Store Lillie JSON.
+ * @returns {object}
+ */
+function auditMatchedLillieMiss(baseline,treatment) {
+  const base=auditRoot93(baseline);
+  const a=treatment.nativeAttempt;
+  assert.equal(a.id,FROZEN.trial);
+  assert.equal(a.sourceSeat,0);
+  assert.equal(a.candidateSeat,1);
+  assert.equal(a.fullPhysicalDealFingerprint,FROZEN.fullDeal);
+  assert.equal(a.sourceDealFingerprint,FROZEN.sourceDeal);
+  assert.equal(a.rootActionCount,186);
+  const changed=a.rootActionLedger;
+  assert.equal(changed.length,186);
+  const changedSha=createHash('sha256').update(JSON.stringify(changed))
+    .digest('hex');
+  assert.equal(changedSha,
+    'a3c7bcba914a233f7ae99831a8e0bca135a819524004cbe7d965cbd874efdc16');
+  assert.equal(a.publicRootLedgerSha256Computed,changedSha);
+  assert.deepEqual(changed.slice(0,93),baseline.nativeAttempt.rootActionLedger.slice(0,93));
+  assert.deepEqual(changed.slice(93,99).map(x=>[
+    x.actionOrdinal,x.action,x.card??null,x.pendingPrompt??null
+  ]),[
+    [93,'PlayCardAction',"Lillie's Determination",null],
+    [94,'ResolvePromptAction',null,'WaitPrompt'],
+    [95,'ResolvePromptAction',null,'ShuffleDeckPrompt'],
+    [96,'ResolvePromptAction',null,'WaitPrompt'],
+    [97,'PlayCardAction','Squawkabilly ex',null],
+    [98,'PassTurnAction',null,null]
+  ]);
+  const after=a.nativeAllOwnerPassFrontier.receipts.find(x=>x.actionOrdinal===98);
+  assert.equal(after.actorSeat,1);
+  const hand=after.ownerHandAtChosenPass;
+  assert.equal(hand.length,7);
+  assert.equal(hand.filter(x=>x.includes('Energy')).length,0);
+  const own=after.publicBoardBeforePass[1];
+  assert.equal(own.bench.length,5);
+  assert.ok(own.bench.some(x=>x.printing==='Squawkabilly ex PAL'));
+  assert.ok([own.active,...own.bench].every(x=>x.energyCards.length===0));
+  assert.equal(a.finished,true);
+  assert.equal(a.winner,0);
+  return {
+    version:'agent43-v9-root93-matched-lillie-zero-energy-observation-v1',
+    trialId:base.trialId,sourceDeal:FROZEN.sourceDeal,
+    preInterventionRootsIdentical:93,firstDifferenceRoot:93,
+    storeLillieAccepted:true,shufflePromptSettledAtRoot:95,
+    postShuffleSingleOwnerBoardAction:'Bench Squawkabilly ex',
+    ownerHandAfterShuffleAndBenchCount:7,
+    ownerHandAfterShuffleAndBenchEnergy:0,
+    ownerBoardEnergy:0,
+    inferredEnergyHitInEightCardDraw:0,
+    actualNativeWinner:'original-rank11-source',
+    gameOutcomeCompetitivelyQualified:false,
+    limitations:['No full individual card-object draw custody proof',
+      'Previously exposed physical deal with unqualified opposing policy',
+      'Shuffling may change future random streams; no causal win-rate inference'],
+    competitivelyQualifiedGames:0
+  };
+}
+
+module.exports={VERSION,FROZEN,binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss};
