@@ -56,3 +56,5 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-synchronous-native.cjs
       - name: Mimikyu Copycat Eon Blade next-own-turn lock in both seats and hook controls
         run: node simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs
+      - name: Native SimpleTacticsAi underfunded Mimikyu Copycat rejection and funded positive control
+        run: node simulation/twinleaf/agent46-mimikyu-policy-underfunded-native.cjs
