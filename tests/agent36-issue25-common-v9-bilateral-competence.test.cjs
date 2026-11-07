@@ -33,7 +33,8 @@ test('owner post-source reply projection excludes unlisted and opponent-hidden f
   const row={
     candidateSeat:1,
     rootActionLedger:Array.from({length:33},(_,i)=>({
-      actionOrdinal:i,playerSlot:1,turnBefore:8,action:'PlayCardAction'
+      actionOrdinal:51+i,playerSlot:1,turnBefore:8,
+      pendingPrompt:null,action:'PlayCardAction'
     })),
     candidateRepliesAfterSourceAttacks:[{
       sourceAttackOrdinal:46,sourceTurn:7,sourceAttackName:'Psychic',
