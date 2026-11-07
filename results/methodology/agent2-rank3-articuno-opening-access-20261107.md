@@ -78,6 +78,12 @@ The route components are disjoint and sum exactly to the favorable Prize-weighte
 
 The item-only subset does not depend on Arven. The Arven extension applies on a turn when that Supporter is legally playable; it is not an unconditional first-turn rate.
 
+## Sampling implication
+
+If valid opening hands were independent and followed this exact uniform-shuffle model, the chance of seeing at least one of the included routes would be 94.090060% in 32 samples, 95% by 34 samples, and 99% by 53 samples. This is a binomial planning approximation only; paired seat assignments from a shared seed may not be independent. It is not a claim that 32 natural games will contain an Articuno prompt, a transferable Water attachment, or a strategically correct Cold Crush decision.
+
+The two historical Articuno prompts with zero owner Water are specific source-game observations, not a random sample of valid opening hands. This prior should not be used as a direct significance test against those two prompts.
+
 ## Interpretation and limitations
 
 This is a **route-specific opening prior**, not a natural-game opportunity census. It deliberately omits Trainers' Mail, later draws, access to the second Basic through other search lines, and Arven cases where only one of its two requested card types remains. It assumes no Item lock, no disruption to the Water-bearing Basic, a usable Bench slot, and that the chosen search route can resolve. Those assumptions can make an individual counted route unavailable in a real game.
