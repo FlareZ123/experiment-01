@@ -155,16 +155,6 @@ function probabilityMailOnly(deckSize,otherTrainerCount,mailsInHand){
     }
     states=next;
   }
-  for(const [key,mass] of states){
-    const [deck]=key.split(':').map(Number);
-    if(finalDrawCount>0){
-      const drawHit=probabilityFraction(
-        BigInt(Math.min(finalDrawCount,deck)),BigInt(deck)
-      );
-      success=addProbabilityFractions(success,
-        multiplyProbabilityFractions(mass,drawHit));
-    }
-  }
   return success;
 }
 
@@ -873,6 +863,16 @@ function probabilityMailWithSearchGatewaysOnly(
         multiplyProbabilityFractions(mass,pick));
     }
     states=next;
+  }
+  for(const [key,mass] of states){
+    const [deck]=key.split(':').map(Number);
+    if(finalDrawCount>0){
+      const drawHit=probabilityFraction(
+        BigInt(Math.min(finalDrawCount,deck)),BigInt(deck)
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(mass,drawHit));
+    }
   }
   return success;
 }
