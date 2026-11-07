@@ -371,16 +371,15 @@ function auditNoCallClockPacket(packet) {
   const base={
     schema:VERSION,stage:packet.stage,clockLimitMinutes:rules.minutes,
     elapsedSecondsAtNaturalTerminal:packet.elapsedSecondsAtNaturalTerminal,
-    clockDisposition:'no-official-call',
     noCallEvidenceShapeComplete:missing.length===0,
     evidenceFieldsRemainExternallyAsserted:true,
     competitiveAdmission:false,externalIndependentReviewRequired:true
   };
   if(missing.length)
-    return {...base,status:'INSUFFICIENT_NO_CALL_EVIDENCE',
+    return {...base,status:'INSUFFICIENT_NO_CALL_EVIDENCE',clockDisposition:'unverified',
       missing,conditionalWinnerSeat:null,noCallEvidenceShapeComplete:false};
   if(winner!==null)
-    return {...base,status:'NORMAL_PAPER_GAME_WIN',
+    return {...base,status:'NORMAL_PAPER_GAME_WIN',clockDisposition:'no-official-call',
       conditionalWinnerSeat:winner};
   return {...base,...adjudicateNaturalPaperTie(packet.stage),
     clockDisposition:'no-official-call',
