@@ -43,8 +43,9 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     targetTurnMatched:handIndex>=0,baselineAttackAccepted:null,
     stadiumNativeAccepted:false,stadiumPhysicalMove:false,
     stadiumEffectiveInPlay:false,attackNativeAccepted:false,
-    attackSettled:false,opponentDamageBefore:null,
+    attackSettled:false,attackDamage:null,opponentDamageBefore:null,
     opponentDamageAfter:null,opponentPrizesBefore:null,
+    stadiumWaitPrompts:[],attackWaitPrompts:[],
     opponentPrizesAfter:null,unresolvedPromptTypes:[],
     errors:[],realStoreChanged:false,paperQualified:false
   };
@@ -57,9 +58,23 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
   const {AttackAction}=deps.gameActions??load('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
     deps.playActions??load('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=deps.resolvePromptAction??
+    load('game/store/actions/resolve-prompt-action');
+  const {WaitPrompt}=deps.waitPromptModule??load('game/store/prompts/wait-prompt');
   const {StateUtils}=deps.stateUtils??load('game/store/state-utils');
   const copy=()=>{const clone=new Store({onStateChange(){}});
     clone.state=deepClone(state);return clone;};
+  const settleWaitPrompts=clone=>{
+    const resolved=[];
+    for(let i=0;i<16;i++){
+      const pending=clone.state.prompts.find(p=>p.result===undefined);
+      if(!pending||!(pending instanceof WaitPrompt))break;
+      resolved.push({message:pending.message??null,duration:pending.duration??null,
+        showVisual:pending.showVisual??null});
+      clone.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    return resolved;
+  };
   const initial=state.players.find(p=>p.id===ownerId);
   assert.ok(initial);
   const previousRandom=Math.random;
@@ -94,6 +109,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
       }));
       result.stadiumNativeAccepted=true;
+      result.stadiumWaitPrompts=settleWaitPrompts(clone);
     }catch(error){
       result.errors.push({phase:'play-stadium',
         message:String(error?.message??error)});
@@ -113,6 +129,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     try{
       clone.dispatch(new AttackAction(ownerId,ATTACK));
       result.attackNativeAccepted=true;
+      result.attackWaitPrompts=settleWaitPrompts(clone);
     }catch(error){
       result.errors.push({phase:'attack',
         message:String(error?.message??error)});
@@ -122,6 +139,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     const finalOwner=clone.state.players.find(p=>p.id===ownerId);
     const finalOpponent=clone.state.players.find(p=>p.id!==ownerId);
     result.opponentDamageAfter=finalOpponent.active.damage;
+    result.attackDamage=result.opponentDamageAfter-result.opponentDamageBefore;
     result.opponentActiveAfter=
       finalOpponent.active.getPokemonCard?.()?.fullName??null;
     result.opponentPrizesAfter=finalOpponent.prizes.length;
