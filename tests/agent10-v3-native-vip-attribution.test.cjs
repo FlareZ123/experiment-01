@@ -98,6 +98,7 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
       rejectedItems:audit.rejectedItems,
       rejectedSearches:audit.rejectedSearches,
       attribution:attribution.attributed,
+      seat:attribution.seat??null,
       reason:attribution.reason,
       divergenceIndex:attribution.divergenceIndex??null,
       physicalSearch:attribution.physicalSearch??null
@@ -106,6 +107,8 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
   console.log('NATIVE_V3_VIP_ATTRIBUTION',JSON.stringify({
     engine:plan.engineRevision,seeds,rows
   }));
-  assert.equal(rows.some(row=>row.attribution),true,
-    'At least one fixed rank9 seed must produce a native accepted VIP item/search pair');
+  assert.equal(rows.some(row=>row.attribution&&row.seat===0),true,
+    'A native accepted VIP item/search pair must be attributed for physical seat 0');
+  assert.equal(rows.some(row=>row.attribution&&row.seat===1),true,
+    'A native accepted VIP item/search pair must be attributed for physical seat 1');
 });
