@@ -64,14 +64,14 @@ Each phase returned four native attempts:
 | B | On | 3 | 1 | 0 | 1 | 1 | 1 |
 | A2 | Off | 3 | 1 | 0 | 0 | 0 | 0 |
 
-All four source/full physical opening fingerprints matched across A/B/A. All four A/A2 control root ledgers and outcomes reproduced exactly. Only one of four contexts changed under B.
+All four source/full physical opening fingerprints matched across A/B/A. All four A/A2 control root ledgers, winner fields and finished flags reproduced exactly. Only one of four contexts changed under B.
 
-| Trial | Original Pass roots in B | Eligible Pass roots | VIP item accepted | Search accepted | Result |
-| --- | ---: | ---: | ---: | ---: | --- |
-| Rank 6 vs Champion | 7 | 0 | 0 | 0 | No root-ledger change |
-| Rank 6 vs New Moon | 13 | 0 | 0 | 0 | No root-ledger change |
-| Rank 11 vs Champion | 17 | 0 | 0 | 0 | No root-ledger change |
-| Rank 11 vs New Moon | 41 | 1 | 1 | 1 | One VIP action; first divergence at root 21 |
+| Trial | B root actions | Original Pass roots | Eligible Pass roots | VIP item | Search | Result |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Rank 6 vs Champion | 71 | 7 | 0 | 0 | 0 | No root-ledger change |
+| Rank 6 vs New Moon | 121 | 13 | 0 | 0 | 0 | No root-ledger change |
+| Rank 11 vs Champion | 100 | 17 | 0 | 0 | 0 | No root-ledger change |
+| Rank 11 vs New Moon | 240 | 41 | 1 | 1 | 1 | One VIP action; first divergence at root 21 |
 
 In the changed rank-11 / New Moon context:
 
