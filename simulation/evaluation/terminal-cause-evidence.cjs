@@ -65,6 +65,11 @@ function classifyTerminalCause(row) {
     return {status:'missing-or-inconsistent-transition',
       conditions:[],engineWinner:winner};
   }
+  if(typeof before.suddenDeath!=='boolean'||
+      typeof after.suddenDeath!=='boolean'){
+    return {status:'terminal-epoch-unverified',
+      conditions:[],engineWinner:winner};
+  }
   // Sudden-death tiebreakers compare each player's remaining Prizes after the
   // *complete* simultaneous KO batch. Pinned Twinleaf can end as soon as
   // seat 0 claims a Prize in sudden death, before moving either Prize card.
@@ -123,12 +128,15 @@ function summarizeTerminalCauses(rows) {
       count('terminal-rule-unresolved')+
       count('missing-or-inconsistent-transition')+
       count('paper-basic-result-conflict')+
-      count('tiebreaker-batch-adjudication-unresolved'),
+      count('tiebreaker-batch-adjudication-unresolved')+
+      count('terminal-epoch-unverified'),
     observedTerminals:count('observed-sufficient-conditions'),
     unresolvedTerminals:count('terminal-rule-unresolved')+
       count('missing-or-inconsistent-transition')+
       count('paper-basic-result-conflict')+
-      count('tiebreaker-batch-adjudication-unresolved'),
+      count('tiebreaker-batch-adjudication-unresolved')+
+      count('terminal-epoch-unverified'),
+    epochUnverified:count('terminal-epoch-unverified'),
     tiebreakerUnresolved:count('tiebreaker-batch-adjudication-unresolved'),
     paperBasicConflicts:count('paper-basic-result-conflict'),
     capped:count('action-capped'),
