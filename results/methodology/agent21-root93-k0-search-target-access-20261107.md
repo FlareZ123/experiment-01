@@ -1,6 +1,6 @@
 # Agent21: root93 Secret Box → Fog Crystal search completeness under an explicit K0 hypothesis
 
-**7 November 2026, 06:18 UTC | independently calculated sensitivity model; zero new native games and zero competitive-qualified games.**
+**7 November 2026, 06:14 UTC | independently calculated sensitivity model; zero new native games and zero competitive-qualified games.**
 
 ## The decision that needs a source-safe information state
 
