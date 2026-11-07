@@ -5,10 +5,10 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
-const {preflightOriginal60Plan}=
+const {preflightVisibleOwnerRemainingUpperBound}=
   require('./owner-original-60-plan-gate.cjs');
 
-const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v2-owner-original60-preflight';
+const VERSION='agent43-owner-visible-secretbox-one-energy-knockout-v3-owner-k0-public-target-preflight';
 const BOX='Secret Box TWM';
 const FOG='Fog Crystal CRE';
 const BASIC='Psychic Energy';
@@ -58,10 +58,11 @@ function choosePublicOneEnergyBoxKo(view,fundableCosts={psychic:5,colorless:9}){
 }
 
 /**
- * Constrain a public candidate Box/Fog attack to targets that are present
- * in this owner's genuine registered original 60. This is K0-safe: the owner
- * knows its own full list before ever seeing its shuffled deck or Prizes.
- * Absence is a hard veto. Presence never certifies a still-live target.
+ * Constrain a public candidate Box/Fog attack by its owner's registered
+ * 60 and independently known own public/hand cards. Even before searching
+ * the deck (K0), the owner knows whether a required printing was absent
+ * originally or has been exhausted into known non-deck zones. Unknown Prizes
+ * remain unexamined, so passing this gate never certifies a live target.
  * @param {object} view Owner-only detached public observation.
  * @param {string[]} ownRegistered60 Native fullName list from request.deckA/B.
  * @param {{psychic:number,colorless:number}} [fundableCosts]
@@ -79,14 +80,15 @@ function choosePublicOneEnergyBoxKoWithRegistered60(
   const basicPrints=[...new Set(ownRegistered60.filter(printing=>
     typeof printing==='string'&&printing.startsWith(BASIC+' ')))];
   if(basicPrints.length===0)return null;
-  const gate=preflightOriginal60Plan(ownRegistered60,[{
-    role:'secret-box-owner-deck-fog-search',
-    acceptablePrintings:[FOG],copies:1
-  },{
-    role:'fog-basic-psychic-energy-target',
-    acceptablePrintings:basicPrints,copies:1
-  }]);
-  return gate.status==='blocked-impossible-original60'?null:plan;
+  const gate=preflightVisibleOwnerRemainingUpperBound(
+    ownRegistered60,view,[{
+      role:'secret-box-owner-deck-fog-search',
+      acceptablePrintings:[FOG],copies:1
+    },{
+      role:'fog-basic-psychic-energy-target',
+      acceptablePrintings:basicPrints,copies:1
+    }]);
+  return gate.status==='blocked-impossible-visible-exhaustion'?null:plan;
 }
 
 /**
@@ -149,7 +151,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     bothPhysicalSeats:true,sourceIndependent:true,ownerOnly:true,
     retiredActionWasPass:true,liveRuns:0,passObservations:0,
     candidatePlans:0,acceptedActions:0,rejectedActions:0,
-    original60HardVetoes:0,
+    ownerK0TargetHardVetoes:0,
     paperPaymentChecks:0,paperPaymentsAccepted:0,
     physicalBoxSearches:0,physicalFogSearches:0,
     physicallyAttachedBasic:0,submittedAttacks:0,
@@ -296,7 +298,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       const plan=choosePublicOneEnergyBoxKoWithRegistered60(
         view,registeredBySeat[seat],fundableCosts);
       if(!plan){
-        audit.original60HardVetoes++;
+        audit.ownerK0TargetHardVetoes++;
         return ordinary;
       }
       const handIndex=view.ownHand.indexOf(BOX);
