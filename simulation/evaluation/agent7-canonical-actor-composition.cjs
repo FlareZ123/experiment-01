@@ -200,9 +200,19 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       return selected.result;
     }
     let paid;
+    const later=()=>{
+      if(options.rank9UltraDeadVipAfterPass!==true)return choose();
+      const ultra=require('../twinleaf/agent29-rank9-owner-ultra-ball-dead-vip.cjs')
+        .withOriginalRank9DeadVipUltraBall(choose,
+          options.rank9CompressorOwnerSeat);
+      const chosen={result:ultra.result,audit:{
+        ...ultra.result.audit,deadVipUltra:ultra.audit
+      }};
+      return chosen;
+    };
     const bomb=require('../twinleaf/agent29-rank9-post-compressor-bomb.cjs')
       .withOwnerBombAfterSourceCompressor(()=>{
-        paid=choose();
+        paid=later();
         return paid.result;
       },options.rank9CompressorOwnerSeat);
     ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit};
