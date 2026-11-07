@@ -22,6 +22,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Validate native ChooseAttackPrompt object-versus-serialized response contract
+        run: node --test tests/native-choose-attack-answer.test.cjs
       - name: Direct printed Overclock versus copied Apex Overclock controls
         run: node simulation/twinleaf/agent46-regidrago-apex-overclock-payload-native.cjs
       - name: Native original Dragon source-handler and effect trace
