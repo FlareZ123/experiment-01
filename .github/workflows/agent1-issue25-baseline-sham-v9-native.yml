@@ -58,7 +58,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact 29-source and six-candidate forced-Active opening screen
-        run: node --test tests/agent1-aichi-forced-active-opener.test.cjs
+        run: node --test tests/agent1-aichi-forced-active-opener.test.cjs tests/agent1-rank26-six-candidate-root.test.cjs
 
   native-same-baseline-sham:
     if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true }}
