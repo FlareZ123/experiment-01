@@ -37,6 +37,10 @@ jobs:
         run: node --test tests/agent2-root-identity-guard.test.cjs tests/agent2-paid-retreat-accepted-root-receipt.test.cjs
       - name: Audit Basic-only paid retreat physical identity and exact discard
         run: node --test tests/agent2-retreat-basic-physical-witness.test.cjs
+      - name: Count exact original 29 Trainer demand and verify 60-card census
+        run: |
+          node --test tests/agent2-original29-trainer-demand-census.test.cjs
+          node simulation/evaluation/agent2-original29-trainer-demand-census.cjs > agent2-original29-trainer-demand.json
       - name: Check conservative owner public Block and Bench-attack mobility gates
         run: node --test tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
       - name: Preserve exact machine-readable 29-rank analysis and SHA-256
@@ -53,6 +57,7 @@ jobs:
             agent2-fss-collision.json.sha256
             agent2-aichi-retreat-prohibition.json
             agent2-aichi-retreat-prohibition.json.sha256
+            agent2-original29-trainer-demand.json
           if-no-files-found: warn
 
   native-root-identity:
