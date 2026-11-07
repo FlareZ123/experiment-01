@@ -569,7 +569,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Owner prompt settlement and silent no-op regressions on both seats
-        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent3-issue25-owner-prompt-settlement-composition.test.cjs tests/agent21-owner-first-prize-reveal.test.cjs tests/agent3-owner-ko-prize-settlement-evidence.test.cjs tests/agent3-prize-shuffle-ignored-return-hook.test.cjs tests/agent3-ko-effect-prompt-provenance.test.cjs tests/agent3-ko-source-prompt-physical-v2.test.cjs tests/agent3-ko-source-prompt-physical-v3.test.cjs tests/agent3-ko-source-prompt-physical-v4.test.cjs tests/agent3-authoritative-root-prize-exit-observer.test.cjs tests/agent3-checkstate-generator-origin-token.test.cjs tests/agent3-accepted-prize-attack-join.test.cjs tests/agent3-public-ko-victim-print-observer.test.cjs tests/agent3-printed-base-prize-screen.test.cjs tests/agent3-postprize-owner-reply-projection.test.cjs
+        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent3-issue25-owner-prompt-settlement-composition.test.cjs tests/agent21-owner-first-prize-reveal.test.cjs tests/agent3-owner-ko-prize-settlement-evidence.test.cjs tests/agent3-prize-shuffle-ignored-return-hook.test.cjs tests/agent3-ko-effect-prompt-provenance.test.cjs tests/agent3-ko-source-prompt-physical-v2.test.cjs tests/agent3-ko-source-prompt-physical-v3.test.cjs tests/agent3-ko-source-prompt-physical-v4.test.cjs tests/agent3-authoritative-root-prize-exit-observer.test.cjs tests/agent3-checkstate-generator-origin-token.test.cjs tests/agent3-accepted-prize-attack-join.test.cjs tests/agent3-public-ko-victim-print-observer.test.cjs tests/agent3-printed-base-prize-screen.test.cjs tests/agent3-postprize-owner-reply-projection.test.cjs tests/agent3-public-ko-energy-physical-custody.test.cjs
       - name: Pure owner Pokemon source custody and A/B/A gates
         run: node --test tests/agent3-issue25-v14-owner-pokemon-aba.test.cjs
       - name: Genuine native ChoosePokemon prompt owner intervention A/B/A
@@ -630,6 +630,10 @@ jobs:
         env:
           AGENT3_V29_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
         run: node --test tests/agent3-issue25-v29-printed-prize-owner-reply.native.test.cjs
+      - name: Prove every knocked-out public Energy object's actual native owner-discard custody
+        env:
+          AGENT3_V30_V8_PRIZE_DIR: artifacts/issue25-v14-owner-pokemon
+        run: node --test tests/agent3-issue25-v30-physical-knockout-energy-objects.native.test.cjs
       - name: Archive all owner Pokemon public outcomes including error and cap
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
