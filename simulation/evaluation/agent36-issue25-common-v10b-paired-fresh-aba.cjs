@@ -621,6 +621,18 @@ function run(deps={}){
   );
   const sourceRanksObserved=[...new Set(baselineAttempts.map(x=>x.rank)
     .filter(Number.isSafeInteger))].sort((a,b)=>a-b);
+  const baselineById=new Map(baselineAttempts.map(x=>[x.id,x]));
+  const sourceDealPairs=registration.groups.map(group=>{
+    const pair=trials().filter(x=>x.rank===group.rank&&
+      x.repeat===group.repeat&&x.candidateSlot===group.candidateSlot)
+      .map(x=>baselineById.get(x.id)?.sourceDealFingerprint??null);
+    return {
+      rank:group.rank,repeat:group.repeat,candidateSlot:group.candidateSlot,
+      sourceDealFingerprints:pair,
+      matched:pair.length===2&&pair[0]!==null&&pair[0]===pair[1]
+    };
+  });
+  const sourceDealPairsMatchAcrossCandidateArms=sourceDealPairs.every(x=>x.matched);
   const cohortCoverage={
     registeredContexts:trials().length,
     sourceRanksObserved,
@@ -633,7 +645,10 @@ function run(deps={}){
     bothFirstPlayerSeatsObserved:firstPlayerSeats.length===2,
     uniqueSourceDealFingerprints:unique('sourceDealFingerprint').length,
     uniqueFullPhysicalDealFingerprints:unique('fullPhysicalDealFingerprint').length,
-    allSourceDealsUnique:unique('sourceDealFingerprint').length===registration.groups.length,
+    sourceDealPairsMatchAcrossCandidateArms,
+    sourceDealPairs,
+    allSourceDealsUnique:unique('sourceDealFingerprint').length===registration.groups.length&&
+      sourceDealPairsMatchAcrossCandidateArms,
     allPhysicalDealsUnique:unique('fullPhysicalDealFingerprint').length===trials().length
   };
   return {
