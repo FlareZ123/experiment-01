@@ -32,7 +32,7 @@ The tests verify:
 - an already-active Dimension Valley does not produce a redundant Stadium proposal;
 - the existing Thunder Mountain and other planner controls remain intact.
 
-The new planner regression step passed in [Aichi benchmark workflow 42359961573](https://github.com/FlareZ123/experiment-01/actions/runs/42359961573). The broader workflow was still executing unrelated statistical checks when this report was written.
+The complete [Aichi benchmark workflow 42359961573](https://github.com/FlareZ123/experiment-01/actions/runs/42359961573) completed successfully, including the new planner regression step and the existing Thunder Mountain controls. The run checked out commit `df4ed1e12a706b112b0765b1b0693d4e6b2ce3c5`; a later commit changed only planner documentation wording.
 
 ## Connection to the native source-root witness
 
