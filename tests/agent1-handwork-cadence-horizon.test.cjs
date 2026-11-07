@@ -7,7 +7,8 @@ const {
   distributionOfFutureOwnerStartsUnderSchedule,
   probabilityHandiworkAccessByNaturalDrawAndMail,
   probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
-  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways
+  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways,
+  probabilityHandiworkAccessByLilliesDetermination
 }=require('../simulation/evaluation/agent1-handwork-cadence-horizon.cjs');
 
 /**
@@ -738,4 +739,36 @@ test('conditional gateway counts cannot exceed the four Arven and two Teammates 
   assert.throws(()=>probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
     40,15,0,1,1,6,false,true
   ),/only six Arven\/Teammates gateway copies/);
+});
+
+test('Lillie’s Determination draw probability accounts for the hand shuffled back and Prize count',()=>{
+  const sixPrizes=probabilityHandiworkAccessByLilliesDetermination(
+    40,5,6
+  );
+  assert.deepEqual(sixPrizes.exactProbability,{
+    numerator:'8',denominator:'45'
+  });
+  assert.equal(sixPrizes.printedDrawCount,8);
+  assert.equal(sixPrizes.accessTiming,'delayed-next-turn');
+
+  const fivePrizes=probabilityHandiworkAccessByLilliesDetermination(
+    40,5,5
+  );
+  assert.deepEqual(fivePrizes.exactProbability,{
+    numerator:'2',denominator:'15'
+  });
+  assert.equal(fivePrizes.printedDrawCount,6);
+
+  const smallDeck=probabilityHandiworkAccessByLilliesDetermination(
+    2,0,6
+  );
+  assert.deepEqual(smallDeck.exactProbability,{
+    numerator:'1',denominator:'1'
+  });
+  assert.throws(()=>probabilityHandiworkAccessByLilliesDetermination(
+    40,21,6
+  ),/cannot exceed the 60-card deck/);
+  assert.throws(()=>probabilityHandiworkAccessByLilliesDetermination(
+    40,5,0
+  ),/prizesRemaining must be 1..6/);
 });
