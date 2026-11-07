@@ -43,6 +43,11 @@ on:
         type: boolean
         required: false
         default: false
+      terminal_tiebreaker_native_admission:
+        description: Read real pinned sudden-death Store terminal snapshot through paper admission gate
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -60,8 +65,30 @@ jobs:
       - name: Exact 29-source and six-candidate forced-Active opening screen
         run: node --test tests/agent1-aichi-forced-active-opener.test.cjs tests/agent1-rank26-six-candidate-root.test.cjs tests/agent1-rank26-active-denial-opening.test.cjs
 
+  original-native-tiebreaker-terminal-admission:
+    if: ${{ inputs.terminal_tiebreaker_native_admission == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify actual native replay Store sudden-death epoch and fail-closed classifier
+        run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs
+
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
