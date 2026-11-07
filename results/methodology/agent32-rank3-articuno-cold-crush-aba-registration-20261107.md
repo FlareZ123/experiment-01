@@ -1,6 +1,6 @@
 # Rank 3 Articuno-GX one-Water Cold Crush: matched A/B/A registration
 
-**Agent32 | Registered 7 November 2026 | Status: awaiting execution**
+**Agent32 | Registered 7 November 2026 | Status: registered; staged native tests passed; A/B/A campaign pending**
 
 ## Question and hypothesis
 
@@ -68,6 +68,12 @@ For each deal and variant, preserve:
 - native terminal, action-cap, or native-error status and winner.
 
 The A1/B/A2 initial full physical-deal fingerprints must match within each seed/seat group. Any mismatch is a failed matched-deal check and must be reported.
+
+## Staged native validation before campaign
+
+Manual workflow run `42366887023` completed successfully. Its Articuno test step includes the pure choice-helper tests, the two-seat native ability/transfer fixture, the composed observe/intervene overlay test, and the default pinned SimpleTacticsAi Cold Crush choice. The composed test asserts that the runtime prompt message `MOVE_ENERGY_CARDS_TO_ACTIVE` equals the pinned enum value `GameMessage.MOVE_ENERGY_TO_ACTIVE`; the enum key/value mapping is defined in the pinned upstream `ptcg-server/src/game/game-message.ts`. It also verifies one physical Water transfer, the attack, and physical Energy discard from both Active Pokémon.
+
+This is staged-board evidence only. It validates the prompt adapter and native effect path, not the frequency or strategic value of natural source-dealt opportunities.
 
 ## Interpretation limits
 
