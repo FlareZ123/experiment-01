@@ -13,6 +13,9 @@ function publicSnapshot(state) {
     turn: state.turn,
     activePlayer: state.activePlayer,
     winner: state.winner ?? null,
+    // Pin an actual Store tiebreaker epoch; its winner condition differs from
+    // ordinary final-Prize/no-Pokemon endings. Missing in older v1 archives.
+    suddenDeath: state.isSuddenDeath === true,
     players: state.players.map(player => ({
       deckRemaining: player.deck.cards.length,
       handSize: player.hand.cards.length,
