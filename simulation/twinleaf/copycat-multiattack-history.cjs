@@ -73,13 +73,25 @@ function installCopycatMultiAttackHistory(store){
    * @param {number} [clientRoleId]
    * @returns {any}
    */
+  const pendingBarrage=new Map();
+
+  /**
+   * A Barrage prompt selects the next attack. The selected attack is counted
+   * only when Twinleaf actually dispatches its subsequent AttackAction.
+   *
+   * @param {any} action
+   * @param {number} [clientRoleId]
+   * @returns {any}
+   */
   function observedDispatch(action,clientRoleId){
     const before=this.state;
     const beforeActive=before.players?.[before.activePlayer];
     const beforeActiveIndex=before.activePlayer;
     const beforeTurn=before.turn;
     let declared=null;
-    let barrageFollowup=null;
+    let pendingSelection=null;
+    let pendingFollowup=null;
+    let clearPendingPlayerId=null;
 
     if(action instanceof AttackAction){
       const player=before.players.find(value=>value.id===action.clientId);
@@ -96,6 +108,24 @@ function installCopycatMultiAttackHistory(store){
           gxAttack:attack.gxAttack===true,
           copycatAttack:attack.copycatAttack===true
         };
+        const pending=pendingBarrage.get(player.id);
+        if(pending){
+          if(pending.turn===before.turn&&
+              pending.sourceCard===sourceCard&&
+              pending.attackName===attack.name){
+            pendingFollowup={
+              pending,
+              recordValue:{
+                ...declared,
+                kind:'barrage-followup',
+                barragePairId:pending.barragePairId,
+                barragePairRole:'second'
+              }
+            };
+          }else{
+            clearPendingPlayerId=player.id;
+          }
+        }
       }
     }else if(action instanceof ResolvePromptAction){
       const prompt=before.prompts?.find(value=>value.id===action.id);
@@ -116,19 +146,13 @@ function installCopycatMultiAttackHistory(store){
             preceding?.playerId===player.id&&
             preceding.turn===before.turn&&
             preceding.sourceCard===sourceCard){
-          const barragePairId=player.id+':'+before.turn+':'+(rows.length-1);
-          preceding.barragePairId=barragePairId;
-          preceding.barragePairRole='first';
-          barrageFollowup={
-            kind:'barrage-followup',
-            barragePairId,barragePairRole:'second',
-            playerId:player.id,turn:before.turn,
-            sourceCard,attack,
-            sourceCardName:sourceCard.name,
-            sourceCardFullName:sourceCard.fullName,
+          pendingSelection={
+            playerId:player.id,
+            turn:before.turn,
+            sourceCard,
             attackName:attack.name,
-            gxAttack:attack.gxAttack===true,
-            copycatAttack:attack.copycatAttack===true
+            preceding,
+            barragePairId:player.id+':'+before.turn+':'+(rows.length-1)
           };
         }
       }
@@ -150,8 +174,22 @@ function installCopycatMultiAttackHistory(store){
       });
       throw error;
     }
-    if(declared)record(declared.playerId,declared);
-    if(barrageFollowup)record(barrageFollowup.playerId,barrageFollowup);
+
+    if(declared){
+      if(pendingFollowup){
+        pendingFollowup.pending.preceding.barragePairId=
+          pendingFollowup.pending.barragePairId;
+        pendingFollowup.pending.preceding.barragePairRole='first';
+        record(declared.playerId,pendingFollowup.recordValue);
+        pendingBarrage.delete(declared.playerId);
+      }else{
+        record(declared.playerId,declared);
+        if(clearPendingPlayerId!==null)
+          pendingBarrage.delete(clearPendingPlayerId);
+      }
+    }
+    if(pendingSelection)
+      pendingBarrage.set(pendingSelection.playerId,pendingSelection);
 
     const after=result??this.state;
     if(beforeActive&&
@@ -161,10 +199,10 @@ function installCopycatMultiAttackHistory(store){
         turn:beforeTurn,attacks:(current.get(endedPlayerId)??[]).slice()
       });
       current.set(endedPlayerId,[]);
+      pendingBarrage.delete(endedPlayerId);
     }
     return result;
   }
-
   store.dispatch=observedDispatch;
 
   /**
