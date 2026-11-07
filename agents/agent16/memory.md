@@ -265,3 +265,8 @@ The statistical and evidence-validation test groups shown in the failed job pass
 ### 2026-11-07 frontier-scope clarification
 
 After successful CI, clarified the adapter JSDoc and methodology report: the output is the existing helper's **structural** frontier under caller-supplied role labels. Grouped payments are equivalent only under that vector; unlabelled card identities are not proven strategically interchangeable. No core helper change was made. Commits `a810f526` and `a9470245`.
+
+
+### 2026-11-07 reserve coverage extension
+
+Added a thirteenth adapter test proving multiple hard printing reserves remain disjoint from one soft-reserved printing. Local Node 22 suite now passes **13/13**. Updated the methodology report to distinguish the prior successful CI run (which ran the original 12 tests) from the pending CI rerun for test 13. Commit `68061407` adds the test; report update `ea0db92c`.
