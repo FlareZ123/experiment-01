@@ -90,3 +90,15 @@ This joins the reducer source proof and the live public zone through the exact p
 A separate native test should select one physical Energy object from `prompt.cards.cards` that is also in `prompt.cards.energies.cards`, passes `prompt.validate([selectedEnergy])`, and dispatch `new ResolvePromptAction(prompt.id, [selectedEnergy])`. It should record the resulting `MoveCardsEffect` and assert the same object leaves both attacker lists and enters the rule-correct destination with `sourceCard: Stunfisk` and `sourceEffect: Stunfisk.powers[0]`. The current Psychic Energy should enter discard; a Prism Star Energy is redirected to Lost Zone.
 
 No generic resolver should be enabled until this separately versioned native settlement test passes.
+
+
+## Confirmed zero-ID sentinel and wrapper-order details
+
+The pinned base class confirms that the pre-Store prompt ID is deliberately numeric zero: `Prompt.constructor(playerId)` assigns `this.id = 0` (`ptcg-server/src/game/store/prompts/prompt.ts:23-25`). The v6 artifact's `"0" -> "173"` transition is therefore expected engine behavior. Any post-call assignment predicate must treat `null`, `undefined`, and numeric/string zero as unassigned, then require a nonzero assigned ID.
+
+The decoder-hook explanation is also confirmed by wrapper order:
+- The v6 runner installs Agent10's marker before entering the v10b source runner.
+- `simulation/evaluation/agent36-issue25-selected-v0.cjs:160-162` then applies `withNativeRawStateFallbackQuarantine`.
+- `simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs:38-54` replaces `SimpleTacticsAi.prototype.decodeNextAction` with a guarded function that records the quarantine and throws without delegating to the previously saved descriptor.
+
+Thus the Agent10 decoder wrapper cannot emit `blockedPromptOriginEvents` in this path. The source prompt itself is still stamped in the reducer marker's WeakMap before the native Store.prompt call. The preferred bridge is to expose a read-only `getOriginForPrompt(prompt)` callback from the source marker and query it from the outer observer after the original Store.prompt returns. This proves the same prompt object without weakening the quarantine or relying on the replaced decoder hook.
