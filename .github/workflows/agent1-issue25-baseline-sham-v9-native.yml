@@ -38,13 +38,30 @@ on:
         type: boolean
         required: false
         default: false
+      forced_active_opening_screen:
+        description: Run exact source-deck Basic and forced-low-HP opener analysis only
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  aichi-forced-active-screen:
+    if: ${{ inputs.forced_active_opening_screen == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact 29-source and six-candidate forced-Active opening screen
+        run: node --test tests/agent1-aichi-forced-active-opener.test.cjs
+
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
