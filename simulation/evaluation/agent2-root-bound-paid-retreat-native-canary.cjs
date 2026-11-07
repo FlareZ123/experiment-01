@@ -24,8 +24,10 @@ const {createActualRootIdentityGuard}=
   require('../twinleaf/agent2-root-identity-guard.cjs');
 const {createPaidRetreatAcceptedRootReceipt}=
   require('../twinleaf/agent2-paid-retreat-accepted-root-receipt.cjs');
+const {captureBasicRetreatPhysicalWitness}=
+  require('../twinleaf/agent2-retreat-basic-physical-witness.cjs');
 
-const VERSION='agent2-root-bound-paid-retreat-native-canary-v2';
+const VERSION='agent2-root-bound-paid-retreat-native-canary-v3';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const FULL='e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
 const SOURCE='ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
@@ -44,7 +46,7 @@ const hash=value=>createHash('sha256').update(JSON.stringify(value))
  */
 function runArm(variant,cards){
   let sourceAudit=null,rank1Audit=null,retreatAudit=null,genericAudit=null;
-  let identityAudit=null,acceptedRootAudit=null;
+  let identityAudit=null,acceptedRootAudit=null,physicalPaymentAudit=null;
   try{
     const guarded=withNativePaperSupporterDiscipline(()=>
       withCanonicalActorOnlyPolicy(()=>{
@@ -53,6 +55,7 @@ function runArm(variant,cards){
             const retreat=withOwnerSelectedDialgaPaidRetreat(()=>{
               const rootIdentity=createActualRootIdentityGuard();
               const acceptedReceipt=createPaidRetreatAcceptedRootReceipt();
+              const payment={selected:null,witness:null,selectedCount:0,receipts:[]};
               const native=()=>withSameTargetAttachEnergySelection(()=>runMatch(rootIdentity.attach(acceptedReceipt.attach({
                 deckA:cards.source,deckB:cards.candidate,
                 seed:SEED,maxActions:520,
@@ -66,16 +69,31 @@ function runArm(variant,cards){
                 captureDecisionTrace:true,
                 capturePublicAttackTransitions:true,
                 captureNativeAbortEvidence:true,
-                captureFinalPublicBoard:true
+                captureFinalPublicBoard:true,
+                onRootActionDispatched(store,action,ordinal,seat,turnBefore){
+                  if(action!==payment.selected)return;
+                  payment.receipts.push({actionOrdinal:ordinal,actorSeat:seat,
+                    turnBefore,...payment.witness.verify(store.state)});
+                }
               })))).result;
               if(variant!=='root-bound-treatment')return native();
               const generic=withBilateralMultiBasicPaidRetreat(native,{
                 isActualRoot:rootIdentity.isActualRoot,
-                onRetreatSelected:acceptedReceipt.onRetreatSelected
+                onRetreatSelected(bot,action,state,seat){
+                  acceptedReceipt.onRetreatSelected(bot,action,state,seat);
+                  assert.equal(payment.selected,null,
+                    'exactly one selected RetreatAction expected');
+                  payment.selected=action;
+                  payment.selectedCount++;
+                  payment.witness=captureBasicRetreatPhysicalWitness(
+                    state,seat,action.benchIndex);
+                }
               });
               genericAudit=generic.audit;
               identityAudit=rootIdentity.audit;
               acceptedRootAudit=acceptedReceipt.audit;
+              physicalPaymentAudit={selectedCount:payment.selectedCount,
+                receipts:payment.receipts};
               return generic.result;
             },{
                 treatment:false,
@@ -126,7 +144,8 @@ function runArm(variant,cards){
         row.turnBefore>=33),
       rank3SourceResponseTimeline:sourceRoots.filter(row=>
         row.turnBefore>=33),
-      retreatAudit,genericAudit,identityAudit,acceptedRootAudit,sourceAudit,rank1Audit,
+      retreatAudit,genericAudit,identityAudit,acceptedRootAudit,
+      physicalPaymentAudit,sourceAudit,rank1Audit,
       finalPublicBoard:game.finalPublicBoard??null,
       nativeTerminal:game.terminalTransition??null,
       competitivelyQualified:false
@@ -175,6 +194,14 @@ function run(){
           receipt.actionName==='RetreatAction'&&
           arm.rank1NativeRetreatRoots?.some(x=>
             x.actionOrdinal===receipt.actionOrdinal)),
+      exactPhysicalBasicPayment:
+        arm.physicalPaymentAudit?.selectedCount===1&&
+        arm.physicalPaymentAudit?.receipts?.length===1&&
+        arm.physicalPaymentAudit.receipts[0].valid===true&&
+        arm.physicalPaymentAudit.receipts[0].actorSeat===1&&
+        arm.physicalPaymentAudit.receipts[0].turnBefore===33&&
+        accepted?.receipts?.[0]?.actionOrdinal===
+          arm.physicalPaymentAudit.receipts[0].actionOrdinal,
       sameSourcePhysicalDeal:
         arm.initialFullPhysicalDealSha256===FULL &&
         arm.initialSourceDealSha256===SOURCE
