@@ -135,6 +135,8 @@ function run(seat,itemName){
   const pay=[f.vip1,f.vip2,f.carrier];
   const initialOwnerPrizeCount=f.owner.prizes.length;
   const initialOppPrizeCount=f.opponent.prizes.length;
+  assert.equal(initialOwnerPrizeCount,6);
+  assert.equal(initialOppPrizeCount,6);
   const initialDeckCount=f.owner.deck.cards.length;
   f.store.dispatch(new PlayCardAction(f.owner.id,0,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
