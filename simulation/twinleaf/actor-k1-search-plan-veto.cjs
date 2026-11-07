@@ -12,7 +12,9 @@ const {assessRequiredDeckPrinting} = require('./owner-k1-prize-knowledge.cjs');
  * @param {object|null} knowledge Authenticated K1 snapshot or K0 null.
  * @param {{id:string,actionKind:'supporter'|'item'|'stadium'|'tool'|'energy'|'other',
  *   handPrintings?:string[],deckRequirements?:Array<{printing:string,copies:number}>,
- *   freeBenchNeeded?:number}} plan Strict declarative immediate plan.
+ *   freeBenchNeeded?:number,
+ *   firstTurnSupporterException?:boolean}} plan Strict declarative plan.
+ *   Only mark an exception after independent exact-print card-text proof.
  * @returns {{id:string,status:'blocked'|'not-disproven',reasons:object[],
  *   source:'actor-only-k0-k1',nativeLegalityCertified:false}}
  */
@@ -31,6 +33,8 @@ function preflightOwnerSearchPlan(view, knowledge, plan) {
   const handPrintings=plan.handPrintings??[];
   const deckRequirements=plan.deckRequirements??[];
   const freeBenchNeeded=plan.freeBenchNeeded??0;
+  assert.ok(plan.firstTurnSupporterException===undefined||
+    typeof plan.firstTurnSupporterException==='boolean');
   assert.ok(Array.isArray(handPrintings) &&
     handPrintings.every(name=>typeof name==='string'&&name.length>0));
   assert.ok(Array.isArray(deckRequirements) &&
@@ -57,6 +61,11 @@ function preflightOwnerSearchPlan(view, knowledge, plan) {
   if(plan.actionKind==='supporter'){
     if(r.supporterPlayLocked===true)
       reasons.push({kind:'supporter-locked'});
+    // Global turn 1 is the first player's opening turn in Twinleaf.
+    // The printed basic rule prohibits an ordinary Supporter on that turn;
+    // an explicitly source-verified card such as Carmine is an exception.
+    if(view.globalTurn===1&&plan.firstTurnSupporterException!==true)
+      reasons.push({kind:'first-player-opening-supporter-rule'});
     // supporterPlayedTurn is Twinleaf's current-turn COUNT, unlike
     // energyPlayedTurn and stadiumPlayedTurn, which are global turn stamps.
     // Comparing the count to the global turn misses spent Supporters on
