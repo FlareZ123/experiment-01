@@ -79,20 +79,13 @@ function publicEnergyContext(view, pokemon, types, basicStage) {
 }
 
 /**
- * Find an owner-hand Stadium that makes at least one damaging Active attack
- * payable now under the paper-verified Stadium cost modifiers. The source is
- * a detached actorObservation and only public printed card metadata.
+ * Estimate an attack's public base damage without resolving its effect.
+ * Energy Drive is the only dynamic formula modeled here.
  *
- * This is a conservative *candidate* for a real selected root, never a
- * substitute for Store attack permission, attack effects, opponent damage
- * prevention, or strategic benefit. It deliberately excludes unknown
- * modifier Stadiums, conditional counter-Energy ambiguity and zero-damage
- * attacks, and does not claim complete move enumeration.
- *
- * @param {object} view Owner-only actorObservation.
- * @param {{trainerCatalog:Map<string,{name:string,type:string}>,
- *  cardTypes:object,stageBasic:number,specialConditions:object}} refs
- * @returns {object|null}
+ * @param {object} attack Printed attack observation.
+ * @param {object} ownActive Owner Active observation.
+ * @param {object|null|undefined} opponentActive Opponent Active observation.
+ * @returns {number|null} Known base damage or null when unresolved.
  */
 function estimatedAttackDamage(attack, ownActive, opponentActive) {
   if (attack.name === 'Energy Drive') {
@@ -105,6 +98,16 @@ function estimatedAttackDamage(attack, ownActive, opponentActive) {
 }
 
 /**
+ * Find an owner-hand Stadium that makes at least one damaging Active attack
+ * payable now under the paper-verified Stadium cost modifiers. The source is
+ * a detached actorObservation and only public printed card metadata.
+ *
+ * This is a conservative *candidate* for a real selected root, never a
+ * substitute for Store attack permission, attack effects, opponent damage
+ * prevention, or strategic benefit. It deliberately excludes unknown
+ * modifier Stadiums, conditional counter-Energy ambiguity and unmodeled
+ * dynamic attacks, and does not claim complete move enumeration.
+ *
  * @param {object} view Owner-only actorObservation.
  * @param {{trainerCatalog:Map<string,{name:string,type:string}>,
  *  cardTypes:object,stageBasic:number,specialConditions:object}} refs
