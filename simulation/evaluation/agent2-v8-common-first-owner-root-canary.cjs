@@ -144,9 +144,10 @@ function runOne(candidateSeat,cards){
     allowSingleRegisteredTrial:true,
     nativeRootActionLimit:ACTION_LIMIT
   }));
-  const owner=withStewardInnermostOwnerPrompts(execute);
-  const volt=withOwnerVoltAcrossNativeMatches(()=>owner);
-  const selected=volt.result.result;
+  const owner=()=>withStewardInnermostOwnerPrompts(execute);
+  const volt=withOwnerVoltAcrossNativeMatches(owner);
+  const ownerWrapped=volt.result;
+  const selected=ownerWrapped.result;
   const nativeRow=selected.rawDevelopment?.rows?.[0]??row;
   const provenance=nativeRow?.nativeAbortProvenance??{};
   const native=provenance.nativeAbortEvidence??null;
@@ -185,7 +186,7 @@ function runOne(candidateSeat,cards){
     intentKind:'pass',
     intentReason:'no-supported-owner-visible-root',
     quarantineCode:selected.diagnostic.thrownCode??null,
-    quarantineMessage:String(selected.diagnostic.thrownMessage??'').slice(0,250),
+    quarantineMessage:String(provenance.message??selected.diagnostic.thrownMessage??'').slice(0,250),
     rootActionPrefixSha256:native?.rootActionLedgerSha256??null
   }:null;
 
@@ -227,7 +228,7 @@ function runOne(candidateSeat,cards){
       nativeQuarantineAudit:quarantine
     },
     v8OuterAudits:{
-      innermostOwnerPrompts:owner.audit??null,
+      innermostOwnerPrompts:ownerWrapped.audit??null,
       ownerVolt:volt.audit??null
     },
     selectedV0Manifest:selected.manifest,
