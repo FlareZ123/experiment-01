@@ -6,17 +6,17 @@ This supplement records new public evidence for the three missing Aichi Open Lea
 
 ## Summary
 
-| Rank | Official Limitless player | Public archetype evidence | Identity bridge | Exact 60-card list |
+| Rank | Limitless player record | Public archetype evidence | Identity bridge | Exact 60-card list |
 | ---: | --- | --- | --- | --- |
-| 23 | Yuki Ueno | Regidrago, listed in the official Regidrago tournament history for CL Aichi Open League | Official player and archetype are linked at event level; no separate social-account bridge established | Unavailable |
-| 25 | Kazuki Kumegawa | Raichu Electrode Combo in the official Limitless history; public recap and article excerpt describe Eleki Rain / Alolan Raichu one-shot | Strongly corroborated through the unique CL Yokohama 2023 runner-up record, matching player handle and Lost Box Charizard archetype | Unavailable; the note article's detailed deck explanation is paywalled and was not accessed |
-| 28 | Jo Kato | Regidrago, listed in the official Regidrago tournament history for CL Aichi Open League | Official Limitless player/archetype row is established. The public `@nnaacc5_uec` / Replica handle is associated with 28th-place Regidrago, but its legal-name bridge to Jo Kato remains unresolved | Unavailable |
+| 23 | Yuki Ueno | Regidrago, listed in the Limitless Regidrago tournament history for CL Aichi Open League | Limitless player record and archetype are linked at event level; no separate social-account bridge established | Unavailable |
+| 25 | Kazuki Kumegawa | Raichu Electrode Combo in the Limitless history; public recap and article excerpt describe Eleki Rain / Alolan Raichu one-shot | Strongly corroborated through the unique CL Yokohama 2023 runner-up record, matching player handle and Lost Box Charizard archetype | Unavailable; the note article's detailed deck explanation is paywalled and was not accessed |
+| 28 | Jo Kato | Regidrago, listed in the Limitless Regidrago tournament history for CL Aichi Open League | Limitless player record/archetype row is established. The public `@nnaacc5_uec` / Replica handle is associated with 28th-place Regidrago, but its legal-name bridge to Jo Kato remains unresolved | Unavailable |
 
 ## Rank 23: Yuki Ueno, Regidrago
 
 The Limitless [CL Aichi Open League results](https://limitlesstcg.com/tournaments/566) list Yuki Ueno in 23rd place. The Limitless [Regidrago tournament history](https://limitlesstcg.com/decks/260/results) independently lists Yuki Ueno at 23rd in the 10 May 2026 event. This supports an event-level Regidrago archetype attribution.
 
-The [Limitless player profile](https://limitlesstcg.com/players/6227) exposes a 2024 CL Sapporo result but no Aichi 2026 list. The [official Aichi decklists page](https://limitlesstcg.com/tournaments/566/decklists) does not contain Yuki Ueno. No public exact 60 was located.
+The [Limitless player profile](https://limitlesstcg.com/players/6227) exposes a 2024 CL Sapporo result but no Aichi 2026 list. The [Limitless Aichi decklists page](https://limitlesstcg.com/tournaments/566/decklists) does not contain Yuki Ueno. No public exact 60 was located.
 
 ## Rank 25: Kazuki Kumegawa, Raichu Electrode Combo / Eleki Rain
 
@@ -32,7 +32,7 @@ This resolves the likely identity bridge and archetype. The exact Aichi 60 remai
 
 The Limitless [CL Aichi Open League results](https://limitlesstcg.com/tournaments/566) list Jo Kato in 28th place. The Limitless [Regidrago tournament history](https://limitlesstcg.com/decks/260/results) independently lists Jo Kato at 28th in the same event.
 
-The public [PokeKameshi Top 32 recap](https://pokekameshi.com/cl2026aichidec-extra/2/) labels the 28th-place player as Replica and reproduces a 10 May post from `@nnaacc5_uec` stating 28th place and Regidrago. The public AtCoder profile for that handle uses display name `rep_` and lists the University of Electro-Communications. No source found in this search directly connects that handle to the official Limitless name Jo Kato. Preserve the uncertainty. The Limitless row is sufficient for event-level archetype attribution.
+The public [PokeKameshi Top 32 recap](https://pokekameshi.com/cl2026aichidec-extra/2/) labels the 28th-place player as Replica and reproduces a 10 May post from `@nnaacc5_uec` stating 28th place and Regidrago. The public AtCoder profile for that handle uses display name `rep_` and lists the University of Electro-Communications. No source found in this search directly connects that handle to the Limitless player name Jo Kato. Preserve the uncertainty. The Limitless row is sufficient for event-level archetype attribution.
 
 The official Aichi [decklists page](https://limitlesstcg.com/tournaments/566/decklists) contains no Jo Kato list. No public exact 60 was located.
 
@@ -41,7 +41,7 @@ The official Aichi [decklists page](https://limitlesstcg.com/tournaments/566/dec
 - Full authenticated source lists remain **29/32**. Ranks 23, 25, and 28 remain unavailable at the exact 60-card level.
 - Archetype-level evidence is now available for all three missing ranks: Regidrago, Raichu Electrode Combo / Eleki Rain, and Regidrago.
 - The rank25 kume-to-Kazuki Kumegawa identity bridge is strongly corroborated by a unique prior tournament result and matching deck archetype.
-- The rank28 Replica-to-Jo Kato identity bridge remains unresolved. Do not collapse the social handle into the official player identity.
+- The rank28 Replica-to-Jo Kato identity bridge remains unresolved. Do not collapse the social handle into the listed player identity.
 - Search for public exact decklist images, official deck codes, or player-posted lists. Preserve the source URL, timestamp, player/rank bridge, and card-count validation. Keep the list unavailable until all 60 cards and counts are visible and independently checked.
 - Never fill the gaps with another player's same-archetype list, a paid article's hidden content, or a reconstructed archetype template.
 
