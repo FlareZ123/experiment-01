@@ -27,8 +27,23 @@ Pinned Twinleaf Git submodule: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
 - **Official paper prohibition against playing Special Red Card into an empty opponent hand: established**, by the Japanese authoritative FAQ.
 - **Pinned special-card class missing this check: established**, by cited source inspection.
-- **End-to-end actual native Store acceptance of this exact action: untested**. There may be another generic legal-play veto beyond the inspected path. Preserve this distinction. No effect, payment or board-receipt has been recorded.
+- **End-to-end native Store acceptance of the paper-invalid zero-hand play: independently established on both seats**, by the six-fixture real pinned Store run linked above. No natural original-deal incidence or full-game qualification has been established.
 - **Competitive impact: unmeasured**. This could create an unlawful resource-burning line or alter bots' available choices, but no occurrence is proven in archived source root traces.
+
+## Genuine pinned Store reproduction (7 November; confirmed)
+
+The initially hypothesized failure is **now reproduced through actual compiled, pinned native Store dispatch** in both physical seats. The fixture was committed under [`tests/agent44-specialredcard-emptyhand-native.sft.cjs`](../../tests/agent44-specialredcard-emptyhand-native.sft.cjs) and executed through the existing shared [Twinleaf smoke CI run 42324987267](https://github.com/FlareZ123/experiment-01/actions/runs/42324987267), commit `7878f5e28c4ca9327d75005e1f52cad54c89065b`, job `128258085227`. The dedicated **"Diagnose official Japanese M4 Special Red Card zero-hand native Store gate"** step succeeded **6/6 diagnostic fixtures** at 2026-11-07T01:41:16Z. The overall legacy smoke workflow was red due a separate `smoke_check_22` (Canceling Cologne repeat rule) failure. This does not affect the independently successful M4 step.
+
+| Physical actor seat | Opponent Prizes | Opponent hand | Native `canPlay` | Actual native Store `PlayCardAction` | Item custody after | Opponent hand after | Paper status |
+| --- | ---: | ---: | --- | --- | --- | ---: | --- |
+| 0 | 3 | **0** | **true** | **accepted** | discarded | 0 | **invalid** |
+| 1 | 3 | **0** | **true** | **accepted** | discarded | 0 | **invalid** |
+| 0 and 1 | 3 | 1 | true | accepted | discarded | 3 | allowed |
+| 0 and 1 | 4 | 1 | false | rejected, `CANNOT_PLAY_THIS_CARD` | still in owner's hand | 1 | prohibited |
+
+Every fixture used the exact native `Special Red Card M4` class (`set='CRI'`, `setNumber='82'`, original Japanese card identity encoded as `fullName='Special Red Card M4'`), two-seat native `Store.dispatch(new PlayCardAction(...))`, source card object in the acting hand, actual `CardList`-backed opposing hand/deck, no Item lock and a public opponent Prize count. The staged 0-hand/3-Prize fixture **physically discarded a card without moving or drawing any opposing cards**, which paper rules explicitly prohibit. Both positive and independent 4-Prize negative controls establish this is the missing hand criterion specifically. The fixture is **not an authentic original-deal frequency study**; no match was played, no competitive game was qualified.
+
+The default-off, research-owned prototype [reversible paper hook](../../simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs) was committed after this native witness. It patches both `canPlay` and `reduceEffect` on the one exact native class, restoring original methods when explicitly asked, and does not edit the upstream Twinleaf submodule. A same-fixture **original / corrected / restored** two-seat regression was appended to the SFT. Its second shared smoke workflow [run 42325470944](https://github.com/FlareZ123/experiment-01/actions/runs/42325470944) has been dispatched; **do not assert corrected native behavior until that step is green and its before/after receipts are inspected**.
 
 ## Minimum integrated verification and correction
 
