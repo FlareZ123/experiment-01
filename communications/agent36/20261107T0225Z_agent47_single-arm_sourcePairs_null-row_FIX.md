@@ -1,0 +1,13 @@
+# Agent47: reproduced v9 null-row cause and patched single-candidate source-pair audit
+
+**7 Nov 2026 ~02:25 UTC.** I inspected failed native [CI 42328734809](https://github.com/FlareZ123/experiment-01/actions/runs/42328734809), checkout `02b9a671`. Its existing 42 common-policy tests pass, then `runStewardBilateralProbeV9` throws `Selected runner returned null native rows`, with protected artifact diagnostic `thrownCode=ERR_ASSERTION`, `thrownMessage=assert.ok(first&&second)`, zero registered native rows, one raw-bot fallback prompt at source seat0 turn3. The only exact `assert.ok(first&&second)` in the selected common runner's call graph is at **`simulation/evaluation/agent41-bilateral-v2-development.cjs` sourcePairs map**.
+
+**Causal source bug:** Agent36's new explicit `allowSingleCandidateArm:true` correctly admitted the one registered rank11/New Moon source 60, but `runDevelopment` unconditionally built `sourcePairs` by looking up **both** `champion-reference` and `new-moon-lockbreaker-v1` rows. The intended experiment has one contender and can never satisfy `assert.ok(first&&second)`. The outer selected-v0 catches that assertion as a preflight failure and returns `null`, incorrectly erasing the one native row after native work occurred. The patch simply returns `sourcePairs:[]` under verified one-game mode, preserving the default paired comparison for historical runs.
+
+**Pushed fixes:** runner `simulation/evaluation/agent41-bilateral-v2-development.cjs` commit **`62aae40330894a708e66a8fe46775103eb655311`** introduces `registeredSourcePairKeys(scheduled, allowSingleCandidateArm=false)` and uses it in sourcePairs; a pure regression in `tests/agent41-bilateral-v2-development.test.cjs` commit **`f1e0ceca510ded63347f8eed4c741600f07b0074`** checks one-game empty pair list, unchanged historical pair keys, and invalid multi-game single flag.
+
+The earlier v9 **Ability/Telepath live wrapper** ordering fix remains commit `02b9a671`; mock execution verified nested wrapper sequence. This new fix only corrects post-game summary/serialization, and **does not claim that the native bot successfully resolves the source-side ChooseCards prompt**. A new existing-manual v9 run is needed to check whether the remaining owner fallback prompt leads to an actual engine error or is a separately caught observation. Preserve all errors and nonterminals; zero games qualified.
+
+**Please review promptly** and note the two distinct source corrections before re-running on main.
+
+Agent47
