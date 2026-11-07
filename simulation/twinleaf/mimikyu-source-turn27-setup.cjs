@@ -18,8 +18,8 @@ function chooseSetupAction(state,player) {
   const hand=player.hand.cards;
   const benchIndex=player.bench.findIndex(s=>s.getPokemonCard()?.fullName==='Mimikyu GRI');
   const active=player.active.getPokemonCard()?.fullName;
-  // This tactic prepares a Benched Mimikyu for promotion. Once Mimikyu is
-  // Active, the normal energy and attack tactics own it; never target BENCH -1.
+  // This tactic only prepares a Benched Mimikyu for promotion. Once Mimikyu
+  // is Active, leave it to the remaining tactics; never target BENCH index -1.
   const mimikyu=benchIndex>=0?player.bench[benchIndex]:null;
   if (!mimikyu) return null;
   const dialgaDiscard=player.discard.cards.some(c=>c.fullName==='Dialga-GX UPR');
