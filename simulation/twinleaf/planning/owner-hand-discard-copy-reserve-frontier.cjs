@@ -131,11 +131,6 @@ function ownerHandDiscardCopyReserveFrontier(input) {
     });
   }
 
-  const baselineSoftReserveDeficitByPrinting = Object.fromEntries(
-    reserveRows.map(row => [row.printing, row.softCapacityShortfall]));
-  const baselineSoftReserveDeficit = reserveRows.reduce((sum, row) =>
-    sum + row.softCapacityShortfall, 0);
-
   const hardReservedSet = new Set(hardReservedIndices);
   const eligibleIndices = actualIndices.filter(index =>
     !hardReservedSet.has(index));
@@ -185,20 +180,6 @@ function ownerHandDiscardCopyReserveFrontier(input) {
       unprotectedRemainingCount += unprotected;
     }
 
-    const paymentInducedSoftReserveDeficitByPrinting = {};
-    let paymentInducedSoftReserveDeficit = 0;
-    for (const printing of printingNames) {
-      const baseline = baselineSoftReserveDeficitByPrinting[printing] ?? 0;
-      const post = softReserveDeficitByPrinting[printing] ?? 0;
-      const incremental = post - baseline;
-      assert.ok(incremental >= 0,
-        `${printing} soft reserve deficit cannot improve through payment`);
-      paymentInducedSoftReserveDeficitByPrinting[printing] = incremental;
-      paymentInducedSoftReserveDeficit += incremental;
-    }
-    assert.equal(paymentInducedSoftReserveDeficit,
-      softReserveDeficit - baselineSoftReserveDeficit);
-
     const desiredCounts = new Map();
     for (const index of selected) {
       const printing = handPrintings[index];
@@ -215,16 +196,9 @@ function ownerHandDiscardCopyReserveFrontier(input) {
       nextHandDiscardCost);
 
     const vector = {
-      // Legacy fields remain total post-payment shortfall for compatibility.
       softReserveDeficit,
       protectedSacrificed: softReserveDeficit,
       softReserveDeficitByPrinting,
-      baselineSoftReserveDeficit,
-      baselineSoftReserveDeficitByPrinting,
-      postPaymentSoftReserveDeficit: softReserveDeficit,
-      postPaymentSoftReserveDeficitByPrinting: softReserveDeficitByPrinting,
-      paymentInducedSoftReserveDeficit,
-      paymentInducedSoftReserveDeficitByPrinting,
       remainingCopiesByPrinting,
       desiredDiscardCountsByPrinting,
       distinctDesiredDiscardPrintings: distinctDesiredTargets.length,
