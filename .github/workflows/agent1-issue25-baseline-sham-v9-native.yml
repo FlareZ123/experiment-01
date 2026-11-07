@@ -34,7 +34,12 @@ on:
         required: false
         default: false
       common_v14_filch_v15:
-        description: Run original-eight bilateral cautious Filch A/B/A plus frozen rank3/rank1 owner deck cause audit
+        description: Run registered original-eight bilateral cautious Filch A/B/A at 260 roots
+        type: boolean
+        required: false
+        default: false
+      rank3_owner_deck_cause_audit:
+        description: Audit the frozen rank3/rank1 turn-15 owner deck decrement with read-only Store prompt metadata
         type: boolean
         required: false
         default: false
@@ -54,7 +59,7 @@ permissions:
 
 jobs:
   rank3-owner-deck-cause-audit:
-    if: ${{ inputs.common_v14_filch_v15 == true }}
+    if: ${{ inputs.rank3_owner_deck_cause_audit == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -122,7 +127,7 @@ jobs:
         run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs tests/agent1-terminal-ordinary-double-ko-admission.native.test.cjs
 
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
