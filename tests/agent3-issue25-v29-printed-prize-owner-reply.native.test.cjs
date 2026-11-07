@@ -292,19 +292,75 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   const actualPreAttackBoardJoins=joinNativePreAttackBoard(
     selected.rawDevelopment.rows,attackPrizeRootJoins,
     fullyRootedPublicVictimJoins,printedNativeAttackNominals.rows,originalField);
+  assert.equal(actualPreAttackBoardJoins.version,
+    'agent3-native-pre-attack-public-board-join-v3');
   assert.equal(actualPreAttackBoardJoins.rows.length,8);
   assert.equal(actualPreAttackBoardJoins.nativeDamageDeltaPrintMatches,8);
+  assert.equal(actualPreAttackBoardJoins.declarationRootBoardsCaptured,8);
+  assert.equal(actualPreAttackBoardJoins.finalBoardsCaptured,8);
+  assert.equal(actualPreAttackBoardJoins.physicalActiveIdentityComplete,8);
+  assert.equal(Object.values(
+    actualPreAttackBoardJoins.declarationRootClassificationCounts
+  ).reduce((sum,count)=>sum+count,0),8);
   assert.equal(actualPreAttackBoardJoins.rows.every(row=>
     row.nativeDeltaEqualsPrintedNominal===true&&
     row.directPrintedEnergySufficiency?.status==='POSSIBLE'&&
     row.actualPrintedAttackCostMatchesSourceScreen===true&&
     row.physicalActiveAtActualNativeAttackObserved===true&&
     row.physicalActivePrintingAccountedForByOriginal60===true&&
+    row.physicalActiveIdentityComplete===true&&
+    row.declarationRootBoardCaptured===true&&
+    row.finalBoardCaptured===true&&
+    Number.isSafeInteger(row.declarationRootActionOrdinal)&&
+    Number.isSafeInteger(row.initiatingRootActionOrdinal)&&
+    Number.isSafeInteger(row.declarationRootTurnAfter)&&
+    typeof row.declarationRootPromptPendingAfter==='boolean'&&
+    Array.isArray(row.publicBoardImmediatelyAfterDeclarationRoot)&&
+    Array.isArray(row.publicBoardAfterPromptClosure)&&
+    typeof row.declarationRootVsPromptClosureClassification==='string'&&
+    !row.declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')&&
+    (row.targetDamageThresholdReachedImmediatelyAfterDeclarationRoot===null||
+      typeof row.targetDamageThresholdReachedImmediatelyAfterDeclarationRoot==='boolean')&&
+    (row.targetKnockedOutDuringLaterPromptResolution===null||
+      typeof row.targetKnockedOutDuringLaterPromptResolution==='boolean')&&
     row.paperGameCertified===false&&
     row.actualAttachedEnergyPaymentCertified===false),true);
   assert.equal(actualPreAttackBoardJoins.qualifiedCompetitiveGames,0);
   console.log('AGENT3_V29_ACTUAL_PRE_ATTACK_BOARD_KO_JOIN',
     JSON.stringify(actualPreAttackBoardJoins.rows));
+  console.log('AGENT3_V29_DECLARATION_ROOT_TIMING',
+    JSON.stringify({
+      version:actualPreAttackBoardJoins.version,
+      classificationCounts:
+        actualPreAttackBoardJoins.declarationRootClassificationCounts,
+      rows:actualPreAttackBoardJoins.rows.map(row=>({
+        registeredTrialId:row.registeredTrialId,
+        attackRole:row.attackRole,attackSeat:row.attackSeat,
+        attackName:row.attackName,
+        declarationRootActionOrdinal:row.declarationRootActionOrdinal,
+        initiatingRootActionOrdinal:row.initiatingRootActionOrdinal,
+        declarationRootTurnAfter:row.declarationRootTurnAfter,
+        declarationRootPromptPendingAfter:row.declarationRootPromptPendingAfter,
+        physicalActivePrintingBefore:row.physicalActivePrintingBefore,
+        physicalActivePrintedAttackNamesBefore:
+          row.physicalActivePrintedAttackNamesBefore,
+        attackNamePrintedOnPhysicalActiveBefore:
+          row.attackNamePrintedOnPhysicalActiveBefore,
+        directAttackPrintedOnPhysicalActiveBefore:
+          row.directAttackPrintedOnPhysicalActiveBefore,
+        targetDamageImmediatelyAfterDeclarationRoot:
+          row.targetDamageImmediatelyAfterDeclarationRoot,
+        targetDamageAfterPromptClosure:row.targetDamageAfterPromptClosure,
+        targetDamageDeltaFromPreAttackToDeclarationRoot:
+          row.targetDamageDeltaFromPreAttackToDeclarationRoot,
+        targetDamageDeltaFromDeclarationRootToActualNativeKo:
+          row.targetDamageDeltaFromDeclarationRootToActualNativeKo,
+        targetKnockedOutDuringLaterPromptResolution:
+          row.targetKnockedOutDuringLaterPromptResolution,
+        classification:row.declarationRootVsPromptClosureClassification
+      }))
+    }));
+
   // Independently reconcile the physical Mimikyu's Copycat cost and the
   // opponent's immediately preceding non-GX Eon Blade, not the donor's cost.
   // This is a postgame evidence join and cannot alter the selected policy.
