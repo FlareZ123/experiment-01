@@ -58,11 +58,6 @@ on:
         required: false
         type: boolean
         default: false
-      include_agent11_rank1_owner_pass_resources:
-        description: 'Read-only original rank1 mirror source owner-hand and board at all twelve genuine Pass roots; developmental only'
-        required: false
-        type: boolean
-        default: false
       include_agent8_shadowmist_source_lock:
         description: 'Historical rank6 source-owner Shadow Mist lock flags before actual 96-root Passes, developmental only'
         required: false
@@ -276,12 +271,12 @@ jobs:
           AGENT45_V8_MIRROR_EPISODE_DIR: issue25-agent32-v8-confirm/agent45-mirror
         run: node --test tests/agent45-rank1-mirror-source-pass-native-probe.test.cjs tests/agent45-rank1-mirror-source-pass-native-probe.native.test.cjs
       - name: Audit rank1 mirror source owner hand and resources at all twelve Pass roots
-        if: ${{ !cancelled() && inputs.include_agent11_rank1_owner_pass_resources }}
+        if: ${{ !cancelled() && inputs.include_agent8_telepath_v5 }}
         env:
           AGENT11_RANK1_MIRROR_RESOURCE_DIR: issue25-agent11-rank1-owner-resources
         run: node --test tests/agent11-rank1-mirror-owner-pass-resources.test.cjs tests/agent11-rank1-mirror-owner-pass-resources.native.test.cjs
       - name: Preserve read-only owner resource evidence with atomic digest
-        if: ${{ always() && inputs.include_agent11_rank1_owner_pass_resources }}
+        if: ${{ always() && inputs.include_agent8_telepath_v5 }}
         uses: actions/upload-artifact@v4
         with:
           name: agent11-rank1-mirror-owner-pass-resources
