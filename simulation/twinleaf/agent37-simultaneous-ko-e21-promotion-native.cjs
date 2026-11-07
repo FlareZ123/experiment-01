@@ -1,0 +1,246 @@
+'use strict';
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {initializeCards}=require('./headless.cjs');
+const {
+  withInstanceScopedPaperKoBeforeEndTurn,VERSION,PINNED
+}=require('./agent37-paper-ko-instance-scoped-hook.cjs');
+
+const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+/** @param {string} p @returns {any} */
+const native=p=>require(path.join(OUTPUT,p));
+
+/**
+ * Actual simultaneous active KO: Ferroseed's 60 self-damage and 60 attack
+ * damage KO Ferroseed and a 60-HP Duskull together. Owner's Unown starts on
+ * the Bench with Powerglass and is promoted before E-21 should resolve.
+ *
+ * @param {0|1} actorSeat Physical state.players index of the attacking owner.
+ * @param {boolean} useHook Apply the research-owned per-Store E-21 hook.
+ * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
+ */
+function runOne(actorSeat,useHook){
+  const cards=initializeCards();
+  let id=940000+actorSeat*1000;
+  const card=name=>{
+    const value=cards.getCardByName(name);
+    assert.ok(value,'Missing pinned printing '+name);
+    value.id=id++;
+    return value;
+  };
+  const {Store}=native('game/store/store');
+  const {Player}=native('game/store/state/player');
+  const {CardList}=native('game/store/state/card-list');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+  const {GamePhase}=native('game/store/state/state');
+  const {Format}=native('game/store/card/card-types');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {AttackAction}=native('game/store/actions/game-actions');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+
+  const store=new Store({onStateChange(){}});
+  const state=store.state;
+  const owner=new Player(),enemy=new Player();
+  owner.id=101;owner.name='Ferroseed attacker';
+  enemy.id=202;enemy.name='Duskull defender';
+  state.players=actorSeat===0?[owner,enemy]:[enemy,owner];
+  state.activePlayer=actorSeat;
+  state.turn=16;
+  state.phase=GamePhase.PLAYER_TURN;
+  state.gameSettings.format=Format.EXPANDED;
+
+  owner.active.cards.push(card('Ferroseed NXD'));
+  owner.active.energies.cards.push(
+    card('Metal Energy MEE'),
+    card('Double Colorless Energy NXD')
+  );
+  enemy.active.cards.push(card('Duskull VIV'));
+
+  const ownerBench=new PokemonCardList();
+  ownerBench.cards.push(card('Unown AOR'));
+  owner.bench.push(ownerBench);
+  const enemyBench=new PokemonCardList();
+  enemyBench.cards.push(card('Trubbish FST'));
+  enemy.bench.push(enemyBench);
+
+  owner.hand.cards.push(card('Powerglass SFA'));
+  owner.discard.cards.push(card('Psychic Energy MEE'));
+
+  for(const player of [owner,enemy]){
+    for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy MEE'));
+    for(let i=0;i<6;i++){
+      const prize=new CardList();
+      prize.cards.push(card('Psychic Energy MEE'));
+      player.prizes.push(prize);
+    }
+  }
+
+  store.dispatch(new PlayCardAction(owner.id,0,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+  }));
+  assert.equal(owner.bench[0].tools[0].fullName,'Powerglass SFA');
+  assert.equal(owner.active.getPokemonCard().fullName,'Ferroseed NXD');
+  assert.equal(enemy.active.getPokemonCard().fullName,'Duskull VIV');
+  assert.equal(owner.active.energies.cards.length,2);
+  assert.equal(enemy.active.damage,0);
+
+  const runNativeTransaction=()=>{
+    store.dispatch(new AttackAction(owner.id,'Self Destruct'));
+    const seenPrompts=[];
+    const prizePromptOrder=[];
+    const promotionOrder=[];
+    let powerglassPromptIndex=-1;
+
+    for(let i=0;i<64;i++){
+      const pending=state.prompts.find(prompt=>prompt.result===undefined);
+      if(!pending)break;
+      const name=pending.constructor.name;
+      seenPrompts.push(name);
+      let answer=null;
+
+      if(name==='ChoosePrizePrompt'){
+        prizePromptOrder.push(pending.playerId);
+        const player=state.players.find(p=>p.id===pending.playerId);
+        assert.ok(player);
+        const remaining=player.prizes.filter(prize=>prize.cards.length>0);
+        answer=remaining.slice(0,pending.options.count);
+        assert.equal(answer.length,pending.options.count);
+        assert.equal(pending.validate(answer,state),true);
+      }else if(name==='ChoosePokemonPrompt'){
+        promotionOrder.push(pending.playerId);
+        const player=state.players.find(p=>p.id===pending.playerId);
+        assert.ok(player);
+        const promote=player.bench.find(slot=>slot.getPokemonCard());
+        assert.ok(promote,'Both players must have a real Pokémon to promote');
+        answer=[promote];
+        assert.equal(pending.validate(answer,state),true);
+      }else if(name==='AttachEnergyPrompt'){
+        powerglassPromptIndex=seenPrompts.length-1;
+        assert.strictEqual(pending.cardList,owner.discard);
+        const donor=owner.discard.cards.find(
+          value=>value.fullName==='Psychic Energy MEE'
+        );
+        assert.ok(donor,'Powerglass requires a physical Basic Psychic in discard');
+        answer=[{card:donor,to:{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+        }}];
+        assert.equal(pending.validate(answer),true);
+      }else{
+        assert.equal(name,'WaitPrompt','Unexpected simultaneous-KO prompt');
+      }
+      store.dispatch(new ResolvePromptAction(pending.id,answer));
+    }
+
+    assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
+    const expectedFirstPromoter=state.players[1-actorSeat];
+    const observedFirstPromoter=state.players.find(
+      p=>p.id===promotionOrder[0]
+    );
+    const lastPrizeIndex=seenPrompts.lastIndexOf('ChoosePrizePrompt');
+    const firstPromotionIndex=seenPrompts.indexOf('ChoosePokemonPrompt');
+    const lastPromotionIndex=seenPrompts.lastIndexOf('ChoosePokemonPrompt');
+    const orderedPrizeBeforePromotion=
+      lastPrizeIndex>=0&&firstPromotionIndex>lastPrizeIndex;
+    const powerglassAfterBothPromotions=
+      powerglassPromptIndex>lastPromotionIndex&&lastPromotionIndex>=0;
+
+    return {
+      actorSeat,
+      seenPrompts,
+      prizePromptOrder:prizePromptOrder.map(id=>
+        id===owner.id?'owner':'opponent'),
+      promotionOrder:promotionOrder.map(id=>
+        id===owner.id?'owner':'opponent'),
+      expectedFirstPromoter:expectedFirstPromoter===owner?'owner':'opponent',
+      observedFirstPromoter:observedFirstPromoter===owner?'owner':'opponent',
+      paperPromotionOrderMatches:observedFirstPromoter===expectedFirstPromoter,
+      orderedPrizeBeforePromotion,
+      powerglassPromptIndex,
+      powerglassAfterBothPromotions,
+      ownerActive:owner.active.getPokemonCard()?.fullName??null,
+      opponentActive:enemy.active.getPokemonCard()?.fullName??null,
+      ownerPrizesRemaining:owner.prizes.filter(p=>p.cards.length>0).length,
+      opponentPrizesRemaining:enemy.prizes.filter(p=>p.cards.length>0).length,
+      ownerActiveEnergy:owner.active.energies.cards.map(c=>c.fullName),
+      ownerActiveTools:owner.active.tools.map(c=>c.fullName),
+      ownerDiscard:owner.discard.cards.map(c=>c.fullName),
+      ownerWinner:state.winner,
+      ownerPhase:state.phase
+    };
+  };
+
+  if(!useHook)return {result:runNativeTransaction(),audit:null};
+  const wrapped=withInstanceScopedPaperKoBeforeEndTurn(
+    store,runNativeTransaction
+  );
+  return {result:wrapped.result,audit:wrapped.audit};
+}
+
+/**
+ * @returns {object} Two physical actor seats, each with baseline and treatment.
+ */
+function run(){
+  const rows=[0,1].map(actorSeat=>{
+    const baseline=runOne(actorSeat,false);
+    const treatment=runOne(actorSeat,true);
+    const b=baseline.result,t=treatment.result;
+    assert.deepEqual(b.seenPrompts.filter(p=>
+      p==='ChoosePrizePrompt'||p==='ChoosePokemonPrompt'),[
+      'ChoosePrizePrompt','ChoosePrizePrompt',
+      'ChoosePokemonPrompt','ChoosePokemonPrompt'
+    ]);
+    assert.equal(t.seenPrompts.filter(p=>p==='AttachEnergyPrompt').length,1,
+      'Promoted owner Active must receive the post-KO Powerglass prompt');
+    assert.equal(b.seenPrompts.filter(p=>p==='AttachEnergyPrompt').length,0,
+      'Unpatched E-21 runs while Powerglass is still on the Bench');
+    assert.equal(t.powerglassAfterBothPromotions,true);
+    assert.equal(t.orderedPrizeBeforePromotion,true);
+    assert.equal(b.ownerActive,'Unown AOR');
+    assert.equal(t.ownerActive,'Unown AOR');
+    assert.equal(b.opponentActive,'Trubbish FST');
+    assert.equal(t.opponentActive,'Trubbish FST');
+    assert.equal(b.ownerPrizesRemaining,5);
+    assert.equal(t.ownerPrizesRemaining,5);
+    assert.equal(b.opponentPrizesRemaining,5);
+    assert.equal(t.opponentPrizesRemaining,5);
+    assert.equal(b.ownerActiveEnergy.length,0);
+    assert.equal(t.ownerActiveEnergy.length,1);
+    assert.equal(t.ownerActiveEnergy[0],'Psychic Energy MEE');
+    assert.ok(t.ownerActiveTools.includes('Powerglass SFA'));
+    assert.equal(treatment.audit.intercepted,1);
+    assert.equal(treatment.audit.completed,1);
+    assert.equal(treatment.audit.terminalSuppressed,0);
+    assert.equal(treatment.audit.callbacks,treatment.audit.intercepted);
+    assert.equal(treatment.audit.otherStoresUnmodified,true);
+    assert.equal(treatment.audit.originalRestored,true);
+    return {
+      actorSeat,
+      baseline:b,
+      scoped:t,
+      hookAudit:treatment.audit,
+      paperPromotionOrderMismatch:!t.paperPromotionOrderMatches
+    };
+  });
+  return {
+    schema:'agent37-simultaneous-ko-e21-promotion-native-v1',
+    pinnedTwinleaf:PINNED,
+    hook:VERSION,
+    scenario:'Ferroseed NXD Self Destruct KOs both 60-HP Active Pokémon; promoted owner Unown AOR holds Powerglass SFA',
+    physicalSeatPairs:2,
+    fullBaselineTreatmentPairs:2,
+    simultaneousPrizeAndPromotionSettled:true,
+    promotedPowerglassTriggersOnlyAfterHookedKoSettlement:true,
+    nativePromotionOrderAuditedAgainstRulebook:true,
+    paperPromotionOrderMismatchSeats:rows.filter(
+      row=>row.paperPromotionOrderMismatch
+    ).map(row=>row.actorSeat),
+    competitiveGamesQualified:0,
+    rows
+  };
+}
+
+if(require.main===module)
+  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+module.exports={run,runOne};
