@@ -108,7 +108,7 @@ function completeVipExamples(vipAudit){
  * @param {object[]} searchEvents
  * @returns {boolean}
  */
-function acceptedEventsMatchRoots(ledger,itemEvents,searchEvents){
+function acceptedEventsMatchRoots(ledger,itemEvents,searchEvents,examples){
   const itemOrdinals=new Set();
   for(const event of itemEvents){
     if(event.accepted!==true)continue;
@@ -158,24 +158,14 @@ function acceptedEventsMatchRoots(ledger,itemEvents,searchEvents){
        deckBefore-deckAfter!==printings.length)return false;
     const itemEvent=itemEvents.find(candidate=>
       candidate.accepted===true&&candidate.itemRootOrdinal===itemOrdinal);
-    if(!itemEvent)return false;
-    const itemIndex=vipAuditIndex(itemEvents,itemEvent);
-    const searchIndex=vipAuditIndex(searchEvents,event);
-    if(itemIndex===null||searchIndex===null)return false;
+    if(!itemEvent||!Array.isArray(examples))return false;
+    const itemIndex=examples.indexOf(itemEvent);
+    const searchIndex=examples.indexOf(event);
+    if(itemIndex<0||searchIndex<=itemIndex)return false;
     searchOrdinals.add(searchOrdinal);
     searchedItems.add(itemOrdinal);
   }
   return true;
-}
-
-/**
- * @param {object[]} events
- * @param {object} event
- * @returns {number|null}
- */
-function vipAuditIndex(events,event){
-  const index=events.indexOf(event);
-  return index<0?null:index;
 }
 
 /**
@@ -218,7 +208,8 @@ function strictVipTreatmentAttribution(input){
     attributed:false,reason:'vip-intervention-event-archive-incomplete'
   };
   const {itemEvents,searchEvents}=complete;
-  if(!acceptedEventsMatchRoots(treatmentLedger,itemEvents,searchEvents))
+  if(!acceptedEventsMatchRoots(
+      treatmentLedger,itemEvents,searchEvents,vipAudit.examples))
     return {
       attributed:false,reason:'accepted-vip-event-root-join-invalid'
     };
