@@ -153,6 +153,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
         const pending=pendingByTrial.get(trialId);
         if(pending&&pending.prizeTakingTurn===turnBefore){
           pending.prizeTakingRootOrdinals.push(ordinal);
+          if(prizeTakingSlot==='source')pending.sourcePrizeRootOrdinals.push(ordinal);
+          else pending.candidatePrizeRootOrdinals.push(ordinal);
           pending.prizesTaken+=removed.length;
         }else{
           if(pending)unansweredPrizeExits.push({
@@ -165,6 +167,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
             prizeLosingPlayerId:responsePlayerId,
             prizeTakingTurn:turnBefore,
             prizeTakingRootOrdinals:[ordinal],
+            sourcePrizeRootOrdinals:prizeTakingSlot==='source'?[ordinal]:[],
+            candidatePrizeRootOrdinals:prizeTakingSlot==='candidate'?[ordinal]:[],
             prizesTaken:removed.length,
             candidatePlayerId:playerIds.candidatePlayerId,
             sourcePlayerId:playerIds.sourcePlayerId
