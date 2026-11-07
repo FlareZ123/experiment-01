@@ -268,20 +268,25 @@ test('legacy records without an immediate declaration-root board remain explicit
   assert.equal(result.qualifiedCompetitiveGames,0);
 });
 
-test('a target moved to Bench at declaration is not misclassified as a later KO',()=>{
+test('a target still on Bench below printed HP conflicts with a native KO receipt',()=>{
   const f=fixture();
-  const board=f.attempts[0].sourceAttackSettlement.attacks[0]
-    .publicBoardImmediatelyAfterDeclarationRoot;
-  board[1].active=null;
-  board[1].bench=[{
+  const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
+  const benchPokemon={
     name:'Girafarig',printing:'Girafarig LOT',damage:20,
     energyCards:['Psychic Energy','Psychic Energy','Psychic Energy'],
     toolCards:[],printedAttacks:[{name:'Get Lost',cost:['Colorless']}]
-  }];
+  };
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].active=null;
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].bench=[
+    structuredClone(benchPokemon)
+  ];
+  attack.publicBoardAfter[1].active=null;
+  attack.publicBoardAfter[1].bench=[structuredClone(benchPokemon)];
   const result=run(f);
   assert.equal(result.rows[0].targetLocationImmediatelyAfterDeclarationRoot,'bench');
+  assert.equal(result.rows[0].targetLocationAfterPromptClosure,'bench');
   assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
-    'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT');
+    'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP');
   assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
 });
 
