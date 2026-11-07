@@ -33,6 +33,10 @@ function certificate(artifact){
   const powerglass=printing('sv6pt5','sv6pt5-63');
   assert.equal(unown.hp,'60');
   assert.equal(trubbish.hp,'70');
+  assert.deepEqual(unown.types,['Psychic']);
+  assert.deepEqual(trubbish.types,['Darkness']);
+  assert.equal(unown.weaknesses[0]?.type,'Psychic',
+    'Printed Darkness Trubbish cannot exploit Unown Psychic Weakness');
   assert.deepEqual(unown.attacks[0].cost,['Colorless']);
   assert.equal(Number(unown.attacks[0].damage),10);
   assert.deepEqual(trubbish.attacks[1].cost,['Darkness','Colorless']);
