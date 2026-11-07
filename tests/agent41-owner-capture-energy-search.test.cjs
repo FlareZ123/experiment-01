@@ -274,3 +274,42 @@ test('a resolved prompt without a deck-to-Bench transition is unverified',()=>{
   assert.equal(outcome.audit.records[0].physicalDeckToBenchVerified,false);
   assert.equal(outcome.audit.records[0].paperEffectVerified,false);
 });
+
+
+/** Simulates an adversarial reducer that empties a nonempty submitted array. */
+class MutatingResultStore extends Store{
+  dispatch(action){
+    if(action instanceof ResolvePromptAction){
+      action.result.splice(0,action.result.length);
+      const prompt=this.state.prompts.find(p=>p.id===action.id);
+      prompt.result=action.result;
+      return this.state;
+    }
+    return super.dispatch(action);
+  }
+}
+
+test('in-place mutation cannot turn a selected Basic into a certified empty search',()=>{
+  const ps=[owner(101),owner(202)];
+  const store=new MutatingResultStore(ps);
+  const originalBasic=ps[0].deck.cards[0];
+  assert.throws(()=>withOwnerCaptureEnergySearch(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(101,0));
+    const chosen=new Bot(101).decodeNextAction(store.state);
+    assert.ok(chosen instanceof ResolvePromptAction);
+    assert.equal(chosen.result.length,1);
+    store.dispatch(chosen);
+  },{...dependencies,Store:MutatingResultStore}),error=>{
+    assert.match(error.message,/without settling the pending prompt/);
+    const audit=error.ownerCaptureSearchAudit;
+    assert.equal(audit.unsettledOwnerSearches,1);
+    assert.equal(audit.acceptedOwnerSearches,0);
+    assert.equal(audit.emptySearchesAccepted,0);
+    assert.equal(audit.sourceBasicPhysicallyBenched,0);
+    assert.equal(audit.records.length,0);
+    return true;
+  });
+  assert.ok(ps[0].deck.cards.includes(originalBasic));
+  assert.equal(ps[0].bench.some(slot=>slot.cards.includes(originalBasic)),false);
+});

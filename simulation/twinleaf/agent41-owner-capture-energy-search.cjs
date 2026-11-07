@@ -144,8 +144,17 @@ function withOwnerCaptureEnergySearch(next,deps={}){
       // Pinned Store may silently ignore a missing prompt or item. A return
       // cannot license an accepted search unless this exact pending native
       // prompt received the submitted answer.
-      const settled=!!promptBefore && action.result!==undefined &&
-        promptBefore.result===action.result;
+      const expected=proposed.cards;
+      const actual=action.result;
+      const promptResult=promptBefore?.result;
+      const exactAnswer=Array.isArray(actual) &&
+        actual.length===expected.length &&
+        actual.every((card,index)=>card===expected[index]);
+      const exactPromptResult=Array.isArray(promptResult) &&
+        promptResult.length===expected.length &&
+        promptResult.every((card,index)=>card===expected[index]);
+      const settled=!!promptBefore && exactAnswer && exactPromptResult &&
+        promptResult===actual;
       if(!settled){
         audit.unsettledOwnerSearches++;
         throw new Error('Capture Energy owner search returned without settling the pending prompt');
@@ -184,11 +193,14 @@ function withOwnerCaptureEnergySearch(next,deps={}){
     audit.matchedOwnerDeckPrompts++;
     const choice=captureChoice(prompt,owner,Stage,state);
     if(!choice)return beforeBot.value.call(this,state);
-    const action=new ResolvePromptAction(prompt.id,choice.cards);
+    // Keep the intended physical-card answer independent of the mutable
+    // array passed to the native action and reducer.
+    const expectedCards=[...choice.cards];
+    const action=new ResolvePromptAction(prompt.id,[...expectedCards]);
     proposals.set(action,{
       ownerId:owner.id,seat,turn:state.turn,
       storeOrdinal:pending.storeOrdinal,
-      cards:choice.cards,kind:choice.kind
+      cards:expectedCards,kind:choice.kind
     });
     audit.ownerSearchProposals++;
     return action;
