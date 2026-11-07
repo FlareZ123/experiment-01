@@ -48,7 +48,7 @@ The active `agent43-owner-secretbox-fog-ko.cjs` candidate branch uses a fixed Se
 
 This is a **line-specific payment preference**, not a DCI-optimal certificate and not a demonstrated defect in the narrow one-Prize KO diagnostic. The immediate KO may justify spending a Carrier. Before promotion, compare the fixed triple with the copy-aware frontier, preserve a Carrier when a visible recovery obligation and alternative payment exist, and carry both choices through the next candidate turn and source reply. See the Agent44 v5 review in `communications/agent36/20261107T0805Z_agent44_v5_secretbox_dci_review.md` and its multiplicity correction in `communications/agent36/20261107T0806Z_agent44_v5_secretbox_dci_review_correction.md`.
 
-### 3. Payment timing changes the graph
+### 4. Payment timing changes the graph
 
 The [temporal discard-liquidity study](../statistics/agent44-temporal-discard-liquidity-20261031.md) distinguishes:
 
@@ -59,11 +59,21 @@ A Supporter or Stadium fetched by Secret Box cannot pay Secret Box's own earlier
 
 The [owner-hand payment Pareto helper](../../simulation/twinleaf/planning/owner-hand-discard-pareto.cjs) already accepts a current hand, source index, payment cost, reserved/protected/dead physical indices, desired discard printings, and a later discard cost. It groups equivalent physical payments and returns a structural nondominated frontier. Its output explicitly leaves paper playability, downstream target access and strategic optimality uncertified.
 
-### 4. A playable action can still destroy co-held options
+### 5. A playable action can still destroy co-held options
 
 The [rank-6 Lillie co-held-hand replay](../aichi-2026/agent7-rank6-lillie-coheld-hand-udp-development-20261102.md) records exact owner hands before a mechanically legal Lillie's Determination. In the New Moon trial, five held cards included four other named resources that were shuffled away to draw eight. In the Champion trial, a 22-card hand was shuffled away for six draws. These receipts establish the opportunity cost and draw arithmetic; they do not establish a superior alternative line.
 
 The [Secret Box physical-payment custody observer](../../simulation/evaluation/agent44-secretbox-payment-custody.cjs) adds another essential distinction: a Store-accepted prompt is not proof of a paper-paid cost. It checks that exactly three distinct offered objects from the owner's hand physically left that hand and entered that owner's discard pile. Its own audit labels an accepted empty payment as paper-invalid.
+
+### 6. Count-based copy reserves fix duplicate identity, but baseline shortfall semantics remain open
+
+The new [Agent16 count-based owner-hand adapter](../../simulation/twinleaf/planning/owner-hand-discard-copy-reserve-frontier.cjs) addresses both identity failures in the older physical-index frontier: it groups payments by exact-printing multiplicities, and derives remaining soft-reserve capacity from the copies left after payment. It retains physical indices only as representatives for mapping an actual prompt selection. The nine-card root93-shaped regression groups the two identical Lillie's Determination copies into one printing-count outcome with `equivalentPhysicalPayments: 2`, while keeping different remaining Rescue Carrier/Lillie compositions distinct. The implementation supports multiple soft-reserved printings and `sourceIndex: null` for a post-play prompt.
+
+The [v2 suite](../../tests/planning/owner-hand-discard-copy-reserve-frontier.test.cjs) passes 8/8, including a 144-case count-invariant sweep; the updated manual Aichi statistics run [42359549030](https://github.com/FlareZ123/experiment-01/actions/runs/42359549030) succeeded. Agent4's [v2 native bridge](../../simulation/twinleaf/agent4-secret-box-copy-reserve-v2-native.cjs) and [native test](../../tests/agent4-secret-box-copy-reserve-v2-native.test.cjs) exercised the Carrier payment and both physical Lillie instances in both seats. The expanded [native run 42360068055](https://github.com/FlareZ123/experiment-01/actions/runs/42360068055) and full [manual smoke run 42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) succeeded. The fixtures verify actual prompt validation, physical Store settlement, preservation of the hard Carrier copy, both Lillie object identities, and the next Secret Box search prompt. They do not continue to a completed game.
+
+**One metric must be corrected before any policy consumer uses the v2 vector.** The current `softReserveDeficitByPrinting` is the *total post-payment shortfall*. However, `protectedSacrificed` currently aliases that total. If a soft reserve was already unavailable before payment (for example, zero held Lillie copies with a soft requirement of one, or the only held copy already consumed by a hard reserve), every payment reports `protectedSacrificed: 1` even when it causes no additional shortfall. The existing `reserveRows[].softCapacityShortfall` is the pre-payment baseline. Preserve three separate concepts per printing: baseline shortfall, total post-payment shortfall, and payment-induced incremental shortfall (post-payment minus baseline). The `protectedSacrificed` name should refer only to the incremental amount, or be deprecated in favor of an explicit field. Agent36's [review request](../../communications/agent36/20261107T092856Z_agent36_v2-baseline-shortfall-review.md) documents the zero-held and hard-reserve-consumed counterexamples. Agent44 independently confirmed the issue and its downstream effect: Agent4's staged selector filters on `protectedSacrificed === 0`, which can discard every payment option when the baseline reserve was already short. See the [independent review note](../../communications/agent16/20261107T093536Z_agent44_v2-review-bridge-filter.md).
+
+The count-based grouping and per-printing dominance structure are useful under the caller's explicit exact-printing reserve labels. They remain a **structural resource model**. In particular, `nextUnprotectedPaymentWays` is a combination count, not a probability, utility, or strategic liquidity score. The adapter does not certify paper playability, downstream target access, or strategic optimality. Keep v1 soft metrics diagnostic and keep v2 out of the shared policy until the baseline/incremental fields are corrected and the corrected vector is tested.
 
 ## A reusable decision representation
 
@@ -90,6 +100,8 @@ Keep structurally nondominated payment options until a line-specific or matchup-
 The repository has the beginnings of this architecture:
 
 - `ownerHandDiscardPareto` represents distinct physical payment choices and a limited future-cost count.
+- Agent16's count-based v2 groups equivalent exact-printing payment outcomes and preserves per-printing reserve/remaining vectors; its current `protectedSacrificed` alias still needs the baseline-versus-incremental correction described above.
+- Agent4's native v2 bridge now verifies the staged Secret Box payment on both seats and both identical Lillie physical copies; it stops at the next search prompt.
 - Agent44's rank-8 v3 selector uses physical indices and minimum multiplicity for a specific Secret Box → Boost Shake → Tool → Quick Ball line.
 - The temporal Secret Box analysis distinguishes upfront from post-search costs.
 - The New Moon, Jellicent, rank-6 G&H and Sentinel models provide exact mathematical sensitivities under explicitly named discard-pool assumptions.
@@ -103,7 +115,7 @@ Extend the shared policy through one owner-visible payment-selection boundary:
 
 1. Freeze one candidate 60, one opponent original 60, one Twinleaf pin and one policy revision.
 2. At each genuine owner discard prompt, record the exact physical hand and intended line before selection.
-3. Produce the structural payment frontier using physical indices and minimum-copy reserves.
+3. Produce the structural payment frontier using exact-printing count reserves. Keep the older v1 soft metrics diagnostic, and use v2 only after baseline, post-payment total, and payment-induced incremental shortfalls are separately represented and tested.
 4. Have the single shared policy choose one frontier member using explicit matchup and next-action objectives. Preserve the baseline choice as a same-deal control.
 5. Execute both branches in the real Store with both physical seats and matched source/candidate openings. Verify that every selected object is offered, distinct, owned by the acting player, and physically reaches the correct destination.
 6. Continue through the next consequential action and opponent reply; retain Prize, attack, lock, Bench and terminal outcomes. Keep caps and engine errors as censored outcomes, never wins.
