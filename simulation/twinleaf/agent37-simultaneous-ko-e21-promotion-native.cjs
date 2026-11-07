@@ -17,6 +17,8 @@ const native=p=>require(path.join(OUTPUT,p));
  *
  * @param {0|1} actorSeat Physical state.players index of the attacking owner.
  * @param {boolean|Function} useHook Apply v1 (true) or a supplied research-owned per-Store hook.
+ * @param {number} prizesPerPlayer Prize cards created for each player.
+ * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false){
