@@ -48,4 +48,5 @@ This does **not** prove New Moon loses the matchup: other attacks or lock-bypass
 - [Secret Box to Field Blower Prize-aware access calculation](new-moon-secret-box-garbotoxin-access.md)
 - [Exact Iron Thorns opponent mulligan-bonus model](../../scripts/aichi_bonus_draws.cjs)
 - [Active Iron Thorns and Tool-enabled Garbodor lock matrix](../aichi-2026/active-iron-thorns-temporary-unlock-matrix.md)
+- [Advanced player's manual: setup, mulligan and Prize-card order](../../resources/advanced-players-rulebook.md)
 - [Human Expanded concepts: DCI, AMR, and access-versus-use distinction](../../resources/human_concepts.md)
