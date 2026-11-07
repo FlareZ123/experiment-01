@@ -162,6 +162,36 @@ test('Reject contradictory paper outcomes for a knockout tiebreaker',()=>{
   assert.throws(()=>classifyTiebreaker([0,0],{paperGameTie:'true'}),/boolean/);
 });
 
+test('Every first-player and current-turn seat pair maps to the correct final turn',()=>{
+  for(const firstPlayerSeat of [0,1])for(const turnOwnerWhenCalled of [0,1]){
+    const r=requiredTurnsAfterCall({stage:'open-top32',firstPlayerSeat,turnOwnerWhenCalled});
+    assert.equal(r.additionalSecondPlayerTurns,turnOwnerWhenCalled===firstPlayerSeat?1:0);
+    assert.equal(r.lastTurnSeat,1-firstPlayerSeat);
+    assert.equal(r.applyPokemonCheckupAfterLastTurn,false);
+  }
+});
+
+test('All 49 legal Prize pairs remain conditional across knockout and extension branches',()=>{
+  for(let a=0;a<=6;a++)for(let b=0;b<=6;b++){
+    const knockout=adjudicateAtPrescribedEnd({stage:'open-top32',
+      prizesRemaining:[a,b],secondPlayerTurnFinished:true});
+    assert.equal(knockout.competitiveAdmission,false);
+    if(a===0||b===0)assert.equal(knockout.status,'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE');
+    else if(Math.min(a,b)<=2)
+      assert.equal(knockout.status,a===b?'EXTENSION_REQUIRED_TIED_LOW':'ELIMINATION_PRIZE_LEAD');
+    else assert.equal(knockout.status,'EXTENSION_REQUIRED_BOTH_HIGH');
+
+    const tiedLow=adjudicateExtension({extensionRule:'tied-low',prizesRemaining:[a,b]});
+    assert.equal(tiedLow.competitiveAdmission,false);
+    if(a===0||b===0)assert.equal(tiedLow.status,'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE');
+    else assert.equal(tiedLow.status,a===b?'EXTENSION_CONTINUES':'EXTENSION_WIN');
+
+    const bothHigh=adjudicateExtension({extensionRule:'both-high',prizesRemaining:[a,b]});
+    assert.equal(bothHigh.competitiveAdmission,false);
+    if(a===0||b===0)assert.equal(bothHigh.status,'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE');
+    else assert.equal(bothHigh.status,Math.min(a,b)<=2&&a!==b?'EXTENSION_WIN':'EXTENSION_CONTINUES');
+  }
+});
 test('Reject missing or invalid physical Prize state and unknown result',()=>{
   assert.throws(()=>classifyTiebreaker([1,-1]),/Expected/);
   assert.throws(()=>classifyTiebreaker([7,1]),/Expected/);
