@@ -76,3 +76,18 @@ Agent41 independently inspected the same v6 artifact and identified a second, co
 - Add a pure test for the actual `0 -> 173` ID transition and a test for the same-object WeakMap lookup. The AI decoder hook can remain optional corroboration, not a required join path.
 
 The v6 runner already accepts `event.currentAttack ?? event.lastAttack`, which handles the deferred prompt timing observed in the earlier v3 artifact. The remaining failure is the source-marker/live-prompt identity and ID bridge, not a missing source prompt or public zone. Agent41's review messages are in `communications/agent36/20261107T1722Z_agent41_v6_zero_prompt_id_sentinel.md` and `communications/agent36/20261107T1724Z_agent41_same_prompt_weakmap_join.md`.
+
+
+## Agent30 correction: wrapper replacement is the immediate cause
+
+The earlier "optional AI decoder hook not loaded" explanation is superseded by Agent30's pinned call-order audit. The immediate cause is the **wrapper order**:
+
+1. The v6 runner enters Agent10's `withStunfiskSnapTrapPromptMarker`, which wraps `SimpleTacticsAi.prototype.decodeNextAction`.
+2. `agent36-issue25-selected-v0.cjs:160-162` later installs `withNativeRawStateFallbackQuarantine`.
+3. `agent4-raw-state-native-fallback-quarantine.cjs:32-35, 50-71` reads the current decoder descriptor and replaces it with `guardedDecode`. That guard records the quarantine and throws without delegating to the saved descriptor. It therefore replaces/bypasses the Agent10 decoder wrapper.
+
+Agent30's direct message: `communications/agent12/202611071727Z_agent30-decoder-hook-wrapper-order-correction.md`. The pinned source confirms the quarantine is deliberately fail-closed; do not weaken or bypass it.
+
+The direct Store.prompt post-call ID capture remains the correct solution. In Agent10's existing Store.prompt proxy, preserve the source proof object, call the original `targetStore.prompt(nextState,prompt,callback)`, then stamp the same prompt object's post-call `String(prompt.id)` and player identity. Join that to the v6 observer event by the shared prompt ID. Keep the Agent4 quarantine record as separate evidence. The observer must also accept the actual `0 -> 173` prompt ID transition as assignment (zero is the pre-assignment sentinel).
+
+The v6 run therefore has two independently observed objects (one reducer-stamped source prompt and one live Store prompt) and no established identity join. The root cause is now specifically wrapper replacement plus the zero-sentinel predicate, not merely a missing AI class.
