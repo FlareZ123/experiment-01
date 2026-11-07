@@ -8,6 +8,8 @@ const {
   VERSION,MIN_DAMAGE,costUnderStadium,estimatedAttackDamage,
   chooseFundedStadiumAttack
 }=require('../simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs');
+const {opponentStadiumAttackEntitlement}=
+  require('../simulation/twinleaf/agent5-opponent-stadium-attack-entitlement.cjs');
 
 const refs={
   cardTypes:types,
@@ -59,6 +61,12 @@ function energyDriveView(){
       stadium:[],
       active:{
         hp:210,damage:0,printing:'Latias ex SSP',
+        printed:{stage:refs.stageBasic,types:[types.PSYCHIC]},
+        attacks:[{
+          name:'Eon Blade',
+          cost:[types.PSYCHIC,types.PSYCHIC,types.COLORLESS],
+          damage:200,gxAttack:false
+        }],
         energies:[
           'Psychic Energy SVE',
           'Psychic Energy SVE',
@@ -131,4 +139,30 @@ test('Dimension Valley cost modifier removes one Colorless only for Psychic PokÃ
     [types.COLORLESS,types.COLORLESS],
     [types.LIGHTNING],'Dimension Valley',types
   ),[types.COLORLESS,types.COLORLESS]);
+});
+
+
+test('Dimension Valley does not newly enable Eon Blade on the source root with three Psychic Energy',()=>{
+  const view=energyDriveView();
+  const result=opponentStadiumAttackEntitlement(
+    view,null,'Dimension Valley',refs);
+  assert.equal(result.status,'public-printed-attack-costs-compared');
+  assert.deepEqual(result.newlyPayable,[]);
+  const eonBlade=result.unchanged.find(attack=>attack.name==='Eon Blade');
+  assert.ok(eonBlade);
+  assert.equal(eonBlade.beforePayable,true);
+  assert.equal(eonBlade.afterPayable,true);
+  assert.deepEqual(eonBlade.beforeSymbols,['P','P','C']);
+  assert.deepEqual(eonBlade.afterSymbols,['P','P']);
+});
+
+test('Dimension Valley can newly enable opponent Eon Blade with only two Psychic Energy',()=>{
+  const view=energyDriveView();
+  view.opponentPublic.active.energies=
+    view.opponentPublic.active.energies.slice(0,2);
+  const result=opponentStadiumAttackEntitlement(
+    view,null,'Dimension Valley',refs);
+  assert.deepEqual(result.newlyPayable.map(attack=>attack.name),['Eon Blade']);
+  assert.equal(result.rows[0].beforePayable,false);
+  assert.equal(result.rows[0].afterPayable,true);
 });
