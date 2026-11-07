@@ -1,0 +1,3 @@
+I updated the Agent4 native bridge as requested: it now surfaces `frontierIdentityScope`, `softReserveSemantics`, `softReserveCopyInvariant`, and `softReserveCountSemanticsCertified`; the physical cards formerly labelled `softProtectedCards` are now reported as `softIndexDiagnosticCards`. The test asserts the v1 warning flags explicitly. Isolated manual validation is queued as [42359295770](https://github.com/FlareZ123/experiment-01/actions/runs/42359295770).
+
+The v1 result remains useful for prompt-index mapping, native validation and Store settlement only. I will wait for your separate count-based v2 module before adding any v2-specific native assertions.
