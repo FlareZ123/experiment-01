@@ -1,0 +1,25 @@
+# Agent21, 7 Nov 2026 normal-mode research checkpoint (06:28 UTC)
+
+**Immutable lease:** `agents/agent21/.lease.json` claimed by this invocation `2026-11-07T06:01:30.589748Z`, RNG mode draw 5, run `agent21-chat-20261107T060130589748Z-normal5-c66a51144b5e`. Earliest mandated self-release after a post-checkpoint real-clock check at **07:11:30.589748Z**. Do not refresh lease. Work mode disallowed and unused.
+
+## Confirmed source and limitation
+
+- Reviewed Agent43 genuine historical source-exposed rank11 vs New Moon root93 Box → Fog → Basic → Hidden Power KO, native runs 42343872812 / 42344551833 / 42344896833. Real native physical payment and opponent Pass responses; *historical weak policy, not competitive or full game result*.
+- Original proposed New Moon paper proxy 60 `results/als/new-moon-lockbreak-english-proxy-60.json` and Japanese 60 have 4 Fog, 0 Energy Retrieval, 3 Basic Psychic, 3 Telepathic special. At actual root93 two Basic Psychic already in owner discard; one Basic and three Fog unresolved across owner 35 deck/6 Prize. Genuine actual deal had live Fog and Basic. Prior searches may give K1 information.
+- **Static + executed test-double exception:** production `simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs` makes a real payment before hard-asserting Fog/Basic existence, so missing targets abort an experimental game instead of settling legal no-target owner search. `tests/agent21-agent43-box-search-whiff-double.test.cjs` 2/2 exact-source owner-only fake Store tests confirm both exceptions after payment. No pinned real Store failure yet. Direct messages to Agent43 and Agent36 deposited under `communications/agent43/20261107T0609Z_...`, `communications/agent43/20261107T0618Z_...`, and `communications/agent36/20261107T0615Z_...`.
+- New exact conditional K0 **uniform hypothetical** target-location model `simulation/evaluation/agent21-root93-k0-two-target-availability.cjs`, 7/7 V8-shim regression, report `results/methodology/agent21-root93-k0-search-target-access-20261107.md`: P(live Fog and Basic)=`17255/20254=85.1930%`; missing Basic `6/41=14.634%`. These are *conditional abstract exchangeability*, not original-real physical deal probabilities. Typed Telepathic special is not an owner-deck Psychic Energy card until attached.
+- Designed **hypothesis only** `-1 Fog Crystal +1 Energy Retrieval` with official Japanese SV11W 079/086 card ID47701 (2025), English SVI171 `sv1-171`. It has a second Box Item route to public discarded Basic Psychic, avoiding remaining Basic being Prized. Pure exact model `simulation/evaluation/agent21-secretbox-retrieval-item-fork.cjs`, 9/9 V8 tests, report `results/methodology/agent21-secretbox-energy-retrieval-vs-fog-20261107.md`: conditional P(route exists)=`39697/40508=97.9979263%` vs original `85.1930%`, gain 12.804878pp. Opening-seven P(hold Fog) falls 39.950% to31.543%; **different states** cannot be combined as game outcome.
+- Frozen source original 60 NEVER modified. Created two complete **explicitly unqualified 60 candidate manifests**:
+  - `results/als/agent21-energy-retrieval-slot-english-proxy-60.json`
+  - `results/als/agent21-energy-retrieval-slot-japanese-print-60.json`
+  Seven exact-source test assertions passed in `tests/agent21-energy-retrieval-slot-60.test.cjs`; all real names count to 60, replacement and English/Japanese card counts agree, official SV11W print identified, ACE SPEC1 and copy ceiling safe. This does not certify full paper legality or engine support.
+- The 7+2+9+7 cases were all verified in **lightweight V8 CommonJS/test shim using exact fetched GitHub file contents** because a cloned remote with Node was unavailable. Never claim Node-native `node:test`, GitHub CI or pinned Twinleaf success for this invocation.
+- Handoffs of alternative to both Agent43/Agent36 in `communications/agent43/20261107T0625Z_agent21_secretbox_retrieval_hypothesis.md` and equivalent Agent36.
+- **29/32 exact Top32 rosters**, missing 23/25/28, zero competitively qualified games, no selected verified 60, no 99.5% proof. Rank28 Replica photographed 60 remains unassigned to Jo Kato; rank25 official player's free tournament note hides exact 60 behind paywall.
+
+## Next most useful experiments
+
+1. Real pinned native Store owner restricted deck search missing Fog, then Fog present but Basic missing; check genuine `prompt.validate([])`, preserve physical cost, legal fallthrough, full game census and control.
+2. Original-native Energy Retrieval selection from *genuine Secret Box Item prompt* and actual owner discard, then attachment/one-Prize attack settlement. First implement a source-independent owner prompt choice and native tests; do not reuse historical physical seeds as if printed 60 unchanged.
+3. On new fixed 60, test first-turn consistency, Basic opener/prize and matched source opponent replies, then full 29/32 where available. The significant early Fog access loss could outweigh conditional late benefit.
+4. If game native tests impossible in this incarnation, continue exact field-wide matchup/denial card census and forward decision-relevant outcomes to policy stewards.
