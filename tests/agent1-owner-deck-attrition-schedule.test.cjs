@@ -235,6 +235,22 @@ test('repeated Handiwork distribution gives exact horizon and deadline probabili
   const divisor=gcd(atLeastFive,denominator);
   assert.equal((atLeastFive/divisor).toString(),'193');
   assert.equal((denominator/divisor).toString(),'512');
+
+  const pass=distributionOfFutureOwnerStarts(23,0,[
+    {opponentMill:0,weight:1},
+    {opponentMill:2,weight:2},
+    {opponentMill:4,weight:1}
+  ]);
+  assert.deepEqual(pass.expectedFutureOwnerStarts,{
+    numerator:'523879358914293',denominator:'70368744177664'
+  });
+  const passDenominator=BigInt(pass.commonDenominator);
+  const passAtLeastFive=pass.distribution
+    .filter(row=>row.futureOwnerStarts>=5)
+    .reduce((sum,row)=>sum+BigInt(row.numerator),0n);
+  const passDivisor=gcd(passAtLeastFive,passDenominator);
+  assert.equal((passAtLeastFive/passDivisor).toString(),'1023');
+  assert.equal((passDenominator/passDivisor).toString(),'1024');
 });
 
 test('single-outcome stochastic tails equal stationary horizons for 1,525 cases',()=>{
@@ -261,4 +277,27 @@ test('stochastic mill inputs reject empty outcomes and invalid weights',()=>{
   assert.throws(()=>distributionOfFutureOwnerStarts(10,2,[{
     opponentMill:61,weight:1
   }]),/feasible/);
+});
+
+
+test('one Handiwork burst uses its 0/2/4 outcomes before a no-mill tail',()=>{
+  const outcomes=[
+    {opponentMill:0,weight:1},
+    {opponentMill:2,weight:2},
+    {opponentMill:4,weight:1}
+  ];
+  const filchHorizons=outcomes.map(outcome=>
+    futureOwnerStartsUnderSchedule(23,[{
+      ownerDeckLoss:2,opponentMill:outcome.opponentMill
+    }],{ownerDeckLoss:0,opponentMill:0}).futureOwnerStarts
+  );
+  const passHorizons=outcomes.map(outcome=>
+    futureOwnerStartsUnderSchedule(23,[{
+      ownerDeckLoss:0,opponentMill:outcome.opponentMill
+    }],{ownerDeckLoss:0,opponentMill:0}).futureOwnerStarts
+  );
+  assert.deepEqual(filchHorizons,[21,19,17]);
+  assert.deepEqual(passHorizons,[23,21,19]);
+  assert.equal((filchHorizons[0]+2*filchHorizons[1]+filchHorizons[2])/4,19);
+  assert.equal((passHorizons[0]+2*passHorizons[1]+passHorizons[2])/4,21);
 });
