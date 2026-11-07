@@ -100,6 +100,10 @@ function adjudicateAtPrescribedEnd({
   if(paperGameWinner!==null)
     return {...base,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
+  if(prizesRemaining.includes(0))
+    return {...base,status:'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE',
+      conditionalWinnerSeat:null,
+      missing:['independent-normal-win-or-simultaneous-tie-ruling']};
   if(!secondPlayerTurnFinished)
     return {...base,status:'AWAITING_PRESCRIBED_SECOND_TURN',
       conditionalWinnerSeat:null};
@@ -148,6 +152,9 @@ function adjudicateExtension({
   if(paperGameWinner!==null)
     return {...result,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
+  if(prizesRemaining.includes(0))
+    return {...result,status:'PAPER_OUTCOME_CONFLICT_ZERO_PRIZE',
+      conditionalWinnerSeat:null};
   const [a,b]=prizesRemaining;
   if(extensionRule==='tied-low') {
     if(a<b)return {...result,status:'EXTENSION_WIN',
