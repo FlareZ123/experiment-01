@@ -30,7 +30,10 @@ function probeRank31DusknoirCursedBlast(seat=0){
   const {source,opponent,store,state}=f;
   assert.equal(state.activePlayer,seat);
   assert.ok(state.turn>1);
-  assert.equal(source.bench.length,0);
+  assert.equal(source.bench.length,5,
+    'the staged fixture preallocates five physical Bench slots');
+  assert.equal(source.bench.filter(slot=>slot.getPokemonCard()).length,0,
+    'source Bench must be empty before staging Dusknoir');
 
   const original60=rank31Original60();
   const source60Counts={
@@ -47,9 +50,12 @@ function probeRank31DusknoirCursedBlast(seat=0){
   const duskull=f.card('Duskull PRE');
   const dusclops=f.card('Dusclops PRE');
   const dusknoir=f.card('Dusknoir PRE');
-  const stack=new PokemonCardList();
+  const stack=source.bench[0];
+  assert.ok(stack instanceof PokemonCardList);
   stack.cards.push(duskull,dusclops,dusknoir);
-  source.bench.push(stack);
+  assert.equal(source.bench.length,5,
+    'staging must preserve the five-slot Bench');
+  assert.equal(source.bench.filter(slot=>slot.getPokemonCard()).length,1);
 
   const targetSlot=opponent.bench[1];
   const target=targetSlot.getPokemonCard();
@@ -121,6 +127,10 @@ function probeRank31DusknoirCursedBlast(seat=0){
   assert.equal(source.discard.cards.includes(dusclops),true);
   assert.equal(source.discard.cards.includes(dusknoir),true);
   assert.equal(targetSlot.getPokemonCard(),undefined);
+  assert.equal(source.bench.length,5,
+    'Dusknoir self-KO must leave the physical Bench slot count unchanged');
+  assert.equal(source.bench.filter(slot=>slot.getPokemonCard()).length,0,
+    'Dusknoir and its evolution stack must leave the Bench after self-KO');
 
   const sourcePrizesAfter=source.prizes.filter(x=>x.cards.length>0).length;
   const opponentPrizesAfter=opponent.prizes.filter(x=>x.cards.length>0).length;
@@ -133,6 +143,9 @@ function probeRank31DusknoirCursedBlast(seat=0){
     sourceDeckPhysicalComplete:false,opponentDeckPhysicalComplete:false,
     ability:'Cursed Blast',abilityCounters:13,abilityDamage:130,
     sourceStack:['Duskull PRE','Dusclops PRE','Dusknoir PRE'],
+    sourceBenchSlotCountBefore:5,sourceBenchOccupiedBefore:1,
+    sourceBenchSlotCountAfter:source.bench.length,
+    sourceBenchOccupiedAfter:source.bench.filter(slot=>slot.getPokemonCard()).length,
     targetPrinting:target.fullName,targetHp:210,targetDamageBefore:80,
     targetExpectedDamageAfter:210,targetKnockedOut:true,
     sourcePrizeCountBefore:sourcePrizesBefore,
