@@ -1,0 +1,138 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {test}=require('node:test');
+const path=require('node:path');
+const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {actorAttackRecoveryInput}=require(
+  '../simulation/twinleaf/agent37-attack-recovery-owner-prompt.cjs');
+
+const ROOT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+/** @param {string} name */
+const native=name=>require(path.join(ROOT,name));
+
+/** @param {0|1} seat */
+function stage(seat){
+  const manager=initializeCards();
+  const {Store}=native('game/store/store');
+  const {Player}=native('game/store/state/player');
+  const {CardList}=native('game/store/state/card-list');
+  const {GamePhase}=native('game/store/state/state');
+  const {GameSettings}=native('game/core/game-settings');
+  const {Format}=native('game/store/card/card-types');
+  const store=new Store({onStateChange(){}});
+  const state=store.state;
+  state.gameSettings=new GameSettings();
+  state.gameSettings.format=Format.EXPANDED;
+  state.rules=state.gameSettings.rules;
+  state.phase=GamePhase.PLAYER_TURN;
+  state.turn=3;
+  state.activePlayer=seat;
+  const owner=new Player(),opponent=new Player();
+  owner.id=101;
+  opponent.id=202;
+  state.players=seat===0?[owner,opponent]:[opponent,owner];
+  let id=3000;
+  const card=printing=>{
+    const value=manager.getCardByName(printing);
+    assert.ok(value,'Native card missing '+printing);
+    value.id=id++;
+    return value;
+  };
+  owner.active.cards.push(card('Bunnelby PRC'));
+  owner.active.energies.cards.push(card('Psychic Energy SVE'));
+  const recovery=card("Team Rocket's Handiwork FCO");
+  owner.discard.cards.push(recovery);
+  opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+  for(const player of state.players){
+    for(let i=0;i<14;i++)player.deck.cards.push(card('Psychic Energy SVE'));
+    for(let i=0;i<6;i++){
+      const prize=new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+  }
+  return {store,state,owner,opponent,recovery,seat};
+}
+
+/**
+ * Resolve only the genuine native Rototiller recovery, Omega Barrage
+ * confirmation, and printed second Burrow prompts.
+ * @param {object} context
+ * @returns {{recovery:boolean,omega:boolean,burrow:boolean}}
+ */
+function resolveRototillerThenBurrow(context){
+  const {store,state,owner,opponent,recovery,seat}=context;
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const {GameMessage}=native('game/game-message');
+  const flags={recovery:false,omega:false,burrow:false};
+  for(let i=0;i<30;i++){
+    const prompt=state.prompts.find(value=>
+      value&&value.result===undefined);
+    if(!prompt)break;
+    if(prompt.constructor.name==='WaitPrompt'){
+      store.dispatch(new ResolvePromptAction(prompt.id,null));
+      continue;
+    }
+    if(prompt.constructor.name==='ChooseCardsPrompt'&&
+        prompt.message==='CHOOSE_CARD_TO_DECK'){
+      assert.equal(prompt.playerId,owner.id);
+      assert.strictEqual(prompt.cards,owner.discard);
+      assert.equal(prompt.validate([recovery]),true);
+      const projected=actorAttackRecoveryInput(state,seat);
+      assert.equal(projected.prompt.source,'own-discard-to-deck');
+      assert.deepEqual(projected.prompt.offered.map(value=>value.printing),
+        ["Team Rocket's Handiwork FCO"]);
+      assert.equal(projected.prompt.offered[0].selectableAlone,true);
+      store.dispatch(new ResolvePromptAction(prompt.id,[recovery]));
+      flags.recovery=true;
+      continue;
+    }
+    if(prompt.constructor.name==='ConfirmPrompt'&&
+        prompt.message===GameMessage.WANT_TO_USE_ABILITY){
+      assert.equal(prompt.playerId,owner.id);
+      assert.equal(prompt.validate(true),true);
+      store.dispatch(new ResolvePromptAction(prompt.id,true));
+      flags.omega=true;
+      continue;
+    }
+    if(prompt.constructor.name==='ChooseAttackPrompt'&&
+        prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
+      assert.equal(prompt.playerId,owner.id);
+      const bunnelby=prompt.cards.find(value=>
+        value.fullName==='Bunnelby PRC');
+      const burrow=bunnelby?.attacks.find(attack=>
+        attack.name==='Burrow');
+      assert.ok(burrow,'Omega Barrage must offer printed Burrow');
+      assert.equal(prompt.validate(burrow),true);
+      store.dispatch(new ResolvePromptAction(prompt.id,burrow));
+      flags.burrow=true;
+      continue;
+    }
+    throw new Error('Unexpected pending prompt '+
+      prompt.constructor.name+' '+String(prompt.message));
+  }
+  assert.equal(state.prompts.some(prompt=>prompt.result===undefined),false,
+    'all native Rototiller and Omega Barrage prompts must resolve');
+  assert.equal(flags.recovery,true,'Rototiller must select Handiwork');
+  assert.equal(flags.omega,true,'Omega Barrage must be accepted');
+  assert.equal(flags.burrow,true,'the second attack must be printed Burrow');
+  assert.equal(owner.discard.cards.includes(recovery),false);
+  assert.equal(owner.deck.cards.includes(recovery),true);
+  assert.equal(owner.deck.cards.length,15);
+  assert.equal(opponent.deck.cards.length,13,
+    'the second Burrow must mill exactly one opposing deck card');
+  return flags;
+}
+
+for(const seat of [0,1]){
+  test('Bunnelby recycles Team Rocket Handiwork with Rototiller then uses second Burrow, seat '+seat,()=>{
+    const context=stage(seat);
+    const {AttackAction}=native('game/store/actions/game-actions');
+    context.store.dispatch(new AttackAction(context.owner.id,'Rototiller'));
+    const flags=resolveRototillerThenBurrow(context);
+    assert.deepEqual(flags,{recovery:true,omega:true,burrow:true});
+    assert.equal(context.state.activePlayer,seat);
+    assert.equal(context.state.turn,3);
+  });
+}

@@ -2,12 +2,41 @@ name: Aichi Bunnelby K0 real tactic action contrast
 
 on:
   workflow_dispatch:
+    inputs:
+      handiwork_rototiller:
+        description: 'Run the native Handiwork Rototiller plus Omega Barrage second-Burrow interaction only'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  handiwork-rototiller-native:
+    if: ${{ inputs.handiwork_rototiller == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify generic Rototiller recovery and Handiwork plus second-Burrow native sequence
+        run: node --test tests/agent37-bunnelby-rototiller-recovery.native.test.cjs tests/agent1-rank3-handiwork-rototiller-burrow.native.test.cjs
+
   source-contrast:
+    if: ${{ inputs.handiwork_rototiller != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
