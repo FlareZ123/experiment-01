@@ -65,3 +65,26 @@ The earlier 82.238462420% bound remains correct as a weaker bound. This new valu
 [Single runnable CJS exact enumerator and assertions](../../../scripts/agent47-rank26-prize-pump-obstruction.cjs) checks the 1,024-pattern count and valid-seven normalization, independent `q_k` inclusion-exclusion identities, the earlier F rational, the new G rational, the F∪G rational, and the bench-all reduction. The committed file blob `fa049119824e9da0bb9ec4d34316918fc289384a` was fetched back from GitHub and its **exact JavaScript source executed in V8 with a minimal Node assert shim: all assertions passed**, producing the five displayed percentages. This is direct exact-code execution, **not a native Node 22 workflow run or a Twinleaf match**. The same arithmetic was independently computed with Python exact fractions.
 
 No card pool, existing candidate 60, shared policy, CI workflow, vendor code, result index, or match classification has been changed. The standing benchmark remains **29/32 authenticated original name/count lists; missing 23,25,28; zero competitively qualified games; no selected final 60; no demonstrated 99.5% win rate.**
+
+## 7 November extension: both Crisis Punch Tools also Prized
+
+**Additional independent first-turn obstruction H:** the unchanged source carries exactly two original `Technical Machine: Crisis Punch (PAF 90)` Tools. Against an undamaged 230-HP Iron Thorns ex on the *first turn going first*, the other printed attacks on rank26's Pokémon do not supply a known first-turn 230-damage knockout; the documented source win line requires Crisis Punch. When both physical Crisis Punch Tools are in the six Prizes and Redeemable Ticket is also Prized, this exact source cannot access either Tool through Item search, Dowsing Machine, or Hisuian Heavy Ball. Define
+
+```text
+H = {T Prized AND both TM: Crisis Punch copies Prized}.
+```
+
+This event concerns the original first-player **immediate Crisis-line win against a fresh live Iron Thorns ex**. It would need reassessment if a distinct printed source win mechanism under these first-turn conditions is independently demonstrated. `P(H | source valid seven)=q3=212710/355596769=0.059817754%`.
+
+**Do not add this marginal rate directly to F or G.** Extending the exact pattern census to twelve designated non-Basic physical cards (4,096 patterns), and independently preserving the prior ten-card `F∪G` rational, gives:
+
+| Event conditional on source Basic-valid seven | Exact rate |
+| --- | ---: |
+| F or G (previous union) | 1.742941117% |
+| H, including intersections | 0.059817754% |
+| H outside F or G | **0.053455703%** |
+| **F or G or H** | **1.796396820%** |
+
+The extended union is exactly `671403282958/37374998405745`. This strengthens the conditional **Prize-only necessary ceiling to 98.203603180%** for the original source-first turn-one knockout line against original ranks6/24/29. Multiplying by the previously established all-Basic-benching sole-defender probability `0.8367357777206609` gives the stronger **82.170468282%** immediate first-turn-win ceiling, before any real acquisition or sequencing failures. Both earlier values remain valid weaker bounds.
+
+The exact CJS enumerator was updated at source commit `5805b3f68142a21dec54d528e4b3981c197151d0`, fetched back as blob `b354a3d8dd7c70da31216c56d44f748dd321db19`, then executed from the fetched source in V8 with only a narrow Node assert shim. All existing 1,024-pattern identities and additional 4,096-pattern rational assertions passed. This is finite-population proof and reproduced program execution, **not a sampled game, official paper judgment, native complete match, or evidence of field strength**.
