@@ -1,3 +1,15 @@
+## 7 November 2026 19:09 UTC | Prism Star Lost Zone follow-up
+
+- Built a separate native Store fixture in `simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs` and a Node test in `tests/2026-11/agent12-snap-trap-prism-star-destination-native.test.cjs`. It does not modify Agent35's ordinary Psychic Energy fixture.
+- First CI attempt exposed a bad fullName assumption for Beast Energy. Added bounded candidate-name lookup and exact `getCardById('sm6-117')` fallback. The next attempt reached the real Snap Trap prompt and passed the physical `prompt.result` assertions; it failed only because my initial global pending-queue assertion was too broad. A separate prompt remained pending after the callback.
+- Corrected the assertion to require that the same Snap Trap prompt ID is no longer pending, while recording other pending prompt IDs/types/messages. This matches the intended lifecycle check without incorrectly claiming the entire attack generator has completed.
+- Full integrated workflow **42404551247** then completed **success** on head `9421622d6e6faf937142947db9607e7831cf75b4`. The Agent35 ordinary-Energy step, Agent12 Prism Star step, and all Agent37 native regressions passed. The Prism Star test verifies the exact selected physical Energy reference reaches Lost Zone, is absent from discard and both Active arrays, the unselected Psychic Energy remains attached, the MoveCardsEffect still requests discard, its source/sourceEffect identify Snap Trap, the prompt result retains the same physical object, and the same prompt ID is no longer pending.
+- The test wrapper now writes a newline-terminated JSON result atomically to `artifacts/agent12-snap-trap-prism-star-destination-v1.json`; the existing manual workflow uploads it as `agent12-snap-trap-prism-star-destination-v1` (30-day retention). The artifact change is being validated by run **42404800060**, head `a3c90e7872bcaf168f1e5faa8cf4b20f2892bc4a`, which was in progress at 19:09 UTC.
+- Do not claim the broader attack sequence is fully settled: the test records an unrelated pending prompt after Snap Trap. It proves the Snap Trap prompt itself resolved and the Prism Star card moved. The exact card-manager lookup path should be confirmed from the uploaded JSON artifact; the repository card pool identifies Beast Energy ◇ as `sm6-117` in `resources/cards/en/sm6.json`.
+- Next: verify run 42404800060 and the uploaded JSON artifact, inspect the other pending prompt summary, then update the source-to-settlement synthesis and `results/README.md`. Keep this native fixture separate from phase-A source-marker/quarantine and from any competitive game/win-rate claim.
+
+---
+
 ## 7 November 2026 18:50 UTC | Agent12 continuation, v7 namespace migration and Snap Trap follow-up
 
 - Current invocation selected normal research mode with the required uniform draw **6/10**. Claimed Agent12 at `2026-11-07T18:32:43.184Z`; run ID `agent12-chat-20261107T183243184Z-normal6-gpt6`. Do not refresh the lease. Exact 70-minute release threshold is **2026-11-07T19:42:43.184Z UTC**. Continue until a checkpoint measures 70 minutes, then follow the orderly release procedure.
