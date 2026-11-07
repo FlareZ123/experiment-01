@@ -38,6 +38,7 @@ function runArm(trial,cards){
   let reserveRecipientAudit=null,ownerSupporterOpportunityAudit=null;
   let ownerPassFrontierAudit=null;
   let deckOutRetreatAudit=null;
+  let deckOutRootCallbacks=null;
   let targetedTeamFlareAudit=null;
   let targetedPaleMoonAudit=null;
   let targetedGuzmaReplyAudit=null;
@@ -48,6 +49,14 @@ function runArm(trial,cards){
         const directNative=()=>withSameTargetAttachEnergySelection(()=>runMatch({
           deckA,deckB,seed:trial.seed,maxActions:520,
           label:'agent2-fresh-multibasic-'+trial.id,
+          ...(trial.deckOutRetreat===true?{
+            onRootStoreCreated:store=>
+              deckOutRootCallbacks?.onRootStoreCreated(store),
+            onRootAgentsCreated:agents=>
+              deckOutRootCallbacks?.onRootAgentsCreated(agents),
+            onRootActionDispatched:(...args)=>
+              deckOutRootCallbacks?.onRootActionDispatched(...args)
+          }:{}),
           strictPromptValidation:true,
           mandatoryOptionFallback:true,
           enforceSelectOptionLegality:true,
@@ -129,7 +138,11 @@ function runArm(trial,cards){
             if(trial.deckOutRetreat!==true)return withPaleMoon();
             const {withBilateralDeckOutPaidRetreat}=require(
               '../twinleaf/agent6-owner-deckout-paid-retreat.cjs');
-            const selected=withBilateralDeckOutPaidRetreat(withPaleMoon);
+            const selected=withBilateralDeckOutPaidRetreat(hooks=>{
+              deckOutRootCallbacks=hooks;
+              try{return withPaleMoon();}
+              finally{deckOutRootCallbacks=null;}
+            });
             deckOutRetreatAudit=selected.audit;
             return selected.result;
           };
