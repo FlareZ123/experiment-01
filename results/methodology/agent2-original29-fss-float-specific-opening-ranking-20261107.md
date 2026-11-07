@@ -48,6 +48,14 @@ Using the rounded source-specific opening probabilities above and an IID valid-o
 
 These are approximate detection counts for the opening condition only. A genuine native root additionally needs a live Garbodor recipient, the relevant evolution and ability state, the opponent's Ability targets, and an actual owner decision. Its frequency will be lower, so these sample sizes are lower bounds for finding the full native opportunity. Paired seat assignments from the same seed may also violate IID assumptions.
 
+## Native Tool-trigger result
+
+A separate native Store test now confirms that Forest Seal Stone itself can be attached to a non-V Garbodor and activate Garbotoxin. Both Garbodor LTR and BKP printings passed on both physical seats. Before attachment, the opponent's Tapu Lele-GX Wonder Tag was available; after attachment, Wonder Tag was blocked and `CheckPokemonPowersEffect` still exposed Garbotoxin. See [the dedicated native result](agent2-fss-garbotoxin-tool-trigger-20261107.md) and [test](../../tests/agent2-fss-garbotoxin-tool-trigger.native.test.cjs).
+
+This adds a real sequencing branch to the opening ranking. FSS can be attached to a Pokémon V and Star Alchemy used before Float Stone activates Garbotoxin on Garbodor. Alternatively, FSS itself can be attached to Garbodor to activate the lock immediately, with Star Alchemy unavailable from that non-V recipient. Float Stone on Garbodor also activates the lock and provides free retreat. The choice depends on whether a V recipient is available, whether Star Alchemy has been used, and the immediate value of Garbotoxin.
+
+The native test is a staged interaction witness. It does not establish how often the sequence occurs in source-dealt games or which branch is strategically best. The separate paper question of Star Alchemy under an already-active Garbotoxin remains unresolved; see the Agent30 rule-fidelity report.
+
 ## Strategic interpretation and critical restrictions
 
 The broad source-29 result suggests a higher **frequency** of possible Float-versus-FSS Tool contention in the original Absol Garbodor family than in the previously staged rank3 Snorlax/Bunnelby case. Whether Float has value is a separate question. On a Bench Garbodor with Garbotoxin, attaching a Tool may be a lock-enabling line, but doing so depends on the evolution's actual presence, whether opposing/own Ability lock changes the effect, whether a Tool is already attached, and the opportunity cost of consuming the Tool slot. On rank11, Latias ex SSP's **Skyliner** can already confer free Retreat to eligible Basics without Float, an earlier verified false-positive for a Float mobility policy. Other Tool attachments may be superior in the same state.
