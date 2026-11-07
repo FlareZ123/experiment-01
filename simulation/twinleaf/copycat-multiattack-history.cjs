@@ -4,7 +4,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-const {AttackAction,PassTurnAction}=
+const {AttackAction}=
   require(path.join(output,'game/store/actions/game-actions'));
 const {ResolvePromptAction}=
   require(path.join(output,'game/store/actions/resolve-prompt-action'));
@@ -159,8 +159,11 @@ function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,actio
   const state=store.state;
   const opponent=state.players.find(player=>player.id!==copycatPlayerId);
   assert.ok(opponent);
-  const history=state.playerLastAttack??{};
+  assert.equal(selected.playerId,opponent.id);
+  assert.ok(state.playerLastAttack);
+  const history=state.playerLastAttack;
   const prior=history[opponent.id];
+  assert.ok(prior,'Copycat selection requires a recorded prior attack');
   history[opponent.id]={attack:selected.attack,sourceCard:selected.sourceCard};
   try{
     return store.dispatch(action);
