@@ -284,11 +284,12 @@ test('A verified simultaneous knockout tie requires a fresh six-Prize tiebreaker
   }
 });
 
-test('Swiss simultaneous paper tie is explicitly withheld for judge review',()=>{
+test('Swiss simultaneous paper tie during the end-call sequence is both loss',()=>{
   const r=adjudicateAtPrescribedEnd({stage:'open-swiss',prizesRemaining:[0,0],
     secondPlayerTurnFinished:false,paperGameTie:true});
-  assert.equal(r.status,'SWISS_PAPER_TIE_JUDGE_REVIEW_REQUIRED');
+  assert.equal(r.status,'SWISS_BOTH_LOSE');
   assert.equal(r.conditionalWinnerSeat,null);
+  assert.equal(r.tieResolvedByClockRules,true);
   assert.equal(r.competitiveAdmission,false);
 });
 
