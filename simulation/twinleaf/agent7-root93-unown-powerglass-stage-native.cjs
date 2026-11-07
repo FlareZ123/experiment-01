@@ -199,11 +199,10 @@ function runArm(ownerSeat,equipPowerglass,settlePrize=false){
       }else if(type==='ChoosePokemonPrompt'){
         assert.equal(p.playerId,source.id);
         const recipient=source.bench[0];
-        const promotion={
-          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
-        };
         assert.equal(p.validate([recipient],state),true);
-        store.dispatch(new ResolvePromptAction(p.id,[promotion]));
+        // Twinleaf's genuine Store prompt callback consumes actual
+        // PokemonCardList references, not CardTarget descriptors.
+        store.dispatch(new ResolvePromptAction(p.id,[recipient]));
         sourcePromotionPromptResolved++;
       }else{
         assert.fail('Unknown post-attack native prompt '+type);
