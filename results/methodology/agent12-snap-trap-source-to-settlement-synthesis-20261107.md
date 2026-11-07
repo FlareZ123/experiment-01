@@ -60,9 +60,9 @@ The test verifies:
 - The unselected Psychic Energy and Marshadow remain attached/Active.
 - Hidden card identities from hand, deck and Prize zones are not read by the test-local resolver.
 
-The first global pending-queue assertion was deliberately narrowed after the fixture showed one other pending prompt after the Snap Trap callback. The accepted assertion is scoped to the same Snap Trap prompt ID. The result records the type/message summaries of other pending prompts. This proves Snap Trap prompt settlement, not that the whole attack generator or all animation prompts have completed.
+The artifact exposed a second stage after Snap Trap settlement. The initial attack-animation WaitPrompt is resolved before damage; Snap Trap choice prompt ID 2 then resolves with the selected Beast Energy; post-response WaitPrompts IDs 3 and 4 are subsequently resolved with `ResolvePromptAction(id, null)`. The fixture now drains sequential native WaitPrompts, rejects any other remaining prompt type, and asserts the global unresolved-prompt count is zero. The attack effect generator therefore completes in this isolated fixture.
 
-The full manual workflow **42405506605** completed successfully on head `1802593f52275d38260cd0d2fe9aaff441f5776d`, including the Prism Star test, joined witness, both artifact uploads, and all Agent35/Agent37 native regressions. Its Prism Star artifact is `13587401303` (`agent12-snap-trap-prism-star-destination-v1`), size 854 bytes, SHA-256 `ded45ca856c3ab412fa6721e5b5a203dd83af526aa0ffb16386ac77deb491007`.
+The stronger full manual workflow **42406467959** completed successfully on head `734d3fe7e827a795c7f61610d3f3e7b919440155`, including the Prism Star test, joined witness, both artifact uploads, and all Agent35/Agent37 native regressions. Its Prism Star artifact is `13587841109` (`agent12-snap-trap-prism-star-destination-v1`), size 907 bytes, SHA-256 `3833894d62ac8b3859fbe5b87d29f643e37d4b0afd4b7bc7073a10512792428a`.
 
 The repository card pool identifies Beast Energy ◇ as `sm6-117`, Special Energy / Prism Star / Expanded legal, in `resources/cards/en/sm6.json`. Super Boost Energy ◇ (`sm5-136`) is a second Expanded-legal Prism Star candidate in `resources/cards/en/sm5.json`. The successful native fixture uses the Beast Energy candidate. The ordinary Psychic Energy case remains separate so the discard positive and Lost Zone exception are not conflated.
 
@@ -84,7 +84,7 @@ The Agent12 runner nests the Agent30 source marker around the Agent30 public-pro
 
 The first joined attempt (run 42405259648) failed only because it incorrectly expected `currentAttack` to remain set when the prompt was created. The attack generator resumes on the separate WaitPrompt response dispatch, so `currentAttack` is null and `lastAttack` is the correct persisted fingerprint. The assertion was corrected and run **42405506605** passed.
 
-Files: `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The joined JSON artifact is `13587237490` (`agent12-snap-trap-source-to-settlement-native-v1`), size 1952 bytes, SHA-256 `9b93be51bbfd6e03bd4bfee76e8b1fc167600edfef2d3273166b4c7da3333dde`. The Prism Star JSON artifact from the same run is `13587401303`, SHA-256 `ded45ca856c3ab412fa6721e5b5a203dd83af526aa0ffb16386ac77deb491007`.
+Files: `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The joined JSON artifact from the stronger run is `13586863776` (`agent12-snap-trap-source-to-settlement-native-v1`), size 2006 bytes, SHA-256 `4141a5f88b89fe2de7cd331271678e3b5e751c9882b4f2b8a5aa5a53f34191a3`. The Prism Star JSON artifact from the same run is `13587841109`, SHA-256 `3833894d62ac8b3859fbe5b87d29f643e37d4b0afd4b7bc7073a10512792428a`.
 
 This is a joined native witness, not a modification to the frozen phase-A registration or Agent4 quarantine. It proves the exact source-origin / prompt / zone / response / destination chain in the isolated fixture. It does not prove a complete attack, game, production policy, or competitive strength.
 
@@ -102,4 +102,4 @@ The benchmark remains 29/32 authenticated original Aichi Top 32 60-card lists, n
 
 ## Next gate
 
-Inspect the joined JSON artifact and identify the unrelated pending prompt's meaning. Keep the phase-A registration and Agent4 quarantine unchanged. Next, expand the joined native witness across board/seat variations and additional Energy choices, then move toward complete paper-valid games against all 32 authenticated source lists.
+The joined artifact has been inspected: it records post-response WaitPrompts 3 and 4, both resolved with null, and zero unresolved prompts at the end. Keep the phase-A registration and Agent4 quarantine unchanged. Next, expand the joined native witness across board/seat variations and additional Energy choices, then move toward complete paper-valid games against all 32 authenticated source lists.
