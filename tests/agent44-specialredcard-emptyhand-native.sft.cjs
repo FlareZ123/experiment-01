@@ -121,7 +121,8 @@ for (const seat of [0,1]) {
   }
 }
 
-const {installSpecialRedCardEmptyHandHook,installSpecialRedCardPaperHook} =
+const {installSpecialRedCardEmptyHandHook,installSpecialRedCardPaperHook,
+  dispatchSpecialRedCardPaperRoot} =
   require('../simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs');
 
 for (const seat of [0,1]) {
@@ -204,14 +205,10 @@ function inspectNativeBottomOrder(seat,reverse,physicalRandom,shallowDeck=false)
   const heldOrder=x.opponent.hand.cards.map(c=>c.fullName);
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
-  const restore=physicalRandom === undefined ?
-    ()=>{} : installSpecialRedCardPaperHook(physicalRandom);
-  try {
-    x.store.dispatch(new PlayCardAction(x.owner.id,0,
-      {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
-  } finally {
-    restore();
-  }
+  const action=new PlayCardAction(x.owner.id,0,
+    {player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
+  if(physicalRandom===undefined) x.store.dispatch(action);
+  else dispatchSpecialRedCardPaperRoot(x.store,action,physicalRandom);
   const live=x.store.state.players.find(p=>p.id===x.opponent.id);
   assert.ok(live);
   const bottomOrder=live.deck.cards.slice(-heldOrder.length)
