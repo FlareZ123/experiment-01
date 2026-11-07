@@ -212,3 +212,54 @@ test('Proved paper winner ends overtime without waiting for other turn',()=>{
   assert.equal(r.conditionalWinnerSeat,1);
   assert.equal(r.competitiveAdmission,false);
 });
+
+
+test('A verified simultaneous knockout tie requires a fresh six-Prize tiebreaker',()=>{
+  for(const stage of ['open-top32','open-final']){
+    const r=adjudicateAtPrescribedEnd({stage,prizesRemaining:[1,3],
+      secondPlayerTurnFinished:false,paperGameTie:true});
+    assert.equal(r.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+    assert.equal(r.conditionalWinnerSeat,null);
+    assert.equal(r.tieResolvedByClockRules,false);
+    assert.equal(r.competitiveAdmission,false);
+  }
+});
+
+test('Swiss simultaneous paper tie is explicitly withheld for judge review',()=>{
+  const r=adjudicateAtPrescribedEnd({stage:'open-swiss',prizesRemaining:[0,0],
+    secondPlayerTurnFinished:false,paperGameTie:true});
+  assert.equal(r.status,'SWISS_PAPER_TIE_JUDGE_REVIEW_REQUIRED');
+  assert.equal(r.conditionalWinnerSeat,null);
+  assert.equal(r.competitiveAdmission,false);
+});
+
+test('Tied knockout overtime is a six-Prize new-game case',()=>{
+  const r=adjudicateExtension({extensionRule:'both-high',prizesRemaining:[0,0],
+    paperGameTie:true});
+  assert.equal(r.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(r.conditionalWinnerSeat,null);
+});
+
+test('Official end-call audit retains proved prior paper tie without invented winner',()=>{
+  const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
+    turnOwnerWhenCalled:1,officialEndCallObserved:true,
+    officialClockEvidenceRef:'verified-official-judge-call',
+    firstPlayerEvidenceRef:'independent-opening-seat-ledger',
+    independentPaperStateEvidenceRef:'complete-simultaneous-KO-ledger',
+    paperStateIndependentlyReviewed:true,prizesRemaining:[2,2],
+    paperGameTie:true,finalPermittedTurnFinished:false});
+  assert.equal(r.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(r.competitiveAdmission,false);
+  assert.equal(r.officialEndCallEvidenceShapeComplete,true);
+});
+
+test('Reject simultaneously declaring a unique paper winner and paper tie',()=>{
+  assert.throws(()=>adjudicateAtPrescribedEnd({stage:'open-top32',
+    prizesRemaining:[2,2],secondPlayerTurnFinished:true,
+    paperGameWinner:0,paperGameTie:true}),/simultaneous/);
+  assert.throws(()=>adjudicateExtension({extensionRule:'tied-low',
+    prizesRemaining:[2,2],paperGameWinner:1,paperGameTie:true}),/simultaneous/);
+  assert.throws(()=>auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
+    turnOwnerWhenCalled:0,prizesRemaining:[2,2],
+    paperGameWinner:0,paperGameTie:true}),/simultaneous/);
+});
