@@ -251,19 +251,22 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       audit.secondPrizeTransferCompleted&&
       audit.firstPrizeDestinationIsHand&&
       audit.secondPrizeDestinationIsHand&&
-      message===GameLog.LOG_GAME_FINISHED_WINNER){
+      (message===GameLog.LOG_GAME_FINISHED_WINNER||
+        message===GameLog.LOG_GAME_FINISHED_DRAW)){
       // choosePrizeCards processes Prize groups in state.players order and
       // ends the game on the first group's final Prize. endGame logs before
-      // assigning state.winner, so state.winner is still NONE here. Capture
-      // the real native result from the first processed Prize-group player.
+      // assigning state.winner, so state.winner is still NONE here. A native
+      // DRAW log is also captured because the paper table can require a win.
       const firstProcessedPlayer=candidatePlayers.firstPlayer;
+      const nativeLogIsDraw=message===GameLog.LOG_GAME_FINISHED_DRAW;
       audit.nativeWinnerLogMessage=message;
       audit.nativeWinnerLogName=params?.name??null;
       audit.nativeWinnerLogParams=params??null;
-      const nativeWinner=state.players[0]===firstProcessedPlayer
-        ?GameWinner.PLAYER_1
-        :state.players[1]===firstProcessedPlayer
-          ?GameWinner.PLAYER_2:null;
+      const nativeWinner=nativeLogIsDraw?GameWinner.DRAW:
+        state.players[0]===firstProcessedPlayer
+          ?GameWinner.PLAYER_1
+          :state.players[1]===firstProcessedPlayer
+            ?GameWinner.PLAYER_2:null;
       assert.ok(nativeWinner!==null,
         'first Prize-group player must be present in state.players');
       const expectedWinner=resolveSimultaneousLastPrizeWinner(
@@ -279,15 +282,17 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       const winnerLogParams=winnerPlayer
         ?{...(params||{}),name:winnerPlayer.name}:undefined;
       state.winner=expectedWinner;
+      const nativeWinnerPlayer=nativeWinner===GameWinner.DRAW
+        ?null:firstProcessedPlayer;
       audit.nativeWinner=nativeWinner;
-      audit.nativeWinnerPlayerId=firstProcessedPlayer.id;
-      audit.nativeWinnerName=firstProcessedPlayer.name;
+      audit.nativeWinnerPlayerId=nativeWinnerPlayer?.id??null;
+      audit.nativeWinnerName=nativeWinnerPlayer?.name??null;
       audit.expectedWinner=expectedWinner;
       audit.winnerOverridden=nativeWinner!==expectedWinner;
       audit.winnerLogHandled=true;
       audit.terminalOutcome=expectedWinner===GameWinner.DRAW
         ?'DRAW':expectedWinner===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2';
-      audit.winnerLogRewritten=expectedWinner===GameWinner.DRAW||
+      audit.winnerLogRewritten=winnerLogMessage!==message||
         nativeWinner!==expectedWinner||
         (winnerPlayer!==null&&params?.name!==winnerPlayer.name);
       audit.winnerLogMessage=winnerLogMessage;
