@@ -45,6 +45,7 @@ function summarizeContextCoverage(census) {
         attackTraceStatus: 'unknown-after-unclosed-native-trace',
         attackDeclarations: null, settledAttacks: null,
         sameEpochOpponentRootCount: null,
+        immediateOpponentActionCounts: null,
         sourcePrizeTakingAttacks: null, sourcePrizesTaken: null,
         independentGameSamples: 0,
         opponentDecisionQualityCertified: false,
@@ -59,6 +60,7 @@ function summarizeContextCoverage(census) {
     let sourcePrizesTaken = 0;
     let prizeTakingAttacks = 0;
     let sameEpochOpponentRootCount = 0;
+    const immediateOpponentActions = new Map();
     for (let i = 0; i < settlements.length; i++) {
       const x = settlements[i];
       assert.equal(x.ordinal, declarations[i].originatingActionOrdinal);
@@ -67,9 +69,14 @@ function summarizeContextCoverage(census) {
         declarations[i].settledPromptChain === true);
       if (!x.publicSettlement) continue;
       if (x.nextOpponentSameEpochCertified === true) {
-        assert.ok(x.nextOpponentRoot !== null &&
-          x.nextOpponentRoot !== undefined);
+        const reply = x.nextOpponentRoot;
+        assert.ok(Number.isSafeInteger(reply?.ordinal) &&
+          Number.isSafeInteger(reply?.turn) &&
+          typeof reply?.action === 'string' && reply.action.length > 0,
+        'Native opponent action requires its ordinal, turn and action');
         sameEpochOpponentRootCount++;
+        immediateOpponentActions.set(reply.action,
+          (immediateOpponentActions.get(reply.action) ?? 0) + 1);
       }
       const before = x.prizeBefore?.[row.sourceSeat];
       const after = x.prizeAfter?.[row.sourceSeat];
@@ -88,7 +95,9 @@ function summarizeContextCoverage(census) {
       attackTraceStatus: 'observed-root-joined-store-trace',
       attackDeclarations: declarations.length,
       settledAttacks: row.settledSourceAttackCount,
-      sameEpochOpponentRootCount, sourcePrizeTakingAttacks: prizeTakingAttacks,
+      sameEpochOpponentRootCount,
+      immediateOpponentActionCounts: Object.fromEntries(immediateOpponentActions),
+      sourcePrizeTakingAttacks: prizeTakingAttacks,
       sourcePrizesTaken, independentGameSamples: 0,
       opponentDecisionQualityCertified: false,
       paperQualified: false
@@ -104,6 +113,14 @@ function summarizeContextCoverage(census) {
     id: x.id, settledAttacks: x.settledAttacks
   })).sort((a, b) => b.settledAttacks - a.settledAttacks);
   const totalSettled = sum('settledAttacks');
+  const immediateOpponentActionCounts = new Map();
+  for (const context of known) {
+    for (const [action, count] of Object.entries(
+      context.immediateOpponentActionCounts)) {
+      immediateOpponentActionCounts.set(action,
+        (immediateOpponentActionCounts.get(action) ?? 0) + count);
+    }
+  }
   const pairedSourceDeals = [];
   const bySource = new Map();
   for (const row of rows) {
@@ -136,6 +153,8 @@ function summarizeContextCoverage(census) {
     totalKnownSourceDeclarations: sum('attackDeclarations'),
     totalKnownSourceSettlements: totalSettled,
     totalKnownSameEpochOpponentRoots: sum('sameEpochOpponentRootCount'),
+    immediateOpponentActionCounts: Object.fromEntries(
+      [...immediateOpponentActionCounts].sort((a,b)=>a[0].localeCompare(b[0]))),
     totalObservedSourcePrizeTakingAttacks: sum('sourcePrizeTakingAttacks'),
     totalObservedSourcePrizesTaken: sum('sourcePrizesTaken'),
     attackConcentration,
