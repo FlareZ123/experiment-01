@@ -89,7 +89,7 @@ function withOwnerPowerglassAfterSupporter(run,deps={}){
           slot:SlotType.ACTIVE,index:0}}]:null;
         if(proposed&&pending.validate(proposed,state)===true){
           const action=new ResolvePromptAction(pending.id,proposed);
-          promptIntended.set(action,{seat,ownerId:owner.id,prompt,
+          promptIntended.set(action,{seat,ownerId:owner.id,prompt:pending,
             physicalCard:card,turn:state.turn});
           audit.promptAssignments++;
           return action;
