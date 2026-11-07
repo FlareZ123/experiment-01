@@ -1,3 +1,12 @@
+## 7 November 2026 19:26 UTC | Final post-response WaitPrompt identified
+
+- Downloaded and inspected joined artifact `13587237490` from run 42405506605 using the GitHub artifact download capability. The JSON confirms the Snap Trap prompt itself is resolved with the same Beast Energy object (prompt ID 2), and exactly one other pending prompt remains: native `WaitPrompt` ID 3. The observer event records the exact same source proof object, public `opponent-active-pokemon-list` exact-container match, attached `energies` sublist, `lastAttack=Red Knuckles`, and `currentAttack=null`.
+- Updated the Prism Star fixture to resolve this post-response WaitPrompt with `ResolvePromptAction(id, null)`, then assert the WaitPrompt result is null and the global pending prompt count is zero. The output still records the pre-resolution prompt summary, including ID/type, so the two prompt phases remain distinguishable.
+- Updated the Prism Star test wrapper and joined witness to require final prompt-queue clearance. The first dispatch of this revision (run 42406031993) was cancelled before tests after a local duplicate `afterResponse` variable declaration was spotted during review. Fixed the declaration by renaming the State snapshot to `afterResponseState`. Corrected run **42406139566** is in progress as of 19:26 UTC.
+- Next: verify run 42406139566, then update synthesis/README/memory to state whether both WaitPrompts were resolved and the attack effect generator fully completed. If it fails, inspect only the failed job log and fix the actual failure. Continue to distinguish an isolated attack from a complete game or competitive evidence.
+
+---
+
 ## 7 November 2026 19:22 UTC | Joined source-to-settlement witness passed
 
 - Joined test run **42405506605** completed **success** on head `1802593f52275d38260cd0d2fe9aaff441f5776d`. The full manual workflow passed: Agent35 ordinary Energy settlement, Agent12 Prism Star settlement, both Agent12 artifact uploads, and every Agent37 native regression.
