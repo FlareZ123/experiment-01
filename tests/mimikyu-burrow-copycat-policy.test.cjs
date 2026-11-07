@@ -41,12 +41,17 @@ function fixture() {
 test('public-state predicate accepts only Mimikyu GRI after Bunnelby non-GX Burrow', () => {
   const f = fixture();
   assert.equal(isCopycatBurrowSituation(f.state,f.owner),true);
-  f.state.playerLastAttack[f.opponent.id].attack.gxAttack = true;
+  f.state.playerLastAttack[f.opponent.id] = {
+    sourceCard:f.bunnelby,attack:{...f.burrow,gxAttack:true}
+  };
   assert.equal(isCopycatBurrowSituation(f.state,f.owner),false);
-  f.state.playerLastAttack[f.opponent.id].attack.gxAttack = false;
-  f.state.playerLastAttack[f.opponent.id].attack.name = 'Gnaw';
+  f.state.playerLastAttack[f.opponent.id] = {
+    sourceCard:f.bunnelby,attack:{...f.burrow,name:'Gnaw'}
+  };
   assert.equal(isCopycatBurrowSituation(f.state,f.owner),false);
-  f.state.playerLastAttack[f.opponent.id].attack = f.burrow;
+  f.state.playerLastAttack[f.opponent.id] = {
+    sourceCard:f.bunnelby,attack:f.burrow
+  };
   f.owner.active.cards[0] = f.bunnelby;
   assert.equal(isCopycatBurrowSituation(f.state,f.owner),false);
   f.owner.active.cards[0] = f.mimikyu;

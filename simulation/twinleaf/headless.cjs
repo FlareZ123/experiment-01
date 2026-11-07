@@ -68,6 +68,7 @@ const {probeKlefkiRetreatAfterPass} = require('./klefki-retreat-pass-probe.cjs')
 const {withActiveOpeningPivot} = require('./active-opening-pivot.cjs');
 const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
+const {withCopycatBurrowPolicy} = require('./mimikyu-burrow-copycat-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
 const {captureInitialPhysicalOwners,inspectPhysicalCardZones,
@@ -291,6 +292,8 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
  * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
+ * @property {boolean} [mimikyuBurrowCopycatPolicy] Opt-in public-state Mimikyu Copycat/Bunnelby Burrow tactic.
+ * @property {0|1} [mimikyuBurrowCopycatPolicySeat] Restrict Burrow Copycat tactic to one physical seat.
  * @property {0|1} [mimikyuTurn27SetupSeat] Source-ranked, single-turn test of discard, Energy attachment and promotion into the Copycat response.
  * @property {0|1} [mimikyuExtraTurnShredSeat] Opt-in exact source turn28 Copycat/Apex/Shred counterfactual for one physical seat.
  * @property {0|1} [mimikyuAutonomousShredSeat] Opt-in turn-independent public-state spent-GX Shred tactic on one seat.
@@ -568,6 +571,19 @@ function runMatch(request) {
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
       throw new Error('Counterpolicy seat requires enabled Copycat counterpolicy');
+    }
+    if (request.mimikyuBurrowCopycatPolicySeat !== undefined &&
+        (request.mimikyuBurrowCopycatPolicy !== true ||
+          ![0, 1].includes(request.mimikyuBurrowCopycatPolicySeat))) {
+      throw new Error('Burrow Copycat seat requires enabled policy and physical seat 0 or 1');
+    }
+    if (request.mimikyuBurrowCopycatPolicy === true &&
+        request.passClearsLastAttackCorrection !== true) {
+      throw new Error('Burrow Copycat policy requires pass-clears-last-attack correction');
+    }
+    if (request.mimikyuBurrowCopycatPolicy === true &&
+        request.mimikyuApexTimelessPolicy === true) {
+      throw new Error('Choose one opt-in Mimikyu Copycat tactic per run');
     }
     if (request.mimikyuTurn27SetupSeat !== undefined &&
         (request.mimikyuApexTimelessPolicy !== true ||
@@ -873,6 +889,11 @@ function runMatch(request) {
           (request.mimikyuApexTimelessPolicySeat === undefined ||
             request.mimikyuApexTimelessPolicySeat === seat)) {
         configured = withCopycatApexTimelessPolicy(configured);
+      }
+      if (request.mimikyuBurrowCopycatPolicy === true &&
+          (request.mimikyuBurrowCopycatPolicySeat === undefined ||
+            request.mimikyuBurrowCopycatPolicySeat === seat)) {
+        configured = withCopycatBurrowPolicy(configured);
       }
       if (request.snorlaxSoloOpeningSeat === seat) {
         configured = require('./snorlax-solo-opening-policy.cjs')
@@ -2029,6 +2050,8 @@ function runMatch(request) {
       mimikyuApexCopycatCompatibility: request.mimikyuApexCopycatCompatibility === true,
       mimikyuApexTimelessPolicy: request.mimikyuApexTimelessPolicy === true,
       mimikyuApexTimelessPolicySeat: request.mimikyuApexTimelessPolicySeat ?? null,
+      mimikyuBurrowCopycatPolicy: request.mimikyuBurrowCopycatPolicy === true,
+      mimikyuBurrowCopycatPolicySeat: request.mimikyuBurrowCopycatPolicySeat ?? null,
       mimikyuTurn27SetupSeat: request.mimikyuTurn27SetupSeat ?? null,
       mimikyuExtraTurnShredSeat: request.mimikyuExtraTurnShredSeat ?? null,
       mimikyuAutonomousShredSeat: request.mimikyuAutonomousShredSeat ?? null,
@@ -2168,6 +2191,9 @@ function runMatch(request) {
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
         (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
+        (request.mimikyuBurrowCopycatPolicy === true ?
+          '+MimikyuBurrowCopycatPolicy-v1@seat' +
+            (request.mimikyuBurrowCopycatPolicySeat === undefined ? 'both' : request.mimikyuBurrowCopycatPolicySeat) : '') +
         (request.mimikyuTurn27SetupSeat !== undefined ?
           '+SourceMimikyuTurn27Setup-v1@seat' + request.mimikyuTurn27SetupSeat : '') +
         (request.passClearsLastAttackCorrection === true ? '+PassClearsLastAttack-v1' : '') +
