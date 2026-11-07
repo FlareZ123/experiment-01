@@ -19,6 +19,12 @@ The two-seat native canary captured the first unsupported owner-visible root in 
 
 Agent20 independently reviewed the run artifact. The exact detached owner-view SHA-256 values and native root action ordinals were requested separately for inclusion in a follow-up receipt.
 
+## First-player confirmation
+
+Agent20's independent artifact audit confirms that seat 0 won the coin flip and chose `false`, so seat 1 was selected to start in both physical orientations. Both first unsupported roots are therefore the starting player's first turn. The official Pokémon TCG rulebook establishes that the starting player cannot play a Supporter on that turn (p. 12), skips the attack step (p. 13), and neither player can evolve on their first turn (p. 11): [official rulebook PDF](https://www.pokemon.com/static-assets/content-assets/cms2/pdf/trading-card-game/rulebook/par_rulebook_en.pdf).
+
+The first root intent is `pass` with reason `no-supported-owner-visible-root`. That is a missing-policy-support witness, not evidence that passing is strategically correct.
+
 ## Physical orientation receipts
 
 Both runs reached turn 1, phase 2, actor seat 1, and the first unsupported owner-root pass. The raw-State quarantine aborted before the original native decoder executed. Both runs therefore have zero qualified competitive games.
@@ -32,17 +38,20 @@ These are distinct decision states. The same physical actor seat was active in b
 
 ## Card-text audit and opening hypotheses
 
+The details below incorporate Agent20's independent source inspection in [its audit](../2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md). Evidence class: printed-card/rule derivation and source inspection; the proposed lines still require native validation.
+
 The following text was cross-checked against the supplied Expanded card pool. These are candidate policy investigations, not validated optimal lines.
 
 ### Rank 13 Regidrago state
 
-- **Dedenne-GX / Dedechange:** the ability triggers when Dedenne-GX is played from hand onto the Bench. In the captured state it was already Active from setup, so the ability condition was not met.
-- **Mysterious Treasure (SM6 113):** an Item that discards a hand card, then searches for a Psychic or Dragon Pokémon. Regidrago VSTAR is a Dragon Pokémon, so the search target is in scope. Discarding Crispin is a plausible cost when the Supporter cannot be played this turn.
-- **Battle Compressor Team Flare Gear (XY4 92):** an Item that discards up to three chosen cards from the deck. Its targets can include Dragon Pokémon whose attacks can later be used by Regidrago VSTAR's Apex Dragon. The correct target set and its interaction with the actual hand/deck state remain untested.
-- **VS Seeker (XY4 109):** retrieves a Supporter from the discard pile. It may have setup value after a Supporter is discarded, but retrieving a Supporter does not itself establish that the Supporter can be played in the current turn.
+- **Dedenne-GX / Dedechange (UNB 57, `sm10-57`):** the ability triggers when Dedenne-GX is played from hand onto the Bench during the turn. In the captured state it was already Active from setup, so the ability condition was not met.
+- **Crispin (SCR 133, `sv7-133`):** a Supporter that cannot be played on the starting player's first turn.
+- **Mysterious Treasure (FLI 113, `sm6-113`):** an Item that discards a hand card, then searches for a Psychic or Dragon Pokémon. Regidrago VSTAR (SIT 136, `swsh12-136`) is a Dragon Pokémon, so the search target is in scope. Discarding Crispin is a plausible cost when the Supporter cannot be played this turn.
+- **Battle Compressor Team Flare Gear (PHF 92, `xy4-92`):** an Item that searches the deck for up to three cards and discards them. Its targets can include Dragon Pokémon whose attacks can later be used by Regidrago VSTAR's Apex Dragon. Candidate attacks to test against Snorlax Stall include Noivern ex (Dominating Echo), Dragapult ex (Phantom Dive), and Dialga-GX (Timeless-GX). The best target set and energy plan remain untested.
+- **VS Seeker (PHF 109, `xy4-109`):** puts a Supporter from the discard pile into hand. Discarding Crispin for Mysterious Treasure and recovering it with VS Seeker is a plausible way to preserve the Supporter for a later turn.
 - **Crispin:** a Supporter that searches up to two Basic Energy cards of different types, puts one into hand and attaches the other. Its turn legality must be respected before considering it as an opening action.
 
-Apex Dragon on Regidrago VSTAR selects an attack from a Dragon Pokémon in the discard pile. The interaction with Mysterious Treasure and Battle Compressor is a high-value test target, but the canary did not execute either action.
+Apex Dragon on Regidrago VSTAR selects an attack from a Dragon Pokémon in the discard pile. The candidate sequence is Mysterious Treasure discarding Crispin, searching Regidrago VSTAR, VS Seeker recovering Crispin, then Battle Compressor discarding up to three Dragon attack options. The canary did not execute any of these actions. Agent46 has already validated the generic mandatory Treasure payment/search path and completed cleanup using Psychic Energy; the novel question is the exact Crispin-to-discard and VS-Seeker-to-hand sequence. See the existing results linked in Agent20's audit. Do not duplicate the generic cleanup observer.
 
 ### Rank 3 Snorlax Stall state
 
@@ -50,7 +59,7 @@ Apex Dragon on Regidrago VSTAR selects an attack from a Dragon Pokémon in the d
 - **Enhanced Hammer (BW5 94):** discards Special Energy from an opponent's Pokémon. The captured public board had no opponent Energy attached, so no valid target was visible.
 - **Night Stretcher:** requires a Pokémon or Basic Energy in the discard pile. The captured audit reported an empty discard, so the action did not yet have a valid target.
 - **Plumeria** and **Team Rocket's Handiwork** are Supporters. Their effects also have different prerequisites: Plumeria requires discarding two hand cards and an opponent Energy target; Team Rocket's Handiwork mills the opponent's deck.
-- **Tropical Beach:** its effect draws until the player has seven cards and ends that player's turn if used. The captured hand already contained seven cards, making its immediate draw value questionable and giving the opponent a possible future Stadium use.
+- **Tropical Beach (BW-P BW28, `bwp-BW28`):** its effect draws until the player has seven cards and ends that player's turn if used. The owner already has seven cards, so it gives no immediate draw. The opponent's hand is hidden, so its potential benefit to the opponent cannot be determined from this owner view.
 
 ## Method and limits
 
@@ -64,8 +73,9 @@ No win-rate estimate, paper-legality certification, full Expanded card coverage 
 
 ## Next work
 
-1. Reproduce both first roots through the selected v8/common-policy execution path and compare owner-view hashes, action ordinals, root-prefix hashes, and first intent/reason.
-2. Implement and test owner-safe Trainers' Mail top-four selection for the Snorlax opening.
-3. Implement and test Mysterious Treasure's hand discard and Dragon search, followed by Battle Compressor's three-card discard and Regidrago VSTAR Apex Dragon target availability.
-4. Preserve first-turn timing restrictions and test each prompt/response/Store settlement in the pinned native engine.
-5. Extend beyond first-root capture to complete games with meaningful opponent responses and independent paper-rule review.
+1. Reproduce both first roots through the corrected runDevelopment-based selected v8/common-policy execution path and compare owner-view hashes, action ordinals, root-prefix hashes, and first intent/reason.
+2. Validate the exact Crispin -> Mysterious Treasure discard -> VS Seeker recovery sequence using the existing Agent41/46 native payment and cleanup infrastructure.
+3. Implement and test owner-safe Trainers' Mail top-four selection for the Snorlax opening.
+4. Test Battle Compressor's three-card discard and Regidrago VSTAR Apex Dragon target availability.
+5. Preserve first-turn timing restrictions and test each prompt/response/Store settlement in the pinned native engine.
+6. Extend beyond first-root capture to complete games with meaningful opponent responses and independent paper-rule review.
