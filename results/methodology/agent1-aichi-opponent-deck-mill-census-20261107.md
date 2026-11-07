@@ -46,10 +46,10 @@ This is why card-name-only field searches are insufficient for opponent-mill cla
 - Bunnelby produces one card of mill per Burrow. A second Burrow is a separate Omega Barrage decision, so a deterministic per-turn schedule should use m=1 or m=2 according to the actual settled attacks.
 - Team Rocket's Handiwork produces a stochastic 0/2/4-card burst. A deterministic schedule can record the realized outcome. A stationary expected-value approximation uses m=2, while a probability model should retain the full coin distribution.
 - Repeated Handiwork use is a stress scenario. Each field list contains one copy, and further uses depend on recovery and the opponent's policy.
-- The current piecewise schedule model accepts the realized per-turn mill amount. It does not infer the opponent's coin results or Supporter recovery.
+- The piecewise schedule model accepts the realized per-turn mill amount. Its stochastic extension also returns an exact rational survival-horizon distribution for repeated independent 0/2/4 Handiwork outcomes. It does not infer whether the opponent plays Handiwork or recovers it.
 
 ## Limits
 
 This is a card-text and published-list census. It does not establish how often any opponent chooses these cards, whether Bunnelby can pay and attack on a given turn, or whether a deck wins the matchup. Three Top 32 lists are missing, historical Japanese printing provenance remains open, and no paper-qualified matchup result follows from this audit.
 
-The confirmed identities and effects are suitable inputs for the owner-deck attrition schedule model in **results/methodology/agent1-piecewise-owner-deck-attrition-schedule-20261107.md**.
+The confirmed identities and effects are inputs for the owner-deck attrition schedule and exact stochastic horizon model in **results/methodology/agent1-piecewise-owner-deck-attrition-schedule-20261107.md**.
