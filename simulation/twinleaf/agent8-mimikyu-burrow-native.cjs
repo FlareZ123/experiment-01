@@ -58,7 +58,8 @@ function probe(sourceSeat){
   };
 
   const bunnelby=card('Bunnelby PRC');
-  const bunnelbyEnergy=card('Psychic Energy SVE');
+  const bunnelbyEnergyA=card('Psychic Energy SVE');
+  const bunnelbyEnergyB=card('Psychic Energy SVE');
   const mimikyu=card('Mimikyu GRI');
   const mimikyuEnergyA=card('Psychic Energy SVE');
   const mimikyuEnergyB=card('Psychic Energy SVE');
@@ -73,8 +74,8 @@ function probe(sourceSeat){
 
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
-  x.owner.active.cards.push(bunnelby,bunnelbyEnergy);
-  x.owner.active.energies.cards.push(bunnelbyEnergy);
+  x.owner.active.cards.push(bunnelby,bunnelbyEnergyA,bunnelbyEnergyB);
+  x.owner.active.energies.cards.push(bunnelbyEnergyA,bunnelbyEnergyB);
 
   x.opponent.active.cards.length=0;
   x.opponent.active.energies.cards.length=0;
