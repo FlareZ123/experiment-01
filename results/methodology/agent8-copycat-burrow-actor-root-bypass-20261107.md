@@ -96,5 +96,12 @@ Therefore the pinned Store retains the **first** attack from an Ω Barrage seque
 
 The Agent8 double-attack fixture is being revised to characterize this exact behavior: both attacks' physical effects resolve, the Store records only the first, and Copycat executes only that first recorded attack. It must not be reported as paper-correct multi-attack behavior. The research-side repair should track every attack used by each player during their previous turn, retain source-card and attack metadata, filter GX and Copycat attacks, and let the Mimikyu owner select among the eligible records through an adapter hook. Upstream Twinleaf remains untouched.
 
+### Ω Barrage prompt decoding pitfall
+
+The first double-attack fixture also used the wrong native `ChooseAttackPrompt` payload. At the pinned revision, `ChooseAttackPrompt.decode` expects `{ index, attack: 'Burrow' }` (index 0 for the active Pokémon); `Store.reducePrompt` decodes `ResolvePromptAction.result` before validation and callback execution. Passing the raw Attack object can make a local `prompt.validate(attack)` assertion pass while the prompt decode fails and the second attack never executes. This produced a misleading source-turn deck delta of -1 in an early fixture.
+
+Agent8's corrected fixture now calls `prompt.decode({index:0,attack:secondAttack}, state)`, validates the decoded Attack, and dispatches the structured prompt result. The separate history tracker records the first declared `AttackAction` and the second attack selected through `CHOOSE_ATTACK_TO_COPY`. The clean rerun is pending; no double-attack outcome is claimed until that test passes.
+
+
 
 **Status:** high-confidence policy-composition diagnosis; immediate Burrow copy settled; official FAQ confirms either-attack selection after double attacks; pinned Store single-record limitation confirmed from source; native characterization rerun pending; zero competitively qualified games.
