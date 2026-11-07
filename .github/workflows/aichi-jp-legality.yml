@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/agent2-apex-jp-print-audit.test.cjs
       - name: Verify dated SM12a Basic Energy alternatives for all 60 physical slots
         run: node --test tests/agent2-apex-sm12a-release.test.cjs
+      - name: Preflight two-seat root activation against v9-style dropped options
+        run: node --test tests/agent2-bilateral-root-activation-inventory.test.cjs
       - name: Verify Japanese Expanded exact-print structural vetoes
         run: node --test tests/agent9-jp-expanded-structure.test.cjs
       - name: Verify dated English proxy crosswalk against original 29 Aichi source inventories
