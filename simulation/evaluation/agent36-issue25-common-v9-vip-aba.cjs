@@ -208,7 +208,7 @@ function firstRootDifference(before,after){
     }
   }
   if(a.length!==b.length){
-    const left=a[n-1]??null,right=b[n-1]??null;
+    const left=a[n]??null,right=b[n]??null;
     const leftText=JSON.stringify(left),rightText=JSON.stringify(right);
     return {
       available:true,index:n+1,
@@ -217,8 +217,8 @@ function firstRootDifference(before,after){
         createHash('sha256').update(leftText).digest('hex'),
       afterEventSha256:right===null?null:
         createHash('sha256').update(rightText).digest('hex'),
-      beforeSeat:b[n]?.playerSlot??b[n]?.seat??b[n]?.actorSeat??null,
-      afterSeat:b[n]?.playerSlot??b[n]?.seat??b[n]?.actorSeat??null,
+      beforeSeat:left?.playerSlot??left?.seat??left?.actorSeat??null,
+      afterSeat:right?.playerSlot??right?.seat??right?.actorSeat??null,
       beforeTurn:left?.turnBefore??left?.turn??left?.globalTurn??null,
       afterTurn:right?.turnBefore??right?.turn??right?.globalTurn??null,
       afterContainsVip:/Battle VIP Pass|swsh8-225|FST 225/i.test(rightText??''),
@@ -313,17 +313,16 @@ function compare(phases){
     const treatment=a&&b?firstRootDifference(a,b):null;
     const changed=Boolean(treatment?.available===true&&
       treatment.index!==null);
+    const vip=nativeVipOutcome(b??{});
     const matchingVipItem=(vip.examples??[]).some(event=>
       event.kind==='vip-item'&&event.accepted===true&&
-      (treatment?.afterSeat===null||treatment?.afterSeat===undefined||
-        event.seat===treatment.afterSeat)&&
-      (treatment?.afterTurn===null||treatment?.afterTurn===undefined||
-        event.turn===treatment.afterTurn));
+      Number.isInteger(treatment?.afterSeat)&&
+      Number.isInteger(treatment?.afterTurn)&&
+      event.seat===treatment.afterSeat&&event.turn===treatment.afterTurn);
     const firstTreatmentDifferenceIsVip=Boolean(changed&&
       (treatment.afterContainsVip||matchingVipItem)&&
       (treatment.beforeContainsPass||/pass/i.test(treatment.beforeKind??''))&&
       (/play/i.test(treatment.afterKind??'')||treatment.afterContainsVip));
-    const vip=nativeVipOutcome(b??{});
     return {
       id:trial.id,rank:trial.rank,candidateId:trial.candidateId,
       candidateSlot:trial.candidateSlot,seed:trial.seed,
