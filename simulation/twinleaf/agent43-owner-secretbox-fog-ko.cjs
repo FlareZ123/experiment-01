@@ -72,9 +72,19 @@ function choosePublicOneEnergyBoxKoWithRegistered60(
 ){
   const plan=choosePublicOneEnergyBoxKo(view,fundableCosts);
   if(plan===null)return null;
+  // Fog Crystal needs one live Basic Psychic energy to finish this line.
+  // Only exact registered Basic Psychic native names are admitted, with no
+  // unseen-deck or Prize lookup and no arbitrary set-code aliasing.
+  assert.ok(Array.isArray(ownRegistered60)&&ownRegistered60.length===60);
+  const basicPrints=[...new Set(ownRegistered60.filter(printing=>
+    typeof printing==='string'&&printing.startsWith(BASIC+' ')))];
+  if(basicPrints.length===0)return null;
   const gate=preflightOriginal60Plan(ownRegistered60,[{
     role:'secret-box-owner-deck-fog-search',
     acceptablePrintings:[FOG],copies:1
+  },{
+    role:'fog-basic-psychic-energy-target',
+    acceptablePrintings:basicPrints,copies:1
   }]);
   return gate.status==='blocked-impossible-original60'?null:plan;
 }
