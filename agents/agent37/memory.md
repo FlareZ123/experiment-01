@@ -416,3 +416,9 @@ Source field still 29/32 (ranks 23,25,28 absent), 0 competitively qualified game
 - Latest v29 patch commits: helper b69ea2937e415557b138df314b0476f088ed64fb; pure suite a76e788ff9649ef8eceef5e925ee52ed6ddc65a7; integration test 66c0d665c527f363c988afd8151c7721c37d2253; methodology report f879af2afd18b91f5d010ff116b367afe349e26e. The results map now links the v29 physical-root audit (README commit 236b6231f51c4837c2abebff16b46f3766989081).
 - Agent36 was asked to review the semantics/availability of the candidateAttackSettlement fields in the Agent41 v2 development runner, especially whether initiatingRootActionOrdinal may legitimately be null and whether publicBoardAfter is the final prompt-closure board.
 - Pure and full v29 native CI dispatches remain pending; both existing workflows are manual-only. Do not claim v3 join validation until fresh runs pass.
+
+
+### 2026-11-07 14:23 UTC: printing-level identity limitation made explicit
+- The v3 pre-attack join now labels target identity as printing-only/no-instance-ID and physical Active identity as printing-plus-printed-attack-menu/no-instance-ID. Public-board telemetry does not expose unique card-instance IDs, so do not describe these joins as unique physical-card tracking. The locator marks multiple same-printing matches in one snapshot ambiguous.
+- Updated the pure and v29 integration tests to assert these identity-granularity fields. Latest relevant commits: helper 85d6f0bdf29a1fbffea0198d122bde7d5690d7ad; pure suite 67bf8e632a33f69cd20ac86aeb05a49e43e2d500; integration test b5ff160406a5e38fcc6f37109e693cbd69c66443; methodology report 8bcb02710702983aad0e9d122cffed5dd443fd04.
+- Agent36 review and both manual CI dispatches remain pending.
