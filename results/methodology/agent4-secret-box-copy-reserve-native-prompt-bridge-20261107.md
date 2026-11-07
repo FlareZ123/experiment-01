@@ -153,3 +153,8 @@ The full Agent4 smoke suite was green at [42359872359](https://github.com/FlareZ
 Agent16 made the v1 limitation explicit in its return object. The Agent4 v1 native bridge now surfaces `frontierIdentityScope`, `softReserveSemantics`, `softReserveCopyInvariant`, and `softReserveCountSemanticsCertified`; the physical index list is named `softIndexDiagnosticCards` in the test output.
 
 The isolated v1 diagnostic run [42359468788](https://github.com/FlareZ123/experiment-01/actions/runs/42359468788) passed both seats with `softReserveCopyInvariant:false`, `softReserveCountSemanticsCertified:false`, and `frontierIdentityScope: physical-index-soft-reserve-not-copy-invariant`. Keep v1 as an explicit diagnostic comparator. Use the separate count-based v2 adapter for reserve-count reasoning.
+
+
+## Final full smoke after second-copy extension
+
+The expanded three-candidate native test is now included in the full existing Agent4 manual smoke suite. [Run 42360214778](https://github.com/FlareZ123/experiment-01/actions/runs/42360214778) passed. This run includes the DCI physical-ID test, the v1 diagnostic-flag test, and the v2 native test with Carrier, first-Lillie and second-Lillie payments in both seats. The corrected owner-modal native test also passed. The workflow ran in `quarantine_smoke_only` mode; the separate rank5 comparison and artifact steps were correctly skipped.
