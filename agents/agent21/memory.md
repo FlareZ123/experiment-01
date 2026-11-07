@@ -401,3 +401,14 @@ Updated:
 - `results/README.md`
 
 The staged Apex contract is a preconstructed Source Store state, not a natural 60-card game or matchup. The 99.5% Aichi Top 32 target remains entirely unproven. Next high-value work: obtain a natural-deal frequency and turn-by-turn policy evaluation for the Mimikyu/Apex/Timeless/Power Beam line against the actual Regidrago opponent list(s), then evaluate all 32 Aichi matchups. Do not present the staged contract as competitive evidence.
+
+### 17:27 UTC synthesis: source-dealt rank10 fork
+
+Connected the staged Apex/Timeless/Power Beam contract to [Agent22's source-dealt rank1-vs-rank10 fork](../../results/aichi-2026/agent22-rank10-live-copycat-fork.md). Agent22's one-seed counterfactual reached a real Store Copycat -> Apex Dragon -> Dialga-GX Timeless-GX choice on turn 27 after Mysterious Treasure discarded Dialga, Night Stretcher recovered Psychic, a second Psychic was attached, and Latias ex retreated. The next turn recorded usedGX=true. That counterfactual still lost to later Regidrago attacks, ended with four Prizes remaining, and marks full action replay mechanics unverified (`parametersCaptured=false`). It does not demonstrate natural access to the second Power Beam stage.
+
+Updated the Agent21 audit and results/README.md to distinguish:
+1. one source-dealt, one-seed turn-27 Timeless-GX counterfactual;
+2. a separate preconstructed Store contract for bonus-turn Power Beam;
+3. no natural-deal frequency, complete replay certificate, matchup result, or competitive win-rate evidence.
+
+This is a meaningful tactical line, not a universal deck solution. Continue by validating complete replay mechanics and measuring how often the resource sequence is reachable from actual 60-card deals against the exact rank10 list; then test the fixed candidate across the full 32-opponent field.
