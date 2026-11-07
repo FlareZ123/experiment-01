@@ -291,10 +291,10 @@ function runSnapTrapPrismStarDestinationContract() {
     }
   }
 
-  const after = store.state;
-  const attackerAfter = after.players.find(player => player.id === attacker.id);
-  const resolvedPrompt = after.prompts.find(item => item.id === prompt.id);
-  const pendingAfter = after.prompts.filter(item => item.result === undefined);
+  const afterResponse = store.state;
+  const resolvedPromptAfterResponse =
+    afterResponse.prompts.find(item => item.id === prompt.id);
+  const pendingAfter = afterResponse.prompts.filter(item => item.result === undefined);
   const unresolvedSamePrompt = pendingAfter.filter(item => item.id === prompt.id);
   const otherPendingPrompts = pendingAfter
     .filter(item => item.id !== prompt.id)
@@ -304,13 +304,37 @@ function runSnapTrapPrismStarDestinationContract() {
       message: item.message
     }));
 
-  assert.ok(Array.isArray(resolvedPrompt.result),
+  assert.ok(Array.isArray(resolvedPromptAfterResponse.result),
     'the native prompt must retain the resolved Card[] result');
-  assert.equal(resolvedPrompt.result.length, 1);
-  assert.strictEqual(resolvedPrompt.result[0], beastEnergy,
+  assert.equal(resolvedPromptAfterResponse.result.length, 1);
+  assert.strictEqual(resolvedPromptAfterResponse.result[0], beastEnergy,
     'prompt.result must contain the exact selected physical Beast Energy');
   assert.equal(unresolvedSamePrompt.length, 0,
     'the same Snap Trap prompt ID must no longer be pending');
+  assert.equal(otherPendingPrompts.length, 1,
+    'exactly one post-response animation prompt should remain');
+  const postResponseWaitPrompt = pendingAfter.find(item => item.id !== prompt.id);
+  assert.ok(postResponseWaitPrompt instanceof WaitPrompt,
+    'the remaining prompt must be the native post-damage WaitPrompt');
+  const postResponseWaitPromptId = postResponseWaitPrompt.id;
+  const afterFinalWait = store.dispatch(
+    new ResolvePromptAction(postResponseWaitPrompt.id, null)
+  );
+  store.state = afterFinalWait;
+  const finalWaitPrompt = store.state.prompts.find(item =>
+    item.id === postResponseWaitPromptId
+  );
+  assert.strictEqual(finalWaitPrompt.result, null,
+    'the post-response WaitPrompt must be resolved with null');
+  const pendingFinal = store.state.prompts.filter(item => item.result === undefined);
+  assert.equal(pendingFinal.length, 0,
+    'the full attack effect generator must have no unresolved prompts after the final WaitPrompt');
+
+  const after = store.state;
+  const attackerAfter = after.players.find(player => player.id === attacker.id);
+  const resolvedPrompt = after.prompts.find(item => item.id === prompt.id);
+  assert.ok(Array.isArray(resolvedPrompt.result));
+  assert.strictEqual(resolvedPrompt.result[0], beastEnergy);
 
   assert.ok(!attackerAfter.active.cards.includes(beastEnergy),
     'the selected Prism Star Energy must leave the full active PokemonCardList');
@@ -361,7 +385,11 @@ function runSnapTrapPrismStarDestinationContract() {
       promptResultIsSamePhysicalEnergy: resolvedPrompt.result[0] === beastEnergy,
       unresolvedPromptCountAfterResponse: unresolvedSamePrompt.length,
       otherPendingPromptCountAfterResponse: otherPendingPrompts.length,
-      otherPendingPromptsAfterResponse: otherPendingPrompts
+      otherPendingPromptsAfterResponse: otherPendingPrompts,
+      postResponseWaitPromptId,
+      postResponseWaitPromptType: postResponseWaitPrompt.constructor.name,
+      postResponseWaitPromptResolvedWithNull: finalWaitPrompt.result === null,
+      unresolvedPromptCountAfterFinalWait: pendingFinal.length
     },
     moveCardsEffect: {
       sourceIsAttackingPokemonList: moveEffectReceipt.source === liveAttacker.active,
