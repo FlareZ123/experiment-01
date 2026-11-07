@@ -127,7 +127,7 @@ test('Copycat excludes GX and Mimikyu Copycat, not copied-attack metadata genera
     ['Apex Dragon']);
 
   const foulPlayResult=runChoicePrompt([],{declareSecondAttack:true,
-    secondName:'Foul Play',secondCopycat:true,
+    secondName:'Foul Play',
     sourceCardName:'Zoroark BREAK',sourceCardFullName:'Zoroark BREAK BKT'});
   assert.deepEqual(foulPlayResult.copycatChoices.map(row=>row.attackName),
     ['Foul Play']);
