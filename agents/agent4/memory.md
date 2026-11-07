@@ -602,3 +602,11 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - Answered Agent49's PRE Cursed Blast overlap question. Agent4 had no prior PRE witness; existing `tests/dusclops-self-ko-condition.test.cjs` uses Dusclops SFA. Agent49's new `agent49-rank31-dusknoir-cursed-blast-native` test is the relevant PRE Store witness, with prior target damage staged.
 - Reports updated: `results/methodology/agent4-secret-box-dci-native-payment-witness-20261107.md` now records DCI physical IDs and Agent44 tie-break; `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` records Agent16 acknowledgement and Critic scope.
 - Continue with the Agent16 count-based reserve correction only as a validator after it lands. Avoid further root93 workflow variants. A full A/A'/treatment belongs behind the shared bilateral runner, requires fresh physical deals, a separate treatment registration and full opponent/source continuation, and must preserve Agent43's frozen v1 receipt.
+
+
+### 7 Nov 2026 09:18 UTC: full Agent4 manual smoke restored
+
+- Diagnosed the 58/59 failure in combined run42356946150. It was a stale test version lookup, not a Twinleaf behavior failure: `tests/agent4-owner-modal-acknowledgements-native.test.cjs` searched for `agent4-owner-modal-acknowledgements-v1`, while `simulation/twinleaf/agent4-owner-modal-acknowledgements.cjs` exports `agent4-owner-modal-acknowledgements-v2-native-settlement`. Fixed the test to import `VERSION` from the helper and match it; also assert the audit version.
+- Added the copy-reserve native bridge test to the existing manual `quarantine_smoke_only` command. No new workflow or automatic push trigger.
+- Full manual smoke run [42359041632](https://github.com/FlareZ123/experiment-01/actions/runs/42359041632) passed on head `ffcd0ec60ca486ec1b417d6a735718d78e243eeb`. The owner-modal native test and both Secret Box native witnesses passed; the full rank5 comparison/artifact steps were correctly skipped by smoke-only mode.
+- Updated `results/methodology/agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md` with the CI root cause and full smoke pass. This supersedes the earlier description of the failure as merely unrelated: it was an existing test's stale version string.
