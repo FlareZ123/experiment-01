@@ -32,6 +32,13 @@ jobs:
         run: node simulation/twinleaf/agent35/snap-trap-choice-response-contract-native.cjs
       - name: Agent12 native Snap Trap Prism Star Lost Zone destination
         run: node --test tests/2026-11/agent12-snap-trap-prism-star-destination-native.test.cjs
+      - name: Upload Agent12 Prism Star native result
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-snap-trap-prism-star-destination-v1
+          path: artifacts/agent12-snap-trap-prism-star-destination-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Isolated actual Tool, KO, end-turn and Prize prompt order
         run: node simulation/twinleaf/agent35-powerglass-ko-prize-order-native.cjs
       - name: Agent37 independent winning-KO terminal Powerglass order
