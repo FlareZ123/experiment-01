@@ -109,6 +109,16 @@ function auditMimikyuCopycatEonBlade(
     const priorRoot=prior?rootByOrdinal(ledger,prior.actionOrdinal):null;
     const priorDonor=prior?
       donorPrinting(prior,priorRoot,sourceSeat):null;
+    const priorRootValid=Boolean(priorRoot&&priorRoot.playerSlot===sourceSeat&&
+      priorRoot.turnBefore===currentTurn-1&&(
+        prior.delegatedCopy===true?
+          priorRoot.action==='ResolvePromptAction'&&
+            priorRoot.attackChoice?.attackName===root.attackName:
+          priorRoot.action==='AttackAction'&&priorRoot.attack===root.attackName));
+    const currentRootValid=Boolean(currentRoot&&
+      currentRoot.playerSlot===candidateSeat&&
+      currentRoot.turnBefore===currentTurn&&
+      currentRoot.action==='ResolvePromptAction');
     const board=current?.publicBoardBefore;
     const actor=Array.isArray(board)?board[candidateSeat]?.active:null;
     const stadiumNames=Array.isArray(board)?[...new Set(
@@ -116,6 +126,7 @@ function auditMimikyuCopycatEonBlade(
     )]:[];
     const knownStadiums=new Set(['Dimension Valley','Sky Field']);
     const unknownStadiums=stadiumNames.filter(name=>!knownStadiums.has(name));
+    const conflictingStadiums=stadiumNames.length>1;
     const physicalCopycatMenu=actor?.printedAttacks?.find(attack=>
       attack.name==='Copycat')??null;
     const copycatCost=Array.isArray(copycat?.cost)?[...copycat.cost]:null;
@@ -174,9 +185,12 @@ function auditMimikyuCopycatEonBlade(
       current?.settlementCrossesClockReset===false,
       'current-Copycat-attack-not-a-settled-delegated-copy');
     addFailure(reasons,copycatRoot!==null,'physical-Copycat-AttackAction-root-missing');
-    addFailure(reasons,currentRoot?.attackChoice?.attackName===root.attackName&&
+    addFailure(reasons,currentRootValid&&
+      currentRoot?.attackChoice?.attackName===root.attackName&&
       currentChoice?.printing===donorFullName,
       'current-copied-attack-choice-does-not-match-donor');
+    addFailure(reasons,priorRootValid,
+      'prior-opponent-attack-root-missing-or-mismatched');
     addFailure(reasons,prior!==null&&
       prior.settledPromptChain===true&&
       prior.settlementCrossesClockReset===false&&
@@ -187,6 +201,8 @@ function auditMimikyuCopycatEonBlade(
     addFailure(reasons,!hasResetBetween,'clock-reset-between-prior-attack-and-Copycat');
     addFailure(reasons,unknownStadiums.length===0,
       'unmodeled-Stadium-cost-modifier');
+    addFailure(reasons,!conflictingStadiums,
+      'conflicting-public-Stadium-state');
     addFailure(reasons,copycatCostFunding?.status==='POSSIBLE',
       'Mimikyu-Copycat-printed-cost-not-directly-funded');
 
@@ -200,8 +216,9 @@ function auditMimikyuCopycatEonBlade(
       copycatPrintedCost:copycatCost,
       effectiveCopycatCostAfterKnownStadiums:effectiveCopycatCost,
       stadiumNames,
-      unknownStadiums,
+      unknownStadiums,conflictingStadiums,
       copycatCostFunding,
+      externalCostModifiersIncluded:false,
       currentCopiedAttack:root.attackName,
       currentCopiedAttackDonor:currentChoice?.printing??null,
       currentAttackDelegatedCopy:current?.delegatedCopy===true,
@@ -211,6 +228,8 @@ function auditMimikyuCopycatEonBlade(
       priorOpponentAttackTurn:prior?.turnBefore??null,
       priorOpponentAttackDonor:priorDonor,
       priorOpponentAttackSettled:prior?.settledPromptChain===true,
+      priorOpponentAttackRootValid:priorRootValid,
+      currentCopycatChoiceRootValid:currentRootValid,
       priorOpponentAttackNonGx:donorCard?.subtypes?.includes('GX')===false&&
         donorAttack?.gxAttack!==true,
       priorOpponentAttackWasImmediatelyPreviousTurn:prior?.turnBefore===currentTurn-1,
