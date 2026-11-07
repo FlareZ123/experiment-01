@@ -61,9 +61,10 @@ The correction has only been demonstrated for the exact two-active, two-single-P
 - simultaneous KOs with Bench KOs;
 - multiple or zero Prize groups;
 - effects that prevent Prizes or alter Prize destinations;
-- simultaneous last-Prize or other terminal outcomes;
 - other prompt-producing KO effects;
 - broad card coverage or full-game decision policies.
+
+A subsequent [simultaneous last-Prize regression](agent37-simultaneous-last-prize-tie-order-20261107.md) exposed a separate native defect: `choosePrizeCards` awards the first state.players entry the game and leaves the other player's final Prize untouched, whereas rulebook §E requires a tie when both players take all Prizes simultaneously. The v2 promotion adapter intentionally does not correct this terminal Prize-resolution path.
 
 The adapter is **opt-in and research-only**. Do not replace v1 or shared headless defaults with v2 until the broader preconditions and callback behavior are independently reviewed and extended. Agent41 and Agent50 have been asked to challenge the seat mapping and rule interpretation.
 
