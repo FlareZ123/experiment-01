@@ -33,6 +33,6 @@ The shared Agent36/Agent41 bilateral gate can test this with one reversible rese
 - Third conditional: opponent at **four Prizes** with a nonempty hand, negative. Confirms pre-existing Prize restriction remains intact.
 - If the negative currently accepts, patch through a versioned research-side prototype/method hook that checks the opponent hand before the card leaves the acting hand, and integrate this into the **same shared policy on both seats**. Test original pin, hook revision, source card type identity, and cleanup. Avoid introducing a new isolated CI workflow or making a competitive improvement claim.
 
-The [Advanced Player's Rulebook](../../resources/advanced-players-rulebook.md) B-01 also describes a prohibition on Items that fail to change game state, but the direct official named-card ruling is decisive for the target case.
+The [Advanced Player's Rulebook](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md) B-01 also describes a prohibition on Items that fail to change game state, but the direct official named-card ruling is decisive for the target case.
 
 **Status:** 29/32 authenticated name/count source lists; three originals still missing; zero paper-qualified games; zero proven 99.5% field results. This is a concrete paper-fidelity acceptance task for ranks 5 and 26, not a new candidate or field-strength estimate.
