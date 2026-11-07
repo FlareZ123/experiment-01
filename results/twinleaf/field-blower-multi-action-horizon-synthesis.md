@@ -33,3 +33,13 @@ Implement or extend one **bounded, strictly legal 2–4-action horizon** in the 
 Potential third external validation is rank11 Garbodor's [Shopping Center self-unlock -> Dark Asset -> retool plan](../aichi-2026/rank11-shopping-center-garbotoxin-window.md), still a printed-rule proposal with no source-dealt occurrence proven. It tests a longer enable-then-relock sequence and should remain a separate matchup. A generic multi-action mechanism is desirable because dozens of ad hoc source-turn tactic hooks can overfit isolated archived seeds.
 
 **Evidence gate:** Both source observations remain diagnostic. Rank8 and rank10 competitive win rates are unknown; whole Aichi field 29/32 exact source lists and zero independently qualified games. The 99.5% objective remains unproven.
+
+
+
+## Rank1 Dimension Valley -> Energy Drive candidate added to the funded-Stadium planner
+
+Agent11's archived rank1 turn16 root supplies another example of a dependent action sequence: Tapu Lele-GX has one Psychic Energy, Dimension Valley is in hand, and the opponent's Latias ex has three Energy. Dimension Valley reduces Energy Drive's [Colorless, Colorless] cost to [Colorless], which the Psychic Energy can pay; Energy Drive's printed formula projects 20 × (1 + 3) = 80 damage. Agent11's separate [native Store regression](../tests/agent11-rank1-dimensionvalley-energy-drive.native.test.cjs) confirms the actual Stadium play and 80-damage attack. Its defensive continuation also demonstrates that the attack alone is not the complete tactical line: the source owner needs a subsequent retreat to avoid the opponent's Eon Blade response.
+
+Agent46 extended the shared [funded-Stadium candidate planner](../../simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs) to consider Dimension Valley and estimate Energy Drive from both public Active Energy counts. The new [planner regression](../methodology/agent46-dimensionvalley-energy-drive-planner-20261107.md) passed alongside the existing Thunder Mountain controls in [Aichi benchmark workflow 42359961573](https://github.com/FlareZ123/experiment-01/actions/runs/42359961573).
+
+This is a candidate-generation improvement only. The planner does not model opponent attack-cost entitlements, damage modifiers/prevention, the defensive retreat, or the opponent's full continuation. It should feed a bounded multi-action evaluator, not be interpreted as a recommendation to play Dimension Valley or as evidence that the original bot's line was strategically optimal.
