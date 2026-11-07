@@ -20,6 +20,7 @@ const {
   withFirstBlockedPromptContract,VERSION:PROMPT_CONTRACT_VERSION
 }=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 const {CODE}=require('../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+const {VERSION:GO_FIRST_VERSION}=require('../twinleaf/agent6-go-first-choice.cjs');
 
 const VERSION='agent2-v8-common-first-owner-root-canary-v1';
 const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -260,6 +261,20 @@ function run(){
     sourceDeck:'Aichi Open League 2026 Top 32 rank 3 original Snorlax Stall',
     candidateDeck:'Aichi Open League 2026 Top 32 rank 13 original Regidrago',
     goFirstPolicy:[false,false],
+    selectedV0SetupAdapterVersions:{
+      goFirst:GO_FIRST_VERSION,
+      startingBasics:require('../twinleaf/agent50-owner-starting-basic-choice.cjs').VERSION,
+      publicAcknowledgements:require('../twinleaf/agent50-owner-public-acknowledgements.cjs').VERSION,
+      mandatoryShowCards:require('../twinleaf/agent50-owner-mandatory-showcards.cjs').VERSION,
+      blockedPromptEnvelope:require('../twinleaf/agent50-first-blocked-prompt-envelope.cjs').VERSION
+    },
+    selectedV0SetupAdapters:[
+      'agent6-go-first-choice',
+      'agent50-owner-starting-basic-choice',
+      'agent50-owner-public-acknowledgements',
+      'agent50-owner-mandatory-showcards',
+      'agent50-first-blocked-prompt-envelope'
+    ],
     selectedV0SetupAndQuarantineStack:[
       'nativeRawStateQuarantine',
       'declineGoFirstBothSeats',
