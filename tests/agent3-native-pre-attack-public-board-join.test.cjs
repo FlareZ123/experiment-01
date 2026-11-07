@@ -72,6 +72,55 @@ test('the same native cumulative KO value can include earlier attack damage',()=
   assert.equal(result.nativeDamageDeltaPrintMatches,0);
 });
 
+test('copies preserve actual attacker identity distinct from printed attack source',()=>{
+  const f=fixture();
+  const id='1:212:B:champion-reference';
+  f.roots[0].registeredTrialId=id;
+  f.roots[0].attackRole='fixed-contender';
+  f.roots[0].attackSeat=1;
+  f.roots[0].attackName='Eon Blade';
+  f.attempts[0].trial.id=id;
+  f.attempts[0].sourceAttackSettlement={attacks:[]};
+  f.attempts[0].candidateAttackSettlement={attacks:[{
+    ...f.attempts[0].sourceAttackSettlement.attacks?.[0],
+    actionOrdinal:85,attackName:'Eon Blade',turnBefore:17,
+    completionRootOrdinal:91,settledPromptChain:true,
+    settlementCrossesClockReset:false,
+    publicBoardBefore:[
+      {active:{name:'Trevenant & Dusknoir-GX',
+        printing:'Trevenant & Dusknoir-GX SMP',damage:200,
+        energyCards:['Psychic Energy'],toolCards:[],printedAttacks:[]}},
+      {active:{name:'Mimikyu',printing:'Mimikyu GRI',damage:0,
+        energyCards:['Psychic Energy','Psychic Energy'],
+        toolCards:[],printedAttacks:[{name:'Copycat',
+          cost:['Colorless','Colorless']}]}}
+    ]
+  }]};
+  f.victims[0].registeredTrialId=id;
+  f.victims[0].attackName='Eon Blade';
+  f.victims[0].victimPrinting={name:'Trevenant & Dusknoir-GX',
+    fullName:'Trevenant & Dusknoir-GX SMP',set:'SMP',setNumber:'217',
+    printedHp:270};
+  f.victims[0].victimDamageBeforeNativeKo=400;
+  f.nominal[0]={trialId:id,originalRank:1,attackName:'Eon Blade',
+    rosterAttackerPrintedId:'sv8-76',rosterAttackerName:'Latias ex',
+    printedAttackCost:['Psychic','Psychic','Colorless'],
+    unmodifiedPrintedFinalAttackDamage:200};
+  f.field.decks=[{rank:1,cards:[
+    {category:'Pokémon',name:'Latias ex',count:1,
+      printing:{set:'SSP',number:'76'}},
+    {category:'Pokémon',name:'Mimikyu',count:1,
+      printing:{set:'GRI',number:'58'}}
+  ]}];
+  const result=run(f);
+  assert.equal(result.rows[0].physicalActiveAtActualNativeAttackObserved,true);
+  assert.equal(result.rows[0].attackerPrintingFromActualNativeBoard,'Mimikyu GRI');
+  assert.equal(result.rows[0].sourceAttackPrintEqualsPhysicalActive,false);
+  assert.equal(result.rows[0].copiedOrGrantedSourceUnresolved,true);
+  assert.equal(result.rows[0].nativeDeltaEqualsPrintedNominal,true);
+  assert.equal(result.rows[0].actualAttachedEnergyPaymentCertified,false);
+});
+
 test('strict source printing, victim, root and period validation rejects false joins',()=>{
   for(const mutate of [
     f=>{f.attempts[0].sourceAttackSettlement.attacks[0].actionOrdinal=86;},
