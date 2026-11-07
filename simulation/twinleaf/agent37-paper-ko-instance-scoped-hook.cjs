@@ -35,7 +35,7 @@ function withInstanceScopedPaperKoBeforeEndTurn(store,execute){
   const audit={
     version:VERSION,pinnedTwinleaf:PINNED,
     intercepted:0,completed:0,terminalSuppressed:0,
-    asynchronousUnresolved:0,callbacks:0,
+    deferredAtCheckReturn:0,callbacks:0,
     otherStoresUnmodified:true,
     originalRestored:false,paperQualifiedGames:0
   };
@@ -57,7 +57,7 @@ function withInstanceScopedPaperKoBeforeEndTurn(store,execute){
         original.call(store,state,effect);
       });
       if(!didComplete)
-        audit.asynchronousUnresolved++;
+        audit.deferredAtCheckReturn++;
       return result;
     }
     return original.call(store,state,effect);
@@ -71,6 +71,8 @@ function withInstanceScopedPaperKoBeforeEndTurn(store,execute){
     const result=execute();
     audit.otherStoresUnmodified=neighbor.reduceEffect===original;
     assert.equal(audit.otherStoresUnmodified,true);
+    assert.equal(audit.callbacks,audit.intercepted,
+      'All KO-first native completion callbacks must finish before unhooking');
     assert.equal(store.hasPrompts(),false,
       'All native Store prompt chains must finish before restoring instance hook');
     assert.equal(store.state.prompts.filter(p=>p.result===undefined).length,0,
