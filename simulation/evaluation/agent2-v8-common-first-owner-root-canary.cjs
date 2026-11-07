@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 const {originalPrintings}=require('./agent2-vs-seeker-research-original-rank13-aba.cjs');
-const {executeDevelopment}=require('./agent41-bilateral-v2-development.cjs');
+const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {
   runSelectedIssue25V0,hashRegisteredFile,observedGitRevision,
   observedLoadedResearchModuleDigest
@@ -16,11 +16,11 @@ const {withCommonOwnerThornsRoot}=
   require('./agent36-issue25-common-v6.cjs');
 const {withOwnerVoltAcrossNativeMatches}=
   require('./agent36-issue25-common-v7.cjs');
-const {
-  withFirstBlockedPromptContract,VERSION:PROMPT_CONTRACT_VERSION
-}=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
+const {VERSION:PROMPT_CONTRACT_VERSION}=
+  require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 const {CODE}=require('../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {VERSION:GO_FIRST_VERSION}=require('../twinleaf/agent6-go-first-choice.cjs');
+const aichiDecklists=require('../../results/aichi-2026/full-decklists.json');
 
 const VERSION='agent2-v8-common-first-owner-root-canary-v1';
 const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -52,6 +52,10 @@ const HASH_PATHS=Object.freeze([
   'simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs',
   'simulation/twinleaf/agent1-charged-promotion-choice.cjs',
   'simulation/twinleaf/agent4-allturn-owner-volt-attach-energy.cjs',
+  'simulation/twinleaf/agent49-mysterious-treasure-frontier.cjs',
+  'simulation/twinleaf/agent5-generic-owner-trainer-opportunity.cjs',
+  'simulation/twinleaf/agent50-native-owner-trainer-pass-bridge.cjs',
+  'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs',
   'results/aichi-2026/full-decklists.json'
 ]);
 
@@ -79,59 +83,38 @@ function runOne(candidateSeat,cards){
     rank:SOURCE_RANK,repeat:0,candidateSlot:slot,
     candidateId:CANDIDATE_ID,seed:SEED
   };
-  const candidates=new Map([[CANDIDATE_ID,{plan:{
-    candidate:{cards:cards.candidate},
-    opponents:[{rank:SOURCE_RANK,status:'ready',cards:cards.source}]
-  }}]]);
+  const candidatePrintedCards=aichiDecklists.decks.find(
+    deck=>deck.rank===CANDIDATE_RANK)?.cards;
+  assert.ok(Array.isArray(candidatePrintedCards));
+  assert.equal(candidatePrintedCards.reduce((n,x)=>n+x.count,0),60);
   let row=null;
 
-  // This is the same executeDevelopment common-policy path used by the
-  // selected v8 runner. The only additional flags expose and quarantine the
-  // first unsupported owner Trainer root; they never execute the native
-  // fallback or qualify a competitive game.
-  const runner=options=>{
-    try{
-      const observed=withFirstBlockedPromptContract(()=>
-        executeDevelopment(trial,candidates,{
-          ...options,
-          actorOnlyComposition:true,
-          sourceIndependentCommonPolicy:true,
-          bilateralSpecialEnergyRoot:true,
-          nativeAcceptedTargets:true,
-          nativeOwnerTrainerFallback:true,
-          ownerFallbackDiagnosticView:true,
-          actorOnlySingleSearch:false,
-          actorGenericFallbackAttribution:true,
-          nativeRootActionLimit:ACTION_LIMIT,
-          registeredTrial:true
-        }));
-      row=observed.result;
-      return {rows:[row],promptContractObserverAudit:observed.audit};
-    }catch(error){
-      if(error?.code!==CODE)throw error;
-      const native=error?.nativeAbortEvidence??
-        error?.cause?.nativeAbortEvidence??null;
-      const actor=error?.actorNativeTrainerFallbackAbortAudit??
-        error?.cause?.actorNativeTrainerFallbackAbortAudit??null;
-      const prompt=error?.agent2FirstBlockedPromptContract??
-        error?.cause?.agent2FirstBlockedPromptContract??null;
-      row={
-        trial,id:trial.id,status:'engine-aborted-unqualified',
-        finished:false,
-        rootActionCount:native?.rootActionCount??null,
-        nativeRootActionCount:native?.rootActionCount??null,
-        nativeAbortProvenance:{
-          code:error.code,
-          message:String(error.message??error).slice(0,250),
-          nativeAbortEvidence:native,
-          actorNativeTrainerFallbackAbortAudit:actor,
-          firstBlockedPromptContract:prompt,
-          goFirstChoiceAudit:error?.goFirstChoiceAudit??null
-        }
-      };
-      return {rows:[row]};
-    }
-  };
+  // runDevelopment is the high-level policy runner: it composes the
+  // canonical actor-only root policy around executeDevelopment. Inject one
+  // explicit original candidate deck and one registered source matchup.
+  const runner=options=>runDevelopment({
+    ...options,
+    registeredTrials:[trial],
+    registeredFrameName:'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic',
+    registeredCandidateDecks:{
+      [CANDIDATE_ID]:{
+        label:'Agent2 original Aichi rank13 Regidrago',
+        cards:candidatePrintedCards
+      }
+    },
+    allowSingleCandidateArm:true,
+    actorOnlyComposition:true,
+    sourceIndependentCommonPolicy:true,
+    bilateralSpecialEnergyRoot:true,
+    nativeAcceptedTargets:true,
+    nativeOwnerTrainerFallback:true,
+    ownerFallbackDiagnosticView:true,
+    firstBlockedPromptContractObserver:true,
+    actorOnlySingleSearch:false,
+    actorGenericFallbackAttribution:true,
+    mysteriousTreasureRoot:false,
+    nativeRootActionLimit:ACTION_LIMIT
+  });
 
   // Match the selected v8 composition: common Thorns root, selected v0
   // setup/quarantine stack, v4 attack/Capture Energy frontier, v5 innermost
@@ -148,12 +131,12 @@ function runOne(candidateSeat,cards){
   const volt=withOwnerVoltAcrossNativeMatches(owner);
   const ownerWrapped=volt.result;
   const selected=ownerWrapped.result;
-  const nativeRow=selected.rawDevelopment?.rows?.[0]??row;
-  const provenance=nativeRow?.nativeAbortProvenance??{};
-  const native=provenance.nativeAbortEvidence??null;
-  const actor=provenance.actorNativeTrainerFallbackAbortAudit??null;
+  const nativeRow=selected.rawDevelopment?.rows?.[0]??null;
+  const native=nativeRow?.nativeAbortEvidence??null;
+  const actor=nativeRow?.actorNativeTrainerFallbackAbortAudit??null;
   const first=actor?.firstUnsupportedOwnerRoot??null;
-  const prompt=provenance.firstBlockedPromptContract??null;
+  const rawPrompt=nativeRow?.firstBlockedPromptContract??null;
+  const prompt=rawPrompt?.promptType?rawPrompt:null;
   const goFirst=selected.diagnostic.audit?.declineGoFirstBothSeats??null;
   const startingBasics=
     selected.diagnostic.audit?.agent50AllEligibleInitialBasics??null;
@@ -186,7 +169,7 @@ function runOne(candidateSeat,cards){
     intentKind:'pass',
     intentReason:'no-supported-owner-visible-root',
     quarantineCode:selected.diagnostic.thrownCode??null,
-    quarantineMessage:String(provenance.message??selected.diagnostic.thrownMessage??'').slice(0,250),
+    quarantineMessage:String(nativeRow?.error?.message??selected.diagnostic.thrownMessage??'').slice(0,250),
     rootActionPrefixSha256:native?.rootActionLedgerSha256??null
   }:null;
 
@@ -233,6 +216,8 @@ function runOne(candidateSeat,cards){
     },
     selectedV0Manifest:selected.manifest,
     selectedV0Diagnostic:selected.diagnostic,
+    runDevelopmentManifest:selected.rawDevelopment?.manifest??null,
+    runDevelopmentDiagnostic:selected.rawDevelopment?.diagnostic??null,
     releaseQualified:false,competitiveGamesQualified:0,
     estimatedWinRate:null
   };
@@ -244,6 +229,7 @@ function run(){
   const rows=[runOne(0,cards),runOne(1,cards)];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
+    runnerMode:'runDevelopment-canonical-actor-only-policy',
     observedTwinleafCommit:observedGitRevision('vendor/twinleaf'),
     observedRepositoryCommit:observedGitRevision('.'),
     sourceCodeCommit:process.env.GITHUB_SHA??null,
