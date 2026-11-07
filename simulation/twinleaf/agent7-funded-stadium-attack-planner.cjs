@@ -103,8 +103,8 @@ function estimatedAttackDamage(attack, ownActive, opponentActive) {
  * a detached actorObservation and only public printed card metadata.
  *
  * This is a conservative *candidate* for a real selected root, never a
- * substitute for Store attack permission, attack effects, opponent damage
- * prevention, or strategic benefit. It deliberately excludes unknown
+ * substitute for Store attack permission, opponent attack-cost entitlement,
+ * attack effects, damage prevention, or strategic benefit. It deliberately excludes unknown
  * modifier Stadiums, conditional counter-Energy ambiguity and unmodeled
  * dynamic attacks, and does not claim complete move enumeration.
  *
@@ -209,8 +209,8 @@ function chooseFundedStadiumAttack(view, refs) {
         availableModeledEnergyUnits:nextPayment.modeledUnits,
         eligibility:'owner-paper-printed-cost-improvement-native-store-final',
         modelLimits:'Known Stadium cost modifiers only; Energy Drive damage '
-          +'uses public attached-Energy counts; weakness, resistance, '
-          +'prevention and opponent tactics unresolved'
+          +'uses public attached-Energy counts; opponent attack-cost '
+          +'entitlements, weakness, resistance, prevention and tactics unresolved'
       });
     }
   }
