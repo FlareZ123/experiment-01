@@ -51,6 +51,11 @@ This page provides useful leads for ranks 25 and 28, but it does not resolve the
 
 ## Event disambiguation warning
 
+Search results for generic Japanese phrases such as “CL愛知エクストラ 23位” also surface the **2025** Extra event recap:
+https://pokekameshi.com/cl2025aichi-extra/2/ (published 14 May 2025).
+
+That page includes a 23rd-place Dragon Lugia and a 25th-place Alolan Raichu list from 2025. Neither is evidence for the missing 2026 Open League lists. In particular, do not substitute the 2025 25th-place Alolan Raichu/Suzu list for the 2026 “kume” / Eleki Rain lead.
+
 Search results also return the **standard-format CL Aichi May Master League** recap:
 https://pokekameshi.com/cl2026aichimay/2/
 
