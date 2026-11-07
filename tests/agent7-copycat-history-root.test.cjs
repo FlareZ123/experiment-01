@@ -102,6 +102,17 @@ test('attaches the latest stamped public snapshot and its exact Copycat choice s
   assert.deepEqual(known.publicEventReceipt.opponentCopycatChoices,
     [known.publicEventReceipt.opponentLastTurnAttacks[0]]);
   assert.equal(known.publicEventReceipt.mimikyuCopycatCompatible,true);
+  const nativeApex={playerId:2,turn:14,sourceCardName:'Regidrago VSTAR',
+    sourceCardFullName:'Regidrago VSTAR SIT',attackName:'Apex Dragon',
+    gxAttack:false,copycatAttack:true};
+  const apex=attachPreviousOpponentTurnReceipt(base,state,0,{
+    getPreviousTurnSnapshot:()=>({turn:14,attacks:[nativeApex]}),
+    getCopycatChoices:()=>[nativeApex]
+  });
+  assert.equal(apex.publicEventReceipt.mimikyuCopycatCompatible,true);
+  assert.deepEqual(apex.publicEventReceipt.opponentCopycatChoices,
+    [{turn:14,sourcePrinting:'Regidrago VSTAR SIT',attackName:'Apex Dragon',
+      gxAttack:false,copycatAttack:true}]);
   assert.ok(Object.isFrozen(known));
   assert.ok(Object.isFrozen(known.publicEventReceipt));
   const empty=attachPreviousOpponentTurnReceipt(base,state,0,{
