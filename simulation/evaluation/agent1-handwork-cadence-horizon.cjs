@@ -29,6 +29,214 @@ function gcdBigInt(a,b){
   return a<0n?-a:a;
 }
 
+const ACCESS_VERSION='agent1-rank3-post-rototiller-direct-mail-access-v1';
+
+/**
+ * Exact binomial coefficient for the small (0..60) card-count domain.
+ * @param {number} n
+ * @param {number} k
+ * @returns {bigint}
+ */
+function chooseBigInt(n,k){
+  if(k<0||n<k)return 0n;
+  let value=1n;
+  for(let i=1;i<=k;i++)
+    value=value*BigInt(n-k+i)/BigInt(i);
+  return value;
+}
+
+/**
+ * Normalize a nonnegative exact probability fraction.
+ * @param {bigint} numerator
+ * @param {bigint} denominator
+ * @returns {{n:bigint,d:bigint}}
+ */
+function probabilityFraction(numerator,denominator){
+  assert.ok(numerator>=0n&&denominator>0n);
+  const divisor=gcdBigInt(numerator,denominator);
+  return {n:numerator/divisor,d:denominator/divisor};
+}
+
+/**
+ * Add two exact probability fractions.
+ * @param {{n:bigint,d:bigint}} left
+ * @param {{n:bigint,d:bigint}} right
+ * @returns {{n:bigint,d:bigint}}
+ */
+function addProbabilityFractions(left,right){
+  return probabilityFraction(
+    left.n*right.d+right.n*left.d,left.d*right.d
+  );
+}
+
+/**
+ * Multiply two exact probability fractions.
+ * @param {{n:bigint,d:bigint}} left
+ * @param {{n:bigint,d:bigint}} right
+ * @returns {{n:bigint,d:bigint}}
+ */
+function multiplyProbabilityFractions(left,right){
+  return probabilityFraction(left.n*right.n,left.d*right.d);
+}
+
+/**
+ * Subtract exact probability fractions where left >= right.
+ * @param {{n:bigint,d:bigint}} left
+ * @param {{n:bigint,d:bigint}} right
+ * @returns {{n:bigint,d:bigint}}
+ */
+function subtractProbabilityFractions(left,right){
+  const numerator=left.n*right.d-right.n*left.d;
+  assert.ok(numerator>=0n,'probability subtraction must stay nonnegative');
+  return probabilityFraction(numerator,left.d*right.d);
+}
+
+/**
+ * Add a probability mass to a deck-state DP map.
+ * @param {Map<string,{n:bigint,d:bigint}>} states
+ * @param {number} deckSize
+ * @param {number} otherTrainerCount
+ * @param {{n:bigint,d:bigint}} mass
+ */
+function addMailState(states,deckSize,otherTrainerCount,mass){
+  if(mass.n===0n)return;
+  const key=deckSize+':'+otherTrainerCount;
+  states.set(key,addProbabilityFractions(
+    states.get(key)??probabilityFraction(0n,1n),mass
+  ));
+}
+
+/**
+ * Probability that one target card is found by k Trainers' Mail already in
+ * hand. The deck contains exactly one target plus otherTrainerCount eligible
+ * Trainer cards; every other card (including any Mail still in deck) is
+ * ineligible for the Mail search. A missed Mail takes one eligible Trainer
+ * when one appears among the top four; the other three cards are shuffled
+ * back. If no eligible Trainer appears, the deck size is unchanged.
+ *
+ * @param {number} deckSize
+ * @param {number} otherTrainerCount Excludes the target and Trainers' Mail.
+ * @param {number} mailsInHand
+ * @returns {{n:bigint,d:bigint}}
+ */
+function probabilityMailOnly(deckSize,otherTrainerCount,mailsInHand){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60);
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize-1);
+  assert.ok(Number.isSafeInteger(mailsInHand)&&
+    mailsInHand>=0&&mailsInHand<=2);
+
+  let states=new Map([
+    [deckSize+':'+otherTrainerCount,probabilityFraction(1n,1n)]
+  ]);
+  let success=probabilityFraction(0n,1n);
+  for(let attempt=0;attempt<mailsInHand;attempt++){
+    const next=new Map();
+    for(const [key,mass] of states){
+      const [deck,trainers]=key.split(':').map(Number);
+      if(deck<=4){
+        success=addProbabilityFractions(success,mass);
+        continue;
+      }
+      const hit=probabilityFraction(4n,BigInt(deck));
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(mass,hit));
+      const miss=probabilityFraction(BigInt(deck-4),BigInt(deck));
+      const noEligible=probabilityFraction(
+        chooseBigInt(deck-1-trainers,4),
+        chooseBigInt(deck-1,4)
+      );
+      const noPick=multiplyProbabilityFractions(miss,noEligible);
+      const pick=subtractProbabilityFractions(miss,noPick);
+      addMailState(next,deck,trainers,
+        multiplyProbabilityFractions(mass,noPick));
+      addMailState(next,deck-1,trainers-1,
+        multiplyProbabilityFractions(mass,pick));
+    }
+    states=next;
+  }
+  return success;
+}
+
+/**
+ * Exact conditional probability that the one Handiwork in deck reaches hand
+ * through the next mandatory draw plus the rank-3 deck's two Trainers' Mail.
+ *
+ * deckSize is measured immediately after Rototiller's shuffle and before the
+ * next turn draw. otherTrainerCount counts other eligible Trainer cards in
+ * deck, excluding Handiwork and Trainers' Mail. The remaining Mail copies are
+ * split between hand and deck; copies in discard/Prizes are unavailable.
+ *
+ * This is a direct draw/Mail channel only. It does not model Arven chains,
+ * Forest Seal Stone, Teammates, Lillie's Determination, Rotom V, Tropical
+ * Beach, Player's Ceremony, card locks, or the probability of being in this
+ * post-Rototiller state. It measures access to hand, not whether Handiwork
+ * can be played that turn after another Supporter has been used.
+ *
+ * @param {number} deckSize Cards in deck before the next mandatory draw.
+ * @param {number} otherTrainerCount Other eligible Trainers in deck.
+ * @param {number} mailsInDeck Trainers' Mail copies still in deck (0..2).
+ * @param {number} mailsInHand Trainers' Mail copies already in hand (0..2).
+ * @returns {object} Exact rational access probability and assumptions.
+ */
+function probabilityHandiworkAccessByNaturalDrawAndMail(
+  deckSize,otherTrainerCount,mailsInDeck,mailsInHand
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize-1,
+    'otherTrainerCount must exclude the target and be feasible');
+  assert.ok(Number.isSafeInteger(mailsInDeck)&&
+    mailsInDeck>=0&&mailsInDeck<=2,
+    'mailsInDeck must be 0..2');
+  assert.ok(Number.isSafeInteger(mailsInHand)&&
+    mailsInHand>=0&&mailsInHand<=2,
+    'mailsInHand must be 0..2');
+  assert.ok(mailsInDeck+mailsInHand<=2,
+    'the rank-3 list contains only two Trainers\' Mail');
+
+  const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck;
+  assert.ok(nonTrainerCount>=0,
+    'target, other Trainers and Mail copies cannot exceed deckSize');
+  let success=probabilityFraction(1n,BigInt(deckSize));
+
+  if(otherTrainerCount>0){
+    const branch=probabilityFraction(
+      BigInt(otherTrainerCount),BigInt(deckSize)
+    );
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailOnly(deckSize-1,otherTrainerCount-1,mailsInHand)));
+  }
+  if(mailsInDeck>0){
+    const branch=probabilityFraction(BigInt(mailsInDeck),BigInt(deckSize));
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailOnly(deckSize-1,otherTrainerCount,mailsInHand+1)));
+  }
+  if(nonTrainerCount>0){
+    const branch=probabilityFraction(BigInt(nonTrainerCount),BigInt(deckSize));
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailOnly(deckSize-1,otherTrainerCount,mailsInHand)));
+  }
+
+  return {
+    version:ACCESS_VERSION,
+    deckSizeBeforeDraw:deckSize,
+    otherTrainerCount,
+    mailsInDeck,
+    mailsInHand,
+    targetCopiesInDeck:1,
+    exactProbability:{
+      numerator:success.n.toString(),
+      denominator:success.d.toString()
+    },
+    probability:Number(success.n)/Number(success.d)
+  };
+}
+
 /**
  * Build one illustrative Lusamine/VS Seeker-only Handiwork recovery schedule
  * from the published rank-3 Snorlax Stall inventory.
@@ -247,5 +455,6 @@ function distributionOfFutureOwnerStartsUnderSchedule(remaining,schedule){
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
-  distributionOfFutureOwnerStartsUnderSchedule
+  distributionOfFutureOwnerStartsUnderSchedule,
+  probabilityHandiworkAccessByNaturalDrawAndMail
 };
