@@ -38,7 +38,7 @@ It captures the original `Store.prototype.dispatch` and `Player.prototype.switch
 
 Commit `04ee084451fe70f736f71fb122603de5de7ed655` adds this regression to existing manual workflow smoke check 02. No new workflow was created.
 
-<badge color="success">Full manual smoke passed</badge>
+**Full manual smoke passed**
 
 - Workflow run: [42339130590](https://github.com/FlareZ123/experiment-01/actions/runs/42339130590)
 - Tested workflow head: `04ee084451fe70f736f71fb122603de5de7ed655`
