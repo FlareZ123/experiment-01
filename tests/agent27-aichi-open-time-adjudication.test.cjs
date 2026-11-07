@@ -134,6 +134,33 @@ test('Tied knockout game tiebreaker starts with six and first Prize lead wins',(
   assert.equal(classifyTiebreaker([6,5]).conditionalWinnerSeat,1);
   assert.equal(classifyTiebreaker([5,5]).status,'TIEBREAKER_CONTINUES');
 });
+test('A paper-validated normal win overrides tiebreaker Prize-count comparison',()=>{
+  const result=classifyTiebreaker([0,0],{paperGameWinner:1});
+  assert.equal(result.status,'TIEBREAKER_NORMAL_PAPER_GAME_WIN');
+  assert.equal(result.conditionalWinnerSeat,1);
+});
+
+test('A tied tiebreaker game requires a fresh six-Prize tiebreaker',()=>{
+  const result=classifyTiebreaker([0,0],{paperGameTie:true});
+  assert.equal(result.status,'TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE');
+  assert.equal(result.startingPrizeCount,6);
+  assert.equal(result.conditionalWinnerSeat,null);
+  assert.equal(classifyTiebreaker([5,6],{paperGameTie:true}).status,
+    'TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE');
+});
+
+test('Both-zero tiebreaker state without paper outcome is unresolved',()=>{
+  const result=classifyTiebreaker([0,0]);
+  assert.equal(result.status,'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED');
+  assert.equal(result.conditionalWinnerSeat,null);
+  assert.equal(result.missing[0],'independent-normal-win-or-simultaneous-tie-ruling');
+});
+
+test('Reject contradictory paper outcomes for a knockout tiebreaker',()=>{
+  assert.throws(()=>classifyTiebreaker([0,0],{paperGameWinner:0,paperGameTie:true}),/simultaneous/);
+  assert.throws(()=>classifyTiebreaker([0,0],{paperGameWinner:2}),/winner seat/);
+  assert.throws(()=>classifyTiebreaker([0,0],{paperGameTie:'true'}),/boolean/);
+});
 
 test('Reject missing or invalid physical Prize state and unknown result',()=>{
   assert.throws(()=>classifyTiebreaker([1,-1]),/Expected/);
