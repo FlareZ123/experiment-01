@@ -324,9 +324,10 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
     constructor(){this.client={id:101};}
     decodeNextAction(state){
       const pending=state.prompts.find(p=>p.result===undefined);
+      // The stock decoder has no valid transfer for the later unrelated
+      // prompt. The owner policy supplies the genuine first transfer itself.
       return new ResolvePromptAction(pending.id,
-        pending instanceof MoveEnergyPrompt?
-          [{card:water(),from:{slot:'BENCH'},to:{slot:'ACTIVE'}}]:false);
+        pending instanceof MoveEnergyPrompt?[]:false);
     }
   }
   const wrapped=withOwnerAbilityConfirmPolicy(()=>{
