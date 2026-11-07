@@ -1,0 +1,51 @@
+name: Agent5 v7 Team Flare damage and Prize forensic A/B/A
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  forensic-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Install and compile pinned Twinleaf server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Validate native attack observer, generic Team Flare prompt and physical witness
+        run: |
+          node --check simulation/twinleaf/agent5-native-attack-damage-observer.cjs
+          node --check simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs
+          node --test tests/agent5-native-attack-damage-observer.test.cjs tests/agent5-v7-teamflare-damage-prize-aba-v4.test.cjs tests/agent5-owner-teamflare-prompt-generic-v1.test.cjs tests/agent5-v7-teamflare-physical-witness.test.cjs
+
+      - name: Execute registered retrospective native A/B/A forensic replay
+        env:
+          AGENT5_V7_TEAMFLARE_DAMAGE_PRIZE_DIR: issue25-agent5-teamflare-damage-prize-v4
+        run: node simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs
+
+      - name: Archive native attack, KO, Prize and promotion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-v7-teamflare-native-damage-prize-aba-v4
+          path: issue25-agent5-teamflare-damage-prize-v4/
+          retention-days: 30
+          if-no-files-found: warn
