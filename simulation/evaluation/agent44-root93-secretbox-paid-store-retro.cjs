@@ -19,6 +19,7 @@ const FOG_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-fog-energy-attack-re
 const LILLIE_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-lillie-draw-retro.json');
 const PROMOTION_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-postko-promotion-retro.json');
 const LILLIE_SEEDED_OUT=path.join(ROOT,'artifacts/agent44-root93-lillie-seeded-v1.json');
+const LILLIE_KO_SEEDED_OUT=path.join(ROOT,'artifacts/agent44-root93-lillie-seeded-ko-v1.json');
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
@@ -35,6 +36,8 @@ function run(options={}){
   const targetLine=options.line??'secret-box';
   const promoteOpponentIndex=options.promoteOpponentIndex??null;
   const lillieShuffleSeed=options.lillieShuffleSeed??null;
+  const requireLillieKo=options.lillieKoFollowup===true;
+  assert.ok(!requireLillieKo||targetLine==='lillie');
   assert.ok(lillieShuffleSeed===null||
     (targetLine==='lillie'&&Number.isSafeInteger(lillieShuffleSeed)
       &&lillieShuffleSeed>=0));
@@ -143,6 +146,8 @@ function run(options={}){
               const deck=owner.deck.cards;
               // Forensic aggregate only, never input to the owner policy.
               draw.deckBeforeShuffleCount=deck.length;
+              draw.deckBeforeShuffleFogCount=deck.filter(card=>
+                card.fullName==='Fog Crystal CRE').length;
               draw.deckBeforeShuffleEnergyPrintings=deck.filter(card=>
                 card.superType===native('game/store/card/card-types')
                   .SuperType.ENERGY).map(card=>card.fullName);
@@ -177,6 +182,112 @@ function run(options={}){
           assert.equal(draw.accepted,true);
           assert.equal(draw.ownerHandAfter,8);
           assert.equal(draw.cardInDiscard,true);
+          if(requireLillieKo){
+            const follow={requested:true,prefixRootOrdinal:seenMax,
+              energyRoute:null,energyPrinting:null,
+              fogCrystalAccepted:false,energyAttached:false,
+              hiddenPowerAccepted:false,sourceTrubbishKO:false,
+              candidatePrizeTaken:false,promptTrace:[],
+              qualifiedCompetitiveGames:0};
+            result.lillieFollowup=follow;
+            const sourceTrubbish=opponent.active.getPokemonCard();
+            assert.equal(sourceTrubbish?.fullName,'Trubbish FST');
+            follow.sourceDamageBefore=opponent.active.damage;
+            follow.sourceMaxHP=sourceTrubbish.hp;
+            const prizesBefore=owner.prizes.filter(p=>p.cards.length>0).length;
+            let energy=owner.hand.cards.find(c=>
+              c.name==='Psychic Energy'||c.fullName==='Telepath [P] Energy M3');
+            if(!energy){
+              const fogIndex=owner.hand.cards.findIndex(c=>
+                c.fullName==='Fog Crystal CRE');
+              if(fogIndex>=0){
+                follow.energyRoute='Fog Crystal CRE from shuffled Lillie hand';
+                callOriginal(this,new PlayCardAction(owner.id,fogIndex,{
+                  player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+                }),args);
+                follow.fogCrystalAccepted=true;
+                const p=pending();
+                assert.equal(p?.constructor.name,'ChooseCardsPrompt');
+                assert.equal(p.playerId,owner.id);
+                const psychic=p.cards.cards.find(c=>
+                  c.name==='Psychic Energy'&&c.energyType===
+                    native('game/store/card/card-types').EnergyType.BASIC);
+                follow.basicPsychicAvailableAtFog=!!psychic;
+                const selected=psychic?[psychic]:[];
+                assert.equal(p.validate(selected,this.state),true);
+                callOriginal(this,new ResolvePromptAction(p.id,selected),args);
+                for(let k=0;k<12;k++){
+                  const next=pending();
+                  if(!next)break;
+                  let response;
+                  if(next.constructor.name==='ShowCardsPrompt')response=true;
+                  else if(next.constructor.name==='WaitPrompt')response=null;
+                  else if(next.constructor.name==='ShuffleDeckPrompt')
+                    response=owner.deck.cards.map((_,index)=>index);
+                  else break;
+                  follow.promptTrace.push('fog:'+next.constructor.name);
+                  callOriginal(this,new ResolvePromptAction(next.id,response),args);
+                }
+                if(psychic)energy=psychic;
+              }
+            }else follow.energyRoute='direct owner-hand Energy from seeded Lillie';
+            if(energy){
+              assert.ok(owner.hand.cards.includes(energy));
+              follow.energyPrinting=energy.fullName;
+              const energyIndex=owner.hand.cards.indexOf(energy);
+              callOriginal(this,new PlayCardAction(owner.id,energyIndex,{
+                player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+              }),args);
+              follow.energyAttached=owner.active.energies.cards.includes(energy);
+              assert.equal(follow.energyAttached,true);
+              // Telepath Psychic's optional Basic Psychic Bench search is an
+              // owner-deck action. Choosing zero preserves the fixed board.
+              for(let k=0;k<15;k++){
+                const next=pending();
+                if(!next)break;
+                let response;
+                if(next.constructor.name==='ChooseCardsPrompt'&&
+                    next.playerId===owner.id){
+                  response=[];
+                  assert.equal(next.validate(response,this.state),true);
+                }else if(next.constructor.name==='ShowCardsPrompt')response=true;
+                else if(next.constructor.name==='ShuffleDeckPrompt')
+                  response=owner.deck.cards.map((_,index)=>index);
+                else if(next.constructor.name==='WaitPrompt')response=null;
+                else break;
+                follow.promptTrace.push('attach:'+next.constructor.name);
+                callOriginal(this,new ResolvePromptAction(next.id,response),args);
+              }
+              assert.equal(pending(),undefined,
+                'Settle owner optional Energy-on-attach prompts before attack');
+              const attack=new AttackAction(owner.id,'Hidden Power');
+              callOriginal(this,attack,args);
+              follow.hiddenPowerAccepted=true;
+              for(let k=0;k<20;k++){
+                const next=pending();
+                if(!next)break;
+                let response;
+                if(next.constructor.name==='WaitPrompt')response=null;
+                else if(next.constructor.name==='ChoosePrizePrompt'&&
+                    next.playerId===owner.id){
+                  const firstPrize=owner.prizes.find(p=>p.cards.length>0);
+                  assert.ok(firstPrize);
+                  assert.equal(next.validate([firstPrize],this.state),true);
+                  response=[firstPrize];
+                }else break; // opponent's own promotion left unresolved
+                follow.promptTrace.push('attack:'+next.constructor.name);
+                callOriginal(this,new ResolvePromptAction(next.id,response),args);
+              }
+              follow.sourceTrubbishKO=opponent.discard.cards.includes(sourceTrubbish);
+              follow.candidatePrizeTaken=
+                owner.prizes.filter(p=>p.cards.length>0).length<prizesBefore;
+              follow.prizesRemaining=owner.prizes.filter(p=>p.cards.length>0).length;
+            }
+            follow.pending=this.state.prompts
+              .filter(p=>p.result===undefined).map(p=>({
+                kind:p.constructor.name,
+                owner:p.playerId===owner.id?'candidate':'source'}));
+          }
         }else{
         // Truly dispatch the original owner-held ACE SPEC into the pinned
         // Store. Native card code handles the mandatory discard and search.
@@ -432,13 +543,15 @@ function run(options={}){
     custody:receipt?.boxCustody??null,
     error:receipt?.error??null,
     exitReason,followup:receipt?.fogFollowup??null,
-    lillie:receipt?.lillieNative??null
+    lillie:receipt?.lillieNative??null,
+    lillieKo:receipt?.lillieFollowup??null
   }));
   assert.ok(receipt,'Current common-policy replay did not reach the exact archived first Pass');
   assert.equal(receipt.priorAcceptedOrdinalMax,92,
     'Exact 93-root native prefix identity must be retained');
   assert.equal(receipt.error,null,'Native replacement must settle');
   if(targetLine==='lillie'){
+    if(requireLillieKo)assert.equal(receipt.lillieFollowup?.requested,true);
     assert.equal(receipt.lillieNative?.accepted,true);
     assert.equal(receipt.lillieNative.ownerHandAfter,8);
     return result;
@@ -464,18 +577,27 @@ function run(options={}){
 }
 
 if(require.main===module){
-  if(process.env.AGENT44_LILLIE_SEED_BUNDLE==='true'){
+  if(process.env.AGENT44_LILLIE_SEED_BUNDLE==='true'||
+      process.env.AGENT44_LILLIE_KO_SEED_BUNDLE==='true'){
+    const withKo=process.env.AGENT44_LILLIE_KO_SEED_BUNDLE==='true';
     const seeds=[101,202,303,404,101];
     const rows=seeds.map((seed,index)=>{
       const result=run({line:'lillie',lillieShuffleSeed:seed,
-        outputPath:path.join(ROOT,'artifacts/agent44-root93-lillie-seed-'+
-          index+'.json')});
+        lillieKoFollowup:withKo,
+        outputPath:path.join(ROOT,'artifacts/agent44-root93-lillie-'+
+          (withKo?'ko-':'')+'seed-'+index+'.json')});
       const draw=result.capture.lillieNative;
       return {seed,index,ownerHandSha256:result.capture.handDigest,
         priorAcceptedOrdinalMax:result.capture.priorAcceptedOrdinalMax,
         originalRoot:result.capture.actionOriginallyOffered,
         shuffledDeckCount:draw.deckBeforeShuffleCount,
         shuffledDeckEnergy:draw.deckBeforeShuffleEnergyPrintings,
+        shuffledDeckFogCount:draw.deckBeforeShuffleFogCount,
+        attachedEnergy:result.capture.lillieFollowup?.energyPrinting??null,
+        accessRoute:result.capture.lillieFollowup?.energyRoute??null,
+        nativeTrubbishKO:result.capture.lillieFollowup?.sourceTrubbishKO??null,
+        nativeCandidatePrizeTaken:result.capture.lillieFollowup?.candidatePrizeTaken??null,
+        postActionPrompt:result.capture.lillieFollowup?.pending??null,
         shuffleOrderSha256:draw.shuffleOrderSha256,
         shuffleProtocol:draw.shuffleProtocol,
         handAfter:draw.handAfter,
@@ -488,14 +610,19 @@ if(require.main===module){
     assert.ok(rows.every(r=>r.accepted&&r.error===null&&
       r.ownerHandSha256===EXPECTED_HAND&&
       r.priorAcceptedOrdinalMax===92));
-    const summary={schema:'agent44-root93-lillie-seeded-shuffle-v1',
+    const summary={schema:withKo?
+        'agent44-root93-lillie-seeded-native-ko-v1':
+        'agent44-root93-lillie-seeded-shuffle-v1',
       originalSourceDealWasPreviouslyExposed:true,
       registeredOriginalTrial:TARGET_TRIAL,
       deterministicReplayedPriorRoot:true,
       seeds,separateShuffles:4,duplicateSeedReplay:true,
       allCompetitiveQualifiedGames:0,
       rows};
-    writeJsonAtomic(LILLIE_SEEDED_OUT,summary);
+    if(withKo)assert.ok(rows.every(r=>r.nativeTrubbishKO===true&&
+      r.nativeCandidatePrizeTaken===true),
+      'Every registered owner-visible Energy/Fog line must KO and earn a Prize');
+    writeJsonAtomic(withKo?LILLIE_KO_SEEDED_OUT:LILLIE_SEEDED_OUT,summary);
     console.log('AGENT44_LILLIE_SEEDED_SUMMARY '+JSON.stringify(summary));
   }else run({
     followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
