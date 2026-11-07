@@ -16,9 +16,10 @@ const native = p => require(path.join(__dirname,
  *
  * @param {0|1} seat Actual source physical seat.
  * @param {0|1} deckCards Physical original owner deck length.
+ * @param {{benchFull?:boolean, deckCardBasic?:boolean}} [options]
  * @returns {object} Live Store-accepted/rejected action and physical custody.
  */
-function probe(seat, deckCards) {
+function probe(seat, deckCards, options = {}) {
   assert.ok(seat === 0 || seat === 1);
   assert.ok(deckCards === 0 || deckCards === 1);
   const f = stagedPainfulSpoons(seat);
@@ -32,7 +33,12 @@ function probe(seat, deckCards) {
   // A deck empty after the turn's draw has not yet failed deckout.
   f.source.deck.cards.splice(0);
   const basic = f.card('Shadow Rider Calyrex V CRE');
-  if (deckCards === 1) f.source.deck.cards.push(basic);
+  if (deckCards === 1) f.source.deck.cards.push(
+    options.deckCardBasic === false ? f.card('Psychic Energy SVE') : basic);
+  if (options.benchFull) {
+    for (const slot of f.source.bench)
+      slot.cards.push(f.card('Shadow Rider Calyrex V CRE'));
+  }
   f.source.hand.cards.push(capture);
   const snap = () => ({
     handHasCapture: f.source.hand.cards.includes(capture),
@@ -42,6 +48,7 @@ function probe(seat, deckCards) {
     deckCount: f.source.deck.cards.length,
     deckHasBasic: f.source.deck.cards.includes(basic),
     benchHasBasic: f.source.bench.some(p => p.cards.includes(basic)),
+    benchOccupiedCount:f.source.bench.filter(p => p.getPokemonCard()).length,
     active: f.source.active.getPokemonCard()?.fullName ?? null,
     pending: f.state.prompts.filter(p => p.result === undefined)
       .map(p => ({type: p.constructor.name, sourceZone:
@@ -71,7 +78,8 @@ function probe(seat, deckCards) {
         'Native real shuffle must accept a physical deck permutation');
     } else if (pending.constructor.name === 'ChooseCardsPrompt' &&
              pending.cards === f.source.deck) {
-      answer = deckCards === 1 ? [basic] : [];
+      answer = deckCards === 1 && options.deckCardBasic !== false ?
+        [basic] : [];
       assert.equal(pending.validate(answer, f.state), true,
         'A real native owner deck search must validate its physical Basic');
     } else {
@@ -82,7 +90,9 @@ function probe(seat, deckCards) {
     answers.push({type:pending.constructor.name,
       resultCount:Array.isArray(answer)?answer.length:null});
   }
-  return {seat, deckCards, context:'constructed-native-owner-turn',
+  return {seat, deckCards, benchFull:!!options.benchFull,
+    deckCardBasic:options.deckCardBasic !== false,
+    context:'constructed-native-owner-turn',
     paperGameQualified:false, before, thrown, afterAttach,
     afterPrompts:snap(), answers};
 }
