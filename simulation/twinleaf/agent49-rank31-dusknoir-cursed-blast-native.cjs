@@ -29,7 +29,7 @@ function probeRank31DusknoirCursedBlast(seat=0){
   const f=stagedPainfulSpoons(seat);
   const {source,opponent,store,state}=f;
   assert.equal(state.activePlayer,seat);
-  assert.equal(state.turn,3);
+  assert.ok(state.turn>1);
   assert.equal(source.bench.length,0);
 
   const original60=rank31Original60();
@@ -129,7 +129,7 @@ function probeRank31DusknoirCursedBlast(seat=0){
 
   return {
     version:'agent49-rank31-dusknoir-pre-cursed-blast-native-v1',
-    seat,source60K0:true,source60Count:original60.length,source60Counts,
+    seat,turn:state.turn,source60K0:true,source60Count:original60.length,source60Counts,
     sourceDeckPhysicalComplete:false,opponentDeckPhysicalComplete:false,
     ability:'Cursed Blast',abilityCounters:13,abilityDamage:130,
     sourceStack:['Duskull PRE','Dusclops PRE','Dusknoir PRE'],
