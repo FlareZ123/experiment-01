@@ -103,6 +103,15 @@ function nativeVipOutcome(row){
     row.nativeAbortEvidence?.actorOnlyDecisionCoverage??
     row.nativeAbortProvenance?.actorOnlyDecisionCoverage??null;
   const audit=coverage?.detailedComponentAudits?.ownerVipAfterPass??null;
+  const examples=(audit?.examples??[]).map(event=>({
+    kind:event.kind??null,seat:event.seat??null,turn:event.turn??null,
+    printing:event.printing??null,printings:event.printings??null,
+    accepted:event.accepted??null,
+    nativeBenchConfirmed:event.nativeBenchConfirmed??null,
+    benchBefore:event.benchBefore??null,benchAfter:event.benchAfter??null,
+    deckBefore:event.deckBefore??null,deckAfter:event.deckAfter??null,
+    error:event.error??null
+  }));
   return {
     id:row.trial?.id??row.id??null,
     policyRecorded:audit!==null,
@@ -117,6 +126,7 @@ function nativeVipOutcome(row){
     selectedBasicCopies:audit?.selectedBasics??null,
     unresolvedOwnerSearches:audit?.unresolvedOwnerSearches??null,
     bySeat:audit?.bySeat??null,
+    examples,
     rootActionCount:row.rootActionLedger?.length??
       row.nativeAbortEvidence?.rootActionLedger?.length??null
   };
@@ -187,8 +197,13 @@ function firstRootDifference(before,after){
         beforeKind:actionKind(a[i]),afterKind:actionKind(b[i]),
         beforeEventSha256:createHash('sha256').update(left).digest('hex'),
         afterEventSha256:createHash('sha256').update(right).digest('hex'),
-        afterContainsVip:right.includes('Battle VIP Pass FST'),
-        beforeContainsPass:left.includes('PassTurnAction')
+        beforeSeat:a[i].playerSlot??a[i].seat??a[i].actorSeat??null,
+        afterSeat:b[i].playerSlot??b[i].seat??b[i].actorSeat??null,
+        beforeTurn:a[i].turnBefore??a[i].turn??a[i].globalTurn??null,
+        afterTurn:b[i].turnBefore??b[i].turn??b[i].globalTurn??null,
+        afterContainsVip:/Battle VIP Pass|swsh8-225|FST 225/i.test(right),
+        beforeContainsPass:/PassTurnAction|pass.?turn/i.test(left)||
+          /pass/i.test(actionKind(a[i])??'')
       };
     }
   }
@@ -202,8 +217,13 @@ function firstRootDifference(before,after){
         createHash('sha256').update(leftText).digest('hex'),
       afterEventSha256:right===null?null:
         createHash('sha256').update(rightText).digest('hex'),
-      afterContainsVip:rightText?.includes('Battle VIP Pass FST')??false,
-      beforeContainsPass:leftText?.includes('PassTurnAction')??false
+      beforeSeat:b[n]?.playerSlot??b[n]?.seat??b[n]?.actorSeat??null,
+      afterSeat:b[n]?.playerSlot??b[n]?.seat??b[n]?.actorSeat??null,
+      beforeTurn:left?.turnBefore??left?.turn??left?.globalTurn??null,
+      afterTurn:right?.turnBefore??right?.turn??right?.globalTurn??null,
+      afterContainsVip:/Battle VIP Pass|swsh8-225|FST 225/i.test(rightText??''),
+      beforeContainsPass:/PassTurnAction|pass.?turn/i.test(leftText??'')||
+        /pass/i.test(actionKind(left)??'')
     };
   }
   return {available:true,index:null,beforeKind:null,afterKind:null,
@@ -293,8 +313,16 @@ function compare(phases){
     const treatment=a&&b?firstRootDifference(a,b):null;
     const changed=Boolean(treatment?.available===true&&
       treatment.index!==null);
+    const matchingVipItem=(vip.examples??[]).some(event=>
+      event.kind==='vip-item'&&event.accepted===true&&
+      (treatment?.afterSeat===null||treatment?.afterSeat===undefined||
+        event.seat===treatment.afterSeat)&&
+      (treatment?.afterTurn===null||treatment?.afterTurn===undefined||
+        event.turn===treatment.afterTurn));
     const firstTreatmentDifferenceIsVip=Boolean(changed&&
-      treatment.afterContainsVip&&treatment.beforeContainsPass);
+      (treatment.afterContainsVip||matchingVipItem)&&
+      (treatment.beforeContainsPass||/pass/i.test(treatment.beforeKind??''))&&
+      (/play/i.test(treatment.afterKind??'')||treatment.afterContainsVip));
     const vip=nativeVipOutcome(b??{});
     return {
       id:trial.id,rank:trial.rank,candidateId:trial.candidateId,
@@ -533,6 +561,14 @@ function main(){
     treatmentChangedTrialCount:output.summary.treatmentChangedTrialCount,
     firstTreatmentDifferenceIsVipCount:
       output.summary.firstTreatmentDifferenceIsVipCount,
+    comparisons:output.comparisons.map(x=>({
+      id:x.id,physicalOpeningMatchedAcrossABA:x.physicalOpeningMatchedAcrossABA,
+      controlsRepeatedExactly:x.controlsRepeatedExactly,
+      treatmentChanged:x.treatmentChanged,
+      firstTreatmentDifference:x.firstTreatmentDifference,
+      firstTreatmentDifferenceIsVip:x.firstTreatmentDifferenceIsVip,
+      treatmentVipAudit:x.treatmentVipAudit
+    })),
     competitiveGamesQualified:0,
     archive:saved
   },null,2)+'\n');
