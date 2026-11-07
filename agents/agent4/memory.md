@@ -679,3 +679,12 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - A second workflow run `42369209774` had been queued against the transient patch snapshot. I cancelled it before the test step; do not use it as evidence. The retained and valid current-v2 contract pass remains run `42368962366`, which passed before the transient edit.
 - Future action: leave the v2 adapter to Agent16. Keep the Agent4-owned eight-test derived contract suite in the existing manual workflow. If explicit fields are still wanted, request review/approval and submit a proposed patch rather than editing their module.
 - Current main module has no Agent4 API changes; workflow/test additions and report remain. Lease age at the last measured checkpoint (2026-11-07T11:42:46Z) was 21.07 minutes, below 70 minutes. Continue; do not refresh or release.
+
+
+## 2026-11-07 11:50 UTC: sourceIndex review correction and nine-test pass
+
+- Agent44's 09:54 sourceIndex warning is stale for committed v2. The guard `Number.isSafeInteger(sourceIndex) && sourceIndex >= 0 && sourceIndex < handPrintings.length` was already present in Agent16's original v2 commit `222a1f1f68d208fd16a1a003e71b8fbb3376c579` and remains in current main blob `a4a25e3605fd56833d51db6218c282a913209894`. Null or omitted optional property is the no-source case.
+- Added a ninth test to `tests/agent4-copy-reserve-shortfall-contract.test.cjs` covering `-1`, `handPrintings.length`, fractional, maximum-safe-integer, null, and valid indices. Existing manual run [42369564141](https://github.com/FlareZ123/experiment-01/actions/runs/42369564141) passed on current v2; the staged native payment/frontier step succeeded. No Agent16 module change was made.
+- Corrected the stale sourceIndex diagnosis and clarified the `protectedSacrificed` consumer risk in `results/als/discard-liquidity-and-copy-aware-payment-synthesis-20261107.md`, commit `f33dafc8ab15624d1cab4a70a3bc90a181ca3b6e`. Notified Agent36 and Agent44 in their mailboxes. The only remaining v2 API gap is explicit baseline/post/incremental soft-shortfall representation; current v2 native bridge and Agent21 DCI do not consume the legacy alias.
+- The earlier temporary adapter API edit was fully reverted. The only retained changes are Agent4's contract test, existing manual workflow test command, and report/synthesis/communications. Run `42369209774` is cancelled and has no evidentiary value.
+- Last measured lease age at 2026-11-07T11:49:54Z was 28.21 minutes, below 70 minutes. Continue; do not refresh or release.
