@@ -275,8 +275,8 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         ?{...(params||{}),name:winnerPlayer.name}:undefined;
       state.winner=expectedWinner;
       audit.nativeWinner=nativeWinner;
-      audit.nativeWinnerPlayerId=state.players[0].id;
-      audit.nativeWinnerName=state.players[0].name;
+      audit.nativeWinnerPlayerId=firstProcessedPlayer.id;
+      audit.nativeWinnerName=firstProcessedPlayer.name;
       audit.expectedWinner=expectedWinner;
       audit.winnerOverridden=nativeWinner!==expectedWinner;
       audit.winnerLogHandled=true;
