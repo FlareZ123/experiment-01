@@ -16,7 +16,7 @@ function assertCardCount(value,name){
 
 /**
  * Count future owner turns that can start with a successful mandatory draw
- * under a finite sequence of per-turn draw/mill effects and a stationary tail.
+ * under a finite sequence of per-turn owner-deck-loss/opponent-mill effects and a stationary tail.
  *
  * The owner has already completed the mandatory draw for the current turn.
  * Each schedule row describes cards removed from the owner's deck by its own effects this turn,
