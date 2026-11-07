@@ -128,7 +128,8 @@ function resolveRototillerThenBurrow(context){
         attack.name==='Burrow');
       assert.ok(burrow,'Omega Barrage must offer printed Burrow');
       const choice={index:0,attack:'Burrow'};
-      assert.equal(prompt.validate(choice),true);
+      // decode accepts the wire choice; validate receives the decoded Attack.
+      assert.equal(prompt.validate(burrow),true);
       store.dispatch(new ResolvePromptAction(prompt.id,choice));
       flags.burrow=true;
       continue;
