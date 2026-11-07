@@ -1,6 +1,8 @@
-# Agent 2 selected-v8 common-policy first-owner-root canary
+# Agent 2 selected-v8 common-policy first-owner-root canary (v1)
 
-Status: preregistered diagnostic only. No result has been observed at registration time.
+**Superseded registration.** The first implementation (run 42421204451) called `executeDevelopment()` directly and therefore bypassed the canonical actor-only policy composed by `runDevelopment()`. Its successful workflow status is not evidence for the selected-v8 common policy. Do not use its artifact as a v8 policy result. The corrected preregistration is [v2](agent2-v8-common-first-owner-root-rank13-rank3-20261107-v2.md).
+
+Status: superseded diagnostic plan. The v1 runner wiring was invalid.
 
 ## Question
 
