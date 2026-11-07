@@ -32,6 +32,8 @@ jobs:
         run: node --test tests/agent2-rank3-fss-float-bunnelby-opening-ceiling.test.cjs
       - name: Verify owner-deck Filch conservation horizon against literal turn recurrence
         run: node --test tests/agent2-owner-deck-attrition-horizon.test.cjs
+      - name: Audit all original 29 Forest Seal Stone and Float Stone first-Tool opportunities
+        run: node --test tests/agent2-original29-fss-first-float-opening.test.cjs
       - name: Verify Japanese Expanded exact-print structural vetoes
         run: node --test tests/agent9-jp-expanded-structure.test.cjs
       - name: Verify dated English proxy crosswalk against original 29 Aichi source inventories
