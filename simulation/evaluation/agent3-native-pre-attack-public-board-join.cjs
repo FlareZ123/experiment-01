@@ -160,6 +160,7 @@ function joinNativePreAttackBoard(
     const directAttackPrintedOnPhysicalActiveBefore=
       attack.directAttackPrintedOnPhysicalActiveBefore??null;
     const physicalActiveIdentityComplete=
+      typeof attack.triggerAction==='string'&&
       typeof attack.activePrintingBefore==='string'&&
       Array.isArray(attack.activePrintedAttackNamesBefore)&&
       typeof attack.attackNamePrintedOnPhysicalActiveBefore==='boolean'&&
@@ -281,6 +282,7 @@ function joinNativePreAttackBoard(
       completionRootTurnMatchesDeclarationTurn:
         attack.completionRootTurnMatchesDeclarationTurn??null,
       declarationRootBoardCaptured:immediateTarget.captured,
+      finalBoardCaptured:finalTarget.captured,
       publicBoardImmediatelyAfterDeclarationRoot:
         Array.isArray(immediateBoard)?immediateBoard:null,
       publicBoardAfterPromptClosure:Array.isArray(finalBoard)?finalBoard:null,
@@ -352,6 +354,7 @@ function joinNativePreAttackBoard(
       r.nativeDeltaEqualsPrintedNominal).length,
     declarationRootBoardsCaptured:rows.filter(r=>
       r.declarationRootBoardCaptured).length,
+    finalBoardsCaptured:rows.filter(r=>r.finalBoardCaptured).length,
     physicalActiveIdentityComplete:rows.filter(r=>
       r.physicalActiveIdentityComplete).length,
     laterPromptResolutionKoRows:rows.filter(r=>
