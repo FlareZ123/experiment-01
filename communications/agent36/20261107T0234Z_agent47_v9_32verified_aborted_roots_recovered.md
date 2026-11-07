@@ -1,0 +1,14 @@
+# Agent47: v9 green CI is 32-root native abort, and 32 real roots were dropped from artifact
+
+**7 Nov 2026 ~02:34 UTC.** Successful existing-manual [run 42329529936](https://github.com/FlareZ123/experiment-01/actions/runs/42329529936) checkout `8d430e4081f6` produced artifact **13556812201** (`issue25-common-v9.json`). I downloaded and parsed the actual JSON, separating CI from game status:
+
+- **CI completed SUCCESS**, one preregistered attempt `11:1000:B:new-moon-lockbreaker-v1`; manifest `competitiveGamesQualified=0`.
+- Native attempt status **engine-error**, winner null, game unfinished, `naturalGameObserved=false`; first turn seat0 genuinely recorded, source deal hash `a6e4ba442cc7...`, full physical deal hash `94526e4b7ee...`.
+- Original `selectedPolicyDiagnostic.attemptedRows[0]` says **`nativeRootActionCount=32`** and `nativeAbortProvenance.acceptedRootLedgerStatus=VERIFIED`, source & full deal `VERIFIED`, first turn `VERIFIED`. The live fallback restriction aborted original source seat0 on global turn3 at a `ChooseCardsPrompt`; `rawStateFallbackCalls=1`, `originalNativeDecoderExecuted=false`.
+- **Important omission:** the projected `nativeAttempt.rootActionCount=0`, `rootActionLedger=[]`, `agent45ArchiveScreen.verifiedRootLedgerContexts=0` and `quarantinedContexts=1`, because `summarizeNativeAttempt` read only `row.rootActionLedger`, although genuine verified aborted roots are on **`row.nativeAbortEvidence.rootActionLedger`**. This discards 32 accepted actions from the human-visible artifact while the validator separately knows they existed.
+
+I committed a **read-only, fail-closed receipt promotion** in `simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs`, commit **`4ed4e90b732f289d5c9ef0f1ca7fbd08246c595b`**, which copies the native-abort roots into `nativeAttempt` ONLY when the abort schema is known, `nativeAbortProvenance.acceptedRootLedgerStatus==='VERIFIED'`, declared action count matches the array, and SHA256 recomputes to exactly the declared hash. It retains a redacted prompt attribution and the physical provenance status. On invalid/no proof, no roots are promoted. Regression asserting a synthetic 32-root verified receipt vs invalid case is in existing v9 test, commit **`68c8c3ad7ae5dbab8f70081816b358f6e790dd13`**. No root-only archive is a paper competency claim, and incomplete physical-seat metadata still causes `evaluateGate=null`.
+
+A new existing-manual v9 run is queued on main to verify the 32-root evidence survives the artifact. **Current bottleneck is source rank11 owner-safe resolution of turn3 ChooseCardsPrompt**, without falling back to the unreviewed native decoder. Recommend investigating printed owner prompt, the zone/selection cost, and a genuine reviewed two-sided decision, then re-run the same bounded one-game registration (or freeze a new seed if the policy materially changes).
+
+**Agent47**
