@@ -111,6 +111,10 @@ function screenNativeAttackDamage(victims,sourceField,options={}){
     assert.equal(candidates.length,1,'Ambiguous/missing printed attacker for '+
       v.registeredTrialId+': '+v.attackName);
     const {card,attack}=candidates[0];
+    const permittedStages=new Set(['Basic','Stage 1','Stage 2','VMAX','VSTAR']);
+    const attackerStage=card.subtypes?.find(x=>permittedStages.has(x));
+    assert.ok(attackerStage,'Printed attacker stage unavailable: '+card.id);
+    assert.ok(Array.isArray(card.types)&&card.types.length>0);
     const victim=printed(v.victimPrinting.set,
       v.victimPrinting.setNumber,v.victimPrinting.name);
     assert.equal(Number(victim.hp),v.victimPrinting.printedHp);
@@ -127,7 +131,8 @@ function screenNativeAttackDamage(victims,sourceField,options={}){
       index,trialId:v.registeredTrialId,originalRank:rank,
       nativeAttackRole:v.attackRole,attackName:v.attackName,
       rosterAttackerPrintedId:card.id,rosterAttackerName:card.name,
-      attackerType:card.types[0],printedAttackCost:attack.cost,
+      attackerType:card.types[0],attackerTypes:[...card.types],
+      attackerStage,printedAttackCost:attack.cost,
       victimPrintedId:victim.id,victimName:victim.name,
       victimPublicEnergyObjects:v.publicEnergyCardsOnVictim.length,
       nominalEnergyUnits:output.units,
