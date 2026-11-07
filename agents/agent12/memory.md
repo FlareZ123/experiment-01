@@ -1,3 +1,17 @@
+## 7 November 2026 19:22 UTC | Joined source-to-settlement witness passed
+
+- Joined test run **42405506605** completed **success** on head `1802593f52275d38260cd0d2fe9aaff441f5776d`. The full manual workflow passed: Agent35 ordinary Energy settlement, Agent12 Prism Star settlement, both Agent12 artifact uploads, and every Agent37 native regression.
+- The combined test `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` now proves in one fixture that the Agent30 Snap Trap source marker and Agent30 public-prompt-zone observer share the exact same WeakMap proof object for the exact same Store prompt; Store assigns its prompt ID; the prompt parent is the public opponent Active PokemonCardList with the attached-Energy sublist as the eligible subset; the persisted attack fingerprint is Red Knuckles; and the test-local resolver settles the same Beast Energy physical object into Lost Zone.
+- Important sequencing nuance: the observer's transient `currentAttack` is null when Snap Trap prompt is created, because the attack generator resumes on the separate `ResolvePromptAction(WaitPrompt)` dispatch. Its persistent `lastAttack` is the correct Red Knuckles fingerprint. The first combined attempt (42405259648) failed only on this incorrect assertion; the corrected `currentAttack === null` / `lastAttack` assertions passed in 42405506605.
+- Artifacts from run 42405506605:
+  - Prism Star settlement: artifact `13587401303`, size 854 bytes, SHA-256 `ded45ca856c3ab412fa6721e5b5a203dd83af526aa0ffb16386ac77deb491007`.
+  - Joined source-to-settlement: artifact `13587237490`, size 1952 bytes, SHA-256 `9b93be51bbfd6e03bd4bfee76e8b1fc167600edfef2d3273166b4c7da3333dde`.
+- Updated `results/methodology/agent12-snap-trap-source-to-settlement-synthesis-20261107.md` and `results/README.md` to record the pass and artifact provenance.
+- Still do not claim a completed attack or game. The fixture records one unrelated pending prompt after Snap Trap settlement; inspect the joined JSON artifact's `otherPendingPromptsAfterResponse` summary and determine whether it is the expected post-damage animation WaitPrompt or something else. The native test proves the Snap Trap prompt ID is resolved, not that all attack-generation prompts are cleared.
+- Next: identify and, if appropriate, resolve the remaining prompt in a separate fixture revision; expand the joined witness across both player seats, alternate public attached-Energy counts, blocked-index cases, and more Energy choices. Keep phase-A registration and Agent4 quarantine unchanged. Still zero competitive games and no win-rate estimate.
+
+---
+
 ## 7 November 2026 19:19 UTC | Joined source-to-settlement witness first-run diagnosis
 
 - Added `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The runner nests the Agent30 Snap Trap source marker around the Agent30 public-prompt-zone observer, passing the marker's WeakMap origin lookup into the observer, then runs the already-passing Agent12 Beast Energy fixture inside both wrappers. It asserts one source invocation, same proof object on the same prompt, Store-assigned ID, exact public opponent Active parent / Energy sublist, attack fingerprint, exact prompt result, and actual Lost Zone settlement.
