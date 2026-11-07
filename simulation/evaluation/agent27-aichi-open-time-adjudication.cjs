@@ -344,6 +344,7 @@ function auditExtensionLedger(packet) {
     if(result.status==='PAPER_OUTCOME_CONFLICT_ZERO_PRIZE')
       return {...base,status:'EXTENSION_LEDGER_ZERO_PRIZE_WITHOUT_PAPER_OUTCOME',
         extensionRule:timeCall.extensionRule,failedSequence:i+1,
+        conditionalWinnerSeat:null,
         missing:['independent-normal-win-or-simultaneous-tie-ruling']};
     if(result.status!=='EXTENSION_CONTINUES') {
       if(i!==packet.transitions.length-1)
