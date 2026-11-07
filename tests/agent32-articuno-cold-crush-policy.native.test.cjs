@@ -148,6 +148,29 @@ function probeColdCrushWithPolicy(seat, mode = 'intervene') {
   };
 }
 
+
+test('observe mode records the Cold Crush proposal without changing the shared owner-policy decision', () => {
+  const result = probeColdCrushWithPolicy(0, 'observe');
+  assert.equal(result.wrappersRestored, true);
+  assert.equal(result.result.actorActive, 'Snorlax PGO');
+  assert.equal(result.result.opponentActive, 'Regidrago V SIT');
+  assert.equal(result.result.actorActiveEnergy, 1);
+  assert.equal(result.result.opponentActiveEnergy, 3);
+  assert.equal(result.result.actorUsedGX, false);
+  assert.equal(result.result.actorWaterInDiscard, false);
+  assert.equal(result.result.opponentEnergyInDiscard, 0);
+
+  assert.equal(result.overlayAudit.mode, 'observe');
+  assert.equal(result.overlayAudit.confirmOffers, 1);
+  assert.equal(result.overlayAudit.confirmSettled, 1);
+  assert.equal(result.overlayAudit.confirmEvents.length, 1);
+  assert.equal(result.overlayAudit.confirmEvents[0].proposalDecision, true);
+  assert.equal(result.overlayAudit.confirmEvents[0].actualDecision, false);
+  assert.equal(result.overlayAudit.confirmEvents[0].moveEnergyPromptCount, 0);
+  assert.equal(result.overlayAudit.moveEnergyEvents.length, 0);
+  assert.equal(result.overlayAudit.coldCrushAttackEvents.length, 0);
+});
+
 test('Articuno one-Water Cold Crush policy composes with the shared owner policy on both seats', () => {
   for (const seat of [0, 1]) {
     const result = probeColdCrushWithPolicy(seat);
@@ -161,6 +184,7 @@ test('Articuno one-Water Cold Crush policy composes with the shared owner policy
     assert.equal(result.result.opponentEnergyInDiscard, 3);
 
     assert.equal(result.overlayAudit.version, VERSION);
+    assert.equal(result.overlayAudit.mode, 'intervene');
     assert.equal(result.overlayAudit.confirmEvents.length, 1);
     assert.equal(result.overlayAudit.confirmEvents[0].decision, true);
     assert.equal(result.overlayAudit.confirmEvents[0].reason,
