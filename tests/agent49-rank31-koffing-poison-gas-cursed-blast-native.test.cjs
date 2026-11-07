@@ -6,7 +6,7 @@ const {
   probeRank31KoffingPoisonGasCursedBlast
 }=require('../simulation/twinleaf/agent49-rank31-koffing-poison-gas-cursed-blast-native.cjs');
 
-test('rank31 Koffing Poison Gas and poison checkup feed a legal exact-lethal Cursed Blast line on both seats',()=>{
+test('rank31 Koffing Poison Gas and both poison checkups feed a legal Cursed Blast KO line on both seats',()=>{
   for(const seat of [0,1]){
     const result=probeRank31KoffingPoisonGasCursedBlast(seat);
     console.log('AGENT49_KOFFING_POISON_GAS_CURSED_BLAST '+JSON.stringify(result));
@@ -17,12 +17,12 @@ test('rank31 Koffing Poison Gas and poison checkup feed a legal exact-lethal Cur
     assert.equal(result.source60Counts.roxie,4);
     assert.equal(result.source60Counts.basicPsychic,2);
     assert.equal(result.initialTargetDamage,0);
-    assert.equal(result.damageAfterPoisonGas,10);
-    assert.equal(result.damageAfterPoisonCheckup,20);
-    assert.equal(result.damageAfterTwoKoffingRoxie,40);
-    assert.equal(result.damageAfterSinisterHand,60);
-    assert.equal(result.damageAfterPainfulSpoons,80);
-    assert.equal(result.expectedTargetDamageAfterCursedBlast,210);
+    assert.equal(result.damageAfterAttackAndFirstCheckup,20);
+    assert.equal(result.damageAfterSecondPoisonCheckup,30);
+    assert.equal(result.damageAfterTwoKoffingRoxie,50);
+    assert.equal(result.damageAfterSinisterHand,70);
+    assert.equal(result.damageAfterPainfulSpoons,90);
+    assert.equal(result.expectedTargetDamageAfterCursedBlast,220);
     assert.equal(result.targetKnockedOut,true);
     assert.equal(result.sourcePrizeCountAfter,4);
     assert.equal(result.opponentPrizeCountAfter,5);
