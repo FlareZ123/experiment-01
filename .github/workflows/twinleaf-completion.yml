@@ -93,11 +93,6 @@ on:
         required: false
         type: boolean
         default: false
-      include_agent5_v7_teamflare_damage_prize_v4:
-        description: 'Retrospective read-only native v7 Team Flare attack damage, KO, Prize custody and promotion A/B/A audit; zero qualified games'
-        required: false
-        type: boolean
-        default: false
       include_agent9_telepath_v6:
         description: 'Compare frozen v5 versus exact Telepath owner-deck v6 treatment on the same original eight physical deals'
         required: false
@@ -405,15 +400,6 @@ jobs:
         env:
           ISSUE25_STEWARD_V8_DIR: issue25-steward-v8
         run: node --test tests/agent36-issue25-common-v8.test.cjs tests/agent36-issue25-common-v8.native.test.cjs
-      - name: Forensic read-only v7 Team Flare attack damage, KO, Prize and promotion A/B/A
-        if: ${{ inputs.include_agent5_v7_teamflare_damage_prize_v4 }}
-        env:
-          AGENT5_V7_TEAMFLARE_DAMAGE_PRIZE_DIR: issue25-agent5-teamflare-damage-prize-v4
-        run: |
-          node --check simulation/twinleaf/agent5-native-attack-damage-observer.cjs
-          node --check simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs
-          node --test tests/agent5-native-attack-damage-observer.test.cjs tests/agent5-v7-teamflare-damage-prize-aba-v4.test.cjs tests/agent5-owner-teamflare-prompt-generic-v1.test.cjs tests/agent5-v7-teamflare-physical-witness.test.cjs
-          node simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs
       - name: Validate Telepath authentic owner-deck search invariants
         if: ${{ inputs.include_agent9_telepath_v6 }}
         run: node --test tests/agent9-telepath-owner-choice.test.cjs
@@ -574,14 +560,6 @@ jobs:
         with:
           name: agent36-issue25-broader-prospective-v8-native
           path: issue25-steward-v8/
-          retention-days: 21
-          if-no-files-found: warn
-      - name: Archive read-only v7 Team Flare damage, KO, Prize and promotion evidence
-        if: ${{ always() && inputs.include_agent5_v7_teamflare_damage_prize_v4 }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent5-v7-teamflare-native-damage-prize-aba-v4
-          path: issue25-agent5-teamflare-damage-prize-v4/
           retention-days: 21
           if-no-files-found: warn
       - name: Verify real original rank5 setup Confirm settlements on both seats
