@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 49 Agent27 tests (36 core +13 namespaced evidence/extension-ledger cases), plus eight cross-implementation tests.** The dedicated Node 22 `Aichi Open clock adjudication and evidence tests` job passed **57/57** in [manual run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361). The broader `test-benchmark` and `rank11-source-census` jobs also completed successfully in that run. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 51 Agent27 tests (36 core +15 namespaced evidence/extension-ledger cases), plus eight cross-implementation tests.** The dedicated Node 22 `Aichi Open clock adjudication and evidence tests` job passed **59/59** in [manual run 42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617). The broader `test-benchmark` and `rank11-source-census` jobs also completed successfully in that run. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -137,7 +137,7 @@ The module now exports `auditExtensionLedger`, a structural wrapper around `audi
 
 The wrapper explicitly cannot authenticate the source, verify reviewer independence, or prove that an omitted transition does not exist. The reviewer must attest that the ledger is complete. Outputs retain `competitiveAdmission:false` and `externalIndependentReviewRequired:true`. The namespaced test file now contains 12 cases: the three provenance-reference regressions plus nine extension-ledger cases covering tied-low, both-high multi-transition, normal win, tie/tiebreaker, incomplete history, missing source/review, sequence and chain errors, missing transition reference, zero-Prize conflict, post-terminal states, and non-applicable/insufficient packets.
 
-The dedicated `aichi-clock-adjudication` job was added inside the existing manual `aichi-benchmark-stats.yml` workflow. It runs only the 36 core Agent27 cases, 13 namespaced provenance/ledger cases, and eight cross-implementation cases, without requiring the Twinleaf submodule. [Run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361) reports the clock job successful; its Node 22 log shows **57 tests, 57 passed, 0 failed**. This isolates clock validation from unrelated policy-audit failures in the broader benchmark job. No new workflow or per-commit trigger was added.
+The dedicated `aichi-clock-adjudication` job was added inside the existing manual `aichi-benchmark-stats.yml` workflow. It runs only the 36 core Agent27 cases, 15 namespaced provenance/ledger cases, and eight cross-implementation cases, without requiring the Twinleaf submodule. [Run 42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361) reports the clock job successful; its Node 22 log shows **59 tests, 59 passed, 0 failed**. This isolates clock validation from unrelated policy-audit failures in the broader benchmark job. No new workflow or per-commit trigger was added.
 
 The immediately preceding isolated run [42401140684](https://github.com/FlareZ123/experiment-01/actions/runs/42401140684) caught one result-shape defect in the zero-Prize ledger error path: `conditionalWinnerSeat` was omitted rather than explicitly null. That output was corrected, and the subsequent 56/56 run passed.
 
@@ -153,3 +153,10 @@ The extension-ledger auditor inherits this stage requirement through its mandato
 
 
 The full manual workflow [42401698361](https://github.com/FlareZ123/experiment-01/actions/runs/42401698361) completed successfully across all jobs. The dedicated clock job passed 57/57; the broader test-benchmark and rank11-source-census jobs also passed.
+
+
+### Multi-Prize delta compatibility and exhaustive extension differential, 7 November
+
+The extension ledger stores observed `beforePrizes` and `afterPrizes` for both players in each transition. It does not encode or infer a KO Prize-group count, and does not assume that a KO group equals the actual Prize delta. A transition may represent both players changing Prize counts at once, including multi-Prize and overkill-clamped deltas, provided the independently reviewed paper ledger supports the resulting states. A namespaced regression demonstrates both a 3/1 actual state delta ([3,3] to [0,2], with the paper winner independently supplied) and a 2/1 delta ([3,3] to [1,2]) under the same extension entry rule. This validates representation only; the helper does not validate the KO effect or engine mechanics. Agent37 was given the test reference.
+
+A further namespaced property test compares the ledger wrapper against `adjudicateExtension` for all 49 resulting Prize pairs under each of the two entry rules (98 cases total), supplying explicit paper outcomes for zero-Prize terminal states. The dedicated Node 22 clock job passed **59/59** in [run 42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617). At this update the broader benchmark job was still running; the isolated clock job and source-census job had succeeded.
