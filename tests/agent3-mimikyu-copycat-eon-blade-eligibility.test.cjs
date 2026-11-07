@@ -9,7 +9,7 @@ const {
 const trialId='1:212:B:champion-reference';
 
 function fixture(){
-  const sourceBoard=[
+  const priorBoard=[
     {active:{printing:'Latias ex SSP'},bench:[],stadium:['Sky Field']},
     {active:{printing:'Mimikyu GRI'},bench:[],stadium:[]}
   ];
@@ -29,7 +29,7 @@ function fixture(){
     actionOrdinal:10,turnBefore:4,attackName:'Eon Blade',
     completionRootOrdinal:11,settledPromptChain:true,
     settlementCrossesClockReset:false,delegatedCopy:false,
-    publicBoardBefore:sourceBoard
+    publicBoardBefore:priorBoard
   };
   const current={
     actionOrdinal:20,turnBefore:5,attackName:'Eon Blade',
@@ -52,46 +52,30 @@ function fixture(){
         attackChoice:{printing:'Latias ex SSP',attackName:'Eon Blade'}}
     ]
   };
-  const root={
-    registeredTrialId:trialId,attackRole:'fixed-contender',
-    attackSeat:1,attackName:'Eon Blade',
-    attackDeclarationRootOrdinal:20,sameTurn:5
-  };
-  const preAttack={
-    registeredTrialId:trialId,acceptedDeclarationOrdinal:20,
-    attackerPrintingFromActualNativeBoard:'Mimikyu GRI',
-    attackerEnergyNamesBeforeAttack:['Psychic Energy','Psychic Energy']
-  };
-  const nominal={
-    trialId,attackName:'Eon Blade',originalRank:1,
-    rosterAttackerPrintedId:'sv8-76',rosterAttackerName:'Latias ex'
-  };
   const originalField={decks:[{rank:1,cards:[
     {category:'Pokémon',name:'Latias ex',
       printing:{set:'SSP',number:'76'}},
     {category:'Pokémon',name:'Mimikyu',
       printing:{set:'GRI',number:'58'}}
   ]}]};
-  return {
-    attempts:[attempt],prizeAttacks:[root],preAttackRows:[preAttack],
-    printedRows:[nominal],originalField,attempt,root,prior,current
-  };
+  return {attempts:[attempt],originalField,attempt,prior,current};
 }
 
 function audit(f){
-  return auditMimikyuCopycatEonBlade(
-    f.attempts,f.prizeAttacks,f.preAttackRows,
-    f.printedRows,f.originalField
-  );
+  return auditMimikyuCopycatEonBlade(f.attempts,f.originalField);
 }
 
-test('Mimikyu pays its own Copycat cost and copies the prior-turn non-GX Eon Blade',()=>{
+test('Mimikyu Copycat joins its own cost to a settled prior-turn non-GX Eon Blade',()=>{
   const f=fixture();
   const result=audit(f);
   assert.equal(result.version,VERSION);
-  assert.equal(result.rows.length,1);
+  assert.equal(result.scannedAttackCount,2);
+  assert.equal(result.eonBladeAttackCount,2);
+  assert.equal(result.observedMimikyuCopycatEonBladeEvents,1);
+  assert.equal(result.supportedRows,1);
   const row=result.rows[0];
   assert.equal(row.paperCopycatConditionSupported,true,row.failureReasons.join(', '));
+  assert.equal(row.attackRole,'fixed-contender');
   assert.deepEqual(row.copycatPrintedCost,['Psychic','Colorless']);
   assert.deepEqual(row.donorPrintedAttackCost,['Psychic','Psychic','Colorless']);
   assert.equal(row.donorCostAppliedToMimikyu,false);
@@ -102,18 +86,101 @@ test('Mimikyu pays its own Copycat cost and copies the prior-turn non-GX Eon Bla
   assert.equal(row.paperGameCertified,false);
 });
 
-test('Dimension Valley reduces one Colorless from Psychic Mimikyu Copycat',()=>{
+test('the same join works when Mimikyu is the original-source seat',()=>{
   const f=fixture();
-  f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[0].stadium=[];
-  f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[1].stadium=
-    ['Dimension Valley'];
-  f.attempt.candidateAttackSettlement.attacks[0].publicBoardBefore[1].active.energyCards=
-    ['Psychic Energy'];
-  f.preAttackRows[0].attackerEnergyNamesBeforeAttack=['Psychic Energy'];
+  const attempt=f.attempt;
+  const current=attempt.candidateAttackSettlement.attacks[0];
+  const prior=attempt.sourceAttackSettlement.attacks[0];
+  current.publicBoardBefore[0].active={
+    printing:'Mimikyu GRI',
+    energyCards:['Psychic Energy','Psychic Energy'],
+    toolCards:[],
+    printedAttacks:[
+      {name:'Copycat',cost:['Psychic','Colorless']}
+    ]
+  };
+  current.publicBoardBefore[1].active={printing:'Latias ex SSP'};
+  prior.publicBoardBefore[0].active={printing:'Mimikyu GRI'};
+  prior.publicBoardBefore[1].active={printing:'Latias ex SSP'};
+  attempt.sourceAttackSettlement.attacks=[current];
+  attempt.candidateAttackSettlement.attacks=[prior];
+  attempt.rootActionLedger=[
+    {actionOrdinal:10,turnBefore:4,turnAfter:4,playerSlot:1,
+      action:'AttackAction',attack:'Eon Blade'},
+    {actionOrdinal:15,turnBefore:5,turnAfter:5,playerSlot:0,
+      action:'AttackAction',attack:'Copycat'},
+    {actionOrdinal:20,turnBefore:5,turnAfter:5,playerSlot:0,
+      action:'ResolvePromptAction',
+      attackChoice:{printing:'Latias ex SSP',attackName:'Eon Blade'}}
+  ];
   const row=audit(f).rows[0];
+  assert.equal(row.attackRole,'original-source');
+  assert.equal(row.attackerSeat,0);
+  assert.equal(row.opponentSeat,1);
   assert.equal(row.paperCopycatConditionSupported,true,row.failureReasons.join(', '));
-  assert.deepEqual(row.effectiveCopycatCostAfterKnownStadiums,['Psychic']);
+});
+
+test('direct Latias ex Eon Blade attacks are excluded from the Copycat audit',()=>{
+  const f=fixture();
+  f.current.delegatedCopy=false;
+  f.current.triggerAction='AttackAction';
+  f.current.publicBoardBefore[1].active={
+    printing:'Latias ex SSP',
+    energyCards:['Psychic Energy','Psychic Energy','Psychic Energy'],
+    printedAttacks:[{name:'Eon Blade',cost:['Psychic','Psychic','Colorless']}]
+  };
+  const result=audit(f);
+  assert.equal(result.observedMimikyuCopycatEonBladeEvents,0);
+  assert.equal(result.noMimikyuCopycatEonBladeObserved,true);
+  assert.deepEqual(result.rows,[]);
+});
+
+test('Dimension Valley with one Psychic remains unverified without suppression and New Moon state',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
+  f.current.publicBoardBefore[1].active.energyCards=['Psychic Energy'];
+  const row=audit(f).rows[0];
+  assert.equal(row.copycatCostFunding.status,'UNVERIFIED');
+  assert.equal(row.paperCopycatConditionSupported,false);
+  assert.ok(row.failureReasons.includes(
+    'Mimikyu-Copycat-cost-unverified-under-Stadium-state'));
+});
+
+test('Dimension Valley does not matter when attached Energy pays the full printed cost',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
+  const row=audit(f).rows[0];
   assert.equal(row.copycatCostFunding.status,'POSSIBLE');
+  assert.equal(row.paperCopycatConditionSupported,true,row.failureReasons.join(', '));
+});
+
+test('insufficient Energy without a known reducer fails the printed Copycat cost gate',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[1].active.energyCards=['Water Energy'];
+  const row=audit(f).rows[0];
+  assert.equal(row.copycatCostFunding.status,'IMPOSSIBLE');
+  assert.equal(row.paperCopycatConditionSupported,false);
+  assert.ok(row.failureReasons.includes(
+    'Mimikyu-Copycat-printed-cost-not-directly-funded'));
+});
+
+test('unknown Stadium cost modifiers fail closed',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[1].stadium=['Unknown Stadium'];
+  const row=audit(f).rows[0];
+  assert.equal(row.copycatCostFunding.status,'UNVERIFIED');
+  assert.equal(row.paperCopycatConditionSupported,false);
+  assert.ok(row.failureReasons.includes('unmodeled-or-conflicting-Stadium-state'));
+});
+
+test('conflicting public Stadiums fail closed',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[0].stadium=['Sky Field'];
+  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
+  const row=audit(f).rows[0];
+  assert.equal(row.conflictingStadiums,true);
+  assert.equal(row.copycatCostFunding.status,'UNVERIFIED');
+  assert.equal(row.paperCopycatConditionSupported,false);
 });
 
 test('an Eon Blade from an earlier turn cannot satisfy Copycat last-turn text',()=>{
@@ -132,26 +199,6 @@ test('an unsettled prior Eon Blade cannot satisfy the temporal condition',()=>{
   assert.equal(row.paperCopycatConditionSupported,false);
   assert.ok(row.failureReasons.includes(
     'no-settled-matching-opponent-attack-on-immediately-previous-turn'));
-});
-
-test('insufficient Psychic/Colorless Energy fails the printed Copycat cost gate',()=>{
-  const f=fixture();
-  f.current.publicBoardBefore[1].active.energyCards=['Water Energy'];
-  f.preAttackRows[0].attackerEnergyNamesBeforeAttack=['Water Energy'];
-  const row=audit(f).rows[0];
-  assert.equal(row.copycatCostFunding.status,'IMPOSSIBLE');
-  assert.equal(row.paperCopycatConditionSupported,false);
-  assert.ok(row.failureReasons.includes(
-    'Mimikyu-Copycat-printed-cost-not-directly-funded'));
-});
-
-test('unknown Stadium cost modifiers fail closed',()=>{
-  const f=fixture();
-  f.current.publicBoardBefore[1].stadium=['Unknown Stadium'];
-  const row=audit(f).rows[0];
-  assert.equal(row.copycatCostFunding.status,'UNVERIFIED');
-  assert.equal(row.paperCopycatConditionSupported,false);
-  assert.ok(row.failureReasons.includes('unmodeled-Stadium-cost-modifier'));
 });
 
 test('a different delegated attack source cannot be joined to the prior Eon Blade',()=>{
@@ -173,25 +220,6 @@ test('a clock reset between the prior attack and Copycat breaks the join',()=>{
   assert.equal(row.paperCopycatConditionSupported,false);
   assert.ok(row.failureReasons.includes(
     'clock-reset-between-prior-attack-and-Copycat'));
-});
-
-test('conflicting public Stadiums fail closed',()=>{
-  const f=fixture();
-  f.current.publicBoardBefore[0].stadium=['Sky Field'];
-  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
-  const row=audit(f).rows[0];
-  assert.equal(row.conflictingStadiums,true);
-  assert.equal(row.paperCopycatConditionSupported,false);
-  assert.ok(row.failureReasons.includes('conflicting-public-Stadium-state'));
-});
-
-test('a non-Copycat physical Active cannot inherit the copied donor attack',()=>{
-  const f=fixture();
-  f.current.publicBoardBefore[1].active.printing='Latias ex SSP';
-  f.preAttackRows[0].attackerPrintingFromActualNativeBoard='Latias ex SSP';
-  const row=audit(f).rows[0];
-  assert.equal(row.paperCopycatConditionSupported,false);
-  assert.ok(row.failureReasons.includes('physical-attacker-is-not-Mimikyu-GRI'));
 });
 
 test('missing physical Copycat AttackAction root fails closed',()=>{
