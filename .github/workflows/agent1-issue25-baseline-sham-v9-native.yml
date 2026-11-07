@@ -53,6 +53,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank3_owner_zone_scan:
+        description: Scan 16 original rank-3 source-seat deals with owner-only retrospective zone observation
+        type: boolean
+        required: false
+        default: false
       terminal_tiebreaker_native_admission:
         description: Read real pinned sudden-death Store terminal snapshot through paper admission gate
         type: boolean
@@ -113,6 +118,40 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  rank3-owner-zone-scan:
+    if: ${{ inputs.rank3_owner_zone_scan == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify owner-only observer and hidden-information boundary
+        run: node --test tests/agent1-owner-zone-observer.test.cjs
+      - name: Scan frozen original rank-3 source-seat physical deals
+        env:
+          AGENT1_RANK3_OWNER_ZONE_SCAN_DIR: artifacts/agent1-rank3-owner-zone-scan
+        run: node --test tests/agent1-rank3-owner-zone-scan.native.test.cjs
+      - name: Preserve owner-only source-zone scan receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank3-owner-zone-scan-${{ github.run_id }}
+          path: artifacts/agent1-rank3-owner-zone-scan/
+          if-no-files-found: warn
+          retention-days: 30
+
   aichi-forced-active-screen:
     if: ${{ inputs.forced_active_opening_screen == true }}
     runs-on: ubuntu-latest
@@ -160,7 +199,7 @@ jobs:
         run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs tests/agent1-terminal-ordinary-double-ko-admission.native.test.cjs
 
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.owner_deck_attrition_cadence != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.owner_deck_attrition_cadence != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true && inputs.rank3_owner_zone_scan != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
