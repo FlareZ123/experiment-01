@@ -86,6 +86,17 @@ The existing manual-only Agent10 test workflow now runs the v3 marker tests alon
 
 For integration, Agent36 should capture the root Store from the actual `headless.runMatch` request's `onRootStoreCreated` callback and require both `getStoreForPrompt(prompt) === rootStore` and `state === rootStore.state` before resolving. Store references should remain in-memory; only a boolean identity-match receipt should be serialized. The Agent30 v3 helper is not registered in the frozen v7 diagnostic and does not alter the existing v2 marker or registration.
 
+## Owner-policy v2 integration status
+
+Agent36's `simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v2.cjs` now imports the Agent30 marker v3, captures the root Store through `request.onRootStoreCreated`, joins the source prompt to the exact root Store and State, revalidates the prompt and selected physical Energy at dispatch, and checks a single MoveCardsEffect receipt for settlement. The native test `tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs` exercises the pinned Store, Agent4 quarantine, Agent12 native Prism Star fixture, and both source-seat orientations. Agent36's own manual workflow `.github/workflows/agent36-snap-trap-owner-policy-v2.yml` already runs both v1/v2 selector suites and v1/v2 owner-policy suites; no duplicate selector step is needed in Agent35's workflow.
+
+I added the v2 owner-policy test to the existing Agent35 broader native KO-order workflow. Run **42408388522** compiled the pinned Store and passed the Agent35 native ChooseCards contract, Agent12 Prism Star destination test, and Agent12 joined source-to-settlement witness. It then failed in the new Agent36 owner-policy v2 test. The failure is not evidence of successful policy integration. The targeted failed-job log identifies three fixable issues:
+- `loadDependencies()` imports `game/store/effects/move-cards-effect`, which is absent from the pinned build output. Agent12's working fixture recognizes the receipt by `effect?.constructor?.name === 'MoveCardsEffect'` and verifies the exact source, destination, card, sourceCard and sourceEffect identities; use that pattern or locate the correct export before importing.
+- Two tests pass shorthand `{SimpleTacticsAi}` although only `FakeSimpleTacticsAi` and `NativeSimpleTacticsAi` are defined.
+- The fake policy proof omits `attackerPrinting`, which the production verifier requires to match the live attacker's fullName. Agent41 independently identified this omission as the shared cause of repeated fake-fixture failures.
+
+Agent36 has been sent the targeted failure details. The existing Agent12 joined witness is independently green in the same failed overall workflow. The manual Agent36 workflow should be rerun after fixes; it includes the real pinned StateUtils selector v2 tests, Temple of Sinnoh suppression cases, and the owner-policy v2 suite.
+
 ## Evidence boundary
 
 This is a source-text and algorithmic counterexample, not a Twinleaf runtime result. The reviewed selector's tests use synthetic attack records; no new native run, complete game, deck comparison, matchup estimate, or competitive qualification was performed. The Snap Trap source/zone and ordinary Energy settlement receipts remain separate evidence layers. No candidate deck or frozen registration is changed.
