@@ -151,6 +151,30 @@ test('does not displace a payable damaging Active or bypass known locks',()=>{
   assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
 });
 
+test('fails closed on Block and incomplete Active printed attacks',()=>{
+  const {view,active}=fixture();
+  const original=originalRecipient();
+  view.opponentPublic.active.abilities=['Block'];
+  assert.equal(chooseDeckOutEnergyRecipient(view,catalog,original).slot,'bench');
+  active.energies=['Water Energy MEE'];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
+  view.opponentPublic.active.abilities=[];
+  view.opponentPublic.active.abilityDetails=[{
+    name:'Block',
+    text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."
+  }];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
+  view.opponentPublic.active.abilityDetails=[];
+  active.attacks=[];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
+  active.attacks=[{name:'Unknown',cost:[9],damage:null,text:''}];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
+  active.attacks=[{name:'Unknown',cost:null,damage:0,text:''}];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog),null);
+  active.attacks=[{name:'Scrap Short',cost:[4,4],damage:40,text:''}];
+  assert.equal(chooseDeckOutPaidRetreat(view,catalog)?.benchIndex,1);
+});
+
 test('does not retarget if the selected attachment or energy play is unavailable',()=>{
   const {view}=fixture();
   assert.equal(chooseDeckOutEnergyRecipient(view,catalog,null),null);
