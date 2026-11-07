@@ -92,8 +92,8 @@ function buildPublicEnergyMap(attackerActive, types = loadTypes(), options = {})
  * @param {object} prompt Native ChooseCardsPrompt.
  * @param {object} attackerActive Exact public attacking Active PokemonCardList.
  * @param {object} [types] Pinned engine types.
- * @param {{energyMap?:object[],attackDamageValue?:
- *   (attack:object,context:object)=>number}} [options]
+ * @param {{energyMap?:object[],specialEnergyBlocked?:boolean|null,
+ *   attackDamageValue?:(attack:object,context:object)=>number}} [options]
  * @returns {null|object}
  */
 function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), options = {}) {
@@ -200,6 +200,8 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
         ? 'caller-supplied-public-energy-map'
         : publicMap.model + ':' + publicMap.specialEnergyBlockStatus,
       dynamicEnergyOverrides: publicMap.dynamicOverrides,
+      specialEnergyBlocked: publicMap.specialEnergyBlocked,
+      specialEnergyBlockStatus: publicMap.specialEnergyBlockStatus,
       damageModel,
       policy: VERSION
     };
