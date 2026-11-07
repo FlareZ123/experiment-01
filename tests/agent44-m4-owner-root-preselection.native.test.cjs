@@ -118,14 +118,17 @@ for(const seat of [0,1]){
     assert.equal(audits[0].nativeCanPlayHandVetoInstalled,true);
     assert.equal(policyDraws.length,2,
       '3-card speculative shuffle consumes two policy RNG draws');
-    assert.deepEqual(clone.opponent.deck.cards.slice(-3).map(c=>c.fullName),
+    const cloneOpponentAfter=clone.store.state.players.find(p=>p.id===clone.opponent.id);
+    assert.deepEqual(cloneOpponentAfter.deck.cards.slice(-3).map(c=>c.fullName),
       expectedCloneBottom);
-    assert.equal(clone.opponent.hand.cards.length,0);
-    assert.equal(root.owner.hand.cards[0],root.m4,
+    assert.equal(cloneOpponentAfter.hand.cards.length,0);
+    const rootOwnerAfterClone=root.store.state.players.find(p=>p.id===root.owner.id);
+    const rootOpponentAfterClone=root.store.state.players.find(p=>p.id===root.opponent.id);
+    assert.equal(rootOwnerAfterClone.hand.cards[0],root.m4,
       'speculative clone must not mutate the real root owner hand');
-    assert.deepEqual(root.opponent.hand.cards.map(c=>c.fullName),rootHandBefore,
+    assert.deepEqual(rootOpponentAfterClone.hand.cards.map(c=>c.fullName),rootHandBefore,
       'speculative clone must not mutate the real root opponent hand');
-    assert.equal(root.opponent.deck.cards.length,rootDeckLength,
+    assert.equal(rootOpponentAfterClone.deck.cards.length,rootDeckLength,
       'speculative clone must not mutate the real root opponent deck');
 
     const expectedPhysicalBottom=deckPermutation(3,()=>0)
@@ -140,9 +143,10 @@ for(const seat of [0,1]){
       'real Store shuffle consumes the affected hand owner physical RNG');
     assert.equal(policyDraws.length,2,
       'real Store dispatch must not consume the speculative policy RNG');
-    assert.deepEqual(root.opponent.deck.cards.slice(-3).map(c=>c.fullName),
+    const rootOpponentAfterPhysical=root.store.state.players.find(p=>p.id===root.opponent.id);
+    assert.deepEqual(rootOpponentAfterPhysical.deck.cards.slice(-3).map(c=>c.fullName),
       expectedPhysicalBottom);
-    assert.equal(root.opponent.hand.cards.length,0);
+    assert.equal(rootOpponentAfterPhysical.hand.cards.length,0);
     console.log('AGENT44_M4_POLICY_CLONE_AND_PHYSICAL_RNG_SPLIT',
       JSON.stringify({seat,policyDraws:policyDraws.length,
         physicalDraws,expectedCloneBottom,expectedPhysicalBottom,
