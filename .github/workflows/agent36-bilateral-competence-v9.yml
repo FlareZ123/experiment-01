@@ -70,6 +70,7 @@ jobs:
           node --check simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs
           node --check simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-vip-aba.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
@@ -92,6 +93,8 @@ jobs:
             tests/agent36-issue25-common-v9-bilateral-competence.test.cjs \
             tests/agent36-issue25-selected-v0.test.cjs \
             tests/agent41-bilateral-v2-development.test.cjs \
+            tests/agent34-actor-only-root-policy.test.cjs \
+            tests/agent41-natural-evolution-root-options.test.cjs \
             tests/agent47-shared-trubbish-family-owner-prompt.test.cjs \
             tests/agent47-shared-motivate-owner-prompt.test.cjs \
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
