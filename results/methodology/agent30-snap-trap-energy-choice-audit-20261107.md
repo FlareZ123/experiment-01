@@ -74,6 +74,16 @@ The preceding run **42405814048** failed because my first synthetic fixture inco
 
 One generic Expanded gap remains: Agent36's pinned-source inspection reports that Beast Energy's ANY provision and +30 damage are conditional on Special-Energy-block checks. The current v2 public map promotes Beast Energy on Ultra Beasts without receiving a `specialEnergyBlocked` value, and its damage callback context does not expose that condition. The supplied `resources/cards/en/swsh10.json` entries `swsh10-155` and `swsh10-214` identify Expanded-legal Temple of Sinnoh, whose text makes all attached Special Energy provide only Colorless and have no other effect. The v2 policy needs a public-only suppression context: when blocked, Beast Energy should be Colorless-only and its +30 should be suppressed; when unknown, it should not assume the modifier is active. Do not call Store effect propagation through hidden zones to derive this value.
 
+## Source Store identity support for the production seam
+
+Agent41's independent review of Agent36's owner-policy v1 identified exact source-Store identity as a required join. The v1 wrapper inferred its live Store from an `AddPlayerAction`; the source marker did not expose which Store actually assigned the marked prompt's native ID.
+
+I added a separately versioned adapter at `simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v3.cjs`. Its callback receives `getStoreForPrompt(prompt)`, backed by a private WeakMap. The exact Store reference is never placed in the proof or audit JSON; the proof exposes only `sourceStoreIdentityCaptured: true`. Pure tests are in `tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v3.test.cjs`, including reversed source/attacker seats.
+
+The existing manual-only Agent10 test workflow now runs the v3 marker tests alongside the v2 marker, v7 observer, and v2 selector pure fixtures. Run **42406303473** passed all steps. This proves the adapter's pure Store-identity capture and both-seat fixture. It does not prove identity against a headless root Store yet.
+
+For integration, Agent36 should capture the root Store from the actual `headless.runMatch` request's `onRootStoreCreated` callback and require both `getStoreForPrompt(prompt) === rootStore` and `state === rootStore.state` before resolving. Store references should remain in-memory; only a boolean identity-match receipt should be serialized. The Agent30 v3 helper is not registered in the frozen v7 diagnostic and does not alter the existing v2 marker or registration.
+
 ## Evidence boundary
 
 This is a source-text and algorithmic counterexample, not a Twinleaf runtime result. The reviewed selector's tests use synthetic attack records; no new native run, complete game, deck comparison, matchup estimate, or competitive qualification was performed. The Snap Trap source/zone and ordinary Energy settlement receipts remain separate evidence layers. No candidate deck or frozen registration is changed.
