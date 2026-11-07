@@ -1,0 +1,57 @@
+{
+  "schema": "agent7-root93-powerglass-printed-source-superpoison-response-stage-v1",
+  "registeredUtc": "2026-11-07T05:40:30Z",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_RUN",
+  "priorStages": [
+    {
+      "ci": 42342959403,
+      "outcome": "4/4 staged native after-Pass Basic funding and exact damage KO",
+      "nativePrizeIncomplete": true
+    },
+    {
+      "ci": 42343524161,
+      "outcome": "mechanical afterattack Basic + owner ChoosePrize both accepted, source promotion failed due raw target descriptor instead of physical slot"
+    }
+  ],
+  "hypothesis": "In pinned Store, use the exact source rank11 original A observed next source-turn Super Poison Breath attack, not a passive Pass; source's 3 Darkness on public Trubbish at 60/70 HP can hit Unown for 20 and Poison. A previously Tool-funded Unown with 60 HP survives and Hidden Power 10 on following turn KOs Trubbish, after genuine owner-side prompts.",
+  "sourceHistoricalAcceptedRoot": 96,
+  "originalSourceRank": 11,
+  "physicalSourceDeal": "94526e4b7eecefa78cbb7db5bc053cb593e90d20310a680e6510a00c11e702d7",
+  "stagedBoard": "Use preregistered four-arm stage owner Active Unown AOR, source Active Trubbish FST with 3 Darkness, 60 damage, 70 HP, both starting6 Prizes; owner discard two Basic Psychic, held one Powerglass, no other game actions",
+  "arms": [
+    {
+      "ownerSeat": 0,
+      "equipped": false,
+      "sourceReply": "Super Poison Breath"
+    },
+    {
+      "ownerSeat": 0,
+      "equipped": true,
+      "sourceReply": "Super Poison Breath"
+    },
+    {
+      "ownerSeat": 1,
+      "equipped": false,
+      "sourceReply": "Super Poison Breath"
+    },
+    {
+      "ownerSeat": 1,
+      "equipped": true,
+      "sourceReply": "Super Poison Breath"
+    }
+  ],
+  "readouts": [
+    "actual native source AttackAction accepted from both seats",
+    "Unown damage/Poison status after source Checkup",
+    "authentic funded candidate Hidden Power declaration and KO",
+    "genuine second Powerglass owner Basic discard prompt and Prize promotion if source KO",
+    "baseline no-Tool remains attack unfunded"
+  ],
+  "negative": "If source reply KOs or suppresses Unown, preserve exact failure; do not force success or replace source reply after inspecting outcome",
+  "engine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "qualifications": [
+    "staged source behavior is post-exposure, source cannot adapt to new Tool",
+    "source bench/hand simplified; opponent may retreat via Latias or gust via Guzma in real match",
+    "no complete original game, no match against 32 field, zero qualified games"
+  ]
+}
