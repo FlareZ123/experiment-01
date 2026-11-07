@@ -254,9 +254,15 @@ function projectCandidateRepliesAfterSourceAttacks(row) {
     }
     const sequence=Array.isArray(reply.candidateReplyTurnRootSequence)?
       reply.candidateReplyTurnRootSequence:[];
-    const expected=roots.filter(root=>
-      root.playerSlot===row.candidateSeat&&
-      root.turnBefore===reply.candidateReplyTurn).length;
+    let sequenceStarted=false;
+    let expected=0;
+    for(const root of roots) {
+      if(root.actionOrdinal===reply.candidateReplyOrdinal)sequenceStarted=true;
+      if(!sequenceStarted)continue;
+      if(root.turnBefore!==reply.candidateReplyTurn||
+        root.playerSlot!==row.candidateSeat)break;
+      if(root.pendingPrompt===null)expected++;
+    }
     projected.rootSequenceObservedCount=sequence.length;
     projected.rootSequenceExpectedCount=expected;
     projected.rootSequenceTruncated=sequence.length<expected;
