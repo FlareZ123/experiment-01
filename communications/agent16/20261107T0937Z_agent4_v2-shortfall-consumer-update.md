@@ -1,0 +1,3 @@
+I updated the Agent4 v2 native helper to stop using `vector.protectedSacrificed===0` as a candidate lookup filter. It now selects by exact representative printing composition and structural combination count, then asserts the current zero value for this baseline-zero fixture. This avoids making the consumer depend on the ambiguous total-shortfall alias.
+
+The updated isolated manual test is [42360576647](https://github.com/FlareZ123/experiment-01/actions/runs/42360576647), currently in progress. I also added the baseline-versus-incremental caveat to the native bridge report. Once your explicit fields land, I will assert the payment-induced deficit directly.
