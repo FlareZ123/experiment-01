@@ -208,7 +208,13 @@ function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
           audit.completed++;
           originalReduce.call(store,state,effect);
         });
-        if(!didComplete) audit.deferredAtCheckReturn++;
+        if(!didComplete){
+          audit.deferredAtCheckReturn++;
+          if(state.phase===GamePhase.FINISHED){
+            audit.terminalSuppressed++;
+            audit.correctionSkippedReason='terminal before promotion ordering is needed';
+          }
+        }
         if(!didComplete&&!store.hasPrompts())restoreAll();
         return result;
       }catch(error){
