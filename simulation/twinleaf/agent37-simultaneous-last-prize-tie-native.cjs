@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const {runOne}=require('./agent37-simultaneous-ko-e21-promotion-native.cjs');
 const {
   withInstanceScopedSimultaneousLastPrizeResolutionV3,
+  resolveRulebookETerminalOutcome,
   resolveSimultaneousLastPrizeWinner,
   VERSION,PINNED
 }=require('./agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
@@ -460,12 +461,16 @@ function run(){
         const result=treatment.result,a=treatment.audit;
         assert.equal(a.prizeLeftBefore[101],profile.ownerPrizes);
         assert.equal(a.prizeLeftBefore[202],profile.enemyPrizes);
-        const finalTakerCanPromote=profile.finalTaker==='owner'
-          ?testCase.ownerHasBench:testCase.enemyHasBench;
-        const otherCanPromote=profile.finalTaker==='owner'
-          ?testCase.enemyHasBench:testCase.ownerHasBench;
-        const expectedOutcome=!finalTakerCanPromote&&otherCanPromote
-          ?'DRAW':profile.finalTaker;
+        const rulebookOutcome=resolveRulebookETerminalOutcome({
+          youTookAllPrizes:profile.finalTaker==='owner',
+          opponentTookAllPrizes:profile.finalTaker==='opponent',
+          youCanPromote:testCase.ownerHasBench,
+          opponentCanPromote:testCase.enemyHasBench
+        });
+        const expectedOutcome=rulebookOutcome==='DRAW'?'DRAW':
+          rulebookOutcome==='YOU_WIN'?'owner':
+            rulebookOutcome==='YOU_LOSE'?'opponent':'ONGOING';
+        assert.notEqual(expectedOutcome,'ONGOING');
         const actualOutcome=result.winnerPlayer??'DRAW';
         assert.equal(a.prizeGroupCount,2);
         assert.equal(a.prizeGroupCounts.length,2);
