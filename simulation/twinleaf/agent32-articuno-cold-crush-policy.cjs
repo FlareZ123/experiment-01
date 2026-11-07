@@ -222,6 +222,8 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
       audit.moveEnergyEvents.push({
         ownerId: meta.ownerId,
         turn: meta.turn,
+        promptMessage: meta.prompt.message,
+        expectedPromptMessage: types.GameMessage.MOVE_ENERGY_TO_ACTIVE,
         transferCount: transfers.length,
         physicallyMoved,
         allBasicWater,
