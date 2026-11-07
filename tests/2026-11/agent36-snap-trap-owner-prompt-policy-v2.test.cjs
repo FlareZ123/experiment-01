@@ -25,6 +25,60 @@ const {withCommonOwnerThornsRoot} = require('../../simulation/evaluation/agent36
 const {withOwnerVoltAcrossNativeMatches} = require('../../simulation/evaluation/agent36-issue25-common-v7.cjs');
 const {withActorOnlyRootPolicy} = require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
+/**
+ * Test-only observation of public SelectPrompt metadata before the guarded
+ * native decoder. It records no State zones or card identities and never
+ * changes the selected action.
+ * @param {()=>any} run
+ * @param {object[]} captures
+ * @returns {any}
+ */
+function withSelectPromptCapture(run, captures) {
+  const prior = Object.getOwnPropertyDescriptor(
+    NativeSimpleTacticsAi.prototype, 'decodeNextAction');
+  assert.equal(typeof prior?.value, 'function');
+  const intercept = function capturePublicSelectPrompt(state) {
+    const clientId = this.client?.id;
+    const seat = state.players?.findIndex(player => player.id === clientId) ?? -1;
+    const prompt = state.prompts?.find(item =>
+      item.playerId === clientId && item.result === undefined);
+    if (prompt?.constructor?.name === 'SelectPrompt' && captures.length < 16) {
+      const options = prompt.options ?? {};
+      captures.push({
+        seat,
+        turn: state.turn,
+        phase: state.phase,
+        promptType: prompt.constructor.name,
+        promptId: prompt.id,
+        message: prompt.message ?? null,
+        promptKeys: Object.keys(prompt).sort(),
+        optionKeys: Object.keys(options).sort(),
+        min: options.min ?? null,
+        max: options.max ?? null,
+        allowCancel: options.allowCancel ?? null,
+        optionCount: Array.isArray(options.options) ? options.options.length : null,
+        optionTypes: Array.isArray(options.options)
+          ? options.options.slice(0, 12).map(option =>
+            option === null ? 'null' : typeof option === 'object'
+              ? option.constructor?.name ?? 'object' : typeof option)
+          : null
+      });
+    }
+    return prior.value.call(this, state);
+  };
+  Object.defineProperty(NativeSimpleTacticsAi.prototype, 'decodeNextAction', {
+    ...prior,
+    value: intercept
+  });
+  try {
+    return run();
+  } finally {
+    assert.strictEqual(NativeSimpleTacticsAi.prototype.decodeNextAction, intercept);
+    Object.defineProperty(NativeSimpleTacticsAi.prototype,
+      'decodeNextAction', prior);
+  }
+}
+
 const types = loadTypes();
 const {CardTag, CardType, EnergyType, GameMessage, SuperType} = types;
 
@@ -615,6 +669,7 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
   const rootStores = [];
   const matchResults = [];
   const actorAudits = [];
+  const promptCaptures = [];
   const selectedRuns = [];
   const originalRunMatch = nativeHeadless.runMatch;
   const execution = withSnapTrapInsideNativeMatchesV2(() => withOwnerVoltAcrossNativeMatches(
@@ -640,7 +695,10 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
         nativeRootActionLimit: 96,
         runner: () => {
           const actor = withActorOnlyRootPolicy(
-            () => nativeHeadless.runMatch(request),
+            () => withSelectPromptCapture(
+              () => nativeHeadless.runMatch(request),
+              promptCaptures
+            ),
             {nativeOwnerTrainerFallback: false}
           );
           actorAudits.push(actor.audit);
@@ -671,6 +729,7 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
     nativeMatchAttempts: execution.audit.nativeMatchAttempts,
     rootStoreCount: rootStores.length,
     matchResultCount: matchResults.length,
+    promptCaptures: promptCaptures,
     actorAudits: actorAudits.map(audit => ({
       version: audit.version,
       selectedRootDecisions: audit.selectedRootDecisions,
