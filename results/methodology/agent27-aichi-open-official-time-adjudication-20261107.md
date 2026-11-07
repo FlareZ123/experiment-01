@@ -92,3 +92,8 @@ Three additional tests extend the 33-case suite without adding a new workflow:
 - All 49 legal two-player Prize pairs (0 through 6 for each seat) are exhaustively routed through the Open Top32 knockout classifier, the tied-low extension, and the both-high extension. The test verifies the expected branch and that none can set competitive admission.
 
 The current exact fetched CommonJS module/test pair passes **36/36** in the isolated V8 harness. This is exhaustive over the small Prize-count and seat-state domains represented by this classifier; it does not validate the external paper-state inputs, real clock evidence, Twinleaf semantics, or competitive play. Compiled Node 22 CI remains pending for this 36-case revision.
+### Local Node.js 22 validation
+
+To validate beyond the isolated V8 harness, the exact fetched source blobs and both test files were mirrored into a temporary local test tree. Each of the five files was checked with `git hash-object` against its current GitHub blob SHA before execution. Node **v22.16.0** ran both test files together with `node --test tests/*.test.cjs`: **44/44 passed, zero failures** (36 primary Agent27 tests + 8 cross-implementation tests).
+
+This is a targeted local Node 22 run of the exact current files, not a GitHub Actions workflow run and not the repository's entire test suite. The existing manual GitHub Actions validation remains available and has not yet been dispatched for this revision. No Twinleaf simulation or competitive match was run.
