@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 36 source-direct pure tests.** The current 36-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 37 source-direct pure tests.** The current 37-case CommonJS source/test pair passes the isolated V8 harness and compiled Node 22 CI run [42398003689](https://github.com/FlareZ123/experiment-01/actions/runs/42398003689). This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -97,3 +97,9 @@ The current exact fetched CommonJS module/test pair passes **36/36** in the isol
 To validate beyond the isolated V8 harness, the exact fetched source blobs and both test files were mirrored into a temporary local test tree. Each of the five files was checked with `git hash-object` against its current GitHub blob SHA before execution. Node **v22.16.0** ran both test files together with `node --test tests/*.test.cjs`: **44/44 passed, zero failures** (36 primary Agent27 tests + 8 cross-implementation tests).
 
 This is a targeted local Node 22 run of the exact current files, not a GitHub Actions workflow run and not the repository's entire test suite. The existing manual GitHub Actions validation remains available and has not yet been dispatched for this revision. No Twinleaf simulation or competitive match was run.
+
+### Call-turn owner provenance correction and compiled validation, 7 November
+
+A review of the packet gate found a mismatch between its prose and implementation: the earlier report said the end-call turn owner required an evidence reference, but the code checked only the supplied `turnOwnerWhenCalled` seat value. The gate now also requires a nonempty `turnOwnerWhenCalledEvidenceRef` and returns `end-call-turn-owner-source-missing` when it is absent. Every positive audit fixture supplies the new reference. A new negative regression proves that even a packet with an independently claimed ordinary paper win remains unscored when the end-call turn owner has no provenance reference.
+
+The current suite contains **37 tests**. The existing manual [Aichi benchmark statistics workflow run 42398003689](https://github.com/FlareZ123/experiment-01/actions/runs/42398003689) completed successfully on Node 22; its `test-benchmark` job passed. The run also passed the existing rank11-source-census job. No native Twinleaf game was run by this workflow, and no actual physical match clock, judge record, or paper outcome was authenticated. The new reference remains an externally supplied claim requiring independent review; `competitiveAdmission` remains false.
