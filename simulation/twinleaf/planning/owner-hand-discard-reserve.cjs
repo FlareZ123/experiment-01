@@ -47,11 +47,14 @@ function normalizePrintingSet(value, label) {
  * return the underlying structural frontier under the supplied role labels.
  *
  * `hardMinimumCopiesByPrinting` are copies that cannot be paid.
- * `softAdditionalCopiesByPrinting` are extra copies that are preferred to
- * remain, but may be spent and appear as a protected-sacrifice tradeoff.
- * Soft counts are additional to hard counts for the same exact printing.
+ * `softAdditionalCopiesByPrinting` currently maps to deterministic physical
+ * indices for diagnostic comparison only. The core helper treats spending a
+ * marked index as a sacrifice even when an identical copy remains, so this
+ * proxy is not count-based or copy-permutation-invariant. Do not use its
+ * soft-sacrifice or future-way coordinates as strategic evidence. Soft counts
+ * are additional to hard counts for the same exact printing.
  *
- * The caller supplies these requirements from an owner-visible intended line.
+ * The caller supplies these labels from an owner-visible intended line.
  * This helper does not infer strategy, inspect hidden zones, validate card
  * text, or choose a winning payment.
  *
@@ -99,7 +102,7 @@ function ownerHandDiscardWithCopyReserves(input) {
     .filter(([, count]) => count > 0);
   assert.ok(activeSoftPrintings.length <= 1,
     'The current Pareto helper does not preserve protected-printing identity; ' +
-    'use at most one soft-reserved printing until its vector is extended');
+    'use at most one soft-reserved printing for this index-level diagnostic');
   const deadPrintings = normalizePrintingSet(
     input.deadPrintings, 'deadPrintings');
   const desiredDiscardPrintings = normalizePrintingSet(
@@ -185,7 +188,10 @@ function ownerHandDiscardWithCopyReserves(input) {
     reserveRows,
     hardRequirementsSatisfied,
     softPreferenceCapacityAvailable,
-    frontierIdentityScope: 'at-most-one-soft-reserved-printing',
+    frontierIdentityScope: 'physical-index-soft-reserve-not-copy-invariant',
+    softReserveSemantics: 'deterministic-physical-index-proxy',
+    softReserveCopyInvariant: false,
+    softReserveCountSemanticsCertified: false,
     frontier,
     paperCardPlayabilityCertified: false,
     downstreamTargetAccessCertified: false,
