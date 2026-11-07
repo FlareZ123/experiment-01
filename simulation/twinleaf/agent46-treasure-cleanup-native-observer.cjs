@@ -152,4 +152,4 @@ function run(){
   return all;
 }
 if(require.main===module)run();
-module.exports={observeSeat,run};
+module.exports={finishStagedNativeItem,observeSeat,run};
