@@ -9,11 +9,15 @@ const {
 const types={
   CardType:{WATER:'WATER'},
   Stage:{VMAX:'VMAX',BASIC:'BASIC'},
-  SuperType:{POKEMON:'POKEMON'}
+  SuperType:{POKEMON:'POKEMON',ENERGY:'ENERGY'},
+  PlayerType:{BOTTOM_PLAYER:2},SlotType:{ACTIVE:1,BENCH:2},
+  GameMessage:{MOVE_ENERGY_TO_ACTIVE:'MOVE_ENERGY_TO_ACTIVE'}
 };
-const water=()=>({name:'Water Energy',fullName:'Water Energy',cardType:['WATER']});
+const water=()=>({name:'Water Energy',fullName:'Water Energy',
+  cardType:['WATER'],superType:'ENERGY'});
 const psychic=()=>({name:'Psychic Energy',fullName:'Psychic Energy',cardType:['PSYCHIC']});
-const slot=(pokemon=[],energies=[])=>({cards:pokemon,energies:{cards:energies}});
+const slot=(pokemon=[],energies=[])=>({cards:[...pokemon,...energies],
+  energies:{cards:energies}});
 const pokemon=(name,id)=>({name,fullName:name,id,superType:'POKEMON'});
 
 test('Radiant Eternatus is accepted only when the owner has bench capacity',()=>{
@@ -232,7 +236,7 @@ test('reused numeric Confirm ID on another Store cannot borrow Radiant lineage',
   },{
     ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,
       ChooseCardsPrompt,ResolvePromptAction},
-    types:{...types,GameMessage:{}},validate:()=>{}
+    types,validate:()=>{}
   });
   assert.deepEqual(wrapped.result,{radiant:true,unrelated:false});
   assert.deepEqual(wrapped.audit.confirmEvents.map(e=>e.cardName),
@@ -257,6 +261,13 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
       this.id=++nextId;
       this.playerId=101;
       this.result=undefined;
+      this.message='MOVE_ENERGY_TO_ACTIVE';
+      this.playerType=2;
+      this.slots=[1,2];
+      this.filter={superType:'ENERGY',name:'Water Energy'};
+      this.options={min:1,max:undefined,allowCancel:false,
+        blockedFrom:[{player:2,slot:1,index:0}],
+        blockedTo:[{player:2,slot:2,index:0}],blockedMap:[]};
     }
   }
   class ChooseCardsPrompt {}
@@ -287,8 +298,24 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
       if(action instanceof ResolvePromptAction){
         const target=this.state.prompts.find(p=>p.id===action.id);
         target.result=action.result;
-        if(target instanceof ConfirmPrompt&&action.result===true)
+        if(target instanceof ConfirmPrompt&&action.result===true){
+          const owner=this.state.players[0];
+          [owner.active,owner.bench[0]]=[owner.bench[0],owner.active];
           this.state.prompts.push(new MoveEnergyPrompt());
+        }
+        if(target instanceof MoveEnergyPrompt){
+          const owner=this.state.players[0];
+          for(const transfer of action.result){
+            const source=owner.bench[transfer.from.index];
+            const index=source.cards.indexOf(transfer.card);
+            if(index<0)continue;
+            source.cards.splice(index,1);
+            source.energies.cards.splice(
+              source.energies.cards.indexOf(transfer.card),1);
+            owner.active.cards.push(transfer.card);
+            owner.active.energies.cards.push(transfer.card);
+          }
+        }
       }
       return this.state;
     }
@@ -317,7 +344,7 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
   },{
     ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,
       ChooseCardsPrompt,ResolvePromptAction},
-    types:{...types,GameMessage:{}},validate:()=>{}
+    types,validate:()=>{}
   });
   assert.equal(wrapped.result.confirm,true);
   assert.equal(wrapped.audit.confirmSettled,1);
