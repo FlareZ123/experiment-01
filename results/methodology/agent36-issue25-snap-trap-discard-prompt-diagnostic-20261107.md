@@ -30,7 +30,7 @@ The repository's English card pool gives `Galarian Stunfisk SSH` (`resources/car
 
 > If this Pokémon is in the Active Spot and is damaged by an opponent's attack (even if it is Knocked Out), discard an Energy from the Attacking Pokémon.
 
-The same card pool gives `Marshadow UNB` (`resources/cards/en/sm10.json`, card `sm10-81`) **Red Knuckles**, whose only printed modifier is +60 damage when the opponent's Active Pokémon is an Ultra Beast. It has no discard instruction.
+The same card pool gives `Marshadow UNB` (`resources/cards/en/sm10.json`, card `sm10-81`) **Red Knuckles**, with Colorless cost and 10+ damage; its only printed modifier is +60 damage when the opponent's Active Pokémon is an Ultra Beast. It has no discard instruction. The public board shows exactly 10 damage on Galarian Stunfisk, consistent with the non-Ultra-Beast base attack damage. The accepted root ledger has Red Knuckles at ordinal 247, then only the attack's WaitPrompt acknowledgement at ordinal 248 before the bot-decoder abort at ordinal 249.
 
 The board, timing, prompt cardinality, and Snap Trap text therefore make **Snap Trap triggered by Red Knuckles** the leading source hypothesis. The likely legal target zone is the attacking Marshadow's publicly attached Energy. The eight Psychic Energy shown on that Pokémon provide eligible physical targets. The authenticated rank-3 source record in `results/aichi-2026/full-decklists.json` is a Snorlax Stall list containing two Galarian Stunfisk SSH, so this is a real Aichi Top 32 interaction rather than a synthetic-only edge case.
 
