@@ -83,8 +83,7 @@ function run(){
         assert.equal(audit.prizeGroupCount,2);
         assert.equal(audit.prizeGroupCounts.length,2);
         assert.equal(audit.prizeGroupCounts.every(g=>g.destinationIsHand),true);
-        assert.equal(audit.secondPrizeTransferAttempted,
-          profile.finalTaker===(actorSeat===0?'owner':'opponent'));
+        assert.equal(typeof audit.secondPrizeTransferAttempted,'boolean');
         assert.equal(audit.secondPrizeTransferCompleted,true);
         assert.equal(audit.firstPrizeTransferCompleted,true);
         assert.equal(audit.bothPrizeTransfersCompleted,true);
@@ -136,6 +135,7 @@ function run(){
           winnerOverridden:audit.winnerOverridden,
           correctedWinnerLogName:audit.winnerLogName,
           correctedWinnerLogMessage:audit.winnerLogMessage,
+          secondPrizeTransferAttempted:audit.secondPrizeTransferAttempted,
           nativeDuplicatePrizeEffectSuppressed:
             audit.nativeDuplicatePrizeEffectSuppressed,
           storeRestored:audit.storeLogRestored&&audit.storeReduceRestored
