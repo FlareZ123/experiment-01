@@ -158,3 +158,15 @@ test('empty but known traces expose no concentration ratio',()=>{
   assert.equal(out.observedSettledAttackContexts,0);
   assert.equal(out.highestSingleContextShare,null);
 });
+
+test('unclosed native abort may have unauthenticated candidate physical seat',()=>{
+  const x=fixture();
+  x.rows[1].candidateSeatAuthenticated=false;
+  const result=summarizeContextCoverage(x);
+  assert.equal(result.sourceAttackTraceUnknownContexts,5);
+  assert.equal(result.rows[1].candidateSeatAuthenticated,false);
+  assert.equal(result.rows[1].paperQualified,false);
+  const y=fixture();
+  y.rows[0].candidateSeatAuthenticated=false;
+  assert.throws(()=>summarizeContextCoverage(y),/authenticated opponent seat/);
+});
