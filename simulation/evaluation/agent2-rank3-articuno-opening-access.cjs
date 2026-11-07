@@ -315,6 +315,7 @@ function analyze() {
       allIncludedRoutes: percent(favorable, denominator)
     },
     exactProbability: fraction(favorable, denominator),
+    exactItemOnlyProbability: fraction(itemOnly, denominator),
     cardText
   };
 }
