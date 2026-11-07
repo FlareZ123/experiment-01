@@ -43,7 +43,7 @@ function normalizePrintingSet(value, label) {
 
 /**
  * Derive physical hand indices for explicit copy-retention obligations, then
- * preserve the full nondominated payment frontier.
+ * return the underlying structural frontier under the supplied role labels.
  *
  * `hardMinimumCopiesByPrinting` are copies that cannot be paid.
  * `softAdditionalCopiesByPrinting` are extra copies that are preferred to
