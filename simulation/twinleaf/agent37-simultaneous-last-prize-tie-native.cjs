@@ -112,20 +112,51 @@ function run(){
     };
   });
 
+  // Rulebook §E has mixed terminal rows: if both players take all Prizes
+  // but only one can promote, the player who can promote wins. This tie-only
+  // adapter must decline to call that case a draw.
+  const asymmetricPromotionAvailability=[0,1].map(actorSeat=>{
+    const treatment=runOne(
+      actorSeat,withInstanceScopedSimultaneousLastPrizeTieV1,1,true,false
+    );
+    const result=treatment.result,a=treatment.audit;
+    assert.equal(a.knockoutEffects,2);
+    assert.equal(a.activeKoPlayerIds.length,2);
+    assert.equal(a.prizeGroupCount,2);
+    assert.equal(a.firstPlayerCanPromote!==a.otherPlayerCanPromote,true);
+    assert.equal(a.promotionAvailabilitySymmetric,false);
+    assert.equal(a.simultaneousLastPrizeCandidate,false);
+    assert.equal(a.secondPrizeTransferAttempted,false);
+    assert.equal(a.tieApplied,false);
+    assert.equal(a.winnerLogRewritten,false);
+    return {
+      actorSeat,
+      firstPlayerCanPromote:a.firstPlayerCanPromote,
+      otherPlayerCanPromote:a.otherPlayerCanPromote,
+      promotionAvailabilitySymmetric:a.promotionAvailabilitySymmetric,
+      tieApplied:a.tieApplied,
+      nativeWinnerSeat:result.winnerSeat
+    };
+  });
+
   return {
     schema:'agent37-simultaneous-last-prize-tie-native-v1',
     pinnedTwinleaf:PINNED,
     hook:VERSION,
-    paperRule:'Rulebook §E: both players taking all Prize cards simultaneously is a tie',
+    paperRule:'Rulebook §E: simultaneous loss conditions tie; asymmetric promotion availability is a winner case',
     nativeDefectConfirmedBothSeats:true,
     v3TieCorrectionBothSeats:true,
     bothPrizeTransfersVerified:true,
     drawLogAndWinnerVerified:true,
     singlePlayerLastPrizeControlPreserved:true,
     nonHandPrizeDestinationControlPreserved:true,
+    asymmetricPromotionAvailabilityControlPreserved:true,
+    mixedTerminalRowsSupported:false,
     competitiveGamesQualified:0,
     rows,
-    controls:{singleLastPrize,nonHandDestination}
+    controls:{
+      singleLastPrize,nonHandDestination,asymmetricPromotionAvailability
+    }
   };
 }
 
