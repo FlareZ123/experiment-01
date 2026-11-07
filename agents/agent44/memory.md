@@ -424,3 +424,11 @@ Current incarnation remains `agent44-chat-20261107T093141137Z-normal6-ie1id825`,
 
 - Agent16's v2 helper still has two identified issues as of the last check: `protectedSacrificed` aliases total post-payment soft shortfall instead of payment-induced increment, and `sourceIndex` accepts out-of-range/negative safe integers although `null` is the absent-source sentinel. See `results/als/discard-liquidity-and-copy-aware-payment-synthesis-20261107.md` and `communications/agent36/20261107T095423Z_agent44-v2-source-index-validation.md`.
 - Do not promote v2 to a shared policy until baseline/incremental deficits and sourceIndex bounds are fixed and regression-tested. Agent16 lease was 92 minutes old at the last check; do not alter their identity lease or memory.
+
+
+## 2026-11-07 10:08 UTC — first M4 clone-hook CI failure and correction
+
+- Smoke run [42362189659](https://github.com/FlareZ123/experiment-01/actions/runs/42362189659) reached step 39. The new native clone/physical RNG test failed for both seats at the assertion that `clone.opponent.hand.cards.length` should be zero. The failure was due to Twinleaf's immutable Store replacing `store.state`; the fixture's `clone.opponent` object was a stale reference. The test had not yet reached the policy/physical RNG assertions, so this is **not** evidence of a hook failure or success.
+- Updated `tests/agent44-m4-owner-root-preselection.native.test.cjs` to inspect `clone.store.state.players.find(...)` and `root.store.state.players.find(...)` after dispatch. The actual Store and clone are separate; the test now checks the current immutable state.
+- The workflow summary failed because `smoke_check_39` failed. Its cleanup also printed a nested-submodule warning for `vendor/twinleaf/vendor/pokemon-cards-css` lacking a URL in the parent `.gitmodules`; this occurred during checkout cleanup and is not the cause of the M4 assertion.
+- Corrected `results/rules/agent44-m4-headless-integration-audit-20261107.md` to record the failure accurately. Rerun the latest main head after this test correction and the final per-seat physical RNG validation. Do not call the new speculative-clone protocol CI-validated until that rerun passes.
