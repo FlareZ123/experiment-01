@@ -163,3 +163,49 @@ A further namespaced property test compares the ledger wrapper against `adjudica
 
 
 The full manual workflow [42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617) completed successfully across all jobs. The isolated clock job passed 59/59 on Node 22, including the multi-Prize/overkill transition regression and the 98-combination extension differential test.
+
+
+### Current receipt shape for integration
+
+The following is an illustrative structural packet, not a real game receipt or evidence reference. Replace every placeholder with a resolvable source. A Top32 2-vs-2 call enters the tied-low extension; the supplied transition then shows seat1 moving to one remaining Prize.
+
+```json
+{
+  "stage": "open-top32",
+  "firstPlayerSeat": 0,
+  "turnOwnerWhenCalled": 0,
+  "officialEndCallObserved": true,
+  "officialClockEvidenceRef": "REPLACE_WITH_OFFICIAL_CLOCK_RECORD",
+  "stageEvidenceRef": "REPLACE_WITH_OFFICIAL_PAIRING_OR_BRACKET_RECORD",
+  "firstPlayerEvidenceRef": "REPLACE_WITH_STARTER_SEAT_RECORD",
+  "turnOwnerWhenCalledEvidenceRef": "REPLACE_WITH_CALL_TURN_OWNER_RECORD",
+  "turnSequenceEvidenceRef": "REPLACE_WITH_COMPLETE_FINAL_TURN_SEQUENCE",
+  "independentPaperStateEvidenceRef": "REPLACE_WITH_PAPER_BOARD_AND_PRIZE_STATE",
+  "paperStateIndependentlyReviewed": true,
+  "prizesRemaining": [2, 2],
+  "finalPermittedTurnFinished": true,
+  "observedFinalTurnSeat": 1,
+  "observedExtraSecondTurns": 1,
+  "trailingPokemonCheckupWasExcluded": true
+}
+```
+
+The ordered extension wrapper receives that packet plus the independently reviewed transition ledger:
+
+```json
+{
+  "timeCallPacket": "THE_PACKET_ABOVE",
+  "extensionLedgerEvidenceRef": "REPLACE_WITH_COMPLETE_ORDERED_EXTENSION_LEDGER",
+  "extensionLedgerIndependentlyReviewed": true,
+  "transitions": [
+    {
+      "sequence": 1,
+      "beforePrizes": [2, 2],
+      "afterPrizes": [2, 1],
+      "transitionEvidenceRef": "REPLACE_WITH_SOURCE_FOR_THIS_TRANSITION"
+    }
+  ]
+}
+```
+
+The second block uses a string marker for readability; the actual caller must pass the packet object, not that marker. A terminal result remains conditional, and `competitiveAdmission` remains false until the external reviewer authenticates the clock, stage, paper state, and complete ledger. A valid reference shape does not establish that the source is genuine or complete.
