@@ -122,11 +122,6 @@ function probe(sourceSeat){
 
   assert.equal(x.state.activePlayer,1-sourceSeat,
     'Bunnelby attack must pass the turn to Mimikyu');
-  const historyAttacks=history.getPreviousTurnAttacks(x.owner.id);
-  const eligibleHistoryAttacks=history.getEligiblePreviousTurnAttacks(x.owner.id);
-  assert.deepEqual(historyAttacks.map(value=>value.attackName),[firstAttack,secondAttack],
-    'adapter history must retain both declared attacks in their original order');
-  assert.equal(eligibleHistoryAttacks.length,2);
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,'Burrow');
@@ -199,12 +194,14 @@ function probe(sourceSeat){
 }
 
 /**
- * Run both Bunnelby Ω Barrage attack orders, then copy the final attack.
+ * Run both Bunnelby Ω Barrage attack orders and optionally select either
+ * prior-turn attack for Mimikyu Copycat through the research adapter.
  * Rototiller is given a real recovery card; Mimikyu is given a discard card
  * so a copied Rototiller can settle through the native selection prompt.
  * @param {0|1} sourceSeat
  * @param {'Burrow'|'Rototiller'} firstAttack
  * @param {'Burrow'|'Rototiller'} secondAttack
+ * @param {'engine'|'second'} [copycatChoice='engine']
  * @returns {object}
  */
 function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='engine'){
@@ -328,6 +325,11 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
   assert.equal(x.opponent.hand.cards.length-mimikyuHandBeforeSource,1);
   assert.ok(x.opponent.discard.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[0].id));
   assert.ok(x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id));
+  const historyAttacks=history.getPreviousTurnAttacks(x.owner.id);
+  const eligibleHistoryAttacks=history.getEligiblePreviousTurnAttacks(x.owner.id);
+  assert.deepEqual(historyAttacks.map(value=>value.attackName),[firstAttack,secondAttack],
+    'adapter history must retain both declared attacks in their original order');
+  assert.equal(eligibleHistoryAttacks.length,2);
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,firstAttack,
