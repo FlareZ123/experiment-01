@@ -34,12 +34,15 @@ test('three real source rosters can trigger a Box plan even though Fog is absent
       },
       ownPublic:{
         active:{
-          printing:'Unown AOR',energies:[],specialConditions:[],
+          printing:'Unown AOR',evolutionPrintings:['Unown AOR'],tools:[],
+          energies:[],specialConditions:[],
           publicRestrictions:{},
           attacks:[{
             name:'Hidden Power',cost:[9],damage:10,gxAttack:false
           }]
         },
+        stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+        bench:[null,null,null,null,null],
         publicTurnRestrictions:{
           itemPlayLocked:false,attackLockTurnsRemaining:0
         }
@@ -67,8 +70,8 @@ test('candidate 60 including exact Fog remains eligible for tactical Box plan',(
   const original=[
     'Secret Box TWM','Fog Crystal CRE',
     'Battle VIP Pass FST','Battle VIP Pass FST',
-    'Rescue Carrier EVS','Psychic Energy MEE 13',
-    ...Array(54).fill('Other card FST')
+    'Rescue Carrier EVS','Psychic Energy MEE 13','Unown AOR',
+    ...Array(53).fill('Other card FST')
   ];
   assert.equal(original.length,60);
   const root={
@@ -80,10 +83,13 @@ test('candidate 60 including exact Fog remains eligible for tactical Box plan',(
     ownTurnResources:{energyPlayedTurn:0,itemPlayLocked:false,
       energyPlayLocked:false},
     ownPublic:{
-      active:{printing:'Unown AOR',energies:[],specialConditions:[],
+      active:{printing:'Unown AOR',evolutionPrintings:['Unown AOR'],tools:[],
+          energies:[],specialConditions:[],
         publicRestrictions:{},
         attacks:[{name:'Hidden Power',cost:[9],damage:10,gxAttack:false}]},
-      publicTurnRestrictions:{itemPlayLocked:false,
+      stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+        bench:[null,null,null,null,null],
+        publicTurnRestrictions:{itemPlayLocked:false,
         attackLockTurnsRemaining:0}
     },
     opponentPublic:{active:{hp:70,damage:60}}
@@ -99,7 +105,8 @@ test('an original 60 with Fog but zero Basic Psychic also hard-vetoes Box',()=>{
   const original=[
     'Secret Box TWM','Fog Crystal CRE',
     'Battle VIP Pass FST','Battle VIP Pass FST',
-    'Rescue Carrier EVS',...Array(55).fill('Other Item FST')
+    'Rescue Carrier EVS','Unown AOR',
+    ...Array(54).fill('Other Item FST')
   ];
   assert.equal(original.length,60);
   const v={
@@ -109,10 +116,13 @@ test('an original 60 with Fog but zero Basic Psychic also hard-vetoes Box',()=>{
     ownTurnResources:{energyPlayedTurn:0,itemPlayLocked:false,
       energyPlayLocked:false},
     ownPublic:{
-      active:{printing:'Unown AOR',energies:[],specialConditions:[],
+      active:{printing:'Unown AOR',evolutionPrintings:['Unown AOR'],tools:[],
+          energies:[],specialConditions:[],
         publicRestrictions:{},
         attacks:[{name:'Hidden Power',cost:[9],damage:10,gxAttack:false}]},
-      publicTurnRestrictions:{itemPlayLocked:false,
+      stadium:[],discard:[],lostZone:[],resolvingSupporter:[],
+        bench:[null,null,null,null,null],
+        publicTurnRestrictions:{itemPlayLocked:false,
         attackLockTurnsRemaining:0}
     },
     opponentPublic:{active:{hp:70,damage:60}}
