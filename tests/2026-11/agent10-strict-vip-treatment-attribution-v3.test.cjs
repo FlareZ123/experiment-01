@@ -225,6 +225,33 @@ test('duplicate item or search event identities fail closed',()=>{
 });
 
 
+
+test('native row adapter uses independent actionCount, never ledger-derived rootActionCount',()=>{
+  const f=fixture();
+  const controlRow={
+    rootActionLedger:f.controlLedger,
+    actionCount:f.controlRootActionCount,
+    rootActionCount:999,finished:true
+  };
+  const treatmentRow={
+    rootActionLedger:f.treatmentLedger,
+    actionCount:f.treatmentRootActionCount,
+    rootActionCount:999,finished:true,
+    actorOnlyDecisionCoverage:{
+      detailedComponentAudits:{ownerVipAfterPass:f.vipAudit}
+    }
+  };
+  assert.equal(strictVipTreatmentAttributionFromRows(
+    controlRow,treatmentRow
+  ).attributed,true);
+  const missingIndependentCount={
+    ...controlRow,actionCount:undefined,rootActionCount:1
+  };
+  assert.equal(strictVipTreatmentAttributionFromRows(
+    missingIndependentCount,treatmentRow
+  ).reason,'independent-root-count-or-ledger-mismatch');
+});
+
 test('capped or aborted control/treatment matches cannot be attributed',()=>{
   const f=fixture();
   f.controlCompleted=false;
