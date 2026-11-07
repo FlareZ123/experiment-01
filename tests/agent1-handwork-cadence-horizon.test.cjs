@@ -8,7 +8,8 @@ const {
   probabilityHandiworkAccessByNaturalDrawAndMail,
   probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
   probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways,
-  probabilityHandiworkAccessByLilliesDetermination
+  probabilityHandiworkAccessByLilliesDetermination,
+  probabilityHandiworkInHandDuringHorrorHouseLock
 }=require('../simulation/evaluation/agent1-handwork-cadence-horizon.cjs');
 
 /**
@@ -771,4 +772,53 @@ test('Lillie’s Determination draw probability accounts for the hand shuffled b
   assert.throws(()=>probabilityHandiworkAccessByLilliesDetermination(
     40,5,0
   ),/prizesRemaining must be 1..6/);
+});
+
+test('Horror House GX lock counts pre-lock draw, mandatory draw and one available final draw',()=>{
+  const pathLock=probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,3,true,1,0,false
+  );
+  assert.deepEqual(pathLock.exactProbability,{
+    numerator:'1',denominator:'8'
+  });
+  assert.equal(pathLock.horrorHouseDrawCount,4);
+  assert.equal(pathLock.sameTurnPlayable,false);
+
+  const rotomAvailable=probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,3,true,1,3,false
+  );
+  assert.deepEqual(rotomAvailable.exactProbability,{
+    numerator:'1',denominator:'5'
+  });
+  assert.equal(rotomAvailable.requestedDrawCount,8);
+
+  const noExtraEnergy=probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,3,false,1,3,false
+  );
+  assert.deepEqual(noExtraEnergy.exactProbability,{
+    numerator:'1',denominator:'10'
+  });
+  assert.equal(noExtraEnergy.horrorHouseDrawCount,0);
+
+  const beachAtSeven=probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,8,true,1,0,false
+  );
+  assert.deepEqual(beachAtSeven.exactProbability,{
+    numerator:'1',denominator:'40'
+  });
+  assert.equal(beachAtSeven.horrorHouseDrawCount,0);
+});
+
+test('an already attached usable Forest Seal Stone accesses Handiwork through the hand lock',()=>{
+  const result=probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,3,true,1,0,true
+  );
+  assert.deepEqual(result.exactProbability,{
+    numerator:'1',denominator:'1'
+  });
+  assert.equal(result.handPlayLocked,true);
+  assert.equal(result.sameTurnPlayable,false);
+  assert.throws(()=>probabilityHandiworkInHandDuringHorrorHouseLock(
+    40,21,true
+  ),/cannot exceed the 60-card deck/);
 });
