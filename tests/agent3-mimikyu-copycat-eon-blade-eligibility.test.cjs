@@ -34,6 +34,7 @@ function fixture(){
   const current={
     actionOrdinal:20,turnBefore:5,attackName:'Eon Blade',
     triggerAction:'ResolvePromptAction',delegatedCopy:true,
+    initiatingRootActionOrdinal:15,
     completionRootOrdinal:22,settledPromptChain:true,
     settlementCrossesClockReset:false,publicBoardBefore:candidateBoard
   };
@@ -46,9 +47,10 @@ function fixture(){
       {actionOrdinal:10,turnBefore:4,turnAfter:4,playerSlot:0,
         action:'AttackAction',attack:'Eon Blade'},
       {actionOrdinal:15,turnBefore:5,turnAfter:5,playerSlot:1,
-        action:'AttackAction',attack:'Copycat'},
+        action:'AttackAction',attack:'Copycat',
+        initiatingRootActionOrdinal:15},
       {actionOrdinal:20,turnBefore:5,turnAfter:5,playerSlot:1,
-        action:'ResolvePromptAction',
+        action:'ResolvePromptAction',initiatingRootActionOrdinal:15,
         attackChoice:{printing:'Latias ex SSP',attackName:'Eon Blade'}}
     ]
   };
@@ -208,6 +210,22 @@ test('a different delegated attack source cannot be joined to the prior Eon Blad
   assert.equal(row.paperCopycatConditionSupported,false);
   assert.ok(row.failureReasons.includes(
     'current-copied-attack-choice-does-not-match-donor'));
+});
+
+test('delegated attack and Store root must share the exact Copycat initiating ordinal',()=>{
+  const attackMismatch=fixture();
+  attackMismatch.current.initiatingRootActionOrdinal=14;
+  const attackRow=audit(attackMismatch).rows[0];
+  assert.equal(attackRow.currentCopycatLineageValid,false);
+  assert.ok(attackRow.failureReasons.includes(
+    'current-copied-attack-not-initiated-by-this-Copycat-root'));
+
+  const rootMismatch=fixture();
+  rootMismatch.attempt.rootActionLedger[2].initiatingRootActionOrdinal=16;
+  const rootRow=audit(rootMismatch).rows[0];
+  assert.equal(rootRow.currentCopycatLineageValid,false);
+  assert.ok(rootRow.failureReasons.includes(
+    'current-copied-attack-not-initiated-by-this-Copycat-root'));
 });
 
 test('a clock reset between the prior attack and Copycat breaks the join',()=>{
