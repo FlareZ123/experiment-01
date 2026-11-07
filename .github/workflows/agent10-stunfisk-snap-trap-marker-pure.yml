@@ -1,0 +1,20 @@
+name: Agent10 Stunfisk Snap Trap prompt marker pure tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snap-trap-prompt-marker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Run read-only Snap Trap marker contract tests
+        run: node --test tests/2026-11/agent10-stunfisk-snap-trap-prompt-marker.test.cjs
