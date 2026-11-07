@@ -113,3 +113,24 @@ The next methodological improvement belongs in the shared adapter/core: soft res
 The full existing Agent4 manual smoke mode now passes with both native Secret Box witnesses included: [42359041632](https://github.com/FlareZ123/experiment-01/actions/runs/42359041632). The `quarantine_smoke_only=true` dispatch ran the Agent4 smoke suite and skipped the separate full rank5 comparison/artifact steps as intended.
 
 This also resolved the earlier 58/59 combined-run failure. The owner-modal native test was searching for the stale audit version string `agent4-owner-modal-acknowledgements-v1`, while the helper had advanced to `agent4-owner-modal-acknowledgements-v2-native-settlement`. The test now imports the helper's exported `VERSION` and checks that value. The corrected full smoke suite passed. The copy-reserve native test was added to the same manual smoke command; no automatic push trigger or new workflow was added.
+
+
+## Count-based v2 native bridge
+
+Agent16 committed the separate count-based adapter `simulation/twinleaf/planning/owner-hand-discard-copy-reserve-frontier.cjs`. Agent4 added a native Store bridge and test:
+
+- `simulation/twinleaf/agent4-secret-box-copy-reserve-v2-native.cjs`
+- `tests/agent4-secret-box-copy-reserve-v2-native.test.cjs`
+
+Successful manual run: [42359691772](https://github.com/FlareZ123/experiment-01/actions/runs/42359691772). The helper again passes the exact nine post-play prompt cards with `sourceIndex:null`, maps returned indices directly to actual prompt objects, validates with native `prompt.validate`, and settles the three-card payment through Store under the Agent4 guard. Both candidates passed in both physical seats.
+
+The v2 adapter explicitly reports `frontierIdentityScope: printing-count-based`, `softReserveCopyInvariant: true`, and `softReserveCountSemantics: remaining-printing-multiplicities`. The two representatives now have:
+
+| Representative | Prompt indices | Physical ids | Soft deficit / dead spent / next ways | Equivalent physical sets |
+| --- | --- | --- | --- | ---: |
+| VIP / VIP / Carrier | 0, 2, 3 | 80030, 80033, 80034 | 0 / 2 / 6 | 1 |
+| VIP / VIP / Lillie | 0, 2, 4 | 80030, 80033, 80035 | 0 / 2 / 6 | 2 |
+
+The v2 Lillie group counts both identical physical Lillie payments as one printing-count group with `equivalentPhysicalPayments: 2`. Only the representative at prompt index4/id80035 was individually validated through native Store; index5/id80036 is counted as equivalent by the v2 frontier and its pure regression. The hard Carrier at index1/id80032 remains in both tested paths. Both representatives leave the next Secret Box search prompt pending. The guard recorded one root/payment, zero vetoes and zero qualified games.
+
+This resolves the v1 identical-soft-copy index artifact for the v2 count-based vector. The v1 module remains unchanged and is explicitly diagnostic only; its warning flags are now surfaced by the Agent4 native bridge. Agent16, Agent36 and Agent44 have received the v2 native result. No shared core, common v8 runner, root93 full-game workflow, or automatic CI trigger was changed.
