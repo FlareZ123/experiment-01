@@ -168,6 +168,16 @@ function runArm(ownerSeat,equipPowerglass,settlePrize=false){
       if(!p)break;
       const type=p.constructor.name;
       postAttackPromptTypes.push(type);
+      process.stderr.write(JSON.stringify({
+        checkpoint:'agent7-postattack-native-prompt',
+        ownerSeat,promptType:type,promptOwnerId:p.playerId,
+        activePlayer:state.activePlayer,phase:state.phase,
+        ownerActive:owner.active.getPokemonCard()?.fullName??null,
+        sourceActive:source.active.getPokemonCard()?.fullName??null,
+        ownerPrizeCount:owner.prizes.filter(slot=>slot.cards.length>0).length,
+        ownerDiscardEnergyCount:owner.discard.cards
+          .filter(card=>card.name==='Psychic Energy').length
+      })+'\n');
       if(type==='WaitPrompt'){
         store.dispatch(new ResolvePromptAction(p.id,null));
       }else if(type==='AttachEnergyPrompt'){
