@@ -22,6 +22,10 @@ jobs:
         run: node --check simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v2.cjs
       - name: Run Agent30 same-object marker tests
         run: node --test tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v2.test.cjs
+      - name: Syntax check Agent30 v3 Store-identity marker
+        run: node --check simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v3.cjs
+      - name: Run Agent30 v3 Store-identity marker tests
+        run: node --test tests/2026-11/agent30-stunfisk-snap-trap-prompt-marker-v3.test.cjs
       - name: Syntax check Agent30 v7 public prompt observer
         run: node --check simulation/twinleaf/agent30/issue25-public-prompt-zone-audit-v7.cjs
       - name: Run Agent30 v7 public prompt observer tests
