@@ -1,0 +1,43 @@
+name: Agent44 retrospective root93 Fog Crystal Hidden Power line
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-fog-line:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check script syntax before native build
+        run: node --check simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Configure pinned Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile without changing vendor
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Retrospective owner-paid Secret Box Fog search Energy attachment and Hidden Power
+        env:
+          AGENT44_FOG_KO_NATIVE: 'true'
+        run: node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Preserve authenticated actual Store result and negative branches
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-root93-fog-energy-attack
+          path: artifacts/agent44-root93-fog-energy-attack-retro.json
+          if-no-files-found: warn
+          retention-days: 30
