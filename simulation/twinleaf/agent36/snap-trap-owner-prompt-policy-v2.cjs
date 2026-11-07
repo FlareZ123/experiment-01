@@ -367,6 +367,25 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
         originIdentityByPrompt.get(livePrompt) !== identity ||
         deps.getOriginForPrompt(livePrompt) !== proof ||
         identity.proof !== proof) fail('same-prompt origin identity');
+    if (selected.state.turn !== proof.turn) fail('turn identity');
+    let reverified;
+    try {
+      reverified = verifySnapTrapPrompt(
+        selected.state,
+        livePrompt,
+        proof,
+        {client: {id: identity.sourceOwner.id}},
+        types,
+        ChooseCardsPrompt
+      );
+    } catch (error) {
+      fail('native prompt contract changed: ' + error.message);
+    }
+    if (reverified.sourceCard !== identity.sourceCard ||
+        reverified.sourceEffect !== identity.sourceEffect ||
+        reverified.attacker.active !== identity.attackerActive) {
+      fail('source or attacker physical identity changed');
+    }
     if (!selected.state.prompts.includes(livePrompt) ||
         livePrompt.result !== undefined) fail('pending unresolved prompt');
     if (livePrompt.cards !== identity.attackerActive ||
@@ -475,9 +494,11 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
       sameCardReferences(identity.attackerDiscard.cards, expectedDiscard) &&
       sameCardReferences(identity.attackerLostzone.cards, expectedLostzone) &&
       sameCardReferences(identity.sourceActive.cards, before.sourceActiveCards) &&
+      afterAttacker.id === identity.attacker.id &&
       afterAttacker.active === identity.attackerActive &&
       afterAttacker.discard === identity.attackerDiscard &&
       afterAttacker.lostzone === identity.attackerLostzone &&
+      afterSourceOwner.id === identity.sourceOwner.id &&
       afterSourceOwner.active === identity.sourceActive;
 
     if (!exactReceipt || !exactPromptResult || !exactZoneSettlement) {
@@ -589,7 +610,7 @@ function requestWithRootStoreCapture(request, capture) {
     value(store) {
       capture(store);
       return typeof originalCallback === 'function'
-        ? originalCallback.call(this, store)
+        ? originalCallback.call(request, store)
         : undefined;
     }
   });
