@@ -7,6 +7,7 @@ const path=require('node:path');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
 const native=name=>require(path.join(output,name));
+const {installCopycatMultiAttackHistory,dispatchCopycatWithSelectedHistory}=require('./copycat-multiattack-history.cjs');
 
 /** @param {object} prompt @returns {any[]} */
 function promptCardChoices(prompt){
@@ -121,6 +122,11 @@ function probe(sourceSeat){
 
   assert.equal(x.state.activePlayer,1-sourceSeat,
     'Bunnelby attack must pass the turn to Mimikyu');
+  const historyAttacks=history.getPreviousTurnAttacks(x.owner.id);
+  const eligibleHistoryAttacks=history.getEligiblePreviousTurnAttacks(x.owner.id);
+  assert.deepEqual(historyAttacks.map(value=>value.attackName),[firstAttack,secondAttack],
+    'adapter history must retain both declared attacks in their original order');
+  assert.equal(eligibleHistoryAttacks.length,2);
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,'Burrow');
@@ -188,6 +194,7 @@ function probe(sourceSeat){
   assert.equal(result.candidateDiscardDelta,1);
   assert.equal(result.candidateHandDelta,1);
   assert.deepEqual(result.unresolvedPrompts,[]);
+  history.restore();
   return result;
 }
 
@@ -200,9 +207,10 @@ function probe(sourceSeat){
  * @param {'Burrow'|'Rototiller'} secondAttack
  * @returns {object}
  */
-function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
+function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='engine'){
   assert.notEqual(firstAttack,secondAttack);
   const x=stage(sourceSeat);
+  const history=installCopycatMultiAttackHistory(x.store);
   const manager=initializeCards();
   let id=97000+sourceSeat*100;
   /** @param {string} name */
@@ -324,6 +332,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,firstAttack,
     'pinned Store records the original AttackAction attack, not the Ω Barrage follow-up');
+  const copycatAttackName=copycatChoice==='second'?secondAttack:firstAttack;
 
   const sourceDeckTop=x.owner.deck.cards.slice(0,2);
   const sourceDeckBefore=x.owner.deck.cards.length;
@@ -332,7 +341,16 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   const mimikyuDeckBefore=x.opponent.deck.cards.length;
   const mimikyuDiscardBefore=x.opponent.discard.cards.length;
   const copycatPrompts=[];
-  x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
+  if(copycatChoice==='second'){
+    dispatchCopycatWithSelectedHistory(
+      x.store,x.opponent.id,eligibleHistoryAttacks[1],
+      new AttackAction(x.opponent.id,'Copycat')
+    );
+  }else{
+    x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
+  }
+  assert.equal(x.state.playerLastAttack?.[x.owner.id]?.attack?.name,firstAttack,
+    'temporary Copycat selection must restore the truthful engine record');
   let mimikyuRecoverySelected=false;
   for(let n=0;n<36;n++){
     const prompt=x.state.prompts.find(p=>p.result===undefined);
@@ -375,8 +393,13 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     secondAttack,
     recordedPreviousAttack:previous.attack.name,
     paperRuleEligibleAttacks:[firstAttack,secondAttack],
-    paperRuleMismatch:true,
     engineRecordedAttackCount:1,
+    historyRecordedAttackCount:historyAttacks.length,
+    historyAttackNames:historyAttacks.map(value=>value.attackName),
+    eligibleHistoryAttackNames:eligibleHistoryAttacks.map(value=>value.attackName),
+    copycatChoice,
+    copycatExecutedAttack:copycatAttackName,
+    adapterOverrideApplied:copycatChoice==='second',
     sourceTurnMimikyuDeckDelta:x.opponent.deck.cards.length-mimikyuDeckBeforeSource,
     sourceTurnMimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBeforeSource,
     sourceTurnMimikyuHandDelta:x.opponent.hand.cards.length-mimikyuHandBeforeSource,
@@ -398,7 +421,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     competitiveQualifiedGames:0
   };
 
-  if(firstAttack==='Burrow'){
+  if(copycatAttackName==='Burrow'){
     assert.equal(result.sourceDeckDelta,-2,
       'Store copies the first Burrow: one discard plus Bunnelby turn draw reduce its deck by two');
     assert.equal(result.sourceDiscardDelta,1);
