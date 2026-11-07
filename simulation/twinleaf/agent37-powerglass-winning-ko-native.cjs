@@ -55,6 +55,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       p.prizes.push(prize);
     }
   }
+  const initialOccupiedBench=enemy.bench.filter(s=>s.getPokemonCard()).length;
+  assert.equal(initialOccupiedBench,opponentHasBench?1:0,
+    'Fixture must contain intended physical opponent Bench occupancy');
   store.dispatch(new PlayCardAction(owner.id,0,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
@@ -108,8 +111,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   // Preserve that outcome as evidence instead of treating it as a probe error.
   const sourceActive=enemy.active.getPokemonCard();
   const occupiedBench=enemy.bench.filter(slot=>slot.getPokemonCard()).length;
-  assert.equal(occupiedBench,opponentHasBench?1:0,
-    'Bench length counts five physical slots; distinguish real occupied Pokémon');
+  if(!settleAll)
+    assert.equal(occupiedBench,opponentHasBench?1:0,
+      'Before promotion, occupied source Bench count must match fixture');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
     lastPrize,opponentHasBench,targetDamage,
