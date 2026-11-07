@@ -2198,6 +2198,10 @@ function runMatch(request) {
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    // This Store wrapper was installed after the dispatch hooks below it.
+    // Remove it first so every earlier Store.prototype.dispatch wrapper can
+    // restore its own predecessor in reverse installation order.
+    if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
     if (restoreStevenPaperMinimumHook) restoreStevenPaperMinimumHook();
     if (restoreBattleCompressorMinimumHook) restoreBattleCompressorMinimumHook();
     if (restorePassClearsLastAttackHook) restorePassClearsLastAttackHook();
@@ -2215,7 +2219,6 @@ function runMatch(request) {
     if (restoreElectrodeGXEnergyHook) restoreElectrodeGXEnergyHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (terminalAttackKoBeforeEndTurnHook) terminalAttackKoBeforeEndTurnHook.restore();
-    if (pendingEndTurnSwitchCleanupHook) pendingEndTurnSwitchCleanupHook.restore();
     if (restoreSpentGxCopyPolicy) restoreSpentGxCopyPolicy();
     if (restoreApexPrizeWindowPolicy) restoreApexPrizeWindowPolicy();
     if (restoreRedeemableTicketPaperOrderHook) restoreRedeemableTicketPaperOrderHook();
