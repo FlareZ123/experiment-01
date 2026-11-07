@@ -360,13 +360,15 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  * @param {boolean} enabled
  * @param {null|0|1} ownerSeat
  * @param {boolean} garbodorToolRoot
+ * @param {boolean} deferForStarAlchemy
  * @returns {{naturalEvolutionRoot?:true,garbodorResponseOwnerSeat?:null|0|1,
- *   garbotoxinToolRoot?:true}}
+ *   garbotoxinToolRoot?:true,garbotoxinToolRootDeferForStarAlchemy?:boolean}}
  */
 function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
-  garbodorToolRoot=false){
+  garbodorToolRoot=false,deferForStarAlchemy=true){
   assert.equal(typeof enabled,'boolean');
   assert.equal(typeof garbodorToolRoot,'boolean');
+  assert.equal(typeof deferForStarAlchemy,'boolean');
   assert.ok(!garbodorToolRoot||enabled,
     'Garbodor Tool root requires the natural-evolution root to be enabled');
   assert.ok(ownerSeat===null||ownerSeat===0||ownerSeat===1,
@@ -376,7 +378,10 @@ function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
   return enabled?{
     naturalEvolutionRoot:true,
     garbodorResponseOwnerSeat:ownerSeat,
-    ...(garbodorToolRoot?{garbotoxinToolRoot:true}:{})
+    ...(garbodorToolRoot?{
+      garbotoxinToolRoot:true,
+      garbotoxinToolRootDeferForStarAlchemy:deferForStarAlchemy
+    }:{})
   }:{};
 }
 
@@ -1357,7 +1362,8 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
-  actorGarbodorToolRoot=false,actorMewGenesectTechnoBlast=false,
+  actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=true,
+  actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
@@ -1436,7 +1442,7 @@ function runDevelopment({
   assertManifest();
   const naturalEvolutionOptions=actorGarbodorResponseRootOptions(
     actorNaturalEvolutionRoot,actorGarbodorResponseOwnerSeat,
-    actorGarbodorToolRoot);
+    actorGarbodorToolRoot,actorGarbodorToolRootDeferForStarAlchemy);
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
@@ -2214,6 +2220,9 @@ function runDevelopment({
       (actorGarbodorResponseOwnerSeat===null?'bilateral':'seat-scoped'),
     actorGarbodorToolRootOptIn:
       actorOnlyComposition&&actorGarbodorToolRoot,
+    actorGarbodorToolRootDeferForStarAlchemy:
+      actorOnlyComposition&&actorGarbodorToolRoot?
+        actorGarbodorToolRootDeferForStarAlchemy:null,
     actorDceMewMobilityRootOptIn:
       actorOnlyComposition&&actorDceMewMobilityRoot,
     actorGenesectFusionDrawRootOptIn:
