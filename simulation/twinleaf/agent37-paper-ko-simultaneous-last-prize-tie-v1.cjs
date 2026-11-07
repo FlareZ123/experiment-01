@@ -87,6 +87,7 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
   let inCheckState=false;
   let secondPrizeTransfer=false;
   let prizeGroups=[];
+  let prizeLeftBefore={};
   let prizeTakenBefore={};
   let candidatePlayers=null;
 
@@ -169,10 +170,10 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         firstGroup&&otherGroup&&
         firstGroup.destination===firstPlayer.hand&&
         otherGroup.destination===otherPlayer.hand&&
-        firstGroup.count>=firstPlayer.getPrizeLeft()&&
-        otherGroup.count>=otherPlayer.getPrizeLeft()&&
-        firstPlayer.getPrizeLeft()>0&&
-        otherPlayer.getPrizeLeft()>0&&
+        firstGroup.count>=prizeLeftBefore[firstPlayer.id]&&
+        otherGroup.count>=prizeLeftBefore[otherPlayer.id]&&
+        prizeLeftBefore[firstPlayer.id]>0&&
+        prizeLeftBefore[otherPlayer.id]>0&&
         !state.isSuddenDeath&&
         !effect.preventDefault&&
         effect.destination===firstPlayer.hand;
@@ -181,10 +182,6 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       audit.simultaneousLastPrizeCandidate=true;
       audit.firstPrizeDestinationIsHand=true;
       candidatePlayers={firstPlayer,otherPlayer};
-      prizeTakenBefore={
-        [firstPlayer.id]:firstPlayer.prizesTakenThisTurn,
-        [otherPlayer.id]:otherPlayer.prizesTakenThisTurn
-      };
 
       const prizes=otherPlayer.prizes
         .filter(prize=>prize.cards.length>0)
@@ -207,6 +204,14 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
     if(effect instanceof EndTurnEffect&&state.phase===GamePhase.ATTACK){
       audit.intercepted++;
       inCheckState=true;
+      prizeLeftBefore=Object.fromEntries(
+        state.players.map(player=>[player.id,player.getPrizeLeft()])
+      );
+      prizeTakenBefore=Object.fromEntries(
+        state.players.map(player=>[player.id,player.prizesTakenThisTurn])
+      );
+      audit.prizeLeftBefore={...prizeLeftBefore};
+      audit.prizeTakenBefore={...prizeTakenBefore};
       let didComplete=false;
       const result=checkState(store,state,()=>{
         audit.callbacks++;
