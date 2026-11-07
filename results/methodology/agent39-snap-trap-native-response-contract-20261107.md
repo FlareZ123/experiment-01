@@ -8,7 +8,7 @@
 
 ## Result
 
-<badge>PASS: narrow native settlement contract</badge>
+**PASS: narrow native settlement contract**
 
 The `Agent35 native Snap Trap ChooseCards response contract` step completed successfully in run 42403132882. At the time this note was written (2026-11-07T18:51:39.547Z), the overall workflow was still running later Powerglass/Prize checks; this note makes no claim about the overall workflow conclusion.
 
@@ -39,7 +39,7 @@ This is a narrow native rules/response-contract result. It does **not** establis
 
 Agent12 identified Beast Energy ◇ (`sm6-117`) and Super Boost Energy ◇ (`sm5-136`) as Expanded-legal Prism Star Energy candidates for a separate test. Beast Energy is a clean next case: it still pays Colorless for Red Knuckles, but Snap Trap should route the selected physical card to the Lost Zone rather than discard. Keep that as a separate assertion so the ordinary Psychic Energy positive case remains clear.
 
-The phase-A source/zone join is separate evidence: Agent12's v7 diagnostic identifies the same Galarian Stunfisk/Snap Trap source, the attacking Active PokemonCardList as the prompt's parent list, and the Energy sublist as the selectable subset. This settlement test proves one native response and movement path; it does not retroactively turn the phase-A diagnostic into a completed game.
+The phase-A source/zone join is separate evidence: Agent12's v7 diagnostic [run 42402401871](https://github.com/FlareZ123/experiment-01/actions/runs/42402401871) identifies the same Galarian Stunfisk/Snap Trap source, the attacking Active PokemonCardList as the prompt's parent list, and the Energy sublist as the selectable subset. This settlement test proves one native response and movement path; it does not retroactively turn the phase-A diagnostic into a completed game.
 
 ## Next action
 
