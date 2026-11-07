@@ -34,26 +34,25 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
 
-      - name: Check diagnostic and observer syntax
+      - name: Check diagnostic, marker and observer syntax
         run: |
-          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit.cjs
-          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v3.cjs
-          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic.cjs
-          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v3.cjs
+          node --check simulation/twinleaf/agent10-stunfisk-snap-trap-prompt-marker.cjs
+          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v5.cjs
+          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v5.cjs
           node --check simulation/evaluation/agent36-issue25-public-prompt-zone-selection.cjs
 
-      - name: Test prompt-zone observers, privacy, provenance, both seats and KO source ownership
-        run: node --test tests/agent36-issue25-public-prompt-zone-audit.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-selection.test.cjs tests/agent36-issue25-selected-v0.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+      - name: Test Snap Trap source marker, live prompt ID, zone privacy and quarantine selection
+        run: node --test tests/2026-11/agent10-stunfisk-snap-trap-prompt-marker.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v5.test.cjs tests/agent36-issue25-public-prompt-zone-selection.test.cjs tests/agent36-issue25-selected-v0.test.cjs tests/agent34-actor-only-root-policy.test.cjs
 
-      - name: Run frozen v10b phase-A diagnostic with Snap Trap observer v3
-        run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v3.cjs
+      - name: Run frozen v10b phase-A diagnostic with composed Snap Trap source and zone proof
+        run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v5.cjs
 
       - name: Preserve public Snap Trap source and zone evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent36-issue25-public-prompt-zone-diagnostic-v3-${{ github.run_id }}
+          name: agent36-issue25-public-prompt-zone-diagnostic-v5-${{ github.run_id }}
           path: |
-            artifacts/agent36-issue25-public-prompt-zone-diagnostic-v3/
+            artifacts/agent36-issue25-public-prompt-zone-diagnostic-v5/
           retention-days: 21
           if-no-files-found: warn
