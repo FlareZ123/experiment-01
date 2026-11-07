@@ -211,6 +211,8 @@ test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>
   assert.equal(r.status,'SWISS_BOTH_LOSE');
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.officialEndCallEvidenceShapeComplete,true);
+  assert.equal(r.evidenceFieldsRemainExternallyAsserted,true);
+  assert.equal(r.externalIndependentReviewRequired,true);
 });
 
 test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
@@ -278,6 +280,8 @@ test('Official end-call audit retains proved prior paper tie without invented wi
   assert.equal(r.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
   assert.equal(r.competitiveAdmission,false);
   assert.equal(r.officialEndCallEvidenceShapeComplete,true);
+  assert.equal(r.evidenceFieldsRemainExternallyAsserted,true);
+  assert.equal(r.externalIndependentReviewRequired,true);
 });
 
 test('Reject simultaneously declaring a unique paper winner and paper tie',()=>{
