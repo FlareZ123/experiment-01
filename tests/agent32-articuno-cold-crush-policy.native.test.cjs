@@ -28,6 +28,8 @@ function probeColdCrushWithPolicy(seat, mode = 'intervene') {
   const {CardList} = native('game/store/state/card-list');
   const {PlayCardAction, PlayerType, SlotType} =
     native('game/store/actions/play-card-action');
+  const {ResolvePromptAction} =
+    native('game/store/actions/resolve-prompt-action');
   const {SimpleTacticsAi} = native('simple-bot/simple-tactics-ai');
   const definitions = native('simple-bot/simple-bot-definitions');
   const manager = initializeCards();
@@ -113,9 +115,10 @@ function probeColdCrushWithPolicy(seat, mode = 'intervene') {
 
         let promptActions = 0;
         while (store.state.prompts.some(prompt => prompt.result === undefined)) {
-          const action = ai.decodeNextAction(store.state);
-          assert.ok(action, 'default bot must resolve every post-attack prompt');
-          store.dispatch(action);
+          const pending = store.state.prompts.find(prompt =>
+            prompt.constructor?.name === 'WaitPrompt' && prompt.result === undefined);
+          assert.ok(pending, 'Cold Crush should leave only native WaitPrompts');
+          store.dispatch(new ResolvePromptAction(pending.id, null));
           promptActions++;
           assert.ok(promptActions <= 4, 'post-attack prompt loop must remain bounded');
         }
