@@ -16,6 +16,7 @@ const TARGET_TRIAL='11:1000:B:new-moon-lockbreaker-v1';
 const SENTINEL='AGENT44_RETROSPECTIVE_ROOT93_STOP_AFTER_PAID_SECRET_BOX';
 const OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-secretbox-paid-store-retro.json');
 const FOG_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-fog-energy-attack-retro.json');
+const LILLIE_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-lillie-draw-retro.json');
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
@@ -29,6 +30,9 @@ const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex'
  */
 function run(options={}){
   const requireFogFollowup=options.followup===true;
+  const targetLine=options.line??'secret-box';
+  assert.ok(['secret-box','lillie'].includes(targetLine));
+  assert.ok(!(targetLine==='lillie'&&requireFogFollowup));
   const {Store}=native('game/store/store');
   const {PassTurnAction,AttackAction}=native('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
@@ -97,6 +101,52 @@ function run(options={}){
       receipt=result;
       const pending=()=>this.state.prompts.find(p=>p.result===undefined);
       try{
+        if(targetLine==='lillie'){
+          // Independent real owner-held Supporter alternative to the SAME
+          // archived original Pass. At 6 Prizes it shuffles/draws eight.
+          const priorSupporterQuota=owner.supporterTurn;
+          assert.equal(priorSupporterQuota,0,
+            'Only test a native Supporter alternative if quota unused');
+          const lillie=supporters[0];
+          const lillieIndex=owner.hand.cards.indexOf(lillie);
+          assert.ok(lillieIndex>=0);
+          const draw={selected:'Lillie\'s Determination M1L',
+            priorSupporterQuota,
+            priorOwnerHandCount:owner.hand.cards.length,
+            expectedCardsDrawn:8,
+            prompts:[],accepted:false,
+            handAfter:[],cardInDiscard:false};
+          result.lillieNative=draw;
+          callOriginal(this,new PlayCardAction(owner.id,lillieIndex,{
+            player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+          }),args);
+          for(let i=0;i<16;i++){
+            const p=pending();
+            if(!p)break;
+            let answer;
+            if(p.constructor.name==='WaitPrompt')answer=null;
+            else if(p.constructor.name==='ShuffleDeckPrompt')
+              answer=owner.deck.cards.map((_,index)=>index);
+            else if(p.constructor.name==='ShowCardsPrompt')answer=true;
+            else break;
+            draw.prompts.push({type:p.constructor.name,
+              owner:p.playerId===owner.id});
+            callOriginal(this,new ResolvePromptAction(p.id,answer),args);
+          }
+          draw.accepted=pending()===undefined;
+          draw.handAfter=owner.hand.cards.map(c=>c.fullName);
+          draw.ownerHandAfter=owner.hand.cards.length;
+          draw.cardInDiscard=owner.discard.cards.includes(lillie);
+          draw.supporterQuotaAfter=owner.supporterTurn;
+          draw.cardsAfter=owner.hand.cards.map(c=>({name:c.name,
+            superType:c.superType,printing:c.fullName}));
+          draw.nativeEnergyCardsFound=owner.hand.cards.filter(c=>
+            c.superType===native('game/store/card/card-types').SuperType.ENERGY)
+            .map(c=>c.fullName);
+          assert.equal(draw.accepted,true);
+          assert.equal(draw.ownerHandAfter,8);
+          assert.equal(draw.cardInDiscard,true);
+        }else{
         // Truly dispatch the original owner-held ACE SPEC into the pinned
         // Store. Native card code handles the mandatory discard and search.
         callOriginal(this,new PlayCardAction(owner.id,boxIndex,{
@@ -247,6 +297,7 @@ function run(options={}){
           follow.sourceDiscardAfter=opponent.discard.cards
             .map(c=>c.fullName);
         }
+        }
         result.remainingPromptTypes=this.state.prompts
           .filter(p=>p.result===undefined).map(p=>p.constructor.name);
         result.handAfter=owner.hand.cards.map(c=>c.fullName);
@@ -296,7 +347,8 @@ function run(options={}){
     nativeStoreFogSearchVerified:receipt?.acceptedSearch===true&&
       receipt?.selectedSearchPrintings.includes('Fog Crystal CRE')===true,
     competitionQualified:false};
-  const outputFile=options.followup===true?FOG_OUT_FILE:OUT_FILE;
+  const outputFile=targetLine==='lillie'?LILLIE_OUT_FILE:
+    requireFogFollowup?FOG_OUT_FILE:OUT_FILE;
   writeJsonAtomic(outputFile,result);
   console.log('AGENT44_ROOT93_SECRETBOX_PAID_STORE '+JSON.stringify({
     artifact:outputFile,hitTarget:result.hitTarget,
@@ -308,12 +360,18 @@ function run(options={}){
     pending:receipt?.remainingPromptTypes??null,
     custody:receipt?.boxCustody??null,
     error:receipt?.error??null,
-    exitReason,followup:receipt?.fogFollowup??null
+    exitReason,followup:receipt?.fogFollowup??null,
+    lillie:receipt?.lillieNative??null
   }));
   assert.ok(receipt,'Current common-policy replay did not reach the exact archived first Pass');
   assert.equal(receipt.priorAcceptedOrdinalMax,92,
     'Exact 93-root native prefix identity must be retained');
   assert.equal(receipt.error,null,'Native replacement must settle');
+  if(targetLine==='lillie'){
+    assert.equal(receipt.lillieNative?.accepted,true);
+    assert.equal(receipt.lillieNative.ownerHandAfter,8);
+    return result;
+  }
   assert.equal(result.nativeStorePaymentVerified,true);
   assert.equal(result.nativeStoreFogSearchVerified,true,
     'Archived later Fog Crystal print must be searchable at this exact root');
@@ -328,5 +386,8 @@ function run(options={}){
   return result;
 }
 
-if(require.main===module)run({followup:process.env.AGENT44_FOG_KO_NATIVE==='true'});
+if(require.main===module)run({
+  followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
+  line:process.env.AGENT44_ROOT93_LILLIE_NATIVE==='true'?'lillie':'secret-box'
+});
 module.exports={run,EXPECTED_HAND,TARGET_TRIAL};
