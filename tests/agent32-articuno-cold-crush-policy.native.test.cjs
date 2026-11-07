@@ -135,7 +135,7 @@ function probeColdCrushWithPolicy(seat, mode = 'intervene') {
         actorWaterInDiscard: finalActor.discard.cards.some(item =>
           item.fullName === 'Water Energy MEE'),
         opponentEnergyInDiscard: finalOpponent.discard.cards.filter(item =>
-          item.superType === 'ENERGY').length
+          item.fullName === 'Grass Energy SVE').length
       };
     }, {mode})
   );
