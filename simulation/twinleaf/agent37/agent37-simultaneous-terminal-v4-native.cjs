@@ -13,7 +13,8 @@ const {GameLog}=require('../../../vendor/twinleaf/ptcg-server/output/game/game-m
 
 const profiles=[
   {name:'owner-final',ownerPrizes:1,enemyPrizes:6,finalTaker:'owner'},
-  {name:'opponent-final',ownerPrizes:6,enemyPrizes:1,finalTaker:'opponent'}
+  {name:'opponent-final',ownerPrizes:6,enemyPrizes:1,finalTaker:'opponent'},
+  {name:'both-final',ownerPrizes:3,enemyPrizes:1,finalTaker:'both'}
 ];
 const promotionCases=[
   {name:'both-can-promote',ownerHasBench:true,enemyHasBench:true},
@@ -44,8 +45,8 @@ function run(){
           }
         );
         const paperOutcome=resolveRulebookETerminalOutcome({
-          youTookAllPrizes:profile.finalTaker==='owner',
-          opponentTookAllPrizes:profile.finalTaker==='opponent',
+          youTookAllPrizes:profile.finalTaker==='owner'||profile.finalTaker==='both',
+          opponentTookAllPrizes:profile.finalTaker==='opponent'||profile.finalTaker==='both',
           youCanPromote:scenario.ownerHasBench,
           opponentCanPromote:scenario.enemyHasBench
         });
@@ -55,8 +56,10 @@ function run(){
         const expectedWinnerName=expectedWinner==='owner'
           ?'Ferroseed attacker'
           :expectedWinner==='opponent'?'Duskull defender':null;
-        const finalTakerId=profile.finalTaker==='owner'?101:202;
-        const expectedNativeWinnerSeat=profile.finalTaker==='owner'
+        const finalTakerId=profile.finalTaker==='owner'?101:
+          profile.finalTaker==='opponent'?202:null;
+        const nativeTerminalPlayerId=audit.nativeTerminalPlayerId;
+        const expectedNativeWinnerSeat=nativeTerminalPlayerId===101
           ?actorSeat:1-actorSeat;
         const expectedNativeWinner=expectedNativeWinnerSeat===0
           ?GameWinner.PLAYER_1:GameWinner.PLAYER_2;
@@ -73,6 +76,9 @@ function run(){
           owner:Math.min(groupCountsByRecipient[101]??0,profile.ownerPrizes),
           opponent:Math.min(groupCountsByRecipient[202]??0,profile.enemyPrizes)
         };
+        const expectedProfileTransfers=profile.finalTaker==='owner'
+          ?{owner:1,opponent:1}:{owner:3,opponent:1};
+        assert.deepEqual(expectedPrizeTransfers,expectedProfileTransfers);
         const actualPrizeTransfers={
           owner:result.ownerPrizesTakenThisTurn,
           opponent:result.opponentPrizesTakenThisTurn
@@ -82,7 +88,7 @@ function run(){
         assert.equal(audit.version,VERSION);
         assert.equal(audit.pinnedTwinleaf,PINNED);
         assert.equal(audit.simultaneousTerminalCandidate,true);
-        assert.equal(audit.simultaneousLastPrizeCandidate,false);
+        assert.equal(audit.simultaneousLastPrizeCandidate,profile.finalTaker==='both');
         assert.equal(audit.prizeGroupCount,2);
         assert.equal(audit.prizeGroupCounts.length,2);
         assert.equal(audit.prizeGroupCounts.every(g=>g.destinationIsHand),true);
@@ -93,10 +99,11 @@ function run(){
         assert.equal(audit.nativeWinnerLogType,'WINNER');
         assert.equal(audit.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
         assert.equal(audit.nativeWinner,expectedNativeWinner);
-        assert.equal(audit.nativeWinnerPlayerId,finalTakerId);
-        assert.equal(audit.nativeTerminalPlayerId,finalTakerId);
+        assert.equal(audit.nativeWinnerPlayerId,nativeTerminalPlayerId);
+        if(finalTakerId!==null)assert.equal(nativeTerminalPlayerId,finalTakerId);
+        else assert.ok([101,202].includes(nativeTerminalPlayerId));
         assert.equal(audit.nativeWinnerName,
-          profile.finalTaker==='owner'?'Ferroseed attacker':'Duskull defender');
+          nativeTerminalPlayerId===101?'Ferroseed attacker':'Duskull defender');
         assert.equal(audit.nativeWinnerLogName,audit.nativeWinnerName);
         assert.deepEqual(audit.nativeWinnerLogParams,{name:audit.nativeWinnerName});
         assert.equal(audit.expectedWinner,expectedPaperWinner);
@@ -128,6 +135,7 @@ function run(){
           paperOutcome,expectedWinner,actualWinner,
           nativeWinnerPlayerId:audit.nativeWinnerPlayerId,
           nativeWinnerName:audit.nativeWinnerName,
+          secondPrizeTransferAttempted:audit.secondPrizeTransferAttempted,
           nativeWinnerLogType:audit.nativeWinnerLogType,
           nativeWinnerLogName:audit.nativeWinnerLogName,
           nativeTerminalPlayerId:audit.nativeTerminalPlayerId,
@@ -155,11 +163,15 @@ function run(){
     opponentWins:rows.filter(x=>x.expectedWinner==='opponent').length,
     nativeWinnerCorrections:rows.filter(x=>x.winnerOverridden).length,
     nativeWinnerLogs:rows.filter(x=>x.nativeWinnerLogType==='WINNER').length,
-    storeRestoredRows:rows.filter(x=>x.storeRestored).length
+    storeRestoredRows:rows.filter(x=>x.storeRestored).length,
+    bothFinalRows:rows.filter(x=>x.profile==='both-final').length,
+    manualSecondGroupTransfers:rows.filter(x=>x.secondPrizeTransferAttempted).length,
+    nativeSecondGroupTransfers:rows.filter(x=>!x.secondPrizeTransferAttempted).length
   };
   assert.deepEqual(summary,{
-    rows:16,transferCompleteRows:16,draws:4,ownerWins:6,opponentWins:6,
-    nativeWinnerCorrections:4,nativeWinnerLogs:16,storeRestoredRows:16
+    rows:24,transferCompleteRows:24,draws:8,ownerWins:8,opponentWins:8,
+    nativeWinnerCorrections:10,nativeWinnerLogs:24,storeRestoredRows:24,
+    bothFinalRows:8,manualSecondGroupTransfers:16,nativeSecondGroupTransfers:8
   });
 
   return {
