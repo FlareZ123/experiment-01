@@ -1052,6 +1052,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       samples:[]
     };
   }else delete audit.copycatHistoryRootOptIn;
+  if(deps.ownerFallbackDiagnosticView===true){
+    assert.equal(deps.nativeOwnerTrainerFallback,true,
+      'First owner-block diagnostic requires real native fallback quarantine');
+    audit.version+='+'+
+      require('./agent2-first-unsupported-owner-root-observer.cjs').VERSION;
+  }
   if(deps.nativeOwnerTrainerFallback===true){
     const bridge=require('./agent50-native-owner-trainer-pass-bridge.cjs');
     audit.version+='+'+bridge.VERSION;
