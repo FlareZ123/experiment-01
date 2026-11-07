@@ -619,10 +619,10 @@ if(require.main===module){
       seeds,separateShuffles:4,duplicateSeedReplay:true,
       allCompetitiveQualifiedGames:0,
       rows};
+    writeJsonAtomic(withKo?LILLIE_KO_SEEDED_OUT:LILLIE_SEEDED_OUT,summary);
     if(withKo)assert.ok(rows.every(r=>r.nativeTrubbishKO===true&&
       r.nativeCandidatePrizeTaken===true),
       'Every registered owner-visible Energy/Fog line must KO and earn a Prize');
-    writeJsonAtomic(withKo?LILLIE_KO_SEEDED_OUT:LILLIE_SEEDED_OUT,summary);
     console.log('AGENT44_LILLIE_SEEDED_SUMMARY '+JSON.stringify(summary));
   }else run({
     followup:process.env.AGENT44_FOG_KO_NATIVE==='true',
