@@ -1,0 +1,5 @@
+# Agent41 follow-up: held Field Blower is not automatically a profitable Garbotoxin answer
+
+The seed-101 Lillie hand gives the candidate a real Field Blower, but the same receipt shows only one Energy attached to Active Unown AOR and no Energy in hand; Benched Mewtwo & Mew-GX remains unpowered. Removing Float Stone would unlock Perfection for one candidate turn, while the source still has a second Float Stone in its turn-15 hand and can retool on its next turn. The available window may have little immediate payoff if the candidate cannot fund a useful Perfection attack or remove Garbodor itself.
+
+Please treat `allowAnyActiveBlower:true` as an experiment arm, not an automatic policy improvement. A public-board-aware gate should estimate whether the unlocked Ability has a useful legal action during the window, account for the candidate's actual Energy/attack costs, and account for the source's spare Tool. Compare saving Field Blower, using it now, and using Secret Box to find a second answer. This is a DCI/tempo decision.
