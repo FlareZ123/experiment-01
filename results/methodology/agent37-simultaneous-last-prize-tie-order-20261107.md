@@ -111,3 +111,24 @@ This is strong native regression evidence for the terminal resolver behavior, no
 **Manual workflow run 42389470404 succeeded** on 7 November 2026 at 16:06 UTC, using research head `c65b304031e24092afde7c8f3192391072dec933` and pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Checkout, direct submodule initialization, pinned-revision verification, Twinleaf compilation, syntax checks, the bounded native resolver runner, and the final JSON assertions all passed. The aggregate `neighborStoreIsolationVerified` and `restorationVerified` flags were computed from both per-seat v3 audit receipts and passed the workflow assertions.
 
 The retained artifact is [`agent37-simultaneous-last-prize-v3-native-42389470404`](https://github.com/FlareZ123/experiment-01/actions/runs/42389470404/artifacts/13580668331), ID `13580668331`, 2,003 bytes, SHA-256 `3d8a7291cf36fbd7a3aa878c7ab59382b55ccf75bf014475728f60cff29e386d`. It expires 21 November 2026. This closes the previously missing full-workflow assertion gate. The scope remains the bounded native terminal fixture: it does not certify a complete paper match, official 25-minute clock, deck legality, or competitive strength. `competitiveGamesQualified` remains zero.
+
+
+## Extended 3-to-1 Prize-group native regression
+
+**Manual native workflow run [42400712562](https://github.com/FlareZ123/experiment-01/actions/runs/42400712562) succeeded** on 7 November 2026 at 18:21 UTC, research head `2a69356c82c02e777eefd6d26a726a7701d05e63`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The workflow compiled the pinned Store, checked adapter/runner syntax, ran the original v3 matrix plus the new fixture, and passed the final JSON assertions.
+
+The new fixture stages Ferroseed NXD against Shadow Rider Calyrex V / VMAX CRE, with 260 damage already on the 320-HP VMAX. Ferroseed's Self Destruct then Knocks Out both Actives in one check-state batch. The native engine's VMAX KnockOutEffect supplies a three-Prize group; the single-Prize Ferroseed supplies a one-Prize group. Initial remaining Prize counts are three for the Ferroseed owner and one for the VMAX owner, so both groups exhaust their respective remaining Prizes simultaneously.
+
+The test covers all four promotion-availability states in both physical player seats (**eight native rows**). Every row asserts:
+- exactly two Active KO effects and two Prize groups;
+- both Prize transfers complete to hand, with **3 owner Prizes and 1 opponent Prize** taken in that turn;
+- both players have zero Prizes remaining and no Prize/promotion/Powerglass prompt remains open;
+- the expected §E result (draw when promotion availability matches; the only player able to promote wins otherwise);
+- the corrected final winner enum and corresponding WINNER/DRAW log receipt;
+- Store method restoration and isolation from a neighboring Store.
+
+Artifact: `agent37-simultaneous-last-prize-v3-native-42400712562`, ID `13585213456`, 2,220 bytes, SHA-256 `49b8650895bfca41b39973f5d7c10d74d76dfdebe8c842e0b1a827d5745fbfd6`, retained through 21 November 2026. The preceding run [42400546464](https://github.com/FlareZ123/experiment-01/actions/runs/42400546464) stopped in the new fixture before any terminal assertion because the card lookup omitted Twinleaf's `CRE` printing suffix; the runner was corrected to use `Shadow Rider Calyrex V CRE` and `Shadow Rider Calyrex VMAX CRE`, then the complete rerun passed.
+
+**Evidence boundary:** this is a staged native Store mechanics regression. The fixture uses Twinleaf's English card definitions and its `Format.EXPANDED` setting; it does not certify Japanese-language printing provenance or Aichi Japanese Extra deck legality. It is not a full paper game, competitive policy test, or deck-strength result. `competitiveGamesQualified` remains zero.
+
+The adapter remains limited to exactly two Active KOs, two Prize groups both sufficient to exhaust the respective remaining Prizes, hand destinations, no non-Active KOs, no additional KO effects, no sudden death, and two players. Mixed §E terminal rows (for example, one player's final Prize together with the other player's inability to promote), simultaneous last-Pokémon outcomes without both Prize groups final, and deck-out remain outside this adapter and require separate tests/resolution work.
