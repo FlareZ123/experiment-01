@@ -44,7 +44,7 @@ jobs:
           node --check simulation/twinleaf/agent4-secret-box-dci-payment-native.cjs
           node --check simulation/twinleaf/agent4-secret-box-copy-reserve-native.cjs
           node --check simulation/twinleaf/agent4-secret-box-copy-reserve-v2-native.cjs
-          node --test tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs tests/agent4-secret-box-copy-reserve-v2-native.test.cjs
+          node --test tests/agent4-secret-box-dci-payment-native.test.cjs tests/agent4-secret-box-copy-reserve-native.test.cjs tests/agent4-secret-box-copy-reserve-v2-native.test.cjs tests/agent4-copy-reserve-shortfall-contract.test.cjs
       - name: Registered two-seat full original source rank5 8-attempt ALS comparison
         if: ${{ !inputs.quarantine_smoke_only && !inputs.secretbox_dci_only }}
         run: node simulation/evaluation/agent4-rank5-special-energy-root-prospective.cjs > agent4-rank5-special-energy-root-prospective.json
