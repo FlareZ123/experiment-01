@@ -1,6 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const {initializeCards} = require('./headless.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
 const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
@@ -17,6 +18,25 @@ const engine = name => require(path.join(output,name));
  * No original-source 60 game, policy or win-rate conclusion follows.
  */
 function stagedChampionPowerBeamAfterRealApex() {
+  const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../../results/aichi-2026/full-decklists.json'),'utf8'));
+  const champion=roster.decks.find(d=>d.rank===1);
+  const opponentOriginal=roster.decks.find(d=>d.rank===10);
+  assert.ok(champion&&opponentOriginal,'Both original 60-card inventories required');
+  const requireOriginal=(deck,name,set,minimum)=> {
+    const found=deck.cards.find(c=>c.name===name &&
+      (set===null || c.printing?.set===set));
+    assert.ok(found?.count>=minimum,
+      'Original rank'+deck.rank+' requires '+minimum+' '+name+' '+set);
+  };
+  for(const [name,set,minimum] of [
+    ['Mimikyu','GRI',1],['Dialga-GX','UPR',1],
+    ['Radiant Eternatus','CRZ',1],["Lillie's Clefairy ex",'JTG',1],
+    ['Psychic Energy',null,2]])requireOriginal(champion,name,set,minimum);
+  for(const [name,set,minimum] of [
+    ['Regidrago V','SIT',2],['Regidrago VSTAR','SIT',2],
+    ['Double Dragon Energy','ROS',2],['Dialga-GX','UPR',1],
+    ['Budew','ASC',1]])requireOriginal(opponentOriginal,name,set,minimum);
   const cards = initializeCards();
   const get = name => {
     const card = cards.getCardByName(name);
@@ -33,7 +53,7 @@ function stagedChampionPowerBeamAfterRealApex() {
   const clefairy=get("Lillie's Clefairy ex JTG");
   const psychic1=get('Psychic Energy SVE');
   const psychic2=get('Psychic Energy SVE');
-  const dratini=get('Dratini OBF');
+  const budew=get('Budew ASC');
   const {Store}=engine('game/store/store');
   const {Player}=engine('game/store/state/player');
   const {CardList}=engine('game/store/state/card-list');
@@ -72,7 +92,7 @@ function stagedChampionPowerBeamAfterRealApex() {
     second.cards.push(regidragoSecondBase,regidragoSecond);
     opponent.bench.push(second);
     const spare=new PokemonCardList();
-    spare.cards.push(dratini);
+    spare.cards.push(budew);
     opponent.bench.push(spare);
     for(const player of state.players) {
       player.prizes=Array.from({length:6},()=>
@@ -215,7 +235,7 @@ function stagedChampionPowerBeamAfterRealApex() {
       'First two physical Prizes must remain owned after the second Knock Out');
     assert.equal(candidate.getPrizeLeft(),2,
       'Two additional Prizes must be taken for the second VSTAR');
-    assert.strictEqual(opponent.active.getPokemonCard(),dratini);
+    assert.strictEqual(opponent.active.getPokemonCard(),budew);
     assert.equal(state.playerLastAttack[candidate.id]?.attack?.name,'Copycat');
 
     return {
@@ -226,6 +246,10 @@ function stagedChampionPowerBeamAfterRealApex() {
       priorAttackStoreSettled:true,
       bothRegidragoEvolutionStacksPresent:true,
       stagedSourceGlobalTurn:4,
+      originalRank1AndRank10StagedNamedCardCountsVerified:true,
+      sourceRank1BasicPsychicPrinting:'MEE',
+      engineBasicPsychicPrinting:'SVE (functional Basic Energy reprint)',
+      activeAfterTwoKnockouts:'Budew ASC',
       first,second:secondCopy,
       firstPrompts,secondPrompts,secondTurn:bonusTurn,
       firstKo:opponent.discard.cards.includes(regidragoFirst),
