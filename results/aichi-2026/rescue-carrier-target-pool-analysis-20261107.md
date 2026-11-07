@@ -9,8 +9,9 @@
 1. Read the exact published decklists from `results/aichi-2026/full-decklists.json`.
 2. Select the five lists containing Rescue Carrier EVS 154.
 3. For every Pokémon entry, map the decklist's English display set code through `resources/sets/en.json`, then resolve the exact set and collector number in the corresponding card JSON.
-4. Count Pokémon copies with printed HP at or below 90, matching Rescue Carrier's condition.
-5. Count deck copies, not cards currently in the discard pile. The result is a potential target pool only.
+4. Resolve duplicate PTCGO set-code mappings by searching all matching set IDs and matching the collector number. For example, `SIT 59` resolves to `swsh12-59` Radiant Alakazam (130 HP), not a Trainer Gallery record.
+5. Count Pokémon copies with printed HP at or below 90, matching Rescue Carrier's condition.
+6. Count deck copies, not cards currently in the discard pile. The result is a potential target pool only.
 
 The card database confirms Rescue Carrier (`swsh7-154`) is Expanded Legal and reads: “Put up to 2 Pokémon, each with 90 HP or less, from your discard pile into your hand.”
 
