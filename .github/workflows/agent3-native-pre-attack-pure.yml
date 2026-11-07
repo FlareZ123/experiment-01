@@ -1,14 +1,6 @@
 name: Agent 3 native pre-attack public board pure regression
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs
-      - simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs
-      - tests/agent3-native-pre-attack-public-board-join.test.cjs
-      - tests/agent3-v28-public-attack-damage-screen.test.cjs
-      - .github/workflows/agent3-native-pre-attack-pure.yml
   workflow_dispatch:
 
 permissions:
