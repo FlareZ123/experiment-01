@@ -2083,6 +2083,23 @@ function withActorOnlyRootPolicy(run,deps={}){
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{...original,value:wrapped});
   Object.defineProperty(Store.prototype,'dispatch',{...beforeDispatch,value:dispatchObserved});
   try{return {result:run(),audit};}
+  catch(error){
+    // The normal returned root audit is unavailable when the native decoder
+    // throws. Preserve only actor-owned aggregate counters, never hands.
+    if(error&&typeof error==='object'&&audit.nativeOwnerTrainerFallback){
+      const fallback=audit.nativeOwnerTrainerFallback;
+      error.actorNativeTrainerFallbackAbortAudit={
+        schema:'actor-native-trainer-fallback-abort-v1',
+        rootInstalled:true,
+        attemptedUnsupportedPasses:fallback.attemptedUnsupportedPasses,
+        selectedNativeTrainerRoots:fallback.selectedNativeTrainerRoots,
+        acceptedNativeTrainerRoots:fallback.acceptedNativeTrainerRoots,
+        rejectedNativeTrainerRoots:fallback.rejectedNativeTrainerRoots,
+        declinedByReason:{...fallback.declinedByReason}
+      };
+    }
+    throw error;
+  }
   finally{
     assert.strictEqual(Store.prototype.dispatch,dispatchObserved);
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
