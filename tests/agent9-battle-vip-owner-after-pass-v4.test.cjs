@@ -334,7 +334,12 @@ test('original-rank9 VIP owner prompt can preferentially Bench its Voltorb and M
 
 
 test('policyRecorded remains false unless the adapter observes a native Store',()=>{
-  const response=withActorBattleVipAfterPass(()=>42);
+  const response=withActorBattleVipAfterPass(()=>42,{
+    SimpleTacticsAi:MockBot,Store:MockStore,
+    cardActions:{PlayCardAction,PlayerType:{ANY:0},SlotType:{BOARD:0}},
+    ResolvePromptAction,types:{Stage:STAGE,SuperType:TYPES},
+    GamePhase:{PLAYER_TURN:2},observe:(state,seat)=>view(seat,state.turn,[])
+  });
   assert.equal(response.result,42);
   assert.equal(response.audit.nativeStoreSeen,false);
   assert.equal(response.audit.policyRecorded,false);
