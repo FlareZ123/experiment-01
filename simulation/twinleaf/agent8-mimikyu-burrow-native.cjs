@@ -16,6 +16,16 @@ function promptCardChoices(prompt){
   return [];
 }
 
+/** @param {object} x @param {object} prompt @returns {number[]} */
+function deterministicShuffleOrder(x,prompt){
+  const player=x.state.players.find(value=>value.id===prompt.getPerspectivePlayerId());
+  assert.ok(player,'Shuffle prompt must identify its deck owner');
+  const count=player.deck.cards.length;
+  const order=Array.from({length:count},(_,index)=>count-1-index);
+  assert.equal(prompt.validate(order,x.state),true);
+  return order;
+}
+
 /** @param {object} x Resolve Burrow reveal, Omega Barrage choice, and Wait prompts. */
 function settlePrompts(x){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
@@ -36,6 +46,11 @@ function settlePrompts(x){
         prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
       resolved.push(kind);
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+      continue;
+    }
+    if(kind==='ShuffleDeckPrompt'){
+      resolved.push(kind);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,deterministicShuffleOrder(x,prompt)));
       continue;
     }
     assert.equal(kind,'WaitPrompt',
@@ -247,6 +262,11 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
       continue;
     }
+    if(kind==='ShuffleDeckPrompt'){
+      sourcePrompts.push(kind);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,deterministicShuffleOrder(x,prompt)));
+      continue;
+    }
     if(kind==='ShowCardsPrompt'&&prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
       sourcePrompts.push(kind);
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
@@ -290,6 +310,9 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   assert.equal(omegaAccepted,true);
   assert.equal(secondChosen,true);
   assert.equal(recoverySelected,true,'Rototiller must recycle the physical Handiwork');
+  assert.ok(x.owner.deck.cards.some(value=>value.id===recovery.id),
+    'Rototiller must return the physical Handiwork to Bunnelby deck');
+  assert.ok(!x.owner.discard.cards.some(value=>value.id===recovery.id));
   assert.equal(x.state.activePlayer,1-sourceSeat);
   assert.equal(x.opponent.deck.cards.length,mimikyuDeckBeforeSource-2,
     'One Bunnelby Burrow discard plus Mimikyu turn draw reduce its deck by two');
@@ -318,6 +341,11 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     if(kind==='WaitPrompt'){
       copycatPrompts.push(kind);
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+      continue;
+    }
+    if(kind==='ShuffleDeckPrompt'){
+      copycatPrompts.push(kind);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,deterministicShuffleOrder(x,prompt)));
       continue;
     }
     if(kind==='ShowCardsPrompt'&&prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
