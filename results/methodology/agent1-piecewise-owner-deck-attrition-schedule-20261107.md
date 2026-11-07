@@ -14,8 +14,9 @@ The supplied English card pool identifies:
 
 - Mimikyu GRI 58 (card-pool ID **sm2-58**), whose Filch attack draws 2 cards.
 - Bunnelby PRC 121 (card-pool ID **xy5-121**), whose Burrow attack discards the top card of the opponent's deck. Its Omega Barrage Ancient Trait permits a second attack during the turn.
+- Team Rocket's Handiwork FCO 112 (card-pool ID **xy10-112**), a Supporter that flips 2 coins and discards 2 cards from the opponent's deck for each heads. Its outcomes are 0, 2 or 4 cards, with expected mill 2 per play under fair independent flips.
 
-A programmatic scan of **results/aichi-2026/full-decklists.json** finds Bunnelby PRC 121 in ranks 2, 3, 15 and 26, and the Filch Mimikyu GRI 58 in ranks 1 and 30. This establishes direct name/count relevance across six of the 29 published complete decklists. Ranks 23, 25 and 28 have no full list. The source inventory preserves English display printings; exact Japanese historical printing provenance remains open.
+A programmatic scan of **results/aichi-2026/full-decklists.json** finds Bunnelby PRC 121 in ranks 2, 3, 15 and 26, Team Rocket's Handiwork FCO 112 in ranks 3, 6, 7 and 29, and Filch Mimikyu GRI 58 in ranks 1 and 30. Rank 3 contains both mill cards, so seven distinct published lists contain a confirmed direct opponent-deck mill card. Ranks 23, 25 and 28 have no full list. Exact printing review clears name-only Regirock and Trubbish matches. See **results/methodology/agent1-aichi-opponent-deck-mill-census-20261107.md** for the full card-text and printing audit. The source inventory preserves English display printings; exact Japanese historical printing provenance remains open.
 
 The repository contains two relevant native observations:
 
@@ -72,7 +73,7 @@ The following table uses stationary scenarios. Filch draws two cards, and Pass d
 | 15 | 2 | 5 | 4 | 3 |
 | 4 | 2 | 1 | 0 | 0 |
 
-The deck counts 23 and 22 are the two first Filch-to-Pass divergence roots in Agent 1's original-rank-11 v15 experiment. The table treats opponent mill as a scenario input. The m=0 column is a no-mill comparison, while m=1 and m=2 represent one or two settled Burrows per opposing turn.
+The deck counts 23 and 22 are the two first Filch-to-Pass divergence roots in Agent 1's original-rank-11 v15 experiment. The table treats opponent mill as a scenario input. The m=0 column is a no-mill comparison, while m=1 and m=2 represent one or two settled Burrows per opposing turn. Team Rocket's Handiwork adds stochastic 0/2/4-card mill outcomes. The deterministic m=2 case is its expected-value approximation; the current schedule records realized outcomes and does not yet compute a coin-flip survival distribution.
 
 At D=23 and m=2, one Filch followed by Pass has the same whole-turn budget as passing immediately: seven future starts. Repeating Filch reduces the budget to four. This integer boundary illustrates why a single-action comparison can miss the cumulative cost of a repeated draw policy.
 
@@ -100,7 +101,7 @@ The supplied Advanced Player's Rulebook v3.4 (2025-01-08), Win and Loss section,
 
 ## Limits and next experiment
 
-The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow, that Bunnelby will remain Active, or that a second attack will be accepted. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
+The schedule is a mathematical scenario evaluator. It does not infer that an opponent will choose Burrow or Team Rocket's Handiwork, that Bunnelby will remain Active, that a second attack will be accepted, or how coin flips resolve. Recovery, searches, shuffle effects, Prize closure, other attacks and match-clock adjudication remain outside the model.
 
 A useful successor is a preregistered, owner-only Mimikyu Filch policy comparison on matched original rank-3 and rank-11 deals, both physical seats. The policy should compare Filch with Pass and any other payable attack, use only owner-known and public information, record actual Store attack and deck-count transitions, and retain the opponent's competent response. Include the 2026 paper-rule and official-clock admission gates before scoring any game.
 
