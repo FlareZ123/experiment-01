@@ -32,7 +32,7 @@ The opt-in policy is implemented in `simulation/twinleaf/mimikyu-counter-policy.
 - **Power Beam branch:** active Mimikyu, GX allowance already spent, opponent Active is Regidrago VSTAR, Radiant Eternatus is in the candidate's discard, and Lillie's Clefairy ex is in play with Fairy Zone effective. The prompt resolver selects Radiant Eternatus Power Beam.
 - The Fairy Zone gate conservatively rejects visible Path to the Peak, Silent Lab, Power of Alchemy, Neutralizing Gas, active Mischievous Lock, active Initialization, and Garbotoxin with an attached Tool. This known-lock list is incomplete and is a heuristic rather than a full engine Ability-suppression evaluator.
 - The tactic and resolver are inserted before the upstream attack tactic and attack-choice resolver. Reapplying the decorator is idempotent.
-- The existing opt-in headless flag still requires the Copycat compatibility, Mimikyu declared-history, Regidrago declared-history, and pass-clears-last-attack corrections. The policy fingerprint is v3, reflecting the explicit Copycat cost gate.
+- The existing opt-in headless flag still requires the Copycat compatibility, Mimikyu declared-history, Regidrago declared-history, and pass-clears-last-attack corrections. The policy fingerprint remains v2; legality is delegated to the pinned dispatcher.
 
 ## Native Store execution
 
@@ -48,7 +48,7 @@ For each seat, the research tactic selects Copycat and the research resolver sel
 
 The test verifies the actual Store transitions, Prize prompts, promotion prompts, source identity, prompt validation, both physical seats, and the retained opponent attack history.
 
-**Validation:** manual workflow run [42374487360](https://github.com/FlareZ123/experiment-01/actions/runs/42374487360) completed successfully with the earlier v2 staged policy and exact Prize-cut enumerator. A later attempt to add a local Energy prefilter failed its new tests; review of Agent 44's Stadium-suppression result and Agent 46's native dispatcher test showed that the local prefilter was unnecessary and incomplete, so it was removed. The synthetic test fixtures were also corrected to attach Energy through the slot's `energies.cards` zone. A fresh full validation run is pending.
+**Validation:** manual workflow run [42374487360](https://github.com/FlareZ123/experiment-01/actions/runs/42374487360) completed successfully with the earlier v2 staged policy and exact Prize-cut enumerator. A later attempt to add a local Energy prefilter failed its new tests because the synthetic fixtures placed Energy in the slot's flat card list instead of its `energies.cards` zone. The fixtures were corrected. Review of Agent 44's Stadium-suppression result and Agent 46's native dispatcher test also showed that a partial local prefilter would be incomplete and unnecessary, so it was removed. A fresh full validation run is pending.
 
 
 This is a staged mechanics and policy execution witness. It does not establish natural access or competitive win rate.
