@@ -31,3 +31,31 @@ No speculative-root rejection occurred in the selected live canary; the rejectio
 For a future preregistered bilateral-policy release, create a new guard for each game, pass guard.attach(request) into runMatch, pass isActualRoot:guard.isActualRoot into the paid-retreat decoder, and independently bind the selected action to post-dispatch Store acceptance and physical Energy/board transitions. Audit the opposing player's meaningful response and follow-on attack, full 32 original inventories, and official clock. Do not rewrite the earlier v8/v9 or historical selected deals.
 
 **Collective objective status:** 29/32 authenticated original name-count 60s; no selected final fixed deck; zero qualified competitive games; 99.5% remains a target without demonstrated support.
+
+## 7 November 2026, accepted native Store-dispatch action-object join (v2)
+
+The previous guard validated **decision provenance**. A prospectively specified second instrumentation layer now validates **native acceptance provenance**: `simulation/twinleaf/agent2-paid-retreat-accepted-root-receipt.cjs` registers the exact typed `RetreatAction` object returned by the owner-only policy and matches it to the actual native `onRootActionDispatched` callback, which headless invokes only after `store.dispatch(action)` succeeds. The callback requires exact live Store reference, exact action object identity, actor seat, turn, and integer root ordinal. Its receipt only records public action metadata, without reading private opponent cards.
+
+Implementation: optional `onRetreatSelected` callback in the existing bilateral generic paid-retreat wrapper; **default-off**, no modification to archived v1 decisions, and no modification to selected v8 or historical v9 common policy. Six new pure adversarial regression cases cover matching real object once, wrong same-state Store, shape-identical but distinct action object, wrong seat, wrong turn, previous-game action after new Store registration, and registered-bot provenance. The `agent2-original29-fss-collision-pure.yml` manual workflow runs these tests.
+
+[Native CI 42333425788](https://github.com/FlareZ123/experiment-01/actions/runs/42333425788) **SUCCESS** on code head `adfbc4687a36e359b04e64e5eaa35c2ac669d85b`, with both pure and compiled pinned-engine native jobs passing. [Artifact 13557703681](https://github.com/FlareZ123/experiment-01/actions/runs/42333425788/artifacts/13557703681) ZIP SHA256 `9397a9856d86b6ac9c876f95165b6566d4257d9bc88a4d4213074ebdac6cd43f`, inner JSON SHA256 `735f5095cb9e3b0dd17935a72abd695a941d25c2d9a922d383ecdfe35220b55e`. The exact chosen and accepted action receipt is:
+
+```json
+{
+  "selectedProposals": 1,
+  "acceptedNativeProposals": 1,
+  "invalidNativeJoins": 0,
+  "receipts": [
+    {
+      "actionOrdinal": 155,
+      "actorSeat": 1,
+      "turnBefore": 33,
+      "actionName": "RetreatAction"
+    }
+  ]
+}
+```
+
+All **seven** native canary release checks passed (six original checks and the new exact accepted-action join). Exact native root ledger SHA256 `8eb6bacd09e83553fe5439f0a2ceada736f55e37acdba470a02bf9472a5027e2`, root count 270, winner rank3, terminal turn59, both initial physical-deal fingerprints, and the existing physical-payments audit remain unchanged. The original separately observed owner paid-retreat custody audit continues to show one native Store retreat, one verified payment, no unverified returns and no pending prompt.
+
+The receipt is a **native action-acceptance and policy-provenance witness** on this one historical opening. It cannot by itself certify global paper legality, a competent opponent policy, the official match clock, competitive wins, or a deck-performance improvement. No new candidate was selected. Field authentication remains **29/32**, and competitively qualified games remain **zero**.
