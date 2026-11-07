@@ -155,6 +155,23 @@ test('exact Snap Trap prompt is stamped and joined to the blocked native prompt'
   assert.equal(getOriginForPrompt({...f.state.prompts[0]}),null);
 });
 
+test('same-object source lookup works when a hard quarantine bypasses decodeNextAction',()=>{
+  const f=makeFixture();
+  let getOriginForPrompt;
+  const {result,audit}=withStunfiskSnapTrapPromptMarker(lookup=>{
+    getOriginForPrompt=lookup;
+    f.sourceCard.reduceEffect(f.store,f.state,f.effect);
+    return 'quarantine-stopped-decoder';
+  },{engine:f.engine});
+  const proof=audit.exactSourcePromptsStamped[0];
+  assert.equal(result,'quarantine-stopped-decoder');
+  assert.equal(audit.blockedPromptOriginEvents.length,0);
+  assert.equal(proof.promptIdBeforeStore,0);
+  assert.equal(proof.promptIdAfterStore,173);
+  assert.equal(proof.promptIdAssignedByStore,true);
+  assert.strictEqual(getOriginForPrompt(f.state.prompts[0]),proof);
+});
+
 test('marker preserves the original policy action and does not resolve the prompt',()=>{
   const f=makeFixture();
   const {result,audit}=execute(f);
