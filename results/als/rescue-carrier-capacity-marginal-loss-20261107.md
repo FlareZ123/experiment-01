@@ -24,6 +24,8 @@ The structural capacity lost by paying `k` copies is:
 
 This directly models the two-target capacity of each Carrier. A hard minimum of `ceil(n / 2)` copies is appropriate only if the strategy requires retaining the ability to recover every eligible target. It is too strong as a universal hard reserve when some targets have low value or additional copies remain accessible elsewhere.
 
+Aichi context: five published Top 32 lists contain 17 Rescue Carrier copies and 41 potential eligible Pokémon among 83 Pokémon copies. Rank31 Dusknoir Chimecho alone has four Rescue Carrier and 13 potential eligible target copies: Duskull ×3, Dusclops ×3, Unown ×3, Koffing ×3 and Chimecho ×1. These are full-deck potential targets, not simultaneous discard targets. The `n` used by the capacity formula must come from the current owner-visible discard, not the decklist pool.
+
 ## One-copy marginal-loss examples
 
 | Eligible targets `n` | Available copies `c` | Capacity before | Capacity after paying one | Capacity lost |
