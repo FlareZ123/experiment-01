@@ -35,6 +35,19 @@ The four original **Absol Garbodor** rank entries 8, 11, 16 and 22 account for *
 
 The low rank5 Mew Genesect rate despite two Float copies is explained in part by the explicit **no-opening-Pokémon-V** constraint. Conversely, the high Absol Garbodor rates largely reflect multiple Float copies and fewer Basic V starter opportunities. These are quantitative hand-composition phenomena.
 
+## Sample-size implication for a native root search
+
+Using the rounded source-specific opening probabilities above and an IID valid-opening approximation, a 32-opening sample has only about a 30–41% chance of seeing even the **opening-hand event**:
+
+| Rank | Opening event probability | Chance in 32 independent openings | Approx. openings for 95% | Approx. openings for 99% |
+| --- | ---: | ---: | ---: | ---: |
+| 11 | 1.65214% | 41.32% | 180 | 277 |
+| 8 | 1.43783% | 37.09% | 207 | 318 |
+| 16 | 1.26158% | 33.39% | 236 | 363 |
+| 22 | 1.11347% | 30.11% | 268 | 412 |
+
+These are approximate detection counts for the opening condition only. A genuine native root additionally needs a live Garbodor recipient, the relevant evolution and ability state, the opponent's Ability targets, and an actual owner decision. Its frequency will be lower, so these sample sizes are lower bounds for finding the full native opportunity. Paired seat assignments from the same seed may also violate IID assumptions.
+
 ## Strategic interpretation and critical restrictions
 
 The broad source-29 result suggests a higher **frequency** of possible Float-versus-FSS Tool contention in the original Absol Garbodor family than in the previously staged rank3 Snorlax/Bunnelby case. Whether Float has value is a separate question. On a Bench Garbodor with Garbotoxin, attaching a Tool may be a lock-enabling line, but doing so depends on the evolution's actual presence, whether opposing/own Ability lock changes the effect, whether a Tool is already attached, and the opportunity cost of consuming the Tool slot. On rank11, Latias ex SSP's **Skyliner** can already confer free Retreat to eligible Basics without Float, an earlier verified false-positive for a Float mobility policy. Other Tool attachments may be superior in the same state.
