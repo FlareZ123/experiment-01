@@ -21,6 +21,11 @@ test('six fixed candidate conditional Meloetta root reuses exact source coupling
       c.name+' has verified Basic HP at or below 280');
     assert.equal(c.conditionalExactlyOneHpAtMost280,
       c.conditionalExactlyOneBasic);
+    assert.equal(c.psychic280PrintedKnockoutBasicCopies,c.basics);
+    assert.equal(c.conditionalForcedPsychic280KO,
+      c.conditionalExactlyOneBasic);
+    assert.equal(c.sourceDirectRootWithPrintedPsychic280LoneKO,
+      c.sourceDirectRootWithExactlyOneOpposingBasic);
     const independent=joint(c.basics,'hand-aware');
     assert.equal(c.sourceDirectRootWithExactlyOneOpposingBasic,
       independent.conditionalJointSetupAndSourceRoot);
