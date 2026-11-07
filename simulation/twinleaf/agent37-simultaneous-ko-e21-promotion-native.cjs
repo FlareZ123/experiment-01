@@ -19,7 +19,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean|Function} useHook Apply v1 (true) or a supplied research-owned per-Store hook.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
-function runOne(actorSeat,useHook){
+function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false){
   const cards=initializeCards();
   let id=940000+actorSeat*1000;
   const card=name=>{
@@ -70,7 +70,7 @@ function runOne(actorSeat,useHook){
 
   for(const player of [owner,enemy]){
     for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy MEE'));
-    for(let i=0;i<6;i++){
+    for(let i=0;i<prizesPerPlayer;i++){
       const prize=new CardList();
       prize.cards.push(card('Psychic Energy MEE'));
       player.prizes.push(prize);
@@ -134,6 +134,29 @@ function runOne(actorSeat,useHook){
     }
 
     assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
+    if(terminalMode){
+      const {GameWinner}=native('game/store/state/state');
+      const winnerSeat=state.winner===GameWinner.PLAYER_1?0:
+        state.winner===GameWinner.PLAYER_2?1:null;
+      return {
+        actorSeat,
+        finished:state.phase===GamePhase.FINISHED,
+        winner:state.winner,
+        winnerSeat,
+        winnerPlayer:winnerSeat===null?null:
+          state.players[winnerSeat].id===owner.id?'owner':'opponent',
+        seenPrompts,
+        prizePromptOrder:prizePromptOrder.map(id=>
+          id===owner.id?'owner':'opponent'),
+        promotionOrder:promotionOrder.map(id=>
+          id===owner.id?'owner':'opponent'),
+        ownerPrizesRemaining:owner.prizes.filter(p=>p.cards.length>0).length,
+        opponentPrizesRemaining:enemy.prizes.filter(p=>p.cards.length>0).length,
+        ownerActive:owner.active.getPokemonCard()?.fullName??null,
+        opponentActive:enemy.active.getPokemonCard()?.fullName??null,
+        playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent')
+      };
+    }
     const expectedFirstPromoter=state.players[1-actorSeat];
     const observedFirstPromoter=state.players.find(
       p=>p.id===promotionOrder[0]
