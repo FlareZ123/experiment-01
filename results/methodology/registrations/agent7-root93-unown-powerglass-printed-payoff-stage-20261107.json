@@ -1,0 +1,85 @@
+{
+  "schema": "agent7-root93-unown-powerglass-printed-payoff-stage-v1",
+  "createdUtc": "2026-11-07T05:34:00Z",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_RUN",
+  "historicalArchive": {
+    "sourceRank": 11,
+    "originalNativeCI": 42332015390,
+    "sourceSeat": 0,
+    "candidateSeat": 1,
+    "firstCandidatePassRoot": 93,
+    "turn": 14,
+    "fullPhysicalDealSha256": "94526e4b7eecefa78cbb7db5bc053cb593e90d20310a680e6510a00c11e702d7"
+  },
+  "goal": "Bounded genuine pinned Store contract: candidate Active Unown AOR holds Powerglass and receives discarded Basic Psychic on end-turn Pass. After a deliberately passive source Pass, test funded Hidden Power into pre-damaged Trubbish FST for an observed KO.",
+  "arms": [
+    {
+      "ownerSeat": 0,
+      "equipPowerglass": false
+    },
+    {
+      "ownerSeat": 0,
+      "equipPowerglass": true
+    },
+    {
+      "ownerSeat": 1,
+      "equipPowerglass": false
+    },
+    {
+      "ownerSeat": 1,
+      "equipPowerglass": true
+    }
+  ],
+  "setup": {
+    "nativeTurn": 14,
+    "ownerActive": "Unown AOR",
+    "ownerActiveEnergy": 0,
+    "ownerActiveDamage": 0,
+    "ownerBench": [
+      "Mewtwo & Mew-GX UNM"
+    ],
+    "ownerHand": [
+      "Powerglass SFA"
+    ],
+    "ownerDiscard": [
+      "Psychic Energy MEE",
+      "Psychic Energy MEE"
+    ],
+    "sourceActive": "Trubbish FST",
+    "sourceActiveDamage": 60,
+    "sourceActiveEnergy": [
+      "Darkness Energy MEE",
+      "Darkness Energy MEE",
+      "Darkness Energy MEE"
+    ],
+    "sourceBench": [
+      "Tapu Lele-GX GRI"
+    ],
+    "sourceChosenResponse": "PassTurnAction",
+    "startingPrizesEach": 6,
+    "deckFill": "8 Psychic Energy MEE each"
+  },
+  "boundaries": {
+    "vendorPinned": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "paperRule": "E-21 Powerglass end-turn after Pass; printed Hidden Power 10 for one Colorless",
+    "noNativePolicyClaims": true,
+    "noOriginalGameClaims": true,
+    "noCompetitiveSample": true,
+    "knownNativeStageLimitations": [
+      "synthetic staged board, not original physical full two-deck 60",
+      "source chooses passive Pass, cannot establish strategic response quality",
+      "no official clock / paper effect complete certification",
+      "unprotected tool removal and forced switching not modeled"
+    ]
+  },
+  "readouts": [
+    "both physical seats execute Tool and Pass",
+    "actual owner discard Basic selected through AttachEnergyPrompt",
+    "validate actual physical owner Active Energy move",
+    "source Pass as transparent nonadversarial foil",
+    "candidate funded Hidden Power and Trubbish KO with pending Prize prompt",
+    "unequipped controls cannot attack without Energy"
+  ],
+  "negativeArmsMustBePreserved": true,
+  "competitivelyQualifiedGames": 0
+}
