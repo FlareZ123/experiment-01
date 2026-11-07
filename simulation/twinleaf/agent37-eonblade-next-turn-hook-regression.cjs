@@ -81,7 +81,7 @@ function eonBladeNextOwnTurn(actorSeat){
   assert.equal(state.activePlayer,actorSeat);
   assert.equal(state.phase,GamePhase.PLAYER_TURN);
   assert.equal(actor.active.cannotAttackNextTurn,true,
-    'Eon Blade still blocks owner's immediately following turn');
+    "Eon Blade still blocks the owner on the immediately following turn");
   const nextOwnTurn=state.turn;
   assert.throws(
     ()=>store.dispatch(new AttackAction(actor.id,'Eon Blade')),
