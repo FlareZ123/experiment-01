@@ -1,0 +1,51 @@
+name: Agent21 bounded native Energy Retrieval owner Item custody
+
+on:
+  push:
+    paths:
+      - tests/agent21-energy-retrieval-staged-native.test.cjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent21-native-retrieval-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  staged-native-retrieval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out exact research commit
+        uses: actions/checkout@v4
+      - name: Restore actual pinned Twinleaf dependency
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Use pinned Node 20.19
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native game dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check source-only recovery variant arithmetic and printing
+        run: |
+          node --test tests/agent21-root93-k0-two-target-availability.test.cjs tests/agent21-secretbox-retrieval-item-fork.test.cjs tests/agent21-energy-retrieval-slot-60.test.cjs
+      - name: Run bounded native two-seat Energy Retrieval Item custody
+        run: |
+          node --test tests/agent21-energy-retrieval-staged-native.test.cjs > agent21-energy-retrieval-staged-native.log 2>&1 || { cat agent21-energy-retrieval-staged-native.log; exit 1; }
+          cat agent21-energy-retrieval-staged-native.log
+      - name: Preserve native output including any negative assertion
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-staged-native-retrieval-${{ github.run_id }}
+          path: agent21-energy-retrieval-staged-native.log
+          if-no-files-found: warn
+          retention-days: 14
