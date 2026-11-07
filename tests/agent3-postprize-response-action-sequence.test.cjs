@@ -85,6 +85,9 @@ test('captures every post-dispatch candidate response root after an exact source
   assert.equal(sequence.actions[0].pendingPromptTypesAfterAction[0].type,
     'ChooseCardsPrompt');
   assert.deepEqual(sequence.actions[1].pendingPromptTypesAfterAction,[]);
+  assert.ok(result.diagnostics.callbackCount>0);
+  assert.equal(result.diagnostics.prizeCountChanges.length,1);
+  assert.equal(result.diagnostics.prizeCountChanges[0].rootOrdinal,1);
   assert.equal(result.hiddenHandReadBeforeCandidateResponse,false);
   assert.equal(result.policyInputModified,false);
   assert.equal(result.paperLegalityCertified,false);
