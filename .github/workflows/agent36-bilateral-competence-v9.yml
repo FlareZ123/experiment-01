@@ -46,6 +46,7 @@ jobs:
           node --check simulation/twinleaf/perfection-post-pass-probe.cjs
           node --check simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs
           node --check simulation/twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs
+          node --check simulation/twinleaf/agent47-shared-motivate-owner-prompt.cjs
           node --check simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs
           node --check simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
@@ -59,6 +60,7 @@ jobs:
             tests/agent36-issue25-selected-v0.test.cjs \
             tests/agent41-bilateral-v2-development.test.cjs \
             tests/agent47-shared-trubbish-family-owner-prompt.test.cjs \
+            tests/agent47-shared-motivate-owner-prompt.test.cjs \
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent10-pinned-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent1-actor-dead-first-attack-frontier.test.cjs \
