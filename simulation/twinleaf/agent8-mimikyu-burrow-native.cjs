@@ -189,7 +189,6 @@ function probe(sourceSeat){
   assert.equal(result.candidateDiscardDelta,1);
   assert.equal(result.candidateHandDelta,1);
   assert.deepEqual(result.unresolvedPrompts,[]);
-  history.restore();
   return result;
 }
 
@@ -292,10 +291,13 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
       const source=promptCardChoices(prompt).find(value=>value.fullName==='Bunnelby PRC');
       const attack=source?.attacks.find(value=>value.name===secondAttack);
       assert.ok(attack,'Omega Barrage must offer '+secondAttack);
-      assert.equal(prompt.validate(attack),true);
+      const promptResult={index:0,attack:secondAttack};
+      const decoded=prompt.decode(promptResult,x.state);
+      assert.equal(decoded?.name,secondAttack);
+      assert.equal(prompt.validate(decoded,x.state),true);
       sourcePrompts.push(kind);
       secondChosen=true;
-      x.store.dispatch(new ResolvePromptAction(prompt.id,attack));
+      x.store.dispatch(new ResolvePromptAction(prompt.id,promptResult));
       continue;
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
