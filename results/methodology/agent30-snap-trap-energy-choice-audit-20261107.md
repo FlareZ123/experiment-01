@@ -40,6 +40,19 @@ Both attacks are initially payable.
 
 The current summed-denied-damage score prefers removing Grass (130 > 120). A one-attack-per-turn best-response objective prefers removing Beast Energy, because the opponent's strongest remaining attack is 130 rather than 150. The example isolates two choices of objective: aggregate disabled-option value versus best remaining attack value. Neither should be silently treated as the other.
 
+## Aichi Top 32 relevance
+
+A cross-check against the repository's 29 authenticated full lists (`results/aichi-2026/full-decklists.json`, blob `ae773f6201d7aa69d31914dbfee66f3fba692200`) sharpens the priority:
+
+- Rank 3, Haruto Miki's Snorlax Stall list, contains **2 Galarian Stunfisk SSH**.
+- Rank 1, Yasunori Kato's Shadow Rider Calyrex list, contains **1 Marshadow UNB** and **11 Psychic Energy MEE**.
+- The v7 source/zone receipt's Marshadow with eight attached Psychic Energy is consistent with that actual rank-1/rank-3 card pairing.
+- A cross-match of the 29 lists against the card pool's Ultra Beast Pokémon names and Beast Energy finds **no Ultra Beast Pokémon and no Beast Energy** in those authenticated lists.
+
+This makes the immediate Aichi-specific policy case much simpler than the generic Beast Energy stress case: Marshadow's Red Knuckles costs one Colorless Energy, and the observed Active has eight identical Basic Psychic Energy. Removing any one leaves the attack energy-payable. A field-specific regression should verify that the selector reports no denied attack and applies its stable parent-index tie-break without inventing an energy-denial benefit.
+
+The Beast Energy modifier case remains a useful general Expanded robustness test, but it is **not an observed requirement of the 29 authenticated lists**. The three missing original lists (ranks 23, 25 and 28) remain unauthenticated, so this does not characterize the complete Top 32. The decklist source uses English proxy printings and does not establish Japanese paper-print legality.
+
 ## Recommended next validation
 
 1. Keep the current implementation labelled as a deterministic developmental heuristic, not optimal play.
