@@ -21,21 +21,44 @@ function resolveBlockedPromptZoneEvent(quarantineRecords, events) {
   const records = Array.isArray(quarantineRecords) ? quarantineRecords : [];
   const observedEvents = Array.isArray(events) ? events : [];
   const candidateGroups = records.map((record, quarantineRecordIndex) => {
-    const matchingEventIndices = [];
+    const matchingEvents = [];
     for (let eventIndex = 0; eventIndex < observedEvents.length; eventIndex += 1) {
       const event = observedEvents[eventIndex];
-      const matches = (record.turn == null || event.turn === record.turn)
-        && (record.seat == null || event.ownerSeat === record.seat)
-        && (record.phase == null || event.phase === record.phase)
-        && (record.promptType == null || event.promptType === record.promptType);
-      if (matches) matchingEventIndices.push(eventIndex);
+      const missingFields = [];
+      const fieldPairs = [
+        ['turn', 'turn'],
+        ['seat', 'ownerSeat'],
+        ['phase', 'phase'],
+        ['promptType', 'promptType']
+      ];
+      let contradicted = false;
+      for (const [recordKey, eventKey] of fieldPairs) {
+        const expected = record[recordKey];
+        const actual = event[eventKey];
+        if (expected == null) continue;
+        if (actual == null) {
+          missingFields.push(eventKey);
+        } else if (actual !== expected) {
+          contradicted = true;
+          break;
+        }
+      }
+      if (!contradicted) {
+        matchingEvents.push({
+          eventIndex,
+          joinComplete: missingFields.length === 0,
+          missingFields
+        });
+      }
     }
-    return {quarantineRecordIndex, matchingEventIndices};
+    return {quarantineRecordIndex, matchingEvents};
   });
   const blockedPromptZoneCandidates = candidateGroups.flatMap(group =>
-    group.matchingEventIndices.map(eventIndex => ({
+    group.matchingEvents.map(candidate => ({
       quarantineRecordIndex: group.quarantineRecordIndex,
-      eventIndex
+      eventIndex: candidate.eventIndex,
+      joinComplete: candidate.joinComplete,
+      missingFields: candidate.missingFields
     }))
   );
 
@@ -49,6 +72,9 @@ function resolveBlockedPromptZoneEvent(quarantineRecords, events) {
     status = 'FALLBACK_CAPTURED_PROMPT_EVENT_MISSING';
   } else if (records.length === 1 && blockedPromptZoneCandidates.length > 1) {
     status = 'FALLBACK_CAPTURED_PROMPT_EVENT_AMBIGUOUS';
+  } else if (records.length === 1 && blockedPromptZoneCandidates.length === 1
+    && blockedPromptZoneCandidates[0].joinComplete === false) {
+    status = 'FALLBACK_CAPTURED_PROMPT_EVENT_JOIN_INCOMPLETE';
   } else if (records.length === 1 && blockedPromptZoneCandidates.length === 1) {
     blockedPromptZoneEventIndex = blockedPromptZoneCandidates[0].eventIndex;
     blockedPromptZoneEvent = observedEvents[blockedPromptZoneEventIndex];
