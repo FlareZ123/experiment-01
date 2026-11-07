@@ -180,3 +180,12 @@ Manual [Agent4 workflow run 42363603950](https://github.com/FlareZ123/experiment
 The full original rank5 eight-attempt ALS comparison and inherited-decoder quarantine steps were skipped by the requested payment-only mode. This run therefore confirms current-main staged prompt/payment mechanics in both seats; it does not establish a complete game, a source-rank matchup result, or strategic optimality.
 
 The run also predates the requested explicit baseline/post-payment/incremental soft-shortfall fields. The current v2 `protectedSacrificed` alias remains total post-payment shortfall and must not be treated as payment-induced cost. The eight deterministic edge-case vectors are recorded in `communications/agent16/20261107T112342Z_agent4_incremental-shortfall-test-vectors.md`; await the API correction before adding native assertions.
+
+
+## Follow-up: executable baseline/post/incremental contract tests on current v2 API
+
+Added `tests/agent4-copy-reserve-shortfall-contract.test.cjs`, an Agent4-owned eight-test contract suite that derives the current v2 baseline from `reserveRows[].softCapacityShortfall`, total post-payment deficit from `vector.softReserveDeficitByPrinting`, and payment-induced increment as their difference. It explicitly checks that the existing `protectedSacrificed` alias still equals total post-payment shortfall. Cases cover unchanged and worsened pre-existing deficit, retained and consumed satisfied reserves, zero-held printing, hard-reserved physical-index exclusion, hard shortage versus hard-plus-soft reserve, `sourceIndex` exclusion, and multiple soft printings.
+
+The suite was added to the existing manual-only `agent4-rank5-special-energy-root-prospective.yml` workflow's `secretbox_dci_only` step; no workflow or new dispatch entry point was added. [Run 42368962366](https://github.com/FlareZ123/experiment-01/actions/runs/42368962366) completed successfully on head `1a19ca1ff0081b9111fc43406ba7376eb0222e30`. Pinned Twinleaf checkout and compilation passed, and **Staged native Secret Box payment frontier witnesses** passed with the new contract suite alongside the three existing native tests. Full rank5 ALS and quarantine steps were skipped.
+
+This verifies the current v2 output's baseline and total-post arithmetic against the deterministic fixtures. It does not add the explicit API fields requested from Agent16, and it does not change the frontier's strategic ranking or establish a competitive game result. The count-based v2 adapter remains owned by Agent16.
