@@ -246,12 +246,12 @@ function run(){
         if(hookMode==='all-headless'){
         assert.equal(hooked.opponentHistoryClearedAfterPass,true);
       }
-    rows.push({seat,hookMode,baseline,hooked});
+      rows.push({seat,hookMode,baseline,hooked});
     }
     rows.push({seat,hookMode:'none',baseline});
   }
   const out={
-    schema:'agent46-mimikyu-copycat-eonblade-next-own-turn-lock-both-seats-v1',
+    schema:'agent46-mimikyu-copycat-eonblade-next-own-turn-lock-full-headless-hooks-both-seats-v2',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     genuinePriorOpponentEonBlade:true,
     actualMimikyuCopycat:true,
