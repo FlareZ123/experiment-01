@@ -26,9 +26,9 @@ The test is `tests/agent2-fss-garbotoxin-tool-trigger.native.test.cjs`. It stage
 - The Store attaches Forest Seal Stone to the non-V Garbodor.
 - After attachment, the opponent's Wonder Tag is blocked, and `CheckPokemonPowersEffect` still exposes Garbotoxin.
 
-<text>Native CI: successful</text> Run `42367419587` in the existing manual `aichi-garbotoxin-crosslock.yml` workflow. The isolated input `fss_garbodor_tool_only=true` ran setup/compile and this test without the unrelated default diagnostics. No new workflow was created.
+**Native CI:** successful. Run `42367419587` in the existing manual `aichi-garbotoxin-crosslock.yml` workflow. The isolated input `fss_garbodor_tool_only=true` ran setup/compile and this test without the unrelated default diagnostics. No new workflow was created.
 
-A diagnostic caveat: the low-level `IS_ABILITY_BLOCKED` helper returns a Boolean for a direct query of Garbodor's own Garbotoxin power. The functional witness is the opponent Ability becoming blocked, and the follow-up `CheckPokemonPowersEffect` confirms Garbotoxin remains visible. Do not use the direct helper query alone as a source-Ability lock verdict.
+A diagnostic caveat: the low-level `IS_ABILITY_BLOCKED` helper returned true for a direct query of Garbodor's own Garbotoxin power. The functional witness is the opponent Ability becoming blocked, and the follow-up `CheckPokemonPowersEffect` confirms Garbotoxin remains visible. Do not use the direct helper query alone as a source-Ability lock verdict.
 
 ## Strategic implications and unresolved questions
 
