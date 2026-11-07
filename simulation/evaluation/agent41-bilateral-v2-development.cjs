@@ -1007,7 +1007,7 @@ function executeDevelopment(trial,candidates,{
         '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))))+
       (nativeOwnerTrainerFallback?'+native-owner-trainer-fallback-v1':'')+
       (ownerFallbackDiagnosticView?'+owner-fallback-diagnostic-view-v1':'')+
-      (mysteriousTreasureRoot?'+agent49-mysterious-treasure-frontier-v2':'')+
+      (mysteriousTreasureRoot?'+'+require('../twinleaf/agent49-mysterious-treasure-frontier.cjs').VERSION:'')+
       (firstBlockedPromptContractObserver?'+agent2-first-blocked-prompt-contract-v1':''),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
