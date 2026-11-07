@@ -56,5 +56,7 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-synchronous-native.cjs
       - name: Mimikyu Eon Blade lock blocks Copycat and Filch across full headless hook set
         run: node simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs
+      - name: Agent3 direct-injection Eon Blade lock contract using native CardType costs
+        run: node --test tests/agent3-mimikyu-copycat-eonblade-lock-native.test.cjs
       - name: Native SimpleTacticsAi rejects underfunded and attack-locked Mimikyu Copycat; funded positive control
         run: node simulation/twinleaf/agent46-mimikyu-policy-underfunded-native.cjs
