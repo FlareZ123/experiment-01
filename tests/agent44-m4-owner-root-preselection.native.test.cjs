@@ -4,8 +4,10 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,deckPermutation}=require('../simulation/twinleaf/headless.cjs');
 const {withM4PaperOwnerRoot}=require('../simulation/twinleaf/agent44-m4-owner-root-preselection.cjs');
+const {dispatchSpecialRedCardPaperRoot}=
+  require('../simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs');
 const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const {PlayCardAction,PlayerType,SlotType}=
   require(path.join(output,'game/store/actions/play-card-action'));
@@ -80,5 +82,71 @@ for(const seat of [0,1]){
     }),/controlled decode abort/);
     assert.equal(x.m4.canPlay(x.store,x.store.state,x.owner),true);
     assert.equal(x.owner.hand.cards[0],x.m4);
+  });
+  test('speculative clone M4 shuffle uses policy RNG and real Store uses physical RNG, seat '+seat,()=>{
+    const root=sourceRoot(seat,3,3);
+    const clone=sourceRoot(seat,3,3);
+    const manager=initializeCards();
+    const names=['Psychic Energy SVE','Double Dragon Energy ROS','Fog Crystal CRE'];
+    const setDistinctHand=(x,base)=>{
+      x.opponent.hand.cards.splice(0,x.opponent.hand.cards.length);
+      for(let i=0;i<names.length;i+=1){
+        const card=manager.getCardByName(names[i]);
+        assert.ok(card,'Missing native hand printing '+names[i]);
+        card.id=base+i;
+        x.opponent.hand.cards.push(card);
+      }
+    };
+    setDistinctHand(root,960000+seat*100);
+    setDistinctHand(clone,970000+seat*100);
+    const rootDeckLength=root.opponent.deck.cards.length;
+    const rootHandBefore=root.opponent.hand.cards.map(c=>c.fullName);
+    const cloneHeldOrder=clone.opponent.hand.cards.map(c=>c.fullName);
+    const expectedCloneBottom=deckPermutation(3,()=>0).map(i=>cloneHeldOrder[i]);
+    const policyDraws=[];
+    const policyRandom=()=>{policyDraws.push(0);return 0;};
+    const audits=[];
+    const selected=withM4PaperOwnerRoot(root.store.state,seat,()=>{
+      clone.store.dispatch(new PlayCardAction(clone.owner.id,0,target));
+      return new PlayCardAction(root.owner.id,0,target);
+    },r=>audits.push(r),policyRandom);
+    assert.ok(selected instanceof PlayCardAction);
+    assert.equal(audits.length,1);
+    assert.equal(audits[0].version,
+      'agent44-m4-owner-root-preselection-v2-policy-rng-clone-shuffle');
+    assert.equal(audits[0].speculativeShuffleHookInstalled,true);
+    assert.equal(audits[0].nativeCanPlayHandVetoInstalled,true);
+    assert.equal(policyDraws.length,2,
+      '3-card speculative shuffle consumes two policy RNG draws');
+    assert.deepEqual(clone.opponent.deck.cards.slice(-3).map(c=>c.fullName),
+      expectedCloneBottom);
+    assert.equal(clone.opponent.hand.cards.length,0);
+    assert.equal(root.owner.hand.cards[0],root.m4,
+      'speculative clone must not mutate the real root owner hand');
+    assert.deepEqual(root.opponent.hand.cards.map(c=>c.fullName),rootHandBefore,
+      'speculative clone must not mutate the real root opponent hand');
+    assert.equal(root.opponent.deck.cards.length,rootDeckLength,
+      'speculative clone must not mutate the real root opponent deck');
+
+    const expectedPhysicalBottom=deckPermutation(3,()=>0)
+      .map(i=>rootHandBefore[i]);
+    let physicalDraws=0;
+    dispatchSpecialRedCardPaperRoot(root.store,
+      new PlayCardAction(root.owner.id,0,target),()=>{
+        physicalDraws+=1;
+        return 0;
+      });
+    assert.equal(physicalDraws,2,
+      'real Store shuffle consumes the affected hand owner physical RNG');
+    assert.equal(policyDraws.length,2,
+      'real Store dispatch must not consume the speculative policy RNG');
+    assert.deepEqual(root.opponent.deck.cards.slice(-3).map(c=>c.fullName),
+      expectedPhysicalBottom);
+    assert.equal(root.opponent.hand.cards.length,0);
+    console.log('AGENT44_M4_POLICY_CLONE_AND_PHYSICAL_RNG_SPLIT',
+      JSON.stringify({seat,policyDraws:policyDraws.length,
+        physicalDraws,expectedCloneBottom,expectedPhysicalBottom,
+        rootUnchangedDuringClone:true,stagedOnly:true,
+        competitivelyQualifiedGames:0}));
   });
 }
