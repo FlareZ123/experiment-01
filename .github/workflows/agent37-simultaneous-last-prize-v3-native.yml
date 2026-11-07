@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository and pinned Twinleaf submodule
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
