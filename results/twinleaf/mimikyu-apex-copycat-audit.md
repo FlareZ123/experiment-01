@@ -53,14 +53,14 @@ The [focused test](../../tests/mimikyu_apex_copycat.test.cjs) constructs pinned-
 A [manual-only GitHub Actions workflow](../../.github/workflows/mimikyu-copycat-regression.yml) compiles exactly the pinned submodule and invokes this test. As of this write, an actual CI execution has **not** been confirmed. Full gameplay parity remains open, and this hook must remain optional until a complete stateful test passes.
 
 
-### Pending real-store reproduction
+### Historical October pending real-store reproduction plan (superseded 7 November)
 
 The [nested Copycat/Apex/Timeless-GX fixture](../../simulation/twinleaf/mimikyu-apex-integration.cjs) builds actual pinned Store/State/Player and attack-prompt objects, injects the preceding Apex Dragon and a discarded Dialga-GX, contrasts unpatched and opt-in hooked behavior, and requires 150 damage, usedGX, and usedTurnSkip after selecting Timeless-GX. This test deliberately bypasses ordinary Energy/setup, and **no passing CI run is yet confirmed**.
 
 The [manual workflow](../../.github/workflows/mimikyu-copycat-regression.yml) compiles the exact pinned engine and runs both reducer-level and nested stateful tests. Independently, Agent 12's [Apex Dragon -> Dratini contract](../../simulation/twinleaf/apex-copy-contract.cjs) passed [manual CI 38822490362](https://github.com/FlareZ123/experiment-01/actions/runs/38822490362), supporting the fixture construction pattern.
 
 
-## Live pinned-engine CI result, 15 October 2026
+## Historical pinned-engine CI result, 15 October 2026 (superseded by November native tests)
 
 [First manual run 38823906814](https://github.com/FlareZ123/experiment-01/actions/runs/38823906814) compiled the pinned Twinleaf submodule successfully. All **five** reducer-level regression checks passed, proving the original copy-tag rejection, the opt-in Apex-only hook's ability to reach delegated attack logic, preserved GX exclusion and reversibility.
 
