@@ -32,6 +32,8 @@ const {VERSION:SECOND_SCREEN_VERSION,
   require('../simulation/evaluation/agent3-native-ko-printed-prize-audit.cjs');
 const {VERSION:NOMINAL_ATTACK_SCREEN_VERSION,screenNativeAttackDamage}=
   require('../simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs');
+const {VERSION:PRE_ATTACK_BOARD_VERSION,joinNativePreAttackBoard}=
+  require('../simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs');
 const {VERSION:OWNER_REPLY_VERSION,projectOwnerRepliesAfterSourcePrize}=
   require('../simulation/evaluation/agent3-postprize-owner-reply-projection.cjs');
 
@@ -271,6 +273,20 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     [0,0,160,0,230,0,0,200]);
   assert.equal(printedNativeAttackNominals.paperGameCertified,false);
   assert.equal(printedNativeAttackNominals.qualifiedCompetitiveGames,0);
+  // Reconcile actual Store pre-declaration public Active board against the
+  // physically attributed KO. The end-of-KO damage is cumulative, so retain
+  // the actual before-root damage and attacker Energy without inferring wins.
+  const actualPreAttackBoardJoins=joinNativePreAttackBoard(
+    selected.rawDevelopment.rows,attackPrizeRootJoins,
+    fullyRootedPublicVictimJoins,printedNativeAttackNominals.rows,originalField);
+  assert.equal(actualPreAttackBoardJoins.rows.length,8);
+  assert.equal(actualPreAttackBoardJoins.rows.every(row=>
+    row.attackerIdentityIndependentlyMatched===true&&
+    row.paperGameCertified===false&&
+    row.actualAttachedEnergyPaymentCertified===false),true);
+  assert.equal(actualPreAttackBoardJoins.qualifiedCompetitiveGames,0);
+  console.log('AGENT3_V29_ACTUAL_PRE_ATTACK_BOARD_KO_JOIN',
+    JSON.stringify(actualPreAttackBoardJoins.rows));
   const exactPostPrizeOwnerReplies=projectOwnerRepliesAfterSourcePrize(
     selected.rawDevelopment.rows,attackPrizeRootJoins);
   assert.equal(exactPostPrizeOwnerReplies.length,5);
@@ -484,6 +500,10 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     nominalPrintedAttackerScreenHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs'))),
     printedNativeAttackNominals,
+    actualPreAttackBoardJoinVersion:PRE_ATTACK_BOARD_VERSION,
+    actualPreAttackBoardJoinHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs'))),
+    actualPreAttackBoardJoins,
     printedBasePrizeScreenVersion:BASE_SCREEN_VERSION,
     printedBasePrizeScreenHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-printed-base-prize-screen.cjs'))),
