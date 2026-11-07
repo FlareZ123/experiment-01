@@ -173,7 +173,7 @@ function runSnapTrapChoiceContract() {
   assert.equal(fullIndex, 1,
     'the full PokemonCardList contains Marshadow first and Energy second');
   assert.equal(energySublistIndex, 0,
-    'the attached-Energy sublist contains only the Energy');
+    'the selected Energy is first in the attached-Energy sublist');
   assert.strictEqual(fullIndexDecoded[0], energy1,
     'client indices decode against the full PokemonCardList.cards array');
   assert.strictEqual(sublistIndexDecoded[0], marshadow,
@@ -228,9 +228,9 @@ function runSnapTrapChoiceContract() {
   const attackerAfter = after.players.find(player => player.id === attacker.id);
   assert.ok(!attackerAfter.active.cards.includes(energy1),
     'the selected physical Energy must leave the full active PokemonCardList');
-  assert.ok(!attackerAfter.active.energies.cards.includes(energy),
+  assert.ok(!attackerAfter.active.energies.cards.includes(energy1),
     'the selected physical Energy must leave the attached-Energy sublist');
-  assert.ok(attackerAfter.discard.cards.includes(energy),
+  assert.ok(attackerAfter.discard.cards.includes(energy1),
     'the actual Snap Trap callback must move the selected Energy to attacker discard');
   assert.ok(attackerAfter.active.cards.includes(energy2),
     'the unselected physical Energy must remain attached');
