@@ -218,6 +218,7 @@ test('phase summary and injected runner preserve A/B/A order, seat coverage and 
   });
   assert.deepEqual(calls,['A','B','A2']);
   assert.equal(result.summary.attempts,24);
+  assert.equal(result.executionGate.passed,true);
   assert.equal(result.summary.allRegisteredTrialsReturned,true);
   assert.equal(result.summary.allPhysicalOpeningsMatchedAcrossABA,true);
   assert.equal(result.summary.controlsRepeatedExactly,true);
