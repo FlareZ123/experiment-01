@@ -229,7 +229,7 @@ function strictVipTreatmentAttribution(input){
 
   const divergence=firstDivergence(controlLedger,treatmentLedger);
   if(!divergence)return {
-    attributed:false,reason:'missing-ledger-or-no-treatment-divergence'
+    attributed:false,reason:'no-treatment-divergence'
   };
   const {before,after,index}=divergence;
   if(!before||!after)return {
