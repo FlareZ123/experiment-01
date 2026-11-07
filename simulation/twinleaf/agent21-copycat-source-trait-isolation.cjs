@@ -15,10 +15,10 @@ let installed = null;
  * or any other source power. The original power object is restored even if
  * the Store rejects the copied effect.
  *
- * @param {{onIsolation?:(event:object)=>void}} [options] Optional test observer.
+ * @param {{onIsolation?:(event:object)=>void,onObserve?:(event:object)=>void}} [options] Optional test observers.
  * @returns {() => void} Restore the pinned reducer.
  */
-function installMimikyuCopycatSourceTraitIsolationHook({onIsolation}={}) {
+function installMimikyuCopycatSourceTraitIsolationHook({onIsolation,onObserve}={}) {
   if (installed) return installed.restore;
 
   const { Mimikyu } = require(path.join(output,
@@ -30,6 +30,15 @@ function installMimikyuCopycatSourceTraitIsolationHook({onIsolation}={}) {
 
   /** @param {object} store @param {object} state @param {object} effect */
   function patchedReduceEffect(store,state,effect) {
+    onObserve?.({
+      effectType:effect?.constructor?.name??null,
+      attackName:effect?.attack?.name??null,
+      instanceOfAttackEffect:effect instanceof AttackEffect,
+      receiverName:this.name??null,
+      receiverFullName:this.fullName??null,
+      sourcePokemonName:effect?.source?.getPokemonCard?.()?.name??null,
+      sourcePokemonFullName:effect?.source?.getPokemonCard?.()?.fullName??null
+    });
     if (!(effect instanceof AttackEffect)
         || effect.attack !== this.attacks[1]
         || effect.source?.getPokemonCard() !== this) {
