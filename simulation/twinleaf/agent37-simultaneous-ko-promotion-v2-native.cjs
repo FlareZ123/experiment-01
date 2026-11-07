@@ -109,6 +109,41 @@ function run(){
   assert.equal(lastPokemon.scopedHookAudit.terminalSuppressed,1);
   assert.equal(lastPokemon.seenPrompts.includes('AttachEnergyPrompt'),false);
 
+  const simultaneousLastPrize=[0,1].map(actorSeat=>{
+    const baseline=runOne(actorSeat,false,1,true);
+    const treatment=runOne(actorSeat,withInstanceScopedPaperKoBeforeEndTurnV2,1,true);
+    const b=baseline.result,t=treatment.result,a=treatment.audit;
+    assert.equal(b.finished,true);
+    assert.equal(t.finished,true);
+    assert.equal(b.winnerSeat,0);
+    assert.equal(t.winnerSeat,0);
+    assert.equal(b.winnerPlayer,actorSeat===0?'owner':'opponent');
+    assert.equal(t.winnerPlayer,b.winnerPlayer);
+    assert.equal(b.ownerPrizesRemaining,actorSeat===0?0:1);
+    assert.equal(b.opponentPrizesRemaining,actorSeat===0?1:0);
+    assert.equal(t.ownerPrizesRemaining,b.ownerPrizesRemaining);
+    assert.equal(t.opponentPrizesRemaining,b.opponentPrizesRemaining);
+    assert.equal(t.promotionOrder.length,0);
+    assert.equal(t.seenPrompts.includes('ChoosePrizePrompt'),false);
+    assert.equal(t.seenPrompts.includes('ChoosePokemonPrompt'),false);
+    assert.equal(t.seenPrompts.includes('AttachEnergyPrompt'),false);
+    assert.equal(a.correctionArmed,false);
+    assert.equal(a.promotionOrderReordered,false);
+    assert.equal(a.terminalSuppressed,1);
+    assert.equal(a.completed,0);
+    assert.equal(a.originalRestored,true);
+    assert.equal(a.otherStoresUnmodified,true);
+    return {
+      actorSeat,
+      paperExpectedOutcome:'Tie',
+      nativeOutcome:t.winnerPlayer,
+      nativeOutcomeMatchesPaper:false,
+      baseline:b,
+      treatment:t,
+      v2Audit:a
+    };
+  });
+
   return {
     schema:'agent37-simultaneous-ko-promotion-v2-native-v1',
     pinnedTwinleaf:PINNED,
@@ -128,6 +163,12 @@ function run(){
       noKoCorrectionSkipped:true,
       lastPrizeTerminalSuppressesE21:true,
       lastPokemonTerminalSuppressesE21:true
+    },
+    simultaneousLastPrize:{
+      bothSeatsNativeWinnerIsFirstStatePlayer:true,
+      paperExpectedOutcome:'Tie',
+      nativeOutcomeMismatch:true,
+      rows:simultaneousLastPrize
     },
     competitiveGamesQualified:0,
     rows,
