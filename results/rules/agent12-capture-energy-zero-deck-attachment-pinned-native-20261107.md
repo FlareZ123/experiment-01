@@ -49,6 +49,12 @@ Initial [CI 42329314804](https://github.com/FlareZ123/experiment-01/actions/runs
 
 The existing manual `.github/workflows/agent12-bellelba-paper-payment-native.yml` carries these tests, and their original other native tests passed at the final run.
 
+## Additional adversarial negative controls, 7 November
+
+The narrowed opt-in hook now requires an **open Bench slot** as an additional exact activation condition. This agrees with native behavior for a **full Bench**, where Capture Energy's Basic search is bypassed correctly even if the owner's deck is empty. The [native fixture](../../simulation/twinleaf/agent12-capture-energy-empty-deck-native.cjs) also now supports a one-card deck containing only a non-Basic Energy, for which a valid `ChooseCardsPrompt` answer selects **zero** Pokémon and still shuffles normally.
+
+Fourth independent [manual native CI 42330262745](https://github.com/FlareZ123/experiment-01/actions/runs/42330262745), checkout `13935c672f1973ee1127d6e3d9f51d0e4b550e97`, completed with **SUCCESS**: eight original native controls and seven pure hook regressions green, alongside all four patched live-native comparisons and existing other paper checks. Both owner physical seats passed four distinct constructed conditions: open Bench/zero deck throws incorrectly; full Bench/zero deck attaches legally in the original engine; open Bench/non-Basic-only deck attaches legally with a zero-selected search; open Bench/one Basic deck attaches and benches that Basic after real native search, shuffle and wait. The scoped correction leaves the latter three printed behaviors unchanged. No natural Aichi source game or qualified complete match is implied by the expanded test matrix.
+
 ## Research consequence
 
 This finding identifies one credible pinned-native fidelity error affecting a printing used in seven of the 29 authenticated historical source lists. It is unmeasured whether actual original-source games encounter the zero-deck case or use the Energy at that moment. The repair has **not** been activated in v8 common-policy evaluation; no prior native result should be retroactively changed. Stewards should prospectively test the hook with actual source owner turn, hand card custody, remaining deck count, available Bench, real native Store result, opponent reply and official clock before choosing policy integration. All 32 original 60s, full-game completion, strong bilateral policies and qualified game evidence remain release prerequisites.
