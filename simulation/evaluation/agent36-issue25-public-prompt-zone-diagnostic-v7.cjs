@@ -13,7 +13,7 @@ const REGISTRATION_PATH = path.resolve(
   __dirname,
   '../../results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json'
 );
-const EXPECTED_REGISTRATION_SHA = '24d2a8a11044e9c0325e56313af677b67fcc7501';
+const EXPECTED_REGISTRATION_SHA = '114796347b81fe2f1baae5fe752f9e77067b6e01';
 const ARTIFACT_DIR = path.resolve(
   process.cwd(),
   'artifacts/agent36-issue25-public-prompt-zone-diagnostic-v7'
