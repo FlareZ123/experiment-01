@@ -327,6 +327,8 @@ for(const seat of [0,1]){
     assert.equal(out.audit.paperVerifiedNativeAccepted,0);
     assert.equal(out.audit.paperUnverified,1);
     assert.equal(out.audit.paperInvalidVetoed,0);
+    assert.equal(out.audit.events[0].nativeAccepted,true);
+    assert.equal(out.audit.events[0].physicalEffectVerified,false);
     assert.ok(f.owner.bench[0].cards.includes(f.energy));
   });
 }
