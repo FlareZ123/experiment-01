@@ -212,33 +212,38 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     const sourceSeat = proof.sourceSeat;
     const sourceOwner = state.players?.[sourceSeat];
     assert.ok(sourceOwner, 'source owner must exist in the exact prompt State');
-    const verified = verifySnapTrapPrompt(
-      state,
-      createdPrompt,
-      proof,
-      {client: {id: sourceOwner.id}},
-      types,
-      ChooseCardsPrompt
-    );
-    const attacker = verified.attacker;
+    assert.equal(createdPrompt.constructor?.name, 'ChooseCardsPrompt');
+    const sourceOwner = state.players?.[proof.sourceSeat];
+    const attacker = state.players?.[proof.attackerSeat];
+    assert.ok(sourceOwner && attacker, 'source and attacker seats must exist');
+    const sourceCard = sourceOwner.active?.getPokemonCard?.();
+    const sourceEffect = sourceCard?.powers?.[0];
     const attackerActive = attacker.active;
-    const energySublist = attackerActive.energies;
+    const attackerPokemon = attackerActive?.getPokemonCard?.();
+    const energySublist = attackerActive?.energies;
+    assert.ok(sourceCard && sourceEffect && attackerPokemon && energySublist);
+    assert.strictEqual(createdPrompt.player, sourceOwner);
+    assert.strictEqual(createdPrompt.cards, attackerActive);
+    assert.strictEqual(createdPrompt.cards.energies, energySublist);
     const eligibleEnergyCards = energySublist.cards.filter(card =>
       card?.superType === types.SuperType.ENERGY
     );
 
+    // Capture physical references now. Marker v3 completes promptIdAfterStore
+    // after this Store.prompt wrapper returns, so full proof validation occurs
+    // later in decodeNextAction, when the same proof object is complete.
     const identity = {
       store: this,
       state,
       proof,
-      sourceOwner: verified.sourceOwner,
+      sourceOwner,
       attacker,
-      sourceActive: verified.sourceOwner.active,
-      sourceCard: verified.sourceCard,
-      sourceEffect: verified.sourceEffect,
-      sourceActiveCards: [...verified.sourceOwner.active.cards],
+      sourceActive: sourceOwner.active,
+      sourceCard,
+      sourceEffect,
+      sourceActiveCards: [...sourceOwner.active.cards],
       attackerActive,
-      attackerPokemon: attackerActive.getPokemonCard(),
+      attackerPokemon,
       attackerParentCards: [...attackerActive.cards],
       energySublist,
       energySublistCards: [...energySublist.cards],
