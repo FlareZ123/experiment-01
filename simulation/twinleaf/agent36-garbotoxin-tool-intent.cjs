@@ -43,7 +43,8 @@ function isPokemonV(pokemon){
  * Conservatively preserve a still-usable Star Alchemy before activating
  * Garbotoxin. The source can use an owner-held Forest Seal Stone on a free
  * Pokémon V, or use one already attached to a Pokémon V, while VSTAR remains
- * unused. The native actor observation exposes the public vstarUsed marker.
+ * unused. This check only defers the Tool proposal; the normal player policy
+ * must still produce the actual attachment and VSTAR-use actions.
  *
  * @param {object} view Frozen actorObservation for an owner root.
  * @returns {boolean} Whether a possible Star Alchemy use should be preserved.
@@ -70,25 +71,16 @@ function shouldDeferForStarAlchemy(view){
 }
 
 /**
- * Select an owner-held Tool for an unequipped Garbotoxin Garbodor when the
- * opponent has a Pokémon with a printed Ability on its public board.
- *
- * This is an owner-only proposal. It reads only the acting player's hand,
- * the acting player's public board, and the opponent's public board. It does
- * not inspect the opponent's hidden hand, discard pile, or deck. Agent18's
- * enumerator supplies only candidates; the native Store remains the
- * authority for whether a Tool attachment is legal.
- *
- * Float Stone is preferred for mobility. Forest Seal Stone is a fallback
- * only when Star Alchemy is already used or no usable Pokémon V recipient
- * remains. When a VSTAR Power can still be used, the selector defers the
- * Garbotoxin lock rather than disabling that option prematurely.
+ * Evaluate the owner-visible Garbotoxin Tool opportunity and explain why
+ * it did or did not produce a native Tool candidate.
  *
  * @param {object} view Frozen actorObservation for an owner root.
  * @param {{toolPrintings:Set<string>}} catalog Public Tool printing catalog.
- * @returns {object|null} Native owner-root Tool candidate intent.
+ * @returns {{intent:object|null,reason:string,opponentAbilityCount:number,
+ *   garbodorTargetCount:number,toolCandidateCount:number,
+ *   vstarUsed:boolean|null,starAlchemyDeferred:boolean}}
  */
-function chooseGarbodorToolIntent(view,catalog){
+function evaluateGarbodorToolIntent(view,catalog){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(catalog?.toolPrintings instanceof Set);
 
@@ -96,7 +88,17 @@ function chooseGarbodorToolIntent(view,catalog){
     view.opponentPublic.active,
     ...view.opponentPublic.bench
   ];
-  if(!opponentPokemon.some(hasPrintedAbility))return null;
+  const opponentAbilityCount=opponentPokemon.filter(
+    hasPrintedAbility
+  ).length;
+  const empty={
+    intent:null,opponentAbilityCount,garbodorTargetCount:0,
+    toolCandidateCount:0,
+    vstarUsed:view.ownPublic.publicTurnRestrictions.vstarUsed??null,
+    starAlchemyDeferred:false
+  };
+  if(opponentAbilityCount===0)
+    return {...empty,reason:'no-opponent-ability'};
 
   const garbodorTargets=[
     {slot:'active',index:0,pokemon:view.ownPublic.active},
@@ -104,34 +106,66 @@ function chooseGarbodorToolIntent(view,catalog){
       slot:'bench',index,pokemon
     }))
   ].filter(target=>isUnequippedGarbotoxin(target.pokemon));
-  if(garbodorTargets.length===0)return null;
-  if(shouldDeferForStarAlchemy(view))return null;
+  if(garbodorTargets.length===0)
+    return {...empty,reason:'no-unequipped-garbodor',
+      garbodorTargetCount:0};
 
   const candidates=enumerateActorToolCandidates(
     view,catalog.toolPrintings
   );
+  const eligibleCandidates=garbodorTargets.flatMap(target=>
+    candidates.filter(item=>
+      item.slot===target.slot&&item.index===target.index&&
+      (item.printing.startsWith(FLOAT_STONE_PREFIX)||
+       item.printing.startsWith(FOREST_SEAL_STONE_PREFIX))
+    )
+  );
+  const candidateStatus={
+    ...empty,garbodorTargetCount:garbodorTargets.length,
+    toolCandidateCount:eligibleCandidates.length
+  };
+  if(eligibleCandidates.length===0)
+    return {...candidateStatus,reason:'no-tool-candidate'};
+
+  if(shouldDeferForStarAlchemy(view))
+    return {...candidateStatus,reason:'star-alchemy-available',
+      starAlchemyDeferred:true};
+
   for(const target of garbodorTargets){
-    const floatStone=candidates.find(item=>
+    const floatStone=eligibleCandidates.find(item=>
       item.printing.startsWith(FLOAT_STONE_PREFIX)&&
       item.slot===target.slot&&item.index===target.index
     );
     if(floatStone)return {
-      ...floatStone,
-      source:'agent36-garbotoxin-float-stone-v1'
+      ...candidateStatus,reason:'selected',
+      intent:{...floatStone,source:'agent36-garbotoxin-float-stone-v1'}
     };
-    const forestSealStone=candidates.find(item=>
+    const forestSealStone=eligibleCandidates.find(item=>
       item.printing.startsWith(FOREST_SEAL_STONE_PREFIX)&&
       item.slot===target.slot&&item.index===target.index
     );
     if(forestSealStone)return {
-      ...forestSealStone,
-      source:'agent36-garbotoxin-fss-fallback-v1'
+      ...candidateStatus,reason:'selected',
+      intent:{...forestSealStone,source:'agent36-garbotoxin-fss-fallback-v1'}
     };
   }
-  return null;
+  return {...candidateStatus,reason:'no-tool-candidate'};
+}
+
+/**
+ * Select the preferred native Tool candidate, if the current public/own
+ * information supports one.
+ *
+ * @param {object} view Frozen actorObservation for an owner root.
+ * @param {{toolPrintings:Set<string>}} catalog Public Tool printing catalog.
+ * @returns {object|null} Native owner-root Tool candidate intent.
+ */
+function chooseGarbodorToolIntent(view,catalog){
+  return evaluateGarbodorToolIntent(view,catalog).intent;
 }
 
 module.exports={
   chooseGarbodorToolIntent,
+  evaluateGarbodorToolIntent,
   shouldDeferForStarAlchemy
 };
