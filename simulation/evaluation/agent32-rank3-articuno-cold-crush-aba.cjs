@@ -18,6 +18,7 @@ const {withOwnerAbilityConfirmPolicy} =
   require('../twinleaf/agent36-owner-ability-confirm-policy.cjs');
 const {withArticunoColdCrushPolicy} =
   require('../twinleaf/agent32-articuno-cold-crush-policy.cjs');
+const AICHI_CORPUS = require('../../results/aichi-2026/full-decklists.json');
 
 const VERSION = 'agent32-rank3-articuno-cold-crush-matched-aba-v1';
 const PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -32,6 +33,28 @@ const VARIANTS = Object.freeze([
 /** @param {object} value */
 function sha(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+/**
+ * Read exact source-printing counts from the authenticated paper manifest.
+ * planAichi returns engine card IDs, not card metadata objects.
+ * @param {object} [corpus]
+ * @returns {{articunoCES31:number,basicWater:number,captureEnergy:number}}
+ */
+function sourceCountsFromManifest(corpus = AICHI_CORPUS) {
+  const source = corpus.decks.find(deck => deck.rank === 3);
+  assert.ok(source, 'authenticated Aichi rank-3 source deck must exist');
+  assert.equal(source.archetype, 'Snorlax Stall');
+  assert.equal(source.cards.reduce((sum, card) => sum + card.count, 0), 60);
+  const count = (name, set, number) => source.cards
+    .filter(card => card.name === name &&
+      card.printing?.set === set && card.printing?.number === number)
+    .reduce((sum, card) => sum + card.count, 0);
+  return {
+    articunoCES31: count('Articuno-GX', 'CES', '31'),
+    basicWater: count('Water Energy', 'MEE', '11'),
+    captureEnergy: count('Capture Energy', 'RCL', '171')
+  };
 }
 
 /** @returns {object[]} Pre-registered matched A/B/A deal schedule. */
@@ -133,10 +156,11 @@ function nextOpponentResponse(game, opponentSeat, attack) {
 
 /**
  * @param {object} trial
- * @param {{source:object[],candidate:object[]}} decks
+ * @param {{source:string[],candidate:string[]}} decks
+ * @param {{articunoCES31:number,basicWater:number,captureEnergy:number}} sourceCounts
  * @returns {object}
  */
-function runOne(trial, decks) {
+function runOne(trial, decks, sourceCounts) {
   const request = {
     deckA: (trial.candidateSeat === 0 ? decks.candidate : decks.source).slice(),
     deckB: (trial.candidateSeat === 1 ? decks.candidate : decks.source).slice(),
@@ -181,7 +205,9 @@ function runOne(trial, decks) {
       rootActionCount: game.rootActionLedger?.length ?? null,
       rootActionLedgerSha256: game.rootActionLedger ? sha(game.rootActionLedger) : null,
       attackDeclarationCount: game.attackDeclarationTrace?.length ?? null,
+      attackDeclarationSha256: game.attackDeclarationTrace ? sha(game.attackDeclarationTrace) : null,
       publicAttackTransitionCount: game.publicAttackTransitions?.length ?? null,
+      publicAttackTransitionsSha256: game.publicAttackTransitions ? sha(game.publicAttackTransitions) : null,
       articunoAudit: art,
       ownerAbilityAudit: observed.audits.ownerAbility,
       sameTargetAudit: observed.audits.sameTargetEnergy,
@@ -209,14 +235,38 @@ function summarize(rows) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(row);
   }
+  const expectedVariants = VARIANTS.map(variant => variant.name);
   const matched = [...groups.entries()].map(([key, group]) => {
-    const fingerprints = group.map(row => row.fullInitialDealSha256);
+    const variants = group.map(row => row.trial.variant);
+    const fullFingerprints = group.map(row => row.fullInitialDealSha256 ?? null);
+    const sourceFingerprints = group.map(row => row.sourceInitialDealSha256 ?? null);
+    const firstControl = group.find(row => row.trial.variant === 'A-observe');
+    const repeatControl = group.find(row => row.trial.variant === 'A-repeat-observe');
+    const sameObserveControl = Boolean(firstControl && repeatControl &&
+      firstControl.status === repeatControl.status &&
+      firstControl.nativeWinner === repeatControl.nativeWinner &&
+      firstControl.nativeActions === repeatControl.nativeActions &&
+      firstControl.nativeTurn === repeatControl.nativeTurn &&
+      firstControl.actualStarterSeat === repeatControl.actualStarterSeat &&
+      firstControl.sourceActuallyFirst === repeatControl.sourceActuallyFirst &&
+      typeof firstControl.rootActionLedgerSha256 === 'string' &&
+      firstControl.rootActionLedgerSha256 === repeatControl.rootActionLedgerSha256 &&
+      firstControl.attackDeclarationSha256 === repeatControl.attackDeclarationSha256 &&
+      firstControl.publicAttackTransitionsSha256 === repeatControl.publicAttackTransitionsSha256);
     return {
       key,
-      variants: group.map(row => row.trial.variant),
-      fingerprints,
-      sameInitialDeal: fingerprints.every(value =>
-        value !== null && value === fingerprints[0])
+      variants,
+      completeAba: group.length === expectedVariants.length &&
+        variants.every((variant, index) => variant === expectedVariants[index]),
+      fullFingerprints,
+      sourceFingerprints,
+      sameInitialDeal: group.length === expectedVariants.length &&
+        fullFingerprints.every(value =>
+          typeof value === 'string' && value.length > 0 && value === fullFingerprints[0]),
+      sameSourceDeal: group.length === expectedVariants.length &&
+        sourceFingerprints.every(value =>
+          typeof value === 'string' && value.length > 0 && value === sourceFingerprints[0]),
+      sameObserveControl
     };
   });
   const events = rows.flatMap(row =>
@@ -228,6 +278,7 @@ function summarize(rows) {
     nativeErrors: rows.filter(row => row.status === 'native-error').length,
     nativeTerminals: rows.filter(row => row.status === 'native-terminal').length,
     actionCaps: rows.filter(row => row.status === 'action-cap').length,
+    firstStartUnverifiedRows: rows.filter(row => row.firstStartVerified !== true).length,
     articunoConfirmOffers: events.length,
     proposalAccepts: events.filter(event => event.proposalDecision === true).length,
     actualAccepts: events.filter(event => event.actualDecision === true).length,
@@ -236,9 +287,34 @@ function summarize(rows) {
       n + (row.articunoAudit?.coldCrushAttackEvents?.length ?? 0), 0),
     matchedDealGroups: matched.length,
     matchedInitialDeals: matched.filter(group => group.sameInitialDeal).length,
+    matchedSourceDeals: matched.filter(group => group.sameSourceDeal).length,
+    completeAbaGroups: matched.filter(group => group.completeAba).length,
+    reproducibleObserveGroups: matched.filter(group => group.sameObserveControl).length,
     matchedDealChecks: matched,
     competitiveQualifiedGames: 0
   };
+}
+
+/**
+ * Fail closed unless all pre-registered A/B/A deal and control checks hold.
+ * @param {object} summary
+ * @param {number} [expectedGroups]
+ * @param {number} [expectedAttempts]
+ * @returns {{passed:boolean,checks:object}}
+ */
+function panelAcceptance(summary, expectedGroups = SEEDS.length * 2,
+  expectedAttempts = expectedGroups * VARIANTS.length) {
+  const checks = {
+    expectedAttemptCount: summary.attempted === expectedAttempts,
+    noNativeErrors: summary.nativeErrors === 0,
+    completeMatchedGroups: summary.matchedDealGroups === expectedGroups,
+    fullPhysicalDealsMatch: summary.matchedInitialDeals === expectedGroups,
+    sourceDealsMatch: summary.matchedSourceDeals === expectedGroups,
+    completeAbaGroups: summary.completeAbaGroups === expectedGroups,
+    observeControlsReproduce: summary.reproducibleObserveGroups === expectedGroups,
+    firstPlayerVerifiedForEveryRow: summary.firstStartUnverifiedRows === 0
+  };
+  return {passed: Object.values(checks).every(Boolean), checks};
 }
 
 function run() {
@@ -246,12 +322,10 @@ function run() {
   const decks = originals();
   assert.equal(decks.source.length, 60);
   assert.equal(decks.candidate.length, 60);
-  const sourceCounts = {
-    articunoCES31: decks.source.filter(card => card.fullName === 'Articuno-GX CES').length,
-    basicWater: decks.source.filter(card => card.name === 'Water Energy').length,
-    captureEnergy: decks.source.filter(card => card.name === 'Capture Energy').length
-  };
-  assert.deepEqual(sourceCounts, {articunoCES31: 1, basicWater: 2, captureEnergy: 3});
+  const sourceCounts = sourceCountsFromManifest();
+  assert.deepEqual(sourceCounts, {
+    articunoCES31: 1, basicWater: 2, captureEnergy: 3
+  });
 
   const envNames = [
     'AGENT8_ACTOR_QUICK_BALL_DEV',
@@ -262,7 +336,9 @@ function run() {
   try {
     for (const name of envNames) process.env[name] = 'false';
     const attempts = schedule();
-    const rows = attempts.map(trial => runOne(trial, decks));
+    const rows = attempts.map(trial => runOne(trial, decks, sourceCounts));
+    const summary = summarize(rows);
+    const acceptance = panelAcceptance(summary);
     return {
       version: VERSION,
       nativePin: PIN,
@@ -272,13 +348,15 @@ function run() {
       candidateArchetype: 'Shadow Rider Calyrex',
       sourceDeckSha256: sha(decks.source),
       candidateDeckSha256: sha(decks.candidate),
+      sourceDeckCounts: sourceCounts,
       seeds: [...SEEDS],
       candidateSeats: [0, 1],
       variants: VARIANTS,
       maxActionsPerMatch: ACTION_LIMIT,
       schedule: attempts,
       rows,
-      summary: summarize(rows),
+      summary,
+      acceptance,
       limitations: [
         'The source rank3 and rank1 reference decks are unchanged authenticated original 60s.',
         'The A/B/A policy comparison uses the same seed, physical seats, engine, and general policy stack.',
@@ -286,6 +364,7 @@ function run() {
         'Intervene mode accepts only exact Articuno-GX CES 31 hand-play prompts with one transferable Basic Water, unused GX, and at least the configured public Active Energy threshold.',
         'Capture Energy putting Articuno directly onto the Bench does not trigger Legendary Ascent and is not treated as a hand-play prompt.',
         'The default pinned bot and canonical actor policy remain limited; match outcomes are not competitive-strength evidence.',
+        'All A1/B/A2 groups must share both physical-deal fingerprints; the two observe controls must reproduce their native traces.',
         'No result qualifies toward the 99.5% Top 32 target.'
       ]
     };
@@ -300,10 +379,11 @@ function run() {
 if (require.main === module) {
   const result = run();
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-  if (result.summary.nativeErrors > 0) process.exitCode = 1;
+  if (!result.acceptance.passed) process.exitCode = 1;
 }
 
 module.exports = {
   VERSION, PIN, SEEDS, ACTION_LIMIT, VARIANTS,
-  schedule, runWithPolicies, nextOpponentResponse, runOne, summarize, run
+  schedule, sourceCountsFromManifest, runWithPolicies, nextOpponentResponse,
+  runOne, summarize, panelAcceptance, run
 };
