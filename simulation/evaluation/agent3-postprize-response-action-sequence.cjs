@@ -211,9 +211,11 @@ function joinPostPrizeResponseActionSequences(
       reply.causalSourcePrizeRootOrdinal),
     'Response sequence must descend from the exact causal physical Prize root');
 
-    const roots=new Map(raw.rootActionLedger.map(root=>
-      [root.actionOrdinal,root]));
-    const decisions=new Map((raw.decisionTrace??[]).map(decision=>
+    const rootRows=raw.rootActionLedger??raw.nativePublicRootArchive?.rootActionLedger;
+    const decisionRows=raw.decisionTrace??raw.nativePublicRootArchive?.decisionTrace??[];
+    assert.ok(Array.isArray(rootRows),'Exact trial needs an actual headless root ledger');
+    const roots=new Map(rootRows.map(root=>[root.actionOrdinal,root]));
+    const decisions=new Map(decisionRows.map(decision=>
       [decision.actionOrdinal,decision]));
     const actions=sequence.actions.map(action=>{
       const root=roots.get(action.rootOrdinal);
