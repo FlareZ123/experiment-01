@@ -7,6 +7,7 @@ const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p @returns {any} */
 const native=p=>require(path.join(BASE,p));
+const {GameWinner}=native('game/store/state/state');
 
 /**
  * Research-only terminal adapter. When two Active KOs each exhaust the
