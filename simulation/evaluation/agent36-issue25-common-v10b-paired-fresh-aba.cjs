@@ -1,0 +1,738 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {createHash,randomUUID}=require('node:crypto');
+
+const registration=require('../../results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json');
+const {runSelectedIssue25V0,hashRegisteredFile}=
+  require('./agent36-issue25-selected-v0.cjs');
+const {runDevelopment}=
+  require('./agent41-bilateral-v2-development.cjs');
+const {withStewardOwnerPromptFrontier}=
+  require('./agent36-issue25-steward-selected-v4.cjs');
+const {withStewardInnermostOwnerPrompts}=
+  require('./agent36-issue25-steward-innermost-prize-v5.cjs');
+const {withCommonOwnerThornsRoot}=
+  require('./agent36-issue25-common-v6.cjs');
+const {withOwnerVoltAcrossNativeMatches}=
+  require('./agent36-issue25-common-v7.cjs');
+const {runIssue25V8WithOwnerAbilityPolicy}=
+  require('./agent36-issue25-v8-owner-ability-policy.cjs');
+const {
+  screenObservedReciprocalSequence,
+  screenNativeMaterialReciprocalExchange
+}=require('./agent45-bilateral-competence-gate.cjs');
+
+const VERSION='agent36-issue25-common-v10b-paired-fresh-aba-260root-v1';
+const ROOT_LIMIT=260;
+const ENV='AGENT9_BATTLE_VIP_AFTER_PASS_DEV';
+const PHASES=Object.freeze(['A','B','A2']);
+const HASH_PATHS=Object.freeze([
+  'simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs',
+  'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
+  'results/aichi-2026/full-decklists.json',
+  'scripts/aichi-new-moon-candidate.cjs',
+  'results/als/new-moon-official-japanese-print-60.json',
+  'results/als/new-moon-lockbreak-english-proxy-60.json',
+  'results/als/new-moon-perfection-english-map.json',
+  'resources/cards/en/swsh8.json',
+  'simulation/evaluation/agent36-issue25-common-v8.cjs',
+  'simulation/evaluation/agent36-issue25-v8-owner-ability-policy.cjs',
+  'simulation/evaluation/agent32-issue25-v8-telepath-development.cjs',
+  'simulation/evaluation/agent36-issue25-selected-v0.cjs',
+  'simulation/evaluation/agent41-bilateral-v2-development.cjs',
+  'simulation/evaluation/agent36-issue25-steward-selected-v4.cjs',
+  'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
+  'simulation/evaluation/agent36-issue25-common-v6.cjs',
+  'simulation/evaluation/agent36-issue25-common-v7.cjs',
+  'simulation/evaluation/agent7-canonical-actor-composition.cjs',
+  'simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs',
+  'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
+  'simulation/twinleaf/agent1-radiant-zero-gate-hook.cjs',
+  'simulation/twinleaf/agent8-owner-telepathic-bench-search.cjs',
+  'simulation/twinleaf/prompt-integrity.cjs',
+  'tests/agent16-issue25-canonical-vip-v11.native.test.cjs',
+  'tests/agent36-owner-ability-confirm-policy.test.cjs',
+  'tests/agent36-v8-owner-ability-policy.native.test.cjs',
+  'simulation/evaluation/agent45-bilateral-competence-gate.cjs',
+  'tests/agent45-bilateral-competence-gate.test.cjs',
+  'tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs',
+  '.github/workflows/agent36-bilateral-competence-v9.yml'
+]);
+
+/** @returns {object[]} Frozen eight-context fresh-deal cohort. */
+/** @returns {object[]} Frozen paired eight-context fresh-deal cohort. */
+function trials(){
+  assert.equal(registration.schema,VERSION);
+  assert.equal(registration.status,'FROZEN_BEFORE_EXECUTION');
+  assert.equal(registration.trialCount,8);
+  assert.equal(registration.maxNativeRootActionsPerArm,ROOT_LIMIT);
+  assert.deepEqual(registration.sourceOriginalRanks,[1,3,6,11]);
+  assert.deepEqual(registration.contendingPrintedSixties,[
+    'champion-reference','new-moon-lockbreaker-v1'
+  ]);
+  assert.deepEqual(registration.phases.map(x=>x.id),PHASES);
+  assert.equal(registration.groups.length,4);
+  assert.equal(registration.trials.length,8);
+  const expected=registration.groups.flatMap(group=>
+    registration.contendingPrintedSixties.map(candidateId=>({
+      ...group,candidateId,
+      id:[group.rank,group.repeat,group.candidateSlot,candidateId].join(':')
+    })));
+  assert.deepEqual(registration.trials,expected);
+  assert.equal(new Set(expected.map(x=>x.id)).size,8);
+  assert.equal(new Set(registration.groups.map(x=>x.seed)).size,4);
+  for(const row of expected){
+    assert.ok(registration.sourceOriginalRanks.includes(row.rank));
+    assert.ok(row.candidateSlot==='A'||row.candidateSlot==='B');
+    assert.ok(registration.contendingPrintedSixties.includes(row.candidateId));
+    assert.ok(Number.isSafeInteger(row.seed)&&row.seed>=0&&row.seed<=0xffffffff);
+  }
+  const expectedSlots={1:'A',3:'B',6:'A',11:'B'};
+  for(const rank of registration.sourceOriginalRanks){
+    const groups=registration.groups.filter(x=>x.rank===rank);
+    assert.equal(groups.length,1);
+    assert.equal(groups[0].candidateSlot,expectedSlots[rank]);
+    const pair=expected.filter(x=>x.rank===rank);
+    assert.deepEqual(pair.map(x=>x.candidateId).sort(),[
+      'champion-reference','new-moon-lockbreaker-v1'
+    ]);
+    assert.equal(new Set(pair.map(x=>x.seed)).size,1);
+  }
+  return expected.map(x=>({...x}));
+}
+
+/**
+ * Scope one process-global opt-in to one synchronous phase and restore it on
+ * both success and failure.
+ * @template T
+ * @param {boolean} enabled
+ * @param {()=>T} run
+ * @param {NodeJS.ProcessEnv} [env]
+ * @returns {T}
+ */
+function withVipFlag(enabled,run,env=process.env){
+  assert.equal(typeof enabled,'boolean');
+  assert.equal(typeof run,'function');
+  const prior=env[ENV];
+  if(enabled)env[ENV]='true';
+  else delete env[ENV];
+  try{return run();}
+  finally{
+    if(prior===undefined)delete env[ENV];
+    else env[ENV]=prior;
+  }
+}
+
+/** @param {object} row */
+function nativeVipOutcome(row){
+  const coverage=row.actorOnlyDecisionCoverage??
+    row.nativeAbortEvidence?.actorOnlyDecisionCoverage??
+    row.nativeAbortProvenance?.actorOnlyDecisionCoverage??null;
+  const audit=coverage?.detailedComponentAudits?.ownerVipAfterPass??null;
+  const examples=(audit?.examples??[]).map(event=>({
+    kind:event.kind??null,seat:event.seat??null,turn:event.turn??null,
+    printing:event.printing??null,printings:event.printings??null,
+    accepted:event.accepted??null,
+    nativeBenchConfirmed:event.nativeBenchConfirmed??null,
+    benchBefore:event.benchBefore??null,benchAfter:event.benchAfter??null,
+    deckBefore:event.deckBefore??null,deckAfter:event.deckAfter??null,
+    error:event.error??null
+  }));
+  return {
+    id:row.trial?.id??row.id??null,
+    policyRecorded:audit!==null,
+    originalPassRoots:audit?.originalPassRoots??null,
+    eligiblePassRoots:audit?.eligiblePassRoots??null,
+    acceptedItems:audit?.acceptedItems??null,
+    rejectedItems:audit?.rejectedItems??null,
+    acceptedSearches:audit?.acceptedSearches??null,
+    rejectedSearches:audit?.rejectedSearches??null,
+    nativeBenchConfirmed:audit?.nativeBenchConfirmed??null,
+    nativeBenchUnconfirmed:audit?.nativeBenchUnconfirmed??null,
+    selectedBasicCopies:audit?.selectedBasics??null,
+    unresolvedOwnerSearches:audit?.unresolvedOwnerSearches??null,
+    bySeat:audit?.bySeat??null,
+    examples,
+    rootActionCount:row.rootActionLedger?.length??
+      row.nativeAbortEvidence?.rootActionLedger?.length??null
+  };
+}
+
+/**
+ * Find the strongest available public native root ledger without inventing
+ * one for rows whose execution aborted before a ledger was preserved.
+ * @param {object} row
+ * @returns {object[]|null}
+ */
+function rootLedger(row){
+  const direct=row.rootActionLedger;
+  const archived=row.nativePublicRootArchive?.rootActionLedger;
+  const aborted=row.nativeAbortEvidence?.rootActionLedger??
+    row.nativeAbortProvenance?.rootActionLedger??null;
+  if(Array.isArray(direct)&&direct.length>0)return direct;
+  if(Array.isArray(archived))return archived;
+  if(Array.isArray(aborted))return aborted;
+  if(Array.isArray(direct))return direct;
+  return null;
+}
+
+/** @param {object[]|null} ledger */
+function ledgerSha256(ledger){
+  return Array.isArray(ledger)?
+    createHash('sha256').update(JSON.stringify(ledger)).digest('hex'):null;
+}
+
+/** @param {object} row */
+function sourceDealFingerprint(row){
+  return row.sourceDealFingerprint??
+    row.nativeAbortProvenance?.sourceDealFingerprint??null;
+}
+
+/** @param {object} row */
+function fullPhysicalDealFingerprint(row){
+  return row.fullPhysicalDealFingerprint??
+    row.nativeAbortProvenance?.fullPhysicalDealFingerprint??null;
+}
+
+/** @param {object|null} event */
+function actionKind(event){
+  if(!event||typeof event!=='object')return null;
+  for(const key of ['actionType','action','type','kind','name','constructorName']){
+    if(typeof event[key]==='string')return event[key];
+  }
+  return event.constructor?.name??null;
+}
+
+/**
+ * Compare public action ledgers without copying complete private observations.
+ * @param {object} before
+ * @param {object} after
+ */
+function firstRootDifference(before,after){
+  const a=rootLedger(before),b=rootLedger(after);
+  if(!Array.isArray(a)||!Array.isArray(b))
+    return {available:false,index:null,beforeKind:null,afterKind:null,
+      afterContainsVip:false,beforeContainsPass:false};
+  const n=Math.min(a.length,b.length);
+  for(let i=0;i<n;i++){
+    if(JSON.stringify(a[i])!==JSON.stringify(b[i])){
+      const left=JSON.stringify(a[i]);
+      const right=JSON.stringify(b[i]);
+      return {
+        available:true,index:i+1,
+        beforeKind:actionKind(a[i]),afterKind:actionKind(b[i]),
+        beforeEventSha256:createHash('sha256').update(left).digest('hex'),
+        afterEventSha256:createHash('sha256').update(right).digest('hex'),
+        beforeSeat:a[i].playerSlot??a[i].seat??a[i].actorSeat??null,
+        afterSeat:b[i].playerSlot??b[i].seat??b[i].actorSeat??null,
+        beforeTurn:a[i].turnBefore??a[i].turn??a[i].globalTurn??null,
+        afterTurn:b[i].turnBefore??b[i].turn??b[i].globalTurn??null,
+        afterContainsVip:/Battle VIP Pass|swsh8-225|FST 225/i.test(right),
+        beforeContainsPass:/PassTurnAction|pass.?turn/i.test(left)||
+          /pass/i.test(actionKind(a[i])??'')
+      };
+    }
+  }
+  if(a.length!==b.length){
+    const left=a[n]??null,right=b[n]??null;
+    const leftText=JSON.stringify(left),rightText=JSON.stringify(right);
+    return {
+      available:true,index:n+1,
+      beforeKind:actionKind(left),afterKind:actionKind(right),
+      beforeEventSha256:left===null?null:
+        createHash('sha256').update(leftText).digest('hex'),
+      afterEventSha256:right===null?null:
+        createHash('sha256').update(rightText).digest('hex'),
+      beforeSeat:left?.playerSlot??left?.seat??left?.actorSeat??null,
+      afterSeat:right?.playerSlot??right?.seat??right?.actorSeat??null,
+      beforeTurn:left?.turnBefore??left?.turn??left?.globalTurn??null,
+      afterTurn:right?.turnBefore??right?.turn??right?.globalTurn??null,
+      afterContainsVip:/Battle VIP Pass|swsh8-225|FST 225/i.test(rightText??''),
+      beforeContainsPass:/PassTurnAction|pass.?turn/i.test(leftText??'')||
+        /pass/i.test(actionKind(left)??'')
+    };
+  }
+  return {available:true,index:null,beforeKind:null,afterKind:null,
+    afterContainsVip:false,beforeContainsPass:false};
+}
+
+/**
+ * Preserve native outcome distinctions and screen public reciprocal action
+ * sequences without certifying paper legality, causality or strategic quality.
+ * @param {object} row
+ * @param {object|null} attemptedStatus
+ */
+function summarizeNativeAttempt(row,attemptedStatus=null){
+  const ledger=rootLedger(row);
+  const roots=Array.isArray(ledger)?ledger:[];
+  const acceptedNativeRootCount=row.rootActionCount??
+    (Array.isArray(ledger)?ledger.length:
+      attemptedStatus?.nativeRootActionCount??null);
+  const finished=typeof row.finished==='boolean'?row.finished:null;
+  const actionCount=Number.isSafeInteger(row.actionCount)?row.actionCount:null;
+  const sourceSeat=row.sourceSeat??attemptedStatus?.originalSourceSeat??
+    row.nativeAbortProvenance?.sourceSeat??null;
+  const candidateSeat=row.candidateSeat??attemptedStatus?.candidateSeat??
+    row.nativeAbortProvenance?.candidateSeat??null;
+  const actualFirstPlayerSeat=row.actualStarterSeat??null;
+  const sourceAttackSettlement=row.sourceAttackSettlement??
+    row.actualSourceAttackSettlement??null;
+  const seatsValid=(sourceSeat===0||sourceSeat===1)&&
+    candidateSeat===1-sourceSeat;
+  const generalSequence=seatsValid?
+    screenObservedReciprocalSequence(roots,sourceSeat,candidateSeat):null;
+  const sourceAttackSequence=seatsValid?
+    screenObservedReciprocalSequence(roots,sourceSeat,candidateSeat,
+      {sourceAttackOnly:true}):null;
+  const settledSourceAttackBeforeObservedReply=Boolean(
+    sourceAttackSequence&&Array.isArray(sourceAttackSettlement?.attacks)&&
+    sourceAttackSettlement.attacks.some(attack=>
+      attack.actionOrdinal===sourceAttackSequence.source.ordinal&&
+      attack.settledPromptChain===true&&
+      Number.isSafeInteger(attack.completionRootOrdinal)&&
+      attack.completionRootOrdinal<sourceAttackSequence.opponent.ordinal)
+  );
+  const nativeMaterialExchange=seatsValid&&
+    Array.isArray(sourceAttackSettlement?.attacks)?
+      screenNativeMaterialReciprocalExchange({
+        publicRootActions:roots,
+        originalSourceSeat:sourceSeat,
+        candidateSeat,
+        actualSourceAttackSettlement:sourceAttackSettlement
+      }):null;
+  const aborted=attemptedStatus?.status==='engine-error'||
+    row.nativeAbortProvenance?.aborted===true||
+    row.nativeAbortEvidence?.aborted===true||
+    row.error!==undefined&&row.error!==null;
+  const nativeOutcome=aborted?'engine-error':
+    finished===true?'native-terminal':
+    finished===false&&acceptedNativeRootCount===ROOT_LIMIT&&
+      actionCount===ROOT_LIMIT?'action-cap':'returned-unqualified';
+  return {
+    id:row.trial?.id??row.id??null,
+    rank:row.trial?.rank??null,
+    candidateId:row.trial?.candidateId??null,
+    candidateSlot:row.trial?.candidateSlot??null,
+    seed:row.trial?.seed??null,
+    nativeOutcome,
+    acceptedNativeRootCount,actionCount,finished,
+    winner:row.winner??null,endReason:row.endReason??null,
+    finalPrizes:row.finalPrizes??null,finalBoard:row.finalBoard??null,
+    sourceSeat,candidateSeat,actualFirstPlayerSeat,
+    sourceDealFingerprint:sourceDealFingerprint(row)??
+      attemptedStatus?.sourceDealFingerprint??null,
+    fullPhysicalDealFingerprint:fullPhysicalDealFingerprint(row)??
+      attemptedStatus?.fullPhysicalDealFingerprint??null,
+    declaredSourceAttacks:sourceAttackSettlement?.attacks?.length??null,
+    settledSourceAttacks:sourceAttackSettlement?.attacks?.filter(x=>
+      x.settledPromptChain===true).length??null,
+    sourceAttackSettlementAvailable:Array.isArray(sourceAttackSettlement?.attacks),
+    generalSequence,sourceAttackSequence,
+    settledSourceAttackBeforeObservedReply,
+    nativeMaterialExchange,
+    rootLedgerSha256:ledgerSha256(ledger),
+    paperQualified:false
+  };
+}
+
+/**
+ * @param {object[]} phases
+ * @returns {object[]} One matched A/B/A comparison per registered trial.
+ */
+function compare(phases){
+  assert.equal(phases.length,3);
+  assert.deepEqual(phases.map(x=>x.phase),PHASES);
+  const maps=phases.map(phase=>new Map(
+    (phase.rawDevelopment?.rows??[]).map(row=>[
+      row.trial?.id??row.id??null,row
+    ])
+  ));
+  const summaryMaps=phases.map(phase=>new Map(
+    (phase.diagnostic?.nativeAttempts??[]).map(row=>[row.id,row])
+  ));
+  return trials().map(trial=>{
+    const a=maps[0].get(trial.id)??null;
+    const b=maps[1].get(trial.id)??null;
+    const a2=maps[2].get(trial.id)??null;
+    const all= [a,b,a2];
+    const metadata=[0,1,2].map(i=>summaryMaps[i].get(trial.id)??null);
+    const fingerprints=all.map((row,i)=>({
+      source:metadata[i]?.sourceDealFingerprint??
+        (row?sourceDealFingerprint(row):null),
+      full:metadata[i]?.fullPhysicalDealFingerprint??
+        (row?fullPhysicalDealFingerprint(row):null)
+    }));
+    const physicalOpeningMatchedAcrossABA=all.every(Boolean)&&
+      fingerprints.every(x=>x.source!==null&&x.full!==null)&&
+      fingerprints.every(x=>x.source===fingerprints[0].source&&
+        x.full===fingerprints[0].full);
+    const controls= a&&a2 ? firstRootDifference(a,a2):null;
+    const controlsRepeatedExactly=Boolean(a&&a2&&
+      physicalOpeningMatchedAcrossABA&&
+      controls?.available===true&&controls.index===null&&
+      ledgerSha256(rootLedger(a))===ledgerSha256(rootLedger(a2))&&
+      a.winner===a2.winner&&a.finished===a2.finished);
+    const treatment=a&&b?firstRootDifference(a,b):null;
+    const changed=Boolean(treatment?.available===true&&
+      treatment.index!==null);
+    const vip=nativeVipOutcome(b??{});
+    const matchingVipItem=(vip.examples??[]).some(event=>
+      event.kind==='vip-item'&&event.accepted===true&&
+      Number.isInteger(treatment?.afterSeat)&&
+      Number.isInteger(treatment?.afterTurn)&&
+      event.seat===treatment.afterSeat&&event.turn===treatment.afterTurn);
+    const firstTreatmentDifferenceIsVip=Boolean(changed&&
+      (treatment.afterContainsVip||matchingVipItem)&&
+      (treatment.beforeContainsPass||/pass/i.test(treatment.beforeKind??''))&&
+      (/play/i.test(treatment.afterKind??'')||treatment.afterContainsVip));
+    return {
+      id:trial.id,rank:trial.rank,candidateId:trial.candidateId,
+      candidateSlot:trial.candidateSlot,seed:trial.seed,
+      physicalOpeningMatchedAcrossABA,controlsRepeatedExactly,
+      treatmentChanged:changed,
+      firstTreatmentDifference:treatment,
+      firstTreatmentDifferenceIsVip,
+      treatmentNativeOutcome:b? summarizeNativeAttempt(b):null,
+      controlNativeOutcome:a? summarizeNativeAttempt(a):null,
+      repeatedControlNativeOutcome:a2?summarizeNativeAttempt(a2):null,
+      treatmentVipAudit:vip
+    };
+  });
+}
+
+/** @returns {object} Source-list Battle VIP Pass name counts. */
+function sourceVipCounts(){
+  const root=path.resolve(__dirname,'../..');
+  const roster=JSON.parse(fs.readFileSync(
+    path.join(root,'results/aichi-2026/full-decklists.json'),'utf8'));
+  return Object.fromEntries(registration.sourceOriginalRanks.map(rank=>{
+    const deck=roster.decks.find(row=>row.rank===rank);
+    assert.ok(deck&&Array.isArray(deck.cards));
+    return ['sourceRank'+rank,deck.cards.filter(row=>
+      row.name==='Battle VIP Pass').reduce((sum,row)=>sum+row.count,0)];
+  }));
+}
+
+/**
+ * Run one phase through the same native common policy and the same owner
+ * prompt stack. Only the inner canonical VIP after-Pass flag changes.
+ * @param {object} deps
+ */
+function runRegisteredV10b(deps={}){
+  const phase=deps.phase;
+  assert.ok(PHASES.includes(phase));
+  const registered=trials();
+  const execute=()=>withCommonOwnerThornsRoot(()=>runSelectedIssue25V0({
+    runner:options=>runDevelopment({
+      ...options,
+      actorOnlyComposition:true,
+      sourceIndependentCommonPolicy:true,
+      bilateralSpecialEnergyRoot:true,
+      nativeAcceptedTargets:true,
+      nativeRootActionLimit:ROOT_LIMIT,
+      capturePublicAttackTransitions:true,
+      nativeSetupCoinChoiceReceipt:true,
+      registeredTrials:registered.map(x=>({...x})),
+      registeredFrameName:registration.schema,
+      allowAdditionalOriginalSourceRanks:true,
+      isolatePolicyRandomness:true,
+      isolatePhysicalShuffleRandomnessAfterSetup:true
+    }),
+    layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
+    registeredTrialIds:registered.map(x=>x.id),
+    nativeRootActionLimit:ROOT_LIMIT
+  }),{env:deps.env});
+  const voltWrapper=withOwnerVoltAcrossNativeMatches(
+    ()=>withStewardInnermostOwnerPrompts(execute,{headless:deps.headless}),
+    {headless:deps.headless,voltLayer:deps.voltLayer}
+  );
+  const selected=voltWrapper.result.result;
+  assert.ok(selected?.manifest&&selected?.diagnostic);
+  assert.equal(selected.diagnostic?.thrownCode,undefined,
+    'Native adapter reported a thrown validation or execution error');
+  const rows=selected.rawDevelopment?.rows??[];
+  assert.equal(rows.length,registered.length,
+    'Every registered native trial must return exactly one raw row');
+  const attempted=new Map((selected.diagnostic.attemptedRows??[])
+    .map(x=>[x.id,x]));
+  const nativeAttempts=rows.map(row=>summarizeNativeAttempt(
+    row,attempted.get(row.trial?.id??row.id??null)??null
+  ));
+  const manifest={
+    ...selected.manifest,
+    version:VERSION,
+    policyEntryPoint:HASH_PATHS[0],
+    registrationPath:'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
+    profile:'fresh-seed-ranks1-3-6-11-paired-candidates-source-seat-balanced-260root',
+    phase,
+    vipAfterPassEnabled:phase==='B',
+    registeredTrialIds:registered.map(x=>x.id),
+    nativeRootActionLimit:ROOT_LIMIT,
+    capturePublicAttackTransitions:true,
+    nativeSetupCoinChoiceReceipt:true,
+    selectedSourceIndependentCommonPolicy:true,
+    selectedBilateralSpecialEnergy:true,
+    selectedNativeAcceptedTargets:true,
+    selectedTelepathOwnerSearch:true,
+    selectedOwnerAbilityConfirmPolicy:true,
+    selectedOwnerVipAfterPass:phase==='B',
+    policyRandomnessIsolated:true,
+    physicalShuffleRandomnessIsolatedAfterSetup:true,
+    observedGitVendorPinExpected:registration.pinnedTwinleaf,
+    fullPaperCardInteractionCertified:false,
+    candidateDeckPaperStatus:{
+      'champion-reference':{
+        originalTournamentList:true,printingAuditInThisExperiment:false
+      },
+      'new-moon-lockbreaker-v1':{
+        provisionalEnglishProxy:true,sourceJapanesePrintsArchived:true,
+        paperLegalPrintsVerified:false
+      }
+    },
+    listedBattleVipPassNameCounts:{
+      ...sourceVipCounts(),championReferenceRank1:0,newMoonEnglishProxy:4
+    },
+    fullFieldOriginalSixtiesAuthenticated:false,
+    official25MinuteClockImplemented:false,
+    resolvedSourceAndPolicyHashes:[
+      ...(selected.manifest.resolvedSourceAndPolicyHashes??[]),
+      ...HASH_PATHS.map(hashRegisteredFile)
+    ],
+    releaseQualified:false,competitiveGamesQualified:0,
+    targetWinRate:0.995,targetWinRateDemonstrated:false
+  };
+  const diagnostic={
+    ...selected.diagnostic,
+    schema:VERSION,phase,
+    nativeAttempts,
+    ownerVoltMatchAudit:voltWrapper.audit??null,
+    innerOwnerPromptAudit:voltWrapper.result.audit??null,
+    nativeVipRows:rows.map(nativeVipOutcome),
+    nativeRootLimitActuallyPassedToRunner:ROOT_LIMIT,
+    attackSettlementCaptureEnabled:true,
+    nativeSetupCoinChoiceReceiptEnabled:true,
+    reciprocalScreen:{
+      generalSequenceContexts:nativeAttempts.filter(x=>x.generalSequence).length,
+      sourceAttackSequenceContexts:nativeAttempts.filter(x=>x.sourceAttackSequence).length,
+      settledSourceAttackBeforeReplyContexts:nativeAttempts.filter(x=>x.settledSourceAttackBeforeObservedReply).length,
+      nativeMaterialExchangeContexts:nativeAttempts.filter(x=>x.nativeMaterialExchange).length
+    },
+    sourceSeatCoverage:[...new Set(nativeAttempts.map(x=>x.sourceSeat).filter(x=>x===0||x===1))].sort(),
+    firstPlayerSeatCoverage:[...new Set(nativeAttempts.map(x=>x.actualFirstPlayerSeat).filter(x=>x===0||x===1))].sort(),
+    verdict:'DEVELOPMENT-ONLY-NO-COMPETITIVE-ADMISSION',
+    competitiveGamesQualified:0,estimatedWinRate:null
+  };
+  return {manifest,diagnostic,rawDevelopment:selected.rawDevelopment};
+}
+
+/**
+ * @param {'A'|'B'|'A2'} phase
+ * @param {object} [deps]
+ */
+function runPhase(phase,deps={}){
+  const result=withVipFlag(phase==='B',()=>
+    runIssue25V8WithOwnerAbilityPolicy({
+      runV8:runRegisteredV10b,
+      v8Deps:{
+        phase,headless:deps.headless,
+        voltLayer:deps.voltLayer,env:deps.env
+      },
+      headless:deps.headless
+    }));
+  const rows=result.rawDevelopment?.rows??[];
+  const vipRows=rows.map(nativeVipOutcome);
+  return {
+    phase,vipAfterPassEnabled:phase==='B',
+    manifest:{
+      ...result.manifest,
+      version:VERSION,phase,
+      vipAfterPassEnabled:phase==='B',
+      registrationPath:'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
+      resolvedSourceAndPolicyHashes:[
+        ...(result.manifest.resolvedSourceAndPolicyHashes??[]),
+        ...HASH_PATHS.map(hashRegisteredFile)
+      ],
+      releaseQualified:false,competitiveGamesQualified:0
+    },
+    diagnostic:{
+      ...result.diagnostic,phase,
+      nativeVipRows:vipRows,
+      nativeAttempts:result.diagnostic.nativeAttempts??
+        (result.rawDevelopment?.rows??[]).map(row=>
+          summarizeNativeAttempt(row)),
+      verdict:'DEVELOPMENT-ONLY-NO-COMPETITIVE-ADMISSION',
+      competitiveGamesQualified:0,estimatedWinRate:null
+    },
+    rawDevelopment:result.rawDevelopment
+  };
+}
+
+/** @param {object} phase */
+function phaseSummary(phase){
+  const rows=phase.diagnostic.nativeAttempts??[];
+  const vip=phase.diagnostic.nativeVipRows??[];
+  return {
+    phase:phase.phase,vipAfterPassEnabled:phase.vipAfterPassEnabled,
+    attempts:rows.length,
+    nativeTerminals:rows.filter(x=>x.nativeOutcome==='native-terminal').length,
+    rootCaps:rows.filter(x=>x.nativeOutcome==='action-cap').length,
+    engineErrors:rows.filter(x=>x.nativeOutcome==='engine-error').length,
+    acceptedVipItems:vip.reduce((n,x)=>n+(x.acceptedItems??0),0),
+    acceptedVipSearches:vip.reduce((n,x)=>n+(x.acceptedSearches??0),0),
+    nativeBenchConfirmed:vip.reduce((n,x)=>n+(x.nativeBenchConfirmed??0),0),
+    policyAuditRows:vip.filter(x=>x.policyRecorded).length,
+    generalSequenceContexts:rows.filter(x=>x.generalSequence).length,
+    sourceAttackSequenceContexts:rows.filter(x=>x.sourceAttackSequence).length,
+    settledSourceAttackBeforeReplyContexts:rows.filter(x=>
+      x.settledSourceAttackBeforeObservedReply).length,
+    nativeMaterialExchangeContexts:rows.filter(x=>x.nativeMaterialExchange).length,
+    sourceSeatsObserved:[...new Set(rows.map(x=>x.sourceSeat)
+      .filter(x=>x===0||x===1))].sort(),
+    firstPlayerSeatsObserved:[...new Set(rows.map(x=>x.actualFirstPlayerSeat)
+      .filter(x=>x===0||x===1))].sort()
+  };
+}
+
+/** Run A/B/A in the exact preregistered order. */
+function run(deps={}){
+  const execute=deps.phaseRunner??runPhase;
+  const phases=PHASES.map(phase=>execute(phase,deps));
+  assert.ok(phases.every(x=>(x.rawDevelopment?.rows??[]).length===trials().length),
+    'A/B/A run aborted: one or more phases did not return all registered native rows');
+  const comparisons=compare(phases);
+  assert.ok(comparisons.every(x=>x.physicalOpeningMatchedAcrossABA),
+    'A/B/A physical opening fingerprints must match within every registered trial');
+  assert.ok(comparisons.every(x=>x.controlsRepeatedExactly),
+    'A2 must exactly reproduce A within every registered trial');
+  const summaries=phases.map(phaseSummary);
+  const baselineAttempts=phases[0].diagnostic.nativeAttempts??[];
+  const unique=key=>[...new Set(baselineAttempts.map(x=>x[key])
+    .filter(x=>typeof x==='string'&&x.length>0))];
+  const sourceSeats=[...new Set(baselineAttempts.map(x=>x.sourceSeat)
+    .filter(x=>x===0||x===1))].sort();
+  const firstPlayerSeats=[...new Set(baselineAttempts.map(x=>
+    x.actualFirstPlayerSeat).filter(x=>x===0||x===1))].sort();
+  const sourceSeatCoverageByRank=Object.fromEntries(
+    registration.sourceOriginalRanks.map(rank=>[String(rank),
+      [...new Set(baselineAttempts.filter(x=>x.rank===rank).map(x=>x.sourceSeat)
+        .filter(x=>x===0||x===1))].sort()])
+  );
+  const sourceRanksObserved=[...new Set(baselineAttempts.map(x=>x.rank)
+    .filter(Number.isSafeInteger))].sort((a,b)=>a-b);
+  const cohortCoverage={
+    registeredContexts:trials().length,
+    sourceRanksObserved,
+    sourceSeatsObserved:sourceSeats,
+    bothPhysicalSourceSeatsObserved:sourceSeats.length===2,
+    sourceSeatCoverageByRank,
+    sourceSeatsBalancedAcrossCohort:sourceSeats.length===2,
+    allSourceRanksRepresented:sourceRanksObserved.length===registration.sourceOriginalRanks.length,
+    firstPlayerSeatsObserved:firstPlayerSeats,
+    bothFirstPlayerSeatsObserved:firstPlayerSeats.length===2,
+    uniqueSourceDealFingerprints:unique('sourceDealFingerprint').length,
+    uniqueFullPhysicalDealFingerprints:unique('fullPhysicalDealFingerprint').length,
+    allSourceDealsUnique:unique('sourceDealFingerprint').length===registration.groups.length,
+    allPhysicalDealsUnique:unique('fullPhysicalDealFingerprint').length===trials().length
+  };
+  return {
+    schema:VERSION,
+    registrationPath:'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
+    registration,
+    phases,comparisons,cohortCoverage,
+    summary:{
+      attempts:phases.reduce((n,x)=>n+(x.diagnostic.nativeAttempts?.length??0),0),
+      allRegisteredTrialsReturned:phases.every(x=>
+        (x.rawDevelopment?.rows??[]).length===trials().length),
+      allPhysicalOpeningsMatchedAcrossABA:comparisons.every(x=>
+        x.physicalOpeningMatchedAcrossABA),
+      controlsRepeatedExactly:comparisons.every(x=>x.controlsRepeatedExactly),
+      treatmentChangedTrialCount:comparisons.filter(x=>x.treatmentChanged).length,
+      firstTreatmentDifferenceIsVipCount:comparisons.filter(x=>
+        x.firstTreatmentDifferenceIsVip).length,
+      phaseSummaries:summaries,
+      cohortCoverage,
+      competitiveGamesQualified:0,
+      estimatedWinRate:null,
+      targetWinRate:0.995,targetWinRateDemonstrated:false
+    },
+    releaseQualified:false,competitiveGamesQualified:0,
+    estimatedWinRate:null,
+    verdict:'DEVELOPMENT-ONLY-NO-COMPETITIVE-ADMISSION'
+  };
+}
+
+/**
+ * Exclusive lock and same-directory atomic renames for the complete archive
+ * and its SHA-256 sidecar.
+ * @param {object} value
+ * @param {string} directory
+ */
+function writeArchive(value,directory){
+  const root=path.resolve(__dirname,'../..');
+  const dir=path.resolve(root,directory);
+  const relative=path.relative(root,dir);
+  assert.ok(relative&&relative!=='..'&&!relative.startsWith('..'+path.sep)&&
+    !path.isAbsolute(relative),'Archive directory must remain inside repository');
+  fs.mkdirSync(dir,{recursive:true});
+  const prefix='agent36-issue25-common-v10b-paired-fresh-aba';
+  const file=path.join(dir,prefix+'.json');
+  const digestFile=file+'.sha256';
+  const lock=path.join(dir,'.'+prefix+'.lock');
+  const tmp=file+'.'+randomUUID()+'.tmp';
+  const digestTmp=digestFile+'.'+randomUUID()+'.tmp';
+  const fd=fs.openSync(lock,'wx');
+  const data=Buffer.from(JSON.stringify(value,null,2)+'\n');
+  const digest=createHash('sha256').update(data).digest('hex');
+  try{
+    fs.writeFileSync(tmp,data,{flag:'wx'});
+    fs.renameSync(tmp,file);
+    fs.writeFileSync(digestTmp,digest+'  '+prefix+'.json\n',{flag:'wx'});
+    fs.renameSync(digestTmp,digestFile);
+  }finally{
+    if(fs.existsSync(tmp))fs.unlinkSync(tmp);
+    if(fs.existsSync(digestTmp))fs.unlinkSync(digestTmp);
+    fs.closeSync(fd);
+    fs.unlinkSync(lock);
+  }
+  return {file:path.relative(root,file),sha256:digest,bytes:data.length};
+}
+
+function main(){
+  const output=run();
+  const saved=writeArchive(output,'artifacts/agent36-v10b-paired-fresh-aba');
+  process.stdout.write(JSON.stringify({
+    version:output.schema,
+    registeredTrials:trials().length,
+    phases:output.summary.phaseSummaries,
+    allPhysicalOpeningsMatchedAcrossABA:
+      output.summary.allPhysicalOpeningsMatchedAcrossABA,
+    controlsRepeatedExactly:output.summary.controlsRepeatedExactly,
+    treatmentChangedTrialCount:output.summary.treatmentChangedTrialCount,
+    firstTreatmentDifferenceIsVipCount:
+      output.summary.firstTreatmentDifferenceIsVipCount,
+    cohortCoverage:output.cohortCoverage,
+    comparisons:output.comparisons.map(x=>({
+      id:x.id,physicalOpeningMatchedAcrossABA:x.physicalOpeningMatchedAcrossABA,
+      controlsRepeatedExactly:x.controlsRepeatedExactly,
+      treatmentChanged:x.treatmentChanged,
+      firstTreatmentDifference:x.firstTreatmentDifference,
+      firstTreatmentDifferenceIsVip:x.firstTreatmentDifferenceIsVip,
+      treatmentVipAudit:x.treatmentVipAudit
+    })),
+    competitiveGamesQualified:0,
+    archive:saved
+  },null,2)+'\n');
+}
+
+if(require.main===module)main();
+
+module.exports={
+  VERSION,ROOT_LIMIT,ENV,PHASES,HASH_PATHS,trials,withVipFlag,
+  nativeVipOutcome,rootLedger,ledgerSha256,sourceDealFingerprint,
+  fullPhysicalDealFingerprint,actionKind,firstRootDifference,
+  summarizeNativeAttempt,compare,runRegisteredV10b,runPhase,phaseSummary,
+  run,writeArchive
+};
