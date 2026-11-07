@@ -117,10 +117,11 @@ function runSnapTrapChoiceContract() {
 
   const stunfisk = card('Galarian Stunfisk SSH');
   const marshadow = card('Marshadow UNB');
-  const energy = card('Psychic Energy MEE');
+  const energy1 = card('Psychic Energy MEE');
+  const energy2 = card('Psychic Energy MEE');
   owner.active.cards.push(stunfisk);
-  attacker.active.cards.push(marshadow, energy);
-  attacker.active.energies.cards.push(energy);
+  attacker.active.cards.push(marshadow, energy1, energy2);
+  attacker.active.energies.cards.push(energy1, energy2);
 
   for (const player of [owner, attacker]) {
     for (let i = 0; i < 8; i++) {
@@ -161,8 +162,8 @@ function runSnapTrapChoiceContract() {
   assert.equal(prompt.options.allowCancel, false);
   assert.equal(prompt.options.isSecret, false);
 
-  const fullIndex = prompt.cards.cards.indexOf(energy);
-  const energySublistIndex = prompt.cards.energies.cards.indexOf(energy);
+  const fullIndex = prompt.cards.cards.indexOf(energy1);
+  const energySublistIndex = prompt.cards.energies.cards.indexOf(energy1);
   const fullListCountBefore = prompt.cards.cards.length;
   const attachedEnergyCountBefore = prompt.cards.energies.cards.length;
   const fullIndexDecoded = prompt.decode([fullIndex]);
@@ -173,7 +174,7 @@ function runSnapTrapChoiceContract() {
     'the full PokemonCardList contains Marshadow first and Energy second');
   assert.equal(energySublistIndex, 0,
     'the attached-Energy sublist contains only the Energy');
-  assert.strictEqual(fullIndexDecoded[0], energy,
+  assert.strictEqual(fullIndexDecoded[0], energy1,
     'client indices decode against the full PokemonCardList.cards array');
   assert.strictEqual(sublistIndexDecoded[0], marshadow,
     'using an Energy-sublist index would select the wrong full-list object');
@@ -217,7 +218,7 @@ function runSnapTrapChoiceContract() {
   assert.ok(Array.isArray(action.result),
     'SimpleTacticsAi prompt actions carry Card[] rather than numeric indices');
   assert.equal(action.result.length, 1);
-  assert.strictEqual(action.result[0], energy);
+  assert.strictEqual(action.result[0], energy1);
   const actionPromptValid = prompt.validate(action.result);
   assert.equal(actionPromptValid, true);
 
@@ -225,12 +226,14 @@ function runSnapTrapChoiceContract() {
 
   const after = store.state;
   const attackerAfter = after.players.find(player => player.id === attacker.id);
-  assert.ok(!attackerAfter.active.cards.includes(energy),
+  assert.ok(!attackerAfter.active.cards.includes(energy1),
     'the selected physical Energy must leave the full active PokemonCardList');
   assert.ok(!attackerAfter.active.energies.cards.includes(energy),
     'the selected physical Energy must leave the attached-Energy sublist');
   assert.ok(attackerAfter.discard.cards.includes(energy),
     'the actual Snap Trap callback must move the selected Energy to attacker discard');
+  assert.ok(attackerAfter.active.cards.includes(energy2),
+    'the unselected physical Energy must remain attached');
   assert.ok(attackerAfter.active.cards.includes(marshadow),
     'the attacking Pokémon remains in the Active slot');
 
@@ -258,12 +261,15 @@ function runSnapTrapChoiceContract() {
       allowCancel: prompt.options.allowCancel,
       isSecret: prompt.options.isSecret,
       fullPokemonCardListCount: fullListCountBefore,
-      attachedEnergyCountBefore
+      attachedEnergyCountBefore,
+      selectedEnergyPrinting: energy1.fullName,
+      selectedEnergyId: energy1.id,
+      remainingEnergyPrinting: energy2.fullName
     },
     indexContract: {
       selectedEnergyFullListIndex: fullIndex,
       selectedEnergySublistIndex: energySublistIndex,
-      fullListDecodeReturnsSameObject: fullIndexDecoded[0] === energy,
+      fullListDecodeReturnsSameObject: fullIndexDecoded[0] === energy1,
       sublistIndexWouldReturnPokemon: sublistIndexDecoded[0] === marshadow,
       fullListDecodeValid: fullIndexValid,
       sublistIndexDecodeValid: sublistIndexValid
@@ -273,15 +279,16 @@ function runSnapTrapChoiceContract() {
       entryPoint: 'SimpleTacticsAi.resolvePrompt',
       actionType: action.constructor.name,
       actionResultType: 'Card[]',
-      actionContainsSamePhysicalEnergy: action.result[0] === energy,
+      actionContainsSamePhysicalEnergy: action.result[0] === energy1,
       explicitPromptValidationBeforeDispatch: actionPromptValid,
       hiddenIdentityReadAttempts: hiddenReadAttempts.length
     },
     resolution: {
-      actualPromptCallbackMovedEnergy: attackerAfter.discard.cards.includes(energy),
-      removedFromFullPokemonCardList: !attackerAfter.active.cards.includes(energy),
-      removedFromEnergySublist: !attackerAfter.active.energies.cards.includes(energy),
-      attackerActiveRemains: attackerAfter.active.cards.includes(marshadow)
+      actualPromptCallbackMovedEnergy: attackerAfter.discard.cards.includes(energy1),
+      removedFromFullPokemonCardList: !attackerAfter.active.cards.includes(energy1),
+      removedFromEnergySublist: !attackerAfter.active.energies.cards.includes(energy1),
+      attackerActiveRemains: attackerAfter.active.cards.includes(marshadow),
+      secondEnergyRemains: attackerAfter.active.cards.includes(energy2)
     },
     competitiveGamesQualified: 0,
     winRateEstimate: null
