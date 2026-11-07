@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseMultiBasicPaidRetreatInDeckRace,VERSION}=require(
+const {chooseMultiBasicPaidRetreatInDeckRace,
+  chooseMultiBasicPaidRetreatInDeckRaceGuarded,GUARDED_VERSION,VERSION}=require(
   '../simulation/twinleaf/agent2-actor-multi-basic-paid-retreat-frontier.cjs');
 const P='Psychic Energy MEE';
 const catalog={basicEnergies:new Set([P,'Metal Energy MEE']),
@@ -66,4 +67,42 @@ test('pure owner observation and unknown opponent identities irrelevant',()=>{
   assert.deepEqual(chooseMultiBasicPaidRetreatInDeckRace(a,catalog),
     chooseMultiBasicPaidRetreatInDeckRace(b,catalog));
   assert.equal(JSON.stringify(a),before);
+});
+
+test('guarded owner planner refuses visible original Snorlax PGO Block',()=>{
+  const v=view();
+  v.opponentPublic.active.printing='Snorlax PGO';
+  v.opponentPublic.active.abilities=['Block'];
+  assert.equal(chooseMultiBasicPaidRetreatInDeckRaceGuarded(v,catalog),null);
+  assert.equal(chooseMultiBasicPaidRetreatInDeckRace(v,catalog)?.kind,
+    'paid-retreat','historical v1 remains unchanged');
+});
+
+test('guarded owner planner vetoes equivalent active printed lock text',()=>{
+  const v=view();
+  v.opponentPublic.active.printing='Omastar TEU';
+  v.opponentPublic.active.abilityDetails=[{
+    name:'Primordial Tentacles',text:
+      "As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."
+  }];
+  assert.equal(chooseMultiBasicPaidRetreatInDeckRaceGuarded(v,catalog),null);
+});
+
+test('guarded planner excludes Bench attacks disabled by public onlyAllowed name',()=>{
+  const v=view();
+  v.ownPublic.bench[1].publicRestrictions.onlyAllowedAttackNameNextTurn=
+    'Other Attack';
+  assert.equal(chooseMultiBasicPaidRetreatInDeckRaceGuarded(v,catalog),null);
+  assert.equal(chooseMultiBasicPaidRetreatInDeckRace(v,catalog)?.benchIndex,1);
+});
+
+test('guarded policy preserves original legal offer and labels new screening',()=>{
+  const v=view();
+  const original=chooseMultiBasicPaidRetreatInDeckRace(v,catalog);
+  const guarded=chooseMultiBasicPaidRetreatInDeckRaceGuarded(v,catalog);
+  assert.equal(guarded?.benchIndex,original?.benchIndex);
+  assert.equal(guarded?.retreatCostUnits,original?.retreatCostUnits);
+  assert.equal(guarded?.nominalTurnsToKo,original?.nominalTurnsToKo);
+  assert.equal(guarded?.source,GUARDED_VERSION);
+  assert.equal(guarded?.paperVerified,false);
 });
