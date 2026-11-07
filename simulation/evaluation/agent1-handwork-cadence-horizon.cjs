@@ -452,9 +452,189 @@ function distributionOfFutureOwnerStartsUnderSchedule(remaining,schedule){
   };
 }
 
+
+const STAR_ALCHEMY_ACCESS_VERSION='agent1-rank3-post-rototiller-mail-star-alchemy-v1';
+
+/**
+ * Exact conditional probability that the recycled Handiwork reaches hand
+ * through the next mandatory draw, up to two Trainers' Mail, and a usable
+ * Forest Seal Stone Star Alchemy.
+ *
+ * The deck contains exactly one Handiwork target. otherTrainerCount excludes
+ * that target, Trainers' Mail copies, and Forest Seal Stone when the latter is
+ * in deck and can be used. Trainers' Mail itself is excluded by its printed
+ * search text. If an unusable Forest Seal Stone remains in deck, count it in
+ * otherTrainerCount as an ordinary eligible Trainer.
+ *
+ * forestSealStoneInDeck means the one Forest Seal Stone is in deck and can be
+ * attached to a Pokémon V with an available Tool slot; Star Alchemy is unused.
+ * forestSealStoneReady means it is already in hand or attached and its Star
+ * Alchemy can be used now. These two states are mutually exclusive.
+ *
+ * This models only the next natural draw, in-hand Trainers' Mail and Star
+ * Alchemy. It assumes Handiwork is still in deck and no relevant lock or
+ * disruption intervenes. It does not model Arven, Teammates, other draw
+ * effects, Supporter opportunity costs on later turns, or the probability of
+ * reaching this post-Rototiller state.
+ *
+ * @param {number} deckSize Cards in deck before the next mandatory draw.
+ * @param {number} otherTrainerCount Other eligible Trainers in deck.
+ * @param {number} mailsInDeck Trainers' Mail copies still in deck (0..2).
+ * @param {number} mailsInHand Trainers' Mail copies already in hand (0..2).
+ * @param {boolean} forestSealStoneInDeck Whether a usable copy is in deck.
+ * @param {boolean} [forestSealStoneReady=false] Whether Star Alchemy is ready from hand/attachment.
+ * @returns {object} Exact rational probability and the conditioned state.
+ */
+function probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+  deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+  forestSealStoneInDeck,forestSealStoneReady=false
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize-1,
+    'otherTrainerCount must exclude the target and be feasible');
+  assert.ok(Number.isSafeInteger(mailsInDeck)&&
+    mailsInDeck>=0&&mailsInDeck<=2,
+    'mailsInDeck must be 0..2');
+  assert.ok(Number.isSafeInteger(mailsInHand)&&
+    mailsInHand>=0&&mailsInHand<=2,
+    'mailsInHand must be 0..2');
+  assert.ok(mailsInDeck+mailsInHand<=2,
+    'the rank-3 list contains only two Trainers\' Mail');
+  assert.equal(typeof forestSealStoneInDeck,'boolean',
+    'forestSealStoneInDeck must be boolean');
+  assert.equal(typeof forestSealStoneReady,'boolean',
+    'forestSealStoneReady must be boolean');
+  assert.ok(!(forestSealStoneInDeck&&forestSealStoneReady),
+    'Forest Seal Stone cannot be both in deck and ready');
+
+  const sealInDeck=forestSealStoneInDeck?1:0;
+  const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-sealInDeck;
+  assert.ok(nonTrainerCount>=0,
+    'target, other Trainers, Mail and Forest Seal Stone cannot exceed deckSize');
+
+  let numerator,denominator;
+  if(forestSealStoneReady){
+    numerator=1n;
+    denominator=1n;
+  }else{
+    let success=probabilityFraction(1n,BigInt(deckSize));
+    if(sealInDeck){
+      success=addProbabilityFractions(success,
+        probabilityFraction(1n,BigInt(deckSize)));
+    }
+    if(mailsInDeck>0){
+      const branch=probabilityFraction(BigInt(mailsInDeck),BigInt(deckSize));
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(branch,
+          probabilityMailAndStarAlchemyOnly(
+            deckSize-1,otherTrainerCount,sealInDeck===1,mailsInHand+1
+          )));
+    }
+    if(otherTrainerCount>0){
+      const branch=probabilityFraction(
+        BigInt(otherTrainerCount),BigInt(deckSize)
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(branch,
+          probabilityMailAndStarAlchemyOnly(
+            deckSize-1,otherTrainerCount-1,sealInDeck===1,mailsInHand
+          )));
+    }
+    if(nonTrainerCount>0){
+      const branch=probabilityFraction(
+        BigInt(nonTrainerCount),BigInt(deckSize)
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(branch,
+          probabilityMailAndStarAlchemyOnly(
+            deckSize-1,otherTrainerCount,sealInDeck===1,mailsInHand
+          )));
+    }
+    numerator=success.n;
+    denominator=success.d;
+  }
+
+  return {
+    version:STAR_ALCHEMY_ACCESS_VERSION,
+    deckSizeBeforeDraw:deckSize,
+    otherTrainerCount,
+    mailsInDeck,
+    mailsInHand,
+    forestSealStoneInDeck,
+    forestSealStoneReady,
+    targetCopiesInDeck:1,
+    exactProbability:{
+      numerator:numerator.toString(),
+      denominator:denominator.toString()
+    },
+    probability:Number(numerator)/Number(denominator)
+  };
+}
+
+/**
+ * Exact probability that the recycled Handiwork or usable Forest Seal Stone
+ * is found by one of the in-hand Trainers' Mail. If neither special card is
+ * in the top four, a Mail chooses one other eligible Trainer when available;
+ * the remaining cards are shuffled back. Mail copies in deck are ineligible.
+ *
+ * @param {number} deckSize
+ * @param {number} otherTrainerCount
+ * @param {boolean} forestSealStoneInDeck
+ * @param {number} mailsInHand
+ * @returns {{n:bigint,d:bigint}}
+ */
+function probabilityMailAndStarAlchemyOnly(
+  deckSize,otherTrainerCount,forestSealStoneInDeck,mailsInHand
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60);
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize-1);
+  assert.equal(typeof forestSealStoneInDeck,'boolean');
+  assert.ok(Number.isSafeInteger(mailsInHand)&&
+    mailsInHand>=0&&mailsInHand<=2);
+
+  const specialCount=1+(forestSealStoneInDeck?1:0);
+  let states=new Map([
+    [deckSize+':'+otherTrainerCount,probabilityFraction(1n,1n)]
+  ]);
+  let success=probabilityFraction(0n,1n);
+  for(let attempt=0;attempt<mailsInHand;attempt++){
+    const next=new Map();
+    for(const [key,mass] of states){
+      const [deck,trainers]=key.split(':').map(Number);
+      if(deck<=4){
+        success=addProbabilityFractions(success,mass);
+        continue;
+      }
+      const denominator=chooseBigInt(deck,4);
+      const noSpecial=probabilityFraction(
+        chooseBigInt(deck-specialCount,4),denominator
+      );
+      const noPick=probabilityFraction(
+        chooseBigInt(deck-specialCount-trainers,4),denominator
+      );
+      const pick=subtractProbabilityFractions(noSpecial,noPick);
+      const hit=subtractProbabilityFractions(
+        probabilityFraction(1n,1n),noSpecial
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(mass,hit));
+      addMailState(next,deck,trainers,
+        multiplyProbabilityFractions(mass,noPick));
+      addMailState(next,deck-1,trainers-1,
+        multiplyProbabilityFractions(mass,pick));
+    }
+    states=next;
+  }
+  return success;
+}
+
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
   distributionOfFutureOwnerStartsUnderSchedule,
-  probabilityHandiworkAccessByNaturalDrawAndMail
+  probabilityHandiworkAccessByNaturalDrawAndMail,
+  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy
 };
