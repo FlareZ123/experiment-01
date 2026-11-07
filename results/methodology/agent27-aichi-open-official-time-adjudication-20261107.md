@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 33 source-direct pure tests.** The current 33-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 35 source-direct pure tests.** The current 35-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -83,4 +83,12 @@ The original `classifyTiebreaker(prizesRemaining)` returned `TIEBREAKER_CONTINUE
 - A simultaneous tie and unique winner claim, an invalid winner seat, or a non-boolean tie flag is rejected.
 - Equal positive Prize counts still mean the active tiebreaker continues; unequal counts still yield the first Prize-lead seat.
 
-Four regression tests cover normal-win precedence, a tied tiebreaker restart, an unresolved both-zero state, and contradictory or invalid paper-outcome claims. The exact fetched CommonJS source and test files pass **33/33** in the isolated V8 harness. The existing manual Node 22 benchmark workflow already invokes this test file, so no new workflow was added; the updated 33-case revision has not yet been run by compiled Node 22 CI. All outputs retain `competitiveAdmission:false` and require independent paper/clock review.
+Four regression tests cover normal-win precedence, a tied tiebreaker restart, an unresolved both-zero state, and contradictory or invalid paper-outcome claims. The exact fetched CommonJS source and test files pass **35/35** in the isolated V8 harness. The existing manual Node 22 benchmark workflow already invokes this test file, so no new workflow was added; the updated 33-case revision has not yet been run by compiled Node 22 CI. All outputs retain `competitiveAdmission:false` and require independent paper/clock review.
+### Exhaustive structural coverage, 7 November
+
+Two additional tests extend the 33-case suite without adding a new workflow:
+
+- All four combinations of first-player seat and turn owner at the end call are checked for the correct additional second-player turn count, last-turn seat, and exclusion of trailing Pokemon Checkup.
+- All 49 legal two-player Prize pairs (0 through 6 for each seat) are exhaustively routed through the Open Top32 knockout classifier, the tied-low extension, and the both-high extension. The test verifies the expected branch and that none can set competitive admission.
+
+The current exact fetched CommonJS module/test pair passes **35/35** in the isolated V8 harness. This is exhaustive over the small Prize-count and seat-state domains represented by this classifier; it does not validate the external paper-state inputs, real clock evidence, Twinleaf semantics, or competitive play. Compiled Node 22 CI remains pending for this 35-case revision.
