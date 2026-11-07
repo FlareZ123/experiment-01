@@ -15,8 +15,8 @@ function copies(cards,name){
 
 /**
  * Exact disjoint opening-seven categories from the authenticated original
- * rank-3 source 60. The remaining category may contain other Basics because
- * every event we count explicitly includes Snorlax and Bunnelby.
+ * rank-3 source 60. Other Basic is an explicit category; every narrow event includes
+ * Snorlax and Bunnelby, while broad events explicitly require a Basic.
  * @returns {{names:string[],counts:number[],basicCount:number}}
  */
 function sourceCategories(){
@@ -29,15 +29,21 @@ function sourceCategories(){
   const counts=names.map(name=>copies(rank3.cards,name));
   assert.deepEqual(counts,[1,1,1,1,3,1,3,1],
     'Source inventory changed; audit classification before changing probability');
-  const other=60-counts.reduce((a,b)=>a+b,0);
   const rank=analyzeOriginal29().rows.find(row=>row.rank===3);
   assert.equal(rank.basic,11,'The legal opening-hand denominator changed');
   assert.equal(rank.vBasic,1,'The V-Basic exclusion requires rechecking');
   assert.deepEqual(rank.otherToolNames.sort((a,b)=>a[0].localeCompare(b[0])),
     [['Float Stone',1],['Stealthy Hood',1],['Tool Jammer',1]]
       .sort((a,b)=>a[0].localeCompare(b[0])));
-  return {names:[...names,'Other'],counts:[...counts,other],
-    basicCount:rank.basic};
+  const otherBasic=rank.basic-
+    copies(rank3.cards,'Snorlax')-
+    copies(rank3.cards,'Bunnelby')-
+    copies(rank3.cards,'Rotom V');
+  assert.equal(otherBasic,6);
+  const otherNonBasic=60-counts.reduce((a,b)=>a+b,0)-otherBasic;
+  assert.equal(otherNonBasic,42);
+  return {names:[...names,'Other Basic','Other nonBasic'],
+    counts:[...counts,otherBasic,otherNonBasic],basicCount:rank.basic};
 }
 
 /**
@@ -45,12 +51,12 @@ function sourceCategories(){
  * When an initial hand holds several Tools, FSS is the first physical Tool
  * with probability 1/(number of held Tools). Each winning event contains
  * two known Basic Pokémon and thus is already a valid opening.
- * @param {number[]} counts Nine disjoint 60-card source categories.
- * @param {{capture?:boolean,excludeRotomV?:boolean,allCapture?:boolean}} mode
+ * @param {number[]} counts Ten disjoint 60-card source categories.
+ * @param {{capture?:boolean,excludeRotomV?:boolean,allCapture?:boolean,anyBasic?:boolean}} mode
  * @returns {bigint} Exact integer numerator scaled by SCALE=420.
  */
 function scaledOrderedCount(counts,mode={}){
-  assert.equal(counts.length,9);
+  assert.equal(counts.length,10);
   assert.equal(counts.reduce((a,b)=>a+b,0),60);
   assert.ok(counts.every(n=>Number.isSafeInteger(n)&&n>=0));
   const held=[];
@@ -59,8 +65,12 @@ function scaledOrderedCount(counts,mode={}){
     if(index===counts.length-1){
       if(left>counts[index])return;
       held.push(left);
-      const [stone,float,hood,jammer,snorlax,bunnelby,capture,rotom]=held;
-      const matches=stone===1&&float===1&&snorlax>0&&bunnelby===1&&
+      const [stone,float,hood,jammer,snorlax,bunnelby,capture,rotom,
+        otherBasic]=held;
+      const openingBasic=snorlax+bunnelby+rotom+otherBasic;
+      const keyPokemon=mode.anyBasic===true?
+        openingBasic>0:snorlax>0&&bunnelby===1;
+      const matches=stone===1&&float===1&&keyPokemon&&
         (!mode.capture||capture>=1)&&
         (!mode.excludeRotomV||rotom===0)&&
         (!mode.allCapture||capture===counts[6]);
@@ -89,6 +99,8 @@ function analyzeRank3Opening(){
   const all=choose(60,7);
   const valid=all-choose(60-basicCount,7);
   const conditions=[
+    ['fss-float-valid',{anyBasic:true}],
+    ['fss-float-valid-no-v',{anyBasic:true,excludeRotomV:true}],
     ['bunnelby-coheld',{ }],
     ['capture-at-least-one',{capture:true}],
     ['capture-and-no-opening-rotom-v',{capture:true,excludeRotomV:true}],
