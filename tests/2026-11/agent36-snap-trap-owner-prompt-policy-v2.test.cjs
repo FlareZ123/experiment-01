@@ -215,6 +215,7 @@ function makeFixture(sourceSeat, energyCards, attacks) {
     sourceSeat,
     sourceZone: 'owner-active-pokemon-list',
     attackerSeat,
+    attackerPrinting: attackerPokemon.fullName,
     attackerZone: 'opponent-active-pokemon-list',
     turn: 54,
     promptType: 'ChooseCardsPrompt',
@@ -275,7 +276,6 @@ function policyDependencies(fixture, getRootStore, options = {}) {
     Store,
     ResolvePromptAction,
     ChooseCardsPrompt,
-    MoveCardsEffect,
     types,
     ...options
   };
@@ -390,7 +390,7 @@ test('unmarked prompt delegates to the actual Agent4 quarantine', () => {
         const store = new Store(fixture.state);
         rootStore = store;
         store.prompt(fixture.state, fixture.prompt);
-        const ai = new SimpleTacticsAi({id: fixture.sourceOwner.id});
+        const ai = new FakeSimpleTacticsAi({id: fixture.sourceOwner.id});
         ai.decodeNextAction(fixture.state);
       }, {
         ...policyDependencies(fixture, null, {
@@ -402,7 +402,7 @@ test('unmarked prompt delegates to the actual Agent4 quarantine', () => {
         }),
         getRootStore: () => rootStore
       }),
-      {SimpleTacticsAi}
+      {SimpleTacticsAi: FakeSimpleTacticsAi}
     );
   } catch (error) {
     thrown = error;
@@ -427,7 +427,7 @@ test('prompt Store mismatch fails closed before the AI can choose', () => {
       () => withSnapTrapOwnerPolicyV2(() => {
         otherStore.prompt(fixture.state, fixture.prompt);
       }, policyDependencies(fixture, () => rootStore)),
-      {SimpleTacticsAi}
+      {SimpleTacticsAi: FakeSimpleTacticsAi}
     );
   } catch (error) {
     thrown = error;
@@ -564,7 +564,6 @@ test('native headless wrapper captures onRootStoreCreated and preserves the call
     Store,
     ResolvePromptAction,
     ChooseCardsPrompt,
-    MoveCardsEffect,
     types,
     markerLayer
   };
@@ -580,7 +579,7 @@ test('native headless wrapper captures onRootStoreCreated and preserves the call
       () => headless.runMatch(request),
       {headless, policyDeps}
     ),
-    {SimpleTacticsAi}
+    {SimpleTacticsAi: FakeSimpleTacticsAi}
   );
 
   assert.equal(outcome.result.audit.nativeMatchCalls, 1);
