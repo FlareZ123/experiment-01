@@ -19,6 +19,10 @@ function createPostPrizeResponseActionSequenceObserver(options){
   assert.ok(Array.isArray(options?.registeredTrials));
   assert.ok(options.rootBinding&&typeof options.rootBinding==='object');
   assert.equal(typeof options.publicBoardSnapshot,'function');
+  const prizeTakingSlot=options.prizeTakingSlot??'source';
+  assert.ok(prizeTakingSlot==='source'||prizeTakingSlot==='candidate',
+    'prizeTakingSlot must be source or candidate');
+  const responseSlot=prizeTakingSlot==='source'?'candidate':'source';
 
   const seatsByTrial=new Map(options.registeredTrials.map(trial=>{
     assert.equal(typeof trial.id,'string');
@@ -48,6 +52,12 @@ function createPostPrizeResponseActionSequenceObserver(options){
       turnBefore,
       actorSeat:seat,
       actorPlayerId:owner.id,
+      prizeTakingSlot,
+      responseSlot,
+      prizeTakingSeat:playerIds.prizeTakingSeat,
+      responseSeat:playerIds.responseSeat,
+      prizeTakingPlayerId:playerIds.prizeTakingPlayerId,
+      responsePlayerId:playerIds.responsePlayerId,
       actionType:action.constructor.name,
       ownerHandPrintingsAfterAction:owner.hand.cards.map(card=>card.fullName),
       ownerDiscardNamesAfterAction:owner.discard.cards.map(card=>card.name),
@@ -104,39 +114,57 @@ function createPostPrizeResponseActionSequenceObserver(options){
       diagnostics.playerIdsByTrial.push({registeredTrialId:trialId,...playerIds});
     }
     const actorPlayerId=state.players[seat]?.id;
+    const prizeTakingSeat=prizeTakingSlot==='source'?seats.sourceSeat:seats.candidateSeat;
+    const responseSeat=prizeTakingSlot==='source'?seats.candidateSeat:seats.sourceSeat;
+    const prizeTakingPlayerId=prizeTakingSlot==='source'
+      ?playerIds.sourcePlayerId:playerIds.candidatePlayerId;
+    const responsePlayerId=prizeTakingSlot==='source'
+      ?playerIds.candidatePlayerId:playerIds.sourcePlayerId;
+    const playerContext={
+      ...playerIds,prizeTakingSeat,responseSeat,
+      prizeTakingPlayerId,responsePlayerId
+    };
     const currentPrizeCards=new Map(state.players.map(player=>
       [player.id,prizeCards(player)]));
     const previous=previousPrizeCardsByStore.get(store);
 
     if(previous){
-      const previousCandidateCards=previous.get(playerIds.candidatePlayerId)??[];
-      const currentCandidateCards=currentPrizeCards.get(playerIds.candidatePlayerId)??[];
-      const removed=previousCandidateCards.filter(card=>
-        !currentCandidateCards.includes(card));
-      const added=currentCandidateCards.filter(card=>
-        !previousCandidateCards.includes(card));
+      const previousResponseCards=previous.get(responsePlayerId)??[];
+      const currentResponseCards=currentPrizeCards.get(responsePlayerId)??[];
+      const removed=previousResponseCards.filter(card=>
+        !currentResponseCards.includes(card));
+      const added=currentResponseCards.filter(card=>
+        !previousResponseCards.includes(card));
       if(removed.length||added.length){
         diagnostics.prizeCardChanges.push({
           registeredTrialId:trialId,rootOrdinal:ordinal,actorSeat:seat,
-          actorPlayerId,turnBefore,sourcePlayerId:playerIds.sourcePlayerId,
-          candidatePlayerId:playerIds.candidatePlayerId,
+          actorPlayerId,turnBefore,prizeTakingSlot,responseSlot,
+          prizeTakingPlayerId,responsePlayerId,
           removedPrizeCardCount:removed.length,addedPrizeCardCount:added.length,
-          previousCandidatePrizeCount:previousCandidateCards.length,
-          currentCandidatePrizeCount:currentCandidateCards.length
+          previousResponsePrizeCount:previousResponseCards.length,
+          currentResponsePrizeCount:currentResponseCards.length,
+          previousCandidatePrizeCount:responseSlot==='candidate'
+            ?previousResponseCards.length:null,
+          currentCandidatePrizeCount:responseSlot==='candidate'
+            ?currentResponseCards.length:null
         });
       }
-      if(actorPlayerId===playerIds.sourcePlayerId&&removed.length>0){
+      if(actorPlayerId===prizeTakingPlayerId&&removed.length>0){
         const pending=pendingByTrial.get(trialId);
-        if(pending&&pending.sourceTurn===turnBefore){
-          pending.sourcePrizeRootOrdinals.push(ordinal);
+        if(pending&&pending.prizeTakingTurn===turnBefore){
+          pending.prizeTakingRootOrdinals.push(ordinal);
           pending.prizesTaken+=removed.length;
         }else{
           if(pending)unansweredPrizeExits.push({
             registeredTrialId:trialId,...pending
           });
           pendingByTrial.set(trialId,{
-            sourceTurn:turnBefore,
-            sourcePrizeRootOrdinals:[ordinal],
+            prizeTakingSlot,responseSlot,
+            prizeTakingSeat,responseSeat,
+            prizeTakingPlayerId,responsePlayerId,
+            prizeLosingPlayerId:responsePlayerId,
+            prizeTakingTurn:turnBefore,
+            prizeTakingRootOrdinals:[ordinal],
             prizesTaken:removed.length,
             candidatePlayerId:playerIds.candidatePlayerId,
             sourcePlayerId:playerIds.sourcePlayerId
@@ -146,8 +174,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
 
       const active=activeByTrial.get(trialId);
       if(active){
-        if(actorPlayerId===playerIds.candidatePlayerId&&turnBefore===active.candidateTurn){
-          active.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerIds));
+        if(actorPlayerId===active.responsePlayerId&&turnBefore===active.responseTurn){
+          active.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerContext));
           if(action.constructor.name==='PassTurnAction'||state.turn!==turnBefore){
             finishSequence(trialId,active,
               action.constructor.name==='PassTurnAction',true);
@@ -159,24 +187,41 @@ function createPostPrizeResponseActionSequenceObserver(options){
 
       if(!activeByTrial.has(trialId)){
         const pending=pendingByTrial.get(trialId);
-        if(pending&&actorPlayerId===playerIds.candidatePlayerId){
+        if(pending&&actorPlayerId===responsePlayerId){
+          const prizeTakingRootOrdinals=[...pending.prizeTakingRootOrdinals];
+          const sourcePrizeRootOrdinals=prizeTakingSlot==='source'
+            ?[...prizeTakingRootOrdinals]:[];
+          const candidatePrizeRootOrdinals=prizeTakingSlot==='candidate'
+            ?[...prizeTakingRootOrdinals]:[];
           const sequence={
             registeredTrialId:trialId,
             sourceSeat:seats.sourceSeat,
             candidateSeat:seats.candidateSeat,
-            candidatePlayerId:playerIds.candidatePlayerId,
+            prizeTakingSlot,responseSlot,
+            prizeTakingSeat,responseSeat,
+            prizeTakingPlayerId,responsePlayerId,
+            prizeLosingPlayerId:responsePlayerId,
             sourcePlayerId:playerIds.sourcePlayerId,
-            sourceTurn:pending.sourceTurn,
-            sourcePrizeRootOrdinals:[...pending.sourcePrizeRootOrdinals],
+            candidatePlayerId:playerIds.candidatePlayerId,
+            prizeTakingTurn:pending.prizeTakingTurn,
+            responseTurn:turnBefore,
+            sourceTurn:seats.sourceSeat===prizeTakingSeat
+              ?pending.prizeTakingTurn:turnBefore,
+            candidateTurn:seats.candidateSeat===prizeTakingSeat
+              ?pending.prizeTakingTurn:turnBefore,
+            prizeTakingRootOrdinals,
+            sourcePrizeRootOrdinals,
+            candidatePrizeRootOrdinals,
             prizesTaken:pending.prizesTaken,
-            candidateTurn:turnBefore,
             firstResponseRootOrdinal:ordinal,
+            firstCandidateResponseRootOrdinal:responseSlot==='candidate'
+              ?ordinal:null,
             actions:[],
             completedByPass:false,
             turnEndObserved:false,
             completedAtRootOrdinal:null
           };
-          sequence.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerIds));
+          sequence.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerContext));
           pendingByTrial.delete(trialId);
           if(action.constructor.name==='PassTurnAction'||state.turn!==turnBefore){
             finishSequence(trialId,sequence,
@@ -256,19 +301,26 @@ function joinPostPrizeResponseActionSequences(
   return projectedReplies.map(reply=>{
     const raw=rawByTrial.get(reply.registeredTrialId);
     assert.ok(raw,'Exact registered native trial must exist');
+    const responseSeat=reply.responseOwnerSeat??reply.candidateOwnerSeat;
+    const responseTurn=reply.responseNativeTurn??reply.candidateReplyNativeTurn;
+    const firstResponseRootOrdinal=
+      reply.firstResponseRootOrdinal??reply.firstCandidateResponseRootOrdinal;
+    const prizeTakingRootOrdinal=
+      reply.causalPrizeTakingRootOrdinal??reply.causalSourcePrizeRootOrdinal;
     const sequence=observation.sequences.find(candidate=>
       candidate.registeredTrialId===reply.registeredTrialId&&
       candidate.actions.some(action=>
-        action.rootOrdinal===reply.firstCandidateResponseRootOrdinal));
+        action.rootOrdinal===firstResponseRootOrdinal));
     if(!sequence){
       return {...reply,postPrizeResponseActionSequence:null};
     }
 
-    assert.equal(sequence.candidateSeat,reply.candidateOwnerSeat);
-    assert.equal(sequence.candidateTurn,reply.candidateReplyNativeTurn);
-    assert.ok(sequence.sourcePrizeRootOrdinals.includes(
-      reply.causalSourcePrizeRootOrdinal),
-    'Response sequence must descend from the exact causal physical Prize root');
+    assert.equal(sequence.responseSeat??sequence.candidateSeat,responseSeat);
+    assert.equal(sequence.responseTurn??sequence.candidateTurn,responseTurn);
+    const prizeRoots=sequence.prizeTakingRootOrdinals??
+      sequence.sourcePrizeRootOrdinals;
+    assert.ok(prizeRoots.includes(prizeTakingRootOrdinal),
+      'Response sequence must descend from the exact causal physical Prize root');
 
     const rootRows=raw.rootActionLedger??raw.nativePublicRootArchive?.rootActionLedger;
     const decisionRows=raw.decisionTrace??raw.nativePublicRootArchive?.decisionTrace??[];
@@ -300,7 +352,7 @@ function joinPostPrizeResponseActionSequences(
         ...sequence,
         actions,
         firstProjectedResponseAction:actions.find(action=>
-          action.rootOrdinal===reply.firstCandidateResponseRootOrdinal)??null
+          action.rootOrdinal===firstResponseRootOrdinal)??null
       }
     };
   });
