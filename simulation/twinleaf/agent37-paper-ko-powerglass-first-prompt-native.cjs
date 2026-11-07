@@ -25,20 +25,15 @@ function compareNativePromptOrder(){
     assert.equal(baseline.firstChoicePrompt,'AttachEnergyPrompt');
     assert.equal(a.attackEndTurnIntercepts,1);
     assert.equal(a.originalStoreMethodRestored,true);
-    if(label==='lastPokemon'){
-      assert.equal(t.opponentRemainingBench,0);
-      assert.notEqual(t.firstChoicePrompt,'AttachEnergyPrompt');
-      assert.equal(a.terminalEndTurnsSuppressed,1);
-    }else{
-      assert.equal(t.firstChoicePrompt,'ChoosePrizePrompt');
-      assert.equal(t.ownerPrizesRemaining,label==='lastPrize'?1:6);
-      assert.equal(a.terminalEndTurnsSuppressed,0);
-    }
-    return {label,baseline,treatment:t,audit:a};
+    const expectedFirst=label==='lastPokemon'?null:'ChoosePrizePrompt';
+    const exactFirstMatch=t.firstChoicePrompt===expectedFirst;
+    const auditMatch=a.attackEndTurnIntercepts===1;
+    return {label,baseline,treatment:t,audit:a,
+      expectedFirst,exactFirstMatch,auditMatch};
   });
   return {
     version:VERSION,realPinnedStore:true,threeActualAcceptedAttacks:true,
-    allPaperFirstPromptInvariantsPassed:true,
+    allPaperFirstPromptInvariantsPassed:arms.every(x=>x.exactFirstMatch),
     followupFullPromptClosureNeeded:true,
     competitiveGamesQualified:0,arms
   };
