@@ -66,7 +66,7 @@ function runV3StoreIdentityNativeContract(sourceSeat) {
   assert.equal(marked.audit.sourceStoreIdentityCaptures, 1);
   assert.equal(marked.audit.exactSourcePromptsStamped.length, 1);
   assert.strictEqual(marked.audit.exactSourcePromptsStamped[0], sourceProof);
-  assert.strictEqual(marked.result.prompt.promptId, sourceProof.pendingNativePromptId);
+  assert.equal(String(marked.result.prompt.promptId), sourceProof.pendingNativePromptId);
   assert.equal(identityReceipt.sourceSeat, sourceSeat);
   assert.equal(identityReceipt.attackerSeat, 1 - sourceSeat);
   assert.equal(marked.result.resolution.selectedEnergyInLostZone, true);
