@@ -500,3 +500,72 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
   assert.equal(treatment.audit.selectedRootDecisions,1);
   assert.equal(treatment.audit.competitiveGameQualified,false);
 });
+
+
+const naturalEvolutionCatalog={
+  ...catalog,
+  evolutions:new Map([['Garbodor BKP',{
+    evolvesFrom:'Trubbish',stage:2,hasAbility:true
+  }]]),
+  stages:{BASIC:1,STAGE_1:2,STAGE_2:3,RESTORED:4,VMAX:5,VSTAR:6}
+};
+function garbodorView(actorSeat){
+  const view=base();
+  view.actorSeat=actorSeat;
+  view.globalTurn=15;
+  view.ownHand=['Garbodor BKP'];
+  view.ownPublic.bench=[
+    {name:'Trubbish',printing:'Trubbish FST',
+      lastPlayedOrEvolvedTurn:9,printed:{stage:1},publicRestrictions:{}},
+    {},{},{},{}
+  ];
+  view.ownTurnResources={
+    ...view.ownTurnResources,
+    pokemonPlayLocked:false,evolutionPlayLocked:false,
+    abilityPokemonPlayLocked:false
+  };
+  return view;
+}
+
+test('natural evolution root is bilateral when its owner-seat filter is null',()=>{
+  for(const seat of [0,1]){
+    assert.equal(chooseActorRootIntent(
+      garbodorView(seat),naturalEvolutionCatalog,
+      {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null}
+    ).kind,'evolve-pokemon');
+  }
+});
+test('natural evolution root can be scoped to physical source seat zero',()=>{
+  const expected={
+    kind:'evolve-pokemon',handIndex:0,printing:'Garbodor BKP',
+    slot:'bench',index:0,from:'Trubbish FST'
+  };
+  assert.deepEqual(chooseActorRootIntent(
+    garbodorView(0),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+  ),expected);
+  assert.equal(chooseActorRootIntent(
+    garbodorView(1),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+  ).kind,'pass');
+});
+test('natural evolution root can be scoped to physical candidate seat one',()=>{
+  assert.equal(chooseActorRootIntent(
+    garbodorView(0),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
+  ).kind,'pass');
+  assert.equal(chooseActorRootIntent(
+    garbodorView(1),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
+  ).kind,'evolve-pokemon');
+});
+test('invalid natural evolution owner seat is rejected and missing actor seat fails closed',()=>{
+  assert.throws(()=>chooseActorRootIntent(
+    garbodorView(0),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:2}
+  ),/naturalEvolutionRootOwnerSeat/);
+  assert.equal(chooseActorRootIntent(
+    garbodorView(undefined),naturalEvolutionCatalog,
+    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+  ).kind,'pass');
+});
