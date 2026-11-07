@@ -1,4 +1,4 @@
-name: Agent21 bounded native Energy Retrieval owner Item custody
+name: Agent21 bounded native Secret Box salvage and owner search tests
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - tests/agent21-energy-retrieval-staged-native.test.cjs
       - tests/agent21-night-stretcher-staged-native.test.cjs
       - tests/agent21-secretbox-target-whiff-native.test.cjs
+      - tests/agent21-box-salvage-attack-native.test.cjs
   workflow_dispatch:
 
 permissions:
@@ -51,6 +52,10 @@ jobs:
         run: |
           node --test tests/agent21-secretbox-target-whiff-native.test.cjs > agent21-secretbox-target-whiff-native.log 2>&1 || { cat agent21-secretbox-target-whiff-native.log; exit 1; }
           cat agent21-secretbox-target-whiff-native.log
+      - name: Run bounded original physical Box recovery paths through KO and Prize on both seats
+        run: |
+          node --test tests/agent21-box-salvage-attack-native.test.cjs > agent21-box-salvage-attack-native.log 2>&1 || { cat agent21-box-salvage-attack-native.log; exit 1; }
+          cat agent21-box-salvage-attack-native.log
       - name: Preserve native output including any negative assertion
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -60,5 +65,6 @@ jobs:
             agent21-energy-retrieval-staged-native.log
             agent21-night-stretcher-staged-native.log
             agent21-secretbox-target-whiff-native.log
+            agent21-box-salvage-attack-native.log
           if-no-files-found: warn
           retention-days: 14
