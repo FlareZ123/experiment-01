@@ -333,3 +333,39 @@ See [full durable invocation checkpoint](20261103-normal2-research-state.md), pl
 4. Continue preserving the distinction between a validated adapter test and competitive game evidence. The collective still has 29/32 authenticated exact opponent lists, zero competitive-qualified games, and no selected fixed 60.
 
 Lease remains `claimed_at=2026-11-07T14:31:24.385933Z`; do not refresh. At every checkpoint, compare the real UTC clock to that timestamp. Release only after elapsed time reaches 70 minutes (15:41:24.385933 UTC) and all other useful state has been pushed and verified.
+
+## 2026-11-07 16:45 UTC checkpoint: Copycat eligibility and actor receipt
+
+### Durable finding
+
+The previous blanket exclusion of `copycatAttack === true` from Mimikyu Copycat choices was too broad. The official Pokémon Card Game FAQ at https://www.pokemon-card.com/rules/faq/search.php?page=621&regulation=all&sc_group_id=728%2F1000 distinguishes:
+- Mimikyu can copy Zoroark BREAK's Foul Play.
+- After an Ω Barrage Pokémon uses two attacks, Mimikyu's owner may choose either.
+- An attack used through an opponent Mimikyu's own Copycat cannot itself be copied.
+
+The corrected paper-history predicate is therefore: explicitly non-GX, and not the opponent's own Mimikyu attack named Copycat. Other non-GX copied-attack effects remain eligible, including Regidrago VSTAR's Apex Dragon despite Twinleaf's `copycatAttack` metadata.
+
+### Shared code and evidence
+
+- `simulation/twinleaf/copycat-multiattack-history.cjs`: records `sourceCardName`, exports `isMimikyuCopycatAttack` and `isMimikyuCopycatEligibleAttack`, uses the precise predicate in both ordinary last-attack and verified Ω Barrage choice paths, and restores the truthful native history after temporary selection.
+- `tests/agent21-copycat-choice-set.test.cjs`: covers ordinary history, exact Barrage pair, GX exclusion, Mimikyu Copycat exclusion, Apex Dragon metadata-positive eligibility, Foul Play, and history restoration.
+- `simulation/twinleaf/agent7-copycat-history-root.cjs`: receipt field `publicEventReceipt.mimikyuCopycatCompatible`, root version `agent7-mimikyu-copycat-history-root-v3-copycat-compatibility`. It is null when snapshot/choice API is unavailable; otherwise true iff the actor's Active Pokémon has a printed Copycat attack and the tracker-certified choice set is non-empty; false otherwise. It is not a payment or full-legality claim.
+- `tests/agent7-copycat-history-root.test.cjs`: includes positive Apex Dragon metadata-positive receipt test and unknown/empty/non-Mimikyu negative cases.
+- Report: `results/methodology/agent21-barrage-copycat-pinned-engine-audit-20261107.md`.
+
+### CI
+
+Manual workflow `.github/workflows/mimikyu-copycat-regression.yml` run `42392432758` (head `88ea23718a3393daf2d57f8b2ff2249dab97bcdc`) completed failure: 31 tests, 23 passed, 8 failed. All 8 failures are in Agent8's `tests/agent8-mimikyu-burrow-native.test.cjs` multiattack/Copycat integration cases, each `BLOCKED_BY_EFFECT`; tracker tests 1-5, actor-root tests 6-7, and receipt/compatibility tests 8-13 passed. The immediate single-Burrow native cases 14-15 also passed. This does not validate the native Apex chain or a competitive matchup. A second run `42392802431` is queued after the strict non-GX predicate and Foul Play fixture alignment.
+
+### Coordination
+
+- Sent Agent7 the exact marker contract and tracker correction in `communications/agent7/`; marker committed at `0d92ddd8d4abacde6d71af81263bab944913119b`.
+- Sent Agent8 a correction request for its historical report's overbroad Copycat exclusion and a note on the native multiattack failure.
+- Do not edit Agent7's active Apex policy branch or Agent8's native fixture without coordination. Their next integration step is to consume the corrected Apex choice row through the existing Copycat compatibility hook and resolve the separate Ω Barrage native settlement failure.
+
+### Next actions
+
+1. Check run `42392802431` through the GitHub Actions logs; confirm the 13 tracker/receipt tests still pass after the latest strictness and fixture updates.
+2. Read Agent7's response and latest Apex integration. Validate that its root uses `mimikyuCopycatCompatible` only as history gating and still enforces energy, locks, source choice, native prompts, and effect settlement.
+3. Ask Agent8 to repair or characterize the 8 `BLOCKED_BY_EFFECT` cases; keep pinned-engine limitations separate from paper legality.
+4. Preserve the full Aichi Top 32 / 32-matchup evidence requirement. No deck has demonstrated competitive qualification or anything near the 99.5% target.
