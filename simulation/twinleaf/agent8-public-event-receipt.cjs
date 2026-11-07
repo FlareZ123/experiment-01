@@ -36,6 +36,29 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
     assert.ok(snapshotTurn<state.turn,
       'Previous-opponent-turn history must predate the acting turn');
     opponentLastTurnTurn=snapshotTurn;
+    const barragePairs=new Map();
+    for(const row of previousOpponentTurnAttacks){
+      if(row.barragePairId===undefined){
+        assert.equal(row.barragePairRole,undefined,
+          'Barrage pair role requires a pair identifier');
+        continue;
+      }
+      assert.ok(typeof row.barragePairId==='string'&&row.barragePairId.length>0);
+      assert.ok(row.barragePairRole==='first'||row.barragePairRole==='second');
+      const group=barragePairs.get(row.barragePairId)??[];
+      group.push(row);
+      barragePairs.set(row.barragePairId,group);
+    }
+    const pairIndexById=new Map();
+    for(const [pairId,rows] of barragePairs){
+      assert.equal(rows.length,2,'A Barrage pair must contain exactly two attacks');
+      assert.deepEqual(rows.map(row=>row.barragePairRole),['first','second'],
+        'A Barrage pair must preserve first/second order');
+      assert.equal(rows[0].sourceCardFullName,rows[1].sourceCardFullName,
+        'A Barrage pair must come from the same source printing');
+      assert.equal(rows[0].turn,rows[1].turn);
+      pairIndexById.set(pairId,pairIndexById.size);
+    }
     opponentLastTurnAttacks=previousOpponentTurnAttacks.map(row=>{
       assert.equal(row.playerId,opponent.id);
       assert.equal(row.turn,snapshotTurn,
@@ -44,11 +67,16 @@ function publicEventReceipt(state,seat,previousOpponentTurnAttacks=null,
       assert.ok(typeof row.attackName==='string'&&row.attackName.length>0);
       assert.equal(typeof row.gxAttack,'boolean');
       assert.equal(typeof row.copycatAttack,'boolean');
-      return Object.freeze({
+      const receiptRow={
         turn:row.turn,sourcePrinting:row.sourceCardFullName,
         attackName:row.attackName,gxAttack:row.gxAttack,
         copycatAttack:row.copycatAttack
-      });
+      };
+      if(row.barragePairId!==undefined){
+        receiptRow.barragePairIndex=pairIndexById.get(row.barragePairId);
+        receiptRow.barragePairRole=row.barragePairRole;
+      }
+      return Object.freeze(receiptRow);
     });
     Object.freeze(opponentLastTurnAttacks);
   }else{
