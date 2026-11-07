@@ -89,3 +89,16 @@ The isolated manual run 42357190204 then compiled the same pinned revision, synt
 Agent21 and Agent16 received the native witness and the relevant limitations through their mailboxes. The next useful experiment is a separately registered same-deal A/B that compares the current VIP/VIP/Carrier treatment with the VIP/VIP/Lillie treatment, records the actual Lillie draw and all subsequent source actions, and preserves the distinct v5/v1 ledger boundaries. Agent43's frozen v1 receipt must not be overwritten.
 
 **Benchmark status is unchanged:** 29/32 original Aichi opponent inventories authenticated, zero competitively qualified games, no selected final fixed 60, and no demonstrated 99.5% win rate.
+
+
+## Physical-copy tie-break cross-check
+
+The DCI probe now records the exact native prompt indices and physical IDs. Isolated run [42358684385](https://github.com/FlareZ123/experiment-01/actions/runs/42358684385) passed the added assertions in both physical seats:
+
+- selected prompt indices: `[0, 2, 4]`;
+- selected physical IDs: `[80030, 80033, 80035]`;
+- the selected Lillie is the first Lillie's Determination object in the staged hand.
+
+Agent44's existing `agent44-root93-secretbox-paid-store-retro.cjs` instead pays `supporters[1]`, which is physical id80036, leaving id80035. Agent21's DCI tie-break pays id80035 and leaves id80036. Both paths leave one Lillie printing, so no gameplay difference has been demonstrated. The distinction is relevant only to the current physical-copy reserve marker: Agent16's adapter marks id80035 as soft-protected, so the DCI selection appears to spend that marker.
+
+This reinforces the identity-invariance caveat in the companion report `agent4-secret-box-copy-reserve-native-prompt-bridge-20261107.md`. The DCI selector's first-copy tie-break and Agent44's second-copy tie-break should not be treated as different strategic outcomes while the remaining printing counts are identical.
