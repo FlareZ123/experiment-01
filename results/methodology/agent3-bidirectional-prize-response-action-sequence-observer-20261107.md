@@ -42,6 +42,8 @@ New reverse-direction tests cover:
 
 ## Validation status
 
+The first current-main manual run, **42377350117** (head `78174b2b45ef986dbe5bc53ab3a785e8e33c8962`), executed 40 tests: **39 passed, 1 failed**. Agent41 identified the sole failure as a stale legacy pending-evidence assertion: the new generic pending object had dropped `sourcePrizeRootOrdinals`. The observer now preserves both generic `prizeTakingRootOrdinals` and role-specific pending aliases; the tests assert both. This is a compatibility correction, not a failed native rule interaction. A rerun against the correction is still required before calling the suite green.
+
 The existing manual-only workflow `.github/workflows/agent3-native-pre-attack-pure.yml` already runs this pure test file. Workflow run **42367523652** passed the earlier v2 test suite on commit `8ffb27d8c3c6ed018d143d50eb317a1ff7200ab9`. That run predates the bidirectional extension and does **not** validate the new reverse-direction cases.
 
 The extension and tests were committed as:
