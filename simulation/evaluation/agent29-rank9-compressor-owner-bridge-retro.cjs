@@ -8,9 +8,12 @@ const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const VERSION='agent29-rank9-retrospective-compressor-bridge-v1';
 const LATE_VERSION='agent29-rank9-retrospective-compressor-anyturn-v2';
 const SHUFFLE_AUDIT_VERSION='agent29-rank9-retrospective-compressor-shuffle-custody-v3';
+const BOMB_VERSION='agent29-rank9-retrospective-post-compressor-bomb-v4';
 
-/** @param {boolean} enabled @param {{anyTurn?:boolean}} [configuration] */
-function options(enabled,{anyTurn=false,shuffleCustody=false}={}){
+/** @param {boolean} enabled @param {{anyTurn?:boolean,shuffleCustody?:boolean,
+ *   bombAfterCompressor?:boolean}} [configuration] */
+function options(enabled,{anyTurn=false,shuffleCustody=false,
+  bombAfterCompressor=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -20,19 +23,24 @@ function options(enabled,{anyTurn=false,shuffleCustody=false}={}){
     paperRank9ElectrodeGXCorrection:true,
     actorRank9CompressorOwnerBridge:enabled,
     actorRank9CompressorAnyTurn:enabled&&anyTurn,
+    actorRank9CompressorBombAfter:enabled&&bombAfterCompressor,
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:scheduledArms(),
-    registeredFrameName:shuffleCustody?SHUFFLE_AUDIT_VERSION:
-      anyTurn?LATE_VERSION:VERSION
+    registeredFrameName:bombAfterCompressor?BOMB_VERSION:
+      shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION
   };
 }
 
 /**
  * Four historically observed source groups, both candidates and both seats.
  * Any-turn mode is an independently labeled development experiment.
- * @param {{anyTurn?:boolean,shuffleCustody?:boolean}} [configuration]
+ * @param {{anyTurn?:boolean,shuffleCustody?:boolean,
+ *   bombAfterCompressor?:boolean}} [configuration]
  */
-function run({anyTurn=false,shuffleCustody=false}={}){
+function run({anyTurn=false,shuffleCustody=false,
+  bombAfterCompressor=false}={}){
+  assert.ok(!bombAfterCompressor||(anyTurn&&shuffleCustody),
+    'Separate v4 Bomb requires native v3 shuffle custody');
   assert.ok(!shuffleCustody||anyTurn,
     'Independent shuffle witness requires an explicitly new any-turn cohort');
   const source=preflight();
@@ -61,7 +69,8 @@ function run({anyTurn=false,shuffleCustody=false}={}){
         const numeric=()=>require(
           '../twinleaf/agent33-shuffle-prompt-numeric-validation.cjs')
           .withNumericShufflePromptValidation(()=>
-            runDevelopment(options(enabled,{anyTurn,shuffleCustody})));
+            runDevelopment(options(enabled,{anyTurn,shuffleCustody,
+              bombAfterCompressor})));
         if(!shuffleCustody)return numeric();
         const {withAuthoritativeShuffleOrderWitness}=require(
           '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
@@ -83,6 +92,7 @@ function run({anyTurn=false,shuffleCustody=false}={}){
       const audit=b.actorOnlyDecisionCoverage?.detailedComponentAudits
         ?.ownerRank9Compressor??null;
       return {id:a.trial.id,seat:b.sourceSeat,
+        bombAudit:bombAfterCompressor?audit?.postCompressorBomb??null:null,
         fullPhysicalDealEqual:!!da&&da===db,
         controlDigest:a.rootActionLedgerSha256??null,
         treatmentDigest:b.rootActionLedgerSha256??null,
@@ -96,9 +106,9 @@ function run({anyTurn=false,shuffleCustody=false}={}){
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:shuffleCustody?SHUFFLE_AUDIT_VERSION:
-      anyTurn?LATE_VERSION:VERSION,source,
-      anyTurn,enginePin:profile.pinnedVendorRevision,
+    return {version:bombAfterCompressor?BOMB_VERSION:
+      shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION,source,
+      anyTurn,bombAfterCompressor,enginePin:profile.pinnedVendorRevision,
       shuffleOrderWitness:shuffleCustody?{
         version:'agent29-authoritative-shuffle-order-witness-v1',
         control:left.shuffleAudit,treatment:right.shuffleAudit,
@@ -125,6 +135,12 @@ function run({anyTurn=false,shuffleCustody=false}={}){
         (n,x)=>n+(x.sourceEnergyMoved??0),0),
       totalSourceShuffleSettlements:pairs.reduce(
         (n,x)=>n+(x.sourceShufflesSettled??0),0),
+      totalNativeBombActions:pairs.reduce(
+        (n,x)=>n+(x.bombAudit?.nativeAcceptedBombs??0),0),
+      totalBombEnergyAttached:pairs.reduce(
+        (n,x)=>n+(x.bombAudit?.physicallyAttachedEnergyCards??0),0),
+      totalBombTwoPrizeSelfKos:pairs.reduce(
+        (n,x)=>n+(x.bombAudit?.physicalElectrodeSelfKosWithTwoPrizes??0),0),
       pairs,control,treatment,competitiveQualifiedGames:0,
       studyType:'historically reused original source seeds; development only'};
   }finally{
@@ -135,9 +151,12 @@ function run({anyTurn=false,shuffleCustody=false}={}){
 }
 
 if(require.main===module){
-  const shuffleCustody=process.env.AGENT29_RANK9_SHUFFLE_AUDIT_V3==='true';
+  const bombAfterCompressor=process.env.AGENT29_RANK9_BOMB_AFTER_COMPR_V4==='true';
+  const shuffleCustody=bombAfterCompressor||
+    process.env.AGENT29_RANK9_SHUFFLE_AUDIT_V3==='true';
   const data=run({anyTurn:shuffleCustody||
-    process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody});
+    process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody,
+    bombAfterCompressor});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
@@ -156,10 +175,19 @@ if(require.main===module){
       shufflesSettled:p.rootAudit?.nativeSettledShuffles??null,
       nonEnergyFallback:p.rootAudit?.nonEnergyEmergencySelections??null,
       example:p.rootAudit?.events?.[0]??null})))+'\\n');
+  if(bombAfterCompressor)process.stderr.write('AGENT29_RANK9_POST_ITEM_BOMB '+
+    JSON.stringify(data.pairs.map(p=>({id:p.id,sourceSeat:p.seat,
+      sourceShuffle:p.bombAudit?.sourceStampedCompressorShuffles??0,
+      proposed:p.bombAudit?.proposedBombs??0,
+      accepted:p.bombAudit?.nativeAcceptedBombs??0,
+      physicalEnergy:p.bombAudit?.physicallyAttachedEnergyCards??0,
+      realSelfKo:p.bombAudit?.physicalElectrodeSelfKosWithTwoPrizes??0,
+      events:p.bombAudit?.events??[]})))+'\\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_COMPRESSOR '+
     JSON.stringify({matched:data.allDealsMatch,audited:data.allAudited,
       accepted:data.totalAcceptedCompressorRoots,
       moved:data.totalSourcePhysicalEnergyMoved,qualified:0})+'\n');
   if(!data.allDealsMatch||!data.allAudited)process.exitCode=1;
 }
-module.exports={VERSION,LATE_VERSION,SHUFFLE_AUDIT_VERSION,options,run};
+module.exports={VERSION,LATE_VERSION,SHUFFLE_AUDIT_VERSION,
+  BOMB_VERSION,options,run};
