@@ -382,9 +382,9 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     const rootStore = requireRootStore();
     const {identity, prompt: livePrompt, card, proof, choice} = selected;
     if (!(action instanceof ResolvePromptAction)) fail('action class');
-    if (String(action.promptId) !== String(livePrompt.id)) {
-      fail('prompt ID (action.promptId=' + String(action.promptId) +
-        ' [' + typeof action.promptId + '], livePrompt.id=' +
+    if (String(action.id) !== String(livePrompt.id)) {
+      fail('prompt ID (action.id=' + String(action.id) +
+        ' [' + typeof action.id + '], livePrompt.id=' +
         String(livePrompt.id) + ' [' + typeof livePrompt.id +
         '], actionKeys=' + Object.keys(action).join(',') + ')');
     }
