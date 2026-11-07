@@ -57,9 +57,12 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
     const acceptedRootLedgerExactMatch=
       Array.isArray(controlLedger)&&Array.isArray(treatmentLedger)?
         JSON.stringify(controlLedger)===JSON.stringify(treatmentLedger):null;
-    const ownerCoverage=treatmentRaw.get(row.id)?.actorOnlyDecisionCoverage??null;
+    const treatmentRow=treatmentRaw.get(row.id);
+    const ownerCoverage=treatmentRow?.actorOnlyDecisionCoverage??null;
+    const abortRootAudit=treatmentRow?.actorNativeTrainerFallbackAbortAudit??null;
     const diagnostic=ownerCoverage?.nativeOwnerTrainerFallbackAudit??
-      ownerCoverage?.detailedComponentAudits?.root?.nativeOwnerTrainerFallback??null;
+      ownerCoverage?.detailedComponentAudits?.root?.nativeOwnerTrainerFallback??
+      abortRootAudit??null;
     const trainerFallbackDiagnostic=diagnostic===null?null:{
       attemptedUnsupportedPasses:diagnostic.attemptedUnsupportedPasses,
       selectedNativeTrainerRoots:diagnostic.selectedNativeTrainerRoots,
@@ -77,9 +80,12 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
     return {
       trainerFallbackDiagnostic,
       treatmentOwnerCoverageAvailable:ownerCoverage!==null,
-      treatmentFallbackOptInReported:ownerCoverage?.nativeOwnerTrainerFallbackOptIn??null,
-      treatmentFallbackRootPresent:
+      treatmentFallbackOptInReported:ownerCoverage?.nativeOwnerTrainerFallbackOptIn??
+        (abortRootAudit?.rootInstalled===true?true:null),
+      treatmentFallbackRootPresent:abortRootAudit?.rootInstalled===true||
         ownerCoverage?.detailedComponentAudits?.root?.nativeOwnerTrainerFallback!==undefined,
+      treatmentRootAuditOrigin:abortRootAudit?'abort-root':
+        ownerCoverage?'returned-root':'unknown',
       treatmentCoverageRelevantKeys:ownerCoverage?Object.keys(ownerCoverage)
         .filter(key=>/trainer|fallback|root|policy/i.test(key)).sort():null,
       acceptedRootLedgerExactMatch,
@@ -134,6 +140,8 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
       row.treatmentFallbackOptInReported===true&&
       row.treatmentFallbackRootPresent===true&&
       row.trainerFallbackDiagnostic!==null).length,
+    fallbackActivationObservedOnAbortRows:pairs.filter(row=>
+      row.treatmentRootAuditOrigin==='abort-root').length,
     fallbackAttemptedUnsupportedPasses:pairs.reduce((sum,row)=>
       sum+(row.trainerFallbackDiagnostic?.attemptedUnsupportedPasses??0),0),
     fallbackSelectedNativeTrainerRoots:pairs.reduce((sum,row)=>
@@ -159,10 +167,12 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
   assert.equal(new Set(updated.map(row=>row.id)).size,8);
   assert.ok(receipt.fallbackActivationKnownRows>0,
     'Native Trainer treatment needs at least one actual-root activation receipt');
-  assert.ok(pairs.every(row=>!row.treatmentOwnerCoverageAvailable||
+  assert.ok(pairs.every(row=>
     (row.treatmentFallbackOptInReported===true&&
       row.treatmentFallbackRootPresent===true&&
-      row.trainerFallbackDiagnostic!==null)),
+      row.trainerFallbackDiagnostic!==null)||
+    row.treatmentStatus==='engine-error'&&
+      row.treatmentRootAuditOrigin==='unknown'),
   'All visible treatment roots must carry the installed native Trainer audit');
   assert.equal(receipt.allEightOriginalPhysicalDealsMatch,true);
   assert.equal(receipt.allEightFullPhysicalDealsMatch,true);
