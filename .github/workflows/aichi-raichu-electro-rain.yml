@@ -50,6 +50,8 @@ jobs:
         run: node simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs
       - name: Test Mimikyu Copycat versus non-GX Apex Dragon native source gate on both seats
         run: node simulation/twinleaf/agent46-mimikyu-apex-copycat-native.cjs
+      - name: Observe consecutive real native Regidrago Apex then Mimikyu Copycat history
+        run: node simulation/twinleaf/agent46-mimikyu-apex-consecutive-native.cjs
       - name: Verify native Froslass optional self-damage budget both seats
         run: node simulation/twinleaf/agent46-froslass-partial-budget-native.cjs
       - name: Check Electro Rain capped allocation pure regression
