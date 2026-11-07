@@ -41,6 +41,8 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.ok(turn16.detachedCounterfactual,
     'the frozen actual Store t16 was not passed to the attached cloned probe');
   const alternate=turn16.detachedCounterfactual;
+  console.log('AGENT11_T16_DETACHED_RAW_DIAGNOSTIC',
+    JSON.stringify(alternate));
   assert.equal(alternate.schema,VERSION,
     'native probe error is not an accepted counterfactual result');
   assert.equal(alternate.targetTurnMatched,true);
