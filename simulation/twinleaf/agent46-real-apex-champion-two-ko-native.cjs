@@ -79,6 +79,15 @@ function stagedChampionPowerBeamAfterRealApex() {
         CardList.fromList(['Psychic Energy SVE']));
       player.deck=CardList.fromList(Array(12).fill('Psychic Energy SVE'));
     }
+    const originalPrizeCards=candidate.prizes.flatMap(slot=>slot.cards);
+    assert.equal(originalPrizeCards.length,6);
+    assert.equal(new Set(originalPrizeCards).size,6,
+      'The owner must begin with six distinct physical Prized cards');
+    assert.equal(new Set([regidragoFirstBase,regidragoFirst,
+      regidragoSecondBase,regidragoSecond]).size,4,
+      'Both target Regidrago must have distinct physical V and VSTAR cards');
+    const originalPrizeInHand=()=>
+      originalPrizeCards.filter(card=>candidate.hand.cards.includes(card));
     state.activePlayer=1;
     state.phase=GamePhase.PLAYER_TURN;
     state.turn=4;
@@ -173,7 +182,14 @@ function stagedChampionPowerBeamAfterRealApex() {
     assert.ok(firstPrompts.includes('ChoosePrizePrompt'));
     assert.ok(firstPrompts.includes('ChoosePokemonPrompt'));
     assert.ok(opponent.discard.cards.includes(regidragoFirst));
+    assert.ok(opponent.discard.cards.includes(regidragoFirstBase),
+      'First Knock Out must discard its underlying physical Regidrago V');
+    assert.ok(opponent.discard.cards.includes(dragonEnergy1));
+    assert.ok(opponent.discard.cards.includes(dragonEnergy2));
     assert.equal(candidate.getPrizeLeft(),4);
+    const physicalFirstPrizes=originalPrizeInHand();
+    assert.equal(physicalFirstPrizes.length,2,
+      'First two actual Prize card objects must enter owner hand');
     assert.strictEqual(opponent.active.getPokemonCard(),regidragoSecond);
     assert.equal(state.activePlayer,0,
       'Timeless-GX bonus turn must skip the opponent after promoted KO');
@@ -190,6 +206,13 @@ function stagedChampionPowerBeamAfterRealApex() {
       'Fairy Zone doubles copied Power Beam 200 against Dragon');
     const secondPrompts=finish();
     assert.ok(opponent.discard.cards.includes(regidragoSecond));
+    assert.ok(opponent.discard.cards.includes(regidragoSecondBase),
+      'Second Knock Out must discard its underlying physical Regidrago V');
+    const physicalFourPrizes=originalPrizeInHand();
+    assert.equal(physicalFourPrizes.length,4,
+      'Four distinct originally Prized card objects must enter owner hand');
+    assert.ok(physicalFirstPrizes.every(card=>physicalFourPrizes.includes(card)),
+      'First two physical Prizes must remain owned after the second Knock Out');
     assert.equal(candidate.getPrizeLeft(),2,
       'Two additional Prizes must be taken for the second VSTAR');
     assert.strictEqual(opponent.active.getPokemonCard(),dratini);
@@ -207,6 +230,14 @@ function stagedChampionPowerBeamAfterRealApex() {
       firstPrompts,secondPrompts,secondTurn:bonusTurn,
       firstKo:opponent.discard.cards.includes(regidragoFirst),
       secondKo:opponent.discard.cards.includes(regidragoSecond),
+      firstUnderlyingVDiscarded:opponent.discard.cards.includes(regidragoFirstBase),
+      secondUnderlyingVDiscarded:opponent.discard.cards.includes(regidragoSecondBase),
+      firstKnockedOutSpecialEnergiesInOwnerDiscard:
+        [dragonEnergy1,dragonEnergy2].every(e=>opponent.discard.cards.includes(e)),
+      distinctInitiallyPrizedCardObjects:originalPrizeCards.length,
+      distinctOriginalPrizeObjectsInHandAtFirstKO:physicalFirstPrizes.length,
+      distinctOriginalPrizeObjectsInHandAtSecondKO:physicalFourPrizes.length,
+      physicalOriginalPrizeObjectCustodyValidated:true,
       prizesTaken:4,usedGX:candidate.usedGX,
       declaredLastAttack:state.playerLastAttack[candidate.id]?.attack?.name,
       scope:'Staged Source Store only, no natural 60-card deal or policy inference',
