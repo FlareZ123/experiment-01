@@ -32,3 +32,22 @@ Commits `c726e84354065034c5eaf74c4868c57a4b4cef12` and `85dd3c50c705b94026c25098
 This illustrates a general hazard in certifying game actions: printed correctness can involve a transient destination followed by a mandatory secondary zone transition. A prompt answer plus movement to the nominal target is insufficient to verify rules that conditionally discard the moved card. The appropriate audit object is a **printed expected final-state transition**, with source card identity, recipient type, and all resulting zones. Expand this representation only after card-specific printed/native checks, rather than assuming every Energy has Flash Energy's restriction.
 
 Status remains unchanged: 29 authenticated source name/count inventories, original ranks 23/25/28 unverified, zero competitively qualified games, no selected final 60, and no demonstrated 99.5% field win rate.
+
+
+## 03:56 UTC independent compiled pinned-native result
+
+[Manual GitHub Actions run 42335993754](https://github.com/FlareZ123/experiment-01/actions/runs/42335993754) completed **SUCCESS**, `abort-custody` job **SUCCESS**, original revision `91ce3641b564ed51dbb623783a19f8e930128e83`. The tested checkout pins upstream Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, compiles genuine Store classes, runs the actual Agent39 source/test `node --test` step (**26/26 tests**), and executes `node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs`. Job ID `128292935302` contains the source receipt.
+
+The exact native JSON reports **four Flash Energy routes**:
+
+| Source physical seat | Occupied destination Pokémon | Printed/verified expected final zone | Native result |
+| ---: | --- | --- | --- |
+| 0 | Iron Thorns ex TWM (Lightning) | Bench attachment | Exact Flash in Bench attached-Energy sublist, absent discard |
+| 1 | Iron Thorns ex TWM (Lightning) | Bench attachment | Exact Flash in Bench attached-Energy sublist, absent discard |
+| 0 | Giratina LOT (Psychic) | Owner discard | Exact Flash in discard, absent Bench and Active |
+| 1 | Giratina LOT (Psychic) | Owner discard | Exact Flash in discard, absent Bench and Active |
+
+**All four native prompt replies settled**, the observed final physical zone matches printed expectations and v4c marked exactly one physical acceptance per case. The two earlier native DCE sources and two no-Bench cases also passed. This is the first executed **compiled pinned native** result for v4c and strengthens the narrow card-state claim; **still not a natural printed-60 game, original field result, complete-game policy, or candidate win**.
+
+The four Flash cases were added to the pre-existing manual native fixture at commit `14790a474e4e8fdc24cfe7d26a0ae9b298b775ec`; no new workflow. This result does not establish dynamic-type or Stadium-suppressed Flash behavior, which remain explicit next controls.
+
