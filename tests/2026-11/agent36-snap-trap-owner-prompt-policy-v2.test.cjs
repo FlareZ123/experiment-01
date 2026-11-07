@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const path = require('node:path');
 const {
   loadTypes
 } = require('../../simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs');
@@ -13,6 +14,10 @@ const {
   withSnapTrapOwnerPolicyV2,
   withSnapTrapInsideNativeMatchesV2
 } = require('../../simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v2.cjs');
+
+const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {SimpleTacticsAi: NativeSimpleTacticsAi} = require(path.join(OUTPUT, 'simple-bot/simple-tactics-ai'));
+const {runSnapTrapPrismStarDestinationContract} = require('../../simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs');
 
 const types = loadTypes();
 const {CardTag, CardType, EnergyType, GameMessage, SuperType} = types;
@@ -121,7 +126,7 @@ class Store {
   }
 }
 
-class SimpleTacticsAi {
+class FakeSimpleTacticsAi {
   constructor(client) {
     this.client = client;
   }
@@ -266,7 +271,7 @@ function policyDependencies(fixture, getRootStore, options = {}) {
       ),
       audit: {stampedPromptCount: 1, privateStoreIdentityCaptures: 1}
     }),
-    SimpleTacticsAi,
+    SimpleTacticsAi: FakeSimpleTacticsAi,
     Store,
     ResolvePromptAction,
     ChooseCardsPrompt,
@@ -279,7 +284,7 @@ function policyDependencies(fixture, getRootStore, options = {}) {
 function executeFixture(fixture, store, options = {}) {
   const promptStore = options.otherPromptStore ?? store;
   promptStore.prompt(fixture.state, fixture.prompt);
-  const ai = new SimpleTacticsAi({id: fixture.sourceOwner.id});
+  const ai = new FakeSimpleTacticsAi({id: fixture.sourceOwner.id});
   const action = ai.decodeNextAction(fixture.state);
   assert.ok(action instanceof ResolvePromptAction);
   options.tamper?.(fixture);
@@ -300,7 +305,7 @@ function runProtectedFixture(fixture, options = {}) {
       rootStore = store;
       return executeFixture(fixture, store, options);
     }, deps),
-    {SimpleTacticsAi}
+    {SimpleTacticsAi: FakeSimpleTacticsAi}
   );
   return outcome;
 }
@@ -345,7 +350,7 @@ test('marker v3, exact root Store, live State and one physical Energy receipt se
   assert.ok(fixture.attackerOwner.active.energies.cards.includes(psychic));
   assert.equal(hiddenReads, 0);
   assert.equal(policy.hiddenCardIdentitiesInspected, false);
-  assert.equal(SimpleTacticsAi.prototype[QUARANTINE_ACTIVE], undefined);
+  assert.equal(FakeSimpleTacticsAi.prototype[QUARANTINE_ACTIVE], undefined);
 });
 
 test('exact root Store owner policy handles source owner in seat 1 and routes Prism Star to Lost Zone', () => {
@@ -455,6 +460,78 @@ test('dispatch-time prompt mutation is rejected before the native action resolve
   assert.equal(hiddenReads, 0);
 });
 
+
+test('actual pinned Store + marker v3 + Agent4 quarantine settle both source-seat orientations', () => {
+  const runNativeSeat = sourceSeat => {
+    let rootStore = null;
+    const outcome = withNativeRawStateFallbackQuarantine(
+      () => withSnapTrapOwnerPolicyV2(
+        () => runSnapTrapPrismStarDestinationContract({
+          sourceSeat,
+          onRootStoreCreated(store) {
+            rootStore = store;
+          },
+          resolveOwnerPrompt({state, owner}) {
+            const ai = new NativeSimpleTacticsAi(
+              {id: owner.id},
+              {tactics: [], promptResolvers: [], scores: {}, arbiter: {}},
+              null
+            );
+            return ai.decodeNextAction(state);
+          }
+        }),
+        {
+          getRootStore: () => rootStore,
+          chooseEnergy(prompt) {
+            const card = prompt.cards.energies.cards.find(item =>
+              String(item.fullName ?? item.name).includes('Beast Energy')
+            );
+            assert.ok(card);
+            return {
+              card,
+              parentIndex: prompt.cards.cards.indexOf(card),
+              bestBeforeAttackDamage: 10,
+              bestRemainingAttackDamage: 10,
+              bestAttackDenial: 0,
+              deniedAttacks: [],
+              deniedBaseDamage: 0,
+              energyMapModel: 'native-prism-star-fixture-injected',
+              damageModel: 'injected-test-choice',
+              dynamicEnergyOverrides: [],
+              specialEnergyBlocked: null,
+              specialEnergyBlockStatus: 'unknown-fail-closed'
+            };
+          }
+        }
+      ),
+      {SimpleTacticsAi: NativeSimpleTacticsAi}
+    );
+    return outcome;
+  };
+
+  for (const sourceSeat of [0, 1]) {
+    const outcome = runNativeSeat(sourceSeat);
+    const policy = outcome.result.audit.ownerPolicy;
+    const native = outcome.result.result;
+
+    assert.equal(outcome.audit.rawStateFallbackCalls, 0);
+    assert.equal(policy.quarantineActiveAtInstall, true);
+    assert.equal(policy.promptStoreJoins, 1);
+    assert.equal(policy.markerStoreIdentityJoins, 1);
+    assert.equal(policy.exactPromptIdentityJoins, 1);
+    assert.equal(policy.dispatchRevalidations, 1);
+    assert.equal(policy.moveCardsEffectReceiptCount, 1);
+    assert.equal(policy.physicalSettlements, 1);
+    assert.equal(policy.choices[0].sourceSeat, sourceSeat);
+    assert.equal(policy.choices[0].attackerSeat, 1 - sourceSeat);
+    assert.equal(policy.choices[0].actualDestination, 'lostzone');
+    assert.equal(native.resolution.selectedEnergyInLostZone, true);
+    assert.equal(native.resolution.selectedEnergyAbsentFromDiscard, true);
+    assert.equal(native.prompt.unresolvedPromptCountAfterFinalWait, 0);
+    assert.equal(native.competitiveGamesQualified, 0);
+  }
+});
+
 test('native headless wrapper captures onRootStoreCreated and preserves the caller callback', () => {
   let currentFixture = null;
   let currentStore = null;
@@ -483,7 +560,7 @@ test('native headless wrapper captures onRootStoreCreated and preserves the call
     audit: {stampedPromptCount: 1, privateStoreIdentityCaptures: 1}
   });
   const policyDeps = {
-    SimpleTacticsAi,
+    SimpleTacticsAi: FakeSimpleTacticsAi,
     Store,
     ResolvePromptAction,
     ChooseCardsPrompt,
