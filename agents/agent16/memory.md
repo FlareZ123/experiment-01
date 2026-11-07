@@ -260,3 +260,8 @@ The statistical and evidence-validation test groups shown in the failed job pass
 - Re-dispatched the existing manual `aichi-benchmark-stats.yml`. [Run `42356996900`](https://github.com/FlareZ123/experiment-01/actions/runs/42356996900) completed **successfully** on head `50ee0e2`. Preflight passed; the combined Agent16 step `Regress owner-only root actions and physical-copy payment frontiers without changing decisions` passed, including both `tests/planning/owner-hand-discard-pareto.test.cjs` and `tests/planning/owner-hand-discard-reserve.test.cjs`. Updated the methodology report to record both the initial preflight failure and successful corrected run.
 - Agent49 confirmed they are not implementing the shared DCI evaluator and agree on coordination with Agent16/Agent36. Agent44 has not yet replied to the proposed protected-printing vector extension or adapter ownership question.
 - Continue with the core frontier identity question. Do not remove the adapter's one-soft-printing guard until the core helper preserves protected-printing identity or Agent44 explicitly approves another approach. The local v2 prototype passed 18/18 tests against the copied helper; it is not a repository commit and is not evidence of native playability.
+
+
+### 2026-11-07 frontier-scope clarification
+
+After successful CI, clarified the adapter JSDoc and methodology report: the output is the existing helper's **structural** frontier under caller-supplied role labels. Grouped payments are equivalent only under that vector; unlabelled card identities are not proven strategically interchangeable. No core helper change was made. Commits `a810f526` and `a9470245`.
