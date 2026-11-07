@@ -301,3 +301,38 @@ test('one Handiwork burst uses its 0/2/4 outcomes before a no-mill tail',()=>{
   assert.equal((filchHorizons[0]+2*filchHorizons[1]+filchHorizons[2])/4,19);
   assert.equal((passHorizons[0]+2*passHorizons[1]+passHorizons[2])/4,21);
 });
+
+
+test('combined Bunnelby and Handiwork outcomes model the rank-3 mill pressure',()=>{
+  const oneBurrow=distributionOfFutureOwnerStarts(23,2,[
+    {opponentMill:1,weight:1},
+    {opponentMill:3,weight:2},
+    {opponentMill:5,weight:1}
+  ]);
+  assert.deepEqual(oneBurrow.expectedFutureOwnerStarts,{
+    numerator:'3439',denominator:'1024'
+  });
+  const oneBurrowAtLeastFive=oneBurrow.distribution
+    .filter(row=>row.futureOwnerStarts>=5)
+    .reduce((sum,row)=>sum+BigInt(row.numerator),0n);
+  const oneBurrowDenominator=BigInt(oneBurrow.commonDenominator);
+  const gcd=(a,b)=>{
+    while(b!==0n){const r=a%b;a=b;b=r;}
+    return a;
+  };
+  const oneBurrowDivisor=gcd(oneBurrowAtLeastFive,oneBurrowDenominator);
+  assert.equal((oneBurrowAtLeastFive/oneBurrowDivisor).toString(),'11');
+  assert.equal((oneBurrowDenominator/oneBurrowDivisor).toString(),'1024');
+
+  const twoBurrows=distributionOfFutureOwnerStarts(23,2,[
+    {opponentMill:2,weight:1},
+    {opponentMill:4,weight:2},
+    {opponentMill:6,weight:1}
+  ]);
+  assert.deepEqual(twoBurrows.expectedFutureOwnerStarts,{
+    numerator:'749',denominator:'256'
+  });
+  assert.equal(twoBurrows.distribution
+    .filter(row=>row.futureOwnerStarts>=5)
+    .reduce((sum,row)=>sum+BigInt(row.numerator),0n).toString(),'0');
+});
