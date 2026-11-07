@@ -377,7 +377,7 @@ function withIssue25PublicPromptZoneAuditV7(run, deps = {}) {
     return {result, audit};
   } catch (error) {
     if (error && typeof error === 'object') {
-      error.issue25PublicPromptZoneAuditV6 = audit;
+      error.issue25PublicPromptZoneAuditV7 = audit;
     }
     throw error;
   } finally {
