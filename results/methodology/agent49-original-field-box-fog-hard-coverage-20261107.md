@@ -104,6 +104,40 @@ The benchmark remains 29/32 authenticated fixed original inventories,
 zero competitive-qualified games, no selected final 60 and no evidenced
 99.5% field win rate.
 
+## Reusable owner-original-60 hard-plan veto (6 November context corrected 7 November)
+
+A new pure
+[`owner-original-60-plan-gate.cjs`](../../simulation/twinleaf/owner-original-60-plan-gate.cjs)
+supplies a conservative K0-safe structural certificate for any declared
+finite plan requiring named own-deck target cards. It accepts the acting
+owner's **trusted registered 60 physical printing strings**, alongside
+required roles and source-validated acceptable printings. When a necessary
+role has fewer copies in the original 60 than the plan requires, it emits
+`blocked-impossible-original60`. If the plan's original 60 has sufficient
+copies, it emits only `not-disproven`.
+
+This complements the already existing
+`simulation/twinleaf/actor-k1-search-plan-veto.cjs`: K1 can eventually
+establish exact remaining deck membership from an owner-authorized search,
+whereas the original 60 gives a **hard impossibility veto already at K0**
+without inspecting unsearched decks or hidden Prizes. Callers must provide
+authentic owner deck registration rather than reconstruct it from the
+opponent's hidden cards, and must explicitly validate equivalent-printing
+alternatives. A card in the original 60 might still be Prized, already used,
+or inaccessible in the current deck; the helper never certifies its current
+availability.
+
+The module also refuses overlapping acceptable printings across distinct
+compulsory roles. Without that restriction, one physical card could be
+double-counted as simultaneously fulfilling two independent targets.
+
+The [four original-roster and synthetic regressions](../../tests/agent49-owner-original-60-plan-gate.test.cjs)
+passed **4/4** with the fetched actual code and original roster in a
+separate isolated V8 harness. Ranks 9/17/30 are correctly hard-blocked
+from searching for Fog at K0. Ranks 1/31 are `not-disproven` for Fog
+membership, without any assertion about a usable same-turn Box line.
+No native actions, qualified games or shared-policy integration occurred.
+
 ## Direction for shared competence work
 
 Before integrating a historically successful candidate-only tactical
