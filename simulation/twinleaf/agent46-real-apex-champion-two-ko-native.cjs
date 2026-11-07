@@ -20,6 +20,8 @@ const engine = name => require(path.join(output,name));
  */
 function stagedChampionPowerBeamAfterRealApex(options={}) {
   const useOriginal60=options.useOriginal60===true;
+  const rawControl=options.rawControl===true;
+  if(rawControl)assert.equal(useOriginal60,true,'Raw control requires authentic 60-card source inventories');
   const ownerSeat=options.ownerSeat??0;
   assert.ok(ownerSeat===0||ownerSeat===1,'Physical champion owner seat must be 0 or 1');
   const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
@@ -93,8 +95,8 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     engine('game/store/prefabs/copy-attack-delegation');
 
   clearCopyAttackSessionsForTests();
-  const restoreCopy=installMimikyuNonGxCopycatHook();
-  const restoreHistory=installDeclaredCopyHistoryHook({mimikyu:true,regidrago:true});
+  const restoreCopy=rawControl?null:installMimikyuNonGxCopycatHook();
+  const restoreHistory=rawControl?null:installDeclaredCopyHistoryHook({mimikyu:true,regidrago:true});
   try {
     const store=new Store({onStateChange() {}});
     const state=store.state;
@@ -207,7 +209,8 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     assert.equal(sourceDeckAfterApex,sourceDeckBeforeApex-6,
       'Overclock must transfer six unique physical cards from source deck to hand');
     assert.equal(state.playerLastAttack[opponent.id]?.attack?.name,
-      'Apex Dragon','Declared-history hook must retain real source attack');
+      rawControl?'Overclock':'Apex Dragon',
+      'Raw or corrected prior-attack name must match the selected mode');
     assert.equal(state.activePlayer,ownerSeat,'Opponent passed turn after Apex');
     assert.equal(state.phase,GamePhase.PLAYER_TURN);
     auditPhysicalZones('after-native-opponent-apex-overclock');
@@ -269,6 +272,40 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       sourceHandAfterApex,sourceDeckBeforeApex,sourceDeckAfterApex,
       opponentDiscardDragonPresent:opponent.discard.cards.includes(opponentDialga)
     };
+    if(rawControl){
+      const beforeCopyHand=candidate.hand.cards.length;
+      const beforeCopyDeck=candidate.deck.cards.length;
+      store.dispatch(new AttackAction(candidate.id,'Copycat'));
+      const prompts=finish();
+      auditPhysicalZones('after-raw-mimikyu-copycat-overclock');
+      assert.equal(opponent.active.damage,0,
+        'Raw previous Overclock must not become the printed Apex Timeless KO');
+      assert.equal(candidate.getPrizeLeft(),6);
+      assert.equal(candidate.usedGX,false);
+      const afterCopyHand=candidate.hand.cards.length;
+      const afterCopyDeck=candidate.deck.cards.length;
+      assert.equal(afterCopyHand-beforeCopyHand,
+        beforeCopyDeck-afterCopyDeck,'Raw Overclock copy must conserve draw transfer');
+      return {
+        schema:'agent46-unpatched-original60-real-apex-copycat-control-v1',
+        championOwnerSeat:ownerSeat,regidragoSourceSeat:1-ownerSeat,
+        candidateNativeOrderedSha256:plan.candidateNativeOrderedSha256,
+        originalSourceAttack,
+        previousAttackMetadataInjected:false,
+        bothReversibleHooksEnabled:false,
+        exactOriginal60PhysicalObjectsStaged:true,
+        original60ZoneChecks:zoneChecks,
+        firstOwnerHandBeforeCopycat:beforeCopyHand,
+        firstOwnerHandAfterCopycat:afterCopyHand,
+        firstOwnerDeckBeforeCopycat:beforeCopyDeck,
+        firstOwnerDeckAfterCopycat:afterCopyDeck,
+        resolvedPrompts:prompts,
+        resultingRegidragoDamage:opponent.active.damage,
+        originalPrizesTaken:6-candidate.getPrizeLeft(),
+        gxSpent:candidate.usedGX,
+        qualifiedForCompetitiveInference:false
+      };
+    }
     const first=copyPayload(dialga,'Timeless-GX');
     assert.equal(candidate.usedGX,true);
     assert.equal(candidate.usedTurnSkip,true);
@@ -353,8 +390,8 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
       qualifiedForCompetitiveInference:false
     };
   } finally {
-    restoreHistory();
-    restoreCopy();
+    if(restoreHistory)restoreHistory();
+    if(restoreCopy)restoreCopy();
     clearCopyAttackSessionsForTests();
   }
 }
