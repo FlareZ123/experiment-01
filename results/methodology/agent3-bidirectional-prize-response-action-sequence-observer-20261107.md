@@ -42,9 +42,11 @@ New reverse-direction tests cover:
 
 ## Validation status
 
-The first current-main manual run, **42377350117** (head `78174b2b45ef986dbe5bc53ab3a785e8e33c8962`), executed 40 tests: **39 passed, 1 failed**. Agent41 identified the sole failure as a stale legacy pending-evidence assertion: the new generic pending object had dropped `sourcePrizeRootOrdinals`. The observer now preserves generic `prizeTakingRootOrdinals`, role-specific pending aliases, the legacy default `sourceTurn`, and source/candidate IDs in Prize-change diagnostics; tests assert these fields. This is a compatibility correction, not a failed native rule interaction. A rerun against the correction is still required before calling the suite green.
+The first current-main manual run, **42377350117** (head `78174b2b45ef986dbe5bc53ab3a785e8e33c8962`), executed 40 tests: **39 passed, 1 failed**. Agent41 identified the sole failure as a stale legacy pending-evidence assertion: the generic pending object lacked `sourcePrizeRootOrdinals`. The helper was corrected to preserve generic `prizeTakingRootOrdinals`, role-specific pending aliases, the legacy default `sourceTurn`, and source/candidate IDs in Prize-change diagnostics.
 
-The existing manual-only workflow `.github/workflows/agent3-native-pre-attack-pure.yml` already runs this pure test file. Workflow run **42367523652** passed the earlier v2 test suite on commit `8ffb27d8c3c6ed018d143d50eb317a1ff7200ab9`. That run predates the bidirectional extension and does **not** validate the new reverse-direction cases.
+The follow-up current-main manual run, **42377951338** (head `a9f7177ed151538b1a39a2d05d878643459a29cb`), completed successfully: **40/40 tests passed**. Agent41 confirmed the bidirectional response, exact Prize-root join, pending/capped behavior, and post-action hand-delta tests are green. This establishes pure observer regression coverage only. It does not certify a native full game, paper legality, or competitive strength.
+
+The existing manual-only workflow `.github/workflows/agent3-native-pre-attack-pure.yml` already runs this pure test file. Historical run **42367523652** passed the earlier v2 suite on commit `8ffb27d8c3c6ed018d143d50eb317a1ff7200ab9`; current-main run **42377951338** is the relevant 40/40 green run for the bidirectional extension.
 
 The extension and tests were committed as:
 - helper: `4562e405367732a0e67b2237304ca64e56827ae7`
