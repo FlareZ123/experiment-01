@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string,targetPrinting?:string}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string,targetPrinting?:string,withStoreHook?:(store:any,execute:()=>object)=>{result:object,audit:object}}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack',targetPrinting='Trubbish FST'}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack',targetPrinting='Trubbish FST',withStoreHook}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -61,6 +61,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   const initialOccupiedBench=enemy.bench.filter(s=>s.getPokemonCard()).length;
   assert.equal(initialOccupiedBench,opponentHasBench?1:0,
     'Fixture must contain intended physical opponent Bench occupancy');
+  const runNativeTransaction=()=>{
   store.dispatch(new PlayCardAction(owner.id,0,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
@@ -152,6 +153,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
     paperRulesToCheck:'Advanced Player Rulebook A-01/D versus E-21',
     paperOrderingQualified:false,competitiveGamesQualified:0
   };
+  if(!withStoreHook)return runNativeTransaction();
+  const wrapped=withStoreHook(store,runNativeTransaction);
+  return {...wrapped.result,scopedHookAudit:wrapped.audit};
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify({
