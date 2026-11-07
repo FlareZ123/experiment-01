@@ -91,7 +91,7 @@ function installSpecialRedCardEmptyHandHook() {
  * @param {object} store Pinned physical game's Store instance.
  * @param {object} action Exact selected native Action.
  * @param {()=>number} physicalRandom Deterministic reproducible fair game RNG.
- * @returns {object} Pinned native Store.dispatch result.
+ * @returns {unknown} The pinned Store.dispatch return value, passed through unchanged.
  */
 function dispatchSpecialRedCardPaperRoot(store,action,physicalRandom) {
   const {PlayCardAction} = require(path.join(output,
