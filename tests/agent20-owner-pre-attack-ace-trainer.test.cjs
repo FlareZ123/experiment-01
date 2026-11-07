@@ -4,6 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chooseOwnerPreAttackAceTrainer } =
   require('../simulation/twinleaf/agent20-owner-pre-attack-ace-trainer.cjs');
+const { withOwnerPreAttackAceTrainer } =
+  require('../simulation/twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs');
 
 function fixture() {
   return {
@@ -170,4 +172,185 @@ test('resolves a multi-attack Pokémon by the AttackAction attackName', () => {
   });
   assert.equal(result.attackIndex, 0);
   assert.equal(result.attackName, 'Hidden Power');
+});
+
+
+function nativePokemon(fullName, name, hp, attacks = [], cardType = ['Psychic']) {
+  return {
+    fullName, name, hp, stage: 'Basic', cardType, retreat: [],
+    weakness: [], resistance: [], attacks, powers: []
+  };
+}
+
+function nativeSlot(pokemon, damage, energies = []) {
+  return {
+    getPokemonCard() { return pokemon; },
+    cards: [pokemon],
+    damage,
+    pokemonPlayedTurn: 1,
+    energies: { cards: energies },
+    tools: [],
+    specialConditions: [],
+    cannotAttackNextTurn: false,
+    cannotUseAttacksNextTurn: [],
+    blockedAttackNameNextTurn: null,
+    blockedAttackNameUntilLeavesActive: null,
+    onlyAllowedAttackNameNextTurn: null,
+    cannotRetreatNextTurn: false,
+    cannotRetreatWhileActive: false,
+    cannotEvolveNextTurn: false
+  };
+}
+
+function nativePlayer(id, handCards, prizeCount, pokemon, damage, energies = []) {
+  return {
+    id,
+    active: nativeSlot(pokemon, damage, energies),
+    bench: [],
+    stadium: { cards: [] },
+    discard: { cards: [] },
+    lostzone: { cards: [] },
+    supporter: { cards: [] },
+    hand: { cards: handCards },
+    deck: { cards: [] },
+    prizes: Array.from({ length: prizeCount }, () => ({ cards: [{}] })),
+    supporterTurn: 0,
+    retreatedTurn: 0,
+    energyPlayedTurn: 0,
+    stadiumPlayedTurn: 0,
+    stadiumUsedTurn: 0,
+    usedVSTAR: false,
+    cannotPlayPokemonCards: false,
+    cannotPlayPokemonWithAbilities: false,
+    cannotEvolvePokemonCards: false,
+    cannotPlayItemCards: false,
+    cannotPlaySupporterCards: false,
+    cannotPlayStadiumCards: false,
+    cannotPlayToolCards: false,
+    cannotPlayEnergyCards: false,
+    cannotPlaySpecialEnergyCards: false
+  };
+}
+
+function nativeAceTrainerHarness(seat, actorIdOverride) {
+  const ownerId = seat === 0 ? 101 : 202;
+  const opponentId = seat === 0 ? 202 : 101;
+  const hiddenHand = Array.from({ length: 10 }, () => {
+    const card = {};
+    Object.defineProperty(card, 'fullName', {
+      get() { throw new Error('opponent hidden hand identity was accessed'); }
+    });
+    return card;
+  });
+  const ownerHand = [
+    'Lillie AOR', 'Powerglass SFA', 'Ace Trainer AOR',
+    'Sky Field ROS', 'Rescue Carrier EVS',
+    'Mysterious Treasure FLI', 'Forest Seal Stone SIT'
+  ].map(fullName => ({ fullName }));
+  const ownerPokemon = nativePokemon('Unown AOR', 'Unown', 60, [{
+    name: 'Hidden Power', cost: ['Colorless'], damage: '10',
+    damageCalculation: null, text: ''
+  }]);
+  const opponentPokemon = nativePokemon(
+    'Trubbish FST', 'Trubbish', 70, [], ['Darkness']
+  );
+  const owner = nativePlayer(ownerId, ownerHand, 6, ownerPokemon, 0,
+    [{ fullName: 'Psychic Energy SVE' }]);
+  const opponent = nativePlayer(opponentId, hiddenHand, 5,
+    opponentPokemon, 60);
+  const players = seat === 0 ? [owner, opponent] : [opponent, owner];
+  const state = { players, activePlayer: seat, phase: 2, turn: 14, prompts: [] };
+  const dispatched = [];
+  const originalDispatch = action => {
+    dispatched.push(action);
+    return action;
+  };
+  const store = { state, dispatch: originalDispatch };
+  class AttackAction {
+    constructor(id, index) {
+      this.id = id;
+      this.index = index;
+      this.name = 'Hidden Power';
+    }
+  }
+  class PlayCardAction {
+    constructor(id, handIndex, target) {
+      this.id = id;
+      this.handIndex = handIndex;
+      this.target = target;
+    }
+  }
+  const headless = {
+    runMatch(request) {
+      request.onRootStoreCreated?.(store);
+      const action = new AttackAction(
+        actorIdOverride === undefined ? ownerId : actorIdOverride, 0
+      );
+      store.dispatch(action);
+      request.onRootActionDispatched?.(store, action, 1, seat, state.turn);
+      return {
+        rootActionLedger: [{
+          actionOrdinal: 1, action: 'AttackAction', attack: 'Hidden Power'
+        }],
+        store, dispatched, originalDispatch
+      };
+    }
+  };
+  const native = modulePath => {
+    if (modulePath === 'game/store/actions/game-actions') return { AttackAction };
+    if (modulePath === 'game/store/actions/play-card-action') {
+      return {
+        PlayCardAction,
+        PlayerType: { ANY: 'ANY' },
+        SlotType: { BOARD: 'BOARD' }
+      };
+    }
+    throw new Error('Unexpected native module: ' + modulePath);
+  };
+  return {
+    ownerId, headless, native, state, dispatched,
+    originalDispatch, PlayCardAction, AttackAction
+  };
+}
+
+test('native Store hook resolves numeric player IDs in both physical seats without reading opponent hand identities', () => {
+  for (const seat of [0, 1]) {
+    const harness = nativeAceTrainerHarness(seat);
+    const wrapped = withOwnerPreAttackAceTrainer(
+      () => harness.headless.runMatch({}),
+      {},
+      { headless: harness.headless, native: harness.native }
+    );
+    assert.equal(wrapped.audit.storeInstances, 1);
+    assert.equal(wrapped.audit.attackDispatchCalls, 1);
+    assert.equal(wrapped.audit.invalidActorIdAttempts, 0);
+    assert.equal(wrapped.audit.attempts.length, 1);
+    assert.equal(wrapped.audit.attempts[0].actorIdType, 'number');
+    assert.equal(wrapped.audit.attempts[0].actorSeat, seat);
+    assert.equal(wrapped.audit.decisions.length, 1);
+    assert.equal(wrapped.audit.decisions[0].accepted, true);
+    assert.equal(wrapped.result.dispatched.length, 1);
+    assert.ok(wrapped.result.dispatched[0] instanceof harness.PlayCardAction);
+    assert.equal(wrapped.result.dispatched[0].id, harness.ownerId);
+    assert.equal(wrapped.result.rootActionLedger[0].action, 'PlayCardAction');
+    assert.equal(wrapped.result.rootActionLedger[0].card, 'Ace Trainer');
+    assert.equal(wrapped.result.rootActionLedger[0].replacedAction, 'AttackAction');
+    assert.equal(wrapped.result.store.dispatch, harness.originalDispatch);
+  }
+});
+
+test('native Store hook delegates an actor ID that does not strictly match the numeric player ID', () => {
+  const harness = nativeAceTrainerHarness(0, '101');
+  const wrapped = withOwnerPreAttackAceTrainer(
+    () => harness.headless.runMatch({}),
+    {},
+    { headless: harness.headless, native: harness.native }
+  );
+  assert.equal(wrapped.audit.invalidActorIdAttempts, 1);
+  assert.equal(wrapped.audit.attempts[0].policyStatus, 'declined-invalid-actor-id');
+  assert.equal(wrapped.audit.decisions.length, 0);
+  assert.equal(wrapped.result.dispatched.length, 1);
+  assert.ok(wrapped.result.dispatched[0] instanceof harness.AttackAction);
+  assert.equal(wrapped.result.rootActionLedger[0].action, 'AttackAction');
+  assert.equal(wrapped.result.rootActionLedger[0].card, undefined);
 });

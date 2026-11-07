@@ -160,6 +160,27 @@ function auditAceTrainerSequence(attempt) {
 }
 
 /**
+ * Preserve native hook diagnostics when a registered arm aborts.
+ *
+ * @param {string} label
+ * @param {()=>object} execute
+ * @returns {object}
+ */
+function runArm(label, execute) {
+  try {
+    return execute();
+  } catch (error) {
+    writeJsonAtomic(path.join(ARTIFACT_DIR, label + '-error.json'), {
+      name: error?.name ?? 'Error',
+      message: error?.message ?? String(error),
+      aceTrainerAudit: error?.agent20AceTrainerAudit ?? null,
+      boxFogAudit: error?.agent43Audit ?? null
+    });
+    throw error;
+  }
+}
+
+/**
  * Run the same Box/Fog policy in A1/A2 and add the owner-only Ace Trainer
  * continuation in B. Each arm replays the registered physical deal.
  *
@@ -170,11 +191,14 @@ function runAba() {
   delete process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV;
 
   try {
-    const a1 = withOwnerOneEnergyBoxKo(() => runStewardBilateralProbeV9());
-    const b = withOwnerOneEnergyBoxKo(() =>
-      withOwnerPreAttackAceTrainer(() => runStewardBilateralProbeV9())
-    );
-    const a2 = withOwnerOneEnergyBoxKo(() => runStewardBilateralProbeV9());
+    const a1 = runArm('A1', () =>
+      withOwnerOneEnergyBoxKo(() => runStewardBilateralProbeV9()));
+    const b = runArm('B', () =>
+      withOwnerOneEnergyBoxKo(() =>
+        withOwnerPreAttackAceTrainer(() => runStewardBilateralProbeV9())
+      ));
+    const a2 = runArm('A2', () =>
+      withOwnerOneEnergyBoxKo(() => runStewardBilateralProbeV9()));
 
     const a1Output = a1.result;
     const bOutput = b.result.result;
@@ -207,21 +231,9 @@ function runAba() {
       rootLedgerSha256(a1Attempt) === rootLedgerSha256(a2Attempt);
 
     const aceSequence = auditAceTrainerSequence(bAttempt);
-    assert.equal(dealParity, true, 'Physical deal differs across A/B/A');
-    assert.equal(baselineLedgerParity, true, 'A1/A2 baseline ledgers differ');
-    assert.equal(aceAudit.decisions.length, 1,
-      'Ace Trainer policy did not make exactly one decision');
-    assert.equal(aceAudit.decisions[0].accepted, true,
-      'Native Store did not accept the Ace Trainer action');
-    assert.equal(aceAudit.rootActionLedgerRewrites.length, 1,
-      'Native root-action ledger was not rewritten to the actual action');
-    assert.equal(aceAudit.opponentHiddenHandRead, false);
-    assert.ok(aceSequence.aceTrainerAction,
-      'Native root ledger lacks the Ace Trainer PlayCardAction');
-    assert.ok(aceSequence.hiddenPowerAction,
-      'Native root ledger lacks the post-Ace-Trainer Hidden Power');
-    assert.ok(aceSequence.aceTrainerAction.ordinal <
-      aceSequence.hiddenPowerAction.ordinal);
+    const treatmentStatus = aceAudit.decisions.length === 1
+      ? (aceAudit.decisions[0].accepted ? 'accepted' : 'rejected')
+      : aceAudit.attempts.length === 0 ? 'not-observed' : 'declined';
 
     const output = {
       schema: VERSION,
@@ -242,6 +254,7 @@ function runAba() {
         candidateIdentityOrRankGate: false,
         seedGate: false
       },
+      treatmentStatus,
       helper: {
         version: aceAudit.policyVersion,
         sourceFileSha256: createHash('sha256').update(
@@ -252,6 +265,11 @@ function runAba() {
           require('node:fs').readFileSync(require.resolve(
             '../twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs'))
         ).digest('hex'),
+        storeInstances: aceAudit.storeInstances,
+        dispatchCalls: aceAudit.dispatchCalls,
+        attackDispatchCalls: aceAudit.attackDispatchCalls,
+        invalidActorIdAttempts: aceAudit.invalidActorIdAttempts,
+        attempts: aceAudit.attempts,
         decisions: aceAudit.decisions,
         rootActionLedgerRewrites: aceAudit.rootActionLedgerRewrites
       },
@@ -280,6 +298,22 @@ function runAba() {
     writeJsonAtomic(path.join(ARTIFACT_DIR, 'B-box-fog-ace-trainer.json'), bOutput);
     writeJsonAtomic(path.join(ARTIFACT_DIR, 'A2-box-fog.json'), a2Output);
     writeJsonAtomic(path.join(ARTIFACT_DIR, 'summary.json'), output);
+
+    assert.equal(dealParity, true, 'Physical deal differs across A/B/A');
+    assert.equal(baselineLedgerParity, true, 'A1/A2 baseline ledgers differ');
+    assert.equal(aceAudit.decisions.length, 1,
+      'Ace Trainer policy did not make exactly one decision; hook audit was saved');
+    assert.equal(aceAudit.decisions[0].accepted, true,
+      'Native Store did not accept the Ace Trainer action');
+    assert.equal(aceAudit.rootActionLedgerRewrites.length, 1,
+      'Native root-action ledger was not rewritten to the actual action');
+    assert.equal(aceAudit.opponentHiddenHandRead, false);
+    assert.ok(aceSequence.aceTrainerAction,
+      'Native root ledger lacks the Ace Trainer PlayCardAction');
+    assert.ok(aceSequence.hiddenPowerAction,
+      'Native root ledger lacks the post-Ace-Trainer Hidden Power');
+    assert.ok(aceSequence.aceTrainerAction.ordinal <
+      aceSequence.hiddenPowerAction.ordinal);
     return output;
   } finally {
     if (originalPowerglassFlag === undefined) {

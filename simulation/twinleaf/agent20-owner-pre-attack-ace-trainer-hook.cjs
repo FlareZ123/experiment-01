@@ -60,19 +60,36 @@ function summarizeAttempt(view, action) {
 }
 
 /**
+ * Resolve the physical actor from the same native identifier used by
+ * headless.runMatch, then construct the observation from the real Store state.
+ *
+ * @param {object} store Actual native match Store.
+ * @param {object} action Pending native action.
+ * @returns {null|{seat:number,view:object}}
+ */
+function ownerAttackObservation(store, action) {
+  const state = store?.state;
+  const actorId = action?.clientId ?? action?.id;
+  const seat = state?.players?.findIndex(player => player.id === actorId) ?? -1;
+  if (seat < 0) return null;
+  return { seat, view: actorObservation(state, seat) };
+}
+
+/**
  * Install an owner-only Ace Trainer continuation at the native Store
  * dispatch boundary. The headless callback and returned root ledger are
  * corrected to record the actual dispatched PlayCardAction.
  *
  * @param {()=>object} execute Synchronous native experiment.
  * @param {{minOpponentHandCount?:number,minOwnHandCount?:number,maxDecisions?:number}} [options]
+ * @param {{headless?:object,native?:(modulePath:string)=>object}} [deps]
  * @returns {{result:object,audit:object}}
  */
-function withOwnerPreAttackAceTrainer(execute, options = {}) {
-  const headless = require('./headless.cjs');
+function withOwnerPreAttackAceTrainer(execute, options = {}, deps = {}) {
+  const headless = deps.headless ?? require('./headless.cjs');
   const output = path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output');
-  const native = modulePath => require(path.join(output, modulePath));
+  const native = deps.native ?? (modulePath => require(path.join(output, modulePath)));
   const { AttackAction } = native('game/store/actions/game-actions');
   const { PlayCardAction, PlayerType, SlotType } =
     native('game/store/actions/play-card-action');
@@ -89,6 +106,7 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
     storeInstances: 0,
     dispatchCalls: 0,
     attackDispatchCalls: 0,
+    invalidActorIdAttempts: 0,
     attempts: [],
     decisions: [],
     rootActionLedgerRewrites: []
@@ -119,10 +137,12 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
             if (isAttackAction) {
               audit.attackDispatchCalls++;
               const actorId = action.clientId ?? action.id;
-              if (typeof actorId === 'string') {
-                const view = actorObservation(store, actorId);
+              const resolved = ownerAttackObservation(store, action);
+              if (resolved !== null) {
+                const { seat, view } = resolved;
                 const attempt = summarizeAttempt(view, action);
                 attempt.actorIdType = typeof actorId;
+                attempt.actorSeat = seat;
                 attempt.constructorName = action.constructor?.name ?? null;
                 const intent = audit.decisions.length < maxDecisions
                   ? chooseOwnerPreAttackAceTrainer(view, action, options)
@@ -157,6 +177,7 @@ function withOwnerPreAttackAceTrainer(execute, options = {}) {
                   return priorDispatch(replacement, ...dispatchArgs);
                 }
               } else {
+                audit.invalidActorIdAttempts++;
                 audit.attempts.push({
                   actorIdType: typeof actorId,
                   constructorName: action?.constructor?.name ?? null,
