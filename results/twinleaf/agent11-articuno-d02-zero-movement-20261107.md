@@ -10,11 +10,7 @@ Can the player accept Legendary Ascent's Active switch and then move zero Water 
 
 The repository's advanced manual defines D-02 at lines 1716-1736 (page 40). For an Ability with "any number" wording, zero is prohibited only when using that Ability would leave the game state unchanged.
 
-The pinned card-pool record `resources/cards/en/sm7.json`, card `sm7-31`, prints:
-
-> When you play this Pokémon from your hand onto your Bench during your turn, you may switch it with your Active Pokémon. If you do, move any number of Water Energy from your other Pokémon to this Pokémon.
-
-The card-pool record marks the printing Expanded legal. The accepted branch switches Articuno with the Active Pokémon before opening the Energy prompt. That switch changes the board state. The D-02 condition for prohibiting zero is therefore false. Zero Energy transfers are legal after the switch.
+The pinned card-pool record `resources/cards/en/sm7.json`, card `sm7-31`, marks the printing Expanded legal. Its Ability triggers when Articuno is played from hand onto the Bench, offers a switch with the Active Pokémon, and, if the switch occurs, permits moving "any number of Water Energy" from other Pokémon to Articuno. The accepted branch switches Articuno with the Active Pokémon before opening the Energy prompt. That switch changes the board state. The D-02 condition for prohibiting zero is therefore false. Zero Energy transfers are legal after the switch.
 
 The original Aichi rank-3 Snorlax Stall list contains one Articuno-GX CES 31 and two Basic Water Energy (MEE 11). This establishes field relevance; it does not establish that the line occurs in a natural game or changes a matchup.
 
