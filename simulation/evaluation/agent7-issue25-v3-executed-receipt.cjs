@@ -97,6 +97,8 @@ function executionRow(status,raw){
     finalNativeWinner:raw?.winner??null,
     actualSourceAttackSettlement:raw?.sourceAttackSettlement??null,
     nativeFailure:raw?.error??null,
+    actorNativeTrainerFallbackAbortAudit:
+      raw?.actorNativeTrainerFallbackAbortAudit??null,
     // Engine abort information is retained by status.nativeAbortProvenance.
     // Never substitute a generated physical deal for an aborted attempt.
   };
