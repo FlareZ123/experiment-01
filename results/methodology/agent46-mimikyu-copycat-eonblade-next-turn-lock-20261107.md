@@ -19,7 +19,7 @@ For each physical seat:
 3. Dispatch the opponent's real native `AttackAction('Eon Blade')`. The Store settles 200 damage on Mega Absol and records Eon Blade as the opponent's preceding attack.
 4. Dispatch the native `RetreatAction` to promote the same physical Mimikyu object, retaining its two attached Psychic Energy.
 5. Dispatch the real `AttackAction('Copycat')`. The copied Eon Blade resolves for 200 damage against Latias ex.
-6. Pass the opponent's turn with native `PassTurnAction`, then attempt Copycat again with the same physical Mimikyu.
+6. Pass the opponent's turn with native `PassTurnAction`, then attempt Copycat and the different Filch attack with the same physical Mimikyu.
 
 Only native `WaitPrompt` animation prompts are resolved. Any unexpected discretionary prompt fails the fixture.
 
@@ -39,6 +39,7 @@ Only native `WaitPrompt` animation prompts are resolved. Any unexpected discreti
 | Mimikyu lock immediately after Copycat | Active |
 | Lock after opponent passes | Still active |
 | Repeated next-turn Copycat | Rejected: `BLOCKED_BY_EFFECT` |
+| Different next-turn Filch attack | Rejected: `BLOCKED_BY_EFFECT` |
 
 The donor's three-Energy Eon Blade cost is not imposed on Mimikyu. Mimikyu pays its own two-Energy Copycat cost. The copied payload is Eon Blade, while the declared last-attack record remains Copycat by Mimikyu.
 
@@ -54,7 +55,7 @@ The same staged native sequence was run in both seats under five conditions:
 - both Mimikyu hooks enabled;
 - the complete four-hook set required by the production headless policy: Mimikyu compatibility, Mimikyu declared history, Regidrago declared history, and pass-clears-last-attack.
 
-All ten runs produced identical damage, declared history, active-card identity, lock state, and next-turn rejection. The full four-hook case additionally confirmed that the opponent's stale Eon Blade history is cleared after its subsequent PassTurnAction while Mimikyu's attack lock remains active.
+All ten runs produced identical damage, declared history, active-card identity, lock state, and both next-turn attack rejections. The full four-hook case additionally confirmed that the opponent's stale Eon Blade history is cleared after its subsequent PassTurnAction while Mimikyu's attack lock remains active.
 
 This is consistent with the hooks' source-level scope:
 
@@ -68,8 +69,9 @@ The compatibility hook is Apex-specific. The history hook is broader than Apex, 
 
 - Workflow: [Agent46 native copied-attack effect isolation](../../.github/workflows/agent46-copy-delegation.yml), manual dispatch only.
 - Initial 8-case run: [42357724295](https://github.com/FlareZ123/experiment-01/actions/runs/42357724295), success.
-- Final 10-case full-headless-hook run: [42359221578](https://github.com/FlareZ123/experiment-01/actions/runs/42359221578), success.
-- Final tested repository commit: `e556c53a35fb956033cb1a86018f8c5e5caa6614`.
+- 10-case full-headless-hook run: [42359221578](https://github.com/FlareZ123/experiment-01/actions/runs/42359221578), success.
+- Expanded run with Copycat and alternate Filch lock rejections: [42360765987](https://github.com/FlareZ123/experiment-01/actions/runs/42360765987), full workflow success.
+- Final tested repository commit: `e538de2a1c7067ad055be18c3503a4bf564b69d2`.
 - Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - Node.js: `20.19.0`.
 - The new regression is the final native step in the existing workflow. No new workflow was created and no vendored Twinleaf source was changed.
@@ -85,4 +87,4 @@ This is a staged native rules witness, not a naturally shuffled game:
 - No Aichi original 60 was played, no opponent policy was used, and no competitive game qualifies.
 - The test does not estimate how often a real match presents Eon Blade as the preceding attack or whether Copycat is strategically desirable.
 
-**Conclusion:** The pinned Twinleaf implementation correctly carries Eon Blade's next-turn attack lock through Mimikyu's native Copycat delegation in both seats. The two existing Apex-focused research hooks leave this ordinary Eon Blade sequence unchanged. This validates one copied delayed-effect interaction only; it does not establish a matchup result or competitive win rate.
+**Conclusion:** The pinned Twinleaf implementation correctly carries Eon Blade's next-turn attack lock through Mimikyu's native Copycat delegation in both seats. The lock blocks both a repeated Copycat and a different Filch attack on Mimikyu's next own turn. The complete headless hook set leaves this ordinary Eon Blade sequence unchanged. This validates one copied delayed-effect interaction only; it does not establish a matchup result or competitive win rate.
