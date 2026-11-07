@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs
+      - simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs
       - tests/agent3-native-pre-attack-public-board-join.test.cjs
+      - tests/agent3-v28-public-attack-damage-screen.test.cjs
       - .github/workflows/agent3-native-pre-attack-pure.yml
   workflow_dispatch:
 
@@ -30,5 +32,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run four public-only KO root regression scenarios
-        run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs
+      - name: Verify public board join and original-source printed nominal screen
+        run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs tests/agent3-v28-public-attack-damage-screen.test.cjs

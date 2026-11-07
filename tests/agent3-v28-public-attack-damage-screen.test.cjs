@@ -24,6 +24,10 @@ test('eight public KO victims have unambiguous source-roster printed attack iden
     [140,140,20,130,130,200,200,200]);
   assert.deepEqual(r.rows.map(x=>x.nominalDamageDifference),
     [0,0,160,0,230,0,0,200]);
+  assert.equal(r.rows.every(x=>x.attackerStage==='Basic'),true);
+  assert.deepEqual(r.rows.map(x=>x.attackerTypes),[
+    ['Lightning'],['Lightning'],['Colorless'],['Colorless'],
+    ['Colorless'],['Psychic'],['Psychic'],['Psychic']]);
   assert.ok(r.rows.every(x=>x.paperGameCertified===false&&
     x.exactAttackerAtNativeDeclarationObserved===false));
 });
