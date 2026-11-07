@@ -78,6 +78,7 @@ function stagedChampionPowerBeamAfterRealApex() {
     opponent.name='regidrago-staged';
     state.players=[candidate,opponent];
     candidate.active.cards.push(mimikyu,psychic1,psychic2);
+    candidate.active.energies.cards.push(psychic1,psychic2);
     candidate.discard.cards.push(dialga,radiant);
     const support=new PokemonCardList();
     support.cards.push(clefairy);
