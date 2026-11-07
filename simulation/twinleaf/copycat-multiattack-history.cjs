@@ -11,6 +11,27 @@ const {ResolvePromptAction}=
 const {GameMessage}=require(path.join(output,'game/game-message'));
 
 /**
+ * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,
+ * another Mimikyu Copycat. Other copied-attack effects remain eligible:
+ * the official FAQ specifically permits copying Zoroark BREAK's Foul Play.
+ * Twinleaf's generic copycatAttack metadata is therefore too broad to use as
+ * a blanket exclusion (e.g. Regidrago VSTAR's non-GX Apex Dragon).
+ * @param {object} row Tracked previous-turn attack record.
+ * @returns {boolean}
+ */
+function isMimikyuCopycatAttack(row){
+  const sourceName=row?.sourceCardName??row?.sourceCard?.name??
+    (typeof row?.sourceCardFullName==='string'?
+      row.sourceCardFullName.split(' ')[0]:null);
+  return sourceName==='Mimikyu'&&row?.attackName==='Copycat';
+}
+
+/** @param {object} row @returns {boolean} */
+function isMimikyuCopycatEligibleAttack(row){
+  return row?.gxAttack!==true&&!isMimikyuCopycatAttack(row);
+}
+
+/**
  * Install a per-Store, research-owned public attack-history observer.
  *
  * It records declared AttackActions and the selected follow-up attack from
@@ -32,27 +53,6 @@ const {GameMessage}=require(path.join(output,'game/game-message'));
  *   restore:()=>void
  * }}
  */
-/**
- * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,
- * another Mimikyu Copycat. Other copied-attack effects remain eligible:
- * the official FAQ specifically permits copying Zoroark BREAK's Foul Play.
- * Twinleaf's generic copycatAttack metadata is therefore too broad to use as
- * a blanket exclusion (e.g. Regidrago VSTAR's non-GX Apex Dragon).
- * @param {object} row Tracked previous-turn attack record.
- * @returns {boolean}
- */
-function isMimikyuCopycatAttack(row){
-  const sourceName=row?.sourceCardName??row?.sourceCard?.name??
-    (typeof row?.sourceCardFullName==='string'?
-      row.sourceCardFullName.split(' ')[0]:null);
-  return sourceName==='Mimikyu'&&row?.attackName==='Copycat';
-}
-
-/** @param {object} row @returns {boolean} */
-function isMimikyuCopycatEligibleAttack(row){
-  return row?.gxAttack!==true&&!isMimikyuCopycatAttack(row);
-}
-
 function installCopycatMultiAttackHistory(store){
   assert.ok(store&&typeof store.dispatch==='function');
   const hadOwn=Object.prototype.hasOwnProperty.call(store,'dispatch');
@@ -199,7 +199,7 @@ function installCopycatMultiAttackHistory(store){
   /**
    * Copycat's ordinary case is the opponent's actual last attack, if it is
    * copyable. A verified Barrage pair is the narrow exception: both attacks
-   * in that pair are considered, with GX/Copycat exclusions applied per row.
+   * in that pair are considered, with GX/Mimikyu-Copycat exclusions per row.
    * @param {number} playerId
    * @returns {object[]}
    */
