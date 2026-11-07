@@ -6,6 +6,23 @@ const {
 }=require('./agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
 const {inspectPowerglassWinningKo}=require('./agent37-powerglass-winning-ko-native.cjs');
 const {GameWinner}=require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+const {KnockOutEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/store/effects/game-effects');
+
+
+function withNonHandPrizeDestination(store,execute){
+  return withInstanceScopedSimultaneousLastPrizeTieV1(store,()=>{
+    const hookedReduce=store.reduceEffect;
+    store.reduceEffect=function(state,effect){
+      if(effect instanceof KnockOutEffect){
+        const taker=state.players.find(p=>p.id!==effect.player.id);
+        assert.ok(taker);
+        effect.prizeDestination=taker.discard;
+      }
+      return hookedReduce.call(store,state,effect);
+    };
+    return execute();
+  });
+}
 
 /** @returns {object} Native defect and terminal tie adapter regression. */
 function run(){
@@ -72,6 +89,29 @@ function run(){
   assert.equal(singleLastPrize.finalState.ownerPrizesRemaining,0);
   assert.equal(singleLastPrize.finalState.sourcePrizesRemaining,6);
 
+  const nonHandDestination=[0,1].map(actorSeat=>{
+    const treatment=runOne(actorSeat,withNonHandPrizeDestination,1,true);
+    const result=treatment.result,a=treatment.audit;
+    assert.equal(a.knockoutEffects,2);
+    assert.equal(a.activeKoPlayerIds.length,2);
+    assert.equal(a.prizeGroupCount,2);
+    assert.equal(a.simultaneousLastPrizeCandidate,false);
+    assert.equal(a.secondPrizeTransferAttempted,false);
+    assert.equal(a.secondPrizeTransferCompleted,false);
+    assert.equal(a.tieApplied,false);
+    assert.equal(a.winnerLogRewritten,false);
+    assert.equal(a.storeLogRestored,true);
+    assert.equal(a.storeReduceRestored,true);
+    return {
+      actorSeat,
+      simultaneousLastPrizeCandidate:a.simultaneousLastPrizeCandidate,
+      secondPrizeTransferAttempted:a.secondPrizeTransferAttempted,
+      tieApplied:a.tieApplied,
+      ownerPrizesRemaining:result.ownerPrizesRemaining,
+      opponentPrizesRemaining:result.opponentPrizesRemaining
+    };
+  });
+
   return {
     schema:'agent37-simultaneous-last-prize-tie-native-v1',
     pinnedTwinleaf:PINNED,
@@ -82,9 +122,10 @@ function run(){
     bothPrizeTransfersVerified:true,
     drawLogAndWinnerVerified:true,
     singlePlayerLastPrizeControlPreserved:true,
+    nonHandPrizeDestinationControlPreserved:true,
     competitiveGamesQualified:0,
     rows,
-    controls:{singleLastPrize}
+    controls:{singleLastPrize,nonHandDestination}
   };
 }
 
