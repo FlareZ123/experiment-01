@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
   makeRank3HandiworkCadenceSchedule,
-  distributionOfFutureOwnerStartsUnderSchedule
+  distributionOfFutureOwnerStartsUnderSchedule,
+  probabilityHandiworkAccessByNaturalDrawAndMail
 }=require('../simulation/evaluation/agent1-handwork-cadence-horizon.cjs');
 
 /**
@@ -206,3 +207,65 @@ test('the exact weighted outcome mass is normalized for D=23',()=>{
     sum+BigInt(row.numerator),0n),BigInt(result.commonDenominator));
 });
 
+
+
+test('post-Rototiller natural draw plus Trainers Mail gives exact conditional direct-access probabilities',()=>{
+  const cases=[
+    {
+      deckSize:40,otherTrainerCount:15,mailsInDeck:0,mailsInHand:1,
+      expected:{numerator:'1',denominator:'8'}
+    },
+    {
+      deckSize:40,otherTrainerCount:15,mailsInDeck:0,mailsInHand:2,
+      expected:{numerator:'35236091',denominator:'162527976'}
+    },
+    {
+      deckSize:40,otherTrainerCount:15,mailsInDeck:1,mailsInHand:1,
+      expected:{numerator:'62095963',denominator:'487583928'}
+    },
+    {
+      deckSize:40,otherTrainerCount:0,mailsInDeck:2,mailsInHand:0,
+      expected:{numerator:'47',denominator:'1560'}
+    },
+    {
+      deckSize:40,otherTrainerCount:15,mailsInDeck:0,mailsInHand:0,
+      expected:{numerator:'1',denominator:'40'}
+    }
+  ];
+  for(const scenario of cases){
+    const result=probabilityHandiworkAccessByNaturalDrawAndMail(
+      scenario.deckSize,scenario.otherTrainerCount,
+      scenario.mailsInDeck,scenario.mailsInHand
+    );
+    assert.deepEqual(result.exactProbability,scenario.expected);
+    assert.ok(result.probability>=0&&result.probability<=1);
+    assert.equal(result.targetCopiesInDeck,1);
+  }
+});
+
+test('one available Trainers Mail plus natural draw is exactly five over D',()=>{
+  for(const deckSize of [8,20,30,40,50]){
+    const maximumOtherTrainers=deckSize-1;
+    for(const otherTrainerCount of [0,Math.floor(maximumOtherTrainers/2),maximumOtherTrainers]){
+      const result=probabilityHandiworkAccessByNaturalDrawAndMail(
+        deckSize,otherTrainerCount,0,1
+      );
+      assert.equal(
+        BigInt(result.exactProbability.numerator)*BigInt(deckSize),
+        5n*BigInt(result.exactProbability.denominator)
+      );
+    }
+  }
+});
+
+test('the exact Mail access model rejects impossible zone counts',()=>{
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawAndMail(
+    40,0,2,1
+  ),/only two Trainers/);
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawAndMail(
+    10,9,2,0
+  ),/cannot exceed deckSize/);
+  assert.throws(()=>probabilityHandiworkAccessByNaturalDrawAndMail(
+    0,0,0,0
+  ),/deckSize must be 1..60/);
+});
