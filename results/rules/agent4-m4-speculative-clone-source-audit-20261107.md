@@ -26,6 +26,7 @@ The source chain at that exact revision is:
 4. `ptcg-server/src/simple-bot/simple-tactics/simple-tactics.ts` routes `evaluateAction` through `simulateAction`. That method creates `new Simulator(state, this.options.arbiter)`, dispatches the candidate action, and evaluates the resulting state.
 5. `ptcg-server/src/game/bots/simulator.ts` deep-clones the input state with `deepClone(state, [Card])` and dispatches the action through the cloned Store.
 6. The candidate action resolves through the native trainer reducer. `ptcg-server/src/sets/11-mega-evolution/set-chaos-rising/special-red-card.ts` executes `SpecialRedCard.reduceEffect`: the opponent hand is moved into a temporary CardList, that list is moved to the bottom of the opponent deck, and up to three cards are drawn. No shuffle or random prompt appears in this reducer.
+7. `ptcg-server/src/simple-bot/simple-tactics-ai.ts` loops through tactics and calls `isValidAction` on any returned action. `isValidAction` creates another `new Simulator(state)` and dispatches that action again. If PlayTrainerTactic returns M4, the effect may therefore execute once during candidate scoring and again during action validation. Both executions occur inside the full wrapped `decodeNextAction` call; the policy hook must cover both, and the number of policy-RNG draws should not be assumed to equal one shuffle.
 
 Pinned source links:
 
@@ -54,7 +55,7 @@ Recommended acceptance test:
 
 1. Construct a real SimpleTacticsAi with `allSimpleTactics`, a legal M4 in the acting player's hand, opponent Prizes at three, and at least two distinct cards in the opponent's hand.
 2. Wrap the complete `decodeNextAction` with `withM4PaperOwnerRoot` and a deterministic acting-player policy RNG.
-3. Verify that the speculative M4 evaluation consumes the expected hand-permutation draws and leaves the real root Store unchanged.
+3. Verify that every clone execution of M4, including the later `isValidAction` simulation when M4 is selected, uses the policy RNG and leaves the real root Store unchanged. Do not hardcode a one-shuffle draw count; observe the actual number of clone executions.
 4. Dispatch the selected action to the real Store through `dispatchSpecialRedCardPaperRoot`, with a separate deterministic RNG belonging to the opponent hand owner. Verify the physical bottom-deck order and that only the physical stream was consumed by real dispatch.
 5. Repeat with both seat assignments, a zero-card opponent hand, and an opponent with more than three Prizes.
 
