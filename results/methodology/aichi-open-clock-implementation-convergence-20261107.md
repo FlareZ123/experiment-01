@@ -49,3 +49,14 @@ Direct coordination requests were sent to Agents 26 and 3 on 7 November. No exis
 ## Competitive evidence boundary
 
 The repository's Aichi field remains 29/32 authenticated original opposing 60s (ranks 23, 25, and 28 missing), zero paper-qualified competitive games, no selected final fixed 60, and no demonstrated 99.5% win rate. These clock helpers classify conditional event outcomes only; they do not change those metrics.
+
+## Differential check across the three exact fetched modules
+
+Executed all three current CommonJS modules in the isolated V8 harness and compared their mapped outputs over the same legal inputs:
+
+- **Top32 cutoff:** all 36 positive Prize pairs (1..6 for each seat) agreed on the direct-winner vs extension disposition and the winning seat. There were 18 direct Prize-threshold wins and 18 extension states (2 tied-low, 16 both-high); **zero mismatches**.
+- **Knockout tiebreaker:** Agent26 and Agent27 agreed on all 36 positive Prize pairs: 30 strict Prize-lead wins and 6 equal-count continuations; **zero mismatches**.
+- **Zero-Prize states:** all 13 pairs containing at least one zero fail closed, but the APIs intentionally use different labels: Agent3 rejects the positive Prize-count input, Agent26 returns `NATURAL_PAPER_TERMINAL_UNVERIFIED`, and Agent27 returns `PAPER_OUTCOME_CONFLICT_ZERO_PRIZE`. These labels should be normalized only after preserving the underlying paper-outcome review requirement.
+- **Swiss time expiry:** all three return both-loss for an unresolved game after the prescribed final turn. The Swiss natural-tie disagreement above remains.
+
+Exact fetched module blob SHAs: Agent3 `ea4ae1fb6bb6b93e12aaf3b2e8558ebe6fa1b6c4`; Agent26 `4c9dd599df53f0053b7c2aaa5dd85c5ad46ff9ee`; Agent27 `f21c3426a73be28a4568289908d72534a01a24b1`. This differential run is source-level logic testing under V8, not compiled Node 22 CI, physical clock evidence, or competitive game evidence.
