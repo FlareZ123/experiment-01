@@ -79,13 +79,16 @@ test('attaches the latest stamped public snapshot and its exact Copycat choice s
     ],
     activePlayer:0,turn:15
   };
-  const base={actorSeat:0,globalTurn:15,decisionKind:'owner-root'};
+  const base={actorSeat:0,globalTurn:15,decisionKind:'owner-root',
+    ownPublic:{active:{name:'Mimikyu',attacks:[{name:'Filch'},{name:'Copycat'}]}}
+  };
   const unknown=attachPreviousOpponentTurnReceipt(base,state,0,{
     getPreviousTurnSnapshot:()=>null,getCopycatChoices:()=>[]
   });
   assert.equal(unknown.publicEventReceipt.opponentLastTurnAttacks,null);
   assert.equal(unknown.publicEventReceipt.opponentLastTurnTurn,null);
   assert.equal(unknown.publicEventReceipt.opponentCopycatChoices,null);
+  assert.equal(unknown.publicEventReceipt.mimikyuCopycatCompatible,null);
   const nativeBurrow={playerId:2,turn:14,sourceCardFullName:'Bunnelby PRC',
     attackName:'Burrow',gxAttack:false,copycatAttack:false};
   const known=attachPreviousOpponentTurnReceipt(base,state,0,{
@@ -98,6 +101,7 @@ test('attaches the latest stamped public snapshot and its exact Copycat choice s
   assert.equal(known.publicEventReceipt.opponentLastTurnTurn,14);
   assert.deepEqual(known.publicEventReceipt.opponentCopycatChoices,
     [known.publicEventReceipt.opponentLastTurnAttacks[0]]);
+  assert.equal(known.publicEventReceipt.mimikyuCopycatCompatible,true);
   assert.ok(Object.isFrozen(known));
   assert.ok(Object.isFrozen(known.publicEventReceipt));
   const empty=attachPreviousOpponentTurnReceipt(base,state,0,{
@@ -106,6 +110,18 @@ test('attaches the latest stamped public snapshot and its exact Copycat choice s
   });
   assert.deepEqual(empty.publicEventReceipt.opponentLastTurnAttacks,[]);
   assert.deepEqual(empty.publicEventReceipt.opponentCopycatChoices,[]);
+  assert.equal(empty.publicEventReceipt.mimikyuCopycatCompatible,false);
+  const nonMimikyu=attachPreviousOpponentTurnReceipt({
+    ...base,ownPublic:{active:{name:'Pidgeot ex',attacks:[{name:'Quick Search'}]}}
+  },state,0,{
+    getPreviousTurnSnapshot:()=>({turn:14,attacks:[nativeBurrow]}),
+    getCopycatChoices:()=>[nativeBurrow]
+  });
+  assert.equal(nonMimikyu.publicEventReceipt.mimikyuCopycatCompatible,false);
+  const missingChoiceApi=attachPreviousOpponentTurnReceipt(base,state,0,{
+    getPreviousTurnSnapshot:()=>({turn:14,attacks:[nativeBurrow]})
+  });
+  assert.equal(missingChoiceApi.publicEventReceipt.mimikyuCopycatCompatible,null);
 });
 
 test('selects Copycat for one exact prior-turn Bunnelby Burrow and passes it into the actor-root chooser',()=>{
