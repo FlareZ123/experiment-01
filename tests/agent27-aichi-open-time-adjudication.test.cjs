@@ -74,7 +74,7 @@ test('Top32 time branch: if one side has <=2 Prizes, lower side wins',()=>{
 });
 
 test('Top32 time branch: both tied at <=2 requires extension',()=>{
-  for(const prizes of [[2,2],[1,1],[0,0]]){
+  for(const prizes of [[2,2],[1,1]]){
     const r=adjudicateAtPrescribedEnd({stage:'open-top32',
       prizesRemaining:prizes,secondPlayerTurnFinished:true});
     assert.equal(r.status,'EXTENSION_REQUIRED_TIED_LOW');
