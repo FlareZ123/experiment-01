@@ -433,7 +433,9 @@ test('prompt Store mismatch fails closed before the AI can choose', () => {
     thrown = error;
   }
 
-  assert.match(thrown?.message ?? '', /Store.prompt receiver/);
+  assert.equal(thrown?.operator, 'strictEqual');
+  assert.strictEqual(thrown?.actual, rootStore);
+  assert.strictEqual(thrown?.expected, otherStore);
   assert.equal(hiddenReads, 0);
 });
 
