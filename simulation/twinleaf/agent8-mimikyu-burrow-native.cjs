@@ -298,7 +298,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
       sourcePrompts.push(kind);
       secondChosen=true;
       x.store.dispatch(new ResolvePromptAction(prompt.id,decoded));
-      x.store.dispatch(new AttackAction(x.owner.id,secondAttack));
       continue;
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
@@ -314,6 +313,19 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
     }
     throw new Error('Unexpected source prompt '+kind+' '+String(prompt.message));
   }
+  console.log('AGENT8_BARRAGE_SETTLED_STATE',JSON.stringify({
+    firstAttack,secondAttack,activePlayer:x.state.activePlayer,turn:x.state.turn,
+    phase:x.state.phase,stateKeys:Object.keys(x.state),
+    prompts:x.state.prompts.map(prompt=>({
+      id:prompt.id,type:prompt.constructor.name,message:prompt.message,
+      result:prompt.result?.name??prompt.result
+    })),
+    playerLastAttack:Object.fromEntries(Object.entries(x.state.playerLastAttack??{})
+      .map(([id,row])=>[id,{attack:row?.attack?.name,source:row?.sourceCard?.fullName}])),
+    effectStack:Array.isArray(x.state.effectStack)?
+      x.state.effectStack.map(effect=>effect?.constructor?.name):null,
+    currentEffect:x.state.currentEffect?.constructor?.name??null
+  }));
   assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
   assert.equal(omegaAccepted,true);
   assert.equal(secondChosen,true);
