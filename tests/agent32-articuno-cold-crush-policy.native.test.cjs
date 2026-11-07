@@ -169,6 +169,11 @@ test('Articuno one-Water Cold Crush policy composes with the shared owner policy
     assert.equal(result.overlayAudit.coldCrushAttackEvents.length, 1);
     assert.equal(result.overlayAudit.coldCrushAttackEvents[0].opponentActiveEnergyBefore, 3);
     assert.equal(result.overlayAudit.coldCrushAttackEvents[0].opponentActiveEnergyAfter, 0);
+    assert.equal(result.overlayAudit.coldCrushAttackEvents[0].ownerActiveEnergyDiscarded, 1);
+    assert.equal(result.overlayAudit.coldCrushAttackEvents[0].opponentActiveEnergyDiscarded, 3);
+    assert.equal(result.overlayAudit.coldCrushAttackEvents[0].allOwnerActiveEnergyDiscarded, true);
+    assert.equal(result.overlayAudit.coldCrushAttackEvents[0].allOpponentActiveEnergyDiscarded, true);
+    assert.equal(result.overlayAudit.coldCrushAttackEvents[0].ownerWaterInDiscard, true);
     assert.equal(result.overlayAudit.coldCrushAttackEvents[0].ownerUsedGX, true);
   }
 });
