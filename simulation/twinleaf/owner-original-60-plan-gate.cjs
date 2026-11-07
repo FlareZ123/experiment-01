@@ -26,6 +26,7 @@ function preflightOriginal60Plan(ownOriginal60,requirements){
   for(const printing of ownOriginal60)
     multiplicity.set(printing,(multiplicity.get(printing)??0)+1);
   const seen=new Set();
+  const assignedPrintings=new Set();
   const required=requirements.map(row=>{
     assert.ok(typeof row?.role==='string'&&row.role.length>0);
     assert.ok(!seen.has(row.role),'Roles must be distinct');
@@ -34,7 +35,15 @@ function preflightOriginal60Plan(ownOriginal60,requirements){
       row.acceptablePrintings.length>0&&
       row.acceptablePrintings.every(p=>typeof p==='string'&&p.length>0)&&
       new Set(row.acceptablePrintings).size===row.acceptablePrintings.length);
-    assert.ok(Number.isSafeInteger(row.copies)&&row.copies>=1&&row.copies<=4);
+    // Distinct plan roles have distinct compulsory objects. If a printing
+    // could satisfy two roles, callers must consolidate their demand or
+    // describe alternative plans; otherwise one card would be double-counted.
+    for(const p of row.acceptablePrintings){
+      assert.ok(!assignedPrintings.has(p),
+        'Overlapping required printings must be consolidated into one role');
+      assignedPrintings.add(p);
+    }
+    assert.ok(Number.isSafeInteger(row.copies)&&row.copies>=1&&row.copies<=60);
     const availableFromStart=row.acceptablePrintings.reduce(
       (n,p)=>n+(multiplicity.get(p)??0),0);
     return {
