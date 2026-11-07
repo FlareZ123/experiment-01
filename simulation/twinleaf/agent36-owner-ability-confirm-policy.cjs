@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent36-owner-ability-confirm-policy-v1';
+const VERSION='agent36-owner-ability-confirm-policy-v2-prompt-object-lineage';
 
 /**
  * Load actual classes exported by pinned Twinleaf (not a nonexistent package
@@ -155,7 +155,8 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
   const originalDispatch=Store.prototype.dispatch;
   const originalDecode=SimpleTacticsAi.prototype.decodeNextAction;
   const submitted=new WeakMap();
-  const pendingByPromptId=new Map();
+  // Prompt IDs may be reused by independent Stores; retain exact prompt identity.
+  const pendingByPrompt=new Map();
   const pendingAbilityByOwner=new Map();
   const audit={
     version:VERSION,
@@ -197,13 +198,14 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
         // A previously played Pokémon cannot authenticate a later prompt.
         if(played&&played.ownerId===prompt.playerId&&
            played.turn===this.state.turn)
-          pendingByPromptId.set(prompt.id,played);
+          pendingByPrompt.set(prompt,played);
       }
     }
 
     if(meta?.kind==='confirm'){
       const settled=meta.prompt.result===meta.decision;
       if(settled){
+        pendingByPrompt.delete(meta.prompt);
         audit.confirmSettled++;
         if(meta.decision&&meta.played){
           pendingAbilityByOwner.set(meta.ownerId,meta.played);
@@ -248,6 +250,9 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     }
 
     if(meta?.kind==='articuno-move-energy'){
+      // The one-shot Ascent follow-up has settled; do not relabel a later
+      // unrelated owner's MoveEnergyPrompt as Articuno's ability.
+      pendingAbilityByOwner.delete(meta.ownerId);
       const transfers=Array.isArray(meta.prompt.result)?meta.prompt.result:[];
       audit.articunoMoveEnergyEvents.push({
         ownerId:meta.ownerId,turn:meta.turn,
@@ -269,7 +274,7 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       candidate.playerId===ownerId&&candidate.result===undefined);
 
     if(prompt instanceof ConfirmPrompt){
-      const played=pendingByPromptId.get(prompt.id)??null;
+      const played=pendingByPrompt.get(prompt)??null;
       const choice=prompt.message==='GO_FIRST'?
         {decision:false,reason:'go-first-default-second',details:{}}:
         prompt.message==='WANT_TO_USE_ABILITY'&&played?
