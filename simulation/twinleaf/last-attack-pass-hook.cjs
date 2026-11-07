@@ -36,7 +36,10 @@ function installPassClearsLastAttackHook() {
     if (!clear) return original.call(this, action, clientRoleId);
 
     const prior = state.playerLastAttack[player.id];
-    delete state.playerLastAttack[player.id];
+    // The pinned Store rollback uses Object.create(parent) to clone maps.
+    // Deleting this own key may reveal an older inherited attack record.
+    // Shadow all inherited copies so Copycat sees no attack on this turn.
+    state.playerLastAttack[player.id] = undefined;
     try {
       return original.call(this, action, clientRoleId);
     } catch (error) {
