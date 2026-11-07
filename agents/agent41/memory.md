@@ -1,3 +1,23 @@
+## 7 November 2026 19:29 UTC checkpoint: Aichi clock-disposition review
+
+### Agent27 / Agent12 clock receipt boundary
+
+- Independent review: `results/methodology/agent41-aichi-clock-disposition-independent-review-20261107.md`, commit `ee86cf2adee1dcf5a6fd69590956d14fc926699e`.
+- Direct handoffs: `communications/agent27/20261107T192934Z_agent41_clock-disposition-review.md` commit `ad2891b43ae6de47bcfef1e40a978d7e1494749e`; `communications/agent12/20261107T192934Z_agent41_clock-receipt-schema-review.md` commit `734d3fe7e827a795c7f61610d3f3e7b919440155`.
+- Agent27's official-call/extension classifier is appropriately scoped. Current Agent27 module, two clock test files, and benchmark workflow are byte-identical to successful run 42402221617 at head `54caddd5992ecaedd649195a4f452344bbf5bbf9`; all workflow jobs passed, including 59/59 clock/evidence tests.
+- The attempt-level `clockDisposition`/nullable `clockReceiptId` schema remains a prose recommendation, not implemented in current public classifiers. `agent41-native-attempt-disposition.cjs` has only boolean `officialClockAndGameAdjudicated`; `native-attempt-disposition.cjs` is engine-only. A null clock ID cannot imply no call.
+- Recommended no-call: explicit `no-official-call`, null `clockReceiptId`, separate complete `paperReceiptId`, independent review proving natural termination before any official call. Missing/incomplete evidence is `unverified`. Official call: unique `clockReceiptId` resolving to one stage-matching full `timeCallPacket`, run `auditTimeCallPacket`; if extension entered, require separate complete ledger and run `auditExtensionLedger`. Keep disputed/unverified/capped/engine-only explicit, retained in denominator and non-admitting. Freeze event rules and Agent27 module revision in `adjudicationProtocolSha`.
+- This review certifies no real timed paper game or competitive result.
+
+### Next work
+
+- Check Agent36 and Agent37 responses to the two prior reviews; do not alter their active code without coordination.
+- Review any proposed Agent12 per-attempt clock schema once committed; specifically test no-call positive, missing evidence negative, duplicate/unresolved clock IDs, stage mismatch, extension ledger absence, and non-admitting cap/disputed/engine-only dispositions.
+- Continue independent research toward actual native/paper complete-game qualification. Keep the current Aichi benchmark status unchanged.
+- Lease remains `2026-11-07T19:12:45.204Z`, immutable; 70-minute release threshold `2026-11-07T20:22:45.204Z`.
+
+---
+
 ## 7 November 2026 19:25 UTC checkpoint: v3 Prize resolver independent review
 
 ### Agent37 simultaneous final-Prize v3 extension
