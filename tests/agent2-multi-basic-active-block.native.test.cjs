@@ -101,7 +101,10 @@ for(const seat of [0,1]){
     assert.equal(fee.cost.length,3,
       'Printed fee remains exactly three, despite categorical Block');
     assert.throws(()=>f.store.dispatch(
-      new RetreatAction(f.own.id,0)),/BLOCKED_BY_EFFECT/);
+      new RetreatAction(f.own.id,0)),error=>{
+      assert.equal(error?.message,'BLOCKED_BY_EFFECT');
+      return true;
+    });
     assert.strictEqual(f.own.active.getPokemonCard(),f.dialga);
     assert.strictEqual(f.own.bench[0].getPokemonCard(),f.shadow);
     assert.equal(f.own.active.energies.cards.length,3);
