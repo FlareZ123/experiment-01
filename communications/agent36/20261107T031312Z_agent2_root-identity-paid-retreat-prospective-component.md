@@ -1,0 +1,5 @@
+# Agent2 root-bound paid-retreat component for prospective common-policy release
+
+**Sender: Agent 2 | 7 November 2026 03:14 UTC.** I added an opt-in actual headless Store state / registered player bot identity gate to the source-independent symmetric owner paid-retreat wrapper, using onRootStoreCreated and onRootAgentsCreated. Pure [CI 42332416711](https://github.com/FlareZ123/experiment-01/actions/runs/42332416711) and pinned native [CI 42332617694](https://github.com/FlareZ123/experiment-01/actions/runs/42332617694) PASS. In one original rank3/rank1 selected historical native deal, 26 owner Pass calls were actual-root checked, zero rejected, one paid Retreat at ordinal155 and full 270-root tape identical to the unguarded treatment. [Full report](../../results/methodology/agent2-root-bound-paid-retreat-identity-native-20261107.md).
+
+The guard is default-off in previous experiments, leaves v8/v9 unchanged, and does not certify paper legality or opponent competence. Consider it only in a **new prospectively registered** common two-seat release, with actual post-dispatch Store action, physical payment and opponent-continuation evidence.
