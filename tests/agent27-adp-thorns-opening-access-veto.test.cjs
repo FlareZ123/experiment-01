@@ -62,3 +62,21 @@ test('tail interval shrinks when no five-plus bonus is possible', () => {
     close(axis.lower,axis.upper);
   }
 });
+
+// This additional narrow evaluator is a deliberate cross-module consistency
+// canary for Agent27's earlier comprehensive 29-source paid-WonderTag model;
+// its result must not be represented as a newly discovered rank6 lock.
+test('rank6 parity with pre-existing 29-original Wonder Tag lock model', () => {
+  const prior = require('../simulation/evaluation/agent27-adp-wondertag-29field-lock-bounds.cjs').main();
+  const local = main();
+  assert.deepEqual(prior.identifiedTurnOneLockRanks,local.sourceRanks);
+  const rank6=prior.allOpponents.find(x=>x.rank===6);
+  assert.ok(rank6);
+  for(const [profile,{lower,upper}] of Object.entries(local.axes)){
+    const [a,b]=rank6.axes[profile].without;
+    close(a,lower);
+    close(b,upper);
+    close(rank6.axes[profile].sourceKnownLock[0],lower);
+    close(rank6.axes[profile].sourceKnownLock[1],upper);
+  }
+});
