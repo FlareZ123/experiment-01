@@ -17,14 +17,14 @@ The card database confirms Rescue Carrier (`swsh7-154`) is Expanded Legal and re
 
 ## Results
 
-| Aichi rank | Archetype | Rescue Carrier copies | Pokémon copies | Potential targets at 90 HP or less |
-|---:|---|---:|---:|---:|
-| 9 | Absol Electrode | 4 | 15 | 6 |
-| 17 | Raichu Electrode Combo | 4 | 18 | 10 |
-| 26 | Meloetta Donk | 2 | 12 | 7 |
-| 30 | Lillie's Clefairy | 3 | 16 | 5 |
-| 31 | Dusknoir Chimecho | 4 | 22 | 13 |
-| **Total** | **5 lists** | **17** | **83** | **41** |
+| Aichi rank | Archetype | Rescue Carrier copies | Pokémon copies | Potential targets at 90 HP or less | Target share |
+|---:|---|---:|---:|---:|---:|
+| 9 | Absol Electrode | 4 | 15 | 6 | 40.00% |
+| 17 | Raichu Electrode Combo | 4 | 18 | 10 | 55.56% |
+| 26 | Meloetta Donk | 2 | 12 | 7 | 58.33% |
+| 30 | Lillie's Clefairy | 3 | 16 | 5 | 31.25% |
+| 31 | Dusknoir Chimecho | 4 | 22 | 13 | 59.09% |
+| **Total** | **5 lists** | **17** | **83** | **41** | **49.40%** |
 
 
 The five lists contain 41 potential target copies among 83 Pokémon copies, or **49.40%** of their Pokémon counts.
