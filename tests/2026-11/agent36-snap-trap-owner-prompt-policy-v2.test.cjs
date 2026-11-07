@@ -404,7 +404,7 @@ test('unmarked prompt delegates to the actual Agent4 quarantine', () => {
   }
 
   assert.equal(thrown?.code, 'OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED');
-  assert.equal(thrown?.nativeRawStateFallbackQuarantineAudit?.rawStateFallbackCalls, 1);
+  assert.equal(thrown?.nativeRawStateFallbackQuarantine?.rawStateFallbackCalls, 1);
   assert.equal(thrown?.snapTrapOwnerPromptPolicyAudit?.delegatedUnmarkedPrompts, 1);
   assert.equal(hiddenReads, 0);
 });
