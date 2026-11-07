@@ -57,3 +57,46 @@ test('physical Store opt-in M4 paper mode leaves unrelated games unchanged',()=>
       optInMode:protocol,unchanged:true,
       stagedOnly:true,competitivelyQualifiedGames:0}));
 });
+
+test('M4 speculative clone shuffle requires isolated policy RNG and is inert without M4',()=>{
+  const deck=upstreamSmokeDeck().map(name=>
+    name==='Special Red Card M4' ? "Boss's Orders MEG" : name);
+  const request={deckA:deck,deckB:deck,seed:20310318,maxActions:100,
+    label:'Agent44 M4 speculative clone shuffle absent-card control'};
+  assert.throws(()=>runMatch({...request,
+    specialRedCardPaperSpeculativeShuffle:true}),
+  /M4 speculative shuffle requires paper preselection, physical Store correction, and isolated policy RNG/);
+  assert.throws(()=>runMatch({...request,
+    specialRedCardPaperPreselection:true,
+    specialRedCardPaperCorrection:true,
+    specialRedCardPaperSpeculativeShuffle:true}),
+  /M4 speculative shuffle requires paper preselection, physical Store correction, and isolated policy RNG/);
+
+  const base=runMatch({...request,isolatePolicyRandomness:true,
+    specialRedCardPaperPreselection:true,
+    specialRedCardPaperCorrection:true});
+  const withSpec=runMatch({...request,isolatePolicyRandomness:true,
+    specialRedCardPaperPreselection:true,
+    specialRedCardPaperCorrection:true,
+    specialRedCardPaperSpeculativeShuffle:true});
+  const {specialRedCardPaperPreselectionVersion:baseVersion,
+    ...baseGame}=base;
+  const {specialRedCardPaperPreselectionVersion:specVersion,
+    specialRedCardPaperSpeculativeShuffle:specEnabled,
+    specialRedCardPaperSpeculativeShuffleProtocol:specProtocol,
+    ...specGame}=withSpec;
+  assert.equal(baseVersion,'agent44-m4-owner-root-preselection-v1');
+  assert.equal(specVersion,
+    'agent44-m4-owner-root-preselection-v2-policy-rng-clone-shuffle');
+  assert.equal(specEnabled,true);
+  assert.equal(specProtocol,
+    'exact-M4-opponent-hand-fisher-yates-policy-clone-prng-v1');
+  assert.deepEqual(withSpec.specialRedCardPaperPreselectionAudits,[]);
+  assert.deepEqual(specGame,baseGame,
+    'With no M4 in either deck, the new speculative hook must not change the match trace');
+  console.log('AGENT44_M4_SPECULATIVE_NO_CARD_BILATERAL',
+    JSON.stringify({seed:request.seed,actions:base.actions,
+      noM4Audits:withSpec.specialRedCardPaperPreselectionAudits.length,
+      speculativeProtocol:specProtocol,unchanged:true,
+      stagedOnly:true,competitivelyQualifiedGames:0}));
+});
