@@ -15,11 +15,23 @@ for(const sourceSeat of [0,1]){
     for(const copycatChoice of ['engine','second']){
       test('Mimikyu Copycat isolates Bunnelby Ω Barrage source trait: '+
           sourceSeat+' '+firstAttack+'/'+secondAttack+' '+copycatChoice,()=>{
-        const restore=installMimikyuCopycatSourceTraitIsolationHook();
+        const isolationEvents=[];
+        const restore=installMimikyuCopycatSourceTraitIsolationHook({
+          onIsolation:event=>isolationEvents.push(event)
+        });
         try{
-          const result=probeAttackOrder(
-            sourceSeat,firstAttack,secondAttack,copycatChoice
-          );
+          let result,error;
+          try{
+            result=probeAttackOrder(
+              sourceSeat,firstAttack,secondAttack,copycatChoice
+            );
+          }catch(caught){
+            error=caught;
+          }
+          assert.ok(isolationEvents.length>0,
+            'Source-trait hook did not see a Barrage power: '+JSON.stringify(isolationEvents));
+          assert.equal(isolationEvents[0].sourceCardName,'Bunnelby');
+          if(error)throw error;
           const expected=copycatChoice==='second'?secondAttack:firstAttack;
           assert.equal(result.copycatExecutedAttack,expected);
           assert.equal(result.adapterOverrideApplied,copycatChoice==='second');
