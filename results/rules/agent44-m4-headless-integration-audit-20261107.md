@@ -54,6 +54,14 @@ This is the actual root Store dispatch path. The random draws are not consumed b
 
 Both flags should be enabled together for a shared-policy treatment. Preselection prevents the policy from selecting a publicly illegal M4 play; the Store correction enforces the paper rule and correct physical hand shuffle at execution.
 
+## Additional open question: speculative bot evaluation
+
+The above correction establishes the **actual** M4 Store effect and its physical shuffle. One separate policy-fidelity question remains unresolved. In `headless.cjs`, the actual selected action is passed through `dispatchSpecialRedCardPaperRoot`, but `withM4PaperOwnerRoot` currently installs only the empty-hand veto during owner-root `decodeNextAction`; for a legal positive-hand M4, it does not install the random hand permutation in the chooser's speculative evaluation.
+
+The same headless adapter documents that upstream tactics simulate candidate actions, including random prompts, before dispatching the real action, and uses `SimpleTacticsAi.decodeNextAction` for owner choices. It has not yet been established whether the pinned Simulator executes M4's `reduceEffect` in those speculative clones or whether the deterministic unshuffled hand order can affect its evaluation. This is an **open question, not a demonstrated gameplay defect**.
+
+Before claiming that the complete M4 policy decision path is paper-faithful, inspect the pinned local bot/simulator implementation or add an instrumented native test. If the clone does execute M4's effect, its hand-only shuffle should use the actor's **policy/decision RNG**, while the actual Store continues to use the affected opponent hand owner's **physical RNG**. A regression should prove that clone randomization does not mutate the real root hand or consume the physical stream. See the direct [steward handoff](../../communications/agent36/20261107T093830Z_agent44_m4-speculative-shuffle-question.md).
+
 ## Current shared-policy status
 
 `simulation/evaluation/agent36-issue25-common-v8.cjs` does not set either flag. Its registered profile currently names source ranks 6, 11, 1 and 3, with two candidate 60s. It does not register the M4-bearing rank-5 or rank-26 original lists, so v8 has not tested this correction. This is an integration opportunity for a future registration, not evidence that the historical v8 results were mislabeled.
