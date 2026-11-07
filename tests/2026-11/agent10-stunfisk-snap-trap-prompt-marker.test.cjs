@@ -37,7 +37,9 @@ function makeFixture(overrides={}){
         player.active===effect.target);
       const prompt=new ChooseCardsPrompt(
         abilityOwner,GameMessage.CHOOSE_CARD_TO_DISCARD,
-        overrides.promptCards??effect.source,
+        typeof overrides.promptCards==='function'
+          ?overrides.promptCards(effect)
+          :(overrides.promptCards??effect.source),
         overrides.promptFilter??{superType:SuperType.ENERGY},
         overrides.promptOptions??{min:1,max:1,allowCancel:false}
       );
@@ -151,14 +153,7 @@ test('marker preserves the original policy action and does not resolve the promp
 });
 
 test('Energy sublist passed instead of the PokemonCardList is not stamped',()=>{
-  const f=makeFixture();
-  f.sourceCard.reduceEffect=function(store,state,effect){
-    const prompt=new (f.engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt)(
-      f.owner,'CHOOSE_CARD_TO_DISCARD',effect.source.energies,
-      {superType:'ENERGY'},{min:1,max:1,allowCancel:false}
-    );
-    return store.prompt(state,prompt,()=>{});
-  };
+  const f=makeFixture({promptCards:effect=>effect.source.energies});
   const {audit}=execute(f);
   assert.equal(audit.exactSourcePromptsStamped.length,0);
   assert.equal(audit.blockedPromptOriginEvents.length,0);
@@ -166,6 +161,14 @@ test('Energy sublist passed instead of the PokemonCardList is not stamped',()=>{
 
 test('wrong prompt filter is not stamped',()=>{
   const f=makeFixture({promptFilter:{superType:'POKEMON'}});
+  const {audit}=execute(f);
+  assert.equal(audit.exactSourcePromptsStamped.length,0);
+});
+
+test('an Energy filter with extra constraints is not stamped',()=>{
+  const f=makeFixture({
+    promptFilter:{superType:'ENERGY',name:'Psychic Energy'}
+  });
   const {audit}=execute(f);
   assert.equal(audit.exactSourcePromptsStamped.length,0);
 });
@@ -232,21 +235,12 @@ test('no eligible attached Energy means no Snap Trap prompt origin',()=>{
 });
 
 test('a prompt with an unrelated CardList object is not stamped',()=>{
-  const f=makeFixture();
-  f.attackerClone={
-    cards:f.attacker.cards.slice(),
-    energies:{cards:f.attacker.energies.cards.slice()},
-    getPokemonCard(){return f.attacker.getPokemonCard();}
-  };
-  const g=makeFixture({promptCards:null});
-  g.sourceCard.reduceEffect=function(store,state,effect){
-    const prompt=new (g.engine('game/store/prompts/choose-cards-prompt').ChooseCardsPrompt)(
-      g.owner,'CHOOSE_CARD_TO_DISCARD',g.attackerClone,
-      {superType:'ENERGY'},{min:1,max:1,allowCancel:false}
-    );
-    return store.prompt(state,prompt,()=>{});
-  };
-  const {audit}=execute(g);
+  const f=makeFixture({promptCards:effect=>({
+    cards:effect.source.cards.slice(),
+    energies:{cards:effect.source.energies.cards.slice()},
+    getPokemonCard(){return effect.source.getPokemonCard();}
+  })});
+  const {audit}=execute(f);
   assert.equal(audit.exactSourcePromptsStamped.length,0);
 });
 
