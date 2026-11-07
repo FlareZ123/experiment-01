@@ -360,7 +360,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  * @param {boolean} enabled
  * @param {null|0|1} ownerSeat
  * @param {boolean} garbodorToolRoot
- * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1,
+ * @returns {{naturalEvolutionRoot?:true,garbodorResponseOwnerSeat?:null|0|1,
  *   garbotoxinToolRoot?:true}}
  */
 function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
@@ -370,7 +370,7 @@ function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
   assert.ok(!garbodorToolRoot||enabled,
     'Garbodor Tool root requires the natural-evolution root to be enabled');
   assert.ok(ownerSeat===null||ownerSeat===0||ownerSeat===1,
-    'Natural-evolution owner seat must be null, 0, or 1');
+    'Garbodor response owner seat must be null, 0, or 1');
   assert.ok(ownerSeat===null||enabled,
     'A seat-scoped natural-evolution root requires the root to be enabled');
   return enabled?{
@@ -2214,9 +2214,6 @@ function runDevelopment({
       (actorGarbodorResponseOwnerSeat===null?'bilateral':'seat-scoped'),
     actorGarbodorToolRootOptIn:
       actorOnlyComposition&&actorGarbodorToolRoot,
-    actorGarbodorResponseOwnerSeat:
-      actorOnlyComposition&&actorNaturalEvolutionRoot?
-        actorNaturalEvolutionRootOwnerSeat:null,
     actorDceMewMobilityRootOptIn:
       actorOnlyComposition&&actorDceMewMobilityRoot,
     actorGenesectFusionDrawRootOptIn:
