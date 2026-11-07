@@ -7,8 +7,6 @@ const {createHash}=require('node:crypto');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {runStewardBilateralProbeV9,writeJsonAtomic}=
   require('./agent36-issue25-common-v9-bilateral-competence.cjs');
-const {withActorOnlyLillieAfterPass}=require(
-  '../twinleaf/agent12-actor-only-lillie-after-pass.cjs');
 
 const VERSION='agent7-v9-bilateral-owner-lillie-after-pass-retro-v1';
 const ROOT=path.resolve(__dirname,'../..');
@@ -26,12 +24,10 @@ function sha256File(pathName){
  * source/candidate printed 60s, registration, and RNG options are preserved.
  *
  * @param {Function} runner Current unchanged shared real-game runner.
- * @param {Function} [withLillie] Test seam for the published adapter.
  * @returns {{run:Function,audit:Function}}
  */
-function createBilateralLillieRunner(runner,withLillie=withActorOnlyLillieAfterPass){
+function createBilateralLillieRunner(runner){
   assert.equal(typeof runner,'function');
-  assert.equal(typeof withLillie,'function');
   let lastAudit=null;
   return {
     run(options){
@@ -40,19 +36,18 @@ function createBilateralLillieRunner(runner,withLillie=withActorOnlyLillieAfterP
       assert.equal(options.bilateralKnownDeadAttackRoot,true,
         'Keep the selected common v9 known-dead correction in both seats');
       assert.equal(options.allowAdditionalOriginalSourceRanks,false);
-      const observed=withLillie(()=>runner(options));
-      assert.ok(observed&&'result' in observed&&observed.audit);
-      lastAudit=observed.audit;
-      return observed.result;
+      const result=runner({...options,actorBilateralLillieAfterPass:true});
+      lastAudit=result?.rows?.[0]?.ownerBilateralLillieAfterPassAudit??null;
+      assert.ok(lastAudit,'Enabled canonical Lillie must reach real native row');
+      return result;
     },
     audit(){return lastAudit;}
   };
 }
 
-/** @param {{runProbe?:Function,runner?:Function,withLillie?:Function}} [deps] */
+/** @param {{runProbe?:Function,runner?:Function}} [deps] */
 function runAgent7BilateralLillieV9(deps={}){
-  const composition=createBilateralLillieRunner(
-    deps.runner??runDevelopment,deps.withLillie??withActorOnlyLillieAfterPass);
+  const composition=createBilateralLillieRunner(deps.runner??runDevelopment);
   const result=(deps.runProbe??runStewardBilateralProbeV9)({
     runner:options=>composition.run(options)
   });
@@ -65,6 +60,10 @@ function runAgent7BilateralLillieV9(deps={}){
   assert.equal(result.manifest.competitiveGamesQualified,0);
   const audit=composition.audit();
   assert.ok(audit,'Missing symmetric live owner Lillie audit');
+  assert.ok(audit.passRootObservations>0,
+    'No Pass decision observed: owner Lillie root adapter silently masked');
+  assert.ok(audit.acceptedLillieRoots>0,
+    'No native accepted Lillie: positive opt-in must not pass as no-op');
   const wrapperSha=sha256File(__filename);
   const priorHookSha=sha256File(require.resolve(
     '../twinleaf/agent12-actor-only-lillie-after-pass.cjs'));
@@ -81,6 +80,8 @@ function runAgent7BilateralLillieV9(deps={}){
     bothPhysicalSeats:true,sourceIndependent:true,
     printedSixtiesChanged:false,retrospective:true,prospective:false,
     baselinePolicyHashExcludesAdditiveWrapper:true,
+    embeddedCanonicalActorRootOptIn:true,
+    nativeStoreAcceptedSupporterRequired:true,
     composedPolicySha256:hash,
     sourceOwnerHookSha256:priorHookSha,
     wrapperSha256:wrapperSha,
