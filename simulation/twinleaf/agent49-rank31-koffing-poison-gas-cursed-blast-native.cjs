@@ -112,7 +112,18 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   const evidence=[];
   const dispatchAt=(stage,action)=>{
     try{return store.dispatch(action);}
-    catch(error){throw new Error(stage+': '+(error?.message??String(error)));}
+    catch(error){
+      const context=stage==='PlayCardAction Roxie'?JSON.stringify({
+        turn:state.turn,phase:state.phase,activePlayer:state.activePlayer,
+        sourceId:source.id,opponentId:opponent.id,
+        hand:source.hand.cards.map(card=>card.fullName),
+        activeCards:source.active.cards.map(card=>card.fullName),
+        activeEnergies:source.active.energies.cards.map(card=>card.fullName),
+        bench:source.bench.map(slot=>slot.cards.map(card=>card.fullName)),
+        opponentActive:opponent.active.cards.map(card=>card.fullName)
+      }):'';
+      throw new Error(stage+': '+(error?.message??String(error))+(context?' | '+context:''));
+    }
   };
   const resolveWaits=(phase)=>{
     for(let i=0;i<20;i++){
@@ -172,7 +183,7 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
     const roxie=f.card('Roxie CEC');
     source.hand.cards.push(koffing1,koffing2,roxie);
     dispatchAt('PlayCardAction Roxie',new PlayCardAction(source.id,2,{
-      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      player:PlayerType.ANY,slot:SlotType.ACTIVE,index:0
     }));
     for(let i=0;i<25;i++){
       const prompt=pending();
