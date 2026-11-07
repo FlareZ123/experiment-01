@@ -44,7 +44,7 @@ function auditFullSettlement(){
       assert.equal(t.finished,true);
       assert.equal(treatment.audit.terminalEndTurnsSuppressed,1);
       assert.deepEqual(treatment.result.seenPrompts.filter(x=>x!=='WaitPrompt'),
-        ['ChoosePrizePrompt']);
+        []);
     }else{
       assert.equal(t.finished,true);
       assert.equal(treatment.audit.terminalEndTurnsSuppressed,1);
