@@ -255,7 +255,7 @@ test('first control root must be PassTurnAction and treatment root must be VIP',
   assert.equal(run(f).reason,'control-root-is-not-pass');
   const g=fixture();
   g.treatmentLedger[0].card='Battle Compressor';
-  assert.equal(run(g).reason,'treatment-root-is-not-vip-play');
+  assert.equal(run(g).reason,'accepted-vip-event-root-join-invalid');
 });
 
 test('the first divergent roots must retain the same physical seat and turn',()=>{
