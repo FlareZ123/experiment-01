@@ -37,6 +37,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_dead_vip_ultra_v9:
+        description: 'Run v9 real source paid Ultra Ball from 2 expired VIP, owner-authorized Electrode search, original VIP setup from v8'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -57,7 +62,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact rank9 original Prize and five-Energy physical census
-        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs tests/agent29-rank9-post-compressor-bomb.test.cjs tests/agent29-rank9-prospective-v5-registration.test.cjs tests/agent29-rank9-owner-card-location-witness.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs
+        run: node --test tests/agent29-rank9-electrode-mega-prize-window.test.cjs tests/agent2-rank9-bomb-capacity.test.cjs tests/agent2-rank9-three-energy-bomb-prize-window.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs tests/agent29-authoritative-shuffle-order-witness.test.cjs tests/agent29-rank9-post-compressor-bomb.test.cjs tests/agent29-rank9-prospective-v5-registration.test.cjs tests/agent29-rank9-owner-card-location-witness.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs tests/agent29-rank9-ultra-ball-dead-vip.test.cjs
       - name: Checkout pinned native engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native engine
@@ -153,6 +158,19 @@ jobs:
         with:
           name: agent29-rank9-early-vip-setup-v8
           path: agent29-rank9-early-vip-setup-v8.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Original rank9 two-expired-VIP paid native Ultra Ball fetch Electrode v9
+        if: ${{ inputs.rank9_source_dead_vip_ultra_v9 }}
+        env:
+          AGENT29_RANK9_ULTRA_DEAD_VIP_V9: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-source-paid-dead-vip-ultra-v9.json
+      - name: Preserve all v9 owner Ultra costs, printed search, evolution and nonpositive attempts
+        if: ${{ always() && inputs.rank9_source_dead_vip_ultra_v9 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-source-paid-dead-vip-ultra-v9
+          path: agent29-rank9-source-paid-dead-vip-ultra-v9.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
