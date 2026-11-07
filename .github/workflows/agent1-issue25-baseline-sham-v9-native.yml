@@ -48,6 +48,11 @@ on:
         type: boolean
         required: false
         default: false
+      owner_deck_attrition_cadence:
+        description: Run pure finite stochastic rank-3 Handiwork/owner-deck horizon analysis only
+        type: boolean
+        required: false
+        default: false
       terminal_tiebreaker_native_admission:
         description: Read real pinned sudden-death Store terminal snapshot through paper admission gate
         type: boolean
@@ -118,6 +123,18 @@ jobs:
       - name: Exact 29-source and six-candidate forced-Active opening screen
         run: node --test tests/agent1-aichi-forced-active-opener.test.cjs tests/agent1-rank26-six-candidate-root.test.cjs tests/agent1-rank26-active-denial-opening.test.cjs
 
+  owner-deck-attrition-cadence:
+    if: ${{ inputs.owner_deck_attrition_cadence == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Validate finite stochastic rank-3 Handiwork cadence and owner-deck horizon
+        run: node --test tests/agent1-handwork-cadence-horizon.test.cjs tests/agent1-owner-deck-attrition-schedule.test.cjs tests/agent2-owner-deck-attrition-horizon.test.cjs
+
   original-native-tiebreaker-terminal-admission:
     if: ${{ inputs.terminal_tiebreaker_native_admission == true }}
     runs-on: ubuntu-latest
@@ -141,7 +158,7 @@ jobs:
         run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs tests/agent1-terminal-ordinary-double-ko-admission.native.test.cjs
 
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.owner_deck_attrition_cadence != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
