@@ -73,6 +73,16 @@ function auditNativeOnePrizeBoxKo(baseline,treatment){
     'fog-search','attach-basic','attack'
   ]);
   assert.ok(nativeAudit.actions.every(x=>x.accepted===true));
+  const payment=nativeAudit.actions.find(x=>x.kind==='box-payment');
+  assert.deepEqual(payment.paidPhysicalPrintings,
+    ['Battle VIP Pass FST','Battle VIP Pass FST','Rescue Carrier EVS']);
+  assert.equal(nativeAudit.actions.find(x=>x.kind==='box-search')
+    .selectedSearchPrinting,'Fog Crystal CRE');
+  const selectedEnergy=nativeAudit.actions.find(x=>x.kind==='fog-search')
+    .selectedSearchPrinting;
+  assert.ok(/^Psychic Energy [A-Z0-9]+$/.test(selectedEnergy));
+  assert.equal(nativeAudit.actions.find(x=>x.kind==='attach-basic')
+    .attachedBasicPrinting,selectedEnergy);
   const info=nativeAudit.promptObservations;
   assert.equal(info.length,1);
   assert.equal(info[0].ownerAuthenticated,true);
@@ -127,8 +137,11 @@ function auditNativeOnePrizeBoxKo(baseline,treatment){
     identicalOriginalStoreRootsBeforeCounterfactual:93,
     originalBaselineAction93:'PassTurnAction',
     replacementFirstAction93:'Secret Box',
-    mandatoryOtherCardsPaid:3,physicalBoxFogSearch:true,
+    mandatoryOtherCardsPaid:3,
+    paidPhysicalPrintings:payment.paidPhysicalPrintings,
+    physicalBoxFogSearch:true,
     physicalFogBasicPsychicSearch:true,
+    actualEnergyPrinting:selectedEnergy,
     basicPsychicNormalAttachmentToActive:true,
     attackOrdinal:104,attackName:'Hidden Power',
     sourcePreAttack:{active:'Trubbish FST',damage:60,hp:70,
