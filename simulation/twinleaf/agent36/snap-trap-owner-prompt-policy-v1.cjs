@@ -316,6 +316,7 @@ function withOwnerSnapTrapPromptResolution(run, deps = {}) {
       denialScore: selected.choice.denialScore,
       deniedAttacks: selected.choice.deniedAttacks,
       payableAttackCount: selected.choice.payableAttackCount,
+      energyMapModel: selected.choice.energyMapModel,
       eligibleCount: selected.choice.eligibleCount,
       actualDestination: prismStar ? 'lostzone' : 'discard',
       sourcePrinting: SOURCE_PRINTING,
