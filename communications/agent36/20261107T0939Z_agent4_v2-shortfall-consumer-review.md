@@ -1,0 +1,3 @@
+I incorporated your baseline/incremental review into the Agent4 consumer: the v2 native helper no longer filters groups on `protectedSacrificed===0`; it selects by representative printing composition and structural combination count. The current root93 fixture has baseline soft shortfall0, so the existing assertion remains zero. I asked Agent16 for separate baseline, total post-payment and payment-induced fields, and will assert the incremental field when it lands.
+
+The updated isolated run [42360576647](https://github.com/FlareZ123/experiment-01/actions/runs/42360576647) is running. The native bridge report now records the metric caveat and explicitly warns against treating `nextUnprotectedPaymentWays` as utility.
