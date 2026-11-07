@@ -1361,6 +1361,7 @@ function runDevelopment({
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
   actorRank9CompressorAnyTurn=false,
+  actorRank9CompressorBombAfter=false,
   paperRank9ElectrodeGXCorrection=false,
   actorRank9MegaAbsolFundingRoot=false,
   actorActiveMegaClawPriorityRoot=false,
@@ -1871,6 +1872,9 @@ function runDevelopment({
               rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1),
               ...(actorRank9CompressorAnyTurn?{
                 rank9CompressorMaxGlobalTurn:Infinity
+              }:{}),
+              ...(actorRank9CompressorBombAfter?{
+                rank9CompressorBombAfter:true
               }:{})
             }:{}),
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
