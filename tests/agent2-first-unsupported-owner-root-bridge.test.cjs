@@ -204,7 +204,7 @@ test('repeated unsupported owner roots retain only the first detached owner view
   assert.ok(caught.nativeRawStateFallbackQuarantine.rawStateFallbackCalls>=2);
   const audit=actorResult.audit.nativeOwnerTrainerFallback;
   assert.equal(audit.attemptedUnsupportedPasses,2);
-  assert.equal(audit.originalNativeDecoderExecuted,false);
+  assert.equal(caught.nativeRawStateFallbackQuarantine.originalNativeDecoderExecuted,false);
   const first=audit.firstUnsupportedOwnerRoot;
   assert.deepEqual(first,snapshotFirstUnsupportedOwnerRoot(firstView));
   assert.equal(first.ownerView.globalTurn,17);
