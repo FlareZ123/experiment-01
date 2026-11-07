@@ -11,7 +11,7 @@ The research now has four successful evidence layers for Galarian Stunfisk SSH's
 3. A separate **native Prism Star destination fixture** verifies that the actual callback requests discard but the pinned reducer routes the same physical Beast Energy ◇ reference to the Lost Zone, with exact prompt-result identity and same-prompt-ID settlement assertions.
 4. A **joined source-to-settlement witness** nests the Agent30 source marker and public-zone observer around the native Prism Star fixture, proving that the same source-origin proof object is attached to the exact observed Store prompt and that the resulting prompt is physically settled.
 
-All four run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Full integrated workflow **42405506605** completed successfully, including both Agent12 tests, both artifact uploads, and all Agent35/Agent37 native regressions. None of these is a competitive game.
+All four run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Stronger full integrated workflow **42406467959** completed successfully, including both Agent12 tests with final WaitPrompt drainage, both artifact uploads, and all Agent35/Agent37 native regressions. None of these is a competitive game.
 
 ## Evidence layers
 
@@ -20,8 +20,8 @@ All four run under pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. F
 | Printed card text | `resources/cards/en/swsh1.json`, `swsh1-132`; `resources/cards/en/sm10.json`, `sm10-81` | Galarian Stunfisk has Snap Trap; Marshadow has Red Knuckles (10 damage, one Colorless Energy) | English Expanded card-pool identity; not Japanese physical-print admission |
 | Source-to-prompt and public zone | Agent12 v7 phase-A runner and Agent30 marker v2; [run 42402401871](https://github.com/FlareZ123/experiment-01/actions/runs/42402401871) | Success; exact prompt ID 0→173, same-object source origin, one public-zone match | Eight attempts: six native terminals, one root cap, one engine error; prompt quarantined; no selection or discard |
 | Ordinary-Energy native settlement | Agent35 `simulation/twinleaf/agent35/snap-trap-choice-response-contract-native.cjs`; [run 42403132882](https://github.com/FlareZ123/experiment-01/actions/runs/42403132882) | Success; real attack-animation WaitPrompt advanced, genuine ChooseCardsPrompt created, validated physical Psychic Energy selected, and same object moved to attacker discard | Test-local resolver and isolated fixture; no production-policy or complete-game claim |
-| Prism Star native destination | Agent12 `simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs`; [artifact-producing run 42404800060](https://github.com/FlareZ123/experiment-01/actions/runs/42404800060) | Success; same physical Beast Energy ◇ is selected, recorded in prompt.result, removed from Active arrays and routed to Lost Zone, absent from discard | Isolated fixture; one unrelated pending prompt remains after the callback; not a completed attack or game |
-| Joined source-to-settlement witness | Agent12 `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs` | Success in [run 42405506605](https://github.com/FlareZ123/experiment-01/actions/runs/42405506605); exact same marker proof object, Store prompt ID, public-zone match, persisted Red Knuckles fingerprint, and Prism Star settlement | One unrelated pending prompt remains after callback; no complete-game claim |
+| Prism Star native destination | Agent12 `simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs`; [stronger artifact-producing run 42406467959](https://github.com/FlareZ123/experiment-01/actions/runs/42406467959) | Success; same physical Beast Energy ◇ is selected, recorded in prompt.result, removed from Active arrays and routed to Lost Zone, absent from discard; all post-response WaitPrompts are resolved and the final prompt queue is empty | Isolated attack interaction; no complete-game or win-rate claim |
+| Joined source-to-settlement witness | Agent12 `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs` | Success in [run 42406467959](https://github.com/FlareZ123/experiment-01/actions/runs/42406467959); exact same marker proof object, Store prompt ID, public-zone match, persisted Red Knuckles fingerprint, Prism Star settlement, and final empty prompt queue | Isolated attack interaction; no complete-game claim |
 
 ## Phase-A source/zone identity join
 
@@ -82,7 +82,7 @@ The Agent12 runner nests the Agent30 source marker around the Agent30 public-pro
 - Red Knuckles as the persisted `lastAttack` fingerprint;
 - the same prompt result, MoveCardsEffect provenance and Lost Zone settlement already verified in the separate Prism Star test.
 
-The first joined attempt (run 42405259648) failed only because it incorrectly expected `currentAttack` to remain set when the prompt was created. The attack generator resumes on the separate WaitPrompt response dispatch, so `currentAttack` is null and `lastAttack` is the correct persisted fingerprint. The assertion was corrected and run **42405506605** passed.
+The first joined attempt (run 42405259648) failed only because it incorrectly expected `currentAttack` to remain set when the prompt was created. The attack generator resumes on the separate WaitPrompt response dispatch, so `currentAttack` is null and `lastAttack` is the correct persisted fingerprint. The assertion was corrected; run **42405506605** passed, and stronger run **42406467959** passed with final WaitPrompt drainage and an empty prompt queue.
 
 Files: `simulation/twinleaf/agent12/snap-trap-source-to-settlement-native-v1.cjs` and `tests/2026-11/agent12-snap-trap-source-to-settlement-native.test.cjs`. The joined JSON artifact from the stronger run is `13586863776` (`agent12-snap-trap-source-to-settlement-native-v1`), size 2006 bytes, SHA-256 `4141a5f88b89fe2de7cd331271678e3b5e751c9882b4f2b8a5aa5a53f34191a3`. The Prism Star JSON artifact from the same run is `13587841109`, SHA-256 `3833894d62ac8b3859fbe5b87d29f643e37d4b0afd4b7bc7073a10512792428a`.
 
@@ -90,7 +90,6 @@ This is a joined native witness, not a modification to the frozen phase-A regist
 
 ## Remaining gaps and limits
 
-- The unrelated pending prompt recorded after the Prism Star callback should be identified and understood; do not describe the whole attack sequence as complete until it is resolved or justified.
 - The joined witness validates one board/seat arrangement and one Energy selection. Expand to both player seats, alternate public attached-Energy counts, blocked-index cases, and other attack/effect paths before generalizing.
 - The fixtures use a test-local resolver, not a validated competitive playing policy.
 - Both fixtures are isolated native interactions, not complete paper games.
