@@ -85,6 +85,9 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
   assert.equal(r.candidates.length,6);
   assert.equal(r.admittedOriginals,29);
   assert.equal(r.admittedCandidates,6);
+  assert.ok(r.originals.some(x=>x.rank===18&&
+    x.psychic280.printedKOCopies<x.basics),
+  'Original rank18 300HP Basic should survive printed Psychic 280');
   assert.equal(r.paperQualifiedGames,0);
   assert.equal(r.winRateEstimate,null);
   assert.equal(r.originals.some(x=>x.rank===25),false);
@@ -98,6 +101,10 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
       assert.ok(row.basics>=1&&row.basics<=60);
       assert.ok(row.hpTiers.every(x=>x.conditionalForcedActive>=0&&
         x.conditionalForcedActive<=row.exactlyOneBasicProbability));
+      assert.ok(row.psychic280.printedKOCopies>=0&&
+        row.psychic280.printedKOCopies<=row.basics);
+      assert.ok(row.psychic280.conditionalForcedLoneKO>=0&&
+        row.psychic280.conditionalForcedLoneKO<=row.exactlyOneBasicProbability);
     }else assert.ok((row.missing??row.specialSetup).length>0);
   }
   console.log('AGENT1_AICHI_FORCED_SINGLE_BASIC_HP_MATRIX',JSON.stringify({
@@ -110,6 +117,8 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
       mulliganProbability:row.mulliganProbability,
       soleBasic:row.exactlyOneBasicProbability,
       forcedHp90:row.hpTiers?.find(t=>t.hpAtMost===90)?.conditionalForcedActive,
+      forcedPsychic280:row.psychic280?.conditionalForcedLoneKO,
+      printed280KO:row.psychic280?.printedKOCopies,
       missing:row.missing
     })),
     candidates:r.candidates.map(row=>({
@@ -117,6 +126,8 @@ test('all twenty-nine preserved originals and six fixed study candidates are enu
       mulliganProbability:row.mulliganProbability,
       soleBasic:row.exactlyOneBasicProbability,
       forcedHp90:row.hpTiers?.find(t=>t.hpAtMost===90)?.conditionalForcedActive,
+      forcedPsychic280:row.psychic280?.conditionalForcedLoneKO,
+      printed280KO:row.psychic280?.printedKOCopies,
       missing:row.missing
     })),
     paperQualifiedGames:r.paperQualifiedGames
