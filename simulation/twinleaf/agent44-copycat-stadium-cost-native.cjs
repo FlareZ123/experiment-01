@@ -15,7 +15,7 @@ const native=name=>require(path.join(output,name));
  * Dimension Valley or an explicit public stadium-effect suppression epoch.
  * Opponent's earlier Gnaw is injected; this is a staged Store cost contract.
  * @param {0|1} seat
- * @param {{valley:boolean,suppress:boolean}} options
+ * @param {{valley:boolean,suppress:boolean,newMoon?:boolean}} options
  * @returns {object}
  */
 function probe(seat,options){
@@ -43,6 +43,14 @@ function probe(seat,options){
   x.state.lastAttack=gnaw;
   if(options.valley)x.owner.stadium.cards.push(card('Dimension Valley PHF'));
   if(options.suppress)x.owner.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  if(options.newMoon){
+    // Owner's own Lunatone OBF + Solrock CES prevents Stadium effects on
+    // its Pokémon. This is a genuine, public, printed-board Ability lock.
+    for(const [index,printing] of [[1,'Lunatone OBF'],[2,'Solrock CES']]){
+      x.owner.bench[index].cards.length=0;
+      x.owner.bench[index].cards.push(card(printing));
+    }
+  }
 
   // Compare the already-selected public cost model against real Store results.
   const view=actorObservation(x.state,seat);
@@ -85,7 +93,8 @@ function run(){
     const baseline=probe(seat,{valley:false,suppress:false});
     const valley=probe(seat,{valley:true,suppress:false});
     const suppressed=probe(seat,{valley:true,suppress:true});
-    rows.push({seat,baseline,valley,suppressed});
+    const newMoon=probe(seat,{valley:true,suppress:false,newMoon:true});
+    rows.push({seat,baseline,valley,suppressed,newMoon});
     assert.equal(baseline.accepted,false,
       'One Psychic without cost reduction cannot fund Copycat');
     assert.equal(valley.accepted,true,
@@ -98,6 +107,10 @@ function run(){
       'Current actor-visible model cannot detect active suppression');
     assert.equal(suppressed.exposedSuppressionFlag,false,
       'Current detached observation omits the suppression epoch');
+    assert.equal(newMoon.accepted,false,
+      'Lunatone with Solrock prevents Dimension Valley reducing Copycat');
+    assert.deepEqual(newMoon.proxyCost,valley.proxyCost,
+      'Public cost model misses New Moon even with paired Pokémon visible');
   }
   const result={schema:'agent44-copycat-stadium-cost-bilateral-native-v1',
     pin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
