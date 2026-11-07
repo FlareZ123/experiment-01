@@ -173,7 +173,7 @@ function run(){
     hook:VERSION,
     paperRule:'Rulebook §E: simultaneous Prize exhaustion is a draw when promotion availability matches; the only player able to promote wins when it differs',
     nativeDefectConfirmedBothSeats:true,
-    v3TieCorrectionBothSeats:true,
+    simultaneousLastPrizeResolutionBothSeats:true,
     bothPrizeTransfersVerified:true,
     drawLogAndWinnerVerified:true,
     singlePlayerLastPrizeControlPreserved:true,
