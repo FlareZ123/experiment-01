@@ -155,6 +155,16 @@ function probabilityMailOnly(deckSize,otherTrainerCount,mailsInHand){
     }
     states=next;
   }
+  for(const [key,mass] of states){
+    const [deck]=key.split(':').map(Number);
+    if(finalDrawCount>0){
+      const drawHit=probabilityFraction(
+        BigInt(Math.min(finalDrawCount,deck)),BigInt(deck)
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(mass,drawHit));
+    }
+  }
   return success;
 }
 
@@ -664,12 +674,13 @@ const SEARCH_GATEWAY_ACCESS_VERSION='agent1-rank3-post-rototiller-search-gateway
  * @param {number} delayedGatewayCountInDeck Conditional Supporter gateways in deck (0..6).
  * @param {boolean} [immediateGatewayReady=false] An immediate gateway already ready in hand/attached.
  * @param {boolean} [delayedGatewayReady=false] A conditional Supporter gateway already in hand.
- * @returns {object} Exact immediate-playable and any-hand-access probabilities.
+ * @param {number} [finalDrawCount=0] Cards drawn by one chosen turn-ending effect after all searches.
+ * @returns {object} Exact immediate-playable, search-gateway and any-hand-access probabilities.
  */
 function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
   deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
   immediateGatewayCountInDeck,delayedGatewayCountInDeck,
-  immediateGatewayReady=false,delayedGatewayReady=false
+  immediateGatewayReady=false,delayedGatewayReady=false,finalDrawCount=0
 ){
   assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
     'deckSize must be 1..60');
@@ -692,6 +703,9 @@ function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
     'immediateGatewayReady must be boolean');
   assert.equal(typeof delayedGatewayReady,'boolean',
     'delayedGatewayReady must be boolean');
+  assert.ok(Number.isSafeInteger(finalDrawCount)&&
+    finalDrawCount>=0&&finalDrawCount<=60,
+    'finalDrawCount must be 0..60');
   assert.ok(!(immediateGatewayReady&&immediateGatewayCountInDeck>0),
     'an immediate gateway cannot be both in deck and ready');
   assert.ok(delayedGatewayCountInDeck+(delayedGatewayReady?1:0)<=6,
@@ -707,13 +721,19 @@ function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
     mailsInDeck,mailsInHand,
     immediateGatewayCountInDeck===1,immediateGatewayReady
   );
+  let searchGatewayAccess;
   let anyAccess;
   if(immediateGatewayReady||delayedGatewayReady){
+    searchGatewayAccess=probabilityFraction(1n,1n);
     anyAccess=probabilityFraction(1n,1n);
   }else{
+    searchGatewayAccess=probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
+      deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+      immediateGatewayCountInDeck,delayedGatewayCountInDeck,0
+    );
     anyAccess=probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
       deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
-      immediateGatewayCountInDeck,delayedGatewayCountInDeck
+      immediateGatewayCountInDeck,delayedGatewayCountInDeck,finalDrawCount
     );
   }
 
@@ -727,16 +747,23 @@ function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
     delayedGatewayCountInDeck,
     immediateGatewayReady,
     delayedGatewayReady,
+    finalDrawCount,
     targetCopiesInDeck:1,
     immediatePlayableProbability:{
       numerator:immediate.exactProbability.numerator,
       denominator:immediate.exactProbability.denominator
+    },
+    searchGatewayHandAccessProbability:{
+      numerator:searchGatewayAccess.n.toString(),
+      denominator:searchGatewayAccess.d.toString()
     },
     anyHandAccessProbability:{
       numerator:anyAccess.n.toString(),
       denominator:anyAccess.d.toString()
     },
     immediatePlayableProbabilityValue:immediate.probability,
+    searchGatewayHandAccessProbabilityValue:
+      Number(searchGatewayAccess.n)/Number(searchGatewayAccess.d),
     anyHandAccessProbabilityValue:Number(anyAccess.n)/Number(anyAccess.d)
   };
 }
@@ -755,7 +782,7 @@ function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
  */
 function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
   deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
-  immediateGatewayCount,delayedGatewayCount
+  immediateGatewayCount,delayedGatewayCount,finalDrawCount=0
 ){
   const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-
     immediateGatewayCount-delayedGatewayCount;
@@ -769,7 +796,7 @@ function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
       multiplyProbabilityFractions(branch,
         probabilityMailWithSearchGatewaysOnly(
           deckSize-1,otherTrainerCount,immediateGatewayCount,
-          delayedGatewayCount,mailsInHand+1
+          delayedGatewayCount,mailsInHand+1,finalDrawCount
         )));
   }
   if(otherTrainerCount>0){
@@ -780,7 +807,7 @@ function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
       multiplyProbabilityFractions(branch,
         probabilityMailWithSearchGatewaysOnly(
           deckSize-1,otherTrainerCount-1,immediateGatewayCount,
-          delayedGatewayCount,mailsInHand
+          delayedGatewayCount,mailsInHand,finalDrawCount
         )));
   }
   if(nonTrainerCount>0){
@@ -791,7 +818,7 @@ function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
       multiplyProbabilityFractions(branch,
         probabilityMailWithSearchGatewaysOnly(
           deckSize-1,otherTrainerCount,immediateGatewayCount,
-          delayedGatewayCount,mailsInHand
+          delayedGatewayCount,mailsInHand,finalDrawCount
         )));
   }
   return success;
@@ -807,11 +834,12 @@ function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
  * @param {number} immediateGatewayCount
  * @param {number} delayedGatewayCount
  * @param {number} mailsInHand
+ * @param {number} [finalDrawCount=0] Optional final draw after all Mail actions.
  * @returns {{n:bigint,d:bigint}}
  */
 function probabilityMailWithSearchGatewaysOnly(
   deckSize,otherTrainerCount,immediateGatewayCount,
-  delayedGatewayCount,mailsInHand
+  delayedGatewayCount,mailsInHand,finalDrawCount=0
 ){
   const specialCount=1+immediateGatewayCount+delayedGatewayCount;
   let states=new Map([
