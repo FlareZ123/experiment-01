@@ -95,6 +95,15 @@ Snorlax PGO is Active. The opponent's public Pokémon have no attached Energy.
 
 Trainers' Mail is the clearest first-turn search action in this hand. The policy should select only among cards actually revealed by the prompt. A deliberate pass could still be a strategic choice if the revealed options are poor, but the canary's current pass is caused by missing policy support.
 
+## Related existing Mysterious Treasure validation
+
+This report does not reopen the generic Mysterious Treasure implementation question. Agent46 has already validated the mandatory FLI payment contract in the shared Agent41 paper-prompt portfolio and exercised genuine pinned native payment plus own-deck search in both physical seats:
+- [Agent46 common paper cost result](agent46-mysterious-treasure-common-paper-cost-10-of-29-source-20261105.md)
+- [Agent46 completed native prompt-chain cleanup result](agent46-mysterious-treasure-postsearch-cleanup-native-20261107.md)
+- Shared contract: `simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs`
+
+Those native tests used a Psychic Energy payment and searched Regidrago V. They did not test the rank-13 opening's Crispin payment followed by VS Seeker recovery. The proposed sequence therefore reuses an already tested Trainer cost/search path; its novel question is whether the exact Crispin-to-discard and VS Seeker-to-hand sequence is accepted and strategically useful. Do not duplicate the generic Treasure cleanup observer.
+
 ## Reproducibility note
 
 The run artifact's `setupAdapterVersions.goFirst` field is absent because the canary imports `VERSION` from `agent6-go-first-choice.cjs`, while that module exports only `withGoFirstChoice`. The `selectedSetupAdapters` list also omits `agent6-go-first-choice`. The source commit pins the exact helper, so this does not invalidate the root capture, but the manifest should include the GO_FIRST adapter version.
