@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {stageRules,requiredTurnsAfterCall,adjudicateAtPrescribedEnd,
+const {stageRules,requiredTurnsAfterCall,adjudicateNaturalPaperTie,
+  adjudicateAtPrescribedEnd
   adjudicateExtension,classifyTiebreaker,auditTimeCallPacket} =
   require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
@@ -13,6 +14,34 @@ test('Open Swiss and Top32 preliminary elimination are 25 minutes, final 35',()=
   assert.equal(stageRules('open-swiss').elimination,false);
   assert.equal(stageRules('open-top32').elimination,true);
   assert.throws(()=>stageRules('master-preliminary'),/Unknown/);
+});
+
+test('Natural pre-call Open knockout draw starts a six-Prize tiebreaker',()=>{
+  for(const stage of ['open-top32','open-final']){
+    const result=adjudicateNaturalPaperTie(stage);
+    assert.equal(result.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+    assert.equal(result.startingPrizeCount,6);
+    assert.equal(result.tiebreakerRule,'first-player-to-fewer-prizes-remaining');
+    assert.equal(result.conditionalWinnerSeat,null);
+    assert.equal(result.requiresEventRuling,false);
+    assert.equal(result.competitiveAdmission,false);
+  }
+});
+
+test('Natural pre-call Open Swiss draw remains unadjudicated',()=>{
+  const result=adjudicateNaturalPaperTie('open-swiss');
+  assert.equal(result.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(result.conditionalWinnerSeat,null);
+  assert.equal(result.requiresEventRuling,true);
+  assert.equal(result.competitiveAdmission,false);
+});
+
+test('Natural pre-call Swiss tie differs from a timed Swiss double loss',()=>{
+  const natural=adjudicateNaturalPaperTie('open-swiss');
+  const timed=adjudicateAtPrescribedEnd({stage:'open-swiss',
+    prizesRemaining:[3,3],secondPlayerTurnFinished:true,paperGameTie:true});
+  assert.equal(natural.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(timed.status,'SWISS_BOTH_LOSE');
 });
 
 test('Time called during first starter turn: finish it then second turn',()=>{

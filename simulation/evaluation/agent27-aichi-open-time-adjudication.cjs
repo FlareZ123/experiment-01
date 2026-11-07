@@ -9,7 +9,7 @@ const assert = require('node:assert/strict');
  * This is a read-only conditional adjudication model. It neither measures
  * elapsed physical match time nor establishes paper game correctness.
  */
-const VERSION = 'agent27-2026-aichi-open-official-time-v1';
+const VERSION = 'agent27-2026-aichi-open-official-time-v2';
 const STAGES = Object.freeze({
   'open-swiss': Object.freeze({minutes:25, elimination:false}),
   'open-top32': Object.freeze({minutes:25, elimination:true}),
@@ -51,6 +51,49 @@ function requiredTurnsAfterCall({stage,firstPlayerSeat,turnOwnerWhenCalled}) {
       'finish-current-first-player-turn-then-second-player-turn':
       'finish-current-second-player-turn',
     qualifyingGameEvidence:false
+  };
+}
+
+/**
+ * Classify a naturally completed paper-game tie before any official end call.
+ * This is a stage-specific event-rule lookup, not evidence that a tie occurred.
+ * Call only after an independent paper record establishes the tie and proves
+ * that no official end call preceded it.
+ *
+ * The Open knockout section says any draw triggers a six-Prize tiebreaker.
+ * The Open Swiss section specifies both-loss only for an unresolved game at
+ * the time-limit boundary; it gives no pre-call natural-tie disposition.
+ *
+ * @param {string} stage
+ * @returns {object}
+ */
+function adjudicateNaturalPaperTie(stage) {
+  const rules = stageRules(stage);
+  const base = {
+    schema: VERSION,
+    stage,
+    observation: 'conditional-on-independent-natural-paper-tie-before-official-call',
+    officialClockCallObserved: false,
+    source: rules.source,
+    competitiveAdmission: false,
+    externalIndependentReviewRequired: true
+  };
+  if (!rules.elimination) {
+    return {
+      ...base,
+      status: 'PRE_CALL_NATURAL_TIE_UNSPECIFIED',
+      conditionalWinnerSeat: null,
+      requiresEventRuling: true,
+      missing: ['event-specific Open Swiss pre-call natural-tie disposition']
+    };
+  }
+  return {
+    ...base,
+    status: 'TIEBREAKER_REQUIRED_SIX_PRIZE',
+    conditionalWinnerSeat: null,
+    startingPrizeCount: 6,
+    tiebreakerRule: 'first-player-to-fewer-prizes-remaining',
+    requiresEventRuling: false
   };
 }
 
@@ -369,4 +412,4 @@ function auditExtensionLedger(packet) {
 }
 
 module.exports={VERSION,STAGES,stageRules,requiredTurnsAfterCall,
-  adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditExtensionLedger};
+  adjudicateNaturalPaperTie,adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditExtensionLedger};
