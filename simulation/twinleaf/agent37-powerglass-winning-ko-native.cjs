@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -40,7 +40,8 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   owner.hand.cards.push(card('Powerglass SFA'));
   owner.discard.cards.push(card('Psychic Energy MEE'));
   enemy.active.cards.push(card('Trubbish FST'));
-  enemy.active.damage=60;
+  assert.ok(Number.isInteger(targetDamage)&&targetDamage>=0&&targetDamage<=60);
+  enemy.active.damage=targetDamage;
   if(opponentHasBench){
     const bench=new PokemonCardList();
     bench.cards.push(card('Tapu Lele-GX GRI'));
@@ -111,8 +112,8 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
     'Bench length counts five physical slots; distinguish real occupied Pokémon');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
-    lastPrize,opponentHasBench,
-    printedScenario:'Unown AOR Hidden Power10 to Trubbish FST with60/70 damage',
+    lastPrize,opponentHasBench,targetDamage,
+    printedScenario:'Unown AOR Hidden Power10 to Trubbish FST with'+targetDamage+'/70 damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
     sourceActiveAfterAttack:sourceActive?.fullName??null,
     sourceBenchCount:enemy.bench.filter(slot=>slot.getPokemonCard()).length,
