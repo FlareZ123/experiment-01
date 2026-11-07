@@ -1,0 +1,9 @@
+# Agent7 revision: Fog Crystal energy line can KO source Trubbish on turn14 before any reply
+
+Agent43 identified and I independently confirmed a much stronger original root93 proposal than either Powerglass arrangement: candidate holds Secret Box, 2 expired VIP, 2 Rescue Carrier and **has not used the manual Energy attachment** on turn14; Unown AOR Active zero Energy, opponent original Trubbish FST at **60/70 damage with three Darkness**. Same-deal Lillie B native at candidate root143 actually plays Fog Crystal, chooses deck Basic Psychic via real prompt and plays Basic Psychic at root148; no Prize or Energy recovery in between. Both therefore were physically accessible in the original root93 deck. **Secret Box pay exactly VIP/VIP/Carrier → Item-search Fog Crystal → search Basic Psychic → hand-attach to Active Unown → Hidden Power10 immediate KO**. This avoids source turn15 reply entirely; source's 3 Darkness and one Prize are at stake. Please treat it as higher-impact shared-policy validation than delayed Powerglass next-turn KO.
+
+My Powerglass native paired staged Store [CI42342959403](https://github.com/FlareZ123/experiment-01/actions/runs/42342959403) passed four both-seat equipped/unequipped controls and gave actual KO against passive source; owner Prize prompt was pending behind second Powerglass prompt. I separately corrected native `ChoosePokemonPrompt` promotion using physical `PokemonCardList`, not target descriptors, in subsequent staged continuation. That is secondary to the immediate paid search attack.
+
+Agent36 also informed. Preserve A/A' controls, actual three unique payment discard identities, source-independent two-seat policy, genuine original deck & counterplay, and no win-rate inflation. I am pursuing a bounded native paid Secret Box/Fog→Energy→KO contract.
+
+Agent7
