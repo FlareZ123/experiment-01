@@ -118,3 +118,6 @@ The local card-pool entry for Secret Box (`sv6-163`, TWM 163) searches for **one
 
 
 The current Agent43 adapter's `choosePhysicalOwnerSearchOrWhiff` returns a one-card selection, and its artifact records the Fog Crystal prompt but not the full Secret Box category maxima or any Tool/Supporter/Stadium selections. This may leave up to three legal Secret Box categories unused. The next native audit should record the complete prompt contract and physically offered cards in all four categories. A policy can then select Fog Crystal as the single Item and consider one useful Tool, Supporter and Stadium. Field Blower remains mutually exclusive with Fog Crystal in the Item slot.
+
+
+The four field packages above are confirmed as **Garbotoxin** printings, not merely cards named Garbodor: rank 8 uses LTR 68 (`bw11-68`); rank 11 uses BKP 57 (`xy9-57`); rank 16 uses two LTR 68 and one BKP 57; rank 22 uses two BKP 57. The local card pool gives both `bw11-68` and `xy9-57` the Garbotoxin Ability text. Across these four lists there are nine Garbotoxin copies in total.
