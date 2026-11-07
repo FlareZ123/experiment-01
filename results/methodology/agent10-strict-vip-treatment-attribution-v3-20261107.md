@@ -54,6 +54,20 @@ Inspection of `simulation/twinleaf/headless.cjs` confirms that the headless `act
 - The v3 natural-root regression includes an unlogged natural seat-1 VIP pair before the intervention, a target seat-0 Pass-to-VIP divergence with explicit item/search ordinals, and another unlogged natural seat-1 VIP pair after the intervention. The target is attributed to item root 2 and search root 3; natural roots do not invalidate the pair.
 - Negative cases cover absent or mismatched independent counts, hook counter mismatch, uninitialized ordinal protocol, missing or duplicate target events, wrong printing, wrong seat/turn, wrong prompt, wrong initiating root, reversed event order, incomplete event archives, rejected events, unconfirmed Bench movement, and inconsistent deck/Bench deltas.
 
+## Native paired validation
+
+The native test is now consolidated into the existing shared manual gate `.github/workflows/agent36-issue25-public-prompt-zone-diagnostic.yml`; no separate ordinal-smoke workflow remains. The temporary standalone smoke/probe tests were removed after their evidence was captured. The frozen v10b runner and registration were not modified.
+
+Pinned native run [42425556536](https://github.com/FlareZ123/experiment-01/actions/runs/42425556536) passed all three native tests under Node 22.16.0:
+
+- **Native root-counter smoke:** one completed upstream-smoke match produced 70 successful actions, 70 v4 dispatch increments, and 70 contiguous root-ledger rows. No VIP event occurred.
+- **Rank-9 ordinal probe:** eight fixed seeds confirmed item/search ordinals against the native ledger. Four seeds produced accepted intervention pairs, covering both physical seats. Examples included seat 0 item/search roots 14/15 and 12/13, seat 1 roots 9/10 and 13/14, plus a second seat-0 pair at 25/26.
+- **Native v3 paired A/B:** eight fixed seeds ran identical rank-9 decks and seeds under control/treatment forced-pass policies. Four seeds produced an exact first-divergent VIP item and its physical prompt settlement: two attributed seat 0 and two attributed seat 1. Each attributed pair had matching independent action counts, hook dispatch count, and ledger length (96 in the capped A/B runs), with item/search ordinals resolving to the exact native roots. The search physically moved two Basics to the Bench and removed two cards from the deck. Four seeds without a treatment divergence correctly remained unattributed.
+
+The native A/B fixture is a diagnostic forced-pass policy used only to verify intervention mechanics and attribution. It is not a competitive playing policy, and the 96-action caps and unqualified game status preclude any deck-strength inference.
+
+The v3 pure suite now also includes the precise Agent41 native counterexample from [run 42339981746](https://github.com/FlareZ123/experiment-01/actions/runs/42339981746), row `9:205:B:new-moon-lockbreaker-v1`: an accepted seat-0 intervention item/search pair at root 13/14 plus an unlogged natural seat-1 VIP root at ordinal 22 in both ledgers. The test confirms the event/root join accepts the recorded pair and ignores the unrelated natural root; attribution is then declined because the first divergence is a different action. This preserves the distinction between event-archive completeness and first-divergence attribution.
+
 ## v10c integration contract
 
 Do not modify the frozen v10b runner, registration, or its source manifest.
@@ -66,4 +80,4 @@ A new v10c runner should:
 4. Run fresh native positive and negative cases, including the Agent41 `9:205:B:new-moon-lockbreaker-v1` natural-VIP counterexample.
 5. Obtain independent review of native event/ordinal joins before using the result in any promotion decision.
 
-The v4 adapter is not yet wired into v10c, and no native v10c row has validated a real VIP event's item/search ordinals. The native smoke verifies only the adapter counter against headless on one completed upstream-smoke match with zero VIP events. Neither the pure tests nor this smoke establishes treatment efficacy, paper legality, paper-clock validity, or competitive strength. The native job also emitted a post-job cleanup warning for the nested `vendor/twinleaf/vendor/pokemon-cards-css` submodule missing a URL in the superproject `.gitmodules`; the test itself passed.
+The v4 adapter is not yet wired into v10c. The separate native paired fixture validates event ordinals and v3 attribution for both seats on the pinned engine, but it uses a diagnostic forced-pass policy and does not reproduce a v10c treatment. Neither the pure tests nor these native mechanics tests establish treatment efficacy, paper legality, paper-clock validity, or competitive strength. The native workflow also emits a post-job cleanup warning for the nested `vendor/twinleaf/vendor/pokemon-cards-css` submodule missing a URL in the superproject `.gitmodules`; test steps pass.
