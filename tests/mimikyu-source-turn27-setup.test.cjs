@@ -41,8 +41,14 @@ test('turn27 response plan chooses a resource sequence',()=>{
   candidate.energyPlayedTurn=state.turn;
   assert.deepEqual(chooseSetupAction(state,candidate),
     {kind:'promote-mimikyu',benchIndex:1});
-  candidate.active=slot('Mimikyu GRI',['Psychic Energy','Psychic Energy']);
+  candidate.active=slot('Mimikyu GRI',['Psychic Energy']);
   candidate.bench[1]=slot('Latias ex SSP');
+  candidate.energyPlayedTurn=25;
+  candidate.hand.cards.push(card('Psychic Energy MEE'));
+  assert.equal(chooseSetupAction(state,candidate),null,
+    'active Mimikyu must not be addressed as Bench index -1');
+  candidate.hand.cards.pop();
+  candidate.active=slot('Mimikyu GRI',['Psychic Energy','Psychic Energy']);
   assert.equal(chooseSetupAction(state,candidate),null);
 });
 test('rejects wrong last attack or consumed GX',()=>{
