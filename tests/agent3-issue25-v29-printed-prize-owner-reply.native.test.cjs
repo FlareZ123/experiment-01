@@ -282,7 +282,11 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     selected.rawDevelopment.rows,attackPrizeRootJoins,
     fullyRootedPublicVictimJoins,printedNativeAttackNominals.rows,originalField);
   assert.equal(actualPreAttackBoardJoins.rows.length,8);
+  assert.equal(actualPreAttackBoardJoins.nativeDamageDeltaPrintMatches,8);
   assert.equal(actualPreAttackBoardJoins.rows.every(row=>
+    row.nativeDeltaEqualsPrintedNominal===true&&
+    row.directPrintedEnergySufficiency?.status==='POSSIBLE'&&
+    row.actualPrintedAttackCostMatchesSourceScreen===true&&
     row.physicalActiveAtActualNativeAttackObserved===true&&
     row.physicalActivePrintingAccountedForByOriginal60===true&&
     row.paperGameCertified===false&&
