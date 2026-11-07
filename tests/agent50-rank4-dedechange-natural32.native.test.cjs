@@ -178,8 +178,9 @@ function withSetupPromptPhysicalReceipt(run,shared,selectReceipts,goFirstReceipt
         firstMove?.requestedCount===expectedDrawCount&&
         firstMove?.movedCount===expectedDrawCount&&
         firstMove?.identityMatch===true;
-      const stillPending=after.prompts?.some(p=>
-        p.id===pending.id&&p.result===undefined)??false;
+      // Query the actual Store State: a Player has no prompts collection.
+      const stillPending=this.state.prompts.some(p=>
+        p.id===pending.id&&p.result===undefined);
       selectReceipts.push({
         seat,message:pending.message,values,defaultValue,
         selectedOptionIndex,selectedLabel,expectedDrawCount,
@@ -404,7 +405,8 @@ function attempt(trial){
     compensation.length===1&&
     compensation[0].seat===expectedRecipientSeat&&
     compensation[0].expectedDrawCount===expectedCompensationDrawCount&&
-    compensation[0].physicalTransferVerified===true;
+    compensation[0].physicalTransferVerified===true&&
+      compensation[0].nativePromptResolved===true;
   const sourceTurnReached=(hook?.sourceTurnRootsSeen??0)>0;
   return {
     schema:DEDECHANGE_VERSION,
