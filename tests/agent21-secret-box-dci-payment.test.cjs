@@ -127,3 +127,78 @@ test('does not inspect hidden deck, Prize cards, or opponent state',()=>{
   assert.ok(plan);
   assert.deepEqual(plan.cards.map(x=>x.fullName),[VIP,VIP,LILLIE]);
 });
+
+test('payment-set scoring removes the duplicate discount when every copy is selected',()=>{
+  const f=fixture();
+  const lillies=[
+    card(LILLIE,{id:'lillie-1'}),
+    card(LILLIE,{id:'lillie-2'}),
+    card(LILLIE,{id:'lillie-3'})
+  ];
+  f.owner.hand.cards=[card(BOX),...lillies,
+    card('Other A'),card('Other B'),card('Other C')];
+  f.owner.discard.cards=[];
+  const policy={...NEW_MOON_DCI_POLICY,maxTotalCost:100,
+    defaultCost:50,costs:{[LILLIE]:6}};
+  const plan=planSecretBoxPayment(f.owner,f.state,policy);
+  assert.ok(plan);
+  assert.deepEqual(plan.cards,lillies);
+  assert.equal(plan.totalCost,18);
+  assert.deepEqual(plan.cardCosts.map(row=>row.cost),[6,6,6]);
+});
+
+test('payment-set duplicate discount remains when one of three copies survives',()=>{
+  const f=fixture();
+  const lillies=[
+    card(LILLIE,{id:'lillie-1'}),
+    card(LILLIE,{id:'lillie-2'}),
+    card(LILLIE,{id:'lillie-3'})
+  ];
+  const other=card('Other');
+  f.owner.hand.cards=[card(BOX),...lillies,other];
+  f.owner.discard.cards=[];
+  f.prompt.cards.cards=[lillies[0],lillies[1],other];
+  const policy={...NEW_MOON_DCI_POLICY,maxTotalCost:100,
+    defaultCost:50,costs:{[LILLIE]:6,'Other':50}};
+  const plan=chooseSecretBoxPaymentByDci(f.prompt,f.owner,f.state,policy);
+  assert.ok(plan);
+  assert.deepEqual(plan.cards,[lillies[0],lillies[1],other]);
+  assert.equal(plan.totalCost,58);
+  assert.deepEqual(plan.cardCosts.map(row=>row.cost),[4,4,50]);
+  assert.ok(plan.cardCosts.slice(0,2).every(row=>
+    row.reasons.some(reason=>reason.includes('1 same-printing physical copy'))));
+});
+
+test('identical-printing physical permutation does not change the payment score',()=>{
+  const first=fixture();
+  first.hand[5].id='lillie-1';
+  first.hand[6].id='lillie-2';
+  const firstPlan=chooseSecretBoxPaymentByDci(
+    first.prompt,first.owner,first.state);
+  const second=fixture();
+  second.hand[5].id='lillie-1';
+  second.hand[6].id='lillie-2';
+  const swapped=second.owner.hand.cards[5];
+  second.owner.hand.cards[5]=second.owner.hand.cards[6];
+  second.owner.hand.cards[6]=swapped;
+  second.prompt.cards.cards=second.owner.hand.cards.filter(card=>
+    card!==second.owner.hand.cards[1]);
+  const secondPlan=chooseSecretBoxPaymentByDci(
+    second.prompt,second.owner,second.state);
+  assert.ok(firstPlan&&secondPlan);
+  assert.equal(firstPlan.totalCost,secondPlan.totalCost);
+  assert.deepEqual(firstPlan.cardCosts,secondPlan.cardCosts);
+  assert.notEqual(
+    firstPlan.cards.find(card=>card.fullName===LILLIE).id,
+    secondPlan.cards.find(card=>card.fullName===LILLIE).id
+  );
+});
+
+test('Ace Trainer uses the actual Twinleaf AOR fullName printing',()=>{
+  const f=fixture();
+  const aceTrainer=card('Ace Trainer AOR');
+  const scored=secretBoxDiscardCost(aceTrainer,f.owner,f.state);
+  assert.equal(NEW_MOON_DCI_POLICY.costs['Ace Trainer AOR'],8);
+  assert.equal(NEW_MOON_DCI_POLICY.costs['Ace Trainer XY7'],undefined);
+  assert.equal(scored.cost,8);
+});

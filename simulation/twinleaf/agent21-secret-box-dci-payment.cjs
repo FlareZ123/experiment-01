@@ -3,7 +3,7 @@
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
 
-const VERSION='agent21-secret-box-owner-visible-discard-cost-v1';
+const VERSION='agent21-secret-box-owner-visible-discard-cost-v2-set-aware';
 const BOX='Secret Box TWM';
 const VIP='Battle VIP Pass FST';
 const CARRIER='Rescue Carrier EVS';
@@ -26,7 +26,7 @@ const NEW_MOON_DCI_POLICY=Object.freeze({
     [POWERGLASS]:10,
     'Forest Seal Stone SIT':12,
     'Mysterious Treasure FLI':7,
-    'Ace Trainer XY7':8,
+    'Ace Trainer AOR':8,
     'Sky Field ROS':8,
     'Field Blower GRI':8,
     'Fog Crystal CRE':7
@@ -46,11 +46,15 @@ function countPrinting(cards,fullName){
  * @param {object} owner Acting native player
  * @param {object} state Native Store state
  * @param {object} policy DCI weights
+ * @param {number} [remainingCopies] Same-printing physical copies left after a proposed payment
  * @returns {{cost:number,reasons:string[]}}
  */
-function secretBoxDiscardCost(card,owner,state,policy=NEW_MOON_DCI_POLICY){
+function secretBoxDiscardCost(card,owner,state,
+  policy=NEW_MOON_DCI_POLICY,remainingCopies){
   const hand=owner.hand.cards;
-  const duplicates=Math.max(0,countPrinting(hand,card.fullName)-1);
+  const remaining=Number.isSafeInteger(remainingCopies)?
+    Math.max(0,remainingCopies):
+    Math.max(0,countPrinting(hand,card.fullName)-1);
   let cost=policy.costs[card.fullName]??policy.defaultCost;
   const reasons=[];
 
@@ -59,9 +63,9 @@ function secretBoxDiscardCost(card,owner,state,policy=NEW_MOON_DCI_POLICY){
     cost=policy.spentVipCost;
     reasons.push('Battle VIP Pass is no longer playable after turn one');
   }
-  if(duplicates>0){
+  if(remaining>0){
     cost=Math.max(0,cost-policy.duplicateDiscount);
-    reasons.push(duplicates + ' other physical copy/copies remain in hand');
+    reasons.push(remaining + ' same-printing physical copy/copies remain after payment');
   }
   if(card.fullName===CARRIER&&owner.discard.cards.some(discarded=>
     Number.isFinite(discarded.hp)&&discarded.hp<=90)){
@@ -96,9 +100,16 @@ function bestPayment(offered,owner,state,policy){
       for(let k=j+1;k<offered.length;k++){
         const cards=[offered[i],offered[j],offered[k]];
         if(new Set(cards).size!==3)continue;
+        const selectedCounts=new Map();
+        for(const card of cards){
+          selectedCounts.set(card.fullName,
+            (selectedCounts.get(card.fullName)??0)+1);
+        }
         const cardCosts=cards.map(card=>({
           fullName:card.fullName,
-          ...secretBoxDiscardCost(card,owner,state,policy)
+          ...secretBoxDiscardCost(card,owner,state,policy,
+            countPrinting(owner.hand.cards,card.fullName)-
+              selectedCounts.get(card.fullName))
         }));
         const totalCost=cardCosts.reduce((sum,row)=>sum+row.cost,0);
         if(best&&totalCost>=best.totalCost)continue;

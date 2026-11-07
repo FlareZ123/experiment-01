@@ -317,6 +317,8 @@ jobs:
         run: node --test tests/agent14-thorns-solo-energy-retention.test.cjs
       - name: Verify Regidrago Mysterious Treasure owner-only discard-cost proposal
         run: node --test tests/agent49-mysterious-treasure-frontier.test.cjs
+      - name: Regress Agent21 Secret Box DCI payment-set reserves and exact printing
+        run: node --test tests/agent21-secret-box-dci-payment.test.cjs
       - name: Verify exact hypergeometric Regidrago Treasure opening coexistence
         run: node --test tests/agent49-regidrago-treasure-openers.test.cjs
       - name: Verify externally pinned effective development profile identity

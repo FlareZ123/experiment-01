@@ -1,6 +1,6 @@
 # Agent21: owner-visible Secret Box discard-cost index for root93
 
-**7 November 2026 UTC.** Pure owner-policy experiment, 8/8 local Node tests. No native Store run or competitive game qualification.
+**Initial 7 November 2026 result.** Pure owner-policy experiment, 8/8 local Node tests. At initial publication there was no native Store run or competitive game qualification; the follow-up below records later evidence and corrections.
 
 ## Question
 
@@ -24,7 +24,7 @@ The New Moon policy uses these starting weights:
 | Powerglass SFA | 10 | +2 if Basic Psychic Energy is in the public discard |
 | Forest Seal Stone SIT | 12 | None |
 | Mysterious Treasure FLI | 7 | None |
-| Ace Trainer XY7 | 8 | None |
+| Ace Trainer AOR | 8 | None |
 | Sky Field ROS | 8 | None |
 | Field Blower GRI | 8 | None |
 | Fog Crystal CRE | 7 | None |
@@ -69,6 +69,22 @@ The Box search cannot fetch both Fog Crystal and Field Blower in the same effect
 
 The DCI weights are a human-authored starting prior. The test uses a detached prompt fixture and the existing paper-payment predicate. No Twinleaf Store was started, no native Secret Box payment was executed, and no full game was completed. The proposed hybrid may still fail because a category target is absent or Prized, the Item or Supporter is locked, the Energy attachment is already used, or the source's response removes the candidate's advantage. The New Moon list remains an unqualified English mechanics proxy. No candidate deck is promoted.
 
-The next useful experiment is a same-deal A/B comparison of the current VIP/VIP/Carrier payment and the proposed VIP/VIP/Lillie payment. Capture the actual Lillie prompt and draw, then let the source resolve the available Garbodor/Float Stone response. If Field Blower is drawn, compare using it immediately against holding it through the source's second Float Stone. Preserve every no-target, payment, prompt, and response failure. Do not reuse the historical deal as evidence for a modified fixed 60.
+The originally proposed same-deal A/B is superseded by Agent44's randomized Lillie-versus-Box native probes and the collective root93 freeze directive. Do not add another root93-specific variant. The four seeded Lillie arms each reached the same KO-and-Prize checkpoint, but none completed the source promotion and subsequent turn; this remains a tactical prompt witness, not a matchup result.
 
 The collective status remains 29/32 authenticated original opponent lists, zero competitively qualified games, no selected final deck, and no demonstrated 99.5% win rate.
+
+
+## Follow-up: native payment witness and DCI correctness corrections (7 November 2026)
+
+Agent4's isolated manual native run [42357190204](https://github.com/FlareZ123/experiment-01/actions/runs/42357190204) compiled the pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and passed the Agent21 DCI payment test in both physical seats. It confirms the real Secret Box discard prompt, native validator acceptance, three distinct physical discards, payment settlement, retained hand resources, and the next Secret Box search prompt. It does not execute Lillie, settle the four-category search, complete a game, or establish strategic optimality.
+
+The first DCI implementation had two correctness defects:
+
+1. Its duplicate-copy discount was computed independently per card from the pre-payment hand. It therefore discounted every selected copy even when the payment discarded the entire printing set. The v2 selector now counts selected copies by `fullName` and grants the discount only if at least one physical copy remains after the complete three-card payment. A single-card cost query retains its original interpretation by defaulting to the number of other copies in hand.
+2. The cost table used `Ace Trainer XY7`, while the pinned Twinleaf fullName is `Ace Trainer AOR`. The policy now uses the actual AOR printing key.
+
+The v2 pure tests cover the three-copy all-selected counterexample (no discount), the two-of-three payment (one remaining copy preserves the discount), permutation invariance across identical physical copies, and the exact Ace Trainer printing key. The scalar weights remain heuristic priors, not measured card values or an optimized policy.
+
+Agent44's separate seeded Lillie/Box probes are preserved in `results/methodology/agent44-root93-lillie-versus-secretbox-randomized-20261107.md`. Agent41's source-response review identifies the subsequent Garbotoxin/Float Stone branch as unresolved. Critic's 07:33 broadcast and Agent36's steward memory explicitly freeze root93 as a retrospective regression fixture. Preserve all existing artifacts; do not create another root93 workflow or infer a full-match result from the one-Prize checkpoint.
+
+The broader benchmark remains 29/32 authenticated original opposing 60-card lists, zero competitively qualified games, no selected final fixed 60, and no demonstrated 99.5% win rate.
