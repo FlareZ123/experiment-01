@@ -631,10 +631,227 @@ function probabilityMailAndStarAlchemyOnly(
   return success;
 }
 
+
+const SEARCH_GATEWAY_ACCESS_VERSION='agent1-rank3-post-rototiller-search-gateways-v1';
+
+/**
+ * Exact probability that Handiwork is in hand by the end of the next turn
+ * through the mandatory draw, in-hand Trainers' Mail, immediate search
+ * gateways, or conditional Supporter search gateways.
+ *
+ * immediateGatewayCountInDeck is normally 0 or 1 for a usable Forest Seal
+ * Stone. delayedGatewayCountInDeck counts only cards whose conditions are live
+ * and which can put Handiwork into hand when played as the turn's Supporter:
+ * examples are Teammates when its Knock Out condition is satisfied, and Arven
+ * when a usable Forest Seal Stone remains in deck and an Item target remains.
+ *
+ * A delayed gateway consumes the turn's Supporter, so Handiwork can be played
+ * only on a later turn. immediatePlayableProbability reports access through
+ * Handiwork itself or the immediate gateway; delayed gateways are treated as
+ * ordinary eligible Trainers for that calculation. anyHandAccessProbability
+ * also counts delayed gateways as successful access routes.
+ *
+ * otherTrainerCount excludes Handiwork, Mail copies, and all gateway cards.
+ * If a gateway's condition is not live, count that card in otherTrainerCount.
+ * The function assumes all selected gateways are usable, no other Supporter
+ * has been played, and no relevant lock or disruption intervenes.
+ *
+ * @param {number} deckSize Cards in deck before the next mandatory draw.
+ * @param {number} otherTrainerCount Other eligible Trainers, excluding gateways.
+ * @param {number} mailsInDeck Trainers' Mail copies still in deck.
+ * @param {number} mailsInHand Trainers' Mail copies already in hand.
+ * @param {number} immediateGatewayCountInDeck Usable immediate gateways in deck (0..1).
+ * @param {number} delayedGatewayCountInDeck Conditional Supporter gateways in deck (0..6).
+ * @param {boolean} [immediateGatewayReady=false] An immediate gateway already ready in hand/attached.
+ * @param {boolean} [delayedGatewayReady=false] A conditional Supporter gateway already in hand.
+ * @returns {object} Exact immediate-playable and any-hand-access probabilities.
+ */
+function probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+  deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+  immediateGatewayCountInDeck,delayedGatewayCountInDeck,
+  immediateGatewayReady=false,delayedGatewayReady=false
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize-1,
+    'otherTrainerCount must be feasible');
+  assert.ok(Number.isSafeInteger(mailsInDeck)&&mailsInDeck>=0&&mailsInDeck<=2,
+    'mailsInDeck must be 0..2');
+  assert.ok(Number.isSafeInteger(mailsInHand)&&mailsInHand>=0&&mailsInHand<=2,
+    'mailsInHand must be 0..2');
+  assert.ok(mailsInDeck+mailsInHand<=2,
+    'the rank-3 list contains only two Trainers\' Mail');
+  assert.ok(Number.isSafeInteger(immediateGatewayCountInDeck)&&
+    immediateGatewayCountInDeck>=0&&immediateGatewayCountInDeck<=1,
+    'immediateGatewayCountInDeck must be 0..1');
+  assert.ok(Number.isSafeInteger(delayedGatewayCountInDeck)&&
+    delayedGatewayCountInDeck>=0&&delayedGatewayCountInDeck<=6,
+    'delayedGatewayCountInDeck must be 0..6');
+  assert.equal(typeof immediateGatewayReady,'boolean',
+    'immediateGatewayReady must be boolean');
+  assert.equal(typeof delayedGatewayReady,'boolean',
+    'delayedGatewayReady must be boolean');
+  assert.ok(!(immediateGatewayReady&&immediateGatewayCountInDeck>0),
+    'an immediate gateway cannot be both in deck and ready');
+
+  const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-
+    immediateGatewayCountInDeck-delayedGatewayCountInDeck;
+  assert.ok(nonTrainerCount>=0,
+    'target, Trainers, Mail and gateways cannot exceed deckSize');
+
+  const immediate=probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
+    deckSize,otherTrainerCount+delayedGatewayCountInDeck,
+    mailsInDeck,mailsInHand,
+    immediateGatewayCountInDeck===1,immediateGatewayReady
+  );
+  let anyAccess;
+  if(immediateGatewayReady||delayedGatewayReady){
+    anyAccess=probabilityFraction(1n,1n);
+  }else{
+    anyAccess=probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
+      deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+      immediateGatewayCountInDeck,delayedGatewayCountInDeck
+    );
+  }
+
+  return {
+    version:SEARCH_GATEWAY_ACCESS_VERSION,
+    deckSizeBeforeDraw:deckSize,
+    otherTrainerCount,
+    mailsInDeck,
+    mailsInHand,
+    immediateGatewayCountInDeck,
+    delayedGatewayCountInDeck,
+    immediateGatewayReady,
+    delayedGatewayReady,
+    targetCopiesInDeck:1,
+    immediatePlayableProbability:{
+      numerator:immediate.exactProbability.numerator,
+      denominator:immediate.exactProbability.denominator
+    },
+    anyHandAccessProbability:{
+      numerator:anyAccess.n.toString(),
+      denominator:anyAccess.d.toString()
+    },
+    immediatePlayableProbabilityValue:immediate.probability,
+    anyHandAccessProbabilityValue:Number(anyAccess.n)/Number(anyAccess.d)
+  };
+}
+
+/**
+ * Exact natural-draw plus Mail access where any configured search gateway
+ * can place Handiwork into hand. Gateway types are not distinguished here.
+ *
+ * @param {number} deckSize
+ * @param {number} otherTrainerCount
+ * @param {number} mailsInDeck
+ * @param {number} mailsInHand
+ * @param {number} immediateGatewayCount
+ * @param {number} delayedGatewayCount
+ * @returns {{n:bigint,d:bigint}}
+ */
+function probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
+  deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+  immediateGatewayCount,delayedGatewayCount
+){
+  const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-
+    immediateGatewayCount-delayedGatewayCount;
+  let success=probabilityFraction(
+    BigInt(1+immediateGatewayCount+delayedGatewayCount),
+    BigInt(deckSize)
+  );
+  if(mailsInDeck>0){
+    const branch=probabilityFraction(BigInt(mailsInDeck),BigInt(deckSize));
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailWithSearchGatewaysOnly(
+          deckSize-1,otherTrainerCount,immediateGatewayCount,
+          delayedGatewayCount,mailsInHand+1
+        )));
+  }
+  if(otherTrainerCount>0){
+    const branch=probabilityFraction(
+      BigInt(otherTrainerCount),BigInt(deckSize)
+    );
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailWithSearchGatewaysOnly(
+          deckSize-1,otherTrainerCount-1,immediateGatewayCount,
+          delayedGatewayCount,mailsInHand
+        )));
+  }
+  if(nonTrainerCount>0){
+    const branch=probabilityFraction(
+      BigInt(nonTrainerCount),BigInt(deckSize)
+    );
+    success=addProbabilityFractions(success,
+      multiplyProbabilityFractions(branch,
+        probabilityMailWithSearchGatewaysOnly(
+          deckSize-1,otherTrainerCount,immediateGatewayCount,
+          delayedGatewayCount,mailsInHand
+        )));
+  }
+  return success;
+}
+
+/**
+ * Exact repeated top-four search over a target plus immediate and delayed
+ * gateways. Mail copies remain ineligible, and one other Trainer is selected
+ * when no gateway appears.
+ *
+ * @param {number} deckSize
+ * @param {number} otherTrainerCount
+ * @param {number} immediateGatewayCount
+ * @param {number} delayedGatewayCount
+ * @param {number} mailsInHand
+ * @returns {{n:bigint,d:bigint}}
+ */
+function probabilityMailWithSearchGatewaysOnly(
+  deckSize,otherTrainerCount,immediateGatewayCount,
+  delayedGatewayCount,mailsInHand
+){
+  const specialCount=1+immediateGatewayCount+delayedGatewayCount;
+  let states=new Map([
+    [deckSize+':'+otherTrainerCount,probabilityFraction(1n,1n)]
+  ]);
+  let success=probabilityFraction(0n,1n);
+  for(let attempt=0;attempt<mailsInHand;attempt++){
+    const next=new Map();
+    for(const [key,mass] of states){
+      const [deck,trainers]=key.split(':').map(Number);
+      if(deck<=4){
+        success=addProbabilityFractions(success,mass);
+        continue;
+      }
+      const denominator=chooseBigInt(deck,4);
+      const noGateway=probabilityFraction(
+        chooseBigInt(deck-specialCount,4),denominator
+      );
+      const noPick=probabilityFraction(
+        chooseBigInt(deck-specialCount-trainers,4),denominator
+      );
+      const pick=subtractProbabilityFractions(noGateway,noPick);
+      const hit=subtractProbabilityFractions(
+        probabilityFraction(1n,1n),noGateway
+      );
+      success=addProbabilityFractions(success,
+        multiplyProbabilityFractions(mass,hit));
+      addMailState(next,deck,trainers,
+        multiplyProbabilityFractions(mass,noPick));
+      addMailState(next,deck-1,trainers-1,
+        multiplyProbabilityFractions(mass,pick));
+    }
+    states=next;
+  }
+  return success;
+}
+
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
   distributionOfFutureOwnerStartsUnderSchedule,
   probabilityHandiworkAccessByNaturalDrawAndMail,
-  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy
+  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
+  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways
 };
