@@ -115,6 +115,39 @@ test('Cold Crush proposal reads only owner board and opponent public Active ener
   }).decision, true);
 });
 
+test('Cold Crush proposal threshold is explicit and sensitivity-testable', () => {
+  const s = scene([water(3)], 2);
+  const defaultGate = decideOneWaterColdCrush({
+    card: s.articuno, owner: s.owner, opponent: s.opponent, types
+  });
+  const twoEnergyGate = decideOneWaterColdCrush({
+    card: s.articuno, owner: s.owner, opponent: s.opponent, types,
+    minOpponentActiveEnergy: 2
+  });
+  const fourEnergyGate = decideOneWaterColdCrush({
+    card: s.articuno, owner: s.owner, opponent: s.opponent, types,
+    minOpponentActiveEnergy: 4
+  });
+  assert.equal(defaultGate.decision, false);
+  assert.equal(twoEnergyGate.decision, true);
+  assert.equal(twoEnergyGate.details.minOpponentActiveEnergy, 2);
+  assert.equal(fourEnergyGate.decision, false);
+  assert.throws(() => decideOneWaterColdCrush({
+    card: s.articuno, owner: s.owner, opponent: s.opponent, types,
+    minOpponentActiveEnergy: 0
+  }), /positive integer/);
+});
+
+test('Cold Crush proposal rejects another Articuno printing', () => {
+  const s = scene();
+  const otherPrinting = {...s.articuno, fullName: 'Articuno-GX OTHER'};
+  const result = decideOneWaterColdCrush({
+    card: otherPrinting, owner: s.owner, opponent: s.opponent, types
+  });
+  assert.equal(result.decision, false);
+  assert.equal(result.reason, 'not-articuno-ces-31');
+});
+
 test('Cold Crush transfer selects exactly one legal Water and preserves the second', () => {
   const first = water(1);
   const second = water(2);
