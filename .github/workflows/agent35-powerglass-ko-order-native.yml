@@ -34,3 +34,5 @@ jobs:
         run: node simulation/twinleaf/agent37-powerglass-winning-ko-native.cjs
       - name: Agent37 reversible paper KO-before-endturn hook prompt comparison
         run: node simulation/twinleaf/agent37-paper-ko-powerglass-first-prompt-native.cjs
+      - name: Agent37 full physical Prize, promotion and Powerglass A-B settlement
+        run: node simulation/twinleaf/agent37-paper-ko-powerglass-full-settlement-native.cjs
