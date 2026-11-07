@@ -14,7 +14,7 @@ const types={
   GameMessage:{MOVE_ENERGY_TO_ACTIVE:'MOVE_ENERGY_TO_ACTIVE'}
 };
 const water=()=>({name:'Water Energy',fullName:'Water Energy',
-  cardType:['WATER'],superType:'ENERGY'});
+  cardType:['WATER'],provides:['WATER'],superType:'ENERGY'});
 const psychic=()=>({name:'Psychic Energy',fullName:'Psychic Energy',cardType:['PSYCHIC']});
 const slot=(pokemon=[],energies=[])=>({cards:[...pokemon,...energies],
   energies:{cards:energies}});
