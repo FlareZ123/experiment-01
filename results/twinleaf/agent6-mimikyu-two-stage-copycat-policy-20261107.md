@@ -2,7 +2,7 @@
 
 **Date:** 7 November 2026  
 **Engine:** pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`  
-**Policy fingerprint:** `MimikyuApexTwoStageCounterPolicy-v2`  
+**Policy fingerprint:** `MimikyuApexTwoStageCounterPolicy-v3`  
 **Evidence classes:** card-text/rules interpretation, native Store execution, bounded selected-seed policy diagnostic
 
 ## Question
@@ -20,9 +20,9 @@ Mimikyu GRI 58 prints Copycat with a `[Psychic][Colorless]` cost and the effect:
 
 Regidrago VSTAR SIT 136 prints Apex Dragon with a `[Grass][Grass][Fire]` cost and the effect: "Choose an attack from a Dragon Pokémon in your discard pile and use it as this attack."
 
-When Mimikyu copies the opponent's Apex Dragon, Apex Dragon's own effect selects a Dragon attack from the Mimikyu player's discard. The tested payloads are therefore selected from the candidate's discard. The attack being announced is Mimikyu's Copycat, so the tested payment is Copycat's printed `[Psychic][Colorless]` cost. The copied payload's printed cost is not separately paid in this interaction. The distinct Ditto: Copy Anything example in the Advanced Player's Manual D-09 has its own explicit Energy clause and should not be generalized to Mimikyu's different printed text.
+When Mimikyu copies the opponent's Apex Dragon, Apex Dragon's own effect selects a Dragon attack from the Mimikyu player's discard. The tested payloads are therefore selected from the candidate's discard. The attack being announced is Mimikyu's Copycat, so the tested payment is Copycat's printed `[Psychic][Colorless]` cost. The copied payload's printed cost is not separately paid in this interaction. Advanced Player's Manual C-18 explicitly explains that an attack used "as this attack" can perform its effects and damage without paying the chosen attack's printed Energy cost, unless specified otherwise. The distinct Ditto: Copy Anything example in D-09 has its own explicit Energy clause and should not be generalized to Mimikyu's different printed text.
 
-The native test uses two Psychic Energy on Mimikyu and validates both payload choices through the actual Twinleaf `ChooseAttackPrompt`. The ordinary Store/prompt validator remains responsible for Copycat's own cost and other attack legality.
+The policy now prefilters Mimikyu's own Copycat `[Psychic][Colorless]` cost before offering the action: it requires a visible Basic Psychic Energy plus either a second attached Energy or Dimension Valley in play. This is deliberately conservative; it does not infer every Special Energy provider. The actual Store/prompt validator remains the final legality authority. Tests cover an underfunded one-Psychic state without Dimension Valley and the one-Psychic Dimension Valley reduction.
 
 ## Policy v2
 
