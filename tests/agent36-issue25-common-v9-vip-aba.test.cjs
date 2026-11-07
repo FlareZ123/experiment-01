@@ -23,7 +23,14 @@ function nativeRow(id,action,overrides={}){
           rejectedItems:0,acceptedSearches:action.printing==='Battle VIP Pass FST'?1:0,
           rejectedSearches:0,nativeBenchConfirmed:action.printing==='Battle VIP Pass FST'?1:0,
           nativeBenchUnconfirmed:0,selectedBasics:action.printing==='Battle VIP Pass FST'?1:0,
-          unresolvedOwnerSearches:0,bySeat:{0:{acceptedItems:0},1:{acceptedItems:1}}
+          unresolvedOwnerSearches:0,bySeat:{0:{acceptedItems:0},1:{acceptedItems:1}},
+          examples:action.printing==='Battle VIP Pass FST'?[{
+            kind:'vip-item',seat:action.seat??1,turn:action.turn??1,
+            printing:'Battle VIP Pass FST',accepted:true
+          },{
+            kind:'vip-search',seat:action.seat??1,turn:action.turn??1,
+            printings:['Duskull VIV'],accepted:true,nativeBenchConfirmed:true
+          }]:[]
         }
       }
     },
@@ -87,6 +94,9 @@ test('native VIP audit is read from the canonical actor component and remains ow
   assert.equal(audit.acceptedSearches,1);
   assert.equal(audit.nativeBenchConfirmed,1);
   assert.deepEqual(audit.bySeat,{0:{acceptedItems:0},1:{acceptedItems:1}});
+  assert.equal(audit.examples[0].kind,'vip-item');
+  assert.equal(audit.examples[0].accepted,true);
+  assert.equal(audit.examples[1].nativeBenchConfirmed,true);
 });
 
 test('root ledger prefers nonempty public/archive evidence over an empty direct array',()=>{
@@ -100,10 +110,11 @@ test('root ledger prefers nonempty public/archive evidence over an empty direct 
 });
 
 test('first divergence identifies a VIP play replacing a native Pass without publishing a hand',()=>{
-  const before={rootActionLedger:[{actionType:'PassTurnAction',seat:1,turn:1}]};
+  const before={rootActionLedger:[{actionType:'PassTurnAction',
+    playerSlot:1,turnBefore:1}]};
   const after={rootActionLedger:[{
     actionType:'PlayCardAction',printing:'Battle VIP Pass FST',
-    seat:1,turn:1,handIndex:3
+    playerSlot:1,turnBefore:1,handIndex:3
   }]};
   const diff=firstRootDifference(before,after);
   assert.equal(diff.index,1);
