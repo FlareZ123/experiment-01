@@ -90,3 +90,17 @@ Earlier incremental runs also passed:
 Two intermediate workflow failures were test-expectation mistakes, not native regressions: the reversed-seat pure test initially expected PLAYER_2 when the winning player was actually `state.players[0]`; a later test also assumed the native winner was always PLAYER_1. Both assertions were corrected to use the actual player ordering and observed native winner. The successful run above contains those corrections.
 
 **Competitive games qualified: 0.** This is a bounded paper-rules fidelity improvement, not evidence of competitive deck strength or a 99.5% win rate.
+
+
+## v3 native runner result from run 42379603688
+
+The uploaded runner artifact 13577440831 contains a complete native result from pinned Twinleaf commit a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. The native regression process and all of its in-process assertions completed successfully on both physical seats:
+
+- In each both-can-promote case, the native engine chose the first processed player (native PLAYER_1), even though both players exhausted their Prize cards and both could promote. The receipt preserves the original WINNER log message, native player ID/name, and params.
+- The v3 hook completed both Prize transfers to hand, suppressed the premature terminal callback, and emitted the paper-rule DRAW outcome with a DRAW log and no winner name for both seats.
+- Both asymmetric promotion-availability seats, both opponent-only promotion seats, and both neither-can-promote seats passed their corrected outcome assertions.
+- The single-player last-Prize control remained a win. The non-Hand Prize-destination control did not trigger the simultaneous-last-Prize correction.
+- Store log/reducer restoration and other-store isolation were true in both primary tie rows.
+- The artifact reports competitiveGamesQualified=0.
+
+This is strong native regression evidence for the terminal resolver behavior, not evidence of competitive deck strength or a paper-rule certification. The workflow itself remained red only because its final wrapper assertion expected top-level aggregate fields that were absent from the artifact. Commit ee6a0fa47c4293b5c59fcb212463b8f8d17d2620 now derives and asserts those fields from the per-seat audit receipts. A fresh run is still required to establish a green workflow.
