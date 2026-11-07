@@ -57,12 +57,13 @@ function makeStore(sourceCard){
 function runChoicePrompt(powers,options={}){
   const first={name:'First attack',gxAttack:false,copycatAttack:false};
   const second={
-    name:'Second attack',
+    name:options.secondName??'Second attack',
     gxAttack:options.secondGx===true,
     copycatAttack:options.secondCopycat===true
   };
   const sourceCard={
-    fullName:'Fixture Pokemon',
+    name:options.sourceCardName??'Fixture Pokemon',
+    fullName:options.sourceCardFullName??'Fixture Pokemon',
     powers,
     attacks:[first,second]
   };
@@ -107,15 +108,29 @@ test('Barrage power marks the preceding attack and selected follow-up as the Cop
     ['First attack','Second attack']);
 });
 
-test('Copycat does not fall back to an earlier attack when the actual last attack is uncopyable',()=>{
+test('Copycat excludes GX and Mimikyu Copycat, not copied-attack metadata generally',()=>{
   const gxResult=runChoicePrompt([],{declareSecondAttack:true,secondGx:true});
   assert.deepEqual(gxResult.snapshot.attacks.map(row=>row.attackName),
     ['First attack','Second attack']);
   assert.deepEqual(gxResult.copycatChoices,[]);
 
-  const copycatResult=runChoicePrompt([],
-    {declareSecondAttack:true,secondCopycat:true});
-  assert.deepEqual(copycatResult.copycatChoices,[]);
+  const mimikyuResult=runChoicePrompt([],{declareSecondAttack:true,
+    secondName:'Copycat',secondCopycat:true,
+    sourceCardName:'Mimikyu',sourceCardFullName:'Mimikyu GRI'});
+  assert.deepEqual(mimikyuResult.copycatChoices,[]);
+
+  const apexResult=runChoicePrompt([],{declareSecondAttack:true,
+    secondName:'Apex Dragon',secondCopycat:true,
+    sourceCardName:'Regidrago VSTAR',
+    sourceCardFullName:'Regidrago VSTAR SIT'});
+  assert.deepEqual(apexResult.copycatChoices.map(row=>row.attackName),
+    ['Apex Dragon']);
+
+  const foulPlayResult=runChoicePrompt([],{declareSecondAttack:true,
+    secondName:'Foul Play',secondCopycat:true,
+    sourceCardName:'Zoroark BREAK',sourceCardFullName:'Zoroark BREAK BKT'});
+  assert.deepEqual(foulPlayResult.copycatChoices.map(row=>row.attackName),
+    ['Foul Play']);
 });
 
 test('a Barrage pair with one uncopyable member exposes only the other member',()=>{
@@ -126,12 +141,14 @@ test('a Barrage pair with one uncopyable member exposes only the other member',(
 });
 
 test('Copycat dispatch requires a matching native action and a completed prior-turn record',()=>{
-  const attack={name:'Burrow',gxAttack:false,copycatAttack:false};
-  const sourceCard={fullName:'Bunnelby PRC',attacks:[attack]};
+  const attack={name:'Apex Dragon',gxAttack:false,copycatAttack:true};
+  const sourceCard={name:'Regidrago VSTAR',fullName:'Regidrago VSTAR SIT',
+    attacks:[attack]};
   const selected={
     playerId:2,turn:14,sourceCard,attack,
-    sourceCardFullName:'Bunnelby PRC',attackName:'Burrow',
-    gxAttack:false,copycatAttack:false
+    sourceCardName:'Regidrago VSTAR',
+    sourceCardFullName:'Regidrago VSTAR SIT',attackName:'Apex Dragon',
+    gxAttack:false,copycatAttack:true
   };
   const originalRecord={sourceCard:{fullName:'Original'},attack:{name:'Original'}};
   const store={
@@ -160,5 +177,16 @@ test('Copycat dispatch requires a matching native action and a completed prior-t
   assert.throws(()=>dispatchCopycatWithSelectedHistory(
     store,1,selected,new AttackAction(2,'Copycat')
   ));
+  assert.equal(store.state.playerLastAttack[2],originalRecord);
+
+  const mimikyuAttack={name:'Copycat',gxAttack:false,copycatAttack:true};
+  const mimikyuCard={name:'Mimikyu',fullName:'Mimikyu GRI',
+    attacks:[mimikyuAttack]};
+  const forbidden={...selected,sourceCard:mimikyuCard,
+    sourceCardName:'Mimikyu',sourceCardFullName:'Mimikyu GRI',
+    attack:mimikyuAttack,attackName:'Copycat'};
+  assert.throws(()=>dispatchCopycatWithSelectedHistory(
+    store,1,forbidden,new AttackAction(1,'Copycat')
+  ),/Mimikyu cannot copy/);
   assert.equal(store.state.playerLastAttack[2],originalRecord);
 });
