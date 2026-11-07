@@ -69,4 +69,17 @@ The existing pass-history correction remains relevant for stale records after an
 
 The exact Bunnelby Burrow copy effect has not yet been settled through the native Store in a focused test. The current evidence identifies why the policy did not propose it. It does not establish a completed matchup, competitive improvement, or any win-rate result.
 
-**Status:** high-confidence policy-composition diagnosis; direct Burrow effect settlement still required; zero competitively qualified games.
+## Native Store settlement of the immediate Burrow-copy case
+
+The initial native regression run [42376289380](https://github.com/FlareZ123/experiment-01/actions/runs/42376289380), using the pinned engine revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, passed the two immediate-copy cases for both physical seat orientations:
+
+- Bunnelby PRC used Burrow as its only attack, then Mimikyu GRI used Copycat on the immediately preceding turn.
+- The Store accepted Copycat and the copied effect moved the exact top card of Bunnelby's deck into its discard.
+- The source deck count fell by two, with one card in discard and the next card drawn into hand at the start of Bunnelby's turn. The Mimikyu deck showed the same one-discard plus one-turn-draw pattern after Bunnelby's original Burrow.
+- Both seats produced the same physical-zone result. Mimikyu retained its two attached Psychic Energy, and neither player used a GX attack.
+
+This confirms that the pinned Store can settle the immediate Bunnelby Burrow / Mimikyu Copycat interaction when Burrow is the final attack of the opponent's turn. It does not validate the actor-only policy proposal, a full game policy, or a competitive matchup.
+
+The same workflow run's four new double-attack-order cases stopped at prompt-shape normalization before their attack-order conclusions. That harness now normalizes the engine's prompt card collection and separates attack discards from ordinary turn draws; those cases remain pending a clean rerun.
+
+**Status:** high-confidence policy-composition diagnosis; immediate Burrow copy settled; double-attack order pending; zero competitively qualified games.
