@@ -5,7 +5,8 @@ const {verdictVoltCyclone,withPaperPromptPortfolio}=
   require('../simulation/twinleaf/agent39-paper-prompt-portfolio.cjs');
 
 const types={PlayerType:{BOTTOM_PLAYER:1,TOP_PLAYER:2},
-  SlotType:{ACTIVE:1,BENCH:2},SuperType:{ENERGY:3}};
+  SlotType:{ACTIVE:1,BENCH:2},SuperType:{ENERGY:3},
+  CardType:{LIGHTNING:4,PSYCHIC:5}};
 class AttachEnergyPrompt{
   constructor(playerId,cardList){
     this.id=1;this.playerId=playerId;this.cardList=cardList;
@@ -48,6 +49,7 @@ class Store{
 function fixture(ownerIndex=0){
   const energy={superType:types.SuperType.ENERGY};
   const owner={id:ownerIndex+10,active:{cards:[{name:'Iron Thorns ex'},energy],energies:{cards:[energy]}},
+    discard:{cards:[]},
     bench:[{cards:[{name:'benched'}],energies:{cards:[]},getPokemonCard(){return this.cards.find(c=>c.name==='benched');}},{cards:[],energies:{cards:[]},getPokemonCard(){return this.cards.find(c=>c.name==='benched');}}]};
   const other={id:ownerIndex+20,active:{cards:[{name:'opponent'}]},bench:[]};
   return {state:{players:ownerIndex===0?[owner,other]:[other,owner],
@@ -246,6 +248,83 @@ for(const seat of [0,1])test('live Volt physical transfer positive receipts seat
   assert.equal(observed.audit.events[0].nativeAccepted,true);
   assert.equal(observed.audit.events[0].physicalEffectVerified,true);
 });
+
+
+test('Flash Energy AOR classifies matching and incompatible recipients by printed type',()=>{
+  const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
+  f.energy.fullName='Flash Energy AOR';
+  const benchPokemon={cardType:[types.CardType.LIGHTNING]};
+  f.owner.bench[0].getPokemonCard=()=>benchPokemon;
+  const correct=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
+  assert.equal(correct.valid,true);
+  assert.equal(correct.expectedRoute,'bench');
+  benchPokemon.cardType=[types.CardType.PSYCHIC];
+  const incompatible=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
+  assert.equal(incompatible.valid,true);
+  assert.equal(incompatible.expectedRoute,'discard');
+  benchPokemon.cardType=undefined;
+  const unresolved=verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types);
+  assert.deepEqual(unresolved,
+    {valid:false,reason:'flash-energy-target-type-unresolved'});
+});
+
+for(const seat of [0,1]){
+  test('Flash Energy incompatible recipient: discard settlement seat '+seat,()=>{
+    const f=fixture(seat);
+    f.energy.fullName='Flash Energy AOR';
+    f.owner.bench[0].getPokemonCard=()=>({cardType:[types.CardType.PSYCHIC]});
+    class FlashDiscardStore extends Store{
+      dispatch(action){
+        if(action instanceof ResolvePromptAction){
+          const prompt=this.state.prompts.find(p=>p.id===action.id);
+          prompt.result=action.result;
+          const moved=action.result[0].card;
+          const owner=this.state.players.find(p=>p.id===prompt.playerId);
+          owner.active.cards.splice(owner.active.cards.indexOf(moved),1);
+          owner.active.energies.cards.splice(
+            owner.active.energies.cards.indexOf(moved),1);
+          owner.discard.cards.push(moved);
+          return this.state;
+        }
+        return super.dispatch(action);
+      }
+    }
+    const store=new FlashDiscardStore(f.state),card=new IronThornsex();
+    const out=withPaperPromptPortfolio(()=>{
+      card.reduceEffect(store,f.state,
+        new AfterAttackEffect(f.owner,card.attacks[0]));
+      store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+      return true;
+    },{Store:FlashDiscardStore,IronThornsex,types,liveStore:store});
+    assert.equal(out.result,true);
+    assert.equal(out.audit.paperVerifiedNativeAccepted,1);
+    assert.equal(out.audit.livePaperVerifiedDiscardedFlashEnergy,1);
+    assert.equal(out.audit.livePaperVerifiedPhysicalEffect,1);
+    assert.equal(out.audit.events[0].expectedRoute,'discard');
+    assert.equal(out.audit.events[0].physicalEffectVerified,true);
+    assert.ok(f.owner.discard.cards.includes(f.energy));
+    assert.ok(!f.owner.active.cards.includes(f.energy));
+    assert.ok(!f.owner.bench[0].cards.includes(f.energy));
+  });
+  test('Flash Energy retained on incompatible Bench is unverified seat '+seat,()=>{
+    const f=fixture(seat);
+    f.energy.fullName='Flash Energy AOR';
+    f.owner.bench[0].getPokemonCard=()=>({cardType:[types.CardType.PSYCHIC]});
+    const store=new Store(f.state),card=new IronThornsex();
+    const out=withPaperPromptPortfolio(()=>{
+      card.reduceEffect(store,f.state,
+        new AfterAttackEffect(f.owner,card.attacks[0]));
+      store.dispatch(new ResolvePromptAction(1,[{card:f.energy,to}]));
+    },{Store,IronThornsex,types,liveStore:store});
+    assert.equal(out.audit.liveNativePromptSettled,1);
+    assert.equal(out.audit.paperVerifiedNativeAccepted,0);
+    assert.equal(out.audit.livePaperVerifiedWithoutPhysicalEffect,1);
+    assert.equal(out.audit.events[0].expectedRoute,'discard');
+    assert.equal(out.audit.events[0].status,'PAPER_PROMPT_SETTLED_EFFECT_UNVERIFIED');
+    assert.ok(f.owner.bench[0].cards.includes(f.energy));
+    assert.equal(f.owner.discard.cards.includes(f.energy),false);
+  });
+}
 
 /**
  * Native Issue25 composes many reversible Store dispatch hooks. Check that
