@@ -724,9 +724,10 @@ function main() {
     finished:output.nativeAttempt.finished,
     winner:output.nativeAttempt.winner,
     endReason:output.nativeAttempt.endReason,
-    rawReciprocalLooking:output.agent45ArchiveScreen.rawReciprocalLooking,
-    qualified:output.agent45ArchiveScreen.qualified,
-    competitiveGamesQualified:0,
+    generalSequenceContexts:output.agent45ArchiveScreen.anyGeneralSequenceContexts,
+    sourceAttackSequenceContexts:output.agent45ArchiveScreen.anySourceAttackSequenceContexts,
+    nativeMaterialExchangeContexts:output.agent45ArchiveScreen.nativeMaterialExchangeContexts,
+    competitiveGamesQualified:output.agent45ArchiveScreen.competitiveGamesQualified,
     artifact:outputPath
   },null,2)+'\n');
 }
