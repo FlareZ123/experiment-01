@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rootDigest, verifiedMaterialTransition,
+const {rootDigest, archivedPhysicalSeats, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
   screenUnmodifiedPrintedCosts, screenNativeMaterialReciprocalExchange,
@@ -517,4 +517,58 @@ test('the observed Dark basic funds unmodified Colorless attacks',()=>{
   ]};
   assert.equal(screenUnmodifiedPrintedCosts(source).
     anyUnmodifiedPrintedAttackPayable,true);
+});
+
+test('authenticated v8 abort prefix recovers source physical seat from native provenance',()=>{
+  const attempt={
+    id:'6:210:B:new-moon-lockbreaker-v1',
+    status:'engine-error',originalSourceSeat:null,candidateSeat:null,
+    nativeAbortProvenance:{sourceSeat:0,
+      sourceDealStatus:'VERIFIED',fullPhysicalDealStatus:'VERIFIED'},
+    publicRootActionsTruncated:false,
+    publicRootActions:roots,publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots)
+  };
+  const r=screenArchivedReciprocalAttempts({attempts:[attempt]});
+  assert.equal(r.attemptedContexts,1);
+  assert.equal(r.verifiedRootLedgerContexts,1);
+  assert.equal(r.quarantinedContexts,0);
+  assert.equal(r.rows[0].sourceSeat,0);
+  assert.equal(r.rows[0].opponentSeat,1);
+  assert.equal(r.rows[0].seatProvenance,'native-abort-provenance');
+  assert.deepEqual(r.rows[0].generalSequence?.source.ordinal,0);
+  assert.equal(r.rows[0].competitiveAdmission,false);
+  assert.equal(r.competitiveGamesQualified,0);
+});
+
+test('no native physical-seat provenance preserves error as an unqualified quarantine',()=>{
+  const attempt={
+    id:'unverified-abort',status:'engine-error',
+    originalSourceSeat:null,candidateSeat:null,
+    publicRootActionsTruncated:false,publicRootActions:roots,
+    publicRootActionCount:roots.length,
+    publicRootLedgerSha256Computed:rootDigest(roots),
+    publicRootLedgerSha256Reported:rootDigest(roots)
+  };
+  const r=screenArchivedReciprocalAttempts({attempts:[attempt]});
+  assert.equal(r.attemptedContexts,1);
+  assert.equal(r.quarantinedContexts,1);
+  assert.equal(r.verifiedRootLedgerContexts,0);
+  assert.equal(r.rows[0].rootActionLedgerSha256,rootDigest(roots));
+  assert.equal(r.rows[0].sourceAttackSequence,null);
+  assert.match(r.rows[0].archiveIntegrity,/QUARANTINED/);
+});
+
+test('normal and native-abort physical-seat contradiction rejects',()=>{
+  assert.deepEqual(archivedPhysicalSeats({
+    originalSourceSeat:1,candidateSeat:0,nativeAbortProvenance:{sourceSeat:1}
+  }),{sourceSeat:1,opponentSeat:0,
+    seatProvenance:'ordinary-native-seat+candidate-seat-complement+native-abort-provenance'});
+  assert.throws(()=>archivedPhysicalSeats({
+    originalSourceSeat:0,candidateSeat:1,nativeAbortProvenance:{sourceSeat:1}
+  }),/Contradictory real native/);
+  assert.throws(()=>archivedPhysicalSeats({
+    originalSourceSeat:2,candidateSeat:null
+  }),/physical seat/);
 });
