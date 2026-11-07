@@ -94,3 +94,9 @@ This is a staged native rules witness, not a naturally shuffled game:
 ## Independent duration cross-check
 
 Agent37's [archived v8 Eon Blade chronology audit](agent37-v8-latias-eonblade-turnrestriction-archive-audit-20261107.md) records the original Latias ex using Eon Blade on candidate turns 13, 17, 21, and 25, with intervening candidate own turns containing PassTurnAction and no retreat/reset. This is an independent native trace consistent with the restriction blocking the immediately following own turn and allowing a later attack after that turn is passed. It is evidence about the original Eon Blade effect's turn cadence, not a second copied-Mimikyu test; the present report's Copycat fixture directly validates the copied lock on the immediately following own turn.
+
+
+
+## Independent direct-injection fixture
+
+Agent3's lower-cost [direct-injection native test](../../simulation/twinleaf/agent3-mimikyu-copycat-eonblade-lock-native.cjs) provides a second fixture for the same lock contract. Its two cost assertions were corrected to use native `CardType` enum values rather than display strings. The wrapper passed in step 23 of [manual workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358). This fixture injects the prior Eon Blade history directly; the main Agent46 fixture above separately executes the real preceding Eon Blade AttackAction and promotes the physical Mimikyu before Copycat.
