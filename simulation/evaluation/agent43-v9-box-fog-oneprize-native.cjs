@@ -6,6 +6,8 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {runStewardBilateralProbeV9,writeJsonAtomic}=
   require('./agent36-issue25-common-v9-bilateral-competence.cjs');
+const {auditNativeOnePrizeBoxKo}=
+  require('./agent43-native-box-ko-postsettlement-audit.cjs');
 const {withOwnerOneEnergyBoxKo,VERSION:BRIDGE_VERSION}=
   require('../twinleaf/agent43-owner-secretbox-fog-ko.cjs');
 const {VERSION:PAYMENT_VERSION}=
@@ -15,6 +17,10 @@ const VERSION='agent43-original-rank11-v9-owner-box-oneprize-native-exposed-v1';
 const ROOT=path.resolve(__dirname,'../..');
 const ARTIFACT=path.join(ROOT,
   'artifacts/agent43-v9-root93-secretbox-oneprize/attempt.json');
+const BASELINE=path.join(ROOT,
+  'artifacts/agent43-v9-root93-secretbox-oneprize/baseline.json');
+const PROOF=path.join(ROOT,
+  'artifacts/agent43-v9-root93-secretbox-oneprize/settlement-audit.json');
 const DIAGNOSTIC=path.join(ROOT,
   'artifacts/agent43-v9-root93-secretbox-oneprize/diagnostic.json');
 const expected='11:1000:B:new-moon-lockbreaker-v1';
@@ -87,6 +93,12 @@ function main(){
     throw error;
   }
   writeJsonAtomic(ARTIFACT,result);
+  // Independent same-registered-deal A/A-prime run with the untouched shared
+  // bilateral policy, after the reversible historical intervention restores.
+  const baseline=runStewardBilateralProbeV9();
+  writeJsonAtomic(BASELINE,baseline);
+  const proof=auditNativeOnePrizeBoxKo(baseline,result);
+  writeJsonAtomic(PROOF,proof);
   const a=result.nativeAdapterAudit.agent43OneEnergyBoxKo;
   const roots=result.nativeAttempt.rootActionLedger??[];
   const root93=roots.find(x=>x.actionOrdinal===93);
@@ -101,8 +113,9 @@ function main(){
     nativeStatus:result.nativeAttempt.status,
     winner:result.nativeAttempt.winner,
     finalPrizes:result.nativeAttempt.finalPrizes,
-    ownerBridge:a,competitivelyQualifiedGames:0,
-    artifact:ARTIFACT
+    ownerBridge:a,independentSameDealSettlementProof:proof,
+    competitivelyQualifiedGames:0,
+    artifact:ARTIFACT,baselineArtifact:BASELINE,proofArtifact:PROOF
   };
   process.stdout.write(JSON.stringify(summary,null,2)+'\n');
   assert.equal(a.liveRuns,1,'Bridge was not invoked in genuine match');
@@ -115,4 +128,4 @@ function main(){
 }
 
 if(require.main===module)main();
-module.exports={VERSION,ARTIFACT,DIAGNOSTIC,runNativeOwnerBoxKo};
+module.exports={VERSION,ARTIFACT,BASELINE,PROOF,DIAGNOSTIC,runNativeOwnerBoxKo};
