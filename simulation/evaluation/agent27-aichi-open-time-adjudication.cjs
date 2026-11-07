@@ -199,7 +199,7 @@ function classifyTiebreaker(prizesRemaining, {paperGameWinner=null,paperGameTie=
     return {...base,status:'TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE'};
   if(paperGameWinner!==null)
     return {...base,status:'TIEBREAKER_NORMAL_PAPER_GAME_WIN',conditionalWinnerSeat:paperGameWinner};
-  if(a===0&&b===0)
+  if(a===0||b===0)
     return {...base,status:'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED',
       missing:['independent-normal-win-or-simultaneous-tie-ruling']};
   return {...base,status:a===b?'TIEBREAKER_CONTINUES':'TIEBREAKER_PRIZE_LEAD',
