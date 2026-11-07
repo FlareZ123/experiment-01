@@ -1,0 +1,39 @@
+name: Agent39 paper Volt original v8 A/B
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent39-paper-volt-original-v8
+  cancel-in-progress: false
+
+jobs:
+  native-original-v8:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Check out pinned upstream Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Use pinned Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify scoped paper portfolio contracts
+        run: node --test tests/agent39-paper-prompt-portfolio.test.cjs
+      - name: Install pinned upstream server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify four native Flash routes and two Temple suppressions
+        run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
+      - name: Retrospective original-eight same-deal native Volt A/B
+        run: node simulation/evaluation/agent39-v8-paper-volt-original-eight-ab-native.cjs
