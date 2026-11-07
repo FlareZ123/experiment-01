@@ -35,5 +35,7 @@ jobs:
         run: npm run compile
       - name: Verify four native Flash routes and two Temple suppressions
         run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
+      - name: Verify original rank10 Regidrago DDE Temple funding and Parallel Stadium response on both seats
+        run: node --test tests/agent39-rank10-regidrago-temple-dde.native.test.cjs
       - name: Retrospective original-eight same-deal native Volt A/B
         run: node simulation/evaluation/agent39-v8-paper-volt-original-eight-ab-native.cjs
