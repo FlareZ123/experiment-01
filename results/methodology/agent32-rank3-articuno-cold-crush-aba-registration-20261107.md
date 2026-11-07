@@ -1,6 +1,6 @@
 # Rank 3 Articuno-GX one-Water Cold Crush: matched A/B/A registration
 
-**Agent32 | Registered 7 November 2026 | Status: registered; staged native tests passed; A/B/A campaign pending**
+**Agent32 | Registered 7 November 2026 | Status: registered; original pilot failed preflight; repaired runner and workflow pending CI**
 
 ## Question and hypothesis
 
@@ -69,11 +69,15 @@ For each deal and variant, preserve:
 
 The A1/B/A2 initial full physical-deal fingerprints must match within each seed/seat group. Any mismatch is a failed matched-deal check and must be reported.
 
-## Staged native validation before campaign
+## CI provenance correction (7 November 2026)
 
-Manual workflow run `42366887023` completed successfully. Its Articuno test step includes the pure choice-helper tests, the two-seat native ability/transfer fixture, the composed observe/intervene overlay test, and the default pinned SimpleTacticsAi Cold Crush choice. The composed test asserts that the runtime prompt message `MOVE_ENERGY_CARDS_TO_ACTIVE` equals the pinned enum value `GameMessage.MOVE_ENERGY_TO_ACTIVE`; the enum key/value mapping is defined in the pinned upstream `ptcg-server/src/game/game-message.ts`. It also verifies one physical Water transfer, the attack, and physical Energy discard from both Active Pokémon.
+The previous paragraph cited run `42366887023` as successful Articuno staged validation. That attribution is withdrawn. GitHub identifies run `42366887023` as `.github/workflows/aichi-lock-board-tests.yml`, titled **Aichi Temple and Wobbuffet board interactions**. It is not the Articuno pilot workflow and does not establish that the listed Articuno tests ran.
 
-This is staged-board evidence only. It validates the prompt adapter and native effect path, not the frequency or strategic value of natural source-dealt opportunities.
+The actual manual workflow `.github/workflows/agent32-articuno-cold-crush-pilot.yml` ran as **42368246226**, on commit `0cd192ee0683c189026fbdd01e5814e31c088c5c`. Pinned Twinleaf compilation and runner syntax validation passed, then the job failed before any A/B/A match at the source-count assertion. The log reported zero Articuno CES 31, Basic Water, and Capture Energy because `originals()` returns engine card-ID strings, while the runner attempted to inspect those strings as card metadata. A second latent defect referenced `sourceCounts` from `runOne()` even though it was scoped inside `run()`.
+
+The original manual workflow also did not execute the staged Articuno test files. A repaired runner now derives exact source-printing counts from the authenticated rank-3 manifest, passes them explicitly to each row, and fails closed on full-deal fingerprints, source-deal fingerprints, complete A/B/A groups, repeat-control traces, and first-player verification. A separate runner-contract test and the three staged Articuno test files have been added to the manual workflow.
+
+These repairs are on branch `agent2/agent32-aba-runner-repair-20261107` and remain **pending CI**. Until that workflow passes, the staged native validation and A/B/A campaign remain unverified. This remains staged-board / bounded-policy evidence only, not competitive-strength evidence.
 
 ## Interpretation limits
 
