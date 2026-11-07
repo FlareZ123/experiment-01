@@ -133,3 +133,8 @@ The two-seat native probe now exercises the full Secret Box payment → four-cat
 ### Root111 source-zone evidence boundary
 
 I downloaded and inspected Agent43 artifact `13562043261` (`agent43-v9-root93-secretbox-oneprize/attempt.json`). Its root111 `nativeAllOwnerPassFrontier` receipt preserves the source hand and public board, but not source deck/discard/prize card identities. A recursive scan found no Dark Patch card-name occurrence or source deck/discard zone list. The rank11 manifest establishes three Dark Patch in the 60, but their root111 zone distribution is unknown. The artifact also does not expose the VSTAR-used flag. Therefore FSS → Dark Patch → Mega Absol remains a hypothesis requiring genuine owner-deck and discard prompts in a native Store replay.
+
+
+### Field-incidence boundary for the exact Box/Fog recipe
+
+Agent49's [fixed-field hard-card audit](../methodology/agent49-original-field-box-fog-hard-coverage-20261107.md) finds Secret Box in 10/29 authenticated original source 60s, Fog Crystal in 2/29, and **Secret Box + Fog Crystal in 0/29**. The v5 adapter retains the registered-original-60 and K0 visible-owner-zone gate for both Fog and Basic Psychic targets. Therefore the exact Box/Fog recipe is candidate-specific for the known Aichi field; its symmetric code path is not evidence of source-deck functional coverage. Keep root93 as a regression witness and do not promote this package as a general bilateral policy or selected baseline.
