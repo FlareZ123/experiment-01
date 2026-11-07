@@ -4,7 +4,11 @@ const assert=require('node:assert/strict');
 const {assessDirectEnergy}=
   require('../twinleaf/agent30-source-attack-energy-reachability.cjs');
 
-const VERSION='agent3-native-pre-attack-public-board-join-v1';
+const VERSION='agent3-native-pre-attack-public-board-join-v2';
+const CARD_TYPE_ENUM=Object.freeze({
+  Grass:1,Fire:2,Water:3,Lightning:4,Psychic:5,Fighting:6,
+  Darkness:7,Metal:8,Colorless:9,Fairy:10,Dragon:11
+});
 
 /**
  * Join an accepted, settled physical-Prize attack to its native public
@@ -94,8 +98,17 @@ function joinNativePreAttackBoard(
     // Native attack logs can name copied or granted attacks. The physical
     // attacking Pokémon need not be the card printing that supplies text.
     const originalAttackSourceIsPhysicalActive=actor.printing===expectedFullName;
-    if(originalAttackSourceIsPhysicalActive)
+    const actualPrintedAttack=actor.printedAttacks.find(p=>p.name===root.attackName);
+    const actualPrintedAttackCostEnum=actualPrintedAttack?.cost??null;
+    if(originalAttackSourceIsPhysicalActive){
       assert.equal(attackIsPrintedOnActualActive,true);
+      assert.ok(nominal.printedAttackCost.every(t=>
+        Number.isSafeInteger(CARD_TYPE_ENUM[t])),
+      'Independent source attack cost must use known pinned CardType labels');
+      assert.deepEqual(actualPrintedAttackCostEnum,
+        nominal.printedAttackCost.map(t=>CARD_TYPE_ENUM[t]),
+        'Actual pinned Active attack cost must match the independent source print');
+    }
     // Cost modifiers and granted attacks require separate paper adjudication.
     // This reports direct printed funding by attached public Energy only.
     const directPrintedEnergySufficiency=originalAttackSourceIsPhysicalActive?
@@ -127,6 +140,14 @@ function joinNativePreAttackBoard(
       publicActiveCollectorNumberObserved:false,
       attackNamePrintedOnPhysicalActive:attackIsPrintedOnActualActive,
       sourceAttackPrintEqualsPhysicalActive:originalAttackSourceIsPhysicalActive,
+      actualPrintedAttackCostEnum:actualPrintedAttackCostEnum===null?null:[...actualPrintedAttackCostEnum],
+      actualPrintedAttackCostMatchesSourceScreen:originalAttackSourceIsPhysicalActive?true:null,
+      publicStadiumNamesBeforeAttack:before.map(board=>
+        Array.isArray(board.stadium)?[...board.stadium]:[]),
+      publicInPlayPrintingsBeforeAttack:before.map(board=>({
+        active:board.active?.printing??null,
+        bench:(board.bench??[]).map(p=>p.printing)
+      })),
       copiedOrGrantedSourceUnresolved:!originalAttackSourceIsPhysicalActive,
       attackerEnergyNamesBeforeAttack:[...actor.energyCards],
       attackerToolNamesBeforeAttack:[...actor.toolCards],
