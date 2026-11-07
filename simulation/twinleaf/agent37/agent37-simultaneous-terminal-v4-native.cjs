@@ -113,14 +113,15 @@ function run(){
         assert.equal(result.opponentPrizesRemaining,
           profile.enemyPrizes-expectedPrizeTransfers.opponent);
         assert.equal(result.winner,expectedPaperWinner);
-        assert.equal(result.winnerPlayer,expectedWinner);
+        const actualWinner=result.winnerPlayer??'DRAW';
+        assert.equal(actualWinner,expectedWinner);
         assert.equal(result.pendingPrompts.length,0);
 
         rows.push({
           profile:profile.name,actorSeat,scenario:scenario.name,
           ownerCanPromote:scenario.ownerHasBench,
           opponentCanPromote:scenario.enemyHasBench,
-          paperOutcome,expectedWinner,actualWinner:result.winnerPlayer,
+          paperOutcome,expectedWinner,actualWinner,
           nativeWinnerPlayerId:audit.nativeWinnerPlayerId,
           nativeWinnerName:audit.nativeWinnerName,
           nativeWinnerLogType:audit.nativeWinnerLogType,
