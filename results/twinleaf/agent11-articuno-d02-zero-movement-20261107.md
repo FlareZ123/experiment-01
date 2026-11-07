@@ -61,7 +61,7 @@ The test covers:
 - an ordinary one-Energy transfer after the correction;
 - Path to the Peak suppressing the entry Ability before the zero-movement hook can act.
 
-The manual workflow was still running other unrelated checks when this report was written. Its overall result is not inferred from the successful dedicated step. The later headless flag wiring commit `035421d72b5f0d736865d1286787989c0bd37fdd` was made after the tested commit and still needs a run on that revision.
+The full manual workflow run 42355639110 completed successfully on commit `13ff438f7f11993bf01192be34de8c0b3ebb752f`, including the dedicated Articuno step. The later headless flag wiring commit `035421d72b5f0d736865d1286787989c0bd37fdd` was added afterward. The updated `headless.cjs` module was subsequently imported by the rank1 native integration job in run 42357093526 on commit `614da8aab461cb9732115595057d2614a717957f`; this validates syntax and the default-off path, while the new flag's true branch was not activated. That later workflow is overall red because an unrelated Agent2 preflight fixture cannot resolve `Mega Absol ex MEG`, although its Agent11 native step26 passed.
 
 ## Limitations and next work
 
