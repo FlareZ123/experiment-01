@@ -14,6 +14,8 @@ const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {dispatchSpecialRedCardPaperRoot} =
   require('./agent44-special-red-card-empty-hand-hook.cjs');
+const {withM4PaperOwnerRoot} =
+  require('./agent44-m4-owner-root-preselection.cjs');
 const {installPrototypeSafeSimulatorHook} = require('./prototype-safe-simulator-hook.cjs');
 const {installPostSuperAliasRepairHook} = require('./post-super-alias-repair-hook.cjs');
 const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
@@ -1005,6 +1007,7 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    const m4OwnerRootPaperAudits=request.specialRedCardPaperPreselection===true?[]:null;
     // Genuine first own live-turn hands, before either bot inspects or mutates state.
     const firstLiveOwnerHandsObserver=request.captureFirstLiveOwnerHands===true?
       require('./agent16-first-live-owner-hands.cjs')
@@ -1157,10 +1160,15 @@ function runMatch(request) {
         if (state.phase !== GamePhase.PLAYER_TURN) {
           throw new Error('Unhandled game phase ' + state.phase);
         }
-        action = policyRandomBySeat ?
+        const selectRoot=()=>policyRandomBySeat ?
           decodeWithPolicyRandom(seats[state.activePlayer], state,
             policyRandomBySeat[state.activePlayer]) :
           seats[state.activePlayer].decodeNextAction(state);
+        action=m4OwnerRootPaperAudits ?
+          withM4PaperOwnerRoot(state,state.activePlayer,selectRoot,
+            audit=>m4OwnerRootPaperAudits.push({
+              ...audit,actionOrdinal:actions
+            })) : selectRoot();
         if (!action) {
           throw new Error('Policy failed to generate a turn action.');
         }
@@ -2166,6 +2174,12 @@ function runMatch(request) {
       physicalShuffleRandomIsolation:
         request.isolatePhysicalShuffleRandomness === true,
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
+      ...(request.specialRedCardPaperPreselection === true ? {
+        specialRedCardPaperPreselection:true,
+        specialRedCardPaperPreselectionVersion:
+          'agent44-m4-owner-root-preselection-v1',
+        specialRedCardPaperPreselectionAudits:m4OwnerRootPaperAudits
+      } : {}),
       ...(request.specialRedCardPaperCorrection === true ? {
         specialRedCardPaperCorrection: true,
         specialRedCardPaperShuffleProtocol:
