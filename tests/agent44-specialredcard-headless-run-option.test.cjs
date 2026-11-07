@@ -65,17 +65,20 @@ test('M4 speculative clone shuffle requires isolated policy RNG and is inert wit
     label:'Agent44 M4 speculative clone shuffle absent-card control'};
   assert.throws(()=>runMatch({...request,
     specialRedCardPaperSpeculativeShuffle:true}),
-  /M4 speculative shuffle requires paper preselection, physical Store correction, and isolated policy RNG/);
+  /M4 speculative shuffle requires paper preselection, physical Store correction, isolated policy RNG, and per-seat physical shuffle RNG/);
   assert.throws(()=>runMatch({...request,
     specialRedCardPaperPreselection:true,
     specialRedCardPaperCorrection:true,
+    isolatePolicyRandomness:true,
     specialRedCardPaperSpeculativeShuffle:true}),
-  /M4 speculative shuffle requires paper preselection, physical Store correction, and isolated policy RNG/);
+  /M4 speculative shuffle requires paper preselection, physical Store correction, isolated policy RNG, and per-seat physical shuffle RNG/);
 
   const base=runMatch({...request,isolatePolicyRandomness:true,
+    isolatePhysicalShuffleRandomnessAfterSetup:true,
     specialRedCardPaperPreselection:true,
     specialRedCardPaperCorrection:true});
   const withSpec=runMatch({...request,isolatePolicyRandomness:true,
+    isolatePhysicalShuffleRandomnessAfterSetup:true,
     specialRedCardPaperPreselection:true,
     specialRedCardPaperCorrection:true,
     specialRedCardPaperSpeculativeShuffle:true});
