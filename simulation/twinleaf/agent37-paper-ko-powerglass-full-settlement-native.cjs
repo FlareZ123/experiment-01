@@ -13,6 +13,7 @@ const {withPaperKoBeforeEndTurn,VERSION}=
  */
 function auditFullSettlement(){
   const scenarios=[
+    {label:'passTurn',lastPrize:false,opponentHasBench:true,actionKind:'pass'},
     {label:'noKo',lastPrize:false,opponentHasBench:true,targetDamage:0},
     {label:'regularPrize',lastPrize:false,opponentHasBench:true},
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
@@ -27,10 +28,11 @@ function auditFullSettlement(){
       ()=>inspectPowerglassWinningKo(args));
     const b=baseline.finalState,t=treatment.result.finalState;
     assert.equal(treatment.audit.originalStoreMethodRestored,true);
-    assert.equal(treatment.audit.attackEndTurnIntercepts,1);
+    assert.equal(treatment.audit.attackEndTurnIntercepts,
+      label==='passTurn'?0:1);
     assert.equal(b.openPrompts.length,0);
     assert.equal(t.openPrompts.length,0);
-    if(label==='noKo'){
+    if(label==='noKo'||label==='passTurn'){
       assert.equal(b.ownerPrizesRemaining,6);
       assert.equal(t.ownerPrizesRemaining,6);
       assert.equal(b.sourceActive,'Trubbish FST');
@@ -39,7 +41,8 @@ function auditFullSettlement(){
         ['AttachEnergyPrompt']);
       assert.deepEqual(treatment.result.seenPrompts.filter(x=>x!=='WaitPrompt'),
         ['AttachEnergyPrompt']);
-      assert.equal(treatment.audit.completedAttackEndTurns,1);
+      assert.equal(treatment.audit.completedAttackEndTurns,
+        label==='passTurn'?0:1);
     }else if(label==='regularPrize'){
       assert.equal(b.ownerPrizesRemaining,5);
       assert.equal(t.ownerPrizesRemaining,5);
