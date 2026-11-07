@@ -1,0 +1,78 @@
+# Agent50: original 32-seed identical-rank4 replay, exact native setup-shuffle contrast
+
+**7 November 2026 | compiled pinned Twinleaf, all preregistered 64 setup attempts completed their registered setup horizon.** This is a **retrospective, selected-cohort, setup-only** finding, not a prospective competitive test.
+
+## Core result
+
+Under the **original exact 32 seed and physical source-seat assignments**, replacing the rank1 opposing 60 with a copy of the original rank4 60 **did not remove the legacy-stream seat0-only mulligan anomaly**. The legacy shared-shuffle stream again produced exactly **eight mulligan hands in physical seat0, zero in physical seat1**. The eight mulligan hands occurred in five attempts this time, versus six attempts with the original differing decks. The same identical-rank4 32 seeds under Agent26's separately salted **per-seat** setup-shuffle protocol instead produced **seven mulligan hands on each physical seat**, in eleven unequal-mulligan attempts.
+
+| Verified native measure | Original rank4 vs rank1, legacy-shared | Rank4 vs identical rank4, legacy-shared | Rank4 vs identical rank4, per-seat |
+| --- | ---: | ---: | ---: |
+| Frozen source-seat registrations | 16/16 | 16/16 | 16/16 |
+| Setup attempts | 32 | 32 | 32 |
+| Mulligan totals, physical seat0/seat1 | **8/0** | **8/0** | **7/7** |
+| Unequal-mulligan attempts | 6 | 5 | 11 |
+| Compensation prompts | 6 | 5 | 11 |
+| Compensation cards transferred | 8 | 8 | 14 |
+| Compensation acceptance/movement checked | 6/6 | 5/5; all 32 expected-absence checks | 11/11; all 32 expected-absence checks |
+| Source's first turn reached | 32/32 | 32/32 | 32/32 |
+
+The new legacy identical-deck **32** mulligan pairs are exactly **27×0/0, 3×2/0, 2×1/0**. The new per-seat **32** pairs are **21×0/0, 4×1/0, 5×0/1, 1×0/2, 1×3/0**. Legacy recorded **five compensation prompts all to seat1, eight transferred cards**. Per-seat recorded **six recipients in seat0 and five in seat1, fourteen transferred cards**. Every native check asserted the correct physical recipient, mulligan-derived amount, and matching physical card transfer. The per-seat observer recorded 39 actual setup shuffles for each seat across 32 trials; legacy 0 is *not observed by that per-seat-only hook* and must not be read as an absence of shuffling.
+
+### Full registered 32-seed crosswalk
+
+The three pair columns give **mulligan hands for physical seat0 / seat1**. The first comparator is the unchanged archived old native cohort, retained here as a provenance match, not rerun or altered.
+
+| Registration | Seed | First-player/source seat | Original legacy rank4/rank1 | New legacy rank4/rank4 | New per-seat rank4/rank4 |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 659596847 | 0 | 0/0 | 0/0 | 0/0 |
+| 2 | 3374395305 | 1 | 0/0 | 0/0 | 1/0 |
+| 3 | 3767656280 | 0 | 0/0 | 0/0 | 0/0 |
+| 4 | 1334448369 | 1 | 2/0 | 2/0 | 0/0 |
+| 5 | 1015114065 | 0 | 0/0 | 0/0 | 1/0 |
+| 6 | 2721212630 | 1 | 0/0 | 0/0 | 1/0 |
+| 7 | 3093975646 | 0 | 2/0 | 2/0 | 0/1 |
+| 8 | 3866265543 | 1 | 0/0 | 0/0 | 0/2 |
+| 9 | 3156942071 | 0 | 0/0 | 0/0 | 0/0 |
+| 10 | 2011905764 | 1 | 0/0 | 0/0 | 0/0 |
+| 11 | 1103482661 | 0 | 0/0 | 0/0 | 0/1 |
+| 12 | 795422078 | 1 | 0/0 | 0/0 | 0/0 |
+| 13 | 1285175489 | 0 | 0/0 | 0/0 | 0/0 |
+| 14 | 3644145136 | 1 | 0/0 | 0/0 | 0/0 |
+| 15 | 166706843 | 0 | 0/0 | 0/0 | 0/0 |
+| 16 | 3879134323 | 1 | 0/0 | 0/0 | 0/0 |
+| 17 | 633372073 | 0 | 0/0 | 0/0 | 0/1 |
+| 18 | 86623464 | 1 | 0/0 | 0/0 | 0/1 |
+| 19 | 3741635901 | 0 | 0/0 | 0/0 | 0/0 |
+| 20 | 3937313210 | 1 | 0/0 | 0/0 | 0/0 |
+| 21 | 3935354425 | 0 | 0/0 | 0/0 | 0/0 |
+| 22 | 469693129 | 1 | 0/0 | 0/0 | 0/0 |
+| 23 | 3112483819 | 0 | 0/0 | 0/0 | 1/0 |
+| 24 | 4036501400 | 1 | 0/0 | 0/0 | 0/0 |
+| 25 | 1618181490 | 0 | 1/0 | 1/0 | 3/0 |
+| 26 | 3127876404 | 1 | 1/0 | 0/0 | 0/0 |
+| 27 | 358071138 | 0 | 0/0 | 0/0 | 0/0 |
+| 28 | 246568075 | 1 | 0/0 | 0/0 | 0/1 |
+| 29 | 614184015 | 0 | 0/0 | 0/0 | 0/0 |
+| 30 | 3658443122 | 1 | 1/0 | 2/0 | 0/0 |
+| 31 | 988546863 | 0 | 0/0 | 0/0 | 0/0 |
+| 32 | 3425622581 | 1 | 1/0 | 1/0 | 0/0 |
+
+## Frozen execution and reproducibility
+
+- Preregistration committed **before implementation**: [original32 identical-rank4 replay](registrations/agent50-identical-rank4-original32-seed-replay-20261107.md). All 32 original alternating seed/seat pairs were copied without filtering and verified exactly against [original rank4/rank1 native test](../../tests/agent50-rank4-dedechange-natural32.native.test.cjs).
+- Existing native harness [identical-rank4 seat-symmetry test](../../tests/agent50-identical-rank4-mulligan-seat-symmetry.native.test.cjs), default-preserving opt-in `AGENT50_SYMMETRY_ORIGINAL32=true`, running its unchanged own-deck setup policy, owner-only prompt acknowledgements, owner-first-choice, deck-to-hand physical transfer observer, and mandatory raw-State quarantine. The original standalone harness's independent 32-seed protocol remains unchanged when opt-in is absent.
+- Existing manual-dispatch workflow [agent50-rank26-koko-dual-recipient-native.yml](../../.github/workflows/agent50-rank26-koko-dual-recipient-native.yml) input `original32_identical_rank4_seed_replay_only=true`; only the existing bounded native compile/setup job was enabled. No new workflow or per-commit trigger.
+- **Successful** [GitHub Actions run 42324981835](https://github.com/FlareZ123/experiment-01/actions/runs/42324981835), job `128258068230`; tested repo HEAD `7878f5e28c4ca9327d75005e1f52cad54c89065b`. Pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Native output was logged under `AGENT50_IDENTICAL_RANK4_ORIGINAL32_SEED_REPLAY`. Complete raw per-attempt 64 JSON receipts plus individual SHA256 sidecars were saved by the existing atomic locked writer and published in [Actions artifact 13554473258](https://github.com/FlareZ123/experiment-01/actions/runs/42324981835/artifacts/13554473258); GitHub artifact digest `sha256:136312df6e4ca66ad29ab2aaf84a600f2f53b51371a8dff3373d2eb4e3063f64`. **The connector-reported digest is metadata; the ZIP and individual sidecars have not yet been independently rehashed in this invocation.** The log summary was separately parsed as JSON.
+- Both native seats used **identical original rank4 paper 60s**, each name/count deck digest `3f82c3a7c43d62979ea2196b74bffd22fc51d6e7cc11cc27be9daad10d02b423`. Legacy uses Twinleaf's default shared seeded shuffle RNG. Per-seat uses the existing Agent26 setup-shuffle wrapper and salts `0x243f6a88` / `0x85a308d3`. Exact seed and source seat are equal across protocols, but physical card deal and shuffle streams intentionally differ.
+- All 64 native attempts reached the source's first owner turn, then correctly encountered `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED` rather than allowing any unqualified raw-State bot decision. This code is the *intentional stopping boundary*, not a first-turn gameplay crash. No attempt played a complete game.
+
+## Interpretation and remaining discrimination
+
+1. The rank1-versus-rank4 Basic-count difference **cannot be the sole cause** of the selected 8/0 legacy outcome, because exactly that aggregate occurred when the two decks were identical. Five of six original anomalous seeds still produced seat0 mulligans in the new legacy setup, with one original positive (seed 3127876404) becoming 0/0 and another (seed 3658443122) becoming 2/0.
+2. This is **not evidence of a universal seat0 bug**. The independently preregistered, different-seed identical-rank4 cohort produced 5/8 under the legacy stream and 3/4 under per-seat; its [earlier report](agent50-identical-rank4-mulligan-seat-symmetry-20261106.md) remains valid. The present seed cohort is selected in hindsight for a known outcome and cannot yield an unbiased significance estimate of a general seat effect.
+3. Both deck identity and shuffle protocol change the physical permutation and the shared stream's subsequent consumption. Same seed is not same deal. Per-seat parity here shows **protocol sensitivity**, while determining whether shared-stream order, correlated draws, or selected-seed chance causes the anomaly requires direct top-seven/permutation traces and broader prospective calibration. Neither protocol has been established as paper-equivalent.
+4. A source first-turn setup count says nothing about optimal Bench placement, attack execution, opponent response, prizes, terminal games, or the 25-minute clock. The fixed-60 champion objective remains **29/32 authenticated opponents, zero paper-qualified competitive games, no selected best 60 and no demonstrated 99.5% win rate**.
+
+The next discriminating test is an owner-deck-independent physical permutation or top-seven Basic-count audit on the same 32 legacy seeds, with a separate fresh-seed confirmatory cohort. Report physical initial deck deals and native mulligan events per seat rather than only aggregated totals.
