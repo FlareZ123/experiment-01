@@ -20,10 +20,11 @@ function terminal(options={}) {
     id:options.id??'fixture',status:'engine-terminal',engineWinner:winner,
     terminalTransition:{
       evidenceType:'observed-engine-terminal-transition-v1',
-      before:{phase:3,turn:options.turnBefore??9,activePlayer:1,winner:-1,players:before},
+      before:{phase:3,turn:options.turnBefore??9,activePlayer:1,winner:-1,
+        suddenDeath:false,players:before},
       after:{phase:7,turn:options.turnAfter??9,
         activePlayer:options.activeAfter??1,winner:options.afterWinner??winner,
-        players:after}
+        suddenDeath:false,players:after}
     }
   };
 }
