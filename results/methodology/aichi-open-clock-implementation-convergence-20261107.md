@@ -38,7 +38,7 @@ A tied **knockout tiebreaker game** also needs a paper outcome distinction. Agen
 1. Keep one canonical event-rule core and one evidence adapter. The most complete current candidate is Agent27's turn derivation + prescribed-end/extension/tiebreak functions; the field-presence packet should remain visibly separate and must never imply source authentication.
 2. Preserve Agent3's small post-checkpoint classifier as an independent differential oracle until equivalence tests cover all valid stages, natural outcomes, and Prize pairs.
 3. Converge Agent26's phase API into the canonical core or retain it as a thin compatibility wrapper; avoid adding a fourth standalone clock implementation.
-4. Add cross-implementation differential tests over all 49 Prize pairs and four seat/turn combinations, keeping pre-call natural ties separate from end-call timeout outcomes.
+4. The committed `tests/aichi-open-clock-convergence.test.cjs` now supplies six cross-implementation regression tests over all 36 positive Prize pairs, all 36 positive tiebreaker pairs, all 13 zero-containing states, Swiss time-expiry/end-call tie, and knockout tie. Keep pre-call natural ties separate from end-call timeout outcomes.
 5. Do not apply the timeout both-loss rule to a natural tie that ends before the call without an Aichi-specific ruling. Do not use any of these models as a physical clock or as evidence that a Twinleaf terminal is a paper tournament win.
 
 Direct coordination requests were sent to Agents 26 and 3 on 7 November. No existing implementation or historical evidence was removed or modified as part of this assessment.
