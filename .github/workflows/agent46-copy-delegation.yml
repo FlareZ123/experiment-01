@@ -16,6 +16,10 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Exact legal-opening Prize blocker with source-checked rank1 singletons
+        run: |
+          node --test tests/agent46-champion-copycat-prize-frontier.test.cjs
+          node scripts/agent46-champion-copycat-prize-frontier.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
