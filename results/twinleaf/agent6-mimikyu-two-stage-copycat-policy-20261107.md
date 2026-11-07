@@ -2,7 +2,7 @@
 
 **Date:** 7 November 2026  
 **Engine:** pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`  
-**Policy fingerprint:** `MimikyuApexTwoStageCounterPolicy-v3`  
+**Policy fingerprint:** `MimikyuApexTwoStageCounterPolicy-v2`  
 **Evidence classes:** card-text/rules interpretation, native Store execution, bounded selected-seed policy diagnostic
 
 ## Question
@@ -22,9 +22,9 @@ Regidrago VSTAR SIT 136 prints Apex Dragon with a `[Grass][Grass][Fire]` cost an
 
 When Mimikyu copies the opponent's Apex Dragon, Apex Dragon's own effect selects a Dragon attack from the Mimikyu player's discard. The tested payloads are therefore selected from the candidate's discard. The attack being announced is Mimikyu's Copycat, so the tested payment is Copycat's printed `[Psychic][Colorless]` cost. The copied payload's printed cost is not separately paid in this interaction. Advanced Player's Manual C-18 explicitly explains that an attack used "as this attack" can perform its effects and damage without paying the chosen attack's printed Energy cost, unless specified otherwise. The distinct Ditto: Copy Anything example in D-09 has its own explicit Energy clause and should not be generalized to Mimikyu's different printed text.
 
-The policy now prefilters Mimikyu's own Copycat `[Psychic][Colorless]` cost before offering the action: it requires a visible Basic Psychic Energy plus either a second attached Energy or Dimension Valley in play. This is deliberately conservative; it does not infer every Special Energy provider. The actual Store/prompt validator remains the final legality authority. Tests cover an underfunded one-Psychic state without Dimension Valley and the one-Psychic Dimension Valley reduction.
+The policy does not duplicate Twinleaf's Energy-cost evaluator. Its public situation predicate can propose Copycat, and the pinned SimpleTacticsAi dispatcher validates the proposed action through its Simulator before returning it. Agent 46's native regression verifies that one Psychic Energy without a lock is rejected and falls through, two Psychic Energy with an attack lock is rejected and falls through, and two Psychic Energy without the lock is accepted. Agent 44's Dimension Valley suppression test shows why a detached local estimator must not treat a visible Stadium as automatically effective: the native Store can suppress the Stadium effect through public board effects and internal no-effect epochs. The shared dispatcher remains the authority.
 
-## Policy v3
+## Policy v2
 
 The opt-in policy is implemented in `simulation/twinleaf/mimikyu-counter-policy.cjs`.
 
@@ -48,7 +48,8 @@ For each seat, the research tactic selects Copycat and the research resolver sel
 
 The test verifies the actual Store transitions, Prize prompts, promotion prompts, source identity, prompt validation, both physical seats, and the retained opponent attack history.
 
-**Validation:** manual workflow run [42374487360](https://github.com/FlareZ123/experiment-01/actions/runs/42374487360) completed successfully. It ran the pinned-engine Copycat regression suite, the five native counter-policy tests, and the exact Prize-cut enumerator tests. The run also produced the hand-diagnostic pilot artifact.
+**Validation:** manual workflow run [42374487360](https://github.com/FlareZ123/experiment-01/actions/runs/42374487360) completed successfully with the earlier v2 staged policy and exact Prize-cut enumerator. A later attempt to add a local Energy prefilter failed its new tests; review of Agent 44's Stadium-suppression result and Agent 46's native dispatcher test showed that the local prefilter was unnecessary and incomplete, so it was removed. The synthetic test fixtures were also corrected to attach Energy through the slot's `energies.cards` zone. A fresh full validation run is pending.
+
 
 This is a staged mechanics and policy execution witness. It does not establish natural access or competitive win rate.
 
@@ -111,6 +112,9 @@ The separate Prize-only sensitivity in `results/aichi-2026/2026-11/agent6-copyca
 - Exact Heavy Ball sensitivity: `simulation/evaluation/agent6-copycat-four-basic-heavyball-multiplicity.cjs`
 - Copycat audit synthesis: `results/twinleaf/mimikyu-apex-copycat-audit.md`
 - Timeless extra-turn ruling: `results/aichi-2026/timeless-bonus-turn-copycat-ruling.md`
+- SimpleTacticsAi underfunded/attack-lock validator: `results/methodology/agent46-mimikyu-policy-underfunded-copycat-20261107.md`
+- Dimension Valley suppression/cost frontier: `results/methodology/agent44-copycat-stadium-suppression-cost-frontier-20261107.md`
+
 - Four-Basic Prize baseline: `results/methodology/agent46-champion-four-basic-heavyball-legal-opening-prize-frontier-20261107.md`
 - Two-core multiplicity sensitivity: `results/aichi-2026/2026-11/agent21-copycat-prize-access-multiplicity-sensitivity-20261107.md`
 
