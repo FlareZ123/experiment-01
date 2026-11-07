@@ -176,3 +176,21 @@ for(const seat of [0,1]){
           actualEligibleTargets:0,competitiveQualifiedGames:0}));
     });
 }
+
+for(const seat of [0,1]){
+  test('special-only false-positive canPlay causes actual native play rejection, seat '+
+    seat,()=>{
+    const f=fixture(seat,'special-only');
+    assert.equal(f.night.canPlay(f.store,f.state,f.owner),true);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    assert.throws(()=>f.store.dispatch(new PlayCardAction(f.owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    })),error=>{
+      console.log('AGENT21_NIGHT_STRETCHER_NATIVE_SPECIAL_ONLY_REJECT',
+        JSON.stringify({seat,errorName:error.constructor?.name??null,
+          errorCode:error.message??null,competitivelyQualified:false}));
+      return true;
+    });
+  });
+}
