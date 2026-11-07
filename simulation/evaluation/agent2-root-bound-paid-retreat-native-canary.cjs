@@ -252,6 +252,9 @@ if(require.main===module){
         abilities:p.opponentActive?.abilityDetails,
         status:p.opponentActive?.specialConditions},
       ownRetreatedTurn:p.ownRetreatedTurn,
+      opponentBench:p.opponentBench.map(x=>x?{
+        printing:x.printing,abilityDetails:x.abilityDetails,
+        status:x.specialConditions}:null),
       ownStadium:p.ownStadium,opponentStadium:p.opponentStadium};
     process.stderr.write('AGENT2_PUBLIC_RETREAT_CONTEXT '+
       JSON.stringify(summary)+'\\n');
