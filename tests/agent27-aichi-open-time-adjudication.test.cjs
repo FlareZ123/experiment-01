@@ -328,7 +328,7 @@ test('All 49 legal Prize pairs remain conditional across knockout and extension 
 test('Swiss time-call audit classifies an end-call paper tie as both loss',()=>{
   const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:0,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockCoverageEvidenceRef:'clock-claim',stageEvidenceRef:'stage-record',firstPlayerEvidenceRef:'starter-claim',
+    officialClockEvidenceRef:'clock-claim',stageEvidenceRef:'stage-record',firstPlayerEvidenceRef:'starter-claim',
     turnOwnerWhenCalledEvidenceRef:'call-turn-owner-claim',
     turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'tie-claim',paperStateIndependentlyReviewed:true,
@@ -362,7 +362,7 @@ test('Audit refuses missing official call and all ungrounded receipt strings',()
 test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
   const r=auditTimeCallPacket({
     stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
-    officialEndCallObserved:true,officialClockCoverageEvidenceRef:'judge-record',
+    officialEndCallObserved:true,officialClockEvidenceRef:'judge-record',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'actual-initial-seat',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner',
@@ -381,7 +381,7 @@ test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
 test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>{
   const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:1,
     turnOwnerWhenCalled:0,officialEndCallObserved:true,
-    officialClockCoverageEvidenceRef:'official-judge-reference',
+    officialClockEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -400,7 +400,7 @@ test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>
 test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
     turnOwnerWhenCalled:0,officialEndCallObserved:true,
-    officialClockCoverageEvidenceRef:'official-judge-reference',
+    officialClockEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -417,7 +417,7 @@ test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
 test('Proved paper winner ends overtime without waiting for other turn',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockCoverageEvidenceRef:'official-judge-reference',
+    officialClockEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -461,7 +461,7 @@ test('Tied knockout overtime is a six-Prize new-game case',()=>{
 test('Official end-call audit retains proved prior paper tie without invented winner',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockCoverageEvidenceRef:'verified-official-judge-call',
+    officialClockEvidenceRef:'verified-official-judge-call',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'independent-opening-seat-ledger',
     turnOwnerWhenCalledEvidenceRef:'independent-call-turn-owner-ledger',

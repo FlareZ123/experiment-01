@@ -267,7 +267,7 @@ function auditTimeCallPacket(packet) {
   const nonempty=x=>typeof x==='string'&&x.trim().length>0;
   if(packet.officialEndCallObserved!==true)
     missing.push('official-end-call-not-observed');
-  if(!nonempty(packet.officialClockCoverageEvidenceRef))
+  if(!nonempty(packet.officialClockEvidenceRef))
     missing.push('official-clock-source-not-cited');
   if(!nonempty(packet.stageEvidenceRef))
     missing.push('official-stage-source-not-cited');
@@ -325,7 +325,7 @@ function auditTimeCallPacket(packet) {
  * @param {string} packet.stage
  * @param {boolean} packet.officialEndCallObserved Must be explicitly false
  * @param {number} packet.elapsedSecondsAtNaturalTerminal Official elapsed seconds
- * @param {string} packet.officialClockCoverageEvidenceRef Continuous official clock record from event-defined start through natural terminal
+ * @param {string} packet.officialClockEvidenceRef Continuous official clock record from event-defined start through natural terminal
  * @param {string} packet.stageEvidenceRef Official event-stage/pairing evidence
  * @param {string} packet.paperTerminalEvidenceRef Complete paper terminal-result evidence
  * @param {string} packet.independentReviewEvidenceRef Independent review of clock and paper result
