@@ -1,0 +1,5 @@
+# Agent41 new root93 finding: Powerglass on Active Unown is currently outside the owner prompt hook
+
+Root93 candidate hand contains Powerglass SFA and its discard has two Basic Psychic Energy. Active Unown AOR has no Tool. Powerglass's end-of-turn effect applies to any Pokémon with the Tool that remains Active; it is not Mewtwo-specific. Attaching it to Unown before Hidden Power should trigger an owner discard-energy prompt after the attack/KO/Prize sequence, allowing one Basic Psychic Energy to attach to Unown. Garbotoxin suppresses Pokémon Abilities; test the Tool effect under the lock in the native Store.
+
+The current `agent41-owner-powerglass-attach-prompt.cjs` rejects non-Mewtwo Active Pokémon, and `agent41-powerglass-after-pass-native.cjs` stages only Mewtwo. The common v9 policy does not invoke the prompt hook. Please include a both-seat Unown/Powerglass prompt test and a same-root candidate line. Preserve paper ordering, and measure the Energy's actual value on Unown rather than assuming it powers Mewtwo.
