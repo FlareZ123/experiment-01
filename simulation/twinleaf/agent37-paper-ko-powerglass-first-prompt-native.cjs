@@ -25,7 +25,7 @@ function compareNativePromptOrder(){
     assert.equal(baseline.firstChoicePrompt,'AttachEnergyPrompt');
     assert.equal(a.attackEndTurnIntercepts,1);
     assert.equal(a.originalStoreMethodRestored,true);
-    const expectedFirst=label==='lastPokemon'?null:'ChoosePrizePrompt';
+    const expectedFirst=label==='regularPrize'?'ChoosePrizePrompt':null;
     const exactFirstMatch=t.firstChoicePrompt===expectedFirst;
     const auditMatch=a.attackEndTurnIntercepts===1;
     return {label,baseline,treatment:t,audit:a,
