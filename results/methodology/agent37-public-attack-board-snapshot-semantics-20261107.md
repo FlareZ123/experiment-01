@@ -31,7 +31,7 @@ Commit `36f97b7fbeb0f4317cc7f48b8bba08feda786c08` adds these fields to each sett
 - `declarationRootTurnAfter`: the native turn counter after that root, or `null` when absent.
 - `initiatingRootActionOrdinal`: the root that initiated the prompt chain, when captured.
 
-The existing `publicBoardBefore`, final `publicBoardAfter`, settlement status, Prize counts, and epoch veto remain unchanged. Two regression cases distinguish a delayed prompt-chain damage state from the declaration-root board and ensure older archives remain explicitly unknown. The targeted manual native workflow run **42369574376** was queued to execute the updated settlement suite; its outcome must be checked before claiming a passing CI result.
+The existing `publicBoardBefore`, final `publicBoardAfter`, settlement status, Prize counts, and epoch veto remain unchanged. Two regression cases distinguish a delayed prompt-chain damage state from the declaration-root board and ensure older archives remain explicitly unknown. The targeted manual native workflow run **42369574376** completed successfully. Its Agent37 step ran the updated settlement tests and paired native runner; the `agent37-first-divergent-native-attack-pair` artifact was preserved as artifact **13573123058**. This validates the instrumentation and regression harness, not paper legality or the separate v29 eight-row join.
 
 ## Guidance for the v29 KO and Prize join
 
