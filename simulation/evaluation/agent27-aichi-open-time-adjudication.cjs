@@ -72,7 +72,7 @@ function checkPrizes(prizes) {
  * @param {[number,number]} options.prizesRemaining
  * @param {boolean} options.secondPlayerTurnFinished
  * @param {0|1|null} [options.paperGameWinner] A separately proved normal win
- * @param {boolean} [options.paperGameTie] A separately proved simultaneous paper tie
+ * @param {boolean} [options.paperGameTie] A separately proved simultaneous paper tie during the end-call sequence
  * @returns {object}
  */
 function adjudicateAtPrescribedEnd({
@@ -93,10 +93,8 @@ function adjudicateAtPrescribedEnd({
       'independently paper-validated normal win, Prizes and rule effects'
     ],competitiveAdmission:false,externalIndependentReviewRequired:true};
   if(paperGameTie)
-    return {...base,status:rules.elimination?'TIEBREAKER_REQUIRED_SIX_PRIZE':
-      'SWISS_PAPER_TIE_JUDGE_REVIEW_REQUIRED',
-      conditionalWinnerSeat:null,
-      tieResolvedByClockRules:false};
+    return {...base,status:rules.elimination?'TIEBREAKER_REQUIRED_SIX_PRIZE':'SWISS_BOTH_LOSE',
+      conditionalWinnerSeat:null,tieResolvedByClockRules:!rules.elimination};
   if(paperGameWinner!==null)
     return {...base,status:'NORMAL_PAPER_GAME_WIN',
       conditionalWinnerSeat:paperGameWinner};
