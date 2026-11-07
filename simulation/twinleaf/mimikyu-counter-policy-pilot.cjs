@@ -66,6 +66,18 @@ function runSourcePolicyTrace(request, candidateSeat) {
           energyCards.some(card => card.name === 'Psychic Energy'),
         candidateUsedGX: player.usedGX === true,
         candidatePrizeCount: player.getPrizeLeft(),
+        candidateHandCardNames: player.hand.cards.map(card => card.fullName),
+        candidateDiscardCardNames: player.discard.cards.map(card => card.fullName),
+        candidateHasMimikyuInHand: player.hand.cards.some(card =>
+          card.fullName === 'Mimikyu GRI'),
+        candidateHasMimikyuInDiscard: player.discard.cards.some(card =>
+          card.fullName === 'Mimikyu GRI'),
+        candidateHasDialgaGXInHand: player.hand.cards.some(card =>
+          card.fullName === 'Dialga-GX UPR'),
+        candidateHasRadiantEternatusInHand: player.hand.cards.some(card =>
+          card.fullName === 'Radiant Eternatus CRZ'),
+        candidateHasHeavyBallInHand: player.hand.cards.some(card =>
+          card.fullName === 'Hisuian Heavy Ball ASR'),
         candidateBenchPokemon: player.bench.map(slot =>
           slot.getPokemonCard()?.fullName ?? null).filter(Boolean),
         opponentActivePokemon: opponent.active.getPokemonCard()?.fullName ?? null,
