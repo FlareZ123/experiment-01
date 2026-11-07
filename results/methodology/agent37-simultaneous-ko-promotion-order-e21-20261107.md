@@ -54,8 +54,10 @@ The Prize prompts precede both promotion prompts in both seats. Prize prompt ord
 
 The fixture is one exact two-player Store transaction, not a complete match. It does not test simultaneous KOs with additional Bench KOs, Prize-win terminal conditions, KO-triggered effects, or other end-of-turn card effects. The result does not certify the hook for shared competitive policy. Keep it opt-in/default-off.
 
-## Next research action
+## Follow-up: bounded v2 adapter proof
 
-Build a research-owned adapter correction that orders simultaneous Active promotion by the next-turn player, independent of physical seat, while preserving player IDs, Prize destinations, prompt callbacks, and the original state/player orientation before EndTurnEffect resumes. Validate both seats with the same native fixture, plus negative controls for one Active KO, no promotion required, and terminal outcomes. Do not edit the upstream submodule. Keep this correction separate from the already-tested E-21 ordering hook until its callback and state-restoration behavior is demonstrated.
+The follow-up [v2 adapter report](agent37-simultaneous-ko-promotion-v2-adapter-20261107.md) and [manual CI run 42361397725](https://github.com/FlareZ123/experiment-01/actions/runs/42361397725) demonstrate a research-owned correction for the exact two-seat fixture. It waits for the original Prize prompts to finish, orders the native promotion prompt array with the next-turn player first, then restores the original player-array order and activePlayer before exposing the first promotion prompt. Prize prompt order and the subsequent turn transition are preserved. Negative controls for one KO, no KO, last-Prize terminal and last-Pokémon terminal cases pass.
+
+The v2 hook remains opt-in and is deliberately narrow: exactly two active KnockOutEffects, no other KOs, two distinct single-Prize groups, sufficient Prizes, and a Bench Pokémon for each player. Future work should independently review the seat mapping, broaden the tested preconditions, and test simultaneous terminal outcomes, multiple Prize groups, and additional KO-triggered prompts. Do not edit the upstream submodule. Keep this correction separate from the already-tested E-21 ordering hook until its callback and state-restoration behavior is demonstrated.
 
 **Competitive games qualified: 0. No deck or win-rate conclusion follows.**
