@@ -15,9 +15,10 @@ let installed = null;
  * or any other source power. The original power object is restored even if
  * the Store rejects the copied effect.
  *
+ * @param {{onIsolation?:(event:object)=>void}} [options] Optional test observer.
  * @returns {() => void} Restore the pinned reducer.
  */
-function installMimikyuCopycatSourceTraitIsolationHook() {
+function installMimikyuCopycatSourceTraitIsolationHook({onIsolation}={}) {
   if (installed) return installed.restore;
 
   const { Mimikyu } = require(path.join(output,
@@ -44,6 +45,10 @@ function installMimikyuCopycatSourceTraitIsolationHook() {
       return original.call(this,store,state,effect);
 
     const originalValues=barragePowers.map(power=>power.barrage);
+    onIsolation?.({sourceCardName:sourceCard.name??null,
+      sourceCardFullName:sourceCard.fullName??null,
+      previousAttackName:previous?.attack?.name??null,
+      barragePowerCount:barragePowers.length});
     for(const power of barragePowers)power.barrage=false;
     try {
       return original.call(this,store,state,effect);
