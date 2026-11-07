@@ -79,6 +79,11 @@ test('real-root keyed native active card and pre-damage must join unique attacke
   assert.equal(result.rows[0].initiatingRootActionOrdinal,85);
   assert.equal(result.rows[0].declarationRootTurnAfter,17);
   assert.equal(result.rows[0].declarationRootPromptPendingAfter,true);
+  assert.equal(result.rows[0].completionRootOrdinal,91);
+  assert.equal(result.rows[0].completionRootTurnBefore,17);
+  assert.equal(result.rows[0].completionRootTurnMatchesDeclarationTurn,true);
+  assert.equal(result.rows[0].publicBoardImmediatelyAfterDeclarationRoot.length,2);
+  assert.equal(result.rows[0].publicBoardAfterPromptClosure.length,2);
   assert.equal(result.rows[0].targetDamageImmediatelyAfterDeclarationRoot,140);
   assert.equal(result.rows[0].targetDamageAfterPromptClosure,null);
   assert.equal(result.rows[0].targetDamageThresholdReachedImmediatelyAfterDeclarationRoot,true);
@@ -331,4 +336,14 @@ test('a target moved to Bench then removed during later prompts is timed as a la
     'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION');
   assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,true);
   assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToActualNativeKo,120);
+});
+
+test('an absent initiating-root ordinal is preserved as explicit null',()=>{
+  const f=fixture();
+  delete f.attempts[0].sourceAttackSettlement.attacks[0]
+    .initiatingRootActionOrdinal;
+  const result=run(f);
+  assert.equal(result.rows[0].initiatingRootActionOrdinal,null);
+  assert.equal(result.rows[0].declarationRootActionOrdinal,85);
+  assert.equal(result.rows[0].physicalActiveIdentityComplete,true);
 });
