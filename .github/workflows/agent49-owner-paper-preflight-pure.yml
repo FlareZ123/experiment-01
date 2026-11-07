@@ -8,6 +8,7 @@ on:
       - 'simulation/twinleaf/owner-original-60-plan-gate.cjs'
       - 'simulation/twinleaf/actor-k1-search-plan-veto.cjs'
       - 'simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs'
+      - 'simulation/twinleaf/agent49-owner-direct-fog-one-energy-reply.cjs'
       - 'simulation/evaluation/agent49-original-field-box-fog-hard-coverage.cjs'
       - 'simulation/evaluation/agent49-newmoon-expanded-ban-print-audit.cjs'
       - 'tests/agent49-*.test.cjs'
@@ -35,4 +36,4 @@ jobs:
       - name: Verify owner K0/K1 rules, registered source and printed identity
         run: |
           node --version
-          node --test tests/agent49-owner-bulk-hand-transitions.test.cjs tests/agent49-original-field-box-fog-hard-coverage.test.cjs tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs tests/agent49-owner-original-60-plan-gate.test.cjs tests/agent49-visible-owner-deck-exhaustion-gate.test.cjs tests/agent49-supporter-usage-count-k1-preflight.test.cjs tests/agent49-newmoon-expanded-ban-print-audit.test.cjs tests/agent49-native-owner-search-whiff-fallback.test.cjs
+          node --test tests/agent49-owner-bulk-hand-transitions.test.cjs tests/agent49-original-field-box-fog-hard-coverage.test.cjs tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs tests/agent49-owner-original-60-plan-gate.test.cjs tests/agent49-visible-owner-deck-exhaustion-gate.test.cjs tests/agent49-supporter-usage-count-k1-preflight.test.cjs tests/agent49-newmoon-expanded-ban-print-audit.test.cjs tests/agent49-native-owner-search-whiff-fallback.test.cjs tests/agent49-original-field-box-recovery-unown-structural.test.cjs tests/agent49-owner-direct-fog-one-energy-reply.test.cjs
