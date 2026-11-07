@@ -1,0 +1,147 @@
+{
+  "schema": "agent5-v7-teamflare-damage-prize-forensic-aba-v4",
+  "createdUtc": "2026-11-07T11:53:28.789Z",
+  "classification": "Retrospective read-only forensic replay of an already observed Team Flare treatment; not a new prospective benchmark and not eligible for win-rate inference.",
+  "parentGenericPromptReproduction": "results/aichi-2026/registrations/agent5-v7-generic-owner-teamflare-aba-v3-20261106.json",
+  "parentV2Registration": "results/aichi-2026/registrations/agent5-v7-postvolt-teamflare-prompt-aba-v2-20261106.json",
+  "parentNativeRun": 42306693831,
+  "parentArtifact": 13547110518,
+  "parentInnerJsonSha256": "3dce1bba154e22fb97ad2177769aa2b302996b6633ede0cb9a52209127452db5",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "unchangedDecks": true,
+  "sourceTrials": 8,
+  "trialRegistration": "results/aichi-2026/registrations/agent36-issue25-common-v6-96root-20261106.json",
+  "phases": [
+    "A",
+    "B",
+    "ARepeat"
+  ],
+  "attempts": 24,
+  "rootActionsPerTrial": 96,
+  "singleTarget": {
+    "id": "6:201:B:champion-reference",
+    "sourceSeat": 0,
+    "candidateSeat": 1,
+    "globalTurn": 5,
+    "originalPassRootOrdinal": 32,
+    "sourceDealFingerprint": "62a782929f616ab5348b93b93490ff827f915ad9e21b764c9cf6d87e732f27b7",
+    "fullPhysicalDealFingerprint": "74678590466f4500923f3c2db76751d3e3d6c65506d44c3a38ecbffa86ff5fd5"
+  },
+  "allRegisteredTrialIds": [
+    "6:200:A:champion-reference",
+    "6:200:A:new-moon-lockbreaker-v1",
+    "6:201:B:champion-reference",
+    "6:201:B:new-moon-lockbreaker-v1",
+    "11:202:A:champion-reference",
+    "11:202:A:new-moon-lockbreaker-v1",
+    "11:203:B:champion-reference",
+    "11:203:B:new-moon-lockbreaker-v1"
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 200,
+      "seed": 1414072344,
+      "candidateId": "champion-reference",
+      "id": "6:200:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 200,
+      "seed": 1414072344,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:200:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 201,
+      "seed": 2732132720,
+      "candidateId": "champion-reference",
+      "id": "6:201:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 201,
+      "seed": 2732132720,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:201:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 202,
+      "seed": 2542724362,
+      "candidateId": "champion-reference",
+      "id": "11:202:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 202,
+      "seed": 2542724362,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:202:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 203,
+      "seed": 2635094518,
+      "candidateId": "champion-reference",
+      "id": "11:203:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 203,
+      "seed": 2635094518,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:203:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "intervention": "No decision or policy change. Reuse the existing generic both-seat Team Flare prompt resolver and the exact v2 single-root Team Flare treatment; add passive actual Store AttackAction/DealDamageEffect/PutCountersEffect/KnockOutEffect observation and independent owner Prize-to-hand custody observation.",
+  "questions": {
+    "attackDamage": "Record every actual opponent Energy Drive damage effect and the target Active's public damage before/after.",
+    "knockout": "Record actual native KnockOutEffect victim, damage, Prize entitlement and turn.",
+    "prizeCustody": "Record the actual ChoosePrizePrompt owner, selected physical Prize-card count, native resolution and transfer into the owner's hand.",
+    "promotion": "Record the actual ChoosePokemonPrompt and promoted Active after the KO chain.",
+    "repeatability": "Require exact A versus ARepeat target attack-observation tape and preserve all 24 native attempts."
+  },
+  "expectedV2Frozen": {
+    "targetRootA": "7595a416b33efe8d741de8efe2478473f714161ede1974ebb35d0b0073779466",
+    "targetRootB": "585a0644f7451c393e5cbab916fe8e057eae33bc4bfc29fb731c646b116f3e0e",
+    "firstOpponentPrizeTurnA": 8,
+    "firstOpponentPrizeTurnB": 10,
+    "physicalEnergyMoved": [
+      "Psychic Energy MEE"
+    ],
+    "finalPrizeVector": [
+      3,
+      4
+    ],
+    "capsPerPhase": 6,
+    "errorsPerPhase": 2,
+    "terminalPerPhase": 0
+  },
+  "observerFiles": [
+    "simulation/twinleaf/agent5-native-attack-damage-observer.cjs",
+    "simulation/twinleaf/agent3-owner-ko-prize-settlement-evidence.cjs",
+    "simulation/evaluation/agent5-v7-teamflare-damage-prize-aba-v4.cjs"
+  ],
+  "limitations": [
+    "The underlying v7 cohort was chosen retrospectively after observing the target hand and root.",
+    "The generic prompt v1 handler is used only to reproduce the already known single Team Flare root; the target decision is not prospective.",
+    "The Store effect observer is read-only and records engine effects, not a complete independent paper-rules certificate.",
+    "The Prize observer proves physical owner-hand custody for matched Prize prompts, not the origin of every KnockOutEffect.",
+    "The original A/B/A cohort has zero native terminal games and zero paper-qualified competitive games.",
+    "The opponent policy remains weak and is not an adversarially validated player.",
+    "No official 25-minute paper clock is modeled."
+  ],
+  "paperQualifiedCompetitiveGames": 0,
+  "competitiveGamesQualified": 0,
+  "winRateEstimate": null
+}
