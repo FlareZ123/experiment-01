@@ -170,6 +170,24 @@ test('native attempt projection binds the complete root tape to Agent45 gate inp
   assert.equal(screen.competitiveGamesQualified,0);
 });
 
+test('v9 native abort lacking verified actual physical seats fails closed',()=>{
+  const aborted=summarizeNativeAttempt({
+    trial:{
+      id:'11:1000:B:new-moon-lockbreaker-v1',
+      rank:11,repeat:1000,candidateSlot:'B',
+      candidateId:'new-moon-lockbreaker-v1',seed:626469135
+    },
+    error:{message:'OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED'},
+    rootActionCount:0,rootActionLedger:[],
+    sourceSeat:null,candidateSeat:null
+  });
+  assert.equal(aborted.nativeOutcome,'engine-error');
+  assert.equal(aborted.sourceSeat,null);
+  assert.equal(aborted.candidateSeat,null);
+  assert.equal(evaluateGate(aborted,{}),null,
+    'Unverified Store seats must never be invented from registration');
+});
+
 test('Agent45 structural evaluation never admits this one-game probe',()=>{
   const roots=[
     {actionOrdinal:0,playerSlot:0,turnBefore:1,action:'PlayCardAction'},
