@@ -267,7 +267,7 @@ function auditTimeCallPacket(packet) {
   const nonempty=x=>typeof x==='string'&&x.trim().length>0;
   if(packet.officialEndCallObserved!==true)
     missing.push('official-end-call-not-observed');
-  if(!nonempty(packet.officialClockEvidenceRef))
+  if(!nonempty(packet.officialClockCoverageEvidenceRef))
     missing.push('official-clock-source-not-cited');
   if(!nonempty(packet.stageEvidenceRef))
     missing.push('official-stage-source-not-cited');
@@ -325,11 +325,12 @@ function auditTimeCallPacket(packet) {
  * @param {string} packet.stage
  * @param {boolean} packet.officialEndCallObserved Must be explicitly false
  * @param {number} packet.elapsedSecondsAtNaturalTerminal Official elapsed seconds
- * @param {string} packet.officialClockEvidenceRef Official clock start/end evidence
+ * @param {string} packet.officialClockCoverageEvidenceRef Continuous official clock record from event-defined start through natural terminal
  * @param {string} packet.stageEvidenceRef Official event-stage/pairing evidence
  * @param {string} packet.paperTerminalEvidenceRef Complete paper terminal-result evidence
  * @param {string} packet.independentReviewEvidenceRef Independent review of clock and paper result
- * @param {boolean} packet.noCallIndependentlyReviewed
+ * @param {boolean} packet.noCallCoverageIndependentlyReviewed
+ * @param {boolean} packet.paperStateIndependentlyReviewed
  * @param {0|1|null} [packet.paperGameWinner]
  * @param {boolean} [packet.paperGameTie]
  * @returns {object}
@@ -347,16 +348,18 @@ function auditNoCallClockPacket(packet) {
   } else if(packet.elapsedSecondsAtNaturalTerminal>=rules.minutes*60) {
     missing.push('natural-terminal-not-before-official-time-limit');
   }
-  if(!nonempty(packet.officialClockEvidenceRef))
-    missing.push('official-clock-start-and-terminal-reading-not-cited');
+  if(!nonempty(packet.officialClockCoverageEvidenceRef))
+    missing.push('continuous-official-clock-coverage-through-terminal-not-cited');
   if(!nonempty(packet.stageEvidenceRef))
     missing.push('official-stage-and-pairing-source-not-cited');
   if(!nonempty(packet.paperTerminalEvidenceRef))
     missing.push('paper-terminal-result-source-not-cited');
   if(!nonempty(packet.independentReviewEvidenceRef))
     missing.push('independent-clock-and-paper-review-not-cited');
-  if(packet.noCallIndependentlyReviewed!==true)
-    missing.push('no-call-independent-review-pending');
+  if(packet.noCallCoverageIndependentlyReviewed!==true)
+    missing.push('no-call-coverage-independent-review-pending');
+  if(packet.paperStateIndependentlyReviewed!==true)
+    missing.push('paper-terminal-independent-review-pending');
   const winner=packet.paperGameWinner??null;
   const tie=packet.paperGameTie??false;
   assert.ok(winner===null||winner===0||winner===1);

@@ -50,11 +50,11 @@ test('No-call clock packet admits only a paper-proved natural winner before the 
   const result=auditNoCallClockPacket({
     stage:'open-swiss',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:1200,
-    officialClockEvidenceRef:'official-clock-start-and-end',
+    officialClockCoverageEvidenceRef:'official-clock-start-and-end',
     stageEvidenceRef:'official-open-swiss-pairing',
     paperTerminalEvidenceRef:'complete-paper-normal-win',
     independentReviewEvidenceRef:'independent-clock-and-paper-review',
-    noCallIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false
+    noCallCoverageIndependentlyReviewed:true,paperStateIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false
   });
   assert.equal(result.status,'NORMAL_PAPER_GAME_WIN');
   assert.equal(result.conditionalWinnerSeat,0);
@@ -68,11 +68,11 @@ test('No-call natural knockout tie requires a six-Prize tiebreaker',()=>{
   const result=auditNoCallClockPacket({
     stage:'open-top32',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:1200,
-    officialClockEvidenceRef:'official-clock-start-and-end',
+    officialClockCoverageEvidenceRef:'official-clock-start-and-end',
     stageEvidenceRef:'official-open-top32-pairing',
     paperTerminalEvidenceRef:'complete-paper-natural-tie',
     independentReviewEvidenceRef:'independent-clock-and-paper-review',
-    noCallIndependentlyReviewed:true,paperGameTie:true
+    noCallCoverageIndependentlyReviewed:true,paperGameTie:true
   });
   assert.equal(result.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
   assert.equal(result.startingPrizeCount,6);
@@ -85,11 +85,11 @@ test('No-call natural Swiss tie remains unresolved despite complete evidence sha
   const result=auditNoCallClockPacket({
     stage:'open-swiss',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:1200,
-    officialClockEvidenceRef:'official-clock-start-and-end',
+    officialClockCoverageEvidenceRef:'official-clock-start-and-end',
     stageEvidenceRef:'official-open-swiss-pairing',
     paperTerminalEvidenceRef:'complete-paper-natural-tie',
     independentReviewEvidenceRef:'independent-clock-and-paper-review',
-    noCallIndependentlyReviewed:true,paperGameTie:true
+    noCallCoverageIndependentlyReviewed:true,paperGameTie:true
   });
   assert.equal(result.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
   assert.equal(result.requiresEventRuling,true);
@@ -101,22 +101,22 @@ test('No-call packet fails closed when call status, clock limit, references or r
   const base={
     stage:'open-final',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:2100,
-    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    officialClockCoverageEvidenceRef:'clock',stageEvidenceRef:'stage',
     paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
-    noCallIndependentlyReviewed:true,paperGameWinner:1
+    noCallCoverageIndependentlyReviewed:true,paperGameWinner:1
   };
   const late=auditNoCallClockPacket(base);
   assert.equal(late.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
   assert.equal(late.clockLimitMinutes,35);
   assert.ok(late.missing.includes('natural-terminal-not-before-official-time-limit'));
   const missing=auditNoCallClockPacket({...base,
-    officialEndCallObserved:true,officialClockEvidenceRef:' ',
-    independentReviewEvidenceRef:'',noCallIndependentlyReviewed:false,
+    officialEndCallObserved:true,officialClockCoverageEvidenceRef:' ',
+    independentReviewEvidenceRef:'',noCallCoverageIndependentlyReviewed:false,paperStateIndependentlyReviewed:false,
     elapsedSecondsAtNaturalTerminal:1000
   });
   assert.equal(missing.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
   assert.ok(missing.missing.includes('official-end-call-not-explicitly-absent'));
-  assert.ok(missing.missing.includes('official-clock-start-and-terminal-reading-not-cited'));
+  assert.ok(missing.missing.includes('continuous-official-clock-coverage-through-terminal-not-cited'));
   assert.ok(missing.missing.includes('independent-clock-and-paper-review-not-cited'));
 });
 
@@ -124,9 +124,9 @@ test('No-call packet does not accept a missing terminal paper outcome',()=>{
   const result=auditNoCallClockPacket({
     stage:'open-swiss',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:1200,
-    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    officialClockCoverageEvidenceRef:'clock',stageEvidenceRef:'stage',
     paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
-    noCallIndependentlyReviewed:true
+    noCallCoverageIndependentlyReviewed:true
   });
   assert.equal(result.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
   assert.ok(result.missing.includes('natural-terminal-paper-outcome-not-established'));
@@ -136,9 +136,9 @@ test('No-call packet rejects contradictory normal winner and simultaneous tie',(
   assert.throws(()=>auditNoCallClockPacket({
     stage:'open-top32',officialEndCallObserved:false,
     elapsedSecondsAtNaturalTerminal:1200,
-    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    officialClockCoverageEvidenceRef:'clock',stageEvidenceRef:'stage',
     paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
-    noCallIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:true
+    noCallCoverageIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:true
   }),/simultaneous tie/);
 });
 
@@ -325,7 +325,7 @@ test('All 49 legal Prize pairs remain conditional across knockout and extension 
 test('Swiss time-call audit classifies an end-call paper tie as both loss',()=>{
   const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:0,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockEvidenceRef:'clock-claim',stageEvidenceRef:'stage-record',firstPlayerEvidenceRef:'starter-claim',
+    officialClockCoverageEvidenceRef:'clock-claim',stageEvidenceRef:'stage-record',firstPlayerEvidenceRef:'starter-claim',
     turnOwnerWhenCalledEvidenceRef:'call-turn-owner-claim',
     turnSequenceEvidenceRef:'complete-turn-sequence-ledger',
     independentPaperStateEvidenceRef:'tie-claim',paperStateIndependentlyReviewed:true,
@@ -359,7 +359,7 @@ test('Audit refuses missing official call and all ungrounded receipt strings',()
 test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
   const r=auditTimeCallPacket({
     stage:'open-top32',firstPlayerSeat:0,turnOwnerWhenCalled:0,
-    officialEndCallObserved:true,officialClockEvidenceRef:'judge-record',
+    officialEndCallObserved:true,officialClockCoverageEvidenceRef:'judge-record',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'actual-initial-seat',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner',
@@ -378,7 +378,7 @@ test('Audit rejects a wrong final-seat witness and extra turn count',()=>{
 test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>{
   const r=auditTimeCallPacket({stage:'open-swiss',firstPlayerSeat:1,
     turnOwnerWhenCalled:0,officialEndCallObserved:true,
-    officialClockEvidenceRef:'official-judge-reference',
+    officialClockCoverageEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -397,7 +397,7 @@ test('Audited Swiss post-call packet classifies as both-loss conditionally',()=>
 test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:0,
     turnOwnerWhenCalled:0,officialEndCallObserved:true,
-    officialClockEvidenceRef:'official-judge-reference',
+    officialClockCoverageEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -414,7 +414,7 @@ test('Audited Top32 post-call packet yields conditional Prize winner',()=>{
 test('Proved paper winner ends overtime without waiting for other turn',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockEvidenceRef:'official-judge-reference',
+    officialClockCoverageEvidenceRef:'official-judge-reference',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'initial-game-proof',
     turnOwnerWhenCalledEvidenceRef:'actual-call-turn-owner-ledger',
@@ -458,7 +458,7 @@ test('Tied knockout overtime is a six-Prize new-game case',()=>{
 test('Official end-call audit retains proved prior paper tie without invented winner',()=>{
   const r=auditTimeCallPacket({stage:'open-top32',firstPlayerSeat:1,
     turnOwnerWhenCalled:1,officialEndCallObserved:true,
-    officialClockEvidenceRef:'verified-official-judge-call',
+    officialClockCoverageEvidenceRef:'verified-official-judge-call',
     stageEvidenceRef:'stage-record',
     firstPlayerEvidenceRef:'independent-opening-seat-ledger',
     turnOwnerWhenCalledEvidenceRef:'independent-call-turn-owner-ledger',
