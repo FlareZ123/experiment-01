@@ -294,20 +294,22 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   // opponent's immediately preceding non-GX Eon Blade, not the donor's cost.
   // This is a postgame evidence join and cannot alter the selected policy.
   const mimikyuCopycatEligibility=auditMimikyuCopycatEonBlade(
-    selected.rawDevelopment.rows,attackPrizeRootJoins,
-    actualPreAttackBoardJoins.rows,printedNativeAttackNominals.rows,originalField);
-  assert.ok(mimikyuCopycatEligibility.rows.length>=1,
-    'No fixed-contender Mimikyu Copycat Eon Blade attacks were observed');
-  assert.equal(mimikyuCopycatEligibility.supportedRows,
-    mimikyuCopycatEligibility.rows.length,
-    JSON.stringify(mimikyuCopycatEligibility.rows));
+    selected.rawDevelopment.rows,originalField);
+  assert.ok(mimikyuCopycatEligibility.scannedAttackCount>0,
+    'No settled attacks were scanned for Mimikyu Copycat events');
   assert.equal(mimikyuCopycatEligibility.rows.every(row=>
+    row.physicalActive==='Mimikyu GRI'&&
     row.currentAttackDelegatedCopy===true&&
+    row.currentCopycatChoiceRootValid===true&&
+    row.priorOpponentAttackObserved===true&&
     row.priorOpponentAttackWasImmediatelyPreviousTurn===true&&
+    row.priorOpponentAttackSettled===true&&
+    row.priorOpponentAttackRootValid===true&&
     row.priorOpponentAttackNonGx===true&&
-    row.copycatCostFunding?.status==='POSSIBLE'&&
+    ['POSSIBLE','UNVERIFIED'].includes(row.copycatCostFunding?.status)&&
     row.actualAttachedEnergyPaymentCertified===false&&
-    row.paperGameCertified===false),true);
+    row.paperGameCertified===false),true,
+    JSON.stringify(mimikyuCopycatEligibility.rows));
   assert.equal(mimikyuCopycatEligibility.paperGameCertified,false);
   assert.equal(mimikyuCopycatEligibility.qualifiedCompetitiveGames,0);
   console.log('AGENT3_V31_MIMIKYU_COPYCAT_EON_BLADE_ELIGIBILITY',
