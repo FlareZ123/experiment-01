@@ -28,7 +28,9 @@ test('attempt summary preserves attack, damage, KO, Prize and terminal statuses'
   assert.equal(summary.phase,'B');
   assert.equal(summary.trialId,'6:201:B:champion-reference');
   assert.equal(summary.attackActions,2);
-  assert.equal(summary.damageEffects,2);
+  assert.equal(summary.damageEffects,1);
+  assert.equal(summary.damageCounterEffects,1);
+  assert.equal(summary.damagePipelineEffects,2);
   assert.equal(summary.knockOutEffects,1);
   assert.equal(summary.completedAttackPromptChains,1);
   assert.equal(summary.prizePromptRecords,1);
