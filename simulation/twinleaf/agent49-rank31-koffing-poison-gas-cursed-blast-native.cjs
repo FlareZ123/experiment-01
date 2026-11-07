@@ -75,11 +75,9 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   const psychic1=f.card('Psychic Energy MEE');
   const psychic2=f.card('Psychic Energy MEE');
   source.active.cards.push(attackingKoffing);
-  source.active.energies.cards.push(psychic1);
-  source.hand.cards.push(psychic2);
+  source.hand.cards.push(psychic1,psychic2);
   assert.equal(source.active.getPokemonCard().fullName,'Koffing CEC');
-  assert.equal(source.active.cards.length,1);
-  assert.equal(source.active.energies.cards.length,1);
+  assert.equal(source.active.energies.cards.length,0);
 
   const bcrDuskull=f.card('Duskull PRE');
   const bcrDusclops=f.card('Dusclops PRE');
@@ -130,16 +128,31 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   };
 
   const execute=()=>{
-    const energyIndex=source.hand.cards.indexOf(psychic2);
-    assert.notEqual(energyIndex,-1,'second Basic Psychic must be in hand');
-    dispatchAt('Attach second Basic Psychic',new PlayCardAction(source.id,energyIndex,{
+    const firstEnergyIndex=source.hand.cards.indexOf(psychic1);
+    assert.notEqual(firstEnergyIndex,-1,'first Basic Psychic must be in hand');
+    dispatchAt('Attach first Basic Psychic',new PlayCardAction(source.id,firstEnergyIndex,{
       player:PlayerType.ANY,slot:SlotType.ACTIVE,index:0
     }));
-    resolveWaits('Koffing second Basic Psychic attachment');
-    assert.equal(source.active.cards.length,1,
-      'attached Energy must not enter the Pokémon evolution stack');
+    resolveWaits('first Basic Psychic attachment');
+    assert.equal(source.active.energies.cards.length,1);
+    assert.equal(source.active.cards.includes(psychic1),true);
+    dispatchAt('PassTurnAction source after first Energy',new PassTurnAction(source.id));
+    resolveWaits('source turn-end checkup before Koffing attack');
+    assert.equal(state.activePlayer,seat===0?1:0);
+    dispatchAt('PassTurnAction opponent before Koffing attack',
+      new PassTurnAction(opponent.id));
+    resolveWaits('opponent turn-end checkup before Koffing attack');
+    assert.equal(state.activePlayer,seat);
+    const secondEnergyIndex=source.hand.cards.indexOf(psychic2);
+    assert.notEqual(secondEnergyIndex,-1,'second Basic Psychic must remain in hand');
+    dispatchAt('Attach second Basic Psychic',new PlayCardAction(source.id,secondEnergyIndex,{
+      player:PlayerType.ANY,slot:SlotType.ACTIVE,index:0
+    }));
+    resolveWaits('second Basic Psychic attachment');
     assert.equal(source.active.energies.cards.length,2,
-      'Koffing needs the prior plus current-turn Basic Psychic attachments');
+      'Koffing must receive one Basic Psychic on each of two source turns');
+    assert.equal(source.active.cards.includes(psychic1),true);
+    assert.equal(source.active.cards.includes(psychic2),true);
     dispatchAt('AttackAction Poison Gas',new AttackAction(source.id,'Poison Gas'));
     resolveWaits('Koffing Poison Gas attack');
     assert.equal(state.activePlayer,seat===0?1:0);
