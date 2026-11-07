@@ -6,7 +6,7 @@ const {runMatch}=require('../simulation/twinleaf/headless.cjs');
 const {withOwnerSetupConfirm}=require('../simulation/twinleaf/agent4-owner-setup-confirm.cjs');
 const {withOwnerStartingPokemon}=require('../simulation/twinleaf/agent4-owner-setup-starting-pokemon.cjs');
 const {withOwnerWaitProgress}=require('../simulation/twinleaf/agent4-owner-wait-progress.cjs');
-const {withOwnerModalAcknowledgements}=require('../simulation/twinleaf/agent4-owner-modal-acknowledgements.cjs');
+const {VERSION:OWNER_MODAL_VERSION,withOwnerModalAcknowledgements}=require('../simulation/twinleaf/agent4-owner-modal-acknowledgements.cjs');
 const {withCanonicalActorOnlyPolicy}=require('../simulation/evaluation/agent7-canonical-actor-composition.cjs');
 const {CODE,withNativeRawStateFallbackQuarantine:guard}=require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
@@ -70,7 +70,7 @@ for(const sourceSeat of [0,1]){
         'Complete native result must retain raw decoder quarantine audit');
       quarantineCalls=guardAudit.rawStateFallbackCalls;
       assert.equal(quarantineCalls,0);
-      modal=audits.find(a=>a?.version==='agent4-owner-modal-acknowledgements-v1');
+      modal=audits.find(a=>a?.version===OWNER_MODAL_VERSION);
       wait=audits.find(a=>a?.version==='agent4-owner-wait-prompt-progress-v1');
       outcome='returned-from-headless';
       headlessStatus={
@@ -81,6 +81,7 @@ for(const sourceSeat of [0,1]){
       };
     }
     assert.ok(modal);
+    assert.equal(modal.version,OWNER_MODAL_VERSION);
     assert.ok(modal.selected>0);
     assert.equal(modal.selected,modal.accepted);
     assert.equal(modal.accepted,modal.settled);
