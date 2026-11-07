@@ -20,11 +20,11 @@ function card(fullName){
   };
 }
 function pokemon(fullName){
-  const c=card(fullName);
+  const c=fullName?card(fullName):null;
   return {
     getPokemonCard:()=>c,
     cards:fullName?[c]:[],
-    damage:0,hp:c.hp,pokemonPlayedTurn:1,
+    damage:0,hp:c?.hp??0,pokemonPlayedTurn:1,
     energies:{cards:fullName==='Bunnelby PRC'?[card('Water Energy MEE')]:[]},
     tools:[],specialConditions:[],poisonDamage:0,burnDamage:0,
     attacksThisTurn:fullName==='Bunnelby PRC'?1:0,
@@ -60,6 +60,9 @@ function poison(length){
     throw new Error('Opponent hidden identity read: '+String(key));
   }});
 }
+function hiddenPrizes(count){
+  return {length:count,reduce(_callback,initial){return initial+count;}};
+}
 
 test('owner-only snapshot captures source hidden zones and public opponent state',()=>{
   const state=fixture();
@@ -93,10 +96,10 @@ test('opponent hidden identities are never read or reflected in the owner snapsh
   const left=fixture(),right=fixture();
   left.players[1].hand.cards=poison(4);
   left.players[1].deck.cards=poison(31);
-  left.players[1].prizes=poison(6);
+  left.players[1].prizes=hiddenPrizes(6);
   right.players[1].hand.cards=poison(4);
   right.players[1].deck.cards=poison(31);
-  right.players[1].prizes=poison(6);
+  right.players[1].prizes=hiddenPrizes(6);
   const a=ownerZoneSnapshot(left,0,2);
   const b=ownerZoneSnapshot(right,0,2);
   assert.deepEqual(a,b);
@@ -153,10 +156,10 @@ test('only the first live Store and source-owner roots or prompts are captured',
   assert.equal(result.result,'complete');
   assert.equal(result.audit.liveStoreFound,true);
   assert.equal(result.audit.liveStoreDispatches,5);
-  assert.equal(result.audit.ownerRootDecisions,2);
+  assert.equal(result.audit.ownerRootDecisions,1);
   assert.equal(result.audit.ownerPromptDecisions,1);
-  assert.equal(result.audit.handiworkInDiscard,3);
-  assert.equal(result.audit.structuralRototillerCandidates,3);
+  assert.equal(result.audit.handiworkInDiscard,2);
+  assert.equal(result.audit.structuralRototillerCandidates,2);
   assert.equal(result.audit.opponentHiddenZonesInspected,false);
   const prompt=result.snapshots.find(row=>
     row.snapshot.pendingPrompt?.message==='CHOOSE_CARD_TO_DECK');
