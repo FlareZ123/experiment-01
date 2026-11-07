@@ -101,3 +101,37 @@ test('summaries retain censored games and count overlapping causes separately',(
   });
   assert.equal(out.competitiveGamesQualified,0);
 });
+
+test('simultaneous Prize decreases need complete batch adjudication',()=>{
+  const row=terminal({winner:1,before:[
+    {deckRemaining:30,prizesRemaining:6,inPlayPokemon:2},
+    {deckRemaining:20,prizesRemaining:2,inPlayPokemon:2}
+  ],after:[
+    {deckRemaining:30,prizesRemaining:4,inPlayPokemon:1},
+    {deckRemaining:20,prizesRemaining:0,inPlayPokemon:1}
+  ]});
+  assert.deepEqual(classifyTerminalCause(row),{
+    status:'bilateral-prize-settlement-unverified',
+    conditions:[],engineWinner:1
+  });
+  const summary=summarizeTerminalCauses([row]);
+  assert.equal(summary.engineTerminals,1);
+  assert.equal(summary.observedTerminals,0);
+  assert.equal(summary.unresolvedTerminals,1);
+  assert.equal(summary.bilateralPrizeUnverified,1);
+  assert.equal(summary.competitiveGamesQualified,0);
+});
+
+test('explicit simultaneous both-final-Prize tie takes precedence over batch uncertainty',()=>{
+  const row=terminal({winner:1,before:[
+    {deckRemaining:30,prizesRemaining:2,inPlayPokemon:2},
+    {deckRemaining:20,prizesRemaining:2,inPlayPokemon:2}
+  ],after:[
+    {deckRemaining:30,prizesRemaining:0,inPlayPokemon:1},
+    {deckRemaining:20,prizesRemaining:0,inPlayPokemon:1}
+  ]});
+  assert.deepEqual(classifyTerminalCause(row),{
+    status:'paper-basic-result-conflict',
+    conditions:[],engineWinner:1,paperBasicOutcome:'tie'
+  });
+});
