@@ -13,6 +13,7 @@ const {withPaperKoBeforeEndTurn,VERSION}=
  */
 function auditFullSettlement(){
   const scenarios=[
+    {label:'noKo',lastPrize:false,opponentHasBench:true,targetDamage:0},
     {label:'regularPrize',lastPrize:false,opponentHasBench:true},
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
     {label:'lastPokemon',lastPrize:false,opponentHasBench:false}
@@ -27,7 +28,17 @@ function auditFullSettlement(){
     assert.equal(treatment.audit.attackEndTurnIntercepts,1);
     assert.equal(b.openPrompts.length,0);
     assert.equal(t.openPrompts.length,0);
-    if(label==='regularPrize'){
+    if(label==='noKo'){
+      assert.equal(b.ownerPrizesRemaining,6);
+      assert.equal(t.ownerPrizesRemaining,6);
+      assert.equal(b.sourceActive,'Trubbish FST');
+      assert.equal(t.sourceActive,'Trubbish FST');
+      assert.deepEqual(baseline.seenPrompts.filter(x=>x!=='WaitPrompt'),
+        ['AttachEnergyPrompt']);
+      assert.deepEqual(treatment.result.seenPrompts.filter(x=>x!=='WaitPrompt'),
+        ['AttachEnergyPrompt']);
+      assert.equal(treatment.audit.completedAttackEndTurns,1);
+    }else if(label==='regularPrize'){
       assert.equal(b.ownerPrizesRemaining,5);
       assert.equal(t.ownerPrizesRemaining,5);
       assert.equal(b.sourceActive,'Tapu Lele-GX GRI');
