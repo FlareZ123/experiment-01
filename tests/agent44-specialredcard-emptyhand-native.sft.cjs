@@ -177,8 +177,9 @@ for (const seat of [0,1]) {
  * @param {boolean} reverse
  * @param {(()=>number)|undefined} physicalRandom Optional explicit game-physical
  *   RNG, used only during this one real Store action.
+ * @param {boolean} shallowDeck When true, stage just one opposing deck card.
  */
-function inspectNativeBottomOrder(seat,reverse,physicalRandom) {
+function inspectNativeBottomOrder(seat,reverse,physicalRandom,shallowDeck=false) {
   const x = stage(seat);
   const manager = initializeCards();
   const physicalNames=['Psychic Energy SVE','Double Dragon Energy ROS',
@@ -196,7 +197,10 @@ function inspectNativeBottomOrder(seat,reverse,physicalRandom) {
     card.id=item.id+i+1000;
     x.opponent.hand.cards.push(card);
   }
+  if(shallowDeck) x.opponent.deck.moveCardsTo(
+    x.opponent.deck.cards.slice(1),x.opponent.discard);
   const beforeDeckLength=x.opponent.deck.cards.length;
+  const firstPriorDeckCard=x.opponent.deck.cards[0]?.fullName;
   const heldOrder=x.opponent.hand.cards.map(c=>c.fullName);
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
@@ -214,7 +218,9 @@ function inspectNativeBottomOrder(seat,reverse,physicalRandom) {
     .map(c=>c.fullName);
   assert.equal(live.hand.cards.length,3);
   assert.equal(live.deck.cards.length,beforeDeckLength);
-  return {seat,reverse,heldOrder,bottomOrder,
+  return {seat,reverse,shallowDeck,heldOrder,bottomOrder,
+    firstPriorDeckCard,
+    newHandAfter:live.hand.cards.map(c=>c.fullName),
     nativeBottomPreservesHandOrder:
       JSON.stringify(heldOrder)===JSON.stringify(bottomOrder),
     nativePendingPrompts:x.store.state.prompts
@@ -256,6 +262,38 @@ for(const seat of [0,1])for(const reverse of [false,true]){
     console.log('AGENT44_M4_SEEDED_PAPER_SHUFFLE',
       JSON.stringify({seat,reverse,randomDraws,baseline,shuffled,
         restoredEqual:true,stagedOnly:true,
+        competitivelyQualifiedGames:0}));
+  });
+}
+
+for(const seat of [0,1])for(const reverse of [false,true]){
+  test('native M4 low-deck hand-recycling exact card difference, seat '+
+    seat+', reversed '+reverse,()=>{
+    const baseline=inspectNativeBottomOrder(seat,reverse,undefined,true);
+    let draws=0;
+    const corrected=inspectNativeBottomOrder(seat,reverse,()=>{
+      draws+=1;
+      return 0;
+    },true);
+    assert.equal(draws,2);
+    assert.deepEqual(baseline.newHandAfter,[
+      baseline.firstPriorDeckCard,
+      baseline.heldOrder[0],baseline.heldOrder[1]
+    ],'Original Store deterministically returns first two unshuffled hand cards');
+    assert.deepEqual(baseline.bottomOrder,[baseline.heldOrder[2]]);
+    assert.deepEqual(corrected.newHandAfter,[
+      baseline.firstPriorDeckCard,
+      baseline.heldOrder[1],baseline.heldOrder[2]
+    ],'Seeded physical shuffle changes which hand cards are re-drawn');
+    assert.deepEqual(corrected.bottomOrder,[baseline.heldOrder[0]]);
+    assert.notDeepEqual(corrected.newHandAfter,baseline.newHandAfter);
+    assert.deepEqual(
+      inspectNativeBottomOrder(seat,reverse,undefined,true).newHandAfter,
+      baseline.newHandAfter,
+      'Removing the paper hook restores deterministic low-deck re-draw');
+    console.log('AGENT44_M4_LOW_DECK_PAPER_DIFF',
+      JSON.stringify({seat,reverse,randomDraws:draws,
+        original:baseline,corrected,stagedOnly:true,
         competitivelyQualifiedGames:0}));
   });
 }
