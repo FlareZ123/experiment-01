@@ -16,6 +16,8 @@ function auditFullSettlement(){
     {label:'passTurn',lastPrize:false,opponentHasBench:true,actionKind:'pass'},
     {label:'noKo',lastPrize:false,opponentHasBench:true,targetDamage:0},
     {label:'regularPrize',lastPrize:false,opponentHasBench:true},
+    {label:'tagTeamThree',lastPrize:false,opponentHasBench:true,
+      targetPrinting:'Trevenant & Dusknoir-GX SMP',targetDamage:260},
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
     {label:'lastPokemon',lastPrize:false,opponentHasBench:false}
   ];
@@ -43,9 +45,10 @@ function auditFullSettlement(){
         ['AttachEnergyPrompt']);
       assert.equal(treatment.audit.completedAttackEndTurns,
         label==='passTurn'?0:1);
-    }else if(label==='regularPrize'){
-      assert.equal(b.ownerPrizesRemaining,5);
-      assert.equal(t.ownerPrizesRemaining,5);
+    }else if(label==='regularPrize'||label==='tagTeamThree'){
+      const expectedPrizes=label==='tagTeamThree'?3:5;
+      assert.equal(b.ownerPrizesRemaining,expectedPrizes);
+      assert.equal(t.ownerPrizesRemaining,expectedPrizes);
       assert.equal(b.sourceActive,'Tapu Lele-GX GRI');
       assert.equal(t.sourceActive,'Tapu Lele-GX GRI');
       assert.deepEqual(treatment.result.seenPrompts.filter(x=>x!=='WaitPrompt'),
