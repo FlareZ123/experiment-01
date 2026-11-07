@@ -57,7 +57,10 @@ function installCancelingCologneOncePerTurnHook() {
   Store.prototype.log = function paperCologneEpochLog(state,message,...args) {
     const result=priorLog.call(this,state,message,...args);
     if(message===GameLog.LOG_SUDDEN_DEATH){
-      for(const player of state.players)delete player[FIELD];
+      // Pinned deepClone creates descendants with Object.create(source).
+      // Deleting an own field can expose an older inherited turn marker.
+      // Explicitly shadow every ancestor with an undefined own value.
+      for(const player of state.players)player[FIELD]=undefined;
     }
     return result;
   };
