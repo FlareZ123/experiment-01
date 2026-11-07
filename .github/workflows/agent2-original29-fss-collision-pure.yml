@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/agent2-paid-retreat-root-wrapper-activation.test.cjs
       - name: Assert actual Store, bot identity and successful native action receipt
         run: node --test tests/agent2-root-identity-guard.test.cjs tests/agent2-paid-retreat-accepted-root-receipt.test.cjs
+      - name: Check conservative owner public Block and Bench-attack mobility gates
+        run: node --test tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
       - name: Preserve exact machine-readable 29-rank analysis and SHA-256
         run: |
           node simulation/evaluation/agent2-original29-fss-first-tool-collision.cjs > agent2-fss-collision.json
