@@ -193,6 +193,7 @@ jobs:
         run: |
           node --test tests/agent44-specialredcard-emptyhand-native.sft.cjs
           node --test tests/agent44-specialredcard-headless-run-option.test.cjs
+          node simulation/evaluation/agent44-m4-original-two-source-census.cjs
 
       # All smoke checks are reportable independently. Keep the job red if any
       # regression failed, even when an earlier check was allowed to continue.
