@@ -101,11 +101,12 @@ function withOriginalRank9OwnerCardLocations(run,deps={}){
       state.activePlayer===registered.sourceSeat&&
       action.clientId===source?.id;
     const snapshot=sourceAction?originalRoleCardZones(source):null;
+    const globalTurn=state.turn;
     const result=original.value.call(this,action,...args);
     if(snapshot){
       const event={trialId:registered.trialId,
         sourceSeat:registered.sourceSeat,
-        globalTurn:state.turn,
+        globalTurn,
         ...snapshot};
       audit.events.push(event);
       audit.observedSourcePasses++;
