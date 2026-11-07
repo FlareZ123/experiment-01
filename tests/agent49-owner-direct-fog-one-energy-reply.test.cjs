@@ -9,8 +9,13 @@ const {proposeOwnerDirectFogOneEnergyKo}=
 function source60(rank){
   const deck=roster.decks.find(x=>x.rank===rank);
   assert.ok(deck,'Must use authenticated original rank');
-  const original=deck.cards.flatMap(row=>Array(row.count)
-    .fill(row.name+' '+row.printing.set));
+  // Twinleaf's Basic Energy fullName includes its exact MEE number.
+  // The roster records the printing.number, so preserve it rather than
+  // constructing a set-only Basic identifier absent from the engine.
+  const original=deck.cards.flatMap(row=>Array(row.count).fill(
+    row.name+' '+row.printing.set+
+    (row.category==='Energy'&&row.printing.number?
+      ' '+row.printing.number:'')));
   assert.equal(original.length,60);
   return original;
 }
@@ -66,14 +71,14 @@ test('public Basic depletion, own Energy attachment and first-turn veto',()=>{
   const registered=source60(31);
   const root=actorRoot();
   const exhausted={...root,ownPublic:{...root.ownPublic,
-    discard:['Psychic Energy MEE','Psychic Energy MEE']}};
+    discard:['Psychic Energy MEE 13','Psychic Energy MEE 13']}};
   assert.equal(proposeOwnerDirectFogOneEnergyKo(exhausted,registered),null);
   assert.equal(proposeOwnerDirectFogOneEnergyKo(actorRoot(1),registered),null);
   const used={...root,ownTurnResources:{
     ...root.ownTurnResources,energyPlayedTurn:14}};
   assert.equal(proposeOwnerDirectFogOneEnergyKo(used,registered),null);
   const accessible={...root,ownHand:[
-    'Fog Crystal CRE','Psychic Energy MEE']};
+    'Fog Crystal CRE','Psychic Energy MEE 13']};
   assert.equal(proposeOwnerDirectFogOneEnergyKo(accessible,registered),null);
 });
 
@@ -105,13 +110,13 @@ test('authenticated same-seat K1 missing Basic vetoes; stale K1 abstains',()=>{
     exactMembershipKnown:true,deckMembershipStale:false,
     knownPrintings:[{printing:'Fog Crystal CRE',copies:1}],
     prizeInferenceCertified:true,knownPrized:[
-      {printing:'Psychic Energy MEE',copies:2}]
+      {printing:'Psychic Energy MEE 13',copies:2}]
   };
   assert.equal(proposeOwnerDirectFogOneEnergyKo(
     root,sixty,{psychic:5,colorless:9},fresh),null);
   const present={...fresh,knownPrintings:[
     {printing:'Fog Crystal CRE',copies:1},
-    {printing:'Psychic Energy MEE',copies:1}]};
+    {printing:'Psychic Energy MEE 13',copies:1}]};
   const positive=proposeOwnerDirectFogOneEnergyKo(
     root,sixty,{psychic:5,colorless:9},present);
   assert.ok(positive);
