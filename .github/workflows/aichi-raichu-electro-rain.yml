@@ -52,6 +52,8 @@ jobs:
         run: node simulation/twinleaf/agent46-mimikyu-apex-copycat-native.cjs
       - name: Observe consecutive real native Regidrago Apex then Mimikyu Copycat history
         run: node simulation/twinleaf/agent46-mimikyu-apex-consecutive-native.cjs
+      - name: Explore reversible Mimikyu Apex to Dragon Dialga Timeless nested native path
+        run: node simulation/twinleaf/agent46-mimikyu-apex-timeless-native.cjs
       - name: Verify native Froslass optional self-damage budget both seats
         run: node simulation/twinleaf/agent46-froslass-partial-budget-native.cjs
       - name: Check Electro Rain capped allocation pure regression
