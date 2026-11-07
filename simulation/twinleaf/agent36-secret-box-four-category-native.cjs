@@ -105,6 +105,44 @@ function probeSecretBoxFourCategories(seat=0){
     assert.equal(selected.every(card=>f.source.hand.cards.includes(card)),true);
     assert.equal(selected.every(card=>!f.source.deck.cards.includes(card)),true);
     assert.equal(f.source.deck.cards.length,deckBefore-4);
+
+    const fogCrystal=targets[0];
+    f.store.dispatch(new PlayCardAction(f.source.id,
+      f.source.hand.cards.indexOf(fogCrystal),{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+    const fogPrompt=pending();
+    assert.equal(fogPrompt?.constructor?.name,'ChooseCardsPrompt');
+    assert.equal(fogPrompt.sourceCard?.fullName,'Fog Crystal CRE');
+    assert.equal(fogPrompt.playerId,f.source.id);
+    assert.equal(fogPrompt.message,'CHOOSE_CARD_TO_HAND');
+    assert.equal(fogPrompt.cards,f.source.deck);
+    const psychicEnergy=f.source.deck.cards.find(
+      card=>card.fullName==='Psychic Energy SVE');
+    assert.ok(psychicEnergy,'Fixture deck must contain a physical Basic Psychic Energy');
+    assert.equal(fogPrompt.validate([psychicEnergy],f.state),true);
+    f.store.dispatch(new ResolvePromptAction(fogPrompt.id,[psychicEnergy]));
+
+    const fogContinuation=[];
+    for(let i=0;i<15;i++){
+      const prompt=pending();
+      if(!prompt)break;
+      let reply;
+      if(prompt.constructor.name==='ShowCardsPrompt')reply=true;
+      else if(prompt.constructor.name==='ShuffleDeckPrompt')
+        reply=Array.from({length:f.source.deck.cards.length},(_,index)=>index);
+      else if(prompt.constructor.name==='WaitPrompt')reply=null;
+      else throw new Error('Unexpected Fog Crystal continuation prompt '+
+        prompt.constructor.name);
+      fogContinuation.push(prompt.constructor.name);
+      f.store.dispatch(new ResolvePromptAction(prompt.id,reply));
+    }
+
+    assert.equal(pending(),undefined);
+    assert.equal(f.source.deck.cards.length,deckBefore-5);
+    assert.equal(f.source.hand.cards.includes(psychicEnergy),true);
+    assert.equal(f.source.deck.cards.includes(psychicEnergy),false);
+    assert.equal(f.source.discard.cards.includes(fogCrystal),true);
     assert.equal(payment.every(card=>f.source.discard.cards.includes(card)),true);
     assert.equal(f.source.discard.cards.includes(box),true);
     return {
@@ -112,13 +150,17 @@ function probeSecretBoxFourCategories(seat=0){
       paymentSourceBound:true,paymentCollectionIsOwnerHand,
       paymentOfferedCardsAreOwnerHand,
       searchSourceBound:true,searchCollectionBound:true,
+      fogSourceBound:true,fogCollectionBound:true,
       categoryMaxima,selected:selected.map(card=>card.fullName),
       selectedPhysicalCount:selected.length,
+      fogEnergySelected:psychicEnergy.fullName,
+      fogEnergyInHand:f.source.hand.cards.includes(psychicEnergy),
       deckBefore,deckAfter:f.source.deck.cards.length,
       handBefore,handAfter:f.source.hand.cards.length,
       paymentDiscarded:payment.map(card=>card.fullName),
       boxDiscarded:f.source.discard.cards.includes(box),
-      continuation,qualifiedGame:false
+      fogCrystalDiscarded:f.source.discard.cards.includes(fogCrystal),
+      continuation,fogContinuation,qualifiedGame:false
     };
   },{Store,TrainerCard,TrainerType});
   assert.equal(guarded.audit.sourceSearchPrompts,1);
