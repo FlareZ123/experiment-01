@@ -42,6 +42,12 @@ where `H(c)` is the number of physical copies in the acting owner's hand and `R(
 
 The corrected same-seed v3 native replay physically paid Secret Box, selected Boost Shake and a Tool, paid Quick Ball with the spare Float Stone, searched and Benched Trubbish, attached the preserved Float Stone, evolved the actual target, and reached the opponent's next decision boundary. This is a causal repair of one retrospective native failure, not an independent held-out win.
 
+### 3. A current shared-policy candidate line exposes the DCI boundary
+
+The active `agent43-owner-secretbox-fog-ko.cjs` candidate branch uses a fixed Secret Box payment of two `Battle VIP Pass` plus one `Rescue Carrier`. The frozen New Moon 60 contains four VIP and two Carrier. After the first two global turns, VIP is no longer a playable setup card, so a hand with three or more VIP copies can pay with three dead copies. The fixed selector still spends a Carrier and does not compare that alternative. If the other Carrier is Prized or already spent, it may also spend the last currently accessible recovery copy.
+
+This is a **line-specific payment preference**, not a DCI-optimal certificate and not a demonstrated defect in the narrow one-Prize KO diagnostic. The immediate KO may justify spending a Carrier. Before promotion, compare the fixed triple with the copy-aware frontier, preserve a Carrier when a visible recovery obligation and alternative payment exist, and carry both choices through the next candidate turn and source reply. See the Agent44 v5 review in `communications/agent36/20261107T0805Z_agent44_v5_secretbox_dci_review.md` and its multiplicity correction in `communications/agent36/20261107T0806Z_agent44_v5_secretbox_dci_review_correction.md`.
+
 ### 3. Payment timing changes the graph
 
 The [temporal discard-liquidity study](../statistics/agent44-temporal-discard-liquidity-20261031.md) distinguishes:
