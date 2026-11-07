@@ -52,9 +52,11 @@ function runSnapTrapSourceToSettlementContract() {
   assert.equal(event.stateIsLiveStore, true);
   assert.equal(event.promptStateArgumentMatchesLiveState, true);
   assert.equal(event.turn, 54);
-  assert.equal(event.currentAttack.attackName, 'Red Knuckles');
-  assert.equal(event.currentAttack.seat, 1);
-  assert.equal(event.currentAttack.turn, 54);
+  assert.equal(event.currentAttack, null,
+    'Snap Trap is created when the attack generator resumes on the WaitPrompt response dispatch');
+  assert.equal(event.lastAttack.attackName, 'Red Knuckles');
+  assert.equal(event.lastAttack.seat, 1);
+  assert.equal(event.lastAttack.turn, 54);
 
   assert.equal(event.zoneMatches.length, 1);
   assert.equal(event.zoneMatches[0].zone, 'opponent-active-pokemon-list');
