@@ -168,4 +168,59 @@ for (const seat of [0,1]) {
   });
 }
 
+/**
+ * Staged native check of the *separate* printed requirement to shuffle the
+ * opponent's hand before moving it to the bottom of the deck. This does not
+ * establish the distribution of physical shuffle outcomes from four deals.
+ *
+ * @param {0|1} seat
+ * @param {boolean} reverse
+ */
+function inspectNativeBottomOrder(seat,reverse) {
+  const x = stage(seat);
+  const manager = initializeCards();
+  const physicalNames=['Psychic Energy SVE','Double Dragon Energy ROS',
+    'Fog Crystal CRE'];
+  if(reverse)physicalNames.reverse();
+  const item=manager.getCardByName('Special Red Card M4');
+  assert.ok(item);
+  item.id=950000 + seat*100 + Number(reverse);
+  x.owner.hand.cards.unshift(item);
+  for(let i=3;i<6;i+=1)
+    x.opponent.prizes[i].moveTo(x.opponent.deck);
+  for(let i=0;i<physicalNames.length;i+=1){
+    const card=manager.getCardByName(physicalNames[i]);
+    assert.ok(card,'Missing native opponent hand printing '+physicalNames[i]);
+    card.id=item.id+i+1000;
+    x.opponent.hand.cards.push(card);
+  }
+  const beforeDeckLength=x.opponent.deck.cards.length;
+  const heldOrder=x.opponent.hand.cards.map(c=>c.fullName);
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  x.store.dispatch(new PlayCardAction(x.owner.id,0,
+    {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+  const live=x.store.state.players.find(p=>p.id===x.opponent.id);
+  assert.ok(live);
+  const bottomOrder=live.deck.cards.slice(-heldOrder.length)
+    .map(c=>c.fullName);
+  assert.equal(live.hand.cards.length,3);
+  assert.equal(live.deck.cards.length,beforeDeckLength);
+  return {seat,reverse,heldOrder,bottomOrder,
+    nativeBottomPreservesHandOrder:
+      JSON.stringify(heldOrder)===JSON.stringify(bottomOrder),
+    nativePendingPrompts:x.store.state.prompts
+      .filter(p=>p.result===undefined).map(p=>p.constructor.name),
+    stagedOnly:true,competitivelyQualifiedGames:0};
+}
+for (const seat of [0,1])for(const reverse of [false,true]){
+  test('native M4 original hand-to-deck-bottom order, seat '+seat+
+    ' reversed '+reverse,()=>{
+    const result=inspectNativeBottomOrder(seat,reverse);
+    console.log('AGENT44_M4_NATIVE_BOTTOM_ORDER',JSON.stringify(result));
+    assert.equal(result.nativeBottomPreservesHandOrder,true,
+      'Pinned source MOVE_CARDS currently preserves original hand order');
+  });
+}
+
 module.exports = {inspectNativeSpecialRedCard};
