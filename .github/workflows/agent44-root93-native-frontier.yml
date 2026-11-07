@@ -1,0 +1,74 @@
+name: Agent44 root93 native response frontier (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Exact historical first-Pass native counterfactual
+        type: choice
+        required: true
+        default: postko
+        options:
+          - box
+          - fog
+          - postko
+          - lillie-identity
+          - lillie-seeded
+          - lillie-seeded-ko
+
+permissions:
+  contents: read
+
+jobs:
+  rooted-single-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate source JavaScript before installing dependencies
+        run: node --check simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Check out exact pinned vendor Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile native engine without changing vendor
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce one selected original root93 branch in real Store
+        shell: bash
+        env:
+          ROOT93_MODE: ${{ inputs.mode }}
+        run: |
+          case "$ROOT93_MODE" in
+            box)
+              node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            fog)
+              AGENT44_FOG_KO_NATIVE=true node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            postko)
+              AGENT44_FOG_KO_NATIVE=true AGENT44_PROMOTE_OPPONENT_INDEX=0 node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            lillie-identity)
+              AGENT44_ROOT93_LILLIE_NATIVE=true node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            lillie-seeded)
+              AGENT44_LILLIE_SEED_BUNDLE=true node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            lillie-seeded-ko)
+              AGENT44_LILLIE_KO_SEED_BUNDLE=true node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs ;;
+            *)
+              echo 'Invalid bounded root93 research mode'
+              exit 2 ;;
+          esac
+      - name: Preserve physical receipts including diagnostic failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-root93-native-${{ inputs.mode }}
+          path: artifacts/agent44-root93-*.json
+          if-no-files-found: warn
+          retention-days: 30
