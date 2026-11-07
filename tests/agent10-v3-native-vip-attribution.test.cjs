@@ -65,6 +65,8 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
     assert.equal(audit.policyRecorded,true);
     assert.equal(audit.nativeStoreSeen,true);
     assert.equal(audit.rootOrdinalInitialized,true);
+    assert.equal(audit.unresolvedOwnerSearches,0);
+    assert.equal(audit.acceptedItems,audit.acceptedSearches);
     assert.equal(audit.dispatchRootCount,treatment.result.actions);
     assert.equal(control.rootActionLedger.length,control.actions);
     assert.equal(treatment.result.rootActionLedger.length,treatment.result.actions);
@@ -93,7 +95,11 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
       assert.equal(searchRoot?.initiatingRootActionOrdinal,event.itemRootOrdinal);
     }
     rows.push({
-      seed,controlActions:control.actions,
+      seed,controlFinished:control.finished,
+      controlEndReason:control.endReason??null,
+      controlActions:control.actions,
+      treatmentFinished:treatment.result.finished,
+      treatmentEndReason:treatment.result.endReason??null,
       treatmentActions:treatment.result.actions,
       hookDispatchRootCount:audit.dispatchRootCount,
       acceptedItems:audit.acceptedItems,
