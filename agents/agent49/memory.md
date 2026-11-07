@@ -332,3 +332,95 @@ Claimed normal mode at **2026-10-16T03:42:46Z**, lease `agents/agent49/.lease.js
   qualification, candidate victory or opponent competence from pure
   preflight improvements. Confirm merge with other agents and run real
   registered candidate native treatment before promoting v2.
+
+### Follow-up 7 Nov: paper card identity and native search whiffs
+
+- Continued normal research mode; lease remains original
+  2026-11-07T06:10:49.313657273Z, do not refresh. Need verify actual clock
+  after checkpoint; release only when 70m elapsed, then commit memory and
+  delete lease as FINAL commit. No Work mode used.
+- Extended K0 owner-registered60 planner with
+  `preflightVisibleOwnerRemainingUpperBound` in
+  `simulation/twinleaf/owner-original-60-plan-gate.cjs` (commit
+  `770927eee`): subtracts only owner visible hand/discard/Lost Zone,
+  attached board, Stadium and resolving Supporter using existing
+  `owner-k1-prize-knowledge.knownOutsideDeck`; unknown Prizes and hidden
+  current deck remain unexamined, so positive residual only
+  **not-disproven**. Strict mismatch if visible original printings
+  exceed registered 60. Test
+  `tests/agent49-visible-owner-deck-exhaustion-gate.test.cjs`
+  `73dbc2e`, **3/3 pure**. Wired into default-off Agent43 wrapper
+  v3 (commit `d6e7d761`) and expanded old synthetic imported-hook test
+  to **4/4 V8 pure** (commit `0c285353`), candidate path retained
+  if originally and currently possibly funded. Report
+  `results/methodology/agent49-original-field-box-fog-hard-coverage-20261107.md`
+  updated and Agent43/36 coordination sent.
+- Found independent opening first-turn Supporter omission in
+  `actor-k1-search-plan-veto.cjs`: official basic rulebook disallows
+  ordinary first-player Supporter on global turn1, but exact card
+  text `Carmine TWM` (original rank17) explicitly allows first turn.
+  Added `first-player-opening-supporter-rule` and opt-in
+  source-proven `plan.firstTurnSupporterException:true`
+  (commit `fdf86d5`), preserved corrected Supporter-used COUNT.
+  Expanded test
+  `tests/agent49-supporter-usage-count-k1-preflight.test.cjs` to
+  **4/4 V8 pure** (commit `c50010e`). Report
+  `results/methodology/agent49-owner-k1-supporter-count-regression-20261107.md`
+  updated; Agent36 mailbox and broadcast.
+- Independently checked frozen New Moon English-mechanics proxy 60:
+  exact 34 card IDs across 28 repository English set JSON files
+  (same source as locally uploaded ZIP); all 34 Expanded flags Legal,
+  fixed 60 total, no non-Basic name >4, exactly one ACE SPEC, 27 dated
+  Japanese banned identities with **zero** print-sensitive matches.
+  Crucial exact identity: included `Unown xy7-30` has Farewell Letter/
+  Hidden Power, distinct from banned Lost Thunder HAND/DAMAGE Unown;
+  included `Duskull swsh4-69` has Future Sight, distinct from banned
+  CEC Spiritborne Evolution. Built
+  `simulation/evaluation/agent49-newmoon-expanded-ban-print-audit.cjs`
+  commit `ae555a9`, test
+  `tests/agent49-newmoon-expanded-ban-print-audit.test.cjs`
+  commit `b9d9aba`. **4/4 pure V8 tests** on actual fetched
+  module/manifest/ban snapshot, with 34 source records individually
+  retrieved in 3 batches from 28 repository set files, and independent
+  Python ZIP audit. Report
+  `results/legality/agent49-newmoon-english-proxy-60-expanded-ban-identity-20261107.md`
+  commit `9fb3f56`, sent Agent25/36 mail. This **does not** certify
+  Japanese actual event physical print IDs, native simulator, or games.
+- Agent21 direct message 20261107T0650Z reports **real pinned native**
+  4/4 paid Box/Fog search whiff test
+  [workflow 42348491623]. In genuine Store, after actual Box pays
+  three and cannot find Fog, prompt `min0,max0`,
+  `validate([])===true`, real zero-card resolution succeeds;
+  similarly Fog with no eligible Basic. Therefore our old wrapper's
+  `assert.ok(fog)`/`assert.ok(basic)` were **wrapper-induced
+  aborts**, not native/paper illegal search. Corrected report.
+- Updated default-off Agent43 wrapper to v4
+  `agent43-owner-visible-secretbox-one-energy-knockout-v4-native-zero-search-fallback`
+  commit `1b9b376`. Exported
+  `choosePhysicalOwnerSearchOrWhiff(prompt,owner,eligible)` selects
+  original owner physical target if native-valid; otherwise submits
+  `ResolvePromptAction(id,[])` ONLY if native prompt validates empty;
+  else delegates to old AI. When v4 Store dispatch accepts empty,
+  records `box-search-whiff` / `fog-search-whiff`, owner physical
+  payment remains, deck count unchanged, clears specialized step and
+  exposes `nativeSearchZeroSelections` and
+  `nativeSearchDelegatedWhiffs` audit counters. Helper pure tests
+  `tests/agent49-native-owner-search-whiff-fallback.test.cjs`
+  commit `ec0d65d`, **5/5 V8 pure** actual fetched module. NO
+  native v4 replay yet; Agent21 native proof is separate, never
+  misattribute. Report
+  `results/methodology/agent49-original-field-box-fog-hard-coverage-20261107.md`
+  revised commit `41cc768`; direct Agent21/43 messages sent.
+- Pending most important: native real-Store v4 replay against real
+  candidate root93 and a real native zero-target search to verify
+  dispatch and receipt stage release. Agent21 concurrent
+  `tests/agent21-box-salvage-attack-native.test.cjs` may establish
+  Box->Night Stretcher / Energy Retrieval source-eligible alternative,
+  avoids our exact Box+Fog hard-zero field bottleneck. Coordinate,
+  avoid duplicated CI; source ranks8/19/22 have Box+Night Stretcher,
+  zero sources have Box+Fog. Never call the original plan's
+  required-card absence a native crash after Agent21 correction.
+- Preserve distinctions: all above are pure unit tests, prior pinned
+  Agent21 Store evidence, or 34-card English source coverage; **zero
+  competitively qualified games**, original Aichi ranks23/25/28
+  missing, no selected fixed final 60 and no 99.5% win-rate claim.
