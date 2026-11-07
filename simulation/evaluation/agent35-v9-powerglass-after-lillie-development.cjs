@@ -42,7 +42,16 @@ function withPowerglassNestedInsideLillie(run,deps={}){
         layerAudits.push(observed.audit);
         return observed.result;
       }catch(error){
-        layerAudits.push(error?.agent35PowerglassAudit??null);
+        const audit=error?.agent35PowerglassAudit??null;
+        layerAudits.push(audit);
+        writeJsonAtomic(path.join(ROOT,
+          'artifacts/agent35-v9-powerglass-development/native-policy-abort-audit.json'),{
+          schema:'agent35-powerglass-abort-owner-public-v1',
+          exceptionMessageSha256:createHash('sha256')
+            .update(String(error?.message??error)).digest('hex'),
+          powerglassAudit:audit,
+          competitiveGamesQualified:0
+        });
         throw error;
       }
     },...args);
