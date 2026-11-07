@@ -45,8 +45,13 @@ function sixCandidateRank26Root(root){
       conditionalExactlyOneBasic:c.exactlyOneBasicProbability,
       basicCopiesAtMost280:h280.lowHpBasicCopies,
       conditionalExactlyOneHpAtMost280:h280.conditionalForcedActive,
+      psychic280PrintedKnockoutBasicCopies:c.psychic280.printedKOCopies,
+      conditionalForcedPsychic280KO:c.psychic280.conditionalForcedLoneKO,
       sourceDirectRootWithExactlyOneOpposingBasic:
         rootJoint.conditionalJointSetupAndSourceRoot,
+      sourceDirectRootWithPrintedPsychic280LoneKO:
+        rootJoint.conditionalJointSetupAndSourceRoot*
+        c.psychic280.printedKOCopies/c.basics,
       excludedGeometricTailUpperBound:rootJoint.excludedTailBound,
       ...{rootComponents:rootJoint.components}};
   });
