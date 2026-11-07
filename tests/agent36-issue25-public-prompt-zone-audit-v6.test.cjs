@@ -44,9 +44,10 @@ class AttackAction {
 }
 
 class FakeStore {
-  constructor(state, promptFactory) {
+  constructor(state, promptFactory, options = {}) {
     this.state = state;
     this.promptFactory = promptFactory;
+    this.deferPrompt = options.deferPrompt ?? false;
   }
 
   prompt(stateArgument, prompt, callback, token) {
@@ -67,7 +68,11 @@ class FakeStore {
       const prompt = this.promptFactory(owner, this.state.players[attackerSeat].active);
       const callback = () => {};
       const token = {preserved: true};
-      this.prompt(this.state, prompt, callback, token);
+      if (this.deferPrompt) {
+        this.deferredPrompt = {state: this.state, prompt, callback, token};
+      } else {
+        this.prompt(this.state, prompt, callback, token);
+      }
     }
     return action;
   }
@@ -197,6 +202,28 @@ test('captures live State-first prompt, post-call ID, exact Active list and Ener
     assert.equal(FakeStore.prototype.prompt, originalPrompt);
     assert.equal(FakeStore.prototype.dispatch, originalDispatch);
   }
+});
+
+test('a prompt emitted after AttackAction dispatch uses the retained lastAttack fingerprint', () => {
+  const {state, attackerSeat} = makeScenario(0);
+  const store = new FakeStore(
+    state,
+    (owner, attacker) => makePrompt(owner, attacker),
+    {deferPrompt: true}
+  );
+  const {audit} = withIssue25PublicPromptZoneAuditV6(() => {
+    store.dispatch(new AttackAction('attacker', 'Red Knuckles'));
+    assert.ok(store.deferredPrompt);
+    const pending = store.deferredPrompt;
+    store.prompt(pending.state, pending.prompt, pending.callback, pending.token);
+  }, {Store: FakeStore, ChooseCardsPrompt, GameMessage, SuperType});
+  const event = audit.events[0];
+  assert.equal(event.currentAttack, null);
+  assert.equal(event.lastAttack.attackName, 'Red Knuckles');
+  assert.equal(event.lastAttack.seat, attackerSeat);
+  assert.equal(event.lastAttack.turn, 54);
+  assert.equal(event.promptId, '1');
+  assert.equal(event.promptIdAssignedByStore, true);
 });
 
 test('direct Energy sublist and a selected Energy subset remain public zone matches', () => {
