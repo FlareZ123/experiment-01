@@ -20,6 +20,12 @@ on:
         required: false
         default: false
 
+      agent6_copycat_exact_seven:
+        description: Preregistered true starting seven plus six Prize 24-arm original rank10 vs champion A/B/A root observation
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
@@ -114,4 +120,16 @@ jobs:
         with:
           name: agent6-copycat-root-original-native
           path: agent6-copycat-root-original-native.json
+          if-no-files-found: warn
+
+      - name: Optional exact original seven hand and six Prize real Store A/B/A
+        if: inputs.agent6_copycat_exact_seven == true
+        run: |
+          node --test tests/agent6-copycat-original-seven-capture.test.cjs
+          node simulation/evaluation/agent6-copycat-exact-seven-original-native.cjs > agent6-copycat-exact-seven-original-native.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent6_copycat_exact_seven == true }}
+        with:
+          name: agent6-copycat-exact-seven-original-native
+          path: agent6-copycat-exact-seven-original-native.json
           if-no-files-found: warn
