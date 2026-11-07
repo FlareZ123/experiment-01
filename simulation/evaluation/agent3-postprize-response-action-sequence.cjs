@@ -107,7 +107,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
 
       if(!activeByTrial.has(trialId)){
         const pending=pendingByTrial.get(trialId);
-        if(pending&&seat===seats.candidateSeat&&turnBefore!==pending.sourceTurn){
+        // Both players' turns share the same round number in this engine.
+        if(pending&&seat===seats.candidateSeat){
           const sequence={
             registeredTrialId:trialId,
             sourceSeat:seats.sourceSeat,
