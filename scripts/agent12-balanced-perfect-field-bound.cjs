@@ -2,11 +2,12 @@
 
 const FIELD_SIZE = 32;
 const SEATS = [0, 1];
+const FIRST_PLAYER_SEATS = [0, 1];
 const SHA256 = /^[a-f0-9]{64}$/i;
 
 /**
  * Conservative all-success-only inference for an equally weighted 32-rank,
- * two-seat opponent field. The arithmetic assumes every observation is an
+ * two-seat, two-first-player-condition opponent field. The arithmetic assumes every observation is an
  * independent Bernoulli game under an unchanged candidate and policy.
  *
  * This module can check the supplied receipts for completeness and repeated
@@ -19,6 +20,7 @@ const SHA256 = /^[a-f0-9]{64}$/i;
  *    authenticatedSource60:boolean}>,
  *  attempts: Array<{rank:number, seat:number, trialId:string,
  *    physicalDealId:string, paperReceiptId:string, status:string,
+ *    firstPlayerSeat:number,
  *    source60Sha:string, candidate60Sha:string,
  *    candidatePolicySha:string, registrationSha:string}>,
  *  registeredAttemptCount:number,
@@ -29,7 +31,8 @@ const SHA256 = /^[a-f0-9]{64}$/i;
  * @returns {{
  *   conditionalStatisticalThresholdMet:boolean,
  *   conditionalLowerBound:number|null, totalAttempts:number,
- *   attemptsPerRankSeat:number|null, requiredPerRankSeat:number,
+ *   attemptsPerRankSeatAndFirstPlayer:number|null,
+ *   requiredPerRankSeatAndFirstPlayer:number,
  *   rejectionReasons:string[], externalPaperAndIndependenceAuditRequired:true
  * }}
  */
@@ -44,8 +47,8 @@ function assessPerfectField(request) {
       !(confidence > 0 && confidence < 1)) {
     throw new RangeError('target and confidence must be between 0 and 1');
   }
-  const requiredPerRankSeat = Math.ceil(
-    Math.log(1 - confidence) / (FIELD_SIZE * SEATS.length * Math.log(target))
+  const requiredPerRankSeatAndFirstPlayer = Math.ceil(
+    Math.log(1 - confidence) / (FIELD_SIZE * SEATS.length * FIRST_PLAYER_SEATS.length * Math.log(target))
   );
   const problems = new Set();
   const sourceByRank = new Map();
@@ -69,7 +72,8 @@ function assessPerfectField(request) {
     problems.add('incomplete-preregistered-attempt-ledger');
   }
   if (!SHA256.test(registrationSha)) problems.add('registration-unverified');
-  const counts = Array.from({length: FIELD_SIZE}, () => [0, 0]);
+  const counts = Array.from({length: FIELD_SIZE}, () =>
+    SEATS.map(() => [0, 0]));
   const trialIds = new Set();
   const physicalDealIds = new Set();
   const paperReceiptIds = new Set();
@@ -77,11 +81,12 @@ function assessPerfectField(request) {
   let candidatePolicySha = null;
   for (const attempt of attempts) {
     if (!Number.isInteger(attempt.rank) || attempt.rank < 1 ||
-        attempt.rank > FIELD_SIZE || !SEATS.includes(attempt.seat)) {
-      problems.add('invalid-rank-or-seat');
+        attempt.rank > FIELD_SIZE || !SEATS.includes(attempt.seat) ||
+        !FIRST_PLAYER_SEATS.includes(attempt.firstPlayerSeat)) {
+      problems.add('invalid-rank-seat-or-first-player');
       continue;
     }
-    counts[attempt.rank - 1][attempt.seat]++;
+    counts[attempt.rank - 1][attempt.seat][attempt.firstPlayerSeat]++;
     const source = sourceByRank.get(attempt.rank);
     if (!source || attempt.source60Sha !== source.source60Sha) {
       problems.add('source-identity-mismatch');
@@ -117,23 +122,23 @@ function assessPerfectField(request) {
       problems.add('registration-mismatch');
     }
   }
-  const strata = counts.flat();
+  const strata = counts.flat(2);
   const n = strata[0];
   if (n === 0 || strata.some(value => value !== n)) {
-    problems.add('rank-seat-exposure-unbalanced');
+    problems.add('rank-seat-first-player-exposure-unbalanced');
   }
   const rejectionReasons = [...problems].sort();
   const admissible = rejectionReasons.length === 0;
   // Balanced data under the independence assumptions:
-  // P(all wins) = product(p_i^n) <= (mean_i p_i)^(64*n), by AM-GM.
+  // P(all wins) = product(p_i^n) <= (mean_i p_i)^(128*n), by AM-GM.
   const lower = admissible ?
     Math.exp(Math.log(1 - confidence) / attempts.length) : null;
   return {
     conditionalStatisticalThresholdMet: admissible && lower >= target,
     conditionalLowerBound: lower,
     totalAttempts: attempts.length,
-    attemptsPerRankSeat: admissible ? n : null,
-    requiredPerRankSeat,
+    attemptsPerRankSeatAndFirstPlayer: admissible ? n : null,
+    requiredPerRankSeatAndFirstPlayer,
     rejectionReasons,
     externalPaperAndIndependenceAuditRequired: true
   };
