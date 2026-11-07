@@ -38,7 +38,8 @@ function nativePublicCatalog(){
  * @param {()=>T} execute Native match.
  * @param {{SimpleTacticsAi?:Function,RetreatAction?:Function,
  *   observe?:Function,catalog?:object,choose?:Function,
- *   isActualRoot?:(bot:object,state:object,seat:number)=>boolean}} deps Test seam.
+ *   isActualRoot?:(bot:object,state:object,seat:number)=>boolean,
+ *   onRetreatSelected?:(bot:object,action:object,state:object,seat:number)=>void}} deps Test seam.
  * @returns {{result:T,audit:object}}
  */
 function withBilateralMultiBasicPaidRetreat(execute,deps={}){
@@ -54,6 +55,8 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
   const choose=deps.choose??chooseMultiBasicPaidRetreatInDeckRace;
   if(deps.isActualRoot!==undefined)
     assert.equal(typeof deps.isActualRoot,'function');
+  if(deps.onRetreatSelected!==undefined)
+    assert.equal(typeof deps.onRetreatSelected,'function');
   const old=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof old?.value,'function');
@@ -102,7 +105,9 @@ function withBilateralMultiBasicPaidRetreat(execute,deps={}){
       ownerDeckCount:view.ownPublic.deckCount,
       opponentDeckCount:view.opponentPublic.deckCount
     });
-    return new RetreatAction(state.players[seat].id,intent.benchIndex);
+    const chosen=new RetreatAction(state.players[seat].id,intent.benchIndex);
+    deps.onRetreatSelected?.(this,chosen,state,seat);
+    return chosen;
   }
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
     ...old,value:ownerDecoder});
