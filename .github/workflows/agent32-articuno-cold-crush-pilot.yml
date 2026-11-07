@@ -2,6 +2,12 @@ name: Agent32 Articuno Cold Crush matched A-B-A pilot
 
 on:
   workflow_dispatch:
+    inputs:
+      run_panel:
+        description: Run the preregistered 48-match A/B/A panel after validation
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -32,9 +38,10 @@ jobs:
       - name: Run staged Articuno choice and native policy tests
         run: node --test tests/agent32-articuno-cold-crush-choice.test.cjs tests/agent32-articuno-cold-crush-native.test.cjs tests/agent32-articuno-cold-crush-policy.native.test.cjs
       - name: Run preregistered rank3 Articuno A-B-A panel
+        if: ${{ inputs.run_panel }}
         run: node simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs > agent32-rank3-articuno-cold-crush-aba.json
       - name: Upload raw A-B-A evidence
-        if: always()
+        if: ${{ always() && inputs.run_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-rank3-articuno-cold-crush-aba
