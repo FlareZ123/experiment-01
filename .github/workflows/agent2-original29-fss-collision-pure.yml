@@ -47,8 +47,8 @@ jobs:
         run: node --test tests/agent2-retreat-basic-physical-witness.test.cjs
       - name: Verify exact physical Research draw and native Store observer fixtures
         run: node --test tests/agent2-professor-research-physical-draw-witness.test.cjs tests/agent2-professor-research-native-settlement.test.cjs
-      - name: Verify first quarantined owner root exact detached observation
-        run: node --test tests/agent2-first-unsupported-owner-root-observer.test.cjs tests/agent2-first-unsupported-owner-root-bridge.test.cjs
+      - name: Verify first quarantined owner root and GO_FIRST abort receipts
+        run: node --test tests/agent2-first-unsupported-owner-root-observer.test.cjs tests/agent2-first-unsupported-owner-root-bridge.test.cjs tests/agent6-go-first-choice.test.cjs
       - name: Verify original rank13 VS Seeker Research A/B/A source and controls
         run: node --test tests/agent2-vs-seeker-research-original-rank13-aba.test.cjs
       - name: Verify owner-only VS Seeker Professor multi-action Store fixture
