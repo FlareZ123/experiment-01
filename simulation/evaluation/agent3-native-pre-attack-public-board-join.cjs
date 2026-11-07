@@ -70,8 +70,8 @@ function joinNativePreAttackBoard(
     assert.ok(Array.isArray(actor.energyCards));
     assert.ok(Array.isArray(actor.toolCards));
     assert.ok(Array.isArray(actor.printedAttacks));
-    assert.equal(actor.printedAttacks.some(p=>p.name===root.attackName),true,
-      'Actual Active did not have recorded printed attack');
+    const attackIsPrintedOnActualActive=actor.printedAttacks.some(p=>
+      p.name===root.attackName);
     assert.equal(defender.name,victim.victimPrinting.name);
     assert.equal(defender.printing,victim.victimPrinting.fullName,
       'Actual native pre-attack target must be the knocked out printed Active');
@@ -85,8 +85,15 @@ function joinNativePreAttackBoard(
       nominal.rosterAttackerPrintedId.endsWith('-'+c.printing.number));
     assert.equal(copies.length,1,'Printed attacker requires unique original 60 identity');
     const expectedFullName=copies[0].name+' '+copies[0].printing.set;
-    assert.equal(actor.printing,expectedFullName,
-      'Native Active printing differs from original roster attack');
+    const originalRegisteredActive=deck.cards.filter(c=>
+      c.category==='Pokémon' && actor.printing===c.name+' '+c.printing.set);
+    assert.equal(originalRegisteredActive.length,1,
+      'Actual native Active must be a registered original-60 printing');
+    // Native attack logs can name copied or granted attacks. The physical
+    // attacking Pokémon need not be the card printing that supplies text.
+    const originalAttackSourceIsPhysicalActive=actor.printing===expectedFullName;
+    if(originalAttackSourceIsPhysicalActive)
+      assert.equal(attackIsPrintedOnActualActive,true);
     assert.ok(Number.isSafeInteger(defender.damage)&&defender.damage>=0);
     assert.ok(Number.isSafeInteger(victim.victimDamageBeforeNativeKo));
     const incrementalNativeDamage=
@@ -102,6 +109,10 @@ function joinNativePreAttackBoard(
       acceptedPrizeRootOrdinal:root.actualPrizeExitRootOrdinal,
       attackName:root.attackName,
       attackerPrintingFromActualNativeBoard:actor.printing,
+      physicalActivePrintingAccountedForByOriginal60:true,
+      attackNamePrintedOnPhysicalActive:attackIsPrintedOnActualActive,
+      sourceAttackPrintEqualsPhysicalActive:originalAttackSourceIsPhysicalActive,
+      copiedOrGrantedSourceUnresolved:!originalAttackSourceIsPhysicalActive,
       attackerEnergyNamesBeforeAttack:[...actor.energyCards],
       attackerToolNamesBeforeAttack:[...actor.toolCards],
       printedAttackCost:nominal.printedAttackCost,
@@ -112,7 +123,8 @@ function joinNativePreAttackBoard(
       incrementalNativeDamageSincePreAttack:incrementalNativeDamage,
       independentPrintedNominalDamage:expectedNominal,
       nativeDeltaEqualsPrintedNominal:incrementalNativeDamage===expectedNominal,
-      attackerIdentityIndependentlyMatched:true,
+      sourceAttackTextPrintingIndependentlyMatched:true,
+      physicalActiveAtActualNativeAttackObserved:true,
       actualAttachedEnergyPaymentCertified:false,
       paperDamageModifierEffectsCertified:false,
       paperGameCertified:false
