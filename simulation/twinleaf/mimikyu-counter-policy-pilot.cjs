@@ -3,7 +3,8 @@
 const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {initializeCards, runMatch} = require('./headless.cjs');
-const {copycatApexResponseKind} = require('./mimikyu-counter-policy.cjs');
+const {copycatApexResponseKind, hasEffectiveFairyZone, hasKnownPublicAbilityLock} =
+  require('./mimikyu-counter-policy.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -25,14 +26,54 @@ function runSourcePolicyTrace(request, candidateSeat) {
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const eligibleChoices = [];
   const payloadChoiceObservations = [];
+  const apexWindowObservations = [];
   let observedChoices = 0;
   SimpleTacticsAi.prototype.decodeNextAction = function trace(state) {
     const seat = state.players.findIndex(p => p.id === this.client.id);
     const player = state.players[seat];
-    const responseKind = seat === candidateSeat && player &&
+    const opponent = player && state.players.find(p => p.id !== player.id);
+    const lastOpponentAttack = opponent &&
+      state.playerLastAttack?.[opponent.id];
+    const isCandidateDecision = seat === candidateSeat && player &&
       state.phase === GamePhase.PLAYER_TURN &&
-      state.activePlayer === candidateSeat ?
-        copycatApexResponseKind(state, player) : null;
+      state.activePlayer === candidateSeat;
+    const responseKind = isCandidateDecision ?
+      copycatApexResponseKind(state, player) : null;
+    if (isCandidateDecision &&
+        lastOpponentAttack?.attack?.name === 'Apex Dragon' &&
+        apexWindowObservations.length < 100) {
+      const ownSlots = [player.active, ...player.bench];
+      const activePokemon = player.active.getPokemonCard();
+      const energyCards = player.active.energies.cards;
+      apexWindowObservations.push({
+        turn: state.turn,
+        candidateSeat,
+        candidateActivePokemon: activePokemon?.fullName ?? null,
+        candidateHasMimikyuActive: activePokemon?.fullName === 'Mimikyu GRI',
+        candidateHasMimikyuInPlay: ownSlots.some(slot =>
+          slot.getPokemonCard()?.fullName === 'Mimikyu GRI'),
+        candidateHasDialgaGXInDiscard: player.discard.cards.some(card =>
+          card.fullName === 'Dialga-GX UPR'),
+        candidateHasRadiantEternatusInDiscard: player.discard.cards.some(card =>
+          card.fullName === 'Radiant Eternatus CRZ'),
+        candidateHasClefairyExInPlay: ownSlots.some(slot =>
+          slot.getPokemonCard()?.fullName === "Lillie's Clefairy ex JTG"),
+        candidateFairyZoneEffective: hasEffectiveFairyZone(state, player),
+        candidateKnownPublicAbilityLock: hasKnownPublicAbilityLock(state, player),
+        candidateEnergyCount: energyCards.length,
+        candidateEnergyNames: energyCards.map(card => card.fullName),
+        candidateCopycatCostConservative: energyCards.length >= 2 &&
+          energyCards.some(card => card.name === 'Psychic Energy'),
+        candidateUsedGX: player.usedGX === true,
+        candidatePrizeCount: player.getPrizeLeft(),
+        candidateBenchPokemon: player.bench.map(slot =>
+          slot.getPokemonCard()?.fullName ?? null).filter(Boolean),
+        opponentActivePokemon: opponent.active.getPokemonCard()?.fullName ?? null,
+        opponentLastAttackSource: lastOpponentAttack.sourceCard?.fullName ?? null,
+        opponentLastAttack: lastOpponentAttack.attack?.name ?? null,
+        responseKind
+      });
+    }
     const prompt = state.prompts?.find(p => p.result === undefined &&
       p.playerId === player?.id && p.constructor.name === 'ChooseAttackPrompt');
     const payloadResponseKind = seat === candidateSeat && player &&
@@ -74,7 +115,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
     return action;
   };
   try {
-    return {game: runMatch(request), eligibleChoices, observedChoices, payloadChoiceObservations};
+    return {game: runMatch(request), eligibleChoices, observedChoices, payloadChoiceObservations, apexWindowObservations};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
   }
@@ -128,7 +169,7 @@ function runMimikyuCounterSourcePilot() {
         policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
-        const {game, eligibleChoices, observedChoices, payloadChoiceObservations} =
+        const {game, eligibleChoices, observedChoices, payloadChoiceObservations, apexWindowObservations} =
           runSourcePolicyTrace(request, championSeat);
         rows.push({...base, status: 'engine-completed-or-bounded',
           finished: game.finished, endReason: game.endReason,
@@ -150,6 +191,8 @@ function runMimikyuCounterSourcePilot() {
           eligibleChoiceSamples: eligibleChoices,
           payloadChoiceObservations,
           payloadChoiceCount: payloadChoiceObservations.length,
+          apexWindowObservations,
+          apexWindowObservationCount: apexWindowObservations.length,
           initialSourceDealFingerprint: game.initialSourceDealFingerprint,
           policyFingerprint: game.policy
         });
