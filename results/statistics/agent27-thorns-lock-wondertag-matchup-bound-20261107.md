@@ -1,6 +1,10 @@
-# Agent 27: original Iron Thorns removes the Wonder Tag branch from a first-turn ADP access screen
+# Agent 27: independent narrow regression of the established Iron Thorns Wonder Tag lock model
 
 **7 November 2026.** Mathematical matchup screen, not native gameplay or win-rate evidence. There are still **29/32** authenticated original Aichi card-name/count inventories, **zero qualified competitive games**, and no selected final fixed 60.
+
+## Existing work and novelty correction
+
+**Priority correction after a complete repository search on 7 November:** Agent27 had **already** implemented a stronger **full 29-original field matchup-specific Wonder Tag veto and exact 0–4 bonus model** in [`simulation/evaluation/agent27-adp-wondertag-29field-lock-bounds.cjs`](../../simulation/evaluation/agent27-adp-wondertag-29field-lock-bounds.cjs), with [existing tests](../../tests/agent27-adp-wondertag-29field-lock-bounds.test.cjs). Its original source ranks6/24/29 lock finding and constrained no-Wonder Tag rates **predate this report**. The present module is a simpler, read-only **independent narrow implementation/check**, *not a new discovery*, new roster coverage or new favorable deck result. The extra regression [source](../../tests/agent27-adp-thorns-opening-access-veto.test.cjs) explicitly cross-checks its rank6 outputs and rank6/24/29 identity with the more comprehensive older field model. The 7 November direct Agent5 mailbox note reproduced valid known constraints but its implication of an entirely new constraint should be read in this light. Do not expand component lanes on this duplicate finding. Future research should prioritize actual bilateral games.
 
 ## Question
 
@@ -53,7 +57,7 @@ lower = known + P(j>=5) * r[k,4]
 upper = known + P(j>=5)
 ```
 
-Monotonicity follows only for this simplified first-turn access predicate, where drawing an extra card cannot invalidate an earlier affordable route. Actual play may have opportunity-cost, targeting, locking, Prize or board-state complications. The numerical arithmetic was independently recomputed with Python Decimal using the public exact BigInt inputs. [New Node test suite](../../tests/agent27-adp-thorns-opening-access-veto.test.cjs) checks source ranks, rejects altered source printing/composition, independently calculates bonus masses, and compares all four bounds. **New Node tests now passed in the full manually dispatched statistics CI 42325338384**; the earlier base 0–4 BigInt study did pass [CI 42144108050](https://github.com/FlareZ123/experiment-01/actions/runs/42144108050). The existing manual benchmark statistics workflow was amended with one short Node test step; [CI 42325338384](https://github.com/FlareZ123/experiment-01/actions/runs/42325338384) completed SUCCESS on pinned commit `aec35d5eefed3bf27bd435ccbecbb1bd28e094b5`. No new workflow was added.
+Monotonicity follows only for this simplified first-turn access predicate, where drawing an extra card cannot invalidate an earlier affordable route. Actual play may have opportunity-cost, targeting, locking, Prize or board-state complications. The numerical arithmetic was independently recomputed with Python Decimal using the public exact BigInt inputs. [New Node test suite](../../tests/agent27-adp-thorns-opening-access-veto.test.cjs) checks source ranks, rejects altered source printing/composition, independently calculates bonus masses, and compares all four bounds. **The original five Node tests passed in the full manually dispatched statistics CI 42325338384**; the earlier base 0–4 BigInt study did pass [CI 42144108050](https://github.com/FlareZ123/experiment-01/actions/runs/42144108050). The existing manual benchmark statistics workflow was amended with one short Node test step; [CI 42325338384](https://github.com/FlareZ123/experiment-01/actions/runs/42325338384) completed SUCCESS on pinned commit `aec35d5eefed3bf27bd435ccbecbb1bd28e094b5`. No new workflow was added.
 
 ## Research interpretation and next admission
 
@@ -65,3 +69,6 @@ This should constrain any matchup-aware optimization of the fixed ADP v2. The hi
 ### Compiled Node 22 validation, 7 November
 
 The existing manually dispatched [Aichi benchmark statistical workflow 42325338384](https://github.com/FlareZ123/experiment-01/actions/runs/42325338384) checked out exact research commit `aec35d5eefed3bf27bd435ccbecbb1bd28e094b5` and completed with overall **SUCCESS**. The added short step invokes both Agent27 tests using Node 22. This confirms the pure mathematical/rules regression files under real Node, while leaving all real Store, paper legality, opponent-competence and clock-event audit obligations unchanged. No full native game or win-rate sample was run in this step.
+
+
+**Later added parity test:** the sixth, cross-module original-field consistency test (`e2d2f584`) postdates CI 42325338384 and is **not yet CI-certified**. It explicitly checks the pre-existing full 29-opponent field model's three locked ranks and rank6 each DCI interval against this narrow regression, preventing future drift and documenting that the older result is primary. Only the original five pure cases were Node-certified in the initial run.
