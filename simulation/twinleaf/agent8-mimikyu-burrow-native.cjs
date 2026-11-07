@@ -87,8 +87,10 @@ function probe(sourceSeat){
   x.state.phase=x.GamePhase.PLAYER_TURN;
 
   const {AttackAction}=native('game/store/actions/game-actions');
-  const sourceDeckTopBeforeBurrow=x.opponent.deck.cards[0];
+  const candidateDeckTopBeforeBurrow=x.opponent.deck.cards.slice(0,2);
   const candidateDeckBeforeBurrow=x.opponent.deck.cards.length;
+  const candidateDiscardBeforeBurrow=x.opponent.discard.cards.length;
+  const candidateHandBeforeBurrow=x.opponent.hand.cards.length;
   const sourceDeckBeforeBurrow=x.owner.deck.cards.length;
 
   x.store.dispatch(new AttackAction(x.owner.id,'Burrow'));
@@ -100,14 +102,21 @@ function probe(sourceSeat){
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,'Burrow');
   assert.notEqual(previous.attack.gxAttack,true);
-  assert.equal(x.opponent.deck.cards.length,candidateDeckBeforeBurrow-1,
-    'The original Burrow must discard from the opponent Mimikyu deck');
-  assert.ok(x.opponent.discard.cards.includes(sourceDeckTopBeforeBurrow),
+  assert.equal(x.opponent.deck.cards.length,candidateDeckBeforeBurrow-2,
+    'One Burrow discard plus the Mimikyu turn draw reduce its deck by two');
+  assert.equal(x.opponent.discard.cards.length-candidateDiscardBeforeBurrow,1,
+    'The original Burrow must discard exactly one physical Mimikyu deck card');
+  assert.equal(x.opponent.hand.cards.length-candidateHandBeforeBurrow,1,
+    'Mimikyu draws one card when its turn begins');
+  assert.ok(x.opponent.discard.cards.some(value=>value.id===candidateDeckTopBeforeBurrow[0].id),
     'The original Burrow must move the Mimikyu deck top card to its discard');
+  assert.ok(x.opponent.hand.cards.some(value=>value.id===candidateDeckTopBeforeBurrow[1].id),
+    'The next Mimikyu deck card must be its normal turn draw');
 
-  const sourceDeckTopBeforeCopycat=x.owner.deck.cards[0];
+  const sourceDeckTopBeforeCopycat=x.owner.deck.cards.slice(0,2);
   const sourceDeckBeforeCopycat=x.owner.deck.cards.length;
   const sourceDiscardBeforeCopycat=x.owner.discard.cards.length;
+  const sourceHandBeforeCopycat=x.owner.hand.cards.length;
   x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
   const copiedAttackPrompts=settlePrompts(x);
 
@@ -128,9 +137,13 @@ function probe(sourceSeat){
     sourceDeckAfterCopycat:x.owner.deck.cards.length,
     sourceDeckDelta:x.owner.deck.cards.length-sourceDeckBeforeCopycat,
     sourceDiscardDelta:x.owner.discard.cards.length-sourceDiscardBeforeCopycat,
-    sourceTopMovedToDiscard:x.owner.discard.cards.includes(sourceDeckTopBeforeCopycat),
+    sourceHandDelta:x.owner.hand.cards.length-sourceHandBeforeCopycat,
+    sourceTopMovedToDiscard:x.owner.discard.cards.some(value=>value.id===sourceDeckTopBeforeCopycat[0].id),
+    sourceNextTopMovedToHand:x.owner.hand.cards.some(value=>value.id===sourceDeckTopBeforeCopycat[1].id),
     candidateDeckAfterBurrow:x.opponent.deck.cards.length,
     candidateDeckDelta:x.opponent.deck.cards.length-candidateDeckBeforeBurrow,
+    candidateDiscardDelta:x.opponent.discard.cards.length-candidateDiscardBeforeBurrow,
+    candidateHandDelta:x.opponent.hand.cards.length-candidateHandBeforeBurrow,
     unresolvedPrompts:x.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     ownerActiveEnergyCount:x.opponent.active.energies.cards.length,
@@ -140,11 +153,17 @@ function probe(sourceSeat){
     activeSeat:x.state.activePlayer,
     competitiveQualifiedGames:0
   };
-  assert.equal(result.sourceDeckDelta,-1,
+  assert.equal(result.sourceDeckDelta,-2,
+    'Copied Burrow discard plus Bunnelby turn draw reduce its deck by two');
+  assert.equal(result.sourceDiscardDelta,1,
     'Copied Burrow must discard exactly one card from Bunnelby owner deck');
-  assert.equal(result.sourceDiscardDelta,1);
+  assert.equal(result.sourceHandDelta,1,
+    'Bunnelby draws one card when its turn begins');
   assert.equal(result.sourceTopMovedToDiscard,true);
-  assert.equal(result.candidateDeckDelta,-1);
+  assert.equal(result.sourceNextTopMovedToHand,true);
+  assert.equal(result.candidateDeckDelta,-2);
+  assert.equal(result.candidateDiscardDelta,1);
+  assert.equal(result.candidateHandDelta,1);
   assert.deepEqual(result.unresolvedPrompts,[]);
   return result;
 }
@@ -200,6 +219,10 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   x.state.turn=2;
   x.state.phase=x.GamePhase.PLAYER_TURN;
 
+  const mimikyuDeckTopBeforeSource=x.opponent.deck.cards.slice(0,2);
+  const mimikyuDeckBeforeSource=x.opponent.deck.cards.length;
+  const mimikyuDiscardBeforeSource=x.opponent.discard.cards.length;
+  const mimikyuHandBeforeSource=x.opponent.hand.cards.length;
   const {AttackAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {GameMessage}=native('game/game-message');
@@ -259,14 +282,21 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   assert.equal(recoverySelected,true,'Rototiller must recycle the physical Handiwork');
   assert.equal(burrowShown,true,'the source turn must resolve its Burrow reveal');
   assert.equal(x.state.activePlayer,1-sourceSeat);
+  assert.equal(x.opponent.deck.cards.length,mimikyuDeckBeforeSource-2,
+    'One Bunnelby Burrow discard plus Mimikyu turn draw reduce its deck by two');
+  assert.equal(x.opponent.discard.cards.length-mimikyuDiscardBeforeSource,1);
+  assert.equal(x.opponent.hand.cards.length-mimikyuHandBeforeSource,1);
+  assert.ok(x.opponent.discard.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[0].id));
+  assert.ok(x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id));
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,secondAttack,
     'the final Bunnelby attack must replace the first attack in public history');
 
-  const sourceDeckTop=x.owner.deck.cards[0];
+  const sourceDeckTop=x.owner.deck.cards.slice(0,2);
   const sourceDeckBefore=x.owner.deck.cards.length;
   const sourceDiscardBefore=x.owner.discard.cards.length;
+  const sourceHandBefore=x.owner.hand.cards.length;
   const mimikyuDeckBefore=x.opponent.deck.cards.length;
   const mimikyuDiscardBefore=x.opponent.discard.cards.length;
   const copycatPrompts=[];
@@ -311,7 +341,10 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     copycatPrompts,
     sourceDeckDelta:x.owner.deck.cards.length-sourceDeckBefore,
     sourceDiscardDelta:x.owner.discard.cards.length-sourceDiscardBefore,
-    sourceTopMovedToDiscard:x.owner.discard.cards.some(value=>value.id===sourceDeckTop.id),
+    sourceHandDelta:x.owner.hand.cards.length-sourceHandBefore,
+    sourceTopMovedToDiscard:x.owner.discard.cards.some(value=>value.id===sourceDeckTop[0].id),
+    sourceTopMovedToHand:x.owner.hand.cards.some(value=>value.id===sourceDeckTop[0].id),
+    sourceNextTopMovedToHand:x.owner.hand.cards.some(value=>value.id===sourceDeckTop[1].id),
     mimikyuDeckDelta:x.opponent.deck.cards.length-mimikyuDeckBefore,
     mimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBefore,
     mimikyuRecoveryReturnedToDeck:x.opponent.deck.cards.some(value=>value.id===mimikyuRecovery.id),
@@ -324,17 +357,21 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   };
 
   if(secondAttack==='Burrow'){
-    assert.equal(result.sourceDeckDelta,-1,
-      'Copycat Burrow must mill one card from Bunnelby owner deck');
+    assert.equal(result.sourceDeckDelta,-2,
+      'Copycat Burrow discard plus Bunnelby turn draw reduce its deck by two');
     assert.equal(result.sourceDiscardDelta,1);
+    assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
+    assert.equal(result.sourceNextTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,0);
     assert.equal(result.copycatBurrowShown,true);
     assert.equal(result.mimikyuRecoverySelected,false);
   }else{
-    assert.equal(result.sourceDeckDelta,0,
-      'Copycat Rototiller must not mill Bunnelby owner deck');
+    assert.equal(result.sourceDeckDelta,-1,
+      'Bunnelby turn draw reduces its deck; Copycat Rototiller does not mill it');
     assert.equal(result.sourceDiscardDelta,0);
+    assert.equal(result.sourceHandDelta,1);
+    assert.equal(result.sourceTopMovedToHand,true);
     assert.equal(result.sourceTopMovedToDiscard,false);
     assert.equal(result.mimikyuDeckDelta,1,
       'Copycat Rototiller must return one Mimikyu discard card to Mimikyu deck');
