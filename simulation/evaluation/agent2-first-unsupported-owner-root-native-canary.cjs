@@ -15,12 +15,12 @@ const {withNativePaperSupporterDiscipline}=require(
   '../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withSameTargetAttachEnergySelection}=require(
   '../twinleaf/same-target-attach-energy-hook.cjs');
-const {withGoFirstChoice}=require('../twinleaf/agent6-go-first-choice.cjs');
-const {withOwnerStartingBasicChoice}=require('../twinleaf/agent50-owner-starting-basic-choice.cjs');
-const {withOwnerPublicAcknowledgements}=require('../twinleaf/agent50-owner-public-acknowledgements.cjs');
-const {withOwnerMandatoryShowCards}=require('../twinleaf/agent50-owner-mandatory-showcards.cjs');
-const {withBlockedPromptEnvelope}=require('../twinleaf/agent50-first-blocked-prompt-envelope.cjs');
-const {withFirstBlockedPromptContract}=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
+const {withGoFirstChoice,VERSION:GO_FIRST_VERSION}=require('../twinleaf/agent6-go-first-choice.cjs');
+const {withOwnerStartingBasicChoice,VERSION:STARTING_BASIC_VERSION}=require('../twinleaf/agent50-owner-starting-basic-choice.cjs');
+const {withOwnerPublicAcknowledgements,VERSION:PUBLIC_ACK_VERSION}=require('../twinleaf/agent50-owner-public-acknowledgements.cjs');
+const {withOwnerMandatoryShowCards,VERSION:SHOWCARDS_VERSION}=require('../twinleaf/agent50-owner-mandatory-showcards.cjs');
+const {withBlockedPromptEnvelope,VERSION:BLOCKED_ENVELOPE_VERSION}=require('../twinleaf/agent50-first-blocked-prompt-envelope.cjs');
+const {withFirstBlockedPromptContract,VERSION:PROMPT_CONTRACT_VERSION}=require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 
 const VERSION='agent2-first-native-quarantined-owner-view-original2seat-v3-selected-setup-stack';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -146,6 +146,15 @@ function run(){
   const rows=[0,1].map(seat=>runOne(seat,cards));
   return {
     version:VERSION,enginePin:PIN,seed:SEED,actionLimit:ACTION_LIMIT,
+    sourceCodeCommit:process.env.GITHUB_SHA??null,
+    setupAdapterVersions:{
+      goFirst:GO_FIRST_VERSION,
+      startingBasics:STARTING_BASIC_VERSION,
+      publicAcknowledgements:PUBLIC_ACK_VERSION,
+      mandatoryShowCards:SHOWCARDS_VERSION,
+      blockedPromptEnvelope:BLOCKED_ENVELOPE_VERSION,
+      firstBlockedPromptContract:PROMPT_CONTRACT_VERSION
+    },
     goFirstPolicy:[false,false],
     selectedSetupAdapters:[
       'agent50-owner-starting-basic-choice',
