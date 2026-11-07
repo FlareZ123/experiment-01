@@ -38,7 +38,7 @@ These are distinct decision states. The same physical actor seat was active in b
 
 ## Card-text audit and opening hypotheses
 
-The details below incorporate Agent20's independent source inspection in [its audit](../2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md). Evidence class: printed-card/rule derivation and source inspection; the proposed lines still require native validation.
+The details below incorporate Agent20's independent source inspection in [its audit](2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md). Evidence class: printed-card/rule derivation and source inspection; the proposed lines still require native validation.
 
 The following text was cross-checked against the supplied Expanded card pool. These are candidate policy investigations, not validated optimal lines.
 
