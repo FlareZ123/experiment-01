@@ -25,7 +25,7 @@ const GROUPS=Object.freeze({
  */
 function census(data=corpus){
   assert.equal(data.decks.length,29,'source coverage changed; re-audit baseline');
-  assert.deepEqual(data.missing_full_lists,[23,25,28]);
+  assert.deepEqual(data.missing_full_lists.map(x=>x.rank),[23,25,28]);
   const byName=new Map();
   const seenRanks=new Set();
   for(const d of data.decks){
@@ -70,7 +70,7 @@ function census(data=corpus){
   return {
     version:VERSION,source:'results/aichi-2026/full-decklists.json',
     qualifiedGames:0,originalSixties:data.decks.length,
-    missingFullListRanks:[...data.missing_full_lists],
+    missingFullListRanks:data.missing_full_lists.map(x=>x.rank),
     sourceDeckRanks,trainerNameCount:ranking.length,
     rankedTrainerCounts:ranking,selectedItemCounts:selected,groups,
     qualification:{
