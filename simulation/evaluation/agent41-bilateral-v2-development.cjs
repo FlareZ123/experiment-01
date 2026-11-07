@@ -1572,6 +1572,8 @@ function runDevelopment({
     [id,{plan:planAichi(manifest,{allowEquivalentBasicEnergies:true,
       allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true})}]));
   const rows=[];
+  assert.ok(!allowSingleCandidateArm||registeredTrials!==null,
+    'Single-candidate mode requires explicit registered trials');
   if(registeredTrials!==null){
     assert.equal(sourceFirstRetrospective,false,
       'Prospective trials cannot activate selected historical source-first seeds');
