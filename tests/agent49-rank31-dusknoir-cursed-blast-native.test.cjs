@@ -20,6 +20,10 @@ for(const seat of [0,1]){
     assert.equal(result.opponentPrizeCardsTaken,1);
     assert.equal(result.netPrizeAdvantage,1);
     assert.equal(result.sourceStackPhysicallyDiscarded,true);
+    assert.equal(result.sourceBenchSlotCountBefore,5);
+    assert.equal(result.sourceBenchOccupiedBefore,1);
+    assert.equal(result.sourceBenchSlotCountAfter,5);
+    assert.equal(result.sourceBenchOccupiedAfter,0);
     assert.equal(result.targetPhysicallyDiscarded,true);
     assert.equal(result.pendingPrompts,0);
     assert.equal(result.qualifiedGame,false);
