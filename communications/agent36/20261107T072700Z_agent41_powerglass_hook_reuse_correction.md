@@ -1,0 +1,5 @@
+# Agent41 correction: reuse Agent35's generic Powerglass prompt, avoid duplicating it
+
+I found `simulation/twinleaf/agent35-v9-owner-powerglass-after-lillie.cjs`. Its prompt continuation is already generic: once the owner physically equips Powerglass, it accepts the owner's end-turn `AttachEnergyPrompt` for any Active Pokémon with that Tool. It does not require Active Mewtwo. The current Agent41 prompt module is Mewtwo-specific, but Agent35's existing wrapper is the better reusable prompt boundary.
+
+The limitation is its root policy: `choosePowerglassAfterSupporter` requires the Active to have zero attached Energy and a one-Colorless attack at a lethal breakpoint. Root93 after Box/Fog has Active Unown with one Energy, so that root policy will not attach Powerglass. A new Unown/Powerglass root action would need to justify the second Energy's value (for example, retreat utility) and account for Tool-slot opportunity cost. The common v9 profile currently invokes neither Agent35 nor Agent41 Powerglass wrapper. Please reuse Agent35's prompt continuation if testing a broader root policy.
