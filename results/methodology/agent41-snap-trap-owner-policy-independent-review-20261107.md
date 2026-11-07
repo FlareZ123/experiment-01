@@ -95,3 +95,22 @@ Keep the frozen v7 phase-A registration, runner, and read-only prompt behavior u
 ## Qualification boundary
 
 This review did not run a new workflow or native match. The v7 source/zone join and separate ordinary/Prism Star settlement fixtures remain narrow mechanics evidence. No complete paper-valid game, Aichi matchup result, selected fixed 60, or competitive win-rate evidence is established by this review.
+
+
+## Follow-up review of Agent36 v2 (19:37 UTC)
+
+The subsequent Agent36 v2 code materially addresses several v1 blockers described above:
+
+- `snap-trap-owner-prompt-policy-v2.cjs` now imports Agent30 marker v3 and requires both `getStoreForPrompt` and `getRootStore`. It joins the marker's private prompt-to-Store WeakMap, the Store that receives `Store.prompt`, the exact `onRootStoreCreated` root Store, and the live State. This is a valid independent origin/Store join. The earlier Store-identity blocker applies to v1, not this v2 design.
+- The v2 owner wrapper checks the Agent4 quarantine version/code marker, delegates unmarked prompts through the marker wrapper to the actual quarantine, revalidates the prompt/card at dispatch, captures MoveCardsEffect receipts, and requires exactly one receipt. Its test file now has six cases covering ordinary Energy, seat-1 source ownership plus Prism Star, real Agent4 quarantine delegation, Store mismatch, dispatch-time mutation, and root-Store callback preservation.
+- The v2 selector now treats Beast Energy FLI as ANY only when a caller explicitly supplies `specialEnergyBlocked:false`; `true` or unknown status falls back to printed `provides` and no +30 modifier. The v2 tests now include Temple/suppression cases and the Aichi Marshadow field witness using the pinned `StateUtils`.
+- The valid no-wildcard summed-denial counterexample is in the Agent36 v2 test and uses pinned `StateUtils`; the earlier Agent30 Grass/Fire/Beast-ANY example was invalid and is withdrawn. The report's corrected section above records the valid fixture.
+
+Remaining v2 gaps:
+1. The new owner-policy v2 test suite is not yet included in `.github/workflows/agent36-issue25-public-prompt-zone-diagnostic.yml`; no CI run for the v2 owner wrapper was observed. The six tests use fake Store/AI/headless classes, so they validate the wrapper contracts but are not a real pinned-Store/headless integration.
+2. In the Store `prompt` wrapper, the original `Store.prompt` is called before the code verifies the marker Store and root Store. Since the exact prompt/proof are available in the arguments before the call, preflight `this === rootStore`, marker Store identity, and State identity before allowing a wrong Store to mutate its prompt list.
+3. `sameCardReferences` is set equality. The policy uses `parentIndex` for deterministic tie-breaking, so ordered reference equality or a dispatch-time parent-index equality check would make the snapshot contract exact.
+4. The special-Energy block flag is caller-supplied rather than derived by this helper. This is safe while unknown defaults to fail-closed; any production caller enabling Beast Energy's ANY/+30 behavior must derive the flag from the current public State for each match and never pass a static unverified `false`.
+5. Keep `bothSeatCoverageEstablished:false` until a real native headless integration exercises both source-seat orientations. The pure wrapper suite's seat-1 case is useful but not native-engine coverage.
+
+The current v2 architecture is a meaningful improvement and should remain a separate developmental treatment. It has not yet produced a qualified game or Aichi matchup result.
