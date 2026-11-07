@@ -8,6 +8,7 @@ const {
 const {
   VERSION,
   buildPublicEnergyMap,
+  beastEnergyAwareAttackDamageValue,
   chooseSnapTrapEnergyV2,
   loadTypes
 } = require('../../simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs');
@@ -173,8 +174,10 @@ test('public EnergyMap applies Beast Energy FLI as one ANY unit only on an Ultra
     {name: 'Sledgehammer', cost: [CardType.FIGHTING], damage: 30}
   ], {ultraBeast: false, fullName: 'Marshadow UNB'});
 
-  const ultraMap = buildPublicEnergyMap(ultra.active, types);
-  const ordinaryMap = buildPublicEnergyMap(ordinary.active, types);
+  const ultraMap = buildPublicEnergyMap(ultra.active, types, {specialEnergyBlocked: false});
+  const ordinaryMap = buildPublicEnergyMap(ordinary.active, types, {specialEnergyBlocked: false});
+  const blockedMap = buildPublicEnergyMap(ultra.active, types, {specialEnergyBlocked: true});
+  const unknownMap = buildPublicEnergyMap(ultra.active, types);
   const ultraBeastEntry = ultraMap.energyMap.find(entry => entry.card === beast);
   const ordinaryBeastEntry = ordinaryMap.energyMap.find(entry => entry.card === beast);
 
@@ -184,8 +187,23 @@ test('public EnergyMap applies Beast Energy FLI as one ANY unit only on an Ultra
   assert.equal(StateUtils.checkEnoughEnergy(ordinaryMap.energyMap, [CardType.FIGHTING]), false);
   assert.equal(ultraMap.ultraBeast, true);
   assert.equal(ultraMap.beastEnergyAttached, true);
+  assert.equal(ultraMap.specialEnergyBlocked, false);
+  assert.equal(ultraMap.specialEnergyBlockStatus, 'unblocked');
   assert.deepEqual(ultraMap.dynamicOverrides, ['Beast Energy FLI: ANY']);
   assert.equal(ordinaryMap.dynamicOverrides.length, 0);
+  assert.deepEqual(blockedMap.energyMap[0].provides, [CardType.COLORLESS]);
+  assert.deepEqual(unknownMap.energyMap[0].provides, [CardType.COLORLESS]);
+  assert.equal(blockedMap.specialEnergyBlockStatus, 'blocked');
+  assert.equal(unknownMap.specialEnergyBlockStatus, 'unknown-fail-closed');
+  assert.equal(beastEnergyAwareAttackDamageValue({damage: 30}, {
+    ultraBeast: true, beastEnergyAttached: true, specialEnergyBlocked: false
+  }), 60);
+  assert.equal(beastEnergyAwareAttackDamageValue({damage: 30}, {
+    ultraBeast: true, beastEnergyAttached: true, specialEnergyBlocked: true
+  }), 30);
+  assert.equal(beastEnergyAwareAttackDamageValue({damage: 30}, {
+    ultraBeast: true, beastEnergyAttached: true, specialEnergyBlocked: null
+  }), 30);
   assert.equal(ultraMap.energyMap.length, 1);
 });
 
@@ -203,7 +221,9 @@ test('the former Grass/Fire/Beast-ANY fixture leaves both attacks payable after 
     {name: 'Grass Attack', cost: [CardType.GRASS, CardType.GRASS], damage: 130},
     {name: 'Fire Attack', cost: [CardType.FIRE, CardType.FIRE], damage: 120}
   ], {ultraBeast: true});
-  const energyMap = buildPublicEnergyMap(state.active, types).energyMap;
+  const energyMap = buildPublicEnergyMap(state.active, types, {
+    specialEnergyBlocked: false
+  }).energyMap;
   const grassRemoved = energyMap.filter(entry => entry.card !== grassA);
   const beastRemoved = energyMap.filter(entry => entry.card !== beast);
 
@@ -244,13 +264,14 @@ test('caller-supplied public damage modifier models Beast Energy plus 30 while i
   const state = fixture([beast, fighting], [
     {name: 'Sledgehammer', cost: [CardType.FIGHTING], damage: 30}
   ], {ultraBeast: true, fullName: 'Buzzwole FLI'});
-  const energyMap = buildPublicEnergyMap(state.active, types).energyMap;
-  const attackDamageValue = (attack, context) =>
-    attack.damage + (context.ultraBeast && context.beastEnergyAttached ? 30 : 0);
+  const energyMap = buildPublicEnergyMap(state.active, types, {
+    specialEnergyBlocked: false
+  }).energyMap;
 
   const choice = chooseSnapTrapEnergyV2(state.prompt, state.active, types, {
     energyMap,
-    attackDamageValue
+    specialEnergyBlocked: false,
+    attackDamageValue: beastEnergyAwareAttackDamageValue
   });
 
   assert.equal(choice.bestBeforeAttackDamage, 60);
@@ -298,6 +319,71 @@ test('Prism Star is a tie-break when best remaining attack damage is equal', () 
   assert.equal(choice.card, beast);
   assert.equal(choice.bestRemainingAttackDamage, 10);
   assert.equal(choice.prismStar, true);
+});
+
+
+test('Aichi rank-1 Marshadow witness: eight Psychic Energy removals leave Red Knuckles payable', () => {
+  const psychicEnergies = Array.from({length: 8}, (_, index) =>
+    energy('Psychic Energy MEE ' + index, [CardType.PSYCHIC])
+  );
+  const state = fixture(psychicEnergies, [
+    {name: 'Red Knuckles', cost: [CardType.COLORLESS], damage: 10}
+  ], {fullName: 'Marshadow UNB'});
+
+  const choice = chooseSnapTrapEnergyV2(state.prompt, state.active, types);
+
+  assert.equal(choice.card, psychicEnergies[0]);
+  assert.equal(choice.parentIndex, 1);
+  assert.equal(choice.bestBeforeAttackDamage, 10);
+  assert.equal(choice.bestRemainingAttackDamage, 10);
+  assert.equal(choice.bestAttackDenial, 0);
+  assert.deepEqual(choice.deniedAttacks, []);
+  assert.equal(choice.deniedBaseDamage, 0);
+  assert.equal(choice.damageModel, 'printed-base-only');
+});
+
+test('corrected DCE/Fire/Beast Ultra Beast counterexample distinguishes v1 from v2', () => {
+  const doubleColorless = energy('Double Colorless Energy SUM', [
+    CardType.COLORLESS,
+    CardType.COLORLESS
+  ], {special: true});
+  const fire = energy('Fire Energy', [CardType.FIRE]);
+  const beast = energy('Beast Energy FLI', [CardType.COLORLESS], {
+    special: true,
+    prismStar: true,
+    set: 'FLI',
+    setNumber: '117'
+  });
+  const state = fixture([doubleColorless, fire, beast], [
+    {
+      name: 'Colorless Barrage',
+      cost: [CardType.COLORLESS, CardType.COLORLESS, CardType.COLORLESS],
+      damage: 130
+    },
+    {name: 'Fire Attack', cost: [CardType.FIRE, CardType.FIRE], damage: 120}
+  ], {ultraBeast: true, fullName: 'Synthetic Ultra Beast'});
+  const publicMap = buildPublicEnergyMap(state.active, types, {
+    specialEnergyBlocked: false
+  }).energyMap;
+
+  const v1 = chooseSnapTrapEnergy(state.prompt, state.active, types, {
+    energyMap: publicMap
+  });
+  const v2 = chooseSnapTrapEnergyV2(state.prompt, state.active, types, {
+    energyMap: publicMap,
+    specialEnergyBlocked: false,
+    attackDamageValue: beastEnergyAwareAttackDamageValue
+  });
+
+  assert.equal(v1.card, doubleColorless);
+  assert.equal(v1.denialScore, 130);
+  assert.equal(v2.card, beast);
+  assert.equal(v2.bestBeforeAttackDamage, 160);
+  assert.equal(v2.bestRemainingAttackDamage, 130);
+  assert.equal(v2.bestAttackDenial, 30);
+  assert.deepEqual(v2.deniedAttacks, ['Fire Attack']);
+  assert.equal(v2.deniedBaseDamage, 120);
+  assert.equal(v2.damageModel, 'caller-supplied-public-modifiers');
 });
 
 test('v2 respects parent-list blocked indices and does not mutate public lists', () => {
