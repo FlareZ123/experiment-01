@@ -622,26 +622,6 @@ test('single-candidate registration is explicit, one-game, and preserves paired 
   ],[11],true),{name:'AssertionError'});
 });
 
-test('single-candidate-per-source-group accepts a fixed candidate across eight contexts',()=>{
-  const rows=[];
-  const ranks=[1,3,6,11];
-  let seed=9000;
-  for(const rank of ranks){
-    for(const candidateSlot of ['A','B']){
-      const repeat=300+rank;
-      const candidateId='new-moon-lockbreaker-v1';
-      rows.push({
-        id:[rank,repeat,candidateSlot,candidateId].join(':'),
-        rank,repeat,candidateSlot,candidateId,seed:seed++
-      });
-    }
-  }
-  assert.deepEqual(validateRegisteredTrialGroups(rows,ranks,false,true),{
-    groupCount:8,trialIds:rows.map(row=>row.id)
-  });
-  assert.deepEqual(registeredSourcePairKeys(rows,false,true),[]);
-});
-
 test('single-candidate-per-source-group validates a fixed deck across eight registered contexts',()=>{
   const rows=[];
   const ranks=[1,3,6,11];
