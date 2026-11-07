@@ -205,7 +205,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       const ultra=require('../twinleaf/agent29-rank9-owner-ultra-ball-dead-vip.cjs')
         .withOriginalRank9DeadVipUltraBall(choose,
           options.rank9CompressorOwnerSeat);
-      const chosen={result:ultra.result,audit:{
+      const chosen={result:ultra.result.result,audit:{
         ...ultra.result.audit,deadVipUltra:ultra.audit
       }};
       return chosen;
