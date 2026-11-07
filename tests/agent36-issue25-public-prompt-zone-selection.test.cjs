@@ -72,8 +72,8 @@ test('multiple quarantine records are ambiguous even when only one event matches
   assert.equal(result.candidateCount, 1);
   assert.equal(result.blockedPromptZoneEvent, null);
   assert.deepEqual(result.candidateGroups, [
-    {quarantineRecordIndex: 0, matchingEventIndices: [0]},
-    {quarantineRecordIndex: 1, matchingEventIndices: []}
+    {quarantineRecordIndex: 0, matchingEvents: [{eventIndex: 0, joinComplete: true, missingFields: []}]},
+    {quarantineRecordIndex: 1, matchingEvents: []}
   ]);
 });
 
@@ -117,6 +117,20 @@ test('unknown quarantine seat preserves all same-turn, phase and type candidates
   );
   assert.equal(result.status, 'FALLBACK_CAPTURED_PROMPT_EVENT_AMBIGUOUS');
   assert.equal(result.candidateCount, 2);
+});
+
+test('partial event metadata remains a candidate but cannot become the unique event', () => {
+  const partial = event({ownerSeat: undefined, turn: undefined});
+  const result = resolveBlockedPromptZoneEvent([record()], [partial]);
+  assert.equal(result.candidateCount, 1);
+  assert.deepEqual(result.blockedPromptZoneCandidates, [{
+    quarantineRecordIndex: 0,
+    eventIndex: 0,
+    joinComplete: false,
+    missingFields: ['turn', 'ownerSeat']
+  }]);
+  assert.equal(result.status, 'FALLBACK_CAPTURED_PROMPT_EVENT_JOIN_INCOMPLETE');
+  assert.equal(result.blockedPromptZoneEvent, null);
 });
 
 test('prompt type mismatches are not joined by turn and seat alone', () => {
