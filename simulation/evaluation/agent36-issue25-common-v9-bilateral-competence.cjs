@@ -385,6 +385,8 @@ function summarizeNativeAttempt(row) {
     publicRootLedgerSha256Computed:ledgerDigest,
     publicRootLedgerSha256Reported:reportedDigest,
     nativeAbortProvenance:row.nativeAbortProvenance??null,
+    sharedTrubbishFamilyOwnerAbortAudit:
+      row.sharedTrubbishFamilyOwnerAbortAudit??null,
     nativeAbortPrompt:receipt?{
       failureStage:receipt.failureStage??null,
       pendingPrompt:receipt.pendingPrompt??null,
