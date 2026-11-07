@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {assessBalancedFieldKl, lowerKlBound} =
+const {assessBalancedFieldKl, lowerKlBound, binaryKl} =
   require('../scripts/agent12-balanced-kl-field-bound.cjs');
 const {assessPerfectField} =
   require('../scripts/agent12-balanced-perfect-field-bound.cjs');
@@ -167,4 +167,36 @@ test('zero-win, all-win, impossible sample and invalid confidence boundaries', (
   assert.throws(()=>lowerKlBound(641,640,.95),RangeError);
   assert.throws(()=>lowerKlBound(1,0,.95),RangeError);
   assert.throws(()=>lowerKlBound(1,640,1),RangeError);
+});
+
+test('conservative upper-tail KL bound dominates exact heterogeneous Bernoulli tails', () => {
+  const profiles = [
+    [0, 0.1, 0.9, 1],
+    [0.01, 0.25, 0.3, 0.99],
+    [0.4, 0.4, 0.4, 0.4],
+    [0.05, 0.95, 0.05, 0.95],
+    [0.001, 0.2, 0.7, 0.999]
+  ];
+  for (const probabilities of profiles) {
+    let distribution = [1];
+    for (const p of probabilities) {
+      const next = Array(distribution.length + 1).fill(0);
+      for (let k = 0; k < distribution.length; k++) {
+        next[k] += distribution[k] * (1 - p);
+        next[k + 1] += distribution[k] * p;
+      }
+      distribution = next;
+    }
+    const n = probabilities.length;
+    const mu = probabilities.reduce((sum, p) => sum + p, 0) / n;
+    for (let k = 0; k <= n; k++) {
+      const q = k / n;
+      if (q <= mu) continue;
+      const exactTail = distribution.slice(k).reduce((a, b) => a + b, 0);
+      const conservativeTail = Math.exp(-n * binaryKl(q, mu));
+      assert.ok(exactTail <= conservativeTail + 1e-12,
+        'profile=' + probabilities.join(',') + '; wins=' + k +
+          '; exact=' + exactTail + '; KL=' + conservativeTail);
+    }
+  }
 });
