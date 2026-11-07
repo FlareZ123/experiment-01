@@ -131,6 +131,6 @@ The v29 cases attach Speed Lightning Energy to Iron Thorns ex, so their direct-c
 
 - Eight joined attack roots do not establish eight completed games.
 - The v8 treatment still has root-capped attempts and an unqualified terminal attempt; the qualified competitive-game count remains zero.
-- The first candidate response after the rank-11 champion-reference Prize is Fog Crystal at root ordinal 90, turn 18, with no captured final Pass. Its post-action hand/board/prompt settlement is still an evidence gap.
+- The first candidate response after the rank-11 champion-reference physical Prize exit at root ordinal 86 is Fog Crystal at root ordinal 90, turn 19, with no captured final Pass. Its post-action hand/board/prompt settlement is still an evidence gap.
 - No matchup-level win-rate estimate or 99.5% claim is supported.
 - The next useful extension is a post-Store-dispatch snapshot of the candidate's first response after each source Prize root, joined by registered trial ID and exact root ordinal. Capture only after the action has dispatched; do not feed hidden-state telemetry into either policy.
