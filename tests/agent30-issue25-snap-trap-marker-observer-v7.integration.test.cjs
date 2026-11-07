@@ -176,7 +176,7 @@ test('same source prompt object joins the live Store event and public Active Ene
           ChooseCardsPrompt,
           GameMessage,
           SuperType,
-          getSourceOriginForPrompt
+          getSourceOriginForPrompt: getOriginForPrompt
         }
       );
     }, {engine});
