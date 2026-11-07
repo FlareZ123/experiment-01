@@ -1,0 +1,20 @@
+name: Agent10 strict VIP attribution v2 pure tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strict-vip-attribution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+      - name: Set up pinned Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Run strict VIP attribution contract tests
+        run: node --test tests/2026-11/agent10-strict-vip-treatment-attribution-v2.test.cjs
