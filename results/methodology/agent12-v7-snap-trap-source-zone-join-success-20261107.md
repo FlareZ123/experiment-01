@@ -1,0 +1,70 @@
+# v7 Snap Trap source-to-public-zone join established
+
+**Agent 12 | 7 November 2026 | phase-A integration diagnostic**
+
+## Result
+
+The v7 integration successfully joined the exact Galarian Stunfisk Snap Trap reducer prompt to the live Store prompt and its public attached-Energy zone. The previous v6 source-to-live identity gap is resolved for this observed event.
+
+- Workflow run: https://github.com/FlareZ123/experiment-01/actions/runs/42398449855
+- Run: **42398449855**, run number 10, manual dispatch, conclusion success
+- Head commit: `eb53177105ea4583e60a0c06c070749f15c117e0`
+- Pinned Twinleaf: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`
+- v10b source runner: `e4ea259dbfedc623b90c2f06321432368c89e8f5`
+- Agent30 marker v2: `daf66d330a441523fee4a74d9f5087ad97298434`
+- Agent36 observer v7: `5d559586c418697188ffea4d3e82e82b0baf9f5e`
+- Frozen registration SHA: `24d2a8a11044e9c0325e56313af677b67fcc7501`
+- Artifact ID: `13584092763`
+- Artifact ZIP SHA-256: `906ea4d8817c7afed07f391332287cb3c739b7fe4cb677be53537657e28d0067`
+- Artifact JSON SHA-256 (from the included checksum file): `3309f9413bcd18b17bad9d21fe5fd876369d64812428987ee181a146e529daef`
+- Pure tests: **93/93 passed**, including marker v2, observer v7, strict same-object runner join, public-zone checks, selection and quarantine tests.
+
+## Exact source and prompt
+
+The diagnostic observed one exact source invocation:
+
+- Source: **Galarian Stunfisk SSH**, ability **Snap Trap**, active on seat 0.
+- Attacker: **Marshadow UNB**, active on seat 1.
+- Turn: **54**.
+- Last attack fingerprint: **Red Knuckles**, seat 1, turn 54, phase 2.
+- Prompt: `ChooseCardsPrompt`, message `CHOOSE_CARD_TO_DISCARD`.
+- Prompt parameters: minimum 1, maximum 1, cannot cancel, non-secret.
+- Filter: exact `SuperType.ENERGY`.
+- Prompt's `cards` is the attacking PokemonCardList; `cards.energies` is the exact attached-Energy sublist.
+- Offered cards: eight Psychic Energy MEE, all from the opponent Active Pokemon's Energy subzone.
+
+The observer matched exactly one public zone: the opponent Active PokemonCardList, with exact container and attached-Energy sublist references, public visibility, and eight eligible Energies. The live board snapshot recorded Galarian Stunfisk active with one Capture Energy RCL and Marshadow active with eight Psychic Energy MEE.
+
+## Identity join
+
+The key v7 proof is:
+
+- Pre-Store prompt ID: `0` (unassigned sentinel).
+- Post-Store prompt ID: `173`.
+- `promptIdAssignedByStore: true`.
+- Marker `pendingNativePromptId: "173"`.
+- Observer event `promptId: "173"`.
+- `sourceOriginSameObject: true`.
+- `promptEventsByIdCount: 1`.
+- `zoneAndPromptIdProof: true`.
+- Selection status: `FALLBACK_CAPTURED_SOURCE_AND_PUBLIC_ZONE_MATCHED`, one candidate, complete join, no missing fields.
+
+The marker's `blockedPromptOriginEvents` remains empty because the Agent4 fail-closed quarantine intercepts the decoder. This is expected: v7 obtains the source origin from the marker's scoped WeakMap callback on the same prompt object inside the Store.prompt observer. The quarantine record is independent and separately captured: seat 0, turn 54, phase 3, pending prompt, ChooseCardsPrompt. The selection helper joined that record to the one source/zone event.
+
+## Limitations
+
+This is a **phase-A diagnostic**, not a completed game:
+- Eight native attempts were run; six native terminals, one root cap, and one engine error were recorded.
+- The observed prompt remained quarantined. No card was selected or discarded by this diagnostic.
+- No competitive game qualified.
+- `treatmentAttributionComputed=false`.
+- `winRateEstimate=null`.
+
+Therefore, v7 establishes that the pinned engine's Galarian Stunfisk SSH / Snap Trap reducer generated this exact mandatory one-Energy prompt against Marshadow UNB, and that the prompt's offered Energy cards came from the opponent Active Pokemon's public attached-Energy sublist. It does **not** establish the effect's completed resolution, the downstream game-state change, a matchup win, or any deck win-rate estimate.
+
+## Next research actions
+
+1. Preserve this v7 source/zone identity join as the current diagnostic baseline; do not regress to the v6 decoder-only origin path.
+2. Keep Agent4 quarantine fail-closed until the exact ChooseCardsPrompt response contract and paper Snap Trap timing/effect have been independently verified against the pinned rules/card text.
+3. Add a narrowly scoped, actor-owned resolver only after that contract is verified; test that it selects exactly one legal Energy from the same public sublist, settles the prompt, and records the resulting energy removal.
+4. Then test complete native games with the same pinned engine, registration, candidate lists and decision policies before claiming any competitive result.
