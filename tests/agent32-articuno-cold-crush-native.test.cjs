@@ -32,6 +32,7 @@ function probeColdCrushAscent(seat,useAscent){
     native('game/store/actions/resolve-prompt-action');
   const {AttackAction}=
     native('game/store/actions/game-actions');
+  const {GameMessage}=native('game/game-message');
   const manager=initializeCards();
   /** @param {string} name @returns {any} */
   const card=name=>{
@@ -94,7 +95,7 @@ function probeColdCrushAscent(seat,useAscent){
   if(useAscent){
     const pending=store.state.prompts.find(p=>p.result===undefined);
     assert.equal(pending?.constructor.name,'MoveEnergyPrompt');
-    assert.equal(pending?.message,'MOVE_ENERGY_TO_ACTIVE');
+    assert.equal(pending?.message,GameMessage.MOVE_ENERGY_TO_ACTIVE);
     const from={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0};
     const to={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
     const moving=new ResolvePromptAction(pending.id,
