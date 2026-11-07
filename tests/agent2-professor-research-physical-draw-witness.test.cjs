@@ -73,7 +73,7 @@ test('restricted pre-action witness rejects other cards and insufficient deck',(
   x.before.players[0].hand.cards.pop();
   x.before.players[0].deck.cards.length=6;
   assert.throws(()=>captureProfessorResearchPhysicalDraw(x.before,0,0),
-    /AssertionError|false/);
+    /at least seven physical owner deck cards required/);
 });
 
 test('unchanged native turn and unique physical objects required',()=>{
