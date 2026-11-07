@@ -877,11 +877,65 @@ function probabilityMailWithSearchGatewaysOnly(
   return success;
 }
 
+
+const LILLIES_DETERMINATION_ACCESS_VERSION='agent1-rank3-lillies-determination-draw-v1';
+
+/**
+ * Exact direct probability that Lillie's Determination draws the one
+ * Handiwork from deck. Lillie's Determination shuffles the player's other
+ * hand cards into deck, then draws 6 cards (8 if exactly 6 Prizes remain).
+ * It consumes the turn's Supporter, so Handiwork drawn this way is held for
+ * a later turn. Subsequent Item searches are intentionally excluded.
+ *
+ * handSize is the number of cards remaining in hand after Lillie's
+ * Determination itself is played; those cards are shuffled into deck.
+ *
+ * @param {number} deckSize Cards in deck before the hand is shuffled in.
+ * @param {number} handSize Other cards in hand that are shuffled into deck.
+ * @param {number} prizesRemaining Prize cards remaining (1..6).
+ * @returns {object} Exact conditional draw probability and timing.
+ */
+function probabilityHandiworkAccessByLilliesDetermination(
+  deckSize,handSize,prizesRemaining
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(handSize)&&handSize>=0&&handSize<=60,
+    'handSize must be 0..60');
+  assert.ok(deckSize+handSize<=60,
+    'deck and shuffled hand cannot exceed the 60-card deck');
+  assert.ok(Number.isSafeInteger(prizesRemaining)&&
+    prizesRemaining>=1&&prizesRemaining<=6,
+    'prizesRemaining must be 1..6');
+  const effectiveDeckSize=deckSize+handSize;
+  const printedDrawCount=prizesRemaining===6?8:6;
+  const cardsDrawn=Math.min(printedDrawCount,effectiveDeckSize);
+  const exact=probabilityFraction(
+    BigInt(cardsDrawn),BigInt(effectiveDeckSize)
+  );
+  return {
+    version:LILLIES_DETERMINATION_ACCESS_VERSION,
+    deckSizeBeforeShuffle:deckSize,
+    handSizeShuffled:handSize,
+    effectiveDeckSize,
+    prizesRemaining,
+    printedDrawCount,
+    cardsDrawn,
+    accessTiming:'delayed-next-turn',
+    exactProbability:{
+      numerator:exact.n.toString(),
+      denominator:exact.d.toString()
+    },
+    probability:Number(exact.n)/Number(exact.d)
+  };
+}
+
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
   distributionOfFutureOwnerStartsUnderSchedule,
   probabilityHandiworkAccessByNaturalDrawAndMail,
   probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
-  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways
+  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways,
+  probabilityHandiworkAccessByLilliesDetermination
 };
