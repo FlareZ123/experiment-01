@@ -100,8 +100,8 @@ function joinNativePrizeExitsToSettledAttacks(attempts,physicalExits){
       actualPrizeExitRootOrdinal:ordinal,
       actualPrizeExitRootAction:root.action,
       exactPhysicalPrizeCards:exit.exactExitedCards,
-      opponentPrizeCountBefore:attack.prizesBefore[seat],
-      opponentPrizeCountAfter:attack.prizesAfter[seat],
+      takerPrizesRemainingBefore:attack.prizesBefore[seat],
+      takerPrizesRemainingAfter:attack.prizesAfter[seat],
       sameTurn:attack.turnBefore,
       acceptedStoreAndAttackLineageVerified:true,
       paperValidityCertified:false
