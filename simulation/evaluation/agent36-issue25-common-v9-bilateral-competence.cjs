@@ -22,7 +22,8 @@ const {withTelepathInsideNativeMatches}=require('./agent8-issue25-v5-telepath-de
 const {withOwnerTelepathicBenchSearch}=require('../twinleaf/agent8-owner-telepathic-bench-search.cjs');
 const {withOwnerAbilityConfirmPolicy}=require('../twinleaf/agent36-owner-ability-confirm-policy.cjs');
 const {withAuthoritativeRootPrizeExitObserver}=require('../twinleaf/agent3-authoritative-root-prize-exit-observer.cjs');
-const {createFundedPerfectionPassObserver}=require('../twinleaf/agent36-funded-perfection-pass-observer.cjs');
+const {createFundedPerfectionPassObserver,sanitizePostPassProbe,
+  sanitizeHeldTelepathProbe,sanitizeFinalPass}=require('../twinleaf/agent36-funded-perfection-pass-observer.cjs');
 const {
   screenArchivedReciprocalAttempts,
   evaluateBilateralCompetence,
@@ -65,6 +66,9 @@ const OBSERVER_PATHS=[
   'simulation/twinleaf/agent23-native-decision-dispatch-witness.cjs',
   'simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs',
   'simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs',
+  'simulation/twinleaf/headless.cjs',
+  'simulation/twinleaf/perfection-post-pass-probe.cjs',
+  'simulation/twinleaf/pass-attack-announcement-probe.cjs',
   'simulation/evaluation/agent31-bilateral-all-owner-pass-evidence.cjs',
   'simulation/twinleaf/native-accepted-target-store-observer.cjs',
   'simulation/twinleaf/native-prompt-choice-evidence.cjs',
@@ -135,6 +139,7 @@ const HASH_PATHS=[...new Set([
   'simulation/twinleaf/agent24-funded-perfection-postpass-stratum.cjs',
   'simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs',
   'tests/agent36-funded-perfection-pass-observer.test.cjs',
+  'tests/agent24-funded-perfection-postpass-stratum.test.cjs',
   'tests/agent36-issue25-selected-v0.test.cjs',
   'tests/agent41-bilateral-v2-development.test.cjs',
   'tests/agent36-issue25-common-v9-bilateral-competence.test.cjs'
@@ -156,7 +161,10 @@ const REPLY_FIELDS=[
   'postChoiceAttackProbe',
   'clonedHeldTelepathActiveAttachment',
   'candidateReplyTurnRootSequence',
-  'candidateReplyTurnFinalPass'
+  'candidateReplyTurnFinalPass',
+  'rootSequenceObservedCount',
+  'rootSequenceExpectedCount',
+  'rootSequenceTruncated'
 ];
 
 /**
@@ -227,11 +235,29 @@ function candidatePrinted60Sha256() {
  * @returns {object[]}
  */
 function projectCandidateRepliesAfterSourceAttacks(row) {
+  const roots=Array.isArray(row.rootActionLedger)?row.rootActionLedger:[];
   return (row.candidateRepliesAfterSourceAttacks??[]).map(reply=>{
     const projected={};
     for(const field of REPLY_FIELDS) {
-      if(Object.hasOwn(reply,field))projected[field]=reply[field];
+      if(!Object.hasOwn(reply,field))continue;
+      if(field==='postChoiceAttackProbe') {
+        projected[field]=sanitizePostPassProbe(reply[field]);
+      } else if(field==='clonedHeldTelepathActiveAttachment') {
+        projected[field]=sanitizeHeldTelepathProbe(reply[field]);
+      } else if(field==='candidateReplyTurnFinalPass') {
+        projected[field]=sanitizeFinalPass(reply[field]);
+      } else {
+        projected[field]=reply[field];
+      }
     }
+    const sequence=Array.isArray(reply.candidateReplyTurnRootSequence)?
+      reply.candidateReplyTurnRootSequence:[];
+    const expected=roots.filter(root=>
+      root.playerSlot===row.candidateSeat&&
+      root.turnBefore===reply.candidateReplyTurn).length;
+    projected.rootSequenceObservedCount=sequence.length;
+    projected.rootSequenceExpectedCount=expected;
+    projected.rootSequenceTruncated=sequence.length<expected;
     return projected;
   });
 }
@@ -490,8 +516,12 @@ function runStewardBilateralProbeV9(deps={}) {
   };
 
   const rootBinding={current:null};
+  const {deepClone}=require(path.join(ROOT,
+    'vendor/twinleaf/ptcg-server/output/utils/utils.js'));
   const fundedPerfection=createFundedPerfectionPassObserver({
-    Store,maxRecords:4
+    Store,deepClone,
+    deepCloneImplementation:'Twinleaf ptcg-server output/utils/utils.deepClone',
+    maxRecords:4
   });
   fundedPerfection.install();
   let voltWrapper;
@@ -614,6 +644,16 @@ function runStewardBilateralProbeV9(deps={}) {
     candidateEngineProxySha256:metadata.candidateEngineProxySha256,
     exactOriginalPhysicalPrintsVerified:false,
     candidatePrintManifestOfficial:false,
+    fundedPerfectionProbe:{
+      preDispatchStateDetached:true,
+      deepCloneImplementation:'Twinleaf ptcg-server output/utils/utils.deepClone',
+      ownerEligibilityFilterReadsOpponentHiddenZones:false,
+      detachedNativeProbeUsesFullStateClone:true,
+      hiddenInformationIndependenceCertified:false,
+      livePolicyChangedByObserver:false,
+      optionPaperAffordabilityCertified:false
+    },
+    postChoiceNativeProbesUseFullStateClone:true,
     independentFullPaperRulesAudit:false,
     hiddenInformationAudit:false,
     official25MinuteClockAudit:false,
