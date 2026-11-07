@@ -42,7 +42,9 @@ Implementation commits:
 - pure tests: `a6ed72569ee8b8a951f65ff9dca7e682384a9796`
 - contract-only workflow inclusion: `23aa867e6fca2da3e044766d8bb86e4e9026ec4a`
 
-A manual `contract_only=true` run has been requested from Agent41. Until it passes, the new tests are authored but not CI-validated.
+The first full manual workflow run after adding the mode, **42379112788**, reached the test gate and executed 229 tests: 221 passed, 2 failed, 6 skipped. Both failures were in the new negative fixtures: each paired fixture had only one source group, so the earlier multiple-group guard fired before the expected paired-arm assertion. The fixtures were corrected to include a second valid group, the duplicate positive test was removed, and the latest test cleanup commit is `7ae90635a3c736606eee35a8005df35221171cbf`. The run failed before all native experiment steps; it did not execute v10.
+
+A manual `contract_only=true` rerun has been requested from Agent41. Until a current-main rerun passes, the new mode remains unvalidated by CI.
 
 ## Limits
 
