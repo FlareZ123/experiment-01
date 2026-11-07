@@ -256,13 +256,13 @@ function makeFixture(sourceSeat, energyCards, attacks) {
  * @param {object} [options]
  * @returns {object}
  */
-function policyDependencies(fixture, store, options = {}) {
+function policyDependencies(fixture, getRootStore, options = {}) {
   return {
-    getRootStore: () => store,
+    getRootStore,
     markerLayer: run => ({
       result: run(
         prompt => prompt === fixture.prompt ? fixture.proof : null,
-        prompt => prompt === fixture.prompt ? store : null
+        prompt => prompt === fixture.prompt ? getRootStore() : null
       ),
       audit: {stampedPromptCount: 1, privateStoreIdentityCaptures: 1}
     }),
@@ -276,12 +276,6 @@ function policyDependencies(fixture, store, options = {}) {
   };
 }
 
-/**
- * @param {object} fixture
- * @param {object} store
- * @param {{tamper?:(fixture:object)=>void,otherPromptStore?:object}} [options]
- * @returns {object}
- */
 function executeFixture(fixture, store, options = {}) {
   const promptStore = options.otherPromptStore ?? store;
   promptStore.prompt(fixture.state, fixture.prompt);
@@ -295,17 +289,17 @@ function executeFixture(fixture, store, options = {}) {
 
 function runProtectedFixture(fixture, options = {}) {
   let rootStore = null;
+  const deps = policyDependencies(
+    fixture,
+    () => rootStore,
+    options.policyOptions ?? {}
+  );
   const outcome = withNativeRawStateFallbackQuarantine(
     () => withSnapTrapOwnerPolicyV2(() => {
       const store = options.rootStore ?? new Store(fixture.state);
       rootStore = store;
       return executeFixture(fixture, store, options);
-    }, {
-      ...policyDependencies(fixture, {
-        getRootStore: () => rootStore
-      }, options.policyOptions),
-      getRootStore: () => rootStore
-    }),
+    }, deps),
     {SimpleTacticsAi}
   );
   return outcome;
@@ -426,19 +420,10 @@ test('prompt Store mismatch fails closed before the AI can choose', () => {
   try {
     withNativeRawStateFallbackQuarantine(
       () => withSnapTrapOwnerPolicyV2(() => {
-        rootStore.prompt(fixture.state, fixture.prompt);
-      }, policyDependencies(fixture, rootStore, {
-        markerLayer: run => ({
-          result: run(
-            prompt => prompt === fixture.prompt ? fixture.proof : null,
-            prompt => prompt === fixture.prompt ? rootStore : null
-          ),
-          audit: {}
-        })
-      })),
+        otherStore.prompt(fixture.state, fixture.prompt);
+      }, policyDependencies(fixture, () => rootStore)),
       {SimpleTacticsAi}
     );
-    otherStore.prompt(fixture.state, fixture.prompt);
   } catch (error) {
     thrown = error;
   }
