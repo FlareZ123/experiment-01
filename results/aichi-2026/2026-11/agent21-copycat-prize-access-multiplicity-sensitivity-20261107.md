@@ -101,3 +101,10 @@ Within the narrow model, a second Heavy Ball is the strongest one-slot change to
 - No native Twinleaf test, complete game, paper tournament result, or competitive qualification is contained here.
 
 The next meaningful step is a preregistered fixed-60 comparison that treats copy-count changes as whole-deck variants and measures actual access plus competent Regidrago response in both seats. Do not infer the result from the Prize-only model. The broader objective remains unmet: 29/32 authenticated original opponent lists, zero competitively qualified games, no selected final 60, and no demonstrated 99.5% win rate.
+
+
+## CI verification
+
+The focused Node test file contains nine regression cases. The existing manual-only Aichi benchmark workflow run [42364096876](https://github.com/FlareZ123/experiment-01/actions/runs/42364096876), on commit `a935ce04b190cc71702d2d47cf6de41b8093892d`, completed successfully. Its dedicated step `Regress Agent21 Copycat Prize-access multiplicity sensitivity` (step 68) passed. The same run also passed the set-aware Secret Box DCI regression step (step 67).
+
+The Prize model's 1/1/1 and 1/1/2 values match Agent6's existing implementation in automated tests. An independent Python `Fraction` enumeration was used to derive the exact fractions in the table. This CI run validates the combinatorial calculation and edge cases only; it does not compile Twinleaf, execute a card interaction, or produce a game result.
