@@ -316,3 +316,19 @@ test('a settled native KO with a below-HP target still in play is flagged incons
   assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
   assert.equal(result.rows[0].targetDamageThresholdReachedDuringLaterPromptResolution,false);
 });
+
+test('a target moved to Bench then removed during later prompts is timed as a later KO',()=>{
+  const f=fixture();
+  const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].active=null;
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].bench=[{
+    name:'Girafarig',printing:'Girafarig LOT',damage:20,
+    energyCards:['Psychic Energy','Psychic Energy','Psychic Energy'],
+    toolCards:[],printedAttacks:[{name:'Get Lost',cost:['Colorless']}]
+  }];
+  const result=run(f);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION');
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,true);
+  assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToActualNativeKo,120);
+});
