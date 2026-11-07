@@ -79,7 +79,10 @@ function run(){
     assert.equal(apex.error,null);
     assert.equal(apex.sourceChooseAttackPromptSeen,true);
     assert.equal(apex.originalSourceLastAttackAfterResolvedApex?.attack,
-      'Apex Dragon');
+      'Overclock',
+      'Pinned copied-attack session overwrites printed Apex history with the payload name');
+    assert.equal(apex.originalSourceLastAttackAfterResolvedApex?.source,
+      'Regidrago VSTAR SIT');
     assert.equal(apex.sourceHandImmediatelyAfterApex,6,
       'Prompt-validated native Apex Overclock should draw to six');
     assert.equal(apex.sourceDeckImmediatelyAfterApex,2,
