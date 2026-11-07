@@ -25,3 +25,9 @@ The public article explicitly weighs **Klefki, Wobbuffet, Garbodor and Iron Thor
 3. Distinguish a competitor's historical account, the deck's inferred strategic priorities, and actual card inventory. A nearby registered Rank 4 or Rank 17 Raichu list is not a valid rank-25 original substitute.
 
 **Source list status remains 29/32, with ranks 23/25/28 missing. Native or competitively qualified games added: zero.**
+
+## 7 November 2026 correction: qualifier ordinal is not final placement
+
+The official event page confirms that the relevant Open League was a single-day event with one Swiss qualifying stage, top 32 advancing to a single-elimination bracket. This is distinct from the three-stage Master League structure described elsewhere on the same page. The article's `予選25位抜け` is therefore a **Swiss qualifier ordinal**. The first-round knockout loss and matching number 25 do not independently prove that the author is the Limitless final-rank-25 Kazuki Kumegawa. The kume / Eleki Rain archetype association remains a useful lead, but the direct identity bridge and exact 60 are still missing.
+
+See `results/aichi-2026/agent10-open-league-qualifier-final-rank-correction-20261107.md` and the official event format at https://www.pokemon-card.com/info/005445.html. The earlier matching-number wording in this note is superseded. Keep source rank 25 unadmitted.
