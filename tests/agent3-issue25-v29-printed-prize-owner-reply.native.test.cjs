@@ -281,7 +281,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     fullyRootedPublicVictimJoins,printedNativeAttackNominals.rows,originalField);
   assert.equal(actualPreAttackBoardJoins.rows.length,8);
   assert.equal(actualPreAttackBoardJoins.rows.every(row=>
-    row.attackerIdentityIndependentlyMatched===true&&
+    row.physicalActiveAtActualNativeAttackObserved===true&&
+    row.physicalActivePrintingAccountedForByOriginal60===true&&
     row.paperGameCertified===false&&
     row.actualAttachedEnergyPaymentCertified===false),true);
   assert.equal(actualPreAttackBoardJoins.qualifiedCompetitiveGames,0);
