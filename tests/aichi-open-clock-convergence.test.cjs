@@ -7,6 +7,7 @@ const { adjudicateAichiOpenAfterLastTurn } = require('../simulation/evaluation/a
 const { adjudicateMay2026AichiTime } = require('../simulation/evaluation/agent26-aichi-may2026-paper-clock-adjudicator.cjs');
 const {
   adjudicateAtPrescribedEnd,
+  adjudicateExtension,
   classifyTiebreaker
 } = require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
@@ -208,8 +209,7 @@ test('Agent26 unified extension predicate matches Agent27 tied-low and both-high
       lastCompletedTurnSeat: 1,
       prizeRemaining: [a, b]
     });
-    const agent27 = require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs')
-      .adjudicateExtension({ extensionRule, prizesRemaining: [a, b] });
+    const agent27 = adjudicateExtension({ extensionRule, prizesRemaining: [a, b] });
     const winner = Math.min(a, b) <= 2 && a !== b ? (a < b ? 0 : 1) : null;
     assert.equal(agent26.status, winner === null ? 'KNOCKOUT_EXTENSION_REQUIRED' : 'KNOCKOUT_PAPER_TIME_WIN');
     assert.equal(agent27.status, winner === null ? 'EXTENSION_CONTINUES' : 'EXTENSION_WIN');
