@@ -4,7 +4,6 @@ const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {initializeCards, runMatch} = require('./headless.cjs');
 const {copycatApexResponseKind} = require('./mimikyu-counter-policy.cjs');
-const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 
@@ -45,7 +44,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
       const chosen = action.result;
       const source = prompt.cards.find(card =>
         card.attacks.includes(chosen));
-      payloadChoiceObservations.push({
+      if (payloadChoiceObservations.length < 40) payloadChoiceObservations.push({
         turn: state.turn,
         responseKind: payloadResponseKind,
         sourceCard: source?.fullName ?? null,
@@ -101,7 +100,7 @@ function runMimikyuCounterSourcePilot() {
     throw new Error('Source rank 1 or 10 lacks a complete 60-card engine mapping');
   }
 
-  const seeds = deriveSlotSeeds(20261016, 'pilot', 10, 0);
+  const exposureSeed = 20261016;
   const rows = [];
   for (const championSeat of [0, 1]) {
     for (const experimental of [false, true]) {
@@ -109,12 +108,14 @@ function runMimikyuCounterSourcePilot() {
       const request = {
         deckA: deckByRank.get(rankOrder[0]).cardIds,
         deckB: deckByRank.get(rankOrder[1]).cardIds,
-        seed: championSeat === 0 ? seeds.A : seeds.B,
+        seed: exposureSeed,
         maxActions: 1200,
         label: 'Mimikyu public Copycat source pilot ' +
           rankOrder.join('-') + ' ' + (experimental ? 'counter-v2' : 'baseline'),
         isolatePolicyRandomness: true,
         captureInitialSourceDealFingerprintSeat: championSeat,
+        supporterDecisionCorrection: true,
+        doubleDragonRecovery: true,
         mimikyuApexCopycatCompatibility: true,
         mimikyuDeclaredHistoryCorrection: true,
         regidragoDeclaredHistoryCorrection: true,
@@ -138,6 +139,10 @@ function runMimikyuCounterSourcePilot() {
             a.seat === championSeat && a.attack === 'Copycat').length,
           actualApexDragonAttacks: game.attackTrace.filter(a =>
             a.seat === 1 - championSeat && a.attack === 'Apex Dragon').length,
+          opponentApexAttackTrace: game.attackTrace.filter(a =>
+            a.seat === 1 - championSeat && a.attack === 'Apex Dragon'),
+          candidateCopycatAttackTrace: game.attackTrace.filter(a =>
+            a.seat === championSeat && a.attack === 'Copycat'),
           candidateAttackCount: game.attackTrace.filter(a =>
             a.seat === championSeat).length,
           eligiblePublicChoiceObservations: observedChoices,
@@ -162,7 +167,8 @@ function runMimikyuCounterSourcePilot() {
       candidateSeat,
       baselineFingerprint: baseline?.initialSourceDealFingerprint ?? null,
       treatmentFingerprint: treatment?.initialSourceDealFingerprint ?? null,
-      sameInitialSourceDeal: !!baseline && !!treatment &&
+      sameInitialSourceDeal: !!baseline?.initialSourceDealFingerprint &&
+        !!treatment?.initialSourceDealFingerprint &&
         JSON.stringify(baseline.initialSourceDealFingerprint) ===
         JSON.stringify(treatment.initialSourceDealFingerprint)
     };
@@ -171,7 +177,9 @@ function runMimikyuCounterSourcePilot() {
     study: 'Fixed published rank 1 vs rank 10 public Copycat decision experiment',
     publishedDeckRanks: [1, 10],
     candidateListUnchanged: true,
-    seedProtocol: 'decorrelated-slots-v3',
+    seedProtocol: 'fixed-seed-20261016-prior-apex-exposure-both-seat-orientations-v1',
+    opponentPolicyProfile: 'DoubleDragonRecovery-v1 + SupporterDecisionCorrection-v1',
+    priorExposureReference: 'results/twinleaf/regidrago-policy-factorial.json; seed 20261016, both Regidrago physical seats, 3 and 4 Apex declarations under the same two opponent-policy corrections',
     sourceResolver: 'simulation/twinleaf/resolve-field.cjs',
     evidenceClass: 'bounded engine execution and selected-action diagnostic',
     qualifiedWinRateEvidence: false,
