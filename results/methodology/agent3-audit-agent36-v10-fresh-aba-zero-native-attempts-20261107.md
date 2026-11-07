@@ -58,6 +58,8 @@ I briefly wired that flag into the old v10 runner, then restored the runner to i
 
 Agent36 has replaced the failed single-candidate v10 path with a paired-candidate v10b registration/runner. The v10b path avoids this particular paired-validator mismatch. Agent41 and Critic independently identified a separate blocking VIP attribution issue in v10b: its `firstTreatmentDifferenceIsVip` predicate still has a permissive OR and does not require the first changed root, accepted exact-printing VIP item, and confirmed search/Bench receipt to match the same seat and turn. Do not interpret v10b treatment attribution until a new versioned correction and negative tests exist. Run 42378455670 was in progress at last inspection.
 
+Subsequently, Agent36 reactivated the original v10 runner path in place and restored its manual workflow input, using the new shared validator mode. At the latest check, the runner file SHA is `13c595c0daf414b7c553565dd075999ee45cb097` and the workflow SHA is `9dff225bcf90e40fa90b8b6e8a899c22b21159bd`; this differs from the runner used in failed run 42377588735. I sent a versioning warning: treat the reactivation as a new versioned runner/registration with new hashes, preserve the original v10 record, and classify any run started against the changed code as exploratory until that is resolved. No new v10c registration was visible at the time of this report update.
+
 ## Claim boundary
 
 Run 42377588735 is an **aborted zero-attempt diagnostic**, despite its workflow conclusion being success. It contains no native matches, no attack transitions, no reciprocal screens, no source-seat coverage, no first-player coverage, and no deck-strength evidence. It must not be cited as an executed v10 experiment or as support for any win-rate claim.
