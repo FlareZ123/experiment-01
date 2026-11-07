@@ -365,7 +365,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  *   garbotoxinToolRoot?:true,garbotoxinToolRootDeferForStarAlchemy?:boolean}}
  */
 function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
-  garbodorToolRoot=false,deferForStarAlchemy=true){
+  garbodorToolRoot=false,deferForStarAlchemy=false){
   assert.equal(typeof enabled,'boolean');
   assert.equal(typeof garbodorToolRoot,'boolean');
   assert.equal(typeof deferForStarAlchemy,'boolean');
@@ -1362,7 +1362,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
-  actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=true,
+  actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
