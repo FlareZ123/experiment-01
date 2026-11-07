@@ -142,13 +142,13 @@ function buildActorCardCatalog(all,types){
 function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
-  const naturalEvolutionRootOwnerSeat=options.naturalEvolutionRootOwnerSeat??null;
-  assert.ok(naturalEvolutionRootOwnerSeat===null||
-    naturalEvolutionRootOwnerSeat===0||naturalEvolutionRootOwnerSeat===1,
-  'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
-  assert.ok(naturalEvolutionRootOwnerSeat===null||
+  const garbodorResponseOwnerSeat=options.garbodorResponseOwnerSeat??null;
+  assert.ok(garbodorResponseOwnerSeat===null||
+    garbodorResponseOwnerSeat===0||garbodorResponseOwnerSeat===1,
+  'garbodorResponseOwnerSeat must be null, 0, or 1');
+  assert.ok(garbodorResponseOwnerSeat===null||
     options.naturalEvolutionRoot===true||options.garbotoxinToolRoot===true,
-  'naturalEvolutionRootOwnerSeat requires a Garbodor response root');
+  'garbodorResponseOwnerSeat requires a Garbodor response root');
   // Development-only, source-independent response to an already publicly
   // announced paid GX attack. Only the actor's own held Ranger can be offered;
   // default policy decisions and the canonical observation are unchanged.
@@ -197,15 +197,15 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(path)return path;
   }
   if(options.naturalEvolutionRoot===true&&
-     (naturalEvolutionRootOwnerSeat===null||
-      view.actorSeat===naturalEvolutionRootOwnerSeat)){
+     (garbodorResponseOwnerSeat===null||
+      view.actorSeat===garbodorResponseOwnerSeat)){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
   if(options.garbotoxinToolRoot===true&&
-     (naturalEvolutionRootOwnerSeat===null||
-      view.actorSeat===naturalEvolutionRootOwnerSeat)){
+     (garbodorResponseOwnerSeat===null||
+      view.actorSeat===garbodorResponseOwnerSeat)){
     const tool=require('./agent36-garbotoxin-tool-intent.cjs')
       .chooseGarbodorToolIntent(view,catalog);
     if(tool)return tool;
@@ -862,7 +862,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
-    naturalEvolutionRootOwnerSeat:deps.naturalEvolutionRootOwnerSeat??null,
+    garbodorResponseOwnerSeat:deps.garbodorResponseOwnerSeat??null,
     garbotoxinToolRootOptIn:deps.garbotoxinToolRoot===true,
     garbotoxinToolRootSelected:0,
     garbotoxinFloatStoneRootSelected:0,
@@ -1500,7 +1500,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
-      naturalEvolutionRootOwnerSeat:audit.naturalEvolutionRootOwnerSeat,
+      garbodorResponseOwnerSeat:audit.garbodorResponseOwnerSeat,
       garbotoxinToolRoot:audit.garbotoxinToolRootOptIn,
       dittoStage1Root:audit.dittoStage1RootOptIn,
       dittoStage1Receipt:audit.dittoStage1RootOptIn?
