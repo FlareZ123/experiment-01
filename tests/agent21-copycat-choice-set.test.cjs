@@ -68,27 +68,33 @@ function runChoicePrompt(powers){
     store.state.prompts=[prompt];
     store.dispatch(new ResolvePromptAction(prompt.id,{name:second.name}));
     store.dispatch({kind:'end-turn'});
-    return history.getPreviousTurnSnapshot(1);
+    return {
+      snapshot:history.getPreviousTurnSnapshot(1),
+      copycatChoices:history.getCopycatChoices(1)
+    };
   }finally{
     history.restore();
   }
 }
 
 test('generic CHOOSE_ATTACK_TO_COPY prompt without Barrage is not a two-attack Copycat pair',()=>{
-  const snapshot=runChoicePrompt([]);
-  assert.ok(snapshot);
-  assert.equal(snapshot.turn,1);
-  assert.deepEqual(snapshot.attacks.map(row=>row.attackName),['First attack']);
+  const result=runChoicePrompt([]);
+  assert.ok(result.snapshot);
+  assert.equal(result.snapshot.turn,1);
+  assert.deepEqual(result.snapshot.attacks.map(row=>row.attackName),['First attack']);
+  assert.deepEqual(result.copycatChoices.map(row=>row.attackName),['First attack']);
 });
 
 test('Barrage power marks the preceding attack and selected follow-up as the Copycat pair',()=>{
-  const snapshot=runChoicePrompt([{name:'Barrage',barrage:true}]);
-  assert.ok(snapshot);
-  assert.equal(snapshot.turn,1);
-  assert.deepEqual(snapshot.attacks.map(row=>row.attackName),
+  const result=runChoicePrompt([{name:'Barrage',barrage:true}]);
+  assert.ok(result.snapshot);
+  assert.equal(result.snapshot.turn,1);
+  assert.deepEqual(result.snapshot.attacks.map(row=>row.attackName),
     ['First attack','Second attack']);
-  assert.deepEqual(snapshot.attacks.map(row=>row.barragePairRole),
+  assert.deepEqual(result.snapshot.attacks.map(row=>row.barragePairRole),
     ['first','second']);
-  assert.equal(snapshot.attacks[0].barragePairId,
-    snapshot.attacks[1].barragePairId);
+  assert.equal(result.snapshot.attacks[0].barragePairId,
+    result.snapshot.attacks[1].barragePairId);
+  assert.deepEqual(result.copycatChoices.map(row=>row.attackName),
+    ['First attack','Second attack']);
 });
