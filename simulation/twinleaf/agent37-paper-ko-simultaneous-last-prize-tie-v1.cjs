@@ -63,8 +63,8 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
   const audit={
     version:VERSION,pinnedTwinleaf:PINNED,
     intercepted:0,callbacks:0,terminalSuppressed:0,completed:0,
-    knockoutEffects:0,activeKoPlayerIds:[],
-    nonActiveKoEffects:0,prizeGroupCount:0,
+    knockoutEffects:0,activeKoPlayerIds:[],knockoutPrizeCounts:[],
+    nonActiveKoEffects:0,prizeGroupCount:0,prizeGroupCounts:[],
     simultaneousLastPrizeCandidate:false,
     secondPrizeTransferAttempted:false,
     secondPrizeTransferCompleted:false,
@@ -106,8 +106,12 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
 
     if(inCheckState&&effect instanceof KnockOutEffect){
       const wasActive=effect.target===effect.player.active;
+      const targetPrinting=effect.target.getPokemonCard()?.fullName??null;
       const result=originalReduce.call(store,state,effect);
       audit.knockoutEffects++;
+      audit.knockoutPrizeCounts.push({
+        targetPrinting,prizeCount:effect.prizeCount,wasActive,playerId:effect.player.id
+      });
       if(wasActive){
         if(!effect.preventDefault&&effect.prizeCount>0){
           audit.activeKoPlayerIds.push(effect.player.id);
@@ -128,6 +132,10 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         }
         group.count+=effect.prizeCount;
         audit.prizeGroupCount=prizeGroups.length;
+        audit.prizeGroupCounts=prizeGroups.map(value=>({
+          playerId:value.playerId,count:value.count,
+          destinationIsHand:value.destination===state.players.find(p=>p.id===value.playerId)?.hand
+        }));
       }
       return result;
     }
