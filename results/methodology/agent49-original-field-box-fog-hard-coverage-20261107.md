@@ -138,6 +138,49 @@ from searching for Fog at K0. Ranks 1/31 are `not-disproven` for Fog
 membership, without any assertion about a usable same-turn Box line.
 No native actions, qualified games or shared-policy integration occurred.
 
+
+## Follow-up: opt-in hook now protects against guaranteed-absent registered targets
+
+Following the hard-zero census and imported-hook counterexample, the
+historical **default-off** `agent43-owner-secretbox-fog-ko.cjs` wrapper
+now has a registered-original-60 preflight (**v2**). At each genuine
+`headless.runMatch(request)` boundary it captures only the acting
+player's own fixed registered 60-card strings from the already-provided
+`request.deckA/deckB` arrays. Before replacing an ordinary native
+Pass with a paid Secret Box, it checks both:
+
+- At least one `Fog Crystal CRE` exists in the actor's **original 60**.
+- At least one Basic `Psychic Energy` printing exists in that same
+  original 60, with explicit distinct native fullName strings.
+
+The pure function
+`choosePublicOneEnergyBoxKoWithRegistered60` wraps the original public
+attack selector with these necessary K0-safe inventory checks.
+The genuine callback increments `original60HardVetoes` when an otherwise
+plausible owner action lacks the required original cards and lets the
+ordinary AI action stand. The source-independent public attack evaluator
+itself remains unchanged.
+
+The expanded
+[`agent49-original-field-box-fog-hook-unfillable-plan.test.cjs`](../../tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs)
+imports the **actual revised hook**, with **3/3 passing pure cases**:
+(1) all three original 9/17/30 printings fire the legacy selector but
+are vetoed by their genuine source 60; (2) a synthetic candidate 60 with
+real Fog and Basic Psychic retains the same proposed one-Prize attack;
+(3) a synthetic source containing Fog but no Basic Psychic is vetoed.
+The module was fetched and executed in an isolated V8 harness. No Node22
+CI or new native Store match is claimed.
+
+**Scope of repair:** This prevents committing a Box on a deck that
+could **never** contain the downstream named targets. It does not
+prove targets remain in the current unseen deck. All registered Fog
+or Basic Psychic copies could still be Prized, exhausted or otherwise
+inaccessible; a stronger native prompt fallback and K1-aware target
+selection may still be necessary. Earlier historical native treatment
+provenance is pinned to its original source SHA and remains valid as
+a separate archived observation. The new hook requires new native
+replay verification before adoption as competitive policy.
+
 ## Direction for shared competence work
 
 Before integrating a historically successful candidate-only tactical
