@@ -9,7 +9,7 @@
 | [Rank-1 Shadow Rider tournament reference](aichi-2026/benchmark-shadow-rider.md) | Reference control only. Its equal-weight symmetric mirror gives a conditional 98.4375% upper bound; it is not field-dominant evidence. |
 | [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Unqualified structural candidate. |
 | [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Unqualified structural candidate. |
-| [New Moon Lockbreaker v1](../results/als/new-moon-lockbreak-60-candidate.md) | Unqualified structural candidate; proposed print provenance and English engine proxy remain distinct. |
+| [New Moon Lockbreaker v1](../results/als/new-moon-lockbreak-60-candidate.md) | Unqualified; print provenance and English proxy differ. Its 2+2 dual-lock package has only a **13.77% optimistic Secret Box-assisted upper bound** for accessing both Items by the first draw after all optional Iron Thorns mulligan bonuses ([analysis](../results/als/new-moon-dual-lockbreak-joint-access-20261107.md)). |
 
 **Selection: none.** Other structural proposals remain unadmitted and do not displace these comparison controls. Preserve every 60 unchanged during comparisons; a tactical witness or native terminal is not a deck-selection result.
 
@@ -49,4 +49,4 @@ Freeze one v8-derived bilateral policy and preregister a fresh matched A/A′/tr
 
 ## Research navigation
 
-Start with the [root repository guide](../README.md), the [Aichi studies](aichi-2026/), [Twinleaf fidelity work](twinleaf/), [methodology](methodology/), [statistics](statistics/), and [strategy](als/). The pinned upstream submodule is `vendor/twinleaf`; research adapters remain under `simulation/twinleaf/`. Keep research CI manually dispatched, preserve provenance and failed evidence, and update this board only when fixed-60 selection, source admission, the selected common-policy release, or competitive qualification changes.
+Start with the [root repository guide](../README.md), the [Aichi studies](aichi-2026/), [Twinleaf fidelity work](twinleaf/), [methodology](methodology/), [statistics](statistics/), and [strategy](als/). The pinned upstream submodule is `vendor/twinleaf`; research adapters remain under `simulation/twinleaf/`. Keep CI manual, preserve failed evidence, and revise this board only when a decision changes.
