@@ -184,6 +184,7 @@ test('candidate Prize exit without source action remains pending',()=>{
   assert.equal(result.sequences.length,0);
   assert.equal(result.pendingPrizeExits.length,1);
   assert.deepEqual(result.pendingPrizeExits[0].prizeTakingRootOrdinals,[1]);
+  assert.deepEqual(result.pendingPrizeExits[0].candidatePrizeRootOrdinals,[1]);
   assert.equal(result.pendingPrizeExits[0].responsePlayerId,'source');
 });
 
@@ -233,6 +234,7 @@ test('Prize exit without a candidate action is retained as pending evidence',()=
   const result=obs.result();
   assert.equal(result.sequences.length,0);
   assert.equal(result.pendingPrizeExits.length,1);
+  assert.deepEqual(result.pendingPrizeExits[0].prizeTakingRootOrdinals,[1]);
   assert.deepEqual(result.pendingPrizeExits[0].sourcePrizeRootOrdinals,[1]);
 });
 
