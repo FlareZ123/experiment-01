@@ -14,7 +14,8 @@ function events(n, settled, prizes) {
       attack:'printed-attack',settledPromptChain:ok});
     settlements.push({ordinal:i * 10,attack:'printed-attack',
       publicSettlement:ok,nextOpponentSameEpochCertified:ok,
-      nextOpponentRoot:ok?i * 10+1:null,
+      nextOpponentRoot:ok?{ordinal:i*10+1,turn:i+1,
+        action:'PlayCardAction'}:null,
       ...(ok ? {prizeBefore:[6,6],prizeAfter:[6-(i<prizes?1:0),6]} : {})});
   }
   return {declarations,settlements};
@@ -56,6 +57,14 @@ function fixture(){
   for(const e of rows[2].actualAttackSettlements)e.prizeAfter[1]=6;
   rows[2].actualAttackSettlements[8].prizeAfter[1]=4;
   rows[3].sourceOpeningFingerprint='different-rank11';
+  // The real v8 first follow-up actions: eight Pass, seven plays, four attacks.
+  const replies=rows[2].actualAttackSettlements;
+  for(let i=0;i<replies.length;i++)
+    replies[i].nextOpponentRoot.action=i<8?'PassTurnAction':'PlayCardAction';
+  for(const e of rows[5].actualAttackSettlements)
+    if(e.publicSettlement)e.nextOpponentRoot.action='AttackAction';
+  rows[0].actualAttackSettlements[0].nextOpponentRoot.action='PlayCardAction';
+  rows[0].actualAttackSettlements[1].nextOpponentRoot.action='PlayCardAction';
   return {schema:'agent36-prospective-v8-original-field-native-census-v1',
     allNativeRootLedgersDigestVerified:true,rows,registeredAttempts:8,
     actualAttempts:8,competitiveGameQualifiedCount:0};
@@ -72,6 +81,8 @@ test('v8 authenticated settlement concentration is per context, not per root',()
   assert.equal(result.totalKnownSourceDeclarations,20);
   assert.equal(result.totalKnownSourceSettlements,19);
   assert.equal(result.totalKnownSameEpochOpponentRoots,19);
+  assert.deepEqual(result.immediateOpponentActionCounts,
+    {AttackAction:4,PassTurnAction:8,PlayCardAction:7});
   assert.equal(result.totalObservedSourcePrizeTakingAttacks,2);
   assert.equal(result.totalObservedSourcePrizesTaken,3);
   assert.deepEqual(result.attackConcentration.map(x=>x.settledAttacks),[13,4,2]);
@@ -121,6 +132,8 @@ test('invalid Prize increase and opponent-root assertion reject',()=>{
   assert.throws(()=>summarizeContextCoverage(x),/Prize transition/);
   const y=fixture();y.rows[0].actualAttackSettlements[0].nextOpponentRoot=null;
   assert.throws(()=>summarizeContextCoverage(y));
+  const z=fixture();z.rows[0].actualAttackSettlements[0].nextOpponentRoot={action:'AttackAction'};
+  assert.throws(()=>summarizeContextCoverage(z),/opponent action/);
 });
 
 test('duplicate registered IDs reject despite unchanged row count',()=>{
