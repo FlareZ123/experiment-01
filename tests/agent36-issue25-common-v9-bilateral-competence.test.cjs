@@ -11,7 +11,7 @@ const {
   VERSION,ROOT_LIMIT,trials,sourceNameCountSha256,candidatePrinted60Sha256,
   projectCandidateRepliesAfterSourceAttacks,postPrizeSourceAttackOrdinals,
   projectPostPrizeOwnerDecisionAudit,summarizeNativeAttempt,toGateAttempt,
-  evaluateGate,writeJsonAtomic
+  evaluateGate,writeJsonAtomic,requireOneNativeDevelopmentRow
 }=require('../simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs');
 
 test('v9 is exactly one frozen rank11/New Moon natural-game registration',()=>{
@@ -173,6 +173,58 @@ test('artifact JSON replacement uses an exclusive lock and removes temporary fil
     assert.equal(fs.existsSync(output+'.lock'),false);
     assert.equal(fs.readdirSync(path.dirname(output)).some(name=>
       name.endsWith('.tmp')),false);
+  } finally {
+    fs.rmSync(dir,{recursive:true,force:true});
+  }
+});
+
+test('selected-layer swallowed exception writes a protected zero-game diagnostic',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'agent13-v9-preflight-'));
+  const output=path.join(dir,'native','diagnostic.json');
+  const metadata={researchRevision:'a'.repeat(40),
+    vendorPin:'b'.repeat(40),hookHash:'c'.repeat(64)};
+  try {
+    const selected={manifest:{version:'common-v0'},rawDevelopment:null,
+      diagnostic:{thrownCode:'UNRESOLVED_OWNER_PROMPT',
+        thrownMessage:'native fallback rejected a selected mandatory action',
+        attemptedRows:[],audit:{nativeRawStateQuarantine:{fallbackCalls:1}}}};
+    assert.throws(()=>requireOneNativeDevelopmentRow(
+      selected,output,metadata),/swallowedCode=UNRESOLVED_OWNER_PROMPT/);
+    const failure=JSON.parse(fs.readFileSync(output,'utf8'));
+    assert.equal(failure.disposition,'NO_USABLE_NATIVE_GAME_ROW');
+    assert.equal(failure.originalNativeRowCount,null);
+    assert.equal(failure.selectedPolicyDiagnostic.thrownCode,
+      'UNRESOLVED_OWNER_PROMPT');
+    assert.deepEqual(failure.registeredTrialIds,
+      ['11:1000:B:new-moon-lockbreaker-v1']);
+    assert.equal(failure.competitiveGamesQualified,0);
+    assert.equal(failure.certifiedPaperGame,false);
+    assert.equal(failure.estimatedWinRate,null);
+    assert.equal(fs.existsSync(output+'.lock'),false);
+    const one={rows:[{id:'real-one-game'}]};
+    assert.equal(requireOneNativeDevelopmentRow(
+      {rawDevelopment:one},path.join(dir,'no-artifact.json'),metadata),one);
+    assert.equal(fs.existsSync(path.join(dir,'no-artifact.json')),false);
+  } finally {
+    fs.rmSync(dir,{recursive:true,force:true});
+  }
+});
+
+test('zero or multiple selected native rows cannot be silently admitted',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'agent13-v9-cardinality-'));
+  const metadata={researchRevision:'a'.repeat(40),
+    vendorPin:'b'.repeat(40),hookHash:'c'.repeat(64)};
+  try {
+    for(const n of [0,2]){
+      const output=path.join(dir,'receipt-'+n+'.json');
+      assert.throws(()=>requireOneNativeDevelopmentRow({
+        rawDevelopment:{rows:Array.from({length:n},(_,i)=>({id:i}))},
+        diagnostic:{thrownCode:null}
+      },output,metadata),/expected exactly 1/);
+      const result=JSON.parse(fs.readFileSync(output,'utf8'));
+      assert.equal(result.originalNativeRowCount,n);
+      assert.equal(result.competitiveGamesQualified,0);
+    }
   } finally {
     fs.rmSync(dir,{recursive:true,force:true});
   }
