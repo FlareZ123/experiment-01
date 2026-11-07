@@ -629,7 +629,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       const adpGx=options.adpBoostedGxRoot===true?
         require('./agent28-adp-post-retreat-gx-window.cjs')
           .chooseAdpGxFromPayable(view,payable):null;
-      const chosen=adpGx?
+      const copycatHistoryIntent=options.copycatHistoryRoot===true?
+        require('./agent7-copycat-history-root.cjs')
+          .chooseMimikyuBurrowCopycat(view):null;
+      const copycatAttack=copycatHistoryIntent?
+        payable.find(attack=>attack.name===copycatHistoryIntent.attackName):null;
+      const chosen=copycatAttack??(adpGx?
         payable.find(attack=>attack.name===adpGx.attackName):
         knownDead?
           payable.find(attack=>attack.name===knownDead.attackName):
@@ -637,9 +642,10 @@ function chooseActorRootIntent(view,catalog,options={}){
           payable.find(attack=>attack.name===ragingBolt.attackName):
         options.potentialKoRoot===true?
           require('./agent49-actor-potential-knockout.cjs')
-            .choosePotentialKnockout(view,payable):payable[0];
+            .choosePotentialKnockout(view,payable):payable[0]);
       assert.ok(chosen,'Known-dead attack selector must choose a payable attack');
-      const first={kind:'attack',attackName:chosen.name};
+      const first=copycatAttack?copycatHistoryIntent:
+        {kind:'attack',attackName:chosen.name};
       if(options.printedScalingBasicKoBeforeAttack===true){
         const better=require('./agent17-printed-scaling-basic-ko.cjs')
           .choosePrintedScalingBasicKoAttachment(view,catalog,first);
@@ -765,6 +771,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,trainerCatalog=null,actualGamesSeen=0;
+  const copycatHistoryByStore=new WeakMap();
+  const copycatHistoryTrackers=[];
   const getNativeTrainerCatalog=deps.getNativeTrainerCatalog??(()=>{
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
     const {TrainerCard}=require(path.join(base,'game/store/card/trainer-card'));
@@ -980,6 +988,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootThornsEmptyBenchOptIn:deps.thornsEmptyBenchVoltPreference===true,
     sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
     sameRootPublicEventReceiptOptIn:deps.sameRootPublicEventReceipt===true,
+    copycatHistoryRootOptIn:deps.copycatHistoryRoot??
+      (process.env.AGENT7_COPYCAT_HISTORY_ROOT_DEV==='true'),
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
       .newSameRootAudit(),
     terminalArbitrationOptIn:(deps.terminalArbitration??
@@ -1024,6 +1034,14 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  if(audit.copycatHistoryRootOptIn){
+    audit.version+='+'+require('./agent7-copycat-history-root.cjs').VERSION;
+    audit.copycatHistoryRoot={
+      trackerStores:0,ownerRoots:0,unavailableRoots:0,knownEmptyRoots:0,
+      singleAttackRoots:0,multiattackRoots:0,singleBurrowRoots:0,
+      selected:0,samples:[]
+    };
+  }else delete audit.copycatHistoryRootOptIn;
   if(deps.nativeOwnerTrainerFallback===true){
     const bridge=require('./agent50-native-owner-trainer-pass-bridge.cjs');
     audit.version+='+'+bridge.VERSION;
@@ -1350,9 +1368,33 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
     }
     const baseView=observe(state,seat);
+    const copycatView=audit.copycatHistoryRootOptIn?
+      require('./agent7-copycat-history-root.cjs')
+        .attachPreviousOpponentTurnReceipt(baseView,state,seat,
+          copycatHistoryByStore.get(nativeStore)??null):baseView;
+    if(audit.copycatHistoryRootOptIn){
+      const receipt=copycatView.publicEventReceipt;
+      const rows=receipt.opponentLastTurnAttacks;
+      const stats=audit.copycatHistoryRoot;
+      stats.ownerRoots++;
+      if(rows===null)stats.unavailableRoots++;
+      else if(rows.length===0)stats.knownEmptyRoots++;
+      else if(rows.length===1)stats.singleAttackRoots++;
+      else stats.multiattackRoots++;
+      if(rows?.length===1&&
+          rows[0].sourcePrinting.startsWith('Bunnelby PRC')&&
+          rows[0].attackName==='Burrow'&&
+          rows[0].gxAttack===false&&rows[0].copycatAttack===false)
+        stats.singleBurrowRoots++;
+      if(stats.samples.length<32)stats.samples.push({
+        globalTurn:state.turn,actorSeat:seat,
+        opponentLastTurnTurn:receipt.opponentLastTurnTurn,
+        attacks:rows===null?null:rows.map(row=>({...row}))
+      });
+    }
     const view=audit.rangerPaidGxResponseOptIn?
       require('./agent30-ranger-public-gx-frontier.cjs')
-        .observePublicPaidGxEffects(state,seat,baseView):baseView;
+        .observePublicPaidGxEffects(state,seat,copycatView):copycatView;
     let genericFundedObservation=null;
     if(audit.genericFundedFloatStoneAuditOptIn){
       const census=audit.genericFundedFloatStoneAudit;
@@ -1553,6 +1595,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       payablePrintedAttackOffer:audit.sameRootProposalChoiceOptIn===true,
       preterminalSpeedDrawOffer:audit.sameRootProposalChoiceOptIn===true,
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
+      copycatHistoryRoot:audit.copycatHistoryRootOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
       rondoPsychicBenchStage:actorSpecialEnergyEnabled(
@@ -1627,7 +1670,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     // trusted Store boundary. Never pass State or native card IDs to a
     // selector. The historical baseline continues using the original view.
     const rootProposalView=audit.sameRootPublicEventReceiptOptIn?
-      Object.freeze({...view,publicEventReceipt:
+      Object.freeze({...view,publicEventReceipt:view.publicEventReceipt??
         require('./agent8-public-event-receipt.cjs')
           .publicEventReceipt(state,seat)}):view;
     const sameRoot=audit.sameRootProposalChoiceOptIn?
@@ -1650,6 +1693,9 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(audit.copycatHistoryRootOptIn&&
+        intent.source===require('./agent7-copycat-history-root.cjs').VERSION)
+      audit.copycatHistoryRoot.selected++;
     if(intent.source?.startsWith('agent36-garbotoxin-'))
       audit.garbotoxinToolRootSelected++;
     if(intent.source==='agent36-garbotoxin-float-stone-v1')
@@ -1852,6 +1898,13 @@ function withActorOnlyRootPolicy(run,deps={}){
   function dispatchObserved(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
+      if(audit.copycatHistoryRootOptIn&&!copycatHistoryByStore.has(this)){
+        const tracker=require('./copycat-multiattack-history.cjs')
+          .installCopycatMultiAttackHistory(this);
+        copycatHistoryByStore.set(this,tracker);
+        copycatHistoryTrackers.push(tracker);
+        audit.copycatHistoryRoot.trackerStores++;
+      }
       pendingFarewellBySeat.clear();
       pendingGenesectBySeat.clear();
       genesectDrawUsedTurnBySeat.clear();
@@ -2169,6 +2222,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     throw error;
   }
   finally{
+    for(const tracker of copycatHistoryTrackers)tracker.restore();
     assert.strictEqual(Store.prototype.dispatch,dispatchObserved);
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,wrapped);
