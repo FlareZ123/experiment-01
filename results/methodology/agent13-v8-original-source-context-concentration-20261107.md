@@ -36,6 +36,19 @@ The settlement concentration is 13 rank11 Motivate attacks, 4 rank1 Red Knuckles
 
 **Physical opening caveat:** the original rank11 source-deal fingerprint **differs across the two historical contenders** despite the same registered seed. Rank1, rank3 and rank6 source-deal fingerprints match within their contender pair. Do not treat matching seeds as proof of matched physical deals; do not silently exclude the rank11 attempt.
 
+
+## Independent opponent-next-root classification
+
+The actual native `nextSourceRoot` certificates identify the **first accepted opponent root** after each settled original-source attack, including its action ordinal and global turn. The upgraded pure audit validates these fields and counts the following **19 first accepted reply actions**:
+
+| Native first accepted opponent action | Count | Meaning |
+| --- | ---: | --- |
+| `PassTurnAction` | **8** | Immediate turn end; no consequential voluntary counterplay established |
+| `PlayCardAction` | **7** | A native card play occurred; paper affordability, tactical quality and causal relevance remain unverified |
+| `AttackAction` | **4** | Four **Future Sight** attack declarations against rank1 source; tactical result and competence remain unverified |
+
+These are **19 attacks followed by 19 root observations**, not 19 competitive opponent-response proofs. The four Future Sight actions occur in the same rank1-vs-New-Moon game. The eight Pass roots occur across rank11 and rank6 trajectories. Later card plays in the same opponent turn cannot retroactively make an earlier Pass a consequential reply. The new reader rejects a claimed same-epoch opponent action lacking an actual ordinal, turn or action name; the pure tests exercise that adversarial case.
+
 ## Method and independent checks
 
 The new audit accepts only previously normalized, root-hash-verified census data. It rejects duplicated attempt IDs, unverified Store roots, source-seat mismatch, declaration/settlement mismatches, malformed settled Prize transitions, inconsistent counts, and false positive immediate-reply claims. It preserves a full `null` unknown attack history for every aborted source trace and excludes those unknowns from numeric sums. It groups observations by actual original rank, physical source seat and contender, keeping nonmatching source physical deals explicit. Its result always sets `competitivelyQualifiedGames=0` and `estimatedWinRate=null`.
