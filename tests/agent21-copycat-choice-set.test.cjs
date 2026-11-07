@@ -71,12 +71,11 @@ function runChoicePrompt(powers,options={}){
   const history=installCopycatMultiAttackHistory(store);
   try{
     store.dispatch(new AttackAction(1,first.name));
+    if(options.declareSecondAttack===true)
+      store.dispatch(new AttackAction(1,second.name));
     const prompt=new ChooseAttackPrompt(1,sourceCard,second);
     store.state.prompts=[prompt];
     store.dispatch(new ResolvePromptAction(prompt.id,{name:second.name}));
-    if(options.declareSecondAttack===true||
-        options.executeSecondAttack===true)
-      store.dispatch(new AttackAction(1,second.name));
     store.dispatch({kind:'end-turn'});
     return {
       snapshot:history.getPreviousTurnSnapshot(1),
@@ -96,8 +95,7 @@ test('generic CHOOSE_ATTACK_TO_COPY prompt without Barrage is not a two-attack C
 });
 
 test('Barrage power marks the preceding attack and selected follow-up as the Copycat pair',()=>{
-  const result=runChoicePrompt([{name:'Barrage',barrage:true}],
-    {executeSecondAttack:true});
+  const result=runChoicePrompt([{name:'Barrage',barrage:true}]);
   assert.ok(result.snapshot);
   assert.equal(result.snapshot.turn,1);
   assert.deepEqual(result.snapshot.attacks.map(row=>row.attackName),
@@ -137,7 +135,7 @@ test('Copycat excludes GX and Mimikyu Copycat, not copied-attack metadata genera
 
 test('a Barrage pair with one uncopyable member exposes only the other member',()=>{
   const result=runChoicePrompt([{name:'Barrage',barrage:true}],
-    {executeSecondAttack:true,secondGx:true});
+    {secondGx:true});
   assert.deepEqual(result.copycatChoices.map(row=>row.attackName),
     ['First attack']);
 });
