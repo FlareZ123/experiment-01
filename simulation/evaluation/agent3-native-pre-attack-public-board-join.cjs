@@ -40,10 +40,6 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     return 'TARGET_DAMAGE_THRESHOLD_REACHED_AT_DECLARATION_ROOT';
   if(immediate.location==='absent')
     return 'TARGET_ABSENT_FROM_IN_PLAY_AT_DECLARATION_ROOT';
-  if(immediate.location==='bench')
-    return 'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT';
-  if(immediate.location!=='active')
-    return 'UNKNOWN_IMMEDIATE_TARGET_LOCATION';
   const laterPromptRoots=promptPending===true&&
     Number.isSafeInteger(actionOrdinal)&&
     Number.isSafeInteger(completionRootOrdinal)&&
@@ -55,6 +51,10 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     if(final.damage!==null&&final.damage>=printedHp)
       return 'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION';
   }
+  if(immediate.location==='bench')
+    return 'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT';
+  if(immediate.location!=='active')
+    return 'UNKNOWN_IMMEDIATE_TARGET_LOCATION';
   if(final.captured&&final.location==='absent')
     return 'TARGET_REMOVED_AFTER_DECLARATION_WITHOUT_PROMPT_CHAIN';
   if(final.captured&&final.damage!==null&&final.damage>=printedHp)
