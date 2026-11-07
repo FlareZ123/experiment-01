@@ -3,13 +3,13 @@
 **Audit date:** 7 November 2026  
 **Candidate:** New Moon Lockbreaker v1  
 **Benchmark context:** Aichi Open League 2026, 10 May 2026, Japanese Extra  
-**Status:** <badge>Provisional</badge> exact print manifest and dated ban screen pass; full paper-legality sign-off remains open.
+**Status: PROVISIONAL.** Exact print manifest and dated ban screen pass; full paper-legality sign-off remains open.
 
 ## Executive finding
 
 The candidate has a complete 60-card Japanese print manifest with **34 unique physical card identities**. Thirty-two identities are retained unchanged from an official Japanese deck code published for a 52nd-place Aichi participant; two additional identities are separately identified official Japanese prints. The candidate's exact print manifest and English-proxy manifest both total 60 cards and match by name and count.
 
-The repository's dated Japanese Extra ban-screen reports **zero exact restricted-print collisions**. Two same-name contacts are false positives at the name-only level: the candidate's Unown is XY (not the restricted SM8 Unown), and its Duskull is S4 (not the restricted SM11a Spiritborne Evolution Duskull). The candidate has one ACE SPEC, Secret Box.
+The repository's dated Japanese Extra ban-screen reports **zero exact restricted-print collisions**. Two same-name contacts are false positives at the name-only level: the candidate's Unown is XY (not the restricted SM8 Unown), and its Duskull is S4 (not the restricted SM11a Spiritborne Evolution Duskull). The candidate has one ACE SPEC, Secret Box. The official Pokémon Card Game Extra reference states that a deck may contain only one ACE SPEC card, including across different ACE SPEC names: https://www.pokemon-card.com/info/2000/20000114_002774.html.
 
 This is a strong **print-provenance and restricted-print screen**, not a complete paper-legality certificate. The ban-screen source itself warns that English ability/attack matching is a narrow proxy for specified Japanese print identities. A full Japanese text/errata and event-rule sign-off remains outstanding. The current v10/v10b native candidate runners also do not install the research-owned Canceling Cologne once-per-turn hook, which is a separate simulator-fidelity issue.
 
@@ -73,7 +73,7 @@ Japanese card IDs are the official card-database identifiers from the source dec
 
 The two added entries have these official Japanese card pages:
 
-- **Field Blower / フィールドブロアー**, card ID 34321, SM4p 093/114; English proxy `sm2-125`, Twinleaf `Field Blower GRI`. [Official card page](https://www.pokemon-card.com/card-search/details.php/card/34321). The GX Battle Boost release predates the event by more than eight years.
+- **Field Blower / フィールドブロアー**, card ID 34321, SM4p 093/114; English proxy `sm2-125`, Twinleaf `Field Blower GRI`. [Official card page](https://www.pokemon-card.com/card-search/details.php/card/34321). The official Pokémon Card Game news index dates the GX Battle Boost product article to 20 October 2017, well before the event: https://www.pokemon-card.com/info/2017.html. The official card page identifies the exact SM4p printing.
 - **Canceling Cologne / キャンセルコロン**, card ID 41294, S9a 063/067; English proxy `swsh10-136`, Twinleaf `Canceling Cologne ASR`. [Official card page](https://www.pokemon-card.com/card-search/details.php/card/41294) and [official S9a product page](https://www.pokemon-card.com/products/s/s9a.html), released 25 February 2022.
 
 The original 32 identities retain their official Aichi source-deck card IDs and sets. The full candidate manifest is `results/als/new-moon-lockbreak-japanese-print-60.json`; the English proxy manifest is `results/als/new-moon-lockbreak-english-proxy-60.json`; the original source manifest is `results/als/new-moon-official-japanese-print-60.json`.
@@ -114,7 +114,7 @@ The existing `scripts/new-moon-lockbreak-japanese-ban-screen.cjs` checks the can
 
 The exact-print distinction matters. Do not collapse these into name-only bans or substitute the restricted printings. The candidate uses the XY Unown / Farewell Letter identity and S4 Duskull / Future Sight identity.
 
-The candidate is also within the BW-onward Japanese Extra card-pool boundary: its oldest physical printing is XY. It contains one ACE SPEC, below the one-per-deck limit. The 60-card count and copy limits pass the repository's manifest validation.
+The candidate is also within the BW-onward Japanese Extra card-pool boundary: its oldest physical printing is XY. It contains one ACE SPEC, satisfying the official one-per-deck rule. The 60-card count and copy limits pass the repository's manifest validation.
 
 ## Twinleaf identity and behavior boundary
 
@@ -143,7 +143,8 @@ Relevant behavior evidence:
 | English proxy / Twinleaf identity map | MAPPED | 34 proxy identities; fullName mapping exists; validator not freshly executed in this audit |
 | Trainer effect fidelity | PARTIAL | Existing Field Blower/Cologne tests; Cologne once-per-turn hook not active in v10/v10b |
 | Complete Japanese text / errata review | OPEN | No full bilingual audit of every physical card |
-| Full paper-play legality certification | OPEN | Requires final Japanese Extra rules/errata sign-off and the Cologne simulation correction |
+| Full paper-play legality certification | OPEN | Requires full Japanese card-text/errata review and final event-rule sign-off |
+| Cologne simulation fidelity | OPEN | The per-turn hook is not installed in v10/v10b; this is a simulator correction, separate from the deck's paper legality |
 | Competitive qualification | NONE | Zero qualified competitive games; no win-rate inference |
 
 ## Recommendation
