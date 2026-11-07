@@ -124,6 +124,7 @@ function runMimikyuCounterSourcePilot() {
         ...(experimental ? {mimikyuApexTimelessPolicySeat: championSeat} : {})
       };
       const base = {ranks: rankOrder, candidateSeat: championSeat,
+        opponentSeat: 1 - championSeat,
         policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
