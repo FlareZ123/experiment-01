@@ -1,0 +1,19 @@
+name: Agent12 Capture Energy owner-search alias regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-owner-search-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run pure Capture Energy owner-search regressions
+        run: node --test tests/agent41-owner-capture-energy-search.test.cjs
