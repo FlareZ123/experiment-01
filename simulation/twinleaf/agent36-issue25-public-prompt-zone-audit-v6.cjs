@@ -375,5 +375,5 @@ module.exports = {
   eligiblePromptCards,
   promptZoneMatches,
   attackFingerprint,
-  withIssue25PublicPromptZoneAuditV5
+  withIssue25PublicPromptZoneAuditV6
 };
