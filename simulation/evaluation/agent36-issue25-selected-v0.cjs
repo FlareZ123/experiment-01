@@ -299,6 +299,7 @@ function runSelectedIssue25V0(injected={}){
       audit.firstBlockedPromptEnvelope?.envelopes??null,
     thrownCode:thrown?.code??null,
     thrownMessage:thrown?.message??null,
+    thrownStack:thrown?.stack??null,
     verdict:'FAIL-development-policy-only',
     competitiveGamesQualified:0
   };
