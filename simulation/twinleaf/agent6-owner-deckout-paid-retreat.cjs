@@ -294,11 +294,18 @@ function withBilateralDeckOutPaidRetreat(execute,deps={}){
   };
 
   function decoder(state,...args){
-    const prompt=(state.prompts??[]).find(p=>p.result===undefined);
+    const unresolved=(state.prompts??[]).filter(p=>p.result===undefined);
+    const prompt=unresolved.length===1?unresolved[0]:null;
     const seat=state.activePlayer;
     const player=state.players?.[seat];
     const opponent=state.players?.[1-seat];
-    if(markedDeckOutAttack!==null&&
+    const currentActive=player?.active?.getPokemonCard?.();
+    const sameMarkedAttacker=currentActive?.fullName===
+      markedDeckOutAttack?.printing&&
+      currentActive?.attacks?.some(move=>
+        move.name===markedDeckOutAttack.attackName&&
+        move.text===DECKOUT_TEXT);
+    if(markedDeckOutAttack!==null&&sameMarkedAttacker&&
        rootStore?.state===state&&rootAgents?.[seat]===this&&
        state.turn===markedDeckOutAttack.turn&&
        seat===markedDeckOutAttack.seat&&
