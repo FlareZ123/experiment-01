@@ -175,6 +175,16 @@ test('a clock reset between the prior attack and Copycat breaks the join',()=>{
     'clock-reset-between-prior-attack-and-Copycat'));
 });
 
+test('conflicting public Stadiums fail closed',()=>{
+  const f=fixture();
+  f.current.publicBoardBefore[0].stadium=['Sky Field'];
+  f.current.publicBoardBefore[1].stadium=['Dimension Valley'];
+  const row=audit(f).rows[0];
+  assert.equal(row.conflictingStadiums,true);
+  assert.equal(row.paperCopycatConditionSupported,false);
+  assert.ok(row.failureReasons.includes('conflicting-public-Stadium-state'));
+});
+
 test('a non-Copycat physical Active cannot inherit the copied donor attack',()=>{
   const f=fixture();
   f.current.publicBoardBefore[1].active.printing='Latias ex SSP';
