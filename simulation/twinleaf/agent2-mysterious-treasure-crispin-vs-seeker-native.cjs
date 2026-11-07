@@ -2,9 +2,26 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const fs=require('node:fs');
+const crypto=require('node:crypto');
+const {execFileSync}=require('node:child_process');
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 function native(relative){return require(path.join(OUTPUT,relative));}
+const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+const REPO_ROOT=path.resolve(__dirname,'../..');
+const SOURCE_PATHS=[
+  'simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs',
+  'simulation/twinleaf/agent5-attack-special-arbitration-native.cjs',
+  'simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs',
+  'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs'
+];
+function gitRevision(cwd){return execFileSync('git',['rev-parse','HEAD'],
+  {cwd,encoding:'utf8'}).trim();}
+function hashFile(relative){
+  return {path:relative,sha256:crypto.createHash('sha256')
+    .update(fs.readFileSync(path.join(REPO_ROOT,relative))).digest('hex')};
+}
 
 const {stage}=require('./agent5-attack-special-arbitration-native.cjs');
 const {finishStagedNativeItem}=require('./agent46-treasure-cleanup-native-observer.cjs');
@@ -68,8 +85,7 @@ function finishVsSeekerPresentation(x){
     if(typeof prompt.validate==='function')
       assert.equal(prompt.validate(answer,x.store.state),true,
         'Pinned native '+kind+' presentation response must validate');
-    x.store.dispatch(new (native('game/store/actions/resolve-prompt-action')
-      .ResolvePromptAction)(prompt.id,answer));
+    x.store.dispatch(new ResolvePromptAction(prompt.id,answer));
     accepted.push({kind,ownerMatched:prompt.playerId===x.owner.id,
       nativeDispatchAccepted:true});
   }
@@ -108,8 +124,6 @@ function observeSeat(seat){
     assert.equal(x.owner.discard.cards.length,0);
     const {PlayCardAction,PlayerType,SlotType}=
       native('game/store/actions/play-card-action');
-    const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-
     // Mysterious Treasure payment: the owner chooses Crispin from their hand.
     x.store.dispatch(new PlayCardAction(x.owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
@@ -192,9 +206,14 @@ function observeSeat(seat){
 }
 
 function run(){
+  const twinleafRevision=execFileSync('git',['-C','vendor/twinleaf','rev-parse','HEAD'],
+    {cwd:REPO_ROOT,encoding:'utf8'}).trim();
+  assert.equal(twinleafRevision,ENGINE_PIN);
   const report={
     schema:'agent2-crispin-vs-seeker-treasure-sequence-report-v1',
-    nativeEnginePinned:ENGINE_PIN,
+    sourceCodeCommit:gitRevision(REPO_ROOT),
+    nativeEnginePinned:ENGINE_PIN,twinleafRevision,
+    resolvedSourceAndPolicyHashes:SOURCE_PATHS.map(hashFile),
     seats:[observeSeat(0),observeSeat(1)],
     qualifiedCompetitiveGames:0
   };
