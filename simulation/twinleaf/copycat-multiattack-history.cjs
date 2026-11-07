@@ -118,7 +118,9 @@ function installCopycatMultiAttackHistory(store){
     if(beforeActive&&
         (beforeActiveIndex!==after.activePlayer||beforeTurn!==after.turn)){
       const endedPlayerId=beforeActive.id;
-      previous.set(endedPlayerId,{\n        turn:beforeTurn,attacks:(current.get(endedPlayerId)??[]).slice()\n      });
+      previous.set(endedPlayerId,{
+        turn:beforeTurn,attacks:(current.get(endedPlayerId)??[]).slice()
+      });
       current.set(endedPlayerId,[]);
     }
     return result;
