@@ -15,7 +15,7 @@ test('Snap Trap routes the same physical Beast Energy Prism Star to Lost Zone', 
     'agent12-snap-trap-prism-star-destination-v1.json');
   const temporaryPath = artifactPath + '.tmp';
   fs.mkdirSync(artifactDirectory, {recursive: true});
-  fs.writeFileSync(temporaryPath, JSON.stringify(result, null, 2) + '\\n', 'utf8');
+  fs.writeFileSync(temporaryPath, JSON.stringify(result, null, 2) + '\n', 'utf8');
   fs.renameSync(temporaryPath, artifactPath);
 
   assert.equal(result.schema, 'agent12-snap-trap-prism-star-destination-v1');
