@@ -85,7 +85,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify actual native replay Store sudden-death epoch and fail-closed classifier
-        run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs
+        run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs tests/agent1-terminal-ordinary-double-ko-admission.native.test.cjs
 
   native-same-baseline-sham:
     if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true }}
