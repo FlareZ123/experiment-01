@@ -23,7 +23,11 @@ function originals() {
   assert.equal(plan.candidate.cards.length,60);
   assert.equal(opp.cards.length,60);
   return {champion:plan.candidate.cards,rank10:opp.cards,
-    nativeManifestSha256:plan.manifestDigest};
+    nativeManifestSha256:plan.manifestDigest,
+    explicitPrintingSubstitutions:{
+      champion:plan.candidate.substitutions,
+      rank10:opp.substitutions
+    }};
 }
 
 /**
@@ -71,7 +75,7 @@ function runOne(group,mode,decks) {
       actualFirstTurn:game.actualFirstTurn??null,
       observerRootCapture:capture?.result()??null,
       observerRootAudit:capture?.audit()??null,
-      originalBothSixtiesUnchanged:true,
+      originalCardNameCountInventoryUsed:true,
       paperQualifiedCompetitiveGames:0
     };
   } catch (error) {
@@ -81,7 +85,7 @@ function runOne(group,mode,decks) {
       observerRootCapture:capture?.result()??null,
       observerRootAudit:capture?.audit()??null,
       sourceDeal:null,fullDeal:null,publicRootSha256:null,
-      originalBothSixtiesUnchanged:true,paperQualifiedCompetitiveGames:0
+      originalCardNameCountInventoryUsed:true,paperQualifiedCompetitiveGames:0
     };
   }
 }
@@ -121,6 +125,7 @@ function run() {
   }
   return {schema:VERSION,registration:'results/aichi-2026/registrations/agent6-copycat-root-observer-24arm-native-20261107.json',
     nativeManifestSha256:decks.nativeManifestSha256,
+    explicitPrintingSubstitutions:decks.explicitPrintingSubstitutions,
     attemptCount:rows.length,groups,
     allControlsMatched:groups.every(g=>g.replayControlIdentical),
     observerNoninterfering:groups.every(g=>g.observerPolicyNeutral),
@@ -132,6 +137,29 @@ function run() {
 if(require.main===module){
   const data=run();
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
+  const observed=data.rows.filter(row=>row.mode==='B-readonly-root-observer');
+  const countZone=(role,zone)=>observed.filter(row=>
+    row.observerRootCapture?.physicalLocations?.[role]===zone).length;
+  const stats={schema:data.schema,
+    attemptCount:data.attemptCount,
+    allControlsMatched:data.allControlsMatched,
+    observerNoninterfering:data.observerNoninterfering,
+    allBCaptured:data.allBCaptured,
+    allSourceDealsMatched:data.allSourceDealsMatched,
+    statusCounts:Object.fromEntries([...new Set(data.rows.map(r=>r.status))]
+      .map(status=>[status,data.rows.filter(r=>r.status===status).length])),
+    championPrintSubstitutions:data.explicitPrintingSubstitutions.champion,
+    rank10PrintSubstitutions:data.explicitPrintingSubstitutions.rank10,
+    observedChampionZoneCounts:Object.fromEntries(
+      ['mimikyu','dialga','ball','seal'].map(role=>[role,
+        Object.fromEntries(['opening','prizes','deck','unused']
+          .map(zone=>[zone,countZone(role,zone)]))])),
+    observedSingleCorePrizeBallDeck:observed.filter(row=>
+      row.observerRootCapture?.oneCorePrizedBallInDeck).length,
+    observedHeldSealAndInPlayV:observed.filter(row=>
+      row.observerRootCapture?.heldSealWithInPlayV).length,
+    competitivelyQualifiedGames:0};
+  process.stderr.write(JSON.stringify(stats)+'\n');
   if(!data.allControlsMatched||!data.observerNoninterfering||
     !data.allBCaptured||!data.allSourceDealsMatched)process.exitCode=1;
 }
