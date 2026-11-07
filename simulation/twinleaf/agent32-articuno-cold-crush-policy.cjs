@@ -58,7 +58,8 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
   const pendingByPrompt = new WeakMap();
   const pendingByOwner = new Map();
   const submitted = new WeakMap();
-  const pendingColdCrush = new Map();
+  const pendingColdCrushByStore = new WeakMap();
+  const storesWithArticuno = new WeakSet();
   const audit = {
     version: VERSION,
     choiceVersion: CHOICE_VERSION,
@@ -85,6 +86,7 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
       const owner = stateBefore?.players?.find(player => player.id === action.id);
       const card = owner?.hand?.cards?.[action.handIndex] ?? null;
       if (card?.fullName === 'Articuno-GX CES') {
+        storesWithArticuno.add(this);
         played = {
           ownerId: action.id,
           card,
@@ -96,16 +98,22 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
     }
 
     const meta = action && typeof action === 'object' ? submitted.get(action) : null;
-    if (action?.constructor?.name === 'AttackAction' &&
+    if (storesWithArticuno.has(this) &&
+        action?.constructor?.name === 'AttackAction' &&
         action.name === 'Cold Crush-GX') {
       const owner = stateBefore?.players?.find(player => player.id === action.clientId);
       const opponent = stateBefore?.players?.find(player => player.id !== action.clientId);
-      pendingColdCrush.set(action.clientId, {
+      let pending = pendingColdCrushByStore.get(this);
+      if (!pending) {
+        pending = new Map();
+        pendingColdCrushByStore.set(this, pending);
+      }
+      pending.set(action.clientId, {
         turn: stateBefore.turn,
         ownerActiveName: owner?.active?.getPokemonCard?.()?.fullName ?? null,
         opponentActiveName: opponent?.active?.getPokemonCard?.()?.fullName ?? null,
-        ownerActiveEnergyBefore: owner?.active?.energies?.cards?.length ?? 0,
-        opponentActiveEnergyBefore: opponent?.active?.energies?.cards?.length ?? 0
+        ownerActiveEnergyCardsBefore: [...(owner?.active?.energies?.cards ?? [])],
+        opponentActiveEnergyCardsBefore: [...(opponent?.active?.energies?.cards ?? [])]
       });
     }
 
@@ -185,27 +193,43 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
       });
     }
 
-    for (const [ownerId, before] of pendingColdCrush) {
-      const owner = this.state.players.find(player => player.id === ownerId);
-      const opponent = this.state.players.find(player => player.id !== ownerId);
-      const unresolved = (this.state.prompts ?? []).some(prompt => prompt.result === undefined);
-      if (!unresolved) {
-        audit.coldCrushAttackEvents.push({
-          ownerId,
-          turn: before.turn,
-          ownerActiveNameBefore: before.ownerActiveName,
-          opponentActiveNameBefore: before.opponentActiveName,
-          ownerActiveEnergyBefore: before.ownerActiveEnergyBefore,
-          opponentActiveEnergyBefore: before.opponentActiveEnergyBefore,
-          ownerActiveEnergyAfter: owner?.active?.energies?.cards?.length ?? 0,
-          opponentActiveEnergyAfter: opponent?.active?.energies?.cards?.length ?? 0,
-          ownerWaterInDiscard: (owner?.discard?.cards ?? []).some(card =>
-            card.name === 'Water Energy' && card.superType === types.SuperType.ENERGY),
-          opponentEnergyInDiscard: (opponent?.discard?.cards ?? [])
-            .filter(card => card.superType === types.SuperType.ENERGY).length,
-          ownerUsedGX: owner?.usedGX === true
-        });
-        pendingColdCrush.delete(ownerId);
+    const pendingColdCrush = pendingColdCrushByStore.get(this);
+    if (storesWithArticuno.has(this) && pendingColdCrush) {
+      for (const [ownerId, before] of pendingColdCrush) {
+        const owner = this.state.players.find(player => player.id === ownerId);
+        const opponent = this.state.players.find(player => player.id !== ownerId);
+        const unresolved = (this.state.prompts ?? []).some(prompt => prompt.result === undefined);
+        if (!unresolved) {
+          const ownerDiscard = owner?.discard?.cards ?? [];
+          const opponentDiscard = opponent?.discard?.cards ?? [];
+          const ownerActiveEnergyDiscarded = before.ownerActiveEnergyCardsBefore
+            .filter(card => ownerDiscard.some(discarded => samePhysicalCard(discarded, card))).length;
+          const opponentActiveEnergyDiscarded = before.opponentActiveEnergyCardsBefore
+            .filter(card => opponentDiscard.some(discarded => samePhysicalCard(discarded, card))).length;
+          audit.coldCrushAttackEvents.push({
+            ownerId,
+            turn: before.turn,
+            ownerActiveNameBefore: before.ownerActiveName,
+            opponentActiveNameBefore: before.opponentActiveName,
+            ownerActiveEnergyBefore: before.ownerActiveEnergyCardsBefore.length,
+            opponentActiveEnergyBefore: before.opponentActiveEnergyCardsBefore.length,
+            ownerActiveEnergyAfter: owner?.active?.energies?.cards?.length ?? 0,
+            opponentActiveEnergyAfter: opponent?.active?.energies?.cards?.length ?? 0,
+            ownerActiveEnergyDiscarded,
+            opponentActiveEnergyDiscarded,
+            allOwnerActiveEnergyDiscarded:
+              ownerActiveEnergyDiscarded === before.ownerActiveEnergyCardsBefore.length,
+            allOpponentActiveEnergyDiscarded:
+              opponentActiveEnergyDiscarded === before.opponentActiveEnergyCardsBefore.length,
+            ownerWaterInDiscard: ownerActiveEnergyDiscarded > 0 &&
+              before.ownerActiveEnergyCardsBefore.every(card =>
+                ownerDiscard.some(discarded => samePhysicalCard(discarded, card))),
+            opponentEnergyInDiscard: opponentDiscard
+              .filter(card => card.superType === types.SuperType.ENERGY).length,
+            ownerUsedGX: owner?.usedGX === true
+          });
+          pendingColdCrush.delete(ownerId);
+        }
       }
     }
     return result;
