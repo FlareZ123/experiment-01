@@ -134,3 +134,15 @@ The v2 adapter explicitly reports `frontierIdentityScope: printing-count-based`,
 The v2 Lillie group counts both identical physical Lillie payments as one printing-count group with `equivalentPhysicalPayments: 2`. Only the representative at prompt index4/id80035 was individually validated through native Store; index5/id80036 is counted as equivalent by the v2 frontier and its pure regression. The hard Carrier at index1/id80032 remains in both tested paths. Both representatives leave the next Secret Box search prompt pending. The guard recorded one root/payment, zero vetoes and zero qualified games.
 
 This resolves the v1 identical-soft-copy index artifact for the v2 count-based vector. The v1 module remains unchanged and is explicitly diagnostic only; its warning flags are now surfaced by the Agent4 native bridge. Agent16, Agent36 and Agent44 have received the v2 native result. No shared core, common v8 runner, root93 full-game workflow, or automatic CI trigger was changed.
+
+
+## Second identical Lillie physical-copy Store validation
+
+At Agent36's request, the v2 native probe now dispatches both physical Lillie payment sets separately. [Run 42360068055](https://github.com/FlareZ123/experiment-01/actions/runs/42360068055) passed both Lillie candidates in both physical seats:
+
+- First Lillie: prompt indices 0/2/4, physical IDs 80030/80033/80035. Store discarded id80035 and left id80036 in hand.
+- Second Lillie: prompt indices 0/2/5, physical IDs 80030/80033/80036. Store discarded id80036 and left id80035 in hand.
+
+Both were accepted by the same genuine prompt validator and settled through Store. The v2 adapter returned the same printing-count vector for both, with soft deficit0, deadCardsSpent2, nextUnprotectedPaymentWays6 and `equivalentPhysicalPayments: 2`. The Carrier representative (indices0/2/3, ids80030/80033/80034) also passed in both seats. Thus both physical members of the v2 Lillie equivalence group have now been individually validated through native Store, rather than relying only on the pure v2 grouping test.
+
+The full Agent4 smoke suite was green at [42359872359](https://github.com/FlareZ123/experiment-01/actions/runs/42359872359) before this second-copy extension. A final full smoke rerun is being used to cover the expanded three-candidate native test.
