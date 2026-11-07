@@ -29,6 +29,9 @@ function withInstanceScopedPaperKoBeforeEndTurn(store,execute){
     'Store must not already be overridden on this instance');
   const original=store.reduceEffect;
   assert.equal(typeof original,'function');
+  const neighbor=new Store({onStateChange(){}});
+  assert.equal(neighbor.reduceEffect,original,
+    'An unrelated game should initially use the original Store method');
   const audit={
     version:VERSION,pinnedTwinleaf:PINNED,
     intercepted:0,completed:0,terminalSuppressed:0,
@@ -62,8 +65,12 @@ function withInstanceScopedPaperKoBeforeEndTurn(store,execute){
   Object.defineProperty(store,'reduceEffect',{
     configurable:true,writable:true,value:paperReduceEffect
   });
+  assert.strictEqual(neighbor.reduceEffect,original,
+    'A second independent Store must not inherit the single-instance repair');
   try{
     const result=execute();
+    audit.otherStoresUnmodified=neighbor.reduceEffect===original;
+    assert.equal(audit.otherStoresUnmodified,true);
     assert.equal(store.hasPrompts(),false,
       'All native Store prompt chains must finish before restoring instance hook');
     assert.equal(store.state.prompts.filter(p=>p.result===undefined).length,0,
