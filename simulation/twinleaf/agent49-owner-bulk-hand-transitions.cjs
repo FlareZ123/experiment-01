@@ -40,10 +40,11 @@ const BULK_HAND_PRINTS = Object.freeze({
   })
 });
 
-// Twinleaf uses M1L for its native fullName of the same me1-119 card
-// which the authenticated English roster records as MEG. This exact alias
-// keeps the roster's eight original print families unchanged while allowing
-// the New Moon English-proxy candidate's actual held card to be observed.
+// Native M1L is the Japanese Mega Brave printing of Lillie's Determination
+// (M1L #62 or alternate artwork), whereas MEG #119 (me1-119) is its distinct
+// English Mega Evolution equivalent. Their printed game effects match;
+// this is a mechanics-lookup alias, never a physical card-ID equivalence.
+// Keep original printed names, the source English catalog, and roster intact.
 const NATIVE_PRINT_ALIASES=Object.freeze({
   "Lillie's Determination M1L":"Lillie's Determination MEG"
 });
