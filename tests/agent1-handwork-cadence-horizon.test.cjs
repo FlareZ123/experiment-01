@@ -637,3 +637,9 @@ test('an immediate gateway already ready makes both access measures certain',()=
     numerator:'1',denominator:'1'
   });
 });
+
+test('conditional gateway counts cannot exceed the four Arven and two Teammates copies',()=>{
+  assert.throws(()=>probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,15,0,1,1,6,false,true
+  ),/only six Arven\/Teammates gateway copies/);
+});
