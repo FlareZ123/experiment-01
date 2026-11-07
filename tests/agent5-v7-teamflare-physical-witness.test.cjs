@@ -12,6 +12,7 @@ class PlayCardAction{
 class PassTurnAction{
   constructor(clientId){this.clientId=clientId;}
 }
+class LaterErrorAction{}
 const energy=(name)=>({fullName:name});
 const slot=(fullName,energies=[])=>({
   getPokemonCard:()=>fullName?{fullName}:null,
@@ -35,6 +36,7 @@ class Store{
       activePlayer:0,prompts:[]};
   }
   dispatch(action){
+    if(action instanceof LaterErrorAction)throw Error('NOT_ENOUGH_ENERGY');
     if(action instanceof PlayCardAction){
       if(this.reject)throw Error('Store physically rejected action');
       const source=this.state.players[0],opp=this.state.players[1];
@@ -72,8 +74,11 @@ test('native Store settling held original Flare moves exact opposing Energy',()=
   assert.deepEqual(a.opponentActiveEnergyBefore,['Psychic Energy MEE']);
   assert.deepEqual(a.exactOpponentEnergyMovedToDiscard,['Psychic Energy MEE']);
   assert.equal(a.exactOriginalOpponentEnergyCountAfter,0);
+  assert.equal(a.opponentActiveEnergyCountAfterSettlement,0);
   assert.equal(a.sourceSupporterTurnBefore,0);
   assert.equal(a.sourceSupporterTurnAfter,5);
+  assert.equal(a.nativeError,null);
+  assert.deepEqual(a.laterNativeErrors,[]);
   assert.equal(a.observerReadOnly,true);
   assert.equal(a.paperCompetitiveGameQualified,false);
 });
@@ -102,4 +107,21 @@ test('phase without the target turn cannot attribute unrelated trainer',()=>{
     store.dispatch(new PlayCardAction('owner',0));
   },{Store,seat:0,turn:7,trialId:'test:wrong-turn'});
   assert.equal(r.audit.trueActorFlareAttempts,0);
+});
+
+test('later native errors are not attributed to the accepted Team Flare root',()=>{
+  const store=new Store();
+  const r=withOriginalFlarePhysicalWitness(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction('owner',0));
+    assert.throws(()=>store.dispatch(new LaterErrorAction()),/NOT_ENOUGH_ENERGY/);
+    return store;
+  },{Store,seat:0,turn:5,trialId:'test:later-error'});
+  assert.equal(r.audit.acceptedStoreFlareRoots,1);
+  assert.equal(r.audit.nativeRejectedFlareRoots,0);
+  assert.equal(r.audit.nativeError,null);
+  assert.deepEqual(r.audit.laterNativeErrors,[{
+    globalTurn:5,kind:'LaterErrorAction',error:'NOT_ENOUGH_ENERGY'
+  }]);
+  assert.equal(r.audit.rootActionKindsThroughSettlement.length,1);
 });
