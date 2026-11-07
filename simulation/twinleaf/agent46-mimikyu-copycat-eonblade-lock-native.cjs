@@ -8,6 +8,8 @@ const {installDeclaredCopyHistoryHook}=
   require('./copycat-declared-history-hook.cjs');
 const {installMimikyuNonGxCopycatHook}=
   require('./copycat-compat.cjs');
+const {installPassClearsLastAttackHook}=
+  require('./last-attack-pass-hook.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
@@ -28,7 +30,7 @@ const {clearCopyAttackSessionsForTests}=
  * All attacks, retreat, prompts and turn transitions use the pinned Store.
  *
  * @param {0|1} seat Physical owner seat for Mimikyu.
- * @param {'none'|'history'|'compat'|'both'} hookMode Research hook combination.
+ * @param {'none'|'history'|'compat'|'both'|'all-headless'} hookMode Research hook combination.
  * @returns {object} Native Store effect, identity and next-turn lock receipt.
  */
 function runSeat(seat,hookMode='none'){
@@ -38,8 +40,14 @@ function runSeat(seat,hookMode='none'){
       mimikyu:true,regidrago:false
     }));
   }
-  if(hookMode==='compat'||hookMode==='both'){
+  if(hookMode==='compat'||hookMode==='both'||hookMode==='all-headless'){
     restore.push(installMimikyuNonGxCopycatHook());
+  }
+  if(hookMode==='all-headless'){
+    restore.push(installDeclaredCopyHistoryHook({
+      mimikyu:true,regidrago:true
+    }));
+    restore.push(installPassClearsLastAttackHook());
   }
 
   clearCopyAttackSessionsForTests();
@@ -162,6 +170,15 @@ function runSeat(seat,hookMode='none'){
       'The locked physical Mimikyu must remain Active');
     assert.equal(x.owner.active.cannotAttackNextTurn,true,
       'The copied Eon Blade lock must survive the opponent turn');
+    const opponentHistoryClearedAfterPass=
+      x.state.playerLastAttack?.[x.opponent.id]===undefined;
+    if(hookMode==='all-headless'){
+      assert.equal(opponentHistoryClearedAfterPass,true,
+        'The full headless pass correction must clear the opponent stale attack');
+    }else{
+      assert.equal(opponentHistoryClearedAfterPass,false,
+        'Only the full headless hook set should clear the opponent stale attack');
+    }
 
     let repeatedAttackError=null;
     try{
@@ -195,6 +212,7 @@ function runSeat(seat,hookMode='none'){
         remainsAfterOpponentPass:x.owner.active.cannotAttackNextTurn===true,
         repeatedAttackRejectedAs:repeatedAttackError
       },
+      opponentHistoryClearedAfterPass,
       prompts:{sourceWaits,retreatWaits,copycatWaits,opponentPassWaits},
       noChooseAttackPromptForCopycat:copycatWaits.every(kind=>kind!=='ChooseAttackPrompt'),
       qualifiedCompetitiveGames:0
@@ -212,7 +230,7 @@ function run(){
   const rows=[];
   for(const seat of [0,1]){
     const baseline=runSeat(seat,'none');
-    for(const hookMode of ['history','compat','both']){
+    for(const hookMode of ['history','compat','both','all-headless']){
       const hooked=runSeat(seat,hookMode);
       assert.deepEqual({
         sourceAttack:hooked.sourceAttack,
@@ -225,7 +243,10 @@ function run(){
         lock:baseline.lock,
         noChooseAttackPromptForCopycat:baseline.noChooseAttackPromptForCopycat
       },'Copycat compatibility hooks must preserve ordinary Eon Blade copy semantics');
-      rows.push({seat,hookMode,baseline,hooked});
+        if(hookMode==='all-headless'){
+        assert.equal(hooked.opponentHistoryClearedAfterPass,true);
+      }
+    rows.push({seat,hookMode,baseline,hooked});
     }
     rows.push({seat,hookMode:'none',baseline});
   }
@@ -236,6 +257,7 @@ function run(){
     actualMimikyuCopycat:true,
     bothPhysicalSeats:true,
     declaredHistoryAndApexCompatibilityHooksCompared:true,
+    completeHeadlessFourHookSetCompared:true,
     stagedBoardAndNativeActionsOnly:true,
     paperMatchQualified:false,
     competitivelyQualifiedGames:0,
