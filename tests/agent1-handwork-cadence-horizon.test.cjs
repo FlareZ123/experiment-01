@@ -6,7 +6,8 @@ const {
   makeRank3HandiworkCadenceSchedule,
   distributionOfFutureOwnerStartsUnderSchedule,
   probabilityHandiworkAccessByNaturalDrawAndMail,
-  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy
+  probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
+  probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways
 }=require('../simulation/evaluation/agent1-handwork-cadence-horizon.cjs');
 
 /**
@@ -342,7 +343,7 @@ function indexCombinations(size,count){
  * @param {boolean} useForestSealStone
  * @returns {{n:bigint,d:bigint}}
  */
-function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone){
+function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone,useDelayedGateways=false){
   if(mailsInHand===0)return {n:0n,d:1n};
   const revealSize=Math.min(4,deck.length);
   const subsets=indexCombinations(deck.length,revealSize);
@@ -351,7 +352,8 @@ function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone){
     const revealed=subset.map(index=>deck[index]);
     let branch;
     if(revealed.includes('target')||
-       (useForestSealStone&&revealed.includes('seal'))){
+       (useForestSealStone&&revealed.includes('seal'))||
+       (useDelayedGateways&&revealed.includes('delayed'))){
       branch={n:1n,d:1n};
     }else{
       const selectedOther=subset.find(index=>deck[index]==='other');
@@ -359,7 +361,7 @@ function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone){
         ?deck
         :deck.filter((card,index)=>index!==selectedOther);
       branch=bruteMailStarAlchemyAccess(
-        nextDeck,mailsInHand-1,useForestSealStone
+        nextDeck,mailsInHand-1,useForestSealStone,useDelayedGateways
       );
     }
     total=addOracleFractions(total,
@@ -376,18 +378,20 @@ function bruteMailStarAlchemyAccess(deck,mailsInHand,useForestSealStone){
  * @returns {{n:bigint,d:bigint}}
  */
 function bruteNaturalDrawMailStarAlchemyAccess(
-  deck,mailsInHand,useForestSealStone
+  deck,mailsInHand,useForestSealStone,useDelayedGateways=false
 ){
   let total={n:0n,d:1n};
   for(let index=0;index<deck.length;index++){
     const card=deck[index];
     let branch;
-    if(card==='target'||(useForestSealStone&&card==='seal')){
+    if(card==='target'||(useForestSealStone&&card==='seal')||
+       (useDelayedGateways&&card==='delayed')){
       branch={n:1n,d:1n};
     }else{
       const nextDeck=deck.filter((_,i)=>i!==index);
       branch=bruteMailStarAlchemyAccess(
-        nextDeck,mailsInHand+(card==='mail'?1:0),useForestSealStone
+        nextDeck,mailsInHand+(card==='mail'?1:0),useForestSealStone,
+        useDelayedGateways
       );
     }
     total=addOracleFractions(total,
@@ -509,4 +513,127 @@ test('a ready Forest Seal Stone gives immediate access and impossible zone state
   assert.throws(()=>probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy(
     40,15,0,1,true,true
   ),/cannot be both in deck and ready/);
+});
+
+
+test('conditional Arven/Teammates gateways match exhaustive labelled-card enumeration',()=>{
+  for(const deckSize of [5,6,7,8,9]){
+    for(const immediateGatewayCount of [0,1]){
+      for(const delayedGatewayCount of [0,1,2]){
+        for(let mailsInDeck=0;mailsInDeck<=2;mailsInDeck++){
+          for(let mailsInHand=0;mailsInHand<=2-mailsInDeck;mailsInHand++){
+            const maximumOtherTrainers=Math.min(
+              2,deckSize-1-immediateGatewayCount-
+                delayedGatewayCount-mailsInDeck
+            );
+            for(let otherTrainerCount=0;
+                otherTrainerCount<=maximumOtherTrainers;
+                otherTrainerCount++){
+              const fillerCount=deckSize-1-otherTrainerCount-
+                mailsInDeck-immediateGatewayCount-delayedGatewayCount;
+              const deck=[
+                'target',
+                ...Array(otherTrainerCount).fill('other'),
+                ...Array(mailsInDeck).fill('mail'),
+                ...(immediateGatewayCount?['seal']:[]),
+                ...Array(delayedGatewayCount).fill('delayed'),
+                ...Array(fillerCount).fill('filler')
+              ];
+              const anyExpected=bruteNaturalDrawMailStarAlchemyAccess(
+                deck,mailsInHand,immediateGatewayCount===1,true
+              );
+              const immediateDeck=[
+                'target',
+                ...Array(otherTrainerCount+delayedGatewayCount).fill('other'),
+                ...Array(mailsInDeck).fill('mail'),
+                ...(immediateGatewayCount?['seal']:[]),
+                ...Array(fillerCount).fill('filler')
+              ];
+              const immediateExpected=bruteNaturalDrawMailStarAlchemyAccess(
+                immediateDeck,mailsInHand,immediateGatewayCount===1
+              );
+              const actual=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+                deckSize,otherTrainerCount,mailsInDeck,mailsInHand,
+                immediateGatewayCount,delayedGatewayCount
+              );
+              assert.deepEqual(actual.anyHandAccessProbability,{
+                numerator:anyExpected.n.toString(),
+                denominator:anyExpected.d.toString()
+              });
+              assert.deepEqual(actual.immediatePlayableProbability,{
+                numerator:immediateExpected.n.toString(),
+                denominator:immediateExpected.d.toString()
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+});
+
+test('conditional search gateways distinguish immediate play from delayed hand access',()=>{
+  const allActive=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,15,0,1,1,6
+  );
+  assert.deepEqual(allActive.immediatePlayableProbability,{
+    numerator:'37',denominator:'156'
+  });
+  assert.deepEqual(allActive.anyHandAccessProbability,{
+    numerator:'57079',denominator:'82251'
+  });
+
+  const arvenOnly=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,17,0,1,1,4
+  );
+  assert.deepEqual(arvenOnly.immediatePlayableProbability,{
+    numerator:'37',denominator:'156'
+  });
+  assert.deepEqual(arvenOnly.anyHandAccessProbability,{
+    numerator:'15823',denominator:'27417'
+  });
+
+  const teammatesOnly=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,20,0,1,0,2
+  );
+  assert.deepEqual(teammatesOnly.immediatePlayableProbability,{
+    numerator:'1',denominator:'8'
+  });
+  assert.deepEqual(teammatesOnly.anyHandAccessProbability,{
+    numerator:'667',denominator:'1976'
+  });
+
+  const noActiveGateway=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,22,0,1,0,0
+  );
+  assert.deepEqual(noActiveGateway.immediatePlayableProbability,{
+    numerator:'1',denominator:'8'
+  });
+  assert.deepEqual(noActiveGateway.anyHandAccessProbability,{
+    numerator:'1',denominator:'8'
+  });
+});
+
+test('a delayed gateway already in hand guarantees hand access without making Handiwork playable this turn',()=>{
+  const result=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    40,15,0,1,1,5,false,true
+  );
+  assert.deepEqual(result.anyHandAccessProbability,{
+    numerator:'1',denominator:'1'
+  });
+  assert.deepEqual(result.immediatePlayableProbability,{
+    numerator:'37',denominator:'156'
+  });
+});
+
+test('an immediate gateway already ready makes both access measures certain',()=>{
+  const result=probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways(
+    39,15,0,1,0,2,true,false
+  );
+  assert.deepEqual(result.anyHandAccessProbability,{
+    numerator:'1',denominator:'1'
+  });
+  assert.deepEqual(result.immediatePlayableProbability,{
+    numerator:'1',denominator:'1'
+  });
 });
