@@ -178,14 +178,34 @@ function adjudicateExtension({
  * @param {[number,number]} prizesRemaining
  * @returns {object}
  */
-function classifyTiebreaker(prizesRemaining) {
+/**
+ * Classify a six-Prize knockout tiebreaker after independent paper outcome review.
+ * A simultaneous paper tie requires a fresh tiebreaker; equal Prize counts alone
+ * cannot establish that a tiebreaker game is still in progress.
+ *
+ * @param {[number,number]} prizesRemaining
+ * @param {{paperGameWinner?: 0|1|null, paperGameTie?: boolean}} [paperOutcome]
+ * @returns {object}
+ */
+function classifyTiebreaker(prizesRemaining, {paperGameWinner=null,paperGameTie=false}={}) {
   checkPrizes(prizesRemaining);
+  assert.ok(paperGameWinner===null||paperGameWinner===0||paperGameWinner===1,
+    'Expected a paper-validated tiebreaker winner seat');
+  assert.ok(typeof paperGameTie==='boolean','Expected a paper tie boolean');
+  assert.ok(!(paperGameTie&&paperGameWinner!==null),
+    'A simultaneous tie cannot have a unique normal winner');
   const [a,b]=prizesRemaining;
-  return {schema:VERSION,startingPrizeCount:6,
-    status:a===b?'TIEBREAKER_CONTINUES':'TIEBREAKER_PRIZE_LEAD',
-    conditionalWinnerSeat:a===b?null:a<b?0:1,
-    competitiveAdmission:false,
-    requireCompletePaperAndClockReview:true};
+  const base={schema:VERSION,startingPrizeCount:6,conditionalWinnerSeat:null,
+    competitiveAdmission:false,requireCompletePaperAndClockReview:true};
+  if(paperGameTie)
+    return {...base,status:'TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE'};
+  if(paperGameWinner!==null)
+    return {...base,status:'TIEBREAKER_NORMAL_PAPER_GAME_WIN',conditionalWinnerSeat:paperGameWinner};
+  if(a===0&&b===0)
+    return {...base,status:'TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED',
+      missing:['independent-normal-win-or-simultaneous-tie-ruling']};
+  return {...base,status:a===b?'TIEBREAKER_CONTINUES':'TIEBREAKER_PRIZE_LEAD',
+    conditionalWinnerSeat:a===b?null:a<b?0:1};
 }
 
 
