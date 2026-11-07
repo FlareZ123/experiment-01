@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string,targetPrinting?:string,withStoreHook?:(store:any,execute:()=>object)=>{result:object,audit:object}}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string,targetPrinting?:string,toolPrinting?:string,withStoreHook?:(store:any,execute:()=>object)=>{result:object,audit:object}}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack',targetPrinting='Trubbish FST',withStoreHook}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack',targetPrinting='Trubbish FST',toolPrinting='Powerglass SFA',withStoreHook}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -38,7 +38,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   state.gameSettings.format=Format.EXPANDED;
   owner.active.cards.push(card('Unown AOR'));
   owner.active.energies.cards.push(card('Psychic Energy MEE'));
-  owner.hand.cards.push(card('Powerglass SFA'));
+  assert.ok(toolPrinting==='Powerglass SFA'||
+    toolPrinting==='Technical Machine: Devolution PAR');
+  owner.hand.cards.push(card(toolPrinting));
   owner.discard.cards.push(card('Psychic Energy MEE'));
   assert.ok((targetPrinting==='Trubbish FST'&&targetDamage>=0&&targetDamage<=60)||
     (targetPrinting==='Trevenant & Dusknoir-GX SMP'&&targetDamage===260));
@@ -65,7 +67,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   store.dispatch(new PlayCardAction(owner.id,0,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
-  assert.equal(owner.active.tools[0].fullName,'Powerglass SFA');
+  assert.equal(owner.active.tools[0].fullName,toolPrinting);
   assert.ok(actionKind==='attack'||actionKind==='pass');
   if(actionKind==='attack')store.dispatch(new AttackAction(owner.id,'Hidden Power'));
   else store.dispatch(new PassTurnAction(owner.id));
@@ -122,7 +124,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       'Before promotion, occupied source Bench count must match fixture');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
-    lastPrize,opponentHasBench,targetDamage,actorSeat,actionKind,targetPrinting,
+    lastPrize,opponentHasBench,targetDamage,actorSeat,actionKind,targetPrinting,toolPrinting,
     printedScenario:(actionKind==='attack'?'Unown AOR Hidden Power10':'Unown AOR pass')+
       ' vs '+targetPrinting+' with'+targetDamage+' damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
@@ -147,6 +149,8 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       sourceActive:enemy.active.getPokemonCard()?.fullName??null,
       ownerActive:owner.active.getPokemonCard()?.fullName??null,
       ownerActiveEnergy:owner.active.energies.cards.map(x=>x.fullName),
+      ownerActiveTools:owner.active.tools.map(x=>x.fullName),
+      ownerDiscard:owner.discard.cards.map(x=>x.fullName),
       openPrompts:state.prompts.filter(x=>x.result===undefined)
         .map(x=>x.constructor.name)
     },
