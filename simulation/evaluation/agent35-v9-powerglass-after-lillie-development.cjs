@@ -70,6 +70,11 @@ function runAgent35NativeFork(deps={}){
           id:row.id,status:row.status,nativeOutcome:row.nativeOutcome,
           error:row.error,nativeRootActionCount:row.nativeRootActionCount,
           rootActionCount:row.rootActionCount,
+          rowKeys:Object.keys(row).sort(),
+          publicAcceptedRootTail:(row.rootActionLedger??[]).slice(-24),
+          nativeAbortEvidence:row.nativeAbortEvidence??null,
+          actorNativeTrainerFallbackAbortAudit:
+            row.actorNativeTrainerFallbackAbortAudit??null,
           ownerBilateralLillieAfterPassAudit:
             row.ownerBilateralLillieAfterPassAudit??null
         }))
