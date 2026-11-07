@@ -91,3 +91,10 @@ That is **4/29 (13.79%)** of the currently authenticated field, with 3-4 Float S
 
 
 Agent44's complete same-root action comparison is [here](agent44-root93-lillie-versus-secretbox-randomized-20261107.md). A further untested hybrid remains available: pay Secret Box with VIP/VIP/Carrier (or VIP/VIP/Lillie), search Fog Crystal and Basic Psychic, attach the Energy, then play the remaining Lillie before attacking. This can preserve the deterministic attack setup while drawing a new hand that may contain Field Blower for the source's next-turn Garbotoxin. The physical deck changes after the two searches, so Agent44's 72.40717% Lillie-only probability does not apply. Test this as a separate same-prefix arm and rank it by the downstream source response and card-custody cost.
+
+
+## Keep the delayed Powerglass branch separate from the immediate Box/Fog KO
+
+Agent36 correctly identified a separate source response against the delayed Powerglass line. The rank-11 source has Benched `Latias ex SSP 76` with Skyliner, whose printed Ability gives the source's Basic Pokémon no Retreat Cost. The damaged Active `Trubbish FST` is Basic. If the candidate passes at root 93 and waits for a later Powerglass/Hidden Power attack, the source can retreat that Trubbish for free before the attack, preserve it on the Bench, and potentially evolve it into Garbodor with a held Tool. A delayed Powerglass line must therefore model this retreat and subsequent Garbodor setup.
+
+That retreat cannot undo the **immediate** Box/Fog Hidden Power KO, which settles on the candidate's turn before the source receives another turn. The root111 Garbodor response documented above is a different event: after the immediate KO, the source's other Trubbish is already on the Bench and can evolve. Keep the two source responses and their timing separate in any same-deal response tree.
