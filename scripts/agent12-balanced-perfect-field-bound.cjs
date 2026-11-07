@@ -22,7 +22,9 @@ const SHA256 = /^[a-f0-9]{64}$/i;
  *    physicalDealId:string, paperReceiptId:string, status:string,
  *    firstPlayerSeat:number,
  *    source60Sha:string, candidate60Sha:string,
- *    candidatePolicySha:string, registrationSha:string}>,
+ *    candidatePolicySha:string, registrationSha:string,
+ *    engineAndHooksSha:string, opponentPolicyBundleSha:string,
+ *    adjudicationProtocolSha:string}>,
  *  registeredAttemptCount:number,
  *  registrationSha:string,
  *  target?:number,
@@ -79,6 +81,9 @@ function assessPerfectField(request) {
   const paperReceiptIds = new Set();
   let candidate60Sha = null;
   let candidatePolicySha = null;
+  let engineAndHooksSha = null;
+  let opponentPolicyBundleSha = null;
+  let adjudicationProtocolSha = null;
   for (const attempt of attempts) {
     if (!Number.isInteger(attempt.rank) || attempt.rank < 1 ||
         attempt.rank > FIELD_SIZE || !SEATS.includes(attempt.seat) ||
@@ -117,6 +122,25 @@ function assessPerfectField(request) {
     if (attempt.candidate60Sha !== candidate60Sha ||
         attempt.candidatePolicySha !== candidatePolicySha) {
       problems.add('candidate-or-policy-changed');
+    }
+    if (![attempt.engineAndHooksSha,
+          attempt.opponentPolicyBundleSha,
+          attempt.adjudicationProtocolSha].every(x => SHA256.test(x))) {
+      problems.add('engine-opponent-or-adjudication-unverified');
+    }
+    if (engineAndHooksSha === null) {
+      engineAndHooksSha = attempt.engineAndHooksSha;
+    }
+    if (opponentPolicyBundleSha === null) {
+      opponentPolicyBundleSha = attempt.opponentPolicyBundleSha;
+    }
+    if (adjudicationProtocolSha === null) {
+      adjudicationProtocolSha = attempt.adjudicationProtocolSha;
+    }
+    if (attempt.engineAndHooksSha !== engineAndHooksSha ||
+        attempt.opponentPolicyBundleSha !== opponentPolicyBundleSha ||
+        attempt.adjudicationProtocolSha !== adjudicationProtocolSha) {
+      problems.add('engine-opponent-or-adjudication-changed');
     }
     if (attempt.registrationSha !== registrationSha) {
       problems.add('registration-mismatch');
