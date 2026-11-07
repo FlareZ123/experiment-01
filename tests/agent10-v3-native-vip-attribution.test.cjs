@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {runMatch}=require('../simulation/twinleaf/headless.cjs');
+const {runMatch,upstreamSmokeDeck}=require('../simulation/twinleaf/headless.cjs');
 const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
 const {SimpleTacticsAi}=require(
   '../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai'
@@ -120,4 +120,43 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
     'A native accepted VIP item/search pair must be attributed for physical seat 0');
   assert.equal(rows.some(row=>row.attribution&&row.seat===1),true,
     'A native accepted VIP item/search pair must be attributed for physical seat 1');
+});
+
+
+test('native no-VIP control/treatment pair completes and remains unattributed',()=>{
+  const deck=upstreamSmokeDeck();
+  assert.equal(deck.length,60);
+  assert.equal(deck.some(name=>name.startsWith('Battle VIP Pass ')),false);
+  const seed=20261107;
+  const request={
+    label:'agent10-native-vip-negative-no-vip-'+seed,
+    seed,maxActions:512,captureDecisionTrace:true
+  };
+  const control=withForcedPassPolicy(()=>runMatch({
+    ...request,deckA:[...deck],deckB:[...deck]
+  }));
+  const treatment=withForcedPassPolicy(()=>withActorBattleVipAfterPass(
+    ()=>runMatch({...request,deckA:[...deck],deckB:[...deck]}),
+    {SimpleTacticsAi}
+  ));
+  const audit=treatment.audit;
+  assert.equal(control.finished,true);
+  assert.equal(treatment.result.finished,true);
+  assert.equal(audit.policyRecorded,true);
+  assert.equal(audit.nativeStoreSeen,true);
+  assert.equal(audit.unresolvedOwnerSearches,0);
+  assert.equal(audit.acceptedItems,0);
+  assert.equal(audit.acceptedSearches,0);
+  assert.equal(audit.dispatchRootCount,treatment.result.actions);
+  const attribution=strictVipTreatmentAttribution({
+    controlLedger:control.rootActionLedger,
+    controlRootActionCount:control.actions,
+    controlCompleted:control.finished,
+    treatmentLedger:treatment.result.rootActionLedger,
+    treatmentRootActionCount:treatment.result.actions,
+    treatmentCompleted:treatment.result.finished,
+    vipAudit:audit
+  });
+  assert.equal(attribution.attributed,false);
+  assert.equal(attribution.reason,'no-treatment-divergence');
 });
