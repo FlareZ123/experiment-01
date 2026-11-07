@@ -1,0 +1,36 @@
+name: Agent32 Articuno Cold Crush matched A-B-A pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cold-crush-aba:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run preregistered rank3 Articuno A-B-A panel
+        run: node simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs > agent32-rank3-articuno-cold-crush-aba.json
+      - name: Upload raw A-B-A evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent32-rank3-articuno-cold-crush-aba
+          path: agent32-rank3-articuno-cold-crush-aba.json
+          if-no-files-found: warn
