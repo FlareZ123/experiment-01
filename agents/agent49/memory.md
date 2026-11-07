@@ -424,3 +424,86 @@ Claimed normal mode at **2026-10-16T03:42:46Z**, lease `agents/agent49/.lease.js
   Agent21 Store evidence, or 34-card English source coverage; **zero
   competitively qualified games**, original Aichi ranks23/25/28
   missing, no selected fixed final 60 and no 99.5% win-rate claim.
+
+### Follow-up 7 Nov 07:13 UTC: source-exact native staged recovery and rank31 direct-Fog alternative
+
+- Original immutable lease time **06:10:49.313657273Z**.
+  At latest observed clock **2026-11-07T07:13:11Z** elapsed
+  about 62m22s, BELOW 70-minute release threshold
+  **07:20:49.313657273Z**. Continue research; do not release yet.
+- Agent21 provided genuine pinned Twinleaf native Store tests:
+  `tests/agent21-box-salvage-attack-native.test.cjs`,
+  workflow **42348618094**, artifact 13564646801.
+  **4/4** source-staged both physical seats:
+  Box->Energy Retrieval SVI or Night Stretcher SFA -> Basic
+  Psychic -> active Unown AOR Hidden Power on damaged opponent ->
+  genuine KO + six-to-five Prize. Valid staged attack, not a natural
+  original matchup; no selected final 60 or 99.5%.
+- Completed stricter exact 29-source field census:
+  **zero** authenticated original 60s contain all three
+  Secret Box + Night Stretcher + Unown,
+  zero with Box + Energy Retrieval + Unown,
+  zero with Box + Fog Crystal + Unown.
+  Box+Night ranks8/19/22 have no Unown **and no Rescue Carrier**
+  (third hardcoded staged Box discard). Source
+  Box+Unown+Rescue Carrier ranks9/17/30 all lack
+  the three named retrieval options. Source rank31 has Unown+Fog,
+  but no Box. All 3 missing ranks23/25/28 unknown.
+  Test `tests/agent49-original-field-box-recovery-unown-structural.test.cjs`
+  commit 8ae16ba **2/2 V8**; report
+  `results/methodology/agent49-original-field-box-recovery-unown-hardzero-20261107.md`
+  commit a980aeb, sent direct Agent21/36 messages at 07:07.
+  Do not generalize this negative to **other source attackers**.
+- Source missing original rank metadata further verified from public
+  Limitless standings and archetype history:
+  **23 Yuki Ueno Regidrago**, **25 Kazuki Kumegawa
+  Raichu Electrode Combo**, **28 Jo Kato Regidrago**.
+  Original precise 60s still not authenticated. Full field
+  **11/32 Regidrago (34.375%)** and **3/32 Raichu Electrode
+  Combo (9.375%)**, original source 60 coverage still29/32.
+  Repo report `results/aichi-2026/agent49-three-unverified-ranks-archetype-evidence-20261107.md`
+  commit ffda24b, broadcast 07:00. Sourcing attempts for
+  missing exact cards mainly returned other Aichi Standard
+  2026 player names or unauthenticated lists, so no substitutions.
+- Added small bounds 5min, no-Twinleaf-build Node22 pure
+  on-push/dispatch CI workflow
+  `.github/workflows/agent49-owner-paper-preflight-pure.yml`
+  commits 87c6610 + d3250d. It tests all new Agent49 owner/paper
+  preflight modules, search/fallback/ban and source coverage,
+  triggered only on own paths; **actual CI run status NOT VERIFIED**
+  as GitHub connector lacks a suitable workflow dispatch/list
+  action, `get_commit_combined_status` returned empty statuses.
+  Do not claim CI passed without a run receipt.
+- Source rank31 Dusknoir Chimecho owns **4 Fog Crystal CRE,
+  3 Unown AOR, 2 Basic Psychic**, no Secret Box; direct
+  Fog->Basic->Unown 10-damage finish is a distinct
+  original60-compatible *possible* one-Energy printed payoff.
+  Built read-only actor-public planner
+  `simulation/twinleaf/agent49-owner-direct-fog-one-energy-reply.cjs`
+  commit a0f683, test
+  `tests/agent49-owner-direct-fog-one-energy-reply.test.cjs`
+  commit c843c1. It checks held Fog, public attacks/damage,
+  Item/attack/attachment locks, owner registered 60 and K0
+  visible remaining Basic. Added **optional** same-actor
+  authenticated `captureOwnerK1` snapshot: fresh K1 whose
+  known current deck has no Basic vetoes, stale K1 cannot
+  falsely veto, future or wrong owner K1 errors;
+  commits bacbb84, bd58831, corrected test regex 1c892ce.
+  **4/4 V8 pure**, no native. Report
+  `results/methodology/agent49-original-rank31-direct-fog-unown-payoff-20261107.md`
+  commit d6505d, sent Agent15/36 messages at 07:10.
+  Original rank31 also has 3 Dusclops PRE Cursed Blast
+  5 counters+self KO, 3 Dusknoir PRE 13+self KO; potential
+  tactical pre-damage before Unown, but self KO awards opponent
+  Prize. This combined line has not been physically tested.
+- At any future use, note direct Fog pure proposal checks only
+  printed base damage, not resistance/effects or successful
+  attack/KO/Prize. Requires native Store and skilled opponent
+  reply. Unknown source deck cards, hidden Prize and opponent
+  hidden hands are never read; K1 must be genuinely sourced from
+  owner prompt. All tests isolated V8, not Node22 CI receipt.
+- Remain in normal agent49, do not refresh claim or stop before
+  clock >=07:20:49 measured AFTER checkpoint. Before exit
+  final memory commit then delete lease as FINAL repo operation
+  and verify remote deletion. Keep no claim of competitive
+  qualification or attainment of target.
