@@ -100,3 +100,52 @@ test('default disabled quarantine abort receipt shape unchanged',()=>{
   assert.equal('firstUnsupportedOwnerRoot' in audit,false);
   assert.equal(audit.rootInstalled,true);
 });
+
+test('real quarantine guard catches first owner unsupported fallback after exact public capture',()=>{
+  const {withNativeRawStateFallbackQuarantine,CODE}=require(
+    '../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+  class AddPlayerAction{}
+  class PlayCardAction{}
+  class AttackAction{}
+  class PassTurnAction{}
+  class Store{
+    constructor(){this.state={turn:17,phase:2,activePlayer:0,prompts:[],
+      players:[{id:10},{id:20}]};}
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){
+      throw Error('Native hidden State decoder must never execute');
+    }
+  }
+  const prior=SimpleTacticsAi.prototype.decodeNextAction;
+  const known=view();
+  let caught;
+  try{
+    withNativeRawStateFallbackQuarantine(()=>
+      withActorOnlyRootPolicy(()=>{
+        const store=new Store();
+        store.dispatch(new AddPlayerAction());
+        new SimpleTacticsAi(10).decodeNextAction(store.state);
+      },{
+        SimpleTacticsAi,Store,observe:()=>known,getCatalog:()=>catalog,
+        getNativeTrainerCatalog:()=>({}),
+        GamePhase:{PLAYER_TURN:2,FINISHED:7},
+        cardActions:{PlayCardAction,PlayerType:{ANY:1,BOTTOM_PLAYER:0},
+          SlotType:{BOARD:0,ACTIVE:1,BENCH:2}},
+        gameActions:{AttackAction,PassTurnAction},
+        nativeOwnerTrainerFallback:true,
+        ownerFallbackDiagnosticView:true
+      }),{SimpleTacticsAi});
+  }catch(error){caught=error;}
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,prior);
+  assert.equal(caught?.code,CODE);
+  assert.equal(caught.nativeRawStateFallbackQuarantine.rawStateFallbackCalls,1);
+  assert.equal(
+    caught.nativeRawStateFallbackQuarantine.originalNativeDecoderExecuted,
+    false);
+  assert.equal(caught.actorNativeTrainerFallbackAbortAudit
+    .firstUnsupportedOwnerRoot.ownerVisibleSha256,
+    snapshotFirstUnsupportedOwnerRoot(known).ownerVisibleSha256);
+});
