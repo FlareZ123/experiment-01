@@ -139,6 +139,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
         diagnostics.prizeCardChanges.push({
           registeredTrialId:trialId,rootOrdinal:ordinal,actorSeat:seat,
           actorPlayerId,turnBefore,prizeTakingSlot,responseSlot,
+          sourcePlayerId:playerIds.sourcePlayerId,
+          candidatePlayerId:playerIds.candidatePlayerId,
           prizeTakingPlayerId,responsePlayerId,
           removedPrizeCardCount:removed.length,addedPrizeCardCount:added.length,
           previousResponsePrizeCount:previousResponseCards.length,
@@ -165,6 +167,7 @@ function createPostPrizeResponseActionSequenceObserver(options){
             prizeTakingSeat,responseSeat,
             prizeTakingPlayerId,responsePlayerId,
             prizeLosingPlayerId:responsePlayerId,
+            sourceTurn:prizeTakingSlot==='source'?turnBefore:null,
             prizeTakingTurn:turnBefore,
             prizeTakingRootOrdinals:[ordinal],
             sourcePrizeRootOrdinals:prizeTakingSlot==='source'?[ordinal]:[],
