@@ -303,7 +303,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Check bilateral Filch owner action and exact native A/B/A provenance
-        run: node --test tests/agent1-conservative-owner-filch.test.cjs tests/agent1-v15-bilateral-filch-conservation-aba.test.cjs
+        run: node --test tests/agent1-conservative-owner-filch.test.cjs tests/agent1-v15-bilateral-filch-conservation-aba.test.cjs tests/terminal-cause-evidence.test.cjs tests/agent1-terminal-paper-result-conflicts.test.cjs
       - name: Execute 24 native original-eight A/B/A with single owner Filch difference
         env:
           AGENT1_V15_FILCH_ABA_DIR: artifacts/agent1-v15-bilateral-filch-aba
