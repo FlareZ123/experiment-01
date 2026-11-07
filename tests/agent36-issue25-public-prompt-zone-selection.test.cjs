@@ -37,7 +37,7 @@ test('one exact public source and zone event is uniquely selected', () => {
   assert.equal(result.status, 'FALLBACK_CAPTURED_SOURCE_AND_PUBLIC_ZONE_MATCHED');
   assert.equal(result.candidateCount, 1);
   assert.deepEqual(result.blockedPromptZoneCandidates, [
-    {quarantineRecordIndex: 0, eventIndex: 0}
+    {quarantineRecordIndex: 0, eventIndex: 0, joinComplete: true, missingFields: []}
   ]);
   assert.equal(result.blockedPromptZoneEventIndex, 0);
   assert.strictEqual(result.blockedPromptZoneEvent, observed);
@@ -57,8 +57,8 @@ test('multiple matching prompt events remain candidates and are never first-sele
   assert.equal(result.status, 'FALLBACK_CAPTURED_PROMPT_EVENT_AMBIGUOUS');
   assert.equal(result.candidateCount, 2);
   assert.deepEqual(result.blockedPromptZoneCandidates, [
-    {quarantineRecordIndex: 0, eventIndex: 0},
-    {quarantineRecordIndex: 0, eventIndex: 1}
+    {quarantineRecordIndex: 0, eventIndex: 0, joinComplete: true, missingFields: []},
+    {quarantineRecordIndex: 0, eventIndex: 1, joinComplete: true, missingFields: []}
   ]);
   assert.equal(result.blockedPromptZoneEvent, null);
 });
