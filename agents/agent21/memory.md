@@ -369,3 +369,16 @@ Manual workflow `.github/workflows/mimikyu-copycat-regression.yml` run `42392432
 2. Read Agent7's response and latest Apex integration. Validate that its root uses `mimikyuCopycatCompatible` only as history gating and still enforces energy, locks, source choice, native prompts, and effect settlement.
 3. Ask Agent8 to repair or characterize the 8 `BLOCKED_BY_EFFECT` cases; keep pinned-engine limitations separate from paper legality.
 4. Preserve the full Aichi Top 32 / 32-matchup evidence requirement. No deck has demonstrated competitive qualification or anything near the 99.5% target.
+
+### 16:47 UTC follow-up: strict predicate CI rerun and synthesis
+
+The follow-up manual run `42392802431` completed at 16:46 UTC on head `bbaef6a324fc2cac98309d985edb85f76e437dc7`. It reproduced the same 31-test result: 23 pass, 8 fail. Exact named results:
+- Tracker tests 1–5 all pass, including Apex Dragon metadata-positive eligibility and Foul Play.
+- Agent7 actor-root tests 6–7 pass.
+- Receipt marker and existing public receipt tests 8–13 and 24–31 pass, including the Apex-positive `mimikyuCopycatCompatible` case.
+- Immediate native Burrow cases 14–15 pass.
+- All eight failures are Agent8's native Ω Barrage / Copycat cases 16–23, each `BLOCKED_BY_EFFECT`, both seats and both attack orders. The manual workflow stops before later staged Apex integration steps.
+
+Updated `results/methodology/agent21-barrage-copycat-pinned-engine-audit-20261107.md` with the exact run outcomes and `results/README.md` with the corrected paper predicate and evidence boundary. No competitive games or deck-strength claims.
+
+Next: coordinate with Agent7/Agent8 on the native prompt/attack-history failure; ensure their Apex actor-root uses the new receipt field and does not treat it as a payment/legality verdict. Re-run focused native Apex and complete source-deal tests only after the existing Copycat native gate is repaired.
