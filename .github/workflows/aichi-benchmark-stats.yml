@@ -170,7 +170,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify Agent27 original Aichi Open event Swiss and knockout end-time rules and Thorns opener veto
-        run: node --test tests/agent27-aichi-open-time-adjudication.test.cjs tests/agent27-adp-thorns-opening-access-veto.test.cjs tests/agent27-adp-wondrous-source-tax.test.cjs
+        run: node --test tests/agent27-aichi-open-time-adjudication.test.cjs tests/aichi-open-clock-convergence.test.cjs tests/agent27-adp-thorns-opening-access-veto.test.cjs tests/agent27-adp-wondrous-source-tax.test.cjs
       - name: Regress funded Stadium planner with Dimension Valley Energy Drive and Thunder Mountain controls
         run: node --test tests/agent5-opponent-stadium-attack-entitlement.test.cjs tests/agent7-funded-stadium-attack-planner.test.cjs tests/agent46-dimensionvalley-energy-drive-planner.test.cjs
       - name: Verify original rank6 owner-held Cynthia paper opportunity and correlated paired-seat mathematics
