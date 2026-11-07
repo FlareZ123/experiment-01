@@ -170,6 +170,48 @@ test('native attempt projection binds the complete root tape to Agent45 gate inp
   assert.equal(screen.competitiveGamesQualified,0);
 });
 
+test('v9 keeps all 32 native accepted roots from a validated abort receipt',()=>{
+  const roots=Array.from({length:32},(_,i)=>({
+    actionOrdinal:i,playerSlot:i%2,turnBefore:1+Math.floor(i/6),
+    pendingPrompt:null,action:i%3===0?'PlayCardAction':'PassTurnAction'
+  }));
+  const receipt={
+    schema:'headless-native-abort-public-v1',
+    failureStage:'bot-decoder',
+    pendingPrompt:'ChooseCardsPrompt',
+    actingSeat:0,turnBefore:3,actionOrdinal:32,
+    redactedMessageDigest:'a'.repeat(64),
+    rootActionLedger:roots,rootActionCount:32,
+    rootActionLedgerSha256:rootDigest(roots)
+  };
+  const row={
+    trial:{id:'11:1000:B:new-moon-lockbreaker-v1'},
+    error:'Redacted bot-decoder failure',
+    nativeRootActionCount:32,
+    nativeAbortEvidence:receipt,
+    nativeAbortProvenance:{
+      acceptedRootLedgerStatus:'VERIFIED',
+      sourceDealStatus:'VERIFIED',
+      fullPhysicalDealStatus:'VERIFIED'
+    }
+  };
+  const observed=summarizeNativeAttempt(row);
+  assert.equal(observed.status,'engine-error');
+  assert.equal(observed.rootActionCount,32);
+  assert.equal(observed.publicRootActionsTruncated,false);
+  assert.deepEqual(observed.rootActionLedger,roots);
+  assert.equal(observed.publicRootLedgerSha256Computed,rootDigest(roots));
+  assert.equal(observed.publicRootLedgerSha256Reported,rootDigest(roots));
+  assert.equal(observed.nativeAbortPrompt.pendingPrompt,'ChooseCardsPrompt');
+  assert.equal(observed.sourceSeat,null);
+  assert.equal(observed.candidateSeat,null);
+  assert.equal(evaluateGate(observed,{}),null);
+  const denied=summarizeNativeAttempt({...row,
+    nativeAbortProvenance:{acceptedRootLedgerStatus:'INVALID_LEDGER'}});
+  assert.equal(denied.rootActionCount,0);
+  assert.deepEqual(denied.publicRootActions,[]);
+});
+
 test('v9 native abort lacking verified actual physical seats fails closed',()=>{
   const aborted=summarizeNativeAttempt({
     trial:{
