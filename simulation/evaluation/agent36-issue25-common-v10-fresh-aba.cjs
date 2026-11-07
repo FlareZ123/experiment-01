@@ -427,7 +427,6 @@ function runRegisteredV10(deps={}){
       nativeSetupCoinChoiceReceipt:true,
       registeredTrials:registered.map(x=>({...x})),
       registeredFrameName:registration.schema,
-      allowSingleCandidatePerGroup:true,
       allowAdditionalOriginalSourceRanks:true,
       isolatePolicyRandomness:true,
       isolatePhysicalShuffleRandomnessAfterSetup:true
