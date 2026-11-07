@@ -172,3 +172,156 @@ test('unrelated later Ability Confirm cannot borrow the last played Radiant card
   assert.equal(wrapped.audit.confirmEvents[1].reason,
     'unrecognized-confirm-default-false');
 });
+
+
+test('reused numeric Confirm ID on another Store cannot borrow Radiant lineage',()=>{
+  const {withOwnerAbilityConfirmPolicy}=require(
+    '../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
+  class ConfirmPrompt {
+    constructor(playerId,message){
+      this.id=1;
+      this.playerId=playerId;
+      this.message=message;
+      this.result=undefined;
+    }
+  }
+  class ChooseCardsPrompt {}
+  class PlayCardAction {
+    constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}
+  }
+  class LaterAction {}
+  class ResolvePromptAction {
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Store {
+    constructor(){
+      this.state={
+        turn:3,players:[{id:101,
+          hand:{cards:[pokemon('Radiant Eternatus','radiant')]},
+          active:slot(),bench:[slot(),slot(),slot(),slot(),slot()]}],
+        prompts:[]
+      };
+    }
+    dispatch(action){
+      if(action instanceof PlayCardAction||action instanceof LaterAction)
+        this.state.prompts.push(new ConfirmPrompt(101,'WANT_TO_USE_ABILITY'));
+      if(action instanceof ResolvePromptAction)
+        this.state.prompts.find(p=>p.id===action.id&&p.result===undefined)
+          .result=action.result;
+      return this.state;
+    }
+  }
+  class SimpleTacticsAi {
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      return new ResolvePromptAction(
+        state.prompts.find(p=>p.result===undefined).id,false);
+    }
+  }
+  const wrapped=withOwnerAbilityConfirmPolicy(()=>{
+    const ai=new SimpleTacticsAi();
+    const firstStore=new Store();
+    firstStore.dispatch(new PlayCardAction(101,0));
+    const radiant=ai.decodeNextAction(firstStore.state);
+    firstStore.dispatch(radiant);
+    const secondStore=new Store();
+    secondStore.dispatch(new LaterAction());
+    const unrelated=ai.decodeNextAction(secondStore.state);
+    secondStore.dispatch(unrelated);
+    return {radiant:radiant.result,unrelated:unrelated.result};
+  },{
+    ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,
+      ChooseCardsPrompt,ResolvePromptAction},
+    types:{...types,GameMessage:{}},validate:()=>{}
+  });
+  assert.deepEqual(wrapped.result,{radiant:true,unrelated:false});
+  assert.deepEqual(wrapped.audit.confirmEvents.map(e=>e.cardName),
+    ['Radiant Eternatus',null]);
+  assert.equal(wrapped.audit.confirmSettled,2);
+});
+
+test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
+  const {withOwnerAbilityConfirmPolicy}=require(
+    '../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
+  let nextId=0;
+  class ConfirmPrompt {
+    constructor(playerId,message){
+      this.id=++nextId;
+      this.playerId=playerId;
+      this.message=message;
+      this.result=undefined;
+    }
+  }
+  class MoveEnergyPrompt {
+    constructor(){
+      this.id=++nextId;
+      this.playerId=101;
+      this.result=undefined;
+    }
+  }
+  class ChooseCardsPrompt {}
+  class PlayCardAction {
+    constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}
+  }
+  class LaterAction {}
+  class ResolvePromptAction {
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  const articuno=pokemon('Articuno-GX','articuno');
+  class Store {
+    constructor(){
+      this.state={
+        turn:5,
+        players:[{id:101,hand:{cards:[articuno]},
+          active:slot([pokemon('Snorlax','snorlax')],
+            [water(),water(),water()]),
+          bench:[slot([articuno]),slot(),slot(),slot(),slot()]}],
+        prompts:[]
+      };
+    }
+    dispatch(action){
+      if(action instanceof PlayCardAction)
+        this.state.prompts.push(new ConfirmPrompt(101,'WANT_TO_USE_ABILITY'));
+      if(action instanceof LaterAction)
+        this.state.prompts.push(new MoveEnergyPrompt());
+      if(action instanceof ResolvePromptAction){
+        const target=this.state.prompts.find(p=>p.id===action.id);
+        target.result=action.result;
+        if(target instanceof ConfirmPrompt&&action.result===true)
+          this.state.prompts.push(new MoveEnergyPrompt());
+      }
+      return this.state;
+    }
+  }
+  class SimpleTacticsAi {
+    constructor(){this.client={id:101};}
+    decodeNextAction(state){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      return new ResolvePromptAction(pending.id,
+        pending instanceof MoveEnergyPrompt?
+          [{card:water(),from:{slot:'BENCH'},to:{slot:'ACTIVE'}}]:false);
+    }
+  }
+  const wrapped=withOwnerAbilityConfirmPolicy(()=>{
+    const store=new Store(),ai=new SimpleTacticsAi();
+    store.dispatch(new PlayCardAction(101,0));
+    const confirm=ai.decodeNextAction(store.state);
+    store.dispatch(confirm);
+    const firstMove=ai.decodeNextAction(store.state);
+    store.dispatch(firstMove);
+    store.dispatch(new LaterAction());
+    const unrelatedMove=ai.decodeNextAction(store.state);
+    store.dispatch(unrelatedMove);
+    return {confirm:confirm.result,firstMove:firstMove.result,
+      unrelatedMove:unrelatedMove.result};
+  },{
+    ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,
+      ChooseCardsPrompt,ResolvePromptAction},
+    types:{...types,GameMessage:{}},validate:()=>{}
+  });
+  assert.equal(wrapped.result.confirm,true);
+  assert.equal(wrapped.audit.confirmSettled,1);
+  assert.equal(wrapped.audit.articunoMoveEnergyEvents.length,1);
+  assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].transferCount,1);
+  assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].allWaterEnergy,true);
+});
