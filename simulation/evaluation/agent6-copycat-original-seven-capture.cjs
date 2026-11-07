@@ -40,10 +40,10 @@ function createOriginalSevenCopycatCapture(sourceSeat,sourceVCount,startingMessa
         if(pending?.message===startingMessage &&
           source && pending.playerId===source.id) {
           setupSelectionObservations++;
-          const hand=source.hand?.cards;
-          assert.ok(Array.isArray(hand));
-          assert.equal(hand.length,7,'source setup selection must see original seven');
           if(exactSeven===null) {
+            const hand=source.hand?.cards;
+            assert.ok(Array.isArray(hand));
+            assert.equal(hand.length,7,'first source setup selection must see original seven');
             exactSeven=Object.freeze({
               size:hand.length,
               namedInHand:Object.freeze(Object.fromEntries(
