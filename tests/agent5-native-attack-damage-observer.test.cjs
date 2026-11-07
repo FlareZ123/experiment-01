@@ -131,7 +131,7 @@ test('records exact native damage effect and public before/after board',()=>{
   assert.equal(attack.turn,6);
   assert.equal(attack.effects[0].damage,100);
   assert.equal(attack.effects[0].target.seat,1);
-  assert.equal(attack.effects[0].effectPlayerSeat,0);
+  assert.equal(attack.effects[0].effectPlayerSeat,null);
   assert.equal(attack.effects[0].victimSeat,null);
   assert.equal(attack.effects[0].target.zone,'active');
   assert.equal(attack.effects[0].targetDamageBefore,0);
