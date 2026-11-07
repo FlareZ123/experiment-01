@@ -52,3 +52,23 @@ The distinguishing contribution is an independently preregistered, native-pinned
 - Actions run [42334046899](https://github.com/FlareZ123/experiment-01/actions/runs/42334046899), archived [artifact 13559340293](https://github.com/FlareZ123/experiment-01/actions/runs/42334046899/artifacts/13559340293), head \`c1ecfa4aaa8b964ba574d2edee7b2fb080589027\`.
 
 **Research admission remains unchanged:** 29/32 authenticated original 60-card name/count lists (missing ranks23,25,28), zero competitively qualified games, no finally selected fixed 60 and no demonstrated 99.5% field win rate.
+
+
+## 7 November follow-up: native mulligan reconciliation
+
+The archived B-row receipts resolve the accepted-seven caveat for these eight observed deals. In **all eight** B rows, the actual native `setupCompensation.mulligans` vector is `[0,0]`, and `observerRootAudit.sourceStartingPromptsSeen` is exactly `1` for the champion source seat:
+
+| Seed | Champion/source seat | Native mulligans (seat 0, seat 1) | Source starting prompts |
+|---:|---:|---:|---:|
+| 2855357560 | 0 | [0,0] | 1 |
+| 2855357560 | 1 | [0,0] | 1 |
+| 550392985 | 0 | [0,0] | 1 |
+| 550392985 | 1 | [0,0] | 1 |
+| 668611607 | 0 | [0,0] | 1 |
+| 668611607 | 1 | [0,0] | 1 |
+| 3710837965 | 0 | [0,0] | 1 |
+| 3710837965 | 1 | [0,0] | 1 |
+
+Thus no source mulligan occurred, and the sole observed source starting prompt in each B attempt was the accepted initial seven. The archived v2 JSON does not separately serialize the invalid-seven counter added to the later observer revision; the zero-mulligan setup receipt plus one source prompt is the evidence used here. This resolves the specific first-attempt/accepted-seven ambiguity for these eight rows. It does **not** turn the eight source deals into a distributional sample or validate the uniform-deal model.
+
+Reproducibility: run 42334046899, artifact 13559340293. ZIP SHA-256 `42e76fa3deb22f69f75e066792120d97b250852e5949c831e0d6a8a690408e4e`; inner JSON SHA-256 `5b14cbe6bf4d9f98c6aaacdb0ab62fa4666a8a437ef134b9d86d1921ca319465`.
