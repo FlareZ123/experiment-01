@@ -31,6 +31,9 @@ function createPostPrizeResponseActionSequenceObserver(options){
   const activeByTrial=new Map();
   const sequences=[];
   const unansweredPrizeExits=[];
+  const diagnostics={callbackCount:0,missingTrialIdCount:0,
+    unmatchedTrialIds:[],playerShapeMissCount:0,trialIdsObserved:[],
+    prizeCountChanges:[]};
 
   function snapshotAction(store,action,ordinal,seat,turnBefore){
     const state=store.state;
@@ -64,17 +67,37 @@ function createPostPrizeResponseActionSequenceObserver(options){
   }
 
   function onRootActionDispatched(store,action,ordinal,seat,turnBefore){
+    diagnostics.callbackCount++;
     const trialId=options.rootBinding.currentTrialId;
+    if(typeof trialId!=='string'){
+      diagnostics.missingTrialIdCount++;
+      return;
+    }
     const seats=seatsByTrial.get(trialId);
-    if(!seats)return;
+    if(!seats){
+      if(!diagnostics.unmatchedTrialIds.includes(trialId))
+        diagnostics.unmatchedTrialIds.push(trialId);
+      return;
+    }
+    if(!diagnostics.trialIdsObserved.includes(trialId))
+      diagnostics.trialIdsObserved.push(trialId);
     const state=store.state;
-    if(!Array.isArray(state.players)||state.players.length!==2)return;
+    if(!Array.isArray(state.players)||state.players.length!==2){
+      diagnostics.playerShapeMissCount++;
+      return;
+    }
 
     const prizeCounts=state.players.map(player=>
-      player.prizes.filter(prize=>prize.cards.length>0).length);
+      Array.isArray(player.prizes)?player.prizes.reduce((total,slot)=>
+        total+(Array.isArray(slot?.cards)?slot.cards.length:0),0):0);
     const previous=previousPrizeCountsByStore.get(store);
     if(previous){
       const prizeLoss=previous[seats.candidateSeat]-prizeCounts[seats.candidateSeat];
+      if(prizeLoss!==0)diagnostics.prizeCountChanges.push({
+        registeredTrialId:trialId,rootOrdinal:ordinal,actorSeat:seat,turnBefore,
+        sourceSeat:seats.sourceSeat,candidateSeat:seats.candidateSeat,
+        previousPrizeCounts:previous,currentPrizeCounts:prizeCounts
+      });
       if(seat===seats.sourceSeat&&prizeLoss>0){
         const pending=pendingByTrial.get(trialId);
         if(pending&&pending.sourceTurn===turnBefore){
@@ -153,6 +176,10 @@ function createPostPrizeResponseActionSequenceObserver(options){
           ...[...pendingByTrial.entries()].map(([registeredTrialId,pending])=>({
             registeredTrialId,...pending
           }))],
+        diagnostics:{...diagnostics,
+          unmatchedTrialIds:[...diagnostics.unmatchedTrialIds],
+          trialIdsObserved:[...diagnostics.trialIdsObserved],
+          prizeCountChanges:[...diagnostics.prizeCountChanges]},
         hiddenHandReadBeforeCandidateResponse:false,
         policyInputModified:false,
         paperLegalityCertified:false
