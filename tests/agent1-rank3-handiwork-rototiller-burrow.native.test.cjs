@@ -105,7 +105,7 @@ function resolveRototillerThenBurrow(context){
         playerId:prompt.playerId,keys:Object.keys(prompt)
       }));
       assert.equal(prompt.playerId,owner.id,
-        'Rototiller must shuffle the owner's deck');
+        "Rototiller must shuffle the owner's deck");
       const order=Array.from({length:owner.deck.cards.length},
         (_,index)=>index);
       store.dispatch(new ResolvePromptAction(prompt.id,order));
