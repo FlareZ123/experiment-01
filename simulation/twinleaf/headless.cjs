@@ -290,7 +290,7 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @property {boolean} [distinctAttachTargetsCorrection] Opt-in bot prompt choice fix for Energy effects requiring distinct attachment destinations.
  * @property {boolean} [herdierTreasureHuntCorrection] Opt-in printed one-Item Herdier SUM 104 Treasure Hunt under applicable Ability locks.
  * @property {boolean} [mimikyuApexCopycatCompatibility] Opt-in non-GX Apex Dragon/Copycat copy-tag correction.
- * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in exact public-state Copycat/Apex/Timeless decision policy.
+ * @property {boolean} [mimikyuApexTimelessPolicy] Opt-in two-stage public-state Copycat/Apex/Timeless then bonus-turn Power Beam policy.
  * @property {0|1} [mimikyuApexTimelessPolicySeat] Restrict Copycat counterpolicy to one physical seat.
  * @property {boolean} [mimikyuBurrowCopycatPolicy] Opt-in public-state Mimikyu Copycat/Bunnelby Burrow tactic.
  * @property {0|1} [mimikyuBurrowCopycatPolicySeat] Restrict Burrow Copycat tactic to one physical seat.
@@ -2190,7 +2190,7 @@ function runMatch(request) {
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
-        (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTimelessCounterPolicy-v1' : '') +
+        (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTwoStageCounterPolicy-v2' : '') +
         (request.mimikyuBurrowCopycatPolicy === true ?
           '+MimikyuBurrowCopycatPolicy-v1@seat' +
             (request.mimikyuBurrowCopycatPolicySeat === undefined ? 'both' : request.mimikyuBurrowCopycatPolicySeat) : '') +
