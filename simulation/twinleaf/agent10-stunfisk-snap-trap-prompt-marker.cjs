@@ -100,6 +100,7 @@ function withStunfiskSnapTrapPromptMarker(run,deps={}){
             prompt.cards===attacker&&
             prompt.cards?.energies===attacker.energies&&
             prompt.filter?.superType===SuperType.ENERGY&&
+            Object.keys(prompt.filter??{}).length===1&&
             prompt.options?.min===1&&
             prompt.options?.max===1&&
             prompt.options?.allowCancel===false&&
@@ -120,6 +121,8 @@ function withStunfiskSnapTrapPromptMarker(run,deps={}){
               turn:Number.isFinite(state.turn)?state.turn:null,
               promptType:prompt.constructor?.name??'ChooseCardsPrompt',
               promptMessage:'CHOOSE_CARD_TO_DISCARD',
+              filterKeys:Object.keys(prompt.filter??{}).sort(),
+              sourceCardPublic:true,
               promptOwnerSeat:state.players.indexOf(targetOwner),
               promptCardsIsAttackingPokemonList:prompt.cards===attacker,
               promptEnergyListIsAttackingEnergySublist:
