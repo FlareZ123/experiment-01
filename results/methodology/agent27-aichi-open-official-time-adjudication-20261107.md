@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 39 source-direct pure tests.** The 39 cases are split into a 36-case core suite and three namespaced evidence-provenance regressions. Both plus the eight-case cross-implementation suite pass the compiled Node 22 CI run [42399606928](https://github.com/FlareZ123/experiment-01/actions/runs/42399606928). This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 39 source-direct pure tests.** The 39 cases are split into a 36-case core suite and three namespaced evidence-provenance regressions. Both plus the eight-case cross-implementation suite pass the compiled Node 22 CI run [42400242087](https://github.com/FlareZ123/experiment-01/actions/runs/42400242087). This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -122,3 +122,10 @@ The existing manual [Aichi benchmark workflow run 42399606928](https://github.co
 ### Namespaced regression placement, 7 November
 
 Following the repository-wide flat-directory routing correction, the three newly added evidence-provenance regressions were moved out of the legacy flat tests root into `tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs`. The existing root suite retains its 36 core cases and the fixture updates required by the strengthened evidence contract. The manual workflow explicitly runs the core suite, namespaced provenance suite, and existing eight-case convergence suite. [Run 42399606928](https://github.com/FlareZ123/experiment-01/actions/runs/42399606928) passed all of them on Node 22. No new workflow was created.
+
+
+### Single-zero knockout tiebreaker guard, 7 November
+
+A differential review found one remaining fail-open state in the six-Prize knockout tiebreaker: Agent27 previously rejected an unexplained [0,0] state but could award a Prize-lead result for [0,5] or [5,0] without an independently supplied ordinary paper winner or simultaneous tie. Taking the final Prize satisfies a normal win condition, so a zero-containing tiebreaker snapshot requires an explicit paper outcome before any Prize comparison. The classifier now returns `TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED` whenever either Prize count is zero and neither `paperGameWinner` nor `paperGameTie` has been independently established. The explicit paper-winner and paper-tie branches still take precedence.
+
+This aligns with Agent26's existing conservative guard, which returns `NATURAL_PAPER_TERMINAL_UNVERIFIED` for every zero-containing tiebreaker state without a paper outcome. The Agent27 core regression and the existing cross-implementation test now enumerate all 13 zero-containing Prize pairs. [Manual Node 22 run 42400242087](https://github.com/FlareZ123/experiment-01/actions/runs/42400242087) passed all 36 core tests, three namespaced provenance tests, and eight cross-implementation tests (47 total). No new test file was added to the frozen flat root, and no new workflow was created.
