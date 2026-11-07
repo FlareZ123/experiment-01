@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 35 source-direct pure tests.** The current 35-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 36 source-direct pure tests.** The current 36-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -64,7 +64,7 @@ The existing manually dispatched [Aichi benchmark statistical workflow 423253383
 
 The official Open knockout rules separately require a **new six-Prize tiebreaker** when the ordinary game itself ends tied. The supplied Advanced Player's Rulebook section **I-E Win and Loss** also distinguishes simultaneous draw outcomes from a unique win. An unresolved, *still-in-progress* timed match and a paper-declared simultaneous game tie therefore require **different resolutions**. Source: [organizer Open League `本戦/勝敗について`](https://www.pokemon-card.com/info/005445.html), which specifies `引き分けになった場合、サイド6枚によるタイブレークを行う`.
 
-The scorer now takes optional, independently sourced `paperGameTie:true`. For Open Top32 and final, a proved paper tie before or during the prescribed post-call turn produces **`TIEBREAKER_REQUIRED_SIX_PRIZE`**, and the scorer suppresses timed Prize adjudication. Within an elimination extension, a proved simultaneous natural tie likewise requires a new tiebreaker. For Swiss, the organizer's visible rule does not fully specify a pre-time-call simultaneous paper-tie remedy: it returns **`SWISS_PAPER_TIE_JUDGE_REVIEW_REQUIRED`**, withholding a winner until an actual ruling is available. This is intentionally conservative. A unique normal winner and paper-game tie claimed at once is rejected. Five pure source-direct tests were added, resulting in **29/29 passing** under the exact fetched CommonJS V8 source execution harness. The 29-case version remains **awaiting compiled Node22 CI**; run 42325338384 certified the earlier 21-case suite. No native terminal or competitive game was newly admitted.
+The scorer takes optional, independently sourced `paperGameTie:true`. For Open Top32 and final, a proved paper tie before or during the prescribed post-call turn produces **`TIEBREAKER_REQUIRED_SIX_PRIZE`**, and the scorer suppresses timed Prize adjudication. Within an elimination extension, a proved simultaneous natural tie likewise requires a new tiebreaker. For Open Swiss, a paper tie occurring during the end-call sequence is a no-winner result at the prescribed time boundary and now maps to **`SWISS_BOTH_LOSE`**; this is covered through both the direct classifier and the evidence-packet path. A natural tie that ends the game before the official time call is outside this timed classifier; the Aichi page does not specify its event result, so it requires a separate event-specific ruling. A unique normal winner and paper-game tie claimed at once is rejected. The updated suite now has **36/36** source-direct V8 cases. The 36-case version remains **awaiting compiled Node22 CI**; run 42325338384 certified the earlier 21-case suite. No native terminal or competitive game was newly admitted.
 
 
 ### Zero Prize without a paper ruling: fail closed
@@ -83,12 +83,12 @@ The original `classifyTiebreaker(prizesRemaining)` returned `TIEBREAKER_CONTINUE
 - A simultaneous tie and unique winner claim, an invalid winner seat, or a non-boolean tie flag is rejected.
 - Equal positive Prize counts still mean the active tiebreaker continues; unequal counts still yield the first Prize-lead seat.
 
-Four regression tests cover normal-win precedence, a tied tiebreaker restart, an unresolved both-zero state, and contradictory or invalid paper-outcome claims. The exact fetched CommonJS source and test files pass **35/35** in the isolated V8 harness. The existing manual Node 22 benchmark workflow already invokes this test file, so no new workflow was added; the updated 33-case revision has not yet been run by compiled Node 22 CI. All outputs retain `competitiveAdmission:false` and require independent paper/clock review.
+Four regression tests cover normal-win precedence, a tied tiebreaker restart, an unresolved both-zero state, and contradictory or invalid paper-outcome claims. The exact fetched CommonJS source and test files pass **36/36** in the isolated V8 harness. The existing manual Node 22 benchmark workflow already invokes this test file, so no new workflow was added; the updated 33-case revision has not yet been run by compiled Node 22 CI. All outputs retain `competitiveAdmission:false` and require independent paper/clock review.
 ### Exhaustive structural coverage, 7 November
 
-Two additional tests extend the 33-case suite without adding a new workflow:
+Three additional tests extend the 33-case suite without adding a new workflow:
 
 - All four combinations of first-player seat and turn owner at the end call are checked for the correct additional second-player turn count, last-turn seat, and exclusion of trailing Pokemon Checkup.
 - All 49 legal two-player Prize pairs (0 through 6 for each seat) are exhaustively routed through the Open Top32 knockout classifier, the tied-low extension, and the both-high extension. The test verifies the expected branch and that none can set competitive admission.
 
-The current exact fetched CommonJS module/test pair passes **35/35** in the isolated V8 harness. This is exhaustive over the small Prize-count and seat-state domains represented by this classifier; it does not validate the external paper-state inputs, real clock evidence, Twinleaf semantics, or competitive play. Compiled Node 22 CI remains pending for this 35-case revision.
+The current exact fetched CommonJS module/test pair passes **36/36** in the isolated V8 harness. This is exhaustive over the small Prize-count and seat-state domains represented by this classifier; it does not validate the external paper-state inputs, real clock evidence, Twinleaf semantics, or competitive play. Compiled Node 22 CI remains pending for this 36-case revision.
