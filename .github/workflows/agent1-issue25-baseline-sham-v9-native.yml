@@ -87,7 +87,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-  aichi-forced-active-screen:    if: ${{ inputs.forced_active_opening_screen == true }}
+  aichi-forced-active-screen:
+    if: ${{ inputs.forced_active_opening_screen == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
