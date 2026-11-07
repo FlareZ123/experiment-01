@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent43_box_fog_oneprize_after_pass:
+        description: 'Historical one-deal both-seat generic held Box to one-Energy immediate KO'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -57,6 +62,8 @@ jobs:
           node --check simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
+          node --check simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs
+          node --check simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         run: |
@@ -72,25 +79,32 @@ jobs:
             tests/agent1-actor-dead-first-attack-frontier.test.cjs \
             tests/agent7-v9-bilateral-known-dead-retro.test.cjs \
             tests/agent12-actor-only-lillie-after-pass.test.cjs \
-            tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs
+            tests/agent7-v9-bilateral-lillie-pass-retro.test.cjs \\
+            tests/agent43-owner-secretbox-fog-ko.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
+        if: ${{ !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
-        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
+        if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Execute exposed rank11 both-seat actor-only held Lillie after Pass
-        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control }}
+        if: ${{ inputs.agent7_bilateral_lillie_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent43_box_fog_oneprize_after_pass }}
         run: node simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
+
+      - name: Execute exposed rank11 owner-visible Secret Box Fog one-Energy KO
+        if: ${{ inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass }}
+        run: node simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
-          path: artifacts/agent36-bilateral-competence-v9/
+          path: |
+            artifacts/agent36-bilateral-competence-v9/
+            artifacts/agent43-v9-root93-secretbox-oneprize/
           retention-days: 21
           if-no-files-found: warn
