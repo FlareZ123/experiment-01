@@ -9,26 +9,28 @@ const {runDevelopment}=
 const {runStewardBilateralProbeV9,writeJsonAtomic}=
   require('./agent36-issue25-common-v9-bilateral-competence.cjs');
 
-const VERSION='agent7-v9-bilateral-known-dead-retrospective-v1';
+const VERSION='agent7-v9-bilateral-known-dead-OFF-control-v2';
 const ARTIFACT=path.resolve(__dirname,
   '../../artifacts/agent36-bilateral-competence-v9/issue25-common-v9.json');
 
 /**
- * Add the existing exact-printing, owner-visible known-dead attack preference
- * symmetrically. This does not touch the registration, physical 60s, RNG,
+ * Disable the existing owner-visible known-dead attack preference
+ * symmetrically as an A-prime control. This does not touch the registration, physical 60s, RNG,
  * source owner prompt adapters, or pinned Twinleaf source.
  *
  * @param {Function} runner Existing canonical real-game runner.
  * @returns {Function} Runner with a single additional bilateral policy flag.
  */
-function bilateralKnownDeadRunner(runner){
+function bilateralKnownDeadOffRunner(runner){
   assert.equal(typeof runner,'function');
   return options=>{
     assert.equal(options.actorOnlyComposition,true);
     assert.equal(options.sourceIndependentCommonPolicy,true);
     assert.equal(options.allowAdditionalOriginalSourceRanks,false);
+    assert.equal(options.bilateralKnownDeadAttackRoot,true,
+      'A-prime control requires existing v9 treatment to be enabled');
     assert.notEqual(options.candidateOnlyKnownDeadRoot,true);
-    return runner({...options,bilateralKnownDeadAttackRoot:true,
+    return runner({...options,bilateralKnownDeadAttackRoot:false,
       candidateOnlyKnownDeadRoot:false});
   };
 }
@@ -40,7 +42,7 @@ function bilateralKnownDeadRunner(runner){
 function runAgent7KnownDeadV9(deps={}){
   const probe=deps.runProbe??runStewardBilateralProbeV9;
   const runner=deps.runner??runDevelopment;
-  const output=probe({runner:bilateralKnownDeadRunner(runner)});
+  const output=probe({runner:bilateralKnownDeadOffRunner(runner)});
   assert.equal(output?.manifest?.samePolicyBothSeats,true);
   assert.equal(output.manifest.sourceIndependentCommonPolicy,true);
   assert.equal(output.manifest.actorOnlyComposition,true);
@@ -55,10 +57,11 @@ function runAgent7KnownDeadV9(deps={}){
     fromPreviouslyExposedNativePhysicalSeed:true,
     historicalOnly:true,prospective:false,
     sourceIndependentBothSeats:true,
-    ownerVisibleExactPrintedAttackChoice:true,
-    firstPayableKnownDeadPreferenceOnly:true,
+    ownerVisibleExactPrintedAttackChoice:false,
+    firstPayableKnownDeadPreferenceOnly:false,
+    controlOfCurrentSymmetricKnownDeadPreference:true,
     sourcePolicyUnchangedExceptDeclaredFlag:true,
-    bilateralKnownDeadAttackRoot:true,
+    bilateralKnownDeadAttackRoot:false,
     candidateOnlyKnownDeadRoot:false,
     wrapperFile:path.relative(path.resolve(__dirname,'../..'),__filename)
       .replaceAll('\\','/'),
@@ -71,8 +74,8 @@ function runAgent7KnownDeadV9(deps={}){
   output.qualification.bilateralMaterialEpisodeQualified=false;
   output.qualification.competitiveAdmission=false;
   output.qualification.reason=
-    'Known-dead attack preference introduced after exposure of this physical '+
-    'rank11/New Moon seed. Retrospective one-game development only; independent '+
+    'A-prime same-seed control disables the known-dead attack preference after '+
+    'source exposure. Retrospective development only; independent '
     'paper, hidden-zone, clock and full-field audits are absent.';
   return output;
 }
@@ -98,5 +101,5 @@ function main(){
 
 if(require.main===module)main();
 
-module.exports={VERSION,ARTIFACT,bilateralKnownDeadRunner,
+module.exports={VERSION,ARTIFACT,bilateralKnownDeadOffRunner,
   runAgent7KnownDeadV9};
