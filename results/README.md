@@ -1,6 +1,6 @@
 # Aichi Open League Japanese Extra: fixed-60 decision board
 
-**Decision status, 7 November 2026:** No final fixed 60-card deck is selected. There are zero competitively qualified games and no demonstrated 99.5% win rate. The Aichi Open League 2026 Open division is officially Japanese Extra, with BW-onward regulation, 60 cards, six Prizes and Japanese-language cards. Individual card and historical-printing admission remains open. See the [official format and event-rules source map](aichi-2026/agent12-official-format-rules-and-mulligan-20261107.md).
+**Decision status, 7 November 2026:** No final fixed 60-card deck is selected. There are zero competitively qualified games and no demonstrated 99.5% win rate. The Aichi Open League 2026 Open division is officially Japanese Extra, with BW-onward regulation, 60 cards, six Prizes and Japanese-language cards. Individual card and historical-printing admission remains open. See the [official format and event-rules source map](aichi-2026/2026-11/agent12-official-format-rules-and-mulligan-20261107.md).
 
 ## Fixed-60 comparison
 
