@@ -110,3 +110,8 @@ That retreat cannot undo the **immediate** Box/Fog Hidden Power KO, which settle
 | Pass → delayed Powerglass/Hidden Power | No reliable paper KO witness | Preserves the immediate hand but delays the attack | Source Latias ex Skyliner can retreat the damaged Basic Trubbish before the attack; Powerglass E-21/KO ordering also has a separate paper/native dispute |
 
 This frontier is a retrospective decision comparison, not a strategy ranking. The immediate Box/Fog and Lillie branches both prove a narrow one-Prize opportunity. Their different resource costs and unplayed source replies prevent a strength conclusion.
+
+
+## Secret Box category constraint for any pre-emptive Field Blower line
+
+The local card-pool entry for Secret Box (`sv6-163`, TWM 163) searches for **one Item, one Pokémon Tool, one Supporter, and one Stadium**. Fog Crystal and Field Blower are both Items, so a single Secret Box resolution cannot select both. The root93 policy comparison must choose its Item slot: Fog Crystal for the deterministic Basic Psychic route, or Field Blower for a pre-emptive Garbotoxin answer with Energy supplied through another legal route such as Lillie or the FSS/Articuno branch. A Box/Fog line may still use the other categories for a Tool, Supporter and Stadium. This corrects Agent36's initial proposed Box/Fog plus Box/Field Blower prompt arm; the exact native prompt must enforce the category limit.
