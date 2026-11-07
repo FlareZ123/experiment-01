@@ -329,9 +329,14 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
   assert.ok(x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id));
   const historyAttacks=history.getPreviousTurnAttacks(x.owner.id);
   const eligibleHistoryAttacks=history.getEligiblePreviousTurnAttacks(x.owner.id);
+  const copycatChoices=history.getCopycatChoices(x.owner.id);
   assert.deepEqual(historyAttacks.map(value=>value.attackName),[firstAttack,secondAttack],
     'adapter history must retain both declared attacks in their original order');
   assert.equal(eligibleHistoryAttacks.length,2);
+  assert.deepEqual(copycatChoices.map(value=>value.attackName),[firstAttack,secondAttack],
+    'Copycat choices must be exactly the verified Ω Barrage pair');
+  assert.equal(copycatChoices[0].barragePairId,copycatChoices[1].barragePairId);
+  assert.deepEqual(copycatChoices.map(value=>value.barragePairRole),['first','second']);
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
   assert.equal(previous?.attack?.name,firstAttack,
@@ -347,7 +352,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
   const copycatPrompts=[];
   if(copycatChoice==='second'){
     dispatchCopycatWithSelectedHistory(
-      x.store,x.opponent.id,eligibleHistoryAttacks[1],
+      x.store,x.opponent.id,copycatChoices[1],
       new AttackAction(x.opponent.id,'Copycat')
     );
   }else{
