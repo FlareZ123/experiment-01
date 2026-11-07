@@ -14,7 +14,7 @@ const {
   withOwnerPreAttackAceTrainer
 } = require('../twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs');
 
-const VERSION = 'agent20-v9-box-fog-ace-trainer-aba-v1';
+const VERSION = 'agent20-v9-box-fog-ace-trainer-aba-v2';
 const ROOT = path.resolve(__dirname, '../..');
 const ARTIFACT_DIR = path.join(ROOT,
   'artifacts/agent20-v9-box-fog-ace-trainer-aba');
@@ -85,7 +85,9 @@ function compactRoot(row) {
     action: row.action,
     card: row.card ?? null,
     attack: row.attack ?? null,
-    prompt: row.pendingPrompt ?? null
+    prompt: row.pendingPrompt ?? null,
+    agent20Policy: row.agent20Policy ?? null,
+    replacedAction: row.replacedAction ?? null
   };
 }
 
@@ -209,6 +211,10 @@ function runAba() {
     assert.equal(baselineLedgerParity, true, 'A1/A2 baseline ledgers differ');
     assert.equal(aceAudit.decisions.length, 1,
       'Ace Trainer policy did not make exactly one decision');
+    assert.equal(aceAudit.decisions[0].accepted, true,
+      'Native Store did not accept the Ace Trainer action');
+    assert.equal(aceAudit.rootActionLedgerRewrites.length, 1,
+      'Native root-action ledger was not rewritten to the actual action');
     assert.equal(aceAudit.opponentHiddenHandRead, false);
     assert.ok(aceSequence.aceTrainerAction,
       'Native root ledger lacks the Ace Trainer PlayCardAction');
@@ -224,7 +230,13 @@ function runAba() {
       policyBoundary: {
         symmetricAcrossSeats: true,
         ownerHandOnly: true,
-        opponentInformationUsed: ['public hand count', 'public Active HP/damage', 'public Prize counts'],
+        opponentInformationUsed: [
+          'public hand count',
+          'public Prize counts',
+          'public opposing Active HP/damage',
+          'public opposing Active Tools/Abilities/resistance',
+          'public Stadium'
+        ],
         opponentHiddenHandRead: false,
         opponentDeckOrPrizeIdentityRead: false,
         candidateIdentityOrRankGate: false,
@@ -240,7 +252,8 @@ function runAba() {
           require('node:fs').readFileSync(require.resolve(
             '../twinleaf/agent20-owner-pre-attack-ace-trainer-hook.cjs'))
         ).digest('hex'),
-        decisions: aceAudit.decisions
+        decisions: aceAudit.decisions,
+        rootActionLedgerRewrites: aceAudit.rootActionLedgerRewrites
       },
       bridgeAudits: {
         a1: a1.audit,
