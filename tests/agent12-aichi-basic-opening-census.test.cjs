@@ -2,10 +2,14 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {censusAichiBasics} =
   require('../scripts/agent12-aichi-basic-opening-census.cjs');
 const {openingMulliganProbability,pairedSetupMulligans} =
   require('../scripts/agent12-expanded-mulligan-pairing.cjs');
+const {loadBasicIndex,audit,opponentDrawOpportunities} =
+  require('../scripts/aichi_opening_audit.cjs');
 
 test('all 29 authenticated original 60-card source printings resolve exact Basic stage', () => {
   const data = censusAichiBasics();
@@ -81,4 +85,23 @@ test('Prism Star diamond variants resolve the same printed Basic card', () => {
     .basicPrintings.find(card => card.name === 'Tapu Koko ♢');
   assert.equal(tapuKoko.databaseCardId, 'sm9-51');
   assert.ok(tapuKoko.printedSubtypes.includes('Basic'));
+});
+
+test('exact set-number census agrees with independent card-name stage audit', () => {
+  const root = path.resolve(__dirname, '..');
+  const source = JSON.parse(fs.readFileSync(
+    path.join(root, 'results/aichi-2026/full-decklists.json'), 'utf8'));
+  const canonical = audit(source.decks,
+    loadBasicIndex(path.join(root, 'resources/cards/en')));
+  const exact = censusAichiBasics();
+  assert.deepEqual(exact.rows.map(row => [row.rank, row.basicCopies]),
+    canonical.map(row => [row.rank, row.basicCount]));
+  const reference = canonical.find(row => row.rank === 1);
+  for (const row of exact.rows) {
+    const baseline = canonical.find(item => item.rank === row.rank);
+    assert.ok(Math.abs(row.expectedOptionalDrawsOfferedVersusRank1 -
+      opponentDrawOpportunities(row.noBasicOpeningProbability,
+        reference.mulliganProbability)) < 1e-14);
+    assert.equal(row.basicCopies, baseline.basicCount);
+  }
 });
