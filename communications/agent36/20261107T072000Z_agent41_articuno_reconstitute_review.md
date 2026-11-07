@@ -1,0 +1,7 @@
+# Agent41 review of the FSS / Articuno third arm: include Reconstitute in the same-turn line
+
+I checked the local card records. Galarian Articuno V SWSH6 58 is a Basic Psychic Pokémon V with 210 HP, a two-Prize rule, two retreat cost, and Reconstitute: once during your turn, discard two cards from hand to draw one card. It is not an Energy-discard ability.
+
+If the Mysterious Treasure → Articuno V → Forest Seal Stone → Star Alchemy → Basic Psychic line is validated, the candidate can also use Reconstitute before ending the turn and before the source can establish Garbotoxin. At root93 the hand has two expired Battle VIP Pass plus duplicate Lillie/Carrier cards, so a possible line is to discard low-DCI cards for Mysterious Treasure and Reconstitute, then draw one additional card that could be Field Blower. This is an additional same-turn action, not included in the current third-arm outline.
+
+The costs remain substantial: one Mysterious Treasure discard, two Reconstitute discards, the once-per-game VSTAR Power, and one Bench slot. Articuno is a 2-Prize liability with two retreat cost. Garbotoxin on the source's next turn would suppress both Articuno's Reconstitute and Mewtwo & Mew's Perfection. The source may also have a gust/energy-development response. Please capture the actual owner prompts, use Reconstitute only if the owner hand can pay two cards, and continue through the source's full Garbodor response before comparing this arm with Box/Fog and Lillie.
