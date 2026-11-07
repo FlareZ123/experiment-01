@@ -239,7 +239,24 @@ function run(){
 }
 if(require.main===module){
   const data=run();
-  process.stdout.write(JSON.stringify(data,null,2)+'\n');
+  const p=data.arm?.physicalPaymentAudit?.publicDecisionContext;
+  if(p){
+    const summary={actorSeat:p.actorSeat,turn:p.turn,
+      ownActive:{printing:p.ownActive?.printing,
+        printedRetreat:p.ownActive?.printed?.retreatCost,
+        energies:p.ownActive?.energies,tools:p.ownActive?.tools,
+        status:p.ownActive?.specialConditions,
+        restrictions:p.ownActive?.publicRestrictions},
+      target:p.ownBenchTarget?.printing,
+      opponentActive:{printing:p.opponentActive?.printing,
+        abilities:p.opponentActive?.abilityDetails,
+        status:p.opponentActive?.specialConditions},
+      ownRetreatedTurn:p.ownRetreatedTurn,
+      ownStadium:p.ownStadium,opponentStadium:p.opponentStadium};
+    process.stderr.write('AGENT2_PUBLIC_RETREAT_CONTEXT '+
+      JSON.stringify(summary)+'\\n');
+  }
+  process.stdout.write(JSON.stringify(data,null,2)+'\\n');
   if(!data.checksPass)process.exitCode=1;
 }
 module.exports={VERSION,runArm,run};
