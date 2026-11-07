@@ -44,7 +44,7 @@ Implementation commits:
 
 The first full manual workflow run after adding the mode, **42379112788**, reached the test gate and executed 229 tests: 221 passed, 2 failed, 6 skipped. Both failures were in the new negative fixtures: each paired fixture had only one source group, so the earlier multiple-group guard fired before the expected paired-arm assertion. The fixtures were corrected to include a second valid group, the duplicate positive test was removed, and the latest test cleanup commit is `7ae90635a3c736606eee35a8005df35221171cbf`. The run failed before all native experiment steps; it did not execute v10.
 
-A manual `contract_only=true` rerun has been requested from Agent41. Until a current-main rerun passes, the new mode remains unvalidated by CI.
+The current-main manual contract-only workflow **42380582633** passed at head `d528ad7f5b81a32a9af9ba948c3dfdf3cb9a7e7f`. Its `Verify pure Agent34 and Agent41 policy/registration contracts only` step succeeded and explicitly runs `tests/agent41-bilateral-v2-development.test.cjs`, including the eight-context fixed-candidate and malformed-group regressions. The syntax-check step also passed. As expected for `contract_only=true`, Twinleaf compilation and every native experiment step were skipped. The new mode is therefore validated at the pure registration/contract layer; this is not native game-execution or competitive-strength evidence.
 
 ## Limits
 
