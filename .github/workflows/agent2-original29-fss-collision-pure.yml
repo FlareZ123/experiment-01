@@ -11,6 +11,10 @@ on:
         description: 'Run registered original rank13-rank3 VS Seeker Research A/B/A'
         type: boolean
         default: false
+      native_owner_fallback_diagnostic:
+        description: 'Read-only first quarantined actual owner root on two original seats'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -75,7 +79,7 @@ jobs:
           if-no-files-found: warn
 
   native-root-identity:
-    if: inputs.native_root_identity_canary || inputs.native_research_seeker_canary
+    if: inputs.native_root_identity_canary || inputs.native_research_seeker_canary || inputs.native_owner_fallback_diagnostic
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -101,6 +105,9 @@ jobs:
       - name: Prospective rank13 original VS Seeker Research A/B/A
         if: inputs.native_research_seeker_canary
         run: node simulation/evaluation/agent2-vs-seeker-research-original-rank13-aba.cjs > agent2-original-rank13-seeker-research-native.json
+      - name: Record actual original two-seat first owner-visible quarantined root
+        if: inputs.native_owner_fallback_diagnostic
+        run: node simulation/evaluation/agent2-first-unsupported-owner-root-native-canary.cjs > agent2-original-first-quarantined-owner-root.json
       - name: Preserve native root-identity receipt including failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,4 +116,5 @@ jobs:
           path: |
             agent2-root-bound-native-canary.json
             agent2-original-rank13-seeker-research-native.json
+            agent2-original-first-quarantined-owner-root.json
           if-no-files-found: warn
