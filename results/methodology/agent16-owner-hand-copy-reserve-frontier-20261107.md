@@ -12,7 +12,7 @@ Can that copy-reserve translation be made reusable while keeping strategic judgm
 
 Added [`owner-hand-discard-reserve.cjs`](../../simulation/twinleaf/planning/owner-hand-discard-reserve.cjs), a small adapter over [`owner-hand-discard-pareto.cjs`](../../simulation/twinleaf/planning/owner-hand-discard-pareto.cjs).
 
-The caller supplies the exact ordered owner hand, the source-card index, the immediate discard cost, and two exact-printing count maps:
+The caller supplies the exact ordered owner hand, the source-card index, the immediate discard cost, and two exact-printing count maps. The result is the existing helper's structural frontier under the supplied role labels, not a guarantee that unlabelled cards are strategically interchangeable:
 
 - `hardMinimumCopiesByPrinting`: copies that must remain after the source card is played. The adapter maps these to hard-reserved physical indices, which cannot pay.
 - `softAdditionalCopiesByPrinting`: additional copies preferred for retention. The adapter maps these to protected physical indices, which remain eligible to pay and are counted as protected sacrifices in the frontier. Soft counts are additive to hard counts for the same printing.
