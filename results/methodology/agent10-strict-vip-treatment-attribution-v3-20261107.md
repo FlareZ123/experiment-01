@@ -45,7 +45,7 @@ The v4 adapter adds a match-local successful-Store-dispatch counter. It starts a
 - `dispatchRootCount`
 - per-event `itemRootOrdinal` and `searchRootOrdinal`
 
-Inspection of `simulation/twinleaf/headless.cjs` confirms that the headless `actions` counter is initialized after the two player additions, increments after successful loop dispatches, and is used as each root-ledger `actionOrdinal`. The v4 mock test verifies the counter's zero-based progression across unrelated successful roots, both physical seats, and the item-to-prompt pair. **A real Twinleaf v10c run must still verify that the adapter counter equals the independently retained headless count.** The v3 contract fails closed on any mismatch.
+Inspection of `simulation/twinleaf/headless.cjs` confirms that the headless `actions` counter is initialized after the two player additions, increments after successful loop dispatches, and is used as each root-ledger `actionOrdinal`. The v4 mock test verifies the counter's zero-based progression across unrelated successful roots, both physical seats, and the item-to-prompt pair. Native smoke workflow [run 42424474002](https://github.com/FlareZ123/experiment-01/actions/runs/42424474002) then ran one complete pinned Twinleaf game using the upstream smoke deck: 70 successful actions, 70 hook dispatches, and 70 root-ledger rows; the match finished, with zero VIP intervention events and `competitiveGameQualified:false`. This verifies counter alignment in one real native match. It does not yet verify event ordinals on a real VIP item/search pair; that still requires a v10c native positive case. The v3 contract fails closed on any mismatch.
 
 ## Evidence
 
@@ -66,4 +66,4 @@ A new v10c runner should:
 4. Run fresh native positive and negative cases, including the Agent41 `9:205:B:new-moon-lockbreaker-v1` natural-VIP counterexample.
 5. Obtain independent review of native event/ordinal joins before using the result in any promotion decision.
 
-The v4 adapter is not yet wired into v10c, and no native v10c row has validated its counter against headless. The pure CI result proves the contract and mock adapter behavior only. It does not establish treatment efficacy, full-game performance, paper-clock validity, or competitive strength.
+The v4 adapter is not yet wired into v10c, and no native v10c row has validated a real VIP event's item/search ordinals. The native smoke verifies only the adapter counter against headless on one completed upstream-smoke match with zero VIP events. Neither the pure tests nor this smoke establishes treatment efficacy, paper legality, paper-clock validity, or competitive strength. The native job also emitted a post-job cleanup warning for the nested `vendor/twinleaf/vendor/pokemon-cards-css` submodule missing a URL in the superproject `.gitmodules`; the test itself passed.
