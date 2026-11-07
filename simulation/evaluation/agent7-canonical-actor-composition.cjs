@@ -101,6 +101,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerSupporterOpportunityAudit = null;
   let ownerTrainerFrontierAudit = null;
   let ownerShuffleSupporterAudit = null;
+  let ownerLillieAfterPassAudit = null;
   let ownerHammerAfterPassAudit = null;
   let ownerRank9CompressorAudit = null;
   let ownerVipAfterPassAudit = null;
@@ -155,10 +156,20 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerPlumeriaAfterPassAudit=selected.audit;
     return selected.result;
   };
+  // A high-hand emergency Lillie option is separately opt-in and stays
+  // inside the actor root, where a terminal root Pass can be intercepted.
+  const lillieAfterPassOptIn=options.ownerLillieAfterPass===true;
+  const runWithLillieAfterPass=()=>{
+    if(!lillieAfterPassOptIn)return runWithPlumeriaAfterPass();
+    const selected=require('../twinleaf/agent12-actor-only-lillie-after-pass.cjs')
+      .withActorOnlyLillieAfterPass(runWithPlumeriaAfterPass);
+    ownerLillieAfterPassAudit=selected.audit;
+    return selected.result;
+  };
   const runWithShuffleSupporter=()=>{
-    if(!shuffleSupporterOptIn)return runWithPlumeriaAfterPass();
+    if(!shuffleSupporterOptIn)return runWithLillieAfterPass();
     const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
-      .withActorOnlyShuffleSupporterAfterPass(runWithPlumeriaAfterPass);
+      .withActorOnlyShuffleSupporterAfterPass(runWithLillieAfterPass);
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
@@ -335,6 +346,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       'Native Team Flare contender requires physically tracked prompt adapter');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
     'Enabled actor-only shuffle Supporter must expose native audit');
+  if(lillieAfterPassOptIn)assert.ok(ownerLillieAfterPassAudit,
+    'Enabled owner Lillie after Pass must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
     'Enabled actor-only Battle VIP Pass must expose native audit');
   if(options.ownerVipBeforeAttack===true)assert.ok(ownerVipBeforeAttackAudit,
@@ -416,6 +429,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerNativeFlarePromptOptIn:options.sameRootNativeFreeFlareChoice===true,
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
+    ownerLillieAfterPassOptIn:lillieAfterPassOptIn,
+    ownerLillieAfterPassAudit,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     ownerVipBeforeAttackOptIn:options.ownerVipBeforeAttack===true,
     ownerVipMegaAbsolTargetOptIn:options.ownerVipMegaAbsolTarget===true,
