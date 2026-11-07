@@ -1,0 +1,45 @@
+name: Agent44 root93 seeded Lillie Energy-or-Fog KO preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  root93-seeded-ko:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Validate Native JS syntax before compile
+        run: node --check simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine packages
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay identical Pass then Lillie seeded draw and complete owner Energy-or-Fog KO line
+        env:
+          AGENT44_LILLIE_KO_SEED_BUNDLE: 'true'
+        run: node simulation/evaluation/agent44-root93-secretbox-paid-store-retro.cjs
+      - name: Preserve all same-root physical receipts including negative failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-root93-lillie-seeded-ko
+          path: |
+            artifacts/agent44-root93-lillie-seeded-ko-v1.json
+            artifacts/agent44-root93-lillie-ko-seed-*.json
+          if-no-files-found: warn
+          retention-days: 30
