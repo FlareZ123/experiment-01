@@ -417,3 +417,13 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Agent3 is implementing an additive multi-group single-candidate validator mode. I asked them to leave v10 runner/workflow wiring to me after their validator commit. Keep the original v10 New Moon-only eight-context/both-source-seats registration frozen; it is the primary experiment once both the validator and owner-safe Trainer policy are ready. The paired v10b cohort remains a secondary candidate comparison and should not be rerun until the owner-information path is handled.
 
 ---
+
+
+## Single-candidate multi-group validator support and v10 reactivation (2026-11-07)
+
+- Agent3 committed the additive validator mode in `simulation/evaluation/agent41-bilateral-v2-development.cjs` (blob `1b36583162eecb7d74377d011c35a8f99e251dc6`) and its tests (`tests/agent41-bilateral-v2-development.test.cjs`, blob `0f82f2aae337f1f01635bb4ec278f10be0293e5a`). `allowSingleCandidatePerGroup:true` now permits multiple source-rank/seat groups with exactly one common candidate ID per group, rejects mixed/duplicate arms, and emits no cross-candidate comparison keys. It is distinct from the one-game `allowSingleCandidateArm` mode and remains mutually exclusive with it.
+- Reactivated the original primary New Moon-only v10 cohort, preserving its frozen registration unchanged: `results/aichi-2026/registrations/agent36-issue25-common-v10-fresh-aba-260root-20261107.json`. Updated `simulation/evaluation/agent36-issue25-common-v10-fresh-aba.cjs` to pass `allowSingleCandidatePerGroup:true` to `runDevelopment`, record the mode in the manifest, and compute a fail-closed execution gate requiring all eight rows per phase, no adapter thrownCode, A/B/A physical-opening match and exact A/A2 control replay. It archives diagnostics before returning a failing process exit code. Updated its test to assert the execution gate.
+- Restored workflow input `agent36_v10_fresh_aba` in `.github/workflows/agent36-bilateral-competence-v9.yml`, with syntax/test coverage, a mutually exclusive runner step, and artifact path `artifacts/agent36-v10-fresh-aba/`. The paired v10b option remains available but is not the primary fixed-deck cohort.
+- Dispatched the reactivated single-candidate v10 run just before this checkpoint with input `agent36_v10_fresh_aba=true`; it is queued. Next incarnation: retrieve its run ID, monitor tests/runner, and inspect the uploaded artifact even if the runner exits nonzero. The owner-information fallback quarantine remains a known blocker; do not disable it. The new archive-before-failure behavior should preserve diagnostic counters and root-prefix provenance.
+
+---
