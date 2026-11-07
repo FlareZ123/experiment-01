@@ -21,18 +21,25 @@ function loadTypes() {
 /**
  * Build an EnergyMap using only the public attacking Active's two card lists.
  * This mirrors regular Energy and Pokemon-as-Energy collection and explicitly
- * models the pinned Beast Energy FLI Ultra Beast override. It does not invoke
- * Store.reduceEffect, which would propagate through hidden zones.
+ * models the pinned Beast Energy FLI Ultra Beast override only when the caller
+ * explicitly proves that Special Energy effects are not blocked. Unknown block
+ * status fails closed to printed provides. It does not invoke Store.reduceEffect,
+ * which would propagate through hidden zones.
  *
  * @param {object} attackerActive
  * @param {object} types
+ * @param {{specialEnergyBlocked?:boolean|null}} [options]
  * @returns {{energyMap:object[],ultraBeast:boolean,beastEnergyAttached:boolean,
+ *   specialEnergyBlocked:boolean|null,specialEnergyBlockStatus:string,
  *   model:string,dynamicOverrides:string[]}}
  */
-function buildPublicEnergyMap(attackerActive, types = loadTypes()) {
+function buildPublicEnergyMap(attackerActive, types = loadTypes(), options = {}) {
   const {CardTag, CardType, SuperType} = types;
   const pokemon = attackerActive?.getPokemonCard?.();
   const ultraBeast = pokemon?.hasTag?.(CardTag.ULTRA_BEAST) === true;
+  const specialEnergyBlocked = typeof options.specialEnergyBlocked === 'boolean'
+    ? options.specialEnergyBlocked
+    : null;
   const energyMap = [];
   const dynamicOverrides = [];
 
@@ -40,10 +47,12 @@ function buildPublicEnergyMap(attackerActive, types = loadTypes()) {
     if (energyMap.some(entry => entry.card === card)) return;
     const isBeastEnergy = card?.fullName === 'Beast Energy FLI' ||
       (card?.set === 'FLI' && String(card?.setNumber) === '117');
-    const provides = isBeastEnergy && ultraBeast
+    const beastOverrideActive = isBeastEnergy && ultraBeast &&
+      specialEnergyBlocked === false;
+    const provides = beastOverrideActive
       ? [CardType.ANY]
       : Array.isArray(card?.provides) ? [...card.provides] : [];
-    if (isBeastEnergy && ultraBeast) dynamicOverrides.push('Beast Energy FLI: ANY');
+    if (beastOverrideActive) dynamicOverrides.push('Beast Energy FLI: ANY');
     energyMap.push({card, provides});
   };
 
@@ -61,9 +70,14 @@ function buildPublicEnergyMap(attackerActive, types = loadTypes()) {
     energyMap,
     ultraBeast,
     beastEnergyAttached: energyMap.some(entry =>
-      entry.card?.fullName === 'Beast Energy FLI'
+      entry.card?.fullName === 'Beast Energy FLI' ||
+      (entry.card?.set === 'FLI' && String(entry.card?.setNumber) === '117')
     ),
-    model: 'public-active-static-provides-plus-beast-energy-ultra-beast-v1',
+    specialEnergyBlocked,
+    specialEnergyBlockStatus: specialEnergyBlocked === null
+      ? 'unknown-fail-closed'
+      : specialEnergyBlocked ? 'blocked' : 'unblocked',
+    model: 'public-active-static-provides-plus-verified-beast-energy-ultra-beast-v2',
     dynamicOverrides
   };
 }
@@ -103,7 +117,9 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
     return null;
   }
 
-  const publicMap = buildPublicEnergyMap(attackerActive, types);
+  const publicMap = buildPublicEnergyMap(attackerActive, types, {
+    specialEnergyBlocked: options.specialEnergyBlocked
+  });
   const energyMap = options.energyMap ?? publicMap.energyMap;
   const parentCards = prompt.cards.cards;
   const energyCards = prompt.cards.energies.cards;
@@ -133,8 +149,10 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
     attackerPokemon,
     ultraBeast: publicMap.ultraBeast,
     beastEnergyAttached: map.some(entry =>
-      entry.card?.fullName === 'Beast Energy FLI'
+      entry.card?.fullName === 'Beast Energy FLI' ||
+      (entry.card?.set === 'FLI' && String(entry.card?.setNumber) === '117')
     ),
+    specialEnergyBlocked: publicMap.specialEnergyBlocked,
     energyMap: map
   });
   const damage = (attack, map) => {
@@ -180,7 +198,7 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
       providedTypeCount: new Set(provides).size,
       energyMapModel: options.energyMap
         ? 'caller-supplied-public-energy-map'
-        : publicMap.model,
+        : publicMap.model + ':' + publicMap.specialEnergyBlockStatus,
       dynamicEnergyOverrides: publicMap.dynamicOverrides,
       damageModel,
       policy: VERSION
@@ -206,9 +224,17 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
   };
 }
 
+function beastEnergyAwareAttackDamageValue(attack, context) {
+  const base = Number.isFinite(attack?.damage) ? Math.max(0, attack.damage) : 1;
+  const bonus = context?.ultraBeast && context?.beastEnergyAttached &&
+    context?.specialEnergyBlocked === false ? 30 : 0;
+  return base + bonus;
+}
+
 module.exports = {
   VERSION,
   loadTypes,
   buildPublicEnergyMap,
+  beastEnergyAwareAttackDamageValue,
   chooseSnapTrapEnergyV2
 };
