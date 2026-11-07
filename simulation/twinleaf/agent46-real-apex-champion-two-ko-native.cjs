@@ -24,7 +24,9 @@ function stagedChampionPowerBeamAfterRealApex() {
     return card;
   };
   const mimikyu=get('Mimikyu GRI');
+  const regidragoFirstBase=get('Regidrago V SIT');
   const regidragoFirst=get('Regidrago VSTAR SIT');
+  const regidragoSecondBase=get('Regidrago V SIT');
   const regidragoSecond=get('Regidrago VSTAR SIT');
   const dialga=get('Dialga-GX UPR');
   const radiant=get('Radiant Eternatus CRZ');
@@ -63,11 +65,11 @@ function stagedChampionPowerBeamAfterRealApex() {
     const opponentDialga=get('Dialga-GX UPR');
     const dragonEnergy1=get('Double Dragon Energy ROS');
     const dragonEnergy2=get('Double Dragon Energy ROS');
-    opponent.active.cards.push(regidragoFirst,dragonEnergy1,dragonEnergy2);
+    opponent.active.cards.push(regidragoFirstBase,regidragoFirst,dragonEnergy1,dragonEnergy2);
     opponent.active.energies.cards.push(dragonEnergy1,dragonEnergy2);
     opponent.discard.cards.push(opponentDialga);
     const second=new PokemonCardList();
-    second.cards.push(regidragoSecond);
+    second.cards.push(regidragoSecondBase,regidragoSecond);
     opponent.bench.push(second);
     const spare=new PokemonCardList();
     spare.cards.push(dratini);
@@ -79,7 +81,7 @@ function stagedChampionPowerBeamAfterRealApex() {
     }
     state.activePlayer=1;
     state.phase=GamePhase.PLAYER_TURN;
-    state.turn=2;
+    state.turn=4;
     state.playerLastAttack={};
     store.dispatch(new AttackAction(opponent.id,'Apex Dragon'));
     const sourceChoice=state.prompts.find(p=>p.result===undefined &&
@@ -199,6 +201,8 @@ function stagedChampionPowerBeamAfterRealApex() {
       priorAttackMetadataInjected:false,
       bothReversibleHooksEnabled:true,
       priorAttackStoreSettled:true,
+      bothRegidragoEvolutionStacksPresent:true,
+      stagedSourceGlobalTurn:4,
       first,second:secondCopy,
       firstPrompts,secondPrompts,secondTurn:bonusTurn,
       firstKo:opponent.discard.cards.includes(regidragoFirst),
