@@ -415,6 +415,11 @@ function toGateAttempt(row) {
     publicRootLedgerSha256Reported:row.publicRootLedgerSha256Reported,
     originalSourceSeat:row.sourceSeat,
     candidateSeat:row.candidateSeat,
+    // Native error rows lack normal participant IDs. This qualified fallback
+    // must carry the physical source-deal digest and its original receipt;
+    // Agent45 rejects registration-only seat labels without Store proof.
+    sourceDealFingerprint:row.sourceDealFingerprint,
+    nativeAbortProvenance:row.nativeAbortProvenance??null,
     actualSourceAttackSettlement:row.sourceAttackSettlement
   };
 }
