@@ -7,15 +7,15 @@ const {probe} =
 
 for (const seat of [0, 1]) {
   test('native Capture Energy owner seat ' + seat +
-    ' empty-deck search error occurs after card attachment', () => {
+    ' empty-deck rejected attachment still consumes energy allowance', () => {
     const zero = probe(seat, 0);
     assert.equal(zero.before.handHasCapture, true);
     assert.equal(zero.before.activeEnergyContainsCapture, false);
     assert.ok(zero.thrown, 'Expected native empty-deck search to raise');
-    assert.equal(zero.afterAttach.handHasCapture, false);
-    assert.equal(zero.afterAttach.activeEnergyContainsCapture, true,
-      'Live Store changed physical attachment before rejected effect');
-    assert.equal(zero.afterAttach.activeContainsCapture, true);
+    assert.equal(zero.afterAttach.handHasCapture, true);
+    assert.equal(zero.afterAttach.activeEnergyContainsCapture, false,
+      'Native empty-deck search throws before card is attached');
+    assert.equal(zero.afterAttach.activeContainsCapture, false);
     assert.equal(zero.afterAttach.energyPlayedTurn, 3);
     assert.equal(zero.afterPrompts.deckCount, 0);
     assert.equal(zero.paperGameQualified, false);
