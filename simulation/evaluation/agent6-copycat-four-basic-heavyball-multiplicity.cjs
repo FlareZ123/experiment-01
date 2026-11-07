@@ -172,6 +172,21 @@ function runCopycatHeavyBallSensitivity() {
     variant.reductionVsOneCopy = basePercent /
       variant.prizeOnlyObstructionPercent;
   }
+  const singleSlotRoleVariants = [
+    {label: '2x Mimikyu', changes: {mimikyuCopies: 2}},
+    {label: '2x Dialga-GX', changes: {dialgaGxCopies: 2}},
+    {label: '2x Radiant Eternatus', changes: {radiantEternatusCopies: 2}},
+    {label: '3x Lillie’s Clefairy ex', changes: {lilliesClefairyExCopies: 3}}
+  ].map(({label, changes}) => {
+    const result = enumerateCopycatPrizeCut({
+      ...base, heavyBallCopies: 1, ...changes
+    });
+    return {
+      label,
+      ...result,
+      reductionVsBase: basePercent / result.prizeOnlyObstructionPercent
+    };
+  });
   return {
     schema: 'agent6-copycat-four-basic-heavyball-prize-cut-v1',
     evidenceClass: 'exact finite combinatorics, optimistic necessary-condition bound',
@@ -190,7 +205,8 @@ function runCopycatHeavyBallSensitivity() {
       recovery: 'each unprized Heavy Ball can recover one missing Basic role',
       fieldWeight: '11 Regidrago lists out of 32, with every Prize obstruction treated as a loss'
     },
-    variants
+    variants,
+    singleSlotRoleVariants
   };
 }
 
