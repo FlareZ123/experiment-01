@@ -320,6 +320,7 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     Array.isArray(row.publicBoardAfterPromptClosure)&&
     typeof row.declarationRootVsPromptClosureClassification==='string'&&
     !row.declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')&&
+    !row.declarationRootVsPromptClosureClassification.startsWith('INCONSISTENT')&&
     (row.targetDamageThresholdReachedImmediatelyAfterDeclarationRoot===null||
       typeof row.targetDamageThresholdReachedImmediatelyAfterDeclarationRoot==='boolean')&&
     (row.targetKnockedOutDuringLaterPromptResolution===null||
