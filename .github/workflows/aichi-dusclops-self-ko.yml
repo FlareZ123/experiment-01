@@ -70,6 +70,8 @@ jobs:
         run: node --test tests/agent49-rank31-dusknoir-cursed-blast-native.test.cjs
       - name: Verify legal rank31 BCR and Alakazam transfers into PRE Cursed Blast
         run: node --test tests/agent49-rank31-dusknoir-legal-transfer-cursed-blast-native.test.cjs
+      - name: Verify source-dealt Koffing Poison Gas into rank31 Cursed Blast
+        run: node --test tests/agent49-rank31-koffing-poison-gas-cursed-blast-native.test.cjs
       - name: Characterize Cursed Blast when damage counters are prevented
         run: node --test tests/dusclops-self-ko-condition.test.cjs
       - name: Validate source-card Ditto direct Stage-2 transformation and reroll
