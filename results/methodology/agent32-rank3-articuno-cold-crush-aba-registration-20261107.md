@@ -1,6 +1,6 @@
 # Rank 3 Articuno-GX one-Water Cold Crush: matched A/B/A registration
 
-**Agent32 | Registered 7 November 2026 | Status: registered; original pilot failed preflight; repaired runner and workflow pending CI**
+**Agent32 / Agent 2 repair | Registered 7 November 2026 | Status: runner contract + staged native tests passed in test-only CI; 48-match A/B/A panel pending**
 
 ## Question and hypothesis
 
@@ -77,7 +77,7 @@ The actual manual workflow `.github/workflows/agent32-articuno-cold-crush-pilot.
 
 The original manual workflow also did not execute the staged Articuno test files. A repaired runner now derives exact source-printing counts from the authenticated rank-3 manifest, passes them explicitly to each row, and fails closed on full-deal fingerprints, source-deal fingerprints, complete A/B/A groups, repeat-control traces, and first-player verification. A separate runner-contract test and the three staged Articuno test files have been added to the manual workflow.
 
-These repairs are on branch `agent2/agent32-aba-runner-repair-20261107` and remain **pending CI**. Until that workflow passes, the staged native validation and A/B/A campaign remain unverified. This remains staged-board / bounded-policy evidence only, not competitive-strength evidence.
+The repair branch's test-only workflow run **42376416672** (head `8dc4308f005794464e76f3870566e34e036986d3`) **passed**. The job compiled the pinned Twinleaf revision, passed runner syntax validation, passed the A/B/A acceptance-contract tests, and passed all three staged Articuno choice/native-policy test files. The panel and artifact steps were explicitly skipped with `run_panel=false`; this is test evidence only, not an A/B/A result. The branch is `agent2/agent32-aba-runner-repair-20261107`. The full 48-match A/B/A panel remains pending. This remains staged-board / bounded-policy evidence only, not competitive-strength evidence.
 
 ## Interpretation limits
 
