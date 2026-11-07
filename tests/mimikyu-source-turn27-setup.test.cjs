@@ -51,6 +51,25 @@ test('turn27 response plan chooses a resource sequence',()=>{
   candidate.active=slot('Mimikyu GRI',['Psychic Energy','Psychic Energy']);
   assert.equal(chooseSetupAction(state,candidate),null);
 });
+test('two non-Psychic Energy cards cannot fund Copycat',()=>{
+  const {state,candidate}=fixture();
+  candidate.discard.cards.push(card('Dialga-GX UPR'));
+  candidate.hand.cards=[card('Psychic Energy MEE')];
+  candidate.bench[1].energies.cards=[
+    {name:'Darkness Energy'},{name:'Darkness Energy'}];
+  assert.deepEqual(chooseSetupAction(state,candidate),
+    {kind:'attach-psychic',handIndex:0,benchIndex:1},
+    'Available Basic Psychic must be attached despite two untyped cards');
+  candidate.hand.cards=[];
+  assert.equal(chooseSetupAction(state,candidate),null,
+    'Never promote an unfunded two-Darkness Mimikyu');
+  candidate.bench[1].energies.cards=[
+    {name:'Psychic Energy'},{name:'Darkness Energy'}];
+  assert.deepEqual(chooseSetupAction(state,candidate),
+    {kind:'promote-mimikyu',benchIndex:1},
+    'Known Psychic plus a second Energy funds printed Copycat');
+});
+
 test('rejects wrong last attack or consumed GX',()=>{
   const {state,candidate}=fixture();
   candidate.usedGX=true;
