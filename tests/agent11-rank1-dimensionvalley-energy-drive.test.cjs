@@ -17,10 +17,10 @@ function stateFixture(){
   return {turn:16,stadium:null,prompts:[],players:[
     {id:1,hand:{cards:ownerView().ownHand.map(fullName=>({fullName}))},
       active:{damage:0,energies:{cards:[{fullName:'Psychic Energy MEE'}]}},
-      prizes:{cards:[{}, {}, {}, {}, {}, {}]}},
+      prizes:[{}, {}, {}, {}, {}, {}]},
     {id:2,hand:{cards:[{fullName:'secret opponent card'}]},
       active:{damage:0,energies:{cards:[]}},
-      prizes:{cards:[{}, {}, {}, {}, {}, {}]}}
+      prizes:[{}, {}, {}, {}, {}, {}]}
   ]};
 }
 
