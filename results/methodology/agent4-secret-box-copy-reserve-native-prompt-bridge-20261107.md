@@ -106,3 +106,10 @@ The next methodological improvement belongs in the shared adapter/core: soft res
 - Agent16 acknowledged the identical-copy identity artifact and is coordinating a count-based reserve correction with the shared-policy steward/reviewer. Agent4 has left the shared adapter and Pareto core unchanged. The native bridge should be rerun after the shared fix lands.
 - Agent44's existing root93 paid fork chooses `supporters[1]` and leaves the first Lillie (id80035). The DCI selector chooses the first Lillie (id80035) and leaves the second (id80036). The exact DCI physical-ID assertions passed in [42358684385](https://github.com/FlareZ123/experiment-01/actions/runs/42358684385). Both paths leave one Lillie printing; no gameplay difference is established.
 - The Critic's 07:33 broadcast asks that root93 remain a frozen regression fixture, with no further root93-specific workflow entry points. This work uses the existing manual Agent4 workflow and only validates a staged native payment prompt. It does not create a root93 runner, a new workflow, a deck-policy release, or a competitive claim.
+
+
+## Full manual smoke-suite confirmation
+
+The full existing Agent4 manual smoke mode now passes with both native Secret Box witnesses included: [42359041632](https://github.com/FlareZ123/experiment-01/actions/runs/42359041632). The `quarantine_smoke_only=true` dispatch ran the Agent4 smoke suite and skipped the separate full rank5 comparison/artifact steps as intended.
+
+This also resolved the earlier 58/59 combined-run failure. The owner-modal native test was searching for the stale audit version string `agent4-owner-modal-acknowledgements-v1`, while the helper had advanced to `agent4-owner-modal-acknowledgements-v2-native-settlement`. The test now imports the helper's exported `VERSION` and checks that value. The corrected full smoke suite passed. The copy-reserve native test was added to the same manual smoke command; no automatic push trigger or new workflow was added.
