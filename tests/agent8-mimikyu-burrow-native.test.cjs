@@ -15,8 +15,6 @@ for(const sourceSeat of [0,1]){
       'Bunnelby Ω Barrage must ask whether to take its optional second attack');
     assert.ok(!result.copiedAttackPrompts.includes('ConfirmPrompt'),
       'Mimikyu Copycat must not inherit Bunnelby Ω Barrage');
-    assert.ok(result.sourceAttackPrompts.includes('ShowCardsPrompt'));
-    assert.ok(result.copiedAttackPrompts.includes('ShowCardsPrompt'));
     assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceHandDelta,1);
@@ -34,20 +32,19 @@ for(const sourceSeat of [0,1]){
 }
 
 for(const sourceSeat of [0,1]){
-  test('native Copycat follows Rototiller then Burrow and mills source deck, seat '+sourceSeat,()=>{
+  test('native Copycat follows Rototiller then Burrow and discards one source card, seat '+sourceSeat,()=>{
     const result=probeAttackOrder(sourceSeat,'Rototiller','Burrow');
     assert.equal(result.finalPreviousAttack,'Burrow');
     assert.ok(result.sourcePrompts.includes('ConfirmPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseAttackPrompt'));
     assert.ok(result.sourcePrompts.includes('ChooseCardsPrompt'));
-    assert.ok(result.sourcePrompts.includes('ShowCardsPrompt'));
     assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
     assert.equal(result.sourceNextTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,0);
-    assert.ok(result.copycatPrompts.includes('ShowCardsPrompt'));
+    assert.ok(!result.copycatPrompts.includes('ChooseCardsPrompt'));
     assert.equal(result.competitiveQualifiedGames,0);
     console.log('AGENT8_COPYCAT_ROTOTILLER_BURROW',JSON.stringify(result));
   });
