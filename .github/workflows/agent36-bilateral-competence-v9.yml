@@ -112,6 +112,7 @@ jobs:
             tests/agent34-actor-only-root-policy.test.cjs \
             tests/agent41-natural-evolution-root-options.test.cjs \
             tests/agent41-live-garbotoxin-ability-window.test.cjs \
+            tests/agent41-newmoon-blower-opportunity.test.cjs \
             tests/agent47-shared-trubbish-family-owner-prompt.test.cjs \
             tests/agent47-shared-motivate-owner-prompt.test.cjs \
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
@@ -135,7 +136,7 @@ jobs:
 
       - name: Verify natural-evolution seat-scope contracts only
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs
+        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba }}
