@@ -39,6 +39,8 @@ function runSeat(seat,options={}){
   x.opponent.active.energies.cards.push(energyOne,energyTwo);
   const usedDragon=make('Dialga-GX UPR');
   x.opponent.discard.cards.push(usedDragon);
+  if(typeof options.beforeApex==='function')
+    options.beforeApex({x,usedDragon,sourceEnergy:[energyOne,energyTwo]});
 
   const history=[];
   let error=null;
