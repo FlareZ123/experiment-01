@@ -23,7 +23,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
-function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true){
+function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true,fixture={}){
   const cards=initializeCards();
   let id=940000+actorSeat*1000;
   const card=name=>{
@@ -55,12 +55,18 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
 
-  owner.active.cards.push(card('Ferroseed NXD'));
+  const ownerActiveName=fixture.ownerActiveName||'Ferroseed NXD';
+  const enemyActiveName=fixture.enemyActiveName||'Duskull VIV';
+  owner.active.cards.push(card(ownerActiveName));
   owner.active.energies.cards.push(
     card('Metal Energy MEE'),
     card('Double Colorless Energy NXD')
   );
-  enemy.active.cards.push(card('Duskull VIV'));
+  if(fixture.enemyEvolutionBaseName){
+    enemy.active.cards.push(card(fixture.enemyEvolutionBaseName));
+  }
+  enemy.active.cards.push(card(enemyActiveName));
+  enemy.active.damage=fixture.enemyActiveDamage??0;
 
   if(ownerHasBench){
     const ownerBench=new PokemonCardList();
@@ -76,9 +82,12 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
   owner.hand.cards.push(card('Powerglass SFA'));
   owner.discard.cards.push(card('Psychic Energy MEE'));
 
-  for(const player of [owner,enemy]){
+  for(const [player,prizeCount] of [
+    [owner,fixture.ownerPrizes??prizesPerPlayer],
+    [enemy,fixture.enemyPrizes??prizesPerPlayer]
+  ]){
     for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy MEE'));
-    for(let i=0;i<prizesPerPlayer;i++){
+    for(let i=0;i<prizeCount;i++){
       const prize=new CardList();
       prize.cards.push(card('Psychic Energy MEE'));
       player.prizes.push(prize);
@@ -92,9 +101,9 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
     assert.equal(owner.bench[0].tools[0].fullName,'Powerglass SFA');
   }
   assert.equal(owner.active.getPokemonCard().fullName,'Ferroseed NXD');
-  assert.equal(enemy.active.getPokemonCard().fullName,'Duskull VIV');
+  assert.equal(enemy.active.getPokemonCard().fullName,enemyActiveName);
   assert.equal(owner.active.energies.cards.length,2);
-  assert.equal(enemy.active.damage,0);
+  assert.equal(enemy.active.damage,fixture.enemyActiveDamage??0);
 
   const runNativeTransaction=()=>{
     store.dispatch(new AttackAction(owner.id,'Self Destruct'));
@@ -162,6 +171,8 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
           id===owner.id?'owner':'opponent'),
         ownerPrizesRemaining:owner.prizes.filter(p=>p.cards.length>0).length,
         opponentPrizesRemaining:enemy.prizes.filter(p=>p.cards.length>0).length,
+        ownerPrizesTakenThisTurn:owner.prizesTakenThisTurn,
+        opponentPrizesTakenThisTurn:enemy.prizesTakenThisTurn,
         ownerActive:owner.active.getPokemonCard()?.fullName??null,
         opponentActive:enemy.active.getPokemonCard()?.fullName??null,
         playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent')
