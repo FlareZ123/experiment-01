@@ -1,0 +1,94 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+
+const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+const {AttackAction}=
+  require(path.join(output,'game/store/actions/game-actions'));
+const {ResolvePromptAction}=
+  require(path.join(output,'game/store/actions/resolve-prompt-action'));
+const {GameMessage}=require(path.join(output,'game/game-message'));
+const {installCopycatMultiAttackHistory}=
+  require('../simulation/twinleaf/copycat-multiattack-history.cjs');
+
+class ChooseAttackPrompt{
+  constructor(playerId,sourceCard,selectedAttack){
+    this.id='copycat-choice';
+    this.playerId=playerId;
+    this.message=GameMessage.CHOOSE_ATTACK_TO_COPY;
+    this.cards=[sourceCard];
+    this.decode=()=>selectedAttack;
+  }
+}
+
+function makeStore(sourceCard){
+  const player={
+    id:1,
+    active:{getPokemonCard:()=>sourceCard}
+  };
+  const opponent={
+    id:2,
+    active:{getPokemonCard:()=>({fullName:'Opponent Pokemon',attacks:[]})}
+  };
+  return {
+    state:{
+      players:[player,opponent],
+      activePlayer:0,
+      turn:1,
+      prompts:[],
+      playerLastAttack:{}
+    },
+    dispatch(action){
+      if(action?.kind==='end-turn'){
+        this.state={
+          ...this.state,
+          activePlayer:1,
+          turn:2
+        };
+      }
+    }
+  };
+}
+
+function runChoicePrompt(powers){
+  const first={name:'First attack',gxAttack:false,copycatAttack:false};
+  const second={name:'Second attack',gxAttack:false,copycatAttack:false};
+  const sourceCard={
+    fullName:'Fixture Pokemon',
+    powers,
+    attacks:[first,second]
+  };
+  const store=makeStore(sourceCard);
+  const history=installCopycatMultiAttackHistory(store);
+  try{
+    store.dispatch(new AttackAction(1,first.name));
+    const prompt=new ChooseAttackPrompt(1,sourceCard,second);
+    store.state.prompts=[prompt];
+    store.dispatch(new ResolvePromptAction(prompt.id,{name:second.name}));
+    store.dispatch({kind:'end-turn'});
+    return history.getPreviousTurnSnapshot(1);
+  }finally{
+    history.restore();
+  }
+}
+
+test('generic CHOOSE_ATTACK_TO_COPY prompt without Barrage is not a two-attack Copycat pair',()=>{
+  const snapshot=runChoicePrompt([]);
+  assert.ok(snapshot);
+  assert.equal(snapshot.turn,1);
+  assert.deepEqual(snapshot.attacks.map(row=>row.attackName),['First attack']);
+});
+
+test('Barrage power marks the preceding attack and selected follow-up as the Copycat pair',()=>{
+  const snapshot=runChoicePrompt([{name:'Barrage',barrage:true}]);
+  assert.ok(snapshot);
+  assert.equal(snapshot.turn,1);
+  assert.deepEqual(snapshot.attacks.map(row=>row.attackName),
+    ['First attack','Second attack']);
+  assert.deepEqual(snapshot.attacks.map(row=>row.barragePairRole),
+    ['first','second']);
+  assert.equal(snapshot.attacks[0].barragePairId,
+    snapshot.attacks[1].barragePairId);
+});
