@@ -99,6 +99,8 @@ function withNativeAttackDamageObserver(execute, deps = {}) {
     acceptedAttackActions: 0,
     rejectedAttackActions: 0,
     observedDamageEffects: 0,
+    observedDamagePipelineEffects: 0,
+    observedDamageCounterEffects: 0,
     observedKnockOutEffects: 0,
     completedPromptChains: 0,
     incompletePromptChains: 0,
@@ -241,12 +243,14 @@ function withNativeAttackDamageObserver(execute, deps = {}) {
     const attackRecord = currentAttack;
     const target = effect.target ?? null;
     const targetLocation = locatePublicTarget(state, target);
-    const victimSeat = effect.player
+    const effectPlayerSeat = effect.player
       ? state.players.indexOf(effect.player)
       : -1;
-    const victimActive = victimSeat >= 0 ? state.players[victimSeat].active : null;
+    const effectPlayerActive = effectPlayerSeat >= 0
+      ? state.players[effectPlayerSeat].active
+      : null;
     const beforeDamage = target?.damage ?? null;
-    const beforeVictimDamage = victimActive?.damage ?? null;
+    const beforeEffectPlayerDamage = effectPlayerActive?.damage ?? null;
     const beforeBoard = publicBoardSnapshot(state);
     const result = oldReduce.value.call(this, state, effect, ...args);
     const afterState = result?.players ? result : this.state;
@@ -259,18 +263,29 @@ function withNativeAttackDamageObserver(execute, deps = {}) {
         : null,
       targetDamageBefore: beforeDamage,
       targetDamageAfter: target?.damage ?? null,
-      victimSeat: victimSeat >= 0 ? victimSeat : null,
-      victimPokemonBefore: victimActive
-        ? cardName(victimActive.getPokemonCard?.())
+      effectPlayerSeat: effectPlayerSeat >= 0 ? effectPlayerSeat : null,
+      effectPlayerActiveBefore: effectPlayerActive
+        ? cardName(effectPlayerActive.getPokemonCard?.())
         : null,
-      victimDamageBefore: beforeVictimDamage,
+      effectPlayerDamageBefore: beforeEffectPlayerDamage,
+      victimSeat: /KnockOut/i.test(kind ?? '')
+        ? (targetLocation?.seat ?? (effectPlayerSeat >= 0 ? effectPlayerSeat : null))
+        : null,
+      victimPokemonBefore: /KnockOut/i.test(kind ?? '')
+        ? (targetLocation?.pokemon ?? null)
+        : null,
+      victimDamageBefore: /KnockOut/i.test(kind ?? '') ? beforeDamage : null,
       prizeCount: Number.isFinite(effect.prizeCount) ? effect.prizeCount : null,
       preventDefault: effect.preventDefault === true,
       beforePublicBoard: beforeBoard,
       afterPublicBoard: publicBoardSnapshot(afterState)
     });
+    if (kind === 'DealDamageEffect') audit.observedDamageEffects++;
     if (/Damage|PutCounters/i.test(kind ?? '') || Number.isFinite(effect.damage)) {
-      audit.observedDamageEffects++;
+      audit.observedDamagePipelineEffects++;
+    }
+    if (/PutDamage|PutCounters/i.test(kind ?? '')) {
+      audit.observedDamageCounterEffects++;
     }
     if (/KnockOut/i.test(kind ?? '')) audit.observedKnockOutEffects++;
     return result;
