@@ -1,9 +1,10 @@
 'use strict';
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {runStewardBroaderV8,trials}=require('./agent36-issue25-common-v8.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 
-const VERSION='agent39-v8-original-eight-volt-paper-portfolio-ab-v1';
+const VERSION='agent39-v8-original-eight-volt-paper-portfolio-ab-v2-root-ledger';
 
 /**
  * A and B share the immutable prospective v8 eight-arm registration, source
@@ -29,8 +30,8 @@ function summarize(row){
   const sourceReconciliation=row.paperPromptOriginalSourceRootReconciliation??null;
   return {id:trial.id??row.id??null,
     originalRank:trial.rank??null,
-    sourceSeat:row.sourceSeat??null,
-    paperGuardObserved:row.paperPromptPortfolioOptIn===true,
+    sourceSeat:row.sourceSeat??(trial.candidateSlot==='A'?1:0),
+    paperGuardObserved:audit!==null,
     guardStatus:audit?.schema??null,
     marked:audit?.sourceMarkedPromptCount??0,
     markedPhysicalVerified:audit?.livePaperVerifiedPhysicalEffect??0,
@@ -39,6 +40,21 @@ function summarize(row){
     liveNativeSilentNoop:audit?.liveNativeSilentNoop??0,
     nativePromptResolutionCount:audit?.liveResolutionCount??0,
     sourceReconciliation};
+}
+
+/**
+ * Reconcile actual post-dispatch native accepted roots from both completed
+ * rows and the preserved exception-side abort custody.
+ * @param {object} row
+ * @returns {{count:number,sha256:string}|null}
+ */
+function rootLedgerReceipt(row){
+  const ledger=row.rootActionLedger??
+    row.nativeAbortEvidence?.rootActionLedger??
+    row.nativePublicRootArchive?.rootActionLedger??null;
+  if(!Array.isArray(ledger))return null;
+  return {count:ledger.length,
+    sha256:createHash('sha256').update(JSON.stringify(ledger)).digest('hex')};
 }
 
 /**
@@ -58,6 +74,10 @@ function run(){
   assert.equal(b.length,8);
   const am=new Map(a.map(r=>[r.id,r]));
   const bm=new Map(b.map(r=>[r.id,r]));
+  const rawA=new Map((baseline.rawDevelopment?.rows??[]).map(r=>[
+    r.trial?.id??r.id,r]));
+  const rawB=new Map((treatment.rawDevelopment?.rows??[]).map(r=>[
+    r.trial?.id??r.id,r]));
   assert.deepEqual([...am.keys()],[...bm.keys()]);
   const comparisons=registered.map(trial=>{
     const left=am.get(trial.id),right=bm.get(trial.id);
@@ -66,7 +86,14 @@ function run(){
       'A/B must preserve the same exact physical original source deal');
     assert.equal(left.fullPhysicalDealFingerprint,right.fullPhysicalDealFingerprint,
       'A/B must preserve the same full initial physical deal');
+    const leftLedger=rootLedgerReceipt(rawA.get(trial.id));
+    const rightLedger=rootLedgerReceipt(rawB.get(trial.id));
+    const exactLedgerMatched=leftLedger!==null&&rightLedger!==null&&
+      leftLedger.sha256===rightLedger.sha256&&
+      leftLedger.count===rightLedger.count;
     return {id:trial.id,originalRank:trial.rank,
+      baselineRootLedger:leftLedger,treatmentRootLedger:rightLedger,
+      exactLedgerMatched,
       sourceDealFingerprint:right.sourceDealFingerprint,
       fullPhysicalDealFingerprint:right.fullPhysicalDealFingerprint,
       baselineStatus:left.status,treatmentStatus:right.status,
@@ -91,6 +118,10 @@ function run(){
     originalRegisteredTrials:8,sourcePrintsPreserved:true,
     sameInitialPhysicalDeals:true,
     reportedGuardAudits:nativeGuardRows.length,
+    exactNativeRootLedgerComparisons:comparisons.filter(r=>
+      r.exactLedgerMatched).length,
+    comparedNativeRootLedgerPairs:comparisons.filter(r=>
+      r.baselineRootLedger&&r.treatmentRootLedger).length,
     comparisons,audits:auditRows,
     v8BaselineVerdict:baseline.diagnostic.verdict,
     v8TreatmentVerdict:treatment.diagnostic.verdict,
@@ -100,4 +131,4 @@ function run(){
 
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\\n');
-module.exports={VERSION,execute,summarize,run};
+module.exports={VERSION,execute,summarize,rootLedgerReceipt,run};
