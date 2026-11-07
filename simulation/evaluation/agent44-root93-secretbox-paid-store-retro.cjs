@@ -68,7 +68,7 @@ function run(){
       const items=owner.hand.cards.filter(card=>
         card.fullName==='Battle VIP Pass FST');
       const supporters=owner.hand.cards.filter(card=>
-        card.fullName===\"Lillie's Determination M1L\");
+        card.fullName==="Lillie's Determination M1L");
       assert.equal(items.length,2);
       assert.equal(supporters.length,2);
       const cost=[items[0],items[1],supporters[1]];
@@ -86,7 +86,7 @@ function run(){
         publicBoardBefore,
         ownerHandIdSet:owner.hand.cards.map(c=>c.id),
         desiredDiscard:['Battle VIP Pass FST','Battle VIP Pass FST',
-          \"Lillie's Determination M1L\"],
+          "Lillie's Determination M1L"],
         acceptedBoxRoot:false,acceptedPayment:false,
         acceptedSearch:false,promptTrace:[],
         selectedSearchPrintings:[],
