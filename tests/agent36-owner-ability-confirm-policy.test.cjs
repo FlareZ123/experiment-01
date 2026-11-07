@@ -352,3 +352,36 @@ test('Articuno owner MoveEnergy audit retires after its first follow-up',()=>{
   assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].transferCount,1);
   assert.equal(wrapped.audit.articunoMoveEnergyEvents[0].allWaterEnergy,true);
 });
+
+
+test('Articuno owner decision reads native EnergyCard.provides rather than Pokémon cardType',()=>{
+  const articuno=pokemon('Articuno-GX','articuno');
+  const nativeBasicWater=()=>({
+    name:'Water Energy',fullName:'Water Energy SVE',
+    superType:'ENERGY',provides:['WATER']
+  });
+  const forgedWrongType=()=>({
+    name:'Rainbow Energy',superType:'ENERGY',
+    cardType:['WATER'],provides:['COLORLESS']
+  });
+  const yes=decideAbilityConfirm({
+    card:articuno,types,
+    owner:{
+      active:slot([pokemon('Snorlax','snorlax')],
+        [nativeBasicWater(),nativeBasicWater(),nativeBasicWater()]),
+      bench:[slot([articuno]),slot()]
+    }
+  });
+  assert.equal(yes.decision,true);
+  assert.equal(yes.details.otherWaterCount,3);
+  const no=decideAbilityConfirm({
+    card:articuno,types,
+    owner:{
+      active:slot([pokemon('Snorlax','snorlax')],
+        [forgedWrongType(),forgedWrongType(),forgedWrongType()]),
+      bench:[slot([articuno]),slot()]
+    }
+  });
+  assert.equal(no.decision,false);
+  assert.equal(no.details.otherWaterCount,0);
+});
