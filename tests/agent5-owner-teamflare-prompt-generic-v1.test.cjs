@@ -34,10 +34,11 @@ function exercise({seat=0,mode='settled',printing='Team Flare Grunt XY'}={}){
   const players=[
     {id:'a',active:slot('Iron Thorns ex TWM'),hand:{cards:[]},
       supporter:{cards:[]},discard:{cards:[]},supporterTurn:0},
-    {id:'b',active:slot('Tapu Lele-GX GRI',[energy]),hand:{cards:[]},
+    {id:'b',active:slot('Tapu Lele-GX GRI'),hand:{cards:[]},
       supporter:{cards:[]},discard:{cards:[]},supporterTurn:0}
   ];
   const owner=players[seat],enemy=players[1-seat];
+  enemy.active=slot(enemy.active.fullName,[energy]);
   owner.hand.cards.push(trainer);
   // Only the opponent's publicly revealed board is needed.
   Object.defineProperty(enemy,'hand',{get(){throw Error('concealed-hand access');}});
