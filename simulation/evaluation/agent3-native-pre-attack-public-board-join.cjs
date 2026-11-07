@@ -60,7 +60,7 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     return 'TARGET_DAMAGE_THRESHOLD_REACHED_AFTER_DECLARATION_ROOT';
   if(final.captured&&final.location==='active'&&
     final.damage!==null&&final.damage<printedHp)
-    return 'TARGET_REMAINS_BELOW_PRINTED_HP_AFTER_PROMPT_CLOSURE';
+    return 'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP';
   return 'UNKNOWN_FINAL_TARGET_STATE';
 }
 
