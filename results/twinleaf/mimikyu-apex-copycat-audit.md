@@ -108,6 +108,8 @@ The original rank-1 60 also contains four Mysterious Treasure, four Fog Crystal,
 
 The research hooks remain opt-in. The shared v8 bilateral policy has not admitted the Mimikyu/Apex correction bundle. A separate headless lifecycle issue was found and fixed: pending end-turn cleanup had been restored after earlier Store dispatch wrappers, leaving Copycat and Pass wrappers installed across matches. The correction restores pending cleanup first, followed by earlier wrappers in reverse installation order. The combined Copycat/Pass/pending regression passed in [manual smoke run 42339130590](https://github.com/FlareZ123/experiment-01/actions/runs/42339130590), with the complete workflow successful. See [the stack-order report](../rules/agent44-headless-store-dispatch-stack-20261107.md).
 
+The source-locked turn-27 setup helper also had an Active-Mimikyu edge case that could emit a `SlotType.BENCH,index:-1` target. It now only prepares a Benched Mimikyu. The pure helper regression passed in [manual smoke run 42341667159](https://github.com/FlareZ123/experiment-01/actions/runs/42341667159), with all 49 workflow steps successful. This does not validate the complete turn-27 Store/prompt sequence or the actor-relative Bench target; see [the active-target guard report](../methodology/agent44-mimikyu-turn27-setup-active-target-guard-20261107.md).
+
 ### What this evidence supports
 
 The paper-legal counterline exists as a staged, native-reproduced sequence. The exact engine corrections are isolated, reversible, and tested in both physical seats. The original lists contain the necessary named card roles, and the combinatorial work quantifies some initial Prize obstructions.
