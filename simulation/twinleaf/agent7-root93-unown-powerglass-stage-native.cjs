@@ -12,9 +12,10 @@ const pinned=name=>require(path.join(OUTPUT,name));
  * staged real Store and a passive opponent. This is a mechanics-only test.
  * @param {0|1} ownerSeat
  * @param {boolean} equipPowerglass
+ * @param {boolean} [settlePrize] Resolve real postattack Powerglass/Prize prompts
  * @returns {object}
  */
-function runArm(ownerSeat,equipPowerglass){
+function runArm(ownerSeat,equipPowerglass,settlePrize=false){
   assert.ok(ownerSeat===0||ownerSeat===1);
   const manager=initializeCards();
   let nextId=93000+ownerSeat*1000;
@@ -157,6 +158,73 @@ function runArm(ownerSeat,equipPowerglass){
     assert.equal(afterCandidateTurn.sourceTrubbishInDiscard,false);
     assert.equal(afterCandidateTurn.candidatePrizes,6);
   }
+  const postAttackPromptTypes=[];
+  let secondPhysicalBasicAttached=false;
+  let prizePromptResolved=0;
+  let sourcePromotionPromptResolved=0;
+  if(settlePrize && equipPowerglass){
+    for(let i=0;i<32;i++){
+      const p=pending();
+      if(!p)break;
+      const type=p.constructor.name;
+      postAttackPromptTypes.push(type);
+      if(type==='WaitPrompt'){
+        store.dispatch(new ResolvePromptAction(p.id,null));
+      }else if(type==='AttachEnergyPrompt'){
+        assert.strictEqual(p.cardList,owner.discard);
+        const assignment=[{
+          card:psychicB,
+          to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}
+        }];
+        assert.equal(p.validate(assignment),true);
+        store.dispatch(new ResolvePromptAction(p.id,assignment));
+        secondPhysicalBasicAttached=true;
+      }else if(type==='ChoosePrizePrompt'){
+        assert.equal(p.playerId,owner.id);
+        const available=owner.prizes.filter(slot=>slot.cards.length>0);
+        assert.ok(available.length>0);
+        assert.equal(p.validate([available[0]],state),true);
+        store.dispatch(new ResolvePromptAction(p.id,[available[0]]));
+        prizePromptResolved++;
+      }else if(type==='ChoosePokemonPrompt'){
+        assert.equal(p.playerId,source.id);
+        const recipient=source.bench[0];
+        const promotion={
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+        };
+        assert.equal(p.validate([recipient],state),true);
+        store.dispatch(new ResolvePromptAction(p.id,[promotion]));
+        sourcePromotionPromptResolved++;
+      }else{
+        assert.fail('Unknown post-attack native prompt '+type);
+      }
+    }
+    assert.equal(pending(),undefined,
+      'Post-attack continuation must settle all native prompts');
+    assert.equal(secondPhysicalBasicAttached,true);
+    assert.equal(prizePromptResolved,1);
+    assert.equal(sourcePromotionPromptResolved,1);
+    assert.ok(owner.active.energies.cards.includes(psychicB));
+    assert.ok(!owner.discard.cards.includes(psychicB));
+    assert.equal(owner.prizes.filter(slot=>slot.cards.length>0).length,5);
+    assert.equal(source.active.getPokemonCard()?.fullName,
+      'Tapu Lele-GX GRI');
+  }
+  const afterFullPromptResolution=settlePrize?{
+    pending:state.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name),
+    sourceActivePrinting:source.active.getPokemonCard()?.fullName??null,
+    sourceTrubbishInDiscard:source.discard.cards.includes(trubbish),
+    ownerRemainingPrizes:owner.prizes.filter(slot=>slot.cards.length>0).length,
+    ownerActiveEnergies:owner.active.energies.cards.map(card=>card.fullName),
+    secondPhysicalBasicAttached,prizePromptResolved,
+    sourcePromotionPromptResolved,postAttackPromptTypes
+  }:undefined;
+  if(settlePrize&&!equipPowerglass){
+    assert.equal(afterFullPromptResolution.ownerRemainingPrizes,6);
+    assert.equal(afterFullPromptResolution.sourceTrubbishInDiscard,false);
+    assert.deepEqual(afterFullPromptResolution.pending,[]);
+  }
   return {ownerSeat,equipPowerglass,originalPublicRoot:93,
     printed:{owner:unown.fullName,source:trubbish.fullName,
       heldTool:powerglass.fullName,energy:psychicA.fullName},
@@ -165,6 +233,7 @@ function runArm(ownerSeat,equipPowerglass){
     activeAfterTool,promptTypes,attachAccepted,afterTurnEnd,
     sourceChosenResponse:'PassTurnAction, intentionally passive staged foil',
     candidateAttack,afterCandidateTurn,
+    ...(settlePrize?{afterFullPromptResolution}:{}),
     qualification:'staged mechanism, not an original Aichi game',
     competitivelyQualifiedGames:0};
 }
