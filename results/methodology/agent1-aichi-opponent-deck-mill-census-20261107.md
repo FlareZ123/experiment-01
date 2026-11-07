@@ -26,7 +26,7 @@ Exact bundled card entries:
 - **resources/cards/en/xy5.json**, card ID **xy5-121**: Bunnelby PRC 121 has Burrow, one Colorless Energy cost, and the Omega Barrage Ancient Trait. The card entry marks Expanded legality.
 - **resources/cards/en/xy10.json**, card ID **xy10-112**: Team Rocket's Handiwork FCO 112 is a Supporter. Its two coin flips produce 0, 2 or 4 discarded cards, with probabilities 1/4, 1/2 and 1/4 under fair independent flips. Its expected mill is 2 cards per play. The card entry marks Expanded legality.
 
-There are **four Bunnelby lists** containing six copies total and **four Handiwork lists** containing four copies total. Rank 3 contains both cards, so seven distinct published lists contain at least one confirmed direct opponent-deck mill card.
+There are **four Bunnelby lists** containing six copies total and **four Handiwork lists** containing four copies total. Rank 3 contains both cards, so seven distinct published lists contain at least one confirmed direct opponent-deck mill card. All four Handiwork lists also contain **3 VS Seeker** and **2 Lusamine**. This is a concrete recovery package that can support further Supporter plays, although it does not establish how often Handiwork is recovered or played.
 
 ## Relevant owner-side draw card
 
