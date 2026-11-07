@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const {publicEventReceipt}=require('./agent8-public-event-receipt.cjs');
 
-const VERSION='agent7-mimikyu-copycat-history-root-v2-exact-choices';
+const VERSION='agent7-mimikyu-copycat-history-root-v3-copycat-compatibility';
 
 /**
  * Add the latest completed opponent-turn snapshot and tracker-certified
@@ -77,7 +77,15 @@ function attachPreviousOpponentTurnReceipt(view,state,seat,tracker){
     }
     Object.freeze(opponentCopycatChoices);
   }
-  const publicReceipt=Object.freeze({...receipt,opponentCopycatChoices});
+  const active=view.ownPublic?.active;
+  const activeHasCopycat=active?.name==='Mimikyu'&&
+    active.attacks?.some(attack=>attack.name==='Copycat')===true;
+  const mimikyuCopycatCompatible=snapshot===null||
+      typeof tracker?.getCopycatChoices!=='function'?
+    null:activeHasCopycat&&opponentCopycatChoices.length>0;
+  const publicReceipt=Object.freeze({
+    ...receipt,opponentCopycatChoices,mimikyuCopycatCompatible
+  });
   return Object.freeze({...view,publicEventReceipt:publicReceipt});
 }
 
