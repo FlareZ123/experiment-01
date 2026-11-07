@@ -169,8 +169,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify Agent27 original Aichi Open event Swiss and knockout end-time rules and Thorns opener veto
-        run: node --test tests/agent27-aichi-open-time-adjudication.test.cjs tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs tests/aichi-open-clock-convergence.test.cjs tests/agent27-adp-thorns-opening-access-veto.test.cjs tests/agent27-adp-wondrous-source-tax.test.cjs
+      - name: Verify Agent27 ADP Thorns opener veto regressions
+        run: node --test tests/agent27-adp-thorns-opening-access-veto.test.cjs tests/agent27-adp-wondrous-source-tax.test.cjs
       - name: Regress funded Stadium planner with Dimension Valley Energy Drive and Thunder Mountain controls
         run: node --test tests/agent5-opponent-stadium-attack-entitlement.test.cjs tests/agent7-funded-stadium-attack-planner.test.cjs tests/agent46-dimensionvalley-energy-drive-planner.test.cjs
       - name: Verify original rank6 owner-held Cynthia paper opportunity and correlated paired-seat mathematics
@@ -1135,3 +1135,16 @@ jobs:
           path: agent16-issue25-v11-canonical-vip-native.json
           if-no-files-found: warn
           retention-days: 30
+
+
+  aichi-clock-adjudication:
+    name: Aichi Open clock adjudication and evidence tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run source-direct clock, evidence and cross-implementation tests
+        run: node --test tests/agent27-aichi-open-time-adjudication.test.cjs tests/2026-11/agent27-aichi-clock-evidence-provenance.test.cjs tests/aichi-open-clock-convergence.test.cjs
