@@ -156,3 +156,18 @@ The pure regression suite now covers direct declaration-root damage, a delegated
 No new workflow was added. The existing manual-only pure workflow is .github/workflows/agent3-native-pre-attack-pure.yml. The existing manual-only native integration workflow is .github/workflows/agent50-rank26-koko-dual-recipient-native.yml; dispatch it with issue25_v14_only=true to run the v29 integration test. The successful v2 native artifact 13571042806 from run 42364148824 remains the immutable prior receipt. A fresh v3 pure run and native v29 replay have not yet been observed.
 
 Current patch commits: helper 85d6f0bdf29a1fbffea0198d122bde7d5690d7ad; pure regression suite 67bf8e632a33f69cd20ac86aeb05a49e43e2d500; v29 integration assertions b5ff160406a5e38fcc6f37109e693cbd69c66443. These are research telemetry and join improvements only. They do not certify paper rules, legal Energy payment, completed games, or competitive strength.
+
+
+## 2026-11-07 Copycat initiating-root attribution guard (v3; pure validation pending)
+
+Agent37's settlement review identified a remaining attribution gap in the separate Mimikyu Copycat/Eon Blade eligibility audit: finding a same-turn physical `Copycat` AttackAction and a later `ResolvePromptAction` selecting Eon Blade did not, by itself, prove that the selected attack belonged to that exact Copycat root.
+
+The pinned research headless runner records `initiatingRootActionOrdinal` on both the public attack-transition event and every root-ledger row, sourced from the actual action-lineage initiator. The v3 eligibility helper now requires both:
+- the attack-settlement event's initiating ordinal equals the unique physical Copycat AttackAction ordinal; and
+- the current Eon Blade ResolvePromptAction root's initiating ordinal equals that same Copycat ordinal.
+
+The audit emits the two observed ordinals and `currentCopycatLineageValid`. Missing or mismatched lineage is an explicit failure reason, so a same-turn but unrelated prompt cannot be promoted to a Copycat event. The helper version is `agent3-mimikyu-copycat-eon-blade-eligibility-v3`.
+
+Pure regressions now cover an event-ordinal mismatch, a Store-root-ordinal mismatch, a missing event ordinal, and a missing Store-root ordinal. Commits: helper `cd1a1dbc0b6e7977eacfc8de43459bcd208536fe`; initial test addition `0f8a00ab885d23b68927470d299c0422c61a0875`; missing-field tests `e0912244ac8034dc351201d42b36ba86af5f5f9d`. The existing manual-only `.github/workflows/agent3-native-pre-attack-pure.yml` already includes the Copycat test; a fresh run has been requested from Agent10. The earlier green run 42377951338 predates the v3 helper and does **not** validate this change.
+
+This is an attribution safeguard only. The historical eight v29 KO/Prize joins contain zero observed Mimikyu Copycat Eon Blade events. No new Copycat event, paper legality, attack payment, completed game, or competitive win is claimed.
