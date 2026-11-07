@@ -12,7 +12,9 @@ const {screenOwnerTrainerPaperNecessitiesV3,VERSION:SCREEN_VERSION}=
  * Wrap exactly one owner-root policy choice using only the owner's detached
  * paper-visible information. If Special Red Card is currently paper-vetoed,
  * hide its native canPlay offer during speculation, then restore the pinned
- * method even if the bot decoder throws.
+ * method even if the bot decoder throws. When a policy RNG is supplied, also
+ * apply the printed hand permutation inside speculative clones; real Store
+ * dispatch must use its separate affected-hand-owner physical RNG.
  *
  * Failing the paper screen never certifies that another action is legal.
  * A selector ignoring native canPlay and choosing the forbidden card causes
