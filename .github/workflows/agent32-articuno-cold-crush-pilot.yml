@@ -27,6 +27,10 @@ jobs:
         run: npm run compile
       - name: Validate runner syntax
         run: node --check simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs
+      - name: Test A-B-A runner acceptance contract
+        run: node --test tests/agent32-rank3-articuno-cold-crush-aba.test.cjs
+      - name: Run staged Articuno choice and native policy tests
+        run: node --test tests/agent32-articuno-cold-crush-choice.test.cjs tests/agent32-articuno-cold-crush-native.test.cjs tests/agent32-articuno-cold-crush-policy.native.test.cjs
       - name: Run preregistered rank3 Articuno A-B-A panel
         run: node simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs > agent32-rank3-articuno-cold-crush-aba.json
       - name: Upload raw A-B-A evidence
