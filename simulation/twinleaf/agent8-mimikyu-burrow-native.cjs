@@ -247,6 +247,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ConfirmPrompt'&&prompt.message===GameMessage.WANT_TO_USE_ABILITY){
       assert.equal(prompt.playerId,x.owner.id);
+      assert.equal(omegaAccepted,false,'Omega Barrage can be accepted only once per turn');
       assert.equal(prompt.validate(true),true);
       sourcePrompts.push(kind);
       omegaAccepted=true;
@@ -255,6 +256,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ChooseAttackPrompt'&&prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
       assert.equal(prompt.playerId,x.owner.id);
+      assert.equal(secondChosen,false,'Omega Barrage should grant only one additional attack');
       const source=prompt.cards.find(value=>value.fullName==='Bunnelby PRC');
       const attack=source?.attacks.find(value=>value.name===secondAttack);
       assert.ok(attack,'Omega Barrage must offer '+secondAttack);
@@ -266,6 +268,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.owner.id);
+      assert.equal(recoverySelected,false,'Rototiller should select exactly one recovery card');
       const choice=prompt.cards.find(value=>value.id===recovery.id);
       assert.ok(choice,'Rototiller must offer the physical Handiwork in Bunnelby discard');
       assert.equal(prompt.validate([choice]),true);
@@ -319,6 +322,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.opponent.id);
+      assert.equal(mimikyuRecoverySelected,false,'Copied Rototiller should select exactly one Mimikyu discard card');
       const choice=prompt.cards.find(value=>value.id===mimikyuRecovery.id);
       assert.ok(choice,'Copied Rototiller must offer the physical Psychic Energy in Mimikyu discard');
       assert.equal(prompt.validate([choice]),true);
