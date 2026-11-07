@@ -37,7 +37,7 @@ const HASH_PATHS=Object.freeze([
   'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
   'simulation/evaluation/agent36-issue25-common-v6.cjs',
   'simulation/evaluation/agent36-issue25-common-v7.cjs',
-  'simulation/twinleaf/agent7-canonical-actor-composition.cjs',
+  'simulation/evaluation/agent7-canonical-actor-composition.cjs',
   'simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs',
   'simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs',
   'simulation/twinleaf/agent1-radiant-zero-gate-hook.cjs',
