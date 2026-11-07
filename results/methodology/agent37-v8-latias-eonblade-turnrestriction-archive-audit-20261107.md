@@ -40,3 +40,18 @@ The card pool and [Agent42's printed/pinned-engine review](agent42-eon-blade-ret
 The v8 record is an **identical printed-rank-1 mirror**, not an independent comparison of distinct candidate and source decks. The original source made weak decisions in this retrospective game, and no adversarial policy validation, independent paper audit of every action/payment, official Top32 stage/clock receipt, or prospective sampling certificate is supplied. The four attack declarations represent one correlated game. The actual archive row reports zero paper-qualified competitive games. It cannot yield a fixed-60 selection or a field win-rate estimate.
 
 This report narrows a suspected rules defect into a verified legal-looking attack cadence in the existing native trace. It leaves the repository-wide competitive qualification veto intact.
+
+
+## Native retreat-reset regression
+
+The repository's advanced manual §A-03 explicitly says that when an Active Pokémon moves to the Bench, it loses all effects on it, including the example next-turn attack restriction. This is distinct from the archived v8 sequence above, which contains no retreat between Eon Blade attacks.
+
+The native runner `simulation/twinleaf/agent37-eonblade-next-turn-hook-regression.cjs` now also tests the reset lifecycle on both physical seats:
+
+1. Latias ex SSP uses Eon Blade and receives the next-turn attack lock.
+2. The opponent passes; the lock remains active on Latias during its next own turn.
+3. Latias retreats using Skyliner's zero Retreat Cost.
+4. Latias is found on the Bench with both `cannotAttackNextTurn` and `cannotAttackNextTurnPending` cleared.
+5. Baseline and `withPaperKoBeforeEndTurn` results match, and the Store hook is restored.
+
+The test passed as step 10 in [manual native workflow 42372968463](https://github.com/FlareZ123/experiment-01/actions/runs/42372968463). This confirms the direct Latias retreat-reset lifecycle in the controlled native fixture. It does not test a subsequent attack after re-promotion and does not independently establish the copied Mimikyu Eon Blade case.
