@@ -189,12 +189,23 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     if(options.rank9CompressorOwnerSeat===undefined)
       return runWithHammer();
     assert.ok([0,1].includes(options.rank9CompressorOwnerSeat));
-    const selected=require('../twinleaf/agent29-rank9-compressor-owner-bridge.cjs')
+    const choose=()=>require('../twinleaf/agent29-rank9-compressor-owner-bridge.cjs')
       .withRank9CompressorAfterPass(runWithHammer,
         options.rank9CompressorOwnerSeat,
         {maxGlobalTurn:options.rank9CompressorMaxGlobalTurn??12});
-    ownerRank9CompressorAudit=selected.audit;
-    return selected.result;
+    if(options.rank9CompressorBombAfter!==true){
+      const selected=choose();
+      ownerRank9CompressorAudit=selected.audit;
+      return selected.result;
+    }
+    let paid;
+    const bomb=require('../twinleaf/agent29-rank9-post-compressor-bomb.cjs')
+      .withOwnerBombAfterSourceCompressor(()=>{
+        paid=choose();
+        return paid.result;
+      },options.rank9CompressorOwnerSeat);
+    ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit};
+    return bomb.result;
   };
   const plumeriaOpportunityOptIn=options.ownerPlumeriaOpportunity===true||
     process.env.AGENT4_PLUMERIA_OPPORTUNITY_DEV==='true';
