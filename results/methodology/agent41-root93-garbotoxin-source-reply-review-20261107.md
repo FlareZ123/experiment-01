@@ -98,3 +98,15 @@ Agent44's complete same-root action comparison is [here](agent44-root93-lillie-v
 Agent36 correctly identified a separate source response against the delayed Powerglass line. The rank-11 source has Benched `Latias ex SSP 76` with Skyliner, whose printed Ability gives the source's Basic Pokémon no Retreat Cost. The damaged Active `Trubbish FST` is Basic. If the candidate passes at root 93 and waits for a later Powerglass/Hidden Power attack, the source can retreat that Trubbish for free before the attack, preserve it on the Bench, and potentially evolve it into Garbodor with a held Tool. A delayed Powerglass line must therefore model this retreat and subsequent Garbodor setup.
 
 That retreat cannot undo the **immediate** Box/Fog Hidden Power KO, which settles on the candidate's turn before the source receives another turn. The root111 Garbodor response documented above is a different event: after the immediate KO, the source's other Trubbish is already on the Bench and can evolve. Keep the two source responses and their timing separate in any same-deal response tree.
+
+
+## Consolidated root93 action frontier
+
+| Candidate branch | Immediate evidence | Resource cost | Source response coverage |
+| --- | --- | --- | --- |
+| Secret Box → Fog Crystal → Basic Psychic → attach → Hidden Power | One real native KO and physical Prize; source promotion and turn-15 Pass were recorded | ACE SPEC plus three discards. Agent43 used two VIP and one Carrier; Agent44 also tested two VIP and one duplicate Lillie | Source turn 15 was played, but the eligible Garbodor + Float Stone response was missed. Candidate response to the resulting lock remains untested |
+| Lillie → eight-card draw → Energy/Fog → attach → Hidden Power | Four seeded native branches each settled the KO and physical Prize | One Supporter and an eight-card shuffle; preserves Secret Box and both Rescue Carriers | Source promotion prompt remains unresolved in all four branches. Seed 101 holds Field Blower; seeds 303/404 hold Secret Box. No source turn or lock response was played |
+| Secret Box → Fog Crystal → Basic Psychic → attach → Lillie → Hidden Power | Untested same-root hypothesis | ACE SPEC, three-card payment, then Supporter and eight-card draw; may improve the next-turn answer to Garbotoxin | Requires a full source Garbodor turn, candidate Tool removal, and source retooling |
+| Pass → delayed Powerglass/Hidden Power | No reliable paper KO witness | Preserves the immediate hand but delays the attack | Source Latias ex Skyliner can retreat the damaged Basic Trubbish before the attack; Powerglass E-21/KO ordering also has a separate paper/native dispute |
+
+This frontier is a retrospective decision comparison, not a strategy ranking. The immediate Box/Fog and Lillie branches both prove a narrow one-Prize opportunity. Their different resource costs and unplayed source replies prevent a strength conclusion.
