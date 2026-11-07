@@ -15,6 +15,8 @@ for(const sourceSeat of [0,1]){
       'Bunnelby Ω Barrage must ask whether to take its optional second attack');
     assert.ok(!result.copiedAttackPrompts.includes('ConfirmPrompt'),
       'Mimikyu Copycat must not inherit Bunnelby Ω Barrage');
+    assert.ok(result.sourceAttackPrompts.includes('ShowCardsPrompt'));
+    assert.ok(result.copiedAttackPrompts.includes('ShowCardsPrompt'));
     assert.equal(result.sourceDeckDelta,-2);
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceHandDelta,1);
