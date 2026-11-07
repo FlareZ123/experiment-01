@@ -74,6 +74,9 @@ test('captures every post-dispatch candidate response root after an exact source
   const result=obs.result();
   assert.equal(VERSION,'agent3-postprize-response-action-sequence-v2');
   assert.equal(result.version,VERSION);
+  assert.equal(result.prizeTakingSlot,'source');
+  assert.equal(result.responseSlot,'candidate');
+  assert.equal(result.hiddenHandReadBeforeResponse,false);
   assert.equal(result.sequences.length,1);
   const [sequence]=result.sequences;
   assert.equal(sequence.registeredTrialId,'trial1');
@@ -95,6 +98,8 @@ test('captures every post-dispatch candidate response root after an exact source
   assert.equal(result.diagnostics.prizeCardChanges.length,1);
   assert.equal(result.diagnostics.prizeCardChanges[0].rootOrdinal,1);
   assert.equal(result.diagnostics.prizeCardChanges[0].removedPrizeCardCount,1);
+  assert.equal(result.diagnostics.prizeCardChanges[0].sourcePlayerId,'source');
+  assert.equal(result.diagnostics.prizeCardChanges[0].candidatePlayerId,'candidate');
   assert.equal(result.hiddenHandReadBeforeCandidateResponse,false);
   assert.equal(result.policyInputModified,false);
   assert.equal(result.paperLegalityCertified,false);
@@ -185,6 +190,8 @@ test('candidate Prize exit without source action remains pending',()=>{
   assert.equal(result.pendingPrizeExits.length,1);
   assert.deepEqual(result.pendingPrizeExits[0].prizeTakingRootOrdinals,[1]);
   assert.deepEqual(result.pendingPrizeExits[0].candidatePrizeRootOrdinals,[1]);
+  assert.equal(result.pendingPrizeExits[0].sourceTurn,null);
+  assert.equal(result.pendingPrizeExits[0].prizeTakingTurn,14);
   assert.equal(result.pendingPrizeExits[0].responsePlayerId,'source');
 });
 
@@ -236,6 +243,7 @@ test('Prize exit without a candidate action is retained as pending evidence',()=
   assert.equal(result.pendingPrizeExits.length,1);
   assert.deepEqual(result.pendingPrizeExits[0].prizeTakingRootOrdinals,[1]);
   assert.deepEqual(result.pendingPrizeExits[0].sourcePrizeRootOrdinals,[1]);
+  assert.equal(result.pendingPrizeExits[0].sourceTurn,1);
 });
 
 test('joins post-action hand changes to the exact projected response root',()=>{
