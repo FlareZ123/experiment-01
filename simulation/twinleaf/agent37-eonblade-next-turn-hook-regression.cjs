@@ -136,11 +136,13 @@ function eonBladeRetreatResetsLock(actorSeat){
   state.activePlayer=actorSeat;state.turn=16;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
-  actor.active.cards.push(card('Latias ex SSP'));
+  const latiasCard=card('Latias ex SSP');
+  actor.active.cards.push(latiasCard);
   for(let i=0;i<3;i++)actor.active.energies.cards.push(card('Psychic Energy MEE'));
   defender.active.cards.push(card('Mega Absol ex M1L'));
+  const unownCard=card('Unown AOR');
   const bench=new PokemonCardList();
-  bench.cards.push(card('Unown AOR'));
+  bench.cards.push(unownCard);
   actor.bench.push(bench);
   for(const p of [actor,defender]){
     for(let i=0;i<8;i++)p.deck.cards.push(card('Psychic Energy MEE'));
@@ -178,9 +180,9 @@ function eonBladeRetreatResetsLock(actorSeat){
     'Latias ex Skyliner removes the Basic Pokémon Retreat Cost');
   store.dispatch(new RetreatAction(actor.id,0));
   const latiasSlot=actor.bench.find(slot=>
-    slot.getPokemonCard()?.name==='Latias ex SSP');
+    slot.getPokemonCard()===latiasCard);
   assert.ok(latiasSlot,'Latias must move to the Bench');
-  assert.equal(actor.active.getPokemonCard().name,'Unown AOR');
+  assert.equal(actor.active.getPokemonCard(),unownCard);
   assert.equal(latiasSlot.cannotAttackNextTurn,false,
     'Retreat must clear the Eon Blade next-turn restriction');
   assert.equal(latiasSlot.cannotAttackNextTurnPending,false,
