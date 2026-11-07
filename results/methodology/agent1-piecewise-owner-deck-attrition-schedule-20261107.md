@@ -137,9 +137,38 @@ These are conditional scenario values, not observed frequencies from the rank-3 
 
 The independent test oracle enumerates each labelled natural-draw card and every top-four subset for small deck sizes 5 through 9, then compares reduced exact fractions against the production dynamic program across all tested Mail/Stone/other-Trainer count combinations. It also checks equivalence with the earlier Mail-only function when no usable Stone is present, the one-Mail closed-form density invariance, the ready-Stone 100% case, and impossible zone counts. The existing manual-only pure cadence lane passed in [workflow run 42401687986](https://github.com/FlareZ123/experiment-01/actions/runs/42401687986), including this expanded exact suite; the owner-deck-attrition-cadence job completed successfully. This is pure mathematical/model validation, not a native game or matchup result.
 
+#### Delayed Supporter gateways: Arven and Teammates
+
+Added the generic export probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways to the same module. It keeps two outcomes separate:
+
+- **Immediate playable access**: the next draw, Handiwork itself, and a usable in-deck/ready Forest Seal Stone. The player can still play Handiwork as the turn's Supporter.
+- **Any hand access**: immediate routes plus conditional Supporter gateways. A found Arven or Teammates puts Handiwork into hand, but consumes the turn's Supporter, so Handiwork can be played only on a later turn.
+
+The conditional gateways are grounded in the rank-3 60 and their printed requirements:
+
+- Each of the four Arven copies is a delayed gateway only when Forest Seal Stone remains in deck, a Pokémon V with an open Tool slot is available, Star Alchemy is unused, and at least one Item target remains for Arven. Arven can find the Stone as a Pokémon Tool; Star Alchemy then finds Handiwork. Arven is the Supporter for the turn, so Handiwork stays in hand.
+- Each of the two Teammates copies is a delayed gateway only when one of the player's Pokémon was Knocked Out during the opponent's last turn. Teammates can search Handiwork directly, but is itself the Supporter for the turn.
+- Trainers' Mail can find either Supporter because both are Trainer cards and neither is Trainers' Mail. If Handiwork or the usable Stone is also among the top four, the model counts immediate access.
+
+The function accepts counts of active delayed gateways in deck and a boolean for a ready delayed gateway already in hand. Inactive Arven/Teammates copies remain ordinary eligible Trainers and must be included in otherTrainerCount. It assumes no other Supporter has been played this turn and that the conditional search effects have legal targets. The exact dynamic program treats target, usable Stone and active delayed gateways as success cards; when none is revealed, it selects one other eligible Trainer if available to thin for later Mail. A separate immediate-only calculation treats delayed gateways as ordinary Trainers. An independent labelled-card subset oracle checks both exact fractions for deck sizes 5 through 9 across immediate/delayed gateway counts and Mail zones.
+
+For the same illustrative 40-card state with one Mail in hand and no Mail in deck, the following rows hold one Handiwork, one physical Stone, four Arven, two Teammates and 15 base other Trainers in the deck. All remaining cards are fillers. The classification changes with the live conditions; inactive gateway cards remain in the ordinary Trainer count.
+
+| Live conditions | Ordinary other Trainers | Active delayed gateways | Immediate playable | Any Handiwork in hand |
+| --- | ---: | ---: | ---: | ---: |
+| Stone usable; Arven and Teammates conditions inactive | 21 | 0 | 23.7179% | 23.7179% |
+| Stone usable; four Arven active; Teammates trigger inactive | 17 | 4 | 23.7179% | 57.7124% |
+| Stone usable; four Arven and two Teammates active | 15 | 6 | 23.7179% | 69.3961% |
+| Stone unusable; Teammates trigger active; Arven inactive | 20 | 2 | 12.5000% | 33.7551% |
+| Stone unusable; all delayed conditions inactive | 22 | 0 | 12.5000% | 12.5000% |
+
+The exact any-hand-access fractions for the five rows are respectively 37/156, 15823/27417, 57079/82251, 667/1976 and 1/8. These are highly conditional scenarios. In particular, the third row assumes all four Arven and both Teammates are still in deck, an Item target remains, a V/Tool slot is available, Star Alchemy is unused, and the Teammates Knock Out condition is live. It is not an estimate of how often the rank-3 list reaches that state.
+
+The manual pure cadence lane passed again in [workflow run 42402261017](https://github.com/FlareZ123/experiment-01/actions/runs/42402261017), including the exhaustive search-gateway oracle. The owner-deck-attrition-cadence job completed successfully. No Twinleaf game or matchup was simulated by this calculation.
+
 Important format caveat: the exact rank-3 list names `Player's Ceremony SP 127`, a Japanese-only S-P promo absent from the repository's English-only card database. Its translated effect draws two cards and ends the turn. Limitless marks it Expanded JP legal and international Expanded not legal ([card record](https://limitlesstcg.com/cards/jp/sp/127?translate=en)). The repository already has a research-side registration in `simulation/twinleaf/card-patches.cjs` and actual Store coverage in `tests/palace_promos_store.test.cjs` and `tests/agent33-players-ceremony-full-action-pinned.test.cjs`; do not build a duplicate hook. What remains unverified is that the exact rank-3 full 60-card builder and full-field runner load this registration. The Aichi benchmark's Japanese-versus-international Expanded legality boundary remains unresolved. The card adds a draw-2 route after Rototiller, with Handiwork playable only on a later turn if drawn. Agent 42's [29-list exact card archive audit](agent42-original-29-exact-card-archive-coverage-20261101.md) already identifies the three Japanese-only promo identities across five authenticated lists; the source inventory remains 29/32, with ranks 23, 25 and 28 missing. See the [field-wide format-boundary correction](../../communications/broadcast/2026-11/20261107T164303Z_agent1_correction-aichi-29-list-audit-existing-promo-hooks.md).
 
-Consequently, the prior iid Handiwork-every-turn stress remains a sensitivity scenario. It is not proven achievable or impossible. The Lusamine/VS Seeker schedule is only one conditional line and must not be treated as a bound on real rank-3 pressure. The next research step is to extend the finite model to delayed Supporter/draw access (especially Arven and Teammates), and then reconstruct the post-Rototiller state distribution from a source-owned full physical deal. Keep same-turn Handiwork play separate from cards merely drawn into hand after a Supporter or turn-ending effect.
+Consequently, the prior iid Handiwork-every-turn stress remains a sensitivity scenario. It is not proven achievable or impossible. The Lusamine/VS Seeker schedule is only one conditional line and must not be treated as a bound on real rank-3 pressure. The next research step is to add the turn-ending draw routes (Rotom V, Tropical Beach and Player's Ceremony) and Lillie's Determination with explicit hand-size and board-state conditions, then reconstruct the post-Rototiller state distribution from a source-owned full physical deal. Keep same-turn Handiwork play separate from cards merely drawn into hand after a Supporter or turn-ending effect.
 
 The manual-only pure CI run [42374053812](https://github.com/FlareZ123/experiment-01/actions/runs/42374053812) passed the new finite-schedule test plus the existing Agent 1 and Agent 2 owner-deck horizon suites. This is mathematical/model validation only; it does not validate the omitted Rototiller/search route.
 
