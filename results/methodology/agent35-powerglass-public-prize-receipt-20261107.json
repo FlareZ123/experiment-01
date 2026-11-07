@@ -1,0 +1,133 @@
+{
+  "schema": "agent35-powerglass-public-accepted-one-prize-v1",
+  "source": "Original Aichi Open League 2026 rank11 printed 60",
+  "candidate": "New Moon Lockbreaker v1 printed 60 engine proxy",
+  "simulatorPinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "treatmentResearchRevision": "a67c4f01e906940a7b060c694cdb1e43c2f5c091",
+  "controlCI": "42333343834",
+  "treatmentCI": "42343871719",
+  "isolatedKoOrderCI": "42344386817",
+  "controlJsonSha256": "7c9c95e37cf9c466d87e053f8ed481844d7acdbc54a619415e8a9d8ab8e5d659",
+  "treatmentJsonSha256": "3bcff7dab646b44db5d5a9f5599ff9f71a5a4848d55c8638e098ce321935a189",
+  "sourceDealFingerprint": "a6e4ba442cc784498de9d2938b47e8e42b6e9591fc07558e505ac2cd9094b317",
+  "fullPhysicalDealFingerprint": "94526e4b7eecefa78cbb7db5bc053cb593e90d20310a680e6510a00c11e702d7",
+  "identicalNativeRootPrefix": 98,
+  "firstDifferentAcceptedAction": {
+    "ordinal": 98,
+    "control": "PassTurnAction",
+    "treatment": "PlayCardAction Powerglass"
+  },
+  "acceptedPhysicalEvents": [
+    {
+      "ordinal": 98,
+      "actorSeat": 1,
+      "action": "PlayCardAction",
+      "detail": "Powerglass"
+    },
+    {
+      "ordinal": 99,
+      "actorSeat": 1,
+      "action": "PassTurnAction",
+      "detail": null
+    },
+    {
+      "ordinal": 100,
+      "actorSeat": 1,
+      "action": "ResolvePromptAction",
+      "detail": "AttachEnergyPrompt"
+    },
+    {
+      "ordinal": 103,
+      "actorSeat": 0,
+      "action": "AttackAction",
+      "detail": "Super Poison Breath"
+    },
+    {
+      "ordinal": 107,
+      "actorSeat": 1,
+      "action": "AttackAction",
+      "detail": "Hidden Power"
+    },
+    {
+      "ordinal": 109,
+      "actorSeat": 1,
+      "action": "ResolvePromptAction",
+      "detail": "AttachEnergyPrompt"
+    },
+    {
+      "ordinal": 110,
+      "actorSeat": 1,
+      "action": "ResolvePromptAction",
+      "detail": "ChoosePrizePrompt"
+    },
+    {
+      "ordinal": 111,
+      "actorSeat": 0,
+      "action": "ResolvePromptAction",
+      "detail": "ChoosePokemonPrompt"
+    },
+    {
+      "ordinal": 118,
+      "actorSeat": 1,
+      "action": "AttackAction",
+      "detail": "Hidden Power"
+    }
+  ],
+  "nativeSettledPrizeKo": {
+    "attackRoot": 107,
+    "prizesBefore": [
+      5,
+      6
+    ],
+    "prizesAfter": [
+      5,
+      5
+    ],
+    "targetBefore": {
+      "printing": "Trubbish FST",
+      "damage": 60,
+      "printedHp": 70
+    },
+    "newSourceActive": "Tapu Lele-GX GRI"
+  },
+  "toolAudit": {
+    "rootsAccepted": 1,
+    "ownerDiscardBasicEnergyTransfers": 2,
+    "rejectedToolRoots": 0
+  },
+  "controlOutcome": {
+    "status": "native-terminal-unqualified",
+    "finished": true,
+    "winner": 0,
+    "nativeRoots": 186,
+    "turns": 35,
+    "remainingPrizes": [
+      0,
+      6
+    ]
+  },
+  "treatmentOutcome": {
+    "status": "root-cap-unqualified",
+    "finished": false,
+    "winner": null,
+    "nativeRoots": 260,
+    "turns": 60,
+    "remainingPrizes": [
+      4,
+      5
+    ]
+  },
+  "nativePromptOrder": {
+    "isolatedNativeStoreReproduced": true,
+    "afterKoBeforePrize": true,
+    "firstDecisionPrompt": "AttachEnergyPrompt",
+    "paperTimingAdjudicated": false
+  },
+  "methodology": {
+    "retrospectiveExposedPhysicalDeal": true,
+    "qualifiedCompetitiveGames": 0,
+    "paperRulesFullyAudited": false,
+    "sourceOpponentPolicyCompetent": false,
+    "estimatedWinRate": null
+  }
+}
