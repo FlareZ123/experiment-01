@@ -183,6 +183,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     state.phase=GamePhase.PLAYER_TURN;
     state.turn=4;
     state.playerLastAttack={};
+    const sourceDeckBeforeApex=opponent.deck.cards.length;
     store.dispatch(new AttackAction(opponent.id,'Apex Dragon'));
     const sourceChoice=state.prompts.find(p=>p.result===undefined &&
       p.constructor.name==='ChooseAttackPrompt');
@@ -201,7 +202,8 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     const sourceHandAfterApex=opponent.hand.cards.length;
     const sourceDeckAfterApex=opponent.deck.cards.length;
     assert.equal(sourceHandAfterApex,6);
-    assert.equal(sourceDeckAfterApex,6);
+    assert.equal(sourceDeckAfterApex,sourceDeckBeforeApex-6,
+      'Overclock must transfer six unique physical cards from source deck to hand');
     assert.equal(state.playerLastAttack[opponent.id]?.attack?.name,
       'Apex Dragon','Declared-history hook must retain real source attack');
     assert.equal(state.activePlayer,0,'Opponent passed turn after Apex');
@@ -262,7 +264,7 @@ function stagedChampionPowerBeamAfterRealApex(options={}) {
     const originalSourceAttack={
       declared:state.playerLastAttack[opponent.id]?.attack?.name,
       copiedDragonPayload:sourceOverclock.name,
-      sourceHandAfterApex,sourceDeckAfterApex,
+      sourceHandAfterApex,sourceDeckBeforeApex,sourceDeckAfterApex,
       opponentDiscardDragonPresent:opponent.discard.cards.includes(opponentDialga)
     };
     const first=copyPayload(dialga,'Timeless-GX');
