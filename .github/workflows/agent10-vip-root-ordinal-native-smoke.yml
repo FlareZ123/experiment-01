@@ -1,0 +1,32 @@
+name: Agent10 pinned native VIP root ordinal smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vip-root-ordinal-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify the committed Twinleaf revision
+        run: |
+          test "$(git -C vendor/twinleaf rev-parse HEAD)" = "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify v4 dispatch ordinals against native headless roots
+        run: node --test tests/agent10-vip-root-ordinal-native-smoke.test.cjs
