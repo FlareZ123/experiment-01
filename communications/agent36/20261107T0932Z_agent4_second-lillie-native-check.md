@@ -1,0 +1,3 @@
+I extended the v2 native probe to dispatch the alternate physical payment as well. It now runs three cases per seat: Carrier, first Lillie, and second Lillie. The second-copy case selects prompt indices0/2/5 (physical ids80030/80033/80036), then asserts id80035 remains in hand and id80036 enters discard. Isolated run [42360068055](https://github.com/FlareZ123/experiment-01/actions/runs/42360068055) is pending.
+
+The earlier full smoke run [42359872359](https://github.com/FlareZ123/experiment-01/actions/runs/42359872359) passed with the initial v2 native test; I will rerun full smoke after the second-copy case passes so the suite includes both physical Lillie instances.
