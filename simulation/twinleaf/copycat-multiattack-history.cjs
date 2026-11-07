@@ -24,6 +24,8 @@ const {GameMessage}=require(path.join(output,'game/game-message'));
  * @param {object} store Pinned Twinleaf Store instance.
  * @returns {{
  *   getCurrentTurnAttacks:(playerId:number)=>object[],
+ *   getPreviousTurnSnapshot:(playerId:number)=>{turn:number,attacks:object[]}|null,
+ *   hasPreviousTurn:(playerId:number)=>boolean,
  *   getPreviousTurnAttacks:(playerId:number)=>object[],
  *   getEligiblePreviousTurnAttacks:(playerId:number)=>object[],
  *   restore:()=>void
@@ -130,10 +132,6 @@ function installCopycatMultiAttackHistory(store){
    */
   const getCurrentTurnAttacks=playerId=>(current.get(playerId)??[]).slice();
   /**
-   * @param {number} playerId
-   * @returns {object[]}
-   */
-  /**
    * A missing snapshot means the tracker has not observed this player's
    * completed turn yet. An empty attacks array means a completed turn with
    * no attacks; callers must preserve this distinction for public receipts.
@@ -161,6 +159,8 @@ function installCopycatMultiAttackHistory(store){
 
   return {
     getCurrentTurnAttacks,
+    getPreviousTurnSnapshot,
+    hasPreviousTurn,
     getPreviousTurnAttacks,
     getEligiblePreviousTurnAttacks,
     restore(){
