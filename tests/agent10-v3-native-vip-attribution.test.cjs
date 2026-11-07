@@ -55,9 +55,12 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
       label:'agent10-v3-native-vip-attribution-'+seed,
       deckA:deck,deckB:deck,seed,maxActions:96,captureDecisionTrace:true
     };
-    const control=withForcedPassPolicy(()=>runMatch(request));
+    const control=withForcedPassPolicy(()=>runMatch({
+      ...request,deckA:[...deck],deckB:[...deck]
+    }));
     const treatment=withForcedPassPolicy(()=>withActorBattleVipAfterPass(
-      ()=>runMatch(request),{SimpleTacticsAi}
+      ()=>runMatch({...request,deckA:[...deck],deckB:[...deck]}),
+      {SimpleTacticsAi}
     ));
     const audit={...treatment.audit,policyRecorded:true};
     assert.equal(audit.rootOrdinalInitialized,true);
