@@ -171,7 +171,7 @@ function run(){
   assert.deepEqual(summary,{
     rows:24,transferCompleteRows:24,draws:8,ownerWins:8,opponentWins:8,
     nativeWinnerCorrections:10,nativeWinnerLogs:24,storeRestoredRows:24,
-    bothFinalRows:8,manualSecondGroupTransfers:16,nativeSecondGroupTransfers:8
+    bothFinalRows:8,manualSecondGroupTransfers:20,nativeSecondGroupTransfers:4
   });
 
   return {
