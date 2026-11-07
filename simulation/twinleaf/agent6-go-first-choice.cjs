@@ -24,6 +24,9 @@ function withGoFirstChoice(goFirstBySeat,run,deps={}){
   const old=Object.getOwnPropertyDescriptor(Bot.prototype,'decodeNextAction');
   assert.equal(typeof old?.value,'function');
   const choices=[];
+  const snapshot=()=>({schema:'agent6-go-first-choice-v1',
+    goFirstBySeat:[...goFirstBySeat],
+    choices:choices.map(choice=>({...choice})),competitiveQualified:false});
   Object.defineProperty(Bot.prototype,'decodeNextAction',{
     ...old,value:function(state){
       const id=this.client?.id;
@@ -38,8 +41,13 @@ function withGoFirstChoice(goFirstBySeat,run,deps={}){
       return old.value.call(this,state);
     }
   });
-  try{return {result:run(),audit:{schema:'agent6-go-first-choice-v1',
-    goFirstBySeat:[...goFirstBySeat],choices,competitiveQualified:false}};}
+  try{return {result:run(),audit:snapshot()};}
+  catch(error){
+    // Preserve the accepted setup choice if a later owner prompt aborts.
+    // The receipt is detached and contains no State/Store or hidden-zone data.
+    if(error&&typeof error==='object')error.goFirstChoiceAudit=snapshot();
+    throw error;
+  }
   finally{Object.defineProperty(Bot.prototype,'decodeNextAction',old);}
 }
 
