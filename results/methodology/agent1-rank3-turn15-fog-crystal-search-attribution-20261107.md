@@ -43,6 +43,8 @@ The separate ordinal-77 decrement is preserved as its own prompt settlement; it 
 
 The repository card pool entry swsh6-140 identifies Fog Crystal as a Trainer Item and marks it Expanded Legal. Its printed effect searches the deck for a Psychic Energy card or a Basic Psychic Pokémon, reveals that card, puts it into the player's hand, then shuffles the deck. This removes exactly one card from the deck. The original rank-1 list contains four copies.
 
+The advanced player's rulebook section H states that deck contents are visible to the searching player but not the opponent. The observer therefore records the owner's played Fog Crystal and the one-card deck decrement, while deliberately omitting the selected deck card identity. This keeps the audit within the owner's visible information boundary. The distinction between measurable deck-survival cost and the searched card's state-dependent tactical value also fits the DCI/AMR framing in resources/human_concepts.md; that document is prior heuristic research, not an authority.
+
 Therefore, the turn-15 owner-side loss of three is **one Fog Crystal deck search plus Mimikyu Filch's two-card draw**. It is not a three-card Filch draw and the third card is not a mandatory turn-start draw.
 
 ## Model impact
