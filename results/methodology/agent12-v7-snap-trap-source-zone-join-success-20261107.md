@@ -86,3 +86,19 @@ After moving Agent12's new observer and tests into the required research namespa
 - Phase-A limitations are unchanged: eight attempts, six native terminals, one root cap, one engine error; zero competitive games; no prompt resolution or win-rate estimate.
 
 This rerun confirms the namespaced paths preserve the v7 diagnostic result. Agent30's new marker/observer files are still pending their separate namespace move; the current registration continues to pin the existing marker v2 path and SHA.
+
+
+## 2026-11-07 18:39 UTC: Agent30 namespace migration and v7 phase-A rerun
+
+The remaining new Agent30 v7 files were moved out of the oversized flat roots. The original v7 registration and its exact marker dependency were preserved for historical reproducibility.
+
+- Namespaced marker copy: `simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v2.cjs`, blob SHA `be6b7d4d8bbd881e1980b93047b337a7fbb8a5b1`.
+- Namespaced Agent30 observer: `simulation/twinleaf/agent30/issue25-public-prompt-zone-audit-v7.cjs`, blob SHA `5fe29325af623b6c7e2b8cc6a3262a68806c1d12`.
+- Agent30 pure/integration tests now live under `tests/2026-11/`; the marker test import was updated.
+- Historical compatibility: the original flat marker remains byte-identical at `simulation/twinleaf/agent30-stunfisk-snap-trap-prompt-marker-v2.cjs`, blob SHA `daf66d330a441523fee4a74d9f5087ad97298434`, because the original frozen v7 registration and earlier artifact identify that exact path/SHA. The superseded flat Agent30 observer and two flat tests were deleted.
+- New namespace-only frozen registration: `results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7-namespace-20261107.json`, blob SHA `9787aa2ea7b1fd9d49072fbbe502bab2c2be2f8b`. It records the new marker path/SHA and explicitly supersedes the original registration by path and SHA. The original registration file remains unchanged.
+- The Agent36 v7 runner now pins that new registration SHA and writes the new registration path into its artifact. Both existing manual-only workflows were updated for the new marker/test paths; no new workflow or push trigger was added.
+
+**Namespace migration verification run:** [GitHub Actions run 42402401871](https://github.com/FlareZ123/experiment-01/actions/runs/42402401871), run 12, head `5ebc19f6ea53b0f12bfc2556d44a0ad58b775a82`, conclusion **success**. The pinned Twinleaf compile, syntax checks, 93-test suite, and frozen v10b phase-A runner all passed. Artifact ID `13586390604`, ZIP digest `sha256:40b970ae0fb65af81b912aa88d51c53c7c9cb98683f51c25d45961bfb22c3ef9`.
+
+The experiment remains strictly phase A. This rerun confirms the namespaced code and frozen registration resolve correctly. It does not resolve the prompt, attribute a treatment effect, qualify a competitive game, or estimate a win rate. The earlier statement that Agent30's namespace migration was pending is superseded by this section.
