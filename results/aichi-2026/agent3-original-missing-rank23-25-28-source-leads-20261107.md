@@ -25,3 +25,16 @@ Limitless names **Yuki Ueno** and categorizes the deck as **Regidrago**. Searche
 An original 60 advances from *missing* to *authenticated name/count inventory* only with a contemporaneous identifiable rank-player source that actually exposes all **60 card names and quantities**, plus source URL, event/date and card-count sum. Preserve uncertainty about exact Japanese artwork/version separately. A matching archetype, player's broad strategic description or a 2025 tweet remains **partial identity evidence**. Retain full field denominator of 32 and maintain the unknown-source statuses in the [source admission ledger](original-printed60-admission-v1.json).
 
 This targeted discovery introduces three concrete leads; it does not change the fixed-60 or competitive qualification decision.
+
+
+## Supplemental archive cross-check (7 November 2026)
+
+A second pass checked the actual [Limitless decklists page](https://limitlesstcg.com/tournaments/566/decklists), not only the event results page. The surrounding decklist sections are present for ranks22/24, 26/27 and 29, while searches for the three missing headings (23rd Yuki Ueno, 25th Kazuki Kumegawa, 28th Jo Kato) return no matching sections. This independently confirms that Limitless does not host the missing 60s in its current decklist export; it does not establish that no other public copy exists.
+
+The [Yuki Ueno player profile](https://limitlesstcg.com/players/6227) and [complete tournament history](https://limitlesstcg.com/players/6227/results) show only the 4 May 2024 Champions League Sapporo 7th-place result. The profile provides no player-specific social link or newer result that bridges an alternate account to the 2026 Aichi rank23 identity. Keep the existing identity boundary.
+
+The [PTCG CAREER 2026 archive](https://ptcg-career.com/decks/archive/2026) and its [published-deck coverage page](https://ptcg-career.com/research/published-decks) list only **eight** CL 2026 Aichi May results, all Top8; its own stated 2026 domestic coverage is CL/PJCS Top8. It therefore cannot supply the missing Top32 inventories. This is a coverage limit, not a negative claim about other sources.
+
+For rank25, the freely visible [kume note article](https://note.com/kume_pokeca/n/n6cfd126f5774) confirms the 25th-place 7-1 record and matchup sequence, but the deck-construction section begins behind the paid boundary. The public page contains no searchable `デッキコード` or `60枚` text. Do not bypass the paywall or infer the list from the archetype, prose, or hypothetical Regidrago reference images.
+
+The PTCGTW mirror/index was also searched by the three player names/aliases and archetypes; it surfaced the same PokeKameshi excerpts but no player-specific missing 60. The rank28 X image URL was not recovered as a verifiable decklist image. None of these checks changes the admission count: **29/32** exact original inventories, three unresolved.
