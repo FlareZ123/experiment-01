@@ -267,5 +267,103 @@ function auditTimeCallPacket(packet) {
     competitiveAdmission:false,externalIndependentReviewRequired:true};
 }
 
+
+/**
+ * Check the ordered shape of an independently reviewed Aichi knockout extension ledger.
+ * The reviewer must attest that every relevant transition is present. This helper
+ * checks sequence continuity and applies the entry-defined rule at each supplied state;
+ * it cannot authenticate the source or prove that an omitted transition does not exist.
+ *
+ * @param {object} packet
+ * @param {object} packet.timeCallPacket
+ * @param {string} packet.extensionLedgerEvidenceRef
+ * @param {boolean} packet.extensionLedgerIndependentlyReviewed
+ * @param {Array<{sequence:number,beforePrizes:[number,number],afterPrizes:[number,number],transitionEvidenceRef:string,paperGameWinner?:0|1|null,paperGameTie?:boolean}>} packet.transitions
+ * @returns {object}
+ */
+function auditExtensionLedger(packet) {
+  assert.ok(packet&&typeof packet==='object');
+  assert.ok(packet.timeCallPacket&&typeof packet.timeCallPacket==='object');
+  const timeCall=auditTimeCallPacket(packet.timeCallPacket);
+  const base={schema:VERSION,stage:packet.timeCallPacket.stage,
+    competitiveAdmission:false,externalIndependentReviewRequired:true,
+    evidenceFieldsRemainExternallyAsserted:true};
+  if(timeCall.status==='INSUFFICIENT_OFFICIAL_TIME_EVIDENCE')
+    return {...base,status:'INSUFFICIENT_OFFICIAL_TIME_EVIDENCE',
+      missing:timeCall.missing};
+  if(timeCall.status==='PAPER_OUTCOME_CONFLICT_ZERO_PRIZE')
+    return {...base,status:'EXTENSION_LEDGER_BLOCKED_BY_PAPER_OUTCOME_CONFLICT',
+      timeCallStatus:timeCall.status};
+  if(timeCall.extensionRule!=='tied-low'&&timeCall.extensionRule!=='both-high')
+    return {...base,status:'EXTENSION_LEDGER_NOT_REQUIRED',
+      timeCallStatus:timeCall.status};
+  const missing=[];
+  const nonempty=x=>typeof x==='string'&&x.trim().length>0;
+  if(!nonempty(packet.extensionLedgerEvidenceRef))
+    missing.push('extension-ledger-source-not-cited');
+  if(packet.extensionLedgerIndependentlyReviewed!==true)
+    missing.push('extension-ledger-independent-review-pending');
+  if(!Array.isArray(packet.transitions)||packet.transitions.length===0)
+    missing.push('extension-transition-ledger-empty');
+  if(missing.length)
+    return {...base,status:'INSUFFICIENT_EXTENSION_LEDGER_EVIDENCE',
+      extensionRule:timeCall.extensionRule,missing};
+  const validPrizes=p=>Array.isArray(p)&&p.length===2&&
+    p.every(n=>Number.isInteger(n)&&n>=0&&n<=6);
+  const samePrizes=(a,b)=>a[0]===b[0]&&a[1]===b[1];
+  let previous=packet.timeCallPacket.prizesRemaining;
+  for(let i=0;i<packet.transitions.length;i++) {
+    const transition=packet.transitions[i];
+    if(!transition||typeof transition!=='object'||
+       transition.sequence!==i+1||
+       !validPrizes(transition.beforePrizes)||
+       !validPrizes(transition.afterPrizes)||
+       !samePrizes(transition.beforePrizes,previous)) {
+      return {...base,status:'INVALID_EXTENSION_LEDGER_SHAPE',
+        extensionRule:timeCall.extensionRule,
+        missing:['extension-transition-sequence-or-prize-chain-invalid'],
+        failedSequence:i+1};
+    }
+    if(!nonempty(transition.transitionEvidenceRef))
+      return {...base,status:'INSUFFICIENT_EXTENSION_LEDGER_EVIDENCE',
+        extensionRule:timeCall.extensionRule,
+        missing:['extension-transition-source-not-cited'],
+        failedSequence:i+1};
+    const paperGameWinner=transition.paperGameWinner??null;
+    const paperGameTie=transition.paperGameTie??false;
+    if((paperGameWinner!==null&&paperGameWinner!==0&&paperGameWinner!==1)||
+       typeof paperGameTie!=='boolean'||
+       (paperGameTie&&paperGameWinner!==null)) {
+      return {...base,status:'INVALID_EXTENSION_LEDGER_SHAPE',
+        extensionRule:timeCall.extensionRule,
+        missing:['extension-paper-outcome-invalid'],
+        failedSequence:i+1};
+    }
+    const result=adjudicateExtension({extensionRule:timeCall.extensionRule,
+      prizesRemaining:transition.afterPrizes,paperGameWinner,paperGameTie});
+    if(result.status==='PAPER_OUTCOME_CONFLICT_ZERO_PRIZE')
+      return {...base,status:'EXTENSION_LEDGER_ZERO_PRIZE_WITHOUT_PAPER_OUTCOME',
+        extensionRule:timeCall.extensionRule,failedSequence:i+1,
+        missing:['independent-normal-win-or-simultaneous-tie-ruling']};
+    if(result.status!=='EXTENSION_CONTINUES') {
+      if(i!==packet.transitions.length-1)
+        return {...base,status:'EXTENSION_LEDGER_POST_TERMINAL_TRANSITION',
+          extensionRule:timeCall.extensionRule,terminalSequence:i+1,
+          extraTransitions:packet.transitions.length-i-1,
+          conditionalWinnerSeat:null};
+      return {...base,status:'EXTENSION_LEDGER_TERMINAL',
+        extensionRule:timeCall.extensionRule,terminalStatus:result.status,
+        terminalSequence:i+1,conditionalWinnerSeat:result.conditionalWinnerSeat,
+        requiresSixPrizeTiebreaker:result.status==='TIEBREAKER_REQUIRED_SIX_PRIZE',
+        extensionLedgerShapeComplete:true};
+    }
+    previous=transition.afterPrizes;
+  }
+  return {...base,status:'EXTENSION_LEDGER_INCOMPLETE',
+    extensionRule:timeCall.extensionRule,lastSequence:packet.transitions.length,
+    lastPrizes:previous,conditionalWinnerSeat:null,
+    extensionLedgerShapeComplete:true};
+}
+
 module.exports={VERSION,STAGES,stageRules,requiredTurnsAfterCall,
-  adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket};
+  adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditExtensionLedger};
