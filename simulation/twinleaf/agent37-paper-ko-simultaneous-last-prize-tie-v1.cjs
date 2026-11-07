@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent37-instance-scoped-simultaneous-last-prize-resolution-v2';
+const VERSION='agent37-instance-scoped-simultaneous-last-prize-resolution-v3';
 const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p @returns {any} */
@@ -302,12 +302,16 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
   return {result,audit};
 }
 
-const withInstanceScopedSimultaneousLastPrizeResolutionV2=
+const withInstanceScopedSimultaneousLastPrizeResolutionV3=
   withInstanceScopedSimultaneousLastPrizeTieV1;
+// Compatibility aliases route old callers to the corrected implementation.
+const withInstanceScopedSimultaneousLastPrizeResolutionV2=
+  withInstanceScopedSimultaneousLastPrizeResolutionV3;
 
 module.exports={
   withInstanceScopedSimultaneousLastPrizeTieV1,
   withInstanceScopedSimultaneousLastPrizeResolutionV2,
+  withInstanceScopedSimultaneousLastPrizeResolutionV3,
   hasPokemonToPromote,
   resolveSimultaneousLastPrizeWinner,
   VERSION,PINNED
