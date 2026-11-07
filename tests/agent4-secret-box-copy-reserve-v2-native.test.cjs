@@ -7,7 +7,7 @@ const {probeSecretBoxCopyReserveV2Payment}=
 
 test('count-based reserve frontier representatives settle on native prompts in both seats',()=>{
   for(const seat of [0,1]){
-    for(const candidate of ['carrier','lillie']){
+    for(const candidate of ['carrier','lillie','lillie-second']){
       const {result,audit}=probeSecretBoxCopyReserveV2Payment(seat,candidate);
       console.log('AGENT4_SECRET_BOX_COPY_RESERVE_V2_NATIVE '+JSON.stringify({result,audit}));
       assert.equal(result.rootError,null);
@@ -41,15 +41,27 @@ test('count-based reserve frontier representatives settle on native prompts in b
       assert.equal(lillieRow.softCapacityShortfall,0);
       assert.equal(result.selectedPhysicalUniqueCount,3);
       assert.equal(new Set(result.selectedPhysicalIds).size,3);
-      assert.deepEqual(result.selectedCards,candidate==='carrier'?[
+      const expectedThird=candidate==='carrier'?
+        {promptIndex:3,physicalId:80034,printing:'Rescue Carrier EVS'}:
+        candidate==='lillie'?
+          {promptIndex:4,physicalId:80035,printing:"Lillie's Determination M1L"}:
+          {promptIndex:5,physicalId:80036,printing:"Lillie's Determination M1L"};
+      assert.deepEqual(result.selectedCards,[
         {promptIndex:0,physicalId:80030,printing:'Battle VIP Pass FST'},
         {promptIndex:2,physicalId:80033,printing:'Battle VIP Pass FST'},
-        {promptIndex:3,physicalId:80034,printing:'Rescue Carrier EVS'}
-      ]:[
-        {promptIndex:0,physicalId:80030,printing:'Battle VIP Pass FST'},
-        {promptIndex:2,physicalId:80033,printing:'Battle VIP Pass FST'},
-        {promptIndex:4,physicalId:80035,printing:"Lillie's Determination M1L"}
+        expectedThird
       ]);
+      assert.deepEqual(result.adapter.representativePaymentIndices,
+        candidate==='carrier'?[0,2,3]:[0,2,4]);
+      assert.deepEqual(result.adapter.selectedPromptIndices,
+        [0,2,expectedThird.promptIndex]);
+      assert.deepEqual(result.selectedPhysicalIds,
+        [80030,80033,expectedThird.physicalId]);
+      assert.deepEqual(result.discardedLilliePhysicalIds,
+        candidate==='carrier'?[]:[expectedThird.physicalId]);
+      assert.deepEqual(result.remainingLilliePhysicalIds,
+        candidate==='carrier'?[80035,80036]:
+          candidate==='lillie'?[80036]:[80035]);
       assert.equal(result.nativeValidatorAccepted,true);
       assert.equal(result.paymentError,null);
       assert.equal(result.paymentSettled,true);
