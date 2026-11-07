@@ -8,8 +8,10 @@ No native game was rerun by this intervention; no competitive games qualify.
 The original Aichi 29-deck roster calls the 2025 Mega Evolution Lillie's Determination
 `Lillie's Determination MEG`. The existing exact-print bulk-hand model knows
 that key and its English source ID `me1-119`, but the independently frozen
-New Moon English-mechanics-proxy 60 holds the same card in Twinleaf under
-`Lillie's Determination M1L`. Consequently the model's previous exact
+New Moon English-mechanics-proxy 60 holds the Japanese Mega Brave printing
+under Twinleaf's `Lillie's Determination M1L` name. `M1L` #62 and
+English Mega Evolution `MEG` #119 are **different physical printings of the
+same named Supporter with equivalent game text**. Consequently the model's previous exact
 `Object.hasOwn(BULK_HAND_PRINTS,row.printing)` lookup classified those
 candidate-held copies as **unmodeled**. This is particularly relevant because
 the shared v9 original rank-11 vs New Moon native game observed **13 candidate
@@ -20,12 +22,21 @@ Exact provenance:
   "Shuffle your hand into your deck. Then, draw 6 cards. If you have exactly 6
   Prize cards remaining, draw 8 cards instead." The input card-list ZIP has
   the same ID and effect; its Expanded legality field is Legal.
-- `results/als/new-moon-lockbreak-english-proxy-60.json` lists 2 physical
-  `me1-119` proxy cards; the actual actor-native archived hands name them
-  `Lillie's Determination M1L` (e.g. root 93).
-- The original-field bulk rule remains keyed by MEG and has the **same source
-  card ID**. This one explicit native-fullName alias does **not** infer general
-  equivalence between different card names or arbitrary set codes.
+- `results/als/new-moon-lockbreak-english-proxy-60.json` lists two
+  English-mechanics proxy `me1-119` entries; the actual actor-native
+  archived hands name them `Lillie's Determination M1L` (e.g. root 93).
+  The roster's English proxy identifier is **not the Japanese physical ID**.
+- Japanese Mega Brave `M1L` #62 independently prints the same shuffle-
+  hand/draw-six-or-eight effect, as recorded at
+  [Limitless Japanese #62](https://limitlesstcg.com/cards/jp/M1L/62?translate=en).
+  [Official English card text](https://asia.pokemon-card.com/my/card-search/detail/21711/)
+  agrees. This is a vetted effect-equivalence assertion; it does not identify
+  which Japanese artwork or physical #62/#86/#91 was played in a given match.
+- The original-field bulk rule remains keyed by English MEG and supplies
+  **English source text reference ID `me1-119`**. The Japanese printing's
+  distinct physical ID is retained through the original `M1L` name. This
+  one explicit native-fullName alias never infers equivalence between
+  unrelated cards or arbitrary set codes.
 
 ## Change and observed result
 
@@ -45,7 +56,7 @@ the two separately considered Lillie alternatives now reports:
 | Field | Verified resource-accounting value |
 | --- | --- |
 | Known effect and original physical printing | Yes; M1L preserved |
-| Matched exact source card ID | `me1-119` |
+| English effect reference | `me1-119` (distinct Japanese `M1L` physical printing) |
 | Other physical cards that would be shuffled | **9** |
 | Printed draw request with six remaining Prizes | **8** |
 | Held Secret Box TWM moved out of hand | **Yes**, into the deck |
