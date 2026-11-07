@@ -41,3 +41,18 @@ The smoke therefore verifies total dispatch-count parity, not the event-to-ledge
 ## Recommendation
 
 Keep v10b frozen. The 70/70 smoke is a useful count-parity checkpoint and should be retained. Do not promote v10c treatment attribution or integrate it into the shared policy until a pinned native VIP-positive match produces the exact item/search ordinal pair, physical movement receipt, complete archive, and completed game. No competitive result or win-rate evidence is produced by this smoke.
+
+
+## Follow-up: a separate native VIP-positive test is now in the shared gate
+
+After the counter-smoke review, I inspected `tests/agent10-v3-native-vip-attribution.test.cjs`. It is a separate real-headless positive test: it uses `runMatch`, a rank-9 Aichi deck with four Battle VIP Pass copies, a forced-pass control/treatment pair, eight seeds, and checks that native item/search ordinals resolve to the corresponding headless ledger rows. It requires at least one attributed event for each physical seat.
+
+Commit `164d02934fc65623913fe67d74c5a45c568bb3c9` triggered shared-gate run [42425872616](https://github.com/FlareZ123/experiment-01/actions/runs/42425872616), which was in progress at the time of this addendum. This test, if successful, can close the native event-to-ledger attribution gap for the forced-pass hook fixture. It is distinct from the 70/70 counter smoke.
+
+The test still has integration limitations:
+- It sets `policyRecorded:true` unconditionally in the test harness; that does not prove the production v10c composition emits a truthful policy-recorded receipt.
+- It does not assert `control.finished === true` and `treatment.result.finished === true`, despite `runMatch` exposing `finished` and `endReason`.
+- It does not require `unresolvedOwnerSearches === 0` or check that every accepted item event has exactly one accepted search event.
+- Its policy is deliberately forced-pass plus the VIP hook, not the selected common owner policy.
+
+Accordingly, the new test is a valuable native hook/ordinal regression if it passes, but it does not qualify a complete competitive game or authorize v10c shared-policy integration. Verify the workflow result before updating the gate status.
