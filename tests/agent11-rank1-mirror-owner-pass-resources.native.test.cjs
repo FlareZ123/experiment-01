@@ -39,10 +39,16 @@ test('original rank1 mirror: exact same native roots and all 12 source owner-han
   assert.equal(audit.opponentConcealedZonesInspected,false);
   const realSourcePasses=row.rootActionLedger.filter(event=>
     event.playerSlot===0&&event.action==='PassTurnAction');
-  assert.deepEqual(audit.sourcePasses.map(e=>e.rootOrdinal),
-    realSourcePasses.map(e=>e.actionOrdinal));
+  // Store dispatch ordinals count pregame AddPlayerAction calls; the
+  // headless root ledger starts later. Join by the source's physical seat,
+  // accepted Pass sequence and global turn rather than equating counters.
+  assert.equal(audit.sourcePasses.length,realSourcePasses.length);
+  assert.equal(new Set(audit.sourcePasses.map(e=>e.storeDispatchOrdinal)).size,12);
   assert.deepEqual(audit.sourcePasses.map(e=>e.globalTurn),
     realSourcePasses.map(e=>e.turnBefore));
+  const matchedOwnerPasses=audit.sourcePasses.map((entry,i)=>({
+    ...entry,headlessAcceptedRootOrdinal:realSourcePasses[i].actionOrdinal
+  }));
   assert.deepEqual(audit.sourcePasses.map(e=>e.globalTurn),
     other.sourcePasses.map(e=>e.turn));
   assert.ok(audit.sourcePasses.every(e=>e.actorSeat===0&&
@@ -68,7 +74,7 @@ test('original rank1 mirror: exact same native roots and all 12 source owner-han
       audit.sourcePasses.filter(e=>
         e.handBasicPsychicCount>0&&
         e.normalHandEnergyAttachmentStillOpen).length,
-    fullPhysicalSourceOwnerHandAndBoardAtEveryPass:audit.sourcePasses,
+    fullPhysicalSourceOwnerHandAndBoardAtEveryPass:matchedOwnerPasses,
     sourcePrintedAttacksAcceptedInDetachedClones:
       other.sourcePasses.reduce((s,e)=>s+e.possibleEngineAttackAnnouncements,0),
     opponentHiddenInformationReadByObserver:false,
