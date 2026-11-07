@@ -1,0 +1,40 @@
+{
+  "schema": "agent36-issue25-public-prompt-zone-diagnostic-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-07T15:10:15.945Z",
+  "purpose": "Read-only phase-A capture of public prompt source and CardList zone for the v10b owner-information fallback. No prompt resolution, no policy changes, no A/B/A treatment attribution.",
+  "sourceRunnerPath": "simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs",
+  "sourceRunnerGitBlobSha": "e4ea259dbfedc623b90c2f06321432368c89e8f5",
+  "sourceRunnerVersion": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json",
+  "sourceRegistrationGitBlobSha": "b92ca134da7abf90efd0c0f975f8a9a91f7943a8",
+  "sourceRegistrationSchema": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceTrialIds": [
+    "1:311:A:champion-reference",
+    "1:311:A:new-moon-lockbreaker-v1",
+    "3:312:B:champion-reference",
+    "3:312:B:new-moon-lockbreaker-v1",
+    "6:313:A:champion-reference",
+    "6:313:A:new-moon-lockbreaker-v1",
+    "11:314:B:champion-reference",
+    "11:314:B:new-moon-lockbreaker-v1"
+  ],
+  "phase": "A",
+  "nativeRootActionLimit": 260,
+  "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observerPath": "simulation/twinleaf/agent36-issue25-public-prompt-zone-audit.cjs",
+  "observerGitBlobSha": "45da0bf726c7d4b855030cab58cc2ee2cb22b35d",
+  "observerVersion": "agent36-issue25-public-prompt-zone-audit-v1",
+  "capturedFields": [
+    "prompt.sourceCard fullName only when the source card is publicly visible",
+    "exact and subset reference matches against owner/opponent hand, deck, Prize, discard, Lost Zone, Active Energy and Bench Energy zones",
+    "public attached Energy printings and counts only when the prompt target zone is public",
+    "prompt min/max/allowCancel/isSecret/filter keys",
+    "live Store state identity, turn, phase, prompt owner seat, active-player seat",
+    "current and last AttackAction fingerprints with public Active printings and attached Energy"
+  ],
+  "privacyBoundary": "No concealed hand, deck or Prize card identities are emitted. The observer never changes a prompt, chooses a card, or modifies a Store action.",
+  "expectedFallback": "One live owner ChooseCardsPrompt with message CHOOSE_CARD_TO_DISCARD at turn 54 in trial 3:312:B:champion-reference. The exact source and target zone remain unknown until this observer runs.",
+  "treatmentAttributionComputed": false,
+  "competitiveGamesQualified": 0
+}
