@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      probe_agent7_root93_source_attack:
+        description: 'Stage source actual Super Poison Breath next-turn reply against Powerglass in both seats'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -39,7 +44,7 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Existing prompt integrity regression (independent from opt-in KO timing)
-        if: ${{ !inputs.probe_ko_prize_order && !inputs.probe_agent7_root93_unown_powerglass && !inputs.probe_agent7_root93_prize_followup }}
+        if: ${{ !inputs.probe_ko_prize_order && !inputs.probe_agent7_root93_unown_powerglass && !inputs.probe_agent7_root93_prize_followup && !inputs.probe_agent7_root93_source_attack }}
         run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
       - name: Run registered Powerglass KO Prize sequence probe
         if: ${{ inputs.probe_ko_prize_order }}
@@ -71,6 +76,19 @@ jobs:
         with:
           name: agent7-root93-powerglass-postattack-prize-stage
           path: agent7-root93-powerglass-prize-native.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Four-arm observed source Super Poison Breath reply to held-Powerglass line
+        if: inputs.probe_agent7_root93_source_attack
+        run: node simulation/twinleaf/agent7-root93-unown-powerglass-source-attack-native.cjs > agent7-root93-powerglass-superpoison.json
+      - name: Show native attack, Poison, candidate KO and actual Prize receipts
+        if: inputs.probe_agent7_root93_source_attack
+        run: node -e "const r=require('./agent7-root93-powerglass-superpoison.json');console.log(JSON.stringify(r,null,2))"
+      - uses: actions/upload-artifact@v4
+        if: inputs.probe_agent7_root93_source_attack && always()
+        with:
+          name: agent7-root93-powerglass-superpoison-fourarm
+          path: agent7-root93-powerglass-superpoison.json
           retention-days: 14
           if-no-files-found: warn
       - uses: actions/upload-artifact@v4
