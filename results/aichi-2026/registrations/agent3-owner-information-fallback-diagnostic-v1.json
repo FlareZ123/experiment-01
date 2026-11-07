@@ -1,0 +1,52 @@
+{
+  "schema": "agent3-owner-information-fallback-diagnostic-v1",
+  "status": "diagnostic-only",
+  "purpose": "Capture the exact native raw-State fallback quarantine record produced by the v10b owner-ability policy composition. This run performs phase A only and computes no treatment attribution.",
+  "diagnosticRunnerPath": "simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs",
+  "diagnosticRunnerVersion": "agent3-owner-information-fallback-diagnostic-v1",
+  "sourceRunnerPath": "simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs",
+  "sourceRunnerVersion": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceRunnerGitBlobSha": "e4ea259dbfedc623b90c2f06321432368c89e8f5",
+  "sourceRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json",
+  "sourceRegistrationSchema": "agent36-issue25-common-v10b-paired-fresh-aba-260root-v1",
+  "sourceRegistrationGitBlobSha": "b92ca134da7abf90efd0c0f975f8a9a91f7943a8",
+  "sourceTrialIds": [
+    "1:311:A:champion-reference",
+    "1:311:A:new-moon-lockbreaker-v1",
+    "3:312:B:champion-reference",
+    "3:312:B:new-moon-lockbreaker-v1",
+    "6:313:A:champion-reference",
+    "6:313:A:new-moon-lockbreaker-v1",
+    "11:314:B:champion-reference",
+    "11:314:B:new-moon-lockbreaker-v1"
+  ],
+  "phase": "A",
+  "nativeRootActionLimit": 260,
+  "expectedQuarantineRecordFields": [
+    "seat",
+    "turn",
+    "phase",
+    "decisionKind",
+    "promptType"
+  ],
+  "policyComposition": [
+    "withCommonOwnerThornsRoot",
+    "withOwnerVoltAcrossNativeMatches",
+    "withStewardInnermostOwnerPrompts",
+    "withStewardOwnerPromptFrontier",
+    "withOwnerAbilityConfirmPolicy",
+    "withOwnerTelepathicBenchSearch",
+    "withRadiantZeroGateHook",
+    "withTelepathInsideNativeMatches",
+    "withNativeRawStateFallbackQuarantine"
+  ],
+  "treatmentAttributionComputed": false,
+  "competitiveGamesQualified": 0,
+  "winRateEstimate": null,
+  "paperLegalityQualified": false,
+  "notes": [
+    "This diagnostic is not the v10b A/B/A experiment and does not compute first-treatment-difference attribution.",
+    "The native raw-State fallback quarantine remains enabled and fail-closed.",
+    "The source runner and registration are pinned by Git blob SHA. Any source change requires a new diagnostic registration."
+  ]
+}
