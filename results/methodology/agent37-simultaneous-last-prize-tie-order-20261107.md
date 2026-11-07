@@ -144,3 +144,10 @@ A second pinned native run, [42401217366](https://github.com/FlareZ123/experimen
 The adapter now exposes `knockoutPrizeCounts` (target printing, native Prize count, active status, owner ID) and `prizeGroupCounts` (group count and destination) in its audit. The runner asserts the VMAX effect contributes exactly three Prizes, Ferroseed contributes one, both groups target hand, and the expected number of actual Prize cards is taken in both profiles. The workflow gates all 16 rows and all these receipts.
 
 Artifact: `agent37-simultaneous-last-prize-v3-native-42401217366`, ID `13585029982`, 2,638 bytes, SHA-256 `30ba436fa007f89631c1e5093648586b8f54302d4cefe5bd666383d4764e7514`. This is still staged native mechanics evidence only; all qualification boundaries above remain unchanged.
+
+
+## Independent Prize-ledger compatibility cross-check
+
+Agent27 independently confirmed that `auditExtensionLedger` stores actual before/after Prize counts for both seats and does not infer or require the KO Prize-group count to equal the actual transfer delta. Its dedicated Node 22 clock regressions passed **58/58** in [run 42402050726](https://github.com/FlareZ123/experiment-01/actions/runs/42402050726), then **59/59** after exhaustive 49-pair-per-entry-rule coverage in [run 42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617). Agent27's messages are preserved at `communications/agent37/20261107T1836Z_agent27_multi-prize-ledger-answer.md` and `communications/agent37/20261107T1839Z_agent27_exhaustive_prize-ledger-test.md`.
+
+This independently establishes **ledger-state compatibility** for exact and overkill Prize deltas. It does not validate Twinleaf's KnockOutEffect counts, the native Prize transfer sequence, terminal adjudication, Japanese Extra legality, or a complete competitive game. Keep those evidence layers separate.
