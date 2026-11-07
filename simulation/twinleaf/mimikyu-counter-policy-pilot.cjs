@@ -3,7 +3,7 @@
 const path = require('node:path');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {initializeCards, runMatch} = require('./headless.cjs');
-const {isCopycatApexTimelessSituation} = require('./mimikyu-counter-policy.cjs');
+const {copycatApexResponseKind} = require('./mimikyu-counter-policy.cjs');
 const {deriveSlotSeeds} = require('../../scripts/aichi-decorrelated-seeds.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -29,20 +29,24 @@ function runSourcePolicyTrace(request, candidateSeat) {
   SimpleTacticsAi.prototype.decodeNextAction = function trace(state) {
     const seat = state.players.findIndex(p => p.id === this.client.id);
     const player = state.players[seat];
-    const eligible = seat === candidateSeat && player &&
+    const responseKind = seat === candidateSeat && player &&
       state.phase === GamePhase.PLAYER_TURN &&
-      state.activePlayer === candidateSeat &&
-      isCopycatApexTimelessSituation(state, player);
+      state.activePlayer === candidateSeat ?
+        copycatApexResponseKind(state, player) : null;
     const action = original.call(this, state);
-    if (eligible) {
+    if (responseKind) {
       observedChoices += 1;
       if (eligibleChoices.length < 40) {
         eligibleChoices.push({
           turn: state.turn,
+          responseKind,
           active: player.active.getPokemonCard()?.fullName,
           lastOpponentAttack: 'Apex Dragon',
-          ownDiscardHasDialgaGX: true,
-          gxUnspent: true,
+          ownDiscardHasDialgaGX: player.discard.cards.some(card =>
+            card.fullName === 'Dialga-GX UPR'),
+          ownDiscardHasRadiantEternatus: player.discard.cards.some(card =>
+            card.fullName === 'Radiant Eternatus CRZ'),
+          gxUsed: player.usedGX === true,
           chosenAction: action?.constructor?.name || null,
           chosenAttack: action?.constructor?.name === 'AttackAction' ?
             action.name : null
@@ -89,7 +93,7 @@ function runMimikyuCounterSourcePilot() {
         seed: championSeat === 0 ? seeds.A : seeds.B,
         maxActions: 1200,
         label: 'Mimikyu public Copycat source pilot ' +
-          rankOrder.join('-') + ' ' + (experimental ? 'counter-v1' : 'baseline'),
+          rankOrder.join('-') + ' ' + (experimental ? 'counter-v2' : 'baseline'),
         isolatePolicyRandomness: true,
         mimikyuApexCopycatCompatibility: true,
         mimikyuDeclaredHistoryCorrection: true,
@@ -99,7 +103,7 @@ function runMimikyuCounterSourcePilot() {
         ...(experimental ? {mimikyuApexTimelessPolicySeat: championSeat} : {})
       };
       const base = {ranks: rankOrder, candidateSeat: championSeat,
-        policy: experimental ? 'public-copycat-response-v1' : 'base-with-semantic-corrections',
+        policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
         const {game, eligibleChoices, observedChoices} =
