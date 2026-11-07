@@ -18,7 +18,8 @@ function slotCards(zone) {
 /**
  * Offline-only extraction from the first stable pre-action PLAYER_TURN root.
  * At this point opening Basics have left the initial seven and occupy Active
- * or Bench. Opponent mulligan compensation may have added further hand cards.
+ * or Bench. Mulligan compensation and the starting player's first turn
+ * draw can add further hand cards before this root.
  * The returned private zone names must never be supplied to a deciding bot.
  *
  * @param {object} state Real pinned Store state.
@@ -70,7 +71,7 @@ function summarizeCopycatInitialPhysicalZones(state, sourceSeat, expectedVCopies
     heldSealWithInPlayV: oneCorePrized && physicalLocations.ball === 'deck' &&
       physicalLocations.seal === 'opening' && countV(inPlay) > 0,
     initialSevenComparable: false,
-    note: 'Postsetup includes staged Basics and may include opponent-mulligan bonus cards. Offline telemetry only.'
+    note: 'Postsetup includes staged Basics, possible mulligan bonus cards and the starting player draw. Offline telemetry only.'
   });
 }
 
