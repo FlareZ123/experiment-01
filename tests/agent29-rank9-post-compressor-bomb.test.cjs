@@ -64,7 +64,8 @@ class Store{
 function fixture(seat){
   const electrode={fullName:'Electrode-GX CES'};
   const mega={fullName:'Mega Absol ex M1L'};
-  const source={id:102,active:{card:electrode,getPokemonCard(){return this.card;}},
+  const source={id:102,active:{card:electrode,energies:{cards:[]},
+    getPokemonCard(){return this.card;}},
     bench:[{getPokemonCard:()=>mega,energies:{cards:[]}}],
     discard:{cards:[
       {fullName:'Prism Energy ASC',id:1},
