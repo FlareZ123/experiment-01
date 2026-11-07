@@ -1,5 +1,7 @@
 'use strict';
 
+const VERSION='agent6-go-first-choice-v1';
+
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -51,4 +53,4 @@ function withGoFirstChoice(goFirstBySeat,run,deps={}){
   finally{Object.defineProperty(Bot.prototype,'decodeNextAction',old);}
 }
 
-module.exports={withGoFirstChoice};
+module.exports={VERSION,withGoFirstChoice};
