@@ -230,6 +230,55 @@ test('v9 native abort lacking verified actual physical seats fails closed',()=>{
     'Unverified Store seats must never be invented from registration');
 });
 
+test('native source-deal authenticated error carries its complete 32 accepted roots into shared census',()=>{
+  const roots=Array.from({length:32},(_,i)=>({
+    actionOrdinal:i,playerSlot:i%2,turnBefore:1+Math.floor(i/10),
+    action:i===31?'AttackAction':'ResolvePromptAction'
+  }));
+  const digest=rootDigest(roots);
+  const row=summarizeNativeAttempt({
+    id:'11:1000:B:new-moon-lockbreaker-v1',
+    trial:{id:'11:1000:B:new-moon-lockbreaker-v1',rank:11,
+      repeat:1000,candidateSlot:'B',candidateId:'new-moon-lockbreaker-v1',
+      seed:626469135},
+    error:'Sanitized source decoder failure',
+    sourceDealFingerprint:'a'.repeat(64),
+    nativeAbortProvenance:{
+      sourceSeat:0,sourceDealStatus:'VERIFIED',
+      acceptedRootLedgerStatus:'VERIFIED',
+      paperLegalGameCertified:false
+    },
+    nativeAbortEvidence:{
+      schema:'headless-native-abort-public-v1',
+      rootActionLedger:roots,rootActionCount:32,
+      rootActionLedgerSha256:digest,failureStage:'bot-decoder'
+    }
+  });
+  assert.equal(row.nativeOutcome,'engine-error');
+  assert.equal(row.rootActionCount,32);
+  assert.equal(row.publicRootLedgerSha256Computed,digest);
+  const attempt=toGateAttempt(row);
+  assert.equal(attempt.sourceDealFingerprint,'a'.repeat(64));
+  assert.equal(attempt.nativeAbortProvenance.sourceDealStatus,'VERIFIED');
+  assert.equal(attempt.originalSourceSeat,null);
+  assert.equal(attempt.candidateSeat,null);
+  const screen=screenArchivedReciprocalAttempts({attempts:[attempt]});
+  assert.equal(screen.attemptedContexts,1);
+  assert.equal(screen.verifiedRootLedgerContexts,1);
+  assert.equal(screen.quarantinedContexts,0);
+  assert.equal(screen.rows[0].rootCount,32);
+  assert.equal(screen.rows[0].sourceSeat,0);
+  assert.equal(screen.rows[0].opponentSeat,1);
+  assert.equal(screen.competitiveGamesQualified,0);
+
+  const noProof=toGateAttempt({...row,
+    nativeAbortProvenance:{...row.nativeAbortProvenance,
+      sourceDealStatus:'NOT_CAPTURED'}});
+  const veto=screenArchivedReciprocalAttempts({attempts:[noProof]});
+  assert.equal(veto.quarantinedContexts,1);
+  assert.equal(veto.competitiveGamesQualified,0);
+});
+
 test('Agent45 structural evaluation never admits this one-game probe',()=>{
   const roots=[
     {actionOrdinal:0,playerSlot:0,turnBefore:1,action:'PlayCardAction'},
