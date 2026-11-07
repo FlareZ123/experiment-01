@@ -181,6 +181,92 @@ function run(){
     };
   });
 
+  const opponentOnlyPromotionAvailability=[0,1].map(actorSeat=>{
+    const treatment=runOne(
+      actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV3,1,true,true,false
+    );
+    const result=treatment.result,a=treatment.audit;
+    assert.equal(result.finished,true);
+    assert.equal(result.winnerSeat,1-actorSeat);
+    assert.equal(result.winnerPlayer,'opponent');
+    assert.equal(result.ownerPrizesRemaining,0);
+    assert.equal(result.opponentPrizesRemaining,0);
+    assert.equal(a.knockoutEffects,2);
+    assert.equal(a.activeKoPlayerIds.length,2);
+    assert.equal(a.prizeGroupCount,2);
+    assert.equal(a.firstPlayerCanPromote,actorSeat===1);
+    assert.equal(a.otherPlayerCanPromote,actorSeat===0);
+    assert.equal(a.promotionAvailabilitySymmetric,false);
+    assert.equal(a.simultaneousLastPrizeCandidate,true);
+    assert.equal(a.secondPrizeTransferAttempted,true);
+    assert.equal(a.secondPrizeTransferCompleted,true);
+    assert.equal(a.tieApplied,false);
+    assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_2:GameWinner.PLAYER_1);
+    assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assert.equal(a.nativeWinnerName,actorSeat===0?'Ferroseed attacker':'Duskull defender');
+    assert.equal(a.nativeWinnerPlayerId,actorSeat===0?101:202);
+    assert.equal(a.winnerOverridden,actorSeat===0);
+    assert.equal(a.winnerLogHandled,true);
+    assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.winnerLogName,'Duskull defender');
+    assert.deepEqual(a.winnerLogParams,{name:'Duskull defender'});
+    assert.equal(a.winnerLogRewritten,actorSeat===0);
+    return {
+      actorSeat,
+      firstPlayerCanPromote:a.firstPlayerCanPromote,
+      otherPlayerCanPromote:a.otherPlayerCanPromote,
+      nativeWinner:a.nativeWinner,
+      expectedWinner:a.expectedWinner,
+      winnerOverridden:a.winnerOverridden,
+      winnerLogName:a.winnerLogName,
+      winnerSeat:result.winnerSeat
+    };
+  });
+
+  const neitherCanPromote=[0,1].map(actorSeat=>{
+    const treatment=runOne(
+      actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV3,1,true,false,false
+    );
+    const result=treatment.result,a=treatment.audit;
+    assert.equal(result.finished,true);
+    assert.equal(result.winner,GameWinner.DRAW);
+    assert.equal(result.winnerSeat,null);
+    assert.equal(result.winnerPlayer,null);
+    assert.equal(result.ownerPrizesRemaining,0);
+    assert.equal(result.opponentPrizesRemaining,0);
+    assert.equal(result.ownerActive,null);
+    assert.equal(result.opponentActive,null);
+    assert.equal(result.promotionOrder.length,0);
+    assert.equal(a.knockoutEffects,2);
+    assert.equal(a.activeKoPlayerIds.length,2);
+    assert.equal(a.prizeGroupCount,2);
+    assert.equal(a.firstPlayerCanPromote,false);
+    assert.equal(a.otherPlayerCanPromote,false);
+    assert.equal(a.promotionAvailabilitySymmetric,true);
+    assert.equal(a.simultaneousLastPrizeCandidate,true);
+    assert.equal(a.secondPrizeTransferAttempted,true);
+    assert.equal(a.secondPrizeTransferCompleted,true);
+    assert.equal(a.tieApplied,true);
+    assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assert.equal(a.expectedWinner,GameWinner.DRAW);
+    assert.equal(a.winnerOverridden,true);
+    assert.equal(a.winnerLogHandled,true);
+    assert.equal(a.winnerLogMessage,GameLog.LOG_GAME_FINISHED_DRAW);
+    assert.equal(a.winnerLogName,null);
+    assert.equal(a.winnerLogParams,null);
+    assert.equal(a.winnerLogRewritten,true);
+    return {
+      actorSeat,
+      firstPlayerCanPromote:a.firstPlayerCanPromote,
+      otherPlayerCanPromote:a.otherPlayerCanPromote,
+      nativeWinner:a.nativeWinner,
+      expectedWinner:a.expectedWinner,
+      winnerOverridden:a.winnerOverridden,
+      winnerLogMessage:a.winnerLogMessage,
+      terminalOutcome:a.terminalOutcome
+    };
+  });
+
   return {
     schema:'agent37-simultaneous-last-prize-resolution-native-v3',
     pinnedTwinleaf:PINNED,
@@ -193,11 +279,14 @@ function run(){
     singlePlayerLastPrizeControlPreserved:true,
     nonHandPrizeDestinationControlPreserved:true,
     asymmetricPromotionAvailabilityWinnerCorrected:true,
+    opponentOnlyPromotionWinnerCorrected:true,
+    neitherPromotableTieCorrected:true,
     mixedTerminalRowsSupported:true,
     competitiveGamesQualified:0,
     rows,
     controls:{
-      singleLastPrize,nonHandDestination,asymmetricPromotionAvailability
+      singleLastPrize,nonHandDestination,asymmetricPromotionAvailability,
+      opponentOnlyPromotionAvailability,neitherCanPromote
     }
   };
 }
