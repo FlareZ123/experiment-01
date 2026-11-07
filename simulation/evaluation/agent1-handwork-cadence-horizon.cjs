@@ -1012,6 +1012,125 @@ function probabilityHandiworkInHandDuringHorrorHouseLock(
   };
 }
 
+
+const FSS_READY_ACCESS_VERSION='agent1-rank3-fss-ready-by-mail-arven-v1';
+
+/**
+ * Exact conditional probability that the rank-3 list's Forest Seal Stone
+ * becomes attachable/ready before a later hand-play lock, using natural draw,
+ * Trainers' Mail and Arven.
+ *
+ * Arven is a gateway only when FSS is in deck, a Pokémon V has an open Tool
+ * slot, Star Alchemy is unused, and an Item target remains. An Arven found by
+ * Mail or natural draw consumes the turn's Supporter, then searches FSS as a
+ * Pokémon Tool. A found FSS can be attached and used immediately. The model
+ * assumes no relevant lock or disruption and that the player attaches FSS as
+ * soon as it is accessed.
+ *
+ * If Arven conditions are not live, pass arvenInDeck=0 and include those
+ * inactive Arven copies in otherTrainerCount. If Arven is active, exclude its
+ * copies from otherTrainerCount and pass their count as arvenInDeck.
+ *
+ * @param {number} deckSize Cards in deck before the next mandatory draw.
+ * @param {number} otherTrainerCount Other eligible Trainers, excluding FSS, Mail and active Arven.
+ * @param {number} mailsInDeck Trainers' Mail copies in deck.
+ * @param {number} mailsInHand Trainers' Mail copies in hand.
+ * @param {number} arvenInDeck Active Arven copies still in deck (0..4).
+ * @param {boolean} forestSealStoneInDeck Whether the one FSS remains in deck.
+ * @param {boolean} forestSealStoneReady Whether FSS is already in hand/attached and usable.
+ * @param {boolean} arvenReadyInHand Whether an active Arven is already in hand.
+ * @param {boolean} arvenSearchConditionsLive Whether the Item/Tool/Ability/board conditions for Arven are satisfied.
+ * @returns {object} Exact conditional probability of FSS becoming ready.
+ */
+function probabilityForestSealStoneReadyByNaturalDrawMailAndArven(
+  deckSize,otherTrainerCount,mailsInDeck,mailsInHand,arvenInDeck,
+  forestSealStoneInDeck,forestSealStoneReady=false,
+  arvenReadyInHand=false,arvenSearchConditionsLive=false
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(otherTrainerCount)&&
+    otherTrainerCount>=0&&otherTrainerCount<=deckSize,
+    'otherTrainerCount must be feasible');
+  assert.ok(Number.isSafeInteger(mailsInDeck)&&mailsInDeck>=0&&mailsInDeck<=2,
+    'mailsInDeck must be 0..2');
+  assert.ok(Number.isSafeInteger(mailsInHand)&&mailsInHand>=0&&mailsInHand<=2,
+    'mailsInHand must be 0..2');
+  assert.ok(mailsInDeck+mailsInHand<=2,
+    'the rank-3 list contains only two Trainers\' Mail');
+  assert.ok(Number.isSafeInteger(arvenInDeck)&&arvenInDeck>=0&&arvenInDeck<=4,
+    'arvenInDeck must be 0..4');
+  assert.equal(typeof forestSealStoneInDeck,'boolean',
+    'forestSealStoneInDeck must be boolean');
+  assert.equal(typeof forestSealStoneReady,'boolean',
+    'forestSealStoneReady must be boolean');
+  assert.equal(typeof arvenReadyInHand,'boolean',
+    'arvenReadyInHand must be boolean');
+  assert.equal(typeof arvenSearchConditionsLive,'boolean',
+    'arvenSearchConditionsLive must be boolean');
+  assert.ok(arvenSearchConditionsLive||arvenInDeck===0,
+    'inactive Arven copies must be included in otherTrainerCount');
+  assert.ok(!(forestSealStoneReady&&forestSealStoneInDeck),
+    'the one Forest Seal Stone cannot be both in deck and ready');
+  assert.ok(!(arvenReadyInHand&&arvenInDeck>=4),
+    'the four Arven copies cannot all be in deck when one is in hand');
+  if(forestSealStoneReady){
+    const exact=probabilityFraction(1n,1n);
+    return {
+      version:FSS_READY_ACCESS_VERSION,
+      forestSealStoneReady:true,
+      exactProbability:{numerator:'1',denominator:'1'},
+      probability:1
+    };
+  }
+  if(!forestSealStoneInDeck){
+    const exact=probabilityFraction(0n,1n);
+    return {
+      version:FSS_READY_ACCESS_VERSION,
+      forestSealStoneReady:false,
+      forestSealStoneInDeck:false,
+      exactProbability:{numerator:'0',denominator:'1'},
+      probability:0
+    };
+  }
+  if(arvenReadyInHand&&arvenSearchConditionsLive){
+    return {
+      version:FSS_READY_ACCESS_VERSION,
+      forestSealStoneReady:false,
+      forestSealStoneInDeck:true,
+      arvenReadyInHand:true,
+      exactProbability:{numerator:'1',denominator:'1'},
+      probability:1
+    };
+  }
+  const activeArvenInDeck=arvenSearchConditionsLive?arvenInDeck:0;
+  const nonTrainerCount=deckSize-1-otherTrainerCount-mailsInDeck-
+    activeArvenInDeck;
+  assert.ok(nonTrainerCount>=0,
+    'FSS, active Arven, Mail and other Trainers cannot exceed deckSize');
+  const exact=probabilityHandiworkAccessByNaturalDrawMailAndGatewaysOnly(
+    deckSize,otherTrainerCount,mailsInDeck,mailsInHand,0,
+    activeArvenInDeck,0
+  );
+  return {
+    version:FSS_READY_ACCESS_VERSION,
+    deckSizeBeforeDraw:deckSize,
+    otherTrainerCount,
+    mailsInDeck,
+    mailsInHand,
+    arvenInDeck:activeArvenInDeck,
+    forestSealStoneInDeck:true,
+    forestSealStoneReady:false,
+    arvenReadyInHand:false,
+    arvenSearchConditionsLive,
+    exactProbability:{
+      numerator:exact.n.toString(),
+      denominator:exact.d.toString()
+    },
+    probability:Number(exact.n)/Number(exact.d)
+  };
+}
+
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
@@ -1020,5 +1139,6 @@ module.exports={
   probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
   probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways,
   probabilityHandiworkAccessByLilliesDetermination,
-  probabilityHandiworkInHandDuringHorrorHouseLock
+  probabilityHandiworkInHandDuringHorrorHouseLock,
+  probabilityForestSealStoneReadyByNaturalDrawMailAndArven
 };
