@@ -2,12 +2,12 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent3-postprize-response-action-sequence-v1';
+const VERSION='agent3-postprize-response-action-sequence-v2';
 
 /**
  * Capture the candidate's post-dispatch response sequence after a physical
- * Prize exit. The callback runs after Store.dispatch and is never passed to
- * either bot policy. Only the acting candidate's hand is recorded.
+ * Prize exit. Player identity is tracked by stable player IDs because the
+ * engine may reorder state.players between turns.
  *
  * @param {object} options
  * @param {Array<{id:string,candidateSlot:'A'|'B'}>} options.registeredTrials
@@ -23,31 +23,39 @@ function createPostPrizeResponseActionSequenceObserver(options){
   const seatsByTrial=new Map(options.registeredTrials.map(trial=>{
     assert.equal(typeof trial.id,'string');
     assert.ok(trial.candidateSlot==='A'||trial.candidateSlot==='B');
-    const sourceSeat=trial.candidateSlot==='B'?0:1;
-    return [trial.id,{sourceSeat,candidateSeat:1-sourceSeat}];
+    const candidateSeat=trial.candidateSlot==='A'?0:1;
+    return [trial.id,{sourceSeat:1-candidateSeat,candidateSeat}];
   }));
-  const previousPrizeCountsByStore=new WeakMap();
+  const playerIdsByTrial=new Map();
+  const previousPrizeCardsByStore=new WeakMap();
   const pendingByTrial=new Map();
   const activeByTrial=new Map();
   const sequences=[];
   const unansweredPrizeExits=[];
   const diagnostics={callbackCount:0,missingTrialIdCount:0,
     unmatchedTrialIds:[],playerShapeMissCount:0,trialIdsObserved:[],
-    prizeCountChanges:[]};
+    playerIdsByTrial:[],prizeCardChanges:[]};
 
-  function snapshotAction(store,action,ordinal,seat,turnBefore){
+  function prizeCards(player){
+    return player.prizes.flatMap(slot=>slot.cards);
+  }
+
+  function snapshotAction(store,action,ordinal,seat,turnBefore,playerIds){
     const state=store.state;
     const owner=state.players[seat];
     return {
       rootOrdinal:ordinal,
       turnBefore,
       actorSeat:seat,
+      actorPlayerId:owner.id,
       actionType:action.constructor.name,
       ownerHandPrintingsAfterAction:owner.hand.cards.map(card=>card.fullName),
       ownerDiscardNamesAfterAction:owner.discard.cards.map(card=>card.name),
       ownerDiscardPrintingsAfterAction:owner.discard.cards.map(card=>card.fullName),
       ownerDeckCountAfterAction:owner.deck.cards.length,
-      ownerPrizeCountAfterAction:owner.prizes.filter(prize=>prize.cards.length>0).length,
+      ownerPrizeCardCountAfterAction:prizeCards(owner).length,
+      candidatePlayerId:playerIds.candidatePlayerId,
+      sourcePlayerId:playerIds.sourcePlayerId,
       pendingPromptTypesAfterAction:(state.prompts??[])
         .filter(prompt=>prompt.result===undefined)
         .map(prompt=>({
@@ -87,22 +95,41 @@ function createPostPrizeResponseActionSequenceObserver(options){
       return;
     }
 
-    const prizeCounts=state.players.map(player=>
-      Array.isArray(player.prizes)?player.prizes.reduce((total,slot)=>
-        total+(Array.isArray(slot?.cards)?slot.cards.length:0),0):0);
-    const previous=previousPrizeCountsByStore.get(store);
+    let playerIds=playerIdsByTrial.get(trialId);
+    if(!playerIds){
+      const candidatePlayerId=state.players[seats.candidateSeat].id;
+      const sourcePlayerId=state.players[seats.sourceSeat].id;
+      playerIds={candidatePlayerId,sourcePlayerId};
+      playerIdsByTrial.set(trialId,playerIds);
+      diagnostics.playerIdsByTrial.push({registeredTrialId:trialId,...playerIds});
+    }
+    const actorPlayerId=state.players[seat]?.id;
+    const currentPrizeCards=new Map(state.players.map(player=>
+      [player.id,prizeCards(player)]));
+    const previous=previousPrizeCardsByStore.get(store);
+
     if(previous){
-      const prizeLoss=previous[seats.candidateSeat]-prizeCounts[seats.candidateSeat];
-      if(prizeLoss!==0)diagnostics.prizeCountChanges.push({
-        registeredTrialId:trialId,rootOrdinal:ordinal,actorSeat:seat,turnBefore,
-        sourceSeat:seats.sourceSeat,candidateSeat:seats.candidateSeat,
-        previousPrizeCounts:previous,currentPrizeCounts:prizeCounts
-      });
-      if(seat===seats.sourceSeat&&prizeLoss>0){
+      const previousCandidateCards=previous.get(playerIds.candidatePlayerId)??[];
+      const currentCandidateCards=currentPrizeCards.get(playerIds.candidatePlayerId)??[];
+      const removed=previousCandidateCards.filter(card=>
+        !currentCandidateCards.includes(card));
+      const added=currentCandidateCards.filter(card=>
+        !previousCandidateCards.includes(card));
+      if(removed.length||added.length){
+        diagnostics.prizeCardChanges.push({
+          registeredTrialId:trialId,rootOrdinal:ordinal,actorSeat:seat,
+          actorPlayerId,turnBefore,sourcePlayerId:playerIds.sourcePlayerId,
+          candidatePlayerId:playerIds.candidatePlayerId,
+          removedPrizeCardCount:removed.length,addedPrizeCardCount:added.length,
+          previousCandidatePrizeCount:previousCandidateCards.length,
+          currentCandidatePrizeCount:currentCandidateCards.length
+        });
+      }
+      if(actorPlayerId===playerIds.sourcePlayerId&&removed.length>0){
         const pending=pendingByTrial.get(trialId);
         if(pending&&pending.sourceTurn===turnBefore){
           pending.sourcePrizeRootOrdinals.push(ordinal);
-          pending.prizesTaken+=prizeLoss;
+          pending.prizesTaken+=removed.length;
         }else{
           if(pending)unansweredPrizeExits.push({
             registeredTrialId:trialId,...pending
@@ -110,15 +137,17 @@ function createPostPrizeResponseActionSequenceObserver(options){
           pendingByTrial.set(trialId,{
             sourceTurn:turnBefore,
             sourcePrizeRootOrdinals:[ordinal],
-            prizesTaken:prizeLoss
+            prizesTaken:removed.length,
+            candidatePlayerId:playerIds.candidatePlayerId,
+            sourcePlayerId:playerIds.sourcePlayerId
           });
         }
       }
 
       const active=activeByTrial.get(trialId);
       if(active){
-        if(seat===seats.candidateSeat&&turnBefore===active.candidateTurn){
-          active.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore));
+        if(actorPlayerId===playerIds.candidatePlayerId&&turnBefore===active.candidateTurn){
+          active.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerIds));
           if(action.constructor.name==='PassTurnAction'||state.turn!==turnBefore){
             finishSequence(trialId,active,
               action.constructor.name==='PassTurnAction',true);
@@ -130,12 +159,13 @@ function createPostPrizeResponseActionSequenceObserver(options){
 
       if(!activeByTrial.has(trialId)){
         const pending=pendingByTrial.get(trialId);
-        // Do not require a numeric turn increment; join later by exact projected root.
-        if(pending&&seat===seats.candidateSeat){
+        if(pending&&actorPlayerId===playerIds.candidatePlayerId){
           const sequence={
             registeredTrialId:trialId,
             sourceSeat:seats.sourceSeat,
             candidateSeat:seats.candidateSeat,
+            candidatePlayerId:playerIds.candidatePlayerId,
+            sourcePlayerId:playerIds.sourcePlayerId,
             sourceTurn:pending.sourceTurn,
             sourcePrizeRootOrdinals:[...pending.sourcePrizeRootOrdinals],
             prizesTaken:pending.prizesTaken,
@@ -146,7 +176,7 @@ function createPostPrizeResponseActionSequenceObserver(options){
             turnEndObserved:false,
             completedAtRootOrdinal:null
           };
-          sequence.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore));
+          sequence.actions.push(snapshotAction(store,action,ordinal,seat,turnBefore,playerIds));
           pendingByTrial.delete(trialId);
           if(action.constructor.name==='PassTurnAction'||state.turn!==turnBefore){
             finishSequence(trialId,sequence,
@@ -157,7 +187,7 @@ function createPostPrizeResponseActionSequenceObserver(options){
         }
       }
     }
-    previousPrizeCountsByStore.set(store,prizeCounts);
+    previousPrizeCardsByStore.set(store,currentPrizeCards);
   }
 
   return {
@@ -179,7 +209,8 @@ function createPostPrizeResponseActionSequenceObserver(options){
         diagnostics:{...diagnostics,
           unmatchedTrialIds:[...diagnostics.unmatchedTrialIds],
           trialIdsObserved:[...diagnostics.trialIdsObserved],
-          prizeCountChanges:[...diagnostics.prizeCountChanges]},
+          playerIdsByTrial:[...diagnostics.playerIdsByTrial],
+          prizeCardChanges:[...diagnostics.prizeCardChanges]},
         hiddenHandReadBeforeCandidateResponse:false,
         policyInputModified:false,
         paperLegalityCertified:false
