@@ -20,11 +20,11 @@ The simultaneous terminal table distinguishes promotion availability when both p
 
 The earlier tie-only interpretation was incomplete. The adapter now resolves all three outcomes for the supported simultaneous two-Active-KO case.
 
-## Research-owned terminal resolver v2
+## Research-owned terminal resolver v3
 
 Implementation: `simulation/twinleaf/agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs`.
 
-Public entry point: `withInstanceScopedSimultaneousLastPrizeResolutionV2`. The older `withInstanceScopedSimultaneousLastPrizeTieV1` export remains as a compatibility alias.
+Public entry point: `withInstanceScopedSimultaneousLastPrizeResolutionV3`. The `withInstanceScopedSimultaneousLastPrizeResolutionV2` and older `withInstanceScopedSimultaneousLastPrizeTieV1` exports remain compatibility aliases to the corrected v3 implementation.
 
 The adapter arms only when all of these conditions hold:
 
@@ -45,11 +45,11 @@ The Store's winner log is handled at the same interception boundary as the resol
 
 ## Independent review follow-up: native winner-log ordering
 
-Agent41's 13:17 UTC review found that pinned `endGame` emits `LOG_GAME_FINISHED_WINNER` **before** assigning `state.winner`. The previous v2 audit therefore captured the preterminal `GameWinner.NONE` sentinel. In the mixed-promotion case where only the owner in `state.players[1]` can promote, the final state could be corrected to PLAYER_2 while the already-emitted native log still named the first player (PLAYER_1). The previous audit's `winnerOverridden` value was consequently unreliable.
+Agent41's 13:17 UTC review found that pinned `endGame` emits `LOG_GAME_FINISHED_WINNER` **before** assigning `state.winner`. The previous implementation's audit therefore captured the preterminal `GameWinner.NONE` sentinel. In the mixed-promotion case where only the owner in `state.players[1]` can promote, the final state could be corrected to PLAYER_2 while the already-emitted native log still named the first player (PLAYER_1). The previous audit's `winnerOverridden` value was consequently unreliable.
 
 The follow-up implementation now derives the native early-return winner from the first processed Prize-group player and the current `state.players` order. It records that native enum and player identity before rewriting the log to either the paper-correct DRAW message or the paper-correct winner's name. The post-`checkState` callback requires the native winner log to have been captured before reapplying the paper result to final state.
 
-The native regression now asserts both mixed-promotion physical seats: actorSeat 0 must retain native PLAYER_1 with no override; actorSeat 1 must record native PLAYER_1, correct it to expected PLAYER_2, and emit the owner's correct name. Both tie rows assert a DRAW log with no winner name. Code and test commits: `50b86df060b4a34fec53871c636f87d0feff887d`, `30103377cdb416b06611c63c4f71fa6fad55fdfe`, and `57842b540eb696ca24f1f012f7965646318216e8`.
+The native regression now asserts both mixed-promotion physical seats: actorSeat 0 must retain native PLAYER_1 with no override; actorSeat 1 must record native PLAYER_1, correct it to expected PLAYER_2, and emit the owner's correct name. Both tie rows assert a DRAW log with no winner name. Code and test commits: `50b86df060b4a34fec53871c636f87d0feff887d`, `30103377cdb416b06611c63c4f71fa6fad55fdfe`, `57842b540eb696ca24f1f012f7965646318216e8`, `ab7ebbfd27674f1ad9cf45c9e538454a303c9cab`, and `28456211752281b283fe6ef139c1ab29de557e5a`.
 
 **Validation status:** the successful CI run above predates this log/audit correction. A fresh manual native rerun is pending; the updated implementation and assertions are committed but not yet revalidated by CI. Keep the adapter opt-in and do not claim the corrected winner-log behavior as passed until that rerun succeeds.
 
