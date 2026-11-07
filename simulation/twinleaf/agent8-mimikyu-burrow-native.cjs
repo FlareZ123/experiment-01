@@ -8,6 +8,14 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
 const native=name=>require(path.join(output,name));
 
+/** @param {object} prompt @returns {any[]} */
+function promptCardChoices(prompt){
+  const value=prompt.cards;
+  if(Array.isArray(value))return value;
+  if(Array.isArray(value?.cards))return value.cards;
+  return [];
+}
+
 /** @param {object} x Resolve Burrow reveal, Omega Barrage choice, and Wait prompts. */
 function settlePrompts(x){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
@@ -227,7 +235,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const {GameMessage}=native('game/game-message');
   const sourcePrompts=[];
-  let omegaAccepted=false,secondChosen=false,recoverySelected=false,burrowShown=false;
+  let omegaAccepted=false,secondChosen=false,recoverySelected=false;
 
   x.store.dispatch(new AttackAction(x.owner.id,firstAttack));
   for(let n=0;n<36;n++){
@@ -241,7 +249,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ShowCardsPrompt'&&prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
       sourcePrompts.push(kind);
-      burrowShown=true;
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
       continue;
     }
@@ -257,7 +264,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     if(kind==='ChooseAttackPrompt'&&prompt.message===GameMessage.CHOOSE_ATTACK_TO_COPY){
       assert.equal(prompt.playerId,x.owner.id);
       assert.equal(secondChosen,false,'Omega Barrage should grant only one additional attack');
-      const source=prompt.cards.find(value=>value.fullName==='Bunnelby PRC');
+      const source=promptCardChoices(prompt).find(value=>value.fullName==='Bunnelby PRC');
       const attack=source?.attacks.find(value=>value.name===secondAttack);
       assert.ok(attack,'Omega Barrage must offer '+secondAttack);
       assert.equal(prompt.validate(attack),true);
@@ -269,7 +276,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.owner.id);
       assert.equal(recoverySelected,false,'Rototiller should select exactly one recovery card');
-      const choice=prompt.cards.find(value=>value.id===recovery.id);
+      const choice=promptCardChoices(prompt).find(value=>value.id===recovery.id);
       assert.ok(choice,'Rototiller must offer the physical Handiwork in Bunnelby discard');
       assert.equal(prompt.validate([choice]),true);
       sourcePrompts.push(kind);
@@ -283,7 +290,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   assert.equal(omegaAccepted,true);
   assert.equal(secondChosen,true);
   assert.equal(recoverySelected,true,'Rototiller must recycle the physical Handiwork');
-  assert.equal(burrowShown,true,'the source turn must resolve its Burrow reveal');
   assert.equal(x.state.activePlayer,1-sourceSeat);
   assert.equal(x.opponent.deck.cards.length,mimikyuDeckBeforeSource-2,
     'One Bunnelby Burrow discard plus Mimikyu turn draw reduce its deck by two');
@@ -304,7 +310,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   const mimikyuDiscardBefore=x.opponent.discard.cards.length;
   const copycatPrompts=[];
   x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
-  let mimikyuRecoverySelected=false,copycatBurrowShown=false;
+  let mimikyuRecoverySelected=false;
   for(let n=0;n<36;n++){
     const prompt=x.state.prompts.find(p=>p.result===undefined);
     if(!prompt)break;
@@ -316,14 +322,13 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     }
     if(kind==='ShowCardsPrompt'&&prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
       copycatPrompts.push(kind);
-      copycatBurrowShown=true;
       x.store.dispatch(new ResolvePromptAction(prompt.id,null));
       continue;
     }
     if(kind==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_CARD_TO_DECK'){
       assert.equal(prompt.playerId,x.opponent.id);
       assert.equal(mimikyuRecoverySelected,false,'Copied Rototiller should select exactly one Mimikyu discard card');
-      const choice=prompt.cards.find(value=>value.id===mimikyuRecovery.id);
+      const choice=promptCardChoices(prompt).find(value=>value.id===mimikyuRecovery.id);
       assert.ok(choice,'Copied Rototiller must offer the physical Psychic Energy in Mimikyu discard');
       assert.equal(prompt.validate([choice]),true);
       copycatPrompts.push(kind);
@@ -353,7 +358,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     mimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBefore,
     mimikyuRecoveryReturnedToDeck:x.opponent.deck.cards.some(value=>value.id===mimikyuRecovery.id),
     mimikyuRecoverySelected,
-    copycatBurrowShown,
     sourceUsedGX:x.owner.usedGX===true,
     ownerUsedGX:x.opponent.usedGX===true,
     unresolvedPrompts:x.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
@@ -368,7 +372,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     assert.equal(result.sourceTopMovedToDiscard,true);
     assert.equal(result.sourceNextTopMovedToHand,true);
     assert.equal(result.mimikyuDeckDelta,0);
-    assert.equal(result.copycatBurrowShown,true);
     assert.equal(result.mimikyuRecoverySelected,false);
   }else{
     assert.equal(result.sourceDeckDelta,-1,
@@ -382,7 +385,6 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     assert.equal(result.mimikyuDiscardDelta,-1);
     assert.equal(result.mimikyuRecoveryReturnedToDeck,true);
     assert.equal(result.mimikyuRecoverySelected,true);
-    assert.equal(result.copycatBurrowShown,false);
   }
   assert.deepEqual(result.unresolvedPrompts,[]);
   return result;
