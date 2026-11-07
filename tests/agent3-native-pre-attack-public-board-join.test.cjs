@@ -23,9 +23,24 @@ function fixture(){
       toolCards:[],printedAttacks:[{name:'Get Lost',cost:['Colorless']}]},
       bench:[],stadium:[]}
   ];
-  const attack={actionOrdinal:85,attackName:'Volt Cyclone',
-    turnBefore:17,completionRootOrdinal:91,settledPromptChain:true,
-    settlementCrossesClockReset:false,publicBoardBefore:before};
+  const immediate=structuredClone(before);
+  immediate[1].active.damage=140;
+  const after=structuredClone(before);
+  after[1].active=null;
+  const attack={actionOrdinal:85,initiatingRootActionOrdinal:85,
+    attackName:'Volt Cyclone',triggerAction:'AttackAction',
+    turnBefore:17,declarationRootTurnAfter:17,
+    declarationRootPromptPendingAfter:true,
+    completionRootOrdinal:91,completionRootTurnBefore:17,
+    completionRootTurnMatchesDeclarationTurn:true,
+    activePrintingBefore:'Iron Thorns ex TWM',
+    activePrintedAttackNamesBefore:['Volt Cyclone'],
+    attackNamePrintedOnPhysicalActiveBefore:true,
+    directAttackPrintedOnPhysicalActiveBefore:true,
+    settledPromptChain:true,settlementCrossesClockReset:false,
+    publicBoardBefore:before,
+    publicBoardImmediatelyAfterDeclarationRoot:immediate,
+    publicBoardAfter:after};
   const attempts=[{trial:{id:trial},sourceSeat:0,candidateSeat:1,
     sourceAttackSettlement:{attacks:[attack]},
     candidateAttackSettlement:{attacks:[]}}];
@@ -49,13 +64,35 @@ function run(f){
 test('real-root keyed native active card and pre-damage must join unique attacker',()=>{
   const f=fixture();
   const result=run(f);
+  assert.equal(result.version,'agent3-native-pre-attack-public-board-join-v3');
   assert.equal(result.rows.length,1);
   assert.equal(result.nativeDamageDeltaPrintMatches,1);
+  assert.equal(result.declarationRootBoardsCaptured,1);
+  assert.equal(result.finalBoardsCaptured,1);
+  assert.equal(result.physicalActiveIdentityComplete,1);
   assert.equal(result.qualifiedCompetitiveGames,0);
   assert.equal(result.paperGameCertified,false);
   assert.equal(result.rows[0].attackerPrintingFromActualNativeBoard,
     'Iron Thorns ex TWM');
   assert.equal(result.rows[0].incrementalNativeDamageSincePreAttack,140);
+  assert.equal(result.rows[0].declarationRootActionOrdinal,85);
+  assert.equal(result.rows[0].initiatingRootActionOrdinal,85);
+  assert.equal(result.rows[0].declarationRootTurnAfter,17);
+  assert.equal(result.rows[0].declarationRootPromptPendingAfter,true);
+  assert.equal(result.rows[0].targetDamageImmediatelyAfterDeclarationRoot,140);
+  assert.equal(result.rows[0].targetDamageAfterPromptClosure,null);
+  assert.equal(result.rows[0].targetDamageThresholdReachedImmediatelyAfterDeclarationRoot,true);
+  assert.equal(result.rows[0].targetDamageDeltaFromPreAttackToDeclarationRoot,140);
+  assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToActualNativeKo,0);
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'TARGET_DAMAGE_THRESHOLD_REACHED_AT_DECLARATION_ROOT');
+  assert.equal(result.rows[0].physicalActivePrintingBefore,'Iron Thorns ex TWM');
+  assert.deepEqual(result.rows[0].physicalActivePrintedAttackNamesBefore,
+    ['Volt Cyclone']);
+  assert.equal(result.rows[0].attackNamePrintedOnPhysicalActiveBefore,true);
+  assert.equal(result.rows[0].directAttackPrintedOnPhysicalActiveBefore,true);
+  assert.equal(result.rows[0].physicalActiveIdentityComplete,true);
   assert.deepEqual(result.rows[0].attackerEnergyNamesBeforeAttack,
     ['Lightning Energy','Double Colorless Energy']);
   assert.equal(result.rows[0].directPrintedEnergySufficiency.status,'POSSIBLE');
@@ -84,6 +121,8 @@ test('the same native cumulative KO value can include earlier attack damage',()=
   const result=run(f);
   assert.equal(result.rows[0].targetPreAttackDamage,100);
   assert.equal(result.rows[0].incrementalNativeDamageSincePreAttack,40);
+  assert.equal(result.rows[0].targetDamageDeltaFromPreAttackToDeclarationRoot,40);
+  assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToActualNativeKo,0);
   assert.equal(result.rows[0].independentPrintedNominalDamage,140);
   assert.equal(result.rows[0].nativeDeltaEqualsPrintedNominal,false);
   assert.equal(result.nativeDamageDeltaPrintMatches,0);
@@ -105,14 +144,40 @@ test('synthetic delegated attack name never reidentifies the public Active',()=>
     actionOrdinal:85,attackName:'Eon Blade',turnBefore:17,
     completionRootOrdinal:91,settledPromptChain:true,
     settlementCrossesClockReset:false,
+    triggerAction:'ResolvePromptAction',
+    initiatingRootActionOrdinal:83,declarationRootTurnAfter:17,
+    declarationRootPromptPendingAfter:true,completionRootTurnBefore:17,
+    completionRootTurnMatchesDeclarationTurn:true,
+    activePrintingBefore:'Mimikyu GRI',
+    activePrintedAttackNamesBefore:['Copycat'],
+    attackNamePrintedOnPhysicalActiveBefore:false,
+    directAttackPrintedOnPhysicalActiveBefore:null,
     publicBoardBefore:[
       {active:{name:'Trevenant & Dusknoir-GX',
         printing:'Trevenant & Dusknoir-GX SMP',damage:200,
-        energyCards:['Psychic Energy'],toolCards:[],printedAttacks:[]}},
+        energyCards:['Psychic Energy'],toolCards:[],printedAttacks:[]},
+        bench:[],stadium:[]},
       {active:{name:'Mimikyu',printing:'Mimikyu GRI',damage:0,
         energyCards:['Psychic Energy','Psychic Energy'],
         toolCards:[],printedAttacks:[{name:'Copycat',
-          cost:[9,9]}]}}
+          cost:[9,9]}]},bench:[],stadium:[]}
+    ],
+    publicBoardImmediatelyAfterDeclarationRoot:[
+      {active:{name:'Trevenant & Dusknoir-GX',
+        printing:'Trevenant & Dusknoir-GX SMP',damage:200,
+        energyCards:['Psychic Energy'],toolCards:[],printedAttacks:[]},
+        bench:[],stadium:[]},
+      {active:{name:'Mimikyu',printing:'Mimikyu GRI',damage:0,
+        energyCards:['Psychic Energy','Psychic Energy'],
+        toolCards:[],printedAttacks:[{name:'Copycat',
+          cost:[9,9]}]},bench:[],stadium:[]}
+    ],
+    publicBoardAfter:[
+      {active:null,bench:[],stadium:[]},
+      {active:{name:'Mimikyu',printing:'Mimikyu GRI',damage:0,
+        energyCards:['Psychic Energy','Psychic Energy'],
+        toolCards:[],printedAttacks:[{name:'Copycat',
+          cost:[9,9]}]},bench:[],stadium:[]}
     ]
   }]};
   f.victims[0].registeredTrialId=id;
@@ -136,6 +201,18 @@ test('synthetic delegated attack name never reidentifies the public Active',()=>
   assert.equal(result.rows[0].physicalActiveAtActualNativeAttackObserved,true);
   assert.equal(result.rows[0].attackerPrintingFromActualNativeBoard,'Mimikyu GRI');
   assert.equal(result.rows[0].sourceAttackPrintEqualsPhysicalActive,false);
+  assert.equal(result.rows[0].physicalActivePrintingBefore,'Mimikyu GRI');
+  assert.deepEqual(result.rows[0].physicalActivePrintedAttackNamesBefore,
+    ['Copycat']);
+  assert.equal(result.rows[0].attackNamePrintedOnPhysicalActiveBefore,false);
+  assert.equal(result.rows[0].directAttackPrintedOnPhysicalActiveBefore,null);
+  assert.equal(result.rows[0].physicalActiveIdentityComplete,true);
+  assert.equal(result.rows[0].targetDamageImmediatelyAfterDeclarationRoot,200);
+  assert.equal(result.rows[0].targetDamageDeltaFromPreAttackToDeclarationRoot,0);
+  assert.equal(result.rows[0].targetDamageDeltaFromDeclarationRootToActualNativeKo,200);
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,true);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION');
   assert.equal(result.rows[0].copiedOrGrantedSourceUnresolved,true);
   assert.equal(result.rows[0].directPrintedEnergySufficiency,null);
   assert.equal(result.rows[0].nativeDeltaEqualsPrintedNominal,true);
@@ -172,4 +249,34 @@ test('strict source printing, victim, root and period validation rejects false j
     mutate(f);
     assert.throws(()=>run(f));
   }
+});
+
+test('legacy records without an immediate declaration-root board remain explicitly unknown',()=>{
+  const f=fixture();
+  delete f.attempts[0].sourceAttackSettlement.attacks[0]
+    .publicBoardImmediatelyAfterDeclarationRoot;
+  const result=run(f);
+  assert.equal(result.rows[0].declarationRootBoardCaptured,false);
+  assert.equal(result.rows[0].targetDamageImmediatelyAfterDeclarationRoot,null);
+  assert.equal(result.rows[0].targetDamageThresholdReachedImmediatelyAfterDeclarationRoot,null);
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'UNKNOWN_NO_DECLARATION_ROOT_BOARD');
+  assert.equal(result.qualifiedCompetitiveGames,0);
+});
+
+test('a target moved to Bench at declaration is not misclassified as a later KO',()=>{
+  const f=fixture();
+  const board=f.attempts[0].sourceAttackSettlement.attacks[0]
+    .publicBoardImmediatelyAfterDeclarationRoot;
+  board[1].active=null;
+  board[1].bench=[{
+    name:'Girafarig',printing:'Girafarig LOT',damage:20,
+    energyCards:['Psychic Energy','Psychic Energy','Psychic Energy'],
+    toolCards:[],printedAttacks:[{name:'Get Lost',cost:['Colorless']}]
+  }];
+  const result=run(f);
+  assert.equal(result.rows[0].targetLocationImmediatelyAfterDeclarationRoot,'bench');
+  assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
+    'TARGET_ON_BENCH_AFTER_DECLARATION_ROOT');
+  assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
 });
