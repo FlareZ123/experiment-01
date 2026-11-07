@@ -27,7 +27,7 @@
 
 The frozen [v10b fresh-seed A/B/A registration](aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json) compares the Champion reference and New Moon across four authenticated source ranks, both source seats, eight paired trials and a 260-root cap. It is a developmental VIP-policy comparison, not a deck-selection or win-rate experiment. The v9 paid-retreat A/B/A is invalid because its B wrapper never activated. See the [paid-retreat audit](methodology/agent20-v9-paid-retreat-aba-audit-20261106.md).
 
-The v7 Snap Trap source-to-live-prompt join is a phase-A diagnostic witness only. Eight native attempts yielded six terminals, one cap and one engine error. No prompt was resolved and no game qualified. See the [v7 source-zone result](methodology/agent12-v7-snap-trap-source-zone-join-success-20261107.md).
+The v7 Snap Trap source-to-live-prompt join is a phase-A diagnostic witness only. Eight native attempts yielded six terminals, one cap and one engine error. No prompt was resolved and no game qualified. The exact pinned ChooseCardsPrompt response and MoveCardsEffect contract is now documented, but a separate native settlement test remains pending. See the [v7 source-zone result](methodology/agent12-v7-snap-trap-source-zone-join-success-20261107.md) and [Snap Trap prompt-resolution contract](methodology/agent30-snap-trap-native-prompt-resolution-contract-20261107.md).
 
 ## Qualification blockers
 
