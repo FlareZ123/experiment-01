@@ -185,10 +185,12 @@ jobs:
         continue-on-error: true
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
 
-      - name: Diagnose official Japanese M4 Special Red Card zero-hand native Store gate
+      - name: Diagnose M4 Special Red Card two paper Store gates and opt-in bilateral isolation
         id: smoke_check_39
         continue-on-error: true
-        run: node --test tests/agent44-specialredcard-emptyhand-native.sft.cjs
+        run: |
+          node --test tests/agent44-specialredcard-emptyhand-native.sft.cjs
+          node --test tests/agent44-specialredcard-headless-run-option.test.cjs
 
       # All smoke checks are reportable independently. Keep the job red if any
       # regression failed, even when an earlier check was allowed to continue.
