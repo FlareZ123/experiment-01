@@ -16,7 +16,7 @@ const {GamePhase}=require(
 const {withActorBattleVipAfterPass}=require(
   '../simulation/twinleaf/agent9-battle-vip-owner-after-pass-v4.cjs'
 );
-const {strictVipTreatmentAttribution}=require(
+const {strictVipTreatmentAttributionFromRows}=require(
   '../simulation/evaluation/agent10-strict-vip-treatment-attribution-v3.cjs'
 );
 
@@ -70,15 +70,24 @@ test('native forced-pass A/B pair proves exact VIP item and prompt root ordinals
     assert.equal(audit.dispatchRootCount,treatment.result.actions);
     assert.equal(control.rootActionLedger.length,control.actions);
     assert.equal(treatment.result.rootActionLedger.length,treatment.result.actions);
-    const attribution=strictVipTreatmentAttribution({
-      controlLedger:control.rootActionLedger,
-      controlRootActionCount:control.actions,
-      controlCompleted:control.finished,
-      treatmentLedger:treatment.result.rootActionLedger,
-      treatmentRootActionCount:treatment.result.actions,
-      treatmentCompleted:treatment.result.finished,
-      vipAudit:audit
-    });
+    const controlRow={
+      rootActionLedger:control.rootActionLedger,
+      actionCount:control.actions,
+      rootActionCount:control.rootActionLedger.length,
+      finished:control.finished
+    };
+    const treatmentRow={
+      rootActionLedger:treatment.result.rootActionLedger,
+      actionCount:treatment.result.actions,
+      rootActionCount:treatment.result.rootActionLedger.length,
+      finished:treatment.result.finished,
+      actorOnlyDecisionCoverage:{
+        detailedComponentAudits:{ownerVipAfterPass:audit}
+      }
+    };
+    const attribution=strictVipTreatmentAttributionFromRows(
+      controlRow,treatmentRow
+    );
     const interventionItems=audit.examples.filter(event=>
       event.kind==='vip-item'&&event.accepted===true);
     const interventionSearches=audit.examples.filter(event=>
@@ -148,15 +157,24 @@ test('native no-VIP control/treatment pair completes and remains unattributed',(
   assert.equal(audit.acceptedItems,0);
   assert.equal(audit.acceptedSearches,0);
   assert.equal(audit.dispatchRootCount,treatment.result.actions);
-  const attribution=strictVipTreatmentAttribution({
-    controlLedger:control.rootActionLedger,
-    controlRootActionCount:control.actions,
-    controlCompleted:control.finished,
-    treatmentLedger:treatment.result.rootActionLedger,
-    treatmentRootActionCount:treatment.result.actions,
-    treatmentCompleted:treatment.result.finished,
-    vipAudit:audit
-  });
+  const controlRow={
+    rootActionLedger:control.rootActionLedger,
+    actionCount:control.actions,
+    rootActionCount:control.rootActionLedger.length,
+    finished:control.finished
+  };
+  const treatmentRow={
+    rootActionLedger:treatment.result.rootActionLedger,
+    actionCount:treatment.result.actions,
+    rootActionCount:treatment.result.rootActionLedger.length,
+    finished:treatment.result.finished,
+    actorOnlyDecisionCoverage:{
+      detailedComponentAudits:{ownerVipAfterPass:audit}
+    }
+  };
+  const attribution=strictVipTreatmentAttributionFromRows(
+    controlRow,treatmentRow
+  );
   assert.equal(attribution.attributed,false);
   assert.equal(attribution.reason,'no-treatment-divergence');
 });
