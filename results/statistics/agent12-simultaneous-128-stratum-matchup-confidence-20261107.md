@@ -8,7 +8,7 @@ A 99.5% equal-weight average over the full 32-opponent field and a claim that ev
 
 The existing [128-stratum field-mean bound](agent12-exact-balanced-field-all-win-bound-20261107.md) treats the four candidate-seat/first-player combinations for each opponent as 128 equally weighted cells. Five all-win games in every cell, 640 total, gives a conservative 95% lower bound of 99.5330106% on the **field mean**. That aggregate result can still include a weaker individual matchup if stronger matchups compensate.
 
-This report instead asks for a simultaneous guarantee that **all 32 opponent-specific means** exceed 99.5%. For opponent rank r, define its mean across the four equally weighted contexts:
+This report instead asks for a simultaneous guarantee that **all 32 opponent-specific means** exceed 99.5%. For example, 31 opponents at 100% and one opponent at 90% produce a 99.6875% field mean, which clears the aggregate target while the 90% matchup remains materially weaker. For opponent rank r, define its mean across the four equally weighted contexts:
 
 `p_r = (p_{r,0,0} + p_{r,0,1} + p_{r,1,0} + p_{r,1,1})/4`.
 
