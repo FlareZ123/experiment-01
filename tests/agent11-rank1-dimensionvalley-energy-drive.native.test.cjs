@@ -52,6 +52,20 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(alternate.attackDamage,80,
     'Energy Drive should deal 20 times the four Energy attached to both Active Pokémon');
   assert.deepEqual(alternate.unresolvedPromptTypes,[]);
+  assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
+  assert.equal(alternate.baselineOpponentReply.opponentPrizesAfter,4,
+    'without retreat, Eon Blade should take two Prizes from Active Tapu Lele-GX');
+  assert.equal(alternate.defensiveLine.sourceOwnerHasSkylinerBenchPokemon,true);
+  assert.equal(alternate.defensiveLine.retreatNativeAccepted,true,
+    'bench Latias ex should provide the retreat-cost reduction');
+  assert.equal(alternate.defensiveLine.ownerActiveAfterRetreat,
+    'Trevenant & Dusknoir-GX UNM');
+  assert.equal(alternate.defensiveLine.opponentAttackNativeAccepted,true);
+  assert.equal(alternate.defensiveLine.status,'native-defensive-reply-settled');
+  assert.equal(alternate.defensiveLine.ownerActiveDamageAfter,200);
+  assert.equal(alternate.defensiveLine.ownerPrizesAfter,6);
+  assert.equal(alternate.defensiveLine.opponentPrizesAfter,6);
+  assert.deepEqual(alternate.defensiveLine.unresolvedPromptTypes,[]);
   assert.equal(alternate.sourceHandIndex,
     turn16.ownerHandPrintings.indexOf('Dimension Valley PHF'));
   assert.equal(turn16.active.printing,'Tapu Lele-GX GRI');
