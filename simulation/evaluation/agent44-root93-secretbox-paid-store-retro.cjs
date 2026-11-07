@@ -15,6 +15,7 @@ const EXPECTED_HAND='9ad521c3355b19e9c3cda272b2bd1942fb09200d01b377785b083901450
 const TARGET_TRIAL='11:1000:B:new-moon-lockbreaker-v1';
 const SENTINEL='AGENT44_RETROSPECTIVE_ROOT93_STOP_AFTER_PAID_SECRET_BOX';
 const OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-secretbox-paid-store-retro.json');
+const FOG_OUT_FILE=path.join(ROOT,'artifacts/agent44-root93-fog-energy-attack-retro.json');
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /**
@@ -23,11 +24,12 @@ const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex'
  * payment/search prompts. The original optimizer's Pass is never counted as
  * a native win/loss; this is an explicit retrospective intervention.
  *
+ * @param {{followup?:boolean}} [options]
  * @returns {object} Real physical owner card custody and prefix identity.
  */
-function run(){
+function run(options={}){
   const {Store}=native('game/store/store');
-  const {PassTurnAction}=native('game/store/actions/game-actions');
+  const {PassTurnAction,AttackAction}=native('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -147,6 +149,103 @@ function run(){
           result.promptTrace.push({kind,owner:next.playerId===owner.id});
           callOriginal(this,new ResolvePromptAction(next.id,selection),args);
         }
+        if(options.followup===true){
+          const follow={requested:true,originalOwnerTurn:state.turn,
+            psychicFromFogAvailable:false,fogSearchSettled:false,
+            energyAttachmentAccepted:false,hiddenPowerAccepted:false,
+            sourceTrubbishKO:false,sourcePrizeTaken:false,
+            pendingAfter:[],error:null};
+          result.fogFollowup=follow;
+          const fogIndex=owner.hand.cards.findIndex(c=>
+            c.fullName==='Fog Crystal CRE');
+          assert.ok(fogIndex>=0,'Original Secret Box selected Fog Crystal');
+          const originalSourceActive=opponent.active.getPokemonCard();
+          assert.equal(originalSourceActive?.fullName,'Trubbish FST');
+          const originalSourcePrizeCount=opponent.prizes
+            .reduce((n,p)=>n+p.cards.length,0);
+          const originalCandidatePrizeCount=owner.prizes
+            .reduce((n,p)=>n+p.cards.length,0);
+          follow.sourceTrubbishDamageBefore=opponent.active.damage;
+          follow.sourceTrubbishHP=originalSourceActive.hp;
+          follow.attachQuotaBefore=owner.energyPlayedTurn;
+          follow.prizesBefore={
+            candidate:originalCandidatePrizeCount,
+            source:originalSourcePrizeCount};
+          callOriginal(this,new PlayCardAction(owner.id,fogIndex,{
+            player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+          }),args);
+          let choice=pending();
+          assert.equal(choice?.constructor.name,'ChooseCardsPrompt');
+          assert.equal(choice.playerId,owner.id);
+          const {EnergyType}=native('game/store/card/card-types');
+          const psychic=choice.cards.cards.find(c=>
+            c.name==='Psychic Energy'&&c.energyType===EnergyType.BASIC);
+          follow.psychicFromFogAvailable=!!psychic;
+          follow.fogSearchOffered=choice.cards.cards.length;
+          follow.energyPrinting=psychic?.fullName??null;
+          const proposed=psychic?[psychic]:[];
+          assert.equal(choice.validate(proposed,this.state),true);
+          callOriginal(this,new ResolvePromptAction(choice.id,proposed),args);
+          for(let i=0;i<8;i++){
+            const p=pending();
+            if(!p)break;
+            let answer;
+            if(p.constructor.name==='ShowCardsPrompt')answer=true;
+            else if(p.constructor.name==='ShuffleDeckPrompt')
+              answer=owner.deck.cards.map((_,index)=>index);
+            else if(p.constructor.name==='WaitPrompt')answer=null;
+            else break;
+            follow.fogPromptTail=(follow.fogPromptTail??[]).concat(
+              p.constructor.name);
+            callOriginal(this,new ResolvePromptAction(p.id,answer),args);
+          }
+          follow.fogSearchSettled=pending()===undefined;
+          if(psychic){
+            assert.ok(owner.hand.cards.includes(psychic),
+              'Searched Basic Psychic must be in owner hand');
+            follow.energyAttachmentAttempted=true;
+            const handIndex=owner.hand.cards.indexOf(psychic);
+            assert.ok(handIndex>=0);
+            callOriginal(this,new PlayCardAction(owner.id,handIndex,{
+              player:PlayerType.BOTTOM_PLAYER,
+              slot:SlotType.ACTIVE,index:0
+            }),args);
+            follow.energyAttachmentAccepted=owner.active.energies.cards
+              .includes(psychic);
+            follow.energyPlayedTurnAfter=owner.energyPlayedTurn;
+            assert.equal(follow.energyAttachmentAccepted,true);
+            const printed=owner.active.getPokemonCard();
+            assert.equal(printed?.fullName,'Unown AOR');
+            callOriginal(this,new AttackAction(owner.id,'Hidden Power'),args);
+            follow.hiddenPowerAccepted=true;
+            for(let i=0;i<18;i++){
+              const p=pending();
+              if(!p)break;
+              const kind=p.constructor.name;
+              let answer;
+              if(kind==='WaitPrompt')answer=null;
+              else if(kind==='ChoosePrizePrompt'&&p.playerId===owner.id)
+                answer=[0]; // physical face-down Prize position only
+              else if(kind==='ShowCardsPrompt')answer=true;
+              else break; // no opponent decisions in this one-root probe
+              follow.attackPromptTail=(follow.attackPromptTail??[]).concat(kind);
+              callOriginal(this,new ResolvePromptAction(p.id,answer),args);
+            }
+            follow.sourceTrubbishKO=opponent.discard.cards
+              .includes(originalSourceActive);
+            follow.candidatePrizesAfter=owner.prizes
+              .reduce((n,p)=>n+p.cards.length,0);
+            follow.sourcePrizeTaken=follow.candidatePrizesAfter<
+              originalCandidatePrizeCount;
+          }
+          follow.pendingAfter=this.state.prompts
+            .filter(p=>p.result===undefined).map(p=>p.constructor.name);
+          follow.ownerHandAfter=owner.hand.cards.map(c=>c.fullName);
+          follow.ownerEnergyAfter=owner.active.energies.cards
+            .map(c=>c.fullName);
+          follow.sourceDiscardAfter=opponent.discard.cards
+            .map(c=>c.fullName);
+        }
         result.remainingPromptTypes=this.state.prompts
           .filter(p=>p.result===undefined).map(p=>p.constructor.name);
         result.handAfter=owner.hand.cards.map(c=>c.fullName);
@@ -196,9 +295,10 @@ function run(){
     nativeStoreFogSearchVerified:receipt?.acceptedSearch===true&&
       receipt?.selectedSearchPrintings.includes('Fog Crystal CRE')===true,
     competitionQualified:false};
-  writeJsonAtomic(OUT_FILE,result);
+  const outputFile=options.followup===true?FOG_OUT_FILE:OUT_FILE;
+  writeJsonAtomic(outputFile,result);
   console.log('AGENT44_ROOT93_SECRETBOX_PAID_STORE '+JSON.stringify({
-    artifact:OUT_FILE,hitTarget:result.hitTarget,
+    artifact:outputFile,hitTarget:result.hitTarget,
     priorAcceptedOrdinalMax:receipt?.priorAcceptedOrdinalMax??null,
     box:receipt?.acceptedBoxRoot??false,
     paid:receipt?.acceptedPayment??false,
@@ -207,7 +307,7 @@ function run(){
     pending:receipt?.remainingPromptTypes??null,
     custody:receipt?.boxCustody??null,
     error:receipt?.error??null,
-    exitReason
+    exitReason,followup:receipt?.fogFollowup??null
   }));
   assert.ok(receipt,'Current common-policy replay did not reach the exact archived first Pass');
   assert.equal(receipt.priorAcceptedOrdinalMax,92,
@@ -216,8 +316,14 @@ function run(){
   assert.equal(result.nativeStorePaymentVerified,true);
   assert.equal(result.nativeStoreFogSearchVerified,true,
     'Archived later Fog Crystal print must be searchable at this exact root');
+  if(options.followup===true&&receipt.fogFollowup?.psychicFromFogAvailable){
+    assert.equal(receipt.fogFollowup.energyAttachmentAccepted,true);
+    assert.equal(receipt.fogFollowup.hiddenPowerAccepted,true);
+    assert.equal(receipt.fogFollowup.sourceTrubbishKO,true,
+      'The printed Unown Hidden Power must KO 60-damaged 70-HP Trubbish');
+  }
   return result;
 }
 
-if(require.main===module)run();
+if(require.main===module)run({followup:process.env.AGENT44_FOG_KO_NATIVE==='true'});
 module.exports={run,EXPECTED_HAND,TARGET_TRIAL};
