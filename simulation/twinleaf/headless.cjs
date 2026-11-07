@@ -2190,7 +2190,7 @@ function runMatch(request) {
         (request.mimikyuApexCopycatCompatibility === true ? '+MimikyuNonGXCopyApex-v1' : '') +
         (request.mimikyuDeclaredHistoryCorrection === true ? '+MimikyuDeclaredHistory-v1' : '') +
         (request.regidragoDeclaredHistoryCorrection === true ? '+RegidragoDeclaredHistory-v1' : '') +
-        (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTwoStageCounterPolicy-v2' : '') +
+        (request.mimikyuApexTimelessPolicy === true ? '+MimikyuApexTwoStageCounterPolicy-v3' : '') +
         (request.mimikyuBurrowCopycatPolicy === true ?
           '+MimikyuBurrowCopycatPolicy-v1@seat' +
             (request.mimikyuBurrowCopycatPolicySeat === undefined ? 'both' : request.mimikyuBurrowCopycatPolicySeat) : '') +
