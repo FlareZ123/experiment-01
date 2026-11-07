@@ -123,6 +123,11 @@ function acceptedEventsMatchRoots(ledger,itemEvents,searchEvents,examples){
       return false;
     itemOrdinals.add(ordinal);
   }
+  for(const ordinal of itemOrdinals){
+    const pairs=searchEvents.filter(event=>
+      event.accepted===true&&event.itemRootOrdinal===ordinal);
+    if(pairs.length!==1)return false;
+  }
 
   const searchOrdinals=new Set();
   const searchedItems=new Set();
@@ -179,8 +184,10 @@ function acceptedEventsMatchRoots(ledger,itemEvents,searchEvents,examples){
  * @param {{
  *   controlLedger:object[],
  *   controlRootActionCount:number,
+ *   controlCompleted:boolean,
  *   treatmentLedger:object[],
  *   treatmentRootActionCount:number,
+ *   treatmentCompleted:boolean,
  *   vipAudit:object
  * }} input
  * @returns {{attributed:boolean,reason:string,divergenceIndex?:number,
@@ -192,10 +199,12 @@ function strictVipTreatmentAttribution(input){
   const controlCount=input?.controlRootActionCount;
   const treatmentCount=input?.treatmentRootActionCount;
   const vipAudit=input?.vipAudit;
+  if(input?.controlCompleted!==true||input?.treatmentCompleted!==true)
+    return {attributed:false,reason:'incomplete-or-aborted-match'};
   if(!validRootLedger(controlLedger,controlCount)||
      !validRootLedger(treatmentLedger,treatmentCount))
     return {attributed:false,reason:'independent-root-count-or-ledger-mismatch'};
-  if(vipAudit?.policyRecorded!==true)
+  if(vipAudit?.policyRecorded!==true||vipAudit.nativeStoreSeen!==true)
     return {attributed:false,reason:'native-vip-audit-not-recorded'};
   if(vipAudit.rootOrdinalProtocol!==ROOT_ORDINAL_PROTOCOL||
      vipAudit.rootOrdinalInitialized!==true||
@@ -207,6 +216,10 @@ function strictVipTreatmentAttribution(input){
   if(!complete)return {
     attributed:false,reason:'vip-intervention-event-archive-incomplete'
   };
+  if(!Number.isSafeInteger(vipAudit.unresolvedOwnerSearches)||
+     vipAudit.unresolvedOwnerSearches!==0||
+     vipAudit.acceptedItems!==vipAudit.acceptedSearches)
+    return {attributed:false,reason:'vip-item-search-pair-incomplete'};
   const {itemEvents,searchEvents}=complete;
   if(!acceptedEventsMatchRoots(
       treatmentLedger,itemEvents,searchEvents,vipAudit.examples))
