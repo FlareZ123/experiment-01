@@ -155,3 +155,7 @@ The separate Agent3 direct-injection Eon Blade lock fixture also passes after it
 
 
 The consolidated [manual regression workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358) passed the full-headless Copycat/Filch sequence, Agent3's corrected direct-injection fixture, and the underfunded/attack-locked/funded SimpleTacticsAi legality test in one pinned-engine build.
+
+
+
+Event-incidence boundary: Agent3's [v29 registered-trial scan](../methodology/agent3-v29-public-preattack-board-physical-root-join-20261107.md) found four accepted Eon Blade attacks, all direct Latias ex SSP declarations, and zero delegated Mimikyu GRI Copycat -> Eon Blade events. The tests above are staged rule and policy-legality witnesses; they do not show this Copycat sequence occurred naturally in the registered trial.
