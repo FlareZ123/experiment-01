@@ -1,6 +1,6 @@
 # First unsupported owner-root capture: rank 13 Regidrago vs rank 3 Snorlax Stall
 
-<badge>Diagnostic only</badge>
+**Status: diagnostic only.**
 
 ## Result
 
