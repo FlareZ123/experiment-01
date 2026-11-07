@@ -292,6 +292,9 @@ function joinNativePreAttackBoard(
         Array.isArray(immediateBoard)?immediateBoard:null,
       publicBoardAfterPromptClosure:Array.isArray(finalBoard)?finalBoard:null,
       targetPrintedHp,
+      targetIdentityGranularity:'printing-only-no-instance-id',
+      physicalActiveIdentityGranularity:
+        'printing-and-printed-attack-menu-no-instance-id',
       targetLocationImmediatelyAfterDeclarationRoot:immediateTarget.location,
       targetLocationAfterPromptClosure:finalTarget.location,
       targetDamageImmediatelyAfterDeclarationRoot:immediateTarget.damage,
