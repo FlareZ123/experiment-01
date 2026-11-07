@@ -99,9 +99,15 @@ function runSnapTrapChoiceContract() {
     load('game/store/actions/resolve-prompt-action');
   const {ChooseCardsPrompt} =
     load('game/store/prompts/choose-cards-prompt');
+  const {WaitPrompt} = load('game/store/prompts/wait-prompt');
   const {SimpleTacticsAi} = load('simple-bot/simple-tactics-ai');
 
-  const store = new Store({onStateChange() {}});
+  let store;
+  store = new Store({
+    onStateChange(nextState) {
+      store.state = nextState;
+    }
+  });
   const state = store.state;
   const owner = new Player();
   const attacker = new Player();
@@ -139,7 +145,27 @@ function runSnapTrapChoiceContract() {
   assert.equal(marshadow.attacks[0].damage, 10);
   assert.equal(marshadow.attacks[0].cost.length, 1);
 
-  store.dispatch(new AttackAction(attacker.id, 'Red Knuckles'));
+  // UseAttackEffect pauses on an animation WaitPrompt before damage. Resolve
+  // that real prompt so DealDamageEffect can trigger Snap Trap naturally.
+  const afterAttack = store.dispatch(new AttackAction(attacker.id, 'Red Knuckles'));
+  store.state = afterAttack;
+  const animationWaitPrompts = store.state.prompts.filter(prompt =>
+    prompt instanceof WaitPrompt
+    && prompt.message === 'Attack animation'
+    && prompt.result === undefined
+  );
+  assert.equal(animationWaitPrompts.length, 1,
+    'the attack should pause on exactly one animation WaitPrompt before damage');
+  const animationWaitPrompt = animationWaitPrompts[0];
+  const afterAnimation = store.dispatch(
+    new ResolvePromptAction(animationWaitPrompt.id, null)
+  );
+  store.state = afterAnimation;
+  const animationWaitPromptAfter = store.state.prompts.find(prompt =>
+    prompt.id === animationWaitPrompt.id
+  );
+  assert.equal(animationWaitPromptAfter.result, null,
+    'the animation WaitPrompt must be resolved with null, not the undefined sentinel');
   const liveState = store.state;
   const liveOwner = liveState.players.find(player => player.id === owner.id);
   const liveAttacker = liveState.players.find(player => player.id === attacker.id);
