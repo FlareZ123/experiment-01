@@ -46,6 +46,9 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
   const {source,opponent,store,state}=f;
   // Replace the shared fixture's generic SVE-energy hand with exact rank31 cards.
   source.hand.cards.splice(0,source.hand.cards.length);
+  // Two source-turn draws plus Roxie's six-card draw need nine synthetic deck cards.
+  source.deck.cards.push(f.card('Psychic Energy SVE'),f.card('Psychic Energy SVE'));
+  assert.equal(source.deck.cards.length,9);
   assert.equal(state.activePlayer,seat);
   assert.equal(source.bench.length,5);
 
@@ -180,14 +183,15 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       'The second between-turns checkup adds another 10 poison damage after the opponent passes');
     evidence.push({phase:'second poison checkup',targetDamage:opponent.active.damage});
 
-    assert.equal(source.hand.cards.length,0,
-      'both staged Basic Psychic Energy cards must have been attached');
+    assert.equal(source.hand.cards.length,2,
+      'only the two automatic source-turn draws remain before Roxie');
     const koffing1=f.card('Koffing CEC');
     const koffing2=f.card('Koffing CEC');
     const roxie=f.card('Roxie CEC');
     source.hand.cards.push(koffing1,koffing2,roxie);
+    assert.equal(source.hand.cards.length,5);
     const roxieIndex=source.hand.cards.indexOf(roxie);
-    assert.equal(roxieIndex,2,'Roxie must be the selected physical hand card');
+    assert.equal(roxieIndex,4,'Roxie must be the selected physical hand card');
     dispatchAt('PlayCardAction Roxie',new PlayCardAction(source.id,roxieIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
@@ -212,7 +216,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
     assert.equal(source.discard.cards.includes(koffing1),true);
     assert.equal(source.discard.cards.includes(koffing2),true);
     assert.equal(source.discard.cards.includes(roxie),true);
-    assert.equal(source.hand.cards.length,6);
+    assert.equal(source.hand.cards.length,8,
+      'two automatic draws plus Roxies six-card draw remain in hand');
     assert.equal(source.deck.cards.length,1);
     assert.deepEqual([
       opponent.active.damage,
