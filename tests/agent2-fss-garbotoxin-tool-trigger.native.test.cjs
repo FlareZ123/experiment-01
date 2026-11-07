@@ -14,6 +14,7 @@ const {PokemonCardList} = native('game/store/state/pokemon-card-list');
 const {GamePhase} = native('game/store/state/state');
 const {Format} = native('game/store/card/card-types');
 const {IS_ABILITY_BLOCKED} = native('game/store/prefabs/prefabs');
+const {CheckPokemonPowersEffect} = native('game/store/effects/check-effects');
 const {PlayCardAction, PlayerType, SlotType} =
   native('game/store/actions/play-card-action');
 
@@ -117,6 +118,10 @@ function attachAndCheck(f) {
   // use the independent opposing Ability lock as the functional lock witness.
   const helperReportsGarbotoxinBlocked = Boolean(IS_ABILITY_BLOCKED(
     store, state, toolOwner, garbodor, garbotoxin));
+  const garbodorCheck = new CheckPokemonPowersEffect(toolOwner, garbodor);
+  store.reduceEffect(state, garbodorCheck);
+  const garbotoxinVisible = garbodorCheck.powers.some(
+    power => power.name === 'Garbotoxin');
 
   assert.equal(blockedAfter, true,
     'Forest Seal Stone is a Pokémon Tool and must activate Garbotoxin');
@@ -128,6 +133,7 @@ function attachAndCheck(f) {
     blockedBefore,
     blockedAfter,
     helperReportsGarbotoxinBlocked,
+    garbotoxinVisible,
     competitiveGamesQualified: 0
   };
 }
@@ -142,6 +148,8 @@ for (const garbodorName of ['Garbodor LTR', 'Garbodor BKP']) {
       assert.equal(result.blockedBefore, false);
       assert.equal(result.blockedAfter, true);
       assert.equal(typeof result.helperReportsGarbotoxinBlocked, 'boolean');
+      assert.equal(result.garbotoxinVisible, true,
+        'Garbotoxin should remain an available exception to its own lock');
     });
   }
 }
