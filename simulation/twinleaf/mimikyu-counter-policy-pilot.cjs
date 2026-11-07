@@ -15,7 +15,7 @@ const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @param {object} request
  * @param {number} candidateSeat
- * @returns {{game:object,eligibleChoices:Array<object>,observedChoices:number,payloadChoiceObservations:Array<object>}}
+ * @returns {{game:object,policyPredicateSamples:Array<object>,policyPredicateObservations:number,payloadChoiceObservations:Array<object>}}
  */
 function runSourcePolicyTrace(request, candidateSeat) {
   initializeCards();
@@ -24,10 +24,10 @@ function runSourcePolicyTrace(request, candidateSeat) {
   const {GamePhase} =
     require(path.join(output, 'game/store/state/state'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
-  const eligibleChoices = [];
+  const policyPredicateSamples = [];
   const payloadChoiceObservations = [];
   const apexWindowObservations = [];
-  let observedChoices = 0;
+  let policyPredicateObservations = 0;
   SimpleTacticsAi.prototype.decodeNextAction = function trace(state) {
     const seat = state.players.findIndex(p => p.id === this.client.id);
     const player = state.players[seat];
@@ -107,9 +107,9 @@ function runSourcePolicyTrace(request, candidateSeat) {
       });
     }
     if (responseKind) {
-      observedChoices += 1;
-      if (eligibleChoices.length < 40) {
-        eligibleChoices.push({
+      policyPredicateObservations += 1;
+      if (policyPredicateSamples.length < 40) {
+        policyPredicateSamples.push({
           turn: state.turn,
           responseKind,
           active: player.active.getPokemonCard()?.fullName,
@@ -128,7 +128,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
     return action;
   };
   try {
-    return {game: runMatch(request), eligibleChoices, observedChoices, payloadChoiceObservations, apexWindowObservations};
+    return {game: runMatch(request), policyPredicateSamples, policyPredicateObservations, payloadChoiceObservations, apexWindowObservations};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction = original;
   }
@@ -136,7 +136,7 @@ function runSourcePolicyTrace(request, candidateSeat) {
 
 /**
  * Four source 60-card diagnostic runs. Compare the unchanged upstream
- * decision policy to a single-seat response override under shared v3 seeds.
+ * decision policy to a single-seat response override under the shared prior-exposure seed 20261016.
  * These are behavioral explorations, never competitive matchup estimates.
  */
 function runMimikyuCounterSourcePilot() {
@@ -182,7 +182,7 @@ function runMimikyuCounterSourcePilot() {
         policy: experimental ? 'public-copycat-response-v2' : 'base-with-semantic-corrections',
         seed: request.seed, sourceRankCandidate: 1, sourceRankOpponent: 10};
       try {
-        const {game, eligibleChoices, observedChoices, payloadChoiceObservations, apexWindowObservations} =
+        const {game, policyPredicateSamples, policyPredicateObservations, payloadChoiceObservations, apexWindowObservations} =
           runSourcePolicyTrace(request, championSeat);
         rows.push({...base, status: 'engine-completed-or-bounded',
           finished: game.finished, endReason: game.endReason,
@@ -200,8 +200,8 @@ function runMimikyuCounterSourcePilot() {
             a.seat === championSeat && a.attack === 'Copycat'),
           candidateAttackCount: game.attackTrace.filter(a =>
             a.seat === championSeat).length,
-          eligiblePublicChoiceObservations: observedChoices,
-          eligibleChoiceSamples: eligibleChoices,
+          policyPredicateObservations: policyPredicateObservations,
+          policyPredicateSamples: policyPredicateSamples,
           payloadChoiceObservations,
           payloadChoiceCount: payloadChoiceObservations.length,
           apexWindowObservations,
