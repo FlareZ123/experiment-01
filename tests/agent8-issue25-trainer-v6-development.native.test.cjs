@@ -130,6 +130,10 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
       row.acceptedRootLedgerExactMatch===false).map(row=>row.id),
     fallbackDispositionKnownRows:pairs.filter(row=>
       row.trainerFallbackDiagnostic!==null).length,
+    fallbackActivationKnownRows:pairs.filter(row=>
+      row.treatmentFallbackOptInReported===true&&
+      row.treatmentFallbackRootPresent===true&&
+      row.trainerFallbackDiagnostic!==null).length,
     fallbackAttemptedUnsupportedPasses:pairs.reduce((sum,row)=>
       sum+(row.trainerFallbackDiagnostic?.attemptedUnsupportedPasses??0),0),
     fallbackSelectedNativeTrainerRoots:pairs.reduce((sum,row)=>
@@ -153,6 +157,13 @@ test('v6 native one-factor original-eight same-opening Trainer fallback',()=>{
   assert.equal(initial.length,8);
   assert.equal(updated.length,8);
   assert.equal(new Set(updated.map(row=>row.id)).size,8);
+  assert.ok(receipt.fallbackActivationKnownRows>0,
+    'Native Trainer treatment needs at least one actual-root activation receipt');
+  assert.ok(pairs.every(row=>!row.treatmentOwnerCoverageAvailable||
+    (row.treatmentFallbackOptInReported===true&&
+      row.treatmentFallbackRootPresent===true&&
+      row.trainerFallbackDiagnostic!==null)),
+  'All visible treatment roots must carry the installed native Trainer audit');
   assert.equal(receipt.allEightOriginalPhysicalDealsMatch,true);
   assert.equal(receipt.allEightFullPhysicalDealsMatch,true);
   assert.equal(treatment.diagnostic.completeRegisteredAttemptReconciliation,true);
