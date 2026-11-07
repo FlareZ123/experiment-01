@@ -721,8 +721,14 @@ function runStewardBilateralProbeV9(deps={}) {
   const telepathAudit=voltWrapper.result.result?.audit??null;
   const manifest={
     version:VERSION,
-    historicalOnly:false,
-    prospective:true,
+    // The physical seed was frozen originally, but this policy was repaired
+    // after observing a source-owner Call for Family prompt on that seed.
+    // The resulting replay is developmental and cannot be a held-out trial.
+    historicalOnly:true,
+    prospective:false,
+    postExposureOwnerPolicyRepair:true,
+    confirmatoryTrial:false,
+    registrationReusedForDevelopment:true,
     registrationPath:REGISTRATION_PATH,
     registrationStatus:REGISTRATION.status,
     registeredTrialIds:[trial.id],
@@ -810,7 +816,7 @@ function runStewardBilateralProbeV9(deps={}) {
       naturalGameObserved:nativeAttempt.finished===true,
       bilateralMaterialEpisodeQualified:false,
       competitiveAdmission:false,
-      reason:"One prospective development game; no independently reviewed action certificates, exact original printed-60 hash, full paper rules audit, hidden-information audit, or official 25-minute clock audit."
+      reason:"Post-exposure development replay of a previously frozen physical seed with an owner-prompt policy correction; no independently reviewed action certificates, exact original printed-60 hash, full paper rules audit, hidden-information audit, or official 25-minute clock audit."
     }
   };
   return output;
