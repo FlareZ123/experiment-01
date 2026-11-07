@@ -504,6 +504,41 @@ function requireOneNativeDevelopmentRow(selected,outputPath,metadata) {
 }
 
 /**
+ * Execute one real native match with all temporary Store/bot wrappers installed
+ * simultaneously. Each helper invokes its continuation synchronously, then
+ * restores its prototype overrides in a finally block.
+ *
+ * @param {Function} run Native match continuation.
+ * @param {{Store:Function,rootBinding:object,prizeObserver?:Function,
+ *   abilityPolicy?:Function,telepathPolicy?:Function}} deps
+ * @returns {{result:object,audit:{prize:object,ability:object,telepath:object}}}
+ */
+function withInstalledNativeMatchPolicies(run,deps) {
+  assert.equal(typeof run,'function');
+  const prizeObserver=deps.prizeObserver??
+    withAuthoritativeRootPrizeExitObserver;
+  const abilityPolicy=deps.abilityPolicy??
+    withOwnerAbilityConfirmPolicy;
+  const telepathPolicy=deps.telepathPolicy??
+    withOwnerTelepathicBenchSearch;
+  const tele=telepathPolicy(()=>
+    abilityPolicy(()=>
+      prizeObserver(run,{
+        Store:deps.Store,rootBinding:deps.rootBinding
+      })
+    )
+  );
+  return {
+    result:tele.result.result.result,
+    audit:{
+      prize:tele.result.result.audit,
+      ability:tele.result.audit,
+      telepath:tele.audit
+    }
+  };
+}
+
+/**
  * Execute the one prospectively frozen game under the identical policy stack
  * on both seats. Observers are post-choice and never feed private information
  * into either player's decision policy.
@@ -616,21 +651,9 @@ function runStewardBilateralProbeV9(deps={}) {
 
     const telepath=()=>telepathMatch(execute,{
       headless,
-      telepath:run=>{
-        const prize=withAuthoritativeRootPrizeExitObserver(run,{
-          Store,rootBinding
-        });
-        const ability=withOwnerAbilityConfirmPolicy(()=>prize.result);
-        const tele=withOwnerTelepathicBenchSearch(()=>ability.result);
-        return {
-          result:tele.result,
-          audit:{
-            prize:prize.audit,
-            ability:ability.audit,
-            telepath:tele.audit
-          }
-        };
-      }
+      telepath:run=>withInstalledNativeMatchPolicies(run,{
+        Store,rootBinding
+      })
     });
     const ownerWrapper=()=>owner(telepath);
     voltWrapper=globalVolt(ownerWrapper,{
@@ -777,5 +800,6 @@ module.exports={
   projectCandidateRepliesAfterSourceAttacks,postPrizeSourceAttackOrdinals,
   projectPostPrizeOwnerDecisionAudit,summarizeNativeAttempt,toGateAttempt,
   evaluateGate,writeJsonAtomic,requireOneNativeDevelopmentRow,
+  withInstalledNativeMatchPolicies,
   runStewardBilateralProbeV9
 };
