@@ -57,7 +57,10 @@ function probeSecretBoxFourCategories(seat=0){
   assert.equal(paymentPrompt.sourceCard?.fullName,'Secret Box TWM');
   assert.equal(paymentPrompt.playerId,f.source.id);
   assert.equal(paymentPrompt.message,'CHOOSE_CARD_TO_DISCARD');
-  assert.equal(paymentPrompt.cards,f.source.hand);
+  const paymentCollectionIsOwnerHand=paymentPrompt.cards===f.source.hand;
+  const paymentOfferedCardsAreOwnerHand=Array.isArray(paymentPrompt.cards?.cards)&&
+    paymentPrompt.cards.cards.every(card=>f.source.hand.cards.includes(card));
+  assert.equal(paymentOfferedCardsAreOwnerHand,true);
   assert.equal(paymentPrompt.validate(payment,f.state),true);
   f.store.dispatch(new ResolvePromptAction(paymentPrompt.id,payment));
 
@@ -111,7 +114,8 @@ function probeSecretBoxFourCategories(seat=0){
   assert.equal(f.source.discard.cards.includes(box),true);
   return {
     seat,source:'Secret Box TWM',ownerPromptBound:true,
-    paymentSourceBound:true,paymentCollectionBound:true,
+    paymentSourceBound:true,paymentCollectionIsOwnerHand,
+    paymentOfferedCardsAreOwnerHand,
     searchSourceBound:true,searchCollectionBound:true,
     categoryMaxima,selected: selected.map(card=>card.fullName),
     selectedPhysicalCount:selected.length,
