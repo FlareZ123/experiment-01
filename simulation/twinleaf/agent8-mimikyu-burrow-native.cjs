@@ -322,8 +322,8 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
   assert.ok(x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id));
   const previous=x.state.playerLastAttack?.[x.owner.id];
   assert.equal(previous?.sourceCard?.fullName,'Bunnelby PRC');
-  assert.equal(previous?.attack?.name,secondAttack,
-    'the final Bunnelby attack must replace the first attack in public history');
+  assert.equal(previous?.attack?.name,firstAttack,
+    'pinned Store records the original AttackAction attack, not the Ω Barrage follow-up');
 
   const sourceDeckTop=x.owner.deck.cards.slice(0,2);
   const sourceDeckBefore=x.owner.deck.cards.length;
@@ -373,7 +373,13 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     ownerSeat:1-sourceSeat,
     firstAttack,
     secondAttack,
-    finalPreviousAttack:previous.attack.name,
+    recordedPreviousAttack:previous.attack.name,
+    paperRuleEligibleAttacks:[firstAttack,secondAttack],
+    paperRuleMismatch:true,
+    engineRecordedAttackCount:1,
+    sourceTurnMimikyuDeckDelta:x.opponent.deck.cards.length-mimikyuDeckBeforeSource,
+    sourceTurnMimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBeforeSource,
+    sourceTurnMimikyuHandDelta:x.opponent.hand.cards.length-mimikyuHandBeforeSource,
     sourcePrompts,
     copycatPrompts,
     sourceDeckDelta:x.owner.deck.cards.length-sourceDeckBefore,
@@ -392,9 +398,9 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     competitiveQualifiedGames:0
   };
 
-  if(secondAttack==='Burrow'){
+  if(firstAttack==='Burrow'){
     assert.equal(result.sourceDeckDelta,-2,
-      'Copycat Burrow discard plus Bunnelby turn draw reduce its deck by two');
+      'Store copies the first Burrow: one discard plus Bunnelby turn draw reduce its deck by two');
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
@@ -403,7 +409,7 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack){
     assert.equal(result.mimikyuRecoverySelected,false);
   }else{
     assert.equal(result.sourceDeckDelta,-1,
-      'Bunnelby turn draw reduces its deck; Copycat Rototiller does not mill it');
+      'Store copies the first Rototiller: Bunnelby only takes its normal turn draw');
     assert.equal(result.sourceDiscardDelta,0);
     assert.equal(result.sourceHandDelta,1);
     assert.equal(result.sourceTopMovedToHand,true);
