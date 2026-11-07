@@ -303,10 +303,23 @@ function projectPostPrizeOwnerDecisionAudit(row) {
  */
 function summarizeNativeAttempt(row) {
   const id=row.trial?.id??row.id??null;
-  const roots=Array.isArray(row.rootActionLedger)?row.rootActionLedger:[];
-  const rootCount=row.rootActionCount??roots.length;
+  const receipt=row.nativeAbortEvidence??null;
+  const certifiedAbortRoots=receipt?.schema==='headless-native-abort-public-v1'&&
+    row.nativeAbortProvenance?.acceptedRootLedgerStatus==='VERIFIED'&&
+    Array.isArray(receipt.rootActionLedger)&&
+    Number.isSafeInteger(receipt.rootActionCount)&&
+    receipt.rootActionCount===receipt.rootActionLedger.length&&
+    receipt.rootActionLedgerSha256===rootDigest(receipt.rootActionLedger);
+  // On native aborts the real accepted roots can live ONLY on the validated
+  // nativeAbortEvidence receipt; source rows need not have rootActionLedger.
+  const roots=Array.isArray(row.rootActionLedger)?row.rootActionLedger:
+    certifiedAbortRoots?receipt.rootActionLedger:[];
+  const rootCount=row.rootActionCount??
+    (certifiedAbortRoots?receipt.rootActionCount:roots.length);
   const ledgerComplete=roots.length===rootCount;
   const ledgerDigest=roots.length?rootDigest(roots):null;
+  const reportedDigest=row.rootActionLedgerSha256??
+    (certifiedAbortRoots?receipt.rootActionLedgerSha256:null);
   const aborted=row.error!==undefined&&row.error!==null;
   const nativeOutcome=aborted?'engine-error':
     row.finished===true?'native-terminal':
@@ -361,12 +374,21 @@ function summarizeNativeAttempt(row) {
     finalBoard:row.finalBoard??null,
     rootActionCount:rootCount,
     rootActionLedger:roots,
-    rootActionLedgerSha256Reported:row.rootActionLedgerSha256??null,
+    rootActionLedgerSha256Reported:reportedDigest,
     publicRootActions:roots,
     publicRootActionsTruncated:!ledgerComplete,
     publicRootActionCount:rootCount,
     publicRootLedgerSha256Computed:ledgerDigest,
-    publicRootLedgerSha256Reported:row.rootActionLedgerSha256??null,
+    publicRootLedgerSha256Reported:reportedDigest,
+    nativeAbortProvenance:row.nativeAbortProvenance??null,
+    nativeAbortPrompt:receipt?{
+      failureStage:receipt.failureStage??null,
+      pendingPrompt:receipt.pendingPrompt??null,
+      actingSeat:receipt.actingSeat??null,
+      turnBefore:receipt.turnBefore??null,
+      actionOrdinal:receipt.actionOrdinal??null,
+      redactedMessageDigest:receipt.redactedMessageDigest??null
+    }:null,
     nativeAcceptedTargetAudit:row.nativeAcceptedTargetAudit??null,
     physicalZoneQualification:row.physicalZoneQualification??null,
     terminalAttackKoBeforeEndTurnAudit:
