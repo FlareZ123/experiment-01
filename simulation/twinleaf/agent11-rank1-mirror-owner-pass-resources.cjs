@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-original-rank1-actual-owner-pass-resource-observer-v2-distinct-store-vs-headless-ordinal';
+const VERSION='agent11-original-rank1-actual-owner-pass-resource-observer-v3-opt-in-detached-counterfactual';
 
 /**
  * Preserve one acting owner's information set immediately before a chosen
@@ -65,7 +65,7 @@ function summarizeOwnerPassResources(view,storeDispatchOrdinal){
  *
  * @template T
  * @param {()=>T} execute Synchronous original match.
- * @param {{Store?:Function,actorObservation?:Function,sourceSeat?:0|1}} [deps]
+ * @param {{Store?:Function,actorObservation?:Function,sourceSeat?:0|1,onSourcePass?:(state:object,actorId:number,view:object)=>object}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withActualOwnerPassResourceObserver(execute,deps={}){
@@ -77,6 +77,8 @@ function withActualOwnerPassResourceObserver(execute,deps={}){
   const sourceSeat=deps.sourceSeat??0;
   assert.ok(sourceSeat===0||sourceSeat===1);
   assert.equal(typeof observation,'function');
+  if(deps.onSourcePass!==undefined)
+    assert.equal(typeof deps.onSourcePass,'function');
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   let realStore=null;
@@ -101,6 +103,16 @@ function withActualOwnerPassResourceObserver(execute,deps={}){
       if(seat===sourceSeat){
         const view=observation(state,seat);
         const entry=summarizeOwnerPassResources(view,storeDispatchOrdinal);
+        if(deps.onSourcePass&&view.globalTurn===16){
+          try{
+            entry.detachedCounterfactual=deps.onSourcePass(state,actorId,view);
+          }catch(error){
+            entry.detachedCounterfactual={
+              status:'detached-probe-error',
+              message:String(error?.message??error)
+            };
+          }
+        }
         audit.sourcePasses.push(entry);
         audit.selectedSourcePassCount++;
       }
