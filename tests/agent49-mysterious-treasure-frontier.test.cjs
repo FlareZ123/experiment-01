@@ -38,6 +38,26 @@ test('discard a physical, as-yet-undiscarded Dragon payload from owner hand',()=
     searchOwnerDeckOnly:true});
 });
 
+
+test('first-turn Crispin can pay Treasure when held VS Seeker preserves it',()=>{
+  const hand=[ITEM,'Crispin SCR','VS Seeker PHF'];
+  const r=chooseTreasureRootIntent(view({turn:1,hand}),dragonCatalog);
+  assert.equal(r.kind,'play-mysterious-treasure');
+  assert.equal(r.discardPrinting,'Crispin SCR');
+  assert.equal(r.discardSourceIndex,1);
+  assert.equal(r.reason,'recoverable-supporter-via-vs-seeker');
+  assert.equal(r.searchOwnerDeckOnly,true);
+});
+
+test('Crispin is preserved without VS Seeker or outside first-player first turn',()=>{
+  assert.equal(chooseTreasureRootIntent(
+    view({turn:1,hand:[ITEM,'Crispin SCR']}),dragonCatalog),null);
+  assert.equal(chooseTreasureRootIntent(
+    view({turn:2,hand:[ITEM,'Crispin SCR','VS Seeker PHF']}),dragonCatalog),null);
+  assert.equal(chooseTreasureRootIntent(
+    view({turn:3,hand:[ITEM,'Crispin SCR','VS Seeker PHF']}),dragonCatalog),null);
+});
+
 test('a prior public donor discard suppresses duplicate payload spending',()=>{
   assert.equal(chooseTreasureRootIntent(view({discard:[donor]}),
     dragonCatalog),null);
