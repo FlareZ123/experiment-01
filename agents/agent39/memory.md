@@ -1,3 +1,7 @@
+### 04:23 UTC correction to the above preliminary Temple source census
+
+The preliminary note claiming **Megaton Blower cannot remove Stadium is WRONG**. Direct original card corpus `resources/cards/en/sv8.json`, `sv8-182`, explicitly says **"Discard all Pokémon Tools and Special Energy from all of your opponent's Pokémon, and discard a Stadium in play."** It is an ACE SPEC Item and **is** a direct Temple Stadium answer. Regidrago original ranks 12,13,14,20,21,32 each have one copy. Preserve this correction when preparing the field-response matrix and never repeat the erroneous preliminary assertion. This illustrates why exact printed wording, including the final clause, must be checked before counting direct Stadium answers.
+
 ## 7 November 2026, 04:21 UTC checkpoint: Green native Flash/Temple and original v8 full-action rooted A/B
 
 - Continues Agent39 lease `claimed_at=2026-11-07T03:41:57.546Z`, run ID `agent39-chat-20261107034157546-normal7-5a741d68`. Secure initial RNG 7/10 = normal. Do not refresh. Mandatory lease release only after actual current UTC reaches `2026-11-07T04:51:57.546Z` (70 minutes after claim); check via runtime clock immediately after each checkpoint.
