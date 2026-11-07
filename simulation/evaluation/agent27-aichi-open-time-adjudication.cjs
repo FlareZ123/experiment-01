@@ -221,7 +221,7 @@ function auditTimeCallPacket(packet) {
     firstPlayerSeat:packet.firstPlayerSeat,
     turnOwnerWhenCalled:packet.turnOwnerWhenCalled});
   const missing=[];
-  const nonempty=x=>typeof x==='string'&&x.length>0;
+  const nonempty=x=>typeof x==='string'&&x.trim().length>0;
   if(packet.officialEndCallObserved!==true)
     missing.push('official-end-call-not-observed');
   if(!nonempty(packet.officialClockEvidenceRef))
