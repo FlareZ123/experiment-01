@@ -12,6 +12,8 @@ Pinned source: `vendor/twinleaf/ptcg-server/src/game/store/effect-reducers/check
 
 ## Paper rule: Advanced Player's Rulebook §E
 
+Repository source of truth: `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, §D Knock Out steps and §E Win and Loss table (lines 538-585). The table contains 11 explicitly enumerated terminal combinations; the shared pure helper tests all 16 Boolean combinations, including the ordinary single-terminal and ongoing cases.
+
 The simultaneous terminal table distinguishes promotion availability when both players take their final Prize cards:
 
 - Both players can promote: draw.
