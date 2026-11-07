@@ -128,7 +128,9 @@ test('native attempt projection binds the complete root tape to Agent45 gate inp
   assert.equal(attempt.candidateSeat,1);
   assert.deepEqual(attempt.publicRootActions,roots);
   const screen=screenArchivedReciprocalAttempts({attempts:[attempt]});
-  assert.equal(screen.qualified,false);
+  assert.equal(screen.verifiedRootLedgerContexts,1);
+  assert.equal(screen.quarantinedContexts,0);
+  assert.equal(screen.competitiveGamesQualified,0);
 });
 
 test('Agent45 structural evaluation never admits this one-game probe',()=>{
