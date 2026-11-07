@@ -46,6 +46,12 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(alternate.schema,VERSION,
     'native probe error is not an accepted counterfactual result');
   assert.equal(alternate.targetTurnMatched,true);
+  assert.equal(alternate.attackNativeAccepted,true);
+  assert.equal(alternate.attackSettled,true,
+    'resolve the native animation WaitPrompt before claiming attack settlement');
+  assert.equal(alternate.attackDamage,80,
+    'Energy Drive should deal 20 times the four Energy attached to both Active Pokémon');
+  assert.deepEqual(alternate.unresolvedPromptTypes,[]);
   assert.equal(alternate.sourceHandIndex,
     turn16.ownerHandPrintings.indexOf('Dimension Valley PHF'));
   assert.equal(turn16.active.printing,'Tapu Lele-GX GRI');
@@ -67,7 +73,7 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     genuineNativeStoreDecisionChanged:false,
     sourceRootHistoryUnchanged:true,
     paperQualifiedGames:0,
-    limitation:'One retrospective source-only cloned counterfactual; native legality is not paper certification, downstream opponent does not reply, not a matchup win'
+    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, downstream opponent does not reply, and it is not a matchup win'
   };
   console.log('AGENT11_DIMENSIONVALLEY_ENERGY_DRIVE_NATIVE',
     JSON.stringify(packet));
