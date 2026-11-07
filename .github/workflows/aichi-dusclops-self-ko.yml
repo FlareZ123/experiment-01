@@ -68,6 +68,8 @@ jobs:
         run: npm run compile
       - name: Verify rank31 Dusknoir PRE Cursed Blast and physical Prize settlement on both seats
         run: node --test tests/agent49-rank31-dusknoir-cursed-blast-native.test.cjs
+      - name: Verify legal rank31 BCR and Alakazam transfers into PRE Cursed Blast
+        run: node --test tests/agent49-rank31-dusknoir-legal-transfer-cursed-blast-native.test.cjs
       - name: Characterize Cursed Blast when damage counters are prevented
         run: node --test tests/dusclops-self-ko-condition.test.cjs
       - name: Validate source-card Ditto direct Stage-2 transformation and reroll
