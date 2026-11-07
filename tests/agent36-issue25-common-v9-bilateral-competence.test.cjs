@@ -15,7 +15,7 @@ const {
   withInstalledNativeMatchPolicies
 }=require('../simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs');
 
-test('live v9 native Store executes under all five simultaneously installed policies',()=>{
+test('live v9 native Store executes under all six simultaneously installed policies',()=>{
   const active=[];
   const events=[];
   const mock=(name)=>(run)=>{
@@ -30,13 +30,14 @@ test('live v9 native Store executes under all five simultaneously installed poli
   };
   const result=withInstalledNativeMatchPolicies(()=>{
     events.push('native-run');
-    assert.deepEqual(active,['telepath','ability','family','fullBench','prize']);
+    assert.deepEqual(active,['telepath','ability','family','motivate','fullBench','prize']);
     return {executed:true,realStore:true};
   },{
     Store:class NativeStore {},
     rootBinding:{current:null},
     prizeObserver:mock('prize'),
     familyPolicy:mock('family'),
+    motivatePolicy:mock('motivate'),
     fullBenchPaperHook:mock('fullBench'),
     abilityPolicy:mock('ability'),
     telepathPolicy:mock('telepath')
@@ -44,13 +45,14 @@ test('live v9 native Store executes under all five simultaneously installed poli
   assert.deepEqual(result.result,{executed:true,realStore:true});
   assert.deepEqual(result.audit,{
     prize:{name:'prize'},ability:{name:'ability'},
-    family:{name:'family'},fullBench:{name:'fullBench'},
+    family:{name:'family'},motivate:{name:'motivate'},
+    fullBench:{name:'fullBench'},
     telepath:{name:'telepath'}
   });
   assert.deepEqual(events,[
     'install:telepath','install:ability','install:family',
-    'install:fullBench','install:prize','native-run','restore:prize',
-    'restore:fullBench','restore:family',
+    'install:motivate','install:fullBench','install:prize','native-run',
+    'restore:prize','restore:fullBench','restore:motivate','restore:family',
     'restore:ability','restore:telepath'
   ]);
   assert.deepEqual(active,[]);
