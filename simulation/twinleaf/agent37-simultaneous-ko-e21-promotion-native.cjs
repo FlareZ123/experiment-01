@@ -16,7 +16,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * the Bench with Powerglass and is promoted before E-21 should resolve.
  *
  * @param {0|1} actorSeat Physical state.players index of the attacking owner.
- * @param {boolean} useHook Apply the research-owned per-Store E-21 hook.
+ * @param {boolean|Function} useHook Apply v1 (true) or a supplied research-owned per-Store hook.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook){
@@ -167,14 +167,17 @@ function runOne(actorSeat,useHook){
       ownerActiveTools:owner.active.tools.map(c=>c.fullName),
       ownerDiscard:owner.discard.cards.map(c=>c.fullName),
       ownerWinner:state.winner,
-      ownerPhase:state.phase
+      ownerPhase:state.phase,
+      playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent'),
+      activePlayerAfterTurn:state.players[state.activePlayer].id===owner.id?'owner':'opponent'
     };
   };
 
   if(!useHook)return {result:runNativeTransaction(),audit:null};
-  const wrapped=withInstanceScopedPaperKoBeforeEndTurn(
-    store,runNativeTransaction
-  );
+  const hook=typeof useHook==='function'
+    ?useHook
+    :withInstanceScopedPaperKoBeforeEndTurn;
+  const wrapped=hook(store,runNativeTransaction);
   return {result:wrapped.result,audit:wrapped.audit};
 }
 
