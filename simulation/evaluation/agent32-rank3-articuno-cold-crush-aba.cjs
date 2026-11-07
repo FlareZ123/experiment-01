@@ -5,6 +5,7 @@ const {createHash} = require('node:crypto');
 const {initializeCards, runMatch} = require('../twinleaf/headless.cjs');
 const {originals} =
   require('./agent41-rank3-arbitration-original-store.cjs');
+const {observedFirstTurn} = require('./aichi-campaign-execute.cjs');
 const {withCanonicalActorOnlyPolicy} =
   require('./agent7-canonical-actor-composition.cjs');
 const {withActorOnlyRootPolicy} =
@@ -20,7 +21,7 @@ const {withArticunoColdCrushPolicy} =
 
 const VERSION = 'agent32-rank3-articuno-cold-crush-matched-aba-v1';
 const PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const SEEDS = Object.freeze([290146, 290147, 290148, 290149]);
+const SEEDS = Object.freeze([290146, 290147, 290148, 290149, 290150, 290151, 290152, 290153]);
 const ACTION_LIMIT = 260;
 const VARIANTS = Object.freeze([
   {name: 'A-observe', mode: 'observe'},
@@ -88,6 +89,7 @@ function runWithPolicies(request, mode) {
   const discipline = withNativePaperSupporterDiscipline(() => {
     const canonical = withCanonicalActorOnlyPolicy(executeOwner, {
       root: work => withActorOnlyRootPolicy(work, {
+        terminalArbitration: false,
         publicContextSpecialEnergy: true,
         specialEnergyRoot: true
       })
@@ -158,12 +160,14 @@ function runOne(trial, decks) {
     const game = observed.game;
     const art = observed.audits.articunoColdCrush ?? {};
     const coldCrush = art.coldCrushAttackEvents?.[0] ?? null;
+    const verifiedStart = observedFirstTurn(game);
     return {
       trial,
       status: game.finished ? 'native-terminal' : 'action-cap',
       nativePin: PIN,
       sourceDeckSha256: sha(decks.source),
       candidateDeckSha256: sha(decks.candidate),
+      sourceDeckCounts: sourceCounts,
       fullInitialDealSha256:
         game.initialFullPhysicalDealFingerprint?.digestSha256 ?? null,
       sourceInitialDealSha256:
@@ -171,6 +175,13 @@ function runOne(trial, decks) {
       nativeWinner: game.winner ?? null,
       nativeActions: game.actions ?? null,
       nativeTurn: game.turn ?? null,
+      actualStarterSeat: verifiedStart?.firstTurnSlot ?? null,
+      sourceActuallyFirst: verifiedStart ? verifiedStart.firstTurnSlot === trial.sourceSeat : null,
+      firstStartVerified: verifiedStart !== null,
+      rootActionCount: game.rootActionLedger?.length ?? null,
+      rootActionLedgerSha256: game.rootActionLedger ? sha(game.rootActionLedger) : null,
+      attackDeclarationCount: game.attackDeclarationTrace?.length ?? null,
+      publicAttackTransitionCount: game.publicAttackTransitions?.length ?? null,
       articunoAudit: art,
       ownerAbilityAudit: observed.audits.ownerAbility,
       sameTargetAudit: observed.audits.sameTargetEnergy,
@@ -235,6 +246,12 @@ function run() {
   const decks = originals();
   assert.equal(decks.source.length, 60);
   assert.equal(decks.candidate.length, 60);
+  const sourceCounts = {
+    articunoCES31: decks.source.filter(card => card.fullName === 'Articuno-GX CES').length,
+    basicWater: decks.source.filter(card => card.name === 'Water Energy').length,
+    captureEnergy: decks.source.filter(card => card.name === 'Capture Energy').length
+  };
+  assert.deepEqual(sourceCounts, {articunoCES31: 1, basicWater: 2, captureEnergy: 3});
 
   const envNames = [
     'AGENT8_ACTOR_QUICK_BALL_DEV',
