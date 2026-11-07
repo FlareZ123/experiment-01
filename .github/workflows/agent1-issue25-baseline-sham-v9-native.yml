@@ -38,6 +38,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank3_owner_deck_cause_audit:
+        description: Audit the frozen rank3/rank1 turn-15 owner deck decrement with read-only Store prompt metadata
+        type: boolean
+        required: false
+        default: false
       forced_active_opening_screen:
         description: Run exact source-deck Basic and forced-low-HP opener analysis only
         type: boolean
@@ -53,8 +58,41 @@ permissions:
   contents: read
 
 jobs:
-  aichi-forced-active-screen:
-    if: ${{ inputs.forced_active_opening_screen == true }}
+  rank3-owner-deck-cause-audit:
+    if: ${{ inputs.rank3_owner_deck_cause_audit == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test read-only owner deck cause observer
+        run: node --test tests/agent1-rank3-owner-deck-cause-audit.test.cjs
+      - name: Replay frozen original rank3 versus rank1 physical deal
+        env:
+          AGENT1_RANK3_OWNER_DECK_CAUSE_DIR: artifacts/agent1-rank3-owner-deck-cause
+        run: node --test tests/agent1-rank3-owner-deck-cause-audit.native.test.cjs
+      - name: Preserve complete read-only deck dispatch receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank3-owner-deck-cause-${{ github.run_id }}
+          path: artifacts/agent1-rank3-owner-deck-cause/
+          if-no-files-found: warn
+          retention-days: 30
+
+  aichi-forced-active-screen:    if: ${{ inputs.forced_active_opening_screen == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -88,7 +126,7 @@ jobs:
         run: node --test tests/agent1-terminal-tiebreaker-native-admission.test.cjs tests/agent1-terminal-ordinary-double-ko-admission.native.test.cjs
 
   native-same-baseline-sham:
-    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true }}
+    if: ${{ inputs.shuffle_only_aba != true && inputs.wondertag_shuffle_held_aba != true && inputs.common_v7_wondertag_v11 != true && inputs.common_v7_wondertag_v12 != true && inputs.common_v7_radiant_v13 != true && inputs.common_v13_horizon260_v14 != true && inputs.common_v14_filch_v15 != true && inputs.forced_active_opening_screen != true && inputs.terminal_tiebreaker_native_admission != true && inputs.rank3_owner_deck_cause_audit != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
