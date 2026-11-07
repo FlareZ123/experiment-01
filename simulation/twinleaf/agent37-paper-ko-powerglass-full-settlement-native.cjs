@@ -18,8 +18,10 @@ function auditFullSettlement(){
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
     {label:'lastPokemon',lastPrize:false,opponentHasBench:false}
   ];
-  const arms=scenarios.map(({label,...options})=>{
-    const args={...options,settleAll:true};
+  const physicalArms=scenarios.flatMap(s=>
+    [0,1].map(actorSeat=>({...s,actorSeat})));
+  const arms=physicalArms.map(({label,actorSeat,...options})=>{
+    const args={...options,actorSeat,settleAll:true};
     const baseline=inspectPowerglassWinningKo(args);
     const treatment=withPaperKoBeforeEndTurn(
       ()=>inspectPowerglassWinningKo(args));
@@ -63,7 +65,10 @@ function auditFullSettlement(){
         false);
       assert.equal(treatment.result.opponentRemainingBench,0);
     }
-    return {label,baseline:{
+    if(label==='lastPrize'||label==='lastPokemon'){
+      assert.equal(t.winner,actorSeat);
+    }
+    return {label,actorSeat,baseline:{
       firstChoice:baseline.firstChoicePrompt,sequence:baseline.seenPrompts,
       final:b
     },paperOrder:{
