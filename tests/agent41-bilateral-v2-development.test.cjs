@@ -668,6 +668,52 @@ test('single-candidate-per-source-group rejects paired, mixed, and one-group inp
     /one arm per group/);
 });
 
+test('single-candidate-per-source-group validates a fixed deck across eight registered contexts',()=>{
+  const rows=[];
+  const ranks=[1,3,6,11];
+  let seed=9000;
+  for(const rank of ranks){
+    for(const candidateSlot of ['A','B']){
+      const repeat=300+rank;
+      const candidateId='new-moon-lockbreaker-v1';
+      rows.push({
+        id:[rank,repeat,candidateSlot,candidateId].join(':'),
+        rank,repeat,candidateSlot,candidateId,seed:seed++
+      });
+    }
+  }
+  const validated=validateRegisteredTrialGroups(rows,ranks,false,true);
+  assert.equal(validated.groupCount,8);
+  assert.deepEqual(validated.trialIds,rows.map(row=>row.id));
+  assert.deepEqual(registeredSourcePairKeys(rows,false,true),[]);
+});
+
+test('single-candidate-per-source-group rejects malformed group shapes',()=>{
+  const base={
+    rank:1,repeat:301,candidateSlot:'A',
+    candidateId:'new-moon-lockbreaker-v1',seed:9001
+  };
+  const one=[{...base,id:'1:301:A:new-moon-lockbreaker-v1'}];
+  const paired=[...one,{...base,candidateId:'champion-reference',
+    id:'1:301:A:champion-reference'}];
+  const mixed=[
+    ...one,
+    {rank:3,repeat:303,candidateSlot:'B',
+      candidateId:'champion-reference',seed:9003,
+      id:'3:303:B:champion-reference'}
+  ];
+  assert.throws(()=>validateRegisteredTrialGroups(one,[1],false,true),
+    /requires multiple source groups/);
+  assert.throws(()=>validateRegisteredTrialGroups(paired,[1],false,true),
+    /exactly one candidate arm/);
+  assert.throws(()=>validateRegisteredTrialGroups(mixed,[1,3],false,true),
+    /same fixed candidate/);
+  assert.throws(()=>validateRegisteredTrialGroups(one,[1],true,true),
+    /mutually exclusive/);
+  assert.throws(()=>registeredSourcePairKeys(paired,false,true),
+    /one arm per group/);
+});
+
 test('single registered native game has no fabricated second-contender source pair',()=>{
   const single=[{
     id:'11:1000:B:new-moon-lockbreaker-v1',
