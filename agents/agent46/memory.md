@@ -330,3 +330,39 @@ Other repo facts: 29 source lists present, three missing; unoptimized champion r
 **Unresolved and next critical work:** v8 is a *prompt-only negative contract*. Agent4 standalone `simulation/twinleaf/agent4-roxie-paper-payment-hook.cjs` additionally preflights **Roxie `PlayCardAction` root with no eligible owner hand Pokémon**; this remains uncovered in v8 and matters for release. If integrating it, stage a legal Koffing in hand for the GX-payment negative test so the root play is otherwise permissible; preserve both-seat positive control. A source-specific card reducer and root stamp is safest. Standard common v8 production installs Radiant hooks when no `deps.Store` or with explicit injected `deps.RadiantAlakazam`; note an injected native Store without the Radiant class may skip that card-source marker. Audit schema remains distinct from historical v5–v7. All accepted prompt replies remain independently `UNVERIFIED` unless another original printed contract verifies them. The real **99.5% single fixed 60** remains wholly unproven; **29/32 original exact opposing 60s, 32/32 archetypes only, zero competitive-qualified games**. The missing 23/25/28 original sixties remain missing. Latest Japanese surname/CL rank targeted web search surfaced no authenticated new 60, so do not substitute proxies.
 
 **Lease**: initial secure roll 8 normal research; lease immutable `claimed_at=2026-11-01T21:21:00.067324Z`. **Before 2026-11-01T22:31:00.067324Z: continue work.** On or after 70 minutes measured at a checkpoint: final memory update/commit/push; delete lease via shared GitHub; verify remote lease removal; exit. No early lease release.
+
+
+## 2026-11-07 invocation: normal mode roll 7
+
+Claimed this identity after the required RNG draw returned 7. Immutable lease: `2026-11-07T08:50:52.893892Z`; run id `agent46-chat-20261107T085052Z-normal7-083c59dfe6`. Claim commit: `0b3e1db2446fa14b0d3b8652cec6b9ec30cf38a0`. Do not refresh the lease. The 70-minute threshold is `2026-11-07T10:00:52.893892Z`, checked against the actual runtime clock after each checkpoint.
+
+### New native Copycat/Eon Blade delayed-effect witness
+
+Agent 3 asked whether there was a reusable native Store observer to establish that the specific Mimikyu which copied Eon Blade is attack-locked on its next turn, and whether the two existing Copycat hooks affect ordinary Eon Blade semantics.
+
+Created `simulation/twinleaf/agent46-mimikyu-copycat-eonblade-lock-native.cjs`, added it to the existing manual-only `.github/workflows/agent46-copy-delegation.yml`, and documented it in `results/methodology/agent46-mimikyu-copycat-eonblade-next-turn-lock-20261107.md`. Added a section to `results/twinleaf/mimikyu-apex-copycat-audit.md`. Main result commit for the corrected test: `868b598f5c2d916fdd221cddd15a0cb9c37762d3`; report commit: `fcbad56121fedcd3ae7acd33b75bb190be9bb82b`; synthesis commit: `43b08d00222d3c271b2130ce8bed08e814ce75a3`.
+
+The first CI attempt `42357515342` failed because the test incorrectly expected `playerLastAttack` to store Eon Blade after Copycat. The native Store correctly retained Mimikyu's declared `Copycat` record while resolving Eon Blade as the copied payload. Corrected the assertion and reran the existing manual workflow. [Run 42357724295](https://github.com/FlareZ123/experiment-01/actions/runs/42357724295) passed on repository commit `868b598f5c2d916fdd221cddd15a0cb9c37762d3`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, Node 20.19.0.
+
+The staged fixture uses an actual opponent Eon Blade AttackAction, then native RetreatAction to promote the exact physical Mimikyu GRI from Bench, native Copycat, opponent PassTurnAction, and a rejected next-own-turn Copycat. The Mimikyu has two Psychic Energy, pays its own [Psychic, Colorless] Copycat cost, and does not pay the donor's [Psychic, Psychic, Colorless] Eon Blade cost. Both physical seats pass. The copied effect deals 200; the same physical Mimikyu has `cannotAttackNextTurn=true`, retains it after the opponent pass, and is blocked with `BLOCKED_BY_EFFECT` on its next turn.
+
+Ran 8 variants: both seats with no hook, declared-history hook only, Apex compatibility hook only, and both. All outputs are identical. Ordinary Eon Blade Copycat produces only WaitPrompt animations, no ChooseAttackPrompt, so the declared-history hook has no prompt to repair. The compatibility hook is explicitly scoped to Regidrago VSTAR's Apex Dragon. The donor's Eon Blade reducer is delegated with `this` bound to the copycat Pokémon and the copycat Active slot as attack source; the native test confirms the delayed restriction applies to the exact Mimikyu. This is a staged rules witness, not a natural shuffled game, not a full original-60 game, and not a qualified competitive game. Qualified games remain zero.
+
+Sent the result to Agent 3 at `communications/agent3/20261107T090300Z_agent46_mimikyu-eonblade-copycat-lock-result.md`.
+
+### Copycat policy legality source audit
+
+Agent 44 asked whether `mimikyu-counter-policy.cjs` could emit an underfunded Copycat AttackAction. Inspected pinned `ptcg-server/src/simple-bot/simple-tactics-ai.ts`: `decodePlayerTurnAction` calls each tactic's `useTactic`, then validates a returned action through `isValidAction`; that method constructs a `Simulator(state)`, dispatches the action, and returns false if the dispatch throws. Thus the specialized tactic can propose an action before its own cost check, but the final bot dispatcher rejects it before selecting it. This is source-level evidence, not a dedicated underfunded-Mimikyu bot regression. Sent the audit and this caveat to Agent 44 at `communications/agent44/20261107T085900Z_agent46_copycat-policy-attack-legality-review.md`. Potential next work: add a native insufficient-Energy bot regression if the policy path remains in active use.
+
+### Rank31 overlap and current benchmark state
+
+Agent 49's exact PRE Cursed Blast / Dusknoir self-KO native witness is distinct from my rank31 Roxie/Koffing/Painful Spoons and Alakazam source work. Checked its code and scope; sent non-duplication confirmation to Agent 49 at `communications/agent49/20261107T085900Z_agent46_rank31-cursed-blast-overlap-check.md`.
+
+The shared benchmark remains 29/32 authenticated original Aichi Top 32 60-card lists, missing ranks 23/25/28, zero competitively qualified games, no final fixed 60, and no demonstrated 99.5% result.
+
+### Next actions
+
+1. Check Agent 3's reply and use the native Eon Blade lock observer if their postgame event trace later records an actual Copycat Eon Blade.
+2. If Agent 44 or the shared Mimikyu policy remains active, implement a small native bot test where visible conditions for the Apex/Timeless tactic hold but Mimikyu has insufficient Energy; confirm the common SimpleTacticsAi dispatcher falls through without selecting the invalid attack.
+3. Continue toward natural shuffled original-60 games and meaningful opponent response. Do not promote any staged native sequence to competitive evidence.
+4. Preserve all hook comparisons and keep both Copycat hooks opt-in pending natural-game validation.
