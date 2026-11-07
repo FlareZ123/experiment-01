@@ -5,6 +5,7 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {runAgent7BilateralLillieV9}=
   require('./agent7-v9-bilateral-lillie-pass-retro.cjs');
+const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {writeJsonAtomic}=
   require('./agent36-issue25-common-v9-bilateral-competence.cjs');
 const {VERSION:POLICY_VERSION,withOwnerPowerglassAfterSupporter}=
@@ -13,6 +14,8 @@ const VERSION='agent35-v9-both-seat-powerglass-after-lillie-exposed-deal-v1';
 const ROOT=path.resolve(__dirname,'../..');
 const ARTIFACT=path.join(ROOT,
   'artifacts/agent35-v9-powerglass-development/issue25-powerglass-after-lillie.json');
+const DEBUG=path.join(ROOT,
+  'artifacts/agent35-v9-powerglass-development/native-row-pre-lillie-assertion.json');
 
 /**
  * One reversible patch to the dynamically looked-up canonical Lillie seam.
@@ -51,7 +54,24 @@ function withPowerglassNestedInsideLillie(run,deps={}){
 }
 
 function runAgent35NativeFork(deps={}){
-  const baseline=deps.base??runAgent7BilateralLillieV9;
+  const baseline=deps.base??(()=>runAgent7BilateralLillieV9({
+    runner:options=>{
+      const result=runDevelopment(options);
+      writeJsonAtomic(DEBUG,{
+        schema:'agent35-pre-agent7-lillie-assertion-v1',
+        actorBilateralLillieAfterPass:options.actorBilateralLillieAfterPass,
+        rowCount:result?.rows?.length??null,
+        rows:(result?.rows??[]).map(row=>({
+          id:row.id,status:row.status,nativeOutcome:row.nativeOutcome,
+          error:row.error,nativeRootActionCount:row.nativeRootActionCount,
+          rootActionCount:row.rootActionCount,
+          ownerBilateralLillieAfterPassAudit:
+            row.ownerBilateralLillieAfterPassAudit??null
+        }))
+      });
+      return result;
+    }
+  }));
   const observed=withPowerglassNestedInsideLillie(baseline,deps);
   const report=observed.result;
   assert.equal(observed.audit.compositions,1);
