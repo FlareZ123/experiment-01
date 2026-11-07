@@ -360,7 +360,7 @@ function commonPayloadOption(candidateSeat,enabled,lateWindow=false,anyTurn=fals
  * @param {boolean} enabled
  * @param {null|0|1} ownerSeat
  * @param {boolean} garbodorToolRoot
- * @returns {{naturalEvolutionRoot?:true,garbodorResponseOwnerSeat?:null|0|1,
+ * @returns {{naturalEvolutionRoot?:true,naturalEvolutionRootOwnerSeat?:null|0|1,
  *   garbotoxinToolRoot?:true}}
  */
 function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
@@ -375,7 +375,7 @@ function actorGarbodorResponseRootOptions(enabled,ownerSeat=null,
     'A seat-scoped natural-evolution root requires the root to be enabled');
   return enabled?{
     naturalEvolutionRoot:true,
-    garbodorResponseOwnerSeat:ownerSeat,
+    naturalEvolutionRootOwnerSeat:ownerSeat,
     ...(garbodorToolRoot?{garbotoxinToolRoot:true}:{})
   }:{};
 }
