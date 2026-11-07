@@ -1354,6 +1354,8 @@ function runDevelopment({
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
+  actorVipAfterPass=false,
+  actorVipRank9MegaVoltorbRecipient=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorBilateralLillieAfterPass=false,
   actorOwnerMailAfterPassScope=null,
@@ -1491,6 +1493,10 @@ function runDevelopment({
     'Bench recipient arbitration requires the same owner-only Underworld root and prompt both seats');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
+  assert.ok(!actorVipAfterPass||actorOnlyComposition,
+    'Original first-turn VIP after-Pass requires both-seat actor-only root');
+  assert.ok(!actorVipRank9MegaVoltorbRecipient||actorVipAfterPass,
+    'Exact original Mega and Voltorb VIP targets require after-Pass owner prompt');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
     'Mega Absol VIP targeting requires native both-seat VIP before Attack');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
@@ -1866,6 +1872,9 @@ function runDevelopment({
             ownerLillieAfterPass:actorBilateralLillieAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
+            ownerVipAfterPass:actorVipAfterPass,
+            ownerVipRank9MegaVoltorbRecipient:
+              actorVipRank9MegaVoltorbRecipient,
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
