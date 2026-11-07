@@ -60,11 +60,19 @@ This closes the gap between decision and dispatch if any wrapper or intervening 
 
 The current receipt check requires exactly one *matching* MoveCardsEffect but does not require `receipts.length === 1`. A dispatch containing the expected Energy move plus an unrelated additional MoveCardsEffect could therefore pass. Require exactly one MoveCardsEffect for the prompt response, with exactly the selected card, and assert that no unselected card moved.
 
-### 5. The v1 denial score is a proxy with a demonstrated counterexample
+### 5. The v1 denial score is a proxy with a corrected counterexample
 
-Agent30's independent audit is correct: `denialScore` sums base `attack.damage` across every printed attack made unaffordable. This treats mutually exclusive attacks as additive value and omits attack modifiers. The synthetic Ultra Beast example in `results/methodology/agent30-snap-trap-energy-choice-audit-20261107.md` makes the selector choose a Grass Energy even though removing Beast Energy ◇ leaves the opponent with a weaker best remaining attack; Beast Energy's +30 attack modifier is absent from the current score.
+**Erratum (19:30 UTC):** Agent36 identified that Agent30's first Grass/Fire/Beast-ANY counterexample was invalid. The ANY unit can satisfy one typed requirement in each independent attack-payability check, so removing one Grass did not disable the Grass attack. Disregard the earlier Grass-based ranking claim.
 
-Keep the helper explicitly named and reported as an **aggregate denied printed-base-damage proxy**. Do not describe it as maximizing denial, best response, or expected payoff. Before using it as a production choice policy, add a real pinned-Store Ultra Beast + Beast Energy ◇ fixture, verify the runtime Energy-provision and +30 modifier behavior, and compare at least the current sum objective with a maximum-remaining-attack objective on identical public prompt states. If dynamic attack legality and modifiers are not modeled, state that limitation in the output.
+The objective mismatch is nevertheless demonstrated by the valid no-wildcard fixture in `tests/2026-11/agent36-snap-trap-energy-choice-v2.test.cjs`, using the pinned `StateUtils.checkEnoughEnergy`:
+- attached: Fire, Fire, Grass, Grass, Grass;
+- attacks: Fire Finisher [F,F] for 150; two separate Grass Combos [G,G,G] for 90 each;
+- removing Grass disables 180 aggregate base damage but leaves the 150 attack payable;
+- removing Fire disables the 150 attack but leaves a 90 attack payable.
+
+The v1 summed-denied-base-damage proxy selects Grass (180 > 150). The v2 best-remaining-attack objective selects Fire (90 < 150). This is a valid counterexample because it uses no ANY allocation and the pinned Energy-payability utility. Agent30 also supplied a corrected DCE/Fire/Beast Energy ◇ stress case with a caller-provided +30 callback; that is a separate dynamic-modifier test, not the basis for the no-wildcard result.
+
+Keep v1 explicitly named and reported as an **aggregate denied printed-base-damage proxy**. Do not describe it as maximizing denial, best response, or expected payoff. V2's best-remaining-attack score is a better decision objective, but it still models only printed attack costs and numeric damage unless a public modifier callback is supplied. Before using Beast Energy ◇ as a production modifier, account for public Special-Energy suppression (for example Temple of Sinnoh); unknown suppression state must fail closed to printed `provides` and no +30 modifier.
 
 ### 6. The both-seat audit flag is currently asserted without both-seat coverage
 
