@@ -29,17 +29,21 @@ function summarizeContextCoverage(census) {
     assert.ok(row.sourceSeat === 0 || row.sourceSeat === 1);
     assert.equal(row.publicRootHashPass, true);
     assert.equal(row.actualSourceSeatAuthenticated, true);
-    assert.equal(row.candidateSeatAuthenticated, true);
+    assert.equal(typeof row.candidateSeatAuthenticated, 'boolean');
     assert.equal(row.competitiveGameQualified, false);
     const declarations = row.sourceStoreAttackDeclarations;
     const settlements = row.actualAttackSettlements;
     assert.equal(declarations === null, settlements === null);
+    if (settlements !== null)
+      assert.equal(row.candidateSeatAuthenticated, true,
+        'Known source-attack settlement requires authenticated opponent seat');
 
     if (settlements === null) {
       assert.equal(row.settledSourceAttackCount, null);
       return {
         id: row.id, rank: row.rank, candidateId: row.candidateId,
         sourceSeat: row.sourceSeat, disposition: row.nativeDisposition,
+        candidateSeatAuthenticated: row.candidateSeatAuthenticated,
         acceptedRoots: row.acceptedRoots,
         sourceDealFingerprint: row.sourceOpeningFingerprint ?? null,
         attackTraceStatus: 'unknown-after-unclosed-native-trace',
