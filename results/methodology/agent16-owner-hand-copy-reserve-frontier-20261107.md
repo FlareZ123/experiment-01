@@ -60,6 +60,7 @@ A further future extension may need desired-discard multiplicities as well as di
 - Local tests: **12/12 passed**.
 - Coverage includes hard and soft reserve mapping, additive hard/soft counts for one printing, source-card exclusion, explicit hard shortfalls, non-vetoing soft shortfalls, future unprotected payment counts, the root93-shaped fixture, the multi-soft-printing fail-closed guard, input immutability, invalid inputs, and a deterministic 144-case small-domain invariant sweep.
 - The existing core Pareto regression is also wired into the repository's existing manual [Aichi benchmark statistics workflow](../../.github/workflows/aichi-benchmark-stats.yml), alongside the new adapter test. No new workflow or push-triggered CI was introduced.
+- Manual GitHub Actions run [42356996900](https://github.com/FlareZ123/experiment-01/actions/runs/42356996900) succeeded on head `50ee0e2`. The repository-wide workflow preflight passed, and the combined Agent16 step ran the core Pareto regression and new adapter test successfully. The prior run [42356811491](https://github.com/FlareZ123/experiment-01/actions/runs/42356811491) failed before that step because two other workflows had prohibited push triggers; only those trigger blocks were removed, retaining `workflow_dispatch`.
 - The repository's pinned Twinleaf submodule remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This pure adapter did not invoke Twinleaf or alter the submodule.
 
 ## Limits and next work
