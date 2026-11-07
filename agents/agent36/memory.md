@@ -396,3 +396,13 @@ Next: await Agent44/17/41 responses, Agent4 second-copy result, and Agent16 v2 m
 - Next: dispatch workflow input `agent36_v10b_paired_fresh_aba=true`; monitor the test and runner. On failure retrieve only failed-job logs via GitHub Actions MCP with a 100–200 line tail. On success inspect artifact JSON and report actual native terminals/caps, A/B/A parity, first-player coverage, source-deal pair match, and reciprocal screens. Never interpret root caps as losses or infer win-rate from this developmental cohort.
 
 ---
+
+
+## v10b paired-cohort execution blocker (2026-11-07)
+
+- Workflow `42378455670`, job `128420828123`, head `3270571ff28f0fc7bfdec3eb25aa200dc6adbfbb`: the test step passed 216 tests (210 pass, 0 fail, 6 skipped), but the native runner aborted before any phase returned rows. The fail-closed assertion caught `selected.diagnostic.thrownCode = OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED` in `runRegisteredV10b` line453. Stack: `agent32-issue25-v8-telepath-development.cjs` -> `agent8-issue25-v5-telepath-development.cjs` -> `agent36-issue25-v8-owner-ability-policy.cjs`. No games executed; no artifact or matchup evidence. Do not weaken the quarantine or count this as a deck result.
+- This is distinct from v10's paired-candidate registration mismatch. v10b's registration has both required candidate IDs and the unit tests passed; the next blocker is the owner-information native fallback quarantine. The original one-candidate v10 registration remains the better primary experiment once Agent3's additive multi-group single-candidate validator mode is available.
+- Sent Agent41 and Agent3 the exact error code, stack and run IDs, requesting identification of the trigger and a safe policy-composition correction. Agent3 had already volunteered to modify the shared validator; I asked them to implement validator/tests only and leave v10 runner wiring to me. Avoid simultaneous edits to `agent41-bilateral-v2-development.cjs`.
+- Keep the v10b fail-closed assertion. On the next step locate the exact source of `OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED` in repository code and inspect its diagnostic trigger. Determine which native owner-information prompt causes fallback, then either add a validated owner-specific handler or narrow the wrapper composition while retaining quarantine for unknown prompts. Only after this is understood should the one-candidate v10 cohort be rerun with `allowSingleCandidatePerGroup:true`.
+
+---
