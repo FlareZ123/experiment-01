@@ -12,8 +12,8 @@ const native=p=>require(path.join(OUTPUT,p));
 
 /**
  * Actual simultaneous active KO: Ferroseed's 60 self-damage and 60 attack
- * damage KO Ferroseed and a 60-HP Duskull together. Owner's Unown starts on
- * the Bench with Powerglass and is promoted before E-21 should resolve.
+ * damage KO Ferroseed and a 60-HP Duskull together. By default, owner's Unown
+ * starts on the Bench with Powerglass; terminal fixtures may omit either Bench.
  *
  * @param {0|1} actorSeat Physical state.players index of the attacking owner.
  * @param {boolean|Function} useHook Apply v1 (true) or a supplied research-owned per-Store hook.
