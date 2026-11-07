@@ -18,7 +18,8 @@ function run(){
     const baseline=runSeat(seat);
     assert.equal(baseline.error,null);
     assert.equal(baseline.originalSourceLastAttackAfterResolvedApex?.attack,
-      'Apex Dragon');
+      'Overclock',
+      'Unpatched pinned native history replaces the declared Apex with its selected payload');
     assert.equal(baseline.mimikyuOpponentDamage,0);
     const trial=withMimikyuApexFlattenedCounterline(()=>
       runSeat(seat,{chooseMimikyuTimeless:true}));
