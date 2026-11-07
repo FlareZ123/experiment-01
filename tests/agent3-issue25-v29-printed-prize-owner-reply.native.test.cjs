@@ -34,6 +34,8 @@ const {VERSION:NOMINAL_ATTACK_SCREEN_VERSION,screenNativeAttackDamage}=
   require('../simulation/evaluation/agent3-v28-public-attack-damage-screen.cjs');
 const {VERSION:PRE_ATTACK_BOARD_VERSION,joinNativePreAttackBoard}=
   require('../simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs');
+const {VERSION:COPYCAT_ELIGIBILITY_VERSION,auditMimikyuCopycatEonBlade}=
+  require('../simulation/evaluation/agent3-mimikyu-copycat-eon-blade-eligibility.cjs');
 const {VERSION:OWNER_REPLY_VERSION,projectOwnerRepliesAfterSourcePrize}=
   require('../simulation/evaluation/agent3-postprize-owner-reply-projection.cjs');
 
@@ -288,6 +290,28 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   assert.equal(actualPreAttackBoardJoins.qualifiedCompetitiveGames,0);
   console.log('AGENT3_V29_ACTUAL_PRE_ATTACK_BOARD_KO_JOIN',
     JSON.stringify(actualPreAttackBoardJoins.rows));
+  // Independently reconcile the physical Mimikyu's Copycat cost and the
+  // opponent's immediately preceding non-GX Eon Blade, not the donor's cost.
+  // This is a postgame evidence join and cannot alter the selected policy.
+  const mimikyuCopycatEligibility=auditMimikyuCopycatEonBlade(
+    selected.rawDevelopment.rows,attackPrizeRootJoins,
+    actualPreAttackBoardJoins.rows,printedNativeAttackNominals.rows,originalField);
+  assert.ok(mimikyuCopycatEligibility.rows.length>=1,
+    'No fixed-contender Mimikyu Copycat Eon Blade attacks were observed');
+  assert.equal(mimikyuCopycatEligibility.supportedRows,
+    mimikyuCopycatEligibility.rows.length,
+    JSON.stringify(mimikyuCopycatEligibility.rows));
+  assert.equal(mimikyuCopycatEligibility.rows.every(row=>
+    row.currentAttackDelegatedCopy===true&&
+    row.priorOpponentAttackWasImmediatelyPreviousTurn===true&&
+    row.priorOpponentAttackNonGx===true&&
+    row.copycatCostFunding?.status==='POSSIBLE'&&
+    row.actualAttachedEnergyPaymentCertified===false&&
+    row.paperGameCertified===false),true);
+  assert.equal(mimikyuCopycatEligibility.paperGameCertified,false);
+  assert.equal(mimikyuCopycatEligibility.qualifiedCompetitiveGames,0);
+  console.log('AGENT3_V31_MIMIKYU_COPYCAT_EON_BLADE_ELIGIBILITY',
+    JSON.stringify(mimikyuCopycatEligibility));
   const exactPostPrizeOwnerReplies=projectOwnerRepliesAfterSourcePrize(
     selected.rawDevelopment.rows,attackPrizeRootJoins);
   assert.equal(exactPostPrizeOwnerReplies.length,5);
@@ -505,6 +529,10 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     actualPreAttackBoardJoinHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-native-pre-attack-public-board-join.cjs'))),
     actualPreAttackBoardJoins,
+    mimikyuCopycatEligibilityVersion:COPYCAT_ELIGIBILITY_VERSION,
+    mimikyuCopycatEligibilityHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent3-mimikyu-copycat-eon-blade-eligibility.cjs'))),
+    mimikyuCopycatEligibility,
     printedBasePrizeScreenVersion:BASE_SCREEN_VERSION,
     printedBasePrizeScreenHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-printed-base-prize-screen.cjs'))),
