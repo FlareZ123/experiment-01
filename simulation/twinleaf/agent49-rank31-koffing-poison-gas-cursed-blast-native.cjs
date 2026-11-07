@@ -195,7 +195,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
         const kind=prompt.constructor.name;
         if(kind==='WaitPrompt'){
           evidence.push({phase:abilityName,kind});
-          store.dispatch(new ResolvePromptAction(prompt.id,null));
+          dispatchAt(abilityName+' WaitPrompt',
+            new ResolvePromptAction(prompt.id,null));
         }else if(kind==='MoveDamagePrompt'){
           assert.equal(prompt.playerId,source.id);
           const answer=Array.from({length:moveCount},()=>({from,to}));
