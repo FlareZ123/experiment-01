@@ -930,6 +930,88 @@ function probabilityHandiworkAccessByLilliesDetermination(
   };
 }
 
+
+const HORROR_HOUSE_LOCK_ACCESS_VERSION='agent1-rank3-horror-house-lock-access-v1';
+
+/**
+ * Conditional Handiwork-in-hand probability during the opponent's next turn
+ * after Gengar & Mimikyu-GX uses Horror House-GX.
+ *
+ * The attack prevents the opponent from playing cards from hand during their
+ * next turn. If its extra-Psychic draw clause is enabled, the opponent first
+ * draws until they have seven cards. They then take their mandatory draw and
+ * may use one already-available turn-ending draw effect (for example Rotom V
+ * Instant Charge or Player's Ceremony). The opponent cannot play Trainers'
+ * Mail, Arven, Teammates, Lillie's Determination, Handiwork, or attach a
+ * Forest Seal Stone from hand during the lock.
+ *
+ * A Forest Seal Stone already attached to a Pokémon V with Star Alchemy unused
+ * is modeled separately as a ready ability gateway; it can put Handiwork into
+ * hand despite the hand-play lock, but Handiwork still cannot be played during
+ * the locked turn. This assumes no effect suppresses Star Alchemy.
+ *
+ * @param {number} deckSize Deck size before Horror House-GX's draw effect.
+ * @param {number} handSizeBeforeAttack Opponent's hand size before the attack.
+ * @param {boolean} drawToSevenEnabled Whether the extra Psychic energy clause is active.
+ * @param {number} [mandatoryDrawCount=1] Opponent's next-turn mandatory draw count.
+ * @param {number} [finalDrawCount=0] One chosen available turn-ending draw effect.
+ * @param {boolean} [forestSealStoneAttachedReady=false] Whether an attached Stone can use Star Alchemy.
+ * @returns {object} Exact conditional probability and draw breakdown.
+ */
+function probabilityHandiworkInHandDuringHorrorHouseLock(
+  deckSize,handSizeBeforeAttack,drawToSevenEnabled,
+  mandatoryDrawCount=1,finalDrawCount=0,
+  forestSealStoneAttachedReady=false
+){
+  assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
+    'deckSize must be 1..60');
+  assert.ok(Number.isSafeInteger(handSizeBeforeAttack)&&
+    handSizeBeforeAttack>=0&&handSizeBeforeAttack<=60,
+    'handSizeBeforeAttack must be 0..60');
+  assert.ok(deckSize+handSizeBeforeAttack<=60,
+    'deck and hand cannot exceed the 60-card deck');
+  assert.equal(typeof drawToSevenEnabled,'boolean',
+    'drawToSevenEnabled must be boolean');
+  assert.ok(Number.isSafeInteger(mandatoryDrawCount)&&
+    mandatoryDrawCount>=0&&mandatoryDrawCount<=1,
+    'mandatoryDrawCount must be 0 or 1');
+  assert.ok(Number.isSafeInteger(finalDrawCount)&&
+    finalDrawCount>=0&&finalDrawCount<=60,
+    'finalDrawCount must be 0..60');
+  assert.equal(typeof forestSealStoneAttachedReady,'boolean',
+    'forestSealStoneAttachedReady must be boolean');
+
+  const horrorHouseDrawCount=drawToSevenEnabled
+    ?Math.max(0,7-handSizeBeforeAttack)
+    :0;
+  const requestedDrawCount=horrorHouseDrawCount+
+    mandatoryDrawCount+finalDrawCount;
+  const cardsDrawn=Math.min(deckSize,requestedDrawCount);
+  const exact=forestSealStoneAttachedReady
+    ?probabilityFraction(1n,1n)
+    :probabilityFraction(BigInt(cardsDrawn),BigInt(deckSize));
+  return {
+    version:HORROR_HOUSE_LOCK_ACCESS_VERSION,
+    deckSizeBeforeAttack:deckSize,
+    handSizeBeforeAttack,
+    drawToSevenEnabled,
+    horrorHouseDrawCount,
+    mandatoryDrawCount,
+    finalDrawCount,
+    requestedDrawCount,
+    cardsDrawn,
+    forestSealStoneAttachedReady,
+    handPlayLocked:true,
+    sameTurnPlayable:false,
+    accessTiming:'held-through-lock; playable-next-turn',
+    exactProbability:{
+      numerator:exact.n.toString(),
+      denominator:exact.d.toString()
+    },
+    probability:Number(exact.n)/Number(exact.d)
+  };
+}
+
 module.exports={
   VERSION,
   makeRank3HandiworkCadenceSchedule,
@@ -937,5 +1019,6 @@ module.exports={
   probabilityHandiworkAccessByNaturalDrawAndMail,
   probabilityHandiworkAccessByNaturalDrawMailAndStarAlchemy,
   probabilityHandiworkInHandByNaturalDrawMailAndSearchGateways,
-  probabilityHandiworkAccessByLilliesDetermination
+  probabilityHandiworkAccessByLilliesDetermination,
+  probabilityHandiworkInHandDuringHorrorHouseLock
 };
