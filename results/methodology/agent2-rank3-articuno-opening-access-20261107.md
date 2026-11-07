@@ -84,7 +84,12 @@ The item-only subset does not depend on Arven. The Arven extension applies on a 
 
 ## Sampling implication
 
-If valid opening hands were independent and followed this exact uniform-shuffle model, the chance of seeing at least one of the included routes would be 94.090060% in 32 samples, 95% by 34 samples, and 99% by 53 samples. This is a binomial planning approximation only; paired seat assignments from a shared seed may not be independent. It is not a claim that 32 natural games will contain an Articuno prompt, a transferable Water attachment, or a strategically correct Cold Crush decision.
+If valid opening hands were independent and followed this exact uniform-shuffle model:
+
+- For the **item-only** subset (3.538123%; exact fraction 40,247/1,137,524), 32 samples have a 68.422144% chance of at least one route; 84 samples are needed for 95%, and 128 for 99%.
+- For **all included routes** (8.459776%), 32 samples have a 94.090060% chance of at least one route; 34 samples are needed for 95%, and 53 for 99%. This includes the Arven route on a turn when Supporter use is legal, so it is not a first-turn-only estimate.
+
+These are binomial planning approximations only; paired seat assignments from a shared seed may not be independent. They do not predict that natural games will contain an Articuno prompt, a transferable Water attachment, or a strategically correct Cold Crush decision.
 
 The two historical Articuno prompts with zero owner Water are specific source-game observations, not a random sample of valid opening hands. This prior should not be used as a direct significance test against those two prompts.
 
