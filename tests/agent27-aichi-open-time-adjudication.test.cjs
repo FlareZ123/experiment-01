@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {stageRules,requiredTurnsAfterCall,adjudicateNaturalPaperTie,
   adjudicateAtPrescribedEnd,
-  adjudicateExtension,classifyTiebreaker,auditTimeCallPacket} =
+  adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditNoCallClockPacket} =
   require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs');
 
 test('Open Swiss and Top32 preliminary elimination are 25 minutes, final 35',()=>{
@@ -44,6 +44,101 @@ test('Natural pre-call Swiss tie differs from a timed Swiss double loss',()=>{
     prizesRemaining:[3,3],secondPlayerTurnFinished:true,paperGameTie:true});
   assert.equal(natural.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
   assert.equal(timed.status,'SWISS_BOTH_LOSE');
+});
+
+test('No-call clock packet admits only a paper-proved natural winner before the limit',()=>{
+  const result=auditNoCallClockPacket({
+    stage:'open-swiss',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:1200,
+    officialClockEvidenceRef:'official-clock-start-and-end',
+    stageEvidenceRef:'official-open-swiss-pairing',
+    paperTerminalEvidenceRef:'complete-paper-normal-win',
+    independentReviewEvidenceRef:'independent-clock-and-paper-review',
+    noCallIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:false
+  });
+  assert.equal(result.status,'NORMAL_PAPER_GAME_WIN');
+  assert.equal(result.conditionalWinnerSeat,0);
+  assert.equal(result.clockDisposition,'no-official-call');
+  assert.equal(result.noCallEvidenceShapeComplete,true);
+  assert.equal(result.evidenceFieldsRemainExternallyAsserted,true);
+  assert.equal(result.competitiveAdmission,false);
+});
+
+test('No-call natural knockout tie requires a six-Prize tiebreaker',()=>{
+  const result=auditNoCallClockPacket({
+    stage:'open-top32',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:1200,
+    officialClockEvidenceRef:'official-clock-start-and-end',
+    stageEvidenceRef:'official-open-top32-pairing',
+    paperTerminalEvidenceRef:'complete-paper-natural-tie',
+    independentReviewEvidenceRef:'independent-clock-and-paper-review',
+    noCallIndependentlyReviewed:true,paperGameTie:true
+  });
+  assert.equal(result.status,'TIEBREAKER_REQUIRED_SIX_PRIZE');
+  assert.equal(result.startingPrizeCount,6);
+  assert.equal(result.clockDisposition,'no-official-call');
+  assert.equal(result.noCallEvidenceShapeComplete,true);
+  assert.equal(result.competitiveAdmission,false);
+});
+
+test('No-call natural Swiss tie remains unresolved despite complete evidence shape',()=>{
+  const result=auditNoCallClockPacket({
+    stage:'open-swiss',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:1200,
+    officialClockEvidenceRef:'official-clock-start-and-end',
+    stageEvidenceRef:'official-open-swiss-pairing',
+    paperTerminalEvidenceRef:'complete-paper-natural-tie',
+    independentReviewEvidenceRef:'independent-clock-and-paper-review',
+    noCallIndependentlyReviewed:true,paperGameTie:true
+  });
+  assert.equal(result.status,'PRE_CALL_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(result.requiresEventRuling,true);
+  assert.equal(result.noCallEvidenceShapeComplete,true);
+  assert.equal(result.competitiveAdmission,false);
+});
+
+test('No-call packet fails closed when call status, clock limit, references or review are insufficient',()=>{
+  const base={
+    stage:'open-final',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:2000,
+    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
+    noCallIndependentlyReviewed:true,paperGameWinner:1
+  };
+  const late=auditNoCallClockPacket(base);
+  assert.equal(late.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
+  assert.ok(late.missing.includes('natural-terminal-not-before-official-time-limit'));
+  const missing=auditNoCallClockPacket({...base,
+    officialEndCallObserved:true,officialClockEvidenceRef:' ',
+    independentReviewEvidenceRef:'',noCallIndependentlyReviewed:false,
+    elapsedSecondsAtNaturalTerminal:1000
+  });
+  assert.equal(missing.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
+  assert.ok(missing.missing.includes('official-end-call-not-explicitly-absent'));
+  assert.ok(missing.missing.includes('official-clock-start-and-terminal-reading-not-cited'));
+  assert.ok(missing.missing.includes('independent-clock-and-paper-review-not-cited'));
+});
+
+test('No-call packet does not accept a missing terminal paper outcome',()=>{
+  const result=auditNoCallClockPacket({
+    stage:'open-swiss',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:1200,
+    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
+    noCallIndependentlyReviewed:true
+  });
+  assert.equal(result.status,'INSUFFICIENT_NO_CALL_EVIDENCE');
+  assert.ok(result.missing.includes('natural-terminal-paper-outcome-not-established'));
+});
+
+test('No-call packet rejects contradictory normal winner and simultaneous tie',()=>{
+  assert.throws(()=>auditNoCallClockPacket({
+    stage:'open-top32',officialEndCallObserved:false,
+    elapsedSecondsAtNaturalTerminal:1200,
+    officialClockEvidenceRef:'clock',stageEvidenceRef:'stage',
+    paperTerminalEvidenceRef:'paper',independentReviewEvidenceRef:'review',
+    noCallIndependentlyReviewed:true,paperGameWinner:0,paperGameTie:true
+  }),/simultaneous tie/);
 });
 
 test('Time called during first starter turn: finish it then second turn',()=>{

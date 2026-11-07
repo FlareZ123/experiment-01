@@ -314,6 +314,81 @@ function auditTimeCallPacket(packet) {
 
 
 /**
+ * Validate the evidence shape for a natural paper-game terminal result before
+ * the official event clock limit. The caller must supply the official clock's
+ * elapsed time from the event-defined start (pairing), not game-turn time.
+ *
+ * This checks claims and references only. It cannot authenticate the clock,
+ * prove the paper result, or replace the complete-game attempt validator.
+ *
+ * @param {object} packet
+ * @param {string} packet.stage
+ * @param {boolean} packet.officialEndCallObserved Must be explicitly false
+ * @param {number} packet.elapsedSecondsAtNaturalTerminal Official elapsed seconds
+ * @param {string} packet.officialClockEvidenceRef Official clock start/end evidence
+ * @param {string} packet.stageEvidenceRef Official event-stage/pairing evidence
+ * @param {string} packet.paperTerminalEvidenceRef Complete paper terminal-result evidence
+ * @param {string} packet.independentReviewEvidenceRef Independent review of clock and paper result
+ * @param {boolean} packet.noCallIndependentlyReviewed
+ * @param {0|1|null} [packet.paperGameWinner]
+ * @param {boolean} [packet.paperGameTie]
+ * @returns {object}
+ */
+function auditNoCallClockPacket(packet) {
+  assert.ok(packet && typeof packet === 'object');
+  const rules=stageRules(packet.stage);
+  const missing=[];
+  const nonempty=x=>typeof x==='string'&&x.trim().length>0;
+  if(packet.officialEndCallObserved!==false)
+    missing.push('official-end-call-not-explicitly-absent');
+  if(!Number.isSafeInteger(packet.elapsedSecondsAtNaturalTerminal)||
+    packet.elapsedSecondsAtNaturalTerminal<0) {
+    missing.push('official-clock-elapsed-seconds-invalid');
+  } else if(packet.elapsedSecondsAtNaturalTerminal>=rules.minutes*60) {
+    missing.push('natural-terminal-not-before-official-time-limit');
+  }
+  if(!nonempty(packet.officialClockEvidenceRef))
+    missing.push('official-clock-start-and-terminal-reading-not-cited');
+  if(!nonempty(packet.stageEvidenceRef))
+    missing.push('official-stage-and-pairing-source-not-cited');
+  if(!nonempty(packet.paperTerminalEvidenceRef))
+    missing.push('paper-terminal-result-source-not-cited');
+  if(!nonempty(packet.independentReviewEvidenceRef))
+    missing.push('independent-clock-and-paper-review-not-cited');
+  if(packet.noCallIndependentlyReviewed!==true)
+    missing.push('no-call-independent-review-pending');
+  const winner=packet.paperGameWinner??null;
+  const tie=packet.paperGameTie??false;
+  assert.ok(winner===null||winner===0||winner===1);
+  assert.ok(typeof tie==='boolean');
+  assert.ok(!(tie&&winner!==null),
+    'A simultaneous tie cannot have a unique normal winner');
+  if(winner===null&&!tie)
+    missing.push('natural-terminal-paper-outcome-not-established');
+  const base={
+    schema:VERSION,stage:packet.stage,clockLimitMinutes:rules.minutes,
+    elapsedSecondsAtNaturalTerminal:packet.elapsedSecondsAtNaturalTerminal,
+    clockDisposition:'no-official-call',
+    noCallEvidenceShapeComplete:missing.length===0,
+    evidenceFieldsRemainExternallyAsserted:true,
+    competitiveAdmission:false,externalIndependentReviewRequired:true
+  };
+  if(missing.length)
+    return {...base,status:'INSUFFICIENT_NO_CALL_EVIDENCE',
+      missing,conditionalWinnerSeat:null,noCallEvidenceShapeComplete:false};
+  if(winner!==null)
+    return {...base,status:'NORMAL_PAPER_GAME_WIN',
+      conditionalWinnerSeat:winner};
+  return {...base,...adjudicateNaturalPaperTie(packet.stage),
+    clockDisposition:'no-official-call',
+    elapsedSecondsAtNaturalTerminal:packet.elapsedSecondsAtNaturalTerminal,
+    noCallEvidenceShapeComplete:true,
+    evidenceFieldsRemainExternallyAsserted:true,
+    competitiveAdmission:false,externalIndependentReviewRequired:true};
+}
+
+
+/**
  * Check the ordered shape of an independently reviewed Aichi knockout extension ledger.
  * The reviewer must attest that every relevant transition is present. This helper
  * checks sequence continuity and applies the entry-defined rule at each supplied state;
@@ -412,4 +487,4 @@ function auditExtensionLedger(packet) {
 }
 
 module.exports={VERSION,STAGES,stageRules,requiredTurnsAfterCall,
-  adjudicateNaturalPaperTie,adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditExtensionLedger};
+  adjudicateNaturalPaperTie,adjudicateAtPrescribedEnd,adjudicateExtension,classifyTiebreaker,auditTimeCallPacket,auditNoCallClockPacket,auditExtensionLedger};
