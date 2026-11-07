@@ -209,3 +209,31 @@ test('multiple soft printings expose independent baseline and incremental defici
     {baseline: 0, post: 1, incremental: 1});
   assertAggregate(result, group, 1, 1);
 });
+
+
+test('sourceIndex is null or a valid in-range physical hand index', () => {
+  const hand = ['A', 'B'];
+  const absent = ownerHandDiscardCopyReserveFrontier({
+    handPrintings: hand,
+    sourceIndex: null,
+    cost: 1
+  });
+  assert.equal(absent.sourceCardPresentInHand, false);
+  assert.equal(absent.sourceIndex, null);
+
+  const present = ownerHandDiscardCopyReserveFrontier({
+    handPrintings: hand,
+    sourceIndex: 0,
+    cost: 1
+  });
+  assert.equal(present.sourceCardPresentInHand, true);
+  assert.equal(present.sourcePrinting, 'A');
+
+  for (const sourceIndex of [-1, hand.length, 0.5, Number.MAX_SAFE_INTEGER]) {
+    assert.throws(() => ownerHandDiscardCopyReserveFrontier({
+      handPrintings: hand,
+      sourceIndex,
+      cost: 1
+    }));
+  }
+});
