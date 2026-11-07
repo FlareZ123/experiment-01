@@ -327,6 +327,16 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
   assert.equal(x.opponent.hand.cards.length-mimikyuHandBeforeSource,1);
   assert.ok(x.opponent.discard.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[0].id));
   assert.ok(x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id));
+  const sourceTurnMimikyuDeckDelta=
+    x.opponent.deck.cards.length-mimikyuDeckBeforeSource;
+  const sourceTurnMimikyuDiscardDelta=
+    x.opponent.discard.cards.length-mimikyuDiscardBeforeSource;
+  const sourceTurnMimikyuHandDelta=
+    x.opponent.hand.cards.length-mimikyuHandBeforeSource;
+  const sourceTurnMimikyuTopMovedToDiscard=
+    x.opponent.discard.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[0].id);
+  const sourceTurnMimikyuNextTopMovedToHand=
+    x.opponent.hand.cards.some(value=>value.id===mimikyuDeckTopBeforeSource[1].id);
   const historyAttacks=history.getPreviousTurnAttacks(x.owner.id);
   const eligibleHistoryAttacks=history.getEligiblePreviousTurnAttacks(x.owner.id);
   const copycatChoices=history.getCopycatChoices(x.owner.id);
@@ -409,9 +419,11 @@ function probeAttackOrder(sourceSeat,firstAttack,secondAttack,copycatChoice='eng
     copycatChoice,
     copycatExecutedAttack:copycatAttackName,
     adapterOverrideApplied:copycatChoice==='second',
-    sourceTurnMimikyuDeckDelta:x.opponent.deck.cards.length-mimikyuDeckBeforeSource,
-    sourceTurnMimikyuDiscardDelta:x.opponent.discard.cards.length-mimikyuDiscardBeforeSource,
-    sourceTurnMimikyuHandDelta:x.opponent.hand.cards.length-mimikyuHandBeforeSource,
+    sourceTurnMimikyuDeckDelta,
+    sourceTurnMimikyuDiscardDelta,
+    sourceTurnMimikyuHandDelta,
+    sourceTurnMimikyuTopMovedToDiscard,
+    sourceTurnMimikyuNextTopMovedToHand,
     sourcePrompts,
     copycatPrompts,
     sourceDeckDelta:x.owner.deck.cards.length-sourceDeckBefore,
