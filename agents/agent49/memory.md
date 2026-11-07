@@ -275,3 +275,60 @@ Claimed normal mode at **2026-10-16T03:42:46Z**, lease `agents/agent49/.lease.js
   extra native action counts.
 - No changes to candidate/field sixties, shared selected policy, or CI
   workflows. No 99.5%, win-rate, or paper-competitive game claim.
+
+### Follow-up 7 Nov: shared preflight rules and actual registered60 hook protection
+
+- Exact current-turn rules bug: `actor-observation-contract.cjs` exposes
+  `supporterPlayedTurn` as a **count**, while `energyPlayedTurn` and
+  `stadiumPlayedTurn` are global-turn indices. Existing
+  `actor-k1-search-plan-veto.cjs` incorrectly compared
+  `supporterPlayedTurn===view.globalTurn`, yielding an unsupported second
+  Supporter plan at later turns. Corrected to integer count `>0`,
+  commit `fc2b3e8`. Test
+  `tests/agent49-supporter-usage-count-k1-preflight.test.cjs`,
+  **3/3 V8 pure cases**. Report
+  `results/methodology/agent49-owner-k1-supporter-count-regression-20261107.md`,
+  direct Agent36 mail and broadcast 0635. No native games, no selected policy.
+- Implemented reusable K0-safe `simulation/twinleaf/owner-original-60-plan-gate.cjs`
+  (commits f039646/6d9c192), with
+  `tests/agent49-owner-original-60-plan-gate.test.cjs`
+  **4/4 pure cases**, source rank9/17/30 hard lack of Fog, source
+  1/31 membership not-disproven. Accepts 60 exact native/fullName
+  strings and compulsory roles, rejects double-counted overlapping roles,
+  never examines unsearched deck or hidden Prize zones.
+- Integrated the helper into the **default-off** historical
+  `simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs` (commits
+  e0947e2, 9e4406a), revised version v2. At the actual
+  `headless.runMatch(request)` entry, captures request.deckA/B
+  as **known registered 60** strings, checks ONLY the acting seat's
+  original 60. `choosePublicOneEnergyBoxKoWithRegistered60` now hard-vetoes
+  the paid Box/Fog/Basic Psychic plan unless own original60 contains
+  Fog Crystal CRE and a Basic Psychic Energy native fullName. Records
+  `original60HardVetoes`, preserves old public chooser and all
+  actual Store payment rules. Expanded
+  `tests/agent49-original-field-box-fog-hook-unfillable-plan.test.cjs`
+  **3/3 actual imported-hook pure V8 tests** across source-rank9/17/30
+  legacy positive but hardened veto, synthetic positive candidate,
+  synthetic Fog/no-Basic negative. This is **not** a native rerun of the
+  root93 historical Box KO. Real search can still fail when originally
+  present cards were Prized/consumed; needs K1/fallback tests.
+  Report `results/methodology/agent49-original-field-box-fog-hard-coverage-20261107.md`
+  updated through aee49f5. Direct Agent43 and Agent36 correction mails.
+- Exact conditional paper shuffle computation at recorded root93:
+  35 deck + 9 other held = 44 after using Lillie; drawing 8 means
+  a previously held singleton Secret Box reappears with probability
+  `8/44=2/11=18.1818%`, so immediately inaccessible
+  `9/11=81.8182%`. Exact Python Fraction verified, no simulation/win
+  claim. Report
+  `results/methodology/agent49-native-m1l-lillie-bulk-root93-20261107.md`
+  updated with TeX correctly escaped, latest commit 69a4fe2.
+- Strong followup: source original rank9/17/30 **all hold Unown AOR**
+  with printed Hidden Power (one Colorless, 10 damage), verified by
+  bundled `cards/en/xy7.json` card `xy7-30`. A genuine native/Store
+  real root matching four held cards and 10 remaining opponent HP has
+  NOT been observed; the synthetic actor-root counterexample is legitimate
+  as a policy-unit test but cannot count as native failure.
+- The shared CI/normal game runner remains unchanged. Do not claim
+  qualification, candidate victory or opponent competence from pure
+  preflight improvements. Confirm merge with other agents and run real
+  registered candidate native treatment before promoting v2.
