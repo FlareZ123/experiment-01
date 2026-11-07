@@ -5,10 +5,6 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {secretBoxPaymentNegative}=
   require('./agent4-secret-box-paper-payment-hook.cjs');
-const {
-  chooseSecretBoxPaymentByDci,
-  VERSION: DCI_PAYMENT_VERSION
-}=require('./agent21-secret-box-dci-payment.cjs');
 const {chooseSecretBoxCategories,ROOT93_NEW_MOON_PREFERENCES}=
   require('./agent36-secret-box-four-category-selector.cjs');
 const {preflightVisibleOwnerRemainingUpperBound}=
@@ -144,26 +140,6 @@ function choosePhysicalBoxPayment(prompt,owner){
 }
 
 /**
- * Select the original fixed payment or the optional owner-visible DCI plan.
- * The default remains the historical VIP/VIP/Carrier payment.
- * @param {object} prompt Genuine native Secret Box payment prompt.
- * @param {object} owner Prompted physical player.
- * @param {object} state Current native Store state.
- * @param {'fixed'|'dci'} mode Payment policy selector.
- * @returns {{cards:object[],plan:object|null}}
- */
-function choosePhysicalBoxPaymentWithMode(prompt,owner,state,mode='fixed'){
-  if(mode==='fixed')
-    return {cards:choosePhysicalBoxPayment(prompt,owner),plan:null};
-  if(mode==='dci'){
-    const plan=chooseSecretBoxPaymentByDci(prompt,owner,state);
-    assert.ok(plan,'No affordable legal Secret Box payment under DCI policy');
-    return {cards:plan.cards,plan};
-  }
-  throw new Error('Unknown Secret Box payment mode: '+mode);
-}
-
-/**
  * Install only at the genuine headless.runMatch boundary, after all canonical
  * owner/bilateral decoders are in place. This leaves the shared v9 policy
  * unchanged unless its own already selected native action would be Pass.
@@ -180,9 +156,6 @@ function choosePhysicalBoxPaymentWithMode(prompt,owner,state,mode='fixed'){
  */
 function withOwnerOneEnergyBoxKo(execute,deps={}){
   assert.equal(typeof execute,'function');
-  const paymentMode=deps.paymentMode??'fixed';
-  assert.ok(paymentMode==='fixed'||paymentMode==='dci',
-    'Secret Box payment mode must be fixed or dci');
   const headless=deps.headless??require('./headless.cjs');
   const native=deps.native??(name=>require(path.join(OUTPUT,name)));
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
@@ -199,9 +172,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     card?.energyType===EnergyType.BASIC;
   const oldRun=headless.runMatch;
   assert.equal(typeof oldRun,'function');
-  const audit={version:VERSION,paymentMode,
-    dciPaymentVersion:paymentMode==='dci'?DCI_PAYMENT_VERSION:null,
-    dciPaymentPlans:[],
+  const audit={version:VERSION,
     bothPhysicalSeats:true,sourceIndependent:true,ownerOnly:true,
     retiredActionWasPass:true,liveRuns:0,passObservations:0,
     candidatePlans:0,acceptedActions:0,rejectedActions:0,
@@ -277,16 +248,10 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
            pending.options?.min===3&&pending.options?.max===3&&
            Array.isArray(pending.cards?.cards)&&
            pending.cards.cards.every(card=>owner.hand.cards.includes(card))){
-          const payment=choosePhysicalBoxPaymentWithMode(
-            pending,owner,state,paymentMode);
-          const answer=payment.cards;
+          const answer=choosePhysicalBoxPayment(pending,owner);
           return propose(new ResolvePromptAction(pending.id,answer),{
             kind:'box-payment',seat,turn:state.turn,ownerId:owner.id,
-            promptId:pending.id,physicalSelected:answer,
-            dciPaymentPlan:payment.plan?{
-              version:payment.plan.version,totalCost:payment.plan.totalCost,
-              cardCosts:payment.plan.cardCosts
-            }:null,step
+            promptId:pending.id,physicalSelected:answer,step
           });
         }
         if(step.stage==='box-search'&&
@@ -445,15 +410,6 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
           assert.ok(after.discard.cards.includes(c)&&!beforeDiscard.includes(c));
         }
         audit.paperPaymentsAccepted++;
-        if(proof.dciPaymentPlan){
-          audit.dciPaymentPlans.push({
-            seat:proof.seat,turn:proof.turn,
-            version:proof.dciPaymentPlan.version,
-            totalCost:proof.dciPaymentPlan.totalCost,
-            cardCosts:proof.dciPaymentPlan.cardCosts,
-            selectedPrintings:proof.physicalSelected.map(card=>card.fullName)
-          });
-        }
         step.stage='box-search';
       }else if(proof.kind==='box-search-whiff'||
                 proof.kind==='fog-search-whiff'){
@@ -498,16 +454,11 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
       record({kind:proof.kind,seat:proof.seat,turn:proof.turn,
         accepted:true,ownHandBefore:beforeHand.length,
         ownHandAfter:after.hand.cards.length,
-        remainingHandPrintings:proof.kind==='box-payment'?
-          after.hand.cards.map(card=>card.fullName):null,
         ownDeckBefore:beforeDeck.length,ownDeckAfter:after.deck.cards.length,
         ownerPrizeBefore:beforePrizes,
         ownerPrizeAfter:after.prizes.reduce((n,p)=>n+p.cards.length,0),
         paidPhysicalPrintings:proof.kind==='box-payment'?
           proof.physicalSelected.map(x=>x.fullName):null,
-        paymentMode:proof.kind==='box-payment'?paymentMode:null,
-        dciPaymentTotalCost:proof.dciPaymentPlan?.totalCost??null,
-        dciPaymentCardCosts:proof.dciPaymentPlan?.cardCosts??null,
         selectedSearchPrinting:proof.kind==='box-search'||
           proof.kind==='fog-search'?
             proof.physicalSelected[0].fullName:null,
@@ -541,8 +492,7 @@ function withOwnerOneEnergyBoxKo(execute,deps={}){
     headless.runMatch=oldRun;
   }
 }
-module.exports={VERSION,DCI_PAYMENT_VERSION,BOX,FOG,BASIC,VIP,CARRIER,
+module.exports={VERSION,BOX,FOG,BASIC,VIP,CARRIER,
   choosePublicOneEnergyBoxKo,choosePublicOneEnergyBoxKoWithRegistered60,
-  choosePhysicalBoxPayment,choosePhysicalBoxPaymentWithMode,
-  choosePhysicalOwnerSearchOrWhiff,chooseSecretBoxCategories,
-  withOwnerOneEnergyBoxKo};
+  choosePhysicalBoxPayment,choosePhysicalOwnerSearchOrWhiff,
+  chooseSecretBoxCategories,withOwnerOneEnergyBoxKo};
