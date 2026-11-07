@@ -10,9 +10,9 @@ The function is **read-only** and deliberately cannot be used as a deciding bot 
 
 ## Crucial initial-seven distinction
 
-After physical setup, each player's chosen Active Basic and any starting Bench Basics have moved **out of the original seven-card hand**. Thus this observer's \`opening\` means **current pre-action hand plus setup Active/Bench**, including any optional opponent-mulligan compensation cards. It is not automatically the exact original seven. Even when no compensation occurred, a postsetup \`inPlay\` count is semantically different from an initially held V that has not yet been put into play.
+After physical setup, each player's chosen Active Basic and any starting Bench Basics have moved **out of the original seven-card hand**. Thus this observer's \`opening\` means **current pre-action hand plus setup Active/Bench**, including any optional opponent-mulligan compensation cards and potentially the starting player's mandatory first-turn draw, which the native state machine may already have performed before the first stable PLAYER_TURN root. It is not automatically the exact original seven. Even when no compensation occurred, a postsetup \`inPlay\` count is semantically different from an initially held V that has not yet been put into play.
 
-The observer sets \`initialSevenComparable:false\` and reports a corresponding note. For an empirical test of the initial-seven mathematical proportions, the headless admission layer must also capture **original pre-setup seven-card ownership** and compensation history, then stratify or explicitly reconstruct valid seven-card deals. For a tactical readiness investigation, the postsetup physical snapshot may be more relevant, but it must still be accompanied by a paper-legal action path.
+The observer sets \`initialSevenComparable:false\` and reports a corresponding note. For an empirical test of the initial-seven mathematical proportions, the headless admission layer must also capture **original pre-setup seven-card ownership**, compensation history, and first-turn draw provenance, then stratify or explicitly reconstruct valid seven-card deals. For a tactical readiness investigation, the postsetup physical snapshot may be more relevant, but it must still be accompanied by a paper-legal action path.
 
 ## Tests and acceptance boundary
 
