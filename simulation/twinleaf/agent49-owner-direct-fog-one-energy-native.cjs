@@ -92,12 +92,12 @@ function probeRank31DirectFogOneEnergy(seat=0){
   const view=actorObservation(state,seat);
   const plan=proposeOwnerDirectFogOneEnergyKo(view,original60);
   assert.ok(plan,'rank31 K0 plus live owner observation must admit direct Fog line');
-  assert.equal(plan.kind,'owner-direct-fog-one-energy-ko');
+  assert.equal(plan.source,'actor-owner-public-plus-registered60');
   assert.equal(plan.sourcePrinting,UNOWN);
-  assert.equal(plan.fogCrystal,FOG);
+  assert.equal(plan.heldSearchPrinting,FOG);
   assert.equal(plan.attackName,'Hidden Power');
-  assert.equal(plan.damage,10);
-  assert.equal(plan.remainingHp,10);
+  assert.equal(plan.printedDamage,10);
+  assert.equal(plan.opponentRemainingHp,10);
   assert.ok(plan.basicEnergyPrintings.includes(BASIC_PAPER));
 
   const pending=()=>state.prompts.find(prompt=>prompt.result===undefined);
@@ -211,14 +211,14 @@ function probeRank31DirectFogOneEnergy(seat=0){
     sourceDeckBefore:deckBefore,sourceDeckAfter:source.deck.cards.length,
     sourceHandBefore:1,sourceHandAfter:source.hand.cards.length,
     sourcePrinting:UNOWN,targetPrinting:TARGET,targetHp:70,
-    targetDamageBefore:60,targetRemainingHpBeforeAttack:10,
+    targetDamageBefore:60,targetRemainingHpBeforeAttack:plan.opponentRemainingHp,
     fogPromptOwner:true,fogPromptDeckBound:true,
     fogPromptSource:FOG,fogPromptMessage:'CHOOSE_CARD_TO_HAND',
     offeredBasicPhysicalCount:offeredBasics.length,
     paperBasicPrinting:BASIC_PAPER,nativeBasicPrinting:basic.fullName,
     basicPhysicallyAttached:source.active.energies.cards.includes(basic),
     fogPhysicallyDiscarded:source.discard.cards.includes(fog),
-    attackName:'Hidden Power',printedAttackDamage:10,
+    attackName:'Hidden Power',printedAttackDamage:plan.printedDamage,
     attackAccepted:true,targetKnockedOut:opponent.discard.cards.includes(target),
     sourcePrizeCountBefore:sourcePrizesBefore,
     sourcePrizeCountAfter:sourcePrizesAfter,
