@@ -1038,14 +1038,14 @@ const FSS_READY_ACCESS_VERSION='agent1-rank3-fss-ready-by-mail-arven-v1';
  * @param {number} arvenInDeck Active Arven copies still in deck (0..4).
  * @param {boolean} forestSealStoneInDeck Whether the one FSS remains in deck.
  * @param {boolean} forestSealStoneReady Whether FSS is already in hand/attached and usable.
- * @param {boolean} arvenReadyInHand Whether an active Arven is already in hand.
+ * @param {number} arvenCopiesInHand Arven copies in hand (0..4).
  * @param {boolean} arvenSearchConditionsLive Whether the Item/Tool/Ability/board conditions for Arven are satisfied.
  * @returns {object} Exact conditional probability of FSS becoming ready.
  */
 function probabilityForestSealStoneReadyByNaturalDrawMailAndArven(
   deckSize,otherTrainerCount,mailsInDeck,mailsInHand,arvenInDeck,
   forestSealStoneInDeck,forestSealStoneReady=false,
-  arvenReadyInHand=false,arvenSearchConditionsLive=false
+  arvenCopiesInHand=0,arvenSearchConditionsLive=false
 ){
   assert.ok(Number.isSafeInteger(deckSize)&&deckSize>=1&&deckSize<=60,
     'deckSize must be 1..60');
@@ -1064,16 +1064,17 @@ function probabilityForestSealStoneReadyByNaturalDrawMailAndArven(
     'forestSealStoneInDeck must be boolean');
   assert.equal(typeof forestSealStoneReady,'boolean',
     'forestSealStoneReady must be boolean');
-  assert.equal(typeof arvenReadyInHand,'boolean',
-    'arvenReadyInHand must be boolean');
+  assert.ok(Number.isSafeInteger(arvenCopiesInHand)&&
+    arvenCopiesInHand>=0&&arvenCopiesInHand<=4,
+    'arvenCopiesInHand must be 0..4');
   assert.equal(typeof arvenSearchConditionsLive,'boolean',
     'arvenSearchConditionsLive must be boolean');
   assert.ok(arvenSearchConditionsLive||arvenInDeck===0,
     'inactive Arven copies must be included in otherTrainerCount');
   assert.ok(!(forestSealStoneReady&&forestSealStoneInDeck),
     'the one Forest Seal Stone cannot be both in deck and ready');
-  assert.ok(!(arvenReadyInHand&&arvenInDeck>=4),
-    'the four Arven copies cannot all be in deck when one is in hand');
+  assert.ok(arvenCopiesInHand+arvenInDeck<=4,
+    'Arven copies in deck and hand cannot exceed four');
   if(forestSealStoneReady){
     const exact=probabilityFraction(1n,1n);
     return {
@@ -1093,12 +1094,12 @@ function probabilityForestSealStoneReadyByNaturalDrawMailAndArven(
       probability:0
     };
   }
-  if(arvenReadyInHand&&arvenSearchConditionsLive){
+  if(arvenCopiesInHand>0&&arvenSearchConditionsLive){
     return {
       version:FSS_READY_ACCESS_VERSION,
       forestSealStoneReady:false,
       forestSealStoneInDeck:true,
-      arvenReadyInHand:true,
+      arvenCopiesInHand,
       exactProbability:{numerator:'1',denominator:'1'},
       probability:1
     };
@@ -1121,7 +1122,7 @@ function probabilityForestSealStoneReadyByNaturalDrawMailAndArven(
     arvenInDeck:activeArvenInDeck,
     forestSealStoneInDeck:true,
     forestSealStoneReady:false,
-    arvenReadyInHand:false,
+    arvenCopiesInHand,
     arvenSearchConditionsLive,
     exactProbability:{
       numerator:exact.n.toString(),
