@@ -49,6 +49,7 @@ test('exact opening and Prize prior matches independent calculation', () => {
     '8.459775972953');
   assert.equal(result.exactProbability,
     '1402020105757/16572780535080');
+  assert.equal(result.exactItemOnlyProbability, '40247/1137524');
 });
 
 test('disjoint route components sum to the exact favorable count', () => {
