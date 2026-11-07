@@ -317,23 +317,29 @@ function runSnapTrapPrismStarDestinationContract() {
   assert.ok(postResponseWaitPrompt instanceof WaitPrompt,
     'the remaining prompt must be the native post-damage WaitPrompt');
   const postResponseWaitPromptId = postResponseWaitPrompt.id;
-  const afterFinalWait = store.dispatch(
-    new ResolvePromptAction(postResponseWaitPrompt.id, null)
-  );
-  store.state = afterFinalWait;
-  const finalWaitPrompt = store.state.prompts.find(item =>
-    item.id === postResponseWaitPromptId
-  );
-  assert.strictEqual(finalWaitPrompt.result, null,
-    'the post-response WaitPrompt must be resolved with null');
-  const pendingFinal = store.state.prompts.filter(item => item.result === undefined);
+  const postResponseWaitPromptIds = [];
+  let pendingFinal = store.state.prompts.filter(item => item.result === undefined);
+  assert.equal(pendingFinal[0].id, postResponseWaitPromptId);
+  while (
+    pendingFinal.length > 0
+    && pendingFinal.every(item => item instanceof WaitPrompt)
+    && postResponseWaitPromptIds.length < 8
+  ) {
+    const waitPrompt = pendingFinal[0];
+    store.state = store.dispatch(new ResolvePromptAction(waitPrompt.id, null));
+    const resolvedWaitPrompt = store.state.prompts.find(item => item.id === waitPrompt.id);
+    assert.strictEqual(resolvedWaitPrompt.result, null,
+      'each native animation WaitPrompt must be resolved with null');
+    postResponseWaitPromptIds.push(waitPrompt.id);
+    pendingFinal = store.state.prompts.filter(item => item.result === undefined);
+  }
   const pendingFinalSummaries = pendingFinal.map(item => ({
     id: item.id,
     type: item.constructor?.name,
     message: item.message
   }));
   assert.equal(pendingFinal.length, 0,
-    'the full attack effect generator must have no unresolved prompts after the final WaitPrompt; remaining='
+    'the full attack effect generator must have no unresolved prompts after animation WaitPrompts; remaining='
       + JSON.stringify(pendingFinalSummaries));
 
   const after = store.state;
@@ -393,8 +399,10 @@ function runSnapTrapPrismStarDestinationContract() {
       otherPendingPromptCountAfterResponse: otherPendingPrompts.length,
       otherPendingPromptsAfterResponse: otherPendingPrompts,
       postResponseWaitPromptId,
+      postResponseWaitPromptIds,
+      postResponseWaitPromptCount: postResponseWaitPromptIds.length,
       postResponseWaitPromptType: postResponseWaitPrompt.constructor.name,
-      postResponseWaitPromptResolvedWithNull: finalWaitPrompt.result === null,
+      postResponseWaitPromptResolvedWithNull: postResponseWaitPromptIds.length > 0,
       unresolvedPromptCountAfterFinalWait: pendingFinal.length
     },
     moveCardsEffect: {
