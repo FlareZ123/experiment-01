@@ -521,6 +521,8 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
       energyMapModel: choice.energyMapModel,
       damageModel: choice.damageModel,
       dynamicEnergyOverrides: choice.dynamicEnergyOverrides,
+      specialEnergyBlocked: choice.specialEnergyBlocked,
+      specialEnergyBlockStatus: choice.specialEnergyBlockStatus,
       actualDestination: prismStar ? 'lostzone' : 'discard',
       sourcePrinting: SOURCE_PRINTING,
       sourceAbility: SOURCE_ABILITY,
