@@ -37,22 +37,22 @@ jobs:
       - name: Check diagnostic, marker and observer syntax
         run: |
           node --check simulation/twinleaf/agent10-stunfisk-snap-trap-prompt-marker.cjs
-          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v5.cjs
-          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v5.cjs
+          node --check simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v6.cjs
+          node --check simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v6.cjs
           node --check simulation/evaluation/agent36-issue25-public-prompt-zone-selection.cjs
 
-      - name: Test Snap Trap source marker, live prompt ID, zone privacy and quarantine selection
-        run: node --test tests/2026-11/agent10-stunfisk-snap-trap-prompt-marker.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v5.test.cjs tests/agent36-issue25-public-prompt-zone-selection.test.cjs tests/agent36-issue25-selected-v0.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+      - name: Test Snap Trap source marker, live prompt ID, zone privacy, deferred attack fingerprint and quarantine selection
+        run: node --test tests/2026-11/agent10-stunfisk-snap-trap-prompt-marker.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent36-issue25-public-prompt-zone-selection.test.cjs tests/agent36-issue25-selected-v0.test.cjs tests/agent34-actor-only-root-policy.test.cjs
 
       - name: Run frozen v10b phase-A diagnostic with composed Snap Trap source and zone proof
-        run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v5.cjs
+        run: node simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v6.cjs
 
       - name: Preserve public Snap Trap source and zone evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent36-issue25-public-prompt-zone-diagnostic-v5-${{ github.run_id }}
+          name: agent36-issue25-public-prompt-zone-diagnostic-v6-${{ github.run_id }}
           path: |
-            artifacts/agent36-issue25-public-prompt-zone-diagnostic-v5/
+            artifacts/agent36-issue25-public-prompt-zone-diagnostic-v6/
           retention-days: 21
           if-no-files-found: warn
