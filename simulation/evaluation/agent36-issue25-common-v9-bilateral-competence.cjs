@@ -13,8 +13,7 @@ const REGISTRATION=require(path.join(ROOT,REGISTRATION_PATH));
 const ROOT_LIMIT=260;
 
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
-const {runSelectedIssue25V0,hashRegisteredFiles}=require('./agent36-issue25-selected-v0.cjs');
-const {hashRegisteredFile}=require('./agent36-issue25-registered-file-hash.cjs');
+const {runSelectedIssue25V0,hashRegisteredFile}=require('./agent36-issue25-selected-v0.cjs');
 const {withCommonOwnerThornsRoot}=require('./agent36-issue25-common-v6.cjs');
 const {withOwnerVoltAcrossNativeMatches}=require('./agent36-issue25-common-v7.cjs');
 const {withStewardInnermostOwnerPrompts}=require('./agent36-issue25-steward-innermost-prize-v5.cjs');
@@ -131,7 +130,6 @@ const HASH_PATHS=[...new Set([
   'results/aichi-2026/full-decklists.json',
   'results/als/new-moon-lockbreak-japanese-print-60.json',
   'results/als/new-moon-lockbreak-english-proxy-60.json',
-  'simulation/evaluation/agent36-issue25-registered-file-hash.cjs',
   ...POLICY_PATHS,
   ...OBSERVER_PATHS,
   ...DEVELOPMENT_DEPENDENCY_PATHS,
@@ -474,7 +472,7 @@ function runStewardBilateralProbeV9(deps={}) {
   assert.equal(vendorPin,REGISTRATION.twinleaf.pinnedCommit,
     'Pinned Twinleaf submodule revision changed after registration freeze');
 
-  const allHashes=hashRegisteredFiles(HASH_PATHS);
+  const allHashes=HASH_PATHS.map(hashRegisteredFile);
   const policyHashes=POLICY_PATHS.map(hashRegisteredFile);
   const observerHashes=OBSERVER_PATHS.map(hashRegisteredFile);
   const policyHash=sha256(JSON.stringify(policyHashes));
