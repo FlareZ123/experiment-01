@@ -154,7 +154,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
       'native-attack-prompt-pending';
 
     const ownerBenchTargetIndex=initial.bench.findIndex(cardList=>
-      cardList.cards[0]?.fullName==='Trevenant & Dusknoir-GX UNM');
+      cardList.cards[0]?.name==='Trevenant & Dusknoir-GX');
     const hasSkylinerBenchPokemon=initial.bench.some(cardList=>
       cardList.cards.some(card=>card.fullName==='Latias ex SSP'));
     const opponentId=opposing.id;
