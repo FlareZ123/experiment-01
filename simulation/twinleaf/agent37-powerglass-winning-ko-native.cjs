@@ -7,9 +7,9 @@ const load=p=>require(path.join(output,p));
 
 /**
  * Actual pinned Store KO prompt order under either terminal-condition shape.
- * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number}} [options]
+ * @param {{lastPrize?:boolean,opponentHasBench?:boolean,settleAll?:boolean,targetDamage?:number,actorSeat?:number,actionKind?:string}} [options]
  */
-function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0}={}){
+function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settleAll=false,targetDamage=60,actorSeat=0,actionKind='attack'}={}){
   const cards=initializeCards();
   let id=8100;
   const card=printing=>{
@@ -25,7 +25,7 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
   const {Format}=load('game/store/card/card-types');
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
-  const {AttackAction}=load('game/store/actions/game-actions');
+  const {AttackAction,PassTurnAction}=load('game/store/actions/game-actions');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
   const store=new Store({onStateChange(){}});
   const state=store.state,owner=new Player(),enemy=new Player();
@@ -63,7 +63,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
   assert.equal(owner.active.tools[0].fullName,'Powerglass SFA');
-  store.dispatch(new AttackAction(owner.id,'Hidden Power'));
+  assert.ok(actionKind==='attack'||actionKind==='pass');
+  if(actionKind==='attack')store.dispatch(new AttackAction(owner.id,'Hidden Power'));
+  else store.dispatch(new PassTurnAction(owner.id));
   const prompts=[];
   let choice=null;
   let firstChoiceSnapshot=null;
@@ -117,8 +119,9 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true,settl
       'Before promotion, occupied source Bench count must match fixture');
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
-    lastPrize,opponentHasBench,targetDamage,actorSeat,
-    printedScenario:'Unown AOR Hidden Power10 to Trubbish FST with'+targetDamage+'/70 damage',
+    lastPrize,opponentHasBench,targetDamage,actorSeat,actionKind,
+    printedScenario:(actionKind==='attack'?'Unown AOR Hidden Power10':'Unown AOR pass')+
+      ' vs Trubbish FST with'+targetDamage+'/70 damage',
     seenPrompts:prompts,firstChoicePrompt:choice,
     sourceActiveAfterAttack:sourceActive?.fullName??null,
     sourceBenchCount:enemy.bench.filter(slot=>slot.getPokemonCard()).length,
