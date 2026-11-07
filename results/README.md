@@ -19,6 +19,8 @@
 
 **29/32** original Top 32 opponents have authenticated 60-card name/count inventories. Ranks **23, 25 and 28** remain missing. The 29 inventories do not establish all historical Japanese printings: 120 Basic Energy artwork annotations across 22 ranks appear to use post-event printings and need provenance normalization. Forty original printing rows still lack exact native IDs, including 35 Basic Energy rows, four Player's Ceremony rows and one Electrike PRC 60 row. Engine construction readiness is not paper legality.
 
+Limitless's [Top 32 archetype statistics](https://limitlesstcg.com/tournaments/566/statistics) cover all 32 placements: Regidrago 11, Mega Absol Box 5, Raichu Electrode Combo 3, Iron Thorns 3, Snorlax Stall 2, and eight singleton archetypes. This is useful matchup-prioritization metadata; it does not authenticate the three missing exact lists. See the [missing-opponent source audit](aichi-2026/missing-opponent-list-source-audit-20261107.md) for the rank-level evidence.
+
 - [Original-source admission matrix](aichi-2026/original-source-admission-matrix-20261102.md)
 - [Missing-opponent source audit](aichi-2026/missing-opponent-list-source-audit-20261107.md)
 - [Post-event Basic Energy printing audit](aichi-2026/agent17-postevent-basic-energy-printings-20261104.md)
