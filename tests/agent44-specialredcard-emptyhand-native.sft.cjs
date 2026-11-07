@@ -121,7 +121,7 @@ for (const seat of [0,1]) {
   }
 }
 
-const {installSpecialRedCardEmptyHandHook} =
+const {installSpecialRedCardEmptyHandHook,installSpecialRedCardPaperHook} =
   require('../simulation/twinleaf/agent44-special-red-card-empty-hand-hook.cjs');
 
 for (const seat of [0,1]) {
@@ -175,8 +175,10 @@ for (const seat of [0,1]) {
  *
  * @param {0|1} seat
  * @param {boolean} reverse
+ * @param {(()=>number)|undefined} physicalRandom Optional explicit game-physical
+ *   RNG, used only during this one real Store action.
  */
-function inspectNativeBottomOrder(seat,reverse) {
+function inspectNativeBottomOrder(seat,reverse,physicalRandom) {
   const x = stage(seat);
   const manager = initializeCards();
   const physicalNames=['Psychic Energy SVE','Double Dragon Energy ROS',
@@ -198,8 +200,14 @@ function inspectNativeBottomOrder(seat,reverse) {
   const heldOrder=x.opponent.hand.cards.map(c=>c.fullName);
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
-  x.store.dispatch(new PlayCardAction(x.owner.id,0,
-    {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+  const restore=physicalRandom === undefined ?
+    ()=>{} : installSpecialRedCardPaperHook(physicalRandom);
+  try {
+    x.store.dispatch(new PlayCardAction(x.owner.id,0,
+      {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+  } finally {
+    restore();
+  }
   const live=x.store.state.players.find(p=>p.id===x.opponent.id);
   assert.ok(live);
   const bottomOrder=live.deck.cards.slice(-heldOrder.length)
@@ -222,5 +230,59 @@ for (const seat of [0,1])for(const reverse of [false,true]){
       'Pinned source MOVE_CARDS currently preserves original hand order');
   });
 }
+
+for(const seat of [0,1])for(const reverse of [false,true]){
+  test('seeded game-physical M4 hand shuffle, seat '+seat+
+    ', opponent hand reversed '+reverse,()=>{
+    const baseline=inspectNativeBottomOrder(seat,reverse);
+    assert.equal(baseline.nativeBottomPreservesHandOrder,true);
+
+    let randomDraws=0;
+    const shuffled=inspectNativeBottomOrder(seat,reverse,()=>{
+      randomDraws+=1;
+      return 0;
+    });
+    assert.equal(randomDraws,2,'3-card shuffle must consume exactly two draws');
+    assert.deepEqual(shuffled.bottomOrder,[
+      shuffled.heldOrder[1],shuffled.heldOrder[2],shuffled.heldOrder[0]
+    ],'Fisher-Yates with deterministic zero RNG must use permutation [1,2,0]');
+    assert.equal(shuffled.nativeBottomPreservesHandOrder,false);
+    assert.deepEqual(shuffled.nativePendingPrompts,[]);
+
+    const restored=inspectNativeBottomOrder(seat,reverse);
+    assert.deepEqual(restored.bottomOrder,baseline.bottomOrder);
+    assert.deepEqual(restored.heldOrder,baseline.heldOrder);
+
+    console.log('AGENT44_M4_SEEDED_PAPER_SHUFFLE',
+      JSON.stringify({seat,reverse,randomDraws,baseline,shuffled,
+        restoredEqual:true,stagedOnly:true,
+        competitivelyQualifiedGames:0}));
+  });
+}
+
+test('paper hook uses explicit physical randomness and is strictly reversible',()=>{
+  assert.throws(()=>installSpecialRedCardPaperHook(null),TypeError);
+  let draws=0;
+  const physicalRandom=()=>{draws+=1;return 0;};
+  const restore=installSpecialRedCardPaperHook(physicalRandom);
+  assert.strictEqual(installSpecialRedCardPaperHook(physicalRandom),restore);
+  assert.throws(()=>installSpecialRedCardPaperHook(()=>0),
+    /another random stream/);
+  try {
+    const prohibited=inspectNativeSpecialRedCard(0,3,0);
+    assert.equal(prohibited.nativeStoreAccepted,false);
+    assert.equal(prohibited.ownerItemInHand,true);
+    const tooManyPrizes=inspectNativeSpecialRedCard(0,4,1);
+    assert.equal(tooManyPrizes.nativeStoreAccepted,false);
+    assert.equal(draws,0,'Invalid native actions must not consume physical RNG');
+    const validSingle=inspectNativeSpecialRedCard(0,3,1);
+    assert.equal(validSingle.nativeStoreAccepted,true);
+    assert.equal(draws,0,'Singleton opposing hand has only one permutation');
+  } finally {
+    restore();
+    restore();
+  }
+  assert.equal(inspectNativeSpecialRedCard(0,3,0).nativeStoreAccepted,true);
+});
 
 module.exports = {inspectNativeSpecialRedCard};
