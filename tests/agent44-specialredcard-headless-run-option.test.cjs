@@ -11,9 +11,12 @@ const {runMatch,upstreamSmokeDeck}=
  * It does not validate competitive policy or source rank5/26 frequency.
  */
 test('physical Store opt-in M4 paper mode leaves unrelated games unchanged',()=>{
-  const deck=upstreamSmokeDeck();
+  const deck=upstreamSmokeDeck().map(name=>
+    name==='Special Red Card M4' ? "Boss's Orders MEG" : name);
   assert.equal(deck.length,60);
   assert.equal(deck.includes('Special Red Card M4'),false);
+  assert.equal(deck.filter(name=>name==="Boss's Orders MEG").length,4,
+    'Synthetic no-M4 control remains within Expanded four-name deck limit');
   const request={deckA:deck,deckB:deck,seed:20310317,maxActions:100,
     label:'Agent44 isolated M4 paper flag absent-card baseline'};
   const baseline=runMatch(request);
