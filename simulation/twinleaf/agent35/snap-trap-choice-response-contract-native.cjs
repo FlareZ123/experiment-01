@@ -30,10 +30,10 @@ class PublicSnapTrapEnergyResolver {
 
     const fullCards = prompt.cards.cards;
     const attachedEnergies = prompt.cards.energies.cards;
-    const eligible = attachedEnergies
-      .filter(card => fullCards.includes(card))
-      .filter(card => matchesPromptFilter(card, prompt.filter))
-      .filter(card => !prompt.options.blocked.includes(fullCards.indexOf(card)))
+    const eligible = fullCards
+      .filter((card, index) => attachedEnergies.includes(card)
+        && matchesPromptFilter(card, prompt.filter)
+        && !prompt.options.blocked.includes(index))
       .sort((a, b) => a.id - b.id);
 
     assert.ok(eligible.length >= prompt.options.min,
@@ -166,6 +166,13 @@ function runSnapTrapChoiceContract() {
   const energySublistIndex = prompt.cards.energies.cards.indexOf(energy1);
   const fullListCountBefore = prompt.cards.cards.length;
   const attachedEnergyCountBefore = prompt.cards.energies.cards.length;
+  const eligibleEnergyCountBefore = prompt.cards.cards.filter((card, index) =>
+    prompt.cards.energies.cards.includes(card)
+    && prompt.filter.superType === SuperType.ENERGY
+    && card.superType === SuperType.ENERGY
+    && !prompt.options.blocked.includes(index)
+  ).length;
+  assert.equal(eligibleEnergyCountBefore, 2);
   const fullIndexDecoded = prompt.decode([fullIndex]);
   const sublistIndexDecoded = prompt.decode([energySublistIndex]);
   const fullIndexValid = prompt.validate(fullIndexDecoded);
@@ -222,7 +229,31 @@ function runSnapTrapChoiceContract() {
   const actionPromptValid = prompt.validate(action.result);
   assert.equal(actionPromptValid, true);
 
-  store.dispatch(action);
+  let moveEffectReceipt = null;
+  const ownReduceEffect = Object.getOwnPropertyDescriptor(store, 'reduceEffect');
+  const originalReduceEffect = store.reduceEffect;
+  store.reduceEffect = function(stateArg, effect) {
+    if (moveEffectReceipt === null && effect?.constructor?.name === 'MoveCardsEffect') {
+      moveEffectReceipt = {
+        type: effect.constructor.name,
+        source: effect.source,
+        destination: effect.destination,
+        cards: Array.isArray(effect.cards) ? [...effect.cards] : effect.cards,
+        sourceCard: effect.sourceCard,
+        sourceEffect: effect.sourceEffect
+      };
+    }
+    return originalReduceEffect.call(this, stateArg, effect);
+  };
+  try {
+    store.dispatch(action);
+  } finally {
+    if (ownReduceEffect) {
+      Object.defineProperty(store, 'reduceEffect', ownReduceEffect);
+    } else {
+      delete store.reduceEffect;
+    }
+  }
 
   const after = store.state;
   const attackerAfter = after.players.find(player => player.id === attacker.id);
@@ -236,6 +267,14 @@ function runSnapTrapChoiceContract() {
     'the unselected physical Energy must remain attached');
   assert.ok(attackerAfter.active.cards.includes(marshadow),
     'the attacking Pokémon remains in the Active slot');
+  assert.ok(moveEffectReceipt, 'the real Snap Trap callback must issue MoveCardsEffect');
+  assert.strictEqual(moveEffectReceipt.source, liveAttacker.active);
+  assert.strictEqual(moveEffectReceipt.destination, liveAttacker.discard);
+  assert.equal(moveEffectReceipt.type, 'MoveCardsEffect');
+  assert.equal(moveEffectReceipt.cards.length, 1);
+  assert.strictEqual(moveEffectReceipt.cards[0], energy1);
+  assert.strictEqual(moveEffectReceipt.sourceCard, stunfisk);
+  assert.strictEqual(moveEffectReceipt.sourceEffect, stunfisk.powers[0]);
 
   return {
     schema: 'agent35-snap-trap-choice-response-contract-v1',
@@ -262,6 +301,7 @@ function runSnapTrapChoiceContract() {
       isSecret: prompt.options.isSecret,
       fullPokemonCardListCount: fullListCountBefore,
       attachedEnergyCountBefore,
+      eligibleEnergyCountBefore,
       selectedEnergyPrinting: energy1.fullName,
       selectedEnergyId: energy1.id,
       remainingEnergyPrinting: energy2.fullName
@@ -282,6 +322,15 @@ function runSnapTrapChoiceContract() {
       actionContainsSamePhysicalEnergy: action.result[0] === energy1,
       explicitPromptValidationBeforeDispatch: actionPromptValid,
       hiddenIdentityReadAttempts: hiddenReadAttempts.length
+    },
+    moveCardsEffect: {
+      type: moveEffectReceipt.type,
+      sourceIsAttackingPokemonList: moveEffectReceipt.source === liveAttacker.active,
+      destinationIsAttackerDiscard: moveEffectReceipt.destination === liveAttacker.discard,
+      cardsCount: moveEffectReceipt.cards.length,
+      sameSelectedEnergyReference: moveEffectReceipt.cards[0] === energy1,
+      sourceCardIsGalarianStunfisk: moveEffectReceipt.sourceCard === stunfisk,
+      sourceEffectIsSnapTrap: moveEffectReceipt.sourceEffect === stunfisk.powers[0]
     },
     resolution: {
       actualPromptCallbackMovedEnergy: attackerAfter.discard.cards.includes(energy1),
