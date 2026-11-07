@@ -157,7 +157,7 @@ if(require.main===module){
     rank10PrintSubstitutions:data.explicitPrintingSubstitutions.rank10,
     observedChampionZoneCounts:Object.fromEntries(
       ['mimikyu','dialga','ball','seal'].map(role=>[role,
-        Object.fromEntries(['opening','prizes','deck','unused']
+        Object.fromEntries(['hand','prizes','deck']
           .map(zone=>[zone,countZone(role,zone)]))])),
     observedSingleCorePrizeBallDeck:observed.filter(row=>
       row.observerRootCapture?.oneCorePrizedBallDeck).length,
