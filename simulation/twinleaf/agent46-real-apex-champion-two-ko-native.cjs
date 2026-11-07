@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
 const {initializeCards} = require('./headless.cjs');
+const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {installMimikyuNonGxCopycatHook} = require('./copycat-compat.cjs');
 const {installDeclaredCopyHistoryHook} = require('./copycat-declared-history-hook.cjs');
 
@@ -17,7 +18,8 @@ const engine = name => require(path.join(output,name));
  * and chooses its Dragon payload through an original validated prompt.
  * No original-source 60 game, policy or win-rate conclusion follows.
  */
-function stagedChampionPowerBeamAfterRealApex() {
+function stagedChampionPowerBeamAfterRealApex(options={}) {
+  const useOriginal60=options.useOriginal60===true;
   const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),'utf8'));
   const champion=roster.decks.find(d=>d.rank===1);
@@ -43,17 +45,41 @@ function stagedChampionPowerBeamAfterRealApex() {
     assert.ok(card,'Missing pinned card: '+name);
     return card;
   };
-  const mimikyu=get('Mimikyu GRI');
-  const regidragoFirstBase=get('Regidrago V SIT');
-  const regidragoFirst=get('Regidrago VSTAR SIT');
-  const regidragoSecondBase=get('Regidrago V SIT');
-  const regidragoSecond=get('Regidrago VSTAR SIT');
-  const dialga=get('Dialga-GX UPR');
-  const radiant=get('Radiant Eternatus CRZ');
-  const clefairy=get("Lillie's Clefairy ex JTG");
-  const psychic1=get('Psychic Energy SVE');
-  const psychic2=get('Psychic Energy SVE');
-  const budew=get('Budew ASC');
+  const plan=useOriginal60?planAichi(1,{
+    allowEquivalentBasicEnergies:true,
+    allowBasicEnergyMirrorPrintings:true,
+    allowJapanesePromoHooks:true
+  }):null;
+  const sourceRank10=plan?.opponents.find(d=>d.rank===10)??null;
+  if(useOriginal60){
+    assert.equal(plan.candidate.cards?.length,60,
+      'Original rank1 printed inventory must resolve to a native 60');
+    assert.equal(sourceRank10?.cards?.length,60,
+      'Original rank10 printed inventory must resolve to a native 60');
+  }
+  const championPool=plan?.candidate.cards.map(get)??[];
+  const regidragoPool=sourceRank10?.cards.map(get)??[];
+  const allChampionCards=championPool.slice();
+  const allRegidragoCards=regidragoPool.slice();
+  const take=(pool,name)=>{
+    const index=pool.findIndex(card=>card.fullName===name ||
+      (name==='Psychic Energy SVE' && card.name==='Psychic Energy'));
+    assert.ok(index>=0,'Missing original-60 physical resource: '+name);
+    return pool.splice(index,1)[0];
+  };
+  const champ=name=>useOriginal60?take(championPool,name):get(name);
+  const regi=name=>useOriginal60?take(regidragoPool,name):get(name);
+  const mimikyu=champ('Mimikyu GRI');
+  const regidragoFirstBase=regi('Regidrago V SIT');
+  const regidragoFirst=regi('Regidrago VSTAR SIT');
+  const regidragoSecondBase=regi('Regidrago V SIT');
+  const regidragoSecond=regi('Regidrago VSTAR SIT');
+  const dialga=champ('Dialga-GX UPR');
+  const radiant=champ('Radiant Eternatus CRZ');
+  const clefairy=champ("Lillie's Clefairy ex JTG");
+  const psychic1=champ('Psychic Energy SVE');
+  const psychic2=champ('Psychic Energy SVE');
+  const budew=regi('Budew ASC');
   const {Store}=engine('game/store/store');
   const {Player}=engine('game/store/state/player');
   const {CardList}=engine('game/store/state/card-list');
@@ -83,9 +109,9 @@ function stagedChampionPowerBeamAfterRealApex() {
     const support=new PokemonCardList();
     support.cards.push(clefairy);
     candidate.bench.push(support);
-    const opponentDialga=get('Dialga-GX UPR');
-    const dragonEnergy1=get('Double Dragon Energy ROS');
-    const dragonEnergy2=get('Double Dragon Energy ROS');
+    const opponentDialga=regi('Dialga-GX UPR');
+    const dragonEnergy1=regi('Double Dragon Energy ROS');
+    const dragonEnergy2=regi('Double Dragon Energy ROS');
     opponent.active.cards.push(regidragoFirstBase,regidragoFirst,dragonEnergy1,dragonEnergy2);
     opponent.active.energies.cards.push(dragonEnergy1,dragonEnergy2);
     opponent.discard.cards.push(opponentDialga);
@@ -95,11 +121,55 @@ function stagedChampionPowerBeamAfterRealApex() {
     const spare=new PokemonCardList();
     spare.cards.push(budew);
     opponent.bench.push(spare);
-    for(const player of state.players) {
-      player.prizes=Array.from({length:6},()=>
-        CardList.fromList(['Psychic Energy SVE']));
-      player.deck=CardList.fromList(Array(12).fill('Psychic Energy SVE'));
+    const zoneChecks=[];
+    if(useOriginal60){
+      candidate.deck.cards.push(...championPool);
+      opponent.deck.cards.push(...regidragoPool);
+      for(const player of state.players){
+        player.prizes=Array.from({length:6},()=>{
+          const prize=new CardList();
+          prize.cards.push(player.deck.cards.shift());
+          return prize;
+        });
+      }
+    }else{
+      for(const player of state.players) {
+        player.prizes=Array.from({length:6},()=>
+          CardList.fromList(['Psychic Energy SVE']));
+        player.deck=CardList.fromList(Array(12).fill('Psychic Energy SVE'));
+      }
     }
+    /**
+     * One physical object in exactly one player-owned zone at each checkpoint.
+     * Secondary energy/card indexes are references and must not be recounted.
+     */
+    function auditPhysicalZones(label){
+      if(!useOriginal60)return;
+      for(const [player,original] of [
+        [candidate,allChampionCards],[opponent,allRegidragoCards]]){
+        const visible=[
+          ...player.deck.cards,...player.hand.cards,...player.discard.cards,
+          ...player.lostzone.cards,...player.prizes.flatMap(prize=>prize.cards),
+          ...player.active.cards,...player.bench.flatMap(spot=>spot.cards)
+        ];
+        assert.equal(visible.length,60,
+          label+': full original source 60 count must be preserved');
+        assert.equal(new Set(visible).size,60,
+          label+': no physical card can occupy multiple zones');
+        assert.ok(visible.every(card=>original.includes(card)),
+          label+': source-card object must remain in its original owner zones');
+        zoneChecks.push({
+          stage:label,rank:player.id===candidate.id?1:10,
+          totalPhysicalCards:visible.length,uniquePhysicalCards:60,
+          deck:player.deck.cards.length,hand:player.hand.cards.length,
+          discard:player.discard.cards.length,
+          prizes:player.prizes.flatMap(prize=>prize.cards).length,
+          active:player.active.cards.length,
+          bench:player.bench.flatMap(spot=>spot.cards).length
+        });
+      }
+    }
+    auditPhysicalZones('after-staged-original60-zones');
     const originalPrizeCards=candidate.prizes.flatMap(slot=>slot.cards);
     assert.equal(originalPrizeCards.length,6);
     assert.equal(new Set(originalPrizeCards).size,6,
@@ -136,6 +206,7 @@ function stagedChampionPowerBeamAfterRealApex() {
       'Apex Dragon','Declared-history hook must retain real source attack');
     assert.equal(state.activePlayer,0,'Opponent passed turn after Apex');
     assert.equal(state.phase,GamePhase.PLAYER_TURN);
+    auditPhysicalZones('after-native-opponent-apex-overclock');
 
     /** Resolve a copied attack from own discard through a real source prompt. */
     function copyPayload(payload,attackName) {
@@ -218,6 +289,7 @@ function stagedChampionPowerBeamAfterRealApex() {
     assert.equal(state.playerLastAttack[opponent.id]?.attack?.name,'Apex Dragon',
       'Last printed opponent Apex remains eligible on immediate bonus turn');
     assert.equal(candidate.usedGX,true);
+    auditPhysicalZones('after-first-native-knockout');
 
     const bonusTurn=state.turn;
     const secondCopy=copyPayload(radiant,'Power Beam');
@@ -238,6 +310,7 @@ function stagedChampionPowerBeamAfterRealApex() {
       'Two additional Prizes must be taken for the second VSTAR');
     assert.strictEqual(opponent.active.getPokemonCard(),budew);
     assert.equal(state.playerLastAttack[candidate.id]?.attack?.name,'Copycat');
+    auditPhysicalZones('after-second-native-knockout');
 
     return {
       schema:'agent46-real-prior-apex-champion-two-copycat-extra-turn-v1',
@@ -248,6 +321,11 @@ function stagedChampionPowerBeamAfterRealApex() {
       bothRegidragoEvolutionStacksPresent:true,
       stagedSourceGlobalTurn:4,
       originalRank1AndRank10StagedNamedCardCountsVerified:true,
+      exactOriginal60PhysicalObjectsStaged:useOriginal60,
+      original60ZoneChecks:zoneChecks,
+      candidateNativeOrderedSha256:plan?.candidateNativeOrderedSha256??null,
+      rank10PrintSubstitutions:sourceRank10?.substitutions??null,
+      candidatePrintSubstitutions:plan?.candidate.substitutions??null,
       sourceRank1BasicPsychicPrinting:'MEE',
       engineBasicPsychicPrinting:'SVE (functional Basic Energy reprint)',
       activeAfterTwoKnockouts:'Budew ASC',
