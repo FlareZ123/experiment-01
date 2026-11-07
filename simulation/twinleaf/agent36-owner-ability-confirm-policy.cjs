@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent36-owner-ability-confirm-policy-v2-prompt-object-lineage';
+const VERSION='agent36-owner-ability-confirm-policy-v3-owned-articuno-water';
 
 /**
  * Load actual classes exported by pinned Twinleaf (not a nonexistent package
@@ -26,7 +26,8 @@ function loadNativeAbilityDependencies(){
         .ResolvePromptAction
     },
     types:{CardType,SuperType,Stage,
-      GameMessage:load('game/game-message').GameMessage}
+      GameMessage:load('game/game-message').GameMessage,
+      ...load('game/store/actions/play-card-action')}
   };
 }
 
@@ -127,6 +128,62 @@ function chooseRadiantVmaxTargets({prompt,owner,types}){
   const selected=eligible.slice(0,limit);
   if(selected.length<minOption){
     throw new Error('Radiant Eternatus VMAX search has fewer legal targets than the prompt minimum.');
+  }
+  return selected;
+}
+
+/**
+ * Resolve only the physical owner's printed Basic Water Energy movement after
+ * an accepted Articuno-GX Legendary Ascent. The opened native prompt exposes
+ * only the move geometry; no opponent hand, Prize card or unopened deck is read.
+ *
+ * @param {{prompt:object,owner:object,played:object,types:object}} args
+ * @returns {object[]}
+ */
+function chooseArticunoOwnedWaterTransfers({prompt,owner,played,types}){
+  const {PlayerType,SlotType,SuperType,GameMessage}=types;
+  if(prompt?.constructor?.name!=='MoveEnergyPrompt' ||
+      prompt.message!==GameMessage.MOVE_ENERGY_TO_ACTIVE ||
+      prompt.playerType!==PlayerType.BOTTOM_PLAYER ||
+      !prompt.slots.includes(SlotType.ACTIVE) ||
+      !prompt.slots.includes(SlotType.BENCH) ||
+      prompt.filter?.superType!==SuperType.ENERGY ||
+      prompt.filter?.name!=='Water Energy'){
+    throw new Error('Articuno Ascent transfer prompt does not match its printed native geometry.');
+  }
+  const active=owner?.active;
+  if(!(active?.cards??[]).some(card=>card===played?.card||
+      card?.id!==undefined&&card.id===played?.card?.id)){
+    throw new Error('Articuno Ascent recipient is no longer the played Active Pokémon.');
+  }
+  const destination={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
+  const sameTarget=(a,b)=>a?.player===b?.player &&
+    a?.slot===b?.slot&&a?.index===b?.index;
+  if(prompt.options.blockedTo.some(target=>sameTarget(target,destination))){
+    throw new Error('Articuno Ascent native prompt forbids its Active recipient.');
+  }
+  const available=[];
+  for(let i=0;i<(owner.bench??[]).length;i++){
+    const source={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i};
+    if(prompt.options.blockedFrom.some(target=>sameTarget(target,source)))
+      continue;
+    const slot=owner.bench[i];
+    const forbidden=new Set(prompt.options.blockedMap
+      .filter(entry=>sameTarget(entry.source,source))
+      .flatMap(entry=>entry.blocked));
+    for(const card of slot?.energies?.cards??[]){
+      const index=slot.cards.indexOf(card);
+      if(index<0||forbidden.has(index) ||
+          card?.superType!==SuperType.ENERGY ||
+          card.name!=='Water Energy')continue;
+      available.push({from:source,to:destination,card});
+    }
+  }
+  const max=Number.isInteger(prompt.options.max)?
+    prompt.options.max:available.length;
+  const selected=available.slice(0,max);
+  if(selected.length<prompt.options.min){
+    throw new Error('Articuno Ascent has fewer legal owner Water cards than its native prompt minimum.');
   }
   return selected;
 }
@@ -250,19 +307,30 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     }
 
     if(meta?.kind==='articuno-move-energy'){
-      // The one-shot Ascent follow-up has settled; do not relabel a later
-      // unrelated owner's MoveEnergyPrompt as Articuno's ability.
+      // Retire the one-shot association only after the actual Store action.
       pendingAbilityByOwner.delete(meta.ownerId);
       const transfers=Array.isArray(meta.prompt.result)?meta.prompt.result:[];
+      const owner=this.state.players.find(player=>player.id===meta.ownerId);
+      const physicallyMoved=transfers.length===meta.selected.length &&
+        meta.selected.every(transfer=>
+          (owner?.active?.energies?.cards??[]).includes(transfer.card) &&
+          !(owner?.bench?.[transfer.from.index]?.energies?.cards??[])
+            .includes(transfer.card));
+      const settled=meta.prompt.result!==undefined;
       audit.articunoMoveEnergyEvents.push({
         ownerId:meta.ownerId,turn:meta.turn,
-        transferCount:transfers.length,
+        transferCount:transfers.length,promptSettled:settled,
+        physicallyMoved,
         allWaterEnergy:transfers.every(entry=>isWaterEnergy(entry?.card,types)),
         transfers:transfers.map(entry=>({
           card:entry?.card?.fullName??entry?.card?.name??null,
           from:entry?.from??null,to:entry?.to??null
         }))
       });
+      if(!settled||!physicallyMoved ||
+          !transfers.every(entry=>isWaterEnergy(entry?.card,types))){
+        throw new Error('Articuno Ascent owner Water movement did not settle into physical custody.');
+      }
     }
     return result;
   };
@@ -311,14 +379,16 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     }
 
     if(ability?.cardName==='Articuno-GX'&&
-        prompt?.constructor?.name==='MoveEnergyPrompt'){
-      const action=originalDecode.call(this,state);
-      if(action?.constructor?.name==='ResolvePromptAction'){
-        validate(state,action);
-        submitted.set(action,{
-          kind:'articuno-move-energy',prompt,ownerId,turn:state.turn
-        });
-      }
+        prompt?.constructor?.name==='MoveEnergyPrompt'&&
+        prompt.message===types.GameMessage.MOVE_ENERGY_TO_ACTIVE){
+      const selected=chooseArticunoOwnedWaterTransfers({
+        prompt,owner,played:ability,types
+      });
+      const action=new ResolvePromptAction(prompt.id,selected);
+      validate(state,action);
+      submitted.set(action,{
+        kind:'articuno-move-energy',prompt,selected,ownerId,turn:state.turn
+      });
       return action;
     }
 
@@ -345,5 +415,6 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
 
 module.exports={
   VERSION,loadNativeAbilityDependencies,decideAbilityConfirm,
-  chooseRadiantVmaxTargets,withOwnerAbilityConfirmPolicy
+  chooseRadiantVmaxTargets,chooseArticunoOwnedWaterTransfers,
+  withOwnerAbilityConfirmPolicy
 };
