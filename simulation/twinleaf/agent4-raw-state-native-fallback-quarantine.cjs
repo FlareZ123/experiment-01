@@ -5,6 +5,9 @@ const path = require('node:path');
 
 const VERSION = 'agent4-raw-state-native-fallback-quarantine-v1';
 const CODE = 'OWNER_INFORMATION_NATIVE_FALLBACK_QUARANTINED';
+const QUARANTINE_ACTIVE = Symbol.for(
+  'experiment-01.agent4.rawStateFallbackQuarantine.active'
+);
 
 /**
  * Stop any call reaching the original SimpleTacticsAi root/prompt decoder.
@@ -33,8 +36,14 @@ function withNativeRawStateFallbackQuarantine(run, deps={}) {
     Ai.prototype,'decodeNextAction');
   assert.equal(typeof descriptor?.value,'function');
   assert.equal(descriptor.configurable,true);
+  const markerDescriptor=Object.getOwnPropertyDescriptor(Ai.prototype,QUARANTINE_ACTIVE);
+  const activeMarker=Object.freeze({version:VERSION,code:CODE});
+  Object.defineProperty(Ai.prototype,QUARANTINE_ACTIVE,{
+    configurable:true,enumerable:false,writable:false,value:activeMarker
+  });
   const audit={
-    version:VERSION,policyBoundary:'original-native-bot-decoder',
+    version:VERSION,activeMarkerInstalled:true,
+    policyBoundary:'original-native-bot-decoder',
     rawStateFallbackCalls:0,records:[],recordsOmitted:0,
     originalNativeDecoderExecuted:false,
     failureCode:CODE,
@@ -82,7 +91,12 @@ function withNativeRawStateFallbackQuarantine(run, deps={}) {
   } finally {
     assert.strictEqual(Ai.prototype.decodeNextAction,guardedDecode);
     Object.defineProperty(Ai.prototype,'decodeNextAction',descriptor);
+    if(markerDescriptor) {
+      Object.defineProperty(Ai.prototype,QUARANTINE_ACTIVE,markerDescriptor);
+    } else {
+      delete Ai.prototype[QUARANTINE_ACTIVE];
+    }
   }
 }
 
-module.exports={VERSION,CODE,withNativeRawStateFallbackQuarantine};
+module.exports={VERSION,CODE,QUARANTINE_ACTIVE,withNativeRawStateFallbackQuarantine};
