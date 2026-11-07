@@ -177,4 +177,110 @@ function auditMatchedLillieMiss(baseline,treatment) {
   };
 }
 
-module.exports={VERSION,FROZEN,binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss};
+
+/**
+ * Printed-card and native-prefix necessary-condition screen for a possible
+ * first-Pass Secret Box -> Fog Crystal -> one-Energy Hidden Power KO. The
+ * follow-up B archive is used ONLY to show deck accessibility retrospectively.
+ * This does not play a card, resolve native prompts or prove the line legal.
+ * @param {object} original Archived unchanged genuine native v9 match.
+ * @param {object} treatment Archived matched native Lillie variant.
+ * @param {object} [cards] Source-printed card JSON, injectable for tests.
+ * @returns {object}
+ */
+function auditRoot93OnePrizeHypothesis(original,treatment,cards) {
+  const paired=auditMatchedLillieMiss(original,treatment);
+  const a=original.nativeAttempt, b=treatment.nativeAttempt;
+  const fromFile=(file,id)=>require('../../resources/cards/en/'+file+'.json')
+    .find(x=>x.id===id);
+  const printed=cards??{
+    unown:fromFile('xy7','xy7-30'),
+    trubbish:fromFile('swsh8','swsh8-168'),
+    secret:fromFile('sv6','sv6-163'),
+    fog:fromFile('swsh6','swsh6-140')
+  };
+  assert.equal(printed.unown?.id,'xy7-30');
+  assert.equal(printed.trubbish?.id,'swsh8-168');
+  assert.equal(printed.secret?.id,'sv6-163');
+  assert.equal(printed.fog?.id,'swsh6-140');
+  const attack=printed.unown.attacks.find(x=>x.name==='Hidden Power');
+  assert.deepEqual(attack.cost,['Colorless']);
+  assert.equal(Number(attack.damage),10);
+  assert.equal(Number(printed.trubbish.hp),70);
+  assert.ok(printed.secret.rules.some(x=>
+    x.includes('discard 3 other cards from your hand')&&
+    x.includes('Search your deck for an Item card')));
+  assert.ok(printed.fog.rules.some(x=>
+    x.includes('a Psychic Energy card or a Basic Psychic Pokémon')));
+  const before=a.nativeAllOwnerPassFrontier.receipts
+    .find(x=>x.actionOrdinal===93);
+  const self=before.publicBoardBeforePass[1];
+  const source=before.publicBoardBeforePass[0];
+  assert.equal(self.active.printing,'Unown AOR');
+  assert.equal(self.active.energyCards.length,0);
+  assert.equal(source.active.printing,'Trubbish FST');
+  assert.equal(source.active.damage,60);
+  assert.deepEqual(source.active.energyCards,[
+    'Darkness Energy','Darkness Energy','Darkness Energy']);
+  assert.deepEqual(source.active.toolCards,[]);
+  assert.deepEqual(source.stadium,[]);
+  assert.equal(printed.trubbish.weaknesses[0].type,'Fighting');
+  const hand=before.ownerHandAtChosenPass;
+  assert.equal(hand.filter(x=>x==='Battle VIP Pass FST').length,2);
+  assert.equal(hand.filter(x=>x==='Rescue Carrier EVS').length,2);
+  assert.equal(hand.filter(x=>x==='Secret Box TWM').length,1);
+  const proposedPhysicalPayments=[
+    'Battle VIP Pass FST','Battle VIP Pass FST','Rescue Carrier EVS'];
+  for(const card of new Set(proposedPhysicalPayments))
+    assert.ok(hand.filter(x=>x===card).length>=
+      proposedPhysicalPayments.filter(x=>x===card).length);
+  const later=b.rootActionLedger;
+  const candidatePlays=later.filter(x=>x.playerSlot===1&&
+    x.action==='PlayCardAction'&&x.actionOrdinal>93);
+  for(const [ordinal,printing] of [[143,'Fog Crystal'],
+    [148,'Psychic Energy'],[156,'Telepathic Psychic Energy']]) {
+    assert.ok(candidatePlays.some(x=>x.actionOrdinal===ordinal&&x.card===printing));
+  }
+  const priorToFog=candidatePlays.filter(x=>x.actionOrdinal<143)
+    .map(x=>x.card);
+  assert.deepEqual(priorToFog,['Squawkabilly ex','Duskull']);
+  assert.deepEqual(b.finalPrizes,[0,6]);
+  assert.equal(b.sourceSeat,0);
+  assert.equal(b.candidateSeat,1);
+  assert.ok(Number(printed.trubbish.hp)-source.active.damage<=
+    Number(attack.damage));
+  const eligibleRemainingEnergyDrawCounts=[4,3,2];
+  const scenarioHitBounds=eligibleRemainingEnergyDrawCounts.map(live=>({
+    liveEnergy:live,prizedEnergy:4-live,
+    chanceAtLeastOneInPrintedLillieDraw:probabilityAtLeastOne(44,live,8)
+  }));
+  return {
+    version:'agent43-v9-root93-secretbox-fog-hiddenpower-paper-preflight-v1',
+    originalTrial:paired.trialId,
+    noPlayedAlternateLine:true,
+    originalSourceHp:70,sourceDamageBeforeRoot93:60,
+    sourceActiveDarkEnergyCount:3,
+    candidateActive:'Unown AOR',attack:'Hidden Power',
+    printedAttackCost:['Colorless'],printedDamage:10,
+    targetKnockedOutIfDamageUnprevented:true,
+    threeOtherDistinctPhysicalCardsAvailable:proposedPhysicalPayments,
+    samePhysicalDealBHasPost93FogBasicAndTelepath:true,
+    atLeastOneBasicPsychicOriginallyInDeck:true,
+    atLeastOneTelepathicOriginallyInDeck:true,
+    possibleRemainingTotalEnergyPrized:[0,1,2],
+    eightCardLillieEnergyScreenAfterB:scenarioHitBounds,
+    lineToValidate:['Pay and play Secret Box with exactly three other cards',
+      'Native choose Fog Crystal from original deck',
+      'Native Fog Crystal selects remaining Basic Psychic Energy',
+      'Normal attach Basic Psychic to own Active Unown',
+      'Native Unown Hidden Power, 10 damage, source Trubbish KO and one Prize',
+      'Original-source owner promotion and meaningful next-turn reply'],
+    caveats:['Later-treatment future information used only for posthoc eligibility, not decision policy',
+      'Neither Secret Box payment nor search nor attack was executed in this original root',
+      'Item locks, tool effects, damage prevention and actual Prize promotion require native proof',
+      'Same seed is source-exposed and paper qualifications are still zero'],
+    competitivelyQualifiedGames:0
+  };
+}
+
+module.exports={VERSION,FROZEN,binomial,probabilityAtLeastOne,auditRoot93,auditMatchedLillieMiss,auditRoot93OnePrizeHypothesis};
