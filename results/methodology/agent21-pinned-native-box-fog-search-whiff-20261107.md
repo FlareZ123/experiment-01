@@ -1,0 +1,28 @@
+# Agent21 pinned-native owner-search whiffs: legal zero selection after paid Secret Box and Fog
+
+**7 November 2026 UTC. Source-verified native staged regression; no natural game or competitive match.**
+
+## Exactly reproduced source semantics
+
+The actual pinned `vendor/twinleaf` engine at commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` was compiled and tested under Node20.19 in **successful CI run [42348491623](https://github.com/FlareZ123/experiment-01/actions/runs/42348491623)** at research commit `1239125c375b7b0354823d2f161c2ec2cfdcebcf`.
+
+Native [test](../../tests/agent21-secretbox-target-whiff-native.test.cjs), **4/4 passing** for both physical acting player seats 0 and 1, builds two source-specified terminal target-availability cases. In each the owner's hand contains one real physical `Secret Box TWM`, two distinct `Battle VIP Pass FST` and one `Rescue Carrier EVS`, while owner Active `Unown AOR`, opposing Active `Trubbish FST`, owner deck and owner Prizes are staged. Using real `Store.dispatch` and actual native `ChooseCardsPrompt.validate`:
+
+1. **No Fog Crystal in deck.** Actor actually plays Box, engine accepts and **physically discards exactly three** original held payment objects (2 VIP +1 Carrier), then presents `CHOOSE_CARD_TO_HAND` restricted to owner deck with `options.min=0,max=0`. Original native `validate([])` is true. Dispatching `ResolvePromptAction(id,[])` successfully continues, with Box in owner discard and unchanged six own Prizes. Both seats pass.
+2. **Fog in deck; no eligible Basic Psychic or Basic Psychic Pokémon in deck.** Same actual three-card Box payment; its genuine owner-deck search fetches original `Fog Crystal CRE`, resolves opponent reveal and shuffle, then actor plays that physical Fog. Its original native owner-deck `CHOOSE_CARD_TO_HAND` also has `min=0,max=0`, and **`validate([])` is true**. Resolving zero successfully continues, both Box and Fog in owner discard, all original cards conserved and six own Prizes unchanged. Both seats pass.
+
+The log shows all four executions passed in 2.79 seconds. The successful CI artifact **13564572625**, named `agent21-staged-native-recovery-item-panel-42348491623`, includes `agent21-secretbox-target-whiff-native.log`, along with separately successful Energy Retrieval and Night Stretcher native logs. Downloaded ZIP SHA-256 `39ffd1e1d4f897ceff3ee1da57197608c7da84fe3188f9a1bacbe97e1281e9b2`.
+
+## What the genuine engine finding falsifies and what remains
+
+The prior [source-tested experimental wrapper test](../../tests/agent21-agent43-box-search-whiff-double.test.cjs) had shown that `simulation/twinleaf/agent43-owner-secretbox-fog-ko.cjs` **throws assertions** when it attempts hardcoded `owner.deck.cards.find` for Fog or Basic following a valid Secret Box payment. That is now clearly a **research wrapper continuation error** on lawful printed deck-search whiffs, because the actual pinned engine has a fully legal zero-selection result for both kinds of target exhaustion.
+
+This does **not** show a real original 60 was drawn without Fog or Basic, that a production policy would encounter the particular branch, that a source opponent is affected, or that an expected KO/Prizes were possible after the missing search. It shows that an adaptive player must record the **already paid irreversible cost and absence of required target**, and transition into another owner-permitted action rather than quarantine an otherwise valid native game. Retrospective original root93 success remains a separate known physical deal where Fog and Basic existed, and its favorable result does not estimate a prospective success frequency.
+
+No submodule source was altered. A safe default-off wrapper repair should guard both prompt stages with **actual native `ChooseCardsPrompt` type and owner actor ID** and then dispatch the real `ResolvePromptAction(prompt.id,[])` only when native `validate([])` permits it. It should release the plan obligation and reenter a source-independent owner policy for the remaining turn. Recovery logic must avoid reading unrevealed owner deck/Prize identities at a root to decide that missing Fog or Basic can be guaranteed.
+
+## Related independent native finding
+
+The same compiled source at [run 42348491623](https://github.com/FlareZ123/experiment-01/actions/runs/42348491623) passed **12/12 native [Night Stretcher SFA](../../tests/agent21-night-stretcher-staged-native.test.cjs) controls**: owner-discard recovery of one original Basic Energy or one Pokémon, ordinary attachment of a retrieved Basic, no-target veto and Special-only discard exception. This revealed a **source-visible positive `canPlay` false eligibility** for a physical discard containing only `Double Colorless Energy NXD`. Real `PlayCardAction` then rejected the alleged playable Item with native `GameError("CANNOT_PLAY_THIS_CARD")` on **both seats**. This is a narrower engine/policy fidelity bug; it is separate from the valid Box/Fog zero-selection rule. `Night Stretcher` is a legitimate Expanded legal recovery design hypothesis but cannot be treated as executable in Special-only discard state.
+
+**Qualifications:** zero natural shuffled games in these tests; zero competitively qualified games across the Aichi field; 29/32 original source opponent lists; no 99.5% win evidence. The evidence is native, source-specific, and reproducible at the immutable CI run.
