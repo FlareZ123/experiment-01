@@ -23,6 +23,12 @@ function summarizeMatch(row) {
     attackActions: attacks.length,
     damageEffects: attacks.reduce((n, attack) =>
       n + attack.effects.filter(effect =>
+        effect.effectType === 'DealDamageEffect').length, 0),
+    damageCounterEffects: attacks.reduce((n, attack) =>
+      n + attack.effects.filter(effect =>
+        /PutDamage|PutCounters/i.test(effect.effectType ?? '')).length, 0),
+    damagePipelineEffects: attacks.reduce((n, attack) =>
+      n + attack.effects.filter(effect =>
         /Damage|PutCounters/i.test(effect.effectType ?? '') ||
         effect.damage !== null).length, 0),
     knockOutEffects: attacks.reduce((n, attack) =>
