@@ -11,9 +11,9 @@ const {
 
 const REGISTRATION_PATH = path.resolve(
   __dirname,
-  '../../results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json'
+  '../../results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7-namespace-20261107.json'
 );
-const EXPECTED_REGISTRATION_SHA = '114796347b81fe2f1baae5fe752f9e77067b6e01';
+const EXPECTED_REGISTRATION_SHA = '9787aa2ea7b1fd9d49072fbbe502bab2c2be2f8b';
 const ARTIFACT_DIR = path.resolve(
   process.cwd(),
   'artifacts/agent36-issue25-public-prompt-zone-diagnostic-v7'
@@ -287,7 +287,7 @@ function main() {
     diagnosticRunnerPath: 'simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v7.cjs',
     diagnosticRunnerGitBlobSha: gitBlobSha(__filename),
     diagnosticRunnerCommit: process.env.GITHUB_SHA ?? null,
-    registrationPath: 'results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7.json',
+    registrationPath: 'results/aichi-2026/registrations/agent36-issue25-public-prompt-zone-diagnostic-v7-namespace-20261107.json',
     registrationGitBlobSha: gitBlobSha(REGISTRATION_PATH),
     sourceRunnerPath: registration.sourceRunnerPath,
     sourceRunnerGitBlobSha: registration.sourceRunnerGitBlobSha,
