@@ -5,6 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {inspect} = require('./agent36-v8-original-field-archive-audit.cjs');
 const {summarizeContextCoverage} = require('./agent13-v8-context-concentration.cjs');
+const {screenArchivedReciprocalAttempts} =
+  require('./agent45-bilateral-competence-gate.cjs');
 
 const ARCHIVE = 'issue25-steward-v8.json';
 const SHA256 = 'd30132ced995f6f0577937de501e86c0e3c51a9bd116b1891b42506118d81ce0';
@@ -22,6 +24,17 @@ function verifyOriginalArchive(directory) {
     path.join(directory, 'issue25-steward-v8.sha256'), 'utf8');
   const canonical = inspect(raw, sidecar, SHA256);
   const result = summarizeContextCoverage(canonical);
+  const nativeScreen=screenArchivedReciprocalAttempts(JSON.parse(raw));
+  assert.equal(nativeScreen.attemptedContexts,8);
+  assert.equal(nativeScreen.verifiedRootLedgerContexts,8);
+  assert.equal(nativeScreen.quarantinedContexts,0);
+  assert.equal(nativeScreen.competitiveGamesQualified,0);
+  const errors=nativeScreen.rows.filter(x=>x.disposition==='engine-error');
+  assert.equal(errors.length,5);
+  assert.ok(errors.every(x=>
+    x.seatProvenance==='native-abort-provenance' &&
+    x.sourceSeat===1-x.opponentSeat &&
+    x.competitiveAdmission===false));
   assert.equal(result.originalNativeAttempts, 8);
   assert.equal(result.sourceAttackTraceKnownContexts, 3);
   assert.equal(result.sourceAttackTraceUnknownContexts, 5);
@@ -44,6 +57,7 @@ function verifyOriginalArchive(directory) {
     originalArchiveSha256:SHA256,
     originalRunId:canonical.runId,
     pinnedTwinleaf:canonical.pinnedTwinleaf,
+    recoveredVerifiedNativeErrorSeatCount:errors.length,
     ...result
   };
 }
