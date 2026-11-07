@@ -82,6 +82,9 @@ function run(){
     assert.equal(a.winnerLogName,null);
     assert.equal(a.winnerLogParams,null);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
+    assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
     assert.equal(a.tieApplied,true);
     assert.equal(a.terminalSuppressed,1);
     assert.equal(a.storeLogRestored,true);
@@ -158,6 +161,9 @@ function run(){
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
     assert.equal(a.nativeWinnerName,actorSeat===0?'Ferroseed attacker':'Duskull defender');
+    assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
+    assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
     assert.equal(a.nativeWinnerPlayerId,actorSeat===0?101:202);
     assert.equal(a.winnerOverridden,actorSeat===1);
     assert.equal(a.winnerLogHandled,true);
@@ -204,6 +210,9 @@ function run(){
     assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_2:GameWinner.PLAYER_1);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
     assert.equal(a.nativeWinnerName,actorSeat===0?'Ferroseed attacker':'Duskull defender');
+    assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
+    assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
     assert.equal(a.nativeWinnerPlayerId,actorSeat===0?101:202);
     assert.equal(a.winnerOverridden,actorSeat===0);
     assert.equal(a.winnerLogHandled,true);
@@ -252,6 +261,10 @@ function run(){
     assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,true);
     assert.equal(a.nativeWinner,GameWinner.PLAYER_1);
+    assert.equal(a.nativeWinnerName,actorSeat===0?'Ferroseed attacker':'Duskull defender');
+    assert.equal(a.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(a.nativeWinnerLogName,a.nativeWinnerName);
+    assert.deepEqual(a.nativeWinnerLogParams,{name:a.nativeWinnerName});
     assert.equal(a.expectedWinner,GameWinner.DRAW);
     assert.equal(a.winnerOverridden,true);
     assert.equal(a.winnerLogHandled,true);
