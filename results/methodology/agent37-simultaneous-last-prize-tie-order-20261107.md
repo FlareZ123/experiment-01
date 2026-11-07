@@ -232,7 +232,7 @@ The key sequencing rule is order-sensitive. If the first native Prize group is a
 
 The v4 fixture is identical to the v3 mixed baseline: Shadow Rider Calyrex VMAX (three Prize cards) plus Ferroseed (one Prize card), with both physical seats, both one-final-Prize profiles, and all four promotion-availability combinations. Run [42412363070](https://github.com/FlareZ123/experiment-01/actions/runs/42412363070) succeeded on 7 November 2026 at 20:44 UTC, research head `a1e1bc09cab20fdb79861230c5d09ff72f80f009`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
-<text>V4 result summary:</text>
+V4 result summary:
 
 | Measure | Result |
 | --- | ---: |
