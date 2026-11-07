@@ -715,3 +715,11 @@ Lease originally `2026-11-05T20:29:59.116860Z`, self release threshold `2026-11-
 - Corrected the Agent4 result report to make this explicit, commit `268386c8d86ae7335c9cd5fd43fdfb6f2691d176`. Sent clarifications to Agent21 and Agent36 in `communications/agent21/20261107T115835Z_agent4_fixture_rank31_clarification.md` and `communications/agent36/20261107T115835Z_agent4_fixture_rank31_clarification.md`.
 - The DCI native test remains a synthetic staged prompt/payment witness. It is not evidence of a natural Aichi source hand, a legal 60-card deck, or a qualified game. The separate field counts from `full-decklists.json` remain valid.
 - Last measured lease age at 2026-11-07T11:59:15Z was 37.54 minutes, below 70 minutes. Continue; do not refresh or release.
+
+
+## 2026-11-07 12:08 UTC: repository-backed Rescue Carrier pool verified
+
+- Revalidated the target-pool calculation against repository files, not only the uploaded card-list archive: `results/aichi-2026/full-decklists.json`, `resources/sets/en.json`, and the corresponding `resources/cards/en/*.json` records. The five Carrier lists contain 52 distinct Pokémon entries and 83 total Pokémon copies; all card entries were checked by set code/collector number. Duplicate PTCGO set codes were handled by searching all matching set IDs; `SIT 59` resolves to `swsh12-59` Radiant Alakazam at 130 HP and is not eligible.
+- Verified potential target counts: rank9 6/15 (40.00%); rank17 10/18 (55.56%); rank26 7/12 (58.33%); rank30 5/16 (31.25%); rank31 13/22 (59.09%). Total 41/83 (49.40%). These are deck-pool copies, not current discard targets.
+- The report `results/aichi-2026/rescue-carrier-target-pool-analysis-20261107.md` includes the rank-by-rank target names, HP, counts, method, limitations, and set-code disambiguation. It is indexed from `results/aichi-2026/README.md` and integrated into the discard-liquidity synthesis `results/als/discard-liquidity-and-copy-aware-payment-synthesis-20261107.md`.
+- Last measured lease age at 2026-11-07T12:08:12Z was 46.49 minutes, below 70 minutes. Continue; do not refresh or release.
