@@ -38,6 +38,12 @@ const {VERSION:COPYCAT_ELIGIBILITY_VERSION,auditMimikyuCopycatEonBlade}=
   require('../simulation/evaluation/agent3-mimikyu-copycat-eon-blade-eligibility.cjs');
 const {VERSION:OWNER_REPLY_VERSION,projectOwnerRepliesAfterSourcePrize}=
   require('../simulation/evaluation/agent3-postprize-owner-reply-projection.cjs');
+const {VERSION:RESPONSE_SEQUENCE_VERSION,
+  createPostPrizeResponseActionSequenceObserver,
+  joinPostPrizeResponseActionSequences}=
+  require('../simulation/evaluation/agent3-postprize-response-action-sequence.cjs');
+const {publicBoardSnapshot}=require(
+  '../simulation/twinleaf/public-board-telemetry.cjs');
 
 const ROOT=path.resolve(__dirname,'..');
 const hash=b=>createHash('sha256').update(b).digest('hex');
@@ -77,6 +83,9 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   const registered=JSON.parse(registration.toString('utf8'));
   const expectedTrialIds=registered.trials.map(row=>row.id);
   const rootBinding={current:null,currentTrialId:null,callbackCount:0,trialIds:[]};
+  const postPrizeResponseActionObserver=createPostPrizeResponseActionSequenceObserver({
+    registeredTrials:registered.trials,rootBinding,publicBoardSnapshot
+  });
   const {result:koObserved,audit:originAudit}=withCheckStateGeneratorOriginToken(
     ()=>withKoSourcePromptPhysical(
     ()=>withNativePublicKoVictims(
@@ -86,6 +95,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
         ...options,
         onRootActionDispatched:(store,action,ordinal,seat,turnBefore)=>{
           rootBinding.bindAuthoritativePrizeRootOrdinal(
+            store,action,ordinal,seat,turnBefore);
+          postPrizeResponseActionObserver.onRootActionDispatched(
             store,action,ordinal,seat,turnBefore);
         },
         onRootStoreCreated:(store,trialId)=>{
@@ -320,6 +331,29 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     JSON.stringify(mimikyuCopycatEligibility));
   const exactPostPrizeOwnerReplies=projectOwnerRepliesAfterSourcePrize(
     selected.rawDevelopment.rows,attackPrizeRootJoins);
+  const postPrizeResponseActionObservation=postPrizeResponseActionObserver.result();
+  assert.equal(postPrizeResponseActionObservation.version,RESPONSE_SEQUENCE_VERSION);
+  assert.equal(postPrizeResponseActionObservation.hiddenHandReadBeforeCandidateResponse,false);
+  assert.equal(postPrizeResponseActionObservation.policyInputModified,false);
+  assert.equal(postPrizeResponseActionObservation.paperLegalityCertified,false);
+  const postPrizeResponseActionSequences=joinPostPrizeResponseActionSequences(
+    selected.rawDevelopment.rows,exactPostPrizeOwnerReplies,
+    postPrizeResponseActionObservation);
+  assert.equal(postPrizeResponseActionSequences.length,exactPostPrizeOwnerReplies.length);
+  const fogCrystalResponse=postPrizeResponseActionSequences.find(row=>
+    row.registeredTrialId==='11:211:A:champion-reference'&&
+    row.firstCandidateResponseRootOrdinal===90);
+  assert.ok(fogCrystalResponse,'Fog Crystal first response must join to a post-dispatch sequence');
+  const fogCrystalSequence=fogCrystalResponse.postPrizeResponseActionSequence;
+  assert.ok(fogCrystalSequence,'Fog Crystal response sequence must be present');
+  assert.equal(fogCrystalSequence.candidateTurn,18);
+  assert.ok(fogCrystalSequence.sourcePrizeRootOrdinals.includes(
+    fogCrystalResponse.causalSourcePrizeRootOrdinal));
+  assert.equal(fogCrystalSequence.firstProjectedResponseAction?.rootOrdinal,90);
+  assert.equal(fogCrystalSequence.firstProjectedResponseAction?.actionType,'PlayCardAction');
+  assert.equal(fogCrystalSequence.firstProjectedResponseAction?.playedCard,'Fog Crystal');
+  assert.equal(fogCrystalSequence.firstProjectedResponseAction?.playedCardInDiscard,true);
+  assert.ok(fogCrystalSequence.firstProjectedResponseAction?.handCardsRemoved?.includes('Fog Crystal'));
   assert.equal(exactPostPrizeOwnerReplies.length,5);
   assert.equal(exactPostPrizeOwnerReplies.every(row=>
     row.sameEpochCandidateReplyVerified===true),true);
@@ -344,6 +378,9 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     JSON.stringify(independentlyPrintedBasePrizeScreens));
   console.log('AGENT3_V29_POST_PRIZE_OWNER_REPLY_HANDS',
     JSON.stringify(exactPostPrizeOwnerReplies));
+  console.log('AGENT3_V29_POST_PRIZE_RESPONSE_ACTION_SEQUENCES',
+    JSON.stringify({observation:postPrizeResponseActionObservation,
+      joined:postPrizeResponseActionSequences}));
   console.log('AGENT3_V29_PUBLIC_KO_VICTIMS',
     JSON.stringify(fullyRootedPublicVictimJoins));
   console.log('AGENT3_V29_SETTLED_ATTACK_TO_PHYSICAL_PRIZE',
@@ -547,6 +584,11 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     postPrizeOwnerReplyProjectionHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/evaluation/agent3-postprize-owner-reply-projection.cjs'))),
     exactPostPrizeOwnerReplies,
+    postPrizeResponseActionSequenceVersion:RESPONSE_SEQUENCE_VERSION,
+    postPrizeResponseActionSequenceHash:hash(fs.readFileSync(path.join(ROOT,
+      'simulation/evaluation/agent3-postprize-response-action-sequence.cjs'))),
+    postPrizeResponseActionObservation,
+    postPrizeResponseActionSequences,
     originVersion:ORIGIN_VERSION,
     originCodeHash:hash(fs.readFileSync(path.join(ROOT,
       'simulation/twinleaf/agent3-checkstate-generator-origin-token.cjs'))),
@@ -611,6 +653,8 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
       row=>row.independentPrintedBasePrizeScreenPass).length,
     settledSourcePrizeReplyHandsCaptured:exactPostPrizeOwnerReplies.filter(
       row=>row.ownerHandCapturedAfterPolicyChoice===true).length,
+    postPrizeResponseSequencesCaptured:postPrizeResponseActionObservation.sequences.length,
+    fogCrystalPostActionCaptured:!!fogCrystalSequence.firstProjectedResponseAction,
     sameTokenKoDrawPrizes:originAudit.sameTokenKoDrawPrizes,
     terminalFinalThreeOriginCount:terminalAutoOriginGroups.length,
     qualifiedGames:0,archive
