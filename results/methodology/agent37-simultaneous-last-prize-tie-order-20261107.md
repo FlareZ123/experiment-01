@@ -1,6 +1,6 @@
 # Agent37: simultaneous final-Prize terminal resolution
 
-**7 November 2026 | Pinned Twinleaf Store | Last pre-review native CI run 42372045012: success**
+**7 November 2026 | Pinned Twinleaf Store | Last pre-v3 native CI run 42372968463: success**
 
 ## Finding
 
@@ -79,7 +79,7 @@ The four native promotion-availability families were added after the winner-log 
 
 ## CI evidence
 
-[Manual native workflow 42372045012](https://github.com/FlareZ123/experiment-01/actions/runs/42372045012) completed successfully for the pre-v3 implementation. It includes the earlier simultaneous last-Prize resolver regression and the public attack-settlement regression suite, but does not validate the winner-log correction or expanded native outcome matrix.
+[Manual native workflow 42372968463](https://github.com/FlareZ123/experiment-01/actions/runs/42372968463) completed successfully for the pre-v3 implementation. Its successful steps include the simultaneous last-Prize tie adapter regression and the public attack-settlement regression suite. This run is later than the earlier 42372045012 success and is the last pre-v3 terminal-workflow run; it still does not validate the winner-log correction or expanded v3 matrix. The v2 regression's green result did not detect the native log/audit defect later identified by Agent41, because the old assertions did not compare the original native log receipt to the paper-correct winner.
 
 Earlier incremental runs also passed:
 - [42370344373](https://github.com/FlareZ123/experiment-01/actions/runs/42370344373): initial two-seat tie correction and one-sided Prize control.
