@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent37-instance-scoped-simultaneous-last-prize-tie-v1';
+const VERSION='agent37-instance-scoped-simultaneous-last-prize-resolution-v2';
 const PINNED='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p @returns {any} */
@@ -16,8 +16,9 @@ const native=p=>require(path.join(BASE,p));
  *
  * This deliberately supports only simple simultaneous Prize-to-hand transfers
  * with exactly two Active KOs, two Prize groups, and no other KO effects.
- * It only corrects rows where both players have matching promotion
- * availability. Mixed terminal conditions require a separate full resolver.
+ * After both Prize groups transfer, Rulebook §E selects DRAW when both players
+ * share promotion availability, and awards the player who can promote when only
+ * one player has a Pokémon available to promote.
 
  * Scope: one attack's EndTurnEffect/checkState transaction. A multi-turn runner
  * must apply this wrapper around each attack transaction separately.
@@ -27,6 +28,18 @@ const native=p=>require(path.join(BASE,p));
  * @param {()=>T} execute Synchronous native transaction.
  * @returns {{result:T,audit:object}} Transaction and terminal-correction audit.
  */
+function hasPokemonToPromote(player){
+  return player.bench.some(slot=>slot.getPokemonCard());
+}
+
+function resolveSimultaneousLastPrizeWinner(state,firstPlayer,otherPlayer){
+  const firstCanPromote=hasPokemonToPromote(firstPlayer);
+  const otherCanPromote=hasPokemonToPromote(otherPlayer);
+  if(firstCanPromote===otherCanPromote)return GameWinner.DRAW;
+  const winner=firstCanPromote?firstPlayer:otherPlayer;
+  return state.players[0]===winner?GameWinner.PLAYER_1:GameWinner.PLAYER_2;
+}
+
 function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
   assert.equal(typeof execute,'function');
   const {Store}=native('game/store/store');
@@ -59,6 +72,8 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
     winnerLogRewritten:false,tieApplied:false,
     firstPlayerCanPromote:null,otherPlayerCanPromote:null,
     promotionAvailabilitySymmetric:null,
+    nativeWinner:null,expectedWinner:null,winnerOverridden:false,
+    winnerLogHandled:false,terminalOutcome:null,
     bothPrizeTransfersCompleted:false,
     storeLogRestored:false,storeReduceRestored:false,
     otherStoresUnmodified:true
@@ -141,7 +156,6 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         firstGroup&&otherGroup&&
         firstGroup.destination===firstPlayer.hand&&
         otherGroup.destination===otherPlayer.hand&&
-        firstCanPromote===otherCanPromote&&
         firstGroup.count>=firstPlayer.getPrizeLeft()&&
         otherGroup.count>=otherPlayer.getPrizeLeft()&&
         firstPlayer.getPrizeLeft()>0&&
@@ -196,8 +210,17 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
               prizeTakenBefore[candidatePlayers.firstPlayer.id]&&
             candidatePlayers.otherPlayer.prizesTakenThisTurn>
               prizeTakenBefore[candidatePlayers.otherPlayer.id]){
-            state.winner=GameWinner.DRAW;
-            audit.tieApplied=true;
+            const nativeWinner=audit.nativeWinner===null?state.winner:audit.nativeWinner;
+            const expectedWinner=resolveSimultaneousLastPrizeWinner(
+              state,candidatePlayers.firstPlayer,candidatePlayers.otherPlayer
+            );
+            state.winner=expectedWinner;
+            audit.nativeWinner=nativeWinner;
+            audit.expectedWinner=expectedWinner;
+            audit.winnerOverridden=nativeWinner!==expectedWinner;
+            audit.terminalOutcome=expectedWinner===GameWinner.DRAW
+              ?'DRAW':expectedWinner===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2';
+            audit.tieApplied=expectedWinner===GameWinner.DRAW;
             audit.bothPrizeTransfersCompleted=true;
           }
           audit.terminalSuppressed++;
@@ -223,8 +246,23 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       audit.firstPrizeDestinationIsHand&&
       audit.secondPrizeDestinationIsHand&&
       message===GameLog.LOG_GAME_FINISHED_WINNER){
-      audit.winnerLogRewritten=true;
-      return originalLog.call(store,state,GameLog.LOG_GAME_FINISHED_DRAW,undefined,client);
+      const nativeWinner=state.winner;
+      const expectedWinner=resolveSimultaneousLastPrizeWinner(
+        state,candidatePlayers.firstPlayer,candidatePlayers.otherPlayer
+      );
+      state.winner=expectedWinner;
+      audit.nativeWinner=nativeWinner;
+      audit.expectedWinner=expectedWinner;
+      audit.winnerOverridden=nativeWinner!==expectedWinner;
+      audit.winnerLogHandled=true;
+      audit.terminalOutcome=expectedWinner===GameWinner.DRAW
+        ?'DRAW':expectedWinner===GameWinner.PLAYER_1?'PLAYER_1':'PLAYER_2';
+      audit.winnerLogRewritten=expectedWinner===GameWinner.DRAW||
+        nativeWinner!==expectedWinner;
+      if(expectedWinner===GameWinner.DRAW){
+        return originalLog.call(store,state,GameLog.LOG_GAME_FINISHED_DRAW,undefined,client);
+      }
+      return originalLog.call(store,state,GameLog.LOG_GAME_FINISHED_WINNER,params,client);
     }
     return originalLog.call(store,state,message,params,client);
   };
@@ -238,7 +276,13 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
   return {result,audit};
 }
 
+const withInstanceScopedSimultaneousLastPrizeResolutionV2=
+  withInstanceScopedSimultaneousLastPrizeTieV1;
+
 module.exports={
   withInstanceScopedSimultaneousLastPrizeTieV1,
+  withInstanceScopedSimultaneousLastPrizeResolutionV2,
+  hasPokemonToPromote,
+  resolveSimultaneousLastPrizeWinner,
   VERSION,PINNED
 };
