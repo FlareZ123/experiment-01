@@ -21,7 +21,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
  * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
- * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number}} fixture Optional staged Active and Prize-count profile.
+ * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number,stopAfterAttack?:boolean}} fixture Optional staged Active, Prize-count, and post-attack snapshot profile.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true,fixture={}){
@@ -111,6 +111,30 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
     const prizePromptOrder=[];
     const promotionOrder=[];
     let powerglassPromptIndex=-1;
+
+    if(fixture.stopAfterAttack){
+      const {GameWinner}=native('game/store/state/state');
+      const winnerSeat=state.winner===GameWinner.PLAYER_1?0:
+        state.winner===GameWinner.PLAYER_2?1:null;
+      return {
+        actorSeat,
+        finished:state.phase===GamePhase.FINISHED,
+        winner:state.winner,
+        winnerSeat,
+        winnerPlayer:winnerSeat===null?null:
+          state.players[winnerSeat].id===owner.id?'owner':'opponent',
+        pendingPrompts:state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name),
+        seenPrompts,
+        ownerPrizesRemaining:owner.prizes.filter(p=>p.cards.length>0).length,
+        opponentPrizesRemaining:enemy.prizes.filter(p=>p.cards.length>0).length,
+        ownerPrizesTakenThisTurn:owner.prizesTakenThisTurn,
+        opponentPrizesTakenThisTurn:enemy.prizesTakenThisTurn,
+        ownerCanPromote:owner.bench.some(slot=>slot.getPokemonCard()),
+        opponentCanPromote:enemy.bench.some(slot=>slot.getPokemonCard()),
+        playersOrderAfterTurn:state.players.map(p=>p.id===owner.id?'owner':'opponent')
+      };
+    }
 
     for(let i=0;i<64;i++){
       const pending=state.prompts.find(prompt=>prompt.result===undefined);
