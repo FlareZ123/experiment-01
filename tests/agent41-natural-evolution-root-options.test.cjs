@@ -31,25 +31,25 @@ test('Garbodor Tool root shares the natural-evolution owner-seat scope',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
     garbotoxinToolRoot:true,
-    garbotoxinToolRootDeferForStarAlchemy:true
+    garbotoxinToolRootDeferForStarAlchemy:false
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,1,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1,
     garbotoxinToolRoot:true,
-    garbotoxinToolRootDeferForStarAlchemy:true
+    garbotoxinToolRootDeferForStarAlchemy:false
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,null,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null,
     garbotoxinToolRoot:true,
-    garbotoxinToolRootDeferForStarAlchemy:true
+    garbotoxinToolRootDeferForStarAlchemy:false
   });
 });
 
-test('immediate-lock counterfactual disables only Star Alchemy deferral',()=>{
-  assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true,false),{
+test('deferral counterfactual enables Star Alchemy deferral',()=>{
+  assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
     garbotoxinToolRoot:true,
-    garbotoxinToolRootDeferForStarAlchemy:false
+    garbotoxinToolRootDeferForStarAlchemy:true
   });
 });
 
