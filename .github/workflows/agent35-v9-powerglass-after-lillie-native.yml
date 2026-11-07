@@ -59,6 +59,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent35-v9-powerglass-after-lillie
-          path: artifacts/agent35-v9-powerglass-development/
+          path: |
+            artifacts/agent35-v9-powerglass-development/
+            artifacts/agent36-bilateral-competence-v9/issue25-common-v9-preflight-failure.json
           retention-days: 21
           if-no-files-found: warn
