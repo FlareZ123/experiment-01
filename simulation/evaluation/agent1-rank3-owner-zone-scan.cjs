@@ -372,7 +372,7 @@ function run(sourceSeat=0){
       expectedCandidateDeckSha256:CANDIDATE_DECK_SHA,
       expectedBaselineArtifact:13364048992,
       summary,rows,
-      caveat:'Sixteen source-seat-0 original-deal diagnostic replays under the existing weak common policy. Owner deck and Prize identities are retrospective observer data and never policy input. Opponent hidden identities are not read. Structural Rototiller candidates are not validated native attack prompts. This is not a paper-competitive matchup or win-rate estimate.'
+      caveat:`Sixteen source-seat-${sourceSeat} original-deal diagnostic replays under the existing weak common policy. Owner deck and Prize identities are retrospective observer data and never policy input. Opponent hidden identities are not read. Structural Rototiller candidates are not validated native attack prompts. This is not a paper-competitive matchup or win-rate estimate.`
     };
     result.controlsPass=summary.errors===0&&summary.parityFailures===0&&
       rows.every(row=>row.ownerZoneAudit?.liveStoreFound===true&&
