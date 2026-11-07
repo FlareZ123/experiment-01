@@ -107,6 +107,10 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
 
   const pending=()=>state.prompts.find(p=>p.result===undefined);
   const evidence=[];
+  const dispatchAt=(stage,action)=>{
+    try{return store.dispatch(action);}
+    catch(error){throw new Error(stage+': '+(error?.message??String(error)));}
+  };
   const resolveWaits=(phase)=>{
     for(let i=0;i<20;i++){
       const prompt=pending();
@@ -114,20 +118,21 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       assert.equal(prompt.constructor.name,'WaitPrompt',
         'Unexpected '+phase+' prompt '+prompt.constructor.name);
       evidence.push({phase,kind:'WaitPrompt'});
-      store.dispatch(new ResolvePromptAction(prompt.id,null));
+      dispatchAt(phase+' prompt '+prompt.constructor.name,
+        new ResolvePromptAction(prompt.id,null));
     }
     assert.equal(pending(),undefined,phase+' prompts must settle');
   };
 
   const execute=()=>{
-    store.dispatch(new AttackAction(source.id,'Poison Gas'));
+    dispatchAt('AttackAction Poison Gas',new AttackAction(source.id,'Poison Gas'));
     resolveWaits('Koffing Poison Gas attack');
     assert.equal(state.activePlayer,seat===0?1:0);
     assert.equal(opponent.active.damage,20,
       'Poison Gas deals 10 and the first between-turns checkup adds 10 poison damage');
     evidence.push({phase:'Poison Gas + first checkup',targetDamage:opponent.active.damage});
 
-    store.dispatch(new PassTurnAction(opponent.id));
+    dispatchAt('PassTurnAction opponent',new PassTurnAction(opponent.id));
     resolveWaits('opponent turn / poison checkup');
     assert.equal(state.activePlayer,seat);
     assert.equal(opponent.active.damage,30,
@@ -138,7 +143,7 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
     const koffing2=f.card('Koffing CEC');
     const roxie=f.card('Roxie CEC');
     source.hand.cards.push(koffing1,koffing2,roxie);
-    store.dispatch(new PlayCardAction(source.id,2,{
+    dispatchAt('PlayCardAction Roxie',new PlayCardAction(source.id,2,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
     for(let i=0;i<25;i++){
@@ -156,7 +161,7 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       else throw new Error('Unexpected Roxie/Koffing prompt '+kind);
       evidence.push({phase:'Roxie/Koffing',kind,
         nativeValidated:kind==='ChooseCardsPrompt'?true:undefined});
-      store.dispatch(new ResolvePromptAction(prompt.id,answer));
+      dispatchAt('Roxie prompt '+kind,new ResolvePromptAction(prompt.id,answer));
     }
     assert.equal(pending(),undefined,'Roxie and both Blow-Away Bomb effects settle');
     assert.equal(source.discard.cards.includes(koffing1),true);
@@ -180,7 +185,7 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
 
     const resolveMoveAbility=(abilityName,sourceIndex,from,to,
         expectedTargetDamage,moveCount)=>{
-      store.dispatch(new UseAbilityAction(source.id,abilityName,{
+      dispatchAt(abilityName+' UseAbilityAction',new UseAbilityAction(source.id,abilityName,{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:sourceIndex
       }));
       let movePromptSeen=false;
@@ -200,7 +205,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
             sourceDamageBefore:from.slot===SlotType.ACTIVE?
               opponent.active.damage:opponent.bench[from.index].damage,
             targetDamageBefore:targetSlot.damage,nativeValidated:true});
-          store.dispatch(new ResolvePromptAction(prompt.id,answer));
+          dispatchAt(abilityName+' MoveDamagePrompt',
+            new ResolvePromptAction(prompt.id,answer));
           movePromptSeen=true;
         }else{
           throw new Error('Unexpected '+abilityName+' prompt '+kind);
@@ -216,7 +222,7 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
     resolveMoveAbility('Painful Spoons',2,opponentBench1,opponentActive,90,2);
     assert.equal(opponent.bench[1].damage,0);
 
-    store.dispatch(new UseAbilityAction(source.id,'Cursed Blast',{
+    dispatchAt('Cursed Blast UseAbilityAction',new UseAbilityAction(source.id,'Cursed Blast',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
     }));
     let targetPromptSeen=false;
@@ -267,7 +273,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
         playerId:prompt.playerId,
         prizeCount:kind==='ChoosePrizePrompt'?
           Number(prompt.options?.count??1):undefined});
-      store.dispatch(new ResolvePromptAction(prompt.id,answer));
+      dispatchAt('Cursed Blast prompt '+kind,
+        new ResolvePromptAction(prompt.id,answer));
     }
 
     assert.equal(pending(),undefined,'All native effects and KO prompts settle');
