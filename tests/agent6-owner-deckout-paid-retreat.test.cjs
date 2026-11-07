@@ -227,13 +227,28 @@ test('bilateral wrapper submits native retreat and accepts only real second-atta
     SimpleTacticsAi,RetreatAction,Store,CheckRetreatCostEffect,
     ResolvePromptAction,GameMessage,catalog,observe:()=>retreatView,recipientModule
   };
-  const result=withBilateralDeckOutPaidRetreat(()=>{
+  const result=withBilateralDeckOutPaidRetreat(hooks=>{
     const ai=new SimpleTacticsAi();
+    const otherAi=new SimpleTacticsAi();
     const store=new Store();store.state=state;
+    hooks.onRootStoreCreated(store);
+    hooks.onRootAgentsCreated([ai,otherAi]);
     const recipient=recipientModule.chooseActorEnergyRecipient(recipientView,catalog);
     const retreat=ai.decodeNextAction(state);
-    store.dispatch(new AttackAction('Burrow'));
+    const speculative=new Store();speculative.state=state;
+    const speculativeAction=new AttackAction('Burrow');
+    speculative.dispatch(speculativeAction);
+    hooks.onRootActionDispatched(speculative,speculativeAction,6,0,59);
     state.prompts=[new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)];
+    assert.equal(ai.decodeNextAction(state).constructor.name,'PassTurnAction',
+      'Speculative Store cannot mark a root deck-out attack');
+    state.prompts=[];
+    const realAction=new AttackAction('Burrow');
+    store.dispatch(realAction);
+    hooks.onRootActionDispatched(store,realAction,7,0,59);
+    state.prompts=[new ConfirmPrompt('owner',GameMessage.WANT_TO_USE_ABILITY)];
+    assert.equal(otherAi.decodeNextAction(state).constructor.name,'PassTurnAction',
+      'Non-acting root AI cannot consume the owner prompt override');
     const confirm=ai.decodeNextAction(state);
     state.prompts=[new ChooseAttackPrompt('owner',
       GameMessage.CHOOSE_ATTACK_TO_COPY,[card])];
@@ -246,6 +261,11 @@ test('bilateral wrapper submits native retreat and accepts only real second-atta
   assert.equal(result.result.confirm.value,true);
   assert.equal(result.result.second.value.name,'Burrow');
   assert.equal(result.audit.typedRetreatsBySeat[0],1);
+  assert.equal(result.audit.rootStoreBound,true);
+  assert.equal(result.audit.rootAgentsBound,true);
+  assert.equal(result.audit.ignoredNonRootActions,1);
+  assert.equal(result.audit.acceptedRootDeckOutActions,1);
+  assert.equal(result.audit.deckOutAttackRoots[0].acceptedRootOrdinal,7);
   assert.equal(result.audit.acceptedSecondAttackConfirmPrompts,1);
   assert.equal(result.audit.chosenSecondAttackPrompts,1);
   assert.strictEqual(recipientModule.chooseActorEnergyRecipient,oldRecipient);
