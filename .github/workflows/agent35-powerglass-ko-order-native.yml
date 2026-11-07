@@ -42,3 +42,5 @@ jobs:
         run: node simulation/twinleaf/agent37-paper-ko-scoped-store-audit.cjs
       - name: Agent37 Technical Machine endturn custody and Prize order
         run: node simulation/twinleaf/agent37-technical-machine-e21-scoped-ko-native.cjs
+      - name: Agent37 simultaneous KO and promoted Powerglass E-21 diagnostic
+        run: node simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs
