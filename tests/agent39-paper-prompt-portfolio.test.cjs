@@ -117,6 +117,36 @@ test('unattributed prompt remains explicitly unverified',()=>{
   assert.equal(out.audit.paperVerifiedNativeAccepted,0);
 });
 
+test('undefined answer cannot settle a still-undefined live prompt',()=>{
+  const f=fixture(),store=new Store(f.state);
+  f.state.prompts.push(new AttachEnergyPrompt(f.owner.id,f.owner.active));
+  const out=withPaperPromptPortfolio(()=>{
+    store.dispatch(new ResolvePromptAction(1,undefined));
+  },{Store,IronThornsex,types,liveStore:store});
+  assert.equal(out.audit.liveResolutionCount,1);
+  assert.equal(out.audit.paperUnverified,1);
+  assert.equal(out.audit.liveNativeReturnedWithoutThrow,1);
+  assert.equal(out.audit.liveNativePromptSettled,0);
+  assert.equal(out.audit.liveNativeSilentNoop,1);
+  assert.equal(out.audit.events[0].nativeAccepted,false);
+  assert.equal(out.audit.events[0].nativePromptSettled,false);
+  assert.equal(f.state.prompts[0].result,undefined);
+});
+test('undefined answer cannot settle a still-undefined auxiliary prompt',()=>{
+  const live=fixture(0),aux=fixture(1);
+  const liveStore=new Store(live.state),auxStore=new Store(aux.state);
+  aux.state.prompts.push(new AttachEnergyPrompt(aux.owner.id,aux.owner.active));
+  const out=withPaperPromptPortfolio(()=>{
+    auxStore.dispatch(new ResolvePromptAction(1,undefined));
+  },{Store,IronThornsex,types,liveStore});
+  assert.equal(out.audit.auxiliaryResolutionCount,1);
+  assert.equal(out.audit.liveResolutionCount,0);
+  assert.equal(out.audit.events[0].storeScope,'auxiliary');
+  assert.equal(out.audit.events[0].nativePromptSettled,false);
+  assert.equal(out.audit.events[0].nativeAccepted,false);
+  assert.equal(aux.state.prompts[0].result,undefined);
+});
+
 test('live Store denominator excludes accepted auxiliary clone with same id',()=>{
   const live=fixture(0),auxiliary=fixture(1);
   const liveStore=new Store(live.state),auxStore=new Store(auxiliary.state);
