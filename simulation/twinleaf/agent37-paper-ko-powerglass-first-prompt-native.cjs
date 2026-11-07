@@ -13,6 +13,7 @@ const {withPaperKoBeforeEndTurn,VERSION}=
  */
 function compareNativePromptOrder(){
   const scenarios=[
+    {label:'passTurn',lastPrize:false,opponentHasBench:true,actionKind:'pass'},
     {label:'noKo',lastPrize:false,opponentHasBench:true,targetDamage:0},
     {label:'regularPrize',lastPrize:false,opponentHasBench:true},
     {label:'lastPrize',lastPrize:true,opponentHasBench:true},
@@ -24,19 +25,19 @@ function compareNativePromptOrder(){
       ()=>inspectPowerglassWinningKo(options));
     const t=treatment.result,a=treatment.audit;
     assert.equal(baseline.firstChoicePrompt,'AttachEnergyPrompt');
-    assert.equal(a.attackEndTurnIntercepts,1);
+    assert.equal(a.attackEndTurnIntercepts,label==='passTurn'?0:1);
     assert.equal(a.originalStoreMethodRestored,true);
     const expectedFirst=label==='regularPrize'?'ChoosePrizePrompt':
-      label==='noKo'?'AttachEnergyPrompt':null;
+      (label==='noKo'||label==='passTurn')?'AttachEnergyPrompt':null;
     const exactFirstMatch=t.firstChoicePrompt===expectedFirst;
-    const auditMatch=a.attackEndTurnIntercepts===1;
+    const auditMatch=a.attackEndTurnIntercepts===(label==='passTurn'?0:1);
     return {label,baseline,treatment:t,audit:a,
       expectedFirst,exactFirstMatch,auditMatch};
   });
   assert.ok(arms.every(x=>x.exactFirstMatch&&x.auditMatch),
     'Paper KO-first native prompt and callback contract changed');
   return {
-    version:VERSION,realPinnedStore:true,fourActualAcceptedAttacks:true,
+    version:VERSION,realPinnedStore:true,fourActualAcceptedAttacksAndOneNativePass:true,
     allPaperFirstPromptInvariantsPassed:arms.every(x=>x.exactFirstMatch),
     followupFullPromptClosureNeeded:true,
     competitiveGamesQualified:0,arms
