@@ -30,7 +30,8 @@ function deniesMeloetta(card,melo){
   const registered=DENIAL_PRINTS[card.id];
   if(!registered)return false;
   if(!card.subtypes.includes('Basic')||!melo.subtypes.includes('Basic')||
-      !melo.subtypes.includes('ex')||melo.subtypes.includes('Future'))
+      !melo.subtypes.includes('ex')||
+      (card.id==='sv6-77'&&melo.subtypes.includes('Future')))
     return false;
   const ability=card.abilities?.find(a=>a.name===registered.ability);
   if(card.name!==registered.name||!ability?.text.includes(registered.marker)||
