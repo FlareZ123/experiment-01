@@ -2,7 +2,9 @@
 const assert=require('node:assert/strict');
 const {runOne}=require('./agent37-simultaneous-ko-e21-promotion-native.cjs');
 const {
-  withInstanceScopedSimultaneousLastPrizeTieV1,VERSION,PINNED
+  withInstanceScopedSimultaneousLastPrizeResolutionV2,
+  resolveSimultaneousLastPrizeWinner,
+  VERSION,PINNED
 }=require('./agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
 const {inspectPowerglassWinningKo}=require('./agent37-powerglass-winning-ko-native.cjs');
 const {GameWinner}=require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
@@ -10,7 +12,7 @@ const {KnockOutEffect}=require('../../vendor/twinleaf/ptcg-server/output/game/st
 
 
 function withNonHandPrizeDestination(store,execute){
-  return withInstanceScopedSimultaneousLastPrizeTieV1(store,()=>{
+  return withInstanceScopedSimultaneousLastPrizeResolutionV2(store,()=>{
     const hookedReduce=store.reduceEffect;
     store.reduceEffect=function(state,effect){
       if(effect instanceof KnockOutEffect){
@@ -24,12 +26,28 @@ function withNonHandPrizeDestination(store,execute){
   });
 }
 
-/** @returns {object} Native defect and terminal tie adapter regression. */
+/** @returns {object} Native defect and terminal resolution adapter regression. */
 function run(){
+  const makePromotionPlayer=(id,canPromote)=>({
+    id,
+    bench:canPromote?[{getPokemonCard:()=>({})}]:[]
+  });
+  const p1=makePromotionPlayer(1,true);
+  const p2=makePromotionPlayer(2,true);
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p1,p2]},p1,p2),GameWinner.DRAW);
+  p1.bench=[];
+  p2.bench=[];
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p1,p2]},p1,p2),GameWinner.DRAW);
+  p1.bench=[{getPokemonCard:()=>({})}];
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p1,p2]},p1,p2),GameWinner.PLAYER_1);
+  p1.bench=[];
+  p2.bench=[{getPokemonCard:()=>({})}];
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p1,p2]},p1,p2),GameWinner.PLAYER_2);
+  assert.equal(resolveSimultaneousLastPrizeWinner({players:[p2,p1]},p1,p2),GameWinner.PLAYER_2);
   const rows=[0,1].map(actorSeat=>{
     const baseline=runOne(actorSeat,false,1,true);
     const v2=runOne(actorSeat,true,1,true);
-    const v3=runOne(actorSeat,withInstanceScopedSimultaneousLastPrizeTieV1,1,true);
+    const v3=runOne(actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV2,1,true);
     const b=baseline.result,old=v2.result,fixed=v3.result,a=v3.audit;
 
     assert.equal(b.finished,true);
@@ -79,7 +97,7 @@ function run(){
 
   const singleLastPrize=inspectPowerglassWinningKo({
     actorSeat:0,lastPrize:true,opponentHasBench:true,settleAll:true,
-    withStoreHook:withInstanceScopedSimultaneousLastPrizeTieV1
+    withStoreHook:withInstanceScopedSimultaneousLastPrizeResolutionV2
   });
   assert.equal(singleLastPrize.finalState.finished,true);
   assert.equal(singleLastPrize.scopedHookAudit.simultaneousLastPrizeCandidate,false);
@@ -112,46 +130,54 @@ function run(){
     };
   });
 
-  // Rulebook §E has mixed terminal rows: if both players take all Prizes
-  // but only one can promote, the player who can promote wins. This tie-only
-  // adapter must decline to call that case a draw.
+  // Rulebook §E mixed row: when both players take all Prizes and only one
+  // has a Pokémon to promote, that player wins.
   const asymmetricPromotionAvailability=[0,1].map(actorSeat=>{
     const treatment=runOne(
-      actorSeat,withInstanceScopedSimultaneousLastPrizeTieV1,1,true,false
+      actorSeat,withInstanceScopedSimultaneousLastPrizeResolutionV2,1,true,false
     );
     const result=treatment.result,a=treatment.audit;
+    assert.equal(result.finished,true);
+    assert.equal(result.winnerSeat,actorSeat);
+    assert.equal(result.ownerPrizesRemaining,0);
+    assert.equal(result.opponentPrizesRemaining,0);
     assert.equal(a.knockoutEffects,2);
     assert.equal(a.activeKoPlayerIds.length,2);
     assert.equal(a.prizeGroupCount,2);
     assert.equal(a.firstPlayerCanPromote!==a.otherPlayerCanPromote,true);
     assert.equal(a.promotionAvailabilitySymmetric,false);
-    assert.equal(a.simultaneousLastPrizeCandidate,false);
-    assert.equal(a.secondPrizeTransferAttempted,false);
+    assert.equal(a.simultaneousLastPrizeCandidate,true);
+    assert.equal(a.secondPrizeTransferAttempted,true);
+    assert.equal(a.secondPrizeTransferCompleted,true);
     assert.equal(a.tieApplied,false);
-    assert.equal(a.winnerLogRewritten,false);
+    assert.equal(a.expectedWinner,actorSeat===0?GameWinner.PLAYER_1:GameWinner.PLAYER_2);
+    assert.equal(a.winnerOverridden,actorSeat===1);
+    assert.equal(a.winnerLogHandled,true);
+    assert.equal(a.winnerLogRewritten,actorSeat===1);
     return {
       actorSeat,
       firstPlayerCanPromote:a.firstPlayerCanPromote,
       otherPlayerCanPromote:a.otherPlayerCanPromote,
       promotionAvailabilitySymmetric:a.promotionAvailabilitySymmetric,
-      tieApplied:a.tieApplied,
-      nativeWinnerSeat:result.winnerSeat
+      terminalOutcome:a.terminalOutcome,
+      winnerOverridden:a.winnerOverridden,
+      winnerSeat:result.winnerSeat
     };
   });
 
   return {
-    schema:'agent37-simultaneous-last-prize-tie-native-v1',
+    schema:'agent37-simultaneous-last-prize-resolution-native-v2',
     pinnedTwinleaf:PINNED,
     hook:VERSION,
-    paperRule:'Rulebook §E: simultaneous loss conditions tie; asymmetric promotion availability is a winner case',
+    paperRule:'Rulebook §E: simultaneous Prize exhaustion is a draw when promotion availability matches; the only player able to promote wins when it differs',
     nativeDefectConfirmedBothSeats:true,
     v3TieCorrectionBothSeats:true,
     bothPrizeTransfersVerified:true,
     drawLogAndWinnerVerified:true,
     singlePlayerLastPrizeControlPreserved:true,
     nonHandPrizeDestinationControlPreserved:true,
-    asymmetricPromotionAvailabilityControlPreserved:true,
-    mixedTerminalRowsSupported:false,
+    asymmetricPromotionAvailabilityWinnerCorrected:true,
+    mixedTerminalRowsSupported:true,
     competitiveGamesQualified:0,
     rows,
     controls:{
