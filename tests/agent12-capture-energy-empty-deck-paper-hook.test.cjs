@@ -25,7 +25,8 @@ function make(ownerCards, energyInHand = true) {
   const card = new CaptureEnergy();
   const owner = {
     hand: {cards: energyInHand ? [card] : []},
-    deck: {cards: ownerCards.map((_, index) => ({index}))}
+    deck: {cards: ownerCards.map((_, index) => ({index}))},
+    bench: [{cards: []}]
   };
   return {card, owner, state: {calls: 0},
     effect: new AttachEnergyEffect(owner, card)};
@@ -84,6 +85,16 @@ test('other effect classes do not trigger a targeted correction', () => {
     CaptureEnergy, AttachEnergyEffect
   }), /native empty deck search/);
   assert.strictEqual(CaptureEnergy.prototype.reduceEffect, previous);
+});
+
+test('full Bench has no possible search and must delegate original handler', () => {
+  const f = make([]);
+  f.owner.bench[0].cards.push({name:'Occupied Basic'});
+  assert.throws(() => withPaperCaptureEnergyEmptyDeck(() =>
+    f.card.reduceEffect(null, f.state, f.effect), {
+    CaptureEnergy, AttachEnergyEffect
+  }), /native empty deck search/);
+  assert.equal(f.state.calls, 1);
 });
 
 test('original prototype is restored even after caller exception', () => {
