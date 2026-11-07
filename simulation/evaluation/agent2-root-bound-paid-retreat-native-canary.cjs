@@ -29,7 +29,7 @@ const {captureBasicRetreatPhysicalWitness}=
 const {actorObservation}=
   require('../twinleaf/actor-observation-contract.cjs');
 
-const VERSION='agent2-root-bound-paid-retreat-native-canary-v4';
+const VERSION='agent2-root-bound-paid-retreat-native-canary-v5';
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const FULL='e7304d2a152496945cb9513e50a5e5680a6405ada4cc8ceb1e447f6ade7dddeb';
 const SOURCE='ed055a7d1db05b794eea2c63661593e21961dac77e850674ef2dbab57bfa787a';
@@ -97,6 +97,7 @@ function runArm(variant,cards){
                     actorSeat:seat,turn:state.turn,
                     ownActive:own.active,
                     ownBenchTarget:own.bench[action.benchIndex],
+                    ownBench:own.bench,
                     ownStadium:own.stadium,
                     opponentActive:foe.active,
                     opponentBench:foe.bench,
@@ -248,6 +249,9 @@ if(require.main===module){
         status:p.ownActive?.specialConditions,
         restrictions:p.ownActive?.publicRestrictions},
       target:p.ownBenchTarget?.printing,
+      ownBench:p.ownBench.map(x=>x?{
+        printing:x.printing,abilityDetails:x.abilityDetails,
+        energies:x.energies,tools:x.tools}:null),
       opponentActive:{printing:p.opponentActive?.printing,
         abilities:p.opponentActive?.abilityDetails,
         status:p.opponentActive?.specialConditions},
