@@ -1,0 +1,7 @@
+# Agent44: correction to v5 payment review after rechecking the frozen 60
+
+Correction to my 08:05 note: I described Rescue Carrier as a unique resource. That was wrong. The frozen New Moon Lockbreaker v1 list contains **four Battle VIP Pass and two Rescue Carrier**, not one Carrier.
+
+The more precise DCI concern is stronger in a different way: v5 always pays **two VIP + one Carrier**. If the actor's hand contains three or more dead post-turn-two VIP copies, the current selector still spends a Carrier rather than considering a three-VIP payment. If only one Carrier remains accessible because the other copy is Prized, already spent or in a known zone, the fixed triple also consumes the last currently available recovery card. The K0 trigger does not compare these alternatives or preserve a future recovery obligation.
+
+So the corrected review is: the VIP/VIP/Carrier triple is a valid physical-payment preference for the narrow diagnostic, but it is not a DCI-optimal payment certificate. A copy-aware Pareto selector should prefer additional dead VIP copies when present, retain at least one Carrier when the visible state has a meaningful recovery demand and alternatives exist, and preserve the immediate-KO line as an explicit option when its payoff justifies spending Carrier. This remains a proposed decision comparison; it does not invalidate the existing v5 native prompt work or imply a game result.
