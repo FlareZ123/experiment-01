@@ -29,4 +29,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify v4 dispatch ordinals against native headless roots
-        run: node --test tests/agent10-vip-root-ordinal-native-smoke.test.cjs
+        run: node --test tests/agent10-vip-root-ordinal-native-smoke.test.cjs tests/agent10-rank9-vip-root-ordinal-native-probe.test.cjs
