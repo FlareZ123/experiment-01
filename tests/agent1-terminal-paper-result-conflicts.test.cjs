@@ -20,8 +20,10 @@ function terminalMask(mask){
   ];
   return {status:'engine-terminal',engineWinner:1,
     terminalTransition:{evidenceType:'observed-engine-terminal-transition-v1',
-      before:{phase:3,turn:12,activePlayer:1,winner:-1,players:original},
-      after:{phase:7,turn:12,activePlayer:1,winner:1,players:after}}
+      before:{phase:3,turn:12,activePlayer:1,winner:-1,
+        suddenDeath:false,players:original},
+      after:{phase:7,turn:12,activePlayer:1,winner:1,
+        suddenDeath:false,players:after}}
   };
 }
 
