@@ -211,7 +211,7 @@ test('Agent26 unified extension predicate matches Agent27 tied-low and both-high
     const agent27 = require('../simulation/evaluation/agent27-aichi-open-time-adjudication.cjs')
       .adjudicateExtension({ extensionRule, prizesRemaining: [a, b] });
     const winner = Math.min(a, b) <= 2 && a !== b ? (a < b ? 0 : 1) : null;
-    assert.equal(agent26.status, winner === null ? 'EXTENSION_CONTINUES' : 'EXTENSION_PAPER_TIME_WIN');
+    assert.equal(agent26.status, winner === null ? 'KNOCKOUT_EXTENSION_REQUIRED' : 'KNOCKOUT_PAPER_TIME_WIN');
     assert.equal(agent27.status, winner === null ? 'EXTENSION_CONTINUES' : 'EXTENSION_WIN');
     if (winner !== null) {
       assert.equal(agent26.winner, winner);
