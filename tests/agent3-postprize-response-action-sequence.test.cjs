@@ -142,11 +142,11 @@ test('joins post-action hand changes to the exact projected response root',()=>{
   obs.onRootActionDispatched(store,new ResolvePromptAction(),0,1,1);
   store.state.players[0].prizes=prizes(5);
   obs.onRootActionDispatched(store,new ResolvePromptAction(),1,1,1);
-  store.state.turn=2;
+  store.state.turn=1;
   store.state.players[0].hand.cards=[card('Psychic Energy'),card('Basic Psychic Energy')];
   store.state.players[0].discard.cards=[card('Fog Crystal')];
   store.state.prompts=[];
-  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,2);
+  obs.onRootActionDispatched(store,new PlayCardAction(),2,0,1);
 
   const rawRows=[{
     trial:{id:'trial1'},
