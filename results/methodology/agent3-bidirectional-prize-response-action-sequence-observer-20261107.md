@@ -34,7 +34,7 @@ Existing default-direction tests cover:
 - exact causal-Prize-root and first-response-root joins, including a negative mismatched-root case.
 
 New reverse-direction tests cover:
-- candidate Prize-taking followed by the original source's response;
+- candidate Prize-taking followed by the original source's response, including a source response that is action-capped and remains explicitly incomplete;
 - multiple Prize exits in one Prize-taking turn;
 - pending candidate Prize-taking with no source response yet;
 - source response completion by Pass;
