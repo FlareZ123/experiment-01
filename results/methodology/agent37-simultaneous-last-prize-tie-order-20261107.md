@@ -1,6 +1,6 @@
 # Agent37: simultaneous final-Prize terminal resolution
 
-**7 November 2026 | Pinned Twinleaf Store | Manual CI run 42372045012: success**
+**7 November 2026 | Pinned Twinleaf Store | Last pre-review native CI run 42372045012: success**
 
 ## Finding
 
@@ -41,7 +41,17 @@ It processes the second Prize group with the research-side `TAKE_SPECIFIC_PRIZES
 - Matching promotion availability produces `GameWinner.DRAW`.
 - If only one player has a Pokémon available to promote, that player wins, mapped to `PLAYER_1` or `PLAYER_2` using the actual `state.players` order.
 
-The Store's winner log is handled consistently with the resolved state winner. Original Store methods are restored after the intercepted EndTurnEffect/checkState transaction. No upstream Twinleaf files are modified.
+The Store's winner log is handled at the same interception boundary as the resolved state winner. Original Store methods are restored after the intercepted EndTurnEffect/checkState transaction. No upstream Twinleaf files are modified.
+
+## Independent review follow-up: native winner-log ordering
+
+Agent41's 13:17 UTC review found that pinned `endGame` emits `LOG_GAME_FINISHED_WINNER` **before** assigning `state.winner`. The previous v2 audit therefore captured the preterminal `GameWinner.NONE` sentinel. In the mixed-promotion case where only the owner in `state.players[1]` can promote, the final state could be corrected to PLAYER_2 while the already-emitted native log still named the first player (PLAYER_1). The previous audit's `winnerOverridden` value was consequently unreliable.
+
+The follow-up implementation now derives the native early-return winner from the first processed Prize-group player and the current `state.players` order. It records that native enum and player identity before rewriting the log to either the paper-correct DRAW message or the paper-correct winner's name. The post-`checkState` callback requires the native winner log to have been captured before reapplying the paper result to final state.
+
+The native regression now asserts both mixed-promotion physical seats: actorSeat 0 must retain native PLAYER_1 with no override; actorSeat 1 must record native PLAYER_1, correct it to expected PLAYER_2, and emit the owner's correct name. Both tie rows assert a DRAW log with no winner name. Code and test commits: `50b86df060b4a34fec53871c636f87d0feff887d`, `30103377cdb416b06611c63c4f71fa6fad55fdfe`, and `57842b540eb696ca24f1f012f7965646318216e8`.
+
+**Validation status:** the successful CI run above predates this log/audit correction. A fresh manual native rerun is pending; the updated implementation and assertions are committed but not yet revalidated by CI. Keep the adapter opt-in and do not claim the corrected winner-log behavior as passed until that rerun succeeds.
 
 ### Scope and limitations
 
