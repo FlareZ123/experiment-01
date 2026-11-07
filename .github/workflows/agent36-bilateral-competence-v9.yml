@@ -3,8 +3,8 @@ name: Agent36 one-game bilateral competence probe
 on:
   workflow_dispatch:
     inputs:
-      agent7_bilateral_known_dead:
-        description: 'Development-only known-dead attack preference for both acting players'
+      agent7_known_dead_off_control:
+        description: 'Development-only A-prime: disable shared bilateral known-dead attack preference'
         required: false
         type: boolean
         default: false
@@ -65,11 +65,11 @@ jobs:
             tests/agent7-v9-bilateral-known-dead-retro.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.agent7_bilateral_known_dead }}
+        if: ${{ !inputs.agent7_known_dead_off_control }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
-      - name: Execute exposed-seed bilateral owner-known-dead attack treatment
-        if: ${{ inputs.agent7_bilateral_known_dead }}
+      - name: Execute exposed-seed bilateral known-dead OFF A-prime control
+        if: ${{ inputs.agent7_known_dead_off_control }}
         run: node simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
