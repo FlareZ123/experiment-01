@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
   VERSION,VIP_NAME,VIP_PRINTING,ROOT_ORDINAL_PROTOCOL,
-  strictVipTreatmentAttribution
+  strictVipTreatmentAttribution,strictVipTreatmentAttributionFromRows
 }=require('../../simulation/evaluation/agent10-strict-vip-treatment-attribution-v3.cjs');
 
 function root(actionOrdinal,action,playerSlot=0,turnBefore=1,extra={}){
