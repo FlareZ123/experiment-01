@@ -55,7 +55,7 @@ function auditTechnicalMachineEndturn(){
     }
     assert.equal(b.ownerPrizesRemaining,t.ownerPrizesRemaining);
     if(knockout){
-      assert.equal(b.firstChoicePrompt,'ChoosePrizePrompt');
+      assert.equal(baseline.firstChoicePrompt,'ChoosePrizePrompt');
       assert.equal(treatment.firstChoicePrompt,'ChoosePrizePrompt');
       assert.equal(baseline.firstChoiceSnapshot.ownerTools.includes(TOOL),false,
         'Original Store already discards TM before KO Prize choice');
