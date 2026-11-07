@@ -68,7 +68,8 @@ function inspectPowerglassWinningKo({lastPrize=false,opponentHasBench=true}={}){
     if(p.constructor.name!=='WaitPrompt'){choice=p.constructor.name;break;}
     store.dispatch(new ResolvePromptAction(p.id,null));
   }
-  assert.ok(choice,'attack yielded no selectable prompt');
+  // A final-KO engine may terminate immediately without a selectable prompt.
+  // Preserve that outcome as evidence instead of treating it as a probe error.
   const sourceActive=enemy.active.getPokemonCard();
   return {
     schema:'agent37-powerglass-winning-ko-preendturn-v1',
