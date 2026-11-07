@@ -41,6 +41,8 @@ jobs:
         run: node --test tests/agent2-root-identity-guard.test.cjs tests/agent2-paid-retreat-accepted-root-receipt.test.cjs
       - name: Audit Basic-only paid retreat physical identity and exact discard
         run: node --test tests/agent2-retreat-basic-physical-witness.test.cjs
+      - name: Verify exact physical Research draw and native Store observer fixtures
+        run: node --test tests/agent2-professor-research-physical-draw-witness.test.cjs tests/agent2-professor-research-native-settlement.test.cjs
       - name: Verify original rank13 VS Seeker Research A/B/A source and controls
         run: node --test tests/agent2-vs-seeker-research-original-rank13-aba.test.cjs
       - name: Verify owner-only VS Seeker Professor multi-action Store fixture
