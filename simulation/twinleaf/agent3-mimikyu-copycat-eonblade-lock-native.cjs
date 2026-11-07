@@ -8,6 +8,7 @@ const {stage}=require('./agent5-attack-special-arbitration-native.cjs');
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p @returns {any} */
 const native=p=>require(path.join(OUTPUT,p));
+const {CardType}=native('game/store/card/card-types');
 
 /**
  * Stage Mimikyu GRI Copycat against an injected previous-turn Latias ex
@@ -48,8 +49,8 @@ function copycatEonBladeNextOwnTurn(seat){
   const filch=mimikyu.attacks.find(attack=>attack.name==='Filch');
   const eonBlade=latias.attacks.find(attack=>attack.name==='Eon Blade');
   assert.ok(copycat&&filch&&eonBlade);
-  assert.deepEqual(copycat.cost,['Psychic','Colorless']);
-  assert.deepEqual(eonBlade.cost,['Psychic','Psychic','Colorless']);
+  assert.deepEqual(copycat.cost,[CardType.PSYCHIC,CardType.COLORLESS]);
+  assert.deepEqual(eonBlade.cost,[CardType.PSYCHIC,CardType.PSYCHIC,CardType.COLORLESS]);
   assert.match(eonBlade.text,/During your next turn, this Pokémon can't attack/i);
 
   // This is a staged native contract: the opponent's preceding Eon Blade is
