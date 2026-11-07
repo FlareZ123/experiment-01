@@ -10,8 +10,10 @@ const {AttackAction}=
 const {ResolvePromptAction}=
   require(path.join(output,'game/store/actions/resolve-prompt-action'));
 const {GameMessage}=require(path.join(output,'game/game-message'));
-const {installCopycatMultiAttackHistory}=
-  require('../simulation/twinleaf/copycat-multiattack-history.cjs');
+const {
+  installCopycatMultiAttackHistory,
+  dispatchCopycatWithSelectedHistory
+}=require('../simulation/twinleaf/copycat-multiattack-history.cjs');
 
 class ChooseAttackPrompt{
   constructor(playerId,sourceCard,selectedAttack){
@@ -121,4 +123,42 @@ test('a Barrage pair with one uncopyable member exposes only the other member',(
     {secondGx:true});
   assert.deepEqual(result.copycatChoices.map(row=>row.attackName),
     ['First attack']);
+});
+
+test('Copycat dispatch requires a matching native action and a completed prior-turn record',()=>{
+  const attack={name:'Burrow',gxAttack:false,copycatAttack:false};
+  const sourceCard={fullName:'Bunnelby PRC',attacks:[attack]};
+  const selected={
+    playerId:2,turn:14,sourceCard,attack,
+    sourceCardFullName:'Bunnelby PRC',attackName:'Burrow',
+    gxAttack:false,copycatAttack:false
+  };
+  const originalRecord={sourceCard:{fullName:'Original'},attack:{name:'Original'}};
+  const store={
+    state:{
+      players:[{id:1},{id:2}],
+      turn:15,
+      playerLastAttack:{2:originalRecord}
+    },
+    dispatch(action){
+      assert.equal(action.name,'Copycat');
+      assert.equal(this.state.playerLastAttack[2],selected);
+      return 'dispatched';
+    }
+  };
+  assert.equal(dispatchCopycatWithSelectedHistory(
+    store,1,selected,new AttackAction(1,'Copycat')
+  ),'dispatched');
+  assert.equal(store.state.playerLastAttack[2],originalRecord);
+
+  assert.throws(()=>dispatchCopycatWithSelectedHistory(
+    store,1,{...selected,turn:15},new AttackAction(1,'Copycat')
+  ));
+  assert.throws(()=>dispatchCopycatWithSelectedHistory(
+    store,1,selected,new AttackAction(1,'Filch')
+  ));
+  assert.throws(()=>dispatchCopycatWithSelectedHistory(
+    store,1,selected,new AttackAction(2,'Copycat')
+  ));
+  assert.equal(store.state.playerLastAttack[2],originalRecord);
 });
