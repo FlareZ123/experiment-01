@@ -32,6 +32,27 @@ const {GameMessage}=require(path.join(output,'game/game-message'));
  *   restore:()=>void
  * }}
  */
+/**
+ * Mimikyu's printed Copycat excludes GX attacks and, by official ruling,
+ * another Mimikyu Copycat. Other copied-attack effects remain eligible:
+ * the official FAQ specifically permits copying Zoroark BREAK's Foul Play.
+ * Twinleaf's generic copycatAttack metadata is therefore too broad to use as
+ * a blanket exclusion (e.g. Regidrago VSTAR's non-GX Apex Dragon).
+ * @param {object} row Tracked previous-turn attack record.
+ * @returns {boolean}
+ */
+function isMimikyuCopycatAttack(row){
+  const sourceName=row?.sourceCardName??row?.sourceCard?.name??
+    (typeof row?.sourceCardFullName==='string'?
+      row.sourceCardFullName.split(' ')[0]:null);
+  return sourceName==='Mimikyu'&&row?.attackName==='Copycat';
+}
+
+/** @param {object} row @returns {boolean} */
+function isMimikyuCopycatEligibleAttack(row){
+  return row?.gxAttack!==true&&!isMimikyuCopycatAttack(row);
+}
+
 function installCopycatMultiAttackHistory(store){
   assert.ok(store&&typeof store.dispatch==='function');
   const hadOwn=Object.prototype.hasOwnProperty.call(store,'dispatch');
@@ -69,6 +90,7 @@ function installCopycatMultiAttackHistory(store){
           kind:'declared',
           playerId:player.id,turn:before.turn,
           sourceCard,attack,
+          sourceCardName:sourceCard.name,
           sourceCardFullName:sourceCard.fullName,
           attackName:attack.name,
           gxAttack:attack.gxAttack===true,
@@ -102,6 +124,7 @@ function installCopycatMultiAttackHistory(store){
             barragePairId,barragePairRole:'second',
             playerId:player.id,turn:before.turn,
             sourceCard,attack,
+            sourceCardName:sourceCard.name,
             sourceCardFullName:sourceCard.fullName,
             attackName:attack.name,
             gxAttack:attack.gxAttack===true,
@@ -172,8 +195,7 @@ function installCopycatMultiAttackHistory(store){
    * @returns {object[]}
    */
   const getEligiblePreviousTurnAttacks=playerId=>
-    getPreviousTurnAttacks(playerId).filter(row=>
-      row.gxAttack!==true&&row.copycatAttack!==true);
+    getPreviousTurnAttacks(playerId).filter(isMimikyuCopycatEligibleAttack);
   /**
    * Copycat's ordinary case is the opponent's actual last attack, if it is
    * copyable. A verified Barrage pair is the narrow exception: both attacks
@@ -188,10 +210,10 @@ function installCopycatMultiAttackHistory(store){
       const pairId=paired[paired.length-1].barragePairId;
       const pair=history.filter(row=>row.barragePairId===pairId);
       if(pair.length===2)
-        return pair.filter(row=>row.gxAttack!==true&&row.copycatAttack!==true);
+        return pair.filter(isMimikyuCopycatEligibleAttack);
     }
     const last=history[history.length-1];
-    return last&&last.gxAttack!==true&&last.copycatAttack!==true?[last]:[];
+    return last&&isMimikyuCopycatEligibleAttack(last)?[last]:[];
   };
 
   return {
@@ -228,7 +250,8 @@ function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,actio
   assert.equal(action.name,'Copycat');
   assert.ok(selected?.sourceCard&&selected?.attack);
   assert.equal(selected.gxAttack,false,'GX attacks cannot be selected');
-  assert.equal(selected.copycatAttack,false,'Copycat attacks cannot be selected');
+  assert.ok(!isMimikyuCopycatAttack(selected),
+    'Mimikyu cannot copy another Mimikyu Copycat attack');
   assert.equal(selected.attackName,selected.attack.name);
   assert.equal(selected.sourceCardFullName,selected.sourceCard.fullName);
   const state=store.state;
@@ -250,6 +273,8 @@ function dispatchCopycatWithSelectedHistory(store,copycatPlayerId,selected,actio
 }
 
 module.exports={
+  isMimikyuCopycatAttack,
+  isMimikyuCopycatEligibleAttack,
   installCopycatMultiAttackHistory,
   dispatchCopycatWithSelectedHistory
 };
