@@ -52,7 +52,8 @@ function isWaterEnergy(card,types){
 function findPlayedSlot(owner,card){
   const slots=[owner?.active,...(owner?.bench??[])].filter(Boolean);
   return slots.find(slot=>pokemonCards(slot).some(candidate=>
-    candidate===card||(card?.id!==undefined&&candidate?.id===card.id)))??null;
+    candidate===card||(Number.isInteger(card?.id)&&card.id>=0&&
+      candidate?.id===card.id)))??null;
 }
 
 /**
@@ -153,7 +154,8 @@ function chooseArticunoOwnedWaterTransfers({prompt,owner,played,types}){
   }
   const active=owner?.active;
   if(!(active?.cards??[]).some(card=>card===played?.card||
-      card?.id!==undefined&&card.id===played?.card?.id)){
+      Number.isInteger(played?.card?.id)&&played.card.id>=0&&
+      card?.id===played.card.id)){
     throw new Error('Articuno Ascent recipient is no longer the played Active Pokémon.');
   }
   const destination={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
@@ -282,7 +284,7 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     if(meta?.kind==='radiant-search'){
       const owner=this.state.players.find(player=>player.id===meta.ownerId);
       const sameCard=(left,right)=>left===right||
-        left?.id!==undefined&&left.id===right?.id;
+        Number.isInteger(left?.id)&&left.id>=0&&left.id===right?.id;
       const physicallyBenched=meta.selected.every(card=>
         (owner?.bench??[]).some(slot=>(slot.cards??[]).some(candidate=>
           sameCard(candidate,card))));
