@@ -56,6 +56,14 @@ test('Ordinary validated paper win is preserved during final permitted turn',()=
   assert.equal(result.competitiveAdmission,false);
 });
 
+test('A paper-validated win ends game before prescribed second turn is reached',()=>{
+  const r=adjudicateAtPrescribedEnd({stage:'open-top32',
+    prizesRemaining:[5,6],secondPlayerTurnFinished:false,paperGameWinner:1});
+  assert.equal(r.status,'NORMAL_PAPER_GAME_WIN');
+  assert.equal(r.conditionalWinnerSeat,1);
+  assert.equal(r.competitiveAdmission,false);
+});
+
 test('Top32 time branch: if one side has <=2 Prizes, lower side wins',()=>{
   for(const [prizes,expected] of [[[2,3],0],[[4,1],1],[[1,6],0]]){
     const r=adjudicateAtPrescribedEnd({stage:'open-top32',
