@@ -178,6 +178,10 @@ function withArticunoColdCrushPolicy(run, deps = {}) {
     }
 
     if (observation && mode === 'observe') {
+      if (actionPrompt.result !== observedDecision) {
+        audit.confirmUnsettled++;
+        throw new Error('Observed Articuno Cold Crush Ability Confirm did not settle to the shared owner-policy action.');
+      }
       pendingByPrompt.delete(actionPrompt);
       observedByPrompt.delete(actionPrompt);
       audit.confirmSettled++;
