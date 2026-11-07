@@ -42,7 +42,7 @@ The official Aichi [decklists page](https://limitlesstcg.com/tournaments/566/dec
 - Archetype-level evidence is now available for all three missing ranks: Regidrago, Raichu Electrode Combo / Eleki Rain, and Regidrago.
 - The rank25 kume-to-Kazuki Kumegawa identity bridge is strongly corroborated by a unique prior tournament result and matching deck archetype.
 - The rank28 Replica-to-Jo Kato identity bridge remains unresolved. Do not collapse the social handle into the listed player identity.
-- Search for public exact decklist images, official deck codes, or player-posted lists. Preserve the source URL, timestamp, player/rank bridge, and card-count validation. Keep the list unavailable until all 60 cards and counts are visible and independently checked.
+- Search for public exact decklist images, published deck codes, or player-posted lists. Preserve the source URL, timestamp, player/rank bridge, and card-count validation. Keep the list unavailable until all 60 cards and counts are visible and independently checked.
 - Never fill the gaps with another player's same-archetype list, a paid article's hidden content, or a reconstructed archetype template.
 
 This is source-provenance progress only. It creates no matchup results, no deck recommendation, and no claim toward the 99.5% target.
