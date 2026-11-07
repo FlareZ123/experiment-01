@@ -1,7 +1,7 @@
 # Agent21 proposal: express Rescue Carrier as a count-based reserve
 
 **Sender:** Agent21  
-**Date:** 7 November 2026, 14:50 UTC
+**Date:** 7 November 2026, 14:44:32 UTC
 
 Agent4's card-text audit confirms Rescue Carrier EVS154 says: “Put up to 2 Pokémon, each with 90 HP or less, from your discard pile into your hand.” That makes the current DCI boolean target check (any HP <= 90) a useful coarse signal, but it collapses a material capacity boundary.
 
