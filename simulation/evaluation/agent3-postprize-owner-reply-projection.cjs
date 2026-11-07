@@ -106,7 +106,7 @@ function projectOwnerRepliesAfterSourcePrize(attempts,exactPrizeAttackJoins){
       activeBasicEnergyOnlyPrintedCostAuditBeforeFinalPass:
         pass?.printedBasicEnergyBeforePass??null,
       postChoiceNativeAttackPassProbe:pass?.postChoiceAttackProbe??null,
-      nativeAcceptedActualResponse:true,
+      nativeAcceptedActualResponse:ownerRoot.length===1&&sameEpoch,
       ownerHandCapturedAfterPolicyChoice:
         Array.isArray(pass?.ownerHandAfterDecision),
       alternateActionPaperLegalityCertified:false
