@@ -44,6 +44,8 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
 
   const f=stagedPainfulSpoons(seat);
   const {source,opponent,store,state}=f;
+  // Replace the shared fixture's generic SVE-energy hand with exact rank31 cards.
+  source.hand.cards.splice(0,source.hand.cards.length);
   assert.equal(state.activePlayer,seat);
   assert.equal(source.bench.length,5);
 
@@ -178,12 +180,16 @@ function probeRank31KoffingPoisonGasCursedBlast(seat=0){
       'The second between-turns checkup adds another 10 poison damage after the opponent passes');
     evidence.push({phase:'second poison checkup',targetDamage:opponent.active.damage});
 
+    assert.equal(source.hand.cards.length,0,
+      'both staged Basic Psychic Energy cards must have been attached');
     const koffing1=f.card('Koffing CEC');
     const koffing2=f.card('Koffing CEC');
     const roxie=f.card('Roxie CEC');
     source.hand.cards.push(koffing1,koffing2,roxie);
-    dispatchAt('PlayCardAction Roxie',new PlayCardAction(source.id,2,{
-      player:PlayerType.ANY,slot:SlotType.ACTIVE,index:0
+    const roxieIndex=source.hand.cards.indexOf(roxie);
+    assert.equal(roxieIndex,2,'Roxie must be the selected physical hand card');
+    dispatchAt('PlayCardAction Roxie',new PlayCardAction(source.id,roxieIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
     for(let i=0;i<25;i++){
       const prompt=pending();
