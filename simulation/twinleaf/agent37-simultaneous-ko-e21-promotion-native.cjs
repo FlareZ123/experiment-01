@@ -21,6 +21,7 @@ const native=p=>require(path.join(OUTPUT,p));
  * @param {boolean} terminalMode Return terminal state without normal promotion assertions.
  * @param {boolean} enemyHasBench Include the defender's promotion Pokémon.
  * @param {boolean} ownerHasBench Include the attacking owner's promotion Pokémon.
+ * @param {{enemyActiveName?:string,enemyEvolutionBaseName?:string,enemyActiveDamage?:number,ownerPrizes?:number,enemyPrizes?:number}} fixture Optional staged Active and Prize-count profile.
  * @returns {object} Native prompt, Prize, promotion, and Powerglass receipt.
  */
 function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasBench=true,ownerHasBench=true,fixture={}){
@@ -55,9 +56,8 @@ function runOne(actorSeat,useHook,prizesPerPlayer=6,terminalMode=false,enemyHasB
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
 
-  const ownerActiveName=fixture.ownerActiveName||'Ferroseed NXD';
   const enemyActiveName=fixture.enemyActiveName||'Duskull VIV';
-  owner.active.cards.push(card(ownerActiveName));
+  owner.active.cards.push(card('Ferroseed NXD'));
   owner.active.energies.cards.push(
     card('Metal Energy MEE'),
     card('Double Colorless Energy NXD')
