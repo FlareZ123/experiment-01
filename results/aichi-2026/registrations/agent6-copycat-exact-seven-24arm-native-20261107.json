@@ -1,0 +1,78 @@
+{
+  "schema": "agent6-copycat-exact-seven-24arm-native-v2",
+  "createdAtUtc": "2026-11-07T03:24:44.915757Z",
+  "seedsSource": "four independent actual Python secrets.randbits(32) draws, before any v2 native source execution",
+  "sourceOriginalRank": 10,
+  "candidateOriginalRank": 1,
+  "groups": [
+    {
+      "seed": 2855357560,
+      "championSeat": 0,
+      "rank10Seat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 2855357560,
+      "championSeat": 1,
+      "rank10Seat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 550392985,
+      "championSeat": 0,
+      "rank10Seat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 550392985,
+      "championSeat": 1,
+      "rank10Seat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 668611607,
+      "championSeat": 0,
+      "rank10Seat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 668611607,
+      "championSeat": 1,
+      "rank10Seat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 3710837965,
+      "championSeat": 0,
+      "rank10Seat": 1,
+      "sourceRank": 10,
+      "candidateRank": 1
+    },
+    {
+      "seed": 3710837965,
+      "championSeat": 1,
+      "rank10Seat": 0,
+      "sourceRank": 10,
+      "candidateRank": 1
+    }
+  ],
+  "phases": [
+    "A-control",
+    "B-observe-true-starting-seven",
+    "A-repeat"
+  ],
+  "attempts": 24,
+  "maxNativeRootActionsPerArm": 96,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observer": "B only real Store first exact source CHOOSE_STARTING_POKEMONS prompt before its dispatch, first settled turn1 before first player action; instance wrapper restored",
+  "preRegisteredQualification": "all B must capture EXACT seven and original six prizes; A/B/A same root-action digest, full physical both-seat fingerprint and source deal; every mismatch included",
+  "basis": "original full-decklists rank1 and rank10 name/count 60 via explicit same-set-energy resolver, no gameplay policy changes",
+  "limitations": "no time-clock, unqualified SimpleTacticsAi, source rank1 resource access only, zero paper-qualified outcomes",
+  "competitiveGamesQualified": 0
+}
