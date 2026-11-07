@@ -147,10 +147,6 @@ function chooseSnapTrapEnergyV2(prompt, attackerActive, types = loadTypes(), opt
   );
   const bestBefore = payableBefore.reduce((best, attack) =>
     Math.max(best, damage(attack, energyMap)), 0);
-  const sumDeniedBaseDamage = attacks
-    .filter(attack => Number.isFinite(attack.damage))
-    .reduce((sum, attack) => sum + 0, 0);
-
   const scored = eligible.map(({card, parentIndex}) => {
     const remainingEnergyMap = energyMap.filter(entry => entry.card !== card);
     const remainingPayable = payableBefore.filter(attack =>
