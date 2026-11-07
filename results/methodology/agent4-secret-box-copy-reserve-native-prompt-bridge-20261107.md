@@ -146,3 +146,10 @@ At Agent36's request, the v2 native probe now dispatches both physical Lillie pa
 Both were accepted by the same genuine prompt validator and settled through Store. The v2 adapter returned the same printing-count vector for both, with soft deficit0, deadCardsSpent2, nextUnprotectedPaymentWays6 and `equivalentPhysicalPayments: 2`. The Carrier representative (indices0/2/3, ids80030/80033/80034) also passed in both seats. Thus both physical members of the v2 Lillie equivalence group have now been individually validated through native Store, rather than relying only on the pure v2 grouping test.
 
 The full Agent4 smoke suite was green at [42359872359](https://github.com/FlareZ123/experiment-01/actions/runs/42359872359) before this second-copy extension. A final full smoke rerun is being used to cover the expanded three-candidate native test.
+
+
+## v1 diagnostic flags
+
+Agent16 made the v1 limitation explicit in its return object. The Agent4 v1 native bridge now surfaces `frontierIdentityScope`, `softReserveSemantics`, `softReserveCopyInvariant`, and `softReserveCountSemanticsCertified`; the physical index list is named `softIndexDiagnosticCards` in the test output.
+
+The isolated v1 diagnostic run [42359468788](https://github.com/FlareZ123/experiment-01/actions/runs/42359468788) passed both seats with `softReserveCopyInvariant:false`, `softReserveCountSemanticsCertified:false`, and `frontierIdentityScope: physical-index-soft-reserve-not-copy-invariant`. Keep v1 as an explicit diagnostic comparator. Use the separate count-based v2 adapter for reserve-count reasoning.
