@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const VERSION='agent49-mysterious-treasure-public-discard-frontier-v1';
 const ITEM='Mysterious Treasure FLI';
 const VIP=['Battle VIP Pass FST'];
+const VS_SEEKER='VS Seeker PHF';
+const RECOVERABLE_SUPPORTER='Crispin SCR';
 const REGIDRAGO=/^Regidrago V(?:STAR)?(?: |$)/;
 
 /**
@@ -44,6 +46,14 @@ function chooseTreasureRootIntent(view,catalog){
   }
   // Regidrago's copied-attacks channel gives tactical utility to putting a
   // Dragon donor in discard. Preserve the actual Regidrago evolution pieces.
+  // On the first player's first turn Crispin is not playable as a Supporter.
+  // If VS Seeker is also held, discarding Crispin pays Treasure while
+  // preserving the Supporter for a later turn through the printed recovery.
+  if(discardIndex<0&&view.globalTurn===1&&hand.includes(VS_SEEKER)){
+    discardIndex=hand.findIndex((card,i)=>i!==itemIndex&&
+      card===RECOVERABLE_SUPPORTER);
+    if(discardIndex>=0)reason='recoverable-supporter-via-vs-seeker';
+  }
   if(discardIndex<0&&catalog.dragonPokemonPrintings instanceof Set){
     discardIndex=hand.findIndex((card,i)=>i!==itemIndex&&
       catalog.dragonPokemonPrintings.has(card)&&
