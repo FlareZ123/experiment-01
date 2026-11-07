@@ -123,6 +123,8 @@ function joinNativePreAttackBoard(
       attackName:root.attackName,
       attackerPrintingFromActualNativeBoard:actor.printing,
       physicalActivePrintingAccountedForByOriginal60:true,
+      publicActiveNameAndSetObserved:true,
+      publicActiveCollectorNumberObserved:false,
       attackNamePrintedOnPhysicalActive:attackIsPrintedOnActualActive,
       sourceAttackPrintEqualsPhysicalActive:originalAttackSourceIsPhysicalActive,
       copiedOrGrantedSourceUnresolved:!originalAttackSourceIsPhysicalActive,
