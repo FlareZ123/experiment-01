@@ -37,6 +37,8 @@ jobs:
         run: node --test tests/agent2-root-identity-guard.test.cjs tests/agent2-paid-retreat-accepted-root-receipt.test.cjs
       - name: Audit Basic-only paid retreat physical identity and exact discard
         run: node --test tests/agent2-retreat-basic-physical-witness.test.cjs
+      - name: Verify owner-only VS Seeker Professor multi-action Store fixture
+        run: node --test tests/agent2-owner-vs-seeker-research-store-sequence.test.cjs
       - name: Validate default-off owner-only VS Seeker Professor draw roots and physical prompt
         run: node --test tests/agent2-owner-vs-seeker-research-root.test.cjs
       - name: Count exact original 29 Trainer demand and verify 60-card census
