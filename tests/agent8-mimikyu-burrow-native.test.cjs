@@ -11,6 +11,10 @@ for(const sourceSeat of [0,1]){
     assert.equal(result.copiedAttack.previousName,'Burrow');
     assert.equal(result.copiedAttack.previousGx,false);
     assert.equal(result.copiedAttack.activePrinting,'Mimikyu GRI');
+    assert.ok(result.sourceAttackPrompts.includes('ConfirmPrompt'),
+      'Bunnelby Ω Barrage must ask whether to take its optional second attack');
+    assert.ok(!result.copiedAttackPrompts.includes('ConfirmPrompt'),
+      'Mimikyu Copycat must not inherit Bunnelby Ω Barrage');
     assert.equal(result.sourceDeckDelta,-1);
     assert.equal(result.sourceDiscardDelta,1);
     assert.equal(result.sourceTopMovedToDiscard,true);
