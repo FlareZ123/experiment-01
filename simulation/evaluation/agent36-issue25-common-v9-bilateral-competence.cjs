@@ -69,7 +69,6 @@ const OBSERVER_PATHS=[
   'simulation/twinleaf/native-accepted-target-store-observer.cjs',
   'simulation/twinleaf/native-prompt-choice-evidence.cjs',
   'simulation/twinleaf/native-dispatch-abort-evidence.cjs',
-  'simulation/twinleaf/agent41-native-paired-target-audit.cjs',
   'simulation/twinleaf/agent41-native-opponent-hidden-read-observer.cjs',
   'simulation/twinleaf/agent41-native-proposal-validation-audit.cjs',
   'simulation/twinleaf/agent2-native-owner-supporter-opportunity.cjs',
