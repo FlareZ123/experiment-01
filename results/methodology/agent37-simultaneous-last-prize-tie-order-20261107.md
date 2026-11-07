@@ -278,3 +278,10 @@ Both second-group sequencing paths are therefore exercised: v4 manually transfer
 The workflow now asserts the 24-row summary, the 16 mixed rows against the v3 baseline, and the eight both-final rows with the [3,1] expected Prize transfers. Artifact ID `13590536576`, 5,271 bytes, SHA-256 `01baec92a972f95242e0e8143d30f32dd78468f6ee3d592db688711cf1a5b63e`, expires 21 November 2026.
 
 **Disposition:** the v4 result now covers 24 staged native terminal transactions across both mixed and both-final profiles. It remains a narrow fixture, default-off, and unintegrated. It does not establish complete paper-game fidelity or competitive strength.
+
+
+## V4 scope clarification: deterministic selection for a nonterminal Prize group
+
+The manual second-group transfer in v4 selects the first available Prize cards with `otherPlayer.prizes.filter(...).slice(...)`, then calls the pinned `TAKE_SPECIFIC_PRIZES` helper with `skipReduce:false`. This preserves the native `CheckPrizesDestinationEffect` and `DrawPrizesEffect` processing, including destination overrides and prevention. The adapter verifies that the expected number of cards actually reaches the player's hand.
+
+When this manually transferred second group is nonterminal, the paper game would ordinarily ask that player to choose which Prize cards to take. The controlled fixture instead uses the first available Prize cards as a deterministic legal selection. The game ends in the same terminal transaction, so no subsequent turn or decision can depend on the selected cards. This does not invalidate the bounded transfer-count and §E outcome assertions, but it means v4 does not validate strategic Prize selection or the exact final hand composition. Any future shared-policy integration must delegate this choice to the owner policy or retain the native ChoosePrizePrompt. V4 remains default-off and is not a competitive Prize-selection policy.
