@@ -35,6 +35,9 @@ function run(){
           scenario.enemyHasBench,
           scenario.ownerHasBench,
           {
+            enemyActiveName:'Shadow Rider Calyrex VMAX CRE',
+            enemyEvolutionBaseName:'Shadow Rider Calyrex V CRE',
+            enemyActiveDamage:260,
             ownerPrizes:profile.ownerPrizes,
             enemyPrizes:profile.enemyPrizes,
             stopAfterAttack:true
