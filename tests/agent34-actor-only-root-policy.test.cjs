@@ -699,7 +699,8 @@ test('actor-only Garbodor root forwards immediate-lock and deferral options',()=
   const deferred=chooseActorRootIntent(view,garbotoxinToolCatalog,{
     ...options,garbotoxinToolRootDeferForStarAlchemy:true
   });
-  assert.equal(deferred,null);
+  assert.equal(deferred.kind,'pass');
+  assert.equal(deferred.reason,'no-supported-owner-visible-root');
 });
 
 test('Garbotoxin root defers while Forest Seal Stone is attached to an unused V',()=>{
