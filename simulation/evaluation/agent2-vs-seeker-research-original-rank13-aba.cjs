@@ -3,8 +3,6 @@
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
-const {planAichi}=require('./aichi-pilot.cjs');
-const {observedFirstTurn}=require('./aichi-campaign-execute.cjs');
 const {withCanonicalActorOnlyPolicy}=require(
   './agent7-canonical-actor-composition.cjs');
 const {withActorOnlyRootPolicy}=require(
@@ -36,6 +34,7 @@ function originalPrintings(corpus=require('../../results/aichi-2026/full-decklis
   }
   assert.equal(deck(RANK_SOURCE).archetype,'Snorlax Stall');
   assert.equal(deck(RANK_CANDIDATE).archetype,'Regidrago');
+  const {planAichi}=require('./aichi-pilot.cjs');
   const planned=planAichi({
     label:'agent2-original-rank13-owner-seeker-research',
     cards:deck(RANK_CANDIDATE).cards
@@ -105,6 +104,7 @@ function runArm(trial,cards){
     const root=observed.audit.detailedComponentAudits?.root;
     assert.equal(root?.seekerResearchRootOptIn,optIn,
       'B arm must reach real owner-root opt-in');
+    const {observedFirstTurn}=require('./aichi-campaign-execute.cjs');
     const starts=observedFirstTurn(game);
     const selected=(root?.nativeRootAcceptances??[]).filter(x=>
       ['play-seeker-get-research','play-seeker-recovered-research']
