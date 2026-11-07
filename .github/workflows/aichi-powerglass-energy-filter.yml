@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      probe_agent7_root93_prize_followup:
+        description: 'Settle second native Powerglass prompt, owner Prize and source promotion after Hidden Power KO'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -34,7 +39,7 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Existing prompt integrity regression (independent from opt-in KO timing)
-        if: ${{ !inputs.probe_ko_prize_order && !inputs.probe_agent7_root93_unown_powerglass }}
+        if: ${{ !inputs.probe_ko_prize_order && !inputs.probe_agent7_root93_unown_powerglass && !inputs.probe_agent7_root93_prize_followup }}
         run: node --test tests/powerglass-energy-filter-store.test.cjs tests/prompt-integrity-energy-filter.test.cjs tests/prompt-integrity.test.cjs tests/prompt-integrity-pinned-selection.test.cjs tests/prompt-integrity-pinned-shuffle.test.cjs
       - name: Run registered Powerglass KO Prize sequence probe
         if: ${{ inputs.probe_ko_prize_order }}
@@ -53,6 +58,19 @@ jobs:
         with:
           name: agent7-root93-unown-powerglass-fourarm-stage
           path: agent7-root93-unown-powerglass-native.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Settle native Powerglass second Basic, then source KO Prize and promotion
+        if: inputs.probe_agent7_root93_prize_followup
+        run: node simulation/twinleaf/agent7-root93-unown-powerglass-prize-native.cjs > agent7-root93-powerglass-prize-native.json
+      - name: Show staged real physical Prize-taking evidence
+        if: inputs.probe_agent7_root93_prize_followup
+        run: node -e "const r=require('./agent7-root93-powerglass-prize-native.json');console.log(JSON.stringify(r,null,2))"
+      - uses: actions/upload-artifact@v4
+        if: inputs.probe_agent7_root93_prize_followup && always()
+        with:
+          name: agent7-root93-powerglass-postattack-prize-stage
+          path: agent7-root93-powerglass-prize-native.json
           retention-days: 14
           if-no-files-found: warn
       - uses: actions/upload-artifact@v4
