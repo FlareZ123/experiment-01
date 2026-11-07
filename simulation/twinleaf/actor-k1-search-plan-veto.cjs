@@ -57,7 +57,11 @@ function preflightOwnerSearchPlan(view, knowledge, plan) {
   if(plan.actionKind==='supporter'){
     if(r.supporterPlayLocked===true)
       reasons.push({kind:'supporter-locked'});
-    if(r.supporterPlayedTurn===view.globalTurn)
+    // supporterPlayedTurn is Twinleaf's current-turn COUNT, unlike
+    // energyPlayedTurn and stadiumPlayedTurn, which are global turn stamps.
+    // Comparing the count to the global turn misses spent Supporters on
+    // every later turn where the global index is greater than one.
+    if(Number.isInteger(r.supporterPlayedTurn)&&r.supporterPlayedTurn>0)
       reasons.push({kind:'supporter-quota-spent'});
   }
   if(plan.actionKind==='item'&&r.itemPlayLocked===true)
