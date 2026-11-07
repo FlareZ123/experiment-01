@@ -531,7 +531,7 @@ test('natural evolution root is bilateral when its owner-seat filter is null',()
   for(const seat of [0,1]){
     assert.equal(chooseActorRootIntent(
       garbodorView(seat),naturalEvolutionCatalog,
-      {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null}
+      {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null}
     ).kind,'evolve-pokemon');
   }
 });
@@ -542,31 +542,31 @@ test('natural evolution root can be scoped to physical source seat zero',()=>{
   };
   assert.deepEqual(chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
   ),expected);
   assert.equal(chooseActorRootIntent(
     garbodorView(1),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
   ).kind,'pass');
 });
 test('natural evolution root can be scoped to physical candidate seat one',()=>{
   assert.equal(chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1}
   ).kind,'pass');
   assert.equal(chooseActorRootIntent(
     garbodorView(1),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1}
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1}
   ).kind,'evolve-pokemon');
 });
 test('invalid natural evolution owner seat is rejected and missing actor seat fails closed',()=>{
   assert.throws(()=>chooseActorRootIntent(
     garbodorView(0),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:2}
-  ),/naturalEvolutionRootOwnerSeat/);
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:2}
+  ),/garbodorResponseOwnerSeat/);
   assert.equal(chooseActorRootIntent(
     garbodorView(undefined),naturalEvolutionCatalog,
-    {naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:0}
+    {naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0}
   ).kind,'pass');
 });
 
@@ -733,12 +733,12 @@ test('Garbotoxin root shares the natural-evolution package owner-seat scope',()=
   candidateView.actorSeat=1;
   const sourceIntent=chooseActorRootIntent(
     sourceView,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:0}
+    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:0}
   );
   assert.equal(sourceIntent.source,'agent36-garbotoxin-float-stone-v1');
   assert.equal(chooseActorRootIntent(
     candidateView,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:0}
+    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:0}
   ).kind,'pass');
 });
 test('Garbotoxin root is bilateral when the package owner seat is null',()=>{
@@ -746,12 +746,12 @@ test('Garbotoxin root is bilateral when the package owner seat is null',()=>{
   view.actorSeat=1;
   assert.equal(chooseActorRootIntent(
     view,garbotoxinToolCatalog,
-    {garbotoxinToolRoot:true,naturalEvolutionRootOwnerSeat:null}
+    {garbotoxinToolRoot:true,garbodorResponseOwnerSeat:null}
   ).source,'agent36-garbotoxin-float-stone-v1');
 });
 test('Garbodor package owner seat requires an enabled package action',()=>{
   assert.throws(()=>chooseActorRootIntent(
     garbotoxinToolView(),garbotoxinToolCatalog,
-    {naturalEvolutionRootOwnerSeat:0}
+    {garbodorResponseOwnerSeat:0}
   ),/requires a Garbodor response root/);
 });
