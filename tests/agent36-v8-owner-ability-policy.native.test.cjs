@@ -396,6 +396,12 @@ test('pinned Store settles owner-only Articuno Ascent Water transfer on both phy
     assert.equal(audit.confirmSettled,1);
     assert.equal(audit.confirmEvents[0].cardName,'Articuno-GX');
     assert.equal(audit.confirmEvents[0].decision,true);
+    assert.equal(audit.confirmEvents[0].details.otherWaterCount,3);
+    assert.equal(audit.confirmEvents[0].details.moveNeeded,3);
+    assert.equal(audit.confirmEvents[0].opponentActiveEnergyCount,0);
+    assert.equal(audit.confirmEvents[0].actorActiveName,'Snorlax');
+    assert.equal(audit.confirmEvents[0].actorUsedGX,false);
+    assert.equal(audit.confirmEvents[0].actorHandAttachmentAvailable,true);
     assert.equal(audit.articunoMoveEnergyEvents.length,1);
     assert.equal(audit.articunoMoveEnergyEvents[0].physicallyMoved,true);
     assert.equal(audit.articunoMoveEnergyEvents[0].promptSettled,true);
