@@ -1004,7 +1004,11 @@ function executeDevelopment(trial,candidates,{
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
         (lateCompressorPayload?
-        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':'')))),
+        '+owner-compressor-late14-v1':(compressorPayload?'+owner-compressor-v1':''))))+
+      (nativeOwnerTrainerFallback?'+native-owner-trainer-fallback-v1':'')+
+      (ownerFallbackDiagnosticView?'+owner-fallback-diagnostic-view-v1':'')+
+      (mysteriousTreasureRoot?'+agent49-mysterious-treasure-frontier-v2':'')+
+      (firstBlockedPromptContractObserver?'+agent2-first-blocked-prompt-contract-v1':''),
     mandatoryOptionFallbackBothSeats:mandatoryOptionFallback,
     enforceSelectOptionLegalityBothSeats:mandatoryOptionFallback,
     ownerCompressorPayloadOptIn:compressorPayload,
