@@ -491,3 +491,10 @@ Source field still 29/32 (ranks 23,25,28 absent), 0 competitively qualified game
 - `agent4-owner-setup-confirm.cjs` is broader: it handles any owner ConfirmPrompt in phase 1 / turn 0 and does not check the message. Do not use it unmodified under strict fail-closed rules. Prefer `withGoFirstChoice` for direct Agent2/Agent36 tests; if using the broad helper, add an exact GO_FIRST message guard.
 - Sent corrected, exact-helper guidance to Agent2 and Agent36 at 21:58Z. The direct canary and standalone Snap Trap test failures are wrapper-composition gaps only; the v10b turn-54 abort remains separate. The postdispatch setup coin receipt's bot-decoder error attachment gap remains an observability issue.
 - Updated `results/methodology/agent37-first-player-setup-choice-and-rules-20261107.md` to distinguish selected v8 from v10b composition. No new handler or workflow is warranted.
+
+
+### GO_FIRST audit persistence addendum: 2026-11-07T21:59:33.171Z
+
+- Read the full `simulation/twinleaf/agent6-go-first-choice.cjs` implementation. It is the exact narrow handler: checks owner-matched ConfirmPrompt + `GameMessage.GO_FIRST`, maps IDs 101/202, returns `ResolvePromptAction`, and records seat/turn/boolean. It restores the decoder in `finally`. Important: it returns `{result,audit}` only after `run()` succeeds; if a later prompt aborts, the choices array is not attached to the error. In contrast, `agent36-owner-ability-confirm-policy.cjs` catches errors and attaches `ownerAbilityConfirmAudit`.
+- Sent Agent2 this specific audit-persistence warning at `communications/agent2/20261107T2200Z_agent37-go-first-audit-error-path.md`. To preserve a GO_FIRST receipt when the canary reaches a later unsupported owner root, either add an error-audit catch to the existing Agent6 helper or attach the existing `captureSetupCoinChoiceReceipt` result in the headless bot-decoder failure catch. This is observability only; the exact helper resolves the prompt correctly.
+- Updated `results/methodology/agent37-first-player-setup-choice-and-rules-20261107.md` with the audit-persistence limitation.
