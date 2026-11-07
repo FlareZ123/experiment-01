@@ -15,6 +15,7 @@ test('sixteen complementary original rank-3 source-seat-1 deals preserve native 
     },null,2));
     assert.equal(result.sourceSeat,1);
     assert.equal(result.candidateSeat,0);
+    assert.match(result.caveat,/source-seat-1/);
     assert.equal(result.summary.attempted,16);
     assert.deepEqual(result.seeds,SEEDS);
     assert.equal(result.summary.parityFailures,0);
