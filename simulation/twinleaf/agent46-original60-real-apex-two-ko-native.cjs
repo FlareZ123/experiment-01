@@ -50,7 +50,7 @@ function run(){
   assert.equal(out.qualifiedForCompetitiveInference,false);
   const report={...out,
     schema:'agent46-original-rank1-rank10-full60-physical-apex-two-ko-v1',
-    originalRank1And10Physical64BoundaryEvents:true,
+    fourZoneCheckpointsBothOriginalOwners:true,
     original60CardsByOwner:60,
     naturallyReachedState:false,
     competitiveQualifiedGames:0};
