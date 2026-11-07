@@ -109,7 +109,7 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
       const result=originalReduce.call(store,state,effect);
       if(secondPrizeTransfer){
         audit.secondPrizeDestinationIsHand=
-          effect.destination===effect.player.hand;
+          !effect.preventDefault&&effect.destination===effect.player.hand;
         return result;
       }
 
@@ -130,6 +130,7 @@ function withInstanceScopedSimultaneousLastPrizeTieV1(store,execute){
         firstPlayer.getPrizeLeft()>0&&
         otherPlayer.getPrizeLeft()>0&&
         !state.isSuddenDeath&&
+        !effect.preventDefault&&
         effect.destination===firstPlayer.hand;
       if(!candidate)return result;
 
