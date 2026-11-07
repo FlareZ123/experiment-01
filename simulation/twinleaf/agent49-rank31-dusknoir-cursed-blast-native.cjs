@@ -24,13 +24,15 @@ function probeRank31DusknoirCursedBlast(seat=0){
   const {UseAbilityAction}=native('game/store/actions/game-actions');
   const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
 
   const f=stagedPainfulSpoons(seat);
   const {source,opponent,store,state}=f;
   assert.equal(state.activePlayer,seat);
   assert.ok(state.turn>1);
-  assert.equal(source.bench.length,0);
+  assert.equal(source.bench.length,5,
+    'The fixture preserves five physical bench slots');
+  assert.ok(source.bench.every(slot=>slot.cards.length===0),
+    'Source must begin with five empty bench slots');
 
   const original60=rank31Original60();
   const source60Counts={
@@ -47,9 +49,12 @@ function probeRank31DusknoirCursedBlast(seat=0){
   const duskull=f.card('Duskull PRE');
   const dusclops=f.card('Dusclops PRE');
   const dusknoir=f.card('Dusknoir PRE');
-  const stack=new PokemonCardList();
-  stack.cards.push(duskull,dusclops,dusknoir);
-  source.bench.push(stack);
+  const sourceSlot=source.bench[0];
+  sourceSlot.cards.push(duskull,dusclops,dusknoir);
+  assert.equal(sourceSlot.getPokemonCard(),dusknoir,
+    'The three-card evolution stack occupies a real bench slot');
+  assert.equal(source.bench.length,5,
+    'Staging must preserve the legal five-slot bench');
 
   const targetSlot=opponent.bench[1];
   const target=targetSlot.getPokemonCard();
