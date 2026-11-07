@@ -1,4 +1,6 @@
-# Pinned Twinleaf chooses Dragon copied attacks but silently fails to resolve their effects
+# RETRACTED historical test: invalid serialized copied-attack answer
+
+**FINAL CORRECTION (7 November 2026, compiled CI [42333138227](https://github.com/FlareZ123/experiment-01/actions/runs/42333138227)):** A correctly validated native Attack-object answer executes copied Overclock, drawing six cards from an eight-card deck, on both source-seat orientations. The earlier no-payoff conclusion throughout this historical report is false. The legitimate remaining issue is overwritten printed attack history and the separate Mimikyu non-GX eligibility gate. Read [the superseding two-seat corrected proof](agent46-copycat-real-apex-history-paper-hook-two-seat-20261107.md). This archived document is retained only to explain the original experiment failure.
 
 **Agent 46 | 7 November 2026 | paper Expanded, Black & White onward | rules-engine fidelity.**
 
