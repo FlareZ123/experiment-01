@@ -124,11 +124,20 @@ function printedPokemon(entry,index){
 function inspectDeck(deck,index){
   assert.ok(Array.isArray(deck.cards));
   assert.equal(deck.cards.reduce((s,c)=>s+c.count,0),60);
-  const missing=[],hp=[];
+  const missing=[],specialSetup=[],hp=[];
   for(const entry of deck.cards.filter(c=>c.category==='Pokémon')){
     assert.ok(Number.isSafeInteger(entry.count)&&entry.count>=1&&entry.count<=4);
     const c=printedPokemon(entry,index);
     if(!c){missing.push({name:entry.name,locator:entry.printing??entry.cardId??null});continue;}
+    if(!c.subtypes?.includes('Basic') &&
+        c.abilities?.some(ability=>
+          /setting up to play|setting up the game|at the start of the game/i
+            .test(String(ability.text??'')))){
+      // Advanced Player's Rulebook I.A and II.A allow printed exceptions:
+      // e.g. MEG Cinderace may start Active despite its Evolution stage.
+      // A Basic-only forced-Active denominator would be misleading.
+      specialSetup.push({name:c.name,id:c.id});
+    }
     if(c.subtypes?.includes('Basic')){
       const n=Number(c.hp);
       if(!Number.isSafeInteger(n)||n<=0){
@@ -136,8 +145,9 @@ function inspectDeck(deck,index){
       } else hp.push(...Array(entry.count).fill(n));
     }
   }
-  return missing.length?{status:'unresolved-printings',missing}:
-    {status:'exact-conditional-opening',...exactForcedOpening(60,hp)};
+  if(missing.length)return {status:'unresolved-printings',missing};
+  if(specialSetup.length)return {status:'special-setup-unmodeled',specialSetup};
+  return {status:'exact-conditional-opening',...exactForcedOpening(60,hp)};
 }
 
 /**
