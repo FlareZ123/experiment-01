@@ -75,12 +75,18 @@ on:
         required: false
         default: false
 
+      original32_identical_rank4_seed_replay_only:
+        description: Replay original anomalous 32 seeds with identical rank4 decks, both shuffle protocols
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true && inputs.rank4_dedechange_rank6_lock_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true && inputs.rank4_dedechange_rank6_lock_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -201,7 +207,7 @@ jobs:
           retention-days: 30
 
   original4-firstturn-dedechange:
-    if: ${{ inputs.rank4_dedechange_only == true || inputs.rank4_dedechange_select_v2_only == true || inputs.rank4_dedechange_rank6_lock_only == true || inputs.rank4_dedechange_natural32_only == true || inputs.rank4_dedechange_perseat32_only == true || inputs.identical_rank4_mulligan_seat_symmetry_only == true }}
+    if: ${{ inputs.rank4_dedechange_only == true || inputs.rank4_dedechange_select_v2_only == true || inputs.rank4_dedechange_rank6_lock_only == true || inputs.rank4_dedechange_natural32_only == true || inputs.rank4_dedechange_perseat32_only == true || inputs.identical_rank4_mulligan_seat_symmetry_only == true || inputs.original32_identical_rank4_seed_replay_only == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -220,14 +226,14 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute 32 preregistered fresh original rank4 source-first native openings
-        if: ${{ inputs.rank4_dedechange_natural32_only == true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+        if: ${{ inputs.rank4_dedechange_natural32_only == true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
         env:
           AGENT50_RANK4_DEDECHANGE_OUTPUT: artifacts/agent50-rank4-dedechange-natural32
           AGENT50_RANK4_DEDECHANGE_SELECT_V2: 'true'
           AGENT50_RANK4_DEDECHANGE_RANK6_LOCK: 'false'
         run: node --test tests/agent50-rank4-dedechange-natural32.native.test.cjs
       - name: Replay the same 32 rank4 openings with per-seat setup shuffle streams
-        if: ${{ inputs.rank4_dedechange_perseat32_only == true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+        if: ${{ inputs.rank4_dedechange_perseat32_only == true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
         env:
           AGENT50_RANK4_DEDECHANGE_OUTPUT: artifacts/agent50-rank4-dedechange-perseat32
           AGENT50_RANK4_DEDECHANGE_SELECT_V2: 'true'
@@ -238,8 +244,14 @@ jobs:
         env:
           AGENT50_MULLIGAN_SYMMETRY_OUTPUT: artifacts/agent50-identical-rank4-mulligan-seat-symmetry
         run: node --test tests/agent50-identical-rank4-mulligan-seat-symmetry.native.test.cjs
+      - name: Replay original 32 anomalous seeds with identical rank4 decks in both shuffle protocols
+        if: ${{ inputs.original32_identical_rank4_seed_replay_only == true }}
+        env:
+          AGENT50_SYMMETRY_ORIGINAL32: 'true'
+          AGENT50_MULLIGAN_SYMMETRY_OUTPUT: artifacts/agent50-identical-rank4-original32-seeds
+        run: node --test tests/agent50-identical-rank4-mulligan-seat-symmetry.native.test.cjs
       - name: Execute four original rank4 same-hand entry-support first-turn native probes
-        if: ${{ inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+        if: ${{ inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
         env:
           AGENT50_RANK4_DEDECHANGE_OUTPUT: ${{ inputs.rank4_dedechange_rank6_lock_only == true && 'artifacts/agent50-rank4-dedechange-rank6-lock-v3' || (inputs.rank4_dedechange_select_v2_only == true && 'artifacts/agent50-rank4-firstturn-dedechange-select-v2' || 'artifacts/agent50-rank4-firstturn-dedechange-v1') }}
           AGENT50_RANK4_DEDECHANGE_SELECT_V2: ${{ (inputs.rank4_dedechange_select_v2_only == true || inputs.rank4_dedechange_rank6_lock_only == true) && 'true' || 'false' }}
@@ -249,7 +261,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent50-original4-firstturn-dedechange-${{ inputs.identical_rank4_mulligan_seat_symmetry_only == true && 'identical-rank4-seat-symmetry' || (inputs.rank4_dedechange_perseat32_only == true && 'perseat32-sourcefirst' || (inputs.rank4_dedechange_natural32_only == true && 'natural32-sourcefirst' || (inputs.rank4_dedechange_rank6_lock_only == true && 'rank6-lock-v3' || (inputs.rank4_dedechange_select_v2_only == true && 'select-v2' || 'v1')))) }}-${{ github.run_id }}
+          name: agent50-original4-firstturn-dedechange-${{ inputs.original32_identical_rank4_seed_replay_only == true && 'original32-identical-rank4' || (inputs.identical_rank4_mulligan_seat_symmetry_only == true && 'identical-rank4-seat-symmetry' || (inputs.rank4_dedechange_perseat32_only == true && 'perseat32-sourcefirst' || (inputs.rank4_dedechange_natural32_only == true && 'natural32-sourcefirst' || (inputs.rank4_dedechange_rank6_lock_only == true && 'rank6-lock-v3' || (inputs.rank4_dedechange_select_v2_only == true && 'select-v2' || 'v1'))))) }}-${{ github.run_id }}
           path: |
             artifacts/agent50-rank4-firstturn-dedechange-v1/
             artifacts/agent50-rank4-firstturn-dedechange-select-v2/
@@ -257,11 +269,12 @@ jobs:
             artifacts/agent50-rank4-dedechange-natural32/
             artifacts/agent50-rank4-dedechange-perseat32/
             artifacts/agent50-identical-rank4-mulligan-seat-symmetry/
+            artifacts/agent50-identical-rank4-original32-seeds/
           if-no-files-found: warn
           retention-days: 30
 
   issue25-joined-v4:
-    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true && inputs.rank4_dedechange_rank6_lock_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v8_only != true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.issue25_resource_only != true && inputs.rank4_dedechange_only != true && inputs.rank4_dedechange_select_v2_only != true && inputs.rank4_dedechange_rank6_lock_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -351,7 +364,7 @@ jobs:
           retention-days: 30
 
   issue25-v8-prechoice:
-    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v8_only == true && inputs.issue25_v11_only != true && inputs.issue25_v12_only != true && inputs.issue25_v13_only != true && inputs.issue25_v14_only != true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
@@ -399,7 +412,7 @@ jobs:
           retention-days: 30
 
   issue25-v11-four-campaign-control:
-    if: ${{ inputs.issue25_v11_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v11_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -433,7 +446,7 @@ jobs:
           retention-days: 30
 
   issue25-v12-public-first-difference:
-    if: ${{ inputs.issue25_v12_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v12_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -467,7 +480,7 @@ jobs:
           retention-days: 30
 
   issue25-source-resource-gate:
-    if: ${{ inputs.issue25_resource_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_resource_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -503,7 +516,7 @@ jobs:
           retention-days: 30
 
   issue25-v13-protected-modal-prize-aba:
-    if: ${{ inputs.issue25_v13_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v13_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -537,7 +550,7 @@ jobs:
           retention-days: 30
 
   issue25-v14-owner-pokemon-aba:
-    if: ${{ inputs.issue25_v14_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true }}
+    if: ${{ inputs.issue25_v14_only == true && inputs.rank4_dedechange_natural32_only != true && inputs.rank4_dedechange_perseat32_only != true && inputs.identical_rank4_mulligan_seat_symmetry_only != true && inputs.original32_identical_rank4_seed_replay_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
