@@ -28,17 +28,19 @@ const load = name => require(path.join(output, name));
 function fixture() {
   const manager = initializeCards();
   const names = ['Mimikyu GRI', 'Regidrago VSTAR SIT',
-    'Dialga-GX UPR', 'Dratini OBF', 'Psychic Energy SVE'];
-  const [mimikyu, regidrago, dialga, dratini, psychic] =
+    'Dialga-GX UPR', 'Dratini OBF', 'Psychic Energy SVE',
+    'Psychic Energy SVE'];
+  const [mimikyu, regidrago, dialga, dratini, psychicA, psychicB] =
     names.map(name => manager.getCardByName(name));
-  assert.ok([mimikyu, regidrago, dialga, dratini, psychic].every(Boolean));
+  assert.ok([mimikyu, regidrago, dialga, dratini, psychicA, psychicB].every(Boolean));
   const {Store} = load('game/store/store');
   const {Player} = load('game/store/state/player');
   const {GamePhase} = load('game/store/state/state');
   const state = new Store({onStateChange() {}}).state;
   const a = new Player();
   a.id = 101;
-  a.active.cards.push(mimikyu, psychic, psychic);
+  a.active.cards.push(mimikyu);
+  a.active.energies.cards.push(psychicA, psychicB);
   a.discard.cards.push(dialga);
   const b = new Player();
   b.id = 202;
