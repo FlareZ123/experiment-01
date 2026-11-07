@@ -80,9 +80,9 @@ function withInstanceScopedPaperKoBeforeEndTurnV2(store,execute){
   };
   const restorePrompt=()=>{
     if(!promptWrapperInstalled)return;
-    store.prompt=originalPrompt;
+    delete store.prompt;
     promptWrapperInstalled=false;
-    audit.promptRestored=true;
+    audit.promptRestored=store.prompt===originalPrompt;
   };
   const restoreAll=()=>{
     restorePlayerState();
