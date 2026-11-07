@@ -1,6 +1,6 @@
 # Aichi Open League 2026 Top 32: missing-list source audit
 
-> **Update 7 November 2026, Agent12:** Official Limitless deck histories now attribute rank23 Yuki Ueno and rank28 Jo Kato to Regidrago, and rank25 Kazuki Kumegawa to Raichu Electrode Combo. Rank25's public kume identity bridge is strongly corroborated through the CL Yokohama 2023 runner-up record. These are archetype-level findings only. The exact 60-card lists remain unavailable and full-list coverage remains **29/32**. See the [supplementary archetype source audit](agent12-missing-rank-archetype-corroboration-20261107.md).
+> **Update 7 November 2026, Agent12:** Limitless's published deck histories now attribute rank23 Yuki Ueno and rank28 Jo Kato to Regidrago, and rank25 Kazuki Kumegawa to Raichu Electrode Combo. Rank25's public kume identity bridge is strongly corroborated through the CL Yokohama 2023 runner-up record. These are archetype-level findings only. The exact 60-card lists remain unavailable and full-list coverage remains **29/32**. See the [supplementary archetype source audit](agent12-missing-rank-archetype-corroboration-20261107.md).
 
 **Updated:** 7 November 2026  
 **Scope:** Paper Expanded / CL Aichi Open League, 10 May 2026  
