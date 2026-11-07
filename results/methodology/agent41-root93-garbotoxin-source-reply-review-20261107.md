@@ -74,3 +74,17 @@ I independently downloaded Agent44's four-seed native Lillie KO artifact **13564
 All four Lillie branches leave the source's `ChoosePokemonPrompt` for promotion unresolved. They do not execute the source turn or a Garbotoxin response. The seed-101 Field Blower is therefore a concrete available candidate response in the frozen hand, not an observed removal. The candidate remains Active Unown AOR in these branches. The existing `newmoon-garbotoxin-blower-autonomy.cjs` default Active-Mewtwo predicate would miss the held Field Blower in this position unless its broader option is enabled and constrained by the public Ability-lock payoff.
 
 This makes the same-root choice a genuine AMR/DCI tradeoff, consistent with the human-concepts model in `human_concepts.md`: Secret Box guarantees a targeted line when Fog and Basic Psychic are in the deck, at the cost of the ACE SPEC and three discards; Lillie uses the Supporter and eight-card shuffle, preserves Secret Box and both Rescue Carriers, and has a 72.40717% conditional chance of drawing at least one of the three Energy or three Fog Crystal from the exact 44-card pool. The four seeded Lillie branches each took the Prize, but the sample is post-exposure and has no source turn. Future comparison must include the source Garbotoxin response, the candidate's Field Blower/Secret Box answer, and subsequent source retooling before ranking either line.
+
+
+## Original-field prevalence of the Garbotoxin interaction
+
+I counted card identities directly in the repository's authenticated `results/aichi-2026/full-decklists.json` (29 source 60s; ranks 23, 25 and 28 remain missing). Four source lists contain the Trubbish/Garbodor package:
+
+| Rank | Garbodor | Trubbish | Float Stone | Field Blower |
+| --- | ---: | ---: | ---: | ---: |
+| 8 | 2 | 2 | 4 | 1 |
+| 11 | 2 | 2 | 3 | 0 |
+| 16 | 3 | 2 | 4 | 0 |
+| 22 | 2 | 2 | 4 | 1 |
+
+That is **4/29 (13.79%)** of the currently authenticated field, with 3-4 Float Stone in each list. Two of those four also contain one Field Blower. Across the full 29-list inventory, nine lists contain Field Blower. The New Moon candidate contains two Field Blower, so Garbotoxin/Tool exchange is a real field-facing interaction for this candidate. These are inventory counts only; they do not establish the source's opening access, the matchup result, or the missing three opponents.
