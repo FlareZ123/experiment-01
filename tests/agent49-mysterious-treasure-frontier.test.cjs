@@ -132,3 +132,31 @@ test('shared actor chooser wires the narrow Treasure root only under opt-in',()=
   assert.equal(enabled.kind,'play-mysterious-treasure');
   assert.equal(enabled.discardPrinting,donor);
 });
+
+test('shared actor chooser uses Crispin recovery only under Treasure opt-in',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view({turn:1,hand:[ITEM,'Crispin SCR','VS Seeker PHF']});
+  v.actorSeat=0;
+  v.phase=3;
+  v.ownPublic.active={
+    name:'Regidrago VSTAR',printed:{types:[]},
+    energies:[],attacks:[],specialConditions:[],publicRestrictions:{}};
+  v.ownPublic.publicTurnRestrictions={itemPlayLocked:false,
+    attackLockTurnsRemaining:0};
+  v.ownTurnResources.energyPlayLocked=true;
+  const catalog={
+    ...dragonCatalog,
+    basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),basicEnergyTypes:{Lightning:4,Psychic:5},
+    colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  assert.equal(chooseActorRootIntent(v,catalog,{}).kind,'pass');
+  const enabled=chooseActorRootIntent(v,catalog,
+    {mysteriousTreasureRoot:true});
+  assert.equal(enabled.kind,'play-mysterious-treasure');
+  assert.equal(enabled.discardPrinting,'Crispin SCR');
+  assert.equal(enabled.discardSourceIndex,1);
+  assert.equal(enabled.reason,'recoverable-supporter-via-vs-seeker');
+});
