@@ -69,6 +69,13 @@ function sameCardReferences(left, right) {
     right.every(card => left.includes(card));
 }
 
+/** @param {object[]} left @param {object[]} right @returns {boolean} */
+function sameOrderedCardReferences(left, right) {
+  return Array.isArray(left) && Array.isArray(right) &&
+    left.length === right.length &&
+    left.every((card, index) => card === right[index]);
+}
+
 /**
  * @param {object[]} cards
  * @param {object} selected
@@ -189,6 +196,20 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
   function prompt(...args) {
     const state = args[0];
     const promptArgument = args[1];
+    const preflightProof = promptArgument?.constructor?.name === 'ChooseCardsPrompt'
+      ? deps.getOriginForPrompt(promptArgument)
+      : null;
+    if (preflightProof) {
+      const rootStore = requireRootStore();
+      assert.equal(preflightProof.sourceStoreIdentityCaptured, true,
+        'marker v3 must capture Store identity before native prompt mutation');
+      assert.strictEqual(deps.getStoreForPrompt(promptArgument), this,
+        'marker v3 prompt-to-Store identity does not match Store.prompt receiver');
+      assert.strictEqual(this, rootStore,
+        'source-marked prompt was created by a Store other than onRootStoreCreated');
+      assert.strictEqual(state, rootStore.state,
+        'source-marked prompt State argument is not the exact root Store State');
+    }
     const result = promptDescriptor.value.apply(this, args);
     const createdPrompt = promptArgument?.constructor?.name === 'ChooseCardsPrompt'
       ? promptArgument
@@ -307,13 +328,13 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
       assert.strictEqual(verified.sourceEffect, identity.sourceEffect);
       assert.strictEqual(verified.attacker.active, identity.attackerActive);
       assert.strictEqual(verified.attacker.active.getPokemonCard(), identity.attackerPokemon);
-      assert.ok(sameCardReferences(verified.sourceOwner.active.cards, identity.sourceActiveCards));
-      assert.ok(sameCardReferences(verified.attacker.active.cards, identity.attackerParentCards));
-      assert.ok(sameCardReferences(
+      assert.ok(sameOrderedCardReferences(verified.sourceOwner.active.cards, identity.sourceActiveCards));
+      assert.ok(sameOrderedCardReferences(verified.attacker.active.cards, identity.attackerParentCards));
+      assert.ok(sameOrderedCardReferences(
         verified.attacker.active.energies.cards,
         identity.energySublistCards
       ));
-      assert.ok(sameCardReferences(
+      assert.ok(sameOrderedCardReferences(
         identity.eligibleEnergyCards,
         verified.attacker.active.energies.cards.filter(card =>
           card?.superType === types.SuperType.ENERGY)
@@ -402,9 +423,13 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
         livePrompt.result !== undefined) fail('pending unresolved prompt');
     if (livePrompt.cards !== identity.attackerActive ||
         livePrompt.cards.energies !== identity.energySublist) fail('parent/sublist references');
-    if (!sameCardReferences(livePrompt.cards.cards, identity.attackerParentCards) ||
-        !sameCardReferences(livePrompt.cards.energies.cards, identity.energySublistCards)) {
-      fail('prompt card lists changed after decision');
+    if (!sameOrderedCardReferences(livePrompt.cards.cards, identity.attackerParentCards) ||
+        !sameOrderedCardReferences(livePrompt.cards.energies.cards, identity.energySublistCards)) {
+      fail('ordered prompt card lists changed after decision');
+    }
+    if (livePrompt.cards.cards[selected.choice.parentIndex] !== card ||
+        livePrompt.cards.cards.indexOf(card) !== selected.choice.parentIndex) {
+      fail('selected physical Energy no longer occupies its recorded parent index');
     }
     if (!identity.eligibleEnergyCards.includes(card) ||
         !livePrompt.cards.cards.includes(card) ||
@@ -726,6 +751,7 @@ function withSnapTrapInsideNativeMatchesV2(next, deps = {}) {
 module.exports = {
   VERSION,
   sameCardReferences,
+  sameOrderedCardReferences,
   withOwnerSnapTrapPromptResolutionV2,
   withSnapTrapOwnerPolicyV2,
   requestWithRootStoreCapture,
