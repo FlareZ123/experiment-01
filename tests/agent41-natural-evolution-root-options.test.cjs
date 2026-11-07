@@ -30,16 +30,31 @@ test('physical source seat one is forwarded exactly',()=>{
 test('Garbodor Tool root shares the natural-evolution owner-seat scope',()=>{
   assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
-    garbotoxinToolRoot:true
+    garbotoxinToolRoot:true,
+    garbotoxinToolRootDeferForStarAlchemy:true
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,1,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:1,
-    garbotoxinToolRoot:true
+    garbotoxinToolRoot:true,
+    garbotoxinToolRootDeferForStarAlchemy:true
   });
   assert.deepEqual(actorGarbodorResponseRootOptions(true,null,true),{
     naturalEvolutionRoot:true,garbodorResponseOwnerSeat:null,
-    garbotoxinToolRoot:true
+    garbotoxinToolRoot:true,
+    garbotoxinToolRootDeferForStarAlchemy:true
   });
+});
+
+test('immediate-lock counterfactual disables only Star Alchemy deferral',()=>{
+  assert.deepEqual(actorGarbodorResponseRootOptions(true,0,true,false),{
+    naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
+    garbotoxinToolRoot:true,
+    garbotoxinToolRootDeferForStarAlchemy:false
+  });
+});
+
+test('Star Alchemy deferral option must be boolean',()=>{
+  assert.throws(()=>actorGarbodorResponseRootOptions(true,0,true,'false'));
 });
 
 test('Garbodor Tool root requires the natural-evolution package root',()=>{
