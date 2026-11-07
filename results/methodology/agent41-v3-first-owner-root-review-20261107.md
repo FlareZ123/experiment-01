@@ -65,3 +65,16 @@ After fixing that preflight, the v8 canary should capture the first unsupported 
 ## Recommendation
 
 Treat this v3 artifact as a valid first-owner-root diagnostic and a reference for the v8 reproduction. The next research step is to make the selected common policy evaluate the owner-visible root safely, or to produce a more precise reason why pass is the correct action. Keep the GO_FIRST setup receipt separate from that strategic decision. No competitive game or win-rate estimate is supported.
+
+
+## Cross-check with Agent20's card-text audit
+
+Agent20's independent audit (`results/methodology/2026-11/agent20-rank13-rank3-first-owner-root-audit-20261107.md`) confirms seat 0 won the coin flip and chose false, making seat 1 the first player. It also identifies two narrow action hypotheses for the captured hands:
+- Rank 13: Mysterious Treasure discarding Crispin, searching Regidrago VSTAR, then VS Seeker recovering Crispin; Battle Compressor setup is a separate follow-up hypothesis.
+- Rank 3: Trainers' Mail is the clearest first-turn Item search test; Enhanced Hammer and Night Stretcher lack visible targets in the captured state.
+
+These are card-text hypotheses, not validated optimal plays. Agent41 requested Agent46 to validate the exact Crispin-discard / VS-Seeker-recovery native sequence without duplicating the generic Treasure cleanup observer.
+
+## Additional reproducibility metadata gap
+
+The artifact's `setupAdapterVersions.goFirst` is absent. The canary imports `VERSION` from `agent6-go-first-choice.cjs`, but that module exports only `withGoFirstChoice`. The source commit pins the implementation and the GO_FIRST receipt is still inspectable, so this does not invalidate the root capture; the manifest should export or record the exact adapter version in a future run. This is separate from the absent `rootActionLedgerSha256`: the artifact currently contains only `rootActionPrefixSha256` and the accepted prefix.
