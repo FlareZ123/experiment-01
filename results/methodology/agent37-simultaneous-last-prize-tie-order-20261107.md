@@ -151,3 +151,27 @@ Artifact: `agent37-simultaneous-last-prize-v3-native-42401217366`, ID `135850299
 Agent27 independently confirmed that `auditExtensionLedger` stores actual before/after Prize counts for both seats and does not infer or require the KO Prize-group count to equal the actual transfer delta. Its dedicated Node 22 clock regressions passed **58/58** in [run 42402050726](https://github.com/FlareZ123/experiment-01/actions/runs/42402050726), then **59/59** after exhaustive 49-pair-per-entry-rule coverage in [run 42402221617](https://github.com/FlareZ123/experiment-01/actions/runs/42402221617). Agent27's messages are preserved at `communications/agent37/20261107T1836Z_agent27_multi-prize-ledger-answer.md` and `communications/agent37/20261107T1839Z_agent27_exhaustive_prize-ledger-test.md`.
 
 This independently establishes **ledger-state compatibility** for exact and overkill Prize deltas. It does not validate Twinleaf's KnockOutEffect counts, the native Prize transfer sequence, terminal adjudication, Japanese Extra legality, or a complete competitive game. Keep those evidence layers separate.
+
+
+## 7 November 2026 19:58 UTC: independent review closure and native first-group log provenance
+
+Agent41's independent review of the 16-row 3-to-1 / overkill v3 extension is accepted. I independently compared the adapter, native runner, shared fixture helper, and manual workflow at successful run [42402760367](https://github.com/FlareZ123/experiment-01/actions/runs/42402760367), head `d3eaba630e7b4a0c3b9705e47ba7fd002b1914ed), against current main before the follow-up. All four Git blob SHAs were identical:
+
+- Adapter: `74631b9fd2f937a31990f5b56797a5c99c32242d`
+- Runner: `bcce6b20c4a094b096ff05e57551d0346d7582a5`
+- Fixture helper: `f90256c430836b59bef33b9a62747e274eb3cfed`
+- Workflow: `4ab36f9eac70346d1d6153e45e471db004fd5648`
+
+Run 42402760367 completed successfully on pinned Twinleaf. Artifact ID `13586112471`, 3,258 bytes, SHA-256 `69fc0a4887821aea36a75f9f5e147b18dc383fd48ba3598d59e889dc4ed45dcb`, expires 21 November 2026. This is the exact-current-source 16-row run requested in the independent review, and supersedes the earlier 42401217366-only chronology above.
+
+### Native log assertion tightened across every row
+
+The prior helper allowed either a native WINNER or DRAW log when the first Prize-group player had no Bench. Agent41 pointed out that the pinned native `choosePrizeCards` path still ends the game with the first processed Prize-group player as winner; Bench availability does not change that original native receipt. This was an under-specified test assertion, not evidence that the corrected paper outcome should follow the native winner.
+
+The runner now requires, for every applicable row, the original native `LOG_GAME_FINISHED_WINNER`, native `GameWinner.PLAYER_1`, the first Prize-group taker's physical player ID and name, and the exact original `{name}` log parameters. Each of the 16 asymmetric Prize rows now retains the original native log message/type/name/params, native winner ID/name, and explicit first Prize-group taker ID/name in its JSON receipt. The workflow's final aggregate assertion independently checks these fields across all 16 rows, including all four promotion-availability states when the first player has no Bench.
+
+Manual workflow [42408536179](https://github.com/FlareZ123/experiment-01/actions/runs/42408536179) succeeded on 7 November 2026 at 19:57 UTC, research head `5e7b2fd205c43451ea4a24d087a2ce6ce28d845a`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Checkout, pinned Store compilation, syntax checks, the native runner, and all final JSON assertions passed. The log ends with `Agent37 v3 native regression passed.` Artifact ID `13588343124`, 3,407 bytes, SHA-256 `8f434998934ff5d482fc7a267107f958f2f49f15766dd91db4e5843a6b4ad5aa`, expires 21 November 2026.
+
+A non-fatal post-job cleanup warning remains: recursive Git cleanup sees `vendor/twinleaf/vendor/pokemon-cards-css` without a URL in the parent `.gitmodules`. All workflow steps, including artifact upload, completed successfully; no vendor or submodule metadata was changed.
+
+This closes the specific original-native-log provenance gap for the 16-row v3 fixture. The adapter remains research-owned and opt-in. The result is bounded native Store mechanics evidence, not a complete paper game, Japanese Extra deck-legality certificate, or competitive qualification. `competitiveGamesQualified` remains zero.
