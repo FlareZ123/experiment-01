@@ -97,3 +97,36 @@ test('known damage, attack/Item lock and opponent hidden privacy preserved',()=>
   assert.equal(proposeOwnerDirectFogOneEnergyKo(other,original),null);
   assert.ok(proposeOwnerDirectFogOneEnergyKo(root,original));
 });
+
+test('authenticated same-seat K1 missing Basic vetoes; stale K1 abstains',()=>{
+  const sixty=source60(31),root=actorRoot();
+  const fresh={
+    ownerSeat:1,observedAt:{turn:10,promptId:'k1-10'},
+    exactMembershipKnown:true,deckMembershipStale:false,
+    knownPrintings:[{printing:'Fog Crystal CRE',copies:1}],
+    prizeInferenceCertified:true,knownPrized:[
+      {printing:'Psychic Energy MEE',copies:2}]
+  };
+  assert.equal(proposeOwnerDirectFogOneEnergyKo(
+    root,sixty,{psychic:5,colorless:9},fresh),null);
+  const present={...fresh,knownPrintings:[
+    {printing:'Fog Crystal CRE',copies:1},
+    {printing:'Psychic Energy MEE',copies:1}]};
+  const positive=proposeOwnerDirectFogOneEnergyKo(
+    root,sixty,{psychic:5,colorless:9},present);
+  assert.ok(positive);
+  assert.equal(positive.authenticatedOwnerK1Used,true);
+  const stale={...fresh,exactMembershipKnown:false,
+    deckMembershipStale:true,knownPrintings:[]};
+  const uncertain=proposeOwnerDirectFogOneEnergyKo(
+    root,sixty,{psychic:5,colorless:9},stale);
+  assert.ok(uncertain);
+  assert.equal(uncertain.authenticatedOwnerK1Used,false);
+  assert.throws(()=>proposeOwnerDirectFogOneEnergyKo(
+    root,sixty,{psychic:5,colorless:9},
+    {...fresh,ownerSeat:0}),/same acting physical seat/);
+  assert.throws(()=>proposeOwnerDirectFogOneEnergyKo(
+    root,sixty,{psychic:5,colorless:9},
+    {...fresh,observedAt:{turn:15}}),
+  /Future or unauthenticated K1/);
+});
