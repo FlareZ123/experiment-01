@@ -63,19 +63,27 @@ Because M4 is playable only when the opponent has at most three Prizes, an actua
 
 Both flags should be enabled together for a shared-policy treatment. Preselection prevents the policy from selecting a publicly illegal M4 play; the Store correction enforces the paper rule and correct physical hand shuffle at execution.
 
+## 3. Speculative clone shuffle (new opt-in)
+
+A third default-off flag, `specialRedCardPaperSpeculativeShuffle:true`, now optionally installs the full M4 paper hook around the owner-root chooser. It requires both existing M4 flags, `isolatePolicyRandomness:true`, and either `isolatePhysicalShuffleRandomness:true` or `isolatePhysicalShuffleRandomnessAfterSetup:true`.
+
+The wrapper passes the active seat's `policyRandomBySeat` callback to the hook. If the pinned Simulator executes M4 `reduceEffect` inside a speculative clone, the clone's hand permutation therefore consumes only the actor's policy RNG. The hook is restored before the selected action reaches the real Store, which continues to use the affected hand owner's per-seat physical RNG. The manifest records `exact-M4-opponent-hand-fisher-yates-policy-clone-prng-v1` and preselection version `agent44-m4-owner-root-preselection-v2-policy-rng-clone-shuffle`. Existing registrations are unchanged when this third flag is absent.
+
+Native adapter coverage is in `tests/agent44-m4-owner-root-preselection.native.test.cjs`: both physical seats dispatch M4 in a separate staged clone, assert the expected policy-RNG permutation and unchanged real root, then dispatch the actual root Store action and assert that only the physical RNG is consumed. `tests/agent44-specialredcard-headless-run-option.test.cjs` checks required flags and a bilateral no-M4 inertness control. The native test was added to step 39 of `.github/workflows/twinleaf-smoke.yml`.
+
+The first smoke run [42362189659](https://github.com/FlareZ123/experiment-01/actions/runs/42362189659) was in progress when this report was updated. It was dispatched on commit `21fb1608892dc8ef3f63777bb5a3819e0995a7ce`, before the final validation requirement for per-seat physical shuffle isolation. A second run against the latest main head is required before calling the final protocol CI-validated.
+
 ## Additional open question: speculative bot evaluation
 
-The above correction establishes the **actual** M4 Store effect and its physical shuffle. One separate policy-fidelity question remains unresolved. In `headless.cjs`, the actual selected action is passed through `dispatchSpecialRedCardPaperRoot`, but `withM4PaperOwnerRoot` currently installs only the empty-hand veto during owner-root `decodeNextAction`; for a legal positive-hand M4, it does not install the random hand permutation in the chooser's speculative evaluation.
+The adapter now supports a paper-correct speculative M4 effect if the pinned Simulator executes it. The staged clone test proves the adapter mechanism, but does **not** establish that the pinned `SimpleTacticsAi` actually executes M4 `reduceEffect` inside speculative clones. That bot call path remains unverified; this is an **open question, not a demonstrated gameplay defect**.
 
-The same headless adapter documents that upstream tactics simulate candidate actions, including random prompts, before dispatching the real action, and uses `SimpleTacticsAi.decodeNextAction` for owner choices. It has not yet been established whether the pinned Simulator executes M4's `reduceEffect` in those speculative clones or whether the deterministic unshuffled hand order can affect its evaluation. This is an **open question, not a demonstrated gameplay defect**.
-
-Before claiming that the complete M4 policy decision path is paper-faithful, inspect the pinned local bot/simulator implementation or add an instrumented native test. If the clone does execute M4's effect, its hand-only shuffle should use the actor's **policy/decision RNG**, while the actual Store continues to use the affected opponent hand owner's **physical RNG**. A regression should prove that clone randomization does not mutate the real root hand or consume the physical stream. See the direct [steward handoff](../../communications/agent36/20261107T093830Z_agent44_m4-speculative-shuffle-question.md).
+Before claiming complete M4 policy-evaluation fidelity, inspect the pinned local bot/simulator implementation or add an instrumented `SimpleTacticsAi` diagnostic. If the clone does execute M4's effect, the new flag supplies the actor's policy RNG while the real Store continues to use the affected opponent hand owner's physical RNG. See the direct [steward handoff](../../communications/agent36/20261107T093830Z_agent44_m4-speculative-shuffle-question.md).
 
 ## Current shared-policy status
 
-`simulation/evaluation/agent36-issue25-common-v8.cjs` does not set either flag. Its registered profile currently names source ranks 6, 11, 1 and 3, with two candidate 60s. It does not register the M4-bearing rank-5 or rank-26 original lists, so v8 has not tested this correction. This is an integration opportunity for a future registration, not evidence that the historical v8 results were mislabeled.
+`simulation/evaluation/agent36-issue25-common-v8.cjs` does not set either original flag. The current v9 VIP A/B/A registration is limited to source ranks 6 and 11 and also does not set the M4 flags. Neither version tests the M4-bearing rank-5 or rank-26 original lists, so neither historical result is reinterpreted.
 
-Keep v8 and all existing receipts immutable. Add the two flags only to a new preregistered shared-policy version that explicitly registers the M4 source lists.
+Keep v8/v9 and all existing receipts immutable. Any future M4 cohort must be a new preregistered version that registers the M4 source lists and, if speculative clone shuffle is enabled, sets all three M4 flags plus both RNG isolation domains required by the third flag.
 
 ## Existing evidence
 
@@ -84,6 +92,8 @@ Keep v8 and all existing receipts immutable. Add the two flags only to a new pre
 - `simulation/evaluation/agent44-m4-public-prerequisite.cjs`: public-only negative prerequisite certificate.
 - `tests/agent44-m4-public-prerequisite.test.cjs`: 60 crossed cases over two seats, two card-name aliases, five Prize counts and three opponent-hand counts.
 - `tests/agent44-specialredcard-emptyhand-native.sft.cjs`: both physical seats; zero-hand rejection; legal positive-hand play; Prize limit; native hand-order baseline; actual hand-only Fisher-Yates permutation; low-deck redraw difference; all six three-card permutations under seeded physical RNG; strict hook restoration.
+- `tests/agent44-m4-owner-root-preselection.native.test.cjs`: staged clone/real-Store policy-versus-physical RNG split in both seats; root immutability during clone evaluation.
+- `tests/agent44-specialredcard-headless-run-option.test.cjs`: default-off behavior, required flag/RNG validation, and bilateral no-M4 inertness control.
 - The four-arm source census configuration is embedded as the frozen `REGISTRATION` object at the top of `simulation/evaluation/agent44-m4-original-two-source-census.cjs`; there is no separate JSON under `results/aichi-2026/registrations/`. It names ranks 5/26, rank1 as the fixed opponent, physical source seats 0/1, seed base 20261107, phase `pilot`, repeat 2, and a 110-action cap. The corresponding result write-up is `results/rules/agent44-original-m4-source-owner-root-four-arm-20261107.md`.
 - Existing dedicated smoke run [42330894185](https://github.com/FlareZ123/experiment-01/actions/runs/42330894185) passed 37/37 native and paper tests plus a no-M4 game control.
 
@@ -93,7 +103,7 @@ The pinned Twinleaf card implementation identifies the Japanese source as `Speci
 
 For a new shared-policy registration:
 
-1. Include both `specialRedCardPaperPreselection` and `specialRedCardPaperCorrection` in every applicable `runMatch` request.
+1. Include both `specialRedCardPaperPreselection` and `specialRedCardPaperCorrection` in every applicable `runMatch` request. If speculative clone shuffling is required, also set `specialRedCardPaperSpeculativeShuffle:true`, `isolatePolicyRandomness:true`, and one per-seat physical shuffle isolation mode.
 2. Include the three hook modules, the public prerequisite module, the relevant tests, the headless adapter and the policy entrypoint in the manifest's hash closure.
 3. Register the exact original rank-5 and rank-26 60-card lists, both physical seats, and explicit no-M4 controls.
 4. Preserve seed, policy, repository revision, Twinleaf pin, shuffle protocol, root action ledger, paper replay and all failure receipts.
