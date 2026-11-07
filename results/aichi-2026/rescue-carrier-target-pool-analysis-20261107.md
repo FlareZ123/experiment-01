@@ -8,7 +8,7 @@
 
 1. Read the exact published decklists from `results/aichi-2026/full-decklists.json`.
 2. Select the five lists containing Rescue Carrier EVS 154.
-3. For every Pokémon entry, map the decklist's English display set code through `resources/cards/en/sets.json` / the repository set index, then resolve the exact set and collector number in the corresponding card JSON.
+3. For every Pokémon entry, map the decklist's English display set code through `resources/sets/en.json`, then resolve the exact set and collector number in the corresponding card JSON.
 4. Count Pokémon copies with printed HP at or below 90, matching Rescue Carrier's condition.
 5. Count deck copies, not cards currently in the discard pile. The result is a potential target pool only.
 
@@ -59,7 +59,7 @@ For rank17, the decklist's display name `Ditto ♢` resolves by set/number (`LOT
 
 Inputs:
 - `results/aichi-2026/full-decklists.json`
-- `resources/cards/en/sets.json` (set-code mapping)
+- `resources/sets/en.json` (set-code mapping)
 - Corresponding `resources/cards/en/*.json` card records by set and collector number
 
 The exact rank-by-rank Pokémon counts and eligible-target lists are preserved above. This is a descriptive field statistic intended to guide future Rescue Carrier DCI modeling.
