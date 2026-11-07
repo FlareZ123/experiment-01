@@ -134,6 +134,25 @@ test('hard and soft requirements for one printing reserve additive copies', () =
   assert.equal(result.reserveRows[0].softShortfall, 0);
 });
 
+test('multiple hard printing reserves remain disjoint from one soft reserve', () => {
+  const result = ownerHandDiscardWithCopyReserves({
+    handPrintings: [BOX, CARRIER, LILLIE, VIP, CARRIER, LILLIE, 'A'],
+    sourceIndex: 0,
+    cost: 2,
+    hardMinimumCopiesByPrinting: {
+      [CARRIER]: 1,
+      [LILLIE]: 1
+    },
+    softAdditionalCopiesByPrinting: {[VIP]: 1},
+    deadPrintings: [VIP]
+  });
+  assert.deepEqual(result.hardReservedIndices, [1, 2]);
+  assert.deepEqual(result.softProtectedIndices, [3]);
+  assert.deepEqual(result.deadIndices, [3]);
+  assert.equal(result.hardRequirementsSatisfied, true);
+  assert.equal(result.softPreferenceCapacityAvailable, true);
+});
+
 test('soft-protected copies do not inflate future unprotected payment ways', () => {
   const result = ownerHandDiscardWithCopyReserves({
     handPrintings: [BOX, VIP, CARRIER, LILLIE, 'A', 'B'],
