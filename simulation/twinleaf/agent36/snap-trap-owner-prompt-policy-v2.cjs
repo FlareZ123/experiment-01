@@ -41,7 +41,6 @@ function loadDependencies() {
   const {Store} = loadEngine('game/store/store');
   const {ResolvePromptAction} = loadEngine('game/store/actions/resolve-prompt-action');
   const {ChooseCardsPrompt} = loadEngine('game/store/prompts/choose-cards-prompt');
-  const {MoveCardsEffect} = loadEngine('game/store/effects/move-cards-effect');
   const types = {
     ...loadEngine('game/store/card/card-types'),
     GameMessage: loadEngine('game/game-message').GameMessage,
@@ -52,7 +51,6 @@ function loadDependencies() {
     Store,
     ResolvePromptAction,
     ChooseCardsPrompt,
-    MoveCardsEffect,
     types
   };
 }
@@ -115,13 +113,12 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
 
   const needsLoad = !deps.SimpleTacticsAi || !deps.Store ||
     !deps.ResolvePromptAction || !deps.ChooseCardsPrompt ||
-    !deps.MoveCardsEffect || !deps.types;
+    !deps.types;
   const loaded = needsLoad ? loadDependencies() : null;
   const SimpleTacticsAi = deps.SimpleTacticsAi ?? loaded.SimpleTacticsAi;
   const Store = deps.Store ?? loaded.Store;
   const ResolvePromptAction = deps.ResolvePromptAction ?? loaded.ResolvePromptAction;
   const ChooseCardsPrompt = deps.ChooseCardsPrompt ?? loaded.ChooseCardsPrompt;
-  const MoveCardsEffect = deps.MoveCardsEffect ?? loaded.MoveCardsEffect;
   const types = deps.types ?? loaded.types;
   const chooseEnergy = deps.chooseEnergy ?? chooseSnapTrapEnergyV2;
   const energyOptions = deps.energyOptions ?? {};
@@ -130,7 +127,6 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
   assert.equal(typeof Store, 'function');
   assert.equal(typeof ResolvePromptAction, 'function');
   assert.equal(typeof ChooseCardsPrompt, 'function');
-  assert.equal(typeof MoveCardsEffect, 'function');
   assert.equal(typeof chooseEnergy, 'function');
   assert.ok(types?.GameMessage?.CHOOSE_CARD_TO_DISCARD !== undefined);
   assert.ok(types?.SuperType?.ENERGY !== undefined);
@@ -462,7 +458,10 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
     assert.equal(typeof originalReduce, 'function');
     const receipts = [];
     const instrumentedReduce = function(state, effect, ...reduceArgs) {
-      if (effect instanceof MoveCardsEffect) {
+      // Twinleaf's pinned build does not export MoveCardsEffect from a stable module path.
+      // Identify the reducer receipt by its runtime class name, then validate every
+      // source, destination, card, source-card and source-effect reference below.
+      if (effect?.constructor?.name === 'MoveCardsEffect') {
         receipts.push({
           effect,
           source: effect.source,
