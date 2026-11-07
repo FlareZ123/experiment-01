@@ -243,8 +243,8 @@ test('opt-in decorator is idempotent and preserves upstream indices', () => {
 
 test('tactic only announces the public, unspent Timeless branch', () => {
   const f = fixture();
-  const {Tactic} = policyClasses();
-  const tactic = new Tactic({});
+  const {options, Tactic} = policyClasses();
+  const tactic = new Tactic(options);
   const {AttackAction} = load('game/store/actions/game-actions');
   assert.equal(isCopycatApexTimelessSituation(f.state, f.a), true);
   assert.equal(copycatApexResponseKind(f.state, f.a), 'timeless');
@@ -265,8 +265,8 @@ test('tactic only announces the public, unspent Timeless branch', () => {
 
 test('resolved Timeless-GX is an actual legal prompt result under source identity', () => {
   const f = fixture();
-  const {Resolver} = policyClasses();
-  const resolver = new Resolver({});
+  const {options, Resolver} = policyClasses();
+  const resolver = new Resolver(options);
   const {ChooseAttackPrompt} = load('game/store/prompts/choose-attack-prompt');
   const {ResolvePromptAction} = load('game/store/actions/resolve-prompt-action');
   const {GameMessage} = load('game/game-message');
@@ -297,15 +297,12 @@ test('Power Beam branch requires visible effective Fairy Zone and the spent-GX s
   assert.equal(isCopycatApexPowerBeamSituation(f.state, f.candidate), true);
   assert.equal(copycatApexResponseKind(f.state, f.candidate), 'power-beam');
 
-  const pathToPeak = f.candidate.stadium.constructor.fromList ?
-    f.candidate.stadium.constructor.fromList(['Path to the Peak CRE']) :
-    null;
-  if (pathToPeak) {
-    f.candidate.stadium = pathToPeak;
-    assert.equal(hasKnownPublicAbilityLock(f.state), true);
-    assert.equal(hasEffectiveFairyZone(f.state, f.candidate), false);
-    assert.equal(isCopycatApexPowerBeamSituation(f.state, f.candidate), false);
-  }
+  const pathToPeak = initializeCards().getCardByName('Path to the Peak CRE');
+  assert.ok(pathToPeak);
+  f.candidate.stadium.cards.push(pathToPeak);
+  assert.equal(hasKnownPublicAbilityLock(f.state), true);
+  assert.equal(hasEffectiveFairyZone(f.state, f.candidate), false);
+  assert.equal(isCopycatApexPowerBeamSituation(f.state, f.candidate), false);
 });
 
 test('two-stage policy selects Timeless then Power Beam through the real Store in both seats', () => {
@@ -325,9 +322,9 @@ test('two-stage policy selects Timeless then Power Beam through the real Store i
     const restorePass = installPass();
     try {
       const f = twoStepFixture(candidateSeat);
-      const {Tactic, Resolver} = policyClasses();
-      const tactic = new Tactic({});
-      const resolver = new Resolver({});
+      const {options, Tactic, Resolver} = policyClasses();
+      const tactic = new Tactic(options);
+      const resolver = new Resolver(options);
       const first = executePolicyCopy(f, tactic, resolver,
         'timeless', 'Dialga-GX UPR', 'Timeless-GX');
       assert.equal(first.attack, 'Timeless-GX');
