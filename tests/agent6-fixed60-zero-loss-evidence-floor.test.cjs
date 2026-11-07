@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  allWinsLowerBound,minAllWins,balancedFieldFloor,allMatchupsFloor
+  allWinsLowerBound,minAllWins,balancedFieldFloor,allMatchupsFloor,
+  bernoulliKLDivergence,chernoffUpperTailP,minGamesForLossBudget
 }=require('../simulation/evaluation/agent6-fixed60-zero-loss-evidence-floor.cjs');
 
 test('single fixed-policy 99.5% all-wins aggregate requires 598 flawless independent games',()=>{
@@ -38,6 +39,33 @@ test('simultaneous 95%-confidence 99.5% floor on every opponent needs 1290 flawl
   assert.equal(x.totalGames,41280);
   assert.ok(x.familywiseLowerBoundPerOpponent>=0.995);
   assert.ok(Math.pow(0.05/32,1/1289)<0.995);
+});
+
+test('heterogeneous-win-probability Chernoff bound exactly matches all-wins',()=>{
+  const n=598;
+  const r=chernoffUpperTailP({wins:n,losses:0});
+  assert.ok(Math.abs(r-Math.pow(0.995,n))<1e-12);
+  assert.ok(r<=0.05);
+  assert.equal(bernoulliKLDivergence(0.99,0.995),0);
+  assert.equal(chernoffUpperTailP({wins:99,losses:1}),1);
+});
+
+test('one or more losses require larger preregistered sample for a 99.5% claim',()=>{
+  for(const [losses,n] of [[0,598],[1,1147],[2,1535],[3,1884],
+    [5,2522],[10,3966]]){
+    assert.equal(minGamesForLossBudget({losses}),n);
+    assert.ok(chernoffUpperTailP({wins:n-losses,losses})<=0.05);
+    assert.ok(chernoffUpperTailP({wins:n-1-losses,losses})>0.05);
+  }
+});
+
+test('Chernoff fixed-sample bounds reject improper observations',()=>{
+  assert.throws(()=>chernoffUpperTailP({wins:0,losses:0}));
+  assert.throws(()=>chernoffUpperTailP({wins:-1,losses:1}));
+  assert.throws(()=>chernoffUpperTailP({wins:2.5,losses:1}));
+  assert.throws(()=>bernoulliKLDivergence(1.5,0.995));
+  assert.throws(()=>minGamesForLossBudget({losses:-1}));
+  assert.throws(()=>minGamesForLossBudget({losses:1.5}));
 });
 
 test('explicitly rejects absent games and impossible probabilities',()=>{
