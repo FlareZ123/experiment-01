@@ -175,3 +175,28 @@ Manual workflow [42408536179](https://github.com/FlareZ123/experiment-01/actions
 A non-fatal post-job cleanup warning remains: recursive Git cleanup sees `vendor/twinleaf/vendor/pokemon-cards-css` without a URL in the parent `.gitmodules`. All workflow steps, including artifact upload, completed successfully; no vendor or submodule metadata was changed.
 
 This closes the specific original-native-log provenance gap for the 16-row v3 fixture. The adapter remains research-owned and opt-in. The result is bounded native Store mechanics evidence, not a complete paper game, Japanese Extra deck-legality certificate, or competitive qualification. `competitiveGamesQualified` remains zero.
+
+
+## 7 November 2026 20:09 UTC: mixed terminal rows expose incomplete Prize-group transfers
+
+The existing mixed-terminal diagnostic previously counted only winner mismatches. That hid a larger paper-settlement defect: **12 of 16 rows omit one player's Prize-group transfer**, even where the native winner happens to match the expected §E result.
+
+The relevant paper sequence is Advanced Player's Rulebook §D step 4 (both players take the Prize cards they get from simultaneous KOs), then step 5 (next-turn player promotes first), followed by §E terminal adjudication. The diagnostic uses the two actual KO Prize groups recorded by the native fixture: a three-Prize Shadow Rider Calyrex VMAX group received by player 101 (owner), and a one-Prize Ferroseed group received by player 202 (opponent).
+
+For the two mixed profiles, the expected transfer amounts are derived from those group counts and each player's starting Prize count:
+
+| Profile | Expected owner transfer | Expected opponent transfer | Native incomplete rows |
+| --- | ---: | ---: | ---: |
+| Owner starts at 1 Prize; opponent at 6 | 1 | 1 | 6/8 |
+| Owner starts at 6 Prizes; opponent at 1 | 3 | 1 | 6/8 |
+| **Total** | | | **12/16** |
+
+In all six incomplete `owner-final` rows, owner receives 1 but opponent receives 0 instead of 1. In all six incomplete `opponent-final` rows, opponent receives 1 but owner receives 0 instead of 3. The remaining two rows in each profile transfer both groups. The omitted group depends on which player's final-Prize condition is processed first.
+
+Four of the 12 incomplete rows also have a winner mismatch: the final-Prize taker has no Pokémon to promote while the other player can promote, which the §E table resolves as a tie. The other eight incomplete rows retain the expected winner, so winner-only comparison was insufficient to detect the missing Prize transfer.
+
+The runner now derives expected transfers from the captured two Prize groups and starting Prize counts, records expected/actual transfers and missing recipients per row, and preserves the exact 16-row output. The existing manual workflow asserts 12 incomplete rows, split 6/6 across the two profiles, and prints the transfer receipts. It does not silently treat these baseline defects as a successful paper result.
+
+Manual native run [42409458179](https://github.com/FlareZ123/experiment-01/actions/runs/42409458179) succeeded on 7 November 2026 at 20:09 UTC, research head `110342df6ad1451328f7a988552a32444310685e`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. All workflow steps, including the 16-row transfer-completeness assertions, passed. Artifact ID `13588673584`, 3,648 bytes, SHA-256 `cdb730cae8d505dacc18ea3b8ca469ac0923905a7d9da706dbad7d1d6e839435`, expires 21 November 2026.
+
+**Disposition:** this is a newly explicit native baseline defect, not a v4 correction. The v3 adapter still only arms when both Prize groups exhaust both players' remaining Prizes. A separate opt-in mixed-terminal adapter must process both Prize groups exactly once, apply the full §E table, preserve the original native winner/log receipt, and cover both physical seats before any integration is considered. No upstream code was modified; no complete paper game or competitive game is qualified.
