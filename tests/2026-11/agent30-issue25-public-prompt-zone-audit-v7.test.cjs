@@ -356,7 +356,8 @@ test('Store prompt and dispatch descriptors restore after a callback exception',
     throw error;
   }, {Store: FakeStore, ChooseCardsPrompt, GameMessage, SuperType}), error);
 
-  assert.equal(error.issue25PublicPromptZoneAuditV6.events.length, 1);
+  assert.equal(error.issue25PublicPromptZoneAuditV7.events.length, 1);
+  assert.equal(error.issue25PublicPromptZoneAuditV6, undefined);
   assert.deepEqual(Object.getOwnPropertyDescriptor(FakeStore.prototype, 'prompt'), originalPrompt);
   assert.deepEqual(Object.getOwnPropertyDescriptor(FakeStore.prototype, 'dispatch'), originalDispatch);
 });
