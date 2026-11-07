@@ -18,6 +18,7 @@ const {
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const {SimpleTacticsAi: NativeSimpleTacticsAi} = require(path.join(OUTPUT, 'simple-bot/simple-tactics-ai'));
 const {runSnapTrapPrismStarDestinationContract} = require('../../simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs');
+const nativeHeadless = require('../../simulation/twinleaf/headless.cjs');
 
 const types = loadTypes();
 const {CardTag, CardType, EnergyType, GameMessage, SuperType} = types;
@@ -590,4 +591,71 @@ test('native headless wrapper captures onRootStoreCreated and preserves the call
   assert.strictEqual(callbackStore, currentStore);
   assert.strictEqual(headless.runMatch, originalRunMatch);
   assert.equal(hiddenReads, 0);
+});
+
+test('real pinned headless.runMatch settles Snap Trap under Agent4 quarantine for both source seats', () => {
+  const manager = nativeHeadless.initializeCards();
+  const fullName = fragment => {
+    const card = manager.getAllCards().find(item =>
+      typeof item.fullName === 'string' && item.fullName.includes(fragment)
+    );
+    assert.ok(card, 'missing pinned card printing: ' + fragment);
+    assert.ok(manager.getCardByName(card.fullName));
+    return card.fullName;
+  };
+  const stunfisk = fullName('Galarian Stunfisk SSH');
+  const marshadow = fullName('Marshadow UNB');
+  const psychic = fullName('Psychic Energy MEE');
+  const deckFor = pokemon => [pokemon, ...Array(59).fill(psychic)];
+  const rootStores = [];
+  const requests = [0, 1].map(sourceSeat => ({
+    label: 'snap-trap-headless-source-seat-' + sourceSeat,
+    deckA: deckFor(sourceSeat === 0 ? stunfisk : marshadow),
+    deckB: deckFor(sourceSeat === 1 ? stunfisk : marshadow),
+    seed: 0x51a700 + sourceSeat,
+    maxActions: 96,
+    strictPromptValidation: true,
+    enforceSelectOptionLegality: true,
+    onRootStoreCreated(store) {
+      rootStores.push(store);
+    }
+  }));
+  const originalRunMatch = nativeHeadless.runMatch;
+  const execution = withNativeRawStateFallbackQuarantine(
+    () => withSnapTrapInsideNativeMatchesV2(
+      () => requests.map(request => nativeHeadless.runMatch(request)),
+      {headless: nativeHeadless}
+    ),
+    {SimpleTacticsAi: NativeSimpleTacticsAi}
+  );
+
+  assert.strictEqual(nativeHeadless.runMatch, originalRunMatch);
+  assert.equal(execution.audit.rawStateFallbackCalls, 0);
+  assert.equal(execution.result.audit.nativeMatchCalls, 2);
+  assert.equal(rootStores.length, 2);
+  assert.notStrictEqual(rootStores[0], rootStores[1]);
+  const attempts = execution.result.audit.nativeMatchAttempts;
+  assert.equal(attempts.length, 2);
+  for (const [sourceSeat, attempt] of attempts.entries()) {
+    const owner = attempt.ownerPolicy;
+    assert.equal(attempt.disposition, 'returned-unqualified');
+    assert.equal(attempt.rootStoreCaptureCount, 1);
+    assert.equal(attempt.rootStoreCaptured, true);
+    assert.equal(owner.quarantineActiveAtInstall, true);
+    assert.ok(owner.choices.length >= 1, 'Snap Trap must resolve in the real headless match');
+    assert.equal(owner.promptStoreJoins, owner.choices.length);
+    assert.equal(owner.markerStoreIdentityJoins, owner.choices.length);
+    assert.equal(owner.dispatchRevalidations, owner.choices.length);
+    assert.equal(owner.moveCardsEffectReceiptCount, owner.choices.length);
+    assert.equal(owner.physicalSettlements, owner.choices.length);
+    assert.equal(owner.physicalSettlementFailures, 0);
+    assert.ok(owner.choices.every(choice => choice.sourceSeat === sourceSeat));
+  }
+  console.log('AGENT36_SNAP_TRAP_HEADLESS_NATIVE', JSON.stringify({
+    sourceSeats: attempts.map(attempt => attempt.ownerPolicy.choices[0].sourceSeat),
+    ownerChoices: attempts.map(attempt => attempt.ownerPolicy.ownerChoices),
+    physicalSettlements: attempts.map(attempt => attempt.ownerPolicy.physicalSettlements),
+    rawStateFallbackCalls: execution.audit.rawStateFallbackCalls,
+    competitiveGamesQualified: 0
+  }));
 });
