@@ -148,7 +148,7 @@ test('Dimension Valley does not newly enable Eon Blade on the source root with t
     view,null,'Dimension Valley',refs);
   assert.equal(result.status,'public-printed-attack-costs-compared');
   assert.deepEqual(result.newlyPayable,[]);
-  const eonBlade=result.unchanged.find(attack=>attack.attackName==='Eon Blade');
+  const eonBlade=result.unchanged.find(attack=>attack.name==='Eon Blade');
   assert.ok(eonBlade);
   assert.equal(eonBlade.beforePayable,true);
   assert.equal(eonBlade.afterPayable,true);
@@ -162,7 +162,7 @@ test('Dimension Valley can newly enable opponent Eon Blade with only two Psychic
     view.opponentPublic.active.energies.slice(0,2);
   const result=opponentStadiumAttackEntitlement(
     view,null,'Dimension Valley',refs);
-  assert.deepEqual(result.newlyPayable.map(attack=>attack.attackName),['Eon Blade']);
+  assert.deepEqual(result.newlyPayable.map(attack=>attack.name),['Eon Blade']);
   assert.equal(result.rows[0].beforePayable,false);
   assert.equal(result.rows[0].afterPayable,true);
 });
