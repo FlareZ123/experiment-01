@@ -1,6 +1,6 @@
 # Agent 27: official 2026 Aichi Open League clock and knockout resolution differ from Swiss
 
-**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 29 source-direct pure tests.** This document certifies no timed paper game or competitive win.
+**7 November 2026. Original 10 May 2026 organizer source audited; read-only conditional scoring and 33 source-direct pure tests.** The current 33-case CommonJS source/test pair passes the isolated V8 harness; compiled Node 22 CI for the latest revision remains pending. This document certifies no timed paper game or competitive win.
 
 ## Official source and the benchmark scope
 
@@ -70,3 +70,17 @@ The scorer now takes optional, independently sourced `paperGameTie:true`. For Op
 ### Zero Prize without a paper ruling: fail closed
 
 The original rules say the game-ending resolution begins as soon as a player takes their final Prize, or a simultaneous game tie occurs under its own resolution. A snapshot with `[0,5]` remaining Prizes and **no** independently declared normal win or genuine simultaneous tie is therefore a contradictory input for an unresolved time-call classification. The scorer now returns `PAPER_OUTCOME_CONFLICT_ZERO_PRIZE` with no winner, for both timed-end and elimination-extension entry points, rather than silently conferring a knockout Prize-lead win. Three additional pure tests cover all stages and zero-Prize extension; the old impossible no-outcome `[0,0]` tied-low fixture was removed. The complete **29/29 source-direct V8 tests pass**. Original compiled Node CI 42325338384 certified only the previous 21 tests; the updated 29-case version has **not yet passed a compiled Node workflow**. This is an evidence-integrity change, not a win-rate result.
+
+### Tiebreaker games can themselves end tied
+
+The supplied `resources/advanced-players-rulebook.md`, section I-E (Win and Loss), distinguishes a paper-declared simultaneous tie from a unique game winner and says a game that requires a winner must be resolved with a fresh six-Prize tiebreaker. The Aichi Open knockout page separately requires a six-Prize tiebreaker when the ordinary knockout game is tied. The prize-count comparison therefore applies only after independently determining that the current tiebreaker game has not already ended in a unique normal win or a simultaneous tie.
+
+The original `classifyTiebreaker(prizesRemaining)` returned `TIEBREAKER_CONTINUES` for `[0,0]`, which conflated equal positive Prize counts during an active tiebreaker with a simultaneous zero-Prize end state. It now accepts a second optional `paperOutcome` object:
+
+- `paperGameWinner: 0|1` preserves an independently paper-validated normal game winner, including cases where Prize counts alone would be ambiguous.
+- `paperGameTie: true` returns `TIEBREAKER_RESTART_REQUIRED_SIX_PRIZE` and suppresses a conditional winner.
+- `[0,0]` without either paper outcome returns `TIEBREAKER_PAPER_OUTCOME_REVIEW_REQUIRED`; the scorer refuses to guess whether a normal win or simultaneous tie occurred.
+- A simultaneous tie and unique winner claim, an invalid winner seat, or a non-boolean tie flag is rejected.
+- Equal positive Prize counts still mean the active tiebreaker continues; unequal counts still yield the first Prize-lead seat.
+
+Four regression tests cover normal-win precedence, a tied tiebreaker restart, an unresolved both-zero state, and contradictory or invalid paper-outcome claims. The exact fetched CommonJS source and test files pass **33/33** in the isolated V8 harness. The existing manual Node 22 benchmark workflow already invokes this test file, so no new workflow was added; the updated 33-case revision has not yet been run by compiled Node 22 CI. All outputs retain `competitiveAdmission:false` and require independent paper/clock review.
