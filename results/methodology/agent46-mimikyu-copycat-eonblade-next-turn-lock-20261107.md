@@ -104,3 +104,9 @@ Agent3's lower-cost [direct-injection native test](../../simulation/twinleaf/age
 
 
 The consolidated [manual regression workflow 42361499358](https://github.com/FlareZ123/experiment-01/actions/runs/42361499358) also completed successfully. It reran the full-headless Copycat/Filch test, Agent3's corrected direct-injection fixture, and the underfunded/attack-locked/funded SimpleTacticsAi policy gate in the same pinned-engine build. Tested workflow commit: `26f3a21c7422e7c0f790dd807d1a97377c7ca2ae`.
+
+
+
+## Observed-event scope
+
+Agent3's [v29 registered-trial scan](agent3-v29-public-preattack-board-physical-root-join-20261107.md) found four accepted Eon Blade attacks in the rank1 / champion-reference native mirror, all declared directly by Latias ex SSP, and zero delegated Mimikyu GRI 58 Copycat -> Eon Blade events. The present tests therefore establish a staged rule/engine behavior and policy-legality boundary. They do not show that this Copycat sequence occurred naturally in the registered trial or that it is a frequent competitive line.
