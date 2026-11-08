@@ -153,6 +153,7 @@ jobs:
           node --check simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs
           node --check simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs
           node --check simulation/evaluation/agent2-v8-treasure-owner-root-optin.cjs
+          node --check simulation/twinleaf/agent2/treasure-owner-prompt-native.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         if: ${{ !inputs.contract_only }}
@@ -192,6 +193,7 @@ jobs:
             tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs \
             tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs \
+            tests/2026-11/agent2-treasure-owner-prompt.test.cjs \
             tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs
 
       - name: Verify pure Agent34/Agent41 policy, observer, and v2 prompt-gate contracts
