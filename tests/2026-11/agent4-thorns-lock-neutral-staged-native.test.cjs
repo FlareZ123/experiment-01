@@ -84,3 +84,43 @@ test('unidentified Tool labels conservatively abstain even where Store blocks',(
   owner.ownPublic.bench[0].tools=['Float Stone unknown'];
   assert.equal(classifyNeutralThornsVeto(owner,intent).veto,false);
 });
+
+test('actual Store owner-only detached view reaches the v2 joint case',()=>{
+  for(const scenario of [
+    {hood:false,jammer:false,active:false,sourceTool:'Float Stone BKT'},
+    {hood:false,jammer:false,active:false,stadium:'Tropical Beach BWP'},
+    {hood:false,jammer:false,active:false,
+      sourceTool:'Float Stone BKT',stadium:'Tropical Beach BWP'}
+  ]){
+    let nativeView=null;
+    const native=underworldDoorAction({...scenario,actingSeat:true,
+      observeOwnerBeforePower:view=>{nativeView=view;}});
+    assert.equal(native.allowed,false);
+    assert.ok(nativeView,'missing actual actor observation');
+    assert.equal(nativeView.decisionKind,'owner-root');
+    assert.equal(nativeView.actorSeat,1);
+    assert.equal(nativeView.opponentPublic.active.printing,'Iron Thorns ex TWM');
+    assert.equal(nativeView.ownPublic.bench[0].printing,
+      'Shadow Rider Calyrex VMAX CRE');
+    assert.deepEqual(nativeView.ownPublic.bench[0].tools,
+      scenario.sourceTool?[scenario.sourceTool]:[]);
+    assert.deepEqual(nativeView.opponentPublic.stadium,
+      scenario.stadium?[scenario.stadium]:[]);
+    assert.equal(classifyVisibleThornsVeto(nativeView,intent).veto,false);
+    assert.equal(classifyNeutralThornsVeto(nativeView,intent).veto,true);
+    assert.equal(nativeView.opponentPublic.handCount,0);
+    assert.equal(Object.isFrozen(nativeView),true);
+  }
+});
+test('actual owner-only Stealthy Hood observation avoids false veto',()=>{
+  let nativeView=null;
+  const result=underworldDoorAction({
+    hood:true,jammer:false,active:false,actingSeat:true,
+    observeOwnerBeforePower:view=>{nativeView=view;}
+  });
+  assert.equal(result.allowed,true);
+  assert.equal(result.attached,1);
+  assert.deepEqual(nativeView.ownPublic.bench[0].tools,
+    ['Stealthy Hood UNB']);
+  assert.equal(classifyNeutralThornsVeto(nativeView,intent).veto,false);
+});
