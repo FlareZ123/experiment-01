@@ -1405,7 +1405,7 @@ function runDevelopment({
   ownerFallbackDiagnosticView=false,mysteriousTreasureRoot=false,
   mysteriousTreasureMuscleBandPayment=false,
   firstRegidragoBenchGrass=false,firstCrispinSeekerRecovery=false,
-  earlyRegidragoCompressor=false,
+  earlyRegidragoCompressor=false,bilateralPerfectionRoot=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
@@ -1516,6 +1516,8 @@ function runDevelopment({
     'Owner fallback diagnostic view requires native Trainer fallback');
   assert.ok(!ownerFallbackDiagnosticView||actorOnlyComposition,
     'Owner fallback diagnostic view requires canonical actor composition');
+  assert.ok(!bilateralPerfectionRoot||actorOnlyComposition,
+    'Bilateral paid Perfection root requires the actor-only two-seat policy');
   assert.ok(!mysteriousTreasureRoot||actorOnlyComposition,
     'Mysterious Treasure root requires canonical actor composition');
   assert.ok(!mysteriousTreasureMuscleBandPayment||mysteriousTreasureRoot,
@@ -1861,7 +1863,8 @@ function runDevelopment({
           !actorFlexiblePaidRetreatRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot&&
           !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView&&
-          !mysteriousTreasureRoot&&!actorPotentialKoRoot)?{}:
+          !mysteriousTreasureRoot&&!actorPotentialKoRoot&&
+          !bilateralPerfectionRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
@@ -1926,6 +1929,9 @@ function runDevelopment({
               }:{}),
               ...(earlyRegidragoCompressor?{
                 earlyRegidragoCompressor:true
+              }:{}),
+              ...(bilateralPerfectionRoot?{
+                perfectionRoot:true
               }:{}),
               ...(actorPotentialKoRoot?{
                 potentialKoRoot:true
