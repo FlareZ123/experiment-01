@@ -34,6 +34,10 @@ class PlayCardAction{
 class AttackAction{
   constructor(id,name){this.id=id;this.name=name;}
 }
+class ResolvePromptAction{
+  constructor(id,result){this.id=id;this.result=result;}
+}
+class WaitPrompt{}
 class MockStore{
   constructor(){this.state=null;}
   dispatch(action){
@@ -54,6 +58,8 @@ const deps={
   utils:{deepClone:state=>JSON.parse(JSON.stringify(state))},
   StoreModule:{Store:MockStore},
   gameActions:{AttackAction},
+  resolvePromptAction:{ResolvePromptAction},
+  waitPromptModule:{WaitPrompt},
   playActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:2},
     SlotType:{BOARD:0}},
   stateUtils:{StateUtils:{getStadiumCard:state=>state.stadium}}
