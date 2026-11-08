@@ -267,6 +267,8 @@ function joinSnapTrapPromptEvidence(matchAudit) {
     Number(ownerPolicy.markerStoreIdentityJoins ?? 0) >= 1
   );
   const exactPhysicalSettlement = Boolean(
+    exactPromptIdJoin &&
+    exactRootStoreIdentity &&
     choice?.exactlyOneMoveCardsEffect === true &&
     choice?.noOtherPublicCardMoved === true &&
     physicalSettlements >= 1 &&
