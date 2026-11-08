@@ -68,6 +68,16 @@ function probeTypeAdjustedKoNative(seat=0){
     view.ownPublic.active,view.opponentPublic.active),20);
   assert.equal(typeAdjustedFixedDamage(offered[1].damage,
     view.ownPublic.active,view.opponentPublic.active),40);
+  // Independently prove the later native printed Slash is fully payable by
+  // the same two physical Darkness Energy, rather than being excluded
+  // by an incomplete actor-only Energy catalog.
+  const slashOnlyView={
+    ...view,ownPublic:{...view.ownPublic,
+      active:{...view.ownPublic.active,attacks:[offered[1]]}}
+  };
+  assert.deepEqual(chooseActorRootIntent(slashOnlyView,catalog),{
+    kind:'attack',attackName:'Slash'
+  });
   const rawNominalV2=offered.find(x=>x.damage>=20);
   assert.equal(rawNominalV2?.name,'Slash');
   assert.equal(choosePotentialKnockout(view,offered),offered[0]);
