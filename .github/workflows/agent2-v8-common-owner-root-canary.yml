@@ -33,6 +33,10 @@ jobs:
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
+      - name: Print compact selected-v8 canary receipt
+        if: always()
+        run: >-
+          node -e "const fs=require('node:fs'); const p='agent2-v8-common-first-owner-root.json'; if(!fs.existsSync(p)){console.log('No canary JSON was produced.'); process.exit(0);} const d=JSON.parse(fs.readFileSync(p,'utf8')); const rows=(d.rows??[]).map(r=>({trialId:r.trialId,status:r.status,candidateSeat:r.candidateSeat,sourceSeat:r.sourceSeat,activeRunDevelopmentRegistration:r.activeRunDevelopmentRegistration,activeRunDevelopmentRegistrationValid:r.activeRunDevelopmentRegistrationValid,firstUnsupportedOwnerRoot:r.firstUnsupportedOwnerRoot,blockedPromptContract:r.blockedPromptContract,nativeAbortEvidence:r.nativeAbortEvidence,actorAbortCounters:r.actorAbortCounters,selectedV0:r.selectedV0})); console.log(JSON.stringify({schema:d.schema,runnerMode:d.runnerMode,sourceAdmissionReceipt:d.sourceAdmissionReceipt,canaryGate:d.canaryGate,rows},null,2));"
       - name: Upload diagnostic receipt
         if: always()
         uses: actions/upload-artifact@v4
