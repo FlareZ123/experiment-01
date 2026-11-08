@@ -89,9 +89,14 @@ function underworldDoorAction(options) {
     assert.equal(options.actingSeat, true,
       'Owner observation requires the acting owner physical seat');
     assert.equal(typeof options.observeOwnerBeforePower, 'function');
+    const priorPhase = state.phase;
     state.phase = GamePhase.PLAYER_TURN;
     const {actorObservation} = require('./actor-observation-contract.cjs');
-    options.observeOwnerBeforePower(actorObservation(state, 1));
+    try {
+      options.observeOwnerBeforePower(actorObservation(state, 1));
+    } finally {
+      state.phase = priorPhase;
+    }
   }
 
   const powerCheck = new CheckPokemonPowersEffect(player, vmax);
