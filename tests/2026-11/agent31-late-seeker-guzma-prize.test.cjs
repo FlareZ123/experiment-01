@@ -34,7 +34,7 @@ function view(){
       publicTurnRestrictions:{supporterPlayLocked:false,
         itemPlayLocked:false,attackLockTurnsRemaining:0}},
     opponentPublic:{active:poke('Iron Thorns ex TWM',0,100),
-      bench:[poke('Oranguru V ASR',0,100),
+      bench:[{...poke('Oranguru V ASR',0,100),hp:220},
         poke('Lunatone OBF',0,100),null,null,null],
       prizeCount:4}};
 }
