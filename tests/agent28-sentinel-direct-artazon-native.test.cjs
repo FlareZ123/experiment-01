@@ -580,13 +580,27 @@ for(const seat of [0,1]){
     const attachToBenchedVmax=(slot,index)=>{
       x.f.store.dispatch(new UseAbilityAction(opponent.id,
         'Underworld Door',{player:PlayerType.BOTTOM_PLAYER,slot,index}));
-      const p=x.state.prompts.find(z=>z.result===undefined);
+      let p=x.state.prompts.find(z=>z.result===undefined);
+      for(let j=0;j<8&&p?.constructor.name==='WaitPrompt';j++){
+        x.f.store.dispatch(new ResolvePromptAction(p.id,null));
+        p=x.state.prompts.find(z=>z.result===undefined);
+      }
       assert.equal(p?.constructor.name,'AttachEnergyPrompt',
         'Native Underworld Door must offer an Energy-payment prompt');
       const energyIndex=opponent.hand.cards.findIndex(c=>c.name===energyName);
       assert.ok(energyIndex>=0);
       const to={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0};
       x.f.store.dispatch(new ResolvePromptAction(p.id,[{to,index:energyIndex}]));
+      for(let j=0;j<12;j++){
+        p=x.state.prompts.find(z=>z.result===undefined);
+        if(!p)break;
+        const kind=p.constructor.name;
+        const answer=kind==='WaitPrompt'?null:
+          kind==='ShowCardsPrompt'?true:
+          kind==='ShuffleDeckPrompt'?opponent.deck.cards.map((_,i)=>i):undefined;
+        assert.notEqual(answer,undefined,'Unexpected post-Underworld Door '+kind);
+        x.f.store.dispatch(new ResolvePromptAction(p.id,answer));
+      }
       assert.equal(x.f.store.hasPrompts(),false);
     };
     attachToBenchedVmax(SlotType.ACTIVE,0);
