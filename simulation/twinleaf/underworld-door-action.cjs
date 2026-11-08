@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean,observeOwnerBeforePower?:Function}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean,observeOwnerBeforePower?:Function,manualActiveEnergyIfV3Veto?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -99,6 +99,41 @@ function underworldDoorAction(options) {
     }
   }
 
+  let manualFallback = null;
+  if (options.manualActiveEnergyIfV3Veto) {
+    assert.equal(options.actingSeat, true, 'Manual fallback owner must be acting');
+    state.activePlayer = 1;
+    state.phase = GamePhase.PLAYER_TURN;
+    state.turn = 2;
+    const {actorObservation} = require('./actor-observation-contract.cjs');
+    const {classifyNeutralThornsVeto} = require(
+      './2026-11/agent4-thorns-lock-field-neutral-v3.cjs');
+    const decision = classifyNeutralThornsVeto(
+      actorObservation(state, 1), {
+        kind:'use-underworld-door',
+        sourcePrinting:'Shadow Rider Calyrex VMAX CRE',
+        position:options.active?'active':'bench',
+        benchIndex:0
+      });
+    assert.equal(decision.veto, true,
+      'Cannot demonstrate fallback without a proven public Ability veto');
+    const {PlayCardAction} = engine('game/store/actions/play-card-action');
+    const before=player.active.energies.cards.length;
+    const previousHand=player.hand.cards.length;
+    store.dispatch(new PlayCardAction(player.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    manualFallback = {
+      decisionReason:decision.reason,
+      attachedPhysicalCard:player.active.energies.cards.includes(psychic),
+      activeEnergiesBefore:before,
+      activeEnergiesAfter:player.active.energies.cards.length,
+      handCountBefore:previousHand,
+      handCountAfter:player.hand.cards.length,
+      nativePlayCardAccepted:true
+    };
+  }
+
   const powerCheck = new CheckPokemonPowersEffect(player, vmax);
   store.reduceEffect(state, powerCheck);
   const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
@@ -116,7 +151,7 @@ function underworldDoorAction(options) {
   }
   if (!allowed) {
     assert.equal(state.prompts.filter(p => p.result === undefined).length, 0);
-    return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length };
+    return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length, ...(manualFallback?{manualFallback}:{}) };
   }
 
   const pending = state.prompts.find(p => p.result === undefined);
