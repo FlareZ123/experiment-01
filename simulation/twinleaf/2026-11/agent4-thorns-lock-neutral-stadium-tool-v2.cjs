@@ -10,12 +10,7 @@ const VERSION='agent4-thorns-public-neutral-stadium-tool-v2';
  * observation exposes native fullName as card name plus set abbreviation;
  * collector numbers are not included. The verified source print identities
  * BWP 28/50, ASR 155/214, PHF 93, CEC 187, PLF 99, BKT 137, and SSH 156
- * provide the paper provenance of the initial closed families.
- * Additional paper identities are ROS 89, BKT 145, PAL 171, PGO 68,
- * EVS 157, MEG 127 and UNM 211; these effects affect Bench capacity,
- * attack damage, search, voluntary Tool return, or damage placement on
- * newly Benched Basic Pokémon, none of which disables an already in-play
- * Shadow Rider VMAX's Underworld Door or Iron Thorns ex's Initialization. The supplied paper
+ * provide the paper provenance of these closed name/set predicates. The supplied paper
  * card database describes only card-draw, attack-cost, Energy-type or
  * Stadium-replacement effects for these Stadiums, and only retreat-cost
  * effects for these Tools. None of these texts grants Ability protection
@@ -29,13 +24,11 @@ const VERSION='agent4-thorns-public-neutral-stadium-tool-v2';
 const NEUTRAL_STADIUM_PRINTINGS=Object.freeze([
   'Tropical Beach BWP',
   'Temple of Sinnoh ASR',
-  'Dimension Valley PHF','Chaotic Swell CEC',
-  'Sky Field ROS','Parallel City BKT','Artazon PAL',
-  'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG'
+  'Dimension Valley PHF','Chaotic Swell CEC'
 ]);
 const NEUTRAL_TOOL_PRINTINGS=Object.freeze([
   'Float Stone PLF','Float Stone BKT',
-  'Air Balloon SSH','U-Turn Board UNM'
+  'Air Balloon SSH'
 ]);
 const neutralStadium=new Set(NEUTRAL_STADIUM_PRINTINGS);
 const neutralTool=new Set(NEUTRAL_TOOL_PRINTINGS);
