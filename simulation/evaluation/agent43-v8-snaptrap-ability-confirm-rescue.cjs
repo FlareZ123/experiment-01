@@ -32,6 +32,12 @@ function runTreatment() {
       treatmentFailureStage: x.nativeFailureStage,
       treatmentAcceptedRootCount: x.acceptedRootCount,
       treatmentPromptCount: x.promptCount,
+      treatmentNativeStatus: x.nativeStatus,
+      treatmentFinished: x.nativeFinished,
+      treatmentWinner: x.nativeWinner,
+      treatmentEndReason: x.nativeEndReason,
+      treatmentFinalPrizes: x.nativeFinalPrizes,
+      treatmentTurnCount: x.nativeTurnCount,
       nowPastOriginalBlock:
         x.nativeFailureActionOrdinal == null ||
         x.nativeFailureActionOrdinal > originalBlockedOrdinal,
@@ -58,6 +64,17 @@ function runTreatment() {
     nativeQuarantineFallbackCalls: result.nativeQuarantineFallbackCalls,
     originalBaselineFailureOrdinals: [32, 99],
     perOriginallyBlockedTrial: byTrial,
+    allFourTrials: result.attempts.map(x => ({
+      id:x.id,candidateSeat:x.candidateSeat,sourceSeat:x.sourceSeat,
+      acceptedRoots:x.acceptedRootCount,
+      nativeStatus:x.nativeStatus,finished:x.nativeFinished,
+      winner:x.nativeWinner,endReason:x.nativeEndReason,
+      turns:x.nativeTurnCount,actionCount:x.nativeActionCount,
+      finalPrizes:x.nativeFinalPrizes,
+      nativeFailureStage:x.nativeFailureStage
+    })),
+    nativeFinishedGameCount: result.attempts.filter(x =>
+      x.nativeFinished === true).length,
     allOriginallyBlockedTrialsAdvanced: byTrial.every(x => x.nowPastOriginalBlock),
     competitiveGamesQualified: 0,
     winRateReported: false
@@ -97,11 +114,16 @@ if (require.main === module) {
       decision:e.decision,reason:e.reason,settled:e.settled
     })),
     allOriginallyBlockedTrialsAdvanced: output.allOriginallyBlockedTrialsAdvanced,
+    nativeFinishedGameCount: output.nativeFinishedGameCount,
+    allFourTrials: output.allFourTrials,
     perOriginallyBlockedTrial: output.perOriginallyBlockedTrial.map(x => ({
       id:x.id,originalBlockedOrdinal:x.originalBlockedOrdinal,
       treatmentFailureOrdinal:x.treatmentFailureOrdinal,
       treatmentFailureStage:x.treatmentFailureStage,
       treatmentAcceptedRootCount:x.treatmentAcceptedRootCount,
+      treatmentFinished:x.treatmentFinished,
+      treatmentWinner:x.treatmentWinner,
+      treatmentEndReason:x.treatmentEndReason,
       nowPastOriginalBlock:x.nowPastOriginalBlock,
       unresolvedPrompts:x.unresolvedPrompts
     })),
