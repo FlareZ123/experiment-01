@@ -14,6 +14,10 @@ const {actorObservation} =
   require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {chooseSentinelPreEvolutionFloat} =
   require('../../simulation/twinleaf/agent20-sentinel-pre-evolution-float-root.cjs');
+const {chooseOwnerFloatStoneMobility} =
+  require('../../simulation/twinleaf/agent1-owner-float-stone-mobility.cjs');
+const {publicCatalog} =
+  require('../../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
 const TOOL = 'Float Stone BKT';
 const HOOD = 'Stealthy Hood UNB';
 const V2 = path.resolve(__dirname,
@@ -145,9 +149,13 @@ for (const seat of [0, 1]) {
       'All actual end-turn waits must settle before next actor acts');
     assert.equal(store.state.activePlayer, seat,
       'Actual opponent Pass grants original Sentinel its own turn');
-    const rescueIndex = x.owner.bench.findIndex(slot =>
-      slot.getPokemonCard()?.fullName === 'Bunnelby PRC');
-    assert.ok(rescueIndex >= 0);
+    const retreatPlan = chooseOwnerFloatStoneMobility(
+      actorObservation(store.state, seat), publicCatalog());
+    assert.equal(retreatPlan?.kind, 'retreat-emergency-floatstone',
+      'Shared generic public-board mobility policy must select escape');
+    const rescueIndex = retreatPlan.benchIndex;
+    assert.equal(x.owner.bench[rescueIndex].getPokemonCard()?.fullName,
+      'Bunnelby PRC');
     const priorPrize = x.owner.getPrizeLeft();
     store.dispatch(new RetreatAction(x.owner.id, rescueIndex));
     assert.equal(x.owner.active.getPokemonCard()?.fullName, 'Bunnelby PRC');
