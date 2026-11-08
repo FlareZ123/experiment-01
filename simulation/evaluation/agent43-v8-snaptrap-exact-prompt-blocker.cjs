@@ -152,7 +152,7 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
@@ -168,6 +168,7 @@ function run(settings = {}) {
   const {Store} = require(path.join(output, 'game/store/store'));
   const {GameMessage} = require(path.join(output, 'game/game-message'));
   const trace = {byStore: new WeakMap(), events: [], roots: []};
+  const acceptedMailActionRefs = new WeakSet();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
   };
@@ -176,6 +177,7 @@ function run(settings = {}) {
       trialId: trace.byStore.get(store) ?? null,
       ordinal,
       action: action?.constructor?.name ?? null,
+      ownerMailAfterPassAction: acceptedMailActionRefs.has(action),
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
         ? String(action.id) : null,
@@ -224,7 +226,8 @@ function run(settings = {}) {
             PlayCardAction: native('game/store/actions/play-card-action').PlayCardAction,
             ResolvePromptAction: native('game/store/actions/resolve-prompt-action').ResolvePromptAction,
             types: native('game/store/card/card-types'),
-            trialIds: registeredTrials.map(t => t.id)
+            trialIds: registeredTrials.map(t => t.id),
+            onMailActionCommitted: action => acceptedMailActionRefs.add(action)
           });
         ownerMailAudit = mail.audit;
         return mail.result;
@@ -299,6 +302,7 @@ function run(settings = {}) {
     changedDecisions: ownerMailAfterPass ? null : false,
     observedPromptEvents: trace.events.length,
     observedRootActions: trace.roots.length,
+    publicRootTape: settings.captureRootTape === true ? trace.roots : null,
     experimentalOwnerAbilityConfirm: ownerAbilityConfirm,
     experimentalBasicEnergyRecipient: energyRecipient,
     experimentalOwnerMailAfterPass: ownerMailAfterPass,
