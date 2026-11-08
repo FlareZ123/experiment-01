@@ -73,6 +73,15 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(prize.ownerHandDelta,2);
   assert.equal(prize.physicalOwnerHandTransfer,true);
   assert.equal(prize.readConcealedPrizeFaces,false);
+  assert.deepEqual(prize.postPrizePendingPrompts,['ChoosePokemonPrompt']);
+  const promotion=alternate.attackFollowthrough.sourcePromotion;
+  assert.equal(promotion.checkedNativePrompt,true);
+  assert.equal(promotion.nativeValidated,true);
+  assert.equal(promotion.nativeResolved,true);
+  assert.equal(promotion.status,'native-source-promotion-settled');
+  assert.equal(promotion.sourceActiveAfter,'Trevenant & Dusknoir-GX SMP');
+  assert.equal(promotion.readConcealedOpponentCards,false);
+  assert.deepEqual(promotion.remainingPromptTypes,[]);
   assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
   assert.equal(alternate.baselineOpponentReply.ownerActiveAfter,null,
     'without retreat, Eon Blade should Knock Out Active Tapu Lele-GX');
@@ -110,7 +119,7 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     genuineNativeStoreDecisionChanged:false,
     sourceRootHistoryUnchanged:true,
     paperQualifiedGames:0,
-    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, the same-branch Eon Blade KO and first-occupied-slot ordinary Prize transfer are tested, while source promotion and next-turn policy are untested; no full game or matchup win is certified'
+    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, the same-branch Eon Blade KO, first-occupied ordinary Prize transfer and fixed face-up Bench promotion are tested, while the subsequent source-turn policy and full game are untested; no matchup win is certified'
   };
   console.log('AGENT11_DIMENSIONVALLEY_ENERGY_DRIVE_NATIVE',
     JSON.stringify(packet));
