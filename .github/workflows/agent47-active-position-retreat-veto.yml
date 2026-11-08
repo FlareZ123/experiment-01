@@ -1,0 +1,21 @@
+name: Agent47 active-position retreat veto contracts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out research sources
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify four mobility frontiers and protected Active Ability contracts
+        run: node --test tests/2026-11/agent47-active-position-retreat-veto.test.cjs
