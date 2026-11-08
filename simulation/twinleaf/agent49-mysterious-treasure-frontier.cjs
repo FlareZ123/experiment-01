@@ -1,11 +1,12 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent49-mysterious-treasure-public-discard-frontier-v1';
+const VERSION='agent49-mysterious-treasure-public-discard-frontier-v2';
 const ITEM='Mysterious Treasure FLI';
 const VIP=['Battle VIP Pass FST'];
 const VS_SEEKER='VS Seeker PHF';
 const RECOVERABLE_SUPPORTER='Crispin SCR';
+const ALTERNATE_PAYMENT='Muscle Band XY';
 const REGIDRAGO=/^Regidrago V(?:STAR)?(?: |$)/;
 
 /**
@@ -19,9 +20,10 @@ const REGIDRAGO=/^Regidrago V(?:STAR)?(?: |$)/;
  *
  * @param {object} view Frozen or mutable detached actor observation.
  * @param {{dragonPokemonPrintings?:Set<string>}} catalog Public card index.
+ * @param {{preferMuscleBandPayment?:boolean}} [options] Explicit A/B choice; defaults to original Crispin line.
  * @returns {object|null}
  */
-function chooseTreasureRootIntent(view,catalog){
+function chooseTreasureRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic;
   const hand=view.ownHand;
@@ -43,6 +45,17 @@ function chooseTreasureRootIntent(view,catalog){
   if(view.globalTurn>2){
     discardIndex=hand.findIndex((card,i)=>i!==itemIndex&&VIP.includes(card));
     if(discardIndex>=0)reason='dead-first-turn-item';
+  }
+  // The registered rank-13 first-turn root has two native-tested payments.
+  // This opt-in preserves Crispin and VS Seeker by spending Muscle Band.
+  // Restrict it to the observed owner-visible resource configuration; future
+  // damage breakpoints may instead make the Band the critical resource.
+  if(discardIndex<0&&options.preferMuscleBandPayment===true&&
+     view.globalTurn===1&&hand.includes(RECOVERABLE_SUPPORTER)&&
+     hand.includes(VS_SEEKER)){
+    discardIndex=hand.findIndex((card,i)=>i!==itemIndex&&
+      card===ALTERNATE_PAYMENT);
+    if(discardIndex>=0)reason='preserve-crispin-and-vs-seeker';
   }
   // Regidrago's copied-attacks channel gives tactical utility to putting a
   // Dragon donor in discard. Preserve the actual Regidrago evolution pieces.
