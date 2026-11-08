@@ -21,6 +21,9 @@ Pinned `Store.reducePrompt` returns without mutation whenever the prompt or prom
 
 I reproduced this exact predicate path in Node. The gate reports opponent ordinal 252, source ordinal 253, and `continuationGatePassed: true`. This sequence is consistent with pinned Store dispatch semantics. It is a synthetic source-valid counterexample, not an observed native match or competitive result.
 
+
+A standalone pure reproduction fixture is preserved at `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs`. It currently asserts the observed v2 false-pass behavior and should be converted to a rejection regression after the owner fixes the classifier. It has not yet been run in CI.
+
 The earlier monotonicity argument applies only to overclassification. Overclassifying unknown null/undefined responses or WaitPrompt/undefined can suppress meaningful events and cause false negatives. Underclassifying unknown non-null responses can count no-op dispatches as meaningful and cause false positives. Both sides must be fixed.
 
 ## Pinned Store contract independently checked
