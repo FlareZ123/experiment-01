@@ -250,7 +250,7 @@ function joinSnapTrapPromptEvidence(matchAudit) {
     String(snapTrapPrompt.promptIdAfterStore) === String(response.promptId) &&
     String(response.actionPromptId) === String(response.promptId) &&
     response.actionType === 'ResolvePromptAction' &&
-    response.actionOrdinal !== null &&
+    Number.isSafeInteger(response.actionOrdinal) &&
     response.actingSeat === snapTrapPrompt.ownerSeat
   );
   const physicalSettlements = Array.isArray(ownerPolicy.physicalSettlements) ?
