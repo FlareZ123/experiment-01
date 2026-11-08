@@ -90,12 +90,12 @@ function buildArtifact(phase,promptAudit,thrown,sourceRunner){
     ?quarantine.records:[];
   const promptEvents=Array.isArray(promptAudit?.events)?promptAudit.events:[];
   const promptMatches=quarantineRecords.map(record=>{
-    const matching=promptEvents.filter(event=>
-      event.controllerSeat===record.seat&&
+    const nearby=promptEvents.filter(event=>
       event.turn===record.turn&&
       event.phase===record.phase&&
       event.promptType===record.promptType
     );
+    const matching=nearby.filter(event=>event.controllerSeat===record.seat);
     return {
       quarantineRecord:{
         seat:record.seat??null,
@@ -107,7 +107,9 @@ function buildArtifact(phase,promptAudit,thrown,sourceRunner){
       matchStatus:matching.length===1?'UNIQUE':
         matching.length>1?'MULTIPLE':'NONE',
       matchingPromptCount:matching.length,
-      matchingPromptEvents:matching
+      matchingPromptEvents:matching,
+      nearbyPromptCount:nearby.length,
+      nearbyPromptEvents:nearby
     };
   });
   const rawRows=phase?.rawDevelopment?.rows??[];
