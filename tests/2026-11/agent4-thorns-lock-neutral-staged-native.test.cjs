@@ -124,3 +124,32 @@ test('actual owner-only Stealthy Hood observation avoids false veto',()=>{
     ['Stealthy Hood UNB']);
   assert.equal(classifyNeutralThornsVeto(nativeView,intent).veto,false);
 });
+
+test('every remaining whitelisted set-qualified Stadium passes native lock check',()=>{
+  for(const stadium of ['Dimension Valley PHF','Chaotic Swell CEC']){
+    let view=null;
+    const actual=underworldDoorAction({
+      hood:false,jammer:false,active:false,actingSeat:true,stadium,
+      observeOwnerBeforePower:v=>{view=v;}
+    });
+    assert.equal(actual.allowed,false,stadium);
+    assert.equal(actual.powerListed,false,stadium);
+    assert.deepEqual(view.opponentPublic.stadium,[stadium],stadium);
+    assert.equal(classifyVisibleThornsVeto(view,intent).veto,false,stadium);
+    assert.equal(classifyNeutralThornsVeto(view,intent).veto,true,stadium);
+  }
+});
+test('every remaining whitelisted set-qualified retreat Tool passes native lock check',()=>{
+  for(const sourceTool of ['Float Stone PLF','Air Balloon SSH']){
+    let view=null;
+    const actual=underworldDoorAction({
+      hood:false,jammer:false,active:false,actingSeat:true,sourceTool,
+      observeOwnerBeforePower:v=>{view=v;}
+    });
+    assert.equal(actual.allowed,false,sourceTool);
+    assert.equal(actual.powerListed,false,sourceTool);
+    assert.deepEqual(view.ownPublic.bench[0].tools,[sourceTool],sourceTool);
+    assert.equal(classifyVisibleThornsVeto(view,intent).veto,false,sourceTool);
+    assert.equal(classifyNeutralThornsVeto(view,intent).veto,true,sourceTool);
+  }
+});
