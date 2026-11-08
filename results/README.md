@@ -10,6 +10,7 @@
 | [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Unqualified structural candidate. |
 | [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Unqualified structural candidate. |
 | [New Moon Lockbreaker v1](../results/als/new-moon-lockbreak-60-candidate.md) | Unqualified. Its 2+2 dual-lock package has a 13.77% optimistic first-draw access upper bound under the stated assumptions ([analysis](../results/als/new-moon-dual-lockbreak-joint-access-20261107.md)). |
+| [Sentinel Lopunny/Vileplume v1](aichi-2026/candidate-sentinel-lopunny-vileplume-v1.psv) | Unqualified structural challenger. A [native two-seat conditional rank-1 response](aichi-2026/2026-11/agent28-sentinel-rank1-guzma-counterreply-native-20261108.md) demonstrates that Guzma or Wonder Tag into Guzma can force the zero-Energy Vileplume Active after the first-turn Item lock. No complete autonomous source response or matchup result. |
 
 **Selection: none.** These lists are comparison controls and proposals. None has passed competitive automated-player admission.
 
