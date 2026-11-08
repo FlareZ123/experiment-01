@@ -359,7 +359,8 @@ test('strict execution gate requires exact Snap Trap settlement and complete pos
       postPromptSequence: {
         continuationGatePassed: known,
         promptEvidenceComplete: known,
-        nextOwnerPromptResponseSettled: known
+        nextOwnerPromptResponseSettled: known,
+        allPostSnapTrapPromptsSettled: known
       }
     };
   });
@@ -385,7 +386,8 @@ test('strict execution gate rejects a one-seat-only prompt witness', () => {
       postPromptSequence: {
         continuationGatePassed: trial.id === '3:312:B:champion-reference',
         promptEvidenceComplete: trial.id === '3:312:B:champion-reference',
-        nextOwnerPromptResponseSettled: trial.id === '3:312:B:champion-reference'
+        nextOwnerPromptResponseSettled: trial.id === '3:312:B:champion-reference',
+        allPostSnapTrapPromptsSettled: trial.id === '3:312:B:champion-reference'
       }
     };
   });
