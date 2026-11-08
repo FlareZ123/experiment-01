@@ -518,6 +518,8 @@ function executeDevelopment(trial,candidates,{
   rank11ExclusiveOpening=false,
   paperRank9ElectrodeGXCorrection=false,
   sourceIndependentCommonPolicy=false,
+  nativeOwnerTrainerFallback=false,ownerFallbackDiagnosticView=false,
+  mysteriousTreasureRoot=false,firstBlockedPromptContractObserver=false,
   losslessNativeRootJoin=false,registeredTrial=false,
   isolatePolicyRandomness=false,
   isolatePhysicalShuffleRandomnessAfterSetup=false,
@@ -1787,6 +1789,8 @@ function runDevelopment({
         rank11SourceSupporterPassRescue,
         rank11ExclusiveOpening,paperRank9ElectrodeGXCorrection,
         sourceIndependentCommonPolicy,
+        nativeOwnerTrainerFallback,ownerFallbackDiagnosticView,
+        mysteriousTreasureRoot,firstBlockedPromptContractObserver,
         registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
