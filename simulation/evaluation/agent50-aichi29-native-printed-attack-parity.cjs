@@ -80,6 +80,53 @@ function numberKey(n){
 }
 
 /**
+ * Find exact-printing availability of original-field Trainers and Energy.
+ * Basic Energy may be represented by a different printing in deck engines;
+ * an exact-print miss is a fidelity finding, not proof that a generic
+ * named Basic Energy cannot be used legally or that the deck is unplayable.
+ *
+ * @returns {object} All distinct original non-Pokémon printed identities.
+ */
+function auditOriginalNonPokemonAvailability(){
+  const manager=initializeCards();
+  const byPrinting=new Map(manager.getAllCards().filter(card=>card.name&&card.set)
+    .map(card=>[[card.name,card.set,numberKey(card.setNumber)].join('|'),
+      card]));
+  const original=new Map();
+  for(const deck of field.decks){
+    for(const card of deck.cards.filter(row=>row.category!=='Pokémon')){
+      const key=[card.name,card.printing.set,
+        numberKey(card.printing.number)].join('|');
+      const existing=original.get(key)??{
+        category:card.category,name:card.name,set:card.printing.set,
+        number:String(card.printing.number),ranks:[]};
+      existing.ranks.push(deck.rank);
+      original.set(key,existing);
+    }
+  }
+  const rows=[...original.values()].map(row=>{
+    const requested=row.name+' '+row.set;
+    const indexed=manager.getCardByName(requested);
+    const exact=byPrinting.get([row.name,row.set,
+      numberKey(row.number)].join('|'));
+    return {...row,requested,
+      indexed:!!indexed,exactPrintedIdentity:!!exact,
+      canonicalNativeName:exact?.fullName??null,
+      nativePrintingAlias:!!exact&&!indexed};
+  });
+  return {
+    total:rows.length,
+    categories:Object.fromEntries(['Trainer','Energy'].map(category=>
+      [category,rows.filter(row=>row.category===category).length])),
+    missingExactPrintedIdentity:rows.filter(row=>!row.exactPrintedIdentity),
+    nativePrintAliases:rows.filter(row=>row.nativePrintingAlias),
+    exactMatches:rows.filter(row=>row.exactPrintedIdentity).length,
+    allRows:rows,
+    competitiveGamesQualified:0
+  };
+}
+
+/**
  * Audit only the 29 authenticated source sixties. No inference about
  * unpublished Aichi rank 23/25/28 card identities or paper legality.
  *
@@ -241,4 +288,5 @@ if(require.main===module){
     artifact:destination,competitiveGamesQualified:0
   },null,2)+'\n');
 }
-module.exports={VERSION,printedSignature,sourceSet,numberKey,audit,save};
+module.exports={VERSION,printedSignature,sourceSet,numberKey,
+  audit,auditOriginalNonPokemonAvailability,save};
