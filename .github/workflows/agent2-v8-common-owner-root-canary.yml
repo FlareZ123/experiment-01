@@ -78,10 +78,10 @@ jobs:
       - name: Test prospective owner Quick Ball with real native mandatory payment and own-deck search
         if: ${{ inputs.agent7_quick_ball_vip }}
         run: |
-          node --test tests/2026-11/agent7-quick-ball-after-pass.test.cjs tests/2026-11/agent7-quick-ball-two-source-registration.test.cjs
+          node --test tests/2026-11/agent7-quick-ball-after-pass.test.cjs tests/2026-11/agent7-quick-ball-rank5-rank26-v2-registration.test.cjs
           node --check simulation/twinleaf/agent7-quick-ball-native-after-pass.cjs
-          node --check simulation/evaluation/agent7-v8-quick-ball-native-two-source.cjs
-          node simulation/evaluation/agent7-v8-quick-ball-native-two-source.cjs
+          node --check simulation/evaluation/agent7-v8-quick-ball-native-rank5-rank26-v2.cjs
+          node simulation/evaluation/agent7-v8-quick-ball-native-rank5-rank26-v2.cjs
       - name: Print compact selected-v8 canary receipt
         if: always()
         run: >-
@@ -96,5 +96,5 @@ jobs:
             artifacts/agent7-v8-rank3-early-beach/paired-native.json
             artifacts/agent7-v8-rank3-mail-beach/paired-native.json
             artifacts/agent7-mail-broad-coverage/rank9-rank26-paired.json
-            artifacts/agent7-v8-quick-ball/rank5-rank9-paired-native.json
+            artifacts/agent7-v8-quick-ball/rank5-rank26-v2-paired-native.json
           if-no-files-found: error
