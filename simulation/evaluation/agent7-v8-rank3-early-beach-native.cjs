@@ -94,6 +94,26 @@ function runTreatment(){
     const ids=control.output.rows.map(row=>row.trialId);
     assert.deepEqual(treatment.output.rows.map(row=>row.trialId),ids);
     const treatedBeach=treatment.events.filter(e=>e.nativeStoreAccepted);
+    const settledSequence=treatedBeach.flatMap(play=>{
+      if(play.action!=='PlayCardAction'||!play.ownerAfter?.stadium?.some(
+        card=>card.startsWith('Tropical Beach ')))return [];
+      const use=treatedBeach.find(e=>e.action==='UseStadiumAction'&&
+        e.seat===play.seat&&e.globalTurnBefore===play.globalTurnBefore&&
+        e.ownerBefore?.handCount===play.ownerAfter.handCount&&
+        e.ownerAfter?.handCount===7&&
+        e.ownerBefore?.deckCount-e.ownerAfter?.deckCount>0);
+      return use?[{
+        sourceSeat:play.seat,globalTurn:play.globalTurnBefore,
+        printedStadium:play.heldPrinting,
+        handBeforePlace:play.ownerBefore.handCount,
+        handAfterPlace:play.ownerAfter.handCount,
+        handAfterUse:use.ownerAfter.handCount,
+        deckBeforeUse:use.ownerBefore.deckCount,
+        deckAfterUse:use.ownerAfter.deckCount,
+        nativePlayAccepted:true,nativeUseAccepted:true,
+        sourceGameTurnAfterUse:use.nativeGlobalTurnAfter
+      }]:[];
+    });
     return {
       schema:VERSION,enginePin:ENGINE_PIN,seed:SEED,
       originalTrialIds:ids,originalFixedSixtiesUnchanged:true,
@@ -119,6 +139,8 @@ function runTreatment(){
           row.activeRunDevelopmentRegistrationValid===true
       })),
       earlyBeachNativeAcceptanceObserved:treatedBeach.length>0,
+      firstCyclePlayUseAndDrawSettled: settledSequence.length>0,
+      settledSequences:settledSequence,
       fullyQualifiedPaperGames:0,competitiveGamesQualified:0,
       winRateReported:false
     };
@@ -157,13 +179,15 @@ if(require.main===module){
       id:row.id,hasHeldBeach:row.firstOwnerRootPrinting
     })),
     nativeBeachEvents:report.nativeStoreBeachEvents,
+    settledSequences:report.settledSequences,
+    firstCyclePlayUseAndDrawSettled:report.firstCyclePlayUseAndDrawSettled,
     treatmentStatuses:report.treatmentRows.map(row=>({
       id:row.id,status:row.status,
       initialRoots:row.nativeInitialRoots
     })),
     competitiveGamesQualified:0
   },null,2)+'\n');
-  if(!report.earlyBeachNativeAcceptanceObserved)process.exitCode=1;
+  if(!report.firstCyclePlayUseAndDrawSettled)process.exitCode=1;
 }
 
 module.exports={VERSION,movement,traceBeachNativeRun,runTreatment,writeReport};
