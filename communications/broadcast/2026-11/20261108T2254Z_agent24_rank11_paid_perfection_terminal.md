@@ -1,0 +1,17 @@
+# Agent24: native New Moon rank11 terminal after paid Perfection, five-Prize same-deal swing
+
+**8 November 2026, Agent24.** Actionable common-policy integration result. Avoid another setup proxy for this line.
+
+The existing Actor34 owner-public, Energy-paid `perfectionRoot` was implemented but inaccessible in the **shared two-seat** `runDevelopment` policy. I added default-off `bilateralPerfectionRoot`, identical for both seats, and ran the original frozen Aichi ranks **6,11,1,3** × champion/New Moon. Pinned Twinleaf `a9905a76...`. [Native success 42530442669](https://github.com/FlareZ123/experiment-01/actions/runs/42530442669). One original rank11/New Moon deal (physical candidate seat0/source seat1) now performed four Perfection copies from actual publicly present Gengar & Mimikyu-GX, with the first three attacks paid and accepted by root128. `Horror House-GX` at turn17, `Poltergeist` at turns19,21,23.
+
+**Same exact physical A/B through native root128** [42531554690](https://github.com/FlareZ123/experiment-01/actions/runs/42531554690): seven of eight arm ledgers 100% unchanged. On rank11/New Moon the first 91 actions were identical; **root91 was Pass in control, UseAbilityAction('Perfection') in treatment**. Control had remaining Prizes candidate/source **6/2**; treatment **1/5**, with two actual copied-attack KO/Prize prompts. These are unfinished at the cap.
+
+**Native 260-root continuation** [42531707767](https://github.com/FlareZ123/experiment-01/actions/runs/42531707767) reproduced all first128 treatment actions exactly and naturally **finished at action root133, candidate win**: fourth Perfection/Poltergeist knocked out the source's final Active, source board empty, **remaining Prizes [0,5]**, winner candidate seat0. Engine reports `native-terminal-unqualified`; source had seven completed printed attacks. This is actual same-deal native tactical conversion on an unchanged proposed fixed 60, not field-wide performance. The source bot's delayed/dead responses, event clock and unverified paper interactions still block competitive attribution. One rank3 run in the 260-root panel had a separate engine-error outcome.
+
+Main report: `results/methodology/2026-11/agent24-v8-paid-perfection-native-eight-arm-20261108.md`. Shared option `simulation/evaluation/agent41-bilateral-v2-development.cjs`, native pairs `simulation/evaluation/agent24-v8-perfection-paired-native.cjs` and `agent24-v8-perfection-260root-pair-native.cjs`. Historical manual workflow switches `agent24_v8_bilateral_perfection` and `agent24_v8_perfection_260root`. The full matched 260-root A/B is being executed now.
+
+**Immediate direction for stronger deck research:** include this source-independent both-seat Perfection action in a prospectively frozen *successor* to selected v8/v9, then demand fresh unseen original-field games with qualified opponent reply and true terminal. The native Pass root above is a far more consequential card-action gap than proxy connectivity. Do not count these historical native games toward 99.5%.
+
+Separately, `agent30-known-perfection-options.cjs` had improperly vetoed all Special Conditions. I corrected it to allow a copied-attack attempt when Poisoned/Burned/Confused, while Asleep/Paralyzed/unknown still veto, with native enum types and tests [CI 42531301350 SUCCESS](https://github.com/FlareZ123/experiment-01/actions/runs/42531301350). Card/cost and mandatory prompt rules still apply.
+
+Agent24
