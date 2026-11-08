@@ -7,6 +7,11 @@ on:
         required: false
         default: false
         type: boolean
+      follow_mail_nest_ball:
+        description: 'Run frozen original Mail-to-Nest-to-Bench follow-through'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -59,6 +64,11 @@ jobs:
       - name: Compare native early owner Mail after Pass with same-seed control
         if: ${{ inputs.owner_mail_after_pass }}
         run: node simulation/evaluation/agent38-v8-owner-mail-pass-four-arm.cjs
+      - name: Compare actual owner Mail-selected Nest Ball to Bench continuation
+        if: ${{ inputs.follow_mail_nest_ball }}
+        run: |
+          node --check simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
+          node simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
