@@ -189,6 +189,7 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     ownerObservationContract: 'actor-observation-contract.cjs',
     snapTrapPrompt: null,
     nextOwnerPrompt: null,
+    postSnapTrapPrompts: [],
     promptRecords: [],
     responseRecords: [],
     readsOpponentHidden: false,
@@ -222,17 +223,18 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
 
   function capturePrompt(state, prompt, store, promptIdBeforeStore) {
     const identity = identifySnapTrapPrompt(state, prompt, types);
-    const isNext = !identity &&
-      (snapTrapResolutionInFlight || snapTrapSettled) &&
-      audit.nextOwnerPrompt === null;
-    if (!identity && !isNext) return null;
+    const isPostSnapTrap = !identity &&
+      (snapTrapResolutionInFlight || snapTrapSettled);
+    if (!identity && !isPostSnapTrap) return null;
 
     const ownerSeat = state.players.findIndex(player =>
       player.id === prompt.playerId
     );
     const record = {
       ordinal: ++promptOrdinal,
-      kind: identity ? 'snap-trap' : 'next-owner-prompt',
+      kind: identity ? 'snap-trap' :
+        audit.nextOwnerPrompt === null ?
+          'next-owner-prompt' : 'post-snap-trap-prompt',
       promptIdBeforeStore: promptIdBeforeStore ?? null,
       promptIdAfterStore: prompt.id ?? null,
       promptType: prompt.constructor?.name ?? null,
@@ -263,7 +265,10 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
       audit.snapTrapPrompt = record;
       privatePromptContext.set(prompt, identity.private);
     } else {
-      audit.nextOwnerPrompt = record;
+      if (audit.nextOwnerPrompt === null) {
+        audit.nextOwnerPrompt = record;
+      }
+      audit.postSnapTrapPrompts.push(record);
     }
     promptMetaByObject.set(prompt, record);
     audit.promptRecords.push(record);
@@ -287,7 +292,7 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     );
     const observed = captureObservation(state, seat);
     let nativeValidateAccepted = null;
-    if (record.kind === 'snap-trap' && typeof prompt.validate === 'function') {
+    if (typeof prompt.validate === 'function') {
       try {
         nativeValidateAccepted = prompt.validate(value) === true;
       } catch (error) {
@@ -448,8 +453,10 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     ...audit,
     promptRecords: [...audit.promptRecords],
     responseRecords: [...audit.responseRecords],
+    postSnapTrapPrompts: [...audit.postSnapTrapPrompts],
     snapTrapPromptCount: audit.snapTrapPrompt ? 1 : 0,
     nextOwnerPromptCount: audit.nextOwnerPrompt ? 1 : 0,
+    postSnapTrapPromptCount: audit.postSnapTrapPrompts.length,
     ownerObservationCapturedCount: audit.promptRecords.filter(record =>
       record.ownerObservationAtPromptCreation !== null
     ).length,
