@@ -43,8 +43,6 @@ function chooseOwnerFloatStoneMobility(view,catalog){
   const own=view.ownPublic;
   const active=own?.active;
   const r=view.ownTurnResources;
-  if(require('./agent47-active-position-retreat-veto.cjs')
-    .hasActivePositionAbilityToPreserve(view))return null;
   if(!active||!Array.isArray(own.bench)||!r||view.globalTurn===1)return null;
   if(!Number.isSafeInteger(r.retreatedTurn)||
      r.retreatedTurn===view.globalTurn)return null;
@@ -62,9 +60,11 @@ function chooseOwnerFloatStoneMobility(view,catalog){
     Array.isArray(attack.cost)&&attack.cost.length===0&&
     Number.isSafeInteger(attack.damage)&&attack.damage>0))return null;
 
-  const bench=own.bench.map((p,i)=>({p,i})).filter(({p})=>
+  const bench=own.bench.map((p,i)=>({p,i})).filter(({p,i})=>
     p&&Array.isArray(p.energies)&&p.energies.length>0&&
-    p.publicRestrictions?.cannotAttackNextTurn!==true);
+    p.publicRestrictions?.cannotAttackNextTurn!==true&&
+    !require('./agent47-active-position-retreat-veto.cjs')
+      .wouldLoseActivePositionAbility(view,i));
   if(bench.length===0)return null;
   bench.sort((a,b)=>b.p.energies.length-a.p.energies.length||a.i-b.i);
   const {p,i:benchIndex}=bench[0];
