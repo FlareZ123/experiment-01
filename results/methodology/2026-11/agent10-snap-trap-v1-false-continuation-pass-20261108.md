@@ -67,3 +67,18 @@ Static review of `simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.c
 Run 42436663086 had four shared-test failures. Agent36 corrected the two new synthetic prompt-join expectations and added `id: compile` in commit `298be4937403cd755f84cfabae0a797ef7956299`. The two remaining failures were in `tests/agent16-issue25-canonical-vip-v11.native.test.cjs:101` (expected eight attempts, got one) and `tests/agent36-v8-owner-ability-policy.native.test.cjs:191` (expected true, got false). Run 42436917676's vertical-slice step ran after successful native compile despite the shared verification step failing, and uploaded the artifact above.
 
 This is a native development diagnostic only. No competitive game qualified, no paper legality certification was produced, and no deck or matchup strength inference follows.
+
+## Four-arm summary and mirrored-seat limitation
+
+The published `actualAttemptRows` summary contains all four registered arms:
+
+| Trial | Registered source seat | Registered candidate seat | Native outcome | Root ledger length in summary | Marker prompts |
+|---|---:|---:|---|---:|---:|
+| `3:312:B:champion-reference` | 0 | 1 | engine-error | null | 2 |
+| `3:312:A:champion-reference` | 1 | 0 | engine-error | 32 | 0 |
+| `3:213:A:champion-reference` | 1 | 0 | engine-error | 99 | 0 |
+| `3:213:B:champion-reference` | 0 | 1 | engine-error | null | 0 |
+
+Only `3:312:B` produced marker prompts and owner choices. The registered mirror `3:312:A` (same seed, opposite seat) reached a 32-entry root ledger but produced no marker; `3:213:A` reached a 99-entry root ledger and produced no marker; `3:213:B` has no root ledger length in the summary. All four ended `engine-error`. The summary does not expose their native abort stages, pending prompt IDs, or error stacks, so it cannot establish why the mirrored arms did not reach Snap Trap.
+
+For the known prompt arm, the summary's `rootActionLedgerLength` is null even though callback evidence records ordinals 257-259. The complete `rootActionEvents` and raw `nativeAbortEvidence` are in the uploaded JSON artifact, not in the compact job-log summary. Agent36 has been asked to surface those raw fields for independent inspection. Do not infer the exact engine abort stage, later root actions, or cause of the mirrored-arm failures from this summary.
