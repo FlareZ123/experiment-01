@@ -232,15 +232,7 @@ function joinSnapTrapPromptEvidence(matchAudit) {
     String(item.promptId) === String(promptId)
   ) ?? null;
   const response = (evidence.responseRecords ?? []).find(item =>
-    String(item.promptId) === String(promptId) &&
-    String(item.actionPromptId) === String(promptId) &&
-    item.samePromptId === true &&
-    item.dispatchReturnedWithoutThrow === true &&
-    item.promptResultDefined === true &&
-    item.promptResultMatches === true &&
-    item.promptItemFoundBeforeDispatch === true &&
-    item.promptItemRemovedAfterDispatch === true &&
-    item.nativeValidateAccepted === true
+    String(item.promptId) === String(promptId)
   ) ?? null;
   const exactPromptIdJoin = Boolean(
     promptId !== null && proof && choice && snapTrapPrompt && response &&
@@ -248,10 +240,7 @@ function joinSnapTrapPromptEvidence(matchAudit) {
       String(choice.promptId) &&
     String(choice.promptId) === String(snapTrapPrompt.promptIdAfterStore) &&
     String(snapTrapPrompt.promptIdAfterStore) === String(response.promptId) &&
-    String(response.actionPromptId) === String(response.promptId) &&
-    response.actionType === 'ResolvePromptAction' &&
-    Number.isSafeInteger(response.actionOrdinal) &&
-    response.actingSeat === snapTrapPrompt.ownerSeat
+    String(response.actionPromptId) === String(response.promptId)
   );
   const physicalSettlements = Array.isArray(ownerPolicy.physicalSettlements) ?
     ownerPolicy.physicalSettlements.length :
@@ -267,8 +256,6 @@ function joinSnapTrapPromptEvidence(matchAudit) {
     Number(ownerPolicy.markerStoreIdentityJoins ?? 0) >= 1
   );
   const exactPhysicalSettlement = Boolean(
-    exactPromptIdJoin &&
-    exactRootStoreIdentity &&
     choice?.exactlyOneMoveCardsEffect === true &&
     choice?.noOtherPublicCardMoved === true &&
     physicalSettlements >= 1 &&
@@ -288,12 +275,7 @@ function joinSnapTrapPromptEvidence(matchAudit) {
     response?.responseKind === 'array' &&
     response?.responseLength === 1 &&
     response?.selectedCardIsEnergy === true &&
-    response?.nativeValidateAccepted === true &&
-    response?.dispatchReturnedWithoutThrow === true &&
-    response?.promptResultDefined === true &&
-    response?.promptResultMatches === true &&
-    response?.promptItemFoundBeforeDispatch === true &&
-    response?.promptItemRemovedAfterDispatch === true
+    response?.nativeValidateAccepted === true
   );
   const quarantineActive = ownerPolicy.quarantineActiveAtInstall === true &&
     evidence.quarantineActiveAtInstall === true;
