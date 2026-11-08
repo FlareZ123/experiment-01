@@ -13,7 +13,7 @@ const VERSION='agent4-thorns-public-field-neutral-v3';
  * provide the paper provenance of the initial closed families.
  * Additional paper identities are ROS 89, BKT 145, PAL 171, PGO 68,
  * EVS 157, MEG 127, LOT 191, TEU 158, SCR 136 and UNM 211; these effects affect Bench capacity,
- * attack damage/cost, Energy-search or evolution search, voluntary Tool
+ * attack damage/cost, voluntary search, voluntary Tool
  * return, or damage placement on newly Benched Basic Pokémon, none of
  * which disables an already in-play
  * Shadow Rider VMAX's Underworld Door or Iron Thorns ex's Initialization. The supplied paper
