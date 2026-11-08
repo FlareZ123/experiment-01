@@ -1,0 +1,61 @@
+{
+  "schema": "agent7-quick-ball-dead-vip-after-pass-two-source-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "registeredFrameName": "agent7-quick-ball-v8-original-rank5-rank9-two-seats-20261108",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateOriginalRank": 1,
+  "candidateId": "champion-reference",
+  "sourceRanks": [
+    5,
+    9
+  ],
+  "nativeRootActionsPerArm": 220,
+  "sourceSeeds": [
+    {
+      "rank": 5,
+      "seed": 4096633965
+    },
+    {
+      "rank": 9,
+      "seed": 1020893691
+    }
+  ],
+  "trials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 4096633965,
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4096633965,
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1020893691,
+      "id": "9:0:A:champion-reference"
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1020893691,
+      "id": "9:0:B:champion-reference"
+    }
+  ],
+  "control": "selected developmental v8 common policy plus owner Ability confirmations and paper Quick Ball mandatory payment guard",
+  "treatment": "same native code with conservative after-Pass Quick Ball, only if physically held late dead VIP pays one discard and own deck Basic search can settle",
+  "outcomesScope": "Native action/payment/search; no competitive-game qualification or paper legality certification",
+  "seedsGeneratedBeforeExecution": "Python secrets.randbits(32) independent per source, no native result used to select seeds"
+}
