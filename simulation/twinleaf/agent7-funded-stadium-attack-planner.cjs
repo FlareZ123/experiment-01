@@ -1,8 +1,9 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { printedEnergyPayability } = require('./actor-energy-payability.cjs');
-const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v2';
+const { printedEnergyPayability, energyUnits } =
+  require('./actor-energy-payability.cjs');
+const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v3';
 const MIN_DAMAGE = 80;
 
 /**
@@ -70,29 +71,62 @@ function publicEnergyContext(view, pokemon, types, basicStage) {
     isBasic: stage === basicStage,
     isEvolution: stage !== basicStage,
     isDragon: pokemon.printed.types.includes(types.DRAGON),
-    hasRuleBox: /(?: ex| V|GX|EX|VMAX|VSTAR)/i.test(name),
+    hasRuleBox: /(?:^|[\s-])(?:ex|GX|EX|V|VMAX|VSTAR|V-UNION)(?=$|[\s-])/i.test(name) ||
+      /^Radiant\s/i.test(name),
     behindOnPrizes:
       view.ownPublic.prizeCount > view.opponentPublic.prizeCount,
     isPokemonGXorEX:
-      /(?:GX|EX| ex)(?:$|\s)/i.test(name)
+      /(?:^|[\s-])(?:GX|EX|ex)(?=$|[\s-])/i.test(name)
   };
 }
 
 /**
- * Estimate an attack's public base damage without resolving its effect.
- * Energy Drive is the only dynamic formula modeled here.
- *
+ * Count modeled Energy units rather than attached physical cards. Unknown
+ * printing or unavailable context gives no positive damage estimate.
+ * @param {object} pokemon Public Active Pokémon observation.
+ * @param {object} context Public owner-specific Energy context.
+ * @returns {number|null}
+ */
+function attachedEnergyUnits(pokemon, context) {
+  if (!Array.isArray(pokemon?.energies) || !context) return null;
+  let count = 0;
+  for (const printing of pokemon.energies) {
+    if (typeof printing !== 'string') return null;
+    const units = energyUnits(printing, context);
+    if (units === null) return null;
+    count += units.length;
+  }
+  return count;
+}
+
+/**
+ * Estimate public base damage without resolving full game effects.
+ * Energy Drive counts supplied Energy units, including multi-unit Special
+ * Energy, conditional on the public state of each Active Pokémon.
  * @param {object} attack Printed attack observation.
  * @param {object} ownActive Owner Active observation.
  * @param {object|null|undefined} opponentActive Opponent Active observation.
- * @returns {number|null} Known base damage or null when unresolved.
+ * @param {object} view Detached acting-owner observation.
+ * @param {object} refs Pinned CardType and Stage enums.
+ * @returns {number|null} Modeled damage or null when unresolved.
  */
-function estimatedAttackDamage(attack, ownActive, opponentActive) {
+function estimatedAttackDamage(attack, ownActive, opponentActive, view, refs) {
   if (attack.name === 'Energy Drive') {
-    if (!Array.isArray(ownActive.energies) ||
-        !Array.isArray(opponentActive?.energies)) return null;
-    return 20 * (ownActive.energies.length +
-      opponentActive.energies.length);
+    if (!Array.isArray(ownActive?.energies) ||
+        !Array.isArray(opponentActive?.energies) ||
+        !Array.isArray(ownActive?.printed?.types) ||
+        !Array.isArray(opponentActive?.printed?.types) ||
+        !view?.ownPublic || !view?.opponentPublic ||
+        !refs?.cardTypes || refs.stageBasic === undefined) return null;
+    const ownContext = publicEnergyContext(
+      view, ownActive, refs.cardTypes, refs.stageBasic);
+    const opponentContext = publicEnergyContext(
+      {ownPublic: view.opponentPublic, opponentPublic: view.ownPublic},
+      opponentActive, refs.cardTypes, refs.stageBasic);
+    const ownCount = attachedEnergyUnits(ownActive, ownContext);
+    const opponentCount = attachedEnergyUnits(opponentActive, opponentContext);
+    if (ownCount === null || opponentCount === null) return null;
+    return 20 * (ownCount + opponentCount);
   }
   return Number.isSafeInteger(attack.damage) ? attack.damage : null;
 }
@@ -147,7 +181,7 @@ function chooseFundedStadiumAttack(view, refs) {
   const availableAttackOptions = [];
   for (const attack of active.attacks ?? []) {
     const damage = estimatedAttackDamage(
-      attack,active,view.opponentPublic.active);
+      attack,active,view.opponentPublic.active,view,refs);
     if (attack.gxAttack === true ||
         !Number.isSafeInteger(damage) ||
         damage < MIN_DAMAGE ||
@@ -198,7 +232,7 @@ function chooseFundedStadiumAttack(view, refs) {
         originalStadiumName:beforeName,
         attackName:option.attack.name,baseDamage:option.damage,
         damageModel:option.attack.name==='Energy Drive'?
-          'energy-drive-20x-both-actives':'printed-static',
+          'energy-drive-20x-energy-units-both-actives':'printed-static',
         nominalTargetRemainingHP:Number.isFinite(nominalRemaining)?
           nominalRemaining:null,
         printedPotentialKnockout:Number.isFinite(nominalRemaining) &&
@@ -209,7 +243,7 @@ function chooseFundedStadiumAttack(view, refs) {
         availableModeledEnergyUnits:nextPayment.modeledUnits,
         eligibility:'owner-paper-printed-cost-improvement-native-store-final',
         modelLimits:'Known Stadium cost modifiers only; Energy Drive damage '
-          +'uses public attached-Energy counts; opponent attack-cost '
+          +'uses public modeled attached-Energy units; opponent attack-cost '
           +'entitlements, weakness, resistance, prevention and tactics unresolved'
       });
     }
@@ -222,5 +256,6 @@ function chooseFundedStadiumAttack(view, refs) {
 
 module.exports = {
   VERSION,MIN_DAMAGE,costUnderStadium,toEnergySymbols,
-  publicEnergyContext,estimatedAttackDamage,chooseFundedStadiumAttack
+  publicEnergyContext,attachedEnergyUnits,estimatedAttackDamage,
+  chooseFundedStadiumAttack
 };
