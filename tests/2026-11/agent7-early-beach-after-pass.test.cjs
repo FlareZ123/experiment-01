@@ -92,3 +92,17 @@ test('canonical actor root stays Pass unless experimental first-cycle policy is 
   assert.equal(chooseActorRootIntent(x,catalog,{earlyBeachAfterPass:true}).kind,
     'play-tropical-beach');
 });
+
+test('explicit Mail-first composition defers Beach only when native Item is publicly possible',()=>{
+  const x=opening();
+  x.ownTurnResources.itemPlayLocked=false;
+  assert.equal(chooseEarlyBeachAfterPass(x,{deferForMail:true}),null);
+  assert.equal(chooseEarlyBeachAfterPass(x)?.kind,'play-tropical-beach');
+  x.ownTurnResources.itemPlayLocked=true;
+  assert.equal(chooseEarlyBeachAfterPass(x,{deferForMail:true})?.kind,
+    'play-tropical-beach');
+  x.ownTurnResources.itemPlayLocked=false;
+  x.ownHand=x.ownHand.filter(p=>!p.startsWith("Trainers' Mail ROS"));
+  assert.equal(chooseEarlyBeachAfterPass(x,{deferForMail:true})?.kind,
+    'play-tropical-beach');
+});
