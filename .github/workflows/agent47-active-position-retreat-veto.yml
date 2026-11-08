@@ -30,6 +30,9 @@ jobs:
           tests/agent1-owner-float-stone-mobility.test.cjs
           tests/agent31-zero-energy-strand-floatstone.test.cjs
           tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs
+          tests/2026-11/agent47-guzma-active-lock-mobility.test.cjs
+          tests/agent2-held-guzma-mobility-frontier.test.cjs
+          tests/agent2-owner-guzma-mobility-frontier.test.cjs
 
   native-handoff:
     if: ${{ inputs.native_handoff }}
