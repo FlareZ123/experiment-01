@@ -1,0 +1,38 @@
+name: Agent43 pinned Snap Trap unresolved owner-root diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent43-snaptrap-owner-root-\${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-owner-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Check pinned native submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install and compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Validate diagnostic entry point syntax
+        run: node --check simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
+      - name: Execute four registered native matches with two exact owner-root reports
+        run: node simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
+      - name: Preserve complete actor-visible diagnostic regardless of result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-snaptrap-owner-root-\${{ github.run_id }}
+          path: artifacts/agent43-v8-snaptrap-owner-root/
+          if-no-files-found: warn
+          retention-days: 14
