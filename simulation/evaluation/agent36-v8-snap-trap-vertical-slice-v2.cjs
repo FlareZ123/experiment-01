@@ -19,7 +19,7 @@ const V2_RUNNER_PATH =
 const SOURCE_V8_REGISTRATION_PATH =
   'results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json';
 const SOURCE_V10B_REGISTRATION_PATH =
-  'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-20261107.json';
+  'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json';
 const ROOT_LIMIT = 260;
 const KNOWN_PROMPT_TRIAL_ID = '3:312:B:champion-reference';
 const REGISTRATION = JSON.parse(fs.readFileSync(
@@ -45,6 +45,8 @@ function assertRegistrationProvenance() {
   assert.deepEqual(REGISTRATION.contendingPrintedSixties, [
     'champion-reference'
   ]);
+  assert.equal(REGISTRATION.predecessor.registrationPath, V1_REGISTRATION_PATH);
+  assert.equal(REGISTRATION.predecessor.runnerPath, V1_RUNNER_PATH);
   assert.equal(
     gitBlobSha(V1_REGISTRATION_PATH),
     REGISTRATION.predecessor.registrationGitBlobSha
