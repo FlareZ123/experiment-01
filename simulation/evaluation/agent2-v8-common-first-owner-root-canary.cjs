@@ -178,7 +178,7 @@ function runOne(candidateSeat,cards){
     first?.ownerView?.decisionKind==='owner-root'&&
     typeof first.ownerVisibleSha256==='string'&&
     actor?.attemptedUnsupportedPasses===1&&
-    actor?.originalNativeDecoderExecuted===false&&
+    actor?.firstUnsupportedOwnerRootCaptured===true&&
     selected.diagnostic.rawDecoderExecuted===false&&
     selected.diagnostic.fallbackCalls===1&&
     selected.diagnostic.thrownCode===CODE&&
@@ -305,7 +305,7 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
       /^[a-f0-9]{64}$/.test(ownerRoot?.ownerVisibleSha256??'')&&
       ownerRoot?.hiddenSourceIdentitiesIncluded===false&&
       actor?.attemptedUnsupportedPasses===1&&
-      actor?.originalNativeDecoderExecuted===false&&
+      actor?.firstUnsupportedOwnerRootCaptured===true&&
       selectedV0?.rawDecoderExecuted===false&&
       selectedV0?.fallbackCalls===1&&
       selectedV0?.thrownCode===CODE&&

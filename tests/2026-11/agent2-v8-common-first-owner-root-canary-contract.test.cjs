@@ -35,7 +35,7 @@ function validRow(candidateSeat){
     nativeAbortEvidence:{actionOrdinal:17,rootActionCount:17},
     actorAbortCounters:{
       attemptedUnsupportedPasses:1,
-      originalNativeDecoderExecuted:false
+      firstUnsupportedOwnerRootCaptured:true
     },
     selectedV0:{
       rawDecoderExecuted:false,
@@ -75,7 +75,7 @@ test('rejects a manifest for the wrong source rank',()=>{
 
 test('rejects a non-quarantined owner root',()=>{
   const row=validRow(0);
-  row.actorAbortCounters.originalNativeDecoderExecuted=true;
+  row.selectedV0.rawDecoderExecuted=true;
   assert.equal(hasReleaseQualifiedFirstOwnerRoot([
     row,validRow(1)
   ]),false);
