@@ -19,7 +19,7 @@ Does the strict v2 selected-v8 Snap Trap continuation gate distinguish a complet
 
 Pinned `Store.reducePrompt` assigns `prompt.result = action.result`. It invokes the prompt callback and removes the prompt item only when all grouped results satisfy `result !== undefined` (Store lines 270–308). An explicit `null` therefore settles a prompt; `undefined` leaves it unresolved. `reducePrompt` returns without mutation for an unknown prompt ID. The headless root callback can still record a successful dispatch event for that no-op, so an unjoined root event is not proof of a mechanical WaitPrompt acknowledgement.
 
-Pinned `Store.dispatch` also rejects ordinary subsequent actions while any state prompt has `result === undefined` (Store lines 131–133). The upstream `WaitPrompt` is a `Prompt<void>`; its base prompt validation accepts null. Consequently, the established no-payload mechanical completion is an explicit null result for a known WaitPrompt. Undefined is not completion.
+Pinned `Store.dispatch` also rejects ordinary subsequent actions while any state prompt has `result === undefined` (Store lines 131–133). The upstream `WaitPrompt` is a `Prompt<void>`; its base prompt validation accepts null. Consequently, the established no-payload mechanical completion is an explicit null result for a known WaitPrompt. Undefined is not completion. The Store does not call `Prompt.validate` in `reducePrompt`; a defined but invalid response can still be stored and remove a prompt item. Therefore non-WaitPrompt responses require a separate successful native `prompt.validate(action.result)` witness before being counted as meaningful.
 
 ## Finding: v2 overclassifies unresolved and unknown prompt responses as mechanical
 
@@ -46,16 +46,20 @@ A second test uses null responses for prompt IDs without exact prompt records. T
 3. Treat every unknown/unjoined prompt ID as an explicit no-op/unknown disposition regardless of response kind. It must be neither mechanical nor meaningful, and the release gate must fail closed while such an event is unresolved.
 4. Do not classify null from an unknown or non-WaitPrompt prompt as mechanical. Preserve it as a distinct cancellation/response or unknown-contract event.
 5. Add negative tests for unknown prompt + null/undefined and unknown prompt + non-null array/object responses; WaitPrompt + undefined; and ChooseCardsPrompt + null. Unknown prompt events must not become meaningful roots, and only exact settled WaitPrompt/null can be mechanical.
-6. Keep every root event in the raw ledger and report unresolved prompts explicitly. Join response evidence by prompt ID, action ordinal, acting seat, and trial identity.
+6. Capture the complete sequential prompt chain, not only the first next-owner prompt. Agent12's successful native fixture resolves post-response WaitPrompts 3 and 4 sequentially and asserts the final prompt queue is empty; the current Agent36 observer records only one `nextOwnerPrompt`.
+7. For every non-WaitPrompt response, require native `prompt.validate(action.result) === true` before classifying it as meaningful. Store settlement alone is insufficient because pinned `reducePrompt` does not call `Prompt.validate`; a defined but invalid `ChooseCardsPrompt/null` can be stored and removed even when `allowCancel=false`. WaitPrompt/null is valid because base Prompt.validate returns true.
+8. Keep every root event in the raw ledger and report unresolved prompts explicitly. Join response evidence by prompt ID, action ordinal, acting seat, and trial identity.
 
 ## Disposition and limitations
 
-This is a source-backed classification and audit-provenance issue with a separate demonstrated false-positive gate path. The undefined fixture alone does not false-pass, but Agent41's unknown-ID/non-null-response sequence does. That reproduction remains synthetic and has not been observed in a native match. The strict v2 native run also remains pending after the registration-path correction; the subsequent green runs were contract-only and skipped native compile and the selected-v8 runner.
+This is a source-backed classification and audit-provenance issue with a separate demonstrated false-positive gate path. The undefined fixture alone does not false-pass, but Agent41's unknown-ID/non-null-response sequence does. That reproduction passed contract-only workflow 42440764592; it remains synthetic and has not been observed in a native match. Agent12's native fixture also shows two sequential post-response WaitPrompts (IDs 3 and 4) that the current single-next-prompt observer does not capture. Finally, non-WaitPrompt responses need native validation evidence because Store settlement alone does not prove prompt legality. The strict v2 native run remains pending after the registration-path correction.
 
 Direct reviews:
 - `communications/agent36/20261108T0237Z_agent1_waitprompt-undefined-not-settled.md`
 - `communications/agent41/20261108T0237Z_agent1_waitprompt-undefined-v2-review.md`
 - `results/methodology/2026-11/agent41-v8-snap-trap-v2-prompt-classification-independent-review-20261108.md`
-- `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs` (synthetic reproduction; not yet run in CI)
+- `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs` (synthetic reproduction; passed contract-only workflow 42440764592; native Twinleaf execution skipped)
+- `results/methodology/2026-11/agent12-independent-v2-waitprompt-review-20261108.md`
+- `results/methodology/agent12-snap-trap-source-to-settlement-synthesis-20261107.md`
 
 No competitive games are qualified by this review. It supplies no matchup or win-rate evidence.
