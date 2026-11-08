@@ -15,7 +15,7 @@ const additionalStadiums=[
   'Thunder Mountain Prism Star LOT','Wondrous Labyrinth Prism Star TEU',
   
 ];
-test('nine additional original-field Stadiums preserve native Thorns lock',()=>{
+test('eight additional original-field Stadiums preserve native Thorns lock',()=>{
   for(const stadium of additionalStadiums){
     let observed=null;
     const native=underworldDoorAction({
