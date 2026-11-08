@@ -83,7 +83,8 @@ function safeRootPrefix(native,initial=false){
 }
 
 function runOne(candidateSeat,cards,{
-  mysteriousTreasureRoot=false,treasurePaymentChoice='crispin'
+  mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
+  ownerMailFollowupFrame=false
 }={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   const slot=candidateSeat===0?'A':'B';
@@ -117,11 +118,13 @@ function runOne(candidateSeat,cards,{
     sourceIndependentCommonPolicy:true,
     bilateralSpecialEnergyRoot:true,
     nativeAcceptedTargets:true,
-    nativeOwnerTrainerFallback:true,
-    ownerFallbackDiagnosticView:true,
-    firstBlockedPromptContractObserver:true,
+    // Defaults preserve Agent2's original first-Pass quarantine gate.
+    // Only the named native follow-up treatment removes that diagnostic abort.
+    nativeOwnerTrainerFallback:!ownerMailFollowupFrame,
+    ownerFallbackDiagnosticView:!ownerMailFollowupFrame,
+    firstBlockedPromptContractObserver:!ownerMailFollowupFrame,
     actorOnlySingleSearch:false,
-    actorGenericFallbackAttribution:true,
+    actorGenericFallbackAttribution:!ownerMailFollowupFrame,
     mysteriousTreasureRoot,
     mysteriousTreasureMuscleBandPayment:
       mysteriousTreasureRoot&&treasurePaymentChoice==='muscle-band',
@@ -343,15 +346,18 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
   });
 }
 
-function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin'}={}){
+function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
+  ownerMailFollowupFrame=false}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
   const resolvedSourceAndPolicyHashes=HASH_PATHS.map(hashRegisteredFile);
   const cards=originalPrintings();
   const rows=[
-    runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice}),
-    runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice})
+    runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
+      ownerMailFollowupFrame}),
+    runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
+      ownerMailFollowupFrame})
   ];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
@@ -407,10 +413,11 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin'}={}){
     ],
     diagnosticOnlyFlags:{
       mysteriousTreasureRoot,
+      ownerMailFollowupFrame,
       treasurePaymentChoice:mysteriousTreasureRoot?treasurePaymentChoice:null,
-      nativeOwnerTrainerFallback:true,
-      ownerFallbackDiagnosticView:true,
-      actorGenericFallbackAttribution:true,
+      nativeOwnerTrainerFallback:!ownerMailFollowupFrame,
+      ownerFallbackDiagnosticView:!ownerMailFollowupFrame,
+      actorGenericFallbackAttribution:!ownerMailFollowupFrame,
       quarantineAbortsBeforeOriginalNativeDecoder:true
     },
     rows,
