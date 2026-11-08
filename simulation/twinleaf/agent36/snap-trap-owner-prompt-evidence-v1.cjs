@@ -338,11 +338,18 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
         String(prompt.id) === String(action.id)
       ) ?? null : null;
     const record = pending ? promptMetaByObject.get(pending) ?? null : null;
+    const promptItem = pending ?
+      this.promptItems?.find(item => item.ids?.includes(pending.id)) ?? null : null;
     let response = null;
     let privateContext = null;
 
     if (pending && record) {
       response = responseShape(action, pending, record, state, this);
+      response.promptItemFoundBeforeDispatch = Boolean(promptItem);
+      response.promptItemIdsBeforeDispatch = promptItem ?
+        [...promptItem.ids] : [];
+      response.promptResultDefined = false;
+      response.promptItemRemovedAfterDispatch = false;
       record.response = response;
       responseByAction.set(action, response);
       audit.responseRecords.push(response);
@@ -356,7 +363,11 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
       const result = dispatchDescriptor.value.apply(this, [action, ...args]);
       if (response) {
         response.dispatchReturnedWithoutThrow = true;
+        response.promptResultDefined = pending.result !== undefined;
         response.promptResultMatches = pending.result === action.result;
+        response.promptItemRemovedAfterDispatch = Boolean(
+          promptItem && !this.promptItems.includes(promptItem)
+        );
         if (record.kind === 'snap-trap') {
           const selected = Array.isArray(action.result) &&
             action.result.length === 1 ? action.result[0] : null;
@@ -398,6 +409,11 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     } catch (error) {
       if (response) {
         response.dispatchReturnedWithoutThrow = false;
+        response.promptResultDefined = pending.result !== undefined;
+        response.promptResultMatches = pending.result === action.result;
+        response.promptItemRemovedAfterDispatch = Boolean(
+          promptItem && !this.promptItems.includes(promptItem)
+        );
         response.dispatchError = error?.message ?? String(error);
       }
       throw error;
