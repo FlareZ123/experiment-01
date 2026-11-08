@@ -114,7 +114,18 @@ for (const seat of [0, 1]) {
     assert.equal(cost.cost.length, 0,
       'One printed Float Stone eliminates the three-Energy Retreat Cost');
     const opponent = x.f.defender;
+    const {ResolvePromptAction} =
+      native('game/store/actions/resolve-prompt-action');
     store.dispatch(new PassTurnAction(opponent.id));
+    for (let n = 0; n < 24; n++) {
+      const prompt = store.state.prompts.find(p => p.result === undefined);
+      if (!prompt) break;
+      assert.equal(prompt.constructor.name, 'WaitPrompt',
+        'Ordinary opponent Pass must have only native turn-closure waits');
+      store.dispatch(new ResolvePromptAction(prompt.id, null));
+    }
+    assert.equal(store.hasPrompts(), false,
+      'All actual end-turn waits must settle before next actor acts');
     assert.equal(store.state.activePlayer, seat,
       'Actual opponent Pass grants original Sentinel its own turn');
     const rescueIndex = x.owner.bench.findIndex(slot =>
