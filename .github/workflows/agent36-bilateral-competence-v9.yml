@@ -88,6 +88,7 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
 
       - name: Install and compile the pinned native server
+        id: compile
         if: ${{ !inputs.contract_only }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |

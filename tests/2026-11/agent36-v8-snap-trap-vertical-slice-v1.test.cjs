@@ -149,7 +149,7 @@ test('joins source marker, Store prompt, owner choice and root response by promp
   assert.equal(joined.quarantineActive, true);
   assert.equal(joined.ownerObservationCaptured, true);
   assert.equal(joined.responseShapeAccepted, true);
-  assert.equal(joined.exactPhysicalSettlement, false);
+  assert.equal(joined.exactPhysicalSettlement, true);
   assert.equal(joined.selectedEnergyPrinting, 'Psychic Energy');
   assert.equal(joined.rootActionOrdinal, 250);
   assert.equal(joined.nextOwnerPromptCapturedIfCreated, true);
@@ -160,7 +160,7 @@ test('rejects a mismatched prompt id even when all individual layers report succ
   audit.ownerPolicy.choices[0].promptId = 174;
   const joined = joinSnapTrapPromptEvidence(audit);
   assert.equal(joined.exactPromptIdJoin, false);
-  assert.equal(joined.exactPhysicalSettlement, true);
+  assert.equal(joined.exactPhysicalSettlement, false);
 });
 
 test('retains the first opponent root and subsequent meaningful source root', () => {
