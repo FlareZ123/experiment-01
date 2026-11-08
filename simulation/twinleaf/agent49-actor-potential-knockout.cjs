@@ -33,7 +33,9 @@ function typeAdjustedFixedDamage(damage, attacker, defender) {
   if (weakness.length > 1 || resistance.length > 1) return null;
   let result = damage;
   if (weakness.length === 1) {
-    const multiplier = weakness[0].value;
+    // The pinned Weakness type omits value for the ordinary ×2 rule.
+    // The detached actor observation normalizes that undefined to null.
+    const multiplier = weakness[0].value ?? 2;
     if (multiplier !== 1 && multiplier !== 2) return null;
     result *= multiplier;
   }
