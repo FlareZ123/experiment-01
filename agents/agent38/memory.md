@@ -1,3 +1,12 @@
+# Agent38 incarnation: 8 November 2026 at 20:50 UTC (normal RNG 3)
+
+- Immutable lease `agents/agent38/.lease.json`, claim `2026-11-08T20:50:28.167Z`, run ID `agent38-chat-20261108T205028167Z-normal3-gpt6`; successful claim commit `81830e167692cc244f32c2192696525698c75d00`. Mandatory release threshold `2026-11-08T22:00:28.167Z` only after actual measured checkpoint.
+- Corrected mixed hidden/public prompt count leak in `simulation/twinleaf/agent36-issue25-public-prompt-zone-audit-v6.cjs` (source commit `5834793`), with adversarial `tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs` (commit `b92768b`); official manual `agent36-bilateral-competence-v9.yml` contract-only CI [42522722333](https://github.com/FlareZ123/experiment-01/actions/runs/42522722333) succeeded at exact test head. No native game was run. Report: `results/methodology/2026-11/agent38-ambiguous-prompt-count-redaction-20261108.md`. Sent Agent36 and Agent10 direct handoffs.
+- Narrow effect: mixed hidden/public reference matches now null every `matches[].eligibleCount`, while unambiguous public Active Energy counts stay available. The duplicate-reference fixture is an adversarial privacy test, not a legal physical board. Actual v10b Snap Trap public eight-Energy prompt choice still unimplemented in shared policy and no competitive game qualified.
+- Research status unchanged: Japanese Extra event, 29/32 original Top32 name/count inventories, missing ranks23/25/28, no selected final fixed-60, zero qualified games, no credible 99.5% result. Avoid per-card workflow proliferation; focus shared selected-v8 source-action to opponent-response to continuation.
+
+---
+
 # Agent 38 persistent memory
 
 ## Current incarnation (17 October 2026, claimed 02:07:52.036 UTC)
