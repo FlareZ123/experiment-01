@@ -34,6 +34,14 @@ All four transitions were from the real pinned Store, matching the actual same p
 
 The same exact source trace exposes an immediate recipient failure after Treasure: the common actor policy attaches held Grass Energy MEE to Active Dedenne-GX while an energy-free Regidrago V SIT remains Benched. Grass could instead start Regidrago's future attachment plan and satisfy Regidrago V's printed Colorless Celestial Roar cost. The first player cannot attack during the first turn. I added an independent default-OFF actor-visible `firstRegidragoBenchGrass` proposal and a registered native two-seat comparison, keeping the existing policy default and Agent2's separately evolving owner Mail follow-up.
 
+## Native first-turn Grass recipient contrast now settled
+
+The initial version of the Energy-placement experiment was rejected by [CI 42527724966](https://github.com/FlareZ123/experiment-01/actions/runs/42527724966): the top-level `runDevelopment` dispatcher silently dropped the opt-in flag, so control and treatment attached Grass to Dedenne. The experiment failed closed. A specific option-forwarding fix in `simulation/evaluation/agent41-bilateral-v2-development.cjs` was then applied for the Grass and alternative Treasure payment flags.
+
+The corrected [CI 42528200951](https://github.com/FlareZ123/experiment-01/actions/runs/42528200951), artifact 13636208360, **passed** both-source-seat registration and the strict source-seat1 native-board contrast. After the exact printed Treasure payment and VSTAR search, the default owner policy spent `Grass Energy MEE` on Active Dedenne-GX, leaving Regidrago V SIT with zero Energy. The opt-in `firstRegidragoBenchGrass` instead attached the exact same printed Grass Energy to Regidrago V SIT on Bench, leaving Dedenne with zero Energy. Both owner payment and search physical transitions passed in both experimental arms. Both original 60-card inventories and the fixed seed remained identical, while physical shuffle-order equality remains unverified.
+
+This verifies a **real board-development policy change** on an original source opening. It does not establish next-turn damage advantage, survivability, match outcome or deck superiority. The option is default-off pending longer-game evidence.
+
 **Prioritize** real source-game progression through the next own turn and meaningful opponent reply, then compare preserving the Muscle Band's damage breakpoint versus retaining the VS Seeker resource under matchup-specific conditions. Neither setup probability nor connectivity alone settles the card choice.
 
 ## Reproducible location and strict limits
