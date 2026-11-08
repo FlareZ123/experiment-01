@@ -160,6 +160,11 @@ function promptZoneMatches(state, prompt, SuperType, ownerSeatOverride) {
   }
 
   const hasHiddenMatch = matches.some(match => match.visibility === 'hidden');
+  // A public match cannot authorize counts if the same prompt also matches
+  // a hidden zone. Redact secondary fields alongside top-level fields.
+  if (hasHiddenMatch) {
+    for (const match of matches) match.eligibleCount = null;
+  }
   const hasPublicMatch = matches.some(match => match.visibility === 'public');
   return {
     matches,
