@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_mail_cross_archetype:
+        description: 'Run frozen A/B rank9 and rank26 owner Mail native generalization'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -43,7 +48,7 @@ jobs:
       - name: Verify selected-v8 canary release-gate contract
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
-        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo }}
+        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_cross_archetype }}
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
       - name: Check first-cycle Beach pure tests and native treatment syntax
         if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo }}
@@ -59,6 +64,12 @@ jobs:
         run: |
           node --check simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
           node simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
+      - name: Test native cross-archetype Mail frame and capture original owner actions
+        if: ${{ inputs.agent7_mail_cross_archetype }}
+        run: |
+          node --test tests/2026-11/agent7-mail-two-source-registration.test.cjs
+          node --check simulation/evaluation/agent7-v8-mail-two-source-coverage.cjs
+          node simulation/evaluation/agent7-v8-mail-two-source-coverage.cjs
       - name: Print compact selected-v8 canary receipt
         if: always()
         run: >-
@@ -72,4 +83,5 @@ jobs:
             agent2-v8-common-first-owner-root.json
             artifacts/agent7-v8-rank3-early-beach/paired-native.json
             artifacts/agent7-v8-rank3-mail-beach/paired-native.json
+            artifacts/agent7-mail-broad-coverage/rank9-rank26-paired.json
           if-no-files-found: error
