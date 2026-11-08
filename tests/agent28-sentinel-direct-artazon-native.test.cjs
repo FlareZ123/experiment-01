@@ -285,6 +285,67 @@ function establishSentinelLock(x){
     jetPrompts,two,benched,PlayCardAction,PlayerType,SlotType};
 }
 
+/** Resolve an original rank1 own-hand Guzma plus both genuine Pokemon prompts. */
+function resolveRank1Guzma(x){
+  const seat=x.seat;
+  const opponent=x.f.defender;
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  // The original opponent's legal Supporter remains usable under Item lock:
+  // true native Guzma prompts promote Vileplume and own Benched Mimikyu.
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const {nativeSinglePokemonChoices}=
+    require('../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs');
+  const handGuzma=opponent.hand.cards.findIndex(c=>
+    c.fullName==='Guzma BUS');
+  assert.ok(handGuzma>=0);
+  console.log('AGENT28_PRE_GUZMA',JSON.stringify({
+    seat,turn:x.state.turn,phase:x.state.phase,activePlayer:x.state.activePlayer,
+    opponentSupporterTurn:opponent.supporterTurn,
+    opponentSupporterZone:opponent.supporter.cards.length,
+    sourceBench:x.owner.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean),
+    opponentBench:opponent.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean)
+  }));
+  x.f.store.dispatch(new PlayCardAction(opponent.id,handGuzma,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  console.log('AGENT28_POST_GUZMA',JSON.stringify({
+    seat,turn:x.state.turn,phase:x.state.phase,
+    opponentSupporterTurn:opponent.supporterTurn,
+    cardInHand:opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),
+    cardInSupporter:opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
+    cardInDiscard:opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'),
+    prompts:x.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
+  }));
+  let gust=x.state.prompts.find(p=>p.result===undefined);
+  assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
+  const target=nativeSinglePokemonChoices(x.state,gust).find(opt=>
+    opt.seat===seat&&opt.physical.getPokemonCard()?.fullName===
+      'Vileplume AOR');
+  assert.ok(target,'Guzma must offer Benched Vileplume');
+  assert.equal(gust.validate([target.physical],x.state),true);
+  x.f.store.dispatch(new ResolvePromptAction(gust.id,[target.physical]));
+  assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
+  gust=x.state.prompts.find(p=>p.result===undefined);
+  assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
+  const mimikyu=nativeSinglePokemonChoices(x.state,gust).find(opt=>
+    opt.seat===1-seat&&
+    opt.physical.getPokemonCard()?.fullName==='Mimikyu GRI');
+  assert.ok(mimikyu,'Guzma must offer own legal Benched Mimikyu');
+  assert.equal(gust.validate([mimikyu.physical],x.state),true);
+  x.f.store.dispatch(new ResolvePromptAction(gust.id,[mimikyu.physical]));
+  assert.equal(opponent.active.getPokemonCard()?.fullName,'Mimikyu GRI');
+  assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
+  assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS') ||
+    opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
+    'Guzma must leave hand and occupy its legal played zone');
+  assert.equal(x.f.store.hasPrompts(),false);
+  assert.equal(x.state.activePlayer,1-seat);
+
+  return {opponent};
+}
+
 for(const seat of [0,1]){
   test('Fan-prized Sentinel G&H Artazon directly benches Bunnelby, Jet to Active, double TM to Vileplume: seat '+seat,()=>{
     const x=stage(seat);
@@ -295,57 +356,7 @@ for(const seat of [0,1]){
     assert.strictEqual(x.f.store.state,x.state,
       'Opponent reply must use the current Store game state');
 
-    // The original opponent's legal Supporter remains usable under Item lock:
-    // true native Guzma prompts promote Vileplume and own Benched Mimikyu.
-    const {ResolvePromptAction}=
-      native('game/store/actions/resolve-prompt-action');
-    const {nativeSinglePokemonChoices}=
-      require('../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs');
-    const handGuzma=opponent.hand.cards.findIndex(c=>
-      c.fullName==='Guzma BUS');
-    assert.ok(handGuzma>=0);
-    console.log('AGENT28_PRE_GUZMA',JSON.stringify({
-      seat,turn:x.state.turn,phase:x.state.phase,activePlayer:x.state.activePlayer,
-      opponentSupporterTurn:opponent.supporterTurn,
-      opponentSupporterZone:opponent.supporter.cards.length,
-      sourceBench:x.owner.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean),
-      opponentBench:opponent.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean)
-    }));
-    x.f.store.dispatch(new PlayCardAction(opponent.id,handGuzma,{
-      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-    }));
-    console.log('AGENT28_POST_GUZMA',JSON.stringify({
-      seat,turn:x.state.turn,phase:x.state.phase,
-      opponentSupporterTurn:opponent.supporterTurn,
-      cardInHand:opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),
-      cardInSupporter:opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
-      cardInDiscard:opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'),
-      prompts:x.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
-    }));
-    let gust=x.state.prompts.find(p=>p.result===undefined);
-    assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
-    const target=nativeSinglePokemonChoices(x.state,gust).find(opt=>
-      opt.seat===seat&&opt.physical.getPokemonCard()?.fullName===
-        'Vileplume AOR');
-    assert.ok(target,'Guzma must offer Benched Vileplume');
-    assert.equal(gust.validate([target.physical],x.state),true);
-    x.f.store.dispatch(new ResolvePromptAction(gust.id,[target.physical]));
-    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
-    gust=x.state.prompts.find(p=>p.result===undefined);
-    assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
-    const mimikyu=nativeSinglePokemonChoices(x.state,gust).find(opt=>
-      opt.seat===1-seat&&
-      opt.physical.getPokemonCard()?.fullName==='Mimikyu GRI');
-    assert.ok(mimikyu,'Guzma must offer own legal Benched Mimikyu');
-    assert.equal(gust.validate([mimikyu.physical],x.state),true);
-    x.f.store.dispatch(new ResolvePromptAction(gust.id,[mimikyu.physical]));
-    assert.equal(opponent.active.getPokemonCard()?.fullName,'Mimikyu GRI');
-    assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
-    assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS') ||
-      opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
-      'Guzma must leave hand and occupy its legal played zone');
-    assert.equal(x.f.store.hasPrompts(),false);
-    assert.equal(x.state.activePlayer,1-seat);
+    resolveRank1Guzma(x);
 
     // An illegal native Item attempt rolls the Store back into a fresh State.
     // Run this negative control last, so earlier reply actions use live refs.
