@@ -143,6 +143,25 @@ test('one native turn boundary is valid when the exact attack prompt chain advan
   assert.equal(result.attacks[0].completionRootTurnMatchesDeclarationTurn,true);
 });
 
+test('the real attack can stay on turn 21 until a later descendant Prize prompt advances to 22',()=>{
+  const game=directAttackFixture();
+  const [attack,prompt,source,nextSource]=game.rootActionLedger;
+  game.rootActionLedger=[
+    {...attack,turnAfter:21},
+    {...prompt,actionOrdinal:1,turnBefore:21,turnAfter:21},
+    {...prompt,actionOrdinal:2,turnBefore:21,turnAfter:22},
+    {...prompt,actionOrdinal:3,turnBefore:22,turnAfter:22},
+    {...source,actionOrdinal:4,turnAfter:22},
+    {...nextSource,actionOrdinal:5,turnAfter:22}
+  ];
+  game.publicAttackTransitions[0].settled.completionRootActionOrdinal=3;
+  const result=candidateAttackSettlement(game,1);
+  assert.equal(result.settled,1);
+  assert.equal(result.attacks[0].completionRootOrdinal,3);
+  assert.equal(result.attacks[0].completionRootTurnAdvancedExactlyOnce,true);
+  assert.equal(result.attacks[0].nextSourceRoot.ordinal,5);
+});
+
 test('next-turn closing prompt requires a recorded continuous native clock advance',()=>{
   const game=directAttackFixture();
   game.publicAttackTransitions[0].turnAfter=21;
