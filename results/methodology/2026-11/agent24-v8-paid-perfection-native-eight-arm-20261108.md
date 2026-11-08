@@ -58,7 +58,24 @@ The engine outcome is `native-terminal-unqualified`, `finished=true`, **winner p
 
 There were eight historical 260-root treatments total. Among their other results, rank6/champion and rank11/champion were native terminal with source/candidate winner depending on seat; rank1/champion completed at 111 roots; the rest included incomplete caps and **one rank3/New Moon engine error at 189 roots**. Hence the completed rank11 candidate win cannot be extrapolated to all opponents or the absent 23/25/28 source ranks.
 
-**Rule and benchmark distinctions:** This is a native engine outcome under a known research printing proxy, the historical deal exposed by earlier research, no independent 25-minute physical tournament clock, and incomplete opponent/AI competence. It does not certify actual tournament-strength or paper-expanded legality across all interactions. The parent shared v8 manifest reports its historical root128 registration; the leaf override's true cap260 is explicitly recorded in `simulation/evaluation/agent24-v8-perfection-260root-native.cjs` and the treatment artifact. A separate matched-control 260-root comparison is under development, preserving this continuation as an observed endpoint rather than a randomized win-rate estimate.
+**Rule and benchmark distinctions:** This is a native engine outcome under a known research printing proxy, the historical deal exposed by earlier research, no independent 25-minute physical tournament clock, and incomplete opponent/AI competence. It does not certify actual tournament-strength or paper-expanded legality across all interactions. The parent shared v8 manifest reports its historical root128 registration; the leaf override's true cap260 is explicitly recorded in `simulation/evaluation/agent24-v8-perfection-260root-native.cjs` and the treatment artifact. The matched-control 260-root experiment is completed and documented below; its outcome preserves this native endpoint as a paired historical observation rather than a randomized field win-rate estimate.
+
+## Matched full-game native outcome: control loses, treatment wins
+
+A final matched 260-root A/B ran [CI 42532689105](https://github.com/FlareZ123/experiment-01/actions/runs/42532689105) **SUCCESS** after making the original v8 owner Telepath/Confirm control subject to the same effective 260-native-root cap as the paid-Perfection treatment. Artifact **13637977944**, ZIP SHA256 **a09564b42b6ce8c676ae3c12d9f665acc0e6a99bf9ba51fbeff081f4e98163c3**. It asserted the exact full physical setup digest, source deal fingerprint and player seat orientation for **all eight** original v8 arms before comparing accepted native action ledgers.
+
+| Frozen rank11 / New Moon physical seat0 candidate versus source seat1 | Winner as native player seat | Native terminal root | Final remaining Prizes by physical seat [candidate, source] |
+| --- | --- | ---: | --- |
+| Original policy without paid Perfection | **1, original source** | **188** | **[6,0]** |
+| Same owner policy with two-seat paid Perfection | **0, New Moon candidate** | **133** | **[0,5]** |
+
+The two full native games used exactly the same starting hands, six Prize cards, card inventories, player positions, and source physical deal, and shared identical accepted native actions through ordinal **90**. At ordinal **91**, the baseline candidate **Passes**, while the paid-Perfection candidate uses `UseAbilityAction('Perfection')`; attack-choice selection resolves in the native Store and the match trajectory diverges. The Perfection treatment completes a **real terminal winner reversal**, ending 55 native action roots earlier than control (133 versus 188), with no declared win-rate inference. In the treatment, the original source actually took **one** Prize card and attacked seven times before its board collapsed. In the control, the original source took all six Prizes and finished naturally.
+
+In the other **seven of eight historical comparisons**, the accepted native action ledger and outcomes were identical for baseline/treatment. Within that group, three ended naturally and the rest included root-cap-censored returns and one rank3/New Moon **engine error** at 189 roots. No change beyond the one actionable rank11 opportunity is demonstrated.
+
+**Interpretation:** This is a fully native **single-deal matched-pair counterfactual game win**, unlike the earlier 128-root Prize differential. The source opponent policy remains vulnerable and its turn22 Pass may be strategically weak. The experimental attacker played only within pinned Twinleaf's currently supported card text, and no full tournament judge/clock, unseen fresh-deal field, or event-correct all-32 benchmark has yet been qualified. Therefore **one native win conversion is meaningful for policy optimization**, with zero competitively qualified game-win evidence and no credible 99.5% claim.
+
+Reproduce with `simulation/evaluation/agent24-v8-perfection-260root-pair-native.cjs` using manual input `agent24_v8_perfection_260root` under the existing shared workflow.
 
 ## Related rule-correctness patch
 
