@@ -220,6 +220,7 @@ test('captures the exact Snap Trap owner view, native response, physical move an
   const audit = result.audit;
   assert.equal(audit.quarantineActiveAtInstall, true);
   assert.equal(audit.snapTrapPromptCount, 1);
+  assert.equal(audit.snapTrapPrompts.length, 1);
   assert.equal(audit.nextOwnerPromptCount, 1);
   assert.equal(audit.postSnapTrapPromptCount, 2);
   assert.equal(audit.postSnapTrapPrompts.length, 2);
