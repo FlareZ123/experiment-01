@@ -127,7 +127,8 @@ function buildActorCardCatalog(all,types){
     colorlessEnergyType:CardType.COLORLESS,
     specialConditions:{
       ASLEEP:SpecialCondition.ASLEEP,PARALYZED:SpecialCondition.PARALYZED,
-      CONFUSED:SpecialCondition.CONFUSED
+      CONFUSED:SpecialCondition.CONFUSED,POISONED:SpecialCondition.POISONED,
+      BURNED:SpecialCondition.BURNED
     }
   };
 }
