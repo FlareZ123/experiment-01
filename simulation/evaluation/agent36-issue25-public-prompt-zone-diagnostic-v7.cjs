@@ -71,6 +71,37 @@ function writeAtomicJson(filePath, value) {
 }
 
 /**
+ * Redact archived prompt-selection counts unless the prompt source is known
+ * exclusively to match public board zones. Preserve the frozen v7 observer
+ * and its same-object evidence joins, but do not publish counts from hidden
+ * or ambiguous prompt locations.
+ *
+ * @param {any} audit
+ * @returns {any}
+ */
+function redactPromptZoneAudit(audit) {
+  if (!audit || !Array.isArray(audit.events)) return audit;
+  return {
+    ...audit,
+    events: audit.events.map(event => {
+      const matches = Array.isArray(event?.zoneMatches)
+        ? event.zoneMatches : [];
+      const publicOnly = matches.length > 0
+        && matches.every(match => match.visibility === 'public');
+      return {
+        ...event,
+        offeredCount: publicOnly ? event.offeredCount : null,
+        offeredPrintings: publicOnly ? event.offeredPrintings : null,
+        zoneMatches: matches.map(match => ({
+          ...match,
+          eligibleCount: publicOnly ? match.eligibleCount : null
+        }))
+      };
+    })
+  };
+}
+
+/**
  * @param {any} event
  * @param {any} origin
  * @param {any} sourceProof
@@ -309,7 +340,8 @@ function main() {
     quarantineRecordCount: quarantineRecords.length,
     quarantineRecords,
     markerAudit,
-    promptZoneAudit,
+    promptZoneAudit: redactPromptZoneAudit(promptZoneAudit),
+    promptZoneAuditPrivacyVersion: 'agent38-v7-archive-redaction-v1',
     sourceProof,
     sourceOrigin: origin,
     blockedPromptOrigins: blockedOrigins,
@@ -366,4 +398,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {gitBlobSha, writeAtomicJson, exactPromptZoneJoin, main};
+module.exports = {gitBlobSha, writeAtomicJson, exactPromptZoneJoin, redactPromptZoneAudit, main};
