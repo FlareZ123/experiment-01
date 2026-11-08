@@ -1403,6 +1403,8 @@ function runDevelopment({
   sourceIndependentCommonPolicy=false,
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   ownerFallbackDiagnosticView=false,mysteriousTreasureRoot=false,
+  mysteriousTreasureMuscleBandPayment=false,
+  firstRegidragoBenchGrass=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
@@ -1511,6 +1513,10 @@ function runDevelopment({
     'Owner fallback diagnostic view requires canonical actor composition');
   assert.ok(!mysteriousTreasureRoot||actorOnlyComposition,
     'Mysterious Treasure root requires canonical actor composition');
+  assert.ok(!mysteriousTreasureMuscleBandPayment||mysteriousTreasureRoot,
+    'Alternative Treasure payment requires the same source-owned Item root');
+  assert.ok(!firstRegidragoBenchGrass||actorOnlyComposition,
+    'Early Regidrago Bench funding requires canonical actor composition');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
@@ -1897,6 +1903,12 @@ function runDevelopment({
               }:{}),
               ...(mysteriousTreasureRoot?{
                 mysteriousTreasureRoot:true
+              }:{}),
+              ...(mysteriousTreasureMuscleBandPayment?{
+                mysteriousTreasureMuscleBandPayment:true
+              }:{}),
+              ...(firstRegidragoBenchGrass?{
+                firstRegidragoBenchGrass:true
               }:{}),
               ...(actorPotentialKoRoot?{
                 potentialKoRoot:true
