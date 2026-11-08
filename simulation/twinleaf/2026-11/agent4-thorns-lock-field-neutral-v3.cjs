@@ -34,7 +34,7 @@ const NEUTRAL_STADIUM_PRINTINGS=Object.freeze([
   'Sky Field ROS','Parallel City BKT','Artazon PAL',
   'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG',
   'Thunder Mountain Prism Star LOT',
-  'Wondrous Labyrinth Prism Star TEU','Grand Tree SCR'
+  'Wondrous Labyrinth Prism Star TEU'
 ]);
 const NEUTRAL_TOOL_PRINTINGS=Object.freeze([
   'Float Stone PLF','Float Stone BKT',
