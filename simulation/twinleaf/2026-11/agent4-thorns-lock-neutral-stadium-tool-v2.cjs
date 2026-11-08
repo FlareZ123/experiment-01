@@ -90,7 +90,8 @@ function withNeutralThornsUnderworldVeto(work){
   assert.equal(typeof original,'function');
   const audit={schema:VERSION,proposalsSeen:0,provenVetoes:0,
     expandedKnownNeutralVetoes:0,reasons:{},samples:[],
-    onlyDetatchedOwnerView:true,opponentPrivateZonesRead:false,
+    onlyDetatchedOwnerView:true,readsOpponentHidden:false,
+    opponentPrivateZonesRead:false,
     changesPrintedSixties:false,qualifiedGames:0};
   function guarded(view,catalog,receipt){
     const proposal=original(view,catalog,receipt);
