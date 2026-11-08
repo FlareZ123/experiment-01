@@ -18,6 +18,7 @@ on:
           - neutral-v2-staged-native
           - neutral-v3-staged-native
           - neutral-v3-original16
+          - neutral-v3-manual-fallback
         default: typed-replay
 
 permissions:
@@ -67,6 +68,10 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Execute post-veto alternative manual Energy settlement in genuine Store
+        if: ${{ inputs.experiment == 'neutral-v3-manual-fallback' }}
+        run: |
+          node --test tests/2026-11/agent4-thorns-field-neutral-v3-native-manual-fallback.test.cjs
       - name: Replay exact original-rank6 v2 versus broader v3 with printed physical deal parity
         if: ${{ inputs.experiment == 'neutral-v3-original16' }}
         env:
