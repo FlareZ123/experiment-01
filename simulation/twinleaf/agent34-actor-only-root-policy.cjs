@@ -308,6 +308,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseFirstCrispinSeekerRecovery(view);
     if(seeker)return seeker;
   }
+  if(options.earlyRegidragoCompressor===true){
+    const donor=require('./agent49/early-regidrago-compressor.cjs')
+      .chooseEarlyRegidragoCompressor(view);
+    if(donor)return donor;
+  }
   if(options.rank13DdeEnergyRoot===true){
     const funding=require('./agent8-rank13-double-dragon-energy-frontier.cjs')
       .chooseRank13DoubleDragonRoot(view);
@@ -787,6 +792,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const nativeTrainerFallbackActions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
   const ownerSeekerPending=new Map();
+  const typedEarlyCompressorReplies=new WeakMap();
+  const ownerEarlyCompressorPending=new Map();
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
   const pendingFarewellBySeat=new Map();
@@ -929,6 +936,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.firstRegidragoBenchGrass===true,
     firstCrispinSeekerRecoveryOptIn:
       deps.firstCrispinSeekerRecovery===true,
+    earlyRegidragoCompressorOptIn:
+      deps.earlyRegidragoCompressor===true,
+    earlyRegidragoCompressorPromptsProposed:0,
+    earlyRegidragoCompressorPromptsAccepted:0,
+    earlyRegidragoCompressorDonorsMoved:0,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
@@ -1290,6 +1302,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.firstCrispinSeekerRecoveryOptIn)
     audit.version+='+'+
       require('./agent49/first-turn-crispin-seeker-recovery.cjs').VERSION;
+  if(audit.earlyRegidragoCompressorOptIn)
+    audit.version+='+'+
+      require('./agent49/early-regidrago-compressor.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -1401,6 +1416,22 @@ function withActorOnlyRootPolicy(run,deps={}){
       else if(target==='Crispin SCR')audit.seekerCrispinPromptsProposed++;
       else audit.seekerLilliePromptsProposed++;
       return planned;
+    }
+    if(seat!==-1&&pending&&audit.earlyRegidragoCompressorOptIn&&
+       pending.playerId===playerId&&
+       ownerEarlyCompressorPending.has(playerId)){
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const token=ownerEarlyCompressorPending.get(playerId);
+      assert.equal(token.promptId,pending.id,
+        'Early Compressor reply requires the actual source-owned prompt');
+      const choice=require('./agent49/early-regidrago-compressor.cjs')
+        .chooseNativeEarlyCompressorDonors(
+          state,seat,pending,ResolvePromptAction);
+      typedEarlyCompressorReplies.set(choice.action,{
+        ownerId:playerId,seat,chosen:choice.chosen});
+      audit.earlyRegidragoCompressorPromptsProposed++;
+      return choice.action;
     }
     if(seat!==-1&&pending&&audit.eriRevealRootOptIn&&
        pending.playerId===playerId&&ownerEriPending.has(playerId)){
@@ -1643,6 +1674,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.mysteriousTreasureMuscleBandPaymentOptIn,
       firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
       firstCrispinSeekerRecovery:audit.firstCrispinSeekerRecoveryOptIn,
+      earlyRegidragoCompressor:audit.earlyRegidragoCompressorOptIn,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
@@ -1915,6 +1947,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-regidrago-battle-compressor':
       case 'play-mysterious-treasure':
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
@@ -2070,6 +2103,27 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
       return result;
     }
+    const compressorReply=this===nativeStore?
+      typedEarlyCompressorReplies.get(action):undefined;
+    if(compressorReply){
+      const owner=this.state.players[compressorReply.seat];
+      assert.equal(owner?.id,compressorReply.ownerId);
+      const donors=compressorReply.chosen;
+      const beforeDeckSize=owner.deck.cards.length;
+      assert.ok(donors.every(card=>owner.deck.cards.includes(card)),
+        'Compressor donor objects must be in the owner deck before dispatch');
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      const after=this.state.players[compressorReply.seat];
+      assert.ok(donors.every(card=>
+        !after.deck.cards.includes(card)&&after.discard.cards.includes(card)),
+        'Native Compressor failed to physically move selected Dragons');
+      assert.equal(after.deck.cards.length,beforeDeckSize-donors.length,
+        'Compressor owner-deck physical count differs from selected donor count');
+      ownerEarlyCompressorPending.delete(compressorReply.ownerId);
+      audit.earlyRegidragoCompressorPromptsAccepted++;
+      audit.earlyRegidragoCompressorDonorsMoved+=donors.length;
+      return result;
+    }
     const eriReply=this===nativeStore?typedEriReplies.get(action):undefined;
     if(eriReply){
       const owner=this.state.players[eriReply.seat];
@@ -2175,6 +2229,19 @@ function withActorOnlyRootPolicy(run,deps={}){
         assert.ok(!ownerEriPending.has(owner.id));
         ownerEriPending.set(owner.id,{seat:choice.seat,
           promptId:pending.id,globalTurn:choice.globalTurn});
+      }
+      if(choice.kind==='play-regidrago-battle-compressor'){
+        const owner=this.state.players[choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        assert.ok(owner&&pending&&
+          pending.constructor?.name==='ChooseCardsPrompt'&&
+          pending.playerId===owner.id&&
+          pending.sourceCard?.fullName==='Battle Compressor PHF'&&
+          pending.cards===owner.deck,
+          'Native early Compressor did not expose its authenticated owner-deck prompt');
+        assert.ok(!ownerEarlyCompressorPending.has(owner.id));
+        ownerEarlyCompressorPending.set(owner.id,{
+          seat:choice.seat,promptId:pending.id});
       }
       if(choice.kind==='play-seeker-get-crispin'||
          choice.kind==='play-seeker-get-lillie'||
