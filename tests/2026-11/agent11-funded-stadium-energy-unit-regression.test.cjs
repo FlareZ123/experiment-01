@@ -67,7 +67,7 @@ function damage(view) {
 }
 
 test('source-shaped single-unit Energy Drive stays 80', () => {
-  assert.equal(VERSION, 'agent7-owner-funded-attack-stadium-paper-preflight-v3');
+  assert.equal(VERSION, 'agent7-owner-funded-attack-stadium-paper-preflight-v4');
   const view = sourceView([
     'Psychic Energy SVE', 'Psychic Energy SVE', 'Psychic Energy SVE'
   ]);
@@ -119,15 +119,25 @@ test('conditional opposing Reversal Energy uses the opposing Prize perspective',
   assert.equal(damage(view), 40);
 });
 
-test('Exeggutor is no Pokemon-EX; Counter Energy double is possible behind', () => {
+test('Counter Energy excludes only Pokémon-GX and Pokémon-EX', () => {
   const view = sourceView(['Counter Energy CIN']);
-  view.opponentPublic.active.name = 'Exeggutor';
-  view.opponentPublic.active.printed.stage = 3;
   view.ownPublic.prizeCount = 4;
   view.opponentPublic.prizeCount = 6;
+  view.opponentPublic.active.name = 'Exeggutor';
+  view.opponentPublic.active.printed.stage = 3;
   assert.equal(damage(view), 60);
   view.opponentPublic.active.name = 'Regidrago-GX';
   assert.equal(damage(view), 40);
+  view.opponentPublic.active.name = 'Mewtwo-EX';
+  assert.equal(damage(view), 40);
+  view.opponentPublic.active.name = 'Latias ex';
+  const opposingContext = publicEnergyContext(
+    {ownPublic: view.opponentPublic, opponentPublic: view.ownPublic},
+    view.opponentPublic.active, types, refs.stageBasic
+  );
+  assert.equal(opposingContext.hasRuleBox, true);
+  assert.equal(opposingContext.isPokemonGXorEX, false);
+  assert.equal(damage(view), 60);
 });
 
 test('Evolution Rule Box stops Reversal triple unit even when behind', () => {
