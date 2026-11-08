@@ -214,7 +214,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       .withOwnerBombAfterSourceCompressor(()=>{
         paid=later();
         return paid.result;
-      },options.rank9CompressorOwnerSeat);
+      },options.rank9CompressorOwnerSeat,{
+        allowLaterBenchedElectrode:options.rank9LateBenchBomb===true
+      });
     ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit};
     return bomb.result;
   };
