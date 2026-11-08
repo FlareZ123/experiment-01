@@ -32,6 +32,7 @@ function withBilateralOwnerMail(next,deps){
   let active=false,storeInstance=null,priorAi=null,pending=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
+  const physicallySelectedMailTrainers=new WeakSet();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
     lateDecoderInstallations:0,ownerRootPassesSeen:0,
     proposalCountsBySeat:[0,0],actualMailItemRootsBySeat:[0,0],
@@ -42,7 +43,8 @@ function withBilateralOwnerMail(next,deps){
     otherActionsDelegateToExistingPolicy:true,
     rejectedPromptActions:0,unsettledPromptActions:0,
     noPromptAfterMailBySeat:[0,0],
-    revealedTrainers:[],actualMailEvents:[],nativeDecoderInvocations:0,
+    revealedTrainers:[],actualMailEvents:[],
+    selectedTrainerLaterPlayed:[],nativeDecoderInvocations:0,
     opponentPrivateZonesRead:false,qualifiedGames:0};
 
   function observedMatch(request){
@@ -108,6 +110,12 @@ function withBilateralOwnerMail(next,deps){
     const state=this.state,seat=state.activePlayer;
     const owner=state.players?.[seat];
     const proposal=proposals.get(action);
+    // Only cards selected by a genuinely settled owner's Mail prompt can
+    // later qualify as search-to-play evidence. Identity persists in hand.
+    const selectedMailCard=action?.constructor?.name==='PlayCardAction'?
+      owner?.hand?.cards?.[action.handIndex]:null;
+    const fromSettledMail=selectedMailCard&&
+      physicallySelectedMailTrainers.has(selectedMailCard);
     const mailPlay=owner&&
       action?.constructor?.name==='PlayCardAction'&&
       action.id===owner.id&&
@@ -115,6 +123,12 @@ function withBilateralOwnerMail(next,deps){
     let value;
     try{value=oldStore.value.call(this,action,...args);}
     catch(e){if(proposal)audit.rejectedPromptActions++;throw e;}
+    if(fromSettledMail){
+      const played={trialId,seat,turnBefore:state.turn,
+        printing:selectedMailCard.fullName};
+      audit.selectedTrainerLaterPlayed.push(played);
+      deps.onSelectedTrainerPlayed?.(action,played);
+    }
     if(mailPlay){
       if(ownerPassMailActions.has(action))
         deps.onMailActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
@@ -147,6 +161,7 @@ function withBilateralOwnerMail(next,deps){
       const others=proposal.originalTop.filter(card=>!chosen.includes(card));
       const replaced=others.every(card=>after.deck.cards.includes(card));
       if(settled&&physical&&replaced){
+        for(const card of chosen)physicallySelectedMailTrainers.add(card);
         audit.nativeStoreResolvedBySeat[proposal.seat]++;
         audit.physicalTrainerToHandBySeat[proposal.seat]+=chosen.length;
         audit.physicalOtherTopCardsToDeckBySeat[proposal.seat]+=others.length;
