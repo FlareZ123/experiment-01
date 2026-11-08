@@ -54,7 +54,7 @@ On successfully cloned native cards, the same default-off adapter corrects a sma
 
 These limited corrections do **not** certify every effect, attack interaction, legality or a complete competitive engine. Some other attack text and implementation defects will remain. Paper card texts must continue to take priority over engine behavior.
 
-The existing `simulation/evaluation/agent41-bilateral-v2-development.cjs` shared runner now supports the **default-off** option `actorOriginal29PrintedFidelity:true` under `actorOnlyComposition:true`. Historical registered benchmarks remain unchanged unless a new prospective experiment explicitly enables it for both physical seats.
+The existing `simulation/evaluation/agent41-bilateral-v2-development.cjs` shared runner now supports the **default-off** option `actorOriginal29PrintedFidelity:true` under `actorOnlyComposition:true`. Historical registered benchmarks remain unchanged unless a new prospective experiment explicitly enables it for both physical seats. The canonical-only gating and related pure contracts passed [shared contract CI 42523655857](https://github.com/FlareZ123/experiment-01/actions/runs/42523655857).
 
 ## Genuine pinned-native receipts, distinct from competitive benchmarks
 
