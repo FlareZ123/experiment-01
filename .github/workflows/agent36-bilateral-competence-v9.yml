@@ -159,6 +159,8 @@ jobs:
           node --check simulation/evaluation/agent49/regidrago-grass-placement-comparison.cjs
           node --check simulation/twinleaf/agent49/first-turn-crispin-seeker-recovery.cjs
           node --check simulation/evaluation/agent49/crispin-seeker-first-turn-registered.cjs
+          node --check simulation/twinleaf/agent49/early-regidrago-compressor.cjs
+          node --check simulation/evaluation/agent49/regidrago-first-turn-compressor-registered.cjs
           node --check simulation/twinleaf/agent2/treasure-owner-prompt-native.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
@@ -204,6 +206,7 @@ jobs:
             tests/2026-11/agent49-treasure-physical-zone-receipt.test.cjs \
             tests/2026-11/agent49-first-regidrago-grass-bench.test.cjs \
             tests/2026-11/agent49-first-crispin-seeker-recovery.test.cjs \
+            tests/2026-11/agent49-early-regidrago-compressor.test.cjs \
             tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs
 
       - name: Verify pure Agent34/Agent41 policy, observer, and v2 prompt-gate contracts
@@ -267,6 +270,10 @@ jobs:
       - name: Compare original rank13 physical first-turn VS Seeker recovery
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only }}
         run: node simulation/evaluation/agent49/crispin-seeker-first-turn-registered.cjs > artifacts/agent2-crispin-vs-seeker-treasure-native/registered-crispin-seeker.json
+
+      - name: Compare original rank13 first-turn native Compressor Dragon payloads
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only }}
+        run: node simulation/evaluation/agent49/regidrago-first-turn-compressor-registered.cjs > artifacts/agent2-crispin-vs-seeker-treasure-native/registered-dragon-compressor.json
 
       - name: Execute original rank13/rank3 Treasure owner-root opt-in diagnostic
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only }}
