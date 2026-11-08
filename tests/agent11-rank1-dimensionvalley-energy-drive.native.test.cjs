@@ -82,6 +82,16 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(promotion.sourceActiveAfter,'Trevenant & Dusknoir-GX SMP');
   assert.equal(promotion.readConcealedOpponentCards,false);
   assert.deepEqual(promotion.remainingPromptTypes,[]);
+  assert.equal(promotion.nextActorId,101);
+  const next=promotion.nextOwnerObservation;
+  assert.equal(next.decisionKind,'owner-root');
+  assert.equal(next.actorSeat,0);
+  assert.equal(next.ownPublic.active.printing,
+    'Trevenant & Dusknoir-GX SMP');
+  assert.equal(next.ownPublic.prizeCount,6);
+  assert.equal(next.opponentPublic.prizeCount,3);
+  assert.equal(Array.isArray(next.ownHand),true);
+  assert.equal(Object.hasOwn(next.opponentPublic,'hand'),false);
   assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
   assert.equal(alternate.baselineOpponentReply.ownerActiveAfter,null,
     'without retreat, Eon Blade should Knock Out Active Tapu Lele-GX');
