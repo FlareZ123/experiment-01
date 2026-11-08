@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent43_v8_snaptrap_owner_root_diagnostic:
+        description: 'Capture actor-visible first unsupported root in both Snap Trap source-seat-one cases; development only'
+        required: false
+        type: boolean
+        default: false
       agent2_crispin_vs_seeker_treasure_native:
         description: 'Staged native Crispin -> Mysterious Treasure -> VS Seeker -> Battle Compressor donor-selection sequence, both physical seats'
         required: false
@@ -144,6 +149,7 @@ jobs:
           node --check simulation/twinleaf/agent30/stunfisk-snap-trap-prompt-marker-v3.cjs
           node --check simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.cjs
           node --check simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v2.cjs
+          node --check simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
           node --check simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs
           node --check simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs
 
@@ -192,7 +198,7 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native }}
+        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
@@ -220,6 +226,9 @@ jobs:
       - name: Capture owner-information fallback prompt and source-zone metadata (phase A diagnostic v3)
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native }}
         run: node simulation/evaluation/agent10-owner-information-fallback-diagnostic-v3.cjs
+      - name: Capture exact failed-seat Snap Trap owner-visible first unresolved root
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.contract_only }}
+        run: node simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
       - name: Execute strict selected-v8 Snap Trap owner-prompt audit
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent2_crispin_vs_seeker_treasure_native }}
         run: node simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v2.cjs
@@ -250,5 +259,6 @@ jobs:
             artifacts/agent36-v8-snap-trap-vertical-slice/
             artifacts/agent36-v8-snap-trap-vertical-slice-v2/
             artifacts/agent2-crispin-vs-seeker-treasure-native/
+            artifacts/agent43-v8-snaptrap-owner-root/
           retention-days: 21
           if-no-files-found: warn
