@@ -13,13 +13,28 @@ on:
           - guarded-public-postabort-root
           - rank6-independent-holdout-16
           - postguard-physical-energy-target-12
+          - pure-v2-thorns
         default: typed-replay
 
 permissions:
   contents: read
 
 jobs:
+  paper-neutral-pure:
+    if: ${{ inputs.experiment == 'pure-v2-thorns' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run closed-set source-card guard tests without native build
+        run: |
+          node --check simulation/twinleaf/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.cjs
+          node --test tests/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.test.cjs
   typed-source-abort:
+    if: ${{ inputs.experiment != 'pure-v2-thorns' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
