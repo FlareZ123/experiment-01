@@ -66,7 +66,8 @@ test('discard zone audit classifies prompt arrays without serializing offered ca
   };
   const originalPrompt=FakeStore.prototype.prompt;
   const sourceOriginProof={sourcePrinting:'Galarian Stunfisk SSH',
-    sourceAbility:'Snap Trap',promptIdAfterStore:null};
+    sourceAbility:'Snap Trap',promptIdAfterStore:'1',
+    sourceCard:{name:'Hidden source object'},player:{id:20}};
   const discard=new FakeChooseCardsPrompt(opponent,
     new CardList([{fullName:'Secret Card Identity'}]),42,
     {min:1,max:1,allowCancel:false,isSecret:false},
@@ -93,19 +94,25 @@ test('discard zone audit classifies prompt arrays without serializing offered ca
   assert.equal(event.promptIdBeforeStore,'0');
   assert.equal(event.promptGroupLength,2);
   assert.equal(event.promptIndexInGroup,0);
-  assert.equal(event.resourceOwnerSeat,1);
+  assert.equal(event.promptPlayerSeat,1);
   assert.equal(event.controllerSeat,0);
   assert.equal(event.perspectiveSeat,1);
   assert.equal(event.message,'CHOOSE_CARD_TO_DISCARD');
   assert.equal(event.min,1);
   assert.equal(event.max,1);
-  assert.equal(event.selectableCount,9);
+  assert.equal(event.selectableCount,null);
   assert.equal(event.filterSuperType,'POKEMON');
-  assert.equal(event.sourceOrigin,sourceOriginProof);
-  sourceOriginProof.promptIdAfterStore='1';
+  assert.deepEqual(event.sourceOrigin,{sourcePrinting:'Galarian Stunfisk SSH',
+    sourceAbility:'Snap Trap',promptIdAfterStore:'1'});
+  assert.notEqual(event.sourceOrigin,sourceOriginProof);
+  sourceOriginProof.promptIdAfterStore='changed';
+  sourceOriginProof.sourceCard.name='mutated';
   assert.equal(event.sourceOrigin.promptIdAfterStore,'1');
+  assert.equal(Object.prototype.hasOwnProperty.call(event.sourceOrigin,'sourceCard'),false);
+  assert.equal(Object.prototype.hasOwnProperty.call(event.sourceOrigin,'player'),false);
   assert.equal(event.zoneMatches[0].zone,'owner-hand');
   assert.equal(event.zoneMatches[0].visibility,'hidden');
+  assert.equal(event.zoneMatches[0].eligibleCount,null);
   assert.equal(Object.prototype.hasOwnProperty.call(event,'offeredPrintings'),false);
   assert.equal(JSON.stringify(audit).includes('Secret Card Identity'),false);
   assert.equal(FakeStore.prototype.prompt,originalPrompt);
