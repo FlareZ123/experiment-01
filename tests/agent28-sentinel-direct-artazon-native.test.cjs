@@ -661,11 +661,27 @@ for(const seat of [0,1]){
       if(!p)break;
       const kind=p.constructor.name;
       attackPromptTypes.push(kind);
-      const answer=kind==='WaitPrompt'?null:
-        kind==='ShowCardsPrompt'?true:
-        kind==='ShuffleDeckPrompt'?opponent.deck.cards.map((_,i)=>i):
-        kind==='ChoosePrizePrompt'?[0]:undefined;
+      let answer;
+      if(kind==='WaitPrompt')answer=null;
+      else if(kind==='ShowCardsPrompt')answer=true;
+      else if(kind==='ShuffleDeckPrompt'){
+        const receiver=p.playerId===x.owner.id?x.owner:opponent;
+        answer=receiver.deck.cards.map((_,i)=>i);
+      }else if(kind==='ChoosePokemonPrompt'){
+        assert.equal(p.playerId,x.owner.id,
+          'KO must ask the original Sentinel owner to promote');
+        const options=nativeSinglePokemonChoices(x.state,p);
+        const choice=options.find(z=>z.seat===seat&&
+          z.physical.getPokemonCard()?.fullName==='Bunnelby PRC');
+        assert.ok(choice,'After Vileplume KO, real source Bunnelby available');
+        answer=[choice.physical];
+      }else if(kind==='ChoosePrizePrompt'){
+        assert.equal(p.playerId,opponent.id,
+          'Rank1 attacker must receive its genuine Prize choice');
+        answer=opponent.prizes.filter(z=>z.cards.length>0).slice(0,1);
+      }
       assert.notEqual(answer,undefined,'Unexpected actual Max Geist prompt '+kind);
+      assert.equal(p.validate(answer,x.state),true,'Invalid Max Geist '+kind);
       x.f.store.dispatch(new ResolvePromptAction(p.id,answer));
     }
     assert.equal(x.f.store.hasPrompts(),false);
