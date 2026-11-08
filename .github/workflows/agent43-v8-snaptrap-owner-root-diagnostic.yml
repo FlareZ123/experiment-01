@@ -1,4 +1,4 @@
-name: Agent43 pinned Snap Trap unresolved owner-root diagnostic
+name: Agent43 pinned Snap Trap owner-root and exact prompt blocker
 on:
   workflow_dispatch:
 permissions:
@@ -26,8 +26,12 @@ jobs:
           npm run compile
       - name: Validate diagnostic entry point syntax
         run: node --check simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
-      - name: Execute four registered native matches with two exact owner-root reports
+      - name: Capture true unmatched owner roots in original two-seat frame
         run: node simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
+      - name: Validate exact blocked prompt trace syntax
+        run: node --check simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
+      - name: Execute unchanged original four-trial frame and trace blocked prompt metadata
+        run: node simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
