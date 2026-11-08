@@ -243,6 +243,8 @@ function runOne(candidateSeat,cards,{
     candidateDeckSha256:sha256(cards.candidate),
     sourceDeckSha256:sha256(cards.source),
     status,firstUnsupportedOwnerRoot:first,
+    nativeErrorText:typeof nativeRow?.error==='string'?
+      nativeRow.error.slice(0,2200):null,
     nativeDirectErrorMessage:String(nativeRow?.error?.message??'').slice(0,650),
     nativeDirectErrorCode:nativeRow?.error?.code??null,
     nativeDirectErrorStack:String(nativeRow?.error?.stack??'').slice(0,1400),
