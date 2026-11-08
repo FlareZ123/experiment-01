@@ -153,3 +153,33 @@ test('every remaining whitelisted set-qualified retreat Tool passes native lock 
     assert.equal(classifyNeutralThornsVeto(view,intent).veto,true,sourceTool);
   }
 });
+
+test('native Silent Lab unblocks opposing Thorns while v2 abstains',()=>{
+  const scenario={hood:false,jammer:false,active:false,
+    stadium:'Silent Lab PRC'};
+  const actual=underworldDoorAction(scenario);
+  assert.equal(actual.allowed,true,
+    'Silent Lab removes opposing Basic Iron Thorns Initialization');
+  assert.equal(actual.attached,1);
+  assert.equal(actual.drawn,2);
+  const view=publicActorView(scenario);
+  assert.equal(classifyNeutralThornsVeto(view,intent).veto,false);
+});
+test('native Path to the Peak suppresses both Rule Box Abilities and v2 abstains',()=>{
+  const scenario={hood:false,jammer:false,active:false,
+    stadium:'Path to the Peak CRE'};
+  const actual=underworldDoorAction(scenario);
+  assert.equal(actual.allowed,false);
+  assert.equal(actual.powerListed,false);
+  assert.equal(classifyNeutralThornsVeto(publicActorView(scenario),intent).veto,
+    false);
+});
+test('native Hood remains functional under whitelisted Tropical Beach',()=>{
+  const scenario={hood:true,jammer:false,active:false,
+    stadium:'Tropical Beach BWP'};
+  const actual=underworldDoorAction(scenario);
+  assert.equal(actual.allowed,true);
+  assert.equal(actual.attached,1);
+  const view=publicActorView(scenario);
+  assert.equal(classifyNeutralThornsVeto(view,intent).veto,false);
+});
