@@ -77,6 +77,12 @@ function makeJoin() {
 function makeMatchAudit() {
   return {
     ownerPromptEvidence: {
+      nextOwnerPrompt: {
+        promptIdAfterStore: '174',
+        ownerSeat: 1,
+        promptType: 'WaitPrompt',
+        message: 'WAIT_FOR_OPPONENT'
+      },
       promptRecords: [
         {
           promptIdAfterStore: '174',
@@ -87,7 +93,7 @@ function makeMatchAudit() {
       ],
       responseRecords: [
         { promptId: '174', responseKind: 'null', actionOrdinal: 251 },
-        { promptId: '175', responseKind: 'null', actionOrdinal: 252 }
+        { promptId: '175', responseKind: 'undefined', actionOrdinal: 252 }
       ]
     }
   };
@@ -97,7 +103,7 @@ test('mechanical null WaitPrompt roots are retained and excluded from meaningful
   const trialId = '3:312:B:champion-reference';
   const events = [
     { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
-    { trialId, actionOrdinal: 252, seat: 0, action: 'ResolvePromptAction', promptId: '175', responseKind: 'null' },
+    { trialId, actionOrdinal: 252, seat: 0, action: 'ResolvePromptAction', promptId: '175', responseKind: 'undefined' },
     { trialId, actionOrdinal: 253, seat: 1, action: 'AttackAction', promptId: null, responseKind: 'object' },
     { trialId, actionOrdinal: 254, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
   ];

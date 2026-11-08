@@ -174,7 +174,9 @@ function buildPostPromptSequence(
     const response = responseById.get(String(event.promptId));
     const prompt = promptById.get(String(event.promptId));
     return event.responseKind === 'null' ||
+      event.responseKind === 'undefined' ||
       response?.responseKind === 'null' ||
+      response?.responseKind === 'undefined' ||
       prompt?.promptType === 'WaitPrompt';
   };
   const mechanicalRoots = later.filter(isMechanical).map(event => {
