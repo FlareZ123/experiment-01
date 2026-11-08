@@ -307,8 +307,23 @@ for(const seat of [0,1]){
     const handGuzma=opponent.hand.cards.findIndex(c=>
       c.fullName==='Guzma BUS');
     assert.ok(handGuzma>=0);
+    console.log('AGENT28_PRE_GUZMA',JSON.stringify({
+      seat,turn:x.state.turn,phase:x.state.phase,activePlayer:x.state.activePlayer,
+      opponentSupporterTurn:opponent.supporterTurn,
+      opponentSupporterZone:opponent.supporter.cards.length,
+      sourceBench:x.owner.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean),
+      opponentBench:opponent.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean)
+    }));
     x.f.store.dispatch(new PlayCardAction(opponent.id,handGuzma,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    console.log('AGENT28_POST_GUZMA',JSON.stringify({
+      seat,turn:x.state.turn,phase:x.state.phase,
+      opponentSupporterTurn:opponent.supporterTurn,
+      cardInHand:opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),
+      cardInSupporter:opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
+      cardInDiscard:opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'),
+      prompts:x.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
     }));
     let gust=x.state.prompts.find(p=>p.result===undefined);
     assert.equal(gust?.constructor.name,'ChoosePokemonPrompt');
