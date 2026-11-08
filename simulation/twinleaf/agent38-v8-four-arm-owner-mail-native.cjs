@@ -33,7 +33,7 @@ function withBilateralOwnerMail(next,deps){
   assert.equal(typeof oldRun,'function');
   assert.equal(typeof oldStore?.value,'function');
   let active=false,storeInstance=null,priorAi=null,pending=null,
-    pendingNest=null,trialId=null;
+    pendingNest=null,pendingHandiwork=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
   const ownerMailHandiworkActions=new WeakSet();
@@ -53,6 +53,7 @@ function withBilateralOwnerMail(next,deps){
     selectedTrainerLaterPlayed:[],
     handiworkFromMailOffers:0,handiworkFromMailAccepted:0,
     handiworkFromMailNativeDeckChanges:[],handiworkFromMailRejected:0,
+    handiworkDeferredSettlements:[],handiworkDeferredUnresolved:0,
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nativeDecoderInvocations:0,
@@ -64,7 +65,7 @@ function withBilateralOwnerMail(next,deps){
     if(!id)return oldRun(request);
     assert.equal(active,false);
     trialId=id;active=true;storeInstance=null;pending=null;
-    pendingNest=null;
+    pendingNest=null;pendingHandiwork=null;
     audit.attempts++;
     const descriptor=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
     assert.equal(typeof descriptor?.value,'function');
@@ -76,7 +77,8 @@ function withBilateralOwnerMail(next,deps){
     finally{
       assert.strictEqual(ai.decodeNextAction,observedDecode);
       Object.defineProperty(ai,'decodeNextAction',descriptor);
-      priorAi=null;active=false;storeInstance=null;pending=null;pendingNest=null;trialId=null;
+      priorAi=null;active=false;storeInstance=null;pending=null;
+      pendingNest=null;pendingHandiwork=null;trialId=null;
     }
   }
 
@@ -174,6 +176,7 @@ function withBilateralOwnerMail(next,deps){
     const state=this.state,seat=state.activePlayer;
     const owner=state.players?.[seat];
     const proposal=proposals.get(action);
+    const pendingPromptBefore=state.prompts?.find(p=>p.result===undefined);
     const taggedHandiwork=ownerMailHandiworkActions.has(action);
     const opposingSeat=1-seat;
     const opposingBefore=taggedHandiwork?{
@@ -201,15 +204,56 @@ function withBilateralOwnerMail(next,deps){
     if(taggedHandiwork){
       const afterOpponent=this.state.players[opposingSeat];
       audit.handiworkFromMailAccepted++;
-      audit.handiworkFromMailNativeDeckChanges.push({
+      const receipt={
         trialId,ownerSeat:seat,turnBefore:state.turn,
         before:opposingBefore,
         after:{deck:afterOpponent.deck.cards.length,
           discard:afterOpponent.discard.cards.length},
         physicalDeckCardsRemoved:
           opposingBefore.deck-afterOpponent.deck.cards.length,
-        nativeStoreReturned:true
-      });
+        nativeStoreReturned:true,
+        nativePromptAfterPlay:this.state.prompts?.find(p=>
+          p.result===undefined)?.constructor?.name??null,
+        waitPromptResolutions:0,
+        deferredEffectResolved:false,
+        deferredOpponentDeckCardsMoved:null,
+        deferredOpponentDiscardCardsAdded:null
+      };
+      audit.handiworkFromMailNativeDeckChanges.push(receipt);
+      pendingHandiwork=receipt;
+    }
+    // Handiwork uses a native two-coin sequence. The actual mill callback
+    // happens after two owner WaitPrompt acknowledgements, not when the
+    // Supporter PlayCardAction first returns. Observe public counts only.
+    if(pendingHandiwork&&!taggedHandiwork){
+      const watched=pendingHandiwork;
+      const sameTurn=this.state.turn===watched.turnBefore;
+      const acknowledged=action?.constructor?.name==='ResolvePromptAction'&&
+        pendingPromptBefore?.constructor?.name==='WaitPrompt'&&
+        String(action.id)===String(pendingPromptBefore.id)&&
+        pendingPromptBefore.playerId===this.state.players[watched.ownerSeat].id;
+      if(sameTurn&&acknowledged){
+        watched.waitPromptResolutions++;
+        if(watched.waitPromptResolutions===2){
+          const opponentAfter=this.state.players[1-watched.ownerSeat];
+          watched.deferredEffectResolved=true;
+          watched.deferredOpponentDeckCardsMoved=
+            watched.before.deck-opponentAfter.deck.cards.length;
+          watched.deferredOpponentDiscardCardsAdded=
+            opponentAfter.discard.cards.length-watched.before.discard;
+          audit.handiworkDeferredSettlements.push({
+            trialId:watched.trialId,ownerSeat:watched.ownerSeat,
+            turnBefore:watched.turnBefore,
+            waitPromptResolutions:watched.waitPromptResolutions,
+            deckCardsMoved:watched.deferredOpponentDeckCardsMoved,
+            discardCardsAdded:watched.deferredOpponentDiscardCardsAdded
+          });
+          pendingHandiwork=null;
+        }
+      }else if(!sameTurn){
+        audit.handiworkDeferredUnresolved++;
+        pendingHandiwork=null;
+      }
     }
     if(nestPromptProposal){
       const afterOwner=this.state.players[nestPromptProposal.seat];
