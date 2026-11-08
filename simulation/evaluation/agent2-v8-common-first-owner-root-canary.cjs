@@ -85,7 +85,8 @@ function safeRootPrefix(native,initial=false){
 function runOne(candidateSeat,cards,{
   mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
-  firstCrispinSeekerRecovery=false
+  firstCrispinSeekerRecovery=false,
+  earlyRegidragoCompressor=false
 }={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   const slot=candidateSeat===0?'A':'B';
@@ -130,6 +131,7 @@ function runOne(candidateSeat,cards,{
     mysteriousTreasureMuscleBandPayment:
       mysteriousTreasureRoot&&treasurePaymentChoice==='muscle-band',
     firstRegidragoBenchGrass,firstCrispinSeekerRecovery,
+    earlyRegidragoCompressor,
     allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
@@ -235,6 +237,7 @@ function runOne(candidateSeat,cards,{
     ownerTreasureRootOptIn:mysteriousTreasureRoot,
     firstRegidragoBenchGrassOptIn:firstRegidragoBenchGrass,
     firstCrispinSeekerRecoveryOptIn:firstCrispinSeekerRecovery,
+    earlyRegidragoCompressorOptIn:earlyRegidragoCompressor,
     ownerTreasurePaymentChoice:mysteriousTreasureRoot?
       treasurePaymentChoice:null,
     candidateDeckSha256:sha256(cards.candidate),
@@ -352,7 +355,7 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
 
 function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   ownerMailFollowupFrame=false,firstRegidragoBenchGrass=false,
-  firstCrispinSeekerRecovery=false}={}){
+  firstCrispinSeekerRecovery=false,earlyRegidragoCompressor=false}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
@@ -361,10 +364,10 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
   const rows=[
     runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
-      firstCrispinSeekerRecovery}),
+      firstCrispinSeekerRecovery,earlyRegidragoCompressor}),
     runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
-      firstCrispinSeekerRecovery})
+      firstCrispinSeekerRecovery,earlyRegidragoCompressor})
   ];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
@@ -421,7 +424,7 @@ function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin',
     diagnosticOnlyFlags:{
       mysteriousTreasureRoot,
       ownerMailFollowupFrame,firstRegidragoBenchGrass,
-      firstCrispinSeekerRecovery,
+      firstCrispinSeekerRecovery,earlyRegidragoCompressor,
       treasurePaymentChoice:mysteriousTreasureRoot?treasurePaymentChoice:null,
       nativeOwnerTrainerFallback:!ownerMailFollowupFrame,
       ownerFallbackDiagnosticView:!ownerMailFollowupFrame,
