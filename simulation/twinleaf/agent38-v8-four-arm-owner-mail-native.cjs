@@ -21,6 +21,8 @@ function withBilateralOwnerMail(next,deps){
   assert.equal(typeof next,'function');
   const {headless,SimpleTacticsAi,Store,PlayCardAction,
     ResolvePromptAction,types,trialIds}=deps;
+  const followMailNestBall=deps.followMailNestBall===true;
+  const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
   assert.equal(ids.size,trialIds.length, 'registered owner-Mail trial IDs must be unique');
   assert.ok(ids.size>0, 'at least one registered trial is required');
@@ -29,10 +31,12 @@ function withBilateralOwnerMail(next,deps){
   const oldStore=Object.getOwnPropertyDescriptor(store,'dispatch');
   assert.equal(typeof oldRun,'function');
   assert.equal(typeof oldStore?.value,'function');
-  let active=false,storeInstance=null,priorAi=null,pending=null,trialId=null;
+  let active=false,storeInstance=null,priorAi=null,pending=null,
+    pendingNest=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
   const physicallySelectedMailTrainers=new WeakSet();
+  const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
     lateDecoderInstallations:0,ownerRootPassesSeen:0,
     proposalCountsBySeat:[0,0],actualMailItemRootsBySeat:[0,0],
@@ -44,7 +48,10 @@ function withBilateralOwnerMail(next,deps){
     rejectedPromptActions:0,unsettledPromptActions:0,
     noPromptAfterMailBySeat:[0,0],
     revealedTrainers:[],actualMailEvents:[],
-    selectedTrainerLaterPlayed:[],nativeDecoderInvocations:0,
+    selectedTrainerLaterPlayed:[],
+    nestFromMailOffers:0,nestFromMailActualPlays:0,
+    nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
+    nativeDecoderInvocations:0,
     opponentPrivateZonesRead:false,qualifiedGames:0};
 
   function observedMatch(request){
@@ -53,6 +60,7 @@ function withBilateralOwnerMail(next,deps){
     if(!id)return oldRun(request);
     assert.equal(active,false);
     trialId=id;active=true;storeInstance=null;pending=null;
+    pendingNest=null;
     audit.attempts++;
     const descriptor=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
     assert.equal(typeof descriptor?.value,'function');
@@ -64,7 +72,7 @@ function withBilateralOwnerMail(next,deps){
     finally{
       assert.strictEqual(ai.decodeNextAction,observedDecode);
       Object.defineProperty(ai,'decodeNextAction',descriptor);
-      priorAi=null;active=false;storeInstance=null;pending=null;trialId=null;
+      priorAi=null;active=false;storeInstance=null;pending=null;pendingNest=null;trialId=null;
     }
   }
 
@@ -73,6 +81,24 @@ function withBilateralOwnerMail(next,deps){
     const seat=state?.activePlayer;
     const owner=state?.players?.[seat];
     const prompt=state?.prompts?.find(p=>p.result===undefined);
+    if(active&&followMailNestBall&&state===storeInstance?.state&&
+      pendingNest?.seat===seat&&owner?.id===this.client?.id&&
+      prompt?.id===pendingNest.id&&
+      prompt?.constructor?.name==='ChooseCardsPrompt'&&
+      prompt.cards===owner.deck&&
+      prompt.sourceCard?.fullName==='Nest Ball SVI'){
+      const pokemon=(prompt.cards?.cards??[]).find(card=>
+        card.superType===types.SuperType.POKEMON&&
+        card.stage===types.Stage.BASIC&&
+        prompt.validate([card],state)===true);
+      const selected=pokemon?[pokemon]:[];
+      if(prompt.validate(selected,state)===true){
+        const action=new ResolvePromptAction(prompt.id,selected);
+        nestPromptSelections.set(action,{trialId,seat,prompt,selected,
+          ownerId:owner.id});
+        return action;
+      }
+    }
     if(active&&state===storeInstance?.state&&
       pending?.seat===seat&&
       owner?.id===this.client?.id&&prompt?.id===pending.id){
@@ -94,6 +120,20 @@ function withBilateralOwnerMail(next,deps){
       baseline?.constructor?.name!=='PassTurnAction'||
       owner?.id!==this.client?.id)return baseline;
     audit.ownerRootPassesSeen++;
+    if(followMailNestBall&&board.PlayerType!==undefined&&
+      board.SlotType!==undefined&&
+      owner?.bench?.some(slot=>(slot.cards??[]).length===0)){
+      const nestIndex=owner.hand.cards.findIndex(card=>
+        physicallySelectedMailTrainers.has(card)&&
+        card.fullName==='Nest Ball SVI');
+      const nest=owner.hand.cards[nestIndex];
+      if(nestIndex>=0&&nest?.canPlay?.(storeInstance,state,owner)===true){
+        audit.nestFromMailOffers++;
+        return new PlayCardAction(owner.id,nestIndex,{
+          player:board.PlayerType.ANY,slot:board.SlotType.BOARD,index:0
+        });
+      }
+    }
     const handIndex=eligibleMailHandIndex(state,seat,storeInstance);
     if(handIndex===null)return baseline;
     audit.proposalCountsBySeat[seat]++;
@@ -116,6 +156,7 @@ function withBilateralOwnerMail(next,deps){
       owner?.hand?.cards?.[action.handIndex]:null;
     const fromSettledMail=selectedMailCard&&
       physicallySelectedMailTrainers.has(selectedMailCard);
+    const nestPromptProposal=nestPromptSelections.get(action);
     const mailPlay=owner&&
       action?.constructor?.name==='PlayCardAction'&&
       action.id===owner.id&&
@@ -123,11 +164,36 @@ function withBilateralOwnerMail(next,deps){
     let value;
     try{value=oldStore.value.call(this,action,...args);}
     catch(e){if(proposal)audit.rejectedPromptActions++;throw e;}
+    if(nestPromptProposal){
+      const afterOwner=this.state.players[nestPromptProposal.seat];
+      const chosen=nestPromptProposal.selected;
+      const settled=nestPromptProposal.prompt.result===action.result;
+      const moved=chosen.length===1&&
+        afterOwner.bench.some(slot=>slot.cards.includes(chosen[0]))&&
+        !afterOwner.deck.cards.includes(chosen[0]);
+      if(settled&&moved){
+        audit.nestFromMailBenchSettled++;
+        audit.nestFromMailBenchEvents.push({
+          trialId,seat:nestPromptProposal.seat,turnBefore:state.turn,
+          selectedPokemonPrinting:chosen[0].fullName
+        });
+      }
+      pendingNest=null;
+    }
     if(fromSettledMail){
       const played={trialId,seat,turnBefore:state.turn,
         printing:selectedMailCard.fullName};
       audit.selectedTrainerLaterPlayed.push(played);
       deps.onSelectedTrainerPlayed?.(action,played);
+    }
+    if(fromSettledMail&&followMailNestBall&&
+      selectedMailCard.fullName==='Nest Ball SVI'){
+      audit.nestFromMailActualPlays++;
+      const nestPrompt=this.state.prompts?.find(p=>
+        p.result===undefined&&p.playerId===owner.id&&
+        p.constructor.name==='ChooseCardsPrompt'&&
+        p.cards===owner.deck&&p.sourceCard?.fullName==='Nest Ball SVI');
+      pendingNest=nestPrompt?{id:nestPrompt.id,seat}:null;
     }
     if(mailPlay){
       if(ownerPassMailActions.has(action))
