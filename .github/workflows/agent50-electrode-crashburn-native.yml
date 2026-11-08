@@ -29,3 +29,15 @@ jobs:
         run: node --test tests/agent50-electrode-crashburn-native.test.cjs tests/agent45-electrode-crashburn-paper-hook.native.test.cjs
       - name: Actual two-seat public Weakness KO printed-attack choice and physical Prizes
         run: node --test tests/agent50-type-adjusted-ko-native.test.cjs
+      - name: Audit exact original Aichi29 source printings versus pinned CardManager
+        run: node --test tests/agent50-aichi29-native-printed-attack-parity.test.cjs
+      - name: Preserve all 102 native-source printed Pokémon parity rows
+        run: node simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs
+      - name: Upload Aichi29 printed native parity evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-original-field-card-parity-${{ github.run_id }}
+          path: artifacts/agent50-native-field-parity/aichi29-printings.json
+          if-no-files-found: warn
+          retention-days: 30
