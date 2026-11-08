@@ -406,9 +406,12 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
   );
   const postPromptPromptEvidenceComplete =
     sequence?.promptEvidenceComplete === true;
+  const allPostSnapTrapPromptsSettled =
+    sequence?.allPostSnapTrapPromptsSettled === true;
   const meaningfulOpponentAndSourceContinuation =
     sequence?.continuationGatePassed === true &&
-    postPromptPromptEvidenceComplete;
+    postPromptPromptEvidenceComplete &&
+    allPostSnapTrapPromptsSettled;
   const endpointExplicitlyClassified = [
     'native-terminal-unqualified',
     'action-cap',
@@ -432,8 +435,7 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
     postPromptPromptEvidenceComplete,
     nextOwnerPromptResponseSettled:
       sequence?.nextOwnerPromptResponseSettled ?? false,
-    allPostSnapTrapPromptsSettled:
-      sequence?.allPostSnapTrapPromptsSettled ?? false,
+    allPostSnapTrapPromptsSettled,
     postSnapTrapPromptSettlements:
       sequence?.postSnapTrapPromptSettlements ?? [],
     endpointExplicitlyClassified,
