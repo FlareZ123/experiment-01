@@ -117,6 +117,8 @@ jobs:
           node --check simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
           node --check simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
           node --check simulation/evaluation/agent10-owner-information-fallback-diagnostic-v2.cjs
+          node --check simulation/evaluation/agent10-owner-information-fallback-diagnostic-v3.cjs
+          node --check simulation/twinleaf/agent10-owner-prompt-zone-audit-v1.cjs
           node --check simulation/twinleaf/agent10-owner-prompt-metadata-observer-v1.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-known-dead-retro.cjs
           node --check simulation/evaluation/agent7-v9-bilateral-lillie-pass-retro.cjs
@@ -155,6 +157,7 @@ jobs:
             tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent10-pinned-trubbish-fst-full-bench-paper-hook.test.cjs \
             tests/agent10-owner-prompt-metadata-observer.test.cjs \
+            tests/agent10-owner-prompt-zone-audit.test.cjs \
             tests/agent1-actor-dead-first-attack-frontier.test.cjs \
             tests/agent7-v9-bilateral-known-dead-retro.test.cjs \
             tests/agent12-actor-only-lillie-after-pass.test.cjs \
@@ -179,7 +182,7 @@ jobs:
 
       - name: Verify pure Agent34 and Agent41 policy/registration contracts only
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs
+        run: node --test tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
         if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 }}
@@ -207,9 +210,9 @@ jobs:
       - name: Execute preregistered paired four-rank fresh A/B/A with reciprocal screens
         if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 }}
         run: node simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
-      - name: Capture owner-information fallback prompt metadata (phase A diagnostic v2)
+      - name: Capture owner-information fallback prompt and source-zone metadata (phase A diagnostic v3)
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 }}
-        run: node simulation/evaluation/agent10-owner-information-fallback-diagnostic-v2.cjs
+        run: node simulation/evaluation/agent10-owner-information-fallback-diagnostic-v3.cjs
       - name: Execute strict selected-v8 Snap Trap owner-prompt audit
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v2.cjs
