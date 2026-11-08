@@ -136,6 +136,8 @@ function buildArtifact(phase,promptAudit,thrown,sourceRunner){
       sourceRunnerVersion:sourceRunner?.VERSION??phase?.manifest?.version??null,
       sourceRunnerSha256:sha256File(SOURCE_RUNNER_PATH),
       sourceRegistrationSha256:sha256File(SOURCE_REGISTRATION_PATH),
+      sourceCodeCommit:process.env.GITHUB_SHA??null,
+      resolvedSourceAndPolicyHashes:phase?.manifest?.resolvedSourceAndPolicyHashes??[],
       observerPath:'simulation/twinleaf/agent10-owner-prompt-metadata-observer-v1.cjs',
       observerVersion:promptAudit?.version??null,
       observerSha256:sha256File(OBSERVER_PATH),
