@@ -138,6 +138,8 @@ function run() {
       mailContinuation(mail, treatmentTape));
     const choiceReceipts = treatment.ownerMailAudit.revealedTrainers.filter(
       row => row.trialId === trial.id);
+    const selectedTrainerPlayed = treatment.ownerMailAudit
+      .selectedTrainerLaterPlayed.filter(row => row.trialId === trial.id);
     return {
       trialId: trial.id,
       rank: trial.rank,
@@ -166,6 +168,7 @@ function run() {
       nativeAcceptedMailRoots: mailRoots,
       nativeMailContinuations: continuations,
       ownerMailTrainerSelectionReceipts: choiceReceipts,
+      selectedTrainerLaterPlayed: selectedTrainerPlayed,
       actualFullSequenceGate: continuations.some(x => x.continuityPassed) &&
         choiceReceipts.length > 0
     };
@@ -242,6 +245,11 @@ if (require.main === module) {
       acceptedMailOrdinals: row.nativeAcceptedMailRoots.map(root => root.ordinal),
       selectedTrainerPrintings: row.ownerMailTrainerSelectionReceipts.map(
         receipt => receipt.printing),
+      selectedMailTrainersActuallyPlayed: row.selectedTrainerLaterPlayed,
+      selectedMailTrainerPlayedRoots: treatment.publicRootTape.filter(root =>
+        root.trialId === row.trialId &&
+        root.previouslyMailSelectedTrainerPlayed === true
+      ).map(root => root.ordinal),
       laterOpponentAction: row.nativeMailContinuations
         .find(continuation => continuation.opponentMeaningfulRoot)
         ?.opponentMeaningfulRoot?.action ?? null,
