@@ -79,9 +79,16 @@ function publicPerfectionVeto(view,specialConditionCatalog=null){
   const conditions=active.specialConditions??[];
   // Poisoned, Burned and Confused Pokémon may still announce an attack.
   // Only Asleep and Paralyzed categorically prohibit announcing it.
-  if(conditions.length>0&&(!specialConditionCatalog||
-    conditions.some(status=>status===specialConditionCatalog.ASLEEP||
-      status===specialConditionCatalog.PARALYZED)))return 'attack-restricted';
+  if(conditions.length>0){
+    if(!specialConditionCatalog)return 'attack-restricted';
+    const canAttempt=new Set([
+      specialConditionCatalog.CONFUSED,
+      specialConditionCatalog.POISONED,
+      specialConditionCatalog.BURNED
+    ].filter(Number.isSafeInteger));
+    if(conditions.some(status=>!canAttempt.has(status)))
+      return 'attack-restricted';
+  }
   const stadium=[...(view.ownPublic.stadium??[]),...(opponent.stadium??[])];
   if(stadium.some(s=>s.startsWith('Path to the Peak ')||
     s.startsWith('Silent Lab ')))return 'public-stadium-ability-lock';
