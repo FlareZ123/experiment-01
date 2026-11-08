@@ -91,7 +91,7 @@ function buildArtifact(phase,promptAudit,thrown,sourceRunner){
   const promptEvents=Array.isArray(promptAudit?.events)?promptAudit.events:[];
   const promptMatches=quarantineRecords.map(record=>{
     const matching=promptEvents.filter(event=>
-      event.ownerSeat===record.seat&&
+      event.controllerSeat===record.seat&&
       event.turn===record.turn&&
       event.phase===record.phase&&
       event.promptType===record.promptType
