@@ -250,6 +250,23 @@ test('native row adapter uses independent actionCount, never ledger-derived root
   assert.equal(strictVipTreatmentAttributionFromRows(
     missingIndependentCount,treatmentRow
   ).reason,'independent-root-count-or-ledger-mismatch');
+  const missingAuditRow={
+    ...treatmentRow,
+    actorOnlyDecisionCoverage:{detailedComponentAudits:{}}
+  };
+  assert.equal(strictVipTreatmentAttributionFromRows(
+    controlRow,missingAuditRow
+  ).reason,'native-vip-audit-not-recorded');
+});
+
+
+test('native audit presence is insufficient without hook-recorded Store observation',()=>{
+  const f=fixture();
+  f.vipAudit.policyRecorded=false;
+  assert.equal(run(f).reason,'native-vip-audit-not-recorded');
+  const g=fixture();
+  g.vipAudit.nativeStoreSeen=false;
+  assert.equal(run(g).reason,'native-vip-audit-not-recorded');
 });
 
 test('capped or aborted control/treatment matches cannot be attributed',()=>{
