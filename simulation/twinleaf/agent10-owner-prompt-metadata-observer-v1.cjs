@@ -135,16 +135,17 @@ function withOwnerPromptMetadataObserver(run,options={}){
       }
       const promptOrdinal=(promptOrdinals.get(this)??0)+1;
       promptOrdinals.set(this,promptOrdinal);
+      const samePlayerId=(left,right)=>
+        left!=null&&right!=null&&String(left)===String(right);
       const resourceOwnerSeat=players.findIndex(player=>
         player===prompt?.player||
-        (prompt?.player?.id!=null&&player?.id===prompt.player.id)
+        samePlayerId(player?.id,prompt?.player?.id)
       );
       const controllerSeat=players.findIndex(player=>
-        prompt?.playerId!=null&&player?.id===prompt.playerId
+        samePlayerId(player?.id,prompt?.playerId)
       );
       const perspectiveSeat=players.findIndex(player=>
-        prompt?.perspectivePlayerId!=null&&
-        player?.id===prompt.perspectivePlayerId
+        samePlayerId(player?.id,prompt?.perspectivePlayerId)
       );
       const optionsObject=prompt?.options&&typeof prompt.options==='object'
         ?prompt.options:{};
