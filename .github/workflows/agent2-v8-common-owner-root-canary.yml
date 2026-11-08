@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_quick_ball_vip:
+        description: 'Run original rank5 and rank9 late-dead-VIP owner Quick Ball paper-guarded treatment'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -48,7 +53,7 @@ jobs:
       - name: Verify selected-v8 canary release-gate contract
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
-        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_cross_archetype }}
+        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_cross_archetype && !inputs.agent7_quick_ball_vip }}
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
       - name: Check first-cycle Beach pure tests and native treatment syntax
         if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo }}
@@ -70,6 +75,13 @@ jobs:
           node --test tests/2026-11/agent7-mail-two-source-registration.test.cjs
           node --check simulation/evaluation/agent7-v8-mail-two-source-coverage.cjs
           node simulation/evaluation/agent7-v8-mail-two-source-coverage.cjs
+      - name: Test prospective owner Quick Ball with real native mandatory payment and own-deck search
+        if: ${{ inputs.agent7_quick_ball_vip }}
+        run: |
+          node --test tests/2026-11/agent7-quick-ball-after-pass.test.cjs tests/2026-11/agent7-quick-ball-two-source-registration.test.cjs
+          node --check simulation/twinleaf/agent7-quick-ball-native-after-pass.cjs
+          node --check simulation/evaluation/agent7-v8-quick-ball-native-two-source.cjs
+          node simulation/evaluation/agent7-v8-quick-ball-native-two-source.cjs
       - name: Print compact selected-v8 canary receipt
         if: always()
         run: >-
@@ -84,4 +96,5 @@ jobs:
             artifacts/agent7-v8-rank3-early-beach/paired-native.json
             artifacts/agent7-v8-rank3-mail-beach/paired-native.json
             artifacts/agent7-mail-broad-coverage/rank9-rank26-paired.json
+            artifacts/agent7-v8-quick-ball/rank5-rank9-paired-native.json
           if-no-files-found: error
