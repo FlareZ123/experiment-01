@@ -108,6 +108,7 @@ function makeMatchAudit(responseRecords = [
   return {
     ownerPromptEvidence: {
       nextOwnerPrompt,
+      postSnapTrapPrompts: [nextOwnerPrompt],
       promptRecords: [nextOwnerPrompt],
       responseRecords
     }
@@ -231,6 +232,7 @@ test('grouped prompt response stays unclassified until its exact promptItem is r
     groupedResponse
   ]);
   audit.ownerPromptEvidence.promptRecords.push(choosePrompt);
+  audit.ownerPromptEvidence.postSnapTrapPrompts.push(choosePrompt);
   const sequence = buildPostPromptSequence(
     trialId, makeJoin(), [
       { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
@@ -248,6 +250,41 @@ test('grouped prompt response stays unclassified until its exact promptItem is r
   assert.equal(sequence.unclassifiedPromptRoots[0].reason, 'prompt-item-not-removed');
   assert.equal(sequence.promptEvidenceComplete, false);
   assert.equal(sequence.continuationGatePassed, false);
+});
+
+test('every captured post-Snap Trap prompt must have an exact settlement receipt', () => {
+  const trialId = '3:312:B:champion-reference';
+  const secondPrompt = {
+    promptIdAfterStore: '175',
+    ownerSeat: 1,
+    promptType: 'WaitPrompt',
+    message: 'WAIT_FOR_OPPONENT',
+    sameRootStore: true
+  };
+  const audit = makeMatchAudit([settledResponse('174', 251, 1)]);
+  audit.ownerPromptEvidence.promptRecords.push(secondPrompt);
+  audit.ownerPromptEvidence.postSnapTrapPrompts.push(secondPrompt);
+  const sequence = buildPostPromptSequence(
+    trialId, makeJoin(), [{
+      trialId,
+      actionOrdinal: 251,
+      seat: 1,
+      action: 'ResolvePromptAction',
+      promptId: '174',
+      responseKind: 'null'
+    }], {}, {
+      nativeOutcome: 'action-cap',
+      actionCount: 251,
+      finished: false,
+      rootActionCount: 251,
+      rootActionLedgerLength: 251
+    }, audit
+  );
+  assert.equal(sequence.nextOwnerPromptResponseSettled, true);
+  assert.equal(sequence.allPostSnapTrapPromptsSettled, false);
+  assert.equal(sequence.postSnapTrapPromptSettlements.length, 2);
+  assert.equal(sequence.postSnapTrapPromptSettlements[1].settled, false);
+  assert.equal(sequence.promptEvidenceComplete, false);
 });
 
 test('known non-WaitPrompt null with exact settlement receipt remains meaningful', () => {
