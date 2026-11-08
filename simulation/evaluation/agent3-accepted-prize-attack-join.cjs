@@ -75,8 +75,27 @@ function joinNativePrizeExitsToSettledAttacks(attempts,physicalExits){
           exit.exactExitedCards
       ).map(attack=>({role,seat,attack}));
     });
-    assert.equal(candidates.length,1,
-      'Exact native Prize packet must have one settled attacker/prize attribution');
+    if(candidates.length!==1){
+      // Public metadata only: reveal why no exact original Store attack matched.
+      const probe=[
+        ['original-source',row.sourceSeat,row.sourceAttackSettlement],
+        ['fixed-contender',row.candidateSeat,row.candidateAttackSettlement]
+      ].flatMap(([role,seat,report])=>(report?.attacks??[])
+        .filter(attack=>attack.actionOrdinal<=ordinal &&
+          attack.completionRootOrdinal>=ordinal)
+        .map(attack=>({role,seat,actionOrdinal:attack.actionOrdinal,
+          completionRootOrdinal:attack.completionRootOrdinal,
+          turnBefore:attack.turnBefore,
+          settledPromptChain:attack.settledPromptChain,
+          settlementCrossesClockReset:attack.settlementCrossesClockReset,
+          prizesBefore:attack.prizesBefore,
+          prizesAfter:attack.prizesAfter})));
+      assert.fail('Exact native Prize packet needs one settled attack: '+
+        JSON.stringify({trial:exit.registeredTrialId,eventIndex,
+          exitOrdinal:ordinal,exitTurnBefore:exit.acceptedRootTurnBefore,
+          takingSeat:exit.ownerSeat,prizePacket:exit.exactExitedCards,
+          candidates:candidates.length,nearbyPublicAttacks:probe}));
+    }
     const {role,seat,attack}=candidates[0];
     const attackId=[exit.registeredTrialId,seat,attack.actionOrdinal].join(':');
     assert.equal(used.has(attackId),false,
