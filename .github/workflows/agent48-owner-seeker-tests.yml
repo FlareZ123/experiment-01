@@ -15,4 +15,4 @@ jobs:
         with:
           node-version: '20.19.0'
       - name: Run owner VS Seeker regressions
-        run: node --test tests/agent48-owner-vs-seeker-supporter.test.cjs tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs tests/agent48-owner-vs-seeker-guzma-root.test.cjs tests/agent48-owner-vs-seeker-guzma-layer.test.cjs
+        run: node --test tests/agent48-owner-vs-seeker-supporter.test.cjs tests/agent2-vs-seeker-guzma-recovery-frontier.test.cjs tests/agent48-owner-vs-seeker-guzma-root.test.cjs tests/agent48-owner-vs-seeker-guzma-layer.test.cjs tests/2026-11/agent31-late-seeker-guzma-prize.test.cjs
