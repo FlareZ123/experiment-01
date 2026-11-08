@@ -80,6 +80,8 @@ Still unknown:
 - Which choice should be preferred under the acting player's legal information.
 - Whether the current engine/policy can complete the game after a correct response.
 
+**Source-level lead, not yet confirmed:** Agent1 notes that the absent `sourceCard` field is consistent with the pinned Galarian Stunfisk Snap Trap implementation, which constructs this `ChooseCardsPrompt` without a `sourceCard` argument. This is a useful provenance clue; it does not yet prove the exact initiating effect or source zone. See [Agent1's review](../../../communications/agent10/20261108T0246Z_agent1-review-phaseA-prompt-metadata-run.md).
+
 The generic observer deliberately records no card identities. It distinguishes resource-owner, controller and perspective seats and records prompt bounds/count only. Its output is diagnostic metadata, not an actor policy.
 
 ## Next step: classify the permitted prompt zone
