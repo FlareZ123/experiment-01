@@ -28,3 +28,13 @@ This is a **policy change to fallback proposals**; no card text, native reducer,
 ## Useful next move
 
 Run a registered full-state Source vs Iron Thorns/Supporter-lock native counterfactual with the real Ability resolver and the old/new opt-in mobility policy under identical public states. Capture the Ability's loss after voluntary movement and the resulting opponent action, then identify when switching to another same-lock attacker or achieving the final Prize can legitimately dominate preservation.
+
+## Owner-public equivalence refinement (v2)
+
+The original global veto also rejected a replacement **Iron Thorns ex** with exactly the same ongoing `Initialization` Ability and full printed card identity. This mattered because three authenticated Top32 original lists (ranks 6, 24 and 29) contain four Iron Thorns ex each: switching between them may retain Ability lock while improving the active board.
+
+The shared helper now exports `wouldLoseActivePositionAbility(view, benchIndex)`. Each mobility planner tests its *actual prospective target*. It permits a handoff only when the target's **printing is identical** and the public Ability name plus complete text match for one of four explicitly identified position-only lock Abilities: Initialization, Sentinel, Neutralizing Gas or Oceanic Curse. All other Active-conditioned Abilities, different printings, missing recipient text, or mismatched text are still conservatively protected. Selection searches all eligible Bench slots instead of rejecting the entire position based solely on the original Active. Native state and opponent hidden zones remain untouched.
+
+[Corrected contract suite 42522533052](https://github.com/FlareZ123/experiment-01/actions/runs/42522533052) passed **41/41** including exact same-print handoff and different-print abstention. An earlier [42522206997](https://github.com/FlareZ123/experiment-01/actions/runs/42522206997) had a synthetic fixture incorrectly named `Owner ability` where real printed name is `Initialization`; the name was corrected and full suite passed.
+
+A separate opt-in native Store test `tests/2026-11/agent47-iron-thorns-active-lock-handoff.native.test.cjs` stages Float Stone attachment, actual RetreatAction, and the engine's `IS_ABILITY_BLOCKED` for a physically separate opposing Tapu Lele-GX on **both original seat assignments**. The identical-Iron Thorns replacement is compared with a differently printed replacement. This tests the underlying native effect's persistence rather than inferring it from the regex alone. Test outcomes remain developmental and cannot be used as a qualified tournament result.
