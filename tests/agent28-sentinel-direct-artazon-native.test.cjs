@@ -282,21 +282,9 @@ for(const seat of [0,1]){
       'Second Evolution must reach original printed Irritating Pollen');
     assert.equal(x.state.activePlayer,1-seat);
 
-    // An actual original-rank1 opponent Item must fail under the live lock.
     const opponent=x.f.defender;
-    const fog=opponent.hand.cards.find(c=>c.fullName==='Fog Crystal CRE')??
-      opponent.deck.cards.find(c=>c.fullName==='Fog Crystal CRE');
-    assert.ok(fog);
-    if(!opponent.hand.cards.includes(fog)){
-      opponent.deck.cards.splice(opponent.deck.cards.indexOf(fog),1);
-      opponent.hand.cards.push(fog);
-    }
-    const fogIndex=opponent.hand.cards.indexOf(fog);
-    const oldHand=opponent.hand.cards.slice();
-    assert.throws(()=>x.f.store.dispatch(new PlayCardAction(
-      opponent.id,fogIndex,{player:PlayerType.ANY,
-        slot:SlotType.BOARD,index:0})),e=>e?.message==='CANNOT_PLAY_THIS_CARD');
-    assert.deepEqual(opponent.hand.cards,oldHand);
+    assert.strictEqual(x.f.store.state,x.state,
+      'Opponent reply must use the current Store game state');
 
     // The original opponent's legal Supporter remains usable under Item lock:
     // true native Guzma prompts promote Vileplume and own Benched Mimikyu.
@@ -344,9 +332,37 @@ for(const seat of [0,1]){
     x.f.store.dispatch(new ResolvePromptAction(gust.id,[mimikyu.physical]));
     assert.equal(opponent.active.getPokemonCard()?.fullName,'Mimikyu GRI');
     assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
-    assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS'));
+    assert.ok(opponent.discard.cards.some(c=>c.fullName==='Guzma BUS') ||
+      opponent.supporter.cards.some(c=>c.fullName==='Guzma BUS'),
+      'Guzma must leave hand and occupy its legal played zone');
     assert.equal(x.f.store.hasPrompts(),false);
     assert.equal(x.state.activePlayer,1-seat);
+
+    // An illegal native Item attempt rolls the Store back into a fresh State.
+    // Run this negative control last, so earlier reply actions use live refs.
+    // An actual original-rank1 opponent Item must fail under the live lock.
+    const fog=opponent.hand.cards.find(c=>c.fullName==='Fog Crystal CRE')??
+      opponent.deck.cards.find(c=>c.fullName==='Fog Crystal CRE');
+    assert.ok(fog);
+    if(!opponent.hand.cards.includes(fog)){
+      opponent.deck.cards.splice(opponent.deck.cards.indexOf(fog),1);
+      opponent.hand.cards.push(fog);
+    }
+    const fogIndex=opponent.hand.cards.indexOf(fog);
+    const oldHand=opponent.hand.cards.slice();
+    assert.throws(()=>x.f.store.dispatch(new PlayCardAction(
+      opponent.id,fogIndex,{player:PlayerType.ANY,
+        slot:SlotType.BOARD,index:0})),e=>e?.message==='CANNOT_PLAY_THIS_CARD');
+    assert.deepEqual(opponent.hand.cards,oldHand);
+
+    const stateBeforeRejection=x.f.store.state;
+    const liveOpponentAfterRejection=x.f.store.state.players[1-seat];
+    assert.notStrictEqual(x.f.store.state,stateBeforeRejection,
+      'Rejected Item must replace the live native State');
+    assert.deepEqual(liveOpponentAfterRejection.hand.cards.map(c=>c.fullName),
+      oldHand.map(c=>c.fullName));
+    assert.equal(x.f.store.state.players[seat].active.getPokemonCard()?.fullName,
+      'Vileplume AOR');
 
     console.log('AGENT28_DIRECT_ARTAZON_NATIVE',JSON.stringify({
       seat,sourceCards:60,fanPrized:true,bunnelbyBefore:beforeB,
