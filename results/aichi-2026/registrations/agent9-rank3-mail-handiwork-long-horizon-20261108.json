@@ -1,0 +1,30 @@
+{
+  "schema": "agent9-rank3-mail-handiwork-long-horizon-v1",
+  "registeredAtUtc": "2026-11-08T22:29:00Z",
+  "purpose": "Development-only retrospective extension of one authentic Aichi rank3 versus rank1 original source canary to investigate Handiwork deckout payoff after physical two-card mill.",
+  "originalFrame": "agent36-selected-v8-common-policy-snap-trap-owner-prompt-two-seeds-both-seats-260root-v1",
+  "originalFrozenArm": "3:213:A:champion-reference",
+  "originalSeed": 948758444,
+  "originalSourceSeat": 1,
+  "originalCandidateSeat": 0,
+  "printedDecks": "Identical authenticated 60-card source and candidate printings as the frozen original frame, reused by the existing v8 native driver.",
+  "gameEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenCap": 260,
+  "extendedNativeCap": 600,
+  "capOverrideMethod": "An isolated wrapper at headless.runMatch copies the exact request and replaces maxActions only for the named original arm, before invoking the native Store. The existing shared registration and default 260 cap are untouched.",
+  "fixedControl": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailHandiwork": false,
+    "followMailNestBall": false
+  },
+  "fixedTreatment": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailHandiwork": true,
+    "followMailNestBall": false
+  },
+  "selection": "Retrospective: the one original 260-root arm already showed a physical two-card Team Rocket's Handiwork mill under an observed original seed. This is never a prospective held-out sample.",
+  "qualification": "development-only, not a valid win-rate denominator, not a new paper-rule/fidelity certification",
+  "integrity": "Compare the control and treatment with the same seed, exact owner deck and opponent deck, true printed cards, engine pin and other policies. Record native actions, winner/endReason/Prizes at 600 root maximum and the exact override acceptance receipt."
+}
