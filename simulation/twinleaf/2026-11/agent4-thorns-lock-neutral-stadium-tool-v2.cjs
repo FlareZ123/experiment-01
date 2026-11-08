@@ -6,25 +6,29 @@ const {
 const VERSION='agent4-thorns-public-neutral-stadium-tool-v2';
 
 /*
- * Audited exact historical English print families. The supplied paper
+ * Audited, set-qualified native fullName families. The pinned actor
+ * observation exposes native fullName as card name plus set abbreviation;
+ * collector numbers are not included. The verified source print identities
+ * BWP 28/50, ASR 155/214, PHF 93, CEC 187, PLF 99, BKT 137, and SSH 156
+ * provide the paper provenance of these closed name/set predicates. The supplied paper
  * card database describes only card-draw, attack-cost, Energy-type or
  * Stadium-replacement effects for these Stadiums, and only retreat-cost
  * effects for these Tools. None of these texts grants Ability protection
  * or removes Initialization from an Active Iron Thorns ex.
  *
- * This list is intentionally closed. Path to the Peak and Silent Lab are
+ * This name-plus-set list is intentionally closed. Path to the Peak and Silent Lab are
  * excluded because they remove Iron Thorns's own Basic/Rule-Box Ability.
  * Stealthy Hood is excluded because it protects its attached Pokémon
  * from opponent Ability effects. Unknown and future reprints abstain.
  */
 const NEUTRAL_STADIUM_PRINTINGS=Object.freeze([
-  'Tropical Beach BWP 28','Tropical Beach BWP 50',
-  'Temple of Sinnoh ASR 155','Temple of Sinnoh ASR 214',
-  'Dimension Valley PHF 93','Chaotic Swell CEC 187'
+  'Tropical Beach BWP',
+  'Temple of Sinnoh ASR',
+  'Dimension Valley PHF','Chaotic Swell CEC'
 ]);
 const NEUTRAL_TOOL_PRINTINGS=Object.freeze([
-  'Float Stone PLF 99','Float Stone BKT 137',
-  'Air Balloon SSH 156'
+  'Float Stone PLF','Float Stone BKT',
+  'Air Balloon SSH'
 ]);
 const neutralStadium=new Set(NEUTRAL_STADIUM_PRINTINGS);
 const neutralTool=new Set(NEUTRAL_TOOL_PRINTINGS);
