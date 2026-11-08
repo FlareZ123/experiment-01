@@ -37,7 +37,7 @@ A second test uses null responses for prompt IDs without exact prompt records. T
 
 ## Required correction
 
-1. Classify a resolution as mechanical only when the exact prompt record identifies `WaitPrompt`, the response is exactly `null`, and the native Store receipt proves the prompt item completed with no unresolved prompt remaining.
+1. Classify a resolution as mechanical only when the exact prompt record identifies `WaitPrompt`, the exact prompt ID matches, the action result is exactly `null`, dispatch returns without throwing, the native prompt result is non-undefined and equals the action result, and the original prompt item containing that ID is removed after dispatch. Pinned `Store.reducePrompt` removes the prompt item only after every grouped result is `!== undefined` (Store lines 277–305); `Store.hasPrompts()` reflects whether prompt items remain (lines 329–340).
 2. Treat `undefined` as unresolved/invalid/censored, never as a completed mechanical response.
 3. Do not classify null from an unknown or non-WaitPrompt prompt as mechanical. Preserve it as a distinct cancellation/response or unknown-contract event.
 4. Add negative tests for unknown prompt + undefined, WaitPrompt + undefined, and ChooseCardsPrompt + null. None should satisfy the mechanical-completion condition.
