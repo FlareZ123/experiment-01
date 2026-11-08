@@ -47,8 +47,6 @@ function chooseFreeRetreatToPotentialKo(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own.active,foe=view.opponentPublic?.active;
   if(!active||!foe||view.globalTurn===1)return null;
-  if(require('./agent47-active-position-retreat-veto.cjs')
-    .hasActivePositionAbilityToPreserve(view))return null;
   const r=view.ownTurnResources;
   if(!Number.isSafeInteger(r?.retreatedTurn)||
       r.retreatedTurn===view.globalTurn)return null;
@@ -70,7 +68,9 @@ function chooseFreeRetreatToPotentialKo(view,catalog){
 
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
     const slot=own.bench[benchIndex];
-    if(!slot||slot.publicRestrictions?.cannotAttackNextTurn===true)continue;
+    if(!slot||slot.publicRestrictions?.cannotAttackNextTurn===true||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,benchIndex))continue;
     const attack=slot.attacks?.find(move=>
       move.gxAttack!==true&&Number.isSafeInteger(move.damage)&&
       move.damage>0&&move.damage>=remaining&&
