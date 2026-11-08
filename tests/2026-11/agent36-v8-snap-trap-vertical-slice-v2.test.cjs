@@ -214,6 +214,42 @@ test('WaitPrompt undefined remains unclassified even when undefined matches stor
   assert.equal(sequence.continuationGatePassed, false);
 });
 
+test('grouped prompt response stays unclassified until its exact promptItem is removed', () => {
+  const trialId = '3:312:B:champion-reference';
+  const choosePrompt = {
+    promptIdAfterStore: '175',
+    ownerSeat: 1,
+    promptType: 'ChooseCardsPrompt',
+    message: 'CHOOSE_CARDS',
+    sameRootStore: true
+  };
+  const groupedResponse = settledResponse('175', 252, 1, 'array');
+  groupedResponse.promptItemIdsBeforeDispatch = ['175', '176'];
+  groupedResponse.promptItemRemovedAfterDispatch = false;
+  const audit = makeMatchAudit([
+    settledResponse('174', 251, 1),
+    groupedResponse
+  ]);
+  audit.ownerPromptEvidence.promptRecords.push(choosePrompt);
+  const sequence = buildPostPromptSequence(
+    trialId, makeJoin(), [
+      { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
+      { trialId, actionOrdinal: 252, seat: 1, action: 'ResolvePromptAction', promptId: '175', responseKind: 'array' },
+      { trialId, actionOrdinal: 253, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+    ], {}, {
+      nativeOutcome: 'action-cap',
+      actionCount: 253,
+      finished: false,
+      rootActionCount: 253,
+      rootActionLedgerLength: 253
+    }, audit
+  );
+  assert.equal(sequence.unclassifiedPromptRoots.length, 1);
+  assert.equal(sequence.unclassifiedPromptRoots[0].reason, 'prompt-item-not-removed');
+  assert.equal(sequence.promptEvidenceComplete, false);
+  assert.equal(sequence.continuationGatePassed, false);
+});
+
 test('known non-WaitPrompt null with exact settlement receipt remains meaningful', () => {
   const trialId = '3:312:B:champion-reference';
   const choosePrompt = {
