@@ -71,11 +71,27 @@ function withOwnerTreasurePrompts(run,deps={}){
   assert.equal(typeof previous?.value,'function');
   assert.equal(previous.configurable,true);
   const events=[];
+  const observedOwnerChoicePrompts=[];
   const intercepted=function ownerTreasureOnly(state){
     const clientId=this.client?.id;
     const owner=state.players?.find(player=>player.id===clientId);
     const prompt=state.prompts?.find(item=>
       item.playerId===clientId&&item.result===undefined);
+    if(owner&&prompt?.constructor?.name==='ChooseCardsPrompt'&&
+       state.turn===1&&prompt.message==='CHOOSE_CARD_TO_DISCARD'){
+      observedOwnerChoicePrompts.push({
+        seat:state.players.indexOf(owner),turn:state.turn,
+        promptId:prompt.id,sourcePrinting:prompt.sourceCard?.fullName??null,
+        sourceCardType:prompt.sourceCard?.constructor?.name??null,
+        sourceCardExists:prompt.sourceCard!=null,
+        ownTemporaryItemPrintings:owner.supporter?.cards?.map(
+          card=>card.fullName)??[],
+        isExactOwnerHandZone:prompt.cards===owner.hand,
+        ownerHandPrintings:owner.hand.cards.map(card=>card.fullName),
+        nativeMin:prompt.options?.min??null,
+        nativeMax:prompt.options?.max??null
+      });
+    }
     if(owner&&prompt?.sourceCard?.fullName===TREASURE){
       const choice=chooseOwnerTreasurePrompt(
         state,prompt,owner,paymentChoice);
@@ -104,6 +120,7 @@ function withOwnerTreasurePrompts(run,deps={}){
     const result=run();
     return {result,audit:{
       version:VERSION,paymentChoice,proposals:events.length,events,
+      observedOwnerChoicePrompts,
       printedItemSourceConfirmed:events.length>0,
       physicalStorePaymentNotYetCertified:true,
       paperGameQualified:false,competitiveQualifiedGames:0
