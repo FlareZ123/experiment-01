@@ -99,6 +99,16 @@ function underworldDoorAction(options) {
     }
   }
 
+  const promptsBeforeUnderworld = state.prompts.filter(
+    prompt => prompt.result === undefined).map(prompt => prompt.id);
+  if (manualFallback) {
+    manualFallback.pendingNativePromptsAfterAttachment =
+      state.prompts.filter(prompt => prompt.result === undefined)
+        .map(prompt => prompt.constructor.name);
+  }
+  const powerCheck = new CheckPokemonPowersEffect(player, vmax);
+  store.reduceEffect(state, powerCheck);
+  const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
   let manualFallback = null;
   if (options.manualActiveEnergyIfV3Veto) {
     assert.equal(options.actingSeat, true, 'Manual fallback owner must be acting');
@@ -134,16 +144,15 @@ function underworldDoorAction(options) {
     };
   }
 
-  const promptsBeforeUnderworld = state.prompts.filter(
-    prompt => prompt.result === undefined).map(prompt => prompt.id);
-  if (manualFallback) {
-    manualFallback.pendingNativePromptsAfterAttachment =
-      state.prompts.filter(prompt => prompt.result === undefined)
-        .map(prompt => prompt.constructor.name);
+  if(manualFallback){
+    assert.equal(powerListed,false,
+      'Actual pinned Store must find Underworld suppressed under visible Thorns');
+    return {allowed:false,powerListed,
+      blockedReason:'policy-veto-without-announcing-underworld',
+      blockedStack:null,attached:0,drawn:0,
+      handCount:player.hand.cards.length,manualFallback};
   }
-  const powerCheck = new CheckPokemonPowersEffect(player, vmax);
-  store.reduceEffect(state, powerCheck);
-  const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
+
   let allowed = true;
   let blockedReason;
   let blockedStack;
