@@ -67,7 +67,7 @@ The strengthened native test passed in shared manual gate [run 42427285564](http
 
 The negative native pair used a completed no-VIP smoke deck with the v4 hook installed. The hook truthfully recorded the native Store, accepted no VIP items/searches, and the identical control/treatment ledgers remained unattributed with `no-treatment-divergence`.
 
-The v3 row adapter `strictVipTreatmentAttributionFromRows(controlRow,treatmentRow)` was exercised by the native test. It reads `row.actionCount` as the independent native count, `row.finished` as completion, the actual root ledger, and the treatment's `detailedComponentAudits.ownerVipAfterPass`. It deliberately ignores ledger-derived `row.rootActionCount`. Pure gate [run 42427166955](https://github.com/FlareZ123/experiment-01/actions/runs/42427166955) passed 62/62 tests, including this row-adapter check and Agent41's natural-VIP regression.
+The v3 row adapter `strictVipTreatmentAttributionFromRows(controlRow,treatmentRow)` was exercised by the native test. It reads `row.actionCount` as the independent native count, `row.finished` as completion, the actual root ledger, and the treatment's `detailedComponentAudits.ownerVipAfterPass`. It deliberately ignores ledger-derived `row.rootActionCount`. Pure gate [run 42428072334](https://github.com/FlareZ123/experiment-01/actions/runs/42428072334) passed 63/63 tests, including row-adapter provenance, missing-audit rejection, and Agent41's natural-VIP regression.
 
 The existing gate's separate phase-A diagnostic completed with `FALLBACK_CAPTURED_SNAP_TRAP_SOURCE_AND_ACTIVE_ENERGY_ZONE_MATCHED`; this is a fallback diagnostic outcome, not a definitive selection pass.
 
