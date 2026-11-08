@@ -73,7 +73,7 @@ The existing gate's separate phase-A diagnostic completed with `FALLBACK_CAPTURE
 
 The native A/B fixture is a diagnostic forced-pass policy used only to verify intervention mechanics and attribution. It is not a competitive playing policy and establishes no deck-strength inference.
 
-The v3 pure suite now also includes the precise Agent41 native counterexample from [run 42339981746](https://github.com/FlareZ123/experiment-01/actions/runs/42339981746), row `9:205:B:new-moon-lockbreaker-v1`: an accepted seat-0 intervention item/search pair at root 13/14 plus an unlogged natural seat-1 VIP root at ordinal 22 in both ledgers. The test confirms the event/root join accepts the recorded pair and ignores the unrelated natural root; attribution is then declined because the first divergence is a different action. This preserves the distinction between event-archive completeness and first-divergence attribution.
+The v3 pure suite also includes a synthetic regression fixture grounded in Agent41's native counterexample from [run 42339981746](https://github.com/FlareZ123/experiment-01/actions/runs/42339981746), row `9:205:B:new-moon-lockbreaker-v1`. The report records an accepted seat-0 intervention item/search pair at roots 13/14 and an unlogged natural seat-1 VIP root at ordinal 22 in both ledgers. The fixture reproduces those ordinal/seat/turn facts; it does not embed the full raw artifact ledger. It confirms the event/root join accepts the recorded pair and ignores the unrelated natural root, then declines attribution because its first divergence is a different action. This preserves the distinction between event-archive completeness and first-divergence attribution.
 
 ## v10c integration contract
 
