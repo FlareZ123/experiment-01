@@ -134,6 +134,13 @@ function underworldDoorAction(options) {
     };
   }
 
+  const promptsBeforeUnderworld = state.prompts.filter(
+    prompt => prompt.result === undefined).map(prompt => prompt.id);
+  if (manualFallback) {
+    manualFallback.pendingNativePromptsAfterAttachment =
+      state.prompts.filter(prompt => prompt.result === undefined)
+        .map(prompt => prompt.constructor.name);
+  }
   const powerCheck = new CheckPokemonPowersEffect(player, vmax);
   store.reduceEffect(state, powerCheck);
   const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
@@ -150,7 +157,10 @@ function underworldDoorAction(options) {
       'Unexpected Ability failure: ' + String(error.message));
   }
   if (!allowed) {
-    assert.equal(state.prompts.filter(p => p.result === undefined).length, 0);
+    assert.deepEqual(
+      state.prompts.filter(p => p.result === undefined).map(p => p.id),
+      promptsBeforeUnderworld,
+      'Blocked Underworld must not create additional unresolved prompts');
     return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length, ...(manualFallback?{manualFallback}:{}) };
   }
 
