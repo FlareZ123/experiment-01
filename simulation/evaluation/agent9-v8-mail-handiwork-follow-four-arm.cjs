@@ -127,6 +127,9 @@ function run() {
     };
   });
   const acted = panels.reduce((n,p) => n+p.nativeAcceptedHandiwork.length,0);
+  const nativeTreatmentErrors = panels.filter(p =>
+    p.treatment.status === 'engine-error' ||
+    (p.treatment.endReason === null && p.treatment.rootCount === null));
   assert.equal(acted,audit.handiworkFromMailAccepted);
   return {
     schema: VERSION,
@@ -136,13 +139,15 @@ function run() {
     experimentalNativeActions: acted,
     offers: audit.handiworkFromMailOffers,
     rejected: audit.handiworkFromMailRejected,
+    nativeTreatmentErrors: nativeTreatmentErrors.map(p => p.id),
     physicalDeckCardsRemovedAtDispatch:
       panels.reduce((n,p) => n+p.nativeAcceptedHandiwork.reduce(
         (m,r) => m+r.physicalDeckCardsRemoved,0),0),
     arms: panels,
     qualification: {completeCompetentGames: 0, finalDeckSelected: false,
       matchupsMeasured: 0, winRate: null,
-      status: acted > 0 ? 'NATIVE_SUPPORTER_ACCEPTED_DEVELOPMENTAL'
+      status: nativeTreatmentErrors.length > 0 ? 'NATIVE_TREATMENT_ENGINE_ERROR'
+        : acted > 0 ? 'NATIVE_SUPPORTER_ACCEPTED_DEVELOPMENTAL'
         : 'NO_NATIVE_HANDIWORK_TREATMENT_ACCEPTED'}
   };
 }
@@ -158,6 +163,8 @@ if (require.main === module) {
     process.exitCode = 1;
   }
   const saved = save(result);
+  if (result.qualification.status === 'NATIVE_TREATMENT_ENGINE_ERROR')
+    process.exitCode = 1;
   process.stdout.write(JSON.stringify({schema: result.schema,
     saved, status: result.qualification.status,
     handiworkNativeActions: result.experimentalNativeActions ?? 0,
