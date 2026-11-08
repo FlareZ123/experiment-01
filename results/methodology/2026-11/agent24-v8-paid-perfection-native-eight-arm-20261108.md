@@ -27,6 +27,21 @@ The native Actor34 audited three `perfection` root intents; Actor13 recorded **3
 
 Eight distinct registered attempts: original ranks 6, 11, 1 and 3 against champion reference and New Moon Lockbreaker v1, physical seed/seat as fixed. The other seven arms registered **zero Perfection decisions** and zero resulting prompt selections. Thus this proves a **targeted, rare native opportunity**, not a broad favorable matchup or a 99.5% metagame outcome.
 
+## Completed same-deal control versus treatment: native causal action evidence
+
+The second [CI 42531554690](https://github.com/FlareZ123/experiment-01/actions/runs/42531554690) **succeeded** and archived the full A/B output as artifact **13637796534**, ZIP SHA256 **8002dc219c95bae5d5bf0ac340701baca8e27c7450e6bbb8e4f6db50ad7e71f2**. Its paired runner invoked `runIssue25V8WithOwnerAbilityPolicy()` (unmodified v8 control with the previously deployed owner Telepath and Confirm handlers) and the separate opt-in Perfection native runner. It asserted for all eight original trials the **same exact full physical setup/deal digest**, original source/actor seat, source deal digest, registered trial ID, and cardlists. It diffed accepted native root-action ledger entries byte-for-byte.
+
+In seven of eight trials, the full native action ledgers were **identical**. In exactly one, `11:211:A:new-moon-lockbreaker-v1`, the complete first 91 native actions (ordinals 0 through 90 inclusive) were identical. At **ordinal 91 on candidate turn 17**, control issued `PassTurnAction`, treatment `UseAbilityAction('Perfection')`. The next real prompt selected donor Gengar & Mimikyu-GX's Horror House-GX. Candidate copies then executed Poltergeist twice, causing two real `ChoosePrizePrompt` transitions.
+
+| Same original 60 and same physical deal | Actual native accepted roots | Remaining Prizes candidate / original source | Terminal status |
+| --- | ---: | ---: | --- |
+| Original shared v8 owner root + Telepath and Confirm | 128 | **6 / 2** | Root-cap; unfinished |
+| Same policy + bilateral paid Perfection root | 128 | **1 / 5** | Root-cap; unfinished |
+
+The raw JSON stores remaining Prizes as **physical seat 0 / seat 1**, in this trial respectively candidate / source. The control took zero Prizes while the source took four; the Perfection treatment took five Prizes while the source took one. This comparison establishes a genuine **same-deal tactical effect** for an actually executable attack path, including two native Knock Outs and Prize receipts. It does not establish which version wins after root 128, and a 128-action cap is **not a tie**. The other seven unchanged games must not be counted as eight wins.
+
+The control and treatment were run under registered original source inventories and existing card-print proxy policies; policy competence, all-paper-Expanded legality/errata, true event clock and unseen representative deal coverage remain unqualified. Reproduce with `simulation/evaluation/agent24-v8-perfection-paired-native.cjs` and the manual `agent24_v8_bilateral_perfection` switch in `.github/workflows/agent36-bilateral-competence-v9.yml`.
+
 ## Related rule-correctness patch
 
 The public Perfection readiness selector formerly treated **every** Special Condition as attack-preventing. The supplied advanced paper Rulebook A-01 explicitly prevents attacks when **Asleep or Paralyzed**; Poisoned, Burned and Confused may attempt attacks (Confused has its normal attack coin-flip). Refined `simulation/twinleaf/agent30-known-perfection-options.cjs` to use the pinned engine's `SpecialCondition` enum rather than indiscriminately rejecting any condition. Allowed known status values: Confused, Poisoned, Burned. Veto Asleep, Paralyzed and any unknown special-condition value until its attack semantics are verified. `simulation/twinleaf/agent34-actor-only-root-policy.cjs` passes the native enum's Poisoned/Burned constants in the detached public catalog. Three new status regression tests cover positive paths, mixed locks, and conservative unknowns in `tests/agent30-known-perfection-options.test.cjs`.
@@ -35,6 +50,6 @@ The contract-only shared [CI 42531301350](https://github.com/FlareZ123/experimen
 
 ## Continuation
 
-The `agent24_v8_bilateral_perfection` workflow switch now launches a **same-deal A/B native execution** with the original owner-Ability/Telepath policy as control, retains native action ledgers and compares exact first divergent action. A separate `agent24_v8_perfection_260root` switch extends the original registered eight-arm Perfection treatment past 128 accepted roots to 260 while explicitly overriding the historical limit and keeping the game developmental. Both outputs are saved under their own artifacts, without modifying the selected policies. The next release candidate needs genuine same-deal causal output, natural win/terminal or explicit censoring, competent source responses and fresh unseen field-wide benchmark.
+The `agent24_v8_bilateral_perfection` workflow switch executes the confirmed **same-deal A/B native comparison** with the original owner-Ability/Telepath policy as control, preserves accepted native action ledgers, and compares the exact first divergent action. A separate `agent24_v8_perfection_260root` switch extends the original registered eight-arm Perfection treatment past 128 accepted roots to 260 while explicitly overriding the historical limit and keeping the game developmental. Both outputs are saved under their own artifacts, without modifying the selected policies. The next release candidate needs genuine same-deal causal output, natural win/terminal or explicit censoring, competent source responses and fresh unseen field-wide benchmark.
 
 **Status:** 29/32 authentic opponent sixties, original ranks23/25/28 missing; zero paper/clock-qualified games; no nominated fixed final 60 and no demonstrated 99.5% win rate.
