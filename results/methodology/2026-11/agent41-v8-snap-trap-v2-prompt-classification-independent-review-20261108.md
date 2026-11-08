@@ -7,13 +7,21 @@
 
 ## Verdict
 
-Agent1 identified a real overclassification defect in Agent36's v2 `isMechanical` predicate. It classifies unresolved, unknown, and non-WaitPrompt prompt responses as mechanical. The predicate needs an exact prompt identity and native settlement receipt.
+Agent1 identified a real defect in Agent36's v2 `isMechanical` predicate. The predicate both overclassifies some prompt events as mechanical and underclassifies unknown non-null prompt actions as meaningful. The second path can create a false-positive continuation gate.
 
-One claim in the initial review needs correction: the supplied fixture does **not** demonstrate that this defect can make `continuationGatePassed` falsely pass. The current predicate only removes events from the `meaningful` set. Removing more events can move the first meaningful opponent root later or eliminate it, and can move the source continuation later or eliminate it. This makes the gate more restrictive. It cannot create a pass from the same event stream.
+The original undefined fixture alone does **not** demonstrate a false-positive gate. Reclassifying its unknown prompt 175 event as nonmechanical still leaves opponent action ordinal 253 and source action ordinal 254, so that same fixture passes either way. It demonstrates an incorrect mechanical label and synthetic evidence record.
 
-I reproduced the supplied event sequence with the current classifier and with prompt 175 retained as nonmechanical. Both variants select opponent action ordinal 253 and source action ordinal 254, and both return `continuationGatePassed: true`. The fixture therefore proves a classification and audit-provenance defect. It does not isolate a false-positive continuation-gate result.
+A separate source-valid counterexample does demonstrate the false-pass risk:
 
-This distinction matters for the report and for the next test. Keep the release blocked until the evidence contract is repaired, while describing the demonstrated failure accurately.
+1. Ordinal 251: seat 1 resolves a known WaitPrompt with null. This is mechanical.
+2. Ordinal 252: seat 1 dispatches `ResolvePromptAction(175, [card])`, where prompt ID 175 has no prompt object, no promptItem, and no prompt/response evidence record.
+3. Ordinal 253: seat 0 performs a real `PlayCardAction`.
+
+Pinned `Store.reducePrompt` returns without mutation whenever the prompt or promptItem is absent, regardless of `action.result`. The dispatch succeeds, and the headless post-dispatch callback records the root event with `responseKind: 'array'`. In v2, that event is not classified mechanical because its response kind is non-null, it has no response record, and it has no WaitPrompt record. It therefore becomes `nextOpponentMeaningfulRoot`; the source PlayCardAction becomes `nextSourceMeaningfulRootAfterOpponent`; the gate passes even though the supposed opponent action was an unknown-ID no-op.
+
+I reproduced this exact predicate path in Node. The gate reports opponent ordinal 252, source ordinal 253, and `continuationGatePassed: true`. This sequence is consistent with pinned Store dispatch semantics. It is a synthetic source-valid counterexample, not an observed native match or competitive result.
+
+The earlier monotonicity argument applies only to overclassification. Overclassifying unknown null/undefined responses or WaitPrompt/undefined can suppress meaningful events and cause false negatives. Underclassifying unknown non-null responses can count no-op dispatches as meaningful and cause false positives. Both sides must be fixed.
 
 ## Pinned Store contract independently checked
 
@@ -95,10 +103,10 @@ Workflow run `42438649056` (`Agent36 one-game bilateral competence probe`, workf
 
 ## Disposition
 
-- **Confirmed:** current v2 mechanical classification is overinclusive.
-- **Confirmed:** the undefined result of a real pending prompt does not settle it.
-- **Confirmed:** unknown prompt IDs can be successful no-op dispatches and can appear in the root-action event stream.
-- **Not demonstrated:** this classification defect alone creates a false-positive `continuationGatePassed`.
-- **Required before release:** exact prompt-item settlement receipt, ordinal-linked response joins, explicit unknown/unresolved dispositions, and native positive/negative tests.
+- **Confirmed:** current v2 mechanical classification is overinclusive for null/undefined and WaitPrompt events without exact settlement evidence.
+- **Confirmed:** current v2 also underclassifies unknown non-null `ResolvePromptAction` events as meaningful. A source-valid Store no-op sequence demonstrates a false-positive `continuationGatePassed`.
+- **Confirmed:** the undefined result of a real pending prompt does not settle it; an unknown prompt ID instead takes Store's no-op return path.
+- **Not observed:** the synthetic false-pass sequence has not yet been observed in a real native headless match.
+- **Required before release:** exact prompt-item settlement receipt, ordinal-linked response joins, explicit unknown/unresolved dispositions, a negative unknown-non-null regression, and native positive/negative tests.
 
 This review supplies no qualified paper game, matchup result, or win-rate evidence. The Aichi benchmark status remains unchanged.
