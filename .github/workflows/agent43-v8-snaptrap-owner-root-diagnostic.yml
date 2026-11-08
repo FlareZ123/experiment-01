@@ -4,7 +4,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: agent43-snaptrap-owner-root-\${{ github.ref }}
+  group: agent43-snaptrap-owner-root-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   source-owner-diagnostic:
@@ -12,13 +12,13 @@ jobs:
     timeout-minutes: 16
     steps:
       - uses: actions/checkout@v4
+      - name: Check pinned native submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
-      - name: Check pinned native submodule
-        run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -32,7 +32,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent43-snaptrap-owner-root-\${{ github.run_id }}
+          name: agent43-snaptrap-owner-root-${{ github.run_id }}
           path: artifacts/agent43-v8-snaptrap-owner-root/
           if-no-files-found: warn
           retention-days: 14
