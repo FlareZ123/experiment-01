@@ -92,10 +92,18 @@ function syntheticMatchAudit() {
   const response = {
     promptId: '173',
     actionPromptId: 173,
+    actionType: 'ResolvePromptAction',
     actionOrdinal: 250,
     actingSeat: 0,
+    samePromptId: true,
     sameRootStore: true,
     rootStoreMatchesAtActionCallback: true,
+    dispatchReturnedWithoutThrow: true,
+    promptResultDefined: true,
+    promptResultMatches: true,
+    promptItemFoundBeforeDispatch: true,
+    promptItemIdsBeforeDispatch: ['173'],
+    promptItemRemovedAfterDispatch: true,
     responseKind: 'array',
     responseLength: 1,
     selectedCardIsEnergy: true,
@@ -127,6 +135,7 @@ function syntheticMatchAudit() {
       readsFaceDownPrizeIdentities: false,
       snapTrapPrompt: {
         promptIdAfterStore: '173',
+        ownerSeat: 0,
         sameRootStore: true,
         snapTrapIdentity: { sourceSeat: 0, attackerSeat: 1 },
         ownerObservationAtPromptCreation: { actorSeat: 0 }
