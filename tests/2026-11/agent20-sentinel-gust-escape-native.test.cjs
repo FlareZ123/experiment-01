@@ -62,6 +62,18 @@ function stageVariant(seat) {
 for (const seat of [0, 1]) {
   test('Sentinel fixed60 Float Stone prevents paid Guzma Active strand, native seat ' +
     seat, () => {
+    const original = stage(seat);
+    establishSentinelLock(original);
+    resolveRank1Guzma(original);
+    const {CheckRetreatCostEffect: ControlCost} =
+      native('game/store/effects/check-effects');
+    const baselineCost = new ControlCost(original.owner);
+    original.f.store.reduceEffect(original.f.store.state, baselineCost);
+    assert.equal(baselineCost.cost.length, 3,
+      'Unmodified source after same legal Guzma is stranded at retreat 3');
+    assert.equal(original.owner.active.energies.cards.length, 0);
+    assert.equal(original.owner.active.tools.length, 0);
+
     const x = stageVariant(seat);
     const {PlayCardAction, PlayerType, SlotType} =
       native('game/store/actions/play-card-action');
@@ -146,7 +158,8 @@ for (const seat of [0, 1]) {
         sourceFirstTurnTwoTmEvolutions: true,
         opponentGuzmaFullyResolved: true,
         originalVileplumeEnergy: 0,
-        printedRetreatBeforeFloat: 3, actualNativeRetreatAfterFloat: 0,
+        originalNativeRetreatCost: baselineCost.cost.length,
+        actualNativeRetreatAfterFloat: 0,
         sourceNextTurnActualRetreat: true,
         retainedItemLockPokemonOnBench: true,
         opponentPassedWithoutAttacking: true,
