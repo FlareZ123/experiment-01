@@ -2238,8 +2238,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         assert.ok(owner&&pending&&
           pending.constructor?.name==='ChooseCardsPrompt'&&
           pending.playerId===owner.id&&
-          pending.sourceCard?.fullName==='Battle Compressor PHF'&&
-          pending.cards===owner.deck,
+          pending.message==='CHOOSE_CARD_TO_DISCARD'&&
+          pending.cards===owner.deck&&
+          owner.supporter.cards.some(card=>
+            card.fullName==='Battle Compressor PHF'),
           'Native early Compressor did not expose its authenticated owner-deck prompt');
         assert.ok(!ownerEarlyCompressorPending.has(owner.id));
         ownerEarlyCompressorPending.set(owner.id,{
