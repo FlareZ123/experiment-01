@@ -318,7 +318,9 @@ test('the first divergent roots must retain the same physical seat and turn',()=
 });
 
 
-test('Agent41 native row 9:205 ignores unlogged natural seat-1 VIP root ordinal 22',()=>{
+// Synthetic regression fixture grounded in Agent41's native row report.
+// It reproduces the reported root ordinals/seats/turns, not the full raw artifact.
+test('Agent41 native row 9:205 regression ignores unlogged natural seat-1 VIP root ordinal 22',()=>{
   const control=Array.from({length:23},(_,i)=>root(i,'NoopAction',0,1));
   const treatment=Array.from({length:23},(_,i)=>root(i,'NoopAction',0,1));
   control[5]=root(5,'PassTurnAction',0,1);
