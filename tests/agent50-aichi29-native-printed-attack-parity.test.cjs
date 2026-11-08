@@ -34,6 +34,11 @@ test('original Aichi 29 printed Pokémon native audit is exact-scope and candid'
   assert.equal(result.schema,VERSION);
   assert.equal(result.verifiedSource60Count,29);
   assert.equal(result.registeredPokemonPrintings,102);
+  assert.equal(result.byRank.length,29);
+  assert.deepEqual(result.byRank.map(row=>row.rank).sort((a,b)=>a-b),
+    result.originalAichiRanks.slice().sort((a,b)=>a-b));
+  assert.ok(result.byRank.every(row=>row.sourcePokemonCards>0&&
+    row.sourcePokemonPrintings>0));
   assert.equal(result.findings.length,102);
   assert.equal(result.competitiveGamesQualified,0);
   assert.equal(result.qualifiedWinRate,null);
