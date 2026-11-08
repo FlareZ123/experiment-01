@@ -349,6 +349,8 @@ function run(settings = {}) {
       handiworkFromMailRejected: ownerMailAudit.handiworkFromMailRejected,
       handiworkFromMailNativeDeckChanges:
         ownerMailAudit.handiworkFromMailNativeDeckChanges,
+      handiworkDeferredSettlements: ownerMailAudit.handiworkDeferredSettlements,
+      handiworkDeferredUnresolved: ownerMailAudit.handiworkDeferredUnresolved,
       nestFromMailOffers: ownerMailAudit.nestFromMailOffers,
       nestFromMailActualPlays: ownerMailAudit.nestFromMailActualPlays,
       nestFromMailBenchSettled: ownerMailAudit.nestFromMailBenchSettled,
