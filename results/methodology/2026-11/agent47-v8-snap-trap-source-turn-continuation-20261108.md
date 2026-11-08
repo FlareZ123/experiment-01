@@ -33,3 +33,14 @@ The regression asserts that a native-validated source discarded-card prompt on t
 ## Outstanding bottleneck
 
 The same strict native run reached a full prompt chain in source seat0 only; other registered orientations encountered source-owner fallback quarantines or root cap before a qualifying prompt. The next useful shared-policy work is to resolve those **specific unsupported owner actions using acting-owner observations**, then run a new frozen horizon long enough to observe the opponent attack and source player's actual subsequent-turn decision. Agent43 is already investigating those mirrored cases. The 99.5% Top32 goal is unverified: 29 of 32 original 60-card inventories are authenticated, zero competitively qualified games, no selected final fixed 60, and no demonstrated field win rate.
+
+## Independent native replay after the correction
+
+The corrected code was exercised in a **new genuine pinned Store run**, [GitHub Actions 42520290995](https://github.com/FlareZ123/experiment-01/actions/runs/42520290995), head `790d106440e27305439870344bf3b7af3d128f9b`; complete artifact [13632514954](https://github.com/FlareZ123/experiment-01/actions/runs/42520290995/artifacts/13632514954), inner JSON SHA-256 `2d90f7ab92e95f6309019b0c2bc24f92ab73e64cfea85989d9c696d0e96919c8`. Its exact same registered known arm settled Snap Trap prompt ID173 at root249 and the entire later ID174–181 prompt chain, then reached the same native 260-root cap. The corrected fields now show:
+
+- `knownPromptResolved=true`, `postPromptPromptEvidenceComplete=true`, `allPostSnapTrapPromptsSettled=true`.
+- `nextOpponentMeaningfulRootAfterPrompt` corresponds to native opponent `AttackAction` ordinal255 / globalTurn56.
+- `nextSourceMeaningfulRootAfterOpponent=null`, `sourceOwnTurnActionObserved=false`, `meaningfulOpponentAndSourceContinuation=false`, `continuationGatePassed=false`.
+- `bothSourceSeatPromptResolutionsObserved=false`, `executionGate.passed=false`, **zero** qualified native or paper games.
+
+This is the actual engine-confirmed change from the earlier false-positive subpredicate, not merely a synthetic test. The CI step was expected to exit nonzero because the strict four-arm acceptance gate remains unmet; its ZIP artifact contains full evidence. The next game-policy action must expose a real source decision after the opponent's action and handle the mirrored-arm owner policy fallbacks. Repeating the same seed at 260 roots cannot prove that missing continuation.
