@@ -80,7 +80,7 @@ function energyDriveView(){
 }
 
 test('Dimension Valley funds Tapu Lele Energy Drive from one Psychic Energy',()=>{
-  assert.equal(VERSION,'agent7-owner-funded-attack-stadium-paper-preflight-v2');
+  assert.equal(VERSION,'agent7-owner-funded-attack-stadium-paper-preflight-v3');
   assert.equal(MIN_DAMAGE,80);
   const view=energyDriveView();
   const proposal=chooseFundedStadiumAttack(view,refs);
@@ -91,22 +91,24 @@ test('Dimension Valley funds Tapu Lele Energy Drive from one Psychic Energy',()=
   assert.equal(proposal.originalStadium,null);
   assert.equal(proposal.attackName,'Energy Drive');
   assert.equal(proposal.baseDamage,80);
-  assert.equal(proposal.damageModel,'energy-drive-20x-both-actives');
+  assert.equal(proposal.damageModel,'energy-drive-20x-energy-units-both-actives');
   assert.deepEqual(proposal.modeledOldCost,['C','C']);
   assert.deepEqual(proposal.modeledNewCost,['C']);
   assert.equal(proposal.availableModeledEnergyUnits,1);
   assert.equal(proposal.printedPotentialKnockout,false);
 });
 
-test('Energy Drive estimate uses both public Active Energy counts only',()=>{
+test('Energy Drive estimate uses both public Active Energy unit counts',()=>{
   const view=energyDriveView();
   const attack=view.ownPublic.active.attacks[0];
   assert.equal(estimatedAttackDamage(
-    attack,view.ownPublic.active,view.opponentPublic.active),80);
+    attack,view.ownPublic.active,view.opponentPublic.active,
+    view,refs),80);
   assert.equal(estimatedAttackDamage(
-    attack,view.ownPublic.active,{energies:[]}),20);
+    attack,view.ownPublic.active,
+    {...view.opponentPublic.active,energies:[]},view,refs),20);
   assert.equal(estimatedAttackDamage(
-    attack,view.ownPublic.active,{}),null);
+    attack,view.ownPublic.active,{},view,refs),null);
   assert.equal(estimatedAttackDamage(
     {name:'Unknown dynamic attack',damage:0},
     view.ownPublic.active,view.opponentPublic.active),0);
