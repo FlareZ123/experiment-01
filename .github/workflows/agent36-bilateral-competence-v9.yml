@@ -198,7 +198,7 @@ jobs:
         if: ${{ inputs.agent36_v10b_paired_fresh_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice }}
         run: node simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs
       - name: Capture owner-information fallback prompt (phase A diagnostic only)
-        if: ${{ inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice }}
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice }}
         run: node simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
       - name: Execute selected-v8 Snap Trap owner-prompt vertical slice
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
