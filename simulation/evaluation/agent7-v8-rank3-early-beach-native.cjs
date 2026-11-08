@@ -38,7 +38,10 @@ function traceBeachNativeRun(run){
   function dispatch(action,...args){
     const before=this.state;
     const name=action?.constructor?.name??null;
-    const seat=before?.players?.findIndex(p=>p.id===action?.id)??-1;
+    // UseStadiumAction in pinned Twinleaf has no owner ID field. The
+    // current activePlayer is its authenticated actor at a normal root.
+    const seat=name==='UseStadiumAction'?before?.activePlayer??-1:
+      before?.players?.findIndex(p=>p.id===action?.id)??-1;
     const isOwner=seat===0||seat===1;
     const handPrinting=isOwner&&name==='PlayCardAction'?
       before.players[seat].hand.cards[action.handIndex]?.fullName??null:null;
@@ -127,7 +130,7 @@ function runTreatment(){
         id:row.trialId,status:row.status,
         firstOwnerPass:row.firstRootProvenance,
         firstOwnerRootPrinting:row.firstUnsupportedOwnerRoot?.ownerView?.
-          ownHand?.includes('Tropical Beach BWP')===true,
+          ownHand?.some(p=>p.startsWith('Tropical Beach BWP'))===true,
         nativeInitialRoots:row.nativeAbortEvidence?.initialAcceptedRootPrefix??[]
       })),
       treatmentRows:treatment.output.rows.map(row=>({
