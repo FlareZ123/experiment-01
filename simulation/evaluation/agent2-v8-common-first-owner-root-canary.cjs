@@ -133,17 +133,25 @@ function runOne(candidateSeat,cards,{
   // injected into the same common executeDevelopment policy.
   const execute=()=>withCommonOwnerThornsRoot(()=>runSelectedIssue25V0({
     runner,
-    layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
+    layers:{firstBlockedPromptEnvelope:!mysteriousTreasureRoot?
+      withStewardOwnerPromptFrontier:
+      next=>{
+        // Install INSIDE the selected-v0 raw-State quarantine, ahead of the
+        // real canonical owner runner; unsupported prompts still delegate
+        // through the existing quarantine rather than decoding raw State.
+        const hooked=withOwnerTreasurePrompts(
+          ()=>withStewardOwnerPromptFrontier(next),
+          {paymentChoice:treasurePaymentChoice});
+        return {result:hooked.result.result,
+          audit:{...(hooked.result.audit??{}),
+            ownerTreasurePrompts:hooked.audit}};
+      }},
     registeredTrialIds:[trial.id],
     allowSingleRegisteredTrial:true,
     nativeRootActionLimit:ACTION_LIMIT
   }));
   const owner=()=>withStewardInnermostOwnerPrompts(execute);
-  const selectedTreasurePrompts=mysteriousTreasureRoot?
-    withOwnerTreasurePrompts(()=>withOwnerVoltAcrossNativeMatches(owner),
-      {paymentChoice:treasurePaymentChoice}):null;
-  const volt=selectedTreasurePrompts?.result??
-    withOwnerVoltAcrossNativeMatches(owner);
+  const volt=withOwnerVoltAcrossNativeMatches(owner);
   const ownerWrapped=volt.result;
   const selected=ownerWrapped.result;
   const nativeRow=selected.rawDevelopment?.rows?.[0]??null;
@@ -257,7 +265,8 @@ function runOne(candidateSeat,cards,{
       nativeQuarantineAudit:quarantine
     },
     v8OuterAudits:{
-      ownerTreasurePrompts:selectedTreasurePrompts?.audit??null,
+      ownerTreasurePrompts:selected.diagnostic.audit?.
+        firstBlockedPromptEnvelope?.ownerTreasurePrompts??null,
       innermostOwnerPrompts:ownerWrapped.audit??null,
       ownerVolt:volt.audit??null
     },
