@@ -35,6 +35,7 @@ const TREASURE='Mysterious Treasure FLI';
 const CRISPIN='Crispin SCR';
 const VS_SEEKER='VS Seeker PHF';
 const BATTLE_COMPRESSOR='Battle Compressor PHF';
+const MUSCLE_BAND='Muscle Band XY';
 const TARGET='Regidrago VSTAR SIT';
 const DONOR_PRINTINGS=[
   'Noivern ex PAL',
@@ -144,7 +145,8 @@ function finishVsSeekerPresentation(x){
  * @param {0|1} seat Physical player seat.
  * @returns {object} Native prompt and physical-zone receipts.
  */
-function observeSeat(seat){
+function observeSeat(seat,discardChoice='crispin'){
+  assert.ok(['crispin','muscle-band'].includes(discardChoice));
   const {result,audit}=withPaperPromptContractPortfolio(()=>{
     const x=stage(seat);
     x.state.turn=1;
@@ -163,24 +165,26 @@ function observeSeat(seat){
     const crispin=card(CRISPIN);
     const vsSeeker=card(VS_SEEKER);
     const battleCompressor=card(BATTLE_COMPRESSOR);
+    const muscleBand=card(MUSCLE_BAND);
     const target=card(TARGET);
     const donors=DONOR_PRINTINGS.map(printing=>card(printing));
     x.owner.hand.cards.length=0;
-    x.owner.hand.cards.push(treasure,crispin,vsSeeker,battleCompressor);
+    x.owner.hand.cards.push(treasure,crispin,vsSeeker,battleCompressor,muscleBand);
     x.owner.deck.cards.length=0;
     x.owner.deck.cards.push(target,...donors);
     assert.equal(x.owner.discard.cards.length,0);
     const {PlayCardAction,PlayerType,SlotType}=
       native('game/store/actions/play-card-action');
-    // Mysterious Treasure payment: the owner chooses Crispin from their hand.
+    // Compare the source hand's two plausible printed one-card payments.
+    const paymentCard=discardChoice==='crispin'?crispin:muscleBand;
     x.store.dispatch(new PlayCardAction(x.owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
     const paymentPrompt=x.state.prompts.find(p=>p.result===undefined);
     const payment=resolveOneOwnerCardPrompt(
-      x,paymentPrompt,x.owner.hand,TREASURE,crispin);
-    assert.ok(x.owner.discard.cards.includes(crispin),
-      'Crispin payment must move the same physical card into owner discard');
+      x,paymentPrompt,x.owner.hand,TREASURE,paymentCard);
+    assert.ok(x.owner.discard.cards.includes(paymentCard),
+      'Selected payment must move the same physical card into owner discard');
 
     // Mysterious Treasure search: choose Regidrago VSTAR from own deck.
     const searchPrompt=x.state.prompts.find(p=>p.result===undefined);
@@ -194,24 +198,32 @@ function observeSeat(seat){
     assert.equal(cleanup.itemInOwnerDiscard,true);
     assert.equal(cleanup.printedShufflePaperCertified,false);
 
-    // VS Seeker recovers the exact physical Crispin card from own discard.
-    const vsIndex=x.owner.hand.cards.indexOf(vsSeeker);
-    assert.ok(vsIndex>=0,'VS Seeker must remain in owner hand after Treasure');
-    x.store.dispatch(new PlayCardAction(x.owner.id,vsIndex,{
-      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-    }));
-    const recoveryPrompt=x.state.prompts.find(p=>p.result===undefined);
-    const recovery=resolveOneOwnerCardPrompt(
-      x,recoveryPrompt,x.owner.discard,VS_SEEKER,crispin);
-    const presentation=finishVsSeekerPresentation(x);
+    // Recovery uses VS Seeker only when Crispin was the Treasure payment.
+    // The Muscle Band arm keeps the same Crispin and VS Seeker in hand.
+    let recovery=null;
+    let presentation=[];
+    if(discardChoice==='crispin'){
+      const vsIndex=x.owner.hand.cards.indexOf(vsSeeker);
+      assert.ok(vsIndex>=0,'VS Seeker must remain in owner hand after Treasure');
+      x.store.dispatch(new PlayCardAction(x.owner.id,vsIndex,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      const recoveryPrompt=x.state.prompts.find(p=>p.result===undefined);
+      recovery=resolveOneOwnerCardPrompt(
+        x,recoveryPrompt,x.owner.discard,VS_SEEKER,crispin);
+      presentation=finishVsSeekerPresentation(x);
+      assert.ok(!x.owner.discard.cards.includes(crispin),
+        'Recovered Crispin must leave owner discard');
+      assert.ok(x.owner.discard.cards.includes(vsSeeker));
+    }else{
+      assert.ok(x.owner.discard.cards.includes(muscleBand));
+      assert.ok(x.owner.hand.cards.includes(vsSeeker),
+        'Muscle Band payment must preserve the physical VS Seeker');
+    }
 
-    assert.ok(x.owner.hand.cards.includes(crispin),
-      'VS Seeker must return the same physical Crispin card to owner hand');
-    assert.ok(!x.owner.discard.cards.includes(crispin),
-      'Recovered Crispin must leave owner discard');
+    assert.ok(x.owner.hand.cards.includes(crispin));
     assert.ok(x.owner.hand.cards.includes(target));
     assert.ok(x.owner.discard.cards.includes(treasure));
-    assert.ok(x.owner.discard.cards.includes(vsSeeker));
 
     const battleCompressorIndex=x.owner.hand.cards.indexOf(battleCompressor);
     assert.notEqual(battleCompressorIndex,-1,
@@ -238,7 +250,8 @@ function observeSeat(seat){
 
     return {
       seat,firstPlayerSeat:seat,globalTurn:x.state.turn,
-      startingHand:[TREASURE,CRISPIN,VS_SEEKER,BATTLE_COMPRESSOR],
+      paymentChoice:discardChoice,
+      startingHand:[TREASURE,CRISPIN,VS_SEEKER,BATTLE_COMPRESSOR,MUSCLE_BAND],
       startingDeck:[TARGET,...DONOR_PRINTINGS],
       treasurePayment:payment,treasureSearch:search,
       treasureCleanup:cleanup,vsSeekerRecovery:recovery,
@@ -249,6 +262,9 @@ function observeSeat(seat){
         crispinInDiscard:x.owner.discard.cards.includes(crispin),
         treasureInDiscard:x.owner.discard.cards.includes(treasure),
         vsSeekerInDiscard:x.owner.discard.cards.includes(vsSeeker),
+        vsSeekerInHand:x.owner.hand.cards.includes(vsSeeker),
+        muscleBandInDiscard:x.owner.discard.cards.includes(muscleBand),
+        muscleBandInHand:x.owner.hand.cards.includes(muscleBand),
         battleCompressorInDiscard:x.owner.discard.cards.includes(battleCompressor),
         regidragoVstarInHand:x.owner.hand.cards.includes(target),
         donorPrintingsInDiscard:donors.filter(card=>x.owner.discard.cards.includes(card))
@@ -258,11 +274,14 @@ function observeSeat(seat){
       },
       physicalCardIds:{
         crispin:crispin.id,
+        muscleBand:muscleBand.id,
+        vsSeeker:vsSeeker.id,
         regidragoVstar:target.id,
         battleCompressor:battleCompressor.id,
         donors:donors.map(card=>({fullName:card.fullName,id:card.id}))
       },
-      sameCrispinPhysicalCardHandToDiscardToHand:true,
+      sameCrispinPhysicalCardHandToDiscardToHand:discardChoice==='crispin',
+      originalCrispinPreservedInHand:discardChoice==='muscle-band',
       actualGameRootOrdinalsClaimed:false,
       fullPaperShuffleCertified:false,
       entirePaperGameQualified:false,
@@ -279,7 +298,7 @@ function observeSeat(seat){
   assert.equal(result.finalPhysicalZones.vsSeekerInDiscard,true);
   assert.equal(result.finalPhysicalZones.regidragoVstarInHand,true);
   return {
-    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-sequence-v2',
+    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-sequence-v3',
     nativeEnginePinned:ENGINE_PIN,
     onlyNativeAcceptedStoreDispatches:true,
     noOpponentPrivateInformationRead:true,
@@ -293,13 +312,26 @@ function run(){
     {cwd:REPO_ROOT,encoding:'utf8'}).trim();
   assert.equal(twinleafRevision,ENGINE_PIN);
   const report={
-    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-report-v2',
+    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-report-v3',
     sourceCodeCommit:gitRevision(REPO_ROOT),
     nativeEnginePinned:ENGINE_PIN,twinleafRevision,
     resolvedSourceAndPolicyHashes:SOURCE_PATHS.map(hashFile),
     seats:[observeSeat(0),observeSeat(1)],
+    muscleBandAlternativeSeats:[observeSeat(0,'muscle-band'),observeSeat(1,'muscle-band')],
     qualifiedCompetitiveGames:0
   };
+  for(let seat=0;seat<2;seat++){
+    const a=report.seats[seat];
+    const b=report.muscleBandAlternativeSeats[seat];
+    assert.deepEqual(a.finalPhysicalZones.donorPrintingsInDiscard,
+      b.finalPhysicalZones.donorPrintingsInDiscard);
+    assert.equal(a.finalPhysicalZones.crispinInHand,true);
+    assert.equal(b.finalPhysicalZones.crispinInHand,true);
+    assert.equal(a.finalPhysicalZones.vsSeekerInDiscard,true);
+    assert.equal(b.finalPhysicalZones.vsSeekerInHand,true);
+    assert.equal(a.finalPhysicalZones.muscleBandInHand,true);
+    assert.equal(b.finalPhysicalZones.muscleBandInDiscard,true);
+  }
   return report;
 }
 
