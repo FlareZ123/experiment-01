@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v3';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v4';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -204,6 +204,90 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
           attackFollowthrough.unresolvedPromptTypes.length===0?
             'native-opponent-reply-settled':'native-opponent-reply-prompt-pending';
     result.attackFollowthrough=attackFollowthrough;
+
+    // Extend the same cloned attack branch through ordinary Knock Out Prize
+    // selection. Choose only occupied face-down slot positions, as in the
+    // existing Agent21 owner-first-Prize baseline. No concealed faces, names
+    // or contents enter the choice, and native prompt.validate remains final.
+    const koPrizeContinuation={
+      status:'not-attempted',ownerId:opponentId,
+      selectedSlots:0,nativeValidated:false,nativeResolved:false,
+      physicalOwnerHandTransfer:false,readConcealedPrizeFaces:false,
+      beforePrizeCards:null,afterPrizeCards:null,ownerHandDelta:null,
+      postPrizePendingPrompts:[]
+    };
+    if(attackFollowthrough.opponentAttackNativeAccepted &&
+       attackFollowthrough.pendingPrizePrompt &&
+       attackFollowthrough.ownerActiveAfter===null){
+      const replyTaker=clone.state.players.find(p=>p.id===opponentId);
+      const pending=clone.state.prompts.find(p=>
+        p.result===undefined && p.constructor.name==='ChoosePrizePrompt');
+      const options=pending?.options;
+      const ordinaryKoShape=Boolean(replyTaker &&
+        pending?.playerId===opponentId &&
+        typeof pending.getPerspectivePlayerId==='function' &&
+        pending.getPerspectivePlayerId()===opponentId &&
+        options?.destination===replyTaker.hand &&
+        options.allowCancel===false &&
+        options.useOpponentPrizes===false &&
+        Array.isArray(options.blocked) && options.blocked.length===0 &&
+        Number.isSafeInteger(options.count) &&
+        options.count>=1 && options.count<=6 &&
+        Array.isArray(replyTaker.prizes) &&
+        replyTaker.prizes.length===6 &&
+        Array.isArray(replyTaker.hand?.cards) &&
+        typeof pending.validate==='function');
+      if(!ordinaryKoShape){
+        koPrizeContinuation.status='ordinary-ko-owner-shape-unverified';
+      }else{
+        const chosen=replyTaker.prizes.filter(slot=>
+          Array.isArray(slot?.cards)&&slot.cards.length>0
+        ).slice(0,options.count);
+        koPrizeContinuation.selectedSlots=chosen.length;
+        if(chosen.length!==options.count ||
+           pending.validate(chosen,clone.state)!==true){
+          koPrizeContinuation.status='ordinary-ko-native-selection-rejected';
+        }else{
+          koPrizeContinuation.nativeValidated=true;
+          const beforePrizes=replyTaker.prizes.reduce(
+            (n,slot)=>n+slot.cards.length,0);
+          const beforeHand=replyTaker.hand.cards.length;
+          // Physical identities are retained only for post-choice custody
+          // verification and never read by the selection policy.
+          const selectedPhysical=chosen.flatMap(slot=>slot.cards.slice());
+          koPrizeContinuation.beforePrizeCards=beforePrizes;
+          try{
+            clone.dispatch(new ResolvePromptAction(pending.id,chosen));
+            koPrizeContinuation.nativeResolved=pending.result===chosen;
+            settleWaitPrompts(clone);
+            koPrizeContinuation.afterPrizeCards=replyTaker.prizes.reduce(
+              (n,slot)=>n+slot.cards.length,0);
+            koPrizeContinuation.ownerHandDelta=
+              replyTaker.hand.cards.length-beforeHand;
+            koPrizeContinuation.physicalOwnerHandTransfer=
+              selectedPhysical.length===options.count &&
+              selectedPhysical.every(card=>
+                replyTaker.hand.cards.includes(card) &&
+                !replyTaker.prizes.some(slot=>slot.cards.includes(card)));
+            koPrizeContinuation.postPrizePendingPrompts=clone.state.prompts
+              .filter(p=>p.result===undefined)
+              .map(p=>p.constructor.name);
+            koPrizeContinuation.status=
+              koPrizeContinuation.nativeResolved &&
+              koPrizeContinuation.physicalOwnerHandTransfer &&
+              koPrizeContinuation.afterPrizeCards===
+                beforePrizes-options.count &&
+              koPrizeContinuation.ownerHandDelta===options.count?
+                'native-ordinary-ko-prizes-transferred':
+                'native-ordinary-ko-prize-custody-unverified';
+          }catch(error){
+            koPrizeContinuation.error=String(error?.message??error);
+            koPrizeContinuation.status='native-ordinary-ko-prize-dispatch-error';
+          }
+        }
+      }
+    }
+    attackFollowthrough.koPrizeContinuation=koPrizeContinuation;
 
     const ownerBenchTargetIndex=initial.bench.findIndex(cardList=>
       cardList.cards[0]?.name==='Trevenant & Dusknoir-GX');
