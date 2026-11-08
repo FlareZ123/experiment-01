@@ -302,6 +302,24 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   assert.equal(Object.values(
     actualPreAttackBoardJoins.declarationRootClassificationCounts
   ).reduce((sum,count)=>sum+count,0),8);
+  console.log('AGENT3_V29_PREATTACK_SHAPE_DIAGNOSTIC',JSON.stringify(
+    actualPreAttackBoardJoins.rows.map(row=>({
+      id:row.registeredTrialId,attack:row.attackName,
+      classification:row.declarationRootVsPromptClosureClassification,
+      printedEnergyStatus:row.directPrintedEnergySufficiency?.status??null,
+      damageMatches:row.nativeDeltaEqualsPrintedNominal,
+      activeIdentity:row.physicalActiveIdentityComplete,
+      matchedPrintedCost:row.actualPrintedAttackCostMatchesSourceScreen,
+      declarationPromptPending:row.declarationRootPromptPendingAfter,
+      declarationRootTurnAfter:row.declarationRootTurnAfter,
+      closureRootTurnBefore:row.completionRootTurnBefore,
+      closureRootTurnMatches:row.completionRootTurnMatchesDeclarationTurn,
+      immediateTarget:row.targetLocationImmediatelyAfterDeclarationRoot,
+      finalTarget:row.targetLocationAfterPromptClosure,
+      printedTargetHp:row.targetPrintedHp,
+      immediateDamage:row.targetDamageImmediatelyAfterDeclarationRoot,
+      finalDamage:row.targetDamageAfterPromptClosure
+    }))));
   assert.equal(actualPreAttackBoardJoins.rows.every(row=>
     row.nativeDeltaEqualsPrintedNominal===true&&
     row.directPrintedEnergySufficiency?.status==='POSSIBLE'&&
