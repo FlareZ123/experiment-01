@@ -60,10 +60,12 @@ class ResolvePromptAction {
 class FakeStore {
   constructor(state) {
     this.state = state;
+    this.promptItems = [];
   }
   prompt(state, prompt) {
     prompt.id = String(state.nextPromptId++);
     state.prompts.push(prompt);
+    this.promptItems.push({ ids: [prompt.id], then() {} });
     return prompt;
   }
   dispatch(action) {
@@ -72,10 +74,15 @@ class FakeStore {
       String(candidate.id) === String(action.id)
     );
     assert.ok(prompt);
+    const promptItem = this.promptItems.find(item =>
+      item.ids.includes(prompt.id)
+    );
+    assert.ok(promptItem);
     prompt.result = action.result;
     this.state.prompts = this.state.prompts.filter(candidate =>
       candidate !== prompt
     );
+    this.promptItems.splice(this.promptItems.indexOf(promptItem), 1);
     if (prompt.constructor.name === 'ChooseCardsPrompt') {
       const selected = action.result[0];
       const attacker = this.state.players[1];
@@ -224,6 +231,11 @@ test('captures the exact Snap Trap owner view, native response, physical move an
   assert.equal(audit.responseRecords[0].responseLength, 1);
   assert.equal(audit.responseRecords[0].selectedCardPrinting, 'Psychic Energy');
   assert.equal(audit.responseRecords[0].nativeValidateAccepted, true);
+  assert.equal(audit.responseRecords[0].promptResultDefined, true);
+  assert.equal(audit.responseRecords[0].promptResultMatches, true);
+  assert.equal(audit.responseRecords[0].promptItemFoundBeforeDispatch, true);
+  assert.deepEqual(audit.responseRecords[0].promptItemIdsBeforeDispatch, ['1']);
+  assert.equal(audit.responseRecords[0].promptItemRemovedAfterDispatch, true);
   assert.equal(audit.responseRecords[0].physicalZoneSettled, true);
   assert.equal(
     audit.responseRecords[0].physicalZoneAfter.destination,
