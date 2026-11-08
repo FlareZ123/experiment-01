@@ -68,6 +68,7 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
         nativeAcceptedTargets:true,
         bilateralPerfectionRoot:enablePerfection,
         bilateralPerfectionBenchFunding:extra.perfectionBenchFunding===true,
+        bilateralPerfectionTransitionRoot:extra.perfectionTransition===true,
         bilateralBasicEnergyRecipientFrontier:extra.energyRecipientFrontier===true,
         actorVipAfterPass:extra.vipAfterPass===true,
         ...(extra.vipPreferMewtwoDonor?{
