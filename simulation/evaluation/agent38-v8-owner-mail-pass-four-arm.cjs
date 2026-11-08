@@ -233,6 +233,33 @@ if (require.main === module) {
     physicallySelectedTrainers:
       artifact.acceptance?.physicallySelectedTrainers ?? 0,
     fullSequence: artifact.acceptance?.fullSequence ?? false,
+    byOriginalTrial: artifact.panel?.map(row => ({
+      trialId: row.trialId,
+      sourceSeat: row.sourceSeat,
+      firstDivergenceOrdinal: row.firstRootDivergence?.control?.ordinal ?? null,
+      controlFirstAction: row.firstRootDivergence?.control?.action ?? null,
+      treatmentFirstAction: row.firstRootDivergence?.treatment?.action ?? null,
+      acceptedMailOrdinals: row.nativeAcceptedMailRoots.map(root => root.ordinal),
+      selectedTrainerPrintings: row.ownerMailTrainerSelectionReceipts.map(
+        receipt => receipt.printing),
+      laterOpponentAction: row.nativeMailContinuations
+        .find(continuation => continuation.opponentMeaningfulRoot)
+        ?.opponentMeaningfulRoot?.action ?? null,
+      laterSourceOwnTurnAction: row.nativeMailContinuations
+        .find(continuation => continuation.continuityPassed)
+        ?.sourceOwnTurnMeaningfulRoot?.action ?? null,
+      nativeAcceptedRootDelta: (
+        Number.isSafeInteger(row.treatment.actionCount) &&
+        Number.isSafeInteger(row.baseline.actionCount)
+      ) ? row.treatment.actionCount - row.baseline.actionCount : null,
+      controlEnded: row.baseline.endReason,
+      treatmentEnded: row.treatment.endReason,
+      controlWinner: row.baseline.winner,
+      treatmentWinner: row.treatment.winner,
+      controlFinalPrizes: row.baseline.finalPrizes,
+      treatmentFinalPrizes: row.treatment.finalPrizes,
+      fullSequenceGate: row.actualFullSequenceGate
+    })) ?? null,
     failure: artifact.failure ?? null
   }, null, 2) + '\n');
   if (!artifact.acceptance?.acceptedOwnerMail) process.exitCode = 1;
