@@ -702,3 +702,11 @@ test('explicit single-arm registration accepts a custom original-candidate id',(
   assert.throws(()=>validateRegisteredTrialGroups(
     [trial],[3],false,false));
 });
+
+
+test('type-aware potential KO demands canonical actor composition',()=>{
+  const {runDevelopment}=require(
+    '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
+  assert.throws(()=>runDevelopment({actorPotentialKoRoot:true}),
+    /Type-aware potential KO root requires canonical actor composition/);
+});
