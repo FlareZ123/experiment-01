@@ -73,7 +73,9 @@ jobs:
           AGENT4_FIELD_V3_ORIGINAL16_OUTPUT: agent4-original-rank6-field-neutral-v2-v3-sixteen.json
         run: |
           node --check simulation/evaluation/2026-11/agent4-thorns-neutral-v2-v3-original16.cjs
+          node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.native.test.cjs
           node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.test.cjs
+          node --test tests/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.test.cjs
           node simulation/evaluation/2026-11/agent4-thorns-neutral-v2-v3-original16.cjs
       - name: Upload exact original-rank6 two-arm v2-v3 native comparison
         if: ${{ always() && inputs.experiment == 'neutral-v3-original16' }}
