@@ -95,7 +95,7 @@ jobs:
         run: node --test tests/agent28-sentinel-mega-lopunny-native.test.cjs
       - name: Test Fan-prized Sentinel Artazon direct Bench Bunnelby into real Jet and two TM attacks
         if: inputs.sentinel_artazon_direct_probe
-        run: node --test tests/agent28-sentinel-direct-artazon-native.test.cjs tests/agent28-sentinel-artazon-direct-opening.test.cjs tests/agent28-rank1-guzma-wonder-tag-opening.test.cjs tests/2026-11/agent20-sentinel-gust-escape-native.test.cjs
+        run: node --test tests/agent28-sentinel-direct-artazon-native.test.cjs tests/agent28-sentinel-artazon-direct-opening.test.cjs tests/agent28-rank1-guzma-wonder-tag-opening.test.cjs tests/2026-11/agent20-sentinel-pre-evolution-float-root.test.cjs tests/2026-11/agent20-sentinel-gust-escape-native.test.cjs
       - name: Test authentic rank7 Wobbuffet source against Sentinel Benched Vileplume Hood Item lock on both seats
         if: inputs.agent40_rank7_wobbuffet_hood_probe
         run: node --test tests/agent40-rank7-wobbuffet-hood.native.test.cjs
