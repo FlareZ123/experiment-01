@@ -39,21 +39,30 @@ function safeRootEvent(event){
 }
 
 /** @param {object} row */
-function safeAttemptRow(row){
+function safeAttemptRow(row,rootLedgerFn,summaryById){
   const evidence=row?.nativeAbortEvidence??row?.nativeAbortProvenance??{};
-  const ledger=row?.rootActionLedger??
-    row?.nativePublicRootArchive?.rootActionLedger??
-    evidence?.rootActionLedger??null;
-  const records=evidence?.nativeRawStateFallbackQuarantine?.records??
+  const ledger=typeof rootLedgerFn==='function'
+    ?rootLedgerFn(row)
+    :row?.rootActionLedger??evidence?.rootActionLedger??null;
+  const trialId=row?.trial?.id??row?.id??null;
+  const summary=summaryById.get(trialId)??{};
+  const records=row?.error?.nativeRawStateFallbackQuarantine?.records??
+    row?.error?.nativeRawStateQuarantine?.records??
+    evidence?.nativeRawStateFallbackQuarantine?.records??
     evidence?.nativeRawStateQuarantine?.records??[];
   return {
-    trialId:row?.trial?.id??row?.id??null,
+    trialId,
     rank:row?.trial?.rank??null,
     candidateSlot:row?.trial?.candidateSlot??null,
     candidateId:row?.trial?.candidateId??null,
-    sourceSeat:row?.sourceSeat??null,
-    candidateSeat:row?.candidateSeat??null,
-    nativeOutcome:row?.nativeOutcome??null,
+    seed:row?.trial?.seed??null,
+    sourceSeat:summary.sourceSeat??row?.sourceSeat??null,
+    candidateSeat:summary.candidateSeat??row?.candidateSeat??null,
+    nativeOutcome:summary.nativeOutcome??null,
+    acceptedNativeRootCount:summary.acceptedNativeRootCount??null,
+    actionCount:summary.actionCount??null,
+    finished:summary.finished??null,
+    endReason:summary.endReason??null,
     errorName:row?.error?.name??null,
     errorCode:row?.error?.code??null,
     nativeAbortCode:evidence?.code??evidence?.errorCode??null,
@@ -70,7 +79,7 @@ function safeAttemptRow(row){
 }
 
 /** @param {object} phase @param {object|null} thrown */
-function buildArtifact(phase,promptAudit,thrown){
+function buildArtifact(phase,promptAudit,thrown,sourceRunner){
   const diagnostic=phase?.diagnostic??null;
   const quarantine=diagnostic?.audit?.nativeRawStateQuarantine??
     diagnostic?.audit?.nativeRawStateFallbackQuarantine??
@@ -108,8 +117,13 @@ function buildArtifact(phase,promptAudit,thrown){
     sourceSeat:row.sourceSeat??null,
     candidateSeat:row.candidateSeat??null,
     actualFirstPlayerSeat:row.actualFirstPlayerSeat??null,
-    rootActionCount:row.rootActionCount??row.rootActionLedgerLength??null
+    acceptedNativeRootCount:row.acceptedNativeRootCount??null,
+    actionCount:row.actionCount??null,
+    finished:row.finished??null,
+    endReason:row.endReason??null,
+    rootLedgerSha256:row.rootLedgerSha256??null
   }));
+  const summaryById=new Map(nativeAttempts.map(row=>[row.id,row]));
   const status=quarantineRecords.length>0?'FALLBACK_CAPTURED':
     thrown?'RUNNER_THROWN':'NO_FALLBACK_CAPTURED';
   return {
@@ -119,7 +133,7 @@ function buildArtifact(phase,promptAudit,thrown){
       phase:'A',
       sourceRunnerPath:'simulation/evaluation/agent36-issue25-common-v10b-paired-fresh-aba.cjs',
       sourceRegistrationPath:'results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json',
-      sourceRunnerVersion:phase?.manifest?.version??null,
+      sourceRunnerVersion:sourceRunner?.VERSION??phase?.manifest?.version??null,
       sourceRunnerSha256:sha256File(SOURCE_RUNNER_PATH),
       sourceRegistrationSha256:sha256File(SOURCE_REGISTRATION_PATH),
       observerPath:'simulation/twinleaf/agent10-owner-prompt-metadata-observer-v1.cjs',
@@ -144,9 +158,9 @@ function buildArtifact(phase,promptAudit,thrown){
     promptMatches,
     promptObserverAudit:promptAudit,
     nativeAttempts,
-    rawAttemptSummaries:rawRows.map(safeAttemptRow),
-    phaseSummary:phase&&typeof require(SOURCE_RUNNER_PATH).phaseSummary==='function'
-      ?require(SOURCE_RUNNER_PATH).phaseSummary(phase):null
+    rawAttemptSummaries:rawRows.map(row=>safeAttemptRow(row,sourceRunner?.rootLedger,summaryById)),
+    phaseSummary:phase&&typeof sourceRunner?.phaseSummary==='function'
+      ?sourceRunner.phaseSummary(phase):null
   };
 }
 
@@ -189,7 +203,7 @@ function main(){
     promptAudit=error?.agent10OwnerPromptMetadataAudit??null;
   }
 
-  const artifact=buildArtifact(phase,promptAudit,thrown);
+  const artifact=buildArtifact(phase,promptAudit,thrown,sourceRunner);
   writeArtifact(artifact);
   const output={
     manifest:artifact.manifest,
