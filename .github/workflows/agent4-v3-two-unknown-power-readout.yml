@@ -16,6 +16,7 @@ on:
           - pure-v2-thorns
           - neutral-v2-native-16
           - neutral-v2-staged-native
+          - neutral-v3-staged-native
         default: typed-replay
 
 permissions:
@@ -65,6 +66,12 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native full original-field Stadium Tool v3 and v2 compatibility
+        if: ${{ inputs.experiment == 'neutral-v3-staged-native' }}
+        run: |
+          node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.native.test.cjs
+          node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.test.cjs
+          node --test tests/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.test.cjs
       - name: Native exact-print ability-lock joint neutral Stadium Tool and Hood matrix
         if: ${{ inputs.experiment == 'neutral-v2-staged-native' }}
         run: |
