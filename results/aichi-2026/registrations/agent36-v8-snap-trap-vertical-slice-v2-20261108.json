@@ -1,0 +1,177 @@
+{
+  "schema": "agent36-v8-snap-trap-vertical-slice-v2",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-08T02:19:21.533Z",
+  "experimentalType": "Strict successor audit of the selected-v8 common-policy Snap Trap owner-prompt native vertical slice; excludes mechanical null/WaitPrompt roots and requires exact prompt settlement in both source-seat orientations",
+  "predecessor": {
+    "registrationPath": "results/aichi-2026/registrations/agent36-v8-snap-trap-vertical-slice-v1-20261108.json",
+    "registrationGitBlobSha": "caf0c0f1fc011fd6b8d4fd34963697abb517b2a3",
+    "runnerPath": "simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.cjs",
+    "runnerGitBlobSha": "9876e2af38cde65b4dcbb225243df0a9eb6ed07e",
+    "workflowRunId": 42436917676,
+    "artifactId": 13600271050,
+    "runCommit": "298be4937403cd755f84cfabae0a797ef7956299",
+    "finding": "V1 observed an exact Snap Trap prompt settlement in the registered source-seat-0 trial, but its gate was permissive: null ResolvePromptAction/WaitPrompt roots could satisfy continuation and it did not require prompt settlement in both source-seat orientations. V1 reported an engine error and zero qualified games."
+  },
+  "sourceOriginalRanks": [
+    3
+  ],
+  "sourceSeatAllocationRule": "candidateSlot A => candidateSeat 0/sourceSeat 1; candidateSlot B => candidateSeat 1/sourceSeat 0",
+  "contendingPrintedSixties": [
+    "champion-reference"
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActionsPerArm": 260,
+  "trialCount": 4,
+  "registeredFrameName": "agent36-selected-v8-common-policy-snap-trap-owner-prompt-two-seeds-both-seats-260root-strict-v2",
+  "allowSingleCandidatePerGroup": true,
+  "seedProvenance": {
+    "v10b": {
+      "seed": 2404595552,
+      "sourceRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v10b-paired-fresh-aba-260root-20261107.json",
+      "sourceRegistrationGitBlobSha": "b92ca134da7abf90efd0c0f975f8a9a91f7943a8",
+      "sourceTrialId": "3:312:B:champion-reference",
+      "note": "Reuse the exact rank-3/B champion-reference seed from the frozen v10b registration, whose phase-A diagnostic captured the Stunfisk Snap Trap source/prompt join."
+    },
+    "v8": {
+      "seed": 948758444,
+      "sourceRegistrationPath": "results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json",
+      "sourceRegistrationGitBlobSha": "5425749642c0692034f0db79c889b4ee42284b1a",
+      "sourceTrialId": "3:213:A:champion-reference",
+      "note": "Reuse the exact rank-3/A champion-reference seed from the selected-v8 prospective registration."
+    }
+  },
+  "groups": [
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 312,
+      "seed": 2404595552
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 312,
+      "seed": 2404595552
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 213,
+      "seed": 948758444
+    }
+  ],
+  "trials": [
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 312,
+      "seed": 2404595552,
+      "candidateId": "champion-reference",
+      "id": "3:312:B:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 312,
+      "seed": 2404595552,
+      "candidateId": "champion-reference",
+      "id": "3:312:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "champion-reference",
+      "id": "3:213:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 213,
+      "seed": 948758444,
+      "candidateId": "champion-reference",
+      "id": "3:213:B:champion-reference"
+    }
+  ],
+  "randomnessProtocol": {
+    "isolatePolicyRandomness": true,
+    "isolatePhysicalShuffleRandomnessAfterSetup": true,
+    "seedReuse": "Two previously registered seeds; each seed is attempted from both candidate-seat orientations.",
+    "noNewSeedDraw": true
+  },
+  "policyLayers": [
+    "agent36-issue25-selected-v0.cjs",
+    "agent36-issue25-steward-selected-v4.cjs",
+    "agent36-issue25-steward-innermost-prize-v5.cjs",
+    "agent36-issue25-common-v6.cjs",
+    "agent36-issue25-common-v7.cjs",
+    "agent36-snap-trap-native-match-integration-v3.cjs",
+    "agent36-snap-trap-owner-prompt-evidence-v1.cjs",
+    "agent36-snap-trap-owner-prompt-policy-v2.cjs",
+    "agent30-stunfisk-snap-trap-prompt-marker-v3.cjs",
+    "agent4-raw-state-native-fallback-quarantine.cjs"
+  ],
+  "controlProtocol": {
+    "pairedSeatOrientations": true,
+    "pairedSeedBlocks": true,
+    "AorBDeckTreatment": false,
+    "controlArm": false,
+    "outcomeAttribution": false,
+    "purpose": "Reproduce and settle the captured source-owned prompt through the selected-v8 runDevelopment path, then retain the subsequent owner prompt and root-action sequence."
+  },
+  "rootCensoring": {
+    "maxNativeRootActionsPerArm": 260,
+    "actionCountAndFinishedRetainedIndependentlyOfRootLedgerLength": true,
+    "rootActionLedgerLengthRetainedSeparately": true,
+    "actionCapIsNotGameTerminal": true
+  },
+  "continuationClassifier": {
+    "mechanicalActionsExcluded": [
+      "PassTurnAction",
+      "WaitForOpponentAction",
+      "WaitPromptAction",
+      "ResolvePromptAction with null result",
+      "ResolvePromptAction joined to a WaitPrompt"
+    ],
+    "meaningfulOpponentDecision": "First subsequent non-mechanical root action by the attacking/opponent seat after the exact Snap Trap response.",
+    "meaningfulSourceContinuation": "First subsequent non-mechanical root action by the source seat after the meaningful opponent action.",
+    "requireObservedSourceSeatMatchesRegisteredSourceSeat": true,
+    "requireExactSnapTrapPromptSettlementInBothSourceSeatOrientations": true
+  },
+  "strictGate": {
+    "allFourRegisteredAttemptsReturned": true,
+    "bothPhysicalSourceSeatOrientationsAttempted": true,
+    "knownSnapTrapPromptExactSourceStoreOwnerChoiceActionJoin": true,
+    "observedPromptSourceSeatMatchesRegistration": true,
+    "exactPhysicalSettlement": true,
+    "exactPromptSettlementObservedForBothSourceSeats": true,
+    "meaningfulOpponentDecisionAfterSnapTrap": true,
+    "meaningfulSourceContinuationAfterOpponent": true,
+    "endpointExplicitlyClassified": true
+  },
+  "evidencePlan": {
+    "exactPromptJoin": "Join source marker promptIdAfterStore/pendingNativePromptId, live Store prompt, owner-policy choice promptId and ResolvePromptAction id/action ordinal.",
+    "ownerInformationBoundary": "Retain detached actorObservation contract views at prompt creation and response; no opponent hand/deck, unopened deck or face-down Prize identities.",
+    "responseAndSettlement": "Retain ChooseCardsPrompt filter/options, native validation, selected public Energy printing, exact physical reference movement and MoveCardsEffect receipt.",
+    "continuation": "Capture the first post-Snap-Trap owner prompt and its response; exclude all null ResolvePromptAction and WaitPrompt roots when finding meaningful opponent/source actions.",
+    "abort": "Retain native abort stage, action ordinal/name, acting seat, turn/phase, pending prompt summary and error message.",
+    "endpoint": "Classify native terminal, action cap, or engine error. No endpoint is promoted to paper-qualified game evidence."
+  },
+  "scopeLimitations": [
+    "One authenticated Aichi original source rank (rank 3) against one existing candidate 60 (champion-reference).",
+    "Two previously registered seeds, each attempted from both candidate-seat orientations; four native attempts total.",
+    "Selected-v8 common policy is retained; this strict successor changes only evidence classification and gate requirements.",
+    "260 native root actions per attempt; a prompt reached near the cap may leave insufficient room for meaningful continuation.",
+    "No deck changes, no Aichi Top 32 matchup estimate, no full-field win-rate inference, and no paper legality certification."
+  ],
+  "paperQualifiedCompetitiveGames": 0,
+  "releaseEligible": false
+}
