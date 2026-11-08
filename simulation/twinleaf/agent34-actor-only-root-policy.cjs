@@ -707,6 +707,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePlayersCeremonyLastChance(view);
     if(ceremony)return ceremony;
   }
+  if(options.earlyBeachAfterPass===true){
+    const beach=require('./agent7-early-beach-after-pass.cjs')
+      .chooseEarlyBeachAfterPass(view);
+    if(beach)return beach;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -861,6 +866,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     publicFlexibleEnergyContestOptIn:deps.publicFlexibleEnergyContest===true||
       process.env.AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV==='true',
     tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
+    earlyBeachAfterPassOptIn:deps.earlyBeachAfterPass??
+      (process.env.AGENT7_EARLY_BEACH_DEV==='true'),
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
@@ -1206,6 +1213,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.tropicalBeachLastChanceOptIn)
     audit.version+='+'+
       require('./agent33-tropical-beach-lastchance.cjs').VERSION;
+  if(audit.earlyBeachAfterPassOptIn)
+    audit.version+='+'+
+      require('./agent7-early-beach-after-pass.cjs').VERSION;
   if(audit.playersCeremonyLastChanceOptIn)
     audit.version+='+'+
       require('./agent33-players-ceremony-lastchance.cjs').VERSION;
@@ -1560,6 +1570,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.specialEnergyRootOwnerSeat,seat),
       publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
       tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
+      earlyBeachAfterPass:audit.earlyBeachAfterPassOptIn===true,
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
