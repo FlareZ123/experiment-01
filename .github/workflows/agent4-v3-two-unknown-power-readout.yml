@@ -14,6 +14,7 @@ on:
           - rank6-independent-holdout-16
           - postguard-physical-energy-target-12
           - pure-v2-thorns
+          - neutral-v2-native-16
         default: typed-replay
 
 permissions:
@@ -63,6 +64,24 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Execute registered rank6 16-run v2 native integration
+        if: ${{ inputs.experiment == 'neutral-v2-native-16' }}
+        env:
+          AGENT4_NEUTRAL_V2_NATIVE_OUTPUT: agent4-neutral-thorns-v2-native-16.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-thorns-neutral-v2-holdout-16.cjs
+          node --test tests/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.test.cjs
+          node simulation/evaluation/2026-11/agent4-thorns-neutral-v2-holdout-16.cjs
+      - name: Preserve guarded rank6 native v2 original-physical-deal receipts
+        if: ${{ always() && inputs.experiment == 'neutral-v2-native-16' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-neutral-thorns-v2-native-sixteen
+          path: |
+            agent4-neutral-thorns-v2-native-16.json
+            agent4-neutral-thorns-v2-native-16.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute twelve registered native attempts and capture typed Store failures
         if: ${{ inputs.experiment == 'typed-replay' }}
         env:
