@@ -102,10 +102,10 @@ test('prompt arrays preserve each prompt ID, resource owner, controller and pers
   const originalDispatch=FakeStore.prototype.dispatch;
   const first=new ChooseCardsPrompt(opponent,[
     {fullName:'Secret A'},{fullName:'Secret B'}
-  ],42,{min:1,max:2},{controllerId:owner.id,perspectiveId:opponent.id});
+  ],42,{min:1,max:2},{controllerId:String(owner.id),perspectiveId:String(opponent.id)});
   const second=new ChooseCardsPrompt(owner,
     new CardList([{fullName:'Secret C'}]),43,{min:0,max:1},
-    {controllerId:opponent.id,perspectiveId:owner.id});
+    {controllerId:String(opponent.id),perspectiveId:String(owner.id)});
   const {result,audit}=withOwnerPromptMetadataObserver(()=>
     store.dispatch(new PlayCardAction(()=>store.prompt(state,[first,second]))),{
       Store:FakeStore,
