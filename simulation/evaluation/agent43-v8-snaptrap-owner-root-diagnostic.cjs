@@ -25,9 +25,10 @@ const REGISTRATION = require('../../results/aichi-2026/registrations/agent36-v8-
  * @returns {object}
  */
 function run() {
-  const registered = v1.trials().filter(t => t.candidateSlot === 'A');
-  assert.equal(registered.length, 2);
-  assert.deepEqual(registered.map(t => t.repeat), [312, 213]);
+  const registered = v1.trials();
+  assert.equal(registered.length, 4);
+  const diagnosticTrials = registered.filter(t => t.candidateSlot === 'A');
+  assert.deepEqual(diagnosticTrials.map(t => t.repeat), [312, 213]);
   const headless = require('../twinleaf/headless.cjs');
   let selectedResult = null;
   const execute = () => withCommonOwnerThornsRoot(() => {
@@ -68,7 +69,7 @@ function run() {
   const result = selectedResult ?? integrated.result;
   assert.ok(result);
   const rows = result.rawDevelopment?.rows ?? [];
-  const attempts = registered.map(trial => {
+  const attempts = diagnosticTrials.map(trial => {
     const row = rows.find(x => (x.trial?.id ?? x.id) === trial.id) ?? {};
     const first = row.actorNativeTrainerFallbackAbortAudit?.firstUnsupportedOwnerRoot ?? null;
     const native = row.nativeAbortEvidence ?? row.nativeAbortProvenance ?? {};
