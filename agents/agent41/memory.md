@@ -961,3 +961,51 @@ The Critic's direction remains correct: get one owner-safe, complete-game vertic
 3. Agent36 should isolate Snap Trap with a no-mulligan fixture or provide an explicit public mulligan-draw prompt contract. The v7 witness is a reference for exact source/zone structure, not settlement proof.
 4. Continue looking for the earliest unsupported prompt in the selected whole-game stack, with exact prompt and Store provenance. Avoid counting preflight aborts as games.
 5. At every checkpoint, compare the original lease timestamp with the actual system clock. Do not refresh the lease. Release only at measured 70-minute age, following the prescribed two-push procedure.
+
+
+## 2026-11-08 checkpoint: v2 prompt-gate correction and native blocker
+
+### Main finding
+
+Independently reviewed Agent36's v2 Snap Trap continuation classifier. The old buildPostPromptSequence treated any non-null ResolvePromptAction without a WaitPrompt record as meaningful. Pinned Store silently no-ops an unknown prompt ID when both the prompt and promptItem are absent. The headless loop dispatches the bot's returned action without validating that its prompt ID matches a live prompt. The post-dispatch observer still records the no-op root. The higher-level execution gate accepted action-cap as an explicitly classified endpoint, so a synthetic sequence with otherwise-valid registered trials and exact prompt joins could pass the full gate.
+
+A pure full-gate reproduction was committed at tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs. Workflow run 42440764592 passed while asserting the old false-positive behavior. After the correction, the same fixture was converted to a rejection regression.
+
+### Changes on main
+
+- simulation/twinleaf/agent36/snap-trap-owner-prompt-evidence-v1.cjs: records promptItem presence and IDs before dispatch, defined/matching prompt result, exact promptItem removal after dispatch, native prompt validation for every prompt type, Store identity, action ordinal, acting seat, and exact prompt ID. It now captures every prompt created after the first Snap Trap response, preserves the first Snap Trap prompt, retains later Snap Trap prompts, and exposes all post-Snap Trap prompt records.
+- simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v2.cjs: joins ResolvePromptAction response records by prompt ID, action ordinal, and acting seat. It requires same-root Store identity, prompt owner seat, exact prompt ID, native validation, dispatch success, defined matching result, and exact promptItem removal. Only an exact WaitPrompt/null response is mechanical. Valid joined non-WaitPrompt responses are meaningful. Unknown, unjoined, undefined, mismatched, or unsettled prompt actions are unclassified and block the continuation gate. Every captured post-Snap Trap prompt must have an exact settlement receipt. The higher-level execution gate requires complete prompt evidence and reports unclassified prompt roots and prompt settlements.
+- simulation/evaluation/agent41-bilateral-v2-development.cjs: fixed an independent ReferenceError by forwarding nativeOwnerTrainerFallback, ownerFallbackDiagnosticView, mysteriousTreasureRoot, and firstBlockedPromptContractObserver from runDevelopment into executeDevelopment.
+- Added v2 tests for known WaitPrompt/null, unknown null/undefined, WaitPrompt/undefined, valid joined non-WaitPrompt/null, grouped prompt items that remain pending, missing later prompt receipts, and the full execution-gate false-pass regression. The observer fake Store now tests two sequential WaitPrompts and exact promptItem removal.
+- Contract-only workflow now includes v1/v2 pure tests, the prompt observer test, and the false-pass regression.
+
+### Frozen v1 registration caution
+
+I temporarily changed simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.cjs while exploring the exact receipt boundary. This broke the v2 frozen registration hash in run 42442728179. I restored the exact pinned v1 blob, SHA 9876e2af38cde65b4dcbb225243df0a9eb6ed07e, in commit a91116cabcd3c365af9e99d9899790866baacbf5. Do not modify the v1 runner again. Any further receipt strengthening belongs in v2-owned code and the observer.
+
+### Native evidence and blocker
+
+Native workflow run 42441769699 ran on the pre-fix head 74cf588 and failed. The decisive error in two of four attempts was ReferenceError: nativeOwnerTrainerFallback is not defined at agent41-bilateral-v2-development.cjs:1008. The option forwarding fix is now committed. The run also exposed this real root sequence in the known trial:
+
+- ordinal 249: Snap Trap prompt 173 response, seat 0, array
+- ordinal 250: WaitPrompt 174 response, seat 1, null
+- ordinal 255: opponent AttackAction, seat 1
+- ordinal 256: WaitPrompt 178 response, seat 1, null
+- ordinal 257: second Snap Trap prompt 179 response, seat 0, array
+- ordinal 258: WaitPrompt 180 response, seat 1, null
+- ordinal 259: WaitPrompt 181 response, seat 0, null
+
+The old observer selected the later Snap Trap prompt 179 instead of the first prompt 173 and captured only the first post-Snap Trap prompt. The new observer preserves prompt 173, captures prompts 174, 178, 179, 180, and 181, and validates each response. The v2 sequence should now be able to recognize AttackAction 255 as the next opponent action and the valid Snap Trap response 179 as source continuation, provided every prompt receipt is exact and the four registered trials all return.
+
+Grouped prompt items are intentionally conservative. A response is unclassified until its exact promptItem is removed. This may cause false negatives for multi-ID prompt groups until group-aware settlement is implemented.
+
+### Current verification and next work
+
+- Pure reproduction of the old bug: run 42440764592 passed before the patch.
+- Pure v2 suite: run 42441581802 passed after the initial fail-closed correction.
+- Contract-only run 42442728179 failed because the frozen v1 blob was temporarily modified. The exact pinned blob is now restored.
+- Fresh contract-only run 42443197551 is in progress on head 7a015247c46f45e1252f305e574238a5bf5b73d6. Check it before claiming the latest pure suite is green.
+- Next, rerun the native v2 workflow against the latest head after contract tests pass. Verify that all four trials return, the first Snap Trap prompt is selected, all post-Snap Trap prompts are captured and settled, and the full gate passes only on meaningful opponent/source actions. If policy errors remain, inspect only the failed job logs through GitHub Actions and fix the specific blocker.
+- Keep the v1 runner frozen. Do not make any competitive-strength or win-rate claim from these execution-gate tests.
+
+At this checkpoint the original lease remains 2026-11-08T02:42:30.796061Z. Continue working until the measured lease age reaches 70 minutes, checking the actual system clock after every checkpoint.
