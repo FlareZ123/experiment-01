@@ -88,6 +88,10 @@ function numberKey(n){
 function audit(){
   assert.equal(field.decks.length,29);
   const nativeCards=initializeCards();
+  const printedNative=new Map(nativeCards.getAllCards()
+    .filter(card=>card.superType===1&&card.name&&card.set)
+    .map(card=>[[card.name,card.set,numberKey(card.setNumber)].join('|'),
+      card]));
   const {CardType}=require(path.join(OUTPUT,'game/store/card/card-types'));
   const typeNames={
     [CardType.GRASS]:'Grass',[CardType.FIRE]:'Fire',
@@ -115,9 +119,14 @@ function audit(){
     const source=sourceSet(input.set)?.find(card=>
       card.supertype==='Pokémon'&&card.name===input.name&&
       numberKey(card.number)===numberKey(input.number));
-    const nativeCard=nativeCards.getCardByName(input.name+' '+input.set);
+    const requestedFullName=input.name+' '+input.set;
+    const indexedCard=nativeCards.getCardByName(requestedFullName);
+    const nativeCard=indexedCard??printedNative.get([
+      input.name,input.set,numberKey(input.number)].join('|'));
+    const nativeAlias=Boolean(nativeCard&&!indexedCard);
     const status=!source?'MISSING_BUNDLED_SOURCE':
       !nativeCard?'MISSING_PINNED_NATIVE':
+      nativeAlias?'NATIVE_PRINTING_ALIAS':
       'SOURCE_AND_NATIVE_FOUND';
     const sourceSig=source?printedSignature(source):null;
     const nativeSig=nativeCard?printedSignature(nativeCard,typeNames):null;
@@ -134,6 +143,7 @@ function audit(){
       numberKey(nativeCard.setNumber)!==numberKey(input.number);
     findings.push({
       ...input,status,
+      requestedFullName,nativeAlias,
       nativeFullName:nativeCard?.fullName??null,
       nativeSetNumber:nativeCard?.setNumber??null,
       numberMismatch:!!numberMismatch,
@@ -149,6 +159,10 @@ function audit(){
     const missingNativePrintings=relevant
       .filter(row=>row.status==='MISSING_PINNED_NATIVE')
       .map(row=>row.name+' '+row.set);
+    const aliasedNativePrintings=relevant
+      .filter(row=>row.nativeAlias)
+      .map(row=>({requested:row.requestedFullName,
+        actual:row.nativeFullName}));
     const missingBundledPrintings=relevant
       .filter(row=>row.status==='MISSING_BUNDLED_SOURCE')
       .map(row=>row.name+' '+row.set);
@@ -159,9 +173,10 @@ function audit(){
       rank:deck.rank,sourcePokemonPrintings:relevant.length,
       sourcePokemonCards:deck.cards.filter(row=>row.category==='Pokémon')
         .reduce((n,row)=>n+row.count,0),
-      missingNativePrintings,missingBundledPrintings,
-      printedAttackMismatches,
-      allSourcePokemonNativeResolvable:missingNativePrintings.length===0,
+      missingNativePrintings,aliasedNativePrintings,
+      missingBundledPrintings,printedAttackMismatches,
+      allSourcePokemonNativeResolvable:missingNativePrintings.length===0&&
+        aliasedNativePrintings.length===0,
       note:'Pokémon print fidelity only: no Trainer/Energy/legality/game certification'
     };
   });
@@ -172,6 +187,7 @@ function audit(){
     verifiedSource60Count:29,
     registeredPokemonPrintings:findings.length,
     missingNativePrintings:missingNative.length,
+    nativeAliasPrintings:findings.filter(x=>x.nativeAlias).length,
     missingSourcePrintings:missingSource.length,
     printedSignatureMismatches:mismatches.length,
     attackSignatureMismatches:mismatchedNames.length,
@@ -209,7 +225,11 @@ if(require.main===module){
   process.stdout.write(JSON.stringify({
     version:result.schema,registeredPokemonPrintings:result.registeredPokemonPrintings,
     missingNativePrintings:result.missingNativePrintings,
+    nativeAliasPrintings:result.nativeAliasPrintings,
     missingSourcePrintings:result.missingSourcePrintings,
+    aliasExamples:result.findings.filter(row=>row.nativeAlias)
+      .map(row=>({requested:row.requestedFullName,
+        actual:row.nativeFullName,ranks:row.ranks})),
     printedSignatureMismatches:result.printedSignatureMismatches,
     attackSignatureMismatches:result.attackSignatureMismatches,
     nativeNumberMismatch:result.nativeNumberMismatch,
