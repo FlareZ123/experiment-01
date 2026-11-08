@@ -82,8 +82,9 @@ function joinNativePrizeExitsToSettledAttacks(attempts,physicalExits){
         ['fixed-contender',row.candidateSeat,row.candidateAttackSettlement]
       ].flatMap(([role,seat,report])=>(report?.attacks??[])
         .filter(attack=>attack.actionOrdinal<=ordinal &&
-          attack.completionRootOrdinal>=ordinal)
-        .map(attack=>({role,seat,actionOrdinal:attack.actionOrdinal,
+          attack.actionOrdinal>=ordinal-16)
+        .map(attack=>({role,seat,attackName:attack.attackName,
+          actionOrdinal:attack.actionOrdinal,
           completionRootOrdinal:attack.completionRootOrdinal,
           turnBefore:attack.turnBefore,
           settledPromptChain:attack.settledPromptChain,
