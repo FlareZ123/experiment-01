@@ -31,6 +31,7 @@ function withBilateralOwnerMail(next,deps){
   assert.equal(typeof oldStore?.value,'function');
   let active=false,storeInstance=null,priorAi=null,pending=null,trialId=null;
   const proposals=new WeakMap();
+  const ownerPassMailActions=new WeakSet();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
     lateDecoderInstallations:0,ownerRootPassesSeen:0,
     proposalCountsBySeat:[0,0],actualMailItemRootsBySeat:[0,0],
@@ -94,7 +95,9 @@ function withBilateralOwnerMail(next,deps){
     const handIndex=eligibleMailHandIndex(state,seat,storeInstance);
     if(handIndex===null)return baseline;
     audit.proposalCountsBySeat[seat]++;
-    return new PlayCardAction(owner.id,handIndex);
+    const action=new PlayCardAction(owner.id,handIndex);
+    ownerPassMailActions.add(action);
+    return action;
   }
 
   function observedDispatch(action,...args){
@@ -113,6 +116,8 @@ function withBilateralOwnerMail(next,deps){
     try{value=oldStore.value.call(this,action,...args);}
     catch(e){if(proposal)audit.rejectedPromptActions++;throw e;}
     if(mailPlay){
+      if(ownerPassMailActions.has(action))
+        deps.onMailActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
       audit.actualMailItemRootsBySeat[seat]++;
       const p=this.state.prompts?.find(x=>x.result===undefined);
       if(audit.actualMailEvents.length<64) {
