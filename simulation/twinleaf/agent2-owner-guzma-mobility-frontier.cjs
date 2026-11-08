@@ -61,7 +61,9 @@ function ownerGuzmaMobilityOption(o){
      nominalOneEnergyColorless(active))return null;
   const bench=(o.ownPublic?.bench??[]).map((p,index)=>({
     pokemon:p,index,attack:nominalOneEnergyColorless(p)
-  })).filter(x=>x.pokemon&&x.attack);
+  })).filter(x=>x.pokemon&&x.attack&&
+    !require('./agent47-active-position-retreat-veto.cjs')
+      .wouldLoseActivePositionAbility(o,x.index));
   if(!bench.length)return null;
   const opponents=(o.opponentPublic?.bench??[]).map((p,index)=>({
     pokemon:p,index,deficit:nominalRetreatDeficit(p)
