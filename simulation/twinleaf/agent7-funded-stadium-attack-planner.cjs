@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const { printedEnergyPayability, energyUnits } =
   require('./actor-energy-payability.cjs');
-const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v3';
+const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v4';
 const MIN_DAMAGE = 80;
 
 /**
@@ -76,7 +76,7 @@ function publicEnergyContext(view, pokemon, types, basicStage) {
     behindOnPrizes:
       view.ownPublic.prizeCount > view.opponentPublic.prizeCount,
     isPokemonGXorEX:
-      /(?:^|[\s-])(?:GX|EX|ex)(?=$|[\s-])/i.test(name)
+      /(?:^|[\s-])(?:GX|EX)(?=$|[\s-])/.test(name)
   };
 }
 
