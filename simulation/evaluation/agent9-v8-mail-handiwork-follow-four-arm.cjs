@@ -98,6 +98,8 @@ function run() {
     const secondTape = treatment.publicRootTape.filter(r => r.trialId === trial.id);
     const handiwork = audit.handiworkFromMailNativeDeckChanges
       .filter(row => row.trialId === trial.id);
+    const deferred = (audit.handiworkDeferredSettlements ?? [])
+      .filter(row => row.trialId === trial.id);
     const played = audit.selectedTrainerLaterPlayed
       .filter(row => row.trialId === trial.id && row.printing === HANDIWORK);
     const playedRoots = secondTape.filter(row =>
@@ -122,6 +124,7 @@ function run() {
         finalPrizes: after.nativeFinalPrizes,
         rootCount: after.nativeActionCount},
       nativeAcceptedHandiwork: handiwork,
+      actualDeferredHandiworkEffects: deferred,
       sourceMailSelectedHandiworkPlayed: played,
       nativeRootPlayed: playedRoots.map(root => ({
         ordinal: root.ordinal, seat: root.seat, turn: root.turn,
@@ -142,6 +145,10 @@ function run() {
     registeredOriginalArms: expected,
     experimentalNativeActions: acted,
     offers: audit.handiworkFromMailOffers,
+    deferredEffectsSettled: audit.handiworkDeferredSettlements?.length ?? 0,
+    deferredEffectsUnresolved: audit.handiworkDeferredUnresolved ?? 0,
+    deferredOpponentDeckCardsMilled: panels.reduce((n,p) => n +
+      p.actualDeferredHandiworkEffects.reduce((m,e) => m+e.deckCardsMoved,0),0),
     rejected: audit.handiworkFromMailRejected,
     nativeTreatmentErrors: nativeTreatmentErrors.map(p => p.id),
     physicalDeckCardsRemovedAtDispatch:
@@ -172,6 +179,8 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify({schema: result.schema,
     saved, status: result.qualification.status,
     handiworkNativeActions: result.experimentalNativeActions ?? 0,
+    deferredEffectsSettled: result.deferredEffectsSettled ?? 0,
+    deferredOpponentDeckCardsMilled: result.deferredOpponentDeckCardsMilled ?? null,
     physicalDeckCardsRemovedAtDispatch:
       result.physicalDeckCardsRemovedAtDispatch ?? 0,
     arms: result.arms?.map(a => ({id: a.id,
@@ -179,7 +188,8 @@ if (require.main === module) {
       before: a.control.endReason, after: a.treatment.endReason,
       prizesBefore: a.control.finalPrizes,
       prizesAfter: a.treatment.finalPrizes,
-      continuations: a.nativeRootPlayed.map(r => r.continuation.settled)})),
+      continuations: a.nativeRootPlayed.map(r => r.continuation.settled),
+      deferred: a.actualDeferredHandiworkEffects})),
     failure: result.failure ?? null}, null, 2) + '\n');
 }
 module.exports = {VERSION, afterSupporterSequence, run, save};
