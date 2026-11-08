@@ -97,7 +97,7 @@ test('native Iron Thorns Active-lock handoff seat '+seat+' matching='+sameLock,(
   const blockedAfter=IS_ABILITY_BLOCKED(store,state,opponent,lele);
   assert.equal(blockedAfter,sameLock);
   assert.equal(owner.active.getPokemonCard().fullName,
-    sameLock?thorns:'Dedenne-GX UNB');
+    sameLock?thorns:'Dedenne GX UNB');
   console.log('AGENT47_NATIVE_LOCK_HANDOFF',JSON.stringify({
     seat,sameLock,blockedBefore,blockedAfter,
     originalActivePrinting:thorns,
@@ -105,6 +105,6 @@ test('native Iron Thorns Active-lock handoff seat '+seat+' matching='+sameLock,(
     costUnitsAfterFloatStone:fee.cost.length,
     ownerPolicyIntent:intent?.kind??null,
     acceptedRetreat:true,attachedFloatStoneRemainsOnBench:true,
-    fakeShuffle:true,competitiveQualifiedGames:0
+    controlledArtificialBoard:true,competitiveQualifiedGames:0
   }));
 });
