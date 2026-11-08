@@ -90,7 +90,7 @@ function joinNativePrizeExitsToSettledAttacks(attempts,physicalExits){
           settlementCrossesClockReset:attack.settlementCrossesClockReset,
           prizesBefore:attack.prizesBefore,
           prizesAfter:attack.prizesAfter})));
-      assert.fail('Exact native Prize packet needs one settled attack: '+
+      assert.fail('Exact native Prize packet must have one settled attacker/prize attribution: '+
         JSON.stringify({trial:exit.registeredTrialId,eventIndex,
           exitOrdinal:ordinal,exitTurnBefore:exit.acceptedRootTurnBefore,
           takingSeat:exit.ownerSeat,prizePacket:exit.exactExitedCards,
