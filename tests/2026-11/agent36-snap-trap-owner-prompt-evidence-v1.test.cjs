@@ -40,13 +40,16 @@ class ChooseCardsPrompt {
   }
 }
 
-class ConfirmPrompt {
+class WaitPrompt {
   constructor(playerId) {
     this.playerId = playerId;
-    this.message = 'NEXT_OWNER_PROMPT';
+    this.message = 'WAIT_FOR_OPPONENT';
     this.options = { min: 0, max: 0, allowCancel: false, isSecret: false };
     this.id = null;
     this.result = undefined;
+  }
+  validate(value) {
+    return value === null;
   }
 }
 
@@ -61,11 +64,13 @@ class FakeStore {
   constructor(state) {
     this.state = state;
     this.promptItems = [];
+    this.waitPromptCount = 0;
   }
   prompt(state, prompt) {
     prompt.id = String(state.nextPromptId++);
     state.prompts.push(prompt);
     this.promptItems.push({ ids: [prompt.id], then() {} });
+    if (prompt instanceof WaitPrompt) this.waitPromptCount++;
     return prompt;
   }
   dispatch(action) {
@@ -91,7 +96,9 @@ class FakeStore {
       attacker.active.cards =
         attacker.active.cards.filter(card => card !== selected);
       attacker.discard.cards.push(selected);
-      this.prompt(this.state, new ConfirmPrompt(attacker.id));
+      this.prompt(this.state, new WaitPrompt(attacker.id));
+    } else if (prompt instanceof WaitPrompt && this.waitPromptCount === 1) {
+      this.prompt(this.state, new WaitPrompt(prompt.playerId));
     }
     return action;
   }
@@ -186,11 +193,18 @@ test('captures the exact Snap Trap owner view, native response, physical move an
       store, snapTrapAction, 250, 0, 54
     );
     const nextPrompt = state.prompts[0];
-    assert.ok(nextPrompt instanceof ConfirmPrompt);
-    const nextAction = new ResolvePromptAction(nextPrompt.id, true);
+    assert.ok(nextPrompt instanceof WaitPrompt);
+    const nextAction = new ResolvePromptAction(nextPrompt.id, null);
     store.dispatch(nextAction);
     rootActionContext.onRootActionDispatched(
       store, nextAction, 251, 1, 54
+    );
+    const secondPrompt = state.prompts[0];
+    assert.ok(secondPrompt instanceof WaitPrompt);
+    const secondAction = new ResolvePromptAction(secondPrompt.id, null);
+    store.dispatch(secondAction);
+    rootActionContext.onRootActionDispatched(
+      store, secondAction, 252, 1, 54
     );
     return { settled: true };
   }, {
@@ -207,6 +221,9 @@ test('captures the exact Snap Trap owner view, native response, physical move an
   assert.equal(audit.quarantineActiveAtInstall, true);
   assert.equal(audit.snapTrapPromptCount, 1);
   assert.equal(audit.nextOwnerPromptCount, 1);
+  assert.equal(audit.postSnapTrapPromptCount, 2);
+  assert.equal(audit.postSnapTrapPrompts.length, 2);
+  assert.equal(audit.promptRecords.length, 3);
   assert.equal(audit.snapTrapPrompt.promptIdAfterStore, '1');
   assert.equal(audit.snapTrapPrompt.sameRootStore, true);
   assert.equal(
@@ -224,7 +241,7 @@ test('captures the exact Snap Trap owner view, native response, physical move an
     audit.snapTrapPrompt.ownerObservationAtPromptCreation.actorSeat,
     0
   );
-  assert.equal(audit.responseRecords.length, 2);
+  assert.equal(audit.responseRecords.length, 3);
   assert.equal(audit.responseRecords[0].promptId, '1');
   assert.equal(audit.responseRecords[0].actionOrdinal, 250);
   assert.equal(audit.responseRecords[0].actingSeat, 0);
@@ -246,9 +263,22 @@ test('captures the exact Snap Trap owner view, native response, physical move an
     audit.nextOwnerPrompt.ownerObservationAtPromptCreation.actorSeat,
     1
   );
-  assert.equal(audit.responseRecords[1].responseBoolean, true);
-  assert.equal(audit.responseRecords[1].actionOrdinal, 251);
-  assert.equal(audit.responseRecords[1].actingSeat, 1);
+  for (const [index, ordinal] of [[1, 251], [2, 252]]) {
+    assert.equal(audit.responseRecords[index].responseKind, 'null');
+    assert.equal(audit.responseRecords[index].nativeValidateAccepted, true);
+    assert.equal(audit.responseRecords[index].samePromptId, true);
+    assert.equal(audit.responseRecords[index].sameRootStore, true);
+    assert.equal(audit.responseRecords[index].rootStoreMatchesAtActionCallback, true);
+    assert.equal(audit.responseRecords[index].dispatchReturnedWithoutThrow, true);
+    assert.equal(audit.responseRecords[index].promptResultDefined, true);
+    assert.equal(audit.responseRecords[index].promptResultMatches, true);
+    assert.equal(audit.responseRecords[index].promptItemFoundBeforeDispatch, true);
+    assert.equal(audit.responseRecords[index].promptItemRemovedAfterDispatch, true);
+    assert.equal(audit.responseRecords[index].actionOrdinal, ordinal);
+    assert.equal(audit.responseRecords[index].actingSeat, 1);
+  }
+  assert.equal(audit.nextOwnerPrompt.response.responseKind, 'null');
+  assert.equal(audit.postSnapTrapPrompts[1].response.actionOrdinal, 252);
   assert.equal(audit.readsOpponentHidden, false);
   assert.equal(audit.readsOpponentHand, false);
   assert.equal(audit.readsOpponentDeck, false);
