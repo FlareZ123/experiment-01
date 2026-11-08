@@ -1404,7 +1404,7 @@ function runDevelopment({
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   ownerFallbackDiagnosticView=false,mysteriousTreasureRoot=false,
   mysteriousTreasureMuscleBandPayment=false,
-  firstRegidragoBenchGrass=false,
+  firstRegidragoBenchGrass=false,firstCrispinSeekerRecovery=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
@@ -1520,6 +1520,8 @@ function runDevelopment({
     'Alternative Treasure payment requires the same source-owned Item root');
   assert.ok(!firstRegidragoBenchGrass||actorOnlyComposition,
     'Early Regidrago Bench funding requires canonical actor composition');
+  assert.ok(!firstCrispinSeekerRecovery||mysteriousTreasureRoot,
+    'First-turn Crispin recovery requires the enabled Treasure root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
@@ -1912,6 +1914,9 @@ function runDevelopment({
               }:{}),
               ...(firstRegidragoBenchGrass?{
                 firstRegidragoBenchGrass:true
+              }:{}),
+              ...(firstCrispinSeekerRecovery?{
+                firstCrispinSeekerRecovery:true
               }:{}),
               ...(actorPotentialKoRoot?{
                 potentialKoRoot:true
