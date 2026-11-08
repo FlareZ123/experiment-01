@@ -72,11 +72,14 @@ function withOwnerTreasurePrompts(run,deps={}){
   assert.equal(previous.configurable,true);
   const events=[];
   const observedOwnerChoicePrompts=[];
+  let decodeCalls=0,ownerPendingPromptCalls=0;
   const intercepted=function ownerTreasureOnly(state){
+    decodeCalls++;
     const clientId=this.client?.id;
     const owner=state.players?.find(player=>player.id===clientId);
     const prompt=state.prompts?.find(item=>
       item.playerId===clientId&&item.result===undefined);
+    if(owner&&prompt)ownerPendingPromptCalls++;
     if(owner&&prompt?.constructor?.name==='ChooseCardsPrompt'&&
        state.turn===1&&prompt.message==='CHOOSE_CARD_TO_DISCARD'){
       observedOwnerChoicePrompts.push({
@@ -120,7 +123,7 @@ function withOwnerTreasurePrompts(run,deps={}){
     const result=run();
     return {result,audit:{
       version:VERSION,paymentChoice,proposals:events.length,events,
-      observedOwnerChoicePrompts,
+      observedOwnerChoicePrompts,decodeCalls,ownerPendingPromptCalls,
       printedItemSourceConfirmed:events.length>0,
       physicalStorePaymentNotYetCertified:true,
       paperGameQualified:false,competitiveQualifiedGames:0
