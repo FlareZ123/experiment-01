@@ -234,18 +234,29 @@ function buildPostPromptSequence(
     const response = responseForEvent(event);
     const reason = !prompt ? 'unknown-prompt-id' :
       !response ? 'missing-exact-response-receipt' :
-        response.dispatchReturnedWithoutThrow !== true ?
-          'dispatch-not-confirmed' :
-          response.promptResultDefined !== true ?
-            'prompt-result-undefined' :
-            response.promptResultMatches !== true ?
-              'prompt-result-mismatch' :
-              response.promptItemFoundBeforeDispatch !== true ?
-                'prompt-item-missing-before-dispatch' :
-                response.promptItemRemovedAfterDispatch !== true ?
-                  'prompt-item-not-removed' :
-                  event.responseKind === 'undefined' ?
-                    'undefined-response' : 'response-contract-mismatch';
+        prompt.sameRootStore !== true ||
+        prompt.ownerSeat !== event.seat ?
+          'prompt-store-or-owner-mismatch' :
+          response.sameRootStore !== true ||
+          response.rootStoreMatchesAtActionCallback !== true ?
+            'response-store-mismatch' :
+            response.samePromptId !== true ||
+            String(response.actionPromptId) !== String(event.promptId) ?
+              'prompt-id-mismatch' :
+              response.nativeValidateAccepted !== true ?
+                'native-validation-rejected' :
+                response.dispatchReturnedWithoutThrow !== true ?
+                  'dispatch-not-confirmed' :
+                  response.promptResultDefined !== true ?
+                    'prompt-result-undefined' :
+                    response.promptResultMatches !== true ?
+                      'prompt-result-mismatch' :
+                      response.promptItemFoundBeforeDispatch !== true ?
+                        'prompt-item-missing-before-dispatch' :
+                        response.promptItemRemovedAfterDispatch !== true ?
+                          'prompt-item-not-removed' :
+                          event.responseKind === 'undefined' ?
+                            'undefined-response' : 'response-contract-mismatch';
     return {
       actionOrdinal: event.actionOrdinal,
       seat: event.seat,
