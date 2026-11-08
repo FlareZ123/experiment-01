@@ -120,8 +120,8 @@ test('known WaitPrompt null is mechanical and an unknown prompt root fails close
   const events = [
     { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
     { trialId, actionOrdinal: 252, seat: 0, action: 'ResolvePromptAction', promptId: '175', responseKind: 'undefined' },
-    { trialId, actionOrdinal: 253, seat: 1, action: 'AttackAction', promptId: null, responseKind: 'object' },
-    { trialId, actionOrdinal: 254, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+    { trialId, actionOrdinal: 253, seat: 1, turnBefore: 56, action: 'AttackAction', promptId: null, responseKind: 'object' },
+    { trialId, actionOrdinal: 254, seat: 0, turnBefore: 57, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
   ];
   const summary = {
     nativeOutcome: 'engine-error',
@@ -237,7 +237,7 @@ test('grouped prompt response stays unclassified until its exact promptItem is r
     trialId, makeJoin(), [
       { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
       { trialId, actionOrdinal: 252, seat: 1, action: 'ResolvePromptAction', promptId: '175', responseKind: 'array' },
-      { trialId, actionOrdinal: 253, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+      { trialId, actionOrdinal: 253, seat: 0, turnBefore: 57, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
     ], {}, {
       nativeOutcome: 'action-cap',
       actionCount: 253,
@@ -305,7 +305,7 @@ test('known non-WaitPrompt null with exact settlement receipt remains meaningful
   const sequence = buildPostPromptSequence(
     trialId, makeJoin(), [
       { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
-      { trialId, actionOrdinal: 252, seat: 1, action: 'ResolvePromptAction', promptId: '175', responseKind: 'null' },
+      { trialId, actionOrdinal: 252, seat: 1, turnBefore: 56, action: 'ResolvePromptAction', promptId: '175', responseKind: 'null' },
       { trialId, actionOrdinal: 253, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
     ], {}, {
       nativeOutcome: 'action-cap',
@@ -321,6 +321,53 @@ test('known non-WaitPrompt null with exact settlement receipt remains meaningful
   assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent.actionOrdinal, 253);
   assert.equal(sequence.promptEvidenceComplete, true);
   assert.equal(sequence.continuationGatePassed, true);
+});
+
+test('source prompt choice during the opponent attack does not claim a new source turn', () => {
+  const trialId = '3:312:B:champion-reference';
+  const sourcePrompt = {
+    promptIdAfterStore: '175',
+    ownerSeat: 0,
+    promptType: 'ChooseCardsPrompt',
+    message: 'CHOOSE_CARD_TO_DISCARD',
+    sameRootStore: true
+  };
+  const audit = makeMatchAudit([
+    settledResponse('174', 251, 1),
+    settledResponse('175', 253, 0, 'array')
+  ]);
+  audit.ownerPromptEvidence.promptRecords.push(sourcePrompt);
+  audit.ownerPromptEvidence.postSnapTrapPrompts.push(sourcePrompt);
+  const events = [
+    { trialId, actionOrdinal: 251, seat: 1, turnBefore: 54,
+      action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
+    { trialId, actionOrdinal: 252, seat: 1, turnBefore: 56,
+      action: 'AttackAction', promptId: null, responseKind: 'object' },
+    { trialId, actionOrdinal: 253, seat: 0, turnBefore: 56,
+      action: 'ResolvePromptAction', promptId: '175', responseKind: 'array' }
+  ];
+  const summary = {nativeOutcome: 'action-cap', actionCount: 254,
+    finished: false, rootActionCount: 254, rootActionLedgerLength: 254};
+  const unfinished = buildPostPromptSequence(
+    trialId, makeJoin(), events, {}, summary, audit
+  );
+  assert.equal(unfinished.promptEvidenceComplete, true);
+  assert.equal(unfinished.unclassifiedPromptRoots.length, 0);
+  assert.equal(unfinished.nextOpponentMeaningfulRoot.actionOrdinal, 252);
+  assert.equal(unfinished.nextSourceRootAfterOpponent.actionOrdinal, 253);
+  assert.equal(unfinished.nextSourceMeaningfulRootAfterOpponent, null);
+  assert.equal(unfinished.sourceOwnTurnActionObserved, false);
+  assert.equal(unfinished.continuationGatePassed, false);
+
+  const advanced = buildPostPromptSequence(trialId, makeJoin(), [
+    ...events,
+    { trialId, actionOrdinal: 254, seat: 0, turnBefore: 57,
+      action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+  ], {}, summary, audit);
+  assert.equal(advanced.nextSourceMeaningfulRootAfterOpponent.actionOrdinal, 254);
+  assert.equal(advanced.opponentTurnBeforeSourceContinuation, 56);
+  assert.equal(advanced.sourceOwnTurnActionObserved, true);
+  assert.equal(advanced.continuationGatePassed, true);
 });
 
 function settledJoin(sourceSeat, matches = true) {
