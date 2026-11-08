@@ -203,7 +203,7 @@ test('ordinary Poison and Burn preserve a cost-payable copied attack',()=>{
     poisoned,energyCatalog,donorCatalog).map(x=>x.attackName),
   ['Horror House-GX']);
   const burned=view([M3,BASIC]);
-  burned.ownPublic.active.specialConditions=[5];
+  burned.ownPublic.active.specialConditions=[energyCatalog.specialConditions.POISONED];
   assert.deepEqual(knownPerfectionReadyOptions(
     burned,energyCatalog,donorCatalog).map(x=>x.attackName),
   ['Poltergeist','Horror House-GX']);
