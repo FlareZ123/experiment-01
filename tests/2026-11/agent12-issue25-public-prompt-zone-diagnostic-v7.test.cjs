@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {exactPromptZoneJoin} = require('../../simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v7.cjs');
+const {exactPromptZoneJoin, redactPromptZoneAudit} = require('../../simulation/evaluation/agent36-issue25-public-prompt-zone-diagnostic-v7.cjs');
 
 test('v7 requires the exact same-object source origin and zero-to-assigned prompt ID join', () => {
   const sourceProof = {
@@ -64,4 +64,47 @@ test('v7 requires the exact same-object source origin and zero-to-assigned promp
   assert.equal(exactPromptZoneJoin(event, sourceProof), true);
   event.sourceOrigin = {...sourceProof};
   assert.equal(exactPromptZoneJoin(event, sourceProof), false);
+});
+
+test('frozen v7 observer archive redacts hidden, ambiguous and unmatched count paths', () => {
+  const event = (zoneMatches, offeredCount = 8) => ({
+    offeredCount,
+    offeredPrintings: Array(offeredCount).fill('Physical Energy'),
+    zoneMatches,
+    promptId: '173'
+  });
+  const hidden = {zone: 'owner-hand', visibility: 'hidden', eligibleCount: 8};
+  const publicMatch = {zone: 'opponent-active-pokemon-list',
+    visibility: 'public', eligibleCount: 8};
+  const audit = {version: 'frozen-v7', events: [
+    event([hidden]),
+    event([publicMatch, hidden]),
+    event([]),
+    event([publicMatch])
+  ]};
+
+  const sanitized = redactPromptZoneAudit(audit);
+  for (let index = 0; index < 3; index++) {
+    const result = sanitized.events[index];
+    assert.equal(result.offeredCount, null);
+    assert.equal(result.offeredPrintings, null);
+    assert.ok(result.zoneMatches.every(match => match.eligibleCount === null));
+  }
+  assert.equal(sanitized.events[3].offeredCount, 8);
+  assert.equal(sanitized.events[3].zoneMatches[0].eligibleCount, 8);
+  assert.deepEqual(sanitized.events[3].offeredPrintings,
+    Array(8).fill('Physical Energy'));
+  assert.equal(audit.events[0].offeredCount, 8);
+  assert.equal(audit.events[1].zoneMatches[0].eligibleCount, 8);
+  assert.notStrictEqual(sanitized.events[0], audit.events[0]);
+  assert.equal(sanitized.version, 'frozen-v7');
+});
+
+test('v7 archive sanitization fails closed for missing event metadata', () => {
+  assert.equal(redactPromptZoneAudit(null), null);
+  const audit = {events: [{offeredCount: 3, offeredPrintings: ['Hidden']} ]};
+  const result = redactPromptZoneAudit(audit);
+  assert.equal(result.events[0].offeredCount, null);
+  assert.equal(result.events[0].offeredPrintings, null);
+  assert.deepEqual(result.events[0].zoneMatches, []);
 });
