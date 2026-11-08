@@ -25,6 +25,8 @@ At source physical **seat 1**, seed **290151**, the rank-3 Articuno hand-play Co
 
 Across the 16 unique treatment games, 12 naturally reached a native engine terminal (7 winners as native seat 0 and 5 as native seat 1) and 4 reached the 260-root cap. Seat numbers alone cannot be interpreted as rank-3 win counts without each deal's source/actor seat; importantly, all outcomes are identical across A/B/A and therefore are **not treatment wins**. All 48 rows and the 16 complete matched groups were preserved, with `acceptance.passed=true`.
 
+**Additional exact owner-hand gate:** The original native owner-Ability audit on each of those two unique Confirm decisions records `actorHandAttachmentQuotaUnused=true` but `actorHandEnergyNames=[]`. Thus the otherwise unused normal hand-attachment opportunity cannot immediately rescue either observed Articuno play by attaching an Energy from the current hand. A new line requires gaining Basic Water first, earlier in the turn or on a prior turn, and must account for search/Supporter contention and Prize locations. This hand observation uses the owner-side audit and does not disclose opponent concealed cards.
+
 ## Decision and actionable successor
 
 **Retire the current threshold-only one-Water Cold Crush policy from the near-term shared-policy release queue.** Lowering the opponent-Active-Energy threshold from 3 to 1 or 2 does not change either observed negative, because the missing resource is owner Basic Water, even as the opponent has 4–5 Energy. More runs of the unchanged Confirm-only overlay will not fix this failure mode.
