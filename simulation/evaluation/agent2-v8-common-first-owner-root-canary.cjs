@@ -123,6 +123,8 @@ function runOne(candidateSeat,cards,{
     actorOnlySingleSearch:false,
     actorGenericFallbackAttribution:true,
     mysteriousTreasureRoot,
+    mysteriousTreasureMuscleBandPayment:
+      mysteriousTreasureRoot&&treasurePaymentChoice==='muscle-band',
     allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
