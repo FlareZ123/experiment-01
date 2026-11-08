@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      follow_mail_handiwork:
+        description: 'Compare same-seed owner Mail-selected Handiwork Supporter play'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -69,6 +74,13 @@ jobs:
         run: |
           node --check simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
           node simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
+      - name: Run native Mail-selected Handiwork Supporter four-arm comparison
+        if: ${{ inputs.follow_mail_handiwork }}
+        run: |
+          node --check simulation/twinleaf/agent9-mail-selected-handiwork-follow.cjs
+          node --check simulation/evaluation/agent9-v8-mail-handiwork-follow-four-arm.cjs
+          node --test tests/2026-11/agent9-mail-selected-handiwork-follow.test.cjs tests/2026-11/agent9-v8-mail-handiwork-follow-four-arm.test.cjs
+          node simulation/evaluation/agent9-v8-mail-handiwork-follow-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
