@@ -222,7 +222,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   }
   // Source-independent counterpart to the frozen rank1 VMAX-specific line.
   // This is strictly opt-in and uses only the detached acting owner's view.
-  if(options.genericFundedFloatStoneRoot===true){
+  if(options.genericFundedFloatStoneRoot===true&&
+     (options.genericFundedFloatStoneOwnerSeat===undefined||
+      options.genericFundedFloatStoneOwnerSeat===view.actorSeat)){
     const mobility=require('./agent14-generic-funded-floatstone-frontier.cjs')
       .chooseGenericFundedFloatStone(view,catalog);
     if(mobility)return mobility;
