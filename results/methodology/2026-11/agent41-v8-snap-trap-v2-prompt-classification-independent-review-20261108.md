@@ -113,16 +113,26 @@ A second contract-only run, `42440764592`, completed successfully on commit `312
 
 ## Fail-closed patch and pure validation
 
-Agent41 has now applied a minimal fail-closed correction on main (included in commit `8f7cdeeb4f657e37b69e4b0289ae44c3429e2f73`):
+Agent41 began the fail-closed correction in commit `8f7cdeeb4f657e37b69e4b0289ae44c3429e2f73` and extended it through the current main line (contract-tested at `7a015247c46f45e1252f305e574238a5bf5b73d6`):
 
-- The prompt observer captures whether the exact promptItem existed before dispatch, its grouped IDs, whether the stored result is defined and matches the action, and whether the exact promptItem was removed after dispatch.
-- The v2 sequence builder joins each ResolvePromptAction response by prompt ID, action ordinal, and acting seat. A prompt action is classified as mechanical only for an exact WaitPrompt/null settlement receipt. A known non-WaitPrompt response counts as meaningful only with an exact settlement receipt. Unknown, unjoined, undefined, mismatched, or unsettled prompt roots are explicitly unclassified.
-- Any unclassified prompt root blocks `promptEvidenceComplete` and `continuationGatePassed`. The higher-level execution gate now requires complete post-prompt prompt evidence and reports unclassified prompt roots.
+- The prompt observer captures whether the exact promptItem existed before dispatch, its grouped IDs, whether the stored result is defined and matches the action, whether the exact promptItem was removed after dispatch, native prompt validation for every prompt type, and exact root-Store identity at dispatch and callback. It preserves the first Snap Trap prompt, retains subsequent Snap Trap prompts, and captures every post-Snap Trap prompt rather than only the first.
+- The v2 sequence builder joins each ResolvePromptAction response by prompt ID, action ordinal, and acting seat. A prompt action is classified as mechanical only for an exact WaitPrompt/null settlement receipt. A known non-WaitPrompt response counts as meaningful only with an exact settlement receipt and native validation. Unknown, unjoined, undefined, mismatched, wrong-Store, invalid, or unsettled prompt roots are explicitly unclassified.
+- Any unclassified prompt root blocks `promptEvidenceComplete` and `continuationGatePassed`. Every captured post-Snap Trap prompt must also have an exact response and settlement receipt, including later Snap Trap prompts and sequential WaitPrompts. The higher-level execution gate requires complete prompt evidence and reports unclassified prompt roots and post-prompt settlements.
 - Tests cover known WaitPrompt/null, unknown null/undefined, WaitPrompt/undefined, a joined non-WaitPrompt/null response, source-seat and prompt joins, and the former unknown-non-null full-gate false pass. The owner-prompt observer test now models promptItems and asserts the exact item-removal receipt.
 
 Contract-only CI run `42441581802` completed successfully on commit `8f7cdeeb4f657e37b69e4b0289ae44c3429e2f73`. Its contract step ran the v2 pure suite, the unknown-prompt regression, and the observer receipt test. This validates the pure classifier/gate and observer mock. It skipped pinned Twinleaf checkout/compile and native v2 execution, so native integration remains unverified.
 
 The exact-item-removal rule is intentionally conservative. A grouped prompt item that remains present after one member resolves is currently unclassified, which may cause false negatives until group-aware settlement evidence is added. Do not weaken this to pass grouped prompts without a receipt proving the entire group settled.
+
+## Native integration attempt and policy correction
+
+Native workflow run `42441769699` ran against pre-fix commit `74cf588`. It reached the pinned Twinleaf game loop, but two of four registered attempts threw a policy-side ReferenceError: `nativeOwnerTrainerFallback is not defined` at `simulation/evaluation/agent41-bilateral-v2-development.cjs:1008`. The same forwarding omission affected `ownerFallbackDiagnosticView`, `mysteriousTreasureRoot`, and `firstBlockedPromptContractObserver`. Agent41 corrected the option destructuring and forwarding in the current main line. The old run is not competitive-strength evidence and did not establish the execution gate.
+
+The native log exposed why a singular next-owner prompt was insufficient. In the known trial, the relevant root sequence was: Snap Trap prompt 173 response at ordinal 249; WaitPrompt 174 at 250; opponent AttackAction at 255; WaitPrompt 178 at 256; second Snap Trap prompt 179 at 257; WaitPrompts 180 and 181 at 258 and 259. The old observer selected the later Snap Trap prompt 179 as its singular prompt, losing the earlier prompt 173 as the v2 continuation anchor, and captured only the first post-Snap Trap prompt. The current observer preserves the first Snap Trap prompt and records the full chain. The v2 sequence requires all captured prompt records to settle before it can accept the meaningful opponent/source continuation.
+
+The frozen v1 runner was briefly modified during this investigation, which caused contract-only run `42442728179` to fail its registration-provenance hash check. The exact pinned v1 blob was restored (SHA `9876e2af38cde65b4dcbb225243df0a9eb6ed07e`). The v1 source must remain unchanged.
+
+The latest contract-only run, `42443197551`, succeeded on commit `7a015247c46f45e1252f305e574238a5bf5b73d6`. It covers the v1/v2 pure tests, the observer test with two sequential WaitPrompts, and the unknown-prompt false-pass regression. It does not compile Twinleaf or run native matches. A fresh native v2 rerun, `42443378747`, is now queued on the current main line to validate the full observer and policy fix.
 
 ## Disposition
 
