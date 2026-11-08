@@ -274,6 +274,12 @@ function run(settings = {}) {
       nativeFailureActionOrdinal: row.nativeAbortEvidence?.actionOrdinal ?? null,
       nativeFailureActingSeat: row.nativeAbortEvidence?.actingSeat ?? null,
       nativeFailureTurn: row.nativeAbortEvidence?.turnBefore ?? null,
+      ...(followMailHandiwork ? {
+        nativeFailureDiagnostic: row.error == null ? null : {
+          name: row.error?.name ?? null,
+          message: String(row.error?.message ?? row.error).slice(0,300)
+        }
+      } : {}),
       selectedReturnedRow: Object.keys(row).length > 0,
       nativeStatus: row.status ?? null,
       nativeFinished: row.finished ?? null,
