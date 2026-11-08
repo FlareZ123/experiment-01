@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -55,7 +55,10 @@ function underworldDoorAction(options) {
   vmaxSlot.cards.push(get('Shadow Rider Calyrex V CRE'));
   const vmax = get('Shadow Rider Calyrex VMAX CRE');
   vmaxSlot.cards.push(vmax);
+  assert.ok(!(options.hood && options.sourceTool),
+    'Source VMAX can have only one Pokémon Tool');
   if (options.hood) vmaxSlot.tools.push(get('Stealthy Hood UNB'));
+  if (options.sourceTool) vmaxSlot.tools.push(get(options.sourceTool));
 
   const other = new PokemonCardList();
   other.cards.push(get('Shadow Rider Calyrex V CRE'));
