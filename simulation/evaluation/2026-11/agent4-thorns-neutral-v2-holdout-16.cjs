@@ -24,7 +24,7 @@ function run(deps={}){
   const audit=result.publicPolicyGuardAudit.guard;
   const checks={
     sameOriginalHoldoutRegistration:
-      result.registration==='agent4-rank6-owner-public-guard-independent-four-seed-v1',
+      result.registration==='agent4-rank6-underworld-guard-independent-4-seed-groups-16-native-v1',
     sameNativeSixteens:result.nativeGamesAttempted===16,
     originalPhysicalDealsPreserved:
       result.pairs.length===8&&result.pairs.every(p=>
