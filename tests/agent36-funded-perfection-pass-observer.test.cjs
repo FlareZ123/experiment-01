@@ -121,3 +121,52 @@ test('funded Perfection observer redacts arbitrary native probe error strings',(
   assert.equal(held.nativeRejectionPresent,true);
   assert.equal(Object.hasOwn(held,'nativeRejection'),false);
 });
+
+
+test('physical owner ID zero is a valid native Pass root',()=>{
+  class PassTurnAction {}
+  class Store {
+    constructor(){this.state={players:[{id:0},{id:1}]};}
+    dispatch(action){return action;}
+  }
+  const before=Store.prototype.dispatch;
+  let observedPlayer=null;
+  const observer=createFundedPerfectionPassObserver({
+    Store,deepClone:structuredClone,
+    samplerFactory:()=>({
+      observe(_state,id){observedPlayer=id;return {actorPlayerId:id};},
+      summary(){return {};}
+    })
+  });
+  observer.install();
+  const store=new Store();
+  const action=new PassTurnAction();
+  store.dispatch(action);
+  const sample=observer.onRootActionDispatched(store,action,0,0,1);
+  observer.restore();
+  assert.strictEqual(observedPlayer,0);
+  assert.deepEqual(sample,{actorPlayerId:0});
+  assert.strictEqual(Store.prototype.dispatch,before);
+});
+
+test('out-of-order restore refuses to overwrite a younger Store wrapper',()=>{
+  class Store {dispatch(action){return action;}}
+  const base=Store.prototype.dispatch;
+  const make=()=>createFundedPerfectionPassObserver({
+    Store,deepClone:structuredClone,
+    samplerFactory:()=>({observe(){return null;},summary(){return {};}})
+  });
+  const older=make();
+  older.install();
+  const olderWrapper=Store.prototype.dispatch;
+  const newer=make();
+  newer.install();
+  const newerWrapper=Store.prototype.dispatch;
+  assert.notStrictEqual(olderWrapper,newerWrapper);
+  assert.throws(()=>older.restore(),/later Store wrapper is active/);
+  assert.strictEqual(Store.prototype.dispatch,newerWrapper);
+  newer.restore();
+  assert.strictEqual(Store.prototype.dispatch,olderWrapper);
+  older.restore();
+  assert.strictEqual(Store.prototype.dispatch,base);
+});
