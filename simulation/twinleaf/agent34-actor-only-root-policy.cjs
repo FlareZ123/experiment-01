@@ -415,6 +415,11 @@ function chooseActorRootIntent(view,catalog,options={}){
     }
     if(staged)return staged;
   }
+  if(options.firstRegidragoBenchGrass===true){
+    const funding=require('./agent49/first-turn-regidrago-bench-funding.cjs')
+      .chooseFirstRegidragoBenchGrass(view,catalog);
+    if(funding)return funding;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -915,6 +920,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureEarlyRegistered===true,
     mysteriousTreasureMuscleBandPaymentOptIn:
       deps.mysteriousTreasureMuscleBandPayment===true,
+    firstRegidragoBenchGrassOptIn:
+      deps.firstRegidragoBenchGrass===true,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
@@ -1268,6 +1275,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       require('./agent49-mysterious-treasure-frontier.cjs').VERSION;
   if(audit.mysteriousTreasureMuscleBandPaymentOptIn)
     audit.version+='+agent49-treasure-muscle-band-choice-v1';
+  if(audit.firstRegidragoBenchGrassOptIn)
+    audit.version+='+'+
+      require('./agent49/first-turn-regidrago-bench-funding.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -1617,6 +1627,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
       mysteriousTreasureMuscleBandPayment:
         audit.mysteriousTreasureMuscleBandPaymentOptIn,
+      firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
