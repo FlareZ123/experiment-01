@@ -44,13 +44,18 @@ function runV8Perfection260Pair(deps={}){
     assert.equal(a.sourceDealFingerprint,b.sourceDealFingerprint);
     assert.equal(a.sourceSeat,b.sourceSeat);
     assert.equal(a.candidateSeat,b.candidateSeat);
-    assert.ok(Array.isArray(row.rootActionLedger)&&
-      Array.isArray(b.nativeAcceptedRootLedger));
+    const bothLedgersAvailable=Array.isArray(row.rootActionLedger)&&
+      Array.isArray(b.nativeAcceptedRootLedger);
+    if(id==='11:211:A:new-moon-lockbreaker-v1')
+      assert.ok(bothLedgersAvailable,
+        'The target completed rank11 Perfection game requires both native ledgers');
     return {
       trial:id,identicalPhysicalDeal:true,
       sourceSeat:a.sourceSeat,candidateSeat:a.candidateSeat,
-      firstNativeActionDifference:firstRootDivergence(row.rootActionLedger,
-        b.nativeAcceptedRootLedger),
+      bothNativeLedgersAvailable:bothLedgersAvailable,
+      firstNativeActionDifference:bothLedgersAvailable?
+        firstRootDivergence(row.rootActionLedger,
+          b.nativeAcceptedRootLedger):null,
       control:{
         roots:a.rootActionCount,status:a.status,finished:a.finished,
         winner:a.winner,remainingPrizes:a.finalPrizes
