@@ -38,3 +38,28 @@ The shared helper now exports `wouldLoseActivePositionAbility(view, benchIndex)`
 [Corrected contract suite 42522533052](https://github.com/FlareZ123/experiment-01/actions/runs/42522533052) passed **41/41** including exact same-print handoff and different-print abstention. An earlier [42522206997](https://github.com/FlareZ123/experiment-01/actions/runs/42522206997) had a synthetic fixture incorrectly named `Owner ability` where real printed name is `Initialization`; the name was corrected and full suite passed.
 
 A separate opt-in native Store test `tests/2026-11/agent47-iron-thorns-active-lock-handoff.native.test.cjs` stages Float Stone attachment, actual RetreatAction, and the engine's `IS_ABILITY_BLOCKED` for a physically separate opposing Tapu Lele-GX on **both original seat assignments**. The identical-Iron Thorns replacement is compared with a differently printed replacement. This tests the underlying native effect's persistence rather than inferring it from the regex alone. Test outcomes remain developmental and cannot be used as a qualified tournament result.
+
+## Final integration: ten generic owner mobility frontiers, exact native witness
+
+A broader inspection exposed the same position-cost gap in additional registered fallback planners. The owner-public per-target `wouldLoseActivePositionAbility` is now integrated in **ten** distinct existing generic policy modules:
+
+1. `agent1-owner-float-stone-mobility.cjs`;
+2. `agent7-actor-free-retreat-frontier.cjs`;
+3. `agent31-zero-energy-strand-floatstone.cjs`;
+4. `agent42-public-two-unit-paid-retreat-proposal.cjs`;
+5. `agent2-held-guzma-mobility-frontier.cjs`;
+6. `agent2-owner-guzma-mobility-frontier.cjs`;
+7. `agent14-generic-funded-floatstone-frontier.cjs`;
+8. `agent10-flexible-paid-retreat-frontier.cjs`;
+9. `agent6-actor-paid-retreat-frontier.cjs`;
+10. `agent2-actor-multi-basic-paid-retreat-frontier.cjs`.
+
+The voluntary Guzma mobility guards are important for the actual 2026 Top32: authenticated rank2 uses **Stoutland** plus 2 Guzma, and ranks6,24,29 each use 4 **Iron Thorns ex** plus 2–3 Guzma. A user-initiated Guzma that moves into an unrelated Pokémon can lift Sentinel's Supporter lock or Initialization's Ability lock. The guard does **not** blanket-prevent Guzma: a Bench recipient with exactly the same printed lock can replace the Active, and separate explicit **prize-taking/gust tactical** options remain outside these generic rescue gates.
+
+New tests `tests/2026-11/agent47-guzma-active-lock-mobility.test.cjs` examine both historical generic Guzma planners: nonlocking target abstention; identical printed Initialization replacement; scan-past-an-unsafe-first-Bench to a safe later equivalent; and no opponent-hidden-zone dependence. `tests/2026-11/agent47-general-retreat-lock-retention.test.cjs` checks the four added funded/paid-retreat policies for baseline proposal, loss-of-lock veto, and safe exact replacement where payable. No original opponent 60 or previously registered experimental design changed. Original planner tests for all supplemented modules remain included in lightweight CI.
+
+**Actual compiled native physical rule check:** the corrected pinned [CI 42522708931](https://github.com/FlareZ123/experiment-01/actions/runs/42522708931) passed **4/4 controlled Store cases**: owner seat0 and seat1, each with a fully real `PlayCardAction` to attach a Float Stone, `CheckRetreatCostEffect.cost.length===0`, and accepted native `RetreatAction`. When the chosen Bench target was physically a second Iron Thorns ex TWM, the opponent's exact Tapu Lele-GX remained `IS_ABILITY_BLOCKED=true` before and after the swap, with two distinct card instances. In controls promoting a physically different Dedenne-GX, native `IS_ABILITY_BLOCKED` changed from **true to false** as expected. Actual printed state and attached Tool remained on the previously Active Pokémon as required. These observations support the tactical condition underlying the helper; the board was **staged**, not drawn from a randomized original 60, and does **not** qualify as a competitive game.
+
+**Final regression:** [manual contract CI 42523569370](https://github.com/FlareZ123/experiment-01/actions/runs/42523569370) passed **93/93** tests, covering the original general mobility and Guzma proposal contracts plus the new target-specific lock-abandonment and lock-equivalence cases. All six added frontiers have direct regression coverage, existing planner behavior remains in force for ordinary nonlocking scenarios, and no hidden opposing zone is consulted by the new helper.
+
+Remaining realistic limitations: same printed lock can still be suppressed by another card, status or matchup effects; these fallback restrictions may conservatively abstain when that lock is currently inactive. A native controlled board validates the condition, while prospective full-60 policy A/B testing under capable opponents is needed to quantify game-strength impact. The collective win-rate target remains undemonstrated.
