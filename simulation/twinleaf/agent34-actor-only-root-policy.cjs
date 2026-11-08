@@ -303,6 +303,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
     if(item)return item;
   }
+  if(options.firstCrispinSeekerRecovery===true){
+    const seeker=require('./agent49/first-turn-crispin-seeker-recovery.cjs')
+      .chooseFirstCrispinSeekerRecovery(view);
+    if(seeker)return seeker;
+  }
   if(options.rank13DdeEnergyRoot===true){
     const funding=require('./agent8-rank13-double-dragon-energy-frontier.cjs')
       .chooseRank13DoubleDragonRoot(view);
@@ -922,6 +927,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureMuscleBandPayment===true,
     firstRegidragoBenchGrassOptIn:
       deps.firstRegidragoBenchGrass===true,
+    firstCrispinSeekerRecoveryOptIn:
+      deps.firstCrispinSeekerRecovery===true,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
@@ -972,6 +979,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     seekerLilliePromptsAccepted:0,
     seekerResearchPromptsProposed:0,
     seekerResearchPromptsAccepted:0,
+    seekerCrispinPromptsProposed:0,
+    seekerCrispinPromptsAccepted:0,
     eriRevealRootOptIn:deps.eriRevealRoot??
       (process.env.AGENT50_ERI_REVEAL_DEV==='true'),
     eriPromptsProposed:0,eriPromptsAccepted:0,eriItemsDiscarded:0,
@@ -1278,6 +1287,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.firstRegidragoBenchGrassOptIn)
     audit.version+='+'+
       require('./agent49/first-turn-regidrago-bench-funding.cjs').VERSION;
+  if(audit.firstCrispinSeekerRecoveryOptIn)
+    audit.version+='+'+
+      require('./agent49/first-turn-crispin-seeker-recovery.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -1373,7 +1385,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       return original.value.call(this,state);
     }
     if(seat!==-1&&pending&&
-       (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn)&&
+       (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn||
+        audit.firstCrispinSeekerRecoveryOptIn)&&
        pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
@@ -1385,6 +1398,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         printing:target});
       if(target.startsWith("Professor's Research "))
         audit.seekerResearchPromptsProposed++;
+      else if(target==='Crispin SCR')audit.seekerCrispinPromptsProposed++;
       else audit.seekerLilliePromptsProposed++;
       return planned;
     }
@@ -1628,6 +1642,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureMuscleBandPayment:
         audit.mysteriousTreasureMuscleBandPaymentOptIn,
       firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
+      firstCrispinSeekerRecovery:audit.firstCrispinSeekerRecoveryOptIn,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
@@ -1885,6 +1900,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-seeker-get-crispin':
       case 'play-seeker-get-lillie':
       case 'play-seeker-recovered-lillie':
       case 'play-seeker-get-research':
@@ -2095,6 +2111,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       ownerSeekerPending.delete(seekerReply.ownerId);
       if(seekerReply.printing.startsWith("Professor's Research "))
         audit.seekerResearchPromptsAccepted++;
+      else if(seekerReply.printing==='Crispin SCR')
+        audit.seekerCrispinPromptsAccepted++;
       else audit.seekerLilliePromptsAccepted++;
       return result;
     }
@@ -2158,7 +2176,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         ownerEriPending.set(owner.id,{seat:choice.seat,
           promptId:pending.id,globalTurn:choice.globalTurn});
       }
-      if(choice.kind==='play-seeker-get-lillie'||
+      if(choice.kind==='play-seeker-get-crispin'||
+         choice.kind==='play-seeker-get-lillie'||
          choice.kind==='play-seeker-get-research'){
         const owner=this.state.players[choice.seat];
         const pending=this.state.prompts?.find(p=>p.result===undefined);
