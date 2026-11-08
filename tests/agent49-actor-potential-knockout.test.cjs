@@ -126,11 +126,34 @@ test('Weakness followed by Resistance changes which later attack qualifies',()=>
     {kind:'attack',attackName:'Finish'});
 });
 
+test('pinned native Weakness with omitted value means times two',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[5]};
+  v.opponentPublic.active.hp=100;
+  v.opponentPublic.active.damage=30;
+  v.opponentPublic.active.printed={
+    weakness:[{type:5,value:null}],resistance:[]
+  };
+  assert.equal(typeAdjustedFixedDamage(40,v.ownPublic.active,
+    v.opponentPublic.active),80,
+    'actorObservation maps the native undefined weakness multiplier to null');
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}),
+    {kind:'attack',attackName:'Setup'},
+    'printed Setup 20 x2 remains nonlethal; later Finish 60 x2 is lethal');
+  v.ownPublic.active.attacks=[attack('Weakness Finish',40),attack('Raw Finish',80)];
+  assert.equal(choosePotentialKnockout(v,v.ownPublic.active.attacks).name,
+    'Weakness Finish');
+  v.opponentPublic.active.printed.weakness=[{type:5}];
+  assert.equal(typeAdjustedFixedDamage(40,v.ownPublic.active,
+    v.opponentPublic.active),80,
+    'omitted native value remains equivalent before observation');
+});
+
 test('unknown or incomplete printed modifiers never invent a guaranteed KO',()=>{
   const v=view();
   v.ownPublic.active.printed={types:[5]};
   v.opponentPublic.active.printed={
-    weakness:[{type:5,value:null}],resistance:[]
+    weakness:[{type:5,value:'unrecognized'}],resistance:[]
   };
   const moves=[attack('First',20),attack('Unknown',200)];
   assert.equal(typeAdjustedFixedDamage(200,v.ownPublic.active,
