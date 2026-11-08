@@ -54,7 +54,9 @@ function chooseNativeEarlyCompressorDonors(
   assert.ok(owner?.deck?.cards);
   assert.equal(prompt.constructor?.name,'ChooseCardsPrompt');
   assert.equal(prompt.playerId,owner.id);
-  assert.equal(prompt.sourceCard?.fullName,ITEM);
+  assert.equal(prompt.message,'CHOOSE_CARD_TO_DISCARD');
+  assert.ok(owner.supporter.cards.some(card=>card.fullName===ITEM),
+    'The exact Battle Compressor must be in the real owner resolving zone');
   assert.strictEqual(prompt.cards,owner.deck);
   assert.equal(prompt.result,undefined);
   const {chooseActualOwnerDeckDonors}=
