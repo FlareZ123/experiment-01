@@ -264,6 +264,26 @@ test('hidden hand, deck and Prize prompts never emit hidden card identities', ()
   }
 });
 
+test('ambiguous hidden and public prompt sources redact every eligible count', () => {
+  const {state, ownerSeat} = makeScenario(0);
+  const owner = state.players[ownerSeat];
+  const attacker = state.players[1].active;
+  owner.hand.cards.push(...attacker.energies.cards);
+
+  const result = promptZoneMatches(
+    state,
+    makePrompt(owner, attacker),
+    SuperType
+  );
+
+  assert.equal(result.matches.length, 2);
+  assert.deepEqual(result.matches.map(match => match.visibility).sort(),
+    ['hidden', 'public']);
+  assert.ok(result.matches.every(match => match.eligibleCount === null));
+  assert.equal(result.offeredCount, null);
+  assert.equal(result.offeredPrintings, null);
+});
+
 test('wrong superType filter cannot be reported as an Energy subzone', () => {
   const {state, ownerSeat} = makeScenario(0);
   const owner = state.players[ownerSeat];
