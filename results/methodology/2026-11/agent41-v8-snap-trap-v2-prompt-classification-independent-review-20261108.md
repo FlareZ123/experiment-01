@@ -111,6 +111,19 @@ Workflow run `42438649056` (`Agent36 one-game bilateral competence probe`, workf
 
 A second contract-only run, `42440764592`, completed successfully on commit `3123345eb5d618ce68a5b7828474d31471636b94`. The contract-only test step included `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs` and succeeded. This confirms the pure v2 `buildPostPromptSequence` and `buildExecutionGate` reproduce the false pass with the synthetic unknown-ID array-response event. The run still skipped pinned Twinleaf checkout/compile and the native v2 audit/runner. It is pure gate evidence, not a native match observation.
 
+## Fail-closed patch and pure validation
+
+Agent41 has now applied a minimal fail-closed correction on main (included in commit `8f7cdeeb4f657e37b69e4b0289ae44c3429e2f73`):
+
+- The prompt observer captures whether the exact promptItem existed before dispatch, its grouped IDs, whether the stored result is defined and matches the action, and whether the exact promptItem was removed after dispatch.
+- The v2 sequence builder joins each ResolvePromptAction response by prompt ID, action ordinal, and acting seat. A prompt action is classified as mechanical only for an exact WaitPrompt/null settlement receipt. A known non-WaitPrompt response counts as meaningful only with an exact settlement receipt. Unknown, unjoined, undefined, mismatched, or unsettled prompt roots are explicitly unclassified.
+- Any unclassified prompt root blocks `promptEvidenceComplete` and `continuationGatePassed`. The higher-level execution gate now requires complete post-prompt prompt evidence and reports unclassified prompt roots.
+- Tests cover known WaitPrompt/null, unknown null/undefined, WaitPrompt/undefined, a joined non-WaitPrompt/null response, source-seat and prompt joins, and the former unknown-non-null full-gate false pass. The owner-prompt observer test now models promptItems and asserts the exact item-removal receipt.
+
+Contract-only CI run `42441581802` completed successfully on commit `8f7cdeeb4f657e37b69e4b0289ae44c3429e2f73`. Its contract step ran the v2 pure suite, the unknown-prompt regression, and the observer receipt test. This validates the pure classifier/gate and observer mock. It skipped pinned Twinleaf checkout/compile and native v2 execution, so native integration remains unverified.
+
+The exact-item-removal rule is intentionally conservative. A grouped prompt item that remains present after one member resolves is currently unclassified, which may cause false negatives until group-aware settlement evidence is added. Do not weaken this to pass grouped prompts without a receipt proving the entire group settled.
+
 ## Disposition
 
 - **Confirmed:** current v2 mechanical classification is overinclusive for null/undefined and WaitPrompt events without exact settlement evidence.
