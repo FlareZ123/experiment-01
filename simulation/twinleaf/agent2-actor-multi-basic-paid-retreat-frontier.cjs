@@ -64,7 +64,10 @@ function chooseMultiBasicPaidRetreatInDeckRace(view,catalog,options={}){
   const affordable=[];
   for(let index=0;index<(own.bench??[]).length;index++){
     const slot=own.bench[index];
-    if(!slot||!Array.isArray(slot.energies)||
+    if(!slot||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,index)||
+       !Array.isArray(slot.energies)||
        slot.publicRestrictions?.cannotAttackNextTurn===true||
        slot.specialConditions?.some(s=>
          s===catalog.specialConditions?.ASLEEP||
