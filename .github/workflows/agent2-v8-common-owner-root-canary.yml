@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_mail_beach_combo:
+        description: 'Compare native first-eligible Mail with owner Mail followed by first-cycle Beach'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -38,17 +43,22 @@ jobs:
       - name: Verify selected-v8 canary release-gate contract
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
-        if: ${{ !inputs.agent7_early_beach }}
+        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo }}
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
       - name: Check first-cycle Beach pure tests and native treatment syntax
-        if: ${{ inputs.agent7_early_beach }}
+        if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo }}
         run: |
           node --test tests/2026-11/agent7-early-beach-after-pass.test.cjs
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/evaluation/agent7-v8-rank3-early-beach-native.cjs
       - name: Compare exact control and first-cycle Beach on native Store
-        if: ${{ inputs.agent7_early_beach }}
+        if: ${{ inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo }}
         run: node simulation/evaluation/agent7-v8-rank3-early-beach-native.cjs
+      - name: Confirm true owner Mail search followed by Beach placement and use
+        if: ${{ inputs.agent7_mail_beach_combo }}
+        run: |
+          node --check simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
+          node simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
       - name: Print compact selected-v8 canary receipt
         if: always()
         run: >-
@@ -61,4 +71,5 @@ jobs:
           path: |
             agent2-v8-common-first-owner-root.json
             artifacts/agent7-v8-rank3-early-beach/paired-native.json
+            artifacts/agent7-v8-rank3-mail-beach/paired-native.json
           if-no-files-found: error
