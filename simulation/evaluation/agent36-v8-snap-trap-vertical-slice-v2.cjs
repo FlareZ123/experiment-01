@@ -522,6 +522,16 @@ function buildDiagnosticSummary(output) {
         summary.postPromptSequence?.nextSourceMeaningfulRootAfterOpponent ?? null,
       mechanicalRootsAfterPrompt:
         summary.postPromptSequence?.mechanicalRootsAfterPrompt ?? [],
+      unclassifiedPromptRoots:
+        summary.postPromptSequence?.unclassifiedPromptRoots ?? [],
+      postSnapTrapPromptSettlements:
+        summary.postPromptSequence?.postSnapTrapPromptSettlements ?? [],
+      promptEvidenceComplete:
+        summary.postPromptSequence?.promptEvidenceComplete ?? false,
+      nextOwnerPromptResponseSettled:
+        summary.postPromptSequence?.nextOwnerPromptResponseSettled ?? false,
+      allPostSnapTrapPromptsSettled:
+        summary.postPromptSequence?.allPostSnapTrapPromptsSettled ?? false,
       continuationGatePassed:
         summary.postPromptSequence?.continuationGatePassed ?? false
     },
@@ -572,17 +582,35 @@ function buildDiagnosticSummary(output) {
           message: attempt.error.message ?? String(attempt.error)
         } : null,
         snapTrapPrompt: promptSummary(evidence.snapTrapPrompt),
+        snapTrapPrompts: (evidence.snapTrapPrompts ?? []).map(promptSummary),
         nextOwnerPrompt: promptSummary(evidence.nextOwnerPrompt),
+        postSnapTrapPrompts:
+          (evidence.postSnapTrapPrompts ?? []).map(promptSummary),
         responseRecords: (evidence.responseRecords ?? []).map(record => ({
           promptId: record.promptId ?? null,
           actionPromptId: record.actionPromptId ?? null,
+          actionType: record.actionType ?? null,
           actionOrdinal: record.actionOrdinal ?? null,
           actingSeat: record.actingSeat ?? null,
           responseKind: record.responseKind ?? null,
           responseLength: record.responseLength ?? null,
           selectedCardPrinting: record.selectedCardPrinting ?? null,
           selectedCardIsEnergy: record.selectedCardIsEnergy ?? false,
+          samePromptId: record.samePromptId ?? false,
+          sameRootStore: record.sameRootStore ?? false,
+          rootStoreMatchesAtActionCallback:
+            record.rootStoreMatchesAtActionCallback ?? false,
           nativeValidateAccepted: record.nativeValidateAccepted ?? false,
+          dispatchReturnedWithoutThrow:
+            record.dispatchReturnedWithoutThrow ?? false,
+          promptResultDefined: record.promptResultDefined ?? false,
+          promptResultMatches: record.promptResultMatches ?? false,
+          promptItemFoundBeforeDispatch:
+            record.promptItemFoundBeforeDispatch ?? false,
+          promptItemIdsBeforeDispatch:
+            record.promptItemIdsBeforeDispatch ?? [],
+          promptItemRemovedAfterDispatch:
+            record.promptItemRemovedAfterDispatch ?? false,
           physicalZoneSettled: record.physicalZoneSettled ?? false,
           physicalZoneAfter: record.physicalZoneAfter ?? null,
           ownerObservationSha256:
