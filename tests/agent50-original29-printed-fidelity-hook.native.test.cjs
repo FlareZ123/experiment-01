@@ -7,6 +7,10 @@ const {stagedPainfulSpoons}=
   require('../simulation/twinleaf/agent4-rank31-alakazam-movesource-native.cjs');
 const {withOriginal29PrintedFidelity}=
   require('../simulation/twinleaf/agent50-original29-printed-fidelity-hook.cjs');
+const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {audit:printedFieldAudit,numberKey}=
+  require('../simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs');
+
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name Actual compiled pinned module. */
@@ -259,3 +263,35 @@ for(const seat of [0,1]){
     console.log('AGENT50_NATIVE_PAPER_ELECTRODE_NAME '+JSON.stringify(r));
   });
 }
+
+test('all eleven genuine pinned original Aichi native set aliases now instantiate as real card clones',()=>{
+  const baseline=printedFieldAudit();
+  const aliases=baseline.findings.filter(x=>x.nativeAlias);
+  assert.equal(aliases.length,11);
+  assert.equal(baseline.missingNativePrintings,0);
+  const corrected=withOriginal29PrintedFidelity(()=>{
+    const manager=initializeCards();
+    return aliases.map(row=>{
+      const original=manager.getCardByName(row.requestedFullName);
+      assert.ok(original,'Unresolved registered native printed card '+
+        row.requestedFullName);
+      assert.equal(original.name,row.name);
+      assert.equal(original.set,row.set);
+      assert.equal(numberKey(original.setNumber),numberKey(row.number));
+      assert.equal(original.fullName,row.nativeFullName);
+      return {source:row.requestedFullName,
+        pinnedFullName:original.fullName,
+        ranks:row.ranks};
+    });
+  });
+  assert.equal(corrected.audit.aliases.length,11);
+  assert.equal(corrected.result.length,11);
+  assert.equal(corrected.audit.competitiveGamesQualified,0);
+  console.log('AGENT50_ALL_ORIGINAL_NATIVE_ALIASES '+JSON.stringify({
+    aliasCount:11,
+    nativeMissingPrintings:0,
+    allClonesResolved:true,
+    aliases:corrected.result,
+    competitiveGamesQualified:0
+  }));
+});
