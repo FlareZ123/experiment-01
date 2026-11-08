@@ -152,6 +152,7 @@ jobs:
           node --check simulation/evaluation/agent43-v8-snaptrap-owner-root-diagnostic.cjs
           node --check simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs
           node --check simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs
+          node --check simulation/evaluation/agent2-v8-treasure-owner-root-optin.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
         if: ${{ !inputs.contract_only }}
@@ -242,6 +243,10 @@ jobs:
       - name: Execute Agent2 staged Crispin, Treasure, VS Seeker and Battle Compressor native sequence
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 }}
         run: node -e "const fs=require('node:fs'); const dir='artifacts/agent2-crispin-vs-seeker-treasure-native'; fs.mkdirSync(dir,{recursive:true}); const report=require('./simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs').run(); fs.writeFileSync(dir+'/receipt.json',JSON.stringify(report,null,2)+'\\n');"
+
+      - name: Execute original rank13/rank3 Treasure owner-root opt-in diagnostic
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.contract_only }}
+        run: node simulation/evaluation/agent2-v8-treasure-owner-root-optin.cjs > artifacts/agent2-crispin-vs-seeker-treasure-native/original-source-optin.json
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() && !inputs.contract_only }}
