@@ -14,7 +14,9 @@ const SOURCE_PATHS=[
   'simulation/twinleaf/agent2-mysterious-treasure-crispin-vs-seeker-native.cjs',
   'simulation/twinleaf/agent5-attack-special-arbitration-native.cjs',
   'simulation/twinleaf/agent46-treasure-cleanup-native-observer.cjs',
-  'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs'
+  'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs',
+  'simulation/twinleaf/agent49-mysterious-treasure-native-probe.cjs',
+  'results/aichi-2026/full-decklists.json'
 ];
 function gitRevision(cwd){return execFileSync('git',['rev-parse','HEAD'],
   {cwd,encoding:'utf8'}).trim();}
@@ -32,7 +34,13 @@ const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const TREASURE='Mysterious Treasure FLI';
 const CRISPIN='Crispin SCR';
 const VS_SEEKER='VS Seeker PHF';
+const BATTLE_COMPRESSOR='Battle Compressor PHF';
 const TARGET='Regidrago VSTAR SIT';
+const DONOR_PRINTINGS=[
+  'Noivern ex PAL',
+  'Dragapult ex TWM',
+  'Dialga-GX UPR'
+];
 
 /**
  * @param {object} x Staged native Store.
@@ -62,6 +70,44 @@ function resolveOneOwnerCardPrompt(x,prompt,expectedCards,sourcePrinting,selecte
     sourcePrinting:prompt.sourceCard.fullName,
     selectedPrinting:selected.fullName,
     selectedPhysicalObjectPreserved:true,
+    nativePromptValidatorAccepted:true
+  };
+}
+
+/**
+ * Resolve Battle Compressor's native choose-up-to-three deck prompt.
+ * @param {object} x Staged native Store.
+ * @param {object} prompt Native ChooseCardsPrompt.
+ * @param {object} expectedCards Expected owner deck backing the prompt.
+ * @param {string} sourcePrinting Exact printed Item.
+ * @param {Array<object>} selectedCards Exact physical donor objects.
+ * @returns {object} Native selection and physical identity receipt.
+ */
+function resolveOwnerMultiCardPrompt(x,prompt,expectedCards,sourcePrinting,selectedCards){
+  assert.equal(prompt.constructor.name,'ChooseCardsPrompt');
+  assert.equal(prompt.playerId,x.owner.id);
+  assert.equal(prompt.sourceCard?.fullName,sourcePrinting);
+  assert.strictEqual(prompt.cards,expectedCards,
+    'Prompt must expose only the expected owner-controlled deck');
+  assert.equal(prompt.options?.min,0);
+  assert.equal(prompt.options?.max,3);
+  assert.equal(selectedCards.length,3);
+  assert.equal(new Set(selectedCards).size,3);
+  assert.ok(selectedCards.every(card=>prompt.cards.cards.includes(card)));
+  const answer=selectedCards;
+  assert.equal(prompt.validate(answer,x.store.state),true,
+    'Pinned native prompt validator must accept the exact three donor objects');
+  x.store.dispatch(new ResolvePromptAction(prompt.id,answer));
+  return {
+    promptKind:prompt.constructor.name,
+    promptMessage:prompt.message??null,
+    ownerMatched:prompt.playerId===x.owner.id,
+    sourcePrinting:prompt.sourceCard.fullName,
+    min:prompt.options.min,
+    max:prompt.options.max,
+    selectedPrintings:selectedCards.map(card=>card.fullName),
+    selectedCardIds:selectedCards.map(card=>card.id),
+    selectedPhysicalObjectsPreserved:true,
     nativePromptValidatorAccepted:true
   };
 }
@@ -116,11 +162,13 @@ function observeSeat(seat){
     const treasure=card(TREASURE);
     const crispin=card(CRISPIN);
     const vsSeeker=card(VS_SEEKER);
+    const battleCompressor=card(BATTLE_COMPRESSOR);
     const target=card(TARGET);
+    const donors=DONOR_PRINTINGS.map(printing=>card(printing));
     x.owner.hand.cards.length=0;
-    x.owner.hand.cards.push(treasure,crispin,vsSeeker);
+    x.owner.hand.cards.push(treasure,crispin,vsSeeker,battleCompressor);
     x.owner.deck.cards.length=0;
-    x.owner.deck.cards.push(target);
+    x.owner.deck.cards.push(target,...donors);
     assert.equal(x.owner.discard.cards.length,0);
     const {PlayCardAction,PlayerType,SlotType}=
       native('game/store/actions/play-card-action');
@@ -165,19 +213,54 @@ function observeSeat(seat){
     assert.ok(x.owner.discard.cards.includes(treasure));
     assert.ok(x.owner.discard.cards.includes(vsSeeker));
 
+    const battleCompressorIndex=x.owner.hand.cards.indexOf(battleCompressor);
+    assert.notEqual(battleCompressorIndex,-1,
+      'Battle Compressor remains in hand after VS Seeker recovery');
+    x.store.dispatch(new PlayCardAction(x.owner.id,battleCompressorIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const battleCompressorPrompt=x.state.prompts.find(p=>p.result===undefined);
+    assert.ok(battleCompressorPrompt,'Battle Compressor opens a native deck-selection prompt');
+    const battleCompressorSelection=resolveOwnerMultiCardPrompt(
+      x,battleCompressorPrompt,x.owner.deck,BATTLE_COMPRESSOR,donors
+    );
+    const battleCompressorCleanup=finishStagedNativeItem(x,BATTLE_COMPRESSOR);
+    assert.equal(battleCompressorCleanup.unresolvedPrompts,0);
+    assert.equal(battleCompressorCleanup.itemInOwnerDiscard,true);
+    assert.equal(battleCompressorCleanup.printedShufflePaperCertified,false);
+    assert.ok(x.owner.discard.cards.includes(battleCompressor));
+    assert.ok(donors.every(card=>x.owner.discard.cards.includes(card)),
+      'all three exact Dragon donor physical objects reach discard');
+    assert.ok(donors.every(card=>!x.owner.deck.cards.includes(card)),
+      'no selected Dragon donor remains in deck');
+    assert.equal(x.owner.deck.cards.length,0,
+      'all four staged deck cards are accounted for');
+
     return {
       seat,firstPlayerSeat:seat,globalTurn:x.state.turn,
-      startingHand:[TREASURE,CRISPIN,VS_SEEKER],
-      startingDeck:[TARGET],
+      startingHand:[TREASURE,CRISPIN,VS_SEEKER,BATTLE_COMPRESSOR],
+      startingDeck:[TARGET,...DONOR_PRINTINGS],
       treasurePayment:payment,treasureSearch:search,
       treasureCleanup:cleanup,vsSeekerRecovery:recovery,
       vsSeekerPresentationPrompts:presentation,
+      battleCompressorSelection,battleCompressorCleanup,
       finalPhysicalZones:{
         crispinInHand:x.owner.hand.cards.includes(crispin),
         crispinInDiscard:x.owner.discard.cards.includes(crispin),
         treasureInDiscard:x.owner.discard.cards.includes(treasure),
         vsSeekerInDiscard:x.owner.discard.cards.includes(vsSeeker),
-        regidragoVstarInHand:x.owner.hand.cards.includes(target)
+        battleCompressorInDiscard:x.owner.discard.cards.includes(battleCompressor),
+        regidragoVstarInHand:x.owner.hand.cards.includes(target),
+        donorPrintingsInDiscard:donors.filter(card=>x.owner.discard.cards.includes(card))
+          .map(card=>card.fullName),
+        allThreeDonorsInDiscard:donors.every(card=>x.owner.discard.cards.includes(card)),
+        deckEmpty:x.owner.deck.cards.length===0
+      },
+      physicalCardIds:{
+        crispin:crispin.id,
+        regidragoVstar:target.id,
+        battleCompressor:battleCompressor.id,
+        donors:donors.map(card=>({fullName:card.fullName,id:card.id}))
       },
       sameCrispinPhysicalCardHandToDiscardToHand:true,
       actualGameRootOrdinalsClaimed:false,
@@ -196,7 +279,7 @@ function observeSeat(seat){
   assert.equal(result.finalPhysicalZones.vsSeekerInDiscard,true);
   assert.equal(result.finalPhysicalZones.regidragoVstarInHand,true);
   return {
-    schema:'agent2-crispin-vs-seeker-treasure-sequence-v1',
+    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-sequence-v2',
     nativeEnginePinned:ENGINE_PIN,
     onlyNativeAcceptedStoreDispatches:true,
     noOpponentPrivateInformationRead:true,
@@ -210,17 +293,16 @@ function run(){
     {cwd:REPO_ROOT,encoding:'utf8'}).trim();
   assert.equal(twinleafRevision,ENGINE_PIN);
   const report={
-    schema:'agent2-crispin-vs-seeker-treasure-sequence-report-v1',
+    schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-report-v2',
     sourceCodeCommit:gitRevision(REPO_ROOT),
     nativeEnginePinned:ENGINE_PIN,twinleafRevision,
     resolvedSourceAndPolicyHashes:SOURCE_PATHS.map(hashFile),
     seats:[observeSeat(0),observeSeat(1)],
     qualifiedCompetitiveGames:0
   };
-  console.log('AGENT2_CRISPIN_VS_SEEKER_TREASURE '+
-    JSON.stringify(report));
   return report;
 }
 
-if(require.main===module)run();
-module.exports={observeSeat,run};
+if(require.main===module)
+  process.stdout.write(JSON.stringify(run(),null,2)+'\\n');
+module.exports={resolveOwnerMultiCardPrompt,observeSeat,run};

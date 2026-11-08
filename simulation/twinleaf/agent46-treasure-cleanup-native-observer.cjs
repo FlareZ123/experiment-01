@@ -22,17 +22,18 @@ const PRINTING='Mysterious Treasure FLI';
  * Unknown prompts fail rather than being silently guessed.
  *
  * @param {object} x Staged native owner Store returned by Agent49's probe.
+ * @param {string} [itemPrinting=PRINTING] Exact printed Item expected in the owner's discard.
  * @returns {object} Accepted continuation and physical final Item location.
  */
-function finishStagedNativeItem(x){
+function finishStagedNativeItem(x,itemPrinting=PRINTING){
   const accepted=[];
   for(let i=0;i<16;i++){
     const prompt=x.store.state.prompts.find(p=>p.result===undefined);
     if(!prompt){
       const item=x.owner.supporter?.cards?.find(
-        c=>c.fullName===PRINTING)||
-        x.owner.discard.cards.find(c=>c.fullName===PRINTING);
-      return {accepted,unresolvedPrompts:0,
+        c=>c.fullName===itemPrinting)||
+        x.owner.discard.cards.find(c=>c.fullName===itemPrinting);
+      return {accepted,unresolvedPrompts:0,itemPrinting,
         itemInOwnerDiscard:x.owner.discard.cards.includes(item),
         itemInTemporaryPlayZone:x.owner.supporter?.cards?.includes(item)===true,
         deterministicIdentityShuffleOnly:true,
