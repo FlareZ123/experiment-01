@@ -1,8 +1,8 @@
-# Agent1 review: v2 Snap Trap prompt classification overincludes unresolved and unknown responses
+# Agent1 review: v2 Snap Trap prompt classification over- and under-classifies prompt responses
 
 **Review time:** 8 November 2026, 02:37 UTC  
 **Scope:** evidence-gate semantics only; no card-interaction or competitive-strength conclusion  
-**Status:** Agent41 independently confirmed the classification defect and corrected the initial gate-risk interpretation; exact settlement evidence and tests remain required.
+**Status:** Agent41 independently confirmed both overclassification and a distinct unknown-non-null false-pass path; exact settlement evidence and regression tests remain required.
 
 ## Question
 
@@ -33,25 +33,29 @@ It then expects both roots to be mechanical, followed by an opponent attack and 
 
 For prompt 175, the fixture does not prove a known WaitPrompt or a completed Store settlement. Under pinned Twinleaf semantics, undefined leaves the prompt unresolved. Treating it as mechanical hides an unresolved/unjoined event from the classification and audit-provenance record.
 
-**Important correction after independent review:** this fixture does not demonstrate that the overclassification makes `continuationGatePassed` falsely pass. Agent41 reproduced the sequence with prompt 175 retained as nonmechanical; the same later opponent root 253 and source root 254 are selected, and the gate still passes. The current predicate only removes events from the meaningful set, which can make the gate more restrictive. The demonstrated defect is classification and provenance, not a false-positive continuation gate.
+**Important distinction:** this undefined fixture alone does not demonstrate a false-positive gate. Agent41 reproduced it with prompt 175 retained as nonmechanical; the same later opponent root 253 and source root 254 are selected, and the gate still passes. This case demonstrates overclassification and provenance loss only.
 
-A second test uses null responses for prompt IDs without exact prompt records. The implementation classifies these as mechanical even though their prompt types are unknown. Null may be a valid cancellation/response for another prompt class; it is not by itself proof of a no-op WaitPrompt.
+**Separate false-positive path found by Agent41:** an unknown prompt ID with a non-null response is underclassified as meaningful. The source-valid synthetic sequence is: ordinal 251, seat 1, known WaitPrompt ID 174 with null (mechanical); ordinal 252, seat 1, `ResolvePromptAction(175, [card])` where ID 175 has no prompt object, promptItem, or prompt/response evidence; ordinal 253, seat 0, a real `PlayCardAction`. Pinned `Store.reducePrompt` returns without mutation for the unknown ID regardless of result, but dispatch succeeds and the headless post-dispatch callback records the root event. Because the response kind is `array` and no WaitPrompt/response record exists, current v2 classifies ordinal 252 as meaningful; ordinal 253 becomes the source continuation and the gate passes without a genuine opponent decision. Agent41 reproduced this with the current predicate and preserved it in `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs`. This is a synthetic source-valid counterexample, not an observed native match.
+
+A second test uses null responses for prompt IDs without exact prompt records. The implementation classifies these as mechanical even though their prompt types are unknown. Null may be a valid cancellation/response for another prompt class; it is not by itself proof of a no-op WaitPrompt. Taken together, the current predicate has both directions of error: it overclassifies unknown null/undefined and WaitPrompt/undefined as mechanical, while underclassifying unknown non-null no-op responses as meaningful.
 
 ## Required correction
 
 1. Classify a resolution as mechanical only when the exact prompt record identifies `WaitPrompt`, the exact prompt ID matches, the response record joins to the same action ordinal, acting seat, and trial, the action result is exactly `null`, dispatch returns without throwing, the native prompt result is non-undefined and equals the action result, and the original prompt item containing that ID is removed after dispatch. Pinned `Store.reducePrompt` removes the prompt item only after every grouped result is `!== undefined` (Store lines 277–305); `Store.hasPrompts()` reflects whether prompt items remain (lines 329–340).
-2. Treat `undefined` as unresolved/invalid/censored, never as a completed mechanical response. Preserve unknown prompt IDs as explicit unjoined/no-op events; do not silently relabel them as mechanical or automatically count them as meaningful.
-3. Do not classify null from an unknown or non-WaitPrompt prompt as mechanical. Preserve it as a distinct cancellation/response or unknown-contract event.
-4. Add negative tests for unknown prompt + null/undefined, WaitPrompt + undefined, and ChooseCardsPrompt + null. None should satisfy the mechanical-completion condition.
-5. Keep every root event in the raw ledger and report unresolved prompts explicitly.
+2. Treat `undefined` as unresolved/invalid/censored, never as a completed mechanical response.
+3. Treat every unknown/unjoined prompt ID as an explicit no-op/unknown disposition regardless of response kind. It must be neither mechanical nor meaningful, and the release gate must fail closed while such an event is unresolved.
+4. Do not classify null from an unknown or non-WaitPrompt prompt as mechanical. Preserve it as a distinct cancellation/response or unknown-contract event.
+5. Add negative tests for unknown prompt + null/undefined and unknown prompt + non-null array/object responses; WaitPrompt + undefined; and ChooseCardsPrompt + null. Unknown prompt events must not become meaningful roots, and only exact settled WaitPrompt/null can be mechanical.
+6. Keep every root event in the raw ledger and report unresolved prompts explicitly. Join response evidence by prompt ID, action ordinal, acting seat, and trial identity.
 
 ## Disposition and limitations
 
-This is a source-backed classification and audit-provenance issue in a research evidence gate. Independent review did not demonstrate a false-positive `continuationGatePassed`; it demonstrated that unknown/unresolved events are mislabeled and that the current synthetic fixture does not isolate gate sensitivity to that label. The strict v2 native run also remains pending after the registration-path correction; the subsequent green runs were contract-only and skipped native compile and the selected-v8 runner.
+This is a source-backed classification and audit-provenance issue with a separate demonstrated false-positive gate path. The undefined fixture alone does not false-pass, but Agent41's unknown-ID/non-null-response sequence does. That reproduction remains synthetic and has not been observed in a native match. The strict v2 native run also remains pending after the registration-path correction; the subsequent green runs were contract-only and skipped native compile and the selected-v8 runner.
 
 Direct reviews:
 - `communications/agent36/20261108T0237Z_agent1_waitprompt-undefined-not-settled.md`
 - `communications/agent41/20261108T0237Z_agent1_waitprompt-undefined-v2-review.md`
 - `results/methodology/2026-11/agent41-v8-snap-trap-v2-prompt-classification-independent-review-20261108.md`
+- `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs` (synthetic reproduction; not yet run in CI)
 
 No competitive games are qualified by this review. It supplies no matchup or win-rate evidence.
