@@ -297,9 +297,39 @@ function buildPostPromptSequence(
     nextOwnerResponse &&
     classifications.get(nextOwnerPromptEvent) !== 'unclassified'
   );
+  const capturedPostSnapTrapPrompts =
+    Array.isArray(evidence.postSnapTrapPrompts) ?
+      evidence.postSnapTrapPrompts :
+      nextOwnerPrompt ? [nextOwnerPrompt] : [];
+  const postSnapTrapPromptSettlements =
+    capturedPostSnapTrapPrompts.map(promptRecord => {
+      const promptId = promptRecord.promptIdAfterStore ??
+        promptRecord.pendingNativePromptId;
+      const responseEvent = promptId === undefined ? null :
+        [...later].reverse().find(event =>
+          event.action === 'ResolvePromptAction' &&
+          String(event.promptId) === String(promptId) &&
+          responseForEvent(event) !== null
+        ) ?? null;
+      const classification = responseEvent ?
+        classifications.get(responseEvent) : null;
+      return {
+        promptId: promptId ?? null,
+        promptType: promptRecord.promptType ?? null,
+        actionOrdinal: responseEvent?.actionOrdinal ?? null,
+        actingSeat: responseEvent?.seat ?? null,
+        responseKind: responseEvent?.responseKind ?? null,
+        settled: Boolean(
+          responseEvent && classification !== 'unclassified'
+        )
+      };
+    });
+  const allPostSnapTrapPromptsSettled =
+    postSnapTrapPromptSettlements.every(item => item.settled);
   const promptEvidenceComplete =
     unclassifiedPromptRoots.length === 0 &&
-    nextOwnerPromptResponseSettled;
+    nextOwnerPromptResponseSettled &&
+    allPostSnapTrapPromptsSettled;
   return {
     promptResponseActionOrdinal: promptOrdinal,
     promptResponseActingSeat: sourceSeat,
@@ -314,6 +344,8 @@ function buildPostPromptSequence(
     nextOwnerPrompt,
     nextOwnerPromptResponse: nextOwnerResponse,
     nextOwnerPromptResponseSettled,
+    postSnapTrapPromptSettlements,
+    allPostSnapTrapPromptsSettled,
     nextOwnerPromptType: nextOwnerPrompt?.promptType ?? null,
     nextOwnerPromptMessage: nextOwnerPrompt?.message ?? null,
     opponentDecisionObserved: Boolean(nextOpponentMeaningfulRoot),
@@ -400,6 +432,10 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
     postPromptPromptEvidenceComplete,
     nextOwnerPromptResponseSettled:
       sequence?.nextOwnerPromptResponseSettled ?? false,
+    allPostSnapTrapPromptsSettled:
+      sequence?.allPostSnapTrapPromptsSettled ?? false,
+    postSnapTrapPromptSettlements:
+      sequence?.postSnapTrapPromptSettlements ?? [],
     endpointExplicitlyClassified,
     knownPromptTrialId: KNOWN_PROMPT_TRIAL_ID,
     knownPromptTrialNativeOutcome: known?.nativeOutcome ?? null,
