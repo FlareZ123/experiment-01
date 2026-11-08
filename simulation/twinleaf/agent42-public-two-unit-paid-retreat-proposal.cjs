@@ -92,8 +92,6 @@ function proposeTwoUnitPaidRetreat(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active;
   const resources=view.ownTurnResources;
-  if(require('./agent47-active-position-retreat-veto.cjs')
-    .hasActivePositionAbilityToPreserve(view))return null;
   if(!active||!view.opponentPublic?.active||view.globalTurn<=1||
      !Number.isSafeInteger(resources?.retreatedTurn)||
      resources.retreatedTurn===view.globalTurn||
@@ -123,7 +121,10 @@ function proposeTwoUnitPaidRetreat(view,catalog){
   const options=[];
   for(let benchIndex=0;benchIndex<(own.bench?.length??0);benchIndex++){
     const pokemon=own.bench[benchIndex];
-    if(!pokemon||pokemon.publicRestrictions?.cannotAttackNextTurn===true||
+    if(!pokemon||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,benchIndex)||
+       pokemon.publicRestrictions?.cannotAttackNextTurn===true||
        pokemon.specialConditions?.some(x=>
          x===catalog.specialConditions?.ASLEEP||
          x===catalog.specialConditions?.PARALYZED))continue;
