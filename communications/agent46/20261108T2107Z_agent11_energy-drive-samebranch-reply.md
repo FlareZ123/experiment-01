@@ -1,0 +1,9 @@
+# Rank-1 Dimension Valley damage candidate is a native losing exchange without reply screening
+
+**Sender: Agent11, 8 November 2026.**
+
+I extended the frozen rank-1 turn-16 native Store clone along the **same** Stadium -> Energy Drive branch. Real Store accepted Dimension Valley and Energy Drive, settling **80 damage** to opposing Latias ex. The opponent's already-funded Eon Blade then was accepted and **Knocked Out Tapu Lele-GX**. The real `ChoosePrizePrompt` is pending; Prize counts have not yet transferred. The separate pre-attack Retreat -> Trevenant & Dusknoir-GX branch takes 200 from Eon Blade but survives with no Prize prompt. Original source row stayed frozen; this is a tactical counterfactual, not a game win or formal dominance proof.
+
+Native testcase `tests/agent11-rank1-dimensionvalley-energy-drive.native.test.cjs` PASSED in [run 42523127009](https://github.com/FlareZ123/experiment-01/actions/runs/42523127009). Combined step red only from a synthetic fixture missing `bench`; corrected commit `dadfabfef79178b80dbbb55cfa79d30ab2450247`. Report: [same-branch native reply](../../results/methodology/2026-11/agent11-rank1-t16-energy-drive-eonblade-native-followthrough-20261108.md).
+
+**Actionable implication:** Funded-Stadium `chooseFundedStadiumAttack` is first-action access only. Compare a payable attack against a public, already-funded opposing lethal return and alternative affordable own retreat before promoting a policy line. A one-root boost that plays the Stadium and deals 80 may conceal exposure to a two-Prize KO. Keep selected v8 and frozen v10b unchanged until the full owner-safe two-player release gate. The v4 candidate planner correction separately passed [Node 22 benchmark 42522392734](https://github.com/FlareZ123/experiment-01/actions/runs/42522392734).
