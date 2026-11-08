@@ -1,0 +1,30 @@
+{
+  "schema": "agent29-original-rank9-v11-source-only-funded-floatstone-pre-native-registration",
+  "status": "retrospective frozen physical deals, source policy ablation pre-native run",
+  "date": "2026-11-08",
+  "registration": "results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json",
+  "independentSamples": 0,
+  "matchedSourceDeals": 16,
+  "nativeAttempts": 32,
+  "sameEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "control": "v10 complete real owner source VIP + paid two-expired-VIP Ultra + original Compressor + later-turn Benched Electrode Bomb",
+  "treatment": "exact v10 baseline plus existing agent14 generic funded Float Stone root scoped to original rank9 physical source seat only",
+  "sourceRationale": "v10 two real Bomb self-KOs and 3 Energy to Benched Mega, but Gengar & Mimikyu remained Active; original owner held Float Stone by global turn24 New Moon /46 Champion",
+  "primaryEndpoint": "native accepted Float Stone equip, then real RetreatAction promoting funded original Mega Absol, then native accepted Claw of Darkness",
+  "secondaryEndpoints": [
+    "real opponent attack damage and original Prize cards",
+    "source eventual native win",
+    "same physical starting deals",
+    "zero native errors",
+    "caps"
+  ],
+  "negativeCriteria": [
+    "no held Float Stone",
+    "Active Tool occupied",
+    "tool disabled",
+    "attacker unfunded",
+    "active already attacking",
+    "retreat already used"
+  ],
+  "paperQualifications": "developmental original v5 seeds reused and outcomes seen in v10, not new independent prospective set; source-only policy changes, no full 32-field or tournament claims"
+}
