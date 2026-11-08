@@ -231,5 +231,6 @@ jobs:
             artifacts/agent36-v10b-paired-fresh-aba/
             artifacts/agent3-owner-information-fallback-diagnostic/
             artifacts/agent36-v8-snap-trap-vertical-slice/
+            artifacts/agent36-v8-snap-trap-vertical-slice-v2/
           retention-days: 21
           if-no-files-found: warn

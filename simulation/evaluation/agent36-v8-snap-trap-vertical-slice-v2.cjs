@@ -14,6 +14,8 @@ const V1_REGISTRATION_PATH =
   'results/aichi-2026/registrations/agent36-v8-snap-trap-vertical-slice-v1-20261108.json';
 const V1_RUNNER_PATH =
   'simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.cjs';
+const V2_RUNNER_PATH =
+  'simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v2.cjs';
 const SOURCE_V8_REGISTRATION_PATH =
   'results/aichi-2026/registrations/agent36-issue25-common-v8-broader-prospective-20261106.json';
 const SOURCE_V10B_REGISTRATION_PATH =
@@ -412,6 +414,23 @@ function buildDiagnosticSummary(output) {
         markerPromptCount:
           attempt.marker?.exactSourcePromptsStamped?.length ?? 0,
         ownerChoiceCount: attempt.ownerPolicy?.choices?.length ?? 0,
+        ownerChoices: (attempt.ownerPolicy?.choices ?? []).map(choice => ({
+          promptId: choice.promptId ?? null,
+          sourceSeat: choice.sourceSeat ?? null,
+          energyPrinting: choice.energyPrinting ?? null,
+          moveCardsEffectReceiptCount:
+            choice.moveCardsEffectReceiptCount ?? null,
+          exactlyOneMoveCardsEffect:
+            choice.exactlyOneMoveCardsEffect ?? false,
+          exactRootStoreJoin: choice.exactRootStoreJoin ?? false,
+          exactPromptCardIdentityJoin:
+            choice.exactPromptCardIdentityJoin ?? false,
+          nativeValidateAccepted: choice.nativeValidateAccepted ?? false,
+          noOtherPublicCardMoved: choice.noOtherPublicCardMoved ?? false,
+          physicalZoneBefore: choice.physicalZoneBefore ?? null,
+          physicalZoneAfter: choice.physicalZoneAfter ?? null,
+          physicalZoneSettled: choice.physicalZoneSettled ?? false
+        })),
         error: attempt.error ? {
           name: attempt.error.name ?? null,
           code: attempt.error.code ?? null,
@@ -490,6 +509,8 @@ function run() {
       };
       const capSignal = /(?:max(?:imum)?[-_ ]?actions?|root[-_ ]?action[-_ ]?limit|action[-_ ]?cap)/i
         .test(String(summary.nativeError.message ?? row.error ?? '')) ||
+        /(?:ACTION_LIMIT|MAX_ACTIONS|ROOT_ACTION_CAP)/i.test(String(row.error?.code ?? '')) ||
+        /(?:action-cap|root-action-limit|max-actions)/i.test(String(abort?.failureStage ?? '')) ||
         /(?:max(?:imum)?[-_ ]?actions?|root[-_ ]?action[-_ ]?limit|action[-_ ]?cap)/i
         .test(String(row.endReason ?? ''));
       if (capSignal) summary.nativeOutcome = 'action-cap';
@@ -518,7 +539,7 @@ function run() {
     REGISTRATION.predecessor.workflowRunId;
   output.manifest.resolvedSourceAndPolicyHashes = [
     ...(output.manifest.resolvedSourceAndPolicyHashes ?? []),
-    { path: v2RunnerPath, sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, v2RunnerPath))).digest('hex') },
+    { path: V2_RUNNER_PATH, sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, V2_RUNNER_PATH))).digest('hex') },
     { path: REGISTRATION_PATH, sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, REGISTRATION_PATH))).digest('hex') },
     { path: 'tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs',
       sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, 'tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs'))).digest('hex') }
