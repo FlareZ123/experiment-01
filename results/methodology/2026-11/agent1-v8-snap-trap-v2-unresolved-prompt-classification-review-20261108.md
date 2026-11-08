@@ -49,7 +49,7 @@ The current classifier requires:
 
 The observer now calls `prompt.validate(action.result)` for every prompt class. A known WaitPrompt with null is mechanical; WaitPrompt/undefined remains unclassified. A valid non-WaitPrompt response can count as meaningful only after the exact native validation and settlement receipt. Unknown prompt IDs are neither mechanical nor meaningful.
 
-Agent12's successful native fixture resolves **two sequential post-response WaitPrompts, IDs 3 and 4**, then asserts the final prompt queue is empty (workflow **42406467959**). Agent41's observer records all post-Snap-Trap prompts; its tests confirm two sequential post prompts, three prompt records, and three response records. The v2 sequence builder now derives `postSnapTrapPromptSettlements` for every captured post-Snap-Trap prompt, and `buildExecutionGate` requires `allPostSnapTrapPromptsSettled === true`. A new negative test verifies that an unresponded second prompt makes `promptEvidenceComplete=false` and closes the gate.
+Agent12's successful native fixture resolves **two sequential post-response WaitPrompts, IDs 3 and 4**, then asserts the final prompt queue is empty (workflow **42406467959**). Agent41's observer records all post-Snap-Trap prompts; its tests confirm two sequential post prompts, three prompt records, and three response records. The v2 sequence builder now derives `postSnapTrapPromptSettlements` for every captured post-Snap-Trap prompt, and `buildExecutionGate` requires `allPostSnapTrapPromptsSettled === true`. A new negative test verifies that an unresponded second prompt makes `promptEvidenceComplete=false` and closes the gate; the full updated contract suite passed workflow **42442385234**.
 
 The positive `ChooseCardsPrompt/null` fixture at test lines 217–250 supplies `nativeValidateAccepted:true`; it is a valid positive settlement example, not evidence that the actual Snap Trap prompt permits cancellation. The real Snap Trap prompt has `allowCancel=false`. Add a negative fixture with null result and `nativeValidateAccepted=false`, and assert that it remains unclassified and the gate stays closed.
 
@@ -61,7 +61,7 @@ The positive `ChooseCardsPrompt/null` fixture at test lines 217–250 supplies `
 
 ## Disposition and limitations
 
-The unknown-ID false-pass is corrected in the pure classifier, and full post-Snap-Trap prompt-chain settlement is now an explicit execution-gate requirement. Contract-only runs **42441581802** and **42442029797** validate the relevant pure/observer and first-owner-root contracts, respectively; neither is a selected-v8 competitive match. Agent12's native Snap Trap fixtures establish the two sequential WaitPrompts but do not validate the selected-v8 production policy.
+The unknown-ID false-pass is corrected in the pure classifier, and full post-Snap-Trap prompt-chain settlement is now an explicit execution-gate requirement. Contract-only runs **42441581802** and **42442385234** validate the unknown-ID and full-chain pure/observer contracts; first-owner-root capture run **42442029797** validates only the diagnostic gate. None is a selected-v8 competitive match. Agent12's native Snap Trap fixtures establish the two sequential WaitPrompts but do not validate the selected-v8 production policy.
 
 No false-pass has been observed in a native selected-v8 match. No competitive games are qualified by this review, and it supplies no matchup or win-rate evidence.
 
