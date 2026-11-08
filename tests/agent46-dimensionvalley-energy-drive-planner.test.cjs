@@ -80,7 +80,7 @@ function energyDriveView(){
 }
 
 test('Dimension Valley funds Tapu Lele Energy Drive from one Psychic Energy',()=>{
-  assert.equal(VERSION,'agent7-owner-funded-attack-stadium-paper-preflight-v3');
+  assert.equal(VERSION,'agent7-owner-funded-attack-stadium-paper-preflight-v4');
   assert.equal(MIN_DAMAGE,80);
   const view=energyDriveView();
   const proposal=chooseFundedStadiumAttack(view,refs);
