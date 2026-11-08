@@ -64,7 +64,7 @@ function run(f){
 test('real-root keyed native active card and pre-damage must join unique attacker',()=>{
   const f=fixture();
   const result=run(f);
-  assert.equal(result.version,'agent3-native-pre-attack-public-board-join-v3');
+  assert.equal(result.version,'agent3-native-pre-attack-public-board-join-v4');
   assert.equal(result.rows.length,1);
   assert.equal(result.nativeDamageDeltaPrintMatches,1);
   assert.equal(result.declarationRootBoardsCaptured,1);
@@ -297,6 +297,31 @@ test('a target still on Bench below printed HP conflicts with a native KO receip
   assert.equal(result.rows[0].declarationRootVsPromptClosureClassification,
     'INCONSISTENT_NATIVE_KO_OBSERVATION_FINAL_TARGET_BELOW_PRINTED_HP');
   assert.equal(result.rows[0].targetKnockedOutDuringLaterPromptResolution,false);
+});
+
+test('same-printing Bench survivor remains unresolved after a genuine physical KO',()=>{
+  const f=fixture();
+  const attack=f.attempts[0].sourceAttackSettlement.attacks[0];
+  const secondCopy=structuredClone(attack.publicBoardBefore[1].active);
+  secondCopy.damage=0;
+  attack.publicBoardBefore[1].bench=[structuredClone(secondCopy)];
+  attack.publicBoardImmediatelyAfterDeclarationRoot[1].bench=[
+    structuredClone(secondCopy)];
+  attack.publicBoardAfter[1].active=null;
+  attack.publicBoardAfter[1].bench=[structuredClone(secondCopy)];
+  const result=run(f);
+  const row=result.rows[0];
+  assert.equal(row.targetLocationImmediatelyAfterDeclarationRoot,'ambiguous');
+  assert.equal(row.targetLocationAfterPromptClosure,'bench');
+  assert.equal(row.targetSamePrintingAmbiguousAfterDeclaration,true);
+  assert.equal(row.targetInstanceAtPromptClosureUnresolved,true);
+  assert.equal(row.declarationRootVsPromptClosureClassification,
+    'AMBIGUOUS_SAME_PRINTING_FINAL_IN_PLAY');
+  assert.equal(row.targetKnockedOutDuringLaterPromptResolution,null);
+  assert.equal(row.targetDamageThresholdReachedDuringLaterPromptResolution,null);
+  assert.equal(result.declarationRootClassificationCounts
+    .AMBIGUOUS_SAME_PRINTING_FINAL_IN_PLAY,1);
+  assert.equal(row.paperGameCertified,false);
 });
 
 test('damage reaching printed HP during later prompt resolution is distinct from KO removal',()=>{
