@@ -2,7 +2,8 @@
 
 const assert=require('node:assert/strict');
 const {test}=require('node:test');
-const {printedSignature,numberKey,audit,VERSION}=
+const {printedSignature,numberKey,audit,
+  auditOriginalNonPokemonAvailability,VERSION}=
   require('../simulation/evaluation/agent50-aichi29-native-printed-attack-parity.cjs');
 
 test('detached printed signatures agree for native missing-value x2 and paper x2',()=>{
@@ -61,4 +62,27 @@ test('original Aichi 29 printed Pokémon native audit is exact-scope and candid'
     nativeNumberMismatch:result.nativeNumberMismatch,
     samples:mismatches.slice(0,12),competitiveGamesQualified:0
   }));
+});
+
+test('all source-29 original Trainer and Energy exact native printings are accounted for',()=>{
+  const r=auditOriginalNonPokemonAvailability();
+  assert.equal(r.total,146);
+  assert.equal(r.categories.Trainer,125);
+  assert.equal(r.categories.Energy,21);
+  assert.equal(r.allRows.length,146);
+  assert.equal(r.exactMatches+r.missingExactPrintedIdentity.length,146);
+  assert.equal(r.competitiveGamesQualified,0);
+  console.log('AGENT50_SOURCE29_NONPOKEMON_NATIVE_PRINTING_CENSUS '+
+    JSON.stringify({
+      total:r.total,categories:r.categories,exactMatches:r.exactMatches,
+      nativeAliasCount:r.nativePrintAliases.length,
+      noExactPrintCount:r.missingExactPrintedIdentity.length,
+      nativeAliases:r.nativePrintAliases.map(x=>({
+        requested:x.requested,actual:x.canonicalNativeName,ranks:x.ranks
+      })),
+      missingExactPrinting:r.missingExactPrintedIdentity.slice(0,35)
+        .map(x=>({requested:x.requested,category:x.category,
+          number:x.number,ranks:x.ranks})),
+      competitiveGamesQualified:0
+    }));
 });
