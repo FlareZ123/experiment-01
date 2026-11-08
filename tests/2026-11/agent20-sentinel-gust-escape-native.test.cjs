@@ -10,6 +10,10 @@ const {stage, establishSentinelLock, resolveRank1Guzma} =
 const OUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} relative */
 const native = relative => require(path.join(OUT, relative));
+const {actorObservation} =
+  require('../../simulation/twinleaf/actor-observation-contract.cjs');
+const {chooseSentinelPreEvolutionFloat} =
+  require('../../simulation/twinleaf/agent20-sentinel-pre-evolution-float-root.cjs');
 const TOOL = 'Float Stone BKT';
 const HOOD = 'Stealthy Hood UNB';
 const V2 = path.resolve(__dirname,
@@ -87,13 +91,14 @@ for (const seat of [0, 1]) {
     let equipped = false;
     store.dispatch = function(action, ...args) {
       if (!equipped && action?.constructor?.name === 'AttackAction') {
-        const benchIndex = x.owner.bench.findIndex(slot =>
-          slot.getPokemonCard()?.fullName === 'Oddish UNB');
-        assert.ok(benchIndex >= 0,
-          'Paid G&H/Jet setup leaves source Oddish on Bench');
-        const handIndex = x.owner.hand.cards.indexOf(x.stone);
-        assert.ok(handIndex >= 0,
-          'The one registered Float Stone is genuinely in owner hand');
+        const plan = chooseSentinelPreEvolutionFloat(
+          actorObservation(this.state, seat));
+        assert.equal(plan?.kind, 'attach-sentinel-pre-evolution-float',
+          'Owner-only policy must see this genuinely payable window');
+        const {benchIndex, handIndex} = plan;
+        assert.strictEqual(x.owner.hand.cards[handIndex], x.stone);
+        assert.equal(x.owner.bench[benchIndex].getPokemonCard()?.fullName,
+          plan.targetPrinting);
         const target = {
           player: PlayerType.BOTTOM_PLAYER,
           slot: SlotType.BENCH,
