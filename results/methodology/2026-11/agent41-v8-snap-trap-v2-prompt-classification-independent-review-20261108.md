@@ -88,6 +88,11 @@ Do not solve the unknown-response problem by simply treating every unjoined resp
 
 The supplied sequence's gate result should remain true when genuine opponent and source actions occur after it, regardless of whether the preceding unknown root is labelled mechanical. A separate test should assert the classification result directly. If a future claim alleges a false-positive continuation gate, provide a valid native Store event sequence that reproduces it.
 
+
+## CI evidence checked
+
+Workflow run `42438649056` (`Agent36 one-game bilateral competence probe`, workflow `.github/workflows/agent36-bilateral-competence-v9.yml`) completed successfully, but it was dispatched in `contract_only` mode. Its pinned Twinleaf checkout, native compile, frozen registration/owner-evidence test step, strict v2 audit, and v2 vertical-slice execution were skipped. The only policy-contract test step ran Agent34/Agent41 contracts and did not include `agent36-v8-snap-trap-vertical-slice-v2.test.cjs`. This green run is not validation of the v2 classifier or native Snap Trap behavior.
+
 ## Disposition
 
 - **Confirmed:** current v2 mechanical classification is overinclusive.
