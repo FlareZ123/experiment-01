@@ -61,10 +61,11 @@ test('native genuine owner deck prompt offers physical three distinct Dragon obj
     {fullName:'Dialga-GX UPR',id:2},
     {fullName:'Dragapult ex TWM',id:3}
   ];
-  const owner={id:100,deck:{cards:donors.slice()}};
+  const owner={id:100,deck:{cards:donors.slice()},
+    supporter:{cards:[{fullName:COMPRESSOR}]}};
   const state={players:[{id:101},owner]};
   const prompt={
-    id:40,sourceCard:{fullName:COMPRESSOR},
+    id:40,message:'CHOOSE_CARD_TO_DISCARD',
     cards:owner.deck,playerId:owner.id,result:undefined,
     constructor:{name:'ChooseCardsPrompt'},
     validate(selected){return selected.length<=3&&
@@ -83,10 +84,11 @@ test('native genuine owner deck prompt offers physical three distinct Dragon obj
   assert.ok(reply.chosen.every(card=>owner.deck.cards.includes(card)));
 });
 test('unknown or other player zone fails closed with no private deck scan',()=>{
-  const owner={id:7,deck:{cards:[]}};
+  const owner={id:7,deck:{cards:[]},
+    supporter:{cards:[{fullName:COMPRESSOR}]}};
   const state={players:[owner,{id:8,deck:{cards:[]}}]};
   const prompt={
-    id:4,sourceCard:{fullName:COMPRESSOR},cards:state.players[1].deck,
+    id:4,message:'CHOOSE_CARD_TO_DISCARD',cards:state.players[1].deck,
     playerId:owner.id,result:undefined,
     constructor:{name:'ChooseCardsPrompt'},
     validate(){return true;}
