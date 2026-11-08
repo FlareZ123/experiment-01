@@ -201,7 +201,7 @@ function main(){
     phaseSummary:artifact.phaseSummary,
     artifactPath:ARTIFACT_PATH
   };
-  process.stdout.write(JSON.stringify(output,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(output,null,2)+'\n');
   if(artifact.quarantineRecords.length===0)process.exitCode=1;
   return output;
 }
