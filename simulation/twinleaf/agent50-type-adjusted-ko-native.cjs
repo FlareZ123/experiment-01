@@ -55,7 +55,7 @@ function probeTypeAdjustedKoNative(seat=0){
   const catalog={
     basics:new Set(),abilityBasics:new Set(),
     basicEnergies:new Set([e1.fullName]),
-    basicEnergyTypes:{Darkness:CardType.DARKNESS},
+    basicEnergyTypes:{Darkness:CardType.DARK},
     colorlessEnergyType:CardType.COLORLESS,
     specialConditions:{
       ASLEEP:SpecialCondition.ASLEEP,
@@ -87,7 +87,7 @@ function probeTypeAdjustedKoNative(seat=0){
     else if(kind==='ShowCardsPrompt')answer=true;
     else if(kind==='ChoosePrizePrompt'&&prompt.playerId===source.id){
       answer=source.prizes.filter(prize=>prize.cards.length>0)
-        .slice(0,prompt.options.count);
+        .slice(0,Number(prompt.options?.count??3));
     }else if(kind==='ChoosePokemonPrompt'&&
         prompt.playerId===opponent.id){
       answer=[opponent.bench[0]];
