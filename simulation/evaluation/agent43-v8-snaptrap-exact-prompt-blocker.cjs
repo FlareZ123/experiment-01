@@ -152,11 +152,12 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
   const energyRecipient = settings.energyRecipient === true;
+  const ownerMailAfterPass = settings.ownerMailAfterPass === true;
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -182,7 +183,7 @@ function run(settings = {}) {
         ? (Array.isArray(action.result) ? 'array' : typeof action.result) : null
     });
   };
-  let selectedResult = null, ownerAbilityConfirmAudit = null;
+  let selectedResult = null, ownerAbilityConfirmAudit = null, ownerMailAudit = null;
   const execute = () => withCommonOwnerThornsRoot(() => {
     selectedResult = runSelectedIssue25V0({
       runner: options => {
@@ -205,12 +206,28 @@ function run(settings = {}) {
         onRootStoreCreated,
         onRootActionDispatched
         });
-        if (!ownerAbilityConfirm) return executeDevelopment();
-        const observed =
-          require('../twinleaf/agent36-owner-ability-confirm-policy.cjs')
-            .withOwnerAbilityConfirmPolicy(executeDevelopment);
-        ownerAbilityConfirmAudit = observed.audit;
-        return observed.result;
+        const withConfirmation = () => {
+          if (!ownerAbilityConfirm) return executeDevelopment();
+          const observed =
+            require('../twinleaf/agent36-owner-ability-confirm-policy.cjs')
+              .withOwnerAbilityConfirmPolicy(executeDevelopment);
+          ownerAbilityConfirmAudit = observed.audit;
+          return observed.result;
+        };
+        if (!ownerMailAfterPass) return withConfirmation();
+        const native = relative => require(path.join(output, relative));
+        const mail = require('../twinleaf/agent38-v8-four-arm-owner-mail-native.cjs')
+          .withBilateralOwnerMail(withConfirmation, {
+            headless,
+            SimpleTacticsAi: native('simple-bot/simple-tactics-ai').SimpleTacticsAi,
+            Store,
+            PlayCardAction: native('game/store/actions/play-card-action').PlayCardAction,
+            ResolvePromptAction: native('game/store/actions/resolve-prompt-action').ResolvePromptAction,
+            types: native('game/store/card/card-types'),
+            trialIds: registeredTrials.map(t => t.id)
+          });
+        ownerMailAudit = mail.audit;
+        return mail.result;
       },
       layers: {firstBlockedPromptEnvelope: withStewardOwnerPromptFrontier},
       registeredTrialIds: registeredTrials.map(t => t.id),
@@ -279,11 +296,32 @@ function run(settings = {}) {
     originalFrameName: REGISTRATION.registeredFrameName,
     exactOriginalTrialIds: registeredTrials.map(t => t.id),
     preservedNativeRootCap: ROOT_LIMIT,
-    changedDecisions: false,
+    changedDecisions: ownerMailAfterPass ? null : false,
     observedPromptEvents: trace.events.length,
     observedRootActions: trace.roots.length,
     experimentalOwnerAbilityConfirm: ownerAbilityConfirm,
     experimentalBasicEnergyRecipient: energyRecipient,
+    experimentalOwnerMailAfterPass: ownerMailAfterPass,
+    ownerMailAudit: ownerMailAudit === null ? null : {
+      version: ownerMailAudit.schema,
+      registeredTrialIds: ownerMailAudit.trialIds,
+      attempts: ownerMailAudit.attempts,
+      ownerRootPassesSeen: ownerMailAudit.ownerRootPassesSeen,
+      proposalCountsBySeat: ownerMailAudit.proposalCountsBySeat,
+      actualMailItemRootsBySeat: ownerMailAudit.actualMailItemRootsBySeat,
+      nativeOwnerTop4PromptsBySeat: ownerMailAudit.nativeOwnerTop4PromptsBySeat,
+      nativeStoreResolvedBySeat: ownerMailAudit.nativeStoreResolvedBySeat,
+      physicalTrainerToHandBySeat: ownerMailAudit.physicalTrainerToHandBySeat,
+      physicalOtherTopCardsToDeckBySeat:
+        ownerMailAudit.physicalOtherTopCardsToDeckBySeat,
+      noPromptAfterMailBySeat: ownerMailAudit.noPromptAfterMailBySeat,
+      rejectedPromptActions: ownerMailAudit.rejectedPromptActions,
+      unsettledPromptActions: ownerMailAudit.unsettledPromptActions,
+      actualMailEvents: ownerMailAudit.actualMailEvents,
+      revealedTrainers: ownerMailAudit.revealedTrainers,
+      opponentPrivateZonesRead: ownerMailAudit.opponentPrivateZonesRead,
+      competitiveGamesQualified: 0
+    },
     ownerAbilityConfirmAudit: ownerAbilityConfirmAudit === null ? null : {
       version: ownerAbilityConfirmAudit.version,
       confirmOffers: ownerAbilityConfirmAudit.confirmOffers,
