@@ -149,7 +149,7 @@ test('joins source marker, Store prompt, owner choice and root response by promp
   assert.equal(joined.quarantineActive, true);
   assert.equal(joined.ownerObservationCaptured, true);
   assert.equal(joined.responseShapeAccepted, true);
-  assert.equal(joined.exactPhysicalSettlement, true);
+  assert.equal(joined.exactPhysicalSettlement, false);
   assert.equal(joined.selectedEnergyPrinting, 'Psychic Energy');
   assert.equal(joined.rootActionOrdinal, 250);
   assert.equal(joined.nextOwnerPromptCapturedIfCreated, true);

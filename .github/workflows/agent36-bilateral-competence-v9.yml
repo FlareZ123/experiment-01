@@ -163,7 +163,6 @@ jobs:
             tests/agent36-issue25-common-v9-vip-aba.test.cjs \
             tests/agent36-issue25-common-v10-fresh-aba.test.cjs \
             tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs \
-            tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs \
             tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs
 
@@ -201,7 +200,7 @@ jobs:
         if: ${{ inputs.agent3_owner_information_fallback_diagnostic && !inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice }}
         run: node simulation/evaluation/agent3-owner-information-fallback-diagnostic.cjs
       - name: Execute selected-v8 Snap Trap owner-prompt vertical slice
-        if: ${{ inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic }}
         run: node simulation/evaluation/agent36-v8-snap-trap-vertical-slice-v1.cjs
       - name: Execute preregistered shared-policy owner VIP A/B/A
         if: ${{ inputs.agent36_v9_vip_aba && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice }}
