@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v5';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v6';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -292,6 +292,69 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
       }
     }
     attackFollowthrough.koPrizeContinuation=koPrizeContinuation;
+
+    // Source owns the post-KO Active selection. Use the same face-up Bench
+    // Trevenant & Dusknoir known from the independent defensive Retreat fork.
+    // This is a diagnostic, fixed owner-public choice, not a general strategy.
+    const sourcePromotion={
+      ownerId,target:'Trevenant & Dusknoir-GX SMP',
+      checkedNativePrompt:false,nativeValidated:false,
+      nativeResolved:false,selectedOwnFaceupBench:true,
+      sourceActiveAfter:null,nextActorId:null,
+      remainingPromptTypes:[],status:'not-attempted',
+      readConcealedOpponentCards:false
+    };
+    if(koPrizeContinuation.status==='native-ordinary-ko-prizes-transferred'){
+      const ownerForPromotion=clone.state.players.find(p=>p.id===ownerId);
+      const question=clone.state.prompts.find(p=>
+        p.result===undefined && p.constructor.name==='ChoosePokemonPrompt');
+      const message=deps.GameMessage??load('game/game-message').GameMessage;
+      const options=question?.options;
+      const target=ownerForPromotion.bench.find(slot=>
+        slot.cards[0]?.fullName===sourcePromotion.target);
+      sourcePromotion.checkedNativePrompt=Boolean(question);
+      const shaped=Boolean(target&&question?.playerId===ownerId &&
+        question.message===message.CHOOSE_NEW_ACTIVE_POKEMON &&
+        question.playerType===PlayerType.BOTTOM_PLAYER &&
+        Array.isArray(question.slots)&&question.slots.length===1&&
+        question.slots[0]===SlotType.BENCH &&
+        options?.min===1 && options.max===1 &&
+        options.allowCancel===false &&
+        Array.isArray(options.blocked)&&options.blocked.length===0 &&
+        typeof question.getPerspectivePlayerId==='function' &&
+        question.getPerspectivePlayerId()===ownerId &&
+        typeof question.validate==='function');
+      if(!shaped){
+        sourcePromotion.status='source-owner-promotion-prompt-shape-unverified';
+      }else if(question.validate([target],clone.state)!==true){
+        sourcePromotion.status='source-owner-target-native-invalid';
+      }else{
+        sourcePromotion.nativeValidated=true;
+        const chosen=[target];
+        try{
+          clone.dispatch(new ResolvePromptAction(question.id,chosen));
+          sourcePromotion.nativeResolved=question.result===chosen;
+          settleWaitPrompts(clone);
+          const promotedOwner=clone.state.players.find(p=>p.id===ownerId);
+          sourcePromotion.sourceActiveAfter=
+            promotedOwner.active.getPokemonCard?.()?.fullName??null;
+          sourcePromotion.nextActorId=
+            clone.state.players[clone.state.activePlayer]?.id??null;
+          sourcePromotion.remainingPromptTypes=clone.state.prompts
+            .filter(p=>p.result===undefined).map(p=>p.constructor.name);
+          sourcePromotion.status=
+            sourcePromotion.nativeResolved &&
+            sourcePromotion.sourceActiveAfter===sourcePromotion.target &&
+            sourcePromotion.remainingPromptTypes.length===0?
+              'native-source-promotion-settled':
+              'native-source-promotion-incomplete';
+        }catch(error){
+          sourcePromotion.error=String(error?.message??error);
+          sourcePromotion.status='native-source-promotion-dispatch-error';
+        }
+      }
+    }
+    attackFollowthrough.sourcePromotion=sourcePromotion;
 
     const ownerBenchTargetIndex=initial.bench.findIndex(cardList=>
       cardList.cards[0]?.name==='Trevenant & Dusknoir-GX');
