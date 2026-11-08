@@ -17,12 +17,20 @@ function enumName(enumeration,value){
   return null;
 }
 
-/** @param {unknown} cards */
-function selectableCount(cards){
-  if(Array.isArray(cards))return cards.length;
-  if(Array.isArray(cards?.cards))return cards.cards.length;
-  if(Array.isArray(cards?.cards?.cards))return cards.cards.cards.length;
-  return Number.isSafeInteger(cards?.length)?cards.length:null;
+/** @param {unknown} value */
+function snapshotSourceOrigin(value){
+  if(!value||typeof value!=='object')return null;
+  const snapshot={};
+  if(typeof value.sourcePrinting==='string')
+    snapshot.sourcePrinting=value.sourcePrinting;
+  if(typeof value.sourceAbility==='string')
+    snapshot.sourceAbility=value.sourceAbility;
+  if(typeof value.promptIdAfterStore==='string'||
+    Number.isSafeInteger(value.promptIdAfterStore))
+    snapshot.promptIdAfterStore=String(value.promptIdAfterStore);
+  if(Number.isSafeInteger(value.sourceSeat))
+    snapshot.sourceSeat=value.sourceSeat;
+  return Object.keys(snapshot).length?Object.freeze(snapshot):null;
 }
 
 /** @param {unknown} left @param {unknown} right */
@@ -109,7 +117,7 @@ function withOwnerPromptZoneAudit(run,deps={}){
       }
 
       const prior=before[index];
-      const resourceOwnerSeat=players.findIndex(player=>
+      const promptPlayerSeat=players.findIndex(player=>
         player===prior.player||
         samePlayerId(player?.id,prior.player?.id)||
         samePlayerId(player?.id,prior.playerId)
@@ -124,9 +132,9 @@ function withOwnerPromptZoneAudit(run,deps={}){
       promptOrdinals.set(this,promptOrdinal);
       let zone=null;
       let zoneAuditError=null;
-      if(resourceOwnerSeat>=0){
+      if(promptPlayerSeat>=0){
         try{
-          zone=promptZoneMatches(state,prompt,SuperType,resourceOwnerSeat);
+          zone=promptZoneMatches(state,prompt,SuperType,promptPlayerSeat);
         }catch(error){
           zoneAuditError={
             name:error?.name??null,
@@ -134,11 +142,11 @@ function withOwnerPromptZoneAudit(run,deps={}){
           };
         }
       }else{
-        zoneAuditError={name:'ResourceOwnerSeatUnresolved',code:null};
+        zoneAuditError={name:'PromptPlayerSeatUnresolved',code:null};
       }
       const options=prompt?.options&&typeof prompt.options==='object'
         ?prompt.options:{};
-      const sourceOrigin=getSourceOriginForPrompt(prompt)??null;
+      const sourceOrigin=snapshotSourceOrigin(getSourceOriginForPrompt(prompt));
       const zoneMatches=Array.isArray(zone?.matches)
         ?zone.matches.map(match=>({
           zone:match.zone??null,
@@ -146,7 +154,7 @@ function withOwnerPromptZoneAudit(run,deps={}){
           visibility:match.visibility??null,
           eligibleSubzone:match.eligibleSubzone??null,
           subzoneReferenceMatch:match.subzoneReferenceMatch??null,
-          eligibleCount:match.eligibleCount??null
+          eligibleCount:match.visibility==='public'?(match.eligibleCount??null):null
         })):[];
       audit.events.push({
         index:audit.events.length,
@@ -160,7 +168,7 @@ function withOwnerPromptZoneAudit(run,deps={}){
         phase:state?.phase??null,
         activePlayerSeat:Number.isInteger(state?.activePlayer)
           ?state.activePlayer:null,
-        resourceOwnerSeat:resourceOwnerSeat>=0?resourceOwnerSeat:null,
+        promptPlayerSeat:promptPlayerSeat>=0?promptPlayerSeat:null,
         controllerSeat:controllerSeat>=0?controllerSeat:null,
         perspectiveSeat:perspectiveSeat>=0?perspectiveSeat:null,
         promptType:prompt?.constructor?.name??null,
@@ -169,7 +177,7 @@ function withOwnerPromptZoneAudit(run,deps={}){
         max:options.max??prompt.max??null,
         allowCancel:options.allowCancel??prompt.allowCancel??null,
         isSecret:options.isSecret??prompt.isSecret??null,
-        selectableCount:zone?.offeredCount??selectableCount(prompt.cards),
+        selectableCount:zone?.offeredCount??null,
         promptCardsClass:prompt.cards?.constructor?.name??null,
         eligibleSubzone:zone?.eligibleSubzone??null,
         filterSuperType:zone?.filterSuperType??null,
