@@ -1,0 +1,140 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {test}=require('node:test');
+const path=require('node:path');
+const {stagedPainfulSpoons}=
+  require('../simulation/twinleaf/agent4-rank31-alakazam-movesource-native.cjs');
+const {withOriginal29PrintedFidelity}=
+  require('../simulation/twinleaf/agent50-original29-printed-fidelity-hook.cjs');
+
+const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+/** @param {string} name Actual compiled pinned module. */
+const native=name=>require(path.join(OUTPUT,name));
+const {AttackAction}=native('game/store/actions/game-actions');
+const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+
+/**
+ * Native two-seat printed Resistance counterfactual against an undamaged
+ * Mew V. One external Strength-free 10-damage Fighting attack.
+ *
+ * @param {0|1} seat Physical attacking seat.
+ * @param {boolean} corrected Whether to install the reversible paper hook.
+ */
+function resistanceReceipt(seat,corrected){
+  const execute=()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {source,opponent,store,state}=f;
+    const fighter=f.card('Timburr BLW');
+    const basic=f.card('Fighting Energy SVE');
+    const mew=f.card('Mew V FST');
+    source.active.cards.splice(0,source.active.cards.length,fighter,basic);
+    source.active.energies.cards.splice(0,source.active.energies.cards.length,basic);
+    opponent.active.cards.splice(0,opponent.active.cards.length,mew);
+    opponent.active.damage=0;
+    source.hand.cards.splice(0,source.hand.cards.length);
+    assert.equal(fighter.attacks[0].name,'Pound');
+    assert.equal(fighter.attacks[0].damage,10);
+    store.dispatch(new AttackAction(source.id,'Pound'));
+    const prompts=[];
+    for(let k=0;k<20;k++){
+      const p=state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      assert.equal(p.constructor.name,'WaitPrompt');
+      prompts.push(p.constructor.name);
+      store.dispatch(new ResolvePromptAction(p.id,null));
+    }
+    assert.equal(state.prompts.filter(x=>x.result===undefined).length,0);
+    return {
+      seat,corrected,sourcePrinting:fighter.fullName,
+      defenderPrinting:mew.fullName,
+      defenderPrintedResistance:mew.resistance,
+      finalDamage:opponent.active.damage,
+      beforePrizes:source.getPrizeLeft(),
+      prompts,
+      qualifiedGame:false,competitiveGamesQualified:0
+    };
+  };
+  return corrected?withOriginal29PrintedFidelity(execute).result:execute();
+}
+
+/**
+ * Exact source attack name, not the native misspelling. A physical Lightning
+ * Energy is discarded from the corrected pinned CES48 GX effect.
+ *
+ * @param {0|1} seat Actual native attacking seat.
+ */
+function electrodeReceipt(seat){
+  return withOriginal29PrintedFidelity(()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {source,opponent,store,state}=f;
+    const electrode=f.card('Electrode-GX CES');
+    const first=f.card('Lightning Energy SVE');
+    const second=f.card('Lightning Energy SVE');
+    source.active.cards.splice(0,source.active.cards.length,
+      electrode,first,second);
+    source.active.energies.cards.splice(0,source.active.energies.cards.length,
+      first,second);
+    source.hand.cards.splice(0,source.hand.cards.length);
+    opponent.active.damage=0;
+    assert.equal(electrode.attacks[1].name,'Crush and Burn-GX');
+    store.dispatch(new AttackAction(source.id,'Crush and Burn-GX'));
+    let spent=false;
+    const prompts=[];
+    for(let k=0;k<20;k++){
+      const p=state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      const kind=p.constructor.name;
+      let answer;
+      if(kind==='WaitPrompt')answer=null;
+      else if(kind==='DiscardEnergyPrompt'){
+        assert.equal(spent,false);
+        const requested=[{
+          from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
+          index:1
+        }];
+        answer=p.decode(requested,state);
+        assert.equal(p.validate(answer),true);
+        spent=true;
+      }else assert.fail('Unknown Electrode-GX pinned native prompt '+kind);
+      prompts.push(kind);
+      store.dispatch(new ResolvePromptAction(p.id,answer));
+    }
+    assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
+    assert.equal(spent,true);
+    assert.equal(ownerHasUsedGx(source),true);
+    assert.equal(source.discard.cards.includes(first),true);
+    assert.equal(source.discard.cards.includes(second),false);
+    return {seat,sourcePrinting:electrode.fullName,
+      actionName:'Crush and Burn-GX',physicalEnergyDiscarded:1,
+      observedDamage:opponent.active.damage,
+      prompts,qualifiedGame:false,competitiveGamesQualified:0};
+  }).result;
+}
+/** @param {object} player Native player. */
+function ownerHasUsedGx(player){return player.usedGX===true;}
+
+for(const seat of [0,1]){
+  test(`original Aichi printed Fighting Resistance changes physical Mew V attack in seat ${seat}`,()=>{
+    const unpatched=resistanceReceipt(seat,false);
+    const corrected=resistanceReceipt(seat,true);
+    assert.deepEqual(unpatched.defenderPrintedResistance,[]);
+    assert.deepEqual(corrected.defenderPrintedResistance,
+      [{type:6,value:-30}]);
+    assert.equal(unpatched.finalDamage,10);
+    assert.equal(corrected.finalDamage,0);
+    assert.equal(corrected.beforePrizes,6);
+    console.log('AGENT50_NATIVE_PAPER_RESISTANCE '+JSON.stringify({
+      seat,unpatched,corrected,competitiveGamesQualified:0
+    }));
+  });
+  test(`original CES48 printed Crush and Burn-GX name is accepted by native engine in seat ${seat}`,()=>{
+    const r=electrodeReceipt(seat);
+    assert.equal(r.actionName,'Crush and Burn-GX');
+    assert.equal(r.physicalEnergyDiscarded,1);
+    assert.equal(r.observedDamage,80);
+    assert.equal(r.qualifiedGame,false);
+    console.log('AGENT50_NATIVE_PAPER_ELECTRODE_NAME '+JSON.stringify(r));
+  });
+}
