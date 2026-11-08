@@ -1,5 +1,7 @@
 'use strict';
 const {run:runCanary}=require('../agent2-v8-common-first-owner-root-canary.cjs');
+const {withTreasurePhysicalZoneReceipt}=
+  require('../../twinleaf/agent49/treasure-payment-zone-observer.cjs');
 
 const VERSION='agent49-original-rank13-treasure-payment-registered-arms-v1';
 const TREASURE='Mysterious Treasure FLI';
@@ -13,7 +15,7 @@ const EXPECTED=Object.freeze({crispin:'Crispin SCR',
  * @param {'crispin'|'muscle-band'} payment Registered branch.
  * @returns {object[]} Both retained physical-seat attempts.
  */
-function summarize(source,payment){
+function summarize(source,payment,physicalAudit){
   return source.rows.map(row=>{
     const audit=row.v8OuterAudits?.ownerTreasurePrompts??{};
     const events=audit.events??[];
@@ -23,6 +25,10 @@ function summarize(source,payment){
       (x.kind==='owner-deck-search'||x.kind==='owner-deck-search-empty'));
     const visible=audit.observedOwnerChoicePrompts??[];
     const chosen=paid?.physicalSelections?.[0]?.printing??null;
+    const paymentReceipt=physicalAudit.physicalReceipts.find(x=>
+      x.seat===row.candidateSeat&&x.sourceZone==='owner-hand');
+    const searchReceipt=physicalAudit.physicalReceipts.find(x=>
+      x.seat===row.candidateSeat&&x.sourceZone==='owner-deck');
     return {
       payment,candidateSeat:row.candidateSeat,
       sourceSeat:row.sourceSeat,trialId:row.trialId,seed:row.seed,
@@ -38,6 +44,12 @@ function summarize(source,payment){
         x.sourcePrinting===TREASURE&&x.isExactOwnerHandZone),
       actualPaymentPrinting:chosen,
       paymentMatchesRegisteredArm:chosen===EXPECTED[payment],
+      paymentZoneReceipt:paymentReceipt??null,
+      searchZoneReceipt:searchReceipt??null,
+      physicalPaymentMoved:paymentReceipt?.zoneMoveVerified===true&&
+        paymentReceipt.selectedPrinting===chosen,
+      physicalSearchMoved:searchReceipt?.zoneMoveVerified===true&&
+        searchReceipt.selectedPrinting===searched?.physicalSelections?.[0]?.printing,
       nativePaymentPromptValidated:paid?.nativeValidatorAccepted===true&&
         paid?.ownerHandPrompt===true,
       searchedPrinting:searched?.physicalSelections?.[0]?.printing??null,
@@ -57,12 +69,12 @@ function summarize(source,payment){
  * @returns {object} Four native attempts and evidence boundaries.
  */
 function run(){
-  const crispin=runCanary({mysteriousTreasureRoot:true,
-    treasurePaymentChoice:'crispin'});
-  const muscleBand=runCanary({mysteriousTreasureRoot:true,
-    treasurePaymentChoice:'muscle-band'});
-  const attempts=[...summarize(crispin,'crispin'),
-    ...summarize(muscleBand,'muscle-band')];
+  const crispin=withTreasurePhysicalZoneReceipt(()=>runCanary({
+    mysteriousTreasureRoot:true,treasurePaymentChoice:'crispin'}));
+  const muscleBand=withTreasurePhysicalZoneReceipt(()=>runCanary({
+    mysteriousTreasureRoot:true,treasurePaymentChoice:'muscle-band'}));
+  const attempts=[...summarize(crispin.result,'crispin',crispin.audit),
+    ...summarize(muscleBand.result,'muscle-band',muscleBand.audit)];
   const seatOne=attempts.filter(x=>x.candidateSeat===1);
   const onePerArm=seatOne.length===2&&
     seatOne.some(x=>x.payment==='crispin')&&
@@ -72,6 +84,8 @@ function run(){
   const nativeTreasurePaymentSearch=onePerArm&&
     seatOne.every(x=>x.paymentMatchesRegisteredArm&&
       x.nativePaymentPromptValidated&&x.nativeSearchPromptValidated);
+  const nativePhysicalZoneMoves=onePerArm&&
+    seatOne.every(x=>x.physicalPaymentMoved&&x.physicalSearchMoved);
   const seedsMatch=attempts.every(x=>x.seed===attempts[0].seed);
   const inventoriesMatch=attempts.every(x=>
     x.candidateDeckSha256===attempts[0].candidateDeckSha256&&
@@ -89,13 +103,14 @@ function run(){
             x.payment===choice&&x.candidateSeat===seat))),
       fullRegistration,seedsMatch,inventoriesMatch,
       identicalPhysicalDealVerified:false,
-      nativeTreasurePaymentSearch,
-      releaseGatePassed:fullRegistration&&nativeTreasurePaymentSearch,
+      nativeTreasurePaymentSearch,nativePhysicalZoneMoves,
+      releaseGatePassed:fullRegistration&&nativeTreasurePaymentSearch&&
+        nativePhysicalZoneMoves,
       originalDeckAndPrizesVisibleOnlyAsAllowed:true,
       completePaperGames:0,competitiveQualifiedGames:0,
       winRate:null
     },
-    limitations:'A native owner-prompt action diagnostic, not a matched physical-deal A/B, complete paper game, win-rate comparison or optimal resource preference.'
+    limitations:'A native owner-prompt and physical-zone action diagnostic, not a matched physical-deal A/B, complete paper game, win-rate comparison or optimal resource preference.'
   };
 }
 if(require.main===module){
