@@ -150,10 +150,12 @@ function pendingByTrial(events, roots, trialId) {
 }
 
 /**
- * The original Snap Trap experiment, unchanged, with one passive Store.prompt
- * observer. No native Tactics fallback override and no hidden zone reads.
+ * Reproduce the original Snap Trap game frame with a passive prompt observer.
+ * Explicit treatment is a single verified owner-ability-confirm policy hook.
+ * @param {{ownerAbilityConfirm?:boolean}} [settings]
  */
-function run() {
+function run(settings = {}) {
+  const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -179,10 +181,11 @@ function run() {
         ? (Array.isArray(action.result) ? 'array' : typeof action.result) : null
     });
   };
-  let selectedResult = null;
+  let selectedResult = null, ownerAbilityConfirmAudit = null;
   const execute = () => withCommonOwnerThornsRoot(() => {
     selectedResult = runSelectedIssue25V0({
-      runner: options => runDevelopment({
+      runner: options => {
+        const executeDevelopment = () => runDevelopment({
         ...options,
         actorOnlyComposition: true,
         sourceIndependentCommonPolicy: true,
@@ -199,7 +202,14 @@ function run() {
         isolatePhysicalShuffleRandomnessAfterSetup: true,
         onRootStoreCreated,
         onRootActionDispatched
-      }),
+        });
+        if (!ownerAbilityConfirm) return executeDevelopment();
+        const observed =
+          require('../twinleaf/agent36-owner-ability-confirm-policy.cjs')
+            .withOwnerAbilityConfirmPolicy(executeDevelopment);
+        ownerAbilityConfirmAudit = observed.audit;
+        return observed.result;
+      },
       layers: {firstBlockedPromptEnvelope: withStewardOwnerPromptFrontier},
       registeredTrialIds: registeredTrials.map(t => t.id),
       nativeRootActionLimit: ROOT_LIMIT
@@ -246,6 +256,17 @@ function run() {
     changedDecisions: false,
     observedPromptEvents: trace.events.length,
     observedRootActions: trace.roots.length,
+    experimentalOwnerAbilityConfirm: ownerAbilityConfirm,
+    ownerAbilityConfirmAudit: ownerAbilityConfirmAudit === null ? null : {
+      version: ownerAbilityConfirmAudit.version,
+      confirmOffers: ownerAbilityConfirmAudit.confirmOffers,
+      confirmSettled: ownerAbilityConfirmAudit.confirmSettled,
+      confirmUnsettled: ownerAbilityConfirmAudit.confirmUnsettled,
+      confirmEvents: ownerAbilityConfirmAudit.confirmEvents,
+      radiantSearchOffers: ownerAbilityConfirmAudit.radiantSearchOffers,
+      radiantSearchEvents: ownerAbilityConfirmAudit.radiantSearchEvents,
+      articunoMoveEnergyEvents: ownerAbilityConfirmAudit.articunoMoveEnergyEvents
+    },
     rawStateDecoderExecuted: selected?.diagnostic?.rawDecoderExecuted ?? null,
     nativeQuarantineFallbackCalls: selected?.diagnostic?.fallbackCalls ?? null,
     nativeQuarantineRecords:
