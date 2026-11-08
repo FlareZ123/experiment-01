@@ -156,6 +156,9 @@ function withOwnerPromptZoneAudit(run,deps={}){
           subzoneReferenceMatch:match.subzoneReferenceMatch??null,
           eligibleCount:match.visibility==='public'?(match.eligibleCount??null):null
         })):[];
+      const publicZoneCount=zoneMatches.length>0&&
+        zoneMatches.every(match=>match.visibility==='public')
+        ?zone?.offeredCount??null:null;
       audit.events.push({
         index:audit.events.length,
         storeOrdinal:storeOrdinal(this),
@@ -177,7 +180,7 @@ function withOwnerPromptZoneAudit(run,deps={}){
         max:options.max??prompt.max??null,
         allowCancel:options.allowCancel??prompt.allowCancel??null,
         isSecret:options.isSecret??prompt.isSecret??null,
-        selectableCount:zone?.offeredCount??null,
+        selectableCount:publicZoneCount,
         promptCardsClass:prompt.cards?.constructor?.name??null,
         eligibleSubzone:zone?.eligibleSubzone??null,
         filterSuperType:zone?.filterSuperType??null,
