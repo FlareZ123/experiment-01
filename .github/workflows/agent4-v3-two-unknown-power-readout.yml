@@ -19,6 +19,7 @@ on:
           - neutral-v3-staged-native
           - neutral-v3-original16
           - neutral-v3-manual-fallback
+          - neutral-v3-new-natural32
         default: typed-replay
 
 permissions:
@@ -68,6 +69,24 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Execute sixteen newly preregistered source-deal groups and 32 original-rank6 native attempts
+        if: ${{ inputs.experiment == 'neutral-v3-new-natural32' }}
+        env:
+          AGENT4_NEW_NATURAL_V3_OUTPUT: agent4-rank6-new-natural-v3-thirtytwo.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-thorns-field-v3-new-natural32.cjs
+          node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.test.cjs
+          node simulation/evaluation/2026-11/agent4-thorns-field-v3-new-natural32.cjs
+      - name: Upload all original-deal fresh-seed v3 native exposures
+        if: ${{ always() && inputs.experiment == 'neutral-v3-new-natural32' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank6-new-natural-v3-thirtytwo
+          path: |
+            agent4-rank6-new-natural-v3-thirtytwo.json
+            agent4-rank6-new-natural-v3-thirtytwo.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute post-veto alternative manual Energy settlement in genuine Store
         if: ${{ inputs.experiment == 'neutral-v3-manual-fallback' }}
         run: |
