@@ -293,7 +293,7 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
     selected.rawDevelopment.rows,attackPrizeRootJoins,
     fullyRootedPublicVictimJoins,printedNativeAttackNominals.rows,originalField);
   assert.equal(actualPreAttackBoardJoins.version,
-    'agent3-native-pre-attack-public-board-join-v3');
+    'agent3-native-pre-attack-public-board-join-v4');
   assert.equal(actualPreAttackBoardJoins.rows.length,8);
   assert.equal(actualPreAttackBoardJoins.nativeDamageDeltaPrintMatches,8);
   assert.equal(actualPreAttackBoardJoins.declarationRootBoardsCaptured,8);
@@ -302,6 +302,20 @@ test('same-eight retrospective Telepath Confirm treatment captures terminal phys
   assert.equal(Object.values(
     actualPreAttackBoardJoins.declarationRootClassificationCounts
   ).reduce((sum,count)=>sum+count,0),8);
+  // The accepted KO is an exact physical object, but public boards expose
+  // printing names only. Three rows retain same-printing Bench copies, so
+  // those target-instance transitions must remain explicitly unresolved.
+  assert.equal(actualPreAttackBoardJoins.rows.filter(row=>
+    row.declarationRootVsPromptClosureClassification===
+      'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION').length,5);
+  assert.equal(actualPreAttackBoardJoins.rows.filter(row=>
+    row.declarationRootVsPromptClosureClassification===
+      'AMBIGUOUS_SAME_PRINTING_FINAL_IN_PLAY'&&
+    row.targetSamePrintingAmbiguousAfterDeclaration===true&&
+    row.targetInstanceAtPromptClosureUnresolved===true&&
+    row.targetKnockedOutDuringLaterPromptResolution===null&&
+    row.targetDamageThresholdReachedDuringLaterPromptResolution===null
+  ).length,3);
   console.log('AGENT3_V29_PREATTACK_SHAPE_DIAGNOSTIC',JSON.stringify(
     actualPreAttackBoardJoins.rows.map(row=>({
       id:row.registeredTrialId,attack:row.attackName,
