@@ -18,11 +18,11 @@ function stateFixture(){
     {id:1,hand:{cards:ownerView().ownHand.map(fullName=>({fullName}))},
       active:{damage:0,energies:{cards:[{fullName:'Psychic Energy MEE'}]}},
       bench:[],
-      prizes:[{}, {}, {}, {}, {}, {}]},
+      prizes:Array.from({length:6},()=>({cards:[{}]}))},
     {id:2,hand:{cards:[{fullName:'secret opponent card'}]},
       active:{damage:0,energies:{cards:[]}},
       bench:[],
-      prizes:[{}, {}, {}, {}, {}, {}]}
+      prizes:Array.from({length:6},()=>({cards:[{}]}))}
   ]};
 }
 
