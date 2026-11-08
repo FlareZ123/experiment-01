@@ -128,6 +128,7 @@ jobs:
           node --check simulation/evaluation/agent24-v8-bilateral-perfection-root-native.cjs
           node --check simulation/evaluation/agent24-v8-perfection-paired-native.cjs
           node --check simulation/evaluation/agent24-v8-perfection-260root-native.cjs
+          node --check simulation/evaluation/agent24-v8-perfection-260root-pair-native.cjs
           node --check simulation/twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs
           node --check simulation/twinleaf/agent47-shared-motivate-owner-prompt.cjs
           node --check simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs
@@ -240,11 +241,11 @@ jobs:
           mkdir -p artifacts/agent24-v8-bilateral-perfection
           node simulation/evaluation/agent24-v8-perfection-paired-native.cjs > artifacts/agent24-v8-bilateral-perfection/paired-receipt.json
 
-      - name: Extend original v8 bilateral funded Perfection to 260 native roots
+      - name: Compare same-deal v8 bilateral paid Perfection control and treatment to 260 native roots
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent24_v8_perfection_260root && !inputs.contract_only }}
         run: |
           mkdir -p artifacts/agent24-v8-perfection-260root
-          node simulation/evaluation/agent24-v8-perfection-260root-native.cjs > artifacts/agent24-v8-perfection-260root/receipt.json
+          node simulation/evaluation/agent24-v8-perfection-260root-pair-native.cjs > artifacts/agent24-v8-perfection-260root/paired-receipt.json
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
         if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native }}
