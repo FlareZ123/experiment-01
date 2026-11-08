@@ -137,3 +137,85 @@ test('native prototype restoration after thrown error',()=>{
     cardActions:{PlayerType:{BOTTOM_PLAYER:0},SlotType:{ACTIVE:1,BENCH:2}}}),/native abort/);
   assert.equal(Store.prototype.dispatch,original);
 });
+
+test('v10 later-turn Benched Electrode is eligible with three physical source Energy',()=>{
+  for(const seat of [0,1]){
+    const f=fixture(seat);
+    f.source.active.card={fullName:'Regidrago V SIT'};
+    f.source.bench.push({getPokemonCard:()=>f.electrode,energies:{cards:[]}});
+    f.state.prompts=[];
+    f.state.turn=18;
+    const original=chooseOwnerBombAfterCompressor(f.state,seat,{turn:16});
+    assert.equal(original,null,'Frozen v4 must not change');
+    const eligible=chooseOwnerBombAfterCompressor(f.state,seat,{turn:16},
+      {allowLaterBenchedElectrode:true});
+    assert.equal(eligible?.electrode,f.electrode);
+    assert.equal(eligible?.electrodeBenchIndex,1);
+    assert.equal(eligible?.recipientBenchIndex,0);
+    f.source.discard.cards.pop();
+    assert.equal(chooseOwnerBombAfterCompressor(f.state,seat,{turn:16},
+      {allowLaterBenchedElectrode:true}),null,
+      'Two Energy do not pay the opt-in three-card quality threshold');
+  }
+});
+
+test('v10 later-turn benched source Bomb uses physical Bench slot, owner prompt and self-KO',()=>{
+  class BenchStore extends Store{
+    dispatch(action){
+      const owner=this.state.players[this.state.activePlayer];
+      if(action instanceof UseAbilityAction){
+        assert.equal(action.target.slot,2);
+        assert.equal(action.target.index,1);
+        this.state.prompts.push(new AttachEnergyPrompt(owner,owner.discard));
+      }else if(action instanceof ResolvePromptAction){
+        const prompt=this.state.prompts.find(p=>p.id===action.id);
+        if(prompt)prompt.result=action.result;
+        if(prompt instanceof AttachEnergyPrompt){
+          for(const entry of action.result){
+            const idx=owner.discard.cards.indexOf(entry.card);
+            assert.ok(idx>=0);
+            owner.discard.cards.splice(idx,1);
+            owner.bench[0].energies.cards.push(entry.card);
+          }
+          owner.discard.cards.push(owner.bench[1].getPokemonCard());
+          owner.bench.splice(1,1);
+          this.state.players[1-this.state.activePlayer].prizesLeft-=2;
+        }
+        this.state.prompts=this.state.prompts.filter(p=>p.result===undefined);
+      }
+      return this.state;
+    }
+  }
+  for(const seat of [0,1]){
+    const f=fixture(seat),bot=new SimpleTacticsAi({id:f.source.id});
+    f.store=new BenchStore(f.state);
+    f.source.active.card={fullName:'Regidrago V SIT'};
+    f.source.bench.push({getPokemonCard:()=>f.electrode,energies:{cards:[]}});
+    const prior=BenchStore.prototype.dispatch;
+    const result=withOwnerBombAfterSourceCompressor(()=>{
+      f.store.dispatch(new AddPlayerAction());
+      f.store.dispatch(new ResolvePromptAction(123,[0,1,2]));
+      f.state.turn=18;
+      const bomb=bot.decodeNextAction(f.state);
+      assert.equal(bomb.constructor.name,'UseAbilityAction');
+      assert.equal(bomb.target.slot,2);
+      assert.equal(bomb.target.index,1);
+      f.store.dispatch(bomb);
+      const pay=bot.decodeNextAction(f.state);
+      assert.equal(pay.constructor.name,'ResolvePromptAction');
+      f.store.dispatch(pay);
+    },seat,{Store:BenchStore,SimpleTacticsAi,
+      GamePhase:{PLAYER_TURN:'PLAYER_TURN'},
+      abilityActions:{UseAbilityAction},
+      promptActions:{ResolvePromptAction},
+      cardActions:{PlayerType:{BOTTOM_PLAYER:0},
+        SlotType:{ACTIVE:1,BENCH:2}},
+      allowLaterBenchedElectrode:true});
+    assert.strictEqual(BenchStore.prototype.dispatch,prior);
+    assert.equal(result.audit.nativeAcceptedBombs,1);
+    assert.equal(result.audit.physicallyAttachedEnergyCards,3);
+    assert.equal(result.audit.physicalElectrodeSelfKosWithTwoPrizes,1);
+    assert.equal(f.source.bench[0].energies.cards.length,3);
+    assert.equal(f.opponent.getPrizeLeft(),4);
+  }
+});
