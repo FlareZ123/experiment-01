@@ -489,3 +489,168 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+/**
+ * A stronger original-rank1 counterexample with a paid same-turn KO.
+ * Condition a possible opening for the original rank1: two V from seven,
+ * two held VMAX, one old attachment to benched V, Guzma and a held Psychic;
+ * the second-turn top draw and first Underworld Door draw both find Psychic.
+ * All cards come from and remain within the unchanged source 60.
+ */
+for(const seat of [0,1]){
+  test('Original rank1 double Underworld Door into Guzma and Max Geist KOs exposed Vileplume: seat '+seat,()=>{
+    const x=stage(seat);
+    const opponent=x.f.defender;
+    const all=[...opponent.active.cards,...opponent.bench.flatMap(b=>b.cards),
+      ...opponent.hand.cards,...opponent.deck.cards,...opponent.discard.cards,
+      ...opponent.lostzone.cards,...opponent.prizes.flatMap(z=>z.cards)];
+    assert.equal(all.length,60);
+    const pool=all.slice();
+    const take=fullName=>{
+      const i=pool.findIndex(c=>c.fullName===fullName);
+      assert.ok(i>=0,'Original rank1 missing printed '+fullName);
+      return pool.splice(i,1)[0];
+    };
+    const vmax='Shadow Rider Calyrex VMAX CRE';
+    const v='Shadow Rider Calyrex V CRE';
+    const energyName='Psychic Energy';
+    const takePsychic=()=>{
+      const i=pool.findIndex(c=>c.name===energyName);
+      assert.ok(i>=0,'Original rank1 needs actual Psychic Energy');
+      return pool.splice(i,1)[0];
+    };
+    const leadV=take(v),benchV=take(v);
+    const vmaxA=take(vmax),vmaxB=take(vmax);
+    const guzma=take('Guzma BUS');
+    const priorEnergy=takePsychic(),heldA=takePsychic(),
+      heldB=takePsychic(),abilityDrawEnergy=takePsychic();
+    const {CardList}=native('game/store/state/card-list');
+    const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+    opponent.active=new PokemonCardList();
+    opponent.active.cards.push(leadV);
+    opponent.active.pokemonPlayedTurn=1;
+    opponent.bench=Array.from({length:5},()=>new PokemonCardList());
+    opponent.bench[0].cards.push(benchV,priorEnergy);
+    opponent.bench[0].energies.cards.push(priorEnergy);
+    opponent.bench[0].pokemonPlayedTurn=1;
+    opponent.hand.cards.splice(0,opponent.hand.cards.length,
+      vmaxA,vmaxB,guzma,heldA,heldB);
+    opponent.discard.cards.length=0;
+    opponent.lostzone.cards.length=0;
+    opponent.supporter.cards.length=0;
+    opponent.prizes=Array.from({length:6},()=>{
+      const z=new CardList();
+      z.cards.push(pool.shift());
+      return z;
+    });
+    opponent.deck.cards.splice(0,opponent.deck.cards.length,
+      abilityDrawEnergy,...pool);
+    opponent.supporterTurn=0;
+    opponent.energyPlayedTurn=1;
+    const installed=[...opponent.active.cards,
+      ...opponent.bench.flatMap(b=>b.cards),...opponent.hand.cards,
+      ...opponent.deck.cards,...opponent.discard.cards,
+      ...opponent.prizes.flatMap(z=>z.cards)];
+    assert.equal(installed.length,60);
+    assert.equal(new Set(installed).size,60);
+    assert.equal(opponent.prizes.length,6);
+    assert.equal(opponent.deck.cards[0].name,energyName);
+
+    establishSentinelLock(x);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {UseAbilityAction,AttackAction}=
+      native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {nativeSinglePokemonChoices}=
+      require('../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs');
+    const playEvolution=(slot,index)=>{
+      const i=opponent.hand.cards.findIndex(c=>c.fullName===vmax);
+      assert.ok(i>=0);
+      x.f.store.dispatch(new PlayCardAction(opponent.id,i,{
+        player:PlayerType.BOTTOM_PLAYER,slot,index
+      }));
+    };
+    playEvolution(SlotType.ACTIVE,0);
+    playEvolution(SlotType.BENCH,0);
+    assert.equal(opponent.active.getPokemonCard()?.fullName,vmax);
+    assert.equal(opponent.bench[0].getPokemonCard()?.fullName,vmax);
+
+    const attachToBenchedVmax=(slot,index)=>{
+      x.f.store.dispatch(new UseAbilityAction(opponent.id,
+        'Underworld Door',{player:PlayerType.BOTTOM_PLAYER,slot,index}));
+      const p=x.state.prompts.find(z=>z.result===undefined);
+      assert.equal(p?.constructor.name,'AttachEnergyPrompt',
+        'Native Underworld Door must offer an Energy-payment prompt');
+      const energyIndex=opponent.hand.cards.findIndex(c=>c.name===energyName);
+      assert.ok(energyIndex>=0);
+      const to={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0};
+      x.f.store.dispatch(new ResolvePromptAction(p.id,[{to,index:energyIndex}]));
+      assert.equal(x.f.store.hasPrompts(),false);
+    };
+    attachToBenchedVmax(SlotType.ACTIVE,0);
+    attachToBenchedVmax(SlotType.BENCH,0);
+    const psyIndex=opponent.hand.cards.findIndex(c=>c.name===energyName);
+    assert.ok(psyIndex>=0,'At least one payable original Basic Psychic remains');
+    x.f.store.dispatch(new PlayCardAction(opponent.id,psyIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    assert.equal(opponent.bench[0].energies.cards.length,4);
+    assert.equal(opponent.energyPlayedTurn,x.state.turn);
+
+    const guzmaIndex=opponent.hand.cards.findIndex(c=>c.fullName==='Guzma BUS');
+    assert.ok(guzmaIndex>=0);
+    x.f.store.dispatch(new PlayCardAction(opponent.id,guzmaIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    let p=x.state.prompts.find(z=>z.result===undefined);
+    assert.equal(p?.constructor.name,'ChoosePokemonPrompt');
+    const sourceTarget=nativeSinglePokemonChoices(x.state,p).find(z=>
+      z.seat===seat&&z.physical.getPokemonCard()?.fullName==='Vileplume AOR');
+    assert.ok(sourceTarget);
+    x.f.store.dispatch(new ResolvePromptAction(p.id,[sourceTarget.physical]));
+    p=x.state.prompts.find(z=>z.result===undefined);
+    assert.equal(p?.constructor.name,'ChoosePokemonPrompt');
+    const powered=nativeSinglePokemonChoices(x.state,p).find(z=>
+      z.seat===1-seat&&z.physical.getPokemonCard()?.fullName===vmax&&
+        z.physical.energies.cards.length===4);
+    assert.ok(powered);
+    x.f.store.dispatch(new ResolvePromptAction(p.id,[powered.physical]));
+    assert.equal(opponent.active.getPokemonCard()?.fullName,vmax);
+    assert.equal(opponent.active.energies.cards.length,4);
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
+
+    const oldPrizes=opponent.prizes.reduce((n,z)=>n+z.cards.length,0);
+    x.f.store.dispatch(new AttackAction(opponent.id,'Max Geist'));
+    const attackPromptTypes=[];
+    for(let i=0;i<24;i++){
+      p=x.state.prompts.find(z=>z.result===undefined);
+      if(!p)break;
+      const kind=p.constructor.name;
+      attackPromptTypes.push(kind);
+      const answer=kind==='WaitPrompt'?null:
+        kind==='ShowCardsPrompt'?true:
+        kind==='ShuffleDeckPrompt'?opponent.deck.cards.map((_,i)=>i):
+        kind==='ChoosePrizePrompt'?[0]:undefined;
+      assert.notEqual(answer,undefined,'Unexpected actual Max Geist prompt '+kind);
+      x.f.store.dispatch(new ResolvePromptAction(p.id,answer));
+    }
+    assert.equal(x.f.store.hasPrompts(),false);
+    const ko=x.owner.discard.cards.filter(c=>c.fullName==='Vileplume AOR');
+    assert.equal(ko.length,1,
+      'Actual paid 130 Max Geist must KO exposed printed 130 HP Vileplume');
+    assert.equal(opponent.prizes.reduce((n,z)=>n+z.cards.length,0),oldPrizes-1);
+    console.log('AGENT28_SENTINEL_RANK1_MAXGEIST_NATIVE',JSON.stringify({
+      seat,sourceCards:60,opponentCards:60,
+      sourceVileplumeFirstTurn:true,opponentTwoVmax:true,
+      priorBasicEnergyFromFirstTurn:1,underworldDoorPayments:2,
+      normalEnergyAttachment:1,paidPsychicAttached:4,
+      opponentGuzma:'Guzma BUS',hit:'Max Geist',printedDamage:130,
+      sourceVileplumeKnockedOut:true,prizesTaken:1,
+      nativeAttackPrompts:attackPromptTypes,
+      scenario:'fully conditioned original rank1 card distribution, no autonomous games',
+      competitiveGames:0
+    }));
+  });
+}
