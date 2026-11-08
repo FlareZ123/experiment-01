@@ -712,7 +712,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   }
   if(options.earlyBeachAfterPass===true){
     const beach=require('./agent7-early-beach-after-pass.cjs')
-      .chooseEarlyBeachAfterPass(view);
+      .chooseEarlyBeachAfterPass(view,{
+        deferForMail:options.earlyBeachDeferForMail===true
+      });
     if(beach)return beach;
   }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
@@ -871,6 +873,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
     earlyBeachAfterPassOptIn:deps.earlyBeachAfterPass??
       (process.env.AGENT7_EARLY_BEACH_DEV==='true'),
+    earlyBeachDeferForMailOptIn:deps.earlyBeachDeferForMail??
+      (process.env.AGENT7_EARLY_BEACH_DEFER_MAIL_DEV==='true'),
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
@@ -1578,6 +1582,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
       tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
       earlyBeachAfterPass:audit.earlyBeachAfterPassOptIn===true,
+      earlyBeachDeferForMail:audit.earlyBeachDeferForMailOptIn===true,
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
