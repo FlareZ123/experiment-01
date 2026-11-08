@@ -158,6 +158,60 @@ function toedscruelReceipt(seat,corrected){
   return corrected?withOriginal29PrintedFidelity(execute).result:execute();
 }
 
+
+/**
+ * Re-enable the genuine pinned MEG86 Mega Absol ex class that is otherwise
+ * hidden by its mismatched M1L fullName index. Resolve actual Terminal Period
+ * against an opponent at exactly six damage counters and settle two Prizes.
+ *
+ * @param {0|1} seat Acting physical seat.
+ */
+function megaAbsolAliasKoReceipt(seat){
+  return withOriginal29PrintedFidelity(()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {store,state,source,opponent}=f;
+    const card=f.card('Mega Absol ex MEG');
+    const dark=Array.from({length:2},()=>f.card('Darkness Energy SVE'));
+    source.active.cards.splice(0,source.active.cards.length,card,...dark);
+    source.active.energies.cards.splice(0,
+      source.active.energies.cards.length,...dark);
+    source.hand.cards.splice(0,source.hand.cards.length);
+    const victim=opponent.active.getPokemonCard();
+    assert.equal(victim.fullName,'Shadow Rider Calyrex V CRE');
+    opponent.active.damage=60;
+    assert.equal(card.name,'Mega Absol ex');
+    assert.equal(card.set,'MEG');
+    assert.equal(card.setNumber,'86');
+    assert.equal(card.attacks[0].name,'Terminal Period');
+    const before=source.getPrizeLeft();
+    store.dispatch(new AttackAction(source.id,'Terminal Period'));
+    const prompts=[];
+    for(let k=0;k<30;k++){
+      const p=state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      const kind=p.constructor.name;
+      let answer;
+      if(kind==='WaitPrompt')answer=null;
+      else if(kind==='ChoosePrizePrompt'&&p.playerId===source.id)
+        answer=source.prizes.filter(row=>row.cards.length)
+          .slice(0,p.options.count);
+      else if(kind==='ChoosePokemonPrompt'&&p.playerId===opponent.id)
+        answer=[opponent.bench[0]];
+      else assert.fail('Unrecognized native terminal KO prompt '+kind);
+      assert.equal(p.validate(answer,state),true,kind+' native validate');
+      prompts.push(kind);
+      store.dispatch(new ResolvePromptAction(p.id,answer));
+    }
+    assert.equal(state.prompts.filter(x=>x.result===undefined).length,0);
+    assert.equal(opponent.discard.cards.includes(victim),true);
+    return {seat,requestedPrinting:'Mega Absol ex MEG',
+      authenticNativeFullName:card.fullName,authenticNativeSet:card.set,
+      printedAttack:'Terminal Period',defenderAt60CountersKo:true,
+      prizesBefore:before,prizesAfter:source.getPrizeLeft(),
+      promptTypes:prompts,qualifiedGame:false,competitivelyQualifiedGames:0};
+  }).result;
+}
+
 for(const seat of [0,1]){
   test(`original Aichi printed Fighting Resistance changes physical Mew V attack in seat ${seat}`,()=>{
     const unpatched=resistanceReceipt(seat,false);
@@ -171,6 +225,17 @@ for(const seat of [0,1]){
     console.log('AGENT50_NATIVE_PAPER_RESISTANCE '+JSON.stringify({
       seat,unpatched,corrected,competitiveGamesQualified:0
     }));
+  });
+  test(`original rank8/9/11 Mega Absol MEG alias enables real native Terminal Period KO in seat ${seat}`,()=>{
+    const r=megaAbsolAliasKoReceipt(seat);
+    assert.equal(r.requestedPrinting,'Mega Absol ex MEG');
+    assert.equal(r.authenticNativeFullName,'Mega Absol ex M1L');
+    assert.equal(r.authenticNativeSet,'MEG');
+    assert.equal(r.defenderAt60CountersKo,true);
+    assert.equal(r.prizesBefore,6);
+    assert.equal(r.prizesAfter,4);
+    assert.equal(r.competitivelyQualifiedGames,0);
+    console.log('AGENT50_NATIVE_MEGA_ABSOL_ALIASED_KO '+JSON.stringify(r));
   });
   test(`original rank9 Toedscruel Mushroom Drain heals 30 after native attack in seat ${seat}`,()=>{
     const baseline=toedscruelReceipt(seat,false);
