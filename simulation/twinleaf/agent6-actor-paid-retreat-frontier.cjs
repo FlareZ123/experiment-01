@@ -69,7 +69,10 @@ function choosePaidRetreatToDamagingBench(view,catalog){
   const options=[];
   for(let index=0;index<own.bench.length;index++){
     const pokemon=own.bench[index];
-    if(!pokemon||pokemon.publicRestrictions?.cannotAttackNextTurn===true||
+    if(!pokemon||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,index)||
+       pokemon.publicRestrictions?.cannotAttackNextTurn===true||
        pokemon.specialConditions?.some(x=>
          x===catalog.specialConditions.ASLEEP||
          x===catalog.specialConditions.PARALYZED))continue;
