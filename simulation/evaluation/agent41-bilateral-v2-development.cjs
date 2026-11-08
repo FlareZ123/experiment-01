@@ -1426,6 +1426,7 @@ function runDevelopment({
   isolatePhysicalShuffleRandomnessAfterSetup=false,
   onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
+  actorGenericFundedFloatStoneSourceOnly=false,
   actorGenericFundedFloatStoneCensus=false,
   actorZeroEnergyStrandFloatStoneRoot=false,
   actorZeroEnergyStrandFloatStoneTargetTurn=null,
@@ -1593,6 +1594,8 @@ function runDevelopment({
   assert.ok(onRootActionDispatched===null||typeof onRootActionDispatched==='function');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
+  assert.ok(!actorGenericFundedFloatStoneSourceOnly||actorGenericFundedFloatStoneRoot,
+    'Source-scoped funded Float Stone requires the owner-visible funded Float policy');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
     'Float Stone census must observe the same actor-only policy in both seats');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
@@ -1929,7 +1932,11 @@ function runDevelopment({
               }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
-                genericFundedFloatStoneRoot:true
+                genericFundedFloatStoneRoot:true,
+                ...(actorGenericFundedFloatStoneSourceOnly?{
+                  genericFundedFloatStoneOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(actorGenericFundedFloatStoneCensus?{
                 genericFundedFloatStoneAudit:true
@@ -2439,6 +2446,8 @@ function runDevelopment({
       actorOnlyComposition&&actorFundedShadowRiderFloatStoneRoot,
     actorGenericFundedFloatStoneRootOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneRoot,
+    actorGenericFundedFloatStoneSourceOnly:
+      actorOnlyComposition&&actorGenericFundedFloatStoneSourceOnly,
     actorGenericFundedFloatStoneCensusOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneCensus,
     actorZeroEnergyStrandFloatStoneRootOptIn:
