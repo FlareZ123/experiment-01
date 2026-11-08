@@ -295,7 +295,8 @@ function observeSeat(seat,discardChoice='crispin'){
   assert.equal(result.finalPhysicalZones.crispinInHand,true);
   assert.equal(result.finalPhysicalZones.crispinInDiscard,false);
   assert.equal(result.finalPhysicalZones.treasureInDiscard,true);
-  assert.equal(result.finalPhysicalZones.vsSeekerInDiscard,true);
+  assert.equal(result.finalPhysicalZones.vsSeekerInDiscard,discardChoice==='crispin');
+  assert.equal(result.finalPhysicalZones.muscleBandInDiscard,discardChoice==='muscle-band');
   assert.equal(result.finalPhysicalZones.regidragoVstarInHand,true);
   return {
     schema:'agent2-crispin-vs-seeker-treasure-battle-compressor-sequence-v3',
