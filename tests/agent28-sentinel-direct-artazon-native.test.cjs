@@ -409,24 +409,19 @@ for(const seat of [0,1]){
     const x=stage(seat);
     const opponent=x.f.defender;
     const handGuzma=opponent.hand.cards.find(c=>c.fullName==='Guzma BUS');
-    const handLele=opponent.hand.cards.find(c=>c.name==='Tapu Lele-GX');
-    const deckLele=opponent.deck.cards.find(c=>c.name==='Tapu Lele-GX');
-    assert.ok(handGuzma&&(handLele||deckLele),
-      'Condition only an actual original-rank1 source Lele held or in deck');
-    // Original list card identity/60 zones are unchanged. This treatment
-    // requires Guzma not initially held, while Lele remains in hand.
+    const prizeLele=opponent.prizes.find(p=>p.cards[0]?.name==='Tapu Lele-GX');
+    const deckFiller=opponent.deck.cards.find(c=>c.fullName!=='Guzma BUS');
+    assert.ok(handGuzma&&prizeLele&&deckFiller,
+      'Treat one printed Lele from deterministic original rank1 Prizes');
+    // Source order put both genuine Lele in Prizes. Recondition this as a
+    // different physical deal: one Prize Lele to hand, one deck card to Prize,
+    // and original held Guzma to deck; every source card remains physically used.
+    const playedLele=prizeLele.cards[0];
     opponent.hand.cards.splice(opponent.hand.cards.indexOf(handGuzma),1);
     opponent.deck.cards.push(handGuzma);
-    const playedLele=handLele??deckLele;
-    if(!handLele){
-      opponent.deck.cards.splice(opponent.deck.cards.indexOf(deckLele),1);
-      opponent.hand.cards.push(deckLele);
-    }else{
-      const replacement=opponent.deck.cards.find(c=>c!==handGuzma);
-      assert.ok(replacement,'Need a real deck card to preserve source hand count');
-      opponent.deck.cards.splice(opponent.deck.cards.indexOf(replacement),1);
-      opponent.hand.cards.push(replacement);
-    }
+    opponent.deck.cards.splice(opponent.deck.cards.indexOf(deckFiller),1);
+    prizeLele.cards.splice(0,1,deckFiller);
+    opponent.hand.cards.push(playedLele);
 
     const {PokemonCardList}=native('game/store/state/pokemon-card-list');
     while(opponent.bench.length<5)opponent.bench.push(new PokemonCardList());
