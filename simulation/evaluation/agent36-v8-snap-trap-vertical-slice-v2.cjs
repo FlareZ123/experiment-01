@@ -165,24 +165,48 @@ function buildPostPromptSequence(
       record
     ])
   );
-  const responseById = new Map(
+  const responseKey = (promptId, actionOrdinal, actingSeat) =>
+    `${String(promptId)}:${String(actionOrdinal)}:${String(actingSeat)}`;
+  const responseByAction = new Map(
     (evidence.responseRecords ?? []).map(record => [
-      String(record.promptId), record
+      responseKey(record.promptId, record.actionOrdinal, record.actingSeat),
+      record
     ])
   );
-  const isMechanical = event => {
-    if (isPass(event.action)) return true;
-    if (event.action !== 'ResolvePromptAction') return false;
-    const response = responseById.get(String(event.promptId));
+  const responseForEvent = event => responseByAction.get(
+    responseKey(event.promptId, event.actionOrdinal, event.seat)
+  ) ?? null;
+  const classifyRoot = event => {
+    if (isPass(event.action)) return 'mechanical';
+    if (event.action !== 'ResolvePromptAction') return 'meaningful';
     const prompt = promptById.get(String(event.promptId));
-    return event.responseKind === 'null' ||
-      event.responseKind === 'undefined' ||
-      response?.responseKind === 'null' ||
-      response?.responseKind === 'undefined' ||
-      prompt?.promptType === 'WaitPrompt';
+    const response = responseForEvent(event);
+    if (!prompt || !response) return 'unclassified';
+    const exactSettlementReceipt =
+      response.actionType === 'ResolvePromptAction' &&
+      response.actionOrdinal === event.actionOrdinal &&
+      response.actingSeat === event.seat &&
+      response.responseKind === event.responseKind &&
+      response.dispatchReturnedWithoutThrow === true &&
+      response.promptResultDefined === true &&
+      response.promptResultMatches === true &&
+      response.promptItemFoundBeforeDispatch === true &&
+      response.promptItemRemovedAfterDispatch === true;
+    if (!exactSettlementReceipt) return 'unclassified';
+    if (event.responseKind === 'undefined') return 'unclassified';
+    if (prompt.promptType === 'WaitPrompt') {
+      return event.responseKind === 'null' ? 'mechanical' : 'unclassified';
+    }
+    return 'meaningful';
   };
-  const mechanicalRoots = later.filter(isMechanical).map(event => {
+  const classifications = new Map(later.map(event => [
+    event, classifyRoot(event)
+  ]));
+  const mechanicalRoots = later.filter(event =>
+    classifications.get(event) === 'mechanical'
+  ).map(event => {
     const prompt = promptById.get(String(event.promptId));
+    const response = responseForEvent(event);
     return {
       actionOrdinal: event.actionOrdinal,
       seat: event.seat,
@@ -190,10 +214,44 @@ function buildPostPromptSequence(
       promptId: event.promptId,
       promptType: prompt?.promptType ?? null,
       promptMessage: prompt?.message ?? null,
-      responseKind: event.responseKind
+      responseKind: event.responseKind,
+      promptResultDefined: response?.promptResultDefined ?? null,
+      promptItemRemovedAfterDispatch:
+        response?.promptItemRemovedAfterDispatch ?? null
     };
   });
-  const meaningful = later.filter(event => !isMechanical(event));
+  const unclassifiedPromptRoots = later.filter(event =>
+    classifications.get(event) === 'unclassified'
+  ).map(event => {
+    const prompt = promptById.get(String(event.promptId));
+    const response = responseForEvent(event);
+    const reason = !prompt ? 'unknown-prompt-id' :
+      !response ? 'missing-exact-response-receipt' :
+        response.dispatchReturnedWithoutThrow !== true ?
+          'dispatch-not-confirmed' :
+          response.promptResultDefined !== true ?
+            'prompt-result-undefined' :
+            response.promptResultMatches !== true ?
+              'prompt-result-mismatch' :
+              response.promptItemFoundBeforeDispatch !== true ?
+                'prompt-item-missing-before-dispatch' :
+                response.promptItemRemovedAfterDispatch !== true ?
+                  'prompt-item-not-removed' :
+                  event.responseKind === 'undefined' ?
+                    'undefined-response' : 'response-contract-mismatch';
+    return {
+      actionOrdinal: event.actionOrdinal,
+      seat: event.seat,
+      action: event.action,
+      promptId: event.promptId,
+      promptType: prompt?.promptType ?? null,
+      responseKind: event.responseKind,
+      reason
+    };
+  });
+  const meaningful = later.filter(event =>
+    classifications.get(event) === 'meaningful'
+  );
   const nextOpponentRoot = later.find(event =>
     event.seat === attackerSeat
   ) ?? null;
@@ -209,19 +267,25 @@ function buildPostPromptSequence(
     event.seat === sourceSeat
   ) ?? null;
   const nextSourceMeaningfulRoot = afterOpponent.find(event =>
-    event.seat === sourceSeat && !isMechanical(event)
+    event.seat === sourceSeat &&
+    classifications.get(event) === 'meaningful'
   ) ?? null;
   const ledger = rootLedgerOf(row);
   const promptRootLedgerEntry = Array.isArray(ledger) &&
     Number.isSafeInteger(promptOrdinal) ?
     ledger.find(entry => entry.actionOrdinal === promptOrdinal) ?? null : null;
   const nextOwnerPrompt = evidence.nextOwnerPrompt ?? null;
-  const nextOwnerResponse = (evidence.responseRecords ?? []).find(record =>
-    String(record.promptId) === String(
-      nextOwnerPrompt?.promptIdAfterStore ??
-      nextOwnerPrompt?.pendingNativePromptId
-    )
-  ) ?? null;
+  const nextOwnerPromptId = nextOwnerPrompt?.promptIdAfterStore ??
+    nextOwnerPrompt?.pendingNativePromptId;
+  const nextOwnerPromptEvent = nextOwnerPromptId === undefined ? null :
+    [...later].reverse().find(event =>
+      event.action === 'ResolvePromptAction' &&
+      String(event.promptId) === String(nextOwnerPromptId) &&
+      responseForEvent(event) !== null
+    ) ?? null;
+  const nextOwnerResponse = nextOwnerPromptEvent ?
+    responseForEvent(nextOwnerPromptEvent) : null;
+  const promptEvidenceComplete = unclassifiedPromptRoots.length === 0;
   return {
     promptResponseActionOrdinal: promptOrdinal,
     promptResponseActingSeat: sourceSeat,
@@ -231,6 +295,8 @@ function buildPostPromptSequence(
     nextSourceRootAfterOpponent: nextSourceRoot,
     nextSourceMeaningfulRootAfterOpponent: nextSourceMeaningfulRoot,
     mechanicalRootsAfterPrompt: mechanicalRoots,
+    unclassifiedPromptRoots,
+    promptEvidenceComplete,
     nextOwnerPrompt,
     nextOwnerPromptResponse: nextOwnerResponse,
     nextOwnerPromptType: nextOwnerPrompt?.promptType ?? null,
@@ -238,7 +304,9 @@ function buildPostPromptSequence(
     opponentDecisionObserved: Boolean(nextOpponentMeaningfulRoot),
     sourceContinuationObserved: Boolean(nextSourceMeaningfulRoot),
     continuationGatePassed: Boolean(
-      nextOpponentMeaningfulRoot && nextSourceMeaningfulRoot
+      nextOpponentMeaningfulRoot &&
+      nextSourceMeaningfulRoot &&
+      promptEvidenceComplete
     ),
     endpoint: summary.nativeOutcome,
     actionCount: summary.actionCount,
@@ -289,8 +357,11 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
     join?.exactPhysicalSettlement &&
     join?.sourceSeatMatchesRegisteredSeat
   );
+  const postPromptPromptEvidenceComplete =
+    sequence?.promptEvidenceComplete === true;
   const meaningfulOpponentAndSourceContinuation =
-    sequence?.continuationGatePassed === true;
+    sequence?.continuationGatePassed === true &&
+    postPromptPromptEvidenceComplete;
   const endpointExplicitlyClassified = [
     'native-terminal-unqualified',
     'action-cap',
@@ -311,6 +382,7 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
     knownPromptResolved,
     bothSourceSeatPromptResolutionsObserved,
     meaningfulOpponentAndSourceContinuation,
+    postPromptPromptEvidenceComplete,
     endpointExplicitlyClassified,
     knownPromptTrialId: KNOWN_PROMPT_TRIAL_ID,
     knownPromptTrialNativeOutcome: known?.nativeOutcome ?? null,
@@ -327,6 +399,10 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
       sequence?.mechanicalRootsAfterPrompt?.length ?? 0,
     mechanicalRootsAfterPrompt:
       sequence?.mechanicalRootsAfterPrompt ?? [],
+    unclassifiedPromptRootCount:
+      sequence?.unclassifiedPromptRoots?.length ?? 0,
+    unclassifiedPromptRoots:
+      sequence?.unclassifiedPromptRoots ?? [],
     sourceSeatsWithExactPromptSettlement:
       [...new Set(exactPromptSettlements.map(summary => summary.sourceSeat))]
         .sort(),
