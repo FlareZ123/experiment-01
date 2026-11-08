@@ -65,9 +65,11 @@ function sha256(value){
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
-function safeRootPrefix(native){
+function safeRootPrefix(native,initial=false){
   if(!Array.isArray(native?.rootActionLedger))return [];
-  return native.rootActionLedger.slice(-12).map(root=>({
+  const selected=initial?native.rootActionLedger.slice(0,24):
+    native.rootActionLedger.slice(-12);
+  return selected.map(root=>({
     actionOrdinal:root.actionOrdinal??null,
     turnBefore:root.turnBefore??null,
     turnAfter:root.turnAfter??null,
@@ -217,7 +219,8 @@ function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
       actionOrdinal:native?.actionOrdinal??null,
       rootActionCount:native?.rootActionCount??null,
       rootActionLedgerSha256:native?.rootActionLedgerSha256??null,
-      acceptedRootPrefix:safeRootPrefix(native)
+      acceptedRootPrefix:safeRootPrefix(native),
+      initialAcceptedRootPrefix:safeRootPrefix(native,true)
     },
     actorAbortCounters:actor?{
       attemptedUnsupportedPasses:actor.attemptedUnsupportedPasses,
