@@ -95,4 +95,4 @@ Do not serialize card identities from hidden zones. Do not infer the prompt effe
 
 ## Workflow status and limitations
 
-The diagnostic step and artifact upload succeeded. The overall workflow remains subject to the shared verification suite's unrelated known failures. The phase-A run produced **zero completed native games**, so it contributes no matchup win-rate evidence, deck-strength estimate, or paper-legality certification.
+The diagnostic step and artifact upload succeeded. The shared suite ran **247 tests: 239 passed, 2 failed, 6 skipped**. The two failures were the existing Agent16 canonical-VIP native test (expected 8 attempts, got 1) and Agent36 v8 owner-ability native test (expected same-eight comparison true, got false); the three new observer tests passed. The phase-A run produced **zero completed native games**, so it contributes no matchup win-rate evidence, deck-strength estimate, or paper-legality certification.
