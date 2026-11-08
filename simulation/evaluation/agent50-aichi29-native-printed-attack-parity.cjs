@@ -10,7 +10,13 @@ const field=require('../../results/aichi-2026/full-decklists.json');
 
 const ROOT=path.resolve(__dirname,'../..');
 const OUTPUT=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
-const CODE_TO_SET=new Map(sets.map(set=>[set.ptcgoCode,set.id]));
+const CODE_TO_SET=new Map();
+for(const entry of sets){
+  if(!entry.ptcgoCode)continue;
+  const known=CODE_TO_SET.get(entry.ptcgoCode)??[];
+  known.push(entry.id);
+  CODE_TO_SET.set(entry.ptcgoCode,known);
+}
 const CARDS_BY_CODE=new Map();
 const VERSION='agent50-aichi29-native-attack-parity-v1';
 
@@ -56,10 +62,13 @@ function printedSignature(card,typeNames=null){
  */
 function sourceSet(code){
   if(CARDS_BY_CODE.has(code))return CARDS_BY_CODE.get(code);
-  const set=CODE_TO_SET.get(code);
-  const location=set?path.join(ROOT,'resources/cards/en',set+'.json'):null;
-  const list=location&&fs.existsSync(location)?
-    JSON.parse(fs.readFileSync(location,'utf8')):null;
+  const ids=CODE_TO_SET.get(code)??[];
+  const all=ids.flatMap(id=>{
+    const location=path.join(ROOT,'resources/cards/en',id+'.json');
+    return fs.existsSync(location)?
+      JSON.parse(fs.readFileSync(location,'utf8')):[];
+  });
+  const list=all.length>0?all:null;
   CARDS_BY_CODE.set(code,list);
   return list;
 }
