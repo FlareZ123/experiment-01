@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v2';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v3';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -153,11 +153,62 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     result.status=result.attackSettled?'native-stadium-attack-settled':
       'native-attack-prompt-pending';
 
+    // Continue the *same attack branch* into a native opposing turn. The
+    // separate pre-attack retreat branch below remains independent; attacks
+    // end their turn, so it cannot be appended after Energy Drive.
+    const opponentId=opposing.id;
+    const attackFollowthrough={
+      opponentAttackName:'Eon Blade',
+      nativeOpponentTurnAfterAttack:false,
+      nextActorId:null,
+      opponentAttackNativeAccepted:false,
+      ownerActiveAfter:null,ownerActiveDamageAfter:null,
+      ownerPrizesAfter:null,opponentPrizesAfter:null,
+      opponentActiveDamageAfter:null,
+      pendingPrizePrompt:false,
+      unresolvedPromptTypes:[],waitPrompts:[]
+    };
+    if(result.attackSettled){
+      try{
+        const next=clone.state.players[clone.state.activePlayer];
+        attackFollowthrough.nextActorId=next?.id??null;
+        if(next?.id!==opponentId)
+          throw new Error('Energy Drive has not handed the turn to opponent');
+        attackFollowthrough.nativeOpponentTurnAfterAttack=true;
+        clone.dispatch(new AttackAction(opponentId,'Eon Blade'));
+        attackFollowthrough.opponentAttackNativeAccepted=true;
+        attackFollowthrough.waitPrompts=settleWaitPrompts(clone);
+      }catch(error){
+        attackFollowthrough.error=String(error?.message??error);
+      }
+      const replyOwner=clone.state.players.find(p=>p.id===ownerId);
+      const replyOpponent=clone.state.players.find(p=>p.id===opponentId);
+      attackFollowthrough.ownerActiveAfter=
+        replyOwner.active.getPokemonCard?.()?.fullName??null;
+      attackFollowthrough.ownerActiveDamageAfter=
+        replyOwner.active.damage??null;
+      attackFollowthrough.ownerPrizesAfter=replyOwner.prizes.length;
+      attackFollowthrough.opponentPrizesAfter=replyOpponent.prizes.length;
+      attackFollowthrough.opponentActiveDamageAfter=
+        replyOpponent.active.damage??null;
+      attackFollowthrough.unresolvedPromptTypes=clone.state.prompts
+        .filter(p=>p.result===undefined).map(p=>p.constructor.name);
+      attackFollowthrough.pendingPrizePrompt=
+        attackFollowthrough.unresolvedPromptTypes.includes('ChoosePrizePrompt');
+    }
+    attackFollowthrough.status=
+      !attackFollowthrough.opponentAttackNativeAccepted?
+        'opponent-reply-not-accepted':
+        attackFollowthrough.pendingPrizePrompt?
+          'native-opponent-ko-prize-choice-pending':
+          attackFollowthrough.unresolvedPromptTypes.length===0?
+            'native-opponent-reply-settled':'native-opponent-reply-prompt-pending';
+    result.attackFollowthrough=attackFollowthrough;
+
     const ownerBenchTargetIndex=initial.bench.findIndex(cardList=>
       cardList.cards[0]?.name==='Trevenant & Dusknoir-GX');
     const hasSkylinerBenchPokemon=initial.bench.some(cardList=>
       cardList.cards.some(card=>card.fullName==='Latias ex SSP'));
-    const opponentId=opposing.id;
     const baselineReply=copy();
     const baselineResult={
       opponentAttackName:'Eon Blade',opponentAttackNativeAccepted:false,
