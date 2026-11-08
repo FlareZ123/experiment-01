@@ -23,6 +23,19 @@ function arm(id, extra={}) {
   };
 }
 
+/** Build a complete synthetic 16-group panel, changing one registered treatment. */
+function pairFor(id, override={}) {
+  const control=trials().map(t=>arm(t.id,{
+    rank:t.rank,
+    candidateSeat:t.candidateSlot==='A'?0:1,
+    sourceSeat:t.candidateSlot==='A'?1:0
+  }));
+  const treatment=control.map(a=>({
+    ...a,...(a.id===id?override:{})
+  }));
+  return comparePairs(control,treatment).find(pair=>pair.id===id);
+}
+
 test('fresh field registration fixes sixteen unique physical seed-seat groups with both orientations',()=>{
   const rows=trials();
   assert.equal(rows.length,16);
@@ -36,12 +49,10 @@ test('fresh field registration fixes sixteen unique physical seed-seat groups wi
 
 test('same physical deal and genuine complete native terminal can witness candidate win conversion',()=>{
   const id='11:22:A:new-moon-lockbreaker-v1';
-  const [pair]=comparePairs([arm(id)],[
-    arm(id,{winner:0,rootActions:65,
+  const pair=pairFor(id,{winner:0,rootActions:65,
       rootActionLedger:[{action:'PlayCardAction'},{action:'UseAbilityAction'}],
       acceptedPerfectionRootIntents:1,
-      nativeCopiedAttackPromptAccepted:1})
-  ]);
+      nativeCopiedAttackPromptAccepted:1});
   assert.equal(pair.physicallyMatched,true);
   assert.equal(pair.firstDifference.ordinal,1);
   assert.equal(pair.control.candidateNativeWinner,false);
@@ -51,18 +62,18 @@ test('same physical deal and genuine complete native terminal can witness candid
 
 test('a root cap never counts as a native win even if its winner field is misleading',()=>{
   const id='11:22:A:new-moon-lockbreaker-v1';
-  const [pair]=comparePairs([arm(id)],[arm(id,{
+  const pair=pairFor(id,{
     status:'root-cap',winner:0,finished:false,rootActions:260
-  })]);
+  });
   assert.equal(pair.paidPerfection.candidateNativeWinner,false);
   assert.equal(pair.nativeResultReversed,false);
 });
 
 test('distinct physical source deals are retained but cannot pass pairing',()=>{
   const id='11:22:A:new-moon-lockbreaker-v1';
-  const [pair]=comparePairs([arm(id)],[arm(id,{
+  const pair=pairFor(id,{
     sourceDealFingerprint:{digestSha256:'different'}
-  })]);
+  });
   assert.equal(pair.physicallyMatched,false);
   assert.equal(pair.matchedFull,true);
   assert.equal(pair.matchedSource,false);
@@ -70,9 +81,9 @@ test('distinct physical source deals are retained but cannot pass pairing',()=>{
 
 test('engine error remains explicit and cannot be promoted to a candidate win',()=>{
   const id='11:22:A:new-moon-lockbreaker-v1';
-  const [pair]=comparePairs([arm(id)],[arm(id,{
+  const pair=pairFor(id,{
     status:'engine-error',winner:0,finished:false
-  })]);
+  });
   assert.equal(pair.paidPerfection.candidateNativeWinner,false);
   assert.equal(pair.nativeResultReversed,false);
 });
