@@ -2,14 +2,55 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent49-public-printed-potential-ko-v2-discrete-safe';
+const VERSION = 'agent49-public-printed-potential-ko-v3-type-adjusted';
+
+/**
+ * Estimate fixed printed damage after public printed Weakness and Resistance.
+ * This is a potential knockout estimate; live damage modifiers, prevention,
+ * Ability suppression and attack effects still require native Store resolution.
+ * Unknown modifier shapes cause abstention rather than an assumed knockout.
+ *
+ * @param {number} damage Printed fixed attack damage.
+ * @param {object} attacker Detached public attacker.
+ * @param {object} defender Detached public defending Pokémon.
+ * @returns {number|null} Nominal type-adjusted damage or unknown.
+ */
+function typeAdjustedFixedDamage(damage, attacker, defender) {
+  if (!Number.isSafeInteger(damage) || damage <= 0) return null;
+  const sourceTypes = attacker?.printed?.types;
+  const target = defender?.printed;
+
+  // Retain existing behavior for minimal legacy observations with no
+  // printed-type metadata on either Pokémon. Actual Store observations
+  // include public types, Weakness and Resistance.
+  if (sourceTypes === undefined && target === undefined) return damage;
+  if (!Array.isArray(sourceTypes) || sourceTypes.length === 0 ||
+      !Array.isArray(target?.weakness) ||
+      !Array.isArray(target?.resistance)) return null;
+
+  const weakness = target.weakness.filter(row => sourceTypes.includes(row.type));
+  const resistance = target.resistance.filter(row => sourceTypes.includes(row.type));
+  if (weakness.length > 1 || resistance.length > 1) return null;
+  let result = damage;
+  if (weakness.length === 1) {
+    const multiplier = weakness[0].value;
+    if (multiplier !== 1 && multiplier !== 2) return null;
+    result *= multiplier;
+  }
+  if (resistance.length === 1) {
+    const reduction = resistance[0].value;
+    if (!Number.isSafeInteger(reduction) || reduction > 0) return null;
+    result = Math.max(0, result + reduction);
+  }
+  return result;
+}
 
 /**
  * Rank payable printed attacks using only an authenticated actor observation.
  * Preserve the first candidate whenever a nonnumeric or special-effect
  * attack has unmodeled decisive tactical value. Reuse the established narrow
  * printing-locked proof when public facts make such a leading attack dead.
- * An observed fixed-damage threshold remains only a potential knockout.
+ * A type-adjusted threshold is a potential knockout, not an actual outcome.
  *
  * @param {object} view Detached own-player observation.
  * @param {object[]} affordable Ordered, already-cost-checked printed attacks.
@@ -34,10 +75,10 @@ function choosePotentialKnockout(view, affordable) {
   }
 
   return affordable.find(attack =>
-    attack.gxAttack !== true && Number.isSafeInteger(attack.damage) &&
-    attack.damage > 0 &&
+    attack.gxAttack !== true &&
     (attack.damageCalculation === null || attack.damageCalculation === undefined) &&
-    attack.damage >= hpLeft) ?? first;
+    (typeAdjustedFixedDamage(attack.damage, view.ownPublic?.active, opponent) ?? 0)
+      >= hpLeft) ?? first;
 }
 
-module.exports = { VERSION, choosePotentialKnockout };
+module.exports = { VERSION, typeAdjustedFixedDamage, choosePotentialKnockout };
