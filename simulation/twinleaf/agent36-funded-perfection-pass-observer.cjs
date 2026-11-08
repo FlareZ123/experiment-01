@@ -128,6 +128,8 @@ function createFundedPerfectionPassObserver({
   assert.ok(descriptor&&typeof descriptor.value==='function',
     'Twinleaf Store.prototype.dispatch must be a data method');
   const originalDispatch=descriptor.value;
+  // Refuse to tear down another observer installed after ours.
+  let installedDispatch=null;
   const cloneState=deepClone??require(
     '../../vendor/twinleaf/ptcg-server/output/utils/utils.js').deepClone;
   assert.equal(typeof cloneState,'function',
@@ -147,9 +149,7 @@ function createFundedPerfectionPassObserver({
 
   function install() {
     assert.equal(installed,false,'Funded Perfection observer is already installed');
-    Object.defineProperty(Store.prototype,'dispatch',{
-      ...descriptor,
-      value:function dispatchWithDetachedPrePassCapture(action,...args) {
+    installedDispatch=function dispatchWithDetachedPrePassCapture(action,...args) {
         if(action?.constructor?.name==='PassTurnAction') {
           try {
             beforeByAction.set(action,cloneState(this.state));
@@ -158,7 +158,9 @@ function createFundedPerfectionPassObserver({
           }
         }
         return originalDispatch.apply(this,[action,...args]);
-      }
+      };
+    Object.defineProperty(Store.prototype,'dispatch',{
+      ...descriptor,value:installedDispatch
     });
     installed=true;
   }
@@ -184,7 +186,8 @@ function createFundedPerfectionPassObserver({
       return null;
     }
     const owner=before.players?.[seat];
-    assert.ok(owner?.id,'Pass root must identify its physical-seat owner');
+    assert.ok(owner&&owner.id!==undefined&&owner.id!==null,
+      'Pass root must identify its physical-seat owner');
     const sample=sampler.observe(before,owner.id,'PassTurnAction',actionOrdinal);
     if(sample)records.push(sanitizeSample(sample,seat,turnBefore));
     return sample;
@@ -192,7 +195,10 @@ function createFundedPerfectionPassObserver({
 
   function restore() {
     if(!installed) return;
+    assert.strictEqual(Object.getOwnPropertyDescriptor(Store.prototype,'dispatch')?.value,
+      installedDispatch,'Cannot restore Pass observer while a later Store wrapper is active');
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
+    installedDispatch=null;
     installed=false;
   }
 
