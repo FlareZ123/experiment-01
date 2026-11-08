@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v4';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v5';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -63,6 +63,10 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     load('game/store/actions/resolve-prompt-action');
   const {WaitPrompt}=deps.waitPromptModule??load('game/store/prompts/wait-prompt');
   const {StateUtils}=deps.stateUtils??load('game/store/state-utils');
+  // Prize zones always contain six physical slots, including empty slots.
+  // Count occupied cards when comparing actual remaining Prizes.
+  const remainingPrizes=player=>player.prizes.reduce(
+    (n,slot)=>n+slot.cards.length,0);
   const copy=()=>{const clone=new Store({onStateChange(){}});
     clone.state=deepClone(state);return clone;};
   const settleWaitPrompts=clone=>{
@@ -104,7 +108,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     result.opponentActiveEnergyBefore=opposing.active.energies.cards
       .map(c=>c.fullName);
     result.opponentDamageBefore=opposing.active.damage;
-    result.opponentPrizesBefore=opposing.prizes.length;
+    result.opponentPrizesBefore=remainingPrizes(opposing);
     try{
       clone.dispatch(new PlayCardAction(ownerId,handIndex,{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
@@ -143,8 +147,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     result.attackDamage=result.opponentDamageAfter-result.opponentDamageBefore;
     result.opponentActiveAfter=
       finalOpponent.active.getPokemonCard?.()?.fullName??null;
-    result.opponentPrizesAfter=finalOpponent.prizes.length;
-    result.ownerPrizesAfter=finalOwner.prizes.length;
+    result.opponentPrizesAfter=remainingPrizes(finalOpponent);
+    result.ownerPrizesAfter=remainingPrizes(finalOwner);
     result.activeEnergyPrintings=finalOwner.active.energies.cards
       .map(c=>c.fullName);
     result.unresolvedPromptTypes=clone.state.prompts
@@ -187,8 +191,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
         replyOwner.active.getPokemonCard?.()?.fullName??null;
       attackFollowthrough.ownerActiveDamageAfter=
         replyOwner.active.damage??null;
-      attackFollowthrough.ownerPrizesAfter=replyOwner.prizes.length;
-      attackFollowthrough.opponentPrizesAfter=replyOpponent.prizes.length;
+      attackFollowthrough.ownerPrizesAfter=remainingPrizes(replyOwner);
+      attackFollowthrough.opponentPrizesAfter=remainingPrizes(replyOpponent);
       attackFollowthrough.opponentActiveDamageAfter=
         replyOpponent.active.damage??null;
       attackFollowthrough.unresolvedPromptTypes=clone.state.prompts
@@ -314,8 +318,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     baselineResult.ownerActiveAfter=
       baselineOwner.active.getPokemonCard?.()?.fullName??null;
     baselineResult.ownerActiveDamageAfter=baselineOwner.active.damage??null;
-    baselineResult.ownerPrizesAfter=baselineOwner.prizes.length;
-    baselineResult.opponentPrizesAfter=baselineOpponent.prizes.length;
+    baselineResult.ownerPrizesAfter=remainingPrizes(baselineOwner);
+    baselineResult.opponentPrizesAfter=remainingPrizes(baselineOpponent);
     baselineResult.unresolvedPromptTypes=baselineReply.state.prompts
       .filter(p=>p.result===undefined).map(p=>p.constructor.name);
 
@@ -356,8 +360,8 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
     defensiveLine.ownerActiveAfterReply=
       defensiveOwner.active.getPokemonCard?.()?.fullName??null;
     defensiveLine.ownerActiveDamageAfter=defensiveOwner.active.damage??null;
-    defensiveLine.ownerPrizesAfter=defensiveOwner.prizes.length;
-    defensiveLine.opponentPrizesAfter=defensiveOpponent.prizes.length;
+    defensiveLine.ownerPrizesAfter=remainingPrizes(defensiveOwner);
+    defensiveLine.opponentPrizesAfter=remainingPrizes(defensiveOpponent);
     defensiveLine.unresolvedPromptTypes=defense.state.prompts
       .filter(p=>p.result===undefined).map(p=>p.constructor.name);
     defensiveLine.status=defensiveLine.opponentAttackNativeAccepted&&
