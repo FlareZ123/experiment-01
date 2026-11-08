@@ -81,6 +81,15 @@ test('rejects a non-quarantined owner root',()=>{
   ]),false);
 });
 
+
+test('rejects a row without a captured owner-root marker',()=>{
+  const row=validRow(0);
+  row.actorAbortCounters.firstUnsupportedOwnerRootCaptured=false;
+  assert.equal(hasReleaseQualifiedFirstOwnerRoot([
+    row,validRow(1)
+  ]),false);
+});
+
 test('rejects repeated candidate seat rather than both orientations',()=>{
   assert.equal(hasReleaseQualifiedFirstOwnerRoot([
     validRow(0),validRow(0)

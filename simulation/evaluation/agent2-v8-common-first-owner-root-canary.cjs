@@ -178,7 +178,7 @@ function runOne(candidateSeat,cards){
     first?.ownerView?.decisionKind==='owner-root'&&
     typeof first.ownerVisibleSha256==='string'&&
     actor?.attemptedUnsupportedPasses===1&&
-    actor?.firstUnsupportedOwnerRootCaptured===true&&
+    Boolean(actor?.firstUnsupportedOwnerRoot)&&
     selected.diagnostic.rawDecoderExecuted===false&&
     selected.diagnostic.fallbackCalls===1&&
     selected.diagnostic.thrownCode===CODE&&
