@@ -71,6 +71,9 @@ function runTreatment() {
       winner:x.nativeWinner,endReason:x.nativeEndReason,
       turns:x.nativeTurnCount,actionCount:x.nativeActionCount,
       finalPrizes:x.nativeFinalPrizes,
+      finalPublicBoard:x.nativeFinalPublicBoard,
+      rootActionMix:x.nativeRootActionMix,
+      lastThirtyPublicRoots:x.nativeFinalThirtyPublicRoots,
       nativeFailureStage:x.nativeFailureStage
     })),
     nativeFinishedGameCount: result.attempts.filter(x =>
