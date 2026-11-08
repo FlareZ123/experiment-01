@@ -149,27 +149,29 @@ function runOne(candidateSeat,cards){
     selected.diagnostic.audit?.firstBlockedPromptEnvelope??null;
   const quarantine=
     selected.diagnostic.audit?.nativeRawStateQuarantine??null;
-  const activeManifest=selected.rawDevelopment?.manifest??null;
-  const activeRunDevelopmentRegistration=activeManifest?{
-    registeredTrialCount:activeManifest.registeredTrialCount??null,
-    registeredTrialGroupCount:activeManifest.registeredTrialGroupCount??null,
-    registeredSourceRanks:activeManifest.registeredSourceRanks??null,
-    registeredCandidateIds:activeManifest.registeredCandidateIds??null,
-    registeredCandidateArmMode:activeManifest.registeredCandidateArmMode??null,
-    sourceRegistration:activeManifest.sourceRegistration??null,
+  // runDevelopment returns its manifest fields at the top level. The
+  // selected-v0 wrapper exposes that complete object as rawDevelopment.
+  const activeDevelopmentOutput=selected.rawDevelopment??null;
+  const activeRunDevelopmentRegistration=activeDevelopmentOutput?{
+    registeredTrialCount:activeDevelopmentOutput.registeredTrialCount??null,
+    registeredTrialGroupCount:activeDevelopmentOutput.registeredTrialGroupCount??null,
+    registeredSourceRanks:activeDevelopmentOutput.registeredSourceRanks??null,
+    registeredCandidateIds:activeDevelopmentOutput.registeredCandidateIds??null,
+    registeredCandidateArmMode:activeDevelopmentOutput.registeredCandidateArmMode??null,
+    sourceRegistration:activeDevelopmentOutput.sourceRegistration??null,
     allowAdditionalOriginalSourceRanks:true,
     sourceAdmissionScope:
       'published 60-card name/count roster only; not Japanese physical-print certification'
   }:null;
   const activeRunDevelopmentRegistrationValid=Boolean(
-    activeManifest?.registeredTrialCount===1&&
-    activeManifest?.registeredTrialGroupCount===1&&
-    JSON.stringify(activeManifest?.registeredSourceRanks??null)===
+    activeDevelopmentOutput?.registeredTrialCount===1&&
+    activeDevelopmentOutput?.registeredTrialGroupCount===1&&
+    JSON.stringify(activeDevelopmentOutput?.registeredSourceRanks??null)===
       JSON.stringify([SOURCE_RANK])&&
-    JSON.stringify(activeManifest?.registeredCandidateIds??null)===
+    JSON.stringify(activeDevelopmentOutput?.registeredCandidateIds??null)===
       JSON.stringify([CANDIDATE_ID])&&
-    activeManifest?.registeredCandidateArmMode==='single-candidate-arm'&&
-    activeManifest?.sourceRegistration===
+    activeDevelopmentOutput?.registeredCandidateArmMode==='single-candidate-arm'&&
+    activeDevelopmentOutput?.sourceRegistration===
       'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic'
   );
   const valid=activeRunDevelopmentRegistrationValid&&
@@ -243,8 +245,22 @@ function runOne(candidateSeat,cards){
     },
     selectedV0Manifest:selected.manifest,
     selectedV0Diagnostic:selected.diagnostic,
-    runDevelopmentManifest:selected.rawDevelopment?.manifest??null,
-    runDevelopmentDiagnostic:selected.rawDevelopment?.diagnostic??null,
+    runDevelopmentManifest:activeRunDevelopmentRegistration,
+    runDevelopmentOutputSummary:activeDevelopmentOutput?{
+      schema:activeDevelopmentOutput.schema??null,
+      registeredTrialCount:activeDevelopmentOutput.registeredTrialCount??null,
+      registeredTrialGroupCount:activeDevelopmentOutput.registeredTrialGroupCount??null,
+      registeredSourceRanks:activeDevelopmentOutput.registeredSourceRanks??null,
+      registeredCandidateIds:activeDevelopmentOutput.registeredCandidateIds??null,
+      registeredCandidateArmMode:activeDevelopmentOutput.registeredCandidateArmMode??null,
+      sourceRegistration:activeDevelopmentOutput.sourceRegistration??null,
+      rowsReturned:Array.isArray(activeDevelopmentOutput.rows)?
+        activeDevelopmentOutput.rows.length:null,
+      attempted:activeDevelopmentOutput.attempted??null,
+      errors:activeDevelopmentOutput.errors??null,
+      competitiveQualifiedGames:
+        activeDevelopmentOutput.competitiveQualifiedGames??null
+    }:null,
     releaseQualified:false,competitiveGamesQualified:0,
     estimatedWinRate:null
   };
