@@ -409,13 +409,24 @@ for(const seat of [0,1]){
     const x=stage(seat);
     const opponent=x.f.defender;
     const handGuzma=opponent.hand.cards.find(c=>c.fullName==='Guzma BUS');
-    const deckLele=opponent.deck.cards.find(c=>c.fullName==='Tapu Lele-GX GRI');
-    assert.ok(handGuzma&&deckLele,
-      'Use actual original-rank1 Guzma and a deck-remaining Tapu Lele-GX');
+    const handLele=opponent.hand.cards.find(c=>c.name==='Tapu Lele-GX');
+    const deckLele=opponent.deck.cards.find(c=>c.name==='Tapu Lele-GX');
+    assert.ok(handGuzma&&(handLele||deckLele),
+      'Condition only an actual original-rank1 source Lele held or in deck');
+    // Original list card identity/60 zones are unchanged. This treatment
+    // requires Guzma not initially held, while Lele remains in hand.
     opponent.hand.cards.splice(opponent.hand.cards.indexOf(handGuzma),1);
     opponent.deck.cards.push(handGuzma);
-    opponent.deck.cards.splice(opponent.deck.cards.indexOf(deckLele),1);
-    opponent.hand.cards.push(deckLele);
+    const playedLele=handLele??deckLele;
+    if(!handLele){
+      opponent.deck.cards.splice(opponent.deck.cards.indexOf(deckLele),1);
+      opponent.hand.cards.push(deckLele);
+    }else{
+      const replacement=opponent.deck.cards.find(c=>c!==handGuzma);
+      assert.ok(replacement,'Need a real deck card to preserve source hand count');
+      opponent.deck.cards.splice(opponent.deck.cards.indexOf(replacement),1);
+      opponent.hand.cards.push(replacement);
+    }
 
     const {PokemonCardList}=native('game/store/state/pokemon-card-list');
     while(opponent.bench.length<5)opponent.bench.push(new PokemonCardList());
@@ -432,7 +443,7 @@ for(const seat of [0,1]){
       native('game/store/actions/play-card-action');
     const {ResolvePromptAction}=
       native('game/store/actions/resolve-prompt-action');
-    const leleIndex=opponent.hand.cards.indexOf(deckLele);
+    const leleIndex=opponent.hand.cards.indexOf(playedLele);
     const benchIndex=opponent.bench.findIndex(b=>b.cards.length===0);
     assert.ok(leleIndex>=0&&benchIndex>=0);
     x.f.store.dispatch(new PlayCardAction(opponent.id,leleIndex,{
