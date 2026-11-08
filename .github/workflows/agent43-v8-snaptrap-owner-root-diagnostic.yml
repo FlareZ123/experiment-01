@@ -32,6 +32,10 @@ jobs:
         run: node --check simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
       - name: Execute unchanged original four-trial frame and trace blocked prompt metadata
         run: node simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
+      - name: Validate owner-confirm treatment syntax
+        run: node --check simulation/evaluation/agent43-v8-snaptrap-ability-confirm-rescue.cjs
+      - name: Resolve real owner ability confirmations in same four native trial seeds
+        run: node simulation/evaluation/agent43-v8-snaptrap-ability-confirm-rescue.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
