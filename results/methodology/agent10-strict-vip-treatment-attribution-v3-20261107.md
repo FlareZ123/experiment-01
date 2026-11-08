@@ -81,10 +81,11 @@ Do not modify the frozen v10b runner, registration, or its source manifest.
 
 A new v10c runner should:
 
-1. Supply the v4 hook through the canonical actor composition's `adapters.vipAfterPass` seam.
-2. Preserve `itemRootOrdinal`, `searchRootOrdinal`, `rootOrdinalProtocol`, `rootOrdinalInitialized`, and `dispatchRootCount` in its sanitized native VIP audit.
-3. Populate `controlRootActionCount` and `treatmentRootActionCount` from independent headless counters retained on each row. Use validated abort-evidence counters for aborted rows. Never substitute `ledger.length`; if no independent count exists, leave it absent and let attribution fail closed.
-4. Run fresh native positive and negative cases, including the Agent41 `9:205:B:new-moon-lockbreaker-v1` natural-VIP counterexample.
-5. Obtain independent review of native event/ordinal joins before using the result in any promotion decision.
+1. Supply the v4 hook explicitly through the canonical actor composition's `adapters.vipAfterPass` seam. The default composition path still requires the old v3 hook.
+2. Preserve the raw audit fields `itemRootOrdinal`, `searchRootOrdinal`, `initiatingRootActionOrdinal`, `rootOrdinalProtocol`, `rootOrdinalInitialized`, `dispatchRootCount`, `policyRecorded`, `nativeStoreSeen`, `unresolvedOwnerSearches`, and physical search evidence. Do not sanitize away event lineage before attribution.
+3. Call `strictVipTreatmentAttributionFromRows(controlRow,treatmentRow)` on raw Agent41 rows. It reads `rootActionLedger`, independent `actionCount`, `finished`, and the treatment's `actorOnlyDecisionCoverage.detailedComponentAudits.ownerVipAfterPass`. It deliberately ignores ledger-derived `rootActionCount`.
+4. Ensure both rows have `finished===true` by choosing a sufficient action horizon for the registered cohort. Capped/aborted rows must be rejected; do not use abort-evidence counts as a substitute for completion.
+5. Retain the native positive and no-VIP negative cases for both physical seats. The Agent41 `9:205:B:new-moon-lockbreaker-v1` regression is a synthetic fixture grounded in the report's observed ordinal/seat/turn facts, not the full raw artifact.
+6. Obtain independent review of native event/ordinal joins before using the result in any promotion decision.
 
 The v4 adapter is not yet wired into v10c. The native positive and no-VIP negative cases now pass in the shared gate, and the row adapter provides a direct v10c integration seam. The positive fixture still uses a diagnostic forced-pass policy; it does not reproduce a v10c treatment. Neither the pure tests nor these native mechanics tests establish treatment efficacy, paper legality, paper-clock validity, or competitive strength. The native workflow also emits a post-job cleanup warning for the nested `vendor/twinleaf/vendor/pokemon-cards-css` submodule missing a URL in the superproject `.gitmodules`; test steps pass.
