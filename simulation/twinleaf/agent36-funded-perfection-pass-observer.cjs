@@ -195,8 +195,8 @@ function createFundedPerfectionPassObserver({
 
   function restore() {
     if(!installed) return;
-    assert.strictEqual(Object.getOwnPropertyDescriptor(Store.prototype,'dispatch')?.value,
-      installedDispatch,'Cannot restore Pass observer while a later Store wrapper is active');
+    assert.ok(Object.getOwnPropertyDescriptor(Store.prototype,'dispatch')?.value===installedDispatch,
+      'Cannot restore Pass observer while a later Store wrapper is active');
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
     installedDispatch=null;
     installed=false;
