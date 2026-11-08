@@ -62,6 +62,17 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     'native KO must lead to a genuine opponent Prize-selection prompt');
   assert.equal(alternate.attackFollowthrough.opponentActiveDamageAfter,80,
     'opponent Latias ex must retain the 80 Energy Drive damage');
+  const prize=alternate.attackFollowthrough.koPrizeContinuation;
+  assert.equal(prize.status,'native-ordinary-ko-prizes-transferred',
+    'same branch must resolve actual owner-visible KO Prize slots');
+  assert.equal(prize.nativeValidated,true);
+  assert.equal(prize.nativeResolved,true);
+  assert.equal(prize.beforePrizeCards,6);
+  assert.equal(prize.afterPrizeCards,4);
+  assert.equal(prize.selectedSlots,2);
+  assert.equal(prize.ownerHandDelta,2);
+  assert.equal(prize.physicalOwnerHandTransfer,true);
+  assert.equal(prize.readConcealedPrizeFaces,false);
   assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
   assert.equal(alternate.baselineOpponentReply.ownerActiveAfter,null,
     'without retreat, Eon Blade should Knock Out Active Tapu Lele-GX');
@@ -99,7 +110,7 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     genuineNativeStoreDecisionChanged:false,
     sourceRootHistoryUnchanged:true,
     paperQualifiedGames:0,
-    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, the same-branch Eon Blade reply is evaluated but Prize selection is pending; no full game or matchup win is certified'
+    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, the same-branch Eon Blade KO and first-occupied-slot ordinary Prize transfer are tested, while source promotion and next-turn policy are untested; no full game or matchup win is certified'
   };
   console.log('AGENT11_DIMENSIONVALLEY_ENERGY_DRIVE_NATIVE',
     JSON.stringify(packet));
