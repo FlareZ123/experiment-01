@@ -69,7 +69,8 @@ function makeJoin() {
       promptIdAfterStore: '174',
       ownerSeat: 1,
       promptType: 'WaitPrompt',
-      message: 'WAIT_FOR_OPPONENT'
+      message: 'WAIT_FOR_OPPONENT',
+      sameRootStore: true
     }
   };
 }
@@ -77,6 +78,11 @@ function makeJoin() {
 function settledResponse(promptId, actionOrdinal, actingSeat, responseKind = 'null') {
   return {
     promptId,
+    actionPromptId: promptId,
+    samePromptId: true,
+    sameRootStore: true,
+    rootStoreMatchesAtActionCallback: true,
+    nativeValidateAccepted: true,
     responseKind,
     actionType: 'ResolvePromptAction',
     actionOrdinal,
@@ -96,7 +102,8 @@ function makeMatchAudit(responseRecords = [
     promptIdAfterStore: '174',
     ownerSeat: 1,
     promptType: 'WaitPrompt',
-    message: 'WAIT_FOR_OPPONENT'
+    message: 'WAIT_FOR_OPPONENT',
+    sameRootStore: true
   };
   return {
     ownerPromptEvidence: {
@@ -170,6 +177,11 @@ test('WaitPrompt undefined remains unclassified even when undefined matches stor
   const trialId = '3:312:B:champion-reference';
   const response = {
     promptId: '174',
+    actionPromptId: '174',
+    samePromptId: true,
+    sameRootStore: true,
+    rootStoreMatchesAtActionCallback: true,
+    nativeValidateAccepted: true,
     responseKind: 'undefined',
     actionType: 'ResolvePromptAction',
     actionOrdinal: 251,
@@ -208,7 +220,8 @@ test('known non-WaitPrompt null with exact settlement receipt remains meaningful
     promptIdAfterStore: '175',
     ownerSeat: 1,
     promptType: 'ChooseCardsPrompt',
-    message: 'CHOOSE_CARDS'
+    message: 'CHOOSE_CARDS',
+    sameRootStore: true
   };
   const response = settledResponse('175', 252, 1);
   const audit = makeMatchAudit([
@@ -249,7 +262,12 @@ function settledJoin(sourceSeat, matches = true) {
     sourceSeatMatchesRegisteredSeat: matches,
     promptId: '173',
     rootActionOrdinal: 250,
-    nextOwnerPrompt: { promptType: 'WaitPrompt', message: 'WAIT_FOR_OPPONENT' }
+    nextOwnerPrompt: {
+      promptType: 'WaitPrompt',
+      message: 'WAIT_FOR_OPPONENT',
+      sameRootStore: true,
+      ownerSeat: sourceSeat
+    }
   };
 }
 
@@ -267,7 +285,8 @@ test('strict execution gate requires exact Snap Trap settlement and complete pos
         otherSeatPrompt ? settledJoin(sourceSeat) : { exactPromptIdJoin: false },
       postPromptSequence: {
         continuationGatePassed: known,
-        promptEvidenceComplete: known
+        promptEvidenceComplete: known,
+        nextOwnerPromptResponseSettled: known
       }
     };
   });
@@ -292,7 +311,8 @@ test('strict execution gate rejects a one-seat-only prompt witness', () => {
         settledJoin(sourceSeat) : { exactPromptIdJoin: false },
       postPromptSequence: {
         continuationGatePassed: trial.id === '3:312:B:champion-reference',
-        promptEvidenceComplete: trial.id === '3:312:B:champion-reference'
+        promptEvidenceComplete: trial.id === '3:312:B:champion-reference',
+        nextOwnerPromptResponseSettled: trial.id === '3:312:B:champion-reference'
       }
     };
   });
