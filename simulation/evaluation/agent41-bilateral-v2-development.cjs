@@ -1473,6 +1473,7 @@ function runDevelopment({
   sourceScopedQuickBallRoot=false,candidateScopedQuickBallRoot=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralBasicEnergyRecipientFrontier=false,
+  bilateralPerfectionBenchFunding=false,
   bilateralConservativeShuffleRoot=false,
   bilateralEnergyContest=false,
   bilateralJetBenchSwitchRoot=false,
@@ -1664,6 +1665,8 @@ function runDevelopment({
     'Public-context Special Energy requires canonical actor composition');
   assert.ok(!bilateralJetBenchSwitchRoot||actorOnlyComposition,
     'Bilateral Jet Bench switch requires canonical actor composition');
+  assert.ok(!bilateralPerfectionBenchFunding||actorOnlyComposition,
+    'Bilateral Benched Perfection Energy funding requires actor-only roots');
   assert.ok(!bilateralBasicEnergyRecipientFrontier||actorOnlyComposition,
     'Two-seat Basic Energy recipient frontier requires canonical actor composition');
   const conservativeSupporterRootOptions=commonConservativeSupporterRootOptions({
@@ -1846,6 +1849,7 @@ function runDevelopment({
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !bilateralJetBenchSwitchRoot&&
           !bilateralBasicEnergyRecipientFrontier&&
+          !bilateralPerfectionBenchFunding&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
@@ -1880,6 +1884,9 @@ function runDevelopment({
               ...(bilateralBasicEnergyRecipientFrontier?{
                 energyRecipientFrontier:true,
                 mobilityAwareRecipient:true
+              }:{}),
+              ...(bilateralPerfectionBenchFunding?{
+                perfectionBenchFunding:true
               }:{}),
               ...conservativeSupporterRootOptions,
               ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot?{
@@ -2125,6 +2132,13 @@ function runDevelopment({
             bilateralJetBenchSwitchProfile:{
               version:require('../twinleaf/agent40-public-jet-bench-frontier.cjs').VERSION,
               mode:'both',ownerSeat:null,sharedPolicy:true
+            }
+          }:{}),
+          ...(bilateralPerfectionBenchFunding?{
+            bilateralPerfectionBenchFundingProfile:{
+              version:require('../twinleaf/agent24-early-perfection-recipient.cjs').VERSION,
+              bothPhysicalSeats:true,actorOnlyInformation:true,
+              developmentOnly:true,competitiveQualified:false
             }
           }:{}),
           ...(bilateralBasicEnergyRecipientFrontier?{
