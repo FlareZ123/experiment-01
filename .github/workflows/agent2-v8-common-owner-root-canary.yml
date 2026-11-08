@@ -16,6 +16,8 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Verify selected-v8 canary release-gate contract
+        run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Checkout pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
@@ -37,4 +39,4 @@ jobs:
         with:
           name: agent2-v8-common-first-owner-root
           path: agent2-v8-common-first-owner-root.json
-          if-no-files-found: warn
+          if-no-files-found: error

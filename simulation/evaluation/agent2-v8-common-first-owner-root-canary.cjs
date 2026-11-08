@@ -20,9 +20,10 @@ const {VERSION:PROMPT_CONTRACT_VERSION}=
   require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 const {CODE}=require('../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
 const {VERSION:GO_FIRST_VERSION}=require('../twinleaf/agent6-go-first-choice.cjs');
+const {authenticatedSourceRanks}=require('./agent25-authenticated-source-admission.cjs');
 const aichiDecklists=require('../../results/aichi-2026/full-decklists.json');
 
-const VERSION='agent2-v8-common-first-owner-root-canary-v1';
+const VERSION='agent2-v8-common-first-owner-root-canary-v2';
 const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=290134;
 const ACTION_LIMIT=128;
@@ -33,6 +34,7 @@ const HASH_PATHS=Object.freeze([
   'simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs',
   'simulation/evaluation/agent2-vs-seeker-research-original-rank13-aba.cjs',
   'simulation/evaluation/agent41-bilateral-v2-development.cjs',
+  'simulation/evaluation/agent25-authenticated-source-admission.cjs',
   'simulation/evaluation/agent36-issue25-selected-v0.cjs',
   'simulation/evaluation/agent36-issue25-steward-selected-v4.cjs',
   'simulation/evaluation/agent36-issue25-steward-innermost-prize-v5.cjs',
@@ -111,6 +113,7 @@ function runOne(candidateSeat,cards){
     actorOnlySingleSearch:false,
     actorGenericFallbackAttribution:true,
     mysteriousTreasureRoot:false,
+    allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
 
@@ -146,7 +149,31 @@ function runOne(candidateSeat,cards){
     selected.diagnostic.audit?.firstBlockedPromptEnvelope??null;
   const quarantine=
     selected.diagnostic.audit?.nativeRawStateQuarantine??null;
-  const valid=first?.ownerView?.decisionKind==='owner-root'&&
+  const activeManifest=selected.rawDevelopment?.manifest??null;
+  const activeRunDevelopmentRegistration=activeManifest?{
+    registeredTrialCount:activeManifest.registeredTrialCount??null,
+    registeredTrialGroupCount:activeManifest.registeredTrialGroupCount??null,
+    registeredSourceRanks:activeManifest.registeredSourceRanks??null,
+    registeredCandidateIds:activeManifest.registeredCandidateIds??null,
+    registeredCandidateArmMode:activeManifest.registeredCandidateArmMode??null,
+    sourceRegistration:activeManifest.sourceRegistration??null,
+    allowAdditionalOriginalSourceRanks:true,
+    sourceAdmissionScope:
+      'published 60-card name/count roster only; not Japanese physical-print certification'
+  }:null;
+  const activeRunDevelopmentRegistrationValid=Boolean(
+    activeManifest?.registeredTrialCount===1&&
+    activeManifest?.registeredTrialGroupCount===1&&
+    JSON.stringify(activeManifest?.registeredSourceRanks??null)===
+      JSON.stringify([SOURCE_RANK])&&
+    JSON.stringify(activeManifest?.registeredCandidateIds??null)===
+      JSON.stringify([CANDIDATE_ID])&&
+    activeManifest?.registeredCandidateArmMode==='single-candidate-arm'&&
+    activeManifest?.sourceRegistration===
+      'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic'
+  );
+  const valid=activeRunDevelopmentRegistrationValid&&
+    first?.ownerView?.decisionKind==='owner-root'&&
     typeof first.ownerVisibleSha256==='string'&&
     actor?.attemptedUnsupportedPasses===1&&
     actor?.originalNativeDecoderExecuted===false&&
@@ -179,6 +206,8 @@ function runOne(candidateSeat,cards){
     sourceDeckSha256:sha256(cards.source),
     status,firstUnsupportedOwnerRoot:first,
     firstRootProvenance,blockedPromptContract:prompt,
+    activeRunDevelopmentRegistration,
+    activeRunDevelopmentRegistrationValid,
     nativeAbortEvidence:{
       actionOrdinal:native?.actionOrdinal??null,
       rootActionCount:native?.rootActionCount??null,
@@ -221,13 +250,69 @@ function runOne(candidateSeat,cards){
   };
 }
 
+/**
+ * Require both physical orientations to reach the same fail-closed
+ * owner-root diagnostic with an explicit active rank-3 registration.
+ * @param {unknown} rows
+ * @returns {boolean}
+ */
+function hasReleaseQualifiedFirstOwnerRoot(rows){
+  if(!Array.isArray(rows)||rows.length!==2)return false;
+  const candidateSeats=new Set(rows.map(row=>row?.candidateSeat));
+  if(candidateSeats.size!==2||!candidateSeats.has(0)||!candidateSeats.has(1))
+    return false;
+  return rows.every(row=>{
+    const registration=row?.activeRunDevelopmentRegistration;
+    const ownerRoot=row?.firstUnsupportedOwnerRoot;
+    const native=row?.nativeAbortEvidence;
+    const actor=row?.actorAbortCounters;
+    const selectedV0=row?.selectedV0;
+    const expectedSlot=row?.candidateSeat===0?'A':'B';
+    return row?.status==='quarantined-first-owner-root-captured'&&
+      row?.activeRunDevelopmentRegistrationValid===true&&
+      row?.candidateRank===CANDIDATE_RANK&&
+      row?.sourceRank===SOURCE_RANK&&
+      (row?.candidateSeat===0||row?.candidateSeat===1)&&
+      row?.sourceSeat===1-row?.candidateSeat&&
+      row?.seed===SEED&&
+      row?.actionLimit===ACTION_LIMIT&&
+      row?.trialId===[SOURCE_RANK,0,expectedSlot,CANDIDATE_ID].join(':')&&
+      registration?.registeredTrialCount===1&&
+      registration?.registeredTrialGroupCount===1&&
+      JSON.stringify(registration?.registeredSourceRanks??null)===
+        JSON.stringify([SOURCE_RANK])&&
+      JSON.stringify(registration?.registeredCandidateIds??null)===
+        JSON.stringify([CANDIDATE_ID])&&
+      registration?.registeredCandidateArmMode==='single-candidate-arm'&&
+      registration?.allowAdditionalOriginalSourceRanks===true&&
+      ownerRoot?.ownerView?.decisionKind==='owner-root'&&
+      /^[a-f0-9]{64}$/.test(ownerRoot?.ownerVisibleSha256??'')&&
+      ownerRoot?.hiddenSourceIdentitiesIncluded===false&&
+      actor?.attemptedUnsupportedPasses===1&&
+      actor?.originalNativeDecoderExecuted===false&&
+      selectedV0?.rawDecoderExecuted===false&&
+      selectedV0?.fallbackCalls===1&&
+      selectedV0?.thrownCode===CODE&&
+      Number.isSafeInteger(native?.actionOrdinal)&&
+      native?.rootActionCount===native.actionOrdinal;
+  });
+}
+
 function run(){
+  const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
+  assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
+    'Rank 3 must be present in the published 60-card source roster');
   const resolvedSourceAndPolicyHashes=HASH_PATHS.map(hashRegisteredFile);
   const cards=originalPrintings();
   const rows=[runOne(0,cards),runOne(1,cards)];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
     runnerMode:'runDevelopment-canonical-actor-only-policy',
+    sourceAdmissionReceipt:{
+      allowAdditionalOriginalSourceRanks:true,
+      eligibleOriginalSourceRanks:admittedSourceRanks,
+      scope:'published original 60-card name/count lists; no Japanese physical-print or paper-legality certification'
+    },
     observedTwinleafCommit:observedGitRevision('vendor/twinleaf'),
     observedRepositoryCommit:observedGitRevision('.'),
     sourceCodeCommit:process.env.GITHUB_SHA??null,
@@ -277,15 +362,29 @@ function run(){
       quarantineAbortsBeforeOriginalNativeDecoder:true
     },
     rows,
-    bothSeatsCaptured:rows.every(row=>
-      row.status==='quarantined-first-owner-root-captured'),
+    bothSeatsCaptured:hasReleaseQualifiedFirstOwnerRoot(rows),
+    canaryGate:{
+      expectedPhysicalOrientations:2,
+      returnedRows:rows.length,
+      registeredSourceRank:SOURCE_RANK,
+      registeredCandidateId:CANDIDATE_ID,
+      passed:hasReleaseQualifiedFirstOwnerRoot(rows)
+    },
     competitiveGamesQualified:0,estimatedWinRate:null,
     releaseQualified:false
   };
 }
 
-if(require.main===module)
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const result=run();
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  if(!result.bothSeatsCaptured){
+    process.stderr.write(
+      'Selected-v8 first-owner-root canary gate failed; inspect the uploaded receipt.\n'
+    );
+    process.exitCode=1;
+  }
+}
 
 module.exports={VERSION,ENGINE_PIN,SEED,ACTION_LIMIT,HASH_PATHS,
-  safeRootPrefix,runOne,run};
+  safeRootPrefix,hasReleaseQualifiedFirstOwnerRoot,runOne,run};
