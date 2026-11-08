@@ -28,8 +28,6 @@ function chooseZeroEnergyStrandFloatStone(view, catalog) {
   const active = own?.active;
   const enemy = view.opponentPublic?.active;
   const resources = view.ownTurnResources;
-  if (require('./agent47-active-position-retreat-veto.cjs')
-    .hasActivePositionAbilityToPreserve(view)) return null;
   if (!Number.isSafeInteger(view.globalTurn) || view.globalTurn <= 1 ||
       !resources || !active || !enemy || !Array.isArray(own.bench) ||
       !Array.isArray(active.energies) || active.energies.length !== 0 ||
@@ -58,7 +56,9 @@ function chooseZeroEnergyStrandFloatStone(view, catalog) {
 
   const candidates = [];
   for (const [benchIndex, pokemon] of own.bench.entries()) {
-    if (!pokemon) continue;
+    if (!pokemon ||
+        require('./agent47-active-position-retreat-veto.cjs')
+          .wouldLoseActivePositionAbility(view,benchIndex)) continue;
     const restrictions = pokemon.publicRestrictions??{};
     if (restrictions.cannotAttackNextTurn === true ||
         (pokemon.specialConditions??[]).some(condition =>
