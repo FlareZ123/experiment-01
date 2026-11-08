@@ -433,6 +433,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseFirstRegidragoBenchGrass(view,catalog);
     if(funding)return funding;
   }
+  if(options.perfectionBenchFunding===true&&own.active&&!r.energyPlayLocked&&
+    r.energyPlayedTurn!==view.globalTurn){
+    const funding=require('./agent24-early-perfection-recipient.cjs')
+      .chooseBenchPerfectionFunding(view,catalog);
+    if(funding)return {kind:'attach-basic-energy',...funding};
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -827,6 +833,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV==='true'),
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
+    perfectionBenchFundingOptIn:deps.perfectionBenchFunding===true,
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
@@ -1337,6 +1344,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+candidate-only-seat-'+audit.knownDeadAttackRootOwnerSeat;
   if(audit.perfectionRootOptIn)
     audit.version+='+agent30-known-perfection-root-v1';
+  if(audit.perfectionBenchFundingOptIn)
+    audit.version+='+'+
+      require('./agent24-early-perfection-recipient.cjs').VERSION;
   if(audit.heldGuzmaMobilityOptIn)
     audit.version+='+'+
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
@@ -1623,6 +1633,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         actorSpecialEnergyEnabled(true,
           audit.skylinerRondoRetreatOwnerSeat,seat),
       perfectionRoot:audit.perfectionRootOptIn,
+      perfectionBenchFunding:audit.perfectionBenchFundingOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
       thornsSoloEnergyRetention:audit.thornsSoloEnergyRetentionOptIn===true,
