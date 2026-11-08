@@ -25,6 +25,23 @@ function correctPrintedCard(card,type){
     card.attacks[1].name='Crush and Burn-GX';
     return 'paper-gx-name';
   }
+  if(printing==='Toedscruel PAR'){
+    assert.equal(String(card.setNumber),'17');
+    assert.equal(card.attacks[0].name,'Scratch');
+    assert.equal(card.attacks[0].damage,80);
+    assert.match(card.attacks[0].text,/Heal 30 damage/);
+    const {WAS_ATTACK_USED,HEAL_X_DAMAGE_FROM_THIS_POKEMON}=
+      native('game/store/prefabs/prefabs');
+    const earlier=card.reduceEffect;
+    assert.equal(typeof earlier,'function');
+    card.attacks[0].name='Mushroom Drain';
+    card.reduceEffect=function(store,state,effect){
+      const next=earlier.call(this,store,state,effect);
+      return WAS_ATTACK_USED(effect,0,this)?
+        HEAL_X_DAMAGE_FROM_THIS_POKEMON(effect,store,next,30):next;
+    };
+    return 'paper-attack-name-and-healing-effect';
+  }
   if(printing==='Pidgeotto TEU'){
     assert.equal(String(card.setNumber),'123');
     assert.deepEqual(card.resistance,
