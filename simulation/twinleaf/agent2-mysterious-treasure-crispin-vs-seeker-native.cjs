@@ -304,5 +304,5 @@ function run(){
 }
 
 if(require.main===module)
-  process.stdout.write(JSON.stringify(run(),null,2)+'\\n');
+  process.stdout.write(JSON.stringify(run(),null,2)+ '\n');
 module.exports={resolveOwnerMultiCardPrompt,observeSeat,run};
