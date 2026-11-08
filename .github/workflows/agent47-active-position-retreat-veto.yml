@@ -33,6 +33,9 @@ jobs:
           tests/2026-11/agent47-guzma-active-lock-mobility.test.cjs
           tests/agent2-held-guzma-mobility-frontier.test.cjs
           tests/agent2-owner-guzma-mobility-frontier.test.cjs
+          tests/agent14-generic-funded-floatstone-frontier.test.cjs
+          tests/agent10-flexible-paid-retreat-frontier.test.cjs
+          tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
 
   native-handoff:
     if: ${{ inputs.native_handoff }}
