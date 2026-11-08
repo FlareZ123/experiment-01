@@ -165,7 +165,7 @@ jobs:
             tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs \
-            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs \
+            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs
 
       - name: Verify pure Agent34 and Agent41 policy/registration contracts only
         if: ${{ inputs.contract_only }}
