@@ -136,7 +136,7 @@ function withBilateralOwnerMail(next,deps){
       const intent=chooseMailSelectedHandiwork(
         actorObservation(state,seat),handIndices);
       const card=intent?owner.hand.cards[intent.handIndex]:null;
-      if(card?.fullName===intent.printing&&
+      if(intent&&card?.fullName===intent.printing&&
          card?.canPlay?.(storeInstance,state,owner)===true){
         const action=new PlayCardAction(owner.id,intent.handIndex);
         ownerMailHandiworkActions.add(action);
