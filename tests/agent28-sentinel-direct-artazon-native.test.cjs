@@ -350,12 +350,12 @@ for(const seat of [0,1]){
     }
     const fogIndex=opponent.hand.cards.indexOf(fog);
     const oldHand=opponent.hand.cards.slice();
+    const stateBeforeRejection=x.f.store.state;
     assert.throws(()=>x.f.store.dispatch(new PlayCardAction(
       opponent.id,fogIndex,{player:PlayerType.ANY,
         slot:SlotType.BOARD,index:0})),e=>e?.message==='CANNOT_PLAY_THIS_CARD');
     assert.deepEqual(opponent.hand.cards,oldHand);
 
-    const stateBeforeRejection=x.f.store.state;
     const liveOpponentAfterRejection=x.f.store.state.players[1-seat];
     assert.notStrictEqual(x.f.store.state,stateBeforeRejection,
       'Rejected Item must replace the live native State');
