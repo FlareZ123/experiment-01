@@ -541,6 +541,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRank9SpecialFundedGuzma(view,catalog);
     if(special)return special;
   }
+  // Opt-in tactical recovery of a publicly discarded Guzma using VS Seeker.
+  // A nominated nominal KO is recomputed after the actual discard prompt.
+  if(options.seekerGuzmaNominalKo===true){
+    const follow=require('./agent31/late-seeker-guzma-prize.cjs')
+      .chooseLateSeekerGuzmaPrize(view,catalog);
+    if(follow)return follow;
+  }
   // Experimental nonfinal Prize trade: still only an owner-public nominal KO.
   if(options.prizeTradeGuzma===true){
     const gust=require('./agent31-final-prize-guzma-frontier.cjs')
@@ -988,6 +995,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       process.env.AGENT31_GUZMA_FINAL_PRIZE_DEV==='true',
     prizeTradeGuzmaOptIn:deps.prizeTradeGuzma===true||
       process.env.AGENT31_GUZMA_PRIZE_TRADE_DEV==='true',
+    seekerGuzmaNominalKoOptIn:deps.seekerGuzmaNominalKo===true,
+    seekerGuzmaPromptsProposed:0,
+    seekerGuzmaPromptsAccepted:0,
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     teamFlareGruntDenialRootOptIn:deps.teamFlareGruntDenialRoot??
@@ -1369,6 +1379,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.finalPrizeGuzmaOptIn||audit.prizeTradeGuzmaOptIn)
     audit.version+='+'+
       require('./agent31-final-prize-guzma-frontier.cjs').VERSION;
+  if(audit.seekerGuzmaNominalKoOptIn)
+    audit.version+='+'+
+      require('./agent31/late-seeker-guzma-prize.cjs').VERSION;
   if(audit.mobilityAwareRecipientOptIn)
     audit.version+='+agent2-owner-held-mobility-recipient-v1';
   if(audit.perfectionTransitionRootOptIn)
@@ -1414,11 +1427,15 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(seat!==-1&&pending&&
        (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn||
-        audit.firstCrispinSeekerRecoveryOptIn)&&
+        audit.firstCrispinSeekerRecoveryOptIn||
+        audit.seekerGuzmaNominalKoOptIn)&&
        pending.playerId===playerId&&ownerSeekerPending.has(playerId)){
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
-      const target=ownerSeekerPending.get(playerId).target;
+      const token=ownerSeekerPending.get(playerId);
+      assert.equal(pending.id,token.promptId,
+        'VS Seeker response must match the authentic pending prompt');
+      const target=token.target;
       const planned=require('./agent48-owner-vs-seeker-supporter.cjs')
         .chooseOwnerVsSeekerSupporterPrompt(
           state,seat,pending,ResolvePromptAction,target);
@@ -1427,6 +1444,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(target.startsWith("Professor's Research "))
         audit.seekerResearchPromptsProposed++;
       else if(target==='Crispin SCR')audit.seekerCrispinPromptsProposed++;
+      else if(require('./agent2-held-guzma-mobility-frontier.cjs')
+        .isGuzma(target))audit.seekerGuzmaPromptsProposed++;
       else audit.seekerLilliePromptsProposed++;
       return planned;
     }
@@ -1707,6 +1726,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
+      seekerGuzmaNominalKo:audit.seekerGuzmaNominalKoOptIn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
@@ -1946,6 +1966,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-seeker-get-guzma':
       case 'play-seeker-get-crispin':
       case 'play-seeker-get-lillie':
       case 'play-seeker-recovered-lillie':
@@ -2173,14 +2194,17 @@ function withActorOnlyRootPolicy(run,deps={}){
       const afterDiscard=afterward.discard.cards.filter(x=>
         x.fullName===seekerReply.printing).length;
       assert.equal(afterHand,beforeHand+1,
-        'VS Seeker live owner prompt failed to physically recover Lillie');
+        'VS Seeker native owner prompt failed to recover requested Supporter');
       assert.equal(afterDiscard,beforeDiscard-1,
-        'VS Seeker live owner prompt did not remove exact own-discard Lillie');
+        'VS Seeker native owner prompt did not remove requested Supporter');
       ownerSeekerPending.delete(seekerReply.ownerId);
       if(seekerReply.printing.startsWith("Professor's Research "))
         audit.seekerResearchPromptsAccepted++;
       else if(seekerReply.printing==='Crispin SCR')
         audit.seekerCrispinPromptsAccepted++;
+      else if(require('./agent2-held-guzma-mobility-frontier.cjs')
+        .isGuzma(seekerReply.printing))
+        audit.seekerGuzmaPromptsAccepted++;
       else audit.seekerLilliePromptsAccepted++;
       return result;
     }
@@ -2260,6 +2284,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           seat:choice.seat,promptId:pending.id});
       }
       if(choice.kind==='play-seeker-get-crispin'||
+         choice.kind==='play-seeker-get-guzma'||
          choice.kind==='play-seeker-get-lillie'||
          choice.kind==='play-seeker-get-research'){
         const owner=this.state.players[choice.seat];
@@ -2271,6 +2296,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           'Native VS Seeker root did not create its authenticated own-discard prompt');
         assert.ok(!ownerSeekerPending.has(owner.id));
         ownerSeekerPending.set(owner.id,{seat:choice.seat,
+          promptId:pending.id,
           target:choice.intent.target,globalTurn:choice.globalTurn});
       }
       const after=publicDispatchState(this);
