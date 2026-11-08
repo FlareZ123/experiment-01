@@ -50,11 +50,8 @@ test('pinned native Tropical Beach and Temple do not restore Underworld',()=>{
     const view=publicActorView(scenario);
     // Original classifier conservatively abstained on any Stadium.
     assert.equal(classifyVisibleThornsVeto(view,intent).veto,false,stadium);
-    // Printed source may be set-only in native manager; the v2 pure guard
-    // only accepts exact card-number strings; never weaken its whitelist.
-    view.opponentPublic.stadium=[
-      stadium==='Tropical Beach BWP'?'Tropical Beach BWP 50':
-        'Temple of Sinnoh ASR 155'];
+    // The pinned actor observation uses the exact native card.fullName
+    // spelling, which contains card name and set, without collector number.
     assert.equal(classifyNeutralThornsVeto(view,intent).veto,true,stadium);
   }
 });
@@ -65,8 +62,8 @@ test('pinned native same-board combined neutral Tool and Stadium still blocked',
   assert.equal(actual.allowed,false);
   assert.equal(actual.powerListed,false);
   const view=publicActorView(scenario);
-  view.opponentPublic.stadium=['Tropical Beach BWP 50'];
-  view.ownPublic.bench[0].tools=['Float Stone BKT 137'];
+  assert.deepEqual(view.opponentPublic.stadium,['Tropical Beach BWP']);
+  assert.deepEqual(view.ownPublic.bench[0].tools,['Float Stone BKT']);
   assert.equal(classifyNeutralThornsVeto(view,intent).veto,true);
 });
 test('Hood protects Underworld, and v2 must abstain',()=>{
