@@ -45,11 +45,15 @@ function candidateAttackSettlement(game,candidateSeat) {
     'Candidate public attack and root action disagree');
     const completion=event.settled?.completionRootActionOrdinal;
     const closingRoot=Number.isSafeInteger(completion)?roots[completion]:null;
+    // AttackAction may already advance the Store's turnAfter while a KO
+    // Prize-selection prompt still belongs to the declaring player's turn.
+    // Compare the prompt root with the declaration's pre-dispatch turn, and
+    // separately require exact initiating-root ancestry below.
     const completionRootTurnMatchesDeclarationTurn=
       completion===event.actionOrdinal?true:
-        closingRoot&&Number.isSafeInteger(event.turnAfter)&&
+        closingRoot&&Number.isSafeInteger(event.turnBefore)&&
         Number.isSafeInteger(closingRoot.turnBefore)?
-          closingRoot.turnBefore===event.turnAfter:null;
+          closingRoot.turnBefore===event.turnBefore:null;
     // A terminal attack can immediately trigger a native sudden-death replay.
     // Its next Store snapshot then belongs to a freshly dealt game. Never
     // interpret that replay opening as damage or Prizes caused in this epoch.
