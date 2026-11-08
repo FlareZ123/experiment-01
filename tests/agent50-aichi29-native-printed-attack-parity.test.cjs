@@ -45,15 +45,16 @@ test('original Aichi 29 printed Pokémon native audit is exact-scope and candid'
   assert.equal(result.paperLegalityCertified,false);
   assert.ok(result.findings.every(row=>row.ranks.length>0&&
     row.totalCopies>0&&row.status&&row.name&&row.set));
-  for(const field of ['missingNativePrintings','missingSourcePrintings',
-    'printedSignatureMismatches','attackSignatureMismatches',
-    'nativeNumberMismatch'])
+  for(const field of ['missingNativePrintings','nativeAliasPrintings',
+    'missingSourcePrintings','printedSignatureMismatches',
+    'attackSignatureMismatches','nativeNumberMismatch'])
     assert.ok(Number.isSafeInteger(result[field])&&result[field]>=0);
   const mismatches=result.findings.filter(row=>
     Object.keys(row.differences).length||row.status!=='SOURCE_AND_NATIVE_FOUND');
   console.log('AGENT50_ORIGINAL29_PRINTED_NATIVE_PARITY '+JSON.stringify({
     scope:result.benchmark,printings:result.registeredPokemonPrintings,
     missingNative:result.missingNativePrintings,
+    nativeAliases:result.nativeAliasPrintings,
     missingSource:result.missingSourcePrintings,
     printedMismatch:result.printedSignatureMismatches,
     attackMismatch:result.attackSignatureMismatches,
