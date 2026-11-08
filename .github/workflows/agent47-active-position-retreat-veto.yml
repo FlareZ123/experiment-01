@@ -18,4 +18,9 @@ jobs:
         with:
           node-version: '22'
       - name: Verify four mobility frontiers and protected Active Ability contracts
-        run: node --test tests/2026-11/agent47-active-position-retreat-veto.test.cjs
+        run: >-
+          node --test
+          tests/2026-11/agent47-active-position-retreat-veto.test.cjs
+          tests/agent1-owner-float-stone-mobility.test.cjs
+          tests/agent31-zero-energy-strand-floatstone.test.cjs
+          tests/agent42-public-two-unit-paid-retreat-proposal.test.cjs
