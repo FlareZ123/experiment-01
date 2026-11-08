@@ -1,0 +1,27 @@
+{
+  "schema": "agent38-v8-mail-to-nest-physical-bench-four-arm-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-08T21:44:22.709Z",
+  "sourceRegistration": "results/aichi-2026/registrations/agent38-v8-owner-mail-after-pass-four-arm-20261108.json",
+  "exactOriginalTrialIds": [
+    "3:312:B:champion-reference",
+    "3:312:A:champion-reference",
+    "3:213:A:champion-reference",
+    "3:213:B:champion-reference"
+  ],
+  "seeds": [
+    2404595552,
+    948758444
+  ],
+  "bothSourceSeats": true,
+  "comparisonBaseline": "ownerAbilityConfirm true,ownerMailAfterPass true,followMailNestBall false",
+  "comparisonTreatment": "same common runner plus followMailNestBall true",
+  "actualDifference": "only for a genuinely Mail-selected Nest Ball left in owner hand when common policy would otherwise Pass: play the actual Nest Ball with Store and resolve genuine Basic search ChooseCardsPrompt onto a free Bench",
+  "nativeRootCap": 260,
+  "fixedPhysicalSourceDecks": true,
+  "opponentPrivateZoneAccessForbidden": true,
+  "success": "at least one accepted Nest Ball from Mail, selected Basic physically moved from source deck to Bench, subsequent real opponent response and next own-turn action",
+  "reportedOutcome": "all four trial status/initial names and same seeds, Native source setup, Bench movement, root divergence, end/prize status even on failure",
+  "competitiveGamesQualified": 0,
+  "estimatedWinRate": null
+}
