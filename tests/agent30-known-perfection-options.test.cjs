@@ -219,7 +219,7 @@ test('Confusion permits attempt; Sleep and Paralysis block even with Poison',()=
   for(const forbidden of [energyCatalog.specialConditions.ASLEEP,
     energyCatalog.specialConditions.PARALYZED]){
     const locked=view([M3,BASIC]);
-    locked.ownPublic.active.specialConditions=[4,forbidden];
+    locked.ownPublic.active.specialConditions=[energyCatalog.specialConditions.POISONED,forbidden];
     assert.equal(publicPerfectionVeto(locked,energyCatalog.specialConditions),
       'attack-restricted');
     assert.deepEqual(knownPerfectionReadyOptions(
