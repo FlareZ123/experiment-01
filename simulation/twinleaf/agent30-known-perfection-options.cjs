@@ -68,15 +68,20 @@ function knownMewtwoEnergyUnits(view,energyCatalog){
  * @param {object} view Detached owner-visible observation
  * @returns {string|null}
  */
-function publicPerfectionVeto(view){
+function publicPerfectionVeto(view,specialConditionCatalog=null){
   const active=view.ownPublic?.active;
   const opponent=view.opponentPublic;
   if(view.globalTurn===1)return 'first-turn';
   if(active?.printing!=='Mewtwo & Mew-GX UNM')return 'not-mewtwo-active';
   if(!(active.abilities??[]).includes('Perfection'))return 'no-printed-perfection';
   if(view.ownPublic?.publicTurnRestrictions?.attackLockTurnsRemaining>0||
-    active.publicRestrictions?.cannotAttackNextTurn===true||
-    (active.specialConditions??[]).length>0)return 'attack-restricted';
+    active.publicRestrictions?.cannotAttackNextTurn===true)return 'attack-restricted';
+  const conditions=active.specialConditions??[];
+  // Poisoned, Burned and Confused Pokémon may still announce an attack.
+  // Only Asleep and Paralyzed categorically prohibit announcing it.
+  if(conditions.length>0&&(!specialConditionCatalog||
+    conditions.some(status=>status===specialConditionCatalog.ASLEEP||
+      status===specialConditionCatalog.PARALYZED)))return 'attack-restricted';
   const stadium=[...(view.ownPublic.stadium??[]),...(opponent.stadium??[])];
   if(stadium.some(s=>s.startsWith('Path to the Peak ')||
     s.startsWith('Silent Lab ')))return 'public-stadium-ability-lock';
@@ -106,7 +111,8 @@ function publicPerfectionVeto(view){
  */
 function knownPerfectionReadyOptions(view,energyCatalog,donorCatalog){
   assert.equal(view.decisionKind,'owner-root');
-  if(publicPerfectionVeto(view)!==null)return Object.freeze([]);
+  if(publicPerfectionVeto(view,energyCatalog.specialConditions)!==null)
+    return Object.freeze([]);
   const attached=knownMewtwoEnergyUnits(view,energyCatalog);
   if(attached===null)return Object.freeze([]);
   const sources=new Set([
