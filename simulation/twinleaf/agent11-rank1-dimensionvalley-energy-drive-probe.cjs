@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v6';
+const VERSION='agent11-t16-detached-dimensionvalley-energy-drive-native-v7';
 const TARGET_TURN=16;
 const ACTIVE='Tapu Lele-GX GRI';
 const STADIUM='Dimension Valley PHF';
@@ -302,7 +302,7 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
       nativeResolved:false,selectedOwnFaceupBench:true,
       sourceActiveAfter:null,nextActorId:null,
       remainingPromptTypes:[],status:'not-attempted',
-      readConcealedOpponentCards:false
+      nextOwnerObservation:null,readConcealedOpponentCards:false
     };
     if(koPrizeContinuation.status==='native-ordinary-ko-prizes-transferred'){
       const ownerForPromotion=clone.state.players.find(p=>p.id===ownerId);
@@ -348,6 +348,19 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
             sourcePromotion.remainingPromptTypes.length===0?
               'native-source-promotion-settled':
               'native-source-promotion-incomplete';
+          if(sourcePromotion.status==='native-source-promotion-settled'){
+            const observe=deps.actorObservation??
+              require('./actor-observation-contract.cjs').actorObservation;
+            const seat=clone.state.players.findIndex(p=>p.id===ownerId);
+            const nextOwner=observe(clone.state,seat);
+            assert.equal(nextOwner.decisionKind,'owner-root');
+            assert.equal(nextOwner.actorSeat,seat);
+            assert.equal(nextOwner.ownPublic.active?.printing,
+              sourcePromotion.target);
+            // This existing contract yields the acting owner's private hand
+            // and both public boards, never opponent concealed card faces.
+            sourcePromotion.nextOwnerObservation=nextOwner;
+          }
         }catch(error){
           sourcePromotion.error=String(error?.message??error);
           sourcePromotion.status='native-source-promotion-dispatch-error';
