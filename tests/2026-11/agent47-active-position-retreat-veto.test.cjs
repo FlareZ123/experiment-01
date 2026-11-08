@@ -3,7 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  hasActivePositionAbilityToPreserve
+  hasActivePositionAbilityToPreserve,
+  wouldLoseActivePositionAbility
 } = require('../../simulation/twinleaf/agent47-active-position-retreat-veto.cjs');
 const {
   chooseOwnerFloatStoneMobility
@@ -100,6 +101,43 @@ for(const [label,text] of ABILITIES){
     assert.equal(proposeTwoUnitPaidRetreat(paidTwo,catalog),null);
   });
 }
+
+
+test('same printed Iron Thorns ex retaining Initialization remains a free-retreat option',()=>{
+  const view=fixture(ABILITIES[0][1]);
+  const active=view.ownPublic.active;
+  const recipient=view.ownPublic.bench[0];
+  recipient.printing=active.printing;
+  recipient.abilityDetails=[{...active.abilityDetails[0]}];
+  assert.equal(hasActivePositionAbilityToPreserve(view),true);
+  assert.equal(wouldLoseActivePositionAbility(view,0),false);
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone');
+  assert.equal(chooseFreeRetreatToPotentialKo(view,catalog)?.kind,'free-retreat');
+});
+
+test('same-named replacement needs exact physical printing and same lock text',()=>{
+  const view=fixture(ABILITIES[0][1]);
+  const recipient=view.ownPublic.bench[0];
+  assert.equal(wouldLoseActivePositionAbility(view,0),true);
+  recipient.printing=view.ownPublic.active.printing;
+  assert.equal(wouldLoseActivePositionAbility(view,0),true);
+  recipient.abilityDetails=[{name:'Initialization',text:'Draw 2 cards.'}];
+  assert.equal(wouldLoseActivePositionAbility(view,0),true);
+  recipient.abilityDetails=[{name:'Initialization',text:ABILITIES[0][1]}];
+  assert.equal(wouldLoseActivePositionAbility(view,0),false);
+  recipient.abilityDetails=[{name:'Initialization',text:ABILITIES[0][1]+' '}];
+  assert.equal(wouldLoseActivePositionAbility(view,0),true);
+});
+
+test('unknown active-only Ability retains the conservative veto even on same printed replacement',()=>{
+  const text='As long as this Pokémon is your Active Pokémon, your Pokémon take 10 less damage.';
+  const view=fixture(text);
+  const recipient=view.ownPublic.bench[0];
+  recipient.printing=view.ownPublic.active.printing;
+  recipient.abilityDetails=[{name:'Unverified Lock',text}];
+  assert.equal(wouldLoseActivePositionAbility(view,0),true);
+});
 
 test('Bench-conditioned and voluntary on-turn Abilities do not trigger this active-position veto', () => {
   for(const text of [
