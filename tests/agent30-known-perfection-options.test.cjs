@@ -23,7 +23,8 @@ const energyCatalog={
   basicEnergies:new Set([BASIC]),
   specialEnergies:new Set([M3,'Mystery Energy PHF']),
   basicEnergyTypes:{Psychic:P,Lightning:4},
-  colorlessEnergyType:C
+  colorlessEnergyType:C,
+  specialConditions:{ASLEEP:2,PARALYZED:0,CONFUSED:3}
 };
 /** @param {string[]} energy @returns {object} */
 function view(energy=[M3]){
@@ -192,4 +193,44 @@ test('suffix GX catalog recovery',()=>{
  assert.equal(d.get('Gengar & Mimikyu-GX TEU')[0].gxAttack,true);
  const v=view();v.ownPublic.publicTurnRestrictions.gxUsed=true;
  assert.equal(knownPerfectionReadyOptions(v,energyCatalog,d).length,0);
+});
+
+test('ordinary Poison and Burn preserve a cost-payable copied attack',()=>{
+  const poisoned=view([M3]);
+  poisoned.ownPublic.active.specialConditions=[4];
+  assert.equal(publicPerfectionVeto(poisoned,energyCatalog.specialConditions),null);
+  assert.deepEqual(knownPerfectionReadyOptions(
+    poisoned,energyCatalog,donorCatalog).map(x=>x.attackName),
+  ['Horror House-GX']);
+  const burned=view([M3,BASIC]);
+  burned.ownPublic.active.specialConditions=[5];
+  assert.deepEqual(knownPerfectionReadyOptions(
+    burned,energyCatalog,donorCatalog).map(x=>x.attackName),
+  ['Poltergeist','Horror House-GX']);
+});
+
+test('Confusion permits attempt; Sleep and Paralysis block even with Poison',()=>{
+  const confused=view([M3]);
+  confused.ownPublic.active.specialConditions=[energyCatalog.specialConditions.CONFUSED];
+  assert.equal(publicPerfectionVeto(confused,energyCatalog.specialConditions),null);
+  assert.deepEqual(knownPerfectionReadyOptions(
+    confused,energyCatalog,donorCatalog).map(x=>x.attackName),
+  ['Horror House-GX']);
+  for(const forbidden of [energyCatalog.specialConditions.ASLEEP,
+    energyCatalog.specialConditions.PARALYZED]){
+    const locked=view([M3,BASIC]);
+    locked.ownPublic.active.specialConditions=[4,forbidden];
+    assert.equal(publicPerfectionVeto(locked,energyCatalog.specialConditions),
+      'attack-restricted');
+    assert.deepEqual(knownPerfectionReadyOptions(
+      locked,energyCatalog,donorCatalog),[]);
+  }
+});
+
+test('untyped nonempty condition map retains the conservative veto',()=>{
+  const unknown=view([M3]);
+  unknown.ownPublic.active.specialConditions=['future-status'];
+  assert.equal(publicPerfectionVeto(unknown),'attack-restricted');
+  assert.deepEqual(knownPerfectionReadyOptions(
+    unknown,{...energyCatalog,specialConditions:undefined},donorCatalog),[]);
 });
