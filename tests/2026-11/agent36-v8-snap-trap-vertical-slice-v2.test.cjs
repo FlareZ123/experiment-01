@@ -306,7 +306,7 @@ test('known non-WaitPrompt null with exact settlement receipt remains meaningful
     trialId, makeJoin(), [
       { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
       { trialId, actionOrdinal: 252, seat: 1, turnBefore: 56, action: 'ResolvePromptAction', promptId: '175', responseKind: 'null' },
-      { trialId, actionOrdinal: 253, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+      { trialId, actionOrdinal: 253, seat: 0, turnBefore: 57, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
     ], {}, {
       nativeOutcome: 'action-cap',
       actionCount: 253,
