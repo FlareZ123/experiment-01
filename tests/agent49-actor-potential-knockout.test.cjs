@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {choosePotentialKnockout,VERSION}=
+const {choosePotentialKnockout,typeAdjustedFixedDamage,VERSION}=
   require('../simulation/twinleaf/agent49-actor-potential-knockout.cjs');
 const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
@@ -28,7 +28,7 @@ test('frozen common public-only scorer ranks a potential exact-base KO',()=>{
   const v=view(),moves=v.ownPublic.active.attacks;
   Object.freeze(moves);Object.freeze(v.opponentPublic.active);
   assert.equal(choosePotentialKnockout(v,moves),moves[1]);
-  assert.equal(VERSION,'agent49-public-printed-potential-ko-v2-discrete-safe');
+  assert.equal(VERSION,'agent49-public-printed-potential-ko-v3-type-adjusted');
 });
 
 test('native-neutral root opt-in changes only printed payable attack choice',()=>{
@@ -70,4 +70,81 @@ test('insufficient Energy or blocked attack still yields no selected root',()=>{
   v.ownPublic.active.energies=['Psychic Energy MEE'];
   v.ownPublic.active.publicRestrictions.cannotAttackNextTurn=true;
   assert.equal(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}).kind,'pass');
+});
+
+test('public Psychic Weakness retains the already lethal first printed attack',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[5]};
+  v.opponentPublic.active.hp=100;
+  v.opponentPublic.active.damage=30;
+  v.opponentPublic.active.printed={
+    weakness:[{type:5,value:2}],resistance:[]
+  };
+  v.ownPublic.active.attacks=[
+    attack('Weakness Finish',40),attack('Raw Finish',80)
+  ];
+  assert.equal(typeAdjustedFixedDamage(40,v.ownPublic.active,
+    v.opponentPublic.active),80);
+  assert.equal(choosePotentialKnockout(v,v.ownPublic.active.attacks).name,
+    'Weakness Finish');
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}),
+    {kind:'attack',attackName:'Weakness Finish'});
+});
+
+test('public Resistance vetoes a raw-damage false knockout',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[5]};
+  v.opponentPublic.active.hp=100;
+  v.opponentPublic.active.damage=30;
+  v.opponentPublic.active.printed={
+    weakness:[],resistance:[{type:5,value:-30}]
+  };
+  v.ownPublic.active.attacks=[attack('First',20),attack('False KO',80)];
+  assert.equal(typeAdjustedFixedDamage(80,v.ownPublic.active,
+    v.opponentPublic.active),50);
+  assert.equal(choosePotentialKnockout(v,v.ownPublic.active.attacks).name,
+    'First');
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}),
+    {kind:'attack',attackName:'First'});
+});
+
+test('Weakness followed by Resistance changes which later attack qualifies',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[5]};
+  v.opponentPublic.active.hp=100;
+  v.opponentPublic.active.damage=30;
+  v.opponentPublic.active.printed={
+    weakness:[{type:5,value:2}],
+    resistance:[{type:5,value:-30}]
+  };
+  v.ownPublic.active.attacks=[attack('Setup',40),attack('Finish',60)];
+  assert.equal(typeAdjustedFixedDamage(40,v.ownPublic.active,
+    v.opponentPublic.active),50);
+  assert.equal(typeAdjustedFixedDamage(60,v.ownPublic.active,
+    v.opponentPublic.active),90);
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}),
+    {kind:'attack',attackName:'Finish'});
+});
+
+test('unknown or incomplete printed modifiers never invent a guaranteed KO',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[5]};
+  v.opponentPublic.active.printed={
+    weakness:[{type:5,value:null}],resistance:[]
+  };
+  const moves=[attack('First',20),attack('Unknown',200)];
+  assert.equal(typeAdjustedFixedDamage(200,v.ownPublic.active,
+    v.opponentPublic.active),null);
+  assert.equal(choosePotentialKnockout(v,moves),moves[0]);
+  v.opponentPublic.active.printed={
+    weakness:[],resistance:[{type:5,value:30}]
+  };
+  assert.equal(typeAdjustedFixedDamage(200,v.ownPublic.active,
+    v.opponentPublic.active),null);
+  assert.equal(choosePotentialKnockout(v,moves),moves[0]);
+  v.opponentPublic.active.printed={weakness:[],resistance:[]};
+  v.opponentPublic.hiddenHand=['Unseen card A'];
+  const first=choosePotentialKnockout(v,moves);
+  v.opponentPublic.hiddenHand=['Unseen card B'];
+  assert.strictEqual(choosePotentialKnockout(v,moves),first);
 });
