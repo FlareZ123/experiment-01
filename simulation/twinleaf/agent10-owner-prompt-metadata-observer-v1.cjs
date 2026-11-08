@@ -116,58 +116,75 @@ function withOwnerPromptMetadataObserver(run,options={}){
 
   function observedPrompt(...args){
     const state=args[0];
-    const prompt=args[1];
-    const promptIdBeforeStore=prompt?.id??null;
+    const promptArgument=args[1];
+    const prompts=Array.isArray(promptArgument)
+      ?promptArgument:[promptArgument];
+    const promptIdsBeforeStore=prompts.map(prompt=>prompt?.id??null);
     const result=oldPrompt.value.apply(this,args);
-    if(audit.events.length>=maxEvents){
-      audit.eventsTruncated=true;
-      return result;
-    }
-
     const players=Array.isArray(state?.players)?state.players:[];
-    const ownerSeat=players.findIndex(player=>
-      player===prompt?.player||
-      (prompt?.playerId!=null&&player?.id===prompt.playerId)
-    );
-    const optionsObject=prompt?.options&&typeof prompt.options==='object'
-      ?prompt.options:{};
-    const promptOrdinal=(promptOrdinals.get(this)??0)+1;
-    promptOrdinals.set(this,promptOrdinal);
     const current=currentActions.get(this)??null;
     const pendingPrompts=Array.isArray(state?.prompts)
       ?state.prompts.filter(item=>item?.result===undefined).length:null;
 
-    audit.events.push({
-      index:audit.events.length,
-      storeOrdinal:storeOrdinal(this),
-      promptOrdinal,
-      promptId:prompt?.id==null?null:String(prompt.id),
-      promptIdBeforeStore:promptIdBeforeStore==null?null:String(promptIdBeforeStore),
-      turn:safeFinite(state?.turn),
-      phase:state?.phase??null,
-      activePlayerSeat:Number.isInteger(state?.activePlayer)?state.activePlayer:null,
-      ownerSeat:ownerSeat>=0?ownerSeat:null,
-      promptType:prompt?.constructor?.name??null,
-      message:enumName(GameMessage,prompt?.message),
-      min:safeFinite(optionsObject.min??prompt?.min),
-      max:safeFinite(optionsObject.max??prompt?.max),
-      allowCancel:typeof (optionsObject.allowCancel??prompt?.allowCancel)==='boolean'
-        ?(optionsObject.allowCancel??prompt?.allowCancel):null,
-      isSecret:typeof (optionsObject.isSecret??prompt?.isSecret)==='boolean'
-        ?(optionsObject.isSecret??prompt?.isSecret):null,
-      selectableCount:selectableCount(prompt?.cards),
-      cardsClass:prompt?.cards?.constructor?.name??null,
-      pendingPromptCount:pendingPrompts,
-      promptPlayerIdPresent:prompt?.playerId!=null,
-      sourceCardPresent:prompt?.sourceCard!=null,
-      stateMatchesLiveStore:Boolean(state&&state===this.state),
-      triggeringAction:current?.actionName??null,
-      triggeringDispatchOrdinal:current?.dispatchOrdinal??null,
-      triggeringDispatchDepth:current?.dispatchDepth??null,
-      triggeringTurnBefore:current?.turnBefore??null,
-      triggeringPhaseBefore:current?.phaseBefore??null
-    });
-    audit.promptCount++;
+    for(let index=0;index<prompts.length;index++){
+      const prompt=prompts[index];
+      if(!prompt)continue;
+      if(audit.events.length>=maxEvents){
+        audit.eventsTruncated=true;
+        break;
+      }
+      const promptOrdinal=(promptOrdinals.get(this)??0)+1;
+      promptOrdinals.set(this,promptOrdinal);
+      const resourceOwnerSeat=players.findIndex(player=>
+        player===prompt?.player||
+        (prompt?.player?.id!=null&&player?.id===prompt.player.id)
+      );
+      const controllerSeat=players.findIndex(player=>
+        prompt?.playerId!=null&&player?.id===prompt.playerId
+      );
+      const perspectiveSeat=players.findIndex(player=>
+        prompt?.perspectivePlayerId!=null&&
+        player?.id===prompt.perspectivePlayerId
+      );
+      const optionsObject=prompt?.options&&typeof prompt.options==='object'
+        ?prompt.options:{};
+      audit.events.push({
+        index:audit.events.length,
+        storeOrdinal:storeOrdinal(this),
+        promptOrdinal,
+        promptId:prompt?.id==null?null:String(prompt.id),
+        promptIdBeforeStore:promptIdsBeforeStore[index]==null
+          ?null:String(promptIdsBeforeStore[index]),
+        turn:safeFinite(state?.turn),
+        phase:state?.phase??null,
+        activePlayerSeat:Number.isInteger(state?.activePlayer)?state.activePlayer:null,
+        resourceOwnerSeat:resourceOwnerSeat>=0?resourceOwnerSeat:null,
+        controllerSeat:controllerSeat>=0?controllerSeat:null,
+        perspectiveSeat:perspectiveSeat>=0?perspectiveSeat:null,
+        promptType:prompt?.constructor?.name??null,
+        message:enumName(GameMessage,prompt?.message),
+        min:safeFinite(optionsObject.min??prompt?.min),
+        max:safeFinite(optionsObject.max??prompt?.max),
+        allowCancel:typeof (optionsObject.allowCancel??prompt?.allowCancel)==='boolean'
+          ?(optionsObject.allowCancel??prompt?.allowCancel):null,
+        isSecret:typeof (optionsObject.isSecret??prompt?.isSecret)==='boolean'
+          ?(optionsObject.isSecret??prompt?.isSecret):null,
+        selectableCount:selectableCount(prompt?.cards),
+        cardsClass:prompt?.cards?.constructor?.name??null,
+        pendingPromptCount:pendingPrompts,
+        promptPlayerObjectPresent:prompt?.player!=null,
+        controllerPlayerIdPresent:prompt?.playerId!=null,
+        perspectivePlayerIdPresent:prompt?.perspectivePlayerId!=null,
+        sourceCardPresent:prompt?.sourceCard!=null,
+        stateMatchesLiveStore:Boolean(state&&state===this.state),
+        triggeringAction:current?.actionName??null,
+        triggeringDispatchOrdinal:current?.dispatchOrdinal??null,
+        triggeringDispatchDepth:current?.dispatchDepth??null,
+        triggeringTurnBefore:current?.turnBefore??null,
+        triggeringPhaseBefore:current?.phaseBefore??null
+      });
+      audit.promptCount++;
+    }
     return result;
   }
 
