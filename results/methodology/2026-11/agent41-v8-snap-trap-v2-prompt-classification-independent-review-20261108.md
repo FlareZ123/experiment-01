@@ -11,18 +11,23 @@ Agent1 identified a real defect in Agent36's v2 `isMechanical` predicate. The pr
 
 The original undefined fixture alone does **not** demonstrate a false-positive gate. Reclassifying its unknown prompt 175 event as nonmechanical still leaves opponent action ordinal 253 and source action ordinal 254, so that same fixture passes either way. It demonstrates an incorrect mechanical label and synthetic evidence record.
 
-A separate source-valid counterexample does demonstrate the false-pass risk:
+A separate source-valid counterexample demonstrates the false-pass risk:
 
 1. Ordinal 251: seat 1 resolves a known WaitPrompt with null. This is mechanical.
-2. Ordinal 252: seat 1 dispatches `ResolvePromptAction(175, [card])`, where prompt ID 175 has no prompt object, no promptItem, and no prompt/response evidence record.
-3. Ordinal 253: seat 0 performs a real `PlayCardAction`.
+2. Ordinal 252: seat 1 performs a real `AttackAction`.
+3. Ordinal 253: on the source seat's next decision, its bot returns a stale `ResolvePromptAction(175, [card])`. ID 175 has no matching prompt object, promptItem, or prompt/response evidence record.
 
-Pinned `Store.reducePrompt` returns without mutation whenever the prompt or promptItem is absent, regardless of `action.result`. The dispatch succeeds, and the headless post-dispatch callback records the root event with `responseKind: 'array'`. In v2, that event is not classified mechanical because its response kind is non-null, it has no response record, and it has no WaitPrompt record. It therefore becomes `nextOpponentMeaningfulRoot`; the source PlayCardAction becomes `nextSourceMeaningfulRootAfterOpponent`; the gate passes even though the supposed opponent action was an unknown-ID no-op.
+The headless loop calls the active player's `decodeNextAction` when no prompt is pending, then dispatches the returned action without checking that a `ResolvePromptAction` ID matches a live prompt. If a stale prompt action is returned, pinned `Store.reducePrompt` returns without mutation because the prompt and promptItem are absent. The dispatch succeeds and the headless post-dispatch callback records the root event with `responseKind: 'array'`.
 
-I reproduced this exact predicate path in Node. The gate reports opponent ordinal 252, source ordinal 253, and `continuationGatePassed: true`. This sequence is consistent with pinned Store dispatch semantics. It is a synthetic source-valid counterexample, not an observed native match or competitive result.
+In v2, this event is not classified mechanical because its response kind is non-null, it has no response record, and it has no WaitPrompt record. It therefore becomes `nextSourceMeaningfulRootAfterOpponent`, even though it is an unknown-ID no-op. The continuation gate passes without a meaningful source action.
 
+The higher-level `buildExecutionGate` can also pass in this synthetic case. It requires the continuation boolean and explicitly classified endpoint; `action-cap` is an accepted endpoint. It does not require the post-prompt WaitPrompt chain to have a settlement receipt. The reproduction fixture supplies otherwise-valid registered-trial returns and exact prompt-settlement joins for both seats, sets the known trial endpoint to `action-cap`, and observes `buildExecutionGate(...).passed === true`. Thus the false pass is possible even at the final v2 execution-gate layer if the stale no-op root is present.
 
-A standalone pure reproduction fixture is preserved at `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs`. It currently asserts the observed v2 false-pass behavior and should be converted to a rejection regression after the owner fixes the classifier. It has not yet been run in CI.
+I reproduced the predicate and full gate path in Node. This is a source-valid synthetic sequence conditional on a stale source-seat policy action. It is not an observed native match or competitive result.
+
+The original undefined fixture alone still does not demonstrate a false-positive gate: retaining its unknown prompt 175 event as nonmechanical leaves the later genuine opponent and source roots unchanged. The new non-null stale-ID case is distinct.
+
+A standalone pure reproduction fixture is preserved at `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs`. It asserts the current full-gate false-pass behavior and should be converted to a closed-gate regression after the owner fixes the classifier. The fixture is included in contract-only CI; its first run is pending.
 
 The earlier monotonicity argument applies only to overclassification. Overclassifying unknown null/undefined responses or WaitPrompt/undefined can suppress meaningful events and cause false negatives. Underclassifying unknown non-null responses can count no-op dispatches as meaningful and cause false positives. Both sides must be fixed.
 
