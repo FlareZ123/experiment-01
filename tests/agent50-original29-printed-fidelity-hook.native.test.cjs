@@ -115,6 +115,49 @@ function electrodeReceipt(seat){
 /** @param {object} player Native player. */
 function ownerHasUsedGx(player){return player.usedGX===true;}
 
+
+/**
+ * Original rank9 PAR17 Toedscruel printed attack heals 30 after hitting.
+ * The pinned baseline names it Scratch and has no attack healing branch.
+ *
+ * @param {0|1} seat Native physical seat.
+ * @param {boolean} corrected Whether to install the paper print/effect hook.
+ */
+function toedscruelReceipt(seat,corrected){
+  const execute=()=>{
+    const f=stagedPainfulSpoons(seat);
+    const {source,opponent,store,state}=f;
+    const basic=f.card('Toedscool PAR');
+    const evolution=f.card('Toedscruel PAR');
+    const energies=Array.from({length:3},()=>
+      f.card('Grass Energy SVE'));
+    source.active.cards.splice(0,source.active.cards.length,
+      basic,evolution,...energies);
+    source.active.energies.cards.splice(0,
+      source.active.energies.cards.length,...energies);
+    source.active.damage=70;
+    source.hand.cards.splice(0,source.hand.cards.length);
+    opponent.active.damage=0;
+    const name=corrected?'Mushroom Drain':'Scratch';
+    assert.equal(evolution.attacks[0].name,name);
+    store.dispatch(new AttackAction(source.id,name));
+    const prompts=[];
+    for(let k=0;k<20;k++){
+      const p=state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      assert.equal(p.constructor.name,'WaitPrompt');
+      prompts.push(p.constructor.name);
+      store.dispatch(new ResolvePromptAction(p.id,null));
+    }
+    assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
+    return {seat,corrected,sourcePrinting:evolution.fullName,
+      physicalAttack:name,damageBefore:70,damageAfter:source.active.damage,
+      opponentDamage:opponent.active.damage,prompts,
+      competitivelyQualifiedGames:0};
+  };
+  return corrected?withOriginal29PrintedFidelity(execute).result:execute();
+}
+
 for(const seat of [0,1]){
   test(`original Aichi printed Fighting Resistance changes physical Mew V attack in seat ${seat}`,()=>{
     const unpatched=resistanceReceipt(seat,false);
@@ -127,6 +170,19 @@ for(const seat of [0,1]){
     assert.equal(corrected.beforePrizes,6);
     console.log('AGENT50_NATIVE_PAPER_RESISTANCE '+JSON.stringify({
       seat,unpatched,corrected,competitiveGamesQualified:0
+    }));
+  });
+  test(`original rank9 Toedscruel Mushroom Drain heals 30 after native attack in seat ${seat}`,()=>{
+    const baseline=toedscruelReceipt(seat,false);
+    const corrected=toedscruelReceipt(seat,true);
+    assert.equal(baseline.physicalAttack,'Scratch');
+    assert.equal(corrected.physicalAttack,'Mushroom Drain');
+    assert.equal(baseline.damageAfter,70);
+    assert.equal(corrected.damageAfter,40);
+    assert.equal(baseline.opponentDamage,80);
+    assert.equal(corrected.opponentDamage,80);
+    console.log('AGENT50_NATIVE_PAPER_TOEDSCRUEL_HEAL '+JSON.stringify({
+      seat,baseline,corrected,competitivelyQualifiedGames:0
     }));
   });
   test(`original CES48 printed Crush and Burn-GX name is accepted by native engine in seat ${seat}`,()=>{
