@@ -87,6 +87,10 @@ function joinNativePrizeExitsToSettledAttacks(attempts,physicalExits){
           actionOrdinal:attack.actionOrdinal,
           completionRootOrdinal:attack.completionRootOrdinal,
           turnBefore:attack.turnBefore,
+          declarationRootTurnAfter:attack.declarationRootTurnAfter??null,
+          completionRootTurnBefore:attack.completionRootTurnBefore??null,
+          completionRootTurnMatchesDeclarationTurn:
+            attack.completionRootTurnMatchesDeclarationTurn??null,
           settledPromptChain:attack.settledPromptChain,
           settlementCrossesClockReset:attack.settlementCrossesClockReset,
           prizesBefore:attack.prizesBefore,
