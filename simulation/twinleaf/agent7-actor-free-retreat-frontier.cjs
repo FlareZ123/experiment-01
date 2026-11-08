@@ -47,6 +47,8 @@ function chooseFreeRetreatToPotentialKo(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own.active,foe=view.opponentPublic?.active;
   if(!active||!foe||view.globalTurn===1)return null;
+  if(require('./agent47-active-position-retreat-veto.cjs')
+    .hasActivePositionAbilityToPreserve(view))return null;
   const r=view.ownTurnResources;
   if(!Number.isSafeInteger(r?.retreatedTurn)||
       r.retreatedTurn===view.globalTurn)return null;
