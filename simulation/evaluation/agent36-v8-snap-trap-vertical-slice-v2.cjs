@@ -284,9 +284,20 @@ function buildPostPromptSequence(
   const nextSourceRoot = afterOpponent.find(event =>
     event.seat === sourceSeat
   ) ?? null;
+  // A response to an opponent's attack can be a genuine owner choice
+  // without showing the source player has taken a subsequent turn.
+  // Require a later global turn and an owner-initiated non-prompt root.
+  // The actual native root tape supplies turnBefore for both seats.
+  const opponentTurn = nextOpponentMeaningfulRoot?.turnBefore;
+  const sourceOwnTurnDecision = event =>
+    Number.isSafeInteger(opponentTurn) &&
+    Number.isSafeInteger(event.turnBefore) &&
+    event.turnBefore > opponentTurn &&
+    event.action !== 'ResolvePromptAction';
   const nextSourceMeaningfulRoot = afterOpponent.find(event =>
     event.seat === sourceSeat &&
-    classifications.get(event) === 'meaningful'
+    classifications.get(event) === 'meaningful' &&
+    sourceOwnTurnDecision(event)
   ) ?? null;
   const ledger = rootLedgerOf(row);
   const promptRootLedgerEntry = Array.isArray(ledger) &&
@@ -361,6 +372,9 @@ function buildPostPromptSequence(
     nextOwnerPromptMessage: nextOwnerPrompt?.message ?? null,
     opponentDecisionObserved: Boolean(nextOpponentMeaningfulRoot),
     sourceContinuationObserved: Boolean(nextSourceMeaningfulRoot),
+    sourceOwnTurnActionObserved: Boolean(nextSourceMeaningfulRoot),
+    sourceTurnAdvancementRequired: true,
+    opponentTurnBeforeSourceContinuation: opponentTurn ?? null,
     continuationGatePassed: Boolean(
       nextOpponentMeaningfulRoot &&
       nextSourceMeaningfulRoot &&
