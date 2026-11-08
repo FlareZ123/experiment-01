@@ -1,0 +1,153 @@
+{
+  "schema": "agent32-prospective-vip-perfection-transition-16groups-v1",
+  "frozen_on": "2026-11-08",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidate": "new-moon-lockbreaker-v1",
+  "ranks": [
+    1,
+    3,
+    5,
+    6,
+    9,
+    11,
+    13,
+    26
+  ],
+  "nativeRootLimit": 260,
+  "physicalGroups": 16,
+  "attemptedNativeGames": 32,
+  "control": "Current opt-in two-seat native paid Perfection plus owner first-turn real VIP with preferred physical Mewtwo/Gengar, NO extra Benched pivot flag",
+  "treatment": "identical registered sixties and both-seat policy, plus existing Agent35 native-tested donor-specific Basic Psychic attachment and legal paid Retreat on both physical seats",
+  "randomSeeds": "secrets.randbelow(2**32), drawn and registered before any native run",
+  "status": "PROSPECTIVE UNSEEN FIRST EXECUTION",
+  "groups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 2002,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3195640869,
+      "id": "1:2002:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 2003,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2072623804,
+      "id": "1:2003:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "A",
+      "repeat": 2006,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1888593614,
+      "id": "3:2006:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "candidateSlot": "B",
+      "repeat": 2007,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 90858195,
+      "id": "3:2007:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 2010,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2944727575,
+      "id": "5:2010:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 2011,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4049827901,
+      "id": "5:2011:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 2012,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 895308266,
+      "id": "6:2012:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 2013,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3763537688,
+      "id": "6:2013:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 9,
+      "candidateSlot": "A",
+      "repeat": 2018,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 849258998,
+      "id": "9:2018:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 9,
+      "candidateSlot": "B",
+      "repeat": 2019,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2850626863,
+      "id": "9:2019:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 2022,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 179070157,
+      "id": "11:2022:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 2023,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 826758556,
+      "id": "11:2023:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 2026,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 269814871,
+      "id": "13:2026:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 2027,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 619863657,
+      "id": "13:2027:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 26,
+      "candidateSlot": "A",
+      "repeat": 2052,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1466579068,
+      "id": "26:2052:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 26,
+      "candidateSlot": "B",
+      "repeat": 2053,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 771701049,
+      "id": "26:2053:B:new-moon-lockbreaker-v1"
+    }
+  ]
+}
