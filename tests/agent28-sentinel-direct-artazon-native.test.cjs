@@ -595,7 +595,11 @@ for(const seat of [0,1]){
       const energyIndex=opponent.hand.cards.findIndex(c=>c.name===energyName);
       assert.ok(energyIndex>=0);
       const to={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0};
-      x.f.store.dispatch(new ResolvePromptAction(p.id,[{to,index:energyIndex}]));
+      const assignment=[{to,card:opponent.hand.cards[energyIndex]}];
+      assert.equal(p.validate(assignment,x.state),true);
+      // This is direct Store dispatch, which accepts decoded CardAssign records.
+      // The transport-only index form is never decoded by Store.reducePrompt.
+      x.f.store.dispatch(new ResolvePromptAction(p.id,assignment));
       for(let j=0;j<12;j++){
         p=x.state.prompts.find(z=>z.result===undefined);
         if(!p)break;
