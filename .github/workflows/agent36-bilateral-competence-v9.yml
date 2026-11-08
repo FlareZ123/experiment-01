@@ -3,6 +3,11 @@ name: Agent36 one-game bilateral competence probe
 on:
   workflow_dispatch:
     inputs:
+      agent24_v8_perfection_260root:
+        description: 'Same registered eight original v8 arms with bilateral copied Perfection and actual 260-root historical continuation'
+        required: false
+        type: boolean
+        default: false
       agent24_v8_bilateral_perfection:
         description: 'Historical original v8 eight-arm two-seat paid Perfection actor-root opt-in with owner prompt resolution'
         required: false
@@ -122,6 +127,7 @@ jobs:
           node --check simulation/twinleaf/agent36-funded-perfection-pass-observer.cjs
           node --check simulation/evaluation/agent24-v8-bilateral-perfection-root-native.cjs
           node --check simulation/evaluation/agent24-v8-perfection-paired-native.cjs
+          node --check simulation/evaluation/agent24-v8-perfection-260root-native.cjs
           node --check simulation/twinleaf/agent47-shared-trubbish-family-owner-prompt.cjs
           node --check simulation/twinleaf/agent47-shared-motivate-owner-prompt.cjs
           node --check simulation/twinleaf/agent10-trubbish-fst-full-bench-paper-hook.cjs
@@ -225,7 +231,7 @@ jobs:
         run: node --test tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection }}
+        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
@@ -233,6 +239,12 @@ jobs:
         run: |
           mkdir -p artifacts/agent24-v8-bilateral-perfection
           node simulation/evaluation/agent24-v8-perfection-paired-native.cjs > artifacts/agent24-v8-bilateral-perfection/paired-receipt.json
+
+      - name: Extend original v8 bilateral funded Perfection to 260 native roots
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent24_v8_perfection_260root && !inputs.contract_only }}
+        run: |
+          mkdir -p artifacts/agent24-v8-perfection-260root
+          node simulation/evaluation/agent24-v8-perfection-260root-native.cjs > artifacts/agent24-v8-perfection-260root/receipt.json
 
       - name: Execute exposed-seed bilateral known-dead OFF A-prime control
         if: ${{ inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.contract_only && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native }}
@@ -304,6 +316,7 @@ jobs:
           path: |
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent24-v8-bilateral-perfection/
+            artifacts/agent24-v8-perfection-260root/
             artifacts/agent43-v9-root93-secretbox-oneprize/
             artifacts/agent20-v9-box-fog-ace-trainer-aba/
             artifacts/agent36-v9-vip-aba/
