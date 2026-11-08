@@ -1,0 +1,65 @@
+{
+  "schema": "agent38-v8-owner-mail-after-pass-four-arm-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-08T21:18:04.987Z",
+  "intent": "Replace a genuinely observed unsupported early owner Pass with an acting-owner Trainers' Mail action and native top-four prompt settlement, then examine opponent response and following owner turn; not a full competitive-game qualification.",
+  "control": "agent43-v8-snaptrap-exact-prompt-blocker run({ownerAbilityConfirm:true,captureRootTape:true})",
+  "treatment": "same run({ownerAbilityConfirm:true,ownerMailAfterPass:true,captureRootTape:true})",
+  "sharedOriginalRegistration": "results/aichi-2026/registrations/agent36-v8-snap-trap-vertical-slice-v1-20261108.json",
+  "frozenOriginalRanks": [
+    3
+  ],
+  "frozenFixedSixties": [
+    "rank3-original",
+    "rank1-champion-reference"
+  ],
+  "cardsUnchanged": true,
+  "nativeRootActionsPerArm": 260,
+  "sourceCandidateSeatRule": "candidateSlot A: sourceSeat1; candidateSlot B: sourceSeat0",
+  "trials": [
+    {
+      "id": "3:312:B:champion-reference",
+      "rank": 3,
+      "seed": 2404595552,
+      "sourceSeat": 0,
+      "candidateSeat": 1
+    },
+    {
+      "id": "3:312:A:champion-reference",
+      "rank": 3,
+      "seed": 2404595552,
+      "sourceSeat": 1,
+      "candidateSeat": 0
+    },
+    {
+      "id": "3:213:A:champion-reference",
+      "rank": 3,
+      "seed": 948758444,
+      "sourceSeat": 1,
+      "candidateSeat": 0
+    },
+    {
+      "id": "3:213:B:champion-reference",
+      "rank": 3,
+      "seed": 948758444,
+      "sourceSeat": 0,
+      "candidateSeat": 1
+    }
+  ],
+  "rootPolicy": "native-owner-only Mail v2 adapted from Agent4's proven bilateral eight-arm wrapper; all ordinary owner actions delegate to canonical v8 policy; accepted matching native Mail PlayCardAction replaces Pass only",
+  "ownerAbilityConfirmEnabledInBothArms": true,
+  "nativeRequirements": [
+    "baseline and treatment exact original 60s and seeds",
+    "real Store-accepted Mail Item root after incumbent Pass",
+    "matching owner-only top-four ChooseCardsPrompt result",
+    "physical Trainer moved to hand and unchosen cards returned to deck",
+    "a non-mechanical opponent root after the Mail play",
+    "a real subsequent meaningful owner root on a strictly later turn"
+  ],
+  "admission": {
+    "paperQualifiedGames": 0,
+    "estimateWinRate": false,
+    "selectedFinalDeck": false
+  },
+  "protocol": "prospective frozen registration before native execution, same seed pairs and both physical seats; preserve every trial outcome and first-divergence root, including failure and cap"
+}
