@@ -21,6 +21,21 @@ The archived runner printed its own machine-recorded acceptance summary:
 
 The 5 accepted actions and 5 physical transfers are totals across the four registered arms. The `fullSequence=true` positive means at least one tagged Mail line was followed by a nonmechanical opponent action and a subsequent non-prompt source action on a strictly later global turn. Other individual arms may be censored at the 260-root cap or have independent native errors; this evidence does not imply all four reached the full continuation.
 
+## Matched original-deal arm outcomes and bounded payoff
+
+A versioned native rerun retained exactly the same registered seeds and policy choices and added an arm-level source/action/Prize scoreboard to the **existing** workflow logs. [Native rerun 42525587747](https://github.com/FlareZ123/experiment-01/actions/runs/42525587747), head `580ffe2c1c596d46c278c28b25e3541c320fcb9f`, completed successfully. Both the original two pure adapter tests and three added registration/divergence/strict-next-turn tests passed. The four individual A/B first divergences all replaced a real `PassTurnAction` with `PlayCardAction` at the exact recorded ordinal.
+
+| Original rank-3 trial | Source seat | First changed root | Native Mail selected Trainer(s) | Control → treatment native endpoint | Control → treatment remaining Prizes by seat |
+| --- | ---: | ---: | --- | --- | --- |
+| `3:312:B` | 0 | 138 | Nest Ball | action cap → action cap | 6/3 → 6/3 |
+| `3:312:A` | 1 | 21 | Float Stone | engine terminal, winner seat 1 → same | 6/6 → 6/6 |
+| `3:213:A` | 1 | 7 | Team Rocket's Handiwork | action cap → action cap | 6/6 → 6/6 |
+| `3:213:B` | 0 | 12 | Nest Ball, later Nest Ball at root 220 | action cap → action cap | **6/4 → 6/5** |
+
+The terminal `3:312:A` reached **six more native roots** under Mail, but the winner and both players' remaining six Prizes were unchanged. Each action-cap arm reached the same root limit under both policies; these are not completed games. All four arms emitted positive `fullSequenceGate=true`, with later source own-turn `PlayCardAction` observed. One arm's opponent response was an actual `AttackAction` (`3:312:A`); others had opposing `PlayCardAction`.
+
+**Concrete censored board outcome:** `3:213:B` had the candidate champion take only one Prize by the 260-root cap instead of two in the control, with the same unchanged source seat and registered seed. This is a favorable *bounded outcome for the Snorlax source*, not evidence of a final game win or sufficient proof of a reliable effect across the field. It could also be a transient consequence of different card draws/shuffles. The separate `3:312:A` terminal still ended in a loss for the champion candidate with no Prizes taken.
+
 ## Exact executable composition
 
 1. **Frozen prospective registration:** `results/aichi-2026/registrations/agent38-v8-owner-mail-after-pass-four-arm-20261108.json`; four rank-3 Snorlax-original versus rank-1 Shadow Rider reference arms; two original physical seeds `2404595552`, `948758444` each in both source/candidate seating orientations; original 60-card lists unchanged; 260 native roots per arm.
