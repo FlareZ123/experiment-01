@@ -1406,6 +1406,7 @@ function runDevelopment({
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
+  actorPotentialKoRoot=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
@@ -1510,6 +1511,8 @@ function runDevelopment({
     'Owner fallback diagnostic view requires canonical actor composition');
   assert.ok(!mysteriousTreasureRoot||actorOnlyComposition,
     'Mysterious Treasure root requires canonical actor composition');
+  assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
+    'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!firstBlockedPromptContractObserver||actorOnlyComposition,
     'First blocked prompt observer requires canonical actor composition');
   assert.ok(registeredCandidateDecks===null||
@@ -1839,7 +1842,7 @@ function runDevelopment({
           !actorFlexiblePaidRetreatRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot&&
           !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView&&
-          !mysteriousTreasureRoot)?{}:
+          !mysteriousTreasureRoot&&!actorPotentialKoRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
@@ -1892,6 +1895,9 @@ function runDevelopment({
               }:{}),
               ...(mysteriousTreasureRoot?{
                 mysteriousTreasureRoot:true
+              }:{}),
+              ...(actorPotentialKoRoot?{
+                potentialKoRoot:true
               }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
@@ -2379,6 +2385,7 @@ function runDevelopment({
         ?.sameRootProposalChoice?.changedRoots??0),0),
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
+    actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
     actorPlumeriaAfterPassOptIn:actorOnlyComposition&&actorPlumeriaAfterPass,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorGuzmaPromptContinuationOptIn:
