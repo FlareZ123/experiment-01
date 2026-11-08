@@ -82,7 +82,7 @@ function safeAttemptRow(row,rootLedgerFn,summaryById){
   };
 }
 
-/** @param {object} phase @param {object|null} thrown */
+/** @param {object|null} phase @param {object|null} promptAudit @param {object|null} zoneAudit @param {object|null} thrown @param {object} sourceRunner */
 function buildArtifact(phase,promptAudit,zoneAudit,thrown,sourceRunner){
   const diagnostic=phase?.diagnostic??null;
   const quarantine=diagnostic?.audit?.nativeRawStateQuarantine??
