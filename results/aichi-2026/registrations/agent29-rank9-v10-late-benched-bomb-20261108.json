@@ -1,0 +1,36 @@
+{
+  "schema": "agent29-original-rank9-v10-late-benched-bomb-pre-native-registration",
+  "status": "prospective treatment implementation, retrospective frozen physical deals",
+  "createdAt": "2026-11-08",
+  "source": "exact original Aichi rank 9 60 cards",
+  "opponents": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "fieldCoverage": "rank9 only; same v5 original physical deals; not an independent fresh-seed tournament sample",
+  "frozenRegistration": "results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json",
+  "trials": 16,
+  "attempts": 32,
+  "physicalSeats": [
+    0,
+    1
+  ],
+  "control": "existing v9 control without the original-source Compressor and Ultra treatment; same physical deals",
+  "treatment": "v9 source owner VIP + two-real-dead-VIP Ultra + evolution + Compressor plus opt-in v10 same-source late-turn bench Electrode Ability",
+  "policyChange": "original source physically paid Battle Compressor search remains eligibility prerequisite, but it may be on an earlier turn; original Electrode-GX CES may be Active or Benched; require >=3 printed source Energy in discard, Benched original Mega Absol ex, opponent >2 Prizes",
+  "paperCardText": "Electrode-GX CES 48 / sm7-48 printed Extra Energy Bomb has no Active-only requirement",
+  "registrationInformedBy": [
+    "prior v8 run 42339981746",
+    "prior v9 run 42340668341"
+  ],
+  "primaryEndpoint": "source native Store accepted ability, paid 3+ physical original Energy to original Mega, Electrode physically self-KOd and 2 opponent Prize cards taken",
+  "secondaryEndpoint": "source follow-up settled native Claw of Darkness attack",
+  "negativeEndpoints": [
+    "source energy below 3",
+    "no source-shuffle evidence",
+    "owner under active Ability lock",
+    "no real owner prompt",
+    "no real target"
+  ],
+  "paperQualifiers": "research-only opt-in; two candidates with weak automated policy; no full-field performance claims"
+}
