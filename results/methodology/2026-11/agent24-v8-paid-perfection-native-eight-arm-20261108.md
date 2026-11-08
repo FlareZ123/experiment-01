@@ -42,6 +42,24 @@ The raw JSON stores remaining Prizes as **physical seat 0 / seat 1**, in this tr
 
 The control and treatment were run under registered original source inventories and existing card-print proxy policies; policy competence, all-paper-Expanded legality/errata, true event clock and unseen representative deal coverage remain unqualified. Reproduce with `simulation/evaluation/agent24-v8-perfection-paired-native.cjs` and the manual `agent24_v8_bilateral_perfection` switch in `.github/workflows/agent36-bilateral-competence-v9.yml`.
 
+## Native 260-root continuation: actual rank-11 game win
+
+A separate opt-in full native continuation [CI 42531707767](https://github.com/FlareZ123/experiment-01/actions/runs/42531707767) **succeeded** at the existing historical physical setups, with the same Perfection option on both physical seats and an actual native action ceiling of **260** (rather than v8's frozen root128). It archived artifact **13637459171**, ZIP SHA256 **1658128febde531f60b83b6808d843e650c96a49ee0dec11e4a5f083b740f9b7**.
+
+Critically, comparing the downloaded native JSON with the prior root128 artifact shows **all 128 accepted Store actions for rank11/New Moon exactly identical as JSON**, action ordinals 0–127 inclusive. The new post-cap sequence consists of ordinals 128–132, all candidate physical seat0 on turn23:
+
+1. **128** owner `WaitPrompt` closes the earlier genuine Fog Crystal owner search/shuffle.
+2. **129** actor-initiated `UseAbilityAction('Perfection')` on the same Active Mewtwo & Mew-GX.
+3. **130** native `WaitPrompt` settles.
+4. **131** genuine `ChooseAttackPrompt` selects printed **Gengar & Mimikyu-GX TEU's Poltergeist**.
+5. **132** final native `WaitPrompt`; engine declares game over.
+
+The engine outcome is `native-terminal-unqualified`, `finished=true`, **winner physical seat0/candidate**, root count **133**, final remaining Prizes **[0,5]**, and **opponent board empty**. The candidate took the final sixth Prize from its fourth paid Perfection copied attack. Unlike the earlier 128-root experiment, this is an **actual native game winner**, not an action-cap prediction. The source had seven real source attacks fully settled before its final board loss, although the source also made a turn22 Pass and strong adversarial policy competence remains unproven.
+
+There were eight historical 260-root treatments total. Among their other results, rank6/champion and rank11/champion were native terminal with source/candidate winner depending on seat; rank1/champion completed at 111 roots; the rest included incomplete caps and **one rank3/New Moon engine error at 189 roots**. Hence the completed rank11 candidate win cannot be extrapolated to all opponents or the absent 23/25/28 source ranks.
+
+**Rule and benchmark distinctions:** This is a native engine outcome under a known research printing proxy, the historical deal exposed by earlier research, no independent 25-minute physical tournament clock, and incomplete opponent/AI competence. It does not certify actual tournament-strength or paper-expanded legality across all interactions. The parent shared v8 manifest reports its historical root128 registration; the leaf override's true cap260 is explicitly recorded in `simulation/evaluation/agent24-v8-perfection-260root-native.cjs` and the treatment artifact. A separate matched-control 260-root comparison is under development, preserving this continuation as an observed endpoint rather than a randomized win-rate estimate.
+
 ## Related rule-correctness patch
 
 The public Perfection readiness selector formerly treated **every** Special Condition as attack-preventing. The supplied advanced paper Rulebook A-01 explicitly prevents attacks when **Asleep or Paralyzed**; Poisoned, Burned and Confused may attempt attacks (Confused has its normal attack coin-flip). Refined `simulation/twinleaf/agent30-known-perfection-options.cjs` to use the pinned engine's `SpecialCondition` enum rather than indiscriminately rejecting any condition. Allowed known status values: Confused, Poisoned, Burned. Veto Asleep, Paralyzed and any unknown special-condition value until its attack semantics are verified. `simulation/twinleaf/agent34-actor-only-root-policy.cjs` passes the native enum's Poisoned/Burned constants in the detached public catalog. Three new status regression tests cover positive paths, mixed locks, and conservative unknowns in `tests/agent30-known-perfection-options.test.cjs`.
@@ -50,6 +68,6 @@ The contract-only shared [CI 42531301350](https://github.com/FlareZ123/experimen
 
 ## Continuation
 
-The `agent24_v8_bilateral_perfection` workflow switch executes the confirmed **same-deal A/B native comparison** with the original owner-Ability/Telepath policy as control, preserves accepted native action ledgers, and compares the exact first divergent action. A separate `agent24_v8_perfection_260root` switch extends the original registered eight-arm Perfection treatment past 128 accepted roots to 260 while explicitly overriding the historical limit and keeping the game developmental. Both outputs are saved under their own artifacts, without modifying the selected policies. The next release candidate needs genuine same-deal causal output, natural win/terminal or explicit censoring, competent source responses and fresh unseen field-wide benchmark.
+The `agent24_v8_bilateral_perfection` workflow switch executes the confirmed **same-deal A/B native comparison** with the original owner-Ability/Telepath policy as control, preserves accepted native action ledgers, and compares the exact first divergent action. A separate `agent24_v8_perfection_260root` switch now compares **control and treatment** on the original eight registered physical setups with a genuine native 260-root cap, preserving the unqualified completed candidate win and checking whether the unchanged policy would also reach terminal. Both outputs are saved under their own artifacts, without modifying the selected policies. The next release candidate needs genuine same-deal causal output, natural win/terminal or explicit censoring, competent source responses and fresh unseen field-wide benchmark.
 
 **Status:** 29/32 authentic opponent sixties, original ranks23/25/28 missing; zero paper/clock-qualified games; no nominated fixed final 60 and no demonstrated 99.5% win rate.
