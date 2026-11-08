@@ -38,7 +38,7 @@ function withOwnerQuickBallAfterPass(execute,deps){
     schema:VERSION,policy:POLICY_VERSION,
     trialIds:[...ids],genuineMatches:0,
     ownerPassObservations:0,rootAttempts:0,rootAccepted:0,
-    rootRejected:0,promptPaymentAccepted:0,
+    rootRejected:0,rootUnmoved:0,promptPaymentAccepted:0,
     promptSearchAccepted:0,physicalDiscardConfirmed:0,
     physicalBasicToHandConfirmed:0,ownerPromptRejected:0,
     unhandledOwnQuickBallPrompt:0,unknownNativeActionFallbacks:0,
@@ -119,6 +119,10 @@ function withOwnerQuickBallAfterPass(execute,deps){
     const ownerBefore=this.state.players[receipt.seat];
     const selected=receipt.physicalSelection??[];
     const originalHand=ownerBefore.hand.cards.slice();
+    const physicalPlayed=receipt.kind==='play-quick-ball-after-pass'?
+      ownerBefore.hand.cards[action.handIndex]:null;
+    const physicalAutoCost=receipt.kind==='play-quick-ball-after-pass'?
+      ownerBefore.hand.cards.find(x=>x.fullName===receipt.paymentPrinting):null;
     const originalDeckCount=ownerBefore.deck.cards.length;
     const originalDiscard=ownerBefore.discard.cards.slice();
     let result;
@@ -140,8 +144,16 @@ function withOwnerQuickBallAfterPass(execute,deps){
       selected.length===1&&!originalHand.includes(selected[0])&&
       after.hand.cards.includes(selected[0])&&
       after.deck.cards.length<originalDeckCount;
-    if(receipt.kind==='play-quick-ball-after-pass')
-      audit.rootAccepted++;
+    const rootPhysicallyPlayed=receipt.kind==='play-quick-ball-after-pass'&&
+      Boolean(physicalPlayed)&&!after.hand.cards.includes(physicalPlayed);
+    const autoPayment=receipt.kind==='play-quick-ball-after-pass'&&
+      Boolean(physicalAutoCost)&&after.discard.cards.includes(physicalAutoCost)&&
+      !after.hand.cards.includes(physicalAutoCost);
+    if(receipt.kind==='play-quick-ball-after-pass'){
+      if(rootPhysicallyPlayed)audit.rootAccepted++;
+      else audit.rootUnmoved++;
+      if(autoPayment)audit.physicalDiscardConfirmed++;
+    }
     if(receipt.kind==='mandatory-discard-dead-vip'){
       if(resolved)audit.promptPaymentAccepted++;
       if(resolved&&paymentMoved)audit.physicalDiscardConfirmed++;
@@ -155,7 +167,8 @@ function withOwnerQuickBallAfterPass(execute,deps){
       kind:receipt.kind,sourcePrinting:receipt.sourcePrinting,
       selectedPrintings:selected.map(x=>x.fullName),
       nativeStoreAccepted:true,ownerPromptResolved:receipt.prompt?
-        resolved:null,physicalPaymentMoved:paymentMoved,
+        resolved:null,physicalRootCardMoved:rootPhysicallyPlayed,
+      physicalPaymentMoved:paymentMoved,automaticPaymentMoved:autoPayment,
       physicalBasicTransferred:searched,
       handBefore:originalHand.length,handAfter:after.hand.cards.length,
       deckBefore:originalDeckCount,deckAfter:after.deck.cards.length,
