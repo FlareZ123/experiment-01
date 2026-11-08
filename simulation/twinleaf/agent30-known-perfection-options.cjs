@@ -40,12 +40,12 @@ function knownPerfectionDonorCatalog(nativeCardDefinitions){
  * @param {object} energyCatalog Native public typed Energy catalog
  * @returns {number[]|null}
  */
-function knownMewtwoEnergyUnits(view,energyCatalog){
+function knownMewtwoEnergyUnits(view,energyCatalog,pokemon=view.ownPublic?.active){
   const stadium=[...(view.ownPublic?.stadium??[]),
     ...(view.opponentPublic?.stadium??[])];
   const temple=stadium.some(x=>x.startsWith('Temple of Sinnoh '));
   const units=[];
-  for(const printing of view.ownPublic?.active?.energies??[]){
+  for(const printing of pokemon?.energies??[]){
     if(energyCatalog.basicEnergies.has(printing)){
       const name=BASIC_NAMES.find(n=>printing.startsWith(n+' Energy '));
       if(name===undefined)return null;
