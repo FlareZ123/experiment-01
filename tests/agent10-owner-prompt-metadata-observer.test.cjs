@@ -8,14 +8,14 @@ const {
 
 class FakeStore{
   constructor(state){this.state=state;this.nextPromptId=0;}
-  dispatch(action){return action;}
+  dispatch(action){return typeof action.run==='function'?action.run(this):action;}
   prompt(state,prompt){
     prompt.id=prompt.id??String(++this.nextPromptId);
     state.prompts.push(prompt);
     return prompt;
   }
 }
-class PlayCardAction{}
+class PlayCardAction{constructor(run){this.run=run;}}
 class ChooseCardsPrompt{
   constructor(player,cards,message,options){
     this.player=player;
@@ -39,12 +39,11 @@ test('owner prompt observer records sanitized metadata and the triggering root',
   ];
   const originalPrompt=FakeStore.prototype.prompt;
   const originalDispatch=FakeStore.prototype.dispatch;
-  const {result,audit}=withOwnerPromptMetadataObserver(()=>{
-    store.dispatch(new PlayCardAction());
-    return store.prompt(state,new ChooseCardsPrompt(owner,secretCards,42,{
-      min:1,max:2,allowCancel:false,isSecret:true
-    }));
-  },{
+  const {result,audit}=withOwnerPromptMetadataObserver(()=>
+    store.dispatch(new PlayCardAction(()=>store.prompt(state,
+      new ChooseCardsPrompt(owner,secretCards,42,{
+        min:1,max:2,allowCancel:false,isSecret:true
+      })))),{
     Store:FakeStore,
     GameMessage:{CHOOSE_CARD_TO_PUT_ONTO_BENCH:42}
   });
@@ -87,9 +86,9 @@ test('observer counts CardList options without serializing their contents and re
   const originalPrompt=FakeStore.prototype.prompt;
   const originalDispatch=FakeStore.prototype.dispatch;
   assert.throws(()=>withOwnerPromptMetadataObserver(()=>{
-    store.dispatch(new PlayCardAction());
-    store.prompt(state,new ChooseCardsPrompt(owner,
-      new CardList([{fullName:'Hidden Option'}]),42,{min:0,max:1}));
+    store.dispatch(new PlayCardAction(()=>store.prompt(state,
+      new ChooseCardsPrompt(owner,
+        new CardList([{fullName:'Hidden Option'}]),42,{min:0,max:1}))));
     throw new Error('sentinel');
   },{
     Store:FakeStore,
