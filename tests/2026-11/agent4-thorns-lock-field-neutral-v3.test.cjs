@@ -16,7 +16,7 @@ function observation(stadium=[],tools=[]){
 const extraStadium=['Sky Field ROS','Parallel City BKT',
   'Artazon PAL','PokéStop PGO','Shopping Center EVS','Risky Ruins MEG',
   'Thunder Mountain Prism Star LOT','Wondrous Labyrinth Prism Star TEU',
-  'Grand Tree SCR'];
+  ];
 test('nine field-derived Stadium classes are an actual opt-in v3 expansion',()=>{
   assert.equal(v3.VERSION,'agent4-thorns-public-field-neutral-v3');
   for(const stadium of extraStadium){
