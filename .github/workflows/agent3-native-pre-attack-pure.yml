@@ -2,6 +2,12 @@ name: Agent 3 native pre-attack public board pure regression
 
 on:
   workflow_dispatch:
+    inputs:
+      native_postko:
+        description: Run targeted pinned v29 and v30 eight-trial native post-KO gates
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -26,3 +32,44 @@ jobs:
           node-version: '22'
       - name: Verify public board join and original-source printed nominal screen
         run: node --test tests/agent3-native-pre-attack-public-board-join.test.cjs tests/agent3-postprize-response-action-sequence.test.cjs tests/agent3-postprize-owner-reply-projection.test.cjs tests/agent3-v28-public-attack-damage-screen.test.cjs tests/agent3-mimikyu-copycat-eon-blade-eligibility.test.cjs tests/agent37-candidate-attack-settlement.test.cjs tests/agent3-accepted-prize-attack-join.test.cjs
+
+  native-postko:
+    if: ${{ inputs.native_postko == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout pinned research tree
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - name: Checkout pinned Twinleaf gitlink
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up Node.js 20.19.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf once
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Retest original v29 real public attack and Prize owner reply
+        env:
+          AGENT3_V29_V8_PRIZE_DIR: artifacts/agent3-native-postko
+        run: node --test tests/agent3-issue25-v29-printed-prize-owner-reply.native.test.cjs
+      - name: Retest original v30 exact KO Energy and Tool custody
+        env:
+          AGENT3_V30_V8_PRIZE_DIR: artifacts/agent3-native-postko
+        run: node --test tests/agent3-issue25-v30-physical-knockout-energy-objects.native.test.cjs
+      - name: Retain native post-KO receipts including a failed gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-native-postko-${{ github.run_id }}
+          path: artifacts/agent3-native-postko/
+          if-no-files-found: warn
+          retention-days: 30
