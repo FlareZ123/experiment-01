@@ -5,6 +5,7 @@ const path=require('node:path');
 const {sourceEnergy}=require('./agent29-rank9-compressor-owner-bridge.cjs');
 
 const VERSION='agent29-rank9-post-compressor-owner-bomb-v4';
+const LATE_BENCH_VERSION='agent29-rank9-post-compressor-bench-late-bomb-v10';
 const SOURCE_ITEM='Battle Compressor PHF';
 const ELECTRODE='Electrode-GX CES';
 const MEGA='Mega Absol ex M1L';
@@ -19,18 +20,26 @@ const MEGA='Mega Absol ex M1L';
  * @param {object} ready Source-stamped successful shuffle record.
  * @returns {{electrode:object,recipientBenchIndex:number}|null}
  */
-function chooseOwnerBombAfterCompressor(state,sourceSeat,ready){
-  if(!ready||ready.turn!==state.turn||
+function chooseOwnerBombAfterCompressor(state,sourceSeat,ready,{
+  allowLaterBenchedElectrode=false,minDiscardEnergy=3
+}={}){
+  if(!ready||(!allowLaterBenchedElectrode&&ready.turn!==state.turn)||
     state.activePlayer!==sourceSeat||state.prompts?.some(p=>p.result===undefined))
     return null;
   const owner=state.players[sourceSeat],opponent=state.players[1-sourceSeat];
   if(!owner||!opponent||opponent.getPrizeLeft()<=2)return null;
   const active=owner.active.getPokemonCard();
-  if(active?.fullName!==ELECTRODE)return null;
+  const benchedIndex=allowLaterBenchedElectrode?
+    owner.bench.findIndex(b=>b.getPokemonCard()?.fullName===ELECTRODE):-1;
+  const electrode=active?.fullName===ELECTRODE?
+    active:benchedIndex>=0?owner.bench[benchedIndex].getPokemonCard():null;
+  if(!electrode)return null;
   const index=owner.bench.findIndex(b=>b.getPokemonCard()?.fullName===MEGA);
   if(index<0)return null;
-  if(!owner.discard.cards.some(c=>sourceEnergy(c.fullName)))return null;
-  return {electrode:active,recipientBenchIndex:index};
+  const available=owner.discard.cards.filter(c=>sourceEnergy(c.fullName)).length;
+  if(available<(allowLaterBenchedElectrode?minDiscardEnergy:1))return null;
+  return {electrode,recipientBenchIndex:index,
+    electrodeBenchIndex:active?.fullName===ELECTRODE?-1:benchedIndex};
 }
 
 /**
@@ -59,6 +68,7 @@ function withOwnerBombAfterSourceCompressor(run,sourceSeat,deps={}){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=deps.promptActions??
     native('game/store/actions/resolve-prompt-action');
+  const allowLaterBenchedElectrode=deps.allowLaterBenchedElectrode===true;
   const originalDecode=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   const originalDispatch=Object.getOwnPropertyDescriptor(
@@ -69,7 +79,8 @@ function withOwnerBombAfterSourceCompressor(run,sourceSeat,deps={}){
   const readyByOwner=new Map();
   const bombByOwner=new Map();
   const proposed=new WeakMap(),attachment=new WeakMap();
-  const audit={version:VERSION,sourceSeat,sourceOnly:true,
+  const audit={version:allowLaterBenchedElectrode?LATE_BENCH_VERSION:VERSION,
+    sourceSeat,sourceOnly:true,allowLaterBenchedElectrode,
     sourceStampedCompressorShuffles:0,
     afterItemBombEligiblePasses:0,proposedBombs:0,
     nativeAcceptedBombs:0,nativeRejectedBombs:0,
@@ -110,15 +121,20 @@ function withOwnerBombAfterSourceCompressor(run,sourceSeat,deps={}){
     const prior=originalDecode.value.call(this,state);
     if(prior?.constructor?.name!=='PassTurnAction'||pending)return prior;
     const ready=readyByOwner.get(owner.id);
-    const available=chooseOwnerBombAfterCompressor(state,sourceSeat,ready);
+    const available=chooseOwnerBombAfterCompressor(state,sourceSeat,ready,
+      {allowLaterBenchedElectrode});
     if(!available)return prior;
     audit.afterItemBombEligiblePasses++;
     readyByOwner.delete(owner.id);
     const action=new UseAbilityAction(owner.id,'Extra Energy Bomb',
-      {player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+      {player:PlayerType.BOTTOM_PLAYER,
+        slot:available.electrodeBenchIndex>=0?SlotType.BENCH:SlotType.ACTIVE,
+        index:Math.max(0,available.electrodeBenchIndex)});
     const opponent=state.players[1-sourceSeat];
     const event={sourceSeat,turn:state.turn,
-      ownerActive:available.electrode.fullName,
+      ownerActive:owner.active.getPokemonCard()?.fullName??null,
+      electrodeSourceSlot:available.electrodeBenchIndex>=0?'bench':'active',
+      compressorTurn:ready.turn,
       recipientBenchIndex:available.recipientBenchIndex,
       discardedEnergyBefore:owner.discard.cards.filter(c=>
         sourceEnergy(c.fullName)).length,
@@ -195,5 +211,5 @@ function withOwnerBombAfterSourceCompressor(run,sourceSeat,deps={}){
   }
 }
 
-module.exports={VERSION,chooseOwnerBombAfterCompressor,
+module.exports={VERSION,LATE_BENCH_VERSION,chooseOwnerBombAfterCompressor,
   withOwnerBombAfterSourceCompressor};
