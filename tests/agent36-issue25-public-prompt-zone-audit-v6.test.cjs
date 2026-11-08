@@ -258,6 +258,8 @@ test('hidden hand, deck and Prize prompts never emit hidden card identities', ()
     );
     assert.equal(result.matches.length, 1);
     assert.equal(result.matches[0].visibility, 'hidden');
+    assert.equal(result.matches[0].eligibleCount, null);
+    assert.equal(result.offeredCount, null);
     assert.equal(result.offeredPrintings, null);
   }
 });
