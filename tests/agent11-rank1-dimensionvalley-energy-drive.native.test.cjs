@@ -52,6 +52,16 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(alternate.attackDamage,80,
     'Energy Drive should deal 20 times the four Energy attached to both Active Pokémon');
   assert.deepEqual(alternate.unresolvedPromptTypes,[]);
+  assert.equal(alternate.attackFollowthrough.nativeOpponentTurnAfterAttack,true,
+    'Energy Drive should hand the next action to opponent');
+  assert.equal(alternate.attackFollowthrough.opponentAttackNativeAccepted,true,
+    'same attack branch must resolve the opponent Eon Blade action');
+  assert.equal(alternate.attackFollowthrough.ownerActiveAfter,null,
+    'after Energy Drive, the exposed Tapu Lele-GX should be Knocked Out');
+  assert.equal(alternate.attackFollowthrough.pendingPrizePrompt,true,
+    'native KO must lead to a genuine opponent Prize-selection prompt');
+  assert.equal(alternate.attackFollowthrough.opponentActiveDamageAfter,80,
+    'opponent Latias ex must retain the 80 Energy Drive damage');
   assert.equal(alternate.baselineOpponentReply.opponentAttackNativeAccepted,true);
   assert.equal(alternate.baselineOpponentReply.ownerActiveAfter,null,
     'without retreat, Eon Blade should Knock Out Active Tapu Lele-GX');
@@ -89,7 +99,7 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     genuineNativeStoreDecisionChanged:false,
     sourceRootHistoryUnchanged:true,
     paperQualifiedGames:0,
-    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, downstream opponent does not reply, and it is not a matchup win'
+    limitation:'One retrospective source-only cloned counterfactual; native attack settled for 80 damage after resolving client-equivalent WaitPrompts, but this is not a paper certification, the same-branch Eon Blade reply is evaluated but Prize selection is pending; no full game or matchup win is certified'
   };
   console.log('AGENT11_DIMENSIONVALLEY_ENERGY_DRIVE_NATIVE',
     JSON.stringify(packet));
