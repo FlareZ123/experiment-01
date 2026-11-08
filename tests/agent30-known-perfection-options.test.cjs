@@ -24,7 +24,7 @@ const energyCatalog={
   specialEnergies:new Set([M3,'Mystery Energy PHF']),
   basicEnergyTypes:{Psychic:P,Lightning:4},
   colorlessEnergyType:C,
-  specialConditions:{ASLEEP:2,PARALYZED:0,CONFUSED:3}
+  specialConditions:{ASLEEP:2,PARALYZED:0,CONFUSED:1,POISONED:3,BURNED:4}
 };
 /** @param {string[]} energy @returns {object} */
 function view(energy=[M3]){
