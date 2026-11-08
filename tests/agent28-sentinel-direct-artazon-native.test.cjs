@@ -578,6 +578,11 @@ for(const seat of [0,1]){
     assert.equal(opponent.bench[0].getPokemonCard()?.fullName,vmax);
 
     const attachToBenchedVmax=(slot,index)=>{
+      console.log('AGENT28_DOOR_PRE',JSON.stringify({seat,slot,index,
+        handPsy:opponent.hand.cards.filter(c=>c.name===energyName).length,
+        benchCards:opponent.bench[0].cards.map(c=>c.fullName),
+        benchEnergies:opponent.bench[0].energies.cards.map(c=>c.fullName),
+        active:opponent.active.getPokemonCard()?.fullName}));
       x.f.store.dispatch(new UseAbilityAction(opponent.id,
         'Underworld Door',{player:PlayerType.BOTTOM_PLAYER,slot,index}));
       let p=x.state.prompts.find(z=>z.result===undefined);
@@ -602,6 +607,11 @@ for(const seat of [0,1]){
         x.f.store.dispatch(new ResolvePromptAction(p.id,answer));
       }
       assert.equal(x.f.store.hasPrompts(),false);
+      console.log('AGENT28_DOOR_POST',JSON.stringify({seat,slot,index,
+        handPsy:opponent.hand.cards.filter(c=>c.name===energyName).length,
+        benchCards:opponent.bench[0].cards.map(c=>c.fullName),
+        benchEnergies:opponent.bench[0].energies.cards.map(c=>c.fullName),
+        deckSize:opponent.deck.cards.length}));
     };
     attachToBenchedVmax(SlotType.ACTIVE,0);
     attachToBenchedVmax(SlotType.BENCH,0);
@@ -610,6 +620,10 @@ for(const seat of [0,1]){
     x.f.store.dispatch(new PlayCardAction(opponent.id,psyIndex,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
     }));
+    console.log('AGENT28_DOOR_FINAL',JSON.stringify({seat,
+      handPsy:opponent.hand.cards.filter(c=>c.name===energyName).length,
+      benchCards:opponent.bench[0].cards.map(c=>c.fullName),
+      benchEnergies:opponent.bench[0].energies.cards.map(c=>c.fullName)}));
     assert.equal(opponent.bench[0].energies.cards.length,4);
     assert.equal(opponent.energyPlayedTurn,x.state.turn);
 
