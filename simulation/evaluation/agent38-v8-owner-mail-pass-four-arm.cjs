@@ -246,7 +246,7 @@ if (require.main === module) {
       selectedTrainerPrintings: row.ownerMailTrainerSelectionReceipts.map(
         receipt => receipt.printing),
       selectedMailTrainersActuallyPlayed: row.selectedTrainerLaterPlayed,
-      selectedMailTrainerPlayedRoots: treatment.publicRootTape.filter(root =>
+      selectedMailTrainerPlayedRoots: artifact.treatment.publicRootTape.filter(root =>
         root.trialId === row.trialId &&
         root.previouslyMailSelectedTrainerPlayed === true
       ).map(root => root.ordinal),
