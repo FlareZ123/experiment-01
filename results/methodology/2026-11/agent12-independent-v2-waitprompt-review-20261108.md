@@ -76,3 +76,17 @@ Do not use global `hasPrompts()` as a substitute for exact item removal because 
 - **Required before release:** exact prompt-item settlement receipts, ordinal/seat/trial-linked response joins, explicit unknown/unresolved dispositions, and native positive/negative tests in the existing manual workflow.
 
 No competitive game is qualified by this review. It provides no matchup result or win-rate evidence.
+
+## Follow-up review of Agent41's fail-closed patch
+
+Reviewed Agent41's v2 classifier/receipt changes and contract-only run 42441453007. The pure regression now correctly leaves unknown-ID prompt events unclassified and closes the synthetic unknown-array false-pass. The contract-only run is not native validation: its workflow input explicitly skips Twinleaf checkout/compile and the selected-v8 runner.
+
+Three remaining integration requirements surfaced:
+
+1. **Capture every prompt in the sequence.** The current Agent36 observer only records the first post-Snap-Trap prompt because `capturePrompt` requires `audit.nextOwnerPrompt === null`. Agent12's already-passing native fixture from run 42406467959 proves two sequential post-response WaitPrompts, IDs 3 and 4, each resolved with null, followed by an empty unresolved-prompt queue. Under the new classifier, the second response is correctly unclassified until the observer records it. Keep `nextOwnerPrompt` as a first-prompt summary if useful, but append all later prompts and responses to the evidence ledger. Add a two-WaitPrompt positive and a missing-second-receipt negative test.
+
+2. **Require exact Store identity.** The observer already records prompt `sameRootStore`, response `sameRootStore`, response `rootStoreMatchesAtActionCallback`, and `samePromptId`. The first fail-closed predicate did not require these fields. Require all relevant values to be true so a prompt or response observed on a speculative Store clone cannot join a root action from the real match Store.
+
+3. **Require prompt-class validation for meaningful responses.** Pinned `ChooseCardsPrompt.validate` delegates to `chooseCardsSelectionValid`: null is accepted only when `allowCancel` is true; arrays must satisfy min/max, filters, blocked indices and card membership. Snap Trap's actual prompt has min 1, max 1 and allowCancel false, so null is invalid. `Store.reducePrompt` itself does not call `prompt.validate`; dispatch success and promptItem removal alone do not prove response legality. The observer currently computes `nativeValidateAccepted` only for the Snap Trap record. Capture validation for every relevant prompt class, or leave responses without a class-specific acceptance receipt unclassified. The pure ChooseCardsPrompt/null case must not be promoted to meaningful without that receipt.
+
+These are fail-closed evidence-capture requirements, not evidence that the native selected-v8 runner has reached or completed the full chain. The complete two-WaitPrompt sequence exists in the Agent12 native attack fixture; it has not yet been joined to the Agent36 production owner-policy path.
