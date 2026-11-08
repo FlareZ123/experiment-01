@@ -183,6 +183,13 @@ function buildPostPromptSequence(
     const response = responseForEvent(event);
     if (!prompt || !response) return 'unclassified';
     const exactSettlementReceipt =
+      prompt.sameRootStore === true &&
+      prompt.ownerSeat === event.seat &&
+      response.samePromptId === true &&
+      String(response.actionPromptId) === String(event.promptId) &&
+      response.sameRootStore === true &&
+      response.rootStoreMatchesAtActionCallback === true &&
+      response.nativeValidateAccepted === true &&
       response.actionType === 'ResolvePromptAction' &&
       response.actionOrdinal === event.actionOrdinal &&
       response.actingSeat === event.seat &&
@@ -285,7 +292,14 @@ function buildPostPromptSequence(
     ) ?? null;
   const nextOwnerResponse = nextOwnerPromptEvent ?
     responseForEvent(nextOwnerPromptEvent) : null;
-  const promptEvidenceComplete = unclassifiedPromptRoots.length === 0;
+  const nextOwnerPromptResponseSettled = !nextOwnerPrompt || Boolean(
+    nextOwnerPromptEvent &&
+    nextOwnerResponse &&
+    classifications.get(nextOwnerPromptEvent) !== 'unclassified'
+  );
+  const promptEvidenceComplete =
+    unclassifiedPromptRoots.length === 0 &&
+    nextOwnerPromptResponseSettled;
   return {
     promptResponseActionOrdinal: promptOrdinal,
     promptResponseActingSeat: sourceSeat,
@@ -299,6 +313,7 @@ function buildPostPromptSequence(
     promptEvidenceComplete,
     nextOwnerPrompt,
     nextOwnerPromptResponse: nextOwnerResponse,
+    nextOwnerPromptResponseSettled,
     nextOwnerPromptType: nextOwnerPrompt?.promptType ?? null,
     nextOwnerPromptMessage: nextOwnerPrompt?.message ?? null,
     opponentDecisionObserved: Boolean(nextOpponentMeaningfulRoot),
@@ -383,6 +398,8 @@ function buildExecutionGate(summaries, selectedDiagnostic) {
     bothSourceSeatPromptResolutionsObserved,
     meaningfulOpponentAndSourceContinuation,
     postPromptPromptEvidenceComplete,
+    nextOwnerPromptResponseSettled:
+      sequence?.nextOwnerPromptResponseSettled ?? false,
     endpointExplicitlyClassified,
     knownPromptTrialId: KNOWN_PROMPT_TRIAL_ID,
     knownPromptTrialNativeOutcome: known?.nativeOutcome ?? null,
