@@ -247,7 +247,24 @@ function run(settings = {}) {
       nativeEndReason: row.endReason ?? null,
       nativeTurnCount: row.turns ?? null,
       nativeFinalPrizes: row.finalPrizes ?? null,
+      nativeFinalPublicBoard: row.finalBoard ?? null,
       nativeActionCount: row.actionCount ?? null,
+      nativeRootActionMix: Array.isArray(row.rootActionLedger) ?
+        row.rootActionLedger.reduce((map, root) => {
+          const key = String(root.playerSlot) + ':' + String(root.action);
+          map[key] = (map[key] ?? 0) + 1;
+          return map;
+        }, {}) : {},
+      nativeFinalThirtyPublicRoots: Array.isArray(row.rootActionLedger) ?
+        row.rootActionLedger.slice(-30).map(root => ({
+          actionOrdinal: root.actionOrdinal,
+          turnBefore: root.turnBefore,
+          playerSlot: root.playerSlot,
+          action: root.action,
+          card: root.card ?? null,
+          attack: root.attack ?? null,
+          pendingPromptId: root.pendingPromptId ?? null
+        })) : [],
       promptCount: prompts.length,
       acceptedRootCount: roots.length,
       recentPromptEvents: prompts.slice(-8),
