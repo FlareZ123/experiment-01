@@ -39,7 +39,7 @@ on:
         type: boolean
         default: false
       agent36_v8_snap_trap_vertical_slice_v2:
-        description: 'Strict selected-v8 Snap Trap owner-prompt audit; excludes mechanical WaitPrompts and requires both source-seat settlements'
+        description: 'Strict selected-v8 Snap Trap owner-prompt audit; requires exact prompt settlement receipts, both source-seat settlements, and fails closed on unjoined prompt actions'
         required: false
         type: boolean
         default: false
@@ -54,7 +54,7 @@ on:
         type: boolean
         default: false
       contract_only:
-        description: 'Run pure Agent34/Agent41 natural-evolution seat-scope contracts without compiling Twinleaf or executing a game'
+        description: 'Run pure Agent34/Agent41 policy and Agent36 Snap Trap prompt-gate/observer contracts without compiling Twinleaf or executing a game'
         required: false
         type: boolean
         default: false
@@ -178,7 +178,7 @@ jobs:
             tests/agent36-issue25-common-v10b-paired-fresh-aba.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs \
             tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs \
-            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs
+            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs
 
       - name: Verify pure Agent34/Agent41 policy, observer, and v2 prompt-gate contracts
         if: ${{ inputs.contract_only }}
