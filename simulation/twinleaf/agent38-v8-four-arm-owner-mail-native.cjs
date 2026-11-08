@@ -22,6 +22,7 @@ function withBilateralOwnerMail(next,deps){
   const {headless,SimpleTacticsAi,Store,PlayCardAction,
     ResolvePromptAction,types,trialIds}=deps;
   const followMailNestBall=deps.followMailNestBall===true;
+  const followMailHandiwork=deps.followMailHandiwork===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
   assert.equal(ids.size,trialIds.length, 'registered owner-Mail trial IDs must be unique');
@@ -35,6 +36,7 @@ function withBilateralOwnerMail(next,deps){
     pendingNest=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
+  const ownerMailHandiworkActions=new WeakSet();
   const physicallySelectedMailTrainers=new WeakSet();
   const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
@@ -49,6 +51,8 @@ function withBilateralOwnerMail(next,deps){
     noPromptAfterMailBySeat:[0,0],
     revealedTrainers:[],actualMailEvents:[],
     selectedTrainerLaterPlayed:[],
+    handiworkFromMailOffers:0,handiworkFromMailAccepted:0,
+    handiworkFromMailNativeDeckChanges:[],handiworkFromMailRejected:0,
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nativeDecoderInvocations:0,
@@ -120,6 +124,24 @@ function withBilateralOwnerMail(next,deps){
       baseline?.constructor?.name!=='PassTurnAction'||
       owner?.id!==this.client?.id)return baseline;
     audit.ownerRootPassesSeen++;
+    if(followMailHandiwork&&!prompt){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const {chooseMailSelectedHandiwork}=
+        require('./agent9-mail-selected-handiwork-follow.cjs');
+      const handIndices=owner.hand.cards.flatMap((card,index)=>
+        physicallySelectedMailTrainers.has(card)?[index]:[]);
+      const intent=chooseMailSelectedHandiwork(
+        actorObservation(state,seat),handIndices);
+      const card=intent?owner.hand.cards[intent.handIndex]:null;
+      if(card?.fullName===intent.printing&&
+         card?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,intent.handIndex);
+        ownerMailHandiworkActions.add(action);
+        audit.handiworkFromMailOffers++;
+        return action;
+      }
+    }
     if(followMailNestBall&&board.PlayerType!==undefined&&
       board.SlotType!==undefined&&
       owner?.bench?.some(slot=>(slot.cards??[]).length===0)){
@@ -150,6 +172,12 @@ function withBilateralOwnerMail(next,deps){
     const state=this.state,seat=state.activePlayer;
     const owner=state.players?.[seat];
     const proposal=proposals.get(action);
+    const taggedHandiwork=ownerMailHandiworkActions.has(action);
+    const opposingSeat=1-seat;
+    const opposingBefore=taggedHandiwork?{
+      deck:state.players[opposingSeat].deck.cards.length,
+      discard:state.players[opposingSeat].discard.cards.length
+    }:null;
     // Only cards selected by a genuinely settled owner's Mail prompt can
     // later qualify as search-to-play evidence. Identity persists in hand.
     const selectedMailCard=action?.constructor?.name==='PlayCardAction'?
@@ -163,7 +191,24 @@ function withBilateralOwnerMail(next,deps){
       owner.hand.cards[action.handIndex]?.fullName===MAIL;
     let value;
     try{value=oldStore.value.call(this,action,...args);}
-    catch(e){if(proposal)audit.rejectedPromptActions++;throw e;}
+    catch(e){
+      if(proposal)audit.rejectedPromptActions++;
+      if(taggedHandiwork)audit.handiworkFromMailRejected++;
+      throw e;
+    }
+    if(taggedHandiwork){
+      const afterOpponent=this.state.players[opposingSeat];
+      audit.handiworkFromMailAccepted++;
+      audit.handiworkFromMailNativeDeckChanges.push({
+        trialId,ownerSeat:seat,turnBefore:state.turn,
+        before:opposingBefore,
+        after:{deck:afterOpponent.deck.cards.length,
+          discard:afterOpponent.discard.cards.length},
+        physicalDeckCardsRemoved:
+          opposingBefore.deck-afterOpponent.deck.cards.length,
+        nativeStoreReturned:true
+      });
+    }
     if(nestPromptProposal){
       const afterOwner=this.state.players[nestPromptProposal.seat];
       const chosen=nestPromptProposal.selected;
