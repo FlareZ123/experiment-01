@@ -1431,6 +1431,7 @@ function runDevelopment({
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorVipAfterPass=false,
+  actorVipAfterPassAdapter=null,
   actorVipRank9MegaVoltorbRecipient=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorBilateralLillieAfterPass=false,
@@ -1592,6 +1593,11 @@ function runDevelopment({
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipAfterPass||actorOnlyComposition,
     'Original first-turn VIP after-Pass requires both-seat actor-only root');
+  assert.ok(actorVipAfterPassAdapter===null||
+    typeof actorVipAfterPassAdapter==='function',
+    'VIP after-Pass adapter must be a function or null');
+  assert.ok(actorVipAfterPassAdapter===null||actorVipAfterPass,
+    'VIP after-Pass adapter injection requires the explicit opt-in');
   assert.ok(!actorVipRank9MegaVoltorbRecipient||actorVipAfterPass,
     'Exact original Mega and Voltorb VIP targets require after-Pass owner prompt');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1979,7 +1985,10 @@ function runDevelopment({
           return wrapped.result;
         };
         const observed=withCanonicalActorOnlyPolicy(withOptionalOwnerMail,
-          {...scopedRoot,...chargedPokemon},
+          {...scopedRoot,...chargedPokemon,
+            ...(actorVipAfterPassAdapter?{
+              vipAfterPass:actorVipAfterPassAdapter
+            }:{})},
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             preferMewMaxMiracleOverSelfCopy:actorMewMaxMiracleOverSelfCopy,
@@ -2393,6 +2402,7 @@ function runDevelopment({
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorBilateralLillieAfterPassOptIn:actorOnlyComposition&&
       actorBilateralLillieAfterPass,
+    actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
         ACTOR_COMPOSITION_VERSION):null,
