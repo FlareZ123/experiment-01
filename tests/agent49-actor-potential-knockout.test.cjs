@@ -138,7 +138,7 @@ test('pinned native Weakness with omitted value means times two',()=>{
     v.opponentPublic.active),80,
     'actorObservation maps the native undefined weakness multiplier to null');
   assert.deepEqual(chooseActorRootIntent(v,catalog,{potentialKoRoot:true}),
-    {kind:'attack',attackName:'Setup'},
+    {kind:'attack',attackName:'Finish'},
     'printed Setup 20 x2 remains nonlethal; later Finish 60 x2 is lethal');
   v.ownPublic.active.attacks=[attack('Weakness Finish',40),attack('Raw Finish',80)];
   assert.equal(choosePotentialKnockout(v,v.ownPublic.active.attacks).name,
