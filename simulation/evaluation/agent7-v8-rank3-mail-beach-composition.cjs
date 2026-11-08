@@ -31,7 +31,8 @@ function runBranch(earlyBeach){
     }else for(const flag of FLAGS)delete process.env[flag];
     let mail=null;
     const traced=traceBeachNativeRun(()=>{
-      mail=withBilateralOwnerMail(runV8,{
+      mail=withBilateralOwnerMail(
+        ()=>runV8({ownerMailFollowupFrame:true}),{
         headless,
         SimpleTacticsAi:native('simple-bot/simple-tactics-ai').SimpleTacticsAi,
         Store:native('game/store/store').Store,
