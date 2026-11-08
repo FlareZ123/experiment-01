@@ -45,10 +45,17 @@ function trials() {
  *
  * @param {boolean} enablePerfection
  * @param {(options:object)=>object} [run]
+ * @param {object} [extra] Registered-game or opt-in owner-policy configuration.
  * @returns {{selected:object,wrappers:object}}
  */
-function runNativeBatch(enablePerfection,run=runDevelopment){
-  const frozen=trials();
+function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
+  const frozen=extra.registeredTrials??trials();
+  const frameName=extra.registeredFrameName??registration.schema;
+  const rootLimit=extra.nativeRootActionLimit??registration.effective_native_root_limit;
+  assert.ok(!extra.vipPreferMewtwoDonor||extra.vipAfterPass,
+    'VIP Mewtwo donor recipient needs actual first-turn VIP native search');
+  assert.ok(!extra.perfectionBenchFunding||enablePerfection,
+    'Perfection recipient pre-funding requires paid Perfection selected');
   const expected=frozen.map(x=>x.id);
   let selected=null;
   const core=()=>withCommonOwnerThornsRoot(()=>{
@@ -60,15 +67,25 @@ function runNativeBatch(enablePerfection,run=runDevelopment){
         bilateralSpecialEnergyRoot:true,
         nativeAcceptedTargets:true,
         bilateralPerfectionRoot:enablePerfection,
-        nativeRootActionLimit:registration.effective_native_root_limit,
+        bilateralPerfectionBenchFunding:extra.perfectionBenchFunding===true,
+        bilateralBasicEnergyRecipientFrontier:extra.energyRecipientFrontier===true,
+        actorVipAfterPass:extra.vipAfterPass===true,
+        ...(extra.vipPreferMewtwoDonor?{
+          actorVipAfterPassAdapter:(next,options)=>
+            require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs')
+              .withActorBattleVipAfterPass(next,{
+                ...options,preferMewtwoDonorRecipient:true
+              })
+        }:{}),
+        nativeRootActionLimit:rootLimit,
         registeredTrials:frozen.map(row=>({...row})),
-        registeredFrameName:registration.schema,
+        registeredFrameName:frameName,
         allowSingleCandidatePerGroup:true,
         allowAdditionalOriginalSourceRanks:true
       }),
       layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
       registeredTrialIds:expected,
-      nativeRootActionLimit:registration.effective_native_root_limit
+      nativeRootActionLimit:rootLimit
     });
     return selected;
   });
@@ -80,7 +97,7 @@ function runNativeBatch(enablePerfection,run=runDevelopment){
   assert.ok(selected?.rawDevelopment,'The complete selected native batch must be returned');
   assert.equal(selected.diagnostic.allRegisteredAttemptsReturned,true,
     'No missing, duplicate or unexpected native trial rows permitted');
-  assert.equal(selected.rawDevelopment.rows.length,16);
+  assert.equal(selected.rawDevelopment.rows.length,frozen.length);
   return {
     selected,
     wrappers:{
