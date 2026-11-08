@@ -156,6 +156,7 @@ function pendingByTrial(events, roots, trialId) {
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
+  const energyRecipient = settings.energyRecipient === true;
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -190,6 +191,7 @@ function run(settings = {}) {
         actorOnlyComposition: true,
         sourceIndependentCommonPolicy: true,
         bilateralSpecialEnergyRoot: true,
+        bilateralBasicEnergyRecipientFrontier: energyRecipient,
         nativeAcceptedTargets: true,
         nativeRootActionLimit: ROOT_LIMIT,
         registeredTrials: registeredTrials.map(t => ({...t})),
@@ -281,6 +283,7 @@ function run(settings = {}) {
     observedPromptEvents: trace.events.length,
     observedRootActions: trace.roots.length,
     experimentalOwnerAbilityConfirm: ownerAbilityConfirm,
+    experimentalBasicEnergyRecipient: energyRecipient,
     ownerAbilityConfirmAudit: ownerAbilityConfirmAudit === null ? null : {
       version: ownerAbilityConfirmAudit.version,
       confirmOffers: ownerAbilityConfirmAudit.confirmOffers,
