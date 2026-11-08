@@ -8,7 +8,7 @@ const {
   run: runNative
 } = require('./agent43-v8-snaptrap-exact-prompt-blocker.cjs');
 
-const VERSION = 'agent38-v8-owner-mail-pass-four-arm-v1';
+const VERSION = 'agent38-v8-owner-mail-after-pass-four-arm-v1';
 const ROOT = path.resolve(__dirname, '../..');
 const REGISTRATION = require('../../results/aichi-2026/registrations/agent38-v8-owner-mail-after-pass-four-arm-20261108.json');
 const OUTPUT = path.join(ROOT, 'artifacts/agent43-v8-snaptrap-owner-root/agent38-early-mail-comparison.json');
