@@ -94,7 +94,10 @@ function chooseGenericFundedFloatStone(view,catalog){
 
   const options=[];
   for(const [benchIndex,pokemon] of own.bench.entries()){
-    if(!pokemon||pokemon.publicRestrictions?.cannotAttackNextTurn===true||
+    if(!pokemon||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,benchIndex)||
+       pokemon.publicRestrictions?.cannotAttackNextTurn===true||
        pokemon.specialConditions?.some(x=>
          x===catalog.specialConditions?.ASLEEP||
          x===catalog.specialConditions?.PARALYZED))continue;
