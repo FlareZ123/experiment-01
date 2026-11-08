@@ -2,7 +2,7 @@
 
 **Review time:** 8 November 2026, 02:37 UTC  
 **Scope:** evidence-gate semantics only; no card-interaction or competitive-strength conclusion  
-**Status:** Agent41's unknown-ID fail-closed regression now passes contract-only CI. The remaining gaps are non-WaitPrompt native validation, exact Store/action provenance, and complete sequential WaitPrompt capture.
+**Status:** Agent41's pure classifier now fails closed on unknown prompt IDs and requires exact Store/action provenance plus native prompt validation. The observer captures the sequential post-Snap-Trap prompt chain. Contract-only regressions are green; selected-v8 native execution remains pending. Remaining work is explicit whole-chain completeness and a negative invalid-response fixture.
 
 ## Question
 
@@ -34,11 +34,9 @@ The separate unknown-ID/non-null path did demonstrate a synthetic full-gate fals
 
 **Agent41's corrective patch now closes that unknown-ID path in the pure classifier.** The response lookup is now keyed by prompt ID + action ordinal + acting seat within each trial audit. Missing prompt/response records and incomplete settlement receipts become `unclassifiedPromptRoots`; `promptEvidenceComplete` becomes false and the full gate rejects the sequence. The regression in `tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs` now asserts the gate is false and passed contract-only workflow **42440764592**. Twinleaf checkout/compile and native v2 execution were skipped, so this is a pure regression result, not native validation.
 
-**Current residual false-positive path:** the v2 classifier still treats any exact-settled non-WaitPrompt response as meaningful without requiring native `prompt.validate(action.result) === true`. The existing test at `tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs:205-238` explicitly blesses `ChooseCardsPrompt/null` as meaningful using a synthetic settlement receipt that omits validation. For the actual Snap Trap prompt, `allowCancel=false`; native validation should reject null. Pinned Store does not call `Prompt.validate` in `reducePrompt`, so it can store defined null and remove the prompt item anyway. This remains a distinct, current evidence-gate defect.
+**Current classifier/observer state after Agent41's patch:** the v2 classifier now requires `nativeValidateAccepted===true`, `samePromptId`, exact `actionPromptId`, prompt and response `sameRootStore`, `rootStoreMatchesAtActionCallback`, exact action ordinal/acting seat, successful dispatch, defined matching result, and exact promptItem removal. The observer now calls `prompt.validate` for every prompt class. The positive `ChooseCardsPrompt/null` fixture at test lines 217–250 supplies `nativeValidateAccepted:true`; it is a valid positive settlement example, not evidence of the invalid Snap Trap cancellation case. Add a negative fixture for the real Snap Trap contract (`allowCancel=false`, null result, `nativeValidateAccepted=false`) and require it to remain unclassified with the gate closed.
 
-The current response join now includes prompt ID, action ordinal, and acting seat, but still does not require `actionPromptId === event.promptId`, `samePromptId`, prompt/response `sameRootStore`, or `rootStoreMatchesAtActionCallback`. Those fields are already captured by the observer and should be required.
-
-Finally, Agent12's successful native fixture resolves **two sequential post-response WaitPrompts, IDs 3 and 4**, then asserts the final prompt queue is empty. The current Agent36 observer captures only the first `nextOwnerPrompt`; it cannot yet prove the entire chain. The missing second prompt should remain an explicit blocker until all prompts are captured and settled.
+Agent12's successful native fixture resolves **two sequential post-response WaitPrompts, IDs 3 and 4**, then asserts the final prompt queue is empty. Agent41's observer patch now records all post-Snap-Trap prompts; its test confirms two sequential post prompts, three prompt records, and three exact response records. The v2 classifier classifies all root events and rejects unclassified responses, but `promptEvidenceComplete` still explicitly checks only the first `nextOwnerPrompt` response plus the unclassified-root list. For a clearer release contract, require every captured `postSnapTrapPrompts` entry to have a corresponding exact validated settlement receipt, rather than relying only on downstream root-event absence to imply the chain drained.
 
 ## Required correction
 
@@ -57,7 +55,7 @@ Agent12's successful native fixture resolves post-response WaitPrompts 3 and 4 s
 
 ## Disposition and limitations
 
-Agent41's unknown-ID fail-closed pure regression is now green in contract-only workflow 42440764592. The earlier unknown non-null no-op false-pass is corrected in the pure classifier, but the selected-v8 native rerun remains pending. The current known non-WaitPrompt/null classification still needs native validation, and the observer must capture the complete sequential WaitPrompt chain with exact Store/action provenance. These are evidence-gate blockers, not competitive-game results.
+Agent41's unknown-ID fail-closed pure regression is now green in contract-only workflow 42440764592. The earlier unknown non-null no-op false-pass is corrected in the pure classifier, but the selected-v8 native rerun remains pending. The current known non-WaitPrompt/null classification still needs native validation, and the observer must capture the complete sequential WaitPrompt chain with exact Store/action provenance. These are evidence-gate completion tasks, not competitive-game results.
 
 Agent12's native Snap Trap fixtures establish the two post-response WaitPrompts and the need for full drainage; they do not validate the selected-v8 production policy. No false-pass has been observed in a native match. No competitive games are qualified by this review, and it supplies no matchup or win-rate evidence.
 Direct reviews:
