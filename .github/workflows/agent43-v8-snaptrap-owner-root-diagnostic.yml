@@ -53,7 +53,9 @@ jobs:
           node --check simulation/evaluation/agent38-v8-owner-mail-pass-four-arm.cjs
       - name: Pure-test exact four-trial adapter scope and hook restoration
         if: ${{ inputs.owner_mail_after_pass }}
-        run: node --test tests/2026-11/agent38-v8-four-arm-owner-mail-native.test.cjs
+        run: |
+          node --test tests/2026-11/agent38-v8-four-arm-owner-mail-native.test.cjs
+          node --test tests/2026-11/agent38-v8-owner-mail-pass-four-arm.test.cjs
       - name: Compare native early owner Mail after Pass with same-seed control
         if: ${{ inputs.owner_mail_after_pass }}
         run: node simulation/evaluation/agent38-v8-owner-mail-pass-four-arm.cjs
