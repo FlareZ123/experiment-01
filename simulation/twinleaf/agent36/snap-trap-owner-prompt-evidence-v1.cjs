@@ -188,6 +188,7 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     rootStoreIdentityRequired: true,
     ownerObservationContract: 'actor-observation-contract.cjs',
     snapTrapPrompt: null,
+    snapTrapPrompts: [],
     nextOwnerPrompt: null,
     postSnapTrapPrompts: [],
     promptRecords: [],
@@ -262,7 +263,12 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
 
     if (identity) {
       record.snapTrapIdentity = identity.public;
-      audit.snapTrapPrompt = record;
+      if (audit.snapTrapPrompt === null) {
+        audit.snapTrapPrompt = record;
+      } else {
+        audit.postSnapTrapPrompts.push(record);
+      }
+      audit.snapTrapPrompts.push(record);
       privatePromptContext.set(prompt, identity.private);
     } else {
       if (audit.nextOwnerPrompt === null) {
@@ -453,8 +459,9 @@ function withSnapTrapOwnerPromptEvidenceV1(next, deps = {}) {
     ...audit,
     promptRecords: [...audit.promptRecords],
     responseRecords: [...audit.responseRecords],
+    snapTrapPrompts: [...audit.snapTrapPrompts],
     postSnapTrapPrompts: [...audit.postSnapTrapPrompts],
-    snapTrapPromptCount: audit.snapTrapPrompt ? 1 : 0,
+    snapTrapPromptCount: audit.snapTrapPrompts.length,
     nextOwnerPromptCount: audit.nextOwnerPrompt ? 1 : 0,
     postSnapTrapPromptCount: audit.postSnapTrapPrompts.length,
     ownerObservationCapturedCount: audit.promptRecords.filter(record =>
