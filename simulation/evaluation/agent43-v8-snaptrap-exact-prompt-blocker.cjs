@@ -152,15 +152,18 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
   const energyRecipient = settings.energyRecipient === true;
   const ownerMailAfterPass = settings.ownerMailAfterPass === true;
   const followMailNestBall = settings.followMailNestBall === true;
+  const followMailHandiwork = settings.followMailHandiwork === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
+  assert.ok(!followMailHandiwork || ownerMailAfterPass,
+    'Handiwork follow-through requires owner Mail treatment');
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -233,6 +236,7 @@ function run(settings = {}) {
             types: native('game/store/card/card-types'),
             playCardEnums: native('game/store/actions/play-card-action'),
             followMailNestBall,
+            followMailHandiwork,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
@@ -315,6 +319,7 @@ function run(settings = {}) {
     experimentalBasicEnergyRecipient: energyRecipient,
     experimentalOwnerMailAfterPass: ownerMailAfterPass,
     experimentalFollowMailNestBall: followMailNestBall,
+    experimentalFollowMailHandiwork: followMailHandiwork,
     ownerMailAudit: ownerMailAudit === null ? null : {
       version: ownerMailAudit.schema,
       registeredTrialIds: ownerMailAudit.trialIds,
@@ -333,6 +338,11 @@ function run(settings = {}) {
       actualMailEvents: ownerMailAudit.actualMailEvents,
       revealedTrainers: ownerMailAudit.revealedTrainers,
       selectedTrainerLaterPlayed: ownerMailAudit.selectedTrainerLaterPlayed,
+      handiworkFromMailOffers: ownerMailAudit.handiworkFromMailOffers,
+      handiworkFromMailAccepted: ownerMailAudit.handiworkFromMailAccepted,
+      handiworkFromMailRejected: ownerMailAudit.handiworkFromMailRejected,
+      handiworkFromMailNativeDeckChanges:
+        ownerMailAudit.handiworkFromMailNativeDeckChanges,
       nestFromMailOffers: ownerMailAudit.nestFromMailOffers,
       nestFromMailActualPlays: ownerMailAudit.nestFromMailActualPlays,
       nestFromMailBenchSettled: ownerMailAudit.nestFromMailBenchSettled,
