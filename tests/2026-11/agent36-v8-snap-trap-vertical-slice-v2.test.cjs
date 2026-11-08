@@ -74,32 +74,40 @@ function makeJoin() {
   };
 }
 
-function makeMatchAudit() {
+function settledResponse(promptId, actionOrdinal, actingSeat, responseKind = 'null') {
+  return {
+    promptId,
+    responseKind,
+    actionType: 'ResolvePromptAction',
+    actionOrdinal,
+    actingSeat,
+    dispatchReturnedWithoutThrow: true,
+    promptResultDefined: true,
+    promptResultMatches: true,
+    promptItemFoundBeforeDispatch: true,
+    promptItemRemovedAfterDispatch: true
+  };
+}
+
+function makeMatchAudit(responseRecords = [
+  settledResponse('174', 251, 1)
+]) {
+  const nextOwnerPrompt = {
+    promptIdAfterStore: '174',
+    ownerSeat: 1,
+    promptType: 'WaitPrompt',
+    message: 'WAIT_FOR_OPPONENT'
+  };
   return {
     ownerPromptEvidence: {
-      nextOwnerPrompt: {
-        promptIdAfterStore: '174',
-        ownerSeat: 1,
-        promptType: 'WaitPrompt',
-        message: 'WAIT_FOR_OPPONENT'
-      },
-      promptRecords: [
-        {
-          promptIdAfterStore: '174',
-          ownerSeat: 1,
-          promptType: 'WaitPrompt',
-          message: 'WAIT_FOR_OPPONENT'
-        }
-      ],
-      responseRecords: [
-        { promptId: '174', responseKind: 'null', actionOrdinal: 251 },
-        { promptId: '175', responseKind: 'undefined', actionOrdinal: 252 }
-      ]
+      nextOwnerPrompt,
+      promptRecords: [nextOwnerPrompt],
+      responseRecords
     }
   };
 }
 
-test('mechanical null WaitPrompt roots are retained and excluded from meaningful continuation', () => {
+test('known WaitPrompt null is mechanical and an unknown prompt root fails closed', () => {
   const trialId = '3:312:B:champion-reference';
   const events = [
     { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
@@ -118,14 +126,22 @@ test('mechanical null WaitPrompt roots are retained and excluded from meaningful
   const sequence = buildPostPromptSequence(
     trialId, makeJoin(), events, {}, summary, makeMatchAudit()
   );
-  assert.equal(sequence.mechanicalRootsAfterPrompt.length, 2);
+  assert.deepEqual(
+    sequence.mechanicalRootsAfterPrompt.map(event => event.actionOrdinal),
+    [251]
+  );
+  assert.deepEqual(
+    sequence.unclassifiedPromptRoots.map(event => event.actionOrdinal),
+    [252]
+  );
+  assert.equal(sequence.promptEvidenceComplete, false);
   assert.equal(sequence.nextOpponentRoot.actionOrdinal, 251);
   assert.equal(sequence.nextOpponentMeaningfulRoot.actionOrdinal, 253);
   assert.equal(sequence.nextSourceRootAfterOpponent.actionOrdinal, 254);
   assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent.actionOrdinal, 254);
   assert.equal(sequence.nextOwnerPromptType, 'WaitPrompt');
   assert.equal(sequence.nextOwnerPromptResponse.responseKind, 'null');
-  assert.equal(sequence.continuationGatePassed, true);
+  assert.equal(sequence.continuationGatePassed, false);
 });
 
 test('WaitPrompt-only continuation cannot pass the meaningful-decision gate', () => {
@@ -145,7 +161,80 @@ test('WaitPrompt-only continuation cannot pass the meaningful-decision gate', ()
   );
   assert.equal(sequence.nextOpponentMeaningfulRoot, null);
   assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent, null);
+  assert.equal(sequence.unclassifiedPromptRoots.length, 1);
+  assert.equal(sequence.promptEvidenceComplete, false);
   assert.equal(sequence.continuationGatePassed, false);
+});
+
+test('WaitPrompt undefined remains unclassified even when undefined matches stored result', () => {
+  const trialId = '3:312:B:champion-reference';
+  const response = {
+    promptId: '174',
+    responseKind: 'undefined',
+    actionType: 'ResolvePromptAction',
+    actionOrdinal: 251,
+    actingSeat: 1,
+    dispatchReturnedWithoutThrow: true,
+    promptResultDefined: false,
+    promptResultMatches: true,
+    promptItemFoundBeforeDispatch: true,
+    promptItemRemovedAfterDispatch: false
+  };
+  const sequence = buildPostPromptSequence(
+    trialId, makeJoin(), [{
+      trialId,
+      actionOrdinal: 251,
+      seat: 1,
+      action: 'ResolvePromptAction',
+      promptId: '174',
+      responseKind: 'undefined'
+    }], {}, {
+      nativeOutcome: 'engine-error',
+      actionCount: null,
+      finished: null,
+      rootActionCount: 251,
+      rootActionLedgerLength: 251
+    }, makeMatchAudit([response])
+  );
+  assert.equal(sequence.mechanicalRootsAfterPrompt.length, 0);
+  assert.equal(sequence.unclassifiedPromptRoots[0].reason, 'prompt-result-undefined');
+  assert.equal(sequence.promptEvidenceComplete, false);
+  assert.equal(sequence.continuationGatePassed, false);
+});
+
+test('known non-WaitPrompt null with exact settlement receipt remains meaningful', () => {
+  const trialId = '3:312:B:champion-reference';
+  const choosePrompt = {
+    promptIdAfterStore: '175',
+    ownerSeat: 1,
+    promptType: 'ChooseCardsPrompt',
+    message: 'CHOOSE_CARDS'
+  };
+  const response = settledResponse('175', 252, 1);
+  const audit = makeMatchAudit([
+    settledResponse('174', 251, 1),
+    response
+  ]);
+  audit.ownerPromptEvidence.promptRecords.push(choosePrompt);
+  const sequence = buildPostPromptSequence(
+    trialId, makeJoin(), [
+      { trialId, actionOrdinal: 251, seat: 1, action: 'ResolvePromptAction', promptId: '174', responseKind: 'null' },
+      { trialId, actionOrdinal: 252, seat: 1, action: 'ResolvePromptAction', promptId: '175', responseKind: 'null' },
+      { trialId, actionOrdinal: 253, seat: 0, action: 'PlayCardAction', promptId: null, responseKind: 'object' }
+    ], {}, {
+      nativeOutcome: 'action-cap',
+      actionCount: 253,
+      finished: false,
+      rootActionCount: 253,
+      rootActionLedgerLength: 253
+    }, audit
+  );
+  assert.equal(sequence.mechanicalRootsAfterPrompt.length, 1);
+  assert.equal(sequence.unclassifiedPromptRoots.length, 0);
+  assert.equal(sequence.nextOpponentMeaningfulRoot.actionOrdinal, 252);
+  assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent.actionOrdinal, 253);
+  assert.equal(sequence.promptEvidenceComplete, true);
+  assert.equal(sequence.continuationGatePassed, true);
 });
 
 function settledJoin(sourceSeat, matches = true) {
@@ -164,7 +253,7 @@ function settledJoin(sourceSeat, matches = true) {
   };
 }
 
-test('strict execution gate requires exact Snap Trap settlement in both source-seat orientations', () => {
+test('strict execution gate requires exact Snap Trap settlement and complete post-prompt evidence in both source-seat orientations', () => {
   const registered = trials();
   const summaries = registered.map(trial => {
     const sourceSeat = trial.candidateSlot === 'A' ? 1 : 0;
@@ -177,7 +266,8 @@ test('strict execution gate requires exact Snap Trap settlement in both source-s
       promptJoin: known ? settledJoin(sourceSeat) :
         otherSeatPrompt ? settledJoin(sourceSeat) : { exactPromptIdJoin: false },
       postPromptSequence: {
-        continuationGatePassed: known
+        continuationGatePassed: known,
+        promptEvidenceComplete: known
       }
     };
   });
@@ -186,6 +276,7 @@ test('strict execution gate requires exact Snap Trap settlement in both source-s
   });
   assert.equal(gate.passed, true);
   assert.equal(gate.bothSourceSeatPromptResolutionsObserved, true);
+  assert.equal(gate.postPromptPromptEvidenceComplete, true);
   assert.deepEqual(gate.sourceSeatsWithExactPromptSettlement, [0, 1]);
 });
 
@@ -200,7 +291,8 @@ test('strict execution gate rejects a one-seat-only prompt witness', () => {
       promptJoin: trial.id === '3:312:B:champion-reference' ?
         settledJoin(sourceSeat) : { exactPromptIdJoin: false },
       postPromptSequence: {
-        continuationGatePassed: trial.id === '3:312:B:champion-reference'
+        continuationGatePassed: trial.id === '3:312:B:champion-reference',
+        promptEvidenceComplete: trial.id === '3:312:B:champion-reference'
       }
     };
   });
@@ -225,7 +317,8 @@ test('strict execution gate rejects a prompt whose observed source seat differs 
         trial.id === '3:312:A:champion-reference' ?
           settledJoin(sourceSeat) : { exactPromptIdJoin: false },
       postPromptSequence: {
-        continuationGatePassed: trial.id === '3:312:B:champion-reference'
+        continuationGatePassed: trial.id === '3:312:B:champion-reference',
+        promptEvidenceComplete: trial.id === '3:312:B:champion-reference'
       }
     };
   });
