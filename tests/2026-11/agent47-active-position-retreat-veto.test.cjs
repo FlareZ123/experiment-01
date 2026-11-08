@@ -42,7 +42,8 @@ function fixture(abilityText = null) {
     attacks: [{name: 'Volt Cyclone',cost: [3,9,9],damage:140,
       text: 'Move an Energy',damageCalculation:null,gxAttack:false}],
     abilityDetails: abilityText === null ? [] :
-      [{ name: 'Owner ability',text: abilityText }],
+      [{ name: abilityText === ABILITIES[0][1] ? 'Initialization' :
+          'Owner ability',text: abilityText }],
     publicRestrictions: {},specialConditions: []
   };
   const bench = {
