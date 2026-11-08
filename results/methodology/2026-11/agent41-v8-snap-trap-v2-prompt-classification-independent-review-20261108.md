@@ -126,10 +126,10 @@ The exact-item-removal rule is intentionally conservative. A grouped prompt item
 
 ## Disposition
 
-- **Confirmed:** current v2 mechanical classification is overinclusive for null/undefined and WaitPrompt events without exact settlement evidence.
-- **Confirmed:** current v2 also underclassifies unknown non-null `ResolvePromptAction` events as meaningful. A source-valid Store no-op sequence demonstrates a false-positive `continuationGatePassed`.
-- **Confirmed:** the undefined result of a real pending prompt does not settle it; an unknown prompt ID instead takes Store's no-op return path.
-- **Not observed:** the synthetic false-pass sequence has not yet been observed in a real native headless match.
-- **Required before release:** exact prompt-item settlement receipt, ordinal-linked response joins, explicit unknown/unresolved dispositions, a negative unknown-non-null regression, and native positive/negative tests.
+- **Confirmed before patch:** v2 overclassified null/undefined and WaitPrompt events without exact settlement evidence, and underclassified unknown non-null `ResolvePromptAction` events as meaningful. A source-valid Store/headless no-op sequence demonstrated a false-positive full execution gate.
+- **Patched:** current main now requires exact prompt/response joins and exact promptItem settlement receipts; unknown/unjoined/unresolved prompt roots fail closed and block the continuation and execution gates.
+- **Pure validation:** v2 gate tests and observer receipt tests passed in contract-only CI run `42441581802`.
+- **Not observed:** the synthetic false-pass sequence has not been observed in a real native headless match. Native Twinleaf compile and v2 execution remain pending.
+- **Remaining risk:** grouped prompt items are conservatively unclassified until the exact item is removed; group-aware settlement handling and native tests remain open.
 
 This review supplies no qualified paper game, matchup result, or win-rate evidence. The Aichi benchmark status remains unchanged.
