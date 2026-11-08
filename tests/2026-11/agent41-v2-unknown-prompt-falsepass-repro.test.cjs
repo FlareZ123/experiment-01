@@ -49,13 +49,20 @@ test('unknown non-null prompt ID cannot satisfy the full v2 execution gate', () 
   const waitPrompt = {
     promptIdAfterStore: 174,
     promptType: 'WaitPrompt',
-    message: 'WAIT_FOR_OPPONENT'
+    message: 'WAIT_FOR_OPPONENT',
+    ownerSeat: 1,
+    sameRootStore: true
   };
   const matchAudit = {
     ownerPromptEvidence: {
       promptRecords: [waitPrompt],
       responseRecords: [{
         promptId: 174,
+        actionPromptId: 174,
+        samePromptId: true,
+        sameRootStore: true,
+        rootStoreMatchesAtActionCallback: true,
+        nativeValidateAccepted: true,
         responseKind: 'null',
         actionType: 'ResolvePromptAction',
         actionOrdinal: 251,
