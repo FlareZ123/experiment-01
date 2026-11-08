@@ -160,3 +160,56 @@ test('shared actor chooser uses Crispin recovery only under Treasure opt-in',()=
   assert.equal(enabled.discardSourceIndex,1);
   assert.equal(enabled.reason,'recoverable-supporter-via-vs-seeker');
 });
+
+
+test('opt-in Muscle Band payment preserves Crispin and VS Seeker at rank-13 root',()=>{
+  const hand=[ITEM,'Crispin SCR','Muscle Band XY',
+    'VS Seeker PHF','Battle Compressor PHF'];
+  const s=view({turn:1,hand});
+  const baseline=chooseTreasureRootIntent(s,dragonCatalog);
+  const treatment=chooseTreasureRootIntent(s,dragonCatalog,
+    {preferMuscleBandPayment:true});
+  assert.equal(baseline.discardPrinting,'Crispin SCR');
+  assert.equal(treatment.discardPrinting,'Muscle Band XY');
+  assert.equal(treatment.discardSourceIndex,2);
+  assert.equal(treatment.reason,'preserve-crispin-and-vs-seeker');
+  assert.equal(treatment.searchOwnerDeckOnly,true);
+});
+
+test('alternate payment does not invent an available Muscle Band or VS Seeker',()=>{
+  const options={preferMuscleBandPayment:true};
+  const hand=[ITEM,'Crispin SCR','Muscle Band XY'];
+  assert.equal(chooseTreasureRootIntent(view({turn:1,hand}),
+    dragonCatalog,options),null);
+  assert.equal(chooseTreasureRootIntent(view({
+    turn:2,hand:[...hand,'VS Seeker PHF']
+  }),dragonCatalog,options),null);
+});
+
+test('shared chooser opt-in isolates alternate Treasure cost without changing baseline',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view({turn:1,hand:[ITEM,'Crispin SCR','Muscle Band XY',
+    'VS Seeker PHF','Battle Compressor PHF']});
+  v.actorSeat=0;v.phase=3;
+  v.ownPublic.active={
+    name:'Regidrago V',printed:{types:[]},
+    energies:[],attacks:[],specialConditions:[],publicRestrictions:{}};
+  v.ownPublic.publicTurnRestrictions={itemPlayLocked:false,
+    attackLockTurnsRemaining:0};
+  v.ownTurnResources.energyPlayLocked=true;
+  const catalog={
+    ...dragonCatalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),basicEnergyTypes:{Lightning:4,Psychic:5},
+    colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  const baseline=chooseActorRootIntent(v,catalog,{mysteriousTreasureRoot:true});
+  const treatment=chooseActorRootIntent(v,catalog,{
+    mysteriousTreasureRoot:true,mysteriousTreasureMuscleBandPayment:true
+  });
+  assert.equal(baseline.discardPrinting,'Crispin SCR');
+  assert.equal(treatment.discardPrinting,'Muscle Band XY');
+  assert.equal(treatment.handIndex,0);
+  assert.equal(chooseActorRootIntent(v,catalog,{}).kind,'pass');
+});
