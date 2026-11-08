@@ -65,9 +65,9 @@ Tests: `tests/agent50-aichi29-native-printed-attack-parity.test.cjs`, `tests/age
 
 ## What remains before a competitive result
 
-1. Verify all eleven source printing aliases resolve under the scoped hook in the same pinned revision; initial native alias proof above covers Mega Absol in both seats. Complete source-rank screens are produced by the deterministic `byRank` report.
+1. **Completed:** [final native run 42523265052](https://github.com/FlareZ123/experiment-01/actions/runs/42523265052) passed the 102-printing census and authenticated **all eleven** native aliases under the scoped hook as genuine pinned native clones, checking source `name`, `set`, and `setNumber`. No original Pokémon class was missing from the pinned revision. Complete source-rank exposure screens are produced by the deterministic `byRank` report.
 2. Use the repaired exact registered source sixties for new, source-dealt, genuine two-seat native runs, with real action policies and no hidden-information fallback. Record each blocked prompt, exact decisive first changed action, physical Prize movements, terminal result and every assumption.
 3. Validate paper legality independently from engine availability, and distinguish legacy cards that are present but not yet correctly implemented. Do not imply all original decks are competitive-match ready solely from a Pokémon-printing identity census.
 4. Preserve the fixed candidate 60 unchanged for any actual Aichi field evaluation. The target remains 99.5%, with **zero competitively qualified completed games** established by this work. A staged native proof is a mechanical validation only.
 
-**Status:** script, reversible hook and native evidence committed. This report uses direct CI receipts. The remaining alias-batch test's final result will be recorded separately once verified.
+**Status:** script, reversible hook and native evidence committed. The aggregate eleven-alias test is **green** in [CI run 42523265052](https://github.com/FlareZ123/experiment-01/actions/runs/42523265052); the reported 102 original printings now have zero truly absent native Pokémon classes. The report remains explicitly noncompetitive, with zero completed qualified benchmark games.
