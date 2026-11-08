@@ -124,7 +124,9 @@ function withBilateralOwnerMail(next,deps){
       baseline?.constructor?.name!=='PassTurnAction'||
       owner?.id!==this.client?.id)return baseline;
     audit.ownerRootPassesSeen++;
-    if(followMailHandiwork&&!prompt&&state.activePlayer===seat){
+    if(followMailHandiwork&&!prompt&&
+       (seat===0||seat===1)&&owner&&
+       owner.id!==undefined&&state.activePlayer===seat){
       const {actorObservation}=
         require('./actor-observation-contract.cjs');
       const {chooseMailSelectedHandiwork}=
