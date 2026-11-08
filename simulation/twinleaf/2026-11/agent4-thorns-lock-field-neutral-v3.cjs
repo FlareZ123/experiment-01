@@ -12,9 +12,10 @@ const VERSION='agent4-thorns-public-field-neutral-v3';
  * BWP 28/50, ASR 155/214, PHF 93, CEC 187, PLF 99, BKT 137, and SSH 156
  * provide the paper provenance of the initial closed families.
  * Additional paper identities are ROS 89, BKT 145, PAL 171, PGO 68,
- * EVS 157, MEG 127 and UNM 211; these effects affect Bench capacity,
- * attack damage, search, voluntary Tool return, or damage placement on
- * newly Benched Basic Pokémon, none of which disables an already in-play
+ * EVS 157, MEG 127, LOT 191, TEU 158, SCR 136 and UNM 211; these effects affect Bench capacity,
+ * attack damage/cost, Energy-search or evolution search, voluntary Tool
+ * return, or damage placement on newly Benched Basic Pokémon, none of
+ * which disables an already in-play
  * Shadow Rider VMAX's Underworld Door or Iron Thorns ex's Initialization. The supplied paper
  * card database describes only card-draw, attack-cost, Energy-type or
  * Stadium-replacement effects for these Stadiums, and only retreat-cost
@@ -31,7 +32,9 @@ const NEUTRAL_STADIUM_PRINTINGS=Object.freeze([
   'Temple of Sinnoh ASR',
   'Dimension Valley PHF','Chaotic Swell CEC',
   'Sky Field ROS','Parallel City BKT','Artazon PAL',
-  'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG'
+  'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG',
+  'Thunder Mountain Prism Star LOT',
+  'Wondrous Labyrinth Prism Star TEU','Grand Tree SCR'
 ]);
 const NEUTRAL_TOOL_PRINTINGS=Object.freeze([
   'Float Stone PLF','Float Stone BKT',
