@@ -77,7 +77,7 @@ function safeRootPrefix(native){
   }));
 }
 
-function runOne(candidateSeat,cards){
+function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   const slot=candidateSeat===0?'A':'B';
   const trial={
@@ -85,6 +85,9 @@ function runOne(candidateSeat,cards){
     rank:SOURCE_RANK,repeat:0,candidateSlot:slot,
     candidateId:CANDIDATE_ID,seed:SEED
   };
+  const frameName=mysteriousTreasureRoot?
+    'Agent2 v8 original rank13/rank3 Treasure opt-in diagnostic':
+    'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic';
   const candidatePrintedCards=aichiDecklists.decks.find(
     deck=>deck.rank===CANDIDATE_RANK)?.cards;
   assert.ok(Array.isArray(candidatePrintedCards));
@@ -95,7 +98,7 @@ function runOne(candidateSeat,cards){
   const runner=options=>runDevelopment({
     ...options,
     registeredTrials:[trial],
-    registeredFrameName:'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic',
+    registeredFrameName:frameName,
     registeredCandidateDecks:{
       [CANDIDATE_ID]:{
         label:'Agent2 original Aichi rank13 Regidrago',
@@ -112,7 +115,7 @@ function runOne(candidateSeat,cards){
     firstBlockedPromptContractObserver:true,
     actorOnlySingleSearch:false,
     actorGenericFallbackAttribution:true,
-    mysteriousTreasureRoot:false,
+    mysteriousTreasureRoot,
     allowAdditionalOriginalSourceRanks:true,
     nativeRootActionLimit:ACTION_LIMIT
   });
@@ -171,8 +174,7 @@ function runOne(candidateSeat,cards){
     JSON.stringify(activeDevelopmentOutput?.registeredCandidateIds??null)===
       JSON.stringify([CANDIDATE_ID])&&
     activeDevelopmentOutput?.registeredCandidateArmMode==='single-candidate-arm'&&
-    activeDevelopmentOutput?.sourceRegistration===
-      'Agent2 selected-v8 common-policy original rank13/rank3 one-game diagnostic'
+    activeDevelopmentOutput?.sourceRegistration===frameName
   );
   const valid=activeRunDevelopmentRegistrationValid&&
     first?.ownerView?.decisionKind==='owner-root'&&
@@ -204,6 +206,7 @@ function runOne(candidateSeat,cards){
     trialId:trial.id,candidateRank:CANDIDATE_RANK,
     sourceRank:SOURCE_RANK,candidateSeat,sourceSeat:1-candidateSeat,
     seed:SEED,actionLimit:ACTION_LIMIT,
+    ownerTreasureRootOptIn:mysteriousTreasureRoot,
     candidateDeckSha256:sha256(cards.candidate),
     sourceDeckSha256:sha256(cards.source),
     status,firstUnsupportedOwnerRoot:first,
@@ -314,16 +317,19 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
   });
 }
 
-function run(){
+function run({mysteriousTreasureRoot=false}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
   const resolvedSourceAndPolicyHashes=HASH_PATHS.map(hashRegisteredFile);
   const cards=originalPrintings();
-  const rows=[runOne(0,cards),runOne(1,cards)];
+  const rows=[runOne(0,cards,{mysteriousTreasureRoot}),
+    runOne(1,cards,{mysteriousTreasureRoot})];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
-    runnerMode:'runDevelopment-canonical-actor-only-policy',
+    runnerMode:mysteriousTreasureRoot?
+      'runDevelopment-canonical-actor-only-policy+treasure-root-optin':
+      'runDevelopment-canonical-actor-only-policy',
     sourceAdmissionReceipt:{
       allowAdditionalOriginalSourceRanks:true,
       eligibleOriginalSourceRanks:admittedSourceRanks,
@@ -372,6 +378,7 @@ function run(){
       'canonicalActorCommonRunner'
     ],
     diagnosticOnlyFlags:{
+      mysteriousTreasureRoot,
       nativeOwnerTrainerFallback:true,
       ownerFallbackDiagnosticView:true,
       actorGenericFallbackAttribution:true,
