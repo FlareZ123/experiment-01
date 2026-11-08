@@ -11,9 +11,11 @@ const intent={kind:'use-underworld-door',
 
 const additionalStadiums=[
   'Sky Field ROS','Parallel City BKT','Artazon PAL',
-  'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG'
+  'PokéStop PGO','Shopping Center EVS','Risky Ruins MEG',
+  'Thunder Mountain Prism Star LOT','Wondrous Labyrinth Prism Star TEU',
+  'Grand Tree SCR'
 ];
-test('six additional original-field Stadiums preserve native Thorns lock',()=>{
+test('nine additional original-field Stadiums preserve native Thorns lock',()=>{
   for(const stadium of additionalStadiums){
     let observed=null;
     const native=underworldDoorAction({
