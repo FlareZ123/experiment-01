@@ -232,56 +232,65 @@ function evolveTwice(x){
   return {kinds,attackCount};
 }
 
+/** Run the complete two-attack, source-paid Sentinel lock opener. */
+function establishSentinelLock(x){
+  const beforeB=x.owner.deck.cards.filter(c=>c.fullName===BUN).length;
+  const gh=ghala(x);
+  playBoard(x,'Artazon');
+  const stadiumPrompts=routine(x);
+  assert.ok(x.owner.stadium.cards.some(c=>c.fullName===ART));
+  const {UseStadiumAction}=native('game/store/actions/game-actions');
+  x.f.store.dispatch(new UseStadiumAction(x.owner.id));
+  chooseDeck(x,[BUN]);
+  const searchPrompts=routine(x);
+  assert.equal(beforeB,2);
+  const bIndex=x.owner.bench.findIndex(b=>b.getPokemonCard()?.fullName===BUN);
+  assert.ok(bIndex>=0);
+  assert.equal(x.owner.deck.cards.filter(c=>c.fullName===BUN).length,1);
+  assert.equal(x.owner.active.getPokemonCard()?.fullName,'Oddish UNB');
+
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const tmIndex=x.owner.hand.cards.findIndex(c=>c.fullName===TM);
+  assert.ok(tmIndex>=0);
+  x.f.store.dispatch(new PlayCardAction(x.owner.id,tmIndex,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:bIndex
+  }));
+  const toolPrompts=routine(x);
+  assert.equal(x.owner.bench[bIndex].tools[0]?.fullName,TM);
+
+  const jetIndex=x.owner.hand.cards.findIndex(c=>c.fullName===JET);
+  assert.ok(jetIndex>=0);
+  x.f.store.dispatch(new PlayCardAction(x.owner.id,jetIndex,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:bIndex
+  }));
+  const jetPrompts=routine(x);
+  assert.equal(x.owner.active.getPokemonCard()?.fullName,BUN);
+  assert.equal(x.owner.active.tools[0]?.fullName,TM);
+  assert.equal(x.owner.active.energies.cards[0]?.fullName,JET);
+  assert.ok(x.owner.bench.some(b=>
+    b.getPokemonCard()?.fullName==='Oddish UNB'));
+
+  const two=evolveTwice(x);
+  const benched=x.owner.bench.map(b=>b.getPokemonCard()?.fullName)
+    .filter(Boolean);
+  assert.ok(two.kinds.includes('ConfirmPrompt'));
+  assert.ok(two.kinds.includes('ChooseAttackPrompt'));
+  assert.equal(two.attackCount,2);
+  assert.ok(benched.includes('Vileplume AOR'),
+    'Second Evolution must reach original printed Irritating Pollen');
+  assert.equal(x.state.activePlayer,1-x.seat);
+
+  return {beforeB,gh,stadiumPrompts,searchPrompts,toolPrompts,
+    jetPrompts,two,benched,PlayCardAction,PlayerType,SlotType};
+}
+
 for(const seat of [0,1]){
   test('Fan-prized Sentinel G&H Artazon directly benches Bunnelby, Jet to Active, double TM to Vileplume: seat '+seat,()=>{
     const x=stage(seat);
-    const beforeB=x.owner.deck.cards.filter(c=>c.fullName===BUN).length;
-    const gh=ghala(x);
-    playBoard(x,'Artazon');
-    const stadiumPrompts=routine(x);
-    assert.ok(x.owner.stadium.cards.some(c=>c.fullName===ART));
-    const {UseStadiumAction}=native('game/store/actions/game-actions');
-    x.f.store.dispatch(new UseStadiumAction(x.owner.id));
-    chooseDeck(x,[BUN]);
-    const searchPrompts=routine(x);
-    assert.equal(beforeB,2);
-    const bIndex=x.owner.bench.findIndex(b=>b.getPokemonCard()?.fullName===BUN);
-    assert.ok(bIndex>=0);
-    assert.equal(x.owner.deck.cards.filter(c=>c.fullName===BUN).length,1);
-    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Oddish UNB');
-
-    const {PlayCardAction,PlayerType,SlotType}=
-      native('game/store/actions/play-card-action');
-    const tmIndex=x.owner.hand.cards.findIndex(c=>c.fullName===TM);
-    assert.ok(tmIndex>=0);
-    x.f.store.dispatch(new PlayCardAction(x.owner.id,tmIndex,{
-      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:bIndex
-    }));
-    const toolPrompts=routine(x);
-    assert.equal(x.owner.bench[bIndex].tools[0]?.fullName,TM);
-
-    const jetIndex=x.owner.hand.cards.findIndex(c=>c.fullName===JET);
-    assert.ok(jetIndex>=0);
-    x.f.store.dispatch(new PlayCardAction(x.owner.id,jetIndex,{
-      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:bIndex
-    }));
-    const jetPrompts=routine(x);
-    assert.equal(x.owner.active.getPokemonCard()?.fullName,BUN);
-    assert.equal(x.owner.active.tools[0]?.fullName,TM);
-    assert.equal(x.owner.active.energies.cards[0]?.fullName,JET);
-    assert.ok(x.owner.bench.some(b=>
-      b.getPokemonCard()?.fullName==='Oddish UNB'));
-
-    const two=evolveTwice(x);
-    const benched=x.owner.bench.map(b=>b.getPokemonCard()?.fullName)
-      .filter(Boolean);
-    assert.ok(two.kinds.includes('ConfirmPrompt'));
-    assert.ok(two.kinds.includes('ChooseAttackPrompt'));
-    assert.equal(two.attackCount,2);
-    assert.ok(benched.includes('Vileplume AOR'),
-      'Second Evolution must reach original printed Irritating Pollen');
-    assert.equal(x.state.activePlayer,1-seat);
-
+    const {beforeB,gh,stadiumPrompts,searchPrompts,toolPrompts,
+      jetPrompts,two,benched,PlayCardAction,PlayerType,SlotType}=
+      establishSentinelLock(x);
     const opponent=x.f.defender;
     assert.strictEqual(x.f.store.state,x.state,
       'Opponent reply must use the current Store game state');
