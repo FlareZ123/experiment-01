@@ -37,6 +37,7 @@ function summarize(run,compressor){
       candidateDeckSha256:row.candidateDeckSha256,
       nativeStatus:row.status,
       nativeErrorMessage:row.selectedV0?.thrownMessage??null,
+      nativeErrorText:row.nativeErrorText??null,
       nativeDirectErrorMessage:row.nativeDirectErrorMessage??null,
       nativeDirectErrorStack:row.nativeDirectErrorStack??null,
       nativeRunErrors:row.runDevelopmentOutputSummary?.errors??null,
