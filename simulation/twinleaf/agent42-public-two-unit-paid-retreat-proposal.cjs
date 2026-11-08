@@ -92,6 +92,8 @@ function proposeTwoUnitPaidRetreat(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active;
   const resources=view.ownTurnResources;
+  if(require('./agent47-active-position-retreat-veto.cjs')
+    .hasActivePositionAbilityToPreserve(view))return null;
   if(!active||!view.opponentPublic?.active||view.globalTurn<=1||
      !Number.isSafeInteger(resources?.retreatedTurn)||
      resources.retreatedTurn===view.globalTurn||
