@@ -127,7 +127,9 @@ function chooseHeldGuzmaMobility(view,catalog){
   const destinations=[];
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
     const pokemon=own.bench[benchIndex];
-    if(!pokemon||pokemon.energies?.length===0)continue;
+    if(!pokemon||pokemon.energies?.length===0||
+       require('./agent47-active-position-retreat-veto.cjs')
+         .wouldLoseActivePositionAbility(view,benchIndex))continue;
     const funding=attackFunding(pokemon,catalog);
     if(!funding)continue;
     // Prefer the Bench only when its eventual attack is strictly closer, or
