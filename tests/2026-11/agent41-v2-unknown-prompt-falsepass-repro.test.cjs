@@ -10,13 +10,11 @@ const {
 const KNOWN_TRIAL = '3:312:B:champion-reference';
 
 /**
- * Reproduces the current v2 false-pass path. After the opponent's attack, the
- * source-seat bot returns a stale ResolvePromptAction while no matching prompt
- * or promptItem exists. Store accepts it as a no-op; headless records it after
- * dispatch. Convert this fixture to assert a closed gate after the owner fixes
- * unknown prompt handling.
+ * Regression: an unknown non-null prompt response is a Store no-op and must
+ * remain unclassified. It must never satisfy source continuation or the full
+ * v2 execution gate.
  */
-test('reproduces false execution-gate pass from unknown non-null prompt ID', () => {
+test('unknown non-null prompt ID cannot satisfy the full v2 execution gate', () => {
   const join = {
     rootActionOrdinal: 250,
     attackerSeat: 1,
@@ -56,9 +54,18 @@ test('reproduces false execution-gate pass from unknown non-null prompt ID', () 
   const matchAudit = {
     ownerPromptEvidence: {
       promptRecords: [waitPrompt],
-      responseRecords: [
-        { promptId: 174, responseKind: 'null', actionOrdinal: 251, actingSeat: 1 }
-      ],
+      responseRecords: [{
+        promptId: 174,
+        responseKind: 'null',
+        actionType: 'ResolvePromptAction',
+        actionOrdinal: 251,
+        actingSeat: 1,
+        dispatchReturnedWithoutThrow: true,
+        promptResultDefined: true,
+        promptResultMatches: true,
+        promptItemFoundBeforeDispatch: true,
+        promptItemRemovedAfterDispatch: true
+      }],
       nextOwnerPrompt: waitPrompt
     }
   };
@@ -76,8 +83,16 @@ test('reproduces false execution-gate pass from unknown non-null prompt ID', () 
     [251]
   );
   assert.equal(sequence.nextOpponentMeaningfulRoot.actionOrdinal, 252);
-  assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent.actionOrdinal, 253);
-  assert.equal(sequence.continuationGatePassed, true);
+  assert.equal(sequence.nextSourceMeaningfulRootAfterOpponent, null);
+  assert.deepEqual(
+    sequence.unclassifiedPromptRoots.map(event => ({
+      actionOrdinal: event.actionOrdinal,
+      reason: event.reason
+    })),
+    [{ actionOrdinal: 253, reason: 'unknown-prompt-id' }]
+  );
+  assert.equal(sequence.promptEvidenceComplete, false);
+  assert.equal(sequence.continuationGatePassed, false);
 
   const exactJoin = sourceSeat => ({
     exactPromptIdJoin: true,
@@ -126,7 +141,7 @@ test('reproduces false execution-gate pass from unknown non-null prompt ID', () 
   assert.equal(gate.bothSourceSeatOrientationsAttempted, true);
   assert.equal(gate.knownPromptResolved, true);
   assert.equal(gate.bothSourceSeatPromptResolutionsObserved, true);
-  assert.equal(gate.meaningfulOpponentAndSourceContinuation, true);
-  assert.equal(gate.endpointExplicitlyClassified, true);
-  assert.equal(gate.passed, true);
+  assert.equal(gate.meaningfulOpponentAndSourceContinuation, false);
+  assert.equal(gate.postPromptPromptEvidenceComplete, false);
+  assert.equal(gate.passed, false);
 });
