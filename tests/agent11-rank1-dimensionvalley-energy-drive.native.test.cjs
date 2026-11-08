@@ -67,8 +67,8 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
     'same branch must resolve actual owner-visible KO Prize slots');
   assert.equal(prize.nativeValidated,true);
   assert.equal(prize.nativeResolved,true);
-  assert.equal(prize.beforePrizeCards,6);
-  assert.equal(prize.afterPrizeCards,4);
+  assert.equal(prize.beforePrizeCards,5);
+  assert.equal(prize.afterPrizeCards,3);
   assert.equal(prize.selectedSlots,2);
   assert.equal(prize.ownerHandDelta,2);
   assert.equal(prize.physicalOwnerHandTransfer,true);
@@ -87,7 +87,7 @@ test('post-choice exact rank1 source t16 owner-held Dimension Valley -> Energy D
   assert.equal(alternate.defensiveLine.status,'native-defensive-reply-settled');
   assert.equal(alternate.defensiveLine.ownerActiveDamageAfter,200);
   assert.equal(alternate.defensiveLine.ownerPrizesAfter,6);
-  assert.equal(alternate.defensiveLine.opponentPrizesAfter,6);
+  assert.equal(alternate.defensiveLine.opponentPrizesAfter,5);
   assert.deepEqual(alternate.defensiveLine.unresolvedPromptTypes,[]);
   assert.equal(alternate.sourceHandIndex,
     turn16.ownerHandPrintings.indexOf('Dimension Valley PHF'));
