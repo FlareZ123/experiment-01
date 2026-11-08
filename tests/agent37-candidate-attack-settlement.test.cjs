@@ -130,6 +130,18 @@ test('direct attack with no matching printed attack is explicitly flagged',()=>{
   assert.equal(out.attacks[0].directAttackPrintedOnPhysicalActiveBefore,false);
 });
 
+test('post-attack turnAfter does not relabel a pending Prize prompt turn',()=>{
+  const game=directAttackFixture();
+  game.publicAttackTransitions[0].turnAfter=22;
+  game.rootActionLedger[0].turnAfter=22;
+  // Exact prompted attack ancestry remains on the declaring turn 21.
+  const result=candidateAttackSettlement(game,1);
+  assert.equal(result.settled,1);
+  assert.equal(result.attacks[0].completionRootTurnBefore,21);
+  assert.equal(result.attacks[0].completionRootTurnMatchesDeclarationTurn,true);
+  assert.equal(result.attacks[0].declarationRootTurnAfter,22);
+});
+
 test('attack declaration and completion roots must retain turn identity when observed',()=>{
   const wrongDeclarationTurn=fixture();
   wrongDeclarationTurn.publicAttackTransitions[0].turnBefore=20;
