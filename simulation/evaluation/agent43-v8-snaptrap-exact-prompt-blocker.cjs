@@ -169,6 +169,7 @@ function run(settings = {}) {
   const {GameMessage} = require(path.join(output, 'game/game-message'));
   const trace = {byStore: new WeakMap(), events: [], roots: []};
   const acceptedMailActionRefs = new WeakSet();
+  const playedSelectedTrainerRefs = new WeakSet();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
   };
@@ -178,6 +179,7 @@ function run(settings = {}) {
       ordinal,
       action: action?.constructor?.name ?? null,
       ownerMailAfterPassAction: acceptedMailActionRefs.has(action),
+      previouslyMailSelectedTrainerPlayed: playedSelectedTrainerRefs.has(action),
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
         ? String(action.id) : null,
@@ -227,7 +229,8 @@ function run(settings = {}) {
             ResolvePromptAction: native('game/store/actions/resolve-prompt-action').ResolvePromptAction,
             types: native('game/store/card/card-types'),
             trialIds: registeredTrials.map(t => t.id),
-            onMailActionCommitted: action => acceptedMailActionRefs.add(action)
+            onMailActionCommitted: action => acceptedMailActionRefs.add(action),
+            onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
           });
         ownerMailAudit = mail.audit;
         return mail.result;
@@ -323,6 +326,7 @@ function run(settings = {}) {
       unsettledPromptActions: ownerMailAudit.unsettledPromptActions,
       actualMailEvents: ownerMailAudit.actualMailEvents,
       revealedTrainers: ownerMailAudit.revealedTrainers,
+      selectedTrainerLaterPlayed: ownerMailAudit.selectedTrainerLaterPlayed,
       opponentPrivateZonesRead: ownerMailAudit.opponentPrivateZonesRead,
       competitiveGamesQualified: 0
     },
