@@ -152,12 +152,15 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
   const energyRecipient = settings.energyRecipient === true;
   const ownerMailAfterPass = settings.ownerMailAfterPass === true;
+  const followMailNestBall = settings.followMailNestBall === true;
+  assert.ok(!followMailNestBall || ownerMailAfterPass,
+    'Nest follow-through requires owner Mail treatment');
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -228,6 +231,8 @@ function run(settings = {}) {
             PlayCardAction: native('game/store/actions/play-card-action').PlayCardAction,
             ResolvePromptAction: native('game/store/actions/resolve-prompt-action').ResolvePromptAction,
             types: native('game/store/card/card-types'),
+            playCardEnums: native('game/store/actions/play-card-action'),
+            followMailNestBall,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
@@ -309,6 +314,7 @@ function run(settings = {}) {
     experimentalOwnerAbilityConfirm: ownerAbilityConfirm,
     experimentalBasicEnergyRecipient: energyRecipient,
     experimentalOwnerMailAfterPass: ownerMailAfterPass,
+    experimentalFollowMailNestBall: followMailNestBall,
     ownerMailAudit: ownerMailAudit === null ? null : {
       version: ownerMailAudit.schema,
       registeredTrialIds: ownerMailAudit.trialIds,
@@ -327,6 +333,10 @@ function run(settings = {}) {
       actualMailEvents: ownerMailAudit.actualMailEvents,
       revealedTrainers: ownerMailAudit.revealedTrainers,
       selectedTrainerLaterPlayed: ownerMailAudit.selectedTrainerLaterPlayed,
+      nestFromMailOffers: ownerMailAudit.nestFromMailOffers,
+      nestFromMailActualPlays: ownerMailAudit.nestFromMailActualPlays,
+      nestFromMailBenchSettled: ownerMailAudit.nestFromMailBenchSettled,
+      nestFromMailBenchEvents: ownerMailAudit.nestFromMailBenchEvents,
       opponentPrivateZonesRead: ownerMailAudit.opponentPrivateZonesRead,
       competitiveGamesQualified: 0
     },
