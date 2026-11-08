@@ -73,3 +73,22 @@ test('never read or depend on opposing hidden zones',()=>{
   b.opponentSecret={hand:['unknown'],deck:['another'],prizes:['secret']};
   assert.deepEqual(chooseEarlyBeachAfterPass(a),chooseEarlyBeachAfterPass(b));
 });
+
+test('canonical actor root stays Pass unless experimental first-cycle policy is enabled',()=>{
+  const {chooseActorRootIntent}=
+    require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const x=opening();
+  x.ownPublic.active.energies=[];
+  x.ownPublic.active.attacks=[];
+  x.ownPublic.bench=[null,null,null,null,null];
+  x.ownPublic.discard=[];
+  x.ownTurnResources.pokemonPlayLocked=true;
+  x.ownTurnResources.energyPlayLocked=true;
+  const catalog={basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),specialEnergies:new Set(),
+    basicEnergyTypes:{},colorlessEnergyType:9,
+    specialConditions:{ASLEEP:0,PARALYZED:1,CONFUSED:2}};
+  assert.equal(chooseActorRootIntent(x,catalog).kind,'pass');
+  assert.equal(chooseActorRootIntent(x,catalog,{earlyBeachAfterPass:true}).kind,
+    'play-tropical-beach');
+});
