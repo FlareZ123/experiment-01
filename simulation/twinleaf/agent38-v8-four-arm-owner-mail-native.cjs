@@ -41,7 +41,7 @@ function withBilateralOwnerMail(next,deps){
     otherActionsDelegateToExistingPolicy:true,
     rejectedPromptActions:0,unsettledPromptActions:0,
     noPromptAfterMailBySeat:[0,0],
-    revealedTrainers:[],nativeDecoderInvocations:0,
+    revealedTrainers:[],actualMailEvents:[],nativeDecoderInvocations:0,
     opponentPrivateZonesRead:false,qualifiedGames:0};
 
   function observedMatch(request){
@@ -115,6 +115,11 @@ function withBilateralOwnerMail(next,deps){
     if(mailPlay){
       audit.actualMailItemRootsBySeat[seat]++;
       const p=this.state.prompts?.find(x=>x.result===undefined);
+      if(audit.actualMailEvents.length<64) {
+        audit.actualMailEvents.push({trialId,seat,turnBefore:state.turn,
+          actionHandIndex:action.handIndex,printing:MAIL,
+          pendingPromptId:p?.id==null?null:String(p.id)});
+      }
       if(p?.playerId===owner.id&&
         p?.constructor?.name==='ChooseCardsPrompt'&&
         p.message==='CHOOSE_CARD_TO_HAND'&&
