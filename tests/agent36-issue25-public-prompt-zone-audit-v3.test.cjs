@@ -263,7 +263,7 @@ test('direct Energy CardList and a selected subset resolve to the public Energy 
   assert.deepEqual(subset.offeredPrintings, ['Psychic Energy']);
 });
 
-test('hidden hand, deck and Prize zones expose counts without card identities', () => {
+test('hidden hand, deck and Prize zones expose source metadata without counts or card identities', () => {
   const state = makeScenario(0);
   const owner = state.players[0];
   for (const zone of [owner.hand, owner.deck, owner.prizes]) {
@@ -273,6 +273,8 @@ test('hidden hand, deck and Prize zones expose counts without card identities', 
     );
     assert.equal(result.matches.length, 1);
     assert.equal(result.matches[0].visibility, 'hidden');
+    assert.equal(result.matches[0].eligibleCount, null);
+    assert.equal(result.offeredCount, null);
     assert.equal(result.offeredPrintings, null);
   }
 });
