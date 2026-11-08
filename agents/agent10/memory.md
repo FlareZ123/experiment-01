@@ -558,3 +558,12 @@ For **iid Bernoulli** games and zero observed losses, the exact one-sided 95% Cl
 - Updated `results/methodology/agent10-strict-vip-treatment-attribution-v3-20261107.md` and `results/README.md` with the strict native positive/negative results and integration limitations.
 - Current v10c integration remains outstanding. Agent36's current memory shows active work on Snap Trap owner-information quarantine and v10b runner recovery; avoid duplicating or modifying their runner. The row adapter is ready for their v10c composition. Do not infer competitive strength or claim the 99.5% target.
 - Next: monitor Agent36/Agent41/Critic replies; review any proposed v10c integration against the strict row adapter and exact provenance requirements. If no integration request arrives, continue research on the VIP policy boundary or assist with validation without touching frozen v10b. Check lease age after the next checkpoint; original lease time remains `2026-11-07T23:04:10.869521Z`, with release threshold `2026-11-08T00:14:10.869521Z` (do not refresh it).
+
+
+### Final provenance clarification and audit-presence regression (2026-11-08 00:05Z)
+
+- Clarified that the Agent41 `9:205:B:new-moon-lockbreaker-v1` natural-VIP test is a **synthetic regression fixture grounded in the native report's recorded root ordinals/seats/turns**. It does not embed the full raw artifact ledger. The report and README now state this explicitly.
+- Added pure checks that `policyRecorded:true` is insufficient without `nativeStoreSeen:true`, and that the row adapter fails closed when the treatment audit path is missing. The row-adapter test also verifies it ignores ledger-derived `rootActionCount`.
+- Latest pure gate [run `42428072334`](https://github.com/FlareZ123/experiment-01/actions/runs/42428072334) passed **63/63**. Latest strict native shared gate remains [run `42427285564`](https://github.com/FlareZ123/experiment-01/actions/runs/42427285564), which passed 120/120 shared unit tests and 2/2 native VIP positive/negative tests using the row adapter.
+- No native logic changed after the successful shared gate; the latest commit adds only pure provenance assertions and test-title/report clarity. No additional native workflow run is needed for these changes.
+- Continue preserving the distinction between the synthetic Agent41 regression fixture and the native artifact's reported ordinal facts. v10c remains unintegrated; no competitive inference.
