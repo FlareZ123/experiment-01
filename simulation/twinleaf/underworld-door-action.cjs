@@ -10,14 +10,14 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean,observeOwnerBeforePower?:Function}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
   const root = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
   const engine = name => require(path.join(root, name));
   const { Store } = engine('game/store/store');
-  const { State } = engine('game/store/state/state');
+  const { State, GamePhase } = engine('game/store/state/state');
   const { Player } = engine('game/store/state/player');
   const { PokemonCardList } = engine('game/store/state/pokemon-card-list');
   const { PowerEffect } = engine('game/store/effects/game-effects');
@@ -85,6 +85,14 @@ function underworldDoorAction(options) {
   const store = new Store({onStateChange() {}});
   store.state = state;
   const target = player.bench[0];
+  if (options.observeOwnerBeforePower) {
+    assert.equal(options.actingSeat, true,
+      'Owner observation requires the acting owner physical seat');
+    assert.equal(typeof options.observeOwnerBeforePower, 'function');
+    state.phase = GamePhase.PLAYER_TURN;
+    const {actorObservation} = require('./actor-observation-contract.cjs');
+    options.observeOwnerBeforePower(actorObservation(state, 1));
+  }
 
   const powerCheck = new CheckPokemonPowersEffect(player, vmax);
   store.reduceEffect(state, powerCheck);
