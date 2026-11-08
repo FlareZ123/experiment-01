@@ -1406,7 +1406,7 @@ function runDevelopment({
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorPotentialKoRoot=false,
+  actorPotentialKoRoot=false,actorOriginal29PrintedFidelity=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
@@ -1513,6 +1513,8 @@ function runDevelopment({
     'Mysterious Treasure root requires canonical actor composition');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
+  assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
+    'Original29 native print correction requires canonical actor composition');
   assert.ok(!firstBlockedPromptContractObserver||actorOnlyComposition,
     'First blocked prompt observer requires canonical actor composition');
   assert.ok(registeredCandidateDecks===null||
@@ -1994,7 +1996,15 @@ function runDevelopment({
           ownerMailAudit=wrapped.audit;
           return wrapped.result;
         };
-        const observed=withCanonicalActorOnlyPolicy(withOptionalOwnerMail,
+        const withOptionalPrintedFidelity=()=>{
+          if(!actorOriginal29PrintedFidelity)
+            return withOptionalOwnerMail();
+          const corrected=require(
+            '../twinleaf/agent50-original29-printed-fidelity-hook.cjs')
+            .withOriginal29PrintedFidelity(withOptionalOwnerMail);
+          return corrected.result;
+        };
+        const observed=withCanonicalActorOnlyPolicy(withOptionalPrintedFidelity,
           {...scopedRoot,...chargedPokemon,
             ...(actorVipAfterPassAdapter?{
               vipAfterPass:actorVipAfterPassAdapter
@@ -2386,6 +2396,8 @@ function runDevelopment({
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
+    actorOriginal29PrintedFidelityOptIn:
+      actorOnlyComposition&&actorOriginal29PrintedFidelity,
     actorPlumeriaAfterPassOptIn:actorOnlyComposition&&actorPlumeriaAfterPass,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorGuzmaPromptContinuationOptIn:
