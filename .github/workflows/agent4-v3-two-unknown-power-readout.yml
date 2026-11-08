@@ -15,6 +15,7 @@ on:
           - postguard-physical-energy-target-12
           - pure-v2-thorns
           - neutral-v2-native-16
+          - neutral-v2-staged-native
         default: typed-replay
 
 permissions:
@@ -64,6 +65,11 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native exact-print ability-lock joint neutral Stadium Tool and Hood matrix
+        if: ${{ inputs.experiment == 'neutral-v2-staged-native' }}
+        run: |
+          node --test tests/2026-11/agent4-thorns-lock-neutral-staged-native.test.cjs
+          node --test tests/2026-11/agent4-thorns-lock-neutral-stadium-tool-v2.test.cjs
       - name: Execute registered rank6 16-run v2 native integration
         if: ${{ inputs.experiment == 'neutral-v2-native-16' }}
         env:
