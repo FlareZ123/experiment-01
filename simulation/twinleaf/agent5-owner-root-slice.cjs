@@ -198,13 +198,17 @@ function rootPhysicalSnapshot(state,seat,intent){
       farewellPrizeCounts:state.players.map(p=>
         p.prizes.reduce((sum,slot)=>sum+slot.cards.length,0))
     }:{}),
-    ...(['play-seeker-get-lillie','play-seeker-get-research']
-      .includes(intent.kind)?{
+    ...(['play-seeker-get-lillie','play-seeker-get-research',
+      'play-seeker-get-crispin'].includes(intent.kind)?{
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
+    ...(intent.kind==='play-regidrago-battle-compressor'?{
+      compressorSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
     ...(intent.kind==='play-mysterious-treasure'?{
@@ -384,9 +388,17 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='play-seeker-get-lillie'||
-     intent.kind==='play-seeker-get-research'){
+     intent.kind==='play-seeker-get-research'||
+     intent.kind==='play-seeker-get-crispin'){
     // Physical native Item departure, with the own-discard retrieval pending.
     return after.seekerSpent>before.seekerSpent&&
+      after.handCount<before.handCount?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-regidrago-battle-compressor'){
+    // Actual owner Item departure is visible before its Dragon donor prompt.
+    // Donor card object moves require a separate native Store prompt receipt.
+    return after.compressorSpent>before.compressorSpent&&
       after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
