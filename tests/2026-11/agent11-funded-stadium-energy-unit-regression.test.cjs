@@ -130,9 +130,9 @@ test('Exeggutor is no Pokemon-EX; Counter Energy double is possible behind', () 
   assert.equal(damage(view), 40);
 });
 
-test('Radiant Pokemon Rule Box stops opposing Reversal triple unit', () => {
+test('Evolution Rule Box stops Reversal triple unit even when behind', () => {
   const view = sourceView(['Reversal Energy PAL']);
-  view.opponentPublic.active.name = 'Radiant Gardevoir';
+  view.opponentPublic.active.name = 'Regidrago VSTAR';
   view.opponentPublic.active.printed.stage = 3;
   view.ownPublic.prizeCount = 4;
   view.opponentPublic.prizeCount = 6;
@@ -142,4 +142,15 @@ test('Radiant Pokemon Rule Box stops opposing Reversal triple unit', () => {
   );
   assert.equal(context.hasRuleBox, true);
   assert.equal(damage(view), 40);
+});
+
+test('actual Basic Radiant Pokémon is recognized as having a Rule Box', () => {
+  const view = sourceView(['Psychic Energy SVE']);
+  view.opponentPublic.active.name = 'Radiant Gardevoir';
+  const context = publicEnergyContext(
+    {ownPublic: view.opponentPublic, opponentPublic: view.ownPublic},
+    view.opponentPublic.active, types, refs.stageBasic
+  );
+  assert.equal(context.isBasic, true);
+  assert.equal(context.hasRuleBox, true);
 });
