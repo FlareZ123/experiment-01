@@ -53,6 +53,8 @@ function assertRegistrationProvenance() {
   );
   assert.equal(REGISTRATION.predecessor.workflowRunId, 42436917676);
   assert.equal(REGISTRATION.predecessor.artifactId, 13600271050);
+  assert.equal(REGISTRATION.predecessor.runCommit,
+    '298be4937403cd755f84cfabae0a797ef7956299');
   const sourceV8 = JSON.parse(fs.readFileSync(
     path.resolve(ROOT, SOURCE_V8_REGISTRATION_PATH), 'utf8'
   ));
@@ -461,9 +463,6 @@ function run() {
   const registered = v1.trials();
   assert.deepEqual(registered, REGISTRATION.trials);
   const rawRows = output.rawDevelopment?.rows ?? [];
-  const attemptedStatusById = new Map(
-    (output.diagnostic.attemptedRows ?? []).map(row => [row.id, row])
-  );
   const matchAttempts =
     output.nativeMatchIntegrationAudit.nativeMatchAttempts;
   const summaries = output.diagnostic.actualAttemptRows;
@@ -477,8 +476,6 @@ function run() {
       attempt.label.endsWith(summary.id)
     ) ?? null;
     const promptJoin = v1.joinSnapTrapPromptEvidence(matchAudit);
-    promptJoin.sourceSeatMatchesRegisteredSeat =
-      promptJoin.sourceSeat === trial?.letSourceSeat;
     const registeredSourceSeat =
       trial?.candidateSlot === 'A' ? 1 : 0;
     promptJoin.sourceSeatMatchesRegisteredSeat =
@@ -492,7 +489,7 @@ function run() {
         message: row.error.message ?? String(row.error)
       };
       const capSignal = /(?:max(?:imum)?[-_ ]?actions?|root[-_ ]?action[-_ ]?limit|action[-_ ]?cap)/i
-        .test(String(summary.nativeError.message ?? '')) ||
+        .test(String(summary.nativeError.message ?? row.error ?? '')) ||
         /(?:max(?:imum)?[-_ ]?actions?|root[-_ ]?action[-_ ]?limit|action[-_ ]?cap)/i
         .test(String(row.endReason ?? ''));
       if (capSignal) summary.nativeOutcome = 'action-cap';
@@ -521,10 +518,10 @@ function run() {
     REGISTRATION.predecessor.workflowRunId;
   output.manifest.resolvedSourceAndPolicyHashes = [
     ...(output.manifest.resolvedSourceAndPolicyHashes ?? []),
-    { path: v2RunnerPath, gitBlobSha: gitBlobSha(v2RunnerPath) },
-    { path: REGISTRATION_PATH, gitBlobSha: gitBlobSha(REGISTRATION_PATH) },
+    { path: v2RunnerPath, sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, v2RunnerPath))).digest('hex') },
+    { path: REGISTRATION_PATH, sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, REGISTRATION_PATH))).digest('hex') },
     { path: 'tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs',
-      gitBlobSha: gitBlobSha('tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs') }
+      sha256: createHash('sha256').update(fs.readFileSync(path.resolve(ROOT, 'tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs'))).digest('hex') }
   ];
   output.diagnostic.schema = VERSION;
   output.diagnostic.executionGate = executionGate;
