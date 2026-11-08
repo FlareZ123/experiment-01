@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent47-owner-public-active-position-retreat-veto-v1';
+const VERSION = 'agent47-owner-public-active-position-retreat-veto-v2-equivalent-lock';
 
 // These wordings describe continuous position-dependent Abilities, including
 // Initialization, Sentinel, Neutralizing Gas, and Oceanic Curse. A generic
@@ -36,4 +36,41 @@ function hasActivePositionAbilityToPreserve(view) {
   );
 }
 
-module.exports = { VERSION, hasActivePositionAbilityToPreserve };
+// An exact physical-print replacement of these continuously active locks
+// retains the same printed effect when it becomes Active. Do not extend this
+// exception to condition-dependent or unknown Abilities without native proof.
+const POSITION_LOCK_NAMES = new Set([
+  'Initialization', 'Sentinel', 'Neutralizing Gas', 'Oceanic Curse'
+]);
+
+/**
+ * Whether retreating into a specific publicly visible Bench recipient would
+ * lose an Active-dependent Ability. Same-print, same-text replacements of
+ * explicitly recognized position-only locks preserve the lock. Different
+ * abilities or a missing publicly visible recipient fail closed.
+ *
+ * @param {object} view Detached owner-only decision snapshot.
+ * @param {number} benchIndex Physical owner Bench slot.
+ * @returns {boolean} True when generic mobility must decline this target.
+ */
+function wouldLoseActivePositionAbility(view, benchIndex) {
+  assert.equal(view?.decisionKind, 'owner-root');
+  if (!hasActivePositionAbilityToPreserve(view)) return false;
+  const active = view.ownPublic?.active;
+  const replacement = view.ownPublic?.bench?.[benchIndex];
+  if (!Number.isSafeInteger(benchIndex) || benchIndex < 0 ||
+      !active || !replacement || active.printing !== replacement.printing ||
+      !Array.isArray(replacement.abilityDetails)) return true;
+  const positionAbilities = active.abilityDetails.filter(ability =>
+    typeof ability?.text === 'string' &&
+    POSITION_CONDITIONS.some(pattern => pattern.test(ability.text))
+  );
+  return !positionAbilities.every(ability =>
+    POSITION_LOCK_NAMES.has(ability.name) &&
+    replacement.abilityDetails.some(candidate =>
+      candidate?.name === ability.name && candidate?.text === ability.text)
+  );
+}
+
+module.exports = { VERSION, hasActivePositionAbilityToPreserve,
+  wouldLoseActivePositionAbility };
