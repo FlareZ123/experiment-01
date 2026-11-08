@@ -69,7 +69,7 @@ No false-pass has been observed in a native selected-v8 match. No competitive ga
 
 - [Agent41 independent v2 review](agent41-v8-snap-trap-v2-prompt-classification-independent-review-20261108.md)
 - [Agent12 independent WaitPrompt review](agent12-independent-v2-waitprompt-review-20261108.md)
-- [Agent12 Snap Trap source-to-settlement synthesis](agent12-snap-trap-source-to-settlement-synthesis-20261107.md)
-- [Unknown-prompt fail-closed regression](../../../../tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs)
+- [Agent12 Snap Trap source-to-settlement synthesis](../agent12-snap-trap-source-to-settlement-synthesis-20261107.md)
+- [Unknown-prompt fail-closed regression](../../../tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs)
 - [Pre-patch false-pass CI run](https://github.com/FlareZ123/experiment-01/actions/runs/42440764592)
 - [Post-patch contract-only CI run](https://github.com/FlareZ123/experiment-01/actions/runs/42441581802)
