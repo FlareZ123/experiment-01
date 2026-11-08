@@ -27,19 +27,19 @@ test('unmodified proven baseline remains eligible and v2 agrees',()=>{
 });
 test('printed Ability-inert Stadium and retreat-only Tool extend the veto',()=>{
   const v=view();
-  v.ownPublic.stadium=['Tropical Beach BWP 50'];
-  v.ownPublic.bench[0].tools=['Float Stone BKT 137'];
+  v.ownPublic.stadium=['Tropical Beach BWP'];
+  v.ownPublic.bench[0].tools=['Float Stone BKT'];
   assert.equal(classifyVisibleThornsVeto(v,intent).veto,false);
   const result=classifyNeutralThornsVeto(v,intent);
   assert.equal(result.veto,true);
   assert.equal(result.reason,'known-ability-inert-stadium-tool-lock');
-  assert.deepEqual(v.ownPublic.stadium,['Tropical Beach BWP 50']);
-  assert.deepEqual(v.ownPublic.bench[0].tools,['Float Stone BKT 137']);
+  assert.deepEqual(v.ownPublic.stadium,['Tropical Beach BWP']);
+  assert.deepEqual(v.ownPublic.bench[0].tools,['Float Stone BKT']);
 });
-test('each audited print family is a narrow opt-in positive',()=>{
-  const stadiums=['Tropical Beach BWP 28','Temple of Sinnoh ASR 155',
-    'Dimension Valley PHF 93','Chaotic Swell CEC 187'];
-  const tools=['Float Stone PLF 99','Air Balloon SSH 156'];
+test('each audited native name-plus-set family is a narrow opt-in positive',()=>{
+  const stadiums=['Tropical Beach BWP','Temple of Sinnoh ASR',
+    'Dimension Valley PHF','Chaotic Swell CEC'];
+  const tools=['Float Stone PLF','Air Balloon SSH'];
   for(const stadium of stadiums){
     const v=view();v.opponentPublic.stadium=[stadium];
     assert.equal(classifyNeutralThornsVeto(v,intent).veto,true,stadium);
@@ -50,19 +50,19 @@ test('each audited print family is a narrow opt-in positive',()=>{
   }
 });
 test('any uncertain or Ability-affecting card keeps the original abstention',()=>{
-  for(const stadium of ['Path to the Peak CRE 148',
-    'Silent Lab PRC 140','Tropical Beach UNKNOWN 5']){
+  for(const stadium of ['Path to the Peak CRE',
+    'Silent Lab PRC','Tropical Beach UNKNOWN']){
     const v=view();v.ownPublic.stadium=[stadium];
     assert.equal(classifyNeutralThornsVeto(v,intent).veto,false,stadium);
   }
-  for(const tool of ['Stealthy Hood UNB 186',
-    'Float Stone UNVERIFIED 99']){
+  for(const tool of ['Stealthy Hood UNB',
+    'Float Stone UNVERIFIED']){
     const v=view();v.ownPublic.bench[0].tools=[tool];
     assert.equal(classifyNeutralThornsVeto(v,intent).veto,false,tool);
   }
   const mixed=view();
-  mixed.ownPublic.stadium=['Temple of Sinnoh ASR 155'];
-  mixed.opponentPublic.stadium=['Silent Lab PRC 140'];
+  mixed.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  mixed.opponentPublic.stadium=['Silent Lab PRC'];
   assert.equal(classifyNeutralThornsVeto(mixed,intent).veto,false);
 });
 test('no visible active lock, no intent, or wrong Pokémon cannot be vetoed',()=>{
@@ -80,11 +80,11 @@ test('native wrapper vetoes proposed blocked Ability and reliably restores choos
     const stub=proposer.chooseUnderworldDoorRoot;
     const wrapped=withNeutralThornsUnderworldVeto(()=>{
       const expanded=view();
-      expanded.ownPublic.stadium=['Chaotic Swell CEC 187'];
+      expanded.ownPublic.stadium=['Chaotic Swell CEC'];
       const blocked=proposer.chooseUnderworldDoorRoot(expanded,{},{});
       assert.equal(blocked,null);
       const hood=view();
-      hood.ownPublic.bench[0].tools=['Stealthy Hood UNB 186'];
+      hood.ownPublic.bench[0].tools=['Stealthy Hood UNB'];
       assert.deepEqual(proposer.chooseUnderworldDoorRoot(hood,{},{}),intent);
       return 'native-run';
     });
