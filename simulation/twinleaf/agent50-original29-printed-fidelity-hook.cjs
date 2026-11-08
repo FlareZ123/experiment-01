@@ -5,6 +5,15 @@ const path=require('node:path');
 
 const VERSION='agent50-original29-printed-public-correction-v1';
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const originalField=require('../../results/aichi-2026/full-decklists.json');
+const originalPrintings=new Map(originalField.decks.flatMap(deck=>
+  deck.cards.filter(entry=>entry.category==='Pokémon').map(entry=>
+    [entry.name+' '+entry.printing.set,{
+      name:entry.name,set:entry.printing.set,
+      number:String(entry.printing.number)
+    }])
+));
+
 /** @param {string} modulePath Pinned Twinleaf output module. */
 const native=modulePath=>require(path.join(OUT,modulePath));
 
@@ -95,10 +104,23 @@ function withOriginal29PrintedFidelity(run,deps={}){
   const proto=CardManager.prototype;
   const original=Object.getOwnPropertyDescriptor(proto,'getCardByName');
   assert.equal(typeof original?.value,'function');
-  const audit={version:VERSION,attempts:0,corrections:[],paperLegalityCertified:false,
-    competitiveGamesQualified:0};
+  const audit={version:VERSION,attempts:0,corrections:[],aliases:[],
+    paperLegalityCertified:false,competitiveGamesQualified:0};
   function wrapped(fullName){
-    const card=original.value.call(this,fullName);
+    let card=original.value.call(this,fullName);
+    if(!card&&originalPrintings.has(fullName)){
+      const expected=originalPrintings.get(fullName);
+      const matches=this.getAllCards().filter(entry=>
+        entry.superType===1&&entry.name===expected.name&&
+        entry.set===expected.set&&
+        String(entry.setNumber)===expected.number);
+      if(matches.length===1){
+        card=original.value.call(this,matches[0].fullName);
+        if(card)audit.aliases.push({
+          originalRequest:fullName,nativeFullName:matches[0].fullName
+        });
+      }
+    }
     if(!card)return card;
     const kind=correctPrintedCard(card,CardType);
     if(kind){
