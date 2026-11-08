@@ -16,6 +16,8 @@ const {withCommonOwnerThornsRoot}=
   require('./agent36-issue25-common-v6.cjs');
 const {withOwnerVoltAcrossNativeMatches}=
   require('./agent36-issue25-common-v7.cjs');
+const {withOwnerTreasurePrompts}=
+  require('../twinleaf/agent2/treasure-owner-prompt-native.cjs');
 const {VERSION:PROMPT_CONTRACT_VERSION}=
   require('../twinleaf/agent2-first-blocked-prompt-contract.cjs');
 const {CODE}=require('../twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
@@ -55,6 +57,7 @@ const HASH_PATHS=Object.freeze([
   'simulation/twinleaf/agent1-charged-promotion-choice.cjs',
   'simulation/twinleaf/agent4-allturn-owner-volt-attach-energy.cjs',
   'simulation/twinleaf/agent49-mysterious-treasure-frontier.cjs',
+  'simulation/twinleaf/agent2/treasure-owner-prompt-native.cjs',
   'simulation/twinleaf/agent5-generic-owner-trainer-opportunity.cjs',
   'simulation/twinleaf/agent50-native-owner-trainer-pass-bridge.cjs',
   'simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs',
@@ -79,7 +82,9 @@ function safeRootPrefix(native,initial=false){
   }));
 }
 
-function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
+function runOne(candidateSeat,cards,{
+  mysteriousTreasureRoot=false,treasurePaymentChoice='crispin'
+}={}){
   assert.ok(candidateSeat===0||candidateSeat===1);
   const slot=candidateSeat===0?'A':'B';
   const trial={
@@ -134,7 +139,11 @@ function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
     nativeRootActionLimit:ACTION_LIMIT
   }));
   const owner=()=>withStewardInnermostOwnerPrompts(execute);
-  const volt=withOwnerVoltAcrossNativeMatches(owner);
+  const selectedTreasurePrompts=mysteriousTreasureRoot?
+    withOwnerTreasurePrompts(()=>withOwnerVoltAcrossNativeMatches(owner),
+      {paymentChoice:treasurePaymentChoice}):null;
+  const volt=selectedTreasurePrompts?.result??
+    withOwnerVoltAcrossNativeMatches(owner);
   const ownerWrapped=volt.result;
   const selected=ownerWrapped.result;
   const nativeRow=selected.rawDevelopment?.rows?.[0]??null;
@@ -209,6 +218,8 @@ function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
     sourceRank:SOURCE_RANK,candidateSeat,sourceSeat:1-candidateSeat,
     seed:SEED,actionLimit:ACTION_LIMIT,
     ownerTreasureRootOptIn:mysteriousTreasureRoot,
+    ownerTreasurePaymentChoice:mysteriousTreasureRoot?
+      treasurePaymentChoice:null,
     candidateDeckSha256:sha256(cards.candidate),
     sourceDeckSha256:sha256(cards.source),
     status,firstUnsupportedOwnerRoot:first,
@@ -246,6 +257,7 @@ function runOne(candidateSeat,cards,{mysteriousTreasureRoot=false}={}){
       nativeQuarantineAudit:quarantine
     },
     v8OuterAudits:{
+      ownerTreasurePrompts:selectedTreasurePrompts?.audit??null,
       innermostOwnerPrompts:ownerWrapped.audit??null,
       ownerVolt:volt.audit??null
     },
@@ -320,14 +332,16 @@ function hasReleaseQualifiedFirstOwnerRoot(rows){
   });
 }
 
-function run({mysteriousTreasureRoot=false}={}){
+function run({mysteriousTreasureRoot=false,treasurePaymentChoice='crispin'}={}){
   const admittedSourceRanks=authenticatedSourceRanks(aichiDecklists,true);
   assert.ok(admittedSourceRanks.includes(SOURCE_RANK),
     'Rank 3 must be present in the published 60-card source roster');
   const resolvedSourceAndPolicyHashes=HASH_PATHS.map(hashRegisteredFile);
   const cards=originalPrintings();
-  const rows=[runOne(0,cards,{mysteriousTreasureRoot}),
-    runOne(1,cards,{mysteriousTreasureRoot})];
+  const rows=[
+    runOne(0,cards,{mysteriousTreasureRoot,treasurePaymentChoice}),
+    runOne(1,cards,{mysteriousTreasureRoot,treasurePaymentChoice})
+  ];
   return {
     schema:VERSION,enginePin:ENGINE_PIN,
     runnerMode:mysteriousTreasureRoot?
@@ -382,6 +396,7 @@ function run({mysteriousTreasureRoot=false}={}){
     ],
     diagnosticOnlyFlags:{
       mysteriousTreasureRoot,
+      treasurePaymentChoice:mysteriousTreasureRoot?treasurePaymentChoice:null,
       nativeOwnerTrainerFallback:true,
       ownerFallbackDiagnosticView:true,
       actorGenericFallbackAttribution:true,
