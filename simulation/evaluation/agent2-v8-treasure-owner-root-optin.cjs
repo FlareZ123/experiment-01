@@ -21,12 +21,24 @@ function run(){
   const originalCandidateRootOrdinal=8;
   const initialCandidateRoots=
     candidate.nativeAbortEvidence?.initialAcceptedRootPrefix??[];
-  const nextCandidateAction=initialCandidateRoots.find(root=>
-    root.playerSlot===1&&root.actionOrdinal>=originalCandidateRootOrdinal);
-  const acceptedFirstTurnOwnerPlayCard=initialCandidateRoots.some(root=>
-    root.playerSlot===1&&root.turnBefore===1&&
-    root.actionOrdinal>=originalCandidateRootOrdinal&&
-    root.action==='PlayCardAction');
+  const acceptedNewOwnerPromptRoots=initialCandidateRoots.filter(root=>
+    root.playerSlot===1&&root.actionOrdinal>=originalCandidateRootOrdinal&&
+    root.action==='ResolvePromptAction'&&
+    root.pendingPrompt==='ChooseCardsPrompt');
+  const promptAudit=candidate.v8OuterAudits?.ownerTreasurePrompts??null;
+  const prompts=promptAudit?.events??[];
+  const printedPayment=prompts.find(x=>
+    x.sourcePrinting==='Mysterious Treasure FLI'&&
+    x.kind==='printed-one-card-payment'&&
+    x.ownerHandPrompt===true&&x.nativeValidatorAccepted===true);
+  const sourceStampedOwnerSearch=prompts.find(x=>
+    x.sourcePrinting==='Mysterious Treasure FLI'&&
+    (x.kind==='owner-deck-search'||x.kind==='owner-deck-search-empty')&&
+    x.ownerDeckPrompt===true&&x.nativeValidatorAccepted===true);
+  const acceptedOwnerPayment=Boolean(printedPayment&&
+    acceptedNewOwnerPromptRoots.length>=1);
+  const acceptedOwnerSearch=Boolean(sourceStampedOwnerSearch&&
+    acceptedNewOwnerPromptRoots.length>=2);
   const validSourceAdmission=selected.rows.every(row=>
     row.activeRunDevelopmentRegistrationValid===true);
   const rawDecoderStillQuarantined=selected.rows.every(row=>
@@ -36,21 +48,24 @@ function run(){
   const gate={
     intendedPaymentTarget:'Mysterious Treasure FLI from original rank13 first owner root',
     originalCandidateRootOrdinal,
-    nextCandidateAction:nextCandidateAction??null,
-    acceptedFirstTurnOwnerPlayCard,
+    acceptedNewOwnerPromptRoots,
+    printedPayment:printedPayment??null,
+    sourceStampedOwnerSearch:sourceStampedOwnerSearch??null,
+    acceptedOwnerPayment,
+    acceptedOwnerSearch,
     validSourceAdmission,
     registeredBothSeats,
     rawDecoderStillQuarantined,
-    paperConfirmedItemIdentity:false,
-    firstOwnerActionClassGatePassed:
-      acceptedFirstTurnOwnerPlayCard&&validSourceAdmission&&
+    nativePaymentZoneCertified:false,
+    firstOwnerPromptChainPassed:
+      acceptedOwnerPayment&&acceptedOwnerSearch&&validSourceAdmission&&
       registeredBothSeats&&rawDecoderStillQuarantined
   };
   return {
     schema:SCHEMA,
-    status:gate.firstOwnerActionClassGatePassed?
-      'FIRST_TURN_OWNER_PLAYCARD_ACTION_CLASS_CAPTURED':
-      'TREASURE_ROOT_INTENT_NOT_YET_NATIVE_ACCEPTED',
+    status:gate.firstOwnerPromptChainPassed?
+      'PRINTED_OWNER_TREASURE_PAYMENT_AND_SEARCH_PROMPTS_ACCEPTED':
+      'TREASURE_OWNER_PROMPT_CHAIN_NOT_YET_SETTLED',
     treatment:'mysteriousTreasureRoot=true',
     comparatorRunId:42442029797,
     comparatorTreatment:'mysteriousTreasureRoot=false',
@@ -65,6 +80,6 @@ function run(){
 if(require.main===module){
   const result=run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
-  if(!result.gate.firstOwnerActionClassGatePassed)process.exitCode=1;
+  if(!result.gate.firstOwnerPromptChainPassed)process.exitCode=1;
 }
 module.exports={SCHEMA,run};
