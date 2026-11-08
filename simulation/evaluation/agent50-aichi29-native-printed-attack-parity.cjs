@@ -144,6 +144,27 @@ function audit(){
   const missingNative=findings.filter(x=>x.status==='MISSING_PINNED_NATIVE');
   const missingSource=findings.filter(x=>x.status==='MISSING_BUNDLED_SOURCE');
   const mismatchedNames=findings.filter(x=>x.differences.attacks);
+  const byRank=field.decks.map(deck=>{
+    const relevant=findings.filter(row=>row.ranks.includes(deck.rank));
+    const missingNativePrintings=relevant
+      .filter(row=>row.status==='MISSING_PINNED_NATIVE')
+      .map(row=>row.name+' '+row.set);
+    const missingBundledPrintings=relevant
+      .filter(row=>row.status==='MISSING_BUNDLED_SOURCE')
+      .map(row=>row.name+' '+row.set);
+    const printedAttackMismatches=relevant
+      .filter(row=>row.differences.attacks)
+      .map(row=>row.name+' '+row.set);
+    return {
+      rank:deck.rank,sourcePokemonPrintings:relevant.length,
+      sourcePokemonCards:deck.cards.filter(row=>row.category==='Pokémon')
+        .reduce((n,row)=>n+row.count,0),
+      missingNativePrintings,missingBundledPrintings,
+      printedAttackMismatches,
+      allSourcePokemonNativeResolvable:missingNativePrintings.length===0,
+      note:'Pokémon print fidelity only: no Trainer/Energy/legality/game certification'
+    };
+  });
   return {
     schema:VERSION,pinnedEngineRevision:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     benchmark:'29 verified complete Aichi source sixties',
@@ -155,7 +176,7 @@ function audit(){
     printedSignatureMismatches:mismatches.length,
     attackSignatureMismatches:mismatchedNames.length,
     nativeNumberMismatch:findings.filter(x=>x.numberMismatch).length,
-    findings,competitiveGamesQualified:0,
+    byRank,findings,competitiveGamesQualified:0,
     paperLegalityCertified:false,
     qualifiedWinRate:null
   };
@@ -192,6 +213,8 @@ if(require.main===module){
     printedSignatureMismatches:result.printedSignatureMismatches,
     attackSignatureMismatches:result.attackSignatureMismatches,
     nativeNumberMismatch:result.nativeNumberMismatch,
+    nativePrintedGapsByRank:result.byRank.filter(x=>
+      !x.allSourcePokemonNativeResolvable||x.printedAttackMismatches.length>0),
     sampleNonmatching:result.findings
       .filter(x=>Object.keys(x.differences).length||x.status!=='SOURCE_AND_NATIVE_FOUND')
       .slice(0,30),
