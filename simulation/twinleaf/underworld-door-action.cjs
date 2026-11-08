@@ -101,11 +101,6 @@ function underworldDoorAction(options) {
 
   const promptsBeforeUnderworld = state.prompts.filter(
     prompt => prompt.result === undefined).map(prompt => prompt.id);
-  if (manualFallback) {
-    manualFallback.pendingNativePromptsAfterAttachment =
-      state.prompts.filter(prompt => prompt.result === undefined)
-        .map(prompt => prompt.constructor.name);
-  }
   const powerCheck = new CheckPokemonPowersEffect(player, vmax);
   store.reduceEffect(state, powerCheck);
   const powerListed = powerCheck.powers.some(p => p.name === 'Underworld Door');
@@ -140,7 +135,10 @@ function underworldDoorAction(options) {
       activeEnergiesAfter:player.active.energies.cards.length,
       handCountBefore:previousHand,
       handCountAfter:player.hand.cards.length,
-      nativePlayCardAccepted:true
+      nativePlayCardAccepted:true,
+      pendingNativePromptsAfterAttachment:
+        state.prompts.filter(prompt => prompt.result === undefined)
+          .map(prompt => prompt.constructor.name)
     };
   }
 
