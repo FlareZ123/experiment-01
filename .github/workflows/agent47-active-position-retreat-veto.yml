@@ -36,6 +36,7 @@ jobs:
           tests/agent14-generic-funded-floatstone-frontier.test.cjs
           tests/agent10-flexible-paid-retreat-frontier.test.cjs
           tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
+          tests/2026-11/agent47-general-retreat-lock-retention.test.cjs
 
   native-handoff:
     if: ${{ inputs.native_handoff }}
