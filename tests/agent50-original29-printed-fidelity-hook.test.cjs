@@ -68,3 +68,29 @@ test('exception restores exact pinned manager descriptor',()=>{
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     FakeManager.prototype,'getCardByName'),before);
 });
+
+test('one exact registered Mega Absol printing resolves its pinned M1L native fullName alias',()=>{
+  class AliasManager{
+    getAllCards(){
+      return [{superType:1,name:'Mega Absol ex',set:'MEG',setNumber:'86',
+        fullName:'Mega Absol ex M1L',attacks:[],resistance:[]}];
+    }
+    getCardByName(name){
+      return name==='Mega Absol ex M1L'?
+        {...this.getAllCards()[0]}:undefined;
+    }
+  }
+  const base=AliasManager.prototype.getCardByName;
+  const output=withOriginal29PrintedFidelity(()=>{
+    const instance=new AliasManager();
+    assert.equal(instance.getCardByName('Never Registered CARD'),undefined);
+    return instance.getCardByName('Mega Absol ex MEG');
+  },{CardManager:AliasManager,CardType:types});
+  assert.equal(output.result?.fullName,'Mega Absol ex M1L');
+  assert.deepEqual(output.audit.aliases,[{
+    originalRequest:'Mega Absol ex MEG',
+    nativeFullName:'Mega Absol ex M1L'
+  }]);
+  assert.strictEqual(AliasManager.prototype.getCardByName,base);
+  assert.equal(new AliasManager().getCardByName('Mega Absol ex MEG'),undefined);
+});
