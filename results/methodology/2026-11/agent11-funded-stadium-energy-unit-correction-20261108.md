@@ -20,7 +20,7 @@ The same public context audit exposed a separate classification error: the earli
 
 **Code:** [funded-Stadium planner v3](../../../simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs).  
 **Regressions:** [source-shaped and original planner tests](../../../tests/agent46-dimensionvalley-energy-drive-planner.test.cjs), [eight-case Energy-unit/Rule Box and historical-EX-versus-modern-ex tests](../../../tests/2026-11/agent11-funded-stadium-energy-unit-regression.test.cjs).  
-**CI:** [run 42522072913](https://github.com/FlareZ123/experiment-01/actions/runs/42522072913) succeeded on v3; [run 42522138669](https://github.com/FlareZ123/experiment-01/actions/runs/42522138669) succeeded with all eight physical-context v3 regressions. [Run 42522392734](https://github.com/FlareZ123/experiment-01/actions/runs/42522392734) is the manual Node 22 benchmark dispatched for the v4 Counter Energy classification correction; check its final outcome before treating v4 as CI-confirmed.
+**CI:** [run 42522072913](https://github.com/FlareZ123/experiment-01/actions/runs/42522072913) succeeded on v3; [run 42522138669](https://github.com/FlareZ123/experiment-01/actions/runs/42522138669) succeeded with all eight physical-context v3 regressions. [Run 42522392734](https://github.com/FlareZ123/experiment-01/actions/runs/42522392734) **succeeded** at commit `ab399f2d4ddace1350cb8f2faa7157ccae3f41e5`, including the v4 Counter Energy classification regression and all eight new Energy-unit/Rule Box tests.
 
 ## Boundaries
 
