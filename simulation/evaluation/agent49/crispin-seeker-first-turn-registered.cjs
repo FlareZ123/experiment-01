@@ -39,6 +39,7 @@ function summarize(run,recovery){
       sourceDeckSha256:row.sourceDeckSha256,
       nativeStatus:row.status,
       nativeErrorMessage:row.selectedV0?.thrownMessage??null,
+      nativeErrorText:row.nativeErrorText??null,
       nativeDirectErrorMessage:row.nativeDirectErrorMessage??null,
       nativeDirectErrorStack:row.nativeDirectErrorStack??null,
       nativeRunErrors:row.runDevelopmentOutputSummary?.errors??null,
