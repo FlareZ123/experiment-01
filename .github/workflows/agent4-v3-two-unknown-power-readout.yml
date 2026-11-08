@@ -17,6 +17,7 @@ on:
           - neutral-v2-native-16
           - neutral-v2-staged-native
           - neutral-v3-staged-native
+          - neutral-v3-original16
         default: typed-replay
 
 permissions:
@@ -66,6 +67,24 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Replay exact original-rank6 v2 versus broader v3 with printed physical deal parity
+        if: ${{ inputs.experiment == 'neutral-v3-original16' }}
+        env:
+          AGENT4_FIELD_V3_ORIGINAL16_OUTPUT: agent4-original-rank6-field-neutral-v2-v3-sixteen.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-thorns-neutral-v2-v3-original16.cjs
+          node --test tests/2026-11/agent4-thorns-lock-field-neutral-v3.test.cjs
+          node simulation/evaluation/2026-11/agent4-thorns-neutral-v2-v3-original16.cjs
+      - name: Upload exact original-rank6 two-arm v2-v3 native comparison
+        if: ${{ always() && inputs.experiment == 'neutral-v3-original16' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-field-neutral-v2-v3-sixteen
+          path: |
+            agent4-original-rank6-field-neutral-v2-v3-sixteen.json
+            agent4-original-rank6-field-neutral-v2-v3-sixteen.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Native full original-field Stadium Tool v3 and v2 compatibility
         if: ${{ inputs.experiment == 'neutral-v3-staged-native' }}
         run: |
