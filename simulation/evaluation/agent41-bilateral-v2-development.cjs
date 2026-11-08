@@ -1406,6 +1406,7 @@ function runDevelopment({
   mysteriousTreasureMuscleBandPayment=false,
   firstRegidragoBenchGrass=false,firstCrispinSeekerRecovery=false,
   earlyRegidragoCompressor=false,bilateralPerfectionRoot=false,
+  bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
@@ -1519,6 +1520,9 @@ function runDevelopment({
     'Owner fallback diagnostic view requires canonical actor composition');
   assert.ok(!bilateralPerfectionRoot||actorOnlyComposition,
     'Bilateral paid Perfection root requires the actor-only two-seat policy');
+  assert.ok(!bilateralPerfectionTransitionRoot||
+    (actorOnlyComposition&&bilateralPerfectionRoot),
+    'Bilateral transition requires paid Perfection actor-only roots');
   assert.ok(!mysteriousTreasureRoot||actorOnlyComposition,
     'Mysterious Treasure root requires canonical actor composition');
   assert.ok(!mysteriousTreasureMuscleBandPayment||mysteriousTreasureRoot,
@@ -1850,6 +1854,7 @@ function runDevelopment({
           !bilateralJetBenchSwitchRoot&&
           !bilateralBasicEnergyRecipientFrontier&&
           !bilateralPerfectionBenchFunding&&
+          !bilateralPerfectionTransitionRoot&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
@@ -1887,6 +1892,9 @@ function runDevelopment({
               }:{}),
               ...(bilateralPerfectionBenchFunding?{
                 perfectionBenchFunding:true
+              }:{}),
+              ...(bilateralPerfectionTransitionRoot?{
+                perfectionTransitionRoot:true
               }:{}),
               ...conservativeSupporterRootOptions,
               ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot?{
