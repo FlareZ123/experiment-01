@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {assessDirectEnergy}=
   require('../twinleaf/agent30-source-attack-energy-reachability.cjs');
 
-const VERSION='agent3-native-pre-attack-public-board-join-v3';
+const VERSION='agent3-native-pre-attack-public-board-join-v4';
 const CARD_TYPE_ENUM=Object.freeze({
   Grass:1,Fire:2,Water:3,Lightning:4,Psychic:5,Fighting:6,
   Darkness:7,Metal:8,Colorless:9,Fairy:10,Dragon:11
@@ -40,6 +40,13 @@ function classifyDeclarationTiming(immediate,final,printedHp,
     return 'TARGET_DAMAGE_THRESHOLD_REACHED_AT_DECLARATION_ROOT';
   if(immediate.location==='absent')
     return 'TARGET_ABSENT_FROM_IN_PLAY_AT_DECLARATION_ROOT';
+  // The native KO proves one physical target was discarded. If multiple
+  // Pokémon share that public printing, a different copy may remain in play
+  // after the prompt. A later 0-damage Bench copy is not contradictory proof.
+  if(immediate.location==='ambiguous'&&final.captured&&
+    (final.location==='active'||final.location==='bench'||
+      final.location==='ambiguous'))
+    return 'AMBIGUOUS_SAME_PRINTING_FINAL_IN_PLAY';
   const laterPromptRoots=promptPending===true&&
     Number.isSafeInteger(actionOrdinal)&&
     Number.isSafeInteger(completionRootOrdinal)&&
@@ -242,12 +249,14 @@ function joinNativePreAttackBoard(
     const targetKnockedOutDuringLaterPromptResolution=
       declarationRootVsPromptClosureClassification===
         'TARGET_KO_DURING_LATER_PROMPT_RESOLUTION'
-        ?true:declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')?
+        ?true:(declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')||
+            declarationRootVsPromptClosureClassification.startsWith('AMBIGUOUS'))?
           null:false;
     const targetDamageThresholdReachedDuringLaterPromptResolution=
       declarationRootVsPromptClosureClassification===
         'TARGET_DAMAGE_THRESHOLD_REACHED_DURING_LATER_PROMPT_RESOLUTION'
-        ?true:declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')?
+        ?true:(declarationRootVsPromptClosureClassification.startsWith('UNKNOWN')||
+            declarationRootVsPromptClosureClassification.startsWith('AMBIGUOUS'))?
           null:false;
     const targetDamageDeltaFromPreAttackToDeclarationRoot=
       immediateTarget.damage===null?null:
@@ -293,6 +302,11 @@ function joinNativePreAttackBoard(
       publicBoardAfterPromptClosure:Array.isArray(finalBoard)?finalBoard:null,
       targetPrintedHp,
       targetIdentityGranularity:'printing-only-no-instance-id',
+      targetSamePrintingAmbiguousAfterDeclaration:
+        immediateTarget.location==='ambiguous',
+      targetInstanceAtPromptClosureUnresolved:
+        declarationRootVsPromptClosureClassification===
+          'AMBIGUOUS_SAME_PRINTING_FINAL_IN_PLAY',
       physicalActiveIdentityGranularity:
         'printing-and-printed-attack-menu-no-instance-id',
       targetLocationImmediatelyAfterDeclarationRoot:immediateTarget.location,
