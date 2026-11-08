@@ -165,7 +165,7 @@ function promptZoneMatches(state, prompt) {
         eligibleSubzone,
         subzoneReferenceMatch: eligibleSubzone === 'energies'
           && prompt.cards?.energies === energyZone,
-        eligibleCount: eligible.cards.length
+        eligibleCount: candidate.visibility === 'public' ? eligible.cards.length : null
       });
     } else if (exactEnergySubzone) {
       matches.push({
@@ -174,7 +174,7 @@ function promptZoneMatches(state, prompt) {
         visibility: candidate.visibility,
         eligibleSubzone: 'energies',
         subzoneReferenceMatch: true,
-        eligibleCount: eligible.cards.length
+        eligibleCount: candidate.visibility === 'public' ? eligible.cards.length : null
       });
     } else if (subset) {
       matches.push({
@@ -184,7 +184,7 @@ function promptZoneMatches(state, prompt) {
         eligibleSubzone,
         subzoneReferenceMatch: eligibleSubzone === 'energies'
           && prompt.cards?.energies === energyZone,
-        eligibleCount: eligible.cards.length
+        eligibleCount: candidate.visibility === 'public' ? eligible.cards.length : null
       });
     }
   }
@@ -193,7 +193,7 @@ function promptZoneMatches(state, prompt) {
   const hasPublicMatch = matches.some(match => match.visibility === 'public');
   return {
     matches,
-    offeredCount: eligible.cards.length,
+    offeredCount: hasPublicMatch && !hasHiddenMatch ? eligible.cards.length : null,
     eligibleSubzone: eligible.subzone,
     filterSuperType: eligible.filterSuperType,
     filterMatchesEnergySubzone: eligible.filterMatchesEnergySubzone,
