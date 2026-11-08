@@ -10,6 +10,30 @@ This gives a concrete answer to a critical conditional weakness: **Item lock doe
 
 **Important scope:** rank-1's opponent hand is conditioned to contain its printed Guzma; its Mimikyu is deliberately put onto the Bench from its own remaining fixed 60. Source and opponent decisions are scripted. The attack, damage, Prize race, realistic source response and complete clocked match are absent. No candidate fixed 60, matchup probability or 99.5% claim follows.
 
+## Second original-rank1 route: live Wonder Tag → Guzma
+
+The [separate successful pinned native run 42523489561](https://github.com/FlareZ123/experiment-01/actions/runs/42523489561), job `128861868928`, tested the next counter-ALS under the same real Sentinel first-turn Item lock and original paper 60 inventories. Original rank-1 carries **two Tapu Lele-GX GRI** and **one Guzma BUS**. Wonder Tag is an Ability triggered on playing Lele from hand onto the Bench; Vileplume AOR's Irritating Pollen specifically blocks **Items**, not that Ability nor Supporters.
+
+The rank-1 opponent's *alternative* physical treatment began with Guzma in its deck and a real printed Tapu Lele-GX moved from a Prize slot to hand. A genuine card from the remaining rank-1 deck replaced that Lele in the six Prizes, and the initially held genuine Guzma was put into the deck. Both fixed 60s, six opposing Prizes, existing source Fan Prize and unique card identities remain intact. This is a deliberately conditioned different shuffle, not a naturally sampled opening. Source again completed the true original first-turn lock; opponent then played its real Lele onto an empty Bench under that lock.
+
+On **both physical seats**, native pending prompts settled in order `ConfirmPrompt → ChooseCardsPrompt → ShowCardsPrompt → ShuffleDeckPrompt`, with the actual original deck's `Guzma BUS` chosen and put into opponent's hand. An immediate native Guzma action counted the Supporter use and resolved the two `ChoosePokemonPrompt` choices, putting source Vileplume Active and opponent Mimikyu Active. The receipts `AGENT28_WONDERTAG_GUZMA_NATIVE` appear twice. The optical 60-card and six-Prize constraints were asserted before the response. The opt-in two-seat test command, together with four pure mathematical tests and direct-route regressions, reported **9/9 passing**.
+
+**Practical distinction:** this is the same dangerous Active-spot exposure reached through a *second* allowed resource path. It defeats the theory that one original printed Guzma makes the threat negligible after Item lock. It still does not establish an opponent policy's choice, an ensuing KO, a win, or the natural frequency of successfully retaining and using Lele.
+
+## Exact early-access screen, explicitly bounded
+
+The published rank-1 list has **1 Guzma, 2 Tapu Lele-GX, 12 other Basics and 45 other cards**. Going first, rank-1 normally starts with seven cards and draws **one** at the start of its second turn (global turn 3), after Sentinel's going-second lock turn 2. The [exact integer seven-hand/six-Prize/one-draw enumerator](../../../simulation/evaluation/agent28-rank1-guzma-wonder-tag-opening.cjs) counts random physical opening assignments conditional on a Basic-valid first seven, keeping original Guzma-Prized failures out of Wonder Tag retrieval. When the only starting Basic is Tapu Lele-GX, that first Lele must become Active and is **not** counted as a hand-held Wonder Tag. A second Lele drawn later remains eligible. Both the enumerator and [its independent exact-model tests](../../../tests/agent28-rank1-guzma-wonder-tag-opening.test.cjs) passed in run 42523489561.
+
+| Rank-1 opportunity category by turn 3 | Conditional fraction |
+| --- | ---: |
+| Naturally in hand: original Guzma | 12.772841963% |
+| Additional legal-to-Bench Lele hand access with Guzma left in deck | 18.056005605% |
+| **Union of non-overlapping access opportunities** | **30.828847568%** |
+
+This is an optimistic, no-extra-draw/no-bonus-mulligan *opportunity screen*; it assumes the relevant resources are still in hand at this turn, an open Bench exists, Wonder Tag is unblocked and the opponent chooses to use it. It is not the probability of a native or paper win, and does not condition on successfully establishing Sentinel. Actual opponent's first-turn card use, prior Lele usage, draw/search and board constraints can change the result.
+
+Original full-list inventory shows **25 of 29 authenticated opponents carry Guzma**, and **16 of 29 carry both Guzma and Tapu Lele-GX**, before modeling Ability lock, Bench congestion, Supporter contention or any other AMR restriction. The missing exact lists are ranks 23, 25 and 28. This makes legal Supporter/Ability gust access a **fieldwide architectural issue** for any Item-lock-only proposal; the 16-list count is not 16 proven Wonder Tag lines.
+
 ## Reproduced native sequence
 
 In [manual pinned Twinleaf workflow 42521763241](https://github.com/FlareZ123/experiment-01/actions/runs/42521763241), all steps completed **SUCCESS**, including the [two-seat exact 60 native test](../../../tests/agent28-sentinel-direct-artazon-native.test.cjs) and its exact physical-deal numerical companion. The job is `128856585494`; selected opt-in is `sentinel_artazon_direct_probe=true`. Workflow head is `a1e97602599fd98876a6eafa248b27a0ec795537`, pinned Twinleaf upstream gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No vendor changes or extra workflow.
