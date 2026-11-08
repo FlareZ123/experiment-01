@@ -398,3 +398,88 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+/**
+ * Independent conditioned original-rank1 Wonder Tag access arm:
+ * no Guzma held at turn start, original printed Guzma reachable only in deck.
+ * The active source Item lock remains in force throughout Lele's Ability.
+ */
+for(const seat of [0,1]){
+  test('Original rank1 Tapu Lele Wonder Tag obtains and resolves Guzma under the Sentinel Item lock: seat '+seat,()=>{
+    const x=stage(seat);
+    const opponent=x.f.defender;
+    const handGuzma=opponent.hand.cards.find(c=>c.fullName==='Guzma BUS');
+    const deckLele=opponent.deck.cards.find(c=>c.fullName==='Tapu Lele-GX GRI');
+    assert.ok(handGuzma&&deckLele,
+      'Use actual original-rank1 Guzma and a deck-remaining Tapu Lele-GX');
+    opponent.hand.cards.splice(opponent.hand.cards.indexOf(handGuzma),1);
+    opponent.deck.cards.push(handGuzma);
+    opponent.deck.cards.splice(opponent.deck.cards.indexOf(deckLele),1);
+    opponent.hand.cards.push(deckLele);
+
+    const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+    while(opponent.bench.length<5)opponent.bench.push(new PokemonCardList());
+    const physical=[...opponent.active.cards,...opponent.bench.flatMap(b=>b.cards),
+      ...opponent.hand.cards,...opponent.deck.cards,...opponent.discard.cards,
+      ...opponent.prizes.flatMap(p=>p.cards)];
+    assert.equal(physical.length,60);
+    assert.equal(new Set(physical).size,60);
+
+    establishSentinelLock(x);
+    assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),false);
+    assert.equal(opponent.deck.cards.some(c=>c.fullName==='Guzma BUS'),true);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const leleIndex=opponent.hand.cards.indexOf(deckLele);
+    const benchIndex=opponent.bench.findIndex(b=>b.cards.length===0);
+    assert.ok(leleIndex>=0&&benchIndex>=0);
+    x.f.store.dispatch(new PlayCardAction(opponent.id,leleIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:benchIndex
+    }));
+    let prompt=x.state.prompts.find(p=>p.result===undefined);
+    assert.equal(prompt?.constructor.name,'ConfirmPrompt',
+      'Actual Wonder Tag on-hand Bench play must ask for consent');
+    x.f.store.dispatch(new ResolvePromptAction(prompt.id,true));
+    prompt=x.state.prompts.find(p=>p.result===undefined);
+    assert.equal(prompt?.constructor.name,'ChooseCardsPrompt',
+      'Wonder Tag must search a real own-deck Supporter');
+    assert.equal(prompt.cards,opponent.deck);
+    const selected=opponent.deck.cards.find(c=>c.fullName==='Guzma BUS');
+    assert.ok(selected);
+    assert.equal(prompt.validate([selected],x.state),true);
+    x.f.store.dispatch(new ResolvePromptAction(prompt.id,[selected]));
+    const promptKinds=['ConfirmPrompt','ChooseCardsPrompt'];
+    for(let i=0;i<20;i++){
+      prompt=x.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      const kind=prompt.constructor.name;
+      const answer=kind==='ShuffleDeckPrompt'?
+        opponent.deck.cards.map((_,j)=>j):
+        kind==='WaitPrompt'?null:
+        kind==='ShowCardsPrompt'?true:undefined;
+      assert.notEqual(answer,undefined,'Unexpected Wonder Tag prompt '+kind);
+      x.f.store.dispatch(new ResolvePromptAction(prompt.id,answer));
+      promptKinds.push(kind);
+    }
+    assert.equal(x.f.store.hasPrompts(),false);
+    assert.equal(opponent.bench[benchIndex].getPokemonCard()?.fullName,
+      'Tapu Lele-GX GRI');
+    assert.equal(opponent.hand.cards.some(c=>c.fullName==='Guzma BUS'),true);
+    assert.equal(opponent.deck.cards.some(c=>c.fullName==='Guzma BUS'),false);
+    assert.equal(opponent.supporterTurn,0);
+    resolveRank1Guzma(x);
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume AOR');
+    assert.equal(opponent.active.getPokemonCard()?.fullName,'Mimikyu GRI');
+    console.log('AGENT28_WONDERTAG_GUZMA_NATIVE',JSON.stringify({
+      seat,sourceFixed60:true,opponentFixed60:true,
+      sourceVileplumeLockedBefore:true,
+      wonderTagSource:'Tapu Lele-GX GRI',wonderTagPrompts:promptKinds,
+      searchedOpponentSupporter:'Guzma BUS',
+      gustTarget:'Vileplume AOR',rank1Active:'Mimikyu GRI',
+      opponentSupporterTurn:opponent.supporterTurn,
+      conditionedScriptedSelection:true,competitiveGames:0
+    }));
+  });
+}
