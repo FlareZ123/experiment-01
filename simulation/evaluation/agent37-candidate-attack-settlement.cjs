@@ -45,15 +45,38 @@ function candidateAttackSettlement(game,candidateSeat) {
     'Candidate public attack and root action disagree');
     const completion=event.settled?.completionRootActionOrdinal;
     const closingRoot=Number.isSafeInteger(completion)?roots[completion]:null;
-    // AttackAction may already advance the Store's turnAfter while a KO
-    // Prize-selection prompt still belongs to the declaring player's turn.
-    // Compare the prompt root with the declaration's pre-dispatch turn, and
-    // separately require exact initiating-root ancestry below.
+    // Prize selection may finish on the next Store turn after the attack.
+    // Accept that boundary only when every native accepted-root transition
+    // belongs to one contiguous clock span advancing precisely once.
+    const completionSpan=Number.isSafeInteger(completion)&&
+      completion>=event.actionOrdinal?roots.filter(root=>
+        root.actionOrdinal>=event.actionOrdinal&&
+        root.actionOrdinal<=completion):[];
+    const contiguousSingleTurnAdvance=Boolean(
+      Number.isSafeInteger(event.turnBefore)&&
+      completionSpan.length===completion-event.actionOrdinal+1&&
+      completionSpan.every((root,index)=>
+        Number.isSafeInteger(root.turnBefore)&&
+        Number.isSafeInteger(root.turnAfter)&&
+        root.turnBefore>=event.turnBefore&&
+        root.turnAfter<=event.turnBefore+1&&
+        root.turnAfter>=root.turnBefore&&
+        (index===0||(
+          root.actionOrdinal===completionSpan[index-1].actionOrdinal+1&&
+          root.turnBefore===completionSpan[index-1].turnAfter)))&&
+      completionSpan.some(root=>
+        root.turnBefore===event.turnBefore&&
+        root.turnAfter===event.turnBefore+1));
+    const completionRootTurnAdvancedExactlyOnce=Boolean(
+      closingRoot&&Number.isSafeInteger(event.turnBefore)&&
+      closingRoot.turnBefore===event.turnBefore+1&&
+      contiguousSingleTurnAdvance);
     const completionRootTurnMatchesDeclarationTurn=
       completion===event.actionOrdinal?true:
         closingRoot&&Number.isSafeInteger(event.turnBefore)&&
         Number.isSafeInteger(closingRoot.turnBefore)?
-          closingRoot.turnBefore===event.turnBefore:null;
+          closingRoot.turnBefore===event.turnBefore||
+            completionRootTurnAdvancedExactlyOnce:null;
     // A terminal attack can immediately trigger a native sudden-death replay.
     // Its next Store snapshot then belongs to a freshly dealt game. Never
     // interpret that replay opening as damage or Prizes caused in this epoch.
@@ -150,6 +173,7 @@ function candidateAttackSettlement(game,candidateSeat) {
       completionRootOrdinal:settled?completion:null,
       completionRootTurnBefore:closingRoot?.turnBefore??null,
       completionRootTurnMatchesDeclarationTurn,
+      completionRootTurnAdvancedExactlyOnce,
       publicBoardBefore:event.before,
       // The declaration root's immediate post-dispatch board can precede
       // later prompt-resolved damage. Keep it distinct from final settlement.
