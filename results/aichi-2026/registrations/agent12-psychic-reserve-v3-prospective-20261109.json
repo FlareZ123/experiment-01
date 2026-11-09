@@ -1,0 +1,600 @@
+{
+  "schema": "agent12-second-psychic-reserve-v3-versus-safeguard-v1-prospective-v1",
+  "registeredUTC": "2026-11-09T10:56:08Z",
+  "status": "FROZEN BEFORE ANY NATIVE GAME",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootCap": 360,
+  "sourceRanks": [
+    6,
+    24,
+    29,
+    1,
+    5,
+    13
+  ],
+  "groups": [
+    {
+      "rank": 6,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 1563725323
+    },
+    {
+      "rank": 6,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 790355349
+    },
+    {
+      "rank": 6,
+      "repeat": 9401,
+      "candidateSlot": "A",
+      "seed": 1546353944
+    },
+    {
+      "rank": 6,
+      "repeat": 9401,
+      "candidateSlot": "B",
+      "seed": 456700706
+    },
+    {
+      "rank": 6,
+      "repeat": 9402,
+      "candidateSlot": "A",
+      "seed": 1078838723
+    },
+    {
+      "rank": 6,
+      "repeat": 9402,
+      "candidateSlot": "B",
+      "seed": 1745039516
+    },
+    {
+      "rank": 24,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 3127107791
+    },
+    {
+      "rank": 24,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 2667437754
+    },
+    {
+      "rank": 24,
+      "repeat": 9401,
+      "candidateSlot": "A",
+      "seed": 1169532119
+    },
+    {
+      "rank": 24,
+      "repeat": 9401,
+      "candidateSlot": "B",
+      "seed": 2206161032
+    },
+    {
+      "rank": 24,
+      "repeat": 9402,
+      "candidateSlot": "A",
+      "seed": 632539911
+    },
+    {
+      "rank": 24,
+      "repeat": 9402,
+      "candidateSlot": "B",
+      "seed": 787568775
+    },
+    {
+      "rank": 29,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 3657395711
+    },
+    {
+      "rank": 29,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 643029088
+    },
+    {
+      "rank": 29,
+      "repeat": 9401,
+      "candidateSlot": "A",
+      "seed": 2094383830
+    },
+    {
+      "rank": 29,
+      "repeat": 9401,
+      "candidateSlot": "B",
+      "seed": 3344728350
+    },
+    {
+      "rank": 29,
+      "repeat": 9402,
+      "candidateSlot": "A",
+      "seed": 973848126
+    },
+    {
+      "rank": 29,
+      "repeat": 9402,
+      "candidateSlot": "B",
+      "seed": 361798564
+    },
+    {
+      "rank": 1,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 2224892417
+    },
+    {
+      "rank": 1,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 623941898
+    },
+    {
+      "rank": 5,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 4107645678
+    },
+    {
+      "rank": 5,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 2059187852
+    },
+    {
+      "rank": 13,
+      "repeat": 9400,
+      "candidateSlot": "A",
+      "seed": 3910126678
+    },
+    {
+      "rank": 13,
+      "repeat": 9400,
+      "candidateSlot": "B",
+      "seed": 1162749993
+    }
+  ],
+  "candidateIds": [
+    "iron-thorns-mimikyu-safeguard-v1",
+    "iron-thorns-mimikyu-psychic-reserve-v3"
+  ],
+  "batches": [
+    {
+      "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+      "registeredTrials": [
+        {
+          "rank": 6,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 1563725323,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 790355349,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 1546353944,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9401:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 456700706,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9401:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 1078838723,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9402:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 1745039516,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9402:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3127107791,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 2667437754,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 1169532119,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9401:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 2206161032,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9401:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 632539911,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9402:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 787568775,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9402:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3657395711,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 643029088,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 2094383830,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9401:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 3344728350,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9401:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 973848126,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9402:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 361798564,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9402:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 1,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 2224892417,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "1:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 1,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 623941898,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "1:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 4107645678,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "5:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 2059187852,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "5:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3910126678,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "13:9400:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 1162749993,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "13:9400:B:iron-thorns-mimikyu-safeguard-v1"
+        }
+      ]
+    },
+    {
+      "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+      "registeredTrials": [
+        {
+          "rank": 6,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 1563725323,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 6,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 790355349,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 6,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 1546353944,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9401:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 6,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 456700706,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9401:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 6,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 1078838723,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9402:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 6,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 1745039516,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "6:9402:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3127107791,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 2667437754,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 1169532119,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9401:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 2206161032,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9401:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 632539911,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9402:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 24,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 787568775,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "24:9402:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3657395711,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 643029088,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9401,
+          "candidateSlot": "A",
+          "seed": 2094383830,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9401:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9401,
+          "candidateSlot": "B",
+          "seed": 3344728350,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9401:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9402,
+          "candidateSlot": "A",
+          "seed": 973848126,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9402:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 29,
+          "repeat": 9402,
+          "candidateSlot": "B",
+          "seed": 361798564,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "29:9402:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 1,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 2224892417,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "1:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 1,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 623941898,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "1:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 5,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 4107645678,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "5:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 5,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 2059187852,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "5:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 13,
+          "repeat": 9400,
+          "candidateSlot": "A",
+          "seed": 3910126678,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "13:9400:A:iron-thorns-mimikyu-psychic-reserve-v3"
+        },
+        {
+          "rank": 13,
+          "repeat": 9400,
+          "candidateSlot": "B",
+          "seed": 1162749993,
+          "candidateId": "iron-thorns-mimikyu-psychic-reserve-v3",
+          "id": "13:9400:B:iron-thorns-mimikyu-psychic-reserve-v3"
+        }
+      ]
+    }
+  ],
+  "expectedNativeAttempts": 48,
+  "fixedTreatment": "Exactly 1 Player's Ceremony SP127 removed and 1 Basic Psychic Energy MEE13 added. All other 58 card copies unchanged.",
+  "policyDescription": "Both v1 and v3 use the same frozen bilateral policy with the default-off public Thorns Mimikyu owner-line enabled identically. No Temple in either 60.",
+  "selectionRule": "Keep all registered roots including errors and caps. Paired difference only if original-source physical fingerprint and actual first-player seat match; never convert native success to a paper-qualified game.",
+  "paperQualifiedGames": 0,
+  "claim99Point5": false,
+  "policyCodeBlobs": [
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "blob": "a80695bd831995144b8b47fcf39e6572e231cea3"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent12-thorns-mimikyu-temple-owner.cjs",
+      "blob": "28cae8d2cc56bcf88d5ac89a227a27cdf821c645"
+    }
+  ],
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeAcceptedTargets": true
+  },
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "freshSeedNoPriorOutcomeConditioning": true
+}
