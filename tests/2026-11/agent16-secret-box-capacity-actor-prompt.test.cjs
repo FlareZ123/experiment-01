@@ -35,6 +35,11 @@ class ChooseCardsPrompt {
 class ResolvePromptAction {
   constructor(id,result) {this.id=id;this.result=result;}
 }
+class PlayCardAction {
+  constructor(id,handIndex,target){
+    this.id=id;this.handIndex=handIndex;this.target=target;
+  }
+}
 class SimpleTacticsAi {
   decodeNextAction() {return {kind:'delegated'};}
 }
@@ -61,6 +66,8 @@ function engine(name) {
     'simple-bot/simple-tactics-ai':{SimpleTacticsAi},
     'game/store/store':{Store},
     'game/store/actions/resolve-prompt-action':{ResolvePromptAction},
+    'game/store/actions/play-card-action':{PlayCardAction,
+      PlayerType:{ANY:0},SlotType:{BOARD:0}},
     'game/store/card/trainer-card':{TrainerCard},
     'game/store/card/card-types':{TrainerType:TYPES}
   };
