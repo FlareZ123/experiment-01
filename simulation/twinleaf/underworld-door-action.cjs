@@ -79,6 +79,19 @@ function underworldDoorAction(options) {
   player.deck.cards.push(get('Psychic Energy SVE'), get('Psychic Energy SVE'));
   const initialDeck = player.deck.cards.length;
 
+  // This staged state is already in a midgame turn. Give both sides real
+  // nonempty Prize zones before dispatch: otherwise native checkState()
+  // interprets two empty Prize zones as a tied game and initiates sudden death,
+  // sweeping the newly attached Energy into the deck.
+  const { CardList } = engine('game/store/state/card-list');
+  for (const participant of [locker, player]) {
+    participant.prizes = Array.from({ length: 6 }, () => {
+      const prize = new CardList();
+      prize.cards.push(get('Psychic Energy SVE'));
+      return prize;
+    });
+  }
+
   const state = new State();
   state.players = [locker, player];
   if (options.actingSeat) state.activePlayer = 1;
