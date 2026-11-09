@@ -97,7 +97,7 @@ test('shared actual dispatch boundary rejects forged payment then verifies genui
   },deps);
   assert.equal(result.audit.schema,VERSION);
   assert.equal(result.audit.vetoedBeforeDispatch,1);
-  assert.equal(result.audit.inspectedUltraBallPaymentPrompts,2);
+  // Generic physical-source membership rejects the forged card before the\n  // Ultra-specific prompt branch runs. The valid payment reaches that branch.\n  assert.equal(result.audit.inspectedUltraBallPaymentPrompts,1);
   assert.equal(result.audit.verifiedUltraBallPhysicalPayments,1);
   assert.equal(result.audit.unverifiedUltraBallPhysicalPayments,0);
   const row=result.audit.byTrial?.missing??result.audit.examples.find(
