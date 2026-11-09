@@ -92,6 +92,49 @@ test('exact Guzma printings, no speculative hidden information',()=>{
     throw Error('private opponent zones must never be read');}});
   assert.equal(chooseLateSeekerGuzmaPrize(v,catalog).target,GUZMA);
 });
+test('printed Max Geist scales from visible all-Pokémon Basic Psychic Energy into an exact Garbodor gust',()=>{
+  const v=view();
+  v.ownPublic.bench=[
+    poke('Girafarig LOT',0),
+    poke('Shadow Rider Calyrex VMAX CRE',4,10),
+    poke('Mimikyu GRI',0),
+    poke('Latias ex SSP',0),
+    null
+  ];
+  v.ownPublic.active=poke('Dialga-GX UPR',1);
+  v.ownPublic.bench[1].attacks=[{
+    name:'Max Geist',cost:[C,C,C],damage:10,
+    text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.',
+    damageCalculation:'+',gxAttack:false
+  }];
+  v.opponentPublic.bench=[
+    {...poke('Mega Absol ex ME1',0),hp:280},
+    {...poke('Garbodor BKP',0),hp:100},
+    {...poke('Mega Absol ex ME1',0),hp:280},
+    null,null
+  ];
+  const plan=chooseLateSeekerGuzmaPrize(v,catalog);
+  assert.equal(plan.kind,'play-seeker-get-guzma');
+  assert.equal(plan.intendedBenchIndex,1);
+  assert.equal(plan.intendedOpponentBenchIndex,1);
+  assert.equal(plan.intendedNominalDamage,160);
+  v.ownHand=[GUZMA];
+  const follow=chooseLateSeekerGuzmaPrize(v,catalog);
+  assert.equal(follow.attackName,'Max Geist');
+  assert.equal(follow.countedBasicEnergyUnits,5);
+  assert.equal(follow.nominalDamage,160);
+  assert.equal(follow.planFamily,'scaled-basic-energy-nominal-gust');
+  assert.equal(chooseLateSeekerGuzmaPrize(v,catalog,{
+    ownerSeat:1}),null);
+  assert.equal(chooseLateSeekerGuzmaPrize(v,catalog,{
+    globalTurn:36}),null);
+  assert.equal(chooseLateSeekerGuzmaPrize(v,catalog,{
+    ownerSeat:0,globalTurn:9}).kind,'play-guzma-forced-nominal-ko');
+  // Unknown conditional Special Energy changes the entire public multiplier.
+  v.ownPublic.active.energies=['Legacy Energy TWM'];
+  assert.equal(chooseLateSeekerGuzmaPrize(v,catalog),null);
+});
+
 test('native ChooseCardsPrompt resolves exact physical discarded Guzma',()=>{
   const physical={fullName:GUZMA,id:98};
   const owner={id:41,discard:{cards:[physical]}};
