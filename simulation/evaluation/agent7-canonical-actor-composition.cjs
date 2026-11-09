@@ -234,15 +234,27 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }};
       return chosen;
     };
-    const bomb=require('../twinleaf/agent29-rank9-post-compressor-bomb.cjs')
-      .withOwnerBombAfterSourceCompressor(()=>{
-        paid=later();
-        return paid.result;
-      },options.rank9CompressorOwnerSeat,{
-        allowLaterBenchedElectrode:options.rank9LateBenchBomb===true
-      });
-    ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit};
-    return bomb.result;
+    let bomb;
+    const runBomb=()=>{
+      bomb=require('../twinleaf/agent29-rank9-post-compressor-bomb.cjs')
+        .withOwnerBombAfterSourceCompressor(()=>{
+          paid=later();
+          return paid.result;
+        },options.rank9CompressorOwnerSeat,{
+          allowLaterBenchedElectrode:options.rank9LateBenchBomb===true
+        });
+      return bomb.result;
+    };
+    if(options.rank9PostBombRope!==true){
+      const result=runBomb();
+      ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit};
+      return result;
+    }
+    const rope=require('../twinleaf/2026-11/agent29-rank9-postbomb-escape-rope.cjs')
+      .withPostBombOwnerRope(runBomb,options.rank9CompressorOwnerSeat);
+    ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit,
+      postBombEscapeRope:rope.audit};
+    return rope.result;
   };
   const plumeriaOpportunityOptIn=options.ownerPlumeriaOpportunity===true||
     process.env.AGENT4_PLUMERIA_OPPORTUNITY_DEV==='true';
