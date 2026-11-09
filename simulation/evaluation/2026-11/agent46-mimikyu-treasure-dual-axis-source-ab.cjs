@@ -20,13 +20,13 @@ const SEEDS=Object.freeze([
  * @param {0|1} seat
  * @returns {object}
  */
-function runTreasure(decks,seed,seat){
+function runTreasure(decks,seed,seat,maxActions=140){
   const ranks=seat===0?[1,10]:[10,1];
   const events=[];
   const request={
     deckA:decks.get(ranks[0]).cardIds,
     deckB:decks.get(ranks[1]).cardIds,
-    seed,maxActions:140,
+    seed,maxActions,
     label:'Agent46 Mysterious Treasure dual-axis '+ranks.join('-'),
     isolatePolicyRandomness:true,
     captureInitialSourceDealFingerprintSeat:seat,
