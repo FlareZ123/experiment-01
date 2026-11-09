@@ -105,7 +105,25 @@ function runIntegrated(seat,options={}){
         const intent=chooseActorRootIntent(view,catalog,{
           mimikyuApexFundedPromotion:true
         });
-        assert.equal(intent?.source,VERSION);
+        const recipient=view.ownPublic.bench[0];
+        const printedCopycat=recipient?.attacks?.find(a=>a.name==='Copycat');
+        const publicEnergy=require(
+          '../../simulation/twinleaf/agent17-public-context-special-energy.cjs'
+        );
+        assert.equal(intent?.source,VERSION,JSON.stringify({
+          intent,ownerStadium:view.ownPublic.stadium,
+          opponentStadium:view.opponentPublic.stadium,
+          targetPrinting:recipient?.printing,
+          targetEnergies:recipient?.energies,
+          targetPrinted:recipient?.printed,
+          targetAttacks:recipient?.attacks,
+          effectiveCopycat:publicEnergy.effectiveNativeAttackCost(
+            view,catalog,recipient,printedCopycat),
+          copycatPayable:publicEnergy.publicSpecialAttackPayable(
+            view,catalog,recipient,printedCopycat),
+          sourceEnergies:view.ownPublic.active?.energies,
+          retreatCost:view.ownPublic.active?.printed?.retreatCost
+        }));
         assert.equal(intent?.benchIndex,0);
         assert.equal(intent?.paymentMode,'two-unit-basic-paid');
         const savedEnergy=[...mimikyuSlot.energies.cards];
