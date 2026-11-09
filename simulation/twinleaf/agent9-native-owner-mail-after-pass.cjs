@@ -195,7 +195,9 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
       // A real Store root controlled by the opponent after the Supporter
       // is a physical response, not an inferred future action from the bot.
       const actorId=action?.id??action?.clientId;
-      if(actorId===opponent.id&&receipt.opponentResponseAction===null){
+      if(actorId===opponent.id&&state.turn>entry.turn&&
+         action.constructor.name!=='ResolvePromptAction'&&
+         receipt.opponentResponseAction===null){
         receipt.opponentResponseAction=action.constructor.name;
         receipt.opponentResponseTurn=state.turn;
         audit.marnieFollowDeferredOpponentRoots++;
