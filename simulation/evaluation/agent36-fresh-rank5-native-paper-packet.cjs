@@ -139,7 +139,7 @@ function runFreshPacket(deps = {}) {
     };
   });
   const exactRoots=result.reduce((sum,x)=>
-    sum+x.storeRaw?.acceptedStoreRootCount??0,0);
+    sum+(x.storeRaw?.acceptedStoreRootCount??0),0);
   const terminals=result.filter(x=>x.nativeFinished).length;
   return {
     schema:VERSION,
