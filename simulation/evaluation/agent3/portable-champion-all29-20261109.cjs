@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
-const registration=require('../../results/aichi-2026/registrations/agent3-portable-champion-all29-ab-20261109.json');
+const registration=require('../../../results/aichi-2026/registrations/agent3-portable-champion-all29-ab-20261109.json');
 const {preflight:preflightPinnedPolicy}=
   require('../agent31-rank1-prospective-basic-recipient-pair.cjs');
 const {runDevelopment}=
