@@ -1640,6 +1640,8 @@ function runDevelopment({
     'Per-physical-copy Genesect marker mode requires native draw actor');
   assert.ok(!actorMewUltraBallPaymentGuard||actorHandDiscard,
     'Owner Mew Ultra Ball safe payment requires actual hand-discard resolver');
+  assert.ok(!actorAttackFuelDiscard||actorOnlyComposition,
+    'Dynamic attack-fuel payment requires bilateral actor-only policy');
   assert.ok(!actorAttackFuelDiscard||actorHandDiscard,
     'Dynamic attack-fuel payment requires the owner hand-discard component');
   assert.ok(!actorAttackFuelDiscard||!actorMewUltraBallPaymentGuard,
