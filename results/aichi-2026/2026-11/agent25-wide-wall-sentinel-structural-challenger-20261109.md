@@ -37,3 +37,17 @@ This is a **restricted sufficient location predicate** only: the relevant cards 
 3. If the lock and attacker survive live counterplay, run a prospectively registered fixed-seed paired game test against *all 29 currently authenticated originals*, with identical bilateral opponent-competent policy and complete physical deal lineage. Full 32 remains blocked by missing original ranks 23/25/28.
 
 No pinned native match or source-competent game has yet been executed for this variant. Historical Aichi paper Japanese Extra requires Japanese-language eligible printings; the English IDs are research equivalents, **not certified Japanese-language print registrations**. Current shared benchmark still has zero competitively paper-qualified games and no established 99.5% win rate.
+
+## Six-arm actual Store interaction, using an explicit research-only printed-card hook
+
+**Executed successfully in manual [GitHub Actions run 42558521791](https://github.com/FlareZ123/experiment-01/actions/runs/42558521791), pinned engine a9905a76a6c4103ba4b6cb9a49e86bad795c5c05.** Six of six deliberately constructed decision states resolved and asserted on the physical Store, with each mirrored across both player seats:
+
+| Active Pokémon protecting Benched Vileplume | Opponent Active | Original opponent Guzma paid? | Vileplume promoted? |
+| --- | --- | --- | --- |
+| Rhydon (no Wide Wall) | Shadow Rider V | Yes | **Yes** |
+| Rhyperior with Wide Wall | Shadow Rider V | Yes | **No** |
+| Rhyperior, Ability suppressed | Wobbuffet PHF | Yes | **Yes** |
+
+Each condition passed on both seats. In the protected condition, native Guzma is **played** and consumes the Supporter use; its ChoosePokemon prompt initially offers Vileplume, but on resolution the research hook's TrainerTargetEffect and the pinned Store's native target-filtering machinery **do not switch** the protected Vileplume. In the unprotected and Wobbuffet Ability-locked controls the same native target and opponent Mimikyu replacement resolve, genuinely moving Vileplume into the Active Spot. This proves the hooked Store target/Ability-lock interaction works and is reversible by a recognized Ability lock. It does **not** independently establish upstream card correctness: the SCR 74/75/76 cards are absent from the engine and were registered through [the isolated research-only printing hook](../../../simulation/twinleaf/2026-11/agent25-wide-wall-rhyperior-hook.cjs). The hook implements Wide Wall using the printed text and the vendor's existing TrainerTargetEffect blocking helpers; its attack damage-discard effect is intentionally unimplemented. No legal full-60 match played through this hook; no games qualify toward field win rate.
+
+**Crucial opening-timing constraint:** The existing pinned paper-rule correction for Grand Tree expressly forbids its evolution effect on either player's first turn. The attractive route “early Grand Tree directly establishes Active Rhyperior and Benched Vileplume on the very first turn” is therefore invalid. The original first-turn double-TM: Evolution line requires Bunnelby to remain the attacking Active through the second attack. A newly evolved Benched Rhyperior therefore cannot serve as Active Wide Wall during the opponent's immediate following turn through that particular route. The Stage-2 shield is credible in an already established midgame position and does not yet answer original rank-1's **first-reply** Guzma/Max Geist counterexample. Do not promote this fixed 60 on the basis of the six-arm midgame result.
