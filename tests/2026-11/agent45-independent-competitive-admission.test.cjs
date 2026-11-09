@@ -357,7 +357,9 @@ test('first real release envelope has resolvable nine-object refs and explicit a
     assert.ok(gate.structuralFailureCodes.includes(missing),missing);
   }
   assert.equal(gate.structuralProgress.certifiedMaterialRoots,0);
-  for(const missing of ['external-review-unavailable','no-signed-review-packets']){
+  for(const missing of ['external-review-unavailable',
+    'review-paper-missing-or-duplicate','review-clock-missing-or-duplicate',
+    'review-strategy-missing-or-duplicate']){
     assert.ok(gate.failures.includes(missing),missing);
   }
 });
