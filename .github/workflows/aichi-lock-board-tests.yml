@@ -256,7 +256,7 @@ jobs:
         run: node --test tests/agent17-klefki-bomb-package-prize-gate.test.cjs
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
-        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs tests/2026-11/agent6-underworld-path-stadium-owner.test.cjs tests/2026-11/agent6-underworld-path-native-stage.test.cjs
+        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs tests/2026-11/agent6-underworld-path-stadium-owner.test.cjs tests/2026-11/agent6-underworld-path-native-stage.test.cjs tests/2026-11/agent6-path-underworld-stadium-counter.test.cjs
       - name: Native temporal Path proposal after own Bench arrival or spent Legacy Star in both seats
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-temporal-native-stage.test.cjs
