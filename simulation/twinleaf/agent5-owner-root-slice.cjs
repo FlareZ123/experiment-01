@@ -145,6 +145,14 @@ function rootPhysicalSnapshot(state,seat,intent){
     turn:state.turn,phase:state.phase,
     activePlayer:state.activePlayer,
     handCount:owner.hand.cards.length,
+    ...(intent.kind==='use-forest-star-alchemy'?{
+      fssVstarSpent:owner.usedVSTAR===true,
+      fssAttachedToHolder:(intent.slot==='bench'?
+        owner.bench[intent.index]:owner.active)
+        ?.tools?.some(card=>card.fullName==='Forest Seal Stone SIT')===true,
+      pendingNativePrompts:state.prompts?.filter(p=>
+        p.result===undefined).length??0
+    }:{}),
     // Native physical effect proof for draw Stadiums alone needs deck size.
     // A paid Retreat or unrelated owner root must not open a hidden deck.
     deckCount:intent.kind==='use-tropical-beach'||
@@ -249,6 +257,15 @@ function rootPhysicalSnapshot(state,seat,intent){
  * @returns {'confirmed-public-effect'|'no-confirmed-public-effect'|'attack-needs-declaration'}
  */
 function rootPhysicalWitness(intent,before,after,GamePhase){
+  if(intent.kind==='use-forest-star-alchemy'){
+    // Distinguish an actual VSTAR-power consumption from an unconfirmed
+    // ability proposal. The resolving deck-search prompt is handled natively.
+    // This only observes owner/public markers; no hidden deck identity.
+    return before.fssVstarSpent===false&&
+      before.fssAttachedToHolder===true&&
+      after.fssVstarSpent===true?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
   if(intent.kind==='use-genesect-fusion-draw'){
     // Only the publicly observable hand/deck count delta is consulted.
     // The source's private deck contents are never exposed to the selector.
