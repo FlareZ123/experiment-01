@@ -14,6 +14,7 @@ const {Store}=native('game/store/store');
 const {Player}=native('game/store/state/player');
 const {Card}=native('game/store/card/card');
 const {CardList}=native('game/store/state/card-list');
+const {PokemonCardList}=native('game/store/state/pokemon-card-list');
 const {GamePhase}=native('game/store/state/state');
 const {CardType}=native('game/store/card/card-types');
 const {PlayCardAction,PlayerType,SlotType}=
@@ -45,7 +46,7 @@ function staged(sourceSeat){
   owner.active.cards.length=0;
   owner.active.cards.push(get('Shadow Rider Calyrex V CRE'));
   owner.active.cards.push(get('Shadow Rider Calyrex VMAX CRE'));
-  owner.bench=Array.from({length:5},()=>new CardList());
+  owner.bench=Array.from({length:5},()=>new PokemonCardList());
   owner.bench[0].cards.push(get('Mew UNB'));
   owner.hand.cards.push(get('Psychic Energy SVE'));
   opponent.hand.cards.push(get('Path to the Peak CRE'));
