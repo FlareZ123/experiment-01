@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
-const {chooseDedechangeConfirm}=require('./agent9/dedechange-confirm-choice.cjs');
+const {chooseDedechangeConfirm,verifyDedechangeSettlement}=require('./agent9/dedechange-confirm-choice.cjs');
 
 const VERSION='agent36-owner-ability-confirm-policy-v3-owned-articuno-water';
 
@@ -234,6 +234,8 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     confirmSettled:0,
     confirmUnsettled:0,
     confirmEvents:[],
+    dedechangeSettlements:[],
+    dedechangeUnsettled:0,
     radiantSearchOffers:0,
     radiantSearchSubmitted:0,
     radiantSearchEvents:[],
@@ -255,6 +257,18 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       }
     }
     const meta=action&&typeof action==='object'?submitted.get(action):null;
+    const isDedechangeConfirm=meta?.kind==='confirm'&&meta.decision===true&&
+      (meta.played?.cardName==='Dedenne GX'||
+       meta.played?.cardName==='Dedenne-GX');
+    const dedeOwner=isDedechangeConfirm?
+      stateBefore.players.find(p=>p.id===meta.ownerId):null;
+    // Source custody uses only the owner hand/discard and a deck length.
+    // It never reads the unopened deck's card identities or order.
+    const dedeBefore=isDedechangeConfirm?{
+      hand:[...dedeOwner.hand.cards],
+      discard:[...dedeOwner.discard.cards],
+      deckCount:dedeOwner.deck.cards.length
+    }:null;
     const result=originalDispatch.call(this,action,...args);
 
     for(const prompt of this.state?.prompts??[]){
@@ -294,6 +308,19 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
         actorHandAttachmentQuotaUnused:meta.actorHandAttachmentQuotaUnused,
         actorHandEnergyNames:meta.actorHandEnergyNames
       });
+    }
+
+    if(dedeBefore){
+      const after=this.state.players.find(p=>p.id===meta.ownerId);
+      const custody=verifyDedechangeSettlement(dedeBefore,after);
+      audit.dedechangeSettlements.push({
+        ownerId:meta.ownerId,turn:meta.turn,seat:meta.seat,
+        promptSettled:meta.prompt.result===true,...custody
+      });
+      if(meta.prompt.result!==true||!custody.settled){
+        audit.dedechangeUnsettled++;
+        throw new Error('Dedechange native owner hand/discard/deck custody did not settle.');
+      }
     }
 
     if(meta?.kind==='radiant-search'){
