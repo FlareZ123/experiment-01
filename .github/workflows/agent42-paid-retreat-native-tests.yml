@@ -14,6 +14,12 @@ on:
         required: false
         default: false
 
+      run_rank5_genesect_pressure_panel:
+        description: 'Fresh rank5 Genesect native Fusion draw plus Gengar ABA'
+        type: boolean
+        required: false
+        default: false
+
 permissions:
   contents: read
 
@@ -41,7 +47,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel && !inputs.run_rank5_genesect_pressure_panel }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -75,4 +81,17 @@ jobs:
         with:
           name: agent42-rank5-fresh-gengar-lillie-aba-8context
           path: artifacts/agent42-rank5-fresh-gengar-lillie-aba.json
+          retention-days: 14
+
+      - name: Run fresh original-source Genesect Fusion draw Gengar pressure panel
+        if: ${{ inputs.run_rank5_genesect_pressure_panel }}
+        run: |
+          node simulation/evaluation/2026-11/agent42-rank5-genesect-pressure-gengar-aba.cjs --preflight
+          node simulation/evaluation/2026-11/agent42-rank5-genesect-pressure-gengar-aba.cjs
+      - name: Archive complete fresh Genesect pressure native source/response
+        if: ${{ inputs.run_rank5_genesect_pressure_panel && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-rank5-genesect-gengar-fresh-8context-aba
+          path: artifacts/agent42-rank5-genesect-pressure-gengar-aba.json
           retention-days: 14
