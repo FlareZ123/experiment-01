@@ -117,3 +117,22 @@ test('pre-existing duplicate physical IDs are surfaced',()=>{
   store.state.players[0].hand.cards.push(store.state.players[0].deck.cards[0]);
   assert.equal(physicalView(store.state,ids).duplicates.length,1);
 });
+
+test('later prototype rule hooks remain active after recorder installation',()=>{
+  class NativeStore {
+    constructor(){this.state=makeStore().state;}
+    dispatch(){return 'old';}
+  }
+  const store=new NativeStore();
+  const recorder=createLivePaperRootReceipts('hook-safety');
+  recorder.onRootStoreCreated(store);
+  const original=NativeStore.prototype.dispatch;
+  let calls=0;
+  NativeStore.prototype.dispatch=function(){calls++;return 'corrected';};
+  const action={};
+  assert.equal(store.dispatch(action),'corrected');
+  recorder.onRootActionDispatched(store,action,0,0,1);
+  assert.equal(calls,1);
+  recorder.close();
+  NativeStore.prototype.dispatch=original;
+});
