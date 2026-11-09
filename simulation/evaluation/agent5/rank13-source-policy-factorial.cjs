@@ -19,7 +19,7 @@ const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
   .find(deck=>deck.rank===13).cards
   .filter(card=>card.category==='Trainer').map(card=>card.name));
 
-const VERSION='agent5-rank13-owner-search-energy-factorial-v3';
+const VERSION='agent5-rank13-source-opening-compressor-and-evolution-factorial-v4';
 const TARGET='13:2026:A:new-moon-lockbreaker-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
@@ -83,6 +83,13 @@ function run(deps={}){
           mysteriousTreasureRoot:source,
           firstRegidragoBenchGrass:source,
           sourceScopedQuickBallRoot:source,
+          // Source's own first turn is global T2. This live held
+          // Compressor may search the source's actual deck for donors.
+          earlyRegidragoCompressor:source,
+          earlyRegidragoCompressorSourceOnly:source,
+          earlyRegidragoCompressorAllowFirstOwnTurnTwo:source,
+          actorNaturalEvolutionRoot:source,
+          actorNaturalEvolutionSourceOnly:source,
           // Identical real owner-hand payments and own-deck search closure
           // in all cells, as in the successful Agent8 source-search panel.
           actorOnlySingleSearch:true,
@@ -139,7 +146,7 @@ function run(deps={}){
     version:VERSION,registration:registration.schema,
     originalSelectedRank13Deal:TARGET,
     cohort:'one retrospective historical physical deal, four-policy factorial',
-    sourceChallenger:'original-source Quick Ball, Mysterious Treasure and Regidrago Bench Grass; constant owner-prompt resolution',
+    sourceChallenger:'source-only first-own-turn held Battle Compressor with owner-deck Dragon donor prompt, natural evolution, Quick Ball, Mysterious Treasure and Regidrago Bench Grass; constant owner-prompt resolution',
     candidateChallenger:'existing donor-funded native paid Perfection pivot',
     twinleafPin:registration.nativePin,
     physicalSixtiesUnchanged:true,
