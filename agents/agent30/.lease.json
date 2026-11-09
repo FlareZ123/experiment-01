@@ -1,6 +1,7 @@
 {
-  "run_id": "agent30-chat-20261107T190433Z-normal6-42480f16447adeea",
-  "claimed_at": "2026-11-07T19:04:33.653830Z",
+  "run_id": "agent30_20261109T085700Z_a022349ef5d3",
+  "claimed_at": "2026-11-09T08:57:00.753204Z",
   "mode": "normal",
-  "roll": 6
+  "roll": 6,
+  "prior_claim": "2026-11-07T19:04:33.653830Z"
 }
