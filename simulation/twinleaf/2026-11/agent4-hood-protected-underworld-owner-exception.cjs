@@ -177,7 +177,27 @@ function withProtectedHoodUnderworld(work) {
   }
 }
 
+/**
+ * Scope the exact native owner-root Tool preparation opt-in to one synchronous
+ * experimental branch. It is NEVER active in the shared baseline.
+ *
+ * @template T
+ * @param {()=>T} work
+ * @returns {T}
+ */
+function withHeldHoodToolPriority(work) {
+  assert.equal(typeof work,'function');
+  const before=process.env.AGENT4_HOOD_TOOL_ROOT_DEV;
+  process.env.AGENT4_HOOD_TOOL_ROOT_DEV='true';
+  try{return work();}
+  finally{
+    if(before===undefined)delete process.env.AGENT4_HOOD_TOOL_ROOT_DEV;
+    else process.env.AGENT4_HOOD_TOOL_ROOT_DEV=before;
+  }
+}
+
 module.exports = {
   VERSION,protectedBenchIndices,chooseHoodToolPreparation,
-  chooseProtectedHoodUnderworld,withProtectedHoodUnderworld
+  chooseProtectedHoodUnderworld,withProtectedHoodUnderworld,
+  withHeldHoodToolPriority
 };
