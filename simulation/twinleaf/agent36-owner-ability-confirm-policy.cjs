@@ -267,6 +267,7 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
     const dedeBefore=isDedechangeConfirm?{
       hand:[...dedeOwner.hand.cards],
       discard:[...dedeOwner.discard.cards],
+      lostzone:[...dedeOwner.lostzone.cards],
       deckCount:dedeOwner.deck.cards.length
     }:null;
     const result=originalDispatch.call(this,action,...args);
