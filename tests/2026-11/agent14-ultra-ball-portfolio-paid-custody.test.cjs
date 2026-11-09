@@ -164,3 +164,48 @@ test('shared generic printed-card custody supports one, two or three-card exact 
   assert.equal(independentPrintedDiscardPaidCustody(
     x.owner,[x.one,x.two,x.foreign],3),false);
 });
+
+test('source Quick Ball one-other-card root physically auto-pays without a payment prompt',()=>{
+  class AutoPaidQuickBallStore extends FakeStore {
+    dispatch(action){
+      this.mutations++;
+      if(action instanceof PlayCardAction){
+        const owner=this.state.players.find(p=>p.id===action.id);
+        const ball=owner.hand.cards[action.handIndex];
+        const paid=owner.hand.cards.find(card=>card!==ball);
+        owner.hand.cards.splice(owner.hand.cards.indexOf(paid),1);
+        owner.discard.cards.push(paid);
+      }
+      return {accepted:true};
+    }
+  }
+  const x=setup();
+  const quick={fullName:'Quick Ball FST'};
+  x.owner.hand.cards=[quick,x.one];
+  x.state.prompts=[];
+  const store=new AutoPaidQuickBallStore(x.state);
+  const audited=withPaperPromptContractPortfolio(()=>
+    store.dispatch(new PlayCardAction(x.owner.id,0)),{
+      ...deps,Store:AutoPaidQuickBallStore
+    });
+  const root=audited.audit.quickBallAutomaticRootPayments;
+  assert.equal(root.attempted,1);
+  assert.equal(root.verified,1);
+  assert.equal(root.unverified,0);
+  assert.equal(root.firstEvent.sourcePrinting,'Quick Ball FST');
+  assert.equal(root.firstEvent.physicallyPaid,true);
+  assert.equal(audited.audit.inspectedQuickBallPaymentPrompts,0);
+  assert.deepEqual(x.owner.discard.cards,[x.one]);
+});
+test('source Quick Ball auto-payment native-like nonmovement remains visible as unverified',()=>{
+  const x=setup();
+  x.owner.hand.cards=[{fullName:'Quick Ball FST'},x.one];
+  x.state.prompts=[];
+  const audited=withPaperPromptContractPortfolio(()=>
+    x.store.dispatch(new PlayCardAction(x.owner.id,0)),deps);
+  const root=audited.audit.quickBallAutomaticRootPayments;
+  assert.equal(root.attempted,1);
+  assert.equal(root.verified,0);
+  assert.equal(root.unverified,1);
+  assert.equal(root.firstEvent.physicallyPaid,false);
+});
