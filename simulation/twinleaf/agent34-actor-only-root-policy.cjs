@@ -2529,7 +2529,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       // preserve acceptance as pending/unconfirmed until a separate
       // physical post-prompt witness exists.
       const physical=ownerAfter===null?null:
-        choice.kind==='use-underworld-door'?
+        ['use-underworld-door','play-faba-jet-hood',
+          'play-nest-after-jet'].includes(choice.kind)?
+          // Faba and Nest root actions are pending authentic owner prompts.
+          // Their physical payoff is checked when those prompts settle.
           'no-confirmed-public-effect':
           rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
             engineGamePhase());
