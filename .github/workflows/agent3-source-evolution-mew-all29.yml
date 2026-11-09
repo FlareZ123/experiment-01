@@ -10,6 +10,7 @@ on:
           - source-mew
           - hood-v2
           - hood-retreat
+          - skyliner-smoke
         default: source-mew
 
 permissions:
@@ -129,3 +130,20 @@ jobs:
           path: artifacts/agent3-hood-v2-flexible-retreat.json
           retention-days: 14
           if-no-files-found: warn
+
+  skyliner-owner-policy-pure:
+    if: inputs.experiment == 'skyliner-smoke'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout shared actor and adapter source
+        uses: actions/checkout@v4
+      - name: Node 20 for pure owner-only actor decisions
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Verify live actor Skyliner recipient choice, lock guard and native wiring
+        run: |
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/2026-11/agent3-skyliner-shared-owner-mobility.test.cjs
