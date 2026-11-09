@@ -46,7 +46,8 @@ function observe(state,seat){
       deckCount:1,prizeCount:4,resolvingSupporter:[],
       publicTurnRestrictions:{}},
     ownTurnResources:{supporterPlayedTurn:owner.supporterTurn,
-      supporterPlayLocked:false}
+      supporterPlayLocked:false},
+    opponentPublic:{handCount:6,deckCount:30,prizeCount:6}
   };
 }
 const deps={SimpleTacticsAi,Store,observe,choose:chooseDeckoutRescue,
