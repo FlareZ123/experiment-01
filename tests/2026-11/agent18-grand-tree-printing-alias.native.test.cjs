@@ -77,8 +77,15 @@ function nativeGrandTreeEvolution(seat,manager) {
     }else{
       throw new Error('Unrecognized Grand Tree native prompt: '+kind);
     }
-    assert.equal(pending.validate(selection,x.state),true,
-      kind+' rejected selected owned native action');
+    const valid=pending.validate(selection,x.state);
+    if(!valid) console.log('GRANDTREE_NATIVE_PROMPT_REJECTION',JSON.stringify({
+      kind,seat,filter:pending.filter,options:pending.options,
+      selected:selection?.map?.(card=>({name:card.name,fullName:card.fullName,
+        stage:card.stage,evolvesFrom:card.evolvesFrom,id:card.id})),
+      deck:x.owner.deck.cards.map(card=>({name:card.name,
+        fullName:card.fullName,stage:card.stage,evolvesFrom:card.evolvesFrom,id:card.id}))
+    }));
+    assert.equal(valid,true,kind+' rejected selected owned native action');
     x.store.dispatch(new ResolvePromptAction(pending.id,selection));
     prompts.push(kind);
   }
