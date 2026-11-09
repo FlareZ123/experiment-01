@@ -1,0 +1,24 @@
+name: Agent23 replay-free rank6 owner Volt native Prize audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  read-native-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download immutable native rank6 original eight pair result
+        uses: actions/download-artifact@v4
+        with:
+          name: agent23-rank6-integrated-owner-volt-original-eight-pair
+          run-id: 42555406144
+          github-token: ${{ github.token }}
+          path: artifacts
+      - name: Inspect true Prize vectors and printed donor transitions without rerunning games
+        run: node simulation/evaluation/2026-11/agent23-read-rank6-owner-volt-artifact.cjs artifacts/agent23-rank6-integrated-owner-volt-pair.json
