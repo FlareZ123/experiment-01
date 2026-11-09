@@ -1,0 +1,66 @@
+{
+  "schema": "agent37-rank5-mew-quickball-resource-payment-native-v1",
+  "status": "frozen-before-first-native-game",
+  "createdUTC": "2026-11-09T09:42:00Z",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 11,
+      "candidateSlot": "A",
+      "seed": 562121866
+    },
+    {
+      "rank": 5,
+      "repeat": 11,
+      "candidateSlot": "B",
+      "seed": 687496243
+    },
+    {
+      "rank": 5,
+      "repeat": 12,
+      "candidateSlot": "A",
+      "seed": 386913781
+    },
+    {
+      "rank": 5,
+      "repeat": 12,
+      "candidateSlot": "B",
+      "seed": 1751267936
+    }
+  ],
+  "previousSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948,
+    620813734,
+    434672991,
+    1802706844,
+    353026970,
+    1315494449,
+    699451450,
+    1389673884,
+    1197737693,
+    2012026773,
+    122193489,
+    1728898311,
+    1634122344,
+    292063553,
+    742346033,
+    1865883748,
+    168985357
+  ],
+  "expectedNativeAttempts": 16,
+  "pairedArms": "Identical native rank5 source policy, both source seats, original printed 60s fixed; all games with Ultra Ball 2-card payment guard; treatment enables one-card Quick Ball scarce-resource guard only",
+  "intervention": "At actual owner CHOOSE_CARD_TO_DISCARD resolving Quick Ball, require 1 native legal card and prefer non-Mew/non-DCE/non-ACE SPEC/non-unspent-VSTAR options; expired Battle VIP Pass and spent Forest Seal Stone take priority. Other prompts and opponent policy unchanged.",
+  "analysisPlan": "All 16 registered native attempts retained including caps/errors; each source/full physical initial deal fingerprint must match; compare selected native Quick Ball payments, subsequent source attack declarations/settlements, Prizes, completed native winners; do not infer paper win probability from unqualified games.",
+  "competitiveQualifiedGames": 0
+}
