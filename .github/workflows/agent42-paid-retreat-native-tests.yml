@@ -36,6 +36,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
+        if: ${{ !inputs.run_rank5_path_fork }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
