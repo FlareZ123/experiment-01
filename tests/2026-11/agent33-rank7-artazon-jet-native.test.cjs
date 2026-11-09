@@ -42,7 +42,31 @@ function assertExactSixties(x) {
   assert.equal(original.length, 60);
   for (const owner of [x.originalPlayer, x.candidatePlayer]) {
     const cards = physical(owner);
-    assert.equal(cards.length, 60, 'Lost or duplicated physical card');
+    const ids = new Map();
+    for (const [zone, objects] of [
+      ['active.cards', owner.active.cards],
+      ['active.energy', owner.active.energies.cards],
+      ['active.tools', owner.active.tools],
+      ...owner.bench.flatMap((b, i) => [
+        ['bench'+i+'.cards', b.cards],
+        ['bench'+i+'.energy', b.energies.cards],
+        ['bench'+i+'.tools', b.tools]
+      ]),
+      ['hand', owner.hand.cards], ['deck', owner.deck.cards],
+      ['discard', owner.discard.cards],
+      ['lostzone', owner.lostzone.cards],
+      ['stadium', owner.stadium.cards], ['supporter', owner.supporter.cards],
+      ...owner.prizes.map((p, i) => ['prize'+i, p.cards])
+    ]) {
+      for (const card of objects) {
+        const row = ids.get(card.id) ?? {name:card.fullName, zones:[]};
+        row.zones.push(zone);
+        ids.set(card.id, row);
+      }
+    }
+    const duplicates = [...ids.entries()].filter(([, row]) => row.zones.length>1);
+    assert.equal(cards.length, 60, 'Lost or duplicated physical card: '+
+      JSON.stringify({unique:ids.size,duplicates}));
     assert.equal(new Set(cards.map(c => c.id)).size, 60,
       'A physical card appears in multiple zones');
   }
