@@ -46,7 +46,8 @@ function sourceSummary(row){
 function run({quickBallScope='none',actorHandDiscard=false,
   sourceCrobatDceMewRetreat=false,
   sourceQuickBallPreservePayableAttack=false,
-  sourceMewGenesectQuickBallSearch=false}={}){
+  sourceMewGenesectQuickBallSearch=false,
+  sourceOwnerSingleSearch=false}={}){
   assert.ok(['none','source','candidate'].includes(quickBallScope));
   assert.equal(typeof actorHandDiscard,'boolean');
   assert.equal(typeof sourceCrobatDceMewRetreat,'boolean');
@@ -56,6 +57,8 @@ function run({quickBallScope='none',actorHandDiscard=false,
   assert.equal(typeof sourceMewGenesectQuickBallSearch,'boolean');
   assert.ok(!sourceMewGenesectQuickBallSearch||
     quickBallScope==='source');
+  assert.equal(typeof sourceOwnerSingleSearch,'boolean');
+  assert.ok(!sourceOwnerSingleSearch||quickBallScope==='source');
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   const reg=JSON.parse(bytes.toString('utf8'));
   assert.equal(reg.status,'pre-outcome-frozen-source-two-seat-policy-development');
@@ -81,8 +84,11 @@ function run({quickBallScope='none',actorHandDiscard=false,
     ...(sourceQuickBallPreservePayableAttack?{
       sourceQuickBallPreservePayableAttack:true
     }:{}),
+    ...(sourceOwnerSingleSearch||sourceMewGenesectQuickBallSearch?{
+      actorOnlySingleSearch:true
+    }:{}),
     ...(sourceMewGenesectQuickBallSearch?{
-      actorOnlySingleSearch:true,actorMewGenesectQuickBallSearch:true
+      actorMewGenesectQuickBallSearch:true
     }:{}),
     ...(actorHandDiscard?{actorHandDiscard:true}:{}),
     ...(sourceCrobatDceMewRetreat?{sourceCrobatDceMewRetreat:true}:{})};
