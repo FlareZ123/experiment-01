@@ -1,0 +1,248 @@
+{
+  "schema": "agent22-temple-paid-ddedenial-rank13-paired-v1",
+  "registeredUTC": "2026-11-09T07:08:20Z",
+  "objective": "Test unchanged Temple60 owner's in-hand paid Stadium priority versus actual original Aichi rank13 Regidrago DDE, keep full continuation",
+  "rank": 13,
+  "sourceGroups": [
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3011177025
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 4159587399
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1164692425
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 833123960
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 3120851650
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 2837418348
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3257974523
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 85921355
+    },
+    {
+      "rank": 13,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 1124483077
+    },
+    {
+      "rank": 13,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "seed": 1071237219
+    },
+    {
+      "rank": 13,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "seed": 111274279
+    },
+    {
+      "rank": 13,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 992324022
+    },
+    {
+      "rank": 13,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 1306193160
+    },
+    {
+      "rank": 13,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "seed": 3463022224
+    },
+    {
+      "rank": 13,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "seed": 3466485391
+    },
+    {
+      "rank": 13,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 1847363721
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3011177025,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 4159587399,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1164692425,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:1:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 833123960,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:1:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 3120851650,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:2:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 2837418348,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:2:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 3257974523,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:3:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 85921355,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:3:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 1124483077,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:4:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "seed": 1071237219,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:4:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "seed": 111274279,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:5:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 992324022,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:5:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 1306193160,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:6:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "seed": 3463022224,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:6:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "seed": 3466485391,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:7:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 1847363721,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:7:B:temple-shadow-rider-v1"
+    }
+  ],
+  "arms": [
+    "control-no-dde-owner-priority",
+    "treatment-owner-public-temple-dde-priority"
+  ],
+  "rootCap": 260,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedCandidate": "results/aichi-2026/candidate-temple-shadow-rider.json",
+  "source": "results/aichi-2026/full-decklists.json rank13",
+  "intervention": "simulation/twinleaf/2026-11/agent22-temple-dde-owner-policy.cjs",
+  "sharedPolicy": "agent41-bilateral-v2 and agent19 original native actor profile, same for both seats",
+  "sourceComparison": "Exact matching physical source deal and native starter seat; archive all 16 groups regardless of match or censoring",
+  "prospective": true,
+  "nativeCompetitiveness": "Unqualified; use native game outcomes and action roots only; no official match clocks",
+  "paperQualifiedGames": 0
+}
