@@ -1,0 +1,46 @@
+{
+  "schema": "agent38-extended-520root-mail-nest-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-09T00:49:26.847Z",
+  "source": "results/aichi-2026/registrations/agent38-mail-nest-prize-aware-four-arm-20261109.json",
+  "exactOriginalTrialIds": [
+    "3:312:B:champion-reference",
+    "3:312:A:champion-reference",
+    "3:213:A:champion-reference",
+    "3:213:B:champion-reference"
+  ],
+  "sourceOriginalRank": 3,
+  "candidateOriginalRank": 1,
+  "bothPhysicalSourceSeats": true,
+  "seeds": [
+    2404595552,
+    948758444
+  ],
+  "newNativeRootActionCap": 520,
+  "previousNativeCap": 260,
+  "originalFixedSixtiesUnchanged": true,
+  "baseline": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailNestBall": true,
+    "preferSinglePrizeNestBasic": false,
+    "captureRootTape": true,
+    "nativeRootCap": 520
+  },
+  "treatment": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailNestBall": true,
+    "preferSinglePrizeNestBasic": true,
+    "captureRootTape": true,
+    "nativeRootCap": 520
+  },
+  "hypothesis": "Doubling the native headless horizon will resolve at least one 260-root action-cap or demonstrate the specific policy bottlenecks preventing native completion. Comparing paired Basic choice permits checking whether earlier Bunnelby arrival translates to attack/lock/deckout payoff or only Bench order.",
+  "primaryMetric": "completed native terminal count, owner/source attack class counts, actual Prize count and resolved terminal winner under both frozen arms; action-cap and engine errors always retained",
+  "scope": "Original rank3 Snorlax vs rank1 champion reference; native bots remain unqualified, no full-field claim",
+  "admission": {
+    "competitiveQualifiedGames": 0,
+    "estimatedWinRate": false,
+    "selectedFinalDeck": false
+  }
+}
