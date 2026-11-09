@@ -49,8 +49,13 @@ function stagedPayment(seat,targetCount) {
   const categoryCards = ['Fog Crystal CRE','Powerglass SFA',
     'Ace Trainer AOR','Sky Field ROS'].map(name=>f.card(name));
   f.source.deck.cards.push(...categoryCards);
-  for (let i=0;i<targetCount;i++)
-    f.source.discard.cards.push(f.card('Unown AOR'));
+  // New Moon's fixed sixty has three Unown AOR and two Duskull VIV.
+  // The four-target fixture therefore uses three Unown plus one Duskull,
+  // avoiding a staged fourth Unown copy absent from the deck.
+  const targetPrintings=targetCount===1?['Unown AOR']:
+    ['Unown AOR','Unown AOR','Unown AOR','Duskull VIV'];
+  const recoveryTargets=targetPrintings.map(printing=>f.card(printing));
+  f.source.discard.cards.push(...recoveryTargets);
   const before = planSecretBoxRecoveryCapacityPayment(
     f.source,f.state,POLICY);
   assert.ok(before,'Pre-play recovery capacity gate must find payment');
@@ -101,6 +106,41 @@ function stagedPayment(seat,targetCount) {
   assert.equal(pending(),undefined);
   const categoryPhysicalSettlement=categories.every(c=>
     f.source.hand.cards.includes(c)&&!f.source.deck.cards.includes(c));
+  // Complete the follow-on Item line that motivated preserving Carriers.
+  // Actual Rescue Carrier must return the selected, printed <=90HP Pokémon
+  // from discard to hand through the real pinned Store, not a synthetic count.
+  const recovered=[];
+  for(let i=0;i<selected.carrierCopiesAfter;i++){
+    const carrier=f.source.hand.cards.find(c=>c.fullName===CARRIER);
+    assert.ok(carrier,'Planned Carrier must remain physically in hand');
+    f.store.dispatch(new PlayCardAction(f.source.id,
+      f.source.hand.cards.indexOf(carrier),{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+    const take=pending();
+    assert.equal(take?.sourceCard?.fullName,CARRIER);
+    assert.equal(take.message,'CHOOSE_CARD_TO_HAND');
+    const selectedTargets=recoveryTargets.filter(c=>
+      f.source.discard.cards.includes(c)).slice(0,2);
+    assert.ok(selectedTargets.length>0);
+    assert.equal(take.validate(selectedTargets,f.state),true);
+    f.store.dispatch(new ResolvePromptAction(take.id,selectedTargets));
+    recovered.push(...selectedTargets);
+    for(let j=0;j<15&&pending();j++){
+      const p=pending();
+      const reply=p.constructor.name==='ShowCardsPrompt'?true:
+        p.constructor.name==='ShuffleDeckPrompt'?
+          Array.from({length:f.source.deck.cards.length},(_,index)=>index):
+          p.constructor.name==='WaitPrompt'?null:undefined;
+      assert.ok(reply!==undefined,
+        'Unexpected Carrier continuation prompt '+p.constructor.name);
+      f.store.dispatch(new ResolvePromptAction(p.id,reply));
+    }
+    assert.equal(pending(),undefined);
+  }
+  const recoveryPhysicallySettled=recoveryTargets.every(c=>
+    recovered.includes(c)&&f.source.hand.cards.includes(c)&&
+    !f.source.discard.cards.includes(c));
   return {
     seat,targetCount,
     selectedPrintings:selected.cards.map(c=>c.fullName),
@@ -110,6 +150,9 @@ function stagedPayment(seat,targetCount) {
     categoriesFetched:categories.map(c=>c.fullName),
     categoryPhysicalSettlement,
     categoryCount:categories.length,
+    recoveryTargets:targetPrintings,
+    actualRecoveredCopies:recovered.length,
+    recoveryPhysicallySettled,
     recoveryValueLost:selected.recoveryValueLost,
     recoveryValueBefore:selected.recoveryValueBefore,
     recoveryValueAfter:selected.recoveryValueAfter,
@@ -140,6 +183,10 @@ test('one and four eligible recovery targets cause distinct paper-paid Secret Bo
         'Fog Crystal CRE','Powerglass SFA','Ace Trainer AOR','Sky Field ROS'
       ]);
       assert.equal(result.categoryPhysicalSettlement,true);
+      assert.equal(result.actualRecoveredCopies,targetCount);
+      assert.equal(result.recoveryPhysicallySettled,true);
+      assert.equal(result.recoveryTargets.filter(p=>p==='Unown AOR').length,
+        targetCount===1?1:3);
       assert.equal(result.recoveryValueLost,0);
       assert.equal(result.carrierCopiesBefore,2);
       assert.equal(result.carrierCopiesAfter,targetCount===1?1:2);
