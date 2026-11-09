@@ -8,6 +8,8 @@ const {actorObservation}=
   require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const {chooseUnderworldDoorRoot,ownerUnderworldMarkerReceipt}=
   require('../../simulation/twinleaf/agent31-underworld-door-owner-frontier.cjs');
+const {planPathUnderworldStadiumCounter}=require(
+  '../../simulation/twinleaf/2026-11/agent6-path-underworld-stadium-counter.cjs');
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(OUT,name));
 const {Store}=native('game/store/store');
@@ -69,7 +71,7 @@ function staged(sourceSeat){
       store.state.players[sourceSeat]);
     return chooseUnderworldDoorRoot(view,catalog,markers);
   };
-  return {store,sourceSeat,doorPowers,offer,opponent,owner};
+  return {store,sourceSeat,doorPowers,offer,opponent,owner,get,catalog};
 }
 
 for(const seat of [0,1]){
@@ -92,6 +94,44 @@ for(const seat of [0,1]){
     store.state.activePlayer=sourceSeat;
     assert.equal(offer(),null);
     store.state.players[1-sourceSeat].stadium.cards.length=0;
+    assert.ok(doorPowers().includes('Underworld Door'));
+    assert.equal(offer()?.kind,'use-underworld-door');
+  });
+}
+
+for(const seat of [0,1]){
+  test('native owner Stadium counter physically replaces Path and restores Underworld seat '+seat,()=>{
+    const {store,sourceSeat,doorPowers,offer,get,catalog}=staged(seat);
+    const blocker=store.state.players[1-sourceSeat];
+    const pathCard=blocker.hand.cards.find(c=>c.fullName==='Path to the Peak CRE');
+    store.state.activePlayer=1-sourceSeat;
+    store.dispatch(new PlayCardAction(blocker.id,
+      blocker.hand.cards.indexOf(pathCard),{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+    assert.equal(doorPowers().includes('Underworld Door'),false);
+
+    store.state.activePlayer=sourceSeat;
+    const actor=store.state.players[sourceSeat];
+    actor.hand.cards.push(get('Sky Field ROS'));
+    const printCatalog=new Map([
+      ['Sky Field ROS',{name:'Sky Field',type:'Stadium'}]
+    ]);
+    const ownerView=actorObservation(store.state,sourceSeat);
+    const marker=ownerUnderworldMarkerReceipt(actor);
+    const proposal=planPathUnderworldStadiumCounter(
+      ownerView,catalog,printCatalog,marker);
+    assert.equal(proposal?.kind,'replace-path-then-underworld');
+    const selected=proposal.options[0];
+    const selectedCard=actor.hand.cards[selected.handIndex];
+    assert.equal(selectedCard.fullName,'Sky Field ROS');
+
+    store.dispatch(new PlayCardAction(actor.id,selected.handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const current=store.state.players[sourceSeat];
+    assert.ok(current.stadium.cards.some(c=>c.fullName==='Sky Field ROS'));
+    assert.equal(store.state.players[1-sourceSeat].stadium.cards.length,0);
     assert.ok(doorPowers().includes('Underworld Door'));
     assert.equal(offer()?.kind,'use-underworld-door');
   });
