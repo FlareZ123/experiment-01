@@ -45,12 +45,16 @@ function sourceSummary(row){
  */
 function run({quickBallScope='none',actorHandDiscard=false,
   sourceCrobatDceMewRetreat=false,
-  sourceQuickBallPreservePayableAttack=false}={}){
+  sourceQuickBallPreservePayableAttack=false,
+  sourceMewGenesectQuickBallSearch=false}={}){
   assert.ok(['none','source','candidate'].includes(quickBallScope));
   assert.equal(typeof actorHandDiscard,'boolean');
   assert.equal(typeof sourceCrobatDceMewRetreat,'boolean');
   assert.equal(typeof sourceQuickBallPreservePayableAttack,'boolean');
   assert.ok(!sourceQuickBallPreservePayableAttack||
+    quickBallScope==='source');
+  assert.equal(typeof sourceMewGenesectQuickBallSearch,'boolean');
+  assert.ok(!sourceMewGenesectQuickBallSearch||
     quickBallScope==='source');
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   const reg=JSON.parse(bytes.toString('utf8'));
@@ -76,6 +80,9 @@ function run({quickBallScope='none',actorHandDiscard=false,
     ...(quickBallScope==='candidate'?{candidateScopedQuickBallRoot:true}:{}),
     ...(sourceQuickBallPreservePayableAttack?{
       sourceQuickBallPreservePayableAttack:true
+    }:{}),
+    ...(sourceMewGenesectQuickBallSearch?{
+      actorOnlySingleSearch:true,actorMewGenesectQuickBallSearch:true
     }:{}),
     ...(actorHandDiscard?{actorHandDiscard:true}:{}),
     ...(sourceCrobatDceMewRetreat?{sourceCrobatDceMewRetreat:true}:{})};
