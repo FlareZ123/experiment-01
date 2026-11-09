@@ -207,9 +207,17 @@ for (const seat of [0, 1]) {
       const nestIndex = x.originalPlayer.hand.cards.findIndex(c =>
         c.fullName === 'Nest Ball SVI');
       assert.ok(nestIndex >= 0);
-      x.store.dispatch(new PlayCardAction(x.originalPlayer.id, nestIndex, {
-        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
-      }));
+      const postJetRoot=chooseActorRootIntent(
+        actorObservation(x.store.state,seat),metadata(),{
+          rank7FabaJetBridge:true,jetPostRoboContinuation:true
+        });
+      assert.equal(postJetRoot?.kind,'play-nest-after-jet',
+        'Common owner policy must autonomously spend newly unlocked Nest');
+      assert.equal(postJetRoot.handIndex,nestIndex);
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+        postJetRoot.handIndex, {
+          player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+        }));
       const nest = searchExactBasic(x, 'Regirock XYP');
       assert.ok(x.originalPlayer.bench.some(b =>
         b.cards.some(c => c.id === nest.card.id)));
