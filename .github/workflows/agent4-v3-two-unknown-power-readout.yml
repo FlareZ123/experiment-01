@@ -23,6 +23,7 @@ on:
           - hood-owner-rank6-fresh32
           - hood-owner-physical-tool-v2-fresh32
           - hood-arven-original-rank6-v3
+          - hood-immediate-psychic-reserve-v4
           - neutral-v3-new-natural32
         default: typed-replay
 
@@ -100,6 +101,24 @@ jobs:
         run: |
           node --check simulation/twinleaf/2026-11/agent4-hood-protected-underworld-owner-exception.cjs
           node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs tests/2026-11/agent4-hood-protected-underworld-owner.native.test.cjs
+      - name: Execute fresh 32-game original-rank6 immediate funded Hood and deck reserve policy comparison
+        if: ${{ inputs.experiment == 'hood-immediate-psychic-reserve-v4' }}
+        env:
+          AGENT4_FUNDED_HOOD_V4_OUTPUT: agent4-funded-hood-psychic-reserve-v4-native32.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-hood-immediate-psychic-reserve-v4.cjs
+          node --test tests/2026-11/agent4-hood-immediate-psychic-reserve-v4.test.cjs tests/2026-11/agent4-immediate-hood-psychic-budget.test.cjs
+          node simulation/evaluation/2026-11/agent4-hood-immediate-psychic-reserve-v4.cjs
+      - name: Preserve all same-deal original rank6 native immediate Hood policy receipts
+        if: ${{ always() && inputs.experiment == 'hood-immediate-psychic-reserve-v4' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-funded-hood-v4
+          path: |
+            agent4-funded-hood-psychic-reserve-v4-native32.json
+            agent4-funded-hood-psychic-reserve-v4-native32.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute freshly registered original-rank6 held-Hood versus Arven owner-search native panel
         if: ${{ inputs.experiment == 'hood-arven-original-rank6-v3' }}
         env:
