@@ -169,8 +169,15 @@ function run() {
     originalNativeRows:groups,codeRevision:process.env.GITHUB_SHA??null,
     nativeDevelopmentOnly:true,competitiveQualifiedGames:0};
   save(result);
+  const failures=Object.entries(groups).flatMap(([arm,batch])=>
+    batch.rows.filter(row=>row.error||!row.rootActionLedger?.length)
+      .map(row=>({arm,id:row.trial?.id,
+        nativeStatus:classifyNativeAttempt(row).kind,
+        error:row.error?String(row.error).slice(0,850):null,
+        firstRoot:row.rootActionLedger?.[0]??null}))); 
   process.stdout.write('AGENT22_TEMPLE_DDE_NATIVE '+
     JSON.stringify({all:comparison.all,matched:comparison.matched,
+      failures,
       excluded:comparison.excluded,
       changed:comparison.rows.filter(x=>x.firstDifferentAcceptedRoot>=0)
         .map(x=>({id:x.id,first:x.firstDifferentAcceptedRoot,
