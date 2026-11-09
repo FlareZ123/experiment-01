@@ -58,8 +58,18 @@ test('Crispin native search uses actual two differently typed owner-deck objects
   assert.throws(()=>chooseNativeCrispinEnergySearch(
     state,1,otherPrompt,ResolvePromptAction),/strictly equal|reference/i);
   owner.deck.cards.splice(1,1);
-  assert.equal(chooseNativeCrispinEnergySearch(
-    state,1,prompt,ResolvePromptAction),null);
+  prompt.validate=cards=>cards.length===1&&cards[0]===GRASS;
+  const oneType=chooseNativeCrispinEnergySearch(
+    state,1,prompt,ResolvePromptAction);
+  assert.deepEqual(oneType.chosen,[GRASS]);
+  const printedGrass={name:'Grass Energy',fullName:'Grass Energy SVI',id:30};
+  const printedFire={name:'Fire Energy',fullName:'Fire Energy SVI',id:31};
+  owner.deck.cards.splice(0,owner.deck.cards.length,printedGrass,printedFire);
+  prompt.validate=cards=>cards.length===2&&
+    cards[0]===printedGrass&&cards[1]===printedFire;
+  const alternate=chooseNativeCrispinEnergySearch(
+    state,1,prompt,ResolvePromptAction);
+  assert.deepEqual(alternate.chosen,[printedGrass,printedFire]);
 });
 
 test('Crispin native attachment targets real Benched Regidrago with Grass',()=>{
