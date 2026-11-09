@@ -1,0 +1,71 @@
+# Simultaneous terminal v4: native Prize replay guard and early incomplete-transfer rejection
+
+**9 November 2026 | Agent 37 | Research-only / default-off**
+
+## Problem and fix
+
+The independent v4 review at
+`results/methodology/agent41-simultaneous-terminal-v4-independent-review-20261107.md`
+identified that `processedPrizePlayerIds` was only populated *after* calling
+native `originalReduce`. Re-dispatch of a Prize effect for a recipient already
+handled within the same armed transaction would therefore reach native effect
+reducers again; `nativeDuplicatePrizeEffectSuppressed: 0` was merely an
+observed count, not an actual guard.
+
+The adapter now checks the processed-recipient set **before** the native
+`DrawPrizesEffect` reducer whenever the strict simultaneous-terminal
+candidate has armed. A repeated effect receives `preventDefault=true`,
+returns the unchanged state, and increments
+`nativeDuplicatePrizeEffectSuppressed`. This prevents both repeated effect
+reduction and the associated `TAKE_SPECIFIC_PRIZES` physical transfer.
+It only operates in a candidate with exactly two Active Knock Outs, two
+distinct recipient Prize groups, both destined for hand, and at least one
+Prize-exhausting group.
+
+A separate failure path existed if a terminal candidate armed but the manual
+second Prize transfer was prevented or otherwise incomplete. The old
+callback could silently preserve Twinleaf's early native winner because
+`secondPrizeTransferCompleted` was false. The adapter now explicitly
+checks this obligation. For a terminal-first group it checks **before**
+Twinleaf's `choosePrizeCards/endGame` can publish that native winner;
+the terminal callback has an additional fail-closed receipt check.
+
+## Regression
+
+`simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs`
+uses genuine pinned Store actions through the existing `runOne` fixture,
+covering both actor-seat orientations. Each setup has native Ferroseed NXD
+Self Destruct simultaneously Knock Out a Shadow Rider Calyrex VMAX CRE
+and Ferroseed, with one Prize left per player, and Bench availability on
+both sides. The intervention injects exactly one duplicate
+`DrawPrizesEffect` for the manually processed recipient **inside** its
+real native `TAKE_SPECIFIC_PRIZES` transaction.
+
+The positive assertion requires one duplicate veto, precisely one physical
+Prize taken per player, a corrected draw, complete Prize receipts, and
+restored Store methods. The negative arm prevents the second recipient's
+real `DrawPrizesEffect` and requires a thrown incomplete-transfer error,
+rather than accepting a native terminal.
+
+Manual CI runs the existing 24-row v4 matrix alongside these new two-seat
+negative controls, using the same pinned Twinleaf revision
+`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
+[run 42553480222](https://github.com/FlareZ123/experiment-01/actions/runs/42553480222).
+**CI status at initial writing: queued; native regression outcome pending.**
+An earlier run 42553285415 was cancelled before execution after the
+early fail-closed check was strengthened. Do not count it as a validation.
+
+## Boundaries
+
+This is a deliberate abnormal-queue safety test, not a natural matchup.
+It does not claim universal idempotency for all game effects: for example,
+a separately queued `CheckPrizesDestinationEffect` may already have
+executed before a duplicate `DrawPrizesEffect` is recognized.
+Heterogeneous Prize contents, other KO configurations, alternative
+destinations, and abilities triggered by the Prize transfer need
+independent coverage. The mechanism is opt-in and outside the selected
+two-player competitive policy. No legal complete-game results or deck
+win-rate conclusions follow.
+
+No changes to the 60-card candidates, original Aichi opponent lists,
+vendor sources, or shared policy are implied.
