@@ -1,0 +1,1400 @@
+{
+  "schema": "agent3-full29-hood-shield-vs-shadow-rider-native-prospective-v1",
+  "registeredUTC": "2026-11-09T07:12:30Z",
+  "status": "FROZEN BEFORE ANY NEW GAME",
+  "sourceRanks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24,
+    26,
+    27,
+    29,
+    30,
+    31,
+    32
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "hood-shield-v1"
+  ],
+  "candidatePrintSources": {
+    "champion-reference": "results/aichi-2026/full-decklists.json rank1",
+    "hood-shield-v1": "results/aichi-2026/candidate-hood-shadow-rider.json, fixed 60"
+  },
+  "registeredSourceGroups": 58,
+  "groups": [
+    {
+      "rank": 1,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 2565004180
+    },
+    {
+      "rank": 1,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 352799890
+    },
+    {
+      "rank": 2,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 50726483
+    },
+    {
+      "rank": 2,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1073445688
+    },
+    {
+      "rank": 3,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3409455833
+    },
+    {
+      "rank": 3,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3205534863
+    },
+    {
+      "rank": 4,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3458269103
+    },
+    {
+      "rank": 4,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1651999007
+    },
+    {
+      "rank": 5,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 1565157267
+    },
+    {
+      "rank": 5,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1351168860
+    },
+    {
+      "rank": 6,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 1454781228
+    },
+    {
+      "rank": 6,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2414825711
+    },
+    {
+      "rank": 7,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3617807808
+    },
+    {
+      "rank": 7,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1693388692
+    },
+    {
+      "rank": 8,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 4169443473
+    },
+    {
+      "rank": 8,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2310449262
+    },
+    {
+      "rank": 9,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 2520987199
+    },
+    {
+      "rank": 9,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2447699637
+    },
+    {
+      "rank": 10,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3040271237
+    },
+    {
+      "rank": 10,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2238706355
+    },
+    {
+      "rank": 11,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 2071089094
+    },
+    {
+      "rank": 11,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 258817568
+    },
+    {
+      "rank": 12,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 1548962017
+    },
+    {
+      "rank": 12,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3392761326
+    },
+    {
+      "rank": 13,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 4288147330
+    },
+    {
+      "rank": 13,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3610792886
+    },
+    {
+      "rank": 14,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3169270584
+    },
+    {
+      "rank": 14,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1970698254
+    },
+    {
+      "rank": 15,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3281370540
+    },
+    {
+      "rank": 15,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1005968610
+    },
+    {
+      "rank": 16,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 1981736092
+    },
+    {
+      "rank": 16,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 71570953
+    },
+    {
+      "rank": 17,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3056965668
+    },
+    {
+      "rank": 17,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1138351434
+    },
+    {
+      "rank": 18,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 561790489
+    },
+    {
+      "rank": 18,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 384660293
+    },
+    {
+      "rank": 19,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3086945160
+    },
+    {
+      "rank": 19,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1141023626
+    },
+    {
+      "rank": 20,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3014957020
+    },
+    {
+      "rank": 20,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3159828344
+    },
+    {
+      "rank": 21,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3283310130
+    },
+    {
+      "rank": 21,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 518169999
+    },
+    {
+      "rank": 22,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 3890858983
+    },
+    {
+      "rank": 22,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 737383876
+    },
+    {
+      "rank": 24,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 2110835930
+    },
+    {
+      "rank": 24,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3960572271
+    },
+    {
+      "rank": 26,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 4242783642
+    },
+    {
+      "rank": 26,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2019550100
+    },
+    {
+      "rank": 27,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 454338844
+    },
+    {
+      "rank": 27,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 1858415536
+    },
+    {
+      "rank": 29,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 1915909740
+    },
+    {
+      "rank": 29,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 3176744562
+    },
+    {
+      "rank": 30,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 2363257129
+    },
+    {
+      "rank": 30,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 4061346611
+    },
+    {
+      "rank": 31,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 323239100
+    },
+    {
+      "rank": 31,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2276482113
+    },
+    {
+      "rank": 32,
+      "repeat": 7002,
+      "candidateSlot": "A",
+      "seed": 534992119
+    },
+    {
+      "rank": 32,
+      "repeat": 7002,
+      "candidateSlot": "B",
+      "seed": 2352051402
+    }
+  ],
+  "batches": [
+    {
+      "candidateId": "champion-reference",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2565004180,
+          "candidateId": "champion-reference",
+          "id": "1:7002:A:champion-reference"
+        },
+        {
+          "rank": 1,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 352799890,
+          "candidateId": "champion-reference",
+          "id": "1:7002:B:champion-reference"
+        },
+        {
+          "rank": 2,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 50726483,
+          "candidateId": "champion-reference",
+          "id": "2:7002:A:champion-reference"
+        },
+        {
+          "rank": 2,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1073445688,
+          "candidateId": "champion-reference",
+          "id": "2:7002:B:champion-reference"
+        },
+        {
+          "rank": 3,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3409455833,
+          "candidateId": "champion-reference",
+          "id": "3:7002:A:champion-reference"
+        },
+        {
+          "rank": 3,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3205534863,
+          "candidateId": "champion-reference",
+          "id": "3:7002:B:champion-reference"
+        },
+        {
+          "rank": 4,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3458269103,
+          "candidateId": "champion-reference",
+          "id": "4:7002:A:champion-reference"
+        },
+        {
+          "rank": 4,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1651999007,
+          "candidateId": "champion-reference",
+          "id": "4:7002:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1565157267,
+          "candidateId": "champion-reference",
+          "id": "5:7002:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1351168860,
+          "candidateId": "champion-reference",
+          "id": "5:7002:B:champion-reference"
+        },
+        {
+          "rank": 6,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1454781228,
+          "candidateId": "champion-reference",
+          "id": "6:7002:A:champion-reference"
+        },
+        {
+          "rank": 6,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2414825711,
+          "candidateId": "champion-reference",
+          "id": "6:7002:B:champion-reference"
+        },
+        {
+          "rank": 7,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3617807808,
+          "candidateId": "champion-reference",
+          "id": "7:7002:A:champion-reference"
+        },
+        {
+          "rank": 7,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1693388692,
+          "candidateId": "champion-reference",
+          "id": "7:7002:B:champion-reference"
+        },
+        {
+          "rank": 8,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4169443473,
+          "candidateId": "champion-reference",
+          "id": "8:7002:A:champion-reference"
+        },
+        {
+          "rank": 8,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2310449262,
+          "candidateId": "champion-reference",
+          "id": "8:7002:B:champion-reference"
+        },
+        {
+          "rank": 9,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2520987199,
+          "candidateId": "champion-reference",
+          "id": "9:7002:A:champion-reference"
+        },
+        {
+          "rank": 9,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2447699637,
+          "candidateId": "champion-reference",
+          "id": "9:7002:B:champion-reference"
+        },
+        {
+          "rank": 10,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3040271237,
+          "candidateId": "champion-reference",
+          "id": "10:7002:A:champion-reference"
+        },
+        {
+          "rank": 10,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2238706355,
+          "candidateId": "champion-reference",
+          "id": "10:7002:B:champion-reference"
+        },
+        {
+          "rank": 11,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2071089094,
+          "candidateId": "champion-reference",
+          "id": "11:7002:A:champion-reference"
+        },
+        {
+          "rank": 11,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 258817568,
+          "candidateId": "champion-reference",
+          "id": "11:7002:B:champion-reference"
+        },
+        {
+          "rank": 12,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1548962017,
+          "candidateId": "champion-reference",
+          "id": "12:7002:A:champion-reference"
+        },
+        {
+          "rank": 12,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3392761326,
+          "candidateId": "champion-reference",
+          "id": "12:7002:B:champion-reference"
+        },
+        {
+          "rank": 13,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4288147330,
+          "candidateId": "champion-reference",
+          "id": "13:7002:A:champion-reference"
+        },
+        {
+          "rank": 13,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3610792886,
+          "candidateId": "champion-reference",
+          "id": "13:7002:B:champion-reference"
+        },
+        {
+          "rank": 14,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3169270584,
+          "candidateId": "champion-reference",
+          "id": "14:7002:A:champion-reference"
+        },
+        {
+          "rank": 14,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1970698254,
+          "candidateId": "champion-reference",
+          "id": "14:7002:B:champion-reference"
+        },
+        {
+          "rank": 15,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3281370540,
+          "candidateId": "champion-reference",
+          "id": "15:7002:A:champion-reference"
+        },
+        {
+          "rank": 15,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1005968610,
+          "candidateId": "champion-reference",
+          "id": "15:7002:B:champion-reference"
+        },
+        {
+          "rank": 16,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1981736092,
+          "candidateId": "champion-reference",
+          "id": "16:7002:A:champion-reference"
+        },
+        {
+          "rank": 16,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 71570953,
+          "candidateId": "champion-reference",
+          "id": "16:7002:B:champion-reference"
+        },
+        {
+          "rank": 17,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3056965668,
+          "candidateId": "champion-reference",
+          "id": "17:7002:A:champion-reference"
+        },
+        {
+          "rank": 17,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1138351434,
+          "candidateId": "champion-reference",
+          "id": "17:7002:B:champion-reference"
+        },
+        {
+          "rank": 18,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 561790489,
+          "candidateId": "champion-reference",
+          "id": "18:7002:A:champion-reference"
+        },
+        {
+          "rank": 18,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 384660293,
+          "candidateId": "champion-reference",
+          "id": "18:7002:B:champion-reference"
+        },
+        {
+          "rank": 19,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3086945160,
+          "candidateId": "champion-reference",
+          "id": "19:7002:A:champion-reference"
+        },
+        {
+          "rank": 19,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1141023626,
+          "candidateId": "champion-reference",
+          "id": "19:7002:B:champion-reference"
+        },
+        {
+          "rank": 20,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3014957020,
+          "candidateId": "champion-reference",
+          "id": "20:7002:A:champion-reference"
+        },
+        {
+          "rank": 20,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3159828344,
+          "candidateId": "champion-reference",
+          "id": "20:7002:B:champion-reference"
+        },
+        {
+          "rank": 21,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3283310130,
+          "candidateId": "champion-reference",
+          "id": "21:7002:A:champion-reference"
+        },
+        {
+          "rank": 21,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 518169999,
+          "candidateId": "champion-reference",
+          "id": "21:7002:B:champion-reference"
+        },
+        {
+          "rank": 22,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3890858983,
+          "candidateId": "champion-reference",
+          "id": "22:7002:A:champion-reference"
+        },
+        {
+          "rank": 22,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 737383876,
+          "candidateId": "champion-reference",
+          "id": "22:7002:B:champion-reference"
+        },
+        {
+          "rank": 24,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2110835930,
+          "candidateId": "champion-reference",
+          "id": "24:7002:A:champion-reference"
+        },
+        {
+          "rank": 24,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3960572271,
+          "candidateId": "champion-reference",
+          "id": "24:7002:B:champion-reference"
+        },
+        {
+          "rank": 26,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4242783642,
+          "candidateId": "champion-reference",
+          "id": "26:7002:A:champion-reference"
+        },
+        {
+          "rank": 26,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2019550100,
+          "candidateId": "champion-reference",
+          "id": "26:7002:B:champion-reference"
+        },
+        {
+          "rank": 27,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 454338844,
+          "candidateId": "champion-reference",
+          "id": "27:7002:A:champion-reference"
+        },
+        {
+          "rank": 27,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1858415536,
+          "candidateId": "champion-reference",
+          "id": "27:7002:B:champion-reference"
+        },
+        {
+          "rank": 29,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1915909740,
+          "candidateId": "champion-reference",
+          "id": "29:7002:A:champion-reference"
+        },
+        {
+          "rank": 29,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3176744562,
+          "candidateId": "champion-reference",
+          "id": "29:7002:B:champion-reference"
+        },
+        {
+          "rank": 30,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2363257129,
+          "candidateId": "champion-reference",
+          "id": "30:7002:A:champion-reference"
+        },
+        {
+          "rank": 30,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 4061346611,
+          "candidateId": "champion-reference",
+          "id": "30:7002:B:champion-reference"
+        },
+        {
+          "rank": 31,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 323239100,
+          "candidateId": "champion-reference",
+          "id": "31:7002:A:champion-reference"
+        },
+        {
+          "rank": 31,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2276482113,
+          "candidateId": "champion-reference",
+          "id": "31:7002:B:champion-reference"
+        },
+        {
+          "rank": 32,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 534992119,
+          "candidateId": "champion-reference",
+          "id": "32:7002:A:champion-reference"
+        },
+        {
+          "rank": 32,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2352051402,
+          "candidateId": "champion-reference",
+          "id": "32:7002:B:champion-reference"
+        }
+      ]
+    },
+    {
+      "candidateId": "hood-shield-v1",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2565004180,
+          "candidateId": "hood-shield-v1",
+          "id": "1:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 1,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 352799890,
+          "candidateId": "hood-shield-v1",
+          "id": "1:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 2,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 50726483,
+          "candidateId": "hood-shield-v1",
+          "id": "2:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 2,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1073445688,
+          "candidateId": "hood-shield-v1",
+          "id": "2:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 3,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3409455833,
+          "candidateId": "hood-shield-v1",
+          "id": "3:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 3,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3205534863,
+          "candidateId": "hood-shield-v1",
+          "id": "3:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 4,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3458269103,
+          "candidateId": "hood-shield-v1",
+          "id": "4:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 4,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1651999007,
+          "candidateId": "hood-shield-v1",
+          "id": "4:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1565157267,
+          "candidateId": "hood-shield-v1",
+          "id": "5:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1351168860,
+          "candidateId": "hood-shield-v1",
+          "id": "5:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1454781228,
+          "candidateId": "hood-shield-v1",
+          "id": "6:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2414825711,
+          "candidateId": "hood-shield-v1",
+          "id": "6:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 7,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3617807808,
+          "candidateId": "hood-shield-v1",
+          "id": "7:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 7,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1693388692,
+          "candidateId": "hood-shield-v1",
+          "id": "7:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 8,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4169443473,
+          "candidateId": "hood-shield-v1",
+          "id": "8:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 8,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2310449262,
+          "candidateId": "hood-shield-v1",
+          "id": "8:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 9,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2520987199,
+          "candidateId": "hood-shield-v1",
+          "id": "9:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 9,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2447699637,
+          "candidateId": "hood-shield-v1",
+          "id": "9:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 10,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3040271237,
+          "candidateId": "hood-shield-v1",
+          "id": "10:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 10,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2238706355,
+          "candidateId": "hood-shield-v1",
+          "id": "10:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 11,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2071089094,
+          "candidateId": "hood-shield-v1",
+          "id": "11:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 11,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 258817568,
+          "candidateId": "hood-shield-v1",
+          "id": "11:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 12,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1548962017,
+          "candidateId": "hood-shield-v1",
+          "id": "12:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 12,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3392761326,
+          "candidateId": "hood-shield-v1",
+          "id": "12:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4288147330,
+          "candidateId": "hood-shield-v1",
+          "id": "13:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3610792886,
+          "candidateId": "hood-shield-v1",
+          "id": "13:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 14,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3169270584,
+          "candidateId": "hood-shield-v1",
+          "id": "14:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 14,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1970698254,
+          "candidateId": "hood-shield-v1",
+          "id": "14:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 15,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3281370540,
+          "candidateId": "hood-shield-v1",
+          "id": "15:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 15,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1005968610,
+          "candidateId": "hood-shield-v1",
+          "id": "15:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 16,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1981736092,
+          "candidateId": "hood-shield-v1",
+          "id": "16:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 16,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 71570953,
+          "candidateId": "hood-shield-v1",
+          "id": "16:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 17,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3056965668,
+          "candidateId": "hood-shield-v1",
+          "id": "17:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 17,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1138351434,
+          "candidateId": "hood-shield-v1",
+          "id": "17:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 18,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 561790489,
+          "candidateId": "hood-shield-v1",
+          "id": "18:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 18,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 384660293,
+          "candidateId": "hood-shield-v1",
+          "id": "18:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 19,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3086945160,
+          "candidateId": "hood-shield-v1",
+          "id": "19:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 19,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1141023626,
+          "candidateId": "hood-shield-v1",
+          "id": "19:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 20,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3014957020,
+          "candidateId": "hood-shield-v1",
+          "id": "20:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 20,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3159828344,
+          "candidateId": "hood-shield-v1",
+          "id": "20:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 21,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3283310130,
+          "candidateId": "hood-shield-v1",
+          "id": "21:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 21,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 518169999,
+          "candidateId": "hood-shield-v1",
+          "id": "21:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 22,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 3890858983,
+          "candidateId": "hood-shield-v1",
+          "id": "22:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 22,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 737383876,
+          "candidateId": "hood-shield-v1",
+          "id": "22:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2110835930,
+          "candidateId": "hood-shield-v1",
+          "id": "24:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3960572271,
+          "candidateId": "hood-shield-v1",
+          "id": "24:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 26,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 4242783642,
+          "candidateId": "hood-shield-v1",
+          "id": "26:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 26,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2019550100,
+          "candidateId": "hood-shield-v1",
+          "id": "26:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 27,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 454338844,
+          "candidateId": "hood-shield-v1",
+          "id": "27:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 27,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 1858415536,
+          "candidateId": "hood-shield-v1",
+          "id": "27:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 1915909740,
+          "candidateId": "hood-shield-v1",
+          "id": "29:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 3176744562,
+          "candidateId": "hood-shield-v1",
+          "id": "29:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 30,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 2363257129,
+          "candidateId": "hood-shield-v1",
+          "id": "30:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 30,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 4061346611,
+          "candidateId": "hood-shield-v1",
+          "id": "30:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 31,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 323239100,
+          "candidateId": "hood-shield-v1",
+          "id": "31:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 31,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2276482113,
+          "candidateId": "hood-shield-v1",
+          "id": "31:7002:B:hood-shield-v1"
+        },
+        {
+          "rank": 32,
+          "repeat": 7002,
+          "candidateSlot": "A",
+          "seed": 534992119,
+          "candidateId": "hood-shield-v1",
+          "id": "32:7002:A:hood-shield-v1"
+        },
+        {
+          "rank": 32,
+          "repeat": 7002,
+          "candidateSlot": "B",
+          "seed": 2352051402,
+          "candidateId": "hood-shield-v1",
+          "id": "32:7002:B:hood-shield-v1"
+        }
+      ]
+    }
+  ],
+  "intendedNativeAttempts": 116,
+  "rootCap": 260,
+  "protectedSeedSource": "58 new CSPRNG secrets.randbits(32) unique unsigned seeds, generated before any test",
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneTargetTurn": null,
+    "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
+    "actorSeekerGuzmaOwnerSeat": null,
+    "actorSeekerGuzmaGlobalTurn": null,
+    "bunnelbyK0SafeEvolution": true,
+    "bunnelbyTargetAwareEvolution": true,
+    "bunnelbyGuzmaHalaMode1": true,
+    "bunnelbyGuzmaHalaSearch": true,
+    "actorArvenHoodPromptOwner": true
+  },
+  "frozenSourceAndPolicyGitBlobs": [
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "4df035c4b9786d236c037f0a637321831680106f"
+    },
+    {
+      "path": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+      "blob": "a79e7977cb224928068968934bbcfa9c9410e20a"
+    },
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blob": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    }
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "execution": "Two self-contained 58-attempt original source native cohorts comparing published rank1 reference against strategically restructured Hood Shield 60 with actor Arven Hood prompt preference",
+  "matchedPairPolicy": "Cross-contender causal comparisons permitted only for equal actual source physical fingerprints and actual starter seat",
+  "competitivePaperQualifiedGames": 0,
+  "caveats": [
+    "Hood Shield is a structural anti-Ability-lock redesign with 2 Stealthy Hood + Arven + Pokémon Ranger; user agent remains developmental",
+    "A configured Arven/Hood preference must be explicitly supported in native runDevelopment; otherwise preflight must reject this preregistration rather than silently ignore it",
+    "Source ranks23,25,28 absent"
+  ],
+  "developmentOnly": true
+}
