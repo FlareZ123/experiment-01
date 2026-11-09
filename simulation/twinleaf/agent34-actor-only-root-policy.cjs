@@ -2533,7 +2533,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       const result=beforeDispatch.value.apply(this,[action,...args]);
       const owner=this.state.players[crispinReply.seat];
       if(crispinReply.stage==='search'){
-        token.stage='attach';
+        // Crispin allows one Basic Energy if the other type is Prized.
+        // That branch puts it in hand without opening an attach prompt.
+        if(crispinReply.chosen.length===2)token.stage='attach';
+        else ownerRank13CrispinPending.delete(crispinReply.ownerId);
         audit.rank13CrispinNativeSearchAccepted++;
       }else{
         assert.ok(owner.bench[crispinReply.targetIndex].energies.cards
