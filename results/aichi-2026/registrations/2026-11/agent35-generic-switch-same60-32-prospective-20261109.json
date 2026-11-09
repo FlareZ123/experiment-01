@@ -1,0 +1,425 @@
+{
+  "schema": "agent35-generic-switch-same60-32-prospective-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "createdUTC": "2026-11-09T13:36:01.632939Z",
+  "question": "Under identical fixed Hood Switch v2 60s and symmetric owner policies, does adding the general held-Switch funded-KO root improve actual Switch activation, settled candidate attacks and completed games against original source opponents?",
+  "sourceRanks": [
+    3,
+    7,
+    8,
+    9,
+    13,
+    16,
+    21,
+    22
+  ],
+  "sourceGroups": [
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2819963777
+    },
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4177090877
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 18094224
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1430477550
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 56478460
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 475249110
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1609337958
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1620739490
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1888636055
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4220737545
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1698127952
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3542272001
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 3993075016
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1020900562
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2551778757
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3058535818
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2819963777,
+      "candidateId": "baseline-block-only",
+      "id": "3:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2819963777,
+      "candidateId": "general-tactical-switch",
+      "id": "3:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4177090877,
+      "candidateId": "baseline-block-only",
+      "id": "3:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 3,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4177090877,
+      "candidateId": "general-tactical-switch",
+      "id": "3:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 18094224,
+      "candidateId": "baseline-block-only",
+      "id": "7:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 18094224,
+      "candidateId": "general-tactical-switch",
+      "id": "7:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1430477550,
+      "candidateId": "baseline-block-only",
+      "id": "7:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 7,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1430477550,
+      "candidateId": "general-tactical-switch",
+      "id": "7:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 56478460,
+      "candidateId": "baseline-block-only",
+      "id": "8:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 56478460,
+      "candidateId": "general-tactical-switch",
+      "id": "8:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 475249110,
+      "candidateId": "baseline-block-only",
+      "id": "8:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 8,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 475249110,
+      "candidateId": "general-tactical-switch",
+      "id": "8:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1609337958,
+      "candidateId": "baseline-block-only",
+      "id": "9:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1609337958,
+      "candidateId": "general-tactical-switch",
+      "id": "9:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1620739490,
+      "candidateId": "baseline-block-only",
+      "id": "9:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 9,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1620739490,
+      "candidateId": "general-tactical-switch",
+      "id": "9:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1888636055,
+      "candidateId": "baseline-block-only",
+      "id": "13:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1888636055,
+      "candidateId": "general-tactical-switch",
+      "id": "13:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4220737545,
+      "candidateId": "baseline-block-only",
+      "id": "13:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 13,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 4220737545,
+      "candidateId": "general-tactical-switch",
+      "id": "13:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1698127952,
+      "candidateId": "baseline-block-only",
+      "id": "16:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 1698127952,
+      "candidateId": "general-tactical-switch",
+      "id": "16:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3542272001,
+      "candidateId": "baseline-block-only",
+      "id": "16:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 16,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3542272001,
+      "candidateId": "general-tactical-switch",
+      "id": "16:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 3993075016,
+      "candidateId": "baseline-block-only",
+      "id": "21:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 3993075016,
+      "candidateId": "general-tactical-switch",
+      "id": "21:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1020900562,
+      "candidateId": "baseline-block-only",
+      "id": "21:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 21,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 1020900562,
+      "candidateId": "general-tactical-switch",
+      "id": "21:3511:B:general-tactical-switch"
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2551778757,
+      "candidateId": "baseline-block-only",
+      "id": "22:3511:A:baseline-block-only"
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "A",
+      "seed": 2551778757,
+      "candidateId": "general-tactical-switch",
+      "id": "22:3511:A:general-tactical-switch"
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3058535818,
+      "candidateId": "baseline-block-only",
+      "id": "22:3511:B:baseline-block-only"
+    },
+    {
+      "rank": 22,
+      "repeat": 3511,
+      "candidateSlot": "B",
+      "seed": 3058535818,
+      "candidateId": "general-tactical-switch",
+      "id": "22:3511:B:general-tactical-switch"
+    }
+  ],
+  "nativeAttempts": 32,
+  "sourceGroupCount": 16,
+  "rootCap": 260,
+  "comparisonArms": [
+    "baseline-block-only",
+    "general-tactical-switch"
+  ],
+  "unchangedCandidate60": "results/aichi-2026/candidate-hood-shadow-rider-switch-v2.json",
+  "candidateDeckGitBlobSha": "f2973f0d140d95f79b570ba849c120fa97583c0e",
+  "registeredSourceDecks": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sharedPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "sharedPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperSemanticsProfile": "agent19-composed-paper-semantics-profile-v1",
+  "sharedPolicyFlags": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorMewDceRecipientRoot": true,
+    "actorMewDceRecipientSourceOnly": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorGuzmaNominalGust": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorOpponentBlockSwitchRoot": true,
+    "actorChoosePokemon": true,
+    "actorChargedPromotion": true
+  },
+  "treatmentOnlyFlags": {
+    "actorGenericTacticalSwitchRoot": true
+  },
+  "policySourceBlobSha": {
+    "actor34": "c789dd2cbb9c6646bfafedbce6c1f70c0d12a228",
+    "agent41": "c0c7609e855ea1c73226ee05fd998e9d95609318",
+    "genericSwitch": "0c8efa97dfeacf14a9a4f55c9b2fe3604b3c03de",
+    "blockSwitch": "c07d4a8ba9b2021fe65e71d6991fe92a64ca7357",
+    "activeLock": "adb88525a280f88273ef88113e83ac70dcdd03ac"
+  },
+  "inferenceLimitations": "Prerecorded actual original-source seeds are new and disjoint from exposed 3510 seeds. Compare only identical full physical source-deal fingerprints and starting assignments, never seed alone. Both arms use exactly same candidate 60, same source 60, same pinned vendor, same common policies except general Switch flag, same original-rank source registration and both seats. Root cap, native abort, source policy weakness, official clock, legal paper acceptance and owner-prompt target settlement remain separate dispositions. No performance ranking or qualified paper claim.",
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "paperQualifiedGames": 0
+}
