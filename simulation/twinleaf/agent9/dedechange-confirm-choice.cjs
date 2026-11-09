@@ -36,37 +36,44 @@ function chooseDedechangeConfirm({owner}){
     return {decision:false,reason:'hand-discard-cost-unassessed',details};
   }
   if(hand.some(card=>card?.aceSpec===true||
-      card?.isAceSpec===true||PROTECTED.has(card?.name))){
+      card?.isAceSpec===true||PROTECTED.has(card?.name)||
+      card?.name?.includes(' Prism Star'))){
     return {decision:false,reason:'protected-resource-in-hand',details};
   }
   return {decision:true,reason:'low-hand-six-card-refill',details};
 }
 
 /**
- * Paper-discard custody check for a completed native Dedechange confirmation.
- * This is a post-dispatch audit, never part of the acting player's decision.
- * Reads physical cards already visible in the owner's hand and discard;
- * unopened deck contents and opponent private zones are not inspected.
+ * Paper destination-custody check for a native Dedechange confirmation.
+ * Ordinary cards enter discard. A Prism Star replacement can instead send
+ * a card to the Lost Zone; this counts as a legitimate payment destination.
+ * Reads only owner's physically held, discarded and Lost Zone cards, plus
+ * deck length. No unopened deck identities or opponent private zones.
  *
- * @param {{hand:object[],discard:object[],deckCount:number}} before
- * @param {{hand:{cards:object[]},discard:{cards:object[]},deck:{cards:object[]}}} after
- * @returns {{settled:boolean,discardedCount:number,drawnCount:number,deckDelta:number,handPhysicallyDiscarded:boolean}}
+ * @param {{hand:object[],discard:object[],lostzone:object[],deckCount:number}} before
+ * @param {{hand:{cards:object[]},discard:{cards:object[]},lostzone:{cards:object[]},deck:{cards:object[]}}} after
+ * @returns {{settled:boolean,discardedCount:number,lostZoneCount:number,drawnCount:number,deckDelta:number,handPhysicallyDiscarded:boolean}}
  */
 function verifyDedechangeSettlement(before,after){
   const original=before.hand;
   const now=after.hand.cards;
   const trash=after.discard.cards;
+  const lost=after.lostzone.cards;
   const expectedDraw=Math.min(6,before.deckCount);
+  const sentToDiscard=original.filter(card=>
+    trash.includes(card)&&!before.discard.includes(card));
+  const sentToLost=original.filter(card=>
+    lost.includes(card)&&!before.lostzone.includes(card));
   const handPhysicallyDiscarded=original.every(card=>
-    !now.includes(card)&&trash.includes(card)&&
-    !before.discard.includes(card));
+    !now.includes(card)&&
+    ((sentToDiscard.includes(card)?1:0)+(sentToLost.includes(card)?1:0))===1);
   const noOriginalSurvived=now.every(card=>!original.includes(card));
   const deckDelta=before.deckCount-after.deck.cards.length;
   const settled=handPhysicallyDiscarded&&noOriginalSurvived&&
     deckDelta===expectedDraw&&now.length===expectedDraw;
-  return {settled,discardedCount:original.filter(card=>
-    trash.includes(card)&&!before.discard.includes(card)).length,
-    drawnCount:now.length,deckDelta,handPhysicallyDiscarded};
+  return {settled,discardedCount:sentToDiscard.length,
+    lostZoneCount:sentToLost.length,drawnCount:now.length,deckDelta,
+    handPhysicallyDiscarded};
 }
 
 module.exports={VERSION,chooseDedechangeConfirm,verifyDedechangeSettlement};
