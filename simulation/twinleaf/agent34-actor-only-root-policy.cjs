@@ -850,6 +850,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
+    genesectFusionDrawOwnerSeat:deps.genesectFusionDrawOwnerSeat??null,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
@@ -930,6 +931,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    naturalEvolutionRootOwnerSeat:deps.naturalEvolutionRootOwnerSeat??null,
     garbodorResponseOwnerSeat:deps.garbodorResponseOwnerSeat??null,
     garbotoxinToolRootOptIn:deps.garbotoxinToolRoot===true,
     garbotoxinToolRootDeferForStarAlchemy:
@@ -1224,6 +1226,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.potentialKoRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.genesectFusionDrawOwnerSeat));
+  assert.ok([null,0,1].includes(audit.naturalEvolutionRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
   if(audit.skylinerRondoRetreatOptIn)
@@ -1629,7 +1633,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       crobatDceMewRetreat:actorSpecialEnergyEnabled(
         audit.crobatDceMewRetreatOptIn,
         audit.crobatDceMewRetreatOwnerSeat,seat),
-      genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
+      genesectFusionDraw:actorSpecialEnergyEnabled(
+        audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
@@ -1700,7 +1705,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
-      naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      naturalEvolutionRoot:actorSpecialEnergyEnabled(
+        audit.naturalEvolutionRootOptIn,audit.naturalEvolutionRootOwnerSeat,seat),
       garbodorResponseOwnerSeat:audit.garbodorResponseOwnerSeat,
       garbotoxinToolRoot:audit.garbotoxinToolRootOptIn,
       garbotoxinToolRootDeferForStarAlchemy:
