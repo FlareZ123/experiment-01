@@ -442,6 +442,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePublicFlexibleImmediateAttackEnergy(view,catalog);
     if(stronger)return stronger;
   }
+  // Development-only original-source Mew attack funding: reserve an actual
+  // held Double Colorless Energy for an unfunded Mew V/VMAX. The native Store
+  // remains the authority for Energy attachment and resulting turn state.
+  if(options.mewDceRecipientRoot===true){
+    const mew=require('./agent26-owner-visible-mew-dce-recipient.cjs')
+      .chooseMewDceRecipient(view,catalog);
+    if(mew)return mew;
+  }
   // Opt-in owner-visible Jet Bench switch. The native action constructor
   // already handles the generic attach-special-energy Bench target.
   if(options.jetBenchSwitchRoot===true){
@@ -930,6 +938,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
     dceMewMobilityRootOwnerSeat:deps.dceMewMobilityRootOwnerSeat??null,
+    mewDceRecipientRootOptIn:deps.mewDceRecipientRoot===true,
+    mewDceRecipientRootOwnerSeat:deps.mewDceRecipientRootOwnerSeat??null,
     crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
@@ -1323,6 +1333,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok([null,0,1].includes(audit.potentialKoRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.genesectFusionDrawOwnerSeat));
   assert.ok([null,0,1].includes(audit.dceMewMobilityRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.mewDceRecipientRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.naturalEvolutionRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
@@ -1763,6 +1774,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       dceMewMobilityRoot:actorSpecialEnergyEnabled(
         audit.dceMewMobilityRootOptIn,audit.dceMewMobilityRootOwnerSeat,seat),
+      mewDceRecipientRoot:actorSpecialEnergyEnabled(
+        audit.mewDceRecipientRootOptIn,audit.mewDceRecipientRootOwnerSeat,seat),
       crobatDceMewRetreat:actorSpecialEnergyEnabled(
         audit.crobatDceMewRetreatOptIn,
         audit.crobatDceMewRetreatOwnerSeat,seat),
