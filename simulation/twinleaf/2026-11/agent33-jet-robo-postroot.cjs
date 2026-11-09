@@ -14,12 +14,17 @@ const VERSION = 'agent33-owner-visible-jet-wobbuffet-robo-postroot-v1';
 function choosePostJetRoboRoot(view) {
   assert.equal(view.decisionKind, 'owner-root');
   const own = view.ownPublic;
+  const vileplumeLocks = [view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench ?? [])].filter(p =>
+      p?.printing === 'Vileplume AOR' &&
+      p.abilityDetails?.some(a => a.name === 'Irritating Pollen'));
+  // A protected second Vileplume can preserve Item lock even if a different
+  // unprotected copy is suppressed. Avoid offering an unpayable followthrough.
   if (own?.active?.printing !== 'Wobbuffet PHF' ||
       !own.active.energies?.some(p => p.startsWith('Jet Energy ')) ||
-      ![view.opponentPublic?.active,
-        ...(view.opponentPublic?.bench ?? [])].some(p =>
-          p?.printing === 'Vileplume AOR' &&
-          p.abilityDetails?.some(a => a.name === 'Irritating Pollen')) ||
+      vileplumeLocks.length === 0 ||
+      vileplumeLocks.some(p =>
+        p.tools?.some(t => t.startsWith('Stealthy Hood '))) ||
       view.ownTurnResources?.itemPlayLocked === true ||
       own.publicTurnRestrictions?.itemPlayLocked === true) return null;
 
