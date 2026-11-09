@@ -1423,6 +1423,7 @@ function runDevelopment({
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
   nativeRejectedActionEvidence=false,actorNativeAorItemLock=false,
+  actorColoredStarterBias=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   sourceIndependentCommonPolicy=false,
@@ -1598,6 +1599,8 @@ function runDevelopment({
     'Rank9 source Compressor target must be 1–3 physical Energy');
   assert.ok(!sourceIndependentCommonPolicy||actorOnlyComposition,
     'Two-seat source-independent resource gate requires actor-only base policy');
+  assert.ok(!actorColoredStarterBias||actorOnlyComposition,
+    'Owner-only setup choice requires the native actor composition');
   assert.ok(!ownerGenericTrainerFrontier||actorOnlyComposition,
     'Owner Trainer census requires canonical actor composition');
   assert.ok(!nativeOwnerTrainerFallback||actorOnlyComposition,
@@ -2016,7 +2019,8 @@ function runDevelopment({
           actorTwoUnitPaidRetreatRoot,actorTwoUnitPaidRetreatTargetTurn,
           actorTwoUnitPaidRetreatRootV2,actorTwoUnitPaidRetreatTargetTurnV2
         });
-        const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
+        const scopedRoot=(!actorColoredStarterBias&&
+          !energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !bilateralJetBenchSwitchRoot&&
           !bilateralBasicEnergyRecipientFrontier&&
           !bilateralPerfectionBenchFunding&&
@@ -2054,7 +2058,9 @@ function runDevelopment({
           !actorSeekerGuzmaNominalKo&&
           !bilateralPerfectionRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
-            .withActorOnlyRootPolicy(work,{
+            .withActorOnlyRootPolicy(actorColoredStarterBias?
+              ()=>require('../twinleaf/2026-11/agent41-owner-colored-starter.cjs')
+                .withOwnerColoredStarter(work).result:work,{
               ...(energyProfile.enabled?{
                 specialEnergyRoot:true,
                 specialEnergyRootOwnerSeat:energyProfile.ownerSeat,
