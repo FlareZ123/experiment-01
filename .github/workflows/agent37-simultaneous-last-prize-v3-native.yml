@@ -59,6 +59,11 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs
           node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs > agent37-simultaneous-terminal-v4-duplicate-guard-native.json
+      - name: Agent37 v5 native heterogenous Prize owner-choice prompt
+        run: |
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-adapter.cjs
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-native.cjs
+          node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-native.cjs > agent37-simultaneous-terminal-v5-owner-choice-native.json
 
       - name: Assert v3 schema, pinned engine and native outcomes
         run: |
@@ -77,5 +82,6 @@ jobs:
             agent37-simultaneous-last-prize-v3-native.json
             agent37-simultaneous-terminal-v4-native.json
             agent37-simultaneous-terminal-v4-duplicate-guard-native.json
+            agent37-simultaneous-terminal-v5-owner-choice-native.json
           if-no-files-found: ignore
           retention-days: 14
