@@ -29,6 +29,7 @@ function withBilateralOwnerMail(next,deps){
   const followHeldHandiwork=deps.followHeldHandiwork===true;
   const followHeldRefillSupporter=deps.followHeldRefillSupporter===true;
   const followMailArven=deps.followMailArven===true;
+  const followOwnerConfirm=deps.followOwnerConfirm===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
   assert.equal(ids.size,trialIds.length, 'registered owner-Mail trial IDs must be unique');
@@ -47,6 +48,7 @@ function withBilateralOwnerMail(next,deps){
   const ownerHeldRefillActions=new WeakSet();
   const ownerMailArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
+  const ownerConfirmActions=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
   const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
@@ -73,6 +75,9 @@ function withBilateralOwnerMail(next,deps){
     arvenFromMailRejected:0,arvenSearchRejected:0,
     arvenNoSearchPrompt:0,arvenSearchUnsettled:0,
     arvenPlayEvents:[],arvenSearchEvents:[],
+    ownerConfirmOffers:0,ownerConfirmSettled:0,
+    ownerConfirmRejected:0,ownerConfirmUnsettled:0,
+    ownerConfirmEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nativeDecoderInvocations:0,
@@ -179,6 +184,20 @@ function withBilateralOwnerMail(next,deps){
         return action;
       }
     }
+    // Default-off, owner-scoped optional Confirm closure from Agent32's
+    // tested false answer. The real prompt itself defines the recipient;
+    // native prompt validation and custody remain authoritative.
+    if(active&&followOwnerConfirm&&state===storeInstance?.state&&
+       owner?.id===this.client?.id&&
+       prompt?.constructor?.name==='ConfirmPrompt'&&
+       prompt.playerId===owner.id){
+      const action=new ResolvePromptAction(prompt.id,false);
+      require('./prompt-integrity.cjs')
+        .assertValidPromptAction(state,action);
+      ownerConfirmActions.set(action,{trialId,seat,prompt,turn:state.turn});
+      audit.ownerConfirmOffers++;
+      return action;
+    }
     const baseline=priorAi.value.call(this,state,...args);
     if(!active||state!==storeInstance?.state||
       baseline?.constructor?.name!=='PassTurnAction'||
@@ -279,6 +298,7 @@ function withBilateralOwnerMail(next,deps){
     const taggedHandiwork=ownerMailHandiworkActions.has(action)||taggedHeldHandiwork;
     const taggedArven=ownerMailArvenActions.has(action);
     const arvenProposal=arvenSelections.get(action);
+    const ownerConfirmProposal=ownerConfirmActions.get(action);
     const opposingSeat=1-seat;
     const opposingBefore=taggedHandiwork?{
       deck:state.players[opposingSeat].deck.cards.length,
@@ -306,6 +326,7 @@ function withBilateralOwnerMail(next,deps){
       if(taggedArven)audit.arvenFromMailRejected++;
       if(taggedRefill)audit.heldRefillRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
+      if(ownerConfirmProposal)audit.ownerConfirmRejected++;
       throw e;
     }
     if(taggedRefill){
@@ -319,6 +340,16 @@ function withBilateralOwnerMail(next,deps){
         pendingPrompt:this.state.prompts?.find(p=>p.result===undefined)
           ?.constructor?.name??null});
       deps.onHeldRefillActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
+    }
+    if(ownerConfirmProposal){
+      const settled=ownerConfirmProposal.prompt.result===false;
+      if(settled)audit.ownerConfirmSettled++;
+      else audit.ownerConfirmUnsettled++;
+      audit.ownerConfirmEvents.push({trialId:ownerConfirmProposal.trialId,
+        seat:ownerConfirmProposal.seat,turn:ownerConfirmProposal.turn,
+        message:String(ownerConfirmProposal.prompt.message),
+        decision:false,nativeSettled:settled});
+      assert.ok(settled,'Owner Confirm false did not settle in native Store');
     }
     if(taggedArven){
       audit.arvenFromMailAccepted++;
