@@ -48,6 +48,26 @@ function trials() {
  * @param {object} [extra] Registered-game or opt-in owner-policy configuration.
  * @returns {{selected:object,wrappers:object}}
  */
+/**
+ * One previously exposed physical deal may be replayed for mechanism
+ * forensics only. Leave the multi-arm registration gate intact by default.
+ * @param {object} extra
+ * @param {object[]} frozen
+ * @returns {{allowSingleRegisteredTrial:boolean,retrospectiveSingleTrial:boolean}}
+ */
+function selectedTrialReplayMode(extra,frozen){
+  const single=extra.singleHistoricalReplay===true;
+  if(single){
+    assert.equal(frozen.length,1,
+      'Historical one-deal replay must have exactly one original registration');
+    assert.ok(typeof extra.registeredFrameName==='string'&&
+      extra.registeredFrameName.length>0,
+      'Historical one-deal replay requires original frame identification');
+  }
+  return {allowSingleRegisteredTrial:single,
+    retrospectiveSingleTrial:single};
+}
+
 function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
   const frozen=extra.registeredTrials??trials();
   const frameName=extra.registeredFrameName??registration.schema;
@@ -57,6 +77,7 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
   assert.ok(!extra.perfectionBenchFunding||enablePerfection,
     'Perfection recipient pre-funding requires paid Perfection selected');
   const expected=frozen.map(x=>x.id);
+  const trialReplayMode=selectedTrialReplayMode(extra,frozen);
   let selected=null;
   const core=()=>withCommonOwnerThornsRoot(()=>{
     selected=runSelectedIssue25V0({
@@ -86,6 +107,7 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
       }),
       layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
       registeredTrialIds:expected,
+      ...trialReplayMode,
       nativeRootActionLimit:rootLimit
     });
     return selected;
@@ -249,4 +271,4 @@ if(require.main===module){
       report.summary.nativeErrors>0)process.exitCode=1;
 }
 
-module.exports={VERSION,trials,digest,runNativeBatch,summarizeRow,comparePairs,run};
+module.exports={selectedTrialReplayMode,VERSION,trials,digest,runNativeBatch,summarizeRow,comparePairs,run};
