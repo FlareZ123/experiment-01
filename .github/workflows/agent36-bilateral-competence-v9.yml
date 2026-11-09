@@ -93,6 +93,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent36_fresh_rank5_native:
+        description: 'Four preregistered fresh rank5 original source native games, complete owner physical receipt tape; development only'
+        required: false
+        type: boolean
+        default: false
       agent36_paper_root_native:
         description: 'Capture actual Store-root payment, owner prompts and complete physical 120-card custody for historical v8 panel; development only'
         required: false
@@ -211,6 +216,7 @@ jobs:
           node --check simulation/twinleaf/2026-11/agent2-retreat-funding-bridge.cjs
           node --check tests/2026-11/agent2-retreat-funding-two-action.native.test.cjs
           node --check simulation/evaluation/2026-11/agent2-retreat-funding-original-source.cjs
+          node --check simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
           node --check tests/2026-11/agent2-retreat-funding-original-source.test.cjs
 
       - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
@@ -280,10 +286,10 @@ jobs:
 
       - name: Verify pure Agent34/Agent41 policy, observer, and v2 prompt-gate contracts
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs
+        run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent36_paper_root_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source }}
+        if: ${{ !inputs.contract_only && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
@@ -381,6 +387,12 @@ jobs:
           node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs
           node simulation/evaluation/agent36-v8-native-paper-root-capture.cjs
 
+      - name: Execute four new preregistered rank5 games with full live physical Store receipts
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent36_fresh_rank5_native && !inputs.contract_only }}
+        run: |
+          node --test tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs
+          node simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
+
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() && !inputs.contract_only }}
         uses: actions/upload-artifact@v4
@@ -404,5 +416,6 @@ jobs:
             artifacts/agent2-retreat-funding-original-source/
             artifacts/agent43-v8-snaptrap-owner-root/
             artifacts/agent36-paper-root-capture/
+            artifacts/agent36-fresh-rank5-paper/
           retention-days: 21
           if-no-files-found: warn
