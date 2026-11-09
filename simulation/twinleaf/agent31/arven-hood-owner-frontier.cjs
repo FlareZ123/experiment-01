@@ -67,11 +67,14 @@ function chooseArvenHoodRoot(view,catalog){
  * @param {0|1} seat Acting owner seat.
  * @param {object} prompt Genuine pending native ChooseCardsPrompt.
  * @param {new (...args:any[])=>object} ResolvePromptAction Pinned native class.
+ * @param {string|number} itemTrainerType Actual pinned native TrainerType.ITEM.
  * @returns {{action:object,chosen:string[],complete:boolean}|null}
  */
-function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction){
+function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction,itemTrainerType){
   assert.ok((seat===0||seat===1)&&state?.players?.length===2);
   assert.equal(typeof ResolvePromptAction,'function');
+  assert.ok(typeof itemTrainerType==='number'||
+    typeof itemTrainerType==='string');
   const owner=state.players[seat];
   if(prompt?.constructor?.name!=='ChooseCardsPrompt'||
      prompt.playerId!==owner.id||prompt.result!==undefined||
@@ -83,9 +86,7 @@ function resolveArvenHoodSearch(state,seat,prompt,ResolvePromptAction){
   // The exact native prompt validation is authoritative. Prefer Hood and
   // an Item, but never select the physically same card twice.
   const options=cards.filter(c=>c!==hood&&
-    c?.trainerType!==undefined&&
-    c.trainerType!==null&&
-    c.fullName!==HOOD);
+    c?.trainerType===itemTrainerType);
   // Item classification is owned by the pinned card's TrainerType enum.
   // No generic Trainer is accepted without native prompt.validate.
   const accepted=[];
