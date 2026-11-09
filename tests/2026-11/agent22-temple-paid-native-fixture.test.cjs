@@ -12,6 +12,7 @@ for(const seat of [0,1]){
     assert.equal(result.schema,VERSION);
     assert.equal(result.intent.kind,'play-temple-dde-denial');
     assert.equal(result.nativePaid,true);
+    assert.equal(result.nativeWitness,'confirmed-public-effect');
     assert.equal(result.templeInHandAfter,false);
     assert.equal(result.stadium.includes('Temple of Sinnoh ASR'),true);
     assert.equal(result.sourceEnergyBefore.length,1);
