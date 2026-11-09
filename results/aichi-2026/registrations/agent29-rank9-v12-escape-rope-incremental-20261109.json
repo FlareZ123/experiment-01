@@ -1,0 +1,42 @@
+{
+  "schema": "agent29-rank9-incremental-early-owner-escape-rope-v12-registration",
+  "registeredAtUTC": "2026-11-09T09:46:00Z",
+  "comparison": "v11 original-source Bomb + generic Float Stone control versus same v11 plus post-Bomb source-owner Escape Rope treatment",
+  "underlyingRegistration": "results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json",
+  "unchangedFieldSourceRank": 9,
+  "unchangedOriginal60": true,
+  "unchangedCandidateSixties": true,
+  "opponentCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "matchedGroups": 8,
+  "physicalSeatArms": 16,
+  "expectedNativeAttempts": 32,
+  "control": {
+    "actorGenericFundedFloatStoneRoot": true,
+    "actorGenericFundedFloatStoneSourceOnly": true,
+    "actorRank9PostBombRope": false
+  },
+  "treatment": {
+    "actorGenericFundedFloatStoneRoot": true,
+    "actorGenericFundedFloatStoneSourceOnly": true,
+    "actorRank9PostBombRope": true
+  },
+  "permittedIntervention": "On source-owned actual Pass only, if source holds physical Escape Rope BST, source Electrode-GX CES is already in discard, opponent has lost at least two Prizes, original Mega Absol ex M1L is Benched with >=3 attached Energy, both players have Bench Pokémon, and current source can play Items, propose genuine PlayCardAction; leave opponent switch prompt untouched; select original Mega in source-owned exact switch prompt only if native prompt permits.",
+  "comparisonGates": [
+    "all exact printed source/candidate deck fingerprints identical",
+    "same full initial two-player physical deal for each pair",
+    "first divergent root is source Escape Rope rather than previous Pass",
+    "native accepts physical Rope into discard",
+    "opponent chooses their own replacement",
+    "native accepts source Mega switch",
+    "subsequent original Mega Claw declaration and prompt settlement",
+    "preserve controls, caps, errors, opponent continuation and strict qualification"
+  ],
+  "expectedResult": null,
+  "qualifiedCompetitiveGames": 0,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "workflow": ".github/workflows/agent45-electrode-bomb-native-store.yml",
+  "workflowInput": "rank9_source_postbomb_rope_v12"
+}
