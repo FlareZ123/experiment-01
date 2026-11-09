@@ -2,7 +2,7 @@
 
 const VERSION='agent9-owner-dedechange-confirm-v1';
 
-/** Recognized ACE SPEC names are a conservative safety veto, not a legality list. */
+/** Known high-impact card names are a conservative preservation veto. */
 const PROTECTED=new Set([
   'Computer Search','Dowsing Machine','Secret Box','Brilliant Blender',
   'Prime Catcher','Scramble Switch','Life Dew','Master Ball','Legacy Energy',
@@ -29,7 +29,7 @@ function chooseDedechangeConfirm({owner}){
     return {decision:false,reason:'owner-zones-unavailable',details:{}};
   }
   const details={handCount:hand.length,deckCount:deck.length};
-  if(deck.length<6){
+  if(deck.length<=6){
     return {decision:false,reason:'conserve-deck-near-deckout',details};
   }
   if(hand.length>2){
