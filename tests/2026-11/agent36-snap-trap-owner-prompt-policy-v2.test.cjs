@@ -814,6 +814,8 @@ test('owner callback derives Temple Energy units at actual live prompt for both 
     ]);
     fixture.sourceOwner.stadium = {cards: [{fullName: TEMPLE}]};
     fixture.attackerOwner.stadium = {cards: []};
+    fixture.sourceOwner.stadiumAndToolHaveNoEffectTurnsRemaining = 0;
+    fixture.attackerOwner.stadiumAndToolHaveNoEffectTurnsRemaining = 0;
     let callbackCount = 0;
     const outcome = runProtectedFixture(fixture, {
       policyOptions: {
