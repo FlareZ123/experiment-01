@@ -50,7 +50,7 @@ function withPaperCelestialRoar(execute,deps={}){
     audit.openedCards+=temp.cards.length;
     const energies=temp.cards.filter(card=>card instanceof EnergyCard);
     audit.specialEnergyOffered+=energies.filter(card=>
-      card.energyType!=='BASIC'&&card.energyType!==game.EnergyType?.BASIC).length;
+      card.energyType===game.EnergyType.SPECIAL).length;
     if(!energies.length){
       for(const card of [...temp.cards]){
         MOVE_CARDS(store,state,temp,player.discard,{cards:[card],sourceCard:this});
