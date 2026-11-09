@@ -815,6 +815,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePostJetNestRoot(view);
     if(follow)return follow;
   }
+  if(options.jetPostRoboContinuation===true){
+    const follow=require('./2026-11/agent33-jet-robo-postroot.cjs')
+      .choosePostJetRoboRoot(view);
+    if(follow)return follow;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -999,6 +1004,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
     pathToPeakPublicSpentFusionOptIn:deps.pathToPeakPublicSpentFusion===true,
     pathSafeSkyFieldReplacementOptIn:deps.pathSafeSkyFieldReplacement===true,
+    jetPostRoboContinuationOptIn:deps.jetPostRoboContinuation===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     rank7FabaJetBridgeOptIn:deps.rank7FabaJetBridge===true,
@@ -1830,6 +1836,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       printedScalingBasicKoBeforeAttack:audit.printedScalingBasicKoBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
+      jetPostRoboContinuation:audit.jetPostRoboContinuationOptIn,
       rank7FabaJetBridge:audit.rank7FabaJetBridgeOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
       busLockPositionRoot:audit.busLockPositionRootOptIn,
@@ -2094,6 +2101,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           index:intent.index});
         break;
       case 'bench-basic':
+      case 'play-robo-after-jet':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
         break;
