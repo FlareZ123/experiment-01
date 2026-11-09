@@ -1,0 +1,37 @@
+{
+  "schema": "agent49-rank5-source-sky-field-poltergeist-response-aba-v1",
+  "status": "FROZEN_BEFORE_HOOK_IMPLEMENTATION_AND_NATIVE_EXECUTION",
+  "registeredAtUtc": "2026-11-09T15:28:40Z",
+  "event": "Aichi Open League 2026",
+  "format": "Japanese Extra",
+  "sourceFrozenCaseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "sourceOriginalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seed": 3861605836,
+  "candidateSeat": "B",
+  "sourceSeat": 0,
+  "originalPhysicalGroupId": "5:4410:B:new-moon-lockbreaker-v1",
+  "originalSourcePrintedSha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceDealFingerprint": "65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922",
+  "fullPhysicalDealFingerprint": "45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349",
+  "nativeRootCap": 320,
+  "baseline": "Exact Agent20 combined source-controlled developmental arm with actorBilateralLillieAfterPass and bilateralGengarHorrorHouseTempo, minOpponentHandCount=6, both printed 60s and physical shuffle unchanged",
+  "phases": [
+    {
+      "id": "A-combined-baseline",
+      "sourceSkyField": false
+    },
+    {
+      "id": "B-source-sky-field",
+      "sourceSkyField": true
+    },
+    {
+      "id": "A-repeat",
+      "sourceSkyField": false
+    }
+  ],
+  "precommittedSourceResponse": "Only on original rank5 source seat 0 own turn 17 if native AI would Pass, owner visibly holds printed Sky Field ROS in own hand, native canPlay is true and Stadium is not currently the same name, insert genuine PlayCardAction for Sky Field targeting global Stadium. No other actor actions, hidden opponent hand inspection, deck adjustments, or engine edits.",
+  "precommittedEvidence": "Capture actual accepted Store source Sky Field play, owner hand-to-Stadium physical transfer, one less Trainer in source hand immediately before opponent next Poltergeist, native attack settlement, exact Prize transitions, full both-seat response, root and zone A/A reproducibility, errors/caps independently; classify posthoc case and zero paper-qualified games.",
+  "limitation": "Explicitly retrospective adversarial challenge of Agent20 winning native case, not a fresh independent seed or transferable win-rate estimate. Existing source may be unable to execute printed Stadium despite actor opportunity; native Store is not paper certification."
+}
