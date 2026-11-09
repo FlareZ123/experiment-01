@@ -30,10 +30,18 @@ Initial [CI 42571049444](https://github.com/FlareZ123/experiment-01/actions/runs
 
 Pure [source policy tests](../../../tests/agent40-public-jet-bench-frontier.test.cjs) include no-Hood positive, held-Item and Bench-space gates, two-Vileplume Hood negative, payable-Active preservation, and owner hidden-state invariance. Their targeted `Check default-off owner Jet Bench switch proposal and shared symbolic Energy matcher` step passed on [manual CI 42572383994](https://github.com/FlareZ123/experiment-01/actions/runs/42572383994). The *full* benchmark workflow failed subsequently in an unrelated immutable-policy pinning step; do not label the whole run green.
 
+### Expanded owner-visible tactical decision chain
+
+A further [green compiled CI 42573876194](https://github.com/FlareZ123/experiment-01/actions/runs/42573876194) at research head `af82db00b72aea6c07e25ad158db13d6dabbd894` verifies two independent physical seats in which **each of four decisions is now selected from an authenticated detached owner view** rather than a manually chosen card/index: `play-faba-jet-hood`, the two genuine owner Faba prompts (`Select Tool`, `Choose Pokémon`), the shared Jet utility root, and `play-nest-after-jet`. Genuine source-owned Nest Ball search/shuffle/wait still resolves to the real original Regirock. Its raw logged receipts contain `sourceOwnerFabaProposal`, `sourceOwnerFabaPromptKinds`, `sourceOwnerPublicJetProposal`, `sourceOwnerPostJetItemProposal` and 60/60 unique physical cards, again with `qualifiedCompetitiveGames:0`.
+
+The new small [`simulation/twinleaf/2026-11/agent40-faba-jet-owner-bridge.cjs`](../../../simulation/twinleaf/2026-11/agent40-faba-jet-owner-bridge.cjs) exposes reusable pure choice functions for Faba, its public target, and post-Jet Nest Ball. [Owner-only unit regressions](../../../tests/2026-11/agent40-faba-jet-owner-bridge.test.cjs) exercise co-held resources, Supporter/Energy contention, multiple protected Vileplume, Temple of Sinnoh and hidden-zone invariance. That module is **not wired into the shared binary actor hook** yet; it is available as a focused integration input and has no measured automatic natural encounter rate.
+
+A still newer test revision adds a `choosePostJetNestSearchPrompt` step: the underlying owner deck is accessed **only during the authenticated native `ChooseCardsPrompt`**, when `actorObservation.pendingOwnerDeckSearch` proves K1 search access. This prevents earlier concealed own-deck knowledge from leaking into choices. Run the updated native and pure CI before treating this final K1 bridge as verified.
+
 ## Explicit remaining gaps
 
 - The source ranks 23, 25 and 28 are still missing exact authenticated original 60s. No final deck has been selected and the 99.5% benchmark remains unproven.
-- The shared actor has a default-off Jet utility chooser. It does not yet automatically propose and resolve the **preceding Faba target choice** or **subsequent Nest Ball prompt**, and the native game fixture is staged. A complete source-owner policy should cover this full action family and its competing uses, then confront a live, independent opponent continuation.
+- The shared binary actor hook has the default-off Jet utility chooser; the **Faba and Nest owner-visible selectors now exist in a separate tested bridge**, without global hook registration. Completing the hook's accepted Faba and Nest prompt lifecycle, genuine natural deals, and independent opponent continuation remains necessary.
 - This exact original rank7 counterline is one practical adversarial response to a Sentinel Vileplume deck, not a win-rate statistic. No natural original-source physical deals, independently qualified complete games, official timed adjudications or full field wins were added.
 
 ## Reuse
