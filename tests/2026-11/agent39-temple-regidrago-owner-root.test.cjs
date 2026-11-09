@@ -68,3 +68,15 @@ test('refuse missing Temple or missing public Regidrago', () => {
       null, null, null, null], stadium: [] }
   })).kind, 'play-temple-of-sinnoh');
 });
+
+test('native paper-visible witness confirms actual Temple Stadium placement', () => {
+  const { rootPhysicalWitness } =
+    require('../../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent = { kind: 'play-temple-of-sinnoh', printing: 'Temple of Sinnoh ASR' };
+  const before = { stadiumPrintings: [], handCount: 4 };
+  const after = { stadiumPrintings: ['Temple of Sinnoh ASR'], handCount: 3 };
+  assert.equal(rootPhysicalWitness(intent, before, after, {}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent, before,
+    { ...after, handCount: 4 }, {}), 'no-confirmed-public-effect');
+});
