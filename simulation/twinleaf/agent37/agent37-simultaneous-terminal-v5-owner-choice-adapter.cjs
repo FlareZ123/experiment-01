@@ -71,7 +71,7 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
     manualNonterminalPrizeChoiceBlocked:false,
     ownerPrizeSelectionPrompted:false,ownerPrizeSelectionSettled:false,
     terminalLogDeferred:false,winnerPublishedAfterSelection:false,
-    selectedPrizePrintings:[],
+    selectedPrizePrintings:[],selectedPhysicalPrizesTransferred:false,
     firstPrizeTransferCompleted:false,
     bothPrizeTransfersCompleted:false,
     firstPrizeDestinationIsHand:false,
@@ -240,8 +240,9 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
               'only the actual Prize owner may select their own physical Prizes');
             assert.equal(state.phase,GamePhase.ATTACK,
               'provisional terminal must remain hidden until Prize selection');
-            audit.selectedPrizePrintings=selected.flatMap(prize=>
-              prize.cards.map(card=>card.fullName));
+            const selectedCards=selected.flatMap(prize=>[...prize.cards]);
+            assert.equal(selectedCards.length,count);
+            audit.selectedPrizePrintings=selectedCards.map(card=>card.fullName);
             secondPrizeTransfer=true;
             try{
               TAKE_SPECIFIC_PRIZES(store,state,otherPlayer,selected,{
@@ -250,6 +251,10 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
             }finally{
               secondPrizeTransfer=false;
             }
+            audit.selectedPhysicalPrizesTransferred=selectedCards.every(
+              card=>otherPlayer.hand.cards.includes(card));
+            assert.equal(audit.selectedPhysicalPrizesTransferred,true,
+              'each exact owner-selected physical Prize must reach their hand');
             const expectedOther=Math.min(
               otherGroup.count,prizeLeftBefore[otherPlayer.id]);
             audit.secondPrizeTransferCompleted=
