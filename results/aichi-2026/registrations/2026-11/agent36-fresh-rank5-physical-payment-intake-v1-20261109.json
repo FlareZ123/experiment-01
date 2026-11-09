@@ -1,0 +1,72 @@
+{
+  "schema": "agent36-fresh-rank5-physical-payment-intake-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE RUN",
+  "registeredAtUtc": "2026-11-09T14:44:34.141683Z",
+  "researchQuestion": "Can a fixed New Moon Lockbreaker contender be evaluated against an original Aichi rank5 Mew Genesect source with fully native paid owner/card/prompt receipts and common actor-side source challenge policy?",
+  "objective": "Game-level prospective native paper evidence. This is not a head-to-head win-rate estimator for the full 32.",
+  "event": "Champions League 2026 Aichi May Open League Top32 knockout",
+  "eventFormat": "Japanese Extra BW onward; 60 cards, six Prizes; stage-specific 25-minute knockout clock not instrumented",
+  "eventClockReview": "UNAVAILABLE: native game ticks are not independently judged continuous official wall-clock turns",
+  "sourceOriginalRank": 5,
+  "contendingPrintedSixty": "new-moon-lockbreaker-v1",
+  "candidatePrintedProxyPath": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "candidatePrintedProxyGitBlob": "d9777831271bec8c4ac400d0a2d9f49cc03c630b",
+  "sourcePublishedFullFieldPath": "results/aichi-2026/full-decklists.json",
+  "sourceFullFieldGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootLimit": 350,
+  "gameCount": 4,
+  "physicalSeedsDrawnBy": "Python secrets.randbits(32), in order before commit or any v1 run",
+  "seedReusePolicy": "Fresh, not selected from prior v1-v6 exposed groups; no draws replaced or excluded",
+  "candidateSlotSchedule": [
+    "A",
+    "B",
+    "A",
+    "B"
+  ],
+  "candidateEvolutionAndPerfection": "Shared actor-only Perfection option enabled for both seats; source-funding policy enabled for both seats using the same printed eligibility rules",
+  "sourcePolicyConfiguration": "Agent8 source Mew DCE funding+evolution+Mew combat owner policies promoted to a common actor policy; all *_SourceOnly flags disabled, sourceScopedQuickBallRoot disabled; no cards changed",
+  "sourcePolicyEligibilityCaveat": "Earlier Agent8 source-specific Quick Ball behavior does not carry over; resultant games need native action review and no strategic-policy competence is certified",
+  "selectedBeforeResult": "Same 60-card candidate unchanged; no alternate candidate selected after seeing seed, no variants for this trial",
+  "registeredGameIds": [
+    "5:5000:A:new-moon-lockbreaker-v1",
+    "5:5001:B:new-moon-lockbreaker-v1",
+    "5:5002:A:new-moon-lockbreaker-v1",
+    "5:5003:B:new-moon-lockbreaker-v1"
+  ],
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 5000,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3541724645,
+      "id": "5:5000:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5001,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2192213049,
+      "id": "5:5001:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5002,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1190331074,
+      "id": "5:5002:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5003,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3759933653,
+      "id": "5:5003:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "qualification": "Developmental original-source native games, not paper legal or clock competitive admissions. Preserve every cap, abort, result and identity; zero prospective paper games declared ahead of execution."
+}
