@@ -167,7 +167,7 @@ function withActorFogCrystalPrompt(run,deps={}) {
             card.energyType===EnergyType.BASIC &&
             card.name==='Psychic Energy'
         }));
-        const chosen=chooseFogPrinting(view,offered);
+        const chosen=(deps.choosePrinting??chooseFogPrinting)(view,offered);
         const selected=chosen===null?[]:[
           active.cards.cards.find((card,index)=>card.fullName===chosen &&
             offered[index].permitted)
