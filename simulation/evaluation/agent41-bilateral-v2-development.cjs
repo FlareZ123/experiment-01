@@ -925,6 +925,12 @@ function executeDevelopment(trial,candidates,{
   const acceptedAttackEvents=packet.filter(row=>
     row.declarations?.length && row.settled?.after);
   const rootTrace=game.rootActionLedger||[];
+  // Additive postgame modality census; legacy attackDeclarations retains its
+  // historical meaning of native logged ordinary AttackAction declarations.
+  const nativeAttackModalityLedger=
+    require('./2026-11/agent13-postgame-attack-modality-ledger.cjs')
+      .postgameAttackModalityLedger({rootActionLedger:rootTrace,
+        publicAttackTransitions:packet,nativeFinished:game.finished});
   const cologneNativePlayAudit=auditAcceptedCologneRoots(
     rootTrace,game.suddenDeathClockResets??[]);
   if(paperCologneQuota){
@@ -1199,6 +1205,10 @@ function executeDevelopment(trial,candidates,{
       candidate:declared.filter(r=>r.playerSlot===candidateSeat).length
     },
     settledPublicAttackCount:acceptedAttackEvents.length,
+    // Perfection copies use UseAbilityAction, so this is separate from the
+    // ordinary-root-only historical counters above. Prize status is unknown
+    // without a separate physical-root tape and independent paper audit.
+    nativeAttackModalityLedger,
     // Unlike the legacy two-event summary below, this retains EVERY
     // candidate declaration and genuine next-source action, or its absence.
     candidateAttackSettlement:candidateSettlement,
