@@ -29,6 +29,7 @@ function withBilateralOwnerMail(next,deps){
   const followHeldHandiwork=deps.followHeldHandiwork===true;
   const followHeldRefillSupporter=deps.followHeldRefillSupporter===true;
   const followMailArven=deps.followMailArven===true;
+  const followHeldArven=deps.followHeldArven===true;
   const followOwnerConfirm=deps.followOwnerConfirm===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
@@ -47,6 +48,7 @@ function withBilateralOwnerMail(next,deps){
   const ownerHeldHandiworkActions=new WeakSet();
   const ownerHeldRefillActions=new WeakSet();
   const ownerMailArvenActions=new WeakSet();
+  const ownerHeldArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
   const ownerConfirmActions=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
@@ -75,6 +77,8 @@ function withBilateralOwnerMail(next,deps){
     arvenFromMailRejected:0,arvenSearchRejected:0,
     arvenNoSearchPrompt:0,arvenSearchUnsettled:0,
     arvenPlayEvents:[],arvenSearchEvents:[],
+    arvenFromHandOffers:0,arvenFromHandAccepted:0,
+    arvenFromHandRejected:0,arvenFromHandSearchEvents:[],
     ownerConfirmOffers:0,ownerConfirmSettled:0,
     ownerConfirmRejected:0,ownerConfirmUnsettled:0,
     ownerConfirmEvents:[],
@@ -132,8 +136,8 @@ function withBilateralOwnerMail(next,deps){
         return action;
       }
     }
-    if(active&&followMailArven&&state===storeInstance?.state&&
-      pendingArven?.seat===seat&&owner?.id===this.client?.id&&
+    if(active&&(followMailArven||followHeldArven)&&
+      state===storeInstance?.state&&pendingArven?.seat===seat&&owner?.id===this.client?.id&&
       prompt?.id===pendingArven.id&&prompt.cards===owner.deck){
       const {chooseArvenSearch}=
         require('./agent7/mail-arven-owner-choice.cjs');
@@ -141,6 +145,7 @@ function withBilateralOwnerMail(next,deps){
       if(chosen!==null){
         const action=new ResolvePromptAction(prompt.id,chosen);
         arvenSelections.set(action,{trialId,seat,ownerId:owner.id,
+          origin:pendingArven.origin,
           prompt,chosen,originalHand:owner.hand.cards.slice(),
           originalDeck:owner.deck.cards.slice()});
         return action;
@@ -239,6 +244,22 @@ function withBilateralOwnerMail(next,deps){
         return action;
       }
     }
+    if(followHeldArven&&!prompt&&(seat===0||seat===1)&&owner&&
+       state.activePlayer===seat){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const {chooseOwnerHeldArven}=
+        require('./agent1-owner-held-arven-choice.cjs');
+      const intent=chooseOwnerHeldArven(actorObservation(state,seat));
+      const card=intent?owner.hand.cards[intent.handIndex]:null;
+      if(intent&&card?.fullName===intent.printing&&
+         card?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,intent.handIndex);
+        ownerHeldArvenActions.add(action);
+        audit.arvenFromHandOffers++;
+        return action;
+      }
+    }
     if(followMailNestBall&&board.PlayerType!==undefined&&
       board.SlotType!==undefined&&
       owner?.bench?.some(slot=>(slot.cards??[]).length===0)){
@@ -296,7 +317,8 @@ function withBilateralOwnerMail(next,deps){
       supporterUsed:owner.supporterTurn
     }:null;
     const taggedHandiwork=ownerMailHandiworkActions.has(action)||taggedHeldHandiwork;
-    const taggedArven=ownerMailArvenActions.has(action);
+    const taggedHeldArven=ownerHeldArvenActions.has(action);
+    const taggedArven=ownerMailArvenActions.has(action)||taggedHeldArven;
     const arvenProposal=arvenSelections.get(action);
     const ownerConfirmProposal=ownerConfirmActions.get(action);
     const opposingSeat=1-seat;
@@ -323,7 +345,10 @@ function withBilateralOwnerMail(next,deps){
         if(taggedHeldHandiwork)audit.handiworkFromHandRejected++;
         else audit.handiworkFromMailRejected++;
       }
-      if(taggedArven)audit.arvenFromMailRejected++;
+      if(taggedArven){
+        if(taggedHeldArven)audit.arvenFromHandRejected++;
+        else audit.arvenFromMailRejected++;
+      }
       if(taggedRefill)audit.heldRefillRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
       if(ownerConfirmProposal)audit.ownerConfirmRejected++;
@@ -352,13 +377,18 @@ function withBilateralOwnerMail(next,deps){
       assert.ok(settled,'Owner Confirm false did not settle in native Store');
     }
     if(taggedArven){
-      audit.arvenFromMailAccepted++;
+      if(taggedHeldArven){
+        audit.arvenFromHandAccepted++;
+        deps.onHeldArvenActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
+      } else audit.arvenFromMailAccepted++;
       const p=this.state.prompts?.find(x=>x.result===undefined);
       const trueSearch=p?.constructor?.name==='ChooseCardsPrompt'&&
         p.cards===this.state.players[seat]?.deck&&p.playerId===owner.id;
-      pendingArven=trueSearch?{id:p.id,seat}:null;
+      pendingArven=trueSearch?{id:p.id,seat,
+        origin:taggedHeldArven?'held':'mail'}:null;
       if(!trueSearch)audit.arvenNoSearchPrompt++;
       audit.arvenPlayEvents.push({trialId,seat,turnBefore:state.turn,
+        origin:taggedHeldArven?'held':'mail',
         printing:selectedMailCard?.fullName??null,
         supporterTurnAfter:this.state.players[seat]?.supporterTurn??null,
         pendingArvenPromptId:trueSearch?String(p.id):null});
@@ -372,10 +402,14 @@ function withBilateralOwnerMail(next,deps){
         !playerAfter.deck.cards.includes(card));
       const settled=arvenProposal.prompt.result===action.result&&physical;
       if(!settled)audit.arvenSearchUnsettled++;
-      audit.arvenSearchEvents.push({trialId:arvenProposal.trialId,
+      const searchReceipt={trialId:arvenProposal.trialId,
         seat:arvenProposal.seat,turnBefore:state.turn,
         selected:arvenProposal.chosen.map(card=>card.fullName),
-        physicalOwnerDeckToHand:settled});
+        physicalOwnerDeckToHand:settled,
+        origin:arvenProposal.origin};
+      audit.arvenSearchEvents.push(searchReceipt);
+      if(arvenProposal.origin==='held')
+        audit.arvenFromHandSearchEvents.push(searchReceipt);
       pendingArven=null;
     }
     if(taggedHandiwork){
