@@ -27,6 +27,10 @@ function rowSummary(result) {
   const underworld = roots.filter(root =>
     root.action === 'UseAbilityAction' &&
     JSON.stringify(root).includes('Underworld Door'));
+  const paidHood = roots.filter(root =>
+    root.action === 'PlayCardAction' &&
+    typeof root.card === 'string' &&
+    root.card.startsWith('Stealthy Hood'));
   return {
     trialId:result.trial?.id ?? null,
     nativeStatus:result.status ?? null,
@@ -40,6 +44,8 @@ function rowSummary(result) {
     finalPrizes:result.finalPrizes ?? null,
     actualUnderworldAcceptedRootCount:underworld.length,
     acceptedUnderworldRoots:underworld.slice(0,8),
+    actualHoodToolNativeActionRoots:paidHood.length,
+    acceptedHoodToolRoots:paidHood.slice(0,8),
     anyNativeError:result.status === 'engine-error',
     paperQualified:false
   };
@@ -56,9 +62,11 @@ function rowSummary(result) {
  * @returns {object}
  */
 function run(deps={}) {
-  const registration = REG;
-  assert.equal(registration.schema,
-    'agent4-hood-vs-rank6-prospective-owner-exception-v1');
+  const registration = deps.registration??REG;
+  assert.ok([
+    'agent4-hood-vs-rank6-prospective-owner-exception-v1',
+    'agent4-hood-rank6-prospective-held-tool-plus-protected-ability-v2'
+  ].includes(registration.schema));
   assert.equal(registration.enginePin,
     'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   assert.equal(registration.trialRows.length,16);
@@ -136,7 +144,7 @@ function run(deps={}) {
         x.protected.fullPhysicalStart!==null)
   };
   return {
-    schema:VERSION,registration:registration.schema,
+    schema:deps.schema??VERSION,registration:registration.schema,
     pinnedTwinleaf:registration.enginePin,
     nativeGameAttempts:baseline.attempted+treated.result.attempted,
     candidateInventory:'results/aichi-2026/candidate-hood-shadow-rider.json',
