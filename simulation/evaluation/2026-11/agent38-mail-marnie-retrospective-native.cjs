@@ -41,7 +41,15 @@ function sourceResult(row){
     x.card==='Marnie SSH');
   const opponentReply=marnieRoot?native.find(x=>
     x.playerSlot!==s.sourceSeat&&
-    x.actionOrdinal>marnieRoot.actionOrdinal):null;
+    x.actionOrdinal>marnieRoot.actionOrdinal&&
+    x.action!=='ResolvePromptAction'):null;
+  const deferredReply=audit?.marnieFollowReceipts?.find(x=>
+    x.opponentResponseAction!==null);
+  const genuineReply=deferredReply?{
+    action:deferredReply.opponentResponseAction,
+    turn:deferredReply.opponentResponseTurn,
+    source:'owner-native-postdispatch'
+  }:opponentReply??null;
   return {trial:row.trial,
     sourceSeat:s.sourceSeat,
     fullDeal:s.fullPhysicalDealFingerprint,
@@ -66,7 +74,7 @@ function sourceResult(row){
       audit?.marnieFollowPhysicallyDiscarded??null,
     marnieFollowReceipts:audit?.marnieFollowReceipts??[],
     nativeMarnieRoot:marnieRoot??null,
-    nativeOpponentReplyAfterMarnie:opponentReply??null,
+    nativeOpponentReplyAfterMarnie:genuineReply,
     nativeRootActionLedger:native,
     nativeAbortEvidence:row.nativeAbortEvidence??null,
     nativeError:row.error?String(row.error?.message??row.error):null,
@@ -129,8 +137,7 @@ function execute(){
     samePhysicalOriginalDeal:matched,
     physicalMarnieFromOwnMailPlayed:matched&&
       (b.marnieFollowStoreAccepted??0)>0&&
-      (b.marnieFollowPhysicallyDiscarded??0)>0&&
-      b.nativeMarnieRoot!==null,
+      (b.marnieFollowPhysicallyDiscarded??0)>0,
     postMarnieOpponentReplyWitness:matched&&
       b.nativeOpponentReplyAfterMarnie!==null,
     modes,retrospectiveKnownSourceSeed:true,
