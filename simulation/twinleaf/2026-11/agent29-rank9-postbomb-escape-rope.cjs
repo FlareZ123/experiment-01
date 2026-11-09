@@ -34,6 +34,34 @@ function choosePostBombRope(state,sourceSeat){
   return {handIndex,megaBenchIndex};
 }
 
+
+/**
+ * Opponent-owner public Bench survival choice at the opponent's own Escape
+ * Rope switch prompt. This deliberately maximizes printed remaining HP.
+ * It is a stress-policy hypothesis, not a claim about optimal opponent play.
+ * @param {object} state Native state containing public Pokémon slots.
+ * @param {0|1} sourceSeat Registered original rank9 source physical seat.
+ * @param {object} prompt Exact native opponent switch prompt.
+ * @returns {{slot:object,benchIndex:number,printing:string,remainingHp:number}|null}
+ */
+function chooseOpponentRopeSurvival(state,sourceSeat,prompt){
+  const opponent=state.players?.[1-sourceSeat];
+  if(!opponent||prompt?.playerId!==opponent.id||
+     !Array.isArray(opponent.bench))return null;
+  const eligible=[];
+  for(const [benchIndex,slot] of opponent.bench.entries()){
+    const pokemon=slot.getPokemonCard?.();
+    if(!pokemon||!Number.isSafeInteger(pokemon.hp)||
+       !Number.isSafeInteger(slot.damage)||
+       !prompt.validate([slot],state))continue;
+    eligible.push({slot,benchIndex,printing:pokemon.fullName,
+      remainingHp:pokemon.hp-slot.damage});
+  }
+  eligible.sort((a,b)=>b.remainingHp-a.remainingHp||
+    a.benchIndex-b.benchIndex);
+  return eligible[0]??null;
+}
+
 /**
  * Default-off original-source native mobility intervention. It only replaces
  * a real source Pass after the v10 paid self-KO and has no target-turn override.
@@ -72,16 +100,43 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
     ownerSwitchPromptsChosen:0,ownerSwitchPromptsAccepted:0,
     ownerSwitchPromptsRejected:0,
     firstRope:null,ropes:[],ownerPromotedMega:false,
-    opposingSwitchChoiceNeverOverridden:true,
+    opposingSwitchChoiceNeverOverridden:deps.defensiveOpponentChoice!==true,
+    adversarialOpponentSurvivalOptIn:deps.defensiveOpponentChoice===true,
+    adversarialOpponentPromptChoices:[],
     competitiveQualifiedGames:0};
 
   function ai(state,...args){
     const owner=state.players?.[sourceSeat];
+    const opponent=state.players?.[1-sourceSeat];
+    const pending=state.prompts?.find(p=>p.result===undefined);
+    if(deps.defensiveOpponentChoice===true&&
+       state===realStore?.state&&
+       state.phase===GamePhase.PLAYER_TURN&&
+       state.activePlayer===sourceSeat&&
+       usedStores.has(realStore)&&
+       opponent?.id===this.client?.id&&
+       pending?.constructor?.name==='ChoosePokemonPrompt'&&
+       pending.playerId===opponent.id&&
+       pending.message===GameMessage.CHOOSE_POKEMON_TO_SWITCH&&
+       pending.slots?.includes(SlotType.BENCH)){
+      const answer=chooseOpponentRopeSurvival(state,sourceSeat,pending);
+      if(answer){
+        const choice=new ResolvePromptAction(pending.id,[answer.slot]);
+        ownChoices.set(choice,{promptId:pending.id,
+          ownerSeat:1-sourceSeat,opponentDefense:true,
+          printing:answer.printing,remainingHp:answer.remainingHp,
+          turn:state.turn});
+        audit.adversarialOpponentPromptChoices.push({
+          turn:state.turn,actorSeat:1-sourceSeat,
+          printing:answer.printing,remainingHp:answer.remainingHp,
+          benchIndex:answer.benchIndex,outcome:'proposed'});
+        return choice;
+      }
+    }
     if(state!==realStore?.state||state.phase!==GamePhase.PLAYER_TURN||
        state.activePlayer!==sourceSeat||
        owner?.id!==this.client?.id)
       return aiPrior.value.call(this,state,...args);
-    const pending=state.prompts?.find(p=>p.result===undefined);
     if(usedStores.has(realStore)&&pending?.constructor?.name==='ChoosePokemonPrompt'&&
        pending.playerId===owner.id&&
        pending.message===GameMessage.CHOOSE_POKEMON_TO_SWITCH&&
@@ -127,14 +182,26 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
         audit.firstRope??=event;
       }
       if(ownChoice&&this===realStore){
-        audit.ownerSwitchPromptsAccepted++;
-        audit.ownerPromotedMega=
-          this.state.players[sourceSeat].active.getPokemonCard()?.fullName===MEGA;
+        if(ownChoice.opponentDefense===true){
+          const auditRow=audit.adversarialOpponentPromptChoices
+            .findLast(x=>x.outcome==='proposed'&&x.turn===ownChoice.turn);
+          if(auditRow)auditRow.outcome='native-accepted';
+        }else{
+          audit.ownerSwitchPromptsAccepted++;
+          audit.ownerPromotedMega=
+            this.state.players[sourceSeat].active.getPokemonCard()?.fullName===MEGA;
+        }
       }
       return result;
     }catch(error){
       if(proposed)audit.rejectedRopes++;
-      if(ownChoice)audit.ownerSwitchPromptsRejected++;
+      if(ownChoice){
+        if(ownChoice.opponentDefense===true){
+          const auditRow=audit.adversarialOpponentPromptChoices
+            .findLast(x=>x.outcome==='proposed'&&x.turn===ownChoice.turn);
+          if(auditRow)auditRow.outcome='native-rejected';
+        }else audit.ownerSwitchPromptsRejected++;
+      }
       if(error&&typeof error==='object')error.agent29RopeAudit=audit;
       throw error;
     }
@@ -152,4 +219,4 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
 }
 
 module.exports={VERSION,ELECTRODE,MEGA,ROPE,
-  choosePostBombRope,withPostBombOwnerRope};
+  choosePostBombRope,chooseOpponentRopeSurvival,withPostBombOwnerRope};
