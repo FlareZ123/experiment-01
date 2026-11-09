@@ -10,9 +10,7 @@ const {COMMON,PROFILE}=
   require('./agent21-rank31-duskull-native-replay.cjs');
 const frozen=require('../agent41-frozen-bilateral-development-v2.json');
 const hood=require('../../../results/aichi-2026/candidate-hood-shadow-rider.json');
-const {withActorOnlyShuffleSupporterAfterPass}=
-  require('../../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs');
-const {chooseDeckoutRescue,VERSION:RESCUE_VERSION}=
+const {VERSION:RESCUE_VERSION}=
   require('../../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
@@ -45,8 +43,9 @@ function trial(seat,seed,candidateId){
 /** @param {object} target @param {'A'|'B'} seat @param {string} candidateId */
 function replay(target,seat,candidateId){
   const t=trial(seat,target.seed,candidateId);
-  const execute=()=>withPaperSemanticsProfileV1(()=>runDevelopment({
+  const {result,audit}=withPaperSemanticsProfileV1(()=>runDevelopment({
     ...frozen.policyOptions,...COMMON,
+    actorDeckoutRescueRoot:RESCUE,
     registeredTrials:[t],
     registeredFrameName:'agent21-rank2-original-cap'+ROOT_LIMIT,
     registeredCandidateDecks:{
@@ -59,13 +58,16 @@ function replay(target,seat,candidateId){
     isolatePolicyRandomness:true,
     isolatePhysicalShuffleRandomnessAfterSetup:true
   }),PROFILE);
-  const selected=RESCUE?withActorOnlyShuffleSupporterAfterPass(
-    execute,{choose:chooseDeckoutRescue}):
-    {result:execute(),audit:null};
-  const {result,audit}=selected.result;
   assert.equal(result.attempted,1);
   assert.equal(result.rows.length,1);
   const row=result.rows[0];
+  const rescueAudit=row.actorOnlyDecisionCoverage?.detailedComponentAudits
+    ?.ownerShuffleSupporter??null;
+  if(RESCUE){
+    assert.ok(rescueAudit,'Active actor must expose the actual rescue hook');
+    assert.ok(rescueAudit.passRootsObserved>0,
+      'Rescue policy wrapper was inactive on every genuine Store Pass root');
+  }
   assert.equal(row.trial.id,t.id);
   assert.equal(row.sourceDealFingerprint,target.sourceDigest,
     'Original-source rank2 physical deal changed');
@@ -84,7 +86,7 @@ function replay(target,seat,candidateId){
     sourceOriginalFirst260RootSha:rootShaByArm[seat+':'+candidateId],
     antiDeckoutRescueEnabled:RESCUE,
     antiDeckoutRescueVersion:RESCUE?RESCUE_VERSION:null,
-    antiDeckoutRescueNativeAudit:selected.audit,
+    antiDeckoutRescueNativeAudit:rescueAudit,
     first260RootSha:first260Sha,originalFirst260RootsReplayed:
       RESCUE?null:
         roots.length>=260&&first260Sha===rootShaByArm[seat+':'+candidateId],
