@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       ultra_ball_portfolio_native:
-        description: Run paper-payment native positive and zero-cost negative in both physical seats
+        description: Run five Trainer cost and automatic Quick Ball native payment tests, both seats
         required: false
         type: boolean
         default: false
@@ -62,6 +62,9 @@ jobs:
       - name: Verify all five source-stamped Trainer discard payments in native Store, both seats
         if: ${{ inputs.ultra_ball_portfolio_native }}
         run: node --test tests/2026-11/agent14-paid-discard-five-trainers.native.test.cjs
+      - name: Prove original Quick Ball automatic single-other-card payment and explicit prompt alternative
+        if: ${{ inputs.ultra_ball_portfolio_native }}
+        run: node --test tests/2026-11/agent14-quickball-auto-payment.native.test.cjs
       - name: Run exact original rank11 physical A/B/A strand intervention
         if: ${{ inputs.rank11_strand_native_aba }}
         env:
