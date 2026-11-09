@@ -1,0 +1,106 @@
+{
+  "schema": "aichi-independent-review-intake-v1",
+  "status": "blocked-not-competitive-evidence",
+  "sourceReport": "results/methodology/2026-11/agent8-mew-source-dce-attack-prize-conversion-v6-native-20261109.md",
+  "origin": {
+    "workflowRun": "https://github.com/FlareZ123/experiment-01/actions/runs/42577136715",
+    "artifact": "https://github.com/FlareZ123/experiment-01/actions/runs/42577136715/artifacts/13655243326",
+    "artifactZipSha256": "324fbc141c2464715b689c23db4319d8858f873fbcf8855d0aba1b3496fc6f61",
+    "innerJsonName": "agent8-source-mew-funding-v6.json",
+    "innerJsonSha256": "84d4e157822605dfa4eef12660328fc403a1da766e36acdb00520a549d96d5f0",
+    "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "nativeCase": {
+    "trialId": "5:3605:B:new-moon-lockbreaker-v1",
+    "phase": "P0S1",
+    "originalRank": 5,
+    "sourceArchetype": "Mew Genesect",
+    "candidate": "new-moon-lockbreaker-v1",
+    "sourceSeat": 0,
+    "candidateSeat": 1,
+    "firstPlayerSeatNativeField": null,
+    "initialRealNonPromptAction": {
+      "ordinal": 13,
+      "turn": 1,
+      "playerSlot": 1,
+      "action": "PlayCardAction"
+    },
+    "nativeFinished": true,
+    "nativeEndReason": "engine-game-end",
+    "nativeWinnerSeat": 0,
+    "finalPrizesBySeat": [
+      0,
+      2
+    ],
+    "acceptedRootCount": 156,
+    "acceptedRootLedgerSha256": "111e5c2a8d8c1b4f10341283fc51011cd87620e7bc498d7c7de3471ae5d2bc56",
+    "sourceDealFingerprint": "683000ca610a72410954bf3467dea7442291ffccea5e57b65c9f0eb6c057d7d5",
+    "fullPhysicalDealFingerprint": "a4c49b1f901ca273f8411dba89a42724cfc9c3b6623ef70ebe960e6f4ce68678",
+    "sourceDeckFingerprint": "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193",
+    "originalSourceCrossFusionStrikeAttackOrdinals": [
+      99,
+      117,
+      139,
+      153
+    ],
+    "observedReplyWindow": [
+      {
+        "ordinal": 99,
+        "turn": 14,
+        "seat": 0,
+        "action": "AttackAction",
+        "attack": "Cross Fusion Strike"
+      },
+      {
+        "ordinal": 106,
+        "turn": 15,
+        "seat": 1,
+        "action": "PlayCardAction",
+        "card": "Unown"
+      },
+      {
+        "ordinal": 107,
+        "turn": 15,
+        "seat": 1,
+        "action": "PlayCardAction",
+        "card": "Telepathic Psychic Energy"
+      },
+      {
+        "ordinal": 111,
+        "turn": 16,
+        "seat": 0,
+        "action": "PassTurnAction"
+      },
+      {
+        "ordinal": 117,
+        "turn": 18,
+        "seat": 0,
+        "action": "AttackAction",
+        "attack": "Cross Fusion Strike"
+      }
+    ],
+    "physicalZoneQualification": {
+      "requested": false,
+      "physicalIntegrityQualified": false,
+      "status": "PHYSICAL_INTEGRITY_UNVERIFIED"
+    },
+    "nativeSupporterQuotaQualified": "unverified",
+    "physicalTargetCertification": "selective-public-evidence-only",
+    "sourceFullPolicyVersion": "agent41-bilateral-common-resource-policy-v0",
+    "nativePolicyRandomIsolation": false,
+    "nativePhysicalShuffleRandomIsolation": false
+  },
+  "requiredIndependentEvidenceMissing": [
+    "Original and contender exact Japanese physical print identities and signed full 60 hashes",
+    "Physical card-zone and owner payment/targets reconciliation beyond native selective public evidence",
+    "Independently certified full game root payments and owner-visible alternatives including source response",
+    "Official Aichi match-stage and continuous clock/no-call or valid time-call record",
+    "Independently audited paper-rules and hidden-information compatibility",
+    "Independently reviewed policy competence and counterplay, including explanation of turn16 source Pass",
+    "Three approved independent reviewer keys and Ed25519 signed paper, clock, strategy decisions"
+  ],
+  "structuralGatePassed": false,
+  "competitiveAdmission": false,
+  "externalReviewUnavailable": true,
+  "note": "Native artifact is authentic developmental evidence only. The archived receipt was not instrumented to support full competitive paper acceptance."
+}
