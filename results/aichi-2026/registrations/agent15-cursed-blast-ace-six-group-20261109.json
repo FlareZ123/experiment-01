@@ -1,0 +1,70 @@
+{
+  "schema": "agent15-fresh-rank1-11-31-ace-followup-v1",
+  "registeredUtc": "2026-11-09T02:44:28.888728+00:00",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_DISPATCH",
+  "sourceRanks": [
+    1,
+    11,
+    31
+  ],
+  "groups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 4200,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1637382619,
+      "id": "1:4200:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 4201,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2538656193,
+      "id": "1:4201:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 4202,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1195797841,
+      "id": "11:4202:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 4203,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3892340759,
+      "id": "11:4203:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "A",
+      "repeat": 4204,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 996206501,
+      "id": "31:4204:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "B",
+      "repeat": 4205,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1616762641,
+      "id": "31:4205:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "candidateId": "new-moon-lockbreaker-v1",
+  "nativeRootLimit": 260,
+  "pairedArms": [
+    "same-policy-baseline",
+    "opt-in-owner-cursed-blast-with-held-ace"
+  ],
+  "nativeGameAttemptsPlanned": 12,
+  "sourceOriginalsAuthenticated": true,
+  "competitivePaperQualified": false,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+}
