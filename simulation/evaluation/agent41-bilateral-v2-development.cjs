@@ -1410,7 +1410,8 @@ function runDevelopment({
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorPotentialKoRoot=false,actorOriginal29PrintedFidelity=false,
+  actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
+  actorOriginal29PrintedFidelity=false,
   actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
@@ -1445,7 +1446,7 @@ function runDevelopment({
   actorBilateralLillieAfterPass=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
-  actorSeekerGuzmaNominalKo=false,
+  actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
   actorSeekerGuzmaOwnerSeat=null,actorSeekerGuzmaGlobalTurn=null,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
@@ -1537,6 +1538,10 @@ function runDevelopment({
   assert.ok(!actorSeekerGuzmaNominalKo||
     (actorOnlyComposition&&actorGuzmaPromptContinuation),
     'VS Seeker Guzma tactic requires canonical owner root and Guzma prompts');
+  assert.ok(!actorSeekerGuzmaSourceOnly||actorSeekerGuzmaNominalKo,
+    'Source-only Seeker/Guzma requires the policy enabled');
+  assert.ok(!actorPotentialKoSourceOnly||actorPotentialKoRoot,
+    'Source-only potential KO requires the policy enabled');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
@@ -1955,7 +1960,8 @@ function runDevelopment({
               }:{}),
               ...(actorSeekerGuzmaNominalKo?{
                 seekerGuzmaNominalKo:true,
-                seekerGuzmaOwnerSeat:actorSeekerGuzmaOwnerSeat,
+                seekerGuzmaOwnerSeat:actorSeekerGuzmaSourceOnly?
+                  1-(trial.candidateSlot==='A'?0:1):actorSeekerGuzmaOwnerSeat,
                 seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn
               }:{}),
               ...(earlyRegidragoCompressor?{
@@ -1965,7 +1971,10 @@ function runDevelopment({
                 perfectionRoot:true
               }:{}),
               ...(actorPotentialKoRoot?{
-                potentialKoRoot:true
+                potentialKoRoot:true,
+                ...(actorPotentialKoSourceOnly?{
+                  potentialKoRootOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
