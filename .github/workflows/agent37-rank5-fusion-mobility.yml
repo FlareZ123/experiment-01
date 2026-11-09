@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_quickball_generic_search:
+        description: Isolate native generic owner search as the Mew-target control
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -66,6 +71,7 @@ jobs:
         env:
           AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
           AGENT37_QUICKBALL_MEW_SEARCH_DEV: ${{ inputs.agent37_quickball_mew_search }}
+          AGENT37_QUICKBALL_GENERIC_SEARCH_DEV: ${{ inputs.agent37_quickball_generic_search }}
         run: |
           node --check simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
           node simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
