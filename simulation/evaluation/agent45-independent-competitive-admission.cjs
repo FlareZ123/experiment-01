@@ -173,6 +173,10 @@ function inspectAdmission(bundle, reviews, reviewerRegistry) {
  * @returns {object}
  */
 function evaluateCompetitiveAdmission(bundle, reviews) {
+  if (bundle?.admissionContract === 'aichi-outcome-and-competitive-admission-v2') {
+    return require('./2026-11/agent43-independent-outcome-competence-v2.cjs')
+      .evaluateCompetitiveAdmissionV2(bundle,reviews);
+  }
   const assessment=inspectAdmission(bundle,reviews,authorized);
   return {...assessment,competitiveAdmission:assessment.acceptanceReady,
     disposition:assessment.acceptanceReady?'independently-admitted':
