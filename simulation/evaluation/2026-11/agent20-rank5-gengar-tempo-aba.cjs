@@ -103,6 +103,33 @@ function firstDifference(a,b){
     treatment:y[Math.min(x.length,y.length)]??null
   };
 }
+/**
+ * Find the earliest actual physical-zone divergence, even when the same
+ * PlayCardAction identity hides a different attachment target.
+ * @param {object} a A-control with post-Store physical zones.
+ * @param {object} b Experimental treatment with post-Store physical zones.
+ * @returns {object|null} Earliest actual-root physical divergence.
+ */
+function firstPhysicalDivergence(a,b){
+  const x=a.physicalTape?.postAcceptedRoots??[];
+  const y=b.physicalTape?.postAcceptedRoots??[];
+  const length=Math.min(x.length,y.length);
+  for(let i=0;i<length;i++){
+    if(x[i].zoneSha256===y[i].zoneSha256)continue;
+    const seats=[0,1].filter(seat=>
+      JSON.stringify(x[i].physicalZones[seat])!==
+      JSON.stringify(y[i].physicalZones[seat]));
+    return {root:i,controlAction:a.roots[i]??null,
+      treatmentAction:b.roots[i]??null,
+      changedPhysicalSeats:seats,
+      controlZoneSha256:x[i].zoneSha256,
+      treatmentZoneSha256:y[i].zoneSha256};
+  }
+  return x.length===y.length?null:{root:length,
+    controlAction:a.roots[length]??null,
+    treatmentAction:b.roots[length]??null,
+    missingPhysicalReceipt:true};
+}
 /** Save the complete A/B/A record under an exclusive atomic file lock. */
 function save(data){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
@@ -131,8 +158,11 @@ function main(){
   ];
   const firstDivergence=firstDifference(arms[0],arms[1]);
   const replayDifference=firstDifference(arms[0],arms[2]);
+  const firstPhysical=firstPhysicalDivergence(arms[0],arms[1]);
+  const controlPhysicalReplay=firstPhysicalDivergence(arms[0],arms[2]);
   const result={schema:'agent20-rank5-posthoc-gengar-tempo-aba-v1',
     registeredCase:reg,arms,firstDivergence,replayDifference,
+    firstPhysical,controlPhysicalReplay,
     sameSourceDeal:arms.every(a=>
       a.sourceFingerprint===reg.sourceDealFingerprint),
     sameFullInitialDeal:arms.every(a=>
@@ -143,7 +173,7 @@ function main(){
   save(result);
   console.log('AGENT20_GENGAR_TEMPO_ABA',JSON.stringify({
     sourceSame:result.sameSourceDeal,fullSame:result.sameFullInitialDeal,
-    firstDivergence,replayDifference,
+    firstDivergence,replayDifference,firstPhysical,controlPhysicalReplay,
     arms:arms.map(x=>({phase:x.phase,roots:x.rootCount,
       candidate:x.candidate,source:x.source,finished:x.nativeFinished,
       winner:x.nativeWinner,error:x.nativeError,
@@ -151,9 +181,11 @@ function main(){
   }));
   assert.ok(result.sameSourceDeal&&result.sameFullInitialDeal,
     'Frozen physical source deals must be matched across all arms');
+  assert.equal(controlPhysicalReplay,null,
+    'A/A repeat must reproduce every accepted physical Store zone');
   assert.equal(replayDifference,null,
     'A/A repeat must reproduce every accepted Store action');
   return result;
 }
 if(require.main===module)main();
-module.exports={main,arm,firstDifference};
+module.exports={main,arm,firstDifference,firstPhysicalDivergence};
