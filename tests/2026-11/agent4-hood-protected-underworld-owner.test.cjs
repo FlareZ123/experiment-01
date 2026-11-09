@@ -66,6 +66,7 @@ test('closed positive scope abstains under tool, stadium, target, or marker doub
 });
 test('physical Hood-in-hand owner gets exact Bench Tool intent before protected power',()=>{
   const observed=view();
+  observed.ownPublic.bench[0].tools=['Float Stone BKT'];
   observed.ownPublic.bench[1].tools=[];
   observed.ownHand.push('Stealthy Hood UNB');
   const toolCatalog={toolPrintings:new Set(['Stealthy Hood UNB'])};
@@ -83,6 +84,7 @@ test('physical Hood-in-hand owner gets exact Bench Tool intent before protected 
     v=>v.opponentPublic.bench.push({printing:'Garbodor BKP'})
   ]){
     const variant=view();
+    variant.ownPublic.bench[0].tools=['Float Stone BKT'];
     variant.ownPublic.bench[1].tools=[];
     variant.ownHand.push('Stealthy Hood UNB');
     alter(variant);
