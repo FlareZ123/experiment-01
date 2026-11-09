@@ -17,7 +17,7 @@ const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
   .find(deck=>deck.rank===13).cards
   .filter(card=>card.category==='Trainer').map(card=>card.name));
 
-const VERSION='agent5-rank13-prelock-source-ability-trainer-factorial-v2';
+const VERSION='agent5-rank13-owner-search-energy-factorial-v3';
 const TARGET='13:2026:A:new-moon-lockbreaker-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
@@ -49,7 +49,12 @@ function run(deps={}){
           // Both options are from existing native-tested original Regidrago
           // policies and are a single registered source-challenger bundle.
           mysteriousTreasureRoot:source,
-          firstRegidragoBenchGrass:source
+          firstRegidragoBenchGrass:source,
+          sourceScopedQuickBallRoot:source,
+          // Identical real owner-hand payments and own-deck search closure
+          // in all cells, as in the successful Agent8 source-search panel.
+          actorOnlySingleSearch:true,
+          actorHandDiscard:true
         }),{
           registeredTrials:[{...group}],
           registeredFrameName:registration.schema,
@@ -100,7 +105,7 @@ function run(deps={}){
     version:VERSION,registration:registration.schema,
     originalSelectedRank13Deal:TARGET,
     cohort:'one retrospective historical physical deal, four-policy factorial',
-    sourceChallenger:'existing owner-visible Mysterious Treasure and first Regidrago Bench Grass options',
+    sourceChallenger:'original-source Quick Ball, Mysterious Treasure and Regidrago Bench Grass; constant owner-prompt resolution',
     candidateChallenger:'existing donor-funded native paid Perfection pivot',
     twinleafPin:registration.nativePin,
     physicalSixtiesUnchanged:true,
