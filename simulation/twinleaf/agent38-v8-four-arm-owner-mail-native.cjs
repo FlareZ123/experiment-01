@@ -151,6 +151,28 @@ function withBilateralOwnerMail(next,deps){
         return answer;
       }
     }
+    // Mail-to-Arven is an opt-in fully actor-owned action. In selected-v8,
+    // the otherwise unsupported native decoder is deliberately quarantined;
+    // placing this before delegation permits a verified Supporter action to
+    // execute without ever inspecting raw State in that fallback decoder.
+    if(followMailArven&&!prompt&&(seat===0||seat===1)&&owner){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const {chooseMailSelectedArven}=
+        require('./agent7/mail-arven-owner-choice.cjs');
+      const indices=owner.hand.cards.flatMap((card,index)=>
+        physicallySelectedMailTrainers.has(card)?[index]:[]);
+      const intent=chooseMailSelectedArven(
+        actorObservation(state,seat),indices);
+      const card=intent?owner.hand.cards[intent.handIndex]:null;
+      if(intent&&card?.fullName===intent.printing&&
+         card?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,intent.handIndex);
+        ownerMailArvenActions.add(action);
+        audit.arvenFromMailOffers++;
+        return action;
+      }
+    }
     const baseline=priorAi.value.call(this,state,...args);
     if(!active||state!==storeInstance?.state||
       baseline?.constructor?.name!=='PassTurnAction'||
@@ -189,24 +211,6 @@ function withBilateralOwnerMail(next,deps){
         const action=new PlayCardAction(owner.id,intent.handIndex);
         ownerHeldHandiworkActions.add(action);
         audit.handiworkFromHandOffers++;
-        return action;
-      }
-    }
-    if(followMailArven&&!prompt&&(seat===0||seat===1)&&owner){
-      const {actorObservation}=
-        require('./actor-observation-contract.cjs');
-      const {chooseMailSelectedArven}=
-        require('./agent7/mail-arven-owner-choice.cjs');
-      const indices=owner.hand.cards.flatMap((card,index)=>
-        physicallySelectedMailTrainers.has(card)?[index]:[]);
-      const intent=chooseMailSelectedArven(
-        actorObservation(state,seat),indices);
-      const card=intent?owner.hand.cards[intent.handIndex]:null;
-      if(intent&&card?.fullName===intent.printing&&
-         card?.canPlay?.(storeInstance,state,owner)===true){
-        const action=new PlayCardAction(owner.id,intent.handIndex);
-        ownerMailArvenActions.add(action);
-        audit.arvenFromMailOffers++;
         return action;
       }
     }
