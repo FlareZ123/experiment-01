@@ -78,6 +78,40 @@ test('both physical seats choose exact visible Capture donor and occupied own Ir
       .chosenEnergyName,'Capture Energy');
   }
 });
+test('both seats preserve DCE as residual two-unit Volt funding instead of discarding it',()=>{
+  for(const seat of [0,1]){
+    const v=board(seat),dce=v.moves[1],speed=v.moves[0];
+    v.owner.active.energies.cards=[dce,speed];
+    v.owner.active.cards=[{name:'Iron Thorns ex'},dce,speed];
+    const action=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+    assert.ok(action);
+    assert.strictEqual(action.chosenExactPhysicalCard,speed);
+    assert.equal(action.donorSelectionModel,'residual-active-volt-funding');
+    assert.equal(action.residualActivePayableWithThunder,true);
+    assert.equal(action.residualActivePayableWithoutThunder,false);
+    assert.equal(v.state.prompts[0].validate(action.result,v.state),true);
+    assert.equal(action.ownerSeat,seat);
+  }
+});
+test('unknown attached Energy preserves the existing generic prompt policy',()=>{
+  const v=board(0);
+  v.moves[1].name='Basic Lightning Energy';
+  const action=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+  assert.ok(action);
+  assert.strictEqual(action.chosenExactPhysicalCard,v.moves[2]);
+  assert.equal(action.donorSelectionModel,'legacy-name-priority');
+  assert.equal(action.residualActivePayableWithThunder,null);
+  assert.equal(v.state.prompts[0].validate(action.result,v.state),true);
+});
+test('three-card donor priority retains both Lightning and DCE for stadium-independent Volt',()=>{
+  for(const seat of [0,1]){
+    const v=board(seat);
+    const action=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+    assert.equal(action.chosenEnergyName,'Capture Energy');
+    assert.equal(action.donorSelectionModel,'residual-active-volt-funding');
+    assert.equal(action.residualActivePayableWithoutThunder,true);
+  }
+});
 test('no native receiver or no owner prompt delegates to original fail-closed decoder',()=>{
   const v=board(1),before=SimpleTacticsAi.prototype.decodeNextAction;
   v.owner.bench[1].getPokemonCard=()=>null;
