@@ -1,0 +1,37 @@
+{
+  "schema": "agent44-first-independent-review-case-registration-v1",
+  "status": "FROZEN_BEFORE_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-09T11:55:59.513Z",
+  "caseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "researchObjective": "One complete native original rank5 Mew Genesect versus fixed New Moon, with a digest-linked nine-object independent-review intake and explicit first missing receipt",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceOriginalRank": 5,
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourcePrintedManifest": "results/aichi-2026/full-decklists.json",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "candidatePrintedManifest": "results/aichi-2026/candidate-new-moon-lockbreaker.json",
+  "nativeRootCap": 320,
+  "preRegisteredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4410,
+      "candidateSlot": "B",
+      "seed": 3861605836,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:4410:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyBasis": "Agent8 source-controlled evolution, Quick Ball, DCE recipient, Mew combat, candidate shared Perfection and owner-only prompt wrappers; opt-in paper M4 and exact native physical target review",
+  "policyIsolation": {
+    "separatePolicyRng": true,
+    "physicalShuffleAfterSetup": true
+  },
+  "knownMissingReview": [
+    "independent complete paper rules certification",
+    "official tournament continuous clock/no-call record",
+    "independent strategy and counterplay review",
+    "authorized three-reviewer signatures"
+  ],
+  "outcomeHandling": "One attempt. Preserve any native abort or action cap, full accepted root tape and first failed receipt. Never count native result as qualified win.",
+  "externalAcceptance": false
+}
