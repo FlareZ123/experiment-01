@@ -1,0 +1,23 @@
+name: Agent35 tactical Switch actor-root and damage bound pure regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tactical-switch-pure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check pure actor-root tactical Switch and plumbed root configuration
+        run: |
+          node --check simulation/twinleaf/2026-11/agent35-tactical-switch-funded-ko.cjs
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/2026-11/agent35-tactical-switch-funded-ko.test.cjs tests/2026-11/agent35-block-switch-ko-frontier.test.cjs
