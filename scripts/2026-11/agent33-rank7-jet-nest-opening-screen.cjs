@@ -126,6 +126,17 @@ function calculateUnion() {
 }
 
 /**
+ * More plausible immediate Item families on an early locked turn before the
+ * original-source discard contains a Supporter: one Nest and two Robo.
+ * Each still requires its ordinary board/item conditions and opposing
+ * Artazon/lock state, which this pure calculation does not observe.
+ * @returns {ReturnType<typeof calculateWindow>}
+ */
+function calculateNestOrRobo() {
+  return calculateWindow(0,2);
+}
+
+/**
  * Permissive LOCATION screen for one Nest, three VS Seeker and two Robo.
  * Additional tactical payability of Robo needs an actual open Bench, and VS
  * needs an eligible Supporter in the owner's public discard; neither is
@@ -140,6 +151,7 @@ if (require.main === module) {
   const original = calculate();
   const augmented = calculateUnion();
   const allItems = calculateAllItems();
+  const nestOrRobo = calculateNestOrRobo();
   const stringify = r => ({
     ...Object.fromEntries(Object.entries(r).map(([k,v]) =>
       [k,typeof v === 'bigint' ? v.toString() : v])),
@@ -151,8 +163,10 @@ if (require.main === module) {
     jetNestOnly:stringify(original),
     jetWithNestOrVsSeeker:stringify(augmented),
     jetWithNestVsOrRobo:stringify(allItems),
+    jetWithNestOrRobo:stringify(nestOrRobo),
     competitiveQualifiedGames:0
   }, null, 2) + '\n');
 }
 module.exports = { COUNTS, choose, allocation, calculate,
-  calculateWindow, calculateUnion, calculateAllItems };
+  calculateWindow, calculateUnion, calculateAllItems,
+  calculateNestOrRobo };
