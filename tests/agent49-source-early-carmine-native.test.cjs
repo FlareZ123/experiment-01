@@ -145,3 +145,35 @@ test('late Carmine rescue executes after a canonical policy replaces the decoder
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     FakeAi.prototype,'decodeNextAction'),original);
 });
+
+
+test('native receipt fails closed when discard telemetry is absent before payment',()=>{
+  class LateDiscardStore extends FakeStore{
+    dispatch(action){
+      if(action instanceof PlayCardAction){
+        const owner=this.state.players[this.state.activePlayer];
+        owner.discard??={cards:[]};
+      }
+      return super.dispatch(action);
+    }
+  }
+  const headless={runMatch:()=>{
+    const store=new LateDiscardStore(0);
+    delete store.state.players[0].discard;
+    store.dispatch(new AddPlayerAction());
+    const chosen=new FakeAi(100,store).decodeNextAction(store.state);
+    assert.equal(chosen.constructor.name,'PlayCardAction');
+    store.dispatch(chosen);
+    return chosen;
+  }};
+  const {audit}=withSourceEarlyCarmine(()=>headless.runMatch({}),{
+    trials:[trial('B')],headless,SimpleTacticsAi:FakeAi,
+    Store:LateDiscardStore,PlayCardAction,observe:observer
+  });
+  assert.equal(audit.ownerDiscardUnavailableBefore,1);
+  assert.equal(audit.ownerDiscardUnavailableAfter,0);
+  assert.equal(audit.nativeCommitted,1);
+  assert.equal(audit.nativeEffectsComplete,0);
+  assert.equal(audit.accepted[0].ownerDiscardAvailableBefore,false);
+  assert.equal(audit.accepted[0].netDiscardChange,null);
+});
