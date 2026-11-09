@@ -37,6 +37,11 @@ on:
         required: false
         default: false
         type: boolean
+      original_held_arven:
+        description: 'Run original in-hand Arven to physical Item Tool native paired search'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -132,6 +137,15 @@ jobs:
           node --check simulation/evaluation/agent1-v8-owner-supporter-factorial-four-arm.cjs
           node --test tests/2026-11/agent1-v8-owner-supporter-factorial.test.cjs
           node simulation/evaluation/agent1-v8-owner-supporter-factorial-four-arm.cjs
+      - name: Run natural-held Arven source-search two-seat native comparison
+        if: ${{ inputs.original_held_arven }}
+        run: |
+          node --check simulation/twinleaf/agent1-owner-held-arven-choice.cjs
+          node --check simulation/twinleaf/agent38-v8-four-arm-owner-mail-native.cjs
+          node --check simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
+          node --check simulation/evaluation/agent1-v8-original-held-arven-four-arm.cjs
+          node --test tests/2026-11/agent1-owner-held-arven-choice.test.cjs tests/2026-11/agent1-v8-original-held-arven-four-arm.test.cjs
+          node simulation/evaluation/agent1-v8-original-held-arven-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
