@@ -36,10 +36,10 @@ function mimikyuPriorityHandIndex(state, player) {
  * deck remain unchanged outside this explicit experiment. The owner seat
  * check prevents opponent contamination in a two-player native match.
  *
- * @param {{seat:0|1}} options Native player's physical seat.
+ * @param {{seat:0|1,onProposed?:(event:object)=>void}} options Native owner's seat and read-only proposal observer.
  * @returns {() => void} Exact restoration callback.
  */
-function installMimikyuPriorityBasic({seat}) {
+function installMimikyuPriorityBasic({seat, onProposed}) {
   if (![0, 1].includes(seat)) throw new RangeError('Expected physical seat 0 or 1');
   if (installed) {
     if (installed.seat !== seat) {
@@ -56,6 +56,13 @@ function installMimikyuPriorityBasic({seat}) {
     if (state.players.indexOf(player) === seat) {
       const i = mimikyuPriorityHandIndex(state, player);
       if (i >= 0) {
+        if (onProposed) onProposed({
+          turn: state.turn, seat, handIndex: i,
+          ownerHandNames: player.hand.cards.map(card => card.fullName),
+          opponentBoardNames: state.players.filter(p => p.id !== player.id)
+            .flatMap(p => [p.active, ...p.bench])
+            .map(slot => slot.getPokemonCard()?.fullName).filter(Boolean)
+        });
         const empty = player.bench.find(slot => slot.cards.length === 0);
         return new PlayCardAction(player.id, i, this.getCardTarget(player, state, empty));
       }
