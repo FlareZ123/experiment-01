@@ -62,12 +62,16 @@ the two seats. That version offers exactly one native owner prompt regardless
 of whether all six Prize printings are identical, and still verifies
 the retrospective physical selection difference.
 
-An additional prospective [run 42556501447](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447)
-adds two Rulebook §E **promotion-asymmetric draws**: the first player to
-exhaust Prizes cannot promote an Active, while the other recipient can.
-Each arm must resolve the actual native owner Prize prompt and then
-**correct the native winner to DRAW**, with one final draw log.
-This extension is pending native validation at this revision.
+The expanded [run 42556501447](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447)
+**SUCCEEDED**, 9 November 2026 ~03:29 UTC, with **eight v5 cases**:
+the six owner-prompt selection/pool combinations plus two
+Rulebook §E **promotion-asymmetric draws**. In the latter, the first player
+to exhaust Prizes cannot promote an Active, while the other recipient can.
+Both native cases resolve the other player's genuine Prize prompt and
+**correct the premature winner to DRAW**, with one final draw log.
+The unchanged v3/v4 native regressions in the same job also passed.
+Machine-readable output is retained in [artifact 13647413426](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447/artifacts/13647413426),
+SHA-256 `e31eeca6c101b5baa1f7371ea7d02d24a32c19ee0faf2592282a8dea18c4f71e`.
 
 ## Unsolved limits
 
