@@ -1,0 +1,85 @@
+{
+  "schema": "agent42-rank5-gengar-flexible-v2-vs-v1-two-seed-bothseat-aba-v1",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_ATTEMPT",
+  "registeredAtUtc": "2026-11-09T15:31:23.674Z",
+  "caseId": "agent42-gengar-flexible-v2-native-v1-rank5-original-mew-20261109",
+  "originalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedTrialsBeforeRegistration": 0,
+  "seedSource": "actual Python secrets.randbits(32), 2026-11-09T15:30:58Z, two draws; new relative to all prior 4410/8101-04/8201-04",
+  "seeds": [
+    713904609,
+    3424394811
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8301,
+      "seed": 713904609,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8301:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8301,
+      "seed": 713904609,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8301:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8302,
+      "seed": 3424394811,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8302:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8302,
+      "seed": 3424394811,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8302:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "commonSourcePolicy": {
+    "actorBilateralLillieAfterPass": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorGenesectFusionDrawPerCopyPublicUsage": true
+  },
+  "modes": [
+    {
+      "id": "A-gengar-v1-narrow-lele",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": true,
+      "bilateralGengarFlexibleV2": false,
+      "bilateralGengarHorrorHouseMinOpponentHandCount": 6
+    },
+    {
+      "id": "B-gengar-v2-flexible-telepath",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": false,
+      "bilateralGengarFlexibleV2": true,
+      "bilateralGengarHorrorHouseMinOpponentHandCount": 6
+    },
+    {
+      "id": "A-gengar-v1-repeat",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": true,
+      "bilateralGengarFlexibleV2": false,
+      "bilateralGengarHorrorHouseMinOpponentHandCount": 6
+    }
+  ],
+  "objective": "Prospectively test existing v2 Gengar owner-public funding for arbitrary Basic Active and Telepath Psychic versus v1 Tapu Lele only under genuine source Genesect draw, unchanged printed sixties",
+  "candidateSeatAllocation": "Every seed plays both physical seats; A/B/A same actual initial physical deal",
+  "registeredPhysicalContexts": 4,
+  "expectedNativeAttempts": 12,
+  "nativeRootCap": 320,
+  "qualification": "Owner-only actor and native Store development only; no full paper competitive certification",
+  "successCriterion": "Observe native-positive funded Gengar/Skyliner mobility, Horror House or Poltergeist with responsive original Mew source; retain zero/censor"
+}
