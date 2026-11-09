@@ -157,6 +157,12 @@ function run(){
   const result={schema:VERSION,registrationPath:REGPATH,registrationSha256,
     enginePin:PIN,sourceManifestSha256,contenderManifestSha256,
     sameFixedCandidate60AcrossAllGames:true,allOriginalSource60Unchanged:true,
+    ...(process.env.AGENT44_RANGER_LINK_REPLAY==='true'?{
+      originalProspectiveRunId:42610256883,
+      experimentPhase:'same-deal-mechanical-evidence-replay-not-new-sample',
+      reparativeChange:'exact-Pokémon-Ranger-to-Pokemon-Ranger-STS-target-ordinal-link',
+      noNewCompetitiveSample:true
+    }:{experimentPhase:'first-frozen-prospective-attempt'}),
     summary,rows,rawDevelopment:data,
     competitiveQualifiedGames:0,finalDeckSelection:'none'};
   return result;
