@@ -14,10 +14,12 @@ const {VERSION:RESCUE_VERSION}=
   require('../../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
-const RESCUE=process.env.AGENT17_RANK2_DECKOUT_RESCUE==='true';
-const OUTPUT=path.join(ROOT,RESCUE?
-  'agent17-rank2-anti-deckout-native.json':
-  'agent21-rank2-original-long-native.json');
+const PRE_ATTACK=process.env.AGENT17_RANK2_PRE_ATTACK_RESCUE==='true';
+const RESCUE=PRE_ATTACK||process.env.AGENT17_RANK2_DECKOUT_RESCUE==='true';
+const OUTPUT=path.join(ROOT,PRE_ATTACK?
+  'agent17-rank2-pre-attack-rescue-native.json':RESCUE?
+    'agent17-rank2-anti-deckout-native.json':
+    'agent21-rank2-original-long-native.json');
 const ROOT_LIMIT=Number(process.env.AGENT21_RANK2_ROOT_CAP??640);
 assert.ok(Number.isSafeInteger(ROOT_LIMIT)&&ROOT_LIMIT>=260&&
   ROOT_LIMIT<=640,'Rank2 extended developmental root cap must be 260–640');
@@ -46,6 +48,7 @@ function replay(target,seat,candidateId){
   const {result,audit}=withPaperSemanticsProfileV1(()=>runDevelopment({
     ...frozen.policyOptions,...COMMON,
     actorDeckoutRescueRoot:RESCUE,
+    actorDeckoutRescueBeforeAttack:PRE_ATTACK,
     registeredTrials:[t],
     registeredFrameName:'agent21-rank2-original-cap'+ROOT_LIMIT,
     registeredCandidateDecks:{
@@ -67,6 +70,8 @@ function replay(target,seat,candidateId){
     assert.ok(rescueAudit,'Active actor must expose the actual rescue hook');
     assert.ok(rescueAudit.passRootsObserved>0,
       'Rescue policy wrapper was inactive on every genuine Store Pass root');
+    if(PRE_ATTACK)assert.ok(rescueAudit.attackRootsObserved>0,
+      'Pre-attack rescue was not exposed to any real native attack');
   }
   assert.equal(row.trial.id,t.id);
   assert.equal(row.sourceDealFingerprint,target.sourceDigest,
@@ -85,6 +90,7 @@ function replay(target,seat,candidateId){
     rootCap:ROOT_LIMIT,
     sourceOriginalFirst260RootSha:rootShaByArm[seat+':'+candidateId],
     antiDeckoutRescueEnabled:RESCUE,
+    antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     antiDeckoutRescueVersion:RESCUE?RESCUE_VERSION:null,
     antiDeckoutRescueNativeAudit:rescueAudit,
     first260RootSha:first260Sha,originalFirst260RootsReplayed:
@@ -129,10 +135,12 @@ function main(){
     assert.equal(pair.length,2);
     assert.equal(pair[0].sourceDealFingerprint,pair[1].sourceDealFingerprint);
   }
-  const output={schema:RESCUE?
-    'agent17-rank2-original-control-deckout-rescue-development-v1':
-    'agent21-rank2-original-control-horizon-v1',
+  const output={schema:PRE_ATTACK?
+    'agent17-rank2-control-pre-attack-shuffle-development-v1':RESCUE?
+      'agent17-rank2-original-control-deckout-rescue-development-v1':
+      'agent21-rank2-original-control-horizon-v1',
     antiDeckoutRescueEnabled:RESCUE,
+    antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     changedDevelopmentPolicy:RESCUE?RESCUE_VERSION:null,
     registeredOriginalSource:'Agent3 run42578010606 original rank2 two seeds, both candidate 60s',
     originalSeedsReused:true,
@@ -144,9 +152,11 @@ function main(){
       'Retrospective horizon sensitivity only. No change to original 116-game prospective trial. Does not certify opponents, clock, or Japanese paper semantics.',
     rows};
   archive(output);
-  process.stdout.write((RESCUE?'AGENT17_RANK2_DECKOUT_RESCUE ':
-    'AGENT21_RANK2_ORIGINAL_HORIZON ')+JSON.stringify({
+  process.stdout.write((PRE_ATTACK?'AGENT17_RANK2_PRE_ATTACK_RESCUE ':
+    RESCUE?'AGENT17_RANK2_DECKOUT_RESCUE ':
+      'AGENT21_RANK2_ORIGINAL_HORIZON ')+JSON.stringify({
     antiDeckoutRescueEnabled:RESCUE,
+    antiDeckoutRescueBeforeAttack:PRE_ATTACK,
     nativeRootCap:ROOT_LIMIT,sourceDealPairsMatched:true,
     rows:rows.map(({trial,roots,status,finished,nativeCandidateOutcome,
       finalPrizes,turns,originalFirst260RootsReplayed,error})=>({
@@ -157,7 +167,11 @@ function main(){
       rescueAcceptedRoots:rows.find(x=>
         x.trial.candidateId===trial.candidateId&&
         x.trial.candidateSlot===trial.candidateSlot)
-          ?.antiDeckoutRescueNativeAudit?.acceptedRoots??null
+          ?.antiDeckoutRescueNativeAudit?.acceptedRoots??null,
+      seenAttackOpportunities:rows.find(x=>
+        x.trial.candidateId===trial.candidateId&&
+        x.trial.candidateSlot===trial.candidateSlot)
+          ?.antiDeckoutRescueNativeAudit?.attackRootsObserved??null
     })),paperQualifiedCompetitiveGames:0})+'\n');
   return output;
 }
