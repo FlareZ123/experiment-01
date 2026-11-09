@@ -212,3 +212,39 @@ test('unfunded or disqualified Active Copycat falls through without Apex priorit
   view.publicEventReceipt.opponentCopycatChoices=[];
   assert.equal(choose(),null);
 });
+
+test('Dimension Valley enables a one-Psychic Copycat under safe Stadiums',()=>{
+  const {view,catalog}=fixture();
+  const recipient=view.ownPublic.bench[0];
+  recipient.energies=[E];
+  view.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.equal(chooseFundedMimikyuApexPromotion(view,catalog)?.kind,
+    'paid-retreat');
+  view.ownPublic.active.energies=[];
+  assert.equal(chooseFundedMimikyuApexPromotion(view,catalog),null);
+  view.ownPublic.active.tools=['Float Stone BKT'];
+  assert.equal(chooseFundedMimikyuApexPromotion(view,catalog)?.paymentMode,
+    'float-stone-free');
+  view.ownPublic.active=view.ownPublic.bench[0];
+  view.ownPublic.bench[0]=null;
+  const intent=chooseActorRootIntent(view,catalog,{
+    mimikyuApexFundedPromotion:true
+  });
+  assert.equal(intent?.attackName,'Copycat');
+});
+
+test('Sky Field does not suppress the real two-Psychic Retreat payment',()=>{
+  const {view,catalog}=fixture();
+  view.ownPublic.stadium=['Sky Field ROS'];
+  const selected=chooseFundedMimikyuApexPromotion(view,catalog);
+  assert.equal(selected?.paymentMode,'two-unit-basic-paid');
+  assert.deepEqual(selected.predictedPaymentIndices,[0,1]);
+});
+
+test('unrecognized retreat-modifying Stadium fails closed',()=>{
+  const {view,catalog}=fixture();
+  view.opponentPublic.stadium=['Galar Mine RCL'];
+  assert.equal(chooseFundedMimikyuApexPromotion(view,catalog),null);
+  view.ownPublic.active.tools=['Float Stone BKT'];
+  assert.equal(chooseFundedMimikyuApexPromotion(view,catalog),null);
+});
