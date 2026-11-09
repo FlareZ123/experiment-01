@@ -281,7 +281,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   };
   const runActor = () => {
     if(!handDiscard)return runOwnerDonor();
-    const selected=handDiscard(runOwnerDonor);
+    const selected=options.ownerMewUltraBallDiscardSeat!==undefined?
+      handDiscard(runOwnerDonor,{
+        choose:input=>require('../twinleaf/agent37/mew-ultraball-evolution.cjs')
+          .chooseMewUltraBallPayment(
+            input,options.ownerMewUltraBallDiscardSeat)
+      }):handDiscard(runOwnerDonor);
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Actor hand-discard adapter must expose an audit');
     handDiscardAudit=selected.audit;
