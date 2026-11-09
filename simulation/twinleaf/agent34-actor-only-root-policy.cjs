@@ -149,6 +149,11 @@ function buildActorCardCatalog(all,types){
 function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
+  if(options.rank7FabaJetBridge===true){
+    const first=require('./2026-11/agent40-faba-jet-owner-bridge.cjs')
+      .chooseFabaJetHoodRoot(view);
+    if(first)return first;
+  }
   const garbodorResponseOwnerSeat=options.garbodorResponseOwnerSeat??null;
   const naturalEvolutionOwnerSeat=
     options.naturalEvolutionRootOwnerSeat??garbodorResponseOwnerSeat;
@@ -805,6 +810,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
     if(beach)return beach;
   }
+  if(options.rank7FabaJetBridge===true){
+    const follow=require('./2026-11/agent40-faba-jet-owner-bridge.cjs')
+      .choosePostJetNestRoot(view);
+    if(follow)return follow;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -869,6 +879,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const ownerEarlyCompressorPending=new Map();
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
+  const typedRank7BridgeReplies=new WeakMap();
+  const ownerRank7BridgePending=new Map();
   const pendingFarewellBySeat=new Map();
   const pendingGenesectBySeat=new Map();
   // A once-per-turn conservative cap for the proposed native Genesect Ability
@@ -977,6 +989,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     pathSafeSkyFieldReplacementOptIn:deps.pathSafeSkyFieldReplacement===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
+    rank7FabaJetBridgeOptIn:deps.rank7FabaJetBridge===true,
+    rank7FabaJetBridgePromptsSelected:0,
+    rank7FabaJetBridgePromptsAccepted:0,
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
       (process.env.AGENT40_BUNNELBY_TM_JET_DEV==='true'),
     busLockPositionRootOptIn:deps.busLockPositionRoot??
@@ -1375,6 +1390,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
+  if(audit.rank7FabaJetBridgeOptIn){
+    assert.equal(audit.jetBenchSwitchRootOptIn,true,
+      'Faba/Nest root bridge requires explicit Jet Bench switch root');
+    audit.version+='+'+
+      require('./2026-11/agent40-faba-jet-owner-bridge.cjs').VERSION;
+  }
   if(audit.bunnelbyTmJetRootOptIn)
     audit.version+='+'+
       require('./agent40-owner-bunnelby-tm-jet-line.cjs').VERSION;
@@ -1503,6 +1524,30 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(!pending&&state.phase!==engineGamePhase().PLAYER_TURN){
       audit.nonTurnPhaseFallbacks++;
       return original.value.call(this,state);
+    }
+    if(seat!==-1&&pending&&audit.rank7FabaJetBridgeOptIn&&
+       pending.playerId===playerId&&ownerRank7BridgePending.has(playerId)){
+      const token=ownerRank7BridgePending.get(playerId);
+      assert.equal(token.promptId,pending.id,
+        'rank7 Faba/Nest response must match real owner pending prompt');
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const bridge=require('./2026-11/agent40-faba-jet-owner-bridge.cjs');
+      const promptView=observe(state,seat);
+      const proposal=token.kind==='faba'?
+        bridge.chooseFabaJetHoodPrompt(promptView,pending,state,
+          {PlayerType,SlotType}):
+        bridge.choosePostJetNestSearchPrompt(
+          promptView,pending,state.players[seat].deck,
+          ['Snorlax PGO','Wobbuffet PHF','Regirock XYP',
+            'Mimikyu PAL','Electrike PRC','Girafarig LOT']);
+      assert.ok(proposal,'Selected rank7 owner prompt must have a legal public response');
+      const action=new ResolvePromptAction(pending.id,proposal.answer);
+      typedRank7BridgeReplies.set(action,{
+        ownerId:playerId,seat,kind:proposal.kind,
+        printing:proposal.printing??null});
+      audit.rank7FabaJetBridgePromptsSelected++;
+      return action;
     }
     if(seat!==-1&&pending&&
        (audit.seekerLillieRootOptIn||audit.seekerResearchRootOptIn||
@@ -1771,6 +1816,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       printedScalingBasicKoBeforeAttack:audit.printedScalingBasicKoBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
+      rank7FabaJetBridge:audit.rank7FabaJetBridgeOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
       busLockPositionRoot:audit.busLockPositionRootOptIn,
       ownRegisteredSixty:deps.ownRegisteredSixtiesBySeat?.[seat]??null,
@@ -2064,6 +2110,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
+      case 'play-faba-jet-hood':
+      case 'play-nest-after-jet':
       case 'play-plumeria-payment-menu':
       case 'play-held-guzma-mobility':
       case 'play-guzma-forced-nominal-ko':
@@ -2184,6 +2232,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
       pendingFarewellBySeat.clear();
       pendingGenesectBySeat.clear();
+      ownerRank7BridgePending.clear();
       genesectDrawUsedTurnBySeat.clear();
     }
     if(this===nativeStore&&
@@ -2262,6 +2311,34 @@ function withActorOnlyRootPolicy(run,deps={}){
       ownerEarlyCompressorPending.delete(compressorReply.ownerId);
       audit.earlyRegidragoCompressorPromptsAccepted++;
       audit.earlyRegidragoCompressorDonorsMoved+=donors.length;
+      return result;
+    }
+    const rank7Reply=this===nativeStore?
+      typedRank7BridgeReplies.get(action):undefined;
+    if(rank7Reply){
+      const token=ownerRank7BridgePending.get(rank7Reply.ownerId);
+      assert.ok(token&&token.seat===rank7Reply.seat,
+        'rank7 Faba/Nest prompt token must be source-owned');
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      audit.rank7FabaJetBridgePromptsAccepted++;
+      const waiting=this.state.prompts?.find(p=>p.result===undefined);
+      if(rank7Reply.kind==='faba-select-tool'){
+        assert.equal(waiting?.type,'Choose pokemon');
+        token.promptId=waiting.id;
+        token.stage='pokemon';
+      }else if(rank7Reply.kind==='faba-target-hooded-vileplume'){
+        const opponent=this.state.players[1-rank7Reply.seat];
+        assert.ok(opponent.lostzone.cards.some(c=>
+          c.fullName.startsWith('Stealthy Hood ')),
+          'Faba must place actual opposing Hood in own Lost Zone');
+        ownerRank7BridgePending.delete(rank7Reply.ownerId);
+      }else if(rank7Reply.kind==='nest-select-actual-owner-deck-basic'){
+        const owner=this.state.players[rank7Reply.seat];
+        assert.ok(owner.bench.some(slot=>
+          slot.getPokemonCard()?.fullName===rank7Reply.printing),
+          'Authenticated Nest Ball must physically Bench selected source Basic');
+        ownerRank7BridgePending.delete(rank7Reply.ownerId);
+      }else throw new Error('Unexpected rank7 owner prompt '+rank7Reply.kind);
       return result;
     }
     const eriReply=this===nativeStore?typedEriReplies.get(action):undefined;
@@ -2357,6 +2434,24 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.copycatHistoryRoot.historyOverrides++;
       }else{
         result=beforeDispatch.value.apply(this,[action,...args]);
+      }
+      if(choice.kind==='play-faba-jet-hood'||choice.kind==='play-nest-after-jet'){
+        const owner=this.state.players[choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        const expected=choice.kind==='play-faba-jet-hood'?
+          'Select':'Choose cards';
+        assert.ok(owner&&pending&&pending.playerId===owner.id&&
+          pending.type===expected,
+          'Accepted rank7 Faba/Nest root must expose a real owner prompt');
+        if(choice.kind==='play-nest-after-jet')
+          assert.equal(pending.cards,owner.deck,
+            'Nest Ball must grant actual owner-deck search entitlement');
+        assert.ok(!ownerRank7BridgePending.has(owner.id),
+          'Do not overlap protected Faba/Nest owner prompt chains');
+        ownerRank7BridgePending.set(owner.id,{
+          seat:choice.seat,promptId:pending.id,
+          kind:choice.kind==='play-faba-jet-hood'?'faba':'nest',
+          stage:choice.kind==='play-faba-jet-hood'?'choice':'search'});
       }
       if(choice.kind==='play-eri-reveal'){
         const owner=this.state.players[choice.seat];
