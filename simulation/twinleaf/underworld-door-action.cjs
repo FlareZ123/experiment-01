@@ -10,7 +10,7 @@ const { installToolJammerHook } = require('./tool-jammer-hook.cjs');
  * announce PowerEffect, resolve its Energy-attachment prompt and verify both
  * attachment and the two-card draw. Full-turn setup rules are outside scope.
  *
- * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean,observeOwnerBeforePower?:Function,manualActiveEnergyIfV3Veto?:boolean}} options
+ * @param {{hood:boolean,jammer:boolean,active:boolean,sourceTool?:string,garbodorPrint?:'BKP'|'LTR',garbodorTool?:boolean,stadium?:string,wobbuffetActive?:boolean,actingSeat?:boolean,observeOwnerBeforePower?:Function,manualActiveEnergyIfV3Veto?:boolean,heldHoodBeforePower?:boolean,payHeldHoodBeforePower?:boolean}} options
  * @returns {{allowed:boolean, attached:number, drawn:number, handCount:number}}
  */
 function underworldDoorAction(options) {
@@ -76,6 +76,13 @@ function underworldDoorAction(options) {
   }
   const psychic = get('Psychic Energy SVE');
   player.hand.cards.push(psychic);
+  let heldHood=null;
+  if(options.heldHoodBeforePower){
+    assert.equal(options.hood,false,
+      'Physical held Hood test must begin with the Bench Tool slot free');
+    heldHood=get('Stealthy Hood UNB');
+    player.hand.cards.push(heldHood);
+  }
   player.deck.cards.push(get('Psychic Energy SVE'), get('Psychic Energy SVE'));
   const initialDeck = player.deck.cards.length;
 
@@ -110,6 +117,34 @@ function underworldDoorAction(options) {
     } finally {
       state.phase = priorPhase;
     }
+  }
+
+  let hoodPayment=null;
+  if(options.payHeldHoodBeforePower){
+    assert.equal(options.actingSeat,true,'Only genuine actor can pay Hood');
+    assert.ok(heldHood,'Real in-hand Hood is required');
+    state.phase=GamePhase.PLAYER_TURN;
+    state.activePlayer=1;
+    state.turn=2;
+    const {PlayCardAction}=engine('game/store/actions/play-card-action');
+    const handIndex=player.hand.cards.indexOf(heldHood);
+    const previousHand=player.hand.cards.length;
+    const settled=store.dispatch(new PlayCardAction(player.id,handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    const owner=settled.players.find(item=>item.id===player.id);
+    assert.ok(owner,'Native action must settle in the genuine owner state');
+    hoodPayment={
+      actualPhysicalToolAttached:owner.bench[0].tools.includes(heldHood),
+      actualPhysicalToolLeavesHand:!owner.hand.cards.includes(heldHood),
+      handBefore:previousHand,
+      handAfter:owner.hand.cards.length,
+      sourceBenchToolCount:owner.bench[0].tools.length,
+      pendingPrompts:settled.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)
+    };
+    assert.equal(hoodPayment.actualPhysicalToolAttached,true);
+    assert.equal(hoodPayment.actualPhysicalToolLeavesHand,true);
   }
 
   const promptsBeforeUnderworld = state.prompts.filter(
@@ -166,7 +201,7 @@ function underworldDoorAction(options) {
     return {allowed:false,powerListed,
       blockedReason:'policy-veto-without-announcing-underworld',
       blockedStack:null,attached:0,drawn:0,
-      handCount:player.hand.cards.length,manualFallback};
+      handCount:player.hand.cards.length,manualFallback,...(hoodPayment?{hoodPayment}:{})};
   }
 
   let allowed = true;
@@ -186,7 +221,7 @@ function underworldDoorAction(options) {
       state.prompts.filter(p => p.result === undefined).map(p => p.id),
       promptsBeforeUnderworld,
       'Blocked Underworld must not create additional unresolved prompts');
-    return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length, ...(manualFallback?{manualFallback}:{}) };
+    return { allowed, powerListed, blockedReason, blockedStack, attached: 0, drawn: 0, handCount: player.hand.cards.length, ...(manualFallback?{manualFallback}:{}), ...(hoodPayment?{hoodPayment}:{}) };
   }
 
   const pending = state.prompts.find(p => p.result === undefined);
@@ -200,7 +235,8 @@ function underworldDoorAction(options) {
     powerListed,
     attached: target.energies.cards.filter(c => c.name === 'Psychic Energy').length,
     drawn: initialDeck - player.deck.cards.length,
-    handCount: player.hand.cards.length
+    handCount: player.hand.cards.length,
+    ...(hoodPayment?{hoodPayment}:{})
   };
 }
 
