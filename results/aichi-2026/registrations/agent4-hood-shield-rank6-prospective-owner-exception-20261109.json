@@ -1,0 +1,161 @@
+{
+  "schema": "agent4-hood-vs-rank6-prospective-owner-exception-v1",
+  "registeredUtc": "2026-11-09T05:36:28Z",
+  "experimentKind": "fixed-60-Hood-Shield-v1-unchanged-A-B-actor-policy",
+  "dataStatus": "preregistered-before-running-native; no match outcomes viewed for these seeds",
+  "sourceRank": 6,
+  "sourceArchetype": "Iron Thorns",
+  "candidateId": "hood-shield-v1",
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "candidateRoster": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateRosterGitBlob": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baselinePolicy": "existing shared owner Thorns conservative abstention",
+  "intervention": "agent4-hood-protected-underworld-thorns-owner-v1",
+  "onlyDifference": "default-off Hood-protected owner root exception",
+  "nativeRootCap": 180,
+  "independentSeedDraws": [
+    1244190459,
+    137004489,
+    4269135571,
+    2911917048,
+    1001712540,
+    147389702,
+    2460651455,
+    2542665834
+  ],
+  "totalUniquePhysicalDealGroups": 16,
+  "nativeAttempts": 32,
+  "controlsAndTreatmentEachUseSame16Trials": true,
+  "benchmarkQualification": "no competitive paper games anticipated or certified",
+  "trialRows": [
+    {
+      "id": "6:860:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 860,
+      "candidateSlot": "A",
+      "seed": 1244190459,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:861:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 861,
+      "candidateSlot": "B",
+      "seed": 1244190459,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:862:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 862,
+      "candidateSlot": "A",
+      "seed": 137004489,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:863:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 863,
+      "candidateSlot": "B",
+      "seed": 137004489,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:864:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 864,
+      "candidateSlot": "A",
+      "seed": 4269135571,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:865:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 865,
+      "candidateSlot": "B",
+      "seed": 4269135571,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:866:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 866,
+      "candidateSlot": "A",
+      "seed": 2911917048,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:867:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 867,
+      "candidateSlot": "B",
+      "seed": 2911917048,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:868:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 868,
+      "candidateSlot": "A",
+      "seed": 1001712540,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:869:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 869,
+      "candidateSlot": "B",
+      "seed": 1001712540,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:870:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 870,
+      "candidateSlot": "A",
+      "seed": 147389702,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:871:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 871,
+      "candidateSlot": "B",
+      "seed": 147389702,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:872:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 872,
+      "candidateSlot": "A",
+      "seed": 2460651455,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:873:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 873,
+      "candidateSlot": "B",
+      "seed": 2460651455,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:874:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 874,
+      "candidateSlot": "A",
+      "seed": 2542665834,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:875:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 875,
+      "candidateSlot": "B",
+      "seed": 2542665834,
+      "candidateId": "hood-shield-v1"
+    }
+  ]
+}
