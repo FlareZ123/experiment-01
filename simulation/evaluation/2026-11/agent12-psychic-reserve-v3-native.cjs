@@ -102,13 +102,13 @@ function run(){
   const comparison=compare(batches[0],batches[1],reg);
   const result={
     schema:reg.schema,registered:reg,
-    armDescriptions:{v1:'Common shared Mimikyu policy with one Basic Psychic and Player's Ceremony',
-      v2:'Same shared policy with 2 Basic Psychic and no Player's Ceremony'},
+    armDescriptions:{v1:"Shared Mimikyu policy with one Basic Psychic and Player's Ceremony",
+      v3:"Same shared policy with two Basic Psychic and no Player's Ceremony"},
     enginePin:PINNED_TWINLEAF,revision:process.env.GITHUB_SHA??null,
     pilotEnvEnabledIdenticallyBothArms:true,
     correctionAudits:audits,
     comparison,actualNativeRuns:batches,competitivelyQualifiedGames:0,
-    caveat:'Proposals are not Store entitlements. Opponent Pass under Temple is not an attributed attack veto without counterfactual legal action.'
+    caveat:'Native Store acceptance and selective printed payment receipts do not qualify paper legality, strategy or the official event clock.'
   };
   archive(result);
   process.stdout.write('AGENT12_PSYCHIC_RESERVE '+JSON.stringify({
