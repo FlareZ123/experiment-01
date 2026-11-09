@@ -16,13 +16,14 @@ const OUTPUT=path.resolve(__dirname,
  * @returns {object} Every native attempt, including caps and errors.
  */
 function runRetrospective({preservePayableAttack=false,
-  preferMewGenesectSearch=false}={}){
+  preferMewGenesectSearch=false,ownerSingleSearch=false}={}){
   assert.equal(typeof preservePayableAttack,'boolean');
   assert.equal(typeof preferMewGenesectSearch,'boolean');
+  assert.equal(typeof ownerSingleSearch,'boolean');
   const result=run({quickBallScope:'source',actorHandDiscard:true,
     sourceQuickBallPreservePayableAttack:preservePayableAttack,
     sourceMewGenesectQuickBallSearch:preferMewGenesectSearch,
-    sourceMewGenesectQuickBallSearch:preferMewGenesectSearch});
+    sourceOwnerSingleSearch:ownerSingleSearch});
   assert.equal(result.requestedNativeAttempts,8);
   assert.equal(result.comparison.length,4);
   assert.equal(result.competitiveQualifiedGames,0);
@@ -30,6 +31,8 @@ function runRetrospective({preservePayableAttack=false,
     ...result,
     experiment:preferMewGenesectSearch?
       'agent37-rank5-source-quickball-mew-genesect-search-retrospective-v3':
+      ownerSingleSearch?
+        'agent37-rank5-source-quickball-generic-owner-search-retrospective-v4':
       preservePayableAttack?
         'agent37-rank5-source-quickball-discard-preserve-attack-retrospective-v2':
         'agent37-rank5-source-quickball-discard-retrospective-v1',
@@ -38,6 +41,8 @@ function runRetrospective({preservePayableAttack=false,
     sourceQuickBallRoot:true,
     sourceActorHandDiscard:true,
     sourceQuickBallPreservePayableAttack:preservePayableAttack,
+    sourceMewGenesectQuickBallSearch:preferMewGenesectSearch,
+    sourceOwnerSingleSearch:ownerSingleSearch,
     independentlyProspective:false,
     competitiveQualifiedGames:0,
     certifiedWinRate:null
@@ -64,7 +69,9 @@ if(require.main===module){
     preservePayableAttack:
       process.env.AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV==='true',
     preferMewGenesectSearch:
-      process.env.AGENT37_QUICKBALL_MEW_SEARCH_DEV==='true'
+      process.env.AGENT37_QUICKBALL_MEW_SEARCH_DEV==='true',
+    ownerSingleSearch:
+      process.env.AGENT37_QUICKBALL_GENERIC_SEARCH_DEV==='true'
   });
   saveAtomic(OUTPUT,result);
   process.stdout.write(JSON.stringify({
