@@ -8,13 +8,18 @@ on:
         required: false
         type: boolean
         default: false
+      agent45_quickball_owner_retro:
+        description: 'Replay original rank5 native Quick Ball owner payment failure'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hood-champion-paperprofile:
-    if: ${{ !inputs.agent45_source_funding_rank5 }}
+    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -49,7 +54,7 @@ jobs:
           retention-days: 21
 
   rank5-source-funded-two-contenders:
-    if: ${{ inputs.agent45_source_funding_rank5 }}
+    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro }}
     runs-on: ubuntu-latest
     timeout-minutes: 26
     steps:
@@ -82,5 +87,42 @@ jobs:
         with:
           name: agent45-source-funded-hood-champion-rank5-24-native
           path: artifacts/agent45-rank5-funded-hood-champion-24native.json
+          retention-days: 21
+          if-no-files-found: warn
+
+  quickball-owner-retrospective:
+    if: ${{ inputs.agent45_quickball_owner_retro }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify source-printed Quick Ball physical owner resolver
+        run: |
+          node --check simulation/evaluation/2026-11/agent45-rank5-quickball-owner-4500a-retro.cjs
+          node --test tests/2026-11/agent45-quickball-owner-payment-prompt.test.cjs
+          node simulation/evaluation/2026-11/agent45-rank5-quickball-owner-4500a-retro.cjs --inspect-only
+      - name: Install pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay two source-physically matched prior 4500A errors
+        env:
+          AGENT4_NATIVE_PAYMENT_RECEIPT_DEV: 'true'
+        run: node simulation/evaluation/2026-11/agent45-rank5-quickball-owner-4500a-retro.cjs
+      - name: Preserve complete repaired-or-broken native roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent45-rank5-4500a-quickball-owner-retro
+          path: artifacts/agent45-rank5-4500a-quickball-owner-retro.json
           retention-days: 21
           if-no-files-found: warn
