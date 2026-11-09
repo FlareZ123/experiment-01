@@ -25,8 +25,25 @@ The existing canonical shuffle Supporter fallback only permits hands of three or
 
 **Limits:** native root acceptance does not independently certify post-prompt paper effects. Champion A ended as a native winner with both Prize totals [6,6], so its win is not from Prize completion. Turns 93 and 146 far exceed realistic Aichi match clocks. No independently verified clock, full paper game, strong opponent policy, or competitive qualifier exists. `competitiveGameQualified=false` for all four rows. The original full29 Hood-versus-champion sharp native interval [-9,+13] remains unchanged.
 
-## Next actionable mechanism
+## Follow-up: pre-attack rescue converts last Hood B loss
 
-Hood B still loses at turn67 despite having taken four Prizes. The last candidate turn includes an attack rather than a Pass, so the current post-Pass rescue cannot fire before it. A separately opt-in **pre-attack shuffle** can intervene before that chosen attack on the same turn, allowing the bot to attack later if the Supporter resolves and requirements remain met. Test the exact original source deals under the same native policy, preserving the original archive untouched.
+The previously unrescued Hood B original source game reaches turn65 with a **35-card owner hand, zero cards remaining in the owner deck, a held `Iono PAL`, three Prizes remaining, and a payable `Max Geist` attack**. It chooses the attack and later loses when it has no card to draw at the start of turn67. Waiting for a Pass will never offer the shuffle in this state.
 
-Code: [owner-only chooser](../../../simulation/twinleaf/2026-11/agent17-deckout-rescue-selector.cjs), [pure tests](../../../tests/2026-11/agent17-deckout-rescue-selector.test.cjs), [nested actor](../../../simulation/evaluation/agent7-canonical-actor-composition.cjs), [rank2 replay](../../../simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs). Default off.
+An additional default-off native adapter option now inspects `AttackAction` as well as `PassTurnAction` using the same owner-only observation and printed shuffle calculation. When a prospective attack would advance the turn toward deckout, it first plays the legal held shuffle Supporter. After genuine Store acceptance and resolution, the native bot may choose its attack again during the same turn; both action types and card payments remain Store-authoritative.
+
+[Pre-attack test CI 42588881375](https://github.com/FlareZ123/experiment-01/actions/runs/42588881375) with [raw native artifact 13660845727](https://github.com/FlareZ123/experiment-01/actions/runs/42588881375/artifacts/13660845727), exact same rank2 physical seed pairs and both frozen 60s:
+
+| Original candidate | Pass-only rescue | Pass-plus-pre-attack rescue |
+| --- | --- | --- |
+| Champion A | Candidate native win turn146/root565, 2 Supporters | Same native win, 2 Supporters |
+| Hood A | Candidate native win turn93/root410, 1 Supporter | Same native win, 1 Supporter |
+| Champion B | Unresolved at root640, 2 Supporters | Same unresolved cap, 2 Supporters |
+| **Hood B** | **Source native win turn67/root313; no rescues** | **Candidate native win turn69/root328, Prizes [6,0]** |
+
+**Hood B's causal root:** `Iono PAL` accepted by genuine Store at turn65, action ordinal **303**; it was proposed immediately before an available `Max Geist`. Owner hand 35, deck zero, Prizes three. Printed Iono draws three and shuffles 34 cards from its owner hand back into its deck, yielding a projected 31-card deck. The bot then declared `Max Geist` at ordinal **306** on that **same turn**. It also attacked at turns67 and69, taking the final Prize. The original first260 root-action SHA256 remains **bit-identical**, so the changed action enters after the historical frozen cutoff. No change to the original source deck printing, source physical deal, or candidate deck occurred.
+
+The native adapter audit recorded 185 AttackAction opportunities across the four trials (71+37+58+19), with **one genuine accepted pre-attack Supporter intervention** on the previously losing Hood B path, plus the same five after-Pass rescue actions in the other three trials. Eleven selector tests and four pre-attack adapter tests passed in the same CI before the real four-arm replay.
+
+This materially identifies a **turn-order policy defect**: an attack can be strategically correct this turn while a held shuffle Supporter must be played *before* that attack to avoid mandatory-draw defeat at the start of the next turn. It is actionable in a general native owner-only policy. It does **not** prove a 99.5% paper Expanded win rate. All four games are retrospective; the clock of turn69 remains implausibly long, the simulator still has unsupported/uncertified paper behavior, and no full Top32 field result changes.
+
+Files: [native adapter](../../../simulation/twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs), [owner-only chooser](../../../simulation/twinleaf/2026-11/agent17-deckout-rescue-selector.cjs), [new pre-attack tests](../../../tests/2026-11/agent17-before-attack-deckout-native.test.cjs), [source-matched replay](../../../simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs). Opt-in is `pre_attack_deckout_shuffles` on the existing manual [native CI workflow](../../../.github/workflows/agent21-rank2-long-control-native.yml); historical default is unchanged.
