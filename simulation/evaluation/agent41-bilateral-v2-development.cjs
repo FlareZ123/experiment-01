@@ -1420,6 +1420,7 @@ function runDevelopment({
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorGenesectFusionDrawSourceOnly=false,
   actorUnderworldDoorRoot=false,
+  actorPathUnderworldStadiumCounter=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
@@ -1604,6 +1605,9 @@ function runDevelopment({
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
     'Underworld Door must use the same actor-only policy in both seats');
+  assert.ok(!actorPathUnderworldStadiumCounter||
+    (actorUnderworldDoorRoot&&actorOnlyComposition),
+    'Path Stadium recovery requires the same owner-marked Underworld root in both seats');
   assert.ok(!actorUnderworldActiveFundingPriority||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Active Psychic priority requires symmetric Underworld root');
@@ -1956,6 +1960,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldDoorRoot?{
                 underworldDoorRoot:true
+              }:{}),
+              ...(actorPathUnderworldStadiumCounter?{
+                pathUnderworldStadiumCounter:true
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
