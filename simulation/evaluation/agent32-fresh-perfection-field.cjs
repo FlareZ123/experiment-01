@@ -86,10 +86,6 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
       }),
       layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
       registeredTrialIds:expected,
-      // Existing selected-runner contract supports one explicit preregistered
-      // game when invoked through a concrete native runner. Enable solely
-      // for targeted, frozen-deal diagnostics; default cohort unchanged.
-      allowSingleRegisteredTrial:extra.allowSingleRegisteredTrial===true,
       nativeRootActionLimit:rootLimit
     });
     return selected;
