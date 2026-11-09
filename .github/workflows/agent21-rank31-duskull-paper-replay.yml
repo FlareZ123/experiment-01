@@ -44,3 +44,14 @@ jobs:
           path: agent21-rank31-duskull-native-replay.json
           retention-days: 21
           if-no-files-found: warn
+
+      - name: Retrospective original rank5 first-ineffective-pass Lillie policy fork
+        run: node simulation/evaluation/2026-11/agent21-rank5-lillie-pass-counterfactual.cjs
+      - name: Archive first native rank5 candidate-response fork and full physical receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-first-native-rank5-lillie-pass-fork
+          path: artifacts/agent21-rank5-lillie-pass-counterfactual.json
+          retention-days: 21
+          if-no-files-found: warn
