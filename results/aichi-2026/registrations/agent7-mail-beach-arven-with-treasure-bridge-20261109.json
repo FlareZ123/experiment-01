@@ -1,0 +1,32 @@
+{
+  "schema": "agent7-rank3-native-mail-beach-arven-with-treasure-bridge-registration-v1",
+  "registeredAtUtc": "2026-11-09T00:23:13.488Z",
+  "source": "Original authenticated rank3 Snorlax 60 versus rank13 Regidrago 60, both physical source orientations and previously exposed seed 290134",
+  "priorFrozenNativeNegative": "Run42539148070: control/treatment fully settled Mail-selected Arven + Beach on first original source seat1 turn1; both arms aborted with owner-info raw-State quarantine after 17/14 accepted roots before next own turn; no Arven activated. Run42539516659 repeated unchanged root abort with exact code.",
+  "target": "Reuse already native-tested first-turn rank13 Mysterious Treasure owner-root and true prompt response as common control and experimental setting, to continue the rank3 owner turn and determine if physical Mail-selected Arven can be played and search one Item plus Tool on later real turn.",
+  "reference": "results/methodology/2026-11/agent49-original-rank13-treasure-payment-physical-native-20261108.md",
+  "sharedControl": {
+    "ownerMailFollowupFrame": true,
+    "firstEligibleMail": true,
+    "earlyBeach": true,
+    "mysteriousTreasureRoot": true,
+    "followMailArven": false
+  },
+  "treatment": {
+    "ownerMailFollowupFrame": true,
+    "firstEligibleMail": true,
+    "earlyBeach": true,
+    "mysteriousTreasureRoot": true,
+    "followMailArven": true
+  },
+  "oneFixedOriginalSeed": 290134,
+  "trialIds": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "nativeCap": 128,
+  "printIdentityAndRules": "Original May 2026 published name/count 60s unchanged, Japanese printing admission remains provisional; pinned Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "primaryAcceptance": "Same exact original source seat first-cycle native Mail -> Beach, then source's later native Store-accepted Arven from real Mail-selected physical object, original owner deck Item+Tool both physically added to acting hand through true prompt; source remains alive after earlier rank13 native owner Treasure prompt.",
+  "negativeAcceptance": "Fail CI on no Arven activation, native error or missing physical two-category search; retain all failed original seat roots as diagnostic evidence.",
+  "qualification": "Retrospective developmental policy test. No win-rate or competitive-game certification."
+}
