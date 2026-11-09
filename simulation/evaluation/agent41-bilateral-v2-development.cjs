@@ -1419,6 +1419,7 @@ function runDevelopment({
   actorMewGenesectTechnoBlastSourceOnly=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorDceMewMobilitySourceOnly=false,
+  actorMewDceRecipientRoot=false,actorMewDceRecipientSourceOnly=false,
   actorGenesectFusionDrawRoot=false,
   actorGenesectFusionDrawSourceOnly=false,
   actorGenesectFusionDrawPerCopyPublicUsage=false,
@@ -1563,6 +1564,8 @@ function runDevelopment({
     'Source-only evolution requires the native actor evolution root');
   assert.ok(!actorDceMewMobilitySourceOnly||actorDceMewMobilityRoot,
     'Source-only DCE Mew mobility requires the actor mobility root');
+  assert.ok(!actorMewDceRecipientSourceOnly||actorMewDceRecipientRoot,
+    'Source-only Mew DCE funding requires the owner recipient root');
   assert.ok(!actorMewGenesectTechnoBlastSourceOnly||actorMewGenesectTechnoBlast,
     'Source-only Mew copy priority requires the owner attack chooser');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
@@ -1910,7 +1913,8 @@ function runDevelopment({
           !sourceScopedStrandedMarnieRoot&&
           !sourceScopedDialgaShredT53&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
-          !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
+          !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
+          !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
           !actorGenericFundedFloatStoneRoot&&
@@ -1972,6 +1976,13 @@ function runDevelopment({
               ...(actorNaturalEvolutionSourceOnly?{
                 naturalEvolutionRootOwnerSeat:
                   1-(trial.candidateSlot==='A'?0:1)
+              }:{}),
+              ...(actorMewDceRecipientRoot?{
+                mewDceRecipientRoot:true,
+                ...(actorMewDceRecipientSourceOnly?{
+                  mewDceRecipientRootOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(actorDceMewMobilityRoot?{
                 dceMewMobilityRoot:true,
@@ -2531,6 +2542,8 @@ function runDevelopment({
       actorOnlyComposition&&actorMewGenesectTechnoBlast,
     actorMewGenesectTechnoBlastSourceOnly:
       actorOnlyComposition&&actorMewGenesectTechnoBlastSourceOnly,
+    actorMewDceRecipientSourceOnly:
+      actorOnlyComposition&&actorMewDceRecipientSourceOnly,
     actorMewMaxMiracleOverSelfCopyOptIn:
       actorOnlyComposition&&actorMewMaxMiracleOverSelfCopy,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
