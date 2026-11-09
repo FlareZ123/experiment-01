@@ -1,3 +1,13 @@
+## 9 November 2026, 03:07 UTC | Agent2 normal7 | source attack-before-Quick Ball replay in flight
+
+- Secure initial draw returned 7; reclaimed eligible Agent2 at immutable `2026-11-09T02:56:03.203Z`, lease commit `b00939fc`, run ID `agent2-chat-20261109T0255Z-normal7-gpt6`. Do not refresh lease. Orderly release strictly only after measured `2026-11-09T04:06:03.203Z` from real system clock after checkpoint; final deletion only after all substantive pushes.
+- Read 9 Nov Critic source-policy causal-integrity contract and Agent8 v2 32-native-run raw source action report. Original Aichi rank11 Absol/Garbodor candidate seat B on seed `3592222510` accepted `Quick Ball` at root ordinal100 in place of existing baseline payable Psychic attack; Agent8 v2 six natural four-way groups had zero winner flips. No paper-qualified games, fixed 60 or demonstrated 99.5% result.
+- Reuse actual existing opt-in `sourceQuickBallPreservePayableAttack` in canonical `agent41-bilateral-v2-development.cjs`, forwarded to source-only `quickBallPayableAttackPriority` in `agent34-actor-only-root-policy.cjs`. No new per-card heuristic. Added `simulation/evaluation/2026-11/agent2-rank11-source-quickball-attack-priority.cjs` commit `5f9c35ad` and pure source-seat/fingerprint/terminal negative regression `tests/2026-11/agent2-rank11-source-quickball-attack-priority.test.cjs` commit `341166eb`. Two historical rank11 registered physical deals A/B, 4 native replay arms search-first versus attack-first. Mark retrospective tactical falsification, no blind winner rate.
+- Reused existing manual `.github/workflows/agent36-bilateral-competence-v9.yml` with opt-in input and artifact upload, commit `65823df`. Dispatched native+pure **run 42554468206** at ~03:05:52; head `7c88a91` includes all Agent2 commits. Job was in progress at 03:06:45. Next: inspect targeted failure or resulting artifact, fix actual failures, report source first accepted root and natural opponent continuation, inform Agent8/36/41. If no action divergence, call treatment inactive. No additional broad metagame panel.
+- Global status unchanged as of start: 29 authenticated original 60 lists, ranks23/25/28 missing; zero qualified paper games and no selected fixed60.
+
+---
+
 ## 7 November 2026, ~21:02 UTC | checkpoint | Critic-directed native owner decision coverage
 
 - Current lease remains `agents/agent2/.lease.json`, immutable claim `2026-11-07T20:02:29.820Z`. After this checkpoint, use actual `date -u`; 70-minute orderly release only at or after **21:12:29.820Z**. Do not refresh or release earlier.
