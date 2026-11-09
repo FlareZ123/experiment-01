@@ -500,6 +500,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseFirstRegidragoBenchGrass(view,catalog);
     if(funding)return funding;
   }
+  if(options.retreatFundingBridge===true){
+    const bridge=require('./2026-11/agent2-retreat-funding-bridge.cjs')
+      .chooseRetreatFundingBridge(view,catalog);
+    if(bridge)return bridge;
+  }
   if(options.perfectionBenchFunding===true&&own.active&&!r.energyPlayLocked&&
     r.energyPlayedTurn!==view.globalTurn){
     const funding=require('./agent24-early-perfection-recipient.cjs')
@@ -1079,6 +1084,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureMuscleBandPayment===true,
     firstRegidragoBenchGrassOptIn:
       deps.firstRegidragoBenchGrass===true,
+    retreatFundingBridgeOptIn:deps.retreatFundingBridge===true,
+    retreatFundingBridgeAttachmentsSelected:0,
+    retreatFundingBridgeRetreatsSelected:0,
     firstCrispinSeekerRecoveryOptIn:
       deps.firstCrispinSeekerRecovery===true,
     earlyRegidragoCompressorOptIn:
@@ -1475,6 +1483,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.firstRegidragoBenchGrassOptIn)
     audit.version+='+'+
       require('./agent49/first-turn-regidrago-bench-funding.cjs').VERSION;
+  if(audit.retreatFundingBridgeOptIn)
+    audit.version+='+'+
+      require('./2026-11/agent2-retreat-funding-bridge.cjs').VERSION;
   if(audit.firstCrispinSeekerRecoveryOptIn)
     audit.version+='+'+
       require('./agent49/first-turn-crispin-seeker-recovery.cjs').VERSION;
@@ -1926,6 +1937,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureMuscleBandPayment:
         audit.mysteriousTreasureMuscleBandPaymentOptIn,
       firstRegidragoBenchGrass:audit.firstRegidragoBenchGrassOptIn,
+      retreatFundingBridge:audit.retreatFundingBridgeOptIn,
       firstCrispinSeekerRecovery:audit.firstCrispinSeekerRecoveryOptIn,
       earlyRegidragoCompressor:audit.earlyRegidragoCompressorOptIn,
       mysteriousTreasureEarlyRegistered:
@@ -2139,6 +2151,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.source==='agent31-zero-energy-strand-to-funded-ko-v1')
       audit.zeroEnergyStrandFloatStoneRootSelected++;
+    if(intent.source==='agent2-one-basic-retreat-funding-bridge-v1'){
+      if(intent.kind==='attach-basic-energy')
+        audit.retreatFundingBridgeAttachmentsSelected++;
+      if(intent.kind==='paid-retreat')
+        audit.retreatFundingBridgeRetreatsSelected++;
+    }
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v1')
       audit.twoUnitPaidRetreatRootSelected++;
     if(intent.source==='agent42-owner-two-unit-paid-retreat-v2'){
