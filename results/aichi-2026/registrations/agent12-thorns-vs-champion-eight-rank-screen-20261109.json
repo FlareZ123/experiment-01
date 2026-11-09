@@ -1,0 +1,443 @@
+{
+  "schema": "agent12-fixed60-iron-thorns-vs-champion-eight-original-ranks-prospective-v1",
+  "registeredUTC": "2026-11-09T09:32:05Z",
+  "status": "FROZEN BEFORE ANY NATIVE GAME",
+  "scope": "Japanese Extra Aichi Open League 2026 original printed card-name/count 60s, developmental pinned English-equivalent Store",
+  "sourceRanks": [
+    1,
+    2,
+    5,
+    6,
+    11,
+    13,
+    24,
+    31
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "rank6-iron-thorns-fixed60"
+  ],
+  "sourceGroupCount": 16,
+  "expectedNativeAttempts": 32,
+  "groups": [
+    {
+      "rank": 1,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 3604236275
+    },
+    {
+      "rank": 1,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 1295712274
+    },
+    {
+      "rank": 2,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 2329489933
+    },
+    {
+      "rank": 2,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 528727634
+    },
+    {
+      "rank": 5,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 2354731361
+    },
+    {
+      "rank": 5,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 3868887019
+    },
+    {
+      "rank": 6,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 3130701718
+    },
+    {
+      "rank": 6,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 2835106197
+    },
+    {
+      "rank": 11,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 450375579
+    },
+    {
+      "rank": 11,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 2723042023
+    },
+    {
+      "rank": 13,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 2733784740
+    },
+    {
+      "rank": 13,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 796096641
+    },
+    {
+      "rank": 24,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 2757369357
+    },
+    {
+      "rank": 24,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 3218569387
+    },
+    {
+      "rank": 31,
+      "repeat": 9012,
+      "candidateSlot": "A",
+      "seed": 1247775681
+    },
+    {
+      "rank": 31,
+      "repeat": 9012,
+      "candidateSlot": "B",
+      "seed": 3246661615
+    }
+  ],
+  "batches": [
+    {
+      "candidateId": "champion-reference",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 3604236275,
+          "candidateId": "champion-reference",
+          "id": "1:9012:A:champion-reference"
+        },
+        {
+          "rank": 1,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 1295712274,
+          "candidateId": "champion-reference",
+          "id": "1:9012:B:champion-reference"
+        },
+        {
+          "rank": 2,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2329489933,
+          "candidateId": "champion-reference",
+          "id": "2:9012:A:champion-reference"
+        },
+        {
+          "rank": 2,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 528727634,
+          "candidateId": "champion-reference",
+          "id": "2:9012:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2354731361,
+          "candidateId": "champion-reference",
+          "id": "5:9012:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3868887019,
+          "candidateId": "champion-reference",
+          "id": "5:9012:B:champion-reference"
+        },
+        {
+          "rank": 6,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 3130701718,
+          "candidateId": "champion-reference",
+          "id": "6:9012:A:champion-reference"
+        },
+        {
+          "rank": 6,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 2835106197,
+          "candidateId": "champion-reference",
+          "id": "6:9012:B:champion-reference"
+        },
+        {
+          "rank": 11,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 450375579,
+          "candidateId": "champion-reference",
+          "id": "11:9012:A:champion-reference"
+        },
+        {
+          "rank": 11,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 2723042023,
+          "candidateId": "champion-reference",
+          "id": "11:9012:B:champion-reference"
+        },
+        {
+          "rank": 13,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2733784740,
+          "candidateId": "champion-reference",
+          "id": "13:9012:A:champion-reference"
+        },
+        {
+          "rank": 13,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 796096641,
+          "candidateId": "champion-reference",
+          "id": "13:9012:B:champion-reference"
+        },
+        {
+          "rank": 24,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2757369357,
+          "candidateId": "champion-reference",
+          "id": "24:9012:A:champion-reference"
+        },
+        {
+          "rank": 24,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3218569387,
+          "candidateId": "champion-reference",
+          "id": "24:9012:B:champion-reference"
+        },
+        {
+          "rank": 31,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 1247775681,
+          "candidateId": "champion-reference",
+          "id": "31:9012:A:champion-reference"
+        },
+        {
+          "rank": 31,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3246661615,
+          "candidateId": "champion-reference",
+          "id": "31:9012:B:champion-reference"
+        }
+      ]
+    },
+    {
+      "candidateId": "rank6-iron-thorns-fixed60",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 3604236275,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "1:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 1,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 1295712274,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "1:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 2,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2329489933,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "2:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 2,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 528727634,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "2:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 5,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2354731361,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "5:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 5,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3868887019,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "5:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 3130701718,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 2835106197,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 11,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 450375579,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "11:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 11,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 2723042023,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "11:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 13,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2733784740,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "13:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 13,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 796096641,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "13:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 2757369357,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3218569387,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9012:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 31,
+          "repeat": 9012,
+          "candidateSlot": "A",
+          "seed": 1247775681,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "31:9012:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 31,
+          "repeat": 9012,
+          "candidateSlot": "B",
+          "seed": 3246661615,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "31:9012:B:rank6-iron-thorns-fixed60"
+        }
+      ]
+    }
+  ],
+  "candidatePrintSources": {
+    "champion-reference": "results/aichi-2026/full-decklists.json original rank1",
+    "rank6-iron-thorns-fixed60": "results/aichi-2026/full-decklists.json original rank6"
+  },
+  "rootCap": 260,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenSourceAndPolicyGitBlobs": [
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "abdaacdaa8493555e773070b45f9461d2ad1583f"
+    },
+    {
+      "path": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+      "blob": "a79e7977cb224928068968934bbcfa9c9410e20a"
+    },
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blob": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    }
+  ],
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneTargetTurn": null,
+    "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
+    "actorSeekerGuzmaOwnerSeat": null,
+    "actorSeekerGuzmaGlobalTurn": null
+  },
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "requireFullSourceDealPair": true,
+  "unmatchedPairDisposition": "exclude-from-comparative-paired-inference",
+  "nativeCapAndErrors": "censored-never-score-as-loss-or-win",
+  "noRetrospectiveSeedSelection": true,
+  "competitivePaperQualifiedGames": 0,
+  "claim99Point5Demonstrated": false,
+  "analysisPlan": "All registered rows retained. Native paired winner difference only for original-source matched and double-terminal groups. Report sharp bounds for source-matched incomplete groups and distinct errors, plus setup/pass/attacks for Iron Thorns candidate. Do not extend this small field subset to all 32."
+}
