@@ -19,13 +19,20 @@ const native = name => require(path.join(OUT, name));
 const JET = 'Jet Energy PAL';
 const WOBB = 'Wobbuffet PHF';
 
-/** @param {object} owner */
+/**
+ * Native PokemonCardList.cards and .energies.cards are overlapping views
+ * of the same attached physical object. Collapse overlays WITHIN each
+ * Pokemon slot only, leaving cross-slot duplication detectable by id.
+ * @param {object} owner
+ * @returns {object[]}
+ */
 function physical(owner) {
+  const cardsInSlot = slot => [...new Map([
+    ...slot.cards, ...slot.energies.cards, ...slot.tools
+  ].map(card => [card.id, card])).values()];
   return [
-    ...owner.active.cards, ...owner.active.energies.cards, ...owner.active.tools,
-    ...owner.bench.flatMap(slot => [
-      ...slot.cards, ...slot.energies.cards, ...slot.tools
-    ]),
+    ...cardsInSlot(owner.active),
+    ...owner.bench.flatMap(cardsInSlot),
     ...owner.hand.cards, ...owner.deck.cards, ...owner.discard.cards,
     ...owner.lostzone.cards, ...owner.stadium.cards, ...owner.supporter.cards,
     ...owner.prizes.flatMap(slot => slot.cards)
@@ -42,31 +49,7 @@ function assertExactSixties(x) {
   assert.equal(original.length, 60);
   for (const owner of [x.originalPlayer, x.candidatePlayer]) {
     const cards = physical(owner);
-    const ids = new Map();
-    for (const [zone, objects] of [
-      ['active.cards', owner.active.cards],
-      ['active.energy', owner.active.energies.cards],
-      ['active.tools', owner.active.tools],
-      ...owner.bench.flatMap((b, i) => [
-        ['bench'+i+'.cards', b.cards],
-        ['bench'+i+'.energy', b.energies.cards],
-        ['bench'+i+'.tools', b.tools]
-      ]),
-      ['hand', owner.hand.cards], ['deck', owner.deck.cards],
-      ['discard', owner.discard.cards],
-      ['lostzone', owner.lostzone.cards],
-      ['stadium', owner.stadium.cards], ['supporter', owner.supporter.cards],
-      ...owner.prizes.map((p, i) => ['prize'+i, p.cards])
-    ]) {
-      for (const card of objects) {
-        const row = ids.get(card.id) ?? {name:card.fullName, zones:[]};
-        row.zones.push(zone);
-        ids.set(card.id, row);
-      }
-    }
-    const duplicates = [...ids.entries()].filter(([, row]) => row.zones.length>1);
-    assert.equal(cards.length, 60, 'Lost or duplicated physical card: '+
-      JSON.stringify({unique:ids.size,duplicates}));
+    assert.equal(cards.length, 60, 'Physical-card ledger must equal sixty');
     assert.equal(new Set(cards.map(c => c.id)).size, 60,
       'A physical card appears in multiple zones');
   }
