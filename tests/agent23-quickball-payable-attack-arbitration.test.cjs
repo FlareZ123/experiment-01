@@ -25,7 +25,7 @@ function actorView(funded=true){
       energyPlayLocked:false,specialEnergyPlayLocked:false,
       energyPlayedTurn:8},
     ownPublic:{
-      active:{name:'Absol',printing:'Absol TEU',
+      active:{name:'Oranguru V',printing:'Oranguru V ASR',
         energies:funded?['Psychic Energy MEE']:[],
         attacks:[{name:'Psychic',cost:[5],gxAttack:false}],
         specialConditions:[],publicRestrictions:{}},
