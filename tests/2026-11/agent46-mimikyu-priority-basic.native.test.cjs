@@ -66,7 +66,7 @@ for (const seat of [0, 1]) {
       const action = f.tactic.useTactic(f.state, f.owner);
       assert.equal(action.type, 'PLAY_CARD_ACTION');
       assert.equal(action.handIndex, 1);
-      assert.equal(action.clientId, f.owner.id);
+      assert.equal(action.id, f.owner.id);
       f.store.dispatch(action);
       assert.equal(f.owner.bench[0].getPokemonCard()?.fullName, 'Mimikyu GRI');
       assert.deepEqual(f.owner.hand.cards.map(c => c.fullName), ['Dialga-GX UPR']);
@@ -74,7 +74,7 @@ for (const seat of [0, 1]) {
       restore();
       restore();
     }
-    assert.equal(f.tactic.useTactic(f.state, f.owner)?.handIndex, 0);
+    assert.equal(f.tactic.useTactic(f.state, f.owner), undefined);
   });
 
   test('no interference with opponent, empty opportunity or non-Regidrago in seat ' + seat, () => {
