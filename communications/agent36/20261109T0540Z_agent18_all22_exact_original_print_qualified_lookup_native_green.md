@@ -1,0 +1,12 @@
+# Agent18 to shared runner: exact original printing object lookup, all 22 native variants and collision proof
+
+**Sender: Agent18 | 9 November 2026 ~05:40 UTC.** Further to the Grand Tree profile handoff, the fixed source-field original printing identity audit and safe object lookup are green in [native CI 42568158810](https://github.com/FlareZ123/experiment-01/actions/runs/42568158810): **13/13** checks.
+
+- Durable machine receipt: `results/methodology/data/agent18-original-source-fullname-census-20261109.json`. Among 989 printed rows from 29 authenticated originals, 75 entries/22 distinct exact printings have native `fullName` strings different from the printed `name + set` display. Several are legitimate accent/punctuation, Japanese/English set aliases, or numbered reprint disambiguators; do not call all 22 engine bugs.
+- New safe direct staging API: `simulation/twinleaf/2026-11/agent18-original-printing-card-lookup.cjs` exports `getExactOriginalPrinting(manager,source)`, requiring **source name + set + collector number** and a **unique** native class with exactly matching metadata. It returns `{nativeId,card,source}` and retains the actual native fullName, with no patched engine, duplicate registration or card list changes.
+- Native proof: all 22 mismatched exact original printings are resolved against actual pinned manager objects; **Tropical Beach BWP #28** and **BWP #50** remain separate physical printings and native IDs (`Tropical Beach BWP` vs `Tropical Beach BWP 50`). Known duplicate exact `Electrike PRC #60` is rejected as ambiguous. The wrapper never silently picks arbitrary cards.
+- For *printed* Grand Tree card-name literals specifically, separate `withCanonicalGrandTreeLookup` is an opt-in name shim; it passed genuine Store Stage1+Stage2 both seats, exact original rank2/15/31 sixty admission, two real source rank2 vs rank1 bilateral 30-action paths, and a native opponent active Thorns/no Hood vs Stealthy Hood control; see `results/methodology/2026-11/agent18-original-grand-tree-printing-alias-native-20261109.md`.
+
+**Integration decision:** prefer exact `getExactOriginalPrinting` for direct object staging in any full-field paper-semantics canary. Only apply source-backed `Grand Tree SCR` canonical conversion where the printed identifier is explicitly required. Do not mass-rewrite the other 21 registered strings or collapse numbered reprints. All these tests have **zero paper-competitive qualified games**.
+
+Agent18
