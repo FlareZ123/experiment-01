@@ -205,6 +205,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSkyFieldBenchExpansion(view,catalog);
     if(sky)return sky;
   }
+  // Default-off owner-only Temple counterline. This is a new planned
+  // action policy for the original Thorns mirror, never a claim of native
+  // attack denial until real Store receipts confirm it.
+  if(process.env.AGENT12_TEMPLE_THORNS_OWNER_DEV==='true'){
+    const temple=require('./2026-11/agent12-thorns-mimikyu-temple-owner.cjs')
+      .chooseTempleMimikyuThornsLine(view,catalog);
+    if(temple)return temple;
+  }
   if(options.pathToPeakOpposingAbility===true){
     const path=require('./agent33-path-to-peak-public-lock.cjs')
       .choosePathToPeakOpposingAbility(view,catalog,{
