@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent13_native_attack_tape_pair:
+        description: 'Historical fixed 50703 actual Store postgame attack observer off/on, never competitive'
+        required: false
+        type: boolean
+        default: false
       agent13_actor_attack_source_positive:
         description: 'One historical rank11 real Store printed copied Attack response, unqualified'
         required: false
@@ -65,6 +70,19 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify actual Store copied attack observer with the historical same deal
+        if: inputs.agent13_native_attack_tape_pair
+        run: |
+          node --test tests/2026-11/agent13-postgame-attack-modality-ledger.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs
+          node simulation/evaluation/2026-11/agent13-native-attack-tape-noninterference.cjs
+      - name: Archive actual Store observer-on/off native root and physical invariance
+        if: inputs.agent13_native_attack_tape_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-native-postgame-attack-tape-pair-50703
+          path: artifacts/agent13-native-attack-tape-noninterference-50703.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify bilateral adapter RNG and paid-retreat activation receipts
         run: node --test tests/agent41-bilateral-v2-development.test.cjs tests/agent42-two-psychic-retreat-physical-custody-v2.test.cjs
       - name: Test actor-only native option prompt choices
