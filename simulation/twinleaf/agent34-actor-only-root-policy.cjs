@@ -267,7 +267,7 @@ function chooseActorRootIntent(view,catalog,options={}){
        .publicSkylinerSuppressionReason(view)===null){
     const skyliner=require('./agent2-owner-skyliner-funded-bench-frontier.cjs')
       .chooseOwnerSkylinerFundedBenchRetreat(view,catalog);
-    if(skyliner)return skyliner;
+    if(skyliner)return {...skyliner,printing:skyliner.pokemon};
   }
   // General funded-KO Item mobility is a separate opt-in counterfactual.
   // It considers the actual enemy Active and preserves an already payable
