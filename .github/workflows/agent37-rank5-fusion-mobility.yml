@@ -69,6 +69,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_mew_source_mail_afterpass:
+        description: Run prospective original Mew source Mail after Pass owner native 16-game comparison
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -98,7 +103,7 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 && !inputs.agent37_mew_quickball_payment }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 && !inputs.agent37_mew_quickball_payment && !inputs.agent37_mew_source_mail_afterpass }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
@@ -253,6 +258,23 @@ jobs:
         with:
           name: agent37-mew-quickball-resource-payment-16arm
           path: agent37-rank5-mew-quickball-resource-payment-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Check frozen Mew source Mail after Pass native registration
+        if: ${{ inputs.agent37_mew_source_mail_afterpass }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent37-rank5-mew-source-mail-afterpass-native.cjs
+          node --test tests/agent9-owner-mail-after-pass-planner.test.cjs tests/agent37-mew-ultraball-evolution.test.cjs
+          node simulation/evaluation/2026-11/agent37-rank5-mew-source-mail-afterpass-native.cjs --inspect-only
+      - name: Run 16 paired native original Mew owner Mail source policy arms
+        if: ${{ inputs.agent37_mew_source_mail_afterpass }}
+        run: node simulation/evaluation/2026-11/agent37-rank5-mew-source-mail-afterpass-native.cjs
+      - name: Archive source Mew Mail after Pass complete 16-game audit
+        if: ${{ always() && inputs.agent37_mew_source_mail_afterpass }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-mew-source-mail-afterpass-16arm
+          path: agent37-rank5-mew-source-mail-afterpass-16arm.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate default-off Mew donor choice and bilateral policy forwarding
