@@ -152,10 +152,16 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,preferSinglePrizeNestBasic?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,followHeldArven?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,preferSinglePrizeNestBasic?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,followHeldArven?:boolean,captureRootTape?:boolean,nativeRootCap?:number}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
+  const nativeRootCap = settings.nativeRootCap ?? ROOT_LIMIT;
+  assert.ok(nativeRootCap===ROOT_LIMIT || nativeRootCap===520,
+    'Extended native root cap must be preregistered as 520');
+  const nativeFrameName = nativeRootCap===ROOT_LIMIT?
+    REGISTRATION.registeredFrameName:
+    REGISTRATION.registeredFrameName+'-extended-520root';
   const energyRecipient = settings.energyRecipient === true;
   const ownerMailAfterPass = settings.ownerMailAfterPass === true;
   const followMailNestBall = settings.followMailNestBall === true;
@@ -222,9 +228,10 @@ function run(settings = {}) {
         bilateralSpecialEnergyRoot: true,
         bilateralBasicEnergyRecipientFrontier: energyRecipient,
         nativeAcceptedTargets: true,
-        nativeRootActionLimit: ROOT_LIMIT,
+        nativeRootActionLimit: nativeRootCap,
+        allowExtendedRegisteredNativeRootCap: nativeRootCap>ROOT_LIMIT,
         registeredTrials: registeredTrials.map(t => ({...t})),
-        registeredFrameName: REGISTRATION.registeredFrameName,
+        registeredFrameName: nativeFrameName,
         allowAdditionalOriginalSourceRanks: true,
         allowSingleCandidatePerGroup: true,
         capturePublicAttackTransitions: true,
@@ -274,7 +281,7 @@ function run(settings = {}) {
       },
       layers: {firstBlockedPromptEnvelope: withStewardOwnerPromptFrontier},
       registeredTrialIds: registeredTrials.map(t => t.id),
-      nativeRootActionLimit: ROOT_LIMIT
+      nativeRootActionLimit: nativeRootCap
     });
     return selectedResult;
   });
@@ -342,9 +349,9 @@ function run(settings = {}) {
   });
   return {
     schema: VERSION,
-    originalFrameName: REGISTRATION.registeredFrameName,
+    originalFrameName: nativeFrameName,
     exactOriginalTrialIds: registeredTrials.map(t => t.id),
-    preservedNativeRootCap: ROOT_LIMIT,
+    preservedNativeRootCap: nativeRootCap,
     changedDecisions: ownerMailAfterPass ? null : false,
     observedPromptEvents: trace.events.length,
     observedRootActions: trace.roots.length,
