@@ -62,6 +62,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_opponent_damage_aware_v14:
+        description: 'Incremental real native opponent Dark Weakness and Prize-aware source Escape Rope choice versus v13 highest-HP control'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -243,6 +248,19 @@ jobs:
         with:
           name: agent29-rank9-rope-opponent-survival-v13
           path: agent29-rank9-rope-opponent-survival-v13.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Original rank9 opponent actual Weakness and Prize defensive Rope prompt v14
+        if: ${{ inputs.rank9_source_opponent_damage_aware_v14 }}
+        env:
+          AGENT29_RANK9_ROPE_DAMAGE_AWARE_V14: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-opponent-damage-aware-v14.json
+      - name: Preserve native opponent Weakness/Prize choices and true source Claw sequences
+        if: ${{ always() && inputs.rank9_source_opponent_damage_aware_v14 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-opponent-damage-aware-v14
+          path: agent29-rank9-opponent-damage-aware-v14.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
