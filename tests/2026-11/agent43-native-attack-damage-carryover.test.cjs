@@ -96,3 +96,45 @@ test('native two-player source/candidate summaries remain separate and unqualifi
   assert.equal(result.totalCandidateTwoHitLinks,2);
   assert.equal(result.competitiveGameQualified,false);
 });
+
+test('actual defending seat Pass roots are reported as policy-dependent exposure',()=>{
+  const first=attack(139,0,210,3,3),last=attack(153,210,null,3,0);
+  const roots=[
+    {actionOrdinal:139,turnBefore:22,playerSlot:0,action:'AttackAction'},
+    {actionOrdinal:144,turnBefore:23,playerSlot:1,action:'PassTurnAction'},
+    {actionOrdinal:147,turnBefore:24,playerSlot:0,action:'PassTurnAction'},
+    {actionOrdinal:150,turnBefore:25,playerSlot:1,action:'PassTurnAction'},
+    {actionOrdinal:153,turnBefore:26,playerSlot:0,action:'AttackAction'}
+  ];
+  const row={trial:{id:'actual-shape'},sourceSeat:0,candidateSeat:1,
+    sourceAttackSettlement:{attacks:[first,last]},
+    candidateAttackSettlement:{attacks:[]},
+    rootActionLedger:roots};
+  const result=inspectNativeGameCarryover(row);
+  const observed=result.source.candidateTwoHitLinks[0];
+  assert.equal(observed.defenderPassedWithoutMaterialAction,true);
+  assert.equal(observed.interveningDefenderMaterialActionCount,0);
+  assert.deepEqual(observed.interveningDefenderRootActions.map(x=>x.ordinal),[144,150]);
+  assert.equal(observed.defenderCounterplayOptionsIndependentlyReviewed,false);
+});
+
+test('actual defender evolution action prevents passive-opponent characterization',()=>{
+  const first=attack(85,0,110,4,4),last=attack(93,110,null,4,2);
+  const roots=[
+    {actionOrdinal:85,turnBefore:11,playerSlot:0,action:'AttackAction'},
+    {actionOrdinal:89,turnBefore:12,playerSlot:1,
+      action:'PlayCardAction',card:'Mew VMAX'},
+    {actionOrdinal:90,turnBefore:12,playerSlot:1,action:'PassTurnAction'},
+    {actionOrdinal:93,turnBefore:13,playerSlot:0,action:'AttackAction'}
+  ];
+  const row={trial:{id:'active-reply'},sourceSeat:0,candidateSeat:1,
+    sourceAttackSettlement:{attacks:[first,last]},
+    candidateAttackSettlement:{attacks:[]},
+    rootActionLedger:roots};
+  const result=inspectNativeGameCarryover(row);
+  const observed=result.source.candidateTwoHitLinks[0];
+  assert.equal(observed.defenderPassedWithoutMaterialAction,false);
+  assert.equal(observed.interveningDefenderMaterialActionCount,1);
+  assert.equal(observed.interveningDefenderRootActions[0].card,'Mew VMAX');
+  assert.equal(observed.defenderCounterplayOptionsIndependentlyReviewed,false);
+});
