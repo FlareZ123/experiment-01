@@ -16,7 +16,7 @@ const {classifyNativeAttempt}=
   require('../agent41-native-attempt-disposition.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
-const VERSION='agent3-hood-v2-flexible-retreat-native-v1';
+const VERSION='agent3-hood-v2-flexible-paid-retreat-native-v1';
 const OUT=process.env.AGENT3_FLEXIBLE_RETREAT_OUTPUT??
   path.join(ROOT,'artifacts/agent3-hood-v2-flexible-retreat.json');
 const PROFILE_FLAGS=Object.freeze({
