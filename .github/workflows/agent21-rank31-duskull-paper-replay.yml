@@ -66,3 +66,16 @@ jobs:
           path: artifacts/agent21-rank5-fog-energy-counterfactual.json
           retention-days: 21
           if-no-files-found: warn
+
+      - name: Same-original-deal Fog energy and Lillie-after-Pass combined counterfactual
+        env:
+          AGENT21_RANK5_COMBINE_LILLIE: 'true'
+        run: node simulation/evaluation/2026-11/agent21-rank5-fog-energy-choice-counterfactual.cjs
+      - name: Archive compound rank5 owner resource decisions and native outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-first-native-rank5-fog-plus-lillie-composition
+          path: artifacts/agent21-rank5-fog-plus-lillie-counterfactual.json
+          retention-days: 21
+          if-no-files-found: warn
