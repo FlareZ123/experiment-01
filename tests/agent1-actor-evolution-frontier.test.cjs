@@ -37,6 +37,26 @@ const view=()=>({
  }
 });
 
+test('new source-only evolution gate forbids candidate root and preserves legacy Garbodor scope',()=>{
+ const initial=view();initial.actorSeat=0;
+ const scoped={naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:1};
+ assert.equal(chooseActorRootIntent(initial,catalog,scoped).kind,'pass',
+   'Candidate physical seat must not evolve under source-only root');
+ const opponent=view();opponent.actorSeat=1;
+ assert.equal(chooseActorRootIntent(opponent,catalog,scoped).kind,
+   'evolve-pokemon','Original source physical seat must evolve');
+ assert.equal(chooseActorRootIntent(opponent,catalog,{
+   naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0
+ }).kind,'pass','Legacy Garbodor seat 0 guard retained');
+ assert.equal(chooseActorRootIntent(opponent,catalog,{
+   naturalEvolutionRoot:true,garbodorResponseOwnerSeat:0,
+   naturalEvolutionRootOwnerSeat:1
+ }).kind,'evolve-pokemon','Explicit evolution seat overrides legacy scope');
+ assert.equal(chooseActorRootIntent(opponent,catalog,{
+   naturalEvolutionRoot:true,naturalEvolutionRootOwnerSeat:null
+ }).kind,'evolve-pokemon','Null scope retains original bilateral behavior');
+});
+
 test('normal V to VMAX Bench evolution is an owner-visible native-neutral action',()=>{
  const intent=chooseActorRootIntent(view(),catalog,{naturalEvolutionRoot:true});
  assert.deepEqual(intent,{
