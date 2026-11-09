@@ -116,3 +116,32 @@ test('native canPlay veto preserves Pass and cannot claim accepted source action
   assert.equal(result.audit.nativeCommitted,0);
   assert.equal(result.audit.nativeEffectsComplete,0);
 });
+
+test('late Carmine rescue executes after a canonical policy replaces the decoder',()=>{
+  const headless={runMatch:()=>{
+    const store=new FakeStore(0);
+    store.dispatch(new AddPlayerAction());
+    const selected=new FakeAi(100,store).decodeNextAction(store.state);
+    assert.equal(selected.constructor.name,'PlayCardAction');
+    store.dispatch(selected);
+    return selected;
+  }};
+  const original=Object.getOwnPropertyDescriptor(FakeAi.prototype,'decodeNextAction');
+  const canonical=()=>{
+    const before=Object.getOwnPropertyDescriptor(FakeAi.prototype,'decodeNextAction');
+    const actorTypedPass=function(){return new PassTurnAction();};
+    Object.defineProperty(FakeAi.prototype,'decodeNextAction',
+      {...before,value:actorTypedPass});
+    try{return headless.runMatch({});}
+    finally{Object.defineProperty(FakeAi.prototype,'decodeNextAction',before);}
+  };
+  const result=withSourceEarlyCarmine(canonical,{
+    trials:[trial('B')],headless,SimpleTacticsAi:FakeAi,Store:FakeStore,
+    PlayCardAction,observe:observer
+  });
+  assert.equal(result.audit.lateDecoderInstallations,1);
+  assert.equal(result.audit.nativeCommitted,1);
+  assert.equal(result.audit.nativeEffectsComplete,1);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
+    FakeAi.prototype,'decodeNextAction'),original);
+});
