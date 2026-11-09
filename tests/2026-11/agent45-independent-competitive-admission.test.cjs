@@ -342,7 +342,7 @@ test('first real release envelope has resolvable nine-object refs and explicit a
   assert.deepEqual(result.bundle.evidenceManifest.map(x=>x.kind),MANIFEST);
   for(const entry of result.bundle.evidenceManifest){
     assert.equal(entry.ref,
-      'agent44-first-independent-rank5-newmoon-case-v1.json#/releaseNineObjects/'+entry.kind);
+      'agent44-first-release-nine-object-intake-v1.json#/releaseNineObjects/'+entry.kind);
     assert.ok(Object.hasOwn(result.releaseNineObjects,entry.kind));
     assert.equal(entry.sha256,evidenceBundleSha256(result.releaseNineObjects[entry.kind]));
   }
