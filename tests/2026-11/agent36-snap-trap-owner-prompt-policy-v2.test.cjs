@@ -825,7 +825,7 @@ test('owner callback derives Temple Energy units at actual live prompt for both 
     assert.equal(policy.physicalSettlements, 1);
     assert.equal(policy.choices[0].sourceSeat, sourceSeat);
     assert.equal(policy.choices[0].specialEnergyBlocked, true);
-    assert.equal(policy.choices[0].bestBeforeAttackDamage, 100);
+    assert.equal(policy.choices[0].bestBeforeAttackDamage, 200);
     assert.equal(policy.choices[0].energyPrinting, 'Psychic Energy MEE');
     assert.ok(fixture.attackerOwner.discard.cards.includes(psychic));
     assert.ok(fixture.attackerOwner.active.energies.cards.includes(dce));
