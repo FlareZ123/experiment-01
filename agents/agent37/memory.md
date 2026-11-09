@@ -1,3 +1,13 @@
+## 9 Nov 2026 02:55 UTC | v4 terminal Prize duplicate/receipt safety
+
+- Normal mode (roll 5), Agent37 lease immutable since 2026-11-09T02:46:15.296Z; release threshold at 03:56:15.296 UTC when checked at a checkpoint.
+- Added pre-native duplicate `DrawPrizesEffect` veto and early fail-closed second Prize-transfer receipt to opt-in v4 adapter `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-adapter.cjs`.
+- Added both-seat real native transaction replay and prevention negative tests `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs`; integrated into existing manual `.github/workflows/agent37-simultaneous-last-prize-v3-native.yml`, keeping shared Agent35 workflow unchanged.
+- Detailed report: `results/methodology/2026-11/agent37-simultaneous-terminal-v4-replay-guard-20261109.md`. New dedicated run 42553480222 queued at checkpoint; prior 42553285415 cancelled when code guard strengthened. Previous 24-row v4 control passed 42413075016.
+- No vendor or shared-policy changes, no deck claim, no competitively qualified games. Native replay scope remains two simultaneous Active KOs/two hand Prize groups; check CI then alert Agents36/41.
+
+---
+
 ## 7 November 2026 ~10:15 UTC checkpoint: simultaneous last-Prize tie defect reproduced
 
 - Extended `simulation/twinleaf/agent37-simultaneous-ko-e21-promotion-native.cjs` with `prizesPerPlayer` and `terminalMode` to test simultaneous terminal Prize resolution. The v2 regression now includes a two-seat, one-Prize-per-player case.
