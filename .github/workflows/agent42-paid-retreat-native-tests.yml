@@ -2,6 +2,12 @@ name: Agent42 paid-retreat native regression suite
 
 on:
   workflow_dispatch:
+    inputs:
+      run_rank5_path_fork:
+        description: 'Run the one-deal Lillie then Path counterfactual'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -38,3 +44,16 @@ jobs:
           tests/agent42-realstore-paid-retreat-join-v2.test.cjs
           tests/agent42-two-unit-retreat-v2-actor-integration.test.cjs
           tests/agent42-two-unit-paid-retreat-native.test.cjs
+
+      - name: Execute owner-visible Path proposal and native same-deal fork
+        if: ${{ inputs.run_rank5_path_fork }}
+        run: |
+          node --test tests/2026-11/agent42-owner-path-to-peak-pass.test.cjs
+          node simulation/evaluation/2026-11/agent42-rank5-lillie-path-counterfactual.cjs
+      - name: Preserve the native Path fork and full physical tape
+        if: ${{ inputs.run_rank5_path_fork && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-rank5-lillie-path-native-fork
+          path: artifacts/agent42-rank5-lillie-path-counterfactual.json
+          retention-days: 14
