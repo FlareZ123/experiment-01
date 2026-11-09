@@ -731,6 +731,7 @@ function withBilateralOwnerMail(next,deps){
     }
     if(taggedArvenNest){
       audit.nestFromArvenAccepted++;
+      deps.onArvenNestActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
       const nestPrompt=this.state.prompts?.find(p=>
         p.result===undefined&&p.playerId===owner.id&&
         p.constructor.name==='ChooseCardsPrompt'&&
