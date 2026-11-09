@@ -1,0 +1,168 @@
+{
+  "schema": "agent4-hood-immediate-psychic-and-five-card-reserve-v4-preregistered",
+  "registeredUtc": "2026-11-09T15:45:08.111900Z",
+  "method": "independently generated eight Python secrets.randbits(32) before first native run, 16 physical source deal groups split across both candidate seats",
+  "independentSeeds": [
+    2880543215,
+    2220267560,
+    1562833975,
+    1156189629,
+    2663871312,
+    2808762364,
+    1223784729,
+    2255955394
+  ],
+  "trialRows": [
+    {
+      "id": "6:1200:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1200,
+      "candidateSlot": "A",
+      "seed": 2880543215,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1201:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1201,
+      "candidateSlot": "B",
+      "seed": 2880543215,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1202:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1202,
+      "candidateSlot": "A",
+      "seed": 2220267560,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1203:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1203,
+      "candidateSlot": "B",
+      "seed": 2220267560,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1204:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1204,
+      "candidateSlot": "A",
+      "seed": 1562833975,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1205:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1205,
+      "candidateSlot": "B",
+      "seed": 1562833975,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1206:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1206,
+      "candidateSlot": "A",
+      "seed": 1156189629,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1207:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1207,
+      "candidateSlot": "B",
+      "seed": 1156189629,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1208:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1208,
+      "candidateSlot": "A",
+      "seed": 2663871312,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1209:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1209,
+      "candidateSlot": "B",
+      "seed": 2663871312,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1210:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1210,
+      "candidateSlot": "A",
+      "seed": 2808762364,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1211:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1211,
+      "candidateSlot": "B",
+      "seed": 2808762364,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1212:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1212,
+      "candidateSlot": "A",
+      "seed": 1223784729,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1213:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1213,
+      "candidateSlot": "B",
+      "seed": 1223784729,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1214:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1214,
+      "candidateSlot": "A",
+      "seed": 2255955394,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1215:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1215,
+      "candidateSlot": "B",
+      "seed": 2255955394,
+      "candidateId": "hood-shield-v1"
+    }
+  ],
+  "sourceOriginal": "authenticated Aichi 2026 rank6 Iron Thorns unchanged 60",
+  "fixedCandidate": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateBlob": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootCap": 180,
+  "nativeAttempts": 32,
+  "control": "v2 owner-paid held-Hood and protected-Underworld default-off code scoped to native run",
+  "treatment": "identical controls plus require physically held Basic Psychic and public own deckCount >= 5 before the Hood root; no opponent hidden state",
+  "hypothesis": "avoid unproductive turns spent attaching Hood and subsequent potential deckout; conserve attack turns and raise meaningful attack/Prize progress",
+  "measure": [
+    "real accepted Hood and Underworld roots",
+    "candidate/source accepted attacks",
+    "native final prizes and terminal reason",
+    "actual alternative action at first treatment divergence",
+    "match source fingerprints across paired arms"
+  ],
+  "knownRisks": [
+    "strict reserve may suppress useful Tool preparations",
+    "tool attachment itself does not guarantee paper-valid power payment",
+    "some native errors / caps or uncompetent source policy",
+    "no independently qualified competitive game"
+  ],
+  "paperQualified": false
+}
