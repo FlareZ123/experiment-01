@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  reduceAgent8Archive,decision,NATIVE_PIN
+  reduceAgent8Archive,decision,NATIVE_PIN,settledSourceAttacks
 }=require('../../simulation/evaluation/2026-11/agent42-agent8-v2-archive-causal-reduction.cjs');
 const PHASES=['P0S0','P1S0','P0S1','P1S1'];
 function trial(index){
@@ -93,4 +93,48 @@ test('compact row strips hidden source details and preserves attack receipts',()
   assert.equal(result.baselineAttackSettlement,'ATTACK_SETTLED');
   assert.equal(result.followthroughAttackOrdinal,17);
   assert.equal(JSON.stringify(result).includes('private'),false);
+});
+
+test('only genuine same-epoch source-owned attacks count as paid payoff',()=>{
+  const r=fixture();
+  const row=r.rawNativeRows.P0S0[4];
+  row.rootActionLedger.push({actionOrdinal:8,turnBefore:4,playerSlot:0,
+    action:'AttackAction',attack:'Psychic'});
+  row.rootActionLedger.push({actionOrdinal:9,turnBefore:4,playerSlot:1,
+    action:'AttackAction',attack:'Scorching Light'});
+  row.sourceAttackSettlement={attacks:[
+    {actionOrdinal:8,attackName:'Psychic',settledPromptChain:true,
+      settlementCrossesClockReset:false,completionRootOrdinal:10},
+    {actionOrdinal:9,attackName:'Scorching Light',settledPromptChain:true,
+      settlementCrossesClockReset:false,completionRootOrdinal:11}
+  ]};
+  assert.equal(settledSourceAttacks(row,0),1);
+  assert.equal(settledSourceAttacks(row,1),1);
+  row.sourceAttackSettlement.attacks[0].settlementCrossesClockReset=true;
+  assert.equal(settledSourceAttacks(row,0),0);
+  delete row.sourceAttackSettlement;
+  assert.equal(settledSourceAttacks(row,0),null);
+});
+
+test('source-turn attack count changes are reported only in all-terminal matched groups',()=>{
+  const r=fixture();
+  for(const p of PHASES){
+    const row=r.rawNativeRows[p][0];
+    row.rootActionLedger.push({actionOrdinal:12,turnBefore:6,playerSlot:0,
+      action:'AttackAction',attack:'Psychic'});
+    row.sourceAttackSettlement={attacks:p==='P0S1'||p==='P1S1'?[{
+      actionOrdinal:12,attackName:'Psychic',settledPromptChain:true,
+      settlementCrossesClockReset:false,completionRootOrdinal:14}]:[]};
+  }
+  const result=reduceAgent8Archive(r);
+  assert.equal(result.summary.allTerminalGroupsWithChangedSourceAttackCount,1);
+  assert.equal(result.groups[0].settledSourceAttacks.P0S0,0);
+  assert.equal(result.groups[0].settledSourceAttacks.P0S1,1);
+  r.phaseSummaries.P0S1[0].status='root-cap';
+  r.phaseSummaries.P0S1[0].finished=false;
+  r.phaseSummaries.P0S1[0].winner=null;
+  r.rawNativeRows.P0S1[0].finished=false;
+  r.rawNativeRows.P0S1[0].winner=null;
+  r.rawNativeRows.P0S1[0].actionCount=260;
+  assert.equal(reduceAgent8Archive(r).summary.allTerminalGroupsWithChangedSourceAttackCount,0);
 });
