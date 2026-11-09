@@ -6,7 +6,7 @@ const {chooseActorSingleSearch}=
 const {chooseMewGenesectQuickBallSearch}=
   require('./mew-genesect-quickball-search.cjs');
 
-const VERSION='agent37-source-mew-ultraball-evolution-v1';
+const VERSION='agent37-source-mew-ultraball-evolution-v2-vstar-used-dci';
 const MEW_V='Mew V FST';
 const MEW_VMAX='Mew VMAX FST';
 const ULTRA=new Set(['Ultra Ball MEG','Ultra Ball SVI','Ultra Ball SUM']);
@@ -94,8 +94,16 @@ function chooseMewUltraBallPayment(input,ownerSeat){
       prompt.requiredCount!==2||
       !actor.ownPublic.resolvingSupporter.some(x=>ULTRA.has(x)))
     return generic(input);
-  const safe=prompt.menu.filter(names=>names.every(n=>
-    !PROTECTED_PAYMENT.has(n)));
+  // Forest Seal Stone is a one-use VSTAR Power. After this player has
+  // already consumed its VSTAR Power, preserving the Stone cannot unlock
+  // another VSTAR Power this game. Protect it while that public resource
+  // remains available, with all other protected printings unchanged.
+  const vstarSpent=actor.ownTurnResources?.vstarUsed===true||
+    actor.ownPublic.publicTurnRestrictions?.vstarUsed===true;
+  const protectedNow=printing=>
+    PROTECTED_PAYMENT.has(printing)&&
+    !(printing==='Forest Seal Stone SIT'&&vstarSpent);
+  const safe=prompt.menu.filter(names=>names.every(n=>!protectedNow(n)));
   if(safe.length===0)return generic(input);
   return generic({...input,prompt:{...prompt,menu:safe}});
 }
