@@ -8,7 +8,7 @@ const {withSourceSkyField}=require('../../twinleaf/agent49-source-skyfield-respo
 const frozen=require('../../../results/aichi-2026/registrations/agent49-rank5-source-sky-field-poltergeist-response-aba-20261109.json');
 const original=require('../../../results/aichi-2026/registrations/agent20-rank5-gengar-lillie-factorial-20261109.json');
 
-const VERSION='agent49-original-rank5-source-skyfield-poltergeist-aba-v1';
+const VERSION='agent49-rank5-source-sky-field-poltergeist-response-aba-v1';
 const OUTPUT=path.resolve(__dirname,'../../../artifacts/agent49-rank5-skyfield-poltergeist-response.json');
 function registration(){
   assert.equal(frozen.schema,VERSION);
