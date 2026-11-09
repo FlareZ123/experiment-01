@@ -44,6 +44,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_mew_ultra_evolution:
+        description: Run 16 fresh source-only owner Mew VMAX Ultra Ball evolution rescue native attempts
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -73,12 +78,12 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
       - name: Retrospective rank5 source Quick Ball and native owner discard paired development
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution }}
         env:
           AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
           AGENT37_QUICKBALL_MEW_SEARCH_DEV: ${{ inputs.agent37_quickball_mew_search }}
@@ -103,12 +108,12 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Preflight independent rank5 owner Quick Ball search registration
-        if: ${{ inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        if: ${{ inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
         run: |
           node --check simulation/evaluation/2026-11/agent37-rank5-fresh-quickball-owner-search-native.cjs
           node simulation/evaluation/2026-11/agent37-rank5-fresh-quickball-owner-search-native.cjs --inspect-only
       - name: Execute all 16 independently registered owner search native arms
-        if: ${{ inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        if: ${{ inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
         run: node simulation/evaluation/2026-11/agent37-rank5-fresh-quickball-owner-search-native.cjs
       - name: Archive all fresh rank5 source Quick Ball owner-search outcomes
         if: ${{ always() && inputs.agent37_fresh_quickball_search }}
@@ -119,12 +124,12 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Preflight independent four-arm Mew-target and DCE funding factorial
-        if: ${{ inputs.agent37_mew_funding_factorial && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        if: ${{ inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
         run: |
           node --check simulation/evaluation/2026-11/agent37-rank5-mew-search-funding-factorial-native.cjs
           node simulation/evaluation/2026-11/agent37-rank5-mew-search-funding-factorial-native.cjs --inspect-only
       - name: Execute all 32 preregistered Mew-target and DCE source funding factorial arms
-        if: ${{ inputs.agent37_mew_funding_factorial && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        if: ${{ inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
         run: node simulation/evaluation/2026-11/agent37-rank5-mew-search-funding-factorial-native.cjs
       - name: Archive all 32 owner Mew search and DCE funding native outcomes
         if: ${{ always() && inputs.agent37_mew_funding_factorial }}
@@ -132,6 +137,29 @@ jobs:
         with:
           name: agent37-rank5-mew-search-dce-funding-factorial-32arm
           path: agent37-rank5-mew-search-dce-funding-factorial-32arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Pure owner Mew Ultra Ball evolutionary search and root acceptance tests
+        if: ${{ inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: |
+          node --check simulation/twinleaf/agent37/mew-ultraball-evolution.cjs
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/agent37-mew-ultraball-evolution.test.cjs
+      - name: Preflight fresh rank5 Mew VMAX Ultra Ball evolution native registration
+        if: ${{ inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-evolution-native.cjs
+          node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-evolution-native.cjs --inspect-only
+      - name: Run 16 actual original-source Mew Ultra Ball evolution arms
+        if: ${{ inputs.agent37_mew_ultra_evolution && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-evolution-native.cjs
+      - name: Archive all original-source Mew Ultra Ball evolution arms
+        if: ${{ always() && inputs.agent37_mew_ultra_evolution }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-rank5-mew-ultraball-evolution-16arm
+          path: agent37-rank5-mew-ultraball-evolution-16arm.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate default-off Mew donor choice and bilateral policy forwarding
