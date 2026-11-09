@@ -14,7 +14,7 @@ test('shared bilateral Jet Bench option is default-off',()=>{
 test('shared bilateral Jet Bench opt-in passes only the dedicated root flag',()=>{
   assert.deepEqual(bilateralJetBenchRootOptions(true),
     {jetBenchSwitchRoot:true,jetPostRoboContinuation:true,
-      rank7FabaJetBridge:true});
+      jetPostSeekerFabaContinuation:true,rank7FabaJetBridge:true});
 });
 
 test('shared runner selects the scoped root and records the bilateral opt-in',()=>{
@@ -25,6 +25,7 @@ test('shared runner selects the scoped root and records the bilateral opt-in',()
   assert.match(source,/!bilateralJetBenchSwitchRoot&&/);
   assert.ok(source.includes('bilateralJetBenchRootOptions(bilateralJetBenchSwitchRoot)'));
   assert.match(source,/jetPostRoboContinuation:true/);
+  assert.match(source,/jetPostSeekerFabaContinuation:true/);
   assert.match(source,/bilateralJetBenchSwitchRootOptIn:bilateralJetBenchSwitchRoot/);
   assert.match(source,/AGENT41_BILATERAL_JET_BENCH_DEV/);
 });
