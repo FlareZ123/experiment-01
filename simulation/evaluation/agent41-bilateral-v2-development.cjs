@@ -1480,6 +1480,7 @@ function runDevelopment({
   actorGenericFundedFloatStoneSourceOnly=false,
   actorGenericFundedFloatStoneCandidateOnly=false,
   actorGenericFundedFloatStoneCensus=false,
+  actorGenericTacticalSwitchRoot=false,
   actorOpponentBlockSwitchRoot=false,
   actorZeroEnergyStrandFloatStoneRoot=false,
   actorZeroEnergyStrandFloatStoneTargetTurn=null,
@@ -1752,6 +1753,8 @@ function runDevelopment({
     'Source-scoped funded Float Stone requires the owner-visible funded Float policy');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
     'Float Stone census must observe the same actor-only policy in both seats');
+  assert.ok(!actorGenericTacticalSwitchRoot||actorOnlyComposition,
+    'Generic funded KO Item Switch requires actor-only composition');
   assert.ok(!actorOpponentBlockSwitchRoot||actorOnlyComposition,
     'Opponent Block Item rescue requires actor-only composition');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
@@ -2028,6 +2031,7 @@ function runDevelopment({
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
           !actorZeroEnergyStrandFloatStoneRoot&&
+          !actorGenericTacticalSwitchRoot&&
           !actorOpponentBlockSwitchRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
@@ -2223,6 +2227,9 @@ function runDevelopment({
               }:{}),
               ...(actorGenericFundedFloatStoneCensus?{
                 genericFundedFloatStoneAudit:true
+              }:{}),
+              ...(actorGenericTacticalSwitchRoot?{
+                genericTacticalSwitchRoot:true
               }:{}),
               ...(actorOpponentBlockSwitchRoot?{
                 opponentBlockSwitchRoot:true
@@ -2815,6 +2822,8 @@ function runDevelopment({
       actorOnlyComposition&&actorGenericFundedFloatStoneSourceOnly,
     actorGenericFundedFloatStoneCensusOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneCensus,
+    actorGenericTacticalSwitchRootOptIn:
+      actorOnlyComposition&&actorGenericTacticalSwitchRoot,
     actorOpponentBlockSwitchRootOptIn:
       actorOnlyComposition&&actorOpponentBlockSwitchRoot,
     actorZeroEnergyStrandFloatStoneRootOptIn:
