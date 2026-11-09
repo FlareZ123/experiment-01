@@ -38,7 +38,7 @@ function stage(seat,options={}){
   const owner=new Player(),opponent=new Player();
   owner.id=211;opponent.id=212;
   owner.active.cards.push(card('Duskull PRE'));
-  const energy=card('Telepathic Psychic Energy ME3');
+  const energy=card('Psychic Energy MEE');
   owner.active.cards.push(energy);
   owner.active.energies.cards.push(energy);
   for(let i=0;i<benchCount;i++){
