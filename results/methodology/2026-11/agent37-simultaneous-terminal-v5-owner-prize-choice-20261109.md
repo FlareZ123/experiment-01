@@ -131,6 +131,34 @@ Full machine-readable output is archived in
 [artifact 13647468719](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190/artifacts/13647468719),
 SHA-256 `69556dd83f2b05a9b55f7217be2963b860e43a2a1d4ffd543e4a59052971fab3`.
 
+## Portable Prize owner-zone membership helper
+
+The strict membership requirement is now also available as
+`simulation/twinleaf/agent37/native-prize-physical-selection.cjs`,
+exporting `assertPhysicalPrizePromptSelection(state,prompt,selected)`.
+Unlike the terminal-specific callback it derives the physical target
+Prize zone from `prompt.getPerspectivePlayerId()` and
+`prompt.options.useOpponentPrizes`. This covers a chooser selecting
+from their own Prizes, a card effect requiring an opponent's Prizes
+to be selected, and a prompt whose user-facing controller differs
+from the physical perspective player. V5 now invokes the shared
+helper before any native `TAKE_SPECIFIC_PRIZES`.
+
+The independent executable native-module test at
+`tests/2026-11/agent37-native-prize-physical-selection.test.cjs`
+exercises the positive owner/opponent/perspective cases and shows
+that the unmodified pinned `ChoosePrizePrompt.validate` accepts
+out-of-zone references in each negative. The helper then rejects
+them by actual Store card-list identity. This is a reusable
+pre-dispatch admission guard for research bot implementations.
+
+Its manual full-v3/v4/v5 CI regression
+[42558451290](https://github.com/FlareZ123/experiment-01/actions/runs/42558451290)
+was in progress when this section was written. The earlier native
+[42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190)
+had already established the same physical-zone protection inside
+the terminal-only callback.
+
 ## Integration contract for the complete headless match runner
 
 The existing native v5 entry point is **transaction-scoped**:
