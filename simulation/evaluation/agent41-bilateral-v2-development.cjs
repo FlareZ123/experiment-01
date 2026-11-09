@@ -1410,6 +1410,7 @@ function runDevelopment({
   earlyRegidragoCompressor=false,
   earlyRegidragoCompressorSourceOnly=false,
   earlyRegidragoCompressorAllowFirstOwnTurnTwo=false,
+  rank13CrispinRoot=false,rank13CrispinSourceOnly=false,
   bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
@@ -1614,6 +1615,10 @@ function runDevelopment({
     'Source-scoped early compressor requires the native owner root');
   assert.ok(!earlyRegidragoCompressorAllowFirstOwnTurnTwo||earlyRegidragoCompressor,
     'Opening-turn-two compressor requires the native owner root');
+  assert.ok(!rank13CrispinRoot||actorOnlyComposition,
+    'Source Crispin requires canonical owner-root decisions');
+  assert.ok(!rank13CrispinSourceOnly||rank13CrispinRoot,
+    'Source-only Crispin requires the native Crispin owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
@@ -2118,6 +2123,13 @@ function runDevelopment({
                 seekerGuzmaOwnerSeat:actorSeekerGuzmaSourceOnly?
                   1-(trial.candidateSlot==='A'?0:1):actorSeekerGuzmaOwnerSeat,
                 seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn
+              }:{}),
+              ...(rank13CrispinRoot?{
+                rank13CrispinRoot:true,
+                ...(rank13CrispinSourceOnly?{
+                  rank13CrispinRootOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(earlyRegidragoCompressor?{
                 earlyRegidragoCompressor:true,
