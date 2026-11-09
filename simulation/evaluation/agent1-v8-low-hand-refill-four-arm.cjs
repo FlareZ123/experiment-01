@@ -162,5 +162,6 @@ if(require.main===module){
       before:x.before.endReason,after:x.after.endReason,
       beforePrizes:x.before.finalPrizes,afterPrizes:x.after.finalPrizes}))??null,
     failure:result.failure??null},null,2)+'\n');
+  if(result.fullPhysicalPanelValid===false)process.exitCode=1;
 }
 module.exports={VERSION,REGISTRATION,continuation,run,save};
