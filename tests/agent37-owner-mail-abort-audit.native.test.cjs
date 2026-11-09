@@ -7,6 +7,7 @@ const {withOwnerMailAfterPass}=
   require('../simulation/twinleaf/agent9-native-owner-mail-after-pass.cjs');
 
 test('owner Mail bridge restores native hooks and retains public evidence on abort',()=>{
+  require('../simulation/twinleaf/headless.cjs').initializeCards();
   const base=path.resolve(__dirname,
     '../vendor/twinleaf/ptcg-server/output');
   const {SimpleTacticsAi}=
