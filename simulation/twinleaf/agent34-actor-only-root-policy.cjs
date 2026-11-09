@@ -268,8 +268,10 @@ function chooseActorRootIntent(view,catalog,options={}){
   // Opt-in owner-only, fully funded post-Apex Mimikyu Active promotion.
   // Its public attack-history receipt comes from the real Store tracker.
   if(options.mimikyuApexFundedPromotion===true){
-    const planned=require('./2026-11/agent6-funded-mimikyu-apex-promotion.cjs')
-      .chooseFundedMimikyuApexPromotion(view,catalog);
+    const apex=require('./2026-11/agent6-funded-mimikyu-apex-promotion.cjs');
+    const attack=apex.chooseFundedMimikyuApexCopycat(view,catalog);
+    if(attack)return attack;
+    const planned=apex.chooseFundedMimikyuApexPromotion(view,catalog);
     if(planned)return planned;
   }
   // Source-independent counterpart to the frozen rank1 VMAX-specific line.
@@ -1032,6 +1034,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     mimikyuApexFundedPromotionOptIn:deps.mimikyuApexFundedPromotion===true,
     mimikyuApexFundedPromotionSelected:0,
+    mimikyuApexCopycatSelected:0,
+    mimikyuApexTimelessPromptSelected:0,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
     zeroEnergyStrandFloatStoneRootOptIn:
@@ -2276,8 +2280,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(intent.kind==='play-path-underworld-stadium-counter')
       audit.pathUnderworldStadiumCounterSelected++;
     if(intent.source===require(
-      './2026-11/agent6-funded-mimikyu-apex-promotion.cjs').VERSION)
-      audit.mimikyuApexFundedPromotionSelected++;
+      './2026-11/agent6-funded-mimikyu-apex-promotion.cjs').VERSION){
+      if(intent.kind==='paid-retreat')
+        audit.mimikyuApexFundedPromotionSelected++;
+      if(intent.kind==='attack')
+        audit.mimikyuApexCopycatSelected++;
+    }
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
       audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.source==='agent31-zero-energy-strand-to-funded-ko-v1')
@@ -2438,6 +2446,18 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new UseStadiumAction(ownerId);break;
       case 'pass':action=new PassTurnAction(ownerId);break;
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
+    }
+    if(intent.source===require(
+      './2026-11/agent6-funded-mimikyu-apex-promotion.cjs').VERSION&&
+      intent.kind==='attack'){
+      const tracker=copycatHistoryByStore.get(nativeStore);
+      const choices=tracker?.getCopycatChoices(state.players[1-seat].id)??[];
+      const selected=choices[intent.previousChoiceIndex];
+      assert.ok(selected&&selected.turn===intent.previousOpponentTurn);
+      assert.equal(selected.sourceCardFullName,intent.previousOpponentSource);
+      assert.equal(selected.attackName,intent.previousOpponentAttack);
+      assert.equal(selected.gxAttack,false);
+      copycatHistoryByAction.set(action,{copycatPlayerId:ownerId,selected});
     }
     if(intent.source===require('./agent7-copycat-history-root.cjs').VERSION){
       const tracker=copycatHistoryByStore.get(nativeStore);
