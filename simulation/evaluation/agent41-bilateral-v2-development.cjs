@@ -1094,6 +1094,24 @@ function executeDevelopment(trial,candidates,{
     physicalShuffleRandomIsolationAfterSetup:
       game.physicalShuffleRandomIsolationAfterSetup,
     randomnessProtocol:game.randomnessProtocol,
+    ...(specialRedCardPaperPreselection?{
+      specialRedCardPaperPreselection:game.specialRedCardPaperPreselection===true,
+      specialRedCardPaperPreselectionVersion:
+        game.specialRedCardPaperPreselectionVersion??null,
+      specialRedCardPaperPreselectionAudits:
+        game.specialRedCardPaperPreselectionAudits??[]
+    }:{}),
+    ...(specialRedCardPaperCorrection?{
+      specialRedCardPaperCorrection:game.specialRedCardPaperCorrection===true,
+      specialRedCardPaperShuffleProtocol:
+        game.specialRedCardPaperShuffleProtocol??null
+    }:{}),
+    ...(specialRedCardPaperSpeculativeShuffle?{
+      specialRedCardPaperSpeculativeShuffle:
+        game.specialRedCardPaperSpeculativeShuffle===true,
+      specialRedCardPaperSpeculativeShuffleProtocol:
+        game.specialRedCardPaperSpeculativeShuffleProtocol??null
+    }:{}),
     enginePin:registration.enginePin,
     candidateDeckFingerprint:sha256(candidateCards),
     sourceDeckFingerprint:sha256(opponent.cards),
