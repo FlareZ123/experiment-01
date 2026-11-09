@@ -32,6 +32,7 @@ function evidence(row){
     nativeFirstSeat:row.actualStarterSeat??null,
     nativeStatus:row.status??(row.finished?'terminal':'incomplete'),
     nativeError:row.error??null,winner:row.winner??null,
+    endReason:row.endReason??null,finalPrizes:row.finalPrizes??null,
     ledgerHash:digest(ledger),
     rootActions:ledger.length,
     seekerOptIn:audit?.seekerGuzmaNominalKoOptIn??false,
@@ -121,14 +122,16 @@ function run(){
     const [before,treatment,recontrol]=reports;
     const sameDeal=reports.every(x=>
       x.fullPhysicalDealFingerprint===before.fullPhysicalDealFingerprint);
-    const recontrolIdentical=before.ledgerHash===recontrol.ledgerHash;
+    const controlsSameRootActionDigest=
+      before.ledgerHash===recontrol.ledgerHash;
     assert.ok(sameDeal,'Retrospective phases must use same native deal');
-    assert.ok(recontrolIdentical,'Both physical control ledgers must replay');
+    assert.ok(controlsSameRootActionDigest,
+      'Both physical control root action digests must replay');
     const sourcePostGuzmaAttack=treatment.physicalAttackActions.filter(x=>
       x.seat===0&&x.turn>=TARGET_TURN+1);
     return {
       id:trial.id,seed:trial.seed,sameDeal,
-      controlsIdentical:recontrolIdentical,
+      controlsSameRootActionDigest,
       treatmentChangedNativeActions:
         treatment.ledgerHash!==before.ledgerHash,
       actualSeekerPromptResolved:treatment.seekerPromptsAccepted>0,
@@ -148,7 +151,7 @@ function run(){
     identicalDecklists:true,retrospectiveSelectedDeal:true,
     sixNativeContenderArms:6,competitiveQualifiedGames:0,
     summary:comparisons.map(row=>({
-      id:row.id,controlsIdentical:row.controlsIdentical,
+      id:row.id,controlsSameRootActionDigest:row.controlsSameRootActionDigest,
       treatmentChangedNativeActions:row.treatmentChangedNativeActions,
       actualSeekerPromptResolved:row.actualSeekerPromptResolved,
       actualOwnGuzmaSwitchResolved:row.actualOwnGuzmaSwitchResolved,
@@ -157,7 +160,10 @@ function run(){
       controlStatus:row.before.nativeStatus,
       treatmentStatus:row.treatment.nativeStatus,
       controlRoots:row.before.rootActions,
-      treatmentRoots:row.treatment.rootActions
+      treatmentRoots:row.treatment.rootActions,
+      controlWinner:row.before.winner,treatmentWinner:row.treatment.winner,
+      controlPrizes:row.before.finalPrizes,
+      treatmentPrizes:row.treatment.finalPrizes
     })),comparisons,rawPhases:phases,
     interpretation:'Matched actual Store development on selected existing physical deal. No paper clock, competitive bot quality or 99.5 percent qualification.'
   };
@@ -167,6 +173,32 @@ if(require.main===module){
   const result=run();
   if(process.env.AGENT31_POSTGUST_SEEKER_NATIVE_OUTPUT)
     save(process.env.AGENT31_POSTGUST_SEEKER_NATIVE_OUTPUT,result);
+  const focal=result.comparisons.find(x=>x.id===TARGET_ID);
+  if(focal){
+    process.stdout.write('AGENT31_POSTGUST_FOCAL_DETAILS '+
+      JSON.stringify({
+        nativeControl:{winner:focal.before.winner,
+          endReason:focal.before.endReason,
+          finalPrizes:focal.before.finalPrizes},
+        nativeTreatment:{winner:focal.treatment.winner,
+          endReason:focal.treatment.endReason,
+          finalPrizes:focal.treatment.finalPrizes},
+        seekerNativePromptsAccepted:
+          focal.treatment.seekerPromptsAccepted,
+        guzmaNativeRootIntents:focal.treatment.guzmaRootIntents,
+        gustOwnPhysicalConfirmations:
+          focal.treatment.gustOwnPhysicalConfirmations,
+        gustOppPhysicalConfirmations:
+          focal.treatment.gustOppPhysicalConfirmations,
+        gustPromptReceipts:focal.treatment.guzmaPromptReceipts,
+        nativeStepsAroundIntervention:
+          focal.treatment.nearbyAcceptedActions.filter(step=>
+            step.turn>=TARGET_TURN-1).slice(0,24),
+        nativeCandidateAttacksAfterIntervention:
+          focal.treatment.physicalAttackActions.filter(x=>
+            x.seat===TARGET_SEAT&&x.turn>=TARGET_TURN).slice(0,8)
+      })+'\\n');
+  }
   process.stdout.write('AGENT31_POSTGUST_SEEKER_NATIVE '+
     JSON.stringify({schema:result.schema,summary:result.summary,
       competitiveQualifiedGames:0})+'\n');
