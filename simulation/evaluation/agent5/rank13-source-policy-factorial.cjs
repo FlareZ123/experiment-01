@@ -202,7 +202,8 @@ if(require.main===module){
     })),
     competitiveGamesQualified:0
   },null,2)+'\n');
-  if(!report.fourCellFullPhysicalIdentityMatched)process.exitCode=1;
+  if(!report.fourCellFullPhysicalIdentityMatched||
+     report.attempts.some(x=>x.status!=='native-terminal'))process.exitCode=1;
 }
 
 module.exports={VERSION,TARGET,sourcePolicyDifferences,run,save};
