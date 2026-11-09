@@ -173,8 +173,8 @@ function run(settings = {}) {
   const followArvenNestBall = settings.followArvenNestBall === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
-  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall,
-    'prize-aware Nest selection requires Nest follow-through');
+  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall || followArvenNestBall,
+    'prize-aware Nest selection requires Mail or paid Arven Nest follow-through');
   assert.ok(!followMailHandiwork || ownerMailAfterPass,
     'Handiwork follow-through requires owner Mail treatment');
   assert.ok(!followHeldHandiwork || ownerMailAfterPass,
