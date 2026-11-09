@@ -34,7 +34,7 @@ jobs:
       - name: Verify owner-only Path-stadium policy and both-seat Store behavior
         run: node --test tests/2026-11/agent6-underworld-path-stadium-owner.test.cjs tests/2026-11/agent6-underworld-path-native-stage.test.cjs tests/2026-11/agent6-path-underworld-stadium-counter.test.cjs tests/2026-11/agent6-integrated-path-counter-root.test.cjs
       - name: Test funded post-Apex Mimikyu owner-only promotion selector
-        run: node --test tests/2026-11/agent6-funded-mimikyu-apex-promotion.test.cjs
+        run: node --test tests/2026-11/agent6-funded-mimikyu-apex-promotion.test.cjs tests/2026-11/agent6-funded-mimikyu-apex-promotion.native.test.cjs
       - name: Run new preregistered 7-original-rank both-seat A/B
         if: ${{ !inputs.pure_unit_only }}
         env:
