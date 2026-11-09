@@ -1832,7 +1832,9 @@ function runDevelopment({
       roster.decks.find(x=>x.rank===trial.rank)?.cards:null;
     const candidatePrintedSixty=registeredToolEnergyCeiling?
       (trial.candidateId==='champion-reference'?reference.cards:
-        loadNewMoonCandidate().cards):null;
+        trial.candidateId==='new-moon-lockbreaker-v1'?
+          loadNewMoonCandidate().cards:
+          registeredCandidateDecks?.[trial.candidateId]?.cards):null;
     if(registeredToolEnergyCeiling){
       assert.ok(Array.isArray(sourcePrintedSixty)&&
         Array.isArray(candidatePrintedSixty));
