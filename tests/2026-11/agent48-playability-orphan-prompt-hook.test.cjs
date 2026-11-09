@@ -70,6 +70,7 @@ test('unlinked prompt response is observed without converting it to acceptance',
 
 test('a retained callback-linked newly created prompt must never be pruned', () => {
   class GenuineStore extends MockStore {
+    dispatch(action) {return super.dispatch(action);}
     calculatePlayability(state) {
       const prompt = {id: 77, result: undefined};
       state.prompts.push(prompt);
