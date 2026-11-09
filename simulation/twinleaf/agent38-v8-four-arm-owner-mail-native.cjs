@@ -33,6 +33,7 @@ function withBilateralOwnerMail(next,deps){
   const followHeldArven=deps.followHeldArven===true;
   const followOwnerConfirm=deps.followOwnerConfirm===true;
   const confirmNativeDedenne=deps.confirmNativeDedenne===true;
+  const followOwnerMotivate=deps.followOwnerMotivate===true;
   assert.ok(!confirmNativeDedenne||followOwnerConfirm,
     'Dedenne confirmation requires authenticated owner prompt handling');
   const board=deps.playCardEnums??{};
@@ -58,6 +59,7 @@ function withBilateralOwnerMail(next,deps){
   const ownerHeldArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
   const ownerConfirmActions=new WeakMap();
+  const ownerMotivateActions=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
   const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
@@ -92,6 +94,9 @@ function withBilateralOwnerMail(next,deps){
     nativeDedenneConfirmOffers:0,nativeDedenneTrueAccepted:0,
     nativeDedenneTrueEffectSettled:0,nativeDedenneTrueRejected:0,
     nativeDedenneTrueEvents:[],
+    nativeMotivateOffers:0,nativeMotivateSettled:0,
+    nativeMotivateRejected:0,nativeMotivateUnsettled:0,
+    nativeMotivateEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nestFromArvenOffers:0,nestFromArvenAccepted:0,
@@ -180,6 +185,24 @@ function withBilateralOwnerMail(next,deps){
         });
         audit.nativeOwnerTop4PromptsBySeat[seat]++;
         return answer;
+      }
+    }
+    // The genuinely attacking owner's Motivate prompt is allowed to use its
+    // own public Basic-Energy discard and Bench only. No native raw-State
+    // decision fallback or opponent's hidden zones are accessed.
+    if(active&&followOwnerMotivate&&state===storeInstance?.state&&
+       owner?.id===this.client?.id&&prompt){
+      const {chooseOwnerMotivateEnergy}=
+        require('./agent7/owner-motivate-energy-choice.cjs');
+      const selection=chooseOwnerMotivateEnergy(state,prompt,seat,board);
+      if(selection){
+        const action=new ResolvePromptAction(prompt.id,selection.assignments);
+        require('./prompt-integrity.cjs')
+          .assertValidPromptAction(state,action);
+        ownerMotivateActions.set(action,{trialId,seat,turn:state.turn,
+          prompt,selection});
+        audit.nativeMotivateOffers++;
+        return action;
       }
     }
     // Mail-to-Arven is an opt-in fully actor-owned action. In selected-v8,
@@ -377,6 +400,7 @@ function withBilateralOwnerMail(next,deps){
     const taggedArvenNest=ownerArvenNestActions.has(action);
     const arvenProposal=arvenSelections.get(action);
     const ownerConfirmProposal=ownerConfirmActions.get(action);
+    const motivateProposal=ownerMotivateActions.get(action);
     const opposingSeat=1-seat;
     const opposingBefore=taggedHandiwork?{
       deck:state.players[opposingSeat].deck.cards.length,
@@ -410,11 +434,32 @@ function withBilateralOwnerMail(next,deps){
       if(taggedRefill)audit.heldRefillRejected++;
       if(taggedArvenNest)audit.nestFromArvenRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
+      if(motivateProposal)audit.nativeMotivateRejected++;
       if(ownerConfirmProposal){
         audit.ownerConfirmRejected++;
         if(ownerConfirmProposal.deden)audit.nativeDedenneTrueRejected++;
       }
       throw e;
+    }
+    if(motivateProposal){
+      const after=this.state.players[motivateProposal.seat];
+      const {selection,prompt:ownerPrompt}=motivateProposal;
+      const recipient=after.bench[selection.recipientIndex];
+      const settled=ownerPrompt.result===action.result;
+      const physicallyAttached=selection.assignments.every(row=>
+        recipient.energies.cards.includes(row.card)&&
+        !after.discard.cards.includes(row.card));
+      if(settled&&physicallyAttached)audit.nativeMotivateSettled++;
+      else audit.nativeMotivateUnsettled++;
+      audit.nativeMotivateEvents.push({trialId:motivateProposal.trialId,
+        seat:motivateProposal.seat,turn:motivateProposal.turn,
+        source:'Squawkabilly ex PAL Motivate',
+        recipientPrinting:selection.recipientPrinting,
+        recipientBenchIndex:selection.recipientIndex,
+        attached:selection.assignments.map(row=>row.card.fullName),
+        nativePromptSettled:settled,physicalEnergyDiscardToBench:physicallyAttached});
+      assert.ok(settled&&physicallyAttached,
+        'Own Motivate Energy prompt did not physically settle in Store');
     }
     if(taggedRefill){
       audit.heldRefillAccepted++;
