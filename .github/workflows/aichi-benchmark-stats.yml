@@ -169,6 +169,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress owner-only late-game deckout rescue choice before native replay
+        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs
       - name: Regress all 55 original matched Hood/champion sharp censor bounds
         run: node --test tests/2026-11/agent21-sharp-paired-censor-bounds.test.cjs
       - name: Audit source-only four-arm causal integrity, same-turn attack settlement and archive status gates
