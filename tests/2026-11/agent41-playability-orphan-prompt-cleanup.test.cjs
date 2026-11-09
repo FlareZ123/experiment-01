@@ -77,11 +77,7 @@ test('wrong or double installation fails closed and leaves original descriptor i
   const hook=installPlayabilityOrphanPromptCleanupHook({Store});
   try {
     assert.throws(()=>installPlayabilityOrphanPromptCleanupHook({Store}),
-      /Unexpected|function|replaced/);
-  } catch (error) {
-    // No double install requirement. The first hook's restoration contract
-    // catches a replacement if a future caller layers additional wrappers.
-    assert.ok(error);
+      /already installed/);
   } finally {
     hook.restore();
   }
