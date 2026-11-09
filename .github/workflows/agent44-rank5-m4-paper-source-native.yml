@@ -29,7 +29,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
-          gh run download 42614003229 -R FlareZ123/experiment-01 -n agent44-first-independent-rank5-newmoon-native-case-v1 -D prior-release
+          gh run download 42625296261 -R FlareZ123/experiment-01 -n agent44-first-independent-rank5-newmoon-native-case-v1 -D prior-release
           node simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs prior-release/agent44-first-independent-rank5-newmoon-case-v1.json artifacts/agent44-first-release-nine-object-intake-v1.json
       - name: Preserve original trial-independent nine-object admission packet
         if: ${{ always() && inputs.mode == 'release-inspect' }}
