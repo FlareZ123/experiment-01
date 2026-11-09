@@ -86,12 +86,14 @@ function nativeHandPayment(seat) {
       assert.equal(next.playerId,x.owner.id);
       assert.equal(next.message,'CHOOSE_CARD_TO_HAND');
       choice=[x.searchTarget];
+      assert.equal(next.validate(choice,x.state),true);
     }else if(kind==='ShuffleDeckPrompt'){
       choice=Array.from({length:x.owner.deck.cards.length},(_,j)=>j);
+    }else if(kind==='ShowCardsPrompt'){
+      choice=true;
     }else{
       assert.equal(kind,'WaitPrompt');
     }
-    assert.equal(next.validate(choice,x.state),true);
     x.store.dispatch(new ResolvePromptAction(next.id,choice));
     followups.push(kind);
   }
