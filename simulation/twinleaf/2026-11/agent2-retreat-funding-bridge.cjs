@@ -2,18 +2,19 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent2-one-basic-retreat-funding-bridge-v1';
+const VERSION = 'agent2-one-basic-shortfall-retreat-funding-bridge-v2';
 
 /**
- * Recover a two-action mobility line: attach a held Basic Energy to an empty
- * one-Colorless-retreat Active, then pay that Energy to Retreat to an already
- * powered, substantive Bench attacker. Re-evaluate on each live owner root.
+ * Recover a two-action mobility line: attach a held Basic Energy to an Active
+ * missing exactly one printed Colorless Retreat unit (fee 1 or 2), then pay
+ * the complete Basic Energy cost to Retreat to a funded Bench attacker.
+ * Re-evaluate from the live owner root after the native attachment.
  * The genuine Store determines payment, switching and attack legality.
  *
  * Avoid commitment when another attack is payable on the Active, the Active
  * carries a position-dependent Ability, or the public opponent blocks retreat.
- * Only printed single-unit retreat with no Tool and supported Basic Energy
- * is modeled. No deck order, Prize identity or opponent hand is inspected.
+ * Only printed one- or two-unit Colorless retreat with no Tool, and complete
+ * payment from supported Basic Energy, is modeled. No deck order, Prize identity or opponent hand is inspected.
  *
  * @param {object} view Detached actor-owned root observation.
  * @param {object} catalog Public printed card catalog and game enums.
@@ -47,13 +48,19 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
         status === catalog.specialConditions?.ASLEEP ||
         status === catalog.specialConditions?.PARALYZED) ||
       !Array.isArray(active.printed?.retreatCost) ||
-      active.printed.retreatCost.length !== 1 ||
-      active.printed.retreatCost[0] !== catalog.colorlessEnergyType ||
+      active.printed.retreatCost.length < 1 ||
+      active.printed.retreatCost.length > 2 ||
+      !active.printed.retreatCost.every(type =>
+        type === catalog.colorlessEnergyType) ||
       (active.tools ?? []).length > 0 ||
       !Array.isArray(active.energies) ||
-      active.energies.length > 1 ||
       !Array.isArray(own.bench) ||
       !(catalog.basicEnergies instanceof Set)) return null;
+  const feeUnits = active.printed.retreatCost.length;
+  if (active.energies.length < feeUnits - 1 ||
+      active.energies.length > feeUnits ||
+      active.energies.some(printing => !catalog.basicEnergies.has(printing)))
+    return null;
 
   // A face-up Skyliner makes Basic retreat free. Funding a printed one-unit
   // fee in that case would burn the owner's Energy attachment for no gain.
@@ -98,11 +105,10 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
   const target = ready[0];
   if (!target) return null;
 
-  if (active.energies.length === 1) {
-    if (!catalog.basicEnergies.has(active.energies[0])) return null;
+  if (active.energies.length === feeUnits) {
     return {kind: 'paid-retreat', benchIndex: target.benchIndex,
       printing: target.printing, attackName: target.attackName,
-      retreatCostUnits: 1, source: VERSION,
+      retreatCostUnits: feeUnits, source: VERSION,
       stage: 'retreat-after-basic-attachment', paperVerified: false};
   }
 
@@ -113,11 +119,13 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
     catalog.basicEnergies.has(printing) &&
     !(active.attacks ?? []).some(attack =>
       Array.isArray(attack.cost) &&
-      paysWithBasics({...active, energies: [printing]}, attack, catalog)));
+      paysWithBasics({...active,
+        energies: [...active.energies, printing]}, attack, catalog)));
   if (handIndex < 0) return null;
   return {kind: 'attach-basic-energy', slot: 'active', index: 0,
     handIndex, printing: view.ownHand[handIndex], source: VERSION,
-    stage: 'fund-one-basic-retreat',
+    stage: 'fund-one-unit-shortfall-retreat',
+    retreatCostUnits: feeUnits,
     readyBenchIndex: target.benchIndex,
     followupAttackName: target.attackName, paperVerified: false};
 }
