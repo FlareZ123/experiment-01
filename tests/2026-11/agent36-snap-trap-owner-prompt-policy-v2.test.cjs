@@ -15,6 +15,11 @@ const {
   withSnapTrapInsideNativeMatchesV2
 } = require('../../simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v2.cjs');
 
+const {
+  TEMPLE,
+  getSnapTrapPublicTempleEnergyOptions
+} = require('../../simulation/twinleaf/agent30/snap-trap-public-temple-energy-options-v1.cjs');
+
 const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const {SimpleTacticsAi: NativeSimpleTacticsAi} = require(path.join(OUTPUT, 'simple-bot/simple-tactics-ai'));
 const {runSnapTrapPrismStarDestinationContract} = require('../../simulation/twinleaf/agent12/snap-trap-prism-star-destination-native-v1.cjs');
@@ -788,4 +793,44 @@ test('real pinned headless.runMatch settles Snap Trap through the selected v0 ow
     rawStateFallbackCalls: selectedRuns.map(run => run.diagnostic.fallbackCalls),
     competitiveGamesQualified: 0
   }));
+});
+
+test('owner callback derives Temple Energy units at actual live prompt for both physical source seats', () => {
+  for (const sourceSeat of [0, 1]) {
+    const dce = energy('Double Colorless Energy SUM',
+      [CardType.COLORLESS, CardType.COLORLESS], {special: true});
+    const psychic = energy('Psychic Energy MEE', [CardType.PSYCHIC]);
+    const fixture = makeFixture(sourceSeat, [dce, psychic], [
+      {name: 'Two Colorless', cost: [CardType.COLORLESS, CardType.COLORLESS], damage: 200},
+      {name: 'One Psychic', cost: [CardType.PSYCHIC], damage: 100}
+    ]);
+    fixture.sourceOwner.stadium = {cards: [{fullName: TEMPLE}]};
+    fixture.attackerOwner.stadium = {cards: []};
+    let callbackCount = 0;
+    const outcome = runProtectedFixture(fixture, {
+      policyOptions: {
+        getEnergyOptions(state, prompt, attackerActive, nativeTypes) {
+          callbackCount++;
+          assert.strictEqual(state, fixture.state);
+          assert.strictEqual(prompt, fixture.prompt);
+          assert.strictEqual(attackerActive, fixture.attackerOwner.active);
+          return getSnapTrapPublicTempleEnergyOptions(
+            state, prompt, attackerActive, nativeTypes
+          );
+        }
+      }
+    });
+    const policy = outcome.result.audit.ownerPolicy;
+    assert.equal(callbackCount, 1);
+    assert.equal(policy.physicalSettlements, 1);
+    assert.equal(policy.choices[0].sourceSeat, sourceSeat);
+    assert.equal(policy.choices[0].specialEnergyBlocked, true);
+    assert.equal(policy.choices[0].bestBeforeAttackDamage, 100);
+    assert.equal(policy.choices[0].energyPrinting, 'Psychic Energy MEE');
+    assert.ok(fixture.attackerOwner.discard.cards.includes(psychic));
+    assert.ok(fixture.attackerOwner.active.energies.cards.includes(dce));
+    assert.deepEqual(dce.provides,
+      [CardType.COLORLESS, CardType.COLORLESS]);
+    assert.equal(hiddenReads, 0);
+  }
 });
