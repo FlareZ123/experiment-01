@@ -64,7 +64,7 @@ test('Authentic owner-deck search accepts actual physical Hood and one legal Ite
   const state={players:[owner,{id:'rival',deck:{cards:[]}}]};
   const pending=new ChooseCardsPrompt(owner.id,owner.deck);
   const outcome=resolveArvenHoodSearch(
-    state,0,pending,ResolvePromptAction);
+    state,0,pending,ResolvePromptAction,'ITEM');
   assert.ok(outcome);
   assert.deepEqual(outcome.chosen,
     ['Stealthy Hood UNB','Fog Crystal CRE']);
