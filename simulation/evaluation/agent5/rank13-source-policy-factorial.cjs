@@ -19,7 +19,7 @@ const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
   .find(deck=>deck.rank===13).cards
   .filter(card=>card.category==='Trainer').map(card=>card.name));
 
-const VERSION='agent5-rank13-source-opening-compressor-and-evolution-factorial-v4';
+const VERSION='agent5-rank13-source-opening-compressor-crispin-and-evolution-factorial-v5';
 const TARGET='13:2026:A:new-moon-lockbreaker-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
@@ -90,6 +90,8 @@ function run(deps={}){
           earlyRegidragoCompressorAllowFirstOwnTurnTwo:source,
           actorNaturalEvolutionRoot:source,
           actorNaturalEvolutionSourceOnly:source,
+          rank13CrispinRoot:source,
+          rank13CrispinSourceOnly:source,
           // Identical real owner-hand payments and own-deck search closure
           // in all cells, as in the successful Agent8 source-search panel.
           actorOnlySingleSearch:true,
@@ -146,7 +148,7 @@ function run(deps={}){
     version:VERSION,registration:registration.schema,
     originalSelectedRank13Deal:TARGET,
     cohort:'one retrospective historical physical deal, four-policy factorial',
-    sourceChallenger:'source-only first-own-turn held Battle Compressor with owner-deck Dragon donor prompt, natural evolution, Quick Ball, Mysterious Treasure and Regidrago Bench Grass; constant owner-prompt resolution',
+    sourceChallenger:'source-only first-own-turn held Battle Compressor with owner-deck Dragon donor prompt, owner-printed Crispin Grass/Fire acceleration, natural evolution, Quick Ball, Mysterious Treasure and Regidrago Bench Grass; constant owner-prompt resolution',
     candidateChallenger:'existing donor-funded native paid Perfection pivot',
     twinleafPin:registration.nativePin,
     physicalSixtiesUnchanged:true,
