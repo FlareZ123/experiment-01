@@ -23,6 +23,7 @@ on:
           - agent3-prospective-all29-celestial-paper-v2
           - agent3-thorns-underworld-owner-guard
           - agent3-fresh-celestial-v2-error-archive
+          - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
@@ -211,6 +212,21 @@ jobs:
         env:
           AGENT31_PORTABLE_JOINT_OUTPUT: agent31-portable-joint-aba.json
         run: node simulation/evaluation/agent31/portable-floatstone-seeker-guzma-aba.cjs
+      - name: Replay all six fresh-source Iron Thorns original physical deals with lock veto
+        if: inputs.experiment == 'agent3-thorns-fresh-original-six-deals'
+        env:
+          AGENT3_FRESH_THORNS_GUARD_OUTPUT: artifacts/agent3-fresh-thorns-guard.json
+        run: |
+          node --check simulation/evaluation/agent3/regress-thorns-initialization-fresh-field-20261109.cjs
+          node simulation/evaluation/agent3/regress-thorns-initialization-fresh-field-20261109.cjs
+      - name: Archive 12 retrospective fresh-deal real Store attempts
+        if: always() && inputs.experiment == 'agent3-thorns-fresh-original-six-deals'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-thorns-fresh-original-six-deals
+          path: artifacts/agent3-fresh-thorns-guard.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Test conservative Iron Thorns Initialization owner-ability lock veto
         if: inputs.experiment == 'agent3-thorns-underworld-owner-guard'
         run: |
