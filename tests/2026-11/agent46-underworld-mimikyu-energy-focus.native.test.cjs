@@ -77,8 +77,15 @@ for(const seat of [0,1]){
       assert.equal(proposal?.constructor?.name,'UseAbilityAction');
       assert.equal(proposal.name,'Underworld Door');
       x.store.dispatch(proposal);
+      // Native UsePowerEffect displays a WaitPrompt for the Ability animation
+      // before the card-specific Underworld Door attachment prompt exists.
+      const wait=x.store.state.prompts.find(prompt=>
+        prompt.result===undefined&&prompt.constructor.name==='WaitPrompt');
+      assert.ok(wait,'Pinned native Ability should open its animation WaitPrompt');
+      const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+      x.store.dispatch(new ResolvePromptAction(wait.id,null));
       const attach=x.store.state.prompts.find(prompt=>
-        prompt.constructor.name==='AttachEnergyPrompt');
+        prompt.result===undefined&&prompt.constructor.name==='AttachEnergyPrompt');
       assert.ok(attach,'Real Underworld Door must create actual physical attach prompt');
       assert.equal(attach.message,'ATTACH_ENERGY_TO_BENCH');
       const answer=x.resolver.resolvePrompt(x.store.state,x.candidate,attach);
