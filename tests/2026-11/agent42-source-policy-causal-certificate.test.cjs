@@ -41,8 +41,8 @@ test('actual rank11 reported action choice is recognized as source attack displa
   assert.equal(result.physicalGate.admitted,true);
   assert.equal(result.sourceSeat,0);
   assert.equal(result.candidateSeat,1);
-  assert.equal(result.withoutPivot.status,'SOURCE_ATTACK_DISPLACED');
-  assert.equal(result.withPivot.status,'SOURCE_ATTACK_DISPLACED');
+  assert.equal(result.withoutPivot.status,'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
+  assert.equal(result.withPivot.status,'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
   assert.equal(result.withoutPivot.firstDifference.index,2);
   assert.equal(result.withoutPivot.firstDifference.challenger.card,'Quick Ball');
   assert.equal(result.withoutPivot.displacedAttack.attack,'Psychic');
@@ -58,7 +58,7 @@ test('opposite physical seat attributes new source action to source',()=>{
   const t={...trial,candidateSlot:'A',id:'5:0:A:new-moon-lockbreaker-v1',rank:5};
   const arms=fourArms(t);
   assert.equal(certifyGroup(arms,t).sourceSeat,1);
-  assert.equal(certifyGroup(arms,t).withoutPivot.status,'SOURCE_ATTACK_DISPLACED');
+  assert.equal(certifyGroup(arms,t).withoutPivot.status,'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
 });
 
 test('candidate action first difference fails source isolation',()=>{
@@ -132,6 +132,43 @@ test('identical accepted roots are inactive despite a registered flag',()=>{
   assert.equal(result.withoutPivot.status,'INACTIVE_SOURCE_TREATMENT');
   assert.equal(result.withPivot.status,'INACTIVE_SOURCE_TREATMENT');
   assert.equal(result.ownerPaymentCertified,false);
+});
+
+test('search-first turn retains the original attack when later settled that turn',()=>{
+  const arms=fourArms();
+  for(const phase of ['P0S1','P1S1']) {
+    const row=arms[phase];
+    row.rootActionLedger.push(root(0,'PlayCardAction',106,{card:'Crobat V'}));
+    row.rootActionLedger.push(root(0,'AttackAction',107,{attack:'Psychic'}));
+    row.sourceAttackSettlement={attacks:[{actionOrdinal:107,
+      attackName:'Psychic',settledPromptChain:true,
+      settlementCrossesClockReset:false,completionRootOrdinal:110}]};
+  }
+  const r=certifyGroup(arms,trial);
+  assert.equal(r.withoutPivot.status,'SOURCE_ATTACK_DEFERRED_SAME_TURN');
+  assert.equal(r.withoutPivot.followthrough.sameTurnSameAttackSettled,true);
+  assert.equal(r.withoutPivot.followthrough.settledAttackOrdinal,107);
+  assert.equal(r.withoutPivot.decisionQuality,
+    'SOURCE_ATTACK_PRESERVED_AFTER_SEARCH');
+  assert.equal(r.withPivot.status,'SOURCE_ATTACK_DEFERRED_SAME_TURN');
+});
+
+test('later unverified, wrong-seat and next-turn attacks do not prove payoff',()=>{
+  const arms=fourArms();
+  arms.P0S1.rootActionLedger.push(root(0,'AttackAction',107,
+    {attack:'Psychic'}));
+  assert.equal(certifyGroup(arms,trial).withoutPivot.status,
+    'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
+  arms.P0S1.sourceAttackSettlement={attacks:[{actionOrdinal:107,
+    attackName:'Psychic',settledPromptChain:true,
+    settlementCrossesClockReset:false,completionRootOrdinal:110}]};
+  arms.P0S1.rootActionLedger[3].turnBefore=23;
+  assert.equal(certifyGroup(arms,trial).withoutPivot.status,
+    'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
+  arms.P0S1.rootActionLedger[3].turnBefore=18;
+  arms.P0S1.rootActionLedger[3].playerSlot=1;
+  assert.equal(certifyGroup(arms,trial).withoutPivot.status,
+    'SOURCE_ATTACK_NOT_SETTLED_SAME_TURN');
 });
 
 test('positive native payment receipt is strictly narrower than Store acceptance',()=>{
