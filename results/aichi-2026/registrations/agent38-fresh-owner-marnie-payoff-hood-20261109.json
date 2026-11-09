@@ -1,0 +1,229 @@
+{
+  "schema": "agent38-fresh-native-marnie-payoff-hood-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "registeredAtUtc": "2026-11-09T10:50:00Z",
+  "objective": "Assess fresh naturally dealt, owner-only paid Marnie after physically selected Trainers Mail, versus existing owner Mail-only, against unchanged fixed Hood Shield v1 and original rank5 Mew Genesect sixty.",
+  "originalSourceRank": 5,
+  "originalSource60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateId": "hood-shield-v1",
+  "fixedCandidateManifest": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "freshPhysicalGroups": [
+    {
+      "rank": 5,
+      "repeat": 3880,
+      "candidateSlot": "A",
+      "seed": 1528221810
+    },
+    {
+      "rank": 5,
+      "repeat": 3881,
+      "candidateSlot": "B",
+      "seed": 834651168
+    },
+    {
+      "rank": 5,
+      "repeat": 3882,
+      "candidateSlot": "A",
+      "seed": 1670964863
+    },
+    {
+      "rank": 5,
+      "repeat": 3883,
+      "candidateSlot": "B",
+      "seed": 1802201247
+    },
+    {
+      "rank": 5,
+      "repeat": 3884,
+      "candidateSlot": "A",
+      "seed": 155859685
+    },
+    {
+      "rank": 5,
+      "repeat": 3885,
+      "candidateSlot": "B",
+      "seed": 1761872533
+    },
+    {
+      "rank": 5,
+      "repeat": 3886,
+      "candidateSlot": "A",
+      "seed": 298748355
+    },
+    {
+      "rank": 5,
+      "repeat": 3887,
+      "candidateSlot": "B",
+      "seed": 607526951
+    },
+    {
+      "rank": 5,
+      "repeat": 3888,
+      "candidateSlot": "A",
+      "seed": 1114846255
+    },
+    {
+      "rank": 5,
+      "repeat": 3889,
+      "candidateSlot": "B",
+      "seed": 332569531
+    },
+    {
+      "rank": 5,
+      "repeat": 3890,
+      "candidateSlot": "A",
+      "seed": 414983059
+    },
+    {
+      "rank": 5,
+      "repeat": 3891,
+      "candidateSlot": "B",
+      "seed": 1184194028
+    },
+    {
+      "rank": 5,
+      "repeat": 3892,
+      "candidateSlot": "A",
+      "seed": 1731711812
+    },
+    {
+      "rank": 5,
+      "repeat": 3893,
+      "candidateSlot": "B",
+      "seed": 5918418
+    },
+    {
+      "rank": 5,
+      "repeat": 3894,
+      "candidateSlot": "A",
+      "seed": 1565506938
+    },
+    {
+      "rank": 5,
+      "repeat": 3895,
+      "candidateSlot": "B",
+      "seed": 528854818
+    },
+    {
+      "rank": 5,
+      "repeat": 3896,
+      "candidateSlot": "A",
+      "seed": 1138714031
+    },
+    {
+      "rank": 5,
+      "repeat": 3897,
+      "candidateSlot": "B",
+      "seed": 1958094033
+    },
+    {
+      "rank": 5,
+      "repeat": 3898,
+      "candidateSlot": "A",
+      "seed": 836382547
+    },
+    {
+      "rank": 5,
+      "repeat": 3899,
+      "candidateSlot": "B",
+      "seed": 218120837
+    },
+    {
+      "rank": 5,
+      "repeat": 3900,
+      "candidateSlot": "A",
+      "seed": 186634487
+    },
+    {
+      "rank": 5,
+      "repeat": 3901,
+      "candidateSlot": "B",
+      "seed": 945463713
+    },
+    {
+      "rank": 5,
+      "repeat": 3902,
+      "candidateSlot": "A",
+      "seed": 729079906
+    },
+    {
+      "rank": 5,
+      "repeat": 3903,
+      "candidateSlot": "B",
+      "seed": 1975187607
+    },
+    {
+      "rank": 5,
+      "repeat": 3904,
+      "candidateSlot": "A",
+      "seed": 50363607
+    },
+    {
+      "rank": 5,
+      "repeat": 3905,
+      "candidateSlot": "B",
+      "seed": 1515961011
+    },
+    {
+      "rank": 5,
+      "repeat": 3906,
+      "candidateSlot": "A",
+      "seed": 1777885289
+    },
+    {
+      "rank": 5,
+      "repeat": 3907,
+      "candidateSlot": "B",
+      "seed": 954039019
+    },
+    {
+      "rank": 5,
+      "repeat": 3908,
+      "candidateSlot": "A",
+      "seed": 1855068385
+    },
+    {
+      "rank": 5,
+      "repeat": 3909,
+      "candidateSlot": "B",
+      "seed": 717763484
+    },
+    {
+      "rank": 5,
+      "repeat": 3910,
+      "candidateSlot": "A",
+      "seed": 426803395
+    },
+    {
+      "rank": 5,
+      "repeat": 3911,
+      "candidateSlot": "B",
+      "seed": 1738124109
+    }
+  ],
+  "baselineDifferenceAxis": {
+    "actorOwnerMailAfterPass": true,
+    "actorOwnerMailAfterPassSourceOnly": true,
+    "actorOwnerMailSelectedMarnieOnPass": false
+  },
+  "treatmentDifferenceAxis": {
+    "actorOwnerMailAfterPass": true,
+    "actorOwnerMailAfterPassSourceOnly": true,
+    "actorOwnerMailSelectedMarnieOnPass": true
+  },
+  "anticipatedNativeStoreAttempts": 64,
+  "excludedPreviouslyExposedSourceMailSeeds": [
+    1291419999,
+    2062742770,
+    1929767496,
+    936150192,
+    895287650,
+    1130119946,
+    495999543,
+    1513056614
+  ],
+  "predeclaredSuccessCriteria": "At least one source-prompt-selected Marnie from an actual held Mail and a subsequent native owner Supporter PlayCardAction that physically reaches discard after its effect prompts and receives a genuine nonprompt opponent game action.",
+  "strictInterpretation": "Zero qualified paper games. Do not report pseudo win rate for all 32 Aichi opponents from rank5 development. Every error, abort and cap remains present. All policies and exact printed 60s fixed between arms.",
+  "limits": "Full source agent may shuffle away the Supporter or be unable to play it under lock. Marnie selection is rare; a zero-treatment event is a valid negative exposure census."
+}
