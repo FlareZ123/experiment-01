@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      diagnose_rank14_root_linkage:
+        description: 'Reproduce only the frozen rank14 candidate seat B physical Store target-linkage failure'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -179,3 +184,9 @@ jobs:
           path: agent32-all29-authentic-original-116-native.json
           retention-days: 21
           if-no-files-found: warn
+
+      - name: Reproduce the original rank14 native root-target linkage in its frozen physical deal
+        if: ${{ inputs.diagnose_rank14_root_linkage }}
+        run: |
+          node --check simulation/evaluation/agent45-rank14-native-linkage-debug.cjs
+          node simulation/evaluation/agent45-rank14-native-linkage-debug.cjs
