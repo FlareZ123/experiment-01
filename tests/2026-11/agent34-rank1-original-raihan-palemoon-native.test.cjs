@@ -57,4 +57,22 @@ test('original physical rank1 t16 -> t18 Raihan/Pale Moon-GX genuine native two-
   assert.equal(corrected.remainingOpposingEnergy.length,0);
   assert.equal(corrected.discardedPhysicalOpposingEnergy,3);
   assert.equal(corrected.correctedExtraEnergy,1);
+  // Opposing Latias ex SSP has Skyliner: a Basic Active can retreat for
+  // zero Energy into a public Bench Pokémon even after the corrected
+  // three-Energy discard. Observe the actual opponent response, not merely
+  // the scheduled delayed KO.
+  for(const arm of [baseline,corrected]){
+    assert.ok(arm.opposingVisibleBenches.length>=1,
+      'opponent must have an actual face-up Bench target');
+    assert.equal(arm.opponentRetreat.status,'native-retreat-and-pass-settled',
+      'the published Skyliner counterreply must be native-payable');
+    assert.equal(arm.opponentRetreat.afterRetreatQueue,0);
+    assert.equal(arm.opponentRetreat.correctedDelayedEffects,1);
+    assert.equal(arm.opponentRetreat.formerNowOnBench,true);
+    assert.equal(arm.opponentRetreat.oldDefenderSurvived,true);
+    assert.equal(arm.opponentRetreat.oldDefenderDiscarded,false);
+    assert.equal(arm.opponentRetreat.afterOpposingPrizes,
+      arm.opponentRetreat.beforePrizes);
+    assert.equal(arm.opponentRetreat.queuedAfterTurn,0);
+  }
 });
