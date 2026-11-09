@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rootDigest, archivedPhysicalSeats, verifiedMaterialTransition,
+const {rootDigest, verifiedOfficialAichiClock, archivedPhysicalSeats, verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
   screenUnmodifiedPrintedCosts, screenNativeMaterialReciprocalExchange,
@@ -68,7 +68,14 @@ function trialFor(ledger=roots) {
       causalEvidenceRef:i>0?'causal-witness-' + i:null
     })),
     independentFullPaperRulesAudit:true,hiddenInformationAudit:true,
-    official25MinuteClockAudit:true
+    officialMatchClock:{
+      stage:'top32',limitMinutes:25,
+      endOfTimeProcedure:'knockout-end-second-player-turn-prize-tiebreak',
+      independentAudit:true,
+      officialRulesSourceRef:'pokemon-card.com/info/005445.html',
+      timekeepingReceiptRef:'archive/round-clock',
+      independentReviewer:'independent-clock-reviewer'
+    }
   };
 }
 
@@ -137,8 +144,8 @@ test('same policy is required on both physical seats',()=>{
   assert.ok(result.failures.includes('policy-asymmetry-or-unverified'));
 });
 
-test('native terminal does not imply paper or 25-minute certification',()=>{
-  const input=trialFor();input.official25MinuteClockAudit=false;
+test('native terminal does not imply independently audited event clock',()=>{
+  const input=trialFor();input.officialMatchClock.independentAudit=false;
   input.independentFullPaperRulesAudit=false;
   const result=evaluateBilateralCompetence(input);
   assert.equal(result.nativeTerminal,true);
@@ -604,4 +611,65 @@ test('registration-derived abort seat cannot authenticate an unobserved source d
     nativeAbortProvenance:{sourceSeat:0,sourceDealStatus:'VERIFIED'}
   });
   assert.equal(missingDigest.sourceSeat,null);
+});
+
+test('Aichi clock gate accepts separately reviewed Swiss, Top32 and final profiles',()=>{
+  const top32=trialFor();
+  assert.equal(verifiedOfficialAichiClock(top32),true);
+  assert.equal(evaluateBilateralCompetence(top32).structuralGatePassed,true);
+  const swiss=trialFor();
+  swiss.officialMatchClock.stage='swiss';
+  swiss.officialMatchClock.endOfTimeProcedure=
+    'swiss-conditional-second-player-turn-both-loss';
+  assert.equal(evaluateBilateralCompetence(swiss).structuralGatePassed,true);
+  const final=trialFor();
+  final.officialMatchClock.stage='final';
+  final.officialMatchClock.limitMinutes=35;
+  assert.equal(evaluateBilateralCompetence(final).officialClockAudit,true);
+  assert.equal(evaluateBilateralCompetence(final).structuralGatePassed,true);
+});
+
+test('Aichi final rejects 25-minute clock even with independent audit',()=>{
+  const trial=trialFor();
+  trial.officialMatchClock.stage='final';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  assert.ok(evaluateBilateralCompetence(trial).failures.includes(
+    'official-match-clock-audit-pending'));
+  trial.officialMatchClock.limitMinutes=35;
+  assert.equal(verifiedOfficialAichiClock(trial),true);
+});
+
+test('Aichi nonfinal knockout and Swiss reject the wrong clock procedure',()=>{
+  const trial=trialFor();
+  trial.officialMatchClock.limitMinutes=35;
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.officialMatchClock.limitMinutes=25;
+  trial.officialMatchClock.endOfTimeProcedure=
+    'swiss-conditional-second-player-turn-both-loss';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.officialMatchClock.stage='swiss';
+  assert.equal(verifiedOfficialAichiClock(trial),true);
+  trial.officialMatchClock.endOfTimeProcedure=
+    'knockout-end-second-player-turn-prize-tiebreak';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('legacy 25-minute boolean cannot silently qualify any stage',()=>{
+  const trial=trialFor();
+  delete trial.officialMatchClock;
+  trial.official25MinuteClockAudit=true;
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  assert.equal(evaluateBilateralCompetence(trial).structuralGatePassed,false);
+});
+
+test('missing source, timekeeping receipt, reviewer, or audit fails closed',()=>{
+  for(const field of ['officialRulesSourceRef','timekeepingReceiptRef',
+    'independentReviewer','independentAudit']){
+    const trial=trialFor();
+    trial.officialMatchClock[field]=field==='independentAudit'?false:'';
+    assert.equal(verifiedOfficialAichiClock(trial),false,field);
+  }
+  const trial=trialFor();
+  trial.officialMatchClock.stage='unknown';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
 });
