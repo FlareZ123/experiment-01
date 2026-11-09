@@ -30,7 +30,8 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  *   policy?:object,preferences?:Record<string,string[]>,
  *   targetValuesByPrinting?:Record<string,number>,
  *   preserveRecoveryValue?:boolean,autoPlayRoot?:boolean,
- *   autoPlayCarrier?:boolean,minCarrierTargets?:number}} [options]
+ *   autoPlayCarrier?:boolean,minCarrierTargets?:number,
+ *   passToBoxRoot?:boolean}} [options]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
@@ -67,6 +68,11 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     ownerCategoryPromptProposals:0,
     autoPlayRootOptIn:options.autoPlayRoot===true,
     autoPlayCarrierOptIn:options.autoPlayCarrier===true,
+    passToBoxRootOptIn:options.passToBoxRoot===true,
+    interceptedOwnerPasses:0,
+    interceptedOwnerPassWithBox:0,
+    passToBoxRootAffordable:0,
+    passToBoxRootAccepted:0,
     ownerCarrierRootProposals:0,
     nativeOwnerCarrierRootAccepted:0,
     ownerCarrierPromptProposals:0,
@@ -222,6 +228,37 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     if(action?.constructor?.name==='AddPlayerAction'&&
       liveFromStaged===null)live=this;
     const sameStore=this===live;
+    // Canonical owner-root adapters can consume every root decode without
+    // delegating to this wrapper. Intercept ONLY their terminal native Pass,
+    // after all higher-priority native root actions had their opportunity.
+    // Source owner/turn and affordability are rechecked on the live Store.
+    if(sameStore&&options.passToBoxRoot===true&&
+      action?.constructor?.name==='PassTurnAction'&&
+      this.state.prompts?.every(p=>p.result!==undefined)){
+      const seat=this.state.players.findIndex(p=>p.id===action.id);
+      if(seat>=0&&this.state.activePlayer===seat){
+        audit.interceptedOwnerPasses++;
+        const owner=this.state.players[seat];
+        const index=owner.hand.cards.findIndex(c=>
+          c.fullName==='Secret Box TWM');
+        if(index>=0){
+          audit.interceptedOwnerPassWithBox++;
+          const view=actorObservation(this.state,seat);
+          if(view.ownTurnResources.itemPlayLocked!==true&&
+            planSecretBoxRecoveryCapacityPayment(
+              owner,this.state,options.policy,options)!==null){
+            audit.passToBoxRootAffordable++;
+            const replacement=new PlayCardAction(owner.id,index,{
+              player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+            });
+            rootPlanned.add(replacement);
+            const accepted=dispatch.call(this,replacement,...rest);
+            audit.passToBoxRootAccepted++;
+            return accepted;
+          }
+        }
+      }
+    }
     const record=sameStore?planned.get(action):null;
     const intendedRoot=sameStore&&rootPlanned.has(action);
     const intendedCarrierRoot=sameStore&&carrierRootPlanned.has(action);
