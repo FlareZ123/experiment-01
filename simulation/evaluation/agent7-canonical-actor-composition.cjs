@@ -533,6 +533,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(actorChoosePokemon?{
         choosePokemonAccepted:pokemonAudit.accepted??null,
         choosePokemonSettled:pokemonAudit.postconditionsConfirmed??null,
+        choosePokemonNativeFiltered:pokemonAudit.nativeTargetFiltered??null,
         choosePokemonBySeat:pokemonAudit.bySeat??null
       }:{}),
       ...(guzmaPromptAudit?{
