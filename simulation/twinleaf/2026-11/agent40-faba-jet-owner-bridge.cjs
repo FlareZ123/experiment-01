@@ -56,6 +56,11 @@ function chooseFabaJetHoodRoot(view) {
       .some(p=>p.startsWith('Temple of Sinnoh ')))return null;
   const target=hoodedVileplumeTarget(view.opponentPublic);
   if(!target)return null;
+  const targetPokemon=target.slot==='bench'?
+    view.opponentPublic.bench[target.index]:view.opponentPublic.active;
+  // An additional Tool creates a third Faba prompt outside this narrowly
+  // authenticated two-step owner selector.
+  if(targetPokemon.tools?.length!==1)return null;
   const fabaIndex=view.ownHand.findIndex(p=>p==='Faba LOT');
   if(fabaIndex<0||!view.ownHand.some(p=>p==='Jet Energy PAL')||
     !view.ownHand.some(p=>p.startsWith('Nest Ball ')))return null;
