@@ -18,6 +18,7 @@ test('larger or protected hands remain available for alternative owner actions',
   assert.equal(decide([{name:'Secret Box'}],12).reason,'protected-resource-in-hand');
   assert.equal(decide([{name:'Custom ACE',aceSpec:true}],12).decision,false);
   assert.equal(decide([{name:'Custom ACE',isAceSpec:true}],12).decision,false);
+  assert.equal(decide([{name:'Ditto Prism Star'}],12).decision,false);
 });
 test('deckout and incomplete owner zones are conservative declines',()=>{
   assert.equal(decide([],5).reason,'conserve-deck-near-deckout');
@@ -29,15 +30,22 @@ test('deckout and incomplete owner zones are conservative declines',()=>{
 test('receipt requires every old physical card in discard and exactly six new cards drawn',()=>{
   const a={name:'A'},b={name:'B'};
   const h=Array.from({length:6},(_,i)=>({name:'New'+i}));
-  const before={hand:[a,b],discard:[],deckCount:12};
-  const after={hand:{cards:h},discard:{cards:[a,b]},deck:{cards:Array(6).fill(null)}};
+  const before={hand:[a,b],discard:[],lostzone:[],deckCount:12};
+  const after={hand:{cards:h},discard:{cards:[a,b]},lostzone:{cards:[]},
+    deck:{cards:Array(6).fill(null)}};
   assert.deepEqual(verifyDedechangeSettlement(before,after),{
-    settled:true,discardedCount:2,drawnCount:6,deckDelta:6,
+    settled:true,discardedCount:2,lostZoneCount:0,drawnCount:6,deckDelta:6,
     handPhysicallyDiscarded:true
   });
   assert.equal(verifyDedechangeSettlement(before,{
     ...after,discard:{cards:[a]}
   }).settled,false);
+  const prism=verifyDedechangeSettlement(before,{
+    ...after,discard:{cards:[a]},lostzone:{cards:[b]}
+  });
+  assert.equal(prism.settled,true);
+  assert.equal(prism.discardedCount,1);
+  assert.equal(prism.lostZoneCount,1);
   assert.equal(verifyDedechangeSettlement(before,{
     ...after,hand:{cards:[...h.slice(0,5),a]}
   }).settled,false);
@@ -57,7 +65,7 @@ test('native-style exact physical Dedenne entry authorizes true and unrelated la
     constructor(){this.state={turn:3,players:[{id:101,
       hand:{cards:[{name:'Dedenne GX'},card('Fire Energy')]},
       deck:{cards:Array.from({length:15},(_,i)=>({name:'Deck'+i}))},
-      discard:{cards:[]},
+      discard:{cards:[]},lostzone:{cards:[]},
       active:{cards:[]},bench:[{cards:[]},{cards:[]},{cards:[]},{cards:[]},{cards:[]}]}],
       prompts:[]};}
     dispatch(action){
