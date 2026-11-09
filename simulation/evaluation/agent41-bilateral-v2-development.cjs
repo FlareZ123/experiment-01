@@ -1458,7 +1458,7 @@ function runDevelopment({
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorOwnerMailAfterPassSourceOnly=false,
   actorBilateralLillieAfterPass=false,
-  actorDeckoutRescueRoot=false,
+  actorDeckoutRescueRoot=false,actorDeckoutRescueBeforeAttack=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
@@ -2231,6 +2231,7 @@ function runDevelopment({
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerLillieAfterPass:actorBilateralLillieAfterPass,
             ownerDeckoutRescueRoot:actorDeckoutRescueRoot,
+            ownerDeckoutRescueBeforeAttack:actorDeckoutRescueBeforeAttack,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
             ownerVipAfterPass:actorVipAfterPass,
@@ -2653,6 +2654,8 @@ function runDevelopment({
       actorBilateralLillieAfterPass,
     actorDeckoutRescueRootOptIn:actorOnlyComposition&&
       actorDeckoutRescueRoot,
+    actorDeckoutRescueBeforeAttackOptIn:actorOnlyComposition&&
+      actorDeckoutRescueBeforeAttack,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
