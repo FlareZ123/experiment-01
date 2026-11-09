@@ -45,6 +45,7 @@ function staged(sourceSeat){
   owner.active.cards.length=0;
   owner.active.cards.push(get('Shadow Rider Calyrex V CRE'));
   owner.active.cards.push(get('Shadow Rider Calyrex VMAX CRE'));
+  owner.bench=Array.from({length:5},()=>new CardList());
   owner.bench[0].cards.push(get('Mew UNB'));
   owner.hand.cards.push(get('Psychic Energy SVE'));
   opponent.hand.cards.push(get('Path to the Peak CRE'));
