@@ -12,10 +12,10 @@ const native = name => require(path.join(OUT, name));
  * The visible board is artificial and does not represent a natural game.
  * The test checks a paper-necessary tactical interaction and physical
  * action settlement on both actual physical seats.
- * @param {{candidateSeat:0|1,wideWall:boolean}} options
+ * @param {{candidateSeat:0|1,wideWall:boolean,abilityLock?:boolean}} options
  * @returns {object}
  */
-function probe({candidateSeat, wideWall}) {
+function probe({candidateSeat, wideWall, abilityLock=false}) {
   const {Store} = native('game/store/store');
   const {Player} = native('game/store/state/player');
   const {PokemonCardList} = native('game/store/state/pokemon-card-list');
@@ -58,7 +58,8 @@ function probe({candidateSeat, wideWall}) {
     make('Vileplume AOR'));
   vile.pokemonPlayedTurn = 1;
   candidate.bench.push(vile);
-  opponent.active.cards.push(make('Shadow Rider Calyrex V CRE'));
+  opponent.active.cards.push(make(abilityLock ? 'Wobbuffet PHF' :
+    'Shadow Rider Calyrex V CRE'));
   opponent.active.pokemonPlayedTurn = 1;
   const mimikyu = new PokemonCardList();
   mimikyu.cards.push(make('Mimikyu GRI'));
@@ -79,7 +80,7 @@ function probe({candidateSeat, wideWall}) {
     wideWall ? 'Rhyperior SCR' : 'Rhydon SCR');
   assert.equal(candidate.bench[0].getPokemonCard().fullName,'Vileplume AOR');
   assert.equal(opponent.active.getPokemonCard().fullName,
-    'Shadow Rider Calyrex V CRE');
+    abilityLock ? 'Wobbuffet PHF' : 'Shadow Rider Calyrex V CRE');
   assert.equal(opponent.hand.cards[0].fullName,'Guzma BUS');
 
   let playError = null, promptError = null;
@@ -131,18 +132,18 @@ function probe({candidateSeat, wideWall}) {
   };
   const settledGust = after.candidateActive === 'Vileplume AOR' &&
     after.opponentActive === 'Mimikyu GRI';
-  if (wideWall) {
+  if (wideWall && !abilityLock) {
     assert.equal(settledGust,false,
       'Rhyperior Wide Wall must prevent the Guzma-forced Vileplume activation');
     assert.equal(after.candidateActive,'Rhyperior SCR');
     assert.equal(after.candidateVileplumeStillBenched,true);
   } else {
     assert.equal(settledGust,true,
-      'No-Wide-Wall native negative control must complete genuine Guzma gust');
+      'No Wide Wall or Wobbuffet Ability suppression must allow genuine Guzma gust');
     assert.equal(after.candidateVileplumeStillBenched,false);
   }
   return {
-    candidateSeat,wideWall,playError,promptError,
+    candidateSeat,wideWall,abilityLock,playError,promptError,
     firstPromptType,vileOffered,settledGust,after,
     actualNativeStore:true,printedEffectHook,
     completePrintedSixties:false,
@@ -154,10 +155,11 @@ function probe({candidateSeat, wideWall}) {
 function run() {
   const rows=[];
   for (const seat of [0,1]) {
-    for (const wideWall of [false,true])
-      rows.push(probe({candidateSeat:seat,wideWall}));
+    for (const [wideWall,abilityLock] of [
+      [false,false],[true,false],[true,true]
+    ]) rows.push(probe({candidateSeat:seat,wideWall,abilityLock}));
   }
-  assert.equal(rows.length,4);
+  assert.equal(rows.length,6);
   return {
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     fixture:'synthetic, deliberately staged, native Store Guzma with research-implemented SCR Wide Wall',
