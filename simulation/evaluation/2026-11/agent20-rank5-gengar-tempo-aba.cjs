@@ -69,6 +69,7 @@ function arm(phase,enabled,reg,options={}){
     registeredTrials:reg.registeredTrials,
     registeredFrameName:reg.caseId+':'+phase,
     nativeRootActionLimit:reg.rootCap,
+    captureNativeAttackPhysicalTape:options.captureNativeAttackPhysicalTape===true,
     onRootActionDispatched:capture.onRootActionDispatched
   });
   assert.equal(result.rows.length,1);
@@ -117,6 +118,8 @@ function arm(phase,enabled,reg,options={}){
     sourceSeat:seats.source,candidateSeat:seats.candidate,
     rootPhysicalLinked,
     sourcePerfectionPrizeReceipts,candidatePerfectionPrizeReceipts,
+    nativeAttackModalityLedger:row.nativeAttackModalityLedger??null,
+    nativeAttackPhysicalTape:row.nativeAttackPhysicalTape??null,
     postActions,rootLedgerSha256:sha256(roots),
     roots,physicalTape:tape};
 }
