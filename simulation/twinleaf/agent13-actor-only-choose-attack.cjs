@@ -157,6 +157,9 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
+  const preferMewGenesectTechnoBlastOwnerSeat=
+    deps.preferMewGenesectTechnoBlastOwnerSeat??null;
+  assert.ok([null,0,1].includes(preferMewGenesectTechnoBlastOwnerSeat));
   const preferMewMaxMiracleOverSelfCopy=deps.preferMewMaxMiracleOverSelfCopy===true;
   const preferRank13DragapultPhantomDive=deps.preferRank13DragapultPhantomDive===true;
   const preferPublicFlatCopy=deps.preferPublicFlatCopy===true||
@@ -174,6 +177,7 @@ function withActorOnlyChooseAttack(run,deps={}){
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
     preferMewGenesectTechnoBlast,preferMewMaxMiracleOverSelfCopy,
+    preferMewGenesectTechnoBlastOwnerSeat,
     preferRank13DragapultPhantomDive,rank13SourceSeat,
     preferPublicFlatCopy,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
@@ -194,7 +198,10 @@ function withActorOnlyChooseAttack(run,deps={}){
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage,
-        preferMewGenesectTechnoBlast,preferMewMaxMiracleOverSelfCopy,
+        preferMewGenesectTechnoBlast:preferMewGenesectTechnoBlast&&
+          (preferMewGenesectTechnoBlastOwnerSeat===null||
+            preferMewGenesectTechnoBlastOwnerSeat===seat),
+        preferMewMaxMiracleOverSelfCopy,
         preferRank13DragapultPhantomDive,rank13SourceSeat,
         preferFasterNominalCopy:preferPublicFlatCopy});
     const controlIntent=preferZeroHandPrintedDamage?
