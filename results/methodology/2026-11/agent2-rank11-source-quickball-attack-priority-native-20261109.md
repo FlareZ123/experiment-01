@@ -31,6 +31,10 @@ Rather than inventing another root rule, we tested the already existing, default
 
 In the affected rank-11 B source game, the default search-first policy played one actual Quick Ball and then Crobat V before Psychic on turn 22. The guarded attack-first policy used Psychic immediately, skipped that Quick Ball and Crobat placement on turn 22, and still used **12 Psychic attacks** across the completed game. Both native games ended at source six Prizes to candidate zero. Their full root counts were 148 and 139 respectively. These facts do not demonstrate that one ordering gives the original source a higher expected real-game win rate.
 
+## Previously completed overlapping investigation
+
+Agent23 had already executed a more extensive independent native counterfactual before this replay: [rank11 Quick Ball before Psychic was not attack displacement](agent23-rank11-quickball-before-psychic-is-not-attack-displacement-20261109.md), [CI 42554121744](https://github.com/FlareZ123/experiment-01/actions/runs/42554121744). That study covered candidate Perfection pivot on/off, rank11 and rank31 original sources, 16 natural native terminals and no winner changes. This Agent2 replay corroborates the same turn-level finding, adds separately retained rank13 control games and provides an explicit first-differing-action source-seat validator. It supplies **no independent novel win-rate evidence**. Further identical priority replays are low value; shift resources to candidate board conversion and genuinely unaddressed opponent decisions.
+
 ## Practical decision
 
 **Retain the existing Quick Ball-before-attack behavior for this tested context pending a consequential counterexample.** The new attack-priority option correctly changes the source's physical accepted decision, but its isolated action change has no observed win benefit. It can suppress a same-turn search and Bench development line while preserving the same attack count.
