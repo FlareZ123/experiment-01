@@ -50,7 +50,7 @@ function nativeBoard(options){
       bench:[{printing:'Genesect V FST',abilities:['Fusion Strike System']}]
     },opponentPublic:{active:{printing:options.active}}
   };
-  return {store,state,owner,opponent,genesect,ownerView};
+  return {store,state,owner,opponent,genesect,ownerView,printing};
 }
 
 test('native Genesect available in unlocked positions, both physical seats',()=>{
@@ -84,7 +84,7 @@ test('real native Cologne removes Klefki lock and Genesect becomes usable',()=>{
   const board=nativeBoard({seat:0,active:'Klefki SVI'});
   assert.deepEqual(nativeGenesectPowerAvailability(
     board.state,board.store,0),[]);
-  const card=initializeCards().getCardByName('Canceling Cologne ASR');
+  const card=board.printing('Canceling Cologne ASR');
   assert.ok(card);
   card.id=41200;
   board.owner.hand.cards.push(card);
@@ -93,6 +93,8 @@ test('real native Cologne removes Klefki lock and Genesect becomes usable',()=>{
   const action=new PlayCardAction(board.owner.id,0,
     {player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
   board.store.dispatch(action);
+  assert.equal(board.opponent.marker.hasMarker('CANCELING_COLOGNE_MARKER',card),true,
+    'Native Cologne must mark the actual opponent player');
   assert.deepEqual(nativeGenesectPowerAvailability(
     board.state,board.store,0),[{position:'bench',benchIndex:0}]);
 });
