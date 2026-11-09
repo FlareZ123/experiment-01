@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_mail_beach_arven_celestial:
+        description: 'Native original Regidrago V Celestial Roar owner-energy attachment with Dedenne true'
+        required: false
+        type: boolean
+        default: false
       agent7_mail_cross_archetype:
         description: 'Run frozen A/B rank9 and rank26 owner Mail native generalization'
         required: false
@@ -83,10 +88,10 @@ jobs:
       - name: Verify selected-v8 canary release-gate contract
         run: node --test tests/2026-11/agent2-v8-common-first-owner-root-canary-contract.test.cjs
       - name: Run selected-v8 common-policy first-owner-root canary
-        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_beach_arven && !inputs.agent7_mail_beach_arven_treasure && !inputs.agent7_mail_beach_arven_confirm && !inputs.agent7_mail_beach_arven_nest && !(inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) && !inputs.agent7_mail_cross_archetype && !inputs.agent7_quick_ball_vip }}
+        if: ${{ !inputs.agent7_early_beach && !inputs.agent7_mail_beach_combo && !inputs.agent7_mail_beach_arven && !inputs.agent7_mail_beach_arven_treasure && !inputs.agent7_mail_beach_arven_confirm && !inputs.agent7_mail_beach_arven_nest && !(inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) && !inputs.agent7_mail_cross_archetype && !inputs.agent7_quick_ball_vip }}
         run: node simulation/evaluation/agent2-v8-common-first-owner-root-canary.cjs > agent2-v8-common-first-owner-root.json
       - name: Check first-cycle Beach pure tests and native treatment syntax
-        if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo || inputs.agent7_mail_beach_arven || inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
+        if: ${{ inputs.agent7_early_beach || inputs.agent7_mail_beach_combo || inputs.agent7_mail_beach_arven || inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
         run: |
           node --test tests/2026-11/agent7-early-beach-after-pass.test.cjs
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
@@ -100,15 +105,16 @@ jobs:
           node --check simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
           node simulation/evaluation/agent7-v8-rank3-mail-beach-composition.cjs
       - name: Native Mail to Beach to next-turn Arven Item and Tool owner search
-        if: ${{ inputs.agent7_mail_beach_arven || inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
+        if: ${{ inputs.agent7_mail_beach_arven || inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
         env:
-          AGENT7_TREASURE_BRIDGE_DEV: ${{ inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
-          AGENT7_OWNER_CONFIRM_DEV: ${{ inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
-          AGENT7_ARVEN_NEST_DEV: ${{ inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
-          AGENT7_DEDENNE_TRUE_DEV: ${{ (inputs.agent7_mail_beach_arven_dedenne || inputs.agent7_mail_beach_arven_motivate) }}
+          AGENT7_TREASURE_BRIDGE_DEV: ${{ inputs.agent7_mail_beach_arven_treasure || inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
+          AGENT7_OWNER_CONFIRM_DEV: ${{ inputs.agent7_mail_beach_arven_confirm || inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
+          AGENT7_ARVEN_NEST_DEV: ${{ inputs.agent7_mail_beach_arven_nest || (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
+          AGENT7_DEDENNE_TRUE_DEV: ${{ (inputs.agent7_mail_beach_arven_dedenne || (inputs.agent7_mail_beach_arven_motivate || inputs.agent7_mail_beach_arven_celestial)) }}
           AGENT7_MOTIVATE_ENERGY_DEV: ${{ inputs.agent7_mail_beach_arven_motivate }}
+          AGENT7_CELESTIAL_ROAR_DEV: ${{ inputs.agent7_mail_beach_arven_celestial }}
         run: |
-          node --test tests/2026-11/agent7-mail-arven-owner-choice.test.cjs tests/2026-11/agent7-owner-playcard-boundary-audit.test.cjs tests/2026-11/agent7-owner-motivate-energy-choice.test.cjs
+          node --test tests/2026-11/agent7-mail-arven-owner-choice.test.cjs tests/2026-11/agent7-owner-playcard-boundary-audit.test.cjs tests/2026-11/agent7-owner-motivate-energy-choice.test.cjs tests/2026-11/agent7-owner-celestial-roar-energy-choice.test.cjs
           node --check simulation/twinleaf/agent38-v8-four-arm-owner-mail-native.cjs
           node --check simulation/evaluation/2026-11/agent7-rank3-mail-beach-arven-native.cjs
           node simulation/evaluation/2026-11/agent7-rank3-mail-beach-arven-native.cjs
@@ -144,6 +150,7 @@ jobs:
             artifacts/agent7-mail-beach-arven/paired-native-with-nest.json
             artifacts/agent7-mail-beach-arven/paired-native-with-dedenne.json
             artifacts/agent7-mail-beach-arven/paired-native-with-motivate.json
+            artifacts/agent7-mail-beach-arven/paired-native-with-celestial.json
             artifacts/agent7-mail-broad-coverage/rank9-rank26-paired.json
             artifacts/agent7-v8-quick-ball/rank5-rank26-v2-paired-native.json
           if-no-files-found: error
