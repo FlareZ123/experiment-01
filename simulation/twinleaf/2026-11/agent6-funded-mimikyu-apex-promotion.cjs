@@ -183,4 +183,45 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
   };
 }
 
-module.exports={VERSION,currentOpponentApex,chooseFundedMimikyuApexCopycat,chooseFundedMimikyuApexPromotion};
+/**
+ * Choose an actual owner-discarded Dragon attack at the native prompt reached
+ * only through a public opponent Apex and an Active Mimikyu Copycat. The
+ * Attack object is returned by physical identity from the genuine prompt,
+ * rather than manufactured from a printing name.
+ *
+ * @param {object} state The current native Store State.
+ * @param {0|1} seat Current prompted physical seat.
+ * @param {object} prompt The native pending ChooseAttackPrompt.
+ * @param {object|null} tracker Per-Store completed public attack-history tracker.
+ * @returns {object|null} Exact validated native Timeless-GX attack.
+ */
+function chooseNativeMimikyuTimelessPrompt(state,seat,prompt,tracker){
+  if((seat!==0&&seat!==1)||
+      state?.activePlayer!==seat||
+      !Array.isArray(state.players)||state.players.length!==2||
+      prompt?.constructor?.name!=='ChooseAttackPrompt'|| 
+      !Array.isArray(prompt.cards)||typeof prompt.validate!=='function')
+    return null;
+  const owner=state.players[seat];
+  const opponent=state.players[1-seat];
+  if(prompt.playerId!==owner.id||
+      owner.active.getPokemonCard()?.fullName!==MIMIKYU||
+      owner.usedGX===true)return null;
+  const choices=tracker?.getCopycatChoices(opponent.id);
+  const history=tracker?.getPreviousTurnSnapshot(opponent.id);
+  if(!Array.isArray(choices)||choices.length!==1||
+      !history||!Number.isSafeInteger(history.turn)||
+      history.turn>=state.turn||
+      choices[0].turn!==history.turn||
+      choices[0].sourceCardFullName!==REGIDRAGO||
+      choices[0].attackName!=='Apex Dragon'||
+      choices[0].gxAttack!==false)return null;
+  const donor=owner.discard.cards.find(card=>
+    card.fullName===DIALGA&&prompt.cards.includes(card));
+  if(!donor)return null;
+  const attack=donor.attacks?.find(a=>
+    a.name==='Timeless-GX'&&a.gxAttack===true);
+  return attack&&prompt.validate(attack)===true?attack:null;
+}
+
+module.exports={VERSION,currentOpponentApex,chooseFundedMimikyuApexCopycat,chooseFundedMimikyuApexPromotion,chooseNativeMimikyuTimelessPrompt};
