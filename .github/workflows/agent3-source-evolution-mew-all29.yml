@@ -1,0 +1,45 @@
+name: Agent3 fresh all29 source natural evolution and Mew competence A/B
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-source-opponent-competence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out research code
+        uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Use pinned Node runtime and dependency cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify frozen 58 physical deals and isolated owner flags
+        run: |
+          node --check simulation/evaluation/agent3/prospective-all29-source-evolution-mew.cjs
+          node --test tests/2026-11/agent3-source-evolution-mew-full29.test.cjs
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf source
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute every authenticated original source in both physical seats
+        env:
+          AGENT3_SOURCE_COMPETENCE_OUTPUT: artifacts/agent3-source-evolution-mew-full29.json
+        run: node simulation/evaluation/agent3/prospective-all29-source-evolution-mew.cjs
+      - name: Preserve full native action ledgers and all failed or capped attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-source-evolution-mew-full29
+          path: artifacts/agent3-source-evolution-mew-full29.json
+          retention-days: 14
+          if-no-files-found: warn
