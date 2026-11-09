@@ -124,7 +124,7 @@ jobs:
         run: node --test tests/agent40-rank7-wobbuffet-hood-v2.native.test.cjs
       - name: Probe original rank7 Faba Hood Tool Lost Zone and source Wobbuffet Item response on both seats
         if: inputs.agent40_rank7_original_faba_hood_native
-        run: node --test tests/agent40-original-rank7-faba-hood.native.test.cjs
+        run: node --test tests/agent40-original-rank7-faba-hood.native.test.cjs tests/2026-11/agent40-rank7-faba-jet-unlock.native.test.cjs
       - name: Verify owner-visible recovery-capacity Secret Box payment on two native seats
         if: inputs.agent16_recovery_capacity_native
         run: |
