@@ -191,7 +191,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       .withActorOnlyShuffleSupporterAfterPass(runWithLillieAfterPass,
         options.ownerDeckoutRescueRoot===true?{
           choose:require('../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs')
-            .chooseDeckoutRescue
+            .chooseDeckoutRescue,
+          interceptAttack:options.ownerDeckoutRescueBeforeAttack===true
         }:{});
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
@@ -486,6 +487,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerDeckoutRescueRootOptIn:options.ownerDeckoutRescueRoot===true,
+    ownerDeckoutRescueBeforeAttackOptIn:
+      options.ownerDeckoutRescueBeforeAttack===true,
     ownerLillieAfterPassOptIn:lillieAfterPassOptIn,
     ownerLillieAfterPassAudit,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
