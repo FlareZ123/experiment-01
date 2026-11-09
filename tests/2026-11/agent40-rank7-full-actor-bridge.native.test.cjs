@@ -16,9 +16,9 @@ function run(seat) {
   const { ResolvePromptAction } =
     native('game/store/actions/resolve-prompt-action');
   const { PlayCardAction } = native('game/store/actions/play-card-action');
+  const x = stagePrepared({seat,wobbuffetActive:false,
+    hood:true,vileplumePresent:true});
   return withActorOnlyRootPolicy(() => {
-    const x = stagePrepared({seat,wobbuffetActive:false,
-      hood:true,vileplumePresent:true});
     const ownerId=x.originalPlayer.id;
     const source=()=>x.store.state.players.find(p=>p.id===ownerId);
     const opponent=()=>x.store.state.players.find(p=>p.id!==ownerId);
@@ -77,7 +77,8 @@ function run(seat) {
     assert.ok(source().discard.cards.some(c=>c.fullName==='Nest Ball SVI'));
     return {seat,pin:PIN,roots,prompts,sourceTurn:x.store.state.turn,
       originalSourceRank:7,stagedOnly:true,qualifiedCompetitiveGames:0};
-  },{rank7FabaJetBridge:true,jetBenchSwitchRoot:true});
+  },{rank7FabaJetBridge:true,jetBenchSwitchRoot:true,
+    stagedStore:x.store});
 }
 for(const seat of [0,1]){
   test('original rank7 real shared actor Faba Jet Nest full Store, seat '+seat,()=>{
