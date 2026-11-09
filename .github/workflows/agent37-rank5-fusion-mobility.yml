@@ -39,6 +39,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Native Both-seat Mew DCE retreat and Genesect draw prompt behavior
+        if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
         if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
