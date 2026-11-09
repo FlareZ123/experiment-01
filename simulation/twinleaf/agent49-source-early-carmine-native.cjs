@@ -60,6 +60,7 @@ function withSourceEarlyCarmine(execute,deps){
     nativeMatchesSeen:0,lateDecoderInstallations:0,firstOwnTurnPasses:0,
     heldCarminePasses:0,paperEligibleProposals:0,nativeCanPlayRejected:0,
     nativeCommitted:0,nativeRejected:0,nativeEffectsComplete:0,
+    ownerDiscardUnavailableBefore:0,ownerDiscardUnavailableAfter:0,
     accepted:[],rejected:[],opponentHiddenHandRead:false,
     nativeStoresOnly:true,competitiveGamesQualified:0};
 
@@ -116,9 +117,11 @@ function withSourceEarlyCarmine(execute,deps){
       const before=owner?{
         hand:[...owner.hand.cards],
         deckCount:owner.deck.cards.length,
-        discardCount:owner.discard.cards.length,
+        discardCount:Array.isArray(owner.discard?.cards)?
+          owner.discard.cards.length:null,
         supporterCount:owner.supporterTurn
       }:null;
+      if(before?.discardCount===null)audit.ownerDiscardUnavailableBefore++;
       try{
         const result=oldDispatch.value.call(this,action,...args);
         if(proposal){
@@ -126,8 +129,13 @@ function withSourceEarlyCarmine(execute,deps){
           const after=this.state.players[sourceSeat];
           const beforeOther=before.hand.filter((_,i)=>i!==action.handIndex);
           const gone=beforeOther.filter(c=>!after.hand.cards.includes(c));
-          const inDiscard=beforeOther.filter(c=>after.discard.cards.includes(c));
-          const settled=gone.length===beforeOther.length&&
+          const afterDiscard=after.discard?.cards;
+          if(!Array.isArray(afterDiscard))audit.ownerDiscardUnavailableAfter++;
+          const inDiscard=Array.isArray(afterDiscard)?
+            beforeOther.filter(c=>afterDiscard.includes(c)):[];
+          const settled=before.discardCount!==null&&
+            Array.isArray(afterDiscard)&&
+            gone.length===beforeOther.length&&
             inDiscard.length===beforeOther.length&&
             after.hand.cards.length===Math.min(5,before.deckCount)&&
             after.supporterTurn===before.supporterCount+1;
@@ -135,10 +143,15 @@ function withSourceEarlyCarmine(execute,deps){
           audit.accepted.push({...proposal,storeAccepted:true,
             afterOwnerHandSize:after.hand.cards.length,
             otherCardsPhysicallyMoved:gone.length,
-            otherCardsDiscarded:inDiscard.length,
+            otherCardsDiscarded:Array.isArray(afterDiscard)?
+              inDiscard.length:null,
+            ownerDiscardAvailableBefore:before.discardCount!==null,
+            ownerDiscardAvailableAfter:Array.isArray(afterDiscard),
             lostZoneMovesNotMeasured:true,
             netDeckChange:after.deck.cards.length-before.deckCount,
-            netDiscardChange:after.discard.cards.length-before.discardCount,
+            netDiscardChange:before.discardCount!==null&&
+              Array.isArray(afterDiscard)?
+              afterDiscard.length-before.discardCount:null,
             supporterTurnAfter:after.supporterTurn,
             pendingNativePromptCount:this.state.prompts.filter(p=>
               p.result===undefined).length,
