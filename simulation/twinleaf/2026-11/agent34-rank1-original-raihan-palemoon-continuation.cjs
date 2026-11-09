@@ -50,7 +50,7 @@ function boundedShufflePermutation(count, tag) {
  * @param {{store:object,ownerId:number,opponentId:number,actorObservation:object}} context
  * @returns {object} Pinned Store action/payment evidence; no win-rate claim.
  */
-function continueOriginalRank1RaihanPaleMoon(context) {
+function executeOriginalRank1RaihanPaleMoon(context) {
   const { store, ownerId, opponentId, actorObservation: view } = context;
   const receipt = {
     version: VERSION, sourceTurn: store.state.turn, sourceOwnerId: ownerId,
@@ -256,4 +256,20 @@ function continueOriginalRank1RaihanPaleMoon(context) {
   return receipt;
 }
 
+const { withNumericShufflePromptValidation } =
+  require('../agent33-shuffle-prompt-numeric-validation.cjs');
+
+/**
+ * Execute a single detached source continuation with the existing reversible
+ * numeric shuffle validator. Pinned native rejects every legal deck shuffle
+ * of >=11 cards via JavaScript's default lexicographic Array.sort().
+ * @param {Parameters<typeof executeOriginalRank1RaihanPaleMoon>[0]} context
+ */
+function continueOriginalRank1RaihanPaleMoon(context) {
+  const {result,audit}=withNumericShufflePromptValidation(
+    ()=>executeOriginalRank1RaihanPaleMoon(context));
+  return {...result,numericShuffleAudit:audit};
+}
+
 module.exports={VERSION,continueOriginalRank1RaihanPaleMoon};
+
