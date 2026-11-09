@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      run_full_authentic29_perfection:
+        description: 'Run new registered 29 authenticated original ranks with two seats and paired VIP paid Perfection funding across all 116 native attempts'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -63,10 +68,10 @@ jobs:
       - name: Run staged Articuno choice and native policy tests
         run: node --test tests/agent32-articuno-cold-crush-choice.test.cjs tests/agent32-articuno-cold-crush-native.test.cjs tests/agent32-articuno-cold-crush-policy.native.test.cjs
       - name: Run preregistered rank3 Articuno A-B-A panel
-        if: ${{ inputs.run_panel && !inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_panel && !inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-rank3-articuno-cold-crush-aba.cjs > agent32-rank3-articuno-cold-crush-aba.json
       - name: Upload raw A-B-A evidence
-        if: ${{ always() && inputs.run_panel && !inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_panel && !inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-rank3-articuno-cold-crush-aba
@@ -74,15 +79,15 @@ jobs:
           if-no-files-found: warn
 
       - name: Validate prospective same-deal whole-game Perfection registration and comparison
-        if: ${{ inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: |
           node --check simulation/evaluation/agent32-fresh-perfection-field.cjs
           node --test tests/agent32-fresh-perfection-field.test.cjs
       - name: Run 16 unseen original physical deals under paired native common policies
-        if: ${{ inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-fresh-perfection-field.cjs > agent32-fresh-perfection-32-native.json
       - name: Archive both native policy outcomes and all thirty-two actual roots
-        if: ${{ always() && inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_fresh_perfection && !inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-fresh-perfection-32game-field
@@ -91,16 +96,16 @@ jobs:
           if-no-files-found: warn
 
       - name: Validate real native VIP recipient and second frozen field composition
-        if: ${{ inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: |
           node --check simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs
           node --check simulation/evaluation/agent32-fresh-early-vip-perfection.cjs
           node --test tests/agent32-perfection-vip-recipient.test.cjs tests/agent32-fresh-early-vip-perfection.test.cjs
       - name: Run early VIP to Mewtwo/Gengar and Psychic funding paired original field
-        if: ${{ inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-fresh-early-vip-perfection.cjs > agent32-fresh-early-vip-perfection-32-native.json
       - name: Archive original physical setup, native owner VIP transfers, Perfection, and terminations
-        if: ${{ always() && inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_early_vip_perfection && !inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-early-vip-perfection-native32
@@ -109,13 +114,13 @@ jobs:
           if-no-files-found: warn
 
       - name: Validate versioned third-arm diagnostic syntax
-        if: ${{ inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node --check simulation/evaluation/agent32-vip-only-retro-third-arm.cjs
       - name: Run exact frozen original physical cohort with VIP donor but no Energy funding hooks
-        if: ${{ inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-vip-only-retro-third-arm.cjs > agent32-vip-only-retro-third-arm-native.json
       - name: Archive real third arm native roots and VIP source-owned search
-        if: ${{ always() && inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_vip_only_diagnostic && !inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-vip-only-retro-third-arm
@@ -124,16 +129,16 @@ jobs:
           if-no-files-found: warn
 
       - name: Validate bilateral native Mewtwo pivot integration and registered fourth-arm syntax
-        if: ${{ inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: |
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --check simulation/evaluation/agent32-vip-perfection-pivot-retro-fourth-arm.cjs
           node --test tests/agent35-perfection-transition-frontier.test.cjs tests/agent32-perfection-vip-recipient.test.cjs
       - name: Run original same-deal native VIP plus established Perfection funded-pivot arm
-        if: ${{ inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-vip-perfection-pivot-retro-fourth-arm.cjs > agent32-perfection-pivot-native.json
       - name: Archive actual native paid pivots, original physical deals and copied attacks
-        if: ${{ always() && inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_perfection_pivot_diagnostic && !inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-perfection-pivot-native-fourth-arm
@@ -142,18 +147,35 @@ jobs:
           if-no-files-found: warn
 
       - name: Validate new precommitted pivot causality and published native path
-        if: ${{ inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: |
           node --check simulation/evaluation/agent32-prospective-vip-perfection-transition.cjs
           node --test tests/agent32-prospective-vip-perfection-transition.test.cjs tests/agent35-perfection-transition-frontier.test.cjs tests/agent32-perfection-vip-recipient.test.cjs
       - name: Run sixteen unseen physically paired original source games with VIP plus Perfection pivot
-        if: ${{ inputs.run_prospective_perfection_pivot }}
+        if: ${{ inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         run: node simulation/evaluation/agent32-prospective-vip-perfection-transition.cjs > agent32-prospective-vip-perfection-pivot32.json
       - name: Retain full 32-game native paired outcome and real paid attack ledger
-        if: ${{ always() && inputs.run_prospective_perfection_pivot }}
+        if: ${{ always() && inputs.run_prospective_perfection_pivot && !inputs.run_full_authentic29_perfection }}
         uses: actions/upload-artifact@v4
         with:
           name: agent32-prospective-vip-funded-perfection-32
           path: agent32-prospective-vip-perfection-pivot32.json
+          retention-days: 21
+          if-no-files-found: warn
+
+      - name: Validate full 29-authenticated-original-rank registered fixed60 native runner
+        if: ${{ inputs.run_full_authentic29_perfection }}
+        run: |
+          node --check simulation/evaluation/agent32-prospective-all29-original-perfection-pivot.cjs
+          node --test tests/agent32-prospective-vip-perfection-transition.test.cjs tests/agent35-perfection-transition-frontier.test.cjs
+      - name: Run two policies across ALL 29 authenticated original Aichi 60s both physical seats
+        if: ${{ inputs.run_full_authentic29_perfection }}
+        run: node simulation/evaluation/agent32-prospective-all29-original-perfection-pivot.cjs > agent32-all29-authentic-original-116-native.json
+      - name: Archive all 116 native attempts by original opponent rank and exact printed 60
+        if: ${{ always() && inputs.run_full_authentic29_perfection }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent32-all29-original-116-physical-matched
+          path: agent32-all29-authentic-original-116-native.json
           retention-days: 21
           if-no-files-found: warn
