@@ -1,0 +1,42 @@
+name: Agent22 prospectively compare Temple Shield with champion in native Aichi
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  temple-champion-paperprofile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Audit fixed registration, candidate identity and censored comparison
+        run: |
+          node --check simulation/evaluation/2026-11/agent22-temple-vs-champion-native.cjs
+          node --test tests/2026-11/agent22-temple-vs-champion-native.test.cjs
+          node simulation/evaluation/2026-11/agent22-temple-vs-champion-native.cjs --inspect-only
+      - name: Execute frozen four-rank genuine original 60 against each unchanged contender
+        run: node simulation/evaluation/2026-11/agent22-temple-vs-champion-native.cjs
+      - name: Preserve full raw actual native roots, including caps and errors
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent22-temple-vs-champion-fresh32-native
+          path: agent22-temple-vs-champion-32-native.json
+          if-no-files-found: warn
+          retention-days: 21
