@@ -37,14 +37,14 @@ The complete registered group ledger is:
 
 | Original rank : repeat : candidate seat | P0S0 | P1S0 | P0S1 | P1S1 |
 | --- | --- | --- | --- | --- |
-| 5 : 3400 : A | cap | source win | cap | source win |
+| 5 : 3400 : A | cap | candidate win | cap | candidate win |
 | 5 : 3401 : B | cap | cap | error | error |
 | 13 : 3402 : A | candidate win | candidate win | error | error |
 | 13 : 3403 : B | error | error | error | error |
 | 5 : 3404 : A | candidate win | candidate win | candidate win | candidate win |
 | **5 : 3405 : B** | **candidate win** | **candidate win** | **source win** | **source win** |
 | 13 : 3406 : A | candidate win | candidate win | candidate win | candidate win |
-| 13 : 3407 : B | error | error | source win | source win |
+| 13 : 3407 : B | error | error | candidate win | candidate win |
 
 Here “win” records only the native Store terminal winner in an artificial developmental bot match. Native cap and error cells have unknown outcomes. No competition result can be inferred by counting only completed cells.
 
