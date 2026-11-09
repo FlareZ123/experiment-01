@@ -1,0 +1,115 @@
+{
+  "schema": "agent42-rank5-genesect-owner-draw-four-seed-bothseat-aba-v1",
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_ATTEMPT",
+  "registeredAtUtc": "2026-11-09T15:19:39.694Z",
+  "caseId": "agent42-rank5-original-newmoon-genesect-fullowner-fusiondraw-20261109",
+  "originalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "sourceOriginalPrintedSixtySha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "observedTrialsBeforeRegistration": 0,
+  "seedSource": "actual Python secrets.randbits(32), four draws 2026-11-09T15:19:14Z; distinct from 4410 and 8101–8104 seeds",
+  "seeds": [
+    3275090649,
+    831088858,
+    865143905,
+    2530830009
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 8201,
+      "seed": 3275090649,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8201:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8201,
+      "seed": 3275090649,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8201:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8202,
+      "seed": 831088858,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8202:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8202,
+      "seed": 831088858,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8202:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8203,
+      "seed": 865143905,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8203:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8203,
+      "seed": 865143905,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8203:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8204,
+      "seed": 2530830009,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8204:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 8204,
+      "seed": 2530830009,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:8204:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "commonSourceCompetencePolicy": {
+    "actorGenesectFusionDrawRoot": true,
+    "actorGenesectFusionDrawPerCopyPublicUsage": true,
+    "actorGenesectFusionDrawSourceOnly": false,
+    "symmetricRule": "owner-only public native per-physical Genesect V draw for both actual seats; source is original rank5 Mew Genesect, candidate no Genesect"
+  },
+  "modes": [
+    {
+      "id": "A-lillie-genesectdraw-control",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": false
+    },
+    {
+      "id": "B-lillie-gengar6-genesectdraw",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": true,
+      "bilateralGengarHorrorHouseMinOpponentHandCount": 6
+    },
+    {
+      "id": "A-lillie-genesectdraw-repeat",
+      "actorBilateralLillieAfterPass": true,
+      "bilateralGengarHorrorHouseTempo": false
+    }
+  ],
+  "candidateSeatAllocation": "Both physical candidate seats at each fresh untouched opening seed, A/B/A within same exact Store dealt trial",
+  "registeredPhysicalContexts": 8,
+  "expectedNativeAttempts": 24,
+  "nativeRootCap": 320,
+  "preserve": "Original settled root and post-Store physical-zone tapes plus native ability use, attack, Prize, and actual source follow-up",
+  "qualification": "Development experiment only; no independent rules, full policies, tournament clock, source admission, or 99.5% statistical claim",
+  "successCriterion": "Measure per-seat genuinely settled Genesect Ability uses, natural terminals and whether adding Gengar changes source attacks or candidate outcome; preserve absence and censor"
+}
