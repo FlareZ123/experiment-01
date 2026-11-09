@@ -15,6 +15,7 @@ const {writeAtomicLocked} =
   require('../agent20-frozen-rank6-canary-v1.cjs');
 const REG = require('../../../results/aichi-2026/registrations/agent4-hood-shield-rank6-prospective-owner-exception-20261109.json');
 const HOOD = require('../../../results/aichi-2026/candidate-hood-shadow-rider.json');
+const {hoodSequence} = require('./agent4-hood-sequence-reducer.cjs');
 
 const VERSION = 'agent4-hood-shield-original-rank6-32-native-owner-exception-v1';
 const sha256 = value => createHash('sha256')
@@ -47,6 +48,8 @@ function rowSummary(result) {
     actualHoodToolNativeActionRoots:paidHood.length,
     acceptedHoodToolRoots:paidHood.slice(0,8),
     anyNativeError:result.status === 'engine-error',
+    paidHoodNativeSequence:hoodSequence(result,
+      result.trial?.candidateSlot === 'A' ? 0 : 1),
     paperQualified:false
   };
 }
