@@ -55,6 +55,14 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
       !Array.isArray(own.bench) ||
       !(catalog.basicEnergies instanceof Set)) return null;
 
+  // A face-up Skyliner makes Basic retreat free. Funding a printed one-unit
+  // fee in that case would burn the owner's Energy attachment for no gain.
+  // Conservative even if an unmodeled lock currently suppresses Skyliner.
+  if (catalog.stages?.BASIC !== undefined &&
+      active.printed?.stage === catalog.stages.BASIC &&
+      own.bench.some(pokemon => pokemon?.abilities?.includes('Skyliner')))
+    return null;
+
   // A zero-cost control attack can be strategically decisive even if it does
   // no damage. Preserve any payable printed Active attack, including GX.
   if ((active.attacks ?? []).some(attack =>
