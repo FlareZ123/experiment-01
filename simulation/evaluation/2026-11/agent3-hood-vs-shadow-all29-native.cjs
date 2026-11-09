@@ -42,7 +42,7 @@ function verify(){
       false,true);
   }
   const hood=require('../../../results/aichi-2026/candidate-hood-shadow-rider.json');
-  assert.equal(hood.archetype,'Shadow Rider Calyrex');
+  assert.equal(hood.archetype,'Shadow Rider Calyrex / Stealthy Hood / Arven');
   assert.equal(hood.cards.reduce((sum,c)=>sum+c.count,0),60);
   return {roster,hood,groups:58,gameAttempts:116,
     pinnedEngine:PINNED_TWINLEAF,competitiveQualifiedGames:0};
