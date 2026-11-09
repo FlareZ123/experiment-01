@@ -103,3 +103,23 @@ test('one fixed hand selects Carrier with one recovery target, Lillie with four'
   assert.equal(after.recoveryValueLost,0);
   assert.equal(after.carrierCopiesAfter,2);
 });
+
+test('one held Carrier changes paid triple when one versus two targets need recovery',()=>{
+  const {owner,state}=fixture(1);
+  const vipA=physical(VIP,30),vipB=physical(VIP,31);
+  const carrier=physical(CARRIER,32),lillie=physical(LILLIE,33);
+  owner.hand.cards=[physical(BOX,0),vipA,vipB,carrier,lillie];
+  const p={maxTotalCost:100,defaultCost:20,
+    spentVipCost:0,duplicateDiscount:0,recoveryTargetPremium:3,
+    costs:{[VIP]:0,[CARRIER]:3,[LILLIE]:7}};
+  const one=planSecretBoxRecoveryCapacityPayment(owner,state,p);
+  assert.deepEqual(one.cards.map(c=>c.fullName),[VIP,VIP,CARRIER]);
+  assert.equal(one.recoveryValueLost,1);
+  assert.equal(one.carrierCopiesAfter,0);
+  owner.discard.cards=[{fullName:'Unown AOR',hp:60},
+    {fullName:'Unown AOR',hp:60}];
+  const two=planSecretBoxRecoveryCapacityPayment(owner,state,p);
+  assert.deepEqual(two.cards.map(c=>c.fullName),[VIP,VIP,LILLIE]);
+  assert.equal(two.recoveryValueLost,0);
+  assert.equal(two.carrierCopiesAfter,1);
+});
