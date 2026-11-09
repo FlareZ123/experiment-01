@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseDedechangeConfirm}=require('../../simulation/twinleaf/agent9/dedechange-confirm-choice.cjs');
+const {chooseDedechangeConfirm,verifyDedechangeSettlement}=require('../../simulation/twinleaf/agent9/dedechange-confirm-choice.cjs');
 const {decideAbilityConfirm,withOwnerAbilityConfirmPolicy}=
   require('../../simulation/twinleaf/agent36-owner-ability-confirm-policy.cjs');
 const card=name=>({name,superType:'ENERGY'});
@@ -24,6 +24,26 @@ test('deckout and incomplete owner zones are conservative declines',()=>{
   assert.equal(decide([],6).decision,false);
   assert.equal(decide([],7).decision,true);
   assert.equal(chooseDedechangeConfirm({owner:{hand:{cards:[]}}}).decision,false);
+});
+
+test('receipt requires every old physical card in discard and exactly six new cards drawn',()=>{
+  const a={name:'A'},b={name:'B'};
+  const h=Array.from({length:6},(_,i)=>({name:'New'+i}));
+  const before={hand:[a,b],discard:[],deckCount:12};
+  const after={hand:{cards:h},discard:{cards:[a,b]},deck:{cards:Array(6).fill(null)}};
+  assert.deepEqual(verifyDedechangeSettlement(before,after),{
+    settled:true,discardedCount:2,drawnCount:6,deckDelta:6,
+    handPhysicallyDiscarded:true
+  });
+  assert.equal(verifyDedechangeSettlement(before,{
+    ...after,discard:{cards:[a]}
+  }).settled,false);
+  assert.equal(verifyDedechangeSettlement(before,{
+    ...after,hand:{cards:[...h.slice(0,5),a]}
+  }).settled,false);
+  assert.equal(verifyDedechangeSettlement(before,{
+    ...after,deck:{cards:Array(7).fill(null)}
+  }).settled,false);
 });
 
 test('native-style exact physical Dedenne entry authorizes true and unrelated later prompt remains false',()=>{
@@ -81,6 +101,11 @@ test('native-style exact physical Dedenne entry authorizes true and unrelated la
   assert.deepEqual(wrapped.result,{first:{yes:true,discard:['Fire Energy'],draw:6,
     bench:'Dedenne GX'},unrelated:false});
   assert.equal(wrapped.audit.confirmSettled,2);
+  assert.equal(wrapped.audit.dedechangeUnsettled,0);
+  assert.equal(wrapped.audit.dedechangeSettlements.length,1);
+  assert.equal(wrapped.audit.dedechangeSettlements[0].settled,true);
+  assert.equal(wrapped.audit.dedechangeSettlements[0].discardedCount,1);
+  assert.equal(wrapped.audit.dedechangeSettlements[0].drawnCount,6);
   assert.deepEqual(wrapped.audit.confirmEvents.map(x=>x.reason),[
     'low-hand-six-card-refill','unrecognized-confirm-default-false'
   ]);
