@@ -1,0 +1,529 @@
+{
+  "schema": "agent3-20261109-celestial-paper-v2-prospective-all29-champion-two-owner-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "registrationDate": "2026-11-09",
+  "fixedCandidate": "champion-reference",
+  "immutable60Source": "results/aichi-2026/benchmark-shadow-rider.md",
+  "originalSourceInventory": "results/aichi-2026/full-decklists.json",
+  "originalExactRanks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24,
+    26,
+    27,
+    29,
+    30,
+    31,
+    32
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "newRandomSeeds": "58 independent Python secrets.randbits(32) in ascending original rank, alternating candidate seat A then B; confirmed no overlap with first Nov9 registration",
+  "registeredGroups": 58,
+  "nativeAttempts": 116,
+  "maximumNativeRootActions": 260,
+  "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "bothArmsReversibleCelestialRoarPaperCustodyHook": "simulation/twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs",
+  "contenderAndSourceAlwaysUseSamePolicy": true,
+  "armA": "Existing common frozen native actor composition and Underworld Door setup, all-player portable Float Stone/Seeker Guzma both disabled",
+  "armB": "Exactly arm A plus both-owner, all-turn zero-energy Float Stone rescue and nominal prize-taking Guzma/VS Seeker root options",
+  "inputToPaperInference": "Dev-only. No native result can establish paper legality, 99.5% confidence, or competitive game win rate.",
+  "diagnosticContext": "A separate pre-declared first field 58-deal run had six Regidrago source physical-60 losses after Celestial Roar. This new independent registration tests the actual correction with fresh unseen deals, keeping the same fixed-sixty candidate and two tactical arms.",
+  "rules": [
+    "Every failed/aborted/capped game retained as failed or censored; no score imputation",
+    "All full physical-deal source and candidate fingerprints must match before paired inference",
+    "Only naturally terminal and positively matched pair results may count as developmental native winner differences",
+    "All original source ranks tracked individually; missing originals never imputed",
+    "No policy choice may read hidden physical cards from postgame provenance or observer",
+    "The common Regidrago v2 paper hook must affect both players and both arms identically"
+  ],
+  "groups": [
+    {
+      "id": "1:6200:A:champion-reference",
+      "rank": 1,
+      "repeat": 6200,
+      "seed": 2313712589,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "1:6201:B:champion-reference",
+      "rank": 1,
+      "repeat": 6201,
+      "seed": 1015248230,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "2:6202:A:champion-reference",
+      "rank": 2,
+      "repeat": 6202,
+      "seed": 3054363265,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "2:6203:B:champion-reference",
+      "rank": 2,
+      "repeat": 6203,
+      "seed": 939231798,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "3:6204:A:champion-reference",
+      "rank": 3,
+      "repeat": 6204,
+      "seed": 2937979146,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "3:6205:B:champion-reference",
+      "rank": 3,
+      "repeat": 6205,
+      "seed": 2640023556,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "4:6206:A:champion-reference",
+      "rank": 4,
+      "repeat": 6206,
+      "seed": 3506506136,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "4:6207:B:champion-reference",
+      "rank": 4,
+      "repeat": 6207,
+      "seed": 1530679747,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:6208:A:champion-reference",
+      "rank": 5,
+      "repeat": 6208,
+      "seed": 1267138209,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:6209:B:champion-reference",
+      "rank": 5,
+      "repeat": 6209,
+      "seed": 974374517,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "6:6210:A:champion-reference",
+      "rank": 6,
+      "repeat": 6210,
+      "seed": 868963840,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "6:6211:B:champion-reference",
+      "rank": 6,
+      "repeat": 6211,
+      "seed": 189593835,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "7:6212:A:champion-reference",
+      "rank": 7,
+      "repeat": 6212,
+      "seed": 1554635044,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "7:6213:B:champion-reference",
+      "rank": 7,
+      "repeat": 6213,
+      "seed": 3550860849,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "8:6214:A:champion-reference",
+      "rank": 8,
+      "repeat": 6214,
+      "seed": 1460983328,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "8:6215:B:champion-reference",
+      "rank": 8,
+      "repeat": 6215,
+      "seed": 3769713299,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:6216:A:champion-reference",
+      "rank": 9,
+      "repeat": 6216,
+      "seed": 4084592234,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:6217:B:champion-reference",
+      "rank": 9,
+      "repeat": 6217,
+      "seed": 3126846461,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "10:6218:A:champion-reference",
+      "rank": 10,
+      "repeat": 6218,
+      "seed": 484215990,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "10:6219:B:champion-reference",
+      "rank": 10,
+      "repeat": 6219,
+      "seed": 3406893628,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "11:6220:A:champion-reference",
+      "rank": 11,
+      "repeat": 6220,
+      "seed": 2530693180,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "11:6221:B:champion-reference",
+      "rank": 11,
+      "repeat": 6221,
+      "seed": 2066658177,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:6222:A:champion-reference",
+      "rank": 12,
+      "repeat": 6222,
+      "seed": 1933817381,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:6223:B:champion-reference",
+      "rank": 12,
+      "repeat": 6223,
+      "seed": 936476973,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "13:6224:A:champion-reference",
+      "rank": 13,
+      "repeat": 6224,
+      "seed": 2471411670,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "13:6225:B:champion-reference",
+      "rank": 13,
+      "repeat": 6225,
+      "seed": 2432923204,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "14:6226:A:champion-reference",
+      "rank": 14,
+      "repeat": 6226,
+      "seed": 3829858526,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "14:6227:B:champion-reference",
+      "rank": 14,
+      "repeat": 6227,
+      "seed": 3743969020,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:6228:A:champion-reference",
+      "rank": 15,
+      "repeat": 6228,
+      "seed": 2393092027,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:6229:B:champion-reference",
+      "rank": 15,
+      "repeat": 6229,
+      "seed": 1712592052,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "16:6230:A:champion-reference",
+      "rank": 16,
+      "repeat": 6230,
+      "seed": 1330154814,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "16:6231:B:champion-reference",
+      "rank": 16,
+      "repeat": 6231,
+      "seed": 2466789990,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "17:6232:A:champion-reference",
+      "rank": 17,
+      "repeat": 6232,
+      "seed": 621884284,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "17:6233:B:champion-reference",
+      "rank": 17,
+      "repeat": 6233,
+      "seed": 1736757863,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "18:6234:A:champion-reference",
+      "rank": 18,
+      "repeat": 6234,
+      "seed": 79138852,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "18:6235:B:champion-reference",
+      "rank": 18,
+      "repeat": 6235,
+      "seed": 2590555941,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "19:6236:A:champion-reference",
+      "rank": 19,
+      "repeat": 6236,
+      "seed": 1184316723,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "19:6237:B:champion-reference",
+      "rank": 19,
+      "repeat": 6237,
+      "seed": 1941662429,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:6238:A:champion-reference",
+      "rank": 20,
+      "repeat": 6238,
+      "seed": 275090484,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:6239:B:champion-reference",
+      "rank": 20,
+      "repeat": 6239,
+      "seed": 1206191107,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:6240:A:champion-reference",
+      "rank": 21,
+      "repeat": 6240,
+      "seed": 1351380511,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:6241:B:champion-reference",
+      "rank": 21,
+      "repeat": 6241,
+      "seed": 1916588292,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "22:6242:A:champion-reference",
+      "rank": 22,
+      "repeat": 6242,
+      "seed": 2987519109,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "22:6243:B:champion-reference",
+      "rank": 22,
+      "repeat": 6243,
+      "seed": 3884467872,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "24:6244:A:champion-reference",
+      "rank": 24,
+      "repeat": 6244,
+      "seed": 1992108310,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "24:6245:B:champion-reference",
+      "rank": 24,
+      "repeat": 6245,
+      "seed": 3134890541,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "26:6246:A:champion-reference",
+      "rank": 26,
+      "repeat": 6246,
+      "seed": 3258656185,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "26:6247:B:champion-reference",
+      "rank": 26,
+      "repeat": 6247,
+      "seed": 2807376264,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:6248:A:champion-reference",
+      "rank": 27,
+      "repeat": 6248,
+      "seed": 3892819005,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:6249:B:champion-reference",
+      "rank": 27,
+      "repeat": 6249,
+      "seed": 4210210637,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "29:6250:A:champion-reference",
+      "rank": 29,
+      "repeat": 6250,
+      "seed": 2522132615,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "29:6251:B:champion-reference",
+      "rank": 29,
+      "repeat": 6251,
+      "seed": 998614306,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "30:6252:A:champion-reference",
+      "rank": 30,
+      "repeat": 6252,
+      "seed": 2874348321,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "30:6253:B:champion-reference",
+      "rank": 30,
+      "repeat": 6253,
+      "seed": 3539507008,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:6254:A:champion-reference",
+      "rank": 31,
+      "repeat": 6254,
+      "seed": 3671008321,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:6255:B:champion-reference",
+      "rank": 31,
+      "repeat": 6255,
+      "seed": 3209783975,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "32:6256:A:champion-reference",
+      "rank": 32,
+      "repeat": 6256,
+      "seed": 3806787331,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "32:6257:B:champion-reference",
+      "rank": 32,
+      "repeat": 6257,
+      "seed": 2638132798,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    }
+  ]
+}
