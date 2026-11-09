@@ -1,0 +1,405 @@
+{
+  "schema": "agent3-skyliner-hood-v1-root520-cap-sensitivity-v1",
+  "status": "FROZEN_BEFORE_ROOT520_FOLLOWUP",
+  "date": "2026-11-09",
+  "design": "ONLY 14 matched original physical opening groups which BOTH arms of original root260 all29 fixed60 native study capped; posthoc cap extension, NOT a new random sample. Retain exact source/seed/seat/deck/actor choice, use 520 accepted root cap to determine 14 latent outcomes.",
+  "parentRun": 42645102246,
+  "parentArtifact": 13687063828,
+  "parentRootCap": 260,
+  "frozenTargetRootCap": 520,
+  "fixedDeck": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "fixedDeckBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "commonPolicy": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "commonPolicyBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperSemanticsProfile": "agent19-composed-paper-semantics-profile-v1",
+  "treatmentOnlyFlag": {
+    "actorSkylinerFundedBenchRetreatRoot": true
+  },
+  "sourceGroups": [
+    {
+      "rank": 2,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 3001566058,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 961302288,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 709398983,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 7,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 3810434122,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 8,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 485079536,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 9,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 476809867,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 11,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2948072055,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 15,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 695480292,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 1829357499,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 192307656,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 18,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4266864046,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 19,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2176610268,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 20,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 67944313,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    },
+    {
+      "rank": 29,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4207957348,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED"
+    }
+  ],
+  "registeredGroupCount": 14,
+  "registeredAttemptCount": 28,
+  "arms": [
+    "baseline-v1",
+    "skyliner-v1"
+  ],
+  "registeredTrials": [
+    {
+      "rank": 2,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 3001566058,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "2:9701:A:baseline-v1"
+    },
+    {
+      "rank": 2,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 3001566058,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "2:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 961302288,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "3:9701:A:baseline-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 961302288,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "3:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 709398983,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "3:9701:B:baseline-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 709398983,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "3:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 3810434122,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "7:9701:B:baseline-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 3810434122,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "7:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 8,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 485079536,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "8:9701:A:baseline-v1"
+    },
+    {
+      "rank": 8,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 485079536,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "8:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 9,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 476809867,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "9:9701:A:baseline-v1"
+    },
+    {
+      "rank": 9,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 476809867,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "9:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2948072055,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "11:9701:B:baseline-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2948072055,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "11:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 15,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 695480292,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "15:9701:A:baseline-v1"
+    },
+    {
+      "rank": 15,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 695480292,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "15:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 1829357499,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "16:9701:A:baseline-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "A",
+      "seed": 1829357499,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "16:9701:A:skyliner-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 192307656,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "16:9701:B:baseline-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 192307656,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "16:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 18,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4266864046,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "18:9701:B:baseline-v1"
+    },
+    {
+      "rank": 18,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4266864046,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "18:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 19,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2176610268,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "19:9701:B:baseline-v1"
+    },
+    {
+      "rank": 19,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 2176610268,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "19:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 20,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 67944313,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "20:9701:B:baseline-v1"
+    },
+    {
+      "rank": 20,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 67944313,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "20:9701:B:skyliner-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4207957348,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "baseline-v1",
+      "id": "29:9701:B:baseline-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 9701,
+      "candidateSlot": "B",
+      "seed": 4207957348,
+      "selection": "POSTHOC_BOTH_ROOT260_CAPPED",
+      "candidateId": "skyliner-v1",
+      "id": "29:9701:B:skyliner-v1"
+    }
+  ],
+  "policySourceHashes": [
+    {
+      "path": "simulation/twinleaf/agent2-owner-skyliner-funded-bench-frontier.cjs",
+      "sha": "21f9eee844e8383dee8731a6d6034727cc7e050e"
+    },
+    {
+      "path": "simulation/twinleaf/agent6-skyliner-ability-suppression-guard.cjs",
+      "sha": "0298837cdb6943d2228d19c88ca3e5eba8dfe108"
+    },
+    {
+      "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sha": "966554358ed8e10e7496f367f65e15fbdd8c33ed"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sha": "cb78efd4d6e43078adcb654a1d6542f766bade7f"
+    },
+    {
+      "path": "simulation/twinleaf/agent5-owner-root-slice.cjs",
+      "sha": "7ac9925f861e9753595b923403685525a6af8947"
+    }
+  ],
+  "analysisRule": "All 28 native attempts retained, full source/whole physical/deal/starter match against sibling arm; attempt cap outcome identified only on real game terminal; report exact 14 paired resolution or remaining 520 caps/aborts and conditional winner gains, reject paper qualification; actor physical witness corrected only in post-260 follow-up but core selection rules unchanged",
+  "paperQualifiedGames": 0
+}
