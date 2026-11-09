@@ -98,8 +98,10 @@ for(const seat of [0,1]){
       assert.ok(events.some(e=>e.kind==='selected-physical-treasure-discard'));
       assert.ok(events.some(e=>e.kind==='selected-physical-treasure-mimikyu'));
     }finally{restore();}
+    // The native Store discarded Dialga; after Mimikyu retrieval the first
+    // remaining Basic is the now held Mimikyu at hand index 1.
     assert.equal(x.basic.useTactic(x.store.state,x.store.state.players[seat])
-      ?.handIndex,0,'Uninstall must restore printed default Basic action');
+      ?.handIndex,1,'Uninstall must restore printed default Basic action');
   });
 
   test('non-Regidrago and owner-seat isolation for Treasure, seat '+seat,()=>{
