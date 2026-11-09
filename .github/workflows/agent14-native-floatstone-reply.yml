@@ -17,6 +17,7 @@ on:
           - agent31-postgust-seeker-native
           - agent31-portable-joint-native
           - agent8-source-challenger-2x2
+          - agent8-source-challenger-2x2-v2
 permissions:
   contents: read
 jobs:
@@ -71,6 +72,25 @@ jobs:
         with:
           name: agent8-source-challenger-fourway-native
           path: artifacts/agent8-source-challenger-2x2.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Test Agent8 owner Quick Ball and Mail source-only challenge
+        if: inputs.experiment == 'agent8-source-challenger-2x2-v2'
+        run: |
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/2026-11/agent8-source-challenger-2x2-v2.cjs
+          node --test tests/2026-11/agent8-source-challenger-2x2.test.cjs tests/2026-11/agent8-source-challenger-v2.test.cjs
+      - name: Execute eight new frozen original-source Quick Ball Mail counterfactuals
+        if: inputs.experiment == 'agent8-source-challenger-2x2-v2'
+        env:
+          AGENT8_SOURCE_CHALLENGER_V2_OUTPUT: artifacts/agent8-source-challenger-v2.json
+        run: node simulation/evaluation/2026-11/agent8-source-challenger-2x2-v2.cjs
+      - name: Archive all V2 native game actions and source-only changed root decisions
+        if: always() && inputs.experiment == 'agent8-source-challenger-2x2-v2'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-source-search-challenger-v2-native
+          path: artifacts/agent8-source-challenger-v2.json
           if-no-files-found: warn
           retention-days: 21
       - name: Reinspect all owner Passes in two existing original-source matched controls
