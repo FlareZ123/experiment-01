@@ -12,7 +12,12 @@ const {runDevelopment}=
 const {withSourceOwnerTrainerPassAudit}=
   require('../../twinleaf/agent5/rank13-owner-pass-trainers.cjs');
 
-const VERSION='agent5-rank13-prelock-source-ability-trainer-factorial-v1';
+const SOURCE_DECKS=require('../../../results/aichi-2026/full-decklists.json');
+const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
+  .find(deck=>deck.rank===13).cards
+  .filter(card=>card.category==='Trainer').map(card=>card.name));
+
+const VERSION='agent5-rank13-prelock-source-ability-trainer-factorial-v2';
 const TARGET='13:2026:A:new-moon-lockbreaker-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
@@ -62,9 +67,7 @@ function run(deps={}){
         .filter(a=>a.playerSlot===1&&
           ['PlayCardAction','AttackAction','UseAbilityAction'].includes(a.action));
       const ownTrainerPlays=sourceActions.filter(a=>
-        a.action==='PlayCardAction'&&![
-          'Grass Energy','Fire Energy','Double Dragon Energy'
-        ].includes(a.card)&&!/^(Regidrago |Kyurem$|Latias ex$|Dedenne GX$|Squawkabilly ex$)/.test(a.card??''));
+        a.action==='PlayCardAction'&&SOURCE_TRAINER_NAMES.has(a.card));
       attempts.push({
         sourceChallenger:source,candidatePaidPivot:pivot,
         id:row.id,rank:row.rank,seed:row.seed,
