@@ -2499,6 +2499,27 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
       return result;
     }
+    const crispinReply=this===nativeStore?
+      typedRank13CrispinReplies.get(action):undefined;
+    if(crispinReply){
+      const token=ownerRank13CrispinPending.get(crispinReply.ownerId);
+      assert.ok(token&&token.seat===crispinReply.seat&&
+        token.stage===crispinReply.stage,
+        'Crispin native reply must match source owner and current stage');
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      const owner=this.state.players[crispinReply.seat];
+      if(crispinReply.stage==='search'){
+        token.stage='attach';
+        audit.rank13CrispinNativeSearchAccepted++;
+      }else{
+        assert.ok(owner.bench[crispinReply.targetIndex].energies.cards
+          .includes(crispinReply.chosen),
+          'Crispin native response must attach the exact Grass physical card');
+        ownerRank13CrispinPending.delete(crispinReply.ownerId);
+        audit.rank13CrispinNativeBenchAttachmentsAccepted++;
+      }
+      return result;
+    }
     const compressorReply=this===nativeStore?
       typedEarlyCompressorReplies.get(action):undefined;
     if(compressorReply){
@@ -2686,6 +2707,19 @@ function withActorOnlyRootPolicy(run,deps={}){
         assert.ok(!ownerEriPending.has(owner.id));
         ownerEriPending.set(owner.id,{seat:choice.seat,
           promptId:pending.id,globalTurn:choice.globalTurn});
+      }
+      if(choice.kind==='play-regidrago-crispin'){
+        const owner=this.state.players[choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        assert.ok(owner&&pending&&
+          pending.constructor?.name==='ChooseCardsPrompt'&&
+          pending.playerId===owner.id&&pending.cards===owner.deck&&
+          owner.supporter.cards.some(card=>card.fullName==='Crispin SCR'),
+          'Real Crispin play must open an authentic owner-deck prompt');
+        assert.ok(!ownerRank13CrispinPending.has(owner.id));
+        ownerRank13CrispinPending.set(owner.id,{
+          seat:choice.seat,stage:'search',promptId:pending.id
+        });
       }
       if(choice.kind==='play-regidrago-battle-compressor'){
         const owner=this.state.players[choice.seat];
