@@ -27,7 +27,7 @@ const VERSION = 'agent48-double-initial-grimer-bench-shake-v1';
  * @param {0|1} seat The physical candidate seat.
  * @returns {object} Physical card custody and genuine prompt settlement.
  */
-function runCase(seat) {
+function runCase(seat, options = {}) {
   assert.ok(seat === 0 || seat === 1);
   const catalog = initializeCards();
   let nextId = 94000 + seat * 100;
@@ -50,9 +50,23 @@ function runCase(seat) {
   grimerSlot.cards.push(benchedGrimer);
   grimerSlot.pokemonPlayedTurn = 1;
   candidate.bench.push(grimerSlot);
+  let alternativeBench=null;
+  if (options.escapeRope && options.extraBench) {
+    alternativeBench=new PokemonCardList();
+    alternativeBench.cards.push(card('Regidrago V SIT'));
+    candidate.bench.push(alternativeBench);
+  }
   candidate.hand.cards.push(shake);
   candidate.deck.cards.push(muk,card('Psychic Energy SVE'));
   source.active.cards.push(card('Iron Thorns ex TWM'));
+  let sourceRope=null,sourceBench=null;
+  if(options.escapeRope){
+    sourceRope=card('Escape Rope BST');
+    source.hand.cards.push(sourceRope);
+    sourceBench=new PokemonCardList();
+    sourceBench.cards.push(card('Regidrago V SIT'));
+    source.bench.push(sourceBench);
+  }
   for(const player of [candidate,source]) {
     player.deck.cards.push(card('Psychic Energy SVE'));
     for(let n = 0; n < 6; n++) {
@@ -100,6 +114,33 @@ function runCase(seat) {
     store.dispatch(new ResolvePromptAction(prompt.id,null));
     steps.push('native-turn-transition');
   }
+  const beforeRope={active:candidate.active.getPokemonCard(),
+    benchMuk:grimerSlot.getPokemonCard()};
+  const ropePrompts=[];
+  if(options.escapeRope){
+    assert.equal(state.activePlayer,seat===0?1:0);
+    store.dispatch(new PlayCardAction(source.id,0,
+      {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+    for(let i=0;i<12;i++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      if(pending.constructor.name==='WaitPrompt'){
+        store.dispatch(new ResolvePromptAction(pending.id,null));
+        ropePrompts.push({kind:'WaitPrompt'});
+        continue;
+      }
+      assert.equal(pending.constructor.name,'ChoosePokemonPrompt');
+      const selected=pending.playerId===candidate.id?
+        (alternativeBench??grimerSlot):sourceBench;
+      assert.equal(pending.validate([selected],state),true,
+        'Actual source-owned Rope should permit physically selected Bench target');
+      store.dispatch(new ResolvePromptAction(pending.id,[selected]));
+      ropePrompts.push({kind:'ChoosePokemonPrompt',playerId:pending.playerId,
+        selected: selected.getPokemonCard()?.fullName??null});
+    }
+    assert.equal(source.discard.cards.includes(sourceRope),true);
+    assert.deepEqual(state.prompts.filter(p=>p.result===undefined),[]);
+  }
   const outcome={
     seat,version:VERSION,initialGrimerInPlay:2,
     activeIsOriginalGrimer: candidate.active.getPokemonCard()===activeGrimer,
@@ -109,14 +150,29 @@ function runCase(seat) {
     physicalMukLeftDeck:!candidate.deck.cards.includes(muk),
     shakeMovedFromHandToDiscard:
       !candidate.hand.cards.includes(shake)&&candidate.discard.cards.includes(shake),
+    ropeTest: options.escapeRope?{
+      extraBench: Boolean(options.extraBench),
+      nativePromptResponses:ropePrompts,
+      preRopeActiveGrimer:beforeRope.active===activeGrimer,
+      preRopeBenchedMuk:beforeRope.benchMuk===muk,
+      activeAfterRope:candidate.active.getPokemonCard()?.fullName??null,
+      keptMukBenched:grimerSlot.getPokemonCard()===muk&&
+        candidate.bench.includes(grimerSlot),
+      mukForcedActive:candidate.active.getPokemonCard()===muk,
+      sourcePhysicalRopeSpent:source.discard.cards.includes(sourceRope)
+    }:null,
     pendingPromptClasses:state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     steps,turnAfter:state.turn,activeSeatAfter:state.activePlayer,
     stagedPhysicalPosition:true,fullGame:false,paperQualifiedGames:0
   };
-  assert.equal(outcome.activeIsOriginalGrimer,true);
+  if(options.escapeRope){
+    assert.equal(outcome.ropeTest.mukForcedActive,!options.extraBench);
+    assert.equal(outcome.ropeTest.keptMukBenched,Boolean(options.extraBench));
+  }else assert.equal(outcome.activeIsOriginalGrimer,true);
   assert.equal(outcome.benchedGrimerBecameMuk,true);
-  assert.equal(outcome.activeOriginalGrimerStillPresent,true);
+  if(!options.escapeRope)
+    assert.equal(outcome.activeOriginalGrimerStillPresent,true);
   assert.equal(outcome.originalBenchedGrimerStillUnderMuk,true);
   assert.equal(outcome.physicalMukLeftDeck,true);
   assert.equal(outcome.shakeMovedFromHandToDiscard,true);
@@ -127,8 +183,16 @@ function runCase(seat) {
 /** @returns {object} */
 function run() {
   const rows=[runCase(0),runCase(1)];
-  return {version:VERSION,attempts:2,passes:rows.length,rows,
-    decision:'TWO_INITIAL_GRIMER_PERMIT_BENCHED_MUK',paperQualifiedGames:0};
+  const rope=[
+    runCase(0,{escapeRope:true,extraBench:false}),
+    runCase(0,{escapeRope:true,extraBench:true}),
+    runCase(1,{escapeRope:true,extraBench:false}),
+    runCase(1,{escapeRope:true,extraBench:true})
+  ];
+  return {version:VERSION,attempts:rows.length+rope.length,
+    passes:rows.length+rope.length,rows,rope,
+    decision:'TWO_BENCH_OPTION_PROTECTS_MUK_FROM_SOURCE_ESCAPE_ROPE',
+    paperQualifiedGames:0};
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
