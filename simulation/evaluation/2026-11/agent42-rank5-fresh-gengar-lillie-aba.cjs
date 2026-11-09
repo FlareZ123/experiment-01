@@ -68,7 +68,12 @@ function executeArm(reg, mode) {
   let activeTrial = null;
   const frozen = require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition, true);
-  const full = runDevelopment({
+  const rows = [];
+  let attempts = 0;
+  // Engine single-candidate mode admits one original natural game per call.
+  // Keep the preregistered eight contexts unchanged, executing sequentially.
+  for (const trial of reg.registeredTrials) {
+    const development = runDevelopment({
     ...frozen.policyOptions, ...sourceFunding.options(true),
     sourceIndependentCommonPolicy: true,
     bilateralPerfectionRoot: true,
@@ -102,7 +107,7 @@ function executeArm(reg, mode) {
       mode.bilateralGengarHorrorHouseTempo,
     bilateralGengarHorrorHouseMinOpponentHandCount:
       mode.bilateralGengarHorrorHouseMinOpponentHandCount ?? 0,
-    registeredTrials: reg.registeredTrials,
+    registeredTrials: [trial],
     registeredFrameName: VERSION + ':' + mode.id,
     nativeRootActionLimit: reg.nativeRootCap,
     onRootStoreCreated(_store, trialId) {
@@ -114,12 +119,18 @@ function executeArm(reg, mode) {
       assert.ok(captures.has(activeTrial));
       captures.get(activeTrial).onRootActionDispatched(...args);
     }
-  });
-  assert.equal(full.attempted, reg.registeredTrials.length);
-  assert.deepEqual(full.rows.map(r => r.trial.id),
+    });
+    assert.equal(development.attempted, 1);
+    assert.equal(development.rows.length, 1);
+    assert.equal(development.rows[0].trial.id, trial.id);
+    attempts += development.attempted;
+    rows.push(...development.rows);
+  }
+  assert.equal(attempts, reg.registeredTrials.length);
+  assert.deepEqual(rows.map(r => r.trial.id),
     reg.registeredTrials.map(t => t.id));
 
-  const records = full.rows.map(row => {
+  const records = rows.map(row => {
     const trial = row.trial;
     const candidateSeat = trial.candidateSlot === 'A' ? 0 : 1;
     const sourceSeat = 1 - candidateSeat;
@@ -162,7 +173,7 @@ function executeArm(reg, mode) {
   });
   return {id:mode.id,mode,records,
     summary: {
-      attempts: full.attempted,
+      attempts,
       terminals: records.filter(x => x.finished).length,
       engineErrors: records.filter(x => x.error !== null).length,
       candidateAttacks: records.reduce((n,r) => n+r.candidateAttacks.length,0),
