@@ -120,7 +120,12 @@ function choosePostJetNestRoot(view) {
   // A Hood-protected AOR Vileplume remains a native Item lock even after
   // Wobbuffet has moved Active. The direct public restriction booleans do
   // not encode every passive Ability-based prohibition.
-  if(hoodedVileplumeTarget(view.opponentPublic))return null;
+  const protectedAor=[view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench??[])].some(p=>
+    p?.printing==='Vileplume AOR'&&
+    p.abilityDetails?.some(a=>a.name==='Irritating Pollen')&&
+    p.tools?.some(t=>t.startsWith('Stealthy Hood ')));
+  if(protectedAor)return null;
   if(own?.active?.printing!=='Wobbuffet PHF'||
       !own.bench?.some(p=>p===null)||
       own.deckCount<=0||
