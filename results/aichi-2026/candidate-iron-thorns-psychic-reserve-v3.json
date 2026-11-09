@@ -1,0 +1,417 @@
+{
+  "schema": "agent12-psychic-reserve-printed60-v3",
+  "status": "unproven prospective developmental challenger, no competitive qualification",
+  "archetype": "Iron Thorns ex / Mimikyu Psychic Reserve",
+  "source": "Original published Aichi rank6 Kazuma Kashi Iron Thorns 60",
+  "sourceRank": 6,
+  "sourcePrintedSixty": "results/aichi-2026/full-decklists.json",
+  "paperFormat": "Japanese Aichi Open League 2026 Expanded, Black and White onwards",
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "name": "Iron Thorns ex",
+      "printing": {
+        "set": "TWM",
+        "number": "77",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Plumeria",
+      "printing": {
+        "set": "BUS",
+        "number": "120",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma & Hala",
+      "printing": {
+        "set": "CEC",
+        "number": "193",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Team Flare Grunt",
+      "printing": {
+        "set": "XY",
+        "number": "129",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Lusamine",
+      "printing": {
+        "set": "CIN",
+        "number": "96",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Cynthia & Caitlin",
+      "printing": {
+        "set": "CEC",
+        "number": "189",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Team Skull Grunt",
+      "printing": {
+        "set": "SUM",
+        "number": "133",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Faba",
+      "printing": {
+        "set": "LOT",
+        "number": "173",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Eri",
+      "printing": {
+        "set": "TEF",
+        "number": "146",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Sidney",
+      "printing": {
+        "set": "FST",
+        "number": "241",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Gladion",
+      "printing": {
+        "set": "CIN",
+        "number": "95",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Lillie's Determination",
+      "printing": {
+        "set": "MEG",
+        "number": "119",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Team Rocket's Handiwork",
+      "printing": {
+        "set": "FCO",
+        "number": "112",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Crushing Hammer",
+      "printing": {
+        "set": "POR",
+        "number": "71",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Trainers' Mail",
+      "printing": {
+        "set": "ROS",
+        "number": "92",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Tag Call",
+      "printing": {
+        "set": "CEC",
+        "number": "206",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Enhanced Hammer",
+      "printing": {
+        "set": "TWM",
+        "number": "148",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Palace Book",
+      "printing": {
+        "set": "SMP",
+        "number": "NAN25",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Echoing Horn",
+      "printing": {
+        "set": "CRE",
+        "number": "136",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Megaton Blower",
+      "printing": {
+        "set": "SSP",
+        "number": "182",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Handheld Fan",
+      "printing": {
+        "set": "TWM",
+        "number": "150",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Tool Jammer",
+      "printing": {
+        "set": "BST",
+        "number": "136",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Palace Belt",
+      "printing": {
+        "set": "BWP",
+        "number": "153",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Tropical Beach",
+      "printing": {
+        "set": "BWP",
+        "number": "50",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Thunder Mountain ♢",
+      "printing": {
+        "set": "LOT",
+        "number": "191",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Wondrous Labyrinth ♢",
+      "printing": {
+        "set": "TEU",
+        "number": "158",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "name": "Speed Lightning Energy",
+      "printing": {
+        "set": "RCL",
+        "number": "173",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "name": "Capture Energy",
+      "printing": {
+        "set": "RCL",
+        "number": "171",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 1,
+      "name": "Spiky Energy",
+      "printing": {
+        "set": "JTG",
+        "number": "159",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 1,
+      "name": "Double Colorless Energy",
+      "printing": {
+        "set": "SUM",
+        "number": "136",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Mimikyu",
+      "printing": {
+        "set": "PAL",
+        "number": "97",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 1,
+      "name": "Jet Energy",
+      "printing": {
+        "set": "PAL",
+        "number": "190",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "name": "Psychic Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      }
+    }
+  ],
+  "changesFromPublishedOriginal": [
+    {
+      "action": "remove",
+      "count": 2,
+      "name": "Camping Gear",
+      "printing": "BST 122"
+    },
+    {
+      "action": "remove",
+      "count": 1,
+      "name": "Captivating Poké Puff",
+      "printing": "STS 99"
+    },
+    {
+      "action": "add",
+      "count": 1,
+      "name": "Mimikyu",
+      "printing": "PAL 97"
+    },
+    {
+      "action": "add",
+      "count": 1,
+      "name": "Jet Energy",
+      "printing": "PAL 190"
+    },
+    {
+      "action": "add",
+      "count": 1,
+      "name": "Psychic Energy",
+      "printing": "MEE 13"
+    },
+    {
+      "action": "remove",
+      "count": 1,
+      "name": "Player's Ceremony",
+      "printing": "SP 127"
+    },
+    {
+      "action": "add",
+      "count": 1,
+      "name": "Psychic Energy",
+      "printing": "MEE 13"
+    }
+  ],
+  "hypothesis": "An extra Basic Psychic Energy helps fund the single Safeguard Mimikyu through imperfect draws and reduces a Prized-energy collapse. It preserves four Iron Thorns ex leads and replaces one Stadium rather than a Supporter or Item.",
+  "risks": [
+    "Player's Ceremony Stadium tactical value is sacrificed",
+    "A single Mimikyu remains Prize-vulnerable",
+    "A second Psychic cannot prove access through actual board locks",
+    "Promotional printing normalization and Japanese tournament admission remain unresolved",
+    "Native play results do not certify paper-level competitive success"
+  ],
+  "fixed60SourceDeckDuplicate": false,
+  "identicalNameCountToPublishedFieldRanks": [],
+  "competitiveQualifiedGames": 0,
+  "claim99Point5": false
+}
