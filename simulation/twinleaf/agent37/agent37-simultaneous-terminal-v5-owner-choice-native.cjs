@@ -19,13 +19,16 @@ const {
  *
  * @param {number} recipientId
  * @param {0|1} actorSeat
+ * @param {boolean} mixedPool Whether the physical recipient Prize pool has an alternate printing.
  * @returns {(store:any,execute:()=>any)=>{result:any,audit:object}}
  */
-function withMixedRecipientPrizes(recipientId,actorSeat){
+function withMixedRecipientPrizes(recipientId,actorSeat,mixedPool){
   return (store,execute)=>{
     const recipient=store.state.players.find(p=>p.id===recipientId);
     assert.ok(recipient);
     assert.equal(recipient.prizes.length,6);
+    if(!mixedPool)
+      return withInstanceScopedSimultaneousTerminalResolutionV5(store,execute);
     const card=initializeCards().getCardByName('Metal Energy MEE');
     assert.ok(card);
     card.id=990000+actorSeat;
@@ -50,7 +53,8 @@ function run(){
       ownerPrizes:actorSeat===0?1:6,
       enemyPrizes:actorSeat===0?6:1
     };
-    for(const includeMetal of [false,true]){
+    for(const mixedPool of [false,true]){
+      for(const includeMetal of mixedPool?[false,true]:[false]){
       let ownerChoiceInvocations=0;
       const choice={...fixture,choosePrize:({player,prompt,remaining,state})=>{
         assert.equal(player.id,recipientId,
@@ -67,13 +71,12 @@ function run(){
         ownerChoiceInvocations++;
         if(!includeMetal)return remaining.slice(0,count);
         const picked=remaining[4];
-        assert.equal(picked.cards[0].fullName,'Metal Energy MEE');
         return [picked,...remaining.filter(prize=>prize!==picked)
           .slice(0,count-1)];
       }};
       const {result,audit}=runOne(
         actorSeat,
-        withMixedRecipientPrizes(recipientId,actorSeat),
+        withMixedRecipientPrizes(recipientId,actorSeat,mixedPool),
         6,true,true,true,choice
       );
       assert.equal(ownerChoiceInvocations,1);
@@ -101,7 +104,7 @@ function run(){
       assert.equal(audit.selectedPrizePrintings.includes('Metal Energy MEE'),
         includeMetal);
       rows.push({
-        actorSeat,recipientId,includeMetal,
+        actorSeat,recipientId,mixedPool,includeMetal,
         nativePrizeChoices:ownerChoiceInvocations,
         selectedPrizePrintings:audit.selectedPrizePrintings,
         ownerPrizesTaken:result.ownerPrizesTakenThisTurn,
@@ -110,14 +113,16 @@ function run(){
         terminalLogDeferred:audit.terminalLogDeferred,
         nativeOwnerPromptSettled:audit.ownerPrizeSelectionSettled
       });
+      }
     }
   }
   return {
     schema:'agent37-simultaneous-terminal-v5-native-owner-prize-choice',
     version:VERSION,pinnedTwinleaf:PINNED,
-    physicalSeats:[0,1],choicesPerSeat:2,
+    physicalSeats:[0,1],choicesPerSeat:3,
     ownerChoiceNativePrompts:rows.length,
     differentPhysicalChoicesCauseDifferentPrizeReceipts:true,
+    homogeneousAndHeterogeneousPoolPromptPresenceIdentical:true,
     competitivelyQualifiedGames:0,
     rows
   };
