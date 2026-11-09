@@ -29,6 +29,15 @@ function chooseUnderworldDoorRoot(ownerView,catalog,usedMarkerReceipt={}){
     catalog.basicEnergies?.has(printing)===true&&
     printing.startsWith('Psychic Energy '));
   if(!psychicEnergyInHand)return null;
+  // Iron Thorns ex Initialization removes Rule Box Pokémon Abilities while
+  // its owner-visible Active is in play. A face-up VMAX cannot announce the
+  // Underworld Door action then; native Store otherwise throws UNKNOWN_POWER.
+  // Abstain conservatively when Initialization is printed on the Active.
+  // Exceptional interactions that cancel this lock are handled by separate
+  // card/Tool-aware policies, not guessed by this basic frontier.
+  const opponentActive=ownerView.opponentPublic?.active;
+  if(opponentActive?.name==='Iron Thorns ex' &&
+     opponentActive.abilities?.includes('Initialization')) return null;
   const targets=own.bench
     .map((slot,index)=>({
       slot,index
