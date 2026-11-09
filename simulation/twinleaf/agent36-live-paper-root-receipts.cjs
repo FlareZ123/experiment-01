@@ -105,15 +105,14 @@ function createLivePaperRootReceipts(trialId) {
     };
   }
 
-  function onRootStoreCreated(liveStore) {
-    assert.equal(store, null, 'One native root Store per registered trial');
-    assert.ok(liveStore?.state?.players?.length === 2);
-    store = liveStore;
+  /** The actual headless callback precedes both AddPlayerAction dispatches. */
+  function capturePhysicalSixties() {
+    if (ids !== null || store.state.players?.length !== 2) return;
+    const players = store.state.players;
+    if (!players.every(p => p.deck?.cards?.length === 60)) return;
     ids = new Map();
     cards = [];
-    for (const [seat, player] of store.state.players.entries()) {
-      assert.equal(player.deck?.cards?.length, 60,
-        'Capture the exact sixty before native setup');
+    for (const [seat, player] of players.entries()) {
       for (const [index, card] of player.deck.cards.entries()) {
         assert.ok(!ids.has(card), 'Physical card was shared across decks');
         const id = seat + ':' + index;
@@ -121,6 +120,13 @@ function createLivePaperRootReceipts(trialId) {
         cards.push({id, originalSeat: seat, printing: printable(card)});
       }
     }
+  }
+
+  function onRootStoreCreated(liveStore) {
+    assert.equal(store, null, 'One native root Store per registered trial');
+    assert.ok(liveStore?.state && Array.isArray(liveStore.state.players));
+    store = liveStore;
+    capturePhysicalSixties();
     const originalOwn = Object.getOwnPropertyDescriptor(store, 'dispatch');
     assert.equal(typeof store.dispatch, 'function');
     // Late native correction hooks replace prototype dispatch during a match.
@@ -133,6 +139,13 @@ function createLivePaperRootReceipts(trialId) {
     const wrapped = function(action, ...args) {
       if (depth > 0) return callUnderlying(this, action, args);
       assert.strictEqual(this, store, 'Real Store dispatch scope changed');
+      // Pre-game native AddPlayer dispatches are engine initialization,
+      // never accepted player root actions and have no meaningful owner ID.
+      if (ids === null) {
+        const value = callUnderlying(this, action, args);
+        capturePhysicalSixties();
+        return value;
+      }
       depth++;
       const before = view();
       try {
