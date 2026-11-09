@@ -337,9 +337,19 @@ for (const seat of [0, 1]) {
       const seekerIndex = x.originalPlayer.hand.cards.findIndex(c =>
         c.id === x.seeker.id);
       assert.ok(seekerIndex >= 0);
-      x.store.dispatch(new PlayCardAction(x.originalPlayer.id, seekerIndex, {
-        player:PlayerType.ANY, slot:SlotType.BOARD, index:0
-      }));
+      const ownerFollow = chooseActorRootIntent(
+        actorObservation(x.store.state, seat), metadata(), {
+          jetPostSeekerFabaContinuation: true
+        });
+      assert.equal(ownerFollow?.kind, 'play-seeker-get-faba',
+        'Common owner actor must autonomously choose source VS retrieval');
+      assert.equal(ownerFollow.handIndex, seekerIndex);
+      assert.equal(ownerFollow.printing, 'VS Seeker PHF');
+      assert.equal(ownerFollow.target, 'Faba LOT');
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+        ownerFollow.handIndex, {
+          player:PlayerType.ANY, slot:SlotType.BOARD, index:0
+        }));
       const prompt = x.store.state.prompts.find(p =>
         p.result === undefined);
       assert.equal(prompt?.constructor.name, 'ChooseCardsPrompt',
@@ -351,8 +361,12 @@ for (const seat of [0, 1]) {
       const {ResolvePromptAction} =
         native('game/store/actions/resolve-prompt-action');
       assert.equal(prompt.validate([x.faba], x.store.state), true);
-      x.store.dispatch(new ResolvePromptAction(prompt.id,
-        prompt.decode([target])));
+      const ownerPrompt = require(
+        '../../simulation/twinleaf/agent48-owner-vs-seeker-supporter.cjs')
+        .selectOwnerVsSeekerSupporterPrompt(
+          x.store.state,seat,prompt,ResolvePromptAction,'Faba LOT');
+      assert.equal(ownerPrompt.card.id, x.faba.id);
+      x.store.dispatch(ownerPrompt.action);
       const follow = settleRoutine(x);
       assert.equal(x.originalPlayer.hand.cards.some(c =>
         c.id === x.faba.id), true);
@@ -363,7 +377,7 @@ for (const seat of [0, 1]) {
       assert.equal(x.store.hasPrompts(), false);
       assertExactSixties(x);
       console.log('AGENT33_RANK7_ARTAZON_JET_VSSEEKER',JSON.stringify({
-        seat,hood,selected,searchResult:'Faba LOT',follow,
+        seat,hood,selected,ownerFollow,searchResult:'Faba LOT',follow,
         nativeItemSettled:true,sourceDistinctCards:60,
         sentinelDistinctCards:60,qualifiedGames:0
       }));
