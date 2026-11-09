@@ -1473,6 +1473,7 @@ function runDevelopment({
   actorRank9CompressorBombAfter=false,
   actorRank9LateBenchBomb=false,
   actorRank9PostBombRope=false,
+  actorRank9RopeOpponentSurvival=false,
   actorRank9UltraDeadVipAfterPass=false,
   actorRank9CompressorEnergyTarget=3,
   paperRank9ElectrodeGXCorrection=false,
@@ -1535,6 +1536,8 @@ function runDevelopment({
     'Later-turn bench Bomb requires the source Bomb composition');
   assert.ok(!actorRank9PostBombRope||actorRank9LateBenchBomb,
     'Post-Bomb Rope requires native later-turn Bench Bomb');
+  assert.ok(!actorRank9RopeOpponentSurvival||actorRank9PostBombRope,
+    'Adversarial Rope replacement requires real source post-Bomb Rope');
   assert.ok([1,2,3].includes(actorRank9CompressorEnergyTarget),
     'Rank9 source Compressor target must be 1–3 physical Energy');
   assert.ok(!sourceIndependentCommonPolicy||actorOnlyComposition,
@@ -2289,6 +2292,9 @@ function runDevelopment({
               }:{}),
               ...(actorRank9PostBombRope?{
                 rank9PostBombRope:true
+              }:{}),
+              ...(actorRank9RopeOpponentSurvival?{
+                rank9RopeOpponentSurvival:true
               }:{}),
               ...(actorRank9UltraDeadVipAfterPass?{
                 rank9UltraDeadVipAfterPass:true
