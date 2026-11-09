@@ -560,3 +560,42 @@ for (const seat of [0, 1]) {
     });
   }
 }
+
+
+// Printed Pale Moon-GX requires one extra Psychic Energy beyond its effective
+// attack cost. Dimension Valley reduces [P,C] to [P] for Psychic Pokemon.
+// These are actual pinned Store cost-and-effect tests, not source-dealt games.
+for (const seat of [0, 1]) {
+  for (const psychicCount of [1, 2]) {
+    test('Dimension Valley changes Pale Moon-GX bonus threshold, seat ' +
+      seat + ' Psychic ' + psychicCount, () => {
+      const { AttackAction } = native('game/store/actions/game-actions');
+      const f = stage(seat, psychicCount, false);
+      const stadium = initializeCards().getCardByName('Dimension Valley PHF');
+      assert.ok(stadium, 'printed Dimension Valley must be registered');
+      stadium.id = 349940 + seat * 10 + psychicCount;
+      f.attacker.stadium.cards.push(stadium);
+      assert.strictEqual(f.attacker.stadium.cards[0], stadium);
+      assert.equal(f.defender.active.energies.cards.length, 2);
+
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      const defenderEnergyRemaining = f.defender.active.energies.cards.length;
+      const expectedRemaining = psychicCount === 1 ? 2 : 0;
+      console.log('AGENT34_DIMENSION_VALLEY_PALE_MOON', JSON.stringify({
+        seat, psychicCount, stadiumPrinting: stadium.fullName,
+        effectiveCost: '[Psychic]', expectedBonus: psychicCount === 2,
+        actualDefenderEnergyRemaining: defenderEnergyRemaining,
+        expectedDefenderEnergyRemaining: expectedRemaining,
+        gxSpent: f.attacker.usedGX,
+        delayedKoPending: f.defender.pendingEndOfTurnEffects.length,
+        qualifiedGames: 0
+      }));
+      assert.equal(f.attacker.usedGX, true);
+      assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
+      assert.strictEqual(f.defender.pendingEndOfTurnEffects[0].target,
+        f.defender.active);
+      assert.equal(defenderEnergyRemaining, expectedRemaining,
+        'bonus Energy count must be relative to the stadium-reduced cost');
+    });
+  }
+}
