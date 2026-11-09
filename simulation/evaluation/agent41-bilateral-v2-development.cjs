@@ -1448,6 +1448,7 @@ function runDevelopment({
   onRootStoreCreated=null,onRootActionDispatched=null,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneSourceOnly=false,
+  actorGenericFundedFloatStoneCandidateOnly=false,
   actorGenericFundedFloatStoneCensus=false,
   actorZeroEnergyStrandFloatStoneRoot=false,
   actorZeroEnergyStrandFloatStoneTargetTurn=null,
@@ -1472,6 +1473,7 @@ function runDevelopment({
   actorSeekerGuzmaOwnerSeat=null,actorSeekerGuzmaGlobalTurn=null,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
+  actorRank9CompressorOwnerCandidate=false,
   actorRank9CompressorAnyTurn=false,
   actorRank9CompressorBombAfter=false,
   actorRank9LateBenchBomb=false,
@@ -1536,6 +1538,10 @@ function runDevelopment({
   });
   assert.ok(!actorRank9UltraDeadVipAfterPass||actorRank9CompressorBombAfter,
     'Original dead-VIP Ultra Ball rescue requires the source Bomb composition');
+  assert.ok(!actorRank9CompressorOwnerCandidate||actorRank9CompressorOwnerBridge,
+    'Candidate-owner rank9 source bridge needs the original native line');
+  assert.ok(!(actorGenericFundedFloatStoneCandidateOnly&&actorGenericFundedFloatStoneSourceOnly),
+    'Funded Float target must be exactly one physical side');
   assert.ok(!actorRank9LateBenchBomb||actorRank9CompressorBombAfter,
     'Later-turn bench Bomb requires the source Bomb composition');
   assert.ok(!actorRank9PostBombRope||actorRank9LateBenchBomb,
@@ -2133,9 +2139,12 @@ function runDevelopment({
               ...paidRetreatRootOptions,
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true,
-                ...(actorGenericFundedFloatStoneSourceOnly?{
+                ...(actorGenericFundedFloatStoneSourceOnly||
+                    actorGenericFundedFloatStoneCandidateOnly?{
                   genericFundedFloatStoneOwnerSeat:
-                    1-(trial.candidateSlot==='A'?0:1)
+                    actorGenericFundedFloatStoneCandidateOnly?
+                      (trial.candidateSlot==='A'?0:1):
+                      1-(trial.candidateSlot==='A'?0:1)
                 }:{})
               }:{}),
               ...(actorGenericFundedFloatStoneCensus?{
@@ -2295,7 +2304,9 @@ function runDevelopment({
             seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn,
             rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
             ...(actorRank9CompressorOwnerBridge?{
-              rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1),
+              rank9CompressorOwnerSeat:actorRank9CompressorOwnerCandidate?
+                (trial.candidateSlot==='A'?0:1):
+                1-(trial.candidateSlot==='A'?0:1),
               ...(actorRank9CompressorAnyTurn?{
                 rank9CompressorMaxGlobalTurn:Infinity
               }:{}),
