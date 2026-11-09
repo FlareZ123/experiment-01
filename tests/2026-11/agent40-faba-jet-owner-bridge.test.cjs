@@ -4,7 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   chooseFabaJetHoodRoot,chooseFabaJetHoodPrompt,
-  choosePostJetNestRoot,hoodedVileplumeTarget
+  choosePostJetNestRoot,choosePostJetNestSearchPrompt,
+  hoodedVileplumeTarget
 } = require('../../simulation/twinleaf/2026-11/agent40-faba-jet-owner-bridge.cjs');
 
 const lock = (tools=['Stealthy Hood UNB']) => ({
@@ -108,4 +109,29 @@ test('post-switch original Item follows physical Wobbuffet and open Bench',()=>{
   v.ownPublic.publicTurnRestrictions.itemPlayLocked=false;
   v.ownPublic.active.printing='Mimikyu PAL';
   assert.equal(choosePostJetNestRoot(v),null);
+});
+
+test('Nest own-deck search only reads source-granted K1 membership',()=>{
+  const v=owner();
+  v.decisionKind='owner-prompt';
+  v.pendingOwnerDeckSearch=true;
+  const ownDeck={cards:[
+    {fullName:'Regirock XYP',id:17},
+    {fullName:'Wobbuffet PHF',id:18}
+  ]};
+  const prompt={type:'Choose cards',cards:ownDeck,
+    decode:indices=>indices.map(index=>ownDeck.cards[index].id)};
+  assert.deepEqual(choosePostJetNestSearchPrompt(v,prompt,ownDeck,
+    ['Snorlax PGO','Regirock XYP']),{
+    answer:[17],printing:'Regirock XYP',
+    kind:'nest-select-actual-owner-deck-basic'
+  });
+  v.pendingOwnerDeckSearch=false;
+  assert.equal(choosePostJetNestSearchPrompt(v,prompt,ownDeck,
+    ['Regirock XYP']),null,'No search entitlement, no private deck access');
+  v.pendingOwnerDeckSearch=true;
+  assert.equal(choosePostJetNestSearchPrompt(v,{...prompt,cards:{cards:[]}},
+    ownDeck,['Regirock XYP']),null,'Reject a different search zone');
+  assert.equal(choosePostJetNestSearchPrompt(v,prompt,ownDeck,
+    ['Missing Pokemon']),null,'Absent desired Basic is not invented');
 });
