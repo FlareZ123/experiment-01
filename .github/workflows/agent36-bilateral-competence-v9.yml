@@ -78,6 +78,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent15_cursed_blast_four_group:
+        description: 'Prospective native A/B same-four-deal original11/31 two-seat Cursed Blast paid after-Pass hook, 260-root development only'
+        required: false
+        type: boolean
+        default: false
       contract_only:
         description: 'Run pure Agent34/Agent41 policy and Agent36 Snap Trap prompt-gate/observer contracts without compiling Twinleaf or executing a game'
         required: false
@@ -162,6 +167,7 @@ jobs:
           node --check simulation/twinleaf/agent15/owner-cursed-blast-prize-policy.cjs
           node --check simulation/twinleaf/agent15/owner-cursed-blast-native-probe.cjs
           node --check simulation/twinleaf/agent15/owner-cursed-blast-after-pass.cjs
+          node --check simulation/evaluation/agent15/fresh-original-cursed-blast-native-pair.cjs
           node --check simulation/twinleaf/agent49-rank31-dusknoir-cursed-blast-native.cjs
           node --check simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
           node --check simulation/evaluation/agent43-native-box-ko-postsettlement-audit.cjs
@@ -247,8 +253,14 @@ jobs:
         run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs
 
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier }}
+        if: ${{ !inputs.contract_only && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent15_cursed_blast_four_group }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
+
+      - name: Execute Agent15 fresh original11/31 four-group native Cursed Blast comparison
+        if: ${{ !inputs.contract_only && inputs.agent15_cursed_blast_four_group }}
+        run: |
+          mkdir -p artifacts/agent15-cursed-blast-paired
+          node simulation/evaluation/agent15/fresh-original-cursed-blast-native-pair.cjs > artifacts/agent15-cursed-blast-paired/four-group.json
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
         if: ${{ !cancelled() && steps.compile.outcome == 'success' && inputs.agent24_v8_bilateral_perfection && !inputs.contract_only }}
@@ -351,5 +363,6 @@ jobs:
             artifacts/agent36-v8-snap-trap-vertical-slice-v2/
             artifacts/agent2-crispin-vs-seeker-treasure-native/
             artifacts/agent43-v8-snaptrap-owner-root/
+          artifacts/agent15-cursed-blast-paired/
           retention-days: 21
           if-no-files-found: warn
