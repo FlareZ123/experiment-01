@@ -22,7 +22,7 @@ const VERSION='agent9-native-owner-mail-after-pass-v1';
  * @template T
  * @param {()=>T} execute Synchronous original Store headless run.
  * @param {[string[],string[]]} registeredSixties Exact source 60s per seat.
- * @param {{allowRoot?:(view:object)=>boolean}} [options] Optional owner-visible comparison window.
+ * @param {{allowRoot?:(view:object)=>boolean,playMailSelectedMarnieOnPass?:boolean}} [options] Optional owner-visible comparison window.
  * @returns {{result:T,audit:object}}
  */
 function withOwnerMailAfterPass(execute,registeredSixties,options={}){
@@ -59,6 +59,7 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
   assert.equal(typeof previousAi?.value,'function');
   assert.equal(typeof previousStore?.value,'function');
   const selected=new WeakMap(),awaiting=new Map();
+  const physicallyMailSelectedMarnie=new WeakSet();
   let liveStore=null;
   const audit={
     version:VERSION,policySymmetricBothSeats:true,
@@ -69,6 +70,9 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
     liveOwnerMailSearchPrompts:0,
     promptSelected:0,promptAccepted:0,promptRejected:0,
     chosenCardsSettledInHand:0,unsettledPrompts:0,
+    marnieSelectedPhysically:0,marnieFollowOffers:0,
+    marnieFollowStoreAccepted:0,marnieFollowStoreRejected:0,
+    marnieFollowPhysicallyDiscarded:0,marnieFollowReceipts:[],
     bothSeatAccepted:{0:0,1:0},
     selectedReceipts:[],omittedReceipts:0,
     nativeSourceHiddenOrderReadByThisBridge:false,
@@ -120,6 +124,26 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
     audit.unsupportedPassRoots++;
     const view=actorObservation(state,seat);
     if(options.allowRoot&&!options.allowRoot(view))return incumbent;
+    if(options.playMailSelectedMarnieOnPass===true){
+      const {chooseMailSelectedMarnie}=
+        require('./agent38-owner-mail-selected-marnie.cjs');
+      const indices=owner.hand.cards.flatMap((card,index)=>
+        physicallyMailSelectedMarnie.has(card)?[index]:[]);
+      const chosen=chooseMailSelectedMarnie(view,indices);
+      const card=chosen?owner.hand.cards[chosen.handIndex]:null;
+      if(chosen&&card?.fullName===chosen.printing&&
+         card.canPlay?.(liveStore,state,owner)===true){
+        const action=new PlayCardAction(owner.id,chosen.handIndex);
+        selected.set(action,{
+          kind:'selected-marnie',seat,ownerId:owner.id,turn:state.turn,
+          physicalCard:card,printing:card.fullName,
+          beforeOwnHandCount:owner.hand.cards.length,
+          beforeOpponentHandCount:state.players[1-seat].hand.cards.length
+        });
+        audit.marnieFollowOffers++;
+        return action;
+      }
+    }
     const proposal=planOwnerMailAfterPass(view,catalog,
       registeredSixties[seat],{kind:'pass',
         reason:'no-supported-owner-visible-root'});
@@ -170,13 +194,32 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
           entry.mailPrompt='no-prompt-created';
           awaiting.delete(entry.ownerId);
         }
+      }else if(entry.kind==='selected-marnie'){
+        audit.marnieFollowStoreAccepted++;
+        const discarded=owner.discard.cards.includes(entry.physicalCard);
+        if(discarded)audit.marnieFollowPhysicallyDiscarded++;
+        audit.marnieFollowReceipts.push({
+          seat:entry.seat,turn:entry.turn,printing:entry.printing,
+          physicallyDiscarded:discarded,
+          ownerHandCountBefore:entry.beforeOwnHandCount,
+          ownerHandCountAfter:owner.hand.cards.length,
+          opponentHandCountBefore:entry.beforeOpponentHandCount,
+          opponentHandCountAfter:this.state.players[1-entry.seat].hand.cards.length
+        });
       }else{
         audit.promptAccepted++;
         awaiting.delete(entry.ownerId);
         const settled=entry.chosen.every(card=>
           owner.hand.cards.includes(card));
-        if(settled)audit.chosenCardsSettledInHand+=entry.chosen.length;
-        else audit.unsettledPrompts++;
+        if(settled){
+          audit.chosenCardsSettledInHand+=entry.chosen.length;
+          if(options.playMailSelectedMarnieOnPass===true)
+            for(const card of entry.chosen)
+              if(card.fullName==='Marnie SSH'){
+                physicallyMailSelectedMarnie.add(card);
+                audit.marnieSelectedPhysically++;
+              }
+        }else audit.unsettledPrompts++;
         entry.rootReceipt.mailPrompt='owner-prompt-accepted';
         entry.rootReceipt.chosen=entry.chosen.map(card=>card.fullName);
         entry.rootReceipt.chosenPhysicallySettled=settled;
@@ -186,6 +229,8 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
       if(entry.kind==='mail'){
         audit.mailStoreRejected++;
         entry.nativeStore='rejected';
+      }else if(entry.kind==='selected-marnie'){
+        audit.marnieFollowStoreRejected++;
       }else{
         audit.promptRejected++;
         entry.rootReceipt.mailPrompt='owner-prompt-rejected';
