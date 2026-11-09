@@ -2807,6 +2807,8 @@ function runDevelopment({
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
     actorFundedShadowRiderFloatStoneRootOptIn:
       actorOnlyComposition&&actorFundedShadowRiderFloatStoneRoot,
+    actorMimikyuApexFundedPromotionOptIn:
+      actorOnlyComposition&&actorMimikyuApexFundedPromotion,
     actorGenericFundedFloatStoneRootOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneRoot,
     actorGenericFundedFloatStoneSourceOnly:
