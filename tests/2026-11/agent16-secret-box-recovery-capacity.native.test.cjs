@@ -7,6 +7,10 @@ const {stagedPainfulSpoons} =
   require('../../simulation/twinleaf/agent4-rank31-alakazam-movesource-native.cjs');
 const {withPaperSecretBoxMandatoryPayment} =
   require('../../simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs');
+const {withPaperSecretBoxSearchCategory} =
+  require('../../simulation/twinleaf/agent4-secret-box-paper-search-hook.cjs');
+const {chooseSecretBoxCategories,ROOT93_NEW_MOON_PREFERENCES} =
+  require('../../simulation/twinleaf/agent36-secret-box-four-category-selector.cjs');
 const {
   planSecretBoxRecoveryCapacityPayment,
   chooseSecretBoxRecoveryCapacityPayment
@@ -18,6 +22,8 @@ const {PlayCardAction, PlayerType, SlotType} =
   native('game/store/actions/play-card-action');
 const {ResolvePromptAction} =
   native('game/store/actions/resolve-prompt-action');
+const {TrainerCard} = native('game/store/card/trainer-card');
+const {TrainerType} = native('game/store/card/card-types');
 const BOX = 'Secret Box TWM';
 const VIP = 'Battle VIP Pass FST';
 const CARRIER = 'Rescue Carrier EVS';
@@ -40,6 +46,9 @@ function stagedPayment(seat,targetCount) {
     f.card(CARRIER), f.card(LILLIE)
   ];
   f.source.hand.cards.push(...hand);
+  const categoryCards = ['Fog Crystal CRE','Powerglass SFA',
+    'Ace Trainer AOR','Sky Field ROS'].map(name=>f.card(name));
+  f.source.deck.cards.push(...categoryCards);
   for (let i=0;i<targetCount;i++)
     f.source.discard.cards.push(f.card('Unown AOR'));
   const before = planSecretBoxRecoveryCapacityPayment(
@@ -70,12 +79,37 @@ function stagedPayment(seat,targetCount) {
   const nextSearch = f.state.prompts.find(p=>
     p.result===undefined && p.sourceCard?.fullName===BOX &&
     p.message==='CHOOSE_CARD_TO_HAND');
+  assert.ok(nextSearch,'Secret Box owner four-category search must be pending');
+  const categories=chooseSecretBoxCategories(nextSearch,f.source,f.state,
+    {TrainerCard,TrainerType},ROOT93_NEW_MOON_PREFERENCES);
+  assert.deepEqual(categories?.map(c=>c.fullName),[
+    'Fog Crystal CRE','Powerglass SFA',
+    'Ace Trainer AOR','Sky Field ROS'
+  ]);
+  assert.equal(nextSearch.validate(categories,f.state),true);
+  f.store.dispatch(new ResolvePromptAction(nextSearch.id,categories));
+  const pending=()=>f.state.prompts.find(p=>p.result===undefined);
+  for(let i=0;i<15&&pending();i++){
+    const p=pending();
+    const reply=p.constructor.name==='ShowCardsPrompt'?true:
+      p.constructor.name==='ShuffleDeckPrompt'?
+        Array.from({length:f.source.deck.cards.length},(_,index)=>index):
+        p.constructor.name==='WaitPrompt'?null:undefined;
+    assert.ok(reply!==undefined,'Unexpected follow-through prompt '+p.constructor.name);
+    f.store.dispatch(new ResolvePromptAction(p.id,reply));
+  }
+  assert.equal(pending(),undefined);
+  const categoryPhysicalSettlement=categories.every(c=>
+    f.source.hand.cards.includes(c)&&!f.source.deck.cards.includes(c));
   return {
     seat,targetCount,
     selectedPrintings:selected.cards.map(c=>c.fullName),
     selectedIds:selected.cards.map(c=>c.id),
     rootAccepted:true,paymentSettled:prompt.result!==undefined,
     physicalSettlement,searchPending:!!nextSearch,
+    categoriesFetched:categories.map(c=>c.fullName),
+    categoryPhysicalSettlement,
+    categoryCount:categories.length,
     recoveryValueLost:selected.recoveryValueLost,
     recoveryValueBefore:selected.recoveryValueBefore,
     recoveryValueAfter:selected.recoveryValueAfter,
@@ -88,10 +122,12 @@ function stagedPayment(seat,targetCount) {
 test('one and four eligible recovery targets cause distinct paper-paid Secret Box decisions in both native seats',()=>{
   for (const seat of [0,1]) {
     for (const targetCount of [1,4]) {
-      const {result,audit} = withPaperSecretBoxMandatoryPayment(()=>
-        stagedPayment(seat,targetCount));
+      const outer = withPaperSecretBoxMandatoryPayment(()=>
+        withPaperSecretBoxSearchCategory(()=>stagedPayment(seat,targetCount)));
+      const {result,audit:searchAudit}=outer.result;
+      const paymentAudit=outer.audit;
       console.log('AGENT16_RECOVERY_CAPACITY_NATIVE',JSON.stringify({
-        result,audit
+        result,paymentAudit,searchAudit
       }));
       assert.deepEqual(result.selectedPrintings,
         targetCount===1?[VIP,VIP,CARRIER]:[VIP,VIP,LILLIE]);
@@ -99,12 +135,20 @@ test('one and four eligible recovery targets cause distinct paper-paid Secret Bo
       assert.equal(result.paymentSettled,true);
       assert.equal(result.physicalSettlement,true);
       assert.equal(result.searchPending,true);
+      assert.equal(result.categoryCount,4);
+      assert.deepEqual(result.categoriesFetched,[
+        'Fog Crystal CRE','Powerglass SFA','Ace Trainer AOR','Sky Field ROS'
+      ]);
+      assert.equal(result.categoryPhysicalSettlement,true);
       assert.equal(result.recoveryValueLost,0);
       assert.equal(result.carrierCopiesBefore,2);
       assert.equal(result.carrierCopiesAfter,targetCount===1?1:2);
       assert.equal(result.qualifiedGame,false);
-      assert.equal(audit.inspectedPayments,1);
-      assert.equal(audit.vetoedPayments,0);
+      assert.equal(paymentAudit.inspectedPayments,1);
+      assert.equal(paymentAudit.vetoedPayments,0);
+      assert.equal(searchAudit.sourceSearchPrompts,1);
+      assert.equal(searchAudit.acceptedSearches,1);
+      assert.equal(searchAudit.vetoedSearches,0);
     }
   }
 });
