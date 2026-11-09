@@ -80,3 +80,19 @@ test('Crispin native attachment targets real Benched Regidrago with Grass',()=>{
   assert.equal(chooseNativeCrispinBenchAttach(state,1,prompt,
     ResolvePromptAction,{BOTTOM_PLAYER:8},{BENCH:6}),null);
 });
+
+test('Crispin root physical observer confirms Supporter quota without treating pending prompt as resolved',()=>{
+  const {rootPhysicalWitness}=require(
+    '../../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent={kind:'play-regidrago-crispin',printing:'Crispin SCR'};
+  const before={supporterSpent:0,supporterTurn:0};
+  const accepted={supporterSpent:1,supporterTurn:2};
+  assert.equal(rootPhysicalWitness(intent,before,accepted,{}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,{
+    supporterSpent:0,supporterTurn:2
+  },{}),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,{
+    supporterSpent:1,supporterTurn:0
+  },{}),'no-confirmed-public-effect');
+});
