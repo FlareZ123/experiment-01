@@ -18,6 +18,8 @@ const {
   resolveRulebookETerminalOutcome,
   PINNED
 }=require('../agent37-paper-ko-simultaneous-last-prize-tie-v1.cjs');
+const {assertPhysicalPrizePromptSelection}=
+  require('./native-prize-physical-selection.cjs');
 
 const VERSION='agent37-instance-scoped-simultaneous-terminal-owner-choice-v5';
 const BASE=path.resolve(__dirname,'../../../vendor/twinleaf/ptcg-server/output');
@@ -233,14 +235,9 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
           awaitingOwnerPrizeChoice=true;
           audit.ownerPrizeSelectionPrompted=true;
           store.prompt(state,prompt,selected=>{
-            assert.ok(Array.isArray(selected)&&prompt.validate(selected,state),
-              'only the actual Prize owner may select their own physical Prizes');
-            // The pinned ChoosePrizePrompt.validate checks count and nonempty
-            // objects but does NOT check physical zone membership. A fake or
-            // other-player CardList is otherwise accepted by native decoding.
-            assert.ok(selected.every(prize=>
-              otherPlayer.prizes.includes(prize)&&prize.cards.length>0),
-            'owner Prize choice must name physical lists in that owner Prize zone');
+            assert.strictEqual(
+              assertPhysicalPrizePromptSelection(state,prompt,selected),
+              otherPlayer,'the native Prize prompt target must be this recipient');
             assert.equal(state.phase,GamePhase.ATTACK,
               'provisional terminal must remain hidden until Prize selection');
             const selectedCards=selected.flatMap(prize=>[...prize.cards]);
