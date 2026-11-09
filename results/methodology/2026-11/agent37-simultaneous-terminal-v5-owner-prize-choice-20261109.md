@@ -55,9 +55,19 @@ does not peek at card content. The resulting actual card printing
 is checked retrospectively after the native Store transfers it.
 This adds one homogeneous prompt scenario per physical actor seat.
 
-The corrected hidden-information-independent native cohort was
-dispatched after commit `0c9b3952aacb146e3004d5b8670ed908c117acc9`.
-Its success was pending when this paragraph was written.
+The corrected hidden-information-independent native cohort
+[42556275942](https://github.com/FlareZ123/experiment-01/actions/runs/42556275942)
+**passed** 9 November 2026, including six owner-driven prompt scenarios across
+the two seats. That version offers exactly one native owner prompt regardless
+of whether all six Prize printings are identical, and still verifies
+the retrospective physical selection difference.
+
+An additional prospective [run 42556501447](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447)
+adds two Rulebook §E **promotion-asymmetric draws**: the first player to
+exhaust Prizes cannot promote an Active, while the other recipient can.
+Each arm must resolve the actual native owner Prize prompt and then
+**correct the native winner to DRAW**, with one final draw log.
+This extension is pending native validation at this revision.
 
 ## Unsolved limits
 
