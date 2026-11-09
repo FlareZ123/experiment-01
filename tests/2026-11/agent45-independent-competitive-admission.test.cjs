@@ -294,3 +294,66 @@ test('even a correctly witnessed cooldown cannot bypass missing clock or paper',
     assert.equal(assess(b).acceptanceReady,false);
   }
 });
+
+
+test('first real release envelope has resolvable nine-object refs and explicit admission denials',()=>{
+  const {build}=require('../../simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs');
+  const caseRoots=[
+    {actionOrdinal:0,turnBefore:1,playerSlot:1,action:'PlayCardAction'},
+    {actionOrdinal:1,turnBefore:2,playerSlot:0,action:'AttackAction'},
+    {actionOrdinal:2,turnBefore:3,playerSlot:1,action:'PassTurnAction'}
+  ];
+  const original={
+    schema:'agent44-first-independent-original-source-case-intake-v1',
+    registration:{preRegisteredTrials:[{id:'synthetic-case'}]},
+    registrationSha256:'registered-case-hash',
+    intake:{
+      caseId:'synthetic-negative-control',
+      trial:{id:'synthetic-case'},
+      sourceSeat:0,candidateSeat:1,
+      sourcePrintedSha256:'source-print-inventory',
+      sourcePrintedInventorySha256:'source-manifest',
+      candidatePrintedInventorySha256:'candidate-manifest',
+      native:{completed:true,actualFirstSeat:1,nativeWinner:0,
+        physicalPrizesAfter:[0,6],acceptedRootLedgerSha256:rootDigest(caseRoots),
+        sourceAttacks:1,candidateAttacks:0},
+      nineEvidenceObjects:{
+        officialClockAndNoCall:{available:false,continuousClock:null},
+        sourceReplyAndNextOriginalTurn:{replyWindow:[]}
+      },
+      releaseStatus:{competitiveAdmission:false,
+        firstMissingEvidence:'independent-print-verification'}
+    },
+    nativeDevelopmentRow:{
+      trial:{id:'synthetic-case'},
+      rootActionLedger:caseRoots,finished:true,winner:0,
+      endReason:'engine-game-end',finalPrizes:[0,6],
+      sourceDealFingerprint:'physical-source-fingerprint',
+      fullPhysicalDealFingerprint:'physical-full-fingerprint',
+      physicalZoneQualification:{physicalIntegrityQualified:true}
+    },
+    postStoreZoneTape:{
+      initialStablePhysicalDeal:{sha256:'physical-start'},
+      postAcceptedRootCount:caseRoots.length,
+      allRootPhysicalZonesSha256:'post-store-tape-hash'
+    }
+  };
+  const result=build(original);
+  assert.deepEqual(result.bundle.evidenceManifest.map(x=>x.kind),MANIFEST);
+  for(const entry of result.bundle.evidenceManifest){
+    assert.equal(entry.ref,
+      'agent44-first-independent-rank5-newmoon-case-v1.json#/releaseNineObjects/'+entry.kind);
+    assert.ok(Object.hasOwn(result.releaseNineObjects,entry.kind));
+    assert.equal(entry.sha256,evidenceBundleSha256(result.releaseNineObjects[entry.kind]));
+  }
+  const gate=result.independentAdmissionGate;
+  assert.equal(gate.nativeStructuralGatePassed,false);
+  assert.equal(gate.competitiveAdmission,false);
+  assert.ok(!gate.failures.includes('malformed-or-unverifiable-native-competence-trial'));
+  for(const missing of ['provenance-incomplete','policy-asymmetry-or-unverified',
+    'no-certified-source-reply-source-episode','independent-paper-audit-pending',
+    'hidden-information-audit-pending','official-match-clock-audit-pending',
+    'external-review-unavailable','no-signed-review-packets']){
+    assert.ok(gate.failures.includes(missing),missing);
+  }
+});
