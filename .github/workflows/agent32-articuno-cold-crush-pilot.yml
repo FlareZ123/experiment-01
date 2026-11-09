@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      challenge_rank14_source_n:
+        description: 'Replay source-only original N Supporter after otherwise Pass versus frozen Perfection pivot'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -211,3 +216,9 @@ jobs:
           node --check simulation/twinleaf/agent45-original-source-pass-audit.cjs
           node --check simulation/evaluation/agent45-rank14-source-pass-opportunities.cjs
           node simulation/evaluation/agent45-rank14-source-pass-opportunities.cjs
+      - name: Execute source original own-hand N after Pass against frozen New Moon pivot
+        if: ${{ inputs.challenge_rank14_source_n }}
+        run: |
+          node --check simulation/twinleaf/agent45-original-source-n-after-pass.cjs
+          node --check simulation/evaluation/agent45-rank14-source-n-rescue-native.cjs
+          node simulation/evaluation/agent45-rank14-source-n-rescue-native.cjs
