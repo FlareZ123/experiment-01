@@ -108,11 +108,12 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
  * @param {object} input Detached actor-only prompt input.
  * @returns {{index:number|null}|null}
  */
-function chooseActorPokemon(input) {
+function chooseActorPokemon(input, options = {}) {
   assert.equal(input.actor?.decisionKind, 'owner-prompt');
   assert.equal(input.prompt.kind, 'ChoosePokemonPrompt');
   if (input.prompt.offered.length) {
-    if (input.prompt.sourceTrainerName === 'Guzma') {
+    if (options.avoidPrintedBarrier !== false &&
+        input.prompt.sourceTrainerName === 'Guzma') {
       const unblocked = input.prompt.offered.find(target =>
         target.side === 'opponent' && !target.printedTrainerBarrier);
       if (unblocked) return {index: unblocked.index};
@@ -142,7 +143,12 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
   const ResolvePromptAction = deps.ResolvePromptAction ??
     require(path.join(base, 'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
   const observe = deps.observe ?? actorChoosePokemonInput;
-  const choose = deps.choose ?? chooseActorPokemon;
+  // A reversible retrospective control can restore the preceding neutral
+  // first-target policy. Default gameplay always uses the public barrier.
+  const choose = deps.choose ?? (input => chooseActorPokemon(input, {
+    avoidPrintedBarrier:
+      process.env.AGENT41_GUZMA_OMEGA_BARRIER_PREF_OFF !== 'true'
+  }));
   const validate = deps.validate ?? assertValidPromptAction;
   const original = Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype, 'decodeNextAction');
@@ -159,6 +165,8 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
     nativeStores: 0, selected: 0, accepted: 0, rejected: 0,
     postconditionsConfirmed: 0, postconditionsMissing: 0,
     nativeTargetFiltered: 0, unsupportedNativeFallbacks: 0, nonLiveFallbacks: 0,
+    guzmaOmegaPreferenceControlOff:
+      process.env.AGENT41_GUZMA_OMEGA_BARRIER_PREF_OFF === 'true',
     bySeat: {0: 0, 1: 0}, boundedSelections: [],
     competitiveGameQualified: false
   };
