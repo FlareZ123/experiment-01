@@ -7,6 +7,8 @@ const {randomUUID}=require('node:crypto');
 const {runBranch,pairedMailBeachEvidence,TRIAL_IDS}=
   require('../agent7-v8-rank3-mail-beach-composition.cjs');
 const {ARVEN}=require('../../twinleaf/agent7/mail-arven-owner-choice.cjs');
+const {withOwnPlayCardBoundary}=
+  require('../../twinleaf/agent7-owner-playcard-boundary-audit.cjs');
 
 const VERSION='agent7-rank3-original-mail-beach-arven-native-v1';
 const OUTPUT=path.resolve(__dirname,
@@ -15,8 +17,17 @@ const OUTPUT=path.resolve(__dirname,
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
 function run({treasureBridge=false}={}){
   const opts={mysteriousTreasureRoot:treasureBridge};
-  const control=runBranch(true,false,opts);
-  const treatment=runBranch(true,true,opts);
+  const headless=require('../../twinleaf/headless.cjs');
+  const nativeOutput=path.resolve(__dirname,
+    '../../../vendor/twinleaf/ptcg-server/output');
+  const {Store}=require(path.join(nativeOutput,'game/store/store'));
+  const deps={headless,Store,trialIds:TRIAL_IDS};
+  const observedControl=withOwnPlayCardBoundary(
+    ()=>runBranch(true,false,opts),deps);
+  const observedTreatment=withOwnPlayCardBoundary(
+    ()=>runBranch(true,true,opts),deps);
+  const control=observedControl.result;
+  const treatment=observedTreatment.result;
   assert.deepEqual(control.output.rows.map(r=>r.trialId),TRIAL_IDS);
   assert.deepEqual(treatment.output.rows.map(r=>r.trialId),TRIAL_IDS);
   assert.equal(control.mailAudit.attempts,2);
@@ -79,10 +90,13 @@ function run({treasureBridge=false}={}){
     intervention:'After the same genuine Mail+Beach first turn, offer only a physically Mail-selected Arven on an otherwise Pass later root. Resolve its exact owner-deck Item+Tool prompt with native validation.',
     control:{mailEvents:control.mailAudit.actualMailEvents,
       chosenTrainers:control.mailAudit.revealedTrainers,
-      beachPairs:beachControl,trialStatuses:trialStatuses(control)},
+      beachPairs:beachControl,
+      publicPlayedCardsAndNextPrompts:observedControl.events,
+      trialStatuses:trialStatuses(control)},
     treatment:{mailEvents:audit.actualMailEvents,
       chosenTrainers:audit.revealedTrainers,
       beachPairs:beachTreatment,
+      publicPlayedCardsAndNextPrompts:observedTreatment.events,
       arvenOffers:audit.arvenFromMailOffers,
       arvenAccepted:audit.arvenFromMailAccepted,
       arvenRejected:audit.arvenFromMailRejected,
