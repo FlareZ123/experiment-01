@@ -9,6 +9,9 @@ const {rootDigest, verifiedOfficialAichiClock, archivedPhysicalSeats, verifiedMa
   screenArchivedReciprocalAttempts} =
   require('../simulation/evaluation/agent45-bilateral-competence-gate.cjs');
 
+const {aichiClockProtocolSha256,inspectOfficialAichiClock} =
+  require('../simulation/evaluation/agent45-aichi-clock-receipt.cjs');
+
 const roots = [
   {actionOrdinal:0, turnBefore:4, playerSlot:0, action:'AttackAction'},
   {actionOrdinal:1, turnBefore:5, playerSlot:1, action:'PlayCardAction'},
@@ -68,13 +71,23 @@ function trialFor(ledger=roots) {
       causalEvidenceRef:i>0?'causal-witness-' + i:null
     })),
     independentFullPaperRulesAudit:true,hiddenInformationAudit:true,
-    officialMatchClock:{
-      stage:'top32',limitMinutes:25,
-      endOfTimeProcedure:'knockout-end-second-player-turn-prize-tiebreak',
-      independentAudit:true,
-      officialRulesSourceRef:'pokemon-card.com/info/005445.html',
-      timekeepingReceiptRef:'archive/round-clock',
-      independentReviewer:'independent-clock-reviewer'
+    eventStage:'open-top32',
+    clockDisposition:'no-official-call',
+    clockReceiptId:null,
+    paperReceiptId:'paper/sample-natural-terminal',
+    adjudicationProtocolSha:aichiClockProtocolSha256(),
+    noCallClockPacket:{
+      stage:'open-top32',
+      officialEndCallObserved:false,
+      elapsedSecondsAtNaturalTerminal:600,
+      officialClockCoverageEvidenceRef:'clock/continuous-coverage',
+      stageEvidenceRef:'event/open-top32-pairing',
+      paperTerminalEvidenceRef:'paper/sample-natural-terminal',
+      independentReviewEvidenceRef:'review/clock-paper',
+      noCallCoverageIndependentlyReviewed:true,
+      paperStateIndependentlyReviewed:true,
+      paperGameWinner:0,
+      paperGameTie:false
     }
   };
 }
@@ -145,7 +158,7 @@ test('same policy is required on both physical seats',()=>{
 });
 
 test('native terminal does not imply independently audited event clock',()=>{
-  const input=trialFor();input.officialMatchClock.independentAudit=false;
+  const input=trialFor();input.noCallClockPacket.noCallCoverageIndependentlyReviewed=false;
   input.independentFullPaperRulesAudit=false;
   const result=evaluateBilateralCompetence(input);
   assert.equal(result.nativeTerminal,true);
@@ -613,63 +626,191 @@ test('registration-derived abort seat cannot authenticate an unobserved source d
   assert.equal(missingDigest.sourceSeat,null);
 });
 
-test('Aichi clock gate accepts separately reviewed Swiss, Top32 and final profiles',()=>{
-  const top32=trialFor();
-  assert.equal(verifiedOfficialAichiClock(top32),true);
-  assert.equal(evaluateBilateralCompetence(top32).structuralGatePassed,true);
-  const swiss=trialFor();
-  swiss.officialMatchClock.stage='swiss';
-  swiss.officialMatchClock.endOfTimeProcedure=
-    'swiss-conditional-second-player-turn-both-loss';
-  assert.equal(evaluateBilateralCompetence(swiss).structuralGatePassed,true);
-  const final=trialFor();
-  final.officialMatchClock.stage='final';
-  final.officialMatchClock.limitMinutes=35;
-  assert.equal(evaluateBilateralCompetence(final).officialClockAudit,true);
-  assert.equal(evaluateBilateralCompetence(final).structuralGatePassed,true);
+
+/** Build an independently asserted official end-call paper packet. */
+function officialCallTrial(stage='open-top32',prizes=[2,3]){
+  const trial=trialFor();
+  trial.eventStage=stage;
+  trial.clockDisposition='official-call';
+  trial.clockReceiptId='clock/official-time-call';
+  trial.noCallClockPacket=null;
+  trial.nativeFinished=false;
+  trial.nativeWinner=null;
+  trial.nativeEndReason=null;
+  trial.timeCallPacket={
+    stage,firstPlayerSeat:1,turnOwnerWhenCalled:1,
+    officialEndCallObserved:true,
+    officialClockEvidenceRef:trial.clockReceiptId,
+    stageEvidenceRef:'event/stage-pairing',
+    firstPlayerEvidenceRef:'paper/starting-seat',
+    turnOwnerWhenCalledEvidenceRef:'paper/end-call-seat',
+    turnSequenceEvidenceRef:'paper/last-two-turns',
+    independentPaperStateEvidenceRef:trial.paperReceiptId,
+    paperStateIndependentlyReviewed:true,
+    prizesRemaining:prizes,
+    paperGameWinner:null,paperGameTie:false,
+    finalPermittedTurnFinished:true,
+    observedFinalTurnSeat:0,
+    observedExtraSecondTurns:1,
+    trailingPokemonCheckupWasExcluded:true
+  };
+  return trial;
+}
+
+test('Aichi official no-call packet works for Swiss, Top32 and final stages',()=>{
+  for(const stage of ['open-swiss','open-top32','open-final']){
+    const trial=trialFor();
+    trial.eventStage=stage;
+    trial.noCallClockPacket.stage=stage;
+    const result=evaluateBilateralCompetence(trial);
+    assert.equal(verifiedOfficialAichiClock(trial),true,stage);
+    assert.equal(result.officialClockAudit,true,stage);
+    assert.equal(result.officialClockLimitMinutes,
+      stage==='open-final'?35:25);
+    assert.equal(result.structuralGatePassed,true,stage);
+    assert.equal(result.competitiveAdmission,false);
+  }
 });
 
-test('Aichi final rejects 25-minute clock even with independent audit',()=>{
+test('30-minute no-call natural terminal is before final limit but after Top32 limit',()=>{
   const trial=trialFor();
-  trial.officialMatchClock.stage='final';
-  assert.equal(verifiedOfficialAichiClock(trial),false);
-  assert.ok(evaluateBilateralCompetence(trial).failures.includes(
-    'official-match-clock-audit-pending'));
-  trial.officialMatchClock.limitMinutes=35;
+  trial.eventStage='open-final';
+  trial.noCallClockPacket.stage='open-final';
+  trial.noCallClockPacket.elapsedSecondsAtNaturalTerminal=1800;
   assert.equal(verifiedOfficialAichiClock(trial),true);
-});
-
-test('Aichi nonfinal knockout and Swiss reject the wrong clock procedure',()=>{
-  const trial=trialFor();
-  trial.officialMatchClock.limitMinutes=35;
-  assert.equal(verifiedOfficialAichiClock(trial),false);
-  trial.officialMatchClock.limitMinutes=25;
-  trial.officialMatchClock.endOfTimeProcedure=
-    'swiss-conditional-second-player-turn-both-loss';
-  assert.equal(verifiedOfficialAichiClock(trial),false);
-  trial.officialMatchClock.stage='swiss';
-  assert.equal(verifiedOfficialAichiClock(trial),true);
-  trial.officialMatchClock.endOfTimeProcedure=
-    'knockout-end-second-player-turn-prize-tiebreak';
-  assert.equal(verifiedOfficialAichiClock(trial),false);
-});
-
-test('legacy 25-minute boolean cannot silently qualify any stage',()=>{
-  const trial=trialFor();
-  delete trial.officialMatchClock;
-  trial.official25MinuteClockAudit=true;
+  trial.eventStage='open-top32';
+  trial.noCallClockPacket.stage='open-top32';
   assert.equal(verifiedOfficialAichiClock(trial),false);
   assert.equal(evaluateBilateralCompetence(trial).structuralGatePassed,false);
 });
 
-test('missing source, timekeeping receipt, reviewer, or audit fails closed',()=>{
-  for(const field of ['officialRulesSourceRef','timekeepingReceiptRef',
-    'independentReviewer','independentAudit']){
+test('official Top32 knockout prize lead can finish an unexpired native game',()=>{
+  const trial=officialCallTrial();
+  const result=evaluateBilateralCompetence(trial);
+  assert.equal(result.nativeTerminal,false);
+  assert.equal(result.gameOutcomeResolved,true);
+  assert.equal(result.officialClockAudit,true);
+  assert.equal(result.officialClockStatus,'ELIMINATION_PRIZE_LEAD');
+  assert.equal(result.conditionallyAdjudicatedPaperWinnerSeat,0);
+  assert.equal(result.structuralGatePassed,true);
+  assert.equal(result.competitiveAdmission,false);
+});
+
+test('Swiss official time call retains both-loss rather than inventing winner',()=>{
+  const trial=officialCallTrial('open-swiss',[2,3]);
+  const result=evaluateBilateralCompetence(trial);
+  assert.equal(result.officialClockAudit,true);
+  assert.equal(result.conditionalPaperOutcome,'both-loss');
+  assert.equal(result.conditionallyAdjudicatedPaperWinnerSeat,null);
+  assert.equal(result.gameOutcomeResolved,true);
+  assert.equal(result.structuralGatePassed,true);
+});
+
+test('knockout both-high Prize branch requires complete extension ledger',()=>{
+  const trial=officialCallTrial('open-top32',[3,4]);
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.extensionLedgerPacket={
+    extensionLedgerEvidenceRef:'paper/complete-extension',
+    extensionLedgerIndependentlyReviewed:true,
+    transitions:[{
+      sequence:1,beforePrizes:[3,4],afterPrizes:[2,4],
+      transitionEvidenceRef:'paper/extension-move1'
+    }]
+  };
+  const result=evaluateBilateralCompetence(trial);
+  assert.equal(result.officialClockAudit,true);
+  assert.equal(result.officialClockStatus,'EXTENSION_WIN');
+  assert.equal(result.conditionallyAdjudicatedPaperWinnerSeat,0);
+  assert.equal(result.structuralGatePassed,true);
+  trial.extensionLedgerPacket.transitions[0].sequence=2;
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('official Aichi call rejects stage mismatch and wrong clock or paper source',()=>{
+  const trial=officialCallTrial();
+  trial.timeCallPacket.stage='open-final';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.timeCallPacket.stage='open-top32';
+  trial.timeCallPacket.officialClockEvidenceRef='wrong';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.timeCallPacket.officialClockEvidenceRef=trial.clockReceiptId;
+  trial.timeCallPacket.independentPaperStateEvidenceRef='wrong';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('missing original no-call coverage cannot be relabeled as no official call',()=>{
+  const trial=trialFor();
+  trial.noCallClockPacket.officialClockCoverageEvidenceRef='';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.noCallClockPacket.officialClockCoverageEvidenceRef='clock/continuous-coverage';
+  trial.noCallClockPacket.officialEndCallObserved=true;
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  trial.noCallClockPacket.officialEndCallObserved=false;
+  trial.clockReceiptId='clock/missing-call-conflict';
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('native winner and claimed no-call paper outcome must agree',()=>{
+  const trial=trialFor();
+  trial.noCallClockPacket.paperGameWinner=1;
+  assert.equal(verifiedOfficialAichiClock(trial),true);
+  assert.equal(evaluateBilateralCompetence(trial).officialClockAudit,false);
+  assert.equal(evaluateBilateralCompetence(trial).structuralGatePassed,false);
+});
+
+test('native engine errors and action caps never become official time calls',()=>{
+  for(const key of ['engineError','rootCapReached']){
+    const trial=officialCallTrial();
+    trial[key]=true;
+    const result=evaluateBilateralCompetence(trial);
+    assert.equal(result.officialClockAudit,false,key);
+    assert.equal(result.structuralGatePassed,false,key);
+  }
+});
+
+test('a natural native terminal after official call requires a compatible paper winner',()=>{
+  const trial=officialCallTrial();
+  trial.nativeFinished=true;
+  trial.nativeWinner=0;
+  trial.nativeEndReason='engine-game-end';
+  trial.timeCallPacket.paperGameWinner=0;
+  assert.equal(evaluateBilateralCompetence(trial).officialClockAudit,true);
+  trial.timeCallPacket.paperGameWinner=1;
+  assert.equal(evaluateBilateralCompetence(trial).officialClockAudit,false);
+});
+
+test('legacy clock boolean and wrong scorer revision cannot satisfy receipt gate',()=>{
+  const trial=trialFor();
+  delete trial.noCallClockPacket;
+  trial.official25MinuteClockAudit=true;
+  assert.equal(verifiedOfficialAichiClock(trial),false);
+  const second=trialFor();
+  second.adjudicationProtocolSha='unrelated-old-scoring-revision';
+  assert.equal(verifiedOfficialAichiClock(second),false);
+  second.adjudicationProtocolSha=aichiClockProtocolSha256();
+  assert.equal(inspectOfficialAichiClock(second).shapeComplete,true);
+});
+
+test('missing independent paper, clock, or reviewer claim fails closed',()=>{
+  const fields=['officialClockCoverageEvidenceRef','stageEvidenceRef',
+    'paperTerminalEvidenceRef','independentReviewEvidenceRef',
+    'noCallCoverageIndependentlyReviewed','paperStateIndependentlyReviewed'];
+  for(const field of fields){
     const trial=trialFor();
-    trial.officialMatchClock[field]=field==='independentAudit'?false:'';
+    trial.noCallClockPacket[field]=
+      field.endsWith('IndependentlyReviewed')?false:'';
     assert.equal(verifiedOfficialAichiClock(trial),false,field);
   }
   const trial=trialFor();
-  trial.officialMatchClock.stage='unknown';
+  trial.eventStage='unknown';
   assert.equal(verifiedOfficialAichiClock(trial),false);
+});
+
+test('disputed or uncategorized clock states remain non-admitting',()=>{
+  for(const disposition of ['disputed','unverified','capped','engine-only',null]){
+    const trial=trialFor();
+    trial.clockDisposition=disposition;
+    assert.equal(verifiedOfficialAichiClock(trial),false,String(disposition));
+    assert.equal(evaluateBilateralCompetence(trial).structuralGatePassed,false);
+  }
 });
