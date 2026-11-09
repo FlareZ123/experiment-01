@@ -6,7 +6,7 @@ const {VERSION,REGISTRATION,continuation}=
   require('../../simulation/evaluation/agent1-v8-original-held-arven-four-arm.cjs');
 
 test('two original seeds and both physical source seat orientations',()=>{
-  assert.equal(VERSION,'agent1-v8-original-held-arven-search-four-arm-v1');
+  assert.equal(VERSION,'agent1-v8-original-held-arven-search-four-arm-v2-deal-parity');
   assert.equal(REGISTRATION.trials.length,4);
   assert.deepEqual(new Set(REGISTRATION.trials.map(r=>r.seed)),
     new Set([2404595552,948758444]));
