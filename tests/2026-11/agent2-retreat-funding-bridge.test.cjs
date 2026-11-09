@@ -120,3 +120,35 @@ test('visible active-position Skyliner makes Basic retreat free, so hold the Ene
   assert.equal(chooseRetreatFundingBridge(evolution,known,helpers)?.kind,
     'attach-basic-energy','Skyliner excludes an evolved Active');
 });
+
+test('two-Colorless fee with one existing Basic follows one attachment then paid retreat',()=>{
+  const v=view();
+  v.ownPublic.active.printed.retreatCost=[COLORLESS,COLORLESS];
+  v.ownPublic.active.energies=[BASIC];
+  v.ownPublic.active.attacks=[{name:'Too Expensive',cost:[PSYCHIC,PSYCHIC,PSYCHIC],damage:200}];
+  const first=choose(v);
+  assert.equal(first.kind,'attach-basic-energy');
+  assert.equal(first.retreatCostUnits,2);
+  v.ownPublic.active.energies.push(BASIC);
+  v.ownHand.shift();
+  v.ownTurnResources.energyPlayedTurn=v.globalTurn;
+  const second=choose(v);
+  assert.equal(second.kind,'paid-retreat');
+  assert.equal(second.retreatCostUnits,2);
+  assert.equal(second.benchIndex,0);
+});
+test('two-Colorless fee requires exactly one missing Basic, no unrecognized attached Energy',()=>{
+  const a=view();a.ownPublic.active.printed.retreatCost=[0,0];
+  assert.equal(choose(a),null,'Zero of two fee must defer');
+  a.ownPublic.active.energies=['Double Colorless Energy NXD'];
+  assert.equal(choose(a),null,'Unsupported Special cannot be counted as one physical Basic');
+  a.ownPublic.active.energies=[BASIC];
+  assert.equal(choose(a)?.kind,'attach-basic-energy');
+});
+test('two-unit funding gives priority to a newly funded Active attack',()=>{
+  const a=view();
+  a.ownPublic.active.printed.retreatCost=[0,0];
+  a.ownPublic.active.energies=[BASIC];
+  a.ownPublic.active.attacks=[{name:'New Funded Attack',cost:[PSYCHIC,PSYCHIC],damage:140}];
+  assert.equal(choose(a),null);
+});
