@@ -79,13 +79,14 @@ function sourceActions(native){
   const owned=roots.filter(row=>row.playerSlot===sourceSeat);
   const played=owned.filter(row=>row.action==='PlayCardAction');
   const pick=label=>played.filter(row=>
-    typeof row.card==='string'&&row.card.startsWith(label)).length;
+    typeof row.card==='string'&&
+    (row.card===label||row.card.startsWith(label+' '))).length;
   return {
     seat:sourceSeat,rootActions:owned.length,
-    quickBall:pick('Quick Ball '),
-    trainersMail:pick("Trainers' Mail "),
-    vsSeeker:pick('VS Seeker '),
-    floatStone:pick('Float Stone '),
+    quickBall:pick('Quick Ball'),
+    trainersMail:pick("Trainers' Mail"),
+    vsSeeker:pick('VS Seeker'),
+    floatStone:pick('Float Stone'),
     attacks:owned.filter(row=>row.action==='AttackAction').length,
     terminal:native.finished===true,error:native.error?String(native.error).slice(0,200):null
   };
