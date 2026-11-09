@@ -140,3 +140,4 @@ for(const seat of [0,1]){
 // original rank7 physical sixty using the opponent's Artazon before Jet.
 require('./2026-11/agent33-rank7-artazon-jet-native.test.cjs');
 require('./2026-11/agent33-jet-vs-faba-postroot.test.cjs');
+require('./2026-11/agent33-rank7-jet-seeker-faba-full-actor.native.test.cjs');
