@@ -1407,7 +1407,10 @@ function runDevelopment({
   mysteriousTreasureMuscleBandPayment=false,
   firstRegidragoBenchGrass=false,retreatFundingBridge=false,
   firstCrispinSeekerRecovery=false,
-  earlyRegidragoCompressor=false,bilateralPerfectionRoot=false,
+  earlyRegidragoCompressor=false,
+  earlyRegidragoCompressorSourceOnly=false,
+  earlyRegidragoCompressorAllowFirstOwnTurnTwo=false,
+  bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
@@ -1601,6 +1604,10 @@ function runDevelopment({
     'Source-only Mew copy priority requires the owner attack chooser');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
+  assert.ok(!earlyRegidragoCompressorSourceOnly||earlyRegidragoCompressor,
+    'Source-scoped early compressor requires the native owner root');
+  assert.ok(!earlyRegidragoCompressorAllowFirstOwnTurnTwo||earlyRegidragoCompressor,
+    'Opening-turn-two compressor requires the native owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
     'Type-aware potential KO root requires canonical actor composition');
   assert.ok(!actorOriginal29PrintedFidelity||actorOnlyComposition,
@@ -2107,7 +2114,12 @@ function runDevelopment({
                 seekerGuzmaGlobalTurn:actorSeekerGuzmaGlobalTurn
               }:{}),
               ...(earlyRegidragoCompressor?{
-                earlyRegidragoCompressor:true
+                earlyRegidragoCompressor:true,
+                ...(earlyRegidragoCompressorSourceOnly?{
+                  earlyRegidragoCompressorOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{}),
+                earlyRegidragoCompressorAllowFirstOwnTurnTwo
               }:{}),
               ...(bilateralPerfectionRoot?{
                 perfectionRoot:true
