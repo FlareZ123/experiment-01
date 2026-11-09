@@ -30,30 +30,6 @@ test('all Mew actor mechanics are selected symmetrically for both owners',()=>{
 });
 
 test('registered batch wires four distinct real Store receipts, without fake wins',()=>{
-  const fakeBatch=(enable,execute,options)=>{
-    assert.equal(enable,true);
-    assert.equal(options.nativeRootActionLimit,350);
-    const rows=options.registeredTrials.map(trial=>{
-      const s={state:{players:[],phase:'setup',turn:0,
-        activePlayer:0,prompts:[]}, dispatch(action) {
-          if (action.type==='AddPlayerAction')
-            this.state.players.push(player(this.state.players.length));
-          return true;
-        }};
-      const hooks={};
-      executeHooksTrial(execute,trial,s,hooks);
-      return {trial,sourceSeat:trial.candidateSlot==='A'?1:0,
-        candidateSeat:trial.candidateSlot==='A'?0:1,
-        finished:false,rootActionLedger:[{actionOrdinal:0,playerSlot:0,
-          turnBefore:1,action:'Object'}]};
-    });
-    return {selected:{manifest:{observedTwinleafGitCommit:
-      'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'},
-      rawDevelopment:{rows}}};
-  };
-  function executeHooksTrial(execute,trial,store,hooks) {
-    execute({}).onRootStoreCreated;
-  }
   // Provide the native runner callback separately, as runNativeBatch does.
   const nativeBatch=(enable,runner,extra)=>{
     const rows=[];
