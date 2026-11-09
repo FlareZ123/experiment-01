@@ -23,12 +23,11 @@ function probe(seat) {
   const f = stage(seat);
   const { initializeCards } = require('../headless.cjs');
   const manager = initializeCards();
+  let nextCardId = 470000;
   const make = name => {
     const card = manager.getCardByName(name);
     assert.ok(card, 'Registered native printed card missing: '+name);
-    card.id = 470000+f.owner.hand.cards.length+
-      f.opponent.active.cards.length+
-      f.opponent.active.energies.cards.length;
+    card.id = nextCardId++;
     return card;
   };
   const regi = make('Regidrago VSTAR SIT');
