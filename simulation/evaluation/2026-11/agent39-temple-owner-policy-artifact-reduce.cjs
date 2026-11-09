@@ -58,6 +58,8 @@ const groups = study.comparison.groups.map(group => {
     treatmentNativeFinished: group.treatment.nativeFinished,
     controlNativeWinner: group.control.nativeWinner,
     treatmentNativeWinner: group.treatment.nativeWinner,
+    controlError: group.control.error ?? null,
+    treatmentError: group.treatment.error ?? null,
     actualStarterMatch: group.starterMatched,
     sourceDealMatch: group.sourceMatched
   };
@@ -77,6 +79,12 @@ const all = {
       g.comparable && g.treatmentTemple > 0).length,
     sourceApexInControl: groups.reduce((n, g) => n + g.sourceApexInControl, 0),
     sourceApexInTreatment: groups.reduce((n, g) => n + g.sourceApexInTreatment, 0),
+    controlErrors: groups.filter(g => g.controlError).length,
+    treatmentErrors: groups.filter(g => g.treatmentError).length,
+    treatmentErrorSamples: groups.filter(g => g.treatmentError)
+      .map(g => ({ key: g.key, reason: g.treatmentError,
+        playedTemple: g.treatmentTemple, divergence: g.firstDivergenceOrdinal }))
+      .slice(0, 18),
     paperQualifiedGames: 0,
     uncertainty: 'Apex after played Temple does not establish Stadium still active or energy payment legality; opponent may replace it. Native winner is not a qualified match.'
   }
