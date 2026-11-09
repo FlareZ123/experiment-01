@@ -39,6 +39,8 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Regress owner-only deckout rescue and pre-attack Store decision hooks
+        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs tests/2026-11/agent17-before-attack-deckout-native.test.cjs
       - name: Replay original Vileplume rank2 seed and physical source pairs
         env:
           AGENT21_RANK2_ROOT_CAP: ${{ inputs.root_cap }}
