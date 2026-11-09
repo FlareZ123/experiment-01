@@ -13,7 +13,7 @@ function settleWaitPrompts(game,ResolvePromptAction){
   let count=0;
   for(let i=0;i<12;i++){
     const p=game.state.prompts.find(x=>x.result===undefined);
-    if(p?.constructor.name!=='WaitPrompt')break;
+    if(!p||!['WaitPrompt','ShowCardsPrompt'].includes(p.constructor.name))break;
     game.dispatch(new ResolvePromptAction(p.id,null));
     count++;
   }
