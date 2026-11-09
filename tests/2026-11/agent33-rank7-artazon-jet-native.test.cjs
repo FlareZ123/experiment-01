@@ -94,9 +94,13 @@ function settleRoutine(x) {
       assert.fail('Unresolved owner decision requires explicit answer: ' +
         prompt.constructor.name + '/' + prompt.type);
     }
-    assert.equal(prompt.playerId, x.originalPlayer.id,
-      'Prompt must belong to the acting source owner');
-    seen.push(prompt.constructor.name);
+    // An Item moving a public discard Supporter to hand may trigger a
+    // read-only opponent announcement. Never answer an opponent's hidden or
+    // strategic prompt through the acting owner's settlement helper.
+    assert.ok(prompt.playerId === x.originalPlayer.id ||
+      ['WaitPrompt', 'ShowCardsPrompt'].includes(prompt.constructor.name),
+    'Only non-decision opponent display prompts may be settled');
+    seen.push(prompt.constructor.name + ':' + prompt.playerId);
     x.store.dispatch(new ResolvePromptAction(prompt.id, answer));
   }
   assert.fail('Unexpected non-discretionary prompt overflow');
