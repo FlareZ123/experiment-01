@@ -30,6 +30,7 @@ on:
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
           - agent8-source-evolution-v4
+          - agent8-source-mew-combat-v5
 permissions:
   contents: read
   actions: read
@@ -145,6 +146,28 @@ jobs:
         with:
           name: agent8-source-evolution-v4-corrected-native
           path: artifacts/agent8-source-evolution-v4.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Test original-source-only Mew retreat and Techno Blast copy policy
+        if: inputs.experiment == 'agent8-source-mew-combat-v5'
+        run: |
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/twinleaf/agent13-actor-only-choose-attack.cjs
+          node --check simulation/evaluation/agent7-canonical-actor-composition.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/2026-11/agent8-source-mew-combat-v5.cjs
+          node --test tests/2026-11/agent8-source-mew-copy-and-mobility-gates.test.cjs tests/2026-11/agent8-source-mew-combat-v5.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
+      - name: Execute fresh original source Mew combat two-by-two real Store games
+        if: inputs.experiment == 'agent8-source-mew-combat-v5'
+        env:
+          AGENT8_SOURCE_MEW_COMBAT_V5_OUTPUT: artifacts/agent8-source-mew-combat-v5.json
+        run: node simulation/evaluation/2026-11/agent8-source-mew-combat-v5.cjs
+      - name: Archive all 32 v5 native original-source Mew combat episodes
+        if: always() && inputs.experiment == 'agent8-source-mew-combat-v5'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-source-mew-combat-v5-native
+          path: artifacts/agent8-source-mew-combat-v5.json
           if-no-files-found: warn
           retention-days: 21
       - name: Reinspect all owner Passes in two existing original-source matched controls
