@@ -47,7 +47,18 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     adapters.ownerSearch===undefined&&
     process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
   const ownerSearch = ownerSingleSearch?(adapters.ownerSearch??
-    (options.ownerMewGenesectQuickBallSearchSeat!==undefined?
+    (options.ownerMewUltraBallSearchSeat!==undefined?
+      work=>require('../twinleaf/agent41-actor-owner-single-search.cjs')
+        .withActorOwnerSingleSearch(work,{
+          choose:input=>require('../twinleaf/agent37/mew-ultraball-evolution.cjs')
+            .chooseMewUltraBallSearch(
+              input,options.ownerMewUltraBallSearchSeat,{
+                prioritizeQuickBall:
+                  options.ownerMewGenesectQuickBallSearchSeat===
+                    options.ownerMewUltraBallSearchSeat
+              })
+        }):
+    options.ownerMewGenesectQuickBallSearchSeat!==undefined?
       work=>require('../twinleaf/agent41-actor-owner-single-search.cjs')
         .withActorOwnerSingleSearch(work,{
           choose:input=>require('../twinleaf/agent37/mew-genesect-quickball-search.cjs')
