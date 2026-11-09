@@ -59,12 +59,49 @@ results, 24 restored Store instances), and the new two-seat replay / payment
 negative regression. That new test explicitly requires **two suppressed
 duplicates and two rejected incomplete transfers** by its own assertions.
 The archived artifact 13646129652 in this first run contains the v3 and v4
-full JSON only. The workflow was updated to preserve the new negative
-regression JSON as well, with a follow-up archival run
+full JSON only. The follow-up archival run
 [42554090752](https://github.com/FlareZ123/experiment-01/actions/runs/42554090752)
-dispatched for that purpose; its result was pending at this revision.
+also passed, retaining the new regression JSON.
+
+A further branch safety correction excludes unprompted selection from
+heterogeneous, non-exhausting Prize pools, as described below. Its full
+dedicated [native run 42554478581](https://github.com/FlareZ123/experiment-01/actions/runs/42554478581)
+**succeeded** (9 November ~03:09 UTC), including unchanged 24-row v4
+positive controls, the two duplicate/prevention negatives, and **two extra
+heterogeneous Prize-choice rejects**. The complete v3, v4 and new replay/
+negative JSON files are retained in artifact
+[13646134036](https://github.com/FlareZ123/experiment-01/actions/runs/42554478581/artifacts/13646134036),
+with SHA-256
+`f0dafac5cdd3c0ef9d5a589ca9933ebdeb271c6c99244baa8b14d7b48adf3339`.
 An earlier run 42553285415 was cancelled before execution after the
 early fail-closed check was strengthened and is not validation.
+
+## Heterogeneous Prize-choice safety gate
+
+In the native `choosePrizeCards` path, a first recipient who takes their
+final Prize triggers an immediate terminal result. Twinleaf does not offer
+the second recipient a `ChoosePrizePrompt` in this branch. The v4 adapter
+previously called `TAKE_SPECIFIC_PRIZES` with the first N card lists of the
+second player's remaining Prizes, even when the second group was smaller
+than their Prize pool. That made a choice **on behalf of the Prize owner**.
+
+The v4 adapter now refuses this unprompted choice if the second recipient
+has a non-exhausting Prize group and distinct printed cards remain in their
+Prize pool. It throws
+`MANUAL_NONTERMINAL_PRIZE_SELECTION_REQUIRES_OWNER_CHOICE` **before**
+the early native winner is emitted. Exactly exhausting all remaining
+Prizes does not require selection; a set of indistinguishable printings
+remains strategically identity-equivalent for the present synthetic
+end-of-game fixture.
+
+The same native regression builds two staged original-Store cases in
+opposite physical orientations with six Prizes for the non-final recipient,
+one final Prize for the other, and one alternate Metal Energy printing
+among the six. Both must reject rather than auto-select. This is a
+**fail-closed qualification gate**: it does not yet implement the missing
+native owner-prompt resolution needed for arbitrary heterogenous
+Prize inventories. The new test directly demonstrates the boundary
+rather than presenting it as completed gameplay.
 
 ## Boundaries
 
