@@ -112,6 +112,39 @@ test('three-card donor priority retains both Lightning and DCE for stadium-indep
     assert.equal(action.residualActivePayableWithoutThunder,true);
   }
 });
+test('public Thunder Mountain makes Speed donor preserve a printed payable next Volt',()=>{
+  for(const seat of [0,1]){
+    const v=board(seat),dce=v.moves[1],speed=v.moves[0];
+    v.owner.stadium={cards:[{name:'Thunder Mountain Prism Star'}]};
+    v.owner.active.energies.cards=[dce,speed];
+    v.owner.active.cards=[{name:'Iron Thorns ex'},dce,speed];
+    const intent=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+    assert.strictEqual(intent.chosenExactPhysicalCard,speed);
+    assert.deepEqual(intent.publicStadiumNames,['Thunder Mountain Prism Star']);
+    assert.equal(intent.residualActivePrintedCostPayable,true);
+    assert.equal(v.state.prompts[0].validate(intent.result,v.state),true);
+  }
+});
+test('public Wondrous Labyrinth increases required residual Volt units',()=>{
+  const v=board(0);
+  v.owner.stadium={cards:[{name:'Wondrous Labyrinth Prism Star'}]};
+  const intent=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+  assert.ok(intent);
+  assert.equal(intent.chosenEnergyName,'Capture Energy');
+  assert.equal(intent.residualActivePrintedCostPayable,false);
+  assert.deepEqual(intent.publicStadiumNames,['Wondrous Labyrinth Prism Star']);
+});
+test('unmodeled public Temple Stadium preserves generic choice and refuses printed-cost claim',()=>{
+  const v=board(1),dce=v.moves[1],speed=v.moves[0];
+  v.owner.stadium={cards:[{name:'Temple of Sinnoh'}]};
+  v.owner.active.energies.cards=[dce,speed];
+  v.owner.active.cards=[{name:'Iron Thorns ex'},dce,speed];
+  const intent=chooseOwnVoltTransfer(v.state,v.owner.id,enums);
+  assert.strictEqual(intent.chosenExactPhysicalCard,dce);
+  assert.equal(intent.donorSelectionModel,'legacy-name-priority');
+  assert.equal(intent.residualActivePrintedCostPayable,null);
+  assert.equal(v.state.prompts[0].validate(intent.result,v.state),true);
+});
 test('no native receiver or no owner prompt delegates to original fail-closed decoder',()=>{
   const v=board(1),before=SimpleTacticsAi.prototype.decodeNextAction;
   v.owner.bench[1].getPokemonCard=()=>null;
