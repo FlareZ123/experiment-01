@@ -22,6 +22,9 @@ function withBilateralOwnerMail(next,deps){
   const {headless,SimpleTacticsAi,Store,PlayCardAction,
     ResolvePromptAction,types,trialIds}=deps;
   const followMailNestBall=deps.followMailNestBall===true;
+  const preferSinglePrizeNestBasic=deps.preferSinglePrizeNestBasic===true;
+  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall,
+    'prize-aware Nest Basic policy requires Nest follow-through');
   const followMailHandiwork=deps.followMailHandiwork===true;
   const followHeldHandiwork=deps.followHeldHandiwork===true;
   const followHeldRefillSupporter=deps.followHeldRefillSupporter===true;
@@ -109,12 +112,15 @@ function withBilateralOwnerMail(next,deps){
       prompt?.constructor?.name==='ChooseCardsPrompt'&&
       prompt.cards===owner.deck&&
       prompt.sourceCard?.fullName==='Nest Ball SVI'){
-      const pokemon=(prompt.cards?.cards??[]).find(card=>
-        card.superType===types.SuperType.POKEMON&&
-        card.stage===types.Stage.BASIC&&
-        prompt.validate([card],state)===true);
-      const selected=pokemon?[pokemon]:[];
-      if(prompt.validate(selected,state)===true){
+      const selected=preferSinglePrizeNestBasic?
+        require('./agent38-mail-nest-prize-aware-basic-choice.cjs')
+          .choosePrizeAwareNestBasic(prompt,owner,types,state):
+        (()=>{const pokemon=(prompt.cards?.cards??[]).find(card=>
+          card.superType===types.SuperType.POKEMON&&
+          card.stage===types.Stage.BASIC&&
+          prompt.validate([card],state)===true);
+          return pokemon?[pokemon]:[];})();
+      if(selected!==null&&prompt.validate(selected,state)===true){
         const action=new ResolvePromptAction(prompt.id,selected);
         nestPromptSelections.set(action,{trialId,seat,prompt,selected,
           ownerId:owner.id});
