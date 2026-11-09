@@ -550,6 +550,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRetreatFundingBridge(view,catalog);
     if(bridge)return bridge;
   }
+  if(options.gengarHorrorHouseTempo===true){
+    const tempo=require('./2026-11/agent20-gengar-horror-house-tempo.cjs')
+      .chooseGengarHorrorHouseTempo(view,catalog);
+    if(tempo)return tempo;
+  }
   if(options.perfectionBenchFunding===true&&own.active&&!r.energyPlayLocked&&
     r.energyPlayedTurn!==view.globalTurn){
     const funding=require('./agent24-early-perfection-recipient.cjs')
@@ -1019,6 +1024,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT44_ACTOR_ENERGY_RECIPIENT_DEV==='true'),
     mobilityAwareRecipientOptIn:deps.mobilityAwareRecipient??
       (process.env.AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV==='true'),
+    gengarHorrorHouseTempoOptIn:deps.gengarHorrorHouseTempo===true,
     perfectionRootOptIn:deps.perfectionRoot??
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionBenchFundingOptIn:deps.perfectionBenchFunding===true,
@@ -2026,6 +2032,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         actorSpecialEnergyEnabled(true,
           audit.skylinerRondoRetreatOwnerSeat,seat),
       perfectionRoot:audit.perfectionRootOptIn,
+      gengarHorrorHouseTempo:audit.gengarHorrorHouseTempoOptIn,
       perfectionBenchFunding:audit.perfectionBenchFundingOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
