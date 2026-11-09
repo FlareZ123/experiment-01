@@ -16,9 +16,10 @@ const HORROR='Horror House-GX';
  *
  * @param {object} view Detached owner-root observation.
  * @param {object} catalog Public native printing and type catalog.
+ * @param {{minOpponentHandCount?:number}} [options] Public timing threshold.
  * @returns {object|null} Native actor-root intent, or no intervention.
  */
-function chooseGengarHorrorHouseTempo(view,catalog){
+function chooseGengarHorrorHouseTempo(view,catalog,options={}){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic??{},active=own.active;
   const r=view.ownTurnResources??{},restrictions=own.publicTurnRestrictions??{};
@@ -44,7 +45,11 @@ function chooseGengarHorrorHouseTempo(view,catalog){
       s===catalog.specialConditions?.ASLEEP||
       s===catalog.specialConditions?.PARALYZED);
   if(isGengar(active)){
-    if(isReady(active)&&!blocked(active)){
+    const opponentHandCount=view.opponentPublic?.handCount??0;
+    const opponentHasEnergy=(view.opponentPublic?.active?.energies?.length??0)>0;
+    const threshold=options.minOpponentHandCount??0;
+    if(isReady(active)&&!blocked(active)&&
+       (opponentHasEnergy||opponentHandCount>=threshold)){
       return {kind:'attack',attackName:HORROR,
         source:VERSION,stage:'funded-gx-lock'};
     }
