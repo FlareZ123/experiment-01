@@ -44,7 +44,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Regress owner-only early Stone and deckout policy hooks
-        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs tests/2026-11/agent17-before-attack-deckout-native.test.cjs tests/2026-11/agent17-early-forest-seal-root.test.cjs
+        run: node --test tests/2026-11/agent17-deckout-rescue-selector.test.cjs tests/2026-11/agent17-before-attack-deckout-native.test.cjs tests/2026-11/agent17-early-forest-seal-root.test.cjs tests/2026-11/agent17-forest-seal-vstar-native-witness.test.cjs
       - name: Replay original Vileplume rank2 seed and physical source pairs
         env:
           AGENT21_RANK2_ROOT_CAP: ${{ inputs.root_cap }}
