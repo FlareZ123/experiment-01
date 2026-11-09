@@ -164,6 +164,30 @@ function compare(rows){
     sourceRank5EnergyMixProfileGlobalCount:'see-profile-audit',
     paperQualifiedGames:0,competitiveWinRateClaim:null}};
 }
+/**
+ * Nonvacuous development-admission gate. Saving every aborted row is mandatory,
+ * but an all-abort batch is a failed experiment even if the CI job ran to end.
+ * This never certifies game quality or opponent competence.
+ * @param {object} comparison Archived attempt-level comparison.
+ */
+function nativeCohortAdmission(comparison){
+  const rows=comparison.groups.flatMap(g=>Object.values(g.contenders));
+  const sourceOpenings=rows.filter(x=>
+    typeof x.sourceDealFingerprint==='string'&&
+    x.sourceDealFingerprint.length>0).length;
+  const acceptedRootRows=rows.filter(x=>x.rootCount>0).length;
+  const aborts=rows.filter(x=>x.error).length;
+  return {
+    status:aborts===rows.length||sourceOpenings===0||
+      acceptedRootRows===0?'REJECT_ALL_ABORT_OR_NO_NATIVE_ROOT':
+      'ADMIT_DEVELOPMENT_ONLY',
+    retained:rows.length,engineErrors:aborts,
+    sourceOpeningsObserved:sourceOpenings,
+    actionRootsObservedInRows:acceptedRootRows,
+    competitiveGames:0
+  };
+}
+
 /** Exclusive lock plus rename; persist even incomplete or capped attempts. */
 function archive(obj){
   const lock=OUTPUT+'.lock',fd=fs.openSync(lock,'wx',0o600);
@@ -208,7 +232,8 @@ function run(){
   const comparison=compare(rows);
   comparison.summary.sourceRank5EnergyMixProfileGlobalCount=
     batch.audit.energyMixShuffle?.energyMixEffects??0;
-  const result={schema:VERSION,preflight,registration,
+  const admission=nativeCohortAdmission(comparison);
+  const result={schema:VERSION,preflight,registration,admission,
     nativeExecution:{runner:'agent41-bilateral-v2-development.cjs',
       engine:PINNED_TWINLEAF,profileAudit:batch.audit,
       independentSeatRngAudit:null,
@@ -231,6 +256,11 @@ function run(){
 if(require.main===module){
   if(process.argv.includes('--inspect-only'))
     process.stdout.write(JSON.stringify(inspect())+'\n');
-  else run();
+  else{
+    const completed=run();
+    if(completed.admission.status!=='ADMIT_DEVELOPMENT_ONLY')
+      process.exitCode=1;
+  }
 }
-module.exports={VERSION,inspect,diagnosis,compare,run};
+module.exports={VERSION,inspect,diagnosis,compare,
+  nativeCohortAdmission,run};
