@@ -23,13 +23,18 @@ on:
         required: false
         type: boolean
         default: false
+      agent35_tactical_switch_32:
+        description: 'Run prospective 32-game SAME fixed 60 general tactical Switch A/B'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hood-champion-paperprofile:
-    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
+    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 && !inputs.agent35_tactical_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -64,7 +69,7 @@ jobs:
           retention-days: 21
 
   rank5-source-funded-two-contenders:
-    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
+    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 && !inputs.agent35_tactical_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 26
     steps:
@@ -101,7 +106,7 @@ jobs:
           if-no-files-found: warn
 
   quickball-owner-retrospective:
-    if: ${{ inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
+    if: ${{ inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 && !inputs.agent35_tactical_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 23
     steps:
@@ -138,7 +143,7 @@ jobs:
           if-no-files-found: warn
 
   agent35-architecture-eight-rank-48:
-    if: ${{ inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
+    if: ${{ inputs.agent35_architecture_48 && !inputs.agent35_switch_32 && !inputs.agent35_tactical_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 28
     steps:
@@ -173,7 +178,7 @@ jobs:
           if-no-files-found: warn
 
   agent35-hood-switch-versus-teammates-32:
-    if: ${{ inputs.agent35_switch_32 }}
+    if: ${{ inputs.agent35_switch_32 && !inputs.agent35_tactical_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 28
     steps:
@@ -204,5 +209,41 @@ jobs:
         with:
           name: agent35-hood-switch-versus-teammates-32-native
           path: artifacts/agent35-hood-switch-vs-teammates-32-native.json
+          retention-days: 21
+          if-no-files-found: warn
+
+  agent35-tactical-switch-same60-32:
+    if: ${{ inputs.agent35_tactical_switch_32 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Inspect sealed same-sixty registry and pure actor-only choices
+        run: |
+          node --check simulation/twinleaf/2026-11/agent35-tactical-switch-funded-ko.cjs
+          node --check simulation/evaluation/2026-11/agent35-generic-switch-same60-32-native.cjs
+          node --test tests/2026-11/agent35-tactical-switch-funded-ko.test.cjs tests/2026-11/agent35-generic-switch-same60-32-native.test.cjs tests/2026-11/agent35-block-switch-ko-frontier.test.cjs
+          node simulation/evaluation/2026-11/agent35-generic-switch-same60-32-native.cjs --inspect-only
+      - name: Install pinned Twinleaf server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 16 new original-source same-deal A/B game pairs
+        run: node simulation/evaluation/2026-11/agent35-generic-switch-same60-32-native.cjs
+      - name: Preserve all genuine native Store roots, caps and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-generic-switch-same60-32-native
+          path: artifacts/agent35-generic-switch-same60-32-native.json
           retention-days: 21
           if-no-files-found: warn
