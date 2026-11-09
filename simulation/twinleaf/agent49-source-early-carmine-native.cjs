@@ -118,7 +118,8 @@ function withSourceEarlyCarmine(execute,deps){
       hand:[...owner.hand.cards],
       deckCount:owner.deck.cards.length,
       discardCount:owner.discard.cards.length,
-      lostCount:owner.lostZone.cards.length
+      lostCount:owner.lostZone.cards.length,
+      supporterCount:owner.supporterTurn
     }:null;
     try{
       const result=oldDispatch.value.call(this,action,...args);
@@ -132,7 +133,7 @@ function withSourceEarlyCarmine(execute,deps){
         const physicallySettled=gone.length===beforeOther.length&&
           inDiscard.length+inLost.length===beforeOther.length&&
           after.hand.cards.length===Math.min(5,before.deckCount)&&
-          after.supporterTurn===this.state.turn;
+          after.supporterTurn===before.supporterCount+1;
         if(physicallySettled)audit.nativeEffectsComplete++;
         audit.accepted.push({...proposal,storeAccepted:true,
           afterOwnerHandSize:after.hand.cards.length,
