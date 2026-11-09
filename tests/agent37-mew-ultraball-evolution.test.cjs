@@ -96,3 +96,51 @@ test('native Ultra Ball root departure uses physical Item-spent witness',()=>{
   assert.equal(rootPhysicalWitness(intent,before,
     {mewUltraBallSpent:0,handCount:5},{}),'no-confirmed-public-effect');
 });
+
+test('native Ultra Ball payment refuses an avoidable DCE or singleton Forest Seal Stone',()=>{
+  const {chooseMewUltraBallPayment}=
+    require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const prompt={
+    actor:{
+      decisionKind:'owner-prompt',actorSeat:1,globalTurn:16,
+      ownHand:['Battle VIP Pass FST','Double Colorless Energy SUM',
+        'Forest Seal Stone SIT',"Trainers' Mail ROS",
+        'Double Colorless Energy SUM'],
+      ownPublic:{resolvingSupporter:['Ultra Ball MEG']}
+    },
+    prompt:{
+      message:'CHOOSE_CARD_TO_DISCARD',source:'own-hand-subset',
+      requiredCount:2,
+      menu:[
+        ['Battle VIP Pass FST','Double Colorless Energy SUM'],
+        ['Double Colorless Energy SUM','Double Colorless Energy SUM'],
+        ['Forest Seal Stone SIT',"Trainers' Mail ROS"],
+        ['Battle VIP Pass FST',"Trainers' Mail ROS"]
+      ]
+    }
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(prompt,1),
+    {printings:['Battle VIP Pass FST',"Trainers' Mail ROS"]});
+  const generic=require('../simulation/twinleaf/agent47-actor-hand-discard.cjs')
+    .chooseActorHandDiscard;
+  assert.deepEqual(chooseMewUltraBallPayment(prompt,0),
+    generic(prompt));
+  const quick={...prompt,actor:{...prompt.actor,
+    ownPublic:{resolvingSupporter:['Quick Ball FST']}}};
+  assert.deepEqual(chooseMewUltraBallPayment(quick,1),
+    generic(quick));
+});
+
+test('original Ultra Ball payment falls back to authentic required prompt when no safe bundle',()=>{
+  const {chooseMewUltraBallPayment}=
+    require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const prompt={
+    actor:{decisionKind:'owner-prompt',actorSeat:1,
+      ownHand:['Double Colorless Energy SUM','Forest Seal Stone SIT'],
+      ownPublic:{resolvingSupporter:['Ultra Ball MEG']}},
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:2,
+      menu:[['Double Colorless Energy SUM','Forest Seal Stone SIT']]}
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(prompt,1),
+    {printings:['Double Colorless Energy SUM','Forest Seal Stone SIT']});
+});
