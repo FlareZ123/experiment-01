@@ -7,16 +7,20 @@ const {withNumericShuffleIndexValidation}=
 
 /**
  * A deliberately narrow K0 owner-visible Apex Alchemy candidate action.
- * The only starting board accepted has Regidrago V Active and a Grimer
- * already on Bench. Muk may be discovered only after an actual owner
+ * Default entry requires Regidrago V Active and a Grimer already Benched.
+ * Explicit opt-in also supports two physical starting Grimer with one Active
+ * and the other Benched. Muk may be discovered only after an actual owner
  * deck-search prompt; no opponent hidden zones or opponent Prize faces.
  * @param {{turn:number,activeName:string|null,benchNames:(string|null)[],handNames:string[],itemLocked:boolean,pending:boolean}} view
+ * @param {{allowDoubleGrimer?:boolean}} [options] Explicit experimental opt-in.
  * @returns {boolean}
  */
-function shouldOfferHeldBenchMukShake(view) {
+function shouldOfferHeldBenchMukShake(view, options = {}) {
   return (view.turn === 1 || view.turn === 2)
     && !view.itemLocked && !view.pending
-    && view.activeName === 'Regidrago V'
+    && (view.activeName === 'Regidrago V' ||
+      (options.allowDoubleGrimer === true &&
+        view.activeName === 'Alolan Grimer'))
     && view.benchNames.includes('Alolan Grimer')
     && !view.benchNames.includes('Alolan Muk')
     && view.handNames.includes('Boost Shake');
@@ -29,9 +33,10 @@ function shouldOfferHeldBenchMukShake(view) {
  *
  * @template T
  * @param {()=>T} execute Synchronous pinned Store execution.
+ * @param {{allowDoubleGrimer?:boolean}} [options] Experimental board opening.
  * @returns {{result:T,audit:object}}
  */
-function withApexBenchMukShake(execute) {
+function withApexBenchMukShake(execute, options = {}) {
   const {SimpleTacticsAi} = require(path.join(BASE, 'simple-bot/simple-tactics-ai'));
   const {PlayCardAction, PlayerType, SlotType} =
     require(path.join(BASE, 'game/store/actions/play-card-action'));
@@ -40,7 +45,10 @@ function withApexBenchMukShake(execute) {
   const {GamePhase} = require(path.join(BASE, 'game/store/state/state'));
   const original = SimpleTacticsAi.prototype.decodeNextAction;
   const flows = new Map();
-  const audit = {version:'agent43-apex-bench-muk-shake-v1',
+  const audit = {version:options.allowDoubleGrimer === true ?
+      'agent48-apex-bench-muk-shake-double-grimer-optin-v1' :
+      'agent43-apex-bench-muk-shake-v1',
+    doubleGrimerOptIn:options.allowDoubleGrimer === true,
     bothPhysicalSeats:true, ownerK0OnlyAtRoot:true,
     ownerK1OnlyDuringNativeSearch:true, opponentHiddenZonesRead:false,
     roots:[],prompts:[],complete:[],failures:[],qualifiedGames:0};
@@ -72,7 +80,7 @@ function withApexBenchMukShake(execute) {
       };
       if(state.activePlayer!==seat||
          state.phase!==GamePhase.PLAYER_TURN||
-         !shouldOfferHeldBenchMukShake(view))return original.call(this,state);
+         !shouldOfferHeldBenchMukShake(view,options))return original.call(this,state);
       const handIndex=owner.hand.cards.findIndex(c=>c.name==='Boost Shake');
       if(handIndex<0)return original.call(this,state);
       flows.set(seat,{stage:'muk-search'});

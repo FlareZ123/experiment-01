@@ -17,6 +17,12 @@ test('K0 selected candidate Shake root requires real own held/positioned pieces'
     benchNames:['Alolan Grimer'],handNames:['Boost Shake'],
     itemLocked:false,pending:false};
   assert.equal(shouldOfferHeldBenchMukShake(good),true);
+  assert.equal(shouldOfferHeldBenchMukShake({
+    ...good,activeName:'Alolan Grimer'
+  },{allowDoubleGrimer:true}),true);
+  assert.equal(shouldOfferHeldBenchMukShake({
+    ...good,activeName:'Alolan Grimer',benchNames:[]
+  },{allowDoubleGrimer:true}),false);
   assert.equal(shouldOfferHeldBenchMukShake({...good,turn:2}),true);
   for(const bad of [
     {...good,turn:3},
@@ -30,7 +36,7 @@ test('K0 selected candidate Shake root requires real own held/positioned pieces'
 });
 
 /** @param {0|1} seat */
-function staged(seat){
+function staged(seat, activePrinting='Regidrago V SIT'){
   const {Store}=native('game/store/store');
   const {State,GamePhase}=native('game/store/state/state');
   const {Player}=native('game/store/state/player');
@@ -50,7 +56,7 @@ function staged(seat){
   const owner=new Player(),source=new Player();
   owner.id=seat===0?101:202;
   source.id=seat===0?202:101;
-  owner.active.cards.push(card('Regidrago V SIT'));
+  owner.active.cards.push(card(activePrinting));
   source.active.cards.push(card('Iron Thorns ex TWM'));
   const grimer=new PokemonCardList();
   grimer.cards.push(card('Alolan Grimer SUM'));
@@ -81,14 +87,17 @@ function staged(seat){
 }
 
 for(const seat of [0,1]){
-  test('selected owner K0 Shake and genuine K1 Muk evolution seat '+seat,()=>{
+ for(const twoGrimer of [false,true]){
+  test('selected owner K0 Shake and real K1 Muk evolution seat '+
+    seat+' twoGrimer '+twoGrimer,()=>{
     const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
     const defs=native('simple-bot/simple-bot-definitions');
     const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
     const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
     const {PlayCardAction}=native('game/store/actions/play-card-action');
     const {CheckPokemonPowersEffect}=native('game/store/effects/check-effects');
-    const {store,owner,source,grimer,muk,shake}=staged(seat);
+    const {store,owner,source,grimer,muk,shake}=staged(seat,
+      twoGrimer?'Alolan Grimer SUM':'Regidrago V SIT');
     const bot=new SimpleTacticsAi({id:owner.id},{
       tactics:defs.allSimpleTactics,
       promptResolvers:defs.allPromptResolvers,
@@ -149,8 +158,11 @@ for(const seat of [0,1]){
         unhandled:store.state.prompts.filter(p=>p.result===undefined)
           .map(p=>p.constructor.name)
       };
-    });
+    },{allowDoubleGrimer:twoGrimer});
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,original);
+    assert.equal(report.audit.doubleGrimerOptIn,twoGrimer);
+    assert.equal(owner.active.getPokemonCard().name,
+      twoGrimer?'Alolan Grimer':'Regidrago V');
     console.log('AGENT43_SELECTED_BENCH_SHAKE',JSON.stringify({seat,...report}));
     assert.equal(report.audit.roots.length,1);
     assert.equal(report.audit.roots[0].seat,seat);
@@ -168,4 +180,5 @@ for(const seat of [0,1]){
     assert.deepEqual(report.result.unhandled,[]);
     assert.equal(report.audit.qualifiedGames,0);
   });
+ }
 }
