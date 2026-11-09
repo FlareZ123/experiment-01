@@ -323,6 +323,10 @@ function run(settings = {}) {
       nativeTurnCount: row.turns ?? null,
       nativeFinalPrizes: row.finalPrizes ?? null,
       nativeFinalPublicBoard: row.finalBoard ?? null,
+      // Opaque original-physical-setup SHA-256 receipts; auditing only.
+      // No hidden identities become visible to the decision policy.
+      sourceDealFingerprint: row.sourceDealFingerprint ?? null,
+      fullPhysicalDealFingerprint: row.fullPhysicalDealFingerprint ?? null,
       nativeActionCount: row.actionCount ?? null,
       nativeRootActionMix: Array.isArray(row.rootActionLedger) ?
         row.rootActionLedger.reduce((map, root) => {
