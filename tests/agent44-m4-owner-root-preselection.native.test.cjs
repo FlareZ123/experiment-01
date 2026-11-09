@@ -121,7 +121,8 @@ for(const seat of [0,1]){
     const cloneOpponentAfter=clone.store.state.players.find(p=>p.id===clone.opponent.id);
     assert.deepEqual(cloneOpponentAfter.deck.cards.slice(-3).map(c=>c.fullName),
       expectedCloneBottom);
-    assert.equal(cloneOpponentAfter.hand.cards.length,0);
+    assert.equal(cloneOpponentAfter.hand.cards.length,3,
+      'M4 draws three replacement cards from the opponent deck after bottoming the old hand');
     const rootOwnerAfterClone=root.store.state.players.find(p=>p.id===root.owner.id);
     const rootOpponentAfterClone=root.store.state.players.find(p=>p.id===root.opponent.id);
     assert.equal(rootOwnerAfterClone.hand.cards[0],root.m4,
@@ -146,7 +147,8 @@ for(const seat of [0,1]){
     const rootOpponentAfterPhysical=root.store.state.players.find(p=>p.id===root.opponent.id);
     assert.deepEqual(rootOpponentAfterPhysical.deck.cards.slice(-3).map(c=>c.fullName),
       expectedPhysicalBottom);
-    assert.equal(rootOpponentAfterPhysical.hand.cards.length,0);
+    assert.equal(rootOpponentAfterPhysical.hand.cards.length,3,
+      'real Store M4 also draws three replacement cards after the physical permutation');
     console.log('AGENT44_M4_POLICY_CLONE_AND_PHYSICAL_RNG_SPLIT',
       JSON.stringify({seat,policyDraws:policyDraws.length,
         physicalDraws,expectedCloneBottom,expectedPhysicalBottom,
