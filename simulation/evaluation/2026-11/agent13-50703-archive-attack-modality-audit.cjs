@@ -55,6 +55,13 @@ function audit(archived){
       candidatePerfectionRoots:copied.map(e=>e.initiatingRootOrdinal),
       candidatePerfectionPrizeChanges:copied.map(e=>
         e.observedSameTurnPrizeDelta),
+      candidatePositivePrizeEpisodes:copied.filter(e=>
+        e.observedSameTurnPrizeDelta>0).map(e=>({
+          root:e.initiatingRootOrdinal,prizes:e.observedSameTurnPrizeDelta,
+          printedCopyChoice:e.copyChoice?.attackName??null,
+          copyChoiceStatus:e.copyChoiceStatus,
+          nativeSettlementStatus:e.nativeSettlementStatus
+        })),
       candidatePhysicalPerfectionReceiptPrizes:copied.map(e=>
         e.physicalPerfectionReceipt?.actualPrizesTaken??null),
       candidateTotalPerfectionPhysicalPrizes:prizeSum,
@@ -68,14 +75,19 @@ function audit(archived){
     };
   });
   const [baseline,treatment,repeat]=outputs;
+  // Actual source tape contains attempted Perfection roots in every arm;
+  // the observed native six-Prize sequence is a *subset* of B initiations.
   assert.deepEqual([baseline.candidatePerfectionInitiations,
     treatment.candidatePerfectionInitiations,repeat.candidatePerfectionInitiations],
-  [0,3,0]);
-  assert.deepEqual(treatment.candidatePerfectionRoots,EXPECTED_PERFECTION_ROOTS);
-  assert.deepEqual(treatment.candidatePerfectionPrizeChanges,
+    [2,4,2]);
+  assert.deepEqual(treatment.candidatePositivePrizeEpisodes.map(e=>e.root),
+    EXPECTED_PERFECTION_ROOTS);
+  assert.deepEqual(treatment.candidatePositivePrizeEpisodes.map(e=>e.prizes),
     EXPECTED_PERFECTION_PRIZES);
-  assert.deepEqual(treatment.candidatePhysicalPerfectionReceiptPrizes,
-    EXPECTED_PERFECTION_PRIZES);
+  assert.deepEqual(treatment.candidatePhysicalPerfectionReceiptPrizes
+    .filter(x=>x>0),EXPECTED_PERFECTION_PRIZES);
+  assert.equal(baseline.candidateTotalPerfectionPhysicalPrizes,0);
+  assert.equal(repeat.candidateTotalPerfectionPhysicalPrizes,0);
   assert.equal(treatment.candidateOrdinaryAttackRootCount,0);
   assert.equal(treatment.candidateTotalPerfectionPhysicalPrizes,6);
   assert.equal(treatment.nativeWinner,0);
