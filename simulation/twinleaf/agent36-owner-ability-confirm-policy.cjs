@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
+const {chooseDedechangeConfirm}=require('./agent9/dedechange-confirm-choice.cjs');
 
 const VERSION='agent36-owner-ability-confirm-policy-v3-owned-articuno-water';
 
@@ -70,6 +71,8 @@ function findPlayedSlot(owner,card){
  */
 function decideAbilityConfirm({card,owner,types}){
   const name=card?.name??null;
+  if(name==='Dedenne GX'||name==='Dedenne-GX')
+    return chooseDedechangeConfirm({owner});
   if(name==='Radiant Eternatus'){
     const openBenchSlots=(owner?.bench??[]).filter(slot=>
       (slot.cards??[]).length===0).length;
