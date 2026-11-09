@@ -99,6 +99,9 @@ function runArvenPhase(deps={}) {
           JSON.stringify(changed.originalSourcePhysicalStart),
       acceptedOwnerArvenControl:countArven(a),
       acceptedOwnerArvenTreatment:countArven(b),
+      baselineNativeError:a.error??null,
+      treatmentNativeError:b.error??null,
+      treatmentNativeStoreCauseStack:b.nativeStoreCauseStack??null,
       baseline:base,treatment:changed,
       firstAcceptedRootDifference
     };
@@ -164,6 +167,11 @@ if(require.main===module){
     door:[result.actualNativeDoorControl,result.actualNativeDoorTreatment],
     terminals:[result.controlTerminalCount,result.treatmentTerminalCount],
     errors:[result.controlEngineErrors,result.treatmentEngineErrors],
+    errorRows:result.rows.filter(r=>r.treatmentNativeError).map(r=>({
+      id:r.id,
+      error:r.treatmentNativeError,
+      nativeStoreCauseStack:r.treatmentNativeStoreCauseStack
+    })),
     firstDifferences:result.rows.filter(r=>r.firstAcceptedRootDifference)
       .map(r=>({id:r.id,first:r.firstAcceptedRootDifference})),
     paperQualifiedGames:0
