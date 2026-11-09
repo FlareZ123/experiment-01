@@ -15,18 +15,23 @@ const OUTPUT=path.resolve(__dirname,
  * these are retrospective, development-only arms, never prospective results.
  * @returns {object} Every native attempt, including caps and errors.
  */
-function runRetrospective(){
-  const result=run({quickBallScope:'source',actorHandDiscard:true});
+function runRetrospective({preservePayableAttack=false}={}){
+  assert.equal(typeof preservePayableAttack,'boolean');
+  const result=run({quickBallScope:'source',actorHandDiscard:true,
+    sourceQuickBallPreservePayableAttack:preservePayableAttack});
   assert.equal(result.requestedNativeAttempts,8);
   assert.equal(result.comparison.length,4);
   assert.equal(result.competitiveQualifiedGames,0);
   return {
     ...result,
-    experiment:'agent37-rank5-source-quickball-discard-retrospective-v1',
+    experiment:preservePayableAttack?
+      'agent37-rank5-source-quickball-discard-preserve-attack-retrospective-v2':
+      'agent37-rank5-source-quickball-discard-retrospective-v1',
     parentVersion:VERSION,
     design:'post-observation development; same registered physical deals',
     sourceQuickBallRoot:true,
     sourceActorHandDiscard:true,
+    sourceQuickBallPreservePayableAttack:preservePayableAttack,
     independentlyProspective:false,
     competitiveQualifiedGames:0,
     certifiedWinRate:null
@@ -49,7 +54,8 @@ function saveAtomic(destination,value){
 }
 
 if(require.main===module){
-  const result=runRetrospective();
+  const result=runRetrospective({preservePayableAttack:
+    process.env.AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV==='true'});
   saveAtomic(OUTPUT,result);
   process.stdout.write(JSON.stringify({
     experiment:result.experiment,
