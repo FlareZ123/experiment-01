@@ -149,6 +149,15 @@ function inspectAdmission(bundle, reviews, reviewerRegistry) {
   }
   return {schema:RESULT_SCHEMA,bundleSha256:digest,trialId:bundle?.trialId??null,
     nativeStructuralGatePassed:structural?.structuralGatePassed===true,
+    structuralFailureCodes:structural?.failures??null,
+    structuralProgress:structural?{
+      provenanceComplete:structural.provenanceComplete,
+      samePolicy:structural.samePolicy,
+      nativeTerminal:structural.nativeTerminal,
+      certifiedMaterialRoots:structural.certifiedMaterialRoots,
+      reciprocalEpisodeObserved:structural.reciprocalEpisodeObserved,
+      officialClockStatus:structural.officialClockStatus
+    }:null,
     cooldownBridgeConditional:cooldown?.conditionallyCertified===true,
     structuralEligibilityAfterReviewedCooldown:fullStructuralEligibility,
     conditionalPaperWinnerSeat:structural?.conditionallyAdjudicatedPaperWinnerSeat??null,
