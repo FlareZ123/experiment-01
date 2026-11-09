@@ -1,0 +1,533 @@
+{
+  "schema": "agent3-20261109-fresh-full29-source-evolution-mew-competence-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "registrationDate": "2026-11-09",
+  "title": "Fresh 29-rank original-source legal evolution and Mew DCE competence stress test",
+  "fixedCandidate": "champion-reference",
+  "originalSourceInventory": "results/aichi-2026/full-decklists.json",
+  "originalExactRanks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24,
+    26,
+    27,
+    29,
+    30,
+    31,
+    32
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "registeredGroups": 58,
+  "nativeAttempts": 116,
+  "maximumNativeRootActions": 260,
+  "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baseline": "Both arms apply same original shared two-actor policy, native Underworld Door and Regidrago Celestial Roar paper hooks, full-29 champion reference, and owner-portable Guzma/VS Seeker plus zero-energy Float Stone root options",
+  "control": "Existing shared bilateral actor policy with portable tactical options, no new source-only evolution/Mew policies",
+  "treatment": "Only original-source actor additionally receives legal natural evolution, Mew-specific Double Colorless recipient, and Mew Genesect Techno Blast chooser; candidate actor remains unchanged",
+  "decisionPolicyFlagsA": {
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true
+  },
+  "decisionPolicyFlagsB": {
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorNaturalEvolutionSourceOnly": true,
+    "actorMewDceRecipientRoot": true,
+    "actorMewDceRecipientSourceOnly": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorMewGenesectTechnoBlastSourceOnly": true
+  },
+  "sampling": "58 newly generated independent uniformly sampled 32-bit seeds via runtime Math.random, collision checked against the two previous Agent3 29-rank registers; each original rank represented once in each candidate physical seat",
+  "caveat": "Dev only. Actual engine Store outcomes, incomplete paper-rule fidelity and generic bot limitations. No outcome can qualify a paper game or establish 99.5%.",
+  "groups": [
+    {
+      "id": "1:9300:A:champion-reference",
+      "rank": 1,
+      "repeat": 9300,
+      "seed": 3859558774,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "1:9301:B:champion-reference",
+      "rank": 1,
+      "repeat": 9301,
+      "seed": 2837591567,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "2:9302:A:champion-reference",
+      "rank": 2,
+      "repeat": 9302,
+      "seed": 4131015108,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "2:9303:B:champion-reference",
+      "rank": 2,
+      "repeat": 9303,
+      "seed": 902848603,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "3:9304:A:champion-reference",
+      "rank": 3,
+      "repeat": 9304,
+      "seed": 1236770291,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "3:9305:B:champion-reference",
+      "rank": 3,
+      "repeat": 9305,
+      "seed": 1096174584,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "4:9306:A:champion-reference",
+      "rank": 4,
+      "repeat": 9306,
+      "seed": 31796164,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "4:9307:B:champion-reference",
+      "rank": 4,
+      "repeat": 9307,
+      "seed": 3430646809,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:9308:A:champion-reference",
+      "rank": 5,
+      "repeat": 9308,
+      "seed": 3900942632,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:9309:B:champion-reference",
+      "rank": 5,
+      "repeat": 9309,
+      "seed": 794593286,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "6:9310:A:champion-reference",
+      "rank": 6,
+      "repeat": 9310,
+      "seed": 3557188753,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "6:9311:B:champion-reference",
+      "rank": 6,
+      "repeat": 9311,
+      "seed": 2710596147,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "7:9312:A:champion-reference",
+      "rank": 7,
+      "repeat": 9312,
+      "seed": 1164677187,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "7:9313:B:champion-reference",
+      "rank": 7,
+      "repeat": 9313,
+      "seed": 2244611255,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "8:9314:A:champion-reference",
+      "rank": 8,
+      "repeat": 9314,
+      "seed": 702830821,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "8:9315:B:champion-reference",
+      "rank": 8,
+      "repeat": 9315,
+      "seed": 4292191031,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:9316:A:champion-reference",
+      "rank": 9,
+      "repeat": 9316,
+      "seed": 1661286077,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:9317:B:champion-reference",
+      "rank": 9,
+      "repeat": 9317,
+      "seed": 4286274578,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "10:9318:A:champion-reference",
+      "rank": 10,
+      "repeat": 9318,
+      "seed": 990228508,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "10:9319:B:champion-reference",
+      "rank": 10,
+      "repeat": 9319,
+      "seed": 3227944170,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "11:9320:A:champion-reference",
+      "rank": 11,
+      "repeat": 9320,
+      "seed": 60877370,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "11:9321:B:champion-reference",
+      "rank": 11,
+      "repeat": 9321,
+      "seed": 3597663774,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:9322:A:champion-reference",
+      "rank": 12,
+      "repeat": 9322,
+      "seed": 2638490495,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:9323:B:champion-reference",
+      "rank": 12,
+      "repeat": 9323,
+      "seed": 3593928232,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "13:9324:A:champion-reference",
+      "rank": 13,
+      "repeat": 9324,
+      "seed": 2032764519,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "13:9325:B:champion-reference",
+      "rank": 13,
+      "repeat": 9325,
+      "seed": 2119918319,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "14:9326:A:champion-reference",
+      "rank": 14,
+      "repeat": 9326,
+      "seed": 3510356263,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "14:9327:B:champion-reference",
+      "rank": 14,
+      "repeat": 9327,
+      "seed": 3674964118,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:9328:A:champion-reference",
+      "rank": 15,
+      "repeat": 9328,
+      "seed": 2554912694,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:9329:B:champion-reference",
+      "rank": 15,
+      "repeat": 9329,
+      "seed": 2171269875,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "16:9330:A:champion-reference",
+      "rank": 16,
+      "repeat": 9330,
+      "seed": 585294255,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "16:9331:B:champion-reference",
+      "rank": 16,
+      "repeat": 9331,
+      "seed": 929159647,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "17:9332:A:champion-reference",
+      "rank": 17,
+      "repeat": 9332,
+      "seed": 3955684315,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "17:9333:B:champion-reference",
+      "rank": 17,
+      "repeat": 9333,
+      "seed": 3306288548,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "18:9334:A:champion-reference",
+      "rank": 18,
+      "repeat": 9334,
+      "seed": 4091475036,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "18:9335:B:champion-reference",
+      "rank": 18,
+      "repeat": 9335,
+      "seed": 16764516,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "19:9336:A:champion-reference",
+      "rank": 19,
+      "repeat": 9336,
+      "seed": 3743262497,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "19:9337:B:champion-reference",
+      "rank": 19,
+      "repeat": 9337,
+      "seed": 2892426212,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:9338:A:champion-reference",
+      "rank": 20,
+      "repeat": 9338,
+      "seed": 1568804864,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:9339:B:champion-reference",
+      "rank": 20,
+      "repeat": 9339,
+      "seed": 3132926664,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:9340:A:champion-reference",
+      "rank": 21,
+      "repeat": 9340,
+      "seed": 1563811366,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:9341:B:champion-reference",
+      "rank": 21,
+      "repeat": 9341,
+      "seed": 115616523,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "22:9342:A:champion-reference",
+      "rank": 22,
+      "repeat": 9342,
+      "seed": 2649075280,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "22:9343:B:champion-reference",
+      "rank": 22,
+      "repeat": 9343,
+      "seed": 483486764,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "24:9344:A:champion-reference",
+      "rank": 24,
+      "repeat": 9344,
+      "seed": 3326926104,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "24:9345:B:champion-reference",
+      "rank": 24,
+      "repeat": 9345,
+      "seed": 2212422169,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "26:9346:A:champion-reference",
+      "rank": 26,
+      "repeat": 9346,
+      "seed": 1222016896,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "26:9347:B:champion-reference",
+      "rank": 26,
+      "repeat": 9347,
+      "seed": 3319005543,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:9348:A:champion-reference",
+      "rank": 27,
+      "repeat": 9348,
+      "seed": 1079416859,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:9349:B:champion-reference",
+      "rank": 27,
+      "repeat": 9349,
+      "seed": 1181655512,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "29:9350:A:champion-reference",
+      "rank": 29,
+      "repeat": 9350,
+      "seed": 4049188808,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "29:9351:B:champion-reference",
+      "rank": 29,
+      "repeat": 9351,
+      "seed": 2665901009,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "30:9352:A:champion-reference",
+      "rank": 30,
+      "repeat": 9352,
+      "seed": 2268633073,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "30:9353:B:champion-reference",
+      "rank": 30,
+      "repeat": 9353,
+      "seed": 3445328175,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:9354:A:champion-reference",
+      "rank": 31,
+      "repeat": 9354,
+      "seed": 769419136,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:9355:B:champion-reference",
+      "rank": 31,
+      "repeat": 9355,
+      "seed": 2826703475,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "32:9356:A:champion-reference",
+      "rank": 32,
+      "repeat": 9356,
+      "seed": 931182122,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "32:9357:B:champion-reference",
+      "rank": 32,
+      "repeat": 9357,
+      "seed": 3305797701,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    }
+  ]
+}
