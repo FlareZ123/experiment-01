@@ -238,3 +238,45 @@ for (const seat of [0, 1]) {
     assert.equal(result.audit.postconditionsMissing,1);
   });
 }
+
+class TrainerFilteredPokemonStore extends Store {
+  dispatch(action) {
+    const output=super.dispatch(action);
+    if (action instanceof ResolvePromptAction) {
+      const prompt=this.state.prompts.find(x=>x.id===action.id);
+      // Pinned filterTrainerPromptResult physically rejects the protected
+      // opponent target while Store.reducePrompt still successfully finishes.
+      if (prompt)prompt.result=[];
+    }
+    return output;
+  }
+}
+
+for (const seat of [0,1]) {
+  test('accepted native TrainerTargetEffect filtering is a settled blocked choice (seat '+seat+')',()=>{
+    const state={phase:2,turn:11,
+      players:[player(1,'A'),player(2,'B')],prompts:[]};
+    const {audit}=withActorOnlyChoosePokemon(()=>{
+      const store=new TrainerFilteredPokemonStore(state);
+      store.dispatch(new AddPlayerAction());
+      state.prompts=[new ChoosePokemonPrompt(state.players[seat].id,{
+        id:113,playerType:2,
+        perspectivePlayerId:state.players[1-seat].id
+      })];
+      const action=new SimpleTacticsAi(state.players[seat].id)
+        .decodeNextAction(state);
+      assert.ok(action instanceof ResolvePromptAction);
+      store.dispatch(action);
+      assert.deepEqual(state.prompts[0].result,[]);
+    },{
+      Store:TrainerFilteredPokemonStore,SimpleTacticsAi,ResolvePromptAction,
+      observe,validate:(state,action)=>assert.ok(
+        state.prompts[0].validate(action.result))
+    });
+    assert.equal(audit.selected,1);
+    assert.equal(audit.accepted,1);
+    assert.equal(audit.nativeTargetFiltered,1);
+    assert.equal(audit.postconditionsConfirmed,0);
+    assert.equal(audit.postconditionsMissing,0);
+  });
+}
