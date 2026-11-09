@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      prize_aware_nest_selection:
+        description: 'Compare source owner Nest search single-Prize selection to original first Basic'
+        required: false
+        default: false
+        type: boolean
       follow_mail_handiwork:
         description: 'Compare same-seed owner Mail-selected Handiwork Supporter play'
         required: false
@@ -89,6 +94,13 @@ jobs:
         run: |
           node --check simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
           node simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
+      - name: Compare prize-aware actual Nest Basic choice on frozen four-arm source deals
+        if: ${{ inputs.prize_aware_nest_selection }}
+        run: |
+          node --check simulation/twinleaf/agent38-mail-nest-prize-aware-basic-choice.cjs
+          node --check simulation/evaluation/agent38-mail-nest-prize-aware-four-arm.cjs
+          node --test tests/2026-11/agent38-mail-nest-prize-aware-basic-choice.test.cjs tests/2026-11/agent38-mail-nest-prize-aware-four-arm.test.cjs
+          node simulation/evaluation/agent38-mail-nest-prize-aware-four-arm.cjs
       - name: Run native Mail-selected Handiwork Supporter four-arm comparison
         if: ${{ inputs.follow_mail_handiwork }}
         run: |
