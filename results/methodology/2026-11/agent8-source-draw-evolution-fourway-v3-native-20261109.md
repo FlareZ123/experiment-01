@@ -1,5 +1,11 @@
 # Agent 8: native original-source Genesect draw and evolution response, prospective 2×2 v3, 9 November 2026
 
+## Critical correction: v3 evolution policy was not source-only
+
+**This historical v3 run is invalid as a source-only causal policy comparison.** The native root chooser used `garbodorResponseOwnerSeat` to gate ordinary evolution, but ignored the newly passed `naturalEvolutionRootOwnerSeat`. Consequently, the nominal source-only S1 evolution option also permitted candidate-side natural evolution in those same games, confounding the comparison. The nine original-source evolution actions and full Store action trace remain *real* native developmental observations. They cannot support a claim that an original-source-only evolution caused a winner effect or lack of one.
+
+The root gate was corrected in `simulation/twinleaf/agent34-actor-only-root-policy.cjs` with candidate/source physical-seat regression tests. Eight new prospectively registered rank5/13 original physical deals for v4 isolate ordinary evolution as the **only S0/S1 policy difference** over identical common source Item options. See `results/aichi-2026/registrations/agent8-source-evolution-v4-corrected-20261109.json` and `simulation/evaluation/2026-11/agent8-source-evolution-2x2-v4.cjs`. Preserve v3 raw data and its implementation mistake for reproducibility.
+
 ## Problem addressed
 
 An actual native [second-cohort source Item experiment](agent8-source-policy-fourway-v2-native-20261109.md) showed 13 physically played original-source Quick Balls and six Trainers' Mail, yet original rank5 Mew Genesect repeatedly failed to attack. Its deck contains Mew VMAX and Genesect V, so the next stronger source policy was required to do a real evolution and select a legal native Fusion Strike System draw opportunity.
