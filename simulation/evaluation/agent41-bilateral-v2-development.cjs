@@ -1411,6 +1411,7 @@ function runDevelopment({
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
   actorMewUltraBallRoot=false,actorMewUltraBallSearch=false,
+  actorMewUltraBallPaymentGuard=false,
   actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
@@ -1566,6 +1567,8 @@ function runDevelopment({
     'Source-only Genesect draw requires the native actor draw root');
   assert.ok(!actorGenesectFusionDrawPerCopyPublicUsage||actorGenesectFusionDrawRoot,
     'Per-physical-copy Genesect marker mode requires native draw actor');
+  assert.ok(!actorMewUltraBallPaymentGuard||actorHandDiscard,
+    'Owner Mew Ultra Ball safe payment requires actual hand-discard resolver');
   assert.ok(!actorMewUltraBallSearch||actorOnlySingleSearch,
     'Mew Ultra Ball search requires owner-only search');
   assert.ok(!actorMewUltraBallRoot||actorOnlyComposition,
@@ -2209,6 +2212,10 @@ function runDevelopment({
               ownerMewGenesectQuickBallSearchSeat:
                 1-(trial.candidateSlot==='A'?0:1)
             }:{}),
+            ...(actorMewUltraBallPaymentGuard?{
+              ownerMewUltraBallDiscardSeat:
+                1-(trial.candidateSlot==='A'?0:1)
+            }:{}),
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             preferMewGenesectTechnoBlastOwnerSeat:
               actorMewGenesectTechnoBlastSourceOnly?
@@ -2618,6 +2625,8 @@ function runDevelopment({
         ?.sameRootProposalChoice?.changedRoots??0),0),
     actorMewUltraBallRootOptIn:actorOnlyComposition&&actorMewUltraBallRoot,
     actorMewUltraBallSearchOptIn:actorOnlyComposition&&actorMewUltraBallSearch,
+    actorMewUltraBallPaymentGuardOptIn:
+      actorOnlyComposition&&actorMewUltraBallPaymentGuard,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
