@@ -17,11 +17,16 @@ function inspect(file){
     const flagged=m4RootAudits.filter(a=>a.selectedM4Printing);
     const played=nativeRoots.filter(root=>root.action==='PlayCardAction'&&
       /red.?card/i.test(String(root.card??'')));
+    const corroboratedM4=played.filter(root=>
+      root.playerSlot===summary.sourceSeat &&
+      flagged.some(a=>a.actionOrdinal===root.actionOrdinal &&
+        a.selectedM4Printing==='Special Red Card M4') &&
+      root.card==='Special Red Card');
     const nearest=flagged.map(a=>{
       const ordinal=a.actionOrdinal;
       return {auditOrdinal:ordinal,
         printing:a.selectedM4Printing,
-        opponentPrizes:a.observedOpponentPrizesRemaining,
+        opponentPrizes:a.observedOpponentPrizeCount,
         opponentHandCount:a.observedOpponentHandCount,
         localRootWindow:nativeRoots.filter(r=>Number.isSafeInteger(ordinal)&&
           Math.abs(r.actionOrdinal-ordinal)<=1).map(r=>({
@@ -31,6 +36,7 @@ function inspect(file){
     });
     const target=row.nativeAcceptedTargetSidecarAbort??null;
     const keys=target&&typeof target==='object'?Object.keys(target):[];
+    const linkageFailure=target?.rootOrdinalLinkageFailure??null;
     const scalars=Object.fromEntries(keys.filter(k=>{
       const x=target[k];
       return x===null||typeof x==='boolean'||typeof x==='number'||
@@ -40,6 +46,10 @@ function inspect(file){
       summaryDisposition:summary.nativeDisposition,
       m4AuditCount:m4RootAudits.length,
       m4AuditSelected:nearest,realRedCardPlayedActions:played,
+      corroboratedSourceM4ActualStorePlayCount:corroboratedM4.length,
+      correctedFromArchiveCount:
+        corroboratedM4.length-summary.sourceActualM4StorePlays,
+      rootOrdinalLinkageFailure:linkageFailure,
       originalRootLedgerActions:nativeRoots.length,
       sourceSeat:summary.sourceSeat,sourceWin:summary.sourceNativeWin,
       targetRootAbortEvidenceKeys:keys,
