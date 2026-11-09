@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseSourceSkyField,withSourceSkyField}=
-  require('../simulation/twinleaf/agent49-source-skyfield-response-native.cjs');
+  require('../../simulation/twinleaf/agent49-source-skyfield-response-native.cjs');
 
 class PassTurnAction{}
 class AddPlayerAction{}
