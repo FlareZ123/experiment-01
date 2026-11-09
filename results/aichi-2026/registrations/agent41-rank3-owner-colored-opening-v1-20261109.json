@@ -1,0 +1,87 @@
+{
+  "schema": "agent41-original-rank3-owner-starting-attackable-basic-prospective-v1",
+  "dateUtc": "2026-11-09",
+  "purpose": "Compare identical original-rank3 source physical seeds and both fixed contender 60s under a new symmetric owner-opening choice; no paper-qualified games",
+  "sourceRank": 3,
+  "groups": [
+    {
+      "rank": 3,
+      "repeat": 410,
+      "candidateSlot": "A",
+      "seed": 3361650341
+    },
+    {
+      "rank": 3,
+      "repeat": 411,
+      "candidateSlot": "B",
+      "seed": 2355687872
+    },
+    {
+      "rank": 3,
+      "repeat": 412,
+      "candidateSlot": "A",
+      "seed": 1870004813
+    }
+  ],
+  "contenderIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "rootLimit": 160,
+  "arms": [
+    "control-identical-common-policy",
+    "owner-single-held-basic-energy-preferred"
+  ],
+  "registeredTrials": [
+    {
+      "rank": 3,
+      "repeat": 410,
+      "candidateSlot": "A",
+      "seed": 3361650341,
+      "candidateId": "champion-reference",
+      "id": "3:410:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "repeat": 410,
+      "candidateSlot": "A",
+      "seed": 3361650341,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:410:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 411,
+      "candidateSlot": "B",
+      "seed": 2355687872,
+      "candidateId": "champion-reference",
+      "id": "3:411:B:champion-reference"
+    },
+    {
+      "rank": 3,
+      "repeat": 411,
+      "candidateSlot": "B",
+      "seed": 2355687872,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:411:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 412,
+      "candidateSlot": "A",
+      "seed": 1870004813,
+      "candidateId": "champion-reference",
+      "id": "3:412:A:champion-reference"
+    },
+    {
+      "rank": 3,
+      "repeat": 412,
+      "candidateSlot": "A",
+      "seed": 1870004813,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "3:412:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "prespecifiedScoring": "If an unblocked Basic among owner's own seven-card hand can use a printed non-GX one-Energy attack using a Basic Energy already in owner's hand, prefer that Basic as starting Active over baseline first Basic; preserve all other Basics on Bench where native prompt permits; no opponent information",
+  "competitivePaperQualifiedGames": 0
+}
