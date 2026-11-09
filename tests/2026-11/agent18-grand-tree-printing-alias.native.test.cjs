@@ -3,13 +3,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const {initializeCards} = require('../../simulation/twinleaf/headless.cjs');
 const {stageForcedActive} = require(
   '../../simulation/twinleaf/agent5-forced-active-marshadow-chain-native.cjs');
 const {installGrandTreeFirstTurnHook} = require(
   '../../simulation/twinleaf/grand-tree-first-turn-hook.cjs');
 const {
-  CANONICAL,NATIVE_MISSPELLING,installGrandTreePrintingAlias
+  CANONICAL,NATIVE_MISSPELLING,installGrandTreePrintingAlias,
+  canonicalizePublishedGrandTreeDeck
 } = require('../../simulation/twinleaf/2026-11/agent18-grand-tree-printing-alias.cjs');
 
 const output = path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -132,4 +134,43 @@ test('pinned Grand Tree SCR 136: canonical alias and real paid Stage1+2 native S
   assert.strictEqual(manager.getCardByName,get);
   assert.strictEqual(manager.isCardDefined,defined);
   assert.equal(manager.getCardByName(CANONICAL),undefined);
+});
+
+test('original Aichi ranks 2, 15 and 31 retain exact 60-card construction with the printed Grand Tree ID',()=>{
+  const file=path.resolve(__dirname,'../../results/aichi-2026/full-decklists.json');
+  const source=JSON.parse(fs.readFileSync(file,'utf8'));
+  const {resolveManifestFile}=require('../../simulation/twinleaf/resolve-field.cjs');
+  const resolved=resolveManifestFile(file,{
+    allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+  });
+  const manager=initializeCards();
+  const {DeckAnalyser}=native('game/cards/deck-analyser');
+  const {Format}=native('game/store/card/card-types');
+  const release=installGrandTreePrintingAlias(manager);
+  try{
+    const records=[];
+    for(const rank of [2,15,31]){
+      const row=source.decks.find(d=>d.rank===rank);
+      const deck=resolved.decks.find(d=>d.rank===rank);
+      assert.ok(deck?.playableUnderEngine,'Rank '+rank+' source unresolved by pinned engine');
+      const original=deck.cardIds.slice();
+      const translated=canonicalizePublishedGrandTreeDeck(original,row.cards);
+      assert.equal(translated.length,60);
+      assert.equal(translated.filter(id=>id===CANONICAL).length,1);
+      assert.equal(translated.filter(id=>id===NATIVE_MISSPELLING).length,0);
+      assert.equal(original.filter(id=>id===NATIVE_MISSPELLING).length,1);
+      assert.equal(new DeckAnalyser(translated).isValid(Format.EXPANDED),true);
+      const cards=translated.map(id=>manager.getCardByName(id));
+      assert.equal(cards.filter(Boolean).length,60);
+      assert.equal(cards.filter(c=>c.fullName===CANONICAL).length,1);
+      assert.equal(cards.filter(c=>c.fullName===CANONICAL&&
+        c.name==='Grand Tree'&&String(c.setNumber)==='136').length,1);
+      records.push({rank,originalSize:original.length,
+        translatedSize:translated.length,publishedGrandTree:CANONICAL,
+        allNativePhysicalCardsResolved:true});
+    }
+    console.log('AGENT18_THREE_ORIGINAL_60S',JSON.stringify(records));
+  }finally{
+    release();
+  }
 });
