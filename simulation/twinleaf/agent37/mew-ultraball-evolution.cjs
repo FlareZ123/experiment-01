@@ -10,6 +10,7 @@ const VERSION='agent37-source-mew-ultraball-evolution-v2-vstar-used-dci';
 const MEW_V='Mew V FST';
 const MEW_VMAX='Mew VMAX FST';
 const ULTRA=new Set(['Ultra Ball MEG','Ultra Ball SVI','Ultra Ball SUM']);
+const QUICK=new Set(['Quick Ball FST','Quick Ball SSH']);
 const PROTECTED_PAYMENT=new Set([
   'Double Colorless Energy SUM','Secret Box TWM','Forest Seal Stone SIT',
   MEW_VMAX,MEW_V,'Genesect V FST'
@@ -81,18 +82,22 @@ function chooseMewUltraBallSearch(input,ownerSeat,options={}){
  * The owner is always allowed to fall back to a genuine native menu entry.
  * @param {object} input Detached validated physical hand discard menu.
  * @param {0|1} ownerSeat Source's actual physical seat.
+ * @param {{protectQuickBall?:boolean}} [options] Optional additional one-card Quick Ball guard.
  * @returns {{printings:string[]}} Exact valid printing multiset.
  */
-function chooseMewUltraBallPayment(input,ownerSeat){
+function chooseMewUltraBallPayment(input,ownerSeat,options={}){
   assert.ok(ownerSeat===0||ownerSeat===1);
   const generic=require('../agent47-actor-hand-discard.cjs')
     .chooseActorHandDiscard;
   assert.equal(input.actor.decisionKind,'owner-prompt');
   const actor=input.actor,prompt=input.prompt;
+  const ultra=prompt.requiredCount===2&&
+    actor.ownPublic.resolvingSupporter.some(x=>ULTRA.has(x));
+  const quick=options.protectQuickBall===true&&
+    prompt.requiredCount===1&&
+    actor.ownPublic.resolvingSupporter.some(x=>QUICK.has(x));
   if(actor.actorSeat!==ownerSeat||
-      prompt.message!=='CHOOSE_CARD_TO_DISCARD'||
-      prompt.requiredCount!==2||
-      !actor.ownPublic.resolvingSupporter.some(x=>ULTRA.has(x)))
+      prompt.message!=='CHOOSE_CARD_TO_DISCARD'||(!ultra&&!quick))
     return generic(input);
   // Forest Seal Stone is a one-use VSTAR Power. After this player has
   // already consumed its VSTAR Power, preserving the Stone cannot unlock
