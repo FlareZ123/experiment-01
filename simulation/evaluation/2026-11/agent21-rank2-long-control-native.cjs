@@ -10,9 +10,16 @@ const {COMMON,PROFILE}=
   require('./agent21-rank31-duskull-native-replay.cjs');
 const frozen=require('../agent41-frozen-bilateral-development-v2.json');
 const hood=require('../../../results/aichi-2026/candidate-hood-shadow-rider.json');
+const {withActorOnlyShuffleSupporterAfterPass}=
+  require('../../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs');
+const {chooseDeckoutRescue,VERSION:RESCUE_VERSION}=
+  require('../../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
-const OUTPUT=path.join(ROOT,'agent21-rank2-original-long-native.json');
+const RESCUE=process.env.AGENT17_RANK2_DECKOUT_RESCUE==='true';
+const OUTPUT=path.join(ROOT,RESCUE?
+  'agent17-rank2-anti-deckout-native.json':
+  'agent21-rank2-original-long-native.json');
 const ROOT_LIMIT=Number(process.env.AGENT21_RANK2_ROOT_CAP??640);
 assert.ok(Number.isSafeInteger(ROOT_LIMIT)&&ROOT_LIMIT>=260&&
   ROOT_LIMIT<=640,'Rank2 extended developmental root cap must be 260–640');
@@ -38,7 +45,7 @@ function trial(seat,seed,candidateId){
 /** @param {object} target @param {'A'|'B'} seat @param {string} candidateId */
 function replay(target,seat,candidateId){
   const t=trial(seat,target.seed,candidateId);
-  const {result, audit}=withPaperSemanticsProfileV1(()=>runDevelopment({
+  const execute=()=>withPaperSemanticsProfileV1(()=>runDevelopment({
     ...frozen.policyOptions,...COMMON,
     registeredTrials:[t],
     registeredFrameName:'agent21-rank2-original-cap'+ROOT_LIMIT,
@@ -52,6 +59,10 @@ function replay(target,seat,candidateId){
     isolatePolicyRandomness:true,
     isolatePhysicalShuffleRandomnessAfterSetup:true
   }),PROFILE);
+  const selected=RESCUE?withActorOnlyShuffleSupporterAfterPass(
+    execute,{choose:chooseDeckoutRescue}):
+    {result:execute(),audit:null};
+  const {result,audit}=selected.result;
   assert.equal(result.attempted,1);
   assert.equal(result.rows.length,1);
   const row=result.rows[0];
@@ -71,8 +82,12 @@ function replay(target,seat,candidateId){
     sourceDealMatchesOriginal:true,
     rootCap:ROOT_LIMIT,
     sourceOriginalFirst260RootSha:rootShaByArm[seat+':'+candidateId],
+    antiDeckoutRescueEnabled:RESCUE,
+    antiDeckoutRescueVersion:RESCUE?RESCUE_VERSION:null,
+    antiDeckoutRescueNativeAudit:selected.audit,
     first260RootSha:first260Sha,originalFirst260RootsReplayed:
-      roots.length>=260&&first260Sha===rootShaByArm[seat+':'+candidateId],
+      RESCUE?null:
+        roots.length>=260&&first260Sha===rootShaByArm[seat+':'+candidateId],
     roots:roots.length,
     status,finished:row.finished===true,
     candidateSeat,nativeWinnerSeat:row.winner??null,
@@ -112,23 +127,35 @@ function main(){
     assert.equal(pair.length,2);
     assert.equal(pair[0].sourceDealFingerprint,pair[1].sourceDealFingerprint);
   }
-  const output={schema:'agent21-rank2-original-control-horizon-v1',
+  const output={schema:RESCUE?
+    'agent17-rank2-original-control-deckout-rescue-development-v1':
+    'agent21-rank2-original-control-horizon-v1',
+    antiDeckoutRescueEnabled:RESCUE,
+    changedDevelopmentPolicy:RESCUE?RESCUE_VERSION:null,
     registeredOriginalSource:'Agent3 run42578010606 original rank2 two seeds, both candidate 60s',
     originalSeedsReused:true,
     prospectiveSelectionEligible:false,originalSourceDealPairsMatched:true,
     originalRank:2,nativeRootCap:ROOT_LIMIT,enginePin:PINNED_TWINLEAF,
     paperQualifiedCompetitiveGames:0,
-    caveat:'Retrospective horizon sensitivity only. No change to original 116-game prospective trial. Does not certify opponents, clock, or Japanese paper semantics.',
+    caveat:RESCUE?
+      'Retrospective action-changing deckout treatment on archived original physical deals. No competitive or independent win evidence, and the original registered 116-game denominator is unchanged.':
+      'Retrospective horizon sensitivity only. No change to original 116-game prospective trial. Does not certify opponents, clock, or Japanese paper semantics.',
     rows};
   archive(output);
-  process.stdout.write('AGENT21_RANK2_ORIGINAL_HORIZON '+JSON.stringify({
+  process.stdout.write((RESCUE?'AGENT17_RANK2_DECKOUT_RESCUE ':
+    'AGENT21_RANK2_ORIGINAL_HORIZON ')+JSON.stringify({
+    antiDeckoutRescueEnabled:RESCUE,
     nativeRootCap:ROOT_LIMIT,sourceDealPairsMatched:true,
     rows:rows.map(({trial,roots,status,finished,nativeCandidateOutcome,
       finalPrizes,turns,originalFirst260RootsReplayed,error})=>({
       candidateId:trial.candidateId,seat:trial.candidateSlot,
       roots,status,finished,nativeCandidateOutcome,
       finalPrizes,turns,originalFirst260RootsReplayed,
-      error:error?String(error).slice(0,140):null
+      error:error?String(error).slice(0,140):null,
+      rescueAcceptedRoots:rows.find(x=>
+        x.trial.candidateId===trial.candidateId&&
+        x.trial.candidateSlot===trial.candidateSlot)
+          ?.antiDeckoutRescueNativeAudit?.acceptedRoots??null
     })),paperQualifiedCompetitiveGames:0})+'\n');
   return output;
 }
