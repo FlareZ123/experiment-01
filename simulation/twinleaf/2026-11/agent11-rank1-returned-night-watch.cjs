@@ -130,6 +130,18 @@ function executeReturnedNightWatch(context) {
         trace.opaquePrizeSlots=chosen.map(slot=>source.prizes.indexOf(slot));
         trace.concealedPrizeFacesReadForChoice=false;
         game.dispatch(new ResolvePromptAction(prompt.id,chosen));
+      }else if(kind==='ChoosePokemonPrompt' &&
+          prompt.playerId===opponentId &&
+          prompt.options?.min===1 && prompt.options.max===1 &&
+          prompt.options.allowCancel===false){
+        // Post-KO promotion is a choice by the opposing owner. Choose its
+        // first publicly visible Bench Pokémon, not a hidden card.
+        const promoted=opponent.bench.find(slot=>slot.getPokemonCard());
+        assert.ok(promoted);
+        assert.equal(prompt.validate([promoted],game.state),true);
+        trace.ownPublicPromotion=promoted.getPokemonCard().fullName;
+        trace.choosingOwnerId=opponentId;
+        game.dispatch(new ResolvePromptAction(prompt.id,[promoted]));
       }else{
         trace.unresolved=true;
         result.promptTrace.push(trace);
@@ -140,6 +152,7 @@ function executeReturnedNightWatch(context) {
     }
     result.opponentDamageAfter=opponent.active.damage;
     result.opponentActiveAfter=opponent.active.getPokemonCard()?.fullName??null;
+    result.nextActorId=game.state.players[game.state.activePlayer]?.id??null;
     result.opponentDiscardedGirafarig=opponent.discard.cards.some(c=>
       c.fullName==='Girafarig LOT');
     result.sourceRemainingPrizesAfter=remainingPrizes(source);
