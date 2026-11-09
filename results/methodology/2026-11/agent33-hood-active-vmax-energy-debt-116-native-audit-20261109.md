@@ -13,7 +13,7 @@ An original rank7 Snorlax Stall **source-matched** native opening exposes an att
 | Initial original-source deal fingerprint | `fc5b8b82…3ca` | Same |
 | Native winner | Candidate seat 1 | Original source seat 0 |
 | Native global terminal turn | 23 | 65 |
-| Candidate native attacks | 2, both Max Geist | **0** |
+| Candidate ordinary AttackAction declarations | 2, both Max Geist | **0** |
 | Genuine candidate Underworld AttachEnergyPrompt settlements | 4 | 6 |
 | Underworld selections placing Psychic onto Bench Marshadow | 4 | 6 |
 | Candidate manual Psychic root turns | 1, 7, 19, 21, 23 | 1, 15, **31** |
@@ -37,7 +37,9 @@ I processed the full original [Agent3 116-attempt, 29-source native comparison](
 | Such endpoints with zero candidate attack declarations over the entire game | 1 | 2 |
 | Candidate-owned real Underworld attachment prompt settlements across all 58 | 132 | 156 |
 | Of those, into Marshadow UNB | 10 | 10 |
-| Total native candidate attack declarations in all 58 | 398 | 430 |
+| Total candidate ordinary AttackAction declarations in all 58 | 398 | 430 |
+
+**Attack modality scope:** These counts describe native root `AttackAction` declarations. The shared runner's historical `attackDeclarations` metric does not generally capture attacks initiated through `UseAbilityAction Perfection`. I checked the actual archived candidate-owned `rootActionLedger` for all 116 attempts and found **zero** `UseAbilityAction Perfection` initiations in either arm, including the exact rank7 B loss. This establishes that the omitted Perfection category does not explain the reported zero rank7 candidate attacks or the 398/430 ordinary counts in this *particular* archive. The metrics must not be reused as a universal all-attack counter in other decks or cohorts. The ongoing canonical copied-attack telemetry correction remains a separate shared-runner task.
 
 The endpoint condition deliberately asks about a final public board, **not whether the owner had Psychic in hand, unspent attachment, a legal tool/retreat, or a winning alternative at any preceding decision**. Some games with the condition still made many attacks earlier. The unequal final-Active denominator (19 and 28), source-match discrepancies in three rank groups, censorship and native-policy weaknesses prohibit interpreting 5 vs 10 as proof the Hood deck is intrinsically worse.
 
