@@ -144,6 +144,11 @@ function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
   const garbodorResponseOwnerSeat=options.garbodorResponseOwnerSeat??null;
+  const naturalEvolutionOwnerSeat=
+    options.naturalEvolutionRootOwnerSeat??garbodorResponseOwnerSeat;
+  assert.ok(naturalEvolutionOwnerSeat===null||
+    naturalEvolutionOwnerSeat===0||naturalEvolutionOwnerSeat===1,
+    'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
   assert.ok(garbodorResponseOwnerSeat===null||
     garbodorResponseOwnerSeat===0||garbodorResponseOwnerSeat===1,
   'garbodorResponseOwnerSeat must be null, 0, or 1');
@@ -198,8 +203,8 @@ function chooseActorRootIntent(view,catalog,options={}){
     if(path)return path;
   }
   if(options.naturalEvolutionRoot===true&&
-     (garbodorResponseOwnerSeat===null||
-      view.actorSeat===garbodorResponseOwnerSeat)){
+     (naturalEvolutionOwnerSeat===null||
+      view.actorSeat===naturalEvolutionOwnerSeat)){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
