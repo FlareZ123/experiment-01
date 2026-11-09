@@ -41,11 +41,24 @@ test('held Switch unlocks generic Stunfisk knockout across both physical seats',
     assert.deepEqual(choose(v,catalog),{
       benchIndex:0,printing:'Shadow Rider Calyrex VMAX CRE',
       targetAttackName:'Max Geist',projectedPrintedDamage:130,
+      printedResistanceReduction:0,
       handIndex:0,kind:'play-tactical-switch',
       source:VERSION,paperQualified:false
     });
   }
 });
+test('unrelated Resistance is ignored and matching Resistance is deducted',()=>{
+  const v=fixture();
+  v.opponentPublic.active.printed.resistance=[{type:1,value:-30}];
+  const unrelated=choose(v,catalog);
+  assert.equal(unrelated?.kind,'play-tactical-switch');
+  assert.equal(unrelated.printedResistanceReduction,0);
+  v.opponentPublic.active.printed.resistance=[{type:5,value:-30}];
+  assert.equal(choose(v,catalog),null);
+  v.opponentPublic.active.damage=30;
+  assert.equal(choose(v,catalog)?.printedResistanceReduction,30);
+});
+
 test('payable but non-knockout Active attack allows funded Bench knockout',()=>{
   const v=fixture();
   v.ownPublic.active.energies=[p];
