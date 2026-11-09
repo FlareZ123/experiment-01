@@ -1413,6 +1413,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
   actorMewUltraBallRoot=false,actorMewUltraBallSearch=false,
   actorMewUltraBallPaymentGuard=false,
+  actorMewQuickBallPaymentGuard=false,
   actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
@@ -1573,6 +1574,8 @@ function runDevelopment({
     'Per-physical-copy Genesect marker mode requires native draw actor');
   assert.ok(!actorMewUltraBallPaymentGuard||actorHandDiscard,
     'Owner Mew Ultra Ball safe payment requires actual hand-discard resolver');
+  assert.ok(!actorMewQuickBallPaymentGuard||actorMewUltraBallPaymentGuard,
+    'Owner Mew Quick Ball protection requires source Ultra Ball payment guard');
   assert.ok(!actorMewUltraBallSearch||actorOnlySingleSearch,
     'Mew Ultra Ball search requires owner-only search');
   assert.ok(!actorMewUltraBallRoot||actorOnlyComposition,
@@ -2231,7 +2234,8 @@ function runDevelopment({
             }:{}),
             ...(actorMewUltraBallPaymentGuard?{
               ownerMewUltraBallDiscardSeat:
-                1-(trial.candidateSlot==='A'?0:1)
+                1-(trial.candidateSlot==='A'?0:1),
+              ownerMewQuickBallPaymentGuard:actorMewQuickBallPaymentGuard
             }:{}),
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             preferMewGenesectTechnoBlastOwnerSeat:
@@ -2645,6 +2649,8 @@ function runDevelopment({
     actorMewUltraBallSearchOptIn:actorOnlyComposition&&actorMewUltraBallSearch,
     actorMewUltraBallPaymentGuardOptIn:
       actorOnlyComposition&&actorMewUltraBallPaymentGuard,
+    actorMewQuickBallPaymentGuardOptIn:
+      actorOnlyComposition&&actorMewQuickBallPaymentGuard,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
