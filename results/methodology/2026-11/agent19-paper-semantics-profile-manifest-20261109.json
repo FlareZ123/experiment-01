@@ -1,0 +1,84 @@
+{
+  "schema": "agent19-paper-semantics-composition-manifest-v1",
+  "createdUTC": "2026-11-09",
+  "status": "opt-in-provisional-compatibility-profile",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nodeVersion": "20.19.0",
+  "sharedSelectedDevelopmentBaseline": "v8 unchanged",
+  "selectedCompetitivelyQualifiedFixed60": null,
+  "competitivelyQualifiedGames": 0,
+  "cliWorkflow": ".github/workflows/aichi-snorlax-root-setup.yml",
+  "workflowManualInputs": {
+    "native_only": true,
+    "paper_semantics_compat": true
+  },
+  "nativeRunId": 42561897412,
+  "enabledHooks": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "knownNotIntegrated": {
+    "simultaneousTerminalPrizeV5": true,
+    "ownerAbilityLockPolicy": true,
+    "officialClock": true,
+    "JapanesePrintLegality": true
+  },
+  "fixedSourceRanks": [
+    5,
+    12
+  ],
+  "candidateSixty": "champion-reference",
+  "originalDealsRegidrago": [
+    "12:6122:A:champion-reference",
+    "12:6123:B:champion-reference"
+  ],
+  "expectedNativeBoundaries": [
+    "two physical Mew seats: printed Energy Mix shuffle and blocked target",
+    "two original Regidrago source seats: Celestial Roar physical-card conservation"
+  ],
+  "files": [
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blobSha": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-native.cjs",
+      "blobSha": "c60d11d3738d6596897b54a0bc3a61bfb004760c"
+    },
+    {
+      "path": "tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs",
+      "blobSha": "c1982a3eed1845fda6684899f5d83587ded854bd"
+    },
+    {
+      "path": "simulation/twinleaf/regidrago-celestial-roar-paper-custody-hook.cjs",
+      "blobSha": "f42ba0d33663c3b9e61e9706a57cc951f59ce254"
+    },
+    {
+      "path": "simulation/twinleaf/agent19-energy-mix-shuffle-hook.cjs",
+      "blobSha": "2eb5bc052daedcd1a3754bed018d08dbc45b4782"
+    },
+    {
+      "path": "simulation/twinleaf/agent19-paper-attach-energy-target-guard.cjs",
+      "blobSha": "07eddd091f9bdd61b87fc125a88488cd768caa1a"
+    },
+    {
+      "path": "simulation/evaluation/agent3/portable-champion-all29-20261109.cjs",
+      "blobSha": "0e86acb673585a5a1ccb66ef751ef6f84cdde1e7"
+    },
+    {
+      "path": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+      "blobSha": "a79e7977cb224928068968934bbcfa9c9410e20a"
+    },
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    }
+  ],
+  "limits": [
+    "Original rank5 Mew is represented by constructed genuine Store fixtures, not full original-source deal in this matrix",
+    "Original Regidrago seeds are retrospective known card-loss witnesses",
+    "A passing target compatibility matrix does not make bots competitive or certify paper games",
+    "Regidrago hook itself lacks an encounter counter; encounter requires native source attack and original 60-zone receipts"
+  ]
+}
