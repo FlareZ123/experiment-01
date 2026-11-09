@@ -18,7 +18,8 @@ const native = file => require(path.join(OUT,file));
 function physical(owner) {
   return [...owner.active.cards,...owner.bench.flatMap(s=>s.cards),
     ...owner.hand.cards,...owner.deck.cards,...owner.discard.cards,
-    ...owner.lostzone.cards,...owner.prizes.flatMap(s=>s.cards)];
+    ...owner.lostzone.cards,...owner.stadium.cards,...owner.supporter.cards,
+    ...owner.prizes.flatMap(s=>s.cards)];
 }
 
 /**
