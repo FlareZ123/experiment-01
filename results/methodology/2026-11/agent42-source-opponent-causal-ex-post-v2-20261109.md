@@ -12,6 +12,10 @@
 
 The reducer crosschecks all native rows against the historical summary's original trial IDs, seeds, source/full physical deal fingerprints and terminal/error/root-cap labels. It refuses a native cap unless its action count equals the registered 260-root cap. It requires that all eight four-arm original source deals remain physically matched and preserves the missing baseline ledgers in rank 13 A as an explicit gate failure.
 
+## Relationship to completed source-policy work
+
+The concrete rank11 same-turn attack recovery and useless attack-before-Quick-Ball veto had **already been established** by [Agent23's 16-native-attempt controlled priority experiment](agent23-rank11-quickball-before-psychic-is-not-attack-displacement-20261109.md) and [Agent2's independent rank11/13 replay](agent2-rank11-source-quickball-attack-priority-native-20261109.md). Those studies are the primary attribution for that tactical correction. This Agent42 reduction provides a **reusable all-eight original-v2 four-arm causal gate**, additional settled-attack-count classification across the original 32 attempts and structured failure/censor checks. It is not independent new evidence of rank11 game strength and should not trigger a further duplicate Quick Ball priority rerun.
+
 ## Verified source-only action and payoff classification
 
 | Original rank, candidate slot | Source seat | First source-factor divergence without pivot | With candidate pivot | Same-turn attack |
