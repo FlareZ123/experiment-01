@@ -12,27 +12,33 @@ test('printed Grand Tree SCR preserves native Iron Thorns Initialization lock, H
   const results=[];
   for(const actingSeat of [false,true]){
     let beforeBlocked=null;
+    const blockedOptions={hood:false,jammer:false,active:false,
+      actingSeat,stadium:CANONICAL};
+    if(actingSeat)blockedOptions.observeOwnerBeforePower=view=>{
+      beforeBlocked=view;
+    };
     const blocked=withCanonicalGrandTreeLookup(()=>
-      underworldDoorAction({
-        hood:false,jammer:false,active:false,actingSeat,
-        stadium:CANONICAL,
-        observeOwnerBeforePower:view=>{beforeBlocked=view;}
-      }));
-    assert.ok(beforeBlocked);
-    assert.deepEqual(beforeBlocked.opponentPublic.stadium,[CANONICAL]);
-    assert.equal(beforeBlocked.opponentPublic.active.printing,'Iron Thorns ex TWM');
+      underworldDoorAction(blockedOptions));
+    if(actingSeat){
+      assert.ok(beforeBlocked);
+      assert.deepEqual(beforeBlocked.opponentPublic.stadium,[CANONICAL]);
+      assert.equal(beforeBlocked.opponentPublic.active.printing,'Iron Thorns ex TWM');
+    }
     assert.equal(blocked.allowed,false);
     assert.equal(blocked.powerListed,false);
     let beforeHood=null;
+    const hoodOptions={hood:true,jammer:false,active:false,
+      actingSeat,stadium:CANONICAL};
+    if(actingSeat)hoodOptions.observeOwnerBeforePower=view=>{
+      beforeHood=view;
+    };
     const relieved=withCanonicalGrandTreeLookup(()=>
-      underworldDoorAction({
-        hood:true,jammer:false,active:false,actingSeat,
-        stadium:CANONICAL,
-        observeOwnerBeforePower:view=>{beforeHood=view;}
-      }));
-    assert.ok(beforeHood);
-    assert.deepEqual(beforeHood.opponentPublic.stadium,[CANONICAL]);
-    assert.deepEqual(beforeHood.ownPublic.bench[0].tools,['Stealthy Hood UNB']);
+      underworldDoorAction(hoodOptions));
+    if(actingSeat){
+      assert.ok(beforeHood);
+      assert.deepEqual(beforeHood.opponentPublic.stadium,[CANONICAL]);
+      assert.deepEqual(beforeHood.ownPublic.bench[0].tools,['Stealthy Hood UNB']);
+    }
     assert.equal(relieved.allowed,true);
     assert.equal(relieved.attached,1);
     assert.equal(relieved.drawn,2);
