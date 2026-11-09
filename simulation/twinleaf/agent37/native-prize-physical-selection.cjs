@@ -31,6 +31,8 @@ function assertPhysicalPrizePromptSelection(state,prompt,selected){
   assert.ok(selected.every(prize=>
     target.prizes.includes(prize)&&prize.cards.length>0),
   'owner Prize choice must name physical lists in that owner Prize zone');
+  assert.equal(new Set(selected).size,selected.length,
+    'owner Prize choice must select distinct physical Prize slots');
   return target;
 }
 
