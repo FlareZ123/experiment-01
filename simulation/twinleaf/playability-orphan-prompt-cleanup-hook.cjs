@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const VERSION = 'playability-orphan-prompt-cleanup-v1';
+const installed = new WeakSet();
 
 /**
  * Repair a pinned Store.calculatePlayability omission without altering vendor
@@ -20,6 +21,7 @@ function installPlayabilityOrphanPromptCleanupHook(deps = {}) {
   const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
   const Store = deps.Store ??
     require(path.join(output, 'game/store/store')).Store;
+  assert.equal(installed.has(Store), false, 'Cleanup already installed');
   const original = Object.getOwnPropertyDescriptor(
     Store.prototype, 'calculatePlayability');
   assert.equal(typeof original?.value, 'function');
@@ -66,12 +68,14 @@ function installPlayabilityOrphanPromptCleanupHook(deps = {}) {
 
   Object.defineProperty(Store.prototype, 'calculatePlayability',
     {...original, value: patched});
+  installed.add(Store);
   return {
     audit,
     restore() {
       assert.strictEqual(Store.prototype.calculatePlayability, patched,
         'Unexpected replacement of the playability cleanup hook');
       Object.defineProperty(Store.prototype, 'calculatePlayability', original);
+      installed.delete(Store);
     }
   };
 }
