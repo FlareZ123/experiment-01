@@ -3,7 +3,9 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {ENERGY_UNITS,rankVoltTransferDonors}=
   require('./agent23-volt-transfer-readiness.cjs');
-const VERSION='agent4-allturn-owner-volt-attach-energy-v2';
+const {canPayVoltCost}=
+  require('../evaluation/agent45-volt-cyclone-donor-debt.cjs');
+const VERSION='agent4-allturn-owner-volt-attach-energy-v3';
 
 /**
  * Pick only a genuine actor-owned, publicly attached physical Energy for the
@@ -43,14 +45,27 @@ function chooseOwnVoltTransfer(state,actorId,enums){
     card.name==='Speed Lightning Energy'?3:1;
   const supportedEnergyNames=energies.every(card=>
     Object.hasOwn(ENERGY_UNITS,card.name));
-  const residualRank=supportedEnergyNames?
+  const publicStadiumNames=state.players.flatMap(player=>
+    player.stadium?.cards?.map(card=>card.name)??[]);
+  const supportedStadium=publicStadiumNames.length<=1&&
+    publicStadiumNames.every(name=>
+      name==='Thunder Mountain Prism Star'||
+      name==='Wondrous Labyrinth Prism Star');
+  const residualRank=supportedEnergyNames&&supportedStadium?
     rankVoltTransferDonors(energies.map(card=>card.name),{
-      thunderMountainActive:true
+      thunderMountainActive:publicStadiumNames.includes(
+        'Thunder Mountain Prism Star')
     }):null;
   const donorOrder=residualRank?new Map(residualRank.map(
     (entry,index)=>[energies[entry.index],index])):null;
+  const publicCostByDonor=residualRank?new Map(energies.map((card,i)=>[
+    card,canPayVoltCost(energies.filter((_,j)=>j!==i)
+      .map(x=>x.name),publicStadiumNames)
+  ])):null;
+  const payable=card=>Number(publicCostByDonor?.get(card)===true);
   const stableDonors=donors.map((card,i)=>({card,i}))
     .sort((a,b)=>donorOrder?
+      payable(b.card)-payable(a.card)||
       donorOrder.get(a.card)-donorOrder.get(b.card):
       desirability(a.card)-desirability(b.card)||a.i-b.i);
   const benches=owner.bench.map((slot,index)=>({
@@ -75,6 +90,9 @@ function chooseOwnVoltTransfer(state,actorId,enums){
         result,benchIndex:target.index,
         ownerAttachedEnergyNamesBefore:energies.map(x=>x.name),
         chosenEnergyName:card.name,
+        publicStadiumNames,
+        residualActivePrintedCostPayable:publicCostByDonor?
+          publicCostByDonor.get(card):null,
         donorSelectionModel:residualRank?
           'residual-active-volt-funding': 'legacy-name-priority',
         residualActivePayableWithThunder:residualRank?
@@ -168,6 +186,9 @@ function withOwnerVoltTransfer(next,deps={}){
       ownerPromptId:intent.promptId,
       sourcePokemon:intent.originalActiveName,
       chosenEnergyName:intent.chosenEnergyName,
+      publicStadiumNames:intent.publicStadiumNames,
+      residualActivePrintedCostPayable:
+        intent.residualActivePrintedCostPayable,
       donorSelectionModel:intent.donorSelectionModel,
       residualActivePayableWithThunder:
         intent.residualActivePayableWithThunder,
