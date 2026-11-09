@@ -19,6 +19,7 @@ on:
           - steward-v4v5
           - reciprocal-screen
           - original-v8-contexts
+          - attack-modalities
         default: bilateral-pass
 
 permissions:
@@ -36,6 +37,11 @@ jobs:
           node-version: '22'
       - name: Validate native Store before-after continuity and bilateral v2 intake
         run: node --test tests/bilateral-v2-root-ledger-attestation.test.cjs tests/bilateral-v2-evidence-gate.test.cjs
+      - name: Verify ordinary/Perfection modality, complete Store tape, and no-op regressions
+        if: ${{ inputs.audit_type == 'attack-modalities' }}
+        run: |
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent13-postgame-attack-modality-ledger.test.cjs
       - name: Download immutable historical development archive without recompiling Twinleaf
         if: ${{ inputs.audit_type == 'bilateral-pass' }}
         uses: actions/download-artifact@v4
