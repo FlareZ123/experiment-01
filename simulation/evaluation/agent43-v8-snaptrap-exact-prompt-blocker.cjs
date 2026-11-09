@@ -152,7 +152,7 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
@@ -160,10 +160,13 @@ function run(settings = {}) {
   const ownerMailAfterPass = settings.ownerMailAfterPass === true;
   const followMailNestBall = settings.followMailNestBall === true;
   const followMailHandiwork = settings.followMailHandiwork === true;
+  const followHeldHandiwork = settings.followHeldHandiwork === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
   assert.ok(!followMailHandiwork || ownerMailAfterPass,
     'Handiwork follow-through requires owner Mail treatment');
+  assert.ok(!followHeldHandiwork || ownerMailAfterPass,
+    'Held Handiwork treatment uses registered owner-Mail hook');
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -237,6 +240,7 @@ function run(settings = {}) {
             playCardEnums: native('game/store/actions/play-card-action'),
             followMailNestBall,
             followMailHandiwork,
+            followHeldHandiwork,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
@@ -274,7 +278,7 @@ function run(settings = {}) {
       nativeFailureActionOrdinal: row.nativeAbortEvidence?.actionOrdinal ?? null,
       nativeFailureActingSeat: row.nativeAbortEvidence?.actingSeat ?? null,
       nativeFailureTurn: row.nativeAbortEvidence?.turnBefore ?? null,
-      ...(followMailHandiwork ? {
+      ...((followMailHandiwork || followHeldHandiwork) ? {
         nativeFailureDiagnostic: row.error == null ? null : {
           name: row.error?.name ?? null,
           message: String(row.error?.message ?? row.error).slice(0,300)
@@ -326,6 +330,7 @@ function run(settings = {}) {
     experimentalOwnerMailAfterPass: ownerMailAfterPass,
     experimentalFollowMailNestBall: followMailNestBall,
     experimentalFollowMailHandiwork: followMailHandiwork,
+    experimentalFollowHeldHandiwork: followHeldHandiwork,
     ownerMailAudit: ownerMailAudit === null ? null : {
       version: ownerMailAudit.schema,
       registeredTrialIds: ownerMailAudit.trialIds,
@@ -347,6 +352,13 @@ function run(settings = {}) {
       handiworkFromMailOffers: ownerMailAudit.handiworkFromMailOffers,
       handiworkFromMailAccepted: ownerMailAudit.handiworkFromMailAccepted,
       handiworkFromMailRejected: ownerMailAudit.handiworkFromMailRejected,
+      handiworkFromHandOffers: ownerMailAudit.handiworkFromHandOffers,
+      handiworkFromHandAccepted: ownerMailAudit.handiworkFromHandAccepted,
+      handiworkFromHandRejected: ownerMailAudit.handiworkFromHandRejected,
+      handiworkFromHandNativeDeckChanges:
+        ownerMailAudit.handiworkFromHandNativeDeckChanges,
+      handiworkFromHandDeferredSettlements:
+        ownerMailAudit.handiworkFromHandDeferredSettlements,
       handiworkFromMailNativeDeckChanges:
         ownerMailAudit.handiworkFromMailNativeDeckChanges,
       handiworkDeferredSettlements: ownerMailAudit.handiworkDeferredSettlements,
