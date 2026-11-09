@@ -3,8 +3,10 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {
-  chooseSecretBoxRecoveryCapacityPayment
+  chooseSecretBoxRecoveryCapacityPayment,
+  planSecretBoxRecoveryCapacityPayment
 } = require('./agent16-secret-box-recovery-capacity.cjs');
+const {actorObservation}=require('./actor-observation-contract.cjs');
 const {
   chooseSecretBoxCategories,ROOT93_NEW_MOON_PREFERENCES
 } = require('./agent36-secret-box-four-category-selector.cjs');
@@ -15,15 +17,17 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /**
  * Install a default-off, synchronous, reversible actor-only native prompt
  * handler. Its own deck is examined ONLY when a genuine Secret Box owner-deck
- * search prompt is active. It does not change the root policy or play the Box.
- * Any unsupported prompt delegates to the previously installed decoder.
+ * search prompt is active. Optional autoPlayRoot admits a real Secret Box play
+ * from an already authenticated live actor hand when a payable three-card
+ * cost exists; default root behavior delegates unchanged to prior policy.
+ * All unsupported prompts delegate to the previously installed decoder.
  *
  * @template T
  * @param {()=>T} run Real native Store execution
  * @param {{engine?:(modulePath:string)=>object,stagedStore?:object,
  *   policy?:object,preferences?:Record<string,string[]>,
  *   targetValuesByPrinting?:Record<string,number>,
- *   preserveRecoveryValue?:boolean}} [options]
+ *   preserveRecoveryValue?:boolean,autoPlayRoot?:boolean}} [options]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
@@ -33,6 +37,8 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
   const {Store}=engine('game/store/store');
   const {ResolvePromptAction}=
     engine('game/store/actions/resolve-prompt-action');
+  const {PlayCardAction,PlayerType,SlotType}=
+    engine('game/store/actions/play-card-action');
   const {TrainerCard}=engine('game/store/card/trainer-card');
   const {TrainerType}=engine('game/store/card/card-types');
   const previousBot=Object.getOwnPropertyDescriptor(
@@ -48,12 +54,16 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       'Explicit stagedStore must be a real native Store');
   let live=liveFromStaged;
   const planned=new WeakMap();
+  const rootPlanned=new WeakSet();
   const awaiting=new Set();
   const audit={
     version:VERSION,
     stagedStoreInjected:liveFromStaged!==null,
     ownerPaymentPromptProposals:0,
     ownerCategoryPromptProposals:0,
+    autoPlayRootOptIn:options.autoPlayRoot===true,
+    ownerBoxRootProposals:0,
+    nativeOwnerBoxRootAccepted:0,
     nativeSourceBoxRootAttempts:0,
     nativeSourceBoxRootAccepted:0,
     nativeSourceBoxPaymentPromptsOpened:0,
@@ -80,6 +90,24 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     }
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
+    if(seat>=0&&!pending&&options.autoPlayRoot===true&&
+      state.activePlayer===seat){
+      const owner=state.players[seat];
+      const view=actorObservation(state,seat);
+      const index=view.ownHand.indexOf('Secret Box TWM');
+      if(index>=0&&view.decisionKind==='owner-root'&&
+        view.ownTurnResources.itemPlayLocked!==true&&
+        owner.hand.cards[index]?.fullName==='Secret Box TWM'&&
+        planSecretBoxRecoveryCapacityPayment(
+          owner,state,options.policy,options)!==null){
+        const action=new PlayCardAction(owner.id,index,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+        });
+        rootPlanned.add(action);
+        audit.ownerBoxRootProposals++;
+        return action;
+      }
+    }
     if(seat<0||!pending||pending.playerId!==this.client?.id||
       pending.constructor?.name!=='ChooseCardsPrompt'||
       pending.sourceCard?.fullName!=='Secret Box TWM'){
@@ -140,6 +168,7 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       liveFromStaged===null)live=this;
     const sameStore=this===live;
     const record=sameStore?planned.get(action):null;
+    const intendedRoot=sameStore&&rootPlanned.has(action);
     const owner=sameStore&&action?.constructor?.name==='PlayCardAction'?
       this.state.players?.find(p=>p.id===action.id):null;
     const boxRoot=owner?.hand?.cards?.[action.handIndex]?.fullName===
@@ -159,6 +188,7 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       if(sameStore){
         if(boxRoot){
           audit.nativeSourceBoxRootAccepted++;
+          if(intendedRoot)audit.nativeOwnerBoxRootAccepted++;
           if(this.state.prompts?.some(p=>p.result===undefined&&
             p.sourceCard?.fullName==='Secret Box TWM'&&
             p.message==='CHOOSE_CARD_TO_DISCARD'))
