@@ -207,7 +207,8 @@ function rootPhysicalSnapshot(state,seat,intent){
         p.prizes.reduce((sum,slot)=>sum+slot.cards.length,0))
     }:{}),
     ...(['play-seeker-get-lillie','play-seeker-get-research',
-      'play-seeker-get-crispin','play-seeker-get-guzma'].includes(intent.kind)?{
+      'play-seeker-get-crispin','play-seeker-get-guzma',
+      'play-seeker-get-faba'].includes(intent.kind)?{
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
@@ -414,7 +415,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
   if(intent.kind==='play-seeker-get-lillie'||
      intent.kind==='play-seeker-get-research'||
      intent.kind==='play-seeker-get-crispin'||
-     intent.kind==='play-seeker-get-guzma'){
+     intent.kind==='play-seeker-get-guzma'||
+     intent.kind==='play-seeker-get-faba'){
     // Physical native Item departure, with the own-discard retrieval pending.
     return after.seekerSpent>before.seekerSpent&&
       after.handCount<before.handCount?
