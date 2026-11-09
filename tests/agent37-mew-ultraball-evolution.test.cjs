@@ -144,3 +144,51 @@ test('original Ultra Ball payment falls back to authentic required prompt when n
   assert.deepEqual(chooseMewUltraBallPayment(prompt,1),
     {printings:['Double Colorless Energy SUM','Forest Seal Stone SIT']});
 });
+
+test('source Ultra Ball pays with globally expired Battle VIP Pass before live gust duplicate',()=>{
+  const {chooseMewUltraBallPayment}=require(
+    '../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const q={
+    actor:{decisionKind:'owner-prompt',actorSeat:1,globalTurn:5,
+      ownHand:['Guzma BUS','Guzma BUS','Battle VIP Pass FST',
+        'Hisuian Heavy Ball ASR'],
+      ownPublic:{resolvingSupporter:['Ultra Ball MEG']}},
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:2,
+      menu:[['Guzma BUS','Guzma BUS'],
+        ['Battle VIP Pass FST','Hisuian Heavy Ball ASR']]}
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(q,1),{
+    printings:['Battle VIP Pass FST','Hisuian Heavy Ball ASR']
+  });
+  const first={...q,actor:{...q.actor,globalTurn:1}};
+  assert.deepEqual(chooseMewUltraBallPayment(first,1),{
+    printings:['Guzma BUS','Guzma BUS']
+  });
+});
+
+test('owner VSTAR already used changes Forest Seal Stone discardability',()=>{
+  const {chooseMewUltraBallPayment}=require(
+    '../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const q={
+    actor:{decisionKind:'owner-prompt',actorSeat:0,globalTurn:12,
+      ownHand:['Forest Seal Stone SIT','Guzma BUS','Guzma BUS',
+        'Double Colorless Energy SUM'],
+      ownPublic:{resolvingSupporter:['Ultra Ball MEG'],
+        publicTurnRestrictions:{vstarUsed:false}},
+      ownTurnResources:{vstarUsed:false}},
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:2,
+      menu:[['Guzma BUS','Guzma BUS'],
+        ['Forest Seal Stone SIT','Guzma BUS'],
+        ['Double Colorless Energy SUM','Forest Seal Stone SIT']]}
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(q,0),{
+    printings:['Guzma BUS','Guzma BUS']
+  });
+  const spent={...q,actor:{...q.actor,
+    ownTurnResources:{vstarUsed:true},
+    ownPublic:{...q.actor.ownPublic,
+      publicTurnRestrictions:{vstarUsed:true}}}};
+  assert.deepEqual(chooseMewUltraBallPayment(spent,0),{
+    printings:['Forest Seal Stone SIT','Guzma BUS']
+  });
+});
