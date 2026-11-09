@@ -173,7 +173,9 @@ function run() {
     batch.rows.filter(row=>row.error||!row.rootActionLedger?.length)
       .map(row=>({arm,id:row.trial?.id,
         nativeStatus:classifyNativeAttempt(row).kind,
-        error:row.error?String(row.error).slice(0,850):null,
+        error:row.error?String(row.error).slice(0,350):null,
+        nativeCauseStack:row.nativeStoreCauseStack?
+          String(row.nativeStoreCauseStack).slice(0,2500):null,
         firstRoot:row.rootActionLedger?.[0]??null}))); 
   process.stdout.write('AGENT22_TEMPLE_DDE_NATIVE '+
     JSON.stringify({all:comparison.all,matched:comparison.matched,
