@@ -50,14 +50,15 @@ function occupied(zone) {
  * @returns {{denominator:bigint, numerator:bigint,
  *   strictOtherBasicNumerator:bigint, sourceBasicCount:number}}
  */
-function calculateWindow(extraVsSeeker) {
+function calculateWindow(extraVsSeeker, extraRobo = 0) {
   const { jet, nest, wobbuffet, otherBasics, remaining } = COUNTS;
   if (!Number.isSafeInteger(extraVsSeeker) ||
-      extraVsSeeker < 0 || extraVsSeeker > 3) {
-    throw new RangeError('Only the three original rank7 VS Seeker copies may be added');
+      extraVsSeeker < 0 || extraVsSeeker > 3 ||
+      !Number.isSafeInteger(extraRobo) || extraRobo < 0 || extraRobo > 2) {
+    throw new RangeError('Only three original VS Seeker and two Robo Substitute copies are eligible');
   }
-  const itemCopies = nest + extraVsSeeker;
-  const otherCopies = remaining - extraVsSeeker;
+  const itemCopies = nest + extraVsSeeker + extraRobo;
+  const otherCopies = remaining - extraVsSeeker - extraRobo;
   const total = jet + nest + wobbuffet + otherBasics + remaining;
   const denominator =
     (choose(total, 7) - choose(total - wobbuffet - otherBasics, 7)) *
@@ -124,9 +125,21 @@ function calculateUnion() {
   return calculateWindow(3);
 }
 
+/**
+ * Permissive LOCATION screen for one Nest, three VS Seeker and two Robo.
+ * Additional tactical payability of Robo needs an actual open Bench, and VS
+ * needs an eligible Supporter in the owner's public discard; neither is
+ * implied by the count.
+ * @returns {ReturnType<typeof calculateWindow>}
+ */
+function calculateAllItems() {
+  return calculateWindow(3,2);
+}
+
 if (require.main === module) {
   const original = calculate();
   const augmented = calculateUnion();
+  const allItems = calculateAllItems();
   const stringify = r => ({
     ...Object.fromEntries(Object.entries(r).map(([k,v]) =>
       [k,typeof v === 'bigint' ? v.toString() : v])),
@@ -137,8 +150,9 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify({
     jetNestOnly:stringify(original),
     jetWithNestOrVsSeeker:stringify(augmented),
+    jetWithNestVsOrRobo:stringify(allItems),
     competitiveQualifiedGames:0
   }, null, 2) + '\n');
 }
 module.exports = { COUNTS, choose, allocation, calculate,
-  calculateWindow, calculateUnion };
+  calculateWindow, calculateUnion, calculateAllItems };
