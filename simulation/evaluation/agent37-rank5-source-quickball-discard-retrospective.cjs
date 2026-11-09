@@ -15,18 +15,24 @@ const OUTPUT=path.resolve(__dirname,
  * these are retrospective, development-only arms, never prospective results.
  * @returns {object} Every native attempt, including caps and errors.
  */
-function runRetrospective({preservePayableAttack=false}={}){
+function runRetrospective({preservePayableAttack=false,
+  preferMewGenesectSearch=false}={}){
   assert.equal(typeof preservePayableAttack,'boolean');
+  assert.equal(typeof preferMewGenesectSearch,'boolean');
   const result=run({quickBallScope:'source',actorHandDiscard:true,
-    sourceQuickBallPreservePayableAttack:preservePayableAttack});
+    sourceQuickBallPreservePayableAttack:preservePayableAttack,
+    sourceMewGenesectQuickBallSearch:preferMewGenesectSearch,
+    sourceMewGenesectQuickBallSearch:preferMewGenesectSearch});
   assert.equal(result.requestedNativeAttempts,8);
   assert.equal(result.comparison.length,4);
   assert.equal(result.competitiveQualifiedGames,0);
   return {
     ...result,
-    experiment:preservePayableAttack?
-      'agent37-rank5-source-quickball-discard-preserve-attack-retrospective-v2':
-      'agent37-rank5-source-quickball-discard-retrospective-v1',
+    experiment:preferMewGenesectSearch?
+      'agent37-rank5-source-quickball-mew-genesect-search-retrospective-v3':
+      preservePayableAttack?
+        'agent37-rank5-source-quickball-discard-preserve-attack-retrospective-v2':
+        'agent37-rank5-source-quickball-discard-retrospective-v1',
     parentVersion:VERSION,
     design:'post-observation development; same registered physical deals',
     sourceQuickBallRoot:true,
@@ -54,8 +60,12 @@ function saveAtomic(destination,value){
 }
 
 if(require.main===module){
-  const result=runRetrospective({preservePayableAttack:
-    process.env.AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV==='true'});
+  const result=runRetrospective({
+    preservePayableAttack:
+      process.env.AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV==='true',
+    preferMewGenesectSearch:
+      process.env.AGENT37_QUICKBALL_MEW_SEARCH_DEV==='true'
+  });
   saveAtomic(OUTPUT,result);
   process.stdout.write(JSON.stringify({
     experiment:result.experiment,
