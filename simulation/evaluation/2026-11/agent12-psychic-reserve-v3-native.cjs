@@ -6,7 +6,7 @@ const path=require('node:path');
 const reg=require('../../../results/aichi-2026/registrations/agent12-psychic-reserve-v3-prospective-20261109.json');
 const frozen=require('../agent41-frozen-bilateral-development-v2.json');
 const v1=require('../../../results/aichi-2026/candidate-iron-thorns-safeguard-pivot-v1.json');
-const v2=require('../../../results/aichi-2026/candidate-iron-thorns-temple-mimikyu-v2.json');
+const v2=require('../../../results/aichi-2026/candidate-iron-thorns-psychic-reserve-v3.json');
 const {runDevelopment,validateRegisteredTrialGroups}=
   require('../agent41-bilateral-v2-development.cjs');
 const {withPaperSemanticsProfileV1,PINNED_TWINLEAF}=
