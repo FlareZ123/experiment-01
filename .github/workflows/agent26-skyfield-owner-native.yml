@@ -18,6 +18,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent26_rank13_source_general_ko:
+        description: Test reusable source-only public paid-potential-KO policy against prior original Rank13 bot
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -101,6 +106,21 @@ jobs:
         with:
           name: agent26-rank13-original-source-post-marnie-shred-native
           path: agent26-rank13-shred-native-4arms.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Regress reusable public source potential-KO selector with Dragon special payment
+        if: ${{ inputs.agent26_rank13_source_general_ko }}
+        run: |
+          node --test tests/2026-11/agent26-general-dialga-overclock-ko.test.cjs
+          node --test tests/agent49-actor-potential-knockout.test.cjs
+      - name: Replay source-only general potential-KO against unchanged fixed60 paper-profile arms
+        if: ${{ inputs.agent26_rank13_source_general_ko }}
+        run: node simulation/evaluation/2026-11/agent26-rank13-source-generic-ko-native-pair.cjs
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.agent26_rank13_source_general_ko
+        with:
+          name: agent26-rank13-source-general-potential-ko-native
+          path: agent26-rank13-general-ko-native-4arms.json
           if-no-files-found: warn
           retention-days: 14
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
