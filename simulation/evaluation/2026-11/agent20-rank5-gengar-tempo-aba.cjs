@@ -8,11 +8,23 @@ const {runDevelopment}=require('../agent41-bilateral-v2-development.cjs');
 const {registration:originalRegistration,gameCapture}=
   require('./agent44-first-original-rank5-newmoon-case.cjs');
 const sourceFunding=require('./agent8-source-mew-funding-v6.cjs');
+const {perfectionPrizeReceipts}=require('./agent36-perfection-prize-receipts.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const REG='results/aichi-2026/registrations/agent20-rank5-gengar-tempo-posthoc-aba-20261109.json';
 const OUTPUT=path.join(ROOT,'artifacts/agent20-rank5-gengar-tempo-posthoc-aba.json');
 const sha256=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+
+/**
+ * A trial's candidateSlot is the actual physical seat, not a deck role label.
+ * @param {object} trial Exact registered source/candidate trial.
+ * @returns {{candidate:number,source:number}} Two distinct actual native seats.
+ */
+function seatsForTrial(trial) {
+  assert.ok(trial?.candidateSlot==='A'||trial?.candidateSlot==='B');
+  const candidate=trial.candidateSlot==='A'?0:1;
+  return {candidate,source:1-candidate};
+}
 
 /** Run an unchanged frozen source game under one named owner-policy arm. */
 function arm(phase,enabled,reg,options={}){
@@ -62,6 +74,16 @@ function arm(phase,enabled,reg,options={}){
   const row=result.rows[0];
   const tape=capture.evidence();
   const roots=row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[];
+  const seats=seatsForTrial(reg.registeredTrials[0]);
+  const rootPhysicalLinked=roots.length===tape.postAcceptedRootCount &&
+    roots.every((r,i)=>r.actionOrdinal===i &&
+      tape.postAcceptedRoots[i].rootOrdinal===i);
+  // Abort tapes can be incomplete. Keep receipt status null until the physical
+  // native Store postaction witness is fully joined, never invent missing KOs.
+  const sourcePerfectionPrizeReceipts=rootPhysicalLinked?
+    perfectionPrizeReceipts(roots,tape,seats.source):null;
+  const candidatePerfectionPrizeReceipts=rootPhysicalLinked?
+    perfectionPrizeReceipts(roots,tape,seats.candidate):null;
   const actionCounts=seat=>({
     total:roots.filter(x=>x.playerSlot===seat).length,
     attacks:roots.filter(x=>x.playerSlot===seat&&x.action==='AttackAction')
@@ -71,11 +93,11 @@ function arm(phase,enabled,reg,options={}){
   });
   const gengar='Gengar & Mimikyu-GX TEU';
   const postActions=tape.postAcceptedRoots.flatMap(x=>{
-    const owner=x.physicalZones[1],active=owner?.active?.cards?.[0]?.printing;
+    const owner=x.physicalZones[seats.candidate],active=owner?.active?.cards?.[0]?.printing;
     const bench=owner?.bench?.find(b=>b.cards?.[0]?.printing===gengar);
     const attached=bench?.energies?.filter(y=>y.printing.startsWith('Psychic Energy '))??[];
     return [x.rootOrdinal,45,69,70].includes(x.rootOrdinal)||(
-      x.actorSeat===1&&x.action==='AttackAction')?
+      x.actorSeat===seats.candidate&&x.action==='AttackAction')?
         [{root:x.rootOrdinal,turn:x.turnBefore,action:x.action,
           active,activeEnergy:owner.active.energies.map(y=>y.printing),
           gengarBenchPsychic:attached.length,
@@ -90,7 +112,10 @@ function arm(phase,enabled,reg,options={}){
     physicalIntegrity:row.physicalZoneQualification?.physicalIntegrityQualified??null,
     actorPolicy:row.actorOnlyDecisionCoverage??null,
     lillieAudit:row.ownerBilateralLillieAfterPassAudit??null,
-    source:actionCounts(0),candidate:actionCounts(1),
+    source:actionCounts(seats.source),candidate:actionCounts(seats.candidate),
+    sourceSeat:seats.source,candidateSeat:seats.candidate,
+    rootPhysicalLinked,
+    sourcePerfectionPrizeReceipts,candidatePerfectionPrizeReceipts,
     postActions,rootLedgerSha256:sha256(roots),
     roots,physicalTape:tape};
 }
@@ -192,4 +217,4 @@ function main(){
   return result;
 }
 if(require.main===module)main();
-module.exports={main,arm,firstDifference,firstPhysicalDivergence};
+module.exports={main,arm,firstDifference,firstPhysicalDivergence,seatsForTrial};
