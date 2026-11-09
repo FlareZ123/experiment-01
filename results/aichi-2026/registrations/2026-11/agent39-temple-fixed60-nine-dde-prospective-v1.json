@@ -1,0 +1,474 @@
+{
+  "schema": "agent39-temple-fixed60-nine-dde-prospective-v1",
+  "registeredUTC": "2026-11-09T06:53:55Z",
+  "researchScope": "Aichi Japanese Extra original physical 60s; development-only native fixed-60 comparison",
+  "purpose": "Evaluate fixed Temple Shadow Rider v1 versus unchanged champion across nine original Regidrago Double Dragon Energy 60s; 18 novel physical-seat/source groups",
+  "sourceRanks": [
+    10,
+    12,
+    13,
+    14,
+    18,
+    20,
+    21,
+    27,
+    32
+  ],
+  "sourceGroups": [
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3139895215
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2973708378
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 377782541
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 564608594
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1708152230
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 112554035
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3646060922
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1770669092
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1583498140
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2095977019
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1938359850
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1361288328
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2285757474
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1422480890
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 323395663
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1673798236
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 834051723
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2704481951
+    }
+  ],
+  "fixedContenderIds": [
+    "champion-reference",
+    "temple-shadow-rider-v1"
+  ],
+  "registeredTrials": [
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3139895215,
+      "candidateId": "champion-reference",
+      "id": "10:0:A:champion-reference"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3139895215,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "10:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2973708378,
+      "candidateId": "champion-reference",
+      "id": "10:0:B:champion-reference"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2973708378,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "10:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 377782541,
+      "candidateId": "champion-reference",
+      "id": "12:0:A:champion-reference"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 377782541,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "12:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 564608594,
+      "candidateId": "champion-reference",
+      "id": "12:0:B:champion-reference"
+    },
+    {
+      "rank": 12,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 564608594,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "12:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1708152230,
+      "candidateId": "champion-reference",
+      "id": "13:0:A:champion-reference"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1708152230,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 112554035,
+      "candidateId": "champion-reference",
+      "id": "13:0:B:champion-reference"
+    },
+    {
+      "rank": 13,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 112554035,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "13:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3646060922,
+      "candidateId": "champion-reference",
+      "id": "14:0:A:champion-reference"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3646060922,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "14:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1770669092,
+      "candidateId": "champion-reference",
+      "id": "14:0:B:champion-reference"
+    },
+    {
+      "rank": 14,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1770669092,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "14:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1583498140,
+      "candidateId": "champion-reference",
+      "id": "18:0:A:champion-reference"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1583498140,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "18:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2095977019,
+      "candidateId": "champion-reference",
+      "id": "18:0:B:champion-reference"
+    },
+    {
+      "rank": 18,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2095977019,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "18:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1938359850,
+      "candidateId": "champion-reference",
+      "id": "20:0:A:champion-reference"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1938359850,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "20:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1361288328,
+      "candidateId": "champion-reference",
+      "id": "20:0:B:champion-reference"
+    },
+    {
+      "rank": 20,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1361288328,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "20:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2285757474,
+      "candidateId": "champion-reference",
+      "id": "21:0:A:champion-reference"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2285757474,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "21:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1422480890,
+      "candidateId": "champion-reference",
+      "id": "21:0:B:champion-reference"
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1422480890,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "21:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 323395663,
+      "candidateId": "champion-reference",
+      "id": "27:0:A:champion-reference"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 323395663,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "27:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1673798236,
+      "candidateId": "champion-reference",
+      "id": "27:0:B:champion-reference"
+    },
+    {
+      "rank": 27,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1673798236,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "27:0:B:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 834051723,
+      "candidateId": "champion-reference",
+      "id": "32:0:A:champion-reference"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 834051723,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "32:0:A:temple-shadow-rider-v1"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2704481951,
+      "candidateId": "champion-reference",
+      "id": "32:0:B:champion-reference"
+    },
+    {
+      "rank": 32,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2704481951,
+      "candidateId": "temple-shadow-rider-v1",
+      "id": "32:0:B:temple-shadow-rider-v1"
+    }
+  ],
+  "intendedNativeGames": 36,
+  "rootCap": 260,
+  "isolatedPhysicalAndPolicyRNGBySeat": true,
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneTargetTurn": null,
+    "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
+    "actorSeekerGuzmaOwnerSeat": null,
+    "actorSeekerGuzmaGlobalTurn": null
+  },
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceManifestGitBlobs": [
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "results/aichi-2026/candidate-temple-shadow-rider.json",
+      "blob": "2e90f7697465683fdbe8276217f43aa0e29ac675"
+    },
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "b7d3b60916e6e3dfc3cec8eea7f45d1691d1f2d4"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blob": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    }
+  ],
+  "predeclaredComparisons": [
+    "Each individual matched physical original deal and actual starter seat",
+    "Per-rank terminal/cap/error count",
+    "Native accepted Temple play and original Regidrago Apex Dragon attacks",
+    "Pairwise lower/upper fixed-60 outcome contrast with censored outcomes retained"
+  ],
+  "claimBoundary": "No official game clock, independent paper review or qualified win rate. Temple Stadium playback and candidate policy may be weak."
+}
