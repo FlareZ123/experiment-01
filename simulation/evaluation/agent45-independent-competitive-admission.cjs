@@ -2,6 +2,8 @@
 
 const {createHash, createPublicKey, verify} = require('node:crypto');
 const {evaluateBilateralCompetence} = require('./agent45-bilateral-competence-gate.cjs');
+const {inspectMewTechnoCooldownBridge} =
+  require('./agent45-mew-techno-cooldown-bridge.cjs');
 const authorized = require('./agent45-authorized-reviewers.json');
 
 const BUNDLE_SCHEMA = 'aichi-complete-game-bundle-v1';
@@ -80,10 +82,22 @@ function bundleFailures(bundle) {
 function inspectAdmission(bundle, reviews, reviewerRegistry) {
   const failures = bundleFailures(bundle);
   let structural = null;
+  let cooldown = null;
+  let fullStructuralEligibility = false;
   if (bundle?.trial) {
     try {
       structural = evaluateBilateralCompetence(bundle.trial);
-      if (!structural.structuralGatePassed)
+      cooldown = inspectMewTechnoCooldownBridge(bundle.trial);
+      // A proven copied-Techno-Blast cooldown explains precisely one
+      // mandatory source Pass between source attack and later re-attack.
+      // No other provenance, policy, payment, clock, or rules veto can be
+      // bypassed, and actual three-party signed review remains required.
+      const onlyCooldownEpisodeGap =
+        structural.failures.length === 1 &&
+        structural.failures[0] === 'no-certified-source-reply-source-episode';
+      fullStructuralEligibility = structural.structuralGatePassed ||
+        (onlyCooldownEpisodeGap && cooldown.conditionallyCertified);
+      if (!fullStructuralEligibility)
         failures.push('competence-or-paper-clock-structure-failed');
     } catch {
       failures.push('malformed-or-unverifiable-native-competence-trial');
@@ -135,6 +149,8 @@ function inspectAdmission(bundle, reviews, reviewerRegistry) {
   }
   return {schema:RESULT_SCHEMA,bundleSha256:digest,trialId:bundle?.trialId??null,
     nativeStructuralGatePassed:structural?.structuralGatePassed===true,
+    cooldownBridgeConditional:cooldown?.conditionallyCertified===true,
+    structuralEligibilityAfterReviewedCooldown:fullStructuralEligibility,
     conditionalPaperWinnerSeat:structural?.conditionallyAdjudicatedPaperWinnerSeat??null,
     verifiedReviewRoles:reviewed,failures:[...new Set(failures)],
     acceptanceReady:failures.length===0};
