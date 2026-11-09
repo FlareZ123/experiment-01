@@ -104,6 +104,7 @@ function probe(seat,hooks={}){
   x.f.store.reduceEffect(x.f.store.state,afterHp);
   assert.equal(afterHp.hp,230);
   verify();
+  const postReply=hooks.afterReply?hooks.afterReply(x,reply):null;
   return {seat,printedCape:true,actualFirstTurnPaidCape:true,
     actualFirstTurnPaidGuzmaHala:true,actualFirstTurnDoubleTmEvolution:true,
     actualOpponentGuzmaPaid:true,originalSourcePhysicalSixty:true,
@@ -112,7 +113,7 @@ function probe(seat,hooks={}){
       sourceVileplumeEffectiveHp:afterHp.hp,
       opponentUsedGuzma:x.f.store.state.players[1-seat].supporterTurn>0},
     conditionedOriginalOpposingGuzma:true,
-    reply,
+    reply,postReply,
     actualMaxGeistTestedSeparately:true,
     competitivelyQualifiedGames:0};
 }
