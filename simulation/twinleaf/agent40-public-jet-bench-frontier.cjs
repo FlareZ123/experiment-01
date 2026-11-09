@@ -81,10 +81,13 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
   // native Store accepts the Item or that the resulting turn is optimal.
   // Keep this behind the existing default-off Jet option and only propose
   // when the unlocked Item has a public empty Bench slot to exploit.
-  const vulnerableItemLock=[view.opponentPublic?.active,
-    ...(view.opponentPublic?.bench??[])].some(p=>
+  const itemLocks=[view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench??[])].filter(p=>
     p?.printing==='Vileplume AOR'&&
-    p.abilityDetails?.some(a=>a.name==='Irritating Pollen')&&
+    p.abilityDetails?.some(a=>a.name==='Irritating Pollen'));
+  // One protected copy sustains the Item lock after Wobbuffet suppresses
+  // the other copies. Reject this utility line in that geometry.
+  const vulnerableItemLock=itemLocks.length>0&&itemLocks.every(p=>
     !(p.tools??[]).some(t=>t.startsWith('Stealthy Hood ')));
   if(vulnerableItemLock&&
       view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
