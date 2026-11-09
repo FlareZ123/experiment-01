@@ -1142,6 +1142,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       .newOwnerArbitrationAudit(),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
+    strandedMarnieRootOwnerSeat:deps.strandedMarnieRootOwnerSeat??null,
     lowHandLillieRootCensus:{
       ownerRoots:0,heldRoots:0,eligibleRoots:0,
       reasonCounts:{},heldReasonCounts:{},
@@ -1816,7 +1817,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       seekerGuzmaOwnerSeat:audit.seekerGuzmaOwnerSeat,
       seekerGuzmaGlobalTurn:audit.seekerGuzmaGlobalTurn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
-      strandedMarnieRoot:audit.strandedMarnieRootOptIn,
+      strandedMarnieRoot:actorSpecialEnergyEnabled(
+        audit.strandedMarnieRootOptIn,
+        audit.strandedMarnieRootOwnerSeat,seat),
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
       teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
       eriRevealRoot:audit.eriRevealRootOptIn===true,
