@@ -152,7 +152,7 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,preferSinglePrizeNestBasic?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,followHeldArven?:boolean,captureRootTape?:boolean,nativeRootCap?:number}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,preferSinglePrizeNestBasic?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,followHeldArven?:boolean,followArvenNestBall?:boolean,captureRootTape?:boolean,nativeRootCap?:number}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
@@ -170,6 +170,7 @@ function run(settings = {}) {
   const followHeldHandiwork = settings.followHeldHandiwork === true;
   const followHeldRefillSupporter = settings.followHeldRefillSupporter === true;
   const followHeldArven = settings.followHeldArven === true;
+  const followArvenNestBall = settings.followArvenNestBall === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
   assert.ok(!preferSinglePrizeNestBasic || followMailNestBall,
@@ -182,6 +183,8 @@ function run(settings = {}) {
     'Held draw Supporter treatment uses registered owner-Mail hook');
   assert.ok(!followHeldArven || ownerMailAfterPass,
     'Held Arven treatment uses registered owner-Mail hook');
+  assert.ok(!followArvenNestBall || followHeldArven,
+    'Arven-selected Nest follow-through requires paid held-Arven treatment');
   const registeredTrials = v1.trials();
   assert.equal(registeredTrials.length, 4);
   assert.equal(REGISTRATION.registeredFrameName,
@@ -266,6 +269,7 @@ function run(settings = {}) {
             followHeldHandiwork,
             followHeldRefillSupporter,
             followHeldArven,
+            followArvenNestBall,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
             onHeldHandiworkActionCommitted:
@@ -369,6 +373,7 @@ function run(settings = {}) {
     experimentalFollowHeldHandiwork: followHeldHandiwork,
     experimentalFollowHeldRefillSupporter: followHeldRefillSupporter,
     experimentalFollowHeldArven: followHeldArven,
+    experimentalFollowArvenNestBall: followArvenNestBall,
     ownerMailAudit: ownerMailAudit === null ? null : {
       version: ownerMailAudit.schema,
       registeredTrialIds: ownerMailAudit.trialIds,
@@ -405,6 +410,11 @@ function run(settings = {}) {
       arvenFromHandAccepted: ownerMailAudit.arvenFromHandAccepted,
       arvenFromHandRejected: ownerMailAudit.arvenFromHandRejected,
       arvenFromHandSearchEvents: ownerMailAudit.arvenFromHandSearchEvents,
+      nestFromArvenOffers: ownerMailAudit.nestFromArvenOffers,
+      nestFromArvenAccepted: ownerMailAudit.nestFromArvenAccepted,
+      nestFromArvenRejected: ownerMailAudit.nestFromArvenRejected,
+      nestFromArvenBenchSettled: ownerMailAudit.nestFromArvenBenchSettled,
+      nestFromArvenBenchEvents: ownerMailAudit.nestFromArvenBenchEvents,
       arvenPlayEvents: ownerMailAudit.arvenPlayEvents,
       arvenSearchEvents: ownerMailAudit.arvenSearchEvents,
       handiworkFromMailNativeDeckChanges:
