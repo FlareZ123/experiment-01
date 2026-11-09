@@ -5,14 +5,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
 const {runDevelopment} =
-  require('./agent41-bilateral-v2-development.cjs');
+  require('../agent41-bilateral-v2-development.cjs');
 const {sourceSummary} =
-  require('./agent37-rank5-fusion-mobility-prospective.cjs');
+  require('../agent37-rank5-fusion-mobility-prospective.cjs');
 const {saveAtomic} =
-  require('./agent37-rank5-source-quickball-discard-retrospective.cjs');
+  require('../agent37-rank5-source-quickball-discard-retrospective.cjs');
 
 const VERSION = 'agent37-rank5-independent-mew-owner-search-native-v1';
-const ROOT = path.resolve(__dirname, '../..');
+const ROOT = path.resolve(__dirname, '../../..');
 const REGISTRATION =
   'results/aichi-2026/registrations/agent37-rank5-quickball-search-independent-20261109.json';
 const OUTPUT = path.join(ROOT, 'agent37-rank5-fresh-quickball-owner-search-16arm.json');
@@ -48,7 +48,7 @@ function readFrozenRegistration() {
   for (const oldSeed of reg.previousRetrospectiveSeedsExcluded) {
     assert.ok(!ids.has(oldSeed), 'No reused retrospective deal');
   }
-  const roster = require('../../results/aichi-2026/original-printed60-admission-v1.json');
+  const roster = require('../../../results/aichi-2026/original-printed60-admission-v1.json');
   const original = roster.rows.find(x => x.rank === 5);
   assert.equal(original?.physicalCards, 60);
   assert.equal(original.printed60Sha256, SOURCE_SHA);
@@ -72,7 +72,7 @@ function readFrozenRegistration() {
  */
 function runFresh() {
   const {reg, trials, sha256} = readFrozenRegistration();
-  const baseline = require('./agent41-frozen-bilateral-development-v2.json')
+  const baseline = require('../agent41-frozen-bilateral-development-v2.json')
     .policyOptions;
   assert.equal(baseline.actorOnlyComposition, true);
   const common = {
