@@ -161,6 +161,13 @@ function run(deps={}){
 if(require.main===module){
   const report=run();
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
+  process.stderr.write('AGENT15_NATIVE_PAIRED_SUMMARY '+JSON.stringify({
+    status:report.status,counts:report.counts,
+    pairs:report.pairs.map(x=>({id:x.id,matched:x.matchedPhysicalDeal,
+      control:x.control.status,treatment:x.treatment.status,
+      source:x.control.sourceSeat,candidate:x.control.candidateSeat,
+      error:x.treatment.error??x.control.error}))
+  })+'\n');
   if(report.status!=='all-four-physical-deals-matched'||
      report.counts.nativeErrors>0)process.exitCode=1;
 }
