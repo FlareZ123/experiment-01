@@ -888,7 +888,18 @@ function withActorOnlyRootPolicy(run,deps={}){
   const genesectDrawUsedTurnBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
-  let nativeStore=null,catalog=null,trainerCatalog=null,actualGamesSeen=0;
+  // Test-only seam for an already constructed native, physically complete
+  // staged Store. Real games discover their Store from AddPlayerAction below.
+  // This explicit dependency is never inferred from cloned or speculative
+  // states, and does not certify a staged board as an actual game.
+  const stagedStore=deps.stagedStore??null;
+  if(stagedStore!==null){
+    assert.ok(stagedStore instanceof Store,
+      'Explicit staged actor Store must use the pinned native Store class');
+    assert.equal(stagedStore.state?.players?.length,2,
+      'Staged actor Store must retain two physically distinct owners');
+  }
+  let nativeStore=stagedStore,catalog=null,trainerCatalog=null,actualGamesSeen=0;
   const copycatHistoryByStore=new WeakMap();
   const copycatHistoryTrackers=[];
   const getNativeTrainerCatalog=deps.getNativeTrainerCatalog??(()=>{
