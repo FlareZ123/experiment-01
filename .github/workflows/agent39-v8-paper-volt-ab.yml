@@ -13,6 +13,7 @@ on:
           - temple-nine-dde
           - temple-artifact-reduce
           - temple-policy-pair
+          - temple-policy-reduce
 
 permissions:
   contents: read
@@ -30,24 +31,24 @@ jobs:
       - name: Check out research repository
         uses: actions/checkout@v4
       - name: Check out pinned upstream Twinleaf
-        if: ${{ inputs.study != 'temple-artifact-reduce' }}
+        if: ${{ inputs.study != 'temple-artifact-reduce' && inputs.study != 'temple-policy-reduce' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Use pinned Node 20
-        if: ${{ inputs.study != 'temple-artifact-reduce' }}
+        if: ${{ inputs.study != 'temple-artifact-reduce' && inputs.study != 'temple-policy-reduce' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify scoped paper portfolio contracts
-        if: ${{ inputs.study != 'temple-artifact-reduce' }}
+        if: ${{ inputs.study != 'temple-artifact-reduce' && inputs.study != 'temple-policy-reduce' }}
         run: node --test tests/agent39-paper-prompt-portfolio.test.cjs
       - name: Install pinned upstream server dependencies
-        if: ${{ inputs.study != 'temple-artifact-reduce' }}
+        if: ${{ inputs.study != 'temple-artifact-reduce' && inputs.study != 'temple-policy-reduce' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned Twinleaf Store
-        if: ${{ inputs.study != 'temple-artifact-reduce' }}
+        if: ${{ inputs.study != 'temple-artifact-reduce' && inputs.study != 'temple-policy-reduce' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify four native Flash routes and two Temple suppressions
@@ -111,5 +112,24 @@ jobs:
           path: |
             agent39-temple-owner-policy-nine-dde-native.json
             agent39-temple-owner-policy-nine-dde-summary.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Recover completed independent Temple policy trial archive
+        if: ${{ inputs.study == 'temple-policy-reduce' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent39-temple-actor-native-fresh-pairs
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 42578791794
+      - name: Verify actual accepted Temple roots and source Apex transitions
+        if: ${{ inputs.study == 'temple-policy-reduce' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-owner-policy-artifact-reduce.cjs
+      - name: Preserve concise real-root policy causal audit
+        if: ${{ always() && inputs.study == 'temple-policy-reduce' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-temple-owner-policy-native-root-audit
+          path: agent39-temple-owner-policy-nine-dde-root-audit.json
           if-no-files-found: warn
           retention-days: 14
