@@ -22,7 +22,7 @@ test('shared runner selects the scoped root and records the bilateral opt-in',()
   ),'utf8');
   assert.match(source,/bilateralJetBenchSwitchRoot=false/);
   assert.match(source,/!bilateralJetBenchSwitchRoot&&/);
-  assert.match(source,/bilateralJetBenchRootOptions\\(bilateralJetBenchSwitchRoot\\)/);
+  assert.ok(source.includes('bilateralJetBenchRootOptions(bilateralJetBenchSwitchRoot)'));
   assert.match(source,/bilateralJetBenchSwitchRootOptIn:bilateralJetBenchSwitchRoot/);
   assert.match(source,/AGENT41_BILATERAL_JET_BENCH_DEV/);
 });
