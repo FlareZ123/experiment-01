@@ -9,7 +9,8 @@ const INPUT=process.env.AGENT31_LOCKBRIDGE_AUDIT_INPUT??
   path.resolve(__dirname,'../../../artifacts/agent31-lockbridge-eight-rank-native.json');
 const OUTPUT=process.env.AGENT31_LOCKBRIDGE_AUDIT_OUTPUT??null;
 const match=(root,name)=>root.action==='PlayCardAction'&&
-  typeof root.card==='string'&&root.card.startsWith(name);
+  typeof root.card==='string'&&
+  (root.card===name||root.card.startsWith(name+' '));
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 
 /**
@@ -28,15 +29,15 @@ function gameActions(row){
     trialId:row.id,gameFinished:row.finished,
     nativeDisposition:row.nativeDisposition,
     playerRootCount:roots.length,
-    playArven:plays('Arven ').length,
-    playTemple:plays('Temple of Sinnoh ').length,
-    playHood:plays('Stealthy Hood ').length,
-    playWobbuffet:plays('Wobbuffet ').length,
-    playLillieClefairy:plays("Lillie's Clefairy ex ").length,
-    playPokemonRanger:plays('Pokémon Ranger ').length,
-    playVSSeeker:plays('VS Seeker ').length,
-    playGuzma:plays('Guzma ').length,
-    playFloatStone:plays('Float Stone ').length,
+    playArven:plays('Arven').length,
+    playTemple:plays('Temple of Sinnoh').length,
+    playHood:plays('Stealthy Hood').length,
+    playWobbuffet:plays('Wobbuffet').length,
+    playLillieClefairy:plays("Lillie's Clefairy ex").length,
+    playPokemonRanger:plays('Pokémon Ranger').length,
+    playVSSeeker:plays('VS Seeker').length,
+    playGuzma:plays('Guzma').length,
+    playFloatStone:plays('Float Stone').length,
     attackRoots:roots.filter(x=>x.action==='AttackAction').length,
     abilityRoots:roots.filter(x=>x.action==='UseAbilityAction').length,
     passRoots:roots.filter(x=>x.action==='PassTurnAction').length,
