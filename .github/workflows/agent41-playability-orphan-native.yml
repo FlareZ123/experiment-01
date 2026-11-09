@@ -1,4 +1,4 @@
-name: Agent41 exact-rank7 native orphan-prompt regression
+name: Agent41 exact-rank7 native protected Trainer target repair
 
 on:
   workflow_dispatch:
@@ -21,13 +21,13 @@ jobs:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
-      - name: Validate playability orphan cleanup in isolation
-        run: node --test tests/2026-11/agent41-playability-orphan-prompt-cleanup.test.cjs
+      - name: Verify actor-only Store protected-target settlement both seats
+        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs
       - name: Install exact native Store dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Replay exact rank7 original physical deals with reversible cleanup
-        run: node simulation/evaluation/2026-11/agent41-rank7-playability-orphan-prompt-native.cjs
+      - name: Replay exact rank7 original physical deals with corrected protected-target settlement
+        run: node simulation/evaluation/2026-11/agent41-rank7-guzma-native-target-filter-repair.cjs
