@@ -147,7 +147,9 @@ function executeOriginalRank1RaihanPaleMoon(context) {
       return receipt;
     }
     // Owner may inspect their own deck after a search; no opponent hidden data.
-    const selected=owner.deck.cards[0];
+    const selected=context.raihanPickPrinting
+      ?owner.deck.cards.find(c=>c.fullName===context.raihanPickPrinting)
+      :owner.deck.cards[0];
     if(!selected || search.validate([selected])!==true) {
       receipt.status='native-raihan-own-deck-choice-invalid';
       return receipt;
@@ -337,8 +339,15 @@ function executeOriginalRank1RaihanPaleMoon(context) {
             }
             branch.dispatch(new PassTurnAction(opponentId));
             const passWaits=settleWaits(branch,ResolvePromptAction);
+            // Optional research-only fork of the genuine returned owner turn.
+            // The callback receives a Store state to clone; existing native
+            // evidence and the original source ledger remain untouched.
+            const sourceNextTurn=corrected &&
+              typeof context.afterOpponentPass==='function'
+              ?context.afterOpponentPass({state:branch.state,ownerId,opponentId})
+              :null;
             return {
-              retWaits,passWaits,afterRetreatQueue,formerNowOnBench,
+              retWaits,passWaits,sourceNextTurn,afterRetreatQueue,formerNowOnBench,
               current,getLostReply,oldDefenderSurvived:opp.bench.some(slot=>
                 slot.getPokemonCard()===oldDefenderCard),
               oldDefenderDiscarded:opp.discard.cards.includes(oldDefenderCard),
