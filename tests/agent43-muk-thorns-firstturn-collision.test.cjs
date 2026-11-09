@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const roster = require('../results/aichi-2026/full-decklists.json');
-const { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow } =
+const { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateMukBenchOpportunityWindows, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow } =
   require('../simulation/evaluation/agent43-muk-thorns-firstturn-collision.cjs');
 
 /** @param {number} actual @param {number} expected */
@@ -57,6 +57,22 @@ near(
 assert.ok(geometry.secondGrimerSearchOpportunityAmongBasicValid
   < geometry.noNaturalSecondGrimerByEightAmongBasicValid);
 
+
+const benchWindows = candidateMukBenchOpportunityWindows();
+near(benchWindows.basicValid, candidate.basicValid);
+near(benchWindows.directWithInitialAlternativeAmongBasicValid,
+  0.064688453393358);
+near(benchWindows.searchedWithInitialAlternativeAmongBasicValid,
+  0.20295872343325977);
+near(benchWindows.directTwoBenchByEighthAmongBasicValid,
+  0.02982910153443106);
+near(benchWindows.searchedTwoBenchByEighthAmongBasicValid,
+  0.06489939725078774);
+near(benchWindows.combinedTwoBenchByEighthAmongBasicValid,
+  0.09472849878521879);
+assert.ok(benchWindows.directWithInitialAlternativeAmongBasicValid <
+  benchWindows.searchedWithInitialAlternativeAmongBasicValid);
+
 const sourceRank26 = roster.decks.find((deck) => deck.rank === 26);
 assert.ok(sourceRank26);
 assert.equal(sourceRank26.cards.reduce((n, row) => n + row.count, 0), 60);
@@ -106,6 +122,14 @@ console.log(JSON.stringify({
   scope: 'combinatorial opening access only; independently shuffled Basic-valid seven; no opponent mulligan bonus draws',
   historicalGrimerOnlySpeciesStartPercent:
     candidate.forcedGrimerActive / candidate.basicValid * 100,
+  directBenchMukWithInitialAlternativePercent:
+    benchWindows.directWithInitialAlternativeAmongBasicValid * 100,
+  searchedBenchMukWithInitialAlternativePercent:
+    benchWindows.searchedWithInitialAlternativeAmongBasicValid * 100,
+  directTwoBenchMukByEighthPercent:
+    benchWindows.directTwoBenchByEighthAmongBasicValid * 100,
+  searchedTwoBenchMukByEighthPercent:
+    benchWindows.searchedTwoBenchByEighthAmongBasicValid * 100,
   exactlyOneGrimerInitialSevenDirectPercent:
     partition.exactlyOneGrimerSevenAmongBasicValid * 100,
   bothGrimerInitialSevenDirectPercent:

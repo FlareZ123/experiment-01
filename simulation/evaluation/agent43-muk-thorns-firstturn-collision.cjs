@@ -1,6 +1,7 @@
 'use strict';
 
-const { choose } = require('./agent43-muk-search-eight-bound.cjs');
+const {choose,openingEightAccess} =
+  require('./agent43-muk-search-eight-bound.cjs');
 
 /** @param {number[]} sizes @param {(counts:number[], probability:number)=>void} inspect */
 function eachEight(sizes, inspect) {
@@ -175,6 +176,61 @@ function candidateMukBenchGeometry() {
   };
 }
 
+
+/**
+ * Distinguish realistic Bench geometry by the first own turn. An initial
+ * non-Grimer Basic permits choosing it as Active while Grimer is held or
+ * drawn eighth. The disjoint double-Grimer opening can instead choose one
+ * Grimer Active and Bench the other. An eighth-drawn *other* Basic cannot
+ * retroactively change an already selected sole Active Grimer.
+ *
+ * A separate optimistic two-Bench test checks whether the first-eight
+ * physical Basics supply an Active plus two Benched candidates, including
+ * one Grimer; when Grimer is searched, its Prize survival is required.
+ *
+ * @returns {{
+ *   basicValid:number,
+ *   directWithInitialAlternativeAmongBasicValid:number,
+ *   searchedWithInitialAlternativeAmongBasicValid:number,
+ *   directTwoBenchByEighthAmongBasicValid:number,
+ *   searchedTwoBenchByEighthAmongBasicValid:number,
+ *   combinedTwoBenchByEighthAmongBasicValid:number
+ * }}
+ */
+function candidateMukBenchOpportunityWindows() {
+  const access = openingEightAccess();
+  const partition = candidateMukOriginalSevenPartition();
+  const bonus = partition.bothGrimerSevenAmongBasicValid;
+  const basicValid = access.basicValidInitialSeven;
+  let directTwoBench = 0;
+  let searchedTwoBench = 0;
+  eachEight([2, 2, 3, 4, 3, 10, 36],
+    ([grimer, muk, shake, treasure, quick, otherBasic], probability) => {
+      if (!shake || muk === 2) return;
+      const mukLeft = 2 - muk;
+      if (grimer > 0 && grimer + otherBasic >= 3) {
+        directTwoBench += probability * (1 - allPrized(mukLeft));
+      } else if (grimer === 0 && otherBasic >= 2 &&
+          treasure + quick > 0) {
+        const grimerLeft = 2;
+        const bothUnprized = 1 - allPrized(mukLeft) -
+          allPrized(grimerLeft) + allPrized(mukLeft + grimerLeft);
+        searchedTwoBench += probability * bothUnprized;
+      }
+    });
+  return {
+    basicValid,
+    directWithInitialAlternativeAmongBasicValid:
+      access.directWithOtherBasicStarterAmongBasicValid + bonus,
+    searchedWithInitialAlternativeAmongBasicValid:
+      access.searchAssistedWithOtherBasicStarterAmongBasicValid + bonus,
+    directTwoBenchByEighthAmongBasicValid: directTwoBench / basicValid,
+    searchedTwoBenchByEighthAmongBasicValid: searchedTwoBench / basicValid,
+    combinedTwoBenchByEighthAmongBasicValid:
+      (directTwoBench + searchedTwoBench) / basicValid
+  };
+}
+
 /**
  * Independent source rank26 paper-hand access to the actual singleton
  * Escape Rope and Canceling Cologne in the first eight cards.
@@ -259,4 +315,4 @@ function rank6GuzmaHalaVoltWindow() {
   };
 }
 
-module.exports = { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow };
+module.exports = { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateMukBenchOpportunityWindows, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow };
