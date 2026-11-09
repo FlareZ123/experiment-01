@@ -201,6 +201,13 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
     const result=execute();
     audit.unresolvedOwnerPrompts=awaiting.size;
     return {result,audit};
+  }catch(error){
+    // Preserve only owner-public, native-accepted actions when a later
+    // unrelated Store dispatch aborts before the normal audit return.
+    audit.unresolvedOwnerPrompts=awaiting.size;
+    if(error&&typeof error==='object')
+      error.ownerMailAfterPassAbortAudit=audit;
+    throw error;
   }finally{
     assert.strictEqual(ai.decodeNextAction,decoded);
     assert.strictEqual(store.dispatch,dispatched);
