@@ -52,7 +52,7 @@ jobs:
           path: archived-50703
       - name: Reconcile real Perfection roots, actual physical Prizes and repeated control
         if: ${{ inputs.audit_type == 'attack-modalities' }}
-        run: node simulation/evaluation/2026-11/agent13-50703-archive-attack-modality-audit.cjs archived-50703/artifacts/agent36-gengar-v3-original-regression-native.json
+        run: node simulation/evaluation/2026-11/agent13-50703-archive-attack-modality-audit.cjs archived-50703/agent36-gengar-v3-original-regression-native.json
       - name: Download immutable historical development archive without recompiling Twinleaf
         if: ${{ inputs.audit_type == 'bilateral-pass' }}
         uses: actions/download-artifact@v4
