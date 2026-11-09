@@ -567,7 +567,7 @@
   "policyCodeBlobs": [
     {
       "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
-      "blob": "a80695bd831995144b8b47fcf39e6572e231cea3"
+      "blob": "9de3527316b08fc9af5ec74aa57555fce8fa57ca"
     },
     {
       "path": "simulation/twinleaf/2026-11/agent12-thorns-mimikyu-temple-owner.cjs",
@@ -596,5 +596,14 @@
     "mewEnergyMix": true,
     "attachEnergyTarget": true
   },
-  "freshSeedNoPriorOutcomeConditioning": true
+  "freshSeedNoPriorOutcomeConditioning": true,
+  "registrationCorrection": {
+    "reason": "First manual GitHub Actions attempt #42605514253 failed during syntax import before any native Store game; correct a stale actor-only policy Git blob pinned in copied preregistered context.",
+    "priorBlob": "a80695bd831995144b8b47fcf39e6572e231cea3",
+    "updatedBlob": "9de3527316b08fc9af5ec74aa57555fce8fa57ca",
+    "noNativeGamesExecuted": true,
+    "seedsUnobserved": true,
+    "exactDeckCopiesPreserved": true,
+    "existingSourceRanksAndRootCapPreserved": true
+  }
 }
