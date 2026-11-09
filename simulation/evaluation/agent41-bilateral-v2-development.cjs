@@ -1410,6 +1410,7 @@ function runDevelopment({
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
+  actorMewUltraBallRoot=false,actorMewUltraBallSearch=false,
   actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
@@ -1565,6 +1566,10 @@ function runDevelopment({
     'Source-only Genesect draw requires the native actor draw root');
   assert.ok(!actorGenesectFusionDrawPerCopyPublicUsage||actorGenesectFusionDrawRoot,
     'Per-physical-copy Genesect marker mode requires native draw actor');
+  assert.ok(!actorMewUltraBallSearch||actorOnlySingleSearch,
+    'Mew Ultra Ball search requires owner-only search');
+  assert.ok(!actorMewUltraBallRoot||actorOnlyComposition,
+    'Original Mew Ultra Ball root requires canonical owner root');
   assert.ok(!actorMewGenesectQuickBallSearch||actorOnlySingleSearch,
     'Mew/Genesect Quick Ball search requires owner-only search');
   assert.ok(!actorNaturalEvolutionSourceOnly||actorNaturalEvolutionRoot,
@@ -1930,6 +1935,7 @@ function runDevelopment({
           !actorArvenHoodSearchRoot&&
           !actorFundedShadowRiderFloatStoneRoot&&
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
+          !actorMewUltraBallRoot&&
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
           !actorZeroEnergyStrandFloatStoneRoot&&
@@ -1984,6 +1990,11 @@ function runDevelopment({
                   (trial.candidateSlot==='A'?0:1),
                 quickBallPayableAttackPriority:
                   sourceQuickBallPreservePayableAttack===true
+              }:{}),
+              ...(actorMewUltraBallRoot?{
+                mewUltraBallEvolutionRoot:true,
+                mewUltraBallEvolutionRootOwnerSeat:
+                  1-(trial.candidateSlot==='A'?0:1)
               }:{}),
               ...naturalEvolutionOptions,
               ...(actorNaturalEvolutionSourceOnly?{
@@ -2190,6 +2201,10 @@ function runDevelopment({
               vipAfterPass:actorVipAfterPassAdapter
             }:{})},
           {ownerSingleSearch:actorOnlySingleSearch,
+            ...(actorMewUltraBallSearch?{
+              ownerMewUltraBallSearchSeat:
+                1-(trial.candidateSlot==='A'?0:1)
+            }:{}),
             ...(actorMewGenesectQuickBallSearch?{
               ownerMewGenesectQuickBallSearchSeat:
                 1-(trial.candidateSlot==='A'?0:1)
@@ -2600,6 +2615,8 @@ function runDevelopment({
     sameRootChangedRoots:rows.reduce((n,row)=>n+
       (row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root
         ?.sameRootProposalChoice?.changedRoots??0),0),
+    actorMewUltraBallRootOptIn:actorOnlyComposition&&actorMewUltraBallRoot,
+    actorMewUltraBallSearchOptIn:actorOnlyComposition&&actorMewUltraBallSearch,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
