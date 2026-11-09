@@ -155,8 +155,37 @@ function probe(seat) {
   assert.deepEqual(prompts, ['Choose cards', 'Shuffle deck', 'WaitPrompt']);
   assert.ok(source().bench.some(slot => slot.cards.some(c => c.id === target.id)));
   assert.ok(source().discard.cards.some(c => c.id === nest.id));
-  assert.equal(physicalCount(source()), 60);
-  assert.equal(physicalCount(candidate()), 60);
+  // Audit every physical zone after native Jet promotion. The pinned Store
+  // may retain a card in a temporary list even after moving its attachment.
+  // Preserve the exact duplicate IDs instead of hiding an extra physical card.
+  const entries = player => {
+    const rows = [];
+    const add = (zone, cards) => cards.forEach(c =>
+      rows.push({ zone, id: c.id, printing: c.fullName }));
+    const pokemon = (zone, slot) => {
+      add(zone + '.pokemon', slot.cards);
+      add(zone + '.tools', slot.tools);
+      add(zone + '.energies', slot.energies.cards);
+    };
+    pokemon('active', player.active);
+    player.bench.forEach((slot, i) => pokemon('bench' + i, slot));
+    for (const zone of ['hand', 'deck', 'discard', 'lostzone', 'stadium', 'supporter'])
+      add(zone, player[zone].cards);
+    player.prizes.forEach((slot, i) => add('prize' + i, slot.cards));
+    return rows;
+  };
+  const sourceEntries = entries(source());
+  const duplicateIds = sourceEntries.filter((row, index) =>
+    sourceEntries.findIndex(x => x.id === row.id) < index);
+  console.log('AGENT40_FABA_JET_PHYSICAL_DIAGNOSTIC', JSON.stringify({
+    seat, counts: [sourceEntries.length, entries(candidate()).length],
+    duplicateIds,
+    jetLocations: sourceEntries.filter(x => x.id === jet.id),
+    fabaLocations: sourceEntries.filter(x => x.id === faba.id),
+    nestLocations: sourceEntries.filter(x => x.id === nest.id)
+  }));
+  assert.equal(sourceEntries.length, 60, 'Every source card occupies one physical zone');
+  assert.equal(entries(candidate()).length, 60);
 
   return {
     version: VERSION, pin: PIN, seat, originalSourceRank: 7,
