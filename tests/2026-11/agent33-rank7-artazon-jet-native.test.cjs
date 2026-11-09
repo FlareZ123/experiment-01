@@ -360,3 +360,89 @@ for (const seat of [0, 1]) {
     assertExactSixties(x);
   });
 }
+
+
+/**
+ * Original rank7's Robo Substitute is a held Item capable of creating a
+ * 30-HP prize-less Bench body. Staged hand changes conserve exact source 60.
+ * @param {0|1} seat
+ * @param {boolean} hood
+ */
+function preparedRobo(seat, hood) {
+  const x = prepared(seat, hood);
+  const source = x.originalPlayer;
+  const nest = source.hand.cards.findIndex(c =>
+    c.fullName === 'Nest Ball SVI');
+  assert.ok(nest >= 0);
+  source.deck.cards.push(source.hand.cards.splice(nest, 1)[0]);
+  const robo = source.deck.cards.findIndex(c =>
+    c.fullName === 'Robo Substitute PHF');
+  assert.ok(robo >= 0, 'Original rank7 requires Robo Substitute PHF');
+  const physicalCard = source.deck.cards.splice(robo, 1)[0];
+  source.hand.cards.push(physicalCard);
+  assertExactSixties(x);
+  return {...x, robo:physicalCard};
+}
+
+for (const seat of [0, 1]) {
+  for (const hood of [false, true]) {
+    test('original rank7 native Robo Substitute Item becomes payable after Artazon Jet Wobb seat ' +
+      seat + ' Hood ' + hood, () => {
+      const x = preparedRobo(seat, hood);
+      x.store.dispatch(new (native('game/store/actions/game-actions')
+        .UseStadiumAction)(x.originalPlayer.id));
+      searchExactBasic(x,WOBB);
+      assertExactSixties(x);
+      const view = actorObservation(x.store.state,seat);
+      const direct = choosePublicJetBenchSwitch(view, metadata());
+      const selected = chooseActorRootIntent(view, metadata(), {
+        jetBenchSwitchRoot:true
+      });
+      if (hood) {
+        assert.equal(direct, null,
+          'Hood leaves the AOR lock protected against this Item payoff');
+        assert.notEqual(selected.reason,
+          'jet-promote-wobbuffet-enable-robo-substitute');
+        return;
+      }
+      assert.equal(direct?.reason,
+        'jet-promote-wobbuffet-enable-robo-substitute');
+      assert.equal(selected?.reason, direct.reason);
+      assert.equal(selected.plannedItem,'Robo Substitute PHF');
+      const {PlayCardAction,PlayerType,SlotType} =
+        native('game/store/actions/play-card-action');
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+        selected.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+          index:selected.index
+        }));
+      settleRoutine(x);
+      assert.equal(x.originalPlayer.active.getPokemonCard()?.fullName, WOBB);
+      const {IS_ABILITY_BLOCKED} = native('game/store/prefabs/prefabs');
+      const lock=x.evolved.getPokemonCard();
+      const power=lock.powers.find(p=>p.name==='Irritating Pollen');
+      assert.equal(Boolean(IS_ABILITY_BLOCKED(
+        x.store,x.store.state,x.candidatePlayer,lock,power)),true);
+      assertExactSixties(x);
+      const index=x.originalPlayer.hand.cards.findIndex(c=>
+        c.id===x.robo.id);
+      assert.ok(index>=0);
+      const slot=x.originalPlayer.bench.findIndex(b=>b.cards.length===0);
+      assert.ok(slot>=0,'Robo requires an available Bench slot');
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,index,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:slot
+      }));
+      const follow=settleRoutine(x);
+      assert.ok(x.originalPlayer.bench.some(b=>b.cards.some(c=>
+        c.id===x.robo.id)), 'Printed Robo Substitute must occupy the Bench');
+      assert.ok(!x.originalPlayer.hand.cards.some(c=>
+        c.id===x.robo.id));
+      assert.equal(x.store.hasPrompts(),false);
+      assertExactSixties(x);
+      console.log('AGENT33_RANK7_ARTAZON_JET_ROBO', JSON.stringify({
+        seat,hood,selected,follow,sourceDistinctCards:60,
+        opponentDistinctCards:60,roboBenched:true,qualifiedGames:0
+      }));
+    });
+  }
+}
