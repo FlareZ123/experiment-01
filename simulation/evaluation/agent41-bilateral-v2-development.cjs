@@ -1461,7 +1461,7 @@ function runDevelopment({
   actorOwnerMailAfterPassSourceOnly=false,
   actorBilateralLillieAfterPass=false,
   actorDeckoutRescueRoot=false,actorDeckoutRescueBeforeAttack=false,
-  actorEarlyForestSealRoot=false,
+  actorEarlyForestSealRoot=false,actorPaleMoonGXRoot=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
@@ -1936,7 +1936,7 @@ function runDevelopment({
           !sourceScopedStrandedMarnieRoot&&
           !sourceScopedDialgaShredT53&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
-          !actorEarlyForestSealRoot&&
+          !actorEarlyForestSealRoot&&!actorPaleMoonGXRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorTempleDdeDenialRoot&&
@@ -1978,6 +1978,10 @@ function runDevelopment({
                 earlyForestSealRoot:true,
                 earlyForestSealRootOwnerSeat:
                   trial.candidateSlot==='A'?0:1
+              }:{}),
+              ...(actorPaleMoonGXRoot?{
+                paleMoonGXRoot:true,
+                paleMoonGXRootOwnerSeat:trial.candidateSlot==='A'?0:1
               }:{}),
               ...(bilateralPerfectionBenchFunding?{
                 perfectionBenchFunding:true
@@ -2681,6 +2685,7 @@ function runDevelopment({
       actorDeckoutRescueBeforeAttack,
     actorEarlyForestSealRootOptIn:actorOnlyComposition&&
       actorEarlyForestSealRoot,
+    actorPaleMoonGXRootOptIn:actorOnlyComposition&&actorPaleMoonGXRoot,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
