@@ -1495,7 +1495,8 @@ function runDevelopment({
   registeredTrials=null,registeredFrameName=null,
   registeredCandidateDecks=null,
   allowSingleCandidateArm=false,allowSingleCandidatePerGroup=false,
-  allowAdditionalOriginalSourceRanks=false
+  allowAdditionalOriginalSourceRanks=false,
+  allowExtendedRegisteredNativeRootCap=false
 }={}){
   assertManifest();
   const naturalEvolutionOptions=actorGarbodorResponseRootOptions(
@@ -1547,11 +1548,15 @@ function runDevelopment({
   assert.ok(registeredCandidateDecks===null||
     (registeredTrials!==null&&(allowSingleCandidateArm||allowSingleCandidatePerGroup)),
     'Custom candidate decks require an explicit single-candidate registration');
+  assert.ok(!allowExtendedRegisteredNativeRootCap||
+    Array.isArray(registeredTrials),
+    'Extended native root limit requires explicit registered trials');
   assert.ok(nativeRootActionLimit===null||
     (Number.isSafeInteger(nativeRootActionLimit)&&
       nativeRootActionLimit>=16&&
-      nativeRootActionLimit<=registration.maxRootActions),
-    'Read-only first-turn panel cap must be a bounded native integer');
+      (nativeRootActionLimit<=registration.maxRootActions||
+        (allowExtendedRegisteredNativeRootCap&&nativeRootActionLimit<=640))),
+    'Read-only registered panel cap must be a bounded native integer');
   assert.ok(!nativeQuickBallOwnerTransactionAudit||nativeAcceptedTargets,
     'Quick Ball transaction proof requires the native accepted-target sidecar');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
