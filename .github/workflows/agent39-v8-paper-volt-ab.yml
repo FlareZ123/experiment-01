@@ -11,9 +11,11 @@ on:
         options:
           - volt-regression
           - temple-nine-dde
+          - temple-artifact-reduce
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: agent39-paper-volt-original-v8
@@ -27,19 +29,24 @@ jobs:
       - name: Check out research repository
         uses: actions/checkout@v4
       - name: Check out pinned upstream Twinleaf
+        if: ${{ inputs.study != 'temple-artifact-reduce' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Use pinned Node 20
+        if: ${{ inputs.study != 'temple-artifact-reduce' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Verify scoped paper portfolio contracts
+        if: ${{ inputs.study != 'temple-artifact-reduce' }}
         run: node --test tests/agent39-paper-prompt-portfolio.test.cjs
       - name: Install pinned upstream server dependencies
+        if: ${{ inputs.study != 'temple-artifact-reduce' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned Twinleaf Store
+        if: ${{ inputs.study != 'temple-artifact-reduce' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify four native Flash routes and two Temple suppressions
@@ -65,5 +72,24 @@ jobs:
           path: |
             agent39-temple-nine-dde-native.json
             agent39-temple-nine-dde-summary.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Recover immutable run 42576274998 archived full native evidence
+        if: ${{ inputs.study == 'temple-artifact-reduce' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent39-temple-nine-dde-frozen-native
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 42576274998
+      - name: Audit actual Temple plays and original source Apex Dragon attacks
+        if: ${{ inputs.study == 'temple-artifact-reduce' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-nine-dde-artifact-reduce.cjs
+      - name: Preserve read-only root-level Temple and source attack receipts
+        if: ${{ always() && inputs.study == 'temple-artifact-reduce' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-temple-nine-dde-readonly-root-audit
+          path: agent39-temple-nine-dde-action-audit.json
           if-no-files-found: warn
           retention-days: 14
