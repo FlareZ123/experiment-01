@@ -150,8 +150,16 @@ function run(deps={}){
     treatmentErrors:total(p=>p.treatment.status==='engine-error'),
     nativeCarmineCommitted:b.audit?.nativeCommitted??0,
     nativeCarmineFullEffects:b.audit?.nativeEffectsComplete??0,
-    sourceCarmineFirstDivergences:total(p=>
-      p.firstRootDivergence!==null&&p.sourceNativeCarmineObserved),
+    sourceCarmineFirstDivergences:total(p=>{
+      const d=p.firstRootDivergence;
+      return Number.isSafeInteger(d?.ordinal)&&
+        d.baseline?.action==='PassTurnAction'&&
+        d.treatment?.action==='PlayCardAction'&&
+        ['Carmine','Carmine TWM'].includes(d.treatment?.card)&&
+        d.baseline?.playerSlot===p.sourceSeat&&
+        d.treatment.playerSlot===p.sourceSeat&&
+        p.nativeCarmineAcceptance.some(x=>x.nativeCarmineEffectFullySettled);
+    }),
     sourceOpponentMeaningfulFollowupPairs:total(p=>
       p.laterOpponentMeaningfulRootCount>0),
     sourceNextOwnTurnFollowupPairs:total(p=>
