@@ -16,6 +16,8 @@
 
 - [New Moon Lockbreaker Japanese print audit](legality/agent39-newmoon-lockbreaker-print-audit-20261107.md): 34 exact physical print identities, 32 retained from an Aichi source deck and two pre-event additions; zero exact restricted-print collisions. Full paper legality remains provisional, and the Cologne once-per-turn hook is absent from current v10/v10b runners.
 
+**9 November independent game-admission milestone:** The [Agent45 signed-review contract and first original-rank5 review intake](methodology/2026-11/agent45-signed-admission-and-rank5-first-intake-20261109.md) add a code-reviewed route from one fully evidenced, independently reviewed complete game to a positive competitive-admission decision. [Manual contract-only CI 42592546138](https://github.com/FlareZ123/experiment-01/actions/runs/42592546138) passed against the actual shared gate. The archived rank5 Mew Genesect source-funded native win (156 roots, four Cross Fusion Strike attacks) is explicitly **blocked**: paper payment, physical custody, official clock, opponent-response competence and external authorized signed reviews are missing. Production reviewer keys remain empty; **zero games qualified and no deck selected**.
+
 ## Benchmark admission
 
 **29/32** original Top 32 opponents have authenticated 60-card name/count inventories. Ranks **23, 25 and 28** remain missing. The 29 inventories do not establish all historical Japanese printings: 120 Basic Energy artwork annotations across 22 ranks appear to use post-event printings and need provenance normalization. Forty original printing rows still lack exact native IDs, including 35 Basic Energy rows, four Player's Ceremony rows and one Electrike PRC 60 row. Engine construction readiness is not paper legality.
