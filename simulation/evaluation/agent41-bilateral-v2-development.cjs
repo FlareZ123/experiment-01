@@ -1412,11 +1412,13 @@ function runDevelopment({
   actorHandDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
   actorOriginal29PrintedFidelity=false,
-  actorNaturalEvolutionRoot=false,actorGarbodorResponseOwnerSeat=null,
+  actorNaturalEvolutionRoot=false,actorNaturalEvolutionSourceOnly=false,
+  actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
+  actorGenesectFusionDrawSourceOnly=false,
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
@@ -1545,6 +1547,10 @@ function runDevelopment({
     'Source-only potential KO requires the policy enabled');
   assert.ok(!actorOwnerMailAfterPassSourceOnly||actorOwnerMailAfterPass,
     'Source-only Trainers Mail requires its native owner Mail wrapper');
+  assert.ok(!actorGenesectFusionDrawSourceOnly||actorGenesectFusionDrawRoot,
+    'Source-only Genesect draw requires the native actor draw root');
+  assert.ok(!actorNaturalEvolutionSourceOnly||actorNaturalEvolutionRoot,
+    'Source-only evolution requires the native actor evolution root');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
@@ -1923,6 +1929,10 @@ function runDevelopment({
                   (trial.candidateSlot==='A'?0:1)
               }:{}),
               ...naturalEvolutionOptions,
+              ...(actorNaturalEvolutionSourceOnly?{
+                naturalEvolutionRootOwnerSeat:
+                  1-(trial.candidateSlot==='A'?0:1)
+              }:{}),
               ...(actorDceMewMobilityRoot?{
                 dceMewMobilityRoot:true
               }:{}),
@@ -1932,7 +1942,11 @@ function runDevelopment({
                   1-(trial.candidateSlot==='A'?0:1)
               }:{}),
               ...(actorGenesectFusionDrawRoot?{
-                genesectFusionDraw:true
+                genesectFusionDraw:true,
+                ...(actorGenesectFusionDrawSourceOnly?{
+                  genesectFusionDrawOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(actorUnderworldDoorRoot?{
                 underworldDoorRoot:true
