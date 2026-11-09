@@ -62,12 +62,33 @@ function run(){
   assert.throws(()=>
     assertPhysicalPrizePromptSelection(state,twoPrizes,[ours[0],ours[0]]),
   /Prize selection must satisfy the native prompt contract/);
+
+  const blockedOwn=new ChoosePrizePrompt(101,GameMessage.CHOOSE_PRIZE_CARD,
+    {count:1,blocked:[0]});
+  assert.equal(blockedOwn.validate([ours[0]],state),true,
+    'pinned validator skips blocked own Prize positions');
+  assert.throws(()=>
+    assertPhysicalPrizePromptSelection(state,blockedOwn,[ours[0]]),
+  /owner Prize choice must exclude blocked physical Prize slots/);
+  assert.strictEqual(
+    assertPhysicalPrizePromptSelection(state,blockedOwn,[ours[1]]),
+    state.players[0]);
+
+  const blockedOpponent=new ChoosePrizePrompt(
+    101,GameMessage.CHOOSE_PRIZE_CARD,{
+      count:1,useOpponentPrizes:true,blocked:[0]
+    });
+  assert.equal(blockedOpponent.validate([theirs[0]],state),true,
+    'pinned validator skips blocked opponent Prize positions');
+  assert.throws(()=>
+    assertPhysicalPrizePromptSelection(state,blockedOpponent,[theirs[0]]),
+  /owner Prize choice must exclude blocked physical Prize slots/);
   return {
-    schema:'agent37-native-prize-physical-selection-membership-v2',
+    schema:'agent37-native-prize-physical-selection-membership-and-blocked-v3',
     pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     validOwnChoice:true,validOpponentPrizesChoice:true,
-    perspectiveOwnerRedirection:true,foreignPhysicalPrizeChoicesRejected:4,nativeDuplicatePhysicalPrizeChoicesRejected:1,
-    nativeValidatorFalsePositivesReproduced:3
+    perspectiveOwnerRedirection:true,foreignPhysicalPrizeChoicesRejected:4,nativeDuplicatePhysicalPrizeChoicesRejected:1,blockedPrizeChoicesRejected:2,
+    nativeValidatorFalsePositivesReproduced:5
   };
 }
 
