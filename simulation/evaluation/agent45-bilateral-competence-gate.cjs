@@ -3,7 +3,9 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent45-bilateral-competence-gate-v2';
+const {inspectOfficialAichiClock,verifiedOfficialAichiClock} =
+  require('./agent45-aichi-clock-receipt.cjs');
+const VERSION = 'agent45-bilateral-competence-gate-v3';
 const MATERIAL = new Set([
   'AttackAction', 'PlayCardAction', 'RetreatAction', 'UseAbilityAction',
   'UseTrainerAbilityAction', 'UseEnergyAbilityAction', 'UseStadiumAction'
@@ -13,33 +15,6 @@ const PAYOFFS = new Set([
   'position-change', 'resource-transfer', 'status-transition',
   'established-lock', 'opponent-resource-denial', 'information-transition'
 ]);
-
-/**
- * Aichi Open League Swiss and knockout rounds use different adjudication
- * procedures. The final also has a 35-minute limit rather than 25 minutes.
- * This verifies the shape of an independently reviewed external receipt.
- * It cannot itself establish that a real paper game was clocked correctly.
- *
- * @param {object} trial The independent paper-game audit packet
- * @returns {boolean} Whether the stage-specific clock receipt is coherent
- */
-function verifiedOfficialAichiClock(trial) {
-  const clock = trial?.officialMatchClock;
-  const profiles = {
-    swiss: {minutes:25,procedure:'swiss-conditional-second-player-turn-both-loss'},
-    top32: {minutes:25,procedure:'knockout-end-second-player-turn-prize-tiebreak'},
-    final: {minutes:35,procedure:'knockout-end-second-player-turn-prize-tiebreak'}
-  };
-  if (!clock || !Object.hasOwn(profiles,clock.stage)) return false;
-  const profile=profiles[clock.stage];
-  const nonempty=value=>typeof value==='string' && value.trim().length>0;
-  return clock.limitMinutes===profile.minutes &&
-    clock.endOfTimeProcedure===profile.procedure &&
-    clock.independentAudit===true &&
-    nonempty(clock.officialRulesSourceRef) &&
-    nonempty(clock.timekeepingReceiptRef) &&
-    nonempty(clock.independentReviewer);
-}
 
 /**
  * Hash the exact native public accepted-root array without reordering it.
@@ -205,23 +180,43 @@ function evaluateBilateralCompetence(trial) {
   const failures = [];
   if (!provenanceComplete) failures.push('provenance-incomplete');
   if (!samePolicy) failures.push('policy-asymmetry-or-unverified');
-  if (!nativeTerminal) failures.push('no-natural-native-terminal');
+  // The official scorer may settle an otherwise unfinished paper game.
+  if (!gameOutcomeResolved)
+    failures.push('no-natural-native-or-adjudicated-paper-outcome');
   if (!episode) failures.push('no-certified-source-reply-source-episode');
   if (trial.independentFullPaperRulesAudit !== true)
     failures.push('independent-paper-audit-pending');
   if (trial.hiddenInformationAudit !== true)
     failures.push('hidden-information-audit-pending');
-  const officialClockAudit = verifiedOfficialAichiClock(trial);
-  if (!officialClockAudit)
+  const clock = inspectOfficialAichiClock(trial);
+  // Actual Store terminals and independently attested official time
+  // adjudications are separate game-end paths. A native root cap or engine
+  // error can never be relabeled as a tournament end-of-time decision.
+  const clockCompatible = clock.shapeComplete &&
+    trial.engineError!==true && trial.rootCapReached!==true &&
+    (clock.disposition==='no-official-call' ?
+      nativeTerminal && clock.winnerSeat===trial.nativeWinner :
+      clock.disposition==='official-call' &&
+      (nativeTerminal ?
+        trial.timeCallPacket?.paperGameWinner===trial.nativeWinner :
+        trial.nativeFinished!==true));
+  const officialClockAudit=clockCompatible;
+  const gameOutcomeResolved=nativeTerminal||
+    (officialClockAudit&&clock.disposition==='official-call');
+  if(!officialClockAudit)
     failures.push('official-match-clock-audit-pending');
   const structuralGatePassed = failures.length === 0;
   return {
     schema:VERSION,trialId:trial.trialId??null,
     rootActionLedgerSha256:digest,acceptedNativeRoots:roots.length,
     certifiedMaterialRoots:eligible.length,
-    provenanceComplete,samePolicy,nativeTerminal,
-    officialClockAudit,officialClockStage:trial.officialMatchClock?.stage??null,
-    officialClockLimitMinutes:trial.officialMatchClock?.limitMinutes??null,
+    provenanceComplete,samePolicy,nativeTerminal,gameOutcomeResolved,
+    officialClockAudit,officialClockStage:clock.stage,
+    officialClockLimitMinutes:clock.limitMinutes,
+    officialClockDisposition:clock.disposition,
+    officialClockStatus:clock.status,
+    conditionallyAdjudicatedPaperWinnerSeat:clock.winnerSeat,
+    conditionalPaperOutcome:clock.outcome,
     reciprocalEpisodeObserved:episode !== null,episode,
     structuralGatePassed,competitiveAdmission:false,
     externalIndependentReviewRequired:true,failures,
