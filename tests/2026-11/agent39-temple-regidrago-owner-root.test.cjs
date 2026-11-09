@@ -47,7 +47,7 @@ test('shared root can expose the opt-in native Stadium intent', () => {
     templeStadiumPublicRegidrago: true
   }).kind, 'play-temple-of-sinnoh');
   assert.equal(chooseActorRootIntent(view, catalog, {}).kind,
-    'no-action');
+    'pass');
 });
 test('refuse already occupied Stadium and consumed Stadium play', () => {
   assert.equal(choosePublicTempleAgainstRegidrago(observation({
