@@ -17,6 +17,7 @@ function source(tool='Stealthy Hood UNB') {
 }
 function view() {
   return {decisionKind:'owner-root',actorSeat:0,globalTurn:5,
+    ownTurnResources:{toolPlayLocked:false},
     ownHand:['Psychic Energy SVE'],
     ownPublic:{
       active:{printing:'Shadow Rider Calyrex V CRE',tools:[]},
