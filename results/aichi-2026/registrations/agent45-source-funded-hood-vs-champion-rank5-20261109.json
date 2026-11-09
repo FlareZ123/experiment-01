@@ -1,0 +1,286 @@
+{
+  "schema": "agent45-rank5-source-funded-hood-champion-prospective-v1",
+  "registeredAtUtc": "2026-11-09T09:32:30Z",
+  "status": "FROZEN-BEFORE-ANY-NATIVE-TRIAL",
+  "researchQuestion": "Does genuine original rank5 Mew Genesect owner-funded DCE change fixed Hood Shield versus champion native game outcomes on the same physical original deals?",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 5,
+  "sourceArchetype": "Mew Genesect",
+  "candidates": [
+    "champion-reference",
+    "hood-shield-v1"
+  ],
+  "rootCap": 260,
+  "physicalGroupCount": 6,
+  "expectedNativeAttempts": 24,
+  "sourcePolicyBasis": "agent8-source-mew-dce-recipient-prospective-v6",
+  "sourceFundingFactor": [
+    "S0",
+    "S1"
+  ],
+  "sourceOwnerOnlyDifference": "S1 conservatively attaches already played Double Colorless Energy to unfunded source Mew V/VMAX, preserving all printed sixties and candidate policy",
+  "sameJointPaperSemanticsProfile": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "isolatePolicyRandomness": true,
+  "isolatePhysicalShuffleRandomnessAfterSetup": true,
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 4500,
+      "candidateSlot": "A",
+      "seed": 2124883768
+    },
+    {
+      "rank": 5,
+      "repeat": 4500,
+      "candidateSlot": "B",
+      "seed": 446588187
+    },
+    {
+      "rank": 5,
+      "repeat": 4501,
+      "candidateSlot": "A",
+      "seed": 1803668479
+    },
+    {
+      "rank": 5,
+      "repeat": 4501,
+      "candidateSlot": "B",
+      "seed": 538187815
+    },
+    {
+      "rank": 5,
+      "repeat": 4502,
+      "candidateSlot": "A",
+      "seed": 1390498686
+    },
+    {
+      "rank": 5,
+      "repeat": 4502,
+      "candidateSlot": "B",
+      "seed": 4105059441
+    }
+  ],
+  "batches": [
+    {
+      "candidateId": "champion-reference",
+      "sourceFunded": false,
+      "registeredTrials": [
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "A",
+          "seed": 2124883768,
+          "candidateId": "champion-reference",
+          "id": "5:4500:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "B",
+          "seed": 446588187,
+          "candidateId": "champion-reference",
+          "id": "5:4500:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "A",
+          "seed": 1803668479,
+          "candidateId": "champion-reference",
+          "id": "5:4501:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "B",
+          "seed": 538187815,
+          "candidateId": "champion-reference",
+          "id": "5:4501:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "A",
+          "seed": 1390498686,
+          "candidateId": "champion-reference",
+          "id": "5:4502:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "B",
+          "seed": 4105059441,
+          "candidateId": "champion-reference",
+          "id": "5:4502:B:champion-reference"
+        }
+      ]
+    },
+    {
+      "candidateId": "champion-reference",
+      "sourceFunded": true,
+      "registeredTrials": [
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "A",
+          "seed": 2124883768,
+          "candidateId": "champion-reference",
+          "id": "5:4500:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "B",
+          "seed": 446588187,
+          "candidateId": "champion-reference",
+          "id": "5:4500:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "A",
+          "seed": 1803668479,
+          "candidateId": "champion-reference",
+          "id": "5:4501:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "B",
+          "seed": 538187815,
+          "candidateId": "champion-reference",
+          "id": "5:4501:B:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "A",
+          "seed": 1390498686,
+          "candidateId": "champion-reference",
+          "id": "5:4502:A:champion-reference"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "B",
+          "seed": 4105059441,
+          "candidateId": "champion-reference",
+          "id": "5:4502:B:champion-reference"
+        }
+      ]
+    },
+    {
+      "candidateId": "hood-shield-v1",
+      "sourceFunded": false,
+      "registeredTrials": [
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "A",
+          "seed": 2124883768,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4500:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "B",
+          "seed": 446588187,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4500:B:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "A",
+          "seed": 1803668479,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4501:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "B",
+          "seed": 538187815,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4501:B:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "A",
+          "seed": 1390498686,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4502:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "B",
+          "seed": 4105059441,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4502:B:hood-shield-v1"
+        }
+      ]
+    },
+    {
+      "candidateId": "hood-shield-v1",
+      "sourceFunded": true,
+      "registeredTrials": [
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "A",
+          "seed": 2124883768,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4500:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4500,
+          "candidateSlot": "B",
+          "seed": 446588187,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4500:B:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "A",
+          "seed": 1803668479,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4501:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4501,
+          "candidateSlot": "B",
+          "seed": 538187815,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4501:B:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "A",
+          "seed": 1390498686,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4502:A:hood-shield-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 4502,
+          "candidateSlot": "B",
+          "seed": 4105059441,
+          "candidateId": "hood-shield-v1",
+          "id": "5:4502:B:hood-shield-v1"
+        }
+      ]
+    }
+  ],
+  "statisticalInterpretation": "All 24 registered real native attempts retained; complete cases and source-fingerprint matched pairs distinct from caps, errors and mismatches. Not competitively paper qualified. No deck selection from small sample."
+}
