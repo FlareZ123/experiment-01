@@ -2,12 +2,21 @@ name: Agent3 fresh all29 source natural evolution and Mew competence A/B
 
 on:
   workflow_dispatch:
+    inputs:
+      experiment:
+        description: Choose the frozen prospective study
+        type: choice
+        options:
+          - source-mew
+          - hood-v2
+        default: source-mew
 
 permissions:
   contents: read
 
 jobs:
   frozen-source-opponent-competence:
+    if: inputs.experiment != 'hood-v2'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -41,5 +50,43 @@ jobs:
         with:
           name: agent3-source-evolution-mew-full29
           path: artifacts/agent3-source-evolution-mew-full29.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  targeted-fixed-sixty-hood-consistency:
+    if: inputs.experiment == 'hood-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out research code
+        uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Use pinned Node and npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Pure frozen 60 and sharp-bound regression
+        run: |
+          node --check simulation/evaluation/agent3/hood-consistency-v2-targeted-native.cjs
+          node --test tests/2026-11/agent3-hood-consistency-v2-targeted.test.cjs
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf source
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 88 frozen original-source matches, both unchanged 60s
+        env:
+          AGENT3_HOOD_CONSISTENCY_OUTPUT: artifacts/agent3-hood-consistency-v2-targeted.json
+        run: node simulation/evaluation/agent3/hood-consistency-v2-targeted-native.cjs
+      - name: Archive all action ledgers, caps, errors and source-deal mismatches
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-hood-consistency-v2-targeted
+          path: artifacts/agent3-hood-consistency-v2-targeted.json
           retention-days: 14
           if-no-files-found: warn
