@@ -29,6 +29,9 @@ function seatsForTrial(trial) {
 /** Run an unchanged frozen source game under one named owner-policy arm. */
 function arm(phase,enabled,reg,options={}){
   const capture=gameCapture();
+  const fullPaperObserver=options.captureFullNativePaperReceipts===true?
+    require('../../twinleaf/agent36-live-paper-root-receipts.cjs')
+      .createLivePaperRootReceipts(reg.registeredTrials[0].id):null;
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   const result=runDevelopment({
     ...frozen.policyOptions,...sourceFunding.options(true),
@@ -70,10 +73,16 @@ function arm(phase,enabled,reg,options={}){
     registeredFrameName:reg.caseId+':'+phase,
     nativeRootActionLimit:reg.rootCap,
     captureNativeAttackPhysicalTape:options.captureNativeAttackPhysicalTape===true,
-    onRootActionDispatched:capture.onRootActionDispatched
+    onRootStoreCreated:fullPaperObserver?.onRootStoreCreated??null,
+    onRootActionDispatched:(...args)=>{
+      capture.onRootActionDispatched(...args);
+      fullPaperObserver?.onRootActionDispatched(...args);
+    }
   });
   assert.equal(result.rows.length,1);
   const row=result.rows[0];
+  const fullNativePaperRootReceipts=fullPaperObserver?.result()??null;
+  fullPaperObserver?.close();
   const tape=capture.evidence();
   const roots=row.rootActionLedger??row.nativeAbortEvidence?.rootActionLedger??[];
   const seats=seatsForTrial(reg.registeredTrials[0]);
@@ -120,6 +129,7 @@ function arm(phase,enabled,reg,options={}){
     sourcePerfectionPrizeReceipts,candidatePerfectionPrizeReceipts,
     nativeAttackModalityLedger:row.nativeAttackModalityLedger??null,
     nativeAttackPhysicalTape:row.nativeAttackPhysicalTape??null,
+    fullNativePaperRootReceipts,
     postActions,rootLedgerSha256:sha256(roots),
     roots,physicalTape:tape};
 }
