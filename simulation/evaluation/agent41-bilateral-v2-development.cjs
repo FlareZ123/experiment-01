@@ -1504,7 +1504,8 @@ function runDevelopment({
   actorOwnerMailSelectedMarnieOnPass=false,
   actorBilateralLillieAfterPass=false,
   actorDeckoutRescueRoot=false,actorDeckoutRescueBeforeAttack=false,
-  actorEarlyForestSealRoot=false,actorPaleMoonGXRoot=false,
+  actorEarlyForestSealRoot=false,bilateralEarlyForestSealRoot=false,
+  actorPaleMoonGXRoot=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
@@ -2032,7 +2033,8 @@ function runDevelopment({
           !sourceScopedStrandedMarnieRoot&&
           !sourceScopedDialgaShredT53&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
-          !actorEarlyForestSealRoot&&!actorPaleMoonGXRoot&&
+          !actorEarlyForestSealRoot&&!bilateralEarlyForestSealRoot&&
+          !actorPaleMoonGXRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorMimikyuApexFundedPromotion&&
@@ -2075,10 +2077,11 @@ function runDevelopment({
                 energyRecipientFrontier:true,
                 mobilityAwareRecipient:true
               }:{}),
-              ...(actorEarlyForestSealRoot?{
+              ...(actorEarlyForestSealRoot||bilateralEarlyForestSealRoot?{
                 earlyForestSealRoot:true,
                 earlyForestSealRootOwnerSeat:
-                  trial.candidateSlot==='A'?0:1
+                  bilateralEarlyForestSealRoot?null:
+                    (trial.candidateSlot==='A'?0:1)
               }:{}),
               ...(actorPaleMoonGXRoot?{
                 paleMoonGXRoot:true,
@@ -2878,6 +2881,8 @@ function runDevelopment({
       actorDeckoutRescueBeforeAttack,
     actorEarlyForestSealRootOptIn:actorOnlyComposition&&
       actorEarlyForestSealRoot,
+    bilateralEarlyForestSealRootOptIn:actorOnlyComposition&&
+      bilateralEarlyForestSealRoot,
     actorPaleMoonGXRootOptIn:actorOnlyComposition&&actorPaleMoonGXRoot,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
