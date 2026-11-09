@@ -1,0 +1,42 @@
+{
+  "schema": "agent38-mail-nest-prize-aware-four-arm-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "createdAtUtc": "2026-11-09T00:33:51.766Z",
+  "sourceRegistration": "results/aichi-2026/registrations/agent38-v8-owner-mail-after-pass-four-arm-20261108.json",
+  "originalTrials": [
+    "3:312:B:champion-reference",
+    "3:312:A:champion-reference",
+    "3:213:A:champion-reference",
+    "3:213:B:champion-reference"
+  ],
+  "sourceOriginalRank": 3,
+  "candidateOriginalRank": 1,
+  "seeds": [
+    2404595552,
+    948758444
+  ],
+  "nativeRootCap": 260,
+  "bothSourceSeats": true,
+  "fixedOriginalSixties": true,
+  "control": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailNestBall": true,
+    "captureRootTape": true,
+    "preferSinglePrizeNestBasic": false
+  },
+  "treatment": {
+    "ownerAbilityConfirm": true,
+    "ownerMailAfterPass": true,
+    "followMailNestBall": true,
+    "captureRootTape": true,
+    "preferSinglePrizeNestBasic": true
+  },
+  "treatmentDifference": "only the native owner Nest Ball deck-search Basic choice: prefer the first eligible Basic whose printing does not indicate a two-or-more-Prize GX/EX/V/ex family; fallback to native first eligible if none",
+  "hypothesis": "When Articuno-GX CES is offered by Nest Ball, a lower-Prize Basic may conserve a hand-entry Legendary Ascent option and reduce Bench Prize liability; deck/hand, Bench and opponent response must be inspected before claiming strategic advantage.",
+  "primaryNativeGate": "at least one genuinely changed selected Basic from same original owner-deck prompt and physically Benched with the genuine Store, no prompt rejection",
+  "reportAll": "all four native statuses, first root divergence, original actual source seat, printed Basic Bench movement, downstream opponent response, final Prizes, native root caps or errors",
+  "noBenchmarkClaims": true,
+  "competitiveQualifiedGames": 0,
+  "estimatedWinRate": null
+}
