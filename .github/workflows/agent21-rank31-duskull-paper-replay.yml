@@ -1,0 +1,38 @@
+name: Agent21 Duskull PRE native paper correction and rank31 retrospective replay
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-duskull-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Twinleaf without changing vendor revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Real Store Duskull full Bench, source discard and both-seat regression
+        run: node --test tests/2026-11/agent21-duskull-come-and-get-you-native.test.cjs
+      - name: Replay posthoc exact original rank31 source deal with and without correction
+        run: node simulation/evaluation/2026-11/agent21-rank31-duskull-native-replay.cjs
+      - name: Archive full original and corrected native receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-rank31-duskull-paper-override-retrospective
+          path: agent21-rank31-duskull-native-replay.json
+          retention-days: 21
+          if-no-files-found: warn
