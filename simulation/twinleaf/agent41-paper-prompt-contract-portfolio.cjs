@@ -174,7 +174,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v16-paid-discard-custody-five-trainers';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v17-quick-ball-auto-root-custody';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -380,6 +380,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Roxie CEC source-stamped one-or-two owner Pokémon payment and no-eligible-root exclusions',
        'Ultra Ball MEG source-stamped exactly-two physical discard and insufficient-root exclusions',
       'Five source-stamped mandatory Trainer discards independently track accepted physical owner hand-to-discard custody after native resolution',
+      'Quick Ball FST/SSH sole-other-card automatic PlayCardAction payment requires observed owner hand-to-discard physical transition',
       'Secret Box TWM source-stamped exactly-three other physical discard and insufficient-root exclusions',
       'Quick Ball FST/SSH source-stamped mandatory one OTHER owner-hand discard; optional Basic search is not cost',
       'Mysterious Treasure FLI native-stamped one OTHER owner-hand discard; later Psychic/Dragon search is not cost',
@@ -397,6 +398,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     verifiedUltraBallPhysicalPayments:0,
     unverifiedUltraBallPhysicalPayments:0,
     physicalPaidDiscardByPrinting:{},
+    quickBallAutomaticRootPayments:{attempted:0,verified:0,unverified:0,
+      firstEvent:null},
     inspectedSecretBoxPlayCardRoots:0,vetoedSecretBoxInsufficientRoots:0,
     inspectedSecretBoxPaymentPrompts:0,
     inspectedQuickBallPlayCardRoots:0,vetoedQuickBallInsufficientRoots:0,
@@ -473,6 +476,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       return dispatchBefore.value.call(this,action,...args);
     }
     const store=storeRow(this);
+    let quickBallAutoPayment=null;
     if(type==='PlayCardAction'){
       const owner=this.state.players?.find(p=>p.id===action.id);
       const played=owner?.hand?.cards?.[action.handIndex];
@@ -481,6 +485,16 @@ function withPaperPromptContractPortfolio(run,deps={}){
         if(!owner.hand.cards.some(card=>card!==played)){
           audit.vetoedQuickBallInsufficientRoots++;
           throw new Error('PAPER_ROOT_INVALID:QUICK_BALL_ONE_OTHER_CARD_REQUIRED');
+        }
+        // With exactly one other card, the pinned native Store pays this
+        // mandatory cost directly at the Item root, with no payment prompt.
+        // Inspect only the actual original owner and exact physical card.
+        if(owner.hand.cards.length===2){
+          quickBallAutoPayment={owner,
+            physicalCard:owner.hand.cards.find(card=>card!==played),
+            sourcePrinting:played.fullName,
+            trialId:deps.currentTrialId?.()??null,
+            turn:this.state.turn??null,storeOrdinal:store.storeOrdinal};
         }
       }
       if(played?.fullName==='Mysterious Treasure FLI'){
@@ -513,8 +527,24 @@ function withPaperPromptContractPortfolio(run,deps={}){
         }
       }
     }
-    if(type!=='ResolvePromptAction')
-      return dispatchBefore.value.call(this,action,...args);
+    if(type!=='ResolvePromptAction'){
+      const result=dispatchBefore.value.call(this,action,...args);
+      if(quickBallAutoPayment){
+        const receipt=audit.quickBallAutomaticRootPayments;
+        receipt.attempted++;
+        const paid=quickBallAutoPayment;
+        const verified=independentPrintedDiscardPaidCustody(
+          paid.owner,[paid.physicalCard],1);
+        if(verified)receipt.verified++;
+        else receipt.unverified++;
+        if(receipt.firstEvent===null)
+          receipt.firstEvent={sourcePrinting:paid.sourcePrinting,
+            trialId:paid.trialId,turn:paid.turn,
+            storeOrdinal:paid.storeOrdinal,
+            physicallyPaid:verified,submittedAtRoot:true};
+      }
+      return result;
+    }
     const prompt=this.state.prompts?.find(p=>p.id===action.id&&
       p.result===undefined);
     const family=prompt?.constructor?.name??'missing-pending-prompt';
