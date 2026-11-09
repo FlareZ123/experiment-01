@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent40-public-jet-bench-switch-v2-active-lock-protection';
+const VERSION='agent40-public-jet-bench-switch-v3-source-vsseeker-payoff';
 const JET='Jet Energy ';
 
 /**
@@ -74,37 +74,37 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
       reason:'jet-switch-to-public-payable-printed-damage',
       plannedAttackName:attack.name};
   }
-  // Utility switch for original rank7's Basic-Psychic Ability lock. An
-  // unprotected opposing AOR Vileplume is a public Item-lock threat, and
-  // promoting authentic Wobbuffet PHF can suppress Irritating Pollen before
-  // spending a held Nest Ball. This is a *proposal*, not a claim that the
-  // native Store accepts the Item or that the resulting turn is optimal.
-  // Keep this behind the existing default-off Jet option and only propose
-  // when the unlocked Item has a public empty Bench slot to exploit.
-  // Conservative visible-matrix veto. Active Wobbuffet's Bide Barricade
-  // can itself be shut off by an established Alolan Muk Power of Alchemy.
-  // Its official Q&A explicitly restores evolved Abilities in the
-  // Muk-evolves-after-Wobb sequence; other orderings need their own review.
-  const alchemyInPlay=[own.active,...own.bench,
-    view.opponentPublic?.active,...(view.opponentPublic?.bench??[])]
-    .some(p=>p?.printing?.startsWith('Alolan Muk ')&&
-      p.abilityDetails?.some(a=>a.name==='Power of Alchemy'));
-  const itemLocks=[view.opponentPublic?.active,
-    ...(view.opponentPublic?.bench??[])].filter(p=>
+  // Utility switch for rank7-style Basic-Psychic Ability lock. A visible,
+  // unhooded AOR Vileplume can suppress held Items until native Jet promotes
+  // an original-source Wobbuffet. Only propose with a concrete known Item
+  // payoff visible to its actual owner; the final Store executes the effect.
+  const vulnerableItemLock=[view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench??[])].some(p=>
     p?.printing==='Vileplume AOR'&&
-    p.abilityDetails?.some(a=>a.name==='Irritating Pollen'));
-  // One protected copy sustains the Item lock after Wobbuffet suppresses
-  // the other copies. Reject this utility line in that geometry.
-  const vulnerableItemLock=itemLocks.length>0&&itemLocks.every(p=>
+    p.abilityDetails?.some(a=>a.name==='Irritating Pollen')&&
     !(p.tools??[]).some(t=>t.startsWith('Stealthy Hood ')));
-  if(vulnerableItemLock&&!alchemyInPlay&&
-      view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
-      own.bench.some(p=>p===null)&&own.deckCount>0){
+  const nestPayoff=view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
+    own.bench.some(p=>p===null)&&own.deckCount>0;
+  // Source rank7's actual Faba is printed Supporter, and its discard identity
+  // is public. VS Seeker can reclaim it if the Supporter for the turn remains
+  // available; the Item cannot be played while Vileplume Item lock applies.
+  // Explicitly bounded: a different discarded Supporter is not yet assumed
+  // to be a useful or native-payable replacement for this tactical line.
+  const vsSeekerFabaPayoff=view.ownHand.some(p=>p.startsWith('VS Seeker '))&&
+    own.discard.some(p=>p.startsWith('Faba '))&&
+    quota?.supporterPlayedTurn===0&&
+    own.publicTurnRestrictions?.supporterPlayLocked!==true&&
+    quota?.supporterPlayLocked!==true;
+  if(vulnerableItemLock&&(nestPayoff||vsSeekerFabaPayoff)){
     const wobb=own.bench.findIndex(p=>p?.printing==='Wobbuffet PHF');
     if(wobb>=0)return {
       kind:'attach-special-energy',printing:jet,handIndex,
       slot:'bench',index:wobb,
-      reason:'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock'
+      reason:nestPayoff?
+        'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock':
+        'jet-promote-wobbuffet-enable-public-vs-seeker',
+      ...(nestPayoff?{}:{plannedItem:'VS Seeker PHF',
+        plannedSupporter:'Faba LOT'})
     };
   }
   return null;
