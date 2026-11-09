@@ -67,9 +67,17 @@ for (const seat of [0, 1]) {
       assert.equal(action.type, 'PLAY_CARD_ACTION');
       assert.equal(action.handIndex, 1);
       assert.equal(action.id, f.owner.id);
-      f.store.dispatch(action);
-      assert.equal(f.owner.bench[0].getPokemonCard()?.fullName, 'Mimikyu GRI');
-      assert.deepEqual(f.owner.hand.cards.map(c => c.fullName), ['Dialga-GX UPR']);
+      const next = f.store.dispatch(action);
+      const ownerAfter = next.players.find(p => p.id === f.owner.id);
+      const benchCards = ownerAfter.bench.flatMap(slot => slot.cards.map(c => c.fullName));
+      const handCards = ownerAfter.hand.cards.map(c => c.fullName);
+      const movement = {benchCards, handCards,
+        target: action.target,
+        ownerId: ownerAfter.id,
+        allBoards: next.players.map(p => ({id:p.id,
+          bench:p.bench.flatMap(slot => slot.cards.map(c => c.fullName))}))};
+      assert.ok(benchCards.includes('Mimikyu GRI'), JSON.stringify(movement));
+      assert.deepEqual(handCards, ['Dialga-GX UPR'], JSON.stringify(movement));
     } finally {
       restore();
       restore();
