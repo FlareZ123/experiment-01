@@ -61,7 +61,7 @@ assert.ok(geometry.secondGrimerSearchOpportunityAmongBasicValid
 const benchWindows = candidateMukBenchOpportunityWindows();
 near(benchWindows.basicValid, candidate.basicValid);
 near(benchWindows.directWithInitialAlternativeAmongBasicValid,
-  0.064688453393358);
+  0.06468845339355898);
 near(benchWindows.searchedWithInitialAlternativeAmongBasicValid,
   0.20295872343325977);
 near(benchWindows.directTwoBenchByEighthAmongBasicValid,
