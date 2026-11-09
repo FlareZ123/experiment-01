@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {chooseActorRootIntent}=
   require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
-const {rootPhysicalWitness}=
+const {rootPhysicalWitness,rootPhysicalSnapshot}=
   require('../../simulation/twinleaf/agent5-owner-root-slice.cjs');
 const {publicSkylinerSuppressionReason}=
   require('../../simulation/twinleaf/agent6-skyliner-ability-suppression-guard.cjs');
@@ -104,6 +104,36 @@ test('Store physical witness recognizes Skyliner free retreat and conserves Ener
   assert.equal(rootPhysicalWitness(intent,
     {...before,publicSkylinerPresent:false},after,{}),
     'no-confirmed-public-effect');
+});
+
+test('native pre/post snapshot carries effective Skyliner retreat and exact Energy zones',()=>{
+  const card=(name,powers=[])=>({fullName:name,powers});
+  const slot=(pokemon,energies=[])=>({
+    getPokemonCard:()=>pokemon,
+    energies:{cards:energies.map(fullName=>({fullName}))},
+    tools:[]
+  });
+  const psychic=['Psychic Energy MEE'];
+  const latias=slot(card('Latias ex SSP',[{name:'Skyliner'}]));
+  const lele=slot(card('Tapu Lele-GX GRI'),psychic);
+  const vmax=slot(card('Shadow Rider Calyrex VMAX CRE'),psychic);
+  const other={stadium:{cards:[]}};
+  const state=(active,bench,retreatedTurn)=>({
+    turn:22,phase:2,activePlayer:0,
+    players:[{active,bench,retreatedTurn,hand:{cards:[]},
+      stadium:{cards:[]},stadiumUsedTurn:0},other]
+  });
+  const intent={kind:'skyliner-free-retreat',benchIndex:0,
+    printing:'Shadow Rider Calyrex VMAX CRE'};
+  const before=rootPhysicalSnapshot(state(lele,[vmax,latias],0),0,intent);
+  const after=rootPhysicalSnapshot(state(vmax,[lele,latias],22),0,intent);
+  assert.equal(before.publicSkylinerPresent,true);
+  assert.equal(before.activePokemonPrinting,'Tapu Lele-GX GRI');
+  assert.equal(before.targetPokemonPrinting,'Shadow Rider Calyrex VMAX CRE');
+  assert.deepEqual(before.activeEnergies,psychic);
+  assert.deepEqual(after.targetEnergies,psychic);
+  assert.equal(rootPhysicalWitness(intent,before,after,{}),
+    'confirmed-public-effect');
 });
 
 test('native decision plumbing is default-off and candidate/source symmetric',()=>{
