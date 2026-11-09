@@ -19,7 +19,7 @@ const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
   .find(deck=>deck.rank===13).cards
   .filter(card=>card.category==='Trainer').map(card=>card.name));
 
-const VERSION='agent5-rank13-source-opening-compressor-crispin-and-evolution-factorial-v5';
+const VERSION='agent5-rank13-source-opening-compressor-crispin-grass-and-evolution-factorial-v6';
 const TARGET='13:2026:A:new-moon-lockbreaker-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
@@ -92,6 +92,8 @@ function run(deps={}){
           actorNaturalEvolutionSourceOnly:source,
           rank13CrispinRoot:source,
           rank13CrispinSourceOnly:source,
+          rank13SourceFirstOwnGrass:source,
+          rank13SourceFirstOwnGrassSourceOnly:source,
           // Identical real owner-hand payments and own-deck search closure
           // in all cells, as in the successful Agent8 source-search panel.
           actorOnlySingleSearch:true,
