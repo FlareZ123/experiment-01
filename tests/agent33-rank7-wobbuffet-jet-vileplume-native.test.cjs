@@ -135,3 +135,7 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+// The existing manual native workflow now also exercises an unchanged
+// original rank7 physical sixty using the opponent's Artazon before Jet.
+require('./2026-11/agent33-rank7-artazon-jet-native.test.cjs');
