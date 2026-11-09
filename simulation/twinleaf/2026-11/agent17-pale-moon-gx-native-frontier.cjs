@@ -11,9 +11,10 @@ const PRINTING='Trevenant & Dusknoir-GX SMP';
  * visible sufficient-cost case belongs to the native Store.
  *
  * @param {object} view Detached actor-owner and public-board observation.
+ * @param {{specialConditions:object}} catalog Public native printed status numbers.
  * @returns {object|null} Existing actor 'attack' intent or null.
  */
-function choosePaleMoonGX(view){
+function choosePaleMoonGX(view,catalog){
   if(view?.decisionKind!=='owner-root'||
      !view.ownPublic?.active||
      view.ownPublic.active.printing!==PRINTING||
@@ -29,7 +30,8 @@ function choosePaleMoonGX(view){
      (view.ownPublic.active.publicRestrictions?.onlyAllowedAttackNameNextTurn&&
       view.ownPublic.active.publicRestrictions.onlyAllowedAttackNameNextTurn!==ATTACK)||
      view.ownPublic.active.specialConditions?.some(x=>
-       x===8||x===9))return null;
+       x===catalog?.specialConditions?.ASLEEP||
+       x===catalog?.specialConditions?.PARALYZED))return null;
   const energy=view.ownPublic.active.energies;
   if(!Array.isArray(energy))return null;
   const basicPsychic=energy.filter(x=>typeof x==='string'&&
