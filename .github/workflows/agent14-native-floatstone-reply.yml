@@ -17,6 +17,7 @@ on:
           - agent31-postgust-seeker-native
           - agent31-portable-joint-native
           - agent31-lockbridge-eight-rank-native
+          - agent31-lockbridge-eight-rank-archive-audit
           - agent3-portable-champion-all29
           - agent3-portable-champion-all29-artifact-audit
           - agent3-regidrago-original-custody-debug
@@ -39,7 +40,7 @@ permissions:
   actions: read
 jobs:
   native-two:
-    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit'
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent31-lockbridge-eight-rank-archive-audit'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -481,6 +482,34 @@ jobs:
         with:
           name: agent3-fresh-celestial-v2-error-portfolio
           path: artifacts/agent3-celestial-v2-error-portfolio.json
+          if-no-files-found: warn
+          retention-days: 21
+  agent31-lockbridge-archive-audit:
+    if: inputs.experiment == 'agent31-lockbridge-eight-rank-archive-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download immutable Agent31 32-game native action tape
+        uses: actions/download-artifact@v4
+        with:
+          name: agent31-lockbridge-eight-rank-native
+          run-id: 42579461346
+          github-token: ${{ github.token }}
+          path: artifacts/agent31-lockbridge-original
+      - name: Count accepted Arven, Hood, Temple, and attacker choices
+        env:
+          AGENT31_LOCKBRIDGE_AUDIT_INPUT: artifacts/agent31-lockbridge-original/agent31-lockbridge-eight-rank-native.json
+          AGENT31_LOCKBRIDGE_AUDIT_OUTPUT: artifacts/agent31-lockbridge-action-audit.json
+        run: |
+          node --check simulation/evaluation/agent31/audit-lockbridge-eight-rank-native-archive.cjs
+          node simulation/evaluation/agent31/audit-lockbridge-eight-rank-native-archive.cjs
+      - name: Preserve 32 game owner-action summaries and paired reversal roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-lockbridge-native-root-action-audit
+          path: artifacts/agent31-lockbridge-action-audit.json
           if-no-files-found: warn
           retention-days: 21
   archived-native-audit:
