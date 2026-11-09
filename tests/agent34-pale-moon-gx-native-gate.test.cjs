@@ -13,7 +13,7 @@ const native = name => require(path.join(ROOT, name));
  * Staged actual Store only. The card pool, owners, costs and effects are real;
  * this is not a shuffled 60-card opening or a competitively qualified match.
  * @param {0|1} attackingSeat
- * @param {2|3} psychicCount
+ * @param {1|2|3} psychicCount
  * @param {boolean} gxAlreadyUsed
  */
 function stage(attackingSeat, psychicCount, gxAlreadyUsed, defenderPrinting = 'Rotom V LOR') {
@@ -615,6 +615,9 @@ const paleMoonModules = () => ({
   ).TrevenantDusknoirGX,
   StateUtils: native('game/store/state-utils').StateUtils,
   CardType: native('game/store/card/card-types').CardType,
+  CheckAttackCostEffect: native(
+    'game/store/effects/check-effects'
+  ).CheckAttackCostEffect,
   CheckProvidedEnergyEffect: native(
     'game/store/effects/check-effects'
   ).CheckProvidedEnergyEffect,
