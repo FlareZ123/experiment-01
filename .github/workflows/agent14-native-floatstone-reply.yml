@@ -15,6 +15,7 @@ on:
           - agent31-allowner-pass-native
           - agent31-allowner-pass-fresh-native
           - agent31-postgust-seeker-native
+          - agent31-portable-joint-native
 permissions:
   contents: read
 jobs:
@@ -111,6 +112,19 @@ jobs:
         with:
           name: agent31-rank11-postgust-seeker-aba
           path: agent31-rank11-postgust-seeker-aba.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Actual same original game without any scripted owner seat or turn
+        if: inputs.experiment == 'agent31-portable-joint-native'
+        env:
+          AGENT31_PORTABLE_JOINT_OUTPUT: agent31-portable-joint-aba.json
+        run: node simulation/evaluation/agent31/portable-floatstone-seeker-guzma-aba.cjs
+      - name: Save all portable-policy native games, including censors
+        if: always() && inputs.experiment == 'agent31-portable-joint-native'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-portable-joint-aba
+          path: agent31-portable-joint-aba.json
           if-no-files-found: warn
           retention-days: 21
       - name: Archive all real original-source attempts, including aborts
