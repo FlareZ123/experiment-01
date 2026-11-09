@@ -545,7 +545,10 @@ function chooseActorRootIntent(view,catalog,options={}){
   // A nominated nominal KO is recomputed after the actual discard prompt.
   if(options.seekerGuzmaNominalKo===true){
     const follow=require('./agent31/late-seeker-guzma-prize.cjs')
-      .chooseLateSeekerGuzmaPrize(view,catalog);
+      .chooseLateSeekerGuzmaPrize(view,catalog,{
+        ownerSeat:options.seekerGuzmaOwnerSeat??null,
+        globalTurn:options.seekerGuzmaGlobalTurn??null
+      });
     if(follow)return follow;
   }
   // Experimental nonfinal Prize trade: still only an owner-public nominal KO.
@@ -996,6 +999,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     prizeTradeGuzmaOptIn:deps.prizeTradeGuzma===true||
       process.env.AGENT31_GUZMA_PRIZE_TRADE_DEV==='true',
     seekerGuzmaNominalKoOptIn:deps.seekerGuzmaNominalKo===true,
+    seekerGuzmaOwnerSeat:deps.seekerGuzmaOwnerSeat??null,
+    seekerGuzmaGlobalTurn:deps.seekerGuzmaGlobalTurn??null,
     seekerGuzmaPromptsProposed:0,
     seekerGuzmaPromptsAccepted:0,
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
@@ -1727,6 +1732,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
       seekerGuzmaNominalKo:audit.seekerGuzmaNominalKoOptIn,
+      seekerGuzmaOwnerSeat:audit.seekerGuzmaOwnerSeat,
+      seekerGuzmaGlobalTurn:audit.seekerGuzmaGlobalTurn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
