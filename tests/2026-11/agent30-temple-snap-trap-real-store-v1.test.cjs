@@ -142,3 +142,56 @@ for (const sourceSeat of [0, 1]) {
     console.log('AGENT30_REAL_TEMPLE_SNAP_TRAP', JSON.stringify(outcome));
   });
 }
+
+test('actual pinned Stadium suppression effect forces public Temple scorer to abstain', () => {
+  const manager = initializeCards();
+  let id = 1800000;
+  const card = fullName => {
+    const value = manager.getCardByName(fullName);
+    assert.ok(value, 'missing native printed ' + fullName);
+    value.id = id++;
+    return value;
+  };
+  const f = stage(0);
+  const doubleTurbo = card('Double Turbo Energy BRS');
+  const psychic = card('Psychic Energy SVE');
+  const espurr = card('Espurr SIT 81');
+  f.opponent.active.cards.splice(0, f.opponent.active.cards.length,
+    espurr, doubleTurbo, psychic);
+  f.opponent.active.energies.cards.push(doubleTurbo, psychic);
+  f.owner.stadium.cards.push(card(TEMPLE));
+  const livePublicPrompt = {player: f.owner, cards: f.opponent.active};
+  const nativeTypes = native('game/store/card/card-types');
+  const options = () => getSnapTrapPublicTempleEnergyOptions(
+    f.state, livePublicPrompt, f.opponent.active, nativeTypes
+  );
+  const provided = () => {
+    const effect = new CheckProvidedEnergyEffect(f.opponent,
+      f.opponent.active);
+    f.store.reduceEffect(f.state, effect);
+    return effect.energyMap.filter(row => row.card === doubleTurbo)
+      .map(row => [...row.provides]);
+  };
+
+  assert.equal(options().specialEnergyBlocked, true);
+  assert.deepEqual(provided(), [[CardType.COLORLESS]]);
+
+  f.owner.stadiumAndToolHaveNoEffectTurnsRemaining = 1;
+  assert.deepEqual(options(), {specialEnergyBlocked: null});
+  assert.deepEqual(provided(),
+    [[CardType.COLORLESS, CardType.COLORLESS]]);
+  f.owner.stadiumAndToolHaveNoEffectTurnsRemaining = 0;
+  assert.deepEqual(provided(), [[CardType.COLORLESS]]);
+
+  f.opponent.bench[0].cards.push(card('Lunatone OBF'));
+  f.opponent.bench[1].cards.push(card('Solrock PGO'));
+  assert.deepEqual(options(), {specialEnergyBlocked: null});
+  assert.deepEqual(provided(),
+    [[CardType.COLORLESS, CardType.COLORLESS]]);
+  console.log('AGENT30_NATIVE_STADIUM_BLOCKER', JSON.stringify({
+    globalSuppressionAbstains: true,
+    lunatoneNewMoonAbstains: true,
+    nativeDoubleTurboRestoresTwoEnergy: true,
+    competitiveGamesQualified: 0
+  }));
+});
