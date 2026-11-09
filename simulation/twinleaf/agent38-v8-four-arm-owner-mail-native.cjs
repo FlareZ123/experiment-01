@@ -22,8 +22,9 @@ function withBilateralOwnerMail(next,deps){
   const {headless,SimpleTacticsAi,Store,PlayCardAction,
     ResolvePromptAction,types,trialIds}=deps;
   const followMailNestBall=deps.followMailNestBall===true;
+  const followArvenNestBall=deps.followArvenNestBall===true;
   const preferSinglePrizeNestBasic=deps.preferSinglePrizeNestBasic===true;
-  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall,
+  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall || followArvenNestBall,
     'prize-aware Nest Basic policy requires Nest follow-through');
   const followMailHandiwork=deps.followMailHandiwork===true;
   const followHeldHandiwork=deps.followHeldHandiwork===true;
@@ -48,6 +49,8 @@ function withBilateralOwnerMail(next,deps){
   const ownerHeldHandiworkActions=new WeakSet();
   const ownerHeldRefillActions=new WeakSet();
   const ownerMailArvenActions=new WeakSet();
+  const ownerArvenNestActions=new WeakSet();
+  const physicallySelectedArvenNestItems=new WeakSet();
   const ownerHeldArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
   const ownerConfirmActions=new WeakMap();
@@ -84,6 +87,9 @@ function withBilateralOwnerMail(next,deps){
     ownerConfirmEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
+    nestFromArvenOffers:0,nestFromArvenAccepted:0,
+    nestFromArvenRejected:0,nestFromArvenBenchSettled:0,
+    nestFromArvenBenchEvents:[],
     nativeDecoderInvocations:0,
     opponentPrivateZonesRead:false,qualifiedGames:0};
 
@@ -115,8 +121,8 @@ function withBilateralOwnerMail(next,deps){
     const seat=state?.activePlayer;
     const owner=state?.players?.[seat];
     const prompt=state?.prompts?.find(p=>p.result===undefined);
-    if(active&&followMailNestBall&&state===storeInstance?.state&&
-      pendingNest?.seat===seat&&owner?.id===this.client?.id&&
+    if(active&&(followMailNestBall||followArvenNestBall)&&
+      state===storeInstance?.state&&pendingNest?.seat===seat&&owner?.id===this.client?.id&&
       prompt?.id===pendingNest.id&&
       prompt?.constructor?.name==='ChooseCardsPrompt'&&
       prompt.cards===owner.deck&&
@@ -132,7 +138,7 @@ function withBilateralOwnerMail(next,deps){
       if(selected!==null&&prompt.validate(selected,state)===true){
         const action=new ResolvePromptAction(prompt.id,selected);
         nestPromptSelections.set(action,{trialId,seat,prompt,selected,
-          ownerId:owner.id});
+          ownerId:owner.id,fromArven:pendingNest.fromArven===true});
         return action;
       }
     }
@@ -186,6 +192,32 @@ function withBilateralOwnerMail(next,deps){
         const action=new PlayCardAction(owner.id,intent.handIndex);
         ownerMailArvenActions.add(action);
         audit.arvenFromMailOffers++;
+        return action;
+      }
+    }
+    // Only a Nest Ball that arrived through an actually settled Arven
+    // owner-deck prompt can qualify. The native Store still adjudicates the
+    // Item and the later Basic search. No unopened-deck introspection.
+    if(active&&followArvenNestBall&&!prompt&&
+       state===storeInstance?.state&&(seat===0||seat===1)&&
+       owner?.id===this.client?.id&&
+       board.PlayerType!==undefined&&board.SlotType!==undefined&&
+       owner.bench?.some(slot=>slot.cards.length===0)){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const view=actorObservation(state,seat);
+      const idx=owner.hand.cards.findIndex((card,i)=>
+        physicallySelectedArvenNestItems.has(card)&&
+        view.ownHand[i]==='Nest Ball SVI'&&card.fullName==='Nest Ball SVI');
+      const physical=owner.hand.cards[idx];
+      if(view.decisionKind==='owner-root'&&
+         view.ownTurnResources?.itemPlayLocked===false&&
+         idx>=0&&physical?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,idx,{
+          player:board.PlayerType.ANY,slot:board.SlotType.BOARD,index:0
+        });
+        ownerArvenNestActions.add(action);
+        audit.nestFromArvenOffers++;
         return action;
       }
     }
@@ -319,6 +351,7 @@ function withBilateralOwnerMail(next,deps){
     const taggedHandiwork=ownerMailHandiworkActions.has(action)||taggedHeldHandiwork;
     const taggedHeldArven=ownerHeldArvenActions.has(action);
     const taggedArven=ownerMailArvenActions.has(action)||taggedHeldArven;
+    const taggedArvenNest=ownerArvenNestActions.has(action);
     const arvenProposal=arvenSelections.get(action);
     const ownerConfirmProposal=ownerConfirmActions.get(action);
     const opposingSeat=1-seat;
@@ -350,6 +383,7 @@ function withBilateralOwnerMail(next,deps){
         else audit.arvenFromMailRejected++;
       }
       if(taggedRefill)audit.heldRefillRejected++;
+      if(taggedArvenNest)audit.nestFromArvenRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
       if(ownerConfirmProposal)audit.ownerConfirmRejected++;
       throw e;
@@ -402,6 +436,11 @@ function withBilateralOwnerMail(next,deps){
         !playerAfter.deck.cards.includes(card));
       const settled=arvenProposal.prompt.result===action.result&&physical;
       if(!settled)audit.arvenSearchUnsettled++;
+      if(settled&&followArvenNestBall){
+        for(const card of arvenProposal.chosen)
+          if(card.fullName==='Nest Ball SVI')
+            physicallySelectedArvenNestItems.add(card);
+      }
       const searchReceipt={trialId:arvenProposal.trialId,
         seat:arvenProposal.seat,turnBefore:state.turn,
         selected:arvenProposal.chosen.map(card=>card.fullName),
@@ -484,7 +523,14 @@ function withBilateralOwnerMail(next,deps){
         afterOwner.bench.some(slot=>slot.cards.includes(chosen[0]))&&
         !afterOwner.deck.cards.includes(chosen[0]);
       if(settled&&moved){
-        audit.nestFromMailBenchSettled++;
+        if(nestPromptProposal.fromArven){
+          audit.nestFromArvenBenchSettled++;
+          audit.nestFromArvenBenchEvents.push({
+            trialId,seat:nestPromptProposal.seat,turnBefore:state.turn,
+            selectedPokemonPrinting:chosen[0].fullName,
+            physicalBasicMovedDeckToBench:true
+          });
+        }else audit.nestFromMailBenchSettled++;
         audit.nestFromMailBenchEvents.push({
           trialId,seat:nestPromptProposal.seat,turnBefore:state.turn,
           selectedPokemonPrinting:chosen[0].fullName
@@ -497,6 +543,16 @@ function withBilateralOwnerMail(next,deps){
         printing:selectedMailCard.fullName};
       audit.selectedTrainerLaterPlayed.push(played);
       deps.onSelectedTrainerPlayed?.(action,played);
+    }
+    if(taggedArvenNest){
+      audit.nestFromArvenAccepted++;
+      const nestPrompt=this.state.prompts?.find(p=>
+        p.result===undefined&&p.playerId===owner.id&&
+        p.constructor.name==='ChooseCardsPrompt'&&
+        p.cards===owner.deck&&p.sourceCard?.fullName==='Nest Ball SVI');
+      pendingNest=nestPrompt?{id:nestPrompt.id,seat,fromArven:true}:null;
+      assert.ok(nestPrompt,
+        'Physically Arven-selected Nest Ball play returned no own-deck Basic prompt');
     }
     if(fromSettledMail&&followMailNestBall&&
       selectedMailCard.fullName==='Nest Ball SVI'){
