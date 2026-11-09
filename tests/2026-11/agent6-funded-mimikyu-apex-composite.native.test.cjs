@@ -80,9 +80,22 @@ function runIntegrated(seat,options={}){
         x.owner.bench[0]=mimikyuSlot;
         stranded.cards.push(card('Shadow Rider Calyrex V CRE'));
         stranded.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
-        const fee=[card('Psychic Energy SVE'),card('Psychic Energy SVE')];
+        const fee=options.dimensionValleyOnePsychic===true?[]:
+          [card('Psychic Energy SVE'),card('Psychic Energy SVE')];
         stranded.cards.push(...fee);
         stranded.energies.cards.push(...fee);
+        if(options.dimensionValleyOnePsychic===true){
+          // Real native Tool play produces the original champion's free
+          // Float Stone Retreat, leaving Max Geist genuinely unpayable.
+          const {PlayCardAction,PlayerType,SlotType}=fromNative(
+            'game/store/actions/play-card-action');
+          x.owner.hand.cards.push(card('Float Stone BKT'));
+          const heldIndex=x.owner.hand.cards.length-1;
+          x.store.dispatch(new PlayCardAction(x.owner.id,heldIndex,{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+          }));
+          assert.ok(stranded.tools.some(t=>t.fullName==='Float Stone BKT'));
+        }
 
         const t={
           PokemonCard:fromNative('game/store/card/pokemon-card').PokemonCard,
@@ -125,7 +138,9 @@ function runIntegrated(seat,options={}){
           retreatCost:view.ownPublic.active?.printed?.retreatCost
         }));
         assert.equal(intent?.benchIndex,0);
-        assert.equal(intent?.paymentMode,'two-unit-basic-paid');
+        assert.equal(intent?.paymentMode,
+          options.dimensionValleyOnePsychic===true?
+            'float-stone-free':'two-unit-basic-paid');
         const savedEnergy=[...mimikyuSlot.energies.cards];
         const beforeDiscard=[...x.owner.discard.cards];
         x.store.dispatch(new RetreatAction(x.owner.id,intent.benchIndex));
