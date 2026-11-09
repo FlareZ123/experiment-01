@@ -486,7 +486,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
         after.activePlayer!==before.activePlayer)?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
-  if(intent.kind==='skyliner-rondo-retreat'){
+  if(intent.kind==='skyliner-rondo-retreat'||
+     intent.kind==='skyliner-free-retreat'){
     // A native zero-cost Skyliner retreat must preserve each attached Energy
     // on the former Active and exchange exactly these two Pokémon in play.
     // This Store witness is independent from any later attack declaration.
