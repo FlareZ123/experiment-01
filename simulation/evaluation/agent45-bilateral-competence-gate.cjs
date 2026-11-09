@@ -177,21 +177,10 @@ function evaluateBilateralCompetence(trial) {
       }
     }
   }
-  const failures = [];
-  if (!provenanceComplete) failures.push('provenance-incomplete');
-  if (!samePolicy) failures.push('policy-asymmetry-or-unverified');
-  // The official scorer may settle an otherwise unfinished paper game.
-  if (!gameOutcomeResolved)
-    failures.push('no-natural-native-or-adjudicated-paper-outcome');
-  if (!episode) failures.push('no-certified-source-reply-source-episode');
-  if (trial.independentFullPaperRulesAudit !== true)
-    failures.push('independent-paper-audit-pending');
-  if (trial.hiddenInformationAudit !== true)
-    failures.push('hidden-information-audit-pending');
   const clock = inspectOfficialAichiClock(trial);
-  // Actual Store terminals and independently attested official time
-  // adjudications are separate game-end paths. A native root cap or engine
-  // error can never be relabeled as a tournament end-of-time decision.
+  // Native terminals and event-clock adjudications are separate game-end
+  // paths. Native caps, engine errors, contradictory winner claims, and a
+  // no-call packet with no native terminal remain explicitly unqualified.
   const clockCompatible = clock.shapeComplete &&
     trial.engineError!==true && trial.rootCapReached!==true &&
     (clock.disposition==='no-official-call' ?
@@ -203,6 +192,16 @@ function evaluateBilateralCompetence(trial) {
   const officialClockAudit=clockCompatible;
   const gameOutcomeResolved=nativeTerminal||
     (officialClockAudit&&clock.disposition==='official-call');
+  const failures = [];
+  if (!provenanceComplete) failures.push('provenance-incomplete');
+  if (!samePolicy) failures.push('policy-asymmetry-or-unverified');
+  if (!gameOutcomeResolved)
+    failures.push('no-natural-native-or-adjudicated-paper-outcome');
+  if (!episode) failures.push('no-certified-source-reply-source-episode');
+  if (trial.independentFullPaperRulesAudit !== true)
+    failures.push('independent-paper-audit-pending');
+  if (trial.hiddenInformationAudit !== true)
+    failures.push('hidden-information-audit-pending');
   if(!officialClockAudit)
     failures.push('official-match-clock-audit-pending');
   const structuralGatePassed = failures.length === 0;
