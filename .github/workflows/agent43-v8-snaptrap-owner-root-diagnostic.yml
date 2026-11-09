@@ -22,6 +22,11 @@ on:
         required: false
         default: false
         type: boolean
+      follow_held_refill_supporter:
+        description: 'Compare genuine low-hand owner draw Supporter versus Pass'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -95,6 +100,15 @@ jobs:
           node --check simulation/evaluation/agent1-v8-held-handiwork-four-arm.cjs
           node --test tests/2026-11/agent1-owner-held-handiwork-choice.test.cjs tests/2026-11/agent1-held-handiwork-four-arm.test.cjs
           node simulation/evaluation/agent1-v8-held-handiwork-four-arm.cjs
+      - name: Compare low-hand native refill Supporter against original policy
+        if: ${{ inputs.follow_held_refill_supporter }}
+        run: |
+          node --check simulation/twinleaf/agent1-owner-held-refill-supporter-choice.cjs
+          node --check simulation/twinleaf/agent38-v8-four-arm-owner-mail-native.cjs
+          node --check simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs
+          node --check simulation/evaluation/agent1-v8-low-hand-refill-four-arm.cjs
+          node --test tests/2026-11/agent1-owner-held-refill-supporter-choice.test.cjs tests/2026-11/agent1-v8-low-hand-refill-four-arm.test.cjs
+          node simulation/evaluation/agent1-v8-low-hand-refill-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
