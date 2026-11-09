@@ -234,7 +234,11 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(process.env.AGENT4_HOOD_TOOL_ROOT_DEV==='true'){
     const hood=require('./2026-11/agent4-hood-protected-underworld-owner-exception.cjs')
       .chooseHoodToolPreparation(view,catalog);
-    if(hood)return hood;
+    if(hood && process.env.AGENT4_IMMEDIATE_PSYCHIC_HOOD_DEV==='true'){
+      const funded=require('./2026-11/agent4-immediate-hood-psychic-budget.cjs')
+        .immediateHoodFunding(view,catalog,hood);
+      if(funded.eligible)return hood;
+    }else if(hood)return hood;
   }
   if(options.arvenHoodSearch===true){
     const arven=require('./agent31/arven-hood-owner-frontier.cjs')
