@@ -85,9 +85,9 @@ test('Search never reads an unowned deck or invents absent Hood cards',()=>{
   const owner={id:1,deck:{cards:[{fullName:'Fog Crystal CRE',trainerType:'ITEM'}]}};
   const state={players:[owner,{id:2,deck:{cards:[{fullName:'Stealthy Hood UNB'}]}}]};
   const p=new ChooseCardsPrompt(owner.id,owner.deck);
-  assert.equal(resolveArvenHoodSearch(state,0,p,class {}),null);
+  assert.equal(resolveArvenHoodSearch(state,0,p,class {},'ITEM'),null);
   p.cards=state.players[1].deck;
-  assert.equal(resolveArvenHoodSearch(state,0,p,class {}),null);
+  assert.equal(resolveArvenHoodSearch(state,0,p,class {},'ITEM'),null);
   assert.equal(chooseArvenHoodRoot({...view(),ownHand:['Psychic Energy MEE']},
     {toolPrintings:new Set(['Stealthy Hood UNB'])}),null);
 });
