@@ -20,6 +20,18 @@ Thus **three** zero-immediate-Prize positive-damage native attacks set up **thre
 
 [Six regression tests](../../../tests/2026-11/agent43-native-attack-damage-carryover.test.cjs) cover genuine two-hit examples, no-Prize-only first hit, no KO or damage, changed printing, healing/damage mismatch, clock epoch, and independent owner seats. The test's initial regression used a mistaken no-Prize negative-control value; corrected to a zero-Prize follow-up and reran. [Manual CI run 42722757423](https://github.com/FlareZ123/experiment-01/actions/runs/42722757423) **SUCCESS**, head 0e4e858e05b12aa94843c336238b561ff9e377e1.
 
+## Intervening actual opponent roots, now included in the scorecard
+
+The first draft of the read-only carryover screen identifies public printing continuity. The extended screen also joins **the actual intervening defending-player Store actions**, maintaining a clear separation between the surviving damage and what the opponent was allowed or able to do.
+
+- Candidate Psyray root61 → root68: source passed on root65 (turn8). There was **no source material action** between these two attacks.
+- Candidate Psyray root85 → root93: source played Mew VMAX on root89 then passed root90 (turn12). There was one source material action, but it did not remove or heal the already damaged Genesect V.
+- Source copied attack root139 → root153: contender passed on roots144 (turn23) and 150 (turn25). There were **zero contender material actions** during those two intervening own turns; source itself passed root147 on turn24.
+
+Thus two of the three observed two-hit chains succeeded against defenders whose intervening turns contained only Pass. That matters for policy-dependent strength: a stronger opponent may have different paid retreat, healing, switching, gust or counterattack options. A defensible optimization metric needs the *actual opponent response* and an independent affordability review before attributing the full delayed Prize gain to the first attack.
+
+Versioned additive fields include **interveningDefenderRootActions**, **interveningDefenderMaterialActionCount**, **defenderPassedWithoutMaterialAction** and **defenderCounterplayOptionsIndependentlyReviewed:false**. They leave all earlier attacking-seat counts untouched. Two additional tests cover double Pass and a defender evolution plus Pass. [Full manual CI 42723298831](https://github.com/FlareZ123/experiment-01/actions/runs/42723298831) **SUCCESS**, commit 12c0971c459a94cb2f603c8b2e0433067f447816.
+
 ## Qualification and model boundary
 
 Public card printing plus equal damage values do **not** independently establish continuous physical identity. Opponent switching, healing or duplicate physical copies can create misleading public continuity, and the current source archive lacks full native zone and card-identity proofs. The evaluator therefore uses explicit fields **samePhysicalDefenderIndependentlyVerified:false**, **priorDamageCausallyProven:false**, **printedAttackPaperLegalityVerified:false**, **competitiveGameQualified:false**. The observed same-printing two-hit chain is a credible *native* strategic continuation candidate. Reviewer or owner-card physical tape may later make it a certified line.
