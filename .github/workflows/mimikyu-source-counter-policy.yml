@@ -3,6 +3,11 @@ name: Mimikyu source-counterline policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      agent46_mimikyu_fog_ab:
+        description: Prospective original rank1/rank10 48-arm owner-visible Fog Crystal search and Dragon preservation A/B
+        type: boolean
+        required: false
+        default: false
       agent46_mimikyu_setup_ab:
         description: Prospective original rank1/rank10 48-arm owner-visible Mimikyu Bench priority A/B
         type: boolean
@@ -50,6 +55,22 @@ jobs:
         with:
           name: agent46-mimikyu-bench-priority-source-ab
           path: agent46-mimikyu-bench-priority-source-ab.json
+          if-no-files-found: warn
+      - name: Optional pinned native owner Fog Crystal search and physical Mimikyu transfer
+        if: inputs.agent46_mimikyu_fog_ab == true
+        run: node --test tests/2026-11/agent46-mimikyu-fog-search-setup.native.test.cjs
+      - name: Optional frozen original rank1 Fog Crystal search and Dragon preservation A/B
+        if: inputs.agent46_mimikyu_fog_ab == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-fog-owner-setup-source-ab.cjs > agent46-mimikyu-fog-source-ab.json
+      - name: Summarize original-source Fog setup outcome
+        if: inputs.agent46_mimikyu_fog_ab == true
+        run: node -e "const x=require('./agent46-mimikyu-fog-source-ab.json');console.log(JSON.stringify({schema:x.schema,attempts:x.nativeAttempts,matched:x.matchedPhysicalPairs,events:x.setupProposalEvents,selections:x.selectedPhysicalFogMimikyu,diagnoses:x.pairs}))"
+      - name: Archive original-source Fog setup A/B
+        if: ${{ always() && inputs.agent46_mimikyu_fog_ab == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-fog-source-ab
+          path: agent46-mimikyu-fog-source-ab.json
           if-no-files-found: warn
       - name: Report bounded engine actions and public Copycat opportunities
         run: node -e "const x=require('./mimikyu-policy-diagnostic.json');console.log('Qualified win-rate evidence:',x.qualifiedWinRateEvidence);for(const r of x.rows)console.log(JSON.stringify({ranks:r.ranks,policy:r.policy,seed:r.seed,status:r.status,finished:r.finished,verifiedFirstTurn:r.verifiedFirstTurn,apex:r.actualApexDragonAttacks,copycat:r.actualCopycatAttacks,eligibleObservations:r.eligiblePublicChoiceObservations,error:r.error||null}))"
