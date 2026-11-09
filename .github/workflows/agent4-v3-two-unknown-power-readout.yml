@@ -20,6 +20,7 @@ on:
           - neutral-v3-original16
           - neutral-v3-manual-fallback
           - hood-owner-underworld-native
+          - hood-owner-rank6-fresh32
           - neutral-v3-new-natural32
         default: typed-replay
 
@@ -97,6 +98,24 @@ jobs:
         run: |
           node --check simulation/twinleaf/2026-11/agent4-hood-protected-underworld-owner-exception.cjs
           node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs tests/2026-11/agent4-hood-protected-underworld-owner.native.test.cjs
+      - name: Execute prospectively registered 32 genuine Hood Shield versus Iron Thorns owner policy attempts
+        if: ${{ inputs.experiment == 'hood-owner-rank6-fresh32' }}
+        env:
+          AGENT4_HOOD_OWNER_FRESH_OUTPUT: agent4-hood-shield-rank6-owner-fresh32.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-hood-owner-rank6-prospective-32.cjs
+          node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs
+          node simulation/evaluation/2026-11/agent4-hood-owner-rank6-prospective-32.cjs
+      - name: Preserve physical-deal and real opponent follow-through of all Hood Shield rank6 groups
+        if: ${{ always() && inputs.experiment == 'hood-owner-rank6-fresh32' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-hood-shield-rank6-owner-fresh32
+          path: |
+            agent4-hood-shield-rank6-owner-fresh32.json
+            agent4-hood-shield-rank6-owner-fresh32.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Replay exact original-rank6 v2 versus broader v3 with printed physical deal parity
         if: ${{ inputs.experiment == 'neutral-v3-original16' }}
         env:
