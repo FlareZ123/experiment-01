@@ -11,6 +11,7 @@ on:
         options:
           - original-census
           - pressure-error
+          - pressure-causal
 
 permissions:
   contents: read
@@ -41,9 +42,20 @@ jobs:
           run-id: 42561187689
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: analysis-input
+      - name: Download repaired adversarial original14 matched archive
+        if: inputs.study == 'pressure-causal'
+        uses: actions/download-artifact@v4
+        with:
+          name: agent6-path-pressure-original14-development
+          run-id: 42562112272
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: analysis-input
       - name: Read Path play and owner-visible lock opportunity census
         if: inputs.study == 'original-census'
         run: node scripts/agent6-path-counter-archive-census.cjs
       - name: Inspect exact native failed action cause without replay
         if: inputs.study == 'pressure-error'
         run: node scripts/agent6-path-pressure-error-cause.cjs
+      - name: Diagnose physical first-root change on rank21 from preserved archive
+        if: inputs.study == 'pressure-causal'
+        run: node scripts/agent6-path-recovery-causal-archive.cjs
