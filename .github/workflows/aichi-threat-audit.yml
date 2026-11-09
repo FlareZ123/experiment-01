@@ -52,5 +52,7 @@ jobs:
           node --test tests/agent11-thorns-tagcall-first-attack.test.cjs tests/agent11-newmoon-thorns-firstturn-exposure.test.cjs
           node scripts/agent11-thorns-tagcall-first-attack.cjs
           node scripts/agent11-newmoon-thorns-firstturn-exposure.cjs
+      - name: Validate fixed Wide Wall Sentinel 60 and exact resource window
+        run: node --test tests/2026-11/agent25-wide-wall-sentinel-frontier.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
