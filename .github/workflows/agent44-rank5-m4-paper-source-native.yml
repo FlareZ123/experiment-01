@@ -159,7 +159,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Validate flexible v2 Gengar Telepath funding and frozen fresh comparison
-        if: ${{ inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'gengar-flexible-v2' }}
         run: |
           node --check simulation/twinleaf/2026-11/agent50-gengar-flexible-telepath-v2.cjs
           node --check simulation/evaluation/2026-11/agent50-rank5-gengar-flexible-v2-fresh-eight.cjs
@@ -167,10 +167,10 @@ jobs:
           node --test tests/2026-11/agent50-rank5-gengar-flexible-v2-fresh-eight.test.cjs
           node --test tests/2026-11/agent20-gengar-horror-house-tempo.test.cjs
       - name: Execute eight prospective physically matched flexible Gengar v1-v2 pairs
-        if: ${{ inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'gengar-flexible-v2' }}
         run: node simulation/evaluation/2026-11/agent50-rank5-gengar-flexible-v2-fresh-eight.cjs
       - name: Archive flexible Gengar v1-v2 prospective native root and physical tapes
-        if: ${{ always() && inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ always() && inputs.mode == 'gengar-flexible-v2' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent50-rank5-gengar-flexible-v2-fresh-eight-v1
