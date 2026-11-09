@@ -31,7 +31,7 @@ class FakeStore{
       p.discard.cards.push(played,...p.hand.cards);
       p.hand.cards.length=0;
       p.hand.cards.push(...p.deck.cards.splice(0,5));
-      p.supporterTurn=this.state.turn;
+      p.supporterTurn++;
     }
   }
 }
@@ -68,10 +68,10 @@ for(const slot of ['A','B']){
     const sourceSeat=slot==='A'?1:0;
     const origDecode=Object.getOwnPropertyDescriptor(FakeAi.prototype,'decodeNextAction');
     const origDispatch=Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch');
-    const run=()=>withSourceEarlyCarmine(()=>{
+    const headless={runMatch:()=>{
       const store=new FakeStore(sourceSeat);
-      // The source may be first (turn 1) or second (turn 2), yet its
-      // Supporter quota is a per-owner-turn count in both cases.
+      // Source-seat turn is global turn 1 or 2, but Supporter use count
+      // starts at zero in either orientation.
       if(sourceSeat===1)store.state.turn=2;
       store.dispatch(new AddPlayerAction());
       const ai=new FakeAi(store.state.players[sourceSeat].id,store);
@@ -79,8 +79,11 @@ for(const slot of ['A','B']){
       assert.equal(selected.constructor.name,'PlayCardAction');
       store.dispatch(selected);
       return {selected,sourceSeat};
-    },{trials:[trial(slot)],SimpleTacticsAi:FakeAi,Store:FakeStore,
-      PlayCardAction,observe:observer});
+    }};
+    const run=()=>withSourceEarlyCarmine(()=>headless.runMatch({}),{
+      trials:[trial(slot)],headless,SimpleTacticsAi:FakeAi,Store:FakeStore,
+      PlayCardAction,observe:observer
+    });
     const {audit,result}=run();
     assert.equal(audit.firstOwnTurnPasses,1);
     assert.equal(audit.heldCarminePasses,1);
@@ -97,15 +100,18 @@ for(const slot of ['A','B']){
   });
 }
 test('native canPlay veto preserves Pass and cannot claim accepted source action',()=>{
-  const result=withSourceEarlyCarmine(()=>{
+  const headless={runMatch:()=>{
     const store=new FakeStore(0);
     store.state.players[0].hand.cards[0].canPlay=()=>false;
     store.dispatch(new AddPlayerAction());
     const action=new FakeAi(100,store).decodeNextAction(store.state);
     assert.equal(action.constructor.name,'PassTurnAction');
     return action;
-  },{trials:[trial('B')],SimpleTacticsAi:FakeAi,Store:FakeStore,
-    PlayCardAction,observe:observer});
+  }};
+  const result=withSourceEarlyCarmine(()=>headless.runMatch({}),{
+    trials:[trial('B')],headless,SimpleTacticsAi:FakeAi,Store:FakeStore,
+    PlayCardAction,observe:observer
+  });
   assert.equal(result.audit.nativeCanPlayRejected,1);
   assert.equal(result.audit.nativeCommitted,0);
   assert.equal(result.audit.nativeEffectsComplete,0);
