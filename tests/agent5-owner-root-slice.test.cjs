@@ -320,3 +320,17 @@ test('native Tool recipient snapshots use only owner physical slots',()=>{
     rootPhysicalSnapshot(state,0,active),{FINISHED:99}),
   'no-confirmed-public-effect');
 });
+
+test('authentic owner Arven root uses physical Supporter zone witness',()=>{
+  const intent={kind:'play-arven-for-hood',printing:'Arven SVI'};
+  const before={supporterTurn:0,supporterSpent:0,handCount:3};
+  const accepted={supporterTurn:2,supporterSpent:1,handCount:2};
+  assert.equal(rootPhysicalWitness(intent,before,accepted,{FINISHED:99}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,{
+    ...accepted,supporterSpent:0
+  },{FINISHED:99}),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,{
+    ...accepted,supporterTurn:0
+  },{FINISHED:99}),'no-confirmed-public-effect');
+});
