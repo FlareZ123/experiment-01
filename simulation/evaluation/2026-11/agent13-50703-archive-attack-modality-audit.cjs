@@ -86,8 +86,10 @@ function audit(archived){
     EXPECTED_PERFECTION_PRIZES);
   assert.deepEqual(treatment.candidatePhysicalPerfectionReceiptPrizes
     .filter(x=>x>0),EXPECTED_PERFECTION_PRIZES);
-  assert.equal(baseline.candidateTotalPerfectionPhysicalPrizes,0);
-  assert.equal(repeat.candidateTotalPerfectionPhysicalPrizes,0);
+  // Baseline did take two Prizes in its losing native line; the correction
+  // completed all six. This is a completion gain, not 0 -> 6 activity.
+  assert.equal(baseline.candidateTotalPerfectionPhysicalPrizes,2);
+  assert.equal(repeat.candidateTotalPerfectionPhysicalPrizes,2);
   assert.equal(treatment.candidateOrdinaryAttackRootCount,0);
   assert.equal(treatment.candidateTotalPerfectionPhysicalPrizes,6);
   assert.equal(treatment.nativeWinner,0);
