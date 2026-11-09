@@ -53,6 +53,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent16_box_root_extended:
+        description: 'Opt-in thirty-two additional fresh original-source physical pairs, same New Moon 60'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -131,6 +136,9 @@ jobs:
       - name: Run preregistered paired original-source Secret Box root comparison
         if: inputs.agent16_box_root_paired
         run: node simulation/evaluation/agent16-box-root-prospective-paired.cjs
+      - name: Measure 32 additional paired original-source Secret Box root opportunities
+        if: inputs.agent16_box_root_extended
+        run: node simulation/evaluation/agent16-box-root-prospective-extended-v2.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
