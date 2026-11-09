@@ -64,9 +64,15 @@ The arithmetic [script](../../../scripts/2026-11/agent33-rank7-jet-nest-opening-
 | Item identities counted | Copies | Exact favorable allocations | Location screen | With a non-Wobbuffet Basic in initial seven |
 | --- | ---: | ---: | ---: | ---: |
 | Nest Ball | 1 | 140,716,470,206,610,936 | 1.8139980968652318% | 1.5329554371925584% |
+| Nest Ball or Robo Substitute | 3 | 376,274,068,322,350,572 | 4.850608054865884% | 4.106577363992147% |
 | Nest Ball or VS Seeker | 4 | 474,015,258,692,331,444 | 6.110605076224922% | 5.17784510288844% |
 | Nest Ball, VS Seeker or Robo Substitute | 6 | 635,830,741,862,240,364 | 8.196593859787745% | 6.957075104481652% |
 
 The common conditional denominator is `7,757,255,669,109,186,240`; the strict non-Wobb starter six-Item numerator is `539,678,102,946,586,848`. The source-tied pure tests and full [Energy census 42575370867](https://github.com/FlareZ123/experiment-01/actions/runs/42575370867) passed. Original list count checks cover the actual 1 Nest, 3 VS Seeker and 2 Robo copies. Item access is a **location ceiling**, especially because VS Seeker still needs a valid public discard Supporter and Robo still needs a free Bench. None of these percentages is a probability that Sentinel's lock gets broken or a competitive game is won.
 
 **Selection implication:** when its lock Pokémon is not effectively Hood-protected and Artazon remains available to the other player, Sentinel must contend with at least three native-confirmed original rank7 Item payoff families after Jet Wobbuffet. Model actual Hood placement, Stadium preservation, natural source hands and the competing Tool channels before assigning matchup value. This strengthens the case for counterplay-aware comparison, while providing no evidence of 99.5% success.
+
+
+### First-response caveat (7 November source chronology)
+
+The four-Item VS Seeker row and six-Item union assume at least one VS Seeker is a potentially live payoff, although retrieving Faba requires that an original Faba has **already** entered the source's public discard. On an early response with no eligible Supporter discarded, **Nest Ball plus two Robo Substitute** is the more relevant structural class. Its exact source-location screen is **4.850608054865884%** (strict non-Wobb Basic starter: **4.106577363992147%**), with the same `7,757,255,669,109,186,240` denominator. The printed-source-bound BigInt test for this row passed [Energy census 42576493005](https://github.com/FlareZ123/experiment-01/actions/runs/42576493005). This remains a conditional restricted card-location screen, not a natural Item-play or win-rate observation.
