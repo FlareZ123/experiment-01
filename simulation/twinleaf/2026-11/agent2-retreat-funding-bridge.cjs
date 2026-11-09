@@ -102,7 +102,10 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
       resources.energyPlayLocked === true ||
       own.publicTurnRestrictions?.energyPlayLocked === true) return null;
   const handIndex = (view.ownHand ?? []).findIndex(printing =>
-    catalog.basicEnergies.has(printing));
+    catalog.basicEnergies.has(printing) &&
+    !(active.attacks ?? []).some(attack =>
+      Array.isArray(attack.cost) &&
+      paysWithBasics({...active, energies: [printing]}, attack, catalog)));
   if (handIndex < 0) return null;
   return {kind: 'attach-basic-energy', slot: 'active', index: 0,
     handIndex, printing: view.ownHand[handIndex], source: VERSION,
