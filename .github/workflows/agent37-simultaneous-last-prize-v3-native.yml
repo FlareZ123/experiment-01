@@ -55,6 +55,10 @@ jobs:
       - name: Run opt-in mixed terminal v4 regression
         run: |
           node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-native.cjs > agent37-simultaneous-terminal-v4-native.json
+      - name: Agent37 native duplicate Prize effect and fail-closed rejection
+        run: |
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs
+          node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs > agent37-simultaneous-terminal-v4-duplicate-guard-native.json
 
       - name: Assert v3 schema, pinned engine and native outcomes
         run: |
