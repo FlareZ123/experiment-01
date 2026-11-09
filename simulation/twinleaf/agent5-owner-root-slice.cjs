@@ -419,7 +419,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(['play-thunder-mountain','play-tropical-beach',
-    'play-players-ceremony','play-sky-field','play-path-to-peak']
+    'play-players-ceremony','play-sky-field','play-path-to-peak',
+    'play-path-underworld-stadium-counter']
     .includes(intent.kind)){
     const count=cards=>cards.filter(c=>c===intent.printing).length;
     return Array.isArray(before.stadiumPrintings)&&
