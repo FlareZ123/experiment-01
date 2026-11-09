@@ -1,0 +1,103 @@
+{
+  "schema": "agent26-frozen-owner-pass-snapshot-r13-t3-v1",
+  "sourceArtifactId": 13650203351,
+  "paperQualifiedGames": 0,
+  "sourceSeed": 1486727692,
+  "sourceDealFingerprint": "9f7be638cc3c3bfc59f130092ca8ef55221ca506d6da9bce2cfdc9e80752547f",
+  "sourceSeat": 1,
+  "sourceActuallyFirst": true,
+  "sourceGlobalTurn": 3,
+  "sourcePasses": [
+    {
+      "candidateId": "champion-reference",
+      "trialId": "13:1:A:champion-reference",
+      "rootOrdinal": 22,
+      "ownHand": [
+        "Marnie SSH",
+        "Echoing Horn CRE",
+        "Guzma BUS",
+        "Parallel City BKT",
+        "Quick Ball FST"
+      ],
+      "ownActive": {
+        "name": "Latias ex",
+        "printing": "Latias ex SSP",
+        "attachedEnergy": []
+      },
+      "ownBench": [
+        {
+          "name": "Budew",
+          "attachedEnergy": []
+        },
+        {
+          "name": "Kyurem",
+          "attachedEnergy": [
+            "Double Dragon Energy"
+          ]
+        }
+      ],
+      "opposingActive": {
+        "printing": "Trevenant & Dusknoir-GX SMP",
+        "attachedEnergy": [
+          "Psychic Energy"
+        ]
+      },
+      "opposingBench": [
+        {
+          "printing": "Girafarig LOT"
+        }
+      ],
+      "stadiumInPlay": null,
+      "sourcePlayedSupporterOnThisTurn": false,
+      "nativeDisposition": "ACTION_CAP",
+      "finalPrizes": [
+        6,
+        6
+      ]
+    },
+    {
+      "candidateId": "new-moon-lockbreaker-v1",
+      "trialId": "13:1:A:new-moon-lockbreaker-v1",
+      "rootOrdinal": 17,
+      "ownHand": [
+        "Marnie SSH",
+        "Echoing Horn CRE",
+        "Guzma BUS",
+        "Parallel City BKT",
+        "Quick Ball FST"
+      ],
+      "ownActive": {
+        "name": "Latias ex",
+        "printing": "Latias ex SSP",
+        "attachedEnergy": []
+      },
+      "ownBench": [
+        {
+          "name": "Budew",
+          "attachedEnergy": []
+        },
+        {
+          "name": "Kyurem",
+          "attachedEnergy": [
+            "Double Dragon Energy"
+          ]
+        }
+      ],
+      "opposingActive": {
+        "printing": "Unown AOR",
+        "attachedEnergy": [
+          "Psychic Energy"
+        ]
+      },
+      "opposingBench": [],
+      "stadiumInPlay": null,
+      "sourcePlayedSupporterOnThisTurn": false,
+      "nativeDisposition": "ACTION_CAP",
+      "finalPrizes": [
+        2,
+        6
+      ]
+    }
+  ],
+  "caveat": "Read-only owner hand and public board projection from archived root; does not contain actual deck count, full status restrictions, or native Store alternative acceptance."
+}
