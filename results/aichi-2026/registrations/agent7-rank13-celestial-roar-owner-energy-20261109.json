@@ -1,0 +1,41 @@
+{
+  "schema": "agent7-owner-celestial-roar-source-adversarial-repair-v1",
+  "registeredAtUtc": "2026-11-09T02:29:27.824Z",
+  "sourceRanks": [
+    3,
+    13
+  ],
+  "originalFixedSixties": "results/aichi-2026/full-decklists.json",
+  "seed": 290134,
+  "originalPhysicalOrientations": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "control": {
+    "arvenNestAfterMail": false,
+    "opponentDedenneTrue": true,
+    "opponentCelestialRoarNativeOwnerSelection": true
+  },
+  "treatment": {
+    "arvenNestAfterMail": true,
+    "opponentDedenneTrue": true,
+    "opponentCelestialRoarNativeOwnerSelection": true
+  },
+  "observedFrontier": "Previous sealed native run 42550589027 revealed rank13's turn2 true Regidrago V SIT Celestial Roar, native ATTACH_ENERGY_CARDS player 0, exactly one Basic Energy from temporary top3, must attach to own Active; prior Motivate-only selector correctly abstained",
+  "hypothesis": "Resolving native Celestial Roar owner-authorized temporary top-three Basic Energy selection will permit a genuine native Energy attachment to Regidrago V, the source's next actual turn, and potentially rank3 Mail+Beach+Arven+Nest follow-through",
+  "acceptance": [
+    "One genuine native ATTACH_ENERGY_CARDS min=max Basic Energy selection from attack-opened temporary card list no larger than three",
+    "Native prompt validator accepts actual owner Active target and exact Basic Energy object",
+    "Exact energy physically enters attacking Regidrago V active energies and disappears from source temp pile",
+    "Audit placement of all other two revealed non-Energy cards in public discard; fail any unresolved custody",
+    "Native Dedenne true hand discard/draw verified",
+    "Control/treatment physical deals and failures/caps fully retained",
+    "Zero competitively qualified games or win-rate estimates"
+  ],
+  "knownCaveats": [
+    "Existing Twinleaf implementation only includes Basic Energy in Celestial Roar even though printed text says Energy cards, requiring separate paper fidelity qualification",
+    "Potential JS mutation of temp.cards in native callback may strand a card; record and investigate without silently fixing",
+    "Single exposed historical seed, opponent policy incomplete and 128-root cap"
+  ]
+}
