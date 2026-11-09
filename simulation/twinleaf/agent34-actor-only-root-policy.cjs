@@ -1046,6 +1046,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     mimikyuApexTimelessPromptSelected:0,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
+    genericTacticalSwitchRootOptIn:deps.genericTacticalSwitchRoot===true,
+    opponentBlockSwitchRootOptIn:deps.opponentBlockSwitchRoot===true,
     zeroEnergyStrandFloatStoneRootOptIn:
       deps.zeroEnergyStrandFloatStoneRoot===true,
     zeroEnergyStrandFloatStoneTargetTurn:
@@ -1989,6 +1991,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.mimikyuApexFundedPromotionOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
+      genericTacticalSwitchRoot:audit.genericTacticalSwitchRootOptIn===true,
+      opponentBlockSwitchRoot:audit.opponentBlockSwitchRootOptIn===true,
       zeroEnergyStrandFloatStoneRoot:
         audit.zeroEnergyStrandFloatStoneRootOptIn===true&&
         (audit.zeroEnergyStrandFloatStoneOwnerSeat===null||
