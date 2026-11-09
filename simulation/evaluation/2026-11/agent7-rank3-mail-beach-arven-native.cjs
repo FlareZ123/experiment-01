@@ -15,9 +15,10 @@ const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent7-mail-beach-arven/paired-native.json');
 
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
-function run({treasureBridge=false,confirmBridge=false,nestBridge=false}={}){
+function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneTrue=false}={}){
   const opts={mysteriousTreasureRoot:treasureBridge,
-    ownerConfirm:confirmBridge,arvenNest:nestBridge};
+    ownerConfirm:confirmBridge,arvenNest:nestBridge,
+    dedenneTrue};
   const headless=require('../../twinleaf/headless.cjs');
   const nativeOutput=path.resolve(__dirname,
     '../../../vendor/twinleaf/ptcg-server/output');
@@ -81,12 +82,14 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false}={}){
     observedFirstUnsupportedActorRoot:r.firstUnsupportedOwnerRoot?.ownerView?.decisionKind??null
   }));
   return {
-    schema:nestBridge?VERSION+'-with-native-nest-v4':
+    schema:dedenneTrue?VERSION+'-with-opponent-dedechange-v5':
+      nestBridge?VERSION+'-with-native-nest-v4':
       confirmBridge?VERSION+'-with-owner-confirm-v3':
       treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
     experimentalExistingActorTreasureBridge:treasureBridge,
     experimentalOwnerConfirmBridge:confirmBridge,
     experimentalArvenSelectedNestBallBridge:nestBridge,
+    experimentalSourceAttributedDedenne:dedenneTrue,
     originalRank3SourceAndRank13Candidate:true,
     seed:290134,enginePin:control.output.enginePin,
     fullPrintedSixtiesFixed:true,
@@ -119,12 +122,23 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false}={}){
       ownerConfirmSettled:audit.ownerConfirmSettled,
       ownerConfirmUnsettled:audit.ownerConfirmUnsettled,
       ownerConfirmEvents:audit.ownerConfirmEvents,
+      nativeDedenneConfirmOffers:audit.nativeDedenneConfirmOffers,
+      nativeDedenneTrueAccepted:audit.nativeDedenneTrueAccepted,
+      nativeDedenneTrueEffectSettled:audit.nativeDedenneTrueEffectSettled,
+      nativeDedenneTrueRejected:audit.nativeDedenneTrueRejected,
+      nativeDedenneTrueEvents:audit.nativeDedenneTrueEvents,
       trialStatuses:trialStatuses(treatment)},
     completeMailBeachArvenPairs:pairs,
     physicallySettledThreeEffectSequence:qualified.length>0,
+    physicallySettledOpponentDedechange:dedenneTrue&&
+      audit.nativeDedenneTrueEffectSettled>0,
     physicallySettledArvenNestBenchSequence:nestBridge&&
       audit.nestFromArvenBenchSettled>0&&qualified.length>0,
-    status:nestBridge&&audit.nestFromArvenBenchSettled>0&&
+    status:dedenneTrue&&audit.nativeDedenneTrueEffectSettled>0&&
+      audit.nestFromArvenBenchSettled>0&&qualified.length>0?
+      'NATIVE_ARVEN_NEST_AND_OPPONENT_DEDECHANGE_SETTLED':
+      dedenneTrue?'NO_SETTLED_ARVEN_NEST_WITH_DEDENNE_EFFECT':
+      nestBridge&&audit.nestFromArvenBenchSettled>0&&
       audit.nestFromArvenRejected===0&&qualified.length>0?
       'NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED':
       nestBridge?'NATIVE_ARVEN_NEST_UNSETTLED_OR_NOT_OFFERED':
@@ -140,7 +154,9 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false}={}){
 /** Atomic receipt with an exclusive per-output lock. */
 function save(report){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
-  const output=report.experimentalArvenSelectedNestBallBridge?
+  const output=report.experimentalSourceAttributedDedenne?
+    OUTPUT.replace('paired-native.json','paired-native-with-dedenne.json'):
+    report.experimentalArvenSelectedNestBallBridge?
     OUTPUT.replace('paired-native.json','paired-native-with-nest.json'):
     report.experimentalOwnerConfirmBridge?
     OUTPUT.replace('paired-native.json','paired-native-with-confirm.json'):
@@ -165,7 +181,8 @@ if(require.main===module){
   try{report=run({
     treasureBridge:process.env.AGENT7_TREASURE_BRIDGE_DEV==='true',
     confirmBridge:process.env.AGENT7_OWNER_CONFIRM_DEV==='true',
-    nestBridge:process.env.AGENT7_ARVEN_NEST_DEV==='true'
+    nestBridge:process.env.AGENT7_ARVEN_NEST_DEV==='true',
+    dedenneTrue:process.env.AGENT7_DEDENNE_TRUE_DEV==='true'
   });}
   catch(error){
     report={schema:VERSION,status:'NATIVE_OR_ASSERTION_ERROR',
@@ -179,7 +196,8 @@ if(require.main===module){
     nativeArvenActions:report.treatment?.arvenAccepted??0,
     competitiveGamesQualified:0,error:report.error??null},null,2)+'\n');
   if(report.status!=='NATIVE_THREE_EFFECT_SEQUENCE_SETTLED'&&
-     report.status!=='NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED')
+     report.status!=='NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED'&&
+     report.status!=='NATIVE_ARVEN_NEST_AND_OPPONENT_DEDECHANGE_SETTLED')
     process.exitCode=1;
 }
 
