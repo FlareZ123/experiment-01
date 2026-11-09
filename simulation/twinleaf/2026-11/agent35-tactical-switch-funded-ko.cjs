@@ -8,7 +8,7 @@ const {projectedFundedAttackDamage}=
 const {wouldLoseActivePositionAbility}=
   require('../agent47-active-position-retreat-veto.cjs');
 
-const VERSION='agent35-owner-held-switch-funded-ko-v1';
+const VERSION='agent35-owner-held-switch-funded-ko-v2-type-specific-resistance';
 const ITEM='Switch SVI';
 
 function eligibleAttack(view,catalog,pokemon,attack){
@@ -22,6 +22,27 @@ function eligibleAttack(view,catalog,pokemon,attack){
     (!restrictions.onlyAllowedAttackNameNextTurn||
       restrictions.onlyAllowedAttackNameNextTurn===attack.name)&&
     publicSpecialAttackPayable(view,catalog,pokemon,attack);
+}
+
+/**
+ * Conservative printed Resistance reduction for this attacker type. Unknown
+ * values or multi-type interactions abstain rather than overstate damage.
+ * @param {object} attacker Face-up public Pokémon
+ * @param {object} defender Face-up public Pokémon
+ * @returns {number|null} Damage reduction or unknown
+ */
+function printedResistanceReduction(attacker,defender){
+  const types=attacker?.printed?.types;
+  const resistance=defender?.printed?.resistance;
+  if(!Array.isArray(types)||!Array.isArray(resistance))return null;
+  if(resistance.length>0&&types.length!==1)return null;
+  let reduction=0;
+  for(const entry of resistance){
+    if(!Number.isSafeInteger(entry?.type)||
+        !Number.isSafeInteger(entry?.value)||entry.value>0)return null;
+    if(types.includes(entry.type))reduction+=-entry.value;
+  }
+  return reduction;
 }
 
 /**
@@ -51,7 +72,6 @@ function chooseTacticalSwitchFundedKo(view,catalog){
       !Number.isSafeInteger(enemy.hp)||!Number.isSafeInteger(enemy.damage)||
       enemy.damage<0||enemy.hp<=enemy.damage||
       !Array.isArray(enemy.printed?.resistance)||
-      enemy.printed.resistance.length>0||
       !Array.isArray(enemy.tools)||enemy.tools.length>0)
     return null;
   const handIndex=view.ownHand.indexOf(ITEM);
@@ -63,7 +83,9 @@ function chooseTacticalSwitchFundedKo(view,catalog){
   for(const attack of active.attacks??[]){
     if(!eligibleAttack(view,catalog,active,attack))continue;
     const projected=projectedFundedAttackDamage(view,active,attack,catalog);
-    if(projected===null||projected>=remaining)return null;
+    const reduction=printedResistanceReduction(active,enemy);
+    if(projected===null||reduction===null||
+        projected-reduction>=remaining)return null;
   }
 
   const targets=[];
@@ -72,9 +94,12 @@ function chooseTacticalSwitchFundedKo(view,catalog){
     for(const attack of pokemon.attacks??[]){
       if(!eligibleAttack(view,catalog,pokemon,attack))continue;
       const projected=projectedFundedAttackDamage(view,pokemon,attack,catalog);
-      if(!Number.isSafeInteger(projected)||projected<remaining)continue;
+      const reduction=printedResistanceReduction(pokemon,enemy);
+      if(!Number.isSafeInteger(projected)||reduction===null||
+          projected-reduction<remaining)continue;
       targets.push({benchIndex,printing:pokemon.printing,
-        targetAttackName:attack.name,projectedPrintedDamage:projected});
+        targetAttackName:attack.name,projectedPrintedDamage:projected,
+        printedResistanceReduction:reduction});
     }
   }
   targets.sort((a,b)=>a.projectedPrintedDamage-b.projectedPrintedDamage||
@@ -85,4 +110,4 @@ function chooseTacticalSwitchFundedKo(view,catalog){
   return {...target,handIndex,kind:'play-tactical-switch',
     source:VERSION,paperQualified:false};
 }
-module.exports={VERSION,ITEM,chooseTacticalSwitchFundedKo};
+module.exports={VERSION,ITEM,printedResistanceReduction,chooseTacticalSwitchFundedKo};
