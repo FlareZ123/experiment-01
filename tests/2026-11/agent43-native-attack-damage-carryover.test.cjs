@@ -41,7 +41,7 @@ test('damage changed between roots, printing switched or healed breaks continuit
     a=>{a[1].publicBoardBefore[1].active.printing='Other';},
     a=>{a[0].publicBoardAfter[1].active.printing='Other';},
     a=>{a[1].publicBoardAfter[1].active={printing:'Target',damage:0};},
-    a=>{a[1].prizesAfter[0]=3;},
+    a=>{a[1].prizesAfter[0]=6;},
     a=>{a[0].settledPromptChain=false;},
     a=>{a[1].settlementCrossesClockReset=true;}
   ]){
