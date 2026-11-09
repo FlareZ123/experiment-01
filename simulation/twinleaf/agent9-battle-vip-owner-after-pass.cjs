@@ -122,6 +122,29 @@ function preferPerfectionMewtwoDonorVipRecipient(pending,view,enums){
 }
 
 /**
+ * Choose the one missing Mewtwo attacker when its owner-authorized
+ * VIP deck search has only one free Bench space.
+ * @param {object} pending Native owner's ChooseCardsPrompt.
+ * @param {object} view Detached authenticated owner-prompt observation.
+ * @param {{BASIC:number,POKEMON:number}} enums Native card enums.
+ * @returns {object[]|null}
+ */
+function preferSingleSlotMewtwoVipRecipient(pending,view,enums){
+  assert.equal(view?.decisionKind,'owner-prompt');
+  assert.equal(view.pendingOwnerDeckSearch,true);
+  if(view.ownPublic.bench.filter(slot=>slot===null).length!==1)return null;
+  const mewtwoPrinting='Mewtwo & Mew-GX UNM';
+  const alreadyInPlay=[view.ownPublic.active,...view.ownPublic.bench]
+    .some(slot=>slot?.printing===mewtwoPrinting);
+  if(alreadyInPlay)return null;
+  const mewtwo=pending.cards.cards.find(card=>
+    card.superType===enums.POKEMON&&card.stage===enums.BASIC&&
+    card.fullName===mewtwoPrinting);
+  if(!mewtwo||pending.validate([mewtwo])!==true)return null;
+  return [mewtwo];
+}
+
+/**
  * Reversible real-Store owner-only Battle VIP Pass root + search-to-Bench
  * policy for both physical seats. Root is offered only after the earlier
  * actor planner proposed Pass. Search inventory is never inspected until
@@ -157,14 +180,17 @@ function withActorBattleVipAfterPass(execute,deps={}){
   const preferRank9MegaVoltorbRecipient=
     deps.preferRank9MegaVoltorbRecipient===true;
   const preferMewtwoDonorRecipient=deps.preferMewtwoDonorRecipient===true;
+  const preferSingleSlotMewtwoRecipient=deps.preferSingleSlotMewtwoRecipient===true;
   const proposed=new WeakMap(),contendedOriginal=new WeakMap(),awaiting=new Map();
   let liveStore=null;
   const audit={
     version:VERSION+(preferRank9MegaVoltorbRecipient?
       '+original-rank9-mega-voltorb-early-v8':'')+
-      (preferMewtwoDonorRecipient?'+original-owner-mewtwo-donor-v1':''),
+      (preferMewtwoDonorRecipient?'+original-owner-mewtwo-donor-v1':'')+
+      (preferSingleSlotMewtwoRecipient?'+owner-single-slot-mewtwo-v1':''),
     preferRank9MegaVoltorbRecipient,preferredOriginalRank9Searches:0,
     preferMewtwoDonorRecipient,preferredMewtwoDonorSearches:0,
+    preferSingleSlotMewtwoRecipient,preferredSingleMewtwoSearches:0,
     bothPhysicalSeats:true,originalPassRoots:0,
     originalPassBySeat:{0:0,1:0},passOpportunities:[],
     structurallyOpenNonPassRoots:0,originalAlternativesAccepted:0,
@@ -207,7 +233,11 @@ function withActorBattleVipAfterPass(execute,deps={}){
       const mewtwoPriority=!rank9Priority&&preferMewtwoDonorRecipient?
         preferPerfectionMewtwoDonorVipRecipient(pending,view,enums):null;
       if(mewtwoPriority)audit.preferredMewtwoDonorSearches++;
-      const selected=rank9Priority??mewtwoPriority??
+      const oneSlot=!rank9Priority&&!mewtwoPriority&&
+        preferSingleSlotMewtwoRecipient?
+        preferSingleSlotMewtwoVipRecipient(pending,view,enums):null;
+      if(oneSlot)audit.preferredSingleMewtwoSearches++;
+      const selected=rank9Priority??mewtwoPriority??oneSlot??
         chooseVipPromptCards(pending,view,enums);
       const action=new ResolvePromptAction(pending.id,selected);
       proposed.set(action,{
@@ -366,4 +396,5 @@ function withActorBattleVipAfterPass(execute,deps={}){
 
 module.exports={VERSION,PRINTING,PROMPT_MESSAGE,chooseVipAfterPass,
   chooseVipPromptCards,preferRank9MegaVoltorbVipRecipient,
-  preferPerfectionMewtwoDonorVipRecipient,withActorBattleVipAfterPass};
+  preferPerfectionMewtwoDonorVipRecipient,
+  preferSingleSlotMewtwoVipRecipient,withActorBattleVipAfterPass};
