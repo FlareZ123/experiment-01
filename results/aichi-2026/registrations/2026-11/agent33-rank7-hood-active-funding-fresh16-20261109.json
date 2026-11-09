@@ -1,0 +1,176 @@
+{
+  "schema": "agent33-rank7-hood-active-funding-fresh16-20261109-v1",
+  "registeredUtc": "2026-11-09T23:20:06Z",
+  "registeredBeforeNativeResultsForTheseSeeds": true,
+  "seedGeneration": "Python secrets.randbits(32), sixteen unique 32-bit seeds, eight per candidate physical seat, excludes 58 historical Agent3 all29 groups",
+  "source": "Aichi 2026 original rank7 Snorlax Stall",
+  "sourceRank": 7,
+  "originalSourceSixty": "results/aichi-2026/full-decklists.json rank7",
+  "candidateSixty": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateId": "hood-shield-v1",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalPrintedSixtyUnchanged": true,
+  "candidatePrintedSixtyUnchanged": true,
+  "randomness": "Identical physical candidate and original-source deals for control and treatment, independent isolated actor and physical randomness",
+  "treatment": "Enable actorUnderworldActiveFundingPriority while leaving all other source/candidate policy choices and fixed deck inventories identical",
+  "control": "actorUnderworldActiveFundingPriority false",
+  "policyBothSeats": "Same owner-visible playing policy applied to both seats in each arm; no concealed source deck or Prize reads",
+  "seeds": {
+    "A": [
+      3896958823,
+      3191331474,
+      3598058701,
+      1465381884,
+      1739793287,
+      4154751362,
+      2801197960,
+      4166086605
+    ],
+    "B": [
+      2982934639,
+      3104969830,
+      437867924,
+      1840385186,
+      273124775,
+      3081494563,
+      275571948,
+      2468894871
+    ]
+  },
+  "trials": [
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3896958823,
+      "candidateId": "hood-shield-v1",
+      "id": "7:0:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3191331474,
+      "candidateId": "hood-shield-v1",
+      "id": "7:1:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 3598058701,
+      "candidateId": "hood-shield-v1",
+      "id": "7:2:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 1465381884,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 1739793287,
+      "candidateId": "hood-shield-v1",
+      "id": "7:4:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "seed": 4154751362,
+      "candidateId": "hood-shield-v1",
+      "id": "7:5:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 2801197960,
+      "candidateId": "hood-shield-v1",
+      "id": "7:6:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "seed": 4166086605,
+      "candidateId": "hood-shield-v1",
+      "id": "7:7:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2982934639,
+      "candidateId": "hood-shield-v1",
+      "id": "7:0:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3104969830,
+      "candidateId": "hood-shield-v1",
+      "id": "7:1:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 437867924,
+      "candidateId": "hood-shield-v1",
+      "id": "7:2:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 1840385186,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "seed": 273124775,
+      "candidateId": "hood-shield-v1",
+      "id": "7:4:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 3081494563,
+      "candidateId": "hood-shield-v1",
+      "id": "7:5:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "seed": 275571948,
+      "candidateId": "hood-shield-v1",
+      "id": "7:6:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 2468894871,
+      "candidateId": "hood-shield-v1",
+      "id": "7:7:B:hood-shield-v1"
+    }
+  ],
+  "uniqueSeedGroups": 16,
+  "matchedPairs": 16,
+  "totalNativeAttempts": 32,
+  "primaryOutcome": "Exact candidate paid Active Psychic actions and real Max Geist declarations under original-rank7 source response",
+  "secondaryOutcomes": "Underworld draw/contact, original opponent roots, physical source/candidate deal identity, full native outcome and engine/censor buckets",
+  "limitations": "Developmental native test; source rank7 not representative of full32, and results cannot qualify paper matches alone; original 1693388692 seed excluded"
+}
