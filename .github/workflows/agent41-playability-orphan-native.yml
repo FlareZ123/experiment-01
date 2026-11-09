@@ -1,0 +1,33 @@
+name: Agent41 exact-rank7 native orphan-prompt regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out fixed research repository
+        uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Set up pinned Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate playability orphan cleanup in isolation
+        run: node --test tests/2026-11/agent41-playability-orphan-prompt-cleanup.test.cjs
+      - name: Install exact native Store dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay exact rank7 original physical deals with reversible cleanup
+        run: node simulation/evaluation/2026-11/agent41-rank7-playability-orphan-prompt-native.cjs
