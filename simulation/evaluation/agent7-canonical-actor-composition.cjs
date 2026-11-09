@@ -47,11 +47,18 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     adapters.ownerSearch===undefined&&
     process.env.AGENT22_SPARSE_OWNER_BUNDLE_DEV==='true';
   const ownerSearch = ownerSingleSearch?(adapters.ownerSearch??
-    (sparseOwnerSearch?
-      require('../twinleaf/agent22-sparse-owner-search-adapter.cjs')
-        .withSparseActorOwnerSearch:
-      require('../twinleaf/agent41-actor-owner-single-search.cjs')
-        .withActorOwnerSingleSearch)):null;
+    (options.ownerMewGenesectQuickBallSearchSeat!==undefined?
+      work=>require('../twinleaf/agent41-actor-owner-single-search.cjs')
+        .withActorOwnerSingleSearch(work,{
+          choose:input=>require('../twinleaf/agent37/mew-genesect-quickball-search.cjs')
+            .chooseMewGenesectQuickBallSearch(
+              input,options.ownerMewGenesectQuickBallSearchSeat)
+        }):
+      sparseOwnerSearch?
+        require('../twinleaf/agent22-sparse-owner-search-adapter.cjs')
+          .withSparseActorOwnerSearch:
+        require('../twinleaf/agent41-actor-owner-single-search.cjs')
+          .withActorOwnerSingleSearch)):null;
   const defaultRoot=require('../twinleaf/agent34-actor-only-root-policy.cjs')
     .withActorOnlyRootPolicy;
   const root=adapters.root??(
