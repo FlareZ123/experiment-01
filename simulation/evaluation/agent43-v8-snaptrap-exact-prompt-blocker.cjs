@@ -199,6 +199,7 @@ function run(settings = {}) {
   const acceptedHeldHandiworkRefs = new WeakSet();
   const acceptedHeldRefillRefs = new WeakSet();
   const acceptedHeldArvenRefs = new WeakSet();
+  const acceptedArvenNestRefs = new WeakSet();
   const playedSelectedTrainerRefs = new WeakSet();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
@@ -212,6 +213,7 @@ function run(settings = {}) {
       ownerHeldHandiworkAction: acceptedHeldHandiworkRefs.has(action),
       ownerHeldRefillAction: acceptedHeldRefillRefs.has(action),
       ownerHeldArvenAction: acceptedHeldArvenRefs.has(action),
+      ownerArvenSelectedNestAction: acceptedArvenNestRefs.has(action),
       previouslyMailSelectedTrainerPlayed: playedSelectedTrainerRefs.has(action),
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
@@ -278,6 +280,8 @@ function run(settings = {}) {
               action => acceptedHeldRefillRefs.add(action),
             onHeldArvenActionCommitted:
               action => acceptedHeldArvenRefs.add(action),
+            onArvenNestActionCommitted:
+              action => acceptedArvenNestRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
           });
         ownerMailAudit = mail.audit;
