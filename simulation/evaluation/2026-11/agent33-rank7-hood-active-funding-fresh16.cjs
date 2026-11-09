@@ -175,7 +175,11 @@ function save(report){
   const fd=fs.openSync(lock,'wx');
   const temp=OUT+'.tmp.'+process.pid;
   try{
+    assert.equal(fs.existsSync(OUT),false,
+      'Do not overwrite a previous native trial archive');
     fs.writeFileSync(temp,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
+    const tempFd=fs.openSync(temp,'r');
+    try{fs.fsyncSync(tempFd);}finally{fs.closeSync(tempFd);}
     fs.renameSync(temp,OUT);
   }finally{
     if(fs.existsSync(temp))fs.unlinkSync(temp);
