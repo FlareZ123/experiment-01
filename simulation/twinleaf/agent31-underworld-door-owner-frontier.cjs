@@ -35,6 +35,15 @@ function chooseUnderworldDoorRoot(ownerView,catalog,usedMarkerReceipt={}){
   // Abstain conservatively when Initialization is printed on the Active.
   // Exceptional interactions that cancel this lock are handled by separate
   // card/Tool-aware policies, not guessed by this basic frontier.
+  // An in-play Path to the Peak removes Underworld Door from Rule Box
+  // Shadow Rider VMAX. Stadium placement belongs to either physical player;
+  // both public Stadium zones are visible to the owner. A Path in the discard
+  // pile or hand does not constitute a live lock.
+  const stadiums=[...(own.stadium??[]),
+    ...(ownerView.opponentPublic?.stadium??[])];
+  if(stadiums.some(printing=>typeof printing==='string'&&
+     (printing==='Path to the Peak'||
+      printing.startsWith('Path to the Peak '))))return null;
   const opponentActive=ownerView.opponentPublic?.active;
   if(opponentActive?.name==='Iron Thorns ex' &&
      opponentActive.abilities?.includes('Initialization')) return null;
