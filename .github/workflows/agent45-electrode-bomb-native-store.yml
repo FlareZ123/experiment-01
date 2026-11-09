@@ -67,6 +67,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_fresh_damage_v15:
+        description: 'Independent fresh twelve physical rank9 groups two opponents both seats v13 HP vs v14 printed type/Prize-aware decisions'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -261,6 +266,19 @@ jobs:
         with:
           name: agent29-rank9-opponent-damage-aware-v14
           path: agent29-rank9-opponent-damage-aware-v14.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Fresh unseen 12-group original rank9 v13 HP versus v14 Prize-aware defensive switch
+        if: ${{ inputs.rank9_source_fresh_damage_v15 }}
+        env:
+          AGENT29_RANK9_FRESH_ROPE_DAMAGE_V15: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-rope-fresh-v15.json
+      - name: Preserve all 48 native v15 games, opponent-choice settlements and caps
+        if: ${{ always() && inputs.rank9_source_fresh_damage_v15 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-fresh-12-group-rope-v15
+          path: agent29-rank9-rope-fresh-v15.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
