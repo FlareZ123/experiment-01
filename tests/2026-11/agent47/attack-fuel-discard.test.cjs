@@ -146,6 +146,33 @@ test('Perfection route respects visible opposing Ability lock and GX expenditure
   assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,false);
 });
 
+test('native bounded Telepath Energy can fund a known Perfection attack',()=>{
+  const telepath='Telepath [P] Energy M3';
+  const input=makeInput([B,telepath,H],[9,9,9]);
+  input.actor.ownPublic.active.printing='Mewtwo & Mew-GX UNM';
+  input.actor.ownPublic.active.abilities=['Perfection'];
+  input.actor.ownPublic.active.energies=['Psychic Energy MEE'];
+  input.actor.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  const source={...catalog,specialEnergies:new Set([telepath]),
+    perfectionDonors:new Map([['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[5,5],gxAttack:false}
+    ]]])};
+  assert.deepEqual(energyUnits(telepath,source,false),[5]);
+  const result=proposeAttackFuelDiscard(input,source);
+  assert.equal(result.changed,true);
+  assert.deepEqual(result.proposal,[B,H]);
+  input.actor.opponentPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.deepEqual(energyUnits(telepath,source,true),[9]);
+  assert.equal(proposeAttackFuelDiscard(input,source).changed,false);
+});
+
+test('unknown Special remains unsupported and cannot create fictitious attack fuel',()=>{
+  const input=makeInput([B,'Unimplemented Special Energy XX',H],[9,9]);
+  const source={...catalog,specialEnergies:new Set(['Unimplemented Special Energy XX'])};
+  assert.equal(energyUnits('Unimplemented Special Energy XX',source,false),null);
+  assert.equal(proposeAttackFuelDiscard(input,source).changed,false);
+});
+
 test('opt-in Store prompt resolution chooses validated physical cards and restores hooks',()=>{
   const {withActorHandDiscard}=
     require('../../../simulation/twinleaf/agent47-actor-hand-discard.cjs');
