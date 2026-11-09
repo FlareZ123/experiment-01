@@ -360,6 +360,14 @@ function probeStadiumThenEnergyDrive(state,ownerId,view,deps={}){
             // This existing contract yields the acting owner's private hand
             // and both public boards, never opponent concealed card faces.
             sourcePromotion.nextOwnerObservation=nextOwner;
+            // An independent native research continuation may receive this
+            // already-cloned Store after the original owner-visible promotion.
+            // The default v7 audit and original Store remain unchanged.
+            if(typeof deps.afterSourcePromotion==='function'){
+              sourcePromotion.scopedContinuation=deps.afterSourcePromotion({
+                store:clone,ownerId,opponentId,actorObservation:nextOwner
+              });
+            }
           }
         }catch(error){
           sourcePromotion.error=String(error?.message??error);
