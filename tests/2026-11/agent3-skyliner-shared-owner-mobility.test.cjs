@@ -6,6 +6,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {chooseActorRootIntent}=
   require('../../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {rootPhysicalWitness}=
+  require('../../simulation/twinleaf/agent5-owner-root-slice.cjs');
 const {publicSkylinerSuppressionReason}=
   require('../../simulation/twinleaf/agent6-skyliner-ability-suppression-guard.cjs');
 
@@ -67,6 +69,7 @@ test('opt-in shared actor selects genuine free Skyliner pivot to three-Psychic N
   assert.equal(choice.benchIndex,1);
   assert.equal(choice.attackName,'Night Watch');
   assert.equal(choice.baseDamage,150);
+  assert.equal(choice.printing,'Trevenant & Dusknoir-GX SMP');
   assert.equal(choice.calculatedNativeRetreatCost,null);
 });
 
@@ -81,6 +84,26 @@ test('known opponent Iron Thorns suppression blocks the new opt-in even if Latia
     skylinerFundedBenchRetreatRoot:true
   });
   assert.notEqual(choice.kind,'skyliner-free-retreat');
+});
+
+test('Store physical witness recognizes Skyliner free retreat and conserves Energy',()=>{
+  const intent={kind:'skyliner-free-retreat',benchIndex:2,
+    printing:'Shadow Rider Calyrex VMAX CRE'};
+  const before={turn:22,publicSkylinerPresent:true,
+    activePokemonPrinting:'Tapu Lele-GX GRI',
+    targetPokemonPrinting:intent.printing,
+    activeEnergies:['Psychic Energy MEE']};
+  const after={activePokemonPrinting:intent.printing,
+    targetPokemonPrinting:before.activePokemonPrinting,
+    targetEnergies:['Psychic Energy MEE'],retreatedTurn:22};
+  assert.equal(rootPhysicalWitness(intent,before,after,{}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,
+    {...after,targetEnergies:[]},{}),
+    'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,
+    {...before,publicSkylinerPresent:false},after,{}),
+    'no-confirmed-public-effect');
 });
 
 test('native decision plumbing is default-off and candidate/source symmetric',()=>{
