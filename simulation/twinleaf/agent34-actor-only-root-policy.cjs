@@ -258,6 +258,15 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
   }
+  // Source-independent effective zero-cost Skyliner pivot to an already
+  // funded Benched attacker. The native Store determines true Ability
+  // suppression, Retreat legality and attack settlement. This helper
+  // inspects only the acting owner's public board and public opponent Active.
+  if(options.skylinerFundedBenchRetreatRoot===true){
+    const skyliner=require('./agent2-owner-skyliner-funded-bench-frontier.cjs')
+      .chooseOwnerSkylinerFundedBenchRetreat(view,catalog);
+    if(skyliner)return skyliner;
+  }
   // General funded-KO Item mobility is a separate opt-in counterfactual.
   // It considers the actual enemy Active and preserves an already payable
   // Active KO. A prior Block effect is not required.
@@ -1094,6 +1103,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionNativeConfirmed:0,
     genesectFusionReceipts:[],
     flexiblePaidRetreatRootOptIn:deps.flexiblePaidRetreatRoot===true,
+    skylinerFundedBenchRetreatRootOptIn:deps.skylinerFundedBenchRetreatRoot===true,
+    skylinerFundedBenchRetreatSelected:0,
     rank9SpecialPaidRetreatOptIn:deps.rank9SpecialPaidRetreat===true,
     rank9SpecialPaidRetreatOwnerSeat:deps.rank9SpecialPaidRetreatOwnerSeat??null,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
@@ -2028,6 +2039,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           require('./agent33-public-fusion-usage.cjs')
             .publicFusionUsageAtRoot(state,seat):null,
       flexiblePaidRetreatRoot:audit.flexiblePaidRetreatRootOptIn,
+      skylinerFundedBenchRetreatRoot:
+        audit.skylinerFundedBenchRetreatRootOptIn===true,
       rank9SpecialPaidRetreat:actorSpecialEnergyEnabled(
         audit.rank9SpecialPaidRetreatOptIn,
         audit.rank9SpecialPaidRetreatOwnerSeat,seat),
@@ -2313,6 +2326,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1)
       audit.dittoStage1.selected++;
+    if(intent.kind==='skyliner-free-retreat')
+      audit.skylinerFundedBenchRetreatSelected++;
     if(intent.kind==='play-temple-dde-denial')
       audit.templeDdeDenialSelected++;
     if(intent.kind==='play-arven-for-hood')
@@ -2464,6 +2479,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'paid-retreat':
       case 'skyliner-rondo-retreat':
+      case 'skyliner-free-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
       case 'use-underworld-door':
