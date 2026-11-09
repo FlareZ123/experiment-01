@@ -19,6 +19,7 @@ on:
           - gengar-fresh-eight
           - gengar-flexible-v2
           - gengar-resource-v3
+          - gengar-resource-v3-regression
 
 permissions:
   contents: read
@@ -53,7 +54,7 @@ jobs:
           gh run download 42610256883 -R FlareZ123/experiment-01 -n agent44-rank5-m4-paper-source-four-native-v1 -D prior-m4
           node simulation/evaluation/2026-11/agent44-m4-source-archive-intake.cjs prior-m4/agent44-rank5-m4-paper-source-native-v1.json
       - name: Validate frozen source program
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
@@ -66,20 +67,20 @@ jobs:
           node --test tests/2026-11/agent44-rank5-ranger-source-alias.test.cjs
           node simulation/evaluation/2026-11/agent44-first-original-rank5-newmoon-case.cjs --inspect-only
       - name: Fetch pinned vendor revision
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' }}
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native simulator
-        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' }}
+        if: ${{ inputs.mode == 'run' || inputs.mode == 'release-case' || inputs.mode == 'gengar-tempo' || inputs.mode == 'gengar-hand6' || inputs.mode == 'gengar-factorial' || inputs.mode == 'gengar-fresh-eight' || inputs.mode == 'gengar-flexible-v2' || inputs.mode == 'gengar-resource-v3' || inputs.mode == 'gengar-resource-v3-regression' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Replay same four frozen original-source games under exact Ranger link repair
@@ -192,6 +193,22 @@ jobs:
         with:
           name: agent50-rank5-gengar-resource-v3-fresh-eight-v1
           path: artifacts/agent50-rank5-gengar-resource-v3-fresh-eight.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate original known-negative Gengar resource-v3 native A-B-A replay
+        if: ${{ inputs.mode == 'gengar-resource-v3-regression' }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent36-gengar-v3-original-regression-native.cjs
+          node --test tests/2026-11/agent50-gengar-perfection-resource-guard-v3.test.cjs
+      - name: Replay one original physically identical v2-v3-v2 negative regression
+        if: ${{ inputs.mode == 'gengar-resource-v3-regression' }}
+        run: node simulation/evaluation/2026-11/agent36-gengar-v3-original-regression-native.cjs
+      - name: Archive complete posthoc Gengar resource decision Store tapes
+        if: ${{ always() && inputs.mode == 'gengar-resource-v3-regression' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-gengar-v3-original-negative-50703-aba-native
+          path: artifacts/agent36-gengar-v3-original-regression-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive single-case review packet and exact missing-evidence manifest
