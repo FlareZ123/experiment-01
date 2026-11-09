@@ -25,6 +25,33 @@ const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent5-rank13/source-policy-four-cell.json');
 
 /**
+ * Identify the first *accepted native* action affected by the opponent
+ * challenger. A flag with no original-source action difference is inactive.
+ * @param {object[]} attempts Original 2x2 physical comparison cells.
+ * @returns {object[]}
+ */
+function sourcePolicyDifferences(attempts){
+  assert.equal(attempts.length,4);
+  return [false,true].map(pivot=>{
+    const control=attempts.find(x=>!x.sourceChallenger&&
+      x.candidatePaidPivot===pivot);
+    const challenged=attempts.find(x=>x.sourceChallenger&&
+      x.candidatePaidPivot===pivot);
+    assert.ok(control&&challenged);
+    const first=firstRootDivergence(
+      control.acceptedNativeRoots??[],challenged.acceptedNativeRoots??[]);
+    const sourceOwned=first.ordinal!==null&&
+      (first.baseline?.playerSlot===1||first.treatment?.playerSlot===1);
+    return {
+      candidatePaidPivot:pivot,
+      firstNativeRootDifference:first,
+      sourceOwnedFirstDifference:sourceOwned,
+      sourcePolicyChangedAnAcceptedNativeRoot:sourceOwned
+    };
+  });
+}
+
+/**
  * Four developmental reproductions of one *historically exposed* real
  * original-source physical deal. One source policy changes only on actual
  * held/payable owner cards, with all native payments and prompts adjudicated
@@ -103,23 +130,7 @@ function run(deps={}){
       JSON.stringify(attempts[0].sourceDealFingerprint));
   const prePivotSourcePass=attempts.map(a=>
     a.sourcePassAudit.events.find(e=>e.globalTurn===2)??null);
-  const sourcePolicyCausalRoots=[false,true].map(pivot=>{
-    const control=attempts.find(x=>!x.sourceChallenger&&
-      x.candidatePaidPivot===pivot);
-    const challenged=attempts.find(x=>x.sourceChallenger&&
-      x.candidatePaidPivot===pivot);
-    assert.ok(control&&challenged);
-    const first=firstRootDivergence(
-      control.acceptedNativeRoots??[],challenged.acceptedNativeRoots??[]);
-    const sourceOwned=first.ordinal!==null&&
-      (first.baseline?.playerSlot===1||first.treatment?.playerSlot===1);
-    return {
-      candidatePaidPivot:pivot,
-      firstNativeRootDifference:first,
-      sourceOwnedFirstDifference:sourceOwned,
-      sourcePolicyChangedAnAcceptedNativeRoot:sourceOwned
-    };
-  });
+  const sourcePolicyCausalRoots=sourcePolicyDifferences(attempts);
   const result={
     version:VERSION,registration:registration.schema,
     originalSelectedRank13Deal:TARGET,
@@ -179,4 +190,4 @@ if(require.main===module){
   if(!report.fourCellFullPhysicalIdentityMatched)process.exitCode=1;
 }
 
-module.exports={VERSION,TARGET,run,save};
+module.exports={VERSION,TARGET,sourcePolicyDifferences,run,save};
