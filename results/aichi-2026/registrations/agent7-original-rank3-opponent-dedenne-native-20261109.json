@@ -1,0 +1,38 @@
+{
+  "schema": "agent7-original-rank3-native-arven-nest-and-opponent-dedechange-v1",
+  "registeredAtUtc": "2026-11-09T00:53:57.706Z",
+  "originalSourceRank": 3,
+  "originalOpponentRank": 13,
+  "seed": 290134,
+  "twoPhysicalTrialIds": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "question": "Does responding yes to rank13's real physical Dedenne GX UNB Dedechange confirmation, rather than the earlier conservative false, still permit original rank3's Mail->Beach->Arven->Nest Ball->Bunnelby line, with actual owner hand discarded and 0..6 cards drawn?",
+  "common": {
+    "earlyBeachAfterActualMail": true,
+    "mysteriousTreasureRoot": true,
+    "mailSelectedArven": true,
+    "arvenSelectedNestBall": true,
+    "ownerConfirmBridge": true
+  },
+  "control": {
+    "confirmNativeDedenne": false,
+    "otherUnknownConfirmResponses": false
+  },
+  "treatment": {
+    "confirmNativeDedenne": true,
+    "otherUnknownConfirmResponses": false
+  },
+  "mechanicalAcceptance": [
+    "a prior accepted native opponent PlayCardAction of the exact physical Dedenne GX UNB caused genuine acting-owner WANT_TO_USE_ABILITY ConfirmPrompt",
+    "a real native ResolvePromptAction(true) validated and settled on same prompt",
+    "owner old hand objects absent from hand and physically in own discard or Lost Zone",
+    "owner deck card count decrease corresponds to physical hand count after Dedechange, maximum six",
+    "original source's physical Arven Item+Tool search and subsequent Nest Ball Basic Bench admission also settle"
+  ],
+  "competenceCaveat": "Dedenne true is only one higher-agency policy action; remaining prompt responses conservatively false, strategy and complete games unqualified. It may change source survival, opponent access, game path, and cannot automatically be called stronger.",
+  "failure": "Any unqualified result or missing physical Dedenne and Nest receipts retained, experiment gate fails. No win-rate inference."
+}
