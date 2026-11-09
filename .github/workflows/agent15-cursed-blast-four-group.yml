@@ -1,0 +1,56 @@
+name: Agent15 prospective four-group Cursed Blast owner decision
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent15-cursed-blast-four-group-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-four-group:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout research and pinned Twinleaf
+        uses: actions/checkout@v4
+
+      - name: Checkout exact pinned simulator submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+
+      - name: Install Node 20 and cached native dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Compile pinned native simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+
+      - name: Validate owner policy and both-seat native Cursed Blast contract
+        run: |
+          node --check simulation/twinleaf/agent15/owner-cursed-blast-prize-policy.cjs
+          node --check simulation/twinleaf/agent15/owner-cursed-blast-after-pass.cjs
+          node --check simulation/evaluation/agent15/fresh-original-cursed-blast-native-pair.cjs
+          node --test tests/2026-11/agent15-owner-cursed-blast-prize-policy.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent15-owner-cursed-blast-native-probe.test.cjs
+
+      - name: Run eight original-physical paired native games
+        run: |
+          mkdir -p artifacts/agent15-cursed-blast-paired
+          node simulation/evaluation/agent15/fresh-original-cursed-blast-native-pair.cjs > artifacts/agent15-cursed-blast-paired/paired-results.json
+
+      - name: Preserve native receipts, including fail-closed attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-cursed-blast-four-group-native-${{ github.run_id }}
+          path: artifacts/agent15-cursed-blast-paired/
+          if-no-files-found: warn
+          retention-days: 21
