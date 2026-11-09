@@ -52,8 +52,10 @@ jobs:
         if: ${{ inputs.mode == 'run' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Run all four frozen original-source games without seed filtering
+      - name: Replay same four frozen original-source games under exact Ranger link repair
         if: ${{ inputs.mode == 'run' }}
+        env:
+          AGENT44_RANGER_LINK_REPLAY: 'true'
         run: node simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
       - name: Archive complete root ledgers and original physical opening receipts
         if: ${{ always() && inputs.mode == 'run' }}
