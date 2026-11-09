@@ -15,7 +15,7 @@ const OUTPUT=path.join(ROOT,'artifacts/agent20-rank5-gengar-tempo-posthoc-aba.js
 const sha256=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 /** Run an unchanged frozen source game under one named owner-policy arm. */
-function arm(phase,enabled,reg){
+function arm(phase,enabled,reg,options={}){
   const capture=gameCapture();
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   const result=runDevelopment({
@@ -48,6 +48,8 @@ function arm(phase,enabled,reg){
     allowSingleCandidateArm:true,
     allowAdditionalOriginalSourceRanks:true,
     bilateralGengarHorrorHouseTempo:enabled,
+    bilateralGengarHorrorHouseMinOpponentHandCount:
+      options.minOpponentHandCount??0,
     registeredTrials:reg.registeredTrials,
     registeredFrameName:reg.caseId+':'+phase,
     nativeRootActionLimit:reg.rootCap,
