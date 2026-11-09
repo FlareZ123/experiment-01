@@ -61,3 +61,33 @@ test('real native Jamming Tower shuts off the protected Hood counterline',()=>{
   assert.equal(outcome.native.powerListed,false);
   assert.equal(outcome.native.attached,0);
 });
+
+test('native owner pays held Hood onto Bench and then succeeds at Underworld',()=>{
+  let viewBefore=null;
+  const native=underworldDoorAction({
+    hood:false,heldHoodBeforePower:true,payHeldHoodBeforePower:true,
+    jammer:false,active:false,stadium:'Sky Field ROS',actingSeat:true,
+    observeOwnerBeforePower:view=>{viewBefore=view;}
+  });
+  assert.ok(viewBefore);
+  const source=viewBefore.ownPublic.bench[0];
+  assert.equal(source.printing,SOURCE);
+  assert.deepEqual(source.tools,[]);
+  const intent=policy.chooseHoodToolPreparation(viewBefore,{
+    toolPrintings:new Set([HOOD])
+  });
+  assert.deepEqual(intent,{
+    kind:'attach-tool-candidate',printing:HOOD,
+    handIndex:1,slot:'bench',index:0
+  });
+  assert.equal(native.hoodPayment.actualPhysicalToolAttached,true);
+  assert.equal(native.hoodPayment.actualPhysicalToolLeavesHand,true);
+  assert.equal(native.hoodPayment.handBefore,2);
+  assert.equal(native.hoodPayment.handAfter,1);
+  assert.equal(native.hoodPayment.sourceBenchToolCount,1);
+  assert.deepEqual(native.hoodPayment.pendingPrompts,[]);
+  assert.equal(native.allowed,true);
+  assert.equal(native.powerListed,true);
+  assert.equal(native.attached,1);
+  assert.equal(native.drawn,2);
+});
