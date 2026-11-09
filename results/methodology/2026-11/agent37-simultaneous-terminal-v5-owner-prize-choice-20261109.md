@@ -121,10 +121,15 @@ Prize lists, confirms that the native `ChoosePrizePrompt.validate`
 accepts that malformed response, and requires v5 to reject it before
 Prize effects. Both physical seat orientations are exercised.
 
-The expanded manual native run
-[42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190)
-was dispatched with the original ten successful v5 cases and the two
-new ownership rejects. Its result remained pending at first writing.
+The expanded manual [native run 42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190)
+**SUCCEEDED** 9 November 2026 with the original ten passing v5 cases,
+both **out-of-zone forged Prize reference rejects**, and all unchanged
+v3/v4 controls. The two negative cases prove the pinned native
+`ChoosePrizePrompt.validate` admits the forged out-of-zone
+references and that v5 **throws before native Prize transfer**.
+Full machine-readable output is archived in
+[artifact 13647468719](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190/artifacts/13647468719),
+SHA-256 `69556dd83f2b05a9b55f7217be2963b860e43a2a1d4ffd543e4a59052971fab3`.
 
 ## Unsolved limits
 
