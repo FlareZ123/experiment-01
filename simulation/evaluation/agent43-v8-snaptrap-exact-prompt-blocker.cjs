@@ -178,6 +178,7 @@ function run(settings = {}) {
   const {GameMessage} = require(path.join(output, 'game/game-message'));
   const trace = {byStore: new WeakMap(), events: [], roots: []};
   const acceptedMailActionRefs = new WeakSet();
+  const acceptedHeldHandiworkRefs = new WeakSet();
   const playedSelectedTrainerRefs = new WeakSet();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
@@ -188,6 +189,7 @@ function run(settings = {}) {
       ordinal,
       action: action?.constructor?.name ?? null,
       ownerMailAfterPassAction: acceptedMailActionRefs.has(action),
+      ownerHeldHandiworkAction: acceptedHeldHandiworkRefs.has(action),
       previouslyMailSelectedTrainerPlayed: playedSelectedTrainerRefs.has(action),
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
@@ -243,6 +245,8 @@ function run(settings = {}) {
             followHeldHandiwork,
             trialIds: registeredTrials.map(t => t.id),
             onMailActionCommitted: action => acceptedMailActionRefs.add(action),
+            onHeldHandiworkActionCommitted:
+              action => acceptedHeldHandiworkRefs.add(action),
             onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
           });
         ownerMailAudit = mail.audit;
