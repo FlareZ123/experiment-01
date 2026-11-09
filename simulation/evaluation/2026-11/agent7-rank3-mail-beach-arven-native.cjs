@@ -15,8 +15,9 @@ const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent7-mail-beach-arven/paired-native.json');
 
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
-function run({treasureBridge=false}={}){
-  const opts={mysteriousTreasureRoot:treasureBridge};
+function run({treasureBridge=false,confirmBridge=false}={}){
+  const opts={mysteriousTreasureRoot:treasureBridge,
+    ownerConfirm:confirmBridge};
   const headless=require('../../twinleaf/headless.cjs');
   const nativeOutput=path.resolve(__dirname,
     '../../../vendor/twinleaf/ptcg-server/output');
@@ -80,8 +81,10 @@ function run({treasureBridge=false}={}){
     observedFirstUnsupportedActorRoot:r.firstUnsupportedOwnerRoot?.ownerView?.decisionKind??null
   }));
   return {
-    schema:treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
+    schema:confirmBridge?VERSION+'-with-owner-confirm-v3':
+      treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
     experimentalExistingActorTreasureBridge:treasureBridge,
+    experimentalOwnerConfirmBridge:confirmBridge,
     originalRank3SourceAndRank13Candidate:true,
     seed:290134,enginePin:control.output.enginePin,
     fullPrintedSixtiesFixed:true,
@@ -105,6 +108,10 @@ function run({treasureBridge=false}={}){
       arvenSearchUnsettled:audit.arvenSearchUnsettled,
       arvenPlayEvents:audit.arvenPlayEvents,
       arvenSearchEvents:audit.arvenSearchEvents,
+      ownerConfirmOffers:audit.ownerConfirmOffers,
+      ownerConfirmSettled:audit.ownerConfirmSettled,
+      ownerConfirmUnsettled:audit.ownerConfirmUnsettled,
+      ownerConfirmEvents:audit.ownerConfirmEvents,
       trialStatuses:trialStatuses(treatment)},
     completeMailBeachArvenPairs:pairs,
     physicallySettledThreeEffectSequence:qualified.length>0,
@@ -120,8 +127,10 @@ function run({treasureBridge=false}={}){
 /** Atomic receipt with an exclusive per-output lock. */
 function save(report){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
-  const output=report.experimentalExistingActorTreasureBridge?
-    OUTPUT.replace('paired-native.json','paired-native-with-treasure.json'):OUTPUT;
+  const output=report.experimentalOwnerConfirmBridge?
+    OUTPUT.replace('paired-native.json','paired-native-with-confirm.json'):
+    report.experimentalExistingActorTreasureBridge?
+      OUTPUT.replace('paired-native.json','paired-native-with-treasure.json'):OUTPUT;
   const lock=output+'.lock';
   const fd=fs.openSync(lock,'wx');
   const tmp=output+'.'+process.pid+'.'+randomUUID()+'.tmp';
@@ -138,7 +147,10 @@ function save(report){
 
 if(require.main===module){
   let report;
-  try{report=run({treasureBridge:process.env.AGENT7_TREASURE_BRIDGE_DEV==='true'});}
+  try{report=run({
+    treasureBridge:process.env.AGENT7_TREASURE_BRIDGE_DEV==='true',
+    confirmBridge:process.env.AGENT7_OWNER_CONFIRM_DEV==='true'
+  });}
   catch(error){
     report={schema:VERSION,status:'NATIVE_OR_ASSERTION_ERROR',
       error:{name:error.name,message:error.message,
