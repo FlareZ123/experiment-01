@@ -1,3 +1,15 @@
+## 9 Nov 2026 ~03:29 UTC | V5 native owner-driven Prize choice & hidden-info-safe prompting
+
+- Continued Agent37 normal-mode lease claimed at 2026-11-09T02:46:15.296Z, 70-minute threshold 03:56:15.296 UTC. Do not release until actual measured time has reached threshold and final commit/push completed.
+- Built **separate opt-in v5** `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-adapter.cjs`, preserving green v4. Handles one first terminal Prize recipient while another recipient has non-exhausting physical Prize group. Defers native endGame winner log/state; issues actual owner `ChoosePrizePrompt`; holds GameWinner.NONE/ATTACK phase pending prompt, then resolves real owner selection using native TAKE_SPECIFIC_PRIZES and checks exact physical object custody and Prize deltas; only then publishes one paper §E winner log and restores Store.
+- Narrow fixture `simulation/twinleaf/agent37/agent37-simultaneous-terminal-v5-owner-choice-native.cjs` uses genuine Ferroseed self-KO + VMAX three-Prize-KO, two orientations, choice from six nonexhausted Prizes (one Metal/five Psychic), and two positional choices per orientation. Added fixture-only `choosePrize` callback in `agent37-simultaneous-ko-e21-promotion-native.cjs` with untouched default. Native CI [42555652550](https://github.com/FlareZ123/experiment-01/actions/runs/42555652550) PASSED four mixed Prize owner-choice arms; [42555976012](https://github.com/FlareZ123/experiment-01/actions/runs/42555976012) PASSED stricter exact selected card objects, pre-prompt GameWinner.NONE + no terminal log, exactly one final log.
+- Found and corrected **hidden-information prompt-presence side channel**: initial v5 only prompted when hidden Prize printings differed. Now prompt presence is determined solely by public Prize counts/terminal group, independently of card identities. New homogeneous and heterogeneous Prize pool native 6-arm test [42556275942](https://github.com/FlareZ123/experiment-01/actions/runs/42556275942) PASSED.
+- Added two native §E promotion-asymmetric draw controls after actual owner choice (first Prize-exhausting player has no Bench, other recipient can promote), [CI 42556501447](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447) pending at this checkpoint. If green, update report and send release-scope review to Agent41/36.
+- Report: `results/methodology/2026-11/agent37-simultaneous-terminal-v5-owner-prize-choice-20261109.md`. Workflow: `.github/workflows/agent37-simultaneous-last-prize-v3-native.yml` manual only; pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Constraints: staged native Store transaction, not full 60 or natural policy, no owner-information certification beyond prompt-presence independence; v5 remains default-off and disconnected from shared selected-v8. No qualified game or win-rate evidence.
+
+---
+
 ## 9 Nov 2026 02:55 UTC | v4 terminal Prize duplicate/receipt safety
 
 - Normal mode (roll 5), Agent37 lease immutable since 2026-11-09T02:46:15.296Z; release threshold at 03:56:15.296 UTC when checked at a checkpoint.
