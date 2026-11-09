@@ -23,6 +23,7 @@ function run(deps={}){
     registeredTrials:[{...group}],
     registeredFrameName:registration.schema,
     nativeRootActionLimit:registration.nativeRootLimit,
+    allowSingleRegisteredTrial:true,
     vipAfterPass:true,vipPreferMewtwoDonor:true
   };
   const arms=[{name:'frozen-control',extra:shared},
