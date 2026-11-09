@@ -32,8 +32,15 @@ function runV2(deps={}){
     total+pair.protected.actualHoodToolNativeActionRoots,0);
   const controlToolRootCount=result.pairs.reduce((total,pair)=>
     total+pair.baseline.actualHoodToolNativeActionRoots,0);
+  const sequencePairs=result.pairs.map(pair=>({
+    id:pair.id,
+    sameFullPhysicalDeal:pair.sameFullPhysicalDeal,
+    control:pair.baseline.paidHoodNativeSequence,
+    treatment:pair.protected.paidHoodNativeSequence
+  }));
   return {
     ...result,
+    paidHoodSequencePairs:sequencePairs,
     treatmentAddsPhysicalHeldHoodRoot:true,
     treatmentAddsProtectedUnderworldSource:true,
     protectedPolicyToolNativeActionRoots:paidToolRootCount,
@@ -66,6 +73,36 @@ if(require.main===module){
       treatmentErrors:result.interventionNativeErrors,
       firstDifferences:result.pairs.filter(p=>p.firstAcceptedRootDivergence)
         .map(p=>({id:p.id,difference:p.firstAcceptedRootDivergence})),
+      acceptedHoodDoorPairs:result.paidHoodSequencePairs.filter(p=>
+        p.treatment.observedTemporalHoodDoor).length,
+      acceptedHoodDoorCandidateAttackPairs:
+        result.paidHoodSequencePairs.filter(p=>
+          p.treatment.observedTemporalHoodDoorCandidateAttack).length,
+      acceptedHoodDoorSourceAttackPairs:
+        result.paidHoodSequencePairs.filter(p=>
+          p.treatment.observedTemporalHoodDoorSourceAttack).length,
+      nativeCandidateAttackCounts:{
+        baseline:result.paidHoodSequencePairs.reduce((n,p)=>
+          n+p.control.candidateAttackCount,0),
+        treated:result.paidHoodSequencePairs.reduce((n,p)=>
+          n+p.treatment.candidateAttackCount,0)
+      },
+      nativeSourceAttackCounts:{
+        baseline:result.paidHoodSequencePairs.reduce((n,p)=>
+          n+p.control.originalSourceAttackCount,0),
+        treated:result.paidHoodSequencePairs.reduce((n,p)=>
+          n+p.treatment.originalSourceAttackCount,0)
+      },
+      physicalHoodNativeCases:result.paidHoodSequencePairs.filter(p=>
+        p.treatment.acceptedHoodCount>0).map(p=>({
+          id:p.id,
+          control:p.control,
+          treatment:p.treatment
+        })),
+      nativeTerminalWinnerChanges:result.paidHoodSequencePairs.filter(p=>
+        p.control.nativeTerminal&&p.treatment.nativeTerminal&&
+        p.control.nativeWinner!==p.treatment.nativeWinner).map(p=>p.id),
+      hoodAndDoorSamePhysicalSourceVerified:false,
       paperQualifiedGames:0
     })+'\n');
   if(!Object.values(result.gates).every(Boolean)||
