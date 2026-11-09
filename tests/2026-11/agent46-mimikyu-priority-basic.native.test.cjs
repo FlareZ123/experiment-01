@@ -27,6 +27,7 @@ function fixture(seat) {
   const {Store} = native('game/store/store');
   const {Player} = native('game/store/state/player');
   const {PokemonCardList} = native('game/store/state/pokemon-card-list');
+  const {CardList} = native('game/store/state/card-list');
   const {GamePhase} = native('game/store/state/state');
   const store = new Store({onStateChange() {}});
   const state = store.state;
@@ -35,6 +36,13 @@ function fixture(seat) {
   const opponent = new Player();
   opponent.id = seat === 0 ? 202 : 101;
   state.players = seat === 0 ? [owner, opponent] : [opponent, owner];
+  // Nonempty physical Prizes prevent the native empty-Prize sudden-death
+  // reset from swallowing this otherwise legal mid-game action fixture.
+  for (const player of state.players) {
+    player.prizes = Array.from({length:6}, () =>
+      CardList.fromList(['Psychic Energy SVE']));
+    player.deck = CardList.fromList(Array(12).fill('Psychic Energy SVE'));
+  }
   state.phase = GamePhase.PLAYER_TURN;
   state.activePlayer = seat;
   state.turn = 4;
