@@ -1,0 +1,31 @@
+{
+  "schema": "agent38-mail-selected-marnie-physical-follow-v1",
+  "status": "FROZEN_BEFORE_NATIVE_MARNIE_TREATMENT",
+  "registeredAtUtc": "2026-11-09T10:45:00Z",
+  "purpose": "Retrospective mechanism test: given already exposed original source rank5 owner Mail yielding physically held Marnie at 5:13:A:champion-reference turn2, does policy actually play that previously selected Supporter on an otherwise Pass while respecting Supporter one-per-turn, and does native Store settle it and permit real opponent followthrough?",
+  "oneOriginalTrial": {
+    "rank": 5,
+    "repeat": 13,
+    "candidateSlot": "A",
+    "candidateId": "champion-reference",
+    "seed": 1291419999,
+    "id": "5:13:A:champion-reference"
+  },
+  "priorSourceEvidence": "Agent37 prospective CI 42596968738. Mail selected Marnie but it was never played. This deliberately reuses one public old opening as a new mechanism fixture, not as an independent new game.",
+  "originalSourceSha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedCandidate": "champion-reference",
+  "baselinePolicy": {
+    "actorOwnerMailAfterPass": true,
+    "actorOwnerMailAfterPassSourceOnly": true,
+    "actorOwnerMailSelectedMarnieOnPass": false
+  },
+  "treatmentPolicy": {
+    "actorOwnerMailAfterPass": true,
+    "actorOwnerMailAfterPassSourceOnly": true,
+    "actorOwnerMailSelectedMarnieOnPass": true
+  },
+  "changedDecisionAxis": "Only play actually Mail-selected held Marnie when canonical actor otherwise Pass; native settled physical card must be discarded, Supporter quota respected",
+  "attempts": 2,
+  "qualification": "No independent new source opening, no competitive paper games, no 99.5% claim"
+}
