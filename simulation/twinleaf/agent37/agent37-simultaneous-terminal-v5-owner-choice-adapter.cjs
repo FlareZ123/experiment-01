@@ -217,14 +217,11 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
 
       const otherGroupAlreadyProcessed=
         processedPrizePlayerIds.has(otherPlayer.id);
-      // A terminal first group prevents Twinleaf from offering the second
-      // recipient's normal ChoosePrizePrompt. Auto-picking first N from a
-      // heterogeneous, non-exhausted Prize pool would make an owner choice.
+      // Always offer the owner a prompt for a non-exhausting Prize group.
+      // Gating on concealed Prize printings would itself leak information by
+      // making prompt presence depend on cards the player has not seen.
       if(firstGroupExhausts&&!otherGroupAlreadyProcessed&&
         otherGroup.count<prizeLeftBefore[otherPlayer.id]){
-        const printings=otherPlayer.prizes.flatMap(prize=>
-          prize.cards.map(card=>card.fullName));
-        if(new Set(printings).size>1){
           const count=Math.min(otherGroup.count,prizeLeftBefore[otherPlayer.id]);
           const prompt=new ChoosePrizePrompt(
             otherPlayer.id,GameMessage.CHOOSE_PRIZE_CARD,{
@@ -308,7 +305,6 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
             restoreStore();
           });
           return result;
-        }
       }
       if(firstGroupExhausts&&!otherGroupAlreadyProcessed){
         const prizes=otherPlayer.prizes
