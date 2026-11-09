@@ -1,0 +1,42 @@
+name: Agent44 prospective original rank5 paper M4 versus fixed Hood
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank5-paper-m4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate frozen source program
+        run: |
+          node --check simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs --inspect-only
+      - name: Fetch pinned vendor revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all four frozen original-source games without seed filtering
+        run: node simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
+      - name: Archive complete root ledgers and original physical opening receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-rank5-m4-paper-source-four-native-v1
+          path: artifacts/agent44-rank5-m4-paper-source-native-v1.json
+          if-no-files-found: warn
+          retention-days: 30
