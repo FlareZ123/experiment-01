@@ -11,6 +11,12 @@ const {firstRootDivergence}=
 
 const VERSION='agent23-rank11-source-payable-attack-vs-quickball-retrospective-v1';
 const TARGET='11:3203:B:new-moon-lockbreaker-v1';
+const REGISTERED_IDS=Object.freeze([
+  '11:3202:A:new-moon-lockbreaker-v1',
+  TARGET,
+  '31:3206:A:new-moon-lockbreaker-v1',
+  '31:3207:B:new-moon-lockbreaker-v1'
+]);
 const FACTORS=Object.freeze([
   Object.freeze({id:'P0Q0',pivot:false,attackBeforeQuickBall:false}),
   Object.freeze({id:'P0Q1',pivot:false,attackBeforeQuickBall:true}),
@@ -35,6 +41,19 @@ function frozenTrial(){
 }
 
 /**
+ * Four exact previously registered physical deals, containing the target,
+ * one opposite-source-seat rank11 arm and both inactive rank31 controls.
+ * Preserving all four native rows satisfies the selected-runner's contract.
+ * @returns {object[]}
+ */
+function frozenTrials(){
+  const selected=reg.groups.filter(trial=>REGISTERED_IDS.includes(trial.id));
+  assert.equal(selected.length,4);
+  assert.deepEqual(selected.map(x=>x.id),REGISTERED_IDS);
+  return selected.map(x=>({...x}));
+}
+
+/**
  * Run the authentic original source and exact unchanged New Moon 60, including
  * both versions of the pre-existing candidate Perfection pivot.
  * Source-only optional Quick Ball priority is the only Q0/Q1 policy change.
@@ -53,7 +72,7 @@ function runFactor(factor,nativeRunner=runDevelopment){
     actorOnlySingleSearch:true,
     actorHandDiscard:true
   }),{
-    registeredTrials:[frozenTrial()],
+    registeredTrials:frozenTrials(),
     registeredFrameName:VERSION+'-'+factor.id,
     nativeRootActionLimit:reg.rootLimit,
     vipAfterPass:true,
@@ -84,21 +103,29 @@ function physicalSourceRootCensus(native){
 /** @param {{runFactor?:Function}} [deps] */
 function run(deps={}){
   const arms={};
-  const trial=frozenTrial();
+  const registered=frozenTrials();
   for(const factor of FACTORS){
     const outcome=(deps.runFactor??runFactor)(factor);
     const native=outcome.selected?.rawDevelopment?.rows;
-    assert.ok(Array.isArray(native)&&native.length===1);
-    assert.equal(native[0].trial.id,TARGET);
+    assert.ok(Array.isArray(native)&&native.length===registered.length);
+    const byId=new Map(native.map(row=>[row.trial.id,row]));
+    assert.equal(byId.size,registered.length);
     arms[factor.id]={
-      factor,native:native[0],
-      summary:summarizeRow(native[0],true),
-      source:physicalSourceRootCensus(native[0])
+      factor,
+      nativeRows:native,
+      byId:new Map(registered.map(trial=>{
+        const row=byId.get(trial.id);
+        assert.ok(row,'Missing source trial '+trial.id);
+        return [trial.id,{
+          row,summary:summarizeRow(row,true),
+          source:physicalSourceRootCensus(row)
+        }];
+      }))
     };
   }
-  const pairs=[false,true].map(pivot=>{
-    const base=arms[pivot?'P1Q0':'P0Q0'];
-    const test=arms[pivot?'P1Q1':'P0Q1'];
+  const pairs=registered.flatMap(trial=>[false,true].map(pivot=>{
+    const base=arms[pivot?'P1Q0':'P0Q0'].byId.get(trial.id);
+    const test=arms[pivot?'P1Q1':'P0Q1'].byId.get(trial.id);
     const fingerprints=[base.summary,test.summary];
     const physicalMatched=fingerprints.every(row=>
       row.fullPhysicalDealFingerprint!==null&&
@@ -124,7 +151,9 @@ function run(deps={}){
       rootActions:x.summary.rootActions
     });
     return {
-      pivot,trialId:trial.id,sourceSeat:base.source.sourceSeat,
+      pivot,trialId:trial.id,rank:trial.rank,
+      targetPreviouslyObservedFork:trial.id===TARGET,
+      sourceSeat:base.source.sourceSeat,
       candidateSeat:1-base.source.sourceSeat,
       samePhysicalDeal:physicalMatched,
       sourceOnlyFirstDivergence:sourceOwnsFirstDifference,
@@ -133,19 +162,20 @@ function run(deps={}){
       payableAttackPriority:outcome(test),
       paperCompetitiveQualifiedGames:0
     };
-  });
+  }));
   return {
-    schema:VERSION,trial,enginePin:reg.nativePin,
+    schema:VERSION,registeredTrials:registered,enginePin:reg.nativePin,
     retrospectiveSelectedObservedFork:true,
-    physicalMatchInBothPivotConditions:pairs.every(x=>x.samePhysicalDeal),
-    sourceOnlyFirstDifferenceInBothPivotConditions:
-      pairs.every(x=>x.sourceOnlyFirstDivergence),
+    physicalMatchInEveryPivotCondition:pairs.every(x=>x.samePhysicalDeal),
+    rank11SourceFirstDifferences:pairs.filter(x=>
+      x.rank===11&&x.sourceOnlyFirstDivergence).length,
+    targetPairByCandidatePivot:pairs.filter(x=>x.trialId===TARGET),
     factors:FACTORS,pairs,
     qualifiedPaperGames:0,winRate:null,
     rawNativeArms:Object.fromEntries(FACTORS.map(x=>[
-      x.id,arms[x.id].native
+      x.id,arms[x.id].nativeRows
     ])),
-    limitation:'Previously selected rank11 seed, real native results but not fresh adversarial field or independent paper/clock qualification'
+    limitation:'Four pre-existing physical seeds including one retrospectively selected rank11 observed fork; not a held-out estimate or qualified paper game'
   };
 }
 
@@ -154,14 +184,14 @@ if(require.main===module){
   original.save(process.env.AGENT23_SOURCE_QB_ATTACK_NATIVE_OUTPUT??
     'artifacts/agent23-rank11-source-quickball-attack-native.json',report);
   process.stdout.write('AGENT23_SOURCE_QB_ATTACK_NATIVE '+JSON.stringify({
-    schema:report.schema,matched:report.physicalMatchInBothPivotConditions,
-    sourceFirst:report.sourceOnlyFirstDifferenceInBothPivotConditions,
+    schema:report.schema,matched:report.physicalMatchInEveryPivotCondition,
+    rank11FirstChanges:report.rank11SourceFirstDifferences,
     pairs:report.pairs,
     qualifiedGames:0
   })+'\n');
-  if(!report.physicalMatchInBothPivotConditions)process.exitCode=1;
+  if(!report.physicalMatchInEveryPivotCondition)process.exitCode=1;
 }
 module.exports={
-  VERSION,TARGET,FACTORS,frozenTrial,runFactor,
+  VERSION,TARGET,REGISTERED_IDS,FACTORS,frozenTrial,frozenTrials,runFactor,
   physicalSourceRootCensus,run
 };
