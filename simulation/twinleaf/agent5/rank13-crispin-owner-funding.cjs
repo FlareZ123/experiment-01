@@ -48,12 +48,17 @@ function chooseNativeCrispinEnergySearch(state,seat,prompt,ResolvePromptAction){
   assert.equal(prompt.result,undefined);
   assert.ok(owner.supporter.cards.some(c=>c.fullName===SUPPORTER));
   const cards=prompt.cards.cards;
-  const grass=cards.find(c=>c.fullName==='Grass Energy MEE');
-  const fire=cards.find(c=>c.fullName==='Fire Energy MEE');
-  if(!grass||!fire)return null;
-  assert.notEqual(grass.name,fire.name,
-    'Native Crispin Grass and Fire must have distinct printed Energy names');
-  const chosen=[grass,fire];
+  // Use the exact *owner-search prompt* membership and printed Energy names,
+  // rather than assuming the latest MEE printing has a unique canonical
+  // fullName in this Twinleaf revision.
+  const grass=cards.find(c=>c.name==='Grass Energy');
+  const fire=cards.find(c=>c.name==='Fire Energy');
+  const chosen=grass&&fire?[grass,fire]:(grass?[grass]:fire?[fire]:[]);
+  assert.ok(chosen.length>0,
+    'Crispin owner search exposes neither Grass nor Fire Basic Energy');
+  if(chosen.length===2)
+    assert.notEqual(chosen[0].name,chosen[1].name,
+      'Crispin cannot select two Basic Energies of the same printed type');
   assert.equal(prompt.validate(chosen,state),true,
     'Crispin native owner-deck validation rejected Grass and Fire');
   return {action:new ResolvePromptAction(prompt.id,chosen),chosen};
