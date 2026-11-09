@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {runOne}=require('../agent37-simultaneous-ko-e21-promotion-native.cjs');
+const {initializeCards}=require('../headless.cjs');
 const {
   withInstanceScopedSimultaneousTerminalResolutionV4
 }=require('./agent37-simultaneous-terminal-v4-adapter.cjs');
@@ -50,6 +51,30 @@ function withInjectedPrizeEffect(recipientId,intervention){
   );
 }
 
+/**
+ * Make the manually processed recipient's six Prizes heterogeneous, while
+ * maintaining the same physical object count. Correct paper play requires
+ * that recipient's choice if their Prize group does not exhaust all six.
+ *
+ * @param {number} recipientId
+ * @param {number} actorSeat
+ * @returns {(store:any,execute:()=>any)=>{result:any,audit:object}}
+ */
+function withHeterogeneousPrizes(recipientId,actorSeat){
+  return (store,execute)=>{
+    const recipient=store.state.players.find(p=>p.id===recipientId);
+    assert.ok(recipient);
+    assert.equal(recipient.prizes.length,6);
+    const alternative=initializeCards().getCardByName('Metal Energy MEE');
+    assert.ok(alternative);
+    alternative.id=980000+actorSeat;
+    const original=recipient.prizes[1].cards[0];
+    recipient.prizes[1].cards[0]=alternative;
+    recipient.deck.cards.push(original);
+    return withInstanceScopedSimultaneousTerminalResolutionV4(store,execute);
+  };
+}
+
 /** @returns {object} Original pinned Store Prize-effect replay regression. */
 function run(){
   const rows=[];
@@ -90,6 +115,17 @@ function run(){
       6,true,true,true,fixture),
     /armed simultaneous terminal must complete second Prize transfer/,
     'invalid transfer must fail closed instead of preserving native winner');
+
+    const heterogeneousFixture={
+      ...fixture,
+      ownerPrizes:actorSeat===0?1:6,
+      enemyPrizes:actorSeat===0?6:1
+    };
+    assert.throws(()=>runOne(actorSeat,
+      withHeterogeneousPrizes(manualRecipientId,actorSeat),
+      6,true,true,true,heterogeneousFixture),
+    /MANUAL_NONTERMINAL_PRIZE_SELECTION_REQUIRES_OWNER_CHOICE/,
+    'heterogeneous nonfinal Prizes require a real recipient choice');
   }
   return {
     schema:'agent37-simultaneous-terminal-v4-duplicate-and-fail-closed-v1',
@@ -97,6 +133,7 @@ function run(){
     auditedPhysicalSeats:[0,1],
     nativeDuplicateEffectsVetoed:2,
     incompleteTransfersRejected:2,
+    heterogeneousManualPrizeSelectionsRejected:2,
     competitivelyQualifiedGames:0,
     rows
   };
