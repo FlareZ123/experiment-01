@@ -10,7 +10,10 @@ const {registration,gameCapture}=
 const sourceFunding=require('./agent8-source-mew-funding-v6.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
-const OUTPUT=path.join(ROOT,'artifacts/agent21-rank5-fog-energy-counterfactual.json');
+const COMBINED=process.env.AGENT21_RANK5_COMBINE_LILLIE==='true';
+const OUTPUT=path.join(ROOT,'artifacts/'+(COMBINED?
+  'agent21-rank5-fog-plus-lillie-counterfactual.json':
+  'agent21-rank5-fog-energy-counterfactual.json'));
 const SOURCE_DEAL='65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922';
 const FULL_DEAL='45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349';
 const sha256=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
@@ -111,8 +114,10 @@ function replay(){
     allowExtendedRegisteredNativeRootCap:true,
     allowSingleCandidateArm:true,
     allowAdditionalOriginalSourceRanks:true,
+    actorBilateralLillieAfterPass:COMBINED,
     registeredTrials:reg.preRegisteredTrials,
-    registeredFrameName:'agent21-retro-fog-energy-first-owner-search',
+    registeredFrameName:'agent21-retro-fog-energy-first-owner-search'+
+      (COMBINED?'-plus-lillie':''),
     nativeRootActionLimit:reg.nativeRootCap,
     onRootActionDispatched:capture.onRootActionDispatched
   }));
@@ -140,6 +145,8 @@ function replay(){
     posthocOriginalCase:reg.caseId,originalSourceArtifactId:13678516703,
     originalRegistrationSha256:registrationSha256,
     retrospectiveSameSeed:true,samePrintedSixties:true,
+    combinedOwnerLillieAfterPass:COMBINED,
+    nativeOwnerLillieAudit:row.ownerBilateralLillieAfterPassAudit??null,
     sourceDealFingerprint:row.sourceDealFingerprint,
     fullDealFingerprint:row.fullPhysicalDealFingerprint,
     selectedOriginalRootOrdinal:23,
@@ -182,6 +189,11 @@ function main(){
   save(result);
   console.log('AGENT21_NATIVE_FIRST_FOG_PSYCHIC',JSON.stringify({
     checks:result.checks,prompt:result.ownerFogPromptAudit,
+    combinedOwnerLillieAfterPass:result.combinedOwnerLillieAfterPass,
+    nativeOwnerLillieAudit:result.nativeOwnerLillieAudit?{
+      accepted:result.nativeOwnerLillieAudit.acceptedLillieRoots,
+      rejected:result.nativeOwnerLillieAudit.rejectedLillieRoots,
+      events:result.nativeOwnerLillieAudit.rootEvents}:null,
     receivedEnergy:result.receivedPsychicEnergy,
     attachments:result.acceptedPhysicalEnergyAttachments,
     sourceAttacks:result.sourceAttacks,candidateAttacks:result.candidateAttacks,
