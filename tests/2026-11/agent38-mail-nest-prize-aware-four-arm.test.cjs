@@ -3,6 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {VERSION,REG,nestContinuation,changedSelections} =
   require('../../simulation/evaluation/agent38-mail-nest-prize-aware-four-arm.cjs');
+const {firstDivergence} =
+  require('../../simulation/evaluation/agent38-v8-owner-mail-pass-four-arm.cjs');
 
 test('frozen native 4-arm treatment isolates prize-aware chooser',()=>{
   assert.equal(VERSION,REG.schema);
@@ -57,4 +59,33 @@ test('post-Nest continuation needs a genuine later opponent and own action',()=>
   });
   assert.equal(nestContinuation(event,tape.slice(0,4)).fullContinuation,false);
   assert.equal(nestContinuation(event,tape.slice(0,1)).fullContinuation,false);
+});
+
+test('first accepted root divergence detects a physically changed Nest selection',()=>{
+  const prefix={trialId:'3:213:B:champion-reference',
+    ordinal:23,seat:0,turn:2,action:'ResolvePromptAction',
+    promptId:'search-nest',responseType:'array'};
+  const base=[
+    {ordinal:22,seat:0,turn:2,action:'PlayCardAction'},
+    {...prefix,ownerNestBasicSelection:{
+      trialId:prefix.trialId,seat:0,turnBefore:2,
+      selectedPokemonPrinting:'Articuno-GX CES',source:'mail'}},
+    {ordinal:24,seat:0,turn:2,action:'PassTurnAction'}
+  ];
+  const changed=base.map(x=>({...x}));
+  changed[1].ownerNestBasicSelection={
+    ...base[1].ownerNestBasicSelection,
+    selectedPokemonPrinting:'Bunnelby PRC'
+  };
+  const first=firstDivergence(base,changed);
+  assert.equal(first.index,1);
+  assert.equal(first.control.action,first.treatment.action);
+  assert.equal(first.control.ownerNestBasicSelection.selectedPokemonPrinting,
+    'Articuno-GX CES');
+  assert.equal(first.treatment.ownerNestBasicSelection.selectedPokemonPrinting,
+    'Bunnelby PRC');
+  assert.equal(firstDivergence(base,base),null);
+  assert.equal(firstDivergence(
+    [{...prefix,ownerNestBasicSelection:null}],
+    [{...prefix,ownerNestBasicSelection:null}]),null);
 });
