@@ -10,18 +10,6 @@ const {createHash}=require('node:crypto');
 
 const REFERENCE='agent44-first-independent-rank5-newmoon-case-v1.json';
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
-const SECTION_KEYS={
-  'registration':'registration',
-  'original-printed-60':'originalSixties',
-  'contender-printed-60':'originalSixties',
-  'full-physical-deal':'physicalInitialPartition',
-  'accepted-native-root-ledger':'accepted-native-root-ledger',
-  'owner-payment-and-targets':'owner-payment-and-targets',
-  'paper-rules':'paper-rules',
-  'clock-continuity':'officialClockAndNoCall',
-  'policy-and-counterplay':'sourceReplyAndNextOriginalTurn'
-};
-
 /**
  * Build the exact nine-object downstream admission envelope from one already
  * generated immutable native artifact, never inventing independent reviews.
@@ -91,31 +79,60 @@ function build(original){
   };
   assert.deepEqual(Object.keys(content).sort(),MANIFEST.slice().sort());
   const manifest=MANIFEST.map(kind=>({
-    kind,ref:REFERENCE+'#/releaseNineObjects/'+SECTION_KEYS[kind],
+    kind,ref:REFERENCE+'#/releaseNineObjects/'+kind,
     sha256:evidenceBundleSha256(content[kind])
   }));
   const bundle={schema:'aichi-complete-game-bundle-v1',
     producerId:'Agent44',trialId:original.intake.trial.id,
     trial:{
+      // Preserve authentic native observations. Unreviewed paper evidence
+      // stays missing, so the structural evaluator returns precise blockers.
       trialId:original.intake.trial.id,
-      originalRank:5,
-      sourceSeat:original.intake.sourceSeat,
+      registrationRef:
+        'results/aichi-2026/registrations/agent44-first-original-rank5-newmoon-case-20261109.json',
+      originalSourceSeat:original.intake.sourceSeat,
       candidateSeat:original.intake.candidateSeat,
-      nativeTerminal:original.intake.native.completed,
-      ownerNativeFinalPrizes:original.intake.native.physicalPrizesAfter,
-      originallyNativeWinner:original.intake.native.nativeWinner,
-      firstPlayerSeat:original.intake.native.actualFirstSeat,
-      nativeAcceptedRootLedgerSha256:
-        original.intake.native.acceptedRootLedgerSha256,
-      nativePhysicalZoneQualified:
-        src.physicalZoneQualification?.physicalIntegrityQualified===true,
-      releaseReviewFlags:original.intake.releaseStatus
+      actualFirstPlayerSeat:original.intake.native.actualFirstSeat,
+      sourcePhysicalDealSha256:src.sourceDealFingerprint??null,
+      fullPhysicalDealSha256:src.fullPhysicalDealFingerprint??null,
+      vendorCommitSha:original.intake.enginePinnedCommit,
+      researchRevisionSha:null,
+      hookRevisionSha:null,
+      originalPrinted60Sha256:original.intake.sourcePrintedSha256,
+      candidatePrinted60Sha256:null,
+      policySha256BySeat:[null,null],
+      nativeFinished:src.finished===true&&!src.error,
+      nativeWinner:src.finished===true?src.winner??null:null,
+      nativeEndReason:src.endReason??null,
+      finalPrizes:src.finalPrizes??null,
+      engineError:Boolean(src.error),
+      rootCapReached:src.rootCapReached===true,
+      rootActionLedger:src.rootActionLedger??[],
+      rootActionLedgerSha256:digest(src.rootActionLedger??[]),
+      actionCertificates:[],
+      cooldownCertificates:[],
+      independentFullPaperRulesAudit:false,
+      hiddenInformationAudit:false,
+      eventStage:null,
+      clockDisposition:null,
+      clockReceiptId:null,
+      paperReceiptId:null,
+      noCallClockPacket:null,
+      timeCallPacket:null,
+      extensionLedgerPacket:null
     },
     evidenceManifest:manifest};
   assert.deepEqual(bundleFailures(bundle),[]);
   const admission=evaluateCompetitiveAdmission(bundle,[]);
   assert.equal(admission.competitiveAdmission,false);
   assert.equal(admission.acceptanceReady,false);
+  assert.ok(!admission.failures.includes(
+    'malformed-or-unverifiable-native-competence-trial'),
+    'Authentic native tape should receive an explicit structural denial');
+  for(const entry of manifest){
+    assert.equal(entry.ref,REFERENCE+'#/releaseNineObjects/'+entry.kind);
+    assert.equal(entry.sha256,evidenceBundleSha256(content[entry.kind]));
+  }
   return {schema:'agent44-first-release-nine-object-bundle-intake-v1',
     caseId:original.intake.caseId,
     originalSourceArtifact:REFERENCE,
