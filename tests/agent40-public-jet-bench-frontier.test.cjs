@@ -111,3 +111,70 @@ test('preserves active Sentinel and Initialization passive lock geometry',()=>{
   assert.equal(choose(v),null,
     'Jet switching would drop an Active-only Ability lock');
 });
+
+
+test('unhooded opposing Vileplume unlocks held Nest Ball through Wobbuffet Jet utility',()=>{
+  const v=view({hand:[jet,'Nest Ball SVI']});
+  v.ownPublic.deckCount=35;
+  v.ownPublic.active=pokemon('Mimikyu',[attack('Copycat',0)]);
+  v.ownPublic.bench=[pokemon('Wobbuffet',[]),null,null,null,null];
+  v.ownPublic.bench[0].printing='Wobbuffet PHF';
+  const lock=pokemon('Vileplume',[]);
+  lock.printing='Vileplume AOR';
+  lock.abilityDetails=[{name:'Irritating Pollen',
+    text:"Each player can't play any Item cards from their hand."}];
+  lock.tools=[];
+  v.opponentPublic.bench=[lock,null,null,null,null];
+  const proposed=choose(v);
+  assert.deepEqual(proposed,{
+    kind:'attach-special-energy',printing:jet,handIndex:0,
+    slot:'bench',index:0,
+    reason:'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock'
+  });
+  const w=view({hand:[jet,'Nest Ball SVI']});
+  Object.assign(w,{ownPublic:structuredClone(v.ownPublic),
+    opponentPublic:structuredClone(v.opponentPublic)});
+  w.opponentSecretHand=['unknown'];
+  v.opponentSecretHand=['different'];
+  assert.deepEqual(choose(w),proposed,
+    'Only detached owner hand and two public boards influence this choice');
+});
+
+test('Wobbuffet utility declines Hood, inaccessible Item payoff and inadequate positions',()=>{
+  const v=view({hand:[jet,'Nest Ball SVI']});
+  v.ownPublic.deckCount=35;
+  v.ownPublic.active=pokemon('Mimikyu',[attack('Copycat',0)]);
+  v.ownPublic.bench=[pokemon('Wobbuffet',[]),null,null,null,null];
+  v.ownPublic.bench[0].printing='Wobbuffet PHF';
+  const lock=pokemon('Vileplume',[]);
+  lock.printing='Vileplume AOR';
+  lock.abilityDetails=[{name:'Irritating Pollen'}];
+  lock.tools=[];
+  v.opponentPublic.bench=[lock,null,null,null,null];
+  const proposal=choose(v);
+  assert.equal(proposal.reason,
+    'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock');
+
+  lock.tools=['Stealthy Hood UNB'];
+  assert.equal(choose(v),null,'Hood protects Vileplume from Wobbuffet');
+  lock.tools=[];
+  v.ownHand=[jet];
+  assert.equal(choose(v),null,'No accessible Nest Ball payoff');
+  v.ownHand=[jet,'Nest Ball SVI'];
+  v.ownPublic.bench=[pokemon('Wobbuffet',[]),
+    pokemon('A',[]),pokemon('B',[]),pokemon('C',[]),pokemon('D',[])];
+  v.ownPublic.bench[0].printing='Wobbuffet PHF';
+  assert.equal(choose(v),null,'Nest Ball requires actual Bench space');
+  v.ownPublic.bench[4]=null;
+  v.ownPublic.deckCount=0;
+  assert.equal(choose(v),null,'A zero-card deck cannot provide a Basic');
+  v.ownPublic.deckCount=35;
+  v.ownPublic.active.attacks=[attack('Ready',30,true)];
+  assert.equal(choose(v),null,'Preserve currently payable Active attack');
+  v.ownPublic.active.attacks=[];
+  v.ownPublic.bench[0].printing='Wobbuffet OTHER';
+  assert.equal(choose(v),null,'Require actual Bide Barricade printing');
+  v.ownPublic.bench[0].printing='Wobbuffet PHF';
+  v.opponentPublic.bench[0]=null;
+  assert.equal(choose(v),null,'Require exposed opposing Item-lock target');
+});
