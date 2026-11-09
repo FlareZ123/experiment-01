@@ -52,6 +52,18 @@ test('missing owner Jet or funded Bench, wrong Active veto action',()=>{
   assert.equal(chooseSentinelPostGustJet(other),null);
 });
 
+test('Temple of Sinnoh makes attached Jet lose its switch effect',()=>{
+  const owned=view();owned.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.equal(chooseSentinelPostGustJet(owned),null);
+  const opposing=view();opposing.opponentPublic={
+    stadium:['Temple of Sinnoh ASR']
+  };
+  assert.equal(chooseSentinelPostGustJet(opposing),null);
+  const irrelevant=view();irrelevant.ownPublic.stadium=['Artazon PAL'];
+  assert.equal(chooseSentinelPostGustJet(irrelevant)?.kind,
+    'attach-jet-to-escape-item-lock');
+});
+
 test('no proposal outside authenticated owner root',()=>{
   const x=view();x.decisionKind='owner-prompt';
   assert.equal(chooseSentinelPostGustJet(x),null);
