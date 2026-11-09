@@ -123,5 +123,38 @@ function choosePostJetNestRoot(view) {
     handIndex,reason:'use-unlocked-source-basic-search'};
 }
 
+/**
+ * Choose a printed Basic from an authenticated source-owned Nest Ball deck
+ * search. The entire deck is intentionally inspected only after the actual
+ * prompt has granted K1 search access. No opponent concealed zones enter.
+ *
+ * `preferred` is a caller's strategic desired printing order, and must be
+ * chosen from owner-visible state before this prompt. It does not establish
+ * that the printing survived Prize or previous draw zones.
+ *
+ * @param {object} view Frozen owner-prompt observation.
+ * @param {object} prompt Real native ChooseCardsPrompt.
+ * @param {object} ownDeck Actual physical owner deck, only under prompt.
+ * @param {string[]} preferred Strategically chosen desired Basic printings.
+ * @returns {{answer:object,printing:string,kind:string}|null}
+ */
+function choosePostJetNestSearchPrompt(view,prompt,ownDeck,preferred) {
+  assert.equal(view.decisionKind,'owner-prompt');
+  if(view.pendingOwnerDeckSearch!==true||
+      prompt?.type!=='Choose cards'||
+      prompt?.cards!==ownDeck||
+      !Array.isArray(ownDeck?.cards)||
+      !Array.isArray(preferred))return null;
+  const desired=preferred.find(name=>ownDeck.cards.some(card=>
+    card.fullName===name));
+  if(!desired)return null;
+  const index=ownDeck.cards.findIndex(card=>card.fullName===desired);
+  return {
+    answer:prompt.decode([index]),printing:desired,
+    kind:'nest-select-actual-owner-deck-basic'
+  };
+}
+
 module.exports={VERSION,hoodedVileplumeTarget,
-  chooseFabaJetHoodRoot,chooseFabaJetHoodPrompt,choosePostJetNestRoot};
+  chooseFabaJetHoodRoot,chooseFabaJetHoodPrompt,
+  choosePostJetNestRoot,choosePostJetNestSearchPrompt};
