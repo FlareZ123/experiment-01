@@ -24,9 +24,10 @@ const METAL='Metal Energy SVE';
  * synthetic late-turn board. This is a mechanical witness, not an Aichi deal.
  * @param {0|1} seat
  * @param {1|2} feeUnits Printed Colorless Retreat fee.
+ * @param {boolean} withHood Printed non-retreat Tool on the outgoing Active.
  * @returns {object} Physical board and actor-only public catalog.
  */
-function stage(seat,feeUnits){
+function stage(seat,feeUnits,withHood){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -63,6 +64,11 @@ function stage(seat,feeUnits){
   };
   const activePrinting=feeUnits===2?TWO_UNIT_ACTIVE:ACTIVE;
   owner.active.cards.push(card(activePrinting));
+  const hood=withHood?card('Stealthy Hood UNB'):null;
+  if(hood){
+    owner.active.cards.push(hood);
+    owner.active.tools.push(hood);
+  }
   owner.bench=Array.from({length:5},()=>new PokemonCardList());
   owner.bench[0].cards.push(card(BENCH));
   opponent.active.cards.push(card('Tapu Lele-GX GRI'));
@@ -90,7 +96,7 @@ function stage(seat,feeUnits){
     }
   }
   return {store,state,owner,opponent,catalog,payment,existingPayment,
-    benchEnergy,seat,feeUnits,activePrinting};
+    benchEnergy,seat,feeUnits,activePrinting,hood};
 }
 
 /** @param {object} staged Genuine Store and payment. */
@@ -118,8 +124,11 @@ function settleRetreatPrompts(staged){
   assert.fail('Retreat prompts failed to settle');
 }
 for(const feeUnits of [1,2])for(const seat of [0,1])
-test('native two-action Basic retreat rescue fee '+feeUnits+' seat '+seat,()=>{
-  const s=stage(seat,feeUnits),{store,state,owner,opponent,payment}=s;
+for(const withHood of [false,true])
+test('native Basic retreat rescue fee '+feeUnits+' seat '+seat+
+  ' hood '+withHood,()=>{
+  const s=stage(seat,feeUnits,withHood),
+    {store,state,owner,opponent,payment}=s;
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {RetreatAction,AttackAction}=
@@ -152,6 +161,8 @@ test('native two-action Basic retreat rescue fee '+feeUnits+' seat '+seat,()=>{
   assert.equal(owner.active.getPokemonCard().fullName,BENCH);
   assert.equal(owner.bench[0].getPokemonCard().fullName,s.activePrinting);
   assert.equal(owner.bench[0].energies.cards.length,0);
+  if(s.hood)assert.ok(owner.bench[0].tools.includes(s.hood),
+    'Original Stealthy Hood remains on former Active after Retreat');
   assert.ok(owner.discard.cards.includes(payment),
     'Original held physical Basic must enter owner discard as paid Retreat');
   if(s.existingPayment)assert.ok(owner.discard.cards.includes(s.existingPayment),
@@ -171,7 +182,8 @@ test('native two-action Basic retreat rescue fee '+feeUnits+' seat '+seat,()=>{
   assert.ok(opponent.active.damage>beforeDamage,
     'Native Store must settle the promoted paid Shred attack');
   console.log('AGENT2_RETREAT_FUNDING_NATIVE',JSON.stringify({
-    seat,feeUnits,source:VERSION,attachmentAccepted:true,retreatPaid:true,
+    seat,feeUnits,withHood,source:VERSION,
+    attachmentAccepted:true,retreatPaid:true,
     attack:'Shred',damageDelta:opponent.active.damage-beforeDamage,
     retreatPromptTypes:prompts,originalPhysicalPayment:true,
     competitivelyQualifiedGame:false
