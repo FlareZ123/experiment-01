@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_quickball_mew_search:
+        description: In source Quick Ball development prioritize native Mew/Genesect owner deck search
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -37,7 +42,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify owner-only Fusion draw and paid retreat pure and source evidence
-        run: node --test tests/agent37-rank5-native-zero-attack-frontier.test.cjs tests/agent37-dce-mew-paid-retreat.test.cjs tests/agent37-genesect-public-fusion-draw.test.cjs
+        run: node --test tests/agent37-rank5-native-zero-attack-frontier.test.cjs tests/agent37-dce-mew-paid-retreat.test.cjs tests/agent37-genesect-public-fusion-draw.test.cjs tests/agent37-mew-genesect-quickball-search.test.cjs
       - name: Check out exact pinned original Twinleaf Store
         run: |
           git submodule update --init --depth=1 vendor/twinleaf
@@ -60,6 +65,7 @@ jobs:
         if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard }}
         env:
           AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
+          AGENT37_QUICKBALL_MEW_SEARCH_DEV: ${{ inputs.agent37_quickball_mew_search }}
         run: |
           node --check simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
           node simulation/evaluation/agent37-rank5-source-quickball-discard-retrospective.cjs
