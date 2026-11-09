@@ -30,8 +30,34 @@ The underlying physical fixture runner `simulation/twinleaf/agent37-simultaneous
 
 - Initial full pinned native run [42555652550](https://github.com/FlareZ123/experiment-01/actions/runs/42555652550) **SUCCESS** 9 November ~03:20 UTC, including all prior v3/v4 regressions and four v5 physical owner-choice scenarios. Artifact [13647600709](https://github.com/FlareZ123/experiment-01/actions/runs/42555652550/artifacts/13647600709).
 - The v5 code and regression were then strengthened to assert **exact object identity** of every chosen Prize in the recipient's hand; the native prompt must be exposed with `GameWinner.NONE`, while the game remains outside `GamePhase.FINISHED`; no terminal log may be visible before the choice, and exactly one must be published afterward.
-- Strengthened manually dispatched regression: [42555976012](https://github.com/FlareZ123/experiment-01/actions/runs/42555976012). **At writing, this stricter rerun has not finished.** Keep stronger claims contingent on its result.
+- Strengthened manually dispatched regression [42555976012](https://github.com/FlareZ123/experiment-01/actions/runs/42555976012) **SUCCESS**, ~03:24 UTC. It established these exact object, preterminal ownership, and single native terminal-log requirements in all four mixed-Prize owner-choice arms.
 - Engine pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. V5 remains research-owned, opt-in and deliberately disconnected from the common bilateral playing policy.
+
+## Hidden-information-safe prompt activation
+
+The first v5 draft activated this prompt only when the nonterminal
+recipient's remaining Prize cards had distinct printed names. That
+implementation itself would reveal concealed Prize composition through
+whether a prompt appears. It was corrected: **whenever the first
+recipient exhausts their Prizes, the other recipient's group has not
+already been processed, and that other Prize group does not exhaust
+their pool, v5 always prompts the actual owner**, regardless of
+the face-down Prize identities. Neither prompt construction nor the
+fixture's positional selection requires inspecting concealed printings.
+
+The native test now includes a homogeneous six-Psychic-Energy
+recipient Prize pool alongside the heterogeneous Metal/Psychic pool.
+Both must expose exactly one owner prompt and defer the result.
+For the heterogeneous pool, each owner can select either the
+known *position* of the alternate Prize or an initial-position set;
+the position is preassigned by the fixture and the selection policy
+does not peek at card content. The resulting actual card printing
+is checked retrospectively after the native Store transfers it.
+This adds one homogeneous prompt scenario per physical actor seat.
+
+The corrected hidden-information-independent native cohort was
+dispatched after commit `0c9b3952aacb146e3004d5b8670ed908c117acc9`.
+Its success was pending when this paragraph was written.
 
 ## Unsolved limits
 
