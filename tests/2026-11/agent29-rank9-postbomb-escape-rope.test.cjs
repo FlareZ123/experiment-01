@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {choosePostBombRope,ELECTRODE,MEGA,ROPE}=
+const {choosePostBombRope,chooseOpponentRopeSurvival,ELECTRODE,MEGA,ROPE}=
   require('../../simulation/twinleaf/2026-11/agent29-rank9-postbomb-escape-rope.cjs');
 
 /** @param {string|null} name @param {number} attached */
@@ -73,4 +73,43 @@ test('already active Mega or opponent with no remaining Prizes is not eligible',
   s.players[0].active=slot('Gengar & Mimikyu-GX TEU',1);
   s.players[1].getPrizeLeft=()=>0;
   assert.equal(choosePostBombRope(s,0),null);
+});
+
+test('opponent uses its own public highest-remaining-HP eligible Bench slot',()=>{
+  const state=fixture();
+  const enemy=state.players[1];
+  const make=(name,hp,damage)=>({
+    getPokemonCard:()=>({fullName:name,hp}),damage
+  });
+  enemy.bench=[
+    make('Galarian Articuno V CRE',210,0),
+    make('Mewtwo & Mew-GX UNM',270,20),
+    make('Duskull VIV',60,0)
+  ];
+  const prompt={playerId:enemy.id,
+    validate:slots=>slots[0]!==enemy.bench[1]};
+  // An unselectable high-HP slot is never returned.
+  assert.equal(chooseOpponentRopeSurvival(state,0,prompt).printing,
+    'Galarian Articuno V CRE');
+  prompt.validate=()=>true;
+  assert.deepEqual(
+    (({benchIndex,printing,remainingHp})=>({benchIndex,printing,remainingHp}))(
+      chooseOpponentRopeSurvival(state,0,prompt)),{
+      benchIndex:1,printing:'Mewtwo & Mew-GX UNM',remainingHp:250
+    });
+});
+test('opponent defensive prompt rejects nonmatching owner, invalid HP and empty Bench',()=>{
+  const state=fixture(1);
+  state.players[0].id=101;
+  const prompt={playerId:101,validate:()=>true};
+  state.players[0].bench=[{
+    getPokemonCard:()=>({fullName:'Unknown',hp:'wrong'}),damage:0
+  }];
+  assert.equal(chooseOpponentRopeSurvival(state,1,prompt),null);
+  state.players[0].bench=[];
+  assert.equal(chooseOpponentRopeSurvival(state,1,prompt),null);
+  state.players[0].bench=[{
+    getPokemonCard:()=>({fullName:'Real',hp:100}),damage:0
+  }];
+  assert.equal(chooseOpponentRopeSurvival(state,1,{...prompt,playerId:102}),null);
 });
