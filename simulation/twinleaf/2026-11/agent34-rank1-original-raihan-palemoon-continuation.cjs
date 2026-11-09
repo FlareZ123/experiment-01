@@ -286,6 +286,14 @@ function executeOriginalRank1RaihanPaleMoon(context) {
             const formerNowOnBench=opp.bench.some(slot=>
               slot.getPokemonCard()===oldDefenderCard);
             const current=opp.active.getPokemonCard()?.fullName??null;
+            // Optional independent opponent-owner observation/counteraction.
+            // It receives only a clone of the true post-Retreat position;
+            // the original opponent's deliberate Pass remains unchanged.
+            const ownerCounterReply=corrected &&
+              typeof context.afterOpponentRetreat==='function'
+              ?context.afterOpponentRetreat({
+                state:deepClone(branch.state),ownerId,opponentId
+              }):null;
             // Distinct opponent-owner decision branch, from the actual
             // post-retreat public board and the opponent's OWN hand only.
             // Choose any genuinely held Basic Energy for Girafarig's
@@ -361,7 +369,8 @@ function executeOriginalRank1RaihanPaleMoon(context) {
               :null;
             return {
               retWaits,passWaits,sourceNextTurn,afterRetreatQueue,formerNowOnBench,
-              current,getLostReply,oldDefenderSurvived:opp.bench.some(slot=>
+              current,getLostReply,ownerCounterReply,
+              oldDefenderSurvived:opp.bench.some(slot=>
                 slot.getPokemonCard()===oldDefenderCard),
               oldDefenderDiscarded:opp.discard.cards.includes(oldDefenderCard),
               afterOpposingPrizes:opp.prizes.reduce((n,slot)=>n+slot.cards.length,0),
