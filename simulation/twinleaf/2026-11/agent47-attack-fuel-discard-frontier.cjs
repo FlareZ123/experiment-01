@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {chooseActorHandDiscard} = require('../agent47-actor-hand-discard.cjs');
 
-const VERSION = 'agent47-owner-immediate-attack-fuel-v1';
+const VERSION = 'agent47-owner-immediate-attack-fuel-v2-public-perfection';
 const DCE = 'Double Colorless Energy SUM';
 
 /**
@@ -44,6 +44,40 @@ function paysPrintedCost(cost, provided, colorless) {
     remaining.splice(i, 1);
   }
   return remaining.length >= cost.filter(x => x === colorless).length;
+}
+
+/**
+ * Include public printed Perfection donor costs for Mewtwo & Mew-GX. The
+ * existing catalog deliberately covers only verified, known donor printings;
+ * no hidden deck or Prize cards contribute. The native Store still decides
+ * whether a copied attack may actually be announced and resolved.
+ * @param {object} actor Detached actor-owned prompt observation.
+ * @param {object} catalog Public native printed card catalog.
+ * @returns {object[]} Usable public donor attack descriptions.
+ */
+function availablePerfectionAttacks(actor, catalog) {
+  if (!(catalog.perfectionDonors instanceof Map)) return [];
+  const {publicPerfectionVeto} =
+    require('../agent30-known-perfection-options.cjs');
+  if (publicPerfectionVeto(actor,catalog.specialConditions)!==null)
+    return [];
+  const own=actor.ownPublic;
+  const sources=new Set([...(own.discard??[]),
+    ...(own.bench??[]).flatMap(slot=>slot?[slot.printing]:[])]);
+  const gxSpent=own.publicTurnRestrictions?.gxUsed===true||
+    own.publicTurnRestrictions?.cannotUseGXAttacks===true;
+  const attacks=[];
+  for (const [printing, moves] of catalog.perfectionDonors) {
+    if (!sources.has(printing)) continue;
+    for (const move of moves) {
+      if (!Array.isArray(move.cost) ||
+          !move.cost.every(Number.isSafeInteger) ||
+          (gxSpent && move.gxAttack)) continue;
+      attacks.push({name:move.name,cost:move.cost,
+        gxAttack:move.gxAttack,sourcePrinting:printing});
+    }
+  }
+  return attacks;
 }
 
 /**
@@ -91,9 +125,11 @@ function proposeAttackFuelDiscard(input, catalog) {
     attached.push(...units);
   }
   const colorless = catalog.colorlessEnergyType;
-  const attacks = active.attacks.filter(attack => {
+  const attacks = [...active.attacks,
+    ...availablePerfectionAttacks(actor,catalog)].filter(attack => {
     if (!Array.isArray(attack.cost) || attack.cost.length === 0 ||
-        attack.gxAttack === true && own.publicTurnRestrictions?.gxUsed === true ||
+        attack.gxAttack === true && (own.publicTurnRestrictions?.gxUsed === true ||
+          own.publicTurnRestrictions?.cannotUseGXAttacks === true) ||
         active.publicRestrictions?.blockedAttackNameNextTurn === attack.name ||
         active.publicRestrictions?.blockedAttackNameUntilLeavesActive === attack.name ||
         active.publicRestrictions?.cannotUseAttacksNextTurn?.includes(attack.name) ||
@@ -125,4 +161,5 @@ function proposeAttackFuelDiscard(input, catalog) {
   return receipt('preserve-one-attachment-immediate-attack', proposal);
 }
 
-module.exports = {VERSION, energyUnits, paysPrintedCost, proposeAttackFuelDiscard};
+module.exports = {VERSION, energyUnits, paysPrintedCost,
+  availablePerfectionAttacks, proposeAttackFuelDiscard};
