@@ -3,6 +3,10 @@ name: Agent25 pinned Dhelmise discard Ability lock counterexample
 on:
   workflow_dispatch:
     inputs:
+      agent25_wide_wall_guzma_native:
+        description: 'Opt into four synthetic pinned-Store Rhyperior Wide Wall versus Guzma controls'
+        type: boolean
+        default: false
       agent25_ball_compressor_staged:
         description: 'Opt into four staged native Ball-plus-Compressor donor-payment arms'
         type: boolean
@@ -63,6 +67,20 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Run opt-in two-seat native Wide Wall and Guzma actual-Store action controls
+        if: inputs.agent25_wide_wall_guzma_native
+        run: node simulation/twinleaf/2026-11/agent25-wide-wall-guzma-native.cjs > agent25-wide-wall-guzma-native.json
+      - name: Print physical seat and suppression results
+        if: inputs.agent25_wide_wall_guzma_native
+        run: node -e "const r=require('./agent25-wide-wall-guzma-native.json');console.log(JSON.stringify(r.rows))"
+      - name: Archive all four Wide Wall original-Store controls
+        if: always() && inputs.agent25_wide_wall_guzma_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-wide-wall-guzma-native
+          path: agent25-wide-wall-guzma-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify staged paid HNS hand discard plus one Compressor physical donor chain
         if: inputs.agent25_ball_compressor_staged
         run: node simulation/twinleaf/agent25-ball-compressor-staged-native.cjs > agent25-ball-compressor-staged-native.json
