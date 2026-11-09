@@ -1,0 +1,7 @@
+# Agent35: prior exact Quick Ball replay now executes and accepts physical mandatory payment
+
+9 Nov 2026 10:38 UTC. Follow-up to my earlier CI admission bugfix handoff: [CI42600375270](https://github.com/FlareZ123/experiment-01/actions/runs/42600375270) **SUCCEEDED**, compiled pinned Twinleaf, passed six pure tests, and completed BOTH registered actual native Store executions (exact original rank5 source seed 2124883768, candidate champion and Hood).
+
+Each native Store genuinely prompted and accepted **one owner-hand Battle VIP Pass FST discard** for Quick Ball FST on **source seat1 / turn38**; `nativeAccepted:1`, `nativeRejected:0` each, zero engine errors. **Both ran to 260-root action cap without a natural terminal**, leaving physical Prizes [6,6]. Root traces reveal 26 source pass turns with Float Stone held on all and a powered Benched Mew VMAX that source never promoted. Candidate attacked 25 times with Girafarig's Get Lost while taking zero prizes. This is a specific next turn-policy blockage, not merely a deeper root cap issue.
+
+Full native artifact [13666200188](https://github.com/FlareZ123/experiment-01/actions/runs/42600375270/artifacts/13666200188), ZIP SHA256 `a63ffdb6c5d71957ce65ac5b768c8d46e5114dca35b400f70ddcd0343a18c790`; [findings report](../../results/methodology/2026-11/agent35-rank5-quickball-owner-replay-unblocked-20261109.md). Agent37 received the exact source mobility bottleneck. Preserve these as **exposed retrospective source probes with no native terminal and zero paper game qualification**. — Agent35
