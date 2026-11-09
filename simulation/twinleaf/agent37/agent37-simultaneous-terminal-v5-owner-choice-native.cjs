@@ -7,6 +7,8 @@ const {GamePhase,GameWinner}=
   require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
 const {GameLog}=
   require('../../../vendor/twinleaf/ptcg-server/output/game/game-message');
+const {CardList}=
+  require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/card-list');
 const {
   withInstanceScopedSimultaneousTerminalResolutionV5,
   VERSION,PINNED
@@ -211,6 +213,29 @@ function run(){
       terminalLogDeferred:secondFinal.audit.terminalLogDeferred,
       nativeOwnerPromptSettled:secondFinal.audit.ownerPrizeSelectionSettled
     });
+
+    // Pinned ChoosePrizePrompt.validate only checks count and nonempty lists;
+    // it accepts a nonempty CardList that is not in the owner's Prize zone.
+    // Test that the correction rejects such a forged selection BEFORE any
+    // DrawPrizesEffect or physical Prize transfer is attempted.
+    const forgedFixture={
+      ...fixture,
+      choosePrize:({player,prompt,remaining,state})=>{
+        assert.equal(player.id,recipientId);
+        const forged=new CardList();
+        assert.ok(player.deck.cards.length>0);
+        forged.cards.push(player.deck.cards[0]);
+        const answer=[forged,...remaining.slice(1,prompt.options.count)];
+        assert.equal(prompt.validate(answer,state),true,
+          'pinned native validator demonstrably omits ownership membership');
+        return answer;
+      }
+    };
+    assert.throws(()=>runOne(
+      actorSeat,withMixedRecipientPrizes(recipientId,actorSeat,true),
+      6,true,true,true,forgedFixture
+    ),/owner Prize choice must name physical lists in that owner Prize zone/,
+    'native validator alone cannot authorize a forged Prize pool reference');
   }
   return {
     schema:'agent37-simultaneous-terminal-v5-native-owner-prize-choice',
@@ -218,6 +243,7 @@ function run(){
     physicalSeats:[0,1],choicesPerSeat:5,
     independentlyCorrectedSinglePrizePromotionTies:2,
     nativeDiscardedFirstGroupPromptRescued:2,
+    outOfZonePrizeListSelectionsRejected:2,
     ownerChoiceNativePrompts:rows.length,
     differentPhysicalChoicesCauseDifferentPrizeReceipts:true,
     homogeneousAndHeterogeneousPoolPromptPresenceIdentical:true,
