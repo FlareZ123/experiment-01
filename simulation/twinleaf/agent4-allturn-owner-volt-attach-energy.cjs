@@ -1,7 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const VERSION='agent4-allturn-owner-volt-attach-energy-v1';
+const {ENERGY_UNITS,rankVoltTransferDonors}=
+  require('./agent23-volt-transfer-readiness.cjs');
+const VERSION='agent4-allturn-owner-volt-attach-energy-v2';
 
 /**
  * Pick only a genuine actor-owned, publicly attached physical Energy for the
@@ -39,8 +41,18 @@ function chooseOwnVoltTransfer(state,actorId,enums){
     card.name==='Capture Energy'?0:
     card.name==='Double Colorless Energy'?2:
     card.name==='Speed Lightning Energy'?3:1;
+  const supportedEnergyNames=energies.every(card=>
+    Object.hasOwn(ENERGY_UNITS,card.name));
+  const residualRank=supportedEnergyNames?
+    rankVoltTransferDonors(energies.map(card=>card.name),{
+      thunderMountainActive:true
+    }):null;
+  const donorOrder=residualRank?new Map(residualRank.map(
+    (entry,index)=>[energies[entry.index],index])):null;
   const stableDonors=donors.map((card,i)=>({card,i}))
-    .sort((a,b)=>desirability(a.card)-desirability(b.card)||a.i-b.i);
+    .sort((a,b)=>donorOrder?
+      donorOrder.get(a.card)-donorOrder.get(b.card):
+      desirability(a.card)-desirability(b.card)||a.i-b.i);
   const benches=owner.bench.map((slot,index)=>({
     index,slot,character:slot.getPokemonCard?.()??null
   })).filter(x=>x.character!==null).sort((a,b)=>
@@ -63,6 +75,14 @@ function chooseOwnVoltTransfer(state,actorId,enums){
         result,benchIndex:target.index,
         ownerAttachedEnergyNamesBefore:energies.map(x=>x.name),
         chosenEnergyName:card.name,
+        donorSelectionModel:residualRank?
+          'residual-active-volt-funding': 'legacy-name-priority',
+        residualActivePayableWithThunder:residualRank?
+          residualRank.find(entry=>energies[entry.index]===card).
+            readyWithThunder:null,
+        residualActivePayableWithoutThunder:residualRank?
+          residualRank.find(entry=>energies[entry.index]===card).
+            readyWithoutThunder:null,
         eligibleDonors:stableDonors.length
       };
     }
@@ -148,6 +168,11 @@ function withOwnerVoltTransfer(next,deps={}){
       ownerPromptId:intent.promptId,
       sourcePokemon:intent.originalActiveName,
       chosenEnergyName:intent.chosenEnergyName,
+      donorSelectionModel:intent.donorSelectionModel,
+      residualActivePayableWithThunder:
+        intent.residualActivePayableWithThunder,
+      residualActivePayableWithoutThunder:
+        intent.residualActivePayableWithoutThunder,
       benchIndex:intent.benchIndex,
       attachedEnergyBefore:intent.ownerAttachedEnergyNamesBefore,
       eligiblePhysicalEnergyChoices:intent.eligibleDonors,
