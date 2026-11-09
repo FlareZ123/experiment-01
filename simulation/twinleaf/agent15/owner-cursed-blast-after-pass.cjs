@@ -124,7 +124,8 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
         steps.delete(selected.ownerId);
         throw error;
       }
-      const receipt={kind:selected.kind,seat:selected.seat,
+      const receipt={trialLabel:request.label??null,
+        kind:selected.kind,seat:selected.seat,
         turn:selected.turn,source:selected.plan.sourcePrinting,
         sourceBenchIndex:selected.plan.sourceBenchIndex,
         target:selected.plan.targetPrinting,
