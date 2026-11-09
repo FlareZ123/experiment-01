@@ -183,5 +183,6 @@ if(require.main===module){
       beforePrizes:r.control.prizes,afterPrizes:r.treatment.prizes
     }))??null,failure:result.failure??null
   },null,2)+'\n');
+  if(result.fullPhysicalPanelValid===false)process.exitCode=1;
 }
 module.exports={VERSION,REGISTRATION,continuation,run,save};
