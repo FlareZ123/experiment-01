@@ -20,6 +20,7 @@ function view() {
     ownTurnResources:{toolPlayLocked:false},
     ownHand:['Psychic Energy SVE'],
     ownPublic:{
+      publicTurnRestrictions:{toolPlayLocked:false},
       active:{printing:'Shadow Rider Calyrex V CRE',tools:[]},
       bench:[source(''),source()],
       stadium:['Sky Field ROS']
