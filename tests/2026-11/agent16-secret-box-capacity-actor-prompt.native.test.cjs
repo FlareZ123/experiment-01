@@ -19,6 +19,8 @@ const {PlayCardAction,PlayerType,SlotType}=
   native('game/store/actions/play-card-action');
 const {ResolvePromptAction}=
   native('game/store/actions/resolve-prompt-action');
+const {PassTurnAction}=
+  native('game/store/actions/game-actions');
 const BOX='Secret Box TWM';
 const VIP='Battle VIP Pass FST';
 const CARRIER='Rescue Carrier EVS';
@@ -31,8 +33,8 @@ const POLICY={maxTotalCost:100,defaultCost:20,spentVipCost:0,
   powerglassRecoveryPremium:0,recoveryTargetPremium:3,
   costs:{[VIP]:0,[CARRIER]:3,[LILLIE]:5}};
 
-/** @param {0|1} seat @param {1|2|4} count @param {1|2} [carrierCopies=2] @param {boolean} [autoRoot=false] @param {boolean} [autoCarrier=false] */
-function actorFixture(seat,count,carrierCopies=2,autoRoot=false,autoCarrier=false){
+/** @param {0|1} seat @param {1|2|4} count @param {1|2} [carrierCopies=2] @param {boolean} [autoRoot=false] @param {boolean} [autoCarrier=false] @param {boolean} [passRoot=false] */
+function actorFixture(seat,count,carrierCopies=2,autoRoot=false,autoCarrier=false,passRoot=false){
   const f=stagedPainfulSpoons(seat);
   f.state.turn=14;
   f.source.supporterTurn=0;
@@ -55,12 +57,16 @@ function actorFixture(seat,count,carrierCopies=2,autoRoot=false,autoCarrier=fals
   const outer=withPaperSecretBoxMandatoryPayment(()=>
     withPaperSecretBoxSearchCategory(()=>
       withOwnerSecretBoxCapacityActorPrompt(()=>{
-        const boxPlay=autoRoot?bot.decodeNextAction(f.state):
+        const boxPlay=passRoot?new PassTurnAction(f.source.id):
+          autoRoot?bot.decodeNextAction(f.state):
           new PlayCardAction(f.source.id,f.source.hand.cards.indexOf(box),{
             player:PlayerType.ANY,slot:SlotType.BOARD,index:0
           });
-        assert.equal(boxPlay.constructor.name,'PlayCardAction');
-        assert.equal(f.source.hand.cards[boxPlay.handIndex],box);
+        if(passRoot)assert.equal(boxPlay.constructor.name,'PassTurnAction');
+        else{
+          assert.equal(boxPlay.constructor.name,'PlayCardAction');
+          assert.equal(f.source.hand.cards[boxPlay.handIndex],box);
+        }
         f.store.dispatch(boxPlay);
         const paymentAction=bot.decodeNextAction(f.state);
         assert.equal(paymentAction.constructor.name,'ResolvePromptAction');
@@ -122,7 +128,7 @@ function actorFixture(seat,count,carrierCopies=2,autoRoot=false,autoCarrier=fals
             !f.source.discard.cards.includes(c)).length;
         }
         return {
-          seat,count,carrierCopies,autoRoot,autoCarrier,actualCarrierRecovered,
+          seat,count,carrierCopies,autoRoot,autoCarrier,passRoot,actualCarrierRecovered,
           payment:payment.map(c=>c.fullName),
           selected:selection.map(c=>c.fullName),
           paid:payment.every(c=>f.source.discard.cards.includes(c)&&
@@ -132,7 +138,7 @@ function actorFixture(seat,count,carrierCopies=2,autoRoot=false,autoCarrier=fals
           qualifiedGame:false
         };
       },{stagedStore:f.store,policy,autoPlayRoot:autoRoot,
-        autoPlayCarrier:autoCarrier})));
+        autoPlayCarrier:autoCarrier,passToBoxRoot:passRoot})));
   return {
     result:outer.result.result.result,
     actorAudit:outer.result.result.audit,
@@ -255,5 +261,32 @@ test('native actor independently executes Box root, payment, four-category searc
     assert.equal(paymentAudit.vetoedPayments,0);
     assert.equal(searchAudit.vetoedSearches,0);
     assert.equal(result.qualifiedGame,false);
+  }
+});
+
+test('native canonical terminal Pass converts to the payable Secret Box root without losing opponent-turn or source-prompt custody',()=>{
+  for(const seat of [0,1]){
+    const {result,actorAudit,paymentAudit,searchAudit}=
+      actorFixture(seat,2,1,false,true,true);
+    console.log('AGENT16_BOX_PASS_ROOT_NATIVE',JSON.stringify({
+      result,actorAudit,paymentAudit,searchAudit
+    }));
+    assert.equal(result.passRoot,true);
+    assert.deepEqual(result.payment,[VIP,VIP,LILLIE]);
+    assert.deepEqual(result.selected,CATEGORIES);
+    assert.equal(result.actualCarrierRecovered,2);
+    assert.equal(actorAudit.interceptedOwnerPasses,1);
+    assert.equal(actorAudit.interceptedOwnerPassWithBox,1);
+    assert.equal(actorAudit.passToBoxRootAffordable,1);
+    assert.equal(actorAudit.passToBoxRootAccepted,1);
+    assert.equal(actorAudit.nativeOwnerBoxRootAccepted,1);
+    assert.equal(actorAudit.nativeOwnerCarrierRootAccepted,1);
+    assert.equal(actorAudit.nativePaymentAccepted,1);
+    assert.equal(actorAudit.nativeCategoryAccepted,1);
+    assert.equal(actorAudit.nativeCarrierRecoveryAccepted,1);
+    assert.equal(actorAudit.physicalReceiptCount,3);
+    assert.equal(actorAudit.outstandingPhysicalReceipts,0);
+    assert.equal(paymentAudit.vetoedPayments,0);
+    assert.equal(searchAudit.vetoedSearches,0);
   }
 });
