@@ -3,6 +3,16 @@ name: Mimikyu source-counterline policy diagnostic
 on:
   workflow_dispatch:
     inputs:
+      agent46_replay_run:
+        description: Read and summarize a completed archived source-run ID without re-simulating
+        type: string
+        required: false
+        default: ''
+      agent46_replay_artifact:
+        description: Exact artifact name in the completed source run
+        type: string
+        required: false
+        default: ''
       agent46_mimikyu_treasure_ab:
         description: Prospective 32-arm owner-visible Mysterious Treasure dual-axis discard/search versus Fog-only
         type: boolean
@@ -27,7 +37,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  artifact-audit:
+    if: inputs.agent46_replay_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download frozen A/B JSON artifact by original run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPLAY_RUN: ${{ inputs.agent46_replay_run }}
+          REPLAY_ARTIFACT: ${{ inputs.agent46_replay_artifact }}
+        run: gh run download "$REPLAY_RUN" -n "$REPLAY_ARTIFACT" -D replay
+      - name: Report stored game status, original-source pairs and policy effects
+        run: node simulation/evaluation/2026-11/agent46-source-artifact-summary.cjs replay
   diagnostic:
+    if: inputs.agent46_replay_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
