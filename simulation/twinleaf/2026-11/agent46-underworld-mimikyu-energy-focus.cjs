@@ -51,7 +51,7 @@ function installUnderworldMimikyuFocus({seat,onEvent}){
   const {PlayerType,SlotType}=require(path.join(OUTPUT,
     'game/store/actions/play-card-action'));
   const {UseAbilityAction}=require(path.join(OUTPUT,
-    'game/store/actions/use-ability-action'));
+    'game/store/actions/game-actions'));
   const {ResolvePromptAction}=require(path.join(OUTPUT,
     'game/store/actions/resolve-prompt-action'));
   const {EnergyCard}=require(path.join(OUTPUT,
