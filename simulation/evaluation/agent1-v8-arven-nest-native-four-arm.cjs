@@ -126,8 +126,9 @@ function run() {
         const actual=changed.find(row=>row.seat===event.seat &&
           row.turn===event.turnBefore &&
           row.action==='PlayCardAction' &&
-          row.card==='Nest Ball SVI');
-        return actual?continuation(actual,changed):null;
+          row.ownerArvenSelectedNestAction===true);
+        assert.ok(actual,'Benched Basic must join a tagged Store-accepted Nest Ball');
+        return continuation(actual,changed);
       })
     };
   });
