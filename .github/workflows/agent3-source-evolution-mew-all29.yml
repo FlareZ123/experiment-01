@@ -12,6 +12,7 @@ on:
           - hood-retreat
           - skyliner-smoke
           - skyliner-field
+          - skyliner-v1-field
         default: source-mew
 
 permissions:
@@ -184,5 +185,43 @@ jobs:
         with:
           name: agent3-skyliner-public-prospective-32
           path: artifacts/agent3-skyliner-public-free-prospective.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  skyliner-best-nominated-60-original-all29:
+    if: inputs.experiment == 'skyliner-v1-field'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout frozen all29 candidate policy research
+        uses: actions/checkout@v4
+      - name: Initialize pinned native submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Node runtime and pinned cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Test all 58 paired authentic ranks, candidate sixty and frozen hashes
+        run: |
+          node --check simulation/evaluation/agent3/skyliner-hood-v1-authenticated29-native.cjs
+          node --test tests/2026-11/agent3-skyliner-hood-v1-authenticated29-native.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run 116 exact-sixty A/B native games, each original source rank in both seats
+        env:
+          AGENT3_SKYLINER_HOOD_V1_ALL29_OUTPUT: artifacts/agent3-skyliner-hood-v1-all29-prospective.json
+        run: node simulation/evaluation/agent3/skyliner-hood-v1-authenticated29-native.cjs
+      - name: Preserve all rank, physical, policy and termination ledgers
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-skyliner-hood-v1-all29-116
+          path: artifacts/agent3-skyliner-hood-v1-all29-prospective.json
           retention-days: 14
           if-no-files-found: warn
