@@ -1,0 +1,102 @@
+{
+  "schema": "agent23-original-rank6-owner-volt-fresh-deal-v1",
+  "registeredUtc": "2026-11-09T03:25:00Z",
+  "purpose": "First unseen-original-physical-deal pilot of integrated all-turn native owner Volt policy. Fixed before any source game is run.",
+  "source": "Original Aichi Open League 2026 rank6 exact published paper Expanded 60",
+  "candidateDecks": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRank": 6,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateOriginalSixtiesUnchanged": true,
+  "seedSelection": "Four independent crypto RNG 32-bit outputs drawn before executing any new native match",
+  "registrationReusedPriorSelectedPhysicalSeeds": false,
+  "seedBySourceCell": {
+    "3300:A": 3680464282,
+    "3300:B": 1886709746,
+    "3301:A": 2517970969,
+    "3301:B": 991779563
+  },
+  "registeredTrials": [
+    {
+      "id": "6:3300:A:champion-reference",
+      "rank": 6,
+      "repeat": 3300,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3680464282
+    },
+    {
+      "id": "6:3300:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3300,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3680464282
+    },
+    {
+      "id": "6:3300:B:champion-reference",
+      "rank": 6,
+      "repeat": 3300,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1886709746
+    },
+    {
+      "id": "6:3300:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3300,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1886709746
+    },
+    {
+      "id": "6:3301:A:champion-reference",
+      "rank": 6,
+      "repeat": 3301,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2517970969
+    },
+    {
+      "id": "6:3301:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3301,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2517970969
+    },
+    {
+      "id": "6:3301:B:champion-reference",
+      "rank": 6,
+      "repeat": 3301,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 991779563
+    },
+    {
+      "id": "6:3301:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3301,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 991779563
+    }
+  ],
+  "expectedMatchPairs": 8,
+  "expectedNativeAttempts": 16,
+  "capPerAttempt": 260,
+  "sourcePolicyTreatments": [
+    "unchanged original frozen bilateral v2 owner prompt",
+    "integrated default-off owner Volt v3 printed-cost priority"
+  ],
+  "admission": "Whole source/full physical-deal fingerprint and actual starter seat must match baseline and treatment for each original rank6 source game; every native error, root cap and terminal preserved",
+  "metric": "Number of genuine source owner Energy-transfer prompts, source Volt Cyclone settlements, source Prize vectors, native terminal vs cap; no inferred paper win percentages",
+  "paperQualifiedCompetitiveGames": 0,
+  "limitations": [
+    "Only 8 fresh source-60 matches, two candidate reference decks",
+    "Simulator player policy and tournament clock not paper qualified",
+    "Selection fixed before executing source games, development-only pilot"
+  ]
+}
