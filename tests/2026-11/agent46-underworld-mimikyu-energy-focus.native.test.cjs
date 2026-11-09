@@ -75,7 +75,7 @@ for(const seat of [0,1]){
       assert.strictEqual(installUnderworldMimikyuFocus({seat}),restore);
       const proposal=x.ability.useTactic(x.state,x.candidate);
       assert.equal(proposal?.constructor?.name,'UseAbilityAction');
-      assert.equal(proposal.powerName,'Underworld Door');
+      assert.equal(proposal.name,'Underworld Door');
       x.store.dispatch(proposal);
       const attach=x.store.state.prompts.find(prompt=>
         prompt.constructor.name==='AttachEnergyPrompt');
