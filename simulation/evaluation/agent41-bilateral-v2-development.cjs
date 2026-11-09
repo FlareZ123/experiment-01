@@ -1917,7 +1917,8 @@ function runDevelopment({
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
-          !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
+          !actorUnderworldDoorRoot&&!actorTempleDdeDenialRoot&&
+          !actorFundedShadowRiderFloatStoneRoot&&
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
