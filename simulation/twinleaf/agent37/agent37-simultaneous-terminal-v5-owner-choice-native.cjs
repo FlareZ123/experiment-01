@@ -115,11 +115,53 @@ function run(){
       });
       }
     }
+    // The terminal Prize recipient also has no replacement Active, while the
+    // other recipient can promote. Rulebook §E requires a tie despite one
+    // player exhausting their Prizes first; preserve the real owner choice.
+    const tieFixture={
+      ...fixture,
+      choosePrize:({player,prompt,remaining,state})=>{
+        assert.equal(player.id,recipientId);
+        assert.equal(state.phase,GamePhase.ATTACK);
+        assert.equal(state.winner,GameWinner.NONE);
+        return remaining.slice(0,prompt.options.count);
+      }
+    };
+    const tie=runOne(
+      actorSeat,withMixedRecipientPrizes(recipientId,actorSeat,true),
+      6,true,
+      actorSeat===0,
+      actorSeat===1,
+      tieFixture
+    );
+    assert.equal(tie.result.finished,true);
+    assert.equal(tie.result.winner,GameWinner.DRAW,
+      'one player exhausts Prizes but cannot promote; opponent can');
+    assert.equal(tie.result.terminalGameLogCount,1);
+    assert.equal(tie.audit.ownerPrizeSelectionSettled,true);
+    assert.equal(tie.audit.winnerOverridden,true);
+    assert.equal(tie.audit.nativeWinnerLogMessage,GameLog.LOG_GAME_FINISHED_WINNER);
+    assert.equal(tie.audit.winnerLogMessage,GameLog.LOG_GAME_FINISHED_DRAW);
+    assert.equal(tie.audit.winnerPublishedAfterSelection,true);
+    assert.equal(tie.audit.selectedPhysicalPrizesTransferred,true);
+    assert.equal(tie.audit.bothPrizeTransfersCompleted,true);
+    assert.equal(tie.audit.storeLogRestored,true);
+    assert.equal(tie.audit.storeReduceRestored,true);
+    rows.push({
+      actorSeat,recipientId,mixedPool:true,includeMetal:false,
+      scenario:'single-remaining-active-promotion-tie',
+      selectedPrizePrintings:tie.audit.selectedPrizePrintings,
+      gameWinner:'DRAW',
+      nativeWinnerCorrected:true,
+      terminalLogDeferred:tie.audit.terminalLogDeferred,
+      nativeOwnerPromptSettled:tie.audit.ownerPrizeSelectionSettled
+    });
   }
   return {
     schema:'agent37-simultaneous-terminal-v5-native-owner-prize-choice',
     version:VERSION,pinnedTwinleaf:PINNED,
-    physicalSeats:[0,1],choicesPerSeat:3,
+    physicalSeats:[0,1],choicesPerSeat:4,
+    independentlyCorrectedSinglePrizePromotionTies:2,
     ownerChoiceNativePrompts:rows.length,
     differentPhysicalChoicesCauseDifferentPrizeReceipts:true,
     homogeneousAndHeterogeneousPoolPromptPresenceIdentical:true,
