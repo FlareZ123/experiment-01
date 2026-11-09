@@ -84,7 +84,7 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent5/rank13-owner-pass-trainers.cjs
           node --check simulation/evaluation/agent5/rank13-source-policy-factorial.cjs
-          node --test tests/2026-11/agent5-rank13-source-pass.test.cjs
+          node --test tests/2026-11/agent5-rank13-source-pass.test.cjs tests/2026-11/agent5-rank13-source-factorial.test.cjs
 
       - name: Execute four-cell original Regidrago source-policy challenge
         if: ${{ inputs.run_rank13_source_challenge }}
