@@ -17,7 +17,7 @@ function player(id,heldCarmine=false){
     card('Carmine TWM'),card('Double Dragon Energy ROS')
   ]:[card('Other Source Card')]},
   deck:{cards:Array.from({length:10},(_,i)=>card('Draw '+i))},
-  discard:{cards:[]},lostZone:{cards:[]},supporterTurn:0};
+  discard:{cards:[]},supporterTurn:0};
 }
 class FakeStore{
   constructor(sourceSeat=0,held=true){
