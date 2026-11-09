@@ -53,7 +53,7 @@ function trials() {
  * forensics only. Leave the multi-arm registration gate intact by default.
  * @param {object} extra
  * @param {object[]} frozen
- * @returns {{allowSingleRegisteredTrial:boolean,retrospectiveSingleTrial:boolean}}
+ * @returns {{allowSingleRegisteredTrial:boolean,retrospectiveSingleTrial:boolean,allowSingleCandidateArm:boolean,allowSingleCandidatePerGroup:boolean}}
  */
 function selectedTrialReplayMode(extra,frozen){
   const single=extra.singleHistoricalReplay===true;
@@ -65,7 +65,9 @@ function selectedTrialReplayMode(extra,frozen){
       'Historical one-deal replay requires original frame identification');
   }
   return {allowSingleRegisteredTrial:single,
-    retrospectiveSingleTrial:single};
+    retrospectiveSingleTrial:single,
+    allowSingleCandidateArm:single,
+    allowSingleCandidatePerGroup:!single};
 }
 
 function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
@@ -102,7 +104,8 @@ function runNativeBatch(enablePerfection,run=runDevelopment,extra={}){
         nativeRootActionLimit:rootLimit,
         registeredTrials:frozen.map(row=>({...row})),
         registeredFrameName:frameName,
-        allowSingleCandidatePerGroup:true,
+        allowSingleCandidateArm:trialReplayMode.allowSingleCandidateArm,
+        allowSingleCandidatePerGroup:trialReplayMode.allowSingleCandidatePerGroup,
         allowAdditionalOriginalSourceRanks:true
       }),
       layers:{firstBlockedPromptEnvelope:withStewardOwnerPromptFrontier},
