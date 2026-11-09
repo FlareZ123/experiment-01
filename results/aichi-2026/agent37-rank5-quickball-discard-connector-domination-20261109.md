@@ -37,3 +37,21 @@ All original source 60s, native engine pins, exact deal fingerprints and per-roo
 The existing source-specific `sourceQuickBallPreservePayableAttack` option was tested in a third independent native eight-arm run, [CI 42580831141](https://github.com/FlareZ123/experiment-01/actions/runs/42580831141) **SUCCESS**, using the same source/contender printed 60s and the same four physical deal fingerprints. Source actor Quick Ball count remained `[3,3,1,2]`, source attack count remained `[0,0,0,0]`, and accepted source Genesect Abilities remained zero. Every native action in the four treatment root ledgers matched the non-preserving Quick Ball+discard version, including first Quick Ball turns `[6,8,8,8]`.
 
 The intervention did not suppress any harmful Quick Ball in this particular tested root sequence. This is consistent with the payable-attack check firing only when the owner already has a payable attack at the exact early Quick Ball decision; it does not guarantee that discarding an Energy or gust now preserves the ability to attack several turns later. Thus same-turn payable-attack-first priority is insufficient for this observed setup failure. The next focused intervention needs to resolve realistic search target and discard costs across turns, preserving owner attack funding. Full output retained in run artifact `agent37-source-quickball-discard-8arm` attached to 42580831141. All arms remain retrospective and competitively unqualified.
+
+
+## Owner-only Mew V / Genesect V native search: one restored attack line
+
+A further opt-in development intervention attached the existing native owner-only single-card deck-search resolver to the original source and supplied an owner-visible preference for missing `Mew V FST`, then missing `Genesect V FST`, during an actual `Quick Ball FST` resolution. The detached pure chooser is `simulation/twinleaf/agent37/mew-genesect-quickball-search.cjs`, invoked through `agent7-canonical-actor-composition.cjs` and the bilateral registration only under explicit `actorMewGenesectQuickBallSearch:true`. Unrelated owner searches and the opposing actor use their original generic single-search chooser. The pending prompt's original native filter and physical card objects are resolved by the existing adapter, after the pure chooser selects only a public owner-permitted printing.
+
+Pinned native [CI 42582243628](https://github.com/FlareZ123/experiment-01/actions/runs/42582243628) **SUCCESS** on both physical seats, all four authentic source-start conditions and all eight frozen trial arms. Real accepted source owner search receipts, one row per registered physical matchup:
+
+| Opponent, original source seat | Source Quick Balls | Owner deck-search selections | Source attacks under search preference | Native attack settlement |
+| --- | ---: | --- | ---: | --- |
+| Champion, seat 1 | 3 | Mew V; Dedenne-GX; Genesect V | 0 | none |
+| New Moon, seat 1 | 3 | Mew V; Dedenne-GX; Genesect V | 0 | none |
+| Champion, seat 0 | 1 | Mew V | 0 | none |
+| New Moon, seat 0 | 2 | Mew V; Crobat V | **4** | **4 settled Mew VMAX Cross Fusion Strike attacks**, turns 26, 30, 34, 38 |
+
+Each source and full physical opening fingerprint matches both prior 8-arm variants for the same case. For the New Moon source-seat-0 case, the previously unrestricted Quick Ball + generic discard path produced zero source attacks; the new owner search enabled a live Mew VMAX carrying Double Colorless Energy with Genesect V and Crobat V on Bench, and four genuine native `AttackAction` declarations, four settled prompt chains, no cross-epoch settlements, and three immediate opponent-to-source turn transitions. It still remains an **ENGINE_TERMINAL_UNQUALIFIED** development game. The other three source attacks stayed at zero. Genuine Genesect ability activations stayed at zero in all four rows.
+
+**Causal caveat:** this intervention simultaneously switched on the generic owner-only search resolver and specialized its Quick Ball choice. A separate same-seed *generic owner-only search without preference* control is required to isolate the Mew preference itself; it has been dispatched. One qualified card-action sequence is concrete actionable progress, with no game win-rate inference or assertion of a universally stronger fixed 60.
