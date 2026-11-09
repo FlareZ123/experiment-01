@@ -265,6 +265,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseBlockSwitchFundedKo(view,catalog);
     if(rescue)return rescue;
   }
+  // Opt-in owner-only, fully funded post-Apex Mimikyu Active promotion.
+  // Its public attack-history receipt comes from the real Store tracker.
+  if(options.mimikyuApexFundedPromotion===true){
+    const planned=require('./2026-11/agent6-funded-mimikyu-apex-promotion.cjs')
+      .chooseFundedMimikyuApexPromotion(view,catalog);
+    if(planned)return planned;
+  }
   // Source-independent counterpart to the frozen rank1 VMAX-specific line.
   // This is strictly opt-in and uses only the detached acting owner's view.
   if(options.genericFundedFloatStoneRoot===true&&
@@ -1023,6 +1030,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     templeDdeDenialSelected:0,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
+    mimikyuApexFundedPromotionOptIn:deps.mimikyuApexFundedPromotion===true,
+    mimikyuApexFundedPromotionSelected:0,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     genericFundedFloatStoneRootOptIn:deps.genericFundedFloatStoneRoot===true,
     zeroEnergyStrandFloatStoneRootOptIn:
@@ -1269,8 +1278,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootThornsEmptyBenchOptIn:deps.thornsEmptyBenchVoltPreference===true,
     sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
     sameRootPublicEventReceiptOptIn:deps.sameRootPublicEventReceipt===true,
-    copycatHistoryRootOptIn:deps.copycatHistoryRoot??
-      (process.env.AGENT7_COPYCAT_HISTORY_ROOT_DEV==='true'),
+    copycatHistoryRootOptIn:deps.mimikyuApexFundedPromotion===true||
+      (deps.copycatHistoryRoot??
+        (process.env.AGENT7_COPYCAT_HISTORY_ROOT_DEV==='true')), 
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
       .newSameRootAudit(),
     terminalArbitrationOptIn:(deps.terminalArbitration??
@@ -1946,6 +1956,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       pathUnderworldStadiumCounter:
         audit.pathUnderworldStadiumCounterOptIn===true,
+      mimikyuApexFundedPromotion:
+        audit.mimikyuApexFundedPromotionOptIn===true,
       fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       genericFundedFloatStoneRoot:audit.genericFundedFloatStoneRootOptIn===true,
       zeroEnergyStrandFloatStoneRoot:
@@ -2263,6 +2275,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.underworldDoorRootSelected++;
     if(intent.kind==='play-path-underworld-stadium-counter')
       audit.pathUnderworldStadiumCounterSelected++;
+    if(intent.source===require(
+      './2026-11/agent6-funded-mimikyu-apex-promotion.cjs').VERSION)
+      audit.mimikyuApexFundedPromotionSelected++;
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
       audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.source==='agent31-zero-energy-strand-to-funded-ko-v1')
