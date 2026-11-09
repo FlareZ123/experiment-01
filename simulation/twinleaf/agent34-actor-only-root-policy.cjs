@@ -215,6 +215,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  // A literal opt-in owner-only counterline: consume the actor's genuine
+  // held Hood on a free Benched VMAX Tool slot under public Iron Thorns.
+  // Every other invocation follows the existing shared actor policy.
+  if(process.env.AGENT4_HOOD_TOOL_ROOT_DEV==='true'){
+    const hood=require('./2026-11/agent4-hood-protected-underworld-owner-exception.cjs')
+      .chooseHoodToolPreparation(view,catalog);
+    if(hood)return hood;
+  }
   if(options.garbotoxinToolRoot===true&&
      (garbodorResponseOwnerSeat===null||
       view.actorSeat===garbodorResponseOwnerSeat)){
