@@ -178,7 +178,7 @@ function execute(){
     frozenSourceRank:5,fixedCandidates:CANDIDATES,
     originalSourceSha256:SOURCE_SHA,
     expectedNativeAttempts:r.expectedNativeAttempts,
-    actualNativeAttempts:16,
+    attemptRowsRecorded:16, // Includes explicit placeholders after batch failure.
     matchedPhysicalGroups:all.filter(x=>x.physicalMatched).length,
     mailSettledGroups:all.filter(x=>x.mailSettled).length,
     completePairedTerminals:all.filter(x=>x.physicalMatched&&
