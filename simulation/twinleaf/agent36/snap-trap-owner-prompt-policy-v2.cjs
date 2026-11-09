@@ -121,7 +121,12 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
   const ChooseCardsPrompt = deps.ChooseCardsPrompt ?? loaded.ChooseCardsPrompt;
   const types = deps.types ?? loaded.types;
   const chooseEnergy = deps.chooseEnergy ?? chooseSnapTrapEnergyV2;
-  const energyOptions = deps.energyOptions ?? {};
+  const staticEnergyOptions = deps.energyOptions ?? {};
+  const getEnergyOptions = deps.getEnergyOptions;
+  if (getEnergyOptions !== undefined) {
+    assert.equal(typeof getEnergyOptions, 'function',
+      'getEnergyOptions must be an optional owner-public callback');
+  }
 
   assert.equal(typeof SimpleTacticsAi, 'function');
   assert.equal(typeof Store, 'function');
@@ -342,6 +347,14 @@ function withOwnerSnapTrapPromptResolutionV2(run, deps = {}) {
       throw error;
     }
 
+    // Evaluate the optional public Energy model against the exact current
+    // root State after prompt/owner validation. Never cache it across turns.
+    const energyOptions = getEnergyOptions
+      ? getEnergyOptions(state, livePrompt, verified.attacker.active, types)
+      : staticEnergyOptions;
+    assert.ok(energyOptions && typeof energyOptions === 'object' &&
+      !Array.isArray(energyOptions),
+    'getEnergyOptions must return a selector options object');
     const choice = chooseEnergy(
       livePrompt,
       verified.attacker.active,
