@@ -61,4 +61,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run compile
       - name: Native Store lock handoff on both physical seats
-        run: node --test tests/2026-11/agent47-iron-thorns-active-lock-handoff.native.test.cjs
+        run: >-
+          node --test
+          tests/2026-11/agent47-iron-thorns-active-lock-handoff.native.test.cjs
+          tests/2026-11/agent47/attack-fuel-discard.native.test.cjs
