@@ -1274,7 +1274,8 @@ function registeredNativeSeatDecks(trial,prepared){
 
 /** @returns {object} */
 function bilateralJetBenchRootOptions(enabled){
-  return enabled?{jetBenchSwitchRoot:true,jetPostRoboContinuation:true}:{};
+  return enabled?{jetBenchSwitchRoot:true,jetPostRoboContinuation:true,
+    rank7FabaJetBridge:true}:{};
 }
 
 /**
