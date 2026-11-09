@@ -5,7 +5,8 @@ const test = require('node:test');
 const {
   VERSION,
   observeMulliganBonusSelect,
-  withOwnerMulliganBonusSelectV1
+  withOwnerMulliganBonusSelectV1,
+  withOwnerMulliganBonusInsideNativeMatchesV1
 } = require('../../simulation/twinleaf/agent30/owner-mulligan-bonus-select-v1.cjs');
 
 const GameMessage = {WANT_TO_DRAW_CARDS: 'WANT_TO_DRAW_CARDS'};
@@ -142,4 +143,45 @@ test('typed full-bonus selection settles exactly one real Store prompt in both s
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction, originalDecoder);
     assert.strictEqual(Store.prototype.dispatch, originalDispatch);
   }
+});
+
+test('two independent native Stores each receive one bounded owner setup choice', () => {
+  const headless = {
+    runMatch(seat) {
+      const {state, prompt} = fixture(seat);
+      const store = new Store(state);
+      store.dispatch(new AddPlayerAction());
+      const ai = new SimpleTacticsAi(state.players[seat].id);
+      const action = ai.decodeNextAction(state);
+      assert.ok(action instanceof ResolvePromptAction);
+      assert.equal(action.result, 0);
+      store.dispatch(action);
+      assert.equal(prompt.result, 0);
+      return {seat, promptId: prompt.id};
+    }
+  };
+  const original = headless.runMatch;
+  const wrapped = withOwnerMulliganBonusInsideNativeMatchesV1(() =>
+    [headless.runMatch(0), headless.runMatch(1)],
+    {
+      headless,
+      ownerDeps: {
+        classes,
+        actorInput: detachedInput,
+        Store,
+        SimpleTacticsAi,
+        ResolvePromptAction
+      }
+    }
+  );
+  assert.deepEqual(wrapped.result, [
+    {seat: 0, promptId: 87},
+    {seat: 1, promptId: 88}
+  ]);
+  assert.equal(wrapped.audit.matchCalls, 2);
+  assert.deepEqual(wrapped.audit.matchAudits.map(row => row.selected), [1, 1]);
+  assert.deepEqual(wrapped.audit.matchAudits.map(row => row.liveStores), [1, 1]);
+  assert.deepEqual(wrapped.audit.matchAudits.map(row =>
+    row.nativePromptPostconditionsConfirmed), [1, 1]);
+  assert.strictEqual(headless.runMatch, original);
 });
