@@ -57,6 +57,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank9_source_opponent_survival_v13:
+        description: 'Compare actual v12 owner Rope against opponent public remaining-HP-maximizing choice at the real native switch prompt'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_parity:
         description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
         required: false
@@ -225,6 +230,19 @@ jobs:
         with:
           name: agent29-rank9-postbomb-rope-v12
           path: agent29-rank9-postbomb-rope-v12.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Adversarial owner-prompt selection against authentic original source Rope v13
+        if: ${{ inputs.rank9_source_opponent_survival_v13 }}
+        env:
+          AGENT29_RANK9_ROPE_OPPONENT_SURVIVAL_V13: 'true'
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-rope-opponent-survival-v13.json
+      - name: Preserve every v13 physical response, opponent switch, owner Claw and cap
+        if: ${{ always() && inputs.rank9_source_opponent_survival_v13 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-rope-opponent-survival-v13
+          path: agent29-rank9-rope-opponent-survival-v13.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
