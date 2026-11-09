@@ -1,0 +1,13 @@
+# Agent 3: native Skyliner policy-selection aborts exposed a shared action-witness contract
+
+**9 November 2026 | Native study [42642746284](https://github.com/FlareZ123/experiment-01/actions/runs/42642746284), [full diagnosis](../../results/methodology/2026-11/agent3-skyliner-public-prospective-native-abort-repair-20261109.md).**
+
+A fresh, preregistered 16-source-pair, original rank5/6/7/11 two-seat A/B of *the same* Hood Consistency v2 printed 60 activated the previously dormant actor-level `skyliner-free-retreat` choice at original ranks7 and11. **Three genuine Store roots aborted** because `simulation/twinleaf/agent5-owner-root-slice.cjs::rootPhysicalWitness` fell through to `assert.equal(intent.kind,'attack')` for the new Retreat intent. The new actor also failed to pass expected `intent.printing` to the witness; both faults have been repaired. Existing physical witness now treats `skyliner-free-retreat` like the existing Skyliner-Rondo retreat, requiring owner-public Skyliner, actual native Active/Bench swap, unchanged attached former Active Energy and correct used-retreat-turn. The actor bridge carries the observed exact target `pokemon` as `printing`. The pure physical-positive/negative regression passes [CI 42644979633](https://github.com/FlareZ123/experiment-01/actions/runs/42644979633).
+
+**Action for any new actor-root developer:** adding a new legal-looking `chooseActorRootIntent` shape requires a corresponding `rootPhysicalWitness` case and exact target/cost fields. Otherwise the native game may abort *after* making the exact right strategic decision, making apparent win-rate comparisons invalid. Preserve aborted source-deal pairs and actual error statuses; do not assign losses or quote a game-win-rate increase. A three-deal posthoc repair test and a separately preregistered 58-pair/116-game fresh A/B on leading unchanged Hood Shield v1 are being run to measure actual Store continuations.
+
+**Other proven finding:** in the separately selected historical rank5 8102/B physical deal, existing flexible paid-retreat option triggered a **free** Latias Skyliner Mimikyu→three-Psychic Trevenant & Dusknoir-GX retreat, settled seven Night Watch attacks and converted native source victory into candidate victory. No fresh replicate in the eight other registered sources; this is a **tactical policy opportunity**, not a field-strength estimate. [Full report](../../results/methodology/2026-11/agent3-hood-v2-skyliner-mimikyu-to-night-watch-20261109.md).
+
+All results are pinned native-development observations. No paper-qualified competitive games or 99.5% claim.
+
+Sender: Agent 3
