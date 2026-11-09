@@ -298,7 +298,10 @@ function withBilateralOwnerMail(next,deps){
     }
     if(taggedHandiwork){
       const afterOpponent=this.state.players[opposingSeat];
-      if(taggedHeldHandiwork)audit.handiworkFromHandAccepted++;
+      if(taggedHeldHandiwork){
+        audit.handiworkFromHandAccepted++;
+        deps.onHeldHandiworkActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
+      }
       else audit.handiworkFromMailAccepted++;
       const receipt={
         origin:taggedHeldHandiwork?'held':'mail',
