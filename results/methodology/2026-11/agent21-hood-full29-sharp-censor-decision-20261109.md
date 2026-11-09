@@ -77,3 +77,19 @@ A scoped, default-off research hook at [Duskull paper attack correction](../../.
 **Native test success:** the five-case test suite [both-seat Duskull Store regression](../../../tests/2026-11/agent21-duskull-come-and-get-you-native.test.cjs) passed in the pinned compiled Store under manual workflow [42583298051](https://github.com/FlareZ123/experiment-01/actions/runs/42583298051). The fixture reproduced original `CANNOT_USE_POWER` for a one-Energy Duskull PRE with five occupied Bench slots and at least one discarded Duskull, observed corrected native success in each seat, verified physical discard-to-Bench movement in each seat with an open slot, and confirmed empty-discard no-op behavior. This verifies the targeted game mechanic only; it certifies **zero competitive matches**.
 
 A posthoc matched original rank31 seed replay with the hook on/off is separately registered as a developmental diagnostic in `simulation/evaluation/2026-11/agent21-rank31-duskull-native-replay.cjs`. It must retain the original deal fingerprint, actor options, and changed hook manifest before any outcome comparison; even a repaired terminal game cannot enter the original prospective 116-game denominator as fresh evidence.
+
+## Completed posthoc full-deal native reproduction: engine abort eliminated, game still censored
+
+The standalone [manual CI run 42583298051](https://github.com/FlareZ123/experiment-01/actions/runs/42583298051) **completed successfully**: all five targeted native Store tests passed and both registered rank31 seat-A original-source arms ran under the frozen candidate/source sixties with source-deal digest `a99aa93194c3aa17b3dfb3347ac7f677933f6714bdc96785893a3324e88be2c2`. Its full JSON is preserved as [artifact 13658501229](https://github.com/FlareZ123/experiment-01/actions/runs/42583298051/artifacts/13658501229), unmodified historical reference run `42578010606`. Original seed `323239100`, candidate seat A, printed opponent rank31.
+
+| The exact source-physical deal | Pinned original reducer | Opt-in Duskull-paper reducer |
+| --- | --- | --- |
+| Native root disposition | **Engine abort** at action 253, turn49 | **Action cap** at 260, turn50 |
+| Root-level diagnosis | Source Duskull PRE's `Come and Get You` throws `CANNOT_USE_POWER` | The same printed attack is accepted without moving any Pokémon; five Bench slots already occupied |
+| Source deal fingerprint | Identical `a99aa931...e2c2` | Identical `a99aa931...e2c2` |
+| Native terminal winner | Unresolved | Unresolved |
+| Competitive paper-qualified matches | 0 | 0 |
+
+At root253 the corrected engine accepted the Duskull attack and its end-of-turn prompts; the candidate then reached a genuine `Underworld Door` Ability and attached Energy through the native prompt before root260. The corrected real gameplay now advances through the previously fatal state without changing either player's source deck. **This is a causal native engine-repair result, and it leaves the original Hood-versus-champion paired outcome bound [-9,+13] intact.** The new results are posthoc, and the corrected game is still censored. They cannot be counted as an additional Hood victory.
+
+A separately preregistered **bounded retrospective horizon sensitivity** now accepts a root limit of 260–640 via `AGENT21_RANK31_ROOT_CAP` in [the replay runner](../../../simulation/evaluation/2026-11/agent21-rank31-duskull-native-replay.cjs); this is only for diagnosing what occurs *after* the previously fatal root, not to alter the historical prospective run. Exact paired-deal and seed evidence must continue to match.
