@@ -1,0 +1,427 @@
+{
+  "schema": "agent35-switch-vs-teammates-lock-escape-32-prospective-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "createdUTC": "2026-11-09T11:14:00Z",
+  "question": "Can sacrificing a post-KO-only Teammates Supporter for one searchable Switch Item unblock an otherwise locked zero-Energy Active against original Snorlax while preserving Shadow Rider performance?",
+  "sourceRanks": [
+    3,
+    7,
+    8,
+    9,
+    13,
+    16,
+    21,
+    22
+  ],
+  "sourceGroups": [
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2775173379
+    },
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1802013896
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2687459063
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1738173857
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3378638193
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 2179564243
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3931936049
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 153679487
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2661449476
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 3199111294
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 246234279
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 365784527
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3542080376
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1963167890
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 8249847
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1717284953
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2775173379,
+      "candidateId": "hood-shield-v1",
+      "id": "3:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2775173379,
+      "candidateId": "hood-switch-v2",
+      "id": "3:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1802013896,
+      "candidateId": "hood-shield-v1",
+      "id": "3:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 3,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1802013896,
+      "candidateId": "hood-switch-v2",
+      "id": "3:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2687459063,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2687459063,
+      "candidateId": "hood-switch-v2",
+      "id": "7:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1738173857,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1738173857,
+      "candidateId": "hood-switch-v2",
+      "id": "7:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3378638193,
+      "candidateId": "hood-shield-v1",
+      "id": "8:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3378638193,
+      "candidateId": "hood-switch-v2",
+      "id": "8:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 2179564243,
+      "candidateId": "hood-shield-v1",
+      "id": "8:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 8,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 2179564243,
+      "candidateId": "hood-switch-v2",
+      "id": "8:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3931936049,
+      "candidateId": "hood-shield-v1",
+      "id": "9:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3931936049,
+      "candidateId": "hood-switch-v2",
+      "id": "9:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 153679487,
+      "candidateId": "hood-shield-v1",
+      "id": "9:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 9,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 153679487,
+      "candidateId": "hood-switch-v2",
+      "id": "9:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2661449476,
+      "candidateId": "hood-shield-v1",
+      "id": "13:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 2661449476,
+      "candidateId": "hood-switch-v2",
+      "id": "13:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 3199111294,
+      "candidateId": "hood-shield-v1",
+      "id": "13:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 13,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 3199111294,
+      "candidateId": "hood-switch-v2",
+      "id": "13:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 246234279,
+      "candidateId": "hood-shield-v1",
+      "id": "16:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 246234279,
+      "candidateId": "hood-switch-v2",
+      "id": "16:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 365784527,
+      "candidateId": "hood-shield-v1",
+      "id": "16:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 16,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 365784527,
+      "candidateId": "hood-switch-v2",
+      "id": "16:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3542080376,
+      "candidateId": "hood-shield-v1",
+      "id": "21:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 3542080376,
+      "candidateId": "hood-switch-v2",
+      "id": "21:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1963167890,
+      "candidateId": "hood-shield-v1",
+      "id": "21:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 21,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1963167890,
+      "candidateId": "hood-switch-v2",
+      "id": "21:3510:B:hood-switch-v2"
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 8249847,
+      "candidateId": "hood-shield-v1",
+      "id": "22:3510:A:hood-shield-v1"
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "A",
+      "seed": 8249847,
+      "candidateId": "hood-switch-v2",
+      "id": "22:3510:A:hood-switch-v2"
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1717284953,
+      "candidateId": "hood-shield-v1",
+      "id": "22:3510:B:hood-shield-v1"
+    },
+    {
+      "rank": 22,
+      "repeat": 3510,
+      "candidateSlot": "B",
+      "seed": 1717284953,
+      "candidateId": "hood-switch-v2",
+      "id": "22:3510:B:hood-switch-v2"
+    }
+  ],
+  "nativeAttempts": 32,
+  "sourceGroupCount": 16,
+  "rootCap": 260,
+  "slots": "A candidate seat0 B candidate seat1; three-source fight curated to rank3/7 Block plus six other authentic anti-lock archetypes",
+  "candidateDecks": [
+    {
+      "id": "hood-shield-v1",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "gitBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
+    },
+    {
+      "id": "hood-switch-v2",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider-switch-v2.json",
+      "gitBlobSha": "f2973f0d140d95f79b570ba849c120fa97583c0e"
+    }
+  ],
+  "singleSwap": {
+    "out": {
+      "count": 1,
+      "printing": "Teammates PRC"
+    },
+    "in": {
+      "count": 1,
+      "printing": "Switch SVI"
+    }
+  },
+  "registeredSourceDecks": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sharedPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "sharedPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperSemanticsProfile": "agent19-composed-paper-semantics-profile-v1",
+  "policyFlags": {
+    "actorOpponentBlockSwitchRoot": true,
+    "actorChargedPromotion": true,
+    "actorChoosePokemon": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorGuzmaNominalGust": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorUnderworldDoorPromptOwner": true
+  },
+  "policySourceBlobSha": {
+    "actor34": "6b30e231e1acb23ea42e4f77ca385053557568ba",
+    "agent41": "232024d479b1c321c3edc949b55e412e3dbd9e8b",
+    "switchFrontier": "c07d4a8ba9b2021fe65e71d6991fe92a64ca7357",
+    "blockObserver": "5295d2279f2608fb79cf4634b4ede705f40c3e0b"
+  },
+  "inferenceLimitations": "Source opening must physically match before pairing; each candidate's different 60 can alter initial source mulligan and physical shuffle; native Store natural result is uncensored only on actual terminal; identical policy applied both participants and both deck arms; no proof of opponent competence, tournament clock or paper-qualified wins",
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "paperQualifiedGames": 0
+}
