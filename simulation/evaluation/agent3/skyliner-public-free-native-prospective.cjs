@@ -25,7 +25,7 @@ const PAPER_PROFILE=Object.freeze({
 /** @param {string} filename Repository-relative file. @returns {string} */
 function blob(filename){
   const buf=fs.readFileSync(path.join(ROOT,filename));
-  return createHash('sha1').update('blob '+buf.length+'\\0')
+  return createHash('sha1').update('blob '+buf.length+'\0')
     .update(buf).digest('hex');
 }
 
@@ -219,7 +219,7 @@ if(require.main===module){
   const result=run();
   saveAtomic(OUTPUT,result);
   process.stdout.write('AGENT3_SKYLINER_PROSPECTIVE '+
-    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\\n');
+    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\n');
   if(result.summary.physicallyComparableGroups!==16)process.exitCode=1;
 }
 module.exports={VERSION,PAPER_PROFILE,preflight,nativeReceipt,compare,run};
