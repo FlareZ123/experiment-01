@@ -117,7 +117,6 @@ function withSourceEarlyCarmine(execute,deps){
         hand:[...owner.hand.cards],
         deckCount:owner.deck.cards.length,
         discardCount:owner.discard.cards.length,
-        lostCount:owner.lostZone.cards.length,
         supporterCount:owner.supporterTurn
       }:null;
       try{
@@ -128,9 +127,8 @@ function withSourceEarlyCarmine(execute,deps){
           const beforeOther=before.hand.filter((_,i)=>i!==action.handIndex);
           const gone=beforeOther.filter(c=>!after.hand.cards.includes(c));
           const inDiscard=beforeOther.filter(c=>after.discard.cards.includes(c));
-          const inLost=beforeOther.filter(c=>after.lostZone.cards.includes(c));
           const settled=gone.length===beforeOther.length&&
-            inDiscard.length+inLost.length===beforeOther.length&&
+            inDiscard.length===beforeOther.length&&
             after.hand.cards.length===Math.min(5,before.deckCount)&&
             after.supporterTurn===before.supporterCount+1;
           if(settled)audit.nativeEffectsComplete++;
@@ -138,10 +136,9 @@ function withSourceEarlyCarmine(execute,deps){
             afterOwnerHandSize:after.hand.cards.length,
             otherCardsPhysicallyMoved:gone.length,
             otherCardsDiscarded:inDiscard.length,
-            otherCardsLost:inLost.length,
+            lostZoneMovesNotMeasured:true,
             netDeckChange:after.deck.cards.length-before.deckCount,
             netDiscardChange:after.discard.cards.length-before.discardCount,
-            netLostChange:after.lostZone.cards.length-before.lostCount,
             supporterTurnAfter:after.supporterTurn,
             pendingNativePromptCount:this.state.prompts.filter(p=>
               p.result===undefined).length,
