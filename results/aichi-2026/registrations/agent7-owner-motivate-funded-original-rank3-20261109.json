@@ -1,0 +1,39 @@
+{
+  "schema": "agent7-native-owner-motivate-funded-original-rank3-v1",
+  "registeredAtUtc": "2026-11-09T02:17:37.732Z",
+  "sourceRank": 3,
+  "opponentRank": 13,
+  "source60": "results/aichi-2026/full-decklists.json",
+  "opponent60": "results/aichi-2026/full-decklists.json",
+  "seed": 290134,
+  "originalTrialIds": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sharedBothArms": {
+    "nativeOwnerDedenneTrue": true,
+    "nativeOwnerMotivateEnergy": true,
+    "sourceOwnerMailAndBeach": true,
+    "sourceOwnerArvenNest": true,
+    "ownerConfirmBridge": true,
+    "originalSixtiesUnchanged": true
+  },
+  "control": {
+    "followMailSelectedArven": false
+  },
+  "treatment": {
+    "followMailSelectedArven": true
+  },
+  "question": "After previously verified true physical Dedechange, can a source-authorized Squawkabilly ex Motivate AttachEnergyPrompt physically attach discard Basic Energy to a legal owned Bench recipient, and does the rank3 source's Arven->Nest follow-through remain available under this funded opponent reply?",
+  "acceptance": [
+    "Two source/original physical seats retained with both fixed registered 60s",
+    "Any native Dedechange true must physically discard owner hand and draw exactly from own deck",
+    "Native Motivate cardList must be the acting player's own public discard, with validated Basic Energy and Bench target",
+    "Native ResolvePromptAction must settle and transfer the exact Energy card objects from owner discard to recipient Pokemon energies",
+    "Report actual source Arven and Nest search/payoff when present, or no activation if absent",
+    "Report first accepted action divergence, full errors/caps, owner claims and zero paper-qualified games"
+  ],
+  "preKnownFailure": "Existing native 42542695033 previously settled Dedechange true but stopped at its immediately subsequent Squawkabilly AttachEnergyPrompt, 20 roots. Its owner-Motivate oracle-less resolver is new and not yet proven.",
+  "limitations": "Retrospective exposed seed and incomplete bot competence. This registration tests mechanistic adversarial continuation only and cannot establish win rate."
+}
