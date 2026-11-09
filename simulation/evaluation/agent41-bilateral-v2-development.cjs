@@ -1457,6 +1457,7 @@ function runDevelopment({
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorOwnerMailAfterPassSourceOnly=false,
   actorBilateralLillieAfterPass=false,
+  actorDeckoutRescueRoot=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorSeekerGuzmaNominalKo=false,actorSeekerGuzmaSourceOnly=false,
@@ -2214,6 +2215,7 @@ function runDevelopment({
             ownerUnderworldAttackGapRecipient:actorUnderworldAttackGapRecipient,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerLillieAfterPass:actorBilateralLillieAfterPass,
+            ownerDeckoutRescueRoot:actorDeckoutRescueRoot,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
             ownerVipAfterPass:actorVipAfterPass,
@@ -2632,6 +2634,8 @@ function runDevelopment({
       actorOnlyComposition&&actorGenericFallbackAttribution,
     actorBilateralLillieAfterPassOptIn:actorOnlyComposition&&
       actorBilateralLillieAfterPass,
+    actorDeckoutRescueRootOptIn:actorOnlyComposition&&
+      actorDeckoutRescueRoot,
     actorVipAfterPassAdapterInjected:actorVipAfterPassAdapter!==null,
     actorOnlyCompositionVersion:actorOnlyComposition?
       (rows.find(row=>row.actorOnlyDecisionCoverage)?.actorOnlyDecisionCoverage.version??
