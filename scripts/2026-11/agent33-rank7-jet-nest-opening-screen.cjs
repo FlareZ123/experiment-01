@@ -50,8 +50,14 @@ function occupied(zone) {
  * @returns {{denominator:bigint, numerator:bigint,
  *   strictOtherBasicNumerator:bigint, sourceBasicCount:number}}
  */
-function calculate() {
+function calculateWindow(extraVsSeeker) {
   const { jet, nest, wobbuffet, otherBasics, remaining } = COUNTS;
+  if (!Number.isSafeInteger(extraVsSeeker) ||
+      extraVsSeeker < 0 || extraVsSeeker > 3) {
+    throw new RangeError('Only the three original rank7 VS Seeker copies may be added');
+  }
+  const itemCopies = nest + extraVsSeeker;
+  const otherCopies = remaining - extraVsSeeker;
   const total = jet + nest + wobbuffet + otherBasics + remaining;
   const denominator =
     (choose(total, 7) - choose(total - wobbuffet - otherBasics, 7)) *
@@ -59,32 +65,37 @@ function calculate() {
   let numerator = 0n;
   let strictOtherBasicNumerator = 0n;
 
-  // Zones: 0=opening seven; 1=Prize; 2=first two natural draws;
-  // 3=remaining deck. Both required singletons must be zone 0 or 2.
+  // Jet must appear in the seven opening cards or the two ordinary draws.
+  // At least one of the eligible Item copies must also appear there.
+  // Item access alone is not proof of an independently playable Item.
   for (const jetZone of [0, 2]) {
-    for (const nestZone of [0, 2]) {
-      const [jh, jp, jd] = occupied(jetZone);
-      const [nh, np, nd] = occupied(nestZone);
-      for (let wh = 0; wh <= wobbuffet; wh++) {
-        for (let wp = 0; wp <= wobbuffet - wh; wp++) {
-          for (let wd = 0; wd <= Math.min(2, wobbuffet - wh - wp); wd++) {
-            if (wobbuffet - wh - wp - wd < 1) continue;
-            const wweight = allocation(wobbuffet, wh, wp, wd);
-            for (let bh = 0; bh <= Math.min(7, otherBasics); bh++) {
-              if (bh + wh === 0) continue;
-              for (let bp = 0; bp <= Math.min(6, otherBasics - bh); bp++) {
-                for (let bd = 0; bd <= Math.min(2, otherBasics - bh - bp); bd++) {
-                  const rh = 7 - jh - nh - wh - bh;
-                  const rp = 6 - jp - np - wp - bp;
-                  const rd = 2 - jd - nd - wd - bd;
-                  if (Math.min(rh, rp, rd) < 0 || rh + rp + rd > remaining) {
-                    continue;
+    const [jh, jp, jd] = occupied(jetZone);
+    for (let ih = 0; ih <= itemCopies; ih++) {
+      for (let ip = 0; ip <= itemCopies - ih; ip++) {
+        for (let id = 0; id <= Math.min(2, itemCopies - ih - ip); id++) {
+          if (ih + id === 0) continue;
+          const itemWeight = allocation(itemCopies, ih, ip, id);
+          for (let wh = 0; wh <= wobbuffet; wh++) {
+            for (let wp = 0; wp <= wobbuffet - wh; wp++) {
+              for (let wd = 0; wd <= Math.min(2, wobbuffet - wh - wp); wd++) {
+                if (wobbuffet - wh - wp - wd < 1) continue;
+                const wweight = allocation(wobbuffet, wh, wp, wd);
+                for (let bh = 0; bh <= Math.min(7, otherBasics); bh++) {
+                  if (bh + wh === 0) continue;
+                  for (let bp = 0; bp <= Math.min(6, otherBasics - bh); bp++) {
+                    for (let bd = 0; bd <= Math.min(2, otherBasics - bh - bp); bd++) {
+                      const rh = 7 - jh - ih - wh - bh;
+                      const rp = 6 - jp - ip - wp - bp;
+                      const rd = 2 - jd - id - wd - bd;
+                      if (Math.min(rh, rp, rd) < 0 ||
+                          rh + rp + rd > otherCopies) continue;
+                      const ways = itemWeight * wweight *
+                        allocation(otherBasics, bh, bp, bd) *
+                        allocation(otherCopies, rh, rp, rd);
+                      numerator += ways;
+                      if (bh > 0) strictOtherBasicNumerator += ways;
+                    }
                   }
-                  const ways = wweight *
-                    allocation(otherBasics, bh, bp, bd) *
-                    allocation(remaining, rh, rp, rd);
-                  numerator += ways;
-                  if (bh > 0) strictOtherBasicNumerator += ways;
                 }
               }
             }
@@ -93,24 +104,41 @@ function calculate() {
       }
     }
   }
-  return {
-    denominator, numerator, strictOtherBasicNumerator,
-    sourceBasicCount: wobbuffet + otherBasics
-  };
+  return {denominator, numerator, strictOtherBasicNumerator,
+    sourceBasicCount:wobbuffet+otherBasics, earlyItemCopies:itemCopies};
+}
+
+/** @returns {ReturnType<typeof calculateWindow>} */
+function calculate() {
+  return calculateWindow(0);
+}
+
+/**
+ * A permissive LOCATION upper screen if any of rank7's one Nest Ball or
+ * three VS Seeker cards could become a live Item payoff after Jet.
+ * The source still needs a discarded Faba for the newly verified VS line;
+ * this extra tactical condition is deliberately not included.
+ * @returns {ReturnType<typeof calculateWindow>}
+ */
+function calculateUnion() {
+  return calculateWindow(3);
 }
 
 if (require.main === module) {
-  const result = calculate();
+  const original = calculate();
+  const augmented = calculateUnion();
+  const stringify = r => ({
+    ...Object.fromEntries(Object.entries(r).map(([k,v]) =>
+      [k,typeof v === 'bigint' ? v.toString() : v])),
+    percent:Number(r.numerator * 100000000000n / r.denominator) / 1000000000,
+    nonWobbStarterPercent:Number(r.strictOtherBasicNumerator * 100000000000n /
+      r.denominator) / 1000000000
+  });
   process.stdout.write(JSON.stringify({
-    ...Object.fromEntries(
-      Object.entries(result).map(([k, v]) => [k,
-        typeof v === 'bigint' ? v.toString() : v])),
-    resourceScreenPercent:
-      Number(result.numerator * 100000000000n / result.denominator) / 1000000000,
-    otherBasicStarterScreenPercent:
-      Number(result.strictOtherBasicNumerator * 100000000000n /
-        result.denominator) / 1000000000,
-    competitiveQualifiedGames: 0
+    jetNestOnly:stringify(original),
+    jetWithNestOrVsSeeker:stringify(augmented),
+    competitiveQualifiedGames:0
   }, null, 2) + '\n');
 }
-module.exports = { COUNTS, choose, allocation, calculate };
+module.exports = { COUNTS, choose, allocation, calculate,
+  calculateWindow, calculateUnion };
