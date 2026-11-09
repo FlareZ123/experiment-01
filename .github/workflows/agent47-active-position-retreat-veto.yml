@@ -37,6 +37,8 @@ jobs:
           tests/agent10-flexible-paid-retreat-frontier.test.cjs
           tests/agent2-actor-multi-basic-paid-retreat-frontier.test.cjs
           tests/2026-11/agent47-general-retreat-lock-retention.test.cjs
+          tests/agent47-actor-hand-discard.test.cjs
+          tests/2026-11/agent47/attack-fuel-discard.test.cjs
 
   native-handoff:
     if: ${{ inputs.native_handoff }}
