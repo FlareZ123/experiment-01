@@ -16,6 +16,7 @@ on:
           - agent31-allowner-pass-fresh-native
           - agent31-postgust-seeker-native
           - agent31-portable-joint-native
+          - agent3-portable-champion-all29
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
@@ -202,6 +203,24 @@ jobs:
         env:
           AGENT31_PORTABLE_JOINT_OUTPUT: agent31-portable-joint-aba.json
         run: node simulation/evaluation/agent31/portable-floatstone-seeker-guzma-aba.cjs
+      - name: Preflight preregistered prospective 29-rank fixed-champion field
+        if: inputs.experiment == 'agent3-portable-champion-all29'
+        run: |
+          node --check simulation/evaluation/agent3/portable-champion-all29-20261109.cjs
+          node -e "const r=require('./simulation/evaluation/agent3/portable-champion-all29-20261109.cjs'); const g=r.registered(); console.log('REGISTERED_ORIGINAL_RANKS_AND_SEATS',g.length,new Set(g.map(x=>x.rank)).size)"
+      - name: Execute fresh 116 real native unchanged champion against all 29 originals
+        if: inputs.experiment == 'agent3-portable-champion-all29'
+        env:
+          AGENT3_PORTABLE_ALL29_OUTPUT: artifacts/agent3-portable-champion-all29-20261109.json
+        run: node simulation/evaluation/agent3/portable-champion-all29-20261109.cjs
+      - name: Preserve all 116 native attempts, including bot errors and root caps
+        if: always() && inputs.experiment == 'agent3-portable-champion-all29'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-portable-champion-all29-prospective
+          path: artifacts/agent3-portable-champion-all29-20261109.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Save all portable-policy native games, including censors
         if: always() && inputs.experiment == 'agent31-portable-joint-native'
         uses: actions/upload-artifact@v4
