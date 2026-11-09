@@ -22,6 +22,7 @@ on:
           - hood-owner-underworld-native
           - hood-owner-rank6-fresh32
           - hood-owner-physical-tool-v2-fresh32
+          - hood-arven-original-rank6-v3
           - neutral-v3-new-natural32
         default: typed-replay
 
@@ -99,6 +100,24 @@ jobs:
         run: |
           node --check simulation/twinleaf/2026-11/agent4-hood-protected-underworld-owner-exception.cjs
           node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs tests/2026-11/agent4-hood-protected-underworld-owner.native.test.cjs
+      - name: Execute freshly registered original-rank6 held-Hood versus Arven owner-search native panel
+        if: ${{ inputs.experiment == 'hood-arven-original-rank6-v3' }}
+        env:
+          AGENT4_ARVEN_V3_OUTPUT: agent4-hood-arven-original-rank6-v3-native32.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent4-hood-arven-original-rank6-v3.cjs
+          node --test tests/2026-11/agent4-hood-arven-original-rank6-v3.test.cjs
+          node simulation/evaluation/2026-11/agent4-hood-arven-original-rank6-v3.cjs
+      - name: Preserve genuine Arven Hood search source-starter original-deal and Store receipts
+        if: ${{ always() && inputs.experiment == 'hood-arven-original-rank6-v3' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank6-arven-hood-native-v3
+          path: |
+            agent4-hood-arven-original-rank6-v3-native32.json
+            agent4-hood-arven-original-rank6-v3-native32.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
       - name: Execute fresh paired real-physical Hood Tool-preparation and protected Door owner policy
         if: ${{ inputs.experiment == 'hood-owner-physical-tool-v2-fresh32' }}
         env:
