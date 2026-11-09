@@ -7,6 +7,8 @@ const {
   planSecretBoxRecoveryCapacityPayment
 } = require('./agent16-secret-box-recovery-capacity.cjs');
 const {actorObservation}=require('./actor-observation-contract.cjs');
+const {chooseOwnerCarrierRecovery,CARRIER}=
+  require('./agent16-rescue-carrier-actor-recovery.cjs');
 const {
   chooseSecretBoxCategories,ROOT93_NEW_MOON_PREFERENCES
 } = require('./agent36-secret-box-four-category-selector.cjs');
@@ -27,7 +29,8 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * @param {{engine?:(modulePath:string)=>object,stagedStore?:object,
  *   policy?:object,preferences?:Record<string,string[]>,
  *   targetValuesByPrinting?:Record<string,number>,
- *   preserveRecoveryValue?:boolean,autoPlayRoot?:boolean}} [options]
+ *   preserveRecoveryValue?:boolean,autoPlayRoot?:boolean,
+ *   autoPlayCarrier?:boolean,minCarrierTargets?:number}} [options]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
@@ -55,6 +58,7 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
   let live=liveFromStaged;
   const planned=new WeakMap();
   const rootPlanned=new WeakSet();
+  const carrierRootPlanned=new WeakSet();
   const awaiting=new Set();
   const audit={
     version:VERSION,
@@ -62,6 +66,12 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     ownerPaymentPromptProposals:0,
     ownerCategoryPromptProposals:0,
     autoPlayRootOptIn:options.autoPlayRoot===true,
+    autoPlayCarrierOptIn:options.autoPlayCarrier===true,
+    ownerCarrierRootProposals:0,
+    nativeOwnerCarrierRootAccepted:0,
+    ownerCarrierPromptProposals:0,
+    nativeCarrierRecoveryAccepted:0,
+    nativeCarrierPhysicallySettled:0,
     ownerRootLiveDecodes:0,
     ownerRootBoxVisibleDecodes:0,
     ownerRootBoxItemLockedDecodes:0,
@@ -121,10 +131,28 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
           }
         }
       }
+      if(options.autoPlayCarrier===true){
+        const carrierIndex=owner.hand.cards.findIndex(c=>
+          c.fullName===CARRIER);
+        const eligible=owner.discard.cards.filter(c=>
+          Number.isFinite(c.hp)&&c.hp>0&&c.hp<=90);
+        const minTargets=options.minCarrierTargets??2;
+        if(carrierIndex>=0&&eligible.length>=minTargets){
+          const view=actorObservation(state,seat);
+          if(view.ownTurnResources.itemPlayLocked!==true){
+            const action=new PlayCardAction(owner.id,carrierIndex,{
+              player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+            });
+            carrierRootPlanned.add(action);
+            audit.ownerCarrierRootProposals++;
+            return action;
+          }
+        }
+      }
     }
     if(seat<0||!pending||pending.playerId!==this.client?.id||
       pending.constructor?.name!=='ChooseCardsPrompt'||
-      pending.sourceCard?.fullName!=='Secret Box TWM'){
+      !['Secret Box TWM',CARRIER].includes(pending.sourceCard?.fullName)){
       audit.unsupportedPromptDelegations++;
       return previousBot.value.call(this,state);
     }
@@ -134,11 +162,17 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       chosen=chooseSecretBoxRecoveryCapacityPayment(
         pending,owner,state,options.policy,options);
       kind='payment';
-    }else if(pending.message==='CHOOSE_CARD_TO_HAND') {
+    }else if(pending.sourceCard?.fullName==='Secret Box TWM'&&
+      pending.message==='CHOOSE_CARD_TO_HAND') {
       chosen=chooseSecretBoxCategories(pending,owner,state,
         {TrainerCard,TrainerType},
         options.preferences??ROOT93_NEW_MOON_PREFERENCES);
       kind='categories';
+    }else if(pending.sourceCard?.fullName===CARRIER&&
+      pending.message==='CHOOSE_CARD_TO_HAND'&&
+      options.autoPlayCarrier===true){
+      chosen=chooseOwnerCarrierRecovery(pending,owner,state,options);
+      kind='carrier-recovery';
     }
     if(kind===null||(chosen===null)) {
       audit.rejectedPlans++;
@@ -152,6 +186,7 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     planned.set(action,{seat,kind,promptId:pending.id,
       selectedCards:[...selected]});
     if(kind==='payment')audit.ownerPaymentPromptProposals++;
+    else if(kind==='carrier-recovery')audit.ownerCarrierPromptProposals++;
     else audit.ownerCategoryPromptProposals++;
     return action;
   }
@@ -165,6 +200,10 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
         record.selectedCards.every(card=>
           !owner.hand.cards.includes(card)&&
           owner.discard.cards.includes(card)):
+        record.kind==='carrier-recovery'?
+        record.selectedCards.every(card=>
+          !owner.discard.cards.includes(card)&&
+          owner.hand.cards.includes(card)):
         record.selectedCards.every(card=>
           !owner.deck.cards.includes(card)&&
           owner.hand.cards.includes(card));
@@ -172,6 +211,8 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       awaiting.delete(record);
       audit.physicalReceiptCount++;
       if(record.kind==='payment')audit.nativePaymentPhysicallySettled++;
+      else if(record.kind==='carrier-recovery')
+        audit.nativeCarrierPhysicallySettled++;
       else audit.nativeCategoryPhysicallySettled++;
     }
     audit.outstandingPhysicalReceipts=awaiting.size;
@@ -183,10 +224,13 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     const sameStore=this===live;
     const record=sameStore?planned.get(action):null;
     const intendedRoot=sameStore&&rootPlanned.has(action);
+    const intendedCarrierRoot=sameStore&&carrierRootPlanned.has(action);
     const owner=sameStore&&action?.constructor?.name==='PlayCardAction'?
       this.state.players?.find(p=>p.id===action.id):null;
     const boxRoot=owner?.hand?.cards?.[action.handIndex]?.fullName===
       'Secret Box TWM';
+    const carrierRoot=owner?.hand?.cards?.[action.handIndex]?.fullName===
+      CARRIER;
     if(boxRoot)audit.nativeSourceBoxRootAttempts++;
     const prompt=sameStore&&action?.constructor?.name==='ResolvePromptAction'?
       this.state.prompts?.find(p=>p.id===action.id&&p.result===undefined):
@@ -200,6 +244,8 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     if(!record){
       const result=previousDispatch.value.call(this,action,...rest);
       if(sameStore){
+        if(carrierRoot&&intendedCarrierRoot)
+          audit.nativeOwnerCarrierRootAccepted++;
         if(boxRoot){
           audit.nativeSourceBoxRootAccepted++;
           if(intendedRoot)audit.nativeOwnerBoxRootAccepted++;
@@ -218,6 +264,8 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
         p.id===record.promptId&&p.result===undefined),
         'Accepted Secret Box prompt must settle in the native Store');
       if(record.kind==='payment')audit.nativePaymentAccepted++;
+      else if(record.kind==='carrier-recovery')
+        audit.nativeCarrierRecoveryAccepted++;
       else audit.nativeCategoryAccepted++;
       audit.acceptedBySeat[record.seat]++;
       awaiting.add(record);
