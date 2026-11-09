@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent45-bilateral-competence-gate-v1';
+const VERSION = 'agent45-bilateral-competence-gate-v2';
 const MATERIAL = new Set([
   'AttackAction', 'PlayCardAction', 'RetreatAction', 'UseAbilityAction',
   'UseTrainerAbilityAction', 'UseEnergyAbilityAction', 'UseStadiumAction'
@@ -13,6 +13,33 @@ const PAYOFFS = new Set([
   'position-change', 'resource-transfer', 'status-transition',
   'established-lock', 'opponent-resource-denial', 'information-transition'
 ]);
+
+/**
+ * Aichi Open League Swiss and knockout rounds use different adjudication
+ * procedures. The final also has a 35-minute limit rather than 25 minutes.
+ * This verifies the shape of an independently reviewed external receipt.
+ * It cannot itself establish that a real paper game was clocked correctly.
+ *
+ * @param {object} trial The independent paper-game audit packet
+ * @returns {boolean} Whether the stage-specific clock receipt is coherent
+ */
+function verifiedOfficialAichiClock(trial) {
+  const clock = trial?.officialMatchClock;
+  const profiles = {
+    swiss: {minutes:25,procedure:'swiss-conditional-second-player-turn-both-loss'},
+    top32: {minutes:25,procedure:'knockout-end-second-player-turn-prize-tiebreak'},
+    final: {minutes:35,procedure:'knockout-end-second-player-turn-prize-tiebreak'}
+  };
+  if (!clock || !Object.hasOwn(profiles,clock.stage)) return false;
+  const profile=profiles[clock.stage];
+  const nonempty=value=>typeof value==='string' && value.trim().length>0;
+  return clock.limitMinutes===profile.minutes &&
+    clock.endOfTimeProcedure===profile.procedure &&
+    clock.independentAudit===true &&
+    nonempty(clock.officialRulesSourceRef) &&
+    nonempty(clock.timekeepingReceiptRef) &&
+    nonempty(clock.independentReviewer);
+}
 
 /**
  * Hash the exact native public accepted-root array without reordering it.
@@ -184,7 +211,8 @@ function evaluateBilateralCompetence(trial) {
     failures.push('independent-paper-audit-pending');
   if (trial.hiddenInformationAudit !== true)
     failures.push('hidden-information-audit-pending');
-  if (trial.official25MinuteClockAudit !== true)
+  const officialClockAudit = verifiedOfficialAichiClock(trial);
+  if (!officialClockAudit)
     failures.push('official-match-clock-audit-pending');
   const structuralGatePassed = failures.length === 0;
   return {
@@ -192,6 +220,8 @@ function evaluateBilateralCompetence(trial) {
     rootActionLedgerSha256:digest,acceptedNativeRoots:roots.length,
     certifiedMaterialRoots:eligible.length,
     provenanceComplete,samePolicy,nativeTerminal,
+    officialClockAudit,officialClockStage:trial.officialMatchClock?.stage??null,
+    officialClockLimitMinutes:trial.officialMatchClock?.limitMinutes??null,
     reciprocalEpisodeObserved:episode !== null,episode,
     structuralGatePassed,competitiveAdmission:false,
     externalIndependentReviewRequired:true,failures,
@@ -537,7 +567,7 @@ function screenArchivedReciprocalAttempts(archive) {
     rows};
 }
 
-module.exports = {VERSION, rootDigest, archivedPhysicalSeats,
+module.exports = {VERSION, rootDigest, verifiedOfficialAichiClock, archivedPhysicalSeats,
   verifiedMaterialTransition,
   certifiedMaterialChoice, evaluateBilateralCompetence,
   screenObservedReciprocalSequence, screenPublicDefenderDamageChange,
