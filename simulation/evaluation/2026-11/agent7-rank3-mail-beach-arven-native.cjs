@@ -16,10 +16,10 @@ const OUTPUT=path.resolve(__dirname,
 
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
 function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneTrue=false,
-  motivateEnergy=false}={}){
+  motivateEnergy=false,celestialRoar=false}={}){
   const opts={mysteriousTreasureRoot:treasureBridge,
     ownerConfirm:confirmBridge,arvenNest:nestBridge,
-    dedenneTrue,motivateEnergy};
+    dedenneTrue,motivateEnergy,celestialRoar};
   const headless=require('../../twinleaf/headless.cjs');
   const nativeOutput=path.resolve(__dirname,
     '../../../vendor/twinleaf/ptcg-server/output');
@@ -83,7 +83,8 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneT
     observedFirstUnsupportedActorRoot:r.firstUnsupportedOwnerRoot?.ownerView?.decisionKind??null
   }));
   return {
-    schema:motivateEnergy?VERSION+'-with-owner-motivate-v6':
+    schema:celestialRoar?VERSION+'-with-owner-celestial-v7':
+      motivateEnergy?VERSION+'-with-owner-motivate-v6':
       dedenneTrue?VERSION+'-with-opponent-dedechange-v5':
       nestBridge?VERSION+'-with-native-nest-v4':
       confirmBridge?VERSION+'-with-owner-confirm-v3':
@@ -93,6 +94,7 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneT
     experimentalArvenSelectedNestBallBridge:nestBridge,
     experimentalSourceAttributedDedenne:dedenneTrue,
     experimentalOwnerMotivateEnergy:motivateEnergy,
+    experimentalOwnerCelestialRoar:celestialRoar,
     originalRank3SourceAndRank13Candidate:true,
     seed:290134,enginePin:control.output.enginePin,
     fullPrintedSixtiesFixed:true,
@@ -136,16 +138,28 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneT
       nativeMotivateUnsettled:audit.nativeMotivateUnsettled,
       nativeMotivateEvents:audit.nativeMotivateEvents,
       nativeMotivateEncountered:audit.nativeMotivateEncountered,
+      nativeCelestialRoarOffers:audit.nativeCelestialRoarOffers,
+      nativeCelestialRoarSettled:audit.nativeCelestialRoarSettled,
+      nativeCelestialRoarRejected:audit.nativeCelestialRoarRejected,
+      nativeCelestialRoarUnsettled:audit.nativeCelestialRoarUnsettled,
+      nativeCelestialRoarEvents:audit.nativeCelestialRoarEvents,
       trialStatuses:trialStatuses(treatment)},
     completeMailBeachArvenPairs:pairs,
     physicallySettledThreeEffectSequence:qualified.length>0,
+    physicallySettledOwnerCelestialRoar:celestialRoar&&
+      audit.nativeCelestialRoarSettled>0,
     physicallySettledOwnerMotivate:motivateEnergy&&
       audit.nativeMotivateSettled>0,
     physicallySettledOpponentDedechange:dedenneTrue&&
       audit.nativeDedenneTrueEffectSettled>0,
     physicallySettledArvenNestBenchSequence:nestBridge&&
       audit.nestFromArvenBenchSettled>0&&qualified.length>0,
-    status:motivateEnergy&&audit.nativeMotivateSettled>0&&
+    status:celestialRoar&&audit.nativeCelestialRoarSettled>0&&
+      audit.nativeDedenneTrueEffectSettled>0&&
+      audit.nativeCelestialRoarRejected===0&&audit.nativeCelestialRoarUnsettled===0?
+      'NATIVE_CELESTIAL_ROAR_AND_DEDENNE_PHYSICAL_SETTLED':
+      celestialRoar?'NO_SETTLED_OWNER_CELESTIAL_ROAR_AND_DEDENNE':
+      motivateEnergy&&audit.nativeMotivateSettled>0&&
       audit.nativeDedenneTrueEffectSettled>0&&
       audit.nativeMotivateRejected===0&&audit.nativeMotivateUnsettled===0?
       'NATIVE_MOTIVATE_AND_DEDENNE_PHYSICAL_SETTLED':
@@ -170,7 +184,9 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneT
 /** Atomic receipt with an exclusive per-output lock. */
 function save(report){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
-  const output=report.experimentalOwnerMotivateEnergy?
+  const output=report.experimentalOwnerCelestialRoar?
+    OUTPUT.replace('paired-native.json','paired-native-with-celestial.json'):
+    report.experimentalOwnerMotivateEnergy?
     OUTPUT.replace('paired-native.json','paired-native-with-motivate.json'):
     report.experimentalSourceAttributedDedenne?
     OUTPUT.replace('paired-native.json','paired-native-with-dedenne.json'):
@@ -201,7 +217,8 @@ if(require.main===module){
     confirmBridge:process.env.AGENT7_OWNER_CONFIRM_DEV==='true',
     nestBridge:process.env.AGENT7_ARVEN_NEST_DEV==='true',
     dedenneTrue:process.env.AGENT7_DEDENNE_TRUE_DEV==='true',
-    motivateEnergy:process.env.AGENT7_MOTIVATE_ENERGY_DEV==='true'
+    motivateEnergy:process.env.AGENT7_MOTIVATE_ENERGY_DEV==='true',
+    celestialRoar:process.env.AGENT7_CELESTIAL_ROAR_DEV==='true'
   });}
   catch(error){
     report={schema:VERSION,status:'NATIVE_OR_ASSERTION_ERROR',
@@ -217,7 +234,8 @@ if(require.main===module){
   if(report.status!=='NATIVE_THREE_EFFECT_SEQUENCE_SETTLED'&&
      report.status!=='NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED'&&
      report.status!=='NATIVE_ARVEN_NEST_AND_OPPONENT_DEDECHANGE_SETTLED'&&
-     report.status!=='NATIVE_MOTIVATE_AND_DEDENNE_PHYSICAL_SETTLED')
+     report.status!=='NATIVE_MOTIVATE_AND_DEDENNE_PHYSICAL_SETTLED'&&
+     report.status!=='NATIVE_CELESTIAL_ROAR_AND_DEDENNE_PHYSICAL_SETTLED')
     process.exitCode=1;
 }
 
