@@ -19,7 +19,7 @@ const FLAGS=['AGENT7_EARLY_BEACH_DEV',
   'AGENT7_EARLY_BEACH_DEFER_MAIL_DEV'];
 
 /** Compare unchanged actual first-eligible Mail before optional Beach fallback. */
-function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ownerConfirm=false,arvenNest=false}={}){
+function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ownerConfirm=false,arvenNest=false,dedenneTrue=false}={}){
   const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const native=relative=>require(path.join(base,relative));
   const headless=require('../twinleaf/headless.cjs');
@@ -43,6 +43,7 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
         trialIds:TRIAL_IDS,
         followMailArven:followArven,
         followOwnerConfirm:ownerConfirm,
+        confirmNativeDedenne:dedenneTrue,
         followArvenNestBall:arvenNest,
         preferSinglePrizeNestBasic:arvenNest,
         playCardEnums:native('game/store/actions/play-card-action')
@@ -52,7 +53,7 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
     const output=traced.output;
     assert.deepEqual(output.rows.map(row=>row.trialId),TRIAL_IDS);
     return {
-      earlyBeach,followArven,mysteriousTreasureRoot,ownerConfirm,arvenNest,
+      earlyBeach,followArven,mysteriousTreasureRoot,ownerConfirm,arvenNest,dedenneTrue,
       output,beachEvents:traced.events,
       mailAudit:mail.audit
     };
