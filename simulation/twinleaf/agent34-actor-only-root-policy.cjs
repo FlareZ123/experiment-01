@@ -1871,7 +1871,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
       genesectFusionNativeAvailableSlots:
         actorSpecialEnergyEnabled(audit.genesectFusionDrawOptIn,
-          audit.genesectFusionDrawOwnerSeat,seat)?
+          audit.genesectFusionDrawOwnerSeat,seat)&&
+          typeof nativeStore.reduceEffect==='function'?
             require('./agent37/native-genesect-power-availability.cjs')
               .nativeGenesectPowerAvailability(state,nativeStore,seat):null,
       templeDdeDenial:audit.templeDdeDenialOptIn===true,
