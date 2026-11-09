@@ -119,6 +119,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
+    options.ownerDeckoutRescueRoot===true||
     process.env.AGENT2_SHUFFLE_SUPPORTER_DEV==='true';
   // The last-installed handler must see root Pass AND all three Plumeria
   // prompts before lower-priority prompt handlers can consume them.
@@ -176,7 +177,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const runWithShuffleSupporter=()=>{
     if(!shuffleSupporterOptIn)return runWithLillieAfterPass();
     const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
-      .withActorOnlyShuffleSupporterAfterPass(runWithLillieAfterPass);
+      .withActorOnlyShuffleSupporterAfterPass(runWithLillieAfterPass,
+        options.ownerDeckoutRescueRoot===true?{
+          choose:require('../twinleaf/2026-11/agent17-deckout-rescue-selector.cjs')
+            .chooseDeckoutRescue
+        }:{});
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
@@ -469,6 +474,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerNativeFlarePromptOptIn:options.sameRootNativeFreeFlareChoice===true,
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
+    ownerDeckoutRescueRootOptIn:options.ownerDeckoutRescueRoot===true,
     ownerLillieAfterPassOptIn:lillieAfterPassOptIn,
     ownerLillieAfterPassAudit,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
