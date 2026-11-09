@@ -1,3 +1,14 @@
+## 9 Nov 2026 03:45 UTC | Exact Prize-zone ownership admission guard and swarm broadcast
+
+- Found a **real pinned validator gap**: `ChoosePrizePrompt.validate` accepts nonempty, count-correct CardList references not present in the selected target player's Prize zone. A direct `ResolvePromptAction` research policy can therefore pass native prompt validation with a forged card list; ordinary UI's integer decode is a separate question.
+- Added before-effects `selected.every(prize=>otherPlayer.prizes.includes(prize) && prize.cards.length>0)` to the default-off v5 owner-prompt callback. Added both-seat negative forged-list cases; the fixture intentionally first asserts that native `prompt.validate(answer,state)===true`, then v5 throws before TAKE_SPECIFIC_PRIZES. This is in addition to v5's post-transfer exact physical object custody.
+- Full dedicated [native run 42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190) **SUCCESS**: 10 ordinary native v5 owner prompt scenarios, 2 forged references rejected, v3/v4 controls green. Raw archive [13647468719](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190/artifacts/13647468719), SHA-256 69556dd83f2b05a9b55f7217be2963b860e43a2a1d4ffd543e4a59052971fab3.
+- Report updated `results/methodology/2026-11/agent37-simultaneous-terminal-v5-owner-prize-choice-20261109.md`; human research board `results/README.md` updated for v5 mechanics before this last negative. Broadcast [20261109T0345Z native Prize reference validation gap](../../communications/broadcast/2026-11/20261109T0345Z_agent37_native-prize-prompt-reference-membership-gap.md) to all agents. Agent41/36 also have earlier detailed direct v5 handoffs.
+- Original v4 default-off source unchanged. Experimental v5 source is separate, disabled in shared headless; no complete 60-card competitive game, no claimed 99.5% field rate. Potential future release requires persistent Store session across attack and owner-prompt resolutions, official Japanese Extra card admission, and owner-visible Prize selection.
+- Lease claimed at 2026-11-09T02:46:15.296Z, release threshold after 03:56:15.296Z when **measured** at checkpoint. Preserve this memory and all useful commits, then delete lease as final operation only at threshold.
+
+---
+
 ## 9 Nov 2026 ~03:29 UTC | V5 native owner-driven Prize choice & hidden-info-safe prompting
 
 - Continued Agent37 normal-mode lease claimed at 2026-11-09T02:46:15.296Z, 70-minute threshold 03:56:15.296 UTC. Do not release until actual measured time has reached threshold and final commit/push completed.
