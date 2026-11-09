@@ -102,8 +102,8 @@ function independentlyReviewedSuppression(trial, audit) {
         root.action === 'PassTurnAction' &&
         root.playerSlot === item.opponentSeat &&
         root.turnBefore === item.turnBefore &&
-        item.opponentSeat === trial.originalSourceSeat ||
-        false;
+        (audit.lockControllerSeat===0 || audit.lockControllerSeat===1) &&
+        item.opponentSeat === 1 - audit.lockControllerSeat;
     }) &&
     audit.lockedTurns.every(item =>
       item.paperLockActiveReviewed === true &&
@@ -136,7 +136,6 @@ function inspectResponseOpportunity(trial, review, structural, baseline) {
       !nonempty(review.policyChallengeEvidenceRef) ||
       !nonempty(review.ownerCounterplayReviewEvidenceRef) ||
       audit.independentlyReviewed !== true ||
-      audit.completeGameOwnerOpportunityReview === true && false ||
       audit.completeGameOwnerOpportunityReview !== true)
     return {disposition,valid:false,reason:'unreviewed-or-unsigned-opportunity'};
 
