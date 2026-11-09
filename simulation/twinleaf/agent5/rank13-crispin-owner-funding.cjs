@@ -51,6 +51,8 @@ function chooseNativeCrispinEnergySearch(state,seat,prompt,ResolvePromptAction){
   const grass=cards.find(c=>c.fullName==='Grass Energy MEE');
   const fire=cards.find(c=>c.fullName==='Fire Energy MEE');
   if(!grass||!fire)return null;
+  assert.notEqual(grass.name,fire.name,
+    'Native Crispin Grass and Fire must have distinct printed Energy names');
   const chosen=[grass,fire];
   assert.equal(prompt.validate(chosen,state),true,
     'Crispin native owner-deck validation rejected Grass and Fire');
