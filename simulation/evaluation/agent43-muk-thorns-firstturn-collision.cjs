@@ -67,6 +67,49 @@ function candidateForcedActiveMuk() {
   };
 }
 
+
+/**
+ * Split the legacy Grimer-only-species initial-seven event by the number of
+ * physical Grimer actually starting the game. Both-Grimer openings permit
+ * one Active and the other Benched before a Boost Shake evolution; their
+ * presence cannot prove that Alolan Muk was forced into the Active Spot.
+ *
+ * The eighth draw and six Prize cards are included. The event requires a
+ * Shake by the first eight and at least one non-Prized Muk, without asserting
+ * that Shake is playable, or that the chosen Pokémon actually evolves.
+ *
+ * @returns {{
+ *   basicValid:number,
+ *   exactlyOneGrimerSevenAmongBasicValid:number,
+ *   bothGrimerSevenAmongBasicValid:number,
+ *   grimerOnlySpeciesSevenAmongBasicValid:number
+ * }}
+ */
+function candidateMukOriginalSevenPartition() {
+  const basicValid = 1 - choose(48, 7) / choose(60, 7);
+  let exactlyOne = 0;
+  let both = 0;
+  eachEight([2, 2, 3, 10, 43],
+    ([grimer, muk, shake, otherBasic], probability) => {
+      if (!shake || muk === 2) return;
+      const mukSurvives = 1 - allPrized(2 - muk);
+      // Which of the first-eight categories occupies the eighth draw?
+      const oneSevenWeight = grimer === 1 && otherBasic === 0 ? 7 / 8
+        : grimer === 1 && otherBasic === 1 ? 1 / 8
+          : grimer === 2 && otherBasic === 0 ? 2 / 8 : 0;
+      const bothSevenWeight = grimer === 2 && otherBasic === 0 ? 6 / 8
+        : grimer === 2 && otherBasic === 1 ? 1 / 8 : 0;
+      exactlyOne += probability * oneSevenWeight * mukSurvives;
+      both += probability * bothSevenWeight * mukSurvives;
+    });
+  return {
+    basicValid,
+    exactlyOneGrimerSevenAmongBasicValid: exactlyOne / basicValid,
+    bothGrimerSevenAmongBasicValid: both / basicValid,
+    grimerOnlySpeciesSevenAmongBasicValid: (exactlyOne + both) / basicValid
+  };
+}
+
 /**
  * Separate true opening-seven single-Grimer geometry from the broader
  * historical "Grimer-only species" classifier. The eighth card may itself
@@ -216,4 +259,4 @@ function rank6GuzmaHalaVoltWindow() {
   };
 }
 
-module.exports = { candidateForcedActiveMuk, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow };
+module.exports = { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow };

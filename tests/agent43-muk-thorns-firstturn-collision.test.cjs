@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const roster = require('../results/aichi-2026/full-decklists.json');
-const { candidateForcedActiveMuk, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow } =
+const { candidateForcedActiveMuk, candidateMukOriginalSevenPartition, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow } =
   require('../simulation/evaluation/agent43-muk-thorns-firstturn-collision.cjs');
 
 /** @param {number} actual @param {number} expected */
@@ -29,6 +29,16 @@ near(candidate.basicValid, 0.8093533072892635);
 near(candidate.forcedGrimerActive, 0.06798254158677426);
 near(candidate.directForcedMukUnconditional, 0.024003743836991415);
 near(candidate.directForcedMukAmongBasicValid, 0.029657930128668096);
+
+// A strict one-Grimer initial seven is a different physical setup from both
+// Grimer opening the seven: the latter permits immediate Bench evolution.
+const partition = candidateMukOriginalSevenPartition();
+near(partition.basicValid, candidate.basicValid);
+near(partition.exactlyOneGrimerSevenAmongBasicValid, 0.027939290944717383);
+near(partition.bothGrimerSevenAmongBasicValid, 0.0017186391839507);
+near(partition.grimerOnlySpeciesSevenAmongBasicValid,
+  candidate.directForcedMukAmongBasicValid);
+assert.ok(partition.bothGrimerSevenAmongBasicValid > 0);
 
 // Strict position classification differs from the historical Grimer-only
 // species category: an eighth-drawn Grimer can be Benched before Shake.
@@ -81,11 +91,27 @@ near(source.sourceOpportunityAmongBasicValid, 0.32910909597527194);
 const independentOpportunityCollision =
   candidate.directForcedMukAmongBasicValid * source.sourceOpportunityAmongBasicValid;
 near(independentOpportunityCollision, 0.009760694573143738);
+const strictInitialSevenCollision =
+  partition.exactlyOneGrimerSevenAmongBasicValid *
+  source.sourceOpportunityAmongBasicValid;
+near(strictInitialSevenCollision, 0.00919507478500604);
+const doubleGrimerInitialSevenCollision =
+  partition.bothGrimerSevenAmongBasicValid *
+  source.sourceOpportunityAmongBasicValid;
+near(doubleGrimerInitialSevenCollision,
+  independentOpportunityCollision - strictInitialSevenCollision);
 
 console.log(JSON.stringify({
   status: 'PASS',
   scope: 'combinatorial opening access only; independently shuffled Basic-valid seven; no opponent mulligan bonus draws',
-  forcedGrimerValidPercent: candidate.forcedGrimerActive / candidate.basicValid * 100,
+  historicalGrimerOnlySpeciesStartPercent:
+    candidate.forcedGrimerActive / candidate.basicValid * 100,
+  exactlyOneGrimerInitialSevenDirectPercent:
+    partition.exactlyOneGrimerSevenAmongBasicValid * 100,
+  bothGrimerInitialSevenDirectPercent:
+    partition.bothGrimerSevenAmongBasicValid * 100,
+  strictInitialSevenIndependentRank6CollisionPercent:
+    strictInitialSevenCollision * 100,
   rank26SourceHeldRopeColognePercent: ropeCologne.heldPairAmongBasicValid * 100,
   candidateDirectSoleBenchMukPercent: soleBench.soleBenchedGrimerAmongBasicValid * 100,
   independentDirectRopeMukConjunctionPercent:
