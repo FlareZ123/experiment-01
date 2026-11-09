@@ -2,6 +2,12 @@ name: Mimikyu source-counterline policy diagnostic
 
 on:
   workflow_dispatch:
+    inputs:
+      agent46_mimikyu_setup_ab:
+        description: Prospective original rank1/rank10 48-arm owner-visible Mimikyu Bench priority A/B
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -35,6 +41,16 @@ jobs:
         run: node --test tests/2026-11/agent46-mimikyu-priority-basic.native.test.cjs
       - name: Compare two policy variants using source rank 1 and 10 full lists in both physical seats
         run: node simulation/twinleaf/mimikyu-counter-policy-pilot.cjs > mimikyu-policy-diagnostic.json
+      - name: Optional frozen rank1 Mimikyu Bench setup vs rank10 source A/B
+        if: inputs.agent46_mimikyu_setup_ab == true
+        run: node simulation/evaluation/2026-11/agent46-mimikyu-bench-priority-source-ab.cjs > agent46-mimikyu-bench-priority-source-ab.json
+      - name: Archive prospective owner-visible Mimikyu setup A/B
+        if: ${{ always() && inputs.agent46_mimikyu_setup_ab == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent46-mimikyu-bench-priority-source-ab
+          path: agent46-mimikyu-bench-priority-source-ab.json
+          if-no-files-found: warn
       - name: Report bounded engine actions and public Copycat opportunities
         run: node -e "const x=require('./mimikyu-policy-diagnostic.json');console.log('Qualified win-rate evidence:',x.qualifiedWinRateEvidence);for(const r of x.rows)console.log(JSON.stringify({ranks:r.ranks,policy:r.policy,seed:r.seed,status:r.status,finished:r.finished,verifiedFirstTurn:r.verifiedFirstTurn,apex:r.actualApexDragonAttacks,copycat:r.actualCopycatAttacks,eligibleObservations:r.eligiblePublicChoiceObservations,error:r.error||null}))"
       - name: Preserve source-locked diagnostic
