@@ -158,6 +158,13 @@ test('Wobbuffet utility declines Hood, inaccessible Item payoff and inadequate p
   lock.tools=['Stealthy Hood UNB'];
   assert.equal(choose(v),null,'Hood protects Vileplume from Wobbuffet');
   lock.tools=[];
+  const second=pokemon('Vileplume',[]);
+  second.printing='Vileplume AOR';
+  second.abilityDetails=[{name:'Irritating Pollen'}];
+  second.tools=['Stealthy Hood UNB'];
+  v.opponentPublic.bench[1]=second;
+  assert.equal(choose(v),null,'Second protected Vileplume preserves Item lock');
+  v.opponentPublic.bench[1]=null;
   v.ownHand=[jet];
   assert.equal(choose(v),null,'No accessible Nest Ball payoff');
   v.ownHand=[jet,'Nest Ball SVI'];
