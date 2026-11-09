@@ -32,6 +32,9 @@ function withBilateralOwnerMail(next,deps){
   const followMailArven=deps.followMailArven===true;
   const followHeldArven=deps.followHeldArven===true;
   const followOwnerConfirm=deps.followOwnerConfirm===true;
+  const confirmNativeDedenne=deps.confirmNativeDedenne===true;
+  assert.ok(!confirmNativeDedenne||followOwnerConfirm,
+    'Dedenne confirmation requires authenticated owner prompt handling');
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
   assert.equal(ids.size,trialIds.length, 'registered owner-Mail trial IDs must be unique');
@@ -42,7 +45,8 @@ function withBilateralOwnerMail(next,deps){
   assert.equal(typeof oldRun,'function');
   assert.equal(typeof oldStore?.value,'function');
   let active=false,storeInstance=null,priorAi=null,pending=null,
-    pendingNest=null,pendingHandiwork=null,pendingArven=null,trialId=null;
+    pendingNest=null,pendingHandiwork=null,pendingArven=null,
+    pendingDedenneConfirm=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
   const ownerMailHandiworkActions=new WeakSet();
@@ -85,6 +89,9 @@ function withBilateralOwnerMail(next,deps){
     ownerConfirmOffers:0,ownerConfirmSettled:0,
     ownerConfirmRejected:0,ownerConfirmUnsettled:0,
     ownerConfirmEvents:[],
+    nativeDedenneConfirmOffers:0,nativeDedenneTrueAccepted:0,
+    nativeDedenneTrueEffectSettled:0,nativeDedenneTrueRejected:0,
+    nativeDedenneTrueEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nestFromArvenOffers:0,nestFromArvenAccepted:0,
@@ -100,6 +107,7 @@ function withBilateralOwnerMail(next,deps){
     assert.equal(active,false);
     trialId=id;active=true;storeInstance=null;pending=null;
     pendingNest=null;pendingHandiwork=null;pendingArven=null;
+    pendingDedenneConfirm=null;
     audit.attempts++;
     const descriptor=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
     assert.equal(typeof descriptor?.value,'function');
@@ -112,7 +120,8 @@ function withBilateralOwnerMail(next,deps){
       assert.strictEqual(ai.decodeNextAction,observedDecode);
       Object.defineProperty(ai,'decodeNextAction',descriptor);
       priorAi=null;active=false;storeInstance=null;pending=null;
-      pendingNest=null;pendingHandiwork=null;pendingArven=null;trialId=null;
+      pendingNest=null;pendingHandiwork=null;pendingArven=null;
+      pendingDedenneConfirm=null;trialId=null;
     }
   }
 
@@ -228,10 +237,24 @@ function withBilateralOwnerMail(next,deps){
        owner?.id===this.client?.id&&
        prompt?.constructor?.name==='ConfirmPrompt'&&
        prompt.playerId===owner.id){
-      const action=new ResolvePromptAction(prompt.id,false);
+      const authenticatedDedenne=confirmNativeDedenne&&
+        pendingDedenneConfirm?.prompt===prompt&&
+        pendingDedenneConfirm?.seat===seat&&
+        pendingDedenneConfirm?.ownerId===owner.id&&
+        owner.bench.some(slot=>slot.cards.includes(
+          pendingDedenneConfirm.physicalCard))&&
+        prompt.message==='WANT_TO_USE_ABILITY';
+      const action=new ResolvePromptAction(prompt.id,authenticatedDedenne);
       require('./prompt-integrity.cjs')
         .assertValidPromptAction(state,action);
-      ownerConfirmActions.set(action,{trialId,seat,prompt,turn:state.turn});
+      ownerConfirmActions.set(action,{trialId,seat,prompt,turn:state.turn,
+        answer:authenticatedDedenne,
+        deden:authenticatedDedenne?{
+          physicalCard:pendingDedenneConfirm.physicalCard,
+          oldHand:owner.hand.cards.slice(),
+          deckBefore:owner.deck.cards.length
+        }:null});
+      if(authenticatedDedenne)audit.nativeDedenneConfirmOffers++;
       audit.ownerConfirmOffers++;
       return action;
     }
@@ -366,6 +389,8 @@ function withBilateralOwnerMail(next,deps){
     const fromSettledMail=selectedMailCard&&
       physicallySelectedMailTrainers.has(selectedMailCard);
     const nestPromptProposal=nestPromptSelections.get(action);
+    const physicalDedennePlay=selectedMailCard?.fullName==='Dedenne GX UNB'&&
+      action.id===owner?.id;
     const mailPlay=owner&&
       action?.constructor?.name==='PlayCardAction'&&
       action.id===owner.id&&
@@ -385,7 +410,10 @@ function withBilateralOwnerMail(next,deps){
       if(taggedRefill)audit.heldRefillRejected++;
       if(taggedArvenNest)audit.nestFromArvenRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
-      if(ownerConfirmProposal)audit.ownerConfirmRejected++;
+      if(ownerConfirmProposal){
+        audit.ownerConfirmRejected++;
+        if(ownerConfirmProposal.deden)audit.nativeDedenneTrueRejected++;
+      }
       throw e;
     }
     if(taggedRefill){
@@ -401,14 +429,49 @@ function withBilateralOwnerMail(next,deps){
       deps.onHeldRefillActionCommitted?.(action,{trialId,seat,turnBefore:state.turn});
     }
     if(ownerConfirmProposal){
-      const settled=ownerConfirmProposal.prompt.result===false;
+      const settled=ownerConfirmProposal.prompt.result===
+        ownerConfirmProposal.answer;
       if(settled)audit.ownerConfirmSettled++;
       else audit.ownerConfirmUnsettled++;
       audit.ownerConfirmEvents.push({trialId:ownerConfirmProposal.trialId,
         seat:ownerConfirmProposal.seat,turn:ownerConfirmProposal.turn,
         message:String(ownerConfirmProposal.prompt.message),
-        decision:false,nativeSettled:settled});
-      assert.ok(settled,'Owner Confirm false did not settle in native Store');
+        decision:ownerConfirmProposal.answer,nativeSettled:settled});
+      if(ownerConfirmProposal.deden){
+        if(settled)audit.nativeDedenneTrueAccepted++;
+        const after=this.state.players[ownerConfirmProposal.seat];
+        const proof=ownerConfirmProposal.deden;
+        const drawn=proof.deckBefore-after.deck.cards.length;
+        const left=proof.oldHand.every(c=>!after.hand.cards.includes(c)&&
+          (after.discard.cards.includes(c)||
+           after.lostzone.cards.includes(c)));
+        const physicallySettled=settled&&drawn>=0&&drawn<=6&&
+          after.hand.cards.length===drawn&&left&&
+          after.bench.some(slot=>slot.cards.includes(proof.physicalCard));
+        if(physicallySettled)audit.nativeDedenneTrueEffectSettled++;
+        audit.nativeDedenneTrueEvents.push({trialId:ownerConfirmProposal.trialId,
+          seat:ownerConfirmProposal.seat,turn:ownerConfirmProposal.turn,
+          printedCard:'Dedenne GX UNB',decision:true,
+          nativePromptSettled:settled,drawnCards:drawn,
+          originalHandPhysicallyDiscardedOrLost:left,
+          ownDedenneStillBenched:after.bench.some(slot=>
+            slot.cards.includes(proof.physicalCard)),
+          physicalDedechangeSettled:physicallySettled});
+        pendingDedenneConfirm=null;
+        assert.ok(physicallySettled,
+          'Native Dedechange true did not physically discard hand and refill');
+      }
+      assert.ok(settled,'Owner Confirm did not settle in native Store');
+    }
+    if(physicalDedennePlay&&confirmNativeDedenne){
+      const after=this.state.players[seat];
+      const p=this.state.prompts?.find(p=>
+        p.result===undefined&&p.playerId===owner.id&&
+        p.constructor?.name==='ConfirmPrompt'&&
+        p.message==='WANT_TO_USE_ABILITY');
+      if(p&&after.bench.some(slot=>slot.cards.includes(selectedMailCard)))
+        pendingDedenneConfirm={prompt:p,physicalCard:selectedMailCard,
+          ownerId:owner.id,seat,turn:state.turn};
     }
     if(taggedArven){
       if(taggedHeldArven){
