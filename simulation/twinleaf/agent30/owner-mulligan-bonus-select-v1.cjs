@@ -89,8 +89,59 @@ function withOwnerMulliganBonusSelectV1(run, deps = {}) {
   };
 }
 
+/**
+ * Per-game adapter for a native runner that creates multiple independent
+ * root Stores. Agent8's source Store guard must reset for every new game.
+ * This helper wraps only each genuine headless.runMatch call, preserving
+ * original request, root-Store callback and matched trial registration.
+ *
+ * @template T
+ * @param {()=>T} execute Existing synchronous batch.
+ * @param {object} [deps] headless/resolveOwner injection for tests.
+ * @returns {{result:T,audit:object}}
+ */
+function withOwnerMulliganBonusInsideNativeMatchesV1(execute, deps = {}) {
+  assert.equal(typeof execute, 'function');
+  const headless = deps.headless ?? require('../headless.cjs');
+  const resolveOwner = deps.resolveOwner ?? withOwnerMulliganBonusSelectV1;
+  const original = Object.getOwnPropertyDescriptor(headless, 'runMatch');
+  assert.equal(typeof original?.value, 'function');
+  assert.equal(original.configurable, true);
+  assert.equal(typeof resolveOwner, 'function');
+
+  const audit = {
+    version: VERSION + '-per-native-match',
+    matchCalls: 0,
+    matchAudits: [],
+    gameQualified: false
+  };
+  function runMatch(request, ...args) {
+    const wrapped = resolveOwner(
+      () => original.value.apply(this, [request, ...args]),
+      deps.ownerDeps ?? {}
+    );
+    audit.matchCalls++;
+    audit.matchAudits.push(wrapped.audit);
+    return wrapped.result;
+  }
+  Object.defineProperty(headless, 'runMatch', {...original, value: runMatch});
+  try {
+    const result = execute();
+    return {result, audit};
+  } catch (error) {
+    if (error && typeof error === 'object') {
+      error.ownerMulliganBonusNativeMatchAudit = {...audit};
+    }
+    throw error;
+  } finally {
+    assert.strictEqual(headless.runMatch, runMatch);
+    Object.defineProperty(headless, 'runMatch', original);
+  }
+}
+
 module.exports = {
   VERSION,
   observeMulliganBonusSelect,
-  withOwnerMulliganBonusSelectV1
+  withOwnerMulliganBonusSelectV1,
+  withOwnerMulliganBonusInsideNativeMatchesV1
 };
