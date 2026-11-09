@@ -192,3 +192,69 @@ test('owner VSTAR already used changes Forest Seal Stone discardability',()=>{
     printings:['Forest Seal Stone SIT','Guzma BUS']
   });
 });
+
+test('opt-in original Quick Ball payment keeps scarce DCE when a dead VIP is legal',()=>{
+  const {chooseMewUltraBallPayment}=
+    require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const generic=require('../simulation/twinleaf/agent47-actor-hand-discard.cjs')
+    .chooseActorHandDiscard;
+  const input={
+    actor:{
+      decisionKind:'owner-prompt',actorSeat:1,globalTurn:13,
+      ownHand:['Double Colorless Energy SUM','Battle VIP Pass FST',
+        'Mew VMAX FST'],
+      ownPublic:{resolvingSupporter:['Quick Ball FST']},
+      ownTurnResources:{vstarUsed:false}
+    },
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:1,
+      menu:[['Double Colorless Energy SUM'],['Battle VIP Pass FST'],
+        ['Mew VMAX FST']]}
+  };
+  assert.deepEqual(generic(input),{printings:['Double Colorless Energy SUM']});
+  assert.deepEqual(chooseMewUltraBallPayment(input,1),generic(input));
+  assert.deepEqual(chooseMewUltraBallPayment(input,1,{protectQuickBall:true}),
+    {printings:['Battle VIP Pass FST']});
+  assert.deepEqual(chooseMewUltraBallPayment(input,0,{protectQuickBall:true}),
+    generic(input));
+});
+
+test('Quick Ball guard protects an unspent Forest Seal Stone, releases it after VSTAR',()=>{
+  const {chooseMewUltraBallPayment}=
+    require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const input={
+    actor:{decisionKind:'owner-prompt',actorSeat:0,globalTurn:9,
+      ownHand:['Forest Seal Stone SIT','Guzma BUS','Double Colorless Energy SUM'],
+      ownPublic:{resolvingSupporter:['Quick Ball SSH'],
+        publicTurnRestrictions:{vstarUsed:false}},
+      ownTurnResources:{vstarUsed:false}},
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:1,
+      menu:[['Guzma BUS'],['Forest Seal Stone SIT'],
+        ['Double Colorless Energy SUM']]}
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(input,0,{protectQuickBall:true}),
+    {printings:['Guzma BUS']});
+  const spent={...input,actor:{...input.actor,
+    ownTurnResources:{vstarUsed:true},
+    ownPublic:{...input.actor.ownPublic,
+      publicTurnRestrictions:{vstarUsed:true}}}};
+  assert.deepEqual(chooseMewUltraBallPayment(spent,0,{protectQuickBall:true}),
+    {printings:['Forest Seal Stone SIT']});
+});
+
+test('Quick Ball guard retains native mandatory payment when all offered cards protected',()=>{
+  const {chooseMewUltraBallPayment}=
+    require('../simulation/twinleaf/agent37/mew-ultraball-evolution.cjs');
+  const input={
+    actor:{decisionKind:'owner-prompt',actorSeat:1,globalTurn:7,
+      ownHand:['Double Colorless Energy SUM','Mew VMAX FST'],
+      ownPublic:{resolvingSupporter:['Quick Ball FST']}},
+    prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:1,
+      menu:[['Double Colorless Energy SUM'],['Mew VMAX FST']]}
+  };
+  assert.deepEqual(chooseMewUltraBallPayment(input,1,{protectQuickBall:true}),
+    {printings:['Double Colorless Energy SUM']});
+  const other={...input,prompt:{...input.prompt,
+    message:'CHOOSE_CARD_TO_HAND'}};
+  assert.deepEqual(chooseMewUltraBallPayment(other,1,{protectQuickBall:true}),
+    {printings:['Double Colorless Energy SUM']});
+});
