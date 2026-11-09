@@ -195,7 +195,7 @@ function run(deps = {}) {
     estimatedWinRate: null,
     limitations: [
       'Historical known rank11 deals are the tactical target; the rank13 registered both-seat controls satisfy the four-arm native release minimum.',
-      'Historical known deals were selected for falsification, not rate estimation.'
+      'Historical known deals were selected for falsification, not rate estimation.',
       'A native accepted AttackAction is not by itself a printed damage or tactical-value certificate.',
       'Any root cap or engine error is retained without imputed winner.',
       'The same nominal seed must be accompanied by matching full and source physical-deal fingerprints.'
