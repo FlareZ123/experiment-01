@@ -32,6 +32,7 @@ on:
           - agent8-source-evolution-v4
           - agent8-source-mew-combat-v5
           - agent8-source-mew-funding-v6
+          - agent8-mew-source-two-fixed60-v7
 permissions:
   contents: read
   actions: read
@@ -189,6 +190,24 @@ jobs:
         with:
           name: agent8-source-mew-funding-v6-native
           path: artifacts/agent8-source-mew-funding-v6.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Test original Mew policy across both full champion and New Moon fixed sixties
+        if: inputs.experiment == 'agent8-mew-source-two-fixed60-v7'
+        run: |
+          node --check simulation/evaluation/2026-11/agent8-mew-source-two-fixed60-v7.cjs
+          node --test tests/2026-11/agent8-mew-source-two-fixed60-v7.test.cjs
+      - name: Run original-source Mew against both unchanged fixed sixties, 32 native attempts
+        if: inputs.experiment == 'agent8-mew-source-two-fixed60-v7'
+        env:
+          AGENT8_MEW_SOURCE_DUAL_FIXED60_V7_OUTPUT: artifacts/agent8-mew-source-two-fixed60-v7.json
+        run: node simulation/evaluation/2026-11/agent8-mew-source-two-fixed60-v7.cjs
+      - name: Archive all source Mew vs champion and New Moon v7 native attempts
+        if: always() && inputs.experiment == 'agent8-mew-source-two-fixed60-v7'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-mew-source-two-fixed60-v7-native
+          path: artifacts/agent8-mew-source-two-fixed60-v7.json
           if-no-files-found: warn
           retention-days: 21
       - name: Reinspect all owner Passes in two existing original-source matched controls
