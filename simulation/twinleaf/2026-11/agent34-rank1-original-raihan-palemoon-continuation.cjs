@@ -147,6 +147,9 @@ function executeOriginalRank1RaihanPaleMoon(context) {
       return receipt;
     }
     // Owner may inspect their own deck after a search; no opponent hidden data.
+    receipt.raihanDeckPhysicalSize=owner.deck.cards.length;
+    receipt.raihanDeckPsychicCount=owner.deck.cards.filter(c=>
+      c.fullName==='Psychic Energy MEE').length;
     const selected=context.raihanPickPrinting
       ?owner.deck.cards.find(c=>c.fullName===context.raihanPickPrinting)
       :owner.deck.cards[0];
@@ -166,8 +169,16 @@ function executeOriginalRank1RaihanPaleMoon(context) {
       receipt.status='native-raihan-shuffle-prompt-absent';
       return receipt;
     }
-    const perm=boundedShufflePermutation(owner.deck.cards.length,
-      VERSION + ':' + ownerId);
+    // A registered independent entropy seed changes only the legitimate
+    // owner-controlled post-Raihan shuffle; it does not graft a new card or
+    // vary the original source deal. The default remains fully unchanged.
+    const perm=context.raihanShuffleSeed === undefined
+      ?boundedShufflePermutation(owner.deck.cards.length,VERSION+':'+ownerId)
+      :require('../agent12-nightwatch-paper-random-chooser.cjs')
+        .sampleUniformPositions(
+          owner.deck.cards.length,owner.deck.cards.length,
+          String(context.raihanShuffleSeed),
+          'original-rank1-source-raihan-physical-deck');
     receipt.shuffleChoiceNativeValid=shuffle.validate(perm,store.state);
     assert.equal(receipt.shuffleChoiceNativeValid,true);
     store.dispatch(new ResolvePromptAction(shuffle.id,perm));
@@ -188,6 +199,8 @@ function executeOriginalRank1RaihanPaleMoon(context) {
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
     receipt.manualEnergyNativeAccepted=true;
+    receipt.sourceHeldPsychicAfterFunding=owner.hand.cards.filter(c=>
+      c.fullName==='Psychic Energy MEE').length;
     receipt.waitAfterManual=settleWaits(store,ResolvePromptAction);
     receipt.energyAfterManual=owner.active.energies.cards.map(c=>c.fullName);
     if(receipt.energyAfterManual.length!==2 || pendingPrompt(store)) {
