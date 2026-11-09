@@ -1,0 +1,35 @@
+{
+  "schema": "agent7-paper-celestial-native-original-rank13-contrast-v1",
+  "registeredAtUtc": "2026-11-09T02:43:19.110Z",
+  "fixedSourceRank": 3,
+  "fixedOpponentRank": 13,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "seed": 290134,
+  "physicalOrientations": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "common": "Dedenne true, genuine owner Celestial prompt resolution, rank3 Mail Beach Arven Nest owner original fixed printed 60s",
+  "control": "unmodified pinned Regidrago V Celestial Roar source card implementation",
+  "treatment": "research-owned reversible pinned Regidrago V reduceEffect replacement obeying printed top3 any Energy and discarding entire revealed non-energy remainder",
+  "observedCauses": [
+    "Native run 42551614465: turn2 owner Celestial resolution revealed Mysterious Treasure, Guzma, Grass Energy; exact Grass attached to own Regidrago V; only one non-Energy physically discarded and one stranded temp",
+    "Turn4 Celestial revealed Double Dragon Energy ROS, Grass Energy MEE and Battle VIP Pass; original engine attached only Grass and stranded one other card, contradicting printed all Energy attack"
+  ],
+  "hypothesis": "The only changed source card implementation will attach Double Dragon Energy where revealed and discard all other top3 cards, while maintaining native owner prompt validation and physical card identity. Opponent attack/gameplay choices may then differ.",
+  "reproduction": "simulation/evaluation/2026-11/agent7-rank13-paper-celestial-native.cjs",
+  "acceptance": [
+    "Corrected exact physical Double Dragon Energy enters Regidrago V Active Energies when revealed",
+    "Every other revealed card enters actor's public discard, leaving temporary CardList empty",
+    "Fixed owner Dedenne true physical hand transition and rank3 actor Arven follow-through remain audited",
+    "Native fixed seed and all original exact physical sixties, both seats retained",
+    "All native aborts, unsupported prompts, and caps retained and qualified paper games remain zero"
+  ],
+  "limits": [
+    "Retrospectively selected historical seed",
+    "Native total full game and opponent decision policy still incomplete",
+    "No entire Top32 or 99.5 evidence",
+    "Special Energy attachment interactions require paper-rules review"
+  ]
+}
