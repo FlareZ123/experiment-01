@@ -165,6 +165,13 @@ test('Wobbuffet utility declines Hood, inaccessible Item payoff and inadequate p
   v.opponentPublic.bench[1]=second;
   assert.equal(choose(v),null,'Second protected Vileplume preserves Item lock');
   v.opponentPublic.bench[1]=null;
+  const alchemy=pokemon('Alolan Muk',[]);
+  alchemy.printing='Alolan Muk SUM';
+  alchemy.abilityDetails=[{name:'Power of Alchemy'}];
+  v.opponentPublic.bench[1]=alchemy;
+  assert.equal(choose(v),null,
+    'Visible Power of Alchemy can disable Active Wobbuffet');
+  v.opponentPublic.bench[1]=null;
   v.ownHand=[jet];
   assert.equal(choose(v),null,'No accessible Nest Ball payoff');
   v.ownHand=[jet,'Nest Ball SVI'];
