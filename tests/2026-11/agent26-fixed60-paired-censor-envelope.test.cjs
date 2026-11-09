@@ -16,7 +16,7 @@ function arm(id, result, rank) {
   return {candidateId: id, rank, candidateSeat: 0, originalSeat: 1,
     physicalStatus: PHYSICAL_PASS, sourceDealFingerprint: `source-${rank}`,
     actualStarterSeat: 0, nativeDisposition: terminal ?
-      'engine-terminal' : 'action-cap', nativeFinished: terminal,
+      'ENGINE_TERMINAL' : 'ACTION_CAP', nativeFinished: terminal,
     nativeWinner: terminal ? win : null, rootActionLedger: []};
 }
 
@@ -32,7 +32,7 @@ test('no absent outcomes are silently converted to losses',()=>{
   assert.deepEqual(armWinInterval(arm(LEFT,'W',5)),
     {min:1,max:1,kind:'native-win'});
   assert.deepEqual(armWinInterval(arm(LEFT,'C',5)),
-    {min:0,max:1,kind:'action-cap'});
+    {min:0,max:1,kind:'ACTION_CAP'});
   const g=group(5,0,'W','C');
   const out=auditFixed60PairedCensoring([g],[LEFT,RIGHT]);
   assert.deepEqual(out.overall.matchedOnlyDifference,{min:0,max:1});
