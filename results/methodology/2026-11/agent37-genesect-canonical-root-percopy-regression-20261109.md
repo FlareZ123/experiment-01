@@ -12,7 +12,7 @@ The regression was the **misbound `else`** in `withActorOnlyRootPolicy` after th
 
 `simulation/twinleaf/agent34-actor-only-root-policy.cjs` now deletes the Genesect opt-in audit fields **only when the original `genesectFusionDrawOptIn` itself is disabled**, leaving per-copy tracking optional. The updated native failure message reports the chosen action, phase, seat, pending prompts and independent pure proposal. Added `tests/agent37-genesect-public-fusion-draw.test.cjs` regression for (a) legacy draw alone, (b) draw with per-copy usage, (c) draw disabled.
 
-[Native workflow 42576868362](https://github.com/FlareZ123/experiment-01/actions/runs/42576868362) **SUCCESS** on correction-bearing main SHA `7f3719fd459294e30af2da59d35865428e4e700d`, including both-seat canonical Mew Genesect wait-prompt settlement and original rank-5 eight-arm development workflow. The subsequent pure opt-in regression commit `e2f2478` was not in that run's head; a separately dispatched follow-up run is required for its result.
+[Native workflow 42576868362](https://github.com/FlareZ123/experiment-01/actions/runs/42576868362) **SUCCESS** on correction-bearing main SHA `7f3719fd459294e30af2da59d35865428e4e700d`, including both-seat canonical Mew Genesect wait-prompt settlement and original rank-5 eight-arm development workflow. Follow-up [workflow 42577136459](https://github.com/FlareZ123/experiment-01/actions/runs/42577136459) also **SUCCESS** on main after pure opt-in regression commit `e2f2478`, rechecking both independently enabled legacy and per-copy behavior together with pinned native both-seat tests and the original source arms.
 
 ## Scope
 
