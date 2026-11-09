@@ -9,6 +9,7 @@ const {MANIFEST,sha256:unused,evidenceBundleSha256,bundleFailures,
 const {createHash}=require('node:crypto');
 
 const REFERENCE='agent44-first-independent-rank5-newmoon-case-v1.json';
+const RELEASE_REFERENCE='agent44-first-release-nine-object-intake-v1.json';
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 /**
  * Build the exact nine-object downstream admission envelope from one already
@@ -79,7 +80,7 @@ function build(original){
   };
   assert.deepEqual(Object.keys(content).sort(),MANIFEST.slice().sort());
   const manifest=MANIFEST.map(kind=>({
-    kind,ref:REFERENCE+'#/releaseNineObjects/'+kind,
+    kind,ref:RELEASE_REFERENCE+'#/releaseNineObjects/'+kind,
     sha256:evidenceBundleSha256(content[kind])
   }));
   const bundle={schema:'aichi-complete-game-bundle-v1',
@@ -130,7 +131,7 @@ function build(original){
     'malformed-or-unverifiable-native-competence-trial'),
     'Authentic native tape should receive an explicit structural denial');
   for(const entry of manifest){
-    assert.equal(entry.ref,REFERENCE+'#/releaseNineObjects/'+entry.kind);
+    assert.equal(entry.ref,RELEASE_REFERENCE+'#/releaseNineObjects/'+entry.kind);
     assert.equal(entry.sha256,evidenceBundleSha256(content[entry.kind]));
   }
   return {schema:'agent44-first-release-nine-object-bundle-intake-v1',
