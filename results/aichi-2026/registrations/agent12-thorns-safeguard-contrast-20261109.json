@@ -1,0 +1,622 @@
+{
+  "schema": "agent12-thorns-mimikyu-safeguard-vs-original-three-mirrors-prospective-v1",
+  "registeredUTC": "2026-11-09T09:49:01Z",
+  "status": "FROZEN PRIOR TO NATIVE GAME",
+  "scope": "Same 24 ranked original source groups, three Iron Thorns sources rank6/24/29 have two independent fresh physical seeds per candidate seat, six other source ranks have one per seat",
+  "sourceRanks": [
+    1,
+    2,
+    5,
+    6,
+    11,
+    13,
+    24,
+    29,
+    31
+  ],
+  "candidateIds": [
+    "rank6-iron-thorns-fixed60",
+    "iron-thorns-mimikyu-safeguard-v1"
+  ],
+  "groups": [
+    {
+      "rank": 1,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 2815145880
+    },
+    {
+      "rank": 1,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 3713341567
+    },
+    {
+      "rank": 2,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 3439103407
+    },
+    {
+      "rank": 2,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 2829879769
+    },
+    {
+      "rank": 5,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 2005585517
+    },
+    {
+      "rank": 5,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 3236930393
+    },
+    {
+      "rank": 6,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 1542397310
+    },
+    {
+      "rank": 6,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 1702145675
+    },
+    {
+      "rank": 6,
+      "repeat": 9101,
+      "candidateSlot": "A",
+      "seed": 1222336258
+    },
+    {
+      "rank": 6,
+      "repeat": 9101,
+      "candidateSlot": "B",
+      "seed": 1238228712
+    },
+    {
+      "rank": 11,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 527908113
+    },
+    {
+      "rank": 11,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 2214328857
+    },
+    {
+      "rank": 13,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 1717789590
+    },
+    {
+      "rank": 13,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 1388563824
+    },
+    {
+      "rank": 24,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 2086238976
+    },
+    {
+      "rank": 24,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 2501154837
+    },
+    {
+      "rank": 24,
+      "repeat": 9101,
+      "candidateSlot": "A",
+      "seed": 1405814439
+    },
+    {
+      "rank": 24,
+      "repeat": 9101,
+      "candidateSlot": "B",
+      "seed": 4048816755
+    },
+    {
+      "rank": 29,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 3485375937
+    },
+    {
+      "rank": 29,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 2478474716
+    },
+    {
+      "rank": 29,
+      "repeat": 9101,
+      "candidateSlot": "A",
+      "seed": 2554151306
+    },
+    {
+      "rank": 29,
+      "repeat": 9101,
+      "candidateSlot": "B",
+      "seed": 955411560
+    },
+    {
+      "rank": 31,
+      "repeat": 9100,
+      "candidateSlot": "A",
+      "seed": 1153477917
+    },
+    {
+      "rank": 31,
+      "repeat": 9100,
+      "candidateSlot": "B",
+      "seed": 4210902924
+    }
+  ],
+  "batches": [
+    {
+      "candidateId": "rank6-iron-thorns-fixed60",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2815145880,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "1:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 1,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 3713341567,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "1:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 2,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 3439103407,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "2:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 2,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2829879769,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "2:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 5,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2005585517,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "5:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 5,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 3236930393,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "5:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1542397310,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 1702145675,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 1222336258,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9101:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 6,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 1238228712,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "6:9101:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 11,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 527908113,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "11:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 11,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2214328857,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "11:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 13,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1717789590,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "13:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 13,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 1388563824,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "13:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2086238976,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2501154837,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 1405814439,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9101:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 24,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 4048816755,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "24:9101:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 29,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 3485375937,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "29:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 29,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2478474716,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "29:9100:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 29,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 2554151306,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "29:9101:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 29,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 955411560,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "29:9101:B:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 31,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1153477917,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "31:9100:A:rank6-iron-thorns-fixed60"
+        },
+        {
+          "rank": 31,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 4210902924,
+          "candidateId": "rank6-iron-thorns-fixed60",
+          "id": "31:9100:B:rank6-iron-thorns-fixed60"
+        }
+      ]
+    },
+    {
+      "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+      "registeredTrials": [
+        {
+          "rank": 1,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2815145880,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "1:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 1,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 3713341567,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "1:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 2,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 3439103407,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "2:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 2,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2829879769,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "2:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2005585517,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "5:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 5,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 3236930393,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "5:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1542397310,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 1702145675,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 1222336258,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9101:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 6,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 1238228712,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "6:9101:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 11,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 527908113,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "11:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 11,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2214328857,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "11:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1717789590,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "13:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 13,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 1388563824,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "13:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 2086238976,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2501154837,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 1405814439,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9101:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 24,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 4048816755,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "24:9101:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 3485375937,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 2478474716,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9101,
+          "candidateSlot": "A",
+          "seed": 2554151306,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9101:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 29,
+          "repeat": 9101,
+          "candidateSlot": "B",
+          "seed": 955411560,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "29:9101:B:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 31,
+          "repeat": 9100,
+          "candidateSlot": "A",
+          "seed": 1153477917,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "31:9100:A:iron-thorns-mimikyu-safeguard-v1"
+        },
+        {
+          "rank": 31,
+          "repeat": 9100,
+          "candidateSlot": "B",
+          "seed": 4210902924,
+          "candidateId": "iron-thorns-mimikyu-safeguard-v1",
+          "id": "31:9100:B:iron-thorns-mimikyu-safeguard-v1"
+        }
+      ]
+    }
+  ],
+  "sourceGroupCount": 24,
+  "expectedNativeAttempts": 48,
+  "candidatePrintedSources": {
+    "rank6-iron-thorns-fixed60": "results/aichi-2026/full-decklists.json rank6",
+    "iron-thorns-mimikyu-safeguard-v1": "results/aichi-2026/candidate-iron-thorns-safeguard-pivot-v1.json"
+  },
+  "rootCap": 260,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenSourceAndPolicyGitBlobs": [
+    {
+      "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "blob": "abdaacdaa8493555e773070b45f9461d2ad1583f"
+    },
+    {
+      "path": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+      "blob": "a79e7977cb224928068968934bbcfa9c9410e20a"
+    },
+    {
+      "path": "results/aichi-2026/full-decklists.json",
+      "blob": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+    },
+    {
+      "path": "simulation/twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs",
+      "blob": "4501c4952f5adfc2111f5f83641af10ed25ccddc"
+    },
+    {
+      "path": "results/aichi-2026/candidate-iron-thorns-safeguard-pivot-v1.json",
+      "blob": "eac9cfa9e52e956acc7230040aa6b21e9ab6e06a"
+    }
+  ],
+  "commonActorOptions": {
+    "actorOnlyComposition": true,
+    "actorMewMaxMiracleOverSelfCopy": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorUnderworldDoorRoot": true,
+    "nativeAllOwnerPassFrontier": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorZeroEnergyStrandFloatStoneRoot": true,
+    "actorSeekerGuzmaNominalKo": true,
+    "actorZeroEnergyStrandFloatStoneTargetTurn": null,
+    "actorZeroEnergyStrandFloatStoneOwnerSeat": null,
+    "actorSeekerGuzmaOwnerSeat": null,
+    "actorSeekerGuzmaGlobalTurn": null
+  },
+  "profileEnabled": {
+    "celestialRoar": true,
+    "mewEnergyMix": true,
+    "attachEnergyTarget": true
+  },
+  "method": "Run all original printed sources against each fixed candidate under exactly common native policy and engine, retain all games; report honest physical-source-match rate, terminal/censor/error, and real Ghost Eye/Volt Cyclone declarations from settled native attacks. With 5 versus 4 Basics, exact source matching may fail due actual mulligans: do not silently use unmatched as paired causal evidence. No strategy-aware Mimikyu pilot included in this baseline.",
+  "primaryHypothesis": "Mimikyu PAL97 with Psychic MEE13 and Jet PAL190 adds a non-Rule-Box Safeguard wall and a mirror-breaking Ghost Eye option without replacing the four Thorns ex copies",
+  "primarySafetyConcern": "May decrease first-turn Initialization openings by starting Mimikyu; may strand Mimikyu or never attack without actor-aware line; right-censored and unmatched outcomes explicitly preserved",
+  "paperQualifiedGames": 0,
+  "claim99Point5": false
+}
