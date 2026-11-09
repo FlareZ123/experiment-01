@@ -201,6 +201,7 @@ function run(settings = {}) {
   const acceptedHeldArvenRefs = new WeakSet();
   const acceptedArvenNestRefs = new WeakSet();
   const playedSelectedTrainerRefs = new WeakSet();
+  const acceptedNestBasicChoices = new WeakMap();
   const onRootStoreCreated = (store, trialId) => {
     trace.byStore.set(store, trialId);
   };
@@ -215,6 +216,9 @@ function run(settings = {}) {
       ownerHeldArvenAction: acceptedHeldArvenRefs.has(action),
       ownerArvenSelectedNestAction: acceptedArvenNestRefs.has(action),
       previouslyMailSelectedTrainerPlayed: playedSelectedTrainerRefs.has(action),
+      // Only the physically completed owner Nest search is recorded here.
+      // This is post-dispatch audit data, not a bot decision input.
+      ownerNestBasicSelection: acceptedNestBasicChoices.get(action) ?? null,
       seat, turn,
       promptId: action?.constructor?.name === 'ResolvePromptAction'
         ? String(action.id) : null,
@@ -282,7 +286,9 @@ function run(settings = {}) {
               action => acceptedHeldArvenRefs.add(action),
             onArvenNestActionCommitted:
               action => acceptedArvenNestRefs.add(action),
-            onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action)
+            onSelectedTrainerPlayed: action => playedSelectedTrainerRefs.add(action),
+            onNestBasicSelectionCommitted: (action, receipt) =>
+              acceptedNestBasicChoices.set(action, receipt)
           });
         ownerMailAudit = mail.audit;
         return mail.result;
