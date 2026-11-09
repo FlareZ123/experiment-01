@@ -105,7 +105,7 @@ test('native-style exact physical Dedenne entry authorizes true and unrelated la
     store.dispatch(unrelated);
     return {first,unrelated:unrelated.result};
   },{ptcgServer:{Store,SimpleTacticsAi,ConfirmPrompt,ChooseCardsPrompt,ResolvePromptAction},
-    types:{},validate:()=>{}});
+    types:{SuperType:{ENERGY:'ENERGY'}},validate:()=>{}});
   assert.deepEqual(wrapped.result,{first:{yes:true,discard:['Fire Energy'],draw:6,
     bench:'Dedenne GX'},unrelated:false});
   assert.equal(wrapped.audit.confirmSettled,2);
