@@ -79,5 +79,5 @@ test('first player ordinary Lillie is blocked; printed Carmine exception admitte
     .reasons.map(x=>x.kind),['supporter-quota-spent']);
   assert.throws(()=>preflightOwnerSearchPlan(carmineRoot,null,{
     ...carmine,firstTurnSupporterException:'true'
-  }),/boolean|false/);
+  }),/firstTurnSupporterException/);
 });
