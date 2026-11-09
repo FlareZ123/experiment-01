@@ -10,17 +10,19 @@ const previous =
   require('./agent8-source-challenger-2x2-v2.cjs');
 const {save} = require('./agent8-source-challenger-2x2.cjs');
 
-const VERSION = 'agent2-retrospective-rank11-source-quickball-attack-priority-v1';
+const VERSION = 'agent2-retrospective-rank11-rank13-source-quickball-attack-priority-v2';
 const REGISTRATION =
   'agent8-prospective-original-source-adversarial-2x2-v2';
 const ROOT_LIMIT = 260;
 
-/** @returns {object[]} Both already published rank-11 physical deals. */
+/** @returns {object[]} Four already published rank-11/13 physical deals. */
 function registered() {
-  const rows = previous.registered().filter(row => row.rank === 11);
-  assert.equal(rows.length, 2);
-  assert.deepEqual(rows.map(row => row.candidateSlot).sort(), ['A', 'B']);
-  assert.equal(new Set(rows.map(row => row.seed)).size, 2);
+  const rows = previous.registered().filter(row => [11, 13].includes(row.rank));
+  assert.equal(rows.length, 4);
+  for (const rank of [11, 13])
+    assert.deepEqual(rows.filter(row => row.rank === rank)
+      .map(row => row.candidateSlot).sort(), ['A', 'B']);
+  assert.equal(new Set(rows.map(row => row.seed)).size, 4);
   return rows;
 }
 
@@ -69,8 +71,8 @@ function runArm(preservePayableAttack, runner = runDevelopment) {
  */
 function comparePair(baseline, guarded) {
   assert.equal(baseline.id, guarded.id);
-  assert.equal(baseline.rank, 11);
-  assert.equal(guarded.rank, 11);
+  assert.ok([11, 13].includes(baseline.rank));
+  assert.equal(guarded.rank, baseline.rank);
   assert.equal(baseline.candidateSeat, guarded.candidateSeat);
   assert.equal(baseline.seed, guarded.seed);
   const candidateSeat = baseline.candidateSeat;
@@ -110,7 +112,7 @@ function comparePair(baseline, guarded) {
     guarded.status === 'native-terminal';
   return {
     id: baseline.id,
-    rank: 11,
+    rank: baseline.rank,
     candidateSeat,
     sourceSeat,
     seed: baseline.seed,
@@ -149,12 +151,12 @@ function run(deps = {}) {
   const guarded = (deps.runArm ?? runArm)(true);
   const baselineRows = base?.selected?.rawDevelopment?.rows;
   const guardedRows = guarded?.selected?.rawDevelopment?.rows;
-  assert.ok(Array.isArray(baselineRows) && baselineRows.length === 2);
-  assert.ok(Array.isArray(guardedRows) && guardedRows.length === 2);
+  assert.ok(Array.isArray(baselineRows) && baselineRows.length === 4);
+  assert.ok(Array.isArray(guardedRows) && guardedRows.length === 4);
   const baseline = baselineRows.map(row => summarizeRow(row, true));
   const guard = guardedRows.map(row => summarizeRow(row, true));
   const guardedById = new Map(guard.map(row => [row.id, row]));
-  assert.equal(guardedById.size, 2);
+  assert.equal(guardedById.size, 4);
   const pairs = baseline.map(row => {
     const matching = guardedById.get(row.id);
     assert.ok(matching, 'Missing source-seat replay ' + row.id);
@@ -171,7 +173,8 @@ function run(deps = {}) {
     fixedOriginalDecks: true,
     sourceOnly: true,
     physicalOrientations: 2,
-    nativeAttempts: 4,
+    sourceRanks: [11, 13],
+    nativeAttempts: 8,
     sourceOnlyOptionChanged: 'sourceQuickBallPreservePayableAttack',
     sourceOnlyOptionControl: policyOptions(false),
     sourceOnlyOptionGuard: policyOptions(true),
@@ -179,6 +182,8 @@ function run(deps = {}) {
     sourceIsolation,
     attackOverQuickBallCount: pairs.filter(pair =>
       pair.sourceAttackReplacesQuickBall).length,
+    rank11AttackOverQuickBallCount: pairs.filter(pair =>
+      pair.rank === 11 && pair.sourceAttackReplacesQuickBall).length,
     nativeTerminalWinnerChanges: pairs.filter(pair =>
       pair.nativeWinnerChanged).length,
     pairs,
@@ -189,7 +194,8 @@ function run(deps = {}) {
     paperCompetitiveGames: 0,
     estimatedWinRate: null,
     limitations: [
-      'Historical known deals were selected for falsification, not rate estimation.',
+      'Historical known rank11 deals are the tactical target; the rank13 registered both-seat controls satisfy the four-arm native release minimum.',
+      'Historical known deals were selected for falsification, not rate estimation.'
       'A native accepted AttackAction is not by itself a printed damage or tactical-value certificate.',
       'Any root cap or engine error is retained without imputed winner.',
       'The same nominal seed must be accompanied by matching full and source physical-deal fingerprints.'
@@ -206,6 +212,7 @@ if (require.main === module) {
       matched: result.matchedBothPhysicalDeals,
       sourceIsolation: result.sourceIsolation,
       attackOverQuickBallCount: result.attackOverQuickBallCount,
+      rank11AttackOverQuickBallCount: result.rank11AttackOverQuickBallCount,
       nativeTerminalWinnerChanges: result.nativeTerminalWinnerChanges
     }));
   if (!result.matchedBothPhysicalDeals || !result.sourceIsolation)
