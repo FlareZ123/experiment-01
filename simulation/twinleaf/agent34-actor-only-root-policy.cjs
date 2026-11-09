@@ -1360,7 +1360,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent33-public-fusion-usage.cjs').VERSION;
   }
-  else{
+  if(!audit.genesectFusionDrawOptIn){
     delete audit.genesectFusionDrawOptIn;
     delete audit.genesectFusionNativeAccepted;
   }
