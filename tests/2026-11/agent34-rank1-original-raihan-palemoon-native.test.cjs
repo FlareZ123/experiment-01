@@ -74,5 +74,21 @@ test('original physical rank1 t16 -> t18 Raihan/Pale Moon-GX genuine native two-
     assert.equal(arm.opponentRetreat.afterOpposingPrizes,
       arm.opponentRetreat.beforePrizes);
     assert.equal(arm.opponentRetreat.queuedAfterTurn,0);
+    const ownCounter=arm.opponentRetreat.getLostReply;
+    assert.equal(ownCounter.actorId,202);
+    assert.equal(ownCounter.actingOwnerOnlyHandRead,true);
+    if(ownCounter.ownBasicEnergyAvailable){
+      assert.equal(ownCounter.status,
+        'owner-attached-energy-get-lost-two-physical-cards',
+        'the opponent-owner Basic Energy -> Get Lost must preserve native custody');
+      assert.equal(ownCounter.attachNativeAccepted,true);
+      assert.equal(ownCounter.attackNativeAccepted,true);
+      assert.equal(ownCounter.ownDecisionNativeResolved,true);
+      assert.equal(ownCounter.sourceLostZoneDelta,2);
+      assert.equal(ownCounter.physicalTwoLost,true);
+    }else{
+      assert.equal(ownCounter.status,'no-owned-basic-energy-in-hand',
+        'do not fabricate an Energy card for the opponent');
+    }
   }
 });
