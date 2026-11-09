@@ -258,6 +258,14 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
   }
+  // General funded-KO Item mobility is a separate opt-in counterfactual.
+  // It considers the actual enemy Active and preserves an already payable
+  // Active KO. A prior Block effect is not required.
+  if(options.genericTacticalSwitchRoot===true){
+    const tactical=require('./2026-11/agent35-tactical-switch-funded-ko.cjs')
+      .chooseTacticalSwitchFundedKo(view,catalog);
+    if(tactical)return tactical;
+  }
   // Explicit owner-visible Item switch through an enemy Active retreat ban.
   // Never turns a blocked voluntary RetreatAction into a claimed legal play.
   if(options.opponentBlockSwitchRoot===true){
@@ -2354,6 +2362,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
+      case 'play-tactical-switch':
       case 'play-opponent-block-switch':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
