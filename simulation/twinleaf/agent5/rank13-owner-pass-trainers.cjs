@@ -50,13 +50,15 @@ function withSourceOwnerTrainerPassAudit(execute,deps={}){
       assert.equal(view.actorSeat,sourceSeat);
       assert.equal(Object.hasOwn(view.opponentPublic,'hand'),false);
     }
+    // Freeze exact owner hand types BEFORE the Pass can resolve end-turn
+    // effects or advance the native State.
+    const hand=view?view.ownHand.map((printing,index)=>({
+      index,printing,
+      isTrainer:owner.hand.cards[index]?.superType==='TRAINER',
+      trainerType:owner.hand.cards[index]?.trainerType??null
+    })):null;
     const result=old.value.call(this,action,...args);
     if(view){
-      const hand=view.ownHand.map((printing,index)=>({
-        index,printing,
-        isTrainer:owner.hand.cards[index]?.superType==='TRAINER',
-        trainerType:owner.hand.cards[index]?.trainerType??null
-      }));
       events.push({
         actorSeat:sourceSeat,globalTurn:view.globalTurn,
         actorHandPrintings:[...view.ownHand],actorHandSize:view.ownHand.length,
