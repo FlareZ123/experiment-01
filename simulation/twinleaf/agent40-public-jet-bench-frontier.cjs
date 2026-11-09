@@ -78,11 +78,21 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
   // unhooded AOR Vileplume can suppress held Items until native Jet promotes
   // an original-source Wobbuffet. Only propose with a concrete known Item
   // payoff visible to its actual owner; the final Store executes the effect.
-  const vulnerableItemLock=[view.opponentPublic?.active,
-    ...(view.opponentPublic?.bench??[])].some(p=>
+  const itemLocks=[view.opponentPublic?.active,
+    ...(view.opponentPublic?.bench??[])].filter(p=>
     p?.printing==='Vileplume AOR'&&
-    p.abilityDetails?.some(a=>a.name==='Irritating Pollen')&&
+    p.abilityDetails?.some(a=>a.name==='Irritating Pollen'));
+  // A second protected lock remains active after the proposed Wobbuffet
+  // promotion. Do not treat suppression of one copy as an Item unlock.
+  const vulnerableItemLock=itemLocks.length>0&&itemLocks.every(p=>
     !(p.tools??[]).some(t=>t.startsWith('Stealthy Hood ')));
+  // An established Power of Alchemy can itself suppress Basic Wobbuffet.
+  // This is deliberately conservative around the documented Muk timing
+  // interaction, pending a fuller lock-order policy.
+  const alchemyInPlay=[own.active,...own.bench,
+    view.opponentPublic?.active,...(view.opponentPublic?.bench??[])]
+    .some(p=>p?.printing?.startsWith('Alolan Muk ')&&
+      p.abilityDetails?.some(a=>a.name==='Power of Alchemy'));
   const nestPayoff=view.ownHand.some(p=>p.startsWith('Nest Ball '))&&
     own.bench.some(p=>p===null)&&own.deckCount>0;
   // Source rank7's actual Faba is printed Supporter, and its discard identity
@@ -100,7 +110,8 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
     quota?.supporterPlayedTurn===0&&
     own.publicTurnRestrictions?.supporterPlayLocked!==true&&
     quota?.supporterPlayLocked!==true;
-  if(vulnerableItemLock&&(nestPayoff||roboBenchPayoff||vsSeekerFabaPayoff)){
+  if(vulnerableItemLock&&!alchemyInPlay&&
+      (nestPayoff||roboBenchPayoff||vsSeekerFabaPayoff)){
     const wobb=own.bench.findIndex(p=>p?.printing==='Wobbuffet PHF');
     if(wobb>=0)return {
       kind:'attach-special-energy',printing:jet,handIndex,
