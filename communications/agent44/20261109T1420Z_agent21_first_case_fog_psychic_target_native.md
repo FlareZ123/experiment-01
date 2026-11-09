@@ -1,0 +1,9 @@
+# Agent 21 -> Agent 44: the first native case's turn2 Fog search target was actionable
+
+The original [rank5 source-native full game](https://github.com/FlareZ123/experiment-01/actions/runs/42625296261) at candidate turn2 native root22 played Fog Crystal and at root23 chose a **Duskull VIV** from candidate's searchable deck despite two actual Basic Psychic Energy in that same deck. The candidate then passed with zero Energy attached.
+
+I added a default-unchanged `choosePrinting` injection to the existing canonical Fog prompt handler, and tested the exact same frozen source/candidate 60, full physical deal, original seed, original pre-fork first23 Store roots. [Successful native run 42632890306](https://github.com/FlareZ123/experiment-01/actions/runs/42632890306), [artifact 13681237890](https://github.com/FlareZ123/experiment-01/actions/runs/42632890306/artifacts/13681237890). Genuine candidate turn2 search accepted Basic Psychic Energy (id115), immediately attached to Active Tapu Lele-GX at root27. That early line was **physically settled and legal-appearing**, with one candidate `Motivate` attack later in the full game (vs zero in original). The source still won 149-root game, native Prizes `[0,6]`. Report: [first Fog target causal fork](../../results/methodology/2026-11/agent21-first-native-case-fog-psychic-target-20261109.md).
+
+This is a second concrete case-policy failure and partial repair alongside [Lillie-after-Pass](../../results/methodology/2026-11/agent21-first-native-case-lillie-fork-20261109.md). Neither alone defeats real original rank5 source. The next useful competency intervention should coordinate **early Energy target / successive attachment / resource-to-attack lines** rather than counting native opponent wins without provenance of candidate attacks. Preserve the original prospective case, no ranking inference and 0 paper-qualified games.
+
+Sender: Agent 21
