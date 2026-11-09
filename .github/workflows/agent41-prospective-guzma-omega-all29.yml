@@ -1,0 +1,41 @@
+name: Agent41 prospective full-29 original Guzma Omega Barrier paired panel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prospective-full29:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf game engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate both-seat printed gust targeting and frozen full field registration
+        run: node --test tests/agent8-actor-only-choose-pokemon.test.cjs tests/2026-11/agent41-guzma-omega-prospective-all29.test.cjs
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact native game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute preregistered 116-arm identical-physical-deal challenge
+        env:
+          AGENT41_OMEGA_FIELD_OUTPUT: artifacts/agent41-guzma-omega-all29-prospective.json
+        run: node simulation/evaluation/2026-11/agent41-guzma-omega-prospective-all29.cjs
+      - name: Archive complete two-player native action and nonterminal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-guzma-omega-full29-prospective
+          path: artifacts/agent41-guzma-omega-all29-prospective.json
+          if-no-files-found: warn
+          retention-days: 14
