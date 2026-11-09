@@ -62,8 +62,23 @@ test('original source Raihan chooses actual third Psychic then tests next-turn N
   assert.equal(next.energyAfter.length,3);
   assert.equal(next.attackAccepted,true,'three paid Psychic should permit Night Watch');
   assert.equal(next.errors.length,0);
-  assert.ok(next.opponentDamageAfter >= next.opponentDamageBefore ||
-    next.opponentDiscardedGirafarig,
-    'native Night Watch must damage or KO public Girafarig');
-  assert.ok(next.status.startsWith('native-night-watch-'));
+  assert.equal(next.opponentDiscardedGirafarig,true);
+  assert.equal(next.sourceRemainingPrizesBefore,6);
+  assert.equal(next.sourceRemainingPrizesAfter,5,
+    'source must actually take the Knock Out Prize');
+  assert.equal(next.actualPrizeProgress,1);
+  assert.equal(next.status,'native-night-watch-fully-settled');
+  assert.deepEqual(next.unsettledPrompts,[]);
+  assert.equal(next.nextActorId,202,
+    'opposing owner must get the next meaningful turn');
+  const random=next.promptTrace.find(x=>x.kind==='ChooseCardsPrompt');
+  assert.ok(random?.resolved);
+  assert.equal(random.concealedCardNamesReadForChoice,false);
+  assert.equal(new Set(random.opaqueHandIndices).size,2);
+  const prize=next.promptTrace.find(x=>x.kind==='ChoosePrizePrompt');
+  assert.ok(prize?.resolved);
+  assert.equal(prize.concealedPrizeFacesReadForChoice,false);
+  const promotion=next.promptTrace.find(x=>x.kind==='ChoosePokemonPrompt');
+  assert.ok(promotion?.resolved);
+  assert.equal(promotion.choosingOwnerId,202);
 });
