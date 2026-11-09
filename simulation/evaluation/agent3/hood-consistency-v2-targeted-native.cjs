@@ -84,7 +84,9 @@ function preflight(){
   const admitted=require('../agent25-authenticated-source-admission.cjs')
     .authenticatedSourceRanks(
       require('../../../results/aichi-2026/full-decklists.json'),true);
-  validateRegisteredTrialGroups(registration.registeredTrials,admitted);
+  for(const id of ['hood-shield-v1','hood-consistency-v2'])
+    validateRegisteredTrialGroups(registration.registeredTrials.filter(t=>
+      t.candidateId===id),admitted,false,true);
   assert.equal(new Set(registration.sourceGroups.map(x=>x.seed)).size,44);
   assert.deepEqual(registration.fixedContenders.map(x=>x.id),
     ['hood-shield-v1','hood-consistency-v2']);
@@ -209,17 +211,35 @@ function run({runner=runDevelopment,profile=withPaperSemanticsProfileV1}={}){
   process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV='true';
   let result;
   try{
-    result=profile(()=>runner({
-      ...frozen.policyOptions,...SOURCE_POLICY,
-      registeredCandidateDecks:{
-        'hood-shield-v1':hood,'hood-consistency-v2':consistency},
-      registeredTrials:registration.registeredTrials,
-      registeredFrameName:VERSION,
-      allowAdditionalOriginalSourceRanks:true,
-      nativeRootActionLimit:260,
-      isolatePolicyRandomness:true,
-      isolatePhysicalShuffleRandomnessAfterSetup:true
-    }),PAPER_PROFILE);
+    result=profile(()=>{
+      const all=[];
+      for(const id of ['hood-shield-v1','hood-consistency-v2']){
+        const registeredTrials=registration.registeredTrials.filter(t=>
+          t.candidateId===id);
+        const arm=runner({
+          ...frozen.policyOptions,...SOURCE_POLICY,
+          registeredCandidateDecks:{
+            'hood-shield-v1':hood,'hood-consistency-v2':consistency},
+          registeredTrials,
+          registeredFrameName:VERSION+':'+id,
+          allowSingleCandidatePerGroup:true,
+          allowAdditionalOriginalSourceRanks:true,
+          nativeRootActionLimit:260,
+          isolatePolicyRandomness:true,
+          isolatePhysicalShuffleRandomnessAfterSetup:true
+        });
+        assert.equal(arm.attempted,44);
+        assert.equal(arm.rows.length,44);
+        all.push(...arm.rows);
+      }
+      const byId=new Map(all.map(row=>[row.trial.id,row]));
+      assert.equal(byId.size,88);
+      return {attempted:88,rows:registration.registeredTrials.map(t=>{
+        const row=byId.get(t.id);
+        assert.ok(row,'Missing candidate-source native result '+t.id);
+        return row;
+      })};
+    },PAPER_PROFILE);
   }finally{
     if(prior===undefined)
       delete process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV;
