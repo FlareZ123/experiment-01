@@ -129,8 +129,7 @@ if(require.main===module){
     status:report.status,pairs:report.completeMailBeachArvenPairs??[],
     nativeArvenActions:report.treatment?.arvenAccepted??0,
     competitiveGamesQualified:0,error:report.error??null},null,2)+'\n');
-  if(report.status==='NATIVE_OR_ASSERTION_ERROR'||
-    report.status==='NATIVE_ARVEN_REJECTED_OR_UNSETTLED')
+  if(report.status!=='NATIVE_THREE_EFFECT_SEQUENCE_SETTLED')
     process.exitCode=1;
 }
 
