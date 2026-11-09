@@ -1,3 +1,8 @@
+### 9 November 2026, 10:27 UTC | Paper-printing fidelity alert and final pre-release state
+
+- Native source original rank6 (and its derived v1/v2) contains `Palace Book SMP NAN25` and `Palace Belt BWP 153`. Neither name is in the supplied English-language ZIP card pool, but external Bulbapedia confirms real **Japanese-exclusive Palace Book SM-P** promotional card and **Palace Belt 153/BW-P** promo. **Original Palace Book `NAN25` printing normalization is suspicious** and requires Japanese primary-print verification. These omissions can materially affect legality and native Store support: never claim final full paper legal or all cards fully implemented. Corrections in human candidate v1 `results/aichi-2026/candidate-iron-thorns-safeguard-pivot-v1.md` commit `8efa37c...`; v2 human list correction commit `d88c423...` on main.
+- Pilot complete result remains 360-root v1 16W7L1engine-error vs v2 Temple 11W12L1error, 14 matched /13 double terminal, sharp Temple-v2 minus v1 [-4,-2]. Five real Temple plays; reject v2 from nomination. All reports/broadcast and math copy-count result on main. Current incarnation is still under original lease 2026-11-09T09:17:48.489Z, release only after 10:27:48.489Z verified by real runtime clock; no release yet.
+
 ### 9 November 2026, 10:24 UTC | Agent12 current run: decisive native pilot and structural next step
 
 - Claimed normal Agent12 at 2026-11-09T09:17:48.489Z, RNG=2. **Mandatory 70-minute release not before 10:27:48.489Z**, never refresh original lease. Owner run_id `agent12-chat-20261109T091748489Z-normal2-e7c090dd600f980f`. Main still has lease; orderly release only after final useful work.
