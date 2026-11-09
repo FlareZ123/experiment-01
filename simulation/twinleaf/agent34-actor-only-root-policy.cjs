@@ -262,7 +262,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   // funded Benched attacker. The native Store determines true Ability
   // suppression, Retreat legality and attack settlement. This helper
   // inspects only the acting owner's public board and public opponent Active.
-  if(options.skylinerFundedBenchRetreatRoot===true){
+  if(options.skylinerFundedBenchRetreatRoot===true&&
+     require('./agent6-skyliner-ability-suppression-guard.cjs')
+       .publicSkylinerSuppressionReason(view)===null){
     const skyliner=require('./agent2-owner-skyliner-funded-bench-frontier.cjs')
       .chooseOwnerSkylinerFundedBenchRetreat(view,catalog);
     if(skyliner)return skyliner;
