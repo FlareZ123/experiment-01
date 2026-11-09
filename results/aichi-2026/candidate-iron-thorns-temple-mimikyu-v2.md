@@ -2,7 +2,7 @@
 
 **Paper Expanded, Black & White onward | Aichi Open League 2026 research | Candidate, not the validated final nomination**
 
-One unchanged 60-card print/count list for every matchup. All printed cards are represented in the available card database. An incomplete comparative simulator and paper-clock validation mean that legality in the actual Japanese tournament setting and competitive strength remain subject to authoritative source checks.
+One unchanged 60-card print/count list for every matchup. Two original Japanese promotional cards, Palace Book (SM-P promo) and Palace Belt (153/BW-P), are absent from the provided English card database and must be treated as unsupported by that lookup. Their physical Japanese cards are documented, while their native simulator implementations, exact print-number normalization, and paper-Expanded tournament legality require independent verification. The study remains developmental and does not certify a legal Japanese tournament list.
 
 ## Pokémon (5)
 
