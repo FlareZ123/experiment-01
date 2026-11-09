@@ -1452,6 +1452,7 @@ function runDevelopment({
   actorGenericFundedFloatStoneSourceOnly=false,
   actorGenericFundedFloatStoneCandidateOnly=false,
   actorGenericFundedFloatStoneCensus=false,
+  actorOpponentBlockSwitchRoot=false,
   actorZeroEnergyStrandFloatStoneRoot=false,
   actorZeroEnergyStrandFloatStoneTargetTurn=null,
   actorZeroEnergyStrandFloatStoneOwnerSeat=null,
@@ -1715,6 +1716,8 @@ function runDevelopment({
     'Source-scoped funded Float Stone requires the owner-visible funded Float policy');
   assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
     'Float Stone census must observe the same actor-only policy in both seats');
+  assert.ok(!actorOpponentBlockSwitchRoot||actorOnlyComposition,
+    'Opponent Block Item rescue requires actor-only composition');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
     'Zero-Energy strand rescue requires actor-only composition');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||
@@ -1985,6 +1988,7 @@ function runDevelopment({
           !actorGenericFundedFloatStoneRoot&&
           !actorGenericFundedFloatStoneCensus&&
           !actorZeroEnergyStrandFloatStoneRoot&&
+          !actorOpponentBlockSwitchRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -2176,6 +2180,9 @@ function runDevelopment({
               }:{}),
               ...(actorGenericFundedFloatStoneCensus?{
                 genericFundedFloatStoneAudit:true
+              }:{}),
+              ...(actorOpponentBlockSwitchRoot?{
+                opponentBlockSwitchRoot:true
               }:{}),
               ...(actorZeroEnergyStrandFloatStoneRoot?{
                 zeroEnergyStrandFloatStoneRoot:true,
@@ -2749,6 +2756,8 @@ function runDevelopment({
       actorOnlyComposition&&actorGenericFundedFloatStoneSourceOnly,
     actorGenericFundedFloatStoneCensusOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneCensus,
+    actorOpponentBlockSwitchRootOptIn:
+      actorOnlyComposition&&actorOpponentBlockSwitchRoot,
     actorZeroEnergyStrandFloatStoneRootOptIn:
       actorOnlyComposition&&actorZeroEnergyStrandFloatStoneRoot,
     actorZeroEnergyStrandFloatStoneTargetTurn:
