@@ -216,7 +216,16 @@ for(const seat of [0,1]){
       const bridge=new BridgeStore(store);
       bridge.dispatch(new AddPlayerAction());
       const action=new OwnerBot(owner.id).decodeNextAction(state);
-      assert.ok(action instanceof UseAbilityAction);
+      assert.ok(action instanceof UseAbilityAction,
+        JSON.stringify({
+          observedAction:action?.constructor?.name??typeof action,
+          activePlayer:state.activePlayer,phase:state.phase,
+          ownerSeat:seat,ownerId:owner.id,
+          pending:state.prompts.filter(p=>p.result===undefined)
+            .map(p=>({name:p.constructor?.name,playerId:p.playerId})),
+          pureRoot:chooseActorRootIntent(actorObservation(state,seat),
+            catalog,{genesectFusionDraw:true})?.kind??null
+        }));
       assert.equal(action.name,'Fusion Strike System');
       bridge.dispatch(action);
       let settled=0;
