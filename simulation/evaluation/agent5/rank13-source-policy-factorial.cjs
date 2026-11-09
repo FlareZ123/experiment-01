@@ -87,6 +87,7 @@ function run(deps={}){
         }),{
           registeredTrials:[{...group}],
           registeredFrameName:registration.schema,
+          singleHistoricalReplay:true,
           nativeRootActionLimit:registration.nativeRootLimit,
           vipAfterPass:true,vipPreferMewtwoDonor:true,
           perfectionTransition:pivot
