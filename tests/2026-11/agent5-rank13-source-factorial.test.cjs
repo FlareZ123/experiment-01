@@ -58,10 +58,12 @@ test('single historical replay keeps explicit original-frame and 1-deal safeguar
   assert.deepEqual(selectedTrialReplayMode({
     singleHistoricalReplay:true,registeredFrameName:'original-rank13-frame'
   },[{id:TARGET}]),{
-    allowSingleRegisteredTrial:true,retrospectiveSingleTrial:true
+    allowSingleRegisteredTrial:true,retrospectiveSingleTrial:true,
+    allowSingleCandidateArm:true,allowSingleCandidatePerGroup:false
   });
   assert.deepEqual(selectedTrialReplayMode({},[{id:TARGET}]),{
-    allowSingleRegisteredTrial:false,retrospectiveSingleTrial:false
+    allowSingleRegisteredTrial:false,retrospectiveSingleTrial:false,
+    allowSingleCandidateArm:false,allowSingleCandidatePerGroup:true
   });
   assert.throws(()=>selectedTrialReplayMode({singleHistoricalReplay:true},
     [{id:TARGET}]),/original frame/);
