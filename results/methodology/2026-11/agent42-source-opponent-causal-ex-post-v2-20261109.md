@@ -25,7 +25,7 @@ The reducer crosschecks all native rows against the historical summary's origina
 | 31 A | 1 | no changed accepted root | same | no comparison effect |
 | 31 B | 0 | no changed accepted root | same | no comparison effect |
 
-Across eight registered original physical deals, there were eight valid physical matches, four source-factor first-action changes in each fixed candidate-pivot state and six groups with all four natural native terminals. The two native errors occurred in rank13 A controls, and one source-search rank5 B treatment reached the 260-root cap. **No fully terminal group changed winner.** Zero games are paper qualified.
+Across eight registered original physical deals, there were eight valid physical matches, four source-factor first-action changes in each fixed candidate-pivot state and six groups with all four natural native terminals. The two native errors occurred in rank13 A controls, and one source-search rank5 B treatment reached the 260-root cap. **No fully terminal group changed winner or changed its source-owned, genuinely settled attack count** between source-factor arms. On rank5 A, rank13 B and both rank31 seats, the source had zero settled attacks in every arm; rank11 A remained at seven and rank11 B remained at twelve. The rank5 B source also had zero attacks in all arms, but one treatment was action-capped and cannot contribute to the six-group completed comparison. Rank13 A had a missing baseline due engine error. Zero games are paper qualified.
 
 ### The rank11 B counterexample changes the interpretation
 
