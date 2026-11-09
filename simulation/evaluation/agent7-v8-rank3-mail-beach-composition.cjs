@@ -19,7 +19,7 @@ const FLAGS=['AGENT7_EARLY_BEACH_DEV',
   'AGENT7_EARLY_BEACH_DEFER_MAIL_DEV'];
 
 /** Compare unchanged actual first-eligible Mail before optional Beach fallback. */
-function runBranch(earlyBeach){
+function runBranch(earlyBeach,followArven=false){
   const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const native=relative=>require(path.join(base,relative));
   const headless=require('../twinleaf/headless.cjs');
@@ -40,14 +40,15 @@ function runBranch(earlyBeach){
         ResolvePromptAction:
           native('game/store/actions/resolve-prompt-action').ResolvePromptAction,
         types:native('game/store/card/card-types'),
-        trialIds:TRIAL_IDS
+        trialIds:TRIAL_IDS,
+        followMailArven:followArven
       });
       return mail.result;
     });
     const output=traced.output;
     assert.deepEqual(output.rows.map(row=>row.trialId),TRIAL_IDS);
     return {
-      earlyBeach,output,beachEvents:traced.events,
+      earlyBeach,followArven,output,beachEvents:traced.events,
       mailAudit:mail.audit
     };
   }finally{
