@@ -353,8 +353,11 @@ test('first real release envelope has resolvable nine-object refs and explicit a
   assert.ok(!gate.failures.includes('malformed-or-unverifiable-native-competence-trial'));
   for(const missing of ['provenance-incomplete','policy-asymmetry-or-unverified',
     'no-certified-source-reply-source-episode','independent-paper-audit-pending',
-    'hidden-information-audit-pending','official-match-clock-audit-pending',
-    'external-review-unavailable','no-signed-review-packets']){
+    'hidden-information-audit-pending','official-match-clock-audit-pending']){
+    assert.ok(gate.structuralFailureCodes.includes(missing),missing);
+  }
+  assert.equal(gate.structuralProgress.certifiedMaterialRoots,0);
+  for(const missing of ['external-review-unavailable','no-signed-review-packets']){
     assert.ok(gate.failures.includes(missing),missing);
   }
 });
