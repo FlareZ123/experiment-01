@@ -43,6 +43,8 @@ function chooseOwnerFloatStoneMobility(view,catalog){
   const own=view.ownPublic;
   const active=own?.active;
   const r=view.ownTurnResources;
+  if(require('./agent35-opponent-active-retreat-lock.cjs')
+      .observedOpponentActiveForbidsRetreat(view))return null;
   if(!active||!Array.isArray(own.bench)||!r||view.globalTurn===1)return null;
   if(!Number.isSafeInteger(r.retreatedTurn)||
      r.retreatedTurn===view.globalTurn)return null;
