@@ -29,6 +29,7 @@ on:
           - agent3-dual-fixed60-all29-artifact-audit
           - agent3-vileplume-vs-shadow-all29
           - agent3-regidrago-vs-shadow-all29
+          - agent3-hood-vs-shadow-all29
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -251,6 +252,22 @@ jobs:
         with:
           name: agent3-rank7-guzma-custody-ab
           path: artifacts/agent3-rank7-guzma-custody-ab.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preflight all29 original source frozen Hood Shield 60 against champion 60
+        if: inputs.experiment == 'agent3-hood-vs-shadow-all29'
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-hood-vs-shadow-all29-native.cjs
+          node simulation/evaluation/2026-11/agent3-hood-vs-shadow-all29-native.cjs --inspect-only
+      - name: Run full29 two-seat original source games for champion and Hood Shield
+        if: inputs.experiment == 'agent3-hood-vs-shadow-all29'
+        run: node simulation/evaluation/2026-11/agent3-hood-vs-shadow-all29-native.cjs
+      - name: Archive real Hood Shield and champion native outcomes and complete root receipts
+        if: always() && inputs.experiment == 'agent3-hood-vs-shadow-all29'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-hood-vs-shadow-all29-native
+          path: agent3-hood-vs-shadow-all29-native.json
           if-no-files-found: warn
           retention-days: 21
       - name: Preflight fresh original-source rank10 Regidrago vs rank1 Shadow 58-group architecture test
