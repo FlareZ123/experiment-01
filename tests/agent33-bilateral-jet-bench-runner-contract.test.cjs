@@ -13,7 +13,8 @@ test('shared bilateral Jet Bench option is default-off',()=>{
 
 test('shared bilateral Jet Bench opt-in passes only the dedicated root flag',()=>{
   assert.deepEqual(bilateralJetBenchRootOptions(true),
-    {jetBenchSwitchRoot:true,jetPostRoboContinuation:true});
+    {jetBenchSwitchRoot:true,jetPostRoboContinuation:true,
+      rank7FabaJetBridge:true});
 });
 
 test('shared runner selects the scoped root and records the bilateral opt-in',()=>{
