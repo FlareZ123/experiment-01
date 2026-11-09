@@ -48,7 +48,7 @@ const PAPER_PROFILE=Object.freeze({
 function gitBlob(relativePath){
   const bytes=fs.readFileSync(path.join(ROOT,relativePath));
   return createHash('sha1')
-    .update('blob '+bytes.length+'\\0').update(bytes).digest('hex');
+    .update('blob '+bytes.length+'\0').update(bytes).digest('hex');
 }
 
 /** Enforce frozen before-game decklists, original 60s, source groups, policy. */
@@ -280,7 +280,7 @@ function run({runner=runDevelopment,profile=withPaperSemanticsProfileV1}={}){
 }
 if(require.main===module){
   if(process.argv.includes('--inspect-only')){
-    process.stdout.write(JSON.stringify(preflight())+'\\n');
+    process.stdout.write(JSON.stringify(preflight())+'\n');
   }else{
     const report=run();
     save(OUTPUT,report);
@@ -296,7 +296,7 @@ if(require.main===module){
           sharpRange:x.sharpNativeWinDifferenceRightMinusLeft
         })),
         artifact:OUTPUT,paperQualifiedGames:0
-      })+'\\n');
+      })+'\n');
   }
 }
 module.exports={VERSION,IDS,ROOT_POLICY,PAPER_PROFILE,
