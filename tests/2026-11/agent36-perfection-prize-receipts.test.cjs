@@ -17,7 +17,7 @@ const snapshot=(rootOrdinal,n=6,active=crobat,discard=[])=>({
   ]
 });
 const root=(actionOrdinal,turnBefore,playerSlot,action,ability=null)=>({
-  actionOrdinal,turnBefore,playerSlot,action,...ability?{ability}:{}
+  actionOrdinal,turnBefore,playerSlot,action,...(ability ? {ability} : {})
 });
 
 test('actual Perfection KO and two Prizes are counted without AttackAction',()=>{
