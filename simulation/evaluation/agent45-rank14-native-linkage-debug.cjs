@@ -19,20 +19,25 @@ function run(deps={}){
   const group=registration.groups.find(x=>x.id===FROZEN_TRIAL);
   assert.ok(group&&group.rank===14&&group.candidateSlot==='B');
   const execute=deps.batch??runNativeBatch;
+  // The existing selected-native runner requires >=4 registered rows for
+  // its physical-custody attestation. Keep the exact rank14-B frozen deal,
+  // add three frozen controls from the very same original registration, and
+  // discard no error/abort from those controls in the actual runner.
+  const groupSet=[...registration.groups.slice(0,3),group];
+  assert.equal(new Set(groupSet.map(x=>x.id)).size,4);
   const shared={
-    registeredTrials:[{...group}],
+    registeredTrials:groupSet.map(x=>({...x})),
     registeredFrameName:registration.schema,
     nativeRootActionLimit:registration.nativeRootLimit,
-    allowSingleRegisteredTrial:true,
     vipAfterPass:true,vipPreferMewtwoDonor:true
   };
   const arms=[{name:'frozen-control',extra:shared},
     {name:'frozen-funded-pivot',extra:{...shared,perfectionTransition:true}}];
   const rows=arms.map(arm=>{
     const {selected}=execute(true,undefined,arm.extra);
-    assert.equal(selected.rawDevelopment.rows.length,1);
-    const row=selected.rawDevelopment.rows[0];
-    assert.equal(row.trial?.id,FROZEN_TRIAL);
+    assert.equal(selected.rawDevelopment.rows.length,4);
+    const row=selected.rawDevelopment.rows.find(x=>x.trial?.id===FROZEN_TRIAL);
+    assert.ok(row);
     const side=row.nativeAcceptedTargetSidecarAbort??null;
     const failure=side?.rootOrdinalLinkageFailure??null;
     const targets=side?.events??[];
@@ -65,6 +70,7 @@ function run(deps={}){
   });
   const result={version:VERSION,originalRegistration:registration.schema,
     frozenGroup:FROZEN_TRIAL,enginePin:registration.enginePin,
+    additionalRegisteredFrozenControlIds:groupSet.slice(0,3).map(x=>x.id),
     retrospectiveDebugOnly:true,rows,competitiveGamesQualified:0};
   process.stdout.write('AGENT45_RANK14_LINKAGE '+JSON.stringify(result)+'\n');
   return result;
