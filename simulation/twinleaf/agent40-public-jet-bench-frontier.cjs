@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent40-public-jet-bench-switch-v3-source-vsseeker-payoff';
+const VERSION='agent40-public-jet-bench-switch-v4-source-robo-and-vs-payoff';
 const JET='Jet Energy ';
 
 /**
@@ -90,21 +90,29 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
   // available; the Item cannot be played while Vileplume Item lock applies.
   // Explicitly bounded: a different discarded Supporter is not yet assumed
   // to be a useful or native-payable replacement for this tactical line.
+  // Robo Substitute is itself a printed Bench-entering Item. A spare Bench
+  // space gives a tangible stall-card payoff when the opponent's Vileplume
+  // would otherwise forbid the action. Native Store checks the actual play.
+  const roboBenchPayoff=view.ownHand.some(p=>
+    p.startsWith('Robo Substitute '))&&own.bench.some(p=>p===null);
   const vsSeekerFabaPayoff=view.ownHand.some(p=>p.startsWith('VS Seeker '))&&
     own.discard.some(p=>p.startsWith('Faba '))&&
     quota?.supporterPlayedTurn===0&&
     own.publicTurnRestrictions?.supporterPlayLocked!==true&&
     quota?.supporterPlayLocked!==true;
-  if(vulnerableItemLock&&(nestPayoff||vsSeekerFabaPayoff)){
+  if(vulnerableItemLock&&(nestPayoff||roboBenchPayoff||vsSeekerFabaPayoff)){
     const wobb=own.bench.findIndex(p=>p?.printing==='Wobbuffet PHF');
     if(wobb>=0)return {
       kind:'attach-special-energy',printing:jet,handIndex,
       slot:'bench',index:wobb,
       reason:nestPayoff?
         'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock':
-        'jet-promote-wobbuffet-enable-public-vs-seeker',
-      ...(nestPayoff?{}:{plannedItem:'VS Seeker PHF',
-        plannedSupporter:'Faba LOT'})
+        roboBenchPayoff?
+          'jet-promote-wobbuffet-enable-robo-substitute':
+          'jet-promote-wobbuffet-enable-public-vs-seeker',
+      ...(nestPayoff?{}:roboBenchPayoff?
+        {plannedItem:'Robo Substitute PHF'}:
+        {plannedItem:'VS Seeker PHF',plannedSupporter:'Faba LOT'})
     };
   }
   return null;
