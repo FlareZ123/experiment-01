@@ -113,8 +113,8 @@ jobs:
       - name: Verify owner-visible recovery-capacity Secret Box payment on two native seats
         if: inputs.agent16_recovery_capacity_native
         run: |
-          node --test tests/2026-11/agent16-secret-box-recovery-capacity.test.cjs
-          node --test tests/2026-11/agent16-secret-box-recovery-capacity.native.test.cjs
+          node --test tests/2026-11/agent16-secret-box-recovery-capacity.test.cjs tests/2026-11/agent16-secret-box-capacity-actor-prompt.test.cjs
+          node --test tests/2026-11/agent16-secret-box-recovery-capacity.native.test.cjs tests/2026-11/agent16-secret-box-capacity-actor-prompt.native.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
