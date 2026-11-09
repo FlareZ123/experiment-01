@@ -27,6 +27,7 @@ on:
           - agent3-rank7-guzma-custody-ab
           - agent3-dual-fixed60-all29-paperprofile
           - agent3-dual-fixed60-all29-artifact-audit
+          - agent3-vileplume-vs-shadow-all29
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -249,6 +250,23 @@ jobs:
         with:
           name: agent3-rank7-guzma-custody-ab
           path: artifacts/agent3-rank7-guzma-custody-ab.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preflight fresh original-source rank2 Vileplume vs rank1 Shadow 58-group architecture test
+        if: inputs.experiment == 'agent3-vileplume-vs-shadow-all29'
+        run: |
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/2026-11/agent3-vileplume-vs-shadow-all29-native.cjs
+          node simulation/evaluation/2026-11/agent3-vileplume-vs-shadow-all29-native.cjs --inspect-only
+      - name: Run both independently frozen fixed 60s against all29 original printed decks with both seats
+        if: inputs.experiment == 'agent3-vileplume-vs-shadow-all29'
+        run: node simulation/evaluation/2026-11/agent3-vileplume-vs-shadow-all29-native.cjs
+      - name: Archive all 116 native roots and rank2 versus rank1 conditional source outcomes
+        if: always() && inputs.experiment == 'agent3-vileplume-vs-shadow-all29'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-vileplume-vs-shadow-all29-native
+          path: agent3-vileplume-vs-shadow-all29-native.json
           if-no-files-found: warn
           retention-days: 21
       - name: Validate prospectively frozen 58 original Aichi deals, two fixed 60s, and pinned policy profile
