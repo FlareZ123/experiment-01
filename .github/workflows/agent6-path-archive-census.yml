@@ -1,0 +1,27 @@
+name: Agent6 read-only Path counter opportunity census from archived native14
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Download immutable complete native14 matched-deal artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agent6-path-underworld-original14-development
+          run-id: 42560225495
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: analysis-input
+      - name: Read Path play and owner-visible lock opportunity census
+        run: node scripts/agent6-path-counter-archive-census.cjs
