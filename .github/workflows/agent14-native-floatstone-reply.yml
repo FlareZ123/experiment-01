@@ -30,6 +30,7 @@ on:
           - agent3-vileplume-vs-shadow-all29
           - agent3-regidrago-vs-shadow-all29
           - agent3-hood-vs-shadow-all29
+          - agent3-hood-vs-shadow-all29-artifact-audit
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -40,7 +41,7 @@ permissions:
   actions: read
 jobs:
   native-two:
-    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent3-dual-fixed60-all29-artifact-audit'
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit' && inputs.experiment != 'agent3-dual-fixed60-all29-artifact-audit' && inputs.experiment != 'agent3-hood-vs-shadow-all29-artifact-audit'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -525,5 +526,34 @@ jobs:
         with:
           name: agent3-dual60-all29-matched-audit
           path: artifacts/agent3-dual60-all29-matched-audit.json
+          if-no-files-found: warn
+          retention-days: 21
+
+  agent3-hood-native-archive-audit:
+    if: inputs.experiment == 'agent3-hood-vs-shadow-all29-artifact-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact completed frozen Hood Shield native cohort without replay
+        uses: actions/download-artifact@v4
+        with:
+          name: agent3-hood-vs-shadow-all29-native
+          run-id: 42578010606
+          github-token: ${{ github.token }}
+          path: artifacts/agent3-hood-full29-source
+      - name: Show source-physical exact matched nine directional winner contrasts
+        env:
+          AGENT3_HOOD_AUDIT_INPUT: artifacts/agent3-hood-full29-source/agent3-hood-vs-shadow-all29-native.json
+          AGENT3_HOOD_AUDIT_OUTPUT: artifacts/agent3-hood-all29-matched-audit.json
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-hood-all29-matched-native-audit.cjs
+          node simulation/evaluation/2026-11/agent3-hood-all29-matched-native-audit.cjs
+      - name: Preserve evidence for Hood Shield six-to-three native reversal result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-hood-all29-matched-audit
+          path: artifacts/agent3-hood-all29-matched-audit.json
           if-no-files-found: warn
           retention-days: 21
