@@ -74,5 +74,11 @@ jobs:
         run: node simulation/twinleaf/agent37-simultaneous-ko-promotion-v2-native.cjs
       - name: Agent37 simultaneous last-Prize tie adapter regression
         run: node simulation/twinleaf/agent37-simultaneous-last-prize-tie-native.cjs
+      - name: Agent37 v4 both-seat mixed-terminal and duplicate Prize safety regression
+        run: |
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-adapter.cjs
+          node --check simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs
+          node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-native.cjs
+          node simulation/twinleaf/agent37/agent37-simultaneous-terminal-v4-duplicate-guard-native.cjs
       - name: Agent37 public attack settlement snapshot and root identity tests
         run: node --test tests/agent37-candidate-attack-settlement.test.cjs
