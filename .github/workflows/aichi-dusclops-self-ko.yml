@@ -48,6 +48,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent16_box_root_paired:
+        description: 'Opt-in twelve fresh paired original-source root-control versus payable Box root; unqualified'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -123,6 +128,9 @@ jobs:
       - name: Run fresh paired original-source Secret Box actor opportunity census
         if: inputs.agent16_fresh_source_opportunity
         run: node simulation/evaluation/agent16-owner-box-prospective-opportunity.cjs
+      - name: Run preregistered paired original-source Secret Box root comparison
+        if: inputs.agent16_box_root_paired
+        run: node simulation/evaluation/agent16-box-root-prospective-paired.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
