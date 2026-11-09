@@ -251,7 +251,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       return result;
     }
     const rope=require('../twinleaf/2026-11/agent29-rank9-postbomb-escape-rope.cjs')
-      .withPostBombOwnerRope(runBomb,options.rank9CompressorOwnerSeat);
+      .withPostBombOwnerRope(runBomb,options.rank9CompressorOwnerSeat,{
+        defensiveOpponentChoice:options.rank9RopeOpponentSurvival===true
+      });
     ownerRank9CompressorAudit={...paid.audit,postCompressorBomb:bomb.audit,
       postBombEscapeRope:rope.audit};
     return rope.result;
