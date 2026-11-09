@@ -235,6 +235,12 @@ function withInstanceScopedSimultaneousTerminalResolutionV5(store,execute){
           store.prompt(state,prompt,selected=>{
             assert.ok(Array.isArray(selected)&&prompt.validate(selected,state),
               'only the actual Prize owner may select their own physical Prizes');
+            // The pinned ChoosePrizePrompt.validate checks count and nonempty
+            // objects but does NOT check physical zone membership. A fake or
+            // other-player CardList is otherwise accepted by native decoding.
+            assert.ok(selected.every(prize=>
+              otherPlayer.prizes.includes(prize)&&prize.cards.length>0),
+            'owner Prize choice must name physical lists in that owner Prize zone');
             assert.equal(state.phase,GamePhase.ATTACK,
               'provisional terminal must remain hidden until Prize selection');
             const selectedCards=selected.flatMap(prize=>[...prize.cards]);
