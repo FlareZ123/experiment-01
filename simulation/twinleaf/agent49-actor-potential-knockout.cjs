@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent49-public-printed-potential-ko-v3-type-adjusted';
+const VERSION = 'agent49-public-printed-potential-ko-v4-dialga-draw-only-lethal';
 
 /**
  * Estimate fixed printed damage after public printed Weakness and Resistance.
@@ -73,7 +73,20 @@ function choosePotentialKnockout(view, affordable) {
        first.damageCalculation !== undefined)) {
     const proof = require('./agent1-actor-dead-first-attack-frontier.cjs')
       .chooseKnownDeadLeadingAttack(view, affordable);
-    return affordable.find(attack => attack.name === proof?.attackName) ?? first;
+    const provedAlternative=affordable.find(attack=>
+      attack.name===proof?.attackName);
+    if(provedAlternative)return provedAlternative;
+    // The printed Overclock on this exact Dialga-GX is draw-only. When a
+    // separate *already payable* fixed-damage attack immediately KOs the
+    // publicly visible Active, choose the Prize without losing the draw
+    // fallback in other states. Other zero/variable setup attacks retain
+    // their original discrete-value protection.
+    const isKnownDrawOnlyOverclock=
+      view.ownPublic?.active?.printing==='Dialga-GX UPR'&&
+      first.name==='Overclock'&&first.damage===0&&
+      (first.damageCalculation===null||
+        first.damageCalculation===undefined);
+    if(!isKnownDrawOnlyOverclock)return first;
   }
 
   return affordable.find(attack =>
