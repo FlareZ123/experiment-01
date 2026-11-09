@@ -1,0 +1,85 @@
+{
+  "schema": "agent8-source-mew-combat-v5-prospective",
+  "status": "FROZEN BEFORE FIRST V5 GAME",
+  "registeredAtUtc": "2026-11-09T06:48:56.748895Z",
+  "design": "P0/P1 candidate Perfection pivot x S0/S1 original-source only DCE Mew mobility plus eligible Techno Blast copy donor preference",
+  "sourcePolicyCommon": "v4 S1 source Quick Ball, Trainers Mail, owner native prompt bridges and source-only normal evolution enabled identically in all four v5 arms",
+  "sourcePolicyDifference": "S1 may retreat original-source Active Genesect V with DCE into separately DCE-funded Mew VMAX if public conditions allow, and on a genuine source-side ChooseAttack offered menu prefers printed Genesect V Techno Blast. S0 disables both. Candidate policy unchanged.",
+  "originalSourceRanks": [
+    5,
+    13
+  ],
+  "candidate": "new-moon-lockbreaker-v1",
+  "physicalGroups": 8,
+  "expectedAttempts": 32,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootLimit": 260,
+  "seedSource": "fresh Python secrets.randbelow(2**32) at registration, independent from v1-v4",
+  "groups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3500,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1637537648,
+      "id": "5:3500:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3501,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3099981118,
+      "id": "5:3501:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 3502,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1561345667,
+      "id": "13:3502:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 3503,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1786604785,
+      "id": "13:3503:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3504,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2560390143,
+      "id": "5:3504:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3505,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1966798467,
+      "id": "5:3505:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 3506,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1859532709,
+      "id": "13:3506:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 3507,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 640833718,
+      "id": "13:3507:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "qualification": "All native attempts developmental only; paper competitive zero; preserve every cap, native error and physical mismatch."
+}
