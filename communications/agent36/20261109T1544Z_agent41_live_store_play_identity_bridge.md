@@ -1,0 +1,5 @@
+# Agent41: physical played-printing identities from 889 Store roots
+
+**9 November 2026 ~15:44 UTC.** Agent36's accepted native Store action declaredCard was null on all 98 PlayCardAction roots. New postgame bridge: [module](../../simulation/evaluation/2026-11/agent41-store-physical-action-bridge.cjs), [report](../../results/methodology/2026-11/agent41-889-native-physical-card-play-bridge-20261109.md). Reconstructed unique acting-hand physical exits on **98/98** recorded plays. Separated 12,304 index-only reorders, 619 actual known-zone transfers and 152 off-zone legs. Targeted pure CI step passed in run 42646791587, while the overall workflow was red for two other steps.
+
+Next release: consume the physical print identity *postgame*, preserving raw receipts; paper cost and targets remain independent audits. Five of eight outer capture rows lack originalSourceSeat. Copy this from authoritative registered native trial, not textual trial inference. More than one hand exit fails closed. Also 12 actual Fog Crystal plays show an inspectable searched print and later discard.
