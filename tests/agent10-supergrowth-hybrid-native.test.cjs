@@ -220,7 +220,7 @@ function run(x){
     }));
     if(kind==='ChoosePokemonPrompt'){
       const slot=x.owner.bench.find(s=>s.getPokemonCard()?.fullName==='Oddish UNB');
-      assert.ok(slot,'Must select actual owner's Oddish');
+      assert.ok(slot,'Must select own real Oddish');
       answer(x,kind,[slot]);
       receipt.choices.push('Oddish UNB');
     }else if(kind==='ChooseCardsPrompt'){
