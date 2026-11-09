@@ -1,0 +1,177 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { stagePrepared, PIN } =
+  require('../../simulation/twinleaf/agent40-rank7-wobbuffet-hood-native-v2.cjs');
+
+const OUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+/** @param {string} file */
+const native = file => require(path.join(OUT, file));
+const VERSION = 'agent40-source-rank7-faba-jet-wobb-item-chain-v1';
+
+/** Count all real owned cards, including active attachment and temporary Trainer zones.
+ * @param {object} player
+ * @returns {number}
+ */
+function physicalCount(player) {
+  const slotCount = slot => slot.cards.length + slot.tools.length +
+    slot.energies.cards.length;
+  return slotCount(player.active) +
+    player.bench.reduce((n, slot) => n + slotCount(slot), 0) +
+    player.hand.cards.length + player.deck.cards.length +
+    player.discard.cards.length + player.lostzone.cards.length +
+    player.prizes.reduce((n, slot) => n + slot.cards.length, 0) +
+    player.supporter.cards.length + player.stadium.cards.length;
+}
+
+/**
+ * Resolve actual original-owner Nest Ball prompts using only its own physical
+ * deck selection. The staged Basic target is specified independently of
+ * opponent hidden information; the Store handles all moves and shuffling.
+ * @param {object} store
+ * @param {number} sourceId
+ * @param {number} regirockId
+ * @param {0|1} seat
+ * @returns {string[]}
+ */
+function settleNest(store, sourceId, regirockId, seat) {
+  const { ResolvePromptAction } =
+    native('game/store/actions/resolve-prompt-action');
+  const prompts = [];
+  for (let step = 0; step < 8; step++) {
+    const pending = store.state.prompts.find(p => p.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.playerId, sourceId);
+    prompts.push(pending.type);
+    let answer = null;
+    if (pending.type === 'Choose cards') {
+      const index = pending.cards.cards.findIndex(c => c.id === regirockId);
+      assert.ok(index >= 0, 'Original printed Regirock exists in source-owned search');
+      answer = pending.decode([index]);
+    } else if (pending.type === 'Shuffle deck') {
+      const source = store.state.players.find(p => p.id === sourceId);
+      answer = Array.from({ length: source.deck.cards.length }, (_, i) => i);
+      let random = (20261109 + seat * 431) >>> 0;
+      for (let i = answer.length - 1; i > 0; i--) {
+        random = (Math.imul(random, 1664525) + 1013904223) >>> 0;
+        const j = random % (i + 1);
+        [answer[i], answer[j]] = [answer[j], answer[i]];
+      }
+    } else {
+      assert.equal(pending.type, 'WaitPrompt');
+    }
+    store.dispatch(new ResolvePromptAction(pending.id, answer));
+  }
+  assert.equal(store.state.prompts.filter(p => p.result === undefined).length, 0);
+  return prompts;
+}
+
+/** @param {0|1} seat */
+function probe(seat) {
+  const x = stagePrepared({
+    seat, wobbuffetActive: false, hood: true, vileplumePresent: true
+  });
+  const { PlayCardAction, PlayerType, SlotType } =
+    native('game/store/actions/play-card-action');
+  const { ResolvePromptAction } =
+    native('game/store/actions/resolve-prompt-action');
+  const { GameMessage } = native('game/game-message');
+  const { IS_ABILITY_BLOCKED } = native('game/store/prefabs/prefabs');
+  const sourceId = x.originalPlayer.id;
+  const candidateId = x.candidatePlayer.id;
+  const source = () => x.store.state.players.find(p => p.id === sourceId);
+  const candidate = () => x.store.state.players.find(p => p.id === candidateId);
+  const handFromDeck = printing => {
+    const card = source().deck.cards.find(c => c.fullName === printing);
+    assert.ok(card, 'Original source deck must contain ' + printing);
+    source().deck.moveCardTo(card, source().hand);
+    return card;
+  };
+  const faba = handFromDeck('Faba LOT');
+  const jet = handFromDeck('Jet Energy PAL');
+  const nest = x.nest;
+  const target = source().deck.cards.find(c => c.fullName === 'Regirock XYP');
+  assert.ok(target, 'Original Basic remains in staged source deck');
+  const wobb = source().bench[0].getPokemonCard();
+  assert.equal(wobb.fullName, 'Wobbuffet PHF');
+  assert.equal(source().active.getPokemonCard().fullName, 'Mimikyu PAL');
+  const vileplume = candidate().bench[0].getPokemonCard();
+  const ability = vileplume.powers.find(p => p.name === 'Irritating Pollen');
+  assert.ok(ability);
+  const blocked = () => Boolean(IS_ABILITY_BLOCKED(
+    x.store, x.store.state, candidate(), vileplume, ability
+  ));
+  assert.equal(blocked(), false, 'Protected opposing Vileplume remains functional');
+  const hoodId = candidate().bench[0].tools[0].id;
+
+  // A real original-source Supporter, owned and paid by the source actor.
+  const fabaIndex = source().hand.cards.findIndex(c => c.id === faba.id);
+  x.store.dispatch(new PlayCardAction(sourceId, fabaIndex, {
+    player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+  }));
+  const selection = x.store.state.prompts.find(p =>
+    p.result === undefined && p.playerId === sourceId && p.type === 'Select');
+  assert.ok(selection);
+  x.store.dispatch(new ResolvePromptAction(selection.id,
+    selection.values.indexOf(GameMessage.CHOICE_TOOL)));
+  const targetPrompt = x.store.state.prompts.find(p =>
+    p.result === undefined && p.playerId === sourceId && p.type === 'Choose pokemon');
+  assert.ok(targetPrompt);
+  x.store.dispatch(new ResolvePromptAction(targetPrompt.id,
+    targetPrompt.decode([{
+      player: PlayerType.TOP_PLAYER, slot: SlotType.BENCH, index: 0
+    }], x.store.state)));
+  assert.ok(candidate().lostzone.cards.some(c => c.id === hoodId),
+    'Faba physically moves opponent Hood to opponent-owned Lost Zone');
+  assert.equal(blocked(), false,
+    'Removing Hood alone does not activate Benched Wobbuffet');
+
+  // Real Jet Energy from the original source hand promotes its Benched
+  // Wobbuffet, even though it cannot pay the Wobbuffet Psychic attack.
+  const jetIndex = source().hand.cards.findIndex(c => c.id === jet.id);
+  x.store.dispatch(new PlayCardAction(sourceId, jetIndex, {
+    player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
+  }));
+  for (let i = 0; i < 6; i++) {
+    const pending = x.store.state.prompts.find(p => p.result === undefined);
+    if (!pending) break;
+    assert.equal(pending.playerId, sourceId);
+    assert.equal(pending.type, 'WaitPrompt');
+    x.store.dispatch(new ResolvePromptAction(pending.id, null));
+  }
+  assert.equal(source().active.getPokemonCard().fullName, 'Wobbuffet PHF');
+  assert.ok(source().active.energies.cards.some(c => c.id === jet.id));
+  assert.equal(source().bench[0].getPokemonCard().fullName, 'Mimikyu PAL');
+  assert.equal(blocked(), true, 'Unhooded AOR must lose Item lock with Wobbuffet Active');
+
+  // Follow through on the concrete Item that the utility promotion unlocked.
+  const nestIndex = source().hand.cards.findIndex(c => c.id === nest.id);
+  x.store.dispatch(new PlayCardAction(sourceId, nestIndex, {
+    player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+  }));
+  const prompts = settleNest(x.store, sourceId, target.id, seat);
+  assert.deepEqual(prompts, ['Choose cards', 'Shuffle deck', 'WaitPrompt']);
+  assert.ok(source().bench.some(slot => slot.cards.some(c => c.id === target.id)));
+  assert.ok(source().discard.cards.some(c => c.id === nest.id));
+  assert.equal(physicalCount(source()), 60);
+  assert.equal(physicalCount(candidate()), 60);
+
+  return {
+    version: VERSION, pin: PIN, seat, originalSourceRank: 7,
+    fabaLostZoneHood: true, jetPromotedWobbuffet: true,
+    sourceItemResolvedAfterUtility: true, sourceItemPrompts: prompts,
+    physicalCounts: [physicalCount(source()), physicalCount(candidate())],
+    stagedOnly: true, naturalSourceDeals: 0, qualifiedCompetitiveGames: 0
+  };
+}
+
+for (const seat of [0, 1]) {
+  test('source rank7 Faba then Jet Wobb then Nest Ball actual Store, seat ' + seat, () => {
+    const row = probe(seat);
+    assert.equal(row.jetPromotedWobbuffet, true);
+    assert.equal(row.sourceItemResolvedAfterUtility, true);
+    console.log('AGENT40_FABA_JET_ITEM_UNLOCK', JSON.stringify(row));
+  });
+}
