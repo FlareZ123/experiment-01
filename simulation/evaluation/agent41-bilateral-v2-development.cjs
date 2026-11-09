@@ -1405,7 +1405,8 @@ function runDevelopment({
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   ownerFallbackDiagnosticView=false,mysteriousTreasureRoot=false,
   mysteriousTreasureMuscleBandPayment=false,
-  firstRegidragoBenchGrass=false,firstCrispinSeekerRecovery=false,
+  firstRegidragoBenchGrass=false,retreatFundingBridge=false,
+  firstCrispinSeekerRecovery=false,
   earlyRegidragoCompressor=false,bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
@@ -1553,6 +1554,8 @@ function runDevelopment({
     'Alternative Treasure payment requires the same source-owned Item root');
   assert.ok(!firstRegidragoBenchGrass||actorOnlyComposition,
     'Early Regidrago Bench funding requires canonical actor composition');
+  assert.ok(!retreatFundingBridge||actorOnlyComposition,
+    'Two-action retreat funding requires bilateral canonical actor composition');
   assert.ok(!firstCrispinSeekerRecovery||mysteriousTreasureRoot,
     'First-turn Crispin recovery requires the enabled Treasure root');
   assert.ok(!actorSeekerGuzmaNominalKo||
@@ -2075,6 +2078,9 @@ function runDevelopment({
               ...(firstRegidragoBenchGrass?{
                 firstRegidragoBenchGrass:true
               }:{}),
+              ...(retreatFundingBridge?{
+                retreatFundingBridge:true
+              }:{}),
               ...(firstCrispinSeekerRecovery?{
                 firstCrispinSeekerRecovery:true
               }:{}),
@@ -2569,6 +2575,7 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    retreatFundingBridgeOptIn:actorOnlyComposition&&retreatFundingBridge,
     bilateralJetBenchSwitchRootOptIn:bilateralJetBenchSwitchRoot,
     bilateralConservativeShuffleRootOptIn:bilateralConservativeShuffleRoot,
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
