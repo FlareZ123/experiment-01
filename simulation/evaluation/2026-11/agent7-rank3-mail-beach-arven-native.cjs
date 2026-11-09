@@ -56,7 +56,13 @@ function run(){
     activeRegistration:r.activeRunDevelopmentRegistrationValid,
     latestAcceptedRootPrefix:r.nativeAbortEvidence?.acceptedRootPrefix??[],
     firstAcceptedRootPrefix:r.nativeAbortEvidence?.initialAcceptedRootPrefix??[],
-    nativeError:r.nativeDirectErrorMessage??null
+    nativeError:r.nativeDirectErrorMessage??null,
+    nativeOriginalErrorText:r.nativeErrorText??null,
+    nativeDirectErrorCode:r.nativeDirectErrorCode??null,
+    nativeDirectErrorStack:r.nativeDirectErrorStack??null,
+    policyThrownCode:r.selectedV0?.thrownCode??null,
+    policyThrownMessage:r.selectedV0?.thrownMessage??null,
+    nativeRootCount:r.nativeAbortEvidence?.rootActionCount??null
   }));
   return {
     schema:VERSION,
