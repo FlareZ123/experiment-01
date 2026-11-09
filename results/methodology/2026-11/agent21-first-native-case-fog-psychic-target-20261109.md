@@ -1,0 +1,25 @@
+# First full native rank5 source game: exact Fog Crystal Energy-target fork
+
+**Agent 21, 9 November 2026.** Retrospective one-prompt owner-choice counterfactual using frozen first independent original rank5/source Mew Genesect versus fixed New Moon case, original trial `5:4410:B:new-moon-lockbreaker-v1` seed `3861605836`. **No new independent sample, paper-competitive admission or aggregate deck ranking.**
+
+## Original first owner-deck search decision
+
+In the immutable source-first [original case run 42625296261](https://github.com/FlareZ123/experiment-01/actions/runs/42625296261) ([artifact 13678516703](https://github.com/FlareZ123/experiment-01/actions/runs/42625296261/artifacts/13678516703)), physical candidate seat 1 first plays Fog Crystal CRE at **native Store root22**, global turn2. A real `ChooseCardsPrompt` at root23 searches the candidate's own physical deck; the existing policy selects Duskull VIV (physical id74) while **two Basic Psychic Energy MEE** (ids113,115) are also physically available in that deck. The original candidate does not attach an Energy that turn, does not attack at all, and loses at 149 roots (source four accepted `Cross Fusion Strike` declarations, native final Prizes `[0,6]`).
+
+## Scoped real native prompt intervention
+
+The reproducible [exact Fog choice replay](../../../simulation/evaluation/2026-11/agent21-rank5-fog-energy-choice-counterfactual.cjs) introduces a strictly default-off, case-targeted callback into the [existing canonical Fog owner-deck handler](../../../simulation/twinleaf/agent9-fog-actor-prompt.cjs). The only general adapter change is an optional `deps.choosePrinting` callback; omitted by all old users, so their existing `chooseFogPrinting` behavior is unchanged. For this one retrospective candidate turn2 prompt, it chooses a legal **Basic Psychic Energy** offered in the owner's genuine `ChooseCardsPrompt`, with no opponent hidden zones read and no guessed deck targets. Outside that exact prompt, the previously selected generic actor policy and all printed sixties are unchanged.
+
+The test succeeded in manual [CI run 42632890306](https://github.com/FlareZ123/experiment-01/actions/runs/42632890306), [original full-deal native archive 13681237890](https://github.com/FlareZ123/experiment-01/actions/runs/42632890306/artifacts/13681237890). All five automated assertions were true: identical original source physical-deal digest `65b0ab58...72c84` (complete `65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922`), identical complete source/candidate physical-deal digest `45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349`, byte-identical first 23 accepted root entries, exactly **one accepted** candidate Fog prompt re-target with zero native rejections, and physical receipt of the selected card.
+
+At root23 the Store accepted **Psychic Energy MEE id115** into candidate hand instead of Duskull; at **root27, global turn2**, the candidate genuinely attached that same Basic Psychic Energy to Active Tapu Lele-GX. This is a causal, fully paid action sequence in the original physical game, and it advances the turn-one attack-energy channel by one attachment compared with the original baseline.
+
+## Outcome and limit
+
+The candidate was still unable to attack with Tapu Lele-GX at turn2 on the single attachment, then later lost the Active Pokémon. After a different game sequence, the candidate eventually attached Telepathic Psychic Energy to Active Squawkabilly ex and used its **Motivate** attack at **root140/global turn24**. The resulting complete game had **one accepted candidate attack**, versus original zero, and four source `Cross Fusion Strike` declarations, 149 roots, **source native winner and final Prizes `[0,6]` unchanged**.
+
+Thus the earlier candidate-only policy selected the wrong resource for any proposed immediate Energy development, and correcting that one genuine search response changed accepted Energy and attack events. It did **not** establish a favorable matchup, an early prize, a robust combat line, or causal access to a profitable attack before the opponent. Further resource search/attachment and active-position sequencing remains necessary. A later source-dependent Motivate action must not be presented as proof of the first-turn Psychic attachment directly producing an attack.
+
+A first attempted direct bot-decoder override in [run 42632067365](https://github.com/FlareZ123/experiment-01/actions/runs/42632067365) had zero activations because the canonical Fog prompt handler intercepted before the decoder layer. The current native-tested prompt injection supersedes that failed developer integration; its failure artifact is preserved. This confirms the correction was made at the actual authorized owner-deck prompt.
+
+**Evidence boundary:** one posthoc original seed, no independent entire-game Japanese paper ruling, no certified opponent strategic policy, no historical official clock adjudication, no independent reviewer signatures. **29/32 exact source 60s, zero qualified competitive paper games, 99.5% target unproven.**
