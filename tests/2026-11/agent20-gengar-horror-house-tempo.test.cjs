@@ -99,3 +99,19 @@ test('reject undocumented GX attack printing or cost',()=>{
   const v=view();v.mocks.gengar.attacks[0].cost=[5,5];
   assert.equal(GENGAR_LINE(v,catalog),null);
 });
+
+test('public hand-count timing gate preserves an otherwise playable GX',()=>{
+  const v=view();v.mocks.gengar.energies=[P];
+  v.ownPublic.active=v.mocks.gengar;v.ownPublic.bench[0]=v.mocks.lele;
+  v.opponentPublic.handCount=4;
+  assert.equal(GENGAR_LINE(v,catalog,{minOpponentHandCount:6}),null);
+  v.opponentPublic.handCount=6;
+  assert.equal(GENGAR_LINE(v,catalog,{minOpponentHandCount:6}).attackName,HORROR);
+});
+test('visible opponent Energy overrides hand-wait for immediate threat',()=>{
+  const v=view();v.mocks.gengar.energies=[P];
+  v.ownPublic.active=v.mocks.gengar;v.ownPublic.bench[0]=v.mocks.lele;
+  v.opponentPublic.handCount=2;
+  v.opponentPublic.active.energies=[P];
+  assert.equal(GENGAR_LINE(v,catalog,{minOpponentHandCount:6}).attackName,HORROR);
+});
