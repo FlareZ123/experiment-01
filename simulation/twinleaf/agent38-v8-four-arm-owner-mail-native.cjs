@@ -23,6 +23,7 @@ function withBilateralOwnerMail(next,deps){
     ResolvePromptAction,types,trialIds}=deps;
   const followMailNestBall=deps.followMailNestBall===true;
   const followMailHandiwork=deps.followMailHandiwork===true;
+  const followHeldHandiwork=deps.followHeldHandiwork===true;
   const followMailArven=deps.followMailArven===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
@@ -38,6 +39,7 @@ function withBilateralOwnerMail(next,deps){
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
   const ownerMailHandiworkActions=new WeakSet();
+  const ownerHeldHandiworkActions=new WeakSet();
   const ownerMailArvenActions=new WeakSet();
   const arvenSelections=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
@@ -56,6 +58,9 @@ function withBilateralOwnerMail(next,deps){
     selectedTrainerLaterPlayed:[],
     handiworkFromMailOffers:0,handiworkFromMailAccepted:0,
     handiworkFromMailNativeDeckChanges:[],handiworkFromMailRejected:0,
+    handiworkFromHandOffers:0,handiworkFromHandAccepted:0,
+    handiworkFromHandRejected:0,handiworkFromHandNativeDeckChanges:[],
+    handiworkFromHandDeferredSettlements:[],
     handiworkDeferredSettlements:[],handiworkDeferredUnresolved:0,
     arvenFromMailOffers:0,arvenFromMailAccepted:0,
     arvenFromMailRejected:0,arvenSearchRejected:0,
@@ -167,6 +172,22 @@ function withBilateralOwnerMail(next,deps){
         return action;
       }
     }
+    if(followHeldHandiwork&&!prompt&&
+       (seat===0||seat===1)&&owner&&state.activePlayer===seat){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const {chooseOwnerHeldHandiwork}=
+        require('./agent1-owner-held-handiwork-choice.cjs');
+      const intent=chooseOwnerHeldHandiwork(actorObservation(state,seat));
+      const card=intent?owner.hand.cards[intent.handIndex]:null;
+      if(intent&&card?.fullName===intent.printing&&
+         card?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,intent.handIndex);
+        ownerHeldHandiworkActions.add(action);
+        audit.handiworkFromHandOffers++;
+        return action;
+      }
+    }
     if(followMailArven&&!prompt&&(seat===0||seat===1)&&owner){
       const {actorObservation}=
         require('./actor-observation-contract.cjs');
@@ -216,7 +237,8 @@ function withBilateralOwnerMail(next,deps){
     const owner=state.players?.[seat];
     const proposal=proposals.get(action);
     const pendingPromptBefore=state.prompts?.find(p=>p.result===undefined);
-    const taggedHandiwork=ownerMailHandiworkActions.has(action);
+    const taggedHeldHandiwork=ownerHeldHandiworkActions.has(action);
+    const taggedHandiwork=ownerMailHandiworkActions.has(action)||taggedHeldHandiwork;
     const taggedArven=ownerMailArvenActions.has(action);
     const arvenProposal=arvenSelections.get(action);
     const opposingSeat=1-seat;
@@ -239,7 +261,10 @@ function withBilateralOwnerMail(next,deps){
     try{value=oldStore.value.call(this,action,...args);}
     catch(e){
       if(proposal)audit.rejectedPromptActions++;
-      if(taggedHandiwork)audit.handiworkFromMailRejected++;
+      if(taggedHandiwork){
+        if(taggedHeldHandiwork)audit.handiworkFromHandRejected++;
+        else audit.handiworkFromMailRejected++;
+      }
       if(taggedArven)audit.arvenFromMailRejected++;
       if(arvenProposal)audit.arvenSearchRejected++;
       throw e;
@@ -273,8 +298,10 @@ function withBilateralOwnerMail(next,deps){
     }
     if(taggedHandiwork){
       const afterOpponent=this.state.players[opposingSeat];
-      audit.handiworkFromMailAccepted++;
+      if(taggedHeldHandiwork)audit.handiworkFromHandAccepted++;
+      else audit.handiworkFromMailAccepted++;
       const receipt={
+        origin:taggedHeldHandiwork?'held':'mail',
         trialId,ownerSeat:seat,turnBefore:state.turn,
         before:opposingBefore,
         after:{deck:afterOpponent.deck.cards.length,
@@ -289,7 +316,9 @@ function withBilateralOwnerMail(next,deps){
         deferredOpponentDeckCardsMoved:null,
         deferredOpponentDiscardCardsAdded:null
       };
-      audit.handiworkFromMailNativeDeckChanges.push(receipt);
+      if(taggedHeldHandiwork)
+        audit.handiworkFromHandNativeDeckChanges.push(receipt);
+      else audit.handiworkFromMailNativeDeckChanges.push(receipt);
       pendingHandiwork=receipt;
     }
     // Handiwork uses a native two-coin sequence. The actual mill callback
@@ -311,13 +340,16 @@ function withBilateralOwnerMail(next,deps){
             watched.before.deck-opponentAfter.deck.cards.length;
           watched.deferredOpponentDiscardCardsAdded=
             opponentAfter.discard.cards.length-watched.before.discard;
-          audit.handiworkDeferredSettlements.push({
+          const settlement={
             trialId:watched.trialId,ownerSeat:watched.ownerSeat,
             turnBefore:watched.turnBefore,
             waitPromptResolutions:watched.waitPromptResolutions,
             deckCardsMoved:watched.deferredOpponentDeckCardsMoved,
             discardCardsAdded:watched.deferredOpponentDiscardCardsAdded
-          });
+          };
+          if(watched.origin==='held')
+            audit.handiworkFromHandDeferredSettlements.push(settlement);
+          else audit.handiworkDeferredSettlements.push(settlement);
           pendingHandiwork=null;
         }
       }else if(!sameTurn){
