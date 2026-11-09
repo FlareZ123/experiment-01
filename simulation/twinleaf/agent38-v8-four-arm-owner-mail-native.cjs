@@ -516,7 +516,7 @@ function withBilateralOwnerMail(next,deps){
       else audit.nativeCelestialRoarUnsettled++;
       audit.nativeCelestialRoarEvents.push(receipt);
       assert.ok(settled&&physicallyAttached,
-        'Celestial Roar Energy did not attach to actual owner's Active');
+        'Celestial Roar Energy did not attach to owner Active');
     }
     if(motivateProposal){
       const after=this.state.players[motivateProposal.seat];
