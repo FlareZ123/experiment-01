@@ -1,0 +1,120 @@
+{
+  "schema": "agent38-hood-one-slot-drapion-vs-original-mew-mail-native-v1",
+  "status": "FROZEN_BEFORE_EXECUTION",
+  "registeredAtUtc": "2026-11-09T11:02:30Z",
+  "purpose": "Test natural coverage of Drapion V LOR118 replacing one Lillie's Clefairy ex JTG56 in fixed Hood Shield 60 against original Aichi rank5 Mew source with genuinely native owner Mail after otherwise Pass. Do not promote from one matchup or unqualified native bots.",
+  "candidateIds": [
+    "hood-shield-v1",
+    "hood-drapion-mew-responder-v1"
+  ],
+  "candidateManifestBase": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateManifestVariant": "results/aichi-2026/candidate-hood-drapion-mew-responder-v1.json",
+  "sourceOriginalRank": 5,
+  "sourceOriginalSha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceOwnerMailAfterPass": true,
+  "sourceOnly": true,
+  "sourcePaidMarnieAfterMail": false,
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 3900,
+      "candidateSlot": "A",
+      "seed": 2111779898
+    },
+    {
+      "rank": 5,
+      "repeat": 3901,
+      "candidateSlot": "B",
+      "seed": 873206470
+    },
+    {
+      "rank": 5,
+      "repeat": 3902,
+      "candidateSlot": "A",
+      "seed": 434467665
+    },
+    {
+      "rank": 5,
+      "repeat": 3903,
+      "candidateSlot": "B",
+      "seed": 1970244608
+    },
+    {
+      "rank": 5,
+      "repeat": 3904,
+      "candidateSlot": "A",
+      "seed": 1632700685
+    },
+    {
+      "rank": 5,
+      "repeat": 3905,
+      "candidateSlot": "B",
+      "seed": 207326451
+    },
+    {
+      "rank": 5,
+      "repeat": 3906,
+      "candidateSlot": "A",
+      "seed": 183748884
+    },
+    {
+      "rank": 5,
+      "repeat": 3907,
+      "candidateSlot": "B",
+      "seed": 1989128940
+    },
+    {
+      "rank": 5,
+      "repeat": 3908,
+      "candidateSlot": "A",
+      "seed": 1352075304
+    },
+    {
+      "rank": 5,
+      "repeat": 3909,
+      "candidateSlot": "B",
+      "seed": 300786356
+    },
+    {
+      "rank": 5,
+      "repeat": 3910,
+      "candidateSlot": "A",
+      "seed": 1808486802
+    },
+    {
+      "rank": 5,
+      "repeat": 3911,
+      "candidateSlot": "B",
+      "seed": 1843717922
+    },
+    {
+      "rank": 5,
+      "repeat": 3912,
+      "candidateSlot": "A",
+      "seed": 704671259
+    },
+    {
+      "rank": 5,
+      "repeat": 3913,
+      "candidateSlot": "B",
+      "seed": 915181293
+    },
+    {
+      "rank": 5,
+      "repeat": 3914,
+      "candidateSlot": "A",
+      "seed": 403370097
+    },
+    {
+      "rank": 5,
+      "repeat": 3915,
+      "candidateSlot": "B",
+      "seed": 709375472
+    }
+  ],
+  "expectedNativeGames": 32,
+  "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "counterHypothesis": "Drapion V Wild Style can reduce four Colorless attack cost using four public opposing Fusion Strike Pokemon, then Dynamic Tail hits Psychic-weak Mew VMAX 190x2; requires actual draw/search, Bench, Active, ability enabled, attack and self-damage target. Existing source Path to Peak can turn the ability off.",
+  "dispositionRule": "Record actual accepted Drapion bench, paid native attacks, physical opposing board and native outcome; a card merely in the printed deck is not success.",
+  "statistics": "No qualified paper game or 29-rank win rate; head-to-head native seeds shared but candidate deck is different so attribute source-opening fingerprints only when verified."
+}
