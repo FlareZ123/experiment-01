@@ -1449,7 +1449,7 @@ function runDevelopment({
   actorMewUltraBallPaymentGuard=false,
   actorMewQuickBallPaymentGuard=false,
   actorGenericFallbackAttribution=false,
-  actorHandDiscard=false,actorChoosePokemon=false,
+  actorHandDiscard=false,actorAttackFuelDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
   actorOriginal29PrintedFidelity=false,
   actorNaturalEvolutionRoot=false,actorNaturalEvolutionSourceOnly=false,
@@ -1640,6 +1640,10 @@ function runDevelopment({
     'Per-physical-copy Genesect marker mode requires native draw actor');
   assert.ok(!actorMewUltraBallPaymentGuard||actorHandDiscard,
     'Owner Mew Ultra Ball safe payment requires actual hand-discard resolver');
+  assert.ok(!actorAttackFuelDiscard||actorHandDiscard,
+    'Dynamic attack-fuel payment requires the owner hand-discard component');
+  assert.ok(!actorAttackFuelDiscard||!actorMewUltraBallPaymentGuard,
+    'Source-specific Mew payment and dynamic generic payment must be separate arms');
   assert.ok(!actorMewQuickBallPaymentGuard||actorMewUltraBallPaymentGuard,
     'Owner Mew Quick Ball protection requires source Ultra Ball payment guard');
   assert.ok(!actorMewUltraBallSearch||actorOnlySingleSearch,
@@ -2415,7 +2419,7 @@ function runDevelopment({
                 trial,prepared)
             }:{}),
             nativeAorItemLock:actorNativeAorItemLock,
-            actorHandDiscard,actorChoosePokemon,
+            actorHandDiscard,actorAttackFuelDiscard,actorChoosePokemon,
             ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
             ownerUnderworldAttackGapRecipient:actorUnderworldAttackGapRecipient,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
@@ -2837,6 +2841,8 @@ function runDevelopment({
       actorOnlyComposition&&actorMewQuickBallPaymentGuard,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
+    actorAttackFuelDiscardOptIn:
+      actorOnlyComposition&&actorAttackFuelDiscard,
     actorPotentialKoRootOptIn:actorOnlyComposition&&actorPotentialKoRoot,
     actorOriginal29PrintedFidelityOptIn:
       actorOnlyComposition&&actorOriginal29PrintedFidelity,
@@ -3005,6 +3011,8 @@ if(require.main===module){
     actorGenericFallbackAttribution:
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
+    actorAttackFuelDiscard:
+      process.env.AGENT47_ATTACK_FUEL_PAYMENT_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
     actorPlumeriaAfterPass:
       process.env.AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV==='true',
