@@ -90,6 +90,62 @@ test('no dependence on opponent concealed cards or unavailable special metadata'
   assert.equal(proposeAttackFuelDiscard(input,catalog).changed,false);
 });
 
+test('public Perfection donor makes held Psychic a protected attack-funding resource',()=>{
+  const input=makeInput([B,'Psychic Energy MEE',H],[9,9,9]);
+  const active=input.actor.ownPublic.active;
+  active.printing='Mewtwo & Mew-GX UNM';
+  active.abilities=['Perfection'];
+  active.energies=['Psychic Energy MEE'];
+  input.actor.ownPublic.bench=[{printing:'Gengar & Mimikyu-GX TEU'}];
+  const donorCatalog={...catalog,perfectionDonors:new Map([
+    ['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[5,5],gxAttack:false},
+      {name:'Horror House-GX',cost:[5],gxAttack:true}
+    ]]
+  ])};
+  const x=proposeAttackFuelDiscard(input,donorCatalog);
+  assert.equal(x.changed,true);
+  assert.deepEqual(x.proposal,[B,H]);
+});
+
+test('Perfection proposal requires actually public donor and active Ability',()=>{
+  const input=makeInput([B,'Psychic Energy MEE',H],[9,9,9]);
+  input.actor.ownPublic.active.printing='Mewtwo & Mew-GX UNM';
+  input.actor.ownPublic.active.abilities=['Perfection'];
+  input.actor.ownPublic.active.energies=['Psychic Energy MEE'];
+  const donorCatalog={...catalog,perfectionDonors:new Map([
+    ['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[5,5],gxAttack:false}
+    ]]
+  ])};
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,false);
+  input.actor.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,true);
+  input.actor.ownPublic.active.abilities=[];
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,false);
+});
+
+test('Perfection route respects visible opposing Ability lock and GX expenditure',()=>{
+  const input=makeInput([B,'Psychic Energy MEE',H],[9,9,9]);
+  input.actor.ownPublic.active.printing='Mewtwo & Mew-GX UNM';
+  input.actor.ownPublic.active.abilities=['Perfection'];
+  input.actor.ownPublic.active.energies=['Psychic Energy MEE'];
+  input.actor.ownPublic.discard=['Gengar & Mimikyu-GX TEU'];
+  const donorCatalog={...catalog,perfectionDonors:new Map([
+    ['Gengar & Mimikyu-GX TEU',[
+      {name:'Poltergeist',cost:[5,5],gxAttack:false},
+      {name:'Horror House-GX',cost:[5],gxAttack:true}
+    ]]
+  ])};
+  input.actor.opponentPublic.active={abilities:['Initialization']};
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,false);
+  input.actor.opponentPublic.active={abilities:[]};
+  input.actor.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,true);
+  input.actor.ownPublic.stadium=['Path to the Peak CRE'];
+  assert.equal(proposeAttackFuelDiscard(input,donorCatalog).changed,false);
+});
+
 test('opt-in Store prompt resolution chooses validated physical cards and restores hooks',()=>{
   const {withActorHandDiscard}=
     require('../../../simulation/twinleaf/agent47-actor-hand-discard.cjs');
