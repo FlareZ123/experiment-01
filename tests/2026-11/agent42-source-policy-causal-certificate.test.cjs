@@ -173,8 +173,12 @@ test('later unverified, wrong-seat and next-turn attacks do not prove payoff',()
 
 test('positive native payment receipt is strictly narrower than Store acceptance',()=>{
   const arms=fourArms();
-  const event={rootActionOrdinal:100,playerSlot:0,action:'PlayCardAction',
-    storeAccepted:true};
+  const row=arms.P0S1;
+  const event={trialId:row.trial.id,
+    sourceDealFingerprint:row.sourceDealFingerprint,
+    fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint,
+    rootActionOrdinal:100,turnBefore:18,playerSlot:0,
+    action:'PlayCardAction',card:'Quick Ball',storeAccepted:true};
   arms.P0S1.nativeAcceptedTargetSidecar={events:[event]};
   let result=certifyGroup(arms,trial);
   assert.equal(result.withoutPivot.actionReceipt,
@@ -188,6 +192,49 @@ test('positive native payment receipt is strictly narrower than Store acceptance
   assert.equal(result.ownerPaymentCertified,true);
   event.storeAccepted=false;
   assert.equal(certifyGroup(arms,trial).ownerPaymentCertified,false);
+});
+
+test('metadata drift does not masquerade as a changed source decision',()=>{
+  const arms=fourArms();
+  const baseline=arms.P0S0.rootActionLedger[2];
+  arms.P0S1.rootActionLedger[2]={...baseline,
+    diagnosticTimestamp:'unjoined diagnostic difference'};
+  const receipt=certifyGroup(arms,trial);
+  assert.equal(receipt.withoutPivot.status,'SAME_ACTION_UNVERIFIED_VARIATION');
+  assert.equal(receipt.ownerPaymentCertified,false);
+  const cohort=certifyCohort(Object.fromEntries(PHASES.map(p=>[p,[arms[p]])),
+    [trial]);
+  assert.equal(cohort.totals.activeSourceWithoutPivot,0);
+  assert.equal(cohort.totals.sourceAttackDisplacements,0);
+});
+
+test('source native receipt must match its registered deal, turn and card',()=>{
+  const arms=fourArms();
+  const row=arms.P0S1;
+  const event={trialId:row.trial.id,
+    sourceDealFingerprint:row.sourceDealFingerprint,
+    fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint,
+    rootActionOrdinal:100,turnBefore:18,playerSlot:0,
+    action:'PlayCardAction',card:'Quick Ball',storeAccepted:true,
+    ownerInformationVerified:true,paperPrintedPaymentVerified:true,
+    physicalZoneTransitionsVerified:true};
+  row.nativeAcceptedTargetSidecar={events:[event]};
+  assert.equal(certifyGroup(arms,trial).ownerPaymentCertified,true);
+  for (const [field,value] of [
+    ['trialId','other-trial'],
+    ['sourceDealFingerprint','other-source'],
+    ['fullPhysicalDealFingerprint','other-full'],
+    ['turnBefore',19],
+    ['card','Different Item']
+  ]) {
+    const original=event[field];
+    event[field]=value;
+    const verdict=certifyGroup(arms,trial);
+    assert.equal(verdict.withoutPivot.actionReceipt,'NO_EXACT_NATIVE_RECEIPT',
+      field+' cannot be mistaken for an exact receipt');
+    assert.equal(verdict.ownerPaymentCertified,false);
+    event[field]=original;
+  }
 });
 
 test('baseline settled attack is specifically recognized as real displaced payoff',()=>{
