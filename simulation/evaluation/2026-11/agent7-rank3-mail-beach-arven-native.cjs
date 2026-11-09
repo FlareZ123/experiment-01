@@ -13,9 +13,10 @@ const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent7-mail-beach-arven/paired-native.json');
 
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
-function run(){
-  const control=runBranch(true,false);
-  const treatment=runBranch(true,true);
+function run({treasureBridge=false}={}){
+  const opts={mysteriousTreasureRoot:treasureBridge};
+  const control=runBranch(true,false,opts);
+  const treatment=runBranch(true,true,opts);
   assert.deepEqual(control.output.rows.map(r=>r.trialId),TRIAL_IDS);
   assert.deepEqual(treatment.output.rows.map(r=>r.trialId),TRIAL_IDS);
   assert.equal(control.mailAudit.attempts,2);
@@ -65,7 +66,8 @@ function run(){
     nativeRootCount:r.nativeAbortEvidence?.rootActionCount??null
   }));
   return {
-    schema:VERSION,
+    schema:treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
+    experimentalExistingActorTreasureBridge:treasureBridge,
     originalRank3SourceAndRank13Candidate:true,
     seed:290134,enginePin:control.output.enginePin,
     fullPrintedSixtiesFixed:true,
@@ -101,23 +103,25 @@ function run(){
 /** Atomic receipt with an exclusive per-output lock. */
 function save(report){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
-  const lock=OUTPUT+'.lock';
+  const output=report.experimentalExistingActorTreasureBridge?
+    OUTPUT.replace('paired-native.json','paired-native-with-treasure.json'):OUTPUT;
+  const lock=output+'.lock';
   const fd=fs.openSync(lock,'wx');
-  const tmp=OUTPUT+'.'+process.pid+'.'+randomUUID()+'.tmp';
+  const tmp=output+'.'+process.pid+'.'+randomUUID()+'.tmp';
   try{
     fs.writeFileSync(tmp,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
-    fs.renameSync(tmp,OUTPUT);
+    fs.renameSync(tmp,output);
   }finally{
     if(fs.existsSync(tmp))fs.unlinkSync(tmp);
     fs.closeSync(fd);
     fs.unlinkSync(lock);
   }
-  return OUTPUT;
+  return output;
 }
 
 if(require.main===module){
   let report;
-  try{report=run();}
+  try{report=run({treasureBridge:process.env.AGENT7_TREASURE_BRIDGE_DEV==='true'});}
   catch(error){
     report={schema:VERSION,status:'NATIVE_OR_ASSERTION_ERROR',
       error:{name:error.name,message:error.message,
