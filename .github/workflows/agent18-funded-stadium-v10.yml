@@ -2,6 +2,11 @@ name: Agent18 frozen G&H to funded Stadium v10
 
 on:
   workflow_dispatch:
+    inputs:
+      grand_tree_alias_only:
+        description: Compile pinned Store and run canonical Grand Tree staged paper native test only
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,12 +31,16 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify original Grand Tree printed identity with both-seat Store evolution
+        if: ${{ inputs.grand_tree_alias_only }}
+        run: node --test tests/2026-11/agent18-grand-tree-printing-alias.test.cjs tests/2026-11/agent18-grand-tree-printing-alias.native.test.cjs
       - name: Execute genuine same-eight paid G&H Stadium physical treatment
+        if: ${{ !inputs.grand_tree_alias_only }}
         env:
           AGENT18_V10_STADIUM_DIR: issue25-agent18-stadium-v10
         run: node --test tests/agent18-v10-owner-funded-stadium.test.cjs tests/agent18-v10-owner-funded-stadium.native.test.cjs
       - name: Preserve full eight-arm native root tapes and receipt SHA256
-        if: always()
+        if: ${{ always() && !inputs.grand_tree_alias_only }}
         uses: actions/upload-artifact@v4
         with:
           name: agent18-issue25-funded-stadium-v10
