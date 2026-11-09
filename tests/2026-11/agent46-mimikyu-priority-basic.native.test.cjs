@@ -90,7 +90,11 @@ for (const seat of [0, 1]) {
       restore();
       restore();
     }
-    assert.equal(f.tactic.useTactic(f.state, f.owner), undefined);
+    // After Mimikyu occupies Bench slot 0, the unmodified tactic may
+    // still put the other held Basic onto a second open slot.
+    const nextBasic = f.tactic.useTactic(f.store.state, f.store.state.players[seat]);
+    assert.equal(nextBasic.handIndex, 0);
+    assert.equal(nextBasic.target.index, 1);
   });
 
   test('no interference with opponent, empty opportunity or non-Regidrago in seat ' + seat, () => {
