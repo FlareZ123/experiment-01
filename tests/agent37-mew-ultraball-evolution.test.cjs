@@ -85,3 +85,14 @@ test('source Quick Ball preference remains independently enabled',()=>{
   assert.deepEqual(chooseMewUltraBallSearch(prompt,1,
     {prioritizeQuickBall:true}),{indices:[1]});
 });
+
+test('native Ultra Ball root departure uses physical Item-spent witness',()=>{
+  const {rootPhysicalWitness}=
+    require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent={kind:'play-mew-ultra-ball',printing:'Ultra Ball MEG'};
+  const before={mewUltraBallSpent:0,handCount:5};
+  assert.equal(rootPhysicalWitness(intent,before,
+    {mewUltraBallSpent:1,handCount:4},{}),'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,before,
+    {mewUltraBallSpent:0,handCount:5},{}),'no-confirmed-public-effect');
+});
