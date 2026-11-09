@@ -17,9 +17,10 @@ const VERSION = 'agent30-owner-mulligan-bonus-select-v1';
  * @param {object} state Live native State.
  * @param {0|1} seat Acting physical seat.
  * @param {object} classes Pinned GameMessage/GamePhase enums.
+ * @param {Function} [toInput] Detached owner input projector.
  * @returns {object|null} Existing detached owner prompt observation.
  */
-function observeMulliganBonusSelect(state, seat, classes) {
+function observeMulliganBonusSelect(state, seat, classes, toInput = actorSelectPromptInput) {
   const {GameMessage, GamePhase} = classes;
   const player = state?.players?.[seat];
   const prompt = state?.prompts?.find(item => item.result === undefined);
@@ -45,7 +46,7 @@ function observeMulliganBonusSelect(state, seat, classes) {
         index === 0 || amount === amounts[index - 1] - 1)) {
     return null;
   }
-  return actorSelectPromptInput(state, seat);
+  return toInput(state, seat);
 }
 
 /**
@@ -69,7 +70,7 @@ function withOwnerMulliganBonusSelectV1(run, deps = {}) {
     GamePhase: engine('game/store/state/state').GamePhase
   };
   const observe = (state, seat) => observeMulliganBonusSelect(
-    state, seat, classes
+    state, seat, classes, deps.actorInput ?? actorSelectPromptInput
   );
   const wrapped = withActorOnlySelectPrompt(run, {
     ...deps,
