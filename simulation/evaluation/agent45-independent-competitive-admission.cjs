@@ -1,0 +1,173 @@
+'use strict';
+
+const {createHash, createPublicKey, verify} = require('node:crypto');
+const {evaluateBilateralCompetence} = require('./agent45-bilateral-competence-gate.cjs');
+const authorized = require('./agent45-authorized-reviewers.json');
+
+const BUNDLE_SCHEMA = 'aichi-complete-game-bundle-v1';
+const REVIEW_SCHEMA = 'aichi-independent-review-v1';
+const RESULT_SCHEMA = 'aichi-competitive-admission-v1';
+const ROLES = ['paper', 'clock', 'strategy'];
+const MANIFEST = [
+  'registration', 'original-printed-60', 'contender-printed-60',
+  'full-physical-deal', 'accepted-native-root-ledger',
+  'owner-payment-and-targets', 'paper-rules', 'clock-continuity',
+  'policy-and-counterplay'
+];
+
+/** @param {unknown} value @returns {string} */
+function canonicalJson(value) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean' ||
+      (typeof value === 'number' && Number.isFinite(value))) return JSON.stringify(value);
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    const keys = Object.keys(value).sort();
+    if (keys.some(k => value[k] === undefined)) throw new TypeError('Undefined evidence values');
+    return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalJson(value[k])).join(',') + '}';
+  }
+  throw new TypeError('Evidence must be plain, finite JSON');
+}
+
+/** @param {unknown} value @returns {string} */
+function sha256(value) {
+  return createHash('sha256').update(canonicalJson(value), 'utf8').digest('hex');
+}
+
+/** @param {object} bundle @returns {string} */
+function evidenceBundleSha256(bundle) {
+  return sha256(bundle);
+}
+
+/**
+ * Exact bytes signed by each independent reviewer. Use Node Ed25519
+ * sign(null, reviewSigningBytes(review), privateKey) outside this module.
+ * @param {object} review
+ * @returns {Buffer}
+ */
+function reviewSigningBytes(review) {
+  const {signatureBase64, ...signed} = review;
+  return Buffer.from(REVIEW_SCHEMA + '\n' + canonicalJson(signed), 'utf8');
+}
+
+/** @param {object} bundle @returns {string[]} */
+function bundleFailures(bundle) {
+  const errors = [];
+  if (bundle?.schema !== BUNDLE_SCHEMA || typeof bundle?.producerId !== 'string' ||
+      !bundle.producerId || !bundle.trial || typeof bundle.trial !== 'object')
+    errors.push('missing-complete-game-bundle');
+  if (!Array.isArray(bundle?.evidenceManifest)) {
+    errors.push('missing-evidence-manifest');
+  } else {
+    const names = bundle.evidenceManifest.map(x => x?.kind);
+    if (names.length !== MANIFEST.length ||
+        new Set(names).size !== MANIFEST.length ||
+        MANIFEST.some(name => !names.includes(name)) ||
+        bundle.evidenceManifest.some(x => typeof x?.ref !== 'string' || !x.ref ||
+          !/^[0-9a-f]{64}$/.test(x?.sha256)))
+      errors.push('incomplete-or-unhashed-evidence-manifest');
+  }
+  return errors;
+}
+
+/**
+ * Structural + signature inspection. The trust registry MUST come from
+ * a separate, code-reviewed operator authority, never from the producer.
+ * @param {object} bundle
+ * @param {object[]} reviews
+ * @param {object} reviewerRegistry
+ * @returns {object}
+ */
+function inspectAdmission(bundle, reviews, reviewerRegistry) {
+  const failures = bundleFailures(bundle);
+  let structural = null;
+  if (bundle?.trial) {
+    try {
+      structural = evaluateBilateralCompetence(bundle.trial);
+      if (!structural.structuralGatePassed)
+        failures.push('competence-or-paper-clock-structure-failed');
+    } catch {
+      failures.push('malformed-or-unverifiable-native-competence-trial');
+    }
+  }
+  const digest = evidenceBundleSha256(bundle);
+  if (bundle?.trial?.trialId && bundle.trial.trialId !== bundle?.trialId)
+    failures.push('trial-identity-mismatch');
+  const reviewed = [];
+  const validReviewers = Array.isArray(reviewerRegistry?.reviewers) ? reviewerRegistry.reviewers : [];
+  if (reviewerRegistry?.schema !== 'aichi-trusted-reviewers-v1' || validReviewers.length === 0)
+    failures.push('external-review-unavailable');
+  if (!Array.isArray(reviews)) failures.push('no-signed-review-packets');
+  else {
+    const usedIds = new Set();
+    for (const role of ROLES) {
+      const matching = reviews.filter(r => r?.role === role);
+      if (matching.length !== 1) {
+        failures.push('review-' + role + '-missing-or-duplicate');
+        continue;
+      }
+      const r = matching[0];
+      const configured = validReviewers.find(v => v.reviewerId === r.reviewerId &&
+        Array.isArray(v.roles) && v.roles.includes(role));
+      let signatureValid = false;
+      if (configured && typeof configured.publicKeyPem === 'string' &&
+          typeof r.signatureBase64 === 'string' &&
+          /^[A-Za-z0-9+/]{86}==$/.test(r.signatureBase64)) {
+        try {
+          const publicKey = createPublicKey(configured.publicKeyPem);
+          signatureValid = publicKey.asymmetricKeyType === 'ed25519' &&
+            verify(null, reviewSigningBytes(r), publicKey,
+              Buffer.from(r.signatureBase64, 'base64'));
+        } catch { signatureValid = false; }
+      }
+      const outcome = structural?.conditionallyAdjudicatedPaperWinnerSeat;
+      const valid = r.schema === REVIEW_SCHEMA && r.bundleSha256 === digest &&
+        r.decision === 'approve' && r.paperWinnerSeat === outcome &&
+        (outcome === 0 || outcome === 1) &&
+        r.reviewerId !== bundle?.producerId && !usedIds.has(r.reviewerId) &&
+        typeof r.reviewEvidenceRef === 'string' && !!r.reviewEvidenceRef &&
+        /^[0-9a-f]{64}$/.test(r.reviewEvidenceSha256) && signatureValid;
+      if (!valid) failures.push('review-' + role + '-unauthorized-or-contradictory');
+      if (typeof r.reviewerId === 'string') usedIds.add(r.reviewerId);
+      reviewed.push({role, reviewerId:r.reviewerId??null,valid});
+    }
+    if (reviews.length !== ROLES.length)
+      failures.push('extra-or-duplicate-review-packets');
+  }
+  return {schema:RESULT_SCHEMA,bundleSha256:digest,trialId:bundle?.trialId??null,
+    nativeStructuralGatePassed:structural?.structuralGatePassed===true,
+    conditionalPaperWinnerSeat:structural?.conditionallyAdjudicatedPaperWinnerSeat??null,
+    verifiedReviewRoles:reviewed,failures:[...new Set(failures)],
+    acceptanceReady:failures.length===0};
+}
+
+/**
+ * Production reads pinned, code-reviewed trust. Without actual independent
+ * registered reviewers, every game has competitiveAdmission false.
+ * @param {object} bundle
+ * @param {object[]} reviews
+ * @returns {object}
+ */
+function evaluateCompetitiveAdmission(bundle, reviews) {
+  const assessment=inspectAdmission(bundle,reviews,authorized);
+  return {...assessment,competitiveAdmission:assessment.acceptanceReady,
+    disposition:assessment.acceptanceReady?'independently-admitted':
+      assessment.failures.includes('external-review-unavailable')?
+        'external-review-unavailable':'rejected-or-pending-independent-review'};
+}
+
+/**
+ * Synthetic reviewer-key injection for isolated unit tests only.
+ * Its competitiveAdmission is always false and cannot be published.
+ * @param {object} bundle
+ * @param {object[]} reviews
+ * @param {object} fixtureRegistry
+ * @returns {object}
+ */
+function inspectFixtureReview(bundle,reviews,fixtureRegistry) {
+  const result=inspectAdmission(bundle,reviews,fixtureRegistry);
+  return {...result,competitiveAdmission:false,fixtureOnly:true};
+}
+
+module.exports={BUNDLE_SCHEMA,REVIEW_SCHEMA,RESULT_SCHEMA,MANIFEST,
+  canonicalJson,evidenceBundleSha256,reviewSigningBytes,bundleFailures,
+  evaluateCompetitiveAdmission,inspectFixtureReview};
