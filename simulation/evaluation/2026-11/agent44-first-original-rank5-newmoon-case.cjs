@@ -116,7 +116,7 @@ function execute(){
   const development=runDevelopment({
     ...frozen.policyOptions,...mew.options(true),
     sourceIndependentCommonPolicy:true,
-    bilateralSpecialEnergyRoot:true,
+    // Preserve frozen bilateralPublicContextSpecialEnergy; narrow root is exclusive.
     bilateralPerfectionRoot:true,
     actorVipAfterPass:true,
     actorMewMaxMiracleOverSelfCopy:true,
