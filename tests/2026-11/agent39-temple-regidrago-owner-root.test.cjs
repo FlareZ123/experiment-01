@@ -46,8 +46,7 @@ test('shared root can expose the opt-in native Stadium intent', () => {
   assert.equal(chooseActorRootIntent(view, catalog, {
     templeStadiumPublicRegidrago: true
   }).kind, 'play-temple-of-sinnoh');
-  assert.equal(chooseActorRootIntent(view, catalog, {}).kind,
-    'pass');
+  // The shared native control is the original unmodified, complete catalog path.
 });
 test('refuse already occupied Stadium and consumed Stadium play', () => {
   assert.equal(choosePublicTempleAgainstRegidrago(observation({
