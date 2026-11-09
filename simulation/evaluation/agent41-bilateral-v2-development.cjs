@@ -1466,6 +1466,7 @@ function runDevelopment({
   actorVipRank9MegaVoltorbRecipient=false,
   actorPlumeriaAfterPass=false,actorOwnerMailAfterPass=false,
   actorOwnerMailAfterPassSourceOnly=false,
+  actorOwnerMailSelectedMarnieOnPass=false,
   actorBilateralLillieAfterPass=false,
   actorDeckoutRescueRoot=false,actorDeckoutRescueBeforeAttack=false,
   actorEarlyForestSealRoot=false,actorPaleMoonGXRoot=false,
@@ -1764,6 +1765,8 @@ function runDevelopment({
     'Plumeria after-Pass requires canonical actor composition');
   assert.ok(!actorOwnerMailAfterPass||actorOnlyComposition,
     'Owner Mail after-Pass requires canonical actor composition');
+  assert.ok(!actorOwnerMailSelectedMarnieOnPass||actorOwnerMailAfterPass,
+    'Owner Mail selected-Marnie continuation requires active Mail policy');
   assert.ok(actorOwnerMailAfterPassScope===null||
     (actorOwnerMailAfterPass&&
       typeof actorOwnerMailAfterPassScope.trialId==='string'&&
@@ -2260,7 +2263,11 @@ function runDevelopment({
           }:{};
           const wrapped=require('../twinleaf/agent9-native-owner-mail-after-pass.cjs')
             .withOwnerMailAfterPass(execute,
-              registeredNativeSeatDecks(trial,prepared),optionalScope);
+              registeredNativeSeatDecks(trial,prepared),{
+                ...optionalScope,
+                playMailSelectedMarnieOnPass:
+                  actorOwnerMailSelectedMarnieOnPass
+              });
           ownerMailAudit=wrapped.audit;
           return wrapped.result;
         };
