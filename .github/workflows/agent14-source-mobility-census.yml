@@ -12,6 +12,11 @@ on:
         required: false
         type: boolean
         default: false
+      ultra_ball_portfolio_native:
+        description: Run paper-payment native positive and zero-cost negative in both physical seats
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -28,27 +33,32 @@ jobs:
         run: node --test tests/agent34-actor-only-root-policy.test.cjs
       - name: Verify scoped zero-Energy Mimikyu Tool and Retreat native wrapper
         run: node --test tests/agent14-zero-energy-strand-wiring.test.cjs
+      - name: Verify shared Ultra Ball physical-cost portfolio and mock Store custody
+        run: node --test tests/2026-11/agent14-ultra-ball-portfolio-paid-custody.test.cjs
       - name: Verify same-root A/B/A ledger and abort custody arithmetic
         run: node --test tests/agent14-rank11-zero-energy-strand-native-aba.test.cjs
       - name: Validate fresh 16-group four-rank registration and native event receipts
         run: node --test tests/agent14-prospective-zero-energy-strand-crossrank.test.cjs
       - name: Check out pinned Twinleaf for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand || inputs.ultra_ball_portfolio_native }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
-        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand || inputs.ultra_ball_portfolio_native }}
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned Twinleaf dependencies for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand || inputs.ultra_ball_portfolio_native }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned Twinleaf for selected native replay only
-        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand }}
+        if: ${{ inputs.rank11_strand_native_aba || inputs.fresh_crossrank_strand || inputs.ultra_ball_portfolio_native }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Prove original pinned Ultra Ball paid cost and paper-invalid zero cost in both seats
+        if: ${{ inputs.ultra_ball_portfolio_native }}
+        run: node --test tests/2026-11/agent14-ultra-ball-portfolio-paid-custody.native.test.cjs
       - name: Run exact original rank11 physical A/B/A strand intervention
         if: ${{ inputs.rank11_strand_native_aba }}
         env:
