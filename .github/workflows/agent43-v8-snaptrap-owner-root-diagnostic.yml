@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      extended_520root_mail_nest:
+        description: 'Run frozen 260 vs 520-root A/A and prize-aware choice developmental panel'
+        required: false
+        default: false
+        type: boolean
       prize_aware_nest_selection:
         description: 'Compare source owner Nest search single-Prize selection to original first Basic'
         required: false
@@ -99,6 +104,12 @@ jobs:
         run: |
           node --check simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
           node simulation/evaluation/agent38-v8-mail-to-nest-bench-four-arm.cjs
+      - name: Compare registered native 260 and 520-root horizon with same original decks
+        if: ${{ inputs.extended_520root_mail_nest }}
+        run: |
+          node --check simulation/evaluation/agent38-extended-520root-mail-nest.cjs
+          node --test tests/2026-11/agent38-extended-520root-mail-nest.test.cjs
+          node simulation/evaluation/agent38-extended-520root-mail-nest.cjs
       - name: Compare prize-aware actual Nest Basic choice on frozen four-arm source deals
         if: ${{ inputs.prize_aware_nest_selection }}
         run: |
