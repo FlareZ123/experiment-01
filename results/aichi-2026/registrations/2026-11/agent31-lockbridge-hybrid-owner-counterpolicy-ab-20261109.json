@@ -1,0 +1,296 @@
+{
+  "schema": "agent31-20261109-lockbridge-same-deck-double-counter-policy-ab-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE MATCH",
+  "registeredAtUtc": "2026-11-09T07:45:50.480Z",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateId": "agent31-lockbridge-shadow-rider-v1",
+  "candidateManifest": "results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json",
+  "originalRanks": [
+    6,
+    11,
+    13,
+    24
+  ],
+  "repeatGroupsPerRankAndSeat": 4,
+  "physicalGroups": 32,
+  "nativeArms": 64,
+  "nativeRootCap": 260,
+  "groups": [
+    {
+      "id": "6:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 3562216586,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 2094497876,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 919150912,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 1365099950,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 2117141696,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 858389356,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 2534025661,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "6:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 6,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 508494400,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 3340041534,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 1933158460,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 970422408,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 956975267,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 3469873487,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 120327919,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 3275150611,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "11:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 11,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 2731618650,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 3640887999,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 3034797460,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 492501678,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 4010833715,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 2296451718,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 1515719993,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 2292458735,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "13:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 13,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 3708076129,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 1976830212,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 3809203396,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 828479760,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 3348969401,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 1785884054,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 37958129,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 2765432623,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    },
+    {
+      "id": "24:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "rank": 24,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 486849476,
+      "candidateId": "agent31-lockbridge-shadow-rider-v1"
+    }
+  ],
+  "policyArms": [
+    {
+      "id": "control",
+      "heldHoodPriority": false,
+      "protectedHoodUnderworld": false,
+      "templeDdeDenial": false
+    },
+    {
+      "id": "treatment",
+      "heldHoodPriority": true,
+      "protectedHoodUnderworld": true,
+      "templeDdeDenial": true
+    }
+  ],
+  "commonPolicy": "Agent41 frozen bilateral v2 with owner-root Underworld Door, Float Stone stranded rescue, VS Seeker/Guzma, and Agent19 paper semantics profile both seats",
+  "controlAndTreatmentExactlySamePrintedSixties": true,
+  "physicalSeedGroupAsIndependenceUnit": true,
+  "censoredAndErrorGameRetentionRequired": true,
+  "competitivePaperGameQualification": false,
+  "claimScope": "original-source native developmental decision policy, no competitive match win rate"
+}
