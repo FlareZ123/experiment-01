@@ -5,7 +5,7 @@ const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 
-const VERSION = 'agent8-actor-only-choose-pokemon-v2-resolved-settlement';
+const VERSION = 'agent8-actor-only-choose-pokemon-v3-native-trainer-target-filter';
 const ANY = 0, TOP = 1, BOTTOM = 2;
 const ACTIVE = 1, BENCH = 2;
 const FACE_UP_PHASES = new Set([2, 3, 4, 5, 6, 8]);
@@ -140,7 +140,7 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
     decisionOrigin: 'actorObservation-and-owner-visible-legal-Pokemon-menu',
     nativeStores: 0, selected: 0, accepted: 0, rejected: 0,
     postconditionsConfirmed: 0, postconditionsMissing: 0,
-    unsupportedNativeFallbacks: 0, nonLiveFallbacks: 0,
+    nativeTargetFiltered: 0, unsupportedNativeFallbacks: 0, nonLiveFallbacks: 0,
     bySeat: {0: 0, 1: 0}, boundedSelections: [],
     competitiveGameQualified: false
   };
@@ -210,15 +210,28 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
       audit.rejected++;
       throw error;
     }
-    // Pinned Store.reducePrompt can silently return unchanged state for a
-    // missing prompt item. The original physical prompt's result must match
-    // the selected action; a nonthrowing dispatch alone proves nothing.
-    if (!before || before.result !== action.result) {
+    // The pinned Store may either preserve the selected result or reduce it
+    // to [] when its TrainerTargetEffect blocks an opponent Pokémon (e.g.
+    // Regirock's Omega Barrier against Guzma). An unanswered prompt stays
+    // undefined when Store.reducePrompt found no promptItem: still abort.
+    // This branch never labels a filtered target a successful gust.
+    if (!before || before.result === undefined) {
       audit.postconditionsMissing++;
       throw new Error('ChoosePokemon Store returned without resolving the prompt');
     }
+    if (before.result !== action.result) {
+      if (!Array.isArray(action.result) ||
+          !Array.isArray(before.result) ||
+          before.result.length !== 0 ||
+          action.result.length !== 1) {
+        audit.postconditionsMissing++;
+        throw new Error('ChoosePokemon unexpected native prompt settlement');
+      }
+      audit.nativeTargetFiltered++;
+    } else {
+      audit.postconditionsConfirmed++;
+    }
     audit.accepted++;
-    audit.postconditionsConfirmed++;
     return result;
   }
   Object.defineProperty(SimpleTacticsAi.prototype, 'decodeNextAction',
