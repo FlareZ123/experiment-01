@@ -39,12 +39,14 @@ jobs:
           node --check simulation/twinleaf/agent36/snap-trap-energy-choice-v1.cjs
           node --check simulation/twinleaf/agent36/snap-trap-energy-choice-v2.cjs
           node --check simulation/twinleaf/agent30/snap-trap-public-temple-energy-options-v1.cjs
+          node --check simulation/twinleaf/agent30/owner-mulligan-bonus-select-v1.cjs
           node --check simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v1.cjs
           node --check simulation/twinleaf/agent36/snap-trap-owner-prompt-policy-v2.cjs
           node --check simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs
           node --check tests/2026-11/agent36-snap-trap-energy-choice-v1.test.cjs
           node --check tests/2026-11/agent36-snap-trap-energy-choice-v2.test.cjs
           node --check tests/2026-11/agent30-snap-trap-energy-choice-v2.test.cjs
+          node --check tests/2026-11/agent30-owner-mulligan-bonus-select-v1.test.cjs
           node --check tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs
 
       - name: Run Agent36 Snap Trap selector and quarantined owner-policy tests
@@ -53,6 +55,7 @@ jobs:
             tests/2026-11/agent36-snap-trap-energy-choice-v1.test.cjs \
             tests/2026-11/agent36-snap-trap-energy-choice-v2.test.cjs \
             tests/2026-11/agent30-snap-trap-energy-choice-v2.test.cjs \
+            tests/2026-11/agent30-owner-mulligan-bonus-select-v1.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-policy-v1.test.cjs \
             tests/2026-11/agent36-snap-trap-owner-prompt-policy-v2.test.cjs
 
