@@ -19,20 +19,27 @@ const PROTECTED=new Set([
  * intentionally conservative; a card's strategic discardability varies by
  * matchup, so larger hands must be evaluated by a stronger stateful policy.
  *
- * @param {{owner:object}} args
+ * @param {{owner:object,globalTurn?:number}} args
  * @returns {{decision:boolean,reason:string,details:object}}
  */
-function chooseDedechangeConfirm({owner}){
+function chooseDedechangeConfirm({owner,globalTurn}){
   const hand=owner?.hand?.cards;
   const deck=owner?.deck?.cards;
   if(!Array.isArray(hand)||!Array.isArray(deck)){
     return {decision:false,reason:'owner-zones-unavailable',details:{}};
   }
-  const details={handCount:hand.length,deckCount:deck.length};
+  // Both players' first turns have ended once the global turn exceeds 2.
+  // Battle VIP Pass is then an already-spent opening-only Item, so dropping
+  // it does not consume an equivalent live hand resource.
+  const expiredVip=Number.isInteger(globalTurn)&&globalTurn>2?
+    hand.filter(card=>card?.name==='Battle VIP Pass').length:0;
+  const liveHandCost=hand.length-expiredVip;
+  const details={handCount:hand.length,deckCount:deck.length,
+    expiredVipCount:expiredVip,liveHandCost};
   if(deck.length<=6){
     return {decision:false,reason:'conserve-deck-near-deckout',details};
   }
-  if(hand.length>2){
+  if(liveHandCost>2){
     return {decision:false,reason:'hand-discard-cost-unassessed',details};
   }
   if(hand.some(card=>card?.aceSpec===true||
@@ -40,7 +47,8 @@ function chooseDedechangeConfirm({owner}){
       card?.name?.includes(' Prism Star'))){
     return {decision:false,reason:'protected-resource-in-hand',details};
   }
-  return {decision:true,reason:'low-hand-six-card-refill',details};
+  return {decision:true,reason:expiredVip>0?
+    'expired-opening-items-six-card-refill':'low-hand-six-card-refill',details};
 }
 
 /**
