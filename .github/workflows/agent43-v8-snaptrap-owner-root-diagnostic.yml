@@ -27,6 +27,11 @@ on:
         required: false
         default: false
         type: boolean
+      supporter_factorial:
+        description: 'Run fixed four-arm paired owner-Handiwork/refill Supporter interaction'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -109,6 +114,12 @@ jobs:
           node --check simulation/evaluation/agent1-v8-low-hand-refill-four-arm.cjs
           node --test tests/2026-11/agent1-owner-held-refill-supporter-choice.test.cjs tests/2026-11/agent1-v8-low-hand-refill-four-arm.test.cjs
           node simulation/evaluation/agent1-v8-low-hand-refill-four-arm.cjs
+      - name: Run frozen 2x2 native Supporter policy contention factorial
+        if: ${{ inputs.supporter_factorial }}
+        run: |
+          node --check simulation/evaluation/agent1-v8-owner-supporter-factorial-four-arm.cjs
+          node --test tests/2026-11/agent1-v8-owner-supporter-factorial.test.cjs
+          node simulation/evaluation/agent1-v8-owner-supporter-factorial-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
