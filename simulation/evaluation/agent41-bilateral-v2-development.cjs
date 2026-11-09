@@ -1416,8 +1416,10 @@ function runDevelopment({
   actorGarbodorResponseOwnerSeat=null,
   actorGarbodorToolRoot=false,actorGarbodorToolRootDeferForStarAlchemy=false,
   actorMewGenesectTechnoBlast=false,
+  actorMewGenesectTechnoBlastSourceOnly=false,
   actorMewMaxMiracleOverSelfCopy=false,
-  actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
+  actorDceMewMobilityRoot=false,actorDceMewMobilitySourceOnly=false,
+  actorGenesectFusionDrawRoot=false,
   actorGenesectFusionDrawSourceOnly=false,
   actorGenesectFusionDrawPerCopyPublicUsage=false,
   actorUnderworldDoorRoot=false,
@@ -1559,6 +1561,10 @@ function runDevelopment({
     'Per-physical-copy Genesect marker mode requires native draw actor');
   assert.ok(!actorNaturalEvolutionSourceOnly||actorNaturalEvolutionRoot,
     'Source-only evolution requires the native actor evolution root');
+  assert.ok(!actorDceMewMobilitySourceOnly||actorDceMewMobilityRoot,
+    'Source-only DCE Mew mobility requires the actor mobility root');
+  assert.ok(!actorMewGenesectTechnoBlastSourceOnly||actorMewGenesectTechnoBlast,
+    'Source-only Mew copy priority requires the owner attack chooser');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
@@ -1968,7 +1974,11 @@ function runDevelopment({
                   1-(trial.candidateSlot==='A'?0:1)
               }:{}),
               ...(actorDceMewMobilityRoot?{
-                dceMewMobilityRoot:true
+                dceMewMobilityRoot:true,
+                ...(actorDceMewMobilitySourceOnly?{
+                  dceMewMobilityRootOwnerSeat:
+                    1-(trial.candidateSlot==='A'?0:1)
+                }:{})
               }:{}),
               ...(sourceCrobatDceMewRetreat?{
                 crobatDceMewRetreat:true,
@@ -2151,6 +2161,9 @@ function runDevelopment({
             }:{})},
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
+            preferMewGenesectTechnoBlastOwnerSeat:
+              actorMewGenesectTechnoBlastSourceOnly?
+                1-(trial.candidateSlot==='A'?0:1):null,
             preferMewMaxMiracleOverSelfCopy:actorMewMaxMiracleOverSelfCopy,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             ownerGenericTrainerFrontier,nativeOwnerTrainerFallback,
@@ -2516,6 +2529,8 @@ function runDevelopment({
       actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
       actorOnlyComposition&&actorMewGenesectTechnoBlast,
+    actorMewGenesectTechnoBlastSourceOnly:
+      actorOnlyComposition&&actorMewGenesectTechnoBlastSourceOnly,
     actorMewMaxMiracleOverSelfCopyOptIn:
       actorOnlyComposition&&actorMewMaxMiracleOverSelfCopy,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
