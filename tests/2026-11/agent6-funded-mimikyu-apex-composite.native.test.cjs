@@ -42,10 +42,10 @@ function runIntegrated(seat){
     mimikyu:true,regidrago:true
   });
   const restoreCopycat=installMimikyuNonGxCopycatHook();
-  let tracker=null,receipt=null;
+  let tracker=null,receipt=null,actualStore=null,catalogForNext=null;
   try{
     const result=runSeat(seat,{
-      chooseMimikyuTimeless:true,
+      chooseMimikyuTimeless:false,
       beforeApex({x}){
         tracker=installCopycatMultiAttackHistory(x.store);
       },
@@ -82,6 +82,8 @@ function runIntegrated(seat){
           PowerType:fromNative('game/store/card/pokemon-types').PowerType
         };
         const catalog=buildActorCardCatalog(manager.getAllCards(),t);
+        actualStore=x;
+        catalogForNext=catalog;
         const view=attachPreviousOpponentTurnReceipt(
           actorObservation(x.state,seat),x.state,seat,tracker);
         assert.equal(view.publicEventReceipt.opponentLastTurnTurn,2);
@@ -122,6 +124,14 @@ function runIntegrated(seat){
         assert.equal(stranded.energies.cards.length,0);
         assert.equal(fee.every(c=>x.owner.discard.cards.includes(c)),true);
         assert.equal(fee.every(c=>!beforeDiscard.includes(c)),true);
+        const fundedView=attachPreviousOpponentTurnReceipt(
+          actorObservation(x.state,seat),x.state,seat,tracker);
+        const copyIntent=chooseActorRootIntent(fundedView,catalog,{
+          mimikyuApexFundedPromotion:true
+        });
+        assert.equal(copyIntent?.kind,'attack');
+        assert.equal(copyIntent?.attackName,'Copycat');
+        assert.equal(copyIntent?.source,VERSION);
         receipt={
           seat,fullPublicHistoryFromGenuineSourceTurn:true,
           sourceAttack:choices[0].attackName,
@@ -138,16 +148,29 @@ function runIntegrated(seat){
     assert.equal(result.originalSourceLastAttackAfterResolvedApex.attack,
       'Apex Dragon');
     assert.equal(result.mimikyuActive,'Mimikyu GRI');
-    assert.equal(result.mimikyuOwnerGXUsed,true);
-    assert.equal(result.mimikyuOwnerTurnSkip,true);
-    assert.ok(result.mimikyuOpponentDamage>=150);
-    assert.deepEqual(result.nativePending,[]);
-    assert.ok(result.history.some(h=>
-      h.during==='mimikyu-copycat'&&
-      h.resolved==='ChooseAttackPrompt'&&h.chosen==='Timeless-GX'));
-    assert.ok(receipt);
-    return {...receipt,copiedTimelessDamage:result.mimikyuOpponentDamage,
-      actualNativeBonusTurn:true,
+    assert.deepEqual(result.nativePending,['ChooseAttackPrompt']);
+    const pending=actualStore.state.prompts.find(p=>
+      p.result===undefined);
+    const attack=require(
+      '../../simulation/twinleaf/2026-11/agent6-funded-mimikyu-apex-promotion.cjs'
+    ).chooseNativeMimikyuTimelessPrompt(
+      actualStore.state,seat,pending,tracker);
+    assert.equal(attack?.name,'Timeless-GX');
+    actualStore.store.dispatch(new ResolvePromptAction(pending.id,attack));
+    for(let i=0;i<16;i++){
+      const next=actualStore.state.prompts.find(p=>p.result===undefined);
+      if(!next)break;
+      assert.equal(next.constructor.name,'WaitPrompt');
+      actualStore.store.dispatch(new ResolvePromptAction(next.id,null));
+    }
+    assert.equal(actualStore.owner.usedGX,true);
+    assert.equal(actualStore.owner.usedTurnSkip,true);
+    assert.ok(actualStore.opponent.active.damage>=150);
+    assert.deepEqual(actualStore.state.prompts
+      .filter(p=>p.result===undefined),[]);
+    assert.ok(receipt&&catalogForNext);
+    return {...receipt,copiedTimelessDamage:actualStore.opponent.active.damage,
+      actualNativeBonusTurn:true,ownerPayloadSelectedFromRealPrompt:true,
       fullOriginal60CompetitiveGame:false};
   }finally{
     tracker?.restore();
