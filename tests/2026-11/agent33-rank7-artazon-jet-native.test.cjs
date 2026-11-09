@@ -180,6 +180,25 @@ for (const seat of [0, 1]) {
           'Hood-protected Vileplume must veto this Wobbuffet utility objective');
         assert.notEqual(selected.reason,
           'jet-promote-wobbuffet-suppress-unhooded-aor-item-lock');
+        // Adversarial forced Jet: a public protected AOR Item lock still
+        // forbids the Nest payoff when Wobbuffet becomes Active.
+        const {PlayCardAction,PlayerType,SlotType} =
+          native('game/store/actions/play-card-action');
+        const jetIndex=x.originalPlayer.hand.cards.findIndex(c=>
+          c.id===x.jet.id);
+        const benchIndex=x.originalPlayer.bench.findIndex(b=>
+          b.cards.some(c=>c.fullName===WOBB));
+        assert.ok(jetIndex>=0&&benchIndex>=0);
+        x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+          jetIndex,{player:PlayerType.BOTTOM_PLAYER,
+            slot:SlotType.BENCH,index:benchIndex}));
+        settleRoutine(x);
+        assert.equal(x.originalPlayer.active.getPokemonCard()?.fullName,WOBB);
+        const postRoot=chooseActorRootIntent(
+          actorObservation(x.store.state,seat),metadata(),{
+            rank7FabaJetBridge:true,jetPostRoboContinuation:true
+          });
+        assert.notEqual(postRoot.kind,'play-nest-after-jet');
         assertExactSixties(x);
         return;
       }
