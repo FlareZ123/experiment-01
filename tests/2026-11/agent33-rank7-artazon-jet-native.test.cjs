@@ -429,9 +429,20 @@ for (const seat of [0, 1]) {
       assert.ok(index>=0);
       const slot=x.originalPlayer.bench.findIndex(b=>b.cards.length===0);
       assert.ok(slot>=0,'Robo requires an available Bench slot');
-      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,index,{
-        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:slot
-      }));
+      const followView=actorObservation(x.store.state,seat);
+      const followRoot=chooseActorRootIntent(followView,metadata(),{
+        jetPostRoboContinuation:true
+      });
+      assert.equal(followRoot?.kind,'play-robo-after-jet',
+        'Common owner policy must autonomously propose the paid Item payoff');
+      assert.equal(followRoot.printing,'Robo Substitute PHF');
+      assert.equal(followRoot.handIndex,index);
+      assert.equal(followRoot.benchIndex,slot);
+      x.store.dispatch(new PlayCardAction(x.originalPlayer.id,
+        followRoot.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+          index:followRoot.benchIndex
+        }));
       const follow=settleRoutine(x);
       assert.ok(x.originalPlayer.bench.some(b=>b.cards.some(c=>
         c.id===x.robo.id)), 'Printed Robo Substitute must occupy the Bench');
@@ -440,7 +451,7 @@ for (const seat of [0, 1]) {
       assert.equal(x.store.hasPrompts(),false);
       assertExactSixties(x);
       console.log('AGENT33_RANK7_ARTAZON_JET_ROBO', JSON.stringify({
-        seat,hood,selected,follow,sourceDistinctCards:60,
+        seat,hood,selected,followRoot,follow,sourceDistinctCards:60,
         opponentDistinctCards:60,roboBenched:true,qualifiedGames:0
       }));
     });
