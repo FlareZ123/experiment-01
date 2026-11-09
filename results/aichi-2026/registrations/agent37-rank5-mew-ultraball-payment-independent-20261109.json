@@ -1,0 +1,58 @@
+{
+  "schema": "agent37-rank5-owner-mew-ultraball-payment-independent-v1",
+  "status": "frozen-before-first-native-payment-validation",
+  "createdUTC": "2026-11-09T09:01:05Z",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "seed": 2020526773
+    },
+    {
+      "rank": 5,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 122193489
+    },
+    {
+      "rank": 5,
+      "repeat": 8,
+      "candidateSlot": "A",
+      "seed": 1728898311
+    },
+    {
+      "rank": 5,
+      "repeat": 8,
+      "candidateSlot": "B",
+      "seed": 1634122344
+    }
+  ],
+  "previousSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948,
+    620813734,
+    434672991,
+    1802706844,
+    353026970,
+    1315494449,
+    699451450,
+    1389673884,
+    1197737693
+  ],
+  "expectedNativeAttempts": 16,
+  "comparison": "Common identical original Mew source Quick Ball target, native DCE-to-Mew recipient, natural evolution, Ultra Ball Mew VMAX owner search, Ultra Ball root, Genesect draw and hand-discard resolver. Treatment only enables source-scoped native ChooseCardsPrompt two-card payment of nonprotected alternatives when available.",
+  "nativeQualification": "All attempts and native error/caps retained. No official competitive opponent-policy qualification; preserve false for all results.",
+  "successCriterion": "Same source/full physical deal, actual conserved DCE/FSS receipt, later paid Mew attack/Prize conversion and terminal outcomes; never credit nominal search alone.",
+  "policyIndependentOfTheseDeals": true
+}
