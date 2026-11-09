@@ -11,6 +11,8 @@ const {runDevelopment}=
   require('../agent41-bilateral-v2-development.cjs');
 const {withSourceOwnerTrainerPassAudit}=
   require('../../twinleaf/agent5/rank13-owner-pass-trainers.cjs');
+const {firstRootDivergence}=
+  require('../agent24-v8-perfection-paired-native.cjs');
 
 const SOURCE_DECKS=require('../../../results/aichi-2026/full-decklists.json');
 const SOURCE_TRAINER_NAMES=new Set(SOURCE_DECKS.decks
@@ -101,6 +103,23 @@ function run(deps={}){
       JSON.stringify(attempts[0].sourceDealFingerprint));
   const prePivotSourcePass=attempts.map(a=>
     a.sourcePassAudit.events.find(e=>e.globalTurn===2)??null);
+  const sourcePolicyCausalRoots=[false,true].map(pivot=>{
+    const control=attempts.find(x=>!x.sourceChallenger&&
+      x.candidatePaidPivot===pivot);
+    const challenged=attempts.find(x=>x.sourceChallenger&&
+      x.candidatePaidPivot===pivot);
+    assert.ok(control&&challenged);
+    const first=firstRootDivergence(
+      control.acceptedNativeRoots??[],challenged.acceptedNativeRoots??[]);
+    const sourceOwned=first.ordinal!==null&&
+      (first.baseline?.playerSlot===1||first.treatment?.playerSlot===1);
+    return {
+      candidatePaidPivot:pivot,
+      firstNativeRootDifference:first,
+      sourceOwnedFirstDifference:sourceOwned,
+      sourcePolicyChangedAnAcceptedNativeRoot:sourceOwned
+    };
+  });
   const result={
     version:VERSION,registration:registration.schema,
     originalSelectedRank13Deal:TARGET,
@@ -111,6 +130,9 @@ function run(deps={}){
     physicalSixtiesUnchanged:true,
     fourCellFullPhysicalIdentityMatched:fixedDeal,
     prePivotT2SourcePasses:prePivotSourcePass,
+    sourcePolicyCausalRoots,
+    sourcePolicyActivatedOnOriginalSource:
+      sourcePolicyCausalRoots.some(x=>x.sourceOwnedFirstDifference),
     attempts,
     independentPaperAcceptance:false,
     competitiveGamesQualified:0,
@@ -142,6 +164,7 @@ if(require.main===module){
   process.stdout.write(JSON.stringify({
     version:report.version,artifact,
     nativePhysicalMatched:report.fourCellFullPhysicalIdentityMatched,
+    sourcePolicyRootActivations:report.sourcePolicyCausalRoots,
     outcomes:report.attempts.map(x=>({
       sourceChallenger:x.sourceChallenger,
       candidatePaidPivot:x.candidatePaidPivot,
