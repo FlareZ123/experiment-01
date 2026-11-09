@@ -6,7 +6,7 @@
 
 The fixed Temple Shadow Rider v1 60 did not show a robust advantage over the unchanged Aichi champion reference 60 across the nine authenticated original Regidrago lists using Double Dragon Energy. The more important observed limitation is actionable: the selected shared actor policy played **zero Temple of Sinnoh** cards in its 18 Temple-native games, despite executing 364 other `PlayCardAction` roots. The list substitution was exercised; its defining Stadium tactic was not.
 
-A fresh, separately preregistered same-deck owner-public Stadium-policy experiment is being executed to resolve that deficiency. The original candidate list remains unchanged.
+A fresh, separately preregistered same-deck owner-public Stadium-policy experiment resolves that execution deficiency. The original candidate list remains unchanged. Sixteen actual Temple placements in eighteen treatment games produced **no changed native winner** in any resolved matched pair. This is evidence that selecting a Stadium is mechanically executable; under the current weak players, it is still not a demonstrated deck-performance gain.
 
 ## Frozen study and reproducibility
 
@@ -50,5 +50,32 @@ A new [fresh same-60 policy registration](../../aichi-2026/registrations/2026-11
 - [Pure owner-visible selector](../../../simulation/twinleaf/2026-11/agent39-public-temple-regidrago-root.cjs)
 - [Both-seat unit tests](../../../tests/2026-11/agent39-temple-regidrago-owner-root.test.cjs)
 - [Native same-deck prospective runner](../../../simulation/evaluation/2026-11/agent39-temple-owner-policy-nine-dde-native.cjs)
+
+
+
+## Completed proactive same-60 Stadium-policy contrast
+
+The independently seeded [control versus proactive policy registration](../../aichi-2026/registrations/2026-11/agent39-temple-owner-stadium-policy-nine-dde-prospective-v1.json) compares identical Temple v1 printed 60s across all nine original Regidrago DDE ranks, both physical seats. The isolated action proposal is offered when the actor holds a Temple, the shared Stadium zone is empty, owner Stadium play remains available, and an opponent Regidrago V/VSTAR is publicly face up.
+
+Initial CI run 42578791794 revealed 16 native errors due to the generic post-action physical observer asserting that every unrecognized action is an attack. The native engine was attempting the correct Stadium `PlayCardAction`, but our research observation layer rejected it. The repair added `play-temple-of-sinnoh` to the existing concrete Stadium witness branch and verified actual hand loss plus Stadium attachment, including a deliberate negative fixture. These failures are preserved as invalid; they were excluded from the completed outcome summary. The replay used the same registered seeds and is explicitly a **research-code correction replay**, not independent out-of-sample validation.
+
+[Corrected native run 42579540987](https://github.com/FlareZ123/experiment-01/actions/runs/42579540987) succeeded with the exact original source 60s, `a9905a76...` pinned engine, matched seat/deal checks, equal actor policy except the activated Temple action, and zero native engine errors. The [root-level replay audit 42580195593](https://github.com/FlareZ123/experiment-01/actions/runs/42580195593) reads the frozen artifact without replaying games. [Condensed root evidence archive](https://github.com/FlareZ123/experiment-01/actions/runs/42580195593/artifacts/13656832736).
+
+| Same Temple v1 60, different owner decision | Control | Proactive owner-public Temple |
+| --- | ---: | ---: |
+| Native attempts | 18 | 18 |
+| Native wins | 13 | 13 |
+| Natural completed native games | 14 | 14 |
+| Capped at 260 roots | 4 | 4 |
+| Native engine errors | 0 | 0 |
+| Actual accepted Temple of Sinnoh `PlayCardAction` roots | 0 | **16** |
+| Games with a genuine Temple placement | 0 | **16/18** |
+| Original Regidrago Apex Dragon action roots | 3 | 1 |
+
+All **18/18** pairwise original source openings and accepted starter assignments matched; **14/18** paired groups had natural native terminals on both arms, with exactly the same native winner in each. The four incomplete pairs yield a conservative control-minus-treatment total interval of **−4 to +4** possible wins. Do not report a 13/18 win rate as qualified paper performance, and do not infer a Temple-specific Apex suppression event solely from an aggregate `Apex Dragon` root count. The opponent can replace the Stadium or fund an attack through other Energy.
+
+This adds a useful contrast with [Agent22's narrower reactive Temple strategy](../../../simulation/twinleaf/2026-11/agent22-temple-dde-owner-policy.cjs), which requires an opponent Regidrago already holding visible DDE. Agent22's separate rank13 study [CI 42579007715](https://github.com/FlareZ123/experiment-01/actions/runs/42579007715) produced 6 confirmed Temple plays across 16 original-source matched groups, control native wins 12 and reactive Temple wins 12, outcome interval [−1,+1]. Agent39's proactive trigger intervenes earlier, across nine source ranks. Neither same-deck policy has yet demonstrated native wins from Stadium activation, much less qualified competitive wins. Future work should compare proactive and reactive trigger timing under competent source replies before promoting another Temple deck slot or making a policy default.
+
+The zero-Temple baseline and the 16-Temple repaired policy each have immutable native CI artifacts and source revision identifiers. The same 60 was held constant within the latter comparison; the initial champion comparison tested a different 60. Treat these as different questions.
 
 **Limitations:** No official event clock, qualified independent paper adjudication, or strongly validated adversarial opponent policy. All native results remain development-only, including any future Stadium activation or native terminal winner differences. Ranks 23, 25, and 28 of the overall Top32 benchmark still lack authenticated original complete 60-card inventories. There is no fixed-deck selection and no established 99.5% field win rate.
