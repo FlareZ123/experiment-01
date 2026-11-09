@@ -205,6 +205,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseSkyFieldBenchExpansion(view,catalog);
     if(sky)return sky;
   }
+  if(options.templeStadiumPublicRegidrago===true){
+    const temple=require('./2026-11/agent39-public-temple-regidrago-root.cjs')
+      .choosePublicTempleAgainstRegidrago(view);
+    if(temple)return temple;
+  }
   if(options.pathToPeakOpposingAbility===true){
     const path=require('./agent33-path-to-peak-public-lock.cjs')
       .choosePathToPeakOpposingAbility(view,catalog,{
@@ -986,6 +991,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
+    templeStadiumPublicRegidragoOptIn:deps.templeStadiumPublicRegidrago===true||
+      process.env.AGENT39_TEMPLE_STADIUM_ROOT_DEV==='true',
+    templeStadiumRootSelected:0,
     pathToPeakPublicSpentFusionOptIn:deps.pathToPeakPublicSpentFusion===true,
     pathSafeSkyFieldReplacementOptIn:deps.pathSafeSkyFieldReplacement===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
@@ -1811,6 +1819,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
+      templeStadiumPublicRegidrago:
+        audit.templeStadiumPublicRegidragoOptIn===true,
       pathSafeSkyFieldReplacement:audit.pathSafeSkyFieldReplacementOptIn===true,
       ...(audit.pathToPeakPublicSpentFusionOptIn?{
         ownFusionUsage:require('./agent33-public-fusion-usage.cjs')
@@ -2046,6 +2056,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
+    if(intent.kind==='play-temple-of-sinnoh')
+      audit.templeStadiumRootSelected++;
     if(intent.kind==='play-path-underworld-stadium-counter')
       audit.pathUnderworldStadiumCounterSelected++;
     if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
@@ -2149,6 +2161,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-path-to-peak':
       case 'play-path-underworld-stadium-counter':
       case 'play-thunder-mountain':
+      case 'play-temple-of-sinnoh':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
