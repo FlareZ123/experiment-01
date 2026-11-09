@@ -979,6 +979,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT37_FIRSTTURN_ATTACK_ROOT_DEV==='true'),
     potentialKoRootOptIn:deps.potentialKoRoot??
       (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
+    potentialKoRootOwnerSeat:deps.potentialKoRootOwnerSeat??null,
     knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
     knownDeadAttackRootOwnerSeat:deps.knownDeadAttackRootOwnerSeat??null,
@@ -1222,6 +1223,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(!audit.beforeAttackDenialOptIn)delete audit.beforeAttackDenialOptIn;
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
+  assert.ok([null,0,1].includes(audit.potentialKoRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
   if(audit.skylinerRondoRetreatOptIn)
@@ -1693,7 +1695,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       printedGxRoot:audit.printedGxRootOptIn,
       adpBoostedGxRoot:audit.adpBoostedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
-      potentialKoRoot:audit.potentialKoRootOptIn,
+      potentialKoRoot:actorSpecialEnergyEnabled(
+        audit.potentialKoRootOptIn,audit.potentialKoRootOwnerSeat,seat),
       ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
