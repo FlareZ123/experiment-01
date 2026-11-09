@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('../headless.cjs');
+const {registerResearchWideWall} = require('./agent25-wide-wall-rhyperior-hook.cjs');
 const OUT = path.resolve(__dirname, '../../../vendor/twinleaf/ptcg-server/output');
 const native = name => require(path.join(OUT, name));
 
@@ -27,6 +28,7 @@ function probe({candidateSeat, wideWall}) {
     native('game/store/actions/resolve-prompt-action');
 
   const manager = initializeCards();
+  const printedEffectHook = registerResearchWideWall(manager,native);
   let serial = 895000 + 1000 * candidateSeat + Number(wideWall) * 100;
   const make = name => {
     const card = manager.getCardByName(name);
@@ -142,7 +144,7 @@ function probe({candidateSeat, wideWall}) {
   return {
     candidateSeat,wideWall,playError,promptError,
     firstPromptType,vileOffered,settledGust,after,
-    actualNativeStore:true,
+    actualNativeStore:true,printedEffectHook,
     completePrintedSixties:false,
     competitivelyQualifiedGames:0
   };
@@ -158,7 +160,7 @@ function run() {
   assert.equal(rows.length,4);
   return {
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    fixture:'synthetic, deliberately staged, actual pinned Store actions',
+    fixture:'synthetic, deliberately staged, native Store Guzma with research-implemented SCR Wide Wall',
     rows,competitivelyQualifiedGames:0
   };
 }
