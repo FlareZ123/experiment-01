@@ -72,7 +72,7 @@ function attempt(trial,conditional){
   };
   const ability=()=>{
     if(!conditional)return observed();
-    const r=withOwnerAbilityConfirmPolicy(observed);
+    const r=withOwnerAbilityConfirmPolicy(observed,{enableDedechange:true});
     policy=r.audit;return r.result;
   };
   const printedEntry=()=>{
