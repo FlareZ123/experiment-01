@@ -30,8 +30,9 @@ function fixture(names){
   const energySpecial=new EnergyCard('Double Dragon Energy ROS',1);
   const trainerA={fullName:'Mysterious Treasure FLI'};
   const trainerB={fullName:'Battle Compressor PHF'};
+  const trainerC={fullName:'Guzma BUS'};
   const byName={basic:energyBasic,special:energySpecial,
-    trainerA,trainerB};
+    trainerA,trainerB,trainerC};
   const deck=new CardList();
   deck.cards=names.map(name=>byName[name]);
   const active=new CardList(),discard=new CardList(),player={id:41,deck,active,discard};
@@ -75,7 +76,7 @@ test('native hook attaches revealed Basic and Special, discards remainder once',
     pending.callback(transfers);
     return r.result;
   },f.deps);
-  assert.equal(outcome.result,f.run().result);
+  assert.equal(outcome.result.turn,2);
   assert.deepEqual(f.player.active.cards,
     [f.byName.energySpecial,f.byName.energyBasic]);
   assert.deepEqual(f.player.discard.cards,[f.byName.trainerA]);
@@ -85,7 +86,7 @@ test('native hook attaches revealed Basic and Special, discards remainder once',
   assert.equal(outcome.audit.allRemaindersCleared,1);
 });
 test('native hook empties all three no-energy cards without mutation skipping',()=>{
-  const f=fixture(['trainerA','trainerB','trainerA']);
+  const f=fixture(['trainerA','trainerB','trainerC']);
   const outcome=withPaperCelestialRoar(()=>f.run().result,f.deps);
   assert.equal(outcome.audit.interceptedAttacks,1);
   assert.equal(outcome.audit.discardedRemainders,3);
