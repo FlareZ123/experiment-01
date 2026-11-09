@@ -33,9 +33,9 @@ test('native source action receipts discriminate exact card and actual physical 
   const result=sourceActions({
     trial:{candidateSlot:'A'},finished:true,
     rootActionLedger:[
-      {playerSlot:1,action:'PlayCardAction',card:'Quick Ball FST'},
-      {playerSlot:1,action:'PlayCardAction',card:"Trainers' Mail ROS"},
-      {playerSlot:0,action:'PlayCardAction',card:'Quick Ball SSH'},
+      {playerSlot:1,action:'PlayCardAction',card:'Quick Ball'},
+      {playerSlot:1,action:'PlayCardAction',card:"Trainers' Mail"},
+      {playerSlot:0,action:'PlayCardAction',card:'Quick Ball'},
       {playerSlot:1,action:'PlayCardAction',card:'VS Seeker PHF'},
       {playerSlot:1,action:'AttackAction',attack:'Technoblast'}
     ]
@@ -45,6 +45,13 @@ test('native source action receipts discriminate exact card and actual physical 
   assert.equal(result.trainersMail,1);
   assert.equal(result.vsSeeker,1);
   assert.equal(result.attacks,1);
+  const printed=sourceActions({trial:{candidateSlot:'A'},
+    rootActionLedger:[
+      {playerSlot:1,action:'PlayCardAction',card:'Quick Ball FST'},
+      {playerSlot:1,action:'PlayCardAction',card:"Trainers' Mail ROS"}
+    ]});
+  assert.equal(printed.quickBall,1);
+  assert.equal(printed.trainersMail,1);
 });
 
 test('four phase integration keeps all native errors, caps and physical comparisons',()=>{
