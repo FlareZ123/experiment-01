@@ -136,7 +136,7 @@ function resolvePhysicalHandCards(prompt,names){
  * @template T
  * @param {()=>T} execute Real Store workload
  * @param {object} [deps] Test-injected native classes and pure functions
- * @param {{apexPayloadDiscard?:boolean}} [options] Development-only, default OFF.
+ * @param {{apexPayloadDiscard?:boolean,attackFuelDiscard?:boolean}} [options] Development-only, default OFF.
  * @returns {{result:T,audit:object}}
  */
 function withActorHandDiscard(execute,deps={},options={}){
@@ -153,6 +153,7 @@ function withActorHandDiscard(execute,deps={},options={}){
   const validate=deps.validate??assertValidPromptAction;
   const apexPayloadDiscard=options.apexPayloadDiscard===true||
     process.env.AGENT47_APEX_PAYLOAD_DISCARD_DEV==='true';
+  const attackFuelDiscard=options.attackFuelDiscard===true;
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
@@ -164,6 +165,8 @@ function withActorHandDiscard(execute,deps={},options={}){
     nonLiveSpeculativeFallbacks:0,bySeat:{0:0,1:0},
     selections:[],apexPayloadDiscardOptIn:apexPayloadDiscard,
     apexAlternativeProposals:0,apexSelected:0,apexReasons:{},
+    attackFuelOptIn:attackFuelDiscard,attackFuelAlternativeProposals:0,
+    attackFuelSelected:0,attackFuelReasons:{},
     competitiveGameQualified:false};
   function decode(state){
     if(state!==liveStore?.state){
@@ -190,7 +193,21 @@ function withActorHandDiscard(execute,deps={},options={}){
       audit.apexReasons[apex.reason]=(audit.apexReasons[apex.reason]??0)+1;
       if(apex.changed)audit.apexAlternativeProposals++;
     }
-    const intent=apex?.changed?{printings:apex.proposal}:baseline;
+    // The paper-visible energy frontier is secondary to an explicitly
+    // selected, directly payable Apex donor discard. Existing defaults stay
+    // untouched unless this independent research option is requested.
+    const fuel=attackFuelDiscard&&!apex?.changed?
+      require('./2026-11/agent47-attack-fuel-discard-frontier.cjs')
+        .proposeAttackFuelDiscard(input,
+          (deps.getCatalog??require('./agent43-guzma-prompt-continuation.cjs')
+            .publicCatalog)()):null;
+    if(fuel){
+      audit.attackFuelReasons[fuel.reason]=
+        (audit.attackFuelReasons[fuel.reason]??0)+1;
+      if(fuel.changed)audit.attackFuelAlternativeProposals++;
+    }
+    const intent=apex?.changed?{printings:apex.proposal}:
+      fuel?.changed?{printings:fuel.proposal}:baseline;
     const pending=state.prompts.find(p=>p.id===input.prompt.id);
     const selected=resolvePhysicalHandCards(pending,intent.printings);
     assert.ok(selected,'Actor-selected discard is not a legal physical multiset');
@@ -201,6 +218,7 @@ function withActorHandDiscard(execute,deps={},options={}){
     intents.set(action,record);
     audit.selected++;
     if(apex?.changed)audit.apexSelected++;
+    if(fuel?.changed)audit.attackFuelSelected++;
     return action;
   }
   function dispatch(action,...args){
