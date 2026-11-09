@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
-const {COUNTS, choose, allocation, calculate, calculateUnion, calculateAllItems} =
+const {COUNTS, choose, allocation, calculate, calculateUnion, calculateAllItems, calculateNestOrRobo} =
   require('../../scripts/2026-11/agent33-rank7-jet-nest-opening-screen.cjs');
 
 test('binomial arithmetic and class allocation have exact integer results', () => {
@@ -86,5 +86,21 @@ test('six-Item Jet resource screen includes two original Robo Substitute copies'
     strictNumerator:all.strictOtherBasicNumerator.toString(),
     denominator:all.denominator.toString(),
     caveat:'pure-card-location-screen-no-Item-payability'
+  }));
+});
+
+test('first-response Nest or Robo screen excludes VS without public Supporter discard', () => {
+  const immediate = calculateNestOrRobo();
+  const all = calculateAllItems();
+  assert.equal(immediate.earlyItemCopies, 3);
+  assert.equal(immediate.denominator, all.denominator);
+  assert.equal(immediate.numerator, 376274068322350572n);
+  assert.equal(immediate.strictOtherBasicNumerator, 318557705374635408n);
+  assert.ok(immediate.numerator < all.numerator);
+  console.log('AGENT33_RANK7_NEST_ROBO_SCREEN',JSON.stringify({
+    numerator:immediate.numerator.toString(),
+    strictNumerator:immediate.strictOtherBasicNumerator.toString(),
+    denominator:immediate.denominator.toString(),
+    caveat:'Staged Artazon, free Bench, actual Hand and lock are separate'
   }));
 });
