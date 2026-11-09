@@ -146,12 +146,12 @@ function chooseActorRootIntent(view,catalog,options={}){
   const garbodorResponseOwnerSeat=options.garbodorResponseOwnerSeat??null;
   const naturalEvolutionOwnerSeat=
     options.naturalEvolutionRootOwnerSeat??garbodorResponseOwnerSeat;
-  assert.ok(naturalEvolutionOwnerSeat===null||
-    naturalEvolutionOwnerSeat===0||naturalEvolutionOwnerSeat===1,
-    'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
   assert.ok(garbodorResponseOwnerSeat===null||
     garbodorResponseOwnerSeat===0||garbodorResponseOwnerSeat===1,
   'garbodorResponseOwnerSeat must be null, 0, or 1');
+  assert.ok(naturalEvolutionOwnerSeat===null||
+    naturalEvolutionOwnerSeat===0||naturalEvolutionOwnerSeat===1,
+    'naturalEvolutionRootOwnerSeat must be null, 0, or 1');
   assert.ok(garbodorResponseOwnerSeat===null||
     options.naturalEvolutionRoot===true||options.garbotoxinToolRoot===true,
   'garbodorResponseOwnerSeat requires a Garbodor response root');
