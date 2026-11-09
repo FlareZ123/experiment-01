@@ -13,13 +13,18 @@ on:
         required: false
         type: boolean
         default: false
+      agent35_architecture_48:
+        description: 'Run frozen 48-game champion/Hood/Safeguard eight-rank screen'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hood-champion-paperprofile:
-    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro }}
+    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -54,7 +59,7 @@ jobs:
           retention-days: 21
 
   rank5-source-funded-two-contenders:
-    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro }}
+    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
     runs-on: ubuntu-latest
     timeout-minutes: 26
     steps:
@@ -91,7 +96,7 @@ jobs:
           if-no-files-found: warn
 
   quickball-owner-retrospective:
-    if: ${{ inputs.agent45_quickball_owner_retro }}
+    if: ${{ inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
     runs-on: ubuntu-latest
     timeout-minutes: 23
     steps:
@@ -124,5 +129,40 @@ jobs:
         with:
           name: agent45-rank5-4500a-quickball-owner-retro
           path: artifacts/agent45-rank5-4500a-quickball-owner-retro.json
+          retention-days: 21
+          if-no-files-found: warn
+
+  agent35-architecture-eight-rank-48:
+    if: ${{ inputs.agent35_architecture_48 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify preregistered three-architecture immutable printings and censor bounds
+        run: |
+          node --check simulation/evaluation/2026-11/agent35-three-architecture-eight-rank-native.cjs
+          node --test tests/2026-11/agent35-three-architecture-eight-rank-native.test.cjs
+          node simulation/evaluation/2026-11/agent35-three-architecture-eight-rank-native.cjs --inspect-only
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute exact fresh 48 native games with unchanged 60s and symmetric actor policy
+        run: node simulation/evaluation/2026-11/agent35-three-architecture-eight-rank-native.cjs
+      - name: Archive all actual Store attempts, including caps and native aborts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-three-architecture-eight-rank-48-native
+          path: artifacts/agent35-three-architecture-eight-rank-48-native.json
           retention-days: 21
           if-no-files-found: warn
