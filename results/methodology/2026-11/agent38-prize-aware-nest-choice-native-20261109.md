@@ -23,6 +23,23 @@ The frozen preregistration `results/aichi-2026/registrations/agent38-mail-nest-p
 
 The preference function is a conservative **printed-name heuristic** for card families, not a complete Pokémon Prize rule or a matchup-aware tactic. It does not inspect opponent private zones or alter native Store mechanics. It consults only the acting owner's genuine Native Nest Ball deck prompt and validates Basic selection with `prompt.validate`. An eligible GX/EX/V/ex is still chosen when it is the only available Basic. It may be *correct* to fetch Articuno-GX in other states. This experiment only establishes an executable alternative and retained post-action continuation. **Zero competitively qualified games, zero demonstrated win-rate improvement, no final fixed 60 selected.**
 
+## Full archived native state: downstream value is still missing
+
+I independently opened the actual 1,168,978-byte JSON artifact `agent38-prize-aware-mail-nest.json` from the native ZIP, rather than inferring source gameplay from the success flag. The changed trial `3:213:B` has **identical accepted root-action class histograms** in control and treatment:
+
+| Acting physical seat | Accepted actions through root 259, both arms |
+| --- | --- |
+| Rank-3 source seat 0 | 76 prompt resolutions, 10 `PlayCardAction`, **30 `PassTurnAction`**, **0 attacks** |
+| Rank-1 opponent seat 1 | 99 prompt resolutions, 15 `PlayCardAction`, 2 Pass, **28 attacks** |
+
+At the action cap, both arms' source public boards contain **both Articuno-GX CES and Bunnelby PRC** on Bench, with **zero Energy attached to either**. The A/B change ultimately alters only their arrival order and Bench order under this capped trajectory. Source Active Snorlax PGO retains two Water Energy, insufficient for its four-Colorless Collapse attack. The opponent's Shadow Rider Calyrex V holds eight Psychic Energy and repeatedly uses Shadow Mist. This is direct evidence that the Basic search optimization alone did **not** repair the main source attack/control realization bottleneck in this case.
+
+The opt-in owner-Ability audit exposes an interesting narrower opportunity. Only the treatment later observes an `Articuno-GX` `WANT_TO_USE_ABILITY` prompt on global turn 18, but the shared policy correctly declines (`articuno-insufficient-or-excess-water-transfer`; actor reports zero movable Water and zero Water already on Articuno). No Legendary Ascent energy transfer is proven. This identifies a reachable ability timing opportunity, subject to future actual energy funding, rather than a gained payoff.
+
+One representation caveat: the accepted root-action signature records a `ResolvePromptAction` as an array type without recording which Pokémon it chose. It therefore identifies the first **action-class** divergence only at index 84, even though the **card-choice** divergence already occurred in the earlier Nest search on turn 2. Future causal reports must distinguish action-class divergence from prompt-option identity, without exposing opponent secrets.
+
+**Updated priority:** move from Bench-fill counts to funded, settled source actions and meaningful opponent replies. In this trial the source's 30 Pass actions and zero attacks dominate any plausible impact of Bench ordering. A next strategy experiment should enable legal Energy placement, attacking or deck-out disruption with actual native resolution and compare full outcomes. Repeating the same four-arm Basic selection without enabling any such action would add little value.
+
 ## Reproducible files and follow-through
 
 - Selector: `simulation/twinleaf/agent38-mail-nest-prize-aware-basic-choice.cjs`.
