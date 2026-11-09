@@ -403,7 +403,7 @@ jobs:
       - name: Test reversible owner-public conditional Energy actor root
         run: node --test tests/agent17-public-context-special-energy.test.cjs
       - name: Check default-off owner Jet Bench switch proposal and shared symbolic Energy matcher
-        run: node --test tests/agent40-public-jet-bench-frontier.test.cjs
+        run: node --test tests/agent40-public-jet-bench-frontier.test.cjs tests/2026-11/agent40-faba-jet-owner-bridge.test.cjs
       - name: Verify passive native Jet root observer and its frozen original-source sample
         run: node --test tests/agent40-live-jet-root-census.test.cjs
       - name: Verify owner-known original 60 K0-safe Bunnelby TM Jet three-phase plan
