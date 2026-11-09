@@ -33,3 +33,18 @@ The previous `candidateAttacks: []` is correct for the narrow old top-level root
 ## Next acceptance boundary
 
 Run a **new prospectively frozen original-source native game** with the same bilateral policy, enabled exact physical tape, and complete actual Store receipts. Paper printings, payment, target, full-zone conservation, clock and adversarial policy must still be judged independently. Keep every native outcome, including zero-Prize copies and censored games, to avoid selection by the presence of flashy comeback events. A universal attack-count objective should distinguish merely initiated, prompted, physically settled, paper-validated and competitively qualified episodes.
+
+
+## Actual pinned headless observer noninterference result
+
+The archive-only test was extended with an **actual compiled pinned Twinleaf Store** pair, using the same original rank5 50703 source/candidate 60, original seed, both real actor policies and exact owner Gengar-v3 decision code. The only changed option was `captureNativeAttackPhysicalTape` (off versus on).
+
+[Manual twinleaf-policy-rng run 42723948913](https://github.com/FlareZ123/experiment-01/actions/runs/42723948913) **succeeded**; [full machine-readable observer outcome artifact 13720349598](https://github.com/FlareZ123/experiment-01/actions/runs/42723948913/artifacts/13720349598), artifact ZIP digest `sha256:816ccdb13b865101b2e835e8a37cb88ccd7c87a311f73ab8e9f54c9a210c480c`.
+
+- Exact accepted native roots: **126 in each arm**, equal original Store root SHA-256, equal full physical-zone snapshots, equal initial full-deal and source-deal fingerprints, identical native winner.
+- Old candidate ordinary `AttackAction` root count: **0**.
+- New actual copied Perfection root ordinals: **43, 87, 103, 122**; sampled native physical Prize changes: **0, 2, 3, 1**.
+- The observer's postaccepted physical snapshots have exactly 126 rooted events and remain marked `capturesFullDeckCustody:false`; the existing independent Agent20 full physical tape shows both arms identical, and the existing Agent36 Perfection receipt audit crosschecks the new sampled Prize changes.
+- [Source-locked on/off runner](../../../simulation/evaluation/2026-11/agent13-native-attack-tape-noninterference.cjs) using a default-off option forwarded by the existing [rank5 arm helper](../../../simulation/evaluation/2026-11/agent20-rank5-gengar-tempo-aba.cjs).
+
+This is a successful noninterference test of data collection. It reuses a historically inspected seed and is **not** a new prospective or paper-qualified matchup.
