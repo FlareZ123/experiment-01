@@ -40,8 +40,11 @@ function sourcePolicyDifferences(attempts){
     assert.ok(control&&challenged);
     const first=firstRootDivergence(
       control.acceptedNativeRoots??[],challenged.acceptedNativeRoots??[]);
+    // Require BOTH genuine actions to belong to the original source.
+    // A candidate-root substitution or missing-side root is not proof that
+    // the opponent policy caused the earliest accepted native divergence.
     const sourceOwned=first.ordinal!==null&&
-      (first.baseline?.playerSlot===1||first.treatment?.playerSlot===1);
+      first.baseline?.playerSlot===1&&first.treatment?.playerSlot===1;
     return {
       candidatePaidPivot:pivot,
       firstNativeRootDifference:first,
