@@ -1,0 +1,43 @@
+{
+  "schema": "agent7-rank3-original-mail-beach-arven-native-registration-v1",
+  "registeredAtUtc": "2026-11-09T00:07:00Z",
+  "purpose": "Test whether one real Mail-selected Arven, after the earlier observed same-turn Mail then Beach owner sequence, can use its later legal Supporter turn to perform a native validated physical Item-plus-Tool search, while retaining an identical original source/candidate pairing and all failed/censored rows.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 3,
+  "candidateRank": 13,
+  "physicalCardListSource": "results/aichi-2026/full-decklists.json",
+  "publishedNameCount60sUnchanged": true,
+  "seed": 290134,
+  "trialIds": [
+    "3:0:A:agent2-original-rank13-v8-common",
+    "3:0:B:agent2-original-rank13-v8-common"
+  ],
+  "nativeRootLimit": 128,
+  "control": {
+    "ownerMailFollowupFrame": true,
+    "firstEligibleMail": true,
+    "firstCycleBeach": true,
+    "followMailArven": false
+  },
+  "treatment": {
+    "ownerMailFollowupFrame": true,
+    "firstEligibleMail": true,
+    "firstCycleBeach": true,
+    "followMailArven": true
+  },
+  "searchedArvenPrinting": "Arven OBF",
+  "preexistingGenuineSourceEvidence": "Run 42526888225 selected Arven OBF from genuine native Trainers' Mail top-four prompt and then settled same-turn Tropical Beach placement/use/draw in source-seat-1, trial 3:0:A.",
+  "qualifiers": {
+    "requiresTrueMailSelectedPhysicalIdentity": true,
+    "requiresLaterUnspentSupporterQuota": true,
+    "requiresNativeStoreAcceptedPlayCardAction": true,
+    "requiresNativeValidChooseCardsPromptFromOwnerDeck": true,
+    "requiresPhysicalItemAndToolMovedToActingHand": true
+  },
+  "outcomes": {
+    "positive": "same exact source seat Mail+Beach turn then later Store-accepted Arven and real two-category owner-deck search",
+    "negative": "no Arven selection, no later Pass, no prompt, rejected action, unsettled prompt or engine abort all remain recorded"
+  },
+  "limitations": "Retrospective same seed already exposed in earlier Mail+Beach experiment, no competitive policy comparison, no card legality, no game-win inference, no claim that same seed proves identical physical opening without explicit witness.",
+  "objectiveContribution": "First full Item->Stadium draw->next legal Supporter->Item+Tool resource chain on a genuine original Aichi source game, as a development precursor to autonomous control/attack and opponent response."
+}
