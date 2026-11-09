@@ -6,7 +6,7 @@ const {REGISTRATION,VERSION,continuation}=
   require('../../simulation/evaluation/agent1-v8-low-hand-refill-four-arm.cjs');
 
 test('frozen registered original rank3/1 paired seats and exact seeds',()=>{
-  assert.equal(VERSION,'agent1-v8-low-hand-refill-native-four-arm-v1');
+  assert.equal(VERSION,'agent1-v8-low-hand-refill-native-four-arm-v2-deal-parity');
   assert.equal(REGISTRATION.trials.length,4);
   assert.deepEqual(new Set(REGISTRATION.trials.map(x=>x.seed)),
     new Set([2404595552,948758444]));
