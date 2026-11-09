@@ -303,6 +303,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseFundedShadowRiderFloatStone(view,catalog);
     if(mobility)return mobility;
   }
+  if(options.templeDdeDenial===true){
+    const temple=require('./2026-11/agent22-temple-dde-owner-policy.cjs')
+      .chooseTempleDdeDenial(view,catalog);
+    if(temple)return temple;
+  }
   if(options.underworldDoorRoot===true){
     const underworld=require('./agent31-underworld-door-owner-frontier.cjs')
       .chooseUnderworldDoorRoot(
@@ -945,6 +950,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionDrawOwnerSeat:deps.genesectFusionDrawOwnerSeat??null,
     genesectPerCopyPublicUsageOptIn:deps.genesectPerCopyPublicUsage===true,
+    templeDdeDenialOptIn:deps.templeDdeDenial===true,
+    templeDdeDenialSelected:0,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
@@ -1781,6 +1788,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:actorSpecialEnergyEnabled(
         audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
+      templeDdeDenial:audit.templeDdeDenialOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
       pathUnderworldStadiumCounter:
         audit.pathUnderworldStadiumCounterOptIn===true,
@@ -2075,6 +2083,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1)
       audit.dittoStage1.selected++;
+    if(intent.kind==='play-temple-dde-denial')
+      audit.templeDdeDenialSelected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
     if(intent.kind==='play-path-underworld-stadium-counter')
@@ -2177,6 +2187,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-tropical-beach':
       case 'play-players-ceremony':
+      case 'play-temple-dde-denial':
       case 'play-sky-field':
       case 'play-path-to-peak':
       case 'play-path-underworld-stadium-counter':
