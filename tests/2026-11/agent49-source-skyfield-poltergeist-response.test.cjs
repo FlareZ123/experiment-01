@@ -43,8 +43,10 @@ test('Source owner Sky Field selection matches exact physical opportunity',()=>{
   assert.equal(chooseSourceSkyField({...s,activePlayer:1},0),null);
   assert.equal(chooseSourceSkyField({...s,prompts:[{}]},0),null);
   assert.equal(chooseSourceSkyField(state(true),0),null);
-  s.players[0].stadiumPlayedTurn=1;
+  s.players[0].stadiumPlayedTurn=17;
   assert.equal(chooseSourceSkyField(s,0),null);
+  s.players[0].stadiumPlayedTurn=15;
+  assert.equal(chooseSourceSkyField(s,0),1);
   s.players[0].stadiumPlayedTurn=0;
   s.players[0].hand.cards[1]=card('Other card');
   assert.equal(chooseSourceSkyField(s,0),null);
@@ -123,4 +125,21 @@ test('Late Stadium decoder remains installed after common policy override',()=>{
   assert.equal(result.audit.physicalStadiumSettlements,1);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     FakeAi.prototype,'decodeNextAction'),original);
+});
+
+test('Missing optional card.canPlay defers to real Stadium Store reduction',()=>{
+  const s=state();delete s.players[0].hand.cards[1].canPlay;
+  const headless={runMatch:()=>{
+    const store=new FakeStore(s);
+    store.dispatch(new AddPlayerAction());
+    const action=new FakeAi(101,store).decodeNextAction(store.state);
+    assert.equal(action.constructor.name,'PlayCardAction');
+    store.dispatch(action);
+    return action;
+  }};
+  const result=withSourceSkyField(()=>headless.runMatch({}),{
+    headless,SimpleTacticsAi:FakeAi,Store:FakeStore,PlayCardAction});
+  assert.equal(result.audit.nativeCommitted,1);
+  assert.equal(result.audit.physicalStadiumSettlements,1);
+  assert.equal(result.audit.nativeCanPlayDenied,0);
 });
