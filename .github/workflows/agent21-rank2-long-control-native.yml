@@ -1,0 +1,45 @@
+name: Agent21 rank2 full-original 60s long control replay
+
+on:
+  workflow_dispatch:
+    inputs:
+      root_cap:
+        description: 'Read-only retrospective genuine Store cap (260 or 640)'
+        type: choice
+        options: ['260', '640']
+        default: '640'
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank2-both-seats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Replay original Vileplume rank2 seed and physical source pairs
+        env:
+          AGENT21_RANK2_ROOT_CAP: ${{ inputs.root_cap }}
+        run: node simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs
+      - name: Archive all four real native roots and outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-rank2-original-60-horizon-replays
+          path: agent21-rank2-original-long-native.json
+          if-no-files-found: warn
+          retention-days: 21
