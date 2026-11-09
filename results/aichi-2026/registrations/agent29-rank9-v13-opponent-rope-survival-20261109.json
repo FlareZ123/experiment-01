@@ -1,0 +1,36 @@
+{
+  "schema": "agent29-rank9-v13-adversarial-escape-rope-opponent-choice",
+  "registeredAtUTC": "2026-11-09T09:59:00Z",
+  "baseline": "Full v12 on both physical seats: original rank9 v10 native Compressor+Electrode Bomb, owner Float Stone, native source Escape Rope and both own prompt choices",
+  "treatment": {
+    "actorRank9PostBombRope": true,
+    "actorRank9RopeOpponentSurvival": true
+  },
+  "underlyingRegistration": "results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json",
+  "immutableDecks": true,
+  "unchangedPhysicalSourceRank": 9,
+  "immutableCandidateOpponents": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "matchedPhysicalGroups": 8,
+  "attemptsPerArm": 16,
+  "expectedTotalNativeAttempts": 32,
+  "nativeStudyPrerequisites": [
+    "in-source physical Electrode-GX CES 48 found in discard, opponent Prize count <=4, Benched Mega Absol ex M1L with >=3 physical Energy",
+    "source Escape Rope BST held and Store accepts source PlayCardAction at actual would-Pass",
+    "opponent own registered switch prompt with GameMessage.CHOOSE_POKEMON_TO_SWITCH and native validate",
+    "opponent sees its own Bench printed HP/damage and selects the largest remaining HP; no opponent hidden information passed to source",
+    "source still chooses Mega on its own prompt and engine executes Claw naturally"
+  ],
+  "control": {
+    "actorRank9PostBombRope": true,
+    "actorRank9RopeOpponentSurvival": false
+  },
+  "responseGoal": "Challenge source win robustness to public opponent-controlled Escape Rope replacement. Record if opponent picks a higher-HP survivor and shifts Claw Prize chronology, source win status, opponent action choices, and terminal actions. Do not equate HP-maximization with optimal competitive defense.",
+  "predeclaredSourceStatus": "two original source v12 native wins versus these two opponents; both development only",
+  "competitivelyQualifiedGames": 0,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "workflow": ".github/workflows/agent45-electrode-bomb-native-store.yml",
+  "workflowInput": "rank9_source_opponent_survival_v13"
+}
