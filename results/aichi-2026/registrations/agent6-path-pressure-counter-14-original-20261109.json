@@ -1,0 +1,152 @@
+{
+  "schema": "agent6-owner-path-pressure-and-counter-prospective-original14-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "registrationDate": "2026-11-09",
+  "originalSourceDecks": "results/aichi-2026/full-decklists.json",
+  "fixedCandidate": "champion-reference",
+  "originalRanksWithPrintedPath": [
+    5,
+    9,
+    12,
+    15,
+    20,
+    21,
+    27
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "physicalSourceDeals": 14,
+  "bothSeatsPerRank": true,
+  "attemptsPerPolicyArm": 14,
+  "control": "unmodified actor-only common policy + Path suppression",
+  "treatment": "same actor-only common policy with opt-in held Sky Field or Dimension Valley Path displacement before Underworld",
+  "samePrintedSixtyAcrossArms": true,
+  "sameNativeEngineVersionAcrossArms": true,
+  "ceilingRootsPerAttempt": 260,
+  "underworldPsychicRecipientHookBothArms": true,
+  "regidragoCelestialPaperCustodyHookBothArms": true,
+  "sourceIndependentCommonOwnerPolicy": true,
+  "competitiveQualified": false,
+  "gameResultInterpretation": "Native development only, no qualified-paper win-rate evidence",
+  "groups": [
+    {
+      "id": "5:8000:A:champion-reference",
+      "rank": 5,
+      "repeat": 8000,
+      "seed": 3529560294,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:8001:B:champion-reference",
+      "rank": 5,
+      "repeat": 8001,
+      "seed": 2262162441,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:8002:A:champion-reference",
+      "rank": 9,
+      "repeat": 8002,
+      "seed": 364405072,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:8003:B:champion-reference",
+      "rank": 9,
+      "repeat": 8003,
+      "seed": 725674172,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:8004:A:champion-reference",
+      "rank": 12,
+      "repeat": 8004,
+      "seed": 53112370,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:8005:B:champion-reference",
+      "rank": 12,
+      "repeat": 8005,
+      "seed": 2369753902,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:8006:A:champion-reference",
+      "rank": 15,
+      "repeat": 8006,
+      "seed": 568257817,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:8007:B:champion-reference",
+      "rank": 15,
+      "repeat": 8007,
+      "seed": 3215132229,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:8008:A:champion-reference",
+      "rank": 20,
+      "repeat": 8008,
+      "seed": 123432808,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:8009:B:champion-reference",
+      "rank": 20,
+      "repeat": 8009,
+      "seed": 202209614,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:8010:A:champion-reference",
+      "rank": 21,
+      "repeat": 8010,
+      "seed": 2169717856,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:8011:B:champion-reference",
+      "rank": 21,
+      "repeat": 8011,
+      "seed": 2073720781,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:8012:A:champion-reference",
+      "rank": 27,
+      "repeat": 8012,
+      "seed": 3945088874,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:8013:B:champion-reference",
+      "rank": 27,
+      "repeat": 8013,
+      "seed": 108919589,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    }
+  ],
+  "armA": "existing symmetric actor-only policy with owner-public Path-to-the-Peak opposing Ability pressure enabled, counter disabled",
+  "armB": "identical pressure policy with owner-held Sky Field/Dimension Valley Path-to-Underworld counter enabled",
+  "bothArmsPathPressurePolicy": true,
+  "distinctFromPriorOriginal14Seeds": true
+}
