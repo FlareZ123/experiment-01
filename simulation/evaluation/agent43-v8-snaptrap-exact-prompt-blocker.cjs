@@ -394,6 +394,8 @@ function run(settings = {}) {
       arvenFromHandAccepted: ownerMailAudit.arvenFromHandAccepted,
       arvenFromHandRejected: ownerMailAudit.arvenFromHandRejected,
       arvenFromHandSearchEvents: ownerMailAudit.arvenFromHandSearchEvents,
+      arvenPlayEvents: ownerMailAudit.arvenPlayEvents,
+      arvenSearchEvents: ownerMailAudit.arvenSearchEvents,
       handiworkFromMailNativeDeckChanges:
         ownerMailAudit.handiworkFromMailNativeDeckChanges,
       handiworkDeferredSettlements: ownerMailAudit.handiworkDeferredSettlements,
