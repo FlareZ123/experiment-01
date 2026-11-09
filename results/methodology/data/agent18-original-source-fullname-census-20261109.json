@@ -1,0 +1,212 @@
+{
+  "schema": "agent18-authenticated-aichi-original-fullname-census-v1",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceManifest": "results/aichi-2026/full-decklists.json",
+  "nativeWorkflowRun": 42567138627,
+  "comparison": "Exact source name/set/collector-number matches vs native getAllCards fullName string, alias-normalizing only Prism glyph",
+  "status": "Identifier differences only; not independent paper implementation bugs.",
+  "sourceDecks": 29,
+  "printedRows": 989,
+  "differingRows": 75,
+  "uniquePrintings": 22,
+  "fullAnomalies": [
+    {
+      "rank": 32,
+      "printedName": "Lillie's Determination",
+      "set": "MEG",
+      "number": "119",
+      "expected": "Lillie's Determination MEG",
+      "registered": "Lillie's Determination M1L",
+      "copies": 1
+    },
+    {
+      "rank": 31,
+      "printedName": "Grand Tree",
+      "set": "SCR",
+      "number": "136",
+      "expected": "Grand Tree SCR",
+      "registered": "Great Tree SCR",
+      "copies": 1
+    },
+    {
+      "rank": 29,
+      "printedName": "Tropical Beach",
+      "set": "BWP",
+      "number": "50",
+      "expected": "Tropical Beach BWP",
+      "registered": "Tropical Beach BWP 50",
+      "copies": 2
+    },
+    {
+      "rank": 32,
+      "printedName": "Dedenne-GX",
+      "set": "UNB",
+      "number": "57",
+      "expected": "Dedenne-GX UNB",
+      "registered": "Dedenne GX UNB",
+      "copies": 1
+    },
+    {
+      "rank": 32,
+      "printedName": "Pokémon Ranger",
+      "set": "STS",
+      "number": "104",
+      "expected": "Pokémon Ranger STS",
+      "registered": "Pokemon Ranger STS",
+      "copies": 1
+    },
+    {
+      "rank": 26,
+      "printedName": "Special Red Card",
+      "set": "CRI",
+      "number": "82",
+      "expected": "Special Red Card CRI",
+      "registered": "Special Red Card M4",
+      "copies": 1
+    },
+    {
+      "rank": 29,
+      "printedName": "Sidney",
+      "set": "FST",
+      "number": "241",
+      "expected": "Sidney FST",
+      "registered": "Sidney FST 241",
+      "copies": 1
+    },
+    {
+      "rank": 22,
+      "printedName": "Mega Absol ex",
+      "set": "MEG",
+      "number": "86",
+      "expected": "Mega Absol ex MEG",
+      "registered": "Mega Absol ex M1L",
+      "copies": 2
+    },
+    {
+      "rank": 31,
+      "printedName": "Pokémon Communication",
+      "set": "TEU",
+      "number": "152",
+      "expected": "Pokémon Communication TEU",
+      "registered": "Pokemon Communication TEU",
+      "copies": 1
+    },
+    {
+      "rank": 31,
+      "printedName": "Telepathic Psychic Energy",
+      "set": "POR",
+      "number": "88",
+      "expected": "Telepathic Psychic Energy POR",
+      "registered": "Telepath [P] Energy M3",
+      "copies": 3
+    },
+    {
+      "rank": 11,
+      "printedName": "Professor's Letter",
+      "set": "BKT",
+      "number": "146",
+      "expected": "Professor's Letter BKT",
+      "registered": "Professors Letter BKT",
+      "copies": 4
+    },
+    {
+      "rank": 32,
+      "printedName": "Mega Dragonite ex",
+      "set": "ASC",
+      "number": "152",
+      "expected": "Mega Dragonite ex ASC",
+      "registered": "Mega Dragonite ex M2a",
+      "copies": 1
+    },
+    {
+      "rank": 14,
+      "printedName": "Oricorio-GX",
+      "set": "CEC",
+      "number": "95",
+      "expected": "Oricorio-GX CEC",
+      "registered": "Oricorio GX CEC",
+      "copies": 1
+    },
+    {
+      "rank": 15,
+      "printedName": "Buneary",
+      "set": "PFL",
+      "number": "83",
+      "expected": "Buneary PFL",
+      "registered": "Buneary M2",
+      "copies": 2
+    },
+    {
+      "rank": 15,
+      "printedName": "Mega Lopunny ex",
+      "set": "PFL",
+      "number": "84",
+      "expected": "Mega Lopunny ex PFL",
+      "registered": "Mega Lopunny ex M2",
+      "copies": 2
+    },
+    {
+      "rank": 16,
+      "printedName": "Trubbish",
+      "set": "CRI",
+      "number": "56",
+      "expected": "Trubbish CRI",
+      "registered": "Trubbish M4",
+      "copies": 2
+    },
+    {
+      "rank": 18,
+      "printedName": "Mega Kangaskhan ex",
+      "set": "MEG",
+      "number": "104",
+      "expected": "Mega Kangaskhan ex MEG",
+      "registered": "Mega Kangaskhan ex M1S",
+      "copies": 1
+    },
+    {
+      "rank": 19,
+      "printedName": "Arceus & Dialga & Palkia-GX",
+      "set": "CEC",
+      "number": "156",
+      "expected": "Arceus & Dialga & Palkia-GX CEC",
+      "registered": "Arceus & Dialga & Palkia GX CEC",
+      "copies": 1
+    },
+    {
+      "rank": 19,
+      "printedName": "Galarian Moltres V",
+      "set": "CRE",
+      "number": "97",
+      "expected": "Galarian Moltres V CRE",
+      "registered": "Galarian Moltres V CRE 97",
+      "copies": 1
+    },
+    {
+      "rank": 19,
+      "printedName": "Ho-Oh-EX",
+      "set": "DRX",
+      "number": "22",
+      "expected": "Ho-Oh-EX DRX",
+      "registered": "Ho-Oh EX DRX",
+      "copies": 1
+    },
+    {
+      "rank": 26,
+      "printedName": "Meloetta ex",
+      "set": "BLK",
+      "number": "44",
+      "expected": "Meloetta ex BLK",
+      "registered": "Meloetta ex SV11B",
+      "copies": 1
+    },
+    {
+      "rank": 30,
+      "printedName": "Wondrous Patch",
+      "set": "PFL",
+      "number": "94",
+      "expected": "Wondrous Patch PFL",
+      "registered": "Wonder Patch MBD",
+      "copies": 4
+    }
+  ]
+}
