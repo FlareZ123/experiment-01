@@ -13,6 +13,22 @@ const NATIVE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const RAW_ARTIFACT_ID = 13643482131;
 const RAW_SHA256 = '41b86f970c9d108542ec29bb1a6cc8516fce2cc36b995fd0146a8d885dfe6fa1';
 
+/** Count physically source-owned attacks with complete same-epoch settlement. */
+function settledSourceAttacks(row,seat) {
+  const ledger=row.rootActionLedger;
+  const settled=row.sourceAttackSettlement?.attacks;
+  if(!Array.isArray(ledger)||!Array.isArray(settled))return null;
+  const sourceAttackIds=new Set(ledger.filter(root=>
+    root.playerSlot===seat && root.action==='AttackAction')
+    .map(root=>root.actionOrdinal));
+  return settled.filter(event=>
+    sourceAttackIds.has(event.actionOrdinal)&&
+    event.settledPromptChain===true&&
+    event.settlementCrossesClockReset===false&&
+    Number.isSafeInteger(event.completionRootOrdinal)&&
+    event.completionRootOrdinal>=event.actionOrdinal).length;
+}
+
 /** @param {object} result Full 32-attempt original native runner archive. */
 function reduceAgent8Archive(result) {
   assert.equal(result.version,
@@ -58,6 +74,10 @@ function reduceAgent8Archive(result) {
     withoutPivot:decision(g.withoutPivot),
     withPivot:decision(g.withPivot),
     dispositions:Object.fromEntries(PHASES.map(p=>[p,g.statuses[p].status])),
+    settledSourceAttacks:Object.fromEntries(PHASES.map(p=>{
+      const row=rows[p].find(row=>row.trial.id===g.trialId);
+      return [p,settledSourceAttacks(row,g.sourceSeat)];
+    })),
     fourNativeTerminals:g.fourTerminals,
     sourceWinnerEffects:g.sourceWinnerEffects,
     ownerPaymentCertified:g.ownerPaymentCertified,
@@ -74,6 +94,10 @@ function reduceAgent8Archive(result) {
     allFourNativeWinnerFlips:compact.filter(g=>
       g.sourceWinnerEffects?.withoutPivot===true||
       g.sourceWinnerEffects?.withPivot===true).length,
+    allTerminalGroupsWithChangedSourceAttackCount:compact.filter(g=>
+      g.fourNativeTerminals&&(
+        g.settledSourceAttacks.P0S0!==g.settledSourceAttacks.P0S1||
+        g.settledSourceAttacks.P1S0!==g.settledSourceAttacks.P1S1)).length,
     nativeErrors:PHASES.reduce((n,p)=>n+rows[p].filter(x=>x.status==='engine-error').length,0),
     rootCaps:PHASES.reduce((n,p)=>n+rows[p].filter(x=>x.status==='root-cap').length,0),
     ownerPaymentCertifiedGroups:compact.filter(x=>x.ownerPaymentCertified).length,
@@ -116,4 +140,4 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(reduceFile(file),null,2)+'\n');
 }
 module.exports={VERSION,RAW_ARTIFACT_ID,RAW_SHA256,NATIVE_PIN,
-  reduceAgent8Archive,decision,reduceFile};
+  settledSourceAttacks,reduceAgent8Archive,decision,reduceFile};
