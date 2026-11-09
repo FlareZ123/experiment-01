@@ -6,8 +6,8 @@ const {chooseRank13CrispinRoot,chooseNativeCrispinEnergySearch,
   chooseNativeCrispinBenchAttach}=
   require('../../simulation/twinleaf/agent5/rank13-crispin-owner-funding.cjs');
 
-const GRASS={fullName:'Grass Energy MEE',id:11};
-const FIRE={fullName:'Fire Energy MEE',id:12};
+const GRASS={name:'Grass Energy',fullName:'Grass Energy MEE',id:11};
+const FIRE={name:'Fire Energy',fullName:'Fire Energy MEE',id:12};
 const OTHER={fullName:'Double Dragon Energy ROS',id:13};
 function root(options={}){
   return {decisionKind:'owner-root',globalTurn:options.turn??2,actorSeat:1,
