@@ -135,9 +135,22 @@ function inspectPhysicalCardZones(state,originalOwners=null) {
 
   const missingOriginalCounts=originalOwners?
     state.players.map(()=>0):null;
+  const missingOriginalCards=[];
   if(originalOwners){
     for(const [card,seat] of originalOwners){
-      if(!seen.has(card))missingOriginalCounts[seat]++;
+      if(!seen.has(card)){
+        missingOriginalCounts[seat]++;
+        // Only postgame failure evidence, never an actor or decision input.
+        // Original reference objects survive even after a native effect
+        // accidentally removes them from every canonical physical zone.
+        missingOriginalCards.push({
+          originalSeat:seat,
+          name:typeof card.name==='string'?card.name:null,
+          set:typeof card.set==='string'?card.set:null,
+          number:typeof card.number==='string'?card.number:null,
+          constructor:card?.constructor?.name??null
+        });
+      }
     }
   }
 
@@ -152,7 +165,8 @@ function inspectPhysicalCardZones(state,originalOwners=null) {
       originalCardCount:originalOwners.size,
       displacedOriginalReferences,
       unregisteredOriginalReferences,
-      missingOriginalCounts
+      missingOriginalCounts,
+      ...(missingOriginalCards.length?{missingOriginalCards}: {})
     }}:{})
   };
 }
