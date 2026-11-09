@@ -1,0 +1,44 @@
+name: Agent22 prospective same-60 Temple paid DDE response
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  temple-paid-denial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check actor public-only Temple rule and compare contracts
+        run: |
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --test tests/2026-11/agent22-temple-dde-owner-policy.test.cjs
+          node --test tests/2026-11/agent22-temple-paid-denial-pair.test.cjs
+          node simulation/evaluation/2026-11/agent22-temple-paid-denial-pair.cjs --inspect-only
+      - name: Run sixteen paired original rank13 genuine Store games with unchanged Temple60
+        run: node simulation/evaluation/2026-11/agent22-temple-paid-denial-pair.cjs
+      - name: Preserve every native decision and physical opening for both arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-temple-ddedenial-rank13-native-paired32
+          path: agent22-temple-ddedenial-rank13-native.json
+          if-no-files-found: warn
+          retention-days: 21
