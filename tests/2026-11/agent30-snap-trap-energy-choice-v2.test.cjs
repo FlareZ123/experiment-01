@@ -284,8 +284,10 @@ test('live public Temple changes Double Colorless from two units to one and chan
     get() { throw new Error('hidden zone inspected'); }
   });
   const sourceOwner = {stadium: {cards: [{fullName: TEMPLE}]},
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0,
     hand: hidden, deck: hidden, prizes: hidden};
-  const attackingOwner = {stadium: {cards: []},
+  const attackingOwner = {stadium: {cards: []}, active,
+    bench: [], stadiumAndToolHaveNoEffectTurnsRemaining: 0,
     hand: hidden, deck: hidden, prizes: hidden};
   prompt.player = sourceOwner;
   const state = {players: [sourceOwner, attackingOwner]};
@@ -321,8 +323,12 @@ test('unknown or contradictory public Stadium state abstains without reading hid
   const hidden = new Proxy({}, {
     get() { throw new Error('hidden cards may not be inspected'); }
   });
-  const owner = {stadium: {cards: []}, hand: hidden, deck: hidden, prizes: hidden};
-  const opponent = {stadium: {cards: []}, hand: hidden, deck: hidden, prizes: hidden};
+  const owner = {stadium: {cards: []},
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0,
+    hand: hidden, deck: hidden, prizes: hidden};
+  const opponent = {stadium: {cards: []}, active, bench: [],
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0,
+    hand: hidden, deck: hidden, prizes: hidden};
   prompt.player = owner;
   const state = {players: [owner, opponent]};
   const types = makeTypes();
@@ -338,3 +344,44 @@ test('unknown or contradictory public Stadium state abstains without reading hid
   assert.deepEqual(dce.provides, [CardType.COLORLESS, CardType.COLORLESS],
     'public override must not mutate the physical printed Energy');
 });
+
+test('public Stadium shutdown or Lunatone New Moon makes Temple Energy status unknown', () => {
+  const dce = makeEnergy('Double Colorless Energy BS',
+    [CardType.COLORLESS, CardType.COLORLESS], EnergyType.SPECIAL);
+  const psychic = makeEnergy('Psychic Energy SVE', [CardType.PSYCHIC]);
+  const pokemon = {fullName: 'Espurr SIT 81',
+    name: 'Espurr', attacks: [], hasTag() { return false; }};
+  const {active, prompt} = makeScenario(pokemon, [dce, psychic]);
+  const owner = {stadium: {cards: [{fullName: TEMPLE}]},
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0};
+  const opponent = {stadium: {cards: []}, active, bench: [],
+    stadiumAndToolHaveNoEffectTurnsRemaining: 0};
+  prompt.player = owner;
+  const state = {players: [owner, opponent]};
+  const types = makeTypes();
+  assert.equal(getSnapTrapPublicTempleEnergyOptions(
+    state, prompt, active, types).specialEnergyBlocked, true);
+
+  owner.stadiumAndToolHaveNoEffectTurnsRemaining = 1;
+  assert.deepEqual(getSnapTrapPublicTempleEnergyOptions(
+    state, prompt, active, types), {specialEnergyBlocked: null});
+  owner.stadiumAndToolHaveNoEffectTurnsRemaining = 0;
+  opponent.stadiumAndToolHaveNoEffectTurnsRemaining = undefined;
+  assert.deepEqual(getSnapTrapPublicTempleEnergyOptions(
+    state, prompt, active, types), {specialEnergyBlocked: null});
+  opponent.stadiumAndToolHaveNoEffectTurnsRemaining = 0;
+
+  const lunatone = {name: 'Lunatone', fullName: 'Lunatone OBF'};
+  const solrock = {name: 'Solrock', fullName: 'Solrock PGO'};
+  opponent.bench = [
+    {getPokemonCard() { return lunatone; }},
+    {getPokemonCard() { return solrock; }}
+  ];
+  assert.deepEqual(getSnapTrapPublicTempleEnergyOptions(
+    state, prompt, active, types), {specialEnergyBlocked: null});
+  opponent.bench.pop();
+  assert.equal(getSnapTrapPublicTempleEnergyOptions(
+    state, prompt, active, types).specialEnergyBlocked, true);
+  assert.deepEqual(dce.provides, [CardType.COLORLESS, CardType.COLORLESS]);
+});
+
