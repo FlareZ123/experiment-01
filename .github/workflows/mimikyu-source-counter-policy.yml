@@ -31,6 +31,8 @@ jobs:
         run: npm run compile
       - name: Verify public Copycat counterpolicy contract
         run: node --test tests/mimikyu-counter-policy.test.cjs tests/mimikyu-headless-hook-options.test.cjs
+      - name: Verify both-seat native owner-scoped Mimikyu Bench priority
+        run: node --test tests/2026-11/agent46-mimikyu-priority-basic.native.test.cjs
       - name: Compare two policy variants using source rank 1 and 10 full lists in both physical seats
         run: node simulation/twinleaf/mimikyu-counter-policy-pilot.cjs > mimikyu-policy-diagnostic.json
       - name: Report bounded engine actions and public Copycat opportunities
