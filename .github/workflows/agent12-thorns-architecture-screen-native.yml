@@ -6,7 +6,7 @@ on:
       panel:
         description: 'Frozen developmental fixed-60 experiment, original screen or Mimikyu pivot'
         type: choice
-        options: ['baseline', 'safeguard', 'temple']
+        options: ['baseline', 'safeguard', 'temple', 'temple-pilot']
         default: 'baseline'
 
 permissions:
@@ -55,6 +55,14 @@ jobs:
       - name: Run 48 preregistered original-source Temple comparison games
         if: ${{ inputs.panel == 'temple' }}
         run: node simulation/evaluation/2026-11/agent12-temple-vs-safeguard-native.cjs
+      - name: Test new owner-only Temple timing and preregistered pilot
+        if: ${{ inputs.panel == 'temple-pilot' }}
+        run: |
+          node --test tests/2026-11/agent12-thorns-mimikyu-temple-owner.test.cjs
+          node simulation/evaluation/2026-11/agent12-temple-owner-pilot-native.cjs --inspect-only
+      - name: Run fresh 48-game native owner-pilot field subset at 360 roots
+        if: ${{ inputs.panel == 'temple-pilot' }}
+        run: node simulation/evaluation/2026-11/agent12-temple-owner-pilot-native.cjs
       - name: Archive original 32-game baseline
         if: ${{ always() && inputs.panel == 'baseline' }}
         uses: actions/upload-artifact@v4
@@ -78,5 +86,14 @@ jobs:
         with:
           name: agent12-temple-mimikyu-v2-native
           path: agent12-temple-mimikyu-native.json
+          if-no-files-found: warn
+          retention-days: 21
+
+      - name: Archive source-paired Temple-owner 48-game Store evidence
+        if: ${{ always() && inputs.panel == 'temple-pilot' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-temple-mimikyu-owner-pilot-native
+          path: agent12-temple-owner-holdout-native.json
           if-no-files-found: warn
           retention-days: 21
