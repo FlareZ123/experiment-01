@@ -23,6 +23,7 @@ function withBilateralOwnerMail(next,deps){
     ResolvePromptAction,types,trialIds}=deps;
   const followMailNestBall=deps.followMailNestBall===true;
   const followMailHandiwork=deps.followMailHandiwork===true;
+  const followMailArven=deps.followMailArven===true;
   const board=deps.playCardEnums??{};
   const ids=new Set(trialIds);
   assert.equal(ids.size,trialIds.length, 'registered owner-Mail trial IDs must be unique');
@@ -33,10 +34,12 @@ function withBilateralOwnerMail(next,deps){
   assert.equal(typeof oldRun,'function');
   assert.equal(typeof oldStore?.value,'function');
   let active=false,storeInstance=null,priorAi=null,pending=null,
-    pendingNest=null,pendingHandiwork=null,trialId=null;
+    pendingNest=null,pendingHandiwork=null,pendingArven=null,trialId=null;
   const proposals=new WeakMap();
   const ownerPassMailActions=new WeakSet();
   const ownerMailHandiworkActions=new WeakSet();
+  const ownerMailArvenActions=new WeakSet();
+  const arvenSelections=new WeakMap();
   const physicallySelectedMailTrainers=new WeakSet();
   const nestPromptSelections=new WeakMap();
   const audit={schema:VERSION,trialIds:[...ids],attempts:0,
@@ -54,6 +57,10 @@ function withBilateralOwnerMail(next,deps){
     handiworkFromMailOffers:0,handiworkFromMailAccepted:0,
     handiworkFromMailNativeDeckChanges:[],handiworkFromMailRejected:0,
     handiworkDeferredSettlements:[],handiworkDeferredUnresolved:0,
+    arvenFromMailOffers:0,arvenFromMailAccepted:0,
+    arvenFromMailRejected:0,arvenSearchRejected:0,
+    arvenNoSearchPrompt:0,arvenSearchUnsettled:0,
+    arvenPlayEvents:[],arvenSearchEvents:[],
     nestFromMailOffers:0,nestFromMailActualPlays:0,
     nestFromMailBenchSettled:0,nestFromMailBenchEvents:[],
     nativeDecoderInvocations:0,
@@ -65,7 +72,7 @@ function withBilateralOwnerMail(next,deps){
     if(!id)return oldRun(request);
     assert.equal(active,false);
     trialId=id;active=true;storeInstance=null;pending=null;
-    pendingNest=null;pendingHandiwork=null;
+    pendingNest=null;pendingHandiwork=null;pendingArven=null;
     audit.attempts++;
     const descriptor=Object.getOwnPropertyDescriptor(ai,'decodeNextAction');
     assert.equal(typeof descriptor?.value,'function');
@@ -78,7 +85,7 @@ function withBilateralOwnerMail(next,deps){
       assert.strictEqual(ai.decodeNextAction,observedDecode);
       Object.defineProperty(ai,'decodeNextAction',descriptor);
       priorAi=null;active=false;storeInstance=null;pending=null;
-      pendingNest=null;pendingHandiwork=null;trialId=null;
+      pendingNest=null;pendingHandiwork=null;pendingArven=null;trialId=null;
     }
   }
 
@@ -102,6 +109,20 @@ function withBilateralOwnerMail(next,deps){
         const action=new ResolvePromptAction(prompt.id,selected);
         nestPromptSelections.set(action,{trialId,seat,prompt,selected,
           ownerId:owner.id});
+        return action;
+      }
+    }
+    if(active&&followMailArven&&state===storeInstance?.state&&
+      pendingArven?.seat===seat&&owner?.id===this.client?.id&&
+      prompt?.id===pendingArven.id&&prompt.cards===owner.deck){
+      const {chooseArvenSearch}=
+        require('./agent7/mail-arven-owner-choice.cjs');
+      const chosen=chooseArvenSearch(prompt,owner,types,state);
+      if(chosen!==null){
+        const action=new ResolvePromptAction(prompt.id,chosen);
+        arvenSelections.set(action,{trialId,seat,ownerId:owner.id,
+          prompt,chosen,originalHand:owner.hand.cards.slice(),
+          originalDeck:owner.deck.cards.slice()});
         return action;
       }
     }
@@ -146,6 +167,24 @@ function withBilateralOwnerMail(next,deps){
         return action;
       }
     }
+    if(followMailArven&&!prompt&&(seat===0||seat===1)&&owner){
+      const {actorObservation}=
+        require('./actor-observation-contract.cjs');
+      const {chooseMailSelectedArven}=
+        require('./agent7/mail-arven-owner-choice.cjs');
+      const indices=owner.hand.cards.flatMap((card,index)=>
+        physicallySelectedMailTrainers.has(card)?[index]:[]);
+      const intent=chooseMailSelectedArven(
+        actorObservation(state,seat),indices);
+      const card=intent?owner.hand.cards[intent.handIndex]:null;
+      if(intent&&card?.fullName===intent.printing&&
+         card?.canPlay?.(storeInstance,state,owner)===true){
+        const action=new PlayCardAction(owner.id,intent.handIndex);
+        ownerMailArvenActions.add(action);
+        audit.arvenFromMailOffers++;
+        return action;
+      }
+    }
     if(followMailNestBall&&board.PlayerType!==undefined&&
       board.SlotType!==undefined&&
       owner?.bench?.some(slot=>(slot.cards??[]).length===0)){
@@ -178,6 +217,8 @@ function withBilateralOwnerMail(next,deps){
     const proposal=proposals.get(action);
     const pendingPromptBefore=state.prompts?.find(p=>p.result===undefined);
     const taggedHandiwork=ownerMailHandiworkActions.has(action);
+    const taggedArven=ownerMailArvenActions.has(action);
+    const arvenProposal=arvenSelections.get(action);
     const opposingSeat=1-seat;
     const opposingBefore=taggedHandiwork?{
       deck:state.players[opposingSeat].deck.cards.length,
@@ -199,7 +240,36 @@ function withBilateralOwnerMail(next,deps){
     catch(e){
       if(proposal)audit.rejectedPromptActions++;
       if(taggedHandiwork)audit.handiworkFromMailRejected++;
+      if(taggedArven)audit.arvenFromMailRejected++;
+      if(arvenProposal)audit.arvenSearchRejected++;
       throw e;
+    }
+    if(taggedArven){
+      audit.arvenFromMailAccepted++;
+      const p=this.state.prompts?.find(x=>x.result===undefined);
+      const trueSearch=p?.constructor?.name==='ChooseCardsPrompt'&&
+        p.cards===this.state.players[seat]?.deck&&p.playerId===owner.id;
+      pendingArven=trueSearch?{id:p.id,seat}:null;
+      if(!trueSearch)audit.arvenNoSearchPrompt++;
+      audit.arvenPlayEvents.push({trialId,seat,turnBefore:state.turn,
+        printing:selectedMailCard?.fullName??null,
+        supporterTurnAfter:this.state.players[seat]?.supporterTurn??null,
+        pendingArvenPromptId:trueSearch?String(p.id):null});
+    }
+    if(arvenProposal){
+      const playerAfter=this.state.players[arvenProposal.seat];
+      const physical=arvenProposal.chosen.every(card=>
+        arvenProposal.originalDeck.includes(card)&&
+        !arvenProposal.originalHand.includes(card)&&
+        playerAfter.hand.cards.includes(card)&&
+        !playerAfter.deck.cards.includes(card));
+      const settled=arvenProposal.prompt.result===action.result&&physical;
+      if(!settled)audit.arvenSearchUnsettled++;
+      audit.arvenSearchEvents.push({trialId:arvenProposal.trialId,
+        seat:arvenProposal.seat,turnBefore:state.turn,
+        selected:arvenProposal.chosen.map(card=>card.fullName),
+        physicalOwnerDeckToHand:settled});
+      pendingArven=null;
     }
     if(taggedHandiwork){
       const afterOpponent=this.state.players[opposingSeat];
