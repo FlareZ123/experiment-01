@@ -35,9 +35,10 @@ const VERSION=require(
  * precedes the source attack, so this is a mechanical integration test and
  * contributes no independent paper game or natural-deal frequency.
  * @param {0|1} seat The Mimikyu owner physical seat.
+ * @param {{dimensionValleyOnePsychic?:boolean}} [options] Optional real Stadium cost test.
  * @returns {object} Native physics and public-history witnesses.
  */
-function runIntegrated(seat){
+function runIntegrated(seat,options={}){
   const restoreHistory=installDeclaredCopyHistoryHook({
     mimikyu:true,regidrago:true
   });
@@ -67,6 +68,14 @@ function runIntegrated(seat){
         assert.equal(mimikyuSlot.getPokemonCard()?.fullName,'Mimikyu GRI');
         assert.equal(mimikyuSlot.energies.cards.length,2);
         assert.equal(stranded.cards.length,0);
+        if(options.dimensionValleyOnePsychic===true){
+          const removed=mimikyuSlot.energies.cards.pop();
+          const index=mimikyuSlot.cards.indexOf(removed);
+          assert.ok(index>=0);
+          mimikyuSlot.cards.splice(index,1);
+          x.owner.discard.cards.push(removed);
+          x.owner.stadium.cards.push(card('Dimension Valley PHF'));
+        }
         x.owner.active=stranded;
         x.owner.bench[0]=mimikyuSlot;
         stranded.cards.push(card('Shadow Rider Calyrex V CRE'));
@@ -140,6 +149,8 @@ function runIntegrated(seat){
           paidCardsInOwnerDiscard:true,
           promotedActive:x.owner.active.getPokemonCard().fullName,
           recipientEnergyCount:x.owner.active.energies.cards.length,
+          dimensionValleyOnePsychic:
+            options.dimensionValleyOnePsychic===true,
           nativePromptsSettled:true
         };
       }
@@ -189,3 +200,12 @@ for(const seat of [0,1]){
 }
 
 module.exports={runIntegrated};
+
+for(const seat of [0,1]){
+  test('real Dimension Valley reduces paid-promoted Mimikyu Copycat to one Psychic seat '+seat,()=>{
+    const record=runIntegrated(seat,{dimensionValleyOnePsychic:true});
+    assert.equal(record.dimensionValleyOnePsychic,true);
+    assert.equal(record.recipientEnergyCount,1);
+    assert.equal(record.actualNativeBonusTurn,true);
+  });
+}
