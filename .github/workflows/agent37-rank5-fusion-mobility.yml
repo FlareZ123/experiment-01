@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent19_dualfixed_profile:
+        description: Compare two fixed contender 60s versus four authentic original source ranks under joint paper engine profile
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -36,7 +41,7 @@ jobs:
       - name: Native Both-seat Mew DCE retreat and Genesect draw prompt behavior
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
@@ -59,6 +64,23 @@ jobs:
       - name: Execute all 32 rank5 source Mew owner-decision native arms
         if: ${{ inputs.agent13_selfcopy_pair }}
         run: node simulation/evaluation/agent13-rank5-selfcopy-maxmiracle-native.cjs
+      - name: Preflight fresh 32-game dual-fixed-sixty paper-core registration
+        if: ${{ inputs.agent19_dualfixed_profile }}
+        run: |
+          node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs
+          node --check simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs
+          node simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs --inspect-only
+      - name: Run both original-source seats for two fixed contenders under paper-core profile
+        if: ${{ inputs.agent19_dualfixed_profile }}
+        run: node simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs
+      - name: Archive all 32 fresh native contender attempts including censored cases
+        if: ${{ always() && inputs.agent19_dualfixed_profile }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent19-dual-fixed60-fourrank-paperprofile-native
+          path: agent19-fourrank-fixed60-fresh-native.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Archive every registered source arm, including caps and errors
         if: ${{ always() && inputs.agent13_selfcopy_pair }}
         uses: actions/upload-artifact@v4
