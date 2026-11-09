@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: true
+      run_rank13_source_challenge:
+        description: 'Execute four-cell original rank13 prelock source challenge and paid Perfection pivot'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -31,7 +36,7 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
 
       - name: Install and compile pinned Twinleaf server
-        if: ${{ inputs.run_replay }}
+        if: ${{ inputs.run_replay || inputs.run_rank13_source_challenge }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
@@ -73,6 +78,25 @@ jobs:
             sleep 2
           done
           exit 1
+
+      - name: Validate original rank13 source-policy causal-factorial runner
+        if: ${{ inputs.run_rank13_source_challenge }}
+        run: |
+          node --check simulation/twinleaf/agent5/rank13-owner-pass-trainers.cjs
+          node --check simulation/evaluation/agent5/rank13-source-policy-factorial.cjs
+
+      - name: Execute four-cell original Regidrago source-policy challenge
+        if: ${{ inputs.run_rank13_source_challenge }}
+        run: node simulation/evaluation/agent5/rank13-source-policy-factorial.cjs
+
+      - name: Archive original rank13 four-cell real native source, attack and Pass evidence
+        if: ${{ always() && inputs.run_rank13_source_challenge }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-rank13-source-challenger-perfection-four-cell
+          path: artifacts/agent5-rank13/
+          retention-days: 21
+          if-no-files-found: warn
 
       - name: Archive native attack, KO, Prize and promotion evidence
         if: ${{ always() && inputs.run_replay }}
