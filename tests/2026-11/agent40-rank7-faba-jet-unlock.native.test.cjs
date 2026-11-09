@@ -81,8 +81,12 @@ function probe(seat) {
     native('game/store/actions/play-card-action');
   const { ResolvePromptAction } =
     native('game/store/actions/resolve-prompt-action');
-  const { GameMessage } = native('game/game-message');
   const { IS_ABILITY_BLOCKED } = native('game/store/prefabs/prefabs');
+  const { actorObservation } =
+    require('../../simulation/twinleaf/actor-observation-contract.cjs');
+  const {
+    chooseFabaJetHoodRoot,chooseFabaJetHoodPrompt,choosePostJetNestRoot
+  } = require('../../simulation/twinleaf/2026-11/agent40-faba-jet-owner-bridge.cjs');
   const sourceId = x.originalPlayer.id;
   const candidateId = x.candidatePlayer.id;
   const source = () => x.store.state.players.find(p => p.id === sourceId);
@@ -110,23 +114,33 @@ function probe(seat) {
   assert.equal(blocked(), false, 'Protected opposing Vileplume remains functional');
   const hoodId = candidate().bench[0].tools[0].id;
 
-  // A real original-source Supporter, owned and paid by the source actor.
-  const fabaIndex = source().hand.cards.findIndex(c => c.id === faba.id);
-  x.store.dispatch(new PlayCardAction(sourceId, fabaIndex, {
+  // The first staged Supporter and each pending Tool target are now chosen
+  // from authentic owner-public Store views, not fixture-hardcoded indices.
+  const fabaView = actorObservation(x.store.state, seat);
+  const fabaIntent = chooseFabaJetHoodRoot(fabaView);
+  assert.ok(fabaIntent);
+  assert.equal(fabaIntent.reason,
+    'remove-hood-before-jet-wobbuffet-item-unlock');
+  assert.equal(source().hand.cards[fabaIntent.handIndex].id, faba.id);
+  x.store.dispatch(new PlayCardAction(sourceId, fabaIntent.handIndex, {
     player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
   }));
   const selection = x.store.state.prompts.find(p =>
     p.result === undefined && p.playerId === sourceId && p.type === 'Select');
   assert.ok(selection);
-  x.store.dispatch(new ResolvePromptAction(selection.id,
-    selection.values.indexOf(GameMessage.CHOICE_TOOL)));
+  const selectAnswer = chooseFabaJetHoodPrompt(
+    actorObservation(x.store.state, seat),selection,x.store.state,
+    {PlayerType,SlotType});
+  assert.equal(selectAnswer?.kind,'faba-select-tool');
+  x.store.dispatch(new ResolvePromptAction(selection.id,selectAnswer.answer));
   const targetPrompt = x.store.state.prompts.find(p =>
     p.result === undefined && p.playerId === sourceId && p.type === 'Choose pokemon');
   assert.ok(targetPrompt);
-  x.store.dispatch(new ResolvePromptAction(targetPrompt.id,
-    targetPrompt.decode([{
-      player: PlayerType.TOP_PLAYER, slot: SlotType.BENCH, index: 0
-    }], x.store.state)));
+  const targetAnswer = chooseFabaJetHoodPrompt(
+    actorObservation(x.store.state, seat),targetPrompt,x.store.state,
+    {PlayerType,SlotType});
+  assert.equal(targetAnswer?.kind,'faba-target-hooded-vileplume');
+  x.store.dispatch(new ResolvePromptAction(targetPrompt.id,targetAnswer.answer));
   assert.ok(candidate().lostzone.cards.some(c => c.id === hoodId),
     'Faba physically moves opponent Hood to opponent-owned Lost Zone');
   assert.equal(blocked(), false,
@@ -135,8 +149,6 @@ function probe(seat) {
   // Select the Jet response from the actual detached source-owner view.
   // The shared default-off root uses this same chooser; never consult
   // opponent concealed cards or unrevealed original Prize identities.
-  const { actorObservation } =
-    require('../../simulation/twinleaf/actor-observation-contract.cjs');
   const { choosePublicJetBenchSwitch } =
     require('../../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs');
   const observed = actorObservation(x.store.state, seat);
@@ -168,9 +180,13 @@ function probe(seat) {
   assert.equal(source().bench[0].getPokemonCard().fullName, 'Mimikyu PAL');
   assert.equal(blocked(), true, 'Unhooded AOR must lose Item lock with Wobbuffet Active');
 
-  // Follow through on the concrete Item that the utility promotion unlocked.
-  const nestIndex = source().hand.cards.findIndex(c => c.id === nest.id);
-  x.store.dispatch(new PlayCardAction(sourceId, nestIndex, {
+  // The Item root is also selected from the genuine post-Jet owner view.
+  // Only the subsequent private source-owned search prompt chooses Regirock.
+  const nestView = actorObservation(x.store.state, seat);
+  const nestIntent = choosePostJetNestRoot(nestView);
+  assert.equal(nestIntent?.kind,'play-nest-after-jet');
+  assert.equal(source().hand.cards[nestIntent.handIndex].id,nest.id);
+  x.store.dispatch(new PlayCardAction(sourceId, nestIntent.handIndex, {
     player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
   }));
   const prompts = settleNest(x.store, sourceId, target.id, seat);
@@ -235,7 +251,10 @@ function probe(seat) {
   return {
     version: VERSION, pin: PIN, seat, originalSourceRank: 7,
     fabaLostZoneHood: true, jetPromotedWobbuffet: true,
+    sourceOwnerFabaProposal: fabaIntent.reason,
+    sourceOwnerFabaPromptKinds: [selectAnswer.kind,targetAnswer.kind],
     sourceOwnerPublicJetProposal: proposal.reason,
+    sourceOwnerPostJetItemProposal: nestIntent.reason,
     sourceItemResolvedAfterUtility: true, sourceItemPrompts: prompts,
     physicalCounts: [physicalCount(source()), physicalCount(candidate())],
     stagedOnly: true, naturalSourceDeals: 0, qualifiedCompetitiveGames: 0
