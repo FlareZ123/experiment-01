@@ -1522,6 +1522,7 @@ function runDevelopment({
   actorActiveMegaClawPriorityRoot=false,
   actorRank9SpecialPaidRetreatSource=false,
   actorFlexiblePaidRetreatRoot=false,
+  actorSkylinerFundedBenchRetreatRoot=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -1757,6 +1758,8 @@ function runDevelopment({
     'Float Stone census must observe the same actor-only policy in both seats');
   assert.ok(!actorGenericTacticalSwitchRoot||actorOnlyComposition,
     'Generic funded KO Item Switch requires actor-only composition');
+  assert.ok(!actorSkylinerFundedBenchRetreatRoot||actorOnlyComposition,
+    'Skyliner funded Bench attack must use symmetric actor-only roots');
   assert.ok(!actorOpponentBlockSwitchRoot||actorOnlyComposition,
     'Opponent Block Item rescue requires actor-only composition');
   assert.ok(!actorZeroEnergyStrandFloatStoneRoot||actorOnlyComposition,
@@ -2261,6 +2264,9 @@ function runDevelopment({
               }:{}),
               ...(actorFlexiblePaidRetreatRoot?{
                 flexiblePaidRetreatRoot:true
+              }:{}),
+              ...(actorSkylinerFundedBenchRetreatRoot?{
+                skylinerFundedBenchRetreatRoot:true
               }:{}),
               ...(actorRank9SpecialPaidRetreatSource?{
                 rank9SpecialPaidRetreat:true,
