@@ -28,6 +28,7 @@ on:
           - agent3-dual-fixed60-all29-paperprofile
           - agent3-dual-fixed60-all29-artifact-audit
           - agent3-vileplume-vs-shadow-all29
+          - agent3-regidrago-vs-shadow-all29
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -250,6 +251,22 @@ jobs:
         with:
           name: agent3-rank7-guzma-custody-ab
           path: artifacts/agent3-rank7-guzma-custody-ab.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Preflight fresh original-source rank10 Regidrago vs rank1 Shadow 58-group architecture test
+        if: inputs.experiment == 'agent3-regidrago-vs-shadow-all29'
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-regidrago-vs-shadow-all29-native.cjs
+          node simulation/evaluation/2026-11/agent3-regidrago-vs-shadow-all29-native.cjs --inspect-only
+      - name: Run rank10 Regidrago and rank1 Shadow against all29 original printed source decks
+        if: inputs.experiment == 'agent3-regidrago-vs-shadow-all29'
+        run: node simulation/evaluation/2026-11/agent3-regidrago-vs-shadow-all29-native.cjs
+      - name: Archive 116 native original-source Regidrago and champion outcomes
+        if: always() && inputs.experiment == 'agent3-regidrago-vs-shadow-all29'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-regidrago-vs-shadow-all29-native
+          path: agent3-regidrago-vs-shadow-all29-native.json
           if-no-files-found: warn
           retention-days: 21
       - name: Preflight fresh original-source rank2 Vileplume vs rank1 Shadow 58-group architecture test
