@@ -139,6 +139,9 @@ for(const seat of [0,1]){
     const after=rootPhysicalSnapshot(store.state,sourceSeat,intent);
     assert.equal(rootPhysicalWitness(intent,before,after,GamePhase),
       'confirmed-public-effect');
+    assert.equal(rootPhysicalWitness(intent,before,
+      {...after,inPlayStadiumPrintings:before.inPlayStadiumPrintings},GamePhase),
+      'no-confirmed-public-effect');
     const current=store.state.players[sourceSeat];
     assert.ok(current.stadium.cards.some(c=>c.fullName==='Sky Field ROS'));
     assert.equal(store.state.players[1-sourceSeat].stadium.cards.length,0);
