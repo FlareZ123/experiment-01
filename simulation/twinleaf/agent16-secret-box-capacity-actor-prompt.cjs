@@ -48,6 +48,7 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
       'Explicit stagedStore must be a real native Store');
   let live=liveFromStaged;
   const planned=new WeakMap();
+  const awaiting=new Set();
   const audit={
     version:VERSION,
     stagedStoreInjected:liveFromStaged!==null,
@@ -61,6 +62,9 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     unsupportedPromptDelegations:0,
     acceptedBySeat:{0:0,1:0},
     physicalReceiptCount:0,
+    nativePaymentPhysicallySettled:0,
+    nativeCategoryPhysicallySettled:0,
+    outstandingPhysicalReceipts:0,
     qualifiedGames:0
   };
 
@@ -105,29 +109,46 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     return action;
   }
 
+  /** Check physical custody after every accepted Store dispatch, including
+   * the later continuation prompts that can complete a Trainer search. */
+  function inspectPendingPhysicalReceipts(store) {
+    for(const record of [...awaiting]){
+      const owner=store.state.players[record.seat];
+      const settled=record.kind==='payment'?
+        record.selectedCards.every(card=>
+          !owner.hand.cards.includes(card)&&
+          owner.discard.cards.includes(card)):
+        record.selectedCards.every(card=>
+          !owner.deck.cards.includes(card)&&
+          owner.hand.cards.includes(card));
+      if(!settled)continue;
+      awaiting.delete(record);
+      audit.physicalReceiptCount++;
+      if(record.kind==='payment')audit.nativePaymentPhysicallySettled++;
+      else audit.nativeCategoryPhysicallySettled++;
+    }
+    audit.outstandingPhysicalReceipts=awaiting.size;
+  }
+
   function dispatch(action,...rest) {
     if(action?.constructor?.name==='AddPlayerAction'&&
       liveFromStaged===null)live=this;
     const record=this===live?planned.get(action):null;
-    if(!record)return previousDispatch.value.call(this,action,...rest);
+    if(!record){
+      const result=previousDispatch.value.call(this,action,...rest);
+      if(this===live)inspectPendingPhysicalReceipts(this);
+      return result;
+    }
     try{
       const result=previousDispatch.value.call(this,action,...rest);
       assert.ok(!this.state.prompts.some(p=>
         p.id===record.promptId&&p.result===undefined),
         'Accepted Secret Box prompt must settle in the native Store');
-      if(record.kind==='payment'){
-        assert.ok(record.selectedCards.every(card=>
-          !this.state.players[record.seat].hand.cards.includes(card)&&
-          this.state.players[record.seat].discard.cards.includes(card)));
-        audit.nativePaymentAccepted++;
-      }else{
-        assert.ok(record.selectedCards.every(card=>
-          !this.state.players[record.seat].deck.cards.includes(card)&&
-          this.state.players[record.seat].hand.cards.includes(card)));
-        audit.nativeCategoryAccepted++;
-      }
+      if(record.kind==='payment')audit.nativePaymentAccepted++;
+      else audit.nativeCategoryAccepted++;
       audit.acceptedBySeat[record.seat]++;
-      audit.physicalReceiptCount++;
+      awaiting.add(record);
+      inspectPendingPhysicalReceipts(this);
       return result;
     }catch(error){
       audit.nativeRejected++;
