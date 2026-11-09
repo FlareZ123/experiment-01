@@ -31,7 +31,7 @@ test('both paired owners retain exact physical deals and only treatment offers A
     manifest:()=>({
       audit:{schema:'stub-matching-same-manifest'},
       manifest:{
-        nativeActionCap:180,commonPolicy:{},
+        nativeActionCap:180,commonPolicy:{actorOnlyComposition:true,nativeRootActionLimit:180},
         modes:[{id:'selected-v3-paper-plus-funded-mobility',
           ownerGenericTrainerFrontier:true,
           actorFundedShadowRiderFloatStoneRoot:true}]
