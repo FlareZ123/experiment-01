@@ -37,7 +37,7 @@ function registration(){
   assert.equal(source.cards.reduce((n,x)=>n+x.count,0),60);
   const newMoon=require('../../../results/als/new-moon-perfection-source-60.json');
   const candidateCards=Array.isArray(newMoon)?newMoon:
-    newMoon.cards??newMoon.deck?.cards??newMoon.deck;
+    newMoon.entries??newMoon.cards??newMoon.deck?.cards??newMoon.deck;
   assert.ok(Array.isArray(candidateCards),
     'New Moon public manifest must retain physical printed-card inventory');
   const candidateCount=candidateCards.reduce((n,x)=>
@@ -173,6 +173,7 @@ function execute(){
   const targetLinked=row.nativeAcceptedTargetSidecar?.rootOrdinalLinked===true;
   const firstMissing=[
     [admittedSource60,'original-source-60-deck-materialization'],
+    [false,'verified-exact-Japanese-candidate-physical-printings-not-in-published-transcription'],
     [physicalDeal,'initial-complete-physical-deal-zone-capture'],
     [nativeFinished,'naturally-terminated-native-game'],
     [nativeTraceComplete,'all-accepted-native-root-zones'],
@@ -186,7 +187,8 @@ function execute(){
   const intake={
     schema:'agent44-first-independent-original-source-case-intake-v1',
     caseId:reg.caseId,originalRank:5,sourceSeat,candidateSeat,
-    exactRegisteredSourceAndCandidateSixties:true,
+    fixedRegisteredSourceAndCandidateSixties:true,
+    exactJapaneseCandidatePrintingsIndependentlyVerified:false,
     sourcePrintedSha256:reg.sourceOriginalPrinted60Sha256,
     sourcePrintedInventorySha256,candidatePrintedInventorySha256,
     originalFrozenRegistrationSha256:registrationSha256,
@@ -213,7 +215,8 @@ function execute(){
     },
     nineEvidenceObjects:{
       originalSixties:{available:true,sourceSha256:reg.sourceOriginalPrinted60Sha256,
-        contenderSha256:candidatePrintedInventorySha256},
+        contenderPublishedSixtySha256:candidatePrintedInventorySha256,
+        candidatePhysicalJapanesePrintingVerification:'missing'},
       physicalInitialPartition:{available:physicalDeal,
         firstStable:zoneEvidence.initialStablePhysicalDeal??null},
       coinFirstTurnAndMulligan:{available:row.actualStarterSeat!==null,
@@ -244,8 +247,9 @@ function execute(){
         reason:'No contemporaneous official clock or authenticated no-call witness'}
     },
     releaseStatus:{
-      captureComplete:physicalDeal&&nativeTraceComplete&&targetLinked&&
-        physicalPassed&&nativeFinished,
+      captureComplete:false,
+      nativeTraceCaptureComplete:physicalDeal&&nativeTraceComplete&&
+        targetLinked&&physicalPassed&&nativeFinished,
       rulesPassed:false,clockPassed:false,strategyPassed:false,
       reviewAuthorized:false,competitiveAdmission:false,
       firstMissingEvidence:firstMissing,
