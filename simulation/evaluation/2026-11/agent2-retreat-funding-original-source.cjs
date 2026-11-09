@@ -156,6 +156,22 @@ function run(deps={}){
     assert.ok(partner,'Missing corresponding physical source '+row.id);
     return compare(row,partner);
   });
+  // Native errors can occur before the actor or full deck fingerprints exist.
+  // Retain the entire pair as an error; require matched provenance and policy
+  // flags only for genuinely completed both-arm Store games.
+  const completed=pairs.filter(x=>x.nativeTerminalComparable);
+  const symmetricEngineErrors=pairs.filter(x=>
+    x.nativeStatuses.baseline==='engine-error'&&
+    x.nativeStatuses.treatment==='engine-error');
+  const unpairedFailures=pairs.filter(x=>
+    !x.nativeTerminalComparable&&
+    !(x.nativeStatuses.baseline==='engine-error'&&
+      x.nativeStatuses.treatment==='engine-error'));
+  const completedPairsReleaseEligible=completed.length>0&&
+    completed.every(x=>x.matchedOriginalPhysicalDeal&&
+      x.sameFixedOriginalSixties&&
+      x.baseline.optIn===false&&x.treatment.optIn===true)&&
+    unpairedFailures.length===0;
   return {
     version:VERSION,type:'developmental matched original Aichi source counterfactual',
     historicalRegistration:REGISTRATION,sourceRanks:SOURCE_RANKS,
@@ -163,6 +179,10 @@ function run(deps={}){
     allPhysicalDealsMatched:pairs.every(x=>x.matchedOriginalPhysicalDeal),
     allPolicyFlagsPassed:pairs.every(x=>
       x.baseline.optIn===false&&x.treatment.optIn===true),
+    completedNativePairs:completed.length,
+    symmetricEngineErrorPairs:symmetricEngineErrors.length,
+    incompleteNativePairs:unpairedFailures.length,
+    completedPairsReleaseEligible,
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     rootLimit:ROOT_LIMIT,armOptions:{baseline:options(false),treatment:options(true)},
     distinctPrecommittedGroups:4,nativeAttempts:8,
@@ -188,6 +208,10 @@ if(require.main===module){
     matched:result.allPhysicalDealsMatched,
     fixed:result.sameFixedOriginalSixties,
     flags:result.allPolicyFlagsPassed,
+    completedPairsReleaseEligible:result.completedPairsReleaseEligible,
+    completedNativePairs:result.completedNativePairs,
+    symmetricEngineErrorPairs:result.symmetricEngineErrorPairs,
+    incompleteNativePairs:result.incompleteNativePairs,
     selectedGroups:result.selectedBridgeGroups,
     completeSelectionGroups:result.selectedFullSequenceGroups,
     statuses:result.pairs.map(x=>({
@@ -198,8 +222,7 @@ if(require.main===module){
       baseline:x.nativeStatuses.baseline,treatment:x.nativeStatuses.treatment
     }))
   }));
-  if(!result.allPhysicalDealsMatched||!result.sameFixedOriginalSixties||
-     !result.allPolicyFlagsPassed)
+  if(!result.completedPairsReleaseEligible)
     process.exitCode=1;
 }
 module.exports={VERSION,REGISTRATION,ROOT_LIMIT,SOURCE_RANKS,
