@@ -73,6 +73,40 @@ function disposer(manager, entry) {
   };
 }
 
+
+/**
+ * Translate an authenticated source list's existing native typo to the
+ * printed identity, preserving every other card ID and the 60-card count.
+ * Call while the lookup alias is installed when using a native DeckAnalyser
+ * or constructing a game. Existing caller lists are never mutated.
+ *
+ * @param {string[]} nativeIds Complete resolved source 60.
+ * @param {object[]} publishedCards Published source name/count/printing rows.
+ * @returns {string[]} New native-resolvable original printed 60.
+ */
+function canonicalizePublishedGrandTreeDeck(nativeIds, publishedCards) {
+  if (!Array.isArray(nativeIds) || nativeIds.length !== 60 ||
+      !Array.isArray(publishedCards)) {
+    throw new TypeError('Expected 60 native IDs and published card rows');
+  }
+  const printed=publishedCards.filter(row=>
+    row.name==='Grand Tree' && row.printing?.set==='SCR' &&
+    String(row.printing.number)==='136');
+  const count=printed.reduce((sum,row)=>sum+row.count,0);
+  const legacyCount=nativeIds.filter(id=>id===NATIVE_MISSPELLING).length;
+  const canonicalCount=nativeIds.filter(id=>id===CANONICAL).length;
+  if (count===0) {
+    if (legacyCount || canonicalCount)
+      throw new Error('Native Grand Tree appears without matching published printing');
+    return nativeIds.slice();
+  }
+  if (count!==1 || legacyCount+canonicalCount!==count)
+    throw new Error('Published Grand Tree source printing mismatch');
+  if (canonicalCount===1) return nativeIds.slice();
+  return nativeIds.map(id=>id===NATIVE_MISSPELLING?CANONICAL:id);
+}
+
 module.exports = {
-  CANONICAL, NATIVE_MISSPELLING, installGrandTreePrintingAlias
+  CANONICAL, NATIVE_MISSPELLING, installGrandTreePrintingAlias,
+  canonicalizePublishedGrandTreeDeck
 };
