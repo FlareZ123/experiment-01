@@ -6,7 +6,7 @@ on:
       panel:
         description: 'Frozen developmental fixed-60 experiment, original screen or Mimikyu pivot'
         type: choice
-        options: ['baseline', 'safeguard']
+        options: ['baseline', 'safeguard', 'temple']
         default: 'baseline'
 
 permissions:
@@ -47,6 +47,14 @@ jobs:
       - name: Run 48 preregistered native Safeguard vs original comparisons
         if: ${{ inputs.panel == 'safeguard' }}
         run: node simulation/evaluation/2026-11/agent12-safeguard-pivot-original-field-native.cjs
+      - name: Test frozen Temple v2 against Safeguard v1 and native censor accounting
+        if: ${{ inputs.panel == 'temple' }}
+        run: |
+          node --test tests/2026-11/agent12-temple-vs-safeguard-native.test.cjs
+          node simulation/evaluation/2026-11/agent12-temple-vs-safeguard-native.cjs --inspect-only
+      - name: Run 48 preregistered original-source Temple comparison games
+        if: ${{ inputs.panel == 'temple' }}
+        run: node simulation/evaluation/2026-11/agent12-temple-vs-safeguard-native.cjs
       - name: Archive original 32-game baseline
         if: ${{ always() && inputs.panel == 'baseline' }}
         uses: actions/upload-artifact@v4
@@ -61,5 +69,14 @@ jobs:
         with:
           name: agent12-thorns-safeguard-pivot-native
           path: agent12-thorns-safeguard-native.json
+          if-no-files-found: warn
+          retention-days: 21
+
+      - name: Archive Temple v2 complete 48-game root ledgers
+        if: ${{ always() && inputs.panel == 'temple' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-temple-mimikyu-v2-native
+          path: agent12-temple-mimikyu-native.json
           if-no-files-found: warn
           retention-days: 21
