@@ -56,6 +56,7 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
     simultaneousLastPrizeCandidate:false,
     secondPrizeTransferAttempted:false,
     secondPrizeTransferCompleted:false,
+    manualNonterminalPrizeChoiceBlocked:false,
     firstPrizeTransferCompleted:false,
     bothPrizeTransfersCompleted:false,
     firstPrizeDestinationIsHand:false,
@@ -200,6 +201,18 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
 
       const otherGroupAlreadyProcessed=
         processedPrizePlayerIds.has(otherPlayer.id);
+      // A terminal first group prevents Twinleaf from offering the second
+      // recipient's normal ChoosePrizePrompt. Auto-picking first N from a
+      // heterogeneous, non-exhausted Prize pool would make an owner choice.
+      if(firstGroupExhausts&&!otherGroupAlreadyProcessed&&
+        otherGroup.count<prizeLeftBefore[otherPlayer.id]){
+        const printings=otherPlayer.prizes.flatMap(prize=>
+          prize.cards.map(card=>card.fullName));
+        if(new Set(printings).size>1){
+          audit.manualNonterminalPrizeChoiceBlocked=true;
+          throw Error('MANUAL_NONTERMINAL_PRIZE_SELECTION_REQUIRES_OWNER_CHOICE');
+        }
+      }
       if(firstGroupExhausts&&!otherGroupAlreadyProcessed){
         const prizes=otherPlayer.prizes
           .filter(prize=>prize.cards.length>0)
