@@ -40,6 +40,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.ok(options.guzmaNominalGust!==true||
     options.guzmaOwnerPromptContinuation===true,
     'Nominal opponent gust requires the owner Guzma continuation');
+  assert.ok(options.actorAttackFuelDiscard!==true||
+    options.actorHandDiscard===true,
+    'Attack-fuel payment requires owner actor hand-discard prompt resolver');
+  assert.ok(options.actorAttackFuelDiscard!==true||
+    options.ownerMewUltraBallDiscardSeat===undefined,
+    'Source-specific Ultra Ball payment and generic attack fuel are isolated trials');
   const ownerSingleSearch = options.ownerSingleSearch===true;
   const genericFallbackAttribution = options.genericFallbackAttribution===true;
   const actorChoosePokemon = options.actorChoosePokemon===true;
@@ -302,7 +308,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
           .chooseMewUltraBallPayment(
             input,options.ownerMewUltraBallDiscardSeat,
             {protectQuickBall:options.ownerMewQuickBallPaymentGuard===true})
-      }):handDiscard(runOwnerDonor);
+      }):options.actorAttackFuelDiscard===true?
+        handDiscard(runOwnerDonor,{}, {attackFuelDiscard:true}):
+        handDiscard(runOwnerDonor);
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Actor hand-discard adapter must expose an audit');
     handDiscardAudit=selected.audit;
@@ -469,6 +477,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       genericFallbackAttribution?GENERIC_FALLBACK_VERSION:
       sparseOwnerSearch?SPARSE_OWNER_SEARCH_VERSION:
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
+      (options.actorAttackFuelDiscard===true?'+'+
+        require('../twinleaf/2026-11/agent47-attack-fuel-discard-frontier.cjs')
+          .VERSION:'')+
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
       (ownerVipBeforeAttackAudit?'+'+ownerVipBeforeAttackAudit.version:'')+
@@ -487,6 +498,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         require('../twinleaf/agent43-guzma-nominal-gust-frontier.cjs').VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
+    actorAttackFuelDiscardOptIn:options.actorAttackFuelDiscard===true,
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerGenericTrainerFrontierOptIn:options.ownerGenericTrainerFrontier===true,
     ...(options.ownerElectrodeBombCensus===true?{
@@ -576,7 +588,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(handDiscard?{
         handDiscardAccepted:handDiscardAudit.accepted??null,
         handDiscardBySeat:handDiscardAudit.bySeat??null,
-        handDiscardSettled:handDiscardAudit.nativePromptPostconditionsConfirmed??null
+        handDiscardSettled:handDiscardAudit.nativePromptPostconditionsConfirmed??null,
+        ...(options.actorAttackFuelDiscard===true?{
+          attackFuelDiscardAlternatives:
+            handDiscardAudit.attackFuelAlternativeProposals??null,
+          attackFuelDiscardSelected:
+            handDiscardAudit.attackFuelSelected??null
+        }:{})
       }:{}),
       selectAccepted: selectAudit.accepted ?? null,
       selectOptionAccepted: optionAudit.acceptedPromptActions ?? null,
