@@ -105,8 +105,8 @@ for(const seat of [0,1]){
       assert.ok(events.some(e=>e.kind==='proposed-physical-underworld-to-mimikyu'));
     }finally{restore();}
     // Idempotent restoration leaves the native printed action method intact.
-    assert.equal(underworldOpportunity(x.store.state,x.candidate,seat)?.vmarks.length,
-      0);
+    assert.equal(underworldOpportunity(x.store.state,x.candidate,seat),null,
+      'The once-per-turn Underworld Door has been spent');
   });
 
   test('opponent and unrelated public boards never trigger energy emphasis, seat '+seat,()=>{
