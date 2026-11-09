@@ -27,7 +27,15 @@ Four fixed original rank-3-versus-rank-1 trial IDs use exactly two preregistered
 - No Store rejection (`failure=null`). Three arms ended at the 260-root cap, and one at a native engine game-end with both players still on six Prizes. None changed its endpoint or final Prize counts under the treatment.
 - **Zero competitively qualified games**, **no changed native winner**, **no field win-rate measurement**.
 
-A result tagged as an engine terminal with both players holding six Prize cards remains unsuitable as a competitive game witness without independently verified paper-ending conditions. The A/B runner verifies registered seed/seat/id equivalence, pinned root cap, action-to-Store receipts and deferred effects; it does **not** supply a dedicated full-physical-deal fingerprint parity gate, so that remains an acceptance limitation for future stronger comparisons.
+A result tagged as an engine terminal with both players holding six Prize cards remains unsuitable as a competitive game witness without independently verified paper-ending conditions. The **first native run** verified registered seed/seat/id equivalence, pinned root cap, action-to-Store receipts and deferred effects, but lacked a dedicated physical-deal parity gate. A subsequent v2 contract and native execution below closed that specific gap.
+
+## Subsequent physical-deal parity correction (new native run)
+
+**[Native run 42562369396](https://github.com/FlareZ123/experiment-01/actions/runs/42562369396)** completed successfully at 04:34 UTC on 9 November 2026. The revised **v2** runner now carries SHA-256 digests for the original source's setup and the complete two-player physical deal from each native attempt. It fails closed when either digest is missing, malformed, or unequal between A/B for a registered trial; the hidden identities remain opaque to the policy.
+
+Its independent Store execution reported `physicalDealPairsMatched=4`, `fullPhysicalPanelValid=true`, `accepted=2`, `settled=2`, `publicDeckCardsMilled=4`, `sourceContinuations=2`, and `failure=null`. All six original policy tests and the added physical-parity negative/positive unit test succeeded. This is an actual **four-of-four paired full physical-deal receipt**, not an inference from identical seeds. The single-policy effect remains development-only; all original capped/terminal status limitations stand.
+
+Code: `simulation/evaluation/agent43-v8-snaptrap-exact-prompt-blocker.cjs` now passes through the Store's pre-action opaque `sourceDealFingerprint` and `fullPhysicalDealFingerprint`; `simulation/evaluation/agent1-v8-held-handiwork-four-arm.cjs` asserts and reports both, with `tests/2026-11/agent1-held-handiwork-four-arm.test.cjs` testing the failure gate. Frozen v8 and the printed 60-card decks did not change. This was a custody/experiment-validity correction to the previously exposed four seeds, not a fresh-deal generalization test.
 
 ## How to use this result
 
