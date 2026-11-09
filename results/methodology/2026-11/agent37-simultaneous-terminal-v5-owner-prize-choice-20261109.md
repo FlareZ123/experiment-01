@@ -73,6 +73,31 @@ The unchanged v3/v4 native regressions in the same job also passed.
 Machine-readable output is retained in [artifact 13647413426](https://github.com/FlareZ123/experiment-01/actions/runs/42556501447/artifacts/13647413426),
 SHA-256 `e31eeca6c101b5baa1f7371ea7d02d24a32c19ee0faf2592282a8dea18c4f71e`.
 
+## Native second-group-first-terminal ordering
+
+A distinct pinned `choosePrizeCards` failure occurs when the first
+`state.players[0]` recipient's group is **non-exhausting** and the
+second `state.players[1]` recipient's group is their final Prize.
+The engine constructs the first recipient's normal
+`ChoosePrizePrompt` in a local array, then encounters the second
+recipient's terminal group, immediately calls `endGame`, and returns
+an empty prompt list, silently discarding the first recipient's
+pending choice.
+
+The same v5 deferred-prompt implementation is intended to restore
+this owner decision. Two new native fixtures reverse the earlier
+first-group-terminal setup. For both physical actor-seat orientations,
+the non-exhausting first recipient chooses an actual physical Metal
+Energy Prize from a six-Prize pool after the second recipient's early
+native game end is intercepted. The required result includes one
+prompt, that exact physical Metal card transferred to the chooser's
+hand, the original final winner, and precisely one terminal log.
+
+A dedicated [native run 42557016589](https://github.com/FlareZ123/experiment-01/actions/runs/42557016589)
+was dispatched for these two added scenarios. Its result was pending
+when this section was written. The existing eight v5 controls and
+v3/v4 suites remain in the same manual workflow.
+
 ## Unsolved limits
 
 The current staged transaction is not a naturally played 60-card match and is not a competitive paper game. Two Active Knock Outs, exactly two positive Prize groups, ordinary hand destinations, and simple Bench-based promotion eligibility remain required. The exact card objects in the staged Prize pool are known to the test controller; this test is deliberately a native mechanical fixture, not a player information-policy certificate. When deployed in an autonomous game, the `ChoosePrizePrompt` decision must be restricted to owner-visible information and the recorded selected Prize positions must be audited for information leakage. Other effects on Prize destinations, midprompt rule changes, heterogeneous Prize-triggered Abilities, multiple KO events, clock transitions, and discarded or redirected Prize cards require separate tests.
