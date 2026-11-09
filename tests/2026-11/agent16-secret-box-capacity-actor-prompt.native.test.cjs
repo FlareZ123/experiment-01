@@ -31,21 +31,24 @@ const POLICY={maxTotalCost:100,defaultCost:20,spentVipCost:0,
   powerglassRecoveryPremium:0,recoveryTargetPremium:3,
   costs:{[VIP]:0,[CARRIER]:3,[LILLIE]:5}};
 
-/** @param {0|1} seat @param {1|4} count */
-function actorFixture(seat,count){
+/** @param {0|1} seat @param {1|2|4} count @param {1|2} [carrierCopies=2] */
+function actorFixture(seat,count,carrierCopies=2){
   const f=stagedPainfulSpoons(seat);
   f.state.turn=14;
   f.source.supporterTurn=0;
   const box=f.card(BOX);
   f.source.hand.cards.push(
     f.card(VIP),box,f.card(VIP),f.card(CARRIER),
-    f.card(CARRIER),f.card(LILLIE));
-  const targets=(count===1?['Unown AOR']:
+    ...(carrierCopies===2?[f.card(CARRIER)]:[]),f.card(LILLIE));
+  const targets=(count===1?['Unown AOR']:count===2?
+    ['Unown AOR','Unown AOR']:
     ['Unown AOR','Unown AOR','Unown AOR','Duskull VIV'])
     .map(name=>f.card(name));
   f.source.discard.cards.push(...targets);
   const searchCards=CATEGORIES.map(name=>f.card(name));
   f.source.deck.cards.push(...searchCards);
+  const policy=carrierCopies===1?
+    {...POLICY,costs:{...POLICY.costs,[LILLIE]:7}}:POLICY;
   const bot=Object.create(SimpleTacticsAi.prototype);
   bot.client={id:f.source.id};
 
@@ -79,8 +82,36 @@ function actorFixture(seat,count){
           f.store.dispatch(new ResolvePromptAction(p.id,reply));
         }
         assert.equal(pending(),undefined);
+        let actualCarrierRecovered=0;
+        if(carrierCopies===1&&count===2){
+          const carrier=f.source.hand.cards.find(c=>c.fullName===CARRIER);
+          assert.ok(carrier,'Two targets should preserve one physical Carrier');
+          f.store.dispatch(new PlayCardAction(f.source.id,
+            f.source.hand.cards.indexOf(carrier),{
+              player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+            }));
+          const take=pending();
+          assert.equal(take?.sourceCard?.fullName,CARRIER);
+          assert.equal(take.message,'CHOOSE_CARD_TO_HAND');
+          assert.equal(take.validate(targets,f.state),true);
+          f.store.dispatch(new ResolvePromptAction(take.id,targets));
+          for(let i=0;i<15&&pending();i++){
+            const p=pending();
+            const reply=p.constructor.name==='ShowCardsPrompt'?true:
+              p.constructor.name==='ShuffleDeckPrompt'?
+                Array.from({length:f.source.deck.cards.length},(_,j)=>j):
+                p.constructor.name==='WaitPrompt'?null:undefined;
+            assert.ok(reply!==undefined,
+              'Unexpected Carrier continuation '+p.constructor.name);
+            f.store.dispatch(new ResolvePromptAction(p.id,reply));
+          }
+          assert.equal(pending(),undefined);
+          actualCarrierRecovered=targets.filter(c=>
+            f.source.hand.cards.includes(c)&&
+            !f.source.discard.cards.includes(c)).length;
+        }
         return {
-          seat,count,
+          seat,count,carrierCopies,actualCarrierRecovered,
           payment:payment.map(c=>c.fullName),
           selected:selection.map(c=>c.fullName),
           paid:payment.every(c=>f.source.discard.cards.includes(c)&&
@@ -89,7 +120,7 @@ function actorFixture(seat,count){
             !f.source.deck.cards.includes(c)),
           qualifiedGame:false
         };
-      },{stagedStore:f.store,policy:POLICY})));
+      },{stagedStore:f.store,policy})));
   return {
     result:outer.result.result.result,
     actorAudit:outer.result.result.audit,
@@ -127,6 +158,34 @@ test('automatic actor owns real native Secret Box payment and four-category sear
       assert.equal(searchAudit.sourceSearchPrompts,1);
       assert.equal(searchAudit.acceptedSearches,1);
       assert.equal(searchAudit.vetoedSearches,0);
+    }
+  }
+});
+
+test('single held Carrier switches automatic paid decision at two target cards and realizes recovery in both seats',()=>{
+  for(const seat of [0,1]){
+    for(const count of [1,2]){
+      const {result,actorAudit,paymentAudit,searchAudit}=
+        actorFixture(seat,count,1);
+      console.log('AGENT16_ACTOR_SINGLE_CARRIER_NATIVE',JSON.stringify({
+        result,actorAudit,paymentAudit,searchAudit
+      }));
+      assert.equal(result.carrierCopies,1);
+      assert.deepEqual(result.payment,
+        count===1?[VIP,VIP,CARRIER]:[VIP,VIP,LILLIE]);
+      assert.deepEqual(result.selected,CATEGORIES);
+      assert.equal(result.actualCarrierRecovered,count===1?0:2);
+      assert.equal(result.paid,true);
+      assert.equal(result.fetched,true);
+      assert.equal(actorAudit.nativePaymentAccepted,1);
+      assert.equal(actorAudit.nativeCategoryAccepted,1);
+      assert.equal(actorAudit.physicalReceiptCount,2);
+      assert.equal(actorAudit.nativeRejected,0);
+      assert.equal(actorAudit.outstandingPhysicalReceipts,0);
+      assert.equal(actorAudit.acceptedBySeat[seat],2);
+      assert.equal(paymentAudit.vetoedPayments,0);
+      assert.equal(searchAudit.vetoedSearches,0);
+      assert.equal(result.qualifiedGame,false);
     }
   }
 });
