@@ -135,6 +135,15 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
     }
 
     if(inCheckState&&effect instanceof DrawPrizesEffect){
+      // Only two distinct Prize recipients are admissible in this armed
+      // transaction. A re-dispatched effect for an already processed recipient
+      // must not invoke native side effects or move its Prizes again.
+      if(audit.simultaneousTerminalCandidate&&
+        processedPrizePlayerIds.has(effect.player.id)){
+        effect.preventDefault=true;
+        audit.nativeDuplicatePrizeEffectSuppressed++;
+        return state;
+      }
       const result=originalReduce.call(store,state,effect);
       if(secondPrizeTransfer){
         audit.secondPrizeDestinationIsHand=
@@ -230,6 +239,15 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
         audit.callbacks++;
         didComplete=true;
         if(state.phase===GamePhase.FINISHED){
+          // Never certify or silently preserve an early native winner after
+          // arming the correction unless the other Prize transfer is complete.
+          if(audit.simultaneousTerminalCandidate){
+            assert.equal(audit.secondPrizeTransferCompleted,true,
+              'armed simultaneous terminal must complete second Prize transfer');
+            assert.ok(candidatePlayers&&audit.firstPrizeDestinationIsHand&&
+              audit.secondPrizeDestinationIsHand,
+            'armed simultaneous terminal must retain both hand destinations');
+          }
           if(audit.simultaneousTerminalCandidate&&
             audit.secondPrizeTransferCompleted&&
             candidatePlayers&&
