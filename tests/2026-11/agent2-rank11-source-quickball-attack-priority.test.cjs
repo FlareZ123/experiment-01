@@ -50,12 +50,15 @@ function attackRoots(candidateSeat) {
   ];
 }
 
-test('historical rank11 registration contains two independent opposite seats', () => {
+test('historical four-arm registration includes rank11 target and rank13 controls', () => {
   const rows = registered();
-  assert.equal(rows.length, 2);
-  assert.deepEqual(rows.map(x => x.candidateSlot).sort(), ['A', 'B']);
-  assert.deepEqual(rows.map(x => x.seed).sort((a, b) => a - b),
-    [849373371, 3592222510]);
+  assert.equal(rows.length, 4);
+  assert.equal(new Set(rows.map(x => x.seed)).size, 4);
+  for (const rank of [11, 13])
+    assert.deepEqual(rows.filter(x => x.rank === rank)
+      .map(x => x.candidateSlot).sort(), ['A', 'B']);
+  assert.deepEqual(rows.filter(x => x.rank === 11).map(x => x.seed)
+    .sort((a, b) => a - b), [849373371, 3592222510]);
 });
 
 test('the policy toggles just the owner source attack-priority override', () => {
@@ -143,8 +146,8 @@ test('full replay returns all registered attempts and retains invalid source iso
   const result = run({
     runArm: guarded => ({selected: {rawDevelopment: {rows: build(guarded)}}})
   });
-  assert.equal(result.nativeAttempts, 4);
-  assert.equal(result.pairs.length, 2);
+  assert.equal(result.nativeAttempts, 8);
+  assert.equal(result.pairs.length, 4);
   assert.equal(result.matchedBothPhysicalDeals, true);
   assert.equal(result.sourceIsolation, false);
   assert.ok(result.pairs.some(pair =>
