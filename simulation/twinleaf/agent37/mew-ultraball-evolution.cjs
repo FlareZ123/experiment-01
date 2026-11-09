@@ -105,7 +105,17 @@ function chooseMewUltraBallPayment(input,ownerSeat){
     !(printing==='Forest Seal Stone SIT'&&vstarSpent);
   const safe=prompt.menu.filter(names=>names.every(n=>!protectedNow(n)));
   if(safe.length===0)return generic(input);
-  return generic({...input,prompt:{...prompt,menu:safe}});
+  // Battle VIP Pass is only playable during the player's first turn.
+  // At global turn >= 3 both players have already had their first turn.
+  // An already used Forest Seal Stone VSTAR Power is similarly exhausted.
+  // Burn those demonstrably dead cards first, then retain the existing
+  // duplicate-preserving generic scorer for ties among native-legal pairs.
+  const deadCount=names=>names.filter(n=>
+    (n==='Forest Seal Stone SIT'&&vstarSpent)||
+    (n.startsWith('Battle VIP Pass ')&&actor.globalTurn>=3)).length;
+  const maximum=Math.max(...safe.map(deadCount));
+  const preferred=safe.filter(names=>deadCount(names)===maximum);
+  return generic({...input,prompt:{...prompt,menu:preferred}});
 }
 
 module.exports={VERSION,chooseMewUltraBallEvolutionRoot,
