@@ -129,3 +129,90 @@ test('existing non-Pass native decision takes priority',()=>{
   assert.equal(r.audit.ownerPassObservations,0);
   assert.deepEqual(r.observed,[]);
 });
+
+
+test('optional native Cursed Blast self-KO activates held Ace Trainer as third root',()=>{
+  class AceCardAction{
+    constructor(clientId,handIndex,target){
+      this.clientId=clientId;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  const original=depsNative['game/store/actions/play-card-action'].PlayCardAction;
+  depsNative['game/store/actions/play-card-action'].PlayCardAction=AceCardAction;
+  try{
+    const donorOwner={id:11,hand:{cards:[{
+      fullName:'Ace Trainer AOR',canPlay:()=>true
+    }]}};
+    const other={id:22,active:{
+      getPokemonCard:()=>({fullName:'Shadow Rider Calyrex V CRE'})
+    },bench:[]};
+    const state={turn:4,activePlayer:0,prompts:[],
+      players:[donorOwner,other],aceTargetDone:false};
+    const ai=new SimpleTacticsAi(11);
+    const store=new Store(state);
+    const baseDispatch=store.dispatch.bind(store);
+    store.dispatch=action=>{
+      const answer=baseDispatch(action);
+      if(action instanceof ResolvePromptAction)state.aceTargetDone=true;
+      return answer;
+    };
+    const headless={runMatch(request){
+      store.dispatch(new AddPlayerAction());
+      const ability=ai.decodeNextAction(state);
+      store.dispatch(ability);
+      const target=ai.decodeNextAction(state);
+      store.dispatch(target);
+      const supporter=ai.decodeNextAction(state);
+      store.dispatch(supporter);
+      return {ability,target,supporter};
+    }};
+    // Store's own instance method above is not the prototype's dispatch,
+    // so the native-root hook must observe the prototype itself.
+    delete store.dispatch;
+    const priorStore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+    Object.defineProperty(Store.prototype,'dispatch',{
+      ...priorStore,
+      value:function(action){
+        const result=priorStore.value.call(this,action);
+        if(action instanceof ResolvePromptAction)this.state.aceTargetDone=true;
+        return result;
+      }
+    });
+    try{
+      const evidence=withPolicy(()=>headless.runMatch({
+        deckA:Array(60).fill('A'),deckB:Array(60).fill('B')
+      }),{
+        headless,native,allowAceEnable:true,
+        observeOwner:()=>({
+          decisionKind:'owner-root',globalTurn:4,
+          ownHand:['Ace Trainer AOR','Fog Crystal CRE'],
+          ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false},
+          ownPublic:{
+            prizeCount:6,
+            bench:[{printing:'Dusclops SFA',abilities:['Cursed Blast']}],
+            publicTurnRestrictions:{supporterPlayLocked:false}
+          },
+          opponentPublic:{
+            prizeCount:state.aceTargetDone?5:6,handCount:7,
+            active:{printing:'Shadow Rider Calyrex V CRE',hp:210,damage:0},
+            bench:[]
+          }
+        })
+      });
+      assert.ok(evidence.result.ability instanceof UseAbilityAction);
+      assert.ok(evidence.result.target instanceof ResolvePromptAction);
+      assert.ok(evidence.result.supporter instanceof AceCardAction);
+      assert.equal(evidence.result.supporter.handIndex,0);
+      assert.equal(evidence.audit.acceptedAbilityRoots,1);
+      assert.equal(evidence.audit.acceptedTargetReplies,1);
+      assert.equal(evidence.audit.acceptedAceSupporters,1);
+      assert.equal(evidence.audit.qualifiedCompetitiveGames,0);
+    }finally{
+      Object.defineProperty(Store.prototype,'dispatch',priorStore);
+    }
+  }finally{
+    if(original===undefined)
+      delete depsNative['game/store/actions/play-card-action'].PlayCardAction;
+    else depsNative['game/store/actions/play-card-action'].PlayCardAction=original;
+  }
+});
