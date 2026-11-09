@@ -36,144 +36,153 @@ function chooseEarlyCarmine(view){
 }
 
 /**
- * Default-off original-source intervention over registered genuine native
- * games. Target trial is assigned at each Store's first AddPlayerAction.
- * Neither the AI's opponent hand nor its hidden deck is examined.
+ * Install the Carmine override at the innermost native-match boundary, after
+ * the shared actor policy and other owner decoder wrappers. An outer decoder
+ * is displaced by those wrappers and would silently have zero causal effect.
  * @template T
  * @param {()=>T} execute
- * @param {{trials:object[],SimpleTacticsAi?:Function,Store?:Function,
- *   PlayCardAction?:Function,observe?:Function}} deps
+ * @param {{trials:object[],headless?:{runMatch:Function},SimpleTacticsAi?:Function,
+ *   Store?:Function,PlayCardAction?:Function,observe?:Function}} deps
  * @returns {{result:T,audit:object}}
  */
 function withSourceEarlyCarmine(execute,deps){
   assert.equal(typeof execute,'function');
   assert.ok(Array.isArray(deps?.trials)&&deps.trials.length>0);
+  const headless=deps.headless??require('./headless.cjs');
   const Ai=deps.SimpleTacticsAi??native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const Store=deps.Store??native('game/store/store').Store;
   const PlayCardAction=deps.PlayCardAction??
     native('game/store/actions/play-card-action').PlayCardAction;
   const observe=deps.observe??actorObservation;
-  const oldDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
-  const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
-  assert.equal(typeof oldDecode?.value,'function');
-  assert.equal(typeof oldDispatch?.value,'function');
-  const stores=new WeakMap(),seen=new WeakSet(),proposals=new WeakMap();
+  const oldRun=headless.runMatch;
+  assert.equal(typeof oldRun,'function');
   const audit={schema:VERSION,registeredTrials:deps.trials.map(t=>t.id),
-    mappedStores:0,firstOwnTurnPasses:0,heldCarminePasses:0,
-    paperEligibleProposals:0,nativeCanPlayRejected:0,
+    nativeMatchesSeen:0,lateDecoderInstallations:0,firstOwnTurnPasses:0,
+    heldCarminePasses:0,paperEligibleProposals:0,nativeCanPlayRejected:0,
     nativeCommitted:0,nativeRejected:0,nativeEffectsComplete:0,
     accepted:[],rejected:[],opponentHiddenHandRead:false,
     nativeStoresOnly:true,competitiveGamesQualified:0};
 
-  function decode(state){
-    const baseline=oldDecode.value.call(this,state);
-    if(baseline?.constructor?.name!=='PassTurnAction')return baseline;
-    const trial=stores.get(this?.store??null);
-    // AI exposes state but may not expose its Store; recover by identity only.
-    const registered=trial??[...storeRecords].find(x=>x.store.state===state)?.trial;
-    if(!registered)return baseline;
-    const sourceSeat=registered.candidateSlot==='A'?1:0;
-    const seat=state.players.findIndex(p=>p.id===this.client?.id);
-    if(seat!==sourceSeat||state.activePlayer!==sourceSeat||
-       state.prompts?.some(p=>p.result===undefined))return baseline;
-    const view=observe(state,sourceSeat);
-    if(view.decisionKind!=='owner-root'||![1,2].includes(view.globalTurn))
-      return baseline;
-    audit.firstOwnTurnPasses++;
-    if(view.ownHand.includes(PRINTING))audit.heldCarminePasses++;
-    const selection=chooseEarlyCarmine(view);
-    if(!selection)return baseline;
-    const owner=state.players[sourceSeat];
-    const card=owner.hand.cards[selection.handIndex];
-    if(card?.fullName!==PRINTING)return baseline;
-    const store=storeRecords.find(x=>x.store.state===state)?.store;
-    if(!store)return baseline;
-    if(card.canPlay?.(store,state,owner)!==true){
-      audit.nativeCanPlayRejected++;
-      return baseline;
+  /** The native runner is called once per frozen physical group in order. */
+  function nativeMatch(request){
+    const trial=deps.trials[audit.nativeMatchesSeen++];
+    assert.ok(trial,'More native games than preregistered');
+    const sourceSeat=trial.candidateSlot==='A'?1:0;
+    const oldDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
+    const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+    assert.equal(typeof oldDecode?.value,'function');
+    assert.equal(typeof oldDispatch?.value,'function');
+    const proposals=new WeakMap();
+    let liveStore=null;
+    audit.lateDecoderInstallations++;
+
+    function decode(state){
+      const baseline=oldDecode.value.call(this,state);
+      if(baseline?.constructor?.name!=='PassTurnAction'||
+         liveStore?.state!==state)return baseline;
+      const seat=state.players.findIndex(p=>p.id===this.client?.id);
+      if(seat!==sourceSeat||state.activePlayer!==sourceSeat||
+         state.prompts?.some(p=>p.result===undefined))return baseline;
+      const view=observe(state,sourceSeat);
+      if(view.decisionKind!=='owner-root'||![1,2].includes(view.globalTurn))
+        return baseline;
+      audit.firstOwnTurnPasses++;
+      if(view.ownHand.includes(PRINTING))audit.heldCarminePasses++;
+      const selection=chooseEarlyCarmine(view);
+      if(!selection)return baseline;
+      const owner=state.players[sourceSeat];
+      const card=owner.hand.cards[selection.handIndex];
+      if(card?.fullName!==PRINTING)return baseline;
+      if(card.canPlay?.(liveStore,state,owner)!==true){
+        audit.nativeCanPlayRejected++;
+        return baseline;
+      }
+      const action=new PlayCardAction(owner.id,selection.handIndex);
+      proposals.set(action,{
+        trialId:trial.id,sourceSeat,
+        globalTurn:view.globalTurn,oldHandSize:view.ownHand.length,
+        beforeOwnerDeckCount:view.ownPublic.deckCount,
+        expectedOtherHandCount:selection.expectedOtherHandCount
+      });
+      audit.paperEligibleProposals++;
+      return action;
     }
-    const action=new PlayCardAction(owner.id,selection.handIndex);
-    proposals.set(action,{trialId:registered.id,sourceSeat,
-      globalTurn:view.globalTurn,oldHandSize:view.ownHand.length,
-      beforeOwnerDeckCount:view.ownPublic.deckCount,
-      expectedOtherHandCount:selection.expectedOtherHandCount});
-    audit.paperEligibleProposals++;
-    return action;
+
+    function dispatch(action,...args){
+      if(action?.constructor?.name==='AddPlayerAction'&&liveStore===null)
+        liveStore=this;
+      const proposal=this===liveStore?proposals.get(action):null;
+      const owner=proposal?this.state.players[sourceSeat]:null;
+      const before=owner?{
+        hand:[...owner.hand.cards],
+        deckCount:owner.deck.cards.length,
+        discardCount:owner.discard.cards.length,
+        lostCount:owner.lostZone.cards.length,
+        supporterCount:owner.supporterTurn
+      }:null;
+      try{
+        const result=oldDispatch.value.call(this,action,...args);
+        if(proposal){
+          audit.nativeCommitted++;
+          const after=this.state.players[sourceSeat];
+          const beforeOther=before.hand.filter((_,i)=>i!==action.handIndex);
+          const gone=beforeOther.filter(c=>!after.hand.cards.includes(c));
+          const inDiscard=beforeOther.filter(c=>after.discard.cards.includes(c));
+          const inLost=beforeOther.filter(c=>after.lostZone.cards.includes(c));
+          const settled=gone.length===beforeOther.length&&
+            inDiscard.length+inLost.length===beforeOther.length&&
+            after.hand.cards.length===Math.min(5,before.deckCount)&&
+            after.supporterTurn===before.supporterCount+1;
+          if(settled)audit.nativeEffectsComplete++;
+          audit.accepted.push({...proposal,storeAccepted:true,
+            afterOwnerHandSize:after.hand.cards.length,
+            otherCardsPhysicallyMoved:gone.length,
+            otherCardsDiscarded:inDiscard.length,
+            otherCardsLost:inLost.length,
+            netDeckChange:after.deck.cards.length-before.deckCount,
+            netDiscardChange:after.discard.cards.length-before.discardCount,
+            netLostChange:after.lostZone.cards.length-before.lostCount,
+            supporterTurnAfter:after.supporterTurn,
+            pendingNativePromptCount:this.state.prompts.filter(p=>
+              p.result===undefined).length,
+            nativeCarmineEffectFullySettled:settled
+          });
+        }
+        return result;
+      }catch(error){
+        if(proposal){
+          audit.nativeRejected++;
+          audit.rejected.push({...proposal,
+            reason:String(error?.message??error).slice(0,260)});
+        }
+        throw error;
+      }
+    }
+    Object.defineProperty(Ai.prototype,'decodeNextAction',
+      {...oldDecode,value:decode});
+    Object.defineProperty(Store.prototype,'dispatch',
+      {...oldDispatch,value:dispatch});
+    try{return oldRun(request);}
+    finally{
+      assert.strictEqual(Ai.prototype.decodeNextAction,decode);
+      assert.strictEqual(Store.prototype.dispatch,dispatch);
+      Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
+      Object.defineProperty(Ai.prototype,'decodeNextAction',oldDecode);
+    }
   }
 
-  // Explicit ordered array is scoped to this synchronous run, never shared.
-  const storeRecords=[];
-  function dispatch(action,...args){
-    if(action?.constructor?.name==='AddPlayerAction'&&!seen.has(this)){
-      seen.add(this);
-      const trial=deps.trials[storeRecords.length]??null;
-      if(trial)stores.set(this,trial);
-      storeRecords.push({store:this,trial});
-      audit.mappedStores=storeRecords.length;
-    }
-    const proposal=proposals.get(action);
-    const state=this.state,seat=proposal?.sourceSeat;
-    const owner=proposal?state.players[seat]:null;
-    const before=owner?{
-      hand:[...owner.hand.cards],
-      deckCount:owner.deck.cards.length,
-      discardCount:owner.discard.cards.length,
-      lostCount:owner.lostZone.cards.length,
-      supporterCount:owner.supporterTurn
-    }:null;
-    try{
-      const result=oldDispatch.value.call(this,action,...args);
-      if(proposal){
-        audit.nativeCommitted++;
-        const after=this.state.players[seat];
-        const beforeOther=before.hand.filter((_,i)=>i!==action.handIndex);
-        const gone=beforeOther.filter(c=>!after.hand.cards.includes(c));
-        const inDiscard=beforeOther.filter(c=>after.discard.cards.includes(c));
-        const inLost=beforeOther.filter(c=>after.lostZone.cards.includes(c));
-        const physicallySettled=gone.length===beforeOther.length&&
-          inDiscard.length+inLost.length===beforeOther.length&&
-          after.hand.cards.length===Math.min(5,before.deckCount)&&
-          after.supporterTurn===before.supporterCount+1;
-        if(physicallySettled)audit.nativeEffectsComplete++;
-        audit.accepted.push({...proposal,storeAccepted:true,
-          afterOwnerHandSize:after.hand.cards.length,
-          otherCardsPhysicallyMoved:gone.length,
-          otherCardsDiscarded:inDiscard.length,
-          otherCardsLost:inLost.length,
-          netDeckChange:after.deck.cards.length-before.deckCount,
-          netDiscardChange:after.discard.cards.length-before.discardCount,
-          netLostChange:after.lostZone.cards.length-before.lostCount,
-          supporterTurnAfter:after.supporterTurn,
-          pendingNativePromptCount:this.state.prompts.filter(p=>
-            p.result===undefined).length,
-          nativeCarmineEffectFullySettled:physicallySettled});
-      }
-      return result;
-    }catch(error){
-      if(proposal){
-        audit.nativeRejected++;
-        audit.rejected.push({...proposal,reason:String(error?.message??error).slice(0,260)});
-      }
-      throw error;
-    }
-  }
-  Object.defineProperty(Ai.prototype,'decodeNextAction',
-    {...oldDecode,value:decode});
-  Object.defineProperty(Store.prototype,'dispatch',
-    {...oldDispatch,value:dispatch});
+  headless.runMatch=nativeMatch;
   try{
     const result=execute();
-    assert.equal(audit.mappedStores,deps.trials.length,
-      'Each preregistered native game must own exactly one Store');
+    assert.equal(audit.nativeMatchesSeen,deps.trials.length,
+      'Every preregistered native game requires an installed late decoder');
     return {result,audit};
   }catch(error){
     if(error&&typeof error==='object')error.agent49EarlyCarmineAudit=audit;
     throw error;
   }finally{
-    assert.strictEqual(Ai.prototype.decodeNextAction,decode);
-    assert.strictEqual(Store.prototype.dispatch,dispatch);
-    Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
-    Object.defineProperty(Ai.prototype,'decodeNextAction',oldDecode);
+    assert.strictEqual(headless.runMatch,nativeMatch);
+    headless.runMatch=oldRun;
   }
 }
 module.exports={VERSION,PRINTING,chooseEarlyCarmine,withSourceEarlyCarmine};
