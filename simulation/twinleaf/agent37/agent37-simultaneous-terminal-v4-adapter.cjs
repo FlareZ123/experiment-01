@@ -220,6 +220,12 @@ function withInstanceScopedSimultaneousTerminalResolutionV4(store,execute){
       audit.secondPrizeTransferCompleted=
         otherPlayer.prizesTakenThisTurn-prizeTakenBefore[otherPlayer.id]===
           expectedOtherTransfer;
+      // Stop before choosePrizeCards/endGame publishes a native winner when
+      // this terminal-first branch could not pay the other Prize group.
+      if(firstGroupExhausts){
+        assert.equal(audit.secondPrizeTransferCompleted,true,
+          'armed simultaneous terminal must complete second Prize transfer');
+      }
       return result;
     }
 
