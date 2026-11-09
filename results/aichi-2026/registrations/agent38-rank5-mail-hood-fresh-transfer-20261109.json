@@ -1,0 +1,53 @@
+{
+  "schema": "agent38-rank5-mail-hood-fresh-transfer-v1",
+  "status": "FROZEN_BEFORE_NATIVE_EXECUTION",
+  "registeredAtUtc": "2026-11-09T10:27:00Z",
+  "objective": "Determine on fresh original Mew Genesect physical openings whether native owner Trainers Mail after otherwise Pass changes actual attack/Prize/results against current Hood Shield v1 fixed 60 versus original champion fixed 60.",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "hood-shield-v1",
+    "champion-reference"
+  ],
+  "hoodManifest": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "originalChampionManifest": "results/aichi-2026/full-decklists.json",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 3801,
+      "candidateSlot": "A",
+      "seed": 895287650
+    },
+    {
+      "rank": 5,
+      "repeat": 3801,
+      "candidateSlot": "B",
+      "seed": 1130119946
+    },
+    {
+      "rank": 5,
+      "repeat": 3802,
+      "candidateSlot": "A",
+      "seed": 495999543
+    },
+    {
+      "rank": 5,
+      "repeat": 3802,
+      "candidateSlot": "B",
+      "seed": 1513056614
+    }
+  ],
+  "excludedPreviousRank5SourceMailSeeds": [
+    1291419999,
+    2062742770,
+    1929767496,
+    936150192
+  ],
+  "expectedNativeAttempts": 16,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "comparison": "For each fixed candidate and source rank/seat/seed, compare identical original sixties with source-only actual held owner Mail on otherwise Pass versus control; all alternative policies and printings fixed. Preserve every action cap or native error. Require same full/source physical fingerprints to attribute policy consequences.",
+  "candidateHoodKeptFixedAcrossAllTrials": true,
+  "ownerOnlyConcealedSourceZoneAccess": false,
+  "lossDefinition": "Native terminal only; paper clock/decision strength not qualified",
+  "limitations": "Development sample four new source physical seeds, two seat orientations; outcomes cannot establish paper competitive game win rate or candidate superiority; Mew source Mail can shuffle its own deck and change later draw outcomes; across-contender source openings are not assumed identical."
+}
