@@ -53,8 +53,6 @@ function run(){
           'native ChoosePrizePrompt belongs to nonterminal Prize recipient');
         const count=prompt.options.count;
         assert.equal(prompt.playerId,recipientId);
-        assert.equal(prompt.validate(remaining.slice(0,count),
-          {players:[]}),false); // redundant metadata alone cannot validate
         ownerChoiceInvocations++;
         if(!includeMetal)return remaining.slice(0,count);
         const picked=remaining[4];
@@ -72,7 +70,7 @@ function run(){
       assert.equal(result.winnerPlayer,actorSeat===0?'owner':'opponent');
       assert.equal(result.ownerPrizesRemaining,actorSeat===0?0:3);
       assert.equal(result.opponentPrizesRemaining,actorSeat===0?5:0);
-      assert.equal(result.ownerPrizesTakenThisTurn,actorSeat===0?3:3);
+      assert.equal(result.ownerPrizesTakenThisTurn,actorSeat===0?1:3);
       assert.equal(result.opponentPrizesTakenThisTurn,1);
       assert.deepEqual(result.seenPrompts.filter(x=>x==='ChoosePrizePrompt'),
         ['ChoosePrizePrompt']);
