@@ -15,9 +15,9 @@ const OUTPUT=path.resolve(__dirname,
   '../../../artifacts/agent7-mail-beach-arven/paired-native.json');
 
 /** Native originals are unchanged; only Arven follow-through is opt-in. */
-function run({treasureBridge=false,confirmBridge=false}={}){
+function run({treasureBridge=false,confirmBridge=false,nestBridge=false}={}){
   const opts={mysteriousTreasureRoot:treasureBridge,
-    ownerConfirm:confirmBridge};
+    ownerConfirm:confirmBridge,arvenNest:nestBridge};
   const headless=require('../../twinleaf/headless.cjs');
   const nativeOutput=path.resolve(__dirname,
     '../../../vendor/twinleaf/ptcg-server/output');
@@ -81,10 +81,12 @@ function run({treasureBridge=false,confirmBridge=false}={}){
     observedFirstUnsupportedActorRoot:r.firstUnsupportedOwnerRoot?.ownerView?.decisionKind??null
   }));
   return {
-    schema:confirmBridge?VERSION+'-with-owner-confirm-v3':
+    schema:nestBridge?VERSION+'-with-native-nest-v4':
+      confirmBridge?VERSION+'-with-owner-confirm-v3':
       treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
     experimentalExistingActorTreasureBridge:treasureBridge,
     experimentalOwnerConfirmBridge:confirmBridge,
+    experimentalArvenSelectedNestBallBridge:nestBridge,
     originalRank3SourceAndRank13Candidate:true,
     seed:290134,enginePin:control.output.enginePin,
     fullPrintedSixtiesFixed:true,
@@ -108,6 +110,11 @@ function run({treasureBridge=false,confirmBridge=false}={}){
       arvenSearchUnsettled:audit.arvenSearchUnsettled,
       arvenPlayEvents:audit.arvenPlayEvents,
       arvenSearchEvents:audit.arvenSearchEvents,
+      nestFromArvenOffers:audit.nestFromArvenOffers,
+      nestFromArvenAccepted:audit.nestFromArvenAccepted,
+      nestFromArvenRejected:audit.nestFromArvenRejected,
+      nestFromArvenBenchSettled:audit.nestFromArvenBenchSettled,
+      nestFromArvenBenchEvents:audit.nestFromArvenBenchEvents,
       ownerConfirmOffers:audit.ownerConfirmOffers,
       ownerConfirmSettled:audit.ownerConfirmSettled,
       ownerConfirmUnsettled:audit.ownerConfirmUnsettled,
@@ -115,7 +122,13 @@ function run({treasureBridge=false,confirmBridge=false}={}){
       trialStatuses:trialStatuses(treatment)},
     completeMailBeachArvenPairs:pairs,
     physicallySettledThreeEffectSequence:qualified.length>0,
-    status:audit.arvenFromMailRejected>0||audit.arvenSearchRejected>0||
+    physicallySettledArvenNestBenchSequence:nestBridge&&
+      audit.nestFromArvenBenchSettled>0&&qualified.length>0,
+    status:nestBridge&&audit.nestFromArvenBenchSettled>0&&
+      audit.nestFromArvenRejected===0&&qualified.length>0?
+      'NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED':
+      nestBridge?'NATIVE_ARVEN_NEST_UNSETTLED_OR_NOT_OFFERED':
+      audit.arvenFromMailRejected>0||audit.arvenSearchRejected>0||
       audit.arvenSearchUnsettled>0?'NATIVE_ARVEN_REJECTED_OR_UNSETTLED':
       qualified.length>0?'NATIVE_THREE_EFFECT_SEQUENCE_SETTLED':
       'NO_MATCHING_NATIVE_ARVEN_ACTIVATION',
@@ -127,7 +140,9 @@ function run({treasureBridge=false,confirmBridge=false}={}){
 /** Atomic receipt with an exclusive per-output lock. */
 function save(report){
   fs.mkdirSync(path.dirname(OUTPUT),{recursive:true});
-  const output=report.experimentalOwnerConfirmBridge?
+  const output=report.experimentalArvenSelectedNestBallBridge?
+    OUTPUT.replace('paired-native.json','paired-native-with-nest.json'):
+    report.experimentalOwnerConfirmBridge?
     OUTPUT.replace('paired-native.json','paired-native-with-confirm.json'):
     report.experimentalExistingActorTreasureBridge?
       OUTPUT.replace('paired-native.json','paired-native-with-treasure.json'):OUTPUT;
@@ -149,7 +164,8 @@ if(require.main===module){
   let report;
   try{report=run({
     treasureBridge:process.env.AGENT7_TREASURE_BRIDGE_DEV==='true',
-    confirmBridge:process.env.AGENT7_OWNER_CONFIRM_DEV==='true'
+    confirmBridge:process.env.AGENT7_OWNER_CONFIRM_DEV==='true',
+    nestBridge:process.env.AGENT7_ARVEN_NEST_DEV==='true'
   });}
   catch(error){
     report={schema:VERSION,status:'NATIVE_OR_ASSERTION_ERROR',
@@ -162,7 +178,8 @@ if(require.main===module){
     status:report.status,pairs:report.completeMailBeachArvenPairs??[],
     nativeArvenActions:report.treatment?.arvenAccepted??0,
     competitiveGamesQualified:0,error:report.error??null},null,2)+'\n');
-  if(report.status!=='NATIVE_THREE_EFFECT_SEQUENCE_SETTLED')
+  if(report.status!=='NATIVE_THREE_EFFECT_SEQUENCE_SETTLED'&&
+     report.status!=='NATIVE_MAIL_BEACH_ARVEN_NEST_BENCH_SETTLED')
     process.exitCode=1;
 }
 
