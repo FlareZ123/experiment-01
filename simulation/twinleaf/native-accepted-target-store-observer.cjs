@@ -22,7 +22,11 @@ const EXACT_ROOT_PRINTING_ALIASES=Object.freeze({
   // fail-closed mismatches; action, seat and turn agreed in each case.
   // Keep only these two native physical source printings.
   'Ho-Oh-EX':'Ho-Oh EX DRX',
-  'Arceus & Dialga & Palkia-GX':'Arceus & Dialga & Palkia GX CEC'
+  'Arceus & Dialga & Palkia-GX':'Arceus & Dialga & Palkia GX CEC',
+  // Frozen full-field rank14 seat-B original-source native witness:
+  // root #8, turn15, same seat/action; source card only differs in "-GX".
+  // Both control and pivot reproducibly failed solely this exact label.
+  'Oricorio-GX':'Oricorio GX CEC'
 });
 
 /** @param {string} rootName @param {string} printing @returns {boolean} */
