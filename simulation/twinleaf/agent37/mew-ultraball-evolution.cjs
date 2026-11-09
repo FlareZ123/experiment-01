@@ -73,5 +73,32 @@ function chooseMewUltraBallSearch(input,ownerSeat,options={}){
   return card?{indices:[card.index]}:fallback();
 }
 
+/**
+ * Owner-only native two-card payment: when the original player's active
+ * resolving Item is Ultra Ball, select one of the real Store-validated hand
+ * bundles which preserves Mew/DCE/Forest Seal Stone/ACE SPEC where possible.
+ * Existing generic hand-discard preference breaks ties among safe bundles.
+ * The owner is always allowed to fall back to a genuine native menu entry.
+ * @param {object} input Detached validated physical hand discard menu.
+ * @param {0|1} ownerSeat Source's actual physical seat.
+ * @returns {{printings:string[]}} Exact valid printing multiset.
+ */
+function chooseMewUltraBallPayment(input,ownerSeat){
+  assert.ok(ownerSeat===0||ownerSeat===1);
+  const generic=require('../agent47-actor-hand-discard.cjs')
+    .chooseActorHandDiscard;
+  assert.equal(input.actor.decisionKind,'owner-prompt');
+  const actor=input.actor,prompt=input.prompt;
+  if(actor.actorSeat!==ownerSeat||
+      prompt.message!=='CHOOSE_CARD_TO_DISCARD'||
+      prompt.requiredCount!==2||
+      !actor.ownPublic.resolvingSupporter.some(x=>ULTRA.has(x)))
+    return generic(input);
+  const safe=prompt.menu.filter(names=>names.every(n=>
+    !PROTECTED_PAYMENT.has(n)));
+  if(safe.length===0)return generic(input);
+  return generic({...input,prompt:{...prompt,menu:safe}});
+}
+
 module.exports={VERSION,chooseMewUltraBallEvolutionRoot,
-  chooseMewUltraBallSearch};
+  chooseMewUltraBallSearch,chooseMewUltraBallPayment};
