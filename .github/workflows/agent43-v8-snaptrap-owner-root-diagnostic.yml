@@ -157,6 +157,9 @@ jobs:
           node --check simulation/evaluation/agent1-v8-original-held-arven-four-arm.cjs
           node --test tests/2026-11/agent1-owner-held-arven-choice.test.cjs tests/2026-11/agent1-v8-original-held-arven-four-arm.test.cjs
           node simulation/evaluation/agent1-v8-original-held-arven-four-arm.cjs
+          node --check simulation/evaluation/agent1-v8-arven-nest-native-four-arm.cjs
+          node --test tests/2026-11/agent1-v8-arven-nest-native-four-arm.test.cjs
+          node simulation/evaluation/agent1-v8-arven-nest-native-four-arm.cjs
       - name: Preserve complete actor-visible diagnostic regardless of result
         if: always()
         uses: actions/upload-artifact@v4
