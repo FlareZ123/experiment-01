@@ -53,6 +53,7 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
     native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
   const Store=deps.Store??native('game/store/store').Store;
   const GamePhase=deps.GamePhase??native('game/store/state/state').GamePhase;
+  const GameMessage=deps.GameMessage??native('game/game-message').GameMessage;
   const {PlayCardAction,PlayerType,SlotType}=deps.playActions??
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=deps.promptActions??
@@ -62,14 +63,15 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
   const storePrior=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof aiPrior?.value,'function');
   assert.equal(typeof storePrior?.value,'function');
-  let realStore=null,ropeSelected=false;
+  let realStore=null;
+  const usedStores=new WeakSet();
   const proposals=new WeakMap(),ownChoices=new WeakMap();
   const audit={version:VERSION,sourceSeat,sourceOnly:true,
     originalSourceOpportunityPasses:0,eligiblePasses:0,
     proposedRopes:0,acceptedRopes:0,rejectedRopes:0,
     ownerSwitchPromptsChosen:0,ownerSwitchPromptsAccepted:0,
     ownerSwitchPromptsRejected:0,
-    firstRope:null,ownerPromotedMega:false,
+    firstRope:null,ropes:[],ownerPromotedMega:false,
     opposingSwitchChoiceNeverOverridden:true,
     competitiveQualifiedGames:0};
 
@@ -80,9 +82,9 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
        owner?.id!==this.client?.id)
       return aiPrior.value.call(this,state,...args);
     const pending=state.prompts?.find(p=>p.result===undefined);
-    if(ropeSelected&&pending?.constructor?.name==='ChoosePokemonPrompt'&&
+    if(usedStores.has(realStore)&&pending?.constructor?.name==='ChoosePokemonPrompt'&&
        pending.playerId===owner.id&&
-       pending.message==='CHOOSE_POKEMON_TO_SWITCH'&&
+       pending.message===GameMessage.CHOOSE_POKEMON_TO_SWITCH&&
        pending.slots?.includes(SlotType.BENCH)){
       const target=owner.bench.find(b=>b.getPokemonCard()?.fullName===MEGA);
       if(target&&pending.validate([target],state)){
@@ -95,7 +97,7 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
     }
     const prior=aiPrior.value.call(this,state,...args);
     if(prior?.constructor?.name!=='PassTurnAction'||pending||
-       ropeSelected)return prior;
+       usedStores.has(realStore))return prior;
     audit.originalSourceOpportunityPasses++;
     const picked=choosePostBombRope(state,sourceSeat);
     if(!picked)return prior;
@@ -116,11 +118,13 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
       if(action?.constructor?.name==='AddPlayerAction')
         realStore=this;
       if(proposed&&this===realStore){
-        ropeSelected=true;
+        usedStores.add(this);
         audit.acceptedRopes++;
-        audit.firstRope={...proposed,rootActionName:action.constructor.name,
-          ownerActiveAfter: this.state.players[sourceSeat].active
+        const event={...proposed,rootActionName:action.constructor.name,
+          ownerActiveAfter:this.state.players[sourceSeat].active
             .getPokemonCard()?.fullName??null};
+        audit.ropes.push(event);
+        audit.firstRope??=event;
       }
       if(ownChoice&&this===realStore){
         audit.ownerSwitchPromptsAccepted++;
