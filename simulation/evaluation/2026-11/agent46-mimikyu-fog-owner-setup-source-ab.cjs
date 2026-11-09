@@ -19,15 +19,16 @@ const SEEDS=Object.freeze([
  * @param {Map<number,object>} decks
  * @param {number} seed
  * @param {0|1} seat
+ * @param {number} [maxActions] Original preregistered default remains 180.
  * @returns {object}
  */
-function runTreatment(decks,seed,seat) {
+function runTreatment(decks,seed,seat,maxActions=180) {
   const rankOrder=seat===0?[1,10]:[10,1];
   const events=[];
   const options={
     deckA:decks.get(rankOrder[0]).cardIds,
     deckB:decks.get(rankOrder[1]).cardIds,
-    seed,maxActions:180,
+    seed,maxActions,
     label:'Agent46 Fog owner-search source treatment '+rankOrder.join('-'),
     isolatePolicyRandomness:true,
     captureInitialSourceDealFingerprintSeat:seat,
