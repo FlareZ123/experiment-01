@@ -143,6 +143,7 @@ test('two-Colorless fee requires exactly one missing Basic, no unrecognized atta
   a.ownPublic.active.energies=['Double Colorless Energy NXD'];
   assert.equal(choose(a),null,'Unsupported Special cannot be counted as one physical Basic');
   a.ownPublic.active.energies=[BASIC];
+  a.ownPublic.active.attacks=[{name:'Still Underfunded',cost:[PSYCHIC,PSYCHIC,PSYCHIC],damage:200}];
   assert.equal(choose(a)?.kind,'attach-basic-energy');
 });
 test('two-unit funding gives priority to a newly funded Active attack',()=>{
