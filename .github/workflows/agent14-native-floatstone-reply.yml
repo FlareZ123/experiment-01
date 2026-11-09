@@ -25,6 +25,7 @@ on:
           - agent3-fresh-celestial-v2-error-archive
           - agent3-rank7-guzma-orphan-diagnostic
           - agent3-rank7-guzma-custody-ab
+          - agent3-dual-fixed60-all29-paperprofile
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -247,6 +248,22 @@ jobs:
         with:
           name: agent3-rank7-guzma-custody-ab
           path: artifacts/agent3-rank7-guzma-custody-ab.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Validate prospectively frozen 58 original Aichi deals, two fixed 60s, and pinned policy profile
+        if: inputs.experiment == 'agent3-dual-fixed60-all29-paperprofile'
+        run: |
+          node --check simulation/evaluation/2026-11/agent3-dual-fixed60-all29-paperprofile-native.cjs
+          node simulation/evaluation/2026-11/agent3-dual-fixed60-all29-paperprofile-native.cjs --inspect-only
+      - name: Execute 116 registered independent original-field native games for two unchanged contender 60s
+        if: inputs.experiment == 'agent3-dual-fixed60-all29-paperprofile'
+        run: node simulation/evaluation/2026-11/agent3-dual-fixed60-all29-paperprofile-native.cjs
+      - name: Archive 116 complete real Store root ledgers, physical receipts, and genuine matchup outcomes
+        if: always() && inputs.experiment == 'agent3-dual-fixed60-all29-paperprofile'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-dual-fixed60-all29-paperprofile-native
+          path: agent3-dual-fixed60-all29-native.json
           if-no-files-found: warn
           retention-days: 21
       - name: Diagnose preexisting original rank7 Guzma orphan prompt in native Store
