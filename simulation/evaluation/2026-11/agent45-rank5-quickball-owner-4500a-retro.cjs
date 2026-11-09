@@ -55,6 +55,7 @@ function run(){
       registeredTrials:batch.registeredTrials,
       registeredFrameName:VERSION+':'+batch.candidateId,
       nativeRootActionLimit:reg.rootCap,
+      singleHistoricalReplay:true,
       vipAfterPass:true,vipPreferMewtwoDonor:true
     });
     assert.ok(audit);
