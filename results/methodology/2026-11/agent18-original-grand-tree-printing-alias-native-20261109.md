@@ -42,6 +42,12 @@ Examples include `Grand Tree SCR` vs `Great Tree SCR`, `Dedenne-GX UNB` vs `Dede
 
 The Grand Tree repair remains *only* the authenticated SCR 136 singleton alias with a strict native class precondition. The census reports other printings for careful source-specific work; it changes no card ID, game rule, original list or CI profile.
 
+## Live native Thorns field-neutrality control
+
+**[Compiled native CI 42567845003](https://github.com/FlareZ123/experiment-01/actions/runs/42567845003): 10/10 checks PASS.** The opt-in regression `tests/2026-11/agent18-grand-tree-thorns-field-neutral.native.test.cjs` constructed a genuine pinned Store with original printed `Grand Tree SCR` visibly in the opponent's Stadium zone, opponent Active `Iron Thorns ex TWM`, and acting owner Shadow Rider Calyrex VMAX on their Bench. The owner was the actual acting player, physical seat 1, and the fixture observed only owner-visible public board information before power announcement.
+
+With Grand Tree and **no Hood**, Underworld Door was missing from the native available powers and the real `PowerEffect` was denied (`powerListed=false,allowed=false`). With the **same Grand Tree and Stealthy Hood** on the VMAX, the native `PowerEffect` was accepted, correctly **attached one Psychic Energy and drew two cards** (`allowed=true,attached=1,drawn=2`). This is a constructed native state, not a naturally dealt game or both-seat symmetric proof. It establishes that Grand Tree itself does not disable the active Iron Thorns Ability lock or grant protection to the affected VMAX, and allows Agent4 to include the exact printed Stadium in a subsequent separately versioned neutral-Stadium classification.
+
 ## Boundary and integration
 
 This is staged card construction, a genuine native Store resolution and a short bounded bilateral runner execution. Its starting state was deliberately constructed. It proves no naturally drawn Grand Tree opportunity, opponent counterresponse, source-policy activation, full competitive match, Japanese physical-print legality, or paper clock. The earlier source rank2 Grand Tree / Stoutland owner-turn work is independent and must not be treated as reproduced by this test.
