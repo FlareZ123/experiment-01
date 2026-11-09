@@ -31,7 +31,7 @@ for(const seat of [0,1]){
     const {result,audit}=withPaperPromptContractPortfolio(()=>
       probeUltraBallZeroPayment(seat,'zero'));
     assert.equal(result.seat,seat);
-    assert.equal(result.originalValidatorAccepted,true);
+    // Native validation already rejects the empty selection in this staged\n    // Store; the independent paper guard must also reject before dispatch.\n    assert.equal(result.originalValidatorAccepted,false);
     assert.equal(result.zeroPaymentPromptSettled,false);
     assert.match(result.zeroPaymentError,/PAPER_PROMPT_INVALID/);
     assert.ok(audit.inspectedUltraBallPaymentPrompts>=1);
