@@ -13,12 +13,16 @@ const DRAGONS=new Set([
  * This root knows only owner hand, public Bench/discard, and Item-play rules.
  * Unknown deck/Prize identities do not make the path successful yet.
  * @param {object} view Detached first-turn owner root.
+ * @param {{allowFirstOwnTurnTwo?:boolean}} [options] Explicit seat-one paper first turn.
  * @returns {object|null} Native-neutral physical Item play.
  */
-function chooseEarlyRegidragoCompressor(view){
+function chooseEarlyRegidragoCompressor(view,options={}){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
-  if(view.globalTurn!==1||!own?.active||
+  const ownOpeningTurn=view.globalTurn===1||
+    (options.allowFirstOwnTurnTwo===true&&
+      view.globalTurn===2&&view.actorSeat===1);
+  if(!ownOpeningTurn||!own?.active||
      r?.itemPlayLocked===true||
      own.publicTurnRestrictions?.itemPlayLocked===true||
      !(own.deckCount>0)||
