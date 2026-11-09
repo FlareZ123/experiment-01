@@ -36,7 +36,7 @@ test('actor-only generic Switch is sole intervention between both registered arm
 });
 test('native root receipt distinguishes accepted Switch from empty intent',()=>{
   const trial=reg.registeredTrials.find(t=>t.candidateSlot==='A');
-  const row={trial,finished:true,winner:0,
+  const row={trial,finished:true,endReason:'engine-game-end',winner:0,
     rootActionLedger:[
       {playerSlot:0,action:'PlayCardAction',card:'Switch SVI'},
       {playerSlot:0,action:'AttackAction',attack:'Max Geist'},
