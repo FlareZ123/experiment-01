@@ -97,3 +97,33 @@ test('attack-only lock does not veto a separately available Genesect draw Abilit
   assert.equal(choice?.kind,'use-genesect-fusion-draw');
   assert.equal(choice?.knownFusionCount,3);
 });
+
+
+test('canonical actor wrapper retains legacy Genesect opt-in independently of per-copy mode',()=>{
+  const {withActorOnlyRootPolicy}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  class StubBot{decodeNextAction(){return null;}}
+  class StubStore{dispatch(){return null;}}
+  class StubAction{}
+  const shared={
+    Store:StubStore,SimpleTacticsAi:StubBot,
+    cardActions:{PlayCardAction:StubAction,PlayerType:{},SlotType:{}},
+    gameActions:{AttackAction:StubAction,PassTurnAction:StubAction,
+      RetreatAction:StubAction,UseAbilityAction:StubAction,
+      UseStadiumAction:StubAction},
+    genesectFusionDraw:true
+  };
+  const legacy=withActorOnlyRootPolicy(()=>null,shared).audit;
+  assert.equal(legacy.genesectFusionDrawOptIn,true);
+  assert.equal(legacy.genesectPerCopyPublicUsageOptIn,false);
+  assert.equal(legacy.genesectFusionNativeAccepted,0);
+  const perCopy=withActorOnlyRootPolicy(()=>null,{
+    ...shared,genesectPerCopyPublicUsage:true
+  }).audit;
+  assert.equal(perCopy.genesectFusionDrawOptIn,true);
+  assert.equal(perCopy.genesectPerCopyPublicUsageOptIn,true);
+  const disabled=withActorOnlyRootPolicy(()=>null,{
+    ...shared,genesectFusionDraw:false
+  }).audit;
+  assert.equal(disabled.genesectFusionDrawOptIn,undefined);
+});
