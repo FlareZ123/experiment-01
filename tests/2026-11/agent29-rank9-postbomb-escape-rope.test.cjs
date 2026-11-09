@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {choosePostBombRope,chooseOpponentRopeSurvival,ELECTRODE,MEGA,ROPE}=
+const {choosePostBombRope,chooseOpponentRopeSurvival,
+  chooseOpponentRopeDamageAware,printedKnockoutPrizes,ELECTRODE,MEGA,ROPE}=
   require('../../simulation/twinleaf/2026-11/agent29-rank9-postbomb-escape-rope.cjs');
 
 /** @param {string|null} name @param {number} attached */
@@ -112,4 +113,73 @@ test('opponent defensive prompt rejects nonmatching owner, invalid HP and empty 
     getPokemonCard:()=>({fullName:'Real',hp:100}),damage:0
   }];
   assert.equal(chooseOpponentRopeSurvival(state,1,{...prompt,playerId:102}),null);
+});
+
+test('printed Prize tiers in the actual fixed Aichi source opponents',()=>{
+  assert.equal(printedKnockoutPrizes('Duskull VIV'),1);
+  assert.equal(printedKnockoutPrizes('Radiant Eternatus CRZ'),1);
+  assert.equal(printedKnockoutPrizes('Klefki SVI'),1);
+  assert.equal(printedKnockoutPrizes('Galarian Articuno V CRE'),2);
+  assert.equal(printedKnockoutPrizes('Latias ex SSP'),2);
+  assert.equal(printedKnockoutPrizes('Gengar & Mimikyu-GX TEU'),3);
+  assert.equal(printedKnockoutPrizes('Mega Absol ex M1L'),3);
+});
+test('damage-aware owner protects prizes instead of promoting Darkness-weak TAG TEAM',()=>{
+  const state=fixture(),owner=state.players[0],enemy=state.players[1];
+  owner.bench[1].getPokemonCard=()=>({fullName:MEGA,cardType:[7]});
+  enemy.id=102;
+  const p=(name,hp,weakness=[])=>({
+    getPokemonCard:()=>({fullName:name,hp,weakness,resistance:[]}),damage:0
+  });
+  enemy.bench=[
+    p('Galarian Articuno V CRE',210,[{type:7,value:2}]),
+    p('Gengar & Mimikyu-GX TEU',240,[{type:7,value:2}]),
+    p('Klefki SVI',70,[]),
+    p('Duskull VIV',60,[])
+  ];
+  const prompt={playerId:102,validate:()=>true};
+  const chosen=chooseOpponentRopeDamageAware(state,0,prompt);
+  assert.equal(chosen.printing,'Klefki SVI');
+  assert.equal(chosen.nominalClawDamage,200);
+  assert.equal(chosen.expectedPrizeLoss,1);
+  assert.equal(chosen.nominallySurvives,false);
+  assert.equal(chosen.weakToDarkness,false);
+});
+test('damage-aware opponent prioritizes surviving target before Prize loss',()=>{
+  const state=fixture(1),owner=state.players[1],enemy=state.players[0];
+  owner.bench[1].getPokemonCard=()=>({fullName:MEGA,cardType:[7]});
+  enemy.id=101;
+  enemy.bench=[
+    {getPokemonCard:()=>({
+      fullName:'Mewtwo & Mew-GX UNM',hp:270,
+      weakness:[{type:5,value:2}],resistance:[]}),damage:0},
+    {getPokemonCard:()=>({
+      fullName:'Duskull VIV',hp:60,weakness:[],resistance:[]}),damage:0}
+  ];
+  const chosen=chooseOpponentRopeDamageAware(state,1,{
+    playerId:101,validate:()=>true
+  });
+  assert.equal(chosen.printing,'Mewtwo & Mew-GX UNM');
+  assert.equal(chosen.nominallySurvives,true);
+  assert.equal(chosen.nominalRemainingAfter,70);
+  assert.equal(chosen.expectedPrizeLoss,3);
+});
+test('native prompt filtering and missing original Mega type fail closed',()=>{
+  const state=fixture(),enemy=state.players[1];
+  enemy.id=102;
+  enemy.bench=[
+    {getPokemonCard:()=>({fullName:'Klefki SVI',hp:70,weakness:[]}),
+      damage:0}
+  ];
+  const prompt={playerId:102,validate:()=>true};
+  assert.equal(chooseOpponentRopeDamageAware(state,0,prompt),null);
+  state.players[0].bench[1].getPokemonCard=()=>({
+    fullName:MEGA,cardType:[7]
+  });
+  assert.equal(chooseOpponentRopeDamageAware(state,0,{
+    ...prompt,validate:()=>false
+  }),null);
+  assert.equal(chooseOpponentRopeDamageAware(state,0,{
+    ...prompt,playerId:999
+  }),null);
 });
