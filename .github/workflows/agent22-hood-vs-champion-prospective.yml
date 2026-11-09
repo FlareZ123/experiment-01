@@ -18,13 +18,18 @@ on:
         required: false
         type: boolean
         default: false
+      agent35_switch_32:
+        description: 'Run new fixed-60 Hood Shield vs Switch 32-game source benchmark'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   hood-champion-paperprofile:
-    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
+    if: ${{ !inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -59,7 +64,7 @@ jobs:
           retention-days: 21
 
   rank5-source-funded-two-contenders:
-    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
+    if: ${{ inputs.agent45_source_funding_rank5 && !inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 26
     steps:
@@ -96,7 +101,7 @@ jobs:
           if-no-files-found: warn
 
   quickball-owner-retrospective:
-    if: ${{ inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 }}
+    if: ${{ inputs.agent45_quickball_owner_retro && !inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 23
     steps:
@@ -133,7 +138,7 @@ jobs:
           if-no-files-found: warn
 
   agent35-architecture-eight-rank-48:
-    if: ${{ inputs.agent35_architecture_48 }}
+    if: ${{ inputs.agent35_architecture_48 && !inputs.agent35_switch_32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 28
     steps:
@@ -164,5 +169,40 @@ jobs:
         with:
           name: agent35-three-architecture-eight-rank-48-native
           path: artifacts/agent35-three-architecture-eight-rank-48-native.json
+          retention-days: 21
+          if-no-files-found: warn
+
+  agent35-hood-switch-versus-teammates-32:
+    if: ${{ inputs.agent35_switch_32 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate immutable prospective registration and owner-only Switch tactical line
+        run: |
+          node --check simulation/evaluation/2026-11/agent35-hood-switch-vs-teammates-32-native.cjs
+          node --test tests/2026-11/agent35-block-switch-ko-frontier.test.cjs tests/2026-11/agent35-hood-switch-vs-teammates-32-native.test.cjs tests/2026-11/agent35-opponent-active-retreat-lock.test.cjs
+          node simulation/evaluation/2026-11/agent35-hood-switch-vs-teammates-32-native.cjs --inspect-only
+      - name: Install exact pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned Twinleaf Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute fresh 16 matched-source-context pairs with unchanged original sixties
+        run: node simulation/evaluation/2026-11/agent35-hood-switch-vs-teammates-32-native.cjs
+      - name: Archive all native traces including caps and aborts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-hood-switch-versus-teammates-32-native
+          path: artifacts/agent35-hood-switch-vs-teammates-32-native.json
           retention-days: 21
           if-no-files-found: warn
