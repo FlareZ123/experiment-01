@@ -9,11 +9,28 @@ const {run: runNative} =
 const {REGISTRATION, firstDivergence} =
   require('./agent38-v8-owner-mail-pass-four-arm.cjs');
 
-const VERSION = 'agent1-held-handiwork-v8-native-registered-four-arm-v1';
+const VERSION = 'agent1-held-handiwork-v8-native-registered-four-arm-v2-deal-parity';
 const OUTPUT = path.resolve(__dirname,
   '../../artifacts/agent43-v8-snaptrap-owner-root/agent1-held-handiwork-four-arm.json');
 const MECHANICAL = new Set(['PassTurnAction','WaitForOpponentAction',
   'WaitPromptAction','ResolvePromptAction']);
+
+/**
+ * A paired experiment is physically comparable only when BOTH opaque source
+ * and whole-two-player setup receipts exist and match at the original deal.
+ * A shared seed alone never proves equal physical opening.
+ * @param {object} before Baseline native attempt.
+ * @param {object} after Treatment native attempt.
+ * @returns {boolean}
+ */
+function physicalDealsMatch(before,after) {
+  for (const key of ['sourceDealFingerprint','fullPhysicalDealFingerprint']) {
+    const a=before?.[key],b=after?.[key];
+    if (typeof a!=='string'||!(/^[0-9a-f]{64}$/).test(a)||a!==b)
+      return false;
+  }
+  return true;
+}
 
 /**
  * Require a real strategic opponent response and a later source-own-turn
@@ -118,6 +135,15 @@ function run() {
     return {
       id:trial.id,seed:trial.seed,sourceSeat:trial.sourceSeat,
       candidateSeat:trial.candidateSeat,
+      physicalDealMatched:physicalDealsMatch(before,after),
+      sourceDealSha256:{
+        control:before.sourceDealFingerprint??null,
+        treatment:after.sourceDealFingerprint??null
+      },
+      fullPhysicalDealSha256:{
+        control:before.fullPhysicalDealFingerprint??null,
+        treatment:after.fullPhysicalDealFingerprint??null
+      },
       firstNativeDivergence:firstDivergence(firstTape,secondTape),
       control:{status:before.nativeStatus,finished:before.nativeFinished,
         winner:before.nativeWinner,endReason:before.nativeEndReason,
@@ -140,10 +166,13 @@ function run() {
   const resolved=arms.reduce((n,row)=>n+row.deferredCoinEffectsSettled.length,0);
   const mill=arms.reduce((n,row)=>n+row.deferredCoinEffectsSettled
     .reduce((m,item)=>m+item.deckCardsMoved,0),0);
+  const physicallyMatched=arms.filter(row=>row.physicalDealMatched).length;
   return {
     schema:VERSION,gitHead:process.env.GITHUB_SHA??null,
     fixedOriginal60:REGISTRATION.cardsUnchanged,
     registeredTrialIds:trialIds,rootCap:260,
+    physicalDealPairsMatched:physicallyMatched,
+    fullPhysicalPanelValid:physicallyMatched===trialIds.length,
     baselineOptions:common,
     treatmentOptions:{...common,followHeldHandiwork:true},
     acceptedSupporterRoots:accepted,deferredEffectsSettled:resolved,
@@ -154,7 +183,9 @@ function run() {
     nativeOffers:audit.handiworkFromHandOffers,
     nativeRejections:audit.handiworkFromHandRejected,
     arms,
-    status:accepted>0?'NATIVE_HELD_SUPPORTER_SETTLED_DEVELOPMENTAL':
+    status:physicallyMatched!==trialIds.length?
+      'INVALID_OR_MISSING_PHYSICAL_DEAL_PARITY':
+      accepted>0?'NATIVE_HELD_SUPPORTER_SETTLED_DEVELOPMENTAL':
       'NO_HELD_SUPPORTER_ACTION_ENCOUNTERED',
     qualifiedCompetitiveGames:0,selectedFinalFixedSixty:false,
     winRate:null
@@ -174,6 +205,8 @@ if(require.main===module){
   const file=save(result);
   process.stdout.write(JSON.stringify({file,status:result.status,
     accepted:result.acceptedSupporterRoots??0,
+    physicalDealPairsMatched:result.physicalDealPairsMatched??0,
+    fullPhysicalPanelValid:result.fullPhysicalPanelValid??false,
     settled:result.deferredEffectsSettled??0,
     publicDeckCardsMilled:result.opponentDeckCardsMilledAfterCoins??null,
     sourceContinuations:result.selectedOwnerActionContinuations??0,
@@ -183,6 +216,7 @@ if(require.main===module){
       controlPrizes:row.control.finalPrizes,
       treatmentPrizes:row.treatment.finalPrizes}))??null,
     failure:result.failure??null},null,2)+'\n');
+  if (result.fullPhysicalPanelValid===false) process.exitCode=1;
 }
 
-module.exports={VERSION,REGISTRATION,continuation,run,save};
+module.exports={VERSION,REGISTRATION,continuation,physicalDealsMatch,run,save};
