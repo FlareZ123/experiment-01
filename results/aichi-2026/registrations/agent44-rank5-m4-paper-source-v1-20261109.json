@@ -1,0 +1,65 @@
+{
+  "schema": "agent44-rank5-m4-paper-source-v1",
+  "status": "FROZEN_BEFORE_NATIVE_EXECUTION",
+  "registeredAtUtc": "2026-11-09T11:31:00Z",
+  "objective": "Execute four complete attempted native games of unchanged original Aichi rank5 Mew Genesect against unchanged Hood Shield v1 with M4 paper-legal public gate, actual hand shuffle and separate speculative policy hand-shuffle RNG on both seats. Retain failures/caps; report no qualified paper wins.",
+  "sourceRank": 5,
+  "sourceArchetype": "Mew Genesect",
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceOriginalAichiRegistration": "results/aichi-2026/original-printed60-admission-v1.json",
+  "candidateId": "hood-shield-v1",
+  "candidateFixedPrinted60Path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateGitBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxNativeRootActions": 320,
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4406,
+      "candidateSlot": "A",
+      "seed": 259667149,
+      "candidateId": "hood-shield-v1",
+      "id": "5:4406:A:hood-shield-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 4406,
+      "candidateSlot": "B",
+      "seed": 2007906303,
+      "candidateId": "hood-shield-v1",
+      "id": "5:4406:B:hood-shield-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 4407,
+      "candidateSlot": "A",
+      "seed": 872591094,
+      "candidateId": "hood-shield-v1",
+      "id": "5:4407:A:hood-shield-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 4407,
+      "candidateSlot": "B",
+      "seed": 1582810157,
+      "candidateId": "hood-shield-v1",
+      "id": "5:4407:B:hood-shield-v1"
+    }
+  ],
+  "sourcePolicy": "common bilateral owner-only rank5 improvements plus source-only naturally held Trainers Mail on Pass",
+  "paperM4Flags": {
+    "specialRedCardPaperPreselection": true,
+    "specialRedCardPaperCorrection": true,
+    "specialRedCardPaperSpeculativeShuffle": true,
+    "isolatePolicyRandomness": true,
+    "isolatePhysicalShuffleRandomnessAfterSetup": true
+  },
+  "comparisonDesign": "single fixed source and candidate 60 per original physical deal; no post-result seed selection, no historical winner matching, no control/treatment causal estimation",
+  "qualifications": {
+    "paperClock": false,
+    "externalReviewers": false,
+    "fullPaperRules": false,
+    "competitiveQualifiedGames": 0
+  },
+  "unknowns": "May abort under native Store or finish by root cap. M4 may never be held at a legal root; record every original-source attempt without filtering."
+}
