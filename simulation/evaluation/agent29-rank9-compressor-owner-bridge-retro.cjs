@@ -18,6 +18,8 @@ const FUNDED_FLOAT_V11_VERSION='agent29-rank9-same-deal-bomb-to-floatstone-v11';
 const EARLY_ROPE_V12_VERSION='agent29-rank9-v11-plus-earlier-escape-rope-v12';
 const OPPONENT_ROPE_V13_VERSION='agent29-rank9-v12-opponent-survival-counter-v13';
 const DAMAGE_AWARE_V14_VERSION='agent29-rank9-v13-opponent-weakness-prizes-v14';
+const FRESH_DAMAGE_V15_VERSION='agent29-rank9-fresh-12-group-opponent-weakness-prizes-v15';
+const FRESH_V15_REGISTRATION=require('../../results/aichi-2026/registrations/agent29-rank9-v15-12-fresh-physical-rope-defense-20261109.json');
 const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json');
 
 /** @param {boolean} enabled @param {{anyTurn?:boolean,shuffleCustody?:boolean,
@@ -25,13 +27,14 @@ const PROSPECTIVE_REGISTRATION=require('../../results/aichi-2026/registrations/a
  *   ownerZoneCensus?:boolean,ownerZoneRegister?:Function|null,
  *   earlyVipV8?:boolean,ultraV9?:boolean,lateBenchV10?:boolean,
  *   floatV11?:boolean,ropeV12?:boolean,
- *   opponentDefenseV13?:boolean,opponentDamageV14?:boolean}} [configuration] */
+ *   opponentDefenseV13?:boolean,opponentDamageV14?:boolean,
+ *   freshV15?:boolean}} [configuration] */
 function options(enabled,{anyTurn=false,shuffleCustody=false,
   bombAfterCompressor=false,prospectiveV5=false,
   ownerZoneCensus=false,ownerZoneRegister=null,earlyVipV8=false,
   ultraV9=false,lateBenchV10=false,floatV11=false,
   ropeV12=false,opponentDefenseV13=false,
-  opponentDamageV14=false}={}){
+  opponentDamageV14=false,freshV15=false}={}){
   assert.equal(typeof enabled,'boolean');
   return {...profile.policyOptions,
     actorNaturalEvolutionRoot:true,
@@ -54,9 +57,11 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
     isolatePolicyRandomness:prospectiveV5,
     isolatePhysicalShuffleRandomnessAfterSetup:prospectiveV5,
     allowAdditionalOriginalSourceRanks:true,
-    registeredTrials:prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms(),
+    registeredTrials:freshV15?FRESH_V15_REGISTRATION.trials:
+      prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms(),
     ...(ownerZoneRegister?{onRootStoreCreated:ownerZoneRegister}:{}),
-    registeredFrameName:opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
+    registeredFrameName:freshV15?FRESH_DAMAGE_V15_VERSION:
+      opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
       opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
       ropeV12?EARLY_ROPE_V12_VERSION:
       floatV11?FUNDED_FLOAT_V11_VERSION:
@@ -78,13 +83,16 @@ function options(enabled,{anyTurn=false,shuffleCustody=false,
  *   ownerZoneCensus?:boolean,earlyVipV8?:boolean,ultraV9?:boolean,
  *   lateBenchV10?:boolean,floatV11?:boolean,
  *   ropeV12?:boolean,opponentDefenseV13?:boolean,
- *   opponentDamageV14?:boolean}} [configuration]
+ *   opponentDamageV14?:boolean,freshV15?:boolean}} [configuration]
  */
 function run({anyTurn=false,shuffleCustody=false,
   bombAfterCompressor=false,prospectiveV5=false,
   ownerZoneCensus=false,earlyVipV8=false,ultraV9=false,
   lateBenchV10=false,floatV11=false,ropeV12=false,
-  opponentDefenseV13=false,opponentDamageV14=false}={}){
+  opponentDefenseV13=false,opponentDamageV14=false,
+  freshV15=false}={}){
+  assert.ok(!freshV15||opponentDamageV14,
+    'Fresh v15 comparison retains v14 opponent defense as treatment');
   assert.ok(!opponentDamageV14||opponentDefenseV13,
     'Printed defensive v14 needs prior owner-survival v13');
   assert.ok(!opponentDefenseV13||ropeV12,
@@ -115,8 +123,19 @@ function run({anyTurn=false,shuffleCustody=false,
     assert.equal(PROSPECTIVE_REGISTRATION.pairedNativeAttempts,32);
     assert.equal(PROSPECTIVE_REGISTRATION.trials.length,16);
   }
-  const trials=prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms();
-  assert.equal(trials.length,prospectiveV5?16:4);
+  if(freshV15){
+    assert.equal(FRESH_V15_REGISTRATION.schema,
+      'agent29-rank9-fresh-independent-adversarial-rope-v15');
+    assert.equal(FRESH_V15_REGISTRATION.physicalGroups,12);
+    assert.equal(FRESH_V15_REGISTRATION.registeredTrialCount,24);
+    assert.equal(FRESH_V15_REGISTRATION.expectedNativeGames,48);
+    assert.equal(new Set(FRESH_V15_REGISTRATION.seedGroups.map(x=>x.seed)).size,12);
+    assert.ok(FRESH_V15_REGISTRATION.seedGroups.every(x=>
+      !PROSPECTIVE_REGISTRATION.seeds.some(o=>o.seed===x.seed)));
+  }
+  const trials=freshV15?FRESH_V15_REGISTRATION.trials:
+    prospectiveV5?PROSPECTIVE_REGISTRATION.trials:scheduledArms();
+  assert.equal(trials.length,freshV15?24:prospectiveV5?16:4);
   assert.ok(trials.every(x=>x.rank===9));
   const previous={};
   for(const [k,v] of Object.entries(profile.injectedResearchEnvironment)){
@@ -146,7 +165,8 @@ function run({anyTurn=false,shuffleCustody=false,
               ownerZoneRegister,earlyVipV8,ultraV9,lateBenchV10,
               floatV11:floatEnabled,ropeV12:ropeEnabled,
               opponentDefenseV13:opponentDefenseEnabled,
-              opponentDamageV14:opponentDamageEnabled})));
+              opponentDamageV14:opponentDamageEnabled,
+              freshV15})));
         if(!shuffleCustody)return numeric(null);
         const {withAuthoritativeShuffleOrderWitness}=require(
           '../twinleaf/agent29-authoritative-shuffle-order-witness.cjs');
@@ -203,7 +223,8 @@ function run({anyTurn=false,shuffleCustody=false,
     });
     const allAudited=pairs.every(x=>x.rootAudit!==null);
     const allDealsMatch=pairs.every(x=>x.fullPhysicalDealEqual);
-    return {version:opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
+    return {version:freshV15?FRESH_DAMAGE_V15_VERSION:
+      opponentDamageV14?DAMAGE_AWARE_V14_VERSION:
       opponentDefenseV13?OPPONENT_ROPE_V13_VERSION:
       ropeV12?EARLY_ROPE_V12_VERSION:
       floatV11?FUNDED_FLOAT_V11_VERSION:
@@ -216,13 +237,15 @@ function run({anyTurn=false,shuffleCustody=false,
       shuffleCustody?SHUFFLE_AUDIT_VERSION:anyTurn?LATE_VERSION:VERSION,source,
       anyTurn,bombAfterCompressor,prospectiveV5,ownerZoneCensus,earlyVipV8,
       ultraV9,lateBenchV10,floatV11,ropeV12,opponentDefenseV13,
-      opponentDamageV14,
+      opponentDamageV14,freshV15,
       v11ControlUsesFullV10SourceLine:floatV11&&!ropeV12,
       v12ControlUsesFullV11SourceLine:ropeV12&&!opponentDefenseV13,
       v13ControlUsesFullV12SourceLine:opponentDefenseV13&&!opponentDamageV14,
       v14ControlUsesFullV13SourceLine:opponentDamageV14,
       vipAppliedToBothOriginalOwners:earlyVipV8,
-      freshRegistration:prospectiveV5?
+      freshRegistration:freshV15?
+        'results/aichi-2026/registrations/agent29-rank9-v15-12-fresh-physical-rope-defense-20261109.json':
+        prospectiveV5?
         'results/aichi-2026/registrations/agent29-rank9-prospective-eight-seed-compressor-bomb-v5-20261107.json':null,
       enginePin:profile.pinnedVendorRevision,
       shuffleOrderWitness:shuffleCustody?{
@@ -277,7 +300,8 @@ function run({anyTurn=false,shuffleCustody=false,
 }
 
 if(require.main===module){
-  const opponentDamageV14=
+  const freshV15=process.env.AGENT29_RANK9_FRESH_ROPE_DAMAGE_V15==='true';
+  const opponentDamageV14=freshV15||
     process.env.AGENT29_RANK9_ROPE_DAMAGE_AWARE_V14==='true';
   const opponentDefenseV13=opponentDamageV14||
     process.env.AGENT29_RANK9_ROPE_OPPONENT_SURVIVAL_V13==='true';
@@ -303,7 +327,7 @@ if(require.main===module){
     process.env.AGENT29_RANK9_COMPR_ANYTURN_V2==='true',shuffleCustody,
     bombAfterCompressor,prospectiveV5,ownerZoneCensus,earlyVipV8,ultraV9,
     lateBenchV10,floatV11,ropeV12,opponentDefenseV13,
-    opponentDamageV14});
+    opponentDamageV14,freshV15});
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
     JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
