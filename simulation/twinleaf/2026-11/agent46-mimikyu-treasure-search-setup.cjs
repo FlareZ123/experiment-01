@@ -77,7 +77,13 @@ function installTreasureMimikyuSetup({seat,onEvent}){
     const owned=state.players[seat]?.id===player.id;
     const actualTreasure=owned&&player.supporter.cards.some(c=>
       c.fullName===TREASURE);
-    const eligible=actualTreasure&&prompt?.playerId===player.id&&
+    const mimikyuNotExposed=[player.active,...player.bench].every(slot=>
+      slot.getPokemonCard()?.fullName!==MIMIKYU)&&
+      !player.hand.cards.some(card=>card.fullName===MIMIKYU)&&
+      !player.discard.cards.some(card=>card.fullName===MIMIKYU);
+    const eligible=actualTreasure&&mimikyuNotExposed&&
+      ownerSetupWindow(state,player,seat)&&
+      prompt?.playerId===player.id&&
       prompt?.constructor?.name==='ChooseCardsPrompt'&&
       prompt.options?.min<=1&&prompt.options?.max===1;
     if(eligible&&prompt.cards===player.hand&&
