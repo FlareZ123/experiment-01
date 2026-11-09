@@ -54,6 +54,11 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
     stagedStoreInjected:liveFromStaged!==null,
     ownerPaymentPromptProposals:0,
     ownerCategoryPromptProposals:0,
+    nativeSourceBoxRootAttempts:0,
+    nativeSourceBoxRootAccepted:0,
+    nativeSourceBoxPaymentPromptsOpened:0,
+    nativeSourceBoxPaymentsFromOtherPolicies:0,
+    nativeSourceBoxSearchesFromOtherPolicies:0,
     nativePaymentAccepted:0,
     nativeCategoryAccepted:0,
     nativeRejected:0,
@@ -133,10 +138,34 @@ function withOwnerSecretBoxCapacityActorPrompt(run,options={}) {
   function dispatch(action,...rest) {
     if(action?.constructor?.name==='AddPlayerAction'&&
       liveFromStaged===null)live=this;
-    const record=this===live?planned.get(action):null;
+    const sameStore=this===live;
+    const record=sameStore?planned.get(action):null;
+    const owner=sameStore&&action?.constructor?.name==='PlayCardAction'?
+      this.state.players?.find(p=>p.id===action.id):null;
+    const boxRoot=owner?.hand?.cards?.[action.handIndex]?.fullName===
+      'Secret Box TWM';
+    if(boxRoot)audit.nativeSourceBoxRootAttempts++;
+    const prompt=sameStore&&action?.constructor?.name==='ResolvePromptAction'?
+      this.state.prompts?.find(p=>p.id===action.id&&p.result===undefined):
+      null;
+    if(!record&&prompt?.sourceCard?.fullName==='Secret Box TWM'){
+      if(prompt.message==='CHOOSE_CARD_TO_DISCARD')
+        audit.nativeSourceBoxPaymentsFromOtherPolicies++;
+      else if(prompt.message==='CHOOSE_CARD_TO_HAND')
+        audit.nativeSourceBoxSearchesFromOtherPolicies++;
+    }
     if(!record){
       const result=previousDispatch.value.call(this,action,...rest);
-      if(this===live)inspectPendingPhysicalReceipts(this);
+      if(sameStore){
+        if(boxRoot){
+          audit.nativeSourceBoxRootAccepted++;
+          if(this.state.prompts?.some(p=>p.result===undefined&&
+            p.sourceCard?.fullName==='Secret Box TWM'&&
+            p.message==='CHOOSE_CARD_TO_DISCARD'))
+            audit.nativeSourceBoxPaymentPromptsOpened++;
+        }
+        inspectPendingPhysicalReceipts(this);
+      }
       return result;
     }
     try{
