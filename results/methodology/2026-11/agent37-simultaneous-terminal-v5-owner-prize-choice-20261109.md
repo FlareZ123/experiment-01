@@ -152,12 +152,17 @@ out-of-zone references in each negative. The helper then rejects
 them by actual Store card-list identity. This is a reusable
 pre-dispatch admission guard for research bot implementations.
 
-Its manual full-v3/v4/v5 CI regression
-[42558451290](https://github.com/FlareZ123/experiment-01/actions/runs/42558451290)
-was in progress when this section was written. The earlier native
+Its manual full-v3/v4/v5 [CI run 42558451290](https://github.com/FlareZ123/experiment-01/actions/runs/42558451290)
+**SUCCEEDED**, 9 November 2026, including the generic own/opponent/
+redirected-perspective contract test, all ten native v5 owner-choice
+cases, both forged-list negatives, and the unchanged v3/v4 suites.
+Machine-readable output [artifact 13648766799](https://github.com/FlareZ123/experiment-01/actions/runs/42558451290/artifacts/13648766799)
+has SHA-256
+`60b5e7c51770b5624c3d85c164261a92f910c921a39f5a9e615a8391cb6263b5`.
+The earlier native
 [42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190)
-had already established the same physical-zone protection inside
-the terminal-only callback.
+had established the same physical-zone protection inside the
+terminal-only callback before this reusable refactor.
 
 ## Integration contract for the complete headless match runner
 
