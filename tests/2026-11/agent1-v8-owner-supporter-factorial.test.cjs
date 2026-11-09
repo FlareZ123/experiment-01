@@ -6,7 +6,7 @@ const {VERSION,MODES,REGISTRATION,continuation}=
   require('../../simulation/evaluation/agent1-v8-owner-supporter-factorial-four-arm.cjs');
 
 test('preregistered 2x2 modes preserve owner policy control baseline',()=>{
-  assert.equal(VERSION,'agent1-v8-owner-supporter-contention-four-arm-factorial-v1');
+  assert.equal(VERSION,'agent1-v8-owner-supporter-contention-four-arm-factorial-v2-parity');
   assert.deepEqual(Object.keys(MODES),['B','H','R','HR']);
   assert.deepEqual(MODES.B,{});
   assert.deepEqual(MODES.H,{followHeldHandiwork:true});
