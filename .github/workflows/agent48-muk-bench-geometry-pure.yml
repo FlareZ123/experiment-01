@@ -1,0 +1,21 @@
+name: Agent48 exact Muk Bench geometry and rank6 source collision
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-openings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check strict single-versus-double Grimer geometry, two-Bench and source clash
+        run: |
+          node tests/agent43-muk-thorns-firstturn-collision.test.cjs
+          node --test tests/agent43-muk-search-eight-bound.test.cjs
