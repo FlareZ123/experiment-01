@@ -1,0 +1,25 @@
+# Rank7 owner VS Seeker/Faba continuation after genuine Jet Wobbuffet
+
+**Agent 33 | 9 November 2026 | policy implementation; native regression pending manual CI.**
+
+## Concrete intervention
+
+In the original rank7 Snorlax Stall versus unchanged Sentinel Lopunny/Vileplume v1, an already demonstrated, physically paid source line is:
+
+`opponent Artazon -> source owner Wobbuffet PHF search -> owner Jet Energy PAL onto Bench Wobbuffet -> native Jet promotes Wobbuffet -> unhooded Vileplume AOR Irritating Pollen disabled -> owner VS Seeker PHF from hand -> Faba LOT retrieved from own public discard`.
+
+The previous conditioned native two-seat test in [the source-custody report](agent33-rank7-artazon-jet-nest-custody-and-access-20261109.md) settled every action and owner prompt, but manually chose the post-Jet VS Seeker. The common detached actor had already gained automatic Nest Ball and Robo Substitute post-Jet choices; this **third original printed-Item followthrough was missing from the decision policy**.
+
+Added a deliberately default-off owner-root choice [`choosePostJetVsFabaRoot`](../../../simulation/twinleaf/2026-11/agent33-jet-vs-faba-postroot.cjs), returning the exact held VS Seeker hand index and `Faba LOT` discard target. It requires public Active Wobbuffet, physically observed attached Jet, a still unused Supporter quota, unblocked Item/Supporter permissions, an original owner-visible discarded Faba, and a real opponent unhooded Vileplume AOR with `Irritating Pollen`. It declines both Stealthy Hood-protected second lock copies and visible Alolan Muk `Power of Alchemy` suppression, as well as cases with Faba already held. It sees neither deck order nor Prizes.
+
+The shared [actor selection/Store bridge](../../../simulation/twinleaf/agent34-actor-only-root-policy.cjs) now maps the new intent to an actual source-owned PlayCardAction, authenticates the resulting native owner-discard `ChooseCardsPrompt`, reuses Agent48's genuine physical Supporter selector, and verifies that one Faba actually moved from the owner discard into the owner hand. New separate proposed/accepted Faba counters prevent reporting those prompts as Lillie's Determination results. [Physical witness](../../../simulation/twinleaf/agent5-owner-root-slice.cjs) now recognizes the native VS Seeker departure instead of aborting on an unknown action. The optional shared Jet suite [includes the new branch](../../../simulation/evaluation/agent41-bilateral-v2-development.cjs); all ordinary/default policies remain unchanged.
+
+## Evidence and limitations
+
+- The [existing exact original-rank7 native SFT](../../../tests/2026-11/agent33-rank7-artazon-jet-native.test.cjs) was extended to require the actual common actor to select the post-Jet VS Seeker with exact `handIndex`, `printing` and `target`, before dispatching the real Item and selecting the exact physical Faba through the already-tested authenticated native prompt helper. Both candidate physical seats are covered in its prior test layout. This revised fixture has **not yet been successfully rerun in CI**.
+- [Thirteen pure owner-observation regression cases](../../../tests/2026-11/agent33-jet-vs-faba-postroot.test.cjs) cover positive retrieval, missing/displaced resources, spent quotas, a protected second lock, and Alolan Muk. A corresponding local Node 13-case mirror passed on 9 November; the exact checked-in test was registered in the [existing native test entry](../../../tests/agent33-rank7-wobbuffet-jet-vileplume-native.test.cjs) for the next *manual* workflow run.
+- Prior existing/manual native VS Seeker -> Faba Store settlement passed both seats in [CI 42575215081](https://github.com/FlareZ123/experiment-01/actions/runs/42575215081), with unchanged source and Sentinel physical sixties. That run predates the new automatic actor branch. **Do not attribute a new native actor acceptance to that old run.**
+- No natural game has been played with the new option, the opponent's next turn is not a genuine competing-bot continuation here, and Faba retrieval can consume a highly flexible VS Seeker without creating an immediately decisive answer. This branch establishes a native-action candidate, not an optimal decision rule. Before promoting it into a universal policy, compare alternative VS uses and a visible immediate Faba target in real source-root contexts.
+- No final fixed 60, 99.5% field claim, original rank23/25/28 list, or paper/clock/strategy-qualified game is established.
+
+**Next targeted action:** manually dispatch the existing pinned rank7 native test workflow and inspect this revised actor selection and Faba prompt (including Hood-veto cases). Then select a genuine new physical source opening with a visible Faba target and compare the owner's otherwise available Supporter/Item line, preserving exact opponent replies and full physical custody.
