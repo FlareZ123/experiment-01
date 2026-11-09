@@ -575,7 +575,8 @@ function chooseActorRootIntent(view,catalog,options={}){
     const draw=require('./agent37-genesect-public-fusion-draw.cjs')
       .chooseGenesectFusionDraw(view,{
         usedThisTurn:options.genesectFusionUsedThisTurn===true,
-        publicUsage:options.genesectFusionPublicUsage??null
+        publicUsage:options.genesectFusionPublicUsage??null,
+        availableNativeSlots:options.genesectFusionNativeAvailableSlots
       });
     if(draw)return draw;
   }
@@ -1860,6 +1861,11 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:actorSpecialEnergyEnabled(
         audit.genesectFusionDrawOptIn,audit.genesectFusionDrawOwnerSeat,seat),
+      genesectFusionNativeAvailableSlots:
+        actorSpecialEnergyEnabled(audit.genesectFusionDrawOptIn,
+          audit.genesectFusionDrawOwnerSeat,seat)?
+            require('./agent37/native-genesect-power-availability.cjs')
+              .nativeGenesectPowerAvailability(state,nativeStore,seat):null,
       templeDdeDenial:audit.templeDdeDenialOptIn===true,
       arvenHoodSearch:audit.arvenHoodSearchOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
