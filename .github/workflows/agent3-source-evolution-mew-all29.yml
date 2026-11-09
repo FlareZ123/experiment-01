@@ -9,6 +9,7 @@ on:
         options:
           - source-mew
           - hood-v2
+          - hood-retreat
         default: source-mew
 
 permissions:
@@ -16,7 +17,7 @@ permissions:
 
 jobs:
   frozen-source-opponent-competence:
-    if: inputs.experiment != 'hood-v2'
+    if: inputs.experiment == 'source-mew'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -88,5 +89,43 @@ jobs:
         with:
           name: agent3-hood-consistency-v2-targeted
           path: artifacts/agent3-hood-consistency-v2-targeted.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  hood-v2-flexible-paid-retreat:
+    if: inputs.experiment == 'hood-retreat'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact registered research code
+        uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Use pinned Node and npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Test frozen same-deck mobility treatment and paired bounds
+        run: |
+          node --check simulation/evaluation/agent3/hood-v2-flexible-paid-retreat-native.cjs
+          node --test tests/2026-11/agent3-hood-v2-flexible-paid-retreat.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all 18 same-sixty registered source games
+        env:
+          AGENT3_FLEXIBLE_RETREAT_OUTPUT: artifacts/agent3-hood-v2-flexible-retreat.json
+        run: node simulation/evaluation/agent3/hood-v2-flexible-paid-retreat-native.cjs
+      - name: Preserve every game, full roots, disposition and physical deals
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-hood-v2-flexible-retreat
+          path: artifacts/agent3-hood-v2-flexible-retreat.json
           retention-days: 14
           if-no-files-found: warn
