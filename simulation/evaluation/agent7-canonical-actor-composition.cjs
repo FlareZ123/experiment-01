@@ -292,8 +292,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   };
   const runAttack=()=>{
     const opts={};
-    if(options.preferMewGenesectTechnoBlast===true)
+    if(options.preferMewGenesectTechnoBlast===true){
       opts.preferMewGenesectTechnoBlast=true;
+      opts.preferMewGenesectTechnoBlastOwnerSeat=
+        options.preferMewGenesectTechnoBlastOwnerSeat??null;
+    }
     if(options.preferMewMaxMiracleOverSelfCopy===true)
       opts.preferMewMaxMiracleOverSelfCopy=true;
     return Object.keys(opts).length>0?attack(runPokemon,opts):attack(runPokemon);
