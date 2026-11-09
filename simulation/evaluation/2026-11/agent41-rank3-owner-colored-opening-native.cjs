@@ -71,6 +71,7 @@ function oneArm(bias,trials,runner=runDevelopment) {
       actorColoredStarterBias:bias,
       nativeRootActionLimit:registration.rootLimit,
       allowExtendedRegisteredNativeRootCap:true,
+      allowAdditionalOriginalSourceRanks:true,
       registeredTrials:trials,
       registeredFrameName:VERSION+(bias?'-treatment':'-control')
         +'-rank3-same-original-sixties',
