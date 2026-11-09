@@ -131,6 +131,41 @@ Full machine-readable output is archived in
 [artifact 13647468719](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190/artifacts/13647468719),
 SHA-256 `69556dd83f2b05a9b55f7217be2963b860e43a2a1d4ffd543e4a59052971fab3`.
 
+## Integration contract for the complete headless match runner
+
+The existing native v5 entry point is **transaction-scoped**:
+`withInstanceScopedSimultaneousTerminalResolutionV5(store, execute)`
+wraps an entire synchronous sequence containing an attack and all
+corresponding prompt resolutions, then restores Store methods.
+The small regression runner has such a synchronous closure, which is
+why its ten v5 game-state cases pass.
+
+The shared `simulation/twinleaf/headless.cjs` runner instead creates
+its actual Store in `onRootStoreCreated` and calls
+`store.dispatch(action)` **once per root action**, with real owner
+prompt answers occurring at later dispatches. Wrapping only the
+initial attack dispatch in the current v5 entry point would end
+the wrapper while the new owner `ChoosePrizePrompt` is unresolved,
+and correctly fail its pending-choice safety assertion.
+
+A safe complete-match integration therefore requires an
+**instance-scoped session installation** that survives successive
+Store dispatches, with explicit per-attack transaction resets and
+cleanup in the runner's `finally`. It must not copy the existing
+one-shot `EndTurnEffect` wrapper into a long-lived session without
+handling its current nonterminal callback, which deliberately
+restores methods at the end of the single transaction. The native
+owner-prompt bridge should use the chooser's Prize **position**
+decision with physical-zone membership checks, and publish no
+winner/log until the corresponding owner prompt is settled.
+It must preserve the headless runner's existing owner-information
+quarantine, root-action ledger, action caps and failure classification.
+
+This is a precise unimplemented integration boundary.
+The passing staged v5 fixture **does not** make the existing shared
+`runMatch` competitive-policy-safe, and turning it on by default
+would be premature.
+
 ## Unsolved limits
 
 The current staged transaction is not a naturally played 60-card match and is not a competitive paper game. Two Active Knock Outs, exactly two positive Prize groups, ordinary hand destinations, and simple Bench-based promotion eligibility remain required. The exact card objects in the staged Prize pool are known to the test controller; this test is deliberately a native mechanical fixture, not a player information-policy certificate. When deployed in an autonomous game, the `ChoosePrizePrompt` decision must be restricted to owner-visible information and the recorded selected Prize positions must be audited for information leakage. Other effects on Prize destinations, midprompt rule changes, heterogeneous Prize-triggered Abilities, multiple KO events, clock transitions, and discarded or redirected Prize cards require separate tests.
