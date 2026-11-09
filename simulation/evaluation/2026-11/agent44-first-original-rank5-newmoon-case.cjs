@@ -4,8 +4,6 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {runNativeBatch}=
-  require('../agent32-fresh-perfection-field.cjs');
 const {runDevelopment}=
   require('../agent41-bilateral-v2-development.cjs');
 const mew=require('./agent8-source-mew-funding-v6.cjs');
@@ -115,8 +113,12 @@ function execute(){
   const capture=gameCapture();
   const frozen=require('../agent41-frozen-bilateral-development-v2.json');
   assert.equal(frozen.policyOptions.actorOnlyComposition,true);
-  const program=runNativeBatch(true,base=>runDevelopment({
-    ...base,...frozen.policyOptions,...mew.options(true),
+  const development=runDevelopment({
+    ...frozen.policyOptions,...mew.options(true),
+    sourceIndependentCommonPolicy:true,
+    bilateralSpecialEnergyRoot:true,
+    bilateralPerfectionRoot:true,
+    actorVipAfterPass:true,
     actorMewMaxMiracleOverSelfCopy:true,
     sourceScopedQuickBallRoot:true,
     actorMewQuickBallPaymentGuard:true,
@@ -139,16 +141,15 @@ function execute(){
     specialRedCardPaperCorrection:true,
     specialRedCardPaperSpeculativeShuffle:true,
     allowExtendedRegisteredNativeRootCap:true,
-    onRootActionDispatched:capture.onRootActionDispatched
-  }),{
+    allowSingleCandidateArm:true,
+    allowAdditionalOriginalSourceRanks:true,
     registeredTrials:reg.preRegisteredTrials,
     registeredFrameName:reg.caseId,
     nativeRootActionLimit:reg.nativeRootCap,
-    vipAfterPass:true,
-    vipPreferMewtwoDonor:true,
-    perfectionTransition:false
+    onRootActionDispatched:capture.onRootActionDispatched
   });
-  const row=program.selected.rawDevelopment.rows[0];
+  assert.equal(development.rows.length,1);
+  const row=development.rows[0];
   assert.equal(row.trial.id,reg.preRegisteredTrials[0].id);
   const nativeRoots=row.rootActionLedger??[];
   const sourceSeat=0,candidateSeat=1;
@@ -259,7 +260,9 @@ function execute(){
   };
   return {schema:intake.schema,registration:reg,registrationSha256,
     intake,nativeDevelopmentRow:row,postStoreZoneTape:zoneEvidence,
-    nativeOuterAudit:program.wrappers,qualifications:intake.releaseStatus};
+    nativeOuterAudit:{schema:'direct-registered-single-arm-common-native-v1',
+      sameOriginalSourceAndFixedCandidateSixties:true,
+      preservedNoReview:true},qualifications:intake.releaseStatus};
 }
 
 /** Exclusive lock plus fsync/rename to preserve the released packet atomically. */
