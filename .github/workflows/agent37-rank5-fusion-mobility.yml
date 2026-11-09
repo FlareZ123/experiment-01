@@ -49,6 +49,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent37_mew_ultra_payment_retro:
+        description: Compare default versus DCI-protected source Ultra Ball payment on exposed evolution deals
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -78,12 +83,12 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
       - name: Retrospective rank5 source Quick Ball and native owner discard paired development
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro }}
         env:
           AGENT37_QUICKBALL_PRESERVE_ATTACK_DEV: ${{ inputs.agent37_quickball_preserve_attack }}
           AGENT37_QUICKBALL_MEW_SEARCH_DEV: ${{ inputs.agent37_quickball_mew_search }}
@@ -160,6 +165,26 @@ jobs:
         with:
           name: agent37-rank5-mew-ultraball-evolution-16arm
           path: agent37-rank5-mew-ultraball-evolution-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Pure exact-owner Ultra Ball mandatory two-card payment tests
+        if: ${{ inputs.agent37_mew_ultra_payment_retro && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: |
+          node --check simulation/twinleaf/agent37/mew-ultraball-evolution.cjs
+          node --check simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-retrospective.cjs
+          node --test tests/agent37-mew-ultraball-evolution.test.cjs
+      - name: Inspect previously exposed original Mew Ultra Ball payment counterfactual
+        if: ${{ inputs.agent37_mew_ultra_payment_retro && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-retrospective.cjs --inspect-only
+      - name: Run 16 actual native original-source Ultra Ball payment safety attempts
+        if: ${{ inputs.agent37_mew_ultra_payment_retro && !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile }}
+        run: node simulation/evaluation/2026-11/agent37-rank5-mew-ultraball-payment-retrospective.cjs
+      - name: Archive all retrospective source Mew Ultra Ball payment safety attempts
+        if: ${{ always() && inputs.agent37_mew_ultra_payment_retro }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-rank5-mew-ultraball-payment-retro-16arm
+          path: agent37-rank5-mew-ultraball-payment-retro-16arm.json
           if-no-files-found: warn
           retention-days: 30
       - name: Validate default-off Mew donor choice and bilateral policy forwarding
