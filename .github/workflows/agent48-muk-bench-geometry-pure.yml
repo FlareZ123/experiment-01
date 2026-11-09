@@ -2,6 +2,12 @@ name: Agent48 exact Muk Bench geometry and rank6 source collision
 
 on:
   workflow_dispatch:
+    inputs:
+      native_double_grimer:
+        description: 'Two-seat physical first-turn Grimer Active plus Benched Muk via Boost Shake'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -19,3 +25,34 @@ jobs:
         run: |
           node tests/agent43-muk-thorns-firstturn-collision.test.cjs
           node --test tests/agent43-muk-search-eight-bound.test.cjs
+
+  native-double-grimer:
+    if: ${{ inputs.native_double_grimer }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Real native both-seat double-Grimer Bench Muk response
+        run: node simulation/twinleaf/agent48-double-grimer-bench-muk-native.cjs > agent48-double-grimer-native.json
+      - name: Print physical custody result
+        run: node -e "const r=require('./agent48-double-grimer-native.json');console.log(JSON.stringify({decision:r.decision,attempts:r.attempts,rows:r.rows.map(x=>({seat:x.seat,activeGrimer:x.activeIsOriginalGrimer,benchMuk:x.benchedGrimerBecameMuk,discardedShake:x.shakeMovedFromHandToDiscard,late:x.activeSeatAfter,steps:x.steps}))},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent48-double-grimer-bench-native
+          path: agent48-double-grimer-native.json
+          if-no-files-found: warn
+          retention-days: 14
