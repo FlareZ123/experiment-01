@@ -106,7 +106,26 @@ function canonicalizePublishedGrandTreeDeck(nativeIds, publishedCards) {
   return nativeIds.map(id=>id===NATIVE_MISSPELLING?CANONICAL:id);
 }
 
+
+/**
+ * Run an actual pinned match or source-resolution operation with the
+ * reversible printed-identity lookup active. No mutation survives exit.
+ * An original source roster containing Grand Tree should first be processed
+ * through canonicalizePublishedGrandTreeDeck.
+ *
+ * @template T
+ * @param {()=>T} work Synchronous native match or resolution.
+ * @returns {T}
+ */
+function withCanonicalGrandTreeLookup(work) {
+  if (typeof work !== 'function') throw new TypeError('Expected native task');
+  const {initializeCards}=require('../headless.cjs');
+  const release=installGrandTreePrintingAlias(initializeCards());
+  try {return work();}
+  finally {release();}
+}
+
 module.exports = {
   CANONICAL, NATIVE_MISSPELLING, installGrandTreePrintingAlias,
-  canonicalizePublishedGrandTreeDeck
+  canonicalizePublishedGrandTreeDeck,withCanonicalGrandTreeLookup
 };
