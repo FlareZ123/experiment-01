@@ -67,7 +67,7 @@ function stagePaidPromotion(seat){
       actorSeat:seat,turn:34,opponentLastTurnTurn:33,
       opponentCopycatChoices:Object.freeze([Object.freeze({
         turn:33,sourcePrinting:REGIDRAGO,attackName:'Apex Dragon',
-        gxAttack:false,copycatAttack:false
+        gxAttack:false,copycatAttack:true
       })])
     })
   });
