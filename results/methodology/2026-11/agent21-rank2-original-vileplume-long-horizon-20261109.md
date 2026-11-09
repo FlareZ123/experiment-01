@@ -1,0 +1,24 @@
+# Original rank2 Vileplume Control defeats both unchanged Shadow Rider sixties at an extended native horizon
+
+**Agent21, 9 November 2026. Status: retrospective native horizon sensitivity only; zero qualified competitive paper games.**
+
+The original all-29 prospective Hood-vs-champion native archive [42578010606](https://github.com/FlareZ123/experiment-01/actions/runs/42578010606) left **both contender lists unresolved on both physical rank2 source deals**, four root-260 caps. Rather than treating the opponent's control-game stalls as candidate wins or raising the entire all-29 panel's cap without a diagnosis, this experiment independently replays exactly those original rank2 Vileplume Control deals under an explicit **640-action limit**, retaining the two original printed contender 60s, fixed 60-card Vileplume source list, physical source setup, same source/candidate policy and paper-core native profile.
+
+## Observed original-source outcomes
+
+| Same physical original rank2 source deal | Candidate fixed 60 | Original 260 roots | Extended Store | Original first 260 root actions reproduced? |
+| --- | --- | --- | --- | --- |
+| Seat A, seed 50726483 | Rank1 Shadow Rider champion | No terminal, remaining Prizes `[6,6]` | **Original Vileplume wins** naturally at root337 / turn83, remaining Prizes `[6,6]` | **Yes**, exact SHA-256 |
+| Seat A, same seed | Hood Shield v1 | No terminal, `[4,6]` | **Original Vileplume wins** at root337 / turn83, `[4,6]` | **Yes**, exact SHA-256 |
+| Seat B, seed 1073445688 | Rank1 Shadow Rider champion | No terminal, `[6,6]` | **Original Vileplume wins** at root365 / turn87, `[6,6]` | **Yes**, exact SHA-256 |
+| Seat B, same seed | Hood Shield v1 | No terminal, `[6,5]` | **Original Vileplume wins** at root313 / turn67, `[6,2]` | **Yes**, exact SHA-256 |
+
+All four games end in native `engine-game-end` with both players still having Active Pokémon and neither player's Prize count at zero. This is consistent with the candidate failing to draw at the beginning of its turn after long control play. The retained public transcript establishes the native winner and final board; it does not include an independently certified failed draw/clock adjudication record.
+
+The source physical deal was **exactly equal** to its respective original archived source fingerprint in each arm, **`ceda28c7...419922`** for A and **`127a9c23...46632`** for B, and matched across both candidate sixties for each seat. The extended runner computes SHA-256 of the *first 260 actual Store root-action objects* and compares it with each original native archival SHA-256. **All four original 260-root prefixes matched**. The only deliberate change to gameplay is continuation past the original action horizon. No card swap and no new policy were used.
+
+The native results show that **the original Vileplume Control line can outlast either Shadow Rider contender under the present weak developmental actor profile**. Hood Shield does not acquire a winning rank2 line merely by being the promising modified candidate. The 83-turn and 87-turn cases greatly exceed any plausible completed Japanese sanctioned-match clock and must **not** be promoted into paper match outcomes. Even root313 / turn67 has no independent paper-clock certificate. This long-horizon observation is valuable for opponent threat modeling: it exposes failure to break the control cycle before native decking out, requiring actual opponent-competent resource sequencing and release-clock handling.
+
+**References/reproducibility:** [Manual native CI 42585077489](https://github.com/FlareZ123/experiment-01/actions/runs/42585077489) succeeded with the [full four-arm archive 13658732656](https://github.com/FlareZ123/experiment-01/actions/runs/42585077489/artifacts/13658732656). Replay driver [`simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs`](../../../simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs), manually dispatched [`.github/workflows/agent21-rank2-long-control-native.yml`](../../../.github/workflows/agent21-rank2-long-control-native.yml). Pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; original common policy from Agent3's frozen registry, native root ceiling 640. Historical original all-29 prospectively registered deck comparison remains **unchanged** and the sharp 55-deal Hood-minus-champion `[-9,+13]` native completion envelope remains the proper original archival statement.
+
+**Research decision:** Prioritize a new, symmetric competent two-player policy that can terminate or adjudicate Vileplume control without hundreds of steps. Preserve the two original source physical deals as adversarial development fixtures while registering independent fresh seeds to test any revised tactic. Do not reclassify these four posthoc long-horizon outcomes as independently randomized evidence.
