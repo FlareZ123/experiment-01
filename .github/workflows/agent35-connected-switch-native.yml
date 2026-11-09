@@ -1,0 +1,48 @@
+name: Agent35 connected tactical Switch same60 prospective native A/B
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent35-connected-switch-same60
+  cancel-in-progress: false
+
+jobs:
+  connected-switch-same60:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify actually wired flags and frozen new physical deals
+        run: |
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/twinleaf/2026-11/agent35-tactical-switch-funded-ko.cjs
+          node --check simulation/evaluation/2026-11/agent35-connected-switch-same60-32-native.cjs
+          node --test tests/2026-11/agent35-connected-switch-same60-32-native.test.cjs tests/2026-11/agent35-tactical-switch-funded-ko.test.cjs tests/2026-11/agent35-block-switch-ko-frontier.test.cjs
+          node simulation/evaluation/2026-11/agent35-connected-switch-same60-32-native.cjs --inspect-only
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 16 wholly new registered genuine source deal pairs
+        run: node simulation/evaluation/2026-11/agent35-connected-switch-same60-32-native.cjs
+      - name: Archive every genuine native game including caps and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent35-connected-switch-same60-32-native
+          path: artifacts/agent35-connected-switch-same60-32-native.json
+          if-no-files-found: warn
+          retention-days: 21
