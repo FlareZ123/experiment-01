@@ -59,6 +59,9 @@ jobs:
       - name: Prove original pinned Ultra Ball paid cost and paper-invalid zero cost in both seats
         if: ${{ inputs.ultra_ball_portfolio_native }}
         run: node --test tests/2026-11/agent14-ultra-ball-portfolio-paid-custody.native.test.cjs
+      - name: Verify all five source-stamped Trainer discard payments in native Store, both seats
+        if: ${{ inputs.ultra_ball_portfolio_native }}
+        run: node --test tests/2026-11/agent14-paid-discard-five-trainers.native.test.cjs
       - name: Run exact original rank11 physical A/B/A strand intervention
         if: ${{ inputs.rank11_strand_native_aba }}
         env:
