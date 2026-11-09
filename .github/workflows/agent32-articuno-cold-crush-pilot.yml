@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      run_rank14_source_roar_factorial:
+        description: 'Test original rank14 source paper Celestial Roar versus fixed New Moon Perfection pivot, same frozen deal'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -190,3 +195,8 @@ jobs:
         run: |
           node --check simulation/evaluation/agent45-rank14-native-linkage-debug.cjs
           node simulation/evaluation/agent45-rank14-native-linkage-debug.cjs
+      - name: Compare original Regidrago source corrected Celestial Roar against fixed New Moon pivot
+        if: ${{ inputs.run_rank14_source_roar_factorial }}
+        run: |
+          node --check simulation/evaluation/agent45-rank14-celestial-source-factorial.cjs
+          node simulation/evaluation/agent45-rank14-celestial-source-factorial.cjs
