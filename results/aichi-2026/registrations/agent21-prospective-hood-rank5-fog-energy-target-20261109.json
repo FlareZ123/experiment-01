@@ -1,0 +1,58 @@
+{
+  "schema": "agent21-prospective-rank5-hood-fog-energy-policy-comparison-v1",
+  "status": "FROZEN_BEFORE_ANY_NATIVE_EXECUTION",
+  "registeredUtc": "2026-11-09T14:25:39.598703Z",
+  "researchQuestion": "Does a symmetric owner-visible Fog Crystal energy-deficit choice improve physical attachment and attack access for fixed Hood Shield Shadow Rider against original rank5 Mew Genesect in unseen source deals?",
+  "originalSourceRank": 5,
+  "originalSource60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateId": "hood-shield-shadow-rider-v1",
+  "candidateManifest": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateManifestGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "candidateCards": 60,
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourcePublishedList": "results/aichi-2026/full-decklists.json",
+  "policyArms": [
+    "original-canonical-Fog-Basic-priority",
+    "generic-owner-psychic-energy-deficit-priority"
+  ],
+  "bothPlayersIdenticalPolicyWithinEachArm": true,
+  "pairedSeedAndSourcePhysicalDealAcrossArms": true,
+  "nativeRootCap": 320,
+  "trials": [
+    {
+      "rank": 5,
+      "repeat": 5601,
+      "candidateSlot": "A",
+      "seed": 3080253347,
+      "candidateId": "hood-shield-shadow-rider-v1",
+      "id": "5:5601:A:hood-shield-shadow-rider-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5602,
+      "candidateSlot": "B",
+      "seed": 3574742336,
+      "candidateId": "hood-shield-shadow-rider-v1",
+      "id": "5:5602:B:hood-shield-shadow-rider-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5603,
+      "candidateSlot": "A",
+      "seed": 3208201201,
+      "candidateId": "hood-shield-shadow-rider-v1",
+      "id": "5:5603:A:hood-shield-shadow-rider-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 5604,
+      "candidateSlot": "B",
+      "seed": 2718601640,
+      "candidateId": "hood-shield-shadow-rider-v1",
+      "id": "5:5604:B:hood-shield-shadow-rider-v1"
+    }
+  ],
+  "evidenceClassification": "prospectively-frozen-headless-native-development-only",
+  "paperQualifiedCompetitiveGamesExpected": 0,
+  "prohibition": "No seed dropping, early stopping, reranking from selected outcomes, match win estimates, or paper winner claims"
+}
