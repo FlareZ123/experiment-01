@@ -165,5 +165,147 @@
       "seed": 3567226017,
       "candidateId": "hood-shield-v1"
     }
-  ]
+  ],
+  "trialRows": [
+    {
+      "id": "6:900:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 900,
+      "candidateSlot": "A",
+      "seed": 2309021679,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:901:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 901,
+      "candidateSlot": "B",
+      "seed": 2309021679,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:902:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 902,
+      "candidateSlot": "A",
+      "seed": 881798706,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:903:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 903,
+      "candidateSlot": "B",
+      "seed": 881798706,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:904:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 904,
+      "candidateSlot": "A",
+      "seed": 3655436598,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:905:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 905,
+      "candidateSlot": "B",
+      "seed": 3655436598,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:906:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 906,
+      "candidateSlot": "A",
+      "seed": 3655838468,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:907:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 907,
+      "candidateSlot": "B",
+      "seed": 3655838468,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:908:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 908,
+      "candidateSlot": "A",
+      "seed": 2389436137,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:909:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 909,
+      "candidateSlot": "B",
+      "seed": 2389436137,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:910:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 910,
+      "candidateSlot": "A",
+      "seed": 3708151906,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:911:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 911,
+      "candidateSlot": "B",
+      "seed": 3708151906,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:912:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 912,
+      "candidateSlot": "A",
+      "seed": 2604248117,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:913:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 913,
+      "candidateSlot": "B",
+      "seed": 2604248117,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:914:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 914,
+      "candidateSlot": "A",
+      "seed": 3567226017,
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:915:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 915,
+      "candidateSlot": "B",
+      "seed": 3567226017,
+      "candidateId": "hood-shield-v1"
+    }
+  ],
+  "independentSeedDraws": [
+    2309021679,
+    881798706,
+    3655436598,
+    3655838468,
+    2389436137,
+    3708151906,
+    2604248117,
+    3567226017
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateRosterGitBlob": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
 }
