@@ -21,7 +21,8 @@ test('larger or protected hands remain available for alternative owner actions',
 });
 test('deckout and incomplete owner zones are conservative declines',()=>{
   assert.equal(decide([],5).reason,'conserve-deck-near-deckout');
-  assert.equal(decide([],6).decision,true);
+  assert.equal(decide([],6).decision,false);
+  assert.equal(decide([],7).decision,true);
   assert.equal(chooseDedechangeConfirm({owner:{hand:{cards:[]}}}).decision,false);
 });
 
