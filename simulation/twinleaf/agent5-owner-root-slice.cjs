@@ -427,7 +427,12 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       Array.isArray(after.stadiumPrintings)&&
       count(after.stadiumPrintings)===1&&
       count(before.stadiumPrintings)===0&&
-      after.handCount===before.handCount-1?
+      after.handCount===before.handCount-1&&
+      (intent.kind!=='play-path-underworld-stadium-counter'||
+        ((before.inPlayStadiumPrintings??[]).some(x=>
+          x.startsWith('Path to the Peak '))&&
+         !(after.inPlayStadiumPrintings??[]).some(x=>
+           x.startsWith('Path to the Peak '))))?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='use-tropical-beach'||
