@@ -21,11 +21,11 @@ const {ResolvePromptAction} = native('game/store/actions/resolve-prompt-action')
 
 function nativeGrandTreeEvolution(seat,manager) {
   const x=stageForcedActive(seat,'floatstone');
+  let nextId=70000;
   const card=name=>{
     const copy=manager.getCardByName(name);
     assert.ok(copy,'Missing native card '+name);
-    copy.id=70000+x.owner.deck.cards.length+x.owner.hand.cards.length+
-      x.owner.bench[0].cards.length;
+    copy.id=nextId++;
     return copy;
   };
   x.state.turn=4;
