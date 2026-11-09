@@ -15,6 +15,9 @@ const MIMIKYU='Mimikyu GRI';
 const DIALGA='Dialga-GX UPR';
 const REGIDRAGO='Regidrago VSTAR SIT';
 const FLOAT_STONE='Float Stone BKT';
+const SAFE_RETREAT_STADIUM_PREFIXES=[
+  'Sky Field ','Dimension Valley ','Path to the Peak ','Silent Lab '
+];
 
 /**
  * The tracker-certified latest, non-GX Regidrago Apex declaration. The
@@ -130,21 +133,25 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
     return null;
 
   const benchIndex=own.bench?.findIndex(p=>{
-    if(p?.printing!==MIMIKYU||p.energies?.length!==2||
-        !p.energies.every(e=>
-          catalog.basicEnergies?.has(e)===true&&
-          e.startsWith('Psychic Energy '))||
-        p.publicRestrictions?.cannotAttackNextTurn===true)return false;
+    if(p?.printing!==MIMIKYU||
+        p.publicRestrictions?.cannotAttackNextTurn===true||
+        p.publicRestrictions?.blockedAttackNameNextTurn==='Copycat'||
+        p.publicRestrictions?.blockedAttackNameUntilLeavesActive==='Copycat'||
+        p.publicRestrictions?.cannotUseAttacksNextTurn?.includes('Copycat'))
+      return false;
     const copycat=p.attacks?.find(a=>a.name==='Copycat');
     return copycat?.gxAttack===false&&
       Array.isArray(copycat.cost)&&copycat.cost.length===2&&
-      copycat.cost[0]===psychic&&copycat.cost[1]===colorless;
+      copycat.cost[0]===psychic&&copycat.cost[1]===colorless&&
+      publicSpecialAttackPayable(view,catalog,p,copycat);
   })??-1;
   if(benchIndex<0||
       wouldLoseActivePositionAbility(view,benchIndex))return null;
 
   const stadiums=[...(own.stadium??[]),
     ...(view.opponentPublic?.stadium??[])];
+  const safeStadium=stadiums.every(s=>
+    SAFE_RETREAT_STADIUM_PREFIXES.some(prefix=>s.startsWith(prefix)));
   const jamming=stadiums.some(s=>s.startsWith('Jamming Tower '))||
     view.opponentPublic?.active?.tools?.some(s=>
       s.startsWith('Tool Jammer '))===true;
@@ -152,15 +159,15 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
   if(!Array.isArray(cost)||!Array.isArray(active.energies))return null;
 
   let payment=null,mode=null;
-  if(active.tools?.includes(FLOAT_STONE)&&!jamming&&
+  if(active.tools?.includes(FLOAT_STONE)&&!jamming&&safeStadium&&
       cost.length<=2){
     mode='float-stone-free';
     payment={indices:[],printings:[]};
-  }else if(cost.length===0){
+  }else if(cost.length===0&&safeStadium){
     mode='printed-zero';
     payment={indices:[],printings:[]};
   }else if(cost.length===2&&cost.every(c=>c===colorless)&&
-      active.tools?.length===0&&stadiums.length===0&&
+      active.tools?.length===0&&safeStadium&&
       active.energies.every(e=>catalog.basicEnergies?.has(e)===true)){
     payment=twoUnitPayment(active.energies,
       publicEnergyContext(view,active,catalog));
