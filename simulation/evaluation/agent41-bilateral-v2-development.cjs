@@ -1428,6 +1428,7 @@ function runDevelopment({
   actorUnderworldDoorRoot=false,
   actorPathUnderworldStadiumCounter=false,
   actorTempleDdeDenialRoot=false,
+  actorArvenHoodSearchRoot=false,
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
@@ -1629,6 +1630,8 @@ function runDevelopment({
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
     'Underworld Door must use the same actor-only policy in both seats');
+  assert.ok(!actorArvenHoodSearchRoot||actorOnlyComposition,
+    'Arven Hood search must use the same actor-only policy in both seats');
   assert.ok(!actorPathToPeakOpposingAbility||actorOnlyComposition,
     'Path adversarial Stadium line must use owner-only symmetric actor policy');
   assert.ok(!actorPathUnderworldStadiumCounter||
@@ -1923,6 +1926,7 @@ function runDevelopment({
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorTempleDdeDenialRoot&&
+          !actorArvenHoodSearchRoot&&
           !actorFundedShadowRiderFloatStoneRoot&&
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
           !actorGenericFundedFloatStoneRoot&&
@@ -2021,6 +2025,9 @@ function runDevelopment({
               }:{}),
               ...(actorTempleDdeDenialRoot?{
                 templeDdeDenial:true
+              }:{}),
+              ...(actorArvenHoodSearchRoot?{
+                arvenHoodSearch:true
               }:{}),
               ...(actorPathToPeakOpposingAbility?{
                 pathToPeakOpposingAbility:true
