@@ -1478,6 +1478,7 @@ function runDevelopment({
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
   sourceScopedQuickBallRoot=false,candidateScopedQuickBallRoot=false,
+  sourceQuickBallPreservePayableAttack=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralBasicEnergyRecipientFrontier=false,
   bilateralPerfectionBenchFunding=false,
@@ -1573,6 +1574,9 @@ function runDevelopment({
     'Read-only registered panel cap must be a bounded native integer');
   assert.ok(!nativeQuickBallOwnerTransactionAudit||nativeAcceptedTargets,
     'Quick Ball transaction proof requires the native accepted-target sidecar');
+  assert.ok(!sourceQuickBallPreservePayableAttack||
+    (sourceScopedQuickBallRoot&&actorOnlyComposition),
+    'Source payable-attack protection requires source-owned Quick Ball actor');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
     'Quick Ball source and candidate scope probes are exclusive');
   assert.ok((!sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot)||
@@ -1926,7 +1930,9 @@ function runDevelopment({
                 quickBallRoot:true,
                 quickBallRootOwnerSeat:sourceScopedQuickBallRoot?
                   1-(trial.candidateSlot==='A'?0:1):
-                  (trial.candidateSlot==='A'?0:1)
+                  (trial.candidateSlot==='A'?0:1),
+                quickBallPayableAttackPriority:
+                  sourceQuickBallPreservePayableAttack===true
               }:{}),
               ...naturalEvolutionOptions,
               ...(actorNaturalEvolutionSourceOnly?{
