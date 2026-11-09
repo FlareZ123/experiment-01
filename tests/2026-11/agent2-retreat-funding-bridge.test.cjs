@@ -107,3 +107,16 @@ test('does not fund retreat if the attachment itself makes an Active attack paya
     cost: [PSYCHIC], damage: 100}];
   assert.equal(choose(v), null);
 });
+
+test('visible active-position Skyliner makes Basic retreat free, so hold the Energy',()=>{
+  const v=view();
+  v.ownPublic.active.printed.stage=0;
+  v.ownPublic.bench[0].abilities=['Skyliner'];
+  const known={...catalog,stages:{BASIC:0}};
+  assert.equal(chooseRetreatFundingBridge(v,known,helpers),null);
+  const evolution=view();
+  evolution.ownPublic.active.printed.stage=1;
+  evolution.ownPublic.bench[0].abilities=['Skyliner'];
+  assert.equal(chooseRetreatFundingBridge(evolution,known,helpers)?.kind,
+    'attach-basic-energy','Skyliner excludes an evolved Active');
+});
