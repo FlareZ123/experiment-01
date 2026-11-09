@@ -1,0 +1,61 @@
+{
+  "schema": "agent37-rank5-mew-search-dce-funding-native-factorial-v1",
+  "createdUTC": "2026-11-09T08:31:53Z",
+  "status": "frozen-before-native-outcomes",
+  "originalSourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 620813734
+    },
+    {
+      "rank": 5,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 434672991
+    },
+    {
+      "rank": 5,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 1802706844
+    },
+    {
+      "rank": 5,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "seed": 353026970
+    }
+  ],
+  "priorUsedSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948
+  ],
+  "factorialAxes": {
+    "mewOwnerQuickBallTarget": [
+      false,
+      true
+    ],
+    "sourceOnlyMewDceRecipient": [
+      false,
+      true
+    ]
+  },
+  "frozenCommonPolicy": "agent41-frozen-bilateral-development-v2 policyOptions with owner-only natural evolution, Techno Blast, source-scoped Quick Ball/mandatory discard, generic native single-card deck search, real Genesect draw root and DCE Mew mobility root. Both axes remain opt-in and entirely owner-only; fixed source and candidate 60s unchanged.",
+  "plannedNativeAttempts": 32,
+  "baselineVsFuture": "Previous 16-arm independent comparison provides context only; this factorial uses entirely different physical seeds so do not construct cross-study causal pairs.",
+  "pairingCriteria": "Within each registered trial require identical sourceDeck initial fingerprint AND full physical initial fingerprint across all four policy arms before interpreting differences.",
+  "honesty": "Censor root-260 action limits, preserve every native status/error, and report natural terminal winners without paper-strength inference.",
+  "nativeCompetitiveQualified": 0
+}
