@@ -106,13 +106,19 @@ function independentUltraBallPaymentNegative(prompt,answer,owner){
  * @param {object[]} selected Pre-dispatch physical card references
  * @returns {boolean}
  */
-function independentUltraBallPaidCustody(owner,selected){
-  return Array.isArray(owner?.hand?.cards)&&
+function independentPrintedDiscardPaidCustody(owner,selected,count){
+  return Number.isSafeInteger(count)&&count>=1&&
+    Array.isArray(owner?.hand?.cards)&&
     Array.isArray(owner?.discard?.cards)&&
-    Array.isArray(selected)&&selected.length===2&&
-    new Set(selected).size===2&&
+    Array.isArray(selected)&&selected.length===count&&
+    new Set(selected).size===count&&
     selected.every(card=>!owner.hand.cards.includes(card)&&
       owner.discard.cards.includes(card));
+}
+
+/** @param {object} owner @param {object[]} selected @returns {boolean} */
+function independentUltraBallPaidCustody(owner,selected){
+  return independentPrintedDiscardPaidCustody(owner,selected,2);
 }
 
 /**
@@ -168,7 +174,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v15-ultra-ball-paid-custody';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v16-paid-discard-custody-five-trainers';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -373,6 +379,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Radiant Alakazam SIT source-marked Painful Spoons one-or-two counter and single-source negatives',
       'Roxie CEC source-stamped one-or-two owner Pokémon payment and no-eligible-root exclusions',
        'Ultra Ball MEG source-stamped exactly-two physical discard and insufficient-root exclusions',
+      'Five source-stamped mandatory Trainer discards independently track accepted physical owner hand-to-discard custody after native resolution',
       'Secret Box TWM source-stamped exactly-three other physical discard and insufficient-root exclusions',
       'Quick Ball FST/SSH source-stamped mandatory one OTHER owner-hand discard; optional Basic search is not cost',
       'Mysterious Treasure FLI native-stamped one OTHER owner-hand discard; later Psychic/Dragon search is not cost',
@@ -389,6 +396,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
     inspectedUltraBallPaymentPrompts:0,
     verifiedUltraBallPhysicalPayments:0,
     unverifiedUltraBallPhysicalPayments:0,
+    physicalPaidDiscardByPrinting:{},
     inspectedSecretBoxPlayCardRoots:0,vetoedSecretBoxInsufficientRoots:0,
     inspectedSecretBoxPaymentPrompts:0,
     inspectedQuickBallPlayCardRoots:0,vetoedQuickBallInsufficientRoots:0,
@@ -560,8 +568,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
               prompt?.sourceCard?.fullName==='Ultra Ball MEG'&&
-              prompt.message==='CHOOSE_CARD_TO_DISCARD'&&
-              prompt.options?.min===2&&prompt.options?.max===2){
+              prompt.message==='CHOOSE_CARD_TO_DISCARD'){
       audit.inspectedUltraBallPaymentPrompts++;
       sourcePrinting='Ultra Ball MEG';
       contract='printed-ultra-ball-exactly-two-physical-discard-negative';
@@ -632,11 +639,23 @@ function withPaperPromptContractPortfolio(run,deps={}){
           'outsideDeclaredGeometry':'insufficientMetadata';
       audit.physicalChoiceShapeCounts[category]++;
     }
-    const pendingUltraBallPayment=
-      contract==='printed-ultra-ball-exactly-two-physical-discard-negative'&&
+    // Paper mandatory discard can be fully observed on the acting owner's
+    // original Store, including the physical objects that leave their hand.
+    // The vendor may resolve a prompt without executing its paid effect.
+    const paidCounts={
+      'printed-ultra-ball-exactly-two-physical-discard-negative':2,
+      'printed-secret-box-exactly-three-other-physical-discard-negative':3,
+      'printed-quick-ball-exactly-one-other-owner-hand-discard-negative':1,
+      'printed-mysterious-treasure-exact-one-other-owner-hand-card':1,
+      'printed-roxie-nonempty-eligible-own-pokemon-negative':
+        Array.isArray(action.result)?action.result.length:0
+    };
+    const count=paidCounts[contract];
+    const pendingPaidDiscardPayment=
+      Number.isSafeInteger(count)&&count>0&&
       status!=='PAPER_PROMPT_INVALID'?{
         owner:this.state.players.find(p=>p.id===prompt.playerId),
-        physicalCards:action.result
+        physicalCards:action.result,expectedCount:count,sourcePrinting
       }:null;
     const event={storeOrdinal:store.storeOrdinal,trialId:trial,
       turn:this.state.turn??null,family,sourcePrinting,
@@ -682,13 +701,20 @@ function withPaperPromptContractPortfolio(run,deps={}){
       const resolved=prompt&&prompt.result!==undefined&&
         Object.is(prompt.result,action.result);
       event.nativePromptSettled=Boolean(resolved);
-      if(resolved&&pendingUltraBallPayment){
-        event.physicalEffectVerified=independentUltraBallPaidCustody(
-          pendingUltraBallPayment.owner,pendingUltraBallPayment.physicalCards);
-        if(event.physicalEffectVerified)
-          audit.verifiedUltraBallPhysicalPayments++;
-        else{
-          audit.unverifiedUltraBallPhysicalPayments++;
+      if(resolved&&pendingPaidDiscardPayment){
+        const payment=pendingPaidDiscardPayment;
+        event.physicalEffectVerified=independentPrintedDiscardPaidCustody(
+          payment.owner,payment.physicalCards,payment.expectedCount);
+        const row=audit.physicalPaidDiscardByPrinting[payment.sourcePrinting]??=
+          {verified:0,unverified:0};
+        if(event.physicalEffectVerified){
+          row.verified++;
+          if(payment.sourcePrinting==='Ultra Ball MEG')
+            audit.verifiedUltraBallPhysicalPayments++;
+        }else{
+          row.unverified++;
+          if(payment.sourcePrinting==='Ultra Ball MEG')
+            audit.unverifiedUltraBallPhysicalPayments++;
           event.nativeSettlementUnverified=true;
           audit.nativeSettlementUnverified++;
         }
@@ -740,6 +766,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
 module.exports={VERSION,independentCampingGearContract,
   independentPutDamageNegative,independentPainfulSpoonsNegative,
   independentRoxiePaymentNegative,independentUltraBallPaymentNegative,
-  independentUltraBallPaidCustody,independentMysteriousTreasurePaymentNegative,
+  independentUltraBallPaidCustody,independentPrintedDiscardPaidCustody,
+  independentMysteriousTreasurePaymentNegative,
   physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
