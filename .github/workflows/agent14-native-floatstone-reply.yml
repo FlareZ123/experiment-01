@@ -19,6 +19,7 @@ on:
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
+          - agent8-source-evolution-v4
 permissions:
   contents: read
 jobs:
@@ -112,6 +113,26 @@ jobs:
         with:
           name: agent8-source-ability-evolution-v3-native
           path: artifacts/agent8-source-challenger-v3.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Test Agent8 corrected actor-seat-only natural evolution policy
+        if: inputs.experiment == 'agent8-source-evolution-v4'
+        run: |
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/2026-11/agent8-source-evolution-2x2-v4.cjs
+          node --test tests/agent1-actor-evolution-frontier.test.cjs tests/2026-11/agent8-source-evolution-v4.test.cjs
+      - name: Run preregistered original-source-only evolution with real native Store
+        if: inputs.experiment == 'agent8-source-evolution-v4'
+        env:
+          AGENT8_EVOLUTION_V4_OUTPUT: artifacts/agent8-source-evolution-v4.json
+        run: node simulation/evaluation/2026-11/agent8-source-evolution-2x2-v4.cjs
+      - name: Preserve 32 new physical source-only evolution counterfactuals
+        if: always() && inputs.experiment == 'agent8-source-evolution-v4'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-source-evolution-v4-corrected-native
+          path: artifacts/agent8-source-evolution-v4.json
           if-no-files-found: warn
           retention-days: 21
       - name: Reinspect all owner Passes in two existing original-source matched controls
