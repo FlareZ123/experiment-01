@@ -69,10 +69,10 @@ function findPlayedSlot(owner,card){
  * @param {{card:object,owner:object,types:object}} args
  * @returns {{decision:boolean,reason:string,details:object}}
  */
-function decideAbilityConfirm({card,owner,types}){
+function decideAbilityConfirm({card,owner,types,enableDedechange=false,globalTurn}){
   const name=card?.name??null;
-  if(name==='Dedenne GX'||name==='Dedenne-GX')
-    return chooseDedechangeConfirm({owner});
+  if(enableDedechange&&(name==='Dedenne GX'||name==='Dedenne-GX'))
+    return chooseDedechangeConfirm({owner,globalTurn});
   if(name==='Radiant Eternatus'){
     const openBenchSlots=(owner?.bench??[]).filter(slot=>
       (slot.cards??[]).length===0).length;
@@ -203,7 +203,7 @@ function chooseArticunoOwnedWaterTransfers({prompt,owner,played,types}){
  * default. All custom prompt actions are validated before Store.dispatch.
  *
  * @param {()=>any} run
- * @param {{ptcgServer?:object,types?:object,validate?:Function}} [deps]
+ * @param {{ptcgServer?:object,types?:object,validate?:Function,enableDedechange?:boolean}} [deps]
  * @returns {{result:any,audit:object}}
  */
 function withOwnerAbilityConfirmPolicy(run,deps={}){
@@ -226,6 +226,7 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
   const pendingAbilityByOwner=new Map();
   const audit={
     version:VERSION,
+    dedechangeEnabled:deps.enableDedechange===true,
     readsOpponentHidden:false,
     readsUnopenedDeck:false,
     readsDeckCardsOnlyAfterGenuineSearchPrompt:true,
@@ -391,7 +392,9 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       const choice=prompt.message==='GO_FIRST'?
         {decision:false,reason:'go-first-default-second',details:{}}:
         prompt.message==='WANT_TO_USE_ABILITY'&&played?
-          decideAbilityConfirm({card:played.card,owner,types}):
+          decideAbilityConfirm({card:played.card,owner,types,
+            enableDedechange:deps.enableDedechange===true,
+            globalTurn:state.turn}):
           {decision:false,reason:'unrecognized-confirm-default-false',details:{}};
       audit.confirmOffers++;
       const seat=state.players.findIndex(player=>player.id===ownerId);
