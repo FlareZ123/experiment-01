@@ -74,6 +74,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent38_mail_hood_transfer:
+        description: Run fresh fixed Hood versus champion Mew source Mail competence transfer test
+        required: false
+        type: boolean
+        default: false
       agent37_native_power_smoke:
         description: Run minimal native Genesect ability-lock and Mail-abort tests only
         required: false
@@ -113,7 +118,7 @@ jobs:
         if: ${{ !inputs.agent19_dualfixed_profile }}
         run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
       - name: Run preregistered eight original rank5 native arms without exclusions
-        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 && !inputs.agent37_mew_quickball_payment && !inputs.agent37_mew_source_mail_afterpass && !inputs.agent37_native_power_smoke && !inputs.agent37_klefki_replay }}
+        if: ${{ !inputs.agent13_selfcopy_pair && !inputs.agent19_dualfixed_profile && !inputs.agent37_source_quickball_discard && !inputs.agent37_fresh_quickball_search && !inputs.agent37_mew_funding_factorial && !inputs.agent37_mew_ultra_evolution && !inputs.agent37_mew_ultra_payment_retro && !inputs.agent37_mew_ultra_payment_independent && !inputs.agent37_mew_ultra_dci_v2 && !inputs.agent37_mew_quickball_payment && !inputs.agent37_mew_source_mail_afterpass && !inputs.agent38_mail_hood_transfer && !inputs.agent37_native_power_smoke && !inputs.agent37_klefki_replay }}
         run: |
           node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
@@ -285,6 +290,23 @@ jobs:
         with:
           name: agent37-mew-source-mail-afterpass-16arm
           path: agent37-rank5-mew-source-mail-afterpass-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate fresh original Mew Mail transfer to Hood Shield and champion
+        if: ${{ inputs.agent38_mail_hood_transfer }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent38-rank5-mail-hood-fresh-transfer.cjs
+          node --test tests/2026-11/agent38-rank5-mail-hood-fresh-transfer.test.cjs
+          node simulation/evaluation/2026-11/agent38-rank5-mail-hood-fresh-transfer.cjs --inspect-only
+      - name: Run all 16 frozen original Mew source-to-Hood/Champion policy games
+        if: ${{ inputs.agent38_mail_hood_transfer }}
+        run: node simulation/evaluation/2026-11/agent38-rank5-mail-hood-fresh-transfer.cjs
+      - name: Archive fresh original Mew source competence transfer complete records
+        if: ${{ always() && inputs.agent38_mail_hood_transfer }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent38-rank5-mail-hood-transfer-16arm
+          path: agent38-rank5-mail-hood-fresh-transfer-16arm.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native source Genesect ability-lock and Mail exception safety tests
