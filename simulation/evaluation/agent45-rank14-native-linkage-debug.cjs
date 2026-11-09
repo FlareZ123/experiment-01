@@ -38,7 +38,8 @@ function run(deps={}){
     assert.equal(selected.rawDevelopment.rows.length,4);
     const row=selected.rawDevelopment.rows.find(x=>x.trial?.id===FROZEN_TRIAL);
     assert.ok(row);
-    const side=row.nativeAcceptedTargetSidecarAbort??null;
+    const side=row.nativeAcceptedTargetSidecar??
+      row.nativeAcceptedTargetSidecarAbort??null;
     const failure=side?.rootOrdinalLinkageFailure??null;
     const targets=side?.events??[];
     const rootLedger=row.nativePublicRootArchive?.rootActionLedger??
@@ -49,6 +50,8 @@ function run(deps={}){
       nativeError:row.error?String(row.error).slice(0,600):null,
       rowStatus:row.status??null,
       finished:row.finished??null,
+      winnerSeat:row.winner??null,
+      remainingPrizes:row.finalPrizes??null,
       nativeTargetObserverObservedLiveStore:side?.observedLiveStore??null,
       nativeTargetObserverLinked:side?.rootOrdinalLinked??null,
       acceptedStoreTargetDispatches:side?.acceptedTargetDispatches??null,
@@ -62,15 +65,25 @@ function run(deps={}){
         physicalPrinting:x.declared?.ownerHandPrinting??null
       })),
       fullPhysicalDealFingerprintSha256:
-        row.fullPhysicalDealFingerprint?.digestSha256??null,
+        row.fullPhysicalDealFingerprint??null,
       originalSourceDealFingerprintSha256:
-        row.sourceDealFingerprint?.digestSha256??null,
+        row.sourceDealFingerprint??null,
       developmentOnly:true,competitiveGameQualified:false
     };
   });
+  const allPhysicalMatched=rows.every(x=>
+    typeof x.fullPhysicalDealFingerprintSha256==='string'&&
+    typeof x.originalSourceDealFingerprintSha256==='string')&&
+    rows[0].fullPhysicalDealFingerprintSha256===
+      rows[1].fullPhysicalDealFingerprintSha256&&
+    rows[0].originalSourceDealFingerprintSha256===
+      rows[1].originalSourceDealFingerprintSha256;
+  const allNativeTargetsLinked=rows.every(x=>
+    x.nativeTargetObserverLinked===true&&x.nativeError===null);
   const result={version:VERSION,originalRegistration:registration.schema,
     frozenGroup:FROZEN_TRIAL,enginePin:registration.enginePin,
     additionalRegisteredFrozenControlIds:groupSet.slice(0,3).map(x=>x.id),
+    allPhysicalMatched,allNativeTargetsLinked,
     retrospectiveDebugOnly:true,rows,competitiveGamesQualified:0};
   process.stdout.write('AGENT45_RANK14_LINKAGE '+JSON.stringify(result)+'\n');
   return result;
