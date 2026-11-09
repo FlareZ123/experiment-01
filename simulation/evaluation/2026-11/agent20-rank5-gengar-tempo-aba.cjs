@@ -62,6 +62,7 @@ function arm(phase,enabled,reg,options={}){
     bilateralGengarHorrorHouseTempo:enabled,
     bilateralGengarFlexibleV2:options.flexibleV2===true,
     bilateralGengarResourceProtectedV3:options.resourceV3===true,
+    earlyForestSealRoot:options.earlyForestSealRoot===true,
     actorBilateralLillieAfterPass:options.ownerLillieAfterPass===true,
     bilateralGengarHorrorHouseMinOpponentHandCount:
       options.minOpponentHandCount??0,
