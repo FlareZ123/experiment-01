@@ -1,0 +1,1024 @@
+{
+  "schema": "agent3-hood-rebalanced-lele-seeker-fixed60-targeted-prospective-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE MATCH",
+  "createdUTC": "2026-11-09T08:07:00Z",
+  "title": "Two immutable Hood 60s, 11 source archetype/rank stress contexts, 44 matched paired groups, 88 native games",
+  "hypothesis": "Restore Tapu Lele-GX 2 and VS Seeker 3 in Hood by reducing unplayed Ranger and redundant second Hood; test the actual deck access and decisive states against the original two-Hood 60. Preserves 4 V,4 VMAX, Arven and 11 Psychic.",
+  "origin": "Read-only analysis of previously prospective 58-group 116 native Hood/Champion field (42578010606) found zero original candidate-side Ranger, Hood, Arven plays, Hood worse on ranks7,11,12 while large censor bounds blocked selection.",
+  "fixedContenders": [
+    {
+      "id": "hood-shield-v1",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "gitBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
+    },
+    {
+      "id": "hood-consistency-v2",
+      "path": "results/aichi-2026/candidate-hood-consistency-v2.json",
+      "gitBlobSha": "16d8b3513b83b46477252fd05bc05852664f8972"
+    }
+  ],
+  "originalRosterPath": "results/aichi-2026/full-decklists.json",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "commonPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "commonPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "profile": "agent19-composed-paper-semantics-profile-v1",
+  "sameSourceMewDceAndTechnoBlastPolicyBothContenderArms": true,
+  "bothPlayerNaturalEvolution": true,
+  "identicalActorPolicyAcrossContenders": true,
+  "rootCap": 260,
+  "originalSourceRanks": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    11,
+    12,
+    13,
+    24,
+    29,
+    31
+  ],
+  "originalMissingRanks": [
+    23,
+    25,
+    28
+  ],
+  "sourceGroups": [
+    {
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 3967899683
+    },
+    {
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 4244185808
+    },
+    {
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 4074087901
+    },
+    {
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2210673222
+    },
+    {
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 2134964725
+    },
+    {
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 3624552740
+    },
+    {
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 1307358151
+    },
+    {
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 136463975
+    },
+    {
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 372452675
+    },
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 439578618
+    },
+    {
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 2798889057
+    },
+    {
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2143005893
+    },
+    {
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 2850873593
+    },
+    {
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 3549628951
+    },
+    {
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 2765219465
+    },
+    {
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 3303440806
+    },
+    {
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 1701491090
+    },
+    {
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 200079394
+    },
+    {
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 3171065700
+    },
+    {
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2680173011
+    },
+    {
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 3030763358
+    },
+    {
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 214689522
+    },
+    {
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 2842319577
+    },
+    {
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 566297322
+    },
+    {
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 1198812162
+    },
+    {
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 2673029382
+    },
+    {
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 1429494277
+    },
+    {
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 696433217
+    },
+    {
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 3579940198
+    },
+    {
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 1284492136
+    },
+    {
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 2602571504
+    },
+    {
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 3533658074
+    },
+    {
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 2404975296
+    },
+    {
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 2418008905
+    },
+    {
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 1619419319
+    },
+    {
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 3938151537
+    },
+    {
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 3870567396
+    },
+    {
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 3232832173
+    },
+    {
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 3815935576
+    },
+    {
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 2366172586
+    },
+    {
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "seed": 1967783458
+    },
+    {
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "seed": 1028159364
+    },
+    {
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "seed": 3114351335
+    },
+    {
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "seed": 977848029
+    }
+  ],
+  "registeredTrials": [
+    {
+      "id": "1:8101:A:hood-shield-v1",
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3967899683
+    },
+    {
+      "id": "1:8101:A:hood-consistency-v2",
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3967899683
+    },
+    {
+      "id": "1:8102:A:hood-shield-v1",
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 4244185808
+    },
+    {
+      "id": "1:8102:A:hood-consistency-v2",
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 4244185808
+    },
+    {
+      "id": "1:8101:B:hood-shield-v1",
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 4074087901
+    },
+    {
+      "id": "1:8101:B:hood-consistency-v2",
+      "rank": 1,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 4074087901
+    },
+    {
+      "id": "1:8102:B:hood-shield-v1",
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2210673222
+    },
+    {
+      "id": "1:8102:B:hood-consistency-v2",
+      "rank": 1,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2210673222
+    },
+    {
+      "id": "2:8101:A:hood-shield-v1",
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 2134964725
+    },
+    {
+      "id": "2:8101:A:hood-consistency-v2",
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2134964725
+    },
+    {
+      "id": "2:8102:A:hood-shield-v1",
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3624552740
+    },
+    {
+      "id": "2:8102:A:hood-consistency-v2",
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3624552740
+    },
+    {
+      "id": "2:8101:B:hood-shield-v1",
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 1307358151
+    },
+    {
+      "id": "2:8101:B:hood-consistency-v2",
+      "rank": 2,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1307358151
+    },
+    {
+      "id": "2:8102:B:hood-shield-v1",
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 136463975
+    },
+    {
+      "id": "2:8102:B:hood-consistency-v2",
+      "rank": 2,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 136463975
+    },
+    {
+      "id": "5:8101:A:hood-shield-v1",
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 372452675
+    },
+    {
+      "id": "5:8101:A:hood-consistency-v2",
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 372452675
+    },
+    {
+      "id": "5:8102:A:hood-shield-v1",
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 439578618
+    },
+    {
+      "id": "5:8102:A:hood-consistency-v2",
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 439578618
+    },
+    {
+      "id": "5:8101:B:hood-shield-v1",
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2798889057
+    },
+    {
+      "id": "5:8101:B:hood-consistency-v2",
+      "rank": 5,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2798889057
+    },
+    {
+      "id": "5:8102:B:hood-shield-v1",
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2143005893
+    },
+    {
+      "id": "5:8102:B:hood-consistency-v2",
+      "rank": 5,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2143005893
+    },
+    {
+      "id": "6:8101:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 2850873593
+    },
+    {
+      "id": "6:8101:A:hood-consistency-v2",
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2850873593
+    },
+    {
+      "id": "6:8102:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3549628951
+    },
+    {
+      "id": "6:8102:A:hood-consistency-v2",
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3549628951
+    },
+    {
+      "id": "6:8101:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2765219465
+    },
+    {
+      "id": "6:8101:B:hood-consistency-v2",
+      "rank": 6,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2765219465
+    },
+    {
+      "id": "6:8102:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3303440806
+    },
+    {
+      "id": "6:8102:B:hood-consistency-v2",
+      "rank": 6,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3303440806
+    },
+    {
+      "id": "7:8101:A:hood-shield-v1",
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1701491090
+    },
+    {
+      "id": "7:8101:A:hood-consistency-v2",
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1701491090
+    },
+    {
+      "id": "7:8102:A:hood-shield-v1",
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 200079394
+    },
+    {
+      "id": "7:8102:A:hood-consistency-v2",
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 200079394
+    },
+    {
+      "id": "7:8101:B:hood-shield-v1",
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3171065700
+    },
+    {
+      "id": "7:8101:B:hood-consistency-v2",
+      "rank": 7,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3171065700
+    },
+    {
+      "id": "7:8102:B:hood-shield-v1",
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2680173011
+    },
+    {
+      "id": "7:8102:B:hood-consistency-v2",
+      "rank": 7,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2680173011
+    },
+    {
+      "id": "11:8101:A:hood-shield-v1",
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3030763358
+    },
+    {
+      "id": "11:8101:A:hood-consistency-v2",
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3030763358
+    },
+    {
+      "id": "11:8102:A:hood-shield-v1",
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 214689522
+    },
+    {
+      "id": "11:8102:A:hood-consistency-v2",
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 214689522
+    },
+    {
+      "id": "11:8101:B:hood-shield-v1",
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2842319577
+    },
+    {
+      "id": "11:8101:B:hood-consistency-v2",
+      "rank": 11,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2842319577
+    },
+    {
+      "id": "11:8102:B:hood-shield-v1",
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 566297322
+    },
+    {
+      "id": "11:8102:B:hood-consistency-v2",
+      "rank": 11,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 566297322
+    },
+    {
+      "id": "12:8101:A:hood-shield-v1",
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1198812162
+    },
+    {
+      "id": "12:8101:A:hood-consistency-v2",
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1198812162
+    },
+    {
+      "id": "12:8102:A:hood-shield-v1",
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 2673029382
+    },
+    {
+      "id": "12:8102:A:hood-consistency-v2",
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2673029382
+    },
+    {
+      "id": "12:8101:B:hood-shield-v1",
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 1429494277
+    },
+    {
+      "id": "12:8101:B:hood-consistency-v2",
+      "rank": 12,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1429494277
+    },
+    {
+      "id": "12:8102:B:hood-shield-v1",
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 696433217
+    },
+    {
+      "id": "12:8102:B:hood-consistency-v2",
+      "rank": 12,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 696433217
+    },
+    {
+      "id": "13:8101:A:hood-shield-v1",
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3579940198
+    },
+    {
+      "id": "13:8101:A:hood-consistency-v2",
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3579940198
+    },
+    {
+      "id": "13:8102:A:hood-shield-v1",
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1284492136
+    },
+    {
+      "id": "13:8102:A:hood-consistency-v2",
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1284492136
+    },
+    {
+      "id": "13:8101:B:hood-shield-v1",
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2602571504
+    },
+    {
+      "id": "13:8101:B:hood-consistency-v2",
+      "rank": 13,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2602571504
+    },
+    {
+      "id": "13:8102:B:hood-shield-v1",
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3533658074
+    },
+    {
+      "id": "13:8102:B:hood-consistency-v2",
+      "rank": 13,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3533658074
+    },
+    {
+      "id": "24:8101:A:hood-shield-v1",
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 2404975296
+    },
+    {
+      "id": "24:8101:A:hood-consistency-v2",
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2404975296
+    },
+    {
+      "id": "24:8102:A:hood-shield-v1",
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 2418008905
+    },
+    {
+      "id": "24:8102:A:hood-consistency-v2",
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2418008905
+    },
+    {
+      "id": "24:8101:B:hood-shield-v1",
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 1619419319
+    },
+    {
+      "id": "24:8101:B:hood-consistency-v2",
+      "rank": 24,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1619419319
+    },
+    {
+      "id": "24:8102:B:hood-shield-v1",
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3938151537
+    },
+    {
+      "id": "24:8102:B:hood-consistency-v2",
+      "rank": 24,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3938151537
+    },
+    {
+      "id": "29:8101:A:hood-shield-v1",
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3870567396
+    },
+    {
+      "id": "29:8101:A:hood-consistency-v2",
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3870567396
+    },
+    {
+      "id": "29:8102:A:hood-shield-v1",
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 3232832173
+    },
+    {
+      "id": "29:8102:A:hood-consistency-v2",
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3232832173
+    },
+    {
+      "id": "29:8101:B:hood-shield-v1",
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3815935576
+    },
+    {
+      "id": "29:8101:B:hood-consistency-v2",
+      "rank": 29,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3815935576
+    },
+    {
+      "id": "29:8102:B:hood-shield-v1",
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 2366172586
+    },
+    {
+      "id": "29:8102:B:hood-consistency-v2",
+      "rank": 29,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 2366172586
+    },
+    {
+      "id": "31:8101:A:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1967783458
+    },
+    {
+      "id": "31:8101:A:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1967783458
+    },
+    {
+      "id": "31:8102:A:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1",
+      "seed": 1028159364
+    },
+    {
+      "id": "31:8102:A:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "A",
+      "candidateId": "hood-consistency-v2",
+      "seed": 1028159364
+    },
+    {
+      "id": "31:8101:B:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 3114351335
+    },
+    {
+      "id": "31:8101:B:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8101,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 3114351335
+    },
+    {
+      "id": "31:8102:B:hood-shield-v1",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1",
+      "seed": 977848029
+    },
+    {
+      "id": "31:8102:B:hood-consistency-v2",
+      "rank": 31,
+      "repeat": 8102,
+      "candidateSlot": "B",
+      "candidateId": "hood-consistency-v2",
+      "seed": 977848029
+    }
+  ],
+  "registeredGroups": 44,
+  "registeredNativeGames": 88,
+  "competitivePaperQualified": 0,
+  "admission": "Development only: native Store, generic policy and unqualified paper clock."
+}
