@@ -61,7 +61,10 @@ function save(value) {
  */
 function firstDivergence(control, treatment) {
   const signature = root => JSON.stringify([
-    root.action, root.seat, root.turn, root.promptId, root.responseType
+    root.action, root.seat, root.turn, root.promptId, root.responseType,
+    // An accepted prompt can keep its action class while changing the
+    // physical owner-selected Basic. Compare its settled printed identity.
+    root.ownerNestBasicSelection?.selectedPokemonPrinting ?? null
   ]);
   const limit = Math.min(control.length, treatment.length);
   for (let index = 0; index < limit; index++) {
