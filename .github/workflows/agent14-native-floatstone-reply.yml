@@ -24,6 +24,7 @@ on:
           - agent3-thorns-underworld-owner-guard
           - agent3-fresh-celestial-v2-error-archive
           - agent3-rank7-guzma-orphan-diagnostic
+          - agent3-rank7-guzma-custody-ab
           - agent3-thorns-fresh-original-six-deals
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
@@ -226,6 +227,26 @@ jobs:
         with:
           name: agent3-thorns-fresh-original-six-deals
           path: artifacts/agent3-fresh-thorns-guard.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Pure registered and orphaned speculative prompt custody tests
+        if: inputs.experiment == 'agent3-rank7-guzma-custody-ab'
+        run: |
+          node --check simulation/twinleaf/agent3-playability-prompt-custody-hook.cjs
+          node --test tests/2026-11/agent3-playability-prompt-custody.test.cjs
+      - name: Replay historical original rank7 as same-policy native A B custody comparison
+        if: inputs.experiment == 'agent3-rank7-guzma-custody-ab'
+        env:
+          AGENT3_GUZMA_PROMPT_CUSTODY_AB_OUTPUT: artifacts/agent3-rank7-guzma-custody-ab.json
+        run: |
+          node --check simulation/evaluation/agent3/replay-rank7-guzma-custody-ab-20261109.cjs
+          node simulation/evaluation/agent3/replay-rank7-guzma-custody-ab-20261109.cjs
+      - name: Retain four exact native source games and corrective prompt counts
+        if: always() && inputs.experiment == 'agent3-rank7-guzma-custody-ab'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank7-guzma-custody-ab
+          path: artifacts/agent3-rank7-guzma-custody-ab.json
           if-no-files-found: warn
           retention-days: 21
       - name: Diagnose preexisting original rank7 Guzma orphan prompt in native Store
