@@ -43,6 +43,11 @@ on:
         type: boolean
         required: false
         default: false
+      agent16_fresh_source_opportunity:
+        description: 'Opt-in fresh seeded original-source rank6/rank11 paired native prompt opportunity; unqualified'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -115,6 +120,9 @@ jobs:
         run: |
           node --test tests/2026-11/agent16-secret-box-recovery-capacity.test.cjs tests/2026-11/agent16-secret-box-capacity-actor-prompt.test.cjs
           node --test tests/2026-11/agent16-secret-box-recovery-capacity.native.test.cjs tests/2026-11/agent16-secret-box-capacity-actor-prompt.native.test.cjs
+      - name: Run fresh paired original-source Secret Box actor opportunity census
+        if: inputs.agent16_fresh_source_opportunity
+        run: node simulation/evaluation/agent16-owner-box-prospective-opportunity.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
