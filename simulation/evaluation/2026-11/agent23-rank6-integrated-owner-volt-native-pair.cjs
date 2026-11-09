@@ -40,17 +40,19 @@ function registered(){
  */
 function withActualOwnerVoltNative(execute,headless){
   const original=headless.runMatch,rows=[];
-  headless.runMatch=function(request){
+  function native(request){
     const intent=withOwnerVoltTransfer(()=>original(request));
     rows.push({
       matchLabel:request.label,
       sourceOnlyPromptAudit:intent.audit
     });
     return intent.result;
-  };
+  }
+  headless.runMatch=native;
   try{return {result:execute(),rows};}
   finally{
-    assert.strictEqual(headless.runMatch,headless.runMatch);
+    assert.strictEqual(headless.runMatch,native,
+      'Native runMatch wrapper was replaced unexpectedly');
     headless.runMatch=original;
   }
 }
