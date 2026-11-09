@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   VERSION,independentUltraBallPaymentNegative,
-  independentUltraBallPaidCustody,withPaperPromptContractPortfolio
+  independentUltraBallPaidCustody,independentPrintedDiscardPaidCustody,
+  withPaperPromptContractPortfolio
 }=require('../../simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs');
 
 class ResolvePromptAction {
@@ -144,4 +145,22 @@ test('root needs two other hand cards; optional deck-search reply is not payment
   assert.equal(result.audit.inspectedUltraBallPlayCardRoots,2);
   assert.equal(result.audit.vetoedUltraBallInsufficientRoots,1);
   assert.equal(result.audit.inspectedUltraBallPaymentPrompts,0);
+});
+
+test('shared generic printed-card custody supports one, two or three-card exact payment',()=>{
+  const x=setup();
+  x.owner.hand.cards=[];
+  x.owner.discard.cards=[x.one,x.two,x.foreign];
+  for(const [count,selection] of [[1,[x.one]],[2,[x.one,x.two]],
+    [3,[x.one,x.two,x.foreign]]]){
+    assert.equal(independentPrintedDiscardPaidCustody(
+      x.owner,selection,count),true);
+  }
+  assert.equal(independentPrintedDiscardPaidCustody(
+    x.owner,[x.one,x.two],3),false);
+  assert.equal(independentPrintedDiscardPaidCustody(
+    x.owner,[x.one,x.two,x.two],3),false);
+  x.owner.hand.cards.push(x.foreign);
+  assert.equal(independentPrintedDiscardPaidCustody(
+    x.owner,[x.one,x.two,x.foreign],3),false);
 });
