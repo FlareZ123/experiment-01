@@ -42,6 +42,8 @@ function comparePhysicalRaihanSearchChoices(context){
     continueOriginalRank1RaihanPaleMoon({
       ...context,
       store:game,
+      ...(context.raihanShuffleSeed===undefined?{}:
+        {raihanShuffleSeed:context.raihanShuffleSeed}),
       ...(index===1?{raihanPickPrinting:'Psychic Energy MEE'}:{}),
       afterOpponentPass:executeReturnedNightWatch
     }));
@@ -50,9 +52,76 @@ function comparePhysicalRaihanSearchChoices(context){
     sameInitialPhysicalSource:true,
     publicOwnerDecisionOnly:true,
     sourceStateTurn:context.store.state.turn,
+    raihanShuffleSeed:context.raihanShuffleSeed??null,
     originalFirstCard:control.raihanOwnDeckSelected??null,
     reservePsychicChoice:treatment.raihanOwnDeckSelected??null,
     control,treatment,qualifiedPaperGames:0
   };
 }
-module.exports={comparePhysicalRaihanSearchChoices};
+/**
+ * Predeclared, fixed set of independent legal deck-shuffle permutations on the
+ * exact same original rank1 physical deal. No match random stream or opponent
+ * information enters either Raihan search decision.
+ */
+const SHUFFLE_SEEDS=Object.freeze(Array.from({length:16},(_,i)=>
+  'agent11-raihan-t18-registered-shuffle-v1-'+String(i).padStart(2,'0')));
+
+/** @param {Parameters<typeof comparePhysicalRaihanSearchChoices>[0]} context */
+function compareRaihanRegisteredShufflePanel(context){
+  const rows=SHUFFLE_SEEDS.map(seed=>{
+    const pair=comparePhysicalRaihanSearchChoices({
+      ...context,raihanShuffleSeed:seed
+    });
+    const control=pair.control.results.find(x=>x.corrected);
+    const treatment=pair.treatment.results.find(x=>x.corrected);
+    const a=control?.opponentRetreat?.sourceNextTurn;
+    const b=treatment?.opponentRetreat?.sourceNextTurn;
+    return {
+      seed, sameInitialPhysicalSource:pair.sameInitialPhysicalSource,
+      sourceInitialDeckSize:pair.control.raihanDeckPhysicalSize,
+      sourceInitialDeckPsychicCount:pair.control.raihanDeckPsychicCount,
+      controlRaihan:pair.originalFirstCard,
+      treatmentRaihan:pair.reservePsychicChoice,
+      controlHeldPsychicAfterRaihanFunding:
+        pair.control.sourceHeldPsychicAfterFunding,
+      treatmentHeldPsychicAfterRaihanFunding:
+        pair.treatment.sourceHeldPsychicAfterFunding,
+      correctedOpposingEnergyDiscarded:control?.discardedPhysicalOpposingEnergy,
+      treatmentCorrectedOpposingEnergyDiscarded:
+        treatment?.discardedPhysicalOpposingEnergy,
+      controlRetreat:control?.opponentRetreat?.status,
+      treatmentRetreat:treatment?.opponentRetreat?.status,
+      controlHeldPsyAtSourceTurn20:a?.hasHeldThirdPsychic??null,
+      treatmentHeldPsyAtSourceTurn20:b?.hasHeldThirdPsychic??null,
+      controlNightWatch:a?.status??null,
+      treatmentNightWatch:b?.status??null,
+      controlSourcePrizes:a?.sourceRemainingPrizesAfter??null,
+      treatmentSourcePrizes:b?.sourceRemainingPrizesAfter??null,
+      controlErrors:a?.errors?.length??null,
+      treatmentErrors:b?.errors?.length??null
+    };
+  });
+  return {
+    version:'agent11-registered-physical-raihan-shuffle-16pair-v1',
+    sameOriginalSourceState:true,registeredSeeds:SHUFFLE_SEEDS,
+    inspectedOpponentConcealedForDecision:false,competitiveGames:0,
+    rows,summary:{
+      paired:rows.length,
+      validSourcePhysical:rows.filter(x=>x.sameInitialPhysicalSource).length,
+      controlNightWatchPrize:rows.filter(x=>x.controlSourcePrizes===5).length,
+      treatmentNightWatchPrize:rows.filter(x=>x.treatmentSourcePrizes===5).length,
+      controlWithoutPsy:rows.filter(x=>
+        x.controlHeldPsyAtSourceTurn20===false).length,
+      treatmentWithoutPsy:rows.filter(x=>
+        x.treatmentHeldPsyAtSourceTurn20===false).length,
+      treatmentOnlyKOs:rows.filter(x=>
+        x.treatmentSourcePrizes===5 && x.controlSourcePrizes!==5).length
+    }
+  };
+}
+
+module.exports={
+  comparePhysicalRaihanSearchChoices,
+  compareRaihanRegisteredShufflePanel,
+  SHUFFLE_SEEDS
+};
