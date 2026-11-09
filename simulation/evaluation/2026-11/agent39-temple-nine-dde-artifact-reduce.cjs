@@ -50,7 +50,15 @@ const actions = study.comparison.groups.map(g => {
     firstChampionRoot: c[firstDiff] ?? null,
     firstTempleRoot: t[firstDiff] ?? null };
 });
+const playCardSample = study.comparison.groups
+  .flatMap(g => (g.temple.roots ?? []).filter(r => r.action === 'PlayCardAction')
+    .map(r => ({ group: g.key, root: r }))).slice(0, 18);
+const playCardTotal = study.comparison.groups
+  .reduce((n, g) => n + (g.temple.roots ?? [])
+    .filter(r => r.action === 'PlayCardAction').length, 0);
 const result = {
+  playedCardRootCount: playCardTotal,
+  playedCardRootSamples: playCardSample,
   schema: 'agent39-temple-nine-dde-readonly-root-audit-v1',
   archivedStudySchema: study.schema,
   registrationDigest: study.preflight.registrationSha256,
@@ -81,5 +89,7 @@ console.log('AGENT39_TEMPLE_ACTION_AUDIT ' + JSON.stringify({
   championSourceApex: result.originalRegidragoApexAttackRootsInChampionArms,
   templeMentionArms: temple.filter(a => a.mentionsTemple > 0).map(a => a.id),
   firstRootPairs: actions.length,
+  playedCardRootCount: result.playedCardRootCount,
+  playedCardRootSamples: result.playedCardRootSamples.slice(0, 3),
   firstTempleEventSamples: sample.slice(0, 5)
 }));
