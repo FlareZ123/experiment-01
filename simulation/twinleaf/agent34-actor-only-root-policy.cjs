@@ -331,7 +331,8 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRegidragoDonorQuickBall(view);
     if(donor)return donor;
   }
-  if(options.quickBallRoot===true){
+  if(options.quickBallRoot===true&&
+     options.quickBallPayableAttackPriority!==true){
     const item=require('./agent8-actor-quick-ball-frontier.cjs')
       .chooseQuickBallRootIntent(view);
     if(item)return item;
@@ -701,6 +702,16 @@ function chooseActorRootIntent(view,catalog,options={}){
       return first;
     }
   }
+  // Optional source-only arbitration: an already payable printed attack
+  // takes precedence over speculative Quick Ball deck access. Quick Ball
+  // remains eligible if no payable attack was selected. The native Store
+  // still determines whether the attack and any printed effect settle.
+  if(options.quickBallRoot===true&&
+     options.quickBallPayableAttackPriority===true){
+    const item=require('./agent8-actor-quick-ball-frontier.cjs')
+      .chooseQuickBallRootIntent(view);
+    if(item)return item;
+  }
   if(options.perfectionRoot===true&&view.globalTurn!==1&&
      catalog.perfectionDonors instanceof Map){
     const ready=require('./agent30-known-perfection-options.cjs')
@@ -971,6 +982,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
+    quickBallPayableAttackPriorityOptIn:
+      deps.quickBallPayableAttackPriority===true,
     regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
     rank13DdeEnergyRootOptIn:deps.rank13DdeEnergyRoot===true,
     rank13DdeEnergyOwnerSeat:deps.rank13DdeEnergyOwnerSeat??null,
@@ -1731,6 +1744,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:actorSpecialEnergyEnabled(
         audit.quickBallRootOptIn,audit.quickBallRootOwnerSeat,seat),
+      quickBallPayableAttackPriority:
+        audit.quickBallPayableAttackPriorityOptIn===true&&
+        actorSpecialEnergyEnabled(audit.quickBallRootOptIn,
+          audit.quickBallRootOwnerSeat,seat),
       regidragoDonorQuickBallRoot:actorSpecialEnergyEnabled(
         audit.regidragoDonorQuickBallRootOptIn,
         audit.regidragoDonorQuickBallOwnerSeat,seat),
