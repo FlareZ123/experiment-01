@@ -24,7 +24,8 @@ for(const scenario of [
     assert.ok(native.manualFallback);
     assert.equal(native.manualFallback.decisionReason,
       'known-ability-inert-stadium-tool-lock');
-    assert.equal(native.manualFallback.attachedPhysicalCard,true);
+    assert.equal(native.manualFallback.attachedPhysicalCard,true,
+      JSON.stringify(native.manualFallback));
     assert.equal(native.manualFallback.activeEnergiesBefore,0);
     assert.equal(native.manualFallback.activeEnergiesAfter,1);
     assert.equal(native.manualFallback.handCountBefore,1);
