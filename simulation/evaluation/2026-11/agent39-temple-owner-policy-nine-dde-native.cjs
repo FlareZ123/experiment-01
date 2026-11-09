@@ -133,16 +133,16 @@ function compare(rows) {
       treatmentWins: a.filter(g => winInterval(g.treatment).every(x => x === 1)).length,
       capsOrUnknown: a.flatMap(g => [g.control, g.treatment])
         .filter(row => winInterval(row)[0] !== winInterval(row)[1]).length,
-      comparableChampionMinusTempleBounds: a.filter(g => g.comparable)
+      comparableControlMinusTreatmentBounds: a.filter(g => g.comparable)
         .reduce((interval, g) => [
-          interval[0] + g.controlMinusTemple[0],
-          interval[1] + g.controlMinusTemple[1]
+          interval[0] + g.controlMinusTreatment[0],
+          interval[1] + g.controlMinusTreatment[1]
         ], [0, 0]) };
   });
   const matched = groups.filter(g => g.comparable);
   const bounds = matched.reduce((range, g) => [
-    range[0] + g.controlMinusTemple[0],
-    range[1] + g.controlMinusTemple[1]
+    range[0] + g.controlMinusTreatment[0],
+    range[1] + g.controlMinusTreatment[1]
   ], [0, 0]);
   const all = groups.flatMap(g => [g.control, g.treatment]);
   return { groups, perRank, summary: {
@@ -240,6 +240,19 @@ if (require.main === module) {
     assert.deepEqual(winInterval({ nativeFinished: true, error: null,
       nativeWinner: 0, candidateSeat: 0 }), [1, 1]);
     assert.deepEqual(winInterval({ nativeFinished: false, candidateSeat: 0 }), [0, 1]);
+    const synthetic = registration.registeredTrials.map(trial => ({
+      id: trial.id, rank: trial.rank,
+      candidateSeat: trial.candidateSlot === 'A' ? 0 : 1,
+      candidateId: trial.candidateId,
+      sourceDealFingerprint: 'common:' + trial.rank + ':' +
+        trial.repeat + ':' + trial.candidateSlot,
+      actualStarterSeat: trial.candidateSlot === 'A' ? 0 : 1,
+      nativeFinished: true,
+      nativeWinner: trial.candidateSlot === 'A' ? 0 : 1,
+      error: null
+    }));
+    assert.deepEqual(compare(synthetic).summary
+      .controlMinusTreatmentOnComparableGroups, [0, 0]);
     console.log(JSON.stringify({ preflight: inspect(), pure: 'PASS' }));
   } else {
     const result = run();
