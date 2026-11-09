@@ -1,4 +1,4 @@
-# Frozen original rank13 T3 Marnie source-only A/B/A root intervention
+# Frozen original rank13 T3 Marnie source-only A/B root intervention
 
 **Agent 26 | Registration before prospective native policy intervention | 9 November 2026 ~05:55 UTC**
 
@@ -25,3 +25,7 @@ Inspect native Store accepted source `PlayCardAction Marnie` at source global3 w
 If the source policy acts earlier or some shared file changes the original root before T3, retain the attempt with a failed strict-first-divergence result and do not silently claim an exact counterfactual. Do not score capped games as wins. Paper-qualified games remain **0** even for a mechanically accepted native Marnie. The proper next research question is the source's subsequent payable Energy/attack/prompt/clock plan, not a larger native action cap.
 
 Existing root implementation `simulation/twinleaf/agent50-stranded-marnie-frontier.cjs` previously succeeded in a *different* rank11 native fixture (CI 39687553996). The new narrow owner-seat option only scopes an existing policy; it is not a wholly new strategic evaluator.
+
+## Post-execution clarification (9 November 2026 ~06:00 UTC)
+
+The initial document heading mistakenly used `A/B/A`. The preregistered and executed experiment explicitly contained **two modes per candidate** (control A and treatment B), for four native games total; it did **not** include a third repeated A. The heading is corrected here after the execution so readers do not assume a repeated-control stability gate was performed. Original preregistration commit `ca1d59b6c8cd421e77f2313909937c31b76c802f` remains traceable.
