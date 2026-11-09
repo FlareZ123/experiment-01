@@ -8,8 +8,10 @@ const {run:runNative}=
   require('./agent43-v8-snaptrap-exact-prompt-blocker.cjs');
 const {REGISTRATION,firstDivergence}=
   require('./agent38-v8-owner-mail-pass-four-arm.cjs');
+const {physicalDealsMatch}=
+  require('./agent1-v8-held-handiwork-four-arm.cjs');
 
-const VERSION='agent1-v8-original-held-arven-search-four-arm-v1';
+const VERSION='agent1-v8-original-held-arven-search-four-arm-v2-deal-parity';
 const OUTPUT=path.resolve(__dirname,
   '../../artifacts/agent43-v8-snaptrap-owner-root/agent1-original-held-arven.json');
 const MECHANICAL=new Set(['PassTurnAction','WaitPromptAction',
@@ -106,6 +108,15 @@ function run(){
     });
     return {
       trialId:trial.id,seed:trial.seed,sourceSeat:trial.sourceSeat,
+      physicalDealMatched:physicalDealsMatch(before,after),
+      sourceDealSha256:{
+        control:before.sourceDealFingerprint??null,
+        treatment:after.sourceDealFingerprint??null
+      },
+      fullPhysicalDealSha256:{
+        control:before.fullPhysicalDealFingerprint??null,
+        treatment:after.fullPhysicalDealFingerprint??null
+      },
       firstDivergence:firstDivergence(first,tape),
       control:slim(before),treatment:slim(after),
       acceptedHeldArvenRoots:held.map(r=>({ordinal:r.ordinal,
@@ -118,6 +129,7 @@ function run(){
   });
   const accepted=panel.reduce((n,r)=>n+r.acceptedHeldArvenRoots.length,0);
   const settled=panel.reduce((n,r)=>n+r.physicallySettledSearches,0);
+  const physicallyMatched=panel.filter(r=>r.physicalDealMatched).length;
   return {
     schema:VERSION,gitHead:process.env.GITHUB_SHA??null,
     registrationPath:
@@ -125,7 +137,10 @@ function run(){
     nativePinned:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     originalSourceSixties:REGISTRATION.cardsUnchanged,
     registeredOriginalTrialIds:ids,
-    nativeRootCap:260,controlOptions:common,
+    nativeRootCap:260,
+    physicalDealPairsMatched:physicallyMatched,
+    fullPhysicalPanelValid:physicallyMatched===ids.length,
+    controlOptions:common,
     treatmentOptions:{...common,followHeldArven:true},
     acceptedHeldArven:accepted,physicallySettledSearches:settled,
     unaccountedSearches:audit.arvenSearchUnsettled,
@@ -135,7 +150,9 @@ function run(){
     laterStrategicContinuations:panel.reduce((n,r)=>
       n+r.acceptedHeldArvenRoots.filter(x=>x.continuation.passed).length,0),
     panel,
-    status:accepted>0?'NATIVE_HELD_ARVEN_ACCEPTED_DEVELOPMENTAL':
+    status:physicallyMatched!==ids.length?
+      'INVALID_OR_MISSING_PHYSICAL_DEAL_PARITY':
+      accepted>0?'NATIVE_HELD_ARVEN_ACCEPTED_DEVELOPMENTAL':
       'NO_HELD_ARVEN_ACTION_ENCOUNTERED',
     qualifiedCompetitiveGames:0,winRate:null,finalFixedSixty:null
   };
