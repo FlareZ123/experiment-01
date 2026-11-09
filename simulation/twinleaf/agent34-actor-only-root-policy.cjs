@@ -610,6 +610,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseForcedGuzmaNominalKo(view,catalog);
     if(gust)return gust;
   }
+  if(options.sourceDialgaShredT53===true){
+    const shred=require('./2026-11/agent26-rank13-source-dialga-shred-frontier.cjs')
+      .chooseRank13SourceDialgaShred(view);
+    if(shred)return shred;
+  }
   if(options.rank13SourceApexRoot===true){
     const apex=require('./agent8-rank13-source-apex-attack-frontier.cjs')
       .choosePublicApexRoot(view,catalog);
@@ -1143,6 +1148,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
       (process.env.AGENT50_STRANDED_MARNIE_DEV==='true'),
     strandedMarnieRootOwnerSeat:deps.strandedMarnieRootOwnerSeat??null,
+    sourceDialgaShredT53OptIn:deps.sourceDialgaShredT53===true,
+    sourceDialgaShredT53OwnerSeat:deps.sourceDialgaShredT53OwnerSeat??null,
     lowHandLillieRootCensus:{
       ownerRoots:0,heldRoots:0,eligibleRoots:0,
       reasonCounts:{},heldReasonCounts:{},
@@ -1820,6 +1827,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       strandedMarnieRoot:actorSpecialEnergyEnabled(
         audit.strandedMarnieRootOptIn,
         audit.strandedMarnieRootOwnerSeat,seat),
+      sourceDialgaShredT53:actorSpecialEnergyEnabled(
+        audit.sourceDialgaShredT53OptIn,
+        audit.sourceDialgaShredT53OwnerSeat,seat),
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
       teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
       eriRevealRoot:audit.eriRevealRootOptIn===true,
