@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = 'agent20-sentinel-postgust-jet-escape-v1';
+const VERSION = 'agent20-sentinel-postgust-jet-escape-v2-temple-veto';
 const JET = 'Jet Energy PAL';
 const LOCK = 'Vileplume AOR';
 const BENCH = 'Bunnelby PRC';
@@ -27,6 +27,12 @@ function chooseSentinelPostGustJet(view) {
       resources.specialEnergyPlayLocked === true ||
       own.publicTurnRestrictions?.energyPlayLocked === true ||
       own.publicTurnRestrictions?.specialEnergyPlayLocked === true) return null;
+  // Official Japanese card Q&A: Temple of Sinnoh disables Jet's switch
+  // effect on attachment. Spending the turn's Energy would strand Vileplume.
+  const stadiums=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  if(stadiums.some(name=>name.startsWith('Temple of Sinnoh ')))
+    return null;
   const handIndex = view.ownHand.indexOf(JET);
   if (handIndex < 0) return null;
   const benchIndex = own.bench.findIndex(pokemon =>
