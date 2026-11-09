@@ -22,7 +22,7 @@ const makeInput=(hand=[B,DCE,H],cost=[9,9])=>{
       publicTurnRestrictions:{}},
     opponentPublic:{stadium:[]},
     ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false}};
-  return {actor,prompt:{message:'CHOOSE_CARD_TO_DISCARD',requiredCount:2,menu}};
+  return {actor,prompt:{id:7,message:'CHOOSE_CARD_TO_DISCARD',requiredCount:2,menu}};
 };
 
 test('one DCE rescues a payable Cross Fusion Strike from generic discard',()=>{
