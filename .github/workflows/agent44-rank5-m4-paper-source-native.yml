@@ -2,6 +2,15 @@ name: Agent44 prospective original rank5 paper M4 versus fixed Hood
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Execute frozen original native games or inspect archived public M4 roots without replay
+        type: choice
+        default: inspect
+        required: true
+        options:
+          - inspect
+          - run
 
 permissions:
   contents: read
@@ -12,28 +21,41 @@ jobs:
     timeout-minutes: 26
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect completed native artifact without replaying any games
+        if: ${{ inputs.mode == 'inspect' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 42610256883 -R FlareZ123/experiment-01 -n agent44-rank5-m4-paper-source-four-native-v1 -D prior-m4
+          node simulation/evaluation/2026-11/agent44-m4-source-archive-intake.cjs prior-m4/agent44-rank5-m4-paper-source-native-v1.json
       - name: Validate frozen source program
+        if: ${{ inputs.mode == 'run' }}
         run: |
           node --check simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs --inspect-only
       - name: Fetch pinned vendor revision
+        if: ${{ inputs.mode == 'run' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
+        if: ${{ inputs.mode == 'run' }}
         with:
           node-version: '20.19.0'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Install pinned native simulator
+        if: ${{ inputs.mode == 'run' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native simulator
+        if: ${{ inputs.mode == 'run' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run all four frozen original-source games without seed filtering
+        if: ${{ inputs.mode == 'run' }}
         run: node simulation/evaluation/2026-11/agent44-rank5-m4-paper-source-native.cjs
       - name: Archive complete root ledgers and original physical opening receipts
-        if: always()
+        if: ${{ always() && inputs.mode == 'run' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent44-rank5-m4-paper-source-four-native-v1
