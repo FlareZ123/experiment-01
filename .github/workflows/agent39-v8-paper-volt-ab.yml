@@ -2,6 +2,15 @@ name: Agent39 paper Volt original v8 A/B
 
 on:
   workflow_dispatch:
+    inputs:
+      study:
+        description: Select a frozen research task
+        required: true
+        type: choice
+        default: volt-regression
+        options:
+          - volt-regression
+          - temple-nine-dde
 
 permissions:
   contents: read
@@ -13,7 +22,7 @@ concurrency:
 jobs:
   native-original-v8:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out research repository
         uses: actions/checkout@v4
@@ -34,8 +43,27 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify four native Flash routes and two Temple suppressions
+        if: ${{ inputs.study == 'volt-regression' }}
         run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
       - name: Verify original rank10 Regidrago DDE Temple funding and Parallel Stadium response on both seats
+        if: ${{ inputs.study == 'volt-regression' }}
         run: node --test tests/agent39-rank10-regidrago-temple-dde.native.test.cjs
       - name: Retrospective original-eight same-deal native Volt A/B
+        if: ${{ inputs.study == 'volt-regression' }}
         run: node simulation/evaluation/agent39-v8-paper-volt-original-eight-ab-native.cjs
+      - name: Validate preregistered nine-rank fixed-60 original-source comparison
+        if: ${{ inputs.study == 'temple-nine-dde' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-nine-dde-prospective-native.cjs --self-test
+      - name: Run champion versus Temple fixed-60 original Regidrago field native contest
+        if: ${{ inputs.study == 'temple-nine-dde' }}
+        run: node simulation/evaluation/2026-11/agent39-temple-nine-dde-prospective-native.cjs
+      - name: Retain complete native rows and missing-outcome comparison for external audit
+        if: ${{ always() && inputs.study == 'temple-nine-dde' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-temple-nine-dde-frozen-native
+          path: |
+            agent39-temple-nine-dde-native.json
+            agent39-temple-nine-dde-summary.json
+          if-no-files-found: warn
+          retention-days: 14
