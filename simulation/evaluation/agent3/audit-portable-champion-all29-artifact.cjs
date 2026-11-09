@@ -66,6 +66,31 @@ function audit(a){
   });
   assert.equal(rankRows.reduce((n,r)=>n+r.physicallyMatched,0),
     eligible.length);
+  const nativeAbortRows=[
+    ...a.fullNativeControl.rows.map(row=>({arm:'control',row})),
+    ...a.fullNativeTreatment.rows.map(row=>({arm:'treatment',row}))
+  ].filter(x=>x.row.error).map(({arm,row})=>{
+    const evidence=row.nativeAbortEvidence??null;
+    const roots=row.rootActionLedger??
+      row.nativePublicRootArchive?.rootActionLedger??
+      evidence?.rootActionLedger??[];
+    return {
+      arm,id:row.trial.id,rank:row.trial.rank,
+      errorCategory:String(row.error).split('\n')[0],
+      nativeFailureActionOrdinal:evidence?.actionOrdinal??null,
+      nativeFailureAction:evidence?.actionName??null,
+      nativeFailureTurn:evidence?.turnBefore??null,
+      physicalZoneQualification:row.physicalZoneQualification??null,
+      lastFiveAcceptedRoots:roots.slice(-5).map(root=>({
+        ordinal:root.actionOrdinal,turn:root.turnBefore,
+        actor:root.playerSlot,action:root.action,
+        card:root.card??null,attack:root.attack??null
+      }))
+    };
+  });
+  const abortSummary=[...new Set(nativeAbortRows.map(x=>x.errorCategory))]
+    .map(error=>({error,count:nativeAbortRows.filter(x=>
+      x.errorCategory===error).length}));
   const allFlips=a.pairs.filter(p=>p.nativeWinnerChanged);
   return {
     schema:VERSION,originalRunId:42552656722,
@@ -104,6 +129,7 @@ function audit(a){
       sourceLostToChampion:p.sourceLossToCandidateWin,
       championLostToSource:p.candidateWinToSourceLoss
     })),
+    nativeAbortRows,abortSummary,
     unmatchedGroups:a.pairs.filter(p=>!p.physicalMatched).map(p=>({
       id:p.id,rank:p.rank,controlStatus:p.control.status,
       treatmentStatus:p.treatment.status,
@@ -142,7 +168,8 @@ if(require.main===module){
     JSON.stringify({
       status:result.panelStatus,runId:result.originalRunId,
       totals:result.totals,changed:result.changedWinnersMatched,
-      unmatched:result.unmatchedGroups,byRank:result.byOriginalRank
+      unmatched:result.unmatchedGroups,byRank:result.byOriginalRank,
+      abortSummary:result.abortSummary,nativeAbortRows:result.nativeAbortRows
     })+'\n');
 }
 module.exports={VERSION,audit,run};
