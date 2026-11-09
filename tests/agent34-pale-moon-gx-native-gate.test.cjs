@@ -580,12 +580,14 @@ for (const seat of [0, 1]) {
 
       f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
       const defenderEnergyRemaining = f.defender.active.energies.cards.length;
-      const expectedRemaining = psychicCount === 1 ? 2 : 0;
+      const paperExpectedRemaining = psychicCount === 1 ? 2 : 0;
+      const nativeExpectedRemaining = 2;
       console.log('AGENT34_DIMENSION_VALLEY_PALE_MOON', JSON.stringify({
         seat, psychicCount, stadiumPrinting: stadium.fullName,
         effectiveCost: '[Psychic]', expectedBonus: psychicCount === 2,
         actualDefenderEnergyRemaining: defenderEnergyRemaining,
-        expectedDefenderEnergyRemaining: expectedRemaining,
+        paperExpectedDefenderEnergyRemaining: paperExpectedRemaining,
+        nativeObservedMismatch: psychicCount === 2,
         gxSpent: f.attacker.usedGX,
         delayedKoPending: f.defender.pendingEndOfTurnEffects.length,
         qualifiedGames: 0
@@ -594,8 +596,85 @@ for (const seat of [0, 1]) {
       assert.equal(f.defender.pendingEndOfTurnEffects.length, 1);
       assert.strictEqual(f.defender.pendingEndOfTurnEffects[0].target,
         f.defender.active);
-      assert.equal(defenderEnergyRemaining, expectedRemaining,
-        'bonus Energy count must be relative to the stadium-reduced cost');
+      assert.equal(defenderEnergyRemaining, nativeExpectedRemaining,
+        'uncorrected pinned handler hardcodes the full [P,P,C] bonus threshold');
+      if (psychicCount === 2) assert.notEqual(
+        defenderEnergyRemaining, paperExpectedRemaining,
+        'two Psychic with Dimension Valley must expose the native bug');
     });
   }
+}
+
+
+const { withPaleMoonDimensionValleyBonus } =
+  require('../simulation/twinleaf/pale-moon-dimension-valley-bonus.cjs');
+
+const paleMoonModules = () => ({
+  CardClass: native(
+    'sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx'
+  ).TrevenantDusknoirGX,
+  StateUtils: native('game/store/state-utils').StateUtils,
+  CardType: native('game/store/card/card-types').CardType,
+  CheckProvidedEnergyEffect: native(
+    'game/store/effects/check-effects'
+  ).CheckProvidedEnergyEffect,
+  DiscardCardsEffect: native(
+    'game/store/effects/attack-effects'
+  ).DiscardCardsEffect,
+  WAS_ATTACK_USED: native('game/store/prefabs/prefabs').WAS_ATTACK_USED
+});
+
+for (const seat of [0, 1]) {
+  for (const psychicCount of [1, 2, 3]) {
+    test('opt-in Dimension Valley Pale Moon-GX paper bonus, seat ' +
+      seat + ' Psychic ' + psychicCount, () => {
+      const { AttackAction } = native('game/store/actions/game-actions');
+      const f = stage(seat, psychicCount, false);
+      const stadium = initializeCards().getCardByName('Dimension Valley PHF');
+      assert.ok(stadium);
+      stadium.id = 359900 + seat * 10 + psychicCount;
+      f.attacker.stadium.cards.push(stadium);
+      const modules = paleMoonModules();
+      const original = modules.CardClass.prototype.reduceEffect;
+      const correction = withPaleMoonDimensionValleyBonus(modules, () => {
+        f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+        return {
+          remainingEnergy: f.defender.active.energies.cards.length,
+          gxSpent: f.attacker.usedGX,
+          delayedKoQueued: f.defender.pendingEndOfTurnEffects.length
+        };
+      });
+      assert.strictEqual(modules.CardClass.prototype.reduceEffect, original,
+        'scoped handler must restore even for a genuine Store action');
+      assert.equal(correction.result.remainingEnergy,
+        psychicCount === 1 ? 2 : 0);
+      assert.equal(correction.result.gxSpent, true);
+      assert.equal(correction.result.delayedKoQueued, 1);
+      assert.equal(correction.corrected, psychicCount === 2 ? 1 : 0);
+      if (psychicCount === 2) {
+        assert.equal(correction.events[0].discardedCardCount, 2);
+        assert.equal(correction.events[0].stadium, 'Dimension Valley PHF');
+      }
+      console.log('AGENT34_DIMENSION_VALLEY_REPAIR', JSON.stringify({
+        seat, psychicCount,
+        correctedAdditionalEffect: correction.corrected,
+        remainingDefenderEnergy: correction.result.remainingEnergy,
+        originalHandlerRestored: true, qualifiedGames: 0
+      }));
+    });
+  }
+
+  test('Dimension Valley correction leaves no-Stadium two-Psychic native effect untouched, seat ' +
+    seat, () => {
+    const { AttackAction } = native('game/store/actions/game-actions');
+    const f = stage(seat, 2, false);
+    const modules = paleMoonModules();
+    const correction = withPaleMoonDimensionValleyBonus(modules, () => {
+      f.store.dispatch(new AttackAction(f.attacker.id, 'Pale Moon-GX'));
+      return f.defender.active.energies.cards.length;
+    });
+    assert.equal(correction.result, 2);
+    assert.equal(correction.corrected, 0);
+    assert.equal(f.attacker.usedGX, true);
+  });
 }
