@@ -15,6 +15,7 @@ const report=bad.map(row=>{
   return {
     id:row.trial.id,
     error:row.error,
+    nativeStoreCauseStack:row.nativeStoreCauseStack??null,
     evidenceKeys:Object.keys(e??{}),
     errorFields:{
       errorMessage:e?.errorMessage??null,
