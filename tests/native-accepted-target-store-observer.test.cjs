@@ -193,3 +193,30 @@ require('./agent41-bilateral-dual-target-evidence.test.cjs');
 
 // Shared CI also enforces the identical-deck/physical-deal pair contract.
 require('./agent41-native-paired-target-audit.test.cjs');
+
+test('frozen rank14 original Oricorio-GX CEC action links exact paper printing only',()=>{
+  const {auditNativeTargetRootLinkage}=require(
+    '../simulation/twinleaf/native-accepted-target-store-observer.cjs');
+  const archived=[{action:'PlayCardAction',playerSlot:0,turnBefore:15,
+    card:'Oricorio-GX',actionOrdinal:65}];
+  const store=[{action:'PlayCardAction',playerSlot:0,turnBefore:15,
+    declared:{ownerHandPrinting:'Oricorio GX CEC'}}];
+  assert.equal(rootLabelMatchesNativePrinting('Oricorio-GX',
+    'Oricorio GX CEC'),true);
+  for(const other of ['Oricorio GX UNM','Oricorio GX CEC ALT',
+    'Oricorio GX', 'Oricorio CEC', 'Oricorio ex CEC']){
+    assert.equal(rootLabelMatchesNativePrinting('Oricorio-GX',other),
+      false,other);
+  }
+  const linked=auditNativeTargetRootLinkage(archived,store);
+  assert.equal(linked.linked,true);
+  assert.equal(linked.mismatchCount,0);
+  assert.equal(linked.nativeCount,1);
+  assert.equal(linked.rootCount,1);
+  assert.equal(auditNativeTargetRootLinkage(archived,[{
+    ...store[0],turnBefore:16
+  }]).linked,false);
+  assert.equal(auditNativeTargetRootLinkage(archived,[{
+    ...store[0],playerSlot:1
+  }]).linked,false);
+});
