@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      agent26_rank13_source_marnie:
+        description: Replay one authentic Regidrago opening with source-only Marnie against both fixed 60s
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -63,6 +68,21 @@ jobs:
         with:
           name: agent26-original-palace-postwait-native
           path: agent26-palace-postwait-original/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Check native source-only Marnie admission and paired censoring
+        if: ${{ inputs.agent26_rank13_source_marnie }}
+        run: |
+          node --test tests/2026-11/agent26-rank13-source-marnie-admission.test.cjs
+          node --test tests/2026-11/agent26-fixed60-paired-censor-envelope.test.cjs
+      - name: Replay registered rank13 original source Marnie against unchanged fixed 60s
+        if: ${{ inputs.agent26_rank13_source_marnie }}
+        run: node simulation/evaluation/2026-11/agent26-rank13-source-marnie-native-pair.cjs
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.agent26_rank13_source_marnie
+        with:
+          name: agent26-rank13-original-source-marnie-paired-native
+          path: agent26-rank13-marnie-native-4arms.json
           if-no-files-found: warn
           retention-days: 14
       - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
