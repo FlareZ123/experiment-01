@@ -2427,6 +2427,11 @@ function runDevelopment({
         // Post-abort aggregate from the actual actor root, with no hand cards.
         actorNativeTrainerFallbackAbortAudit:
           error?.actorNativeTrainerFallbackAbortAudit??null,
+        ...(actorOwnerMailAfterPass?{
+          ownerMailAfterPassAbortAudit:
+            error?.ownerMailAfterPassAbortAudit??
+            error?.cause?.ownerMailAfterPassAbortAudit??null
+        }:{}),
         firstBlockedPromptContract:
           error?.agent2FirstBlockedPromptContract??
           error?.cause?.agent2FirstBlockedPromptContract??null,
