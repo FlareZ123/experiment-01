@@ -48,6 +48,7 @@ function arm(phase,enabled,reg,options={}){
     allowSingleCandidateArm:true,
     allowAdditionalOriginalSourceRanks:true,
     bilateralGengarHorrorHouseTempo:enabled,
+    actorBilateralLillieAfterPass:options.ownerLillieAfterPass===true,
     bilateralGengarHorrorHouseMinOpponentHandCount:
       options.minOpponentHandCount??0,
     registeredTrials:reg.registeredTrials,
@@ -86,6 +87,7 @@ function arm(phase,enabled,reg,options={}){
     remainingPrizes:row.finalPrizes??null,
     physicalIntegrity:row.physicalZoneQualification?.physicalIntegrityQualified??null,
     actorPolicy:row.actorOnlyDecisionCoverage??null,
+    lillieAudit:row.ownerBilateralLillieAfterPassAudit??null,
     source:actionCounts(0),candidate:actionCounts(1),
     postActions,rootLedgerSha256:sha256(roots),
     roots,physicalTape:tape};
