@@ -526,7 +526,8 @@ function executeDevelopment(trial,candidates,{
   specialRedCardPaperPreselection=false,
   specialRedCardPaperCorrection=false,
   specialRedCardPaperSpeculativeShuffle=false,
-  onRootStoreCreated=null,onRootActionDispatched=null
+  onRootStoreCreated=null,onRootActionDispatched=null,
+  captureNativeAttackPhysicalTape=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -535,6 +536,9 @@ function executeDevelopment(trial,candidates,{
   const rng=rngProtocolSelection({
     isolatePolicyRandomness,isolatePhysicalShuffleRandomnessAfterSetup
   });
+  const nativeAttackTape=captureNativeAttackPhysicalTape?
+    require('./2026-11/agent13-postgame-attack-modality-ledger.cjs')
+      .createPostgameAttackTape():null;
   const {runMatch}=require('../twinleaf/headless.cjs');
   const {withRank11DirectBoostShake}=
     require('../twinleaf/rank11-direct-boostshake.cjs');
@@ -561,9 +565,17 @@ function executeDevelopment(trial,candidates,{
     maxActions:nativeRootActionLimit??registration.maxRootActions,
     // The actual headless Store callback also receives the exact currently
     // executing registered trial ID. Existing single-argument users ignore it.
-    onRootStoreCreated:onRootStoreCreated?
-      store=>onRootStoreCreated(store,trial.id):null,
-    onRootActionDispatched,
+    // Observer data is postgame-only and never enters an actor information set.
+    onRootStoreCreated:onRootStoreCreated||nativeAttackTape?
+      store=>{
+        onRootStoreCreated?.(store,trial.id);
+        nativeAttackTape?.onRootStoreCreated(store);
+      }:null,
+    onRootActionDispatched:onRootActionDispatched||nativeAttackTape?
+      (...args)=>{
+        onRootActionDispatched?.(...args);
+        nativeAttackTape?.onRootActionDispatched(...args);
+      }:null,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     ...rng.request,
@@ -925,12 +937,14 @@ function executeDevelopment(trial,candidates,{
   const acceptedAttackEvents=packet.filter(row=>
     row.declarations?.length && row.settled?.after);
   const rootTrace=game.rootActionLedger||[];
+  const nativeAttackPhysicalTape=nativeAttackTape?.result()??null;
   // Additive postgame modality census; legacy attackDeclarations retains its
   // historical meaning of native logged ordinary AttackAction declarations.
   const nativeAttackModalityLedger=
     require('./2026-11/agent13-postgame-attack-modality-ledger.cjs')
       .postgameAttackModalityLedger({rootActionLedger:rootTrace,
-        publicAttackTransitions:packet,nativeFinished:game.finished});
+        publicAttackTransitions:packet,nativeFinished:game.finished,
+        physicalZoneTape:nativeAttackPhysicalTape});
   const cologneNativePlayAudit=auditAcceptedCologneRoots(
     rootTrace,game.suddenDeathClockResets??[]);
   if(paperCologneQuota){
@@ -1209,6 +1223,7 @@ function executeDevelopment(trial,candidates,{
     // ordinary-root-only historical counters above. Prize status is unknown
     // without a separate physical-root tape and independent paper audit.
     nativeAttackModalityLedger,
+    ...(nativeAttackPhysicalTape?{nativeAttackPhysicalTape}:{}),
     // Unlike the legacy two-event summary below, this retains EVERY
     // candidate declaration and genuine next-source action, or its absence.
     candidateAttackSettlement:candidateSettlement,
@@ -1492,6 +1507,7 @@ function runDevelopment({
   specialRedCardPaperCorrection=false,
   specialRedCardPaperSpeculativeShuffle=false,
   onRootStoreCreated=null,onRootActionDispatched=null,
+  captureNativeAttackPhysicalTape=false,
   actorGenericFundedFloatStoneRoot=false,
   actorGenericFundedFloatStoneSourceOnly=false,
   actorGenericFundedFloatStoneCandidateOnly=false,
@@ -2000,6 +2016,7 @@ function runDevelopment({
         specialRedCardPaperCorrection,
         specialRedCardPaperSpeculativeShuffle,
         onRootStoreCreated,onRootActionDispatched,
+        captureNativeAttackPhysicalTape,
         nativeRootActionLimit,nativeFirstTurnPublicBoard,
         nativeAllOwnerPassFrontier,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
