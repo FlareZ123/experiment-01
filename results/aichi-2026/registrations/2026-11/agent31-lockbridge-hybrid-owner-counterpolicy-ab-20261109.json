@@ -17,7 +17,7 @@
   "nativeRootCap": 260,
   "groups": [
     {
-      "id": "6:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261109:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261109,
       "candidateSlot": "A",
@@ -25,7 +25,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261110:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261110,
       "candidateSlot": "A",
@@ -33,7 +33,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261111:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261111,
       "candidateSlot": "A",
@@ -41,7 +41,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261112:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261112,
       "candidateSlot": "A",
@@ -49,7 +49,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261109:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261109,
       "candidateSlot": "B",
@@ -57,7 +57,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261110:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261110,
       "candidateSlot": "B",
@@ -65,7 +65,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261111:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261111,
       "candidateSlot": "B",
@@ -73,7 +73,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "6:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "6:20261112:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 6,
       "repeat": 20261112,
       "candidateSlot": "B",
@@ -81,7 +81,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261109:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261109,
       "candidateSlot": "A",
@@ -89,7 +89,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261110:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261110,
       "candidateSlot": "A",
@@ -97,7 +97,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261111:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261111,
       "candidateSlot": "A",
@@ -105,7 +105,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261112:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261112,
       "candidateSlot": "A",
@@ -113,7 +113,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261109:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261109,
       "candidateSlot": "B",
@@ -121,7 +121,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261110:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261110,
       "candidateSlot": "B",
@@ -129,7 +129,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261111:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261111,
       "candidateSlot": "B",
@@ -137,7 +137,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "11:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "11:20261112:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 11,
       "repeat": 20261112,
       "candidateSlot": "B",
@@ -145,7 +145,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261109:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261109,
       "candidateSlot": "A",
@@ -153,7 +153,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261110:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261110,
       "candidateSlot": "A",
@@ -161,7 +161,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261111:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261111,
       "candidateSlot": "A",
@@ -169,7 +169,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261112:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261112,
       "candidateSlot": "A",
@@ -177,7 +177,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261109:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261109,
       "candidateSlot": "B",
@@ -185,7 +185,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261110:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261110,
       "candidateSlot": "B",
@@ -193,7 +193,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261111:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261111,
       "candidateSlot": "B",
@@ -201,7 +201,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "13:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "13:20261112:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 13,
       "repeat": 20261112,
       "candidateSlot": "B",
@@ -209,7 +209,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-0:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261109:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261109,
       "candidateSlot": "A",
@@ -217,7 +217,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-1:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261110:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261110,
       "candidateSlot": "A",
@@ -225,7 +225,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-2:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261111:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261111,
       "candidateSlot": "A",
@@ -233,7 +233,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-3:A:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261112:A:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261112,
       "candidateSlot": "A",
@@ -241,7 +241,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-0:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261109:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261109,
       "candidateSlot": "B",
@@ -249,7 +249,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-1:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261110:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261110,
       "candidateSlot": "B",
@@ -257,7 +257,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-2:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261111:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261111,
       "candidateSlot": "B",
@@ -265,7 +265,7 @@
       "candidateId": "agent31-lockbridge-shadow-rider-v1"
     },
     {
-      "id": "24:20261109-3:B:agent31-lockbridge-shadow-rider-v1",
+      "id": "24:20261112:B:agent31-lockbridge-shadow-rider-v1",
       "rank": 24,
       "repeat": 20261112,
       "candidateSlot": "B",
@@ -292,5 +292,6 @@
   "physicalSeedGroupAsIndependenceUnit": true,
   "censoredAndErrorGameRetentionRequired": true,
   "competitivePaperGameQualification": false,
-  "claimScope": "original-source native developmental decision policy, no competitive match win rate"
+  "claimScope": "original-source native developmental decision policy, no competitive match win rate",
+  "registrationCorrection": "Corrected trial ID serialization to canonical rank:repeat:seat:candidate form before any native execution"
 }
