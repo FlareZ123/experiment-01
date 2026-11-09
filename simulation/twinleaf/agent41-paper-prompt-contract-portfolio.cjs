@@ -80,17 +80,39 @@ function independentPainfulSpoonsNegative(answer){
  * prompts emitted by the same Item are not payment prompts.
  * @param {object} prompt Original native payment prompt.
  * @param {unknown} answer Native physical submitted payment cards.
+ * @param {object} owner Actual owner with physical hand cards.
  * @returns {string|null} Proven paper-invalid reason or no covered negative.
  */
-function independentUltraBallPaymentNegative(prompt,answer){
+function independentUltraBallPaymentNegative(prompt,answer,owner){
+  if(prompt?.message!=='CHOOSE_CARD_TO_DISCARD')
+    return 'ULTRA_BALL_WRONG_PAYMENT_PROMPT';
   if(!Array.isArray(answer)||answer.length!==2)
     return 'ULTRA_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_TWO';
   if(new Set(answer).size!==2)
     return 'ULTRA_BALL_REQUIRES_TWO_DISTINCT_PHYSICAL_CARDS';
   if(!Array.isArray(prompt?.cards?.cards)||
-     answer.some(card=>!prompt.cards.cards.includes(card)))
-    return 'ULTRA_BALL_PAYMENT_OUTSIDE_PHYSICAL_HAND';
+     !Array.isArray(owner?.hand?.cards)||
+     answer.some(card=>!prompt.cards.cards.includes(card)||
+       !owner.hand.cards.includes(card)))
+    return 'ULTRA_BALL_PAYMENT_OUTSIDE_ACTUAL_OWNER_HAND';
   return null;
+}
+
+/**
+ * After the native payment reply, verify the same two physical cards moved
+ * from the acting owner's hand to that owner's discard pile. Prompt
+ * acceptance alone cannot certify payment custody.
+ * @param {object} owner Exact original Store acting owner
+ * @param {object[]} selected Pre-dispatch physical card references
+ * @returns {boolean}
+ */
+function independentUltraBallPaidCustody(owner,selected){
+  return Array.isArray(owner?.hand?.cards)&&
+    Array.isArray(owner?.discard?.cards)&&
+    Array.isArray(selected)&&selected.length===2&&
+    new Set(selected).size===2&&
+    selected.every(card=>!owner.hand.cards.includes(card)&&
+      owner.discard.cards.includes(card));
 }
 
 /**
@@ -146,7 +168,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v14-treasure-one-discard';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v15-ultra-ball-paid-custody';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -365,6 +387,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     inspectedRoxiePlayCardRoots:0,vetoedRoxieNoEligibleRoots:0,
     inspectedUltraBallPlayCardRoots:0,vetoedUltraBallInsufficientRoots:0,
     inspectedUltraBallPaymentPrompts:0,
+    verifiedUltraBallPhysicalPayments:0,
+    unverifiedUltraBallPhysicalPayments:0,
     inspectedSecretBoxPlayCardRoots:0,vetoedSecretBoxInsufficientRoots:0,
     inspectedSecretBoxPaymentPrompts:0,
     inspectedQuickBallPlayCardRoots:0,vetoedQuickBallInsufficientRoots:0,
@@ -536,11 +560,14 @@ function withPaperPromptContractPortfolio(run,deps={}){
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
               prompt?.sourceCard?.fullName==='Ultra Ball MEG'&&
+              prompt.message==='CHOOSE_CARD_TO_DISCARD'&&
               prompt.options?.min===2&&prompt.options?.max===2){
       audit.inspectedUltraBallPaymentPrompts++;
       sourcePrinting='Ultra Ball MEG';
       contract='printed-ultra-ball-exactly-two-physical-discard-negative';
-      const rejected=independentUltraBallPaymentNegative(prompt,action.result);
+      const owner=this.state.players?.find(p=>p.id===prompt.playerId);
+      const rejected=independentUltraBallPaymentNegative(
+        prompt,action.result,owner);
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
@@ -605,6 +632,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
           'outsideDeclaredGeometry':'insufficientMetadata';
       audit.physicalChoiceShapeCounts[category]++;
     }
+    const pendingUltraBallPayment=
+      contract==='printed-ultra-ball-exactly-two-physical-discard-negative'&&
+      status!=='PAPER_PROMPT_INVALID'?{
+        owner:this.state.players.find(p=>p.id===prompt.playerId),
+        physicalCards:action.result
+      }:null;
     const event={storeOrdinal:store.storeOrdinal,trialId:trial,
       turn:this.state.turn??null,family,sourcePrinting,
       contract,status,reason,submittedCount:Array.isArray(action.result)?
@@ -649,6 +682,17 @@ function withPaperPromptContractPortfolio(run,deps={}){
       const resolved=prompt&&prompt.result!==undefined&&
         Object.is(prompt.result,action.result);
       event.nativePromptSettled=Boolean(resolved);
+      if(resolved&&pendingUltraBallPayment){
+        event.physicalEffectVerified=independentUltraBallPaidCustody(
+          pendingUltraBallPayment.owner,pendingUltraBallPayment.physicalCards);
+        if(event.physicalEffectVerified)
+          audit.verifiedUltraBallPhysicalPayments++;
+        else{
+          audit.unverifiedUltraBallPhysicalPayments++;
+          event.nativeSettlementUnverified=true;
+          audit.nativeSettlementUnverified++;
+        }
+      }
       if(resolved){
         event.nativeAccepted=true;
         audit.nativePromptSettled++;
@@ -696,6 +740,6 @@ function withPaperPromptContractPortfolio(run,deps={}){
 module.exports={VERSION,independentCampingGearContract,
   independentPutDamageNegative,independentPainfulSpoonsNegative,
   independentRoxiePaymentNegative,independentUltraBallPaymentNegative,
-  independentMysteriousTreasurePaymentNegative,
+  independentUltraBallPaidCustody,independentMysteriousTreasurePaymentNegative,
   physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
