@@ -13,6 +13,7 @@ on:
           - skyliner-smoke
           - skyliner-field
           - skyliner-v1-field
+          - skyliner-repair
         default: source-mew
 
 permissions:
@@ -223,5 +224,43 @@ jobs:
         with:
           name: agent3-skyliner-hood-v1-all29-116
           path: artifacts/agent3-skyliner-hood-v1-all29-prospective.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  skyliner-native-witness-three-repair:
+    if: inputs.experiment == 'skyliner-repair'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout fixed public-action witness
+        uses: actions/checkout@v4
+      - name: Initialize pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Pinned Node 20 and npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify the corrected physical-action contract and repair runner
+        run: |
+          node --check simulation/evaluation/agent3/skyliner-native-witness-repair-three.cjs
+          node --test tests/2026-11/agent3-skyliner-shared-owner-mobility.test.cjs
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce three previously aborted source deals with corrected witness
+        env:
+          AGENT3_SKYLINER_REPAIR_OUTPUT: artifacts/agent3-skyliner-witness-repair-three.json
+        run: node simulation/evaluation/agent3/skyliner-native-witness-repair-three.cjs
+      - name: Archive all three action traces including any actual abort
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-skyliner-witness-repair-three
+          path: artifacts/agent3-skyliner-witness-repair-three.json
           retention-days: 14
           if-no-files-found: warn
