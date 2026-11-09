@@ -12,6 +12,10 @@ on:
         description: 'Enable Agent17 owner-only late Iono/Marnie/Lillie deck-preservation treatment (historical seeds, action-changing)'
         type: boolean
         default: false
+      pre_attack_deckout_shuffles:
+        description: 'Enable Agent17 deck-preservation before native AttackAction also; implies late Pass rescue'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,6 +43,7 @@ jobs:
         env:
           AGENT21_RANK2_ROOT_CAP: ${{ inputs.root_cap }}
           AGENT17_RANK2_DECKOUT_RESCUE: ${{ inputs.anti_deckout_shuffles }}
+          AGENT17_RANK2_PRE_ATTACK_RESCUE: ${{ inputs.pre_attack_deckout_shuffles }}
         run: node simulation/evaluation/2026-11/agent21-rank2-long-control-native.cjs
       - name: Archive all four real native roots and outcomes
         if: always()
@@ -48,5 +53,6 @@ jobs:
           path: |
             agent21-rank2-original-long-native.json
             agent17-rank2-anti-deckout-native.json
+            agent17-rank2-pre-attack-rescue-native.json
           if-no-files-found: warn
           retention-days: 21
