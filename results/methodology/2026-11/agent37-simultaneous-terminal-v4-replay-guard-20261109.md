@@ -51,9 +51,20 @@ Manual CI runs the existing 24-row v4 matrix alongside these new two-seat
 negative controls, using the same pinned Twinleaf revision
 `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
 [run 42553480222](https://github.com/FlareZ123/experiment-01/actions/runs/42553480222).
-**CI status at initial writing: queued; native regression outcome pending.**
+**CI result: SUCCESS**, 9 November 2026 ~03:00 UTC, job 128953968782.
+The dedicated job passed all 16 steps, including the original v3 controls,
+the entire native v4 **24-row matrix** (24/24 correct physical Prize transfers,
+eight draws, eight owner wins, eight opponent wins, ten corrected native winner
+results, 24 restored Store instances), and the new two-seat replay / payment
+negative regression. That new test explicitly requires **two suppressed
+duplicates and two rejected incomplete transfers** by its own assertions.
+The archived artifact 13646129652 in this first run contains the v3 and v4
+full JSON only. The workflow was updated to preserve the new negative
+regression JSON as well, with a follow-up archival run
+[42554090752](https://github.com/FlareZ123/experiment-01/actions/runs/42554090752)
+dispatched for that purpose; its result was pending at this revision.
 An earlier run 42553285415 was cancelled before execution after the
-early fail-closed check was strengthened. Do not count it as a validation.
+early fail-closed check was strengthened and is not validation.
 
 ## Boundaries
 
