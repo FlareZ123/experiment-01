@@ -121,7 +121,7 @@ jobs:
           name: agent39-temple-actor-native-fresh-pairs
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: 42578791794
+          run-id: 42579540987
       - name: Verify actual accepted Temple roots and source Apex transitions
         if: ${{ inputs.study == 'temple-policy-reduce' }}
         run: node simulation/evaluation/2026-11/agent39-temple-owner-policy-artifact-reduce.cjs
