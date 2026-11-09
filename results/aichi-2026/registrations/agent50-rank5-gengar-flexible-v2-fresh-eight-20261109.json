@@ -1,0 +1,96 @@
+{
+  "schema": "agent50-rank5-flexible-gengar-v2-fresh-eight-prospective-v1",
+  "status": "FROZEN_BEFORE_V2_POLICY_IMPLEMENTATION_AND_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-09T15:16:20.974966Z",
+  "caseId": "agent50-20261109-rank5-gengar-v1-vs-v2-eight-fresh",
+  "originalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateManifest": "results/als/new-moon-perfection-source-60.json",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 320,
+  "seedMethod": "Eight fresh Python secrets.randbits(32) before any v2 implementation; independent from original exposed rank5 seed and Agent50 v1 eight-deal panel",
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 50701,
+      "candidateSlot": "A",
+      "seed": 1761343135,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50701:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50702,
+      "candidateSlot": "B",
+      "seed": 1092933510,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50702:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50703,
+      "candidateSlot": "A",
+      "seed": 1569489968,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50703:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50704,
+      "candidateSlot": "B",
+      "seed": 1356861919,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50704:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50705,
+      "candidateSlot": "A",
+      "seed": 895772782,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50705:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50706,
+      "candidateSlot": "B",
+      "seed": 1114148076,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50706:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50707,
+      "candidateSlot": "A",
+      "seed": 833482661,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50707:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50708,
+      "candidateSlot": "B",
+      "seed": 679423193,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50708:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "policyCommon": "Preserve Agent44 source rank5 exact original sixty; Agent8 v6 owner Mew funding/Quick Ball/Evolution; Agent41 frozen bilateral common policy, default independent RNG flags; Lillie-after-Pass same in both arms.",
+  "control": {
+    "phase": "Gengar-v1",
+    "bilateralGengarHorrorHouseTempo": true,
+    "bilateralGengarHorrorHouseMinOpponentHandCount": 6,
+    "actorBilateralLillieAfterPass": true
+  },
+  "treatment": {
+    "phase": "Gengar-flexible-v2",
+    "bilateralGengarFlexibleV2": true,
+    "actorBilateralLillieAfterPass": true,
+    "gengarHorrorHouseMinOpponentHandCount": 6,
+    "policySpecification": "Exact Gengar & Mimikyu-GX TEU can be funded on Bench when owner Active is any Basic/Evolution, provided a legally available owner-held Psychic Basic or printed Telepath [P] Energy M3; prioritize Basic; respect once-per-turn energy attachment, Special Energy locks, Temple of Sinnoh's Colorless replacement and relevant player restrictions. Existing ready Gengar may promote through public Latias ex Skyliner free retreat from any eligible Active without previous retreat, then use Horror House-GX at public opponent hand>=6 or Active Energy. Existing GX/restriction guards remain; apply only through owner-visible view and native Store. Control v1 exact original code unmodified."
+  },
+  "outcomeHandling": "All 16 native games retained regardless of terminal/cap/error. Physical deal pairing and relative player seat; compare accepted Gengar attachments, GX, Poltergeist attacks, native outcome and opposing follow-through. Competitive paper qualification remains zero pending independent review.",
+  "noSeedSelection": true,
+  "externalReview": false
+}
