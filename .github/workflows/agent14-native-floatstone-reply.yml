@@ -14,6 +14,7 @@ on:
           - generic-field-census
           - agent31-allowner-pass-native
           - agent31-allowner-pass-fresh-native
+          - agent31-postgust-seeker-native
 permissions:
   contents: read
 jobs:
@@ -94,6 +95,22 @@ jobs:
         with:
           name: agent14-generic-funded-floatstone-census
           path: agent14-generic-funded-floatstone-census.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Check bounded VS Seeker Guzma scaling decision
+        if: inputs.experiment == 'agent31-postgust-seeker-native'
+        run: node --test tests/2026-11/agent31-late-seeker-guzma-prize.test.cjs
+      - name: Reproduce selected original rank11 turn36 recovery with exact native A/B/A
+        if: inputs.experiment == 'agent31-postgust-seeker-native'
+        env:
+          AGENT31_POSTGUST_SEEKER_NATIVE_OUTPUT: agent31-rank11-postgust-seeker-aba.json
+        run: node simulation/evaluation/agent31/late-seeker-guzma-postgust-aba.cjs
+      - name: Preserve all real Store arms including failures
+        if: always() && inputs.experiment == 'agent31-postgust-seeker-native'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank11-postgust-seeker-aba
+          path: agent31-rank11-postgust-seeker-aba.json
           if-no-files-found: warn
           retention-days: 21
       - name: Archive all real original-source attempts, including aborts
