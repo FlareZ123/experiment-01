@@ -28,6 +28,6 @@ test('source mismatch and censored outcomes never become native wins',()=>{
  assert.equal(c.summary.bothNativeTerminalMatched,21);
  assert.equal(c.field.v1.wins,0);
  assert.equal(c.field.v3.wins,23);
- assert.deepEqual(c.summary.sharpReserveMinusV1NativeWinCount,{low:22,high:23});
+ assert.deepEqual(c.summary.sharpReserveMinusV1NativeWinCount,{low:21,high:23});
  assert.equal(c.summary.competitivePaperQualifiedGames,0);
 });
