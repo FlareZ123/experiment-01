@@ -18,7 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate independent preregistration, symmetric policy and denominator
-        run: node --test tests/agent23-selected-joint-v2-release.test.cjs tests/agent22-source-copy-choice-audit.test.cjs tests/agent23-volt-transfer-readiness.test.cjs tests/agent4-allturn-owner-volt-attach-energy.test.cjs
+        if: ${{ ! inputs.pure_only }}
+        run: node --test tests/agent23-selected-joint-v2-release.test.cjs tests/agent22-source-copy-choice-audit.test.cjs
+      - name: Regress physical owner Volt donor selection on both source seats
+        if: ${{ inputs.pure_only }}
+        run: node --test tests/agent23-volt-transfer-readiness.test.cjs tests/agent4-allturn-owner-volt-attach-energy.test.cjs
       - name: Initialize pinned Twinleaf submodule only
         if: ${{ ! inputs.pure_only }}
         run: git submodule update --init --depth=1 vendor/twinleaf
