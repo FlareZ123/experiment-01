@@ -1421,6 +1421,7 @@ function runDevelopment({
   actorGenesectFusionDrawSourceOnly=false,
   actorUnderworldDoorRoot=false,
   actorPathUnderworldStadiumCounter=false,
+  actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
@@ -1605,6 +1606,8 @@ function runDevelopment({
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
     'Underworld Door must use the same actor-only policy in both seats');
+  assert.ok(!actorPathToPeakOpposingAbility||actorOnlyComposition,
+    'Path adversarial Stadium line must use owner-only symmetric actor policy');
   assert.ok(!actorPathUnderworldStadiumCounter||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Path Stadium recovery requires the same owner-marked Underworld root in both seats');
@@ -1963,6 +1966,9 @@ function runDevelopment({
               }:{}),
               ...(actorPathUnderworldStadiumCounter?{
                 pathUnderworldStadiumCounter:true
+              }:{}),
+              ...(actorPathToPeakOpposingAbility?{
+                pathToPeakOpposingAbility:true
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
