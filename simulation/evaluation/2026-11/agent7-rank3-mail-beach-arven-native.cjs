@@ -63,7 +63,10 @@ function run({treasureBridge=false}={}){
     nativeDirectErrorStack:r.nativeDirectErrorStack??null,
     policyThrownCode:r.selectedV0?.thrownCode??null,
     policyThrownMessage:r.selectedV0?.thrownMessage??null,
-    nativeRootCount:r.nativeAbortEvidence?.rootActionCount??null
+    nativeRootCount:r.nativeAbortEvidence?.rootActionCount??null,
+    nativeQuarantineRecords:r.selectedV0?.nativeQuarantineAudit?.records??[],
+    blockedPrompt:r.blockedPromptContract??null,
+    observedFirstUnsupportedActorRoot:r.firstUnsupportedOwnerRoot?.ownerView?.decisionKind??null
   }));
   return {
     schema:treasureBridge?VERSION+'-with-actor-treasure-v2':VERSION,
