@@ -126,6 +126,7 @@ test('source-only hook alters genuine owner root on either physical seat and lea
       assert.equal(candidateAction.name,'Psychic');
       return {sourceAction,candidateAction};
     },{
+      ...options,
       SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
       observe:(state,seat)=>({...actorView(),actorSeat:seat}),
       getCatalog:()=>catalog,
