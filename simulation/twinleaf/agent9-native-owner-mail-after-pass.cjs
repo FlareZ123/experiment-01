@@ -60,6 +60,9 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
   assert.equal(typeof previousStore?.value,'function');
   const selected=new WeakMap(),awaiting=new Map();
   const physicallyMailSelectedMarnie=new WeakSet();
+  // Native Supporters stay in the play zone while effect prompts resolve.
+  // Observe their later *actual* Store root movement before certifying discard.
+  const pendingMarnieSettlements=[];
   let liveStore=null;
   const audit={
     version:VERSION,policySymmetricBothSeats:true,
@@ -73,6 +76,7 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
     marnieSelectedPhysically:0,marnieFollowOffers:0,
     marnieFollowStoreAccepted:0,marnieFollowStoreRejected:0,
     marnieFollowPhysicallyDiscarded:0,marnieFollowReceipts:[],
+    marnieFollowDeferredOpponentRoots:0,
     bothSeatAccepted:{0:0,1:0},
     selectedReceipts:[],omittedReceipts:0,
     nativeSourceHiddenOrderReadByThisBridge:false,
@@ -169,11 +173,48 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
     return action;
   }
 
+  function observeDeferredMarnie(storeInstance,action){
+    for(const entry of pendingMarnieSettlements){
+      const receipt=entry.deferredReceipt;
+      const state=storeInstance.state;
+      const owner=state.players[entry.seat];
+      const opponent=state.players[1-entry.seat];
+      const zone=owner.discard.cards.includes(entry.physicalCard)?
+        'discard':owner.supporter.cards.includes(entry.physicalCard)?
+          'supporter':owner.hand.cards.includes(entry.physicalCard)?
+            'hand':'other';
+      receipt.lastPhysicalZone=zone;
+      receipt.lastObservedTurn=state.turn;
+      const unsettled=state.prompts?.some(prompt=>prompt.result===undefined);
+      if(!unsettled)receipt.settledNoPendingPromptObserved=true;
+      if(zone==='discard'&&!receipt.physicallyDiscarded){
+        receipt.physicallyDiscarded=true;
+        receipt.firstDiscardObservedTurn=state.turn;
+        audit.marnieFollowPhysicallyDiscarded++;
+      }
+      // A real Store root controlled by the opponent after the Supporter
+      // is a physical response, not an inferred future action from the bot.
+      const actorId=action?.id??action?.clientId;
+      if(actorId===opponent.id&&receipt.opponentResponseAction===null){
+        receipt.opponentResponseAction=action.constructor.name;
+        receipt.opponentResponseTurn=state.turn;
+        audit.marnieFollowDeferredOpponentRoots++;
+      }
+      receipt.ownerHandAfterLatest=owner.hand.cards.length;
+      receipt.opponentHandAfterLatest=opponent.hand.cards.length;
+    }
+  }
+
   function dispatched(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&liveStore===null)
       liveStore=this;
     const entry=this===liveStore?selected.get(action):null;
-    if(!entry)return previousStore.value.apply(this,[action,...args]);
+    if(!entry){
+      const result=previousStore.value.apply(this,[action,...args]);
+      if(this===liveStore&&pendingMarnieSettlements.length)
+        observeDeferredMarnie(this,action);
+      return result;
+    }
     try{
       const result=previousStore.value.apply(this,[action,...args]);
       const owner=this.state.players[entry.seat];
@@ -196,16 +237,21 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
         }
       }else if(entry.kind==='selected-marnie'){
         audit.marnieFollowStoreAccepted++;
-        const discarded=owner.discard.cards.includes(entry.physicalCard);
-        if(discarded)audit.marnieFollowPhysicallyDiscarded++;
-        audit.marnieFollowReceipts.push({
+        const receipt={
           seat:entry.seat,turn:entry.turn,printing:entry.printing,
-          physicallyDiscarded:discarded,
+          physicallyDiscarded:false,
+          firstDiscardObservedTurn:null,
+          settledNoPendingPromptObserved:false,
+          opponentResponseAction:null,opponentResponseTurn:null,
+          lastPhysicalZone:null,lastObservedTurn:null,
           ownerHandCountBefore:entry.beforeOwnHandCount,
-          ownerHandCountAfter:owner.hand.cards.length,
+          ownerHandAfterLatest:owner.hand.cards.length,
           opponentHandCountBefore:entry.beforeOpponentHandCount,
-          opponentHandCountAfter:this.state.players[1-entry.seat].hand.cards.length
-        });
+          opponentHandAfterLatest:this.state.players[1-entry.seat].hand.cards.length
+        };
+        entry.deferredReceipt=receipt;
+        audit.marnieFollowReceipts.push(receipt);
+        pendingMarnieSettlements.push(entry);
       }else{
         audit.promptAccepted++;
         awaiting.delete(entry.ownerId);
@@ -224,6 +270,8 @@ function withOwnerMailAfterPass(execute,registeredSixties,options={}){
         entry.rootReceipt.chosen=entry.chosen.map(card=>card.fullName);
         entry.rootReceipt.chosenPhysicallySettled=settled;
       }
+      if(pendingMarnieSettlements.length)
+        observeDeferredMarnie(this,action);
       return result;
     }catch(error){
       if(entry.kind==='mail'){
