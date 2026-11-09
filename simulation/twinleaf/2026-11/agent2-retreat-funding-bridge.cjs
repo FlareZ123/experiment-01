@@ -13,8 +13,8 @@ const VERSION = 'agent2-one-basic-shortfall-retreat-funding-bridge-v2';
  *
  * Avoid commitment when another attack is payable on the Active, the Active
  * carries a position-dependent Ability, or the public opponent blocks retreat.
- * Only printed one- or two-unit Colorless retreat with no Tool, and complete
- * payment from supported Basic Energy, is modeled. No deck order, Prize identity or opponent hand is inspected.
+ * Only printed one- or two-unit Colorless retreat with absent or known
+ * non-Retreat-modifying Tools, and complete Basic Energy payment, is modeled. No deck order, Prize identity or opponent hand is inspected.
  *
  * @param {object} view Detached actor-owned root observation.
  * @param {object} catalog Public printed card catalog and game enums.
@@ -52,7 +52,9 @@ function chooseRetreatFundingBridge(view, catalog, deps = {}) {
       active.printed.retreatCost.length > 2 ||
       !active.printed.retreatCost.every(type =>
         type === catalog.colorlessEnergyType) ||
-      (active.tools ?? []).length > 0 ||
+      (active.tools ?? []).some(tool =>
+        tool !== 'Stealthy Hood UNB' &&
+        tool !== 'Forest Seal Stone SIT') ||
       !Array.isArray(active.energies) ||
       !Array.isArray(own.bench) ||
       !(catalog.basicEnergies instanceof Set)) return null;
