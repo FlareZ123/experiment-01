@@ -5,6 +5,8 @@ const {frozenGroups} =
   require('./agent3/prospective-all29-celestial-paper-v2.cjs');
 const {runArm, summarize} =
   require('./agent3/portable-champion-all29-20261109.cjs');
+const {runDevelopment} =
+  require('./agent41-bilateral-v2-development.cjs');
 const {installUnderworldDoorPsychicRecipientHook} =
   require('../twinleaf/underworld-door-psychic-recipient-hook.cjs');
 const {installRegidragoCelestialRoarPaperCustodyHook} =
@@ -26,7 +28,9 @@ function one(fix) {
   try {
     roar = installRegidragoCelestialRoarPaperCustodyHook();
     if (fix) orphan = installPlayabilityOrphanPromptHook();
-    const row = runArm(false, [group]).rows[0];
+    const row = runArm(false, [group], options =>
+      runDevelopment({...options, allowSingleCandidatePerGroup: false,
+        allowSingleCandidateArm: true})).rows[0];
     const summary = summarize(row);
     return {
       arm: fix ? 'orphan-hook-on' : 'original-control',
