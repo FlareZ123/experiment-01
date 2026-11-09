@@ -1,0 +1,178 @@
+'use strict';
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {actorObservation}=require('./actor-observation-contract.cjs');
+const {ownerBulkHandTransition}=require('./agent49-owner-bulk-hand-transitions.cjs');
+
+const VERSION='agent49-original-source-early-carmine-native-v1';
+const PRINTING='Carmine TWM';
+const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const native=name=>require(path.join(ROOT,name));
+
+/**
+ * Source player may test a legal held Carmine in its first own turn in place
+ * of an otherwise chosen Pass. Every other hand card is sacrificed; this is
+ * an experimental candidate, not a recommendation that the trade is good.
+ * @param {object} view Genuine acting-owner observation
+ * @returns {{handIndex:number,printing:string,expectedOtherHandCount:number}|null}
+ */
+function chooseEarlyCarmine(view){
+  if(view?.decisionKind!=='owner-root'||
+     ![1,2].includes(view.globalTurn)||
+     !Array.isArray(view.ownHand)||
+     view.ownPublic?.deckCount<=0||
+     view.ownTurnResources?.supporterPlayedTurn!==0||
+     view.ownTurnResources?.supporterPlayLocked!==false||
+     view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true)
+    return null;
+  const handIndex=view.ownHand.indexOf(PRINTING);
+  if(handIndex<0)return null;
+  const cost=ownerBulkHandTransition(view,{
+    handIndex,printing:PRINTING,type:'Supporter'
+  });
+  assert.equal(cost.knownBulkHandEffect,true);
+  return {handIndex,printing:PRINTING,
+    expectedOtherHandCount:cost.movedHandCount};
+}
+
+/**
+ * Default-off original-source intervention over registered genuine native
+ * games. Target trial is assigned at each Store's first AddPlayerAction.
+ * Neither the AI's opponent hand nor its hidden deck is examined.
+ * @template T
+ * @param {()=>T} execute
+ * @param {{trials:object[],SimpleTacticsAi?:Function,Store?:Function,
+ *   PlayCardAction?:Function,observe?:Function}} deps
+ * @returns {{result:T,audit:object}}
+ */
+function withSourceEarlyCarmine(execute,deps){
+  assert.equal(typeof execute,'function');
+  assert.ok(Array.isArray(deps?.trials)&&deps.trials.length>0);
+  const Ai=deps.SimpleTacticsAi??native('simple-bot/simple-tactics-ai').SimpleTacticsAi;
+  const Store=deps.Store??native('game/store/store').Store;
+  const PlayCardAction=deps.PlayCardAction??
+    native('game/store/actions/play-card-action').PlayCardAction;
+  const observe=deps.observe??actorObservation;
+  const oldDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
+  const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof oldDecode?.value,'function');
+  assert.equal(typeof oldDispatch?.value,'function');
+  const stores=new WeakMap(),seen=new WeakSet(),proposals=new WeakMap();
+  const audit={schema:VERSION,registeredTrials:deps.trials.map(t=>t.id),
+    mappedStores:0,firstOwnTurnPasses:0,heldCarminePasses:0,
+    paperEligibleProposals:0,nativeCanPlayRejected:0,
+    nativeCommitted:0,nativeRejected:0,nativeEffectsComplete:0,
+    accepted:[],rejected:[],opponentHiddenHandRead:false,
+    nativeStoresOnly:true,competitiveGamesQualified:0};
+
+  function decode(state){
+    const baseline=oldDecode.value.call(this,state);
+    if(baseline?.constructor?.name!=='PassTurnAction')return baseline;
+    const trial=stores.get(this?.store??null);
+    // AI exposes state but may not expose its Store; recover by identity only.
+    const registered=trial??[...storeRecords].find(x=>x.store.state===state)?.trial;
+    if(!registered)return baseline;
+    const sourceSeat=registered.candidateSlot==='A'?1:0;
+    const seat=state.players.findIndex(p=>p.id===this.client?.id);
+    if(seat!==sourceSeat||state.activePlayer!==sourceSeat||
+       state.prompts?.some(p=>p.result===undefined))return baseline;
+    const view=observe(state,sourceSeat);
+    if(view.decisionKind!=='owner-root'||![1,2].includes(view.globalTurn))
+      return baseline;
+    audit.firstOwnTurnPasses++;
+    if(view.ownHand.includes(PRINTING))audit.heldCarminePasses++;
+    const selection=chooseEarlyCarmine(view);
+    if(!selection)return baseline;
+    const owner=state.players[sourceSeat];
+    const card=owner.hand.cards[selection.handIndex];
+    if(card?.fullName!==PRINTING)return baseline;
+    const store=storeRecords.find(x=>x.store.state===state)?.store;
+    if(!store)return baseline;
+    if(card.canPlay?.(store,state,owner)!==true){
+      audit.nativeCanPlayRejected++;
+      return baseline;
+    }
+    const action=new PlayCardAction(owner.id,selection.handIndex);
+    proposals.set(action,{trialId:registered.id,sourceSeat,
+      globalTurn:view.globalTurn,oldHandSize:view.ownHand.length,
+      beforeOwnerDeckCount:view.ownPublic.deckCount,
+      expectedOtherHandCount:selection.expectedOtherHandCount});
+    audit.paperEligibleProposals++;
+    return action;
+  }
+
+  // Explicit ordered array is scoped to this synchronous run, never shared.
+  const storeRecords=[];
+  function dispatch(action,...args){
+    if(action?.constructor?.name==='AddPlayerAction'&&!seen.has(this)){
+      seen.add(this);
+      const trial=deps.trials[storeRecords.length]??null;
+      if(trial)stores.set(this,trial);
+      storeRecords.push({store:this,trial});
+      audit.mappedStores=storeRecords.length;
+    }
+    const proposal=proposals.get(action);
+    const state=this.state,seat=proposal?.sourceSeat;
+    const owner=proposal?state.players[seat]:null;
+    const before=owner?{
+      hand:[...owner.hand.cards],
+      deckCount:owner.deck.cards.length,
+      discardCount:owner.discard.cards.length,
+      lostCount:owner.lostZone.cards.length
+    }:null;
+    try{
+      const result=oldDispatch.value.call(this,action,...args);
+      if(proposal){
+        audit.nativeCommitted++;
+        const after=this.state.players[seat];
+        const beforeOther=before.hand.filter((_,i)=>i!==action.handIndex);
+        const gone=beforeOther.filter(c=>!after.hand.cards.includes(c));
+        const inDiscard=beforeOther.filter(c=>after.discard.cards.includes(c));
+        const inLost=beforeOther.filter(c=>after.lostZone.cards.includes(c));
+        const physicallySettled=gone.length===beforeOther.length&&
+          inDiscard.length+inLost.length===beforeOther.length&&
+          after.hand.cards.length===Math.min(5,before.deckCount)&&
+          after.supporterTurn===this.state.turn;
+        if(physicallySettled)audit.nativeEffectsComplete++;
+        audit.accepted.push({...proposal,storeAccepted:true,
+          afterOwnerHandSize:after.hand.cards.length,
+          otherCardsPhysicallyMoved:gone.length,
+          otherCardsDiscarded:inDiscard.length,
+          otherCardsLost:inLost.length,
+          netDeckChange:after.deck.cards.length-before.deckCount,
+          netDiscardChange:after.discard.cards.length-before.discardCount,
+          netLostChange:after.lostZone.cards.length-before.lostCount,
+          supporterTurnAfter:after.supporterTurn,
+          pendingNativePromptCount:this.state.prompts.filter(p=>
+            p.result===undefined).length,
+          nativeCarmineEffectFullySettled:physicallySettled});
+      }
+      return result;
+    }catch(error){
+      if(proposal){
+        audit.nativeRejected++;
+        audit.rejected.push({...proposal,reason:String(error?.message??error).slice(0,260)});
+      }
+      throw error;
+    }
+  }
+  Object.defineProperty(Ai.prototype,'decodeNextAction',
+    {...oldDecode,value:decode});
+  Object.defineProperty(Store.prototype,'dispatch',
+    {...oldDispatch,value:dispatch});
+  try{
+    const result=execute();
+    assert.equal(audit.mappedStores,deps.trials.length,
+      'Each preregistered native game must own exactly one Store');
+    return {result,audit};
+  }catch(error){
+    if(error&&typeof error==='object')error.agent49EarlyCarmineAudit=audit;
+    throw error;
+  }finally{
+    assert.strictEqual(Ai.prototype.decodeNextAction,decode);
+    assert.strictEqual(Store.prototype.dispatch,dispatch);
+    Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
+    Object.defineProperty(Ai.prototype,'decodeNextAction',oldDecode);
+  }
+}
+module.exports={VERSION,PRINTING,chooseEarlyCarmine,withSourceEarlyCarmine};
