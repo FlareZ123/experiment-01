@@ -30,7 +30,7 @@ test('high-hand Iono preserves later compulsory turn draw',()=>{
   assert.equal(result.score,3);
 });
 test('prefers greater preserved deck when two shuffle families are held',()=>{
-  const hand=['Lillie\'s Determination MEG 119','Iono PAL 185',
+  const hand:['Lillie\'s Determination MEG 119','Iono PAL 185',
     ...Array(7).fill('Psychic Energy')];
   const result=chooseDeckoutRescue(observation({hand}));
   assert.equal(result.family,'iono');
@@ -73,9 +73,9 @@ test('uses no opposing private cards or future game-state fields',()=>{
 });
 test('keeps printed six-Prize Lillie draw at eight and refuses deck depletion',()=>{
   assert.equal(chooseDeckoutRescue(observation({prizes:6,deck:1,
-    hand=['Lillie\'s Determination MEG 119',...Array(8).fill('Psychic Energy')]})),null);
+    hand:['Lillie\'s Determination MEG 119',...Array(8).fill('Psychic Energy')]})),null);
   const result=chooseDeckoutRescue(observation({prizes:6,deck:1,
-    hand=['Lillie\'s Determination MEG 119',...Array(10).fill('Psychic Energy')]}));
+    hand:['Lillie\'s Determination MEG 119',...Array(10).fill('Psychic Energy')]}));
   assert.equal(result.family,'lillie');
   assert.equal(result.drawEstimate.ownDraw,8);
   assert.equal(result.drawEstimate.ownDeckAfterDraw,3);
