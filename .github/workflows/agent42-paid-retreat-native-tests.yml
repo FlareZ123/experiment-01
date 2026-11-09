@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      run_rank5_fresh_gengar_panel:
+        description: 'Fresh-seed both-seat rank5 Lillie plus Gengar ABA panel'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -15,7 +20,7 @@ permissions:
 jobs:
   paid-retreat-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Check out research repository
         uses: actions/checkout@v4
@@ -36,7 +41,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run paid-retreat public proposal, custody, join and native tests
-        if: ${{ !inputs.run_rank5_path_fork }}
+        if: ${{ !inputs.run_rank5_path_fork && !inputs.run_rank5_fresh_gengar_panel }}
         run: >-
           node --test
           tests/agent42-general-paid-retreat-root-audit.test.cjs
@@ -57,4 +62,17 @@ jobs:
         with:
           name: agent42-rank5-lillie-path-native-fork
           path: artifacts/agent42-rank5-lillie-path-counterfactual.json
+          retention-days: 14
+
+      - name: Run preregistered new-seed rank5 Gengar Lillie both-seat panel
+        if: ${{ inputs.run_rank5_fresh_gengar_panel }}
+        run: |
+          node simulation/evaluation/2026-11/agent42-rank5-fresh-gengar-lillie-aba.cjs --preflight
+          node simulation/evaluation/2026-11/agent42-rank5-fresh-gengar-lillie-aba.cjs
+      - name: Archive complete original-source physical paired evidence
+        if: ${{ inputs.run_rank5_fresh_gengar_panel && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-rank5-fresh-gengar-lillie-aba-8context
+          path: artifacts/agent42-rank5-fresh-gengar-lillie-aba.json
           retention-days: 14
