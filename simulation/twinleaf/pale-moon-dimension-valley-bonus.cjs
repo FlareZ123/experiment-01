@@ -14,14 +14,15 @@ const assert = require('node:assert/strict');
  *
  * @param {{
  *  CardClass: Function, StateUtils: object, CardType: object,
- *  CheckProvidedEnergyEffect: Function, DiscardCardsEffect: Function,
+ *  CheckAttackCostEffect: Function, CheckProvidedEnergyEffect: Function,
+ *  DiscardCardsEffect: Function,
  *  WAS_ATTACK_USED: Function
  * }} types Exact pinned native modules.
  */
 function installPaleMoonDimensionValleyBonus(types) {
   const {
-    CardClass, StateUtils, CardType, CheckProvidedEnergyEffect,
-    DiscardCardsEffect, WAS_ATTACK_USED
+    CardClass, StateUtils, CardType, CheckAttackCostEffect,
+    CheckProvidedEnergyEffect, DiscardCardsEffect, WAS_ATTACK_USED
   } = types;
   const proto = CardClass.prototype;
   const original = Object.getOwnPropertyDescriptor(proto, 'reduceEffect');
@@ -43,13 +44,17 @@ function installPaleMoonDimensionValleyBonus(types) {
     if (!isEligible) return result;
 
     // Original GX accounting, accepted attack and pending KO remain native.
-    // The correction only supplies the skipped additional Energy-discard.
+    // Independently recompute the actual engine-adjusted attack cost before
+    // adding the printed extra Psychic, so any concurrent surcharge or
+    // suppressed Stadium is respected instead of blindly assuming [P].
+    const effective = new CheckAttackCostEffect(player, this.attacks[1]);
+    store.reduceEffect(state, effective);
     const provided = new CheckProvidedEnergyEffect(player);
     store.reduceEffect(state, provided);
     const p = CardType.PSYCHIC;
     const c = CardType.COLORLESS;
-    const hasExtraAfterReduction =
-      StateUtils.checkEnoughEnergy(provided.energyMap, [p, p]);
+    const hasExtraAfterReduction = StateUtils.checkEnoughEnergy(
+      provided.energyMap, [...effective.cost, p]);
     const nativeBonusAlreadyPaid =
       StateUtils.checkEnoughEnergy(provided.energyMap, [p, p, c]);
     if (!hasExtraAfterReduction || nativeBonusAlreadyPaid) return result;
