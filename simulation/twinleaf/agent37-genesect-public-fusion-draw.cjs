@@ -19,7 +19,8 @@ const FUSION_STRIKE=new Set(['Genesect V FST','Mew V FST','Mew VMAX FST']);
  * use-once constraints and actual draw/prompts.
  *
  * @param {object} view Detached owner-root observation.
- * @param {{usedThisTurn?:boolean,publicUsage?:object|null}} [options]
+ * @param {{usedThisTurn?:boolean,publicUsage?:object|null,
+ *   availableNativeSlots?:Array<{position:string,benchIndex:number|null}>}} [options]
  * Root-adapter legacy cap or authenticated detached native per-copy markers.
  * @returns {object|null} Native-neutral owner-only Ability intent.
  */
@@ -39,6 +40,9 @@ function chooseGenesectFusionDraw(view,options={}){
   const abilities=p=>p?.printing==='Genesect V FST'&&
     p.abilities?.includes('Fusion Strike System')===true;
   const canUse=(position,benchIndex)=>{
+    if(Array.isArray(options.availableNativeSlots)&&
+       !options.availableNativeSlots.some(slot=>
+         slot.position===position&&slot.benchIndex===benchIndex))return false;
     if(!usage)return true;
     if(usage.actorSeat!==view.actorSeat||
       usage.globalTurn!==view.globalTurn||
