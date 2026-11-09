@@ -373,6 +373,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       return underworld;
     }
   }
+  if(options.maxGeistManualRecovery===true){
+    const recovery=require('./2026-11/agent33-max-geist-manual-psychic-recovery.cjs')
+      .chooseMaxGeistManualRecovery(view,catalog);
+    if(recovery)return recovery;
+  }
   if(options.pathUnderworldStadiumCounter===true&&
      options.underworldDoorRoot===true){
     const pathCounter=require('./2026-11/agent6-path-underworld-stadium-counter.cjs')
@@ -1079,6 +1084,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     arvenHoodSearchPromptsSelected:0,
     templeDdeDenialSelected:0,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
+    maxGeistManualRecoveryOptIn:deps.maxGeistManualRecovery===true,
     pathUnderworldStadiumCounterOptIn:deps.pathUnderworldStadiumCounter===true,
     mimikyuApexFundedPromotionOptIn:deps.mimikyuApexFundedPromotion===true,
     mimikyuApexFundedPromotionSelected:0,
@@ -2038,6 +2044,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       templeDdeDenial:audit.templeDdeDenialOptIn===true,
       arvenHoodSearch:audit.arvenHoodSearchOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
+      maxGeistManualRecovery:audit.maxGeistManualRecoveryOptIn===true,
       pathUnderworldStadiumCounter:
         audit.pathUnderworldStadiumCounterOptIn===true,
       mimikyuApexFundedPromotion:
