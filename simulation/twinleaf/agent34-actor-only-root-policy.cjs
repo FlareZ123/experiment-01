@@ -1705,6 +1705,32 @@ function withActorOnlyRootPolicy(run,deps={}){
       else audit.seekerLilliePromptsProposed++;
       return planned;
     }
+    // Resolve Crispin only for the physical owner whose accepted Supporter
+    // issued this same native prompt. Never choose from another player's deck.
+    if(seat!==-1&&pending&&audit.rank13CrispinRootOptIn&&
+       pending.playerId===playerId&&
+       ownerRank13CrispinPending.has(playerId)){
+      const token=ownerRank13CrispinPending.get(playerId);
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const helper=require('./agent5/rank13-crispin-owner-funding.cjs');
+      let response=null;
+      if(token.stage==='search'&&token.promptId===pending.id&&
+         pending.constructor?.name==='ChooseCardsPrompt')
+        response=helper.chooseNativeCrispinEnergySearch(
+          state,seat,pending,ResolvePromptAction);
+      if(token.stage==='attach'&&
+         pending.constructor?.name==='AttachEnergyPrompt')
+        response=helper.chooseNativeCrispinBenchAttach(
+          state,seat,pending,ResolvePromptAction,PlayerType,SlotType);
+      if(response){
+        typedRank13CrispinReplies.set(response.action,{
+          seat,ownerId:playerId,stage:token.stage,
+          chosen:response.chosen,targetIndex:response.targetIndex??null
+        });
+        return response.action;
+      }
+    }
     if(seat!==-1&&pending&&audit.earlyRegidragoCompressorOptIn&&
        pending.playerId===playerId&&
        ownerEarlyCompressorPending.has(playerId)){
