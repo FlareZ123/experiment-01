@@ -21,6 +21,8 @@ const {PlayCardAction,PlayerType,SlotType}=
   require(path.join(output,'game/store/actions/play-card-action'));
 const {SpecialRedCard}=
   require(path.join(output,'sets/11-mega-evolution/set-chaos-rising/special-red-card'));
+const {TrainerEffect}=
+  require(path.join(output,'game/store/effects/play-card-effects'));
 
 const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
 
@@ -74,7 +76,9 @@ for(const seat of [0,1]){
     const physicalDraws=[];
     let reducerCalls=0;
     SpecialRedCard.prototype.reduceEffect=function(...args){
-      reducerCalls++;
+      const effect=args[2];
+      if(effect instanceof TrainerEffect && effect.trainerCard===this)
+        reducerCalls++;
       return originalReduce.apply(this,args);
     };
     try {
