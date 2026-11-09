@@ -152,18 +152,21 @@ function pendingByTrial(events, roots, trialId) {
 /**
  * Reproduce the original Snap Trap game frame with a passive prompt observer.
  * Explicit treatment is a single verified owner-ability-confirm policy hook.
- * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,captureRootTape?:boolean}} [settings]
+ * @param {{ownerAbilityConfirm?:boolean,energyRecipient?:boolean,ownerMailAfterPass?:boolean,followMailNestBall?:boolean,preferSinglePrizeNestBasic?:boolean,followMailHandiwork?:boolean,followHeldHandiwork?:boolean,followHeldRefillSupporter?:boolean,captureRootTape?:boolean}} [settings]
  */
 function run(settings = {}) {
   const ownerAbilityConfirm = settings.ownerAbilityConfirm === true;
   const energyRecipient = settings.energyRecipient === true;
   const ownerMailAfterPass = settings.ownerMailAfterPass === true;
   const followMailNestBall = settings.followMailNestBall === true;
+  const preferSinglePrizeNestBasic = settings.preferSinglePrizeNestBasic === true;
   const followMailHandiwork = settings.followMailHandiwork === true;
   const followHeldHandiwork = settings.followHeldHandiwork === true;
   const followHeldRefillSupporter = settings.followHeldRefillSupporter === true;
   assert.ok(!followMailNestBall || ownerMailAfterPass,
     'Nest follow-through requires owner Mail treatment');
+  assert.ok(!preferSinglePrizeNestBasic || followMailNestBall,
+    'prize-aware Nest selection requires Nest follow-through');
   assert.ok(!followMailHandiwork || ownerMailAfterPass,
     'Handiwork follow-through requires owner Mail treatment');
   assert.ok(!followHeldHandiwork || ownerMailAfterPass,
@@ -246,6 +249,7 @@ function run(settings = {}) {
             types: native('game/store/card/card-types'),
             playCardEnums: native('game/store/actions/play-card-action'),
             followMailNestBall,
+            preferSinglePrizeNestBasic,
             followMailHandiwork,
             followHeldHandiwork,
             followHeldRefillSupporter,
@@ -341,6 +345,7 @@ function run(settings = {}) {
     experimentalBasicEnergyRecipient: energyRecipient,
     experimentalOwnerMailAfterPass: ownerMailAfterPass,
     experimentalFollowMailNestBall: followMailNestBall,
+    experimentalPreferSinglePrizeNestBasic: preferSinglePrizeNestBasic,
     experimentalFollowMailHandiwork: followMailHandiwork,
     experimentalFollowHeldHandiwork: followHeldHandiwork,
     experimentalFollowHeldRefillSupporter: followHeldRefillSupporter,
