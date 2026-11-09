@@ -1470,6 +1470,7 @@ function runDevelopment({
   actorArvenHoodSearchRoot=false,
   actorPathToPeakOpposingAbility=false,
   actorUnderworldActiveFundingPriority=false,
+  actorMaxGeistManualRecovery=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorTwoUnitPaidRetreatRoot=false,
   actorTwoUnitPaidRetreatTargetTurn=null,
@@ -2191,6 +2192,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
+              }:{}),
+              ...(actorMaxGeistManualRecovery?{
+                maxGeistManualRecovery:true
               }:{}),
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
