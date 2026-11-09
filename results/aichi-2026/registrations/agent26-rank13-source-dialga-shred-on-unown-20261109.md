@@ -1,0 +1,14 @@
+# Agent26: registered source-only Dialga-GX Shred at public turn53 after real Marnie
+
+**9 November 2026 ~06:05 UTC, preregistration before the new native Shred experiment.**
+
+The prior actual four-game native Marnie test [42570005122](https://github.com/FlareZ123/experiment-01/actions/runs/42570005122) established the physical rank13 source seat1 first opening seed **1486727692** under two unchanged candidate 60s. With source-only held Marnie at native T3, in New Moon v1 branch source reaches **native global turn53 with active Dialga-GX UPR, two Basic Fire and a Double Dragon Energy attached**, opponent's active Unown AOR has 60 HP and no damage, and a previous common bot chose the draw-only attack Overclock. The source then used four settled Overclock draw attacks and remained at six Prizes, capped.
+
+**Paper text:** Dialga-GX UPR is Dragon, Shred does 80 damage for Metal+two Colorless, and ignores effects on the opponent's Active. Double Dragon Energy on a Dragon Pokémon supplies two units of every type; the two Basic Fire provide two Colorless toward this attack. Unown AOR has 60 HP. This is a highly promising **native Store** attack-acceptance opportunity, subject to applicable active/turn attack locks, global special-Energy effects and all real native printed semantics.
+
+**Test design:** Retrospective, mechanically selected original rank13 source. Two fixed printed candidate 60s: unchanged champion-reference and New Moon v1, same source seat1, seed1486727692, 260-root cap and original three paper-profile corrections. For each fixed candidate:
+1. Common base/treatment of previous successful source-only **T3 Marnie**, with source-only Shred root **off**.
+2. Same source-only Marnie plus **one narrow source seat1 native T53** attack-choice override: if the source's actor-visible Active is Dialga-GX UPR with two printed Basic Fire and an attached Double Dragon Energy, opponent Active is Unown AOR, no Temple of Sinnoh, no public attack restriction, propose `AttackAction Shred` instead of fallback Overclock.
+No other decisions or printed deck cards may change. Avoid source-specific private deck/Prize inspection. Any source Marnie playback before T53 must be root-by-root identical across control and treatment. Assert same physical source fingerprints and same actual first player before interpreting.
+
+**Outcome evidence:** First changed native accepted Store root should be source T53 `AttackAction Overclock` → `AttackAction Shred`, no earlier root differences. Preserve native rejection if Shred invalid. Capture same-epoch KO, Prize transition, source/candidate reply and clock/cap. Do not change root260 cap to force outcomes. There is no prospective held-out gameplay and no paper-qualified game; target is a single direct damaging source action and a useful robust source-bot attack chooser, not a win-rate.
