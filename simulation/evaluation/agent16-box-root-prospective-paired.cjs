@@ -30,13 +30,16 @@ const OPTIONS=Object.freeze({
 /** These are registered new source-deal streams, not a retrospective pick.
  * This opt-in test evaluates whether an actor-visible Box root intervention
  * creates actual paper-paid actions, with identical fixed 60 and sources. */
-function runPairedRootOpportunity(){
+function runPairedRootOpportunity(frame=FRAME,policy=POLICY){
+  const args={...OPTIONS,registeredTrials:frame,
+    registeredFrameName:frame===FRAME?VERSION:
+      VERSION+'-extended-heldout-v2'};
   function arm(enableRoot){
     const wrapped=withOwnerSecretBoxCapacityActorPrompt(
-      ()=>runDevelopment(OPTIONS),
-      {autoPlayRoot:enableRoot,policy:POLICY});
+      ()=>runDevelopment(args),
+      {autoPlayRoot:enableRoot,policy});
     const rows=wrapped.result?.rows;
-    assert.ok(Array.isArray(rows)&&rows.length===FRAME.length);
+    assert.ok(Array.isArray(rows)&&rows.length===frame.length);
     const observed=rows.map(r=>({
       id:r.trial?.id??r.id,
       status:r.status??(r.finished?'native-terminal-unqualified':
@@ -52,12 +55,12 @@ function runPairedRootOpportunity(){
       nativeAbortProvenance:r.nativeAbortProvenance??null
     }));
     assert.deepEqual(observed.map(r=>r.id).sort(),
-      FRAME.map(r=>r.id).sort());
+      frame.map(r=>r.id).sort());
     return {actorAudit:wrapped.audit,rows:observed};
   }
   const baseline=arm(false);
   const treatment=arm(true);
-  const comparable=FRAME.map((trial,i)=>({
+  const comparable=frame.map((trial,i)=>({
     id:trial.id,
     sameSourceDeal:baseline.rows[i].sourceDealFingerprint===
       treatment.rows[i].sourceDealFingerprint,
@@ -68,9 +71,9 @@ function runPairedRootOpportunity(){
     baselineRootActions:baseline.rows[i].nativeRootActionCount,
     treatmentRootActions:treatment.rows[i].nativeRootActionCount
   }));
-  return {version:VERSION,registered:FRAME,policy:POLICY,
+  return {version:args.registeredFrameName,registered:frame,policy,
     baseline:baseline.actorAudit,treatment:treatment.actorAudit,
-    comparable,attemptedPerArm:FRAME.length,
+    comparable,attemptedPerArm:frame.length,
     exactSourceDealCount:comparable.filter(x=>x.sameSourceDeal).length,
     exactFullPhysicalDealCount:
       comparable.filter(x=>x.sameFullPhysicalDeal).length,
