@@ -256,3 +256,17 @@ test('tampering after signatures or an empty production trust registry never adm
   assert.equal(production.competitiveAdmission,false);
   assert.equal(production.acceptanceReady,false);
 });
+
+test('explicit V2 contract routes through production entry without granting synthetic access',()=>{
+  const b=singleAttack();
+  b.admissionContract=SCHEMA;
+  b.trial.responseOpportunityAudit=earlyTerminalAudit();
+  const {evaluateCompetitiveAdmission} =
+    require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
+  const assessment=evaluateCompetitiveAdmission(b,[]);
+  assert.equal(assessment.schema,SCHEMA);
+  assert.equal(assessment.fixtureOnly,false);
+  assert.equal(assessment.competitiveAdmission,false);
+  assert.equal(assessment.gameOutcomeAdmissionReady,false);
+  assert.ok(assessment.failures.includes('independent-paper-or-clock-review-missing'));
+});
