@@ -62,6 +62,82 @@ function chooseOpponentRopeSurvival(state,sourceSeat,prompt){
   return eligible[0]??null;
 }
 
+
+/**
+ * Printed-only, adversarially defensive opponent replacement. The attacker is
+ * known to be the original Mega Absol ex: Claw of Darkness is 200 Darkness
+ * damage. The opponent observes only public card identity, attached damage,
+ * Weakness, and the switch prompt. The Store decides actual damage and prizes.
+ *
+ * Prefer a Pokémon that survives the nominal incoming Claw. When all choices
+ * are nominal KOs, sacrifice the fewest Prize cards. This is a tactical
+ * counterpolicy for a registered source line, not certified optimal play.
+ * @param {object} state Actual native Store state at owner's switch prompt.
+ * @param {0|1} sourceSeat Original rank-9 attacker seat.
+ * @param {object} prompt Real defending owner's ChoosePokemonPrompt.
+ * @returns {object|null} Full public, validated replacement proposal.
+ */
+function chooseOpponentRopeDamageAware(state,sourceSeat,prompt){
+  const source=state.players?.[sourceSeat],enemy=state.players?.[1-sourceSeat];
+  if(!source||!enemy||prompt?.playerId!==enemy.id||
+     !Array.isArray(enemy.bench))return null;
+  const mega=source.bench.find(slot=>
+    slot.getPokemonCard?.()?.fullName===MEGA)?.getPokemonCard();
+  const darkness=mega?.cardType?.[0];
+  if(darkness===undefined)return null;
+
+  const candidates=[];
+  for(const [benchIndex,slot] of enemy.bench.entries()){
+    const pokemon=slot.getPokemonCard?.();
+    if(!pokemon||!Number.isSafeInteger(pokemon.hp)||
+       !Number.isSafeInteger(slot.damage)||
+       !prompt.validate([slot],state))continue;
+    const remainingHp=pokemon.hp-slot.damage;
+    const weak=(pokemon.weakness??[]).some(w=>w.type===darkness);
+    const multiplier=weak?2:1;
+    const resistance=(pokemon.resistance??[]).find(r=>r.type===darkness);
+    const reduction=Number.isSafeInteger(resistance?.value)?
+      Math.max(0,Math.abs(resistance.value)):0;
+    const nominalClawDamage=Math.max(0,200*multiplier-reduction);
+    const expectedPrizeLoss=printedKnockoutPrizes(pokemon.fullName);
+    candidates.push({slot,benchIndex,printing:pokemon.fullName,
+      remainingHp,nominalClawDamage,
+      nominallySurvives:remainingHp>nominalClawDamage,
+      expectedPrizeLoss,weakToDarkness:weak,
+      nominalRemainingAfter:remainingHp-nominalClawDamage});
+  }
+  candidates.sort((a,b)=>
+    Number(b.nominallySurvives)-Number(a.nominallySurvives)||
+    // Once a survivable replacement exists, protect future board health.
+    (a.nominallySurvives?
+      b.nominalRemainingAfter-a.nominalRemainingAfter:
+      a.expectedPrizeLoss-b.expectedPrizeLoss)||
+    (a.nominallySurvives?
+      a.expectedPrizeLoss-b.expectedPrizeLoss:
+      b.remainingHp-a.remainingHp)||
+    a.benchIndex-b.benchIndex);
+  return candidates[0]??null;
+}
+
+/**
+ * Printed Knock Out Prize value for the Aichi public replacement candidates.
+ * This name-based screen is deliberately narrow. Modern Mega ex 3-Prize
+ * rule boxes and all TAG TEAM / VMAX three-Prize cases are represented.
+ * Unknown names have an ordinary single-Prize projection.
+ * @param {string} name Public actual native printing.
+ * @returns {1|2|3} Nominal Prize loss.
+ */
+function printedKnockoutPrizes(name){
+  if(typeof name!=='string')return 1;
+  if(name.includes('&')&&name.includes('-GX')||
+      name.includes('VMAX')||name.includes('V-UNION')||
+      /^Mega .* ex [A-Z0-9]/.test(name))return 3;
+  if(name.includes('-GX')||name.includes('-EX')||
+      / ex [A-Z0-9]/.test(name)||
+      / V(?:STAR)? [A-Z0-9]/.test(name))return 2;
+  return 1;
+}
+
 /**
  * Default-off original-source native mobility intervention. It only replaces
  * a real source Pass after the v10 paid self-KO and has no target-turn override.
@@ -102,6 +178,7 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
     firstRope:null,ropes:[],ownerPromotedMega:false,
     opposingSwitchChoiceNeverOverridden:deps.defensiveOpponentChoice!==true,
     adversarialOpponentSurvivalOptIn:deps.defensiveOpponentChoice===true,
+    adversarialOpponentDamageAwareOptIn:deps.defensiveOpponentDamageAware===true,
     adversarialOpponentPromptChoices:[],
     competitiveQualifiedGames:0};
 
@@ -119,7 +196,9 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
        pending.playerId===opponent.id&&
        pending.message===GameMessage.CHOOSE_POKEMON_TO_SWITCH&&
        pending.slots?.includes(SlotType.BENCH)){
-      const answer=chooseOpponentRopeSurvival(state,sourceSeat,pending);
+      const answer=deps.defensiveOpponentDamageAware===true?
+        chooseOpponentRopeDamageAware(state,sourceSeat,pending):
+        chooseOpponentRopeSurvival(state,sourceSeat,pending);
       if(answer){
         const choice=new ResolvePromptAction(pending.id,[answer.slot]);
         ownChoices.set(choice,{promptId:pending.id,
@@ -129,7 +208,13 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
         audit.adversarialOpponentPromptChoices.push({
           turn:state.turn,actorSeat:1-sourceSeat,
           printing:answer.printing,remainingHp:answer.remainingHp,
-          benchIndex:answer.benchIndex,outcome:'proposed'});
+          benchIndex:answer.benchIndex,
+          nominalClawDamage:answer.nominalClawDamage??null,
+          nominallySurvives:answer.nominallySurvives??null,
+          expectedPrizeLoss:answer.expectedPrizeLoss??null,
+          weakToDarkness:answer.weakToDarkness??null,
+          opponentDamageAware:deps.defensiveOpponentDamageAware===true,
+          outcome:'proposed'});
         return choice;
       }
     }
@@ -219,4 +304,6 @@ function withPostBombOwnerRope(play,sourceSeat,deps={}){
 }
 
 module.exports={VERSION,ELECTRODE,MEGA,ROPE,
-  choosePostBombRope,chooseOpponentRopeSurvival,withPostBombOwnerRope};
+  choosePostBombRope,chooseOpponentRopeSurvival,
+  chooseOpponentRopeDamageAware,printedKnockoutPrizes,
+  withPostBombOwnerRope};
