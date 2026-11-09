@@ -203,7 +203,7 @@ function chooseArticunoOwnedWaterTransfers({prompt,owner,played,types}){
  * default. All custom prompt actions are validated before Store.dispatch.
  *
  * @param {()=>any} run
- * @param {{ptcgServer?:object,types?:object,validate?:Function,enableDedechange?:boolean}} [deps]
+ * @param {{ptcgServer?:object,types?:object,validate?:Function,enableDedechange?:boolean,deferGoFirstToPriorDecoder?:boolean}} [deps]
  * @returns {{result:any,audit:object}}
  */
 function withOwnerAbilityConfirmPolicy(run,deps={}){
@@ -388,6 +388,11 @@ function withOwnerAbilityConfirmPolicy(run,deps={}){
       candidate.playerId===ownerId&&candidate.result===undefined);
 
     if(prompt instanceof ConfirmPrompt){
+      // In scoped native A/B experiments, an outer pregame choice hook
+      // already owns GO_FIRST. Preserve that exact source-first setup.
+      if(deps.deferGoFirstToPriorDecoder===true&&
+          prompt.message==='GO_FIRST')
+        return originalDecode.call(this,state);
       const played=pendingByPrompt.get(prompt)??null;
       const choice=prompt.message==='GO_FIRST'?
         {decision:false,reason:'go-first-default-second',details:{}}:
