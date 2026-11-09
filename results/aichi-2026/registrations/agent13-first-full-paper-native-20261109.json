@@ -1,0 +1,29 @@
+{
+  "schema": "agent13-prospective-native-full-root-custody-trial-v1",
+  "caseId": "agent13-first-full-native-paper-receipts-rank5-20261109",
+  "preregisteredUtc": "2026-11-09T23:58:18Z",
+  "frozenBeforeFirstExecution": true,
+  "event": "Aichi Open League 2026 Japanese Extra paper-source developmental scope",
+  "sourceRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "originalSourceAndCandidatePrinted60Unchanged": true,
+  "rootCap": 320,
+  "sourcePolicy": "one shared both-seat source-independent native policy with v3 Active Perfection resource protection",
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 513001,
+      "candidateSlot": "A",
+      "seed": 732610881,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:513001:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativePaperObserver": "agent36-live-paper-root-receipts-v1",
+  "nativeAttackObserver": "postgame-native-attack-modality-ledger-v1",
+  "intent": "Generate a new prospective actual Store root plus 120 physical identities and owner prompt/payment target trail, preserving failure outcomes and caps",
+  "paperQualified": false,
+  "acceptedForWinRate": false,
+  "executeOnlyOnceForThisRegistration": true
+}
