@@ -16,6 +16,7 @@ on:
           - agent31-allowner-pass-fresh-native
           - agent31-postgust-seeker-native
           - agent31-portable-joint-native
+          - agent31-lockbridge-eight-rank-native
           - agent3-portable-champion-all29
           - agent3-portable-champion-all29-artifact-audit
           - agent3-regidrago-original-custody-debug
@@ -408,6 +409,25 @@ jobs:
         with:
           name: agent3-portable-champion-all29-prospective
           path: artifacts/agent3-portable-champion-all29-20261109.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Verify frozen Agent31 Lockbridge printed sixty and registered opening panel
+        if: inputs.experiment == 'agent31-lockbridge-eight-rank-native'
+        run: |
+          node --check simulation/evaluation/agent31/lockbridge-champion-eight-rank-panel.cjs
+          node --test tests/2026-11/agent31-lockbridge-fixed60-panel.test.cjs
+          node simulation/evaluation/agent31/lockbridge-champion-eight-rank-panel.cjs --inspect-only
+      - name: Run 32 original-source native fixed-deck comparisons with shared two-owner policy
+        if: inputs.experiment == 'agent31-lockbridge-eight-rank-native'
+        env:
+          AGENT31_LOCKBRIDGE_OUTPUT: artifacts/agent31-lockbridge-eight-rank-native.json
+        run: node simulation/evaluation/agent31/lockbridge-champion-eight-rank-panel.cjs
+      - name: Preserve all Lockbridge native attempts, caps, errors and physical deals
+        if: always() && inputs.experiment == 'agent31-lockbridge-eight-rank-native'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-lockbridge-eight-rank-native
+          path: artifacts/agent31-lockbridge-eight-rank-native.json
           if-no-files-found: warn
           retention-days: 21
       - name: Save all portable-policy native games, including censors
