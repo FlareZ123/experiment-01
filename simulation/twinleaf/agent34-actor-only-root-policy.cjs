@@ -258,6 +258,13 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
   }
+  // Explicit owner-visible Item switch through an enemy Active retreat ban.
+  // Never turns a blocked voluntary RetreatAction into a claimed legal play.
+  if(options.opponentBlockSwitchRoot===true){
+    const rescue=require('./agent35-block-switch-ko-frontier.cjs')
+      .chooseBlockSwitchFundedKo(view,catalog);
+    if(rescue)return rescue;
+  }
   // Source-independent counterpart to the frozen rank1 VMAX-specific line.
   // This is strictly opt-in and uses only the detached acting owner's view.
   if(options.genericFundedFloatStoneRoot===true&&
@@ -2299,6 +2306,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
+        break;
+      case 'play-opponent-block-switch':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'attach-emergency-floatstone':
         action=new PlayCardAction(ownerId,intent.handIndex,{
