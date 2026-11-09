@@ -1,0 +1,40 @@
+name: Agent6 adversarial Path pressure plus recovery original-source native 14
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-original14:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify owner-only Path-stadium policy and both-seat Store behavior
+        run: node --test tests/2026-11/agent6-underworld-path-stadium-owner.test.cjs tests/2026-11/agent6-underworld-path-native-stage.test.cjs tests/2026-11/agent6-path-underworld-stadium-counter.test.cjs tests/2026-11/agent6-integrated-path-counter-root.test.cjs
+      - name: Run fresh 7-rank source Path pressure A/B under identical actor policies
+        env:
+          AGENT6_PATH_PRESSURE_NATIVE14_OUTPUT: agent6-path-pressure-original14.json
+        run: node simulation/evaluation/agent6-path-pressure-counter-native14.cjs
+      - name: Preserve full native errors and all registered outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-path-pressure-original14-development
+          path: agent6-path-pressure-original14.json
+          if-no-files-found: warn
