@@ -1419,6 +1419,7 @@ function runDevelopment({
   actorMewMaxMiracleOverSelfCopy=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorGenesectFusionDrawSourceOnly=false,
+  actorGenesectFusionDrawPerCopyPublicUsage=false,
   actorUnderworldDoorRoot=false,
   actorPathUnderworldStadiumCounter=false,
   actorPathToPeakOpposingAbility=false,
@@ -1552,6 +1553,8 @@ function runDevelopment({
     'Source-only Trainers Mail requires its native owner Mail wrapper');
   assert.ok(!actorGenesectFusionDrawSourceOnly||actorGenesectFusionDrawRoot,
     'Source-only Genesect draw requires the native actor draw root');
+  assert.ok(!actorGenesectFusionDrawPerCopyPublicUsage||actorGenesectFusionDrawRoot,
+    'Per-physical-copy Genesect marker mode requires native draw actor');
   assert.ok(!actorNaturalEvolutionSourceOnly||actorNaturalEvolutionRoot,
     'Source-only evolution requires the native actor evolution root');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
@@ -1956,6 +1959,8 @@ function runDevelopment({
               }:{}),
               ...(actorGenesectFusionDrawRoot?{
                 genesectFusionDraw:true,
+                genesectPerCopyPublicUsage:
+                  actorGenesectFusionDrawPerCopyPublicUsage,
                 ...(actorGenesectFusionDrawSourceOnly?{
                   genesectFusionDrawOwnerSeat:
                     1-(trial.candidateSlot==='A'?0:1)
@@ -2487,6 +2492,8 @@ function runDevelopment({
       actorOnlyComposition&&actorDceMewMobilityRoot,
     actorGenesectFusionDrawRootOptIn:
       actorOnlyComposition&&actorGenesectFusionDrawRoot,
+    actorGenesectFusionDrawPerCopyPublicUsageOptIn:
+      actorOnlyComposition&&actorGenesectFusionDrawPerCopyPublicUsage,
     actorFarewellLetterRootOptIn:
       actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
