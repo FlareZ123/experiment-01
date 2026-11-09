@@ -158,6 +158,9 @@ jobs:
       - name: Verify opt-in owner Dedechange physical hand, discard and refill in both native seats
         if: ${{ inputs.include_agent8_telepath_v5 }}
         run: node --test tests/2026-11/agent9-dedechange-confirm-choice.test.cjs tests/2026-11/agent9-owner-dedechange-paper-native.test.cjs tests/agent36-owner-ability-confirm-policy.test.cjs
+      - name: Pair original rank4 authentic Dedechange native conservation against forced first-turn use
+        if: ${{ inputs.include_agent8_telepath_v5 }}
+        run: node --test tests/2026-11/agent9-original-rank4-dedechange-conditional.native.test.cjs
       - name: Diagnose default bot response to unseen owner-deck order on both seats
         run: node simulation/evaluation/agent36-raw-bot-own-deck-order-native.cjs
       - name: Check pinned Girafarig Get Lost paper choices in real Store
