@@ -11,6 +11,7 @@ on:
           - hood-v2
           - hood-retreat
           - skyliner-smoke
+          - skyliner-field
         default: source-mew
 
 permissions:
@@ -147,3 +148,41 @@ jobs:
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --test tests/2026-11/agent3-skyliner-shared-owner-mobility.test.cjs
+
+  skyliner-public-prospective-32:
+    if: inputs.experiment == 'skyliner-field'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout preregistered public actor study
+        uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Node 20 and pinned dependency cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify fresh fixed-sixty registration, actor and sharp-censor logic
+        run: |
+          node --check simulation/evaluation/agent3/skyliner-public-free-native-prospective.cjs
+          node --test tests/2026-11/agent3-skyliner-public-native-prospective.test.cjs tests/2026-11/agent3-skyliner-shared-owner-mobility.test.cjs
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf native code
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 32 fresh original source pairs without changing either sixty
+        env:
+          AGENT3_SKYLINER_PROSPECTIVE_OUTPUT: artifacts/agent3-skyliner-public-free-prospective.json
+        run: node simulation/evaluation/agent3/skyliner-public-free-native-prospective.cjs
+      - name: Archive all 16 physical pairs with full Store roots and accepted attacks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-skyliner-public-prospective-32
+          path: artifacts/agent3-skyliner-public-free-prospective.json
+          retention-days: 14
+          if-no-files-found: warn
