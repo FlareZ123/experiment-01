@@ -31,8 +31,8 @@ const POLICY={maxTotalCost:100,defaultCost:20,spentVipCost:0,
   powerglassRecoveryPremium:0,recoveryTargetPremium:3,
   costs:{[VIP]:0,[CARRIER]:3,[LILLIE]:5}};
 
-/** @param {0|1} seat @param {1|2|4} count @param {1|2} [carrierCopies=2] */
-function actorFixture(seat,count,carrierCopies=2){
+/** @param {0|1} seat @param {1|2|4} count @param {1|2} [carrierCopies=2] @param {boolean} [autoRoot=false] */
+function actorFixture(seat,count,carrierCopies=2,autoRoot=false){
   const f=stagedPainfulSpoons(seat);
   f.state.turn=14;
   f.source.supporterTurn=0;
@@ -55,10 +55,13 @@ function actorFixture(seat,count,carrierCopies=2){
   const outer=withPaperSecretBoxMandatoryPayment(()=>
     withPaperSecretBoxSearchCategory(()=>
       withOwnerSecretBoxCapacityActorPrompt(()=>{
-        f.store.dispatch(new PlayCardAction(f.source.id,
-          f.source.hand.cards.indexOf(box),{
+        const boxPlay=autoRoot?bot.decodeNextAction(f.state):
+          new PlayCardAction(f.source.id,f.source.hand.cards.indexOf(box),{
             player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-          }));
+          });
+        assert.equal(boxPlay.constructor.name,'PlayCardAction');
+        assert.equal(f.source.hand.cards[boxPlay.handIndex],box);
+        f.store.dispatch(boxPlay);
         const paymentAction=bot.decodeNextAction(f.state);
         assert.equal(paymentAction.constructor.name,'ResolvePromptAction');
         assert.equal(paymentAction.result.length,3);
@@ -111,7 +114,7 @@ function actorFixture(seat,count,carrierCopies=2){
             !f.source.discard.cards.includes(c)).length;
         }
         return {
-          seat,count,carrierCopies,actualCarrierRecovered,
+          seat,count,carrierCopies,autoRoot,actualCarrierRecovered,
           payment:payment.map(c=>c.fullName),
           selected:selection.map(c=>c.fullName),
           paid:payment.every(c=>f.source.discard.cards.includes(c)&&
@@ -120,7 +123,7 @@ function actorFixture(seat,count,carrierCopies=2){
             !f.source.deck.cards.includes(c)),
           qualifiedGame:false
         };
-      },{stagedStore:f.store,policy})));
+      },{stagedStore:f.store,policy,autoPlayRoot:autoRoot})));
   return {
     result:outer.result.result.result,
     actorAudit:outer.result.result.audit,
@@ -183,6 +186,35 @@ test('single held Carrier switches automatic paid decision at two target cards a
       assert.equal(actorAudit.nativeRejected,0);
       assert.equal(actorAudit.outstandingPhysicalReceipts,0);
       assert.equal(actorAudit.acceptedBySeat[seat],2);
+      assert.equal(paymentAudit.vetoedPayments,0);
+      assert.equal(searchAudit.vetoedSearches,0);
+      assert.equal(result.qualifiedGame,false);
+    }
+  }
+});
+
+test('native actor independently plays payable Secret Box root before both subsequent paper-guarded prompts in both seats',()=>{
+  for(const seat of [0,1]){
+    for(const count of [1,2]){
+      const {result,actorAudit,paymentAudit,searchAudit}=
+        actorFixture(seat,count,1,true);
+      console.log('AGENT16_ACTOR_AUTOBOX_ROOT_NATIVE',JSON.stringify({
+        result,actorAudit,paymentAudit,searchAudit
+      }));
+      assert.equal(result.autoRoot,true);
+      assert.deepEqual(result.payment,
+        count===1?[VIP,VIP,CARRIER]:[VIP,VIP,LILLIE]);
+      assert.deepEqual(result.selected,CATEGORIES);
+      assert.equal(result.actualCarrierRecovered,count===2?2:0);
+      assert.equal(actorAudit.ownerBoxRootProposals,1);
+      assert.equal(actorAudit.nativeOwnerBoxRootAccepted,1);
+      assert.equal(actorAudit.nativeSourceBoxPaymentPromptsOpened,1);
+      assert.equal(actorAudit.nativePaymentAccepted,1);
+      assert.equal(actorAudit.nativeCategoryAccepted,1);
+      assert.equal(actorAudit.physicalReceiptCount,2);
+      assert.equal(actorAudit.outstandingPhysicalReceipts,0);
+      assert.equal(actorAudit.nativeRejected,0);
+      assert.equal(paymentAudit.vetoedRoots,0);
       assert.equal(paymentAudit.vetoedPayments,0);
       assert.equal(searchAudit.vetoedSearches,0);
       assert.equal(result.qualifiedGame,false);
