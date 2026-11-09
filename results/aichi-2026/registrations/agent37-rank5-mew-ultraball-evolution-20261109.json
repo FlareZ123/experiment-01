@@ -1,0 +1,58 @@
+{
+  "schema": "agent37-rank5-owner-mew-ultraball-evolution-v1",
+  "createdUTC": "2026-11-09T08:44:34Z",
+  "status": "frozen-before-first-native-evolution-root-run",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "fixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "seed": 1315494449
+    },
+    {
+      "rank": 5,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 699451450
+    },
+    {
+      "rank": 5,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 1389673884
+    },
+    {
+      "rank": 5,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "seed": 1197737693
+    }
+  ],
+  "previousSeedsExcluded": [
+    1291978585,
+    2174158724,
+    1911740482,
+    1412490954,
+    1526675278,
+    651361948,
+    620813734,
+    434672991,
+    1802706844,
+    353026970
+  ],
+  "commonSourcePolicy": "identical source-scoped Quick Ball target, DCE-to-Mew priority, owner hand discard, Mew VMAX natural evolution root, Mew funded attacker priority, Mew DCE mobility and Genesect draw. Engine and both fixed candidate printed60s unchanged.",
+  "controlledIntervention": {
+    "off": "No special Ultra Ball root or evolution search. Existing owner Quick Ball search remains active.",
+    "on": "Only source original Mew/Genesect Ultra Ball root when Mew V is face-up, Mew VMAX not in hand/in play and two nonprotected hand cards pay native discard; owner Ultra Ball search selects a genuinely offered Mew VMAX FST. All other actor decisions unchanged."
+  },
+  "expectedNativeAttempts": 16,
+  "independentPhysicalSeedGeneration": "Python secrets.randbelow(2**31-1)+1, four calls at 08:44:34 UTC before native game execution",
+  "pairing": "Exact source and full initial physical deal fingerprints required; all native errors and caps kept.",
+  "outcome": "Native source decision evidence only. Neither simulator terminal nor a target availability proof is a paper match win."
+}
