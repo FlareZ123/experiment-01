@@ -36,9 +36,17 @@ function probe(seat) {
   f.opponent.active.cards.push(energy);
   f.opponent.active.energies.cards.push(energy);
   const temple = make(TEMPLE);
+  const {TrainerCard}=native('game/store/card/trainer-card');
+  const {TrainerType}=native('game/store/card/card-types');
+  assert.ok(temple instanceof TrainerCard);
+  assert.equal(temple.trainerType,TrainerType.STADIUM);
   f.owner.hand.cards.push(temple);
   const view = actorObservation(f.state,seat);
-  const intent = chooseTempleDdeDenial(view,f.catalog);
+  // The shared stage() helper only catalogs Pokemon/Energy classes. Mirror
+  // the production actor catalog's verified printed Trainer metadata.
+  const catalog={...f.catalog,
+    trainerStadiumPrints:new Map([[TEMPLE,{name:temple.name,type:'Stadium'}]])};
+  const intent = chooseTempleDdeDenial(view,catalog);
   assert.ok(intent, 'Owner-visible intent must be independently selected');
   assert.equal(f.owner.hand.cards[intent.handIndex],temple);
   const { CheckProvidedEnergyEffect } =
