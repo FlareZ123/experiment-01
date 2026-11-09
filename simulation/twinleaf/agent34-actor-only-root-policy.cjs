@@ -913,6 +913,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
+    dceMewMobilityRootOwnerSeat:deps.dceMewMobilityRootOwnerSeat??null,
     crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
@@ -1304,6 +1305,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.potentialKoRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.genesectFusionDrawOwnerSeat));
+  assert.ok([null,0,1].includes(audit.dceMewMobilityRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.naturalEvolutionRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
   assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
@@ -1742,7 +1744,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
-      dceMewMobilityRoot:audit.dceMewMobilityRootOptIn===true,
+      dceMewMobilityRoot:actorSpecialEnergyEnabled(
+        audit.dceMewMobilityRootOptIn,audit.dceMewMobilityRootOwnerSeat,seat),
       crobatDceMewRetreat:actorSpecialEnergyEnabled(
         audit.crobatDceMewRetreatOptIn,
         audit.crobatDceMewRetreatOwnerSeat,seat),
