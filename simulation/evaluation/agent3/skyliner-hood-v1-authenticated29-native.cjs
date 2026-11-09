@@ -26,7 +26,7 @@ const PROFILE_FLAGS=Object.freeze({
 /** @param {string} file Repository-relative. @returns {string} Git blob hash. */
 function gitBlob(file){
   const buf=fs.readFileSync(path.join(ROOT,file));
-  return createHash('sha1').update('blob '+buf.length+'\\0')
+  return createHash('sha1').update('blob '+buf.length+'\0')
     .update(buf).digest('hex');
 }
 
@@ -212,7 +212,7 @@ if(require.main===module){
   const result=run();
   saveAtomic(OUTPUT,result);
   process.stdout.write('AGENT3_SKYLINER_HOOD_V1_ALL29 '+
-    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\\n');
+    JSON.stringify({summary:result.summary,artifact:OUTPUT})+'\n');
   if(result.summary.physicalPairsMatched!==58)process.exitCode=1;
 }
 module.exports={VERSION,preflight,compare,run};
