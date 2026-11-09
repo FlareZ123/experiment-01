@@ -93,10 +93,15 @@ native game end is intercepted. The required result includes one
 prompt, that exact physical Metal card transferred to the chooser's
 hand, the original final winner, and precisely one terminal log.
 
-A dedicated [native run 42557016589](https://github.com/FlareZ123/experiment-01/actions/runs/42557016589)
-was dispatched for these two added scenarios. Its result was pending
-when this section was written. The existing eight v5 controls and
-v3/v4 suites remain in the same manual workflow.
+The dedicated [native run 42557016589](https://github.com/FlareZ123/experiment-01/actions/runs/42557016589)
+**SUCCEEDED** 9 November 2026, including the **10/10 v5 cases**
+(two additional second-final-group owner-choice recoveries) and
+the unchanged passing v3/v4 suites.
+Archived full JSON: [artifact 13647603395](https://github.com/FlareZ123/experiment-01/actions/runs/42557016589/artifacts/13647603395),
+SHA-256 `47f055504c2d0a1c0df88fbfdc76c6068f8b0ccbe12f863c11efe328318fcd56`.
+Both second-group-terminal orientations resolved the previously dropped
+nonterminal first-group Prize choice with exact physical selected-card custody
+and exactly one terminal log.
 
 ## Unsolved limits
 
