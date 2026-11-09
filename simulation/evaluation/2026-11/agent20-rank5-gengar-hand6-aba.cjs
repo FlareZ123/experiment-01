@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {arm,firstDifference}=
+const {arm,firstDifference,firstPhysicalDivergence}=
   require('./agent20-rank5-gengar-tempo-aba.cjs');
 const {registration:originalRegistration}=
   require('./agent44-first-original-rank5-newmoon-case.cjs');
@@ -64,6 +64,8 @@ function main(){
     registration:reg,
     arms:arms.map(a=>({...a,tacticalEvidence:tacticalEvidence(a)})),
     controlReplayDifference:firstDifference(arms[0],arms[2]),
+    firstPhysicalDifference:firstPhysicalDivergence(arms[0],arms[1]),
+    controlPhysicalReplayDifference:firstPhysicalDivergence(arms[0],arms[2]),
     treatmentFirstDifferentAction:firstDifference(arms[0],arms[1]),
     sourceDealsMatched:arms.every(a=>
       a.sourceFingerprint===reg.sourceDealFingerprint),
@@ -75,6 +77,7 @@ function main(){
   console.log('AGENT20_GENGAR_PUBLIC_HAND_SIX',JSON.stringify({
     dealsMatched:result.sourceDealsMatched&&result.physicalDealsMatched,
     controlReplay:result.controlReplayDifference,
+    physicalFirst:result.firstPhysicalDifference,
     firstDifference:result.treatmentFirstDifferentAction,
     arms:result.arms.map(a=>({phase:a.phase,roots:a.rootCount,
       winner:a.nativeWinner,finished:a.nativeFinished,error:a.nativeError,
@@ -83,6 +86,7 @@ function main(){
       sourceAttacks:a.source.attacks,candidateAttacks:a.candidate.attacks}))
   }));
   assert.equal(result.controlReplayDifference,null);
+  assert.equal(result.controlPhysicalReplayDifference,null);
   assert.ok(result.sourceDealsMatched&&result.physicalDealsMatched);
   return result;
 }
