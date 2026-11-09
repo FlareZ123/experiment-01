@@ -233,7 +233,7 @@ function rootPhysicalSnapshot(state,seat,intent){
       'play-held-guzma-mobility',
       'play-guzma-forced-nominal-ko',
       'play-team-flare-grunt-denial','play-plumeria-payment-menu',
-      'play-eri-reveal'].includes(intent.kind)?{
+      'play-eri-reveal','play-regidrago-crispin'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -398,7 +398,8 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-guzma-forced-nominal-ko'||
      intent.kind==='play-team-flare-grunt-denial'||
      intent.kind==='play-plumeria-payment-menu'||
-     intent.kind==='play-eri-reveal'){
+     intent.kind==='play-eri-reveal'||
+     intent.kind==='play-regidrago-crispin'){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
     // This attests dispatch/quota only, not the draw or tactical outcome.
