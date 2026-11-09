@@ -1439,6 +1439,7 @@ function runDevelopment({
   bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   bilateralGengarHorrorHouseTempo=false,
+  bilateralGengarFlexibleV2=false,
   bilateralGengarHorrorHouseMinOpponentHandCount=0,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
@@ -2019,7 +2020,7 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !bilateralPerfectionBenchFunding&&
           !bilateralPerfectionTransitionRoot&&
-          !bilateralGengarHorrorHouseTempo&&
+          !bilateralGengarHorrorHouseTempo&&!bilateralGengarFlexibleV2&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !sourceScopedStrandedMarnieRoot&&
@@ -2080,6 +2081,11 @@ function runDevelopment({
               }:{}),
               ...(bilateralGengarHorrorHouseTempo?{
                 gengarHorrorHouseTempo:true,
+                gengarHorrorHouseMinOpponentHandCount:
+                  bilateralGengarHorrorHouseMinOpponentHandCount
+              }:{}),
+              ...(bilateralGengarFlexibleV2?{
+                gengarFlexibleV2:true,
                 gengarHorrorHouseMinOpponentHandCount:
                   bilateralGengarHorrorHouseMinOpponentHandCount
               }:{}),
