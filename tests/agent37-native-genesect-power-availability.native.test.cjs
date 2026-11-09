@@ -26,6 +26,7 @@ function nativeBoard(options){
   const {Store}=engine('game/store/store');
   const {Player}=engine('game/store/state/player');
   const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
+  const {CardList}=engine('game/store/state/card-list');
   const {GamePhase}=engine('game/store/state/state');
   const {Format}=engine('game/store/card/card-types');
   const store=new Store({onStateChange(){}});
@@ -44,6 +45,15 @@ function nativeBoard(options){
   state.turn=4;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
+  for(const player of state.players){
+    for(let i=0;i<6;i++){
+      const prize=new CardList();
+      prize.cards.push(printing('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+    player.deck.cards.push(printing('Psychic Energy SVE'),
+      printing('Psychic Energy SVE'));
+  }
   const ownerView={
     decisionKind:'owner-root',actorSeat:options.seat,globalTurn:4,ownHand:[],
     ownPublic:{deckCount:16,active:{printing:'Mew V FST',abilities:[]},
