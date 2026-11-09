@@ -1,0 +1,99 @@
+{
+  "schema": "agent8-prospective-original-source-adversarial-2x2-v1",
+  "registeredAtUtc": "2026-11-09T01:14:07.536Z",
+  "status": "FROZEN BEFORE NATIVE EXECUTION",
+  "fixedCandidate": "new-moon-lockbreaker-v1",
+  "originalSourceRanks": [
+    5,
+    11,
+    13,
+    31
+  ],
+  "missingOriginalSourceRanks": [
+    23,
+    25,
+    28
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootActionLimit": 260,
+  "physicalGroups": 8,
+  "expectedNativeAttempts": 32,
+  "original60s": "results/aichi-2026/full-decklists.json",
+  "sourceIndependentBaseline": "agent32-fresh-perfection-field native common policy with VIP Mewtwo donor and paid Perfection root",
+  "candidateFactor": "donor-funded Benched Perfection transition enabled versus disabled",
+  "sourceFactor": "source-only owner-public nominal KO, funded Float Stone mobility and VS Seeker/Guzma recovery enabled versus disabled; genuine native Store validates each",
+  "commonAcrossFourPhases": [
+    "identical original published source and candidate 60s",
+    "same native engine pin and full physical initial deals",
+    "same both-seat owner prompt layer, Guzma prompt bridge and opt-in native first-turn VIP",
+    "common deck policy otherwise unchanged"
+  ],
+  "generation": "8 independent Python secrets.randbelow(2**32) samples in rank and physical seat order",
+  "quality": "Developmental full-native causal factorial; zero competitive-paper qualified games; all censors and errors retained",
+  "groups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3100,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 192825995,
+      "id": "5:3100:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3101,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2139974202,
+      "id": "5:3101:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 3102,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2308321976,
+      "id": "11:3102:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 3103,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1882174814,
+      "id": "11:3103:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 3104,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2269389695,
+      "id": "13:3104:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 3105,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3001159655,
+      "id": "13:3105:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "A",
+      "repeat": 3106,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2964321980,
+      "id": "31:3106:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 31,
+      "candidateSlot": "B",
+      "repeat": 3107,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 805653769,
+      "id": "31:3107:B:new-moon-lockbreaker-v1"
+    }
+  ]
+}
