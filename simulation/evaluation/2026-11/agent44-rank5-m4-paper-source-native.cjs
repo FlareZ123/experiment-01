@@ -113,9 +113,13 @@ function run(){
       row.finished===true?'native-terminal':
       nativeRoots.length>=reg.maxNativeRootActions?'native-root-cap':
       'native-unfinished';
+    // The native public Store ledger uses card.name, without set suffix.
+    // Bind the printed M4 selection audit to that exact accepted ordinal.
     const m4Played=nativeRoots.filter(root=>
       root.playerSlot===sourceSeat && root.action==='PlayCardAction' &&
-      root.card==='Special Red Card M4');
+      root.card==='Special Red Card' &&
+      audits.some(a=>a.actionOrdinal===root.actionOrdinal &&
+        a.selectedM4Printing==='Special Red Card M4'));
     return {trial:row.trial,sourceSeat,candidateSeat:1-sourceSeat,
       nativeDisposition,finished:row.finished===true,
       error:row.error?String(row.error?.message??row.error).slice(0,1000):null,
