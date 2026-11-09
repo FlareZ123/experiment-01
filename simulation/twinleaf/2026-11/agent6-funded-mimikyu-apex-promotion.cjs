@@ -52,7 +52,7 @@ function chooseFundedMimikyuApexPromotion(view,catalog){
         row.turn===receipt.opponentLastTurnTurn&&
         row.sourcePrinting===REGIDRAGO&&
         row.attackName==='Apex Dragon'&&
-        row.gxAttack===false&&row.copycatAttack===false))
+        row.gxAttack===false))
     return null;
 
   if(observedOpponentActiveForbidsRetreat(view)||
