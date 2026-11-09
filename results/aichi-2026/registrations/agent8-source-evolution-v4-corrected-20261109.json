@@ -1,0 +1,86 @@
+{
+  "schema": "agent8-source-ordinary-evolution-v4-corrected-gate",
+  "status": "FROZEN AFTER BUG DISCOVERY AND FIX, BEFORE ANY V4 GAMES",
+  "registeredAtUtc": "2026-11-09T01:53:49.798Z",
+  "design": "P0/P1 candidate pivot × S0/S1 original-source-only ordinary evolution",
+  "sourcePolicyCommon": "Previously demonstrated source-only Item Quick Ball and native Trainers Mail after Pass, source-only paid retreat Seeker Guzma nominal KO; two-seat owner-hand mandatory discard and deck search bridges",
+  "sourcePolicyDifference": "S1 enables only ordinary held Basic→VMAX/VSTAR evolution on the original-source actor physical seat. S0 disables it. Genesect Fusion draw disabled in all arms because prior v3 selected zero.",
+  "historicalV3Bug": "v3 source evolution was accidentally bilateral because root chooser ignored naturalEvolutionRootOwnerSeat. That is now fixed and isolated in tests; do not use v3 to infer source-only evolution effects.",
+  "originalSourceRanks": [
+    5,
+    13
+  ],
+  "candidate": "new-moon-lockbreaker-v1",
+  "physicalGroups": 8,
+  "expectedAttempts": 32,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootLimit": 260,
+  "seedSource": "Fresh Python secrets.randbelow(2**32), independent of previous three cohorts",
+  "groups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3400,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4040639256,
+      "id": "5:3400:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3401,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2525024037,
+      "id": "5:3401:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 3402,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1013965055,
+      "id": "13:3402:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 3403,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4088408509,
+      "id": "13:3403:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3404,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1079035027,
+      "id": "5:3404:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3405,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1955452265,
+      "id": "5:3405:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "A",
+      "repeat": 3406,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1557551445,
+      "id": "13:3406:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 13,
+      "candidateSlot": "B",
+      "repeat": 3407,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2483987518,
+      "id": "13:3407:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "qualification": "All native attempts developmental only, paper competitive zero; retain caps and errors."
+}
