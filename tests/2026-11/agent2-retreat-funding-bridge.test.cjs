@@ -100,3 +100,10 @@ test('cannot use an unrecognized attachment or an unfunded Bench', () => {
   const b = view(); b.ownPublic.bench[0].energies = [];
   assert.equal(choose(b), null);
 });
+
+test('does not fund retreat if the attachment itself makes an Active attack payable', () => {
+  const v = view();
+  v.ownPublic.active.attacks = [{name: 'Available after one',
+    cost: [PSYCHIC], damage: 100}];
+  assert.equal(choose(v), null);
+});
