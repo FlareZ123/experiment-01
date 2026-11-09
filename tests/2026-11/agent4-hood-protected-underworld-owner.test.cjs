@@ -62,6 +62,31 @@ test('closed positive scope abstains under tool, stadium, target, or marker doub
   assert.deepEqual(policy.protectedBenchIndices(view(),{
     activeUnspent:false,benchUnspent:[false,false]}),[]);
 });
+test('physical Hood-in-hand owner gets exact Bench Tool intent before protected power',()=>{
+  const observed=view();
+  observed.ownPublic.bench[1].tools=[];
+  observed.ownHand.push('Stealthy Hood UNB');
+  const toolCatalog={toolPrintings:new Set(['Stealthy Hood UNB'])};
+  const intent=policy.chooseHoodToolPreparation(observed,toolCatalog);
+  assert.deepEqual(intent,{
+    kind:'attach-tool-candidate',
+    printing:'Stealthy Hood UNB',
+    handIndex:1,slot:'bench',index:1
+  });
+  for(const alter of [
+    v=>v.ownPublic.bench[1].tools.push('Float Stone BKT'),
+    v=>v.ownPublic.publicTurnRestrictions={toolPlayLocked:true},
+    v=>v.opponentPublic.active.tools.push('Tool Jammer BST'),
+    v=>v.opponentPublic.stadium.push('Jamming Tower TWM'),
+    v=>v.opponentPublic.bench.push({printing:'Garbodor BKP'})
+  ]){
+    const variant=view();
+    variant.ownPublic.bench[1].tools=[];
+    variant.ownHand.push('Stealthy Hood UNB');
+    alter(variant);
+    assert.equal(policy.chooseHoodToolPreparation(variant,toolCatalog),null);
+  }
+});
 test('reversible wrapper calls the actual original chooser and restores it',()=>{
   const base=original.chooseUnderworldDoorRoot;
   const observed=view();
