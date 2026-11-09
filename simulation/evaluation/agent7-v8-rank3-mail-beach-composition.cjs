@@ -10,6 +10,8 @@ const {traceBeachNativeRun}=
   require('./agent7-v8-rank3-early-beach-native.cjs');
 const {withBilateralOwnerMail}=
   require('../twinleaf/agent38-v8-four-arm-owner-mail-native.cjs');
+const {withPaperCelestialRoar}=
+  require('../twinleaf/agent7/paper-celestial-roar-hook.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const VERSION='agent7-native-rank3-owner-mail-then-beach-control-treatment-v1';
@@ -20,7 +22,7 @@ const FLAGS=['AGENT7_EARLY_BEACH_DEV',
 
 /** Compare unchanged actual first-eligible Mail before optional Beach fallback. */
 function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ownerConfirm=false,arvenNest=false,dedenneTrue=false,
-  motivateEnergy=false,celestialRoar=false}={}){
+  motivateEnergy=false,celestialRoar=false,paperCelestial=false}={}){
   const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const native=relative=>require(path.join(base,relative));
   const headless=require('../twinleaf/headless.cjs');
@@ -30,8 +32,9 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
       process.env.AGENT7_EARLY_BEACH_DEV='true';
       process.env.AGENT7_EARLY_BEACH_DEFER_MAIL_DEV='true';
     }else for(const flag of FLAGS)delete process.env[flag];
-    let mail=null;
+    let mail=null,paperAudit=null;
     const traced=traceBeachNativeRun(()=>{
+      const execute=()=>{
       mail=withBilateralOwnerMail(
         ()=>runV8({ownerMailFollowupFrame:true,mysteriousTreasureRoot}),{
         headless,
@@ -52,14 +55,19 @@ function runBranch(earlyBeach,followArven=false,{mysteriousTreasureRoot=false,ow
         playCardEnums:native('game/store/actions/play-card-action')
       });
       return mail.result;
+      };
+      if(!paperCelestial)return execute();
+      const patched=withPaperCelestialRoar(execute);
+      paperAudit=patched.audit;
+      return patched.result;
     });
     const output=traced.output;
     assert.deepEqual(output.rows.map(row=>row.trialId),TRIAL_IDS);
     return {
       earlyBeach,followArven,mysteriousTreasureRoot,ownerConfirm,arvenNest,dedenneTrue,
-      motivateEnergy,celestialRoar,
+      motivateEnergy,celestialRoar,paperCelestial,
       output,beachEvents:traced.events,
-      mailAudit:mail.audit
+      mailAudit:mail.audit,paperAudit
     };
   }finally{
     for(const flag of FLAGS){
