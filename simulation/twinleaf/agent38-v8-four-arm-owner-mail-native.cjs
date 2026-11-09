@@ -720,6 +720,14 @@ function withBilateralOwnerMail(next,deps){
           trialId,seat:nestPromptProposal.seat,turnBefore:state.turn,
           selectedPokemonPrinting:chosen[0].fullName
         });
+        // This fires only after the actual Store settles the owner-owned
+        // Nest selection and physically moves its one Basic to the Bench.
+        // The observer reads the printing solely for post-action evidence.
+        deps.onNestBasicSelectionCommitted?.(action,{
+          trialId,seat:nestPromptProposal.seat,turnBefore:state.turn,
+          selectedPokemonPrinting:chosen[0].fullName,
+          source:nestPromptProposal.fromArven?'arven':'mail'
+        });
       }
       pendingNest=null;
     }
