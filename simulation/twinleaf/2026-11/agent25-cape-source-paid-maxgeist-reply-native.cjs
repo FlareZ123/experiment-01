@@ -181,6 +181,7 @@ function resolveRank1(x){
   assert.equal(p.active.energies.cards.length,4);
   assert.equal(x.owner.active.getPokemonCard().fullName,'Vileplume AOR');
   const before=p.prizes.filter(z=>z.cards.length>0).length;
+  assert.equal(p.supporterTurn,1,'Guzma must be paid on source turn');
   store.dispatch(new AttackAction(p.id,'Max Geist'));
   settle();
   const active=x.owner.active;
@@ -189,7 +190,6 @@ function resolveRank1(x){
   assert.equal(active.tools[0]?.fullName,'Luxurious Cape PAR');
   assert.equal(active.damage,130);
   assert.equal(before-after,0);
-  assert.equal(p.supporterTurn,1);
   partition(p);
   partition(x.owner);
   return {rank1UsedTwoNativeUnderworldDoors:true,
