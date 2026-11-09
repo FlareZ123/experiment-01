@@ -1,0 +1,44 @@
+{
+  "schema": "agent20-rank5-public-hand-timed-gengar-posthoc-aba-registration-v1",
+  "status": "FROZEN_BEFORE_NATIVE_COUNTERFACTUAL_EXECUTION",
+  "registrationUtc": "2026-11-09T14:34:30Z",
+  "caseId": "agent20-rank5-gengar-hand6-timing-posthoc-aba-v1",
+  "sourceFrozenCaseId": "agent44-20261109-original-rank5-newmoon-fresh-4410B",
+  "archivedSourceNativeArtifactId": 13678516703,
+  "priorImmediateTreatmentArtifactId": 13681449286,
+  "sourceOriginalRank": 5,
+  "sourceDealFingerprint": "65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49922",
+  "fullPhysicalDealFingerprint": "45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349",
+  "candidateId": "new-moon-lockbreaker-v1",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rootCap": 320,
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 4410,
+      "candidateSlot": "B",
+      "seed": 3861605836,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:4410:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "phases": [
+    "A-control",
+    "C-public-hand-threshold-6",
+    "A-repeat"
+  ],
+  "treatment": {
+    "strategy": "Same exact-print one-Psychic Gengar staging and Skyliner mobility as immediate treatment; GX declared only after public opposing hand count reaches at least six or opposing active has any Energy attached",
+    "minOpponentHandCount": 6,
+    "unavailableInformation": "Opponent hand identities, deck/Prize contents, and future draw are excluded",
+    "motivation": "Original immediate GX at turn8 met a source opponent that had no energy and passed; hand6 may shift denial nearer its next attempted attachment"
+  },
+  "hypotheses": {
+    "root45PhysicalRecipient": "Gengar instead of stranded Tapu Lele, same owner physical Basic Energy object",
+    "firstRetreat": "Public Skyliner permits zero-cost owner Gengar promotion",
+    "gxTiming": "Candidate waits with funded Gengar while opposing public hand below six, then uses actual Horror House GX",
+    "sourceCausalEffect": "Source original t13 pending held DCE attachment may become illegal under Horror House GX, Store must decide",
+    "disposition": "One posthoc same-deal game cannot estimate win rate; compare matched action, source reply, terminal, controls"
+  },
+  "competitivePaperQualifiedGames": 0
+}
