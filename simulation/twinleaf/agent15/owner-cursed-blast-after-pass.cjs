@@ -47,6 +47,8 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
   const originalRun=headless.runMatch;
   assert.equal(typeof originalRun,'function');
   const awards=deps.awards??RULES;
+  const observeOwner=deps.observeOwner??actorObservation;
+  assert.equal(typeof observeOwner,'function');
   const audit={version:VERSION,twoSeatOwnerOnly:true,enabled:true,
     games:0,ownerPassObservations:0,actionProposals:0,
     acceptedAbilityRoots:0,acceptedTargetReplies:0,
@@ -97,7 +99,7 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
       if(ordinary?.constructor?.name!=='PassTurnAction')return ordinary;
       audit.ownerPassObservations++;
       if(step?.turn===state.turn)return ordinary;
-      const view=actorObservation(state,seat);
+      const view=observeOwner(state,seat);
       const plan=choose(view,awards);
       if(!plan)return ordinary;
       const ability=new UseAbilityAction(owner.id,plan.abilityName,{
