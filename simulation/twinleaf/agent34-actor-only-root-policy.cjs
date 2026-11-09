@@ -385,6 +385,13 @@ function chooseActorRootIntent(view,catalog,options={}){
   }
   // Development-only owner-registered Bunnelby TM + Jet ALS.
   // The source 60 is the acting player's known list, never the opponent's.
+  // Owner-visible search for the missing VMAX evolution from an established
+  // Mew V. The physical Ultra Ball payment and search remain native.
+  if(options.mewUltraBallEvolutionRoot===true){
+    const mew=require('./agent37/mew-ultraball-evolution.cjs')
+      .chooseMewUltraBallEvolutionRoot(view);
+    if(mew)return mew;
+  }
   if(options.bunnelbyTmJetRoot===true){
     const line=require('./agent40-owner-bunnelby-tm-jet-line.cjs')
       .chooseBunnelbyTmJetRoot(view,catalog,
@@ -1082,6 +1089,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
+    mewUltraBallEvolutionRootOptIn:deps.mewUltraBallEvolutionRoot===true,
+    mewUltraBallEvolutionRootOwnerSeat:
+      deps.mewUltraBallEvolutionRootOwnerSeat??null,
     quickBallPayableAttackPriorityOptIn:
       deps.quickBallPayableAttackPriority===true,
     regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
@@ -1474,6 +1484,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
+  if(audit.mewUltraBallEvolutionRootOptIn)
+    audit.version+='+'+
+      require('./agent37/mew-ultraball-evolution.cjs').VERSION;
   if(audit.regidragoDonorQuickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-regidrago-quickball-donor-frontier.cjs').VERSION;
@@ -1923,6 +1936,9 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.quickBallPayableAttackPriorityOptIn===true&&
         actorSpecialEnergyEnabled(audit.quickBallRootOptIn,
           audit.quickBallRootOwnerSeat,seat),
+      mewUltraBallEvolutionRoot:actorSpecialEnergyEnabled(
+        audit.mewUltraBallEvolutionRootOptIn,
+        audit.mewUltraBallEvolutionRootOwnerSeat,seat),
       regidragoDonorQuickBallRoot:actorSpecialEnergyEnabled(
         audit.regidragoDonorQuickBallRootOptIn,
         audit.regidragoDonorQuickBallOwnerSeat,seat),
@@ -2213,6 +2229,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-regidrago-battle-compressor':
       case 'play-mysterious-treasure':
       case 'play-quick-ball':
+      case 'play-mew-ultra-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
