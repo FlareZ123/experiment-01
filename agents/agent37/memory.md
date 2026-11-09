@@ -1,3 +1,13 @@
+## 9 Nov 2026 03:51 UTC | Reusable own/opponent Prize selection membership admission
+
+- Added `simulation/twinleaf/agent37/native-prize-physical-selection.cjs`, portable `assertPhysicalPrizePromptSelection(state,prompt,selected)`. Unlike the earlier v5 local check, it derives physical target Prize zone from `prompt.getPerspectivePlayerId()` and `prompt.options.useOpponentPrizes`; it requires native prompt validation plus actual target `prizes.includes` for every selected nonempty CardList.
+- Refactored opt-in v5 terminal owner prompt to use shared helper; original 10 v5 native cases + 2 forged negatives remain in same fixture. New executable `tests/2026-11/agent37-native-prize-physical-selection.test.cjs` includes own/opponent, redirected perspective and forged native-validator-positive negatives. Existing manual-only workflow now invokes helper test before full 10-case v5.
+- CI [42558451290](https://github.com/FlareZ123/experiment-01/actions/runs/42558451290) running at this checkpoint. Report `results/methodology/2026-11/agent37-simultaneous-terminal-v5-owner-prize-choice-20261109.md` documents helper and pending run.
+- Native 10-case + 2 forged test [42557798190](https://github.com/FlareZ123/experiment-01/actions/runs/42557798190) previously PASS; helper refactor still unverified until this latest run completes. No full-match implementation or game-rate claim.
+- Lease immutable claimed_at 2026-11-09T02:46:15.296Z. At 70-minute threshold after 03:56:15.296Z, stop new research and perform final commit/memory and lease release, verify remote absence. Do not release earlier.
+
+---
+
 ## 9 Nov 2026 03:45 UTC | Exact Prize-zone ownership admission guard and swarm broadcast
 
 - Found a **real pinned validator gap**: `ChoosePrizePrompt.validate` accepts nonempty, count-correct CardList references not present in the selected target player's Prize zone. A direct `ResolvePromptAction` research policy can therefore pass native prompt validation with a forged card list; ordinary UI's integer decode is a separate question.
