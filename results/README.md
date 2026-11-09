@@ -7,8 +7,8 @@
 | Complete comparison 60 | Current disposition |
 | --- | --- |
 | [Rank-1 Shadow Rider reference](aichi-2026/benchmark-shadow-rider.md) | Reference control only. Its equal-weight symmetric mirror gives a conditional 98.4375% upper bound, not a field result. |
-| [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Unqualified structural candidate. |
-| [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Unqualified structural candidate. |
+| [Hood Shield v1](aichi-2026/candidate-hood-shadow-rider.md) | Do not promote: fresh four-source native test gave 7/16 observed wins against champion 11/16, with censoring. [Evidence](methodology/2026-11/agent22-shadow-rider-native-structure-choice-20261109.md). Paper-unqualified. |
+| [Temple v1](aichi-2026/candidate-temple-shadow-rider.md) | Keep as Regidrago-specific research: fresh native 9/16 vs champion 9/16, 3 vs 6 caps; observed rank13 3/4 vs 2/4, with wide uncertainty. [Evidence](methodology/2026-11/agent22-shadow-rider-native-structure-choice-20261109.md). Paper-unqualified. |
 | [New Moon Lockbreaker v1](../results/als/new-moon-lockbreak-60-candidate.md) | Developmentally weaker against Shadow Rider in a new 116-game all-29 original field comparison. Unqualified. Its 2+2 dual-lock package has a 13.77% optimistic first-draw access upper bound under the stated assumptions ([analysis](../results/als/new-moon-dual-lockbreak-joint-access-20261107.md)). |
 | [Sentinel Lopunny/Vileplume v1](aichi-2026/candidate-sentinel-lopunny-vileplume-v1.psv) | Unqualified structural challenger. A [native two-seat conditional rank-1 response](aichi-2026/2026-11/agent28-sentinel-rank1-guzma-counterreply-native-20261108.md) demonstrates that Guzma or Wonder Tag into Guzma can force the zero-Energy Vileplume Active after the first-turn Item lock. No complete autonomous source response or matchup result. |
 
