@@ -17,14 +17,17 @@ on:
           - agent31-postgust-seeker-native
           - agent31-portable-joint-native
           - agent3-portable-champion-all29
+          - agent3-portable-champion-all29-artifact-audit
           - agent8-source-challenger-2x2
           - agent8-source-challenger-2x2-v2
           - agent8-source-challenger-2x2-v3
           - agent8-source-evolution-v4
 permissions:
   contents: read
+  actions: read
 jobs:
   native-two:
+    if: inputs.experiment != 'agent3-portable-champion-all29-artifact-audit'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -244,5 +247,33 @@ jobs:
         with:
           name: agent14-rank11-native-catcher-floatstone-two
           path: agent14-rank11-native-floatstone-return-two.json
+          if-no-files-found: warn
+          retention-days: 21
+  archived-native-audit:
+    if: inputs.experiment == 'agent3-portable-champion-all29-artifact-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact immutable prior native run output
+        uses: actions/download-artifact@v4
+        with:
+          name: agent3-portable-champion-all29-prospective
+          run-id: 42552656722
+          github-token: ${{ github.token }}
+          path: artifacts/agent3-portable-audit-source
+      - name: Analyze physically matched original 58-deal set with no engine replay
+        env:
+          AGENT3_PORTABLE_ALL29_AUDIT_INPUT: artifacts/agent3-portable-audit-source/agent3-portable-champion-all29-20261109.json
+          AGENT3_PORTABLE_ALL29_AUDIT_OUTPUT: artifacts/agent3-portable-all29-matched-audit.json
+        run: |
+          node --check simulation/evaluation/agent3/audit-portable-champion-all29-artifact.cjs
+          node simulation/evaluation/agent3/audit-portable-champion-all29-artifact.cjs
+      - name: Preserve original-rank and actual winner-flip attribution
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-portable-champion-all29-matched-audit
+          path: artifacts/agent3-portable-all29-matched-audit.json
           if-no-files-found: warn
           retention-days: 21
