@@ -850,6 +850,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePostJetRoboRoot(view);
     if(follow)return follow;
   }
+  if(options.paleMoonGXRoot===true){
+    const gx=require('./2026-11/agent17-pale-moon-gx-native-frontier.cjs')
+      .choosePaleMoonGX(view,catalog);
+    if(gx)return gx;
+  }
   if(options.earlyForestSealRoot===true){
     const stone=require('./2026-11/agent17-forest-seal-early-root.cjs')
       .chooseForestSealEarly(view,catalog);
@@ -1062,6 +1067,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     printedScalingBasicKoBeforeAttackOptIn:deps.printedScalingBasicKoBeforeAttack===true,
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
+    paleMoonGXRootOptIn:deps.paleMoonGXRoot===true,
+    paleMoonGXRootOwnerSeat:deps.paleMoonGXRootOwnerSeat??null,
     earlyForestSealRootOptIn:deps.earlyForestSealRoot===true,
     earlyForestSealRootOwnerSeat:deps.earlyForestSealRootOwnerSeat??null,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
@@ -1929,6 +1936,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
+      paleMoonGXRoot:actorSpecialEnergyEnabled(
+        audit.paleMoonGXRootOptIn,audit.paleMoonGXRootOwnerSeat,seat),
       earlyForestSealRoot:actorSpecialEnergyEnabled(
         audit.earlyForestSealRootOptIn,audit.earlyForestSealRootOwnerSeat,seat),
       naturalEvolutionRoot:actorSpecialEnergyEnabled(
