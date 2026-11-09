@@ -1602,9 +1602,11 @@ function withActorOnlyRootPolicy(run,deps={}){
         'Arven Hood search must resolve its own authenticated owner prompt');
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const {TrainerType}=deps.arvenTrainerTypes??
+        require(path.join(base,'game/store/card/card-types'));
       const response=require('./agent31/arven-hood-owner-frontier.cjs')
         .resolveArvenHoodSearch(
-          state,seat,pending,ResolvePromptAction);
+          state,seat,pending,ResolvePromptAction,TrainerType.ITEM);
       ownerArvenPending.delete(playerId);
       if(response){
         audit.arvenHoodSearchPromptsSelected++;
