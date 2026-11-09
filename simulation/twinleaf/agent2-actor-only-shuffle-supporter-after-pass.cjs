@@ -29,6 +29,7 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     require(path.join(base,'game/store/actions/play-card-action'));
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseConservativeShuffleSupporter;
+  const interceptAttack=deps.interceptAttack===true;
   const priorDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
   const priorDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof priorDecode?.value,'function');
@@ -37,7 +38,8 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
   let realStore=null;
   const audit={version:VERSION,chooserVersion:CHOOSER_VERSION,
     bothSeats:true,ownerInformationSetOnly:true,
-    passRootsObserved:0,eligibleDrawIntents:0,
+    passRootsObserved:0,attackRootsObserved:0,
+    interceptAttackBeforeResolution:interceptAttack,eligibleDrawIntents:0,
     speculativeFallbacks:0,
     attemptedRoots:0,acceptedRoots:0,rejectedRoots:0,
     acceptedByFamily:{},passExclusionCounts:{},
@@ -50,13 +52,17 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
       audit.speculativeFallbacks++;
       return proposed;
     }
-    if(proposed?.constructor?.name!=='PassTurnAction')return proposed;
+    const proposedType=proposed?.constructor?.name;
+    const isPass=proposedType==='PassTurnAction';
+    const isAttack=interceptAttack&&proposedType==='AttackAction';
+    if(!isPass&&!isAttack)return proposed;
     const seat=state.players?.findIndex(p=>p.id===this.client?.id);
     if((seat!==0&&seat!==1)||state.activePlayer!==seat||
        state.prompts?.some(p=>p.result===undefined))return proposed;
     const owner=state.players[seat];
     const view=observe(state,seat);
-    audit.passRootsObserved++;
+    if(isPass)audit.passRootsObserved++;
+    else audit.attackRootsObserved++;
     const intent=choose(view);
     if(!intent){
       const familyHeld=view.ownHand.filter(p=>
@@ -96,7 +102,8 @@ function withActorOnlyShuffleSupporterAfterPass(execute,deps={}){
     if(audit.selected.length<128)
       audit.selected.push({seat,turn:view.globalTurn,
         printing:intent.printing,family:intent.family,
-        reason:'actor-owned-conservative-shuffle-supporter-after-pass'});
+        reason:isAttack?'owner-deckout-shuffle-before-attack':
+          'actor-owned-conservative-shuffle-supporter-after-pass'});
     return card;
   }
   function dispatch(action,...args){
