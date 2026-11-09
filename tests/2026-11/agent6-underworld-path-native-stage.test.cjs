@@ -6,6 +6,8 @@ const path=require('node:path');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
 const {actorObservation}=
   require('../../simulation/twinleaf/actor-observation-contract.cjs');
+const {rootPhysicalSnapshot,rootPhysicalWitness}=
+  require('../../simulation/twinleaf/agent5-owner-root-slice.cjs');
 const {chooseUnderworldDoorRoot,ownerUnderworldMarkerReceipt}=
   require('../../simulation/twinleaf/agent31-underworld-door-owner-frontier.cjs');
 const {planPathUnderworldStadiumCounter}=require(
@@ -126,9 +128,17 @@ for(const seat of [0,1]){
     const selectedCard=actor.hand.cards[selected.handIndex];
     assert.equal(selectedCard.fullName,'Sky Field ROS');
 
+    const intent={
+      kind:'play-path-underworld-stadium-counter',
+      printing:selected.printing,handIndex:selected.handIndex
+    };
+    const before=rootPhysicalSnapshot(store.state,sourceSeat,intent);
     store.dispatch(new PlayCardAction(actor.id,selected.handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
+    const after=rootPhysicalSnapshot(store.state,sourceSeat,intent);
+    assert.equal(rootPhysicalWitness(intent,before,after,GamePhase),
+      'confirmed-public-effect');
     const current=store.state.players[sourceSeat];
     assert.ok(current.stadium.cards.some(c=>c.fullName==='Sky Field ROS'));
     assert.equal(store.state.players[1-sourceSeat].stadium.cards.length,0);
