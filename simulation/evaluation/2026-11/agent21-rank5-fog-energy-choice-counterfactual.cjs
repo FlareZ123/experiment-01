@@ -15,7 +15,7 @@ const SOURCE_DEAL='65b0ab58d71b58e4125e5a87004fcc0d1a4560ec6962ecfabf683838e0f49
 const FULL_DEAL='45ff848189119b7fa551dc86f9c6eeefa82db81117c7a7fdae8bc38361b72349';
 const sha256=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
 const FIRST23=process.env.AGENT21_RANK5_FIRST23_SHA256??
-  '89cecd40bcf4b066a05625d29812a6a8c5f95f90fc48d4f086892f60572c84';
+  '3a1fca9fc300e5bd8a2b10fd3df8dc6d8b3ca44cfc2a94c6c5e6d3978d157825';
 
 /**
  * A single retrospective, exact-native owner-deck search response fork.
