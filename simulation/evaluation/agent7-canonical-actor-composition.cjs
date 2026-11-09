@@ -271,6 +271,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const selected=bridge(runActor,
       {nominalGust:options.guzmaNominalGust===true,
         seekerGuzmaNominalKo:options.seekerGuzmaNominalKo===true,
+        seekerGuzmaOwnerSeat:options.seekerGuzmaOwnerSeat??null,
+        seekerGuzmaGlobalTurn:options.seekerGuzmaGlobalTurn??null,
         forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true,
         rank9SpecialFundedGuzma:options.rank9SpecialFundedGuzma===true});
     assert.ok(selected.audit && typeof selected.audit==='object',
