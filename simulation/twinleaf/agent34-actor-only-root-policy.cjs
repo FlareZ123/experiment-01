@@ -2514,6 +2514,15 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
       return result;
     }
+    if(this===nativeStore&&
+       action?.constructor?.name==='ResolvePromptAction'&&
+       ownerRank13CrispinPending.size>0){
+      const pending=this.state.prompts?.find(p=>p.result===undefined);
+      const token=ownerRank13CrispinPending.get(pending?.playerId);
+      if(token?.stage==='search'&&token.promptId===pending?.id)
+        assert.ok(typedRank13CrispinReplies.has(action),
+          'Real source Crispin energy search cannot fall back to generic bot');
+    }
     const crispinReply=this===nativeStore?
       typedRank13CrispinReplies.get(action):undefined;
     if(crispinReply){
