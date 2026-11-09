@@ -1,0 +1,148 @@
+{
+  "schema": "agent6-owner-path-counter-prospective-original14-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "registrationDate": "2026-11-09",
+  "originalSourceDecks": "results/aichi-2026/full-decklists.json",
+  "fixedCandidate": "champion-reference",
+  "originalRanksWithPrintedPath": [
+    5,
+    9,
+    12,
+    15,
+    20,
+    21,
+    27
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "physicalSourceDeals": 14,
+  "bothSeatsPerRank": true,
+  "attemptsPerPolicyArm": 14,
+  "control": "unmodified actor-only common policy + Path suppression",
+  "treatment": "same actor-only common policy with opt-in held Sky Field or Dimension Valley Path displacement before Underworld",
+  "samePrintedSixtyAcrossArms": true,
+  "sameNativeEngineVersionAcrossArms": true,
+  "ceilingRootsPerAttempt": 260,
+  "underworldPsychicRecipientHookBothArms": true,
+  "regidragoCelestialPaperCustodyHookBothArms": true,
+  "sourceIndependentCommonOwnerPolicy": true,
+  "competitiveQualified": false,
+  "gameResultInterpretation": "Native development only, no qualified-paper win-rate evidence",
+  "groups": [
+    {
+      "id": "5:7900:A:champion-reference",
+      "rank": 5,
+      "repeat": 7900,
+      "seed": 3970411,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "5:7901:B:champion-reference",
+      "rank": 5,
+      "repeat": 7901,
+      "seed": 323277215,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:7902:A:champion-reference",
+      "rank": 9,
+      "repeat": 7902,
+      "seed": 2234290968,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "9:7903:B:champion-reference",
+      "rank": 9,
+      "repeat": 7903,
+      "seed": 3235674197,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:7904:A:champion-reference",
+      "rank": 12,
+      "repeat": 7904,
+      "seed": 1826428907,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "12:7905:B:champion-reference",
+      "rank": 12,
+      "repeat": 7905,
+      "seed": 3774895437,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:7906:A:champion-reference",
+      "rank": 15,
+      "repeat": 7906,
+      "seed": 1103271097,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:7907:B:champion-reference",
+      "rank": 15,
+      "repeat": 7907,
+      "seed": 1366334175,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:7908:A:champion-reference",
+      "rank": 20,
+      "repeat": 7908,
+      "seed": 1507239227,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "20:7909:B:champion-reference",
+      "rank": 20,
+      "repeat": 7909,
+      "seed": 3978312621,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:7910:A:champion-reference",
+      "rank": 21,
+      "repeat": 7910,
+      "seed": 2001159133,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:7911:B:champion-reference",
+      "rank": 21,
+      "repeat": 7911,
+      "seed": 2634208460,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:7912:A:champion-reference",
+      "rank": 27,
+      "repeat": 7912,
+      "seed": 1331939746,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "27:7913:B:champion-reference",
+      "rank": 27,
+      "repeat": 7913,
+      "seed": 2633679023,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    }
+  ]
+}
