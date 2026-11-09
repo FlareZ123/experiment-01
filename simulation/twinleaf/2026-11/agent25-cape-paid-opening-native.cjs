@@ -18,7 +18,7 @@ const native=name=>require(path.join(OUT,name));
  * Energy attach, double attack and source defender's paid Guzma actions
  * remain genuine pinned Store dispatches.
  */
-function probe(seat){
+function probe(seat,hooks={}){
   assert.ok(seat===0||seat===1);
   const old=require('../../../tests/agent28-sentinel-direct-artazon-native.test.cjs');
   const x=old.stage(seat);
@@ -78,6 +78,7 @@ function probe(seat){
   assert.equal(x.state.prompts.filter(p=>p.result===undefined).length,0);
   verify();
 
+  if(hooks.prepareOpponent)hooks.prepareOpponent(x);
   const line=old.establishSentinelLock(x);
   assert.equal(line.two.attackCount,2);
   const vile=x.owner.bench.find(b=>
@@ -94,7 +95,8 @@ function probe(seat){
     sourceCapeAttached:true,sourceVileplumeEffectiveHp:hp.hp,
     sourceTMDeclaredAttacks:line.two.attackCount,sourceSupporterPlayed:
       x.owner.supporterTurn>0};
-  old.resolveRank1Guzma(x);
+  const reply=hooks.resolveReply?
+    hooks.resolveReply(x):old.resolveRank1Guzma(x);
   const shielded=x.f.store.state.players[seat].active;
   assert.equal(shielded.getPokemonCard()?.fullName,'Vileplume AOR');
   assert.equal(shielded.tools[0]?.fullName,'Luxurious Cape PAR');
@@ -110,6 +112,7 @@ function probe(seat){
       sourceVileplumeEffectiveHp:afterHp.hp,
       opponentUsedGuzma:x.f.store.state.players[1-seat].supporterTurn>0},
     conditionedOriginalOpposingGuzma:true,
+    reply,
     actualMaxGeistTestedSeparately:true,
     competitivelyQualifiedGames:0};
 }
