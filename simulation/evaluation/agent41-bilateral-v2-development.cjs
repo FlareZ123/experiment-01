@@ -1442,6 +1442,7 @@ function runDevelopment({
   actorGenesectFusionDrawPerCopyPublicUsage=false,
   actorUnderworldDoorRoot=false,
   actorPathUnderworldStadiumCounter=false,
+  actorMimikyuApexFundedPromotion=false,
   actorTempleDdeDenialRoot=false,
   actorArvenHoodSearchRoot=false,
   actorPathToPeakOpposingAbility=false,
@@ -1702,6 +1703,8 @@ function runDevelopment({
   assert.ok(!actorPathUnderworldStadiumCounter||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Path Stadium recovery requires the same owner-marked Underworld root in both seats');
+  assert.ok(!actorMimikyuApexFundedPromotion||actorOnlyComposition,
+    'Post-Apex Mimikyu promotion requires actor-only bilateral composition');
   assert.ok(!actorUnderworldActiveFundingPriority||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Active Psychic priority requires symmetric Underworld root');
@@ -1998,7 +2001,8 @@ function runDevelopment({
           !actorEarlyForestSealRoot&&!actorPaleMoonGXRoot&&
           !actorDceMewMobilityRoot&&!actorMewDceRecipientRoot&&
           !actorGenesectFusionDrawRoot&&
-          !actorUnderworldDoorRoot&&!actorTempleDdeDenialRoot&&
+          !actorUnderworldDoorRoot&&!actorMimikyuApexFundedPromotion&&
+          !actorTempleDdeDenialRoot&&
           !actorArvenHoodSearchRoot&&
           !actorFundedShadowRiderFloatStoneRoot&&
           !actorTwoUnitPaidRetreatRoot&&!actorTwoUnitPaidRetreatRootV2&&
@@ -2111,6 +2115,9 @@ function runDevelopment({
               }:{}),
               ...(actorPathUnderworldStadiumCounter?{
                 pathUnderworldStadiumCounter:true
+              }:{}),
+              ...(actorMimikyuApexFundedPromotion?{
+                mimikyuApexFundedPromotion:true,copycatHistoryRoot:true
               }:{}),
               ...(actorTempleDdeDenialRoot?{
                 templeDdeDenial:true
