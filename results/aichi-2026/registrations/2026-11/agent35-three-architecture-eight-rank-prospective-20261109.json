@@ -1,0 +1,538 @@
+{
+  "schema": "agent35-three-architecture-original-eight-rank-prospective-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE GAME",
+  "createdUTC": "2026-11-09T10:33:00Z",
+  "objective": "Aichi Top32 one fixed best 60: directly contrast champion Shadow Rider, Hood Shield Shadow Rider, and Iron Thorns/Mimikyu Safeguard under identical development policy across selected 8 authenticated original opponents.",
+  "design": "8 distinct authenticated original source ranks; two physical candidate seats each; one unique secure random 32-bit seed per rank/seat; three immutable candidate sixties per group; same paper semantics and native root limit; all caps and errors preserved; no outcome-based reselection.",
+  "sourceRanks": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    11,
+    24,
+    29
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "rootCap": 260,
+  "sourceGroups": [
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2876357553
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 189671554
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 775899589
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1509384272
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 4094006907
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1191382956
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3511254799
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 4088892531
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 1628238651
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 3168328906
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3498973276
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1819854396
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2088432520
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1541277347
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2815218793
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 2585448430
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2876357553,
+      "candidateId": "champion-reference",
+      "id": "1:3501:A:champion-reference"
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2876357553,
+      "candidateId": "hood-shield-v1",
+      "id": "1:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2876357553,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "1:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 189671554,
+      "candidateId": "champion-reference",
+      "id": "1:3501:B:champion-reference"
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 189671554,
+      "candidateId": "hood-shield-v1",
+      "id": "1:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 1,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 189671554,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "1:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 775899589,
+      "candidateId": "champion-reference",
+      "id": "2:3501:A:champion-reference"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 775899589,
+      "candidateId": "hood-shield-v1",
+      "id": "2:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 775899589,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "2:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1509384272,
+      "candidateId": "champion-reference",
+      "id": "2:3501:B:champion-reference"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1509384272,
+      "candidateId": "hood-shield-v1",
+      "id": "2:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 2,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1509384272,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "2:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 4094006907,
+      "candidateId": "champion-reference",
+      "id": "5:3501:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 4094006907,
+      "candidateId": "hood-shield-v1",
+      "id": "5:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 4094006907,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "5:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1191382956,
+      "candidateId": "champion-reference",
+      "id": "5:3501:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1191382956,
+      "candidateId": "hood-shield-v1",
+      "id": "5:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1191382956,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "5:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3511254799,
+      "candidateId": "champion-reference",
+      "id": "6:3501:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3511254799,
+      "candidateId": "hood-shield-v1",
+      "id": "6:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3511254799,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "6:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 4088892531,
+      "candidateId": "champion-reference",
+      "id": "6:3501:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 4088892531,
+      "candidateId": "hood-shield-v1",
+      "id": "6:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 4088892531,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "6:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 1628238651,
+      "candidateId": "champion-reference",
+      "id": "7:3501:A:champion-reference"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 1628238651,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 1628238651,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "7:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 3168328906,
+      "candidateId": "champion-reference",
+      "id": "7:3501:B:champion-reference"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 3168328906,
+      "candidateId": "hood-shield-v1",
+      "id": "7:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 7,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 3168328906,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "7:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3498973276,
+      "candidateId": "champion-reference",
+      "id": "11:3501:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3498973276,
+      "candidateId": "hood-shield-v1",
+      "id": "11:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 3498973276,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "11:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1819854396,
+      "candidateId": "champion-reference",
+      "id": "11:3501:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1819854396,
+      "candidateId": "hood-shield-v1",
+      "id": "11:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1819854396,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "11:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2088432520,
+      "candidateId": "champion-reference",
+      "id": "24:3501:A:champion-reference"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2088432520,
+      "candidateId": "hood-shield-v1",
+      "id": "24:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2088432520,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "24:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1541277347,
+      "candidateId": "champion-reference",
+      "id": "24:3501:B:champion-reference"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1541277347,
+      "candidateId": "hood-shield-v1",
+      "id": "24:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 24,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 1541277347,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "24:3501:B:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2815218793,
+      "candidateId": "champion-reference",
+      "id": "29:3501:A:champion-reference"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2815218793,
+      "candidateId": "hood-shield-v1",
+      "id": "29:3501:A:hood-shield-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "A",
+      "seed": 2815218793,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "29:3501:A:thorns-safeguard-pivot-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 2585448430,
+      "candidateId": "champion-reference",
+      "id": "29:3501:B:champion-reference"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 2585448430,
+      "candidateId": "hood-shield-v1",
+      "id": "29:3501:B:hood-shield-v1"
+    },
+    {
+      "rank": 29,
+      "repeat": 3501,
+      "candidateSlot": "B",
+      "seed": 2585448430,
+      "candidateId": "thorns-safeguard-pivot-v1",
+      "id": "29:3501:B:thorns-safeguard-pivot-v1"
+    }
+  ],
+  "sourceGroupCount": 16,
+  "nativeAttempts": 48,
+  "fixedContenders": [
+    {
+      "id": "champion-reference",
+      "origin": "full original Aichi rank1 exact sixty",
+      "sourceRank": 1,
+      "sourceRosterPath": "results/aichi-2026/full-decklists.json"
+    },
+    {
+      "id": "hood-shield-v1",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "gitBlobSha": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
+    },
+    {
+      "id": "thorns-safeguard-pivot-v1",
+      "path": "results/aichi-2026/candidate-iron-thorns-safeguard-pivot-v1.json",
+      "gitBlobSha": "eac9cfa9e52e956acc7230040aa6b21e9ab6e06a"
+    }
+  ],
+  "sourceRosterPath": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sharedPolicyPath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "sharedPolicyGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "paperProfile": "agent19-composed-paper-semantics-profile-v1",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidatePhysicalDealMatchedNotAssumed": true,
+  "sourcePhysicalDealMatchedBeforePairedInference": true,
+  "candidatePolicyIdenticalAcrossContenders": true,
+  "methodLimitations": "Developmental pinned native games only; generic two-seat policy and paper-incomplete card engine; no independently qualified competitive games or tournament-clock decisions; sharply censored source-matched comparisons; 8/29 authenticated ranks selected, 3 original ranks missing, not Top32 global win rate",
+  "competitivePaperGames": 0
+}
