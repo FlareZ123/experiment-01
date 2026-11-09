@@ -30,9 +30,9 @@ test('common bilateral runner forwards all three M4 hooks on both physical seats
     isolatePhysicalShuffleRandomnessAfterSetup:true
   });
   assert.equal(data.rows.length,2);
-  assert.equal(data.manifest.specialRedCardPaperPreselectionOptIn,true);
-  assert.equal(data.manifest.specialRedCardPaperCorrectionOptIn,true);
-  assert.equal(data.manifest.specialRedCardPaperSpeculativeShuffleOptIn,true);
+  assert.equal(data.specialRedCardPaperPreselectionOptIn,true);
+  assert.equal(data.specialRedCardPaperCorrectionOptIn,true);
+  assert.equal(data.specialRedCardPaperSpeculativeShuffleOptIn,true);
   for(const row of data.rows){
     assert.equal(row.specialRedCardPaperPreselection,true,
       'Genuine native rank5 root must carry owner-root M4 screen');
