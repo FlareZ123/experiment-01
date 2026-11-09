@@ -1,0 +1,55 @@
+name: Agent33 rank7 source Jet and Hood funding native competence
+
+on:
+  workflow_dispatch:
+    inputs:
+      study:
+        description: Run one bounded registered rank7 study
+        required: true
+        type: choice
+        default: staged-jet-faba
+        options:
+          - staged-jet-faba
+          - hood-active-funding-fresh16
+
+permissions:
+  contents: read
+
+jobs:
+  rank7-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Validate exact owner-only Faba branch and preregistration
+        run: node --test tests/2026-11/agent33-jet-vs-faba-postroot.test.cjs tests/2026-11/agent33-rank7-hood-active-funding-fresh16-contract.test.cjs tests/2026-11/agent33-shadow-active-funding-ledger-audit.test.cjs
+      - name: Staged original rank7 both-seat Jet VS Seeker Faba actor settlement
+        if: inputs.study == 'staged-jet-faba'
+        run: node --test tests/2026-11/agent33-rank7-jet-seeker-faba-full-actor.native.test.cjs tests/2026-11/agent33-rank7-artazon-jet-native.test.cjs
+      - name: Verify fresh rank7 original source matched seed registry
+        if: inputs.study == 'hood-active-funding-fresh16'
+        run: node simulation/evaluation/2026-11/agent33-rank7-hood-active-funding-fresh16.cjs --preflight
+      - name: Compare original rank7 fixed Hood with and without Active funding
+        if: inputs.study == 'hood-active-funding-fresh16'
+        run: node simulation/evaluation/2026-11/agent33-rank7-hood-active-funding-fresh16.cjs
+      - name: Preserve complete bounded native trials, including errors
+        if: ${{ always() && inputs.study == 'hood-active-funding-fresh16' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-rank7-fixed-hood-active-funding-fresh16-native
+          path: agent33-rank7-hood-active-funding-fresh16-native.json
+          if-no-files-found: warn
+          retention-days: 21
