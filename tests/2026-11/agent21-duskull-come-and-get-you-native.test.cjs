@@ -151,3 +151,37 @@ test('with zero discard targets, the optional attack stays payable and inert',()
   assert.equal(audit.noEligibleDiscard,1);
   assert.equal(audit.choicePrompts,0);
 });
+
+test('composed shared paper-semantics v2 accepts full-Bench Duskull and restores hooks',()=>{
+  const {withPaperSemanticsProfileV2Duskull,VERSION}=require(
+    '../../simulation/twinleaf/2026-11/agent21-paper-semantics-profile-v2-duskull.cjs');
+  const original=Duskull.prototype.reduceEffect;
+  const x=stage(0,{benchCount:5,discardCount:1});
+  const options={
+    celestialRoar:true,mewEnergyMix:true,attachEnergyTarget:true,
+    duskullComeAndGetYou:true
+  };
+  const {result,audit}=withPaperSemanticsProfileV2Duskull(()=>{
+    x.store.dispatch(new AttackAction(x.owner.id,'Come and Get You'));
+    return {active:x.owner.active.getPokemonCard()?.name,
+      occupied:x.owner.bench.filter(slot=>slot.cards.length>0).length};
+  },options);
+  assert.equal(result.active,'Duskull');
+  assert.equal(result.occupied,5);
+  assert.equal(audit.profile,VERSION);
+  assert.equal(audit.enabled.duskullComeAndGetYou,true);
+  assert.equal(audit.duskullComeAndGetYou.observedAttacks,1);
+  assert.equal(audit.duskullComeAndGetYou.emptyBenchSlots,1);
+  assert.equal(audit.coreProfile.profile,'agent19-composed-paper-semantics-profile-v1');
+  assert.equal(audit.paperQualifiedCompetitiveGames,0);
+  assert.strictEqual(Duskull.prototype.reduceEffect,original);
+});
+
+test('composed shared profile leaves original Duskull error when reducer remains off',()=>{
+  const {withPaperSemanticsProfileV2Duskull}=require(
+    '../../simulation/twinleaf/2026-11/agent21-paper-semantics-profile-v2-duskull.cjs');
+  const x=stage(1,{benchCount:5,discardCount:1});
+  assert.throws(()=>withPaperSemanticsProfileV2Duskull(()=>{
+    x.store.dispatch(new AttackAction(x.owner.id,'Come and Get You'));
+  },{duskullComeAndGetYou:false}),err=>err?.message==='CANNOT_USE_POWER');
+});
