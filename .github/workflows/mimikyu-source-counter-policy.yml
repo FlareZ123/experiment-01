@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ''
+      agent46_underworld_paper_target_test:
+        description: Test pinned native Underworld Door illegal non-Psychic Bench and reversible paper legality hook
+        type: boolean
+        required: false
+        default: false
       agent46_underworld_mimikyu_ab:
         description: Prospective original-source Underworld Door Psychic-to-Mimikyu 24-arm A/B
         type: boolean
@@ -142,6 +147,9 @@ jobs:
           name: agent46-underworld-mimikyu-energy-source-ab
           path: agent46-underworld-mimikyu-ab.json
           if-no-files-found: warn
+      - name: Optional native Underworld Door printed Psychic target paper-legal guard
+        if: inputs.agent46_underworld_paper_target_test == true
+        run: node --test tests/2026-11/agent46-underworld-paper-psychic-target-guard.native.test.cjs
       - name: Report bounded engine actions and public Copycat opportunities
         run: node -e "const x=require('./mimikyu-policy-diagnostic.json');console.log('Qualified win-rate evidence:',x.qualifiedWinRateEvidence);for(const r of x.rows)console.log(JSON.stringify({ranks:r.ranks,policy:r.policy,seed:r.seed,status:r.status,finished:r.finished,verifiedFirstTurn:r.verifiedFirstTurn,apex:r.actualApexDragonAttacks,copycat:r.actualCopycatAttacks,eligibleObservations:r.eligiblePublicChoiceObservations,error:r.error||null}))"
       - name: Preserve source-locked diagnostic
