@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const {chooseActorHandDiscard} = require('./agent47-actor-hand-discard.cjs');
+const {chooseActorHandDiscard} = require('../agent47-actor-hand-discard.cjs');
 
 const VERSION = 'agent47-owner-immediate-attack-fuel-v1';
 const DCE = 'Double Colorless Energy SUM';
