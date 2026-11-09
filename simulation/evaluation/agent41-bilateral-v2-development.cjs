@@ -1445,6 +1445,7 @@ function runDevelopment({
   actorBilateralLillieAfterPass=false,
   actorOwnerMailAfterPassScope=null,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
+  actorSeekerGuzmaNominalKo=false,
   actorRank9SpecialFundedGuzma=false,
   actorRank9CompressorOwnerBridge=false,
   actorRank9CompressorAnyTurn=false,
@@ -1531,6 +1532,9 @@ function runDevelopment({
     'Early Regidrago Bench funding requires canonical actor composition');
   assert.ok(!firstCrispinSeekerRecovery||mysteriousTreasureRoot,
     'First-turn Crispin recovery requires the enabled Treasure root');
+  assert.ok(!actorSeekerGuzmaNominalKo||
+    (actorOnlyComposition&&actorGuzmaPromptContinuation),
+    'VS Seeker Guzma tactic requires canonical owner root and Guzma prompts');
   assert.ok(!earlyRegidragoCompressor||actorOnlyComposition,
     'Early Regidrago Compressor requires canonical owner root');
   assert.ok(!actorPotentialKoRoot||actorOnlyComposition,
@@ -1873,6 +1877,7 @@ function runDevelopment({
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot&&
           !nativeOwnerTrainerFallback&&!ownerFallbackDiagnosticView&&
           !mysteriousTreasureRoot&&!actorPotentialKoRoot&&
+          !actorSeekerGuzmaNominalKo&&
           !bilateralPerfectionRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1941,6 +1946,9 @@ function runDevelopment({
               }:{}),
               ...(firstCrispinSeekerRecovery?{
                 firstCrispinSeekerRecovery:true
+              }:{}),
+              ...(actorSeekerGuzmaNominalKo?{
+                seekerGuzmaNominalKo:true
               }:{}),
               ...(earlyRegidragoCompressor?{
                 earlyRegidragoCompressor:true
@@ -2091,6 +2099,7 @@ function runDevelopment({
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             guzmaNominalGust:actorGuzmaNominalGust,
+            seekerGuzmaNominalKo:actorSeekerGuzmaNominalKo,
             rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
             ...(actorRank9CompressorOwnerBridge?{
               rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1),
