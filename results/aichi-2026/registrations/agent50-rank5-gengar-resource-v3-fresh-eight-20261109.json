@@ -1,0 +1,91 @@
+{
+  "schema": "agent50-perfection-preserving-gengar-v3-prospective-eight-v1",
+  "status": "FROZEN_BEFORE_V3_CODE_AND_NATIVE_EXECUTION",
+  "registrationUtc": "2026-11-09T15:30:32.760248Z",
+  "caseId": "agent50-20261109-rank5-gengar-v2-v3-eight-fresh",
+  "sourceOriginalRank": 5,
+  "candidateId": "new-moon-lockbreaker-v1",
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateManifest": "results/als/new-moon-perfection-source-60.json",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 320,
+  "seedMethod": "Eight fresh independent Python secrets.randbits(32), drawn before v3 code and trial implementation, distinct from previously exposed Agent44, Agent50 v1 and v2 seeds",
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 50801,
+      "candidateSlot": "A",
+      "seed": 3719950840,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50801:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50802,
+      "candidateSlot": "B",
+      "seed": 730366944,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50802:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50803,
+      "candidateSlot": "A",
+      "seed": 2078970193,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50803:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50804,
+      "candidateSlot": "B",
+      "seed": 2067774827,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50804:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50805,
+      "candidateSlot": "A",
+      "seed": 1433558872,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50805:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50806,
+      "candidateSlot": "B",
+      "seed": 1150641952,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50806:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50807,
+      "candidateSlot": "A",
+      "seed": 4062406568,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50807:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 50808,
+      "candidateSlot": "B",
+      "seed": 2951172,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:50808:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "commonPolicies": "Agent44 original source baseline, Agent8 v6 actor Mew DCE source funding, Agent41 frozen shared owner options and Lillie-after-Pass true. Same printed 60s, both seat assignment and source control unchanged.",
+  "control": {
+    "phase": "Gengar-flexible-v2",
+    "bilateralGengarFlexibleV2": true
+  },
+  "treatment": {
+    "phase": "Gengar-resource-v3",
+    "bilateralGengarResourceProtectedV3": true,
+    "policySpecification": "Call existing flexible Gengar v2 owner-only policy. If it proposes to use an own-held Basic Psychic or Telepathic Psychic Energy on Benched Gengar, and Active Mewtwo & Mew-GX has publicly usable Perfection, calculate newly affordable non-GX attack copied from a public GX donor on Bench or public owner discard using knownPerfectionReadyOptions on hypothetical owner Active after attachment. If currently unpayable but newly payable, let current shared actor policy allocate the Energy to active instead. No deck-order/Prize/hidden opponent access. Preserve all v2 behavior otherwise. Limit printed donor set to pinned knownPerfectionDonorCatalog; no blanket veto when Active has zero Energy. No side effects, deferred to actual native Store."
+  },
+  "outcomes": "All eight physically matched prospective v2/v3 pairs, both physical seats, all native errors/caps, actual accepted Gengar/Perfection root and physical attachment receipts, terminal winner and paper-zero qualification. Additionally permit separately labeled posthoc original v2 seed regression diagnostic. Do not pool original v2 exposed 8 with fresh prospective v3 for win-rate inference.",
+  "externalPaperReview": false
+}
