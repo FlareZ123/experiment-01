@@ -80,10 +80,21 @@ function attackSettlement(control, root) {
  */
 function sourceActionReceipt(treatment, root, sourceSeat) {
   const events = treatment.nativeAcceptedTargetSidecar?.events;
-  const event = Array.isArray(events) ? events.find(e =>
+  if (!Array.isArray(events)) return 'NO_NATIVE_SIDECAR';
+  // A receipt from another registered physical deal, turn, or card cannot
+  // certify this action even if the Store ordinal and action type coincide.
+  const event = events.find(e =>
+    e.trialId === treatment.trial?.id &&
+    e.sourceDealFingerprint === treatment.sourceDealFingerprint &&
+    e.fullPhysicalDealFingerprint === treatment.fullPhysicalDealFingerprint &&
     e.rootActionOrdinal === root.actionOrdinal &&
-    e.playerSlot === sourceSeat && e.action === root.action) : null;
-  if (!event) return 'NO_NATIVE_SIDECAR';
+    e.turnBefore === root.turnBefore &&
+    e.playerSlot === sourceSeat &&
+    e.action === root.action &&
+    (root.card === undefined || e.card === root.card) &&
+    (root.attack === undefined || e.attack === root.attack) &&
+    (root.ability === undefined || e.ability === root.ability));
+  if (!event) return 'NO_EXACT_NATIVE_RECEIPT';
   if (event.storeAccepted !== true) return 'NATIVE_STORE_REJECTED_OR_UNKNOWN';
   if (event.ownerInformationVerified === true &&
       event.paperPrintedPaymentVerified === true &&
@@ -152,6 +163,14 @@ function compareSourceFactor(control, challenger, sourceSeat, admitted) {
   if (a.action === 'ResolvePromptAction' ||
       b.action === 'ResolvePromptAction')
     return invalid('PROMPT_ONLY_FIRST_DIVERGENCE');
+  // Identical declared actions with different diagnostic annotations, targets,
+  // or unjoined effect metadata are not evidence of a changed choice. They
+  // require a separately joined parameter/settlement receipt before promotion.
+  if (a.action === b.action &&
+      a.card === b.card &&
+      a.attack === b.attack &&
+      a.ability === b.ability)
+    return invalid('SAME_ACTION_UNVERIFIED_VARIATION');
   const receipt = sourceActionReceipt(challenger,b,sourceSeat);
   const displacedAttack = a.action === 'AttackAction' ?
     {actionOrdinal:a.actionOrdinal,attack:a.attack ?? null,
