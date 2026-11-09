@@ -1,0 +1,163 @@
+{
+  "schema": "agent4-hood-physical-v3-native-arven-search-before-evaluation",
+  "registeredUtc": "2026-11-09T15:32:44.742408Z",
+  "hypothesis": "An owner-visible physically held Arven, played only when the target VMAX is untooled and Initialization is active, can convert original deck search into Hood attachment and later a paid Underworld action, beyond held-Hood priority alone",
+  "negativeHypothesis": "Arven may not be naturally held, searchable Hood may be prized or played, native prompt may fail, or Supporter opportunity cost may dominate useful attacks",
+  "control": "Both arms held-Hood Tool-preparation and protected Underworld owner policies; control does not opt into Arven Hood search",
+  "treatment": "Same plus actorArvenHoodSearchRoot true, genuine Store Arven and owner-deck prompted physical search",
+  "fixedCandidate": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "candidateRosterGitBlob": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+  "source": "Aichi Open League 2026 original rank 6 Iron Thorns sixty",
+  "sourceAndCandidateUnchanged": true,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeRootCap": 180,
+  "independentSeedDraws": [
+    3856238802,
+    4033751000,
+    984741015,
+    1646363904,
+    2777304561,
+    3173523025,
+    3457398020,
+    2739269966
+  ],
+  "physicalDealGroups": 16,
+  "nativeGameAttempts": 32,
+  "bothCandidateSeats": true,
+  "trialRows": [
+    {
+      "id": "6:1100:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1100,
+      "seed": 3856238802,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1101:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1101,
+      "seed": 3856238802,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1102:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1102,
+      "seed": 4033751000,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1103:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1103,
+      "seed": 4033751000,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1104:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1104,
+      "seed": 984741015,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1105:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1105,
+      "seed": 984741015,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1106:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1106,
+      "seed": 1646363904,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1107:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1107,
+      "seed": 1646363904,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1108:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1108,
+      "seed": 2777304561,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1109:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1109,
+      "seed": 2777304561,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1110:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1110,
+      "seed": 3173523025,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1111:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1111,
+      "seed": 3173523025,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1112:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1112,
+      "seed": 3457398020,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1113:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1113,
+      "seed": 3457398020,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1114:A:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1114,
+      "seed": 2739269966,
+      "candidateSlot": "A",
+      "candidateId": "hood-shield-v1"
+    },
+    {
+      "id": "6:1115:B:hood-shield-v1",
+      "rank": 6,
+      "repeat": 1115,
+      "seed": 2739269966,
+      "candidateSlot": "B",
+      "candidateId": "hood-shield-v1"
+    }
+  ],
+  "limits": [
+    "native Store acceptance is not independent paper validity",
+    "accepted Arven action is not physical tool recovery until prompt and subsequent receipt confirmed",
+    "no independently qualified games",
+    "capped outcome is not a game win"
+  ]
+}
