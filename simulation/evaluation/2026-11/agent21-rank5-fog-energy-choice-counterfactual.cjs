@@ -29,78 +29,51 @@ const FIRST23=process.env.AGENT21_RANK5_FIRST23_SHA256??
  */
 function withFirstCandidateFogEnergy(run){
   assert.equal(typeof run,'function');
-  const base=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
-  const {SimpleTacticsAi}=require(path.join(base,'simple-bot/simple-tactics-ai'));
-  const {Store}=require(path.join(base,'game/store/store'));
-  const {ResolvePromptAction}=require(path.join(base,
-    'game/store/actions/resolve-prompt-action'));
-  const originalDecode=Object.getOwnPropertyDescriptor(
-    SimpleTacticsAi.prototype,'decodeNextAction');
-  const originalDispatch=Object.getOwnPropertyDescriptor(
-    Store.prototype,'dispatch');
-  assert.equal(typeof originalDecode?.value,'function');
-  assert.equal(typeof originalDispatch?.value,'function');
-  const selected=new WeakMap();
-  let liveStore=null,accepted=false;
-  const audit={schema:'agent21-first-original-rank5-owner-fog-search-energy-v1',
+  const fog=require('../../twinleaf/agent9-fog-actor-prompt.cjs');
+  const original=Object.getOwnPropertyDescriptor(
+    fog,'withActorFogCrystalPrompt');
+  assert.equal(typeof original?.value,'function');
+  const audit={schema:'agent21-first-original-rank5-owner-fog-search-energy-v2',
     selectedCount:0,acceptedCount:0,rejectedCount:0,selection:[],
+    originalFogAdapter:fog.VERSION,
     trialSpecific:true,competitivePaperQualified:false};
-
-  function decode(state){
-    if(state!==liveStore?.state)return originalDecode.value.call(this,state);
-    const seat=state.players?.findIndex(p=>p.id===this.client?.id);
-    const prompt=state.prompts?.find(p=>p.result===undefined);
-    if(!accepted&&seat===1&&state.turn===2&&
-      prompt?.constructor?.name==='ChooseCardsPrompt'&&
-      prompt.playerId===this.client?.id&&
-      prompt.sourceCard?.fullName==='Fog Crystal CRE'&&
-      prompt.cards===state.players[seat].deck){
-      const energy=prompt.cards.cards.find(c=>
-        c.name==='Psychic Energy'&&c.energyType!==undefined&&
-        c.fullName==='Psychic Energy MEE'&&
-        prompt.validate([c],state)===true);
-      if(energy){
-        const action=new ResolvePromptAction(prompt.id,[energy]);
-        selected.set(action,{seat,turn:state.turn,promptId:prompt.id,
-          sourceCard:prompt.sourceCard.fullName,
-          selectedPrinting:energy.fullName,selectedPhysicalId:energy.id});
-        audit.selectedCount++;
-        return action;
+  function interceptedFog(runFog,deps){
+    const after=original.value.call(fog,runFog,{
+      ...(deps??{}),
+      choosePrinting:(view,offered)=>{
+        // A physical owner-deck search is already legally in progress.
+        // No opponent hidden zones, Prize contents, or post-search future
+        // state are consulted. The seat/turn scope is a one-deal diagnostic.
+        const energy=view.actorSeat===1&&view.globalTurn===2&&
+          audit.selectedCount===0?
+          offered.find(row=>row.permitted&&row.psychicEnergy):null;
+        if(energy){
+          audit.selectedCount++;
+          audit.selection.push({seat:view.actorSeat,turn:view.globalTurn,
+            ownerDeckSearch:view.pendingOwnerDeckSearch,
+            selectedPrinting:energy.printing,
+            otherPermittedOfferCount:offered.filter(row=>row.permitted).length});
+          return energy.printing;
+        }
+        return fog.chooseFogPrinting(view,offered);
       }
-    }
-    return originalDecode.value.call(this,state);
+    });
+    const native=(after.audit?.events??[]).filter(event=>
+      event.kind==='fog-search'&&event.seat===1&&event.turn===2&&
+      event.chosen==='Psychic Energy MEE');
+    audit.acceptedCount+=native.filter(e=>e.nativeStoreAccepted===true).length;
+    audit.rejectedCount+=native.filter(e=>e.nativeStoreAccepted===false).length;
+    audit.selection.push(...native.map(e=>({
+      type:'native-owner-prompt-dispatch',...e
+    })));
+    return after;
   }
-  function dispatch(action,...args){
-    if(action?.constructor?.name==='AddPlayerAction'&&!liveStore)
-      liveStore=this;
-    const receipt=this===liveStore?selected.get(action):null;
-    try{
-      const result=originalDispatch.value.call(this,action,...args);
-      if(receipt){
-        accepted=true;
-        audit.acceptedCount++;
-        audit.selection.push({...receipt,StoreAccepted:true});
-      }
-      return result;
-    }catch(error){
-      if(receipt){
-        audit.rejectedCount++;
-        audit.selection.push({...receipt,StoreAccepted:false,
-          error:String(error?.message??error)});
-      }
-      throw error;
-    }
-  }
-  Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
-    {...originalDecode,value:decode});
-  Object.defineProperty(Store.prototype,'dispatch',
-    {...originalDispatch,value:dispatch});
+  Object.defineProperty(fog,'withActorFogCrystalPrompt',
+    {...original,value:interceptedFog});
   try{return {result:run(),audit};}
   finally{
-    assert.strictEqual(Store.prototype.dispatch,dispatch);
-    Object.defineProperty(Store.prototype,'dispatch',originalDispatch);
-    assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
-    Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',originalDecode);
+    assert.strictEqual(fog.withActorFogCrystalPrompt,interceptedFog);
+    Object.defineProperty(fog,'withActorFogCrystalPrompt',original);
   }
 }
 
