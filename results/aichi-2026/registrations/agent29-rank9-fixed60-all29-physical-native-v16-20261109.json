@@ -1,0 +1,65 @@
+{
+  "schema": "agent29-original-rank9-fixed60-candidate-all29-unseen-native-v16",
+  "registeredAtUTC": "2026-11-09T10:18:30Z",
+  "randomSeedGeneration": "Actual Python secrets.token_hex(16) executed 2026-11-09T10:18 UTC before study; deterministic 32-bit seed derived per (rank, candidateSlot) via SHA256(`${masterSeed}|${rank}|${slot}`).readUInt32BE(0), fail on collisions",
+  "masterSeed": "748cf1710e2c8b154ec2431093382076",
+  "authenticatedOriginalSourceRanks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24,
+    26,
+    27,
+    29,
+    30,
+    31,
+    32
+  ],
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "fixed60Candidate": "Full original Aichi rank9 Shun Ito Mega Absol / Electrode exact 60; unchanged in all 58 games",
+  "candidateId": "agent29-rank9-original-fixed60",
+  "physicalSeatOrientations": [
+    "A",
+    "B"
+  ],
+  "repeatsByCandidateSeat": {
+    "A": 410,
+    "B": 411
+  },
+  "expectedGroups": 58,
+  "expectedNativeGames": 58,
+  "experiment": "Prospective fixed one-60 original Aichi rank9 versus each authenticated source opponent under owner-visible native source repair: actual paid Battle Compressor, two-VIP Ultra Ball, Benched Electrode Bomb, Float Stone, early Escape Rope; defender chooses its own switch under existing native policy. No card substitutions.",
+  "sourceOwnerSeatPolicy": "rank9CompressorOwnerSeat = trial candidate physical seat, with rank9 paid Bomb and source Rope default-on only for this opt-in study; all opponent original decks receive baseline public policy.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "cardPoolScope": "Aichi Japanese Extra BW-onward 2026 paper",
+  "notes": [
+    "No qualified games, all opponents provisional for exact paper printing; no 99.5% claim",
+    "Root caps and engine errors censored, all included",
+    "No opponent of unauthenticated original rank23,25,28 invented",
+    "No matched champion benchmark in this arm; candidate-only developmental discovery"
+  ],
+  "competitiveQualifiedGames": 0
+}
