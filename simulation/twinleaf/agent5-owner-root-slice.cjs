@@ -203,6 +203,10 @@ function rootPhysicalSnapshot(state,seat,intent){
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
+    ...(intent.kind==='play-mew-ultra-ball'?{
+      mewUltraBallSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
     ...(intent.kind==='play-quick-ball'?{
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -400,6 +404,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // Actual owner Item departure is visible before its Dragon donor prompt.
     // Donor card object moves require a separate native Store prompt receipt.
     return after.compressorSpent>before.compressorSpent&&
+      after.handCount<before.handCount?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-mew-ultra-ball'){
+    // The native physical Ultra Ball must leave the owner's hand and enter
+    // resolving Trainer/discard; subsequent two-card payment and own-deck
+    // search remain pending native prompts and require their own witnesses.
+    return after.mewUltraBallSpent>before.mewUltraBallSpent&&
       after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
