@@ -67,7 +67,7 @@ jobs:
       - name: Preflight fresh 32-game dual-fixed-sixty paper-core registration
         if: ${{ inputs.agent19_dualfixed_profile }}
         run: |
-          node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs
+          node --test tests/2026-11/agent19-paper-semantics-profile-v1.test.cjs tests/2026-11/agent19-dual-fixed60-cohort-admission.test.cjs
           node --check simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs
           node simulation/evaluation/2026-11/agent19-dual-fixed60-fourrank-paperprofile-native.cjs --inspect-only
       - name: Run both original-source seats for two fixed contenders under paper-core profile
