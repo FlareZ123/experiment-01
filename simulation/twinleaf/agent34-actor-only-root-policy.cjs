@@ -1806,6 +1806,23 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.eriPromptsProposed++;
       return decision.action;
     }
+    // Source-owner prompt for the physical Dialga Timeless-GX payload after
+    // Copycat of a real preceding Regidrago Apex. Other prompts retain the
+    // standard canonical resolver and its audit.
+    if(seat!==-1&&pending&&
+        audit.mimikyuApexFundedPromotionOptIn===true&&
+        pending.playerId===playerId){
+      const chosen=require(
+        './2026-11/agent6-funded-mimikyu-apex-promotion.cjs')
+          .chooseNativeMimikyuTimelessPrompt(
+            state,seat,pending,copycatHistoryByStore.get(nativeStore)??null);
+      if(chosen){
+        const {ResolvePromptAction}=deps.promptActions??
+          require(path.join(base,'game/store/actions/resolve-prompt-action'));
+        audit.mimikyuApexTimelessPromptSelected++;
+        return new ResolvePromptAction(pending.id,chosen);
+      }
+    }
     if(seat===-1||pending||state.activePlayer!==seat){
       if(pending&&state.players?.[seat]?.id===pending.playerId){
         audit.unsupportedPromptFallbacks++;
