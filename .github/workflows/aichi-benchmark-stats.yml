@@ -169,6 +169,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Audit source-only four-arm causal integrity, attack displacement and physical custody gates
+        run: node --test tests/2026-11/agent42-source-policy-causal-certificate.test.cjs
       - name: Verify Agent27 ADP Thorns opener veto regressions
         run: node --test tests/agent27-adp-thorns-opening-access-veto.test.cjs tests/agent27-adp-wondrous-source-tax.test.cjs
       - name: Regress funded Stadium planner with Dimension Valley Energy Drive and Thunder Mountain controls
