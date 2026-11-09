@@ -29,8 +29,11 @@ function audit(archived){
   assert.equal(archived.arms.length,3);
   const outputs=archived.arms.map((arm,index)=>{
     assert.equal(arm.roots.length,arm.physicalTape.postAcceptedRoots.length);
-    assert.equal(arm.candidateSeat,0);
-    assert.equal(arm.sourceSeat,1);
+    // Historical artifact versions can omit redundant seat fields. The
+    // frozen trial's candidateSlot A fixes candidate=0/source=1.
+    assert.equal(archived.trial.candidateSlot,'A');
+    if(arm.candidateSeat!==undefined)assert.equal(arm.candidateSeat,0);
+    if(arm.sourceSeat!==undefined)assert.equal(arm.sourceSeat,1);
     const result=postgameAttackModalityLedger({
       rootActionLedger:arm.roots,
       physicalZoneTape:arm.physicalTape,
