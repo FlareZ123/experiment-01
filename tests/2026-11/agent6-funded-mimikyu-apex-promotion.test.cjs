@@ -171,3 +171,44 @@ test('default actor root remains unchanged when no opt-in is supplied',()=>{
   const out=chooseActorRootIntent(view,catalog,{});
   assert.notEqual(out?.source,VERSION);
 });
+
+test('the same opt-in selects paid Copycat rather than Filch after promotion',()=>{
+  for(const seat of [0,1]){
+    const {view,catalog}=fixture(seat);
+    view.ownPublic.active=view.ownPublic.bench[0];
+    view.ownPublic.bench[0]=null;
+    const intent=chooseActorRootIntent(view,catalog,{
+      mimikyuApexFundedPromotion:true
+    });
+    assert.equal(intent?.kind,'attack');
+    assert.equal(intent?.attackName,'Copycat');
+    assert.equal(intent?.source,VERSION);
+    assert.equal(intent?.previousOpponentAttack,'Apex Dragon');
+    assert.equal(intent?.previousChoiceIndex,0);
+  }
+});
+
+test('unfunded or disqualified Active Copycat falls through without Apex priority',()=>{
+  const {view,catalog}=fixture();
+  view.ownPublic.active=view.ownPublic.bench[0];
+  view.ownPublic.bench[0]=null;
+  const apex=require(
+    '../../simulation/twinleaf/2026-11/agent6-funded-mimikyu-apex-promotion.cjs'
+  );
+  const choose=()=>apex.chooseFundedMimikyuApexCopycat(view,catalog);
+  assert.equal(choose()?.attackName,'Copycat');
+  view.ownPublic.active.energies=[E];
+  assert.equal(choose(),null);
+  view.ownPublic.active.energies=[E,E];
+  view.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.equal(choose(),null);
+  view.ownPublic.publicTurnRestrictions.gxUsed=false;
+  view.ownPublic.active.publicRestrictions.cannotAttackNextTurn=true;
+  assert.equal(choose(),null);
+  view.ownPublic.active.publicRestrictions.cannotAttackNextTurn=false;
+  view.ownPublic.discard=[];
+  assert.equal(choose(),null);
+  view.ownPublic.discard=[D];
+  view.publicEventReceipt.opponentCopycatChoices=[];
+  assert.equal(choose(),null);
+});
