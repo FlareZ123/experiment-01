@@ -403,6 +403,28 @@ for (const seat of [0, 1]) {
           'Hood leaves the AOR lock protected against this Item payoff');
         assert.notEqual(selected.reason,
           'jet-promote-wobbuffet-enable-robo-substitute');
+        // Adversarial forced Jet attachment: the owner policy must still
+        // refuse to follow up with Robo because protected Irritating Pollen
+        // continues to prohibit Items after Wobbuffet becomes Active.
+        const {PlayCardAction,PlayerType,SlotType} =
+          native('game/store/actions/play-card-action');
+        const jetIndex=x.originalPlayer.hand.cards.findIndex(c=>
+          c.id===x.jet.id);
+        const wobbIndex=x.originalPlayer.bench.findIndex(b=>
+          b.cards.some(c=>c.fullName===WOBB));
+        assert.ok(jetIndex>=0&&wobbIndex>=0);
+        x.store.dispatch(new PlayCardAction(x.originalPlayer.id,jetIndex,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+          index:wobbIndex
+        }));
+        settleRoutine(x);
+        assert.equal(x.originalPlayer.active.getPokemonCard()?.fullName,WOBB);
+        const following=chooseActorRootIntent(
+          actorObservation(x.store.state,seat),metadata(),{
+            jetPostRoboContinuation:true
+          });
+        assert.notEqual(following.kind,'play-robo-after-jet');
+        assertExactSixties(x);
         return;
       }
       assert.equal(direct?.reason,
