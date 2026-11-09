@@ -1439,6 +1439,7 @@ function runDevelopment({
   bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   bilateralGengarHorrorHouseTempo=false,
+  bilateralGengarHorrorHouseMinOpponentHandCount=0,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
   actorMewUltraBallRoot=false,actorMewUltraBallSearch=false,
@@ -2075,7 +2076,9 @@ function runDevelopment({
                 perfectionBenchFunding:true
               }:{}),
               ...(bilateralGengarHorrorHouseTempo?{
-                gengarHorrorHouseTempo:true
+                gengarHorrorHouseTempo:true,
+                gengarHorrorHouseMinOpponentHandCount:
+                  bilateralGengarHorrorHouseMinOpponentHandCount
               }:{}),
               ...(bilateralPerfectionTransitionRoot?{
                 perfectionTransitionRoot:true
