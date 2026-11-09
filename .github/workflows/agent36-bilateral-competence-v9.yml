@@ -159,6 +159,8 @@ jobs:
           node --check simulation/twinleaf/agent36-secret-box-four-category-native.cjs
           node --check simulation/twinleaf/agent49-owner-direct-fog-one-energy-reply.cjs
           node --check simulation/twinleaf/agent49-owner-direct-fog-one-energy-native.cjs
+          node --check simulation/twinleaf/agent15/owner-cursed-blast-prize-policy.cjs
+          node --check simulation/twinleaf/agent15/owner-cursed-blast-native-probe.cjs
           node --check simulation/twinleaf/agent49-rank31-dusknoir-cursed-blast-native.cjs
           node --check simulation/evaluation/agent43-v9-box-fog-oneprize-native.cjs
           node --check simulation/evaluation/agent43-native-box-ko-postsettlement-audit.cjs
@@ -216,6 +218,8 @@ jobs:
             tests/agent36-secret-box-four-category-native.test.cjs \
             tests/agent49-owner-direct-fog-one-energy-reply.test.cjs \
             tests/agent49-owner-direct-fog-one-energy-native.test.cjs \
+            tests/2026-11/agent15-owner-cursed-blast-prize-policy.test.cjs \
+            tests/2026-11/agent15-owner-cursed-blast-native-probe.test.cjs \
             tests/agent4-secret-box-paper-search-native.test.cjs \
             tests/agent43-native-box-ko-postsettlement-audit.test.cjs \
             tests/agent20-owner-pre-attack-ace-trainer.test.cjs \
