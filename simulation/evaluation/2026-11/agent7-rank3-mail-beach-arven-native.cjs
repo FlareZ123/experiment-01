@@ -135,6 +135,7 @@ function run({treasureBridge=false,confirmBridge=false,nestBridge=false,dedenneT
       nativeMotivateRejected:audit.nativeMotivateRejected,
       nativeMotivateUnsettled:audit.nativeMotivateUnsettled,
       nativeMotivateEvents:audit.nativeMotivateEvents,
+      nativeMotivateEncountered:audit.nativeMotivateEncountered,
       trialStatuses:trialStatuses(treatment)},
     completeMailBeachArvenPairs:pairs,
     physicallySettledThreeEffectSequence:qualified.length>0,
