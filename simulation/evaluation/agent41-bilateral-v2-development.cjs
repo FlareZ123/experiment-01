@@ -1409,7 +1409,8 @@ function runDevelopment({
   earlyRegidragoCompressor=false,bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
   firstBlockedPromptContractObserver=false,
-  actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
+  actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
+  actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorPotentialKoRoot=false,actorPotentialKoSourceOnly=false,
   actorOriginal29PrintedFidelity=false,
@@ -1562,6 +1563,8 @@ function runDevelopment({
     'Source-only Genesect draw requires the native actor draw root');
   assert.ok(!actorGenesectFusionDrawPerCopyPublicUsage||actorGenesectFusionDrawRoot,
     'Per-physical-copy Genesect marker mode requires native draw actor');
+  assert.ok(!actorMewGenesectQuickBallSearch||actorOnlySingleSearch,
+    'Mew/Genesect Quick Ball search requires owner-only search');
   assert.ok(!actorNaturalEvolutionSourceOnly||actorNaturalEvolutionRoot,
     'Source-only evolution requires the native actor evolution root');
   assert.ok(!actorDceMewMobilitySourceOnly||actorDceMewMobilityRoot,
@@ -2179,6 +2182,10 @@ function runDevelopment({
               vipAfterPass:actorVipAfterPassAdapter
             }:{})},
           {ownerSingleSearch:actorOnlySingleSearch,
+            ...(actorMewGenesectQuickBallSearch?{
+              ownerMewGenesectQuickBallSearchSeat:
+                1-(trial.candidateSlot==='A'?0:1)
+            }:{}),
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             preferMewGenesectTechnoBlastOwnerSeat:
               actorMewGenesectTechnoBlastSourceOnly?
