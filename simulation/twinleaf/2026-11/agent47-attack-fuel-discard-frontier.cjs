@@ -113,7 +113,6 @@ function proposeAttackFuelDiscard(input, catalog) {
       !Array.isArray(active.energies) || actor.globalTurn === 1 ||
       resources.energyPlayedTurn === actor.globalTurn ||
       resources.energyPlayLocked === true ||
-      own.publicTurnRestrictions?.specialEnergyPlayLocked === true ||
       own.publicTurnRestrictions?.attackLockTurnsRemaining > 0 ||
       active.publicRestrictions?.cannotAttackNextTurn === true ||
       active.specialConditions?.some(s => s === catalog.specialConditions?.ASLEEP ||
@@ -143,6 +142,8 @@ function proposeAttackFuelDiscard(input, catalog) {
   });
   if (attacks.length === 0) return receipt('no-unfunded-available-printed-attack');
   const candidateFuel = new Set(actor.ownHand.filter(printing => {
+    if (own.publicTurnRestrictions?.specialEnergyPlayLocked === true &&
+        !catalog.basicEnergies.has(printing)) return false;
     const units = energyUnits(printing, catalog, temple);
     return units && attacks.some(attack => paysPrintedCost(
       attack.cost, [...attached, ...units], colorless));
