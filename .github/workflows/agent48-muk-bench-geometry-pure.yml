@@ -48,7 +48,7 @@ jobs:
       - name: Real native both-seat double-Grimer Bench Muk response
         run: node simulation/twinleaf/agent48-double-grimer-bench-muk-native.cjs > agent48-double-grimer-native.json
       - name: Print physical custody result
-        run: node -e "const r=require('./agent48-double-grimer-native.json');console.log(JSON.stringify({decision:r.decision,attempts:r.attempts,rows:r.rows.map(x=>({seat:x.seat,activeGrimer:x.activeIsOriginalGrimer,benchMuk:x.benchedGrimerBecameMuk,discardedShake:x.shakeMovedFromHandToDiscard,late:x.activeSeatAfter,steps:x.steps}))},null,2))"
+        run: node -e "const r=require('./agent48-double-grimer-native.json');console.log(JSON.stringify({decision:r.decision,attempts:r.attempts,rows:r.rows.map(x=>({seat:x.seat,activeGrimer:x.activeIsOriginalGrimer,benchMuk:x.benchedGrimerBecameMuk,discardedShake:x.shakeMovedFromHandToDiscard,late:x.activeSeatAfter,steps:x.steps})),rope:r.rope?.map(x=>({seat:x.seat,extraBench:x.ropeTest.extraBench,mukForced:x.ropeTest.mukForcedActive,mukProtected:x.ropeTest.keptMukBenched,prompts:x.ropeTest.nativePromptResponses}))},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
