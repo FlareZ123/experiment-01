@@ -280,3 +280,47 @@ for (const seat of [0,1]) {
     assert.equal(audit.postconditionsMissing,0);
   });
 }
+
+test('printed Guzma source avoids public Omega Barrier on opponent Regirock',()=>{
+  const a=player(1,'A'),b=player(2,'B');
+  b.bench[0].getPokemonCard=()=>({
+    fullName:'Regirock XYP',
+    powers:[{name:'Ω Barrier',powerType:'ancient-trait'}]
+  });
+  b.bench[1].getPokemonCard=()=>({
+    fullName:'Wobbuffet PHF',powers:[]
+  });
+  const prompt=new ChoosePokemonPrompt(1,{
+    id:210,perspectivePlayerId:1,playerType:1,slots:[2]
+  });
+  prompt.sourceCard={name:'Guzma',fullName:'Guzma BUS'};
+  const state={phase:2,turn:23,players:[a,b],prompts:[prompt]};
+  const input=observe(state,0);
+  assert.equal(input.prompt.sourceTrainerName,'Guzma');
+  assert.deepEqual(input.prompt.offered.map(c=>c.side),
+    ['opponent','opponent']);
+  assert.deepEqual(input.prompt.offered.map(c=>c.printedTrainerBarrier),
+    [true,false]);
+  assert.deepEqual(chooseActorPokemon(input),{index:1});
+  assert.equal(JSON.stringify(input).includes('Regirock XYP'),false,
+    'detached test snapshot still draws only observed public printing');
+  prompt.sourceCard={name:'Boss\'s Orders',fullName:'Boss\'s Orders'};
+  const ordinary=observe(state,0);
+  assert.equal(ordinary.prompt.offered[0].printedTrainerBarrier,false);
+  assert.deepEqual(chooseActorPokemon(ordinary),{index:0});
+});
+
+test('all publicly blocked Guzma benches stay mandatory instead of illegal cancellation',()=>{
+  const state={phase:2,turn:30,
+    players:[player(1,'A'),player(2,'B')],prompts:[]};
+  for(const target of state.players[1].bench)
+    target.getPokemonCard=()=>({fullName:'Regirock XYP',
+      powers:[{name:'Ω Barrier'}]});
+  const pending=new ChoosePokemonPrompt(1,{id:211,
+    perspectivePlayerId:1,playerType:1,slots:[2]});
+  pending.sourceCard={name:'Guzma',fullName:'Guzma BUS'};
+  state.prompts=[pending];
+  const input=observe(state,0);
+  assert.ok(input.prompt.offered.every(x=>x.printedTrainerBarrier));
+  assert.deepEqual(chooseActorPokemon(input),{index:0});
+});
