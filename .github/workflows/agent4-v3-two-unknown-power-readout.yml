@@ -19,6 +19,7 @@ on:
           - neutral-v3-staged-native
           - neutral-v3-original16
           - neutral-v3-manual-fallback
+          - hood-owner-underworld-native
           - neutral-v3-new-natural32
         default: typed-replay
 
@@ -91,6 +92,11 @@ jobs:
         if: ${{ inputs.experiment == 'neutral-v3-manual-fallback' }}
         run: |
           node --test tests/2026-11/agent4-thorns-field-neutral-v3-native-manual-fallback.test.cjs
+      - name: Confirm Hood-restored owner-only Underworld source and genuine Store settlement
+        if: ${{ inputs.experiment == 'hood-owner-underworld-native' }}
+        run: |
+          node --check simulation/twinleaf/2026-11/agent4-hood-protected-underworld-owner-exception.cjs
+          node --test tests/2026-11/agent4-hood-protected-underworld-owner.test.cjs tests/2026-11/agent4-hood-protected-underworld-owner.native.test.cjs
       - name: Replay exact original-rank6 v2 versus broader v3 with printed physical deal parity
         if: ${{ inputs.experiment == 'neutral-v3-original16' }}
         env:
