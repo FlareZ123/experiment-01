@@ -87,9 +87,16 @@ test('source-only hook alters genuine owner root on either physical seat and lea
     }
     class Store{
       constructor(){
+        const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+          specialConditions:[],energies:{cards:[]},tools:[]});
+        const player=id=>({id,active:empty(),
+          bench:Array.from({length:5},empty),
+          hand:{cards:[]},deck:{cards:[]},prizes:[],
+          stadium:{cards:[]},discard:{cards:[]},
+          lostzone:{cards:[]},supporter:{cards:[]}});
         this.state={
           turn:8,phase:2,prompts:[],activePlayer:sourceSeat,
-          players:[{id:10},{id:11}]
+          players:[player(10),player(11)]
         };
       }
       dispatch(){return true;}
