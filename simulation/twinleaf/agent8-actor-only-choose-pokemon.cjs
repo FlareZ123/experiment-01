@@ -5,7 +5,7 @@ const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 
-const VERSION = 'agent8-actor-only-choose-pokemon-v3-native-trainer-target-filter';
+const VERSION = 'agent8-actor-only-choose-pokemon-v4-guzma-public-omega-barrier';
 const ANY = 0, TOP = 1, BOTTOM = 2;
 const ACTIVE = 1, BENCH = 2;
 const FACE_UP_PHASES = new Set([2, 3, 4, 5, 6, 8]);
@@ -62,7 +62,10 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
   const actor = observe(state, seat);
   assert.equal(actor.decisionKind, 'owner-prompt');
   const native = nativeSinglePokemonChoices(state, pending);
-  const offered = native.map(({seat: targetSeat, zone, index}, id) => {
+  // Store stamps the public played Trainer on the genuine pending prompt.
+  // Only the precise Guzma source warrants a special gust-target policy.
+  const sourceTrainerName = pending.sourceCard?.name ?? null;
+  const offered = native.map(({physical,seat: targetSeat, zone, index}, id) => {
     const board = targetSeat === seat ? actor.ownPublic : actor.opponentPublic;
     const pokemon = zone === 'active' ? board.active : board.bench[index];
     assert.ok(pokemon?.printing);
@@ -73,7 +76,14 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
       printing: pokemon.printing,
       remainingHp: pokemon.hp - pokemon.damage,
       attachedEnergyCount: pokemon.energies.length,
-      attackNames: Object.freeze(pokemon.attacks.map(attack => attack.name))
+      attackNames: Object.freeze(pokemon.attacks.map(attack => attack.name)),
+      // Face-up printed Ancient Traits remain public irrespective of player
+      // hand, deck, or Prize zones. Native prompt.validate alone does not
+      // model Regirock's Trainer-effect immunity.
+      printedTrainerBarrier:
+        sourceTrainerName === 'Guzma' && targetSeat !== seat &&
+        physical.getPokemonCard?.()?.powers?.some(power =>
+          power.name === 'Ω Barrier') === true
     });
   });
   return Object.freeze({
@@ -82,6 +92,7 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
       kind: 'ChoosePokemonPrompt',
       id: pending.id,
       message: pending.message ?? null,
+      sourceTrainerName,
       perspectiveIsAnsweringOwner:
         pending.getPerspectivePlayerId() === state.players[seat].id,
       offered: Object.freeze(offered),
@@ -100,7 +111,14 @@ function actorChoosePokemonInput(state, seat, observe = actorObservation) {
 function chooseActorPokemon(input) {
   assert.equal(input.actor?.decisionKind, 'owner-prompt');
   assert.equal(input.prompt.kind, 'ChoosePokemonPrompt');
-  if (input.prompt.offered.length) return {index: 0};
+  if (input.prompt.offered.length) {
+    if (input.prompt.sourceTrainerName === 'Guzma') {
+      const unblocked = input.prompt.offered.find(target =>
+        target.side === 'opponent' && !target.printedTrainerBarrier);
+      if (unblocked) return {index: unblocked.index};
+    }
+    return {index: 0};
+  }
   if (input.prompt.allowCancel) return {index: null};
   return null;
 }
@@ -183,6 +201,9 @@ function withActorOnlyChoosePokemon(execute, deps = {}) {
       choiceIndex: intent.index, offered: input.prompt.offered.length,
       selectedPrinting: intent.index === null ? null :
         input.prompt.offered[intent.index].printing,
+      selectedPrintedTrainerBarrier: intent.index === null ? null :
+        input.prompt.offered[intent.index].printedTrainerBarrier,
+      sourceTrainerName: input.prompt.sourceTrainerName,
       perspectiveIsAnsweringOwner: input.prompt.perspectiveIsAnsweringOwner
     };
     selected.set(action, {...record,physicalPendingPrompt:pending});
