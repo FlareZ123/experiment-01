@@ -89,7 +89,7 @@ for(const seat of [0,1]){
     assert.equal(original.owner.discard.cards.filter(c=>c.name==='Duskull').length,1);
     assert.throws(()=>original.store.dispatch(
       new AttackAction(original.owner.id,'Come and Get You')),
-    /CANNOT_USE_POWER/);
+    error=>error?.message==='CANNOT_USE_POWER');
 
     const before=Object.getOwnPropertyDescriptor(
       Duskull.prototype,'reduceEffect');
