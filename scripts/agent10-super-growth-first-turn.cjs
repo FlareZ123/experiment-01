@@ -236,4 +236,4 @@ if(require.main===module){
   console.log(JSON.stringify(run(samples),null,2));
 }
 module.exports={VERSION,SOURCE,CHALLENGER,ROWLET,BASIC,loadDeck,makePhysicalDeck,
-  shuffle,state,superGrowth,tmBarrage,wilson95,simulate,run};
+  xorshift32,shuffle,state,superGrowth,tmBarrage,wilson95,simulate,run};
