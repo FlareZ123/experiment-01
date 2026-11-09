@@ -5,6 +5,8 @@ const path = require('node:path');
 const {actorObservation} = require('../actor-observation-contract.cjs');
 const {chooseOwnerCursedBlastPrizeConversion:choose} =
   require('./owner-cursed-blast-prize-policy.cjs');
+const {ACE,chooseOwnerCursedBlastAceTrainerOpportunity:chooseAce} =
+  require('./owner-cursed-blast-ace-option.cjs');
 
 const VERSION = 'agent15-two-seat-real-store-cursed-blast-after-pass-v1';
 const OUTPUT = path.resolve(__dirname, '../../../vendor/twinleaf/ptcg-server/output');
@@ -43,15 +45,18 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
   const {Store}=native('game/store/store');
   const {UseAbilityAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-  const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
   const originalRun=headless.runMatch;
   assert.equal(typeof originalRun,'function');
   const awards=deps.awards??RULES;
+  const allowAceEnable=deps.allowAceEnable===true;
   const observeOwner=deps.observeOwner??actorObservation;
   assert.equal(typeof observeOwner,'function');
   const audit={version:VERSION,twoSeatOwnerOnly:true,enabled:true,
     games:0,ownerPassObservations:0,actionProposals:0,
     acceptedAbilityRoots:0,acceptedTargetReplies:0,
+    aceEnableOptIn:allowAceEnable,acceptedAceSupporters:0,
     nativeErrors:[],acceptedRootReceipts:[],
     qualifiedCompetitiveGames:0};
   function wrappedRun(request){
@@ -94,13 +99,31 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
         return priorBot.value.call(this,state);
       }
       if(state.activePlayer!==seat)return priorBot.value.call(this,state);
+      if(step?.stage==='play-ace'&&step.turn===state.turn){
+        const view=observeOwner(state,seat);
+        const index=owner.hand?.cards?.findIndex(c=>c.fullName===ACE)??-1;
+        if(index>=0&&view.ownPublic.prizeCount>
+            view.opponentPublic.prizeCount&&
+           view.ownTurnResources?.supporterPlayedTurn===0&&
+           view.ownTurnResources?.supporterPlayLocked!==true&&
+           owner.hand.cards[index].canPlay?.(live,state,owner)===true){
+          const action=new PlayCardAction(owner.id,index,{
+            player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BOARD,index:0
+          });
+          proposed.set(action,{kind:'native-ace',seat,ownerId:owner.id,
+            turn:state.turn,plan:step});
+          return action;
+        }
+        steps.delete(owner.id);
+      }
       // The upstream bot can do valuable work. Its choice remains priority.
       const ordinary=priorBot.value.call(this,state);
       if(ordinary?.constructor?.name!=='PassTurnAction')return ordinary;
       audit.ownerPassObservations++;
       if(step?.turn===state.turn)return ordinary;
       const view=observeOwner(state,seat);
-      const plan=choose(view,awards);
+      const plan=choose(view,awards)??
+        (allowAceEnable?chooseAce(view):null);
       if(!plan)return ordinary;
       const ability=new UseAbilityAction(owner.id,plan.abilityName,{
         player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
@@ -136,8 +159,14 @@ function withOwnerCursedBlastAfterPass(execute,deps={}){
         audit.acceptedAbilityRoots++;
         steps.set(selected.ownerId,{...selected.plan,stage:'target',
           turn:selected.turn});
-      }else{
+      }else if(selected.kind==='native-target'){
         audit.acceptedTargetReplies++;
+        if(selected.plan.mode==='ace-enable')
+          steps.set(selected.ownerId,{...selected.plan,stage:'play-ace',
+            turn:selected.turn});
+        else steps.delete(selected.ownerId);
+      }else if(selected.kind==='native-ace'){
+        audit.acceptedAceSupporters++;
         steps.delete(selected.ownerId);
       }
       if(audit.acceptedRootReceipts.length<100)
