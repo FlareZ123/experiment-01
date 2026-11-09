@@ -61,7 +61,10 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const choosePlan=deps.choosePlan??((view,catalog)=>{
     if(deps.seekerGuzmaNominalKo===true){
       const seeker=require('./agent31/late-seeker-guzma-prize.cjs')
-        .chooseLateSeekerGuzmaPrize(view,catalog);
+        .chooseLateSeekerGuzmaPrize(view,catalog,{
+          ownerSeat:deps.seekerGuzmaOwnerSeat??null,
+          globalTurn:deps.seekerGuzmaGlobalTurn??null
+        });
       if(seeker?.kind==='play-guzma-forced-nominal-ko')return seeker;
     }
     if(deps.rank9SpecialFundedGuzma===true){
