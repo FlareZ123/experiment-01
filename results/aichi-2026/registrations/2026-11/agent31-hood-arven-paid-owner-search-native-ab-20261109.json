@@ -1,0 +1,428 @@
+{
+  "schema": "agent31-hood-shield-arven-first-native-paid-search-ab-v1",
+  "status": "FROZEN BEFORE FIRST NATIVE STORE GAME",
+  "registeredAtUtc": "2026-11-09T07:57:26.286Z",
+  "candidateId": "agent31-hood-shield-arven-v1",
+  "candidateManifest": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "originalSourceRanks": [
+    6,
+    11,
+    24,
+    29
+  ],
+  "originalRoster": "results/aichi-2026/full-decklists.json",
+  "groups": [
+    {
+      "id": "6:20261109:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 2514507362,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261110:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 564697894,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261111:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 2077157520,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261112:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 442384391,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261113:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261113,
+      "candidateSlot": "A",
+      "seed": 1964949853,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261114:A:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261114,
+      "candidateSlot": "A",
+      "seed": 1507698285,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261109:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 3179477586,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261110:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 526548541,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261111:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 3084583900,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261112:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 2332267199,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261113:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261113,
+      "candidateSlot": "B",
+      "seed": 1338147696,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "6:20261114:B:agent31-hood-shield-arven-v1",
+      "rank": 6,
+      "repeat": 20261114,
+      "candidateSlot": "B",
+      "seed": 1232237240,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261109:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 3357018732,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261110:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 1094298452,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261111:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 2131283571,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261112:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 4285427133,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261113:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261113,
+      "candidateSlot": "A",
+      "seed": 3123105476,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261114:A:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261114,
+      "candidateSlot": "A",
+      "seed": 1854279308,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261109:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 2943465453,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261110:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 1285821142,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261111:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 1823770106,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261112:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 2518507763,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261113:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261113,
+      "candidateSlot": "B",
+      "seed": 3228171115,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "11:20261114:B:agent31-hood-shield-arven-v1",
+      "rank": 11,
+      "repeat": 20261114,
+      "candidateSlot": "B",
+      "seed": 928954211,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261109:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 743838891,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261110:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 2356170331,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261111:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 345083753,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261112:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 2092005287,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261113:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261113,
+      "candidateSlot": "A",
+      "seed": 612602517,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261114:A:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261114,
+      "candidateSlot": "A",
+      "seed": 2313154391,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261109:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 2459819454,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261110:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 3874225569,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261111:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 1868084570,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261112:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 1790427352,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261113:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261113,
+      "candidateSlot": "B",
+      "seed": 3553389900,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "24:20261114:B:agent31-hood-shield-arven-v1",
+      "rank": 24,
+      "repeat": 20261114,
+      "candidateSlot": "B",
+      "seed": 3574007825,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261109:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261109,
+      "candidateSlot": "A",
+      "seed": 63791747,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261110:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261110,
+      "candidateSlot": "A",
+      "seed": 4268163972,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261111:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261111,
+      "candidateSlot": "A",
+      "seed": 2076325496,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261112:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261112,
+      "candidateSlot": "A",
+      "seed": 1956611412,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261113:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261113,
+      "candidateSlot": "A",
+      "seed": 352191736,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261114:A:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261114,
+      "candidateSlot": "A",
+      "seed": 3029619144,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261109:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261109,
+      "candidateSlot": "B",
+      "seed": 1482246135,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261110:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261110,
+      "candidateSlot": "B",
+      "seed": 2358968472,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261111:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261111,
+      "candidateSlot": "B",
+      "seed": 1993191173,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261112:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261112,
+      "candidateSlot": "B",
+      "seed": 2491475467,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261113:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261113,
+      "candidateSlot": "B",
+      "seed": 4118340108,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    },
+    {
+      "id": "29:20261114:B:agent31-hood-shield-arven-v1",
+      "rank": 29,
+      "repeat": 20261114,
+      "candidateSlot": "B",
+      "seed": 2450562810,
+      "candidateId": "agent31-hood-shield-arven-v1"
+    }
+  ],
+  "nativeArms": 96,
+  "rootCap": 260,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceGroups": 48,
+  "sourceSeats": [
+    "A",
+    "B"
+  ],
+  "repetitionsPerRankSeat": 6,
+  "policyArms": [
+    {
+      "id": "control",
+      "arvenHoodSearch": false,
+      "heldHoodPriority": true,
+      "protectedHoodUnderworld": true
+    },
+    {
+      "id": "treatment",
+      "arvenHoodSearch": true,
+      "heldHoodPriority": true,
+      "protectedHoodUnderworld": true
+    }
+  ],
+  "commonPolicy": "Same Agent41 two-seat frozen policy, Agent19 three-component paper correction, owner Underworld Door, Float Stone and VS Seeker/Guzma",
+  "anticipatedDecisionTrigger": "own held Arven with untooled Benched Shadow Rider VMAX and public active Iron Thorns ex lock; real owner-deck prompt must validate actual Hood",
+  "physicalPairing": "entire initial deal fingerprint plus source deck and actual starter, same fixed printed sixty",
+  "competitiveGameQualification": 0,
+  "claimBoundary": "developmental native policy contrast only"
+}
