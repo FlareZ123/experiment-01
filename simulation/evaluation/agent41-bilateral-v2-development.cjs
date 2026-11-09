@@ -1438,6 +1438,7 @@ function runDevelopment({
   rank13SourceFirstOwnGrass=false,rank13SourceFirstOwnGrassSourceOnly=false,
   bilateralPerfectionRoot=false,
   bilateralPerfectionTransitionRoot=false,
+  bilateralGengarHorrorHouseTempo=false,
   firstBlockedPromptContractObserver=false,
   actorOnlySingleSearch=false,actorMewGenesectQuickBallSearch=false,
   actorMewUltraBallRoot=false,actorMewUltraBallSearch=false,
@@ -2014,6 +2015,7 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !bilateralPerfectionBenchFunding&&
           !bilateralPerfectionTransitionRoot&&
+          !bilateralGengarHorrorHouseTempo&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !sourceScopedStrandedMarnieRoot&&
@@ -2071,6 +2073,9 @@ function runDevelopment({
               }:{}),
               ...(bilateralPerfectionBenchFunding?{
                 perfectionBenchFunding:true
+              }:{}),
+              ...(bilateralGengarHorrorHouseTempo?{
+                gengarHorrorHouseTempo:true
               }:{}),
               ...(bilateralPerfectionTransitionRoot?{
                 perfectionTransitionRoot:true
