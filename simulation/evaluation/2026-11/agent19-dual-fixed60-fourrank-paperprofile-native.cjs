@@ -8,8 +8,6 @@ const frozen=require('../agent41-frozen-bilateral-development-v2.json');
 const {runDevelopment,validateRegisteredTrialGroups}=
   require('../agent41-bilateral-v2-development.cjs');
 const {classifyNativeAttempt}=require('../agent41-native-attempt-disposition.cjs');
-const {withIndependentSeatRng}=
-  require('../../twinleaf/agent19-independent-seat-rng.cjs');
 const {withPaperSemanticsProfileV1,VERSION:PROFILE_VERSION,PINNED_TWINLEAF}=
   require('../../twinleaf/2026-11/agent19-paper-semantics-profile-v1.cjs');
 
@@ -188,32 +186,34 @@ function run(){
   process.env[key]='true';
   let batch;
   try{
-    batch=withIndependentSeatRng(()=>withPaperSemanticsProfileV1(()=>
-      runDevelopment({
-        ...frozen.policyOptions,...registration.commonActorOptions,
-        registeredTrials:registration.registeredTrials,
-        registeredFrameName:VERSION,
-        allowAdditionalOriginalSourceRanks:true,
-        nativeRootActionLimit:registration.rootCap
-      }),registration.profileEnabled));
+    batch=withPaperSemanticsProfileV1(()=>runDevelopment({
+      ...frozen.policyOptions,...registration.commonActorOptions,
+      registeredTrials:registration.registeredTrials,
+      registeredFrameName:VERSION,
+      allowAdditionalOriginalSourceRanks:true,
+      nativeRootActionLimit:registration.rootCap,
+      isolatePolicyRandomness:true,
+      isolatePhysicalShuffleRandomnessAfterSetup:true
+    }),registration.profileEnabled);
   }finally{
     if(previous===undefined)delete process.env[key];
     else process.env[key]=previous;
   }
-  const native=batch.result.result;
+  const native=batch.result;
   assert.equal(native.attempted,32);
   assert.equal(native.rows.length,32);
-  assert.equal(batch.audit.matches,32);
   const rows=native.rows.map(diagnosis);
   assert.deepEqual(rows.map(x=>x.id),
     registration.registeredTrials.map(x=>x.id));
   const comparison=compare(rows);
   comparison.summary.sourceRank5EnergyMixProfileGlobalCount=
-    batch.result.audit.energyMixShuffle?.energyMixEffects??0;
+    batch.audit.energyMixShuffle?.energyMixEffects??0;
   const result={schema:VERSION,preflight,registration,
     nativeExecution:{runner:'agent41-bilateral-v2-development.cjs',
-      engine:PINNED_TWINLEAF,profileAudit:batch.result.audit,
-      independentSeatRngAudit:batch.audit,codeRevision:process.env.GITHUB_SHA??null},
+      engine:PINNED_TWINLEAF,profileAudit:batch.audit,
+      independentSeatRngAudit:null,
+      randomnessProtocol:'per-seat-policy-and-physical-shuffle-after-setup-prng-v1',
+      codeRevision:process.env.GITHUB_SHA??null},
     comparison,
     allNativeRows:native.rows,
     nativeActorPolicyQualification:'developmental-unverified',
@@ -224,7 +224,7 @@ function run(){
   archive(result);
   process.stdout.write('AGENT19_DUAL_FIXED60_PROSPECTIVE '+
     JSON.stringify({preflight,summary:comparison.summary,
-      perRank:comparison.perRank,profileAudit:batch.result.audit,
+      perRank:comparison.perRank,profileAudit:batch.audit,
       output:path.basename(OUTPUT)})+'\n');
   return result;
 }
